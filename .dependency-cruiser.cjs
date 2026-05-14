@@ -48,6 +48,14 @@ module.exports = {
       to: { dependencyTypes: ['npm-no-pkg', 'npm-unknown'] },
     },
     {
+      name: 'assistant-no-internal',
+      severity: 'error',
+      comment:
+        'Only @gamezilla/assistant/shared and @gamezilla/assistant/client are importable from outside the assistant package.',
+      from: { pathNot: '^packages/assistant/' },
+      to: { path: '^packages/assistant/src/(shared|client)/_internal/' },
+    },
+    {
       name: 'not-to-dev-dep-from-src',
       severity: 'error',
       from: {

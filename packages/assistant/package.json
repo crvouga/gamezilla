@@ -1,0 +1,23 @@
+{
+  "name": "@gamezilla/assistant",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./shared": "./src/shared/index.ts",
+    "./client": "./src/client/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings 0",
+    "tc": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@gamezilla/ui": "workspace:*",
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -31,6 +31,7 @@
     "@expo/metro-runtime": "catalog:",
     "@gamezilla/api": "workspace:*",
     "@gamezilla/app": "workspace:*",
+    "@gamezilla/assistant": "workspace:*",
     "@gamezilla/auth": "workspace:*",
     "@gamezilla/chess": "workspace:*",
     "@gamezilla/client-config": "workspace:*",

@@ -23,6 +23,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@gamezilla/assistant": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/room": "workspace:*",

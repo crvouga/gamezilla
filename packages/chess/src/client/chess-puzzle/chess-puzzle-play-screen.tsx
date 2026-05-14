@@ -1,3 +1,4 @@
+import { SpeakingAvatarAssistant } from '@gamezilla/assistant/client';
 import type { PatchDbQuery } from '@gamezilla/patch-db/interface';
 import {
   useEntityAttribute,
@@ -14,7 +15,6 @@ import {
   IconButton,
   IconSymbol,
   Pressable,
-  SpeakingAvatar,
   Text,
   useTheme,
 } from '@gamezilla/ui';
@@ -38,9 +38,8 @@ import {
 } from '../../shared/chess-puzzle-session';
 import { ChessBoard } from '../chess-board/chess-board';
 
-import { getPuzzlePlayDialog } from './chess-puzzle-play-dialog';
+import { useChessPuzzleAssistant } from '../assistant/use-chess-puzzle-assistant';
 import { usePuzzleSolver } from './use-chess-puzzle-solver';
-import { usePuzzleDialogEvent } from './use-puzzle-dialog-event';
 
 const BOARD_MAX_WIDTH = 720;
 const BACK_BUTTON_SIZE = 40;
@@ -184,20 +183,18 @@ function ResetPuzzleButton({ onPress }: { onPress: () => void }): ReactNode {
 
 function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
   const dispatch = useSpaceRoomDispatch();
-  const { i18n } = useLingui();
   const { fen, movesStr, themes } = usePuzzleEntity(puzzleId);
 
   const { displayFen, layoutKey, status, orientation, onMove, solveIdx } =
     usePuzzleSolver({ fen, movesStr, puzzleId });
 
-  const dialogEvent = usePuzzleDialogEvent({ status, solveIdx });
-  // `dialogEvent === null` while the puzzle is loading. Pass an empty
-  // string so `SpeakingAvatar` stays mounted (the bubble's fixed height
-  // keeps the chess board from shifting) but says nothing.
-  const coachMessage =
-    dialogEvent !== null
-      ? i18n._(getPuzzlePlayDialog(dialogEvent, themes))
-      : '';
+  const assistant = useChessPuzzleAssistant({
+    puzzleId,
+    status,
+    solveIdx,
+    themes,
+    layoutKey,
+  });
 
   const backToPuzzleMenu = useCallback(() => {
     dispatch(ClearChessPuzzlePlay({}));
@@ -221,7 +218,7 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
         }}
         style={{ width: '100%' }}
       >
-        <SpeakingAvatar message={coachMessage} />
+        <SpeakingAvatarAssistant assistant={assistant} />
         <ChessBoard
           controlled
           fen={displayFen ?? ''}

@@ -33,7 +33,13 @@
       "@gamezilla/spaces/*": ["./packages/spaces/src/*"],
       "@gamezilla/tts/*": ["./packages/tts/src/*"],
       "@gamezilla/client-config/*": ["./packages/client-config/src/*"],
-      "@gamezilla/app/*": ["./packages/app/src/*"]
+      "@gamezilla/app/*": ["./packages/app/src/*"],
+      "@gamezilla/assistant/shared": [
+        "./packages/assistant/src/shared/index.ts"
+      ],
+      "@gamezilla/assistant/client": [
+        "./packages/assistant/src/client/index.ts"
+      ]
     }
   },
   "include": [
@@ -72,6 +78,8 @@
     "packages/client-config/scripts/**/*.ts",
     "packages/app/src/**/*.ts",
     "packages/app/src/**/*.tsx",
+    "packages/assistant/src/**/*.ts",
+    "packages/assistant/src/**/*.tsx",
     "packages/turbo-cache/src/**/*.ts",
     "packages/stripe-cli/src/**/*.ts",
     "packages/pg/src/**/*.ts",

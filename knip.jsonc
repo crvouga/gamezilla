@@ -52,6 +52,7 @@
     "turbo",
     "typescript-eslint",
     "@gamezilla/api",
+    "@gamezilla/assistant",
     "@gamezilla/chess",
     "@gamezilla/profile",
   ],

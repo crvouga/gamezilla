@@ -1,16 +1,12 @@
 /**
- * Coach line content (data only) for {@link getPuzzlePlayDialog}.
- *
- * Simplified: short, accurate, chess.com-style messages.
- * Theme hints are kept generic enough to always be correct.
+ * Lingui row data for puzzle assistant (refs assigned in registry module).
  */
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import type { ChessPuzzleTheme } from '../../shared/chess-puzzle-themes';
-import type { DialogEvent } from './chess-puzzle-play-dialog-event';
 
 type ThemedEntry = readonly [ChessPuzzleTheme, MessageDescriptor];
-type FallbackEntry = readonly [DialogEvent, MessageDescriptor];
+type FallbackEntry = readonly [string, MessageDescriptor];
 
 export const FALLBACK_ENTRIES: readonly FallbackEntry[] = [
   ['invalid', msg`Couldn't load that puzzle.`],

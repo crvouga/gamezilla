@@ -329,7 +329,7 @@ msgstr "Add Shape"
 msgid "Admin Metrics"
 msgstr "Admin Metrics"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Advantage converted! Well done."
 msgstr "Advantage converted! Well done."
 
@@ -417,7 +417,7 @@ msgstr "Always"
 #~ msgid "Anastasia's mate — textbook."
 #~ msgstr "Anastasia's mate — textbook."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Anastasia's mate! Well done."
 msgstr "Anastasia's mate! Well done."
 
@@ -474,7 +474,7 @@ msgstr "Appearance"
 #~ msgid "Arabian mate idea — knight in the corner."
 #~ msgstr "Arabian mate idea — knight in the corner."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Arabian mate! Nice work."
 msgstr "Arabian mate! Nice work."
 
@@ -506,13 +506,13 @@ msgstr "Are you sure you want to delete the local database? All todos and lists 
 msgid "Arrows"
 msgstr "Arrows"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Attack converted! Well done."
 msgstr "Attack converted! Well done."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Attack the exposed king."
 msgstr "Attack the exposed king."
 
@@ -571,7 +571,7 @@ msgstr "Back"
 #~ msgid "Back rank is the weakness here. King has no luft."
 #~ msgstr "Back rank is the weakness here. King has no luft."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Back rank mate! Well done."
 msgstr "Back rank mate! Well done."
 
@@ -640,7 +640,7 @@ msgstr "Background colors"
 #~ msgid "Balestra mate — beautifully coordinated."
 #~ msgstr "Balestra mate — beautifully coordinated."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Balestra mate! Well done."
 msgstr "Balestra mate! Well done."
 
@@ -733,7 +733,7 @@ msgstr "Bishop"
 msgid "Black"
 msgstr "Black"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Blind swine mate! Excellent."
 msgstr "Blind swine mate! Excellent."
 
@@ -769,7 +769,7 @@ msgstr "Bluetooth"
 #~ msgid "Boden's mate: crossed bishop diagonals."
 #~ msgstr "Boden's mate: crossed bishop diagonals."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Boden's mate! Well done."
 msgstr "Boden's mate! Well done."
 
@@ -825,7 +825,7 @@ msgstr "Both"
 msgid "bright"
 msgstr "bright"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Brilliant!"
 msgstr "Brilliant!"
 
@@ -936,39 +936,39 @@ msgstr "Checking…"
 #~ msgid "Checkmate delivered. Well played."
 #~ msgstr "Checkmate delivered. Well played."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Checkmate in five moves."
 msgstr "Checkmate in five moves."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Checkmate in five! Outstanding."
 msgstr "Checkmate in five! Outstanding."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Checkmate in four moves."
 msgstr "Checkmate in four moves."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Checkmate in four! Great job."
 msgstr "Checkmate in four! Great job."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Checkmate in one move."
 msgstr "Checkmate in one move."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Checkmate in three moves."
 msgstr "Checkmate in three moves."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Checkmate in three! Excellent."
 msgstr "Checkmate in three! Excellent."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Checkmate in two moves."
 msgstr "Checkmate in two moves."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Checkmate in two! Well done."
 msgstr "Checkmate in two! Well done."
 
@@ -980,8 +980,8 @@ msgstr "Checkmate in two! Well done."
 #~ msgid "Checkmate! Crisp finish."
 #~ msgstr "Checkmate! Crisp finish."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Checkmate! Well done."
 msgstr "Checkmate! Well done."
 
@@ -1239,7 +1239,7 @@ msgstr "Copy to clipboard"
 msgid "CopyToClipboardField"
 msgstr "CopyToClipboardField"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Corner mate! Well done."
 msgstr "Corner mate! Well done."
 
@@ -1283,7 +1283,7 @@ msgstr "Corner mate! Well done."
 #~ msgid "Couldn't load that one — let's try a different puzzle."
 #~ msgstr "Couldn't load that one — let's try a different puzzle."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Couldn't load that puzzle."
 msgstr "Couldn't load that puzzle."
 
@@ -1307,7 +1307,7 @@ msgstr "Created"
 #~ msgid "Crossed bishops — think Boden."
 #~ msgstr "Crossed bishops — think Boden."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Crushing finish! Well done."
 msgstr "Crushing finish! Well done."
 
@@ -1385,7 +1385,7 @@ msgstr "Decrement"
 #~ msgid "Deep combination flowing — don't lose focus."
 #~ msgstr "Deep combination flowing — don't lose focus."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Deep line found! Excellent."
 msgstr "Deep line found! Excellent."
 
@@ -1578,7 +1578,7 @@ msgstr "Disconnected"
 #~ msgid "Discovered attack wins material. Who moves?"
 #~ msgstr "Discovered attack wins material. Who moves?"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Discovered attack! Well done."
 msgstr "Discovered attack! Well done."
 
@@ -1590,7 +1590,7 @@ msgstr "Discovered attack! Well done."
 #~ msgid "Discovered check — pick the front piece carefully."
 #~ msgstr "Discovered check — pick the front piece carefully."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Discovered check! Nice work."
 msgstr "Discovered check! Nice work."
 
@@ -1714,7 +1714,7 @@ msgstr "Display name shown in the app"
 #~ msgid "Double check! King must move — find it."
 #~ msgstr "Double check! King must move — find it."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Double check! Well done."
 msgstr "Double check! Well done."
 
@@ -1734,7 +1734,7 @@ msgstr "Double check! Well done."
 #~ msgid "Dovetail mate — beautiful pattern."
 #~ msgstr "Dovetail mate — beautiful pattern."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Dovetail mate! Nice work."
 msgstr "Dovetail mate! Nice work."
 
@@ -1940,7 +1940,7 @@ msgstr "entityType (optional)"
 #~ msgid "Epaulette in place. The king's pieces betray it."
 #~ msgstr "Epaulette in place. The king's pieces betray it."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Epaulette mate! Well done."
 msgstr "Epaulette mate! Well done."
 
@@ -2008,10 +2008,10 @@ msgstr "Everyone will leave this space. This cannot be undone."
 #~ msgid "Exactly. Now what follows?"
 #~ msgstr "Exactly. Now what follows?"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Excellent!"
 msgstr "Excellent!"
 
@@ -2103,173 +2103,173 @@ msgstr "Filter loaded rows (id or attributes)…"
 msgid "Filter types…"
 msgstr "Filter types…"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find Anastasia's mate."
 msgstr "Find Anastasia's mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find Boden's mate."
 msgstr "Find Boden's mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find Morphy's mate."
 msgstr "Find Morphy's mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find Pillsbury's mate."
 msgstr "Find Pillsbury's mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the advantage."
 msgstr "Find the advantage."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the Arabian mate."
 msgstr "Find the Arabian mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the back rank mate."
 msgstr "Find the back rank mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the Balestra mate."
 msgstr "Find the Balestra mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the best defense."
 msgstr "Find the best defense."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the best move."
 msgstr "Find the best move."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the blind swine mate."
 msgstr "Find the blind swine mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the checkmate in five."
 msgstr "Find the checkmate in five."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the checkmate in four."
 msgstr "Find the checkmate in four."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the checkmate in three."
 msgstr "Find the checkmate in three."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the checkmate in two."
 msgstr "Find the checkmate in two."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the checkmate."
 msgstr "Find the checkmate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the corner mate."
 msgstr "Find the corner mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the deflection."
 msgstr "Find the deflection."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the discovered attack."
 msgstr "Find the discovered attack."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the discovered check."
 msgstr "Find the discovered check."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the double check."
 msgstr "Find the double check."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the dovetail mate."
 msgstr "Find the dovetail mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the epaulette mate."
 msgstr "Find the epaulette mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the fork."
 msgstr "Find the fork."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the hanging piece."
 msgstr "Find the hanging piece."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the hook mate."
 msgstr "Find the hook mate."
 
@@ -2285,7 +2285,7 @@ msgstr "Find the hook mate."
 #~ msgid "Find the move that forces the lineup."
 #~ msgstr "Find the move that forces the lineup."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the opera mate."
 msgstr "Find the opera mate."
 
@@ -2297,11 +2297,11 @@ msgstr "Find the opera mate."
 #~ msgid "Find the pin and exploit it."
 #~ msgstr "Find the pin and exploit it."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the pin."
 msgstr "Find the pin."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the skewer."
 msgstr "Find the skewer."
 
@@ -2309,23 +2309,23 @@ msgstr "Find the skewer."
 #~ msgid "Find the smother. Knight delivers last."
 #~ msgstr "Find the smother. Knight delivers last."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the smothered mate."
 msgstr "Find the smothered mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the swallow's tail mate."
 msgstr "Find the swallow's tail mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the trapped piece."
 msgstr "Find the trapped piece."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the winning move."
 msgstr "Find the winning move."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Find the winning sacrifice."
 msgstr "Find the winning sacrifice."
 
@@ -2429,7 +2429,7 @@ msgstr "First seen"
 #~ msgid "Forked them. Nice eye."
 #~ msgstr "Forked them. Nice eye."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Found the master move! Well done."
 msgstr "Found the master move! Well done."
 
@@ -2859,7 +2859,7 @@ msgstr "Go to {target}"
 #~ msgid "Good eye — cash it in."
 #~ msgstr "Good eye — cash it in."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good eye! Well done."
 msgstr "Good eye! Well done."
 
@@ -2867,132 +2867,132 @@ msgstr "Good eye! Well done."
 #~ msgid "Good eye. Now cash it in."
 #~ msgstr "Good eye. Now cash it in."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Almost there."
 msgstr "Good job! Almost there."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Bring it home."
 msgstr "Good job! Bring it home."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Collect it."
 msgstr "Good job! Collect it."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Collect the piece."
 msgstr "Good job! Collect the piece."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Finish it."
 msgstr "Good job! Finish it."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Finish strong."
 msgstr "Good job! Finish strong."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Follow through."
 msgstr "Good job! Follow through."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Hold on."
 msgstr "Good job! Hold on."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Keep attacking."
 msgstr "Good job! Keep attacking."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Keep going."
 msgstr "Good job! Keep going."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Move in."
 msgstr "Good job! Move in."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Now deliver the mate."
 msgstr "Good job! Now deliver the mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Press on."
 msgstr "Good job! Press on."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Seal it."
 msgstr "Good job! Seal it."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Squeeze them."
 msgstr "Good job! Squeeze them."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Stay alert."
 msgstr "Good job! Stay alert."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Stay focused."
 msgstr "Good job! Stay focused."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Stay precise."
 msgstr "Good job! Stay precise."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Strike now."
 msgstr "Good job! Strike now."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Take the prize."
 msgstr "Good job! Take the prize."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Take the target."
 msgstr "Good job! Take the target."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good job! Win the piece."
 msgstr "Good job! Win the piece."
 
@@ -3008,7 +3008,7 @@ msgstr "Good job! Win the piece."
 #~ msgid "Good move — stay coordinated."
 #~ msgstr "Good move — stay coordinated."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Good try. Keep looking."
 msgstr "Good try. Keep looking."
 
@@ -3036,11 +3036,11 @@ msgstr "Gradient"
 msgid "Gradient rotation (°)"
 msgstr "Gradient rotation (°)"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Great defense! Well done."
 msgstr "Great defense! Well done."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Great job!"
 msgstr "Great job!"
 
@@ -3148,7 +3148,7 @@ msgstr "Guests"
 #~ msgid "Hmm, we couldn't load that one. Let's try a different puzzle."
 #~ msgstr "Hmm, we couldn't load that one. Let's try a different puzzle."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Hold on. Find the best move."
 msgstr "Hold on. Find the best move."
 
@@ -3176,7 +3176,7 @@ msgstr "Hold on. Find the best move."
 #~ msgid "Hook mate: knight, rook, and pawn."
 #~ msgstr "Hook mate: knight, rook, and pawn."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Hook mate! Excellent."
 msgstr "Hook mate! Excellent."
 
@@ -3298,7 +3298,7 @@ msgstr "Join this space to see who is here and hang out."
 #~ msgid "Just stay solid and level things out."
 #~ msgstr "Just stay solid and level things out."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Keep going."
 msgstr "Keep going."
 
@@ -3553,13 +3553,13 @@ msgstr "Leave space"
 msgid "Leave space?"
 msgstr "Leave space?"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Let's try a different puzzle."
 msgstr "Let's try a different puzzle."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Let's try again."
 msgstr "Let's try again."
 
@@ -3567,7 +3567,7 @@ msgstr "Let's try again."
 #~ msgid "Let's try again. Mistakes are part of learning."
 #~ msgstr "Let's try again. Mistakes are part of learning."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Let's try again. Try every check."
 msgstr "Let's try again. Try every check."
 
@@ -3710,7 +3710,7 @@ msgstr "login"
 #~ msgid "Look again — what move attacks two pieces?"
 #~ msgstr "Look again — what move attacks two pieces?"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Look at the whole board."
 msgstr "Look at the whole board."
 
@@ -3830,6 +3830,10 @@ msgstr "Matchmaking"
 #~ msgid "Mate found. Beautiful work."
 #~ msgstr "Mate found. Beautiful work."
 
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payloads.ts
+msgid "Mate in five — deep but doable."
+msgstr "Mate in five — deep but doable."
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Mate in five. Picture the final position first."
 #~ msgstr "Mate in five. Picture the final position first."
@@ -3850,6 +3854,10 @@ msgstr "Matchmaking"
 #~ msgid "Mate in four. Drive the king somewhere worse."
 #~ msgstr "Mate in four. Drive the king somewhere worse."
 
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payloads.ts
+msgid "Mate in four. Stay sharp through the line."
+msgstr "Mate in four. Stay sharp through the line."
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Mate in four. Walk the king down one step at a time."
 #~ msgstr "Mate in four. Walk the king down one step at a time."
@@ -3865,6 +3873,10 @@ msgstr "Matchmaking"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Mate in three — checks and threats only."
 #~ msgstr "Mate in three — checks and threats only."
+
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payloads.ts
+msgid "Mate in three. Build your idea step by step."
+msgstr "Mate in three. Build your idea step by step."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Mate in three. Every move should be forcing."
@@ -3893,6 +3905,10 @@ msgstr "Matchmaking"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Mate in two. Picture both moves before you play."
 #~ msgstr "Mate in two. Picture both moves before you play."
+
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payloads.ts
+msgid "Mate in two. Take your time on the first move."
+msgstr "Mate in two. Take your time on the first move."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Mate in two. The first move sets up the finish."
@@ -4046,7 +4062,7 @@ msgstr "More"
 #~ msgid "Morphy's mate idea. Bishop and rook, beautiful."
 #~ msgstr "Morphy's mate idea. Bishop and rook, beautiful."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Morphy's mate! Beautiful."
 msgstr "Morphy's mate! Beautiful."
 
@@ -4107,7 +4123,7 @@ msgstr "Network reachability and API server health"
 msgid "New version available — reload to update"
 msgstr "New version available — reload to update"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice castling! Well done."
 msgstr "Nice castling! Well done."
 
@@ -4115,12 +4131,12 @@ msgstr "Nice castling! Well done."
 #~ msgid "Nice catch with en passant. Keep going."
 #~ msgstr "Nice catch with en passant. Keep going."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice checkmate!"
 msgstr "Nice checkmate!"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice deflection! Well done."
 msgstr "Nice deflection! Well done."
 
@@ -4128,195 +4144,195 @@ msgstr "Nice deflection! Well done."
 #~ msgid "Nice en passant — keep going."
 #~ msgstr "Nice en passant — keep going."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice en passant! Well done."
 msgstr "Nice en passant! Well done."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice fork! Well done."
 msgstr "Nice fork! Well done."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice in-between move! Well done."
 msgstr "Nice in-between move! Well done."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice pin! Well done."
 msgstr "Nice pin! Well done."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice sacrifice! Well done."
 msgstr "Nice sacrifice! Well done."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice skewer! Well done."
 msgstr "Nice skewer! Well done."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice trap! Well done."
 msgstr "Nice trap! Well done."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Attack the king."
 msgstr "Nice try. Attack the king."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Be precise."
 msgstr "Nice try. Be precise."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Don't forget castling."
 msgstr "Nice try. Don't forget castling."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the advantage."
 msgstr "Nice try. Find the advantage."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the back rank mate."
 msgstr "Nice try. Find the back rank mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the best defense."
 msgstr "Nice try. Find the best defense."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the best move."
 msgstr "Nice try. Find the best move."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the checkmate in three."
 msgstr "Nice try. Find the checkmate in three."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the checkmate in two."
 msgstr "Nice try. Find the checkmate in two."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the checkmate."
 msgstr "Nice try. Find the checkmate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the discovered attack."
 msgstr "Nice try. Find the discovered attack."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the discovered check."
 msgstr "Nice try. Find the discovered check."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the double check."
 msgstr "Nice try. Find the double check."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the fork."
 msgstr "Nice try. Find the fork."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the hanging piece."
 msgstr "Nice try. Find the hanging piece."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the pin."
 msgstr "Nice try. Find the pin."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the skewer."
 msgstr "Nice try. Find the skewer."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the smothered mate."
 msgstr "Nice try. Find the smothered mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the trapped piece."
 msgstr "Nice try. Find the trapped piece."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the winning move."
 msgstr "Nice try. Find the winning move."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Find the winning sacrifice."
 msgstr "Nice try. Find the winning sacrifice."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Look again."
 msgstr "Nice try. Look again."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Look for an in-between move."
 msgstr "Nice try. Look for an in-between move."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. One move does it."
 msgstr "Nice try. One move does it."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Promote the pawn."
 msgstr "Nice try. Promote the pawn."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Stay patient."
 msgstr "Nice try. Stay patient."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. The best move might be quiet."
 msgstr "Nice try. The best move might be quiet."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Think about en passant."
 msgstr "Nice try. Think about en passant."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Think about under-promotion."
 msgstr "Nice try. Think about under-promotion."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice try. Try again."
 msgstr "Nice try. Try again."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice under-promotion! Well done."
 msgstr "Nice under-promotion! Well done."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice work!"
 msgstr "Nice work!"
 
@@ -4324,23 +4340,23 @@ msgstr "Nice work!"
 #~ msgid "Nice work! You found it."
 #~ msgstr "Nice work! You found it."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice! Keep going."
 msgstr "Nice! Keep going."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice! Keep it up."
 msgstr "Nice! Keep it up."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice! One more move."
 msgstr "Nice! One more move."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice! Two more moves."
 msgstr "Nice! Two more moves."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Nice! What's next?"
 msgstr "Nice! What's next?"
 
@@ -4494,20 +4510,20 @@ msgstr "None"
 #~ msgid "Not quite, but I love that you tried it. Look once more."
 #~ msgstr "Not quite, but I love that you tried it. Look once more."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Not quite. Be bold."
 msgstr "Not quite. Be bold."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Not quite. Try again."
 msgstr "Not quite. Try again."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Not quite. Try every check."
 msgstr "Not quite. Try every check."
 
@@ -4618,7 +4634,7 @@ msgstr "offset"
 #~ msgid "One move solves this. Spot it."
 #~ msgstr "One move solves this. Spot it."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "One move to checkmate."
 msgstr "One move to checkmate."
 
@@ -4731,7 +4747,7 @@ msgstr "Open the picker to choose a puzzle from PatchDB."
 #~ msgid "Opera mate in the air. Pin first, then deliver."
 #~ msgstr "Opera mate in the air. Pin first, then deliver."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Opera mate! Well done."
 msgstr "Opera mate! Well done."
 
@@ -4771,7 +4787,7 @@ msgstr "Other"
 #~ msgid "Outstanding work. Onto the next one?"
 #~ msgstr "Outstanding work. Onto the next one?"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Outstanding!"
 msgstr "Outstanding!"
 
@@ -4875,7 +4891,7 @@ msgstr "Patches"
 #~ msgid "Pawn marching beautifully. Don't stop."
 #~ msgstr "Pawn marching beautifully. Don't stop."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Pawn promoted! Well done."
 msgstr "Pawn promoted! Well done."
 
@@ -4924,7 +4940,7 @@ msgstr "Per-square indicators; pulse animation for highlighted moves."
 #~ msgid "Perfect first move. Now finish the job."
 #~ msgstr "Perfect first move. Now finish the job."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Perfect!"
 msgstr "Perfect!"
 
@@ -4984,7 +5000,7 @@ msgstr "Pick one from the previous screen."
 #~ msgid "Pillsbury's mate — well spotted."
 #~ msgstr "Pillsbury's mate — well spotted."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Pillsbury's mate! Nice."
 msgstr "Pillsbury's mate! Nice."
 
@@ -5124,7 +5140,7 @@ msgstr "Profile"
 msgid "Promote pawn"
 msgstr "Promote pawn"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Promote the pawn."
 msgstr "Promote the pawn."
 
@@ -5261,7 +5277,7 @@ msgstr "Query"
 #~ msgid "Quiet move found. Subtle but decisive."
 #~ msgstr "Quiet move found. Subtle but decisive."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Quiet move, big impact! Well done."
 msgstr "Quiet move, big impact! Well done."
 
@@ -6141,7 +6157,7 @@ msgstr "Skia-rendered chess board with annotation primitives, inline promotion, 
 #~ msgid "Smothered mate! Always satisfying."
 #~ msgstr "Smothered mate! Always satisfying."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Smothered mate! Well done."
 msgstr "Smothered mate! Well done."
 
@@ -6197,7 +6213,7 @@ msgstr "Solid fills and ring borders — for color-coded threats, defended squar
 #~ msgid "Something went wrong there. Skipping ahead."
 #~ msgstr "Something went wrong there. Skipping ahead."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Something went wrong. Skipping ahead."
 msgstr "Something went wrong. Skipping ahead."
 
@@ -6376,7 +6392,7 @@ msgstr "Style"
 #~ msgid "Swallow's tail — tight and exact."
 #~ msgstr "Swallow's tail — tight and exact."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Swallow's tail mate! Excellent."
 msgstr "Swallow's tail mate! Excellent."
 
@@ -6453,7 +6469,7 @@ msgstr "system"
 #~ msgid "Take another look — check what's pinned first."
 #~ msgstr "Take another look — check what's pinned first."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Take another look."
 msgstr "Take another look."
 
@@ -6525,7 +6541,7 @@ msgstr "TextInput"
 #~ msgid "That's a reasonable idea. There's a sharper one though."
 #~ msgstr "That's a reasonable idea. There's a sharper one though."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "That's it!"
 msgstr "That's it!"
 
@@ -6533,7 +6549,7 @@ msgstr "That's it!"
 #~ msgid "That's it! Keep going."
 #~ msgstr "That's it! Keep going."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "That's it! One more."
 msgstr "That's it! One more."
 
@@ -6757,13 +6773,17 @@ msgstr "Theme search"
 msgid "Themed boards"
 msgstr "Themed boards"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "There's a better move. Try again."
 msgstr "There's a better move. Try again."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "There's a checkmate here."
 msgstr "There's a checkmate here."
+
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payloads.ts
+msgid "There's a checkmate in this position."
+msgstr "There's a checkmate in this position."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "There's a clear edge to grab here."
@@ -6860,6 +6880,10 @@ msgstr "This is a modal screen."
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "This one is deep. Stay patient and try again."
 #~ msgstr "This one is deep. Stay patient and try again."
+
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payloads.ts
+msgid "This one is mate in one — find the winning blow."
+msgstr "This one is mate in one — find the winning blow."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "This one runs deep. Stay precise all the way."
@@ -6995,164 +7019,164 @@ msgstr "Transform"
 #~ msgid "Try a check. One of them mates."
 #~ msgstr "Try a check. One of them mates."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again!"
 msgstr "Try again!"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again."
 msgstr "Try again."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Attack the king."
 msgstr "Try again. Attack the king."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Be patient."
 msgstr "Try again. Be patient."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Be precise."
 msgstr "Try again. Be precise."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Don't forget castling."
 msgstr "Try again. Don't forget castling."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the advantage."
 msgstr "Try again. Find the advantage."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the back rank mate."
 msgstr "Try again. Find the back rank mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the best defense."
 msgstr "Try again. Find the best defense."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the best move."
 msgstr "Try again. Find the best move."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the checkmate in three."
 msgstr "Try again. Find the checkmate in three."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the checkmate in two."
 msgstr "Try again. Find the checkmate in two."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the checkmate."
 msgstr "Try again. Find the checkmate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the discovered attack."
 msgstr "Try again. Find the discovered attack."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the discovered check."
 msgstr "Try again. Find the discovered check."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the double check."
 msgstr "Try again. Find the double check."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the fork."
 msgstr "Try again. Find the fork."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the hanging piece."
 msgstr "Try again. Find the hanging piece."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the pin."
 msgstr "Try again. Find the pin."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the skewer."
 msgstr "Try again. Find the skewer."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the smothered mate."
 msgstr "Try again. Find the smothered mate."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the trapped piece."
 msgstr "Try again. Find the trapped piece."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the winning move."
 msgstr "Try again. Find the winning move."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Find the winning sacrifice."
 msgstr "Try again. Find the winning sacrifice."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Look for an in-between move."
 msgstr "Try again. Look for an in-between move."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. One move does it."
 msgstr "Try again. One move does it."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Promote the pawn."
 msgstr "Try again. Promote the pawn."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Stay precise."
 msgstr "Try again. Stay precise."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. The best move might be quiet."
 msgstr "Try again. The best move might be quiet."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Think about en passant."
 msgstr "Try again. Think about en passant."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. Think about under-promotion."
 msgstr "Try again. Think about under-promotion."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Try again. You can find it."
 msgstr "Try again. You can find it."
 
@@ -7228,7 +7252,7 @@ msgstr "Two clients share one in-memory RoomServer; increments converge on both.
 #~ msgid "Two moves end this — take it from the top."
 #~ msgstr "Two moves end this — take it from the top."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Two moves to checkmate."
 msgstr "Two moves to checkmate."
 
@@ -7471,32 +7495,32 @@ msgstr "Waiting for space sync…"
 #~ msgid "Weak square is cracking — drive through."
 #~ msgstr "Weak square is cracking — drive through."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Well done!"
 msgstr "Well done!"
 
@@ -7504,7 +7528,7 @@ msgstr "Well done!"
 #~ msgid "Well done! That's real chess thinking."
 #~ msgstr "Well done! That's real chess thinking."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "What's the best move here?"
 msgstr "What's the best move here?"
 
@@ -7552,7 +7576,7 @@ msgstr "White"
 #~ msgid "Who's holding things together? Take them."
 #~ msgstr "Who's holding things together? Take them."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Win the free material."
 msgstr "Win the free material."
 
@@ -7665,7 +7689,7 @@ msgstr "You’re already in a space"
 #~ msgid "You're better — let's convert that edge."
 #~ msgstr "You're better — let's convert that edge."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "You've got this. Try again."
 msgstr "You've got this. Try again."
 
@@ -7701,7 +7725,7 @@ msgstr "Your name"
 #~ msgid "Your patience is paying off. The net is closing."
 #~ msgstr "Your patience is paying off. The net is closing."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Your turn. Good luck!"
 msgstr "Your turn. Good luck!"
 
@@ -7721,7 +7745,7 @@ msgstr "Your turn. Good luck!"
 #~ msgid "Zugzwang executed. Every option was bad for them."
 #~ msgstr "Zugzwang executed. Every option was bad for them."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
+#: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 msgid "Zugzwang! Well done."
 msgstr "Zugzwang! Well done."
 

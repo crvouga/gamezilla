@@ -68,6 +68,19 @@
         "typescript": "catalog:",
       },
     },
+    "packages/assistant": {
+      "name": "@gamezilla/assistant",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/ui": "workspace:*",
+        "react": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/auth": {
       "name": "@gamezilla/auth",
       "version": "0.0.0",
@@ -103,6 +116,7 @@
       "name": "@gamezilla/chess",
       "version": "0.0.0",
       "dependencies": {
+        "@gamezilla/assistant": "workspace:*",
         "@gamezilla/lib": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
         "@gamezilla/room": "workspace:*",
@@ -137,6 +151,7 @@
         "@expo/metro-runtime": "catalog:",
         "@gamezilla/api": "workspace:*",
         "@gamezilla/app": "workspace:*",
+        "@gamezilla/assistant": "workspace:*",
         "@gamezilla/auth": "workspace:*",
         "@gamezilla/chess": "workspace:*",
         "@gamezilla/client-config": "workspace:*",
@@ -1134,6 +1149,8 @@
     "@gamezilla/api": ["@gamezilla/api@workspace:packages/api"],
 
     "@gamezilla/app": ["@gamezilla/app@workspace:packages/app"],
+
+    "@gamezilla/assistant": ["@gamezilla/assistant@workspace:packages/assistant"],
 
     "@gamezilla/auth": ["@gamezilla/auth@workspace:packages/auth"],
 
