@@ -20,8 +20,6 @@ export class LlmProviderError extends Error {
 
 export function isLlmProviderError(value: unknown): value is LlmProviderError {
   return (
-    value !== null &&
-    typeof value === 'object' &&
-    '__llmProviderError' in value
+    value !== null && typeof value === 'object' && '__llmProviderError' in value
   );
 }

@@ -33,10 +33,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { TtsAudioFormat } from '../shared/tts-types';
-import {
-  DEFAULT_TTS_VOICE,
-  type Voice,
-} from '../shared/tts-voice';
+import { DEFAULT_TTS_VOICE, type Voice } from '../shared/tts-voice';
 import { useTts } from './tts-context';
 
 export type UseSpeakArgs = {

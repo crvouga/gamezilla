@@ -5,7 +5,7 @@ import {
   type LlmStructuredRequest,
   type LlmStructuredResult,
 } from '../shared/llm-types';
-import { withKvCache } from '../shared/llm-cache';
+import { LlmProviderWithKvCache } from '../shared/llm-cache';
 import {
   LlmProviderError,
   isLlmProviderError,
@@ -120,17 +120,14 @@ export function createLlmApp(options: CreateLlmAppOptions) {
 
     try {
       const kv = getKv();
-      const cachedProvider = withKvCache(provider, kv);
+      const cachedProvider = new LlmProviderWithKvCache(provider, kv);
       const body: LlmStructuredResult = await cachedProvider.structured(
         parsed.body
       );
       return c.json(body, 200);
     } catch (err: unknown) {
       if (isLlmProviderError(err)) {
-        return c.json(
-          { error: err.message, providerId: err.providerId },
-          502
-        );
+        return c.json({ error: err.message, providerId: err.providerId }, 502);
       }
       throw err;
     }

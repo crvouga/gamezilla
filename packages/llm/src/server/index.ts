@@ -24,7 +24,7 @@ export {
 export { createLlmInMemoryKv } from './adapters/kv-cache-in-memory';
 export { createLlmPostgresKv } from './adapters/kv-cache-postgres';
 export { llmKvKey } from '../shared/llm-kv-key';
-export { withKvCache } from '../shared/llm-cache';
+export { LlmProviderWithKvCache } from '../shared/llm-cache';
 export {
   HttpLlmProvider,
   type HttpLlmProviderOptions,

@@ -13,7 +13,7 @@ import { DeviceEntityBootstrapProvider } from './device-entity-bootstrap-provide
 import { FontsProvider } from './fonts-provider';
 import { GamesBootstrapProvider } from './games-bootstrap-provider';
 import { GestureHandlerProvider } from './gesture-handler-provider';
-import { KeyValueStorageProvider } from './key-value-storage-provider';
+import { KvProvider } from './kv-provider';
 import { LoggerProvider } from './logger-provider';
 import { ObjectStoreProviderWrapper } from './object-store-provider';
 import { PatchDbLocalDataActionsProvider } from './patch-db-local-data-actions-provider';
@@ -40,7 +40,7 @@ export function AppProviders({ children }: { children: ReactNode }): ReactNode {
                   <UiPortalsProvider>
                     <LoggerProvider>
                       <SecureStorageProvider>
-                        <KeyValueStorageProvider>
+                        <KvProvider>
                           <ConfigServiceProviderWrapper>
                             <ObjectStoreProviderWrapper>
                               <TtsProviderWrapper>
@@ -67,7 +67,7 @@ export function AppProviders({ children }: { children: ReactNode }): ReactNode {
                               </TtsProviderWrapper>
                             </ObjectStoreProviderWrapper>
                           </ConfigServiceProviderWrapper>
-                        </KeyValueStorageProvider>
+                        </KvProvider>
                       </SecureStorageProvider>
                     </LoggerProvider>
                   </UiPortalsProvider>

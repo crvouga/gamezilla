@@ -1,5 +1,8 @@
 import { LlmProviderError, type LlmProvider } from '../../shared/llm-provider';
-import type { LlmStructuredRequest, LlmStructuredResult } from '../../shared/llm-types';
+import type {
+  LlmStructuredRequest,
+  LlmStructuredResult,
+} from '../../shared/llm-types';
 
 export type OpenAiLlmProviderOptions = {
   readonly apiKey: string;
@@ -42,11 +45,7 @@ function readContentFromChoice(choice: unknown): string {
   const c = choice as Record<string, unknown>;
   const msg = c['message'];
   if (msg === null || typeof msg !== 'object') {
-    throw new LlmProviderError(
-      'openai: missing message',
-      'openai',
-      undefined
-    );
+    throw new LlmProviderError('openai: missing message', 'openai', undefined);
   }
   const content = (msg as Record<string, unknown>)['content'];
   if (typeof content !== 'string' || content.length === 0) {
@@ -135,12 +134,20 @@ export class OpenAiLlmProvider implements LlmProvider {
 
     const raw = (await response.json()) as unknown;
     if (raw === null || typeof raw !== 'object') {
-      throw new LlmProviderError('openai: invalid JSON body', 'openai', undefined);
+      throw new LlmProviderError(
+        'openai: invalid JSON body',
+        'openai',
+        undefined
+      );
     }
     const root = raw as Record<string, unknown>;
     const choices = root['choices'];
     if (!Array.isArray(choices) || choices.length === 0) {
-      throw new LlmProviderError('openai: missing choices', 'openai', undefined);
+      throw new LlmProviderError(
+        'openai: missing choices',
+        'openai',
+        undefined
+      );
     }
     const first = choices[0];
     const content = readContentFromChoice(first);

@@ -9,8 +9,9 @@ import type { SecureStorage } from './interface';
  * - native: `expo-secure-store` (Keychain / Keystore)
  * - web: `localStorage` (no at-rest encryption — see `impl-web.ts`)
  *
- * For bulk async key-value storage (cache blobs, command queues) use
- * `createKeyValueStorage` instead — that path skips the 2048-byte cap.
+ * For bulk async `Kv` storage (cache blobs, command queues) use
+ * `KvPlatform` from `@gamezilla/lib/kv/kv-platform` instead — that path skips
+ * the 2048-byte cap.
  */
 export function createSecureStorage(): SecureStorage {
   if (Platform.OS === 'web') {

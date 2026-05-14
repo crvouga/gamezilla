@@ -36,7 +36,7 @@ function assertStructuredResult(value: unknown): LlmStructuredResult {
 
 /**
  * {@link LlmProvider} that calls `POST {apiUrl}/llm/structured`. Cache with
- * {@link withKvCache} at the call site; this adapter does no KV I/O.
+ * {@link LlmProviderWithKvCache} at the call site; this adapter does no KV I/O.
  */
 export class HttpLlmProvider implements LlmProvider {
   readonly id = 'http';

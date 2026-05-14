@@ -30,8 +30,12 @@ export type CreateLlmAppFromBindingsOptions = {
 export async function createLlmAppFromBindings(
   options: CreateLlmAppFromBindingsOptions
 ): Promise<ReturnType<typeof createLlmApp>> {
-  const apiKey = await options.secretStore.getRequired(LlmDopplerKey.openAiApiKey);
-  const baseUrl = await options.secretStore.getRequired(LlmDopplerKey.openAiBaseUrl);
+  const apiKey = await options.secretStore.getRequired(
+    LlmDopplerKey.openAiApiKey
+  );
+  const baseUrl = await options.secretStore.getRequired(
+    LlmDopplerKey.openAiBaseUrl
+  );
 
   const provider = new OpenAiLlmProvider({
     apiKey,

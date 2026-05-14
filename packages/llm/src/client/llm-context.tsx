@@ -1,14 +1,12 @@
-import {
-  createContext,
-  useContext,
-  useMemo,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
 
 import type { Kv } from '@gamezilla/lib/kv/interface';
 
-import { HttpLlmProvider, type HttpLlmProviderOptions } from '../shared/adapters/http-llm-provider';
-import { withKvCache } from '../shared/llm-cache';
+import {
+  HttpLlmProvider,
+  type HttpLlmProviderOptions,
+} from '../shared/adapters/http-llm-provider';
+import { LlmProviderWithKvCache } from '../shared/llm-cache';
 import type { LlmProvider } from '../shared/llm-provider';
 
 const LlmReactContext = createContext<LlmProvider | null>(null);
@@ -28,7 +26,7 @@ export function LlmContextProvider(
 ): React.ReactElement {
   const value = useMemo<LlmProvider>(
     () =>
-      withKvCache(
+      new LlmProviderWithKvCache(
         new HttpLlmProvider(
           props.fetch === undefined
             ? { apiUrl: props.apiUrl }

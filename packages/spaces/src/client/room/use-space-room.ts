@@ -2,7 +2,7 @@ import { useMyId } from '@gamezilla/auth/client/use-current-user';
 import { useConfigService } from '@gamezilla/auth/client/config-service-context';
 import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
 import { useSessionToken } from '@gamezilla/auth/client/use-session-token';
-import { useKeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
+import { useKv } from '@gamezilla/lib/kv/kv-context';
 import { useCurrentSpaceIds } from '../use-current-space-ids';
 import {
   SPACE_ENTITY_TYPE,
@@ -41,7 +41,7 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const myId = useMyId();
   const deviceId = useDeviceId();
   const configService = useConfigService();
-  const storage = useKeyValueStorage();
+  const kv = useKv();
   const sessionToken = useSessionToken();
 
   const inThisSpace = useMemo(
@@ -63,7 +63,7 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const { room } = useSpaceRoomConnection(
     bootstrap,
     configService,
-    storage,
+    kv,
     sessionToken
   );
   const snap = useRoomSnapshot(room);

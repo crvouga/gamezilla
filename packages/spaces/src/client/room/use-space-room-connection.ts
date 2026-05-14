@@ -1,5 +1,5 @@
 import type { ConfigService } from '@gamezilla/auth/client/config-service-types';
-import type { KeyValueStorage } from '@gamezilla/lib/key-value-storage/interface';
+import type { Kv } from '@gamezilla/lib/kv/interface';
 import type {
   Room,
   RoomCommandPayload,
@@ -25,7 +25,7 @@ type OpenArgs = {
   bootstrap: SpaceRoomConnectionBootstrap;
   token: string | null;
   configService: ConfigService;
-  storage: KeyValueStorage;
+  kv: Kv;
   module: ReturnType<typeof useSpaceModule>;
   setRoom: (r: SpaceRoom | null) => void;
   setTransport: (t: WebSocketRoomTransport | null) => void;
@@ -40,7 +40,7 @@ function openConnection(args: OpenArgs): () => void {
       spaceId: args.bootstrap.spaceId,
       apiUrl: args.configService.getApiUrl(),
       module: args.module,
-      storage: args.storage,
+      kv: args.kv,
       myId: args.bootstrap.myId,
       installId: args.bootstrap.installId,
       sessionToken: args.token,
@@ -63,7 +63,7 @@ function openConnection(args: OpenArgs): () => void {
 export function useSpaceRoomConnection(
   bootstrap: SpaceRoomConnectionBootstrap | null,
   configService: ConfigService,
-  storage: KeyValueStorage,
+  kv: Kv,
   /** Bearer for `/space/ws`; must be in sync with `sessionTokenAtom` (re-run when it changes). */
   sessionToken: string | null
 ): {
@@ -97,7 +97,7 @@ export function useSpaceRoomConnection(
       bootstrap,
       token,
       configService,
-      storage,
+      kv,
       module,
       setRoom,
       setTransport,
@@ -115,7 +115,7 @@ export function useSpaceRoomConnection(
       r?.destroy();
       t?.destroy();
     };
-  }, [bootstrap, configService, storage, sessionToken, module]);
+  }, [bootstrap, configService, kv, sessionToken, module]);
 
   return { room, roomRef, transport };
 }

@@ -15,7 +15,7 @@ Both the client and server entrypoints expose **core only** — engine + ports. 
 | `@gamezilla/room/client/adapters/transport/websocket` | `WebSocketRoomTransport` (browser/Worker `WebSocket`)                                                               |
 | `@gamezilla/room/client/adapters/storage/memory`      | `InMemoryClientStorage` (tests)                                                                                     |
 | `@gamezilla/room/client/adapters/storage/web`         | `WebClientStorage` (synchronous `localStorage`)                                                                     |
-| `@gamezilla/room/client/adapters/storage/key-value`   | `KeyValueClientRoomStorage` (async KV — `localStorage` web, AsyncStorage native)                                    |
+| `@gamezilla/room/client/adapters/storage/key-value`   | `KeyValueClientRoomStorage` (async `Kv` — `localStorage` web, AsyncStorage native)                                  |
 | `@gamezilla/room/server/adapters/durable-object`      | `createDurableObjectAdapter`, `DurableObjectRoomStorage`, DO type stubs                                             |
 | `@gamezilla/room/server/adapters/memory`              | `InMemoryRoomStorage` (tests / loopback testkit)                                                                    |
 | `@gamezilla/room/testkit`                             | `openLoopbackRoom`, `LoopbackRoomTransport`, `TestCounterModule`                                                    |
@@ -59,7 +59,7 @@ Versioned JSON frames (`v` on envelopes). Each envelope `kind` is a plain string
 - **Client transport — `websocket`** (`@gamezilla/room/client/adapters/transport/websocket`): `WebSocketRoomTransport` with exponential backoff reconnect.
 - **Client storage — `memory`** (`@gamezilla/room/client/adapters/storage/memory`): `InMemoryClientStorage` for tests and the loopback testkit.
 - **Client storage — `web`** (`@gamezilla/room/client/adapters/storage/web`): `WebClientStorage` for synchronous `localStorage`.
-- **Client storage — `key-value`** (`@gamezilla/room/client/adapters/storage/key-value`): `KeyValueClientRoomStorage` for async `KeyValueStorage` (web `localStorage` or React Native `AsyncStorage`). Do **not** back this with `SecureStorage` / `expo-secure-store` — the 2048-byte per-value cap rejects committed-log blobs as soon as a few entries accumulate. None of this data is sensitive (it's a recovery cache).
+- **Client storage — `key-value`** (`@gamezilla/room/client/adapters/storage/key-value`): `KeyValueClientRoomStorage` for client `Kv` from `@gamezilla/lib/kv/kv-platform` (web `localStorage` or React Native `AsyncStorage`). Do **not** back this with `SecureStorage` / `expo-secure-store` — the 2048-byte per-value cap rejects committed-log blobs as soon as a few entries accumulate. None of this data is sensitive (it's a recovery cache).
 - **Server storage — `memory`** (`@gamezilla/room/server/adapters/memory`): `InMemoryRoomStorage` for tests and the loopback testkit.
 - **Server host — `durable-object`** (`@gamezilla/room/server/adapters/durable-object`): `createDurableObjectAdapter({ module })` returns a Cloudflare Workers DO class wired to `RoomServer` + the KV-backed `DurableObjectRoomStorage`. Bind via `class_name` in `wrangler.toml`; one adapter per domain module. Used in production (see `packages/api/src/rooms/space-do.ts`).
 - **Testkit** (`@gamezilla/room/testkit`): `openLoopbackRoom`, `LoopbackRoomTransport`, `TestCounterModule` for in-process convergence tests.
