@@ -26,6 +26,12 @@ type EntityCacheEntry = {
   result: CachedEntitySnapshot;
   listeners: Set<Listener>;
   teardownTimer: unknown | null;
+  /**
+   * Registers this entity with {@link SubscribablePatchDbLike.subscribe.entities}
+   * so the sync layer (e.g. {@link SyncPatchDb}) polls remote rows into local
+   * storage — mirrors {@link PatchDbQueryCache}.
+   */
+  syncEntitiesUnsub: Unsubscribe | null;
 };
 
 function entityKey(entityType: PatchEntityType, entityId: string): string {
@@ -82,6 +88,15 @@ export class PatchDbEntityStore {
     }
 
     entry.listeners.add(listener);
+
+    if (entry.syncEntitiesUnsub === null) {
+      entry.syncEntitiesUnsub = this.db.subscribe.entities(
+        { entityType: entry.entityType, entityId: entry.entityId, limit: 1 },
+        () => {
+          /* Sync layer drives local SQLite + hydrate; store reacts via in-memory mirror. */
+        }
+      );
+    }
 
     if (this.storeUnsub === null) {
       const store = getInMemoryStoreForDb(this.db);
@@ -140,6 +155,8 @@ export class PatchDbEntityStore {
         this.scheduler.clearTimeout(entry.teardownTimer);
         entry.teardownTimer = null;
       }
+      entry.syncEntitiesUnsub?.();
+      entry.syncEntitiesUnsub = null;
       entry.listeners.clear();
     }
     this.entries.clear();
@@ -170,6 +187,7 @@ export class PatchDbEntityStore {
       result: { entity: seeded },
       listeners: new Set(),
       teardownTimer: null,
+      syncEntitiesUnsub: null,
     };
     this.entries.set(key, entry);
     return entry;
@@ -200,6 +218,8 @@ export class PatchDbEntityStore {
       { key: entityKey(entry.entityType, entry.entityId) }
     );
     entry.teardownTimer = null;
+    entry.syncEntitiesUnsub?.();
+    entry.syncEntitiesUnsub = null;
     this.entries.delete(entityKey(entry.entityType, entry.entityId));
   }
 }

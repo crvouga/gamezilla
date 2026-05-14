@@ -1,7 +1,7 @@
-import { DeviceAvatar } from './device-avatar';
-import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
 import { useQueryAttribute } from '@gamezilla/patch-db/react';
 import type { ReactNode } from 'react';
+import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
+import { DeviceAvatar } from './device-avatar';
 
 export type UserProfileAvatarProps = {
   /** Profile entity id (account or install id). `null` renders nothing. */
