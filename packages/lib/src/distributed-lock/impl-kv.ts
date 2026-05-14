@@ -1,5 +1,7 @@
 import { assert } from '../assert';
 import type { Kv } from '../kv/interface';
+import { assertNamespacedKeyword } from '../keyword/keyword';
+import type { Keyword } from '../keyword/keyword';
 import { DefaultLockIdentityProvider } from './default-lock-identity-provider';
 import {
   type DistributedLock,
@@ -10,7 +12,8 @@ import {
 } from './interface';
 
 export interface DistributedLockImplKvOptions {
-  readonly key: string;
+  /** KV row key; must be a validated namespaced keyword (`prefix/local`). */
+  readonly key: Keyword;
   readonly identity?: LockIdentityProvider;
   /** Called when release detects the lock was taken over or force-unlocked. */
   readonly onFencingFailure?: (message: string) => void;
@@ -21,17 +24,13 @@ export interface DistributedLockImplKvOptions {
  * `kv.transaction` for compare-and-delete fencing on release.
  */
 export class DistributedLockImplKv implements DistributedLock {
-  private readonly key: string;
+  private readonly key: Keyword;
   private readonly kv: Kv;
   private readonly identity: LockIdentityProvider;
   private readonly onFencingFailure?: (message: string) => void;
 
   constructor(kv: Kv, options: DistributedLockImplKvOptions) {
-    assert.ok(
-      typeof options.key === 'string' && options.key.length > 0,
-      'DistributedLockImplKv: key must be non-empty',
-      { key: options.key }
-    );
+    assertNamespacedKeyword(options.key);
     this.kv = kv;
     this.key = options.key;
     this.identity = options.identity ?? new DefaultLockIdentityProvider();

@@ -1,5 +1,6 @@
 import { DistributedLockImplKv } from '@gamezilla/lib/distributed-lock/impl-kv';
 import type { DistributedLock } from '@gamezilla/lib/distributed-lock/interface';
+import { asKeyword } from '@gamezilla/lib/keyword';
 import { KvImplPostgres } from '@gamezilla/lib/kv/impl-postgres';
 import { createLogger } from '@gamezilla/lib/logger';
 import { SqlClientImplPostgresTcp } from '@gamezilla/lib/sql-client/impl-postgres-tcp';
@@ -13,7 +14,8 @@ export interface DistributedLockConnection {
 
 /**
  * Wires PlanetScale Postgres over Bun's native TCP `SQL` driver, {@link KvImplPostgres},
- * and {@link DistributedLockImplKv}. The lock key `infra` is defined only here.
+ * and {@link DistributedLockImplKv}. The distributed lock KV key (namespaced
+ * `prefix/local` keyword) is defined only here.
  */
 export async function buildDistributedLock(): Promise<DistributedLockConnection> {
   const url = await resolveDatabaseUrl();
@@ -36,7 +38,9 @@ export async function buildDistributedLock(): Promise<DistributedLockConnection>
   }
   const kvLogger = createLogger({ name: 'infra-distributed-lock-kv' });
   const kv = await KvImplPostgres.open({ sqlClient: sql, logger: kvLogger });
-  const lock = new DistributedLockImplKv(kv, { key: 'infra' });
+  const lock = new DistributedLockImplKv(kv, {
+    key: asKeyword('gamezilla.infra/distributed-lock'),
+  });
   return {
     lock,
     disconnect: () => sql.disconnect(),

@@ -1,4 +1,5 @@
-import { assert } from '../assert';
+import { assertNamespacedKeyword } from '../keyword/keyword';
+import type { Keyword } from '../keyword/keyword';
 import { KvImplInMemoryTx } from './impl-in-memory-tx';
 import type { Kv } from './interface';
 
@@ -7,7 +8,7 @@ import type { Kv } from './interface';
  * Serializes all operations through an internal async queue.
  */
 export class KvImplInMemory implements Kv {
-  private readonly map = new Map<string, string>();
+  private readonly map = new Map<Keyword, string>();
   private chain: Promise<void> = Promise.resolve();
 
   private enqueue<T>(fn: () => Promise<T>): Promise<T> {
@@ -19,20 +20,20 @@ export class KvImplInMemory implements Kv {
     return run;
   }
 
-  async get(key: string): Promise<string | null> {
-    assertNonEmptyKey(key);
+  async get(key: Keyword): Promise<string | null> {
+    assertKvKey(key);
     return this.enqueue(async () => this.map.get(key) ?? null);
   }
 
-  async put(key: string, value: string): Promise<void> {
-    assertNonEmptyKey(key);
+  async put(key: Keyword, value: string): Promise<void> {
+    assertKvKey(key);
     return this.enqueue(async () => {
       this.map.set(key, value);
     });
   }
 
-  async zap(key: string): Promise<void> {
-    assertNonEmptyKey(key);
+  async zap(key: Keyword): Promise<void> {
+    assertKvKey(key);
     return this.enqueue(async () => {
       this.map.delete(key);
     });
@@ -46,10 +47,6 @@ export class KvImplInMemory implements Kv {
   }
 }
 
-function assertNonEmptyKey(key: string): void {
-  assert.ok(
-    typeof key === 'string' && key.length > 0,
-    'Kv: key must be non-empty string',
-    { key }
-  );
+function assertKvKey(key: string): asserts key is Keyword {
+  assertNamespacedKeyword(key);
 }

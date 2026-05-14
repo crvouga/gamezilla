@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { asKeyword } from '../keyword/keyword';
 import { KvImplInMemory } from '../kv/impl-in-memory';
 import { DistributedLockImplKv } from './impl-kv';
 import { LockHeldError } from './interface';
@@ -57,6 +58,8 @@ export function runDistributedLockContractTests(
 describe('DistributedLockImplKv + KvImplInMemory (contract)', () => {
   runDistributedLockContractTests(async () => {
     const kv = new KvImplInMemory();
-    return new DistributedLockImplKv(kv, { key: 'test-lock' });
+    return new DistributedLockImplKv(kv, {
+      key: asKeyword('gamezilla.test/distributed-lock-contract'),
+    });
   });
 });

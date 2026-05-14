@@ -1,5 +1,6 @@
 /**
- * Distributed lock backed by storage (e.g. {@link Kv}). Consumers choose the key namespace.
+ * Distributed lock backed by storage (e.g. {@link Kv}). Consumers pick a stable
+ * namespaced keyword (`prefix/local`) for the backing KV row key.
  */
 export interface LockInfo {
   readonly id: string;

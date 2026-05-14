@@ -17,6 +17,8 @@
  *     that EXTENDED does on every write.
  */
 import { assert } from '../assert';
+import { assertNamespacedKeyword } from '../keyword/keyword';
+import type { Keyword } from '../keyword/keyword';
 import type { Logger } from '../logger/logger';
 import type { SqlClient } from '../sql-client/interface';
 import { KvImplPostgresTx } from './impl-postgres-tx';
@@ -168,8 +170,8 @@ export class KvImplPostgres implements Kv {
     }
   }
 
-  async get(key: string): Promise<string | null> {
-    assertNonEmptyKey(key);
+  async get(key: Keyword): Promise<string | null> {
+    assertKvKey(key);
     const rows = await this.sqlClient.query<{ value: string }>(
       `SELECT value FROM ${TABLE} WHERE key = ?`,
       [key]
@@ -178,8 +180,8 @@ export class KvImplPostgres implements Kv {
     return first !== null && first !== undefined ? first.value : null;
   }
 
-  async put(key: string, value: string): Promise<void> {
-    assertNonEmptyKey(key);
+  async put(key: Keyword, value: string): Promise<void> {
+    assertKvKey(key);
     await this.sqlClient.run(
       `INSERT INTO ${TABLE} (key, value) VALUES (?, ?)
        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, ${LAST_MODIFIED_AT} = now()`,
@@ -187,8 +189,8 @@ export class KvImplPostgres implements Kv {
     );
   }
 
-  async zap(key: string): Promise<void> {
-    assertNonEmptyKey(key);
+  async zap(key: Keyword): Promise<void> {
+    assertKvKey(key);
     await this.sqlClient.run(`DELETE FROM ${TABLE} WHERE key = ?`, [key]);
   }
 
@@ -201,10 +203,6 @@ export class KvImplPostgres implements Kv {
   }
 }
 
-function assertNonEmptyKey(key: string): void {
-  assert.ok(
-    typeof key === 'string' && key.length > 0,
-    'Kv: key must be non-empty string',
-    { key }
-  );
+function assertKvKey(key: string): asserts key is Keyword {
+  assertNamespacedKeyword(key);
 }

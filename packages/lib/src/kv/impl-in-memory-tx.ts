@@ -1,30 +1,28 @@
 import { assert } from '../assert';
+import { assertNamespacedKeyword } from '../keyword/keyword';
+import type { Keyword } from '../keyword/keyword';
 import type { Kv } from './interface';
 
-function assertNonEmptyKey(key: string): void {
-  assert.ok(
-    typeof key === 'string' && key.length > 0,
-    'Kv: key must be non-empty string',
-    { key }
-  );
+function assertKvKey(key: string): asserts key is Keyword {
+  assertNamespacedKeyword(key);
 }
 
 /** Transaction view: same map, no nested mutex (parent `enqueue` holds the lock). */
 export class KvImplInMemoryTx implements Kv {
-  constructor(private readonly map: Map<string, string>) {}
+  constructor(private readonly map: Map<Keyword, string>) {}
 
-  async get(key: string): Promise<string | null> {
-    assertNonEmptyKey(key);
+  async get(key: Keyword): Promise<string | null> {
+    assertKvKey(key);
     return this.map.get(key) ?? null;
   }
 
-  async put(key: string, value: string): Promise<void> {
-    assertNonEmptyKey(key);
+  async put(key: Keyword, value: string): Promise<void> {
+    assertKvKey(key);
     this.map.set(key, value);
   }
 
-  async zap(key: string): Promise<void> {
-    assertNonEmptyKey(key);
+  async zap(key: Keyword): Promise<void> {
+    assertKvKey(key);
     this.map.delete(key);
   }
 
