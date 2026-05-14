@@ -50,9 +50,9 @@ import { useTheme } from '../../theme';
 import { IconSymbol } from '../symbol-icon';
 import { AnimatedSpeakerWaves } from './animated-speaker-waves';
 
-const DEFAULT_SIZE = 16;
 /** Padding around the icon, scaled to size for visual balance. */
 const PADDING_RATIO = 0.25;
+const DEFAULT_SIZE = 16;
 
 export type SoundIndicatorState = 'idle' | 'playing' | 'muted';
 

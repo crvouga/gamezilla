@@ -8,8 +8,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * web, iOS, and Android — the same API the chess board sounds use
  * (`packages/chess/src/client/chess-board/chess-board-sounds.ts`).
  *
- * Returns playback controls plus an `isPlaying` flag derived from the player's
- * own status events (no manual polling, no app-state hacks).
+ * Returns playback controls plus an `isPlaying` flag: true while the
+ * platform reports `playing`, **or** for a brief window immediately after
+ * we synchronously call `player.play()` until that first status update
+ * arrives — so UI (e.g. wave animation) can align with audio starting
+ * instead of lagging one frame behind `status.playing`.
  */
 export type TtsPlayerState = {
   readonly isPlaying: boolean;
@@ -28,11 +31,19 @@ export type TtsPlayerState = {
 
 export function useTtsPlayer(): TtsPlayerState {
   const [currentUrl, setCurrentUrl] = useState<string | null>(null);
+  /** True from `player.play()` until `status.playing` flips true (then cleared). */
+  const [playingLeadIn, setPlayingLeadIn] = useState(false);
   const player = useAudioPlayer(
     currentUrl !== null ? { uri: currentUrl } : null
   );
   const status = useAudioPlayerStatus(player);
   const requestedUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (status.playing) {
+      setPlayingLeadIn(false);
+    }
+  }, [status.playing]);
 
   /**
    * When the audio finishes loading the URL we asked for, kick off playback.
@@ -51,6 +62,7 @@ export function useTtsPlayer(): TtsPlayerState {
       const requestedUrl = requestedUrlRef.current;
       void player.seekTo(0).finally(() => {
         if (requestedUrlRef.current !== requestedUrl) return;
+        setPlayingLeadIn(true);
         player.play();
         requestedUrlRef.current = null;
       });
@@ -63,6 +75,7 @@ export function useTtsPlayer(): TtsPlayerState {
       if (currentUrl === url) {
         await player.seekTo(0);
         if (requestedUrlRef.current !== url) return;
+        setPlayingLeadIn(true);
         player.play();
         requestedUrlRef.current = null;
         return;
@@ -88,6 +101,7 @@ export function useTtsPlayer(): TtsPlayerState {
    */
   const stop = useCallback(() => {
     requestedUrlRef.current = null;
+    setPlayingLeadIn(false);
     if (currentUrl !== null) {
       player.pause();
     }
@@ -97,7 +111,7 @@ export function useTtsPlayer(): TtsPlayerState {
     status.duration > 0 ? Math.round(status.duration * 1000) : null;
 
   return {
-    isPlaying: status.playing,
+    isPlaying: status.playing || playingLeadIn,
     currentUrl,
     durationMs,
     play,

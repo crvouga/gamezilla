@@ -22,6 +22,7 @@ export {
 export { ElevenLabsTtsProvider } from './adapters/elevenlabs-tts-provider';
 export { InMemoryTtsProvider } from './adapters/in-memory-tts-provider';
 export {
+  DEFAULT_TTS_VOICE,
   VOICES,
   VOICE_NAMES,
   VOICE_PROVIDERS,

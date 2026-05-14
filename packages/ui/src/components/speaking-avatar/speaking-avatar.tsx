@@ -48,15 +48,8 @@ import { defaultColors } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { SoundIndicator, type SoundIndicatorState } from '../sound-indicator';
-import { speakingAvatarSvg } from './speaking-avatar-svg';
+import { SPEAKING_AVATAR_SVG } from './speaking-avatar-svg';
 import { SpeechBubble } from './speech-bubble';
-
-const DEFAULT_AVATAR_SIZE = 80;
-const DEFAULT_SEED = '01J9H25D949E4A51ZV2N3676V1';
-/** Min indicator icon size; below this, the badge becomes hard to read. */
-const MIN_INDICATOR_PX = 14;
-/** Indicator scales with the head so big avatars get a proportional badge. */
-const INDICATOR_SCALE = 0.22;
 
 function resolveIndicatorState(
   muted: boolean,
@@ -93,21 +86,11 @@ export type SpeakingAvatarProps = {
 
 export function SpeakingAvatar({
   message,
-  voice,
-  avatarSize = DEFAULT_AVATAR_SIZE,
-  seed = DEFAULT_SEED,
-  speak = true,
   numberOfLines,
   style,
 }: SpeakingAvatarProps): ReactNode {
-  const svg = useMemo(
-    () => speakingAvatarSvg(seed, avatarSize),
-    [seed, avatarSize]
-  );
+  const svg = useMemo(() => SPEAKING_AVATAR_SVG, []);
 
-  // Local mute composes with caller `speak`: audio is only enabled when
-  // the caller permits speech AND the user hasn't toggled mute on the
-  // avatar.
   const [muted, setMuted] = useState(false);
   const toggleMuted = useCallback(() => {
     setMuted((m) => !m);
@@ -115,39 +98,38 @@ export function SpeakingAvatar({
 
   const { isLoading, isSpeaking } = useSpeak({
     text: message,
-    ...(voice ? { voice } : {}),
-    enabled: speak && !muted,
+    enabled: !muted,
   });
 
   const indicatorState = resolveIndicatorState(muted, isSpeaking);
 
   return (
     <Box
-      sx={{ flexDirection: 'row', alignItems: 'center', pr: 4 }}
+      sx={{ flexDirection: 'row', alignItems: 'center', px: 4, gap: 1 }}
       style={style}
     >
       <Pressable
         onPress={toggleMuted}
-        disabled={!speak}
         accessibilityRole="button"
         accessibilityLabel={muted ? 'Unmute coach' : 'Mute coach'}
         style={{ position: 'relative' }}
       >
-        <SvgXml xml={svg} width={avatarSize} height={avatarSize} />
-        {speak ? (
-          <Box sx={{ position: 'absolute', right: 0, bottom: 0 }}>
-            <SoundIndicator
-              state={indicatorState}
-              size={Math.max(
-                MIN_INDICATOR_PX,
-                Math.round(avatarSize * INDICATOR_SCALE)
-              )}
-              backgroundColor={defaultColors.light.surface}
-              color={defaultColors.light.text}
-              mutedColor={defaultColors.light.textSecondary}
-            />
-          </Box>
-        ) : null}
+        <SvgXml xml={svg} />
+        <Box
+          sx={{
+            position: 'absolute',
+            right: 0,
+            bottom: 0,
+          }}
+        >
+          <SoundIndicator
+            state={indicatorState}
+            size={14}
+            backgroundColor={defaultColors.light.surface}
+            color={defaultColors.light.text}
+            mutedColor={defaultColors.light.textSecondary}
+          />
+        </Box>
       </Pressable>
       <SpeechBubble
         text={message}

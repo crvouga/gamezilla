@@ -14,19 +14,17 @@
  * opacity changes per frame, no layout / paint work and no JS-thread
  * load. The cone is rendered separately and is always fully opaque.
  *
- * Marching loop: an `Animated.sequence` performs three discrete steps
- * per cycle (hold the current wave bright, then crossfade to the next
- * one), then `Animated.loop` repeats forever. Using a sequence rather
- * than interpolating a shared driver means each step is an explicit
- * animation that always ends and starts cleanly, so the loop never
- * "freezes" between iterations and the marching motion is unambiguous
- * regardless of platform / driver.
+ * Marching loop: each step crossfades to the next wave, then holds it
+ * bright for {@link HOLD_MS} before the next handoff. Leading with the
+ * crossfade keeps the first motion in sync with when the indicator mounts
+ * (TTS already playing), instead of an initial static beat.
  *
  * Path data is sourced from `@fortawesome/fontawesome-free` 6.5.2,
  * `solid/volume-high.svg`. See `../symbol-icon/ATTRIBUTION.md`.
  */
 
 import { useEffect, useRef, type ReactNode } from 'react';
+import type { StyleProp, ViewStyle } from 'react-native';
 import { Animated, Easing, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
@@ -52,6 +50,7 @@ const FADE_MS = 50;
 const MIN_OPACITY = 0.12;
 
 export type AnimatedSpeakerWavesProps = {
+  style?: StyleProp<ViewStyle>;
   size: number;
   color: string;
 };
@@ -75,20 +74,23 @@ function fadeOut(value: Animated.Value): Animated.CompositeAnimation {
 }
 
 /**
- * Crossfade two waves in lockstep: `out` dims as `in` brightens.
- * Combined with a `hold` delay, this is one "step" of the march.
+ * Crossfade two waves in lockstep: `out` dims as `in` brightens, then the
+ * new wave stays bright for {@link HOLD_MS}. Leading with the crossfade
+ * (not a delay) so motion starts the frame the component mounts — a leading
+ * hold made the waves feel late vs TTS that was already audible.
  */
 function crossfadeStep(
   outgoing: Animated.Value,
   incoming: Animated.Value
 ): Animated.CompositeAnimation {
   return Animated.sequence([
-    Animated.delay(HOLD_MS),
     Animated.parallel([fadeOut(outgoing), fadeIn(incoming)]),
+    Animated.delay(HOLD_MS),
   ]);
 }
 
 export function AnimatedSpeakerWaves({
+  style,
   size,
   color,
 }: AnimatedSpeakerWavesProps): ReactNode {
@@ -115,7 +117,7 @@ export function AnimatedSpeakerWaves({
   }, [innerOpacity, middleOpacity, outerOpacity]);
 
   return (
-    <View style={{ width: size, height: size }}>
+    <View style={[style, { width: size, height: size }]}>
       <View style={{ position: 'absolute', top: 0, left: 0 }}>
         <Svg width={size} height={size} viewBox={VIEW_BOX}>
           <Path d={CONE_PATH} fill={color} />

@@ -1,7 +1,10 @@
 /**
- * Discriminated `Voice` config every TTS call site MUST pass. There is no
- * server-side default voice — the synthesize route, the React `useTts.play`
- * hook, and the underlying `TtsProvider` all crash if a voice is missing.
+ * Discriminated `Voice` config every TTS call site MUST pass when calling
+ * `play` / synthesize — there is no server-side default voice id.
+ *
+ * **App default:** import {@link DEFAULT_TTS_VOICE} (used by `useSpeak` when
+ * `voice` is omitted). Change that one export to switch the default coach
+ * voice app-wide.
  *
  * Each variant pairs a stable display `name` with a `provider` discriminant
  * and the provider-native ids (`voiceId`, `model`). Renaming a `name`
@@ -9,107 +12,63 @@
  * the cache key (see `tts-cache-key.ts`) — a renamed entry is, by design,
  * a different voice.
  *
- * Adding a new provider: append a variant with a new `provider` literal,
+ * Adding a new provider: add entries with a new `provider` literal,
  * then add an adapter that asserts `input.voice.provider === '<literal>'`
  * (mirrors `ElevenLabsTtsProvider.synthesize`). Cache namespacing is
  * already handled by `TtsProvider.id`.
  */
 
-export type ElevenLabsVoice =
-  | {
-      readonly name: 'David';
-      readonly provider: 'eleven-labs';
-      readonly voiceId: 'Zv7P8CISODgj9wDHyyI9';
-      readonly model: 'eleven_turbo_v2_5';
-    }
-  | {
-      readonly name: 'Sam';
-      readonly provider: 'eleven-labs';
-      readonly voiceId: '7WggD3IoWTIPT19PNyrW';
-      readonly model: 'eleven_turbo_v2_5';
-    }
-  | {
-      readonly name: 'Olivia';
-      readonly provider: 'eleven-labs';
-      readonly voiceId: '1SM7GgM6IMuvQlz2BwM3';
-      readonly model: 'eleven_turbo_v2_5';
-    }
-  | {
-      readonly name: 'Rachel';
-      readonly provider: 'eleven-labs';
-      readonly voiceId: '21m00Tcm4TlvDq8ikWAM';
-      readonly model: 'eleven_turbo_v2_5';
-    }
-  | {
-      readonly name: 'Jay Wayne';
-      readonly provider: 'eleven-labs';
-      readonly voiceId: '8Ln42OXYupYsag45MAUy';
-      readonly model: 'eleven_turbo_v2_5';
-    }
-  | {
-      readonly name: 'Leo V2';
-      readonly provider: 'eleven-labs';
-      readonly voiceId: 'bbGtsRRKUfYO634UxSjz';
-      readonly model: 'eleven_turbo_v2_5';
-    };
+const ELEVEN_LABS_MODEL = 'eleven_turbo_v2_5' as const;
+const ELEVEN_LABS_PROVIDER = 'eleven-labs' as const;
 
-export type Voice = ElevenLabsVoice;
+function elevenLabsVoice<const N extends string, const V extends string>(
+  name: N,
+  voiceId: V
+) {
+  return {
+    name,
+    provider: ELEVEN_LABS_PROVIDER,
+    voiceId,
+    model: ELEVEN_LABS_MODEL,
+  } as const;
+}
+
+/**
+ * All built-in ElevenLabs voices. Keys are stable identifiers; `name` is the
+ * human label (and cache key component).
+ */
+export const Voices = {
+  David: elevenLabsVoice('David', 'Zv7P8CISODgj9wDHyyI9'),
+  Sam: elevenLabsVoice('Sam', '7WggD3IoWTIPT19PNyrW'),
+  Olivia: elevenLabsVoice('Olivia', '1SM7GgM6IMuvQlz2BwM3'),
+  Rachel: elevenLabsVoice('Rachel', '21m00Tcm4TlvDq8ikWAM'),
+  JayWayne: elevenLabsVoice('Jay Wayne', '8Ln42OXYupYsag45MAUy'),
+  LeoV2: elevenLabsVoice('Leo V2', 'bbGtsRRKUfYO634UxSjz'),
+  Mark: elevenLabsVoice('Mark', '1SM7GgM6IMuvQlz2BwM3'),
+} as const;
+
+export type Voice = (typeof Voices)[keyof typeof Voices];
+
+/** @deprecated Use {@link Voice}; kept for server bundle re-exports. */
+export type ElevenLabsVoice = Voice;
 
 export type VoiceProvider = Voice['provider'];
 export type VoiceName = Voice['name'];
 
-export const Voices = {
-  David: {
-    name: 'David',
-    provider: 'eleven-labs',
-    voiceId: 'Zv7P8CISODgj9wDHyyI9',
-    model: 'eleven_turbo_v2_5',
-  },
-  Sam: {
-    name: 'Sam',
-    provider: 'eleven-labs',
-    voiceId: '7WggD3IoWTIPT19PNyrW',
-    model: 'eleven_turbo_v2_5',
-  },
-  Olivia: {
-    name: 'Olivia',
-    provider: 'eleven-labs',
-    voiceId: '1SM7GgM6IMuvQlz2BwM3',
-    model: 'eleven_turbo_v2_5',
-  },
-  Rachel: {
-    name: 'Rachel',
-    provider: 'eleven-labs',
-    voiceId: '21m00Tcm4TlvDq8ikWAM',
-    model: 'eleven_turbo_v2_5',
-  },
-  JayWayne: {
-    name: 'Jay Wayne',
-    provider: 'eleven-labs',
-    voiceId: '8Ln42OXYupYsag45MAUy',
-    model: 'eleven_turbo_v2_5',
-  },
-  LeoV2: {
-    name: 'Leo V2',
-    provider: 'eleven-labs',
-    voiceId: 'bbGtsRRKUfYO634UxSjz',
-    model: 'eleven_turbo_v2_5',
-  },
-} as const satisfies Record<string, Voice>;
+/**
+ * Default `voice` when hooks or UI omit it. **Single knob** to change the
+ * app-wide TTS default (e.g. coach / `useSpeak`).
+ */
+export const DEFAULT_TTS_VOICE: Voice = Voices.Mark;
 
 export const VOICE_PROVIDERS = ['eleven-labs'] as const satisfies readonly [
   VoiceProvider,
   ...VoiceProvider[],
 ];
 
-export const VOICE_NAMES = [
-  'David',
-  'Sam',
-  'Olivia',
-  'Rachel',
-  'Jay Wayne',
-  'Leo V2',
-] as const;
+export const VOICE_NAMES: readonly VoiceName[] = Object.values(Voices).map(
+  (v): VoiceName => v.name
+);
 
 export const VOICES: readonly Voice[] = Object.values(Voices);
 

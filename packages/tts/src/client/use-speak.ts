@@ -21,25 +21,28 @@
  * function Coach({ message }: { message: string }) {
  *   const { isLoading, durationMs } = useSpeak({
  *     text: message,
- *     voice: Voices.David,
+ *     voice: DEFAULT_TTS_VOICE,
  *   });
  *   return <Bubble loading={isLoading} text={message} revealMs={durationMs} />;
  * }
  *
  * // Muted/decorative usage: hook is a no-op, status flags stay false/null.
- * useSpeak({ text: hint, voice: Voices.Sam, enabled: !muted });
+ * useSpeak({ text: hint, voice: DEFAULT_TTS_VOICE, enabled: !muted });
  * ```
  */
 
 import { useEffect, useRef, useState } from 'react';
 import type { TtsAudioFormat } from '../shared/tts-types';
-import { Voices, type Voice } from '../shared/tts-voice';
+import {
+  DEFAULT_TTS_VOICE,
+  type Voice,
+} from '../shared/tts-voice';
 import { useTts } from './tts-context';
 
 export type UseSpeakArgs = {
   /** Text to speak. Empty / whitespace-only strings are skipped. */
   readonly text: string;
-  /** Voice to speak with. Defaults to {@link Voices.David}. */
+  /** Voice to speak with. Defaults to {@link DEFAULT_TTS_VOICE}. */
   readonly voice?: Voice;
   /** Audio container format. Defaults to `'mp3'`. */
   readonly format?: TtsAudioFormat;
@@ -81,7 +84,7 @@ function initialState(text: string, enabled: boolean): SpeakState {
 
 export function useSpeak({
   text,
-  voice = Voices.LeoV2,
+  voice = DEFAULT_TTS_VOICE,
   format = 'mp3',
   enabled = true,
 }: UseSpeakArgs): UseSpeakResult {
