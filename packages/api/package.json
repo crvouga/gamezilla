@@ -27,6 +27,7 @@
     "@gamezilla/auth": "workspace:*",
     "@gamezilla/chess": "workspace:*",
     "@gamezilla/client-config": "workspace:*",
+    "@gamezilla/llm": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/profile": "workspace:*",

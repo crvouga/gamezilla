@@ -49,9 +49,6 @@ export const Voices = {
 
 export type Voice = (typeof Voices)[keyof typeof Voices];
 
-/** @deprecated Use {@link Voice}; kept for server bundle re-exports. */
-export type ElevenLabsVoice = Voice;
-
 export type VoiceProvider = Voice['provider'];
 export type VoiceName = Voice['name'];
 

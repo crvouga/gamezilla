@@ -136,7 +136,13 @@ async function runKvPostgresMigrations(
 
 /**
  * Postgres-backed {@link Kv}.
- * Migration: `KvImplPostgres.migrate({ sqlClient, logger })` (static), same as patch-db.
+ *
+ * - **`new KvImplPostgres(sqlClient)`** — use in hot paths when
+ *   {@link KvImplPostgres.migrateUp} has already run (e.g. API request middleware).
+ * - **`KvImplPostgres.open(...)`** — runs {@link KvImplPostgres.migrateUp} then
+ *   returns an instance (scripts / one-off tools).
+ *
+ * Migration: `KvImplPostgres.migrateUp({ sqlClient, logger })` (static), same as patch-db.
  */
 export class KvImplPostgres implements Kv {
   constructor(private readonly sqlClient: SqlClient) {}

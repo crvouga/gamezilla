@@ -37,6 +37,7 @@
         "@gamezilla/chess": "workspace:*",
         "@gamezilla/client-config": "workspace:*",
         "@gamezilla/lib": "workspace:*",
+        "@gamezilla/llm": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
         "@gamezilla/profile": "workspace:*",
         "@gamezilla/room": "workspace:*",
@@ -281,6 +282,20 @@
         "@types/react": "catalog:",
         "@types/sql.js": "catalog:",
         "eslint-plugin-lingui": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/llm": {
+      "name": "@gamezilla/llm",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/lib": "workspace:*",
+        "hono": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+      },
+      "devDependencies": {
+        "@types/react": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1163,6 +1178,8 @@
     "@gamezilla/infra": ["@gamezilla/infra@workspace:packages/infra"],
 
     "@gamezilla/lib": ["@gamezilla/lib@workspace:packages/lib"],
+
+    "@gamezilla/llm": ["@gamezilla/llm@workspace:packages/llm"],
 
     "@gamezilla/patch-db": ["@gamezilla/patch-db@workspace:packages/patch-db"],
 

@@ -23,6 +23,7 @@ module.exports = {
         '<rootDir>/packages/profile/src',
         '<rootDir>/packages/auth/src',
         '<rootDir>/packages/spaces/src',
+        '<rootDir>/packages/llm/src',
         '<rootDir>/packages/tts/src',
         '<rootDir>/packages/client-config/src',
       ],

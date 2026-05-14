@@ -32,4 +32,8 @@ export const ApiSecretName = {
    * is mounted; the secret store crashes if it's missing.
    */
   elevenLabsApiKey: 'ELEVEN_LABS_API_KEY',
+  /** OpenAI API key for LLM routes. Required; secret store crashes if missing. */
+  openAiApiKey: 'OPENAI_API_KEY',
+  /** OpenAI API base URL, e.g. `https://api.openai.com`. Required. */
+  openAiBaseUrl: 'OPENAI_BASE_URL',
 } as const;

@@ -1,9 +1,10 @@
-import { assert } from '@gamezilla/lib/assert';
-import type { SecretStore } from '@gamezilla/lib/secret-store';
-import type { MiddlewareHandler } from 'hono';
 import { createBetterAuthRequestStack } from '@gamezilla/auth/server/better-auth-create';
 import { createSessionAuth } from '@gamezilla/auth/server/session-middleware';
 import type { AuthContext } from '@gamezilla/auth/server/types';
+import { assert } from '@gamezilla/lib/assert';
+import { KvImplPostgres } from '@gamezilla/lib/kv/impl-postgres';
+import type { SecretStore } from '@gamezilla/lib/secret-store';
+import type { MiddlewareHandler } from 'hono';
 import { ConfigurationError } from '../config/env';
 import { createRequestPatchDb } from '../patch-db/patch-db';
 import { openRequestDb } from '../patch-db/sql-client';
@@ -35,13 +36,16 @@ export function createRequestDbMiddleware(
 
     const { client, sqlClient } = await openRequestDb(cs);
     const patchDb = createRequestPatchDb(sqlClient);
+    // `public.kv` is created by API DB migrations (`KvImplPostgres.migrateUp` in
+    // `run-postgres-migrations.ts`). Never run DDL on every request.
+    const kv = new KvImplPostgres(sqlClient);
     const { auth: betterAuth, dispose } = await createBetterAuthRequestStack(
       secretStore,
       cs
     );
     const sessionAuth = createSessionAuth({ auth: betterAuth });
 
-    const store = { patchDb, sessionAuth };
+    const store = { patchDb, sessionAuth, kv };
     return await apiRequestAsyncLocalStorage.run(store, async () => {
       c.set('patchDb', patchDb);
       c.set('sessionAuth', sessionAuth);

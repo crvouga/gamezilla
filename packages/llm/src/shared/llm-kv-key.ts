@@ -1,0 +1,10 @@
+import { asKeyword, type Keyword } from '@gamezilla/lib/keyword/keyword';
+
+/**
+ * {@link Keyword} for a cached structured LLM response. The content hash
+ * already folds in `model`, `input`, `schema`, and `schemaVersion`.
+ */
+export function llmKvKey(providerId: string, hash: string): Keyword {
+  const local = `${providerId}-${hash}`;
+  return asKeyword(`gamezilla.llm.cache/${local}`);
+}

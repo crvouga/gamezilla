@@ -6,6 +6,7 @@ import { appAuth } from '@gamezilla/auth/shared/auth-context';
 import { createClientConfigApp } from '@gamezilla/client-config/server/route';
 import { assert, ValidationError } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
+import { createLlmAppFromBindings } from '@gamezilla/llm/server';
 import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
 import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
@@ -118,13 +119,29 @@ async function createStripeClient(
   });
 }
 
-async function createTtsApp(config: ApiHandlerConfig) {
+async function createTtsAppForApi(config: ApiHandlerConfig) {
   return await createTtsAppFromBindings({
     secretStore: config.secretStore,
     r2Bucket: config.ttsAudioBucket,
     requireAuth: async (req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'tts auth: request store missing');
+      await s.sessionAuth.resolvePatchDbContext(s.patchDb, req);
+    },
+  });
+}
+
+async function createLlmAppForApi(config: ApiHandlerConfig) {
+  return await createLlmAppFromBindings({
+    secretStore: config.secretStore,
+    getKv: () => {
+      const s = apiRequestAsyncLocalStorage.getStore();
+      assert.defined(s, 'llm kv: request store missing');
+      return s.kv;
+    },
+    requireAuth: async (req) => {
+      const s = apiRequestAsyncLocalStorage.getStore();
+      assert.defined(s, 'llm auth: request store missing');
       await s.sessionAuth.resolvePatchDbContext(s.patchDb, req);
     },
   });
@@ -161,9 +178,10 @@ function createStripeSubApp(config: ApiHandlerConfig, stripe: Stripe) {
  */
 export async function createApiApp(config: ApiHandlerConfig) {
   const { secretStore } = config;
-  const [stripe, ttsApp] = await Promise.all([
+  const [stripe, ttsApp, llmApp] = await Promise.all([
     createStripeClient(secretStore),
-    createTtsApp(config),
+    createTtsAppForApi(config),
+    createLlmAppForApi(config),
   ]);
 
   const { honoApp: patchDbApp, basePath: resolvedBase } =
@@ -189,6 +207,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
 
   const app = baseApp
     .route('/', ttsApp)
+    .route('/', llmApp)
     .route('/', createStripeSubApp(config, stripe))
     .route('/', createSpaceApp())
     .route(patchMount, patchDbApp)
