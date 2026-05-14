@@ -81,7 +81,7 @@ function initialState(text: string, enabled: boolean): SpeakState {
 
 export function useSpeak({
   text,
-  voice = Voices.David,
+  voice = Voices.JayWayne,
   format = 'mp3',
   enabled = true,
 }: UseSpeakArgs): UseSpeakResult {

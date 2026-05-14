@@ -3,6 +3,7 @@ import { assert } from '@gamezilla/lib/assert';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { PatchDbHookRegistry } from '../hook-registry';
 import type {
+  Entity,
   Patch,
   PatchDb,
   PatchDbContext,
@@ -34,7 +35,7 @@ import {
   distinctEntityKeysForPatchIds,
 } from './impl-sqlite-patch-updates';
 import { migratePatchDbSqlite } from './migrate';
-import { readPatches } from './read-ops';
+import { readAllSnapshotEntitiesForHydration, readPatches } from './read-ops';
 import {
   mergePatchRowsIntoMergedRecord,
   recomputeSnapshot,
@@ -428,6 +429,14 @@ export class PatchDbImplSqlite implements PatchDb {
       }
       throw error;
     }
+  }
+
+  /**
+   * Bulk-loads snapshot rows for UI store hydration without per-attribute keyword validation.
+   */
+  async readAllSnapshotEntitiesForInMemoryHydration(): Promise<Entity[]> {
+    await this.ensureCoreTables();
+    return readAllSnapshotEntitiesForHydration(this.sqlClient);
   }
 
   async update(

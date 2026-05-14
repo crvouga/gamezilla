@@ -2,7 +2,7 @@
 import { assert } from '@gamezilla/lib/assert';
 import type { Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
 import type { Entity, Patch, PatchInput } from './interface';
-import { isValidAttribute, PATCH_META_KEYS } from './interface';
+import { PATCH_META_KEYS } from './interface';
 
 export type EntityKey = string; // `${entityType}\0${entityId}`
 
@@ -32,7 +32,7 @@ export class InMemoryEntityStore {
       prev?.attributes !== undefined ? { ...prev.attributes } : {};
 
     for (const [key, value] of Object.entries(attributes)) {
-      if (!isValidAttribute(key) || PATCH_META_KEYS.includes(key)) continue;
+      if (PATCH_META_KEYS.includes(key)) continue;
       if (value === null) {
         delete nextAttrs[key];
       } else {

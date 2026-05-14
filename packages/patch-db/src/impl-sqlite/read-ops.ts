@@ -3,7 +3,7 @@ import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { assertWhereFragment } from '@gamezilla/lib/sqlite';
 import type { Entity, Patch, PatchDbQuery, PatchDbResult } from '../interface';
 import { entityIdTypeOrWhere } from './entity-pair-or-sql';
-import { toEntity, toPatch } from './mappers';
+import { toEntity, toEntitySnapshotRowTrusted, toPatch } from './mappers';
 import {
   buildLimitSQL,
   buildOrderSQL,
@@ -302,6 +302,18 @@ async function readOneSnapshotBased(
   const patches = await batchFetchPatchesForEntities(sqlClient, rows);
 
   return { query, entities, patches, total, hasMore, nextCursor: null };
+}
+
+/**
+ * Full snapshot scan for in-memory UI hydration — no per-attribute keyword checks.
+ */
+export async function readAllSnapshotEntitiesForHydration(
+  sqlClient: SqlClient
+): Promise<Entity[]> {
+  const rows = await sqlClient.query<SnapshotRow>(
+    'SELECT * FROM snapshots ORDER BY entity_type ASC, entity_id ASC'
+  );
+  return rows.map((row) => toEntitySnapshotRowTrusted(row));
 }
 
 export async function batchFetchSnapshots(

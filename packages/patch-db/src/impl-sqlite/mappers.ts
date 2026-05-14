@@ -1,3 +1,4 @@
+import type { AttributeState } from '@gamezilla/lib/attribute';
 import type { Assert } from '@gamezilla/lib/assert';
 import { assert } from '@gamezilla/lib/assert';
 import {
@@ -70,5 +71,21 @@ export function toEntity(row: SnapshotRow): Entity {
     entityId: row.entity_id,
     entityType: row.entity_type,
     attributes: attrs,
+  };
+}
+
+/**
+ * Snapshot row → entity without per-key keyword validation.
+ * For in-memory UI hydration only; persisted snapshots are assumed valid.
+ */
+export function toEntitySnapshotRowTrusted(row: SnapshotRow): Entity {
+  const raw = parseAttributes(row.attributes, {
+    entity_id: row.entity_id,
+    entity_type: row.entity_type,
+  });
+  return {
+    entityId: row.entity_id,
+    entityType: row.entity_type,
+    attributes: raw as AttributeState,
   };
 }
