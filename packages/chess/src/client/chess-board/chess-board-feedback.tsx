@@ -2,14 +2,12 @@
 import {
   Circle,
   Group,
-  matchFont,
   Path,
   Skia,
   Text as SkiaText,
   type SkFont,
 } from '@shopify/react-native-skia';
 import { useEffect, useMemo, type ReactNode } from 'react';
-import { Platform } from 'react-native';
 import {
   Easing,
   useDerivedValue,
@@ -18,6 +16,7 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 import { squareToXY } from './chess-board-geometry';
+import { createChessBoardSkiaFont } from './chess-board-skia-font';
 import type {
   BoardOrientation,
   BoardTheme,
@@ -110,7 +109,7 @@ type SingleBadgeProps = {
   cy: number;
   fb: CellFeedback;
   theme: BoardTheme;
-  font: SkFont;
+  font: SkFont | null;
 };
 
 type BadgeGlyphProps = {
@@ -119,7 +118,7 @@ type BadgeGlyphProps = {
   cy: number;
   radius: number;
   color: string;
-  font: SkFont;
+  font: SkFont | null;
 };
 
 function BadgeGlyph({
@@ -167,6 +166,7 @@ function BadgeGlyph({
   }
 
   if (textGlyph !== undefined) {
+    if (font === null) return null;
     return (
       <SkiaText
         x={cx - radius * 0.55 * (textGlyph.length === 2 ? 1.2 : 0.6)}
@@ -238,17 +238,9 @@ export function ChessBoardFeedback(props: ChessBoardFeedbackProps): ReactNode {
   const cell = size / 8;
   const badgeRadius = Math.max(8, cell * 0.16);
 
-  /**
-   * Per-platform system-font construction. See `chess-board-canvas.tsx`
-   * for the full rationale — short version: iOS's JSI rejects an
-   * explicit-undefined typeface arg to `Skia.Font`, but Web's CanvasKit
-   * stub throws `Not implemented on React Native Web` for `matchFont`'s
-   * underlying `matchFamilyStyle` call. Branch per platform.
-   */
   const font = useMemo(() => {
     const fontSize = Math.max(10, Math.floor(cell * 0.28));
-    if (Platform.OS === 'ios') return matchFont({ fontSize });
-    return Skia.Font(undefined, fontSize);
+    return createChessBoardSkiaFont(fontSize);
   }, [cell]);
 
   const entries = useMemo<readonly [Square, CellFeedback][]>(() => {

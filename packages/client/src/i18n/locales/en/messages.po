@@ -549,7 +549,6 @@ msgstr "Avatar"
 msgid "Avatar style"
 msgstr "Avatar style"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker-screen.tsx
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 #: packages/chess/src/client/chess-settings/chess-settings-developer-ui-component-detail-screen.tsx
 #: packages/chess/src/client/chess-settings/chess-settings-developer-ui-components-screen.tsx
@@ -604,8 +603,8 @@ msgid "Back to Dev"
 msgstr "Back to Dev"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
-msgid "Back to puzzle menu"
-msgstr "Back to puzzle menu"
+#~ msgid "Back to puzzle menu"
+#~ msgstr "Back to puzzle menu"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Back to start. King has nowhere safe."
@@ -732,6 +731,10 @@ msgstr "Bishop"
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Black"
 msgstr "Black"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "Black to move"
+msgstr "Black to move"
 
 #: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 #~ msgid "Blind swine mate! Excellent."
@@ -1148,7 +1151,6 @@ msgstr "Colors"
 
 #: packages/chess/src/client/chess-main-menu.tsx
 #: packages/chess/src/client/chess-main-menu.tsx
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-main-menu.tsx
 msgid "Coming soon"
 msgstr "Coming soon"
 
@@ -1266,6 +1268,10 @@ msgstr "CopyToClipboardField"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Cornered the king. Lovely."
 #~ msgstr "Cornered the king. Lovely."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "Correct"
+msgstr "Correct"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Could castling solve this?"
@@ -1755,28 +1761,28 @@ msgstr "Display name shown in the app"
 #~ msgstr "Drag a piece to a bad square."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
-msgid "Drag or tap pieces. Play the solution line."
-msgstr "Drag or tap pieces. Play the solution line."
+#~ msgid "Drag or tap pieces. Play the solution line."
+#~ msgstr "Drag or tap pieces. Play the solution line."
 
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Drag overlay"
 msgstr "Drag overlay"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "e.g. 1500"
-msgstr "e.g. 1500"
+#~ msgid "e.g. 1500"
+#~ msgstr "e.g. 1500"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "e.g. 2000"
-msgstr "e.g. 2000"
+#~ msgid "e.g. 2000"
+#~ msgstr "e.g. 2000"
 
 #: packages/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "e.g. fork, mateIn2"
-msgstr "e.g. fork, mateIn2"
+#~ msgid "e.g. fork, mateIn2"
+#~ msgstr "e.g. fork, mateIn2"
 
 #: packages/auth/src/client/account-device/account-devices-card.tsx
 msgid "Each install has its own device id. Tap a row for full details."
@@ -3132,6 +3138,10 @@ msgstr "Guests"
 #~ msgid "Here we go…"
 #~ msgstr "Here we go…"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-action-bar.tsx
+msgid "Hint"
+msgstr "Hint"
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Hmm, let's grab another puzzle instead."
 #~ msgstr "Hmm, let's grab another puzzle instead."
@@ -3625,7 +3635,6 @@ msgstr "List name..."
 msgid "Live"
 msgstr "Live"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
 #: packages/patch-db-example/src/db-client/entities-screen.tsx
 msgid "Load more"
 msgstr "Load more"
@@ -3635,8 +3644,8 @@ msgid "Loading entity…"
 msgstr "Loading entity…"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
-#~ msgid "Loading puzzle…"
-#~ msgstr "Loading puzzle…"
+msgid "Loading puzzle…"
+msgstr "Loading puzzle…"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Loading your next challenge. You've got this."
@@ -3963,16 +3972,16 @@ msgstr "Matchmaking"
 #~ msgstr "Mating pattern available. Trust the position."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "Max rating (optional)"
-msgstr "Max rating (optional)"
+#~ msgid "Max rating (optional)"
+#~ msgstr "Max rating (optional)"
 
 #: packages/profile/src/client/avatar-editor-background-block.tsx
 msgid "Max rotation"
 msgstr "Max rotation"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "Maximum rating"
-msgstr "Maximum rating"
+#~ msgid "Maximum rating"
+#~ msgstr "Maximum rating"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Maybe a square needs clearing first."
@@ -4011,8 +4020,8 @@ msgstr "Maximum rating"
 #~ msgstr "Middlegame. Tactics live here."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "Min rating (optional)"
-msgstr "Min rating (optional)"
+#~ msgid "Min rating (optional)"
+#~ msgstr "Min rating (optional)"
 
 #: packages/profile/src/client/avatar-editor-background-block.tsx
 msgid "Min rotation"
@@ -4023,8 +4032,8 @@ msgstr "Min rotation"
 #~ msgstr "Mind the color squares."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "Minimum rating"
-msgstr "Minimum rating"
+#~ msgid "Minimum rating"
+#~ msgstr "Minimum rating"
 
 #: packages/auth/src/client/account-device/account-device-detail-screen.tsx
 msgid "Missing device id."
@@ -4122,6 +4131,10 @@ msgstr "Network reachability and API server health"
 #: packages/client/src/pwa/update-prompt.tsx
 msgid "New version available — reload to update"
 msgstr "New version available — reload to update"
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-action-bar.tsx
+msgid "Next"
+msgstr "Next"
 
 #: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 #~ msgid "Nice castling! Well done."
@@ -4447,8 +4460,8 @@ msgid "No patches for this entity."
 msgstr "No patches for this entity."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
-msgid "No puzzle selected"
-msgstr "No puzzle selected"
+#~ msgid "No puzzle selected"
+#~ msgstr "No puzzle selected"
 
 #: packages/patch-db-example/src/db-client/entities-screen.tsx
 msgid "No rows match filter."
@@ -4467,8 +4480,8 @@ msgid "No shapes yet"
 msgstr "No shapes yet"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "No themes listed"
-msgstr "No themes listed"
+#~ msgid "No themes listed"
+#~ msgstr "No themes listed"
 
 #: packages/patch-db-example/src/todo/list/todo-list-detail.tsx
 msgid "No todos yet. Add one above!"
@@ -4696,8 +4709,8 @@ msgid "Open command palette"
 msgstr "Open command palette"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
-msgid "Open puzzle picker"
-msgstr "Open puzzle picker"
+#~ msgid "Open puzzle picker"
+#~ msgstr "Open puzzle picker"
 
 #: packages/spaces/src/client/card/space-card-open-link.tsx
 msgid "Open space {resolvedTitle}"
@@ -4712,8 +4725,8 @@ msgstr "Open space {resolvedTitle}"
 #~ msgstr "Open the kingside lines. The king's the target."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
-msgid "Open the picker to choose a puzzle from PatchDB."
-msgstr "Open the picker to choose a puzzle from PatchDB."
+#~ msgid "Open the picker to choose a puzzle from PatchDB."
+#~ msgstr "Open the picker to choose a puzzle from PatchDB."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Opening — develop with purpose."
@@ -4953,12 +4966,12 @@ msgid "Pick a game to play."
 msgstr "Pick a game to play."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "Pick a puzzle"
-msgstr "Pick a puzzle"
+#~ msgid "Pick a puzzle"
+#~ msgstr "Pick a puzzle"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-main-menu.tsx
-msgid "Pick a puzzle mode."
-msgstr "Pick a puzzle mode."
+#~ msgid "Pick a puzzle mode."
+#~ msgstr "Pick a puzzle mode."
 
 #: packages/chess/src/client/chess-settings/chess-settings-developer-ui-component-detail-screen.tsx
 msgid "Pick one from the previous screen."
@@ -5065,8 +5078,8 @@ msgid "Platform: {platformOs}"
 msgstr "Platform: {platformOs}"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-main-menu.tsx
-msgid "Play"
-msgstr "Play"
+#~ msgid "Play"
+#~ msgstr "Play"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Played by a master. Their idea is in here."
@@ -5124,7 +5137,6 @@ msgstr "Preview updates as you edit. Save to keep changes."
 msgid "production"
 msgstr "production"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-main-menu.tsx
 #: packages/client/src/app/(tabs)/_layout.tsx
 #: packages/client/src/ui/sidebar/app-sidebar.tsx
 #: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
@@ -5173,7 +5185,6 @@ msgstr "Provider user id: {providerUserId}"
 #~ msgstr "Push on the queenside. The wing needs a crack."
 
 #: packages/chess/src/client/chess-main-menu.tsx
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-main-menu.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
 
@@ -5291,8 +5302,8 @@ msgid "Random"
 msgstr "Random"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "Rating {rating} · popularity {popularity}"
-msgstr "Rating {rating} · popularity {popularity}"
+#~ msgid "Rating {rating} · popularity {popularity}"
+#~ msgstr "Rating {rating} · popularity {popularity}"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Re-examine the candidates. The forcing line wins."
@@ -5390,8 +5401,8 @@ msgid "Reset position"
 msgstr "Reset position"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
-msgid "Reset puzzle"
-msgstr "Reset puzzle"
+#~ msgid "Reset puzzle"
+#~ msgstr "Reset puzzle"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Reset. A few moves and it's done."
@@ -5709,6 +5720,10 @@ msgstr "Reset puzzle"
 msgid "Result"
 msgstr "Result"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-action-bar.tsx
+msgid "Retry"
+msgstr "Retry"
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Right idea — and that's it!"
 #~ msgstr "Right idea — and that's it!"
@@ -5864,8 +5879,8 @@ msgid "Scanning snapshots…"
 msgstr "Scanning snapshots…"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "Search by theme keyword and optional rating bounds. Data loads from PatchDB."
-msgstr "Search by theme keyword and optional rating bounds. Data loads from PatchDB."
+#~ msgid "Search by theme keyword and optional rating bounds. Data loads from PatchDB."
+#~ msgstr "Search by theme keyword and optional rating bounds. Data loads from PatchDB."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "See the alignment on rank, file, or diagonal."
@@ -5998,8 +6013,8 @@ msgstr "Shared UI explorer"
 #~ msgstr "Short line going well. Finish strong."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "Showing first {shownCount} by popularity"
-msgstr "Showing first {shownCount} by popularity"
+#~ msgid "Showing first {shownCount} by popularity"
+#~ msgstr "Showing first {shownCount} by popularity"
 
 #: packages/profile/src/client/avatar-editor-preview.tsx
 msgid "Shuffle seed"
@@ -6181,9 +6196,9 @@ msgstr "Solid"
 msgid "Solid fills and ring borders — for color-coded threats, defended squares, etc."
 msgstr "Solid fills and ring borders — for color-coded threats, defended squares, etc."
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
-#~ msgid "Solved"
-#~ msgstr "Solved"
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "Solved"
+msgstr "Solved"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Solved a master-game puzzle. Great work."
@@ -6762,12 +6777,12 @@ msgid "Theme"
 msgstr "Theme"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "Theme contains"
-msgstr "Theme contains"
+#~ msgid "Theme contains"
+#~ msgstr "Theme contains"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker.tsx
-msgid "Theme search"
-msgstr "Theme search"
+#~ msgid "Theme search"
+#~ msgstr "Theme search"
 
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Themed boards"
@@ -7464,8 +7479,8 @@ msgid "Waiting for metrics from server..."
 msgstr "Waiting for metrics from server..."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-picker-screen.tsx
-msgid "Waiting for space sync…"
-msgstr "Waiting for space sync…"
+#~ msgid "Waiting for space sync…"
+#~ msgstr "Waiting for space sync…"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Walk it one step at a time. The king has no run."
@@ -7564,6 +7579,10 @@ msgstr "where (JSON, optional)"
 msgid "White"
 msgstr "White"
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "White to move"
+msgstr "White to move"
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Who unblocks the line for a free check?"
 #~ msgstr "Who unblocks the line for a free check?"
@@ -7615,6 +7634,10 @@ msgstr "Wipe local database?"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "World-class precision needed here."
 #~ msgstr "World-class precision needed here."
+
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "Wrong"
+msgstr "Wrong"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 #~ msgid "Wrong — try again"

@@ -62,6 +62,8 @@ function resolveIndicatorState(
 
 export type SpeakingAvatarProps = {
   message: string;
+  /** Rendered above the bubble text (see {@link SpeechBubble}). */
+  header?: React.ReactNode;
   /**
    * When true, the speech bubble shows the typing indicator (e.g. while an
    * LLM-backed coach line is loading). TTS stays off until this is false and
@@ -92,6 +94,7 @@ export type SpeakingAvatarProps = {
 
 export function SpeakingAvatar({
   message,
+  header,
   bubbleResolving = false,
   numberOfLines,
   style,
@@ -143,6 +146,7 @@ export function SpeakingAvatar({
       <SpeechBubble
         text={message}
         loading={isLoading || bubbleResolving}
+        {...(header !== undefined ? { header } : {})}
         {...(numberOfLines !== undefined ? { numberOfLines } : {})}
       />
     </Box>

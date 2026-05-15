@@ -20,6 +20,19 @@ export type ChessPuzzleSetupResult =
   | ChessPuzzleSetupReady
   | { readonly kind: 'invalid' };
 
+/** Parses UCI `from`/`to` squares (ignores promotion suffix). */
+export function uciToSquares(
+  uci: string
+): { readonly from: string; readonly to: string } | null {
+  const t = uci.trim().toLowerCase();
+  if (t.length < 4) return null;
+  const from = t.slice(0, 2);
+  const to = t.slice(2, 4);
+  const squareRe = /^[a-h][1-8]$/;
+  if (!squareRe.test(from) || !squareRe.test(to)) return null;
+  return { from, to };
+}
+
 /** Lower-cased UCI tokens; empty entries dropped. */
 export function tokenize(movesStr: string): readonly string[] {
   return movesStr

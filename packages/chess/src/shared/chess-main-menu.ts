@@ -9,8 +9,6 @@ import type { HandleResult, RoomState } from '@gamezilla/room';
 export const CHESS_SCREEN = {
   root: 'root',
   puzzle: 'puzzle',
-  puzzlePicker: 'puzzle-picker',
-  puzzlePlay: 'puzzle-play',
   settings: 'settings',
   settingsDeveloper: 'settings-developer',
   settingsDeveloperUi: 'settings-developer-ui',

@@ -10,6 +10,7 @@ import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
   ClearChessPuzzlePlay,
+  RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
   StartChessPuzzlePlay,
   SubmitChessPuzzleMove,
@@ -219,6 +220,34 @@ describe('chess puzzle play FSM — Submit', () => {
     expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(before + 1);
     expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(beforeFen);
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
+    expect(ChessPuzzlePlayAttr.wrongFromSquare.from(state)).toBe('h1');
+    expect(ChessPuzzlePlayAttr.wrongToSquare.from(state)).toBe('h2');
+  });
+
+  test('second wrong move while already wrong stays wrong', () => {
+    let state = startValid(ChessModule.initialState());
+    const wrong1 = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'h1h2' })),
+      HOST
+    );
+    if (!wrong1.ok) throw new Error('first wrong failed');
+    state = reduceAll(state, wrong1.events);
+    const lk1 = ChessPuzzlePlayAttr.layoutKey.from(state);
+    const wrong2 = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'a1a2' })),
+      HOST
+    );
+    expect(wrong2.ok).toBe(true);
+    if (!wrong2.ok) return;
+    state = reduceAll(state, wrong2.events);
+    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
+      CHESS_PUZZLE_PLAY_STATUS.wrong
+    );
+    expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(lk1 + 1);
+    expect(ChessPuzzlePlayAttr.wrongFromSquare.from(state)).toBe('a1');
+    expect(ChessPuzzlePlayAttr.wrongToSquare.from(state)).toBe('a2');
   });
 
   test('wrong then correct returns to solving and advances', () => {
@@ -294,6 +323,47 @@ describe('chess puzzle play FSM — Submit', () => {
     expect(res.ok).toBe(false);
     if (res.ok) return;
     expect(res.error.type).toBe(ROOM_ERROR_TYPE.unauthorized);
+  });
+});
+
+describe('chess puzzle play FSM — Hint', () => {
+  test('RequestHint sets expected squares and bumps layoutKey', () => {
+    let state = startValid(ChessModule.initialState());
+    const beforeLk = ChessPuzzlePlayAttr.layoutKey.from(state);
+    const res = ChessModule.handle(
+      state,
+      cmd(RequestChessPuzzleHint({})),
+      HOST
+    );
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    state = reduceAll(state, res.events);
+    expect(ChessPuzzlePlayAttr.expectedFromSquare.from(state)).toBe('e1');
+    expect(ChessPuzzlePlayAttr.expectedToSquare.from(state)).toBe('f2');
+    expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(beforeLk + 1);
+  });
+
+  test('Reset clears wrong and hint squares', () => {
+    let state = startValid(ChessModule.initialState());
+    const wrong = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'h1h2' })),
+      HOST
+    );
+    if (!wrong.ok) throw new Error('wrong failed');
+    state = reduceAll(state, wrong.events);
+    const reset = ChessModule.handle(
+      state,
+      cmd(ResetChessPuzzlePlay({})),
+      HOST
+    );
+    expect(reset.ok).toBe(true);
+    if (!reset.ok) return;
+    state = reduceAll(state, reset.events);
+    expect(ChessPuzzlePlayAttr.wrongFromSquare.from(state)).toBeNull();
+    expect(ChessPuzzlePlayAttr.wrongToSquare.from(state)).toBeNull();
+    expect(ChessPuzzlePlayAttr.expectedFromSquare.from(state)).toBeNull();
+    expect(ChessPuzzlePlayAttr.expectedToSquare.from(state)).toBeNull();
   });
 });
 

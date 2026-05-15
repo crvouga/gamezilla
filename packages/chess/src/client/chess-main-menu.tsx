@@ -14,8 +14,6 @@ import {
   SetChessMainMenuScreen,
 } from '../shared/chess-main-menu';
 import { ChessBoardCanvasBootstrap } from './chess-board/chess-board-canvas-bootstrap';
-import { PuzzleMainMenu } from './chess-puzzle/chess-puzzle-main-menu';
-import { PuzzlePickerScreen } from './chess-puzzle/chess-puzzle-picker-screen';
 import { PuzzlePlayScreen } from './chess-puzzle/chess-puzzle-play-screen';
 import { ChessSettingsDeveloperScreen } from './chess-settings/chess-settings-developer-screen';
 import { ChessSettingsDeveloperUiComponentDetailScreen } from './chess-settings/chess-settings-developer-ui-component-detail-screen';
@@ -32,10 +30,6 @@ function ChessScreenSwitch({ onBackToGames }: ChessMainMenuProps): ReactNode {
 
   switch (screen) {
     case CHESS_SCREEN.puzzle:
-      return <PuzzleMainMenu />;
-    case CHESS_SCREEN.puzzlePicker:
-      return <PuzzlePickerScreen />;
-    case CHESS_SCREEN.puzzlePlay:
       return <PuzzlePlayScreen />;
     case CHESS_SCREEN.settings:
       return <ChessSettingsScreen />;

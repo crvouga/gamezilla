@@ -45,8 +45,12 @@ const ENTER_DURATION_MS = 600;
 /** How many px the bubble translates rightward over the entrance (starts left of resting). */
 const ENTER_TRANSLATE_X = 24;
 
+export const SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT = 28;
+
 export type SpeechBubbleProps = {
   text: string;
+  /** Optional strip rendered above the message body (e.g. puzzle status). */
+  header?: ReactNode;
   /**
    * Number of lines reserved in the bubble. The bubble's height is
    * pinned to `numberOfLines * 26 + 24 px` (independent of `text`) so
@@ -95,6 +99,7 @@ function useBubbleEnterAnim(text: string): {
 
 export function SpeechBubble({
   text,
+  header,
   numberOfLines = DEFAULT_NUMBER_OF_LINES,
   loading = false,
 }: SpeechBubbleProps): ReactNode {
@@ -103,7 +108,9 @@ export function SpeechBubble({
   // reads as a callout against the dark backdrop instead of blending in.
   const bubbleSurface = defaultColors.light.surface;
   const bubbleHeight =
-    numberOfLines * BUBBLE_LINE_HEIGHT + 2 * BUBBLE_PADDING_VERTICAL;
+    numberOfLines * BUBBLE_LINE_HEIGHT +
+    2 * BUBBLE_PADDING_VERTICAL +
+    (header !== undefined ? SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT : 0);
   const { opacity, translateX } = useBubbleEnterAnim(text);
 
   return (
@@ -139,6 +146,7 @@ export function SpeechBubble({
           },
         ]}
       >
+        {header !== undefined ? header : null}
         {loading ? (
           <TypingDots
             color={defaultColors.light.textSecondary}

@@ -1,4 +1,6 @@
 import { SpeakingAvatarAssistant } from '@gamezilla/assistant/client';
+import { useMyId } from '@gamezilla/auth/client/use-current-user';
+import { AbacEntityAttr } from '@gamezilla/patch-db/abac/abac-entity-attr';
 import type { PatchDbQuery } from '@gamezilla/patch-db/interface';
 import {
   useEntityAttribute,
@@ -9,17 +11,16 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@gamezilla/spaces/client/room/use-space-room-selector';
-import {
-  Box,
-  Card,
-  IconButton,
-  IconSymbol,
-  Pressable,
-  Text,
-  useTheme,
-} from '@gamezilla/ui';
+import { Box, IconButton, IconSymbol, Text, useTheme } from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
@@ -29,22 +30,36 @@ import {
   ChessPuzzleAttr,
 } from '../../shared/chess-puzzle-entities';
 import {
-  ClearChessPuzzlePlay,
-  ResetChessPuzzlePlay,
-} from '../../shared/chess-puzzle-play';
+  CHESS_PUZZLE_INTERACTION_ENTITY_TYPE,
+  ChessPuzzleInteractionAttr,
+  interactionRowFromEntityAttributes,
+  type ChessPuzzleInteractionRow,
+} from '../../shared/chess-puzzle-interaction-entities';
 import {
-  ChessPuzzleSessionAttr,
-  SelectChessPuzzle,
-} from '../../shared/chess-puzzle-session';
+  CHESS_PUZZLE_PLAY_STATUS,
+  ChessPuzzlePlayAttr,
+  ClearChessPuzzlePlay,
+  RequestChessPuzzleHint,
+  ResetChessPuzzlePlay,
+  StartChessPuzzlePlay,
+} from '../../shared/chess-puzzle-play';
 import { ChessBoard } from '../chess-board/chess-board';
-
+import type { Square } from '../chess-board/chess-board-types';
 import { useChessPuzzleAssistant } from '../assistant/use-chess-puzzle-assistant';
+import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
+import { deriveChessPuzzleCellFeedback } from './chess-puzzle-cell-feedback';
+import { uciFromMove } from './chess-puzzle-play-chess-utils';
+import { chessPuzzleStatusKindFromState } from './chess-puzzle-status-from-state';
+import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
+import { useChessPuzzleInteractionRecorder } from './use-chess-puzzle-interaction-recorder';
+import { useNextPuzzleId } from './use-next-puzzle-id';
 import { usePuzzleSolver } from './use-chess-puzzle-solver';
 
 const BOARD_MAX_WIDTH = 720;
 const BACK_BUTTON_SIZE = 40;
 const BACK_ROW_PADDING_TOP = 12;
 const BACK_ROW_PADDING_HORIZONTAL = 12;
+const CORRECT_FLASH_MS = 1500;
 
 function BackButtonRow({ onPress }: { onPress: () => void }): ReactNode {
   const { t } = useLingui();
@@ -76,52 +91,6 @@ function BackButtonRow({ onPress }: { onPress: () => void }): ReactNode {
   );
 }
 
-function EmptyPickPuzzle(): ReactNode {
-  const dispatch = useSpaceRoomDispatch();
-  const theme = useTheme();
-  const openPicker = useCallback(() => {
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzlePicker }));
-  }, [dispatch]);
-  const backMenu = useCallback(() => {
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle }));
-  }, [dispatch]);
-
-  return (
-    <Box sx={{ alignSelf: 'stretch', gap: 4, px: 4, pt: 4 }}>
-      <Text
-        variant="title"
-        sx={{ textAlign: 'center' }}
-        label={<Trans>No puzzle selected</Trans>}
-      />
-      <Text
-        variant="body"
-        sx={{ color: 'textSecondary', textAlign: 'center' }}
-        label={<Trans>Open the picker to choose a puzzle from PatchDB.</Trans>}
-      />
-      <Pressable onPress={openPicker}>
-        <Card elevation={0} sx={{ py: 4, alignItems: 'center' }}>
-          <Text variant="body" label={<Trans>Open puzzle picker</Trans>} />
-        </Card>
-      </Pressable>
-      <Pressable onPress={backMenu}>
-        <Card elevation={0} sx={{ py: 4, alignItems: 'center' }}>
-          <Text
-            variant="body"
-            sx={{ color: theme.colors.textSecondary }}
-            label={<Trans>Back to puzzle menu</Trans>}
-          />
-        </Card>
-      </Pressable>
-    </Box>
-  );
-}
-
-/**
- * Keep this puzzle in {@link SyncPatchDb} active entity queries while playing.
- * Otherwise closing the picker tears down the list subscription and poll may
- * omit `chess.puzzle` until the next interval — play then reads empty FEN/moves
- * from the in-memory mirror until a poll merge hydrates SQLite into memory.
- */
 function usePuzzleEntity(puzzleId: string): {
   fen: string;
   movesStr: string;
@@ -171,22 +140,138 @@ function usePuzzleEntity(puzzleId: string): {
   return { fen, movesStr, rating, themes };
 }
 
-function ResetPuzzleButton({ onPress }: { onPress: () => void }): ReactNode {
-  return (
-    <Pressable onPress={onPress}>
-      <Card elevation={0} sx={{ py: 3, alignItems: 'center' }}>
-        <Text variant="body" label={<Trans>Reset puzzle</Trans>} />
-      </Card>
-    </Pressable>
+function usePuzzleInteractions(puzzleId: string): ChessPuzzleInteractionRow[] {
+  const myId = useMyId();
+  const query = useMemo(
+    (): PatchDbQuery => ({
+      entityType: CHESS_PUZZLE_INTERACTION_ENTITY_TYPE,
+      where: {
+        type: 'and',
+        clauses: [
+          {
+            type: '=',
+            attribute: AbacEntityAttr.owner.key,
+            value: myId,
+          },
+          {
+            type: '=',
+            attribute: ChessPuzzleInteractionAttr.puzzleId.key,
+            value: puzzleId,
+          },
+        ],
+      },
+      orderBy: [
+        {
+          attribute: ChessPuzzleInteractionAttr.at.key,
+          direction: 'asc',
+        },
+      ],
+      limit: 100,
+    }),
+    [myId, puzzleId]
+  );
+  const result = useQuery(query);
+  return useMemo(
+    () =>
+      result.entities.map((e) =>
+        interactionRowFromEntityAttributes(e.attributes)
+      ),
+    [result.entities]
   );
 }
 
-function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
-  const dispatch = useSpaceRoomDispatch();
-  const { fen, movesStr, themes } = usePuzzleEntity(puzzleId);
+function LoadingFirstPuzzle(): ReactNode {
+  return (
+    <Box
+      sx={{
+        alignSelf: 'stretch',
+        gap: 4,
+        px: 4,
+        pt: 8,
+        alignItems: 'center',
+      }}
+    >
+      <Text
+        variant="body"
+        sx={{ color: 'textSecondary', textAlign: 'center' }}
+        label={<Trans>Loading puzzle…</Trans>}
+      />
+    </Box>
+  );
+}
 
-  const { displayFen, layoutKey, status, orientation, onMove, solveIdx } =
-    usePuzzleSolver({ fen, movesStr, puzzleId });
+type PuzzlePlayerProps = {
+  puzzleId: string;
+  onRequestNext: () => void;
+};
+
+function PuzzlePlayer({
+  puzzleId,
+  onRequestNext,
+}: PuzzlePlayerProps): ReactNode {
+  const dispatch = useSpaceRoomDispatch();
+  const { fen, movesStr, rating, themes } = usePuzzleEntity(puzzleId);
+  const interactions = usePuzzleInteractions(puzzleId);
+
+  const {
+    displayFen,
+    layoutKey,
+    status,
+    orientation,
+    onMove: onMoveRaw,
+    solveIdx,
+    wrongFromSquare,
+    wrongToSquare,
+    expectedFromSquare,
+  } = usePuzzleSolver({ fen, movesStr, puzzleId });
+
+  const { appendUsedHint, appendAbandoned, setLastUci } =
+    useChessPuzzleInteractionRecorder({
+      puzzleId,
+      puzzleRating: rating,
+      status,
+      solveIdx,
+      interactions,
+    });
+
+  const prevSolveIdxRef = useRef(solveIdx);
+  const [showCorrectFlash, setShowCorrectFlash] = useState(false);
+  const [solvedCrownSquare, setSolvedCrownSquare] = useState<Square | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (
+      status === CHESS_PUZZLE_PLAY_STATUS.solving &&
+      solveIdx > prevSolveIdxRef.current &&
+      prevSolveIdxRef.current > 0
+    ) {
+      setShowCorrectFlash(true);
+      const t = setTimeout(() => setShowCorrectFlash(false), CORRECT_FLASH_MS);
+      prevSolveIdxRef.current = solveIdx;
+      return () => clearTimeout(t);
+    }
+    prevSolveIdxRef.current = solveIdx;
+    return undefined;
+  }, [solveIdx, status]);
+
+  useEffect(() => {
+    if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) return;
+    const fenParts = (displayFen ?? '').split(/\s+/);
+    const side = fenParts[1] === 'b' ? 'w' : 'b';
+    const kingSq = side === 'w' ? 'e1' : 'e8';
+    setSolvedCrownSquare(kingSq as Square);
+    const t = setTimeout(() => setSolvedCrownSquare(null), CORRECT_FLASH_MS);
+    return () => clearTimeout(t);
+  }, [displayFen, status]);
+
+  const onMove = useCallback(
+    (m: Parameters<typeof onMoveRaw>[0]) => {
+      setLastUci(uciFromMove(m));
+      onMoveRaw(m);
+    },
+    [onMoveRaw, setLastUci]
+  );
 
   const assistant = useChessPuzzleAssistant({
     puzzleId,
@@ -196,19 +281,62 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
     layoutKey,
   });
 
-  const backToPuzzleMenu = useCallback(() => {
+  const statusKind = chessPuzzleStatusKindFromState({
+    status,
+    orientation,
+    showCorrectFlash,
+  });
+
+  const cellFeedback = useMemo(
+    () =>
+      deriveChessPuzzleCellFeedback({
+        status,
+        puzzleId,
+        interactions,
+        wrongFromSquare,
+        wrongToSquare,
+        expectedFromSquare,
+        showSolvedCrownOn: solvedCrownSquare,
+      }),
+    [
+      status,
+      puzzleId,
+      interactions,
+      wrongFromSquare,
+      wrongToSquare,
+      expectedFromSquare,
+      solvedCrownSquare,
+    ]
+  );
+
+  const backToRoot = useCallback(() => {
     dispatch(ClearChessPuzzlePlay({}));
-    dispatch(SelectChessPuzzle({ puzzleId: null }));
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle }));
+    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
   }, [dispatch]);
 
-  const onResetPuzzle = useCallback(() => {
+  const onHint = useCallback(() => {
+    dispatch(RequestChessPuzzleHint({}));
+    void appendUsedHint();
+  }, [appendUsedHint, dispatch]);
+
+  const onRetry = useCallback(() => {
+    if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) {
+      void appendAbandoned();
+    }
     dispatch(ResetChessPuzzlePlay({}));
-  }, [dispatch]);
+  }, [appendAbandoned, dispatch, status]);
+
+  const onNext = useCallback(async () => {
+    if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) {
+      await appendAbandoned();
+    }
+    dispatch(ClearChessPuzzlePlay({}));
+    onRequestNext();
+  }, [appendAbandoned, dispatch, onRequestNext, status]);
 
   return (
     <Box sx={{ alignSelf: 'stretch' }}>
-      <BackButtonRow onPress={backToPuzzleMenu} />
+      <BackButtonRow onPress={backToRoot} />
       <Box
         sx={{
           alignSelf: 'center',
@@ -218,23 +346,28 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
         }}
         style={{ width: '100%' }}
       >
-        <SpeakingAvatarAssistant assistant={assistant} />
+        <SpeakingAvatarAssistant
+          assistant={assistant}
+          header={<ChessPuzzleStatusHeader kind={statusKind} rating={rating} />}
+          numberOfLines={2}
+        />
         <ChessBoard
           controlled
           fen={displayFen ?? ''}
           fenSyncKey={layoutKey}
           orientation={orientation}
-          interactive={status === 'solving' || status === 'wrong'}
+          interactive={status === 'solving'}
           onMove={onMove}
           showCoordinates
           highlightLastMove
           highlightLegalMoves
+          cellFeedback={cellFeedback}
         />
-        <ResetPuzzleButton onPress={onResetPuzzle} />
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary', textAlign: 'center' }}
-          label={<Trans>Drag or tap pieces. Play the solution line.</Trans>}
+        <ChessPuzzleActionBar
+          status={status}
+          onHint={onHint}
+          onRetry={onRetry}
+          onNext={() => void onNext()}
         />
       </Box>
     </Box>
@@ -242,15 +375,70 @@ function PuzzlePlayer({ puzzleId }: { puzzleId: string }): ReactNode {
 }
 
 export function PuzzlePlayScreen(): ReactNode {
-  const selectedId = useSpaceRoomSelector(
-    ChessPuzzleSessionAttr.selectedPuzzleId.from
-  );
-  if (selectedId === null) {
+  const myId = useMyId();
+  const dispatch = useSpaceRoomDispatch();
+  const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
+  const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
+
+  const [activePuzzleId, setActivePuzzleId] = useState<string | null>(null);
+  const [attemptSeed, setAttemptSeed] = useState(0);
+
+  const { puzzleId: nextId, loading: nextLoading } = useNextPuzzleId({
+    currentPuzzleId: activePuzzleId ?? roomPuzzleId,
+    seed: `${myId}-${attemptSeed}`,
+  });
+
+  useEffect(() => {
+    if (activePuzzleId !== null) return;
+    if (roomPuzzleId !== null) {
+      setActivePuzzleId(roomPuzzleId);
+      return;
+    }
+    if (nextId !== null) {
+      setActivePuzzleId(nextId);
+    }
+  }, [activePuzzleId, nextId, roomPuzzleId]);
+
+  const { fen, movesStr } = usePuzzleEntity(activePuzzleId ?? '');
+
+  useEffect(() => {
+    if (activePuzzleId === null) return;
+    if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) return;
+    if (fen.length === 0 || movesStr.length === 0) return;
+    dispatch(
+      StartChessPuzzlePlay({
+        puzzleId: activePuzzleId,
+        fen,
+        moves: movesStr,
+      })
+    );
+  }, [activePuzzleId, dispatch, fen, movesStr, roomStatus]);
+
+  const onRequestNext = useCallback(() => {
+    setActivePuzzleId(null);
+    setAttemptSeed((s) => s + 1);
+  }, []);
+
+  useEffect(() => {
+    if (activePuzzleId !== null) return;
+    if (nextId !== null) {
+      setActivePuzzleId(nextId);
+    }
+  }, [activePuzzleId, nextId]);
+
+  if (nextLoading || activePuzzleId === null) {
     return (
       <Box sx={{ alignSelf: 'stretch' }}>
-        <EmptyPickPuzzle />
+        <LoadingFirstPuzzle />
       </Box>
     );
   }
-  return <PuzzlePlayer key={selectedId} puzzleId={selectedId} />;
+
+  return (
+    <PuzzlePlayer
+      key={activePuzzleId}
+      puzzleId={activePuzzleId}
+      onRequestNext={onRequestNext}
+    />
+  );
 }

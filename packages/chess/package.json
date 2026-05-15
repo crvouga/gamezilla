@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@gamezilla/assistant": "workspace:*",
+    "@gamezilla/auth": "workspace:*",
     "@gamezilla/lib": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/room": "workspace:*",

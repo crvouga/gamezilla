@@ -16,6 +16,7 @@ import {
   applyUciToChess,
   setupPuzzleStart,
   tokenize,
+  uciToSquares,
   type ChessPuzzleOrientation,
 } from './chess-puzzle-fsm';
 
@@ -69,7 +70,7 @@ function readOrientation(v: unknown): ChessPuzzleOrientation {
   return v === 'black' ? 'black' : 'white';
 }
 
-const playNs = createAttrNamespace('chess', 'puzzle-play');
+const playNs = createAttrNamespace('chess', 'puzzle', 'play');
 
 /** Room state slice for the active chess puzzle solving session. */
 export const ChessPuzzlePlayAttr = {
@@ -90,6 +91,13 @@ export const ChessPuzzlePlayAttr = {
   orientation: playNs('orientation', readOrientation),
   /** Bumps on every wrong-move / reset so the chess board can force a remount when FEN string is unchanged. */
   layoutKey: playNs('layout-key', readNonNegativeInteger),
+  wrongFromSquare: playNs('wrong-from-square', readNullableNonEmptyString),
+  wrongToSquare: playNs('wrong-to-square', readNullableNonEmptyString),
+  expectedFromSquare: playNs(
+    'expected-from-square',
+    readNullableNonEmptyString
+  ),
+  expectedToSquare: playNs('expected-to-square', readNullableNonEmptyString),
 } as const;
 
 function isNonEmptyString(v: unknown): v is string {
@@ -177,12 +185,30 @@ function validateMoveAcceptedPayload(payload: unknown): payload is {
   );
 }
 
-function validateMoveRejectedPayload(
-  payload: unknown
-): payload is { uci: string; layoutKey: number } {
+function validateMoveRejectedPayload(payload: unknown): payload is {
+  uci: string;
+  layoutKey: number;
+  wrongFromSquare: string;
+  wrongToSquare: string;
+} {
   if (!isPlainRecord(payload)) return false;
   return (
     isNonEmptyString(payload['uci']) &&
+    isNonNegativeInteger(payload['layoutKey']) &&
+    isNonEmptyString(payload['wrongFromSquare']) &&
+    isNonEmptyString(payload['wrongToSquare'])
+  );
+}
+
+function validateHintRevealedPayload(payload: unknown): payload is {
+  fromSquare: string;
+  toSquare: string;
+  layoutKey: number;
+} {
+  if (!isPlainRecord(payload)) return false;
+  return (
+    isNonEmptyString(payload['fromSquare']) &&
+    isNonEmptyString(payload['toSquare']) &&
     isNonNegativeInteger(payload['layoutKey'])
   );
 }
@@ -234,6 +260,12 @@ export const ClearChessPuzzlePlay = chessPuzzlePlayCmdNs(
   validateEmptyPayload
 );
 
+/** Host requests a hint for the current expected move. */
+export const RequestChessPuzzleHint = chessPuzzlePlayCmdNs(
+  'request-hint',
+  validateEmptyPayload
+);
+
 export const chessPuzzlePlayEvtNs = createMessageNamespace(
   'chess-puzzle-play-evt'
 );
@@ -261,6 +293,11 @@ export const ChessPuzzlePlayResetEvt = chessPuzzlePlayEvtNs(
 export const ChessPuzzlePlayCleared = chessPuzzlePlayEvtNs(
   'cleared',
   validateEmptyPayload
+);
+
+export const ChessPuzzleHintRevealed = chessPuzzlePlayEvtNs(
+  'hint-revealed',
+  validateHintRevealedPayload
 );
 
 function reject(error: RoomError): HandleResult {
@@ -376,9 +413,23 @@ function handleSubmitMove(
   const actual = uci.trim().toLowerCase();
   if (actual !== expected) {
     const layoutKey = ChessPuzzlePlayAttr.layoutKey.from(state) + 1;
+    const squares = uciToSquares(actual);
+    if (squares === null) {
+      return reject({
+        type: ROOM_ERROR_TYPE.invalidCommand,
+        reason: 'malformed uci for rejected move',
+      });
+    }
     return {
       ok: true,
-      events: [ChessPuzzlePlayMoveRejected({ uci: actual, layoutKey })],
+      events: [
+        ChessPuzzlePlayMoveRejected({
+          uci: actual,
+          layoutKey,
+          wrongFromSquare: squares.from,
+          wrongToSquare: squares.to,
+        }),
+      ],
     };
   }
   const chessOrErr = loadChessFromDisplayFen(
@@ -480,6 +531,37 @@ function handleReset(state: RoomState, identity: string): HandleResult {
   };
 }
 
+function handleRequestHint(state: RoomState, identity: string): HandleResult {
+  if (!isHostOf(state, identity)) {
+    return unauthorized('only the puzzle host may request a hint');
+  }
+  const status = ChessPuzzlePlayAttr.status.from(state);
+  if (status !== CHESS_PUZZLE_PLAY_STATUS.solving) {
+    return conflict(`cannot request hint while status is ${status}`);
+  }
+  const tokens = tokenize(ChessPuzzlePlayAttr.moves.from(state));
+  const idx = ChessPuzzlePlayAttr.solveIdx.from(state);
+  const expected = tokens[idx];
+  if (expected === undefined) {
+    return internal('no expected move at current solve index');
+  }
+  const squares = uciToSquares(expected);
+  if (squares === null) {
+    return internal('expected move uci is malformed');
+  }
+  const layoutKey = ChessPuzzlePlayAttr.layoutKey.from(state) + 1;
+  return {
+    ok: true,
+    events: [
+      ChessPuzzleHintRevealed({
+        fromSquare: squares.from,
+        toSquare: squares.to,
+        layoutKey,
+      }),
+    ],
+  };
+}
+
 function handleClear(state: RoomState, identity: string): HandleResult {
   const host = ChessPuzzlePlayAttr.hostIdentity.from(state);
   if (host !== null && host !== identity) {
@@ -500,7 +582,10 @@ export const chessPuzzlePlayCommandRouter = createMessageRouter<
     handleSubmitMove(state, identity, c.payload.uci)
   )
   .on(ResetChessPuzzlePlay, (state, identity) => handleReset(state, identity))
-  .on(ClearChessPuzzlePlay, (state, identity) => handleClear(state, identity));
+  .on(ClearChessPuzzlePlay, (state, identity) => handleClear(state, identity))
+  .on(RequestChessPuzzleHint, (state, identity) =>
+    handleRequestHint(state, identity)
+  );
 
 export const chessPuzzlePlayEventReducer = createMessageRouter<
   RoomState,
@@ -520,6 +605,10 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.status(p.status),
       ...ChessPuzzlePlayAttr.solveIdx(p.solveIdx),
       ...ChessPuzzlePlayAttr.layoutKey(0),
+      ...ChessPuzzlePlayAttr.wrongFromSquare(null),
+      ...ChessPuzzlePlayAttr.wrongToSquare(null),
+      ...ChessPuzzlePlayAttr.expectedFromSquare(null),
+      ...ChessPuzzlePlayAttr.expectedToSquare(null),
     };
   })
   .on(ChessPuzzlePlayMoveAccepted, (state, _ctx, ev) => ({
@@ -527,11 +616,19 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
     ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
     ...ChessPuzzlePlayAttr.status(ev.payload.status),
+    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
+    ...ChessPuzzlePlayAttr.wrongToSquare(null),
+    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
+    ...ChessPuzzlePlayAttr.expectedToSquare(null),
   }))
   .on(ChessPuzzlePlayMoveRejected, (state, _ctx, ev) => ({
     ...state,
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.wrong),
+    ...ChessPuzzlePlayAttr.wrongFromSquare(ev.payload.wrongFromSquare),
+    ...ChessPuzzlePlayAttr.wrongToSquare(ev.payload.wrongToSquare),
+    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
+    ...ChessPuzzlePlayAttr.expectedToSquare(null),
   }))
   .on(ChessPuzzlePlayResetEvt, (state, _ctx, ev) => ({
     ...state,
@@ -539,6 +636,16 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
     ...ChessPuzzlePlayAttr.status(ev.payload.status),
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
+    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
+    ...ChessPuzzlePlayAttr.wrongToSquare(null),
+    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
+    ...ChessPuzzlePlayAttr.expectedToSquare(null),
+  }))
+  .on(ChessPuzzleHintRevealed, (state, _ctx, ev) => ({
+    ...state,
+    ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
+    ...ChessPuzzlePlayAttr.expectedFromSquare(ev.payload.fromSquare),
+    ...ChessPuzzlePlayAttr.expectedToSquare(ev.payload.toSquare),
   }))
   .on(ChessPuzzlePlayCleared, (state) => ({
     ...state,
@@ -551,6 +658,10 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.idle),
     ...ChessPuzzlePlayAttr.solveIdx(0),
     ...ChessPuzzlePlayAttr.layoutKey(0),
+    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
+    ...ChessPuzzlePlayAttr.wrongToSquare(null),
+    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
+    ...ChessPuzzlePlayAttr.expectedToSquare(null),
   }));
 
 /** Default values to seed in `SpaceModule.initialState()`. */
@@ -565,5 +676,9 @@ export function chessPuzzlePlayInitialAttrs(): RoomState {
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.idle),
     ...ChessPuzzlePlayAttr.solveIdx(0),
     ...ChessPuzzlePlayAttr.layoutKey(0),
+    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
+    ...ChessPuzzlePlayAttr.wrongToSquare(null),
+    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
+    ...ChessPuzzlePlayAttr.expectedToSquare(null),
   };
 }

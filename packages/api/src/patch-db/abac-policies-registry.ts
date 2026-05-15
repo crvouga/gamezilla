@@ -13,6 +13,8 @@ import {
   CHESS_PUZZLE_ENTITY_TYPE,
   CHESS_PUZZLE_LOAD_ENTITY_TYPE,
 } from '@gamezilla/chess/shared/chess-puzzle-entities';
+import { CHESS_PUZZLE_INTERACTION_ENTITY_TYPE } from '@gamezilla/chess/shared/chess-puzzle-interaction-entities';
+import { CHESS_PUZZLE_PROFILE_ENTITY_TYPE } from '@gamezilla/chess/shared/chess-puzzle-profile-entities';
 import { PROFILE_ENTITY_TYPE } from '@gamezilla/profile/shared/profile-entities';
 import {
   SPACE_ENTITY_TYPE,
@@ -150,6 +152,53 @@ const chessPuzzleLoadPolicy: AppVisibilityPolicy = {
   write: async (ctx) => {
     if (isPatchDbSystemContext(ctx)) return;
     throw new ForbiddenError('chess.puzzle.load is system-only');
+  },
+};
+
+const chessPuzzleProfilePolicy: AppVisibilityPolicy = {
+  read: () => READ_WHERE_ALWAYS_TRUE,
+  write: async (ctx, patch, _tx) => {
+    if (isPatchDbSystemContext(ctx)) return;
+    const appCtx = appAuthFromWriteContext(ctx);
+    if (appCtx === null) return;
+    if (appCtx.accountId === null) {
+      throw new ForbiddenError('chess.puzzle.profile requires sign-in');
+    }
+    assertCreatedByMatchesAuthor(appCtx, patch);
+    const owner = patch.attributes[AbacEntityAttr.owner.key];
+    if (owner !== undefined && owner !== appCtx.accountId) {
+      throw new ForbiddenError('entity/owner mismatch');
+    }
+    if (patch.entityId !== appCtx.accountId) {
+      throw new ForbiddenError('chess.puzzle.profile entityId mismatch', {
+        expected: appCtx.accountId,
+        actual: patch.entityId,
+      });
+    }
+  },
+};
+
+const chessPuzzleInteractionPolicy: AppVisibilityPolicy = {
+  read: authOnlyRead((ctx) => {
+    if (ctx.accountId === null) return READ_WHERE_NEVER_TRUE;
+    return {
+      type: '=',
+      attribute: AbacEntityAttr.owner.key,
+      value: ctx.accountId,
+    };
+  }),
+  write: async (ctx, patch, _tx) => {
+    if (isPatchDbSystemContext(ctx)) return;
+    const appCtx = appAuthFromWriteContext(ctx);
+    if (appCtx === null) return;
+    if (appCtx.accountId === null) {
+      throw new ForbiddenError('chess.puzzle.interaction requires sign-in');
+    }
+    assertCreatedByMatchesAuthor(appCtx, patch);
+    const owner = patch.attributes[AbacEntityAttr.owner.key];
+    if (owner !== undefined && owner !== appCtx.accountId) {
+      throw new ForbiddenError('entity/owner mismatch');
+    }
   },
 };
 
@@ -466,6 +515,8 @@ export const DEFAULT_PATCH_DB_VISIBILITY_POLICIES: Readonly<
   [CLIENT_CONFIG_ENTITY_TYPE]: clientConfigPolicy,
   [CHESS_PUZZLE_ENTITY_TYPE]: chessPuzzlePolicy,
   [CHESS_PUZZLE_LOAD_ENTITY_TYPE]: chessPuzzleLoadPolicy,
+  [CHESS_PUZZLE_PROFILE_ENTITY_TYPE]: chessPuzzleProfilePolicy,
+  [CHESS_PUZZLE_INTERACTION_ENTITY_TYPE]: chessPuzzleInteractionPolicy,
   'admin.metric': adminMetricPolicy,
   [PROFILE_ENTITY_TYPE]: profilePolicy,
   'profile.private': profilePrivatePolicy,

@@ -8,10 +8,8 @@ import {
   FilterMode,
   Group,
   Image,
-  matchFont,
   MipmapMode,
   Rect,
-  Skia,
   Text as SkiaText,
 } from '@shopify/react-native-skia';
 import {
@@ -22,13 +20,14 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { Platform, View } from 'react-native';
+import { View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
 import { ChessBoardArrows } from './chess-board-arrows';
+import { createChessBoardSkiaFont } from './chess-board-skia-font';
 import { ChessBoardFeedback } from './chess-board-feedback';
 import {
   indexFromSquare,
@@ -307,25 +306,9 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
     },
   });
 
-  /**
-   * Per-platform branching for system-font construction:
-   *
-   * - **iOS**: `Skia.Font(undefined, size)` throws `Value is undefined,
-   *   expected an Object` (the JSI binding refuses an explicit-undefined
-   *   typeface). We need `matchFont`, which resolves a real system
-   *   typeface via `Skia.FontMgr.System()` first.
-   * - **Web**: `matchFont` ultimately calls `JsiSkFontMgr.matchFamilyStyle`,
-   *   which is a stub that throws `Not implemented on React Native Web`.
-   *   Web's CanvasKit, however, happily coerces `undefined` typeface to
-   *   `null`, so `Skia.Font(undefined, size)` works fine there.
-   * - **Android**: same as web (CanvasKit fallback).
-   *
-   * Anything other than iOS gets the `Skia.Font` path; iOS gets `matchFont`.
-   */
   const font = useMemo(() => {
     const fontSize = Math.max(10, Math.floor(cell * 0.22));
-    if (Platform.OS === 'ios') return matchFont({ fontSize });
-    return Skia.Font(undefined, fontSize);
+    return createChessBoardSkiaFont(fontSize);
   }, [cell]);
 
   const checkKingSquare = useMemo((): Square | null => {

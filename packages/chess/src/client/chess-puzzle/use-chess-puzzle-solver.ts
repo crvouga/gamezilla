@@ -43,6 +43,10 @@ export function usePuzzleSolver(args: {
   solveIdx: number;
   /** Total number of solution tokens (incl. opponent's setup move). */
   totalTokens: number;
+  wrongFromSquare: string | null;
+  wrongToSquare: string | null;
+  expectedFromSquare: string | null;
+  expectedToSquare: string | null;
 } {
   const { fen, movesStr, puzzleId } = args;
   const dispatch = useSpaceRoomDispatch();
@@ -56,6 +60,18 @@ export function usePuzzleSolver(args: {
   );
   const solveIdx = useSpaceRoomSelector(ChessPuzzlePlayAttr.solveIdx.from);
   const roomMoves = useSpaceRoomSelector(ChessPuzzlePlayAttr.moves.from);
+  const wrongFromSquare = useSpaceRoomSelector(
+    ChessPuzzlePlayAttr.wrongFromSquare.from
+  );
+  const wrongToSquare = useSpaceRoomSelector(
+    ChessPuzzlePlayAttr.wrongToSquare.from
+  );
+  const expectedFromSquare = useSpaceRoomSelector(
+    ChessPuzzlePlayAttr.expectedFromSquare.from
+  );
+  const expectedToSquare = useSpaceRoomSelector(
+    ChessPuzzlePlayAttr.expectedToSquare.from
+  );
 
   useEffect(() => {
     if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) return;
@@ -86,5 +102,9 @@ export function usePuzzleSolver(args: {
     onMove,
     solveIdx,
     totalTokens,
+    wrongFromSquare,
+    wrongToSquare,
+    expectedFromSquare,
+    expectedToSquare,
   };
 }

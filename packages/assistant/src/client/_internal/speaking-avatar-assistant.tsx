@@ -7,6 +7,7 @@ import { subscribeAssistantSpeaking } from './assistant-speaking-bridge';
 export type SpeakingAvatarAssistantProps<TPayload = unknown> = {
   readonly assistant: Assistant<TPayload>;
 } & Omit<SpeakingAvatarProps, 'message' | 'bubbleResolving'>;
+// `header` is forwarded via SpeakingAvatarProps spread below.
 
 /**
  * {@link SpeakingAvatar} whose `message` is driven by the paired
