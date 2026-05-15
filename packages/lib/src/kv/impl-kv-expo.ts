@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Keyword } from '../keyword/keyword';
+import { assertNamespacedKeyword } from '../keyword/keyword';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import { KvImplExpoTx } from './impl-kv-expo-tx';
 import type { Kv, KvRecord } from './interface';
@@ -50,7 +50,7 @@ export class KvImplExpo implements Kv {
     });
   }
 
-  async transaction<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
+  async tx<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
     return this.enqueue(async () => fn(new KvImplExpoTx()));
   }
 }

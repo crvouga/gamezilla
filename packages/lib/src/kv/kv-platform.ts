@@ -32,7 +32,7 @@ export class KvPlatform implements Kv {
     return this.inner.zap(key);
   }
 
-  transaction<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
-    return this.inner.transaction(fn);
+  tx<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
+    return this.inner.tx(fn);
   }
 }

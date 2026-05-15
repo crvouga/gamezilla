@@ -1,5 +1,5 @@
-import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Keyword } from '../keyword/keyword';
+import { assertNamespacedKeyword } from '../keyword/keyword';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import { KvImplWebTx } from './impl-kv-web-tx';
 import type { Kv, KvRecord } from './interface';
@@ -19,7 +19,7 @@ function requireLocalStorage(): Storage {
 
 /**
  * Web {@link Kv} backed by `localStorage`. Operations are serialized through an
- * internal async queue. {@link Kv.transaction} runs the callback with a nested
+ * internal async queue. {@link Kv.tx} runs the callback with a nested
  * {@link Kv} that writes to the same store without re-entering the queue.
  */
 export class KvImplWeb implements Kv {
@@ -58,7 +58,7 @@ export class KvImplWeb implements Kv {
     });
   }
 
-  async transaction<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
+  async tx<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
     return this.enqueue(async () => fn(new KvImplWebTx()));
   }
 }

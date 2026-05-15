@@ -1,6 +1,6 @@
 import { assert } from '../assert';
-import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Keyword } from '../keyword/keyword';
+import { assertNamespacedKeyword } from '../keyword/keyword';
 import { assertKvRecord } from './assert-kv-record';
 import type { Kv, KvRecord } from './interface';
 
@@ -29,7 +29,7 @@ export class KvImplInMemoryTx implements Kv {
     this.map.delete(key);
   }
 
-  async transaction<T>(_fn: (tx: Kv) => Promise<T>): Promise<T> {
+  async tx<T>(_fn: (tx: Kv) => Promise<T>): Promise<T> {
     assert.fail('KvImplInMemory: nested transaction');
   }
 }

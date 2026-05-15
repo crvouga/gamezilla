@@ -33,5 +33,5 @@ export interface Kv {
    * HTTP-only `SqlClient` implementations may not provide real `BEGIN`/`COMMIT`
    * across statements — check the adapter.
    */
-  transaction<T>(fn: (tx: Kv) => Promise<T>): Promise<T>;
+  tx<T>(fn: (tx: Kv) => Promise<T>): Promise<T>;
 }

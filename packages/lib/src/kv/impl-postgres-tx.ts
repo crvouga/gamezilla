@@ -1,6 +1,6 @@
 import { assert } from '../assert';
-import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Keyword } from '../keyword/keyword';
+import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { SqlClient } from '../sql-client/interface';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import type { Kv, KvRecord } from './interface';
@@ -40,7 +40,7 @@ export class KvImplPostgresTx implements Kv {
     await this.sql.run(`DELETE FROM ${TABLE} WHERE key = ?`, [key]);
   }
 
-  async transaction<T>(_fn: (tx: Kv) => Promise<T>): Promise<T> {
+  async tx<T>(_fn: (tx: Kv) => Promise<T>): Promise<T> {
     assert.fail('KvImplPostgres: nested transaction');
   }
 }

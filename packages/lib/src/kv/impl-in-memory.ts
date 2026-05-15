@@ -1,5 +1,5 @@
-import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Keyword } from '../keyword/keyword';
+import { assertNamespacedKeyword } from '../keyword/keyword';
 import { assertKvRecord } from './assert-kv-record';
 import { KvImplInMemoryTx } from './impl-in-memory-tx';
 import type { Kv, KvRecord } from './interface';
@@ -44,7 +44,7 @@ export class KvImplInMemory implements Kv {
     });
   }
 
-  async transaction<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
+  async tx<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
     return this.enqueue(async () => {
       const tx = new KvImplInMemoryTx(this.map);
       return fn(tx);

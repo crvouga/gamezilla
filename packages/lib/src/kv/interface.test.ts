@@ -56,7 +56,7 @@ export function runKvContractTests(factory: () => Kv | Promise<Kv>): void {
 
   test('transaction isolates put', async () => {
     const kv = await Promise.resolve(factory());
-    await kv.transaction(async (tx) => {
+    await kv.tx(async (tx) => {
       await tx.put(K_TX, ATTR_TX);
     });
     expect(await kv.get(K_TX)).toEqual(ATTR_TX);

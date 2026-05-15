@@ -1,8 +1,8 @@
 import { assert } from '../assert';
 import { createAttrNamespace } from '../attribute/attribute';
-import type { Kv, KvRecord } from '../kv/interface';
-import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Keyword } from '../keyword/keyword';
+import { assertNamespacedKeyword } from '../keyword/keyword';
+import type { Kv, KvRecord } from '../kv/interface';
 import { DefaultLockIdentityProvider } from './default-lock-identity-provider';
 import {
   type DistributedLock,
@@ -114,7 +114,7 @@ export class DistributedLockImplKv implements DistributedLock {
       'DistributedLockImplKv: operation must be non-empty',
       { operation }
     );
-    return this.kv.transaction(async (tx) => {
+    return this.kv.tx(async (tx) => {
       const existing = await tx.get(this.key);
       if (existing !== null) {
         throw new LockHeldError(lockInfoFromKvRecord(existing));
@@ -130,7 +130,7 @@ export class DistributedLockImplKv implements DistributedLock {
   }
 
   private async releaseFenced(expectedId: string): Promise<void> {
-    await this.kv.transaction(async (tx) => {
+    await this.kv.tx(async (tx) => {
       const raw = await tx.get(this.key);
       if (raw === null) return;
       let curr: LockInfo;
@@ -163,7 +163,7 @@ export class DistributedLockImplKv implements DistributedLock {
   }
 
   async forceUnlock(): Promise<LockInfo | null> {
-    return this.kv.transaction(async (tx) => {
+    return this.kv.tx(async (tx) => {
       const raw = await tx.get(this.key);
       if (raw === null) return null;
       const info = lockInfoFromKvRecord(raw);

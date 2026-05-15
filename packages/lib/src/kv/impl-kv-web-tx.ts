@@ -1,6 +1,6 @@
 import { assert } from '../assert';
-import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Keyword } from '../keyword/keyword';
+import { assertNamespacedKeyword } from '../keyword/keyword';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import type { Kv, KvRecord } from './interface';
 
@@ -17,7 +17,7 @@ function requireLocalStorage(): Storage {
   return globalThis.localStorage;
 }
 
-/** Transaction view: same backing store; nested {@link Kv.transaction} is rejected. */
+/** Transaction view: same backing store; nested {@link Kv.tx} is rejected. */
 export class KvImplWebTx implements Kv {
   async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
@@ -37,7 +37,7 @@ export class KvImplWebTx implements Kv {
     requireLocalStorage().removeItem(key);
   }
 
-  async transaction<T>(_fn: (tx: Kv) => Promise<T>): Promise<T> {
+  async tx<T>(_fn: (tx: Kv) => Promise<T>): Promise<T> {
     assert.fail('KvImplWeb: nested transaction');
   }
 }

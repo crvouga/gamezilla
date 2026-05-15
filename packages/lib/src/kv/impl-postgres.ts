@@ -21,8 +21,8 @@
  * Bun's `bun:sql` driver does not double-encode JSON parameters.
  */
 import { assert } from '../assert';
-import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Keyword } from '../keyword/keyword';
+import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Logger } from '../logger/logger';
 import type { SqlClient } from '../sql-client/interface';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
@@ -233,7 +233,7 @@ export class KvImplPostgres implements Kv {
     await this.sqlClient.run(`DELETE FROM ${TABLE} WHERE key = ?`, [key]);
   }
 
-  async transaction<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
+  async tx<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
     return this.sqlClient.transaction(async (sqlTx) => {
       await sqlTx.run(ADVISORY_LOCK_SQL, ['kv']);
       const adapter = new KvImplPostgresTx(sqlTx);
