@@ -1,11 +1,11 @@
 import {
+  createAssistantSpeechRenderer,
   createSystemClock,
-  emitAssistantSpeakingMessage,
+  useAssistantSpeechResolver,
 } from '@gamezilla/assistant/client';
 import {
   createAssistant,
   type Assistant,
-  type AssistantAction,
   type AssistantSignal,
 } from '@gamezilla/assistant/shared';
 import { useLingui } from '@lingui/react';
@@ -17,7 +17,7 @@ import {
   type ChessPuzzleAssistantPayload,
 } from './chess-puzzle-assistant-adapter';
 import { buildChessPuzzleAssistantSignal } from './chess-puzzle-assistant-build-signal';
-import { renderChessPuzzleAssistantAction } from './chess-puzzle-assistant-render-action';
+import { parseChessPuzzleAssistantRef } from './chess-puzzle-assistant-ref';
 import { useChessPuzzleAssistantObserve } from './use-chess-puzzle-assistant-observe';
 
 export function useChessPuzzleAssistant(args: {
@@ -33,24 +33,30 @@ export function useChessPuzzleAssistant(args: {
   const prevStatusRef = useRef<SolveStatus | null>(null);
   const themesRef = useRef(args.themes);
   themesRef.current = args.themes;
+  const assistantRef = useRef<Assistant<ChessPuzzleAssistantPayload> | null>(
+    null
+  );
+  const resolver = useAssistantSpeechResolver();
 
   const assistant = useMemo((): Assistant<ChessPuzzleAssistantPayload> => {
+    const renderer = createAssistantSpeechRenderer<ChessPuzzleAssistantPayload>(
+      {
+        resolver,
+        getAssistant: () => assistantRef.current,
+        getLocale: () => i18nRef.current.locale,
+        metaFromAction: (a) =>
+          parseChessPuzzleAssistantRef(a.payloadRef) ?? {},
+      }
+    );
     const inst = createAssistant<ChessPuzzleAssistantPayload>({
       adapter: createChessPuzzleGameAdapter(),
       clock: createSystemClock(),
       seed: args.puzzleId,
-      renderer: {
-        render(action: AssistantAction): void {
-          renderChessPuzzleAssistantAction(
-            action,
-            (m) => i18nRef.current._(m),
-            (m) => emitAssistantSpeakingMessage(inst, m)
-          );
-        },
-      },
+      renderer,
     });
+    assistantRef.current = inst;
     return inst;
-  }, [args.puzzleId]);
+  }, [args.puzzleId, resolver]);
 
   const themesKey = args.themes.join('\u0000');
 

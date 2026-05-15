@@ -36,6 +36,7 @@
     "@gamezilla/chess": "workspace:*",
     "@gamezilla/client-config": "workspace:*",
     "@gamezilla/lib": "workspace:*",
+    "@gamezilla/llm": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/patch-db-example": "workspace:*",
     "@gamezilla/profile": "workspace:*",

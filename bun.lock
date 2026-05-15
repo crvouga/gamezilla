@@ -73,6 +73,7 @@
       "name": "@gamezilla/assistant",
       "version": "0.0.0",
       "dependencies": {
+        "@gamezilla/llm": "workspace:*",
         "@gamezilla/ui": "workspace:*",
         "react": "catalog:",
       },
@@ -157,6 +158,7 @@
         "@gamezilla/chess": "workspace:*",
         "@gamezilla/client-config": "workspace:*",
         "@gamezilla/lib": "workspace:*",
+        "@gamezilla/llm": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
         "@gamezilla/patch-db-example": "workspace:*",
         "@gamezilla/profile": "workspace:*",

@@ -8,7 +8,13 @@ export type { Assistant, AssistantConfig } from './_internal/engine';
 export type { AssistantSignal } from './_internal/signals';
 export { defineSignal } from './_internal/signals';
 
-export type { AssistantAction } from './_internal/action';
+export type { AssistantAction, AssistantSpeakAction } from './_internal/action';
+
+export type {
+  AssistantSpeechRequest,
+  AssistantSpeechResolver,
+} from './speech-resolver';
+export { createNoopSpeechResolver } from './speech-resolver-noop';
 
 export type { Intent } from './_internal/intents';
 export { INTENT } from './_internal/intents';

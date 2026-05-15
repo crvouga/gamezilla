@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 import { ApiClientProviderWrapper } from './api-client-provider';
 import { AppI18nProviderWrapper } from './app-i18n-provider';
 import { AppThemeProvider } from './app-theme-provider';
+import { AssistantSpeechResolverProviderWrapper } from './assistant-speech-resolver-provider';
 import { CommandRegistryProviderWrapper } from './command-registry-provider';
 import { ConfigServiceProviderWrapper } from './config-service-provider';
 import { DeviceEntityBootstrapProvider } from './device-entity-bootstrap-provider';
@@ -15,6 +16,7 @@ import { GamesBootstrapProvider } from './games-bootstrap-provider';
 import { GestureHandlerProvider } from './gesture-handler-provider';
 import { KvProvider } from './kv-provider';
 import { LoggerProvider } from './logger-provider';
+import { LlmProviderWrapper } from './llm-provider';
 import { ObjectStoreProviderWrapper } from './object-store-provider';
 import { PatchDbLocalDataActionsProvider } from './patch-db-local-data-actions-provider';
 import { PatchDbProvider } from './patch-db-provider';
@@ -43,28 +45,32 @@ export function AppProviders({ children }: { children: ReactNode }): ReactNode {
                         <KvProvider>
                           <ConfigServiceProviderWrapper>
                             <ObjectStoreProviderWrapper>
-                              <TtsProviderWrapper>
-                                <ApiClientProviderWrapper>
-                                  <SqlClientProvider>
-                                    <PatchDbProvider>
-                                      <DeviceEntityBootstrapProvider>
-                                        <PatchDbLocalDataActionsProvider>
-                                          <ProfileProvider>
-                                            <AuthBridge />
-                                            <AuthModalsProvider>
-                                              <GamesBootstrapProvider>
-                                                <CommandRegistryProviderWrapper>
-                                                  {children}
-                                                </CommandRegistryProviderWrapper>
-                                              </GamesBootstrapProvider>
-                                            </AuthModalsProvider>
-                                          </ProfileProvider>
-                                        </PatchDbLocalDataActionsProvider>
-                                      </DeviceEntityBootstrapProvider>
-                                    </PatchDbProvider>
-                                  </SqlClientProvider>
-                                </ApiClientProviderWrapper>
-                              </TtsProviderWrapper>
+                              <LlmProviderWrapper>
+                                <AssistantSpeechResolverProviderWrapper>
+                                  <TtsProviderWrapper>
+                                    <ApiClientProviderWrapper>
+                                      <SqlClientProvider>
+                                        <PatchDbProvider>
+                                          <DeviceEntityBootstrapProvider>
+                                            <PatchDbLocalDataActionsProvider>
+                                              <ProfileProvider>
+                                                <AuthBridge />
+                                                <AuthModalsProvider>
+                                                  <GamesBootstrapProvider>
+                                                    <CommandRegistryProviderWrapper>
+                                                      {children}
+                                                    </CommandRegistryProviderWrapper>
+                                                  </GamesBootstrapProvider>
+                                                </AuthModalsProvider>
+                                              </ProfileProvider>
+                                            </PatchDbLocalDataActionsProvider>
+                                          </DeviceEntityBootstrapProvider>
+                                        </PatchDbProvider>
+                                      </SqlClientProvider>
+                                    </ApiClientProviderWrapper>
+                                  </TtsProviderWrapper>
+                                </AssistantSpeechResolverProviderWrapper>
+                              </LlmProviderWrapper>
                             </ObjectStoreProviderWrapper>
                           </ConfigServiceProviderWrapper>
                         </KvProvider>

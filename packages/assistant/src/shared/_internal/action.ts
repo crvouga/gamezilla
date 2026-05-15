@@ -21,8 +21,10 @@ export type AssistantAction =
       readonly payloadRef: string;
       readonly ttlMs: number;
     }
-  | {
+    | {
       readonly kind: 'silence';
       readonly reason: 'budget' | 'cooldown' | 'no-candidate' | 'gate';
       readonly ttlMs: number;
     };
+
+export type AssistantSpeakAction = Extract<AssistantAction, { kind: 'speak' }>;

@@ -4,7 +4,9 @@
   "private": true,
   "exports": {
     "./shared": "./src/shared/index.ts",
-    "./client": "./src/client/index.ts"
+    "./shared/*": ["./src/shared/*.ts", "./src/shared/*.tsx"],
+    "./client": "./src/client/index.ts",
+    "./client/*": ["./src/client/*.ts", "./src/client/*.tsx"]
   },
   "scripts": {
     "lint": "eslint src --max-warnings 0",
@@ -12,6 +14,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@gamezilla/llm": "workspace:*",
     "@gamezilla/ui": "workspace:*",
     "react": "catalog:"
   },
