@@ -7,11 +7,12 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
-const API_ROOT = resolve(SCRIPT_DIR, '..');
+/** `@gamezilla/chess` package root (`packages/chess`). */
+const CHESS_PACKAGE_ROOT = resolve(SCRIPT_DIR, '../../..');
 
 export const DEFAULT_PUZZLE_URL =
   'https://database.lichess.org/lichess_db_puzzle.csv.zst';
-export const DEFAULT_CACHE_DIR = join(API_ROOT, '.cache', 'lichess');
+export const DEFAULT_CACHE_DIR = join(CHESS_PACKAGE_ROOT, '.cache', 'lichess');
 
 export const DEFAULT_BATCH_SIZE = 1000;
 export const DEFAULT_PACE_MS = 250;

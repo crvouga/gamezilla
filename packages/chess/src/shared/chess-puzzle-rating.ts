@@ -51,13 +51,14 @@ function expectedScore(mu: number, muJ: number, phiJ: number): number {
   return 1 / (1 + Math.exp(-g(phiJ) * (mu - muJ)));
 }
 
-function f(
-  x: number,
-  delta: number,
-  phi: number,
-  v: number,
-  a: number
-): number {
+function volatilityObjective(args: {
+  x: number;
+  delta: number;
+  phi: number;
+  v: number;
+  a: number;
+}): number {
+  const { x, delta, phi, v, a } = args;
   const ex = Math.exp(x);
   const num = ex * (delta ** 2 - phi ** 2 - v - ex);
   const den = 2 * (phi ** 2 + v + ex) ** 2;
@@ -76,16 +77,24 @@ function newVolatility(phi: number, delta: number, v: number): number {
     B = A;
   } else {
     let k = 1;
-    while (f(a - k * TAU, delta, phi, v, a) < 0) {
+    while (
+      volatilityObjective({
+        x: a - k * TAU,
+        delta,
+        phi,
+        v,
+        a,
+      }) < 0
+    ) {
       k += 1;
     }
     B = a - k * TAU;
   }
-  let fA = f(A, delta, phi, v, a);
-  let fB = f(B, delta, phi, v, a);
+  let fA = volatilityObjective({ x: A, delta, phi, v, a });
+  let fB = volatilityObjective({ x: B, delta, phi, v, a });
   while (Math.abs(B - A) > 1e-6) {
     const C = A + ((A - B) * fA) / (fB - fA);
-    const fC = f(C, delta, phi, v, a);
+    const fC = volatilityObjective({ x: C, delta, phi, v, a });
     if (fC * fB < 0) {
       A = B;
       fA = fB;

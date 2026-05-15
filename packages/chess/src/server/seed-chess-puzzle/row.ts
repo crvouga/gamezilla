@@ -5,10 +5,7 @@
  * No SQL, no I/O — exported so unit tests can pin the canonical-JSON /
  * content-addressed id behaviour without booting the seed runtime.
  */
-import {
-  CHESS_PUZZLE_ENTITY_TYPE,
-  ChessPuzzleAttr,
-} from '@gamezilla/chess/shared/chess-puzzle-entities';
+import { ChessPuzzleAttr } from '@gamezilla/chess/shared/chess-puzzle-entities';
 import {
   PATCH_CREATED_BY_ID,
   PATCH_SESSION_ID,
@@ -150,5 +147,3 @@ export function rowToPuzzleBatchEntry(
   const patchId = contentAddressedPatchId(patchAttrs);
   return { puzzleId, snapshotAttrs, patchAttrs, patchId };
 }
-
-export { CHESS_PUZZLE_ENTITY_TYPE };

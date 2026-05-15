@@ -1,3 +1,7 @@
+import {
+  useSpaceRoomDispatch,
+  useSpaceRoomSelector,
+} from '@gamezilla/spaces/client/room/use-space-room-selector';
 import { useCallback, useEffect } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -7,11 +11,6 @@ import {
   type ChessPuzzlePlayStatus,
 } from '../../shared/chess-puzzle-play';
 import type { Move } from '../chess-board/chess-board-types';
-
-import {
-  useSpaceRoomDispatch,
-  useSpaceRoomSelector,
-} from '@gamezilla/spaces/client/room/use-space-room-selector';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 
 /**
@@ -20,37 +19,7 @@ import { uciFromMove } from './chess-puzzle-play-chess-utils';
  */
 export type SolveStatus = 'loading' | ChessPuzzlePlayStatus;
 
-/**
- * Bridges the puzzle play screen to the server-authoritative FSM in
- * {@link ChessPuzzlePlayAttr}. Auto-dispatches `StartChessPuzzlePlay` when the
- * room is `idle` and the puzzle entity (FEN + moves) is available locally.
- * `onMove` dispatches `SubmitChessPuzzleMove`; the server validates host
- * identity, expected token, and move legality before mutating room state.
- */
-export function usePuzzleSolver(args: {
-  fen: string;
-  movesStr: string;
-  puzzleId: string;
-}): {
-  displayFen: string | null;
-  /** Bumps on wrong move / reset so the board remounts when FEN string is unchanged. */
-  layoutKey: number;
-  status: SolveStatus;
-  /** Side the human sits on for this puzzle — fixed for the session, not derived from live FEN. */
-  orientation: 'white' | 'black';
-  onMove: (m: Move) => void;
-  /** Index of the next expected token in the solution line (server-authoritative). */
-  solveIdx: number;
-  /** Total number of solution tokens (incl. opponent's setup move). */
-  totalTokens: number;
-  wrongFromSquare: string | null;
-  wrongToSquare: string | null;
-  expectedFromSquare: string | null;
-  expectedToSquare: string | null;
-} {
-  const { fen, movesStr, puzzleId } = args;
-  const dispatch = useSpaceRoomDispatch();
-
+function useChessPuzzlePlayRoomSelectors() {
   const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
   const displayFen = useSpaceRoomSelector(ChessPuzzlePlayAttr.displayFen.from);
@@ -72,6 +41,61 @@ export function usePuzzleSolver(args: {
   const expectedToSquare = useSpaceRoomSelector(
     ChessPuzzlePlayAttr.expectedToSquare.from
   );
+  return {
+    roomStatus,
+    roomPuzzleId,
+    displayFen,
+    layoutKey,
+    orientation,
+    solveIdx,
+    roomMoves,
+    wrongFromSquare,
+    wrongToSquare,
+    expectedFromSquare,
+    expectedToSquare,
+  };
+}
+
+/**
+ * Bridges the puzzle play screen to the server-authoritative FSM in
+ * {@link ChessPuzzlePlayAttr}. Auto-dispatches `StartChessPuzzlePlay` when the
+ * room is `idle` and the puzzle entity (FEN + moves) is available locally.
+ * `onMove` dispatches `SubmitChessPuzzleMove`; the server validates host
+ * identity, expected token, and move legality before mutating room state.
+ */
+export function usePuzzleSolver(args: {
+  fen: string;
+  movesStr: string;
+  puzzleId: string;
+}): {
+  displayFen: string | null;
+  /** Bumps on wrong move / reset so the board remounts when FEN string is unchanged. */
+  layoutKey: number;
+  status: SolveStatus;
+  orientation: 'white' | 'black';
+  onMove: (m: Move) => void;
+  solveIdx: number;
+  totalTokens: number;
+  wrongFromSquare: string | null;
+  wrongToSquare: string | null;
+  expectedFromSquare: string | null;
+  expectedToSquare: string | null;
+} {
+  const { fen, movesStr, puzzleId } = args;
+  const dispatch = useSpaceRoomDispatch();
+  const {
+    roomStatus,
+    roomPuzzleId,
+    displayFen,
+    layoutKey,
+    orientation,
+    solveIdx,
+    roomMoves,
+    wrongFromSquare,
+    wrongToSquare,
+    expectedFromSquare,
+    expectedToSquare,
+  } = useChessPuzzlePlayRoomSelectors();
 
   useEffect(() => {
     if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) return;

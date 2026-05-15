@@ -10,11 +10,9 @@
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
 import { INSERT_PATCHES_BATCH } from '@gamezilla/patch-db/impl-postgres/sql-constants';
-import {
-  CHESS_PUZZLE_ENTITY_TYPE,
-  type PuzzleBatchEntry,
-} from './seed-chess-puzzles-row';
-import type { PuzzleSeedReporter } from './seed-chess-puzzles-reporter';
+import { CHESS_PUZZLE_ENTITY_TYPE } from '@gamezilla/chess/shared/chess-puzzle-entities';
+import type { PuzzleBatchEntry } from './row';
+import type { PuzzleSeedReporter } from './reporter';
 
 /**
  * Per-session tuning, applied **once** synchronously after the single

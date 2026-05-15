@@ -3,6 +3,7 @@ import { assert } from '@gamezilla/lib/assert';
 import type { AttributeState } from '@gamezilla/lib/attribute';
 import type { Keyword } from '@gamezilla/lib/keyword';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import type { PatchDbContext } from './context';
 import {
   assertAttribute,
   assertAttributes,
@@ -12,7 +13,6 @@ import {
   type AttributeKey,
   type PatchEntityType,
 } from './entity-key';
-import type { PatchDbContext } from './context';
 import type { PatchDbIndexSpec } from './indexes/index-spec';
 import { PatchMetaAttr } from './metadata/patch-metadata';
 import type { PatchDbCompactionPolicyResolver } from './policy/compaction-policy';
@@ -199,6 +199,11 @@ export function assertEntity(
   assertAttributes(e['attributes'], a);
 }
 
+export type SubQuery = {
+  entityType: PatchEntityType;
+  where: PatchDbQueryWhereClause;
+};
+
 export type PatchDbQueryWhereClause =
   | {
       type: '=';
@@ -380,8 +385,8 @@ export {
   isPatchDbSystemContext,
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_DB_SYSTEM_BRAND,
-  PATCHES_DB_SYSTEM_CONTEXT,
   patchDbSystemContext,
+  PATCHES_DB_SYSTEM_CONTEXT,
   type PatchDbClaimsContext,
   type PatchDbContext,
   type PatchDbSystemContext,

@@ -1,5 +1,7 @@
+import { Text } from '@gamezilla/ui';
+import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 export type ChessPuzzleStatusKind =
   | 'whiteToMove'
@@ -73,7 +75,10 @@ export function ChessPuzzleStatusIcon({
       return (
         <View style={styles.root}>
           <View style={[styles.badge, { backgroundColor: '#22a06b' }]}>
-            <Text style={styles.badgeMark}>✓</Text>
+            <Text
+              style={styles.badgeMark}
+              label={<Trans id="chess.puzzleStatus.correctMark">✓</Trans>}
+            />
           </View>
         </View>
       );
@@ -81,7 +86,10 @@ export function ChessPuzzleStatusIcon({
       return (
         <View style={styles.root}>
           <View style={[styles.badge, { backgroundColor: '#e5484d' }]}>
-            <Text style={styles.badgeMark}>✕</Text>
+            <Text
+              style={styles.badgeMark}
+              label={<Trans id="chess.puzzleStatus.wrongMark">✕</Trans>}
+            />
           </View>
         </View>
       );
@@ -89,7 +97,10 @@ export function ChessPuzzleStatusIcon({
       return (
         <View style={styles.root}>
           <View style={[styles.badge, { backgroundColor: '#f5a623' }]}>
-            <Text style={styles.badgeMark}>★</Text>
+            <Text
+              style={styles.badgeMark}
+              label={<Trans id="chess.puzzleStatus.solvedMark">★</Trans>}
+            />
           </View>
         </View>
       );

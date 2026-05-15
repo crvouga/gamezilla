@@ -96,6 +96,21 @@ msgstr "+ New space"
 msgid "☀️ Light"
 msgstr "☀️ Light"
 
+#. js-lingui-explicit-id
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-status-icons.tsx
+msgid "chess.puzzleStatus.solvedMark"
+msgstr "★"
+
+#. js-lingui-explicit-id
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-status-icons.tsx
+msgid "chess.puzzleStatus.correctMark"
+msgstr "✓"
+
+#. js-lingui-explicit-id
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-status-icons.tsx
+msgid "chess.puzzleStatus.wrongMark"
+msgstr "✕"
+
 #: packages/client/src/settings/theme-screen.tsx
 msgid "🌙 Dark"
 msgstr "🌙 Dark"

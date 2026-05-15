@@ -24,26 +24,33 @@ config.resolver.nodeModulesPaths = [
 // @ts-ignore
 config.resolver.unstable_enablePackageExports = true;
 
-// 3a. Dedupe `@lingui/core` and `@lingui/react` to a single instance.
+// 3a. Dedupe singletons-by-module-path to a single instance.
 //     Bun's content-addressed deduper produces distinct physical paths for the
-//     same lingui version across workspaces (e.g. `packages/client` vs `packages/*`),
-//     which Metro treats as separate modules. That yields multiple `i18n`
-//     singletons: `packages/client/src/i18n/i18n.ts` activates one, but the
-//     `@lingui/core/macro` `t` template (auto-injected `import { i18n } from
-//     '@lingui/core'`) inside `packages/*` resolves to a different copy — whose
-//     singleton is never activated, causing
-//     "Lingui: Attempted to call a translation function without setting a locale."
-//     Pin all lingui imports to the client's resolution.
-const linguiAliasOrigin = path.join(projectRoot, 'package.json');
-const linguiAliasPrefixes = ['@lingui/core', '@lingui/react'];
+//     same version of a package across workspaces (e.g. `packages/client` vs
+//     `packages/*`), which Metro treats as separate modules. For libraries that
+//     keep singleton state in a module-level closure, that yields multiple
+//     copies of the singleton — symptoms include:
+//       - `@lingui/core` / `@lingui/react`: "Lingui: Attempted to call a
+//         translation function without setting a locale." (the `i18n` activated
+//         by `packages/client/src/i18n/i18n.ts` is a different object than the
+//         one the `@lingui/core/macro` `t` template imports from inside
+//         `packages/*`).
+//       - `expo-router`: "Cannot read properties of undefined (reading
+//         'isReady')" on any `router.push` called from a non-client workspace.
+//         `<ExpoRoot>` (rendered from client) writes `navigationRef` into
+//         client's copy of the global `storeRef`; `useRouter` imported from
+//         another workspace reads from its own empty `storeRef`.
+//     Pin all such imports to the client's resolution.
+const dedupeAliasOrigin = path.join(projectRoot, 'package.json');
+const dedupeAliasPrefixes = ['@lingui/core', '@lingui/react', 'expo-router'];
 const previousResolveRequest = config.resolver.resolveRequest;
 // @ts-ignore
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  const matchesLinguiAlias = linguiAliasPrefixes.some(
+  const matchesDedupeAlias = dedupeAliasPrefixes.some(
     (prefix) => moduleName === prefix || moduleName.startsWith(prefix + '/')
   );
-  if (matchesLinguiAlias) {
-    const aliasContext = { ...context, originModulePath: linguiAliasOrigin };
+  if (matchesDedupeAlias) {
+    const aliasContext = { ...context, originModulePath: dedupeAliasOrigin };
     if (typeof previousResolveRequest === 'function') {
       return previousResolveRequest(aliasContext, moduleName, platform);
     }

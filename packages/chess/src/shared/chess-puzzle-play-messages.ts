@@ -1,0 +1,191 @@
+import { createMessageNamespace, isPlainRecord } from '@gamezilla/lib/message';
+
+import type { ChessPuzzleOrientation } from './chess-puzzle-fsm';
+import {
+  type ChessPuzzlePlayStatus,
+  isNonEmptyString,
+  isNonNegativeInteger,
+  isNullOrNonEmptyString,
+  isOrientation,
+  isStatus,
+} from './chess-puzzle-play-attr';
+
+function validateStartPayload(
+  payload: unknown
+): payload is { puzzleId: string; fen: string; moves: string } {
+  if (!isPlainRecord(payload)) return false;
+  return (
+    isNonEmptyString(payload['puzzleId']) &&
+    isNonEmptyString(payload['fen']) &&
+    isNonEmptyString(payload['moves'])
+  );
+}
+
+function validateSubmitMovePayload(
+  payload: unknown
+): payload is { uci: string } {
+  if (!isPlainRecord(payload)) return false;
+  const uci = payload['uci'];
+  if (typeof uci !== 'string') return false;
+  const t = uci.trim();
+  return t.length >= 4 && t.length <= 5;
+}
+
+function validateEmptyPayload(
+  payload: unknown
+): payload is Record<string, never> {
+  return isPlainRecord(payload) && Object.keys(payload).length === 0;
+}
+
+function validateStartedPayload(payload: unknown): payload is {
+  puzzleId: string;
+  fen: string;
+  moves: string;
+  hostIdentity: string;
+  displayFen: string | null;
+  orientation: ChessPuzzleOrientation;
+  status: ChessPuzzlePlayStatus;
+  solveIdx: number;
+} {
+  if (!isPlainRecord(payload)) return false;
+  return (
+    isNonEmptyString(payload['puzzleId']) &&
+    isNonEmptyString(payload['fen']) &&
+    isNonEmptyString(payload['moves']) &&
+    isNonEmptyString(payload['hostIdentity']) &&
+    isNullOrNonEmptyString(payload['displayFen']) &&
+    isOrientation(payload['orientation']) &&
+    isStatus(payload['status']) &&
+    isNonNegativeInteger(payload['solveIdx'])
+  );
+}
+
+function validateMoveAcceptedPayload(payload: unknown): payload is {
+  uci: string;
+  displayFen: string;
+  solveIdx: number;
+  status: ChessPuzzlePlayStatus;
+} {
+  if (!isPlainRecord(payload)) return false;
+  return (
+    isNonEmptyString(payload['uci']) &&
+    isNonEmptyString(payload['displayFen']) &&
+    isNonNegativeInteger(payload['solveIdx']) &&
+    isStatus(payload['status'])
+  );
+}
+
+function validateMoveRejectedPayload(payload: unknown): payload is {
+  uci: string;
+  layoutKey: number;
+  wrongFromSquare: string;
+  wrongToSquare: string;
+} {
+  if (!isPlainRecord(payload)) return false;
+  return (
+    isNonEmptyString(payload['uci']) &&
+    isNonNegativeInteger(payload['layoutKey']) &&
+    isNonEmptyString(payload['wrongFromSquare']) &&
+    isNonEmptyString(payload['wrongToSquare'])
+  );
+}
+
+function validateHintRevealedPayload(payload: unknown): payload is {
+  fromSquare: string;
+  toSquare: string;
+  layoutKey: number;
+} {
+  if (!isPlainRecord(payload)) return false;
+  return (
+    isNonEmptyString(payload['fromSquare']) &&
+    isNonEmptyString(payload['toSquare']) &&
+    isNonNegativeInteger(payload['layoutKey'])
+  );
+}
+
+function validateResetEvtPayload(payload: unknown): payload is {
+  displayFen: string | null;
+  solveIdx: number;
+  status: ChessPuzzlePlayStatus;
+  layoutKey: number;
+} {
+  if (!isPlainRecord(payload)) return false;
+  return (
+    isNullOrNonEmptyString(payload['displayFen']) &&
+    isNonNegativeInteger(payload['solveIdx']) &&
+    isStatus(payload['status']) &&
+    isNonNegativeInteger(payload['layoutKey'])
+  );
+}
+
+export const chessPuzzlePlayCmdNs = createMessageNamespace(
+  'chess-puzzle-play-cmd'
+);
+
+/**
+ * Begin a puzzle solving session. The dispatcher's identity is captured into
+ * host identity on success — that identity is the only one allowed to
+ * subsequently submit moves, reset, or clear.
+ */
+export const StartChessPuzzlePlay = chessPuzzlePlayCmdNs(
+  'start',
+  validateStartPayload
+);
+
+/** Host attempts the next move in the solution line. */
+export const SubmitChessPuzzleMove = chessPuzzlePlayCmdNs(
+  'submit-move',
+  validateSubmitMovePayload
+);
+
+/** Host rewinds to the post-opening position and clears `wrong` / `solved` status. */
+export const ResetChessPuzzlePlay = chessPuzzlePlayCmdNs(
+  'reset',
+  validateEmptyPayload
+);
+
+/** Tear down the session entirely (returns all attrs to defaults). */
+export const ClearChessPuzzlePlay = chessPuzzlePlayCmdNs(
+  'clear',
+  validateEmptyPayload
+);
+
+/** Host requests a hint for the current expected move. */
+export const RequestChessPuzzleHint = chessPuzzlePlayCmdNs(
+  'request-hint',
+  validateEmptyPayload
+);
+
+export const chessPuzzlePlayEvtNs = createMessageNamespace(
+  'chess-puzzle-play-evt'
+);
+
+export const ChessPuzzlePlayStarted = chessPuzzlePlayEvtNs(
+  'started',
+  validateStartedPayload
+);
+
+export const ChessPuzzlePlayMoveAccepted = chessPuzzlePlayEvtNs(
+  'move-accepted',
+  validateMoveAcceptedPayload
+);
+
+export const ChessPuzzlePlayMoveRejected = chessPuzzlePlayEvtNs(
+  'move-rejected',
+  validateMoveRejectedPayload
+);
+
+export const ChessPuzzlePlayResetEvt = chessPuzzlePlayEvtNs(
+  'reset',
+  validateResetEvtPayload
+);
+
+export const ChessPuzzlePlayCleared = chessPuzzlePlayEvtNs(
+  'cleared',
+  validateEmptyPayload
+);
+
+export const ChessPuzzleHintRevealed = chessPuzzlePlayEvtNs(
+  'hint-revealed',
+  validateHintRevealedPayload
+);
