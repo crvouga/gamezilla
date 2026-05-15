@@ -16,6 +16,7 @@ export {
   LlmProviderError,
   isLlmProviderError,
   type LlmProvider,
+  type LlmProviderErrorUpstream,
 } from '../shared/llm-provider';
 export {
   OpenAiLlmProvider,

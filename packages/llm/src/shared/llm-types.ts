@@ -9,6 +9,8 @@ export type LlmStructuredRequest = {
   readonly model: string;
   readonly provider: LlmProviderId;
   readonly schemaVersion: string;
+  /** Sampling temperature; OpenAI chat allows 0–2. Omitted means 0. */
+  readonly temperature?: number;
 };
 
 /** Wire result from {@link LlmProvider.structured} and `POST /llm/structured`. */

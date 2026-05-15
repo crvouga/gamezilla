@@ -9,14 +9,14 @@
  */
 
 /** Stable per-install device UUID. Populated on first cold start. */
-export const DEVICE_ID_KEY = 'gamezilla.deviceId';
+export const DEVICE_ID_KEY = 'deviceId';
 
 /** Bearer JWT issued by Better Auth. Sent on every PatchDB request. */
-export const SESSION_TOKEN_KEY = 'gamezilla.sessionToken';
+export const SESSION_TOKEN_KEY = 'sessionToken';
 
 /**
  * Last known internal `accountId` for this install. Acts as a cold-start hint
  * so `useCurrentUser` resolves before any network round-trip; refreshed on
  * every successful `/auth/refresh`.
  */
-export const LAST_LOCAL_ACCOUNT_ID_KEY = 'gamezilla.lastLocalAccountId';
+export const LAST_LOCAL_ACCOUNT_ID_KEY = 'lastLocalAccountId';

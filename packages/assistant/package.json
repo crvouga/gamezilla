@@ -4,9 +4,15 @@
   "private": true,
   "exports": {
     "./shared": "./src/shared/index.ts",
-    "./shared/*": ["./src/shared/*.ts", "./src/shared/*.tsx"],
+    "./shared/*": [
+      "./src/shared/*.ts",
+      "./src/shared/*.tsx"
+    ],
     "./client": "./src/client/index.ts",
-    "./client/*": ["./src/client/*.ts", "./src/client/*.tsx"]
+    "./client/*": [
+      "./src/client/*.ts",
+      "./src/client/*.tsx"
+    ]
   },
   "scripts": {
     "lint": "eslint src --max-warnings 0",

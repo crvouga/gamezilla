@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'bun:test';
 
 import { subscribeAssistantSpeaking } from '../src/client/_internal/assistant-speaking-bridge';
-import { createAssistantSpeechRenderer } from '../src/client/create-speech-renderer';
+import {
+  ASSISTANT_SPEECH_FALLBACK_LINE,
+  createAssistantSpeechRenderer,
+} from '../src/client/create-speech-renderer';
 import type { Assistant } from '../src/shared/index';
 import type { AssistantSpeechResolver } from '../src/shared/speech-resolver';
 import { INTENT } from '../src/shared/_internal/intents';
@@ -20,8 +23,8 @@ describe('createAssistantSpeechRenderer', () => {
   it('emits resolved text for speak', async () => {
     const assistant = {} as Assistant<unknown>;
     let last: string | null | undefined;
-    subscribeAssistantSpeaking(assistant, (m) => {
-      last = m;
+    subscribeAssistantSpeaking(assistant, (u) => {
+      last = u.message;
     });
     const renderer = createAssistantSpeechRenderer({
       resolver: resolverFrom(async () => 'Find the fork.'),
@@ -44,8 +47,8 @@ describe('createAssistantSpeechRenderer', () => {
     const assistant = {} as Assistant<unknown>;
     let calls = 0;
     let last: string | null | undefined = 'x';
-    subscribeAssistantSpeaking(assistant, (m) => {
-      last = m;
+    subscribeAssistantSpeaking(assistant, (u) => {
+      last = u.message;
     });
     const renderer = createAssistantSpeechRenderer({
       resolver: resolverFrom(async () => {
@@ -65,11 +68,11 @@ describe('createAssistantSpeechRenderer', () => {
     expect(last).toBeNull();
   });
 
-  it('emits null when resolver returns null', async () => {
+  it('emits fallback when resolver returns null', async () => {
     const assistant = {} as Assistant<unknown>;
     let last: string | null | undefined;
-    subscribeAssistantSpeaking(assistant, (m) => {
-      last = m;
+    subscribeAssistantSpeaking(assistant, (u) => {
+      last = u.message;
     });
     const renderer = createAssistantSpeechRenderer({
       resolver: resolverFrom(async () => null),
@@ -84,14 +87,14 @@ describe('createAssistantSpeechRenderer', () => {
       ttlMs: 1,
     });
     await flushMicrotasks();
-    expect(last).toBeNull();
+    expect(last).toBe(ASSISTANT_SPEECH_FALLBACK_LINE);
   });
 
   it('drops stale speak when a newer speak arrives', async () => {
     const assistant = {} as Assistant<unknown>;
     const messages: (string | null)[] = [];
-    subscribeAssistantSpeaking(assistant, (m) => {
-      messages.push(m);
+    subscribeAssistantSpeaking(assistant, (u) => {
+      messages.push(u.message);
     });
     let n = 0;
     const renderer = createAssistantSpeechRenderer({
@@ -129,8 +132,8 @@ describe('createAssistantSpeechRenderer', () => {
   it('times out when resolver never settles', async () => {
     const assistant = {} as Assistant<unknown>;
     let last: string | null | undefined = 'init';
-    subscribeAssistantSpeaking(assistant, (m) => {
-      last = m;
+    subscribeAssistantSpeaking(assistant, (u) => {
+      last = u.message;
     });
     const renderer = createAssistantSpeechRenderer({
       resolver: resolverFrom(
@@ -151,6 +154,6 @@ describe('createAssistantSpeechRenderer', () => {
       ttlMs: 1,
     });
     await new Promise((r) => setTimeout(r, 60));
-    expect(last).toBeNull();
+    expect(last).toBe(ASSISTANT_SPEECH_FALLBACK_LINE);
   });
 });

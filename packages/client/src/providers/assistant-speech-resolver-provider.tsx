@@ -13,10 +13,7 @@ export function AssistantSpeechResolverProviderWrapper({
   children: ReactNode;
 }): ReactNode {
   const llm = useLlm();
-  const resolver = useMemo(
-    () => createLlmAssistantSpeechResolver(llm),
-    [llm]
-  );
+  const resolver = useMemo(() => createLlmAssistantSpeechResolver(llm), [llm]);
   return (
     <AssistantSpeechResolverProvider resolver={resolver}>
       {children}

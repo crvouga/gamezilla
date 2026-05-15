@@ -37,6 +37,10 @@ describe('DopplerScriptSecretStore', () => {
     await expect(store.getRequiredMany(['FOO'])).resolves.toEqual({
       FOO: 'bar',
     });
+    await expect(store.getOptionalMany(['FOO', 'MISSING'])).resolves.toEqual({
+      FOO: 'bar',
+      MISSING: null,
+    });
   });
 
   it('routes setSecret to the Doppler CLI', async () => {

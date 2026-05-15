@@ -62,6 +62,12 @@ function resolveIndicatorState(
 
 export type SpeakingAvatarProps = {
   message: string;
+  /**
+   * When true, the speech bubble shows the typing indicator (e.g. while an
+   * LLM-backed coach line is loading). TTS stays off until this is false and
+   * `message` is non-empty.
+   */
+  bubbleResolving?: boolean;
   /** Voice to speak with. Pin one of the `Voices.*` constants per call site. */
   voice?: Voice;
   /** Size of the DiceBear head graphic in pixels (width === height). Defaults to `96`. */
@@ -86,6 +92,7 @@ export type SpeakingAvatarProps = {
 
 export function SpeakingAvatar({
   message,
+  bubbleResolving = false,
   numberOfLines,
   style,
 }: SpeakingAvatarProps): ReactNode {
@@ -96,9 +103,11 @@ export function SpeakingAvatar({
     setMuted((m) => !m);
   }, []);
 
+  const ttsEnabled = !muted && !bubbleResolving && message.trim().length > 0;
+
   const { isLoading, isSpeaking } = useSpeak({
     text: message,
-    enabled: !muted,
+    enabled: ttsEnabled,
   });
 
   const indicatorState = resolveIndicatorState(muted, isSpeaking);
@@ -133,7 +142,7 @@ export function SpeakingAvatar({
       </Pressable>
       <SpeechBubble
         text={message}
-        loading={isLoading}
+        loading={isLoading || bubbleResolving}
         {...(numberOfLines !== undefined ? { numberOfLines } : {})}
       />
     </Box>

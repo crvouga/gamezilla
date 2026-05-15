@@ -1,6 +1,12 @@
 import type { Assistant } from '../../shared/index';
 
-const sinks = new WeakMap<object, (message: string | null) => void>();
+export type AssistantSpeakingUpdate = {
+  readonly message: string | null;
+  /** When true, bubble shows typing dots (LLM / coach line in flight). */
+  readonly bubbleResolving?: boolean;
+};
+
+const sinks = new WeakMap<object, (u: AssistantSpeakingUpdate) => void>();
 
 /**
  * Pushes the latest coach line to the {@link SpeakingAvatarAssistant} that
@@ -8,17 +14,26 @@ const sinks = new WeakMap<object, (message: string | null) => void>();
  */
 export function emitAssistantSpeakingMessage<TPayload>(
   assistant: Assistant<TPayload>,
-  message: string | null
+  message: string | null,
+  options?: { readonly bubbleResolving?: boolean }
 ): void {
-  sinks.get(assistant as object)?.(message);
+  const sink = sinks.get(assistant as object);
+  if (sink === undefined) {
+    return;
+  }
+  if (options?.bubbleResolving === undefined) {
+    sink({ message });
+  } else {
+    sink({ message, bubbleResolving: options.bubbleResolving });
+  }
 }
 
 export function subscribeAssistantSpeaking<TPayload>(
   assistant: Assistant<TPayload>,
-  setMessage: (message: string | null) => void
+  onUpdate: (u: AssistantSpeakingUpdate) => void
 ): () => void {
   const key = assistant as object;
-  sinks.set(key, setMessage);
+  sinks.set(key, onUpdate);
   return () => {
     sinks.delete(key);
   };

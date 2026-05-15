@@ -6,6 +6,7 @@ export type LlmCacheKeyInput = {
   readonly input: Readonly<Record<string, unknown>>;
   readonly schema: Readonly<Record<string, unknown>>;
   readonly schemaVersion: string;
+  readonly temperature: number;
 };
 
 const HASH_HEX_LEN = 32;
@@ -17,6 +18,7 @@ function canonicalJson(input: LlmCacheKeyInput): string {
     providerId: input.providerId,
     schema: input.schema,
     schemaVersion: input.schemaVersion,
+    temperature: input.temperature,
   };
   return JSON.stringify(ordered);
 }
@@ -39,6 +41,7 @@ export function llmCacheKeyFromRequest(
     input: req.input,
     schema: req.schema,
     schemaVersion: req.schemaVersion,
+    temperature: req.temperature ?? 0,
   });
 }
 

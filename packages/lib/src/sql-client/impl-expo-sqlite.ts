@@ -11,7 +11,7 @@ import { applySqliteConnectionPragmas } from './sqlite-connection-pragmas';
  * `sqlite3_open_v2` keeps failing until a new worker (navigation) — which matches “Clear site
  * data doesn’t help” because the tab immediately poisons itself again.
  */
-const WEB_RECOVERY_RELOAD_KEY = 'gamezilla.expo-sqlite.web-recovery-reloaded';
+const WEB_RECOVERY_RELOAD_KEY = 'expo-sqlite.web-recovery-reloaded';
 
 /**
  * URL escape hatch. Appending `?reset-db=1` to any page of the app forces a full reset on

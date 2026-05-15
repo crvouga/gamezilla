@@ -37,6 +37,20 @@ export interface SecretStore {
     init?: SecretStoreGetInit
   ): Promise<Record<string, string>>;
 
+  /**
+   * Best-effort batch fetch: returns one entry per requested name. Missing or
+   * blank values map to `null` (no throw). Transport / parse failures still
+   * throw. Implementations should prefer a single network round-trip — this is
+   * the primitive {@link CachingSecretStore} uses to coalesce concurrent
+   * `getRequired` / `getOptional` cache misses into one upstream call so a
+   * burst of inbound requests does not fan out into a burst of secret-store
+   * requests (Doppler rate-limits at HTTP 429).
+   */
+  getOptionalMany(
+    names: readonly string[],
+    init?: SecretStoreGetInit
+  ): Promise<Record<string, string | null>>;
+
   setSecret(
     name: string,
     value: string,

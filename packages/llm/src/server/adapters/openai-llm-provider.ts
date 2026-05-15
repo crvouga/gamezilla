@@ -16,6 +16,7 @@ type OpenAiChatMessage = {
 
 type OpenAiChatCompletionBody = {
   readonly model: string;
+  readonly temperature: number;
   readonly messages: readonly OpenAiChatMessage[];
   readonly response_format: {
     readonly type: 'json_schema';
@@ -32,6 +33,31 @@ function trimTrailingSlashes(url: string): string {
 
 function buildUrl(baseUrl: string): string {
   return `${trimTrailingSlashes(baseUrl)}/v1/chat/completions`;
+}
+
+const UPSTREAM_ERROR_BODY_MAX = 16_384;
+
+function upstreamFromHttpError(
+  status: number,
+  bodyText: string
+): { message: string; upstream: { bodyText: string; bodyJson?: unknown } } {
+  const capped =
+    bodyText.length > UPSTREAM_ERROR_BODY_MAX
+      ? `${bodyText.slice(0, UPSTREAM_ERROR_BODY_MAX)}…`
+      : bodyText;
+  let bodyJson: unknown;
+  try {
+    bodyJson = JSON.parse(bodyText) as unknown;
+  } catch {
+    bodyJson = undefined;
+  }
+  return {
+    message: `openai: HTTP ${status}`,
+    upstream:
+      bodyJson !== undefined
+        ? { bodyText: capped, bodyJson }
+        : { bodyText: capped },
+  };
 }
 
 function readContentFromChoice(choice: unknown): string {
@@ -91,6 +117,7 @@ export class OpenAiLlmProvider implements LlmProvider {
     const url = buildUrl(this.options.baseUrl);
     const body: OpenAiChatCompletionBody = {
       model: input.model,
+      temperature: input.temperature ?? 0,
       messages: [
         {
           role: 'system',
@@ -125,11 +152,11 @@ export class OpenAiLlmProvider implements LlmProvider {
 
     if (!response.ok) {
       const detail = await response.text().catch(() => '');
-      throw new LlmProviderError(
-        `openai: HTTP ${response.status} — ${detail.slice(0, 512)}`,
-        'openai',
-        response.status
+      const { message, upstream } = upstreamFromHttpError(
+        response.status,
+        detail
       );
+      throw new LlmProviderError(message, 'openai', response.status, upstream);
     }
 
     const raw = (await response.json()) as unknown;

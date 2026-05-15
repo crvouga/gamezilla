@@ -48,6 +48,29 @@ export class CombinedSecretStore implements SecretStore {
     return out;
   }
 
+  async getOptionalMany(
+    names: readonly string[],
+    init?: SecretStoreGetInit
+  ): Promise<Record<string, string | null>> {
+    if (names.length === 0) return {};
+    const primary = await this.primary.getOptionalMany(names, init);
+    const missing = names.filter((n) => primary[n] === null);
+    if (missing.length === 0) {
+      const out: Record<string, string | null> = {};
+      for (const name of names) {
+        out[name] = primary[name] ?? null;
+      }
+      return out;
+    }
+    const fallback = await this.fallback.getOptionalMany(missing, init);
+    const out: Record<string, string | null> = {};
+    for (const name of names) {
+      const p = primary[name];
+      out[name] = p !== null && p !== undefined ? p : (fallback[name] ?? null);
+    }
+    return out;
+  }
+
   setSecret(
     name: string,
     value: string,

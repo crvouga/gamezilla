@@ -46,6 +46,13 @@ export class DopplerScriptSecretStore implements SecretStore {
     return this.reader.getRequiredMany(names, init);
   }
 
+  getOptionalMany(
+    names: readonly string[],
+    init?: SecretStoreGetInit
+  ): Promise<Record<string, string | null>> {
+    return this.reader.getOptionalMany(names, init);
+  }
+
   async setSecret(
     name: string,
     value: string,

@@ -59,7 +59,7 @@ describe('DistributedLockImplKv + KvImplInMemory (contract)', () => {
   runDistributedLockContractTests(async () => {
     const kv = new KvImplInMemory();
     return new DistributedLockImplKv(kv, {
-      key: asKeyword('gamezilla.test/distributed-lock-contract'),
+      key: asKeyword('test/distributed-lock-contract'),
     });
   });
 });

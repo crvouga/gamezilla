@@ -190,4 +190,72 @@ describe('DopplerSecretStore', () => {
       SecretStoreRequestError
     );
   });
+
+  it('getOptionalMany returns null for missing or blank keys', async () => {
+    const store = new DopplerSecretStore({
+      token: 't',
+      fetchFn: mockFetch(() =>
+        Promise.resolve(
+          new Response(JSON.stringify({ A: 'a', B: '   ' }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        )
+      ),
+    });
+    await expect(store.getOptionalMany(['A', 'B', 'C'])).resolves.toEqual({
+      A: 'a',
+      B: null,
+      C: null,
+    });
+  });
+
+  it('retries on HTTP 429 honoring Retry-After', async () => {
+    let calls = 0;
+    const sleeps: number[] = [];
+    const store = new DopplerSecretStore({
+      token: 't',
+      rateLimitRetries: 2,
+      sleep: async (ms) => {
+        sleeps.push(ms);
+      },
+      fetchFn: mockFetch(() => {
+        calls += 1;
+        if (calls === 1) {
+          return Promise.resolve(
+            new Response('rate-limited', {
+              status: 429,
+              headers: { 'Retry-After': '2' },
+            })
+          );
+        }
+        return Promise.resolve(
+          new Response(JSON.stringify({ FOO: 'bar' }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
+      }),
+    });
+    await expect(store.getRequired('FOO')).resolves.toBe('bar');
+    expect(calls).toBe(2);
+    expect(sleeps).toEqual([2000]);
+  });
+
+  it('gives up after rateLimitRetries and surfaces the 429', async () => {
+    let calls = 0;
+    const store = new DopplerSecretStore({
+      token: 't',
+      rateLimitRetries: 1,
+      sleep: async () => {},
+      fetchFn: mockFetch(() => {
+        calls += 1;
+        return Promise.resolve(new Response('rate-limited', { status: 429 }));
+      }),
+    });
+    await expect(store.getRequired('FOO')).rejects.toBeInstanceOf(
+      SecretStoreRequestError
+    );
+    expect(calls).toBe(2);
+  });
 });

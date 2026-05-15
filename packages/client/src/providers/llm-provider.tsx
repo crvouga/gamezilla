@@ -15,5 +15,9 @@ export function LlmProviderWrapper({
 }): ReactNode {
   const apiUrl = useConfigService().getApiUrl();
   const kv = useKv();
-  return <LlmContextProvider apiUrl={apiUrl} kv={kv}>{children}</LlmContextProvider>;
+  return (
+    <LlmContextProvider apiUrl={apiUrl} kv={kv}>
+      {children}
+    </LlmContextProvider>
+  );
 }

@@ -37,6 +37,13 @@ function makeStore(
       }
       return out;
     },
+    async getOptionalMany(names: readonly string[]) {
+      const out: Record<string, string | null> = {};
+      for (const name of names) {
+        out[name] = values[name] ?? null;
+      }
+      return out;
+    },
     async setSecret(name: string, value: string) {
       if (options?.setShouldThrow === true) {
         throw new Error(`setSecret not supported on this store: ${name}`);

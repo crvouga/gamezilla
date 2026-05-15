@@ -44,8 +44,10 @@ export function useChessPuzzleAssistant(args: {
         resolver,
         getAssistant: () => assistantRef.current,
         getLocale: () => i18nRef.current.locale,
-        metaFromAction: (a) =>
-          parseChessPuzzleAssistantRef(a.payloadRef) ?? {},
+        metaFromAction: (a) => ({
+          ...(parseChessPuzzleAssistantRef(a.payloadRef) ?? {}),
+          puzzleCatalogThemes: themesRef.current,
+        }),
       }
     );
     const inst = createAssistant<ChessPuzzleAssistantPayload>({

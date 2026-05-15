@@ -39,7 +39,7 @@ export async function buildDistributedLock(): Promise<DistributedLockConnection>
   const kvLogger = createLogger({ name: 'infra-distributed-lock-kv' });
   const kv = await KvImplPostgres.open({ sqlClient: sql, logger: kvLogger });
   const lock = new DistributedLockImplKv(kv, {
-    key: asKeyword('gamezilla.infra/distributed-lock'),
+    key: asKeyword('infra/distributed-lock'),
   });
   return {
     lock,

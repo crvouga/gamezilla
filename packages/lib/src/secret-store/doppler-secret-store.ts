@@ -30,6 +30,15 @@ export type DopplerSecretStoreOptions = {
   configName?: string;
   /** @default globalThis.fetch */
   fetchFn?: DopplerFetch;
+  /**
+   * On HTTP 429 (rate-limited), retry up to this many extra attempts honoring
+   * the `Retry-After` response header (seconds; falls back to exponential
+   * backoff capped at 5s). `0` disables retries (test-friendly default).
+   * @default 3
+   */
+  rateLimitRetries?: number;
+  /** Sleep helper, swappable for tests. @default `setTimeout` */
+  sleep?: (ms: number) => Promise<void>;
 };
 
 type DopplerFetch = (
@@ -104,11 +113,32 @@ function trimOpt(value: string | undefined): string | null {
   return t.length > 0 ? t : null;
 }
 
+const DEFAULT_RATE_LIMIT_RETRIES = 3;
+const RATE_LIMIT_BACKOFF_CAP_MS = 5_000;
+const defaultSleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Parses Doppler's `Retry-After` header. Doppler returns delta-seconds. Caps at
+ * {@link RATE_LIMIT_BACKOFF_CAP_MS} so a misbehaving upstream cannot stall the
+ * Worker request for arbitrary seconds.
+ */
+function parseRetryAfterMs(header: string | null): number | null {
+  if (header === null) return null;
+  const trimmed = header.trim();
+  if (trimmed.length === 0) return null;
+  const seconds = Number(trimmed);
+  if (!Number.isFinite(seconds) || seconds < 0) return null;
+  return Math.min(Math.round(seconds * 1000), RATE_LIMIT_BACKOFF_CAP_MS);
+}
+
 export class DopplerSecretStore implements SecretStore {
   private readonly token: string;
   private readonly fetchFn: DopplerFetch;
   private readonly projectSlug: string | null;
   private readonly configSlug: string | null;
+  private readonly rateLimitRetries: number;
+  private readonly sleep: (ms: number) => Promise<void>;
 
   constructor(options: DopplerSecretStoreOptions) {
     const t = options.token.trim();
@@ -121,6 +151,11 @@ export class DopplerSecretStore implements SecretStore {
     this.fetchFn = options.fetchFn ?? defaultFetch;
     this.projectSlug = trimOpt(options.project);
     this.configSlug = trimOpt(options.config) ?? trimOpt(options.configName);
+    this.rateLimitRetries =
+      options.rateLimitRetries !== undefined
+        ? Math.max(0, Math.floor(options.rateLimitRetries))
+        : DEFAULT_RATE_LIMIT_RETRIES;
+    this.sleep = options.sleep ?? defaultSleep;
   }
 
   async getRequired(name: string, init?: SecretStoreGetInit): Promise<string> {
@@ -153,6 +188,25 @@ export class DopplerSecretStore implements SecretStore {
     const out: Record<string, string> = {};
     for (const name of names) {
       out[name] = this.requiredFromRow(row, name);
+    }
+    return out;
+  }
+
+  async getOptionalMany(
+    names: readonly string[],
+    init?: SecretStoreGetInit
+  ): Promise<Record<string, string | null>> {
+    if (names.length === 0) {
+      return {};
+    }
+    for (const n of names) {
+      assertNonBlankName(n);
+    }
+    const unique = [...new Set(names)];
+    const row = await this.downloadSecretRow(unique, init);
+    const out: Record<string, string | null> = {};
+    for (const name of names) {
+      out[name] = this.optionalFromRow(row, name);
     }
     return out;
   }
@@ -230,24 +284,48 @@ export class DopplerSecretStore implements SecretStore {
       requestInit.signal = init.signal;
     }
 
-    let response: Response;
-    try {
-      response = await this.fetchFn(
-        `${DOPPLER_DOWNLOAD}?${params}`,
-        requestInit
-      );
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      throw new SecretStoreRequestError(
-        `Doppler secrets download failed (network): ${msg}`
-      );
-    }
-
+    const url = `${DOPPLER_DOWNLOAD}?${params}`;
+    const response = await this.fetchWithRateLimitRetry(url, requestInit);
     const body = await readDopplerJsonObjectBody(response);
     const out: Record<string, ParsedSecret> = {};
     for (const name of names) {
       out[name] = parseSecret(body, name);
     }
     return out;
+  }
+
+  /**
+   * Calls Doppler with bounded retries on HTTP 429. Honors the `Retry-After`
+   * header (seconds) when present and otherwise uses exponential backoff
+   * capped at 5s. The Worker dev loop fans out 6+ concurrent secret reads on
+   * every cold isolate; without backoff the Doppler edge returns 429 in a
+   * tight loop and the wrangler reload churn never converges.
+   */
+  private async fetchWithRateLimitRetry(
+    url: string,
+    init: RequestInit
+  ): Promise<Response> {
+    let attempt = 0;
+    while (true) {
+      let response: Response;
+      try {
+        response = await this.fetchFn(url, init);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        throw new SecretStoreRequestError(
+          `Doppler secrets download failed (network): ${msg}`
+        );
+      }
+      if (response.status !== 429 || attempt >= this.rateLimitRetries) {
+        return response;
+      }
+      const retryAfterMs = parseRetryAfterMs(
+        response.headers.get('Retry-After')
+      );
+      const backoffMs =
+        retryAfterMs ?? Math.min(2 ** attempt * 250, RATE_LIMIT_BACKOFF_CAP_MS);
+      attempt += 1;
+      await this.sleep(backoffMs);
+    }
   }
 }

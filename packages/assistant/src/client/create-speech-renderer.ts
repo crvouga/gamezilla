@@ -10,7 +10,9 @@ import type {
 } from '../shared/speech-resolver';
 import { emitAssistantSpeakingMessage } from './_internal/assistant-speaking-bridge';
 
-const DEFAULT_TIMEOUT_MS = 1500;
+const DEFAULT_TIMEOUT_MS = 30_000;
+
+export const ASSISTANT_SPEECH_FALLBACK_LINE = "Can't reach coach right now.";
 
 const TIMEOUT_TOKEN = Symbol('timeout');
 
@@ -22,6 +24,8 @@ export type CreateAssistantSpeechRendererDeps<TPayload> = {
     action: AssistantSpeakAction
   ) => Readonly<Record<string, unknown>>;
   readonly timeoutMs?: number;
+  /** Shown when the resolver returns null or times out (e.g. i18n). */
+  readonly fallbackSpeech?: () => string;
 };
 
 async function raceResolverSpeak(
@@ -48,6 +52,57 @@ async function raceResolverSpeak(
   }
 }
 
+function queueSpeakResolve<TPayload>(
+  deps: CreateAssistantSpeechRendererDeps<TPayload>,
+  action: AssistantSpeakAction,
+  options: {
+    readonly mySeq: number;
+    readonly getRenderSeq: () => number;
+    readonly ac: AbortController;
+    readonly timeoutMs: number;
+  }
+): void {
+  const inst = deps.getAssistant();
+  if (inst === null) {
+    return;
+  }
+
+  emitAssistantSpeakingMessage(inst, null, { bubbleResolving: true });
+
+  const meta = deps.metaFromAction?.(action) ?? {};
+  const locale = deps.getLocale();
+  const request: AssistantSpeechRequest = {
+    intent: action.intent,
+    payloadRef: action.payloadRef,
+    tags: action.tags,
+    locale,
+    meta,
+  };
+
+  void (async (): Promise<void> => {
+    const text = await raceResolverSpeak(
+      deps.resolver,
+      request,
+      options.timeoutMs,
+      options.ac
+    );
+    if (options.mySeq !== options.getRenderSeq()) {
+      return;
+    }
+    const current = deps.getAssistant();
+    if (current === null) {
+      return;
+    }
+    const line =
+      text !== null && text.length > 0
+        ? text
+        : (deps.fallbackSpeech?.() ?? ASSISTANT_SPEECH_FALLBACK_LINE);
+    emitAssistantSpeakingMessage(current, line, {
+      bubbleResolving: false,
+    });
+  })();
+}
+
 /**
  * {@link AssistantRenderer} that resolves `speak` lines via
  * {@link AssistantSpeechResolver} (typically LLM-backed). Deterministic
@@ -69,7 +124,9 @@ export function createAssistantSpeechRenderer<TPayload>(
         abortPrevious = null;
         const inst = deps.getAssistant();
         if (inst !== null) {
-          emitAssistantSpeakingMessage(inst, null);
+          emitAssistantSpeakingMessage(inst, null, {
+            bubbleResolving: false,
+          });
         }
         return;
       }
@@ -86,40 +143,12 @@ export function createAssistantSpeechRenderer<TPayload>(
         ac.abort();
       };
 
-      const inst = deps.getAssistant();
-      if (inst === null) {
-        return;
-      }
-
-      const meta = deps.metaFromAction?.(action) ?? {};
-      const locale = deps.getLocale();
-      const request: AssistantSpeechRequest = {
-        intent: action.intent,
-        payloadRef: action.payloadRef,
-        tags: action.tags,
-        locale,
-        meta,
-      };
-
-      void (async (): Promise<void> => {
-        const text = await raceResolverSpeak(
-          deps.resolver,
-          request,
-          timeoutMs,
-          ac
-        );
-        if (mySeq !== renderSeq) {
-          return;
-        }
-        const current = deps.getAssistant();
-        if (current === null) {
-          return;
-        }
-        emitAssistantSpeakingMessage(
-          current,
-          text !== null && text.length > 0 ? text : null
-        );
-      })();
+      queueSpeakResolve(deps, action, {
+        mySeq,
+        getRenderSeq: () => renderSeq,
+        ac,
+        timeoutMs,
+      });
     },
   };
 }

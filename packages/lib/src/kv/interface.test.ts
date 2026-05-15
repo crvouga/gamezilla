@@ -11,11 +11,11 @@ import { KvImplInMemory } from './impl-in-memory';
 import { KvImplWeb } from './impl-kv-web';
 import type { Kv } from './interface';
 
-const K_MISSING = asKeyword('gamezilla.kv.contract/missing-key');
-const K_ITEM = asKeyword('gamezilla.kv.contract/item');
-const K_GHOST = asKeyword('gamezilla.kv.contract/ghost');
-const K_ITEM_X = asKeyword('gamezilla.kv.contract/item-x');
-const K_TX = asKeyword('gamezilla.kv.contract/tx-value');
+const K_MISSING = asKeyword('kv.contract/missing-key');
+const K_ITEM = asKeyword('kv.contract/item');
+const K_GHOST = asKeyword('kv.contract/ghost');
+const K_ITEM_X = asKeyword('kv.contract/item-x');
+const K_TX = asKeyword('kv.contract/tx-value');
 
 export function runKvContractTests(factory: () => Kv | Promise<Kv>): void {
   test('get returns null for missing key', async () => {
