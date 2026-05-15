@@ -1,9 +1,9 @@
 import { Platform } from 'react-native';
 
+import type { Keyword } from '../keyword/keyword';
 import { KvImplExpo } from './impl-kv-expo';
 import { KvImplWeb } from './impl-kv-web';
-import type { Kv } from './interface';
-import type { Keyword } from '../keyword/keyword';
+import type { Kv, KvRecord } from './interface';
 
 /**
  * Platform-specific {@link Kv} for the client app shell:
@@ -20,11 +20,11 @@ export class KvPlatform implements Kv {
     this.inner = Platform.OS === 'web' ? new KvImplWeb() : new KvImplExpo();
   }
 
-  get(key: Keyword): Promise<string | null> {
+  get(key: Keyword): Promise<KvRecord | null> {
     return this.inner.get(key);
   }
 
-  put(key: Keyword, value: string): Promise<void> {
+  put(key: Keyword, value: KvRecord): Promise<void> {
     return this.inner.put(key, value);
   }
 

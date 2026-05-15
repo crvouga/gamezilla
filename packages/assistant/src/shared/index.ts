@@ -11,6 +11,10 @@ export { defineSignal } from './_internal/signals';
 export type { AssistantAction, AssistantSpeakAction } from './_internal/action';
 
 export type {
+  AssistantSpeechHistory,
+  AssistantSpeechHistoryLine,
+  AssistantSpeechLlmContext,
+  AssistantSpeechLlmContextHelpers,
   AssistantSpeechRequest,
   AssistantSpeechResolver,
 } from './speech-resolver';

@@ -1,5 +1,6 @@
 import { assert } from '../assert';
-import type { Kv } from '../kv/interface';
+import { createAttrNamespace } from '../attribute/attribute';
+import type { Kv, KvRecord } from '../kv/interface';
 import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Keyword } from '../keyword/keyword';
 import { DefaultLockIdentityProvider } from './default-lock-identity-provider';
@@ -10,6 +11,67 @@ import {
   type LockInfo,
   LockHeldError,
 } from './interface';
+
+const Lock = createAttrNamespace('lock', 'info');
+
+function parseNonEmptyString(v: unknown): string {
+  assert.ok(
+    typeof v === 'string' && v.length > 0,
+    'LockInfo: non-empty string',
+    {
+      v,
+    }
+  );
+  return v;
+}
+
+function parseString(v: unknown): string {
+  assert.ok(typeof v === 'string', 'LockInfo: string', { v });
+  return v;
+}
+
+function parseFiniteNumber(v: unknown): number {
+  assert.ok(typeof v === 'number' && Number.isFinite(v), 'LockInfo: number', {
+    v,
+  });
+  return v;
+}
+
+function parseBoolean(v: unknown): boolean {
+  assert.ok(typeof v === 'boolean', 'LockInfo: boolean', { v });
+  return v;
+}
+
+const LockInfoAttr = {
+  id: Lock('id', parseNonEmptyString),
+  operation: Lock('operation', parseNonEmptyString),
+  holder: Lock('holder', parseString),
+  pid: Lock('pid', parseFiniteNumber),
+  ci: Lock('ci', parseBoolean),
+  startedAt: Lock('started-at', parseString),
+} as const;
+
+function lockInfoFromKvRecord(record: KvRecord): LockInfo {
+  return {
+    id: LockInfoAttr.id.from(record),
+    operation: LockInfoAttr.operation.from(record),
+    holder: LockInfoAttr.holder.from(record),
+    pid: LockInfoAttr.pid.from(record),
+    ci: LockInfoAttr.ci.from(record),
+    startedAt: LockInfoAttr.startedAt.from(record),
+  };
+}
+
+function kvRecordFromLockInfo(info: LockInfo): KvRecord {
+  return {
+    ...LockInfoAttr.id(info.id),
+    ...LockInfoAttr.operation(info.operation),
+    ...LockInfoAttr.holder(info.holder),
+    ...LockInfoAttr.pid(info.pid),
+    ...LockInfoAttr.ci(info.ci),
+    ...LockInfoAttr.startedAt(info.startedAt),
+  };
+}
 
 export interface DistributedLockImplKvOptions {
   /** KV row key; must be a validated namespaced keyword (`prefix/local`). */
@@ -55,10 +117,10 @@ export class DistributedLockImplKv implements DistributedLock {
     return this.kv.transaction(async (tx) => {
       const existing = await tx.get(this.key);
       if (existing !== null) {
-        throw new LockHeldError(parseLockInfo(existing));
+        throw new LockHeldError(lockInfoFromKvRecord(existing));
       }
       const info = this.identity.build(operation);
-      await tx.put(this.key, JSON.stringify(info));
+      await tx.put(this.key, kvRecordFromLockInfo(info));
       const id = info.id;
       return {
         id,
@@ -73,7 +135,7 @@ export class DistributedLockImplKv implements DistributedLock {
       if (raw === null) return;
       let curr: LockInfo;
       try {
-        curr = parseLockInfo(raw);
+        curr = lockInfoFromKvRecord(raw);
       } catch {
         this.onFencingFailure?.(
           'DistributedLock: stored value is not valid LockInfo'
@@ -94,7 +156,7 @@ export class DistributedLockImplKv implements DistributedLock {
     const raw = await this.kv.get(this.key);
     if (raw === null) return null;
     try {
-      return parseLockInfo(raw);
+      return lockInfoFromKvRecord(raw);
     } catch {
       return null;
     }
@@ -104,41 +166,9 @@ export class DistributedLockImplKv implements DistributedLock {
     return this.kv.transaction(async (tx) => {
       const raw = await tx.get(this.key);
       if (raw === null) return null;
-      const info = parseLockInfo(raw);
+      const info = lockInfoFromKvRecord(raw);
       await tx.zap(this.key);
       return info;
     });
   }
-}
-
-function parseLockInfo(raw: string): LockInfo {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw) as unknown;
-  } catch {
-    assert.fail('LockInfo JSON parse failed', { raw: raw.slice(0, 200) });
-  }
-  assert.ok(
-    parsed !== null && typeof parsed === 'object',
-    'LockInfo must be object',
-    { parsed }
-  );
-  const o = parsed as Record<string, unknown>;
-  assert.ok(typeof o['id'] === 'string' && o['id'].length > 0, 'LockInfo.id');
-  assert.ok(
-    typeof o['operation'] === 'string' && o['operation'].length > 0,
-    'LockInfo.operation'
-  );
-  assert.ok(typeof o['holder'] === 'string', 'LockInfo.holder');
-  assert.ok(typeof o['pid'] === 'number', 'LockInfo.pid');
-  assert.ok(typeof o['ci'] === 'boolean', 'LockInfo.ci');
-  assert.ok(typeof o['startedAt'] === 'string', 'LockInfo.startedAt');
-  return {
-    id: o['id'],
-    operation: o['operation'],
-    holder: o['holder'],
-    pid: o['pid'],
-    ci: o['ci'],
-    startedAt: o['startedAt'],
-  };
 }

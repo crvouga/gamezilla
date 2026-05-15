@@ -17,7 +17,7 @@ import {
   type ChessPuzzleAssistantPayload,
 } from './chess-puzzle-assistant-adapter';
 import { buildChessPuzzleAssistantSignal } from './chess-puzzle-assistant-build-signal';
-import { parseChessPuzzleAssistantRef } from './chess-puzzle-assistant-ref';
+import { buildChessPuzzleSpeechLlmContext } from './chess-puzzle-assistant-speech-llm-context';
 import { useChessPuzzleAssistantObserve } from './use-chess-puzzle-assistant-observe';
 
 export function useChessPuzzleAssistant(args: {
@@ -44,10 +44,12 @@ export function useChessPuzzleAssistant(args: {
         resolver,
         getAssistant: () => assistantRef.current,
         getLocale: () => i18nRef.current.locale,
-        metaFromAction: (a) => ({
-          ...(parseChessPuzzleAssistantRef(a.payloadRef) ?? {}),
-          puzzleCatalogThemes: themesRef.current,
-        }),
+        llmContextFromAction: (a, { recentLines }) =>
+          buildChessPuzzleSpeechLlmContext({
+            payloadRef: a.payloadRef,
+            catalogThemes: themesRef.current,
+            recentLines,
+          }),
       }
     );
     const inst = createAssistant<ChessPuzzleAssistantPayload>({

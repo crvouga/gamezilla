@@ -5,107 +5,122 @@ import {
 import { LLM_PROVIDER_OPENAI } from '@gamezilla/llm/shared/llm-types';
 
 import type {
+  AssistantSpeechHistoryLine,
+  AssistantSpeechLlmContext,
   AssistantSpeechRequest,
   AssistantSpeechResolver,
 } from './speech-resolver';
 
-const DEFAULT_SCHEMA_VERSION = 'assistant.speech.v7';
+const DEFAULT_SCHEMA_VERSION = 'assistant.speech.v10';
 const DEFAULT_MODEL = 'gpt-4o-mini';
 
 /** OpenAI chat allows 0–2; use 0 for structured outputs compatibility. */
 const DEFAULT_SPEECH_TEMPERATURE = 0;
 
-/** Hard cap on characters — enforces “few words / one short sentence”. */
-const MESSAGE_MAX_LENGTH = 56;
+/** Default character cap. Games can override per request via llm.maxChars. */
+const DEFAULT_MESSAGE_MAX_LENGTH = 56;
 
-const ASSISTANT_SPEECH_JSON_SCHEMA: Readonly<Record<string, unknown>> = {
+/** Hard upper bound so a runaway override can't blow up TTS budgets. */
+const MESSAGE_HARD_MAX_LENGTH = 240;
+
+/**
+ * Universally true: assistant lines are spoken short blurbs. Everything else
+ * (second-person vs third-person, coach vs taunt vs commentator, praise rules,
+ * emojis on/off) is up to the game's injected context.
+ */
+const UNIVERSAL_STYLE =
+  'Output a single short phrase meant to be spoken aloud. ' +
+  'Plain text only: no markdown, bullet lists, numbered lists, code blocks, block quotes, or headings. ' +
+  'One sentence at most. Stay within maxChars characters.';
+
+const ASSISTANT_SPEECH_JSON_SCHEMA = (
+  maxLen: number
+): Readonly<Record<string, unknown>> => ({
   type: 'object',
   properties: {
-    message: { type: 'string', maxLength: MESSAGE_MAX_LENGTH },
+    message: { type: 'string', maxLength: maxLen },
   },
   required: ['message'],
   additionalProperties: false,
-};
+});
 
-const STYLE_RULES =
-  'One very short phrase to read aloud: prefer 2–6 words, at most one brief sentence. ' +
-  'No lists, quotes, emojis, filler, or role-play. ' +
-  'Always speak TO the player with an imperative or a soft command/question (Find…, Look for…, Try…, Spot…, or a short what-next question). ' +
-  'Never output a flat position label or passive evaluation (forbidden examples: "Best move.", "Best move for a strong position.", "A winning line.", "Strong position.").';
+function resolveMaxChars(ctx: AssistantSpeechLlmContext | undefined): number {
+  const requested = ctx?.maxChars;
+  if (typeof requested !== 'number' || !Number.isFinite(requested)) {
+    return DEFAULT_MESSAGE_MAX_LENGTH;
+  }
+  const rounded = Math.floor(requested);
+  if (rounded < 1) {
+    return DEFAULT_MESSAGE_MAX_LENGTH;
+  }
+  return Math.min(rounded, MESSAGE_HARD_MAX_LENGTH);
+}
 
-const COMPLETION_PRAISE_RULE =
-  'Completion praise: "Great job!", "Well done!", "Excellent!", "Perfect!", "You got it!", "Nailed it!", and similar "we finished the puzzle" cheers are ONLY allowed when moment=solved. ' +
-  'For start, progress, wrong, retry, announce, or fallback, never use that completion-style praise—use coaching imperatives, redo cues, or for mid-solve correct moves a very short acknowledgment (That’s correct, Right, Good)—not motivational speeches about progress. ' +
-  'Do not follow an intent label alone: if moment is not solved, never output completion cheers even when intent sounds celebratory.';
-
-/**
- * Keeps lines from inventing tactics the puzzle line was not scoped to.
- * `themeId` comes from deterministic ref keys (e.g. fork vs opening).
- */
-const GROUNDING_RULES =
-  'Grounding: only say what these identifiers license. ' +
-  'Name a concrete tactic (fork, pin, skewer, weak/exposed king, hanging piece, etc.) ONLY when themeId names that idea (e.g. themeId=fork → fork language is OK). ' +
-  'If themeId is broad (opening, middlegame, endgame, crushing, advantage, equality, short, long, veryLong, oneMove, mate, mateIn1–mateIn5, master, quietMove, defensiveMove, zugzwang, pawnEndgame, rookEndgame, …): do NOT claim a specific tactic or piece vulnerability—use neutral imperative coaching (Find the best move, Look again, What’s next?), never a bare noun phrase about the position. ' +
-  'puzzleCatalogThemes lists database tags for the puzzle (often many). Never mention a catalog tag in prose unless themeId already names that same idea—ignore unrelated catalog tags. ' +
-  'Never invent board facts (which piece, checks, material) beyond what themeId + moment + intent imply.';
-
-function readMetaString(
-  meta: Readonly<Record<string, unknown>>,
-  key: string
+function joinPromptSegments(
+  parts: readonly (string | null | undefined)[]
 ): string {
-  const v = meta[key];
-  return typeof v === 'string' ? v : '';
+  return parts
+    .map((p) => (typeof p === 'string' ? p.trim() : ''))
+    .filter((p) => p.length > 0)
+    .join(' ');
 }
 
-function readMetaVariation(
-  meta: Readonly<Record<string, unknown>>
-): number | undefined {
-  const v = meta['variation'];
-  return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
+function defaultIdentifiers(request: AssistantSpeechRequest): string {
+  return `intent=${request.intent}, signalTags=${request.tags.join(',') || 'none'}, payloadRef=${request.payloadRef}, locale=${request.locale}.`;
 }
 
-function readMetaStringArray(
-  meta: Readonly<Record<string, unknown>>,
-  key: string
-): readonly string[] {
-  const v = meta[key];
-  if (!Array.isArray(v)) {
-    return [];
+function renderHistoryBlock(
+  lines: readonly AssistantSpeechHistoryLine[]
+): string {
+  if (lines.length === 0) {
+    return '';
   }
-  return v.filter((x): x is string => typeof x === 'string');
+  const items = lines
+    .slice(-6)
+    .map((l) => `- "${l.text.replace(/"/g, "'")}"`)
+    .join('\n');
+  return (
+    'Recent assistant lines (most recent last; do NOT repeat their phrasing, openers, or sentence shape):\n' +
+    items
+  );
 }
 
-function voiceForMoment(bucket: string): string {
-  switch (bucket) {
-    case 'start':
-    case 'announce':
-      return 'Moment voice: opening the puzzle—sound like a coach cue: tell them what to look for or do next (e.g. find / look / spot / try), not a verdict on the position. No completion praise.';
-    case 'wrong':
-    case 'retry':
-      return 'Moment voice: after a miss—short redo cue (look again, try again), imperative only. No completion praise.';
-    case 'progress':
-      return (
-        'Moment voice: mid-solve after a correct move—keep it minimal: short correctness acks (That’s correct, That’s right, Good, Yes) or a tiny next-step cue (What’s next?, Find the next). ' +
-        'Do not use motivational progress lines (forbidden examples: "Keep going, you’re making progress!", "You’re doing great, keep it up!", similar). No completion praise.'
-      );
-    case 'solved':
-      return 'Moment voice: puzzle just finished—brief celebratory praise is OK here (Great job!, Nice!, Well done!).';
-    case 'fallback':
-      return 'Moment voice: error/edge—clear next-step imperative (try another, skip ahead). No completion praise.';
-    default:
-      return 'Moment voice: prefer imperative coaching over declarative statements. No completion praise unless moment=solved.';
+function llmRulesJoined(
+  llm: AssistantSpeechLlmContext | undefined
+): string | undefined {
+  const r = llm?.rules;
+  if (r === undefined || r.length === 0) {
+    return undefined;
   }
+  return r.join(' ');
 }
 
-function buildInstruction(request: AssistantSpeechRequest): string {
-  const bucket = readMetaString(request.meta, 'bucket');
-  const theme = readMetaString(request.meta, 'theme');
-  const variation = readMetaVariation(request.meta);
-  const tags = request.tags.join(',');
-  const catalog = readMetaStringArray(request.meta, 'puzzleCatalogThemes');
-  const catalogStr = catalog.length > 0 ? catalog.join('|') : 'none';
-  const ids = `Identifiers: moment=${bucket || 'unknown'}, themeId=${theme || 'unknown'}, lineVariant=${variation ?? 'n/a'}, intent=${request.intent}, signalTags=${tags || 'none'}, puzzleCatalogThemes=${catalogStr}, payloadRef=${request.payloadRef}.`;
-  return `${STYLE_RULES} ${COMPLETION_PRAISE_RULE} ${GROUNDING_RULES} ${voiceForMoment(bucket)} ${ids}`;
+function identifiersForRequest(request: AssistantSpeechRequest): string {
+  return request.llm?.identifiers ?? defaultIdentifiers(request);
+}
+
+function historyInstructionSegment(
+  llm: AssistantSpeechLlmContext | undefined
+): string | undefined {
+  const lines = llm?.history?.recentLines ?? [];
+  const block = renderHistoryBlock(lines);
+  return block.length > 0 ? block : undefined;
+}
+
+function buildInstruction(
+  request: AssistantSpeechRequest,
+  maxLen: number
+): string {
+  const llm = request.llm;
+  return joinPromptSegments([
+    UNIVERSAL_STYLE.replace('maxChars', String(maxLen)),
+    llm?.persona,
+    llm?.grounding,
+    llm?.tone,
+    llmRulesJoined(llm),
+    historyInstructionSegment(llm),
+    `Identifiers: ${identifiersForRequest(request)}`,
+  ]);
 }
 
 function clipToConcisePhrase(raw: string, maxLen: number): string {
@@ -123,6 +138,41 @@ function clipToConcisePhrase(raw: string, maxLen: number): string {
   return clipped.trim();
 }
 
+function buildStructuredInput(
+  request: AssistantSpeechRequest,
+  instruction: string,
+  maxLen: number
+): Record<string, unknown> {
+  const base: Record<string, unknown> = {
+    intent: request.intent,
+    payloadRef: request.payloadRef,
+    tags: request.tags,
+    locale: request.locale,
+    instruction,
+    maxChars: maxLen,
+  };
+  const llm = request.llm;
+  if (llm === undefined) {
+    return base;
+  }
+  if (llm.persona !== undefined) base['llmPersona'] = llm.persona;
+  if (llm.grounding !== undefined) base['llmGrounding'] = llm.grounding;
+  if (llm.tone !== undefined) base['llmTone'] = llm.tone;
+  if (llm.identifiers !== undefined) base['llmIdentifiers'] = llm.identifiers;
+  if (llm.rules !== undefined) base['llmRules'] = llm.rules;
+  const hist = llm.history?.recentLines;
+  if (hist !== undefined && hist.length > 0) {
+    base['llmHistoryLines'] = hist.map((l) => ({
+      payloadRef: l.payloadRef,
+      intent: l.intent,
+      tags: [...l.tags],
+      text: l.text,
+      ...(l.ageMs !== undefined ? { ageMs: l.ageMs } : {}),
+    }));
+  }
+  return base;
+}
+
 export type CreateLlmAssistantSpeechResolverOptions = {
   readonly schemaVersion?: string;
   readonly model?: string;
@@ -133,6 +183,12 @@ export type CreateLlmAssistantSpeechResolverOptions = {
 /**
  * Maps {@link AssistantSpeechRequest} to {@link LlmProvider.structured}.
  * The only module in `@gamezilla/assistant` that imports `@gamezilla/llm`.
+ *
+ * The resolver itself stays opinionated about only one thing: the response is
+ * a short, plain-text, spoken-style line. All other prompt content — persona,
+ * tone, grounding, identifiers, ad-hoc rules — comes from the game via
+ * {@link AssistantSpeechLlmContext}, so the same resolver fits puzzle coaches,
+ * vs-bot banter, post-game review, sportscaster commentary, taunts, etc.
  */
 export function createLlmAssistantSpeechResolver(
   llm: LlmProvider,
@@ -151,20 +207,14 @@ export function createLlmAssistantSpeechResolver(
       if (signal.aborted) {
         return null;
       }
-      const input: Record<string, unknown> = {
-        intent: request.intent,
-        payloadRef: request.payloadRef,
-        tags: request.tags,
-        locale: request.locale,
-        ...request.meta,
-        instruction: buildInstruction(request),
-        maxChars: MESSAGE_MAX_LENGTH,
-      };
+      const maxLen = resolveMaxChars(request.llm);
+      const instruction = buildInstruction(request, maxLen);
+      const input = buildStructuredInput(request, instruction, maxLen);
 
       try {
         const { json } = await llm.structured({
           input,
-          schema: ASSISTANT_SPEECH_JSON_SCHEMA,
+          schema: ASSISTANT_SPEECH_JSON_SCHEMA(maxLen),
           model,
           provider: LLM_PROVIDER_OPENAI,
           schemaVersion,
@@ -177,7 +227,7 @@ export function createLlmAssistantSpeechResolver(
         if (typeof raw !== 'string') {
           return null;
         }
-        const clipped = clipToConcisePhrase(raw, MESSAGE_MAX_LENGTH);
+        const clipped = clipToConcisePhrase(raw, maxLen);
         return clipped.length > 0 ? clipped : null;
       } catch (err: unknown) {
         if (signal.aborted) {

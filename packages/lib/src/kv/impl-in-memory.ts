@@ -1,14 +1,15 @@
 import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Keyword } from '../keyword/keyword';
+import { assertKvRecord } from './assert-kv-record';
 import { KvImplInMemoryTx } from './impl-in-memory-tx';
-import type { Kv } from './interface';
+import type { Kv, KvRecord } from './interface';
 
 /**
  * In-memory {@link Kv} for tests and simple single-process use.
  * Serializes all operations through an internal async queue.
  */
 export class KvImplInMemory implements Kv {
-  private readonly map = new Map<Keyword, string>();
+  private readonly map = new Map<Keyword, KvRecord>();
   private chain: Promise<void> = Promise.resolve();
 
   private enqueue<T>(fn: () => Promise<T>): Promise<T> {
@@ -20,15 +21,19 @@ export class KvImplInMemory implements Kv {
     return run;
   }
 
-  async get(key: Keyword): Promise<string | null> {
-    assertKvKey(key);
-    return this.enqueue(async () => this.map.get(key) ?? null);
-  }
-
-  async put(key: Keyword, value: string): Promise<void> {
+  async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
     return this.enqueue(async () => {
-      this.map.set(key, value);
+      const v = this.map.get(key);
+      return v !== undefined ? structuredClone(v) : null;
+    });
+  }
+
+  async put(key: Keyword, value: KvRecord): Promise<void> {
+    assertKvKey(key);
+    assertKvRecord(value, 'kv in-memory put');
+    return this.enqueue(async () => {
+      this.map.set(key, structuredClone(value));
     });
   }
 

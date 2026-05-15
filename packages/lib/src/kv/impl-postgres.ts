@@ -15,14 +15,19 @@
  *     don't throttle, so dead tuples never pile up.
  *   - value column STORAGE MAIN: compress inline, skip the out-of-line probe
  *     that EXTENDED does on every write.
+ *
+ * Values are `JSONB` objects whose top-level keys are {@link Keyword}s (same
+ * contract as patch-db snapshot attributes). Writes use `?::text::jsonb` so
+ * Bun's `bun:sql` driver does not double-encode JSON parameters.
  */
 import { assert } from '../assert';
 import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Keyword } from '../keyword/keyword';
 import type { Logger } from '../logger/logger';
 import type { SqlClient } from '../sql-client/interface';
+import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import { KvImplPostgresTx } from './impl-postgres-tx';
-import type { Kv } from './interface';
+import type { Kv, KvRecord } from './interface';
 
 const TABLE = 'kv';
 const LAST_MODIFIED_AT = 'last_modified_at';
@@ -41,7 +46,7 @@ const STORAGE_PARAMS = `
 const MIGRATIONS = `
 CREATE UNLOGGED TABLE IF NOT EXISTS ${TABLE} (
   key        TEXT        PRIMARY KEY,
-  value      TEXT        NOT NULL,
+  value      JSONB       NOT NULL,
   ${LAST_MODIFIED_AT} TIMESTAMPTZ NOT NULL DEFAULT now()
 ) WITH (${STORAGE_PARAMS});
 ALTER TABLE ${TABLE} ALTER COLUMN value SET STORAGE MAIN;
@@ -68,6 +73,31 @@ async function migrateKvLegacyUpdatedAtColumn(
   await sqlClient.run(
     `ALTER TABLE ${TABLE} RENAME COLUMN updated_at TO ${LAST_MODIFIED_AT}`
   );
+}
+
+/**
+ * Legacy installs stored `value` as `TEXT`. Convert to `JSONB` and wipe rows
+ * so every row satisfies the keyword-record contract going forward.
+ */
+async function migrateKvValueColumnToJsonbIfNeeded(
+  sqlClient: SqlClient,
+  log: Logger
+): Promise<void> {
+  const rows = await sqlClient.query<{ data_type: string }>(
+    `SELECT data_type FROM information_schema.columns
+     WHERE table_schema = 'public' AND table_name = ? AND column_name = 'value'`,
+    [TABLE]
+  );
+  assert.array(rows, 'kv migrate: value column type query must return array');
+  const dt = rows[0]?.data_type;
+  if (dt !== 'text') return;
+  log.info('kv postgres migrate: converting value TEXT → JSONB + TRUNCATE', {
+    table: TABLE,
+  });
+  await sqlClient.run(
+    `ALTER TABLE ${TABLE} ALTER COLUMN value TYPE jsonb USING value::jsonb`
+  );
+  await sqlClient.run(`TRUNCATE ${TABLE}`);
 }
 
 /**
@@ -131,6 +161,7 @@ async function runKvPostgresMigrations(
     });
   }
   await migrateKvLegacyUpdatedAtColumn(sqlClient, log);
+  await migrateKvValueColumnToJsonbIfNeeded(sqlClient, log);
   await applyKvStorageOptimizations(sqlClient, log);
 }
 
@@ -176,22 +207,24 @@ export class KvImplPostgres implements Kv {
     }
   }
 
-  async get(key: Keyword): Promise<string | null> {
+  async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
-    const rows = await this.sqlClient.query<{ value: string }>(
+    const rows = await this.sqlClient.query<{ value: unknown }>(
       `SELECT value FROM ${TABLE} WHERE key = ?`,
       [key]
     );
     const first = rows[0];
-    return first !== null && first !== undefined ? first.value : null;
+    if (first === null || first === undefined) return null;
+    return parseKvRecordFromUnknown(first.value, 'kv postgres get');
   }
 
-  async put(key: Keyword, value: string): Promise<void> {
+  async put(key: Keyword, value: KvRecord): Promise<void> {
     assertKvKey(key);
+    assertKvRecord(value, 'kv postgres put');
     await this.sqlClient.run(
-      `INSERT INTO ${TABLE} (key, value) VALUES (?, ?)
+      `INSERT INTO ${TABLE} (key, value) VALUES (?, ?::text::jsonb)
        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, ${LAST_MODIFIED_AT} = now()`,
-      [key, value]
+      [key, JSON.stringify(value)]
     );
   }
 

@@ -2,7 +2,8 @@ import { assert } from '../assert';
 import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Keyword } from '../keyword/keyword';
 import type { SqlClient } from '../sql-client/interface';
-import type { Kv } from './interface';
+import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
+import type { Kv, KvRecord } from './interface';
 
 const TABLE = 'kv';
 
@@ -13,22 +14,24 @@ function assertKvKey(key: string): asserts key is Keyword {
 export class KvImplPostgresTx implements Kv {
   constructor(private readonly sql: SqlClient) {}
 
-  async get(key: Keyword): Promise<string | null> {
+  async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
-    const rows = await this.sql.query<{ value: string }>(
+    const rows = await this.sql.query<{ value: unknown }>(
       `SELECT value FROM ${TABLE} WHERE key = ?`,
       [key]
     );
     const first = rows[0];
-    return first !== null && first !== undefined ? first.value : null;
+    if (first === null || first === undefined) return null;
+    return parseKvRecordFromUnknown(first.value, 'kv postgres tx get');
   }
 
-  async put(key: Keyword, value: string): Promise<void> {
+  async put(key: Keyword, value: KvRecord): Promise<void> {
     assertKvKey(key);
+    assertKvRecord(value, 'kv postgres tx put');
     await this.sql.run(
-      `INSERT INTO ${TABLE} (key, value) VALUES (?, ?)
+      `INSERT INTO ${TABLE} (key, value) VALUES (?, ?::text::jsonb)
        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, last_modified_at = now()`,
-      [key, value]
+      [key, JSON.stringify(value)]
     );
   }
 
