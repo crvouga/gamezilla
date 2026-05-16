@@ -1,4 +1,4 @@
-import { Box, Text } from '@gamezilla/ui';
+import { Box, defaultColors, Text } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
@@ -10,6 +10,14 @@ import {
 const HEADER_ROW_HEIGHT = 22;
 
 export { HEADER_ROW_HEIGHT };
+
+// The status header always renders inside the (always-light) speech bubble,
+// so colors are pinned to the light palette to stay readable in dark mode.
+const BUBBLE_TEXT = defaultColors.light.text;
+const BUBBLE_TEXT_MUTED = defaultColors.light.textSecondary;
+// `ColorTokens` has no `surfaceVariant`; fall back to the bubble's border
+// token for a subtle inline-chip background that contrasts with the surface.
+const BUBBLE_CHIP_BG = defaultColors.light.border;
 
 function statusLabel(kind: ChessPuzzleStatusKind): ReactNode {
   switch (kind) {
@@ -50,19 +58,19 @@ export function ChessPuzzleStatusHeader({
       <ChessPuzzleStatusIcon kind={kind} />
       <Text
         variant="bodyBold"
-        sx={{ flex: 1, color: 'text' }}
+        style={{ flex: 1, color: BUBBLE_TEXT }}
         label={statusLabel(kind)}
       />
       {rating !== undefined && rating > 0 ? (
         <Box
-          sx={{
-            px: 2,
-            py: 1,
-            borderRadius: 6,
-            background: 'surfaceVariant',
-          }}
+          sx={{ px: 2, py: 1, borderRadius: 6 }}
+          style={{ backgroundColor: BUBBLE_CHIP_BG }}
         >
-          <Text variant="caption" label={String(rating)} />
+          <Text
+            variant="caption"
+            style={{ color: BUBBLE_TEXT_MUTED }}
+            label={String(rating)}
+          />
         </Box>
       ) : null}
     </Box>

@@ -132,10 +132,7 @@ function handleSubmitMove(
     return unauthorized('only the puzzle host may submit moves');
   }
   const status = ChessPuzzlePlayAttr.status.from(state);
-  if (
-    status !== CHESS_PUZZLE_PLAY_STATUS.solving &&
-    status !== CHESS_PUZZLE_PLAY_STATUS.wrong
-  ) {
+  if (status !== CHESS_PUZZLE_PLAY_STATUS.solving) {
     return conflict(`cannot submit move while status is ${status}`);
   }
   const tokens = tokenize(ChessPuzzlePlayAttr.moves.from(state));
@@ -145,30 +142,11 @@ function handleSubmitMove(
     return internal('no expected move at current solve index');
   }
   const actual = uci.trim().toLowerCase();
+  const previousDisplayFen = ChessPuzzlePlayAttr.displayFen.from(state);
   if (actual !== expected) {
-    const layoutKey = ChessPuzzlePlayAttr.layoutKey.from(state) + 1;
-    const squares = uciToSquares(actual);
-    if (squares === null) {
-      return reject({
-        type: ROOM_ERROR_TYPE.invalidCommand,
-        reason: 'malformed uci for rejected move',
-      });
-    }
-    return {
-      ok: true,
-      events: [
-        ChessPuzzlePlayMoveRejected({
-          uci: actual,
-          layoutKey,
-          wrongFromSquare: squares.from,
-          wrongToSquare: squares.to,
-        }),
-      ],
-    };
+    return handleWrongMove({ state, actual, previousDisplayFen });
   }
-  const chessOrErr = loadChessFromDisplayFen(
-    ChessPuzzlePlayAttr.displayFen.from(state)
-  );
+  const chessOrErr = loadChessFromDisplayFen(previousDisplayFen);
   if ('error' in chessOrErr) return chessOrErr.error;
   const applied = applyAcceptedMove({
     chess: chessOrErr,
@@ -180,6 +158,50 @@ function handleSubmitMove(
   return {
     ok: true,
     events: [ChessPuzzlePlayMoveAccepted(applied)],
+  };
+}
+
+/**
+ * Handle a syntactically-valid but wrong UCI: apply it to the board so the
+ * player sees the position they reached, then capture both the new and the
+ * pre-move FEN so `Retry` can revert just the wrong ply.
+ */
+function handleWrongMove(args: {
+  state: RoomState;
+  actual: string;
+  previousDisplayFen: string | null;
+}): HandleResult {
+  const { state, actual, previousDisplayFen } = args;
+  const layoutKey = ChessPuzzlePlayAttr.layoutKey.from(state) + 1;
+  const squares = uciToSquares(actual);
+  if (squares === null) {
+    return reject({
+      type: ROOM_ERROR_TYPE.invalidCommand,
+      reason: 'malformed uci for rejected move',
+    });
+  }
+  const chessOrErr = loadChessFromDisplayFen(previousDisplayFen);
+  if ('error' in chessOrErr) return chessOrErr.error;
+  if (!applyUciToChess(chessOrErr, actual)) {
+    return reject({
+      type: ROOM_ERROR_TYPE.invalidCommand,
+      reason: 'illegal move for current position',
+    });
+  }
+  // `previousDisplayFen` is non-null here: `loadChessFromDisplayFen` rejects null.
+  const prev = previousDisplayFen ?? '';
+  return {
+    ok: true,
+    events: [
+      ChessPuzzlePlayMoveRejected({
+        uci: actual,
+        layoutKey,
+        wrongFromSquare: squares.from,
+        wrongToSquare: squares.to,
+        displayFen: chessOrErr.fen(),
+        previousDisplayFen: prev,
+      }),
+    ],
   };
 }
 
@@ -236,6 +258,26 @@ function handleReset(state: RoomState, identity: string): HandleResult {
     return conflict('no puzzle in play to reset');
   }
   const layoutKey = ChessPuzzlePlayAttr.layoutKey.from(state) + 1;
+
+  // Wrong-move retry: undo just the wrong move, keep `solveIdx` so the
+  // player picks back up where the puzzle expected the same correct move.
+  if (status === CHESS_PUZZLE_PLAY_STATUS.wrong) {
+    const previous = ChessPuzzlePlayAttr.previousDisplayFen.from(state);
+    if (previous !== null) {
+      return {
+        ok: true,
+        events: [
+          ChessPuzzlePlayResetEvt({
+            displayFen: previous,
+            solveIdx: ChessPuzzlePlayAttr.solveIdx.from(state),
+            status: CHESS_PUZZLE_PLAY_STATUS.solving,
+            layoutKey,
+          }),
+        ],
+      };
+    }
+  }
+
   const fen = ChessPuzzlePlayAttr.fen.from(state);
   const moves = ChessPuzzlePlayAttr.moves.from(state);
   const setup = setupPuzzleStart(fen, moves);
@@ -335,6 +377,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.moves(p.moves),
       ...ChessPuzzlePlayAttr.hostIdentity(p.hostIdentity),
       ...ChessPuzzlePlayAttr.displayFen(p.displayFen),
+      ...ChessPuzzlePlayAttr.previousDisplayFen(null),
       ...ChessPuzzlePlayAttr.orientation(p.orientation),
       ...ChessPuzzlePlayAttr.status(p.status),
       ...ChessPuzzlePlayAttr.solveIdx(p.solveIdx),
@@ -348,6 +391,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
   .on(ChessPuzzlePlayMoveAccepted, (state, _ctx, ev) => ({
     ...state,
     ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
+    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
     ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
     ...ChessPuzzlePlayAttr.status(ev.payload.status),
     ...ChessPuzzlePlayAttr.wrongFromSquare(null),
@@ -357,6 +401,8 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
   }))
   .on(ChessPuzzlePlayMoveRejected, (state, _ctx, ev) => ({
     ...state,
+    ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
+    ...ChessPuzzlePlayAttr.previousDisplayFen(ev.payload.previousDisplayFen),
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.wrong),
     ...ChessPuzzlePlayAttr.wrongFromSquare(ev.payload.wrongFromSquare),
@@ -367,6 +413,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
   .on(ChessPuzzlePlayResetEvt, (state, _ctx, ev) => ({
     ...state,
     ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
+    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
     ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
     ...ChessPuzzlePlayAttr.status(ev.payload.status),
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
@@ -388,6 +435,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.moves(''),
     ...ChessPuzzlePlayAttr.hostIdentity(null),
     ...ChessPuzzlePlayAttr.displayFen(null),
+    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
     ...ChessPuzzlePlayAttr.orientation('white'),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.idle),
     ...ChessPuzzlePlayAttr.solveIdx(0),
@@ -406,6 +454,7 @@ export function chessPuzzlePlayInitialAttrs(): RoomState {
     ...ChessPuzzlePlayAttr.moves(''),
     ...ChessPuzzlePlayAttr.hostIdentity(null),
     ...ChessPuzzlePlayAttr.displayFen(null),
+    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
     ...ChessPuzzlePlayAttr.orientation('white'),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.idle),
     ...ChessPuzzlePlayAttr.solveIdx(0),

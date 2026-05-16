@@ -74,7 +74,7 @@ Within a feature package, prefer **relative** imports between sibling files (`./
 
 Feature-specific scripts (seeders, dev refreshers, migration runners) live in `packages/<name>/scripts/` and are wired up via the package's `scripts` block in `package.json` (e.g. `bun run --filter @gamezilla/<name> seed:<x>`). Lint targets `eslint src` so script files use Tiger-style structure but keep the freedom to grow long top-level orchestrators. Add `./scripts/**/*.ts` to the package `tsconfig.json` `include` and the root `tsconfig.json` `include` so type-checking covers them.
 
-`packages/client/src/app/**` (Expo Router) and `packages/api/src/api.ts` (worker entry) stay as 1-line re-export stubs that point at the feature packages — that keeps URL routes and the `Space` Durable Object class binding stable.
+`packages/client/src/app/**` (Expo Router) and `packages/api/src/api.ts` (worker entry) stay as 1-line re-export stubs that point at the feature packages — that keeps URL routes and the `Room` Durable Object class binding stable.
 
 ### Current feature packages
 

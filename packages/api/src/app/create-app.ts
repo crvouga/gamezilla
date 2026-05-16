@@ -10,7 +10,6 @@ import { createLlmAppFromBindings } from '@gamezilla/llm/server';
 import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
 import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
-import { createSpaceApp } from '@gamezilla/spaces/server/route';
 import { createStripeApp } from '@gamezilla/stripe/stripe-app';
 import { createTtsAppFromBindings } from '@gamezilla/tts/server';
 import { Hono } from 'hono';
@@ -19,6 +18,7 @@ import Stripe from 'stripe';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
+import { createRoomApp } from '../room/route';
 import type { ApiHonoEnv } from './api-hono-types';
 import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
@@ -209,7 +209,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/', ttsApp)
     .route('/', llmApp)
     .route('/', createStripeSubApp(config, stripe))
-    .route('/', createSpaceApp())
+    .route('/', createRoomApp())
     .route(patchMount, patchDbApp)
     .onError(createApiErrorHandler());
 

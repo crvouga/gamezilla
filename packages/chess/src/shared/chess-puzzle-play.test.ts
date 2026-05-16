@@ -202,7 +202,7 @@ describe('chess puzzle play FSM — Submit', () => {
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(4);
   });
 
-  test('wrong move flips status to wrong and bumps layoutKey', () => {
+  test('wrong move applies the move, flips to wrong, captures previous fen', () => {
     let state = startValid(ChessModule.initialState());
     const before = ChessPuzzlePlayAttr.layoutKey.from(state);
     const beforeFen = ChessPuzzlePlayAttr.displayFen.from(state);
@@ -218,13 +218,16 @@ describe('chess puzzle play FSM — Submit', () => {
       CHESS_PUZZLE_PLAY_STATUS.wrong
     );
     expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(before + 1);
-    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(beforeFen);
+    // Board now reflects the wrong move so the player can see what they did.
+    expect(ChessPuzzlePlayAttr.displayFen.from(state)).not.toBe(beforeFen);
+    // Pre-move fen is captured so Retry can revert just that ply.
+    expect(ChessPuzzlePlayAttr.previousDisplayFen.from(state)).toBe(beforeFen);
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
     expect(ChessPuzzlePlayAttr.wrongFromSquare.from(state)).toBe('h1');
     expect(ChessPuzzlePlayAttr.wrongToSquare.from(state)).toBe('h2');
   });
 
-  test('second wrong move while already wrong stays wrong', () => {
+  test('second submit while already wrong is rejected as conflict', () => {
     let state = startValid(ChessModule.initialState());
     const wrong1 = ChessModule.handle(
       state,
@@ -233,24 +236,32 @@ describe('chess puzzle play FSM — Submit', () => {
     );
     if (!wrong1.ok) throw new Error('first wrong failed');
     state = reduceAll(state, wrong1.events);
-    const lk1 = ChessPuzzlePlayAttr.layoutKey.from(state);
     const wrong2 = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      HOST
+    );
+    expect(wrong2.ok).toBe(false);
+    if (wrong2.ok) return;
+    expect(wrong2.error.type).toBe(ROOM_ERROR_TYPE.conflict);
+  });
+
+  test('illegal wrong move is rejected as invalidCommand without state change', () => {
+    const state = startValid(ChessModule.initialState());
+    const beforeFen = ChessPuzzlePlayAttr.displayFen.from(state);
+    // a1 is empty so a1a2 is not a legal move from the post-opening position.
+    const res = ChessModule.handle(
       state,
       cmd(SubmitChessPuzzleMove({ uci: 'a1a2' })),
       HOST
     );
-    expect(wrong2.ok).toBe(true);
-    if (!wrong2.ok) return;
-    state = reduceAll(state, wrong2.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.wrong
-    );
-    expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(lk1 + 1);
-    expect(ChessPuzzlePlayAttr.wrongFromSquare.from(state)).toBe('a1');
-    expect(ChessPuzzlePlayAttr.wrongToSquare.from(state)).toBe('a2');
+    expect(res.ok).toBe(false);
+    if (res.ok) return;
+    expect(res.error.type).toBe(ROOM_ERROR_TYPE.invalidCommand);
+    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(beforeFen);
   });
 
-  test('wrong then correct returns to solving and advances', () => {
+  test('wrong then retry then correct returns to solving and advances', () => {
     let state = startValid(ChessModule.initialState());
     const wrong = ChessModule.handle(
       state,
@@ -261,6 +272,16 @@ describe('chess puzzle play FSM — Submit', () => {
     state = reduceAll(state, wrong.events);
     expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
       CHESS_PUZZLE_PLAY_STATUS.wrong
+    );
+    const reset = ChessModule.handle(
+      state,
+      cmd(ResetChessPuzzlePlay({})),
+      HOST
+    );
+    if (!reset.ok) throw new Error('retry failed');
+    state = reduceAll(state, reset.events);
+    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
+      CHESS_PUZZLE_PLAY_STATUS.solving
     );
     const correct = ChessModule.handle(
       state,
@@ -368,6 +389,45 @@ describe('chess puzzle play FSM — Hint', () => {
 });
 
 describe('chess puzzle play FSM — Reset', () => {
+  test('retry from wrong undoes only the wrong move (keeps solveIdx)', () => {
+    let state = startValid(ChessModule.initialState());
+    const correct = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      HOST
+    );
+    if (!correct.ok) throw new Error('first correct failed');
+    state = reduceAll(state, correct.events);
+    const fenAfterFirstCorrect = ChessPuzzlePlayAttr.displayFen.from(state);
+    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    const wrong = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'f2f3' })),
+      HOST
+    );
+    if (!wrong.ok) throw new Error('wrong submit failed');
+    state = reduceAll(state, wrong.events);
+    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
+      CHESS_PUZZLE_PLAY_STATUS.wrong
+    );
+    const reset = ChessModule.handle(
+      state,
+      cmd(ResetChessPuzzlePlay({})),
+      HOST
+    );
+    expect(reset.ok).toBe(true);
+    if (!reset.ok) return;
+    state = reduceAll(state, reset.events);
+    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
+      CHESS_PUZZLE_PLAY_STATUS.solving
+    );
+    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(
+      fenAfterFirstCorrect
+    );
+    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    expect(ChessPuzzlePlayAttr.previousDisplayFen.from(state)).toBeNull();
+  });
+
   test('host reset returns to post-opening state and bumps layoutKey', () => {
     let state = startValid(ChessModule.initialState());
     const startedFen = ChessPuzzlePlayAttr.displayFen.from(state);

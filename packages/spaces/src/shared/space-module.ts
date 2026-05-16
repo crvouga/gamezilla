@@ -9,6 +9,7 @@ import {
   type RoomCommand,
   type RoomError,
   type RoomModule,
+  type RoomModuleName,
   type RoomState,
 } from '@gamezilla/room';
 
@@ -73,8 +74,11 @@ function buildInitialState(games: readonly GameDefinition[]): RoomState {
  *
  * Adding a new game means dropping a `GameDefinition` into the registry —
  * this factory's body never changes.
+ *
+ * @param name — Wire id for the composed module (DO `module` query, uniqueness).
  */
 export function createSpaceModule(
+  name: RoomModuleName,
   games: readonly GameDefinition[]
 ): RoomModule<RoomState, Message, Message, string> {
   assertUniqueGameIds(games);
@@ -82,6 +86,7 @@ export function createSpaceModule(
   const eventReducer = buildEventReducer(games);
 
   return {
+    name,
     initialState: (): RoomState => buildInitialState(games),
 
     handle(

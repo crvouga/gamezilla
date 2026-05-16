@@ -3,6 +3,7 @@ import type { IconSymbolName } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
+import type { HintStage } from './use-hint-stage';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 
 type ActionButtonProps = {
@@ -43,8 +44,35 @@ function ActionButton({
   );
 }
 
+type HintButtonModel = {
+  icon: IconSymbolName;
+  label: ReactNode;
+  disabled: boolean;
+};
+
+function hintButtonModel(args: {
+  status: SolveStatus;
+  hintStage: HintStage;
+}): HintButtonModel {
+  const { status, hintStage } = args;
+  const baseDisabled = status !== 'solving';
+  if (hintStage === 'highlight') {
+    return {
+      icon: 'ellipsis',
+      label: <Trans>Solution</Trans>,
+      disabled: baseDisabled,
+    };
+  }
+  return {
+    icon: 'ellipsis',
+    label: <Trans>Hint</Trans>,
+    disabled: baseDisabled || hintStage === 'solution',
+  };
+}
+
 export type ChessPuzzleActionBarProps = {
   status: SolveStatus;
+  hintStage: HintStage;
   onHint: () => void;
   onRetry: () => void;
   onNext: () => void;
@@ -52,16 +80,18 @@ export type ChessPuzzleActionBarProps = {
 
 export function ChessPuzzleActionBar({
   status,
+  hintStage,
   onHint,
   onRetry,
   onNext,
 }: ChessPuzzleActionBarProps): ReactNode {
+  const hint = hintButtonModel({ status, hintStage });
   return (
     <Box sx={{ flexDirection: 'row', gap: 2, px: 3, alignSelf: 'stretch' }}>
       <ActionButton
-        icon="ellipsis"
-        label={<Trans>Hint</Trans>}
-        disabled={status !== 'solving'}
+        icon={hint.icon}
+        label={hint.label}
+        disabled={hint.disabled}
         onPress={onHint}
       />
       <ActionButton

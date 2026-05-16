@@ -19,7 +19,7 @@ export type CreateSpaceRoomParams = {
   apiUrl: string;
   /**
    * Composed space {@link RoomModule}, constructed by the composition root
-   * via `createSpaceModule([...])`. Threaded in (rather than imported here)
+   * via `createSpaceModule(name, [...])`. Threaded in (rather than imported here)
    * so `@gamezilla/spaces` stays game-agnostic.
    */
   module: SpaceRoomModule;
@@ -32,7 +32,7 @@ export type CreateSpaceRoomParams = {
   kv: Kv;
   /** Actor id (signed-in account or install id); space DO auth + local room handle. */
   myId: string;
-  /** Install UUID — required with bearer JWT for `/space/ws` device binding. */
+  /** Install UUID — required with bearer JWT for `/room` device binding. */
   installId: string;
   sessionToken: string | null;
 };

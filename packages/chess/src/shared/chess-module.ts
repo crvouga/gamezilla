@@ -4,6 +4,7 @@ import {
   type Message,
 } from '@gamezilla/lib/message';
 import {
+  assertRoomModuleName,
   ROOM_ERROR_TYPE,
   type HandleResult,
   type RoomCommand,
@@ -42,9 +43,10 @@ const eventReducer = createComposedMessageRouter<RoomState, void, RoomState>(
  * `@gamezilla/spaces` (which would re-introduce a chess <-> spaces cycle).
  *
  * Production traffic always goes through the composed `SpaceModule` built
- * by `createSpaceModule([chessGameShared, ...])` at the composition root.
+ * by `createSpaceModule(name, [chessGameShared, …])` at the composition root.
  */
 export const ChessModule: RoomModule<RoomState, Message, Message, string> = {
+  name: assertRoomModuleName('chess'),
   initialState(): RoomState {
     if (chessGameShared.initialState === undefined) return {};
     return chessGameShared.initialState();

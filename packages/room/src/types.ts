@@ -64,12 +64,42 @@ export type HandleResult<E extends RoomEvent = RoomEvent> =
   | { ok: true; events: E[] }
   | { ok: false; error: RoomError };
 
+/**
+ * Wire-safe room-module id: lowercase ASCII letters with single-hyphen
+ * separators between segments (`space`, `chess-lobby`). No spaces, digits,
+ * underscores, or consecutive hyphens.
+ */
+export const ROOM_MODULE_NAME_REGEX = /^[a-z]+(?:-[a-z]+)*$/;
+
+declare const roomModuleNameBrand: unique symbol;
+
+/** Branded module id validated by {@link parseRoomModuleName} / {@link assertRoomModuleName}. */
+export type RoomModuleName = string & { readonly [roomModuleNameBrand]: true };
+
+export function parseRoomModuleName(raw: string): RoomModuleName | null {
+  const t = raw.trim();
+  if (!ROOM_MODULE_NAME_REGEX.test(t)) return null;
+  return t as RoomModuleName;
+}
+
+export function assertRoomModuleName(raw: string): RoomModuleName {
+  const parsed = parseRoomModuleName(raw);
+  if (parsed === null) {
+    throw new Error(
+      `invalid room module name: ${JSON.stringify(raw)} — expected lowercase kebab-case letters only (e.g. "space", "chess-lobby")`
+    );
+  }
+  return parsed;
+}
+
 export type RoomModule<
   S extends RoomState = RoomState,
   C extends RoomCommandPayload = RoomCommandPayload,
   E extends RoomEvent = RoomEvent,
   Identity = unknown,
 > = {
+  /** Wire id for DO routing (`module` query) and uniqueness in multi-module hosts. */
+  readonly name: RoomModuleName;
   initialState(): S;
   handle(
     state: S,

@@ -60,6 +60,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@gamezilla/chess": "workspace:*",
+        "@gamezilla/room": "workspace:*",
         "@gamezilla/spaces": "workspace:*",
         "react": "catalog:",
       },

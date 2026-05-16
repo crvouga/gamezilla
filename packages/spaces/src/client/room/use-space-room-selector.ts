@@ -5,6 +5,8 @@ import {
   useRoomSelector,
 } from '@gamezilla/room';
 
+import { SPACE_ROOM_MODULE_NAME } from '../../shared/space-room-module-name';
+
 /**
  * Registry key for the primary collaborative room in a space session.
  *
@@ -13,7 +15,7 @@ import {
  * that wants to read or dispatch on the space room reaches in via the hooks
  * below, never via this literal directly.
  */
-export const SPACE_ROOM_NAME = 'space';
+export const SPACE_ROOM_NAME = SPACE_ROOM_MODULE_NAME;
 
 /**
  * Select from the default space room (`{@link SPACE_ROOM_NAME}`). Use this in

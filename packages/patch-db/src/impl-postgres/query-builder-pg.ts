@@ -60,6 +60,23 @@ const BINARY_OPS_SQL: Record<BinaryClause['type'], string> = {
   lte: '<= ?::text',
 };
 
+/**
+ * Order-sensitive ops compared as text yield lexicographic comparison, which
+ * silently wrong-answers on numeric attributes — e.g. `'1200' >= '800'` is
+ * FALSE because `'1' < '8'`. For numeric `value`s we cast both sides to
+ * `numeric` so range queries (`gt/gte/lt/lte`) sort by magnitude.
+ *
+ * Equality (`=`, `!=`) stays text-based: JSON numbers materialise back to
+ * canonical text via `jsonb ->>` (e.g. `1200` → `'1200'`), so `'1200' = '1200'`
+ * is correct without paying for a `numeric` cast.
+ */
+const NUMERIC_ORDER_OPS_SQL: Partial<Record<BinaryClause['type'], string>> = {
+  gt: '>',
+  gte: '>=',
+  lt: '<',
+  lte: '<=',
+};
+
 function topLevelJsonKey(attribute: string): string {
   assertAttribute(attribute);
   return sqliteJsonPathToKey(jsonPathForAttribute(attribute));
@@ -71,6 +88,13 @@ function buildBinaryClause(
 ): WhereFragment {
   const col = `${jsonColumn}::jsonb`;
   const key = topLevelJsonKey(patchDbAttributeKey(clause.attribute));
+  const numericOp = NUMERIC_ORDER_OPS_SQL[clause.type];
+  if (numericOp !== undefined && typeof clause.value === 'number') {
+    return {
+      sql: `((${col} ->> ?)::numeric ${numericOp} ?::numeric)`,
+      params: [key, clause.value],
+    };
+  }
   const opTail = BINARY_OPS_SQL[clause.type];
   return {
     sql: `(${col} ->> ?) ${opTail}`,

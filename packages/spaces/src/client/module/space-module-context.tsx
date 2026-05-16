@@ -7,7 +7,7 @@ export type SpaceRoomModule = RoomModule<RoomState, Message, Message, string>;
 const SpaceModuleContext = createContext<SpaceRoomModule | null>(null);
 
 export type SpaceModuleProviderProps = {
-  /** Composed `SpaceModule`, built by the composition root via `createSpaceModule([...])`. */
+  /** Composed `SpaceModule`, built by the composition root via `createSpaceModule(name, games)`. */
   readonly value: SpaceRoomModule;
   readonly children: ReactNode;
 };
@@ -17,7 +17,7 @@ export type SpaceModuleProviderProps = {
  * a {@link Room}. Mount at the composition root with the constructed module:
  *
  * ```tsx
- * <SpaceModuleProvider value={createSpaceModule([chessGameShared])}>
+ * <SpaceModuleProvider value={createSpaceModule(name, [chessGameShared])}>
  *   ...
  * </SpaceModuleProvider>
  * ```

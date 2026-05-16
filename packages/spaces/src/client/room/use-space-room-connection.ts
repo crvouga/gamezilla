@@ -64,7 +64,7 @@ export function useSpaceRoomConnection(
   bootstrap: SpaceRoomConnectionBootstrap | null,
   configService: ConfigService,
   kv: Kv,
-  /** Bearer for `/space/ws`; must be in sync with `sessionTokenAtom` (re-run when it changes). */
+  /** Bearer for `/room`; must be in sync with `sessionTokenAtom` (re-run when it changes). */
   sessionToken: string | null
 ): {
   room: SpaceRoom | null;

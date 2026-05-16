@@ -3,7 +3,7 @@ import {
   asKeyword,
   type Keyword,
 } from '@gamezilla/lib/keyword';
-import type { LogEntry } from '../../../types';
+import type { LogEntry, RoomModuleName } from '../../../types';
 import type { CommandDedupOutcome, RoomStorage } from '../../core/storage';
 import type { DurableObjectKvStorage } from './types';
 
@@ -13,6 +13,11 @@ import type { DurableObjectKvStorage } from './types';
  * (e.g. `state-v3`) when the {@link Persisted} shape evolves.
  */
 const STATE_KEY: Keyword = asKeyword('room.do/state-v2');
+
+/** Per-module KV blob so one DO can host multiple {@link RoomServer}s safely. */
+function stateBlobKey(moduleName: RoomModuleName): Keyword {
+  return asKeyword(`room.do/state-v2-${String(moduleName)}`);
+}
 
 type Persisted = {
   events: LogEntry[];
@@ -62,18 +67,27 @@ function parsePersistedBlob(raw: unknown): Persisted {
 
 /**
  * Single-topic room log persisted in a Durable Object's KV `storage` binding.
- * Suitable for any module that fits in one DO (one topic per instance).
+ * Pass {@link RoomModuleName} to isolate blobs when one DO hosts several modules;
+ * omit it to use the legacy single-blob key (`room.do/state-v2`).
  */
 export class DurableObjectRoomStorage implements RoomStorage {
-  constructor(private readonly kv: DurableObjectKvStorage) {}
+  private readonly blobKey: Keyword;
+
+  constructor(
+    private readonly kv: DurableObjectKvStorage,
+    moduleName?: RoomModuleName
+  ) {
+    this.blobKey =
+      moduleName !== undefined ? stateBlobKey(moduleName) : STATE_KEY;
+  }
 
   private async load(): Promise<Persisted> {
-    const raw = await this.kv.get<Persisted>(STATE_KEY);
+    const raw = await this.kv.get<Persisted>(this.blobKey);
     return parsePersistedBlob(raw);
   }
 
   private async save(p: Persisted): Promise<void> {
-    await this.kv.put(STATE_KEY, p);
+    await this.kv.put(this.blobKey, p);
   }
 
   async loadEventsAfter(_topic: string, afterSeq: number): Promise<LogEntry[]> {

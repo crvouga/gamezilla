@@ -7,6 +7,7 @@ import {
 } from '@gamezilla/lib/message';
 
 import {
+  assertRoomModuleName,
   ROOM_ERROR_TYPE,
   type HandleResult,
   type RoomCommand,
@@ -42,6 +43,7 @@ export const TestCounterModule: RoomModule<
   Message,
   string
 > = {
+  name: assertRoomModuleName('test-counter'),
   initialState(): RoomState {
     return counterCount(0);
   },

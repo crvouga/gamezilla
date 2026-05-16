@@ -14,9 +14,11 @@ function usePuzzlePlayerModel(puzzleId: string) {
     orientation,
     onMove: onMoveRaw,
     solveIdx,
+    totalTokens,
     wrongFromSquare,
     wrongToSquare,
     expectedFromSquare,
+    expectedToSquare,
   } = usePuzzleSolver({ fen, movesStr, puzzleId });
   const { appendUsedHint, appendAbandoned, setLastUci } =
     useChessPuzzleInteractionRecorder({
@@ -36,9 +38,11 @@ function usePuzzlePlayerModel(puzzleId: string) {
     orientation,
     onMoveRaw,
     solveIdx,
+    totalTokens,
     wrongFromSquare,
     wrongToSquare,
     expectedFromSquare,
+    expectedToSquare,
     appendUsedHint,
     appendAbandoned,
     setLastUci,
@@ -53,6 +57,7 @@ function usePuzzlePlayerUi(
   const {
     showCorrectFlash,
     solvedCrownSquare,
+    hintStage,
     onMove,
     onHint,
     onRetry,
@@ -62,13 +67,14 @@ function usePuzzlePlayerUi(
     solveIdx: m.solveIdx,
     status: m.status,
     displayFen: m.displayFen,
+    expectedFromSquare: m.expectedFromSquare,
     onMoveRaw: m.onMoveRaw,
     setLastUci: m.setLastUci,
     appendUsedHint: m.appendUsedHint,
     appendAbandoned: m.appendAbandoned,
     onRequestNext,
   });
-  const { assistant, statusKind, cellFeedback } = usePuzzlePlayerVisual({
+  const { assistant, statusKind, cellFeedback, arrows } = usePuzzlePlayerVisual({
     puzzleId,
     status: m.status,
     solveIdx: m.solveIdx,
@@ -76,11 +82,15 @@ function usePuzzlePlayerUi(
     layoutKey: m.layoutKey,
     orientation: m.orientation,
     showCorrectFlash,
-    interactions: m.interactions,
+    displayFen: m.displayFen,
+    totalTokens: m.totalTokens,
     wrongFromSquare: m.wrongFromSquare,
     wrongToSquare: m.wrongToSquare,
     expectedFromSquare: m.expectedFromSquare,
+    expectedToSquare: m.expectedToSquare,
     solvedCrownSquare,
+    hintStage,
+    rating: m.rating,
   });
   return {
     rating: m.rating,
@@ -91,8 +101,10 @@ function usePuzzlePlayerUi(
     layoutKey: m.layoutKey,
     orientation: m.orientation,
     status: m.status,
+    hintStage,
     onMove,
     cellFeedback,
+    arrows,
     onHint,
     onRetry,
     onNext,

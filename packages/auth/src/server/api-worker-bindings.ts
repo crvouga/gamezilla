@@ -9,7 +9,7 @@ export type HyperdriveBinding = {
   readonly connectionString: string;
 };
 
-export type SpaceNamespace = {
+export type RoomNamespace = {
   idFromName(name: string): object;
   get(id: object): { fetch(request: Request): Promise<Response> };
 };
@@ -19,7 +19,7 @@ export type ApiWorkerBindings = {
   DOPPLER_PROJECT?: string;
   DOPPLER_CONFIG?: string;
   HYPERDRIVE: HyperdriveBinding;
-  SPACE?: SpaceNamespace;
+  ROOM?: RoomNamespace;
   /** Cloudflare R2 bucket for cached TTS audio blobs. Optional — omit to disable TTS. */
   TTS_AUDIO?: R2Bucket;
 };

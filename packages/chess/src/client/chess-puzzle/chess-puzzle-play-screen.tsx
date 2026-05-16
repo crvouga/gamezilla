@@ -6,12 +6,7 @@ import {
 } from '@gamezilla/spaces/client/room/use-space-room-selector';
 import { Box, IconButton, IconSymbol, Text, useTheme } from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import {
-  useCallback,
-  useEffect,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
@@ -115,9 +110,11 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
           {...(p.cellFeedback !== undefined
             ? { cellFeedback: p.cellFeedback }
             : {})}
+          {...(p.arrows.length > 0 ? { arrows: p.arrows } : {})}
         />
         <ChessPuzzleActionBar
           status={p.status}
+          hintStage={p.hintStage}
           onHint={p.onHint}
           onRetry={p.onRetry}
           onNext={() => void p.onNext()}
@@ -154,16 +151,24 @@ export function PuzzlePlayScreen(): ReactNode {
     seed: `${myId}-${attemptSeed}`,
   });
 
+  // Picking the next puzzle to render:
+  //   - First mount (`attemptSeed === 0`): if the room is mid-session, resume
+  //     it by mirroring `roomPuzzleId`; otherwise fall through to `nextId`.
+  //   - After the user pressed Next (`attemptSeed > 0`): the Clear command
+  //     is in-flight and `roomPuzzleId` is still the just-finished puzzle.
+  //     Wait until the Clear lands (`roomPuzzleId === null`) before picking
+  //     `nextId`, otherwise we'd snap right back to the old puzzle.
   useEffect(() => {
     if (activePuzzleId !== null) return;
-    if (roomPuzzleId !== null) {
+    if (attemptSeed === 0 && roomPuzzleId !== null) {
       setActivePuzzleId(roomPuzzleId);
       return;
     }
+    if (attemptSeed > 0 && roomPuzzleId !== null) return;
     if (nextId !== null) {
       setActivePuzzleId(nextId);
     }
-  }, [activePuzzleId, nextId, roomPuzzleId]);
+  }, [activePuzzleId, attemptSeed, nextId, roomPuzzleId]);
 
   const { fen, movesStr } = usePuzzleEntity(activePuzzleId ?? '');
 
@@ -184,13 +189,6 @@ export function PuzzlePlayScreen(): ReactNode {
     setActivePuzzleId(null);
     setAttemptSeed((s) => s + 1);
   }, []);
-
-  useEffect(() => {
-    if (activePuzzleId !== null) return;
-    if (nextId !== null) {
-      setActivePuzzleId(nextId);
-    }
-  }, [activePuzzleId, nextId]);
 
   if (nextLoading || activePuzzleId === null) {
     return (

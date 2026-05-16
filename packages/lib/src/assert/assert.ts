@@ -118,6 +118,22 @@ export class Assert {
   }
 
   /**
+   * Asserts that `value` is a non-empty array.
+   *
+   * @param value - Value to check.
+   * @param message - Message when the assertion fails.
+   * @param context - Optional extra context (merged with `value`).
+   */
+  nonEmptyArray(
+    value: unknown,
+    message: string,
+    context?: Record<string, unknown>
+  ): asserts value is [unknown, ...unknown[]] {
+    this.array(value, message);
+    this.ok(value.length > 0, message, { ...context, value });
+  }
+
+  /**
    * Asserts that `value` is neither `null` nor `undefined`.
    *
    * @param value - Possibly nullish value.

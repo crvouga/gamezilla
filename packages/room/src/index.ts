@@ -53,7 +53,13 @@ export {
   type ClientToServerWire,
   type ServerToClientWire,
 } from './protocol/wire';
-export { ROOM_ERROR_TYPE, ROOM_ERROR_TYPES } from './types';
+export {
+  assertRoomModuleName,
+  parseRoomModuleName,
+  ROOM_ERROR_TYPE,
+  ROOM_ERROR_TYPES,
+  ROOM_MODULE_NAME_REGEX,
+} from './types';
 export type {
   HandleResult,
   Keyword,
@@ -63,5 +69,6 @@ export type {
   RoomError,
   RoomEvent,
   RoomModule,
+  RoomModuleName,
   RoomState,
 } from './types';

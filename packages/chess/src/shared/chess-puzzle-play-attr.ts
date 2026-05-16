@@ -69,6 +69,16 @@ export const ChessPuzzlePlayAttr = {
   solveIdx: playNs('solve-idx', readNonNegativeInteger),
   /** FEN currently rendered on the board (after applied moves). */
   displayFen: playNs('display-fen', readNullableNonEmptyString),
+  /**
+   * FEN that was rendered immediately before the last wrong move. Set
+   * alongside `displayFen` when a wrong move is applied so `Retry` can
+   * revert just that move (instead of resetting to the puzzle start).
+   * Cleared on every other state transition.
+   */
+  previousDisplayFen: playNs(
+    'previous-display-fen',
+    readNullableNonEmptyString
+  ),
   /** Side the host is sitting on; fixed for the session. */
   orientation: playNs('orientation', readOrientation),
   /** Bumps on every wrong-move / reset so the chess board can force a remount when FEN string is unchanged. */

@@ -14,7 +14,7 @@
  * route. Defined locally so this module compiles for downstream consumers
  * that do not load the api package's ambient Cloudflare type stubs.
  */
-export type SpaceNamespace = {
+export type RoomNamespace = {
   idFromName(name: string): object;
   get(id: object): { fetch(request: Request): Promise<Response> };
 };
@@ -32,8 +32,8 @@ export type ApiWorkerEnv = {
   DOPPLER_CONFIG?: string;
   /** Cloudflare Hyperdrive — Worker uses {@link HyperdriveBinding.connectionString} for Postgres. */
   HYPERDRIVE: HyperdriveBinding;
-  /** Space Durable Object namespace (one DO per space topic). Omitted in unit tests. */
-  SPACE?: SpaceNamespace;
+  /** Room Durable Object namespace (one DO per topic). Omitted in unit tests. */
+  ROOM?: RoomNamespace;
   /**
    * R2 bucket binding for cached TTS audio. Required — the api boot path
    * asserts this in `bootApp` (mirrors the `HYPERDRIVE` check) and refuses

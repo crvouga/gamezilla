@@ -1,5 +1,7 @@
 import { chessGameShared } from '@gamezilla/chess/shared/chess-game';
+import { assertRoomModuleName } from '@gamezilla/room';
 import type { GameDefinition } from '@gamezilla/spaces/shared/game';
+import { SPACE_ROOM_MODULE_NAME } from '@gamezilla/spaces/shared/space-room-module-name';
 import { createSpaceModule } from '@gamezilla/spaces/shared/space-module';
 
 /**
@@ -16,10 +18,16 @@ import { createSpaceModule } from '@gamezilla/spaces/shared/space-module';
 export const APP_GAMES_SHARED: readonly GameDefinition[] = [chessGameShared];
 
 /**
- * Pre-composed `SpaceModule` for the Space Durable Object and the client-side
+ * Pre-composed `SpaceModule` for the Room Durable Object and the client-side
  * `SpaceModuleProvider`. `createSpaceModule` is pure (it just composes
  * routers and reducers), so eager construction at module load is safe and
  * gives every consumer a referentially-stable singleton — no `useMemo`
  * ceremony needed on the client.
  */
-export const APP_SPACE_MODULE = createSpaceModule(APP_GAMES_SHARED);
+export const APP_SPACE_MODULE = createSpaceModule(
+  assertRoomModuleName(SPACE_ROOM_MODULE_NAME),
+  APP_GAMES_SHARED
+);
+
+/** Modules passed to `createDurableObjectAdapter({ modules })` on the API Worker. */
+export const APP_ROOM_MODULES = [APP_SPACE_MODULE] as const;

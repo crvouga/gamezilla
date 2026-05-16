@@ -17,8 +17,8 @@ binding = "TTS_AUDIO"
 bucket_name = "gamezilla-tts-audio"
 
 [[durable_objects.bindings]]
-name = "SPACE"
-class_name = "Space"
+name = "ROOM"
+class_name = "Room"
 
 # Cloudflare DO migrations are append-only and identified by tag; never edit a
 # tag that has already been applied in production. Free-plan Workers require
@@ -30,6 +30,8 @@ class_name = "Space"
 # applied, both migrations run in order on the next deploy: `Room` is
 # created and immediately deleted, then `Space` is created — net result is
 # the same.
+# `v3-rename-space-do-class-to-room` deletes the `Space` class and introduces a
+# new SQLite-backed `Room` class (new DO storage); binding key becomes `ROOM`.
 [[migrations]]
 tag = "v1-room-sqlite"
 new_sqlite_classes = ["Room"]
@@ -38,6 +40,11 @@ new_sqlite_classes = ["Room"]
 tag = "v2-replace-room-with-space"
 deleted_classes = ["Room"]
 new_sqlite_classes = ["Space"]
+
+[[migrations]]
+tag = "v3-rename-space-do-class-to-room"
+deleted_classes = ["Space"]
+new_sqlite_classes = ["Room"]
 
 [observability]
 [observability.logs]

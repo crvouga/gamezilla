@@ -81,10 +81,7 @@ import {
   sleep,
 } from './fast-path';
 import { contentAddressedPatchId, rowToPuzzleBatchEntry } from './row';
-import {
-  createPuzzleSeedReporter,
-  type PuzzleSeedReporter,
-} from './reporter';
+import { createPuzzleSeedReporter, type PuzzleSeedReporter } from './reporter';
 import {
   ensureCachedArchive,
   iteratePuzzleRows,
@@ -209,7 +206,9 @@ export class ChessPuzzleSeeder {
     return e !== undefined ? e.attributes : null;
   }
 
-  #loadStateFromAttrs(attrs: Record<string, unknown> | null): PuzzleLoadPriorState {
+  #loadStateFromAttrs(
+    attrs: Record<string, unknown> | null
+  ): PuzzleLoadPriorState {
     if (attrs === null) {
       return { sourceEtag: null, cursor: null, finishedAt: null };
     }
@@ -427,7 +426,8 @@ export class ChessPuzzleSeeder {
   }): boolean {
     const { cli, resolved, prior, reporter } = args;
     if (cli.noResume) return false;
-    if (prior.finishedAt === null || prior.finishedAt.length === 0) return false;
+    if (prior.finishedAt === null || prior.finishedAt.length === 0)
+      return false;
     if (prior.sourceEtag !== resolved.etag) return false;
     reporter.phase('Already complete for this source fingerprint — exiting', {
       etag: resolved.etag,

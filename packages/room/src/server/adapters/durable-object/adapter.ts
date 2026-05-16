@@ -1,9 +1,12 @@
+import { assert } from '@gamezilla/lib/assert';
 import type {
   RoomCommandPayload,
   RoomEvent,
   RoomModule,
+  RoomModuleName,
   RoomState,
 } from '../../../types';
+import { assertRoomModuleName } from '../../../types';
 import type { RoomStorage } from '../../core/storage';
 
 import {
@@ -16,7 +19,7 @@ import {
   type DurableObjectInstanceState,
 } from './types';
 
-const DEFAULT_IDENTITY_HEADER = 'x-gamezilla-actor-id' as const;
+const DEFAULT_IDENTITY_HEADER = 'x-actor-id' as const;
 
 export type CreateDurableObjectAdapterOptions<
   S extends RoomState,
@@ -25,12 +28,16 @@ export type CreateDurableObjectAdapterOptions<
   Identity,
   Env = unknown,
 > = {
-  /** Domain reducer + command handler for one room/topic. */
-  module: RoomModule<S, C, E, Identity>;
+  /**
+   * Room modules hosted by this DO class. Each module's `name` field must be
+   * unique, match `^[a-z]+(?:-[a-z]+)*$` (see {@link assertRoomModuleName}),
+   * and appear as the `module` query param on WebSocket upgrade requests.
+   */
+  modules: readonly RoomModule<S, C, E, Identity>[];
   /**
    * HTTP header that carries the authenticated identity for this upgrade.
    * The route layer in front of the DO is expected to populate it.
-   * Defaults to `x-gamezilla-actor-id`.
+   * Defaults to `x-actor-id`.
    */
   identityHeader?: string;
   /**
@@ -43,9 +50,13 @@ export type CreateDurableObjectAdapterOptions<
   /**
    * Override storage construction (mainly for tests / alternative
    * persistence). Defaults to {@link DurableObjectRoomStorage} backed by
-   * the DO's KV `storage` binding.
+   * the DO's KV `storage` binding (one persisted blob per `moduleName`).
    */
-  createStorage?: (state: DurableObjectInstanceState, env: Env) => RoomStorage;
+  createStorage?: (
+    state: DurableObjectInstanceState,
+    env: Env,
+    moduleName: RoomModuleName
+  ) => RoomStorage;
 };
 
 function defaultParseIdentity<Identity>(raw: string): Identity | null {
@@ -62,13 +73,34 @@ function resolveOptions<
 >(
   options: CreateDurableObjectAdapterOptions<S, C, E, Identity, Env>
 ): ResolvedAdapterConfig<S, C, E, Identity, Env> {
+  const { modules } = options;
+  assert.nonEmptyArray(
+    modules,
+    'createDurableObjectAdapter: `modules` must be a non-empty array of RoomModule values'
+  );
+  const seen = new Set<RoomModuleName>();
+  const modulesByName = new Map<
+    RoomModuleName,
+    RoomModule<S, C, E, Identity>
+  >();
+  for (const mod of modules) {
+    const name = assertRoomModuleName(String(mod.name));
+    if (seen.has(name)) {
+      assert.fail(
+        `createDurableObjectAdapter: duplicate module name ${JSON.stringify(name)}`
+      );
+    }
+    seen.add(name);
+    modulesByName.set(name, mod);
+  }
   return {
-    module: options.module,
+    modulesByName,
     identityHeader: options.identityHeader ?? DEFAULT_IDENTITY_HEADER,
     parseIdentity: options.parseIdentity ?? defaultParseIdentity<Identity>,
     createStorage:
       options.createStorage ??
-      ((state) => new DurableObjectRoomStorage(state.storage)),
+      ((state, _env, moduleName) =>
+        new DurableObjectRoomStorage(state.storage, moduleName)),
   };
 }
 
@@ -80,16 +112,18 @@ function resolveOptions<
  *
  * The returned class is the value you bind to `class_name` in
  * `wrangler.toml` — re-export it from your Worker entry module so the
- * Workers runtime can instantiate it. One adapter per domain module;
- * multiple bindings can co-exist in the same Worker.
+ * Workers runtime can instantiate it. Pass multiple named `modules` when one
+ * DO class should host several reducers; the client picks one via the
+ * required `module` query param (lowercase kebab-case; pattern
+ * `^[a-z]+(?:-[a-z]+)*$` via {@link assertRoomModuleName}).
  *
  * @example
  * ```ts
- * // packages/api/src/rooms/space-do.ts
- * import { SpaceModule } from '@gamezilla/spaces/shared/space-module';
+ * // packages/api/src/api.ts
+ * import { APP_ROOM_MODULES } from '@gamezilla/app/shared/games';
  * import { createDurableObjectAdapter } from '@gamezilla/room/server/adapters/durable-object';
  *
- * export default createDurableObjectAdapter({ module: SpaceModule });
+ * export const Room = createDurableObjectAdapter({ modules: APP_ROOM_MODULES });
  * ```
  */
 export function createDurableObjectAdapter<

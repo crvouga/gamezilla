@@ -1,12 +1,8 @@
-import { deriveCurrentPlayCounts } from '../../shared/chess-puzzle-derive';
-import type { ChessPuzzleInteractionRow } from '../../shared/chess-puzzle-interaction-entities';
 import type { CellFeedback, Square } from '../chess-board/chess-board-types';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 
 export function deriveChessPuzzleCellFeedback(args: {
   status: SolveStatus;
-  puzzleId: string;
-  interactions: readonly ChessPuzzleInteractionRow[];
   wrongFromSquare: string | null;
   wrongToSquare: string | null;
   expectedFromSquare: string | null;
@@ -14,8 +10,6 @@ export function deriveChessPuzzleCellFeedback(args: {
 }): Partial<Record<Square, CellFeedback>> {
   const {
     status,
-    puzzleId,
-    interactions,
     wrongFromSquare,
     wrongToSquare,
     expectedFromSquare,
@@ -31,8 +25,11 @@ export function deriveChessPuzzleCellFeedback(args: {
     out[wrongToSquare as Square] = { kind: 'cross' };
   }
 
-  const { hintsUsed } = deriveCurrentPlayCounts(interactions, puzzleId);
-  if (status === 'solving' && hintsUsed > 0 && expectedFromSquare !== null) {
+  // Hint reveal: pulse a dot on the from-square once the server has
+  // returned an expected move. The local hint stage in `useHintStage`
+  // controls whether the corresponding solution arrow is also drawn
+  // (see `usePuzzlePlayerVisual`).
+  if (status === 'solving' && expectedFromSquare !== null) {
     out[expectedFromSquare as Square] = {
       kind: 'dot',
       pulse: true,

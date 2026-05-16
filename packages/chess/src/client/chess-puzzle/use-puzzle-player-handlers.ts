@@ -13,9 +13,12 @@ import {
 } from '../../shared/chess-puzzle-play';
 import type { Move } from '../chess-board/chess-board-types';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
+import type { HintStage } from './use-hint-stage';
 
 export function usePuzzlePlayerHandlers(args: {
   status: ChessPuzzlePlayStatus | 'loading';
+  hintStage: HintStage;
+  showSolution: () => void;
   onMoveRaw: (m: Move) => void;
   setLastUci: (uci: string) => void;
   appendUsedHint: () => Promise<void>;
@@ -30,6 +33,8 @@ export function usePuzzlePlayerHandlers(args: {
 } {
   const {
     status,
+    hintStage,
+    showSolution,
     onMoveRaw,
     setLastUci,
     appendUsedHint,
@@ -51,10 +56,18 @@ export function usePuzzlePlayerHandlers(args: {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
   }, [dispatch]);
 
+  // Two-step reveal: first press fetches the hint and records it; second
+  // press promotes the local stage to `'solution'` (handled in the hook).
   const onHint = useCallback(() => {
-    dispatch(RequestChessPuzzleHint({}));
-    void appendUsedHint();
-  }, [appendUsedHint, dispatch]);
+    if (hintStage === 'none') {
+      dispatch(RequestChessPuzzleHint({}));
+      void appendUsedHint();
+      return;
+    }
+    if (hintStage === 'highlight') {
+      showSolution();
+    }
+  }, [appendUsedHint, dispatch, hintStage, showSolution]);
 
   const onRetry = useCallback(() => {
     if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) {

@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   badgeMark: {
-    color: '#ffffff',
+    color: '#000',
     fontSize: 12,
     fontWeight: '700',
     lineHeight: 14,

@@ -80,13 +80,19 @@ function validateMoveRejectedPayload(payload: unknown): payload is {
   layoutKey: number;
   wrongFromSquare: string;
   wrongToSquare: string;
+  /** FEN after the wrong move was applied; what the board now renders. */
+  displayFen: string;
+  /** FEN before the wrong move; what `Retry` should restore. */
+  previousDisplayFen: string;
 } {
   if (!isPlainRecord(payload)) return false;
   return (
     isNonEmptyString(payload['uci']) &&
     isNonNegativeInteger(payload['layoutKey']) &&
     isNonEmptyString(payload['wrongFromSquare']) &&
-    isNonEmptyString(payload['wrongToSquare'])
+    isNonEmptyString(payload['wrongToSquare']) &&
+    isNonEmptyString(payload['displayFen']) &&
+    isNonEmptyString(payload['previousDisplayFen'])
   );
 }
 

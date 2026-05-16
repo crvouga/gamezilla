@@ -17,8 +17,17 @@ import {
   type ChessPuzzleAssistantPayload,
 } from './chess-puzzle-assistant-adapter';
 import { buildChessPuzzleAssistantSignal } from './chess-puzzle-assistant-build-signal';
-import { buildChessPuzzleSpeechLlmContext } from './chess-puzzle-assistant-speech-llm-context';
+import {
+  buildChessPuzzleSpeechLlmContext,
+  type ChessPuzzleSpeechBoardContext,
+} from './chess-puzzle-assistant-speech-llm-context';
 import { useChessPuzzleAssistantObserve } from './use-chess-puzzle-assistant-observe';
+
+function useLatestRef<T>(value: T): { readonly current: T } {
+  const ref = useRef(value);
+  ref.current = value;
+  return ref;
+}
 
 export function useChessPuzzleAssistant(args: {
   readonly puzzleId: string;
@@ -26,13 +35,13 @@ export function useChessPuzzleAssistant(args: {
   readonly solveIdx: number;
   readonly themes: readonly string[];
   readonly layoutKey: number;
+  readonly board: ChessPuzzleSpeechBoardContext;
 }): Assistant<ChessPuzzleAssistantPayload> {
   const lingui = useLingui();
-  const i18nRef = useRef(lingui.i18n);
-  i18nRef.current = lingui.i18n;
+  const i18nRef = useLatestRef(lingui.i18n);
   const prevStatusRef = useRef<SolveStatus | null>(null);
-  const themesRef = useRef(args.themes);
-  themesRef.current = args.themes;
+  const themesRef = useLatestRef(args.themes);
+  const boardRef = useLatestRef(args.board);
   const assistantRef = useRef<Assistant<ChessPuzzleAssistantPayload> | null>(
     null
   );
@@ -49,6 +58,7 @@ export function useChessPuzzleAssistant(args: {
             payloadRef: a.payloadRef,
             catalogThemes: themesRef.current,
             recentLines,
+            board: boardRef.current,
           }),
       }
     );
@@ -60,7 +70,7 @@ export function useChessPuzzleAssistant(args: {
     });
     assistantRef.current = inst;
     return inst;
-  }, [args.puzzleId, resolver]);
+  }, [args.puzzleId, resolver, boardRef, i18nRef, themesRef]);
 
   const themesKey = args.themes.join('\u0000');
 
@@ -73,7 +83,7 @@ export function useChessPuzzleAssistant(args: {
         solveIdx: args.solveIdx,
         themes: themesRef.current,
       });
-    }, [args.status, args.solveIdx, themesKey]);
+    }, [args.status, args.solveIdx, themesKey, themesRef]);
 
   useChessPuzzleAssistantObserve({
     assistant,
