@@ -71,7 +71,7 @@ msgstr "{hostDisplayName}'s space"
 msgid "{latencyMs} ms"
 msgstr "{latencyMs} ms"
 
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 #: packages/client/src/ui/use-account-actions.tsx
 msgid "{ms} ms"
 msgstr "{ms} ms"
@@ -883,6 +883,7 @@ msgstr "Build mode: {buildMode}"
 #: packages/chess/src/client/chess-board/chess-board-promotion.tsx
 #: packages/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
 #: packages/patch-db-example/src/todo/list/todo-lists-overview.tsx
+#: packages/spaces/src/client/active-space/rename-space-modal.tsx
 #: packages/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 #: packages/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
 #: packages/ui/src/components/modal/confirmation-modal.tsx
@@ -1148,6 +1149,10 @@ msgstr "Close"
 #~ msgid "Close. Two moves end this — take it from the top."
 #~ msgstr "Close. Two moves end this — take it from the top."
 
+#: packages/spaces/src/client/space-settings-screen.tsx
+msgid "Closes the space for everyone."
+msgstr "Closes the space for everyone."
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Color-square awareness paid off."
 #~ msgstr "Color-square awareness paid off."
@@ -1215,12 +1220,12 @@ msgstr "Connecting to room…"
 
 #: packages/client/src/connection/server-status-screen.tsx
 #: packages/client/src/settings/settings-screen.tsx
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 #: packages/client/src/ui/use-account-actions.tsx
 msgid "Connection"
 msgstr "Connection"
 
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 msgid "Connection and server status. {statusWord}. {latency}."
 msgstr "Connection and server status. {statusWord}. {latency}."
 
@@ -1239,6 +1244,11 @@ msgstr "Continue with Google"
 #: packages/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
+
+#: packages/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+#: packages/spaces/src/client/space-settings-screen.tsx
+msgid "Copy invite link"
+msgstr "Copy invite link"
 
 #: packages/profile/src/client/avatar-editor-preview.tsx
 msgid "Copy seed"
@@ -1883,10 +1893,10 @@ msgstr "Enable user arrows"
 msgid "End"
 msgstr "End"
 
-#: packages/spaces/src/client/active-space/space-session-chrome-actions.tsx
-#: packages/spaces/src/client/active-space/space-session-chrome-actions.tsx
+#: packages/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
 #: packages/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 #: packages/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
+#: packages/spaces/src/client/space-settings-screen.tsx
 msgid "End space"
 msgstr "End space"
 
@@ -2796,7 +2806,6 @@ msgid "Games"
 msgstr "Games"
 
 #: packages/client/src/i18n/catalog-bootstrap.ts
-#: packages/client/src/ui/sidebar/app-sidebar.tsx
 msgid "Gamezilla"
 msgstr "Gamezilla"
 
@@ -2844,6 +2853,10 @@ msgstr "Gamezilla"
 #~ msgid "Getting things ready for you."
 #~ msgstr "Getting things ready for you."
 
+#: packages/spaces/src/client/active-space/rename-space-modal.tsx
+msgid "Give your space a name"
+msgstr "Give your space a name"
+
 #: packages/patch-db-example/src/playground-header.tsx
 msgid "Global latency"
 msgstr "Global latency"
@@ -2861,6 +2874,7 @@ msgstr "Go back"
 msgid "Go to {target}"
 msgstr "Go to {target}"
 
+#: packages/spaces/src/client/active-space/space-chrome-home-button.tsx
 #: packages/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
 msgid "Go to spaces"
 msgstr "Go to spaces"
@@ -3222,6 +3236,7 @@ msgstr "Hint"
 #~ msgid "Hook setup right. Bring it home."
 #~ msgstr "Hook setup right. Bring it home."
 
+#: packages/spaces/src/client/active-space/space-members-list.tsx
 #: packages/spaces/src/client/lifecycle/space-join-host-section.tsx
 #: packages/spaces/src/client/members/member-host-badge.tsx
 #: packages/spaces/src/client/members/space-members-host-block.tsx
@@ -3548,15 +3563,15 @@ msgstr "Last seen"
 msgid "Latency"
 msgstr "Latency"
 
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 msgid "latency {ms} ms"
 msgstr "latency {ms} ms"
 
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 msgid "latency checking"
 msgstr "latency checking"
 
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 msgid "latency unavailable"
 msgstr "latency unavailable"
 
@@ -3573,9 +3588,9 @@ msgstr "Latency: {latencyMs} ms"
 msgid "Leave"
 msgstr "Leave"
 
-#: packages/spaces/src/client/active-space/space-session-chrome-actions.tsx
-#: packages/spaces/src/client/active-space/space-session-chrome-actions.tsx
+#: packages/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
 #: packages/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
+#: packages/spaces/src/client/space-settings-screen.tsx
 msgid "Leave space"
 msgstr "Leave space"
 
@@ -3622,7 +3637,7 @@ msgid "limit"
 msgstr "limit"
 
 #: packages/client/src/connection/server-status-screen.tsx
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 msgid "Limited or checking"
 msgstr "Limited or checking"
 
@@ -3838,6 +3853,10 @@ msgstr "login"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Make them move. Every option is bad."
 #~ msgstr "Make them move. Every option is bad."
+
+#: packages/spaces/src/client/space-settings-screen.tsx
+msgid "Manage this space."
+msgstr "Manage this space."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Master vs master — and you matched it."
@@ -4612,7 +4631,7 @@ msgstr "Off"
 
 #: packages/client/src/connection/offline-indicator.tsx
 #: packages/client/src/connection/server-status-screen.tsx
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 msgid "Offline"
 msgstr "Offline"
 
@@ -4705,7 +4724,7 @@ msgstr "offset"
 #~ msgstr "One-move mate — perfectly found."
 
 #: packages/client/src/connection/server-status-screen.tsx
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 msgid "Online"
 msgstr "Online"
 
@@ -5163,8 +5182,8 @@ msgid "production"
 msgstr "production"
 
 #: packages/client/src/app/(tabs)/_layout.tsx
-#: packages/client/src/ui/sidebar/app-sidebar.tsx
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
+#: packages/client/src/ui/app-header/app-header-tabs.tsx
 #: packages/client/src/ui/use-account-actions.tsx
 #: packages/profile/src/client/avatar-editor-screen.tsx
 #: packages/profile/src/client/profile-edit-screen.tsx
@@ -5403,6 +5422,12 @@ msgstr "Reload"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Removed the defender and won. Clean."
 #~ msgstr "Removed the defender and won. Clean."
+
+#: packages/spaces/src/client/active-space/rename-space-modal.tsx
+#: packages/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+#: packages/spaces/src/client/space-settings-screen.tsx
+msgid "Rename space"
+msgstr "Rename space"
 
 #: packages/chess/src/client/chess-board/chess-board.example.tsx
 msgid "Render dragged piece in app overlay portal"
@@ -5876,6 +5901,7 @@ msgstr "SAN"
 
 #: packages/profile/src/client/avatar-editor-screen.tsx
 #: packages/profile/src/client/profile-username-screen.tsx
+#: packages/spaces/src/client/active-space/rename-space-modal.tsx
 msgid "Save"
 msgstr "Save"
 
@@ -5971,10 +5997,10 @@ msgstr "Server-side account; tap to copy"
 #: packages/client/src/settings/theme-screen.tsx
 #: packages/client/src/todos/todo-list-detail-screen.tsx
 #: packages/client/src/todos/todo-lists-screen.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 #: packages/client/src/ui/explorer/ui-explorer-detail-screen.tsx
 #: packages/client/src/ui/explorer/ui-explorer-screen.tsx
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
 #: packages/client/src/ui/use-account-actions.tsx
 msgid "Settings"
 msgstr "Settings"
@@ -6052,7 +6078,7 @@ msgstr "sign in"
 #: packages/auth/src/client/account-actions-row.tsx
 #: packages/auth/src/client/sign-in-modal.tsx
 #: packages/client/src/ui/app-commands/account-command.tsx
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 #: packages/client/src/ui/use-account-actions.tsx
 msgid "Sign in"
 msgstr "Sign in"
@@ -6072,7 +6098,7 @@ msgstr "Sign in with Google"
 #: packages/auth/src/client/account-actions-row.tsx
 #: packages/auth/src/client/use-sign-out-confirmation.tsx
 #: packages/client/src/ui/app-commands/account-command.tsx
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 #: packages/client/src/ui/use-account-actions.tsx
 msgid "Sign out"
 msgstr "Sign out"
@@ -6309,6 +6335,15 @@ msgstr "Solved"
 msgid "Space debug"
 msgstr "Space debug"
 
+#: packages/spaces/src/client/active-space/rename-space-modal.tsx
+msgid "Space name"
+msgstr "Space name"
+
+#: packages/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+#: packages/spaces/src/client/space-settings-screen.tsx
+msgid "Space settings"
+msgstr "Space settings"
+
 #: packages/auth/src/client/account-device/account-device-detail-screen.tsx
 #: packages/auth/src/client/account-screen.tsx
 #: packages/client-config/src/client/client-config-screen.tsx
@@ -6323,9 +6358,9 @@ msgstr "Space debug"
 #: packages/client/src/settings/theme-screen.tsx
 #: packages/client/src/todos/todo-list-detail-screen.tsx
 #: packages/client/src/todos/todo-lists-screen.tsx
+#: packages/client/src/ui/app-header/app-header-tabs.tsx
 #: packages/client/src/ui/explorer/ui-explorer-detail-screen.tsx
 #: packages/client/src/ui/explorer/ui-explorer-screen.tsx
-#: packages/client/src/ui/sidebar/app-sidebar.tsx
 #: packages/spaces/src/client/lifecycle/space-join-prompt.tsx
 #: packages/spaces/src/client/space-loading-screen.tsx
 #: packages/spaces/src/client/spaces-screen.tsx
@@ -7417,7 +7452,7 @@ msgstr "User"
 msgid "User agent"
 msgstr "User agent"
 
-#: packages/client/src/ui/sidebar/sidebar-account-trigger.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 msgid "User menu"
 msgstr "User menu"
 
@@ -7463,7 +7498,7 @@ msgstr "Version: {appVersion}"
 msgid "View parent patch"
 msgstr "View parent patch"
 
-#: packages/client/src/ui/sidebar/sidebar-account-menu.tsx
+#: packages/client/src/ui/app-header/app-account-menu.tsx
 msgid "View profile"
 msgstr "View profile"
 
@@ -7715,6 +7750,10 @@ msgstr "You"
 #: packages/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
 msgid "You can join again later if the space is still live."
 msgstr "You can join again later if the space is still live."
+
+#: packages/spaces/src/client/space-settings-screen.tsx
+msgid "You can rejoin from the host's invite link."
+msgstr "You can rejoin from the host's invite link."
 
 #: packages/profile/src/client/avatar-editor-screen.tsx
 msgid "You have unsaved avatar changes."
