@@ -74,24 +74,26 @@ function usePuzzlePlayerUi(
     appendAbandoned: m.appendAbandoned,
     onRequestNext,
   });
-  const { assistant, statusKind, cellFeedback, arrows } = usePuzzlePlayerVisual({
-    puzzleId,
-    status: m.status,
-    solveIdx: m.solveIdx,
-    themes: m.themes,
-    layoutKey: m.layoutKey,
-    orientation: m.orientation,
-    showCorrectFlash,
-    displayFen: m.displayFen,
-    totalTokens: m.totalTokens,
-    wrongFromSquare: m.wrongFromSquare,
-    wrongToSquare: m.wrongToSquare,
-    expectedFromSquare: m.expectedFromSquare,
-    expectedToSquare: m.expectedToSquare,
-    solvedCrownSquare,
-    hintStage,
-    rating: m.rating,
-  });
+  const { assistant, statusKind, cellFeedback, arrows } = usePuzzlePlayerVisual(
+    {
+      puzzleId,
+      status: m.status,
+      solveIdx: m.solveIdx,
+      themes: m.themes,
+      layoutKey: m.layoutKey,
+      orientation: m.orientation,
+      showCorrectFlash,
+      displayFen: m.displayFen,
+      totalTokens: m.totalTokens,
+      wrongFromSquare: m.wrongFromSquare,
+      wrongToSquare: m.wrongToSquare,
+      expectedFromSquare: m.expectedFromSquare,
+      expectedToSquare: m.expectedToSquare,
+      solvedCrownSquare,
+      hintStage,
+      rating: m.rating,
+    }
+  );
   return {
     rating: m.rating,
     backToRoot,

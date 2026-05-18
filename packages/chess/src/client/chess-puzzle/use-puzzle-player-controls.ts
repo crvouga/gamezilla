@@ -16,7 +16,9 @@ export function usePuzzlePlayerControls(args: {
   onRequestNext: () => void;
 }): {
   showCorrectFlash: boolean;
-  solvedCrownSquare: ReturnType<typeof usePuzzlePlayerEffects>['solvedCrownSquare'];
+  solvedCrownSquare: ReturnType<
+    typeof usePuzzlePlayerEffects
+  >['solvedCrownSquare'];
   hintStage: HintStage;
   onMove: (m: Move) => void;
   onHint: () => void;

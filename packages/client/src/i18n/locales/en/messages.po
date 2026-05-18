@@ -6211,6 +6211,10 @@ msgstr "Solid"
 msgid "Solid fills and ring borders — for color-coded threats, defended squares, etc."
 msgstr "Solid fills and ring borders — for color-coded threats, defended squares, etc."
 
+#: packages/chess/src/client/chess-puzzle/chess-puzzle-action-bar.tsx
+msgid "Solution"
+msgstr "Solution"
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-status-header.tsx
 msgid "Solved"
 msgstr "Solved"

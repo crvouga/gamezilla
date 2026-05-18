@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
 
 import type { ChessPuzzlePlayStatus } from '../../shared/chess-puzzle-play';
-import type { ChessPuzzleSpeechBoardContext } from '../assistant/chess-puzzle-assistant-speech-llm-context';
-import { useChessPuzzleAssistant } from '../assistant/use-chess-puzzle-assistant';
+import {
+  useChessPuzzleAssistant,
+  type ChessPuzzleDialogueBoardContext,
+} from '../assistant/use-chess-puzzle-assistant';
 import { chessPuzzleStatusKindFromState } from './chess-puzzle-status-from-state';
 
 export function usePuzzlePlayerPresentation(args: {
@@ -34,7 +36,7 @@ export function usePuzzlePlayerPresentation(args: {
     rating,
   } = args;
 
-  const board = useMemo<ChessPuzzleSpeechBoardContext>(
+  const board = useMemo<ChessPuzzleDialogueBoardContext>(
     () => ({
       orientation,
       displayFen,

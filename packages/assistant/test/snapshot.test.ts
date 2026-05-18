@@ -8,13 +8,14 @@ import {
   type AssistantRenderer,
   type GameAdapter,
 } from '../src/shared';
+import { createTestClock } from './test-clock';
 
 const noopRenderer: AssistantRenderer = { render(): void {} };
 
 describe('AssistantSnapshot', () => {
   test('round-trip preserves rng and player fields', () => {
     let now = 100;
-    const clock = { now: () => now };
+    const clock = createTestClock(() => now);
     const adapter: GameAdapter<{ n: number }> = {
       proposeCandidates() {
         return [

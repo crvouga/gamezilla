@@ -1,3 +1,4 @@
+import type { DialogueLookupKey } from '../dialogue-tree';
 import type { Intent } from './intents';
 
 export type AssistantAction =
@@ -5,6 +6,7 @@ export type AssistantAction =
       readonly kind: 'speak';
       readonly intent: Intent;
       readonly payloadRef: string;
+      readonly dialogueKey?: DialogueLookupKey | undefined;
       readonly tags: readonly string[];
       readonly ttlMs: number;
     }

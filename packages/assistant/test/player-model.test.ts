@@ -8,13 +8,14 @@ import {
   type AssistantRenderer,
   type GameAdapter,
 } from '../src/shared';
+import { createTestClock } from './test-clock';
 
 const noopRenderer: AssistantRenderer = { render(): void {} };
 
 describe('player model via tags', () => {
   test('wrong tags increase frustration weighting path', () => {
     let now = 0;
-    const clock = { now: () => now };
+    const clock = createTestClock(() => now);
     const adapter: GameAdapter<{ n: number }> = {
       proposeCandidates(_sig, player) {
         const w = 1 + player.frustration() * 100;

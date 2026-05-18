@@ -8,13 +8,14 @@ import {
   type AssistantRenderer,
   type GameAdapter,
 } from '../src/shared';
+import { createTestClock } from './test-clock';
 
 const noopRenderer: AssistantRenderer = { render(): void {} };
 
 describe('ranker gates', () => {
   test('returns silence when every candidate is over budget', () => {
     let now = 0;
-    const clock = { now: () => now };
+    const clock = createTestClock(() => now);
     const adapter: GameAdapter<{ n: number }> = {
       proposeCandidates() {
         return [
@@ -48,7 +49,7 @@ describe('ranker gates', () => {
 
   test('returns silence when payload cooldown blocks all', () => {
     let now = 0;
-    const clock = { now: () => now };
+    const clock = createTestClock(() => now);
     const adapter: GameAdapter<{ n: number }> = {
       proposeCandidates() {
         return [

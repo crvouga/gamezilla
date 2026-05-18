@@ -50,9 +50,6 @@ export function buildChessPuzzleAssistantSignal(args: {
       payload: { themes },
     });
   }
-  return defineSignal({
-    kind: CHESS_PUZZLE_SIGNAL.progress,
-    tags: ['progress', 'moveCorrect'],
-    payload: { themes },
-  });
+  // Mid-puzzle correct moves stay silent — one line per milestone only.
+  return null;
 }

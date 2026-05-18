@@ -8,6 +8,7 @@ import {
   type AssistantRenderer,
   type GameAdapter,
 } from '../src/shared';
+import { createTestClock } from './test-clock';
 
 const noopRenderer: AssistantRenderer = { render(): void {} };
 
@@ -16,7 +17,7 @@ type StepPayload = { readonly step: number };
 describe('createAssistant', () => {
   test('same seed + same signals → identical speak refs', () => {
     let now = 1_000_000;
-    const clock = { now: () => now };
+    const clock = createTestClock(() => now);
     const adapter: GameAdapter<StepPayload> = {
       proposeCandidates() {
         return [
@@ -65,7 +66,7 @@ describe('createAssistant', () => {
 
   test('snapshot restore continues identical picks', () => {
     let now = 5_000_000;
-    const clock = { now: () => now };
+    const clock = createTestClock(() => now);
     const adapter: GameAdapter<StepPayload> = {
       proposeCandidates() {
         return [

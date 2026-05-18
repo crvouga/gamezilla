@@ -9,8 +9,5 @@ export {
   SpeakingAvatarAssistant,
   type SpeakingAvatarAssistantProps,
 } from './_internal/speaking-avatar-assistant';
-export {
-  AssistantSpeechResolverProvider,
-  useAssistantSpeechResolver,
-} from './speech-resolver-context';
-export { createAssistantSpeechRenderer } from './create-speech-renderer';
+export { createAssistantDialogueTreeRenderer } from './create-dialogue-tree-renderer';
+export type { CreateAssistantDialogueTreeRendererDeps } from './create-dialogue-tree-renderer';

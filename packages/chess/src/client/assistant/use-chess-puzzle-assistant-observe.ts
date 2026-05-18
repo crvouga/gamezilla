@@ -33,9 +33,11 @@ export function useChessPuzzleAssistantObserve(args: {
   useEffect(() => {
     const s = buildSignal();
     if (s === null) {
-      emitAssistantSpeakingMessage(assistant, null, {
-        bubbleResolving: false,
-      });
+      if (status === 'loading') {
+        emitAssistantSpeakingMessage(assistant, null, {
+          bubbleResolving: false,
+        });
+      }
       return;
     }
     const fp = `${puzzleId}:${s.kind}:${themesKey}:${solveIdx}:${layoutKey}`;

@@ -1,3 +1,4 @@
+import type { DialogueLookupKey } from '../dialogue-tree';
 import type { Intent } from './intents';
 
 const CANDIDATE_DATA = Symbol('assistantCandidate');
@@ -12,6 +13,7 @@ export type CandidateCore = {
   readonly cost: number;
   readonly cooldownMs: number;
   readonly payloadRef: string;
+  readonly dialogueKey?: DialogueLookupKey | undefined;
   readonly tags: readonly string[];
   readonly minSkill?: number | undefined;
   readonly minFrustration?: number | undefined;
@@ -23,6 +25,7 @@ export function defineCandidate(args: {
   readonly cost: number;
   readonly cooldownMs: number;
   readonly payloadRef: string;
+  readonly dialogueKey?: DialogueLookupKey | undefined;
   readonly tags?: readonly string[] | undefined;
   readonly minSkill?: number | undefined;
   readonly minFrustration?: number | undefined;
@@ -34,6 +37,9 @@ export function defineCandidate(args: {
     cooldownMs: args.cooldownMs,
     payloadRef: args.payloadRef,
     tags: args.tags ?? [],
+    ...(args.dialogueKey !== undefined
+      ? { dialogueKey: args.dialogueKey }
+      : {}),
     ...(args.minSkill !== undefined ? { minSkill: args.minSkill } : {}),
     ...(args.minFrustration !== undefined
       ? { minFrustration: args.minFrustration }

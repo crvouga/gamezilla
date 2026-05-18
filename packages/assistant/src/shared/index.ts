@@ -10,16 +10,6 @@ export { defineSignal } from './_internal/signals';
 
 export type { AssistantAction, AssistantSpeakAction } from './_internal/action';
 
-export type {
-  AssistantSpeechHistory,
-  AssistantSpeechHistoryLine,
-  AssistantSpeechLlmContext,
-  AssistantSpeechLlmContextHelpers,
-  AssistantSpeechRequest,
-  AssistantSpeechResolver,
-} from './speech-resolver';
-export { createNoopSpeechResolver } from './speech-resolver-noop';
-
 export type { Intent } from './_internal/intents';
 export { INTENT } from './_internal/intents';
 
@@ -31,3 +21,21 @@ export type { AssistantRenderer } from './_internal/renderer';
 export type { AssistantClock } from './_internal/clock';
 
 export type { AssistantSnapshot } from './_internal/snapshot';
+
+export type {
+  DialogueContext,
+  DialogueLookupKey,
+  DialogueNode,
+  DialogueStep,
+  DialogueTree,
+  DialogueTreeBucketSpec,
+  DialogueTreeSpec,
+  DialogueTreeThemeSpec,
+} from './dialogue-tree';
+export {
+  defineDialogueTree,
+  pickDialogueVariant,
+  pickDialogueVariantIndex,
+  substituteDialogueText,
+} from './dialogue-tree';
+export type { DialogueRng } from './dialogue-tree';

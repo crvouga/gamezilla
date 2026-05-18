@@ -140,6 +140,9 @@ class AssistantImpl<TPayload> implements Assistant<TPayload> {
       kind: 'speak',
       intent: picked.intent,
       payloadRef: picked.payloadRef,
+      ...(picked.dialogueKey !== undefined
+        ? { dialogueKey: picked.dialogueKey }
+        : {}),
       tags,
       ttlMs: 12_000,
     };

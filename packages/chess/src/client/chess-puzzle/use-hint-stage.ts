@@ -17,9 +17,7 @@ import { useCallback, useEffect, useState } from 'react';
  */
 export type HintStage = 'none' | 'highlight' | 'solution';
 
-export function useHintStage(args: {
-  expectedFromSquare: string | null;
-}): {
+export function useHintStage(args: { expectedFromSquare: string | null }): {
   hintStage: HintStage;
   /** Promote `'highlight'` → `'solution'` on the second press. */
   showSolution: () => void;

@@ -7,7 +7,6 @@ import type { ReactNode } from 'react';
 import { ApiClientProviderWrapper } from './api-client-provider';
 import { AppI18nProviderWrapper } from './app-i18n-provider';
 import { AppThemeProvider } from './app-theme-provider';
-import { AssistantSpeechResolverProviderWrapper } from './assistant-speech-resolver-provider';
 import { CommandRegistryProviderWrapper } from './command-registry-provider';
 import { ConfigServiceProviderWrapper } from './config-service-provider';
 import { DeviceEntityBootstrapProvider } from './device-entity-bootstrap-provider';
@@ -46,30 +45,28 @@ export function AppProviders({ children }: { children: ReactNode }): ReactNode {
                           <ConfigServiceProviderWrapper>
                             <ObjectStoreProviderWrapper>
                               <LlmProviderWrapper>
-                                <AssistantSpeechResolverProviderWrapper>
-                                  <TtsProviderWrapper>
-                                    <ApiClientProviderWrapper>
-                                      <SqlClientProvider>
-                                        <PatchDbProvider>
-                                          <DeviceEntityBootstrapProvider>
-                                            <PatchDbLocalDataActionsProvider>
-                                              <ProfileProvider>
-                                                <AuthBridge />
-                                                <AuthModalsProvider>
-                                                  <GamesBootstrapProvider>
-                                                    <CommandRegistryProviderWrapper>
-                                                      {children}
-                                                    </CommandRegistryProviderWrapper>
-                                                  </GamesBootstrapProvider>
-                                                </AuthModalsProvider>
-                                              </ProfileProvider>
-                                            </PatchDbLocalDataActionsProvider>
-                                          </DeviceEntityBootstrapProvider>
-                                        </PatchDbProvider>
-                                      </SqlClientProvider>
-                                    </ApiClientProviderWrapper>
-                                  </TtsProviderWrapper>
-                                </AssistantSpeechResolverProviderWrapper>
+                                <TtsProviderWrapper>
+                                  <ApiClientProviderWrapper>
+                                    <SqlClientProvider>
+                                      <PatchDbProvider>
+                                        <DeviceEntityBootstrapProvider>
+                                          <PatchDbLocalDataActionsProvider>
+                                            <ProfileProvider>
+                                              <AuthBridge />
+                                              <AuthModalsProvider>
+                                                <GamesBootstrapProvider>
+                                                  <CommandRegistryProviderWrapper>
+                                                    {children}
+                                                  </CommandRegistryProviderWrapper>
+                                                </GamesBootstrapProvider>
+                                              </AuthModalsProvider>
+                                            </ProfileProvider>
+                                          </PatchDbLocalDataActionsProvider>
+                                        </DeviceEntityBootstrapProvider>
+                                      </PatchDbProvider>
+                                    </SqlClientProvider>
+                                  </ApiClientProviderWrapper>
+                                </TtsProviderWrapper>
                               </LlmProviderWrapper>
                             </ObjectStoreProviderWrapper>
                           </ConfigServiceProviderWrapper>
