@@ -1,7 +1,7 @@
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { assert } from '@gamezilla/lib/assert';
 import { asKeyword } from '@gamezilla/lib/keyword';
 import { questionMarkParamsToDollarParams } from '@gamezilla/lib/sql-client/positional-params';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { QGameSession, QTask } from '../test/query-test-attrs';
 import {
   buildLimitSQL,
@@ -140,11 +140,22 @@ describe('->> value params cast to ::text (prevents PG "operator does not exist:
     expect(pgSql).toContain('$2::text');
   });
 
-  test('gt/gte/lt/lte cast value to ::text', () => {
+  test('gt/gte/lt/lte with number cast to ::numeric for magnitude order', () => {
     for (const type of ['gt', 'gte', 'lt', 'lte'] as const) {
       const pgSql = toPgSql({ type, attribute: QTask.score.key, value: 10 });
-      expect(pgSql).toContain('$2::text');
+      expect(pgSql).toContain('::numeric');
+      expect(pgSql).toContain('$2::numeric');
     }
+  });
+
+  test('gt/gte/lt/lte with non-number cast value to ::text', () => {
+    const pgSql = toPgSql({
+      type: 'gt',
+      attribute: QTask.status.key,
+      value: 'open',
+    });
+    expect(pgSql).toContain('$2::text');
+    expect(pgSql).not.toContain('::numeric');
   });
 
   test('in with mixed types casts every value to ::text', () => {
