@@ -1,13 +1,14 @@
 /**
- * Thin wrapper around the Postgres-owned matchmaking schema.
+ * Thin wrapper around the chess.com-scale matchmaking schema (v3).
  *
- * Every queue mutation is a single SQL statement; `runMatchPass` calls the
- * server-side `matchmaking_run_match_pass()` function which does the
- * locking, throttling, formula-driven distance computation, pairing,
- * status flip, and match-id minting inside one PL/pgSQL routine. The only
- * state held in JS is the radius / throttle config the constructor
- * receives — no in-memory queue mirror, no in-flight match buffer, no
- * pairing algorithm.
+ * Every queue mutation is a single SQL statement (sometimes a CTE that
+ * touches two tables atomically). `runMatchPass` calls the server-side
+ * `matchmaking_run_match_pass()` function which does the row locking,
+ * formula-driven distance computation, pairing, atomic
+ * DELETE-from-waiting + INSERT-into-matched, and match-id minting
+ * inside one PL/pgSQL routine. The only state held in JS is the
+ * radius / tuning config the constructor receives — no in-memory queue
+ * mirror, no in-flight match buffer, no pairing algorithm.
  *
  * Per-participant formulas: each `join()` carries a non-empty ORDERED list
  * of `DistanceFormula`s the participant is willing to accept; the SQL
@@ -16,18 +17,25 @@
  * and read the emitted `matchId` to bring the match online (e.g. as a
  * Durable Object).
  *
- * Partition-scoped passes (chess.com-scale): `runMatchPass(sig)` /
- * `sweepExpired(sig)` operate on ONE partition. Different partitions run
- * in parallel through Postgres (per-partition throttle rows, per-partition
- * snapshot CTE). `runMatchPassesAcrossPartitions` / `sweepExpiredAcrossPartitions`
- * fan out across every active partition for admin tooling and tests.
+ * Two-table topology (chess.com-scale):
+ *   - `matchmaking_waiting`: UNLOGGED, hash-partitioned by
+ *     `partition_signature` across 16 children. `join()` writes here;
+ *     `runMatchPass` reads + deletes here. UNLOGGED skips WAL, hash
+ *     partitioning divides autovacuum + index size + lock pages by 16.
+ *   - `matchmaking_matched`: LOGGED single table holding the short-
+ *     lived tail of paired rows. `runMatchPass` inserts here when a
+ *     pair is made; `status()` reads here when looking up a matched
+ *     participant; `sweepMatched()` reaps rows older than the configured
+ *     retention.
+ *   - `matchmaking_active_partitions`: side table of distinct
+ *     `partition_signature` values currently observed. `join()` UPSERTs;
+ *     `discoverActivePartitions` reads a tiny index scan instead of
+ *     `SELECT DISTINCT` over the hot waiting table.
  *
- * Throttling: every pass / sweep is safe to call on every request. The
- * SQL function takes `FOR UPDATE SKIP LOCKED` on a per-(partition, kind)
- * coalesce row and short-circuits when another pass is in flight OR when
- * the last pass happened less than `minPassIntervalMs` ago. A returned
- * `{ matches: 0 }` therefore means "no work done" — could be queue-empty,
- * could be throttled. Callers don't need to distinguish.
+ * Partition-scoped passes: `runMatchPass(sig)` / `sweepExpired(sig)`
+ * operate on ONE partition. Different partitions run in parallel
+ * through Postgres because Postgres-side hash partitioning gives each
+ * one its own page chain + row locks.
  *
  * Tiger-style asserts run at every boundary:
  *   - `join()` validates `data` is an `AttributeState`, `formulas` is
@@ -36,12 +44,14 @@
  *     `data`.
  *   - `status()` re-brands the JSONB rows coming back from the DB as
  *     `AttributeState` via `asKeywordRecord`.
- *   - First SQL call asserts the schema fingerprint matches what
- *     `migrate()` installed, catching `partitionKeys` mismatch loudly.
  *
  * The library is use-case agnostic — it doesn't assume matches are
  * competitive, cooperative, conversational, or anything else. The caller
  * decides the meaning through `data` and `formulas`.
+ *
+ * Internal class: this is consumed by the public {@link Matchmaking}
+ * class (which owns migrate, throttle defaults, the Hono app, and the
+ * `tick()` ops method). It is NOT exported from the package's `index.ts`.
  */
 
 import { assert } from '@gamezilla/lib/assert';
@@ -55,7 +65,6 @@ import {
   type FormulaWire,
   serializeFormula,
 } from './formula-wire';
-import { fingerprintForOptions } from './migrate';
 import { createPgSqlClient } from './pg-adapter';
 import type { SqlClient } from './sql-client';
 import {
@@ -86,13 +95,14 @@ export type {
  */
 export const MAX_FORMULAS_PER_PARTICIPANT = 8;
 
-const DEFAULT_MAX_PAIRS_PER_PASS = 100;
-const DEFAULT_MIN_PASS_INTERVAL_MS = 100;
-const DEFAULT_SWEEP_INTERVAL_MS = 60_000;
+// Bigger than v2 because the ticker DO is the sole caller — we want to
+// amortise the round-trip across as much pairing work as possible.
+const DEFAULT_MAX_PAIRS_PER_PASS = 500;
 const DEFAULT_BUCKET_WIDTH = 50;
 const DEFAULT_MAX_PASSES_DRAIN = 8;
 const DEFAULT_MAX_PARTITIONS_FANOUT = 1024;
 const DEFAULT_MATCHED_RETENTION_SECONDS = 3600;
+const DEFAULT_DRAIN_CONCURRENCY = 8;
 
 // The SQL-side partition_signature uses 0x1F (ASCII unit separator) as
 // the join character. JS-computed signatures must match byte-for-byte or
@@ -112,39 +122,23 @@ export type MatchmakerOptions = {
    */
   readonly now?: () => number;
   /**
-   * Maximum pairs emitted per `runMatchPass()` call. Bounds the cost of
-   * one pass so opportunistic callers (request handlers) stay cheap.
-   * Default {@link DEFAULT_MAX_PAIRS_PER_PASS}.
+   * Maximum pairs emitted per `runMatchPass()` call. Default
+   * {@link DEFAULT_MAX_PAIRS_PER_PASS} (500). Cron/ticker-driven
+   * deployments benefit from large passes (fewer round-trips); test
+   * fixtures often want a smaller number for predictable assertions.
    */
   readonly maxPairsPerPass?: number;
-  /**
-   * Server-side throttle floor. The SQL function refuses to run a pass
-   * if the previous successful pass was less than this many milliseconds
-   * ago. Set to `0` in tests to disable. Default {@link DEFAULT_MIN_PASS_INTERVAL_MS}.
-   */
-  readonly minPassIntervalMs?: number;
   /**
    * When set, `sweepExpired()` deletes waiting rows older than this.
    * Default `undefined` (sweep is a no-op).
    */
   readonly maxWaitSeconds?: number;
   /**
-   * Server-side throttle floor for `sweepExpired()` and `sweepMatched()`.
-   * Default {@link DEFAULT_SWEEP_INTERVAL_MS}.
-   */
-  readonly sweepIntervalMs?: number;
-  /**
    * Hard partition keys, must match what was declared on `migrate()`.
    * Default empty (one global shard). `partitionSignatureFor` and the
    * lazy schema-fingerprint assert both depend on this matching the DB.
    */
   readonly partitionKeys?: readonly string[];
-  /**
-   * The single numeric attribute declared on `migrate()`. Only used for
-   * the lazy schema-fingerprint assert — the SQL itself reads the value
-   * out of the generated column.
-   */
-  readonly primaryNumericKey?: string;
   /**
    * Bucket width on the primary numeric axis. Should match the value
    * passed to {@link migrate}. A mismatch is safe but degrades the
@@ -205,6 +199,8 @@ export type SweepMatchedResult = {
 export type RunMatchPassesAcrossPartitionsOptions = {
   readonly maxPartitions?: number;
   readonly maxPassesPerPartition?: number;
+  /** Bounded JS-side concurrency for partition drains. Default 8. */
+  readonly concurrency?: number;
   readonly signal?: AbortSignal;
 };
 
@@ -216,6 +212,8 @@ export type RunMatchPassesAcrossPartitionsResult = {
 
 export type SweepExpiredAcrossPartitionsOptions = {
   readonly maxPartitions?: number;
+  /** Bounded JS-side concurrency for partition sweeps. Default 8. */
+  readonly concurrency?: number;
 };
 
 export type SweepExpiredAcrossPartitionsResult = {
@@ -248,8 +246,6 @@ function assertPartitionSignature(signature: string, label: string): void {
 
 function assertOptionInvariants(opts: {
   readonly maxPairsPerPass: number;
-  readonly minPassIntervalMs: number;
-  readonly sweepIntervalMs: number;
   readonly bucketWidth: number;
   readonly matchedRetentionSeconds: number;
 }): void {
@@ -257,16 +253,6 @@ function assertOptionInvariants(opts: {
     Number.isFinite(opts.maxPairsPerPass) && opts.maxPairsPerPass > 0,
     'Matchmaker: maxPairsPerPass must be a positive finite number',
     { maxPairsPerPass: opts.maxPairsPerPass }
-  );
-  assert.ok(
-    Number.isFinite(opts.minPassIntervalMs) && opts.minPassIntervalMs >= 0,
-    'Matchmaker: minPassIntervalMs must be a non-negative finite number',
-    { minPassIntervalMs: opts.minPassIntervalMs }
-  );
-  assert.ok(
-    Number.isFinite(opts.sweepIntervalMs) && opts.sweepIntervalMs >= 0,
-    'Matchmaker: sweepIntervalMs must be a non-negative finite number',
-    { sweepIntervalMs: opts.sweepIntervalMs }
   );
   assert.ok(
     Number.isFinite(opts.bucketWidth) && opts.bucketWidth > 0,
@@ -281,50 +267,62 @@ function assertOptionInvariants(opts: {
   );
 }
 
+/**
+ * Bounded-concurrency Promise.all. Runs `worker(item, index)` for each
+ * input in parallel up to `limit` simultaneous in-flight tasks.
+ * Preserves input order in the result array. Aborts cleanly when
+ * `signal` is supplied and flips to aborted between tasks.
+ */
+async function parallelMap<T, R>(
+  items: readonly T[],
+  limit: number,
+  worker: (item: T, index: number) => Promise<R>,
+  signal?: AbortSignal
+): Promise<R[]> {
+  const cap = Math.max(1, Math.floor(limit));
+  const out = new Array<R>(items.length);
+  let next = 0;
+  async function lane(): Promise<void> {
+    while (true) {
+      if (signal?.aborted === true) return;
+      const i = next;
+      next += 1;
+      if (i >= items.length) return;
+      const item = items[i] as T;
+      out[i] = await worker(item, i);
+    }
+  }
+  const lanes: Promise<void>[] = [];
+  const n = Math.min(cap, items.length);
+  for (let i = 0; i < n; i += 1) lanes.push(lane());
+  await Promise.all(lanes);
+  return out;
+}
+
 export class Matchmaker {
   private readonly sqlClient: SqlClient;
   private readonly radius: RadiusOptions;
   private readonly clock: (() => number) | undefined;
   private readonly maxPairsPerPass: number;
-  private readonly minPassIntervalMs: number;
   private readonly maxWaitSeconds: number | undefined;
-  private readonly sweepIntervalMs: number;
   private readonly bucketWidth: number;
   private readonly partitionKeys: readonly string[];
-  private readonly primaryNumericKey: string | undefined;
   private readonly matchedRetentionSeconds: number;
-  private readonly expectedFingerprint: string;
-  private fingerprintChecked: boolean = false;
 
   constructor(opts: MatchmakerOptions) {
     this.sqlClient = resolveSqlClient(opts);
     this.radius = opts.radius ?? DEFAULT_RADIUS_OPTIONS;
     this.clock = opts.now;
     this.maxPairsPerPass = opts.maxPairsPerPass ?? DEFAULT_MAX_PAIRS_PER_PASS;
-    this.minPassIntervalMs =
-      opts.minPassIntervalMs ?? DEFAULT_MIN_PASS_INTERVAL_MS;
     this.maxWaitSeconds = opts.maxWaitSeconds;
-    this.sweepIntervalMs = opts.sweepIntervalMs ?? DEFAULT_SWEEP_INTERVAL_MS;
     this.bucketWidth = opts.bucketWidth ?? DEFAULT_BUCKET_WIDTH;
     this.partitionKeys = opts.partitionKeys ?? [];
-    this.primaryNumericKey = opts.primaryNumericKey;
     this.matchedRetentionSeconds =
       opts.matchedRetentionSeconds ?? DEFAULT_MATCHED_RETENTION_SECONDS;
     assertOptionInvariants({
       maxPairsPerPass: this.maxPairsPerPass,
-      minPassIntervalMs: this.minPassIntervalMs,
-      sweepIntervalMs: this.sweepIntervalMs,
       bucketWidth: this.bucketWidth,
       matchedRetentionSeconds: this.matchedRetentionSeconds,
-    });
-    // Build once and reuse — also doubles as construction-time validation
-    // of partitionKeys / primaryNumericKey via `resolveSchema`.
-    this.expectedFingerprint = fingerprintForOptions({
-      partitionKeys: this.partitionKeys,
-      ...(this.primaryNumericKey !== undefined
-        ? { primaryNumericKey: this.primaryNumericKey }
-        : {}),
-      bucketWidth: this.bucketWidth,
     });
   }
 
@@ -410,11 +408,31 @@ export class Matchmaker {
     data: AttributeState,
     formulas: readonly FormulaWire[]
   ): Promise<JoinResult> {
+    // Single CTE: INSERT into waiting + UPSERT into active_partitions in
+    // one round-trip. The active_partitions row is observed by the
+    // ticker's `discoverActivePartitions` so the partition wakes up on
+    // the next tick.
+    //
+    // partition_signature must be supplied by JS: Postgres forbids
+    // generated columns as partition keys, so the column is a regular
+    // TEXT NOT NULL fed from `partitionSignatureFor(data)`. JS-side
+    // computation here must stay byte-equivalent to whatever the SQL
+    // expression *would* have been — both derive from the same
+    // `partitionKeys` declared on `MatchmakingSchema`.
+    const signature = this.partitionSignatureFor(data);
     const result = await this.sqlClient.query<{ id: string }>(
-      `INSERT INTO matchmaking_queue (data, formulas)
-       VALUES ($1::jsonb, $2::jsonb)
-       RETURNING id`,
-      [JSON.stringify(data), JSON.stringify(formulas)]
+      `WITH ins AS (
+         INSERT INTO matchmaking_waiting (data, formulas, partition_signature)
+         VALUES ($1::jsonb, $2::jsonb, $3)
+         RETURNING id
+       ), reg AS (
+         INSERT INTO matchmaking_active_partitions (partition_signature)
+         VALUES ($3)
+         ON CONFLICT (partition_signature) DO NOTHING
+         RETURNING partition_signature
+       )
+       SELECT id FROM ins`,
+      [JSON.stringify(data), JSON.stringify(formulas), signature]
     );
     const row = result.rows[0];
     if (row === undefined) {
@@ -423,27 +441,42 @@ export class Matchmaker {
     return { participantId: row.id };
   }
 
+  /**
+   * Removes a participant from the waiting set. Matched rows are
+   * intentionally not removable — a paired participant has a contract
+   * with their peer (the emitted `matchId`) that downstream code is
+   * already acting on.
+   */
   async leave(participantId: string): Promise<LeaveResult> {
     assert.nonEmptyString(
       participantId,
       'Matchmaker.leave: participantId must be a non-empty string'
     );
     const result = await this.sqlClient.query<{ id: string }>(
-      `DELETE FROM matchmaking_queue WHERE id = $1 RETURNING id`,
+      `DELETE FROM matchmaking_waiting WHERE id = $1 RETURNING id`,
       [participantId]
     );
     return { removed: result.rows.length > 0 };
   }
 
+  /**
+   * Single-statement read across the waiting + matched tables. The
+   * UNION ALL planner does two PK seeks (one per table); at most one
+   * returns a row because `id` is the PK of both. For matched rows we
+   * issue a second indexed SELECT to fetch peers by `match_id`.
+   */
   async status(participantId: string): Promise<StatusResult | null> {
     assert.nonEmptyString(
       participantId,
       'Matchmaker.status: participantId must be a non-empty string'
     );
     const result = await this.sqlClient.query<StatusRow>(
-      `SELECT status, data, match_id
-       FROM matchmaking_queue
-       WHERE id = $1`,
+      `SELECT 'waiting'::TEXT AS status, data, NULL::UUID AS match_id
+       FROM matchmaking_waiting WHERE id = $1
+       UNION ALL
+       SELECT 'matched'::TEXT AS status, data, match_id
+       FROM matchmaking_matched WHERE id = $1
+       LIMIT 1`,
       [participantId]
     );
     const row = result.rows[0];
@@ -459,7 +492,7 @@ export class Matchmaker {
     }
     const peers = await this.sqlClient.query<ParticipantRow>(
       `SELECT id, joined_at, data
-       FROM matchmaking_queue
+       FROM matchmaking_matched
        WHERE match_id = $1 AND id <> $2
        ORDER BY joined_at`,
       [row.match_id, participantId]
@@ -474,25 +507,22 @@ export class Matchmaker {
 
   /**
    * One bounded match pass for ONE partition. Returns the number of
-   * pairs produced. Returns 0 when there's no work to do OR when the SQL
-   * throttle short-circuited the call — both are normal, not errors.
+   * pairs produced. Returns 0 when there's no work to do.
    *
    * Pass `''` for single-partition (no `partitionKeys`) deployments.
    */
   async runMatchPass(partitionSignature: string): Promise<MatchPassResult> {
     assertPartitionSignature(partitionSignature, 'Matchmaker.runMatchPass');
-    await this.assertSchemaMatches();
     const nowParam = this.nowParam();
     const result = await this.sqlClient.query<MatchPassRow>(
       `SELECT match_id, participant_id, joined_at, data
-       FROM matchmaking_run_match_pass($1, $2, $3, $4, $5, $6, $7, $8)`,
+       FROM matchmaking_run_match_pass($1, $2, $3, $4, $5, $6, $7)`,
       [
         partitionSignature,
         this.radius.baseRadius,
         this.radius.radiusGrowthPerSecond,
         this.radius.maxRadius,
         this.maxPairsPerPass,
-        this.minPassIntervalMs,
         this.bucketWidth,
         nowParam,
       ]
@@ -504,9 +534,8 @@ export class Matchmaker {
 
   /**
    * Drain loop for ONE partition: calls `runMatchPass` until it returns 0
-   * matches or `maxPasses` is hit. The min-interval throttle limits
-   * per-loop cost; passing a `signal` lets long-running drains (e.g.
-   * admin tooling) be cancelled mid-loop.
+   * matches or `maxPasses` is hit. Passing a `signal` lets long-running
+   * drains be cancelled mid-loop.
    */
   async runMatchPasses(
     partitionSignature: string,
@@ -532,47 +561,61 @@ export class Matchmaker {
   }
 
   /**
-   * Fan-out drain across every currently-active partition. Discovers
-   * partitions via a `SELECT DISTINCT partition_signature` (bounded by
-   * `maxPartitions`) then runs a per-partition drain. Used by tests and
-   * admin tooling; production hot-path scoping is done by the HTTP layer
-   * computing the signature from the request body.
+   * Fan-out drain across every currently-active partition. Reads
+   * partition signatures from `matchmaking_active_partitions` (tiny
+   * tracker table populated on `/join`) and drains each in parallel
+   * with bounded concurrency. Empty partitions get pruned from the
+   * tracker table as part of the same call.
    */
   async runMatchPassesAcrossPartitions(
     opts: RunMatchPassesAcrossPartitionsOptions = {}
   ): Promise<RunMatchPassesAcrossPartitionsResult> {
     const sigs = await this.discoverActivePartitions(opts.maxPartitions);
+    if (sigs.length === 0) return { matches: 0, passes: 0, partitions: 0 };
+    const concurrency = opts.concurrency ?? DEFAULT_DRAIN_CONCURRENCY;
+    const maxPassesPerPartition =
+      opts.maxPassesPerPartition ?? DEFAULT_MAX_PASSES_DRAIN;
+    const passOpts: RunMatchPassesOptions = {
+      maxPasses: maxPassesPerPartition,
+      ...(opts.signal !== undefined ? { signal: opts.signal } : {}),
+    };
+    const results = await parallelMap(
+      sigs,
+      concurrency,
+      (sig) => this.runMatchPasses(sig, passOpts),
+      opts.signal
+    );
     let matches = 0;
     let passes = 0;
-    for (const sig of sigs) {
-      if (opts.signal?.aborted === true) break;
-      const passOpts: RunMatchPassesOptions = {
-        maxPasses: opts.maxPassesPerPartition ?? DEFAULT_MAX_PASSES_DRAIN,
-        ...(opts.signal !== undefined ? { signal: opts.signal } : {}),
-      };
-      const res = await this.runMatchPasses(sig, passOpts);
-      matches += res.matches;
-      passes += res.passes;
+    for (const r of results) {
+      matches += r.matches;
+      passes += r.passes;
     }
+    // Best-effort prune of partitions that drained to zero waiters.
+    // Single statement; safe to call repeatedly.
+    await this.sqlClient.query(
+      `DELETE FROM matchmaking_active_partitions ap
+       WHERE NOT EXISTS (
+         SELECT 1 FROM matchmaking_waiting w
+         WHERE w.partition_signature = ap.partition_signature
+       )`
+    );
     return { matches, passes, partitions: sigs.length };
   }
 
   /**
    * Removes abandoned waiters older than `maxWaitSeconds` IN ONE
-   * partition. No-op when `maxWaitSeconds` was not configured. Safe to
-   * call on every request; the SQL function throttles by
-   * `sweepIntervalMs` server-side per partition.
+   * partition. No-op when `maxWaitSeconds` was not configured.
    */
   async sweepExpired(partitionSignature: string): Promise<SweepExpiredResult> {
     assertPartitionSignature(partitionSignature, 'Matchmaker.sweepExpired');
     if (this.maxWaitSeconds === undefined) return { removed: 0 };
-    await this.assertSchemaMatches();
     const nowParam = this.nowParam();
     const result = await this.sqlClient.query<{
       matchmaking_sweep_expired: number | string;
     }>(
-      `SELECT matchmaking_sweep_expired($1, $2, $3, $4) AS matchmaking_sweep_expired`,
-      [partitionSignature, this.maxWaitSeconds, this.sweepIntervalMs, nowParam]
+      `SELECT matchmaking_sweep_expired($1, $2, $3) AS matchmaking_sweep_expired`,
+      [partitionSignature, this.maxWaitSeconds, nowParam]
     );
     const raw = result.rows[0]?.matchmaking_sweep_expired ?? 0;
     const removed = typeof raw === 'string' ? Number.parseInt(raw, 10) : raw;
@@ -580,8 +623,8 @@ export class Matchmaker {
   }
 
   /**
-   * Fan-out sweep across every currently-active partition. Same shape as
-   * `runMatchPassesAcrossPartitions`. Used by admin tooling and tests.
+   * Fan-out sweep across every currently-active partition, in parallel
+   * with bounded concurrency.
    */
   async sweepExpiredAcrossPartitions(
     opts: SweepExpiredAcrossPartitionsOptions = {}
@@ -590,29 +633,28 @@ export class Matchmaker {
       return { removed: 0, partitions: 0 };
     }
     const sigs = await this.discoverActivePartitions(opts.maxPartitions);
+    if (sigs.length === 0) return { removed: 0, partitions: 0 };
+    const concurrency = opts.concurrency ?? DEFAULT_DRAIN_CONCURRENCY;
+    const results = await parallelMap(sigs, concurrency, (sig) =>
+      this.sweepExpired(sig)
+    );
     let removed = 0;
-    for (const sig of sigs) {
-      const res = await this.sweepExpired(sig);
-      removed += res.removed;
-    }
+    for (const r of results) removed += r.removed;
     return { removed, partitions: sigs.length };
   }
 
   /**
    * Global cleanup of matched rows older than `matchedRetentionSeconds`.
-   * No partition argument — matched rows are dropped from the hot waiting
-   * index already, so one global pass is cheap and well-coalesced by its
-   * own throttle row. Safe to call on every request.
+   * Single indexed range DELETE on `matchmaking_matched_matched_at_idx`.
    */
   async sweepMatched(): Promise<SweepMatchedResult> {
     if (this.matchedRetentionSeconds <= 0) return { removed: 0 };
-    await this.assertSchemaMatches();
     const nowParam = this.nowParam();
     const result = await this.sqlClient.query<{
       matchmaking_sweep_matched: number | string;
     }>(
-      `SELECT matchmaking_sweep_matched($1, $2, $3) AS matchmaking_sweep_matched`,
-      [this.matchedRetentionSeconds, this.sweepIntervalMs, nowParam]
+      `SELECT matchmaking_sweep_matched($1, $2) AS matchmaking_sweep_matched`,
+      [this.matchedRetentionSeconds, nowParam]
     );
     const raw = result.rows[0]?.matchmaking_sweep_matched ?? 0;
     const removed = typeof raw === 'string' ? Number.parseInt(raw, 10) : raw;
@@ -631,30 +673,13 @@ export class Matchmaker {
     const result = await this.sqlClient.query<{
       partition_signature: string;
     }>(
-      `SELECT DISTINCT partition_signature
-       FROM matchmaking_queue
-       WHERE status = 'waiting'
+      `SELECT partition_signature
+       FROM matchmaking_active_partitions
+       ORDER BY first_seen_at
        LIMIT $1`,
       [cap]
     );
     return result.rows.map((r) => r.partition_signature);
-  }
-
-  // Lazy-checked on first pass/sweep so a misconfigured Matchmaker
-  // (different `partitionKeys` than `migrate()` was called with) blows up
-  // loudly on first use instead of silently producing zero matches.
-  private async assertSchemaMatches(): Promise<void> {
-    if (this.fingerprintChecked) return;
-    const result = await this.sqlClient.query<{ schema_fingerprint: string }>(
-      `SELECT schema_fingerprint FROM matchmaking_schema_state WHERE id = 1`
-    );
-    const actual = result.rows[0]?.schema_fingerprint ?? null;
-    assert.ok(
-      actual === this.expectedFingerprint,
-      'Matchmaker: schema fingerprint mismatch — did migrate() see different options?',
-      { expected: this.expectedFingerprint, actual }
-    );
-    this.fingerprintChecked = true;
   }
 
   private nowParam(): string | null {

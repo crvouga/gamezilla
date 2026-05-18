@@ -19,16 +19,15 @@ async function main(): Promise<void> {
   try {
     await runPostgresMigrations({
       sqlClient,
-      pool,
       databaseUrl,
       logger: log,
       betterAuthOptions: await loadBetterAuthOptionsForMigration(store),
     });
     log.info(
-      'postgres migrations finished (patch-db + kv + matchmaking + better-auth; legacy entities dropped if present)'
+      'postgres migrations finished (patch-db + kv + better-auth; matchmaking self-migrates on first request; legacy entities dropped if present)'
     );
     process.stdout.write(
-      '[api:migrate] completed (patch-db + kv + matchmaking + better-auth; legacy entities dropped if present)\n'
+      '[api:migrate] completed (patch-db + kv + better-auth; matchmaking self-migrates on first request; legacy entities dropped if present)\n'
     );
   } finally {
     await pool.end();

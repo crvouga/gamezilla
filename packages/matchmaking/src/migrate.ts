@@ -1,6 +1,29 @@
 /**
- * Owns the `matchmaking_queue` table and the PL/pgSQL functions that drive
- * matching end to end. Idempotent: safe to call on every boot.
+ * Owns the chess.com-scale matchmaking schema:
+ *
+ *   - `matchmaking_waiting`  UNLOGGED, PARTITION BY HASH(partition_signature)
+ *     across {@link NUM_WAITING_PARTITIONS} (16) child partitions. This
+ *     is THE hot table; every join inserts here, every pass reads + deletes
+ *     here. UNLOGGED skips WAL — waiting rows are recoverable (clients
+ *     rejoin) so durability is not required. Hash partitioning lets
+ *     autovacuum run independently per partition, divides index size by
+ *     16, and spreads write lock pages across 16 page chains.
+ *   - `matchmaking_matched`  LOGGED single table holding the small,
+ *     short-lived tail of paired rows that `/status` polls can still
+ *     read. Indexed by `match_id` (peer fetch) and `matched_at` (sweep).
+ *   - `matchmaking_active_partitions`  UNLOGGED helper. Every `/join`
+ *     UPSERTs its `partition_signature`; the tick fan-out reads this
+ *     tiny table instead of `SELECT DISTINCT partition_signature ...`
+ *     over the hot waiting table.
+ *   - `matchmaking_schema_state`  fingerprint state for idempotent
+ *     rebuilds across schema bumps.
+ *
+ * The old `matchmaking_queue` and `matchmaking_pass_runs` tables (v2)
+ * are dropped unconditionally on migrate; any prior install is rebuilt.
+ *
+ * No throttle plumbing: the host-owned scheduler (Durable Object alarm)
+ * is the sole caller of `runMatchPass` / `sweep_*` and self-throttles
+ * via its cadence.
  *
  * Schema invariants:
  *   - No domain-specific columns. Everything caller-shaped lives in JSONB:
@@ -11,71 +34,67 @@
  *     Two participants match iff there exists a pair `(fa, fb)` from their
  *     formula lists such that both formulas accept the pair (partition
  *     compatibility and distance within each side's radius). Matching is
- *     asymmetric — A may use a strict rating-only formula while B insists
- *     on a partition.
- *   - When a pair matches, the function mints a fresh `match_id` UUID and
- *     writes it on both rows. Callers poll `status(participantId)` and use
- *     the emitted `matchId` as a downstream handle (e.g. a Durable Object
- *     name) to bring the match online.
+ *     asymmetric.
+ *   - When a pair matches, the function mints a fresh `match_id` UUID,
+ *     DELETEs both waiting rows, and INSERTs them into
+ *     `matchmaking_matched` carrying the new `match_id`. Callers poll
+ *     `status(participantId)` and use the emitted `matchId` as a
+ *     downstream handle (e.g. a Durable Object name).
  *
  * Scale layer (declared by the caller via {@link MatchmakingSchema}):
  *   - `partition_signature` (stored generated): concatenation of declared
  *     partition keys. Rows in different signatures are never candidates
  *     for each other. Empty `partitionKeys` collapses everyone into one
- *     shard with signature `''`. The signature is ALSO the natural shard
- *     key for the per-pass throttle (see below).
+ *     shard with signature `''`. The signature is ALSO the hash key for
+ *     `matchmaking_waiting` partitioning.
  *   - `primary_rating` / `primary_bucket` (stored generated): the numeric
  *     rating axis used to pre-filter candidates. With a primary key
  *     declared, the pass function only considers candidates within
- *     `ceil(radius / bucketWidth)` buckets of the seeker — turns the
- *     match pass from O(N²) into O(N * ringSize).
- *   - Partial index on `(partition_signature, primary_bucket, joined_at)
- *     WHERE status='waiting'`: matched rows aren't in the index, so the
- *     snapshot scan walks only the live queue. Combined with `fillfactor=80`
- *     the status='matched' UPDATE never has to touch an index → HOT.
- *   - `matchmaking_pass_runs`: per-`(partition_signature, kind)` throttle
- *     table. Different partitions run passes in PARALLEL through Postgres;
- *     only same-partition passes serialise. This is the chess.com-scale
- *     change — one Postgres primary now hosts N independent matchmakers.
+ *     `ceil(radius / bucketWidth)` buckets of the seeker.
+ *   - Index on `(partition_signature, primary_bucket, joined_at)` on the
+ *     parent — propagates to every hash child. Snapshot scan is in-order
+ *     so no sort step.
  */
 
 import { assert } from '@gamezilla/lib/assert';
 import { isNamespacedKeyword } from '@gamezilla/lib/keyword';
 import type { Pool } from 'pg';
 import {
-  ALTER_ADD_LEGACY_COLUMNS_SQL,
-  CREATE_MATCHED_INDEX_SQL,
-  CREATE_MATCH_ID_INDEX_SQL,
+  CREATE_ACTIVE_PARTITIONS_TABLE_SQL,
+  CREATE_MATCHED_MATCH_ID_INDEX_SQL,
+  CREATE_MATCHED_MATCHED_AT_INDEX_SQL,
+  CREATE_MATCHED_TABLE_SQL,
   CREATE_PAIR_COMPATIBLE_SQL,
   CREATE_PAIR_DISTANCE_SQL,
   CREATE_PAIR_MATCH_SQL,
-  CREATE_PASS_RUNS_TABLE_SQL,
   CREATE_RUN_MATCH_PASS_SQL,
   CREATE_SCHEMA_STATE_TABLE_SQL,
   CREATE_SWEEP_EXPIRED_SQL,
   CREATE_SWEEP_MATCHED_SQL,
-  CREATE_TABLE_SQL,
   CREATE_WAITING_INDEX_SQL,
-  DROP_GENERATED_COLUMNS_SQL,
-  DROP_LEGACY_COLUMN_SQL,
-  DROP_LEGACY_INDEX_SQL,
-  DROP_MATCHED_INDEX_SQL,
-  DROP_OLD_BUCKET_INDEX_SQL,
-  DROP_OLD_JOINED_AT_INDEX_SQL,
+  DROP_LEGACY_INDEXES,
+  DROP_LEGACY_PASS_RUNS_SQL,
+  DROP_LEGACY_QUEUE_SQL,
   DROP_RUN_MATCH_PASS_LEGACY_SIGNATURES,
   DROP_SWEEP_EXPIRED_LEGACY_SIGNATURES,
   DROP_SWEEP_MATCHED_LEGACY_SIGNATURES,
-  DROP_WAITING_INDEX_SQL,
-  SET_FILLFACTOR_SQL,
+  DROP_TICK_FUNCTION_SQL,
+  DROP_WAITING_TABLE_SQL,
+  NUM_WAITING_PARTITIONS,
+  buildCreateTickFunctionSql,
+  buildCreateWaitingChildSql,
+  buildCreateWaitingTableSql,
 } from './migrate-sql';
 import { createPgSqlClient } from './pg-adapter';
 import type { SqlClient } from './sql-client';
+import { DEFAULT_RADIUS_OPTIONS, type RadiusOptions } from './types';
 
 export type MatchmakingSchema = {
   /**
    * Hard-partitioning keys (e.g. region, mode, time-control). Two
    * participants are never candidates unless they agree on every declared
-   * key. Empty array → one global shard. Acts as the throttle shard key.
+   * key. Empty array → one global shard. Also acts as the hash key for
+   * the `matchmaking_waiting` table partitioning.
    */
   readonly partitionKeys?: readonly string[];
   /**
@@ -93,19 +112,48 @@ export type MatchmakingSchema = {
   readonly bucketWidth?: number;
 };
 
+/**
+ * Tunings that `migrate()` bakes into the `matchmaking_tick()` PL/pgSQL
+ * function. These are the SAME tunings the `Matchmaking` constructor
+ * accepts via `MatchmakingTuning`; the constructor forwards them here
+ * so the cron-driven tick uses the deployment's configured values.
+ *
+ * No `now` clock hook — the tick function calls `now()` server-side. JS
+ * tests that want a simulated clock keep driving via `mm.tick()` (which
+ * does pass `nowParam`).
+ */
+export type MigrateTuning = {
+  readonly maxPairsPerPass?: number;
+  readonly maxWaitSeconds?: number;
+  readonly matchedRetentionSeconds?: number;
+};
+
 export type MigrateArgs = (
   | { readonly pool: Pool; readonly sqlClient?: never }
   | { readonly sqlClient: SqlClient; readonly pool?: never }
 ) & {
   readonly schema?: MatchmakingSchema;
+  /** Forwarded into the baked `matchmaking_tick()` function body. */
+  readonly radius?: RadiusOptions;
+  /** Forwarded into the baked `matchmaking_tick()` function body. */
+  readonly tuning?: MigrateTuning;
 };
 
 const DEFAULT_BUCKET_WIDTH = 50;
+const DEFAULT_MAX_PAIRS_PER_PASS = 500;
+const DEFAULT_MAX_WAIT_SECONDS = 300;
+const DEFAULT_MATCHED_RETENTION_SECONDS = 3600;
+const DEFAULT_MAX_PARTITIONS_FANOUT = 1024;
+const DEFAULT_MAX_PASSES_PER_PARTITION = 8;
+const CRON_SCHEDULE = '5 seconds';
+const CRON_JOB_NAME = 'matchmaking-tick';
 
 // Bumped any time the schema shape changes (column definitions, index
-// definitions, throttle-table PK shape, etc.) so existing deployments
-// detect the mismatch via `matchmaking_schema_state` and rebuild.
-const SCHEMA_VERSION = 2;
+// definitions, partition layout, etc.) so existing deployments detect
+// the mismatch via `matchmaking_schema_state` and rebuild. v3 is the
+// chess.com-scale layout: split tables, hash-partitioned waiting,
+// no throttle plumbing.
+const SCHEMA_VERSION = 3;
 
 type ResolvedSchema = {
   readonly partitionKeys: readonly string[];
@@ -167,16 +215,6 @@ export function fingerprintForOptions(
   return fingerprintSchema(resolveSchema(schema));
 }
 
-function partitionSignatureExpr(partitionKeys: readonly string[]): string {
-  if (partitionKeys.length === 0) return `''::TEXT`;
-  const unit = String.fromCharCode(0x1f);
-  const sep = sqlString(unit);
-  const parts = partitionKeys.map(
-    (k) => `COALESCE(data->>${sqlString(k)}, '')`
-  );
-  return parts.join(` || ${sep} || `);
-}
-
 function primaryRatingExpr(primaryNumericKey: string | undefined): string {
   if (primaryNumericKey === undefined) return `0::NUMERIC`;
   return `COALESCE((data->>${sqlString(primaryNumericKey)})::NUMERIC, 0)`;
@@ -193,49 +231,34 @@ function primaryBucketExpr(
   return `FLOOR(${primaryRatingExpr(primaryNumericKey)} / ${String(bucketWidth)}::NUMERIC)::INT`;
 }
 
-function buildGeneratedColumnsSql(schema: ResolvedSchema): string {
-  const partExpr = partitionSignatureExpr(schema.partitionKeys);
-  const ratingExpr = primaryRatingExpr(schema.primaryNumericKey);
-  const bucketExpr = primaryBucketExpr(
-    schema.primaryNumericKey,
-    schema.bucketWidth
-  );
-  return `
-ALTER TABLE matchmaking_queue
-  ADD COLUMN partition_signature TEXT    GENERATED ALWAYS AS (${partExpr})  STORED,
-  ADD COLUMN primary_rating      NUMERIC GENERATED ALWAYS AS (${ratingExpr}) STORED,
-  ADD COLUMN primary_bucket      INT     GENERATED ALWAYS AS (${bucketExpr}) STORED
-`.trim();
-}
-
 function resolveSqlClient(args: MigrateArgs): SqlClient {
   if (args.sqlClient !== undefined) return args.sqlClient;
   return createPgSqlClient(args.pool);
 }
 
-// Detects whether `matchmaking_pass_runs` already exists in its current
-// (partition_signature, kind) shape. Returns false when the legacy
-// (id INT PRIMARY KEY) table is present so the caller can drop it before
-// recreating with the new PK.
-async function passRunsTableHasNewShape(
-  sqlClient: SqlClient
-): Promise<boolean> {
-  const result = await sqlClient.query<{ has_col: boolean }>(
-    `SELECT EXISTS (
-       SELECT 1
-       FROM information_schema.columns
-       WHERE table_name = 'matchmaking_pass_runs'
-         AND column_name = 'partition_signature'
-     ) AS has_col`
+/**
+ * Rebuilds the waiting table (parent + every hash child + index) when
+ * the schema fingerprint changes. Safe to call repeatedly; the
+ * fingerprint guard upstream skips this when no rebuild is needed.
+ */
+async function rebuildWaitingTable(
+  sqlClient: SqlClient,
+  schema: ResolvedSchema
+): Promise<void> {
+  await sqlClient.query(DROP_WAITING_TABLE_SQL);
+  await sqlClient.query(
+    buildCreateWaitingTableSql({
+      primaryRatingExpr: primaryRatingExpr(schema.primaryNumericKey),
+      primaryBucketExpr: primaryBucketExpr(
+        schema.primaryNumericKey,
+        schema.bucketWidth
+      ),
+    })
   );
-  return result.rows[0]?.has_col === true;
-}
-
-async function ensurePassRunsTable(sqlClient: SqlClient): Promise<void> {
-  if (!(await passRunsTableHasNewShape(sqlClient))) {
-    await sqlClient.query('DROP TABLE IF EXISTS matchmaking_pass_runs');
+  for (let i = 0; i < NUM_WAITING_PARTITIONS; i += 1) {
+    await sqlClient.query(buildCreateWaitingChildSql(i));
   }
-  await sqlClient.query(CREATE_PASS_RUNS_TABLE_SQL);
+  await sqlClient.query(CREATE_WAITING_INDEX_SQL);
 }
 
 async function maybeRebuildSchema(
@@ -249,16 +272,7 @@ async function maybeRebuildSchema(
   const currentFp = state.rows[0]?.schema_fingerprint ?? null;
   if (currentFp === fp) return;
 
-  // Order matters: indexes depend on columns, so drop both then recreate
-  // bottom-up. `IF EXISTS` lets the first-ever migrate run pass through.
-  await sqlClient.query(DROP_OLD_BUCKET_INDEX_SQL);
-  await sqlClient.query(DROP_WAITING_INDEX_SQL);
-  await sqlClient.query(DROP_MATCHED_INDEX_SQL);
-  await sqlClient.query(DROP_GENERATED_COLUMNS_SQL);
-  await sqlClient.query(buildGeneratedColumnsSql(schema));
-  await sqlClient.query(SET_FILLFACTOR_SQL);
-  await sqlClient.query(CREATE_WAITING_INDEX_SQL);
-  await sqlClient.query(CREATE_MATCHED_INDEX_SQL);
+  await rebuildWaitingTable(sqlClient, schema);
   await sqlClient.query(
     `INSERT INTO matchmaking_schema_state (id, schema_fingerprint)
      VALUES (1, $1)
@@ -267,24 +281,62 @@ async function maybeRebuildSchema(
   );
 }
 
+/**
+ * Detects whether the pg_cron extension is installed in this database.
+ * PGlite (tests) and any deploy that hasn't run `CREATE EXTENSION
+ * pg_cron` returns false, in which case migrate skips the
+ * `cron.schedule` call entirely. The PL/pgSQL `matchmaking_tick()`
+ * function is still installed (it's just unscheduled) so the JS
+ * `mm.tick()` entry point and tests keep working unchanged.
+ */
+async function isPgCronInstalled(sqlClient: SqlClient): Promise<boolean> {
+  try {
+    const result = await sqlClient.query<{ ok: boolean }>(
+      `SELECT EXISTS (
+         SELECT 1 FROM pg_extension WHERE extname = 'pg_cron'
+       ) AS ok`
+    );
+    return result.rows[0]?.ok === true;
+  } catch {
+    // `pg_extension` is a system view present on all real Postgres
+    // installs. PGlite throws here; treat any error as "no pg_cron".
+    return false;
+  }
+}
+
+async function scheduleMatchmakingTick(sqlClient: SqlClient): Promise<void> {
+  // pg_cron 1.5+ replaces the existing schedule when called with the
+  // same job name. Earlier versions error; that's acceptable — pin the
+  // platform extension version, or bump the job name on schema bumps.
+  await sqlClient.query(`SELECT cron.schedule($1, $2, $3) AS jobid`, [
+    CRON_JOB_NAME,
+    CRON_SCHEDULE,
+    `SELECT matchmaking_tick()`,
+  ]);
+}
+
 export async function migrate(args: MigrateArgs): Promise<void> {
   const sqlClient = resolveSqlClient(args);
   const schema = resolveSchema(args.schema);
+  const radius = args.radius ?? DEFAULT_RADIUS_OPTIONS;
+  const tuning = args.tuning ?? {};
 
+  // Upfront: drop any v2 artefacts and create the always-on tables
+  // (matched, active_partitions, schema_state). Idempotent.
   const upfront = [
-    DROP_LEGACY_COLUMN_SQL,
-    DROP_LEGACY_INDEX_SQL,
-    DROP_OLD_JOINED_AT_INDEX_SQL,
-    CREATE_TABLE_SQL,
-    ALTER_ADD_LEGACY_COLUMNS_SQL,
-    CREATE_MATCH_ID_INDEX_SQL,
+    DROP_LEGACY_QUEUE_SQL,
+    DROP_LEGACY_PASS_RUNS_SQL,
+    ...DROP_LEGACY_INDEXES,
     CREATE_SCHEMA_STATE_TABLE_SQL,
+    CREATE_MATCHED_TABLE_SQL,
+    CREATE_MATCHED_MATCH_ID_INDEX_SQL,
+    CREATE_MATCHED_MATCHED_AT_INDEX_SQL,
+    CREATE_ACTIVE_PARTITIONS_TABLE_SQL,
   ];
   for (const sql of upfront) {
     await sqlClient.query(sql);
   }
 
-  await ensurePassRunsTable(sqlClient);
   await maybeRebuildSchema(sqlClient, schema);
 
   const functions = [
@@ -297,8 +349,25 @@ export async function migrate(args: MigrateArgs): Promise<void> {
     CREATE_RUN_MATCH_PASS_SQL,
     CREATE_SWEEP_EXPIRED_SQL,
     CREATE_SWEEP_MATCHED_SQL,
+    DROP_TICK_FUNCTION_SQL,
+    buildCreateTickFunctionSql({
+      baseRadius: radius.baseRadius,
+      radiusGrowthPerSecond: radius.radiusGrowthPerSecond,
+      maxRadius: radius.maxRadius,
+      bucketWidth: schema.bucketWidth,
+      maxPairsPerPass: tuning.maxPairsPerPass ?? DEFAULT_MAX_PAIRS_PER_PASS,
+      maxWaitSeconds: tuning.maxWaitSeconds ?? DEFAULT_MAX_WAIT_SECONDS,
+      matchedRetentionSeconds:
+        tuning.matchedRetentionSeconds ?? DEFAULT_MATCHED_RETENTION_SECONDS,
+      maxPartitionsFanout: DEFAULT_MAX_PARTITIONS_FANOUT,
+      maxPassesPerPartition: DEFAULT_MAX_PASSES_PER_PARTITION,
+    }),
   ];
   for (const sql of functions) {
     await sqlClient.query(sql);
+  }
+
+  if (await isPgCronInstalled(sqlClient)) {
+    await scheduleMatchmakingTick(sqlClient);
   }
 }

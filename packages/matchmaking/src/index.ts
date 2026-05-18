@@ -1,49 +1,50 @@
 /**
  * Public surface of `@gamezilla/matchmaking`.
  *
- * Apps embedding the library typically import:
- *   - `migrate` to create the `matchmaking_queue` table on boot
- *   - `Matchmaker` + `createMatchmakingApp` on the server
- *   - `MatchmakingClient` on the client
+ * Typical embedder usage:
  *
- * The `SqlClient` port and its adapters are exported so apps can plug in any
- * Postgres-compatible backend (the bundled adapters cover `pg.Pool` and
- * PGlite). The attribute helpers from `@gamezilla/lib` are re-exported so a
- * single `from '@gamezilla/matchmaking'` import covers the whole surface
- * apps need to declare their own match attributes.
+ *   import { Matchmaking, createAttrNamespace } from '@gamezilla/matchmaking';
+ *
+ *   const ns = createAttrNamespace('chess');
+ *   const rating = ns('rating', (v) => typeof v === 'number' ? v : 0);
+ *
+ *   const mm = new Matchmaking({
+ *     storage: { pool },
+ *     schema: { partitionKeys: ['chess/mode'], bucketWidth: 50 },
+ *   });
+ *
+ *   const { participantId } = await mm.join({
+ *     data: rating(1500),
+ *     formulas: [{ numeric: [{ tag: rating, weight: 1 }] }],
+ *   });
+ *   const status = await mm.status(participantId);
+ *
+ *   hono.route('/matchmaking', mm.app({ requireAuth }));
+ *
+ * That six-method surface (`join`, `leave`, `status`, `app`, `ready`,
+ * `tick`) is the entire public API. Subpath imports cover the two rare
+ * cases:
+ *
+ *   - `@gamezilla/matchmaking/storage` — `SqlClient` adapters and types
+ *     (when you need to thread your own per-request `pg.Client` instead
+ *     of giving the library a `pg.Pool`).
+ *   - `@gamezilla/matchmaking/wire` — `FormulaWire` shapes for HTTP /
+ *     RPC consumers that need to validate JSON without `AttributeTag`s.
  */
 
-export { createMatchmakingApp, type CreateMatchmakingAppOptions } from './app';
 export { MatchmakingClient } from './client';
 export type { MatchmakingClientOptions, WaitForMatchOptions } from './client';
 export { MatchmakingHttpError } from './client-error';
 export {
-  MAX_FORMULAS_PER_PARTICIPANT,
-  Matchmaker,
-  type CategoricalTermWire,
-  type FormulaWire,
-  type JoinInputRaw,
-  type MatchmakerOptions,
-  type NumericTermWire,
-  type PartitionTermWire,
-  type RunMatchPassesAcrossPartitionsOptions,
-  type RunMatchPassesAcrossPartitionsResult,
-  type RunMatchPassesOptions,
-  type RunMatchPassesResult,
-  type SweepExpiredAcrossPartitionsOptions,
-  type SweepExpiredAcrossPartitionsResult,
-  type SweepExpiredResult,
-  type SweepMatchedResult,
-} from './matchmaker';
-export {
-  fingerprintForOptions,
-  migrate,
-  type MatchmakingSchema,
-  type MigrateArgs,
-} from './migrate';
-export { createPgSqlClient } from './pg-adapter';
-export { createPgliteSqlClient } from './pglite-adapter';
-export type { QueryResult, SqlClient } from './sql-client';
+  Matchmaking,
+  type MatchmakingAppOptions,
+  type MatchmakingOptions,
+  type MatchmakingStorage,
+  type MatchmakingTuning,
+  type TickOptions,
+  type TickResult,
+} from './matchmaking';
+export type { MatchmakingSchema } from './migrate';
 export {
   DEFAULT_RADIUS_OPTIONS,
   type DistanceFormula,
@@ -53,7 +54,6 @@ export {
   type JoinInput,
   type JoinResult,
   type LeaveResult,
-  type MatchPassResult,
   type MatchedParticipant,
   type MatchedStatus,
   type ParticipantStatus,

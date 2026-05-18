@@ -32,6 +32,10 @@ class_name = "Room"
 # the same.
 # `v3-rename-space-do-class-to-room` deletes the `Space` class and introduces a
 # new SQLite-backed `Room` class (new DO storage); binding key becomes `ROOM`.
+# `v4-matchmaking-ticker` introduced the singleton ticker DO that owned the
+# alarm-driven `Matchmaking.tick()` loop. Superseded by
+# `v5-drop-matchmaking-ticker` which removes that class; pass + sweep now run
+# server-side under `pg_cron`.
 [[migrations]]
 tag = "v1-room-sqlite"
 new_sqlite_classes = ["Room"]
@@ -45,6 +49,14 @@ new_sqlite_classes = ["Space"]
 tag = "v3-rename-space-do-class-to-room"
 deleted_classes = ["Space"]
 new_sqlite_classes = ["Room"]
+
+[[migrations]]
+tag = "v4-matchmaking-ticker"
+new_sqlite_classes = ["MatchmakingTicker"]
+
+[[migrations]]
+tag = "v5-drop-matchmaking-ticker"
+deleted_classes = ["MatchmakingTicker"]
 
 [observability]
 [observability.logs]

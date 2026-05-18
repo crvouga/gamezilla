@@ -15,6 +15,12 @@
  * Better Auth DDL runs after the transaction. Kysely owns its own short-lived
  * pool (created from `databaseUrl`) so `kysely.destroy()` cannot end a pool
  * the caller still owns — `pg.Pool.end()` throws on a second call.
+ *
+ * Matchmaking does NOT run here. The `Matchmaking` class in
+ * `packages/api/src/matchmaking/route.ts` self-migrates on first request
+ * via a cached boot promise; the schema is declared once in that file as
+ * `MATCHMAKING_SCHEMA`. Drift between migrate and runtime is impossible
+ * by construction.
  */
 import {
   runBetterAuthMigrations,
@@ -23,15 +29,12 @@ import {
 import { KvImplPostgres } from '@gamezilla/lib/kv/impl-postgres';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { migrate as migrateMatchmaking } from '@gamezilla/matchmaking/migrate';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
-import type { Pool } from 'pg';
 import { APP_SNAPSHOT_INDEXES } from '../patch-db/snapshot-indexes';
 import { dropLegacyAppSnapshotIndexes } from './drop-legacy-app-snapshot-indexes';
 
 export type RunPostgresMigrationsArgs = {
   sqlClient: SqlClient;
-  pool: Pool;
   databaseUrl: string;
   logger: Logger;
   betterAuthOptions: BetterAuthMigrationOptions;
@@ -40,7 +43,7 @@ export type RunPostgresMigrationsArgs = {
 export async function runPostgresMigrations(
   args: RunPostgresMigrationsArgs
 ): Promise<void> {
-  const { sqlClient, pool, databaseUrl, logger, betterAuthOptions } = args;
+  const { sqlClient, databaseUrl, logger, betterAuthOptions } = args;
   await sqlClient.transaction(async (tx) => {
     await dropLegacyAppSnapshotIndexes({ sqlClient: tx, logger });
     await PatchDbImplPostgres.migrateUp({
@@ -49,36 +52,6 @@ export async function runPostgresMigrations(
       options: { indexes: APP_SNAPSHOT_INDEXES },
     });
     await KvImplPostgres.migrateUp({ sqlClient: tx, logger });
-  });
-
-  // Matchmaking owns its own `matchmaking_queue` table. Runs outside the
-  // patch-db/kv transaction because the matchmaking package has its own
-  // `SqlClient` shape (uses native pg `$1` params, returns `{ rows }`) and
-  // accepts a `pg.Pool` directly.
-  //
-  // The schema block is the only knob the API has to opt domains into
-  // bucketed / partitioned matching. Defaults below produce a single
-  // global shard without rating bucketing — safe and slow. When a concrete
-  // domain ships, declare its partition keys and rating axis here; mirror
-  // the same values in `packages/api/src/matchmaking/route.ts` so the
-  // Matchmaker's lazy schema-fingerprint assert agrees. For example, a
-  // chess deployment would use:
-  //
-  //   schema: {
-  //     partitionKeys: ['chess/mode', 'chess/time-control', 'chess/region'],
-  //     primaryNumericKey: 'chess/rating',
-  //     bucketWidth: 50,
-  //   }
-  //
-  // Each declared partition key becomes a shard axis for the per-partition
-  // throttle in `matchmaking_pass_runs`, so N partitions = N concurrent
-  // matchers on one Postgres primary.
-  await migrateMatchmaking({
-    pool,
-    schema: {
-      partitionKeys: [],
-      bucketWidth: 50,
-    },
   });
 
   await runBetterAuthMigrations({ databaseUrl, betterAuthOptions });

@@ -2,30 +2,44 @@
  * Mounts the `@gamezilla/matchmaking` Hono sub-app behind the API's session
  * auth.
  *
- * The {@link Matchmaker} is constructed once at app boot but delegates every
+ * {@link Matchmaking} is constructed once at app boot but delegates every
  * SQL call to a per-request `pg.Client` via
- * {@link apiRequestAsyncLocalStorage} — this keeps a single matchmaker
+ * {@link apiRequestAsyncLocalStorage} — this keeps a single matchmaking
  * instance while still honouring the API's one-connection-per-Hyperdrive-
  * request invariant.
+ *
+ * `Matchmaking` runs its own `migrate()` exactly once via a cached boot
+ * promise. The boot bakes the {@link MATCHMAKING_TUNING} values into a
+ * PL/pgSQL `matchmaking_tick()` function and, when `pg_cron` is enabled
+ * on the database, schedules it to run every 5 seconds. The request
+ * layer never advances the queue itself; every route is a single SQL
+ * statement.
+ *
+ * Schema drift between migrate and runtime is impossible by construction —
+ * both come from the [./schema.ts](./schema.ts) constants imported by
+ * this file.
  *
  * The API has no opinion on attributes, formulas, or partitioning — each
  * caller declares its own attribute schema in `data` and its own
  * acceptance criteria in `formulas` at join time. Completed matches are
  * surfaced via `GET /status/:participantId`, which returns a `matchId`
  * callers can use as a downstream handle (e.g. a Durable Object name).
+ *
+ * Request-layer side effects: NONE. Every route is a single SQL
+ * statement; pass + sweep operations run server-side in `pg_cron`.
  */
 
 import { UnauthorizedError } from '@gamezilla/auth/server/unauthorized-error';
 import { appAuth } from '@gamezilla/auth/shared/auth-context';
 import { assert } from '@gamezilla/lib/assert';
-import { createMatchmakingApp } from '@gamezilla/matchmaking/app';
-import { Matchmaker } from '@gamezilla/matchmaking/matchmaker';
+import { Matchmaking } from '@gamezilla/matchmaking/index';
 import type {
   SqlClient as MmSqlClient,
   QueryResult,
-} from '@gamezilla/matchmaking/sql-client';
+} from '@gamezilla/matchmaking/storage';
 import type { Hono, MiddlewareHandler } from 'hono';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
+import { MATCHMAKING_SCHEMA, MATCHMAKING_TUNING } from './schema';
 
 function lazyRequestSqlClient(): MmSqlClient {
   return {
@@ -64,27 +78,18 @@ const requireAuth: MiddlewareHandler = async (c, next) => {
   return;
 };
 
+/**
+ * Builds the request-layer {@link Matchmaking} instance. `tuning` is
+ * forwarded so {@link MATCHMAKING_TUNING} gets baked into the PL/pgSQL
+ * `matchmaking_tick()` function during `migrate()`. The request path
+ * itself issues one SQL statement per route and never invokes pass or
+ * sweep operations — those run server-side under `pg_cron`.
+ */
 export function createMatchmakingSubApp(): Hono {
-  // Constants MUST mirror the `migrate({ schema })` call in
-  // `migrations/run-postgres-migrations.ts`. `partitionKeys` /
-  // `primaryNumericKey` mismatches surface on first SQL call via the
-  // schema-fingerprint assert (a silent zero-match bug is the
-  // alternative). `bucketWidth` mismatches degrade the bucket pre-filter
-  // but stay correct; everything else here is a runtime tuning knob.
-  // `minPassIntervalMs` of 100 caps per-partition pass cost regardless
-  // of poller volume; `sweepIntervalMs` coalesces both abandonment
-  // cleanup and matched-row cleanup. `matchedRetentionSeconds: 3600`
-  // keeps the matched-row tail bounded — long-lived state for active
-  // matches lives downstream of `matchId` (e.g. a Durable Object).
-  const matchmaker = new Matchmaker({
-    sqlClient: lazyRequestSqlClient(),
-    partitionKeys: [],
-    bucketWidth: 50,
-    maxPairsPerPass: 100,
-    minPassIntervalMs: 100,
-    maxWaitSeconds: 300,
-    sweepIntervalMs: 60_000,
-    matchedRetentionSeconds: 3600,
+  const matchmaking = new Matchmaking({
+    storage: { sqlClient: lazyRequestSqlClient() },
+    schema: MATCHMAKING_SCHEMA,
+    tuning: MATCHMAKING_TUNING,
   });
-  return createMatchmakingApp({ matchmaker, requireAuth });
+  return matchmaking.app({ requireAuth });
 }
