@@ -1,0 +1,26 @@
+{
+  "name": "@gamezilla/matchmaking",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "tc": "tsc --noEmit -p ./tsconfig.json",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "hono": "catalog:",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "typescript": "catalog:"
+  }
+}

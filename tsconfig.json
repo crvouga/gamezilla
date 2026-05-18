@@ -34,6 +34,7 @@
       "@gamezilla/spaces/*": ["./packages/spaces/src/*"],
       "@gamezilla/tts/*": ["./packages/tts/src/*"],
       "@gamezilla/client-config/*": ["./packages/client-config/src/*"],
+      "@gamezilla/matchmaking/*": ["./packages/matchmaking/src/*"],
       "@gamezilla/app/*": ["./packages/app/src/*"],
       "@gamezilla/assistant/shared": [
         "./packages/assistant/src/shared/index.ts"
@@ -78,6 +79,7 @@
     "packages/client-config/src/**/*.ts",
     "packages/client-config/src/**/*.tsx",
     "packages/client-config/scripts/**/*.ts",
+    "packages/matchmaking/src/**/*.ts",
     "packages/app/src/**/*.ts",
     "packages/app/src/**/*.tsx",
     "packages/assistant/src/**/*.ts",

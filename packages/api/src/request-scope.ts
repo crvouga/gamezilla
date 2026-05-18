@@ -1,5 +1,6 @@
 import type { SessionAuth } from '@gamezilla/auth/server/session-middleware';
 import type { Kv } from '@gamezilla/lib/kv/interface';
+import type { SqlClient as MmSqlClient } from '@gamezilla/matchmaking/sql-client';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { AsyncLocalStorage } from 'node:async_hooks';
 
@@ -12,6 +13,13 @@ export type ApiRequestAsyncStore = {
   readonly sessionAuth: SessionAuth;
   /** Postgres-backed {@link Kv} for LLM response caching (per Hyperdrive request). */
   readonly kv: Kv;
+  /**
+   * Matchmaking-flavored SqlClient backed by the same per-request `pg.Client`
+   * that the patch-db host uses. Built once in
+   * `createRequestDbMiddleware` so the long-lived `Matchmaker` instance can
+   * delegate to a fresh request connection on every call.
+   */
+  readonly matchmakingSqlClient: MmSqlClient;
 };
 
 export const apiRequestAsyncLocalStorage =

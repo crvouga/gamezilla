@@ -7,6 +7,7 @@ import { createClientConfigApp } from '@gamezilla/client-config/server/route';
 import { assert, ValidationError } from '@gamezilla/lib/assert';
 import { createLogger } from '@gamezilla/lib/logger';
 import { createLlmAppFromBindings } from '@gamezilla/llm/server';
+import { createMatchmakingSubApp } from '../matchmaking/route';
 import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
 import { createPatchDbApiHandler } from '@gamezilla/patch-db/api';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
@@ -210,6 +211,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/', llmApp)
     .route('/', createStripeSubApp(config, stripe))
     .route('/', createRoomApp())
+    .route('/matchmaking', createMatchmakingSubApp())
     .route(patchMount, patchDbApp)
     .onError(createApiErrorHandler());
 

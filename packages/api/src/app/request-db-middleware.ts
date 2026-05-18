@@ -6,6 +6,7 @@ import { KvImplPostgres } from '@gamezilla/lib/kv/impl-postgres';
 import type { SecretStore } from '@gamezilla/lib/secret-store';
 import type { MiddlewareHandler } from 'hono';
 import { ConfigurationError } from '../config/env';
+import { createMatchmakingSqlClientFromPgClient } from '../matchmaking/sql-client-adapter';
 import { createRequestPatchDb } from '../patch-db/patch-db';
 import { openRequestDb } from '../patch-db/sql-client';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
@@ -39,13 +40,14 @@ export function createRequestDbMiddleware(
     // `public.kv` is created by API DB migrations (`KvImplPostgres.migrateUp` in
     // `run-postgres-migrations.ts`). Never run DDL on every request.
     const kv = new KvImplPostgres(sqlClient);
+    const matchmakingSqlClient = createMatchmakingSqlClientFromPgClient(client);
     const { auth: betterAuth, dispose } = await createBetterAuthRequestStack(
       secretStore,
       cs
     );
     const sessionAuth = createSessionAuth({ auth: betterAuth });
 
-    const store = { patchDb, sessionAuth, kv };
+    const store = { patchDb, sessionAuth, kv, matchmakingSqlClient };
     return await apiRequestAsyncLocalStorage.run(store, async () => {
       c.set('patchDb', patchDb);
       c.set('sessionAuth', sessionAuth);

@@ -23,12 +23,15 @@ import {
 import { KvImplPostgres } from '@gamezilla/lib/kv/impl-postgres';
 import type { Logger } from '@gamezilla/lib/logger';
 import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { migrate as migrateMatchmaking } from '@gamezilla/matchmaking/migrate';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
+import type { Pool } from 'pg';
 import { APP_SNAPSHOT_INDEXES } from '../patch-db/snapshot-indexes';
 import { dropLegacyAppSnapshotIndexes } from './drop-legacy-app-snapshot-indexes';
 
 export type RunPostgresMigrationsArgs = {
   sqlClient: SqlClient;
+  pool: Pool;
   databaseUrl: string;
   logger: Logger;
   betterAuthOptions: BetterAuthMigrationOptions;
@@ -37,7 +40,7 @@ export type RunPostgresMigrationsArgs = {
 export async function runPostgresMigrations(
   args: RunPostgresMigrationsArgs
 ): Promise<void> {
-  const { sqlClient, databaseUrl, logger, betterAuthOptions } = args;
+  const { sqlClient, pool, databaseUrl, logger, betterAuthOptions } = args;
   await sqlClient.transaction(async (tx) => {
     await dropLegacyAppSnapshotIndexes({ sqlClient: tx, logger });
     await PatchDbImplPostgres.migrateUp({
@@ -47,6 +50,12 @@ export async function runPostgresMigrations(
     });
     await KvImplPostgres.migrateUp({ sqlClient: tx, logger });
   });
+
+  // Matchmaking owns its own `matchmaking_queue` table. Runs outside the
+  // patch-db/kv transaction because the matchmaking package has its own
+  // `SqlClient` shape (uses native pg `$1` params, returns `{ rows }`) and
+  // accepts a `pg.Pool` directly.
+  await migrateMatchmaking({ pool });
 
   await runBetterAuthMigrations({ databaseUrl, betterAuthOptions });
 }

@@ -38,6 +38,7 @@
         "@gamezilla/client-config": "workspace:*",
         "@gamezilla/lib": "workspace:*",
         "@gamezilla/llm": "workspace:*",
+        "@gamezilla/matchmaking": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
         "@gamezilla/profile": "workspace:*",
         "@gamezilla/room": "workspace:*",
@@ -299,6 +300,20 @@
       },
       "devDependencies": {
         "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/matchmaking": {
+      "name": "@gamezilla/matchmaking",
+      "version": "0.0.0",
+      "dependencies": {
+        "hono": "catalog:",
+        "pg": "catalog:",
+      },
+      "devDependencies": {
+        "@electric-sql/pglite": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1183,6 +1198,8 @@
     "@gamezilla/lib": ["@gamezilla/lib@workspace:packages/lib"],
 
     "@gamezilla/llm": ["@gamezilla/llm@workspace:packages/llm"],
+
+    "@gamezilla/matchmaking": ["@gamezilla/matchmaking@workspace:packages/matchmaking"],
 
     "@gamezilla/patch-db": ["@gamezilla/patch-db@workspace:packages/patch-db"],
 

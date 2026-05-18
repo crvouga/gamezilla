@@ -29,6 +29,7 @@
     "@gamezilla/client-config": "workspace:*",
     "@gamezilla/llm": "workspace:*",
     "@gamezilla/lib": "workspace:*",
+    "@gamezilla/matchmaking": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/profile": "workspace:*",
     "@gamezilla/room": "workspace:*",
