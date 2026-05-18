@@ -39,8 +39,13 @@ function fetchTurboToken(): string {
 }
 
 function pushToWorker(token: string): void {
+  const accountId = process.env['CLOUDFLARE_ACCOUNT_ID']?.trim() ?? '';
   const r = spawnSync('bunx', ['wrangler', 'secret', 'put', 'TURBO_TOKEN'], {
     cwd: WORKER_DIR,
+    env: {
+      ...process.env,
+      ...(accountId.length > 0 ? { CLOUDFLARE_ACCOUNT_ID: accountId } : {}),
+    },
     input: token,
     stdio: ['pipe', 'inherit', 'inherit'],
   });

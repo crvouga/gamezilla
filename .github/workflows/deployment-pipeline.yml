@@ -60,6 +60,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
+      # Worker secrets don't follow Doppler rotations. Re-sync prod
+      # TURBO_TOKEN before the cache health gate so check:ci (local
+      # config) and the Worker stay aligned — same as `infra deploy`.
+      - name: Sync Turbo remote cache token
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: env DOPPLER_CONFIG=prod doppler run -- bun run sync:turbo-token
       - name: Turbo CI (cacheable gates + tc/lint/test/build)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
