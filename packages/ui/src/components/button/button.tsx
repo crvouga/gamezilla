@@ -3,9 +3,13 @@
  *
  * Renders an arcade-style raised button: a vertical gradient fill (lighter
  * top, darker bottom) sits on a hard offset shadow that gives a 3D "skirt"
- * underneath. A faint highlight overlay across the upper half adds gloss,
- * and pressing translates the face down by the depth so the skirt
- * disappears -- mimicking a physical key being pushed in.
+ * underneath, with a soft gloss across the top half and a faint inner
+ * shading at the bottom.
+ *
+ * Press feedback is *opacity only* -- the face dims slightly on press.
+ * The button never translates, scales, or otherwise animates its position
+ * or size. Layout-affecting animations on tap targets cause cursor drift
+ * and jitter; we deliberately avoid them.
  *
  * `primary`, `danger`, and `neutral` intents pull their gradient stops
  * from the active theme. `primary` and `danger` use white label and icon
@@ -74,16 +78,57 @@ export function buttonForegroundColor(
 /** Pixels of 3D depth: the height of the dark skirt visible below the face. */
 const DEPTH = 4;
 
-/** Chunky padding + capsule-leaning radii so buttons read as physical controls. */
+/**
+ * Chunky padding + capsule-leaning radii so buttons read as physical
+ * controls. `text` carries the exact font size, line-height, and weight to
+ * apply for each size -- we don't use a `Text` variant because variant
+ * line-heights (e.g. 34 for `heading`) create vertical padding that pushes
+ * the label off-center relative to icons.
+ */
 const sizeMap = {
-  sm: { py: 2, px: 3, borderRadius: borderRadius.md, minHeight: 40 },
-  md: { py: 3, px: 4, borderRadius: borderRadius.lg, minHeight: 52 },
-  lg: { py: 4, px: 5, borderRadius: borderRadius.lg, minHeight: 64 },
+  sm: {
+    py: 2,
+    px: 3,
+    borderRadius: borderRadius.sm,
+    minHeight: 42,
+    text: { fontSize: 15, lineHeight: 18, fontWeight: '800' },
+    iconGap: 1.5,
+  },
+  md: {
+    py: 3,
+    px: 4,
+    borderRadius: borderRadius.sm,
+    minHeight: 54,
+    text: { fontSize: 18, lineHeight: 22, fontWeight: '800' },
+    iconGap: 2,
+  },
+  lg: {
+    py: 4,
+    px: 5,
+    borderRadius: borderRadius.sm,
+    minHeight: 64,
+    text: { fontSize: 22, lineHeight: 26, fontWeight: '900' },
+    iconGap: 2.5,
+  },
 } as const;
 
 const ON_GRADIENT_WHITE = '#ffffff';
-/** Soft white overlay across the top half mimicking light hitting the face. */
-const HIGHLIGHT_OVERLAY = 'rgba(255, 255, 255, 0.18)';
+/**
+ * Top inner highlight: a soft white gloss that fades to transparent. Sits
+ * above the face gradient and bleeds smoothly into it.
+ */
+const HIGHLIGHT_TOP = 'rgba(255, 255, 255, 0.26)';
+const HIGHLIGHT_BOTTOM = 'rgba(255, 255, 255, 0)';
+/**
+ * Bottom inner shading: deepens the lower edge of the face so it reads as
+ * a slightly tilted surface rather than a flat sticker.
+ */
+const SHADE_TOP = 'rgba(0, 0, 0, 0)';
+const SHADE_BOTTOM = 'rgba(0, 0, 0, 0.14)';
+/** Inner stroke on the face: a hairline of brightness for surface definition. */
+const FACE_INNER_STROKE = 'rgba(255, 255, 255, 0.22)';
+/** Outer rim around the whole control: defines the silhouette against the page. */
+const OUTER_RING = 'rgba(0, 0, 0, 0.16)';
 /** Hard offset shadow color: gives the skirt a darker rim of the same hue. */
 const SHADOW_HARD = 'rgba(0, 0, 0, 0.32)';
 /** Soft drop shadow under the skirt for grounding. */
@@ -107,10 +152,33 @@ function resolveGradientStops(
   return [theme.colors[startToken], theme.colors[endToken]];
 }
 
-function resolveShadow(pressed: boolean, isDisabled: boolean): string {
-  if (pressed || isDisabled) return 'none';
-  return `0px ${DEPTH}px 0px ${SHADOW_HARD}, 0px ${DEPTH + 2}px 8px ${SHADOW_SOFT}`;
+/**
+ * Composite elevation: outer rim for silhouette + hard depth shadow that
+ * forms the 3D skirt + a soft drop shadow grounding the control against
+ * the page. Stays stable across press states so the button never visually
+ * jumps -- press feedback is handled via opacity in {@link ButtonFace}.
+ * Disabled buttons collapse to just the rim.
+ */
+function resolveShadow(isDisabled: boolean): string {
+  const rim = `0px 0px 0px 1px ${OUTER_RING}`;
+  if (isDisabled) return rim;
+  const depth = `0px ${DEPTH}px 0px ${SHADOW_HARD}`;
+  const drop = `0px ${DEPTH + 4}px 12px ${SHADOW_SOFT}`;
+  return `${rim}, ${depth}, ${drop}`;
 }
+
+/**
+ * Press feedback is opacity-only. Disabled wins (most dimmed), then pressed.
+ * Never translate or scale the button face -- it causes cursor drift on
+ * web and the press target to shift under the user's finger on touch.
+ */
+function resolveOpacity(pressed: boolean, isDisabled: boolean): number {
+  if (isDisabled) return 0.6;
+  if (pressed) return 0.85;
+  return 1;
+}
+
+type SizeSpec = (typeof sizeMap)[ButtonSize];
 
 export function Button({
   title,
@@ -141,15 +209,13 @@ export function Button({
       {({ pressed }) => (
         <ButtonFace
           stops={stops}
-          radius={s.borderRadius}
-          py={s.py}
-          px={s.px}
-          minHeight={s.minHeight}
+          size={s}
           pressed={pressed && !isDisabled}
           isDisabled={isDisabled}
         >
           <ButtonContent
             title={title}
+            size={s}
             isDisabled={isDisabled}
             loading={loading}
             startIcon={startIcon}
@@ -163,58 +229,69 @@ export function Button({
 
 function ButtonFace({
   stops,
-  radius,
-  py,
-  px,
-  minHeight,
+  size,
   pressed,
   isDisabled,
   children,
 }: {
   stops: readonly [ColorValue, ColorValue];
-  radius: number;
-  py: number;
-  px: number;
-  minHeight: number;
+  size: SizeSpec;
   pressed: boolean;
   isDisabled: boolean;
   children: ReactNode;
 }) {
   const theme = useTheme();
+  const radius = size.borderRadius;
+  // 3-stop gradient: hold the top color across the upper ~third of the face
+  // so the transition reads as gentle shading on a real surface rather than
+  // a two-tone split.
+  const faceColors: readonly [ColorValue, ColorValue, ColorValue] = [
+    stops[0],
+    stops[0],
+    stops[1],
+  ];
+  const faceLocations = [0, 0.35, 1] as const;
   return (
     <View
       style={{
         borderRadius: radius,
-        transform: [{ translateY: pressed ? DEPTH : 0 }],
-        boxShadow: resolveShadow(pressed, isDisabled),
-        opacity: isDisabled ? 0.6 : 1,
+        boxShadow: resolveShadow(isDisabled),
+        opacity: resolveOpacity(pressed, isDisabled),
       }}
     >
       <LinearGradient
-        colors={stops}
+        colors={faceColors}
+        locations={faceLocations}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
-        style={theme.sx({
-          py,
-          px,
-          minHeight,
-          borderRadius: radius,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 2,
-          overflow: 'hidden',
-          position: 'relative',
-        })}
+        style={[
+          theme.sx({
+            py: size.py,
+            px: size.px,
+            minHeight: size.minHeight,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: size.iconGap,
+            overflow: 'hidden',
+            position: 'relative',
+          }),
+          {
+            borderRadius: radius,
+            borderWidth: isDisabled ? 0 : 1,
+            borderColor: FACE_INNER_STROKE,
+          },
+        ]}
       >
-        <ButtonHighlight radius={radius} visible={!isDisabled} />
+        <ButtonGloss radius={radius} visible={!isDisabled} />
+        <ButtonShade radius={radius} visible={!isDisabled} />
         {children}
       </LinearGradient>
     </View>
   );
 }
 
-function ButtonHighlight({
+function ButtonGloss({
   radius,
   visible,
 }: {
@@ -223,17 +300,46 @@ function ButtonHighlight({
 }): ReactNode {
   if (!visible) return null;
   return (
-    <View
+    <LinearGradient
       pointerEvents="none"
+      colors={[HIGHLIGHT_TOP, HIGHLIGHT_BOTTOM]}
+      start={{ x: 0.5, y: 0 }}
+      end={{ x: 0.5, y: 1 }}
       style={{
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
-        height: '50%',
+        height: '55%',
         borderTopLeftRadius: radius,
         borderTopRightRadius: radius,
-        backgroundColor: HIGHLIGHT_OVERLAY,
+      }}
+    />
+  );
+}
+
+function ButtonShade({
+  radius,
+  visible,
+}: {
+  radius: number;
+  visible: boolean;
+}): ReactNode {
+  if (!visible) return null;
+  return (
+    <LinearGradient
+      pointerEvents="none"
+      colors={[SHADE_TOP, SHADE_BOTTOM]}
+      start={{ x: 0.5, y: 0 }}
+      end={{ x: 0.5, y: 1 }}
+      style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: '45%',
+        borderBottomLeftRadius: radius,
+        borderBottomRightRadius: radius,
       }}
     />
   );
@@ -241,12 +347,14 @@ function ButtonHighlight({
 
 function ButtonContent({
   title,
+  size,
   isDisabled,
   loading,
   startIcon,
   endIcon,
 }: {
   title: ReactNode;
+  size: SizeSpec;
   isDisabled: boolean;
   loading: boolean;
   startIcon: ReactNode;
@@ -255,11 +363,31 @@ function ButtonContent({
   const theme = useTheme();
   const fg = buttonForegroundColor(theme, isDisabled);
   if (loading) return <Spinner size="small" color={fg} />;
+  const iconBoxStyle = {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: size.text.lineHeight,
+  } as const;
   return (
     <>
-      {startIcon !== undefined ? <View>{startIcon}</View> : null}
-      <Text variant="heading" style={{ color: fg }} label={title} />
-      {endIcon !== undefined ? <View>{endIcon}</View> : null}
+      {startIcon !== undefined ? (
+        <View style={iconBoxStyle}>{startIcon}</View>
+      ) : null}
+      <Text
+        variant="bodyBold"
+        style={{
+          color: fg,
+          fontSize: size.text.fontSize,
+          lineHeight: size.text.lineHeight,
+          fontWeight: size.text.fontWeight,
+          includeFontPadding: false,
+          textAlignVertical: 'center',
+        }}
+        label={title}
+      />
+      {endIcon !== undefined ? (
+        <View style={iconBoxStyle}>{endIcon}</View>
+      ) : null}
     </>
   );
 }
