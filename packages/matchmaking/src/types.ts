@@ -2,27 +2,30 @@
  * Public types shared across the matchmaking package.
  *
  * The matching contract:
- *   - Player payloads are split into `data` (the player's attributes,
- *     branded `AttributeState`) and `formulas` (their ordered list of
- *     acceptance criteria, each a {@link DistanceFormula}).
- *   - Two players match when ANY pair `(fa, fb)` from their formula lists
- *     is mutually satisfied (partition compatibility + per-side distance
- *     within per-side radius). This makes matching asymmetric — A can be
- *     "any opponent within rating 50" while B insists on a region partition.
+ *   - Participant payloads are split into `data` (the participant's
+ *     attributes, branded `AttributeState`) and `formulas` (their ordered
+ *     list of acceptance criteria, each a {@link DistanceFormula}).
+ *   - Two participants match when ANY pair `(fa, fb)` from their formula
+ *     lists is mutually satisfied (partition compatibility + per-side
+ *     distance within per-side radius). Matching is asymmetric — A can be
+ *     "any peer within rating 50" while B insists on a region partition.
  *   - When a match happens the queue mints a fresh `matchId` UUID and
- *     stamps it on both rows. Callers poll `status(playerId)` and use
- *     `matchId` as a Durable Object name to bring the match online.
+ *     stamps it on both rows. Callers poll `status(participantId)` and use
+ *     `matchId` as a downstream handle (e.g. a Durable Object name) to
+ *     bring the match online.
  *
- * Game logic is entirely caller-owned: the library has no opinion on
- * attribute names, scoring, or rating math.
+ * The library is use-case agnostic: it has no opinion on what a match is
+ * for (competitive, cooperative, conversational, hiring, dating, etc.),
+ * on attribute names, scoring, or rating math. The caller defines all
+ * domain semantics through `data` and `formulas`.
  */
 
 import type { AttributeState, AttributeTag } from '@gamezilla/lib/attribute';
 
-export type PlayerStatus = 'waiting' | 'matched';
+export type ParticipantStatus = 'waiting' | 'matched';
 
-export type MatchedPlayer = {
-  readonly playerId: string;
+export type MatchedParticipant = {
+  readonly participantId: string;
   readonly joinedAt: Date;
   readonly data: AttributeState;
 };
@@ -36,7 +39,12 @@ export type MatchedStatus = {
   readonly status: 'matched';
   readonly data: AttributeState;
   readonly matchId: string;
-  readonly opponents: readonly MatchedPlayer[];
+  /**
+   * The other participants matched with this one. Named neutrally because
+   * the library has no opinion on the relationship between matched
+   * participants (competitive, cooperative, conversational, etc.).
+   */
+  readonly peers: readonly MatchedParticipant[];
 };
 
 export type StatusResult = WaitingStatus | MatchedStatus;
@@ -44,15 +52,16 @@ export type StatusResult = WaitingStatus | MatchedStatus;
 export type JoinInput = {
   readonly data: AttributeState;
   /**
-   * Ordered list of acceptance criteria. Semantically an OR — the player
-   * matches with anyone for whom *some* pair `(myFormula, theirFormula)`
-   * mutually accepts the pair. Must be non-empty.
+   * Ordered list of acceptance criteria. Semantically an OR — the
+   * participant matches with anyone for whom *some* pair
+   * `(myFormula, theirFormula)` mutually accepts the pair. Must be
+   * non-empty.
    */
   readonly formulas: readonly DistanceFormula[];
 };
 
 export type JoinResult = {
-  readonly playerId: string;
+  readonly participantId: string;
 };
 
 export type LeaveResult = {
@@ -76,7 +85,8 @@ export type DistanceFormulaNumericTerm = {
 /**
  * One categorical term contributes a flat `penalty` to the pair distance
  * whenever `a` and `b` differ on this attribute (including when only one side
- * has it). Use for region-preference, queue-preference, etc.
+ * has it). Use for soft preferences (region, mode, language) where a
+ * mismatch is OK if it's the only way to find a match.
  */
 export type DistanceFormulaCategoricalTerm = {
   readonly tag: AttributeTag<unknown>;
@@ -84,12 +94,12 @@ export type DistanceFormulaCategoricalTerm = {
 };
 
 /**
- * Hard-equality filter. Two players are only ever considered as a candidate
+ * Hard-equality filter. Two participants are only considered as a candidate
  * pair if they agree on every partition attribute. Unlike a categorical
  * penalty (which the expanding radius eventually absorbs), partition is
  * binary: differ on any partition tag and the pair is never compatible, no
- * matter how long either player waits. Use for game type, tournament
- * bracket, queue mode, region tier, etc.
+ * matter how long either side waits. Use for any hard partitioning
+ * constraint — queue mode, tier, region, bracket, activity kind, etc.
  */
 export type DistanceFormulaPartitionTerm = {
   readonly tag: AttributeTag<unknown>;

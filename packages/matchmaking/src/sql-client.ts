@@ -4,7 +4,7 @@
  * Both `pg.Pool` and PGlite speak `$1` positional parameters and return
  * `{ rows: T[] }` natively, so a thin interface lets the library run
  * unchanged against either backend. The library never inspects driver
- * internals — only `.query()` and `.transaction()` are required.
+ * internals — only `.query()` and `.tx()` are required.
  */
 
 export type QueryResult<T> = {

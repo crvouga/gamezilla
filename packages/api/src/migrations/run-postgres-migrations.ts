@@ -55,7 +55,31 @@ export async function runPostgresMigrations(
   // patch-db/kv transaction because the matchmaking package has its own
   // `SqlClient` shape (uses native pg `$1` params, returns `{ rows }`) and
   // accepts a `pg.Pool` directly.
-  await migrateMatchmaking({ pool });
+  //
+  // The schema block is the only knob the API has to opt domains into
+  // bucketed / partitioned matching. Defaults below produce a single
+  // global shard without rating bucketing — safe and slow. When a concrete
+  // domain ships, declare its partition keys and rating axis here; mirror
+  // the same values in `packages/api/src/matchmaking/route.ts` so the
+  // Matchmaker's lazy schema-fingerprint assert agrees. For example, a
+  // chess deployment would use:
+  //
+  //   schema: {
+  //     partitionKeys: ['chess/mode', 'chess/time-control', 'chess/region'],
+  //     primaryNumericKey: 'chess/rating',
+  //     bucketWidth: 50,
+  //   }
+  //
+  // Each declared partition key becomes a shard axis for the per-partition
+  // throttle in `matchmaking_pass_runs`, so N partitions = N concurrent
+  // matchers on one Postgres primary.
+  await migrateMatchmaking({
+    pool,
+    schema: {
+      partitionKeys: [],
+      bucketWidth: 50,
+    },
+  });
 
   await runBetterAuthMigrations({ databaseUrl, betterAuthOptions });
 }

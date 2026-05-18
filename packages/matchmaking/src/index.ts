@@ -18,6 +18,7 @@ export { MatchmakingClient } from './client';
 export type { MatchmakingClientOptions, WaitForMatchOptions } from './client';
 export { MatchmakingHttpError } from './client-error';
 export {
+  MAX_FORMULAS_PER_PARTICIPANT,
   Matchmaker,
   type CategoricalTermWire,
   type FormulaWire,
@@ -25,8 +26,21 @@ export {
   type MatchmakerOptions,
   type NumericTermWire,
   type PartitionTermWire,
+  type RunMatchPassesAcrossPartitionsOptions,
+  type RunMatchPassesAcrossPartitionsResult,
+  type RunMatchPassesOptions,
+  type RunMatchPassesResult,
+  type SweepExpiredAcrossPartitionsOptions,
+  type SweepExpiredAcrossPartitionsResult,
+  type SweepExpiredResult,
+  type SweepMatchedResult,
 } from './matchmaker';
-export { migrate, type MigrateArgs } from './migrate';
+export {
+  fingerprintForOptions,
+  migrate,
+  type MatchmakingSchema,
+  type MigrateArgs,
+} from './migrate';
 export { createPgSqlClient } from './pg-adapter';
 export { createPgliteSqlClient } from './pglite-adapter';
 export type { QueryResult, SqlClient } from './sql-client';
@@ -40,9 +54,9 @@ export {
   type JoinResult,
   type LeaveResult,
   type MatchPassResult,
-  type MatchedPlayer,
+  type MatchedParticipant,
   type MatchedStatus,
-  type PlayerStatus,
+  type ParticipantStatus,
   type RadiusOptions,
   type StatusResult,
   type WaitingStatus,

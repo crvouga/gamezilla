@@ -11,18 +11,27 @@
  * (no `AttributeTag` objects) — see {@link FormulaWire}.
  *
  * Routes:
- *   POST /join              -> { data, formulas } -> { playerId }
- *   POST /leave             -> { playerId }       -> { removed }
- *   GET  /status/:playerId  ->                    -> StatusResult | 404
+ *   POST /join                   -> { data, formulas } -> { participantId }
+ *   POST /leave                  -> { participantId }  -> { removed }
+ *   GET  /status/:participantId  ->                    -> StatusResult | 404
  *
- * `/join` triggers an immediate match pass so a freshly-joined player can
- * find a waiting opponent without waiting for an external scheduler tick.
+ * Opportunistic match passes: every `/join` and `/status` fires a
+ * non-blocking `runMatchPass(sig)` + `sweepExpired(sig)` + `sweepMatched()`
+ * via `c.executionCtx.waitUntil(...)` after sending the response. `sig`
+ * is computed from the request's `data` (join body or status row) so a
+ * `/join` to one partition only kicks that partition's matcher. The
+ * SQL-side throttles (per-partition for pass/sweep, global for
+ * sweepMatched) coalesce concurrent triggers, so the cost stays flat
+ * regardless of poller count and no separate scheduler / cron / Durable
+ * Object is required. High-traffic partitions get more pass triggers
+ * proportional to their poller count — natural load balancing, free. Set
+ * `passOnRequest: 'never'` to disable when the host runs its own scheduler.
  */
 
 import { Assert, ValidationError } from '@gamezilla/lib/assert';
 import type { AttributeState } from '@gamezilla/lib/attribute';
 import { assertKeywordRecord } from '@gamezilla/lib/keyword';
-import { Hono, type MiddlewareHandler } from 'hono';
+import { Hono, type Context, type MiddlewareHandler } from 'hono';
 import type {
   CategoricalTermWire,
   FormulaWire,
@@ -32,7 +41,7 @@ import type {
   PartitionTermWire,
 } from './matchmaker';
 
-type LeaveBody = { readonly playerId: string };
+type LeaveBody = { readonly participantId: string };
 
 function parseNumericTerms(
   v: Assert,
@@ -144,18 +153,79 @@ function parseJoinBody(raw: unknown): JoinInputRaw {
 function parseLeaveBody(raw: unknown): LeaveBody {
   const v: Assert = Assert.validation();
   v.record(raw, 'body must be a JSON object');
-  const playerId: unknown = raw['playerId'];
-  v.nonEmptyString(playerId, 'playerId must be a non-empty string');
-  return { playerId };
+  const participantId: unknown = raw['participantId'];
+  v.nonEmptyString(participantId, 'participantId must be a non-empty string');
+  return { participantId };
 }
 
 export type CreateMatchmakingAppOptions = {
   readonly matchmaker: Matchmaker;
   readonly requireAuth: MiddlewareHandler;
+  /**
+   * When `'auto'` (default), every `/join` and `/status` opportunistically
+   * fires a non-blocking `runMatchPass()` + `sweepExpired()` via
+   * `c.executionCtx.waitUntil(...)`. Server-side throttles inside Postgres
+   * coalesce concurrent triggers; the polling stream is enough to keep
+   * the queue draining without any cron / DO.
+   *
+   * Set to `'never'` if the host wires its own scheduler — useful when
+   * matches are produced via webhook / cron rather than long polling.
+   */
+  readonly passOnRequest?: 'auto' | 'never';
 };
+
+function getExecutionCtx(
+  c: Context
+): { waitUntil(p: Promise<unknown>): void } | undefined {
+  try {
+    const ec = c.executionCtx;
+    if (
+      ec !== undefined &&
+      ec !== null &&
+      typeof (ec as { waitUntil?: unknown }).waitUntil === 'function'
+    ) {
+      return ec as { waitUntil(p: Promise<unknown>): void };
+    }
+    return undefined;
+  } catch {
+    // Hono throws when there's no execution context (Node test client,
+    // PGlite-driven tests, etc.). Fall through to fire-and-forget.
+    return undefined;
+  }
+}
+
+function kickPass(
+  c: Context,
+  matchmaker: Matchmaker,
+  passOnRequest: 'auto' | 'never',
+  partitionSignature: string
+): void {
+  if (passOnRequest === 'never') return;
+  const pass = matchmaker.runMatchPass(partitionSignature).then(
+    () => undefined,
+    () => undefined
+  );
+  const sweep = matchmaker.sweepExpired(partitionSignature).then(
+    () => undefined,
+    () => undefined
+  );
+  const cleanup = matchmaker.sweepMatched().then(
+    () => undefined,
+    () => undefined
+  );
+  const ec = getExecutionCtx(c);
+  if (ec !== undefined) {
+    ec.waitUntil(pass);
+    ec.waitUntil(sweep);
+    ec.waitUntil(cleanup);
+  }
+  // else: fire-and-forget — every promise keeps its own error handler so
+  // an unhandled rejection cannot escape.
+}
 
 export function createMatchmakingApp(opts: CreateMatchmakingAppOptions): Hono {
   const { matchmaker, requireAuth } = opts;
+  const passOnRequest = opts.passOnRequest ?? 'auto';
   const app = new Hono();
   app.use('*', requireAuth);
 
@@ -163,21 +233,25 @@ export function createMatchmakingApp(opts: CreateMatchmakingAppOptions): Hono {
     const raw: unknown = await c.req.json();
     const body = parseJoinBody(raw);
     const result = await matchmaker.joinRaw(body);
-    await matchmaker.runMatchPass();
+    const sig = matchmaker.partitionSignatureFor(body.data);
+    kickPass(c, matchmaker, passOnRequest, sig);
     return c.json(result);
   });
 
   app.post('/leave', async (c) => {
     const raw: unknown = await c.req.json();
     const body = parseLeaveBody(raw);
-    const result = await matchmaker.leave(body.playerId);
+    const result = await matchmaker.leave(body.participantId);
+    // No opportunistic pass: removing a row never enables a new pairing.
     return c.json(result);
   });
 
-  app.get('/status/:playerId', async (c) => {
-    const playerId = c.req.param('playerId');
-    const result = await matchmaker.status(playerId);
+  app.get('/status/:participantId', async (c) => {
+    const participantId = c.req.param('participantId');
+    const result = await matchmaker.status(participantId);
     if (result === null) return c.json({ error: 'not found' }, 404);
+    const sig = matchmaker.partitionSignatureFor(result.data);
+    kickPass(c, matchmaker, passOnRequest, sig);
     return c.json(result);
   });
 

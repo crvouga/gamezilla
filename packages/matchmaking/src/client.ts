@@ -10,8 +10,8 @@
  * Formulas cross the wire as plain JSON ({@link FormulaWire}) since the
  * HTTP boundary cannot carry `AttributeTag` objects. Match completion is
  * surfaced by polling — `waitForMatch` resolves with the `matchId` the
- * server minted, which the caller typically uses as a Durable Object name
- * (or any other downstream match-room identifier).
+ * server minted, which the caller typically uses as a downstream handle
+ * (Durable Object name, room identifier, etc.) to bring the match online.
  */
 
 import type { AttributeState } from '@gamezilla/lib/attribute';
@@ -83,14 +83,16 @@ export class MatchmakingClient {
     return await this.request<JoinResult>('POST', '/join', { data, formulas });
   }
 
-  async leave(playerId: string): Promise<LeaveResult> {
-    return await this.request<LeaveResult>('POST', '/leave', { playerId });
+  async leave(participantId: string): Promise<LeaveResult> {
+    return await this.request<LeaveResult>('POST', '/leave', {
+      participantId,
+    });
   }
 
-  async status(playerId: string): Promise<StatusResult | null> {
+  async status(participantId: string): Promise<StatusResult | null> {
     const url = joinUrl(
       this.baseUrl,
-      `/status/${encodeURIComponent(playerId)}`
+      `/status/${encodeURIComponent(participantId)}`
     );
     const token = await this.getToken();
     const response = await this.fetchImpl(url, {
@@ -108,15 +110,18 @@ export class MatchmakingClient {
   }
 
   async waitForMatch(
-    playerId: string,
+    participantId: string,
     opts?: WaitForMatchOptions
   ): Promise<MatchedStatus> {
     const signal = opts?.signal;
     for (;;) {
       if (signal?.aborted === true) throw new Error('waitForMatch aborted');
-      const current = await this.status(playerId);
+      const current = await this.status(participantId);
       if (current === null) {
-        throw new MatchmakingHttpError(`player ${playerId} not found`, 404);
+        throw new MatchmakingHttpError(
+          `participant ${participantId} not found`,
+          404
+        );
       }
       if (current.status === 'matched') {
         return current;
