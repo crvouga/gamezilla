@@ -307,6 +307,7 @@
       "name": "@gamezilla/matchmaking",
       "version": "0.0.0",
       "dependencies": {
+        "@gamezilla/lib": "workspace:*",
         "hono": "catalog:",
         "pg": "catalog:",
       },

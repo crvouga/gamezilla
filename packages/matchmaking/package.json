@@ -14,6 +14,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@gamezilla/lib": "workspace:*",
     "hono": "catalog:",
     "pg": "catalog:"
   },

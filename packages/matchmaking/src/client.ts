@@ -6,10 +6,23 @@
  * Auth is delegated to a caller-supplied `getToken()` — the library never
  * stores credentials and never assumes a scheme; the returned string is sent
  * verbatim as the `Authorization` header.
+ *
+ * Formulas cross the wire as plain JSON ({@link FormulaWire}) since the
+ * HTTP boundary cannot carry `AttributeTag` objects. Match completion is
+ * surfaced by polling — `waitForMatch` resolves with the `matchId` the
+ * server minted, which the caller typically uses as a Durable Object name
+ * (or any other downstream match-room identifier).
  */
 
+import type { AttributeState } from '@gamezilla/lib/attribute';
 import { MatchmakingHttpError } from './client-error';
-import type { JoinResult, LeaveResult, StatusResult } from './types';
+import type { FormulaWire } from './matchmaker';
+import type {
+  JoinResult,
+  LeaveResult,
+  MatchedStatus,
+  StatusResult,
+} from './types';
 
 const DEFAULT_POLL_INTERVAL_MS = 1000;
 
@@ -22,11 +35,6 @@ export type MatchmakingClientOptions = {
 
 export type WaitForMatchOptions = {
   readonly signal?: AbortSignal;
-};
-
-export type MatchedStatus = {
-  readonly status: 'matched';
-  readonly data: Readonly<Record<string, unknown>>;
 };
 
 function joinUrl(baseUrl: string, path: string): string {
@@ -69,10 +77,10 @@ export class MatchmakingClient {
   }
 
   async join(
-    rating: number,
-    data: Record<string, unknown>
+    data: AttributeState,
+    formulas: readonly FormulaWire[]
   ): Promise<JoinResult> {
-    return await this.request<JoinResult>('POST', '/join', { rating, data });
+    return await this.request<JoinResult>('POST', '/join', { data, formulas });
   }
 
   async leave(playerId: string): Promise<LeaveResult> {
@@ -111,7 +119,7 @@ export class MatchmakingClient {
         throw new MatchmakingHttpError(`player ${playerId} not found`, 404);
       }
       if (current.status === 'matched') {
-        return { status: 'matched', data: current.data };
+        return current;
       }
       await sleep(this.pollIntervalMs, signal);
     }

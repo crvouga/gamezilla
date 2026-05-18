@@ -23,5 +23,5 @@ export interface SqlClient {
    * same rows, so adapters must guarantee both statements share a single
    * connection.
    */
-  transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T>;
+  tx<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T>;
 }

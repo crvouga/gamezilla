@@ -39,7 +39,7 @@ function wrap(tx: PgliteTransaction): SqlClient {
       );
       return { rows: [...result.rows] };
     },
-    transaction<T>(_fn: (inner: SqlClient) => Promise<T>): Promise<T> {
+    tx<T>(_fn: (inner: SqlClient) => Promise<T>): Promise<T> {
       throw new Error(
         'Nested transactions are not supported by the matchmaking SqlClient'
       );
@@ -59,7 +59,7 @@ export function createPgliteSqlClient(db: PgliteLike): SqlClient {
       );
       return { rows: [...result.rows] };
     },
-    transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+    tx<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
       return db.transaction((tx) => fn(wrap(tx)));
     },
   };

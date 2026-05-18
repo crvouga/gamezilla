@@ -10,8 +10,8 @@
  */
 
 import type {
-  QueryResult,
   SqlClient as MmSqlClient,
+  QueryResult,
 } from '@gamezilla/matchmaking/sql-client';
 import type { Client, QueryResultRow } from 'pg';
 
@@ -27,7 +27,7 @@ function txClient(client: Client): MmSqlClient {
       );
       return { rows: result.rows as T[] };
     },
-    transaction<T>(_fn: (tx: MmSqlClient) => Promise<T>): Promise<T> {
+    tx<T>(_fn: (tx: MmSqlClient) => Promise<T>): Promise<T> {
       throw new Error('Nested transactions are not supported');
     },
   };
@@ -47,7 +47,7 @@ export function createMatchmakingSqlClientFromPgClient(
       );
       return { rows: result.rows as T[] };
     },
-    async transaction<T>(fn: (tx: MmSqlClient) => Promise<T>): Promise<T> {
+    async tx<T>(fn: (tx: MmSqlClient) => Promise<T>): Promise<T> {
       await client.query('BEGIN');
       try {
         const result = await fn(txClient(client));

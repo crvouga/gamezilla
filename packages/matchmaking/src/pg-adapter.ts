@@ -25,7 +25,7 @@ function clientFor(queryable: Queryable): SqlClient {
       );
       return wrapResult<T>(result.rows as T[]);
     },
-    transaction<T>(_fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+    tx<T>(_fn: (tx: SqlClient) => Promise<T>): Promise<T> {
       throw new Error(
         'Nested transactions are not supported by the matchmaking SqlClient'
       );
@@ -62,7 +62,7 @@ export function createPgSqlClient(pool: Pool): SqlClient {
       );
       return wrapResult<T>(result.rows as T[]);
     },
-    async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+    async tx<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
       const poolClient = await pool.connect();
       try {
         return await runTx(poolClient, fn);

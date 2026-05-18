@@ -5,29 +5,27 @@
  * The {@link Matchmaker} is constructed once at app boot but delegates every
  * SQL call to a per-request `pg.Client` via
  * {@link apiRequestAsyncLocalStorage} — this keeps a single matchmaker
- * instance (and one `onMatch` registration) while still honouring the API's
- * one-connection-per-Hyperdrive-request invariant.
+ * instance while still honouring the API's one-connection-per-Hyperdrive-
+ * request invariant.
  *
- * `onMatch` is intentionally a no-op stub today; downstream packages can wire
- * up match-record creation, room provisioning, push notifications, etc. by
- * threading a different callback through here.
+ * The API has no opinion on attributes, formulas, or game type — each
+ * client declares its own attribute schema in `data` and its own
+ * acceptance criteria in `formulas` at join time. Completed matches are
+ * surfaced via `GET /status/:playerId`, which returns a `matchId` callers
+ * can use as a downstream identifier (e.g. a Durable Object name).
  */
 
-import { appAuth } from '@gamezilla/auth/shared/auth-context';
 import { UnauthorizedError } from '@gamezilla/auth/server/unauthorized-error';
+import { appAuth } from '@gamezilla/auth/shared/auth-context';
 import { assert } from '@gamezilla/lib/assert';
-import { createLogger } from '@gamezilla/lib/logger';
 import { createMatchmakingApp } from '@gamezilla/matchmaking/app';
 import { Matchmaker } from '@gamezilla/matchmaking/matchmaker';
 import type {
-  QueryResult,
   SqlClient as MmSqlClient,
+  QueryResult,
 } from '@gamezilla/matchmaking/sql-client';
-import type { MatchedPlayer } from '@gamezilla/matchmaking/types';
 import type { Hono, MiddlewareHandler } from 'hono';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
-
-const log = createLogger({ name: 'api:matchmaking' });
 
 function lazyRequestSqlClient(): MmSqlClient {
   return {
@@ -39,19 +37,12 @@ function lazyRequestSqlClient(): MmSqlClient {
       assert.defined(s, 'matchmaking: request store missing');
       return s.matchmakingSqlClient.query<T>(sql, params);
     },
-    transaction<T>(fn: (tx: MmSqlClient) => Promise<T>): Promise<T> {
+    tx<T>(fn: (tx: MmSqlClient) => Promise<T>): Promise<T> {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'matchmaking: request store missing');
-      return s.matchmakingSqlClient.transaction(fn);
+      return s.matchmakingSqlClient.tx(fn);
     },
   };
-}
-
-function logOnMatch(group: readonly MatchedPlayer[]): void {
-  log.info('matchmaking: group matched', {
-    size: group.length,
-    playerIds: group.map((p) => p.playerId),
-  });
 }
 
 const requireAuth: MiddlewareHandler = async (c, next) => {
@@ -74,9 +65,6 @@ const requireAuth: MiddlewareHandler = async (c, next) => {
 };
 
 export function createMatchmakingSubApp(): Hono {
-  const matchmaker = new Matchmaker({
-    sqlClient: lazyRequestSqlClient(),
-    onMatch: logOnMatch,
-  });
+  const matchmaker = new Matchmaker({ sqlClient: lazyRequestSqlClient() });
   return createMatchmakingApp({ matchmaker, requireAuth });
 }
