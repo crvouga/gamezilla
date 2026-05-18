@@ -92,7 +92,7 @@ export class DistributedLockImplKv implements DistributedLock {
   private readonly onFencingFailure?: (message: string) => void;
 
   constructor(kv: Kv, options: DistributedLockImplKvOptions) {
-    assertNamespacedKeyword(options.key);
+    assertNamespacedKeyword(assert, options.key);
     this.kv = kv;
     this.key = options.key;
     this.identity = options.identity ?? new DefaultLockIdentityProvider();

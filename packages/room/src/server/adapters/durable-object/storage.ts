@@ -1,3 +1,4 @@
+import { assert } from '@gamezilla/lib/assert';
 import {
   assertKeywordRecord,
   asKeyword,
@@ -48,6 +49,7 @@ function assertOptionalPersistedState(raw: Persisted): void {
     !Array.isArray(maybeState)
   ) {
     assertKeywordRecord(
+      assert,
       maybeState as Record<string, unknown>,
       'room.do persisted state'
     );

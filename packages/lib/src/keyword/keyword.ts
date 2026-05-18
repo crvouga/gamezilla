@@ -3,9 +3,7 @@
  * Shared by {@link @gamezilla/lib/attribute} and {@link @gamezilla/lib/message} so wire
  * rules cannot drift.
  */
-import { Assert } from '@gamezilla/lib/assert';
-
-const crash: Assert = Assert.crash();
+import { assert, type Assert } from '@gamezilla/lib/assert';
 
 declare const KeywordBrand: unique symbol;
 
@@ -35,15 +33,15 @@ export const KEYWORD_NAMESPACE_MAX_SEGMENTS = 16;
 /** Maximum UTF-16 code units for a full keyword `prefix/local`. */
 export const KEYWORD_MAX_LENGTH = 256;
 
-crash.ok(
+assert.ok(
   KEYWORD_SEGMENT_MIN_LENGTH <= KEYWORD_SEGMENT_MAX_LENGTH,
   'Tiger: KEYWORD_SEGMENT_MIN_LENGTH must not exceed KEYWORD_SEGMENT_MAX_LENGTH'
 );
-crash.ok(
+assert.ok(
   KEYWORD_NAMESPACE_MAX_SEGMENTS >= 1,
   'Tiger: KEYWORD_NAMESPACE_MAX_SEGMENTS must allow at least one namespace segment'
 );
-crash.ok(
+assert.ok(
   KEYWORD_MAX_LENGTH >=
     KEYWORD_SEGMENT_MIN_LENGTH + 1 + KEYWORD_SEGMENT_MIN_LENGTH,
   'Tiger: KEYWORD_MAX_LENGTH must fit a minimal valid key (prefix/local plus one slash)'
@@ -56,15 +54,15 @@ crash.ok(
 export const CLOJURE_NAMESPACED_KEYWORD_REGEX =
   /^(?!.*\s)(?:[a-z][a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z][a-z0-9]+(?:-[a-z0-9]+)*)*)\/[a-z][a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-crash.ok(
+assert.ok(
   CLOJURE_NAMESPACED_KEYWORD_REGEX.test('todo/title'),
   'CLOJURE_NAMESPACED_KEYWORD_REGEX must match valid keywords'
 );
-crash.ok(
+assert.ok(
   !CLOJURE_NAMESPACED_KEYWORD_REGEX.test('todo/title '),
   'CLOJURE_NAMESPACED_KEYWORD_REGEX must not match invalid keywords'
 );
-crash.ok(
+assert.ok(
   !CLOJURE_NAMESPACED_KEYWORD_REGEX.test('todo/title\n'),
   'CLOJURE_NAMESPACED_KEYWORD_REGEX must not match invalid keywords'
 );
@@ -159,7 +157,7 @@ export function isNamespacedKeyword(key: unknown): key is Keyword {
  * `asKeyword('room.wire.s2c/welcome')` discriminate against literal-keyed unions.
  */
 export function asKeyword<const S extends string>(key: S): S & Keyword {
-  crash.ok(
+  assert.ok(
     isNamespacedKeyword(key),
     'Tiger: asKeyword requires a valid namespaced keyword',
     { key }
@@ -176,17 +174,23 @@ export function assertKeyword<const S extends string>(key: S): S & Keyword {
  * Tiger guard for record-shaped values: every own enumerable key must be a
  * valid namespaced keyword. Crashes on the first violation; useful at wire /
  * persistence boundaries (patch attributes, room state, etc.).
+ *
+ * `a` controls cost: pass `assert` (always-on) at trust boundaries; pass
+ * `hotAssert()` from `@gamezilla/lib/assert` on hot paths where iterating
+ * every key per call would dominate the frame budget.
  */
 export function assertKeywordRecord(
+  a: Assert,
   record: Record<string, unknown>,
   label: string
 ): asserts record is Record<Keyword, unknown> {
-  crash.ok(
+  if (!a.isEnabled()) return;
+  a.ok(
     record !== null && typeof record === 'object' && !Array.isArray(record),
     `${label} must be a plain record`
   );
   for (const key of Object.keys(record)) {
-    crash.ok(
+    a.ok(
       isNamespacedKeyword(key),
       `${label} contains a non-keyword key: must be a Clojure-style namespaced keyword`,
       { key }
@@ -203,7 +207,7 @@ export function asKeywordRecord<T>(
   record: Record<string, T>,
   label: string
 ): Record<Keyword, T> {
-  assertKeywordRecord(record as Record<string, unknown>, label);
+  assertKeywordRecord(assert, record as Record<string, unknown>, label);
   return record as Record<Keyword, T>;
 }
 
@@ -218,27 +222,29 @@ export function namespacePrefixOf(key: string): string | null {
   return key.slice(0, slash);
 }
 
-export function assertNamespacePrefix(value: string): void {
-  crash.ok(
+export function assertNamespacePrefix(a: Assert, value: string): void {
+  a.ok(
     isWireNamespacePrefix(value),
     `namespace prefix must be 1–${KEYWORD_NAMESPACE_MAX_SEGMENTS} dot-separated kebab segments, each ${KEYWORD_SEGMENT_MIN_LENGTH}–${KEYWORD_SEGMENT_MAX_LENGTH} chars (lowercase ASCII, single hyphens between alnum groups); no empty segments`
   );
 }
 
-export function assertLocalName(value: string): void {
-  crash.nonEmptyString(value, 'keyword local name must be non-empty');
-  crash.ok(!value.includes('/'), 'keyword local name must not contain /');
-  crash.ok(!value.includes('.'), 'keyword local name must not contain .');
-  crash.ok(
+export function assertLocalName(a: Assert, value: string): void {
+  if (!a.isEnabled()) return;
+  a.nonEmptyString(value, 'keyword local name must be non-empty');
+  a.ok(!value.includes('/'), 'keyword local name must not contain /');
+  a.ok(!value.includes('.'), 'keyword local name must not contain .');
+  a.ok(
     isLocalName(value),
     `keyword local name must be kebab-case ASCII, ${KEYWORD_SEGMENT_MIN_LENGTH}–${KEYWORD_SEGMENT_MAX_LENGTH} chars (lowercase letter first, then alnum/hyphens; no leading/trailing/consecutive hyphens)`
   );
 }
 
 export function assertNamespacedKeyword(
+  a: Assert,
   fullKey: string
 ): asserts fullKey is Keyword {
-  crash.ok(
+  a.ok(
     isNamespacedKeyword(fullKey),
     `keyword must be ASCII namespaced kebab-case, at most ${KEYWORD_MAX_LENGTH} chars, one '/', strict segment lengths`,
     { fullKey }
@@ -252,17 +258,17 @@ export function assertNamespacedKeyword(
 export function joinKeywordSegments<const Segments extends readonly string[]>(
   ...segments: Segments
 ): JoinDot<Segments> {
-  crash.ok(
+  assert.ok(
     segments.length > 0,
     'joinKeywordSegments requires at least one segment'
   );
   for (const seg of segments) {
-    crash.nonEmptyString(seg, 'each keyword segment must be non-empty');
-    assertLocalName(seg);
+    assert.nonEmptyString(seg, 'each keyword segment must be non-empty');
+    assertLocalName(assert, seg);
   }
   const prefix = segments.join('.') as JoinDot<Segments>;
-  assertNamespacePrefix(prefix);
-  crash.ok(
+  assertNamespacePrefix(assert, prefix);
+  assert.ok(
     prefix.length <= KEYWORD_MAX_LENGTH - 1 - KEYWORD_SEGMENT_MIN_LENGTH,
     'Tiger: joined prefix leaves no room for slash and a minimal local segment'
   );

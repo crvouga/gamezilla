@@ -1,4 +1,5 @@
-import { Assert } from '@gamezilla/lib/assert';
+import type { Assert } from '@gamezilla/lib/assert';
+import { assert, hotAssert } from '@gamezilla/lib/assert';
 import {
   assertKeywordRecord,
   isNamespacedKeyword,
@@ -25,8 +26,6 @@ import { roomAttrNamespace, RoomMetaAttr } from './room-meta';
 import type { ClientRoomStorage, QueuedCommand } from './storage';
 import type { ClientTransport } from './transport';
 
-const crash: Assert = Assert.crash();
-
 export type RoomClientConfig<
   S extends RoomState,
   C extends RoomCommandPayload,
@@ -47,9 +46,14 @@ function foldEntries<S extends RoomState, E extends RoomEvent>(
 ): { state: S; lastSeq: number } {
   let state = module.initialState();
   let lastSeq = 0;
+  const a: Assert = hotAssert();
   for (const e of entries) {
     state = module.reduce(state, e.event);
-    assertKeywordRecord(state as Record<string, unknown>, 'room.foldEntries');
+    assertKeywordRecord(
+      a,
+      state as Record<string, unknown>,
+      'room.foldEntries'
+    );
     lastSeq = e.seq;
   }
   return { state, lastSeq };
@@ -67,12 +71,13 @@ function foldDisplay<
   optimistic: Map<string, E[]>
 ): S {
   let s = committed;
+  const a: Assert = hotAssert();
   for (const q of queue) {
     const ev = optimistic.get(q.id);
     if (ev === undefined) continue;
     for (const e of ev) {
       s = module.reduce(s, e);
-      assertKeywordRecord(s as Record<string, unknown>, 'room.foldDisplay');
+      assertKeywordRecord(a, s as Record<string, unknown>, 'room.foldDisplay');
     }
   }
   return s;
@@ -162,25 +167,33 @@ export class Room<
       this.pendingQueue,
       this.optimistic
     );
-    for (const k of Object.keys(display as Record<string, unknown>)) {
-      crash.ok(
-        !roomAttrNamespace.ownsKey(k),
-        'Tiger: domain room module state must not use room/* keys (reserved for RoomMetaAttr)',
-        { k }
-      );
-      crash.ok(
-        isNamespacedKeyword(k),
-        'Tiger: room module state keys must be Clojure-style namespaced keywords (prefix/local)',
-        { k }
-      );
-    }
+    const a: Assert = hotAssert();
+    this.assertDisplayKeys(a, display as Record<string, unknown>);
     const merged = {
       ...(display as Record<string, unknown>),
       ...RoomMetaAttr.isSynced(this.synced),
       ...RoomMetaAttr.isConnected(this.transport.isConnected),
       ...RoomMetaAttr.lastError(this.lastError),
     };
-    return Object.freeze(merged as unknown as S);
+    return a.isEnabled()
+      ? (Object.freeze(merged) as unknown as S)
+      : (merged as unknown as S);
+  }
+
+  private assertDisplayKeys(a: Assert, display: Record<string, unknown>): void {
+    if (!a.isEnabled()) return;
+    for (const k of Object.keys(display)) {
+      a.ok(
+        !roomAttrNamespace.ownsKey(k),
+        'Tiger: domain room module state must not use room/* keys (reserved for RoomMetaAttr)',
+        { k }
+      );
+      a.ok(
+        isNamespacedKeyword(k),
+        'Tiger: room module state keys must be Clojure-style namespaced keywords (prefix/local)',
+        { k }
+      );
+    }
   }
 
   private notify(): void {
@@ -198,7 +211,7 @@ export class Room<
   private async hydrateLocal(): Promise<void> {
     const { lastSeq, entries } = await this.storage.loadCommitted();
     for (const e of entries) {
-      crash.ok(
+      assert.ok(
         isMessageEnvelope(e.event),
         'persisted committed entry must carry a valid message envelope; refusing to hydrate corrupt log',
         { seq: e.seq, event: e.event }
@@ -266,14 +279,16 @@ export class Room<
   }
 
   private appendCommittedEntries(entries: LogEntry<E>[]): void {
+    const a: Assert = hotAssert();
     for (const e of entries) {
-      crash.ok(
+      a.ok(
         e.seq === this.lastSeq + 1,
         'log entries must extend lastSeq contiguously',
         { lastSeq: this.lastSeq, got: e.seq }
       );
       this.committedState = this.module.reduce(this.committedState, e.event);
       assertKeywordRecord(
+        a,
         this.committedState as Record<string, unknown>,
         'room.appendCommittedEntries'
       );
@@ -321,7 +336,7 @@ export class Room<
       return;
     }
     this.appendCommittedEntries(suffix);
-    crash.ok(
+    assert.ok(
       msg.lastSeq === this.lastSeq,
       'welcome lastSeq must match last applied entry seq',
       { lastSeq: this.lastSeq, msgLastSeq: msg.lastSeq }
@@ -406,23 +421,41 @@ export class Room<
    * Optimistically applies `payload` against current display state, persists it
    * to the durable command queue, and (if connected + synced) sends it. The
    * server is authoritative; local apply is UX only.
+   *
+   * **Hot path (synchronous):** validate → in-memory queue / optimistic apply
+   * → notify → ws.send. The synchronous block is what shows up in a frame's
+   * budget when the user drops a chess piece, so storage I/O has been moved
+   * off it (see `dispatchSerial` chain below).
+   *
+   * **Background path (chained):** the durable storage append is queued onto
+   * {@link dispatchSerial} so concurrent dispatches still persist in order
+   * (without that chain a localStorage / async-kv adapter can interleave a
+   * load/modify/write and drop one command from the durable queue).
    */
   dispatch(payload: C): void {
     if (this.destroyed) return;
-    const id = newCommandId();
-    const ts = Date.now();
-    const cmd: RoomCommand<C> = { id, ts, payload };
-
+    const cmd: RoomCommand<C> = {
+      id: newCommandId(),
+      ts: Date.now(),
+      payload,
+    };
+    const row = this.applyDispatchCommandSync(cmd);
+    if (row === null) return;
     this.dispatchSerial = this.dispatchSerial
-      .then(() => this.processDispatchCommand(cmd))
+      .then(() => this.storage.appendQueued(row))
       .catch((err: unknown) => {
         this.reportError(err instanceof Error ? err : new Error(String(err)));
         this.notify();
       });
   }
 
-  private async processDispatchCommand(cmd: RoomCommand<C>): Promise<void> {
-    if (this.destroyed) return;
+  /**
+   * Synchronous critical section of {@link dispatch}: returns the
+   * {@link QueuedCommand} the caller must persist, or `null` when the command
+   * was rejected by local validation (or the room is destroyed).
+   */
+  private applyDispatchCommandSync(cmd: RoomCommand<C>): QueuedCommand | null {
+    if (this.destroyed) return null;
     const st = foldDisplay(
       this.module,
       this.committedState,
@@ -433,16 +466,19 @@ export class Room<
     if (!res.ok) {
       this.reportError(res.error);
       this.notify();
-      return;
+      return null;
     }
     const row: QueuedCommand = {
       id: cmd.id,
       ts: cmd.ts,
       payload: cmd.payload,
     };
-    await this.storage.appendQueued(row);
-    this.pendingQueue = await this.storage.loadQueued();
-    this.rebuildOptimisticSync();
+    // In-memory queue is the source of truth between dispatches; reuse the
+    // events we already computed via `module.handle` instead of re-running
+    // the whole queue through `rebuildOptimisticSync` (was O(N²) on queue
+    // size, and on a fresh drop with one in-flight command, redundant).
+    this.pendingQueue = [...this.pendingQueue, row];
+    this.optimistic.set(cmd.id, res.events);
     this.notify();
     if (this.transport.isConnected && this.synced) {
       this.transport.sendJson({
@@ -453,6 +489,7 @@ export class Room<
         payload: cmd.payload,
       });
     }
+    return row;
   }
 
   /**

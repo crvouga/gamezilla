@@ -6,6 +6,7 @@ import {
   expect,
   test,
 } from 'bun:test';
+import { assert } from '../assert';
 import { asKeyword, asKeywordRecord } from '../keyword/keyword';
 import { parseKvRecordFromUnknown } from './assert-kv-record';
 import { KvImplInMemory } from './impl-in-memory';
@@ -70,6 +71,7 @@ describe('KvImplInMemory (contract)', () => {
 describe('parseKvRecordFromUnknown', () => {
   test('parses JSON string with keyword keys into KvRecord', () => {
     const r = parseKvRecordFromUnknown(
+      assert,
       '{"kv.contract/value":"1"}',
       'parseKvRecordFromUnknown test'
     );

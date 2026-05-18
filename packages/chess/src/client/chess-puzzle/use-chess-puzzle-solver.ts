@@ -2,11 +2,10 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@gamezilla/spaces/client/room/use-space-room-selector';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
-  StartChessPuzzlePlay,
   SubmitChessPuzzleMove,
   type ChessPuzzlePlayStatus,
 } from '../../shared/chess-puzzle-play';
@@ -58,16 +57,15 @@ function useChessPuzzlePlayRoomSelectors() {
 
 /**
  * Bridges the puzzle play screen to the server-authoritative FSM in
- * {@link ChessPuzzlePlayAttr}. Auto-dispatches `StartChessPuzzlePlay` when the
- * room is `idle` and the puzzle entity (FEN + moves) is available locally.
- * `onMove` dispatches `SubmitChessPuzzleMove`; the server validates host
- * identity, expected token, and move legality before mutating room state.
+ * {@link ChessPuzzlePlayAttr}. `onMove` dispatches `SubmitChessPuzzleMove`;
+ * the server validates host identity, expected token, and move legality
+ * before mutating room state.
+ *
+ * Note: starting a session (`StartChessPuzzlePlay`) is owned by
+ * `PuzzlePlayScreen` — keeping a single dispatcher prevents a race where
+ * both the screen and this hook fire `Start` in the same idle window.
  */
-export function usePuzzleSolver(args: {
-  fen: string;
-  movesStr: string;
-  puzzleId: string;
-}): {
+export function usePuzzleSolver(args: { puzzleId: string }): {
   displayFen: string | null;
   /** Bumps on wrong move / reset so the board remounts when FEN string is unchanged. */
   layoutKey: number;
@@ -81,7 +79,7 @@ export function usePuzzleSolver(args: {
   expectedFromSquare: string | null;
   expectedToSquare: string | null;
 } {
-  const { fen, movesStr, puzzleId } = args;
+  const { puzzleId } = args;
   const dispatch = useSpaceRoomDispatch();
   const {
     roomStatus,
@@ -96,12 +94,6 @@ export function usePuzzleSolver(args: {
     expectedFromSquare,
     expectedToSquare,
   } = useChessPuzzlePlayRoomSelectors();
-
-  useEffect(() => {
-    if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) return;
-    if (fen.length === 0 || movesStr.length === 0) return;
-    dispatch(StartChessPuzzlePlay({ puzzleId, fen, moves: movesStr }));
-  }, [dispatch, fen, movesStr, puzzleId, roomStatus]);
 
   const onMove = useCallback(
     (m: Move) => {

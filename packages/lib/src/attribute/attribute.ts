@@ -2,7 +2,7 @@
  * Tiger Style (see repo `LLM.md`): attribute tags for PatchDB — keys validated via
  * {@link @gamezilla/lib/keyword}; never accept silently malformed attribute keys.
  */
-import { Assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/lib/assert';
 import {
   assertLocalName,
   assertNamespacedKeyword,
@@ -11,8 +11,6 @@ import {
   type JoinDot,
   type Keyword,
 } from '../keyword/keyword';
-
-const crash: Assert = Assert.crash();
 
 export type { JoinDot, Keyword };
 
@@ -50,24 +48,16 @@ export interface AttributeNamespace<Prefix extends string = string> {
   ): AttributeTag<T, `${Prefix}/${Name}`>;
 }
 
-function assertValidAttributeLocalName(value: string): void {
-  assertLocalName(value);
-}
-
-function assertValidFullKey(fullKey: string): void {
-  assertNamespacedKeyword(fullKey);
-}
-
 function createAttributeTag<T, K extends string>(
   fullKey: K,
   parse: AttributeParser<T>
 ): AttributeTag<T, K> {
-  crash.nonEmptyString(fullKey, 'Tiger: attribute tag key must be non-empty');
-  crash.ok(
+  assert.nonEmptyString(fullKey, 'Tiger: attribute tag key must be non-empty');
+  assert.ok(
     typeof parse === 'function',
     'Tiger: attribute parser must be a function'
   );
-  assertNamespacedKeyword(fullKey);
+  assertNamespacedKeyword(assert, fullKey);
 
   const brandedKey = fullKey as K & Keyword;
 
@@ -97,7 +87,7 @@ function createAttributeTag<T, K extends string>(
 export function createAttrNamespace<const Segments extends readonly string[]>(
   ...segments: Segments
 ): AttributeNamespace<JoinDot<Segments>> {
-  crash.ok(
+  assert.ok(
     segments.length > 0,
     'createAttrNamespace requires at least one namespace segment'
   );
@@ -107,9 +97,9 @@ export function createAttrNamespace<const Segments extends readonly string[]>(
     name: Name,
     parse: AttributeParser<T>
   ): AttributeTag<T, `${JoinDot<Segments>}/${Name}`> {
-    assertValidAttributeLocalName(name);
+    assertLocalName(assert, name);
     const fullKey = `${prefix}/${name}` as `${JoinDot<Segments>}/${Name}`;
-    assertValidFullKey(fullKey);
+    assertNamespacedKeyword(assert, fullKey);
     return createAttributeTag(fullKey, parse);
   }
 

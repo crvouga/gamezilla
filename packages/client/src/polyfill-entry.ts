@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/lib/assert';
+import { assert, setHotAssertsEnabled } from '@gamezilla/lib/assert';
 import { BrowserCrashHandler } from '@gamezilla/lib/assert/crash/crash-handler/crash-handler-browser';
 import { ExpoCrashHandler } from '@gamezilla/lib/assert/crash/crash-handler/crash-handler-expo';
 import { polyfill } from '@gamezilla/lib/polyfill';
@@ -9,6 +9,19 @@ import { suppressThirdPartyWarnings } from './suppress-third-party-warnings';
 suppressThirdPartyWarnings();
 
 WebBrowser.maybeCompleteAuthSession();
+
+// QA / canary seam: lets a production-flavor build re-enable hot-path
+// asserts (per-dispatch keyword validation, per-routed-message envelope
+// checks, …) without a code change. Default is governed by `isDevBuild()`
+// in `@gamezilla/lib/assert/hot-asserts`; set EXPO_PUBLIC_FORCE_HOT_ASSERTS
+// to '1' / 'true' to force-on, or '0' / 'false' to force-off.
+// eslint-disable-next-line expo/no-dynamic-env-var -- `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
+const forceHotAsserts = process.env['EXPO_PUBLIC_FORCE_HOT_ASSERTS'];
+if (forceHotAsserts === '1' || forceHotAsserts === 'true') {
+  setHotAssertsEnabled(true);
+} else if (forceHotAsserts === '0' || forceHotAsserts === 'false') {
+  setHotAssertsEnabled(false);
+}
 
 assert.registerCrashHandler(new BrowserCrashHandler());
 assert.registerCrashHandler(new ExpoCrashHandler());

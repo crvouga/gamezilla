@@ -5,7 +5,7 @@ import { usePuzzlePlayerControls } from './use-puzzle-player-controls';
 import { usePuzzlePlayerVisual } from './use-puzzle-player-visual';
 
 function usePuzzlePlayerModel(puzzleId: string) {
-  const { fen, movesStr, rating, themes, interactions } =
+  const { rating, themes, interactions } =
     usePuzzleEntityAndInteractions(puzzleId);
   const {
     displayFen,
@@ -19,7 +19,7 @@ function usePuzzlePlayerModel(puzzleId: string) {
     wrongToSquare,
     expectedFromSquare,
     expectedToSquare,
-  } = usePuzzleSolver({ fen, movesStr, puzzleId });
+  } = usePuzzleSolver({ puzzleId });
   const { appendUsedHint, appendAbandoned, setLastUci } =
     useChessPuzzleInteractionRecorder({
       puzzleId,
@@ -99,7 +99,11 @@ function usePuzzlePlayerUi(
     backToRoot,
     assistant,
     statusKind,
-    displayFen: m.displayFen ?? '',
+    // Surface `null` (not '') so the screen can gate the ChessBoard render
+    // until a real FEN is available; passing an empty string would let
+    // `useChessGame` initialise with the standard startpos, flashing the
+    // wrong board for a frame on puzzle transitions.
+    displayFen: m.displayFen,
     layoutKey: m.layoutKey,
     orientation: m.orientation,
     status: m.status,

@@ -1,4 +1,4 @@
-import { Assert } from '@gamezilla/lib/assert';
+import { assert, type Assert } from '@gamezilla/lib/assert';
 import type { JoinDot, Keyword } from '../keyword/keyword';
 import {
   assertLocalName,
@@ -6,8 +6,6 @@ import {
   isNamespacedKeyword,
   joinKeywordSegments,
 } from '../keyword/keyword';
-
-const crash: Assert = Assert.crash();
 
 /**
  * Serializable message envelope: a {@link Keyword} type tag plus an extensible payload.
@@ -65,11 +63,15 @@ export function isMessageEnvelope(value: unknown): value is Message {
  * Tiger-style hard assert: crashes when `value` is not a wire-valid message
  * envelope. Use at trust boundaries (router dispatch, wire ingress, persistent
  * log replay) so corrupted data fails fast instead of silently dispatching.
+ *
+ * `a` controls cost: pass `assert` (always-on) at trust boundaries; pass
+ * `hotAssert()` from `@gamezilla/lib/assert` on per-routed-message hot paths.
  */
 export function assertMessageEnvelope(
+  a: Assert,
   value: unknown
 ): asserts value is Message {
-  crash.ok(
+  a.ok(
     isMessageEnvelope(value),
     'value is not a valid Message envelope ({ type: Keyword, payload })',
     { value }
@@ -84,8 +86,12 @@ export function acceptUnknownPayload(_payload: unknown): _payload is unknown {
   return true;
 }
 
-function assertValidMessageSegment(_label: string, value: string): void {
-  assertLocalName(value);
+function assertValidMessageSegment(
+  a: Assert,
+  _label: string,
+  value: string
+): void {
+  assertLocalName(a, value);
 }
 
 function createMessageTag<P>(
@@ -94,7 +100,7 @@ function createMessageTag<P>(
 ): MessageTag<P> {
   function tag(payload: unknown): Message<P> {
     if (!validatePayload(payload)) {
-      crash.fail(`invalid payload for message type ${fullType}`, {
+      assert.fail(`invalid payload for message type ${fullType}`, {
         type: fullType,
         payload,
       });
@@ -128,12 +134,12 @@ function createMessageTag<P>(
 export function createMessageNamespace<
   const Segments extends readonly string[],
 >(...segments: Segments): MessageNamespace<JoinDot<Segments>> {
-  crash.ok(
+  assert.ok(
     segments.length > 0,
     'createMessageNamespace requires at least one namespace segment'
   );
   for (const seg of segments) {
-    assertValidMessageSegment('namespace segment', seg);
+    assertValidMessageSegment(assert, 'namespace segment', seg);
   }
   const prefix = joinKeywordSegments(...segments) as JoinDot<Segments>;
 
@@ -141,9 +147,9 @@ export function createMessageNamespace<
     name: string,
     validatePayload: MessagePayloadValidator<P>
   ): MessageTag<P> {
-    assertValidMessageSegment('message name', name);
+    assertValidMessageSegment(assert, 'message name', name);
     const fullTypeStr = `${prefix as string}/${name}`;
-    assertNamespacedKeyword(fullTypeStr);
+    assertNamespacedKeyword(assert, fullTypeStr);
     return createMessageTag(fullTypeStr, validatePayload);
   }
 

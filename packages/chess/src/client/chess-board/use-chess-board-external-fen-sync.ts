@@ -1,10 +1,14 @@
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 
 /**
  * When FEN is owned by the parent (puzzles, replays), re-apply it to the local
  * chess.js instance whenever it changes so the canvas matches without remounting.
  * `fenSyncKey` re-runs the sync when the FEN string is unchanged (e.g. controlled
  * board after a rejected try).
+ *
+ * Uses `useLayoutEffect` so the local rules state is mutated BEFORE the browser
+ * paints — eliminates a one-frame stale board between `fen` prop change and the
+ * canvas reconcile (visible as a flash during puzzle transitions on mobile).
  */
 export function useExternalFenSync(
   fen: string | undefined,
@@ -12,7 +16,7 @@ export function useExternalFenSync(
   reset: (nextFen: string) => void,
   onAfterReset: () => void
 ): void {
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (fen === undefined || fen.length === 0) return;
     reset(fen);
     onAfterReset();

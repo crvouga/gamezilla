@@ -1,3 +1,4 @@
+import { hotAssert } from '../assert';
 import type { Keyword } from '../keyword/keyword';
 import { assertNamespacedKeyword } from '../keyword/keyword';
 import { assertKvRecord } from './assert-kv-record';
@@ -31,7 +32,7 @@ export class KvImplInMemory implements Kv {
 
   async put(key: Keyword, value: KvRecord): Promise<void> {
     assertKvKey(key);
-    assertKvRecord(value, 'kv in-memory put');
+    assertKvRecord(hotAssert(), value, 'kv in-memory put');
     return this.enqueue(async () => {
       this.map.set(key, structuredClone(value));
     });
@@ -53,5 +54,5 @@ export class KvImplInMemory implements Kv {
 }
 
 function assertKvKey(key: string): asserts key is Keyword {
-  assertNamespacedKeyword(key);
+  assertNamespacedKeyword(hotAssert(), key);
 }

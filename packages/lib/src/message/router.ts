@@ -1,4 +1,4 @@
-import { Assert } from '@gamezilla/lib/assert';
+import { Assert, hotAssert } from '@gamezilla/lib/assert';
 import {
   assertMessageEnvelope,
   type Message,
@@ -123,7 +123,7 @@ class MessageRouterImpl<TState, TCtx, TOutput> implements MessageRouter<
   }
 
   has(msg: Message): boolean {
-    assertMessageEnvelope(msg);
+    assertMessageEnvelope(hotAssert(), msg);
     const ps = this.prefixSlash;
     if (ps !== undefined && !msg.type.startsWith(ps)) {
       return false;
@@ -137,7 +137,7 @@ class MessageRouterImpl<TState, TCtx, TOutput> implements MessageRouter<
     msg: Message,
     fallback: (state: TState, ctx: TCtx, msg: Message) => TOutput
   ): TOutput {
-    assertMessageEnvelope(msg);
+    assertMessageEnvelope(hotAssert(), msg);
     const ps = this.prefixSlash;
     if (ps !== undefined && !msg.type.startsWith(ps)) {
       return fallback(state, ctx, msg);
@@ -190,7 +190,7 @@ export function createComposedMessageRouter<TState, TCtx, TOutput>(
 
   return {
     dispatch(state, ctx, msg, fallback) {
-      assertMessageEnvelope(msg);
+      assertMessageEnvelope(hotAssert(), msg);
       const type = msg.type;
       for (let i = 0; i < n; i++) {
         if (type.startsWith(prefixes[i]!)) {
@@ -200,7 +200,7 @@ export function createComposedMessageRouter<TState, TCtx, TOutput>(
       return fallback(state, ctx, msg);
     },
     has(msg) {
-      assertMessageEnvelope(msg);
+      assertMessageEnvelope(hotAssert(), msg);
       const type = msg.type;
       for (let i = 0; i < n; i++) {
         if (type.startsWith(prefixes[i]!)) {

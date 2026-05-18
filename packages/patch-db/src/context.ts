@@ -76,5 +76,5 @@ export function assertPatchDbContext(
     a.string(rec['reason'], 'patch-db system ctx.reason must be string');
     return;
   }
-  assertKeywordRecord(rec as Record<string, unknown>, 'patch-db ctx claims');
+  assertKeywordRecord(a, rec as Record<string, unknown>, 'patch-db ctx claims');
 }

@@ -1,3 +1,4 @@
+import { hotAssert } from '../assert';
 import type { Keyword } from '../keyword/keyword';
 import { assertNamespacedKeyword } from '../keyword/keyword';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
@@ -5,7 +6,7 @@ import { KvImplWebTx } from './impl-kv-web-tx';
 import type { Kv, KvRecord } from './interface';
 
 function assertKvKey(key: string): asserts key is Keyword {
-  assertNamespacedKeyword(key);
+  assertNamespacedKeyword(hotAssert(), key);
 }
 
 function requireLocalStorage(): Storage {
@@ -39,13 +40,13 @@ export class KvImplWeb implements Kv {
     return this.enqueue(async () => {
       const raw = requireLocalStorage().getItem(key);
       if (raw === null || raw.length === 0) return null;
-      return parseKvRecordFromUnknown(raw, 'kv web get');
+      return parseKvRecordFromUnknown(hotAssert(), raw, 'kv web get');
     });
   }
 
   async put(key: Keyword, value: KvRecord): Promise<void> {
     assertKvKey(key);
-    assertKvRecord(value, 'kv web put');
+    assertKvRecord(hotAssert(), value, 'kv web put');
     return this.enqueue(async () => {
       requireLocalStorage().setItem(key, JSON.stringify(value));
     });

@@ -1,4 +1,4 @@
-import { Assert } from '@gamezilla/lib/assert';
+import { Assert, assert } from '@gamezilla/lib/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import {
   asKeyword,
@@ -528,42 +528,44 @@ describe('asKeyword / assertKeyword', () => {
 describe('assertNamespacedKeyword', () => {
   it('narrows string to Keyword', () => {
     const raw: string = 'todo/title';
-    assertNamespacedKeyword(raw);
+    assertNamespacedKeyword(assert, raw);
     const k: Keyword = raw;
     expect(k).toBe(asKeyword('todo/title'));
   });
 
   it('does not throw for any value in VALID_KEYWORDS', () => {
     for (const v of VALID_KEYWORDS) {
-      expect(() => assertNamespacedKeyword(v)).not.toThrow();
+      expect(() => assertNamespacedKeyword(assert, v)).not.toThrow();
     }
   });
 
   it('throws for any value in INVALID_KEYWORDS', () => {
     for (const v of INVALID_KEYWORDS) {
-      expect(() => assertNamespacedKeyword(v)).toThrow();
+      expect(() => assertNamespacedKeyword(assert, v)).toThrow();
     }
   });
 });
 
 describe('assertNamespacePrefix', () => {
   it('does not throw for valid prefixes', () => {
-    expect(() => assertNamespacePrefix('foo')).not.toThrow();
-    expect(() => assertNamespacePrefix('foo.bar')).not.toThrow();
-    expect(() => assertNamespacePrefix('foo.bar.baz')).not.toThrow();
-    expect(() => assertNamespacePrefix('foo-bar.baz-qux')).not.toThrow();
+    expect(() => assertNamespacePrefix(assert, 'foo')).not.toThrow();
+    expect(() => assertNamespacePrefix(assert, 'foo.bar')).not.toThrow();
+    expect(() => assertNamespacePrefix(assert, 'foo.bar.baz')).not.toThrow();
+    expect(() =>
+      assertNamespacePrefix(assert, 'foo-bar.baz-qux')
+    ).not.toThrow();
   });
 
   it('throws on invalid prefixes', () => {
-    expect(() => assertNamespacePrefix('')).toThrow();
-    expect(() => assertNamespacePrefix('Foo')).toThrow();
-    expect(() => assertNamespacePrefix('foo/bar')).toThrow();
-    expect(() => assertNamespacePrefix('.foo')).toThrow();
-    expect(() => assertNamespacePrefix('foo.')).toThrow();
-    expect(() => assertNamespacePrefix('foo..bar')).toThrow();
-    expect(() => assertNamespacePrefix('a')).toThrow();
-    expect(() => assertNamespacePrefix('1foo')).toThrow();
-    expect(() => assertNamespacePrefix('foo_bar')).toThrow();
+    expect(() => assertNamespacePrefix(assert, '')).toThrow();
+    expect(() => assertNamespacePrefix(assert, 'Foo')).toThrow();
+    expect(() => assertNamespacePrefix(assert, 'foo/bar')).toThrow();
+    expect(() => assertNamespacePrefix(assert, '.foo')).toThrow();
+    expect(() => assertNamespacePrefix(assert, 'foo.')).toThrow();
+    expect(() => assertNamespacePrefix(assert, 'foo..bar')).toThrow();
+    expect(() => assertNamespacePrefix(assert, 'a')).toThrow();
+    expect(() => assertNamespacePrefix(assert, '1foo')).toThrow();
+    expect(() => assertNamespacePrefix(assert, 'foo_bar')).toThrow();
   });
 
   it('throws on prefix exceeding max segment count', () => {
@@ -571,48 +573,48 @@ describe('assertNamespacePrefix', () => {
       { length: KEYWORD_NAMESPACE_MAX_SEGMENTS + 1 },
       () => 'ab'
     ).join('.');
-    expect(() => assertNamespacePrefix(tooMany)).toThrow();
+    expect(() => assertNamespacePrefix(assert, tooMany)).toThrow();
   });
 });
 
 describe('assertLocalName', () => {
   it('does not throw for valid local names', () => {
-    expect(() => assertLocalName('ab')).not.toThrow();
-    expect(() => assertLocalName('foo-bar')).not.toThrow();
-    expect(() => assertLocalName('a1')).not.toThrow();
+    expect(() => assertLocalName(assert, 'ab')).not.toThrow();
+    expect(() => assertLocalName(assert, 'foo-bar')).not.toThrow();
+    expect(() => assertLocalName(assert, 'a1')).not.toThrow();
   });
 
   it('throws on empty local name', () => {
-    expect(() => assertLocalName('')).toThrow();
+    expect(() => assertLocalName(assert, '')).toThrow();
   });
 
   it('throws when local name contains a slash', () => {
-    expect(() => assertLocalName('foo/bar')).toThrow();
-    expect(() => assertLocalName('/foo')).toThrow();
-    expect(() => assertLocalName('foo/')).toThrow();
+    expect(() => assertLocalName(assert, 'foo/bar')).toThrow();
+    expect(() => assertLocalName(assert, '/foo')).toThrow();
+    expect(() => assertLocalName(assert, 'foo/')).toThrow();
   });
 
   it('throws when local name contains a dot', () => {
-    expect(() => assertLocalName('foo.bar')).toThrow();
-    expect(() => assertLocalName('.foo')).toThrow();
-    expect(() => assertLocalName('foo.')).toThrow();
+    expect(() => assertLocalName(assert, 'foo.bar')).toThrow();
+    expect(() => assertLocalName(assert, '.foo')).toThrow();
+    expect(() => assertLocalName(assert, 'foo.')).toThrow();
   });
 
   it('throws on shape violations', () => {
-    expect(() => assertLocalName('a')).toThrow();
-    expect(() => assertLocalName('Foo')).toThrow();
-    expect(() => assertLocalName('foo_bar')).toThrow();
-    expect(() => assertLocalName('-foo')).toThrow();
-    expect(() => assertLocalName('foo-')).toThrow();
-    expect(() => assertLocalName('foo--bar')).toThrow();
-    expect(() => assertLocalName('1foo')).toThrow();
-    expect(() => assertLocalName(' foo')).toThrow();
-    expect(() => assertLocalName('foo ')).toThrow();
+    expect(() => assertLocalName(assert, 'a')).toThrow();
+    expect(() => assertLocalName(assert, 'Foo')).toThrow();
+    expect(() => assertLocalName(assert, 'foo_bar')).toThrow();
+    expect(() => assertLocalName(assert, '-foo')).toThrow();
+    expect(() => assertLocalName(assert, 'foo-')).toThrow();
+    expect(() => assertLocalName(assert, 'foo--bar')).toThrow();
+    expect(() => assertLocalName(assert, '1foo')).toThrow();
+    expect(() => assertLocalName(assert, ' foo')).toThrow();
+    expect(() => assertLocalName(assert, 'foo ')).toThrow();
   });
 
   it('throws on oversized local names', () => {
     const tooLong = 'x'.repeat(KEYWORD_SEGMENT_MAX_LENGTH + 1);
-    expect(() => assertLocalName(tooLong)).toThrow();
+    expect(() => assertLocalName(assert, tooLong)).toThrow();
   });
 });
 
@@ -734,7 +736,9 @@ describe('joinKeywordSegments', () => {
 
 describe('assertKeywordRecord', () => {
   it('accepts an empty record', () => {
-    expect(() => assertKeywordRecord({}, 'patch.attributes')).not.toThrow();
+    expect(() =>
+      assertKeywordRecord(assert, {}, 'patch.attributes')
+    ).not.toThrow();
   });
 
   it('accepts a record whose keys are all namespaced keywords', () => {
@@ -743,57 +747,72 @@ describe('assertKeywordRecord', () => {
       'patch/synced-at': 1,
       'chess.puzzle/id': 'p1',
     };
-    expect(() => assertKeywordRecord(r, 'patch.attributes')).not.toThrow();
+    expect(() =>
+      assertKeywordRecord(assert, r, 'patch.attributes')
+    ).not.toThrow();
   });
 
   it('crashes on the first non-keyword key', () => {
     const r: Record<string, unknown> = { 'todo/title': 'a', badKey: 1 };
-    expect(() => assertKeywordRecord(r, 'patch.attributes')).toThrow();
+    expect(() => assertKeywordRecord(assert, r, 'patch.attributes')).toThrow();
   });
 
   it('crashes on snake_case keys', () => {
     const r: Record<string, unknown> = { 'todo/title': 'a', snake_case_key: 1 };
-    expect(() => assertKeywordRecord(r, 'patch.attributes')).toThrow();
+    expect(() => assertKeywordRecord(assert, r, 'patch.attributes')).toThrow();
   });
 
   it('crashes on camelCase keys', () => {
     const r: Record<string, unknown> = { camelCase: 1 };
-    expect(() => assertKeywordRecord(r, 'attrs')).toThrow();
+    expect(() => assertKeywordRecord(assert, r, 'attrs')).toThrow();
   });
 
   it('crashes on numeric-like keys', () => {
     const r: Record<string, unknown> = { '0': 1, '1': 2 };
-    expect(() => assertKeywordRecord(r, 'attrs')).toThrow();
+    expect(() => assertKeywordRecord(assert, r, 'attrs')).toThrow();
   });
 
   it('crashes on keys with multiple slashes', () => {
     const r: Record<string, unknown> = { 'a/b/c': 1 };
-    expect(() => assertKeywordRecord(r, 'attrs')).toThrow();
+    expect(() => assertKeywordRecord(assert, r, 'attrs')).toThrow();
   });
 
   it('crashes on keys with unicode characters', () => {
     const r: Record<string, unknown> = { 'todo/títle': 'a' };
-    expect(() => assertKeywordRecord(r, 'attrs')).toThrow();
+    expect(() => assertKeywordRecord(assert, r, 'attrs')).toThrow();
   });
 
   it('crashes on null', () => {
     expect(() =>
-      assertKeywordRecord(null as unknown as Record<string, unknown>, 'x')
+      assertKeywordRecord(
+        assert,
+        null as unknown as Record<string, unknown>,
+        'x'
+      )
     ).toThrow();
   });
 
   it('crashes on undefined', () => {
     expect(() =>
-      assertKeywordRecord(undefined as unknown as Record<string, unknown>, 'x')
+      assertKeywordRecord(
+        assert,
+        undefined as unknown as Record<string, unknown>,
+        'x'
+      )
     ).toThrow();
   });
 
   it('crashes on arrays (even empty)', () => {
     expect(() =>
-      assertKeywordRecord([] as unknown as Record<string, unknown>, 'attrs')
+      assertKeywordRecord(
+        assert,
+        [] as unknown as Record<string, unknown>,
+        'attrs'
+      )
     ).toThrow();
     expect(() =>
       assertKeywordRecord(
+        assert,
         ['todo/title'] as unknown as Record<string, unknown>,
         'attrs'
       )
@@ -802,19 +821,31 @@ describe('assertKeywordRecord', () => {
 
   it('crashes on primitive non-objects', () => {
     expect(() =>
-      assertKeywordRecord(42 as unknown as Record<string, unknown>, 'attrs')
+      assertKeywordRecord(
+        assert,
+        42 as unknown as Record<string, unknown>,
+        'attrs'
+      )
     ).toThrow();
     expect(() =>
-      assertKeywordRecord('s' as unknown as Record<string, unknown>, 'attrs')
+      assertKeywordRecord(
+        assert,
+        's' as unknown as Record<string, unknown>,
+        'attrs'
+      )
     ).toThrow();
     expect(() =>
-      assertKeywordRecord(true as unknown as Record<string, unknown>, 'attrs')
+      assertKeywordRecord(
+        assert,
+        true as unknown as Record<string, unknown>,
+        'attrs'
+      )
     ).toThrow();
   });
 
   it('only inspects own enumerable string keys', () => {
     const r: Record<string, unknown> = Object.create({ inheritedKey: 1 });
     r['todo/title'] = 'a';
-    expect(() => assertKeywordRecord(r, 'attrs')).not.toThrow();
+    expect(() => assertKeywordRecord(assert, r, 'attrs')).not.toThrow();
   });
 });

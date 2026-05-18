@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { hotAssert } from '../assert';
 import type { Keyword } from '../keyword/keyword';
 import { assertNamespacedKeyword } from '../keyword/keyword';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
@@ -7,7 +8,7 @@ import { KvImplExpoTx } from './impl-kv-expo-tx';
 import type { Kv, KvRecord } from './interface';
 
 function assertKvKey(key: string): asserts key is Keyword {
-  assertNamespacedKeyword(key);
+  assertNamespacedKeyword(hotAssert(), key);
 }
 
 /**
@@ -31,13 +32,13 @@ export class KvImplExpo implements Kv {
     return this.enqueue(async () => {
       const raw = await AsyncStorage.getItem(key);
       if (raw === null || raw.length === 0) return null;
-      return parseKvRecordFromUnknown(raw, 'kv expo get');
+      return parseKvRecordFromUnknown(hotAssert(), raw, 'kv expo get');
     });
   }
 
   async put(key: Keyword, value: KvRecord): Promise<void> {
     assertKvKey(key);
-    assertKvRecord(value, 'kv expo put');
+    assertKvRecord(hotAssert(), value, 'kv expo put');
     return this.enqueue(async () => {
       await AsyncStorage.setItem(key, JSON.stringify(value));
     });

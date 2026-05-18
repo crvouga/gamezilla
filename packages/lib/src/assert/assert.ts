@@ -2,9 +2,16 @@ import { registerCrashHandler as addCrashHandler, crash } from './crash/crash';
 import type { CrashHandler } from './crash/crash-handler/crash-handler';
 import { ValidationError } from './validation-error';
 
+export type AssertErrorMode = 'validation' | 'crash' | 'noop';
+
 /**
- * Assertion helper with two modes: {@link Assert.validation} throws {@link ValidationError};
- * {@link Assert.crash} logs and terminates the process or shows a fatal UI (see `crash`).
+ * Assertion helper with three modes:
+ * - {@link Assert.validation} throws {@link ValidationError} on failure (recoverable input checks).
+ * - {@link Assert.crash} logs and terminates the process or shows a fatal UI (see `crash`).
+ * - {@link Assert.noop} short-circuits every method (for hot paths where the
+ *   runtime cost of validation would dominate; trades runtime safety for
+ *   throughput). Type-level narrowing still applies, so callers see the
+ *   asserted type even though no runtime check ran.
  */
 export class Assert {
   /**
@@ -21,7 +28,18 @@ export class Assert {
     return new Assert('crash');
   }
 
-  static withErrorMode(errorMode: 'validation' | 'crash'): Assert {
+  /**
+   * Returns an assert instance whose methods are runtime no-ops. Type-level
+   * narrowing (`asserts value is T`) still applies, so downstream callers
+   * compile as if the check ran. Use only on hot paths via
+   * `@gamezilla/lib/assert` `hotAssert()` — never trust input you did not
+   * produce.
+   */
+  static noop(): Assert {
+    return new Assert('noop');
+  }
+
+  static withErrorMode(errorMode: AssertErrorMode): Assert {
     return new Assert(errorMode);
   }
 
@@ -42,9 +60,15 @@ export class Assert {
     return Assert.registerCrashHandler(handler);
   }
 
-  private constructor(
-    private readonly errorMode: 'validation' | 'crash' = 'crash'
-  ) {}
+  private constructor(private readonly errorMode: AssertErrorMode = 'crash') {}
+
+  /**
+   * `true` when this instance runs runtime checks; `false` when it's a noop
+   * (so callers can short-circuit expensive validation loops before iterating).
+   */
+  isEnabled(): boolean {
+    return this.errorMode !== 'noop';
+  }
 
   /**
    * Asserts that `condition` is true.
@@ -59,6 +83,9 @@ export class Assert {
     context?: Record<string, unknown>
   ): asserts condition {
     switch (this.errorMode) {
+      case 'noop': {
+        return;
+      }
       case 'validation': {
         if (!condition) {
           throw new ValidationError(message, context);
@@ -326,6 +353,7 @@ export class Assert {
     message: string,
     context?: Record<string, unknown>
   ): asserts fn is () => unknown {
+    if (!this.isEnabled()) return;
     try {
       fn();
       return;
@@ -344,6 +372,7 @@ export class Assert {
     values: U[] | U,
     fn: (value: U) => asserts value is T extends U ? T : never
   ): asserts values is T[] {
+    if (!this.isEnabled()) return;
     this.array(values, 'values must be an array');
     for (const value of values) {
       fn(value);
@@ -360,6 +389,7 @@ export class Assert {
     message?: string,
     context?: Record<string, unknown>
   ): (...args: Parameters<TFunc>) => ReturnType<TFunc> {
+    if (!this.isEnabled()) return checks.fn;
     return (...args: Parameters<TFunc>) => {
       if (checks.pre) {
         this.notThrows(

@@ -1,11 +1,11 @@
-import { assert } from '../assert';
+import { assert, hotAssert } from '../assert';
 import type { Keyword } from '../keyword/keyword';
 import { assertNamespacedKeyword } from '../keyword/keyword';
 import { assertKvRecord } from './assert-kv-record';
 import type { Kv, KvRecord } from './interface';
 
 function assertKvKey(key: string): asserts key is Keyword {
-  assertNamespacedKeyword(key);
+  assertNamespacedKeyword(hotAssert(), key);
 }
 
 /** Transaction view: same map, no nested mutex (parent `enqueue` holds the lock). */
@@ -20,7 +20,7 @@ export class KvImplInMemoryTx implements Kv {
 
   async put(key: Keyword, value: KvRecord): Promise<void> {
     assertKvKey(key);
-    assertKvRecord(value, 'kv in-memory tx put');
+    assertKvRecord(hotAssert(), value, 'kv in-memory tx put');
     this.map.set(key, structuredClone(value));
   }
 

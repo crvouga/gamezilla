@@ -135,7 +135,7 @@ export function assertAttributes(
   a: Assert = assert
 ): asserts attributes is Record<Keyword, unknown> {
   a.record(attributes, 'attributes must be object');
-  assertKeywordRecord(attributes as Record<string, unknown>, 'attributes');
+  assertKeywordRecord(a, attributes as Record<string, unknown>, 'attributes');
 }
 
 /**
@@ -146,6 +146,6 @@ export function toAttributeState(
   record: Record<string, unknown>,
   label = 'attributes'
 ): AttributeState {
-  assertKeywordRecord(record, label);
+  assertKeywordRecord(assert, record, label);
   return record as AttributeState;
 }

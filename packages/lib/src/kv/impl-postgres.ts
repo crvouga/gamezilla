@@ -20,7 +20,7 @@
  * contract as patch-db snapshot attributes). Writes use `?::text::jsonb` so
  * Bun's `bun:sql` driver does not double-encode JSON parameters.
  */
-import { assert } from '../assert';
+import { assert, hotAssert } from '../assert';
 import type { Keyword } from '../keyword/keyword';
 import { assertNamespacedKeyword } from '../keyword/keyword';
 import type { Logger } from '../logger/logger';
@@ -215,12 +215,16 @@ export class KvImplPostgres implements Kv {
     );
     const first = rows[0];
     if (first === null || first === undefined) return null;
-    return parseKvRecordFromUnknown(first.value, 'kv postgres get');
+    return parseKvRecordFromUnknown(
+      hotAssert(),
+      first.value,
+      'kv postgres get'
+    );
   }
 
   async put(key: Keyword, value: KvRecord): Promise<void> {
     assertKvKey(key);
-    assertKvRecord(value, 'kv postgres put');
+    assertKvRecord(hotAssert(), value, 'kv postgres put');
     await this.sqlClient.run(
       `INSERT INTO ${TABLE} (key, value) VALUES (?, ?::text::jsonb)
        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, ${LAST_MODIFIED_AT} = now()`,
@@ -243,5 +247,5 @@ export class KvImplPostgres implements Kv {
 }
 
 function assertKvKey(key: string): asserts key is Keyword {
-  assertNamespacedKeyword(key);
+  assertNamespacedKeyword(hotAssert(), key);
 }

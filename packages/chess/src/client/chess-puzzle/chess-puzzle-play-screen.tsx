@@ -14,12 +14,13 @@ import {
 } from '../../shared/chess-puzzle-play';
 import { ChessBoard } from '../chess-board/chess-board';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
+import { ChessPuzzleBoardSkeleton } from './chess-puzzle-board-skeleton';
 import { usePuzzleEntity } from './chess-puzzle-play-queries';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import { useNextPuzzleId } from './use-next-puzzle-id';
 import {
-  type PuzzlePlayerChromeModel,
   usePuzzlePlayerState,
+  type PuzzlePlayerChromeModel,
 } from './use-puzzle-player-state';
 
 const BOARD_MAX_WIDTH = 720;
@@ -77,6 +78,40 @@ function LoadingFirstPuzzle(): ReactNode {
   );
 }
 
+function PuzzleBoardSlot(
+  p: Pick<
+    PuzzlePlayerChromeModel,
+    | 'displayFen'
+    | 'layoutKey'
+    | 'orientation'
+    | 'status'
+    | 'onMove'
+    | 'cellFeedback'
+    | 'arrows'
+  >
+): ReactNode {
+  if (p.displayFen === null || p.displayFen.length === 0) {
+    return <ChessPuzzleBoardSkeleton />;
+  }
+  return (
+    <ChessBoard
+      controlled
+      fen={p.displayFen}
+      fenSyncKey={p.layoutKey}
+      orientation={p.orientation}
+      interactive={p.status === 'solving'}
+      onMove={p.onMove}
+      showCoordinates
+      highlightLastMove
+      highlightLegalMoves
+      {...(p.cellFeedback !== undefined
+        ? { cellFeedback: p.cellFeedback }
+        : {})}
+      {...(p.arrows.length > 0 ? { arrows: p.arrows } : {})}
+    />
+  );
+}
+
 function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
   return (
     <Box sx={{ alignSelf: 'stretch' }}>
@@ -97,20 +132,14 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
           }
           numberOfLines={2}
         />
-        <ChessBoard
-          controlled
-          fen={p.displayFen}
-          fenSyncKey={p.layoutKey}
+        <PuzzleBoardSlot
+          displayFen={p.displayFen}
+          layoutKey={p.layoutKey}
           orientation={p.orientation}
-          interactive={p.status === 'solving'}
+          status={p.status}
           onMove={p.onMove}
-          showCoordinates
-          highlightLastMove
-          highlightLegalMoves
-          {...(p.cellFeedback !== undefined
-            ? { cellFeedback: p.cellFeedback }
-            : {})}
-          {...(p.arrows.length > 0 ? { arrows: p.arrows } : {})}
+          cellFeedback={p.cellFeedback}
+          arrows={p.arrows}
         />
         <ChessPuzzleActionBar
           status={p.status}
