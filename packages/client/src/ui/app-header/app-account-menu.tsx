@@ -1,7 +1,8 @@
 /**
- * Wide-layout sidebar account row + {@link FloatingMenu} (same entries as
- * header overflow). Pure layout — composes id-driven atoms for the trigger
- * (avatar + name) and the menu header.
+ * Compact account menu trigger for {@link AppHeader}. Reuses the same
+ * floating-menu rows the legacy sidebar exposed (Profile / Connection /
+ * Sign in/out / Settings), but the trigger is a single circular avatar in
+ * the header's trailing slot — Facebook-style.
  */
 
 import {
@@ -10,13 +11,14 @@ import {
 } from '@gamezilla/auth/client/auth-modals-provider';
 import { useIsSignedIn } from '@gamezilla/auth/client/use-current-user';
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
-import { useLogger } from '@gamezilla/lib/logger/react';
-import { SidebarAccountMenuHeader } from '@gamezilla/client/ui/sidebar/sidebar-account-menu-header';
-import { SidebarAccountTrigger } from '@gamezilla/client/ui/sidebar/sidebar-account-trigger';
 import { useAsync } from '@gamezilla/lib/async/use-async';
+import { useLogger } from '@gamezilla/lib/logger/react';
+import { MyDisplayName } from '@gamezilla/profile/client/my-display-name';
+import { MyProfileAvatar } from '@gamezilla/profile/client/my-profile-avatar';
 import {
   Box,
   FloatingMenu,
+  Pressable,
   StatusDot,
   Text,
   type FloatingMenuContent,
@@ -30,11 +32,13 @@ import {
   useRef,
   useState,
   type ElementRef,
+  type ReactNode,
 } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-type AnchorRect = { x: number; y: number; width: number; height: number };
+const TRIGGER_SIZE = 40;
 
+type AnchorRect = { x: number; y: number; width: number; height: number };
 type ServerStatus = ReturnType<typeof useServerStatus>;
 
 function useAccountMenuActions(args: {
@@ -45,7 +49,7 @@ function useAccountMenuActions(args: {
 }) {
   const { isAuthenticated, openSignOutConfirm, openSignInModal, close } = args;
   const router = useRouter();
-  const log = useLogger('sidebar-account-menu');
+  const log = useLogger('app-account-menu');
 
   const onProfile = useCallback(() => {
     close();
@@ -79,9 +83,7 @@ function useAccountMenuActions(args: {
 
   const onAuth = useCallback(() => {
     close();
-    void runAuth().catch(() => {
-      // onError already logged via hook.
-    });
+    void runAuth().catch(() => {});
   }, [close, runAuth]);
 
   return { onProfile, onSettings, onServerStatus, onAuth };
@@ -178,7 +180,7 @@ function buildMenuContent(args: {
     onSettings,
   } = args;
   return {
-    header: { title: <SidebarAccountMenuHeader /> },
+    header: { title: <MyDisplayName variant="bodyBold" /> },
     rows: [
       {
         type: 'item',
@@ -203,21 +205,16 @@ function buildMenuContent(args: {
   };
 }
 
-export function SidebarAccountMenu() {
-  const isAuthenticated = useIsSignedIn();
-  const { open: openSignInModal } = useSignInModal();
-  const { open: openSignOutConfirm } = useSignOutModal();
-  const insets = useSafeAreaInsets();
+function useFloatingAnchor(): {
+  triggerRef: React.RefObject<ElementRef<typeof Box> | null>;
+  open: boolean;
+  anchor: AnchorRect | null;
+  openMenu: () => void;
+  close: () => void;
+} {
   const triggerRef = useRef<ElementRef<typeof Box>>(null);
-  const serverStatus = useServerStatus();
-  const { refresh } = serverStatus;
-
   const [open, setOpen] = useState(false);
   const [anchor, setAnchor] = useState<AnchorRect | null>(null);
-
-  useEffect(() => {
-    if (open) refresh();
-  }, [open, refresh]);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -230,6 +227,22 @@ export function SidebarAccountMenu() {
       setOpen(true);
     });
   }, []);
+
+  return { triggerRef, open, anchor, openMenu, close };
+}
+
+export function AppAccountMenu(): ReactNode {
+  const isAuthenticated = useIsSignedIn();
+  const { open: openSignInModal } = useSignInModal();
+  const { open: openSignOutConfirm } = useSignOutModal();
+  const insets = useSafeAreaInsets();
+  const serverStatus = useServerStatus();
+  const { refresh } = serverStatus;
+  const { triggerRef, open, anchor, openMenu, close } = useFloatingAnchor();
+
+  useEffect(() => {
+    if (open) refresh();
+  }, [open, refresh]);
 
   const { onProfile, onSettings, onServerStatus, onAuth } =
     useAccountMenuActions({
@@ -261,11 +274,24 @@ export function SidebarAccountMenu() {
 
   return (
     <>
-      <SidebarAccountTrigger
-        triggerRef={triggerRef}
-        open={open}
-        onPress={openMenu}
-      />
+      <Box ref={triggerRef} collapsable={false}>
+        <Pressable
+          onPress={openMenu}
+          accessibilityRole="button"
+          accessibilityLabel={t`User menu`}
+          accessibilityState={{ expanded: open }}
+          sx={{
+            width: TRIGGER_SIZE,
+            height: TRIGGER_SIZE,
+            borderRadius: TRIGGER_SIZE / 2,
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: open ? 'surface' : 'transparent',
+          }}
+        >
+          <MyProfileAvatar size={TRIGGER_SIZE - 4} />
+        </Pressable>
+      </Box>
       <FloatingMenu
         open={open}
         onClose={close}

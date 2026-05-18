@@ -13,6 +13,7 @@ import {
 } from '@gamezilla/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
+import type { ReactNode } from 'react';
 
 function SpacesList() {
   const spaceIds = useLiveSpaceIds();
@@ -45,9 +46,17 @@ function SpacesList() {
 export type SpacesScreenProps = {
   /** Header overflow actions for user / connection / settings on mobile. */
   readonly accountActions: readonly ScreenBaseAction[];
+  /** Desktop centered tab strip (top-level tab navigation). */
+  readonly centerTabs?: ReactNode;
+  /** Desktop trailing slot (account avatar trigger). */
+  readonly headerEnd?: ReactNode;
 };
 
-export function SpacesScreen({ accountActions }: SpacesScreenProps) {
+export function SpacesScreen({
+  accountActions,
+  centerTabs,
+  headerEnd,
+}: SpacesScreenProps) {
   const isMobile = useBreakpoint() === 'mobile';
   const router = useRouter();
   const { createSpace } = useSpaceActions();
@@ -70,6 +79,8 @@ export function SpacesScreen({ accountActions }: SpacesScreenProps) {
         },
       ]}
       actions={isMobile ? [...accountActions] : []}
+      centerTabs={centerTabs}
+      headerEnd={headerEnd}
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 3 }}>
           <Button

@@ -200,6 +200,21 @@ function TitleArea({
   );
 }
 
+function CenterTabsArea({ children }: { children: ReactNode }) {
+  return (
+    <Box
+      sx={{
+        alignSelf: 'stretch',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: TITLE_SIDE_GUTTER,
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
 function BackButton({
   label,
   onPress,
@@ -232,11 +247,13 @@ function ActionsBar({
   hasOverflow,
   overflowTriggerRef,
   onOpenOverflow,
+  headerEnd,
 }: {
   inline: ScreenBaseAction[];
   hasOverflow: boolean;
   overflowTriggerRef: React.RefObject<React.ElementRef<typeof Box> | null>;
   onOpenOverflow: () => void;
+  headerEnd?: ReactNode;
 }) {
   const theme = useTheme();
   return (
@@ -250,7 +267,7 @@ function ActionsBar({
         alignItems: 'center',
         gap: 2,
         zIndex: 2,
-        maxWidth: 280,
+        maxWidth: 320,
       }}
     >
       {inline.map((a, i) => {
@@ -274,6 +291,7 @@ function ActionsBar({
           </IconButton>
         </Box>
       ) : null}
+      {headerEnd}
     </Box>
   );
 }
@@ -320,27 +338,94 @@ function deriveTitleData(breadcrumbs: BreadcrumbItem[]) {
   return { title: current?.name, subtitle, backCrumb };
 }
 
+function deriveBackLabel(
+  backCrumb: BreadcrumbItem | undefined,
+  fallback: ReactNode
+): ReactNode {
+  if (backCrumb === undefined) return fallback;
+  return (
+    <>
+      {'\u2190 '}
+      {backCrumb.name}
+    </>
+  );
+}
+
+type HeaderBarProps = {
+  centerTabs: ReactNode | undefined;
+  title: ReactNode | undefined;
+  subtitle: ReactNode | undefined;
+  showBack: boolean;
+  backLabel: ReactNode;
+  onBack: () => void;
+  inline: ScreenBaseAction[];
+  hasOverflow: boolean;
+  overflowTriggerRef: React.RefObject<React.ElementRef<typeof Box> | null>;
+  onOpenOverflow: () => void;
+  headerEnd: ReactNode | undefined;
+};
+
+function HeaderBar(props: HeaderBarProps) {
+  const {
+    centerTabs,
+    title,
+    subtitle,
+    showBack,
+    backLabel,
+    onBack,
+    inline,
+    hasOverflow,
+    overflowTriggerRef,
+    onOpenOverflow,
+    headerEnd,
+  } = props;
+  return (
+    <Box
+      sx={{
+        position: 'relative',
+        minHeight: BAR_CONTENT_HEIGHT,
+        justifyContent: 'center',
+      }}
+    >
+      {centerTabs !== undefined ? (
+        <CenterTabsArea>{centerTabs}</CenterTabsArea>
+      ) : (
+        <TitleArea
+          title={title}
+          {...(subtitle !== undefined ? { subtitle } : {})}
+        />
+      )}
+      {showBack ? <BackButton label={backLabel} onPress={onBack} /> : null}
+      <ActionsBar
+        inline={inline}
+        hasOverflow={hasOverflow}
+        overflowTriggerRef={overflowTriggerRef}
+        onOpenOverflow={onOpenOverflow}
+        headerEnd={headerEnd}
+      />
+    </Box>
+  );
+}
+
 export function ScreenBaseHeader({
   breadcrumbs,
   actions: actionsProp,
+  centerTabs,
+  headerEnd,
 }: ScreenBaseHeaderProps) {
-  const actions = actionsProp ?? [];
   const insets = useSafeAreaInsetsCompat();
   const isMobile = useBreakpoint() === 'mobile';
-  const { inline, overflow } = partitionScreenActions(actions, isMobile);
+  const { inline, overflow } = partitionScreenActions(
+    actionsProp ?? [],
+    isMobile
+  );
   const menu = useOverflowMenu(overflow);
   const { title, subtitle, backCrumb } = deriveTitleData(breadcrumbs);
   const showBack =
     isMobile && backCrumb !== undefined && backCrumb.onPress !== undefined;
-  const backLabel: ReactNode =
-    backCrumb !== undefined ? (
-      <>
-        {'\u2190 '}
-        {backCrumb.name}
-      </>
-    ) : (
-      t`Back`
-    );
+  const renderedCenterTabs = !isMobile ? centerTabs : undefined;
+  const renderBreadcrumbs =
+    !isMobile && renderedCenterTabs === undefined && breadcrumbs.length > 0;
 
   return (
     <Box
@@ -351,33 +436,20 @@ export function ScreenBaseHeader({
         paddingTop: insets.top,
       }}
     >
-      {!isMobile && breadcrumbs.length > 0 ? (
-        <BreadcrumbsBar breadcrumbs={breadcrumbs} />
-      ) : null}
-      <Box
-        sx={{
-          position: 'relative',
-          minHeight: BAR_CONTENT_HEIGHT,
-          justifyContent: 'center',
-        }}
-      >
-        <TitleArea
-          title={title}
-          {...(subtitle !== undefined ? { subtitle } : {})}
-        />
-        {showBack ? (
-          <BackButton
-            label={backLabel}
-            onPress={() => backCrumb?.onPress?.()}
-          />
-        ) : null}
-        <ActionsBar
-          inline={inline}
-          hasOverflow={overflow.length > 0}
-          overflowTriggerRef={menu.triggerRef}
-          onOpenOverflow={menu.openOverflow}
-        />
-      </Box>
+      {renderBreadcrumbs ? <BreadcrumbsBar breadcrumbs={breadcrumbs} /> : null}
+      <HeaderBar
+        centerTabs={renderedCenterTabs}
+        title={title}
+        subtitle={subtitle}
+        showBack={showBack}
+        backLabel={deriveBackLabel(backCrumb, t`Back`)}
+        onBack={() => backCrumb?.onPress?.()}
+        inline={inline}
+        hasOverflow={overflow.length > 0}
+        overflowTriggerRef={menu.triggerRef}
+        onOpenOverflow={menu.openOverflow}
+        headerEnd={!isMobile ? headerEnd : undefined}
+      />
       <FloatingMenu
         open={menu.open}
         onClose={menu.close}

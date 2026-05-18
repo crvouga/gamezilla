@@ -38,10 +38,7 @@ export function SpaceMembersList({
     <Box sx={{ gap: 0 }}>
       {hostId !== null ? <SpaceMembersHostRow profileId={hostId} /> : null}
       {membershipIds.map((membershipId) => (
-        <SpaceMembersGuestRow
-          key={membershipId}
-          membershipId={membershipId}
-        />
+        <SpaceMembersGuestRow key={membershipId} membershipId={membershipId} />
       ))}
     </Box>
   );
@@ -50,7 +47,9 @@ export function SpaceMembersList({
 function SpaceMembersHostRow({ profileId }: { profileId: string }): ReactNode {
   return (
     <SpaceMembersRowShell
-      avatar={<UserProfileAvatar profileId={profileId} size={ROW_AVATAR_SIZE} />}
+      avatar={
+        <UserProfileAvatar profileId={profileId} size={ROW_AVATAR_SIZE} />
+      }
       name={
         <UserDisplayName
           profileId={profileId}

@@ -49,6 +49,8 @@ export function ScreenBase({
   content,
   scroll = false,
   keyboardAvoiding = false,
+  centerTabs,
+  headerEnd,
 }: ScreenBaseProps) {
   const inner = (
     <ConstrainedInner>
@@ -78,7 +80,12 @@ export function ScreenBase({
 
   return (
     <Box sx={{ flex: 1 }}>
-      <ScreenBaseHeader breadcrumbs={breadcrumbs} actions={actions ?? []} />
+      <ScreenBaseHeader
+        breadcrumbs={breadcrumbs}
+        actions={actions ?? []}
+        centerTabs={centerTabs}
+        headerEnd={headerEnd}
+      />
       {wrapped}
     </Box>
   );

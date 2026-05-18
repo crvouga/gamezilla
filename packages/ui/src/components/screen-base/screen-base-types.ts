@@ -38,10 +38,25 @@ export type ScreenBaseProps = {
   content: (p: BodyContentProps) => ReactNode;
   scroll?: boolean;
   keyboardAvoiding?: boolean;
+  /**
+   * Desktop-only: rendered in the center of the header in place of the
+   * breadcrumb title (e.g. a tab strip for top-level screens). On mobile
+   * the breadcrumb title is used as usual.
+   */
+  centerTabs?: ReactNode;
+  /**
+   * Desktop-only: rendered on the right side of the header alongside
+   * actions (e.g. an account avatar trigger). Ignored on mobile.
+   */
+  headerEnd?: ReactNode;
 };
 
 export type ScreenBaseHeaderProps = {
   breadcrumbs: ScreenBaseBreadcrumb[];
   /** When omitted, empty. */
   actions?: ScreenBaseAction[] | undefined;
+  /** See {@link ScreenBaseProps.centerTabs}. */
+  centerTabs?: ReactNode;
+  /** See {@link ScreenBaseProps.headerEnd}. */
+  headerEnd?: ReactNode;
 };
