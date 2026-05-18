@@ -3,7 +3,7 @@ import { AccountDeviceDetailHeader } from './account-device-detail-header';
 import { useBreadcrumbNav } from '@gamezilla/ui/components/use-breadcrumb-nav';
 import { Box, Card, ScreenBase, Text } from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
-import { type Href, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 
 function normalizeDeviceId(raw: string | string[] | undefined): string | null {
   if (raw === undefined) return null;
@@ -24,7 +24,7 @@ export function AccountDeviceDetailScreen() {
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },
         {
           name: <Trans>Account</Trans>,
-          onPress: nav('/more/account' as Href),
+          onPress: nav('/more/account'),
         },
         { name: <Trans>Device</Trans> },
       ]}
