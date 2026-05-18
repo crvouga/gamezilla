@@ -33,6 +33,7 @@
 import { Assert, ValidationError } from '@gamezilla/lib/assert';
 import type { AttributeState } from '@gamezilla/lib/attribute';
 import { assertKeywordRecord } from '@gamezilla/lib/keyword';
+import { createLogger } from '@gamezilla/lib/logger';
 import { Hono, type MiddlewareHandler } from 'hono';
 import type {
   CategoricalTermWire,
@@ -42,8 +43,32 @@ import type {
   NumericTermWire,
   PartitionTermWire,
 } from './matchmaker';
+import {
+  MATCHMAKING_MAX_GROUP_SIZE,
+  MATCHMAKING_MAX_PRIORITY,
+  MATCHMAKING_MIN_GROUP_SIZE,
+  MATCHMAKING_MIN_PRIORITY,
+} from './migrate-sql';
+import { MATCHMAKING_PAYLOAD_LIMITS } from './payload-limits';
 
 type LeaveBody = { readonly participantId: string };
+
+/**
+ * UTF-8 byte length of a string. Used by the validator to enforce
+ * `maxStringBytes` against raw user input. Cached `TextEncoder` —
+ * cheaper than re-allocating per call.
+ */
+const UTF8 = new TextEncoder();
+function utf8Bytes(s: string): number {
+  return UTF8.encode(s).length;
+}
+
+function assertStringByteCap(v: Assert, value: string, label: string): void {
+  v.ok(
+    utf8Bytes(value) <= MATCHMAKING_PAYLOAD_LIMITS.maxStringBytes,
+    `${label} must be at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxStringBytes)} bytes (UTF-8)`
+  );
+}
 
 function parseNumericTerms(
   v: Assert,
@@ -61,6 +86,7 @@ function parseNumericTerms(
       path,
       `${label}[${String(i)}].path must be a non-empty string`
     );
+    assertStringByteCap(v, path, `${label}[${String(i)}].path`);
     v.ok(
       typeof weight === 'number' && Number.isFinite(weight) && weight >= 0,
       `${label}[${String(i)}].weight must be a non-negative finite number`
@@ -86,6 +112,7 @@ function parseCategoricalTerms(
       path,
       `${label}[${String(i)}].path must be a non-empty string`
     );
+    assertStringByteCap(v, path, `${label}[${String(i)}].path`);
     v.ok(
       typeof penalty === 'number' && Number.isFinite(penalty) && penalty >= 0,
       `${label}[${String(i)}].penalty must be a non-negative finite number`
@@ -110,6 +137,7 @@ function parsePartitionTerms(
       path,
       `${label}[${String(i)}].path must be a non-empty string`
     );
+    assertStringByteCap(v, path, `${label}[${String(i)}].path`);
     out.push({ path });
   }
   return out;
@@ -129,11 +157,30 @@ function parseFormula(v: Assert, raw: unknown, label: string): FormulaWire {
     partitionRaw === undefined
       ? []
       : parsePartitionTerms(v, partitionRaw, `${label}.partition`);
+  const termCount = numeric.length + categorical.length + partition.length;
   v.ok(
-    numeric.length + categorical.length + partition.length > 0,
+    termCount > 0,
     `${label} must declare at least one numeric, categorical, or partition term`
   );
+  v.ok(
+    termCount <= MATCHMAKING_PAYLOAD_LIMITS.maxTermsPerFormula,
+    `${label} must contain at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxTermsPerFormula)} terms total (numeric + categorical + partition)`
+  );
   return { numeric, categorical, partition };
+}
+
+/**
+ * Enforces {@link MATCHMAKING_PAYLOAD_LIMITS.maxStringBytes} across
+ * every string value in `data`. Numbers/booleans/null are passed
+ * through (already O(1) JSONB), nested objects/arrays are rejected by
+ * `assertKeywordRecord` upstream so this stays a flat traversal.
+ */
+function assertDataValueCaps(v: Assert, data: Record<string, unknown>): void {
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === 'string') {
+      assertStringByteCap(v, value, `data[${JSON.stringify(key)}]`);
+    }
+  }
 }
 
 function parseJoinBody(raw: unknown): JoinInputRaw {
@@ -142,14 +189,90 @@ function parseJoinBody(raw: unknown): JoinInputRaw {
   const dataValue: unknown = raw['data'];
   v.record(dataValue, 'data must be a plain object');
   assertKeywordRecord(v, dataValue, 'data');
+  const dataKeyCount = Object.keys(dataValue).length;
+  v.ok(
+    dataKeyCount <= MATCHMAKING_PAYLOAD_LIMITS.maxDataKeys,
+    `data must contain at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxDataKeys)} keys`
+  );
+  assertDataValueCaps(v, dataValue);
   const formulasRaw: unknown = raw['formulas'];
   v.array(formulasRaw, 'formulas must be an array');
   v.ok(formulasRaw.length > 0, 'formulas must be non-empty');
+  v.ok(
+    formulasRaw.length <= MATCHMAKING_PAYLOAD_LIMITS.maxFormulas,
+    `formulas must contain at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxFormulas)} entries`
+  );
   const formulas: FormulaWire[] = [];
   for (let i = 0; i < formulasRaw.length; i += 1) {
     formulas.push(parseFormula(v, formulasRaw[i], `formulas[${String(i)}]`));
   }
-  return { data: dataValue as AttributeState, formulas };
+  const groupSizeRaw: unknown = raw['groupSize'];
+  let groupSize: number | undefined;
+  if (groupSizeRaw !== undefined) {
+    v.ok(
+      typeof groupSizeRaw === 'number' && Number.isInteger(groupSizeRaw),
+      'groupSize must be an integer'
+    );
+    v.ok(
+      groupSizeRaw >= MATCHMAKING_MIN_GROUP_SIZE &&
+        groupSizeRaw <= MATCHMAKING_MAX_GROUP_SIZE,
+      `groupSize must be between ${String(MATCHMAKING_MIN_GROUP_SIZE)} and ${String(MATCHMAKING_MAX_GROUP_SIZE)}`
+    );
+    groupSize = groupSizeRaw;
+  }
+  const priorityRaw: unknown = raw['priority'];
+  let priority: number | undefined;
+  if (priorityRaw !== undefined) {
+    v.ok(
+      typeof priorityRaw === 'number' && Number.isInteger(priorityRaw),
+      'priority must be an integer'
+    );
+    v.ok(
+      priorityRaw >= MATCHMAKING_MIN_PRIORITY &&
+        priorityRaw <= MATCHMAKING_MAX_PRIORITY,
+      `priority must be between ${String(MATCHMAKING_MIN_PRIORITY)} and ${String(MATCHMAKING_MAX_PRIORITY)}`
+    );
+    priority = priorityRaw;
+  }
+  const metadataRaw: unknown = raw['metadata'];
+  let metadata: Record<string, unknown> | null | undefined;
+  if (metadataRaw === null) {
+    metadata = null;
+  } else if (metadataRaw !== undefined) {
+    v.record(metadataRaw, 'metadata must be a plain object or null');
+    const encoded = JSON.stringify(metadataRaw);
+    v.ok(
+      utf8Bytes(encoded) <= MATCHMAKING_PAYLOAD_LIMITS.maxMetadataBytes,
+      `metadata JSON must be at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxMetadataBytes)} bytes (UTF-8)`
+    );
+    metadata = metadataRaw;
+  }
+  return {
+    data: dataValue as AttributeState,
+    formulas,
+    ...(groupSize !== undefined ? { groupSize } : {}),
+    ...(priority !== undefined ? { priority } : {}),
+    ...(metadata !== undefined ? { metadata } : {}),
+  };
+}
+
+function parseUpdateFormulasBody(raw: unknown): {
+  readonly formulas: readonly FormulaWire[];
+} {
+  const v: Assert = Assert.validation();
+  v.record(raw, 'body must be a JSON object');
+  const formulasRaw: unknown = raw['formulas'];
+  v.array(formulasRaw, 'formulas must be an array');
+  v.ok(formulasRaw.length > 0, 'formulas must be non-empty');
+  v.ok(
+    formulasRaw.length <= MATCHMAKING_PAYLOAD_LIMITS.maxFormulas,
+    `formulas must contain at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxFormulas)} entries`
+  );
+  const formulas: FormulaWire[] = [];
+  for (let i = 0; i < formulasRaw.length; i += 1) {
+    formulas.push(parseFormula(v, formulasRaw[i], `formulas[${String(i)}]`));
+  }
+  return { formulas };
 }
 
 function parseLeaveBody(raw: unknown): LeaveBody {
@@ -164,6 +287,8 @@ export type CreateMatchmakingAppOptions = {
   readonly matchmaker: Matchmaker;
   readonly requireAuth: MiddlewareHandler;
 };
+
+const log = createLogger({ name: 'matchmaking-app' });
 
 export function createMatchmakingApp(opts: CreateMatchmakingAppOptions): Hono {
   const { matchmaker, requireAuth } = opts;
@@ -192,12 +317,37 @@ export function createMatchmakingApp(opts: CreateMatchmakingAppOptions): Hono {
     return c.json(result);
   });
 
+  // Post-join widen / narrow. Preserves `joined_at` so the participant
+  // keeps their queue position. 404 when the participant is no longer
+  // in matchmaking_waiting (matched, swept, or unknown id).
+  app.post('/update-formulas/:participantId', async (c) => {
+    const participantId = c.req.param('participantId');
+    const raw: unknown = await c.req.json();
+    const body = parseUpdateFormulasBody(raw);
+    const result = await matchmaker.updateFormulasRaw(participantId, body);
+    if (!result.updated) return c.json({ error: 'not found' }, 404);
+    return c.json(result);
+  });
+
   app.onError((err, c) => {
     if (err instanceof ValidationError) {
+      // Validation messages are deliberately consumer-visible: they're
+      // 400s that describe exactly what's wrong with the body. The
+      // validator owns the message contract.
       return c.json({ error: err.message }, 400);
     }
-    const message = err instanceof Error ? err.message : 'internal error';
-    return c.json({ error: message }, 500);
+    // Anything else is an internal failure. Log full detail with a
+    // route tag, return a flat opaque body — never echo the raw error
+    // message to the client (it can leak SQL fragments, stack hints,
+    // bind values, etc.). Clients that need richer signal should poll
+    // `/status` or rely on their own request-id correlation.
+    const message = err instanceof Error ? err.message : String(err);
+    log.error('matchmaking app: internal error', {
+      message,
+      path: c.req.path,
+      method: c.req.method,
+    });
+    return c.json({ error: 'internal' }, 500);
   });
 
   return app;

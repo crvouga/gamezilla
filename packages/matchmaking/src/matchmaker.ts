@@ -49,9 +49,15 @@
  * competitive, cooperative, conversational, or anything else. The caller
  * decides the meaning through `data` and `formulas`.
  *
- * Internal class: this is consumed by the public {@link Matchmaking}
- * class (which owns migrate, throttle defaults, the Hono app, and the
- * `tick()` ops method). It is NOT exported from the package's `index.ts`.
+ * INTERNAL MODULE: every class, method, type, and constant in this file
+ * is internal to `@gamezilla/matchmaking` and not part of the public
+ * API. The package's `exports` map and the root `tsconfig.json` paths
+ * deliberately make this file unreachable from outside the package; do
+ * not change either map without considering the abstraction contract.
+ * Consumers go through `Matchmaking` (the public facade in
+ * `matchmaking.ts`).
+ *
+ * @internal
  */
 
 import { assert } from '@gamezilla/lib/assert';
@@ -65,6 +71,15 @@ import {
   type FormulaWire,
   serializeFormula,
 } from './formula-wire';
+import { fingerprintForOptions, type MatchmakingSchema } from './migrate';
+import {
+  MATCHMAKING_MAX_GROUP_SIZE,
+  MATCHMAKING_MAX_PRIORITY,
+  MATCHMAKING_MIN_GROUP_SIZE,
+  MATCHMAKING_MIN_PRIORITY,
+} from './migrate-sql';
+import { MATCHMAKING_PAYLOAD_LIMITS } from './payload-limits';
+import { parallelMap } from './parallel-map';
 import { createPgSqlClient } from './pg-adapter';
 import type { SqlClient } from './sql-client';
 import {
@@ -73,11 +88,12 @@ import {
   type JoinInput,
   type JoinResult,
   type LeaveResult,
-  type MatchPassResult,
+  type _MatchPassResult,
   type MatchedParticipant,
   type ParticipantStatus,
   type RadiusOptions,
   type StatusResult,
+  type UpdateFormulasResult,
 } from './types';
 
 export type {
@@ -152,11 +168,27 @@ export type MatchmakerOptions = {
    * disable matched-row cleanup (the table will grow unbounded).
    */
   readonly matchedRetentionSeconds?: number;
+  /**
+   * Caller-declared schema, used for the lazy schema-drift assertion
+   * the first time `join()` runs. When omitted the drift check is
+   * skipped (used by tests that construct a Matchmaker directly). The
+   * public `Matchmaking` facade always supplies this.
+   */
+  readonly schema?: MatchmakingSchema;
+  /**
+   * Callback invoked when the lazy schema-drift probe detects that
+   * the in-process schema fingerprint differs from what `migrate()`
+   * actually installed. Must `throw` — typed as `never` for the
+   * caller's convenience. The public facade wires this to the typed
+   * `MatchmakingSchemaDriftError`.
+   */
+  readonly onSchemaDrift?: (expected: string, actual: string) => never;
 };
 
 type StatusRow = {
   readonly status: ParticipantStatus;
   readonly data: Record<string, unknown>;
+  readonly metadata: Record<string, unknown> | null;
   readonly match_id: string | null;
 };
 
@@ -164,6 +196,7 @@ type ParticipantRow = {
   readonly id: string;
   readonly joined_at: Date;
   readonly data: Record<string, unknown>;
+  readonly metadata: Record<string, unknown> | null;
 };
 
 type MatchPassRow = {
@@ -176,11 +209,33 @@ type MatchPassRow = {
 export type JoinInputRaw = {
   readonly data: AttributeState;
   readonly formulas: readonly FormulaWire[];
+  readonly groupSize?: number;
+  readonly priority?: number;
+  readonly metadata?: Record<string, unknown> | null;
+};
+
+export type UpdateFormulasInputRaw = {
+  readonly formulas: readonly FormulaWire[];
 };
 
 export type RunMatchPassesOptions = {
   readonly maxPasses?: number;
+  readonly groupSize?: number;
   readonly signal?: AbortSignal;
+};
+
+/**
+ * A (signature, group_size) pair pulled from
+ * `matchmaking_active_partitions`. The drain fans out one task per
+ * pair because different group sizes never cross-match (the
+ * SQL `matchmaking_run_match_pass` filters on `group_size` as part
+ * of its candidate snapshot).
+ *
+ * @internal
+ */
+export type ActivePartition = {
+  readonly partitionSignature: string;
+  readonly groupSize: number;
 };
 
 export type RunMatchPassesResult = {
@@ -233,6 +288,7 @@ function rowToParticipant(row: ParticipantRow): MatchedParticipant {
     participantId: row.id,
     joinedAt: row.joined_at,
     data,
+    metadata: row.metadata,
   };
 }
 
@@ -242,6 +298,70 @@ function assertPartitionSignature(signature: string, label: string): void {
     `${label}: partitionSignature must be a string`,
     { signature }
   );
+}
+
+/**
+ * Normalises and validates a caller-supplied `groupSize`. Returns the
+ * integer to send to SQL. `undefined` becomes the minimum (2 — the
+ * pairwise default).
+ *
+ * @internal
+ */
+function resolveGroupSize(value: number | undefined, label: string): number {
+  if (value === undefined) return MATCHMAKING_MIN_GROUP_SIZE;
+  assert.ok(Number.isInteger(value), `${label}: groupSize must be an integer`, {
+    groupSize: value,
+  });
+  assert.ok(
+    value >= MATCHMAKING_MIN_GROUP_SIZE && value <= MATCHMAKING_MAX_GROUP_SIZE,
+    `${label}: groupSize must be between ${String(MATCHMAKING_MIN_GROUP_SIZE)} and ${String(MATCHMAKING_MAX_GROUP_SIZE)}`,
+    { groupSize: value }
+  );
+  return value;
+}
+
+/**
+ * Normalises and validates a caller-supplied `priority`. Returns the
+ * integer to send to SQL. `undefined` becomes 0 (FIFO).
+ *
+ * @internal
+ */
+function resolvePriority(value: number | undefined, label: string): number {
+  if (value === undefined) return 0;
+  assert.ok(Number.isInteger(value), `${label}: priority must be an integer`, {
+    priority: value,
+  });
+  assert.ok(
+    value >= MATCHMAKING_MIN_PRIORITY && value <= MATCHMAKING_MAX_PRIORITY,
+    `${label}: priority must be between ${String(MATCHMAKING_MIN_PRIORITY)} and ${String(MATCHMAKING_MAX_PRIORITY)}`,
+    { priority: value }
+  );
+  return value;
+}
+
+const METADATA_UTF8 = new TextEncoder();
+
+/**
+ * Normalises and validates a caller-supplied `metadata` blob. Returns
+ * either the original object (passed straight to JSONB) or `null` when
+ * unset / explicitly nulled.
+ *
+ * @internal
+ */
+function resolveMetadata(
+  value: Record<string, unknown> | null | undefined,
+  label: string
+): Record<string, unknown> | null {
+  if (value === undefined || value === null) return null;
+  assert.record(value, `${label}: metadata must be a plain object or null`);
+  const encoded = JSON.stringify(value);
+  const bytes = METADATA_UTF8.encode(encoded).length;
+  assert.ok(
+    bytes <= MATCHMAKING_PAYLOAD_LIMITS.maxMetadataBytes,
+    `${label}: metadata JSON must be at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxMetadataBytes)} bytes (UTF-8)`,
+    { bytes }
+  );
+  return value;
 }
 
 function assertOptionInvariants(opts: {
@@ -267,37 +387,8 @@ function assertOptionInvariants(opts: {
   );
 }
 
-/**
- * Bounded-concurrency Promise.all. Runs `worker(item, index)` for each
- * input in parallel up to `limit` simultaneous in-flight tasks.
- * Preserves input order in the result array. Aborts cleanly when
- * `signal` is supplied and flips to aborted between tasks.
- */
-async function parallelMap<T, R>(
-  items: readonly T[],
-  limit: number,
-  worker: (item: T, index: number) => Promise<R>,
-  signal?: AbortSignal
-): Promise<R[]> {
-  const cap = Math.max(1, Math.floor(limit));
-  const out = new Array<R>(items.length);
-  let next = 0;
-  async function lane(): Promise<void> {
-    while (true) {
-      if (signal?.aborted === true) return;
-      const i = next;
-      next += 1;
-      if (i >= items.length) return;
-      const item = items[i] as T;
-      out[i] = await worker(item, i);
-    }
-  }
-  const lanes: Promise<void>[] = [];
-  const n = Math.min(cap, items.length);
-  for (let i = 0; i < n; i += 1) lanes.push(lane());
-  await Promise.all(lanes);
-  return out;
-}
+/** @internal */
+type SchemaDriftCallback = (expected: string, actual: string) => never;
 
 export class Matchmaker {
   private readonly sqlClient: SqlClient;
@@ -308,6 +399,16 @@ export class Matchmaker {
   private readonly bucketWidth: number;
   private readonly partitionKeys: readonly string[];
   private readonly matchedRetentionSeconds: number;
+  private readonly schemaFingerprint: string | undefined;
+  private readonly onSchemaDrift: SchemaDriftCallback | undefined;
+  /**
+   * Three-state cache:
+   *   - undefined: probe not yet attempted this process
+   *   - true: probe ran and the DB fingerprint matched
+   *   - false: probe ran and the DB fingerprint mismatched (we
+   *     already threw on the first call; subsequent calls re-throw)
+   */
+  private fingerprintProbeOk: boolean | undefined;
 
   constructor(opts: MatchmakerOptions) {
     this.sqlClient = resolveSqlClient(opts);
@@ -319,6 +420,12 @@ export class Matchmaker {
     this.partitionKeys = opts.partitionKeys ?? [];
     this.matchedRetentionSeconds =
       opts.matchedRetentionSeconds ?? DEFAULT_MATCHED_RETENTION_SECONDS;
+    this.schemaFingerprint =
+      opts.schema === undefined
+        ? undefined
+        : fingerprintForOptions(opts.schema);
+    this.onSchemaDrift = opts.onSchemaDrift;
+    this.fingerprintProbeOk = undefined;
     assertOptionInvariants({
       maxPairsPerPass: this.maxPairsPerPass,
       bucketWidth: this.bucketWidth,
@@ -334,6 +441,8 @@ export class Matchmaker {
    * Mirror invariant: this MUST stay byte-equivalent to
    * `partitionSignatureExpr` in `migrate.ts`. Mismatch silently emits
    * wrong signatures → zero matches.
+   *
+   * @internal
    */
   partitionSignatureFor(data: Record<string, unknown>): string {
     if (this.partitionKeys.length === 0) return '';
@@ -366,9 +475,13 @@ export class Matchmaker {
       assertFormula(formula, label);
       assertDataMatchesFormula(input.data, formula, label);
     }
+    const groupSize = resolveGroupSize(input.groupSize, 'Matchmaker.join');
+    const priority = resolvePriority(input.priority, 'Matchmaker.join');
+    const metadata = resolveMetadata(input.metadata, 'Matchmaker.join');
 
+    await this.assertSchemaFingerprint();
     const wire = input.formulas.map(serializeFormula);
-    return this.insertJoin(input.data, wire);
+    return this.insertJoin(input.data, wire, groupSize, priority, metadata);
   }
 
   /**
@@ -377,6 +490,8 @@ export class Matchmaker {
    * on the formulas; per-formula numeric/data alignment is enforced by the
    * SQL `matchmaking_pair_distance` helper at match-pass time (a missing
    * numeric attr raises there).
+   *
+   * @internal
    */
   async joinRaw(input: JoinInputRaw): Promise<JoinResult> {
     assert.defined(input, 'Matchmaker.joinRaw: input required');
@@ -401,44 +516,152 @@ export class Matchmaker {
       assert.defined(wire, `${label}: formula required`);
       assertWireFormula(wire, label);
     }
-    return this.insertJoin(input.data, input.formulas);
+    const groupSize = resolveGroupSize(input.groupSize, 'Matchmaker.joinRaw');
+    const priority = resolvePriority(input.priority, 'Matchmaker.joinRaw');
+    const metadata = resolveMetadata(input.metadata, 'Matchmaker.joinRaw');
+    await this.assertSchemaFingerprint();
+    return this.insertJoin(
+      input.data,
+      input.formulas,
+      groupSize,
+      priority,
+      metadata
+    );
   }
 
   private async insertJoin(
     data: AttributeState,
-    formulas: readonly FormulaWire[]
+    formulas: readonly FormulaWire[],
+    groupSize: number,
+    priority: number,
+    metadata: Record<string, unknown> | null
   ): Promise<JoinResult> {
     // Single CTE: INSERT into waiting + UPSERT into active_partitions in
     // one round-trip. The active_partitions row is observed by the
-    // ticker's `discoverActivePartitions` so the partition wakes up on
+    // tick fan-out so the (signature, group_size) pair wakes up on
     // the next tick.
-    //
-    // partition_signature must be supplied by JS: Postgres forbids
-    // generated columns as partition keys, so the column is a regular
-    // TEXT NOT NULL fed from `partitionSignatureFor(data)`. JS-side
-    // computation here must stay byte-equivalent to whatever the SQL
-    // expression *would* have been — both derive from the same
-    // `partitionKeys` declared on `MatchmakingSchema`.
     const signature = this.partitionSignatureFor(data);
     const result = await this.sqlClient.query<{ id: string }>(
       `WITH ins AS (
-         INSERT INTO matchmaking_waiting (data, formulas, partition_signature)
-         VALUES ($1::jsonb, $2::jsonb, $3)
+         INSERT INTO matchmaking_waiting
+           (data, formulas, partition_signature, group_size, priority, metadata)
+         VALUES ($1::jsonb, $2::jsonb, $3, $4, $5, $6::jsonb)
          RETURNING id
        ), reg AS (
-         INSERT INTO matchmaking_active_partitions (partition_signature)
-         VALUES ($3)
-         ON CONFLICT (partition_signature) DO NOTHING
+         INSERT INTO matchmaking_active_partitions
+           (partition_signature, group_size)
+         VALUES ($3, $4)
+         ON CONFLICT (partition_signature, group_size) DO NOTHING
          RETURNING partition_signature
        )
        SELECT id FROM ins`,
-      [JSON.stringify(data), JSON.stringify(formulas), signature]
+      [
+        JSON.stringify(data),
+        JSON.stringify(formulas),
+        signature,
+        groupSize,
+        priority,
+        metadata === null ? null : JSON.stringify(metadata),
+      ]
     );
     const row = result.rows[0];
     if (row === undefined) {
       throw new Error('matchmaking insert returned no rows');
     }
     return { participantId: row.id };
+  }
+
+  /**
+   * Replaces the formulas for a waiting participant. Preserves
+   * `joined_at` (no queue-position penalty) and the partition signature
+   * (formulas can't change the partition layout the row was hashed
+   * into). Returns `{ updated: false }` when the participant is not in
+   * `matchmaking_waiting` — either matched, swept, or unknown.
+   *
+   * Validation re-uses `assertFormula` so the same shape rules apply
+   * as on `join`.
+   */
+  async updateFormulas(
+    participantId: string,
+    formulas: readonly DistanceFormula[]
+  ): Promise<UpdateFormulasResult> {
+    assert.nonEmptyString(
+      participantId,
+      'Matchmaker.updateFormulas: participantId must be a non-empty string'
+    );
+    assert.array(
+      formulas,
+      'Matchmaker.updateFormulas: formulas must be an array'
+    );
+    assert.ok(
+      formulas.length > 0,
+      'Matchmaker.updateFormulas: formulas must be non-empty'
+    );
+    assert.ok(
+      formulas.length <= MAX_FORMULAS_PER_PARTICIPANT,
+      `Matchmaker.updateFormulas: formulas must contain at most ${String(MAX_FORMULAS_PER_PARTICIPANT)} entries`,
+      { count: formulas.length }
+    );
+    for (let i = 0; i < formulas.length; i += 1) {
+      const label = `Matchmaker.updateFormulas: formulas[${String(i)}]`;
+      const formula: DistanceFormula | undefined = formulas[i];
+      assert.defined(formula, `${label}: formula required`);
+      assertFormula(formula, label);
+    }
+    const wire = formulas.map(serializeFormula);
+    return this.updateFormulasInner(participantId, wire);
+  }
+
+  /**
+   * Wire-shaped variant of {@link updateFormulas}, mirroring the
+   * relationship between `join` and `joinRaw`. Performs shape-level
+   * validation only.
+   *
+   * @internal
+   */
+  async updateFormulasRaw(
+    participantId: string,
+    input: UpdateFormulasInputRaw
+  ): Promise<UpdateFormulasResult> {
+    assert.nonEmptyString(
+      participantId,
+      'Matchmaker.updateFormulasRaw: participantId must be a non-empty string'
+    );
+    assert.defined(input, 'Matchmaker.updateFormulasRaw: input required');
+    assert.array(
+      input.formulas,
+      'Matchmaker.updateFormulasRaw: formulas must be an array'
+    );
+    assert.ok(
+      input.formulas.length > 0,
+      'Matchmaker.updateFormulasRaw: formulas must be non-empty'
+    );
+    assert.ok(
+      input.formulas.length <= MAX_FORMULAS_PER_PARTICIPANT,
+      `Matchmaker.updateFormulasRaw: formulas must contain at most ${String(MAX_FORMULAS_PER_PARTICIPANT)} entries`,
+      { count: input.formulas.length }
+    );
+    for (let i = 0; i < input.formulas.length; i += 1) {
+      const label = `Matchmaker.updateFormulasRaw: formulas[${String(i)}]`;
+      const wire: FormulaWire | undefined = input.formulas[i];
+      assert.defined(wire, `${label}: formula required`);
+      assertWireFormula(wire, label);
+    }
+    return this.updateFormulasInner(participantId, input.formulas);
+  }
+
+  private async updateFormulasInner(
+    participantId: string,
+    formulas: readonly FormulaWire[]
+  ): Promise<UpdateFormulasResult> {
+    const result = await this.sqlClient.query<{ id: string }>(
+      `UPDATE matchmaking_waiting
+         SET formulas = $1::jsonb
+       WHERE id = $2
+       RETURNING id`,
+      [JSON.stringify(formulas), participantId]
+    );
+    return { updated: result.rows.length > 0 };
   }
 
   /**
@@ -471,10 +694,10 @@ export class Matchmaker {
       'Matchmaker.status: participantId must be a non-empty string'
     );
     const result = await this.sqlClient.query<StatusRow>(
-      `SELECT 'waiting'::TEXT AS status, data, NULL::UUID AS match_id
+      `SELECT 'waiting'::TEXT AS status, data, metadata, NULL::UUID AS match_id
        FROM matchmaking_waiting WHERE id = $1
        UNION ALL
-       SELECT 'matched'::TEXT AS status, data, match_id
+       SELECT 'matched'::TEXT AS status, data, metadata, match_id
        FROM matchmaking_matched WHERE id = $1
        LIMIT 1`,
       [participantId]
@@ -483,7 +706,7 @@ export class Matchmaker {
     if (row === undefined) return null;
     const data = asKeywordRecord(row.data, 'matchmaking status data');
     if (row.status === 'waiting') {
-      return { status: 'waiting', data };
+      return { status: 'waiting', data, metadata: row.metadata ?? null };
     }
     if (row.match_id === null) {
       throw new Error(
@@ -491,7 +714,7 @@ export class Matchmaker {
       );
     }
     const peers = await this.sqlClient.query<ParticipantRow>(
-      `SELECT id, joined_at, data
+      `SELECT id, joined_at, data, metadata
        FROM matchmaking_matched
        WHERE match_id = $1 AND id <> $2
        ORDER BY joined_at`,
@@ -500,23 +723,35 @@ export class Matchmaker {
     return {
       status: 'matched',
       data,
+      metadata: row.metadata ?? null,
       matchId: row.match_id,
       peers: peers.rows.map(rowToParticipant),
     };
   }
 
   /**
-   * One bounded match pass for ONE partition. Returns the number of
-   * pairs produced. Returns 0 when there's no work to do.
+   * One bounded match pass for ONE (partition, group_size) pair.
+   * Returns the number of groups produced. Returns 0 when there's no
+   * work to do.
    *
    * Pass `''` for single-partition (no `partitionKeys`) deployments.
+   * `groupSize` defaults to 2 (the head-to-head case).
+   *
+   * @internal
    */
-  async runMatchPass(partitionSignature: string): Promise<MatchPassResult> {
+  async runMatchPass(
+    partitionSignature: string,
+    groupSize: number = MATCHMAKING_MIN_GROUP_SIZE
+  ): Promise<_MatchPassResult> {
     assertPartitionSignature(partitionSignature, 'Matchmaker.runMatchPass');
+    const resolvedGroupSize = resolveGroupSize(
+      groupSize,
+      'Matchmaker.runMatchPass'
+    );
     const nowParam = this.nowParam();
     const result = await this.sqlClient.query<MatchPassRow>(
       `SELECT match_id, participant_id, joined_at, data
-       FROM matchmaking_run_match_pass($1, $2, $3, $4, $5, $6, $7)`,
+       FROM matchmaking_run_match_pass($1, $2, $3, $4, $5, $6, $7, $8)`,
       [
         partitionSignature,
         this.radius.baseRadius,
@@ -524,6 +759,7 @@ export class Matchmaker {
         this.radius.maxRadius,
         this.maxPairsPerPass,
         this.bucketWidth,
+        resolvedGroupSize,
         nowParam,
       ]
     );
@@ -533,9 +769,11 @@ export class Matchmaker {
   }
 
   /**
-   * Drain loop for ONE partition: calls `runMatchPass` until it returns 0
-   * matches or `maxPasses` is hit. Passing a `signal` lets long-running
-   * drains be cancelled mid-loop.
+   * Drain loop for ONE (partition, group_size) pair: calls
+   * `runMatchPass` until it returns 0 matches or `maxPasses` is hit.
+   * Passing a `signal` lets long-running drains be cancelled mid-loop.
+   *
+   * @internal
    */
   async runMatchPasses(
     partitionSignature: string,
@@ -548,11 +786,12 @@ export class Matchmaker {
       'Matchmaker.runMatchPasses: maxPasses must be a positive finite number',
       { maxPasses }
     );
+    const groupSize = opts.groupSize ?? MATCHMAKING_MIN_GROUP_SIZE;
     let matches = 0;
     let passes = 0;
     while (passes < maxPasses) {
       if (opts.signal?.aborted === true) break;
-      const result = await this.runMatchPass(partitionSignature);
+      const result = await this.runMatchPass(partitionSignature, groupSize);
       passes += 1;
       matches += result.matches;
       if (result.matches === 0) break;
@@ -561,51 +800,58 @@ export class Matchmaker {
   }
 
   /**
-   * Fan-out drain across every currently-active partition. Reads
-   * partition signatures from `matchmaking_active_partitions` (tiny
+   * Fan-out drain across every currently-active `(partition, group_size)`
+   * pair. Reads pairs from `matchmaking_active_partitions` (tiny
    * tracker table populated on `/join`) and drains each in parallel
-   * with bounded concurrency. Empty partitions get pruned from the
-   * tracker table as part of the same call.
+   * with bounded concurrency. Empty pairs get pruned from the tracker
+   * table as part of the same call.
+   *
+   * @internal
    */
   async runMatchPassesAcrossPartitions(
     opts: RunMatchPassesAcrossPartitionsOptions = {}
   ): Promise<RunMatchPassesAcrossPartitionsResult> {
-    const sigs = await this.discoverActivePartitions(opts.maxPartitions);
-    if (sigs.length === 0) return { matches: 0, passes: 0, partitions: 0 };
+    const pairs = await this.discoverActivePartitions(opts.maxPartitions);
+    if (pairs.length === 0) return { matches: 0, passes: 0, partitions: 0 };
     const concurrency = opts.concurrency ?? DEFAULT_DRAIN_CONCURRENCY;
     const maxPassesPerPartition =
       opts.maxPassesPerPartition ?? DEFAULT_MAX_PASSES_DRAIN;
-    const passOpts: RunMatchPassesOptions = {
-      maxPasses: maxPassesPerPartition,
-      ...(opts.signal !== undefined ? { signal: opts.signal } : {}),
-    };
     const results = await parallelMap(
-      sigs,
+      pairs,
       concurrency,
-      (sig) => this.runMatchPasses(sig, passOpts),
+      (pair) =>
+        this.runMatchPasses(pair.partitionSignature, {
+          maxPasses: maxPassesPerPartition,
+          groupSize: pair.groupSize,
+          ...(opts.signal !== undefined ? { signal: opts.signal } : {}),
+        }),
       opts.signal
     );
     let matches = 0;
     let passes = 0;
     for (const r of results) {
+      if (r === undefined) continue;
       matches += r.matches;
       passes += r.passes;
     }
-    // Best-effort prune of partitions that drained to zero waiters.
-    // Single statement; safe to call repeatedly.
+    // Best-effort prune of (sig, group_size) pairs that drained to
+    // zero waiters. Single statement; safe to call repeatedly.
     await this.sqlClient.query(
       `DELETE FROM matchmaking_active_partitions ap
        WHERE NOT EXISTS (
          SELECT 1 FROM matchmaking_waiting w
          WHERE w.partition_signature = ap.partition_signature
+           AND w.group_size = ap.group_size
        )`
     );
-    return { matches, passes, partitions: sigs.length };
+    return { matches, passes, partitions: pairs.length };
   }
 
   /**
    * Removes abandoned waiters older than `maxWaitSeconds` IN ONE
    * partition. No-op when `maxWaitSeconds` was not configured.
+   *
+   * @internal
    */
   async sweepExpired(partitionSignature: string): Promise<SweepExpiredResult> {
     assertPartitionSignature(partitionSignature, 'Matchmaker.sweepExpired');
@@ -624,7 +870,11 @@ export class Matchmaker {
 
   /**
    * Fan-out sweep across every currently-active partition, in parallel
-   * with bounded concurrency.
+   * with bounded concurrency. Sweep ignores `group_size` — abandoned
+   * waiters are dropped regardless of which group they were destined
+   * for, so we dedupe by signature first to avoid double-sweeping.
+   *
+   * @internal
    */
   async sweepExpiredAcrossPartitions(
     opts: SweepExpiredAcrossPartitionsOptions = {}
@@ -632,20 +882,28 @@ export class Matchmaker {
     if (this.maxWaitSeconds === undefined) {
       return { removed: 0, partitions: 0 };
     }
-    const sigs = await this.discoverActivePartitions(opts.maxPartitions);
-    if (sigs.length === 0) return { removed: 0, partitions: 0 };
+    const pairs = await this.discoverActivePartitions(opts.maxPartitions);
+    if (pairs.length === 0) return { removed: 0, partitions: 0 };
+    const uniqueSigs = Array.from(
+      new Set(pairs.map((p) => p.partitionSignature))
+    );
     const concurrency = opts.concurrency ?? DEFAULT_DRAIN_CONCURRENCY;
-    const results = await parallelMap(sigs, concurrency, (sig) =>
+    const results = await parallelMap(uniqueSigs, concurrency, (sig) =>
       this.sweepExpired(sig)
     );
     let removed = 0;
-    for (const r of results) removed += r.removed;
-    return { removed, partitions: sigs.length };
+    for (const r of results) {
+      if (r === undefined) continue;
+      removed += r.removed;
+    }
+    return { removed, partitions: uniqueSigs.length };
   }
 
   /**
    * Global cleanup of matched rows older than `matchedRetentionSeconds`.
    * Single indexed range DELETE on `matchmaking_matched_matched_at_idx`.
+   *
+   * @internal
    */
   async sweepMatched(): Promise<SweepMatchedResult> {
     if (this.matchedRetentionSeconds <= 0) return { removed: 0 };
@@ -661,9 +919,48 @@ export class Matchmaker {
     return { removed };
   }
 
+  /**
+   * Lazy schema-drift probe: on the FIRST join call per process,
+   * compare the schema fingerprint baked into this Matchmaker
+   * (computed from `MatchmakingSchema`) against the fingerprint
+   * `migrate()` last wrote into `matchmaking_schema_state`. When they
+   * disagree, fire the `onSchemaDrift` callback (which throws a typed
+   * `MatchmakingSchemaDriftError`).
+   *
+   * Cached so the cost is amortised to one extra SELECT per process,
+   * not one per join. A successful probe stays positive for the
+   * lifetime of the process; a failed probe stays negative so the
+   * caller keeps hitting the loud error instead of producing zero
+   * matches.
+   *
+   * Skipped entirely when the Matchmaker was constructed without a
+   * `schema` (direct tests that don't go through the public facade).
+   *
+   * @internal
+   */
+  private async assertSchemaFingerprint(): Promise<void> {
+    const expected = this.schemaFingerprint;
+    const onDrift = this.onSchemaDrift;
+    if (expected === undefined || onDrift === undefined) return;
+    if (this.fingerprintProbeOk === true) return;
+    const state = await this.sqlClient.query<{ schema_fingerprint: string }>(
+      `SELECT schema_fingerprint FROM matchmaking_schema_state WHERE id = 1`
+    );
+    // Missing row means `migrate()` never ran for this DB; treat the
+    // same as drift. The public facade always migrates as part of
+    // construction so this is only reachable when someone bypasses
+    // `Matchmaking` entirely.
+    const actual = state.rows[0]?.schema_fingerprint ?? '<not migrated>';
+    if (actual !== expected) {
+      this.fingerprintProbeOk = false;
+      onDrift(expected, actual);
+    }
+    this.fingerprintProbeOk = true;
+  }
+
   private async discoverActivePartitions(
     maxPartitions: number | undefined
-  ): Promise<readonly string[]> {
+  ): Promise<readonly ActivePartition[]> {
     const cap = maxPartitions ?? DEFAULT_MAX_PARTITIONS_FANOUT;
     assert.ok(
       Number.isFinite(cap) && cap > 0,
@@ -672,14 +969,21 @@ export class Matchmaker {
     );
     const result = await this.sqlClient.query<{
       partition_signature: string;
+      group_size: number | string;
     }>(
-      `SELECT partition_signature
+      `SELECT partition_signature, group_size
        FROM matchmaking_active_partitions
        ORDER BY first_seen_at
        LIMIT $1`,
       [cap]
     );
-    return result.rows.map((r) => r.partition_signature);
+    return result.rows.map((r) => ({
+      partitionSignature: r.partition_signature,
+      groupSize:
+        typeof r.group_size === 'string'
+          ? Number.parseInt(r.group_size, 10)
+          : r.group_size,
+    }));
   }
 
   private nowParam(): string | null {

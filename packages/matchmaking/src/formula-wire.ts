@@ -8,7 +8,7 @@
 
 import { assert } from '@gamezilla/lib/assert';
 import type { AttributeState } from '@gamezilla/lib/attribute';
-import type { DistanceFormula } from './types';
+import type { DistanceFormula, RadiusOptions } from './types';
 
 export type NumericTermWire = {
   readonly path: string;
@@ -20,11 +20,47 @@ export type CategoricalTermWire = {
 };
 export type PartitionTermWire = { readonly path: string };
 
+/**
+ * Per-formula expanding-radius override carried on the wire. Same shape
+ * as `RadiusOptions`. When set on a formula, SQL `matchmaking_pair_match`
+ * uses these values instead of the function-arg defaults; when absent,
+ * the global radius applies.
+ */
+export type RadiusOptionsWire = {
+  readonly baseRadius: number;
+  readonly radiusGrowthPerSecond: number;
+  readonly maxRadius: number;
+};
+
 export type FormulaWire = {
   readonly numeric: readonly NumericTermWire[];
   readonly categorical?: readonly CategoricalTermWire[];
   readonly partition?: readonly PartitionTermWire[];
+  readonly radius?: RadiusOptionsWire;
 };
+
+function assertRadiusShape(
+  radius: RadiusOptions | undefined,
+  label: string
+): void {
+  if (radius === undefined) return;
+  assert.ok(
+    Number.isFinite(radius.baseRadius) && radius.baseRadius >= 0,
+    `${label}: radius.baseRadius must be a non-negative finite number`,
+    { baseRadius: radius.baseRadius }
+  );
+  assert.ok(
+    Number.isFinite(radius.radiusGrowthPerSecond) &&
+      radius.radiusGrowthPerSecond >= 0,
+    `${label}: radius.radiusGrowthPerSecond must be a non-negative finite number`,
+    { radiusGrowthPerSecond: radius.radiusGrowthPerSecond }
+  );
+  assert.ok(
+    Number.isFinite(radius.maxRadius) && radius.maxRadius >= radius.baseRadius,
+    `${label}: radius.maxRadius must be finite and ≥ baseRadius`,
+    { maxRadius: radius.maxRadius, baseRadius: radius.baseRadius }
+  );
+}
 
 export function assertFormula(formula: DistanceFormula, label: string): void {
   assert.defined(formula, `${label}: formula is required`);
@@ -49,6 +85,7 @@ export function assertFormula(formula: DistanceFormula, label: string): void {
       { tag: t.tag.key, penalty: t.penalty }
     );
   }
+  assertRadiusShape(formula.radius, label);
 }
 
 export function assertDataMatchesFormula(
@@ -74,7 +111,7 @@ export function assertDataMatchesFormula(
 }
 
 export function serializeFormula(formula: DistanceFormula): FormulaWire {
-  return {
+  const wire: FormulaWire = {
     numeric: formula.numeric.map((t) => ({
       path: t.tag.key,
       weight: t.weight,
@@ -87,6 +124,10 @@ export function serializeFormula(formula: DistanceFormula): FormulaWire {
       path: t.tag.key,
     })),
   };
+  if (formula.radius !== undefined) {
+    return { ...wire, radius: { ...formula.radius } };
+  }
+  return wire;
 }
 
 export function assertWireFormula(wire: FormulaWire, label: string): void {
@@ -132,4 +173,7 @@ export function assertWireFormula(wire: FormulaWire, label: string): void {
     wire.numeric.length + cats.length + parts.length > 0,
     `${label}: formula must declare at least one numeric, categorical, or partition term`
   );
+  if (wire.radius !== undefined) {
+    assertRadiusShape(wire.radius, label);
+  }
 }

@@ -52,13 +52,25 @@ CREATE TABLE IF NOT EXISTS matchmaking_schema_state (
 )
 `.trim();
 
+// v4 drops the v3 single-PK active partitions table — the PK now
+// includes group_size so different group sizes within the same
+// partition are tracked separately for the per-(sig, group_size) fan
+// out the tick loop performs.
+export const DROP_LEGACY_ACTIVE_PARTITIONS_SQL = `
+DROP TABLE IF EXISTS matchmaking_active_partitions CASCADE
+`.trim();
+
 // Helper table — see file-level doc. UNLOGGED because the side table is
 // regenerated on every join; if it goes missing on crash, the next
-// `/join` re-creates the entry. Per-partition writes are O(1).
+// `/join` re-creates the entry. Per-(signature, group_size) writes are
+// O(1). The composite PK is what lets the tick loop drive distinct
+// (sig, group_size) pairs without scanning the waiting table.
 export const CREATE_ACTIVE_PARTITIONS_TABLE_SQL = `
 CREATE UNLOGGED TABLE IF NOT EXISTS matchmaking_active_partitions (
-  partition_signature TEXT PRIMARY KEY,
-  first_seen_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+  partition_signature TEXT NOT NULL,
+  group_size          INT  NOT NULL DEFAULT 2,
+  first_seen_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (partition_signature, group_size)
 )
 `.trim();
 
@@ -66,14 +78,29 @@ CREATE UNLOGGED TABLE IF NOT EXISTS matchmaking_active_partitions (
 // rows — a server crash must not lose paired-but-not-yet-polled match
 // state). PRIMARY KEY (id) for status() lookups; index on match_id for
 // peer fetch; index on matched_at for sweep.
+//
+// v5 adds `metadata JSONB NULL` so the caller-supplied payload survives
+// pairing and is observable via `status()`.
 export const CREATE_MATCHED_TABLE_SQL = `
 CREATE TABLE IF NOT EXISTS matchmaking_matched (
   id          UUID    PRIMARY KEY,
   match_id    UUID    NOT NULL,
   joined_at   TIMESTAMPTZ NOT NULL,
   matched_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-  data        JSONB   NOT NULL
+  data        JSONB   NOT NULL,
+  metadata    JSONB   NULL
 )
+`.trim();
+
+/**
+ * v5 idempotency helper: an existing v4 install has a `matchmaking_matched`
+ * table without the `metadata` column. The waiting-table rebuild
+ * dropped/recreated `matchmaking_waiting` so we don't need this for it,
+ * but `matchmaking_matched` is LOGGED (durable) and we don't want to
+ * drop matched rows on every schema bump — add the column in place.
+ */
+export const ADD_METADATA_COLUMN_TO_MATCHED_SQL = `
+ALTER TABLE matchmaking_matched ADD COLUMN IF NOT EXISTS metadata JSONB NULL
 `.trim();
 
 export const CREATE_MATCHED_MATCH_ID_INDEX_SQL = `
@@ -117,6 +144,25 @@ export const DROP_LEGACY_INDEXES = [
 //
 // Top-level table is UNLOGGED + PARTITION BY HASH; child partitions
 // inherit the unlogged flag automatically.
+/**
+ * v4: adds `group_size INT NOT NULL DEFAULT 2 CHECK (group_size BETWEEN
+ * 2 AND 16)` so callers can request 3-, 4-, ..., 16-way matches without
+ * a schema change per group size. group_size = 2 is the regression path
+ * and stays bit-for-bit compatible with v3 behaviour for unspecified
+ * joins. The CHECK constraint is the hard ceiling — even if a caller
+ * bypasses JS validation and INSERTs directly, Postgres rejects.
+ */
+export const MATCHMAKING_MIN_GROUP_SIZE = 2;
+export const MATCHMAKING_MAX_GROUP_SIZE = 16;
+
+/**
+ * v5 priority bounds: hard-clamped to [-1000, 1000] both at the JS
+ * validator AND at the SQL CHECK constraint. Lets callers surface VIPs
+ * or retry attempts without unbounded queue-jumping abuse.
+ */
+export const MATCHMAKING_MIN_PRIORITY = -1000;
+export const MATCHMAKING_MAX_PRIORITY = 1000;
+
 export function buildCreateWaitingTableSql(parts: {
   readonly primaryRatingExpr: string;
   readonly primaryBucketExpr: string;
@@ -128,6 +174,11 @@ CREATE UNLOGGED TABLE IF NOT EXISTS matchmaking_waiting (
   data                JSONB   NOT NULL DEFAULT '{}',
   formulas            JSONB   NOT NULL DEFAULT '[]',
   partition_signature TEXT    NOT NULL,
+  group_size          INT     NOT NULL DEFAULT ${String(MATCHMAKING_MIN_GROUP_SIZE)}
+                              CHECK (group_size BETWEEN ${String(MATCHMAKING_MIN_GROUP_SIZE)} AND ${String(MATCHMAKING_MAX_GROUP_SIZE)}),
+  priority            INT     NOT NULL DEFAULT 0
+                              CHECK (priority BETWEEN ${String(MATCHMAKING_MIN_PRIORITY)} AND ${String(MATCHMAKING_MAX_PRIORITY)}),
+  metadata            JSONB   NULL,
   primary_rating      NUMERIC GENERATED ALWAYS AS (${parts.primaryRatingExpr}) STORED,
   primary_bucket      INT     GENERATED ALWAYS AS (${parts.primaryBucketExpr}) STORED,
   PRIMARY KEY (id, partition_signature)
@@ -145,13 +196,19 @@ CREATE UNLOGGED TABLE IF NOT EXISTS matchmaking_waiting_p${suffix}
 `.trim();
 }
 
-// Hot path index. Order: (partition_signature, primary_bucket,
-// joined_at) — the per-partition snapshot CTE walks the index in
-// joined_at order within the right bucket range without any sort step.
-// Index lives on the parent and propagates to all 16 child partitions.
+// Hot path index. Order: (partition_signature, group_size,
+// primary_bucket, priority DESC, joined_at). The per-(sig, group_size)
+// snapshot CTE walks the index in priority-then-FIFO order within the
+// right bucket range without any sort step. Index lives on the parent
+// and propagates to all 16 child partitions.
+//
+// v5 inserts `priority DESC` between `primary_bucket` and `joined_at`
+// so high-priority joiners are visited first in the candidate snapshot
+// — implements the documented priority semantics without a separate
+// sort step.
 export const CREATE_WAITING_INDEX_SQL = `
 CREATE INDEX IF NOT EXISTS matchmaking_waiting_partition_bucket_idx
-  ON matchmaking_waiting (partition_signature, primary_bucket, joined_at)
+  ON matchmaking_waiting (partition_signature, group_size, primary_bucket, priority DESC, joined_at)
 `.trim();
 
 // Drop the entire waiting table (parent + child partitions) ahead of a
@@ -240,28 +297,71 @@ END;
 $matchmaking_pair_distance$;
 `.trim();
 
+/**
+ * v5: per-formula radius override.
+ *
+ * `a_radius` / `b_radius` are the EFFECTIVE radii each side will use
+ * for ANY formula that does NOT carry its own override. When a formula
+ * has a `radius` JSONB key, the wait-elapsed radius for that formula is
+ * computed inline from its `baseRadius / radiusGrowthPerSecond /
+ * maxRadius` triple using the function-arg wait-elapsed seconds
+ * (`a_wait_sec` / `b_wait_sec`).
+ *
+ * This keeps the global radius the default (back-compat: missing
+ * `radius` field == use function-arg value) while letting individual
+ * formulas declare tighter or looser bounds.
+ */
 export const CREATE_PAIR_MATCH_SQL = `
 CREATE OR REPLACE FUNCTION matchmaking_pair_match(
-  a_data     JSONB,
-  a_formulas JSONB,
-  a_radius   NUMERIC,
-  b_data     JSONB,
-  b_formulas JSONB,
-  b_radius   NUMERIC
+  a_data       JSONB,
+  a_formulas   JSONB,
+  a_radius     NUMERIC,
+  a_wait_sec   NUMERIC,
+  b_data       JSONB,
+  b_formulas   JSONB,
+  b_radius     NUMERIC,
+  b_wait_sec   NUMERIC
 ) RETURNS BOOLEAN
 LANGUAGE plpgsql IMMUTABLE
 AS $matchmaking_pair_match$
 DECLARE
-  v_fa  JSONB;
-  v_fb  JSONB;
-  v_d_a NUMERIC;
-  v_d_b NUMERIC;
+  v_fa     JSONB;
+  v_fb     JSONB;
+  v_d_a    NUMERIC;
+  v_d_b    NUMERIC;
+  v_ra     NUMERIC;
+  v_rb     NUMERIC;
+  v_radius JSONB;
 BEGIN
   IF a_formulas IS NULL OR b_formulas IS NULL THEN
     RETURN FALSE;
   END IF;
   FOR v_fa IN SELECT * FROM jsonb_array_elements(a_formulas) LOOP
+    v_radius := v_fa->'radius';
+    IF v_radius IS NOT NULL THEN
+      v_ra := LEAST(
+        COALESCE((v_radius->>'baseRadius')::NUMERIC, 0)
+          + GREATEST(a_wait_sec, 0)
+            * COALESCE((v_radius->>'radiusGrowthPerSecond')::NUMERIC, 0),
+        COALESCE((v_radius->>'maxRadius')::NUMERIC,
+                 (v_radius->>'baseRadius')::NUMERIC)
+      );
+    ELSE
+      v_ra := a_radius;
+    END IF;
     FOR v_fb IN SELECT * FROM jsonb_array_elements(b_formulas) LOOP
+      v_radius := v_fb->'radius';
+      IF v_radius IS NOT NULL THEN
+        v_rb := LEAST(
+          COALESCE((v_radius->>'baseRadius')::NUMERIC, 0)
+            + GREATEST(b_wait_sec, 0)
+              * COALESCE((v_radius->>'radiusGrowthPerSecond')::NUMERIC, 0),
+          COALESCE((v_radius->>'maxRadius')::NUMERIC,
+                   (v_radius->>'baseRadius')::NUMERIC)
+        );
+      ELSE
+        v_rb := b_radius;
+      END IF;
       IF NOT matchmaking_pair_compatible(a_data, b_data, v_fa->'partition') THEN
         CONTINUE;
       END IF;
@@ -274,7 +374,7 @@ BEGIN
       v_d_b := matchmaking_pair_distance(
         a_data, b_data, v_fb->'numeric', v_fb->'categorical'
       );
-      IF v_d_a <= a_radius AND v_d_b <= b_radius THEN
+      IF v_d_a <= v_ra AND v_d_b <= v_rb THEN
         RETURN TRUE;
       END IF;
     END LOOP;
@@ -284,8 +384,13 @@ END;
 $matchmaking_pair_match$;
 `.trim();
 
-// Drop every prior signature so a fresh CREATE leaves exactly one version
-// installed regardless of which schema generation last ran.
+// Drop every prior signature so a fresh CREATE leaves exactly one
+// version installed regardless of which schema generation last ran.
+// v5 keeps the same outer signature (TEXT, NUMERIC, NUMERIC, NUMERIC,
+// INT, NUMERIC, INT, TIMESTAMPTZ) — the body changes, not the args.
+// `CREATE OR REPLACE` handles that case cleanly, but we still DROP
+// legacy variants to keep the install path identical regardless of
+// what was there before.
 export const DROP_RUN_MATCH_PASS_LEGACY_SIGNATURES = [
   `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(INT, NUMERIC, NUMERIC, NUMERIC, JSONB, JSONB, TIMESTAMPTZ)`,
   `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(INT, NUMERIC, NUMERIC, NUMERIC, JSONB, JSONB, JSONB, TIMESTAMPTZ)`,
@@ -294,6 +399,13 @@ export const DROP_RUN_MATCH_PASS_LEGACY_SIGNATURES = [
   `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(NUMERIC, NUMERIC, NUMERIC, INT, INT, TIMESTAMPTZ)`,
   `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(NUMERIC, NUMERIC, NUMERIC, INT, INT, NUMERIC, TIMESTAMPTZ)`,
   `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(TEXT, NUMERIC, NUMERIC, NUMERIC, INT, INT, NUMERIC, TIMESTAMPTZ)`,
+  `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(TEXT, NUMERIC, NUMERIC, NUMERIC, INT, NUMERIC, TIMESTAMPTZ)`,
+];
+
+// Same idempotency story for the v4 8-arg pair_match (replaced by v5
+// 8-arg w/ wait_sec). Drop the old 6-arg signature too for safety.
+export const DROP_PAIR_MATCH_LEGACY_SIGNATURES = [
+  `DROP FUNCTION IF EXISTS matchmaking_pair_match(JSONB, JSONB, NUMERIC, JSONB, JSONB, NUMERIC)`,
 ];
 
 export const DROP_SWEEP_EXPIRED_LEGACY_SIGNATURES = [
@@ -310,25 +422,25 @@ export const DROP_SWEEP_MATCHED_LEGACY_SIGNATURES = [
 ];
 
 /**
- * One full match pass for one partition. v3 semantics:
+ * One full match pass for one (partition, group_size) pair. v5
+ * semantics:
  *
- *   - NO throttle row, NO FOR UPDATE SKIP LOCKED dance — the host-owned
- *     ticker is the sole caller and is self-throttled by its alarm
- *     cadence. Removing the throttle removes a hot single-row write
- *     contention point.
- *   - Snapshot CTE: lock up to `p_max_pairs * 4` waiting rows for THIS
- *     partition in FIFO order. `FOR UPDATE SKIP LOCKED` on the rows
- *     themselves keeps parallel ticker invocations from clobbering each
- *     other (defence in depth — the ticker DO already serialises
- *     itself).
- *   - Per pair: DELETE both rows from `matchmaking_waiting` and INSERT
- *     into `matchmaking_matched` in a single CTE statement (atomic; if
- *     either DELETE returns 0 rows, the INSERT is skipped naturally).
- *     This replaces the v2 CAS-via-UPDATE pattern and eliminates the
- *     `status` column entirely (a row's table IS its status).
- *   - Greedy FIFO seeding: oldest unmatched waiter scans remaining
- *     candidates in joined_at order; bucket pre-filter then
- *     `matchmaking_pair_match`; cap iterations at `p_max_pairs`.
+ *   - Snapshot CTE: lock up to `p_max_pairs * p_group_size * 4`
+ *     waiting rows for THIS (signature, group_size) in
+ *     `(priority DESC, joined_at ASC)` order so high-priority joiners
+ *     seed first. `FOR UPDATE SKIP LOCKED` lets the function safely
+ *     run in parallel with itself.
+ *   - Per-row wait_sec is computed once at snapshot time and threaded
+ *     into `matchmaking_pair_match` so per-formula radii can compute
+ *     their own elapsed-radius without re-reading the clock.
+ *   - Greedy seeding: highest-priority-FIFO unmatched waiter is the
+ *     seed `i`. Walk later candidates `j`; admit `j` only when it
+ *     pair_matches EVERY current group member (the "pairwise"
+ *     requirement).
+ *   - When `|group| == p_group_size`, atomic DELETE all N rows from
+ *     `matchmaking_waiting` then bulk INSERT into
+ *     `matchmaking_matched` sharing one fresh `match_id`, preserving
+ *     each row's `metadata` payload across the pairing boundary.
  */
 export const CREATE_RUN_MATCH_PASS_SQL = `
 CREATE OR REPLACE FUNCTION matchmaking_run_match_pass(
@@ -338,6 +450,7 @@ CREATE OR REPLACE FUNCTION matchmaking_run_match_pass(
   p_max_radius           NUMERIC,
   p_max_pairs            INT,
   p_bucket_width         NUMERIC,
+  p_group_size           INT,
   p_now                  TIMESTAMPTZ DEFAULT NULL
 ) RETURNS TABLE (
   match_id       UUID,
@@ -350,29 +463,33 @@ DECLARE
   v_now         TIMESTAMPTZ := COALESCE(p_now, now());
   v_ids         UUID[];
   v_joined_ats  TIMESTAMPTZ[];
+  v_waits       NUMERIC[];
   v_radii       NUMERIC[];
   v_datas       JSONB[];
   v_formulas    JSONB[];
+  v_metadatas   JSONB[];
   v_buckets     INT[];
   v_taken       BOOLEAN[];
   v_n           INT;
   v_i           INT;
   v_j           INT;
+  v_k           INT;
   v_ring        INT;
   v_match_id    UUID;
   v_claimed     INT;
-  v_a_id        UUID;
-  v_b_id        UUID;
-  v_a_data      JSONB;
-  v_b_data      JSONB;
-  v_a_joined    TIMESTAMPTZ;
-  v_b_joined    TIMESTAMPTZ;
   v_deleted     INT;
+  v_group_idxs  INT[];
+  v_group_ids   UUID[];
+  v_compatible  BOOLEAN;
 BEGIN
   IF p_max_pairs <= 0 THEN RETURN; END IF;
+  IF p_group_size < 2 THEN RETURN; END IF;
 
   WITH locked AS (
-    SELECT q.id, q.joined_at, q.data, q.formulas, q.primary_bucket,
+    SELECT q.id, q.joined_at, q.priority, q.data, q.formulas, q.metadata,
+           q.primary_bucket,
+           GREATEST(EXTRACT(EPOCH FROM (v_now - q.joined_at)), 0)::NUMERIC
+             AS wait_sec,
            LEAST(
              p_base_radius +
                GREATEST(EXTRACT(EPOCH FROM (v_now - q.joined_at)), 0)
@@ -381,31 +498,36 @@ BEGIN
            )::NUMERIC AS radius
     FROM matchmaking_waiting q
     WHERE q.partition_signature = p_partition_signature
-    ORDER BY q.joined_at ASC
-    LIMIT p_max_pairs * 4
+      AND q.group_size = p_group_size
+    ORDER BY q.priority DESC, q.joined_at ASC
+    LIMIT p_max_pairs * p_group_size * 4
     FOR UPDATE SKIP LOCKED
   )
   SELECT
-    array_agg(locked.id              ORDER BY locked.joined_at ASC),
-    array_agg(locked.joined_at       ORDER BY locked.joined_at ASC),
-    array_agg(locked.radius          ORDER BY locked.joined_at ASC),
-    array_agg(locked.data            ORDER BY locked.joined_at ASC),
-    array_agg(locked.formulas        ORDER BY locked.joined_at ASC),
-    array_agg(locked.primary_bucket  ORDER BY locked.joined_at ASC)
-  INTO v_ids, v_joined_ats, v_radii, v_datas, v_formulas, v_buckets
+    array_agg(locked.id              ORDER BY locked.priority DESC, locked.joined_at ASC),
+    array_agg(locked.joined_at       ORDER BY locked.priority DESC, locked.joined_at ASC),
+    array_agg(locked.wait_sec        ORDER BY locked.priority DESC, locked.joined_at ASC),
+    array_agg(locked.radius          ORDER BY locked.priority DESC, locked.joined_at ASC),
+    array_agg(locked.data            ORDER BY locked.priority DESC, locked.joined_at ASC),
+    array_agg(locked.formulas        ORDER BY locked.priority DESC, locked.joined_at ASC),
+    array_agg(locked.metadata        ORDER BY locked.priority DESC, locked.joined_at ASC),
+    array_agg(locked.primary_bucket  ORDER BY locked.priority DESC, locked.joined_at ASC)
+  INTO v_ids, v_joined_ats, v_waits, v_radii, v_datas, v_formulas,
+       v_metadatas, v_buckets
   FROM locked;
 
   IF v_ids IS NULL THEN RETURN; END IF;
   v_n := array_length(v_ids, 1);
-  IF v_n < 2 THEN RETURN; END IF;
+  IF v_n < p_group_size THEN RETURN; END IF;
   v_taken := array_fill(FALSE, ARRAY[v_n]);
   v_claimed := 0;
 
-  FOR v_i IN 1..v_n - 1 LOOP
+  FOR v_i IN 1..v_n - (p_group_size - 1) LOOP
     IF v_taken[v_i] THEN CONTINUE; END IF;
     IF v_claimed >= p_max_pairs THEN EXIT; END IF;
 
     v_ring := CEIL(v_radii[v_i] / GREATEST(p_bucket_width, 1));
+    v_group_idxs := ARRAY[v_i];
 
     FOR v_j IN v_i + 1..v_n LOOP
       IF v_taken[v_j] THEN CONTINUE; END IF;
@@ -413,52 +535,72 @@ BEGIN
          AND ABS(v_buckets[v_i] - v_buckets[v_j]) > v_ring THEN
         CONTINUE;
       END IF;
-      IF NOT matchmaking_pair_match(
-        v_datas[v_i], v_formulas[v_i], v_radii[v_i],
-        v_datas[v_j], v_formulas[v_j], v_radii[v_j]
-      ) THEN CONTINUE; END IF;
-
-      v_match_id := gen_random_uuid();
-      v_a_id := v_ids[v_i];
-      v_b_id := v_ids[v_j];
-      v_a_data := v_datas[v_i];
-      v_b_data := v_datas[v_j];
-      v_a_joined := v_joined_ats[v_i];
-      v_b_joined := v_joined_ats[v_j];
-
-      WITH del AS (
-        DELETE FROM matchmaking_waiting w
-        WHERE w.id IN (v_a_id, v_b_id)
-          AND w.partition_signature = p_partition_signature
-        RETURNING w.id
-      )
-      SELECT COUNT(*) INTO v_deleted FROM del;
-
-      IF v_deleted < 2 THEN
-        -- Lost the race for at least one row (another concurrent caller
-        -- claimed it between our snapshot and our DELETE). Roll back
-        -- our local "taken" bookkeeping and try the next candidate.
-        CONTINUE;
+      v_compatible := TRUE;
+      FOR v_k IN 1..array_length(v_group_idxs, 1) LOOP
+        IF NOT matchmaking_pair_match(
+          v_datas[v_group_idxs[v_k]],
+          v_formulas[v_group_idxs[v_k]],
+          v_radii[v_group_idxs[v_k]],
+          v_waits[v_group_idxs[v_k]],
+          v_datas[v_j], v_formulas[v_j], v_radii[v_j], v_waits[v_j]
+        ) THEN
+          v_compatible := FALSE;
+          EXIT;
+        END IF;
+      END LOOP;
+      IF NOT v_compatible THEN CONTINUE; END IF;
+      v_group_idxs := array_append(v_group_idxs, v_j);
+      IF array_length(v_group_idxs, 1) = p_group_size THEN
+        EXIT;
       END IF;
-
-      INSERT INTO matchmaking_matched
-        (id, match_id, joined_at, matched_at, data)
-      VALUES
-        (v_a_id, v_match_id, v_a_joined, v_now, v_a_data),
-        (v_b_id, v_match_id, v_b_joined, v_now, v_b_data);
-
-      v_taken[v_i] := TRUE;
-      v_taken[v_j] := TRUE;
-      v_claimed := v_claimed + 1;
-
-      RETURN QUERY
-      SELECT v_match_id, m.id, m.joined_at, m.data
-      FROM matchmaking_matched m
-      WHERE m.match_id = v_match_id
-      ORDER BY m.joined_at;
-
-      EXIT;
     END LOOP;
+
+    IF array_length(v_group_idxs, 1) < p_group_size THEN
+      CONTINUE;
+    END IF;
+
+    v_group_ids := ARRAY[]::UUID[];
+    FOR v_k IN 1..p_group_size LOOP
+      v_group_ids := array_append(v_group_ids, v_ids[v_group_idxs[v_k]]);
+    END LOOP;
+
+    v_match_id := gen_random_uuid();
+
+    WITH del AS (
+      DELETE FROM matchmaking_waiting w
+      WHERE w.id = ANY(v_group_ids)
+        AND w.partition_signature = p_partition_signature
+        AND w.group_size = p_group_size
+      RETURNING w.id
+    )
+    SELECT COUNT(*) INTO v_deleted FROM del;
+
+    IF v_deleted < p_group_size THEN
+      -- Lost the race for at least one row between snapshot and
+      -- delete; skip and try the next seeker.
+      CONTINUE;
+    END IF;
+
+    FOR v_k IN 1..p_group_size LOOP
+      INSERT INTO matchmaking_matched
+        (id, match_id, joined_at, matched_at, data, metadata)
+      VALUES (
+        v_ids[v_group_idxs[v_k]],
+        v_match_id,
+        v_joined_ats[v_group_idxs[v_k]],
+        v_now,
+        v_datas[v_group_idxs[v_k]],
+        v_metadatas[v_group_idxs[v_k]]
+      );
+      v_taken[v_group_idxs[v_k]] := TRUE;
+    END LOOP;
+    v_claimed := v_claimed + 1;
+
+    RETURN QUERY
+    SELECT v_match_id, m.id, m.joined_at, m.data
+    FROM matchmaking_matched m
+    WHERE m.match_id = v_match_id
+    ORDER BY m.joined_at;
   END LOOP;
 END;
 $matchmaking_run_match_pass$;
@@ -506,137 +648,21 @@ DROP FUNCTION IF EXISTS matchmaking_tick()
 `.trim();
 
 /**
- * Builds the PL/pgSQL `matchmaking_tick()` function. Tunings (radius,
- * sweep windows, per-pass cap, bucket width, fan-out cap) are baked
- * directly into the function body at migrate time — no parameters, no
- * runtime overhead for tuning lookups, and the function signature stays
- * `() RETURNS VOID` so pg_cron just calls `SELECT matchmaking_tick()`.
- *
- * Single-flight guard: `pg_try_advisory_lock(bigint)` on a stable lock
- * id. Concurrent invocations (overlapping cron ticks under sustained
- * load, or a manual `mm.tick()` racing the cron) return immediately
- * when the lock is held. This is defence in depth — pg_cron does not
- * skip overlapping invocations on its own.
- *
- * Failure handling: every Postgres error inside the BEGIN..EXCEPTION
- * block unlocks the advisory lock and re-raises. pg_cron captures the
- * error in `cron.job_run_details`; the next interval retries.
- *
- * The drain loop per partition mirrors `Matchmaker.runMatchPasses`:
- * call `matchmaking_run_match_pass` until it returns 0 matches OR we
- * hit {@link DRAIN_MAX_PASSES_PER_PARTITION}. After all partitions,
- * prune `matchmaking_active_partitions` of any signatures that drained
- * to zero waiters (mirrors the JS `runMatchPassesAcrossPartitions`
- * tail).
+ * Stable advisory lock id used by `matchmaking_tick()` (the cron-
+ * driven SQL function) AND by `Matchmaking.tick()` (the JS driver)
+ * for their shared single-flight guard. Arbitrary 64-bit constant;
+ * just needs to be unique within this database so no unrelated
+ * caller collides. Changing this is a deployment decision.
  */
-/**
- * Stable advisory lock id used by `matchmaking_tick()` for its
- * single-flight guard. Arbitrary 64-bit constant; just needs to be
- * unique within this database so no unrelated caller collides.
- */
-const TICK_ADVISORY_LOCK_ID = '7723344891234567000';
-
-function numericLit(n: number): string {
-  if (!Number.isFinite(n)) {
-    throw new Error(
-      `matchmaking tick: non-finite numeric tunable: ${String(n)}`
-    );
-  }
-  return n.toString();
-}
-
-function intLit(n: number): string {
-  if (!Number.isInteger(n) || n < 0) {
-    throw new Error(
-      `matchmaking tick: non-integer or negative tunable: ${String(n)}`
-    );
-  }
-  return n.toString();
-}
-
-function tickDeclareBlock(parts: TickFunctionTunings): string {
-  return `
-DECLARE
-  v_lock_id      CONSTANT BIGINT  := ${TICK_ADVISORY_LOCK_ID};
-  v_max_parts    CONSTANT INT     := ${intLit(parts.maxPartitionsFanout)};
-  v_max_passes   CONSTANT INT     := ${intLit(parts.maxPassesPerPartition)};
-  v_max_pairs    CONSTANT INT     := ${intLit(parts.maxPairsPerPass)};
-  v_base_radius  CONSTANT NUMERIC := ${numericLit(parts.baseRadius)};
-  v_growth       CONSTANT NUMERIC := ${numericLit(parts.radiusGrowthPerSecond)};
-  v_max_radius   CONSTANT NUMERIC := ${numericLit(parts.maxRadius)};
-  v_bucket_w     CONSTANT NUMERIC := ${numericLit(parts.bucketWidth)};
-  v_max_wait     CONSTANT INT     := ${intLit(parts.maxWaitSeconds)};
-  v_matched_ret  CONSTANT INT     := ${intLit(parts.matchedRetentionSeconds)};
-  v_sig          TEXT;
-  v_matches      BIGINT;
-  v_pass         INT;`.trim();
-}
-
-const TICK_BODY_BLOCK = `
-BEGIN
-  IF NOT pg_try_advisory_lock(v_lock_id) THEN RETURN; END IF;
-
-  BEGIN
-    FOR v_sig IN
-      SELECT partition_signature
-      FROM matchmaking_active_partitions
-      ORDER BY first_seen_at
-      LIMIT v_max_parts
-    LOOP
-      v_pass := 0;
-      LOOP
-        v_pass := v_pass + 1;
-        SELECT COUNT(DISTINCT match_id) INTO v_matches
-        FROM matchmaking_run_match_pass(
-          v_sig, v_base_radius, v_growth, v_max_radius,
-          v_max_pairs, v_bucket_w, NULL
-        );
-        IF v_matches = 0 OR v_pass >= v_max_passes THEN EXIT; END IF;
-      END LOOP;
-      IF v_max_wait > 0 THEN
-        PERFORM matchmaking_sweep_expired(v_sig, v_max_wait, NULL);
-      END IF;
-    END LOOP;
-
-    DELETE FROM matchmaking_active_partitions ap
-    WHERE NOT EXISTS (
-      SELECT 1 FROM matchmaking_waiting w
-      WHERE w.partition_signature = ap.partition_signature
-    );
-
-    IF v_matched_ret > 0 THEN
-      PERFORM matchmaking_sweep_matched(v_matched_ret, NULL);
-    END IF;
-  EXCEPTION WHEN OTHERS THEN
-    PERFORM pg_advisory_unlock(v_lock_id);
-    RAISE;
-  END;
-
-  PERFORM pg_advisory_unlock(v_lock_id);
-END;
-`.trim();
-
-type TickFunctionTunings = {
-  readonly baseRadius: number;
-  readonly radiusGrowthPerSecond: number;
-  readonly maxRadius: number;
-  readonly bucketWidth: number;
-  readonly maxPairsPerPass: number;
-  readonly maxWaitSeconds: number;
-  readonly matchedRetentionSeconds: number;
-  readonly maxPartitionsFanout: number;
-  readonly maxPassesPerPartition: number;
-};
-
-export function buildCreateTickFunctionSql(parts: TickFunctionTunings): string {
-  return `
-CREATE OR REPLACE FUNCTION matchmaking_tick() RETURNS VOID
-LANGUAGE plpgsql AS $matchmaking_tick$
-${tickDeclareBlock(parts)}
-${TICK_BODY_BLOCK}
-$matchmaking_tick$;
-`.trim();
-}
+// Tick-function builder + the advisory lock id live in `tick-sql.ts`
+// to keep this file under the per-file line cap. Re-exported here as
+// the canonical migrate.ts surface so nothing else has to know there
+// are two files.
+export {
+  buildCreateTickFunctionSql,
+  MATCHMAKING_TICK_ADVISORY_LOCK_ID,
+  type TickFunctionTunings,
+} from './tick-sql';
 
 /**
  * Global cleanup of matched rows older than `p_max_age_seconds`. Hits a

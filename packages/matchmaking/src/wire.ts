@@ -14,4 +14,5 @@ export type {
   FormulaWire,
   NumericTermWire,
   PartitionTermWire,
+  RadiusOptionsWire,
 } from './formula-wire';

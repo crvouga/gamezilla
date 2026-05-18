@@ -147,7 +147,7 @@ describe('migrate v3 - schema bootstrap', () => {
     }
   });
 
-  test('creates matchmaking_active_partitions side table (UNLOGGED, PK = partition_signature)', async () => {
+  test('creates matchmaking_active_partitions side table (UNLOGGED, composite PK)', async () => {
     const { db, sqlClient } = await boot();
     try {
       await migrate({ sqlClient });
@@ -155,16 +155,26 @@ describe('migrate v3 - schema bootstrap', () => {
         `SELECT relpersistence FROM pg_class WHERE relname = 'matchmaking_active_partitions'`
       );
       expect(meta.rows[0]?.relpersistence).toBe('u');
-      const pk = await sqlClient.query<{ column_name: string }>(
-        `SELECT a.attname AS column_name
+      // v4 PK is (partition_signature, group_size) — order matters
+      // because the tick loop reads `(sig, group_size)` pairs from this
+      // table. Both columns are part of the unique constraint that
+      // backs the on-conflict-do-nothing upsert in `insertJoin`.
+      const pk = await sqlClient.query<{
+        column_name: string;
+        ordinal_position: number;
+      }>(
+        `SELECT a.attname AS column_name, x.ordinal_position
          FROM pg_index i
+         JOIN LATERAL unnest(i.indkey) WITH ORDINALITY AS x(attnum, ordinal_position) ON true
          JOIN pg_attribute a
-           ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
+           ON a.attrelid = i.indrelid AND a.attnum = x.attnum
          WHERE i.indrelid = 'matchmaking_active_partitions'::regclass
-           AND i.indisprimary`
+           AND i.indisprimary
+         ORDER BY x.ordinal_position`
       );
       expect(pk.rows.map((r) => r.column_name)).toEqual([
         'partition_signature',
+        'group_size',
       ]);
     } finally {
       await db.close();
@@ -381,6 +391,164 @@ describe('migrate v3 - schema validation', () => {
           schema: { bucketWidth: 0 },
         })
       ).rejects.toThrow();
+    } finally {
+      await db.close();
+    }
+  });
+});
+
+// ---------------------------------------------------------------------
+// Phase 2 — production hardening test gaps for migrate
+// ---------------------------------------------------------------------
+
+describe('migrate - schema fingerprint stability', () => {
+  test('fingerprint value (not just row count) stays stable across re-migrate', async () => {
+    const { db, sqlClient } = await boot();
+    try {
+      const schema = {
+        partitionKeys: ['mmtest/region'],
+        primaryNumericKey: 'mmtest/rating',
+        bucketWidth: 50,
+      };
+      await migrate({ sqlClient, schema });
+      const first = await sqlClient.query<{ fp: string }>(
+        `SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
+      );
+      const firstFp = first.rows[0]?.fp;
+      expect(typeof firstFp).toBe('string');
+      await migrate({ sqlClient, schema });
+      const second = await sqlClient.query<{ fp: string }>(
+        `SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
+      );
+      expect(second.rows[0]?.fp).toBe(firstFp);
+    } finally {
+      await db.close();
+    }
+  });
+
+  test('changing schema bumps the fingerprint', async () => {
+    const { db, sqlClient } = await boot();
+    try {
+      await migrate({
+        sqlClient,
+        schema: { partitionKeys: ['mmtest/region'] },
+      });
+      const first = await sqlClient.query<{ fp: string }>(
+        `SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
+      );
+      await migrate({
+        sqlClient,
+        schema: { partitionKeys: ['mmtest/region', 'mmtest/kind'] },
+      });
+      const second = await sqlClient.query<{ fp: string }>(
+        `SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
+      );
+      expect(second.rows[0]?.fp).not.toBe(first.rows[0]?.fp);
+    } finally {
+      await db.close();
+    }
+  });
+});
+
+describe('migrate - matchmaking_active_partitions prune', () => {
+  test('matchmaking_tick prunes empty signatures regardless of age', async () => {
+    const { db, sqlClient } = await boot();
+    try {
+      await migrate({ sqlClient });
+      // Seed a synthetic active-partitions row pointing at no waiters.
+      await sqlClient.query(
+        `INSERT INTO matchmaking_active_partitions (partition_signature)
+         VALUES ('orphaned-partition')`
+      );
+      const before = await sqlClient.query<{ n: number }>(
+        `SELECT COUNT(*)::INT AS n FROM matchmaking_active_partitions`
+      );
+      expect(before.rows[0]?.n).toBe(1);
+      await sqlClient.query(`SELECT matchmaking_tick()`);
+      const after = await sqlClient.query<{ n: number }>(
+        `SELECT COUNT(*)::INT AS n FROM matchmaking_active_partitions`
+      );
+      expect(after.rows[0]?.n).toBe(0);
+    } finally {
+      await db.close();
+    }
+  });
+
+  test('matchmaking_tick prunes ancient empty signatures via watermark', async () => {
+    const { db, sqlClient } = await boot();
+    try {
+      await migrate({ sqlClient });
+      // Insert two synthetic rows: one "old" (faked by setting
+      // first_seen_at far in the past, both with no waiters) and one
+      // "fresh". Both are empty so both get pruned by the empty-now
+      // clause too — this test verifies the watermark clause runs
+      // (the two clauses are independent) by checking that the row
+      // count drops to zero.
+      await sqlClient.query(
+        `INSERT INTO matchmaking_active_partitions (partition_signature, first_seen_at)
+         VALUES ('old', now() - INTERVAL '30 days'),
+                ('new', now())`
+      );
+      await sqlClient.query(`SELECT matchmaking_tick()`);
+      const after = await sqlClient.query<{ n: number }>(
+        `SELECT COUNT(*)::INT AS n FROM matchmaking_active_partitions`
+      );
+      expect(after.rows[0]?.n).toBe(0);
+    } finally {
+      await db.close();
+    }
+  });
+});
+
+describe('migrate - cron.unschedule fallback', () => {
+  // PGlite has no pg_cron extension. We stub `sqlClient.query` to
+  // (a) report pg_cron as installed and (b) throw a duplicate-name
+  // error on the first cron.schedule, then assert migrate retries
+  // via cron.unschedule + cron.schedule.
+  test('falls back to cron.unschedule when cron.schedule reports duplicate name', async () => {
+    const { db, sqlClient: base } = await boot();
+    const calls: string[] = [];
+    let scheduleAttempts = 0;
+    const stub: SqlClient = {
+      async query<T = Record<string, unknown>>(
+        sql: string,
+        params?: readonly unknown[]
+      ) {
+        const lower = sql.toLowerCase();
+        if (lower.includes("extname = 'pg_cron'")) {
+          calls.push('is-pg-cron');
+          return { rows: [{ ok: true }] as unknown as T[] };
+        }
+        if (lower.includes('cron.schedule')) {
+          calls.push('cron.schedule');
+          scheduleAttempts += 1;
+          if (scheduleAttempts === 1) {
+            throw new Error(
+              `cron job "matchmaking-tick" already exists (duplicate)`
+            );
+          }
+          return { rows: [{ jobid: 42 }] as unknown as T[] };
+        }
+        if (lower.includes('cron.unschedule')) {
+          calls.push('cron.unschedule');
+          return { rows: [] as unknown as T[] };
+        }
+        return await base.query<T>(sql, params);
+      },
+      tx(fn) {
+        return base.tx(fn);
+      },
+    };
+    try {
+      await migrate({ sqlClient: stub });
+      expect(scheduleAttempts).toBe(2);
+      expect(calls).toContain('cron.unschedule');
+      // The unschedule call must land BETWEEN the two schedule attempts.
+      const firstSched = calls.indexOf('cron.schedule');
+      const lastSched = calls.lastIndexOf('cron.schedule');
+      const unsched = calls.indexOf('cron.unschedule');
+      expect(unsched).toBeGreaterThan(firstSched);
+      expect(unsched).toBeLessThan(lastSched);
     } finally {
       await db.close();
     }

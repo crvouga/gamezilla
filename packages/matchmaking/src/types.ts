@@ -28,17 +28,26 @@ export type MatchedParticipant = {
   readonly participantId: string;
   readonly joinedAt: Date;
   readonly data: AttributeState;
+  /**
+   * Free-form caller payload the participant supplied on join (or via
+   * `Matchmaking.updateFormulas`). Present iff the caller set it; null
+   * when unset. Bounded by
+   * {@link MATCHMAKING_PAYLOAD_LIMITS}.maxMetadataBytes (1024 bytes).
+   */
+  readonly metadata?: Record<string, unknown> | null;
 };
 
 export type WaitingStatus = {
   readonly status: 'waiting';
   readonly data: AttributeState;
+  readonly metadata?: Record<string, unknown> | null;
 };
 
 export type MatchedStatus = {
   readonly status: 'matched';
   readonly data: AttributeState;
   readonly matchId: string;
+  readonly metadata?: Record<string, unknown> | null;
   /**
    * The other participants matched with this one. Named neutrally because
    * the library has no opinion on the relationship between matched
@@ -58,6 +67,41 @@ export type JoinInput = {
    * non-empty.
    */
   readonly formulas: readonly DistanceFormula[];
+  /**
+   * Size of the group this participant wants to be matched into.
+   * Default 2 (a head-to-head match). Range: 2..16. The library
+   * guarantees a `groupSize: N` participant is only ever placed in a
+   * match with N-1 other `groupSize: N` participants, and that every
+   * pair within the group mutually accepts each other under the
+   * participants' formulas (the "pairwise compatibility" requirement).
+   *
+   * Use 3+ for team formats, free-for-all queues, party finders, etc.
+   * Mixing group sizes within the same partition is safe — participants
+   * with different `groupSize` are never candidates for each other.
+   */
+  readonly groupSize?: number;
+  /**
+   * Per-participant priority. Higher values are considered before lower
+   * values within the same primary bucket; ties fall back to FIFO
+   * (`joined_at`). Defaults to 0. Bounded to `[-1000, 1000]`.
+   *
+   * Use this to surface VIPs, retry-on-failure attempts, or any caller
+   * preference that should jump the queue without bypassing the
+   * partition/formula constraints.
+   */
+  readonly priority?: number;
+  /**
+   * Free-form caller payload that round-trips through `status()`. Stored
+   * verbatim as JSONB on the waiting and matched rows. Capped at
+   * {@link MATCHMAKING_PAYLOAD_LIMITS}.maxMetadataBytes (1024 bytes of
+   * UTF-8 JSON). Use for routing hints, party IDs, custom display
+   * data, etc. — the library never reads it.
+   */
+  readonly metadata?: Record<string, unknown> | null;
+};
+
+export type UpdateFormulasResult = {
+  readonly updated: boolean;
 };
 
 export type JoinResult = {
@@ -68,7 +112,13 @@ export type LeaveResult = {
   readonly removed: boolean;
 };
 
-export type MatchPassResult = {
+/**
+ * Internal: result of a single `Matchmaker.runMatchPass` call. Consumed
+ * only by the internal engine; not part of the public API.
+ *
+ * @internal
+ */
+export type _MatchPassResult = {
   readonly matches: number;
 };
 
@@ -109,6 +159,19 @@ export type DistanceFormula = {
   readonly numeric: readonly DistanceFormulaNumericTerm[];
   readonly categorical?: readonly DistanceFormulaCategoricalTerm[];
   readonly partition?: readonly DistanceFormulaPartitionTerm[];
+  /**
+   * Optional per-formula expanding-radius override. When set, this
+   * formula uses its own `baseRadius / radiusGrowthPerSecond /
+   * maxRadius` for the distance check instead of the global
+   * `RadiusOptions` passed to {@link Matchmaking}. The OTHER side of
+   * the pair still uses whatever radius applies to ITS chosen
+   * formula — matching stays asymmetric.
+   *
+   * Use this for multi-axis queues where different formulas have very
+   * different distance scales (e.g. an aggressive "any rating" backup
+   * formula alongside a tight ranked-grade formula).
+   */
+  readonly radius?: RadiusOptions;
 };
 
 /**

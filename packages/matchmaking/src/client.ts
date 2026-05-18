@@ -22,6 +22,7 @@ import type {
   LeaveResult,
   MatchedStatus,
   StatusResult,
+  UpdateFormulasResult,
 } from './types';
 
 const DEFAULT_POLL_INTERVAL_MS = 1000;
@@ -76,11 +77,71 @@ export class MatchmakingClient {
     this.fetchImpl = opts.fetch ?? globalThis.fetch.bind(globalThis);
   }
 
+  /**
+   * Joins the matchmaking queue.
+   *
+   * Optional knobs:
+   *   - `groupSize` (2..16, default 2): N-way matches for teams / FFA.
+   *   - `priority` (-1000..1000, default 0): queue-jump within the
+   *     same primary bucket. Higher wins; ties fall back to FIFO.
+   *   - `metadata`: free-form caller payload that round-trips through
+   *     `/status`. Capped at 1024 UTF-8 bytes of JSON.
+   *
+   * All limits are enforced server-side.
+   */
   async join(
     data: AttributeState,
-    formulas: readonly FormulaWire[]
+    formulas: readonly FormulaWire[],
+    opts?: {
+      readonly groupSize?: number;
+      readonly priority?: number;
+      readonly metadata?: Record<string, unknown> | null;
+    }
   ): Promise<JoinResult> {
-    return await this.request<JoinResult>('POST', '/join', { data, formulas });
+    const body: {
+      data: AttributeState;
+      formulas: readonly FormulaWire[];
+      groupSize?: number;
+      priority?: number;
+      metadata?: Record<string, unknown> | null;
+    } = { data, formulas };
+    if (opts?.groupSize !== undefined) body.groupSize = opts.groupSize;
+    if (opts?.priority !== undefined) body.priority = opts.priority;
+    if (opts?.metadata !== undefined) body.metadata = opts.metadata;
+    return await this.request<JoinResult>('POST', '/join', body);
+  }
+
+  /**
+   * Replaces a waiting participant's formulas without losing queue
+   * position. Resolves with `{ updated: true }` when the participant
+   * was still waiting; resolves with `{ updated: false }` (HTTP 404)
+   * when they're matched, swept, or unknown.
+   */
+  async updateFormulas(
+    participantId: string,
+    formulas: readonly FormulaWire[]
+  ): Promise<UpdateFormulasResult> {
+    const url = joinUrl(
+      this.baseUrl,
+      `/update-formulas/${encodeURIComponent(participantId)}`
+    );
+    const token = await this.getToken();
+    const response = await this.fetchImpl(url, {
+      method: 'POST',
+      headers: {
+        Authorization: token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ formulas }),
+    });
+    if (response.status === 404) return { updated: false };
+    if (!response.ok) {
+      throw new MatchmakingHttpError(
+        `update-formulas failed: ${String(response.status)}`,
+        response.status
+      );
+    }
+    return (await response.json()) as UpdateFormulasResult;
   }
 
   async leave(participantId: string): Promise<LeaveResult> {

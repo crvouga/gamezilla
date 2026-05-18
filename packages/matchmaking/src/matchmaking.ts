@@ -30,24 +30,43 @@
  */
 
 import { assert } from '@gamezilla/lib/assert';
+import { createLogger } from '@gamezilla/lib/logger';
 import { Hono, type MiddlewareHandler } from 'hono';
 import type { Pool } from 'pg';
 import { createMatchmakingApp } from './app';
+import { MatchmakingSchemaDriftError } from './errors';
 import { Matchmaker, type MatchmakerOptions } from './matchmaker';
 import { migrate, type MatchmakingSchema } from './migrate';
+import { MATCHMAKING_TICK_ADVISORY_LOCK_ID } from './migrate-sql';
 import { createPgSqlClient } from './pg-adapter';
 import type { SqlClient } from './sql-client';
 import type {
+  DistanceFormula,
   JoinInput,
   JoinResult,
   LeaveResult,
   RadiusOptions,
   StatusResult,
+  UpdateFormulasResult,
 } from './types';
 
-export type MatchmakingStorage =
-  | { readonly pool: Pool; readonly sqlClient?: never }
-  | { readonly sqlClient: SqlClient; readonly pool?: never };
+export { MatchmakingSchemaDriftError } from './errors';
+export { MATCHMAKING_PAYLOAD_LIMITS } from './payload-limits';
+
+/**
+ * Backing store for a `Matchmaking` instance. Holds a single
+ * {@link SqlClient} — the package abstracts over both `pg.Pool` and any
+ * embedder-supplied per-request client through that one interface.
+ *
+ * If you have a `pg.Pool` and want the simplest possible boot, call
+ * {@link Matchmaking.fromPool} instead of constructing this shape
+ * yourself. Embedders who thread a per-request connection (e.g. the
+ * `@gamezilla/api` worker, which pins one `pg.Client` per Hyperdrive
+ * request via `AsyncLocalStorage`) pass their own `SqlClient` here.
+ */
+export type MatchmakingStorage = {
+  readonly sqlClient: SqlClient;
+};
 
 /**
  * Advanced tuning escape hatch. Defaults are correct for the standard
@@ -179,6 +198,26 @@ export class Matchmaking {
   }
 
   /**
+   * Replaces the formulas of a participant who is currently in the
+   * waiting queue. Preserves their `joined_at` (no queue-position
+   * penalty) and their partition. Returns `{ updated: false }` when
+   * the participant is no longer waiting — either already matched,
+   * already swept, or never existed. Callers typically treat that as
+   * a 404 / "you missed it" on the request layer.
+   *
+   * Use this to widen criteria during a long wait without rejoining
+   * (which would lose FIFO position). Validation is identical to
+   * `join`.
+   */
+  async updateFormulas(
+    participantId: string,
+    formulas: readonly DistanceFormula[]
+  ): Promise<UpdateFormulasResult> {
+    await this.ensureBooted();
+    return this.matchmaker.updateFormulas(participantId, formulas);
+  }
+
+  /**
    * Mounts the matchmaking HTTP routes on a fresh Hono instance behind
    * `opts.requireAuth`. Every route is a pure single-statement read or
    * write — no opportunistic passes, no `waitUntil` background work.
@@ -216,23 +255,47 @@ export class Matchmaking {
    * useful manual escape hatch when running off a non-pg_cron Postgres
    * (e.g. PGlite in unit tests) or when explicit single-flight control
    * is needed.
+   *
+   * Single-flight guard: acquires the SAME `pg_try_advisory_lock` id
+   * that the SQL `matchmaking_tick()` uses. When the lock is held
+   * (concurrent JS tick, or a concurrent pg_cron call in production)
+   * this returns a zero {@link TickResult} immediately — never double-
+   * processes a partition. The lock is unlocked in a `finally` so a
+   * SQL error mid-drain still releases it.
    */
   async tick(opts?: TickOptions): Promise<TickResult> {
     await this.ensureBooted();
-    const drained = await this.matchmaker.runMatchPassesAcrossPartitions(
-      Matchmaking.buildFanOpts(opts)
-    );
-    const expired = await this.matchmaker.sweepExpiredAcrossPartitions(
-      Matchmaking.buildSweepOpts(opts)
-    );
-    const matched = await this.matchmaker.sweepMatched();
-    return {
-      matches: drained.matches,
-      passes: drained.passes,
-      partitions: drained.partitions,
-      expiredRemoved: expired.removed,
-      matchedRemoved: matched.removed,
-    };
+    const acquired = await Matchmaking.tryAdvisoryLock(this.sqlClient);
+    if (!acquired) {
+      return {
+        matches: 0,
+        passes: 0,
+        partitions: 0,
+        expiredRemoved: 0,
+        matchedRemoved: 0,
+      };
+    }
+    try {
+      const drained = await this.matchmaker.runMatchPassesAcrossPartitions(
+        Matchmaking.buildFanOpts(opts)
+      );
+      const expired = await this.matchmaker.sweepExpiredAcrossPartitions(
+        Matchmaking.buildSweepOpts(opts)
+      );
+      const matched = await this.matchmaker.sweepMatched();
+      return {
+        matches: drained.matches,
+        passes: drained.passes,
+        partitions: drained.partitions,
+        expiredRemoved: expired.removed,
+        matchedRemoved: matched.removed,
+      };
+    } finally {
+      // Best-effort unlock. If the session is broken (connection
+      // already lost) the lock is auto-released by Postgres on the
+      // next backend recycle; suppress to keep the tick error visible.
+      await Matchmaking.releaseAdvisoryLock(this.sqlClient);
+    }
   }
 
   // ---------------- private instance ----------------
@@ -252,6 +315,10 @@ export class Matchmaking {
     const matchmakerOptions: MatchmakerOptions = {
       sqlClient,
       partitionKeys,
+      schema: opts.schema,
+      onSchemaDrift: (expected, actual): never => {
+        throw new MatchmakingSchemaDriftError(expected, actual);
+      },
       ...(opts.schema.bucketWidth !== undefined
         ? { bucketWidth: opts.schema.bucketWidth }
         : {}),
@@ -353,6 +420,60 @@ export class Matchmaking {
     };
   }
 
+  /**
+   * Single-flight guard for `tick()`. Same advisory lock id the SQL
+   * `matchmaking_tick()` function takes — concurrent JS ticks and
+   * concurrent cron ticks all serialise through one Postgres-side
+   * mutex. Returns false when the lock is already held (caller should
+   * return a zero {@link TickResult} immediately).
+   *
+   * Per Postgres docs, `pg_try_advisory_lock` is session-scoped. The
+   * matching `pg_advisory_unlock` MUST run on the same backend. With a
+   * pooled client this is guaranteed by binding the lock+unlock pair
+   * to the same checked-out client — but our `SqlClient` abstraction
+   * doesn't expose a "pin a connection" primitive. In practice:
+   *
+   *   - the `pg-adapter` uses `Pool.connect()` per `.query()`, which
+   *     can land on different backends. The lock would then never be
+   *     released on the same backend that took it — Postgres still
+   *     auto-releases on backend recycle, but the lock could linger
+   *     for the rest of the backend's life.
+   *   - the API package's per-request adapter pins one `pg.Client` for
+   *     the whole request, so lock+unlock land on the same backend.
+   *   - PGlite uses one in-process connection, so lock+unlock always
+   *     land on the same backend.
+   *
+   * The contract: hosts that drive `tick()` from JS in production
+   * SHOULD pin a single client (the API package already does this).
+   * The SQL `matchmaking_tick()` function takes the same lock from
+   * pg_cron's own session, which is naturally pinned per cron worker.
+   */
+  private static async tryAdvisoryLock(sqlClient: SqlClient): Promise<boolean> {
+    const result = await sqlClient.query<{ pg_try_advisory_lock: boolean }>(
+      `SELECT pg_try_advisory_lock($1::bigint) AS pg_try_advisory_lock`,
+      [MATCHMAKING_TICK_ADVISORY_LOCK_ID]
+    );
+    return result.rows[0]?.pg_try_advisory_lock === true;
+  }
+
+  private static async releaseAdvisoryLock(
+    sqlClient: SqlClient
+  ): Promise<void> {
+    try {
+      await sqlClient.query(`SELECT pg_advisory_unlock($1::bigint)`, [
+        MATCHMAKING_TICK_ADVISORY_LOCK_ID,
+      ]);
+    } catch (err) {
+      // Backend might have died mid-tick; Postgres auto-releases the
+      // lock on backend exit. Logging the unlock failure is enough.
+      Matchmaking.log.warn('matchmaking tick: advisory unlock failed', {
+        message: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
+  private static readonly log = createLogger({ name: 'matchmaking' });
+
   private static assertOptions(resolved: ResolvedOptions): void {
     // Validation of numeric tunables lives inside `Matchmaker` (so it
     // applies to every Matchmaker, however constructed). Here we only
@@ -370,14 +491,30 @@ export class Matchmaking {
   }
 
   private static resolveSqlClient(storage: MatchmakingStorage): SqlClient {
-    if ('sqlClient' in storage && storage.sqlClient !== undefined) {
-      return storage.sqlClient;
-    }
-    if ('pool' in storage && storage.pool !== undefined) {
-      return createPgSqlClient(storage.pool);
-    }
-    throw new Error(
-      'Matchmaking: storage must provide either `pool` or `sqlClient`'
+    assert.defined(
+      storage.sqlClient,
+      'Matchmaking: storage.sqlClient is required (use Matchmaking.fromPool for a pg.Pool)'
     );
+    return storage.sqlClient;
+  }
+
+  /**
+   * One-liner factory for the common case: an embedder that already
+   * has a `pg.Pool` and just wants a working `Matchmaking`. Wraps the
+   * pool in the package's internal {@link SqlClient} adapter — the
+   * only place on the public surface where the `pg` import is visible.
+   *
+   * For per-request connection wiring (e.g. Hyperdrive isolates that
+   * pin one client per request), construct `new Matchmaking(...)`
+   * directly and pass your own `SqlClient` via `storage`.
+   */
+  static fromPool(
+    pool: Pool,
+    opts: Omit<MatchmakingOptions, 'storage'>
+  ): Matchmaking {
+    return new Matchmaking({
+      ...opts,
+      storage: { sqlClient: createPgSqlClient(pool) },
+    });
   }
 }

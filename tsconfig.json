@@ -34,7 +34,11 @@
       "@gamezilla/spaces/*": ["./packages/spaces/src/*"],
       "@gamezilla/tts/*": ["./packages/tts/src/*"],
       "@gamezilla/client-config/*": ["./packages/client-config/src/*"],
-      "@gamezilla/matchmaking/*": ["./packages/matchmaking/src/*"],
+      "@gamezilla/matchmaking": ["./packages/matchmaking/src/index.ts"],
+      "@gamezilla/matchmaking/storage": [
+        "./packages/matchmaking/src/storage.ts"
+      ],
+      "@gamezilla/matchmaking/wire": ["./packages/matchmaking/src/wire.ts"],
       "@gamezilla/app/*": ["./packages/app/src/*"],
       "@gamezilla/assistant/shared": [
         "./packages/assistant/src/shared/index.ts"

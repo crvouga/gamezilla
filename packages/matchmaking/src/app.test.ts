@@ -325,7 +325,7 @@ describe('Matchmaking.app - SQL roundtrip count (chess.com-scale regression)', (
   // UNION + optional peer fetch). If anyone reintroduces opportunistic
   // pass/sweep calls per-request these numbers explode and this test
   // fails loudly.
-  test('/join issues exactly one SQL roundtrip; /status (waiting) issues exactly one', async () => {
+  test('/join issues exactly one SQL roundtrip; /status (waiting) issues exactly one (steady state)', async () => {
     const db = await PGlite.create();
     let count = 0;
     const base = createPgliteSqlClient(db);
@@ -355,6 +355,16 @@ describe('Matchmaking.app - SQL roundtrip count (chess.com-scale regression)', (
     await mm.ready();
     const app = mm.app({ requireAuth: stubAuth });
     try {
+      // First call runs the lazy schema-fingerprint probe (one extra
+      // SELECT, cached for the lifetime of the process). Burn that
+      // one-shot here so the steady-state counts below assert the
+      // chess.com-scale 1-SQL-per-request guarantee.
+      const warmup = await postJson(app, '/join', {
+        data: { 'mmtest/rating': 999 },
+        formulas: [RatingFormula],
+      });
+      expect(warmup.status).toBe(200);
+
       count = 0;
       const join = await postJson(app, '/join', {
         data: { 'mmtest/rating': 1000 },
@@ -390,6 +400,352 @@ describe('Matchmaking.app - SQL roundtrip count (chess.com-scale regression)', (
     expect(res.headers.get('cache-control')).toBe('private, max-age=1');
   });
 });
+
+// ---------------------------------------------------------------------
+// Phase 2 — production hardening test gaps for the HTTP boundary
+// ---------------------------------------------------------------------
+
+describe('Matchmaking.app - 500 sanitisation', () => {
+  // Force a SQL failure deep inside `/join` and assert the client
+  // sees `{ error: 'internal' }` — not the raw error message (which
+  // could leak SQL fragments, bind values, etc.).
+  test('500 returns { error: "internal" }', async () => {
+    const db = await PGlite.create();
+    const base = createPgliteSqlClient(db);
+    let failOnInsert = false;
+    const flaky: SqlClient = {
+      async query(sql, params) {
+        if (failOnInsert && sql.includes('INSERT INTO matchmaking_waiting')) {
+          throw new Error('secret-database-internal-detail-do-not-leak');
+        }
+        return await base.query(sql, params);
+      },
+      tx(fn) {
+        return base.tx(fn);
+      },
+    };
+    const mm = new Matchmaking({
+      storage: { sqlClient: flaky },
+      schema: {},
+    });
+    await mm.ready();
+    const app = mm.app({ requireAuth: stubAuth });
+    try {
+      failOnInsert = true;
+      const res = await postJson(app, '/join', {
+        data: { 'mmtest/rating': 1000 },
+        formulas: [RatingFormula],
+      });
+      expect(res.status).toBe(500);
+      const body = (await res.json()) as { error: string };
+      expect(body.error).toBe('internal');
+      expect(body.error).not.toContain('secret-database-internal-detail');
+    } finally {
+      await db.close();
+    }
+  });
+});
+
+describe('Matchmaking.app - payload limits', () => {
+  function bigString(bytes: number): string {
+    return 'a'.repeat(bytes);
+  }
+
+  test('64-key data is accepted (boundary)', async () => {
+    const data: Record<string, unknown> = {};
+    for (let i = 0; i < 64; i += 1) {
+      data[`mmtest/k${String(i)}`] = i;
+    }
+    data['mmtest/rating'] = 1000;
+    // 65 keys total now — back off one for the exact-64-keys boundary.
+    delete data['mmtest/k63'];
+    const res = await postJson(h.app, '/join', {
+      data,
+      formulas: [RatingFormula],
+    });
+    expect(res.status).toBe(200);
+  });
+
+  test('65-key data is rejected (over by one)', async () => {
+    const data: Record<string, unknown> = {};
+    for (let i = 0; i < 64; i += 1) {
+      data[`mmtest/k${String(i)}`] = i;
+    }
+    data['mmtest/rating'] = 1000;
+    const res = await postJson(h.app, '/join', {
+      data,
+      formulas: [RatingFormula],
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test('1024-byte string value is accepted (boundary)', async () => {
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000, 'mmtest/name': bigString(1024) },
+      formulas: [RatingFormula],
+    });
+    expect(res.status).toBe(200);
+  });
+
+  test('1025-byte string value is rejected', async () => {
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000, 'mmtest/name': bigString(1025) },
+      formulas: [RatingFormula],
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test('8-formula array is accepted (boundary)', async () => {
+    const formulas = Array.from({ length: 8 }, () => RatingFormula);
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas,
+    });
+    expect(res.status).toBe(200);
+  });
+
+  test('9-formula array is rejected', async () => {
+    const formulas = Array.from({ length: 9 }, () => RatingFormula);
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test('per-formula term cap (32) is enforced', async () => {
+    const tooManyTerms = {
+      numeric: Array.from({ length: 33 }, (_, i) => ({
+        path: `mmtest/n${String(i)}`,
+        weight: 1,
+      })),
+    };
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [tooManyTerms],
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test('long formula path (>1024 bytes) is rejected', async () => {
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [{ numeric: [{ path: bigString(1100), weight: 1 }] }],
+    });
+    expect(res.status).toBe(400);
+  });
+});
+
+describe('Matchmaking.app - empty partitionKeys collapse', () => {
+  test('all joiners share one shard when partitionKeys is empty', async () => {
+    const explicit = await bootHarness({
+      schema: { partitionKeys: [] },
+    });
+    try {
+      const a = await postJson(explicit.app, '/join', {
+        data: { 'mmtest/rating': 1000 },
+        formulas: [RatingFormula],
+      });
+      const aBody = (await a.json()) as { participantId: string };
+      const b = await postJson(explicit.app, '/join', {
+        data: { 'mmtest/rating': 1010 },
+        formulas: [RatingFormula],
+      });
+      const bBody = (await b.json()) as { participantId: string };
+      const drained = await explicit.mm.tick({ maxPassesPerPartition: 4 });
+      expect(drained.partitions).toBe(1);
+      expect(drained.matches).toBe(1);
+      const aStatus = await getStatus(explicit.app, aBody.participantId);
+      expect(aStatus.body.status).toBe('matched');
+      expect((aStatus.body as MatchedStatus).peers[0]?.participantId).toBe(
+        bBody.participantId
+      );
+    } finally {
+      await explicit.db.close();
+    }
+  });
+});
+
+describe('Matchmaking.app - auth header shapes', () => {
+  test('rejects requests with a malformed authorization header value', async () => {
+    // Stub auth treats absence of `x-test-user` as 401. Send something
+    // that looks like a header (Bearer-shaped string) but lacks our
+    // stub's expected token.
+    const res = await h.app.request('/status/x', {
+      headers: { Authorization: 'Bearer not-a-real-token' },
+    });
+    expect(res.status).toBe(401);
+  });
+});
+
+describe('Matchmaking.app - priority + metadata + updateFormulas (HTTP)', () => {
+  test('400 on priority below -1000', async () => {
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [RatingFormula],
+      priority: -1001,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test('400 on priority above 1000', async () => {
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [RatingFormula],
+      priority: 1001,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test('400 on non-object metadata', async () => {
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [RatingFormula],
+      metadata: 'not-an-object',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test('400 on metadata over 1024 bytes', async () => {
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [RatingFormula],
+      metadata: { blob: 'x'.repeat(2048) },
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test('metadata round-trips through /join + /status', async () => {
+    const a = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [RatingFormula],
+      metadata: { tag: 'A', score: 7 },
+    });
+    const aBody = (await a.json()) as { participantId: string };
+    const status = await getStatus(h.app, aBody.participantId);
+    expect(status.body.status).toBe('waiting');
+    expect(status.body.metadata).toEqual({ tag: 'A', score: 7 });
+  });
+
+  test('POST /update-formulas/:id 200 on waiting participant', async () => {
+    const a = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [RatingFormula],
+    });
+    const aBody = (await a.json()) as { participantId: string };
+    const upd = await postJson(
+      h.app,
+      `/update-formulas/${aBody.participantId}`,
+      { formulas: [RatingFormula] }
+    );
+    expect(upd.status).toBe(200);
+    expect(await upd.json()).toEqual({ updated: true });
+  });
+
+  test('POST /update-formulas/:id 404 on unknown id', async () => {
+    const upd = await postJson(
+      h.app,
+      '/update-formulas/00000000-0000-0000-0000-000000000000',
+      { formulas: [RatingFormula] }
+    );
+    expect(upd.status).toBe(404);
+  });
+
+  test('POST /update-formulas/:id 404 once participant is matched', async () => {
+    const a = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [RatingFormula],
+    });
+    const aBody = (await a.json()) as { participantId: string };
+    await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1010 },
+      formulas: [RatingFormula],
+    });
+    await h.mm.tick({ maxPassesPerPartition: 1 });
+    const upd = await postJson(
+      h.app,
+      `/update-formulas/${aBody.participantId}`,
+      { formulas: [RatingFormula] }
+    );
+    expect(upd.status).toBe(404);
+  });
+
+  test('POST /update-formulas/:id 400 on invalid body (empty formulas)', async () => {
+    const a = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [RatingFormula],
+    });
+    const aBody = (await a.json()) as { participantId: string };
+    const upd = await postJson(
+      h.app,
+      `/update-formulas/${aBody.participantId}`,
+      { formulas: [] }
+    );
+    expect(upd.status).toBe(400);
+  });
+});
+
+describe('Matchmaking.app - groupSize (HTTP surface)', () => {
+  test('400 on groupSize: 1 (below minimum)', async () => {
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [RatingFormula],
+      groupSize: 1,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test('400 on groupSize: 17 (above maximum)', async () => {
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [RatingFormula],
+      groupSize: 17,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test('400 on non-integer groupSize', async () => {
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [RatingFormula],
+      groupSize: 2.5,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test('400 on string groupSize', async () => {
+    const res = await postJson(h.app, '/join', {
+      data: { 'mmtest/rating': 1000 },
+      formulas: [RatingFormula],
+      groupSize: '2',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test('groupSize: 3 over HTTP - three participants pair into one match with two peers each', async () => {
+    const ids: string[] = [];
+    for (let i = 0; i < 3; i += 1) {
+      const r = await postJson(h.app, '/join', {
+        data: { 'mmtest/rating': 1000 + i * 5 },
+        formulas: [RatingFormula],
+        groupSize: 3,
+      });
+      const body = (await r.json()) as { participantId: string };
+      ids.push(body.participantId);
+    }
+    const tick = await h.mm.tick({ maxPassesPerPartition: 1 });
+    expect(tick.matches).toBe(1);
+    const id0 = ids[0];
+    expect(id0).toBeDefined();
+    const s0 = await getStatus(h.app, id0 as string);
+    expect(s0.body.status).toBe('matched');
+    expect((s0.body as MatchedStatus).peers).toHaveLength(2);
+  });
+});
+
+// ---------------------------------------------------------------------
+// Original tests resume below
+// ---------------------------------------------------------------------
 
 describe('Matchmaking.app - partitioned schema', () => {
   test('only matches participants that share the partition key', async () => {

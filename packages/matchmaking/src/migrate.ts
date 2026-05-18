@@ -60,6 +60,7 @@ import { assert } from '@gamezilla/lib/assert';
 import { isNamespacedKeyword } from '@gamezilla/lib/keyword';
 import type { Pool } from 'pg';
 import {
+  ADD_METADATA_COLUMN_TO_MATCHED_SQL,
   CREATE_ACTIVE_PARTITIONS_TABLE_SQL,
   CREATE_MATCHED_MATCH_ID_INDEX_SQL,
   CREATE_MATCHED_MATCHED_AT_INDEX_SQL,
@@ -72,9 +73,11 @@ import {
   CREATE_SWEEP_EXPIRED_SQL,
   CREATE_SWEEP_MATCHED_SQL,
   CREATE_WAITING_INDEX_SQL,
+  DROP_LEGACY_ACTIVE_PARTITIONS_SQL,
   DROP_LEGACY_INDEXES,
   DROP_LEGACY_PASS_RUNS_SQL,
   DROP_LEGACY_QUEUE_SQL,
+  DROP_PAIR_MATCH_LEGACY_SIGNATURES,
   DROP_RUN_MATCH_PASS_LEGACY_SIGNATURES,
   DROP_SWEEP_EXPIRED_LEGACY_SIGNATURES,
   DROP_SWEEP_MATCHED_LEGACY_SIGNATURES,
@@ -145,15 +148,36 @@ const DEFAULT_MAX_WAIT_SECONDS = 300;
 const DEFAULT_MATCHED_RETENTION_SECONDS = 3600;
 const DEFAULT_MAX_PARTITIONS_FANOUT = 1024;
 const DEFAULT_MAX_PASSES_PER_PARTITION = 8;
+/**
+ * `matchmaking_active_partitions` watermark prune: any signature
+ * older than this with zero waiters gets DELETEd on every cron tick.
+ * 24h is well past any realistic queue session; covers the case
+ * where a one-off partition (e.g. a temporary region) was used once
+ * and never again. Without this the side table grows monotonically
+ * with the cardinality of the partition-key space.
+ */
+const DEFAULT_ACTIVE_PARTITIONS_PRUNE_AGE = 24 * 60 * 60;
+/**
+ * Hard cap on the side table. After the watermark prune, if the table
+ * still exceeds this count, drop the oldest `first_seen_at` rows down
+ * to the cap. Defence against a runaway partition cardinality bug
+ * (e.g. someone misconfigures `partitionKeys` to include a unique id).
+ */
+const DEFAULT_ACTIVE_PARTITIONS_HARD_CAP = 50_000;
 const CRON_SCHEDULE = '5 seconds';
 const CRON_JOB_NAME = 'matchmaking-tick';
 
 // Bumped any time the schema shape changes (column definitions, index
 // definitions, partition layout, etc.) so existing deployments detect
-// the mismatch via `matchmaking_schema_state` and rebuild. v3 is the
-// chess.com-scale layout: split tables, hash-partitioned waiting,
-// no throttle plumbing.
-const SCHEMA_VERSION = 3;
+// the mismatch via `matchmaking_schema_state` and rebuild.
+//   v3: split tables, hash-partitioned waiting, no throttle plumbing.
+//   v4: adds `group_size` column on waiting + extends active_partitions
+//       PK to (signature, group_size) for N-way group matching.
+//   v5: adds `priority` + `metadata` columns on waiting, extends the
+//       hot index to (sig, group_size, primary_bucket, priority DESC,
+//       joined_at). Adds `metadata` column on matched. Per-formula
+//       radius is honoured by matchmaking_pair_match.
+const SCHEMA_VERSION = 5;
 
 type ResolvedSchema = {
   readonly partitionKeys: readonly string[];
@@ -245,7 +269,15 @@ async function rebuildWaitingTable(
   sqlClient: SqlClient,
   schema: ResolvedSchema
 ): Promise<void> {
+  // Drop both waiting and active_partitions ahead of the rebuild.
+  // `matchmaking_active_partitions` PK shape changed in v4 (added
+  // `group_size`); on a v3->v4 migration this DROP makes sure the
+  // CREATE below picks up the new PK rather than colliding with the
+  // old single-column PK. Active partitions get re-derived on the
+  // next join.
   await sqlClient.query(DROP_WAITING_TABLE_SQL);
+  await sqlClient.query(DROP_LEGACY_ACTIVE_PARTITIONS_SQL);
+  await sqlClient.query(CREATE_ACTIVE_PARTITIONS_TABLE_SQL);
   await sqlClient.query(
     buildCreateWaitingTableSql({
       primaryRatingExpr: primaryRatingExpr(schema.primaryNumericKey),
@@ -304,10 +336,40 @@ async function isPgCronInstalled(sqlClient: SqlClient): Promise<boolean> {
   }
 }
 
+/**
+ * Heuristic for "pg_cron rejected the schedule because a job of this
+ * name already exists" — the exact wording differs across pg_cron
+ * versions but they all contain either the name or the words "exists"
+ * / "duplicate". Stay loose to avoid false negatives across upgrades.
+ */
+function isCronDuplicateNameError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  const m = err.message.toLowerCase();
+  return (
+    m.includes(CRON_JOB_NAME.toLowerCase()) ||
+    m.includes('duplicate') ||
+    m.includes('already exists') ||
+    m.includes('unique constraint')
+  );
+}
+
 async function scheduleMatchmakingTick(sqlClient: SqlClient): Promise<void> {
   // pg_cron 1.5+ replaces the existing schedule when called with the
-  // same job name. Earlier versions error; that's acceptable — pin the
-  // platform extension version, or bump the job name on schema bumps.
+  // same job name. Earlier versions error on the second `cron.schedule`
+  // — when that happens, fall back to `cron.unschedule(name)` then
+  // re-schedule. The unschedule fallback is itself best-effort; if the
+  // platform doesn't expose unschedule we surface the original error.
+  try {
+    await sqlClient.query(`SELECT cron.schedule($1, $2, $3) AS jobid`, [
+      CRON_JOB_NAME,
+      CRON_SCHEDULE,
+      `SELECT matchmaking_tick()`,
+    ]);
+    return;
+  } catch (err) {
+    if (!isCronDuplicateNameError(err)) throw err;
+  }
+  await sqlClient.query(`SELECT cron.unschedule($1)`, [CRON_JOB_NAME]);
   await sqlClient.query(`SELECT cron.schedule($1, $2, $3) AS jobid`, [
     CRON_JOB_NAME,
     CRON_SCHEDULE,
@@ -323,12 +385,18 @@ export async function migrate(args: MigrateArgs): Promise<void> {
 
   // Upfront: drop any v2 artefacts and create the always-on tables
   // (matched, active_partitions, schema_state). Idempotent.
+  //
+  // `ADD_METADATA_COLUMN_TO_MATCHED_SQL` is the v4→v5 in-place upgrade
+  // for `matchmaking_matched.metadata`. We can't just rebuild matched
+  // (it's LOGGED and holds live, durable match state); ALTER TABLE …
+  // ADD COLUMN IF NOT EXISTS is the safe upgrade path.
   const upfront = [
     DROP_LEGACY_QUEUE_SQL,
     DROP_LEGACY_PASS_RUNS_SQL,
     ...DROP_LEGACY_INDEXES,
     CREATE_SCHEMA_STATE_TABLE_SQL,
     CREATE_MATCHED_TABLE_SQL,
+    ADD_METADATA_COLUMN_TO_MATCHED_SQL,
     CREATE_MATCHED_MATCH_ID_INDEX_SQL,
     CREATE_MATCHED_MATCHED_AT_INDEX_SQL,
     CREATE_ACTIVE_PARTITIONS_TABLE_SQL,
@@ -339,9 +407,19 @@ export async function migrate(args: MigrateArgs): Promise<void> {
 
   await maybeRebuildSchema(sqlClient, schema);
 
+  // Function-creation block runs inside a single transaction so a
+  // failure halfway through (e.g. a syntax error in a tuning-baked
+  // body, a permission error on one CREATE) leaves the previous
+  // generation of functions intact rather than installing a partial
+  // mix. `CREATE FUNCTION` is fully transactional in Postgres; the
+  // waiting-table rebuild above stays OUTSIDE this tx because
+  // DROP/CREATE TABLE on a partitioned parent has its own MVCC
+  // requirements that don't compose cleanly with subsequent CREATE
+  // FUNCTION ... that references the new table within the same tx.
   const functions = [
     CREATE_PAIR_DISTANCE_SQL,
     CREATE_PAIR_COMPATIBLE_SQL,
+    ...DROP_PAIR_MATCH_LEGACY_SIGNATURES,
     CREATE_PAIR_MATCH_SQL,
     ...DROP_RUN_MATCH_PASS_LEGACY_SIGNATURES,
     ...DROP_SWEEP_EXPIRED_LEGACY_SIGNATURES,
@@ -361,11 +439,15 @@ export async function migrate(args: MigrateArgs): Promise<void> {
         tuning.matchedRetentionSeconds ?? DEFAULT_MATCHED_RETENTION_SECONDS,
       maxPartitionsFanout: DEFAULT_MAX_PARTITIONS_FANOUT,
       maxPassesPerPartition: DEFAULT_MAX_PASSES_PER_PARTITION,
+      activePartitionsHardCap: DEFAULT_ACTIVE_PARTITIONS_HARD_CAP,
+      activePartitionsPruneAgeSeconds: DEFAULT_ACTIVE_PARTITIONS_PRUNE_AGE,
     }),
   ];
-  for (const sql of functions) {
-    await sqlClient.query(sql);
-  }
+  await sqlClient.tx(async (tx) => {
+    for (const sql of functions) {
+      await tx.query(sql);
+    }
+  });
 
   if (await isPgCronInstalled(sqlClient)) {
     await scheduleMatchmakingTick(sqlClient);
