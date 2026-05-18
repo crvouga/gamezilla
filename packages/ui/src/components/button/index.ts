@@ -1,5 +1,6 @@
 export {
   Button,
+  buttonForegroundColor,
   type ButtonProps,
   type ButtonIntent,
   type ButtonSize,

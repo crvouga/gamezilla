@@ -1,16 +1,18 @@
+import { Box } from '@gamezilla/ui';
+import { useMemo, type ReactNode } from 'react';
+
 import { GamesMainMenu } from '../module/games-main-menu';
 import { SpaceActiveLayout } from './space-active-layout';
 import {
   SpaceSessionUiProvider,
   type SpaceSessionUiValue,
 } from './space-session-ui-context';
-import { Box } from '@gamezilla/ui';
-import { useMemo, type ReactNode } from 'react';
 
 export type ActiveSpaceBodyProps = {
   spaceId: string;
   onRequestEnd: () => void;
   onRequestLeave: () => void;
+  onRequestRename: () => void;
   onPressHome: () => void;
   onPressDebug: () => void;
 };
@@ -24,6 +26,7 @@ export function ActiveSpaceBody({
   spaceId,
   onRequestEnd,
   onRequestLeave,
+  onRequestRename,
   onPressHome,
   onPressDebug,
 }: ActiveSpaceBodyProps): ReactNode {
@@ -32,10 +35,18 @@ export function ActiveSpaceBody({
       spaceId,
       onRequestEnd,
       onRequestLeave,
+      onRequestRename,
       onPressHome,
       onPressDebug,
     }),
-    [spaceId, onRequestEnd, onRequestLeave, onPressHome, onPressDebug]
+    [
+      spaceId,
+      onRequestEnd,
+      onRequestLeave,
+      onRequestRename,
+      onPressHome,
+      onPressDebug,
+    ]
   );
 
   return (

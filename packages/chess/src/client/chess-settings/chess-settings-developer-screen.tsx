@@ -2,6 +2,7 @@ import {
   MainMenuScreen,
   type MainMenuItem,
 } from '@gamezilla/ui/components/main-menu-screen';
+import { DefineBackButton } from '@gamezilla/spaces/client/nav/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@gamezilla/spaces/client/room/use-space-room-selector';
 import {
   CHESS_SCREEN,
@@ -34,11 +35,13 @@ export function ChessSettingsDeveloperScreen(): ReactNode {
   );
 
   return (
-    <MainMenuScreen
-      title={<Trans>Developer</Trans>}
-      subtitle={<Trans>Tools for debugging and exploring the UI.</Trans>}
-      items={items}
-      onPressBack={backToSettings}
-    />
+    <>
+      <DefineBackButton onPress={backToSettings} />
+      <MainMenuScreen
+        title={<Trans>Developer</Trans>}
+        subtitle={<Trans>Tools for debugging and exploring the UI.</Trans>}
+        items={items}
+      />
+    </>
   );
 }

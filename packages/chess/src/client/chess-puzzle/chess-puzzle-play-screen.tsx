@@ -1,11 +1,12 @@
 import { SpeakingAvatarAssistant } from '@gamezilla/assistant/client';
 import { useMyId } from '@gamezilla/auth/client/use-current-user';
+import { DefineBackButton } from '@gamezilla/spaces/client/nav/spaces-nav-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@gamezilla/spaces/client/room/use-space-room-selector';
-import { Box, IconButton, IconSymbol, Text, useTheme } from '@gamezilla/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Box, Text } from '@gamezilla/ui';
+import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -24,39 +25,6 @@ import {
 } from './use-puzzle-player-state';
 
 const BOARD_MAX_WIDTH = 720;
-const BACK_BUTTON_SIZE = 40;
-const BACK_ROW_PADDING_TOP = 12;
-const BACK_ROW_PADDING_HORIZONTAL = 12;
-
-function BackButtonRow({ onPress }: { onPress: () => void }): ReactNode {
-  const { t } = useLingui();
-  const theme = useTheme();
-  return (
-    <Box
-      style={{
-        alignSelf: 'stretch',
-        alignItems: 'flex-start',
-        height: BACK_BUTTON_SIZE + BACK_ROW_PADDING_TOP,
-        paddingHorizontal: BACK_ROW_PADDING_HORIZONTAL,
-        paddingTop: BACK_ROW_PADDING_TOP,
-      }}
-    >
-      <IconButton
-        size={BACK_BUTTON_SIZE}
-        background="surface"
-        onPress={onPress}
-        accessibilityLabel={t`Back`}
-      >
-        <IconSymbol
-          name="chevron.right"
-          size={20}
-          color={theme.colors.text}
-          style={{ transform: [{ scaleX: -1 }] }}
-        />
-      </IconButton>
-    </Box>
-  );
-}
 
 function LoadingFirstPuzzle(): ReactNode {
   return (
@@ -115,13 +83,14 @@ function PuzzleBoardSlot(
 function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
   return (
     <Box sx={{ alignSelf: 'stretch' }}>
-      <BackButtonRow onPress={p.backToRoot} />
+      <DefineBackButton onPress={p.backToRoot} />
       <Box
         sx={{
           alignSelf: 'center',
           maxWidth: BOARD_MAX_WIDTH,
           gap: 4,
           pb: 8,
+          pt: 4,
         }}
         style={{ width: '100%' }}
       >

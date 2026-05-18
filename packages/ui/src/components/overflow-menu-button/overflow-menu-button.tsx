@@ -1,0 +1,159 @@
+/**
+ * `OverflowMenuButton` -- icon trigger + anchored {@link FloatingMenu}.
+ *
+ * Encapsulates the standard "more actions" dropdown used throughout chrome.
+ * Each entry in `actions` becomes a `FloatingMenuItemRow`; `endsGroup`
+ * inserts a divider after the row. The trigger renders nothing when
+ * `actions` is empty so consumers can keep the component mounted
+ * conditionally without juggling visibility props.
+ *
+ * @example
+ * ```tsx
+ * <OverflowMenuButton
+ *   actions={[
+ *     { id: 'devtools', label: 'Developer tools', icon: 'chevron.left.forwardslash.chevron.right', onPress: openDebug, endsGroup: true },
+ *     { id: 'leave', label: 'Leave space', icon: 'arrow.right.from.bracket', onPress: leave },
+ *   ]}
+ *   header={{ title: 'More' }}
+ * />
+ * ```
+ */
+
+import type { LocalizedString } from '@gamezilla/lib/i18n';
+import { useContext, useMemo, type ReactNode } from 'react';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+
+import { useTheme } from '../../theme';
+import { Box } from '../box';
+import {
+  FLOATING_MENU_DEFAULT_WIDTH,
+  FloatingMenu,
+  type FloatingMenuContent,
+  type FloatingMenuContentRow,
+} from '../floating-menu';
+import { IconButton } from '../icon-button';
+import { IconSymbol, type IconSymbolName } from '../symbol-icon';
+import { useAnchoredMenu } from './use-anchored-menu';
+
+const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
+
+export type OverflowMenuAction = {
+  /** Stable id used for the row key + a11y. */
+  id: string;
+  label: ReactNode;
+  /** Defaults to {@link DEFAULT_ACTION_ICON} when omitted. */
+  icon?: IconSymbolName;
+  onPress: () => void;
+  trailing?: ReactNode;
+  disabled?: boolean;
+  /** When true, inserts a divider row after this action. */
+  endsGroup?: boolean;
+  accessibilityLabel?: LocalizedString;
+};
+
+export type OverflowMenuHeader = {
+  title: ReactNode;
+  subtitle?: ReactNode;
+};
+
+export type OverflowMenuButtonProps = {
+  /** Actions rendered inside the dropdown. */
+  actions: readonly OverflowMenuAction[];
+  /** Panel header (title + optional subtitle). */
+  header: OverflowMenuHeader;
+  /** Trigger diameter in px. Defaults to 40. */
+  size?: number;
+  /** Trigger background token. Defaults to `'surface'`. */
+  background?: string;
+  /** Trigger icon. Defaults to `'ellipsis'`. */
+  icon?: IconSymbolName;
+  /** Trigger accessibility label. */
+  accessibilityLabel: LocalizedString;
+  /** Width of the dropdown panel in px. */
+  width?: number;
+  testID?: string;
+};
+
+const DEFAULT_ACTION_ICON: IconSymbolName = 'ellipsis';
+
+function buildContent(
+  actions: readonly OverflowMenuAction[],
+  onClose: () => void,
+  header: OverflowMenuHeader
+): FloatingMenuContent {
+  const rows: FloatingMenuContentRow[] = [];
+  actions.forEach((a, idx) => {
+    rows.push({
+      type: 'item',
+      id: a.id,
+      label: a.label,
+      icon: a.icon ?? DEFAULT_ACTION_ICON,
+      onPress: () => {
+        onClose();
+        a.onPress();
+      },
+      ...(a.trailing !== undefined ? { trailing: a.trailing } : {}),
+      ...(a.disabled !== undefined ? { disabled: a.disabled } : {}),
+      ...(a.accessibilityLabel !== undefined
+        ? { accessibilityLabel: a.accessibilityLabel }
+        : {}),
+    });
+    if (a.endsGroup === true && idx < actions.length - 1) {
+      rows.push({ type: 'divider', id: `${a.id}-end-group` });
+    }
+  });
+  return {
+    header: {
+      title: header.title,
+      ...(header.subtitle !== undefined ? { subtitle: header.subtitle } : {}),
+    },
+    rows,
+  };
+}
+
+export function OverflowMenuButton({
+  actions,
+  header,
+  size = 40,
+  background = 'surface',
+  icon = 'ellipsis',
+  accessibilityLabel,
+  width = FLOATING_MENU_DEFAULT_WIDTH,
+  testID,
+}: OverflowMenuButtonProps): ReactNode {
+  const theme = useTheme();
+  const menu = useAnchoredMenu();
+  const insets = useContext(SafeAreaInsetsContext) ?? ZERO_SAFE_AREA;
+  const iconSize = Math.round(size * 0.5);
+
+  const content = useMemo(
+    () => buildContent(actions, menu.close, header),
+    [actions, menu.close, header]
+  );
+
+  if (actions.length === 0) return null;
+
+  return (
+    <>
+      <Box ref={menu.triggerRef} collapsable={false}>
+        <IconButton
+          size={size}
+          background={background}
+          onPress={menu.openMenu}
+          accessibilityLabel={accessibilityLabel}
+          {...(testID !== undefined ? { testID } : {})}
+        >
+          <IconSymbol name={icon} size={iconSize} color={theme.colors.icon} />
+        </IconButton>
+      </Box>
+      <FloatingMenu
+        open={menu.open}
+        onClose={menu.close}
+        anchor={menu.anchor}
+        insets={{ top: insets.top, bottom: insets.bottom }}
+        width={width}
+        content={content}
+      />
+    </>
+  );
+}

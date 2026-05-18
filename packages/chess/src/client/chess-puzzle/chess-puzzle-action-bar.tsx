@@ -1,46 +1,33 @@
-import { Box, IconSymbol, Pressable, Text, useTheme } from '@gamezilla/ui';
-import type { IconSymbolName } from '@gamezilla/ui';
+import {
+  Box,
+  Button,
+  IconSymbol,
+  buttonForegroundColor,
+  useTheme,
+  type IconSymbolName,
+} from '@gamezilla/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
 import type { HintStage } from './use-hint-stage';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 
-type ActionButtonProps = {
-  icon: IconSymbolName;
-  label: ReactNode;
-  disabled?: boolean;
-  primary?: boolean;
-  onPress: () => void;
-};
+const ICON_SIZE = 18;
 
-function ActionButton({
-  icon,
-  label,
-  disabled = false,
-  primary = false,
-  onPress,
-}: ActionButtonProps): ReactNode {
+function ActionIcon({
+  name,
+  disabled,
+}: {
+  name: IconSymbolName;
+  disabled: boolean;
+}): ReactNode {
   const theme = useTheme();
-  const fg = primary ? theme.colors.surface : theme.colors.text;
   return (
-    <Pressable onPress={onPress} disabled={disabled} style={{ flex: 1 }}>
-      <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 2,
-          py: 3,
-          borderRadius: 8,
-          background: primary ? 'tint' : 'surface',
-          opacity: disabled ? 0.45 : 1,
-        }}
-      >
-        <IconSymbol name={icon} size={18} color={fg} />
-        <Text variant="bodyBold" style={{ color: fg }} label={label} />
-      </Box>
-    </Pressable>
+    <IconSymbol
+      name={name}
+      size={ICON_SIZE}
+      color={buttonForegroundColor(theme, disabled)}
+    />
   );
 }
 
@@ -86,25 +73,37 @@ export function ChessPuzzleActionBar({
   onNext,
 }: ChessPuzzleActionBarProps): ReactNode {
   const hint = hintButtonModel({ status, hintStage });
+  const retryDisabled = status !== 'wrong' && status !== 'solved';
+  const nextDisabled = status === 'loading';
   return (
     <Box sx={{ flexDirection: 'row', gap: 2, px: 3, alignSelf: 'stretch' }}>
-      <ActionButton
-        icon={hint.icon}
-        label={hint.label}
+      <Button
+        flex={1}
+        intent="neutral"
+        title={hint.label}
+        startIcon={<ActionIcon name={hint.icon} disabled={hint.disabled} />}
         disabled={hint.disabled}
         onPress={onHint}
       />
-      <ActionButton
-        icon="arrow.right.from.bracket"
-        label={<Trans>Retry</Trans>}
-        disabled={status !== 'wrong' && status !== 'solved'}
+      <Button
+        flex={1}
+        intent="neutral"
+        title={<Trans>Retry</Trans>}
+        startIcon={
+          <ActionIcon
+            name="arrow.right.from.bracket"
+            disabled={retryDisabled}
+          />
+        }
+        disabled={retryDisabled}
         onPress={onRetry}
       />
-      <ActionButton
-        icon="chevron.right"
-        label={<Trans>Next</Trans>}
-        primary
-        disabled={status === 'loading'}
+      <Button
+        flex={1}
+        intent="primary"
+        title={<Trans>Next</Trans>}
+        endIcon={<ActionIcon name="chevron.right" disabled={nextDisabled} />}
+        disabled={nextDisabled}
         onPress={onNext}
       />
     </Box>

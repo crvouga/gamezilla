@@ -1,10 +1,15 @@
 /**
  * `Button` -- themed pressable button with three intents and three sizes.
  *
- * Renders a linear-gradient fill (via `expo-linear-gradient`) for `primary`,
- * `danger`, and `neutral` intents. `primary` and `danger` use white label
- * and icon color in both light and dark themes. Corners are modestly rounded
- * (rectangular, not pill). Sizes only adjust padding; label stays heading weight.
+ * Renders an arcade-style raised button: a vertical gradient fill (lighter
+ * top, darker bottom) sits on a hard offset shadow that gives a 3D "skirt"
+ * underneath. A faint highlight overlay across the upper half adds gloss,
+ * and pressing translates the face down by the depth so the skirt
+ * disappears -- mimicking a physical key being pushed in.
+ *
+ * `primary`, `danger`, and `neutral` intents pull their gradient stops
+ * from the active theme. `primary` and `danger` use white label and icon
+ * color in both light and dark themes.
  *
  * Vendor-branded buttons (e.g. "Sign in with Google", "Sign in with Apple")
  * have their own component because their colors, padding, label, and logo
@@ -44,30 +49,45 @@ export type ButtonProps = {
   startIcon?: ReactNode;
   /** Rendered after the label. */
   endIcon?: ReactNode;
+  /**
+   * Apply a `flex` value to the outer button so it can fill or share space
+   * inside a flex container (e.g. `flex={1}` for an equal-width row item).
+   */
+  flex?: number;
 };
 
-/** Compact padding; modest corner radius (rounded rectangle, not pill). */
-const sizeMap = {
-  sm: { py: 1 as number, px: 2 as number, borderRadius: borderRadius.sm },
-  md: { py: 2 as number, px: 3 as number, borderRadius: borderRadius.sm },
-  lg: { py: 2 as number, px: 4 as number, borderRadius: borderRadius.md },
-};
-
-const ON_GRADIENT_WHITE = '#ffffff';
-
-function labelAndSpinnerColor(
+/**
+ * Foreground color (label, spinner, suggested icon) applied on top of the
+ * gradient face. Exposed so consumers passing `startIcon` / `endIcon` can
+ * tint their icons to match the label without re-deriving it.
+ */
+export function buttonForegroundColor(
   theme: Theme,
-  intent: ButtonIntent,
   isDisabled: boolean
 ): string {
   if (isDisabled) {
     return theme.colors.textSecondary;
   }
-  if (intent === 'primary' || intent === 'danger') {
-    return ON_GRADIENT_WHITE;
-  }
-  return theme.colors.surface;
+  return ON_GRADIENT_WHITE;
 }
+
+/** Pixels of 3D depth: the height of the dark skirt visible below the face. */
+const DEPTH = 4;
+
+/** Chunky padding + capsule-leaning radii so buttons read as physical controls. */
+const sizeMap = {
+  sm: { py: 2, px: 3, borderRadius: borderRadius.md, minHeight: 40 },
+  md: { py: 3, px: 4, borderRadius: borderRadius.lg, minHeight: 52 },
+  lg: { py: 4, px: 5, borderRadius: borderRadius.lg, minHeight: 64 },
+} as const;
+
+const ON_GRADIENT_WHITE = '#ffffff';
+/** Soft white overlay across the top half mimicking light hitting the face. */
+const HIGHLIGHT_OVERLAY = 'rgba(255, 255, 255, 0.18)';
+/** Hard offset shadow color: gives the skirt a darker rim of the same hue. */
+const SHADOW_HARD = 'rgba(0, 0, 0, 0.32)';
+/** Soft drop shadow under the skirt for grounding. */
+const SHADOW_SOFT = 'rgba(0, 0, 0, 0.18)';
 
 const GRADIENT_TOKENS_BY_INTENT = {
   primary: ['gradientPrimaryStart', 'gradientPrimaryEnd'],
@@ -87,6 +107,11 @@ function resolveGradientStops(
   return [theme.colors[startToken], theme.colors[endToken]];
 }
 
+function resolveShadow(pressed: boolean, isDisabled: boolean): string {
+  if (pressed || isDisabled) return 'none';
+  return `0px ${DEPTH}px 0px ${SHADOW_HARD}, 0px ${DEPTH + 2}px 8px ${SHADOW_SOFT}`;
+}
+
 export function Button({
   title,
   onPress,
@@ -96,6 +121,7 @@ export function Button({
   loading = false,
   startIcon,
   endIcon,
+  flex,
 }: ButtonProps) {
   const theme = useTheme();
   const s = sizeMap[size];
@@ -106,55 +132,128 @@ export function Button({
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
-      style={({ pressed }) => [
-        { borderRadius: s.borderRadius, userSelect: 'none' },
-        pressed && !isDisabled && { opacity: 0.85 },
-      ]}
+      style={() => ({
+        borderRadius: s.borderRadius,
+        userSelect: 'none',
+        ...(flex !== undefined ? { flex } : {}),
+      })}
+    >
+      {({ pressed }) => (
+        <ButtonFace
+          stops={stops}
+          radius={s.borderRadius}
+          py={s.py}
+          px={s.px}
+          minHeight={s.minHeight}
+          pressed={pressed && !isDisabled}
+          isDisabled={isDisabled}
+        >
+          <ButtonContent
+            title={title}
+            isDisabled={isDisabled}
+            loading={loading}
+            startIcon={startIcon}
+            endIcon={endIcon}
+          />
+        </ButtonFace>
+      )}
+    </Pressable>
+  );
+}
+
+function ButtonFace({
+  stops,
+  radius,
+  py,
+  px,
+  minHeight,
+  pressed,
+  isDisabled,
+  children,
+}: {
+  stops: readonly [ColorValue, ColorValue];
+  radius: number;
+  py: number;
+  px: number;
+  minHeight: number;
+  pressed: boolean;
+  isDisabled: boolean;
+  children: ReactNode;
+}) {
+  const theme = useTheme();
+  return (
+    <View
+      style={{
+        borderRadius: radius,
+        transform: [{ translateY: pressed ? DEPTH : 0 }],
+        boxShadow: resolveShadow(pressed, isDisabled),
+        opacity: isDisabled ? 0.6 : 1,
+      }}
     >
       <LinearGradient
         colors={stops}
-        start={{ x: 0, y: 0.5 }}
-        end={{ x: 1, y: 0.5 }}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
         style={theme.sx({
-          py: s.py,
-          px: s.px,
-          borderRadius: s.borderRadius,
+          py,
+          px,
+          minHeight,
+          borderRadius: radius,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 2,
+          overflow: 'hidden',
+          position: 'relative',
         })}
       >
-        <ButtonContent
-          title={title}
-          intent={intent}
-          isDisabled={isDisabled}
-          loading={loading}
-          startIcon={startIcon}
-          endIcon={endIcon}
-        />
+        <ButtonHighlight radius={radius} visible={!isDisabled} />
+        {children}
       </LinearGradient>
-    </Pressable>
+    </View>
+  );
+}
+
+function ButtonHighlight({
+  radius,
+  visible,
+}: {
+  radius: number;
+  visible: boolean;
+}): ReactNode {
+  if (!visible) return null;
+  return (
+    <View
+      pointerEvents="none"
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '50%',
+        borderTopLeftRadius: radius,
+        borderTopRightRadius: radius,
+        backgroundColor: HIGHLIGHT_OVERLAY,
+      }}
+    />
   );
 }
 
 function ButtonContent({
   title,
-  intent,
   isDisabled,
   loading,
   startIcon,
   endIcon,
 }: {
   title: ReactNode;
-  intent: ButtonIntent;
   isDisabled: boolean;
   loading: boolean;
   startIcon: ReactNode;
   endIcon: ReactNode;
 }) {
   const theme = useTheme();
-  const fg = labelAndSpinnerColor(theme, intent, isDisabled);
+  const fg = buttonForegroundColor(theme, isDisabled);
   if (loading) return <Spinner size="small" color={fg} />;
   return (
     <>

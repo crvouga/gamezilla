@@ -1,9 +1,7 @@
-import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useTheme, type Theme } from '../../theme';
 import { Box } from '../box';
 import { Card } from '../card';
-import { IconButton } from '../icon-button';
 import { IconSymbol } from '../symbol-icon';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
@@ -27,9 +25,8 @@ export type MainMenuScreenProps = {
   /** Shown above the menu list (e.g. permissions hint). */
   helper?: ReactNode;
   items: readonly MainMenuItem[];
-  /** Top-left back affordance for space menu flow. */
-  onPressBack?: () => void;
-  /** Below the list (e.g. back / secondary actions). */
+  /** Below the list (e.g. secondary actions). Back navigation should live in
+   *  the host's nav chrome, not here. */
   footer?: ReactNode;
 };
 
@@ -140,60 +137,20 @@ function MainMenuItemRow(item: MainMenuItem) {
   );
 }
 
-const MENU_BACK_BUTTON_SIZE = 40;
-const MENU_BACK_ROW_PADDING_TOP = 12;
-const MENU_BACK_ROW_PADDING_HORIZONTAL = 12;
-
 /**
- * Always reserves space for the back button row so the menu layout does not
- * shift when {@link onPressBack} toggles between defined/undefined. The icon
- * itself is only rendered when a handler is provided.
+ * Centered, card-based main menu: optional title/subtitle/helper, a vertical
+ * stack of card rows, and an optional footer. Width is constrained for
+ * visual consistency across all space menus. Presentational; parents own
+ * selection and navigation state. Back navigation belongs in the host's
+ * nav chrome (e.g. via `DefineBackButton` in spaces), not inside the menu.
  */
-function MenuBackButtonRow({ onPressBack }: { onPressBack?: () => void }) {
-  const { t } = useLingui();
-  const theme = useTheme();
-  return (
-    <Box
-      style={{
-        alignSelf: 'stretch',
-        alignItems: 'flex-start',
-        height: MENU_BACK_BUTTON_SIZE + MENU_BACK_ROW_PADDING_TOP,
-        paddingTop: MENU_BACK_ROW_PADDING_TOP,
-        paddingHorizontal: MENU_BACK_ROW_PADDING_HORIZONTAL,
-      }}
-    >
-      {onPressBack ? (
-        <IconButton
-          size={MENU_BACK_BUTTON_SIZE}
-          background="surface"
-          onPress={onPressBack}
-          accessibilityLabel={t`Back`}
-        >
-          <IconSymbol
-            name="chevron.right"
-            size={20}
-            color={theme.colors.text}
-            style={{ transform: [{ scaleX: -1 }] }}
-          />
-        </IconButton>
-      ) : null}
-    </Box>
-  );
-}
-
-function MainMenuContent({
+export function MainMenuScreen({
   title,
   subtitle,
   helper,
   items,
   footer,
-}: {
-  title: ReactNode | undefined;
-  subtitle: ReactNode | undefined;
-  helper: ReactNode | undefined;
-  items: readonly MainMenuItem[];
-  footer: ReactNode | undefined;
-}) {
+}: MainMenuScreenProps): ReactNode {
   const hasHeader = title !== undefined || subtitle !== undefined;
   return (
     <Box
@@ -238,34 +195,6 @@ function MainMenuContent({
         ))}
       </Box>
       {footer ? <Box sx={{ mt: 2 }}>{footer}</Box> : null}
-    </Box>
-  );
-}
-
-/**
- * Centered, card-based main menu: optional title/subtitle/helper, a vertical
- * stack of card rows, and an optional footer. Width is constrained for visual
- * consistency across all space menus. Presentational; parents own selection
- * and navigation state.
- */
-export function MainMenuScreen({
-  title,
-  subtitle,
-  helper,
-  items,
-  onPressBack,
-  footer,
-}: MainMenuScreenProps): ReactNode {
-  return (
-    <Box sx={{ alignSelf: 'stretch' }}>
-      <MenuBackButtonRow {...(onPressBack ? { onPressBack } : {})} />
-      <MainMenuContent
-        title={title}
-        subtitle={subtitle}
-        helper={helper}
-        items={items}
-        footer={footer}
-      />
     </Box>
   );
 }

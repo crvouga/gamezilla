@@ -1,3 +1,4 @@
+import { DefineBackButton } from '@gamezilla/spaces/client/nav/spaces-nav-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -7,7 +8,7 @@ import {
   type MainMenuItem,
 } from '@gamezilla/ui/components/main-menu-screen';
 import { Trans } from '@lingui/react/macro';
-import { useCallback, useMemo, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import {
   CHESS_SCREEN,
   ChessMainMenuScreenAttr,
@@ -101,15 +102,14 @@ function RootMainMenu({ onBackToGames }: ChessMainMenuProps): ReactNode {
     ],
     [dispatch]
   );
-  const onPressBack = useCallback(() => {
-    onBackToGames();
-  }, [onBackToGames]);
   return (
-    <MainMenuScreen
-      title={<Trans>Chess</Trans>}
-      subtitle={<Trans>Choose how you want to play.</Trans>}
-      items={items}
-      onPressBack={onPressBack}
-    />
+    <>
+      <DefineBackButton onPress={onBackToGames} />
+      <MainMenuScreen
+        title={<Trans>Chess</Trans>}
+        subtitle={<Trans>Choose how you want to play.</Trans>}
+        items={items}
+      />
+    </>
   );
 }

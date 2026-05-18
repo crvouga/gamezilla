@@ -1,3 +1,4 @@
+import { DefineBackButton } from '@gamezilla/spaces/client/nav/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@gamezilla/spaces/client/room/use-space-room-selector';
 import {
   MainMenuScreen,
@@ -34,11 +35,13 @@ export function ChessSettingsScreen(): ReactNode {
   );
 
   return (
-    <MainMenuScreen
-      title={<Trans>Settings</Trans>}
-      subtitle={<Trans>Chess preferences and developer tools.</Trans>}
-      items={items}
-      onPressBack={backToRoot}
-    />
+    <>
+      <DefineBackButton onPress={backToRoot} />
+      <MainMenuScreen
+        title={<Trans>Settings</Trans>}
+        subtitle={<Trans>Chess preferences and developer tools.</Trans>}
+        items={items}
+      />
+    </>
   );
 }

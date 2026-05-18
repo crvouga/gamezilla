@@ -1,16 +1,10 @@
+import { DefineBackButton } from '@gamezilla/spaces/client/nav/spaces-nav-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@gamezilla/spaces/client/room/use-space-room-selector';
-import {
-  Box,
-  ExplorerDetail,
-  IconButton,
-  IconSymbol,
-  Text,
-  useTheme,
-} from '@gamezilla/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Box, ExplorerDetail, Text } from '@gamezilla/ui';
+import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import {
   CHESS_SCREEN,
@@ -22,40 +16,6 @@ import {
   CHESS_COMPONENT_ENTRIES,
   ensureChessBoardExampleRegistered,
 } from '../chess-board/chess-board-register-example';
-
-const BACK_BUTTON_SIZE = 40;
-const BACK_ROW_PADDING_TOP = 12;
-const BACK_ROW_PADDING_HORIZONTAL = 12;
-
-function BackButtonRow({ onPress }: { onPress: () => void }): ReactNode {
-  const { t } = useLingui();
-  const theme = useTheme();
-  return (
-    <Box
-      style={{
-        alignSelf: 'stretch',
-        alignItems: 'flex-start',
-        height: BACK_BUTTON_SIZE + BACK_ROW_PADDING_TOP,
-        paddingHorizontal: BACK_ROW_PADDING_HORIZONTAL,
-        paddingTop: BACK_ROW_PADDING_TOP,
-      }}
-    >
-      <IconButton
-        size={BACK_BUTTON_SIZE}
-        background="surface"
-        onPress={onPress}
-        accessibilityLabel={t`Back`}
-      >
-        <IconSymbol
-          name="chevron.right"
-          size={20}
-          color={theme.colors.text}
-          style={{ transform: [{ scaleX: -1 }] }}
-        />
-      </IconButton>
-    </Box>
-  );
-}
 
 export function ChessSettingsDeveloperUiComponentDetailScreen(): ReactNode {
   const dispatch = useSpaceRoomDispatch();
@@ -81,7 +41,7 @@ export function ChessSettingsDeveloperUiComponentDetailScreen(): ReactNode {
 
   return (
     <Box sx={{ alignSelf: 'stretch' }} style={{ flex: 1 }}>
-      <BackButtonRow onPress={back} />
+      <DefineBackButton onPress={back} />
       {selectedName === null ? (
         <Box sx={{ p: 4, gap: 2, alignItems: 'center' }}>
           <Text variant="title" label={<Trans>No component selected</Trans>} />

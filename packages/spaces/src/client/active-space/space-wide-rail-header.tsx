@@ -1,45 +1,25 @@
-import { SpaceWideRailTitleText } from './space-wide-rail-title-text';
-import { Box, IconButton, IconSymbol, useTheme } from '@gamezilla/ui';
-import { useLingui } from '@lingui/react/macro';
+import { TopBar } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
 
-export type SpaceWideRailHeaderProps = {
-  spaceId: string;
-  onPressHome: () => void;
-};
+import { SpaceChromeBackButton } from './space-chrome-back-button';
+import { SpaceChromeHomeButton } from './space-chrome-home-button';
+import { SpaceChromeOverflowMenu } from './space-chrome-overflow-menu';
 
-/** Wide-rail top bar: home button + space title. */
-export function SpaceWideRailHeader({
-  spaceId,
-  onPressHome,
-}: SpaceWideRailHeaderProps): ReactNode {
-  const { t } = useLingui();
-  const theme = useTheme();
-
+/**
+ * Wide-rail top bar: always-visible home + conditional back, plus the
+ * overflow menu on the trailing edge. The space title is intentionally
+ * absent—the active-space context is conveyed by route + member list.
+ */
+export function SpaceWideRailHeader(): ReactNode {
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        py: 2,
-        px: 3,
-        minHeight: 64,
-        borderBottomWidth: 1,
-        borderColor: 'border',
-      }}
-    >
-      <IconButton
-        size={40}
-        background="surface"
-        onPress={onPressHome}
-        accessibilityLabel={t`Go home`}
-      >
-        <IconSymbol name="house.fill" size={20} color={theme.colors.text} />
-      </IconButton>
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <SpaceWideRailTitleText spaceId={spaceId} />
-      </Box>
-    </Box>
+    <TopBar
+      leading={
+        <>
+          <SpaceChromeHomeButton />
+          <SpaceChromeBackButton />
+        </>
+      }
+      trailing={<SpaceChromeOverflowMenu />}
+    />
   );
 }

@@ -1,33 +1,26 @@
-import { SpaceMembersGuestsBlock } from '../members/space-members-guests-block';
-import { SpaceMembersHostBlock } from '../members/space-members-host-block';
-import { Box, ScrollView } from '@gamezilla/ui';
+import { ScrollView } from '@gamezilla/ui';
 import type { ReactNode } from 'react';
+
+import { SpaceMembersList } from './space-members-list';
 
 export type SpaceSessionMemberRailProps = {
   spaceId: string;
 };
 
-/** Host + guest blocks without an outer ScrollView (e.g. inside a modal). */
-export function SpaceSessionMemberRailInner({
-  spaceId,
-}: SpaceSessionMemberRailProps): ReactNode {
-  return (
-    <Box sx={{ gap: 4 }}>
-      <SpaceMembersHostBlock spaceId={spaceId} />
-      <SpaceMembersGuestsBlock spaceId={spaceId} />
-    </Box>
-  );
-}
-
+/**
+ * Desktop wide-rail body: compact members list (Google Docs style) wrapped
+ * in a scroll view. The mobile members modal embeds {@link SpaceMembersList}
+ * directly so it can provide its own surface chrome.
+ */
 export function SpaceSessionMemberRail({
   spaceId,
 }: SpaceSessionMemberRailProps): ReactNode {
   return (
     <ScrollView
       style={{ flex: 1 }}
-      contentContainerStyle={{ flexGrow: 1, paddingVertical: 12 }}
+      contentContainerStyle={{ flexGrow: 1, paddingVertical: 8 }}
     >
-      <SpaceSessionMemberRailInner spaceId={spaceId} />
+      <SpaceMembersList spaceId={spaceId} />
     </ScrollView>
   );
 }

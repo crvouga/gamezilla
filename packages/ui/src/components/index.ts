@@ -39,6 +39,7 @@ export {
 // Inputs / Actions
 export {
   Button,
+  buttonForegroundColor,
   type ButtonProps,
   type ButtonIntent,
   type ButtonSize,
@@ -52,6 +53,7 @@ export {
   type SocialSignInButtonAction,
 } from './social-sign-in-button';
 export { IconButton, type IconButtonProps } from './icon-button';
+export { BackIconButton, type BackIconButtonProps } from './back-icon-button';
 export { TextInput, type TextInputProps } from './text-input';
 export {
   CopyToClipboardField,
@@ -234,3 +236,17 @@ export {
   type ScreenBaseHeaderProps,
   type ScreenBaseProps,
 } from './screen-base';
+
+// Navigation chrome
+export { TopBar, type TopBarProps, type TopBarCenterAlign } from './top-bar';
+
+export { NavRail, NAV_RAIL_DEFAULT_WIDTH, type NavRailProps } from './nav-rail';
+
+export {
+  OverflowMenuButton,
+  useAnchoredMenu,
+  type OverflowMenuButtonProps,
+  type OverflowMenuAction,
+  type OverflowMenuHeader,
+  type AnchoredMenuController,
+} from './overflow-menu-button';

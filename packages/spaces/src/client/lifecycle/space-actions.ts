@@ -106,6 +106,31 @@ async function endSpaceAction(
   ]);
 }
 
+async function renameSpaceAction(
+  db: PatchDb,
+  myId: string,
+  spaceId: string,
+  title: string
+): Promise<void> {
+  const hostId = await readSpaceHostId(db, spaceId);
+  if (hostId !== myId) {
+    throw new Error('Only the host can rename this space');
+  }
+  // hostId is re-stamped so the spaces ABAC policy can authorise the write
+  // from the patch alone (it only inspects patch attributes, not snapshots).
+  const trimmed = title.trim();
+  await db.write([
+    {
+      entityId: spaceId,
+      entityType: SPACE_ENTITY_TYPE,
+      attributes: {
+        ...SpaceAttr.title(trimmed.length > 0 ? trimmed : null),
+        ...SpaceAttr.hostId(myId),
+      },
+    },
+  ]);
+}
+
 export function useSpaceActions() {
   const db = usePatchDb();
   const myId = useMyId();
@@ -138,5 +163,12 @@ export function useSpaceActions() {
     [db, myId]
   );
 
-  return { createSpace, joinSpace, leaveSpace, endSpace };
+  const renameSpace = useCallback(
+    async (spaceId: string, title: string) => {
+      return renameSpaceAction(db, myId, spaceId, title);
+    },
+    [db, myId]
+  );
+
+  return { createSpace, joinSpace, leaveSpace, endSpace, renameSpace };
 }

@@ -1,4 +1,3 @@
-import { SpaceBackButton } from '../active-space/space-back-button';
 import { SpaceJoinBlockedNote } from './space-join-blocked-note';
 import { SpaceJoinButton } from './space-join-button';
 import { SpaceJoinHostSection } from './space-join-host-section';
@@ -21,7 +20,13 @@ export type SpaceJoinPromptProps = {
 
 const JOIN_MAX_WIDTH = 480;
 
-/** Pure layout for the not-yet-joined state of the space detail screen. */
+/**
+ * Pure layout for the not-yet-joined state of the space detail screen. Uses
+ * the shared {@link ScreenBase} chrome (breadcrumb-driven back on mobile,
+ * clickable breadcrumbs on desktop) plus the standard overflow-only debug
+ * action; the bespoke inline back button on the join card was removed in
+ * favor of chrome-managed navigation.
+ */
 export function SpaceJoinPrompt({
   spaceId,
   onOpenDebug,
@@ -32,10 +37,10 @@ export function SpaceJoinPrompt({
     () => [
       {
         type: 'default',
-        label: t`Debug`,
+        label: t`Developer tools`,
         icon: 'chevron.left.forwardslash.chevron.right',
         onPress: onOpenDebug,
-        overflow: 'auto',
+        overflow: 'always',
       },
     ],
     [onOpenDebug, t]
@@ -71,10 +76,7 @@ export function SpaceJoinPrompt({
               />
               <SpaceJoinBlockedNote spaceId={spaceId} />
             </Card>
-            <Box sx={{ gap: 2 }}>
-              <SpaceJoinButton spaceId={spaceId} />
-              <SpaceBackButton />
-            </Box>
+            <SpaceJoinButton spaceId={spaceId} />
           </Box>
         </Box>
       )}

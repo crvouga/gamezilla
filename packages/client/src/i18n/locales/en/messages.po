@@ -564,11 +564,7 @@ msgstr "Avatar"
 msgid "Avatar style"
 msgstr "Avatar style"
 
-#: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
-#: packages/chess/src/client/chess-settings/chess-settings-developer-ui-component-detail-screen.tsx
-#: packages/chess/src/client/chess-settings/chess-settings-developer-ui-components-screen.tsx
-#: packages/spaces/src/client/active-space/space-back-button.tsx
-#: packages/ui/src/components/main-menu-screen/main-menu-screen.tsx
+#: packages/ui/src/components/back-icon-button/back-icon-button.tsx
 #: packages/ui/src/components/screen-base/screen-base-header.tsx
 msgid "Back"
 msgstr "Back"
@@ -1383,8 +1379,8 @@ msgstr "day"
 #: packages/spaces/src/client/active-space/space-active-layout-mobile.tsx
 #: packages/spaces/src/client/active-space/space-wide-rail-footer.tsx
 #: packages/spaces/src/client/lifecycle/space-join-prompt.tsx
-msgid "Debug"
-msgstr "Debug"
+#~ msgid "Debug"
+#~ msgstr "Debug"
 
 #: packages/spaces/src/client/debug/space-counter-panel.tsx
 msgid "Decrement"
@@ -1526,6 +1522,11 @@ msgstr "Demos and internal tools"
 #: packages/client/src/ui/explorer/ui-explorer-screen.tsx
 msgid "Developer"
 msgstr "Developer"
+
+#: packages/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+#: packages/spaces/src/client/lifecycle/space-join-prompt.tsx
+msgid "Developer tools"
+msgstr "Developer tools"
 
 #: packages/client/src/settings/about-screen.tsx
 msgid "development"
@@ -2853,12 +2854,16 @@ msgstr "Go back"
 
 #: packages/spaces/src/client/active-space/space-active-layout-mobile.tsx
 #: packages/spaces/src/client/active-space/space-wide-rail-header.tsx
-msgid "Go home"
-msgstr "Go home"
+#~ msgid "Go home"
+#~ msgstr "Go home"
 
 #: packages/client/src/ui/app-commands/navigation-commands.tsx
 msgid "Go to {target}"
 msgstr "Go to {target}"
+
+#: packages/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+msgid "Go to spaces"
+msgstr "Go to spaces"
 
 #: packages/spaces/src/client/games-main-menu.tsx
 #~ msgid "Gomoku"
@@ -4066,9 +4071,14 @@ msgstr "Modal above the board"
 msgid "Model"
 msgstr "Model"
 
+#: packages/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
 #: packages/ui/src/components/screen-base/screen-base-header.tsx
 msgid "More"
 msgstr "More"
+
+#: packages/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+msgid "More options"
+msgstr "More options"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Morphy himself would smile."

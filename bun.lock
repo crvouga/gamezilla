@@ -455,6 +455,7 @@
         "@gamezilla/ui": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
+        "expo-clipboard": "catalog:",
         "expo-router": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",

@@ -2,6 +2,7 @@ import { ActiveSpace } from './active-space/active-space';
 import { SpaceDebugModal } from './debug/space-debug-modal';
 import { SpaceJoinPrompt } from './lifecycle/space-join-prompt';
 import { SpaceLoadingScreen } from './space-loading-screen';
+import { SpacesNavProvider } from './nav/spaces-nav-context';
 import { SpaceRoomProvider } from './room/space-room-context';
 import { useAutoLeaveIfEnded } from './lifecycle/use-auto-leave-if-ended';
 import { useCurrentSpaceIds } from './use-current-space-ids';
@@ -29,17 +30,19 @@ export function SpaceDetailScreen(): ReactNode {
   }
 
   return (
-    <SpaceRoomProvider spaceId={spaceId}>
-      {inThisSpace ? (
-        <ActiveSpace spaceId={spaceId} onOpenDebug={openDebug} />
-      ) : (
-        <SpaceJoinPrompt spaceId={spaceId} onOpenDebug={openDebug} />
-      )}
-      <SpaceDebugModal
-        visible={debugOpen}
-        onClose={closeDebug}
-        spaceId={spaceId}
-      />
-    </SpaceRoomProvider>
+    <SpacesNavProvider>
+      <SpaceRoomProvider spaceId={spaceId}>
+        {inThisSpace ? (
+          <ActiveSpace spaceId={spaceId} onOpenDebug={openDebug} />
+        ) : (
+          <SpaceJoinPrompt spaceId={spaceId} onOpenDebug={openDebug} />
+        )}
+        <SpaceDebugModal
+          visible={debugOpen}
+          onClose={closeDebug}
+          spaceId={spaceId}
+        />
+      </SpaceRoomProvider>
+    </SpacesNavProvider>
   );
 }

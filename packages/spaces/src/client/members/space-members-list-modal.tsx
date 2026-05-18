@@ -1,15 +1,8 @@
-import { SpaceMembersGuestsBlock } from './space-members-guests-block';
-import { SpaceMembersHostBlock } from './space-members-host-block';
-import {
-  Box,
-  ModalBackdrop,
-  ModalContent,
-  ModalHeader,
-  ModalRoot,
-  ScrollView,
-} from '@gamezilla/ui';
-import { useLingui } from '@lingui/react/macro';
+import { ResponsiveSurface, ScrollView } from '@gamezilla/ui';
+import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
+
+import { SpaceMembersList } from '../active-space/space-members-list';
 
 export type SpaceMembersListModalProps = {
   spaceId: string;
@@ -17,27 +10,25 @@ export type SpaceMembersListModalProps = {
   onClose: () => void;
 };
 
-/** Modal listing host + guest tiles for a space (id-driven). */
+/**
+ * Modal listing space members. Uses {@link ResponsiveSurface}, which adds
+ * a visible close icon to the header on both mobile and desktop and keeps
+ * backdrop / sheet dismissal working.
+ */
 export function SpaceMembersListModal({
   spaceId,
   visible,
   onClose,
 }: SpaceMembersListModalProps): ReactNode {
-  const { t } = useLingui();
-
   return (
-    <ModalRoot visible={visible} onRequestClose={onClose}>
-      <ModalBackdrop onPress={onClose}>
-        <ModalContent>
-          <ModalHeader title={t`People in this space`} />
-          <ScrollView style={{ maxHeight: 420 }}>
-            <Box sx={{ gap: 4, paddingBottom: 2 }}>
-              <SpaceMembersHostBlock spaceId={spaceId} />
-              <SpaceMembersGuestsBlock spaceId={spaceId} />
-            </Box>
-          </ScrollView>
-        </ModalContent>
-      </ModalBackdrop>
-    </ModalRoot>
+    <ResponsiveSurface
+      visible={visible}
+      onClose={onClose}
+      title={<Trans>People in this space</Trans>}
+    >
+      <ScrollView style={{ maxHeight: 420 }}>
+        <SpaceMembersList spaceId={spaceId} />
+      </ScrollView>
+    </ResponsiveSurface>
   );
 }

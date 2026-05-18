@@ -1,9 +1,11 @@
-import { ActiveSpaceBody } from './active-space-body';
-import { EndSpaceModal } from '../lifecycle/end-space-modal';
-import { LeaveSpaceModal } from '../lifecycle/leave-space-modal';
 import { Box, SafeAreaView } from '@gamezilla/ui';
 import { useRouter } from 'expo-router';
 import { useCallback, useState, type ReactNode } from 'react';
+
+import { EndSpaceModal } from '../lifecycle/end-space-modal';
+import { LeaveSpaceModal } from '../lifecycle/leave-space-modal';
+import { ActiveSpaceBody } from './active-space-body';
+import { RenameSpaceModal } from './rename-space-modal';
 
 export type ActiveSpaceProps = {
   spaceId: string;
@@ -11,9 +13,10 @@ export type ActiveSpaceProps = {
 };
 
 /**
- * Wrapper around an active space session — body + end/leave confirmation
- * modals. Pure layout + local UI state. The room provider is hoisted to the
- * screen level so room state is observable from the debug modal too.
+ * Wrapper around an active space session — body + end/leave/rename
+ * confirmation modals. Pure layout + local UI state. The room provider is
+ * hoisted to the screen level so room state is observable from the debug
+ * modal too.
  */
 export function ActiveSpace({
   spaceId,
@@ -22,6 +25,7 @@ export function ActiveSpace({
   const router = useRouter();
   const [confirmEnd, setConfirmEnd] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
   const onPressHome = useCallback(() => {
     router.replace('/');
   }, [router]);
@@ -33,6 +37,7 @@ export function ActiveSpace({
           spaceId={spaceId}
           onRequestEnd={() => setConfirmEnd(true)}
           onRequestLeave={() => setConfirmLeave(true)}
+          onRequestRename={() => setRenameOpen(true)}
           onPressHome={onPressHome}
           onPressDebug={onOpenDebug}
         />
@@ -45,6 +50,11 @@ export function ActiveSpace({
           spaceId={spaceId}
           visible={confirmLeave}
           onClose={() => setConfirmLeave(false)}
+        />
+        <RenameSpaceModal
+          spaceId={spaceId}
+          visible={renameOpen}
+          onClose={() => setRenameOpen(false)}
         />
       </Box>
     </SafeAreaView>

@@ -63,6 +63,7 @@ function linguiRules() {
           'alignItems',
           'alignSelf',
           'alignContent',
+          'centerAlign',
           'justify',
           'justifyContent',
           'justifyItems',
