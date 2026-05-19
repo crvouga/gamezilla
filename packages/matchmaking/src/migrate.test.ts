@@ -1,24 +1,14 @@
 import { PGlite } from '@electric-sql/pglite';
-import { Assert } from '@gamezilla/lib/assert';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { migrate } from './migrate';
 import { NUM_WAITING_PARTITIONS } from './migrate-sql';
 import { createPgliteSqlClient } from './pglite-adapter';
 import type { SqlClient } from './sql-client';
+import { registerTestCrashHandler } from './test-harness';
 
 let disposeTestCrashHandler: () => void;
 beforeAll(() => {
-  disposeTestCrashHandler = Assert.registerCrashHandler({
-    priority: 0,
-    match: () => true,
-    crash(message, context) {
-      throw new Error(
-        context === undefined
-          ? message
-          : `${message} ${JSON.stringify(context)}`
-      );
-    },
-  });
+  disposeTestCrashHandler = registerTestCrashHandler();
 });
 afterAll(() => {
   disposeTestCrashHandler();

@@ -122,13 +122,17 @@ export type AppHarness = MmHarness & {
  * middleware. Used by `app.test.ts` for end-to-end HTTP request
  * assertions. The default stub auth treats any request with the
  * `x-test-user` header as authorised; everything else 401s.
+ *
+ * Signature mirrors {@link bootMatchmaking} (overrides positional)
+ * so the two test files boot harnesses with the same call shape;
+ * pass a custom `requireAuth` via the second argument when a test
+ * needs to exercise an alternative auth middleware.
  */
-export async function bootMatchmakingApp(opts?: {
-  readonly overrides?: Partial<Pick<MatchmakingOptions, 'schema' | 'tuning'>>;
-  readonly requireAuth?: MiddlewareHandler;
-}): Promise<AppHarness> {
-  const harness = await bootMatchmaking(opts?.overrides);
-  const requireAuth = opts?.requireAuth ?? defaultStubAuth;
+export async function bootMatchmakingApp(
+  overrides?: Partial<Pick<MatchmakingOptions, 'schema' | 'tuning'>>,
+  requireAuth: MiddlewareHandler = defaultStubAuth
+): Promise<AppHarness> {
+  const harness = await bootMatchmaking(overrides);
   return { ...harness, app: harness.mm.app({ requireAuth }) };
 }
 

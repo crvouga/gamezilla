@@ -1,6 +1,4 @@
 import { PGlite } from '@electric-sql/pglite';
-import { Assert } from '@gamezilla/lib/assert';
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
 import {
   afterAll,
   afterEach,
@@ -10,23 +8,23 @@ import {
   expect,
   test,
 } from 'bun:test';
-import type { Hono, MiddlewareHandler } from 'hono';
-import { Matchmaking, type MatchmakingOptions } from './matchmaking';
+import { Matchmaking } from './matchmaking';
 import { createPgliteSqlClient } from './pglite-adapter';
 import type { SqlClient } from './sql-client';
+import {
+  type AppHarness,
+  bootMatchmakingApp,
+  defaultStubAuth,
+  getStatus,
+  NameAttr,
+  postJson,
+  RatingAttr,
+  registerTestCrashHandler,
+  TEST_AUTH_HEADERS,
+  UUID_REGEX,
+} from './test-harness';
+import type { MatchedStatus } from './types';
 import type { FormulaWire } from './wire';
-import type { MatchedStatus, StatusResult } from './types';
-
-const testNs = createAttrNamespace('mmtest');
-const RatingAttr = testNs('rating', (v): number => {
-  if (typeof v !== 'number' || !Number.isFinite(v)) {
-    throw new Error('mmtest/rating must be a finite number');
-  }
-  return v;
-});
-const NameAttr = testNs('name', (v): string =>
-  typeof v === 'string' ? v : ''
-);
 
 const RatingFormula: FormulaWire = {
   numeric: [{ path: RatingAttr.key, weight: 1 }],
@@ -42,100 +40,21 @@ const BetaKindFormula: FormulaWire = {
   partition: [{ path: 'mmtest/kind' }],
 };
 
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-const stubAuth: MiddlewareHandler = async (c, next) => {
-  if (c.req.header('x-test-user') === undefined) {
-    return c.json({ error: 'unauthorized' }, 401);
-  }
-  return await next();
-};
-
 let disposeTestCrashHandler: () => void;
 beforeAll(() => {
-  disposeTestCrashHandler = Assert.registerCrashHandler({
-    priority: 0,
-    match: () => true,
-    crash(message, context) {
-      throw new Error(
-        context === undefined
-          ? message
-          : `${message} ${JSON.stringify(context)}`
-      );
-    },
-  });
+  disposeTestCrashHandler = registerTestCrashHandler();
 });
 afterAll(() => {
   disposeTestCrashHandler();
 });
 
-type Harness = {
-  db: PGlite;
-  mm: Matchmaking;
-  app: Hono;
-};
-
-// The HTTP app is now pure SELECT/INSERT only — no opportunistic kicks
-// at all. Every test drives passes via `h.mm.tick()` explicitly. This
-// is the design point that lets the request envelope scale to chess.com
-// at near-linear cost in isolate count.
-async function bootHarness(
-  overrides?: Partial<Pick<MatchmakingOptions, 'schema' | 'tuning'>>
-): Promise<Harness> {
-  const db = await PGlite.create();
-  const sqlClient = createPgliteSqlClient(db);
-  const schema = overrides?.schema ?? {};
-  const mm = new Matchmaking({
-    storage: { sqlClient },
-    schema,
-    ...(overrides?.tuning !== undefined ? { tuning: overrides.tuning } : {}),
-  });
-  await mm.ready();
-  return {
-    db,
-    mm,
-    app: mm.app({ requireAuth: stubAuth }),
-  };
-}
-
-const AUTH_HEADERS = { 'x-test-user': 'tester' };
-
-let h: Harness;
+let h: AppHarness;
 beforeEach(async () => {
-  h = await bootHarness();
+  h = await bootMatchmakingApp();
 });
 afterEach(async () => {
   await h.db.close();
 });
-
-async function postJson(
-  app: Hono,
-  path: string,
-  body: unknown,
-  extra?: Record<string, string>
-): Promise<Response> {
-  return await app.request(path, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...AUTH_HEADERS,
-      ...(extra ?? {}),
-    },
-    body: JSON.stringify(body),
-  });
-}
-
-async function getStatus(
-  app: Hono,
-  participantId: string
-): Promise<{ readonly response: Response; readonly body: StatusResult }> {
-  const response = await app.request(`/status/${participantId}`, {
-    headers: AUTH_HEADERS,
-  });
-  const body = (await response.json()) as StatusResult;
-  return { response, body };
-}
 
 describe('Matchmaking.app - auth', () => {
   test('rejects requests without the auth header', async () => {
@@ -298,7 +217,7 @@ describe('Matchmaking.app - /leave', () => {
     expect(body.removed).toBe(true);
 
     const status = await h.app.request(`/status/${participantId}`, {
-      headers: AUTH_HEADERS,
+      headers: TEST_AUTH_HEADERS,
     });
     expect(status.status).toBe(404);
   });
@@ -313,7 +232,7 @@ describe('Matchmaking.app - /status/:participantId', () => {
   test('404 for unknown id', async () => {
     const res = await h.app.request(
       '/status/00000000-0000-0000-0000-000000000000',
-      { headers: AUTH_HEADERS }
+      { headers: TEST_AUTH_HEADERS }
     );
     expect(res.status).toBe(404);
   });
@@ -353,7 +272,7 @@ describe('Matchmaking.app - SQL roundtrip count (chess.com-scale regression)', (
       schema: {},
     });
     await mm.ready();
-    const app = mm.app({ requireAuth: stubAuth });
+    const app = mm.app({ requireAuth: defaultStubAuth });
     try {
       // First call runs the lazy schema-fingerprint probe (one extra
       // SELECT, cached for the lifetime of the process). Burn that
@@ -378,7 +297,7 @@ describe('Matchmaking.app - SQL roundtrip count (chess.com-scale regression)', (
 
       count = 0;
       const status = await app.request(`/status/${participantId}`, {
-        headers: AUTH_HEADERS,
+        headers: TEST_AUTH_HEADERS,
       });
       expect(status.status).toBe(200);
       expect(count).toBe(1);
@@ -394,7 +313,7 @@ describe('Matchmaking.app - SQL roundtrip count (chess.com-scale regression)', (
     });
     const { participantId } = (await a.json()) as { participantId: string };
     const res = await h.app.request(`/status/${participantId}`, {
-      headers: AUTH_HEADERS,
+      headers: TEST_AUTH_HEADERS,
     });
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toBe('private, max-age=1');
@@ -429,7 +348,7 @@ describe('Matchmaking.app - 500 sanitisation', () => {
       schema: {},
     });
     await mm.ready();
-    const app = mm.app({ requireAuth: stubAuth });
+    const app = mm.app({ requireAuth: defaultStubAuth });
     try {
       failOnInsert = true;
       const res = await postJson(app, '/join', {
@@ -538,7 +457,7 @@ describe('Matchmaking.app - payload limits', () => {
 
 describe('Matchmaking.app - empty partitionKeys collapse', () => {
   test('all joiners share one shard when partitionKeys is empty', async () => {
-    const explicit = await bootHarness({
+    const explicit = await bootMatchmakingApp({
       schema: { partitionKeys: [] },
     });
     try {
@@ -749,7 +668,7 @@ describe('Matchmaking.app - groupSize (HTTP surface)', () => {
 
 describe('Matchmaking.app - partitioned schema', () => {
   test('only matches participants that share the partition key', async () => {
-    const partitioned = await bootHarness({
+    const partitioned = await bootMatchmakingApp({
       schema: { partitionKeys: ['mmtest/kind'] },
     });
     try {

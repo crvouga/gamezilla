@@ -1,9 +1,5 @@
 import { PGlite } from '@electric-sql/pglite';
-import { Assert } from '@gamezilla/lib/assert';
-import {
-  createAttrNamespace,
-  type AttributeState,
-} from '@gamezilla/lib/attribute';
+import type { AttributeState } from '@gamezilla/lib/attribute';
 import {
   afterAll,
   afterEach,
@@ -17,105 +13,42 @@ import {
   MATCHMAKING_PAYLOAD_LIMITS,
   Matchmaking,
   MatchmakingSchemaDriftError,
-  type MatchmakingOptions,
 } from './matchmaking';
 import { createPgliteSqlClient } from './pglite-adapter';
 import type { SqlClient } from './sql-client';
-import type { DistanceFormula, MatchedStatus } from './types';
-
-const testNs = createAttrNamespace('mmtest');
-
-const RatingAttr = testNs('rating', (v): number => {
-  if (typeof v !== 'number' || !Number.isFinite(v)) {
-    throw new Error('mmtest/rating must be a finite number');
-  }
-  return v;
-});
-
-const SkillAttr = testNs('skill', (v): number => {
-  if (typeof v !== 'number' || !Number.isFinite(v)) {
-    throw new Error('mmtest/skill must be a finite number');
-  }
-  return v;
-});
-
-const NameAttr = testNs('name', (v): string =>
-  typeof v === 'string' ? v : ''
-);
-
-const RegionAttr = testNs('region', (v): string | undefined =>
-  typeof v === 'string' ? v : undefined
-);
-
-const KindAttr = testNs('kind', (v): string => {
-  if (typeof v !== 'string' || v.length === 0) {
-    throw new Error('mmtest/kind must be a non-empty string');
-  }
-  return v;
-});
+import {
+  bootMatchmaking,
+  expectMatched,
+  KindAttr,
+  type MmHarness,
+  NameAttr,
+  RatingAttr,
+  RegionAttr,
+  registerTestCrashHandler,
+  SkillAttr,
+  UUID_REGEX,
+} from './test-harness';
+import type { DistanceFormula } from './types';
 
 const SimpleFormula: DistanceFormula = {
   numeric: [{ tag: RatingAttr, weight: 1 }],
 };
 
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 let disposeTestCrashHandler: () => void;
 beforeAll(() => {
-  disposeTestCrashHandler = Assert.registerCrashHandler({
-    priority: 0,
-    match: () => true,
-    crash(message, context) {
-      throw new Error(
-        context === undefined
-          ? message
-          : `${message} ${JSON.stringify(context)}`
-      );
-    },
-  });
+  disposeTestCrashHandler = registerTestCrashHandler();
 });
 afterAll(() => {
   disposeTestCrashHandler();
 });
 
-type Harness = {
-  db: PGlite;
-  mm: Matchmaking;
-};
-
-// The v3 schema removes SQL-side throttling entirely (the ticker DO is
-// the sole caller of pass/sweep, so no throttle row is needed). Tests
-// just construct a fresh Matchmaking and drive `tick()` explicitly.
-async function bootHarness(
-  overrides?: Partial<Pick<MatchmakingOptions, 'schema' | 'tuning'>>
-): Promise<Harness> {
-  const db = await PGlite.create();
-  const sqlClient = createPgliteSqlClient(db);
-  const schema = overrides?.schema ?? {};
-  const mm = new Matchmaking({
-    storage: { sqlClient },
-    schema,
-    ...(overrides?.tuning !== undefined ? { tuning: overrides.tuning } : {}),
-  });
-  await mm.ready();
-  return { db, mm };
-}
-
-let h: Harness;
+let h: MmHarness;
 beforeEach(async () => {
-  h = await bootHarness();
+  h = await bootMatchmaking();
 });
 afterEach(async () => {
   await h.db.close();
 });
-
-function expectMatched(status: unknown): MatchedStatus {
-  expect(status).not.toBeNull();
-  const narrowed = status as MatchedStatus;
-  expect(narrowed.status).toBe('matched');
-  return narrowed;
-}
 
 describe('Matchmaking.join / status / leave', () => {
   test('round-trips participant data through status while waiting', async () => {
@@ -154,7 +87,7 @@ describe('Matchmaking.join / status / leave', () => {
     await h.mm.ready();
     // join works without an explicit ready() — every method awaits the
     // same cached boot promise internally.
-    const fresh = await bootHarness();
+    const fresh = await bootMatchmaking();
     try {
       const joined = await fresh.mm.join({
         data: RatingAttr(900),
@@ -279,12 +212,12 @@ describe('Matchmaking - formula behaviors', () => {
   });
 
   test('categorical penalty + simulated clock — same region pairs, different regions need wait', async () => {
-    // `nowRef` is captured by the tuning closure BEFORE bootHarness so the
+    // `nowRef` is captured by the tuning closure BEFORE bootMatchmaking so the
     // first read happens after boot is finished. This avoids the trap of
     // anchoring simulated time to a `Date.now()` taken before the
     // multi-second PGlite + migrate startup.
     const nowRef = { value: 0 };
-    const isolated = await bootHarness({
+    const isolated = await bootMatchmaking({
       tuning: { now: () => nowRef.value },
     });
     try {
@@ -313,7 +246,7 @@ describe('Matchmaking - formula behaviors', () => {
 
   test('partition (hard-equality) never crosses partitions even at max wait', async () => {
     let now = Date.now();
-    const isolated = await bootHarness({ tuning: { now: () => now } });
+    const isolated = await bootMatchmaking({ tuning: { now: () => now } });
     try {
       const kindFormula: DistanceFormula = {
         numeric: [{ tag: RatingAttr, weight: 1 }],
@@ -359,7 +292,7 @@ describe('Matchmaking - formula behaviors', () => {
 
   test('asymmetric formulas: B partition rejects pair A would accept', async () => {
     let now = Date.now();
-    const isolated = await bootHarness({ tuning: { now: () => now } });
+    const isolated = await bootMatchmaking({ tuning: { now: () => now } });
     try {
       const open: DistanceFormula = {
         numeric: [{ tag: RatingAttr, weight: 1 }],
@@ -389,7 +322,7 @@ describe('Matchmaking - formula behaviors', () => {
 
 describe('Matchmaking - partition schema', () => {
   test('declared partitionKeys isolate participants across shards', async () => {
-    const partitioned = await bootHarness({
+    const partitioned = await bootMatchmaking({
       schema: { partitionKeys: [KindAttr.key] },
     });
     try {
@@ -435,14 +368,14 @@ describe('Matchmaking - partition schema', () => {
   test('bucketing produces the same matches as a non-bucketed schema', async () => {
     const formulas = [SimpleFormula];
 
-    const plain = await bootHarness();
+    const plain = await bootMatchmaking();
     try {
       for (const r of [1000, 1010, 1100, 1110, 1200, 1210]) {
         await plain.mm.join({ data: RatingAttr(r), formulas });
       }
       const plainPairs = await plain.mm.tick({ maxPassesPerPartition: 32 });
 
-      const bucketed = await bootHarness({
+      const bucketed = await bootMatchmaking({
         schema: {
           partitionKeys: [],
           primaryNumericKey: RatingAttr.key,
@@ -470,7 +403,7 @@ describe('Matchmaking - partition schema', () => {
 describe('Matchmaking.tick - sweeps', () => {
   test('expiredRemoved reaps waiters older than maxWaitSeconds', async () => {
     const nowRef = { value: 0 };
-    const isolated = await bootHarness({
+    const isolated = await bootMatchmaking({
       tuning: {
         now: () => nowRef.value,
         maxWaitSeconds: 30,
@@ -499,7 +432,7 @@ describe('Matchmaking.tick - sweeps', () => {
 
   test('matchedRemoved reaps matched rows older than matchedRetentionSeconds', async () => {
     const nowRef = { value: 0 };
-    const isolated = await bootHarness({
+    const isolated = await bootMatchmaking({
       tuning: {
         now: () => nowRef.value,
         matchedRetentionSeconds: 10,
@@ -550,7 +483,7 @@ describe('Matchmaking.tick - parallel drain across partitions', () => {
   // count is right) — but real Postgres + Hyperdrive will pipeline
   // the 8 drains for the actual scale win.
   test('drains 8 partitions concurrently and produces all pairs', async () => {
-    const partitioned = await bootHarness({
+    const partitioned = await bootMatchmaking({
       schema: { partitionKeys: ['mmtest/region'] },
     });
     try {
@@ -582,7 +515,7 @@ describe('Matchmaking.tick - parallel drain across partitions', () => {
   });
 
   test('after a full drain, discoverActivePartitions prunes empty signatures', async () => {
-    const partitioned = await bootHarness({
+    const partitioned = await bootMatchmaking({
       schema: { partitionKeys: ['mmtest/region'] },
     });
     try {
@@ -672,7 +605,7 @@ describe('Matchmaking.tick - bounded fan-out and cancellation', () => {
   }
 
   test('respects maxPartitions (bounded discovery)', async () => {
-    const h2 = await bootHarness({
+    const h2 = await bootMatchmaking({
       schema: { partitionKeys: ['mmtest/region'] },
     });
     try {
@@ -690,7 +623,7 @@ describe('Matchmaking.tick - bounded fan-out and cancellation', () => {
   });
 
   test('respects maxPassesPerPartition (bounded drain depth)', async () => {
-    const h2 = await bootHarness({
+    const h2 = await bootMatchmaking({
       schema: { partitionKeys: ['mmtest/region'] },
       tuning: { maxPairsPerPass: 1 },
     });
@@ -713,7 +646,7 @@ describe('Matchmaking.tick - bounded fan-out and cancellation', () => {
   });
 
   test('respects signal: abort before second partition', async () => {
-    const h2 = await bootHarness({
+    const h2 = await bootMatchmaking({
       schema: { partitionKeys: ['mmtest/region'] },
     });
     try {
@@ -977,7 +910,7 @@ describe('Matchmaking - schema drift', () => {
 
 describe('Matchmaking - empty partitionKeys collapse', () => {
   test('empty partitionKeys puts everyone in one shard', async () => {
-    const explicit = await bootHarness({
+    const explicit = await bootMatchmaking({
       schema: { partitionKeys: [] },
     });
     try {
@@ -1113,7 +1046,7 @@ describe('Matchmaking - group matching (groupSize)', () => {
     //
     // Use tiny radii via a short max wait so we can rely on the base
     // radius alone.
-    const tightHarness = await bootHarness({
+    const tightHarness = await bootMatchmaking({
       tuning: { maxPairsPerPass: 100 },
     });
     try {
@@ -1371,7 +1304,7 @@ describe('Matchmaking - priority', () => {
   });
 
   test('priority does not cross partition boundaries', async () => {
-    const part = await bootHarness({
+    const part = await bootMatchmaking({
       schema: { partitionKeys: ['mmtest/region'] },
     });
     try {
