@@ -66,21 +66,38 @@ import { asKeywordRecord, assertKeywordRecord } from '@gamezilla/lib/keyword';
 import type { Pool } from 'pg';
 import {
   assertDataMatchesFormula,
-  assertFormula,
-  assertWireFormula,
   type FormulaWire,
   serializeFormula,
 } from './formula-wire';
-import { fingerprintForOptions, type MatchmakingSchema } from './migrate';
 import {
-  MATCHMAKING_MAX_GROUP_SIZE,
-  MATCHMAKING_MAX_PRIORITY,
-  MATCHMAKING_MIN_GROUP_SIZE,
-  MATCHMAKING_MIN_PRIORITY,
-} from './migrate-sql';
-import { MATCHMAKING_PAYLOAD_LIMITS } from './payload-limits';
+  assertDistanceFormulasInput,
+  assertWireFormulasInput,
+  resolveGroupSize,
+  resolveJoinAttrs,
+  type InsertJoinAttrs,
+} from './join-helpers';
+import {
+  assertMatchmakerOptionInvariants,
+  assertPartitionSignature,
+  resolveMatchmakerSqlClient,
+  rowToParticipant,
+  type ActivePartition,
+  type MatchPassRow,
+  type ParticipantRow,
+  type RunMatchPassesAcrossPartitionsOptions,
+  type RunMatchPassesAcrossPartitionsResult,
+  type RunMatchPassesOptions,
+  type RunMatchPassesResult,
+  type StatusRow,
+  type SweepExpiredAcrossPartitionsOptions,
+  type SweepExpiredAcrossPartitionsResult,
+  type SweepExpiredResult,
+  type SweepMatchedResult,
+  type UpdateFormulasInputRaw,
+} from './matchmaker-internals';
+import { fingerprintForOptions, type MatchmakingSchema } from './migrate';
+import { MATCHMAKING_MIN_GROUP_SIZE } from './migrate-sql';
 import { parallelMap } from './parallel-map';
-import { createPgSqlClient } from './pg-adapter';
 import type { SqlClient } from './sql-client';
 import {
   DEFAULT_RADIUS_OPTIONS,
@@ -89,8 +106,6 @@ import {
   type JoinResult,
   type LeaveResult,
   type _MatchPassResult,
-  type MatchedParticipant,
-  type ParticipantStatus,
   type RadiusOptions,
   type StatusResult,
   type UpdateFormulasResult,
@@ -103,13 +118,7 @@ export type {
   PartitionTermWire,
 } from './formula-wire';
 
-/**
- * Hard cap on the per-participant formulas array. Each formula multiplies
- * the work of `matchmaking_pair_match` by a constant; an unbounded array
- * lets a single malicious join blow up every subsequent pass. 8 is well
- * over realistic use cases (OR over a handful of preset queue modes).
- */
-export const MAX_FORMULAS_PER_PARTICIPANT = 8;
+export { MAX_FORMULAS_PER_PARTICIPANT } from './join-helpers';
 
 // Bigger than v2 because the ticker DO is the sole caller — we want to
 // amortise the round-trip across as much pairing work as possible.
@@ -185,27 +194,6 @@ export type MatchmakerOptions = {
   readonly onSchemaDrift?: (expected: string, actual: string) => never;
 };
 
-type StatusRow = {
-  readonly status: ParticipantStatus;
-  readonly data: Record<string, unknown>;
-  readonly metadata: Record<string, unknown> | null;
-  readonly match_id: string | null;
-};
-
-type ParticipantRow = {
-  readonly id: string;
-  readonly joined_at: Date;
-  readonly data: Record<string, unknown>;
-  readonly metadata: Record<string, unknown> | null;
-};
-
-type MatchPassRow = {
-  readonly match_id: string;
-  readonly participant_id: string;
-  readonly joined_at: Date;
-  readonly data: Record<string, unknown>;
-};
-
 export type JoinInputRaw = {
   readonly data: AttributeState;
   readonly formulas: readonly FormulaWire[];
@@ -214,178 +202,18 @@ export type JoinInputRaw = {
   readonly metadata?: Record<string, unknown> | null;
 };
 
-export type UpdateFormulasInputRaw = {
-  readonly formulas: readonly FormulaWire[];
-};
-
-export type RunMatchPassesOptions = {
-  readonly maxPasses?: number;
-  readonly groupSize?: number;
-  readonly signal?: AbortSignal;
-};
-
-/**
- * A (signature, group_size) pair pulled from
- * `matchmaking_active_partitions`. The drain fans out one task per
- * pair because different group sizes never cross-match (the
- * SQL `matchmaking_run_match_pass` filters on `group_size` as part
- * of its candidate snapshot).
- *
- * @internal
- */
-export type ActivePartition = {
-  readonly partitionSignature: string;
-  readonly groupSize: number;
-};
-
-export type RunMatchPassesResult = {
-  readonly matches: number;
-  readonly passes: number;
-};
-
-export type SweepExpiredResult = {
-  readonly removed: number;
-};
-
-export type SweepMatchedResult = {
-  readonly removed: number;
-};
-
-export type RunMatchPassesAcrossPartitionsOptions = {
-  readonly maxPartitions?: number;
-  readonly maxPassesPerPartition?: number;
-  /** Bounded JS-side concurrency for partition drains. Default 8. */
-  readonly concurrency?: number;
-  readonly signal?: AbortSignal;
-};
-
-export type RunMatchPassesAcrossPartitionsResult = {
-  readonly matches: number;
-  readonly passes: number;
-  readonly partitions: number;
-};
-
-export type SweepExpiredAcrossPartitionsOptions = {
-  readonly maxPartitions?: number;
-  /** Bounded JS-side concurrency for partition sweeps. Default 8. */
-  readonly concurrency?: number;
-};
-
-export type SweepExpiredAcrossPartitionsResult = {
-  readonly removed: number;
-  readonly partitions: number;
-};
-
-function resolveSqlClient(opts: MatchmakerOptions): SqlClient {
-  if (opts.sqlClient !== undefined) return opts.sqlClient;
-  if (opts.pool !== undefined) return createPgSqlClient(opts.pool);
-  throw new Error('Matchmaker requires either `pool` or `sqlClient`');
-}
-
-function rowToParticipant(row: ParticipantRow): MatchedParticipant {
-  const data = asKeywordRecord(row.data, 'matchmaking peer data');
-  return {
-    participantId: row.id,
-    joinedAt: row.joined_at,
-    data,
-    metadata: row.metadata,
-  };
-}
-
-function assertPartitionSignature(signature: string, label: string): void {
-  assert.ok(
-    typeof signature === 'string',
-    `${label}: partitionSignature must be a string`,
-    { signature }
-  );
-}
-
-/**
- * Normalises and validates a caller-supplied `groupSize`. Returns the
- * integer to send to SQL. `undefined` becomes the minimum (2 — the
- * pairwise default).
- *
- * @internal
- */
-function resolveGroupSize(value: number | undefined, label: string): number {
-  if (value === undefined) return MATCHMAKING_MIN_GROUP_SIZE;
-  assert.ok(Number.isInteger(value), `${label}: groupSize must be an integer`, {
-    groupSize: value,
-  });
-  assert.ok(
-    value >= MATCHMAKING_MIN_GROUP_SIZE && value <= MATCHMAKING_MAX_GROUP_SIZE,
-    `${label}: groupSize must be between ${String(MATCHMAKING_MIN_GROUP_SIZE)} and ${String(MATCHMAKING_MAX_GROUP_SIZE)}`,
-    { groupSize: value }
-  );
-  return value;
-}
-
-/**
- * Normalises and validates a caller-supplied `priority`. Returns the
- * integer to send to SQL. `undefined` becomes 0 (FIFO).
- *
- * @internal
- */
-function resolvePriority(value: number | undefined, label: string): number {
-  if (value === undefined) return 0;
-  assert.ok(Number.isInteger(value), `${label}: priority must be an integer`, {
-    priority: value,
-  });
-  assert.ok(
-    value >= MATCHMAKING_MIN_PRIORITY && value <= MATCHMAKING_MAX_PRIORITY,
-    `${label}: priority must be between ${String(MATCHMAKING_MIN_PRIORITY)} and ${String(MATCHMAKING_MAX_PRIORITY)}`,
-    { priority: value }
-  );
-  return value;
-}
-
-const METADATA_UTF8 = new TextEncoder();
-
-/**
- * Normalises and validates a caller-supplied `metadata` blob. Returns
- * either the original object (passed straight to JSONB) or `null` when
- * unset / explicitly nulled.
- *
- * @internal
- */
-function resolveMetadata(
-  value: Record<string, unknown> | null | undefined,
-  label: string
-): Record<string, unknown> | null {
-  if (value === undefined || value === null) return null;
-  assert.record(value, `${label}: metadata must be a plain object or null`);
-  const encoded = JSON.stringify(value);
-  const bytes = METADATA_UTF8.encode(encoded).length;
-  assert.ok(
-    bytes <= MATCHMAKING_PAYLOAD_LIMITS.maxMetadataBytes,
-    `${label}: metadata JSON must be at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxMetadataBytes)} bytes (UTF-8)`,
-    { bytes }
-  );
-  return value;
-}
-
-function assertOptionInvariants(opts: {
-  readonly maxPairsPerPass: number;
-  readonly bucketWidth: number;
-  readonly matchedRetentionSeconds: number;
-}): void {
-  assert.ok(
-    Number.isFinite(opts.maxPairsPerPass) && opts.maxPairsPerPass > 0,
-    'Matchmaker: maxPairsPerPass must be a positive finite number',
-    { maxPairsPerPass: opts.maxPairsPerPass }
-  );
-  assert.ok(
-    Number.isFinite(opts.bucketWidth) && opts.bucketWidth > 0,
-    'Matchmaker: bucketWidth must be a positive finite number',
-    { bucketWidth: opts.bucketWidth }
-  );
-  assert.ok(
-    Number.isFinite(opts.matchedRetentionSeconds) &&
-      opts.matchedRetentionSeconds >= 0,
-    'Matchmaker: matchedRetentionSeconds must be a non-negative finite number',
-    { matchedRetentionSeconds: opts.matchedRetentionSeconds }
-  );
-}
+export type {
+  ActivePartition,
+  RunMatchPassesAcrossPartitionsOptions,
+  RunMatchPassesAcrossPartitionsResult,
+  RunMatchPassesOptions,
+  RunMatchPassesResult,
+  SweepExpiredAcrossPartitionsOptions,
+  SweepExpiredAcrossPartitionsResult,
+  SweepExpiredResult,
+  SweepMatchedResult,
+  UpdateFormulasInputRaw,
+} from './matchmaker-internals';
 
 /** @internal */
 type SchemaDriftCallback = (expected: string, actual: string) => never;
@@ -411,7 +239,7 @@ export class Matchmaker {
   private fingerprintProbeOk: boolean | undefined;
 
   constructor(opts: MatchmakerOptions) {
-    this.sqlClient = resolveSqlClient(opts);
+    this.sqlClient = resolveMatchmakerSqlClient(opts);
     this.radius = opts.radius ?? DEFAULT_RADIUS_OPTIONS;
     this.clock = opts.now;
     this.maxPairsPerPass = opts.maxPairsPerPass ?? DEFAULT_MAX_PAIRS_PER_PASS;
@@ -426,7 +254,7 @@ export class Matchmaker {
         : fingerprintForOptions(opts.schema);
     this.onSchemaDrift = opts.onSchemaDrift;
     this.fingerprintProbeOk = undefined;
-    assertOptionInvariants({
+    assertMatchmakerOptionInvariants({
       maxPairsPerPass: this.maxPairsPerPass,
       bucketWidth: this.bucketWidth,
       matchedRetentionSeconds: this.matchedRetentionSeconds,
@@ -458,30 +286,24 @@ export class Matchmaker {
     assert.defined(input, 'Matchmaker.join: input required');
     assert.record(input.data, 'Matchmaker.join: data must be an object');
     assertKeywordRecord(assert, input.data, 'Matchmaker.join: data');
-    assert.array(input.formulas, 'Matchmaker.join: formulas must be an array');
-    assert.ok(
-      input.formulas.length > 0,
-      'Matchmaker.join: formulas must be non-empty'
-    );
-    assert.ok(
-      input.formulas.length <= MAX_FORMULAS_PER_PARTICIPANT,
-      `Matchmaker.join: formulas must contain at most ${String(MAX_FORMULAS_PER_PARTICIPANT)} entries`,
-      { count: input.formulas.length }
-    );
+    assertDistanceFormulasInput(input.formulas, 'Matchmaker.join');
     for (let i = 0; i < input.formulas.length; i += 1) {
-      const label = `Matchmaker.join: formulas[${String(i)}]`;
-      const formula: DistanceFormula | undefined = input.formulas[i];
-      assert.defined(formula, `${label}: formula required`);
-      assertFormula(formula, label);
-      assertDataMatchesFormula(input.data, formula, label);
+      const formula = input.formulas[i];
+      assert.defined(
+        formula,
+        `Matchmaker.join: formulas[${String(i)}] required`
+      );
+      assertDataMatchesFormula(
+        input.data,
+        formula,
+        `Matchmaker.join: formulas[${String(i)}]`
+      );
     }
-    const groupSize = resolveGroupSize(input.groupSize, 'Matchmaker.join');
-    const priority = resolvePriority(input.priority, 'Matchmaker.join');
-    const metadata = resolveMetadata(input.metadata, 'Matchmaker.join');
+    const attrs = resolveJoinAttrs(input, 'Matchmaker.join');
 
     await this.assertSchemaFingerprint();
     const wire = input.formulas.map(serializeFormula);
-    return this.insertJoin(input.data, wire, groupSize, priority, metadata);
+    return this.insertJoin(input.data, wire, attrs);
   }
 
   /**
@@ -497,44 +319,16 @@ export class Matchmaker {
     assert.defined(input, 'Matchmaker.joinRaw: input required');
     assert.record(input.data, 'Matchmaker.joinRaw: data must be an object');
     assertKeywordRecord(assert, input.data, 'Matchmaker.joinRaw: data');
-    assert.array(
-      input.formulas,
-      'Matchmaker.joinRaw: formulas must be an array'
-    );
-    assert.ok(
-      input.formulas.length > 0,
-      'Matchmaker.joinRaw: formulas must be non-empty'
-    );
-    assert.ok(
-      input.formulas.length <= MAX_FORMULAS_PER_PARTICIPANT,
-      `Matchmaker.joinRaw: formulas must contain at most ${String(MAX_FORMULAS_PER_PARTICIPANT)} entries`,
-      { count: input.formulas.length }
-    );
-    for (let i = 0; i < input.formulas.length; i += 1) {
-      const label = `Matchmaker.joinRaw: formulas[${String(i)}]`;
-      const wire: FormulaWire | undefined = input.formulas[i];
-      assert.defined(wire, `${label}: formula required`);
-      assertWireFormula(wire, label);
-    }
-    const groupSize = resolveGroupSize(input.groupSize, 'Matchmaker.joinRaw');
-    const priority = resolvePriority(input.priority, 'Matchmaker.joinRaw');
-    const metadata = resolveMetadata(input.metadata, 'Matchmaker.joinRaw');
+    assertWireFormulasInput(input.formulas, 'Matchmaker.joinRaw');
+    const attrs = resolveJoinAttrs(input, 'Matchmaker.joinRaw');
     await this.assertSchemaFingerprint();
-    return this.insertJoin(
-      input.data,
-      input.formulas,
-      groupSize,
-      priority,
-      metadata
-    );
+    return this.insertJoin(input.data, input.formulas, attrs);
   }
 
   private async insertJoin(
     data: AttributeState,
     formulas: readonly FormulaWire[],
-    groupSize: number,
-    priority: number,
-    metadata: Record<string, unknown> | null
+    attrs: InsertJoinAttrs
   ): Promise<JoinResult> {
     // Single CTE: INSERT into waiting + UPSERT into active_partitions in
     // one round-trip. The active_partitions row is observed by the
@@ -559,9 +353,9 @@ export class Matchmaker {
         JSON.stringify(data),
         JSON.stringify(formulas),
         signature,
-        groupSize,
-        priority,
-        metadata === null ? null : JSON.stringify(metadata),
+        attrs.groupSize,
+        attrs.priority,
+        attrs.metadata === null ? null : JSON.stringify(attrs.metadata),
       ]
     );
     const row = result.rows[0];
@@ -589,25 +383,7 @@ export class Matchmaker {
       participantId,
       'Matchmaker.updateFormulas: participantId must be a non-empty string'
     );
-    assert.array(
-      formulas,
-      'Matchmaker.updateFormulas: formulas must be an array'
-    );
-    assert.ok(
-      formulas.length > 0,
-      'Matchmaker.updateFormulas: formulas must be non-empty'
-    );
-    assert.ok(
-      formulas.length <= MAX_FORMULAS_PER_PARTICIPANT,
-      `Matchmaker.updateFormulas: formulas must contain at most ${String(MAX_FORMULAS_PER_PARTICIPANT)} entries`,
-      { count: formulas.length }
-    );
-    for (let i = 0; i < formulas.length; i += 1) {
-      const label = `Matchmaker.updateFormulas: formulas[${String(i)}]`;
-      const formula: DistanceFormula | undefined = formulas[i];
-      assert.defined(formula, `${label}: formula required`);
-      assertFormula(formula, label);
-    }
+    assertDistanceFormulasInput(formulas, 'Matchmaker.updateFormulas');
     const wire = formulas.map(serializeFormula);
     return this.updateFormulasInner(participantId, wire);
   }
@@ -628,25 +404,7 @@ export class Matchmaker {
       'Matchmaker.updateFormulasRaw: participantId must be a non-empty string'
     );
     assert.defined(input, 'Matchmaker.updateFormulasRaw: input required');
-    assert.array(
-      input.formulas,
-      'Matchmaker.updateFormulasRaw: formulas must be an array'
-    );
-    assert.ok(
-      input.formulas.length > 0,
-      'Matchmaker.updateFormulasRaw: formulas must be non-empty'
-    );
-    assert.ok(
-      input.formulas.length <= MAX_FORMULAS_PER_PARTICIPANT,
-      `Matchmaker.updateFormulasRaw: formulas must contain at most ${String(MAX_FORMULAS_PER_PARTICIPANT)} entries`,
-      { count: input.formulas.length }
-    );
-    for (let i = 0; i < input.formulas.length; i += 1) {
-      const label = `Matchmaker.updateFormulasRaw: formulas[${String(i)}]`;
-      const wire: FormulaWire | undefined = input.formulas[i];
-      assert.defined(wire, `${label}: formula required`);
-      assertWireFormula(wire, label);
-    }
+    assertWireFormulasInput(input.formulas, 'Matchmaker.updateFormulasRaw');
     return this.updateFormulasInner(participantId, input.formulas);
   }
 

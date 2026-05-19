@@ -183,72 +183,97 @@ function assertDataValueCaps(v: Assert, data: Record<string, unknown>): void {
   }
 }
 
-function parseJoinBody(raw: unknown): JoinInputRaw {
-  const v: Assert = Assert.validation();
-  v.record(raw, 'body must be a JSON object');
-  const dataValue: unknown = raw['data'];
-  v.record(dataValue, 'data must be a plain object');
-  assertKeywordRecord(v, dataValue, 'data');
-  const dataKeyCount = Object.keys(dataValue).length;
+type BoundedIntBounds = {
+  readonly field: string;
+  readonly min: number;
+  readonly max: number;
+};
+
+/**
+ * Parses + validates an optional integer field that must fall in
+ * `[bounds.min, bounds.max]`. Returns the parsed integer or `undefined`
+ * when the field is absent. Records validation failures on `v`.
+ */
+function parseOptionalBoundedInt(
+  v: Assert,
+  raw: unknown,
+  bounds: BoundedIntBounds
+): number | undefined {
+  if (raw === undefined) return undefined;
   v.ok(
-    dataKeyCount <= MATCHMAKING_PAYLOAD_LIMITS.maxDataKeys,
+    typeof raw === 'number' && Number.isInteger(raw),
+    `${bounds.field} must be an integer`
+  );
+  v.ok(
+    raw >= bounds.min && raw <= bounds.max,
+    `${bounds.field} must be between ${String(bounds.min)} and ${String(bounds.max)}`
+  );
+  return raw as number;
+}
+
+/**
+ * Parses + size-caps an optional `metadata` field. Returns `null` for
+ * an explicit JSON null, the parsed object for a valid object, or
+ * `undefined` when the field is absent.
+ */
+function parseOptionalMetadata(
+  v: Assert,
+  raw: unknown
+): Record<string, unknown> | null | undefined {
+  if (raw === null) return null;
+  if (raw === undefined) return undefined;
+  v.record(raw, 'metadata must be a plain object or null');
+  const encoded = JSON.stringify(raw);
+  v.ok(
+    utf8Bytes(encoded) <= MATCHMAKING_PAYLOAD_LIMITS.maxMetadataBytes,
+    `metadata JSON must be at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxMetadataBytes)} bytes (UTF-8)`
+  );
+  return raw;
+}
+
+function parseJoinData(v: Assert, raw: unknown): AttributeState {
+  v.record(raw, 'data must be a plain object');
+  assertKeywordRecord(v, raw, 'data');
+  v.ok(
+    Object.keys(raw).length <= MATCHMAKING_PAYLOAD_LIMITS.maxDataKeys,
     `data must contain at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxDataKeys)} keys`
   );
-  assertDataValueCaps(v, dataValue);
-  const formulasRaw: unknown = raw['formulas'];
-  v.array(formulasRaw, 'formulas must be an array');
-  v.ok(formulasRaw.length > 0, 'formulas must be non-empty');
+  assertDataValueCaps(v, raw);
+  return raw as AttributeState;
+}
+
+function parseJoinFormulas(v: Assert, raw: unknown): FormulaWire[] {
+  v.array(raw, 'formulas must be an array');
+  v.ok(raw.length > 0, 'formulas must be non-empty');
   v.ok(
-    formulasRaw.length <= MATCHMAKING_PAYLOAD_LIMITS.maxFormulas,
+    raw.length <= MATCHMAKING_PAYLOAD_LIMITS.maxFormulas,
     `formulas must contain at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxFormulas)} entries`
   );
   const formulas: FormulaWire[] = [];
-  for (let i = 0; i < formulasRaw.length; i += 1) {
-    formulas.push(parseFormula(v, formulasRaw[i], `formulas[${String(i)}]`));
+  for (let i = 0; i < raw.length; i += 1) {
+    formulas.push(parseFormula(v, raw[i], `formulas[${String(i)}]`));
   }
-  const groupSizeRaw: unknown = raw['groupSize'];
-  let groupSize: number | undefined;
-  if (groupSizeRaw !== undefined) {
-    v.ok(
-      typeof groupSizeRaw === 'number' && Number.isInteger(groupSizeRaw),
-      'groupSize must be an integer'
-    );
-    v.ok(
-      groupSizeRaw >= MATCHMAKING_MIN_GROUP_SIZE &&
-        groupSizeRaw <= MATCHMAKING_MAX_GROUP_SIZE,
-      `groupSize must be between ${String(MATCHMAKING_MIN_GROUP_SIZE)} and ${String(MATCHMAKING_MAX_GROUP_SIZE)}`
-    );
-    groupSize = groupSizeRaw;
-  }
-  const priorityRaw: unknown = raw['priority'];
-  let priority: number | undefined;
-  if (priorityRaw !== undefined) {
-    v.ok(
-      typeof priorityRaw === 'number' && Number.isInteger(priorityRaw),
-      'priority must be an integer'
-    );
-    v.ok(
-      priorityRaw >= MATCHMAKING_MIN_PRIORITY &&
-        priorityRaw <= MATCHMAKING_MAX_PRIORITY,
-      `priority must be between ${String(MATCHMAKING_MIN_PRIORITY)} and ${String(MATCHMAKING_MAX_PRIORITY)}`
-    );
-    priority = priorityRaw;
-  }
-  const metadataRaw: unknown = raw['metadata'];
-  let metadata: Record<string, unknown> | null | undefined;
-  if (metadataRaw === null) {
-    metadata = null;
-  } else if (metadataRaw !== undefined) {
-    v.record(metadataRaw, 'metadata must be a plain object or null');
-    const encoded = JSON.stringify(metadataRaw);
-    v.ok(
-      utf8Bytes(encoded) <= MATCHMAKING_PAYLOAD_LIMITS.maxMetadataBytes,
-      `metadata JSON must be at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxMetadataBytes)} bytes (UTF-8)`
-    );
-    metadata = metadataRaw;
-  }
+  return formulas;
+}
+
+function parseJoinBody(raw: unknown): JoinInputRaw {
+  const v: Assert = Assert.validation();
+  v.record(raw, 'body must be a JSON object');
+  const data = parseJoinData(v, raw['data']);
+  const formulas = parseJoinFormulas(v, raw['formulas']);
+  const groupSize = parseOptionalBoundedInt(v, raw['groupSize'], {
+    field: 'groupSize',
+    min: MATCHMAKING_MIN_GROUP_SIZE,
+    max: MATCHMAKING_MAX_GROUP_SIZE,
+  });
+  const priority = parseOptionalBoundedInt(v, raw['priority'], {
+    field: 'priority',
+    min: MATCHMAKING_MIN_PRIORITY,
+    max: MATCHMAKING_MAX_PRIORITY,
+  });
+  const metadata = parseOptionalMetadata(v, raw['metadata']);
   return {
-    data: dataValue as AttributeState,
+    data,
     formulas,
     ...(groupSize !== undefined ? { groupSize } : {}),
     ...(priority !== undefined ? { priority } : {}),
