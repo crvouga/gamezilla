@@ -200,6 +200,39 @@ function TitleArea({
   );
 }
 
+/**
+ * Renders the screen title as a semantic `<h1>` that is visually hidden
+ * but still discoverable by screen readers, heading-navigation, and
+ * accessibility testers (Playwright `getByRole('heading', { level: 1 })`).
+ *
+ * Used on layouts where `TitleArea` is suppressed in favor of
+ * `CenterTabsArea` (desktop tab-based navigation). Every page is
+ * required by WCAG 2.4.6 / 1.3.1 to expose a single top-level heading;
+ * dropping the visible title for a different visual treatment must not
+ * also drop the semantic one.
+ *
+ * Standard "sr-only" clip pattern: 1×1 absolutely-positioned, overflow
+ * hidden, clipped to zero. The browser still includes it in the
+ * accessibility tree but it has no visual presence and cannot receive
+ * pointer input.
+ */
+function VisuallyHiddenTitle({ title }: { title: ReactNode }) {
+  if (title === undefined || title === null) return null;
+  return (
+    <Box
+      pointerEvents="none"
+      sx={{
+        position: 'absolute',
+        width: 1,
+        height: 1,
+        overflow: 'hidden',
+      }}
+    >
+      <Text accessibilityRole="header" aria-level={1} label={title} />
+    </Box>
+  );
+}
+
 function CenterTabsArea({ children }: { children: ReactNode }) {
   return (
     <Box
@@ -388,7 +421,10 @@ function HeaderBar(props: HeaderBarProps) {
       }}
     >
       {centerTabs !== undefined ? (
-        <CenterTabsArea>{centerTabs}</CenterTabsArea>
+        <>
+          <VisuallyHiddenTitle title={title} />
+          <CenterTabsArea>{centerTabs}</CenterTabsArea>
+        </>
       ) : (
         <TitleArea
           title={title}

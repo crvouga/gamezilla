@@ -153,7 +153,27 @@ export class Matchmaking {
   private readonly sqlClient: SqlClient;
   private readonly schema: MatchmakingSchema;
   private readonly matchmaker: Matchmaker;
-  private readonly bootPromise: Promise<void>;
+  private readonly migrateArgs: Parameters<typeof migrate>[0];
+  /**
+   * Lazily initialised on the first call to {@link ensureBooted}.
+   * Held as `Promise | undefined` (not eagerly created at construction)
+   * so the `migrate()` SQL calls run inside the same async-context that
+   * invoked the first public method.
+   *
+   * This matters for embedders whose {@link SqlClient} is sourced from
+   * a request-scoped `AsyncLocalStorage` (e.g. the API package threads
+   * one `pg.Client` per Hyperdrive request). Construction happens during
+   * Worker boot, with no request scope live; firing `migrate()` from
+   * the constructor would fail the SqlClient's scope-required assertion
+   * and permanently brick the cached promise. Deferring to the first
+   * method call lets the boot run inside a request handler, where the
+   * AsyncLocalStorage is populated.
+   *
+   * Reset to `undefined` on rejection so the next caller gets a fresh
+   * attempt — transient migration errors (e.g. a temporary DB outage at
+   * Worker cold-start) don't permanently brick the instance.
+   */
+  private bootPromise: Promise<void> | undefined;
 
   constructor(opts: MatchmakingOptions) {
     const resolved = Matchmaking.resolveOptions(opts);
@@ -161,25 +181,19 @@ export class Matchmaking {
     this.sqlClient = resolved.sqlClient;
     this.schema = resolved.schema;
     this.matchmaker = new Matchmaker(resolved.matchmakerOptions);
-    // Run migrate exactly once. Cached so every public method just awaits
-    // the same promise; embedders never thread async boot through their
-    // wiring code. Awaiters (join/leave/status/app/ready) still surface
-    // the migrate error; the silent `.catch(noop)` is purely to prevent
-    // a Node "unhandled promise rejection" warning when no one ever
-    // touches the instance.
-    this.bootPromise = migrate({
+    this.migrateArgs = {
       sqlClient: this.sqlClient,
       schema: this.schema,
       ...(resolved.radius !== undefined ? { radius: resolved.radius } : {}),
       ...(resolved.tuning !== undefined
         ? { tuning: Matchmaking.tuningForMigrate(resolved.tuning) }
         : {}),
-    });
-    this.bootPromise.catch((): void => undefined);
+    };
+    this.bootPromise = undefined;
   }
 
   async ready(): Promise<void> {
-    return this.bootPromise;
+    return this.ensureBooted();
   }
 
   async join(input: JoinInput): Promise<JoinResult> {
@@ -300,7 +314,25 @@ export class Matchmaking {
 
   // ---------------- private instance ----------------
 
+  /**
+   * Lazily kick off `migrate()` on the first call, then memoize. If
+   * the boot rejects, clear the cache so the next caller retries — a
+   * permanently-cached rejection would brick every subsequent
+   * request after a transient migration failure (e.g. a momentary DB
+   * blip during Worker cold-start). The `.catch(noop)` on the cached
+   * promise suppresses the Node "unhandled rejection" warning for
+   * the case where no one ever awaits the first call.
+   */
   private async ensureBooted(): Promise<void> {
+    if (this.bootPromise === undefined) {
+      const p = migrate(this.migrateArgs);
+      this.bootPromise = p;
+      p.catch((): void => {
+        if (this.bootPromise === p) {
+          this.bootPromise = undefined;
+        }
+      });
+    }
     await this.bootPromise;
   }
 
