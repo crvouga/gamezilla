@@ -135,6 +135,22 @@ export default defineConfig({
   retries: isCi ? 1 : 0,
   workers: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
+  // Playwright's default per-test timeout is 30s. The tests in this
+  // directory drive a cold React Native Web bundle (~3,200 modules,
+  // ~6.6 MB of JS) through hydration; first-paint + heading availability
+  // routinely needs 30–60s on CI runners. Several individual locator
+  // expectations already pass `{ timeout: 60_000 }`, which the default
+  // 30s test budget makes literally unreachable — the test process is
+  // killed before the 60s poll can complete. Set a per-test budget that
+  // exceeds every locator timeout below by a comfortable margin.
+  timeout: 120_000,
+  expect: {
+    // Default per-assertion poll budget. Individual assertions still
+    // override (e.g. the spaces-screen heading uses 60_000ms) — this
+    // sets the floor so a test that doesn't specify doesn't fail on
+    // the 5s default during a cold hydrate.
+    timeout: 15_000,
+  },
   use: {
     baseURL,
     trace: 'on-first-retry',

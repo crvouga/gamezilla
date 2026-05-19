@@ -38,6 +38,35 @@ runs:
       shell: bash
       run: bun install --frozen-lockfile
 
+    # `dopplerhq/cli-action@v4` shells out to download the Doppler binary
+    # from `cli.doppler.com` but does NOT pass `--retry` to curl, so a
+    # single transient slowdown on Doppler's CDN kills the whole job with
+    # `spawnSync /bin/sh ETIMEDOUT` (see
+    # https://github.com/crvouga/gamezilla/actions/runs/26082253421).
+    # The official `install.sh` already uses `curl --retry 5
+    # --connect-timeout 10 --max-time 60` internally, so invoking it
+    # directly is strictly more robust than the action wrapper for the
+    # exact same install path.
     - name: Install Doppler CLI
       if: inputs.doppler == 'true'
-      uses: dopplerhq/cli-action@v4
+      shell: bash
+      run: |
+        set -euo pipefail
+        for attempt in 1 2 3; do
+          if curl -fsSL --retry 5 --retry-all-errors \
+            --connect-timeout 10 --max-time 120 \
+            https://cli.doppler.com/install.sh \
+            | sudo sh; then
+            exit 0
+          fi
+          echo "Doppler CLI install attempt ${attempt}/3 failed; retrying..." >&2
+          sleep $((attempt * 5))
+        done
+        echo "ERROR: Doppler CLI install failed after 3 attempts" >&2
+        exit 1
+      env:
+        # `install.sh` writes shell completions to the invoking user's
+        # default shell; on a GitHub-hosted runner that is the ephemeral
+        # `runner` user, so this is benign — left as a marker that the
+        # script may probe `$SHELL`/`$HOME` and we accept the defaults.
+        SHELL: /bin/bash
