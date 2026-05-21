@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app/shared/local-preview-api-origin';
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/local-preview-api-origin';
 
 export { DEFAULT_LOCAL_PREVIEW_API_ORIGIN };
 

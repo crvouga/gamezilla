@@ -3,10 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./client/*": [
-      "./src/client/*.ts",
-      "./src/client/*.tsx"
-    ],
     "./shared/*": [
       "./src/shared/*.ts",
       "./src/shared/*.tsx"
@@ -20,12 +16,10 @@
   "dependencies": {
     "@libs/chess": "workspace:*",
     "@pkgs/room": "workspace:*",
-    "@libs/spaces": "workspace:*",
-    "react": "catalog:"
+    "@libs/spaces": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
-    "@types/react": "catalog:",
     "typescript": "catalog:"
   }
 }

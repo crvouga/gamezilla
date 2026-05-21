@@ -174,11 +174,9 @@
         "@libs/chess": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@pkgs/room": "workspace:*",
-        "react": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
-        "@types/react": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -329,7 +327,7 @@
       "name": "@libs/qa",
       "version": "1.0.0",
       "dependencies": {
-        "@libs/app": "workspace:*",
+        "@libs/client-config": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
       },

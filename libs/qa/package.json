@@ -13,7 +13,7 @@
     "tc": "tsc --noEmit -p ./tsconfig.json"
   },
   "dependencies": {
-    "@libs/app": "workspace:*",
+    "@libs/client-config": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/secret-store": "workspace:*"
   },

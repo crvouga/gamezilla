@@ -7,13 +7,13 @@ import { createSpaceModule } from '@libs/spaces/shared/space-module';
 /**
  * Single, authoritative list of every playable game in the app — registered
  * once here so the server-side composition root (`@apps/api`) and the
- * client-side bootstrap (`@libs/app/client/games-bootstrap`) cannot
- * drift. If they did, the client would optimistically dispatch commands the
- * server's composed router refuses, or vice versa.
+ * client-side bootstrap (`apps/client/src/providers/games-bootstrap-provider.tsx`)
+ * cannot drift. If they did, the client would optimistically dispatch commands
+ * the server's composed router refuses, or vice versa.
  *
- * Adding a new game = drop its `gameShared` into this array. The matching
- * client half lives next to it in `../client/games-bootstrap.tsx` so the two
- * halves of a game move through code review together.
+ * Adding a new game = drop its `gameShared` into this array and its
+ * `gameClient` into `APP_GAMES_CLIENT` in the client provider so both halves
+ * move through code review together.
  */
 export const APP_GAMES_SHARED: readonly GameDefinition[] = [chessGameShared];
 
