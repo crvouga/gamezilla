@@ -1,7 +1,7 @@
-import { assert } from '@gamezilla/lib/assert';
-import { fireAndForget } from '@gamezilla/lib/async/fire-and-forget';
-import { asKeyword, type Keyword } from '@gamezilla/lib/keyword';
-import type { PubSub, Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
+import { assert } from '@gamezilla/assert';
+import { fireAndForget } from '@gamezilla/async/fire-and-forget';
+import { asKeyword, type Keyword } from '@gamezilla/keyword';
+import type { PubSub, Unsubscribe } from '@gamezilla/pub-sub/interface';
 import type { PatchDb, PatchDbQuery, PatchDbResult } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 

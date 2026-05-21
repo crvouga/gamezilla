@@ -5,7 +5,7 @@
  * Every helper is `@internal` — none of these escape the package.
  */
 
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import {
   assertFormula,
   assertWireFormula,

@@ -1,4 +1,4 @@
-import type { Keyword } from '@gamezilla/lib/keyword';
+import type { Keyword } from '@gamezilla/keyword';
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 import type {
   PatchDbQueryOrderBy,

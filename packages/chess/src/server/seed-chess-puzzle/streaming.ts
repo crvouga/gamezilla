@@ -13,8 +13,8 @@ import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { pipeline } from 'node:stream/promises';
 import { parse } from 'csv-parse';
 import { Decompress as ZstdDecompress } from 'fzstd';
-import { assert } from '@gamezilla/lib/assert';
-import type { Logger } from '@gamezilla/lib/logger';
+import { assert } from '@gamezilla/assert';
+import type { Logger } from '@gamezilla/logger';
 
 const ZST_NAME = 'lichess_db_puzzle.csv.zst';
 const MANIFEST_NAME = 'manifest.json';

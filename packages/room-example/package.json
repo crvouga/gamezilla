@@ -14,7 +14,7 @@
     "tc": "tsc --noEmit"
   },
   "dependencies": {
-    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/keyword": "workspace:*",
     "@gamezilla/room": "workspace:*",
     "@gamezilla/ui": "workspace:*",
     "@lingui/core": "catalog:",

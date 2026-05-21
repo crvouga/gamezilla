@@ -1,9 +1,9 @@
 import { createBetterAuthRequestStack } from '@gamezilla/auth/server/better-auth-create';
 import { createSessionAuth } from '@gamezilla/auth/server/session-middleware';
 import type { AuthContext } from '@gamezilla/auth/server/types';
-import { assert } from '@gamezilla/lib/assert';
-import { KvImplPostgres } from '@gamezilla/lib/kv/impl-postgres';
-import type { SecretStore } from '@gamezilla/lib/secret-store';
+import { assert } from '@gamezilla/assert';
+import { KvImplPostgres } from '@gamezilla/kv/impl-postgres';
+import type { SecretStore } from '@gamezilla/secret-store';
 import type { MiddlewareHandler } from 'hono';
 import { ConfigurationError } from '../config/env';
 import { createMatchmakingSqlClientFromPgClient } from '../matchmaking/sql-client-adapter';

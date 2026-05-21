@@ -7,8 +7,8 @@
  * `jsonb_to_recordset` inserts. Both inserts use `ON CONFLICT DO NOTHING`
  * so re-seeds skip already-loaded puzzles instead of churning dead tuples.
  */
-import type { Logger } from '@gamezilla/lib/logger';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import type { Logger } from '@gamezilla/logger';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import { INSERT_PATCHES_BATCH } from '@gamezilla/patch-db/impl-postgres/sql-constants';
 import { CHESS_PUZZLE_ENTITY_TYPE } from '@gamezilla/chess/shared/chess-puzzle-entities';
 import type { PuzzleBatchEntry } from './row';

@@ -1,4 +1,4 @@
-import { Assert } from '@gamezilla/lib/assert';
+import { Assert } from '@gamezilla/assert';
 
 import {
   parseRoomModuleName,

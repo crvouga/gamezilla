@@ -1,6 +1,6 @@
-import { assert } from '@gamezilla/lib/assert';
-import type { Keyword } from '@gamezilla/lib/keyword';
-import type { Unsubscribe } from '@gamezilla/lib/pub-sub/interface';
+import { assert } from '@gamezilla/assert';
+import type { Keyword } from '@gamezilla/keyword';
+import type { Unsubscribe } from '@gamezilla/pub-sub/interface';
 import type { Entity, PatchEntityType } from '../interface';
 import { assertAttribute } from '../interface';
 import type { SubscribablePatchDbLike } from '../subscribable';

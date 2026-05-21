@@ -22,8 +22,10 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@gamezilla/attribute": "workspace:*",
     "@gamezilla/auth": "workspace:*",
-    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/kv": "workspace:*",
+    "@gamezilla/message": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/room": "workspace:*",
     "@gamezilla/ui": "workspace:*",

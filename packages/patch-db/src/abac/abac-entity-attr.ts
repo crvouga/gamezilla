@@ -3,7 +3,7 @@
  * scope reads/writes to the row owner. Domain-specific ABAC attributes live
  * with their owning feature packages.
  */
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { createAttrNamespace } from '@gamezilla/attribute';
 
 const passthrough = (v: unknown) => v;
 

@@ -1,4 +1,4 @@
-import { isNamespacedKeyword } from '@gamezilla/lib/keyword';
+import { isNamespacedKeyword } from '@gamezilla/keyword';
 import { z } from 'zod';
 
 /**

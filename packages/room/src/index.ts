@@ -43,8 +43,8 @@ export {
   useRoomSnapshotSelector,
 } from './client/react/use-room-snapshot';
 export { newCommandId } from './protocol/ids';
-export { createAttrNamespace } from '@gamezilla/lib/attribute';
-export { asKeyword, assertKeywordRecord } from '@gamezilla/lib/keyword';
+export { createAttrNamespace } from '@gamezilla/attribute';
+export { asKeyword, assertKeywordRecord } from '@gamezilla/keyword';
 export {
   parseClientToServerWire,
   parseServerToClientWire,

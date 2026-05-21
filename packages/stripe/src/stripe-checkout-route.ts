@@ -3,7 +3,7 @@ import {
   type AppAuthContext,
   buildAppAuthContext,
 } from '@gamezilla/auth/shared/auth-context';
-import { createLogger } from '@gamezilla/lib/logger';
+import { createLogger } from '@gamezilla/logger';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
 import { zValidator } from '@hono/zod-validator';

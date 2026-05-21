@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import type { SubscribablePatchDbLike } from '../subscribable';
 import type { InMemoryEntityStore } from './in-memory-entity-store';
 

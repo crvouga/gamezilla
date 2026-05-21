@@ -1,6 +1,6 @@
-import { useLogger } from '@gamezilla/lib/logger/react';
-import { useSecureStorage } from '@gamezilla/lib/secure-storage/interface';
-import { writeSecureStorageItem } from '@gamezilla/lib/secure-storage/use-secure-storage-item';
+import { useLogger } from '@gamezilla/logger/react';
+import { useSecureStorage } from '@gamezilla/secure-storage/interface';
+import { writeSecureStorageItem } from '@gamezilla/secure-storage/use-secure-storage-item';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 

@@ -1,6 +1,6 @@
-import { KvImplPostgres } from '@gamezilla/lib/kv/impl-postgres';
-import type { Kv } from '@gamezilla/lib/kv/interface';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { KvImplPostgres } from '@gamezilla/kv/impl-postgres';
+import type { Kv } from '@gamezilla/kv/interface';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 
 /**
  * Postgres-backed {@link Kv} for LLM response caching (Hyperdrive TCP).

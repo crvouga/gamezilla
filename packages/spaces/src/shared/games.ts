@@ -1,9 +1,9 @@
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { createAttrNamespace } from '@gamezilla/attribute';
 import {
   createMessageNamespace,
   createMessageRouter,
   isPlainRecord,
-} from '@gamezilla/lib/message';
+} from '@gamezilla/message';
 import type { HandleResult, RoomState } from '@gamezilla/room';
 
 import type { GameDefinition } from './game';

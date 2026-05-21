@@ -1,4 +1,4 @@
-import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
+import { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
 import {
   Box,
   Button,

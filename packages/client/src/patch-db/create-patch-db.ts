@@ -6,8 +6,8 @@ import {
   ACCOUNT_SESSION_ENTITY_TYPE,
   assertDeviceId,
 } from '@gamezilla/auth/shared';
-import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import { PATCHES_DB_TOPIC, SyncPatchDb } from '@gamezilla/patch-db/impl-sync';

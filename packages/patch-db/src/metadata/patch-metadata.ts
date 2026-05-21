@@ -3,7 +3,7 @@
  * patch attributes JSON but excluded from entity snapshots by
  * implementations (via {@link PATCH_META_KEYS}).
  */
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { createAttrNamespace } from '@gamezilla/attribute';
 
 function readPatchString(v: unknown): string {
   return typeof v === 'string' ? v : String(v ?? '');

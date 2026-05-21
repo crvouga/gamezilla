@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { SqlClientImplBunSqlite } from '@gamezilla/sql-client/impl-bun-sqlite';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import {
   PATCHES_DB_SYSTEM_CONTEXT,

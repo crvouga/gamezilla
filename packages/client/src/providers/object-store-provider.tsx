@@ -1,5 +1,5 @@
-import { ObjectStoreImplExpoFileSystem } from '@gamezilla/lib/object-store/impl-expo-file-system';
-import { ObjectStoreProvider } from '@gamezilla/lib/object-store/react-context';
+import { ObjectStoreImplExpoFileSystem } from '@gamezilla/object-store/impl-expo-file-system';
+import { ObjectStoreProvider } from '@gamezilla/object-store/react-context';
 import { useMemo, type ReactNode } from 'react';
 
 /**

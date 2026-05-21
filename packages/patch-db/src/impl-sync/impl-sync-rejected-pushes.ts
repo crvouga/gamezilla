@@ -1,6 +1,6 @@
-import { assert } from '@gamezilla/lib/assert';
-import type { Logger } from '@gamezilla/lib/logger';
-import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
+import { assert } from '@gamezilla/assert';
+import type { Logger } from '@gamezilla/logger';
+import type { PubSub } from '@gamezilla/pub-sub/interface';
 import type { Patch, PatchDb, PatchDbQuery } from '../interface';
 import {
   OPEN_PATCHES_DB_CONTEXT,

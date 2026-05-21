@@ -56,11 +56,11 @@ import {
   CHESS_PUZZLE_LOAD_ENTITY_TYPE,
   ChessPuzzleLoadAttr,
 } from '@gamezilla/chess/shared/chess-puzzle-entities';
-import { createLogger, type Logger } from '@gamezilla/lib/logger';
-import { createDopplerSecretStoreForScripts } from '@gamezilla/lib/secret-store';
-import { SqlClientImplPgClient } from '@gamezilla/lib/sql-client/impl-pg-client';
-import { sanitizePostgresUrlForNodePg } from '@gamezilla/lib/sql-client/sanitize-postgres-url-for-node-pg';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { createLogger, type Logger } from '@gamezilla/logger';
+import { createDopplerSecretStoreForScripts } from '@gamezilla/secret-store';
+import { SqlClientImplPgClient } from '@gamezilla/sql-client/impl-pg-client';
+import { sanitizePostgresUrlForNodePg } from '@gamezilla/sql-client/sanitize-postgres-url-for-node-pg';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import {
   PATCHES_DB_SYSTEM_CONTEXT,

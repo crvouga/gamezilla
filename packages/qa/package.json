@@ -13,7 +13,9 @@
     "tc": "tsc --noEmit -p ./tsconfig.json"
   },
   "dependencies": {
-    "@gamezilla/lib": "workspace:*"
+    "@gamezilla/assert": "workspace:*",
+    "@gamezilla/local-preview-api-origin": "workspace:*",
+    "@gamezilla/secret-store": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",

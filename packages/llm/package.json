@@ -27,7 +27,12 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/assert": "workspace:*",
+    "@gamezilla/attribute": "workspace:*",
+    "@gamezilla/keyword": "workspace:*",
+    "@gamezilla/kv": "workspace:*",
+    "@gamezilla/secret-store": "workspace:*",
+    "@gamezilla/sql-client": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:"

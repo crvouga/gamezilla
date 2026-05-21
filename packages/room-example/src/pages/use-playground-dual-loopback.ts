@@ -1,4 +1,4 @@
-import { asKeyword } from '@gamezilla/lib/keyword';
+import { asKeyword } from '@gamezilla/keyword';
 import {
   Room,
   type RoomCommandPayload,

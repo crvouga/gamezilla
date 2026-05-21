@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import { assertAttribute } from '../interface';
 
 function buildSqliteJsonPath(key: string): string {

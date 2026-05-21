@@ -1,7 +1,7 @@
 /**
  * {@link AttributeTag}s for Stripe patch-db rows (stable wire keys).
  */
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { createAttrNamespace } from '@gamezilla/attribute';
 
 const passthrough = (v: unknown): unknown => v;
 

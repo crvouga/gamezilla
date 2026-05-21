@@ -5,7 +5,7 @@ import {
   type AppClientContext,
   buildAppAuthContext,
 } from '@gamezilla/auth/shared/auth-context';
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type { HostedBetterAuth } from './better-auth-create';
 import { buildAppAuthContextFromBearer } from './bearer-resolve';

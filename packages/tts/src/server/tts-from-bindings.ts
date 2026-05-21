@@ -1,8 +1,8 @@
 import {
   ObjectStoreImplR2,
   type R2Bucket,
-} from '@gamezilla/lib/object-store/impl-r2';
-import type { SecretStore } from '@gamezilla/lib/secret-store';
+} from '@gamezilla/object-store/impl-r2';
+import type { SecretStore } from '@gamezilla/secret-store';
 import { ElevenLabsTtsProvider } from './adapters/elevenlabs-tts-provider';
 import { createTtsApp, type TtsRequireAuth } from './tts-routes';
 

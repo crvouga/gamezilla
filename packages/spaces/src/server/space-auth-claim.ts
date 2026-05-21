@@ -10,7 +10,7 @@
 import {
   type AttributeState,
   createAttrNamespace,
-} from '@gamezilla/lib/attribute';
+} from '@gamezilla/attribute';
 
 const spacesNs = createAttrNamespace('spaces');
 

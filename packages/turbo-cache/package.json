@@ -9,7 +9,7 @@
     "tc": "tsc --noEmit -p ../../tsconfig.json"
   },
   "dependencies": {
-    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/logger": "workspace:*",
     "hono": "catalog:"
   },
   "devDependencies": {

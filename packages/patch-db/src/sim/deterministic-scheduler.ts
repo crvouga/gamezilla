@@ -3,7 +3,7 @@
  * Jobs are ordered by `(time, seq)` where `seq` breaks ties stably.
  */
 
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import type { SimLinkScheduler } from './sim-link-scheduler';
 
 type Job = {

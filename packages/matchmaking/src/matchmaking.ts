@@ -29,8 +29,8 @@
  * as `private static` methods.
  */
 
-import { assert } from '@gamezilla/lib/assert';
-import { createLogger } from '@gamezilla/lib/logger';
+import { assert } from '@gamezilla/assert';
+import { createLogger } from '@gamezilla/logger';
 import { Hono, type MiddlewareHandler } from 'hono';
 import type { Pool } from 'pg';
 import { createMatchmakingApp } from './app';

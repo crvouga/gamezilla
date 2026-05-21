@@ -1,7 +1,7 @@
 import {
   getCachedSecureStorageValue,
   useSecureStorageItem,
-} from '@gamezilla/lib/secure-storage/use-secure-storage-item';
+} from '@gamezilla/secure-storage/use-secure-storage-item';
 
 import { isUuid } from '../shared/device-id';
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from './auth-storage-keys';

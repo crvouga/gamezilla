@@ -1,4 +1,4 @@
-import type { SecretStore } from '@gamezilla/lib/secret-store';
+import type { SecretStore } from '@gamezilla/secret-store';
 import { StripeSecretKeys } from '@gamezilla/stripe/secret-keys';
 import { parseWhsecFromLine } from './listen-output-parser';
 import { STRIPE_CLI_LOG_TAG } from './constants';

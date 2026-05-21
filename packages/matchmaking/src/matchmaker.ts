@@ -60,9 +60,9 @@
  * @internal
  */
 
-import { assert } from '@gamezilla/lib/assert';
-import type { AttributeState } from '@gamezilla/lib/attribute';
-import { asKeywordRecord, assertKeywordRecord } from '@gamezilla/lib/keyword';
+import { assert } from '@gamezilla/assert';
+import type { AttributeState } from '@gamezilla/attribute';
+import { asKeywordRecord, assertKeywordRecord } from '@gamezilla/keyword';
 import type { Pool } from 'pg';
 import {
   assertDataMatchesFormula,

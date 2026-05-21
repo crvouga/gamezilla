@@ -1,10 +1,10 @@
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import {
   assertOffsetLimitFragment,
   assertOrderByFragment,
   assertSqlPrefix,
   assertWhereFragment,
-} from '@gamezilla/lib/sqlite';
+} from '@gamezilla/sqlite';
 import type {
   AttributeKey,
   PatchDbQuery,

@@ -19,7 +19,11 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@gamezilla/lib": "workspace:*"
+    "@gamezilla/assert": "workspace:*",
+    "@gamezilla/attribute": "workspace:*",
+    "@gamezilla/keyword": "workspace:*",
+    "@gamezilla/kv": "workspace:*",
+    "@gamezilla/message": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

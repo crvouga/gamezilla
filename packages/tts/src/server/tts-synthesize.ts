@@ -1,4 +1,4 @@
-import type { ObjectStore } from '@gamezilla/lib/object-store/interface';
+import type { ObjectStore } from '@gamezilla/object-store/interface';
 import { ttsCacheKey } from '../shared/tts-cache-key';
 import { ttsContentTypeFor, type TtsAudioFormat } from '../shared/tts-types';
 import type { TtsProvider, TtsSynthesizeInput } from './ports/tts-provider';

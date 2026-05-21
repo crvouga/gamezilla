@@ -1,5 +1,5 @@
-import { ObjectStoreImplInMemory } from '@gamezilla/lib/object-store/impl-in-memory';
-import { ObjectStoreProvider } from '@gamezilla/lib/object-store/react-context';
+import { ObjectStoreImplInMemory } from '@gamezilla/object-store/impl-in-memory';
+import { ObjectStoreProvider } from '@gamezilla/object-store/react-context';
 import { TtsProvider } from '@gamezilla/tts/client/tts-context';
 import { Voices } from '@gamezilla/tts/shared/tts-voice';
 import { useEffect, useMemo, useState } from 'react';

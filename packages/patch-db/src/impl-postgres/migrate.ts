@@ -1,5 +1,5 @@
-import type { Logger } from '@gamezilla/lib/logger';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import type { Logger } from '@gamezilla/logger';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import { reconcileSnapshotIndexes } from '../indexes/reconcile';
 import type { PatchDbIndexSpec } from '../indexes/index-spec';
 import { postgresIndexDialect } from './index-dialect-pg';

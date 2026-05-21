@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/lib/assert';
-import { DopplerCli } from '@gamezilla/lib/doppler';
+import { assert } from '@gamezilla/assert';
+import { DopplerCli } from '@gamezilla/doppler';
 import { join } from 'node:path';
 import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';

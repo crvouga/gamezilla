@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 
 /** Must match {@link ANON_ID_HEADER} in packages/auth session-middleware. */
 const X_ANON_ID = 'x-anon-id';

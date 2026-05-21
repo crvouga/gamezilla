@@ -1,10 +1,10 @@
-import type { Assert } from '@gamezilla/lib/assert';
-import { assert, hotAssert } from '@gamezilla/lib/assert';
+import type { Assert } from '@gamezilla/assert';
+import { assert, hotAssert } from '@gamezilla/assert';
 import {
   assertKeywordRecord,
   isNamespacedKeyword,
-} from '@gamezilla/lib/keyword';
-import { isMessageEnvelope } from '@gamezilla/lib/message';
+} from '@gamezilla/keyword';
+import { isMessageEnvelope } from '@gamezilla/message';
 
 import { newCommandId } from '../../protocol/ids';
 import {

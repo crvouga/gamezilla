@@ -20,7 +20,7 @@
  * domain semantics through `data` and `formulas`.
  */
 
-import type { AttributeState, AttributeTag } from '@gamezilla/lib/attribute';
+import type { AttributeState, AttributeTag } from '@gamezilla/attribute';
 
 export type ParticipantStatus = 'waiting' | 'matched';
 

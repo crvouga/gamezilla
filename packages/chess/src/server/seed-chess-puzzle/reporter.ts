@@ -1,4 +1,4 @@
-import type { Logger } from '@gamezilla/lib/logger';
+import type { Logger } from '@gamezilla/logger';
 
 const ansi = {
   reset: '\x1b[0m',

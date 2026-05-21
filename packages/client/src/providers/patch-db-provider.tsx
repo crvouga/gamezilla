@@ -1,7 +1,7 @@
 import { useConfigService } from '@gamezilla/auth/client/config-service-context';
 import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
-import { useCachedPromise } from '@gamezilla/lib/async/use-cached-promise';
-import { useSqlClient } from '@gamezilla/lib/sql-client/react-context';
+import { useCachedPromise } from '@gamezilla/async/use-cached-promise';
+import { useSqlClient } from '@gamezilla/sql-client/react-context';
 import { PatchDbContextProvider } from '@gamezilla/patch-db/react';
 import { use, type ReactNode } from 'react';
 

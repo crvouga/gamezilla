@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { ObjectStoreImplInMemory } from '@gamezilla/lib/object-store/impl-in-memory';
+import { ObjectStoreImplInMemory } from '@gamezilla/object-store/impl-in-memory';
 import { Voices } from '../shared/tts-voice';
 import { InMemoryTtsProvider } from './adapters/in-memory-tts-provider';
 import { TtsProviderError, type TtsProvider } from './ports/tts-provider';

@@ -18,7 +18,9 @@
   "dependencies": {
     "@dicebear/collection": "catalog:",
     "@dicebear/core": "catalog:",
-    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/assert": "workspace:*",
+    "@gamezilla/i18n": "workspace:*",
+    "@gamezilla/object-store": "workspace:*",
     "@gamezilla/tts": "workspace:*",
     "@gorhom/bottom-sheet": "catalog:",
     "@lingui/core": "catalog:",

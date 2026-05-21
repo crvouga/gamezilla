@@ -3,7 +3,7 @@
  * synced game state. Clients hold a cache only; the library does not treat
  * client-side state as authoritative over the server.
  */
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { VisibilityPolicyRegistry } from '@gamezilla/patch-db/policy/visibility-policy-registry';

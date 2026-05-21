@@ -27,8 +27,8 @@
  */
 
 import { mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
-import { assert } from '@gamezilla/lib/assert';
-import { createLogger } from '@gamezilla/lib/logger';
+import { assert } from '@gamezilla/assert';
+import { createLogger } from '@gamezilla/logger';
 import {
   buildConnectionUrl,
   buildGuiUrl,

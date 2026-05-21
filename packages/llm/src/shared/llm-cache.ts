@@ -1,6 +1,6 @@
-import type { Kv } from '@gamezilla/lib/kv/interface';
-import { assert } from '@gamezilla/lib/assert';
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import type { Kv } from '@gamezilla/kv/interface';
+import { assert } from '@gamezilla/assert';
+import { createAttrNamespace } from '@gamezilla/attribute';
 
 import { llmCacheKeyFromRequest } from './llm-cache-key';
 import { llmKvKey } from './llm-kv-key';

@@ -82,4 +82,4 @@ export {
  * `@gamezilla/lib` directly — this single function is the only one
  * intentionally surfaced through the matchmaking barrel.
  */
-export { createAttrNamespace } from '@gamezilla/lib/attribute';
+export { createAttrNamespace } from '@gamezilla/attribute';

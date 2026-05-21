@@ -1,4 +1,4 @@
-import { Assert } from '@gamezilla/lib/assert';
+import { Assert } from '@gamezilla/assert';
 
 import type { LogEntry } from '../../../../types';
 import type { ClientRoomStorage, QueuedCommand } from '../../../core/storage';

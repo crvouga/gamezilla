@@ -1,10 +1,10 @@
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { createAttrNamespace } from '@gamezilla/attribute';
 import {
   createMessageNamespace,
   isMessageEnvelope,
   isPlainRecord,
   type Message,
-} from '@gamezilla/lib/message';
+} from '@gamezilla/message';
 
 import {
   assertRoomModuleName,

@@ -1,10 +1,10 @@
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { createAttrNamespace } from '@gamezilla/attribute';
 import {
   createMessageNamespace,
   createMessageRouter,
   isPlainRecord,
   type MessageRouter,
-} from '@gamezilla/lib/message';
+} from '@gamezilla/message';
 import type { HandleResult, RoomState } from '@gamezilla/room';
 
 function validateEmptyPayload(p: unknown): p is Record<string, never> {

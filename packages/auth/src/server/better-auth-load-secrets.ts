@@ -1,4 +1,4 @@
-import type { SecretStore } from '@gamezilla/lib/secret-store';
+import type { SecretStore } from '@gamezilla/secret-store';
 
 import { BetterAuthDopplerKey } from './better-auth-doppler-keys';
 

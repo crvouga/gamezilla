@@ -14,8 +14,10 @@
     "tc": "tsc --noEmit"
   },
   "dependencies": {
-    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/assert": "workspace:*",
+    "@gamezilla/attribute": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
+    "@gamezilla/pub-sub": "workspace:*",
     "@gamezilla/ui": "workspace:*",
     "@gorhom/bottom-sheet": "catalog:",
     "@lingui/core": "catalog:",

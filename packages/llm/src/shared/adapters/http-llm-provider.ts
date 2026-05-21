@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 
 import { LlmProviderError, type LlmProvider } from '../llm-provider';
 import type { LlmStructuredRequest, LlmStructuredResult } from '../llm-types';

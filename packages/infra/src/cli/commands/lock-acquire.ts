@@ -1,4 +1,4 @@
-import { LockHeldError } from '@gamezilla/lib/distributed-lock/interface';
+import { LockHeldError } from '@gamezilla/distributed-lock/interface';
 import { buildDistributedLock } from '../lib/build-distributed-lock';
 import { banner, fail, fmtMs, info, kv, ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';

@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import type { PatchDbQuery } from '../interface';
 import { readPatches } from './read-ops';
 

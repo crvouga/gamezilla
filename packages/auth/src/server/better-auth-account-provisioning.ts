@@ -5,7 +5,7 @@ import {
   AccountProviderAttr,
 } from '@gamezilla/auth/shared';
 import { assertUuid } from '@gamezilla/auth/shared/device-id';
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import type {
   Entity,
   PatchDb,

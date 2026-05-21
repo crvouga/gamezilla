@@ -1,5 +1,5 @@
 /* eslint-disable lingui/no-unlocalized-strings */
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import { Box, useTheme } from '@gamezilla/ui';
 import { assertSkiaWebLoaded } from '@gamezilla/ui/components/skia-web-root';
 import { useMemo, useState, type ReactNode } from 'react';

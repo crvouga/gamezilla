@@ -4,7 +4,7 @@ import {
   useSignOutModal,
 } from '@gamezilla/auth/client/auth-modals-provider';
 import { RegisterCommand } from '@gamezilla/ui';
-import { useAsync } from '@gamezilla/lib/async/use-async';
+import { useAsync } from '@gamezilla/async/use-async';
 import { useLingui } from '@lingui/react/macro';
 
 export function AccountCommand() {

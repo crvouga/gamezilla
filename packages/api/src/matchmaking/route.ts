@@ -31,7 +31,7 @@
 
 import { UnauthorizedError } from '@gamezilla/auth/server/unauthorized-error';
 import { appAuth } from '@gamezilla/auth/shared/auth-context';
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import { Matchmaking } from '@gamezilla/matchmaking';
 import type {
   SqlClient as MmSqlClient,

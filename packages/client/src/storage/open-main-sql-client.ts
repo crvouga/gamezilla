@@ -1,6 +1,6 @@
-import { SqlClientImplExpoSqlite } from '@gamezilla/lib/sql-client/impl-expo-sqlite';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { assertDatabaseName } from '@gamezilla/lib/sqlite';
+import { SqlClientImplExpoSqlite } from '@gamezilla/sql-client/impl-expo-sqlite';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
+import { assertDatabaseName } from '@gamezilla/sqlite';
 
 /** Single shared local database name. No per-account file split. */
 export const MAIN_SQLITE_DB_NAME = 'main';

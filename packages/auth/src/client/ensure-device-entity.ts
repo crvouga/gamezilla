@@ -1,5 +1,5 @@
 import { assertDeviceId, DEVICE_ENTITY_TYPE, DeviceAttr } from '../shared';
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';

@@ -13,8 +13,8 @@
  * Idempotent (`DROP INDEX IF EXISTS`) and tolerates the same `42501 must be
  * owner of …` ownership error patch-db's own DDL tolerates today.
  */
-import type { Logger } from '@gamezilla/lib/logger';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import type { Logger } from '@gamezilla/logger';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 
 const LEGACY_SNAPSHOT_INDEX_NAMES = [
   'idx_snap_space_host',

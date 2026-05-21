@@ -2,8 +2,8 @@
  * Server-authoritative room: shared types for client + server.
  * Tiger Style: invalid shapes surface as validation errors, not silent coercions.
  */
-import { asKeyword, type Keyword } from '@gamezilla/lib/keyword';
-import type { Message } from '@gamezilla/lib/message';
+import { asKeyword, type Keyword } from '@gamezilla/keyword';
+import type { Message } from '@gamezilla/message';
 
 export type { Keyword };
 

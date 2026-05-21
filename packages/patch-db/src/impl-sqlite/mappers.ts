@@ -1,6 +1,6 @@
-import type { AttributeState } from '@gamezilla/lib/attribute';
-import type { Assert } from '@gamezilla/lib/assert';
-import { assert } from '@gamezilla/lib/assert';
+import type { AttributeState } from '@gamezilla/attribute';
+import type { Assert } from '@gamezilla/assert';
+import { assert } from '@gamezilla/assert';
 import {
   getPatchTopLevelFromAttributes,
   isValidAttribute,

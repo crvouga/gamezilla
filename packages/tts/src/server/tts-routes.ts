@@ -1,4 +1,4 @@
-import type { ObjectStore } from '@gamezilla/lib/object-store/interface';
+import type { ObjectStore } from '@gamezilla/object-store/interface';
 import { Hono } from 'hono';
 import {
   TTS_AUDIO_FORMATS,

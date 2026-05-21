@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
+import type { PubSub } from '@gamezilla/pub-sub/interface';
 import type { SyncPatchDb } from '../impl-sync/impl-sync';
 import type { SubscribablePatchDbLike } from '../subscribable';
 

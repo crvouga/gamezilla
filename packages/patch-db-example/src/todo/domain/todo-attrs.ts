@@ -1,4 +1,4 @@
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { createAttrNamespace } from '@gamezilla/attribute';
 
 const todoListItemNs = createAttrNamespace('todo-list-item');
 const todoListNs = createAttrNamespace('todo-list');

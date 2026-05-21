@@ -2,7 +2,7 @@ import { useMyId } from '@gamezilla/auth/client/use-current-user';
 import { useConfigService } from '@gamezilla/auth/client/config-service-context';
 import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
 import { useSessionToken } from '@gamezilla/auth/client/use-session-token';
-import { useKv } from '@gamezilla/lib/kv/kv-context';
+import { useKv } from '@gamezilla/kv/kv-context';
 import { useCurrentSpaceIds } from '../use-current-space-ids';
 import {
   SPACE_ENTITY_TYPE,

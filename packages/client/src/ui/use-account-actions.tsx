@@ -4,8 +4,8 @@ import {
 } from '@gamezilla/auth/client/auth-modals-provider';
 import { useIsSignedIn } from '@gamezilla/auth/client/use-current-user';
 import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
-import { useLogger } from '@gamezilla/lib/logger/react';
-import { useAsync } from '@gamezilla/lib/async/use-async';
+import { useLogger } from '@gamezilla/logger/react';
+import { useAsync } from '@gamezilla/async/use-async';
 import { Box, StatusDot, Text, type ScreenBaseAction } from '@gamezilla/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';

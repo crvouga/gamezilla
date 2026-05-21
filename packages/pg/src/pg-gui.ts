@@ -22,7 +22,7 @@ import {
 } from 'node:fs';
 import { dirname } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
-import type { Logger } from '@gamezilla/lib/logger';
+import type { Logger } from '@gamezilla/logger';
 
 const HOMEBREW_PREFIXES = ['/opt/homebrew/bin', '/usr/local/bin'];
 

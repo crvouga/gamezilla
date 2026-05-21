@@ -10,7 +10,7 @@
  *
  * `dryRun: true` short-circuits before any Stripe or Doppler mutation.
  */
-import type { SecretStore } from '@gamezilla/lib/secret-store';
+import type { SecretStore } from '@gamezilla/secret-store';
 import type Stripe from 'stripe';
 import { StripeSecretKeys } from '../secret-keys';
 import {

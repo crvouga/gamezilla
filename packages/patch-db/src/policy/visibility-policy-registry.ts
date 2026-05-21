@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/lib/assert';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { assert } from '@gamezilla/assert';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import { ForbiddenError } from '../forbidden-error';
 import type {
   PatchDb,

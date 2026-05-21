@@ -23,12 +23,17 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@gamezilla/assert": "workspace:*",
     "@gamezilla/assistant": "workspace:*",
+    "@gamezilla/attribute": "workspace:*",
     "@gamezilla/auth": "workspace:*",
-    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/logger": "workspace:*",
+    "@gamezilla/message": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
     "@gamezilla/room": "workspace:*",
+    "@gamezilla/secret-store": "workspace:*",
     "@gamezilla/spaces": "workspace:*",
+    "@gamezilla/sql-client": "workspace:*",
     "@gamezilla/ui": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",

@@ -1,5 +1,5 @@
-import { asKeyword, joinKeywordSegments } from '@gamezilla/lib/keyword';
-import type { Keyword } from '@gamezilla/lib/keyword';
+import { asKeyword, joinKeywordSegments } from '@gamezilla/keyword';
+import type { Keyword } from '@gamezilla/keyword';
 
 /**
  * {@link Keyword}s for {@link KeyValueClientRoomStorage} under a space id.

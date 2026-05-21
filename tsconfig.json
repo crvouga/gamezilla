@@ -18,7 +18,6 @@
     "paths": {
       "@gamezilla/api/*": ["./packages/api/src/*"],
       "@gamezilla/client/*": ["./packages/client/src/*"],
-      "@gamezilla/lib/*": ["./packages/lib/src/*"],
       "@gamezilla/llm/*": ["./packages/llm/src/*"],
       "@gamezilla/ui/*": ["./packages/ui/src/*"],
       "@gamezilla/patch-db/*": ["./packages/patch-db/src/*"],
@@ -45,16 +44,64 @@
       ],
       "@gamezilla/assistant/client": [
         "./packages/assistant/src/client/index.ts"
+      ],
+      "@gamezilla/assert": ["./packages/assert/src/index.ts"],
+      "@gamezilla/assert/*": ["./packages/assert/src/*"],
+      "@gamezilla/logger": ["./packages/logger/src/index.ts"],
+      "@gamezilla/logger/*": ["./packages/logger/src/*"],
+      "@gamezilla/doppler": ["./packages/doppler/src/index.ts"],
+      "@gamezilla/doppler/*": ["./packages/doppler/src/*"],
+      "@gamezilla/i18n": ["./packages/i18n/src/index.ts"],
+      "@gamezilla/i18n/*": ["./packages/i18n/src/*"],
+      "@gamezilla/equal/*": ["./packages/equal/src/*"],
+      "@gamezilla/polyfill": ["./packages/polyfill/src/index.ts"],
+      "@gamezilla/polyfill/*": ["./packages/polyfill/src/*"],
+      "@gamezilla/browser/*": ["./packages/browser/src/*"],
+      "@gamezilla/commit-hash-regex": [
+        "./packages/commit-hash-regex/src/index.ts"
+      ],
+      "@gamezilla/local-preview-api-origin": [
+        "./packages/local-preview-api-origin/src/index.ts"
+      ],
+      "@gamezilla/ts-reset": ["./packages/ts-reset/src/index.ts"],
+      "@gamezilla/keyword": ["./packages/keyword/src/index.ts"],
+      "@gamezilla/keyword/*": ["./packages/keyword/src/*"],
+      "@gamezilla/uuid": ["./packages/uuid/src/index.ts"],
+      "@gamezilla/uuid/*": ["./packages/uuid/src/*"],
+      "@gamezilla/sqlite": ["./packages/sqlite/src/index.ts"],
+      "@gamezilla/sqlite/*": ["./packages/sqlite/src/*"],
+      "@gamezilla/pub-sub/*": ["./packages/pub-sub/src/*"],
+      "@gamezilla/async/*": ["./packages/async/src/*"],
+      "@gamezilla/object-store/*": ["./packages/object-store/src/*"],
+      "@gamezilla/secure-storage": [
+        "./packages/secure-storage/src/index.ts"
+      ],
+      "@gamezilla/secure-storage/*": ["./packages/secure-storage/src/*"],
+      "@gamezilla/secret-store": ["./packages/secret-store/src/index.ts"],
+      "@gamezilla/secret-store/*": ["./packages/secret-store/src/*"],
+      "@gamezilla/postgres/*": ["./packages/postgres/src/*"],
+      "@gamezilla/static-file-server/*": [
+        "./packages/static-file-server/src/*"
+      ],
+      "@gamezilla/task-dag": ["./packages/task-dag/src/index.ts"],
+      "@gamezilla/task-dag/*": ["./packages/task-dag/src/*"],
+      "@gamezilla/attribute": ["./packages/attribute/src/index.ts"],
+      "@gamezilla/attribute/*": ["./packages/attribute/src/*"],
+      "@gamezilla/message": ["./packages/message/src/index.ts"],
+      "@gamezilla/message/*": ["./packages/message/src/*"],
+      "@gamezilla/sql-client/*": ["./packages/sql-client/src/*"],
+      "@gamezilla/kv/*": ["./packages/kv/src/*"],
+      "@gamezilla/distributed-lock/*": [
+        "./packages/distributed-lock/src/*"
       ]
     }
   },
   "include": [
-    "packages/lib/src/ts-reset.ts",
+    "packages/ts-reset/src/index.ts",
     "packages/api/src/**/*.ts",
     "packages/api/src/**/*.d.ts",
     "packages/client/src/**/*.ts",
     "packages/client/src/**/*.tsx",
-    "packages/lib/src/**/*.ts",
     "packages/llm/src/**/*.ts",
     "packages/llm/src/**/*.tsx",
     "packages/ui/src/**/*.ts",
@@ -92,7 +139,36 @@
     "packages/stripe-cli/src/**/*.ts",
     "packages/pg/src/**/*.ts",
     "packages/client/.expo/types/**/*.ts",
-    "packages/client/expo-env.d.ts"
+    "packages/client/expo-env.d.ts",
+    "packages/assert/src/**/*.ts",
+    "packages/logger/src/**/*.ts",
+    "packages/logger/src/**/*.tsx",
+    "packages/doppler/src/**/*.ts",
+    "packages/i18n/src/**/*.ts",
+    "packages/equal/src/**/*.ts",
+    "packages/polyfill/src/**/*.ts",
+    "packages/browser/src/**/*.ts",
+    "packages/commit-hash-regex/src/**/*.ts",
+    "packages/local-preview-api-origin/src/**/*.ts",
+    "packages/ts-reset/src/**/*.ts",
+    "packages/keyword/src/**/*.ts",
+    "packages/uuid/src/**/*.ts",
+    "packages/sqlite/src/**/*.ts",
+    "packages/pub-sub/src/**/*.ts",
+    "packages/async/src/**/*.ts",
+    "packages/object-store/src/**/*.ts",
+    "packages/object-store/src/**/*.tsx",
+    "packages/secure-storage/src/**/*.ts",
+    "packages/secret-store/src/**/*.ts",
+    "packages/postgres/src/**/*.ts",
+    "packages/static-file-server/src/**/*.ts",
+    "packages/task-dag/src/**/*.ts",
+    "packages/attribute/src/**/*.ts",
+    "packages/message/src/**/*.ts",
+    "packages/sql-client/src/**/*.ts",
+    "packages/sql-client/src/**/*.tsx",
+    "packages/kv/src/**/*.ts",
+    "packages/distributed-lock/src/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]
 }

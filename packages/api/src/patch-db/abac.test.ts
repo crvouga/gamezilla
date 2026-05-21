@@ -6,10 +6,10 @@ import {
 } from '@gamezilla/auth/shared';
 import { buildAppAuthContext } from '@gamezilla/auth/shared/auth-context';
 import { ClientConfigAttr } from '@gamezilla/client-config/shared/client-config-entities';
-import { assert } from '@gamezilla/lib/assert';
-import { asKeyword } from '@gamezilla/lib/keyword';
-import { SqlClientImplBunSqlite } from '@gamezilla/lib/sql-client/impl-bun-sqlite';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { assert } from '@gamezilla/assert';
+import { asKeyword } from '@gamezilla/keyword';
+import { SqlClientImplBunSqlite } from '@gamezilla/sql-client/impl-bun-sqlite';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';

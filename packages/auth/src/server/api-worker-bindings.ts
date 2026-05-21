@@ -1,4 +1,4 @@
-import type { R2Bucket } from '@gamezilla/lib/object-store/impl-r2';
+import type { R2Bucket } from '@gamezilla/object-store/impl-r2';
 
 /**
  * Worker `Bindings` shape for `ApiHonoEnv`. Duplicated from

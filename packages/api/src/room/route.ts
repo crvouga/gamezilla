@@ -2,7 +2,7 @@ import {
   ANON_ID_HEADER,
   resolveAccountIdFromBearer,
 } from '@gamezilla/auth/server';
-import { isUuid } from '@gamezilla/lib/uuid';
+import { isUuid } from '@gamezilla/uuid';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 

@@ -11,7 +11,7 @@
 import {
   type AttributeState,
   createAttrNamespace,
-} from '@gamezilla/lib/attribute';
+} from '@gamezilla/attribute';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import {
   isPatchDbSystemContext,

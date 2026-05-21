@@ -1,4 +1,4 @@
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { createAttrNamespace } from '@gamezilla/attribute';
 
 /** PatchDB entity type for a Lichess puzzle row (static reference data). */
 export const CHESS_PUZZLE_ENTITY_TYPE = 'chess.puzzle';

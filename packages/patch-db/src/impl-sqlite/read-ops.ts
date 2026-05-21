@@ -1,6 +1,6 @@
-import { assert } from '@gamezilla/lib/assert';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
-import { assertWhereFragment } from '@gamezilla/lib/sqlite';
+import { assert } from '@gamezilla/assert';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
+import { assertWhereFragment } from '@gamezilla/sqlite';
 import type { Entity, Patch, PatchDbQuery, PatchDbResult } from '../interface';
 import { entityIdTypeOrWhere } from './entity-pair-or-sql';
 import { toEntity, toEntitySnapshotRowTrusted, toPatch } from './mappers';

@@ -1,4 +1,4 @@
-import type { Message } from '@gamezilla/lib/message';
+import type { Message } from '@gamezilla/message';
 import type { RoomModule, RoomState } from '@gamezilla/room';
 import { createContext, useContext, type ReactNode } from 'react';
 

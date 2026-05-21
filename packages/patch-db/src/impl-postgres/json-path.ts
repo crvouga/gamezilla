@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 
 /**
  * Converts SQLite JSON path strings used by patch-db into a single top-level JSON key

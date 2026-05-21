@@ -1,5 +1,5 @@
-import { createLogger } from '@gamezilla/lib/logger';
-import type { SecretStore } from '@gamezilla/lib/secret-store';
+import { createLogger } from '@gamezilla/logger';
+import type { SecretStore } from '@gamezilla/secret-store';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { patchDbSystemContext } from '@gamezilla/patch-db/interface';
 import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';

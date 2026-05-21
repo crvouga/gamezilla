@@ -1,5 +1,5 @@
-import { createLogger, type Logger } from '@gamezilla/lib/logger';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { createLogger, type Logger } from '@gamezilla/logger';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import type { PatchDbIndexSpec } from '../indexes/index-spec';
 import { reconcileSnapshotIndexes } from '../indexes/reconcile';
 import { sqliteIndexDialect } from './index-dialect-sqlite';

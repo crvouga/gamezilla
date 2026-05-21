@@ -1,4 +1,4 @@
-import type { Kv } from '@gamezilla/lib/kv/interface';
+import type { Kv } from '@gamezilla/kv/interface';
 import {
   Room,
   type RoomCommandPayload,

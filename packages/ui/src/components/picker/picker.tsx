@@ -3,7 +3,7 @@
  * scrollable option list (single select).
  */
 
-import type { LocalizedString } from '@gamezilla/lib/i18n';
+import type { LocalizedString } from '@gamezilla/i18n';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo, useState } from 'react';

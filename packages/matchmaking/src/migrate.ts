@@ -56,8 +56,8 @@
  *     so no sort step.
  */
 
-import { assert } from '@gamezilla/lib/assert';
-import { isNamespacedKeyword } from '@gamezilla/lib/keyword';
+import { assert } from '@gamezilla/assert';
+import { isNamespacedKeyword } from '@gamezilla/keyword';
 import type { Pool } from 'pg';
 import {
   ADD_METADATA_COLUMN_TO_MATCHED_SQL,

@@ -4,15 +4,15 @@
  * (declarative index DDL). Lives in its own module so both can depend on it
  * without forming an import cycle.
  */
-import type { Assert } from '@gamezilla/lib/assert';
-import { assert } from '@gamezilla/lib/assert';
-import type { AttributeState } from '@gamezilla/lib/attribute';
+import type { Assert } from '@gamezilla/assert';
+import { assert } from '@gamezilla/assert';
+import type { AttributeState } from '@gamezilla/attribute';
 import {
   assertKeywordRecord,
   isNamespacedKeyword,
   isNamespacePrefix,
   type Keyword,
-} from '@gamezilla/lib/keyword';
+} from '@gamezilla/keyword';
 
 /**
  * Namespaced attribute key used in queries and the `attributes` map.

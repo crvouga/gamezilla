@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/lib/assert';
-import { asKeyword } from '@gamezilla/lib/keyword';
+import { assert } from '@gamezilla/assert';
+import { asKeyword } from '@gamezilla/keyword';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { PatchDb } from '../interface';
 import {

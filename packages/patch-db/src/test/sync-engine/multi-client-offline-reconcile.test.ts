@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { Keyword } from '@gamezilla/lib/keyword';
+import type { Keyword } from '@gamezilla/keyword';
 import {
   toAttributeState,
   type PatchDb,

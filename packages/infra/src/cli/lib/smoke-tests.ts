@@ -1,5 +1,5 @@
 import { Resolver, resolve4, resolve6, resolveNs } from 'node:dns/promises';
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';

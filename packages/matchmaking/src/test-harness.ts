@@ -14,11 +14,10 @@
  */
 
 import { PGlite } from '@electric-sql/pglite';
-import { Assert } from '@gamezilla/lib/assert';
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { Assert } from '@gamezilla/assert';
+import { createAttrNamespace } from '@gamezilla/attribute';
 import { expect } from 'bun:test';
-import type { Hono } from 'hono';
-import type { MiddlewareHandler } from 'hono';
+import type { Hono, MiddlewareHandler } from 'hono';
 import { Matchmaking, type MatchmakingOptions } from './matchmaking';
 import { createPgliteSqlClient } from './pglite-adapter';
 import type { MatchedStatus, StatusResult } from './types';
@@ -77,7 +76,7 @@ export function registerTestCrashHandler(): () => void {
       throw new Error(
         context === undefined
           ? message
-          : `${message} ${JSON.stringify(context)}`
+          : `${String(message)} ${JSON.stringify(context)}`
       );
     },
   });

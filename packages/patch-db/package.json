@@ -15,7 +15,14 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/assert": "workspace:*",
+    "@gamezilla/async": "workspace:*",
+    "@gamezilla/attribute": "workspace:*",
+    "@gamezilla/keyword": "workspace:*",
+    "@gamezilla/logger": "workspace:*",
+    "@gamezilla/pub-sub": "workspace:*",
+    "@gamezilla/sql-client": "workspace:*",
+    "@gamezilla/sqlite": "workspace:*",
     "@hono/zod-validator": "catalog:",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",

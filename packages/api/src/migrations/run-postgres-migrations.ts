@@ -26,9 +26,9 @@ import {
   runBetterAuthMigrations,
   type BetterAuthMigrationOptions,
 } from '@gamezilla/auth/server/better-auth-migrations';
-import { KvImplPostgres } from '@gamezilla/lib/kv/impl-postgres';
-import type { Logger } from '@gamezilla/lib/logger';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { KvImplPostgres } from '@gamezilla/kv/impl-postgres';
+import type { Logger } from '@gamezilla/logger';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import { APP_SNAPSHOT_INDEXES } from '../patch-db/snapshot-indexes';
 import { dropLegacyAppSnapshotIndexes } from './drop-legacy-app-snapshot-indexes';

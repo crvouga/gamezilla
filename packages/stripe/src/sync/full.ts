@@ -15,7 +15,7 @@
  *      live event stream — otherwise the first webhook events arrive against
  *      a DB that doesn't know about the existing customers/subs.
  */
-import type { SecretStore } from '@gamezilla/lib/secret-store';
+import type { SecretStore } from '@gamezilla/secret-store';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import type Stripe from 'stripe';
 import { runStripeCatalogSync, type CatalogSyncResult } from './catalog';

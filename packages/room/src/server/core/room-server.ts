@@ -1,5 +1,5 @@
-import { Assert } from '@gamezilla/lib/assert';
-import { isMessageEnvelope } from '@gamezilla/lib/message';
+import { Assert } from '@gamezilla/assert';
+import { isMessageEnvelope } from '@gamezilla/message';
 
 import {
   parseClientToServerWire,

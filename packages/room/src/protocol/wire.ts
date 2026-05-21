@@ -1,5 +1,5 @@
-import { isMessageEnvelope } from '@gamezilla/lib/message';
-import { isNamespacedKeyword } from '@gamezilla/lib/keyword';
+import { isMessageEnvelope } from '@gamezilla/message';
+import { isNamespacedKeyword } from '@gamezilla/keyword';
 import {
   ROOM_ERROR_TYPE,
   ROOM_ERROR_TYPES,

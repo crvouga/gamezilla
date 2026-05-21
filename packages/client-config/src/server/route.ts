@@ -1,7 +1,7 @@
 import type { ApiHonoEnv } from '@gamezilla/auth/server/api-hono-env';
-import { isEqual } from '@gamezilla/lib/equal/is-equal';
-import type { Logger } from '@gamezilla/lib/logger';
-import type { SecretStore } from '@gamezilla/lib/secret-store';
+import { isEqual } from '@gamezilla/equal/is-equal';
+import type { Logger } from '@gamezilla/logger';
+import type { SecretStore } from '@gamezilla/secret-store';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import {

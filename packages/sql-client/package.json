@@ -1,0 +1,38 @@
+{
+  "name": "@gamezilla/sql-client",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "tc": "tsc --noEmit",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@gamezilla/assert": "workspace:*",
+    "@gamezilla/pub-sub": "workspace:*",
+    "@gamezilla/sqlite": "workspace:*",
+    "@jlongster/sql.js": "catalog:",
+    "@neondatabase/serverless": "catalog:",
+    "absurd-sql": "catalog:",
+    "expo-sqlite": "catalog:",
+    "pg": "catalog:",
+    "react": "catalog:",
+    "react-native": "catalog:",
+    "sql.js": "catalog:"
+  },
+  "devDependencies": {
+    "@gamezilla/postgres": "workspace:*",
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@types/react": "catalog:",
+    "@types/sql.js": "catalog:",
+    "typescript": "catalog:"
+  }
+}

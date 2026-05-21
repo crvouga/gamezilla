@@ -21,7 +21,7 @@
     "ci:circular-deps": "bun run scripts/check-circular-deps.ts",
     "ci:depcruise": "NODE_OPTIONS=--max-old-space-size=16384 dependency-cruise packages --validate .dependency-cruiser.cjs --output-type err",
     "ci:format": "prettier --check .",
-    "ci:i18n": "lingui extract && bun run i18n:compile && git diff --exit-code -- packages/client/src/i18n packages/lib/src/i18n packages/patch-db-example/src/i18n packages/room-example/src/i18n",
+    "ci:i18n": "lingui extract && bun run i18n:compile && git diff --exit-code -- packages/client/src/i18n packages/patch-db-example/src/i18n packages/room-example/src/i18n",
     "ci:knip": "knip --no-progress -c knip.jsonc --exclude exports,nsExports,types,nsTypes,enumMembers,namespaceMembers,duplicates",
     "ci:syncpack": "syncpack lint --dependency-types prod,dev && bun run scripts/check-catalog-deps.ts && bun run scripts/check-no-patches.ts",
     "db:drop": "bun run --filter @gamezilla/pg drop",

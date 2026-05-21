@@ -1,4 +1,4 @@
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { createAttrNamespace } from '@gamezilla/attribute';
 
 import { parseAvatarConfig } from './avatar-config';
 

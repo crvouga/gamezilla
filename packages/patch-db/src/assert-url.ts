@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 
 /**
  * Invariant: sync base URL must be an absolute http(s) URL.

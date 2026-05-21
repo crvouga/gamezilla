@@ -1,4 +1,4 @@
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
 import { patchDbSystemContext } from '@gamezilla/patch-db/interface';
 import { PatchDbCompactionPolicyRegistry } from '@gamezilla/patch-db/policy/compaction-policy';

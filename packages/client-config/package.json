@@ -23,9 +23,13 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@gamezilla/async": "workspace:*",
+    "@gamezilla/attribute": "workspace:*",
     "@gamezilla/auth": "workspace:*",
-    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/equal": "workspace:*",
+    "@gamezilla/logger": "workspace:*",
     "@gamezilla/patch-db": "workspace:*",
+    "@gamezilla/secret-store": "workspace:*",
     "@gamezilla/ui": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",

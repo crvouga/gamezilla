@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from 'bun:test';
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import { type Sim, PatchDbScenarioBuilder } from '../sim/scenario';
 import { DELETED_CLAUSE } from './sync-engine/constants';
 import { toAttributeState } from '../interface';

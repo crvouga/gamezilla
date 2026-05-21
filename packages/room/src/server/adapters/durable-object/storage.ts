@@ -1,9 +1,9 @@
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import {
   assertKeywordRecord,
   asKeyword,
   type Keyword,
-} from '@gamezilla/lib/keyword';
+} from '@gamezilla/keyword';
 import type { LogEntry, RoomModuleName } from '../../../types';
 import type { CommandDedupOutcome, RoomStorage } from '../../core/storage';
 import type { DurableObjectKvStorage } from './types';

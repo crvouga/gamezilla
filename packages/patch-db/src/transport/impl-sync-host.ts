@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/lib/assert';
-import type { PubSub } from '@gamezilla/lib/pub-sub/interface';
+import { assert } from '@gamezilla/assert';
+import type { PubSub } from '@gamezilla/pub-sub/interface';
 import {
   PATCHES_DB_INVALIDATED_TYPE,
   PATCHES_DB_TOPIC,

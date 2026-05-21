@@ -1,7 +1,7 @@
 import { APP_ROOM_MODULES } from '@gamezilla/app/shared/games';
-import { createLogger } from '@gamezilla/lib/logger';
-import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
-import { isSecretStoreError } from '@gamezilla/lib/secret-store';
+import { createLogger } from '@gamezilla/logger';
+import { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
+import { isSecretStoreError } from '@gamezilla/secret-store';
 import { createDurableObjectAdapter } from '@gamezilla/room/server/adapters/durable-object';
 import { tryBetterAuthOptionsResponse } from './app/cors';
 import { createApiApp } from './app/create-app';

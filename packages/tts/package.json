@@ -24,7 +24,9 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/assert": "workspace:*",
+    "@gamezilla/object-store": "workspace:*",
+    "@gamezilla/secret-store": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "expo-audio": "catalog:",

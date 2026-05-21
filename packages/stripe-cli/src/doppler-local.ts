@@ -1,4 +1,4 @@
-import { DopplerCli } from '@gamezilla/lib/doppler/doppler-cli';
+import { DopplerCli } from '@gamezilla/doppler/doppler-cli';
 import { STRIPE_CLI_LOG_TAG } from './constants';
 
 export function resolveDopplerConfigName(): string {

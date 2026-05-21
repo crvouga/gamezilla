@@ -6,8 +6,8 @@
  * that needs to cross a network or be stored as JSONB goes through here.
  */
 
-import { assert } from '@gamezilla/lib/assert';
-import type { AttributeState } from '@gamezilla/lib/attribute';
+import { assert } from '@gamezilla/assert';
+import type { AttributeState } from '@gamezilla/attribute';
 import type { DistanceFormula, RadiusOptions } from './types';
 
 export type NumericTermWire = {

@@ -1,4 +1,4 @@
-import type { MessageNamespace, MessageRouter } from '@gamezilla/lib/message';
+import type { MessageNamespace, MessageRouter } from '@gamezilla/message';
 import type { HandleResult, RoomState } from '@gamezilla/room';
 import type { ComponentType, ReactNode } from 'react';
 

@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/lib/assert';
-import type { SecretStore } from '@gamezilla/lib/secret-store';
+import { assert } from '@gamezilla/assert';
+import type { SecretStore } from '@gamezilla/secret-store';
 import type { Hono } from 'hono';
 import type { ApiHonoEnv } from './api-hono-env';
 import { withBetterAuthBrowserCorsForRequest } from './better-auth-cors';

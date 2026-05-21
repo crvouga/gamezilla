@@ -10,11 +10,11 @@ import {
   productionApiUrlTigerExceptionEnabled,
 } from '@gamezilla/client/config/api-servers';
 import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/client/config/app-metadata';
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import {
   createDopplerSecretStoreForScripts,
   type SecretStore,
-} from '@gamezilla/lib/secret-store';
+} from '@gamezilla/secret-store';
 
 const clientRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outPath = join(clientRoot, '.env.local');

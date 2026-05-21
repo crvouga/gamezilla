@@ -2,7 +2,7 @@
  * {@link AttributeTag}s for PatchDB keys referenced by API ABAC / visibility
  * policies (not yet modeled in a dedicated feature package).
  */
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
+import { createAttrNamespace } from '@gamezilla/attribute';
 
 export { AbacEntityAttr } from '@gamezilla/patch-db/abac/abac-entity-attr';
 

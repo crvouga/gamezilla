@@ -1,4 +1,4 @@
-import { createMessageRouter } from '@gamezilla/lib/message';
+import { createMessageRouter } from '@gamezilla/message';
 import {
   ROOM_ERROR_TYPE,
   type HandleResult,

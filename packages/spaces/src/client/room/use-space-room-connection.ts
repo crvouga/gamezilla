@@ -1,5 +1,5 @@
 import type { ConfigService } from '@gamezilla/auth/client/config-service-types';
-import type { Kv } from '@gamezilla/lib/kv/interface';
+import type { Kv } from '@gamezilla/kv/interface';
 import type {
   Room,
   RoomCommandPayload,

@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { assert } from '@gamezilla/lib/assert';
-import { asKeyword } from '@gamezilla/lib/keyword';
+import { assert } from '@gamezilla/assert';
+import { asKeyword } from '@gamezilla/keyword';
 import { QTask } from '../test/query-test-attrs';
 import {
   buildLimitSQL,

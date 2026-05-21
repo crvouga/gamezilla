@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import type { Entity, PatchDbQuery } from '../interface';
 import {

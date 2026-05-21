@@ -3,7 +3,7 @@
  * @internal Used only by {@link FloatingMenu}; not exported from `@gamezilla/ui`.
  */
 
-import type { LocalizedString } from '@gamezilla/lib/i18n';
+import type { LocalizedString } from '@gamezilla/i18n';
 import type { ReactNode } from 'react';
 
 import { Box } from '../box';

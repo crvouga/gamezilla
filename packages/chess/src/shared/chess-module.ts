@@ -2,7 +2,7 @@ import {
   createComposedMessageRouter,
   isMessageEnvelope,
   type Message,
-} from '@gamezilla/lib/message';
+} from '@gamezilla/message';
 import {
   assertRoomModuleName,
   ROOM_ERROR_TYPE,

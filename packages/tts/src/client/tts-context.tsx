@@ -1,4 +1,4 @@
-import { useObjectStore } from '@gamezilla/lib/object-store/react-context';
+import { useObjectStore } from '@gamezilla/object-store/react-context';
 import {
   createContext,
   useCallback,

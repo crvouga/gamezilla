@@ -1,5 +1,5 @@
 import type { SessionAuth } from '@gamezilla/auth/server/session-middleware';
-import type { Kv } from '@gamezilla/lib/kv/interface';
+import type { Kv } from '@gamezilla/kv/interface';
 import type { SqlClient as MmSqlClient } from '@gamezilla/matchmaking/storage';
 import type { PatchDb } from '@gamezilla/patch-db/interface';
 import { AsyncLocalStorage } from 'node:async_hooks';

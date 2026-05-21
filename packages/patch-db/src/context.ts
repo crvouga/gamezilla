@@ -17,9 +17,9 @@
  * `read` / `write` batch, just before visibility checks see the context.
  */
 
-import type { Assert } from '@gamezilla/lib/assert';
-import { assert } from '@gamezilla/lib/assert';
-import { assertKeywordRecord, type Keyword } from '@gamezilla/lib/keyword';
+import type { Assert } from '@gamezilla/assert';
+import { assert } from '@gamezilla/assert';
+import { assertKeywordRecord, type Keyword } from '@gamezilla/keyword';
 
 /** Brand key for system-bypass contexts; not a valid {@link Keyword}. */
 export const PATCH_DB_SYSTEM_BRAND = '__patchdb_system__' as const;

@@ -12,14 +12,14 @@
  * a spec's fields / where clauses produces a new identifier (the old one
  * becomes an orphan and is dropped on the next reconcile).
  */
-import type { Assert } from '@gamezilla/lib/assert';
-import { assert } from '@gamezilla/lib/assert';
+import type { Assert } from '@gamezilla/assert';
+import { assert } from '@gamezilla/assert';
 import {
   assertAttribute,
   assertEntityType,
   type PatchEntityType,
 } from '../entity-key';
-import type { Keyword } from '@gamezilla/lib/keyword';
+import type { Keyword } from '@gamezilla/keyword';
 
 /** Attribute reference for index specs. Accepts a {@link Keyword} or any
  * object with a `.key` property (e.g. an `AttributeTag` from `@gamezilla/lib/attribute`). */

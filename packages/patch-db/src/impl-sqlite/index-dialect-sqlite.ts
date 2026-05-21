@@ -7,7 +7,7 @@
  * Introspects `sqlite_master` filtered to the library's owned name prefix; the
  * reconciler never touches indexes outside that prefix.
  */
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import type { IndexDialect } from '../indexes/dialect';
 import type {
   NormalizedIndexField,

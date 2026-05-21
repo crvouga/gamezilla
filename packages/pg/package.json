@@ -14,7 +14,8 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/lib": "workspace:*"
+    "@gamezilla/assert": "workspace:*",
+    "@gamezilla/logger": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

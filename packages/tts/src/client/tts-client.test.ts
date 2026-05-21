@@ -1,4 +1,4 @@
-import { ObjectStoreImplInMemory } from '@gamezilla/lib/object-store/impl-in-memory';
+import { ObjectStoreImplInMemory } from '@gamezilla/object-store/impl-in-memory';
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import type {

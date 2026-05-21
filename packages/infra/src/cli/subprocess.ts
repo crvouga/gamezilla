@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import { fmtMs } from './lib/fmt';
 import type { CiPlatform } from './platform/platform';
 

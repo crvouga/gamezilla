@@ -4,7 +4,7 @@
  * useful message instead of a confusing `pg_ctl` error later.
  */
 
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import { DATA_DIR, resolveFromAppRoot } from './postgres-paths';
 
 export interface PostgresConfig {

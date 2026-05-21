@@ -1,4 +1,4 @@
-import type { AttributeState } from '@gamezilla/lib/attribute';
+import type { AttributeState } from '@gamezilla/attribute';
 import {
   andWhereClause,
   type PatchDbQueryWhereClause,

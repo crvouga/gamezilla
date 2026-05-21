@@ -1,4 +1,4 @@
-import type { AttributeTag } from '@gamezilla/lib/attribute';
+import type { AttributeTag } from '@gamezilla/attribute';
 import { useMemo } from 'react';
 import type { PatchEntityType } from '../interface';
 import { useEntity } from './use-entity';

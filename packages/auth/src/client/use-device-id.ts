@@ -1,10 +1,10 @@
-import { useSecureStorage } from '@gamezilla/lib/secure-storage/interface';
+import { useSecureStorage } from '@gamezilla/secure-storage/interface';
 import {
   getCachedSecureStorageValue,
   seedCachedSecureStorageValue,
   useHydratedSecureStorageItem,
   writeSecureStorageItem,
-} from '@gamezilla/lib/secure-storage/use-secure-storage-item';
+} from '@gamezilla/secure-storage/use-secure-storage-item';
 import { useEffect, useRef } from 'react';
 
 import { assertDeviceId, isUuid } from '../shared/device-id';

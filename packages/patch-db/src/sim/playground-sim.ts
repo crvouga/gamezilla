@@ -1,5 +1,5 @@
-import { InMemoryPubSub } from '@gamezilla/lib/pub-sub/impl-in-memory';
-import type { SqlClient } from '@gamezilla/lib/sql-client/interface';
+import { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
+import type { SqlClient } from '@gamezilla/sql-client/interface';
 import { PatchDbImplClientTransport } from '../impl-client-transport';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import { SyncPatchDb } from '../impl-sync';

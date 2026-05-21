@@ -23,7 +23,7 @@
 
 import { existsSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { createLogger } from '@gamezilla/lib/logger';
+import { createLogger } from '@gamezilla/logger';
 import { killCluster } from './kill';
 import { APP_ROOT, STATE_DIR } from './postgres-paths';
 

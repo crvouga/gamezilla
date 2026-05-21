@@ -1,5 +1,5 @@
 import { ChessPuzzleSeeder } from '@gamezilla/chess/server/seed-chess-puzzle/chess-puzzle-seeder';
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 
 await ChessPuzzleSeeder.fromArgv(process.argv.slice(2))
   .run()

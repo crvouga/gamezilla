@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/lib/assert';
-import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/lib/commit-hash-regex';
+import { assert } from '@gamezilla/assert';
+import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/commit-hash-regex';
 
 export { COMMIT_HASH_HEX_REGEX };
 

@@ -1,4 +1,4 @@
-import { asKeyword, type Keyword } from '@gamezilla/lib/keyword/keyword';
+import { asKeyword, type Keyword } from '@gamezilla/keyword/keyword';
 
 /**
  * {@link Keyword} for a cached structured LLM response. The content hash

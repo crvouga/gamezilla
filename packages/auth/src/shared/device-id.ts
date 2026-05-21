@@ -4,8 +4,8 @@
  * form; the underlying utilities are re-exported for backwards compatibility
  * with existing import sites inside the auth package.
  */
-export { UUID_REGEX, assertUuid, isUuid } from '@gamezilla/lib/uuid';
-import { assertUuid } from '@gamezilla/lib/uuid';
+export { UUID_REGEX, assertUuid, isUuid } from '@gamezilla/uuid';
+import { assertUuid } from '@gamezilla/uuid';
 
 /**
  * Asserts deviceId is a valid UUID. Crashes on violation.

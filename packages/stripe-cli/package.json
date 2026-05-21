@@ -12,7 +12,8 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/doppler": "workspace:*",
+    "@gamezilla/secret-store": "workspace:*",
     "@gamezilla/stripe": "workspace:*",
     "stripe": "catalog:"
   },

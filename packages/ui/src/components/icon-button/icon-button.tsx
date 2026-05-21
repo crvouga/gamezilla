@@ -9,7 +9,7 @@
  * ```
  */
 
-import type { LocalizedString } from '@gamezilla/lib/i18n';
+import type { LocalizedString } from '@gamezilla/i18n';
 import { type ReactNode } from 'react';
 import { Pressable, type PressableProps } from 'react-native';
 import { useTheme } from '../../theme';

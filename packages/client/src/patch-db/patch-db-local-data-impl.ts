@@ -7,9 +7,9 @@ import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
 } from '@gamezilla/auth/client/auth-storage-keys';
-import { writeSecureStorageItem } from '@gamezilla/lib/secure-storage/use-secure-storage-item';
-import { clearWebClientPersistentState } from '@gamezilla/lib/browser/clear-web-client-state';
-import type { SecureStorage } from '@gamezilla/lib/secure-storage/interface';
+import { writeSecureStorageItem } from '@gamezilla/secure-storage/use-secure-storage-item';
+import { clearWebClientPersistentState } from '@gamezilla/browser/clear-web-client-state';
+import type { SecureStorage } from '@gamezilla/secure-storage/interface';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 

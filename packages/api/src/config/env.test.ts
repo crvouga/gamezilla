@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import type { R2Bucket } from '@gamezilla/lib/object-store/impl-r2';
+import type { R2Bucket } from '@gamezilla/object-store/impl-r2';
 import {
   assertDopplerTokenBinding,
   ConfigurationError,

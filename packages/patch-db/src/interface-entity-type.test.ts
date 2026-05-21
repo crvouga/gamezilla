@@ -1,4 +1,4 @@
-import { Assert } from '@gamezilla/lib/assert';
+import { Assert } from '@gamezilla/assert';
 import { describe, expect, test } from 'bun:test';
 import { assertEntityType, assertQuery } from './interface';
 

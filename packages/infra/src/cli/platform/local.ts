@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import { fmt, fail as fmtFail, warn as fmtWarn } from '../lib/fmt';
 import type { CiPlatform } from './platform';
 

@@ -1,8 +1,8 @@
-import { assert } from '@gamezilla/lib/assert';
-import { createAttrNamespace } from '@gamezilla/lib/attribute';
-import type { Keyword } from '@gamezilla/lib/keyword';
-import type { Kv } from '@gamezilla/lib/kv/interface';
-import { isMessageEnvelope } from '@gamezilla/lib/message';
+import { assert } from '@gamezilla/assert';
+import { createAttrNamespace } from '@gamezilla/attribute';
+import type { Keyword } from '@gamezilla/keyword';
+import type { Kv } from '@gamezilla/kv/interface';
+import { isMessageEnvelope } from '@gamezilla/message';
 
 import type { LogEntry } from '../../../../types';
 import type { ClientRoomStorage, QueuedCommand } from '../../../core/storage';

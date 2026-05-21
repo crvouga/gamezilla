@@ -9,7 +9,15 @@
   },
   "dependencies": {
     "@gamezilla/api": "workspace:*",
-    "@gamezilla/lib": "workspace:*",
+    "@gamezilla/assert": "workspace:*",
+    "@gamezilla/async": "workspace:*",
+    "@gamezilla/commit-hash-regex": "workspace:*",
+    "@gamezilla/distributed-lock": "workspace:*",
+    "@gamezilla/doppler": "workspace:*",
+    "@gamezilla/keyword": "workspace:*",
+    "@gamezilla/kv": "workspace:*",
+    "@gamezilla/logger": "workspace:*",
+    "@gamezilla/sql-client": "workspace:*",
     "@neondatabase/serverless": "catalog:",
     "picocolors": "catalog:"
   },

@@ -33,18 +33,28 @@
       "version": "1.0.0",
       "dependencies": {
         "@gamezilla/app": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/attribute": "workspace:*",
         "@gamezilla/auth": "workspace:*",
         "@gamezilla/chess": "workspace:*",
         "@gamezilla/client-config": "workspace:*",
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/doppler": "workspace:*",
+        "@gamezilla/keyword": "workspace:*",
+        "@gamezilla/kv": "workspace:*",
         "@gamezilla/llm": "workspace:*",
+        "@gamezilla/logger": "workspace:*",
         "@gamezilla/matchmaking": "workspace:*",
+        "@gamezilla/object-store": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
         "@gamezilla/profile": "workspace:*",
+        "@gamezilla/pub-sub": "workspace:*",
         "@gamezilla/room": "workspace:*",
+        "@gamezilla/secret-store": "workspace:*",
         "@gamezilla/spaces": "workspace:*",
+        "@gamezilla/sql-client": "workspace:*",
         "@gamezilla/stripe": "workspace:*",
         "@gamezilla/tts": "workspace:*",
+        "@gamezilla/uuid": "workspace:*",
         "hono": "catalog:",
         "pg": "catalog:",
         "stripe": "catalog:",
@@ -71,6 +81,18 @@
         "typescript": "catalog:",
       },
     },
+    "packages/assert": {
+      "name": "@gamezilla/assert",
+      "version": "0.0.0",
+      "dependencies": {
+        "expo-clipboard": "catalog:",
+        "react-native": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/assistant": {
       "name": "@gamezilla/assistant",
       "version": "0.0.0",
@@ -84,15 +106,48 @@
         "typescript": "catalog:",
       },
     },
+    "packages/async": {
+      "name": "@gamezilla/async",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/logger": "workspace:*",
+        "react": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/attribute": {
+      "name": "@gamezilla/attribute",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/keyword": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/auth": {
       "name": "@gamezilla/auth",
       "version": "0.0.0",
       "dependencies": {
         "@better-auth/core": "catalog:",
         "@better-auth/expo": "catalog:",
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/async": "workspace:*",
+        "@gamezilla/attribute": "workspace:*",
+        "@gamezilla/logger": "workspace:*",
+        "@gamezilla/object-store": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
+        "@gamezilla/secret-store": "workspace:*",
+        "@gamezilla/secure-storage": "workspace:*",
+        "@gamezilla/sql-client": "workspace:*",
         "@gamezilla/ui": "workspace:*",
+        "@gamezilla/uuid": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "better-auth": "catalog:",
@@ -115,16 +170,29 @@
         "typescript": "catalog:",
       },
     },
+    "packages/browser": {
+      "name": "@gamezilla/browser",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/chess": {
       "name": "@gamezilla/chess",
       "version": "0.0.0",
       "dependencies": {
+        "@gamezilla/assert": "workspace:*",
         "@gamezilla/assistant": "workspace:*",
+        "@gamezilla/attribute": "workspace:*",
         "@gamezilla/auth": "workspace:*",
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/logger": "workspace:*",
+        "@gamezilla/message": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
         "@gamezilla/room": "workspace:*",
+        "@gamezilla/secret-store": "workspace:*",
         "@gamezilla/spaces": "workspace:*",
+        "@gamezilla/sql-client": "workspace:*",
         "@gamezilla/ui": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
@@ -155,17 +223,30 @@
         "@expo/metro-runtime": "catalog:",
         "@gamezilla/api": "workspace:*",
         "@gamezilla/app": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
         "@gamezilla/assistant": "workspace:*",
+        "@gamezilla/async": "workspace:*",
         "@gamezilla/auth": "workspace:*",
+        "@gamezilla/browser": "workspace:*",
         "@gamezilla/chess": "workspace:*",
         "@gamezilla/client-config": "workspace:*",
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/commit-hash-regex": "workspace:*",
+        "@gamezilla/kv": "workspace:*",
         "@gamezilla/llm": "workspace:*",
+        "@gamezilla/local-preview-api-origin": "workspace:*",
+        "@gamezilla/logger": "workspace:*",
+        "@gamezilla/object-store": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
         "@gamezilla/patch-db-example": "workspace:*",
+        "@gamezilla/polyfill": "workspace:*",
         "@gamezilla/profile": "workspace:*",
+        "@gamezilla/pub-sub": "workspace:*",
         "@gamezilla/room-example": "workspace:*",
+        "@gamezilla/secret-store": "workspace:*",
+        "@gamezilla/secure-storage": "workspace:*",
         "@gamezilla/spaces": "workspace:*",
+        "@gamezilla/sql-client": "workspace:*",
+        "@gamezilla/sqlite": "workspace:*",
         "@gamezilla/tts": "workspace:*",
         "@gamezilla/ui": "workspace:*",
         "@gorhom/bottom-sheet": "catalog:",
@@ -230,9 +311,13 @@
       "name": "@gamezilla/client-config",
       "version": "0.0.0",
       "dependencies": {
+        "@gamezilla/async": "workspace:*",
+        "@gamezilla/attribute": "workspace:*",
         "@gamezilla/auth": "workspace:*",
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/equal": "workspace:*",
+        "@gamezilla/logger": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
+        "@gamezilla/secret-store": "workspace:*",
         "@gamezilla/ui": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
@@ -245,11 +330,65 @@
         "typescript": "catalog:",
       },
     },
+    "packages/commit-hash-regex": {
+      "name": "@gamezilla/commit-hash-regex",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/distributed-lock": {
+      "name": "@gamezilla/distributed-lock",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/attribute": "workspace:*",
+        "@gamezilla/keyword": "workspace:*",
+        "@gamezilla/kv": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/doppler": {
+      "name": "@gamezilla/doppler",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/equal": {
+      "name": "@gamezilla/equal",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/i18n": {
+      "name": "@gamezilla/i18n",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/infra": {
       "name": "@gamezilla/infra",
       "dependencies": {
         "@gamezilla/api": "workspace:*",
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/async": "workspace:*",
+        "@gamezilla/commit-hash-regex": "workspace:*",
+        "@gamezilla/distributed-lock": "workspace:*",
+        "@gamezilla/doppler": "workspace:*",
+        "@gamezilla/keyword": "workspace:*",
+        "@gamezilla/kv": "workspace:*",
+        "@gamezilla/logger": "workspace:*",
+        "@gamezilla/sql-client": "workspace:*",
         "@neondatabase/serverless": "catalog:",
         "picocolors": "catalog:",
       },
@@ -258,34 +397,35 @@
         "typescript": "catalog:",
       },
     },
-    "packages/lib": {
-      "name": "@gamezilla/lib",
+    "packages/keyword": {
+      "name": "@gamezilla/keyword",
       "version": "0.0.0",
       "dependencies": {
-        "@jlongster/sql.js": "catalog:",
-        "@neondatabase/serverless": "catalog:",
+        "@gamezilla/assert": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/kv": {
+      "name": "@gamezilla/kv",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/attribute": "workspace:*",
+        "@gamezilla/keyword": "workspace:*",
+        "@gamezilla/logger": "workspace:*",
+        "@gamezilla/sql-client": "workspace:*",
         "@react-native-async-storage/async-storage": "catalog:",
-        "absurd-sql": "catalog:",
-        "buffer": "catalog:",
-        "expo-clipboard": "catalog:",
-        "expo-crypto": "catalog:",
-        "expo-file-system": "catalog:",
-        "expo-secure-store": "catalog:",
-        "expo-sqlite": "catalog:",
-        "make-plural": "catalog:",
         "pg": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
-        "sql.js": "catalog:",
       },
       "devDependencies": {
-        "@electric-sql/pglite": "catalog:",
-        "@electric-sql/pglite-socket": "catalog:",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@types/react": "catalog:",
-        "@types/sql.js": "catalog:",
-        "eslint-plugin-lingui": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -293,12 +433,37 @@
       "name": "@gamezilla/llm",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/attribute": "workspace:*",
+        "@gamezilla/keyword": "workspace:*",
+        "@gamezilla/kv": "workspace:*",
+        "@gamezilla/secret-store": "workspace:*",
+        "@gamezilla/sql-client": "workspace:*",
         "hono": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
       },
       "devDependencies": {
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/local-preview-api-origin": {
+      "name": "@gamezilla/local-preview-api-origin",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/logger": {
+      "name": "@gamezilla/logger",
+      "version": "0.0.0",
+      "dependencies": {
+        "react": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "typescript": "catalog:",
       },
@@ -307,7 +472,10 @@
       "name": "@gamezilla/matchmaking",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/attribute": "workspace:*",
+        "@gamezilla/keyword": "workspace:*",
+        "@gamezilla/logger": "workspace:*",
         "hono": "catalog:",
         "pg": "catalog:",
       },
@@ -318,11 +486,44 @@
         "typescript": "catalog:",
       },
     },
+    "packages/message": {
+      "name": "@gamezilla/message",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/keyword": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/object-store": {
+      "name": "@gamezilla/object-store",
+      "version": "0.0.0",
+      "dependencies": {
+        "expo-file-system": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/patch-db": {
       "name": "@gamezilla/patch-db",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/async": "workspace:*",
+        "@gamezilla/attribute": "workspace:*",
+        "@gamezilla/keyword": "workspace:*",
+        "@gamezilla/logger": "workspace:*",
+        "@gamezilla/pub-sub": "workspace:*",
+        "@gamezilla/sql-client": "workspace:*",
+        "@gamezilla/sqlite": "workspace:*",
         "@hono/zod-validator": "catalog:",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
@@ -343,8 +544,10 @@
       "name": "@gamezilla/patch-db-example",
       "version": "0.0.1",
       "dependencies": {
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/attribute": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
+        "@gamezilla/pub-sub": "workspace:*",
         "@gamezilla/ui": "workspace:*",
         "@gorhom/bottom-sheet": "catalog:",
         "@lingui/core": "catalog:",
@@ -378,7 +581,33 @@
       "name": "@gamezilla/pg",
       "version": "1.0.0",
       "dependencies": {
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/logger": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/polyfill": {
+      "name": "@gamezilla/polyfill",
+      "version": "0.0.0",
+      "dependencies": {
+        "buffer": "catalog:",
+        "expo-crypto": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/postgres": {
+      "name": "@gamezilla/postgres",
+      "version": "0.0.0",
+      "dependencies": {
+        "@electric-sql/pglite": "catalog:",
+        "@electric-sql/pglite-socket": "catalog:",
+        "@gamezilla/assert": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -391,10 +620,11 @@
       "dependencies": {
         "@dicebear/collection": "catalog:",
         "@dicebear/core": "catalog:",
+        "@gamezilla/attribute": "workspace:*",
         "@gamezilla/auth": "workspace:*",
-        "@gamezilla/lib": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
         "@gamezilla/ui": "workspace:*",
+        "@gamezilla/uuid": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "expo-clipboard": "catalog:",
@@ -408,11 +638,24 @@
         "typescript": "catalog:",
       },
     },
+    "packages/pub-sub": {
+      "name": "@gamezilla/pub-sub",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/assert": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/qa": {
       "name": "@gamezilla/qa",
       "version": "1.0.0",
       "dependencies": {
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/local-preview-api-origin": "workspace:*",
+        "@gamezilla/secret-store": "workspace:*",
       },
       "devDependencies": {
         "@playwright/test": "catalog:",
@@ -426,7 +669,11 @@
       "name": "@gamezilla/room",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/attribute": "workspace:*",
+        "@gamezilla/keyword": "workspace:*",
+        "@gamezilla/kv": "workspace:*",
+        "@gamezilla/message": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -442,7 +689,7 @@
       "name": "@gamezilla/room-example",
       "version": "0.0.1",
       "dependencies": {
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/keyword": "workspace:*",
         "@gamezilla/room": "workspace:*",
         "@gamezilla/ui": "workspace:*",
         "@lingui/core": "catalog:",
@@ -460,12 +707,40 @@
         "typescript": "catalog:",
       },
     },
+    "packages/secret-store": {
+      "name": "@gamezilla/secret-store",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/doppler": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/secure-storage": {
+      "name": "@gamezilla/secure-storage",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/assert": "workspace:*",
+        "expo-secure-store": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/spaces": {
       "name": "@gamezilla/spaces",
       "version": "0.0.0",
       "dependencies": {
+        "@gamezilla/attribute": "workspace:*",
         "@gamezilla/auth": "workspace:*",
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/kv": "workspace:*",
+        "@gamezilla/message": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
         "@gamezilla/room": "workspace:*",
         "@gamezilla/ui": "workspace:*",
@@ -482,13 +757,61 @@
         "typescript": "catalog:",
       },
     },
+    "packages/sql-client": {
+      "name": "@gamezilla/sql-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/pub-sub": "workspace:*",
+        "@gamezilla/sqlite": "workspace:*",
+        "@jlongster/sql.js": "catalog:",
+        "@neondatabase/serverless": "catalog:",
+        "absurd-sql": "catalog:",
+        "expo-sqlite": "catalog:",
+        "pg": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+        "sql.js": "catalog:",
+      },
+      "devDependencies": {
+        "@gamezilla/postgres": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@types/react": "catalog:",
+        "@types/sql.js": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/sqlite": {
+      "name": "@gamezilla/sqlite",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/assert": "workspace:*",
+        "react-native": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/static-file-server": {
+      "name": "@gamezilla/static-file-server",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/stripe": {
       "name": "@gamezilla/stripe",
       "version": "0.0.0",
       "dependencies": {
+        "@gamezilla/attribute": "workspace:*",
         "@gamezilla/auth": "workspace:*",
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/logger": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
+        "@gamezilla/secret-store": "workspace:*",
+        "@gamezilla/sql-client": "workspace:*",
         "@hono/zod-validator": "catalog:",
         "hono": "catalog:",
         "pg": "catalog:",
@@ -505,9 +828,29 @@
       "name": "@gamezilla/stripe-cli",
       "version": "1.0.0",
       "dependencies": {
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/doppler": "workspace:*",
+        "@gamezilla/secret-store": "workspace:*",
         "@gamezilla/stripe": "workspace:*",
         "stripe": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/task-dag": {
+      "name": "@gamezilla/task-dag",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/ts-reset": {
+      "name": "@gamezilla/ts-reset",
+      "version": "0.0.0",
+      "dependencies": {
+        "@total-typescript/ts-reset": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -518,7 +861,9 @@
       "name": "@gamezilla/tts",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/object-store": "workspace:*",
+        "@gamezilla/secret-store": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "expo-audio": "catalog:",
@@ -535,7 +880,7 @@
       "name": "@gamezilla/turbo-cache",
       "version": "1.0.0",
       "dependencies": {
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/logger": "workspace:*",
         "hono": "catalog:",
       },
       "devDependencies": {
@@ -548,7 +893,9 @@
       "dependencies": {
         "@dicebear/collection": "catalog:",
         "@dicebear/core": "catalog:",
-        "@gamezilla/lib": "workspace:*",
+        "@gamezilla/assert": "workspace:*",
+        "@gamezilla/i18n": "workspace:*",
+        "@gamezilla/object-store": "workspace:*",
         "@gamezilla/tts": "workspace:*",
         "@gorhom/bottom-sheet": "catalog:",
         "@lingui/core": "catalog:",
@@ -574,6 +921,17 @@
         "react-native-gesture-handler": "catalog:",
         "react-native-reanimated": "catalog:",
         "react-native-safe-area-context": "catalog:",
+      },
+    },
+    "packages/uuid": {
+      "name": "@gamezilla/uuid",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gamezilla/assert": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
       },
     },
   },
@@ -1184,9 +1542,17 @@
 
     "@gamezilla/app": ["@gamezilla/app@workspace:packages/app"],
 
+    "@gamezilla/assert": ["@gamezilla/assert@workspace:packages/assert"],
+
     "@gamezilla/assistant": ["@gamezilla/assistant@workspace:packages/assistant"],
 
+    "@gamezilla/async": ["@gamezilla/async@workspace:packages/async"],
+
+    "@gamezilla/attribute": ["@gamezilla/attribute@workspace:packages/attribute"],
+
     "@gamezilla/auth": ["@gamezilla/auth@workspace:packages/auth"],
+
+    "@gamezilla/browser": ["@gamezilla/browser@workspace:packages/browser"],
 
     "@gamezilla/chess": ["@gamezilla/chess@workspace:packages/chess"],
 
@@ -1194,13 +1560,33 @@
 
     "@gamezilla/client-config": ["@gamezilla/client-config@workspace:packages/client-config"],
 
+    "@gamezilla/commit-hash-regex": ["@gamezilla/commit-hash-regex@workspace:packages/commit-hash-regex"],
+
+    "@gamezilla/distributed-lock": ["@gamezilla/distributed-lock@workspace:packages/distributed-lock"],
+
+    "@gamezilla/doppler": ["@gamezilla/doppler@workspace:packages/doppler"],
+
+    "@gamezilla/equal": ["@gamezilla/equal@workspace:packages/equal"],
+
+    "@gamezilla/i18n": ["@gamezilla/i18n@workspace:packages/i18n"],
+
     "@gamezilla/infra": ["@gamezilla/infra@workspace:packages/infra"],
 
-    "@gamezilla/lib": ["@gamezilla/lib@workspace:packages/lib"],
+    "@gamezilla/keyword": ["@gamezilla/keyword@workspace:packages/keyword"],
+
+    "@gamezilla/kv": ["@gamezilla/kv@workspace:packages/kv"],
 
     "@gamezilla/llm": ["@gamezilla/llm@workspace:packages/llm"],
 
+    "@gamezilla/local-preview-api-origin": ["@gamezilla/local-preview-api-origin@workspace:packages/local-preview-api-origin"],
+
+    "@gamezilla/logger": ["@gamezilla/logger@workspace:packages/logger"],
+
     "@gamezilla/matchmaking": ["@gamezilla/matchmaking@workspace:packages/matchmaking"],
+
+    "@gamezilla/message": ["@gamezilla/message@workspace:packages/message"],
+
+    "@gamezilla/object-store": ["@gamezilla/object-store@workspace:packages/object-store"],
 
     "@gamezilla/patch-db": ["@gamezilla/patch-db@workspace:packages/patch-db"],
 
@@ -1208,7 +1594,13 @@
 
     "@gamezilla/pg": ["@gamezilla/pg@workspace:packages/pg"],
 
+    "@gamezilla/polyfill": ["@gamezilla/polyfill@workspace:packages/polyfill"],
+
+    "@gamezilla/postgres": ["@gamezilla/postgres@workspace:packages/postgres"],
+
     "@gamezilla/profile": ["@gamezilla/profile@workspace:packages/profile"],
+
+    "@gamezilla/pub-sub": ["@gamezilla/pub-sub@workspace:packages/pub-sub"],
 
     "@gamezilla/qa": ["@gamezilla/qa@workspace:packages/qa"],
 
@@ -1216,17 +1608,33 @@
 
     "@gamezilla/room-example": ["@gamezilla/room-example@workspace:packages/room-example"],
 
+    "@gamezilla/secret-store": ["@gamezilla/secret-store@workspace:packages/secret-store"],
+
+    "@gamezilla/secure-storage": ["@gamezilla/secure-storage@workspace:packages/secure-storage"],
+
     "@gamezilla/spaces": ["@gamezilla/spaces@workspace:packages/spaces"],
+
+    "@gamezilla/sql-client": ["@gamezilla/sql-client@workspace:packages/sql-client"],
+
+    "@gamezilla/sqlite": ["@gamezilla/sqlite@workspace:packages/sqlite"],
+
+    "@gamezilla/static-file-server": ["@gamezilla/static-file-server@workspace:packages/static-file-server"],
 
     "@gamezilla/stripe": ["@gamezilla/stripe@workspace:packages/stripe"],
 
     "@gamezilla/stripe-cli": ["@gamezilla/stripe-cli@workspace:packages/stripe-cli"],
+
+    "@gamezilla/task-dag": ["@gamezilla/task-dag@workspace:packages/task-dag"],
+
+    "@gamezilla/ts-reset": ["@gamezilla/ts-reset@workspace:packages/ts-reset"],
 
     "@gamezilla/tts": ["@gamezilla/tts@workspace:packages/tts"],
 
     "@gamezilla/turbo-cache": ["@gamezilla/turbo-cache@workspace:packages/turbo-cache"],
 
     "@gamezilla/ui": ["@gamezilla/ui@workspace:packages/ui"],
+
+    "@gamezilla/uuid": ["@gamezilla/uuid@workspace:packages/uuid"],
 
     "@gorhom/bottom-sheet": ["@gorhom/bottom-sheet@5.2.13", "", { "dependencies": { "@gorhom/portal": "1.0.14", "invariant": "^2.2.4" }, "peerDependencies": { "@types/react": "*", "@types/react-native": "*", "react": "*", "react-native": "*", "react-native-gesture-handler": ">=2.16.1", "react-native-reanimated": ">=3.16.0 || >=4.0.0-" }, "optionalPeers": ["@types/react", "@types/react-native"] }, "sha512-cMxyd9kIowMME9kw2wwXAuWrXUQnPkJQz7rDbOSBBomZ+PpV/C/tlO1UozBrAe2zs3tp9th3JMW21FI/y0VeuQ=="],
 

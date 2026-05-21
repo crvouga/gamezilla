@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/lib/assert';
+import { assert } from '@gamezilla/assert';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import {
   PATCH_REJECT_CODE,
