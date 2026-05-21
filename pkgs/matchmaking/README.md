@@ -156,7 +156,7 @@ Cross-process invariants:
 | Migration       | Same `migrate()` runs against PGlite                                                                                       | Same `migrate()` runs against real Postgres                                                                                                                                                           |
 | Tick driver     | Call `await mm.tick()` from tests directly                                                                                 | `pg_cron` invokes `SELECT matchmaking_tick()` every 5 seconds                                                                                                                                         |
 | `cron.schedule` | `migrate.ts` no-ops the cron call (PGlite has no pg_cron)                                                                  | `migrate.ts` calls `cron.schedule('matchmaking-tick', '5 seconds', ...)` with `cron.unschedule(...)` fallback on duplicate names                                                                      |
-| Advisory lock   | Same `pg_try_advisory_lock` — PGlite supports it; one in-process connection so lock+unlock always land on the same backend | Same lock id; embedders that drive `Matchmaking.tick()` from JS SHOULD pin a single client (e.g. `@apps/api` does this via AsyncLocalStorage). pg_cron's session is naturally pinned per cron worker. |
+| Advisory lock   | Same `pg_try_advisory_lock` — PGlite supports it; one in-process connection so lock+unlock always land on the same backend | Same lock id; embedders that drive `Matchmaking.tick()` from JS SHOULD pin a single client (e.g. one `pg.Client` per request via AsyncLocalStorage). pg_cron's session is naturally pinned per cron worker. |
 | Concurrency     | Single in-process connection — concurrency exists in JS only                                                               | Real connection pooling, real `FOR UPDATE SKIP LOCKED` semantics                                                                                                                                      |
 
 ---
@@ -243,8 +243,8 @@ end-to-end without a real cluster:
   connection, so the JS `tick()` lock is always taken and released by
   the same backend. In production with a pool, the lock and unlock
   can land on different backends; the library mitigates this by
-  recommending (and the `@apps/api` package implementing)
-  per-request client pinning via AsyncLocalStorage. PGlite cannot
+  recommending per-request client pinning via AsyncLocalStorage.
+  PGlite cannot
   verify the pin works under load.
 - **`FOR UPDATE SKIP LOCKED` under real contention.** The pass query
   uses `SKIP LOCKED` to let multiple `matchmaking_run_match_pass`

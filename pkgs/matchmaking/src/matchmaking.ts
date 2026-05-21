@@ -60,9 +60,9 @@ export { MATCHMAKING_PAYLOAD_LIMITS } from './payload-limits';
  *
  * If you have a `pg.Pool` and want the simplest possible boot, call
  * {@link Matchmaking.fromPool} instead of constructing this shape
- * yourself. Embedders who thread a per-request connection (e.g. the
- * `@apps/api` worker, which pins one `pg.Client` per Hyperdrive
- * request via `AsyncLocalStorage`) pass their own `SqlClient` here.
+ * yourself. Embedders who thread a per-request connection (e.g. a
+ * worker that pins one `pg.Client` per database request via
+ * `AsyncLocalStorage`) pass their own `SqlClient` here.
  */
 export type MatchmakingStorage = {
   readonly sqlClient: SqlClient;
@@ -161,8 +161,8 @@ export class Matchmaking {
    * invoked the first public method.
    *
    * This matters for embedders whose {@link SqlClient} is sourced from
-   * a request-scoped `AsyncLocalStorage` (e.g. the API package threads
-   * one `pg.Client` per Hyperdrive request). Construction happens during
+   * a request-scoped `AsyncLocalStorage` (e.g. an embedder threads
+   * one `pg.Client` per request). Construction happens during
    * Worker boot, with no request scope live; firing `migrate()` from
    * the constructor would fail the SqlClient's scope-required assertion
    * and permanently brick the cached promise. Deferring to the first
@@ -470,13 +470,13 @@ export class Matchmaking {
    *     released on the same backend that took it — Postgres still
    *     auto-releases on backend recycle, but the lock could linger
    *     for the rest of the backend's life.
-   *   - the API package's per-request adapter pins one `pg.Client` for
-   *     the whole request, so lock+unlock land on the same backend.
+   *   - a per-request `SqlClient` adapter pins one `pg.Client` for
+     *     the whole request, so lock+unlock land on the same backend.
    *   - PGlite uses one in-process connection, so lock+unlock always
    *     land on the same backend.
    *
    * The contract: hosts that drive `tick()` from JS in production
-   * SHOULD pin a single client (the API package already does this).
+   * SHOULD pin a single client for the whole tick.
    * The SQL `matchmaking_tick()` function takes the same lock from
    * pg_cron's own session, which is naturally pinned per cron worker.
    */
