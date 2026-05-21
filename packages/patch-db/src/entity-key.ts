@@ -17,7 +17,7 @@ import {
 /**
  * Namespaced attribute key used in queries and the `attributes` map.
  * Same brand as {@link Keyword}; obtain via {@link assertAttribute}, {@link asKeyword},
- * or {@link @gamezilla/lib/attribute.createAttrNamespace} tags (`.key`).
+ * or {@link @gamezilla/attribute.createAttrNamespace} tags (`.key`).
  */
 export type AttributeKey = Keyword;
 

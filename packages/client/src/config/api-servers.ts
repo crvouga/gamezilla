@@ -1,5 +1,5 @@
 import { assert } from '@gamezilla/assert';
-import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@gamezilla/local-preview-api-origin';
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@gamezilla/app/shared/local-preview-api-origin';
 
 export { DEFAULT_LOCAL_PREVIEW_API_ORIGIN };
 

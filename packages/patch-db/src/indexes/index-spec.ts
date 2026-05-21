@@ -22,7 +22,7 @@ import {
 import type { Keyword } from '@gamezilla/keyword';
 
 /** Attribute reference for index specs. Accepts a {@link Keyword} or any
- * object with a `.key` property (e.g. an `AttributeTag` from `@gamezilla/lib/attribute`). */
+ * object with a `.key` property (e.g. an `AttributeTag` from `@gamezilla/attribute`). */
 export type PatchDbIndexAttributeRef = Keyword | { readonly key: Keyword };
 
 export type PatchDbIndexField =

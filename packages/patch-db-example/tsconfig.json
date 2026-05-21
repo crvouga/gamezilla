@@ -1,11 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "paths": {
-      "@gamezilla/lib/*": ["../lib/src/*"],
-      "@gamezilla/patch-db/*": ["../patch-db/src/*"]
-    }
+    "jsx": "react-jsx"
   },
   "include": ["../ts-reset/src/index.ts", "./src/**/*.ts", "./src/**/*.tsx"]
 }

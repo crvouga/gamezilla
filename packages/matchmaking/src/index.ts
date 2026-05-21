@@ -76,10 +76,10 @@ export {
 } from './types';
 
 /**
- * Re-exported from `@gamezilla/lib/attribute` for the common case of
+ * Re-exported from `@gamezilla/attribute` for the common case of
  * building an attribute namespace alongside a `Matchmaking` boot.
  * Consumers who need more attribute helpers should depend on
- * `@gamezilla/lib` directly — this single function is the only one
- * intentionally surfaced through the matchmaking barrel.
+ * `@gamezilla/attribute` directly — this single function is the only
+ * one intentionally surfaced through the matchmaking barrel.
  */
 export { createAttrNamespace } from '@gamezilla/attribute';

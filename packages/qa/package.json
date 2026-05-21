@@ -13,8 +13,8 @@
     "tc": "tsc --noEmit -p ./tsconfig.json"
   },
   "dependencies": {
+    "@gamezilla/app": "workspace:*",
     "@gamezilla/assert": "workspace:*",
-    "@gamezilla/local-preview-api-origin": "workspace:*",
     "@gamezilla/secret-store": "workspace:*"
   },
   "devDependencies": {

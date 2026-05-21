@@ -55,7 +55,7 @@ function readRawForQueryAttribute(
 }
 
 /**
- * Structural match for `@gamezilla/lib/attribute` `AttributeTag` — only `key` and
+ * Structural match for `@gamezilla/attribute` `AttributeTag` — only `key` and
  * `parse` are required for {@link useQueryAttribute}.
  */
 export type QueryAttributeLike<T = unknown> = {

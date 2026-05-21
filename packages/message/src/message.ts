@@ -65,7 +65,7 @@ export function isMessageEnvelope(value: unknown): value is Message {
  * log replay) so corrupted data fails fast instead of silently dispatching.
  *
  * `a` controls cost: pass `assert` (always-on) at trust boundaries; pass
- * `hotAssert()` from `@gamezilla/lib/assert` on per-routed-message hot paths.
+ * `hotAssert()` from `@gamezilla/assert` on per-routed-message hot paths.
  */
 export function assertMessageEnvelope(
   a: Assert,

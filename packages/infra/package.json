@@ -11,7 +11,7 @@
     "@gamezilla/api": "workspace:*",
     "@gamezilla/assert": "workspace:*",
     "@gamezilla/async": "workspace:*",
-    "@gamezilla/commit-hash-regex": "workspace:*",
+    "@gamezilla/git": "workspace:*",
     "@gamezilla/distributed-lock": "workspace:*",
     "@gamezilla/doppler": "workspace:*",
     "@gamezilla/keyword": "workspace:*",

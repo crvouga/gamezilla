@@ -24,9 +24,12 @@ const generatedSqlDir = join(clientRoot, 'public', 'generated', 'sql');
 
 mkdirSync(generatedSqlDir, { recursive: true });
 
-// Resolve from `packages/lib` (which declares `sql.js` as a workspace dep) so the
-// content-addressed Bun install layout in the monorepo always finds it.
-const require = createRequire(join(repoRoot, 'packages/lib/package.json'));
+// Resolve from `packages/sql-client` (which declares `sql.js` as a workspace
+// dep) so the content-addressed Bun install layout in the monorepo always
+// finds it.
+const require = createRequire(
+  join(repoRoot, 'packages/sql-client/package.json')
+);
 const wasmSource = require.resolve('sql.js/dist/sql-wasm-browser.wasm');
 const wasmDest = join(generatedSqlDir, 'sql-wasm-browser.wasm');
 

@@ -3,7 +3,7 @@
  *
  * Keys must satisfy `expo-secure-store`'s charset (alphanumerics + `._-`),
  * so they cannot use the `prefix/local` keyword grammar from
- * {@link @gamezilla/lib/keyword}. Each value is a small identifier (UUID or
+ * {@link @gamezilla/keyword}. Each value is a small identifier (UUID or
  * short JWT) and fits well inside the 2048-byte cap enforced by
  * `wrapSecureStorage`.
  */

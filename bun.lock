@@ -230,10 +230,9 @@
         "@gamezilla/browser": "workspace:*",
         "@gamezilla/chess": "workspace:*",
         "@gamezilla/client-config": "workspace:*",
-        "@gamezilla/commit-hash-regex": "workspace:*",
+        "@gamezilla/git": "workspace:*",
         "@gamezilla/kv": "workspace:*",
         "@gamezilla/llm": "workspace:*",
-        "@gamezilla/local-preview-api-origin": "workspace:*",
         "@gamezilla/logger": "workspace:*",
         "@gamezilla/object-store": "workspace:*",
         "@gamezilla/patch-db": "workspace:*",
@@ -330,14 +329,6 @@
         "typescript": "catalog:",
       },
     },
-    "packages/commit-hash-regex": {
-      "name": "@gamezilla/commit-hash-regex",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "packages/distributed-lock": {
       "name": "@gamezilla/distributed-lock",
       "version": "0.0.0",
@@ -368,6 +359,14 @@
         "typescript": "catalog:",
       },
     },
+    "packages/git": {
+      "name": "@gamezilla/git",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/i18n": {
       "name": "@gamezilla/i18n",
       "version": "0.0.0",
@@ -382,9 +381,9 @@
         "@gamezilla/api": "workspace:*",
         "@gamezilla/assert": "workspace:*",
         "@gamezilla/async": "workspace:*",
-        "@gamezilla/commit-hash-regex": "workspace:*",
         "@gamezilla/distributed-lock": "workspace:*",
         "@gamezilla/doppler": "workspace:*",
+        "@gamezilla/git": "workspace:*",
         "@gamezilla/keyword": "workspace:*",
         "@gamezilla/kv": "workspace:*",
         "@gamezilla/logger": "workspace:*",
@@ -443,14 +442,6 @@
       },
       "devDependencies": {
         "@types/react": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/local-preview-api-origin": {
-      "name": "@gamezilla/local-preview-api-origin",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -651,8 +642,8 @@
       "name": "@gamezilla/qa",
       "version": "1.0.0",
       "dependencies": {
+        "@gamezilla/app": "workspace:*",
         "@gamezilla/assert": "workspace:*",
-        "@gamezilla/local-preview-api-origin": "workspace:*",
         "@gamezilla/secret-store": "workspace:*",
       },
       "devDependencies": {
@@ -1558,13 +1549,13 @@
 
     "@gamezilla/client-config": ["@gamezilla/client-config@workspace:packages/client-config"],
 
-    "@gamezilla/commit-hash-regex": ["@gamezilla/commit-hash-regex@workspace:packages/commit-hash-regex"],
-
     "@gamezilla/distributed-lock": ["@gamezilla/distributed-lock@workspace:packages/distributed-lock"],
 
     "@gamezilla/doppler": ["@gamezilla/doppler@workspace:packages/doppler"],
 
     "@gamezilla/equal": ["@gamezilla/equal@workspace:packages/equal"],
+
+    "@gamezilla/git": ["@gamezilla/git@workspace:packages/git"],
 
     "@gamezilla/i18n": ["@gamezilla/i18n@workspace:packages/i18n"],
 
@@ -1575,8 +1566,6 @@
     "@gamezilla/kv": ["@gamezilla/kv@workspace:packages/kv"],
 
     "@gamezilla/llm": ["@gamezilla/llm@workspace:packages/llm"],
-
-    "@gamezilla/local-preview-api-origin": ["@gamezilla/local-preview-api-origin@workspace:packages/local-preview-api-origin"],
 
     "@gamezilla/logger": ["@gamezilla/logger@workspace:packages/logger"],
 

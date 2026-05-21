@@ -57,12 +57,7 @@
       "@gamezilla/polyfill": ["./packages/polyfill/src/index.ts"],
       "@gamezilla/polyfill/*": ["./packages/polyfill/src/*"],
       "@gamezilla/browser/*": ["./packages/browser/src/*"],
-      "@gamezilla/commit-hash-regex": [
-        "./packages/commit-hash-regex/src/index.ts"
-      ],
-      "@gamezilla/local-preview-api-origin": [
-        "./packages/local-preview-api-origin/src/index.ts"
-      ],
+      "@gamezilla/git": ["./packages/git/src/index.ts"],
       "@gamezilla/ts-reset": ["./packages/ts-reset/src/index.ts"],
       "@gamezilla/keyword": ["./packages/keyword/src/index.ts"],
       "@gamezilla/keyword/*": ["./packages/keyword/src/*"],
@@ -144,8 +139,7 @@
     "packages/equal/src/**/*.ts",
     "packages/polyfill/src/**/*.ts",
     "packages/browser/src/**/*.ts",
-    "packages/commit-hash-regex/src/**/*.ts",
-    "packages/local-preview-api-origin/src/**/*.ts",
+    "packages/git/src/**/*.ts",
     "packages/ts-reset/src/**/*.ts",
     "packages/keyword/src/**/*.ts",
     "packages/uuid/src/**/*.ts",

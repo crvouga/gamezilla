@@ -1,6 +1,6 @@
 /**
  * Tiger Style (see repo `LLM.md`): attribute tags for PatchDB — keys validated via
- * {@link @gamezilla/lib/keyword}; never accept silently malformed attribute keys.
+ * {@link @gamezilla/keyword}; never accept silently malformed attribute keys.
  */
 import { assert } from '@gamezilla/assert';
 import {

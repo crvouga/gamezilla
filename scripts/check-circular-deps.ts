@@ -142,7 +142,7 @@ function main(): never {
     console.error('');
   }
   console.error(
-    'Break the cycle by moving shared types/logic into a leaf package (e.g. @gamezilla/lib), inverting a dependency, or merging the packages.'
+    'Break the cycle by moving shared types/logic into a leaf package (e.g. @gamezilla/assert / @gamezilla/keyword), inverting a dependency, or merging the packages.'
   );
   process.exit(1);
 }

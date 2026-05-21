@@ -60,14 +60,14 @@ Versioned JSON frames (`v` on envelopes). Each envelope `kind` is a plain string
 - **Client transport — `websocket`** (`@gamezilla/room/client/adapters/transport/websocket`): `WebSocketRoomTransport` with exponential backoff reconnect.
 - **Client storage — `memory`** (`@gamezilla/room/client/adapters/storage/memory`): `InMemoryClientStorage` for tests and the loopback testkit.
 - **Client storage — `web`** (`@gamezilla/room/client/adapters/storage/web`): `WebClientStorage` for synchronous `localStorage`.
-- **Client storage — `key-value`** (`@gamezilla/room/client/adapters/storage/key-value`): `KeyValueClientRoomStorage` for client `Kv` from `@gamezilla/lib/kv/kv-platform` (web `localStorage` or React Native `AsyncStorage`). Do **not** back this with `SecureStorage` / `expo-secure-store` — the 2048-byte per-value cap rejects committed-log blobs as soon as a few entries accumulate. None of this data is sensitive (it's a recovery cache).
+- **Client storage — `key-value`** (`@gamezilla/room/client/adapters/storage/key-value`): `KeyValueClientRoomStorage` for client `Kv` from `@gamezilla/kv/kv-platform` (web `localStorage` or React Native `AsyncStorage`). Do **not** back this with `SecureStorage` / `expo-secure-store` — the 2048-byte per-value cap rejects committed-log blobs as soon as a few entries accumulate. None of this data is sensitive (it's a recovery cache).
 - **Server storage — `memory`** (`@gamezilla/room/server/adapters/memory`): `InMemoryRoomStorage` for tests and the loopback testkit.
 - **Server host — `durable-object`** (`@gamezilla/room/server/adapters/durable-object`): `createDurableObjectAdapter({ modules: […] })` takes a flat array of `RoomModule` values (each carries a wire-unique `name`). WebSocket upgrades must include query `topic` and `module` (matching one module's `name`). The DO keeps a `Map` of {@link RoomServer} instances (one per module, started on first use); each socket stores `moduleName` so inbound frames route to the right server. KV persistence is namespaced per module via {@link DurableObjectRoomStorage}. Bind via `class_name` in `wrangler.toml`. Used in production (`packages/api/src/api.ts` exports `Room`).
 - **Testkit** (`@gamezilla/room/testkit`): `openLoopbackRoom`, `LoopbackRoomTransport`, `TestCounterModule` for in-process convergence tests.
 
 ## Tiger Style (this package)
 
-- **Assert on hot paths** where a violation means impossible state (`Assert.crash()` from `@gamezilla/lib/assert`), especially after wire parse and seq checks.
+- **Assert on hot paths** where a violation means impossible state (`Assert.crash()` from `@gamezilla/assert`), especially after wire parse and seq checks.
 - **No bare `catch`**: transport and storage failures propagate to `onError` or explicit disconnect.
 - **Fail loudly on bad wire**: unknown `kind` / version mismatch → connection dropped or `rejected`, not silent ignore.
 

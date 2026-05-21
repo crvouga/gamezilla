@@ -35,7 +35,7 @@ export const PATCH_REJECT_CODE = {
   hook1: patchRejectNs('hook1', rejectCodeParse),
 } as const;
 
-/** Attribute tags from `@gamezilla/lib/attribute` — single source of truth for patch meta wire strings. */
+/** Attribute tags from `@gamezilla/attribute` — single source of truth for patch meta wire strings. */
 export const PatchMetaAttr = {
   createdById: patchMetaNs('created-by-id', readPatchString),
   sessionId: patchMetaNs('session-id', readPatchString),

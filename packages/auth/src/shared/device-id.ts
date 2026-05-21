@@ -1,5 +1,5 @@
 /**
- * Auth-semantic wrapper around the generic UUID utilities from `@gamezilla/lib`.
+ * Auth-semantic wrapper around the generic UUID utilities from `@gamezilla/uuid`.
  * `deviceId` is always a v4 UUID so most call sites just need the assertion
  * form; the underlying utilities are re-exported for backwards compatibility
  * with existing import sites inside the auth package.

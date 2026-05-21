@@ -10,7 +10,7 @@ import type { SecureStorage } from './interface';
  * - web: `localStorage` (no at-rest encryption — see `impl-web.ts`)
  *
  * For bulk async `Kv` storage (cache blobs, command queues) use
- * `KvPlatform` from `@gamezilla/lib/kv/kv-platform` instead — that path skips
+ * `KvPlatform` from `@gamezilla/kv/kv-platform` instead — that path skips
  * the 2048-byte cap.
  */
 export function createSecureStorage(): SecureStorage {

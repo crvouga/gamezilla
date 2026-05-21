@@ -2,7 +2,7 @@
  * Patch-db caller contexts. The library is **app-agnostic**: a non-system context is a
  * flat {@link PatchDbClaimsContext} keyed by {@link Keyword} claims; the library never
  * interprets claim values. Apps stamp identity claims onto the record via
- * {@link @gamezilla/lib/attribute.createAttrNamespace} and read them back from their own
+ * {@link @gamezilla/attribute.createAttrNamespace} and read them back from their own
  * visibility policies / write hooks.
  *
  * The only structural distinction the library cares about is **system bypass**

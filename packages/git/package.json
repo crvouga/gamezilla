@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/commit-hash-regex",
+  "name": "@gamezilla/git",
   "version": "0.0.0",
   "private": true,
   "exports": {

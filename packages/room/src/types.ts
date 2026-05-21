@@ -10,7 +10,7 @@ export type { Keyword };
 /**
  * Serializable room state (module-owned flat map).
  * Keys MUST be {@link Keyword}s (validated at every boundary). Domain modules add
- * keys via {@link @gamezilla/lib/attribute}; the client also adds `room/*` via {@link RoomMetaAttr}.
+ * keys via {@link @gamezilla/attribute}; the client also adds `room/*` via {@link RoomMetaAttr}.
  */
 export type RoomState = Record<Keyword, unknown>;
 

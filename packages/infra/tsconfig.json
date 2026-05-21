@@ -7,15 +7,7 @@
     "declaration": false,
     "sourceMap": true,
     "outDir": "dist",
-    "baseUrl": ".",
-    "paths": {
-      "@gamezilla/api/*": ["../api/src/*"],
-      "@gamezilla/auth/*": ["../auth/src/*"],
-      "@gamezilla/client/*": ["../client/src/*"],
-      "@gamezilla/lib/*": ["../lib/src/*"],
-      "@gamezilla/spaces/*": ["../spaces/src/*"],
-      "@gamezilla/client-config/*": ["../client-config/src/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["../ts-reset/src/index.ts", "src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

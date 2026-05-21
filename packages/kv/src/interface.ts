@@ -13,7 +13,7 @@ export type KvRecord = AttributeState;
  *
  * Row keys are {@link Keyword} only. Row values are always {@link KvRecord} —
  * never raw strings or arbitrary JSON roots. Consumers should compose values
- * with {@link @gamezilla/lib/attribute} `createAttrNamespace` tags.
+ * with {@link @gamezilla/attribute} `createAttrNamespace` tags.
  */
 export interface Kv {
   /** Returns null if the key is absent. */
