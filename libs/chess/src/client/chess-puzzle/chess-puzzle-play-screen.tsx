@@ -1,4 +1,4 @@
-import { SpeakingAvatarAssistant } from '@libs/assistant/client';
+import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import {

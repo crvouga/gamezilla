@@ -45,7 +45,9 @@ export function discoverPackages(): Map<PackageName, string> {
         continue;
       }
       if (typeof pkg.name !== 'string') continue;
-      const matchedScope = SCOPES.find((s) => pkg.name!.startsWith(s));
+      const matchedScope = SCOPES.find(
+        (s) => typeof pkg.name === 'string' && pkg.name.startsWith(s)
+      );
       if (matchedScope === undefined) continue;
       const shortName = (pkg.name as string).slice(matchedScope.length);
       packages.set(shortName, join(abs, '..'));

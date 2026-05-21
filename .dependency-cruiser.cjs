@@ -51,9 +51,9 @@ module.exports = {
       name: 'assistant-no-internal',
       severity: 'error',
       comment:
-        'Only @libs/assistant/shared and @libs/assistant/client are importable from outside the assistant package.',
-      from: { pathNot: '^libs/assistant/' },
-      to: { path: '^libs/assistant/src/(shared|client)/_internal/' },
+        'Only @pkgs/assistant/shared and @pkgs/assistant/client are importable from outside the assistant package.',
+      from: { pathNot: '^pkgs/assistant/' },
+      to: { path: '^pkgs/assistant/src/(shared|client)/_internal/' },
     },
     {
       name: 'not-to-dev-dep-from-src',

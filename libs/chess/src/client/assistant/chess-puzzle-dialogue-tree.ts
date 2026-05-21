@@ -1,6 +1,6 @@
-import { defineDialogueTree } from '@libs/assistant/shared';
+import { defineDialogueTree } from '@pkgs/assistant/shared';
 
-import type { DialogueTreeThemeSpec } from '@libs/assistant/shared';
+import type { DialogueTreeThemeSpec } from '@pkgs/assistant/shared';
 
 const CHESS_THEMES = [
   'fork',

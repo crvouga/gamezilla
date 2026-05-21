@@ -32,7 +32,7 @@
     "@apps/api": "workspace:*",
     "@libs/app": "workspace:*",
     "@pkgs/assert": "workspace:*",
-    "@libs/assistant": "workspace:*",
+    "@pkgs/assistant": "workspace:*",
     "@pkgs/async": "workspace:*",
     "@libs/auth": "workspace:*",
     "@pkgs/browser": "workspace:*",

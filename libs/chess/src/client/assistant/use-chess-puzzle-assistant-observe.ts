@@ -1,5 +1,5 @@
-import { emitAssistantSpeakingMessage } from '@libs/assistant/client';
-import type { Assistant, AssistantSignal } from '@libs/assistant/shared';
+import { emitAssistantSpeakingMessage } from '@pkgs/assistant/client';
+import type { Assistant, AssistantSignal } from '@pkgs/assistant/shared';
 import { useEffect, useRef } from 'react';
 
 import type { ChessPuzzleAssistantPayload } from './chess-puzzle-assistant-adapter';

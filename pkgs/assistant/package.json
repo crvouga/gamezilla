@@ -1,5 +1,5 @@
 {
-  "name": "@libs/assistant",
+  "name": "@pkgs/assistant",
   "version": "0.0.0",
   "private": true,
   "exports": {

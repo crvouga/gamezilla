@@ -1,7 +1,7 @@
 import type {
   AssistantSpeakAction,
   DialogueContext,
-} from '@libs/assistant/shared';
+} from '@pkgs/assistant/shared';
 
 import { boardOrientationFromFen } from '../../shared/chess-puzzle-fsm';
 

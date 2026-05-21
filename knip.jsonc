@@ -51,7 +51,7 @@
     "turbo",
     "typescript-eslint",
     "@apps/api",
-    "@libs/assistant",
+    "@pkgs/assistant",
     "@libs/chess",
     "@libs/profile",
   ],

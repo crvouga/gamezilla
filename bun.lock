@@ -76,7 +76,6 @@
         "@gorhom/bottom-sheet": "catalog:",
         "@jlongster/sql.js": "catalog:",
         "@libs/app": "workspace:*",
-        "@libs/assistant": "workspace:*",
         "@libs/auth": "workspace:*",
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
@@ -85,6 +84,7 @@
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/assistant": "workspace:*",
         "@pkgs/async": "workspace:*",
         "@pkgs/browser": "workspace:*",
         "@pkgs/git": "workspace:*",
@@ -161,7 +161,6 @@
       "name": "@apps/turbo-cache",
       "version": "1.0.0",
       "dependencies": {
-        "@pkgs/logger": "workspace:*",
         "@pkgs/turbo-cache": "workspace:*",
       },
       "devDependencies": {
@@ -175,19 +174,6 @@
         "@libs/chess": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@pkgs/room": "workspace:*",
-        "react": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/react": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "libs/assistant": {
-      "name": "@libs/assistant",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/ui": "workspace:*",
         "react": "catalog:",
       },
       "devDependencies": {
@@ -239,12 +225,12 @@
       "name": "@libs/chess",
       "version": "0.0.0",
       "dependencies": {
-        "@libs/assistant": "workspace:*",
         "@libs/auth": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/assistant": "workspace:*",
         "@pkgs/attribute": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/message": "workspace:*",
@@ -411,6 +397,19 @@
       },
       "devDependencies": {
         "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/assistant": {
+      "name": "@pkgs/assistant",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/ui": "workspace:*",
+        "react": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1648,8 +1647,6 @@
 
     "@libs/app": ["@libs/app@workspace:libs/app"],
 
-    "@libs/assistant": ["@libs/assistant@workspace:libs/assistant"],
-
     "@libs/auth": ["@libs/auth@workspace:libs/auth"],
 
     "@libs/chess": ["@libs/chess@workspace:libs/chess"],
@@ -1783,6 +1780,8 @@
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
 
     "@pkgs/assert": ["@pkgs/assert@workspace:pkgs/assert"],
+
+    "@pkgs/assistant": ["@pkgs/assistant@workspace:pkgs/assistant"],
 
     "@pkgs/async": ["@pkgs/async@workspace:pkgs/async"],
 

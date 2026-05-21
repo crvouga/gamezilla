@@ -1,12 +1,12 @@
 import {
   createAssistantDialogueTreeRenderer,
   createSystemClock,
-} from '@libs/assistant/client';
+} from '@pkgs/assistant/client';
 import {
   createAssistant,
   type Assistant,
   type AssistantSignal,
-} from '@libs/assistant/shared';
+} from '@pkgs/assistant/shared';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import type { SolveStatus } from '../chess-puzzle/use-chess-puzzle-solver';

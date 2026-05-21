@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
-    "@libs/assistant": "workspace:*",
+    "@pkgs/assistant": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@libs/auth": "workspace:*",
     "@pkgs/logger": "workspace:*",

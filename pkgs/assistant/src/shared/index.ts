@@ -1,6 +1,6 @@
 /**
- * @libs/assistant — public facade. Import only `@libs/assistant/shared`
- * or `@libs/assistant/client`. Implementation lives under `_internal/`.
+ * @pkgs/assistant — public facade. Import only `@pkgs/assistant/shared`
+ * or `@pkgs/assistant/client`. Implementation lives under `_internal/`.
  */
 export { createAssistant } from './_internal/engine';
 export type { Assistant, AssistantConfig } from './_internal/engine';
