@@ -10,7 +10,7 @@ import { Platform } from 'react-native';
 import type { ColorTokens, ColorScheme } from './colors';
 import { useTheme } from './theme-context';
 
-const STYLE_ELEMENT_ID = 'gamezilla-theme-scrollbar';
+const STYLE_ELEMENT_ID = 'app-theme-scrollbar';
 
 function buildScrollbarCss(
   colorScheme: ColorScheme,

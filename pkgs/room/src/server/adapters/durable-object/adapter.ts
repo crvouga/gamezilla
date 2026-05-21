@@ -119,8 +119,8 @@ function resolveOptions<
  *
  * @example
  * ```ts
- * // apps/api/src/api.ts
- * import { APP_ROOM_MODULES } from '@libs/app/shared/games';
+ * // your-api-worker/src/api.ts
+ * import { APP_ROOM_MODULES } from './shared/rooms';
  * import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
  *
  * export const Room = createDurableObjectAdapter({ modules: APP_ROOM_MODULES });

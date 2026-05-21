@@ -64,12 +64,44 @@ module.exports = {
       },
       to: { dependencyTypes: ['npm-dev'] },
     },
+    // Tier import pyramid: apps -> libs, pkgs; libs -> pkgs; pkgs -> pkgs.
+    // The authoritative gate is scripts/check-tier-imports.ts (workspace
+    // @scope imports through bun symlinks aren't reliably traversed here).
+    // These path-based rules catch the relative `../../libs/...` escape hatch.
+    {
+      name: 'pkgs-not-libs',
+      severity: 'error',
+      comment:
+        'pkgs/ must not import libs/ (tier boundary). pkgs is the leaf tier: reusable, app-agnostic. Move the importer to libs/, or invert the dependency.',
+      from: { path: '^pkgs/' },
+      to: { path: '^libs/' },
+    },
+    {
+      name: 'pkgs-not-apps',
+      severity: 'error',
+      comment:
+        'pkgs/ must not import apps/ (tier boundary). pkgs cannot depend on a specific product surface.',
+      from: { path: '^pkgs/' },
+      to: { path: '^apps/' },
+    },
+    {
+      name: 'libs-not-apps',
+      severity: 'error',
+      comment:
+        'libs/ must not import apps/ (tier boundary). Apps compose libs; not the reverse.',
+      from: { path: '^libs/' },
+      to: { path: '^apps/' },
+    },
   ],
   options: {
     doNotFollow: {
       path: 'node_modules',
       dependencyTypes: ['npm', 'npm-dev', 'npm-optional', 'npm-peer'],
     },
+    // Skip generated build artifacts that bundlers/wranglers stage inside
+    // a package directory. These are not source and produce false positives
+    // (e.g. wrangler dev bundles `apps/turbo-cache` into `pkgs/turbo-cache/.wrangler/`).
+    exclude: '(^|/)(\\.wrangler|\\.turbo|\\.expo|dist|build|coverage)/',
     tsPreCompilationDeps: true,
     includeOnly: '^(apps|libs|pkgs)/',
   },

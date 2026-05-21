@@ -26,7 +26,7 @@ export function SpaceGuestMembershipDisplayNamesJoined({
   const membershipIds = useSpaceGuestMembershipIds(spaceId);
   if (membershipIds.length === 0) return null;
   return (
-    // eslint-disable-next-line gamezillaText/text-use-label -- nested <Text> atoms with separators; cannot collapse to a single label string
+    // eslint-disable-next-line workspaceText/text-use-label -- nested <Text> atoms with separators; cannot collapse to a single label string
     <Text {...optionalProps({ variant, sx, numberOfLines })}>
       {membershipIds.map((mid, idx) => (
         <Fragment key={mid}>

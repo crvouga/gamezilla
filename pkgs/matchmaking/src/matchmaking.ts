@@ -471,7 +471,7 @@ export class Matchmaking {
    *     auto-releases on backend recycle, but the lock could linger
    *     for the rest of the backend's life.
    *   - a per-request `SqlClient` adapter pins one `pg.Client` for
-     *     the whole request, so lock+unlock land on the same backend.
+   *     the whole request, so lock+unlock land on the same backend.
    *   - PGlite uses one in-process connection, so lock+unlock always
    *     land on the same backend.
    *

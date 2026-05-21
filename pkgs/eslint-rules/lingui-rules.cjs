@@ -180,7 +180,7 @@ function linguiRules() {
           'AbortController',
           'clearLocalDatabaseAndReload',
           'usePatchDbLocalDataActions',
-          'createGamezillaApiClient',
+          'createApiClient',
           'createSecureStorage',
           'useDependency',
           'registerValue',

@@ -123,7 +123,31 @@
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
-        "scripts/check-circular-deps.ts"
+        "scripts/check-circular-deps.ts",
+        "scripts/workspace-package-import-graph.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:tier-imports": {
+      "inputs": [
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "apps/**/*.mts",
+        "apps/**/*.cts",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "libs/**/*.mts",
+        "libs/**/*.cts",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx",
+        "pkgs/**/*.mts",
+        "pkgs/**/*.cts",
+        "apps/*/package.json",
+        "libs/*/package.json",
+        "pkgs/*/package.json",
+        "scripts/check-tier-imports.ts",
+        "scripts/workspace-package-import-graph.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"

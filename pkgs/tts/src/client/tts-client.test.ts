@@ -91,10 +91,10 @@ describe('TtsClient.synthesize', () => {
 
   test('strips trailing slashes from apiUrl', async () => {
     const fetchMock = fetchMockSynthThenAudio(SAMPLE_RESPONSE);
-    const client = makeClient(fetchMock, 'https://api.gamezilla.app///');
+    const client = makeClient(fetchMock, 'https://api.example.com///');
     await client.synthesize(SAMPLE_REQUEST);
     const audioCall = fetchMock.mock.calls[1] as unknown as [string];
-    expect(audioCall[0]).toBe('https://api.gamezilla.app/tts/audio/abc.mp3');
+    expect(audioCall[0]).toBe('https://api.example.com/tts/audio/abc.mp3');
   });
 
   test('passes absolute URLs through unchanged', async () => {

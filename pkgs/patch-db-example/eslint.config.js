@@ -1,4 +1,4 @@
-const eslintPluginGamezillaI18n = require('../../pkgs/eslint-rules/gamezilla-i18n.cjs');
+const eslintPluginWorkspaceI18n = require('../../pkgs/eslint-rules/lingui-text.cjs');
 const eslintPluginLingui = require('eslint-plugin-lingui');
 const {
   createSharedBlocks,
@@ -10,11 +10,11 @@ module.exports = [
   {
     files: ['**/*.tsx'],
     plugins: {
-      gamezillaI18n: eslintPluginGamezillaI18n,
+      workspaceI18n: eslintPluginWorkspaceI18n,
       lingui: eslintPluginLingui,
     },
     rules: {
-      'gamezillaI18n/text-must-be-trans': 'off',
+      'workspaceI18n/text-must-be-trans': 'off',
       ...linguiRules(),
       'lingui/no-unlocalized-strings': 'off',
     },

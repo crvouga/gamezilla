@@ -1,6 +1,6 @@
 import type { ThemePreferenceStorage } from '../../theme';
 
-const DEFAULT_KEY = '@gamezilla/command-history';
+const DEFAULT_KEY = '@app/command-history';
 const DEFAULT_LIMIT = 20;
 
 export type HistoryStoreOptions = {

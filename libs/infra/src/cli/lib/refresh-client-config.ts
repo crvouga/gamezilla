@@ -1,4 +1,3 @@
-import { createApiRpcClient } from '@apps/api/rpc';
 import { assert } from '@pkgs/assert';
 import type { CiPlatform } from '../platform/platform';
 import { fail, fmtElapsed, fmtMs, info, ok, warn } from './fmt';
@@ -37,7 +36,6 @@ export async function refreshClientConfig(
   platform: CiPlatform,
   outputs: InfraOutputs
 ): Promise<void> {
-  const client = createApiRpcClient(outputs.api_url);
   const url = clientConfigRefreshUrl(outputs.api_url);
   info('Target', url);
 
@@ -50,13 +48,12 @@ export async function refreshClientConfig(
 
     let res: Response;
     try {
-      res = await client['client-config']['refresh'].$post(undefined, {
-        init: {
-          redirect: 'follow',
-          signal: AbortSignal.timeout(timeoutMs),
-          cache: 'no-store',
-          headers: { Accept: 'application/json' },
-        },
+      res = await fetch(url, {
+        method: 'POST',
+        redirect: 'follow',
+        signal: AbortSignal.timeout(timeoutMs),
+        cache: 'no-store',
+        headers: { Accept: 'application/json' },
       });
     } catch (e) {
       const elapsed = performance.now() - started;

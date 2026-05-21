@@ -120,7 +120,7 @@
     "pkgs/assistant/src/**/*.tsx",
     "pkgs/turbo-cache/src/**/*.ts",
     "apps/turbo-cache/src/**/*.ts",
-    "pkgs/stripe-cli/src/**/*.ts",
+    "libs/stripe-cli/src/**/*.ts",
     "pkgs/pg/src/**/*.ts",
     "apps/client/.expo/types/**/*.ts",
     "apps/client/expo-env.d.ts",

@@ -23,7 +23,7 @@ import type { CommandId } from './types';
 import { isCommandEnabled, isCommandVisible, normalizeShortcut } from './types';
 
 const DEFAULT_OPEN_SHORTCUTS = ['mod+k', 'mod+shift+p'];
-const DEFAULT_STORAGE_KEY = '@gamezilla/command-history';
+const DEFAULT_STORAGE_KEY = '@app/command-history';
 
 export type CommandRegistryProviderProps = {
   children: ReactNode;

@@ -115,7 +115,19 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 
 `apps/api` and `apps/client` themselves do **not** need to be edited beyond the registries above — game packages compose into spaces, and spaces is already wired into the shells.
 
-### Layering rules (enforced by depcruise)
+### Layering rules (enforced by depcruise + ci:tier-imports)
+
+**Tier pyramid** — one-way dependencies between tiers, enforced by `bun run ci:tier-imports` (authoritative; scans `@<tier>/<name>` imports + workspace `package.json` deps) and depcruise rules `pkgs-not-libs`, `pkgs-not-apps`, `libs-not-apps`:
+
+```text
+apps  →  libs, pkgs   (apps compose anything)
+libs  →  pkgs only    (libs may not import apps)
+pkgs  →  pkgs only    (leaf tier: reusable, app-agnostic)
+```
+
+`pkgs/` packages are the foundation: they must work in any monorepo, with no references to `gamezilla`, `apps/api`, `@libs/*`, or any product surface (in code, comments, or default config strings).
+
+**Other layering rules:**
 
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`).
 - Within and across feature packages, `client/` cannot import from `server/` and vice-versa (`client-not-server`, `server-not-client`).

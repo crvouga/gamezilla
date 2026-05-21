@@ -1,5 +1,5 @@
-const eslintPluginGamezillaI18n = require('../../pkgs/eslint-rules/gamezilla-i18n.cjs');
-const eslintPluginGamezillaText = require('../../pkgs/eslint-rules/gamezilla-text.cjs');
+const eslintPluginWorkspaceI18n = require('../../pkgs/eslint-rules/lingui-text.cjs');
+const eslintPluginWorkspaceText = require('../../pkgs/eslint-rules/text-label.cjs');
 const eslintPluginLingui = require('eslint-plugin-lingui');
 const {
   createSharedBlocks,
@@ -11,10 +11,10 @@ module.exports = [
   {
     files: ['**/*.{ts,tsx}'],
     plugins: {
-      gamezillaText: eslintPluginGamezillaText,
+      workspaceText: eslintPluginWorkspaceText,
     },
     rules: {
-      'gamezillaText/text-use-label': 'error',
+      'workspaceText/text-use-label': 'error',
       // react-native-reanimated worklets mutate SharedValue.value by design.
       'react-hooks/immutability': 'off',
       // React Compiler optimizer hints; existing manual memoization is intentional.
@@ -24,11 +24,11 @@ module.exports = [
   {
     files: ['**/*.tsx'],
     plugins: {
-      gamezillaI18n: eslintPluginGamezillaI18n,
+      workspaceI18n: eslintPluginWorkspaceI18n,
       lingui: eslintPluginLingui,
     },
     rules: {
-      'gamezillaI18n/text-must-be-trans': 'error',
+      'workspaceI18n/text-must-be-trans': 'error',
       ...linguiRules(),
     },
   },
@@ -41,7 +41,7 @@ module.exports = [
       'lingui/no-expression-in-message': 'off',
       'lingui/no-single-tag-to-translate': 'off',
       'lingui/no-single-variables-to-translate': 'off',
-      'gamezillaI18n/text-must-be-trans': 'off',
+      'workspaceI18n/text-must-be-trans': 'off',
     },
   },
 ];

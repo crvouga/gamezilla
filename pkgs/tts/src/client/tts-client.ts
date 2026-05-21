@@ -15,7 +15,7 @@ type FetchFn = (
 ) => Promise<Response>;
 
 export type TtsClientOptions = {
-  /** Origin of the API Worker, e.g. `https://api.gamezilla.app`. No trailing slash. */
+  /** Origin of the API Worker, e.g. `https://api.example.com`. No trailing slash. */
   readonly apiUrl: string;
   /**
    * Local-first audio cache. The client computes the same SHA-256 cache key
@@ -148,7 +148,7 @@ export class TtsClient {
    * Resolves the server's root-relative `url` (`/tts/audio/<hash>.<ext>`)
    * against the configured `apiUrl`. The server returns relative URLs
    * because `wrangler dev` rewrites the request URL to the configured route
-   * domain (`api.gamezilla.app`) — relying on the server-side origin would
+   * domain (e.g. `api.example.com`) — relying on the server-side origin would
    * break local playback.
    */
   private absolutize(url: string): string {

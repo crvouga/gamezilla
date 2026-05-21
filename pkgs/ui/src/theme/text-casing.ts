@@ -5,7 +5,7 @@
  * navigation titles, labels). Content variants -- `body`, `bodyBold`,
  * `caption`, `link`, `mono` -- always render verbatim so URLs, code,
  * identifiers, and proper nouns are not mangled (e.g. we must never emit
- * `Https://Api.Gamezilla.App`).
+ * `Https://Api.Example.Com`).
  */
 
 import type { TextStyle } from 'react-native';

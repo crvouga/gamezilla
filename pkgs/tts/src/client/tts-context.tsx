@@ -52,7 +52,7 @@ type ContextValue = UseTtsResult;
 const Ctx = createContext<ContextValue | null>(null);
 
 export type TtsProviderProps = {
-  /** Origin of the API Worker, e.g. `https://api.gamezilla.app`. */
+  /** Origin of the API Worker, e.g. `https://api.example.com`. */
   readonly apiUrl: string;
   /** Optional fetch override (for adding `Authorization` headers, etc.). */
   readonly fetch?: FetchFn;
@@ -66,7 +66,7 @@ export type TtsProviderProps = {
  * `Voice` choice — the chess puzzle screen, for example, hard-codes
  * `Voices.David`.
  *
- * `apiUrl` should be the same origin the rest of your `@apps/api` client
+ * `apiUrl` should be the same origin the rest of your API client
  * code already targets — typically resolved from the runtime config service
  * (see `useConfigService().getApiUrl()` in `libs/auth`).
  */

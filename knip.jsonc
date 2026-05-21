@@ -59,7 +59,7 @@
     ".": {
       "entry": ["package.json", "scripts/*.ts"],
     },
-    "pkgs/stripe-cli": {
+    "libs/stripe-cli": {
       "entry": "src/dev.ts",
     },
     "libs/qa": {

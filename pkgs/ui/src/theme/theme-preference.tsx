@@ -15,7 +15,7 @@ import {
 
 import type { ThemeProviderProps } from './theme-context';
 
-const DEFAULT_STORAGE_KEY = '@gamezilla/color-scheme-preference';
+const DEFAULT_STORAGE_KEY = '@app/color-scheme-preference';
 
 export type ThemePreference = ThemeProviderProps['colorScheme'];
 

@@ -1,6 +1,6 @@
 /**
  * Package-level graph of @apps|@libs|@pkgs / * imports discovered from source.
- * Shared by ci:circular-deps and deps:graph.
+ * Shared by ci:circular-deps, ci:tier-imports, and deps:graph.
  */
 import { Glob } from 'bun';
 import { readFileSync } from 'node:fs';
@@ -8,7 +8,8 @@ import { join, relative } from 'node:path';
 
 export const REPO_ROOT = join(import.meta.dirname, '..');
 const SCOPES = ['@apps/', '@libs/', '@pkgs/'] as const;
-const TIER_DIRS = ['apps', 'libs', 'pkgs'] as const;
+export const TIER_DIRS = ['apps', 'libs', 'pkgs'] as const;
+export type Tier = (typeof TIER_DIRS)[number];
 const MAX_IMPORTER_SAMPLES = 3;
 
 export type PackageName = string;
@@ -18,6 +19,10 @@ export type PackageImportGraph = Map<PackageName, Map<PackageName, string[]>>;
 
 export const IMPORT_PATTERN =
   /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"]@(?:apps|libs|pkgs)\/([^/'"\s)]+)/g;
+
+/** Same as {@link IMPORT_PATTERN} but also captures the tier scope. */
+export const TIER_IMPORT_PATTERN =
+  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"]@(apps|libs|pkgs)\/([^/'"\s)]+)/g;
 
 export function stripComments(source: string): string {
   return source
@@ -51,6 +56,48 @@ export function discoverPackages(): Map<PackageName, string> {
       if (matchedScope === undefined) continue;
       const shortName = (pkg.name as string).slice(matchedScope.length);
       packages.set(shortName, join(abs, '..'));
+    }
+  }
+  return packages;
+}
+
+export type PackageInfo = {
+  /** Absolute path of the package directory. */
+  dir: string;
+  /** Tier derived from the parent directory, not the `name` field. */
+  tier: Tier;
+  /** Full scoped name as declared in `package.json` (e.g. `@pkgs/assert`). */
+  scopedName: string;
+};
+
+/**
+ * Like {@link discoverPackages} but also reports each package's tier (from its
+ * parent folder) and its full scoped name. Tier is the source of truth for
+ * dependency-direction checks; mismatches between folder and scope are caught
+ * here too.
+ */
+export function discoverPackagesWithTier(): Map<PackageName, PackageInfo> {
+  const packages = new Map<PackageName, PackageInfo>();
+  for (const tier of TIER_DIRS) {
+    const glob = new Glob(`${tier}/*/package.json`);
+    for (const rel of glob.scanSync({ cwd: REPO_ROOT, absolute: false })) {
+      const abs = join(REPO_ROOT, rel);
+      let pkg: { name?: unknown };
+      try {
+        pkg = JSON.parse(readFileSync(abs, 'utf8')) as { name?: unknown };
+      } catch {
+        continue;
+      }
+      if (typeof pkg.name !== 'string') continue;
+      const scopedName = pkg.name;
+      const matchedScope = SCOPES.find((s) => scopedName.startsWith(s));
+      if (matchedScope === undefined) continue;
+      const shortName = scopedName.slice(matchedScope.length);
+      packages.set(shortName, {
+        dir: join(abs, '..'),
+        tier,
+        scopedName,
+      });
     }
   }
   return packages;

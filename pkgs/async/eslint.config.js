@@ -1,4 +1,4 @@
-const eslintPluginGamezillaI18n = require('../../pkgs/eslint-rules/gamezilla-i18n.cjs');
+const eslintPluginWorkspaceI18n = require('../../pkgs/eslint-rules/lingui-text.cjs');
 const eslintPluginLingui = require('eslint-plugin-lingui');
 const {
   createSharedBlocks,
@@ -22,7 +22,7 @@ module.exports = [
       'lingui/no-expression-in-message': 'off',
       'lingui/no-single-tag-to-translate': 'off',
       'lingui/no-single-variables-to-translate': 'off',
-      'gamezillaI18n/text-must-be-trans': 'off',
+      'workspaceI18n/text-must-be-trans': 'off',
     },
   },
 ];

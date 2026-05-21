@@ -67,7 +67,7 @@ export function SpaceMiniplayerCard({
               <Text
                 variant="caption"
                 sx={{ color: SEPARATOR_COLOR }}
-                // eslint-disable-next-line gamezillaI18n/text-must-be-trans -- typographic separator
+                // eslint-disable-next-line workspaceI18n/text-must-be-trans -- typographic separator
                 label="·"
               />
               <MiniplayerMemberCountText spaceId={spaceId} />

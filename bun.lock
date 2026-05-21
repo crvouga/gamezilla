@@ -284,7 +284,6 @@
     "libs/infra": {
       "name": "@libs/infra",
       "dependencies": {
-        "@apps/api": "workspace:*",
         "@neondatabase/serverless": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
@@ -385,6 +384,20 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/stripe-cli": {
+      "name": "@libs/stripe-cli",
+      "version": "1.0.0",
+      "dependencies": {
+        "@libs/stripe": "workspace:*",
+        "@pkgs/doppler": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "stripe": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -818,20 +831,6 @@
     "pkgs/static-file-server": {
       "name": "@pkgs/static-file-server",
       "version": "0.0.0",
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/stripe-cli": {
-      "name": "@pkgs/stripe-cli",
-      "version": "1.0.0",
-      "dependencies": {
-        "@libs/stripe": "workspace:*",
-        "@pkgs/doppler": "workspace:*",
-        "@pkgs/secret-store": "workspace:*",
-        "stripe": "catalog:",
-      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
@@ -1663,6 +1662,8 @@
 
     "@libs/stripe": ["@libs/stripe@workspace:libs/stripe"],
 
+    "@libs/stripe-cli": ["@libs/stripe-cli@workspace:libs/stripe-cli"],
+
     "@lingui/babel-plugin-extract-messages": ["@lingui/babel-plugin-extract-messages@5.9.5", "", {}, "sha512-XOAXMPOkpy45784q5bCNN5PizoAecxkBm8kv8CEusI/f9kR3vMCcpH4kvSchU05JkKAVE8eIsdxb2zM6eDJTeA=="],
 
     "@lingui/babel-plugin-lingui-macro": ["@lingui/babel-plugin-lingui-macro@5.9.5", "", { "dependencies": { "@babel/core": "^7.20.12", "@babel/runtime": "^7.20.13", "@babel/types": "^7.20.7", "@lingui/conf": "5.9.5", "@lingui/core": "5.9.5", "@lingui/message-utils": "5.9.5" }, "peerDependencies": { "babel-plugin-macros": "2 || 3" }, "optionalPeers": ["babel-plugin-macros"] }, "sha512-TDIrOa2hAz8kXrZ0JfMGaIiFIE4TEdqI2he4OpkTSCfBh3ec/gSCn1kNW5HdviO7x46Gvy567YOgHNOI9/e4Fg=="],
@@ -1838,8 +1839,6 @@
     "@pkgs/sqlite": ["@pkgs/sqlite@workspace:pkgs/sqlite"],
 
     "@pkgs/static-file-server": ["@pkgs/static-file-server@workspace:pkgs/static-file-server"],
-
-    "@pkgs/stripe-cli": ["@pkgs/stripe-cli@workspace:pkgs/stripe-cli"],
 
     "@pkgs/task-dag": ["@pkgs/task-dag@workspace:pkgs/task-dag"],
 
