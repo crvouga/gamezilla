@@ -1,4 +1,4 @@
-import { CopyToClipboardField } from '@gamezilla/ui';
+import { CopyToClipboardField } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

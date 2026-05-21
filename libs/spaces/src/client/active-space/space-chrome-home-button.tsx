@@ -1,4 +1,4 @@
-import { IconButton, IconSymbol, useTheme } from '@gamezilla/ui';
+import { IconButton, IconSymbol, useTheme } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

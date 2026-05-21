@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { describe, expect, test } from 'bun:test';
 import {
   toAttributeState,

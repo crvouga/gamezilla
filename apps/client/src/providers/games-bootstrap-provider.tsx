@@ -1,4 +1,4 @@
-import { GamesBootstrap } from '@gamezilla/app/client/games-bootstrap';
+import { GamesBootstrap } from '@libs/app/client/games-bootstrap';
 import type { ReactNode } from 'react';
 
 export function GamesBootstrapProvider({

@@ -1,9 +1,11 @@
-import { createLogger } from '@gamezilla/logger';
+import { createLogger } from '@pkgs/logger';
 import { Hono } from 'hono';
 
-const log = createLogger({ name: 'turbo-cache' });
-
-interface Env {
+/**
+ * Cloudflare bindings the turbo-cache Hono app needs at request time.
+ * Consumers (workers) declare these on their own `Env` and pass it through.
+ */
+export interface TurboCacheBindings {
   CACHE_BUCKET: R2Bucket;
   TURBO_TOKEN: string;
 }
@@ -17,83 +19,76 @@ function sanitizeHeaderValue(raw: string | null): string | undefined {
   return clean.length > 0 ? clean : undefined;
 }
 
-const app = new Hono<{ Bindings: Env }>()
-  .use('*', async (c, next) => {
-    if (c.req.method === 'OPTIONS') {
-      return new Response(null, { status: 204 });
-    }
-    const path = new URL(c.req.url).pathname;
-    if (c.req.method === 'GET' && path === '/health') {
-      return c.json({ status: 'ok' });
-    }
-    if (
-      typeof c.env.TURBO_TOKEN !== 'string' ||
-      c.env.TURBO_TOKEN.length === 0
-    ) {
-      return c.json({ error: 'Server misconfigured' }, 500);
-    }
-    if (!authorize(c.req.raw, c.env.TURBO_TOKEN)) {
-      return c.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    return next();
-  })
-  .post('/v8/artifacts/events', (c) => c.json({}))
-  .get('/v8/artifacts/status', (c) => c.json({ status: 'enabled' }))
-  .all('/v8/artifacts/:hash', async (c) => {
-    const hash = c.req.param('hash');
-    if (!HEX_HASH.test(hash)) {
-      return c.json({ error: 'Invalid artifact hash' }, 400);
-    }
-    const teamId = new URL(c.req.url).searchParams.get('teamId') ?? 'default';
-    if (!SAFE_KEY_SEGMENT.test(teamId)) {
-      return c.json({ error: 'Invalid teamId' }, 400);
-    }
-    const key = `${teamId}/${hash}`;
-    if (c.req.method === 'PUT') {
-      return handlePut(c.env, key, c.req.raw);
-    }
-    if (c.req.method === 'GET') {
-      return handleGet(c.env, key);
-    }
-    return c.json({ error: 'Method not allowed' }, 405);
-  })
-  .get('/v2/user', (c) =>
-    c.json({
-      user: {
-        id: 'turbo-cache',
-        username: 'turbo-cache',
-        email: 'cache@localhost',
-      },
+/**
+ * Build the Turborepo Remote Cache Hono app.
+ *
+ * The returned `Hono<{ Bindings: TurboCacheBindings }>` implements the subset
+ * of the Vercel Remote Cache HTTP surface that the `turbo` CLI talks to:
+ * `GET /health`, the auth middleware, `/v8/artifacts/*` PUT/GET, plus the
+ * minimal `/v2/user` + `/v2/teams` lookups the CLI hits before pushing.
+ *
+ * The runtime entry-point (worker `fetch` handler, observability, etc.) is
+ * the consumer's responsibility — wire this app into your Worker.
+ */
+export function createTurboCacheApp(): Hono<{ Bindings: TurboCacheBindings }> {
+  return new Hono<{ Bindings: TurboCacheBindings }>()
+    .use('*', async (c, next) => {
+      if (c.req.method === 'OPTIONS') {
+        return new Response(null, { status: 204 });
+      }
+      const path = new URL(c.req.url).pathname;
+      if (c.req.method === 'GET' && path === '/health') {
+        return c.json({ status: 'ok' });
+      }
+      if (
+        typeof c.env.TURBO_TOKEN !== 'string' ||
+        c.env.TURBO_TOKEN.length === 0
+      ) {
+        return c.json({ error: 'Server misconfigured' }, 500);
+      }
+      if (!authorize(c.req.raw, c.env.TURBO_TOKEN)) {
+        return c.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      return next();
     })
-  )
-  .get('/v2/teams', (c) => {
-    const slug = new URL(c.req.url).searchParams.get('slug') ?? 'default';
-    return c.json({ teams: [{ id: slug, slug, name: slug }] });
-  })
-  .get('/v2/teams/:teamId', (c) => {
-    const teamId = c.req.param('teamId');
-    return c.json({ id: teamId, slug: teamId, name: teamId });
-  });
-
-export default {
-  async fetch(
-    request: Request,
-    env: Env,
-    _ctx: ExecutionContext
-  ): Promise<Response> {
-    const start = Date.now();
-    const { method } = request;
-    const url = new URL(request.url);
-    const response = await app.fetch(request, env);
-    log.info('request', {
-      method,
-      path: url.pathname,
-      status: response.status,
-      durationMs: Date.now() - start,
+    .post('/v8/artifacts/events', (c) => c.json({}))
+    .get('/v8/artifacts/status', (c) => c.json({ status: 'enabled' }))
+    .all('/v8/artifacts/:hash', async (c) => {
+      const hash = c.req.param('hash');
+      if (!HEX_HASH.test(hash)) {
+        return c.json({ error: 'Invalid artifact hash' }, 400);
+      }
+      const teamId = new URL(c.req.url).searchParams.get('teamId') ?? 'default';
+      if (!SAFE_KEY_SEGMENT.test(teamId)) {
+        return c.json({ error: 'Invalid teamId' }, 400);
+      }
+      const key = `${teamId}/${hash}`;
+      if (c.req.method === 'PUT') {
+        return handlePut(c.env, key, c.req.raw);
+      }
+      if (c.req.method === 'GET') {
+        return handleGet(c.env, key);
+      }
+      return c.json({ error: 'Method not allowed' }, 405);
+    })
+    .get('/v2/user', (c) =>
+      c.json({
+        user: {
+          id: 'turbo-cache',
+          username: 'turbo-cache',
+          email: 'cache@localhost',
+        },
+      })
+    )
+    .get('/v2/teams', (c) => {
+      const slug = new URL(c.req.url).searchParams.get('slug') ?? 'default';
+      return c.json({ teams: [{ id: slug, slug, name: slug }] });
+    })
+    .get('/v2/teams/:teamId', (c) => {
+      const teamId = c.req.param('teamId');
+      return c.json({ id: teamId, slug: teamId, name: teamId });
     });
-    return response;
-  },
-} satisfies ExportedHandler<Env>;
+}
 
 function authorize(request: Request, token: string): boolean {
   const header = request.headers.get('Authorization');
@@ -102,7 +97,7 @@ function authorize(request: Request, token: string): boolean {
 }
 
 async function handlePut(
-  env: Env,
+  env: TurboCacheBindings,
   key: string,
   request: Request
 ): Promise<Response> {
@@ -122,7 +117,10 @@ async function handlePut(
   return Response.json({ urls: [key] });
 }
 
-async function handleGet(env: Env, key: string): Promise<Response> {
+async function handleGet(
+  env: TurboCacheBindings,
+  key: string
+): Promise<Response> {
   const object = await env.CACHE_BUCKET.get(key);
   if (!object) {
     return Response.json({ error: 'Artifact not found' }, { status: 404 });
@@ -134,4 +132,28 @@ async function handleGet(env: Env, key: string): Promise<Response> {
   if (tag) headers.set('x-artifact-tag', tag);
 
   return new Response(object.body, { headers });
+}
+
+export function createTurboCacheCloudflareWorker() {
+  const app = createTurboCacheApp();
+  const log = createLogger({ name: 'turbo-cache' });
+  return {
+    async fetch(
+      request: Request,
+      env: TurboCacheBindings,
+      _ctx: ExecutionContext
+    ): Promise<Response> {
+      const start = Date.now();
+      const { method } = request;
+      const url = new URL(request.url);
+      const response = await app.fetch(request, env);
+      log.info('request', {
+        method,
+        path: url.pathname,
+        status: response.status,
+        durationMs: Date.now() - start,
+      });
+      return response;
+    },
+  } satisfies ExportedHandler<TurboCacheBindings>;
 }

@@ -1,4 +1,4 @@
-import { Assert } from '@gamezilla/assert';
+import { Assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createAttrNamespace, type AttributeState } from './attribute';
 

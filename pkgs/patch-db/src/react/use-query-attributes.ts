@@ -1,4 +1,4 @@
-import type { Keyword } from '@gamezilla/keyword';
+import type { Keyword } from '@pkgs/keyword';
 import { useMemo } from 'react';
 import type {
   PatchDbQuery,

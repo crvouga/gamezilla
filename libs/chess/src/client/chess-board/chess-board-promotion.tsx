@@ -11,7 +11,7 @@ import {
   Pressable,
   Text,
   useTheme,
-} from '@gamezilla/ui';
+} from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Canvas,

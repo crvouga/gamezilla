@@ -4,9 +4,11 @@ dist
 *.lock
 
 # Generated files
-packages/client/public/absurd-sql-worker/
-packages/client/src/i18n/locales/*/messages.ts
-packages/client/expo-env.d.ts
-packages/qa/playwright-report/
-packages/qa/test-results/
+apps/client/public/absurd-sql-worker/
+apps/client/src/i18n/locales/*/messages.ts
+apps/client/expo-env.d.ts
+libs/qa/playwright-report/
+libs/qa/test-results/
+pkgs/pg/.postgres/
+pkgs/pg/.pglite/
 .cache

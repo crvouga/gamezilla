@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/static-file-server",
+  "name": "@pkgs/static-file-server",
   "version": "0.0.0",
   "private": true,
   "exports": {

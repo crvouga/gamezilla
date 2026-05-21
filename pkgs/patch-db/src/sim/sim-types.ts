@@ -1,6 +1,6 @@
-import type { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
-import type { Unsubscribe } from '@gamezilla/pub-sub/interface';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import type { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
+import type { Unsubscribe } from '@pkgs/pub-sub/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import type { SyncPatchDb } from '../impl-sync';
 import type {

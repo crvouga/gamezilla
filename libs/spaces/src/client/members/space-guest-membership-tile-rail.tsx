@@ -2,8 +2,8 @@ import { SpaceMemberTileRail } from './space-member-tile-rail';
 import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceMembershipAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type { ReactNode } from 'react';
 
 export type SpaceGuestMembershipTileRailProps = {

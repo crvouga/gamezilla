@@ -1,3 +1,3 @@
-import { SettingsScreen } from '@gamezilla/client/settings/settings-screen';
+import { SettingsScreen } from '@apps/client/settings/settings-screen';
 
 export default SettingsScreen;

@@ -4,7 +4,7 @@
  * `centerTabs` so we never stack two top bars.
  */
 
-import { Box, type IconSymbolName } from '@gamezilla/ui';
+import { Box, type IconSymbolName } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { usePathname } from 'expo-router';
 import type { ReactNode } from 'react';

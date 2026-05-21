@@ -3,8 +3,8 @@ import {
   CLIENT_CONFIG_ENTITY_TYPE,
   ClientConfigAttr,
 } from '../shared/client-config-entities';
-import { Box, Card, Text } from '@gamezilla/ui';
-import { useQuery } from '@gamezilla/patch-db/react';
+import { Box, Card, Text } from '@pkgs/ui';
+import { useQuery } from '@pkgs/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 
 export function ClientConfigEntityCard() {

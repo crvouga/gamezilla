@@ -1,6 +1,6 @@
-import type { Keyword } from '@gamezilla/keyword';
-import { assert } from '@gamezilla/assert';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import type { Keyword } from '@pkgs/keyword';
+import { assert } from '@pkgs/assert';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { PatchDbHookRegistry } from '../hook-registry';
 import type {
   Entity,

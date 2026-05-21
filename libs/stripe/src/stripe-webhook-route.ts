@@ -1,9 +1,9 @@
-import { createLogger } from '@gamezilla/logger';
-import type { SecretStore } from '@gamezilla/secret-store';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
-import { patchDbSystemContext } from '@gamezilla/patch-db/interface';
-import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
-import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
+import { createLogger } from '@pkgs/logger';
+import type { SecretStore } from '@pkgs/secret-store';
+import type { PatchDb } from '@pkgs/patch-db/interface';
+import { patchDbSystemContext } from '@pkgs/patch-db/interface';
+import { PatchMetaAttr } from '@pkgs/patch-db/metadata/patch-metadata';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '@pkgs/patch-db/policy/system-device';
 import { Hono } from 'hono';
 import Stripe from 'stripe';
 import { stripeEventObjectId } from './event-object-id';

@@ -19,7 +19,7 @@
  * ```
  */
 
-import type { LocalizedString } from '@gamezilla/i18n';
+import type { LocalizedString } from '@pkgs/i18n';
 import { useContext, useMemo, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 

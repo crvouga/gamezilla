@@ -4,7 +4,7 @@ import { runStep } from '../../platform/platform';
 import { runAsync } from '../../subprocess';
 
 /**
- * Runs the `@gamezilla/stripe sync` script: catalog + patch-db backfill +
+ * Runs the `@libs/stripe sync` script: catalog + patch-db backfill +
  * webhook endpoints, with `STRIPE_WEBHOOK_SECRET` written back to Doppler.
  * Must run after API worker is deployed so the webhook endpoint URL exists.
  */
@@ -13,7 +13,7 @@ export async function runStripeSyncPhase(platform: CiPlatform): Promise<void> {
     await runAsync(
       platform,
       'bun',
-      ['run', '--filter', '@gamezilla/stripe', '--elide-lines=0', 'sync'],
+      ['run', '--filter', '@libs/stripe', '--elide-lines=0', 'sync'],
       {
         cwd: REPO_ROOT,
         env: process.env,

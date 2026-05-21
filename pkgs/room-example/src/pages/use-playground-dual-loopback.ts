@@ -1,19 +1,19 @@
-import { asKeyword } from '@gamezilla/keyword';
+import { asKeyword } from '@pkgs/keyword';
 import {
   Room,
   type RoomCommandPayload,
   type RoomEvent,
   type RoomState,
-} from '@gamezilla/room';
-import { InMemoryClientStorage } from '@gamezilla/room/client/adapters/storage/memory';
-import { RoomServer } from '@gamezilla/room/server';
-import { InMemoryRoomStorage } from '@gamezilla/room/server/adapters/memory';
+} from '@pkgs/room';
+import { InMemoryClientStorage } from '@pkgs/room/client/adapters/storage/memory';
+import { RoomServer } from '@pkgs/room/server';
+import { InMemoryRoomStorage } from '@pkgs/room/server/adapters/memory';
 import {
   Decrement,
   Increment,
   LoopbackRoomTransport,
   TestCounterModule,
-} from '@gamezilla/room/testkit';
+} from '@pkgs/room/testkit';
 import { useCallback, useEffect, useState } from 'react';
 
 type CounterRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;

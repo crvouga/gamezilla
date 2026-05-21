@@ -12,7 +12,7 @@
  * `assertEntityType`), and string literals are still SQL-escaped for defense
  * in depth.
  */
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { IndexDialect } from '../indexes/dialect';
 import type {
   NormalizedIndexField,

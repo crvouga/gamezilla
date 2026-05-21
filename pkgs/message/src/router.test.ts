@@ -1,6 +1,6 @@
-import { ValidationError } from '@gamezilla/assert';
+import { ValidationError } from '@pkgs/assert';
 import { describe, expect, it } from 'bun:test';
-import { asKeyword } from '@gamezilla/keyword/keyword';
+import { asKeyword } from '@pkgs/keyword/keyword';
 import {
   acceptUnknownPayload,
   createMessageNamespace,

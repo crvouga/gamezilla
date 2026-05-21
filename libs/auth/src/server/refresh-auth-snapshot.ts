@@ -5,18 +5,14 @@ import {
   AccountSessionAttr,
   DEVICE_ENTITY_TYPE,
   DeviceAttr,
-} from '@gamezilla/auth/shared';
-import { assertDeviceId, assertUuid } from '@gamezilla/auth/shared/device-id';
-import type {
-  Entity,
-  PatchDb,
-  PatchInput,
-} from '@gamezilla/patch-db/interface';
+} from '@libs/auth/shared';
+import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
+import type { Entity, PatchDb, PatchInput } from '@pkgs/patch-db/interface';
 import {
   PATCHES_DB_SYSTEM_CONTEXT,
   toAttributeState,
-} from '@gamezilla/patch-db/interface';
-import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
+} from '@pkgs/patch-db/interface';
+import { PatchMetaAttr } from '@pkgs/patch-db/metadata/patch-metadata';
 
 import type { HostedBetterAuth } from './better-auth-create';
 

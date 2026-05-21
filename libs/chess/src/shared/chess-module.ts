@@ -2,7 +2,7 @@ import {
   createComposedMessageRouter,
   isMessageEnvelope,
   type Message,
-} from '@gamezilla/message';
+} from '@pkgs/message';
 import {
   assertRoomModuleName,
   ROOM_ERROR_TYPE,
@@ -11,7 +11,7 @@ import {
   type RoomError,
   type RoomModule,
   type RoomState,
-} from '@gamezilla/room';
+} from '@pkgs/room';
 
 import { chessGameShared } from './chess-game';
 
@@ -40,7 +40,7 @@ const eventReducer = createComposedMessageRouter<RoomState, void, RoomState>(
 /**
  * Self-contained chess RoomModule built only from chess's own routers. Used
  * by chess tests so they exercise the chess FSMs without importing
- * `@gamezilla/spaces` (which would re-introduce a chess <-> spaces cycle).
+ * `@libs/spaces` (which would re-introduce a chess <-> spaces cycle).
  *
  * Production traffic always goes through the composed `SpaceModule` built
  * by `createSpaceModule(name, [chessGameShared, …])` at the composition root.

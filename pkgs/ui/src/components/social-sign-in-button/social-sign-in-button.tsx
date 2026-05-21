@@ -18,8 +18,8 @@
  * ```
  */
 
-import type { LocalizedString } from '@gamezilla/i18n';
-import { asLocalized } from '@gamezilla/i18n';
+import type { LocalizedString } from '@pkgs/i18n';
+import { asLocalized } from '@pkgs/i18n';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import {

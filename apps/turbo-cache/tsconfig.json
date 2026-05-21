@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "../../pkgs/ts-reset/src/index.ts",
+    "../../pkgs/turbo-cache/src/cloudflare.d.ts",
+    "./src/**/*.ts"
+  ]
+}

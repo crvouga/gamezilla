@@ -1,5 +1,5 @@
-import { Text } from '@gamezilla/ui';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+import { Text } from '@pkgs/ui';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle } from 'react-native';

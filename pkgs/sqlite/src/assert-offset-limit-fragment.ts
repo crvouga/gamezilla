@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 
 /**
  * LIMIT/OFFSET fragments are appended to queries with `?` parameter placeholders.

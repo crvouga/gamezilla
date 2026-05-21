@@ -3,16 +3,16 @@ import type {
   PatchDbResult,
   PatchInput,
   WritePatchesResult,
-} from '@gamezilla/patch-db/interface';
-import type { PatchDbClientTransport } from '@gamezilla/patch-db/transport';
+} from '@pkgs/patch-db/interface';
+import type { PatchDbClientTransport } from '@pkgs/patch-db/transport';
 import {
   NO_CACHE_REQUEST_HEADERS,
   PatchDbTransportRejectedError,
-} from '@gamezilla/patch-db/transport';
+} from '@pkgs/patch-db/transport';
 import {
   assertWireReadResponse,
   assertWireWriteResponse,
-} from '@gamezilla/patch-db/validate-remote';
+} from '@pkgs/patch-db/validate-remote';
 import type { ApiClient } from './hc';
 
 const JSON_HEADERS = {
@@ -20,7 +20,7 @@ const JSON_HEADERS = {
   Accept: 'application/json',
 } as const;
 
-/** Must match {@link ANON_ID_HEADER} in packages/api session-middleware. */
+/** Must match {@link ANON_ID_HEADER} in apps/api session-middleware. */
 const X_ANON_ID = 'x-anon-id';
 
 export type CreatePatchDbHcTransportOptions = {

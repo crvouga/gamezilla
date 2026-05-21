@@ -1,9 +1,9 @@
 /**
  * Tiger Style: Clojure-style namespaced keywords (`prefix/local`, dot-separated prefix).
- * Shared by {@link @gamezilla/attribute} and {@link @gamezilla/message} so wire
+ * Shared by {@link @pkgs/attribute} and {@link @pkgs/message} so wire
  * rules cannot drift.
  */
-import { assert, type Assert } from '@gamezilla/assert';
+import { assert, type Assert } from '@pkgs/assert';
 
 declare const KeywordBrand: unique symbol;
 
@@ -176,7 +176,7 @@ export function assertKeyword<const S extends string>(key: S): S & Keyword {
  * persistence boundaries (patch attributes, room state, etc.).
  *
  * `a` controls cost: pass `assert` (always-on) at trust boundaries; pass
- * `hotAssert()` from `@gamezilla/assert` on hot paths where iterating
+ * `hotAssert()` from `@pkgs/assert` on hot paths where iterating
  * every key per call would dominate the frame budget.
  */
 export function assertKeywordRecord(

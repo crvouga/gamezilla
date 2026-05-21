@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 
 export function assertDatabaseName(name: unknown): asserts name is string {
   assert.string(name, 'Database name must be a string');

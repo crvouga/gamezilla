@@ -1,4 +1,4 @@
-import { AppThemeRoot } from '@gamezilla/ui';
+import { AppThemeRoot } from '@pkgs/ui';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { ReactNode } from 'react';
 

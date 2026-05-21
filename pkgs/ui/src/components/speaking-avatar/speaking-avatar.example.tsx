@@ -1,7 +1,7 @@
-import { ObjectStoreImplInMemory } from '@gamezilla/object-store/impl-in-memory';
-import { ObjectStoreProvider } from '@gamezilla/object-store/react-context';
-import { TtsProvider } from '@gamezilla/tts/client/tts-context';
-import { Voices } from '@gamezilla/tts/shared/tts-voice';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
+import { ObjectStoreProvider } from '@pkgs/object-store/react-context';
+import { TtsProvider } from '@pkgs/tts/client/tts-context';
+import { Voices } from '@pkgs/tts/shared/tts-voice';
 import { useEffect, useMemo, useState } from 'react';
 import { Box } from '../box';
 import { Text } from '../text';

@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-import type { Keyword } from '@gamezilla/keyword/keyword';
+import type { Keyword } from '@pkgs/keyword/keyword';
 import { KvImplExpo } from './impl-kv-expo';
 import { KvImplWeb } from './impl-kv-web';
 import type { Kv, KvRecord } from './interface';

@@ -1,4 +1,4 @@
-import { DopplerCli } from '@gamezilla/doppler';
+import { DopplerCli } from '@pkgs/doppler';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';

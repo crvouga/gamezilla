@@ -1,4 +1,4 @@
-import { Text } from '@gamezilla/ui';
+import { Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';

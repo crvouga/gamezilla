@@ -1,7 +1,7 @@
 import { STYLE_KEYS, styleLabel, type StyleKey } from './dicebear-styles';
 import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
 import type { AvatarConfig } from '../shared/avatar-config';
-import { HorizontalPicker } from '@gamezilla/ui';
+import { HorizontalPicker } from '@pkgs/ui';
 
 export type StylePickerStripProps = {
   selected: StyleKey;

@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/assert';
-import type { PubSub } from '@gamezilla/pub-sub/interface';
+import { assert } from '@pkgs/assert';
+import type { PubSub } from '@pkgs/pub-sub/interface';
 import type { PatchDbResolvable } from './interface';
 import type {
   PatchDbHttpAuthOptions,

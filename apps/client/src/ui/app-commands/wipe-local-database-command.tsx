@@ -1,5 +1,5 @@
-import { usePatchDbLocalDataActions } from '@gamezilla/auth/client/patch-db-local-data-actions-context';
-import { ConfirmationModal, RegisterCommand } from '@gamezilla/ui';
+import { usePatchDbLocalDataActions } from '@libs/auth/client/patch-db-local-data-actions-context';
+import { ConfirmationModal, RegisterCommand } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 

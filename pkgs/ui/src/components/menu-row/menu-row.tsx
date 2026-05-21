@@ -15,7 +15,7 @@
  * ```
  */
 
-import type { LocalizedString } from '@gamezilla/i18n';
+import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 import { useTheme } from '../../theme';
 import { Box } from '../box';

@@ -1,5 +1,5 @@
 import { ACCOUNT_SESSION_ENTITY_TYPE, AccountSessionAttr } from '../shared';
-import { useQuery } from '@gamezilla/patch-db/react';
+import { useQuery } from '@pkgs/patch-db/react';
 
 /**
  * Count of currently-active sessions for the given device — `expiresAt`

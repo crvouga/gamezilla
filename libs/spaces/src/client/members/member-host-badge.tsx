@@ -1,5 +1,5 @@
 import { useMemberRole } from './use-member-role';
-import { Text } from '@gamezilla/ui';
+import { Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

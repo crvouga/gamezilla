@@ -1,6 +1,6 @@
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
-import { Text, type SxProps, type TextVariant } from '@gamezilla/ui';
-import { optionalProps } from '@gamezilla/ui/components/optional-props';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
+import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
+import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { ReactNode } from 'react';
 import { DEVICE_ENTITY_TYPE, DeviceAttr } from '../../shared';
 import { formatDeviceListTitle } from '../device-parsers';

@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/secret-store",
+  "name": "@pkgs/secret-store",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -16,7 +16,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/doppler": "workspace:*"
+    "@pkgs/doppler": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

@@ -146,12 +146,12 @@ jobs:
 
   qa-browser:
     # Intentionally not `needs: [turbo-ci]`. The CI `build` task filters
-    # `@gamezilla/client` out (see `check:ci:build` in root package.json),
+    # `@apps/client` out (see `check:ci:build` in root package.json),
     # so qa-browser is the only place the web client is actually built
     # in CI before deploy. Sequencing on `turbo-ci` would just delay this
     # job for no cache benefit -- the playwright `webServer` overrides
     # `EXPO_PUBLIC_API_URL` to a localhost origin before spawning
-    # `turbo run preview`, so its `^build` hash for `@gamezilla/client`
+    # `turbo run preview`, so its `^build` hash for `@apps/client`
     # would not match a prod-API build anyway (Turborepo's framework
     # inference auto-hashes `EXPO_PUBLIC_*` for Expo workspaces).
     runs-on: ubuntu-latest
@@ -167,13 +167,13 @@ jobs:
       # Resolve the actually-installed @playwright/test version (not the
       # caret range from package.json) so the browser cache key only
       # invalidates when Playwright itself bumps -- not on every unrelated
-      # bun.lock change. Resolved from packages/qa because that's the package
+      # bun.lock change. Resolved from libs/qa because that's the package
       # that lists @playwright/test as a devDependency (bun install uses
       # isolated node_modules, so the package is not resolvable from repo
       # root). See https://playwright.dev/docs/ci#caching-browsers.
       - name: Resolve Playwright version
         id: playwright
-        working-directory: packages/qa
+        working-directory: libs/qa
         run: |
           version=$(node -p "require('@playwright/test/package.json').version")
           echo "version=$version" >> "$GITHUB_OUTPUT"
@@ -192,7 +192,7 @@ jobs:
       # browser binary needs its system libs reinstalled each run.
       - name: Install Playwright browsers (cache miss)
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: bun run --filter '@gamezilla/qa' install:browsers
+        run: bun run --filter '@libs/qa' install:browsers
 
       - name: Install Playwright system deps (cache hit)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
@@ -205,7 +205,7 @@ jobs:
 
       # Always upload the report (not just on failure) so the embedded
       # videos -- recorded for every test via `video: 'on'` in
-      # `packages/qa/src/browser/playwright.config.ts` -- are available for
+      # `libs/qa/src/browser/playwright.config.ts` -- are available for
       # green runs too. `if: always()` excludes only manually cancelled
       # runs; use `if: !cancelled()` if you want those too.
       - name: Upload Playwright report
@@ -213,14 +213,14 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: playwright-report
-          path: packages/qa/playwright-report/
+          path: libs/qa/playwright-report/
           retention-days: 7
 
       - name: Upload Playwright report as Pages artifact
-        if: ${{ always() && hashFiles('packages/qa/playwright-report/index.html') != '' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ always() && hashFiles('libs/qa/playwright-report/index.html') != '' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         uses: actions/upload-pages-artifact@v5
         with:
-          path: packages/qa/playwright-report/
+          path: libs/qa/playwright-report/
 
   publish-playwright-report:
     if: >-
@@ -290,7 +290,7 @@ jobs:
           postgres: 'true'
       - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config)
         id: deploy
-        working-directory: packages/infra
+        working-directory: libs/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
         run: bun run infra deploy
@@ -317,7 +317,7 @@ jobs:
         with:
           postgres: 'true'
       - name: Release global deploy lock
-        working-directory: packages/infra
+        working-directory: libs/infra
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           INFRA_LOCK_ID: ${{ needs.deploy.outputs.lock_id }}
@@ -351,4 +351,4 @@ jobs:
           NEEDS_JSON: ${{ toJSON(needs) }}
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: env DOPPLER_CONFIG=prod doppler run -- bun run packages/infra/src/bin/pipeline-report.ts
+        run: env DOPPLER_CONFIG=prod doppler run -- bun run libs/infra/src/bin/pipeline-report.ts

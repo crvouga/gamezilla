@@ -1,6 +1,6 @@
 import type { SchemaField } from './dicebear-schema';
 import type { AvatarConfig } from '../shared/avatar-config';
-import { Box, ChipGroup, Text } from '@gamezilla/ui';
+import { Box, ChipGroup, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 
 import { getProbabilityMode, humanizeOptionKey } from './option-helpers';

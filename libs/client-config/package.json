@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/client-config",
+  "name": "@libs/client-config",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -23,14 +23,14 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/async": "workspace:*",
-    "@gamezilla/attribute": "workspace:*",
-    "@gamezilla/auth": "workspace:*",
-    "@gamezilla/equal": "workspace:*",
-    "@gamezilla/logger": "workspace:*",
-    "@gamezilla/patch-db": "workspace:*",
-    "@gamezilla/secret-store": "workspace:*",
-    "@gamezilla/ui": "workspace:*",
+    "@pkgs/async": "workspace:*",
+    "@pkgs/attribute": "workspace:*",
+    "@libs/auth": "workspace:*",
+    "@pkgs/equal": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/patch-db": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
+    "@pkgs/ui": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "hono": "catalog:",

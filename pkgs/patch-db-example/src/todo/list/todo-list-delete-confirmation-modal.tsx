@@ -1,4 +1,4 @@
-import { ConfirmationModal } from '@gamezilla/ui';
+import { ConfirmationModal } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

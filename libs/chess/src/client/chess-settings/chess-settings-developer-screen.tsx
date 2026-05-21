@@ -1,9 +1,9 @@
 import {
   MainMenuScreen,
   type MainMenuItem,
-} from '@gamezilla/ui/components/main-menu-screen';
-import { DefineBackButton } from '@gamezilla/spaces/client/nav/spaces-nav-context';
-import { useSpaceRoomDispatch } from '@gamezilla/spaces/client/room/use-space-room-selector';
+} from '@pkgs/ui/components/main-menu-screen';
+import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
+import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,

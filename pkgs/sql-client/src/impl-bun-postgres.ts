@@ -1,5 +1,5 @@
 import { SQL } from 'bun';
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import { questionMarkParamsToDollarParams } from './positional-params';
 import { sanitizePostgresUrlForBunSql } from './sanitize-postgres-url-for-bun-sql';

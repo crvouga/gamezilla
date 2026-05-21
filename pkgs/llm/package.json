@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/llm",
+  "name": "@pkgs/llm",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -27,12 +27,12 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/assert": "workspace:*",
-    "@gamezilla/attribute": "workspace:*",
-    "@gamezilla/keyword": "workspace:*",
-    "@gamezilla/kv": "workspace:*",
-    "@gamezilla/secret-store": "workspace:*",
-    "@gamezilla/sql-client": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/attribute": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:"

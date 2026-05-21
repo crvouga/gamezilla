@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 
 /**
  * ORDER BY fragments are interpolated directly into SQL (not parameterized),

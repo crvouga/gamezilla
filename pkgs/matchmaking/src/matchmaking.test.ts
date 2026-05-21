@@ -1,5 +1,5 @@
 import { PGlite } from '@electric-sql/pglite';
-import type { AttributeState } from '@gamezilla/attribute';
+import type { AttributeState } from '@pkgs/attribute';
 import {
   afterAll,
   afterEach,

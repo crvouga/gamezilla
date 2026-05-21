@@ -12,17 +12,17 @@
  * a spec's fields / where clauses produces a new identifier (the old one
  * becomes an orphan and is dropped on the next reconcile).
  */
-import type { Assert } from '@gamezilla/assert';
-import { assert } from '@gamezilla/assert';
+import type { Assert } from '@pkgs/assert';
+import { assert } from '@pkgs/assert';
 import {
   assertAttribute,
   assertEntityType,
   type PatchEntityType,
 } from '../entity-key';
-import type { Keyword } from '@gamezilla/keyword';
+import type { Keyword } from '@pkgs/keyword';
 
 /** Attribute reference for index specs. Accepts a {@link Keyword} or any
- * object with a `.key` property (e.g. an `AttributeTag` from `@gamezilla/attribute`). */
+ * object with a `.key` property (e.g. an `AttributeTag` from `@pkgs/attribute`). */
 export type PatchDbIndexAttributeRef = Keyword | { readonly key: Keyword };
 
 export type PatchDbIndexField =

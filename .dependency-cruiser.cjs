@@ -14,7 +14,7 @@ module.exports = {
       severity: 'error',
       from: {
         pathNot:
-          '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/|packages/[^/]+/src/(simulator|testkit)\\.ts)',
+          '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/|(apps|libs|pkgs)/[^/]+/src/(simulator|testkit)\\.ts)',
       },
       to: {
         path: '(\\.(test|spec)\\.|/(__tests__|testkit|fixtures?|tests?)/)',
@@ -51,15 +51,15 @@ module.exports = {
       name: 'assistant-no-internal',
       severity: 'error',
       comment:
-        'Only @gamezilla/assistant/shared and @gamezilla/assistant/client are importable from outside the assistant package.',
-      from: { pathNot: '^packages/assistant/' },
-      to: { path: '^packages/assistant/src/(shared|client)/_internal/' },
+        'Only @libs/assistant/shared and @libs/assistant/client are importable from outside the assistant package.',
+      from: { pathNot: '^libs/assistant/' },
+      to: { path: '^libs/assistant/src/(shared|client)/_internal/' },
     },
     {
       name: 'not-to-dev-dep-from-src',
       severity: 'error',
       from: {
-        path: '^packages/[^/]+/src/',
+        path: '^(apps|libs|pkgs)/[^/]+/src/',
         pathNot: '\\.(test|spec|example)\\.',
       },
       to: { dependencyTypes: ['npm-dev'] },
@@ -71,6 +71,6 @@ module.exports = {
       dependencyTypes: ['npm', 'npm-dev', 'npm-optional', 'npm-peer'],
     },
     tsPreCompilationDeps: true,
-    includeOnly: '^packages/',
+    includeOnly: '^(apps|libs|pkgs)/',
   },
 };

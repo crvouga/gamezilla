@@ -1,12 +1,12 @@
 import {
   createAssistantDialogueTreeRenderer,
   createSystemClock,
-} from '@gamezilla/assistant/client';
+} from '@libs/assistant/client';
 import {
   createAssistant,
   type Assistant,
   type AssistantSignal,
-} from '@gamezilla/assistant/shared';
+} from '@libs/assistant/shared';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import type { SolveStatus } from '../chess-puzzle/use-chess-puzzle-solver';

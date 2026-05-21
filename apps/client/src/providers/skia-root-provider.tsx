@@ -1,4 +1,4 @@
-import { SkiaWebRoot } from '@gamezilla/client/ui/skia-web-root';
+import { SkiaWebRoot } from '@apps/client/ui/skia-web-root';
 import type { ReactNode } from 'react';
 
 export function SkiaRootProvider({

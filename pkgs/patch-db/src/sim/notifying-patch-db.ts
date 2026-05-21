@@ -1,4 +1,4 @@
-import type { PubSub } from '@gamezilla/pub-sub/interface';
+import type { PubSub } from '@pkgs/pub-sub/interface';
 import {
   PATCHES_DB_INVALIDATED_TYPE,
   PATCHES_DB_TOPIC,

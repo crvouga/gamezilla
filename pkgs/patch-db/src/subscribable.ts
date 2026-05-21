@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/assert';
-import type { PubSub, Unsubscribe } from '@gamezilla/pub-sub/interface';
+import { assert } from '@pkgs/assert';
+import type { PubSub, Unsubscribe } from '@pkgs/pub-sub/interface';
 import {
   PATCHES_DB_INVALIDATED_TYPE,
   PATCHES_DB_TOPIC,

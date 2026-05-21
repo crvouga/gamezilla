@@ -6,8 +6,8 @@
  * @internal
  */
 
-import { assert } from '@gamezilla/assert';
-import { asKeywordRecord } from '@gamezilla/keyword';
+import { assert } from '@pkgs/assert';
+import { asKeywordRecord } from '@pkgs/keyword';
 import type { Pool } from 'pg';
 import type { FormulaWire } from './formula-wire';
 import { createPgSqlClient } from './pg-adapter';

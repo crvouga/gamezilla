@@ -1,6 +1,6 @@
-import { ensureDeviceEntity } from '@gamezilla/auth/client/ensure-device-entity';
-import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
-import { usePatchDb } from '@gamezilla/patch-db/react';
+import { ensureDeviceEntity } from '@libs/auth/client/ensure-device-entity';
+import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { usePatchDb } from '@pkgs/patch-db/react';
 import { useEffect, type ReactNode } from 'react';
 
 /**

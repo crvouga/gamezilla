@@ -1,4 +1,4 @@
-import { ResponsiveSurface, ScrollView } from '@gamezilla/ui';
+import { ResponsiveSurface, ScrollView } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

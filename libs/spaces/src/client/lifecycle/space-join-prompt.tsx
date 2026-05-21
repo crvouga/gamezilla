@@ -2,14 +2,8 @@ import { SpaceJoinBlockedNote } from './space-join-blocked-note';
 import { SpaceJoinButton } from './space-join-button';
 import { SpaceJoinHostSection } from './space-join-host-section';
 import { SpaceTitleText } from '../space-title-text';
-import { useBreadcrumbNav } from '@gamezilla/ui/components/use-breadcrumb-nav';
-import {
-  Box,
-  Card,
-  ScreenBase,
-  Text,
-  type ScreenBaseAction,
-} from '@gamezilla/ui';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+import { Box, Card, ScreenBase, Text, type ScreenBaseAction } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMemo, type ReactNode } from 'react';
 

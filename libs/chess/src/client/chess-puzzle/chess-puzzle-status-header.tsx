@@ -1,4 +1,4 @@
-import { Box, defaultColors, Text } from '@gamezilla/ui';
+import { Box, defaultColors, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

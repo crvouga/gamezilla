@@ -1,4 +1,4 @@
-import { createDopplerSecretStoreForScripts } from '@gamezilla/secret-store';
+import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
 import { ApiSecretName } from '../src/config/secret-names';
 
 function randomHex32Bytes(): string {

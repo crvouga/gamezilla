@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/room",
+  "name": "@pkgs/room",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -19,11 +19,11 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@gamezilla/assert": "workspace:*",
-    "@gamezilla/attribute": "workspace:*",
-    "@gamezilla/keyword": "workspace:*",
-    "@gamezilla/kv": "workspace:*",
-    "@gamezilla/message": "workspace:*"
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/attribute": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/message": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

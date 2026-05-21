@@ -1,5 +1,5 @@
 import { expo } from '@better-auth/expo';
-import type { SecretStore } from '@gamezilla/secret-store';
+import type { SecretStore } from '@pkgs/secret-store';
 import type { BetterAuthOptions } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
 

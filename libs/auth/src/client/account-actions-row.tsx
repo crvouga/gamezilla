@@ -1,4 +1,4 @@
-import { Box, Button } from '@gamezilla/ui';
+import { Box, Button } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 

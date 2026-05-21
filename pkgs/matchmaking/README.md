@@ -1,4 +1,4 @@
-# @gamezilla/matchmaking
+# @pkgs/matchmaking
 
 Postgres-backed matchmaking queue for chess.com-scale traffic. One JS
 class, one cron-driven SQL function, no domain assumptions.
@@ -13,7 +13,7 @@ queue, the candidate scan, the pairing, and the sweep.
 ## Quick start
 
 ```ts
-import { Matchmaking, createAttrNamespace } from '@gamezilla/matchmaking';
+import { Matchmaking, createAttrNamespace } from '@pkgs/matchmaking';
 import { Pool } from 'pg';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -80,7 +80,7 @@ import {
   type TickResult,
   type UpdateFormulasResult,
   type WaitingStatus,
-} from '@gamezilla/matchmaking';
+} from '@pkgs/matchmaking';
 
 // 2. SqlClient + adapters for embedders that thread their own per-
 //    request client (instead of using `Matchmaking.fromPool`).
@@ -89,7 +89,7 @@ import {
   createPgliteSqlClient,
   type SqlClient,
   type QueryResult,
-} from '@gamezilla/matchmaking/storage';
+} from '@pkgs/matchmaking/storage';
 
 // 3. Wire-format types for HTTP consumers that validate JSON
 //    without `AttributeTag`s.
@@ -99,7 +99,7 @@ import type {
   CategoricalTermWire,
   PartitionTermWire,
   RadiusOptionsWire,
-} from '@gamezilla/matchmaking/wire';
+} from '@pkgs/matchmaking/wire';
 ```
 
 The `Matchmaking` class exposes seven methods:
@@ -151,13 +151,13 @@ Cross-process invariants:
 
 ## PGlite vs production cron path
 
-| Concern         | PGlite (tests / dev)                                                                                                       | Production (real Postgres + pg_cron)                                                                                                                                                                       |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Migration       | Same `migrate()` runs against PGlite                                                                                       | Same `migrate()` runs against real Postgres                                                                                                                                                                |
-| Tick driver     | Call `await mm.tick()` from tests directly                                                                                 | `pg_cron` invokes `SELECT matchmaking_tick()` every 5 seconds                                                                                                                                              |
-| `cron.schedule` | `migrate.ts` no-ops the cron call (PGlite has no pg_cron)                                                                  | `migrate.ts` calls `cron.schedule('matchmaking-tick', '5 seconds', ...)` with `cron.unschedule(...)` fallback on duplicate names                                                                           |
-| Advisory lock   | Same `pg_try_advisory_lock` — PGlite supports it; one in-process connection so lock+unlock always land on the same backend | Same lock id; embedders that drive `Matchmaking.tick()` from JS SHOULD pin a single client (e.g. `@gamezilla/api` does this via AsyncLocalStorage). pg_cron's session is naturally pinned per cron worker. |
-| Concurrency     | Single in-process connection — concurrency exists in JS only                                                               | Real connection pooling, real `FOR UPDATE SKIP LOCKED` semantics                                                                                                                                           |
+| Concern         | PGlite (tests / dev)                                                                                                       | Production (real Postgres + pg_cron)                                                                                                                                                                  |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Migration       | Same `migrate()` runs against PGlite                                                                                       | Same `migrate()` runs against real Postgres                                                                                                                                                           |
+| Tick driver     | Call `await mm.tick()` from tests directly                                                                                 | `pg_cron` invokes `SELECT matchmaking_tick()` every 5 seconds                                                                                                                                         |
+| `cron.schedule` | `migrate.ts` no-ops the cron call (PGlite has no pg_cron)                                                                  | `migrate.ts` calls `cron.schedule('matchmaking-tick', '5 seconds', ...)` with `cron.unschedule(...)` fallback on duplicate names                                                                      |
+| Advisory lock   | Same `pg_try_advisory_lock` — PGlite supports it; one in-process connection so lock+unlock always land on the same backend | Same lock id; embedders that drive `Matchmaking.tick()` from JS SHOULD pin a single client (e.g. `@apps/api` does this via AsyncLocalStorage). pg_cron's session is naturally pinned per cron worker. |
+| Concurrency     | Single in-process connection — concurrency exists in JS only                                                               | Real connection pooling, real `FOR UPDATE SKIP LOCKED` semantics                                                                                                                                      |
 
 ---
 
@@ -209,12 +209,12 @@ queues where different formulas need very different distance scales.
 
 Hard payload limits enforced by the HTTP validator (`/join`,
 `/update-formulas`) and by the JS public methods. Re-exported from
-`@gamezilla/matchmaking` as `MATCHMAKING_PAYLOAD_LIMITS` so embedders
+`@pkgs/matchmaking` as `MATCHMAKING_PAYLOAD_LIMITS` so embedders
 can surface the same bounds in their own client-side validators,
 API docs, or OpenAPI specs.
 
 ```ts
-import { MATCHMAKING_PAYLOAD_LIMITS } from '@gamezilla/matchmaking';
+import { MATCHMAKING_PAYLOAD_LIMITS } from '@pkgs/matchmaking';
 
 MATCHMAKING_PAYLOAD_LIMITS.maxDataKeys; // 64
 MATCHMAKING_PAYLOAD_LIMITS.maxFormulas; // 8
@@ -243,7 +243,7 @@ end-to-end without a real cluster:
   connection, so the JS `tick()` lock is always taken and released by
   the same backend. In production with a pool, the lock and unlock
   can land on different backends; the library mitigates this by
-  recommending (and the `@gamezilla/api` package implementing)
+  recommending (and the `@apps/api` package implementing)
   per-request client pinning via AsyncLocalStorage. PGlite cannot
   verify the pin works under load.
 - **`FOR UPDATE SKIP LOCKED` under real contention.** The pass query

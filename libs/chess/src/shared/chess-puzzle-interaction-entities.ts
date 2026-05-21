@@ -1,4 +1,4 @@
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { createAttrNamespace } from '@pkgs/attribute';
 
 /** Append-only puzzle interaction log (one row per event). */
 export const CHESS_PUZZLE_INTERACTION_ENTITY_TYPE = 'chess.puzzle.interaction';

@@ -2,8 +2,8 @@
  * Hosted sign-in surface. Shown from the user menu / commands when the user chooses Sign in.
  */
 
-import { useAsync } from '@gamezilla/async/use-async';
-import { ModalButton, ModalFooter, ResponsiveSurface } from '@gamezilla/ui';
+import { useAsync } from '@pkgs/async/use-async';
+import { ModalButton, ModalFooter, ResponsiveSurface } from '@pkgs/ui';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect } from 'react';

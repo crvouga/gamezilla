@@ -1,7 +1,7 @@
-import { optionalProps } from '@gamezilla/ui/components/optional-props';
+import { optionalProps } from '@pkgs/ui/components/optional-props';
 import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
-import { Text, type SxProps, type TextVariant } from '@gamezilla/ui';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type { ReactNode } from 'react';
 
 export type UserDisplayNameProps = {

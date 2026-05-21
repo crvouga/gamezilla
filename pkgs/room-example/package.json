@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/room-example",
+  "name": "@pkgs/room-example",
   "version": "0.0.1",
   "private": true,
   "exports": {
@@ -14,9 +14,9 @@
     "tc": "tsc --noEmit"
   },
   "dependencies": {
-    "@gamezilla/keyword": "workspace:*",
-    "@gamezilla/room": "workspace:*",
-    "@gamezilla/ui": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/room": "workspace:*",
+    "@pkgs/ui": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "expo": "catalog:",

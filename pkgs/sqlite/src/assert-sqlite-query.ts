@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 
 /**
  * Asserts that the provided SQL query string begins with a recognized SQLite statement.

@@ -17,7 +17,7 @@
  * the caller still owns — `pg.Pool.end()` throws on a second call.
  *
  * Matchmaking does NOT run here. The `Matchmaking` class in
- * `packages/api/src/matchmaking/route.ts` self-migrates on first request
+ * `apps/api/src/matchmaking/route.ts` self-migrates on first request
  * via a cached boot promise; the schema is declared once in that file as
  * `MATCHMAKING_SCHEMA`. Drift between migrate and runtime is impossible
  * by construction.
@@ -25,11 +25,11 @@
 import {
   runBetterAuthMigrations,
   type BetterAuthMigrationOptions,
-} from '@gamezilla/auth/server/better-auth-migrations';
-import { KvImplPostgres } from '@gamezilla/kv/impl-postgres';
-import type { Logger } from '@gamezilla/logger';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
-import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
+} from '@libs/auth/server/better-auth-migrations';
+import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
+import type { Logger } from '@pkgs/logger';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
 import { APP_SNAPSHOT_INDEXES } from '../patch-db/snapshot-indexes';
 import { dropLegacyAppSnapshotIndexes } from './drop-legacy-app-snapshot-indexes';
 

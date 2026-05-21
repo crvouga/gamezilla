@@ -1,4 +1,4 @@
-import { SpeakingAvatar, type SpeakingAvatarProps } from '@gamezilla/ui';
+import { SpeakingAvatar, type SpeakingAvatarProps } from '@pkgs/ui';
 import { useEffect, useState, type ReactNode } from 'react';
 
 import type { Assistant } from '../../shared/index';

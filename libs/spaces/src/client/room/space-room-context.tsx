@@ -1,5 +1,5 @@
 import { useSpaceRoom } from './use-space-room';
-import { RoomClientsProvider, type AnyRoom } from '@gamezilla/room';
+import { RoomClientsProvider, type AnyRoom } from '@pkgs/room';
 import { SPACE_ROOM_NAME } from './use-space-room-selector';
 import { useMemo, type ReactNode } from 'react';
 

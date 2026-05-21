@@ -1,5 +1,5 @@
-import { Box, ScreenBase } from '@gamezilla/ui';
-import { useBreadcrumbNav } from '@gamezilla/ui/components/use-breadcrumb-nav';
+import { Box, ScreenBase } from '@pkgs/ui';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { Trans } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
 import { useCallback } from 'react';

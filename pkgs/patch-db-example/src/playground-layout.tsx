@@ -1,6 +1,6 @@
-import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
-import { Box, ScrollView, Stack, Text } from '@gamezilla/ui';
-import { useTheme } from '@gamezilla/ui/theme';
+import type { PlaygroundSim } from '@pkgs/patch-db/sim/playground-sim';
+import { Box, ScrollView, Stack, Text } from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui/theme';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 import { ClientNodePanel } from './client-node-panel';

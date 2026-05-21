@@ -1,7 +1,7 @@
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@gamezilla/spaces/client/room/use-space-room-selector';
+} from '@libs/spaces/client/room/use-space-room-selector';
 import { useCallback } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,

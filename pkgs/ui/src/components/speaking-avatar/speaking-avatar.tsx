@@ -39,8 +39,8 @@
  * ```
  */
 
-import { useSpeak } from '@gamezilla/tts/client/use-speak';
-import { type Voice } from '@gamezilla/tts/shared/tts-voice';
+import { useSpeak } from '@pkgs/tts/client/use-speak';
+import { type Voice } from '@pkgs/tts/shared/tts-voice';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { type StyleProp, type ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';

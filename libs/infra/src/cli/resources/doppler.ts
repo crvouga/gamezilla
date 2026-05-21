@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
@@ -323,7 +323,7 @@ export class DopplerResource extends ResourceBase {
     );
     platform.warning(
       `Doppler has ${orphans.length} secret(s) not owned by the infra CLI: ${orphans.join(', ')}. ` +
-        'Either register them in `packages/infra/src/cli/resources/doppler.ts` ' +
+        'Either register them in `libs/infra/src/cli/resources/doppler.ts` ' +
         '(DERIVED_DEFAULTS or EXTERNALLY_MANAGED_KEYS) or delete them with ' +
         '`doppler secrets delete <NAME>`.'
     );

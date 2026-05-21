@@ -8,13 +8,13 @@
 import {
   useSignInModal,
   useSignOutModal,
-} from '@gamezilla/auth/client/auth-modals-provider';
-import { useIsSignedIn } from '@gamezilla/auth/client/use-current-user';
-import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
-import { useAsync } from '@gamezilla/async/use-async';
-import { useLogger } from '@gamezilla/logger/react';
-import { MyDisplayName } from '@gamezilla/profile/client/my-display-name';
-import { MyProfileAvatar } from '@gamezilla/profile/client/my-profile-avatar';
+} from '@libs/auth/client/auth-modals-provider';
+import { useIsSignedIn } from '@libs/auth/client/use-current-user';
+import { useServerStatus } from '@apps/client/connection/use-server-status';
+import { useAsync } from '@pkgs/async/use-async';
+import { useLogger } from '@pkgs/logger/react';
+import { MyDisplayName } from '@libs/profile/client/my-display-name';
+import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import {
   Box,
   FloatingMenu,
@@ -22,7 +22,7 @@ import {
   StatusDot,
   Text,
   type FloatingMenuContent,
-} from '@gamezilla/ui';
+} from '@pkgs/ui';
 import { t } from '@lingui/core/macro';
 import { useRouter } from 'expo-router';
 import {

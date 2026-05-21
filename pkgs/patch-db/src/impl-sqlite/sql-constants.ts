@@ -1,4 +1,4 @@
-import { assertSqliteQuery } from '@gamezilla/sqlite';
+import { assertSqliteQuery } from '@pkgs/sqlite';
 
 export const DELETE_SNAPSHOT = `DELETE FROM snapshots
 WHERE entity_id = ? AND entity_type = ?`;

@@ -9,12 +9,12 @@ import {
   Text,
   TextInput,
   useTheme,
-} from '@gamezilla/ui';
-import type { Entity } from '@gamezilla/patch-db/interface';
+} from '@pkgs/ui';
+import type { Entity } from '@pkgs/patch-db/interface';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { usePatchDb } from '@gamezilla/patch-db/react';
+import { usePatchDb } from '@pkgs/patch-db/react';
 import { formatAttrValue } from './format-value';
 
 const PAGE_SIZE = 50;

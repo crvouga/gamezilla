@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 
-import { useMyId } from '@gamezilla/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/client/use-current-user';
 import {
   SPACE_ROOM_NAME,
   useSpaceRoomSelector,
 } from './use-space-room-selector';
-import { RoomMetaAttr, useRoomFromRegistry } from '@gamezilla/room';
+import { RoomMetaAttr, useRoomFromRegistry } from '@pkgs/room';
 
 /**
  * Live “who is in this tab” used legacy WebSocket presence. The authoritative

@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/stripe-cli",
+  "name": "@pkgs/stripe-cli",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -12,9 +12,9 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@gamezilla/doppler": "workspace:*",
-    "@gamezilla/secret-store": "workspace:*",
-    "@gamezilla/stripe": "workspace:*",
+    "@pkgs/doppler": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
+    "@libs/stripe": "workspace:*",
     "stripe": "catalog:"
   },
   "devDependencies": {

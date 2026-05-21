@@ -1,8 +1,8 @@
 /**
- * Serves the `packages/patch-db-example` folder over HTTP (default port 8765).
+ * Serves the `pkgs/patch-db-example` folder over HTTP (default port 8765).
  * Use if `file://` blocks sql.js WASM; open http://127.0.0.1:8765
  */
-import { createLogger } from '@gamezilla/logger';
+import { createLogger } from '@pkgs/logger';
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/bun';
 import { join } from 'node:path';

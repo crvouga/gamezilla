@@ -1,4 +1,4 @@
-import { useQueryEntityIds } from '@gamezilla/patch-db/react';
+import { useQueryEntityIds } from '@pkgs/patch-db/react';
 
 import { TODO_LIST_ITEM_ENTITY_TYPE } from '../domain/todo-constants';
 import {

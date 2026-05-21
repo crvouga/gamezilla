@@ -5,8 +5,8 @@
  * most once per read / write batch**, only when ABAC is actually about to
  * inspect the context.
  */
-import { appAuth } from '@gamezilla/auth/shared/auth-context';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
+import { appAuth } from '@libs/auth/shared/auth-context';
+import type { PatchDb } from '@pkgs/patch-db/interface';
 import { loadMemberOfSpaceIds } from './load-member-of-space-ids';
 import {
   memberOfSpaceIdsFromContext,

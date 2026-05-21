@@ -1,5 +1,5 @@
 import type { AvatarConfig } from '../shared/avatar-config';
-import { Avatar } from '@gamezilla/ui';
+import { Avatar } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';

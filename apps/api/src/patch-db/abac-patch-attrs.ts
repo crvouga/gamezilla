@@ -2,9 +2,9 @@
  * {@link AttributeTag}s for PatchDB keys referenced by API ABAC / visibility
  * policies (not yet modeled in a dedicated feature package).
  */
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { createAttrNamespace } from '@pkgs/attribute';
 
-export { AbacEntityAttr } from '@gamezilla/patch-db/abac/abac-entity-attr';
+export { AbacEntityAttr } from '@pkgs/patch-db/abac/abac-entity-attr';
 
 const passthrough = (v: unknown) => v;
 

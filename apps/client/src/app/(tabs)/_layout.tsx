@@ -1,4 +1,4 @@
-import { IconSymbol, useBreakpoint, useTabsProps } from '@gamezilla/ui';
+import { IconSymbol, useBreakpoint, useTabsProps } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { Tabs } from 'expo-router';
 

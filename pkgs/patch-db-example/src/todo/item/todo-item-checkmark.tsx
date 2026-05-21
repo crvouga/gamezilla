@@ -1,5 +1,5 @@
-import { Text, useTheme } from '@gamezilla/ui';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+import { Text, useTheme } from '@pkgs/ui';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type { ReactNode } from 'react';
 
 import {

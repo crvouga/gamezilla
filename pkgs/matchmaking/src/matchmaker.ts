@@ -50,7 +50,7 @@
  * decides the meaning through `data` and `formulas`.
  *
  * INTERNAL MODULE: every class, method, type, and constant in this file
- * is internal to `@gamezilla/matchmaking` and not part of the public
+ * is internal to `@pkgs/matchmaking` and not part of the public
  * API. The package's `exports` map and the root `tsconfig.json` paths
  * deliberately make this file unreachable from outside the package; do
  * not change either map without considering the abstraction contract.
@@ -60,9 +60,9 @@
  * @internal
  */
 
-import { assert } from '@gamezilla/assert';
-import type { AttributeState } from '@gamezilla/attribute';
-import { asKeywordRecord, assertKeywordRecord } from '@gamezilla/keyword';
+import { assert } from '@pkgs/assert';
+import type { AttributeState } from '@pkgs/attribute';
+import { asKeywordRecord, assertKeywordRecord } from '@pkgs/keyword';
 import type { Pool } from 'pg';
 import {
   assertDataMatchesFormula,

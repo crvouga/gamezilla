@@ -32,7 +32,7 @@ export class Assert {
    * Returns an assert instance whose methods are runtime no-ops. Type-level
    * narrowing (`asserts value is T`) still applies, so downstream callers
    * compile as if the check ran. Use only on hot paths via
-   * `@gamezilla/assert` `hotAssert()` — never trust input you did not
+   * `@pkgs/assert` `hotAssert()` — never trust input you did not
    * produce.
    */
   static noop(): Assert {

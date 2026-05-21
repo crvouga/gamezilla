@@ -3,12 +3,12 @@ import {
   ModalFooter,
   ResponsiveSurface,
   TextInput,
-} from '@gamezilla/ui';
+} from '@pkgs/ui';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 

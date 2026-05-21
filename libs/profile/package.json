@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/profile",
+  "name": "@libs/profile",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -24,11 +24,11 @@
   "dependencies": {
     "@dicebear/collection": "catalog:",
     "@dicebear/core": "catalog:",
-    "@gamezilla/attribute": "workspace:*",
-    "@gamezilla/auth": "workspace:*",
-    "@gamezilla/patch-db": "workspace:*",
-    "@gamezilla/ui": "workspace:*",
-    "@gamezilla/uuid": "workspace:*",
+    "@pkgs/attribute": "workspace:*",
+    "@libs/auth": "workspace:*",
+    "@pkgs/patch-db": "workspace:*",
+    "@pkgs/ui": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "expo-clipboard": "catalog:",

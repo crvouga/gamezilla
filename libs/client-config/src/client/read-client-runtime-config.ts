@@ -1,4 +1,4 @@
-import type { PatchDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@pkgs/patch-db/interface';
 import {
   CLIENT_CONFIG_ENTITY_ID,
   CLIENT_CONFIG_ENTITY_TYPE,

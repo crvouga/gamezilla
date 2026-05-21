@@ -1,9 +1,9 @@
-import { createBetterAuthRequestStack } from '@gamezilla/auth/server/better-auth-create';
-import { createSessionAuth } from '@gamezilla/auth/server/session-middleware';
-import type { AuthContext } from '@gamezilla/auth/server/types';
-import { assert } from '@gamezilla/assert';
-import { KvImplPostgres } from '@gamezilla/kv/impl-postgres';
-import type { SecretStore } from '@gamezilla/secret-store';
+import { createBetterAuthRequestStack } from '@libs/auth/server/better-auth-create';
+import { createSessionAuth } from '@libs/auth/server/session-middleware';
+import type { AuthContext } from '@libs/auth/server/types';
+import { assert } from '@pkgs/assert';
+import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
+import type { SecretStore } from '@pkgs/secret-store';
 import type { MiddlewareHandler } from 'hono';
 import { ConfigurationError } from '../config/env';
 import { createMatchmakingSqlClientFromPgClient } from '../matchmaking/sql-client-adapter';
@@ -26,7 +26,7 @@ export function createRequestDbMiddleware(
     const hyper = c.env.HYPERDRIVE;
     if (hyper === undefined || hyper === null) {
       throw new ConfigurationError(
-        'HYPERDRIVE Worker binding is required (configure packages/api/wrangler.toml)'
+        'HYPERDRIVE Worker binding is required (configure apps/api/wrangler.toml)'
       );
     }
     const cs = hyper.connectionString;

@@ -7,9 +7,9 @@ import {
   CounterRoomAttr,
   Decrement,
   Increment,
-} from '@gamezilla/spaces/shared/counter';
-import { Box, Button, Text } from '@gamezilla/ui';
-import { RoomMetaAttr, useRoomFromRegistry } from '@gamezilla/room';
+} from '@libs/spaces/shared/counter';
+import { Box, Button, Text } from '@pkgs/ui';
+import { RoomMetaAttr, useRoomFromRegistry } from '@pkgs/room';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 

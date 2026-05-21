@@ -1,5 +1,5 @@
-import { useMyId } from '@gamezilla/auth/client/use-current-user';
-import { useEntityAttribute } from '@gamezilla/patch-db/react';
+import { useMyId } from '@libs/auth/client/use-current-user';
+import { useEntityAttribute } from '@pkgs/patch-db/react';
 import { useMemo } from 'react';
 
 import {

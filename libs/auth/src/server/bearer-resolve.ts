@@ -1,9 +1,9 @@
-import { assertDeviceId, assertUuid } from '@gamezilla/auth/shared/device-id';
+import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
 import {
   type AppAuthContext,
   buildAppAuthContext,
-} from '@gamezilla/auth/shared/auth-context';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
+} from '@libs/auth/shared/auth-context';
+import type { PatchDb } from '@pkgs/patch-db/interface';
 
 import { ensureInternalAccountIdForExternalUser } from './better-auth-account-provisioning';
 import type { HostedBetterAuth } from './better-auth-create';

@@ -1,4 +1,4 @@
-import { useMyId } from '@gamezilla/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/client/use-current-user';
 import { useCallback, useEffect, useRef } from 'react';
 
 import {

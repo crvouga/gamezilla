@@ -6,10 +6,10 @@
 import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
-} from '@gamezilla/auth/client/auth-storage-keys';
-import { writeSecureStorageItem } from '@gamezilla/secure-storage/use-secure-storage-item';
-import { clearWebClientPersistentState } from '@gamezilla/browser/clear-web-client-state';
-import type { SecureStorage } from '@gamezilla/secure-storage/interface';
+} from '@libs/auth/client/auth-storage-keys';
+import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
+import { clearWebClientPersistentState } from '@pkgs/browser/clear-web-client-state';
+import type { SecureStorage } from '@pkgs/secure-storage/interface';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 

@@ -1,6 +1,6 @@
-import { useMyId } from '@gamezilla/auth/client/use-current-user';
-import { AbacEntityAttr } from '@gamezilla/patch-db/abac/abac-entity-attr';
-import { useQuery } from '@gamezilla/patch-db/react';
+import { useMyId } from '@libs/auth/client/use-current-user';
+import { AbacEntityAttr } from '@pkgs/patch-db/abac/abac-entity-attr';
+import { useQuery } from '@pkgs/patch-db/react';
 import { useMemo } from 'react';
 
 import { deriveRecentlyAttemptedPuzzleIds } from '../../shared/chess-puzzle-derive';

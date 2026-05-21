@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/assert",
+  "name": "@pkgs/assert",
   "version": "0.0.0",
   "private": true,
   "exports": {

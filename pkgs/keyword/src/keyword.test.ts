@@ -1,4 +1,4 @@
-import { Assert, assert } from '@gamezilla/assert';
+import { Assert, assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import {
   asKeyword,

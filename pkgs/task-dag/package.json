@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/task-dag",
+  "name": "@pkgs/task-dag",
   "version": "0.0.0",
   "private": true,
   "exports": {

@@ -1,4 +1,4 @@
-import type { PatchDbQueryWhereClause } from '@gamezilla/patch-db/interface';
+import type { PatchDbQueryWhereClause } from '@pkgs/patch-db/interface';
 
 import {
   INBOX_LIST_ID,

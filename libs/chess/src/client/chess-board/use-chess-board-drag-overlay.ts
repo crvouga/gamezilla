@@ -1,4 +1,4 @@
-import { useOverlayPortalSlot } from '@gamezilla/ui';
+import { useOverlayPortalSlot } from '@pkgs/ui';
 import {
   useCallback,
   useId,

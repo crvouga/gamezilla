@@ -4,7 +4,7 @@
  * read existing index names from its catalog and how to compile a normalized
  * spec into native `CREATE INDEX` / `DROP INDEX` DDL.
  */
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { NormalizedIndexSpec } from './index-spec';
 
 export type IndexDialect = {

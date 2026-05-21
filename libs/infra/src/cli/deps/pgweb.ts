@@ -2,7 +2,7 @@ import { captureVersion, spawnInstall, verifyRun, whichSync } from './spawn';
 import type { Dep, DepStatus } from './types';
 
 /**
- * `pgweb` is the local Postgres web GUI launched by `packages/pg/src/dev.ts`. It's
+ * `pgweb` is the local Postgres web GUI launched by `pkgs/pg/src/dev.ts`. It's
  * a single Go binary; we treat it like our other CLI tools (postgres / stripe
  * / wrangler / doppler / bun): registered in `ALL_DEPS` so `setup` enforces
  * its presence, `status` reports it, and `deploy` refuses to run when it is
@@ -32,7 +32,7 @@ function platformInstallHint(): string {
   if (isLinux()) {
     return 'Download the pgweb release for your distro from https://github.com/sosedoff/pgweb/releases and place it on PATH.';
   }
-  return 'Native Windows is not supported by `packages/pg`. Install pgweb inside WSL2 (https://github.com/sosedoff/pgweb).';
+  return 'Native Windows is not supported by `pkgs/pg`. Install pgweb inside WSL2 (https://github.com/sosedoff/pgweb).';
 }
 
 const UA = 'gamezilla-infra-cli';

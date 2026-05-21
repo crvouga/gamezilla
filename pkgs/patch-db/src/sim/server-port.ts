@@ -1,4 +1,4 @@
-import type { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
+import type { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import type {
   PatchDbContext,
   PatchDbQuery,

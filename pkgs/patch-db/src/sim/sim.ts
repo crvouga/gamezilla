@@ -1,4 +1,4 @@
-import type { Unsubscribe } from '@gamezilla/pub-sub/interface';
+import type { Unsubscribe } from '@pkgs/pub-sub/interface';
 import { SYNC_ERROR_TOPIC, type SyncErrorEvent } from '../impl-sync';
 import type { Entity, PatchDbQuery } from '../interface';
 import {

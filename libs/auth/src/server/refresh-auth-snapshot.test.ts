@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import { SqlClientImplBunSqlite } from '@gamezilla/sql-client/impl-bun-sqlite';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
-import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { PatchDbImplSqlite } from '@pkgs/patch-db/impl-sqlite/impl-sqlite';
 import {
   PATCHES_DB_SYSTEM_CONTEXT,
   type PatchDb,
-} from '@gamezilla/patch-db/interface';
+} from '@pkgs/patch-db/interface';
 
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
@@ -17,7 +17,7 @@ import {
   DEVICE_ENTITY_TYPE,
   DeviceAttr,
   ACCOUNT_ENTITY_TYPE,
-} from '@gamezilla/auth/shared';
+} from '@libs/auth/shared';
 
 import type { HostedBetterAuth } from './better-auth-create';
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';

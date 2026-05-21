@@ -1,6 +1,6 @@
-import { usePatchDbLocalDataActions } from '@gamezilla/auth/client/patch-db-local-data-actions-context';
-import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { TodoListsOverview } from '@gamezilla/patch-db-example/todo';
+import { usePatchDbLocalDataActions } from '@libs/auth/client/patch-db-local-data-actions-context';
+import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
+import { TodoListsOverview } from '@pkgs/patch-db-example/todo';
 import { Trans } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 

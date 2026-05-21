@@ -1,6 +1,6 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 
-/** Must match {@link ANON_ID_HEADER} in packages/auth session-middleware. */
+/** Must match {@link ANON_ID_HEADER} in libs/auth session-middleware. */
 const X_ANON_ID = 'x-anon-id';
 
 export type RefreshAuthArgs = {

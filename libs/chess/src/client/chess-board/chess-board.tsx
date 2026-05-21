@@ -1,7 +1,7 @@
 /* eslint-disable lingui/no-unlocalized-strings */
-import { assert } from '@gamezilla/assert';
-import { Box, useTheme } from '@gamezilla/ui';
-import { assertSkiaWebLoaded } from '@gamezilla/ui/components/skia-web-root';
+import { assert } from '@pkgs/assert';
+import { Box, useTheme } from '@pkgs/ui';
+import { assertSkiaWebLoaded } from '@pkgs/ui/components/skia-web-root';
 import { useMemo, useState, type ReactNode } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import type { ChessBoardCanvasProps } from './chess-board-canvas';

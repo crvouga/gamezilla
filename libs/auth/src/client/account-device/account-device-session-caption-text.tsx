@@ -1,4 +1,4 @@
-import { Text } from '@gamezilla/ui';
+import { Text } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { formatTimestamp } from '../device-parsers';

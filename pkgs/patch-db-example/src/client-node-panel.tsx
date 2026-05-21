@@ -1,4 +1,4 @@
-import { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
+import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import {
   Box,
   Button,
@@ -7,15 +7,15 @@ import {
   Select,
   Stack,
   Text,
-} from '@gamezilla/ui';
-import { useTheme } from '@gamezilla/ui/theme';
-import type { Entity } from '@gamezilla/patch-db/interface';
+} from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui/theme';
+import type { Entity } from '@pkgs/patch-db/interface';
 import {
   PatchDbContextProvider,
   useQuery,
   type PatchDbValue,
-} from '@gamezilla/patch-db/react';
-import type { SubscribablePatchDbLike } from '@gamezilla/patch-db/subscribable';
+} from '@pkgs/patch-db/react';
+import type { SubscribablePatchDbLike } from '@pkgs/patch-db/subscribable';
 import {
   nextShapeOrder,
   playgroundCreateShape,
@@ -23,8 +23,8 @@ import {
   playgroundRandomizeShape,
   playgroundReorderShapes,
   shapeListQuery,
-} from '@gamezilla/patch-db/sim/playground-shapes';
-import type { PlaygroundClientHandle } from '@gamezilla/patch-db/sim/playground-sim';
+} from '@pkgs/patch-db/sim/playground-shapes';
+import type { PlaygroundClientHandle } from '@pkgs/patch-db/sim/playground-sim';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState } from 'react';
 import {

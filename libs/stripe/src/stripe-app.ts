@@ -1,5 +1,5 @@
-import type { SecretStore } from '@gamezilla/secret-store';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
+import type { SecretStore } from '@pkgs/secret-store';
+import type { PatchDb } from '@pkgs/patch-db/interface';
 import { Hono } from 'hono';
 import type Stripe from 'stripe';
 import {

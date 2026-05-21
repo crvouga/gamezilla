@@ -1,8 +1,8 @@
-import type { SecretStore } from '@gamezilla/secret-store';
+import type { SecretStore } from '@pkgs/secret-store';
 import {
   createCachingSecretStore,
   DopplerSecretStore,
-} from '@gamezilla/secret-store';
+} from '@pkgs/secret-store';
 
 export type CreateApiSecretStoreOptions = {
   /**

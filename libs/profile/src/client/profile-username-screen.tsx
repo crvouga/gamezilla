@@ -1,15 +1,10 @@
 import { useMyProfileId } from './use-my-profile-id';
 import { useProfileEntityById } from './use-profile-entity-by-id';
-import { useBreadcrumbNav } from '@gamezilla/ui/components/use-breadcrumb-nav';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
-import {
-  Box,
-  ScreenBase,
-  TextInput,
-  type BodyContentProps,
-} from '@gamezilla/ui';
-import type { Entity } from '@gamezilla/patch-db/interface';
-import { usePatchDb } from '@gamezilla/patch-db/react';
+import { Box, ScreenBase, TextInput, type BodyContentProps } from '@pkgs/ui';
+import type { Entity } from '@pkgs/patch-db/interface';
+import { usePatchDb } from '@pkgs/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import {

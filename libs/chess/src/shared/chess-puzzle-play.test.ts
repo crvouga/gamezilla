@@ -1,9 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  ROOM_ERROR_TYPE,
-  type RoomCommand,
-  type RoomState,
-} from '@gamezilla/room';
+import { ROOM_ERROR_TYPE, type RoomCommand, type RoomState } from '@pkgs/room';
 
 import { ChessModule } from './chess-module';
 import {

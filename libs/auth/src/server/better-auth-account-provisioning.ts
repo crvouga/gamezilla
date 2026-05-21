@@ -3,16 +3,12 @@ import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
   AccountAttr,
   AccountProviderAttr,
-} from '@gamezilla/auth/shared';
-import { assertUuid } from '@gamezilla/auth/shared/device-id';
-import { assert } from '@gamezilla/assert';
-import type {
-  Entity,
-  PatchDb,
-  PatchInput,
-} from '@gamezilla/patch-db/interface';
-import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
-import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
+} from '@libs/auth/shared';
+import { assertUuid } from '@libs/auth/shared/device-id';
+import { assert } from '@pkgs/assert';
+import type { Entity, PatchDb, PatchInput } from '@pkgs/patch-db/interface';
+import { PATCHES_DB_SYSTEM_CONTEXT } from '@pkgs/patch-db/interface';
+import { PatchMetaAttr } from '@pkgs/patch-db/metadata/patch-metadata';
 
 /** Stored in {@link AccountProviderAttr.provider}. */
 const INTERNAL_AUTH_PROVIDER = 'better-auth' as const;

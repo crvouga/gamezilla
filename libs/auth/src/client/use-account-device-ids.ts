@@ -5,8 +5,8 @@ import {
   DEVICE_ENTITY_TYPE,
   DeviceAttr,
 } from '../shared';
-import type { Entity } from '@gamezilla/patch-db/interface';
-import { useQuery } from '@gamezilla/patch-db/react';
+import type { Entity } from '@pkgs/patch-db/interface';
+import { useQuery } from '@pkgs/patch-db/react';
 import { useMemo } from 'react';
 
 const EMPTY_DEVICE_QUERY = {

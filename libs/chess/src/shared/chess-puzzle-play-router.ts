@@ -1,10 +1,10 @@
-import { createMessageRouter } from '@gamezilla/message';
+import { createMessageRouter } from '@pkgs/message';
 import {
   ROOM_ERROR_TYPE,
   type HandleResult,
   type RoomError,
   type RoomState,
-} from '@gamezilla/room';
+} from '@pkgs/room';
 import { Chess } from 'chess.js';
 
 import {

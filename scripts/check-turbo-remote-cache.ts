@@ -4,8 +4,8 @@
  * `TURBO_API`, `TURBO_TOKEN`, `TURBO_TEAM`, `TURBO_CACHE` (e.g. `remote:rw`).
  *
  * Keep `EXPECTED_API_ORIGIN` aligned with `turboCachePublicUrl()` in
- * `packages/infra/src/project-config.ts` and `TurboCache.validate` in
- * `packages/infra/src/cli/secrets/turbo-token.ts`.
+ * `libs/infra/src/project-config.ts` and `TurboCache.validate` in
+ * `libs/infra/src/cli/secrets/turbo-token.ts`.
  */
 const EXPECTED_API_ORIGIN = 'https://turbo-cache.gamezilla.app';
 
@@ -16,7 +16,7 @@ const REQUIRED = [
   'TURBO_CACHE',
 ] as const;
 
-/** Same rule as `TurboCache.validate` in packages/infra. */
+/** Same rule as `TurboCache.validate` in libs/infra. */
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 
 function isSet(v: string | undefined): boolean {

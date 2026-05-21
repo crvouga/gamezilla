@@ -1,10 +1,10 @@
-import { expoSqlitePlaygroundDbFactory } from '@gamezilla/patch-db/sim/playground-db-factory-expo';
-import { seedPlaygroundShapes } from '@gamezilla/patch-db/sim/playground-shapes';
-import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
+import { expoSqlitePlaygroundDbFactory } from '@pkgs/patch-db/sim/playground-db-factory-expo';
+import { seedPlaygroundShapes } from '@pkgs/patch-db/sim/playground-shapes';
+import type { PlaygroundSim } from '@pkgs/patch-db/sim/playground-sim';
 import {
   createPlaygroundSim,
   restorePlaygroundSim,
-} from '@gamezilla/patch-db/sim/playground-sim';
+} from '@pkgs/patch-db/sim/playground-sim';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import { clearSnapshot, loadSnapshot, saveSnapshot } from './persist';

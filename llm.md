@@ -79,9 +79,9 @@ The server performs merge-then-read: it incorporates client-known patches before
 
 ### Rooms
 
-`@gamezilla/room` implements **server-authoritative** sessions per topic (e.g. `space:<id>`). The server is the sole writer to the ordered event log (`seq` monotonic per topic). Clients keep an **optimistic** view plus a **durable command queue**: dispatch runs `RoomModule.handle` locally for UX, queues `{ commandId, command }`, sends over WebSocket when connected, sends `sync(fromSeq)` on reconnect, and drops optimistic overlays when the server returns `committed` or `rejected`. Server dedupes by `commandId` so retries are safe.
+`@pkgs/room` implements **server-authoritative** sessions per topic (e.g. `space:<id>`). The server is the sole writer to the ordered event log (`seq` monotonic per topic). Clients keep an **optimistic** view plus a **durable command queue**: dispatch runs `RoomModule.handle` locally for UX, queues `{ commandId, command }`, sends over WebSocket when connected, sends `sync(fromSeq)` on reconnect, and drops optimistic overlays when the server returns `committed` or `rejected`. Server dedupes by `commandId` so retries are safe.
 
-Game rules live in a shared **`RoomModule`** (used on client for optimism and on server for validation). Wire traffic is a small fixed set of JSON message kinds; auth runs at WebSocket upgrade (`RoomAuth`). See `packages/room/src/README.md` for ports, adapters, and Tiger Style expectations.
+Game rules live in a shared **`RoomModule`** (used on client for optimism and on server for validation). Wire traffic is a small fixed set of JSON message kinds; auth runs at WebSocket upgrade (`RoomAuth`). See `pkgs/room/src/README.md` for ports, adapters, and Tiger Style expectations.
 
 ### Dependency Injection
 

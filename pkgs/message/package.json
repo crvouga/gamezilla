@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/message",
+  "name": "@pkgs/message",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -16,8 +16,8 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/assert": "workspace:*",
-    "@gamezilla/keyword": "workspace:*"
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/keyword": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

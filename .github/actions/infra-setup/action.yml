@@ -23,7 +23,7 @@ runs:
     # Use `npm install -g` rather than `bun add -g`: the latter produces
     # a Bun-runtime wrapper that, in non-TTY CI shells, writes
     # `--version` output to stderr with empty stdout, tripping the dep
-    # version probe in `packages/infra/src/cli/deps/spawn.ts`. `npm` writes
+    # version probe in `libs/infra/src/cli/deps/spawn.ts`. `npm` writes
     # a plain Node shebang script that prints to stdout cleanly.
     - name: Install wrangler
       if: inputs.wrangler == 'true'

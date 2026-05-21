@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import type { PatchDb, PatchDbQuery, PatchDbResult } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
 import type { ActiveQuery } from './active-query-registry';

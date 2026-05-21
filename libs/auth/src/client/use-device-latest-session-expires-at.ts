@@ -1,6 +1,6 @@
 import { ACCOUNT_SESSION_ENTITY_TYPE, AccountSessionAttr } from '../shared';
-import type { Entity } from '@gamezilla/patch-db/interface';
-import { useQuery } from '@gamezilla/patch-db/react';
+import type { Entity } from '@pkgs/patch-db/interface';
+import { useQuery } from '@pkgs/patch-db/react';
 
 function activeExpiryMs(entity: Entity, now: number): number | null {
   const token = entity.attributes[AccountSessionAttr.token.key];

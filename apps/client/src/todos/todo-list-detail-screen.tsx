@@ -1,8 +1,5 @@
-import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import {
-  INBOX_LIST_ID,
-  TodoListDetail,
-} from '@gamezilla/patch-db-example/todo';
+import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
+import { INBOX_LIST_ID, TodoListDetail } from '@pkgs/patch-db-example/todo';
 import { Trans } from '@lingui/react/macro';
 import { useLocalSearchParams } from 'expo-router';
 

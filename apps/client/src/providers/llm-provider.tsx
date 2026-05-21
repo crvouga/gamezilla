@@ -1,6 +1,6 @@
-import { useConfigService } from '@gamezilla/auth/client/config-service-context';
-import { LlmContextProvider } from '@gamezilla/llm/client/llm-context';
-import { useKv } from '@gamezilla/kv/kv-context';
+import { useConfigService } from '@libs/auth/client/config-service-context';
+import { LlmContextProvider } from '@pkgs/llm/client/llm-context';
+import { useKv } from '@pkgs/kv/kv-context';
 import type { ReactNode } from 'react';
 
 /**

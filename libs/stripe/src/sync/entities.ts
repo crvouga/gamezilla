@@ -11,7 +11,7 @@
  * ready-to-use Stripe client and PatchDb; the entry-point script in
  * `scripts/sync.ts` owns those resources.
  */
-import type { PatchDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@pkgs/patch-db/interface';
 import type Stripe from 'stripe';
 import {
   ALL_BACKFILL_ENTITY_TYPES,

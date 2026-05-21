@@ -6,7 +6,7 @@ import {
   ScreenBase,
   useBreakpoint,
   type ScreenBaseAction,
-} from '@gamezilla/ui';
+} from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';

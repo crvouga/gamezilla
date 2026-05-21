@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import type { Listener, PubSub, Unsubscribe } from './interface';
 
 export class InMemoryPubSub implements PubSub {

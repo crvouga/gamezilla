@@ -3,7 +3,7 @@ import type { SchemaField } from './dicebear-schema';
 import type { StyleKey } from './dicebear-styles';
 import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
 import type { AvatarConfig } from '../shared/avatar-config';
-import { HorizontalPicker, Text } from '@gamezilla/ui';
+import { HorizontalPicker, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 
 export type VariantSwatchStripProps = {

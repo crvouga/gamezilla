@@ -10,7 +10,9 @@ const config = getDefaultConfig(projectRoot);
 // 1. Watch shared workspace packages for HMR (not the full monorepo — avoids watcher
 //    crashes from backend dist artifacts and transient pnpm temp directories)
 config.watchFolders = [
-  path.resolve(monorepoRoot, 'packages'),
+  path.resolve(monorepoRoot, 'apps'),
+  path.resolve(monorepoRoot, 'libs'),
+  path.resolve(monorepoRoot, 'pkgs'),
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
@@ -26,15 +28,15 @@ config.resolver.unstable_enablePackageExports = true;
 
 // 3a. Dedupe singletons-by-module-path to a single instance.
 //     Bun's content-addressed deduper produces distinct physical paths for the
-//     same version of a package across workspaces (e.g. `packages/client` vs
-//     `packages/*`), which Metro treats as separate modules. For libraries that
+//     same version of a package across workspaces (e.g. `apps/client` vs
+//     `{apps,libs,pkgs}/*`), which Metro treats as separate modules. For libraries that
 //     keep singleton state in a module-level closure, that yields multiple
 //     copies of the singleton — symptoms include:
 //       - `@lingui/core` / `@lingui/react`: "Lingui: Attempted to call a
 //         translation function without setting a locale." (the `i18n` activated
-//         by `packages/client/src/i18n/i18n.ts` is a different object than the
+//         by `apps/client/src/i18n/i18n.ts` is a different object than the
 //         one the `@lingui/core/macro` `t` template imports from inside
-//         `packages/*`).
+//         `{apps,libs,pkgs}/*`).
 //       - `expo-router`: "Cannot read properties of undefined (reading
 //         'isReady')" on any `router.push` called from a non-client workspace.
 //         `<ExpoRoot>` (rendered from client) writes `navigationRef` into

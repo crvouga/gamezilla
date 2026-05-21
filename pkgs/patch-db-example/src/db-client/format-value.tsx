@@ -1,4 +1,4 @@
-import { Box, Collapsible, Text, useTheme } from '@gamezilla/ui';
+import { Box, Collapsible, Text, useTheme } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 
 const MAX_INLINE = 200;

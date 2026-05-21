@@ -1,7 +1,7 @@
 import {
   getCachedSecureStorageValue,
   useSecureStorageItem,
-} from '@gamezilla/secure-storage/use-secure-storage-item';
+} from '@pkgs/secure-storage/use-secure-storage-item';
 
 import { SESSION_TOKEN_KEY } from './auth-storage-keys';
 

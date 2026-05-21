@@ -18,7 +18,7 @@
 
 import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { setTimeout as sleep } from 'node:timers/promises';
-import { createLogger, type Logger } from '@gamezilla/logger';
+import { createLogger, type Logger } from '@pkgs/logger';
 import { loadPostgresConfig } from './postgres-config';
 import {
   probePostmaster,

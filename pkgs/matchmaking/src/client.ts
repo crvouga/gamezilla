@@ -14,7 +14,7 @@
  * (Durable Object name, room identifier, etc.) to bring the match online.
  */
 
-import type { AttributeState } from '@gamezilla/attribute';
+import type { AttributeState } from '@pkgs/attribute';
 import { MatchmakingHttpError } from './client-error';
 import type { FormulaWire } from './matchmaker';
 import type {

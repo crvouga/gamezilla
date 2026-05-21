@@ -1,7 +1,7 @@
-import type { ApiHonoEnv } from '@gamezilla/auth/server/api-hono-env';
-import { isEqual } from '@gamezilla/equal/is-equal';
-import type { Logger } from '@gamezilla/logger';
-import type { SecretStore } from '@gamezilla/secret-store';
+import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
+import { isEqual } from '@pkgs/equal/is-equal';
+import type { Logger } from '@pkgs/logger';
+import type { SecretStore } from '@pkgs/secret-store';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import {
@@ -28,7 +28,7 @@ function snapshotAttributes(
   return { ...attrs };
 }
 
-/** Doppler key — keep aligned with `packages/api/src/config/secret-names.ts`. */
+/** Doppler key — keep aligned with `apps/api/src/config/secret-names.ts`. */
 const DOPPLER_WEB_CLIENT_GOOGLE_CLIENT_ID = 'WEB_CLIENT_GOOGLE_CLIENT_ID';
 
 async function loadClientConfigAttributesFromDoppler(

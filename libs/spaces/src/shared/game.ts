@@ -1,5 +1,5 @@
-import type { MessageNamespace, MessageRouter } from '@gamezilla/message';
-import type { HandleResult, RoomState } from '@gamezilla/room';
+import type { MessageNamespace, MessageRouter } from '@pkgs/message';
+import type { HandleResult, RoomState } from '@pkgs/room';
 import type { ComponentType, ReactNode } from 'react';
 
 /**
@@ -13,9 +13,9 @@ export type GameRouterEntry<TCtx, TReturn> = {
 
 /**
  * Shared definition of a playable game inside a space. Implementations live
- * in feature packages (e.g. `@gamezilla/chess/shared/chess-game`) and are
+ * in feature packages (e.g. `@libs/chess/shared/chess-game`) and are
  * wired into the composed `SpaceModule` at the composition root
- * (`packages/api/src/api.ts`) — `@gamezilla/spaces` itself never imports a
+ * (`apps/api/src/api.ts`) — `@libs/spaces` itself never imports a
  * specific game.
  */
 export type GameDefinition = {

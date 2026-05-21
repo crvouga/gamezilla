@@ -140,7 +140,7 @@ function installHint(): string {
   }
   if (process.platform === 'win32') {
     return [
-      'Native Windows is not supported by `@gamezilla/pg`. Run dev inside WSL2:',
+      'Native Windows is not supported by `@pkgs/pg`. Run dev inside WSL2:',
       '  https://learn.microsoft.com/en-us/windows/wsl/install',
       'Then install Postgres in the WSL distro and re-run `bun run dev`.',
     ].join('\n');

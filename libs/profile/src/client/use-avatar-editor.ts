@@ -11,8 +11,8 @@ import {
   serializeAvatarConfig,
 } from '../shared/avatar-config';
 import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
-import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
-import { usePatchDb } from '@gamezilla/patch-db/react';
+import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { usePatchDb } from '@pkgs/patch-db/react';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';

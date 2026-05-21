@@ -8,16 +8,16 @@
  * {@link createAttrNamespace}, so the wire format stays uniform with patch
  * attributes and the keys are validated centrally.
  */
-import { type AttributeState, createAttrNamespace } from '@gamezilla/attribute';
-import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
+import { type AttributeState, createAttrNamespace } from '@pkgs/attribute';
+import { ForbiddenError } from '@pkgs/patch-db/forbidden-error';
 import {
   isPatchDbSystemContext,
   type PatchDbQueryWhereClause,
   type PatchInput,
   PATCH_CREATED_BY_ID,
   READ_WHERE_NEVER_TRUE,
-} from '@gamezilla/patch-db/interface';
-import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
+} from '@pkgs/patch-db/interface';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '@pkgs/patch-db/policy/system-device';
 
 const authNs = createAttrNamespace('auth');
 

@@ -1,5 +1,5 @@
-import { createAttrNamespace } from '@gamezilla/attribute';
-import type { Keyword } from '@gamezilla/keyword';
+import { createAttrNamespace } from '@pkgs/attribute';
+import type { Keyword } from '@pkgs/keyword';
 
 import { ROOM_ERROR_TYPES, type RoomError } from '../../types';
 

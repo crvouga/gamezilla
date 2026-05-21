@@ -1,5 +1,5 @@
 /**
- * Public, typed error classes thrown by `@gamezilla/matchmaking`.
+ * Public, typed error classes thrown by `@pkgs/matchmaking`.
  *
  * Kept in their own module so consumers can `instanceof`-narrow
  * without dragging the whole `Matchmaking` facade into a barrel,

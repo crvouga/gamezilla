@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/equal",
+  "name": "@pkgs/equal",
   "version": "0.0.0",
   "private": true,
   "exports": {

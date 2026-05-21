@@ -1,4 +1,4 @@
-import { Box } from '@gamezilla/ui';
+import { Box } from '@pkgs/ui';
 import { useMemo, type ReactNode } from 'react';
 
 import { GamesMainMenu } from '../module/games-main-menu';

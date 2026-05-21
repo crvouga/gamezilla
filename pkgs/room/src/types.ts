@@ -2,15 +2,15 @@
  * Server-authoritative room: shared types for client + server.
  * Tiger Style: invalid shapes surface as validation errors, not silent coercions.
  */
-import { asKeyword, type Keyword } from '@gamezilla/keyword';
-import type { Message } from '@gamezilla/message';
+import { asKeyword, type Keyword } from '@pkgs/keyword';
+import type { Message } from '@pkgs/message';
 
 export type { Keyword };
 
 /**
  * Serializable room state (module-owned flat map).
  * Keys MUST be {@link Keyword}s (validated at every boundary). Domain modules add
- * keys via {@link @gamezilla/attribute}; the client also adds `room/*` via {@link RoomMetaAttr}.
+ * keys via {@link @pkgs/attribute}; the client also adds `room/*` via {@link RoomMetaAttr}.
  */
 export type RoomState = Record<Keyword, unknown>;
 

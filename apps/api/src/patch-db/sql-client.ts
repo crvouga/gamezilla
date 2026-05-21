@@ -1,5 +1,5 @@
-import { SqlClientImplPgClient } from '@gamezilla/sql-client/impl-pg';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import { SqlClientImplPgClient } from '@pkgs/sql-client/impl-pg';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Client } from 'pg';
 
 export type RequestDb = {

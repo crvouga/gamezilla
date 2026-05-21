@@ -1,7 +1,7 @@
-import type { SqlClient } from '@gamezilla/sql-client/interface';
-import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
-import { patchDbSystemContext } from '@gamezilla/patch-db/interface';
-import { PatchDbCompactionPolicyRegistry } from '@gamezilla/patch-db/policy/compaction-policy';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
+import { patchDbSystemContext } from '@pkgs/patch-db/interface';
+import { PatchDbCompactionPolicyRegistry } from '@pkgs/patch-db/policy/compaction-policy';
 
 /** System context for Stripe CLI sync scripts (catalog dump + entity backfills). */
 export const STRIPE_PATCH_DB_SCRIPT_CONTEXT =

@@ -2,7 +2,7 @@ import { useSpaceActions } from './space-actions';
 import { EndSpaceConfirmModal } from './end-space-confirm-modal';
 import { LeaveSpaceConfirmModal } from './leave-space-confirm-modal';
 import { useCurrentSpaceRole } from '../use-current-space-role';
-import { borderRadius, Pressable, Text } from '@gamezilla/ui';
+import { borderRadius, Pressable, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState, type ReactNode } from 'react';
 

@@ -4,20 +4,20 @@
  * (declarative index DDL). Lives in its own module so both can depend on it
  * without forming an import cycle.
  */
-import type { Assert } from '@gamezilla/assert';
-import { assert } from '@gamezilla/assert';
-import type { AttributeState } from '@gamezilla/attribute';
+import type { Assert } from '@pkgs/assert';
+import { assert } from '@pkgs/assert';
+import type { AttributeState } from '@pkgs/attribute';
 import {
   assertKeywordRecord,
   isNamespacedKeyword,
   isNamespacePrefix,
   type Keyword,
-} from '@gamezilla/keyword';
+} from '@pkgs/keyword';
 
 /**
  * Namespaced attribute key used in queries and the `attributes` map.
  * Same brand as {@link Keyword}; obtain via {@link assertAttribute}, {@link asKeyword},
- * or {@link @gamezilla/attribute.createAttrNamespace} tags (`.key`).
+ * or {@link @pkgs/attribute.createAttrNamespace} tags (`.key`).
  */
 export type AttributeKey = Keyword;
 

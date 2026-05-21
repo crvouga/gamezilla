@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/sql-client",
+  "name": "@pkgs/sql-client",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -15,9 +15,9 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/assert": "workspace:*",
-    "@gamezilla/pub-sub": "workspace:*",
-    "@gamezilla/sqlite": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/pub-sub": "workspace:*",
+    "@pkgs/sqlite": "workspace:*",
     "@jlongster/sql.js": "catalog:",
     "@neondatabase/serverless": "catalog:",
     "absurd-sql": "catalog:",
@@ -28,7 +28,7 @@
     "sql.js": "catalog:"
   },
   "devDependencies": {
-    "@gamezilla/postgres": "workspace:*",
+    "@pkgs/postgres": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@types/react": "catalog:",

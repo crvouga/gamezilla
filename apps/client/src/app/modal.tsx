@@ -1,3 +1,3 @@
-import { ModalScreen } from '@gamezilla/client/developer/modal-screen';
+import { ModalScreen } from '@apps/client/developer/modal-screen';
 
 export default ModalScreen;

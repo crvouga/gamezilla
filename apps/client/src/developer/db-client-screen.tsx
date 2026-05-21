@@ -1,11 +1,11 @@
-import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { Box, ScreenBaseHeader } from '@gamezilla/ui';
+import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
+import { Box, ScreenBaseHeader } from '@pkgs/ui';
 import {
   buildExplorerScreenBreadcrumbs,
   ExplorerRoute,
   type PatchDbExplorerApplyParams,
   type PatchDbExplorerParams,
-} from '@gamezilla/patch-db-example/db-client/navigator';
+} from '@pkgs/patch-db-example/db-client/navigator';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';

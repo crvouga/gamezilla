@@ -9,14 +9,14 @@ import {
   StatusDot,
   Text,
   TextInput,
-} from '@gamezilla/ui';
-import { useTheme } from '@gamezilla/ui/theme';
-import { assertUrl } from '@gamezilla/patch-db/assert-url';
-import type { Patch, PatchDbResult } from '@gamezilla/patch-db/interface';
+} from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui/theme';
+import { assertUrl } from '@pkgs/patch-db/assert-url';
+import type { Patch, PatchDbResult } from '@pkgs/patch-db/interface';
 import {
   ADMIN_METRIC_ENTITY_TYPE,
   PatchDbClientTransportHttpFetch,
-} from '@gamezilla/patch-db/transport';
+} from '@pkgs/patch-db/transport';
 import { Trans, useLingui } from '@lingui/react/macro';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';

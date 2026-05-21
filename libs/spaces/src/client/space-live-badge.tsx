@@ -1,9 +1,9 @@
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { Box, StatusDot, Text } from '@gamezilla/ui';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { Box, StatusDot, Text } from '@pkgs/ui';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

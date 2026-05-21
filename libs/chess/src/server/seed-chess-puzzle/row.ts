@@ -5,12 +5,12 @@
  * No SQL, no I/O — exported so unit tests can pin the canonical-JSON /
  * content-addressed id behaviour without booting the seed runtime.
  */
-import { ChessPuzzleAttr } from '@gamezilla/chess/shared/chess-puzzle-entities';
+import { ChessPuzzleAttr } from '@libs/chess/shared/chess-puzzle-entities';
 import {
   PATCH_CREATED_BY_ID,
   PATCH_SESSION_ID,
   PATCH_SYNCED_AT,
-} from '@gamezilla/patch-db/interface';
+} from '@pkgs/patch-db/interface';
 import { createHash } from 'node:crypto';
 
 export type PuzzleBatchEntry = {

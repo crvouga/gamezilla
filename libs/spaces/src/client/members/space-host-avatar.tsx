@@ -1,9 +1,9 @@
-import { UserProfileAvatar } from '@gamezilla/profile/client/user-profile-avatar';
+import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type { ReactNode } from 'react';
 
 export type SpaceHostAvatarProps = {

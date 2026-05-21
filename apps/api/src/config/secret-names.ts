@@ -2,12 +2,12 @@
  * Doppler keys — same names in `local` and `prod` configs.
  *
  * Stripe key names are duplicated here (rather than imported from
- * `@gamezilla/stripe/doppler-keys`) to avoid a turbo build cycle: the stripe
+ * `@libs/stripe/doppler-keys`) to avoid a turbo build cycle: the stripe
  * feature package depends on auth, which must not depend on stripe for these
  * literals.
  *
  * Keep `stripeSecretKey` / `stripeWebhookSecret` literals here aligned with
- * `packages/stripe/src/secret-keys.ts` (covered by a smoke test in stripe).
+ * `libs/stripe/src/secret-keys.ts` (covered by a smoke test in stripe).
  */
 export const ApiSecretName = {
   googleWebClientId: 'WEB_CLIENT_GOOGLE_CLIENT_ID',

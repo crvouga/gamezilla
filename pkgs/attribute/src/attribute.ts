@@ -1,8 +1,8 @@
 /**
  * Tiger Style (see repo `LLM.md`): attribute tags for PatchDB — keys validated via
- * {@link @gamezilla/keyword}; never accept silently malformed attribute keys.
+ * {@link @pkgs/keyword}; never accept silently malformed attribute keys.
  */
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import {
   assertLocalName,
   assertNamespacedKeyword,
@@ -10,7 +10,7 @@ import {
   namespacePrefixOf,
   type JoinDot,
   type Keyword,
-} from '@gamezilla/keyword/keyword';
+} from '@pkgs/keyword/keyword';
 
 export type { JoinDot, Keyword };
 

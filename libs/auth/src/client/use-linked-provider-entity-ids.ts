@@ -1,5 +1,5 @@
 import { ACCOUNT_PROVIDER_ENTITY_TYPE, AccountProviderAttr } from '../shared';
-import { useQueryEntityIds } from '@gamezilla/patch-db/react';
+import { useQueryEntityIds } from '@pkgs/patch-db/react';
 
 /**
  * Account-provider entity ids for the given account, or `[]` while signed

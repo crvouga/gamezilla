@@ -1,8 +1,8 @@
 import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceMembershipAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { useQueryEntityIds } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { useQueryEntityIds } from '@pkgs/patch-db/react';
 
 /**
  * Membership entity ids for active guests of a space, ordered by `joinedAt`.

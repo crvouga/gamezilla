@@ -1,12 +1,12 @@
-import type { ConfigService } from '@gamezilla/auth/client/config-service-types';
-import type { Kv } from '@gamezilla/kv/interface';
+import type { ConfigService } from '@libs/auth/client/config-service-types';
+import type { Kv } from '@pkgs/kv/interface';
 import type {
   Room,
   RoomCommandPayload,
   RoomEvent,
   RoomState,
-} from '@gamezilla/room';
-import type { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
+} from '@pkgs/room';
+import type { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 
 import { createSpaceRoom } from './create-space-room';

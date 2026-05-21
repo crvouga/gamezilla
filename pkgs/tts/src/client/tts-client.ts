@@ -1,4 +1,4 @@
-import type { ObjectStore } from '@gamezilla/object-store/interface';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 
 import { ttsCacheKey } from '../shared/tts-cache-key';
 import {
@@ -49,7 +49,7 @@ function trimBaseUrl(url: string): string {
  *
  * The caller's `fetch` is used verbatim — if you need to attach an
  * `Authorization` header, supply a wrapped fetch (the same pattern
- * `@gamezilla/auth/client/refresh-auth-fetch.ts` uses).
+ * `@libs/auth/client/refresh-auth-fetch.ts` uses).
  */
 export class TtsClient {
   private readonly base: string;

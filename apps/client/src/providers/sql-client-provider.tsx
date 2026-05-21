@@ -1,5 +1,5 @@
-import { useCachedPromise } from '@gamezilla/async/use-cached-promise';
-import { SqlClientProvider as SqlClientCtxProvider } from '@gamezilla/sql-client/react-context';
+import { useCachedPromise } from '@pkgs/async/use-cached-promise';
+import { SqlClientProvider as SqlClientCtxProvider } from '@pkgs/sql-client/react-context';
 import { use, type ReactNode } from 'react';
 
 import {

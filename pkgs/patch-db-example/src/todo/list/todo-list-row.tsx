@@ -1,4 +1,4 @@
-import { Box, Pressable, useTheme } from '@gamezilla/ui';
+import { Box, Pressable, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { TodoListRowCountText } from './todo-list-row-count-text';

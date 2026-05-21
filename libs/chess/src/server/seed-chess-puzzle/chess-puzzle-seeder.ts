@@ -22,9 +22,9 @@
  *
  * The seed assumes the `patches` and `snapshots` tables and the
  * `pdb_idx_chess_puzzle__*` declarative indexes already exist. Run the
- * standard migration step first (`bun run --filter @gamezilla/api db:migrate`)
+ * standard migration step first (`bun run --filter @apps/api db:migrate`)
  * before invoking this script on a fresh database. Keeping migrations out
- * of the seed lets `@gamezilla/chess` stay independent of `@gamezilla/api`
+ * of the seed lets `@libs/chess` stay independent of `@apps/api`
  * (and Better Auth) and avoids a workspace-level dependency cycle.
  *
  * Connection model: the seed opens **exactly one** TCP session to Postgres
@@ -37,10 +37,10 @@
  * `SET …` statements that need to persist across the seed's batches).
  *
  * Local (Doppler `local`, `DB_URL` → PGlite socket or other Postgres):
- *   DOPPLER_CONFIG=local doppler run -- bun run --filter @gamezilla/chess seed:puzzles
+ *   DOPPLER_CONFIG=local doppler run -- bun run --filter @libs/chess seed:puzzles
  *
  * Production (Doppler `prod`, `DB_URL` → Postgres):
- *   DOPPLER_CONFIG=prod doppler run -- bun run --filter @gamezilla/chess seed:puzzles
+ *   DOPPLER_CONFIG=prod doppler run -- bun run --filter @libs/chess seed:puzzles
  *
  * Options: `--source`, `--cache-dir`, `--batch-size` (default 1000),
  *   `--limit`, `--no-resume`, `--dry-run`, `--pace-ms` (default 250),
@@ -55,19 +55,19 @@ import {
   CHESS_PUZZLE_LOAD_ENTITY_ID,
   CHESS_PUZZLE_LOAD_ENTITY_TYPE,
   ChessPuzzleLoadAttr,
-} from '@gamezilla/chess/shared/chess-puzzle-entities';
-import { createLogger, type Logger } from '@gamezilla/logger';
-import { createDopplerSecretStoreForScripts } from '@gamezilla/secret-store';
-import { SqlClientImplPgClient } from '@gamezilla/sql-client/impl-pg-client';
-import { sanitizePostgresUrlForNodePg } from '@gamezilla/sql-client/sanitize-postgres-url-for-node-pg';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
-import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
+} from '@libs/chess/shared/chess-puzzle-entities';
+import { createLogger, type Logger } from '@pkgs/logger';
+import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
+import { SqlClientImplPgClient } from '@pkgs/sql-client/impl-pg-client';
+import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
 import {
   PATCHES_DB_SYSTEM_CONTEXT,
   type PatchDb,
   type PatchInput,
-} from '@gamezilla/patch-db/interface';
-import { PatchDbCompactionPolicyRegistry } from '@gamezilla/patch-db/policy/compaction-policy';
+} from '@pkgs/patch-db/interface';
+import { PatchDbCompactionPolicyRegistry } from '@pkgs/patch-db/policy/compaction-policy';
 import { Client } from 'pg';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
@@ -518,7 +518,7 @@ export class ChessPuzzleSeeder {
   ): Promise<void> {
     const cli = this.#cli;
     reporter.phase('Connect database (single TCP session)', {
-      note: 'Schema (patches/snapshots + pdb_idx_chess_puzzle__*) must already exist; run `bun run --filter @gamezilla/api db:migrate` first on a fresh database.',
+      note: 'Schema (patches/snapshots + pdb_idx_chess_puzzle__*) must already exist; run `bun run --filter @apps/api db:migrate` first on a fresh database.',
     });
     const store = createDopplerSecretStoreForScripts();
     const databaseUrl = await store.getRequired('DB_URL');

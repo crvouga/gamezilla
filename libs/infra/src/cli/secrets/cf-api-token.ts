@@ -1,4 +1,4 @@
-import { fetchWithRetry } from '@gamezilla/async/fetch-with-retry';
+import { fetchWithRetry } from '@pkgs/async/fetch-with-retry';
 import { cfHeaders, probeCfPermission } from './cloudflare';
 import type { SecretEntry } from './types';
 

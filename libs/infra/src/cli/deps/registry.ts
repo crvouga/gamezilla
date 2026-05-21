@@ -34,7 +34,7 @@ export const ALL_DEPS: readonly Dep[] = [
 /**
  * Deps required by the CI `provision` phase: Wrangler talks to the
  * Cloudflare API, Bun + Doppler power the CLI runtime + secrets, and
- * Postgres binaries back the global deploy lock (`packages/pg`). The
+ * Postgres binaries back the global deploy lock (`pkgs/pg`). The
  * Stripe CLI is unused here (no catalog sync in this phase) and
  * `pgweb` is a local dev GUI that CI runners never install.
  */

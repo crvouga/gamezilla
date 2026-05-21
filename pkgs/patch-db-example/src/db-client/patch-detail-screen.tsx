@@ -8,9 +8,9 @@ import {
   Stack,
   Text,
   useTheme,
-} from '@gamezilla/ui';
-import type { Patch } from '@gamezilla/patch-db/interface';
-import { usePatchDb } from '@gamezilla/patch-db/react';
+} from '@pkgs/ui';
+import type { Patch } from '@pkgs/patch-db/interface';
+import { usePatchDb } from '@pkgs/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

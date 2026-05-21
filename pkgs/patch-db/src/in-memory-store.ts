@@ -1,6 +1,6 @@
 /* eslint-disable complexity */
-import { assert } from '@gamezilla/assert';
-import type { Unsubscribe } from '@gamezilla/pub-sub/interface';
+import { assert } from '@pkgs/assert';
+import type { Unsubscribe } from '@pkgs/pub-sub/interface';
 import type { Entity, Patch, PatchInput } from './interface';
 import { PATCH_META_KEYS } from './interface';
 

@@ -28,33 +28,33 @@
         "typescript-eslint": "catalog:",
       },
     },
-    "packages/api": {
-      "name": "@gamezilla/api",
+    "apps/api": {
+      "name": "@apps/api",
       "version": "1.0.0",
       "dependencies": {
-        "@gamezilla/app": "workspace:*",
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/auth": "workspace:*",
-        "@gamezilla/chess": "workspace:*",
-        "@gamezilla/client-config": "workspace:*",
-        "@gamezilla/doppler": "workspace:*",
-        "@gamezilla/keyword": "workspace:*",
-        "@gamezilla/kv": "workspace:*",
-        "@gamezilla/llm": "workspace:*",
-        "@gamezilla/logger": "workspace:*",
-        "@gamezilla/matchmaking": "workspace:*",
-        "@gamezilla/object-store": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "@gamezilla/profile": "workspace:*",
-        "@gamezilla/pub-sub": "workspace:*",
-        "@gamezilla/room": "workspace:*",
-        "@gamezilla/secret-store": "workspace:*",
-        "@gamezilla/spaces": "workspace:*",
-        "@gamezilla/sql-client": "workspace:*",
-        "@gamezilla/stripe": "workspace:*",
-        "@gamezilla/tts": "workspace:*",
-        "@gamezilla/uuid": "workspace:*",
+        "@libs/app": "workspace:*",
+        "@libs/auth": "workspace:*",
+        "@libs/chess": "workspace:*",
+        "@libs/client-config": "workspace:*",
+        "@libs/profile": "workspace:*",
+        "@libs/spaces": "workspace:*",
+        "@libs/stripe": "workspace:*",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/doppler": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/llm": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/matchmaking": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/patch-db": "workspace:*",
+        "@pkgs/pub-sub": "workspace:*",
+        "@pkgs/room": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/tts": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
         "hono": "catalog:",
         "pg": "catalog:",
         "stripe": "catalog:",
@@ -66,192 +66,43 @@
         "wrangler": "catalog:",
       },
     },
-    "packages/app": {
-      "name": "@gamezilla/app",
-      "version": "0.0.0",
-      "dependencies": {
-        "@gamezilla/chess": "workspace:*",
-        "@gamezilla/room": "workspace:*",
-        "@gamezilla/spaces": "workspace:*",
-        "react": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/react": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/assert": {
-      "name": "@gamezilla/assert",
-      "version": "0.0.0",
-      "dependencies": {
-        "expo-clipboard": "catalog:",
-        "react-native": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/assistant": {
-      "name": "@gamezilla/assistant",
-      "version": "0.0.0",
-      "dependencies": {
-        "@gamezilla/ui": "workspace:*",
-        "react": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/react": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/async": {
-      "name": "@gamezilla/async",
-      "version": "0.0.0",
-      "dependencies": {
-        "@gamezilla/logger": "workspace:*",
-        "react": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/react": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/attribute": {
-      "name": "@gamezilla/attribute",
-      "version": "0.0.0",
-      "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/keyword": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/auth": {
-      "name": "@gamezilla/auth",
-      "version": "0.0.0",
-      "dependencies": {
-        "@better-auth/core": "catalog:",
-        "@better-auth/expo": "catalog:",
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/async": "workspace:*",
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/logger": "workspace:*",
-        "@gamezilla/object-store": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "@gamezilla/secret-store": "workspace:*",
-        "@gamezilla/secure-storage": "workspace:*",
-        "@gamezilla/sql-client": "workspace:*",
-        "@gamezilla/ui": "workspace:*",
-        "@gamezilla/uuid": "workspace:*",
-        "@lingui/core": "catalog:",
-        "@lingui/react": "catalog:",
-        "better-auth": "catalog:",
-        "expo-constants": "catalog:",
-        "expo-device": "catalog:",
-        "expo-network": "catalog:",
-        "expo-router": "catalog:",
-        "expo-secure-store": "catalog:",
-        "expo-sqlite": "catalog:",
-        "expo-web-browser": "catalog:",
-        "hono": "catalog:",
-        "kysely": "catalog:",
-        "pg": "catalog:",
-        "react": "catalog:",
-        "react-native": "catalog:",
-      },
-      "devDependencies": {
-        "@types/pg": "catalog:",
-        "@types/react": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/browser": {
-      "name": "@gamezilla/browser",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/chess": {
-      "name": "@gamezilla/chess",
-      "version": "0.0.0",
-      "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/assistant": "workspace:*",
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/auth": "workspace:*",
-        "@gamezilla/logger": "workspace:*",
-        "@gamezilla/message": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "@gamezilla/room": "workspace:*",
-        "@gamezilla/secret-store": "workspace:*",
-        "@gamezilla/spaces": "workspace:*",
-        "@gamezilla/sql-client": "workspace:*",
-        "@gamezilla/ui": "workspace:*",
-        "@lingui/core": "catalog:",
-        "@lingui/react": "catalog:",
-        "@shopify/react-native-skia": "catalog:",
-        "chess.js": "catalog:",
-        "csv-parse": "catalog:",
-        "expo-audio": "catalog:",
-        "expo-haptics": "catalog:",
-        "fzstd": "catalog:",
-        "pg": "catalog:",
-        "react": "catalog:",
-        "react-native": "catalog:",
-        "react-native-gesture-handler": "catalog:",
-        "react-native-reanimated": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/pg": "catalog:",
-        "@types/react": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/client": {
-      "name": "@gamezilla/client",
+    "apps/client": {
+      "name": "@apps/client",
       "version": "1.0.0",
       "dependencies": {
+        "@apps/api": "workspace:*",
         "@expo-google-fonts/nunito": "catalog:",
         "@expo/metro-runtime": "catalog:",
-        "@gamezilla/api": "workspace:*",
-        "@gamezilla/app": "workspace:*",
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/assistant": "workspace:*",
-        "@gamezilla/async": "workspace:*",
-        "@gamezilla/auth": "workspace:*",
-        "@gamezilla/browser": "workspace:*",
-        "@gamezilla/chess": "workspace:*",
-        "@gamezilla/client-config": "workspace:*",
-        "@gamezilla/git": "workspace:*",
-        "@gamezilla/kv": "workspace:*",
-        "@gamezilla/llm": "workspace:*",
-        "@gamezilla/logger": "workspace:*",
-        "@gamezilla/object-store": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "@gamezilla/patch-db-example": "workspace:*",
-        "@gamezilla/polyfill": "workspace:*",
-        "@gamezilla/profile": "workspace:*",
-        "@gamezilla/pub-sub": "workspace:*",
-        "@gamezilla/room-example": "workspace:*",
-        "@gamezilla/secret-store": "workspace:*",
-        "@gamezilla/secure-storage": "workspace:*",
-        "@gamezilla/spaces": "workspace:*",
-        "@gamezilla/sql-client": "workspace:*",
-        "@gamezilla/sqlite": "workspace:*",
-        "@gamezilla/tts": "workspace:*",
-        "@gamezilla/ui": "workspace:*",
         "@gorhom/bottom-sheet": "catalog:",
         "@jlongster/sql.js": "catalog:",
+        "@libs/app": "workspace:*",
+        "@libs/assistant": "workspace:*",
+        "@libs/auth": "workspace:*",
+        "@libs/chess": "workspace:*",
+        "@libs/client-config": "workspace:*",
+        "@libs/profile": "workspace:*",
+        "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/async": "workspace:*",
+        "@pkgs/browser": "workspace:*",
+        "@pkgs/git": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/llm": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/patch-db": "workspace:*",
+        "@pkgs/patch-db-example": "workspace:*",
+        "@pkgs/polyfill": "workspace:*",
+        "@pkgs/pub-sub": "workspace:*",
+        "@pkgs/room-example": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "@pkgs/secure-storage": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/sqlite": "workspace:*",
+        "@pkgs/tts": "workspace:*",
+        "@pkgs/ui": "workspace:*",
         "@react-native-async-storage/async-storage": "catalog:",
         "@react-navigation/bottom-tabs": "catalog:",
         "@react-navigation/elements": "catalog:",
@@ -306,20 +157,135 @@
         "workbox-build": "catalog:",
       },
     },
-    "packages/client-config": {
-      "name": "@gamezilla/client-config",
+    "apps/turbo-cache": {
+      "name": "@apps/turbo-cache",
+      "version": "1.0.0",
+      "dependencies": {
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/turbo-cache": "workspace:*",
+      },
+      "devDependencies": {
+        "typescript": "catalog:",
+      },
+    },
+    "libs/app": {
+      "name": "@libs/app",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/async": "workspace:*",
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/auth": "workspace:*",
-        "@gamezilla/equal": "workspace:*",
-        "@gamezilla/logger": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "@gamezilla/secret-store": "workspace:*",
-        "@gamezilla/ui": "workspace:*",
+        "@libs/chess": "workspace:*",
+        "@libs/spaces": "workspace:*",
+        "@pkgs/room": "workspace:*",
+        "react": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/assistant": {
+      "name": "@libs/assistant",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/ui": "workspace:*",
+        "react": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/auth": {
+      "name": "@libs/auth",
+      "version": "0.0.0",
+      "dependencies": {
+        "@better-auth/core": "catalog:",
+        "@better-auth/expo": "catalog:",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/async": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/patch-db": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "@pkgs/secure-storage": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/ui": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
+        "better-auth": "catalog:",
+        "expo-constants": "catalog:",
+        "expo-device": "catalog:",
+        "expo-network": "catalog:",
+        "expo-router": "catalog:",
+        "expo-secure-store": "catalog:",
+        "expo-sqlite": "catalog:",
+        "expo-web-browser": "catalog:",
+        "hono": "catalog:",
+        "kysely": "catalog:",
+        "pg": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+      },
+      "devDependencies": {
+        "@types/pg": "catalog:",
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/chess": {
+      "name": "@libs/chess",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/assistant": "workspace:*",
+        "@libs/auth": "workspace:*",
+        "@libs/spaces": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/react": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/message": "workspace:*",
+        "@pkgs/patch-db": "workspace:*",
+        "@pkgs/room": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/ui": "workspace:*",
+        "@shopify/react-native-skia": "catalog:",
+        "chess.js": "catalog:",
+        "csv-parse": "catalog:",
+        "expo-audio": "catalog:",
+        "expo-haptics": "catalog:",
+        "fzstd": "catalog:",
+        "pg": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+        "react-native-gesture-handler": "catalog:",
+        "react-native-reanimated": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/client-config": {
+      "name": "@libs/client-config",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/auth": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/react": "catalog:",
+        "@pkgs/async": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/equal": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/patch-db": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "@pkgs/ui": "workspace:*",
         "hono": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
@@ -329,66 +295,20 @@
         "typescript": "catalog:",
       },
     },
-    "packages/distributed-lock": {
-      "name": "@gamezilla/distributed-lock",
-      "version": "0.0.0",
+    "libs/infra": {
+      "name": "@libs/infra",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/keyword": "workspace:*",
-        "@gamezilla/kv": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/doppler": {
-      "name": "@gamezilla/doppler",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/equal": {
-      "name": "@gamezilla/equal",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/git": {
-      "name": "@gamezilla/git",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/i18n": {
-      "name": "@gamezilla/i18n",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/infra": {
-      "name": "@gamezilla/infra",
-      "dependencies": {
-        "@gamezilla/api": "workspace:*",
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/async": "workspace:*",
-        "@gamezilla/distributed-lock": "workspace:*",
-        "@gamezilla/doppler": "workspace:*",
-        "@gamezilla/git": "workspace:*",
-        "@gamezilla/keyword": "workspace:*",
-        "@gamezilla/kv": "workspace:*",
-        "@gamezilla/logger": "workspace:*",
-        "@gamezilla/sql-client": "workspace:*",
+        "@apps/api": "workspace:*",
         "@neondatabase/serverless": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/async": "workspace:*",
+        "@pkgs/distributed-lock": "workspace:*",
+        "@pkgs/doppler": "workspace:*",
+        "@pkgs/git": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
         "picocolors": "catalog:",
       },
       "devDependencies": {
@@ -396,26 +316,203 @@
         "typescript": "catalog:",
       },
     },
-    "packages/keyword": {
-      "name": "@gamezilla/keyword",
+    "libs/profile": {
+      "name": "@libs/profile",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
+        "@dicebear/collection": "catalog:",
+        "@dicebear/core": "catalog:",
+        "@libs/auth": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/react": "catalog:",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/patch-db": "workspace:*",
+        "@pkgs/ui": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
+        "expo-clipboard": "catalog:",
+        "expo-router": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+        "unique-names-generator": "catalog:",
+      },
+      "devDependencies": {
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/qa": {
+      "name": "@libs/qa",
+      "version": "1.0.0",
+      "dependencies": {
+        "@libs/app": "workspace:*",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+      },
+      "devDependencies": {
+        "@playwright/test": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+        "typescript": "catalog:",
+        "wrangler": "catalog:",
+      },
+    },
+    "libs/spaces": {
+      "name": "@libs/spaces",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/auth": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/react": "catalog:",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/message": "workspace:*",
+        "@pkgs/patch-db": "workspace:*",
+        "@pkgs/room": "workspace:*",
+        "@pkgs/ui": "workspace:*",
+        "expo-clipboard": "catalog:",
+        "expo-router": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+        "react-native-safe-area-context": "catalog:",
+      },
+      "devDependencies": {
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/stripe": {
+      "name": "@libs/stripe",
+      "version": "0.0.0",
+      "dependencies": {
+        "@hono/zod-validator": "catalog:",
+        "@libs/auth": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/patch-db": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "hono": "catalog:",
+        "pg": "catalog:",
+        "stripe": "catalog:",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/assert": {
+      "name": "@pkgs/assert",
+      "version": "0.0.0",
+      "dependencies": {
+        "expo-clipboard": "catalog:",
+        "react-native": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
-    "packages/kv": {
-      "name": "@gamezilla/kv",
+    "pkgs/async": {
+      "name": "@pkgs/async",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/keyword": "workspace:*",
-        "@gamezilla/logger": "workspace:*",
-        "@gamezilla/sql-client": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "react": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/attribute": {
+      "name": "@pkgs/attribute",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/browser": {
+      "name": "@pkgs/browser",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/distributed-lock": {
+      "name": "@pkgs/distributed-lock",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/doppler": {
+      "name": "@pkgs/doppler",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/equal": {
+      "name": "@pkgs/equal",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/git": {
+      "name": "@pkgs/git",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/i18n": {
+      "name": "@pkgs/i18n",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/keyword": {
+      "name": "@pkgs/keyword",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/kv": {
+      "name": "@pkgs/kv",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
         "@react-native-async-storage/async-storage": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
@@ -426,16 +523,16 @@
         "typescript": "catalog:",
       },
     },
-    "packages/llm": {
-      "name": "@gamezilla/llm",
+    "pkgs/llm": {
+      "name": "@pkgs/llm",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/keyword": "workspace:*",
-        "@gamezilla/kv": "workspace:*",
-        "@gamezilla/secret-store": "workspace:*",
-        "@gamezilla/sql-client": "workspace:*",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
         "hono": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
@@ -445,8 +542,8 @@
         "typescript": "catalog:",
       },
     },
-    "packages/logger": {
-      "name": "@gamezilla/logger",
+    "pkgs/logger": {
+      "name": "@pkgs/logger",
       "version": "0.0.0",
       "dependencies": {
         "react": "catalog:",
@@ -457,14 +554,14 @@
         "typescript": "catalog:",
       },
     },
-    "packages/matchmaking": {
-      "name": "@gamezilla/matchmaking",
+    "pkgs/matchmaking": {
+      "name": "@pkgs/matchmaking",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/keyword": "workspace:*",
-        "@gamezilla/logger": "workspace:*",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/logger": "workspace:*",
         "hono": "catalog:",
         "pg": "catalog:",
       },
@@ -475,20 +572,20 @@
         "typescript": "catalog:",
       },
     },
-    "packages/message": {
-      "name": "@gamezilla/message",
+    "pkgs/message": {
+      "name": "@pkgs/message",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/keyword": "workspace:*",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
-    "packages/object-store": {
-      "name": "@gamezilla/object-store",
+    "pkgs/object-store": {
+      "name": "@pkgs/object-store",
       "version": "0.0.0",
       "dependencies": {
         "expo-file-system": "catalog:",
@@ -501,21 +598,21 @@
         "typescript": "catalog:",
       },
     },
-    "packages/patch-db": {
-      "name": "@gamezilla/patch-db",
+    "pkgs/patch-db": {
+      "name": "@pkgs/patch-db",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/async": "workspace:*",
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/keyword": "workspace:*",
-        "@gamezilla/logger": "workspace:*",
-        "@gamezilla/pub-sub": "workspace:*",
-        "@gamezilla/sql-client": "workspace:*",
-        "@gamezilla/sqlite": "workspace:*",
         "@hono/zod-validator": "catalog:",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/async": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/pub-sub": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/sqlite": "workspace:*",
         "expo-sqlite": "catalog:",
         "hono": "catalog:",
         "make-plural": "catalog:",
@@ -529,18 +626,18 @@
         "typescript": "catalog:",
       },
     },
-    "packages/patch-db-example": {
-      "name": "@gamezilla/patch-db-example",
+    "pkgs/patch-db-example": {
+      "name": "@pkgs/patch-db-example",
       "version": "0.0.1",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "@gamezilla/pub-sub": "workspace:*",
-        "@gamezilla/ui": "workspace:*",
         "@gorhom/bottom-sheet": "catalog:",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/patch-db": "workspace:*",
+        "@pkgs/pub-sub": "workspace:*",
+        "@pkgs/ui": "workspace:*",
         "@react-native-async-storage/async-storage": "catalog:",
         "expo": "catalog:",
         "expo-sqlite": "catalog:",
@@ -566,20 +663,20 @@
         "react-native-screens": "catalog:",
       },
     },
-    "packages/pg": {
-      "name": "@gamezilla/pg",
+    "pkgs/pg": {
+      "name": "@pkgs/pg",
       "version": "1.0.0",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/logger": "workspace:*",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/logger": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
-    "packages/polyfill": {
-      "name": "@gamezilla/polyfill",
+    "pkgs/polyfill": {
+      "name": "@pkgs/polyfill",
       "version": "0.0.0",
       "dependencies": {
         "buffer": "catalog:",
@@ -590,79 +687,39 @@
         "typescript": "catalog:",
       },
     },
-    "packages/postgres": {
-      "name": "@gamezilla/postgres",
+    "pkgs/postgres": {
+      "name": "@pkgs/postgres",
       "version": "0.0.0",
       "dependencies": {
         "@electric-sql/pglite": "catalog:",
         "@electric-sql/pglite-socket": "catalog:",
-        "@gamezilla/assert": "workspace:*",
+        "@pkgs/assert": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
-    "packages/profile": {
-      "name": "@gamezilla/profile",
+    "pkgs/pub-sub": {
+      "name": "@pkgs/pub-sub",
       "version": "0.0.0",
       "dependencies": {
-        "@dicebear/collection": "catalog:",
-        "@dicebear/core": "catalog:",
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/auth": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "@gamezilla/ui": "workspace:*",
-        "@gamezilla/uuid": "workspace:*",
-        "@lingui/core": "catalog:",
-        "@lingui/react": "catalog:",
-        "expo-clipboard": "catalog:",
-        "expo-router": "catalog:",
-        "react": "catalog:",
-        "react-native": "catalog:",
-        "unique-names-generator": "catalog:",
-      },
-      "devDependencies": {
-        "@types/react": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/pub-sub": {
-      "name": "@gamezilla/pub-sub",
-      "version": "0.0.0",
-      "dependencies": {
-        "@gamezilla/assert": "workspace:*",
+        "@pkgs/assert": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
-    "packages/qa": {
-      "name": "@gamezilla/qa",
-      "version": "1.0.0",
-      "dependencies": {
-        "@gamezilla/app": "workspace:*",
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/secret-store": "workspace:*",
-      },
-      "devDependencies": {
-        "@playwright/test": "catalog:",
-        "@types/bun": "catalog:",
-        "@types/node": "catalog:",
-        "typescript": "catalog:",
-        "wrangler": "catalog:",
-      },
-    },
-    "packages/room": {
-      "name": "@gamezilla/room",
+    "pkgs/room": {
+      "name": "@pkgs/room",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/keyword": "workspace:*",
-        "@gamezilla/kv": "workspace:*",
-        "@gamezilla/message": "workspace:*",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/message": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -674,15 +731,15 @@
         "react": "catalog:",
       },
     },
-    "packages/room-example": {
-      "name": "@gamezilla/room-example",
+    "pkgs/room-example": {
+      "name": "@pkgs/room-example",
       "version": "0.0.1",
       "dependencies": {
-        "@gamezilla/keyword": "workspace:*",
-        "@gamezilla/room": "workspace:*",
-        "@gamezilla/ui": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/room": "workspace:*",
+        "@pkgs/ui": "workspace:*",
         "expo": "catalog:",
         "make-plural": "catalog:",
         "react": "catalog:",
@@ -696,22 +753,22 @@
         "typescript": "catalog:",
       },
     },
-    "packages/secret-store": {
-      "name": "@gamezilla/secret-store",
+    "pkgs/secret-store": {
+      "name": "@pkgs/secret-store",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/doppler": "workspace:*",
+        "@pkgs/doppler": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
-    "packages/secure-storage": {
-      "name": "@gamezilla/secure-storage",
+    "pkgs/secure-storage": {
+      "name": "@pkgs/secure-storage",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
+        "@pkgs/assert": "workspace:*",
         "expo-secure-store": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
@@ -722,39 +779,15 @@
         "typescript": "catalog:",
       },
     },
-    "packages/spaces": {
-      "name": "@gamezilla/spaces",
+    "pkgs/sql-client": {
+      "name": "@pkgs/sql-client",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/auth": "workspace:*",
-        "@gamezilla/kv": "workspace:*",
-        "@gamezilla/message": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "@gamezilla/room": "workspace:*",
-        "@gamezilla/ui": "workspace:*",
-        "@lingui/core": "catalog:",
-        "@lingui/react": "catalog:",
-        "expo-clipboard": "catalog:",
-        "expo-router": "catalog:",
-        "react": "catalog:",
-        "react-native": "catalog:",
-        "react-native-safe-area-context": "catalog:",
-      },
-      "devDependencies": {
-        "@types/react": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/sql-client": {
-      "name": "@gamezilla/sql-client",
-      "version": "0.0.0",
-      "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/pub-sub": "workspace:*",
-        "@gamezilla/sqlite": "workspace:*",
         "@jlongster/sql.js": "catalog:",
         "@neondatabase/serverless": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/pub-sub": "workspace:*",
+        "@pkgs/sqlite": "workspace:*",
         "absurd-sql": "catalog:",
         "expo-sqlite": "catalog:",
         "pg": "catalog:",
@@ -763,7 +796,7 @@
         "sql.js": "catalog:",
       },
       "devDependencies": {
-        "@gamezilla/postgres": "workspace:*",
+        "@pkgs/postgres": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@types/react": "catalog:",
@@ -771,11 +804,11 @@
         "typescript": "catalog:",
       },
     },
-    "packages/sqlite": {
-      "name": "@gamezilla/sqlite",
+    "pkgs/sqlite": {
+      "name": "@pkgs/sqlite",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
+        "@pkgs/assert": "workspace:*",
         "react-native": "catalog:",
       },
       "devDependencies": {
@@ -783,43 +816,21 @@
         "typescript": "catalog:",
       },
     },
-    "packages/static-file-server": {
-      "name": "@gamezilla/static-file-server",
+    "pkgs/static-file-server": {
+      "name": "@pkgs/static-file-server",
       "version": "0.0.0",
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
-    "packages/stripe": {
-      "name": "@gamezilla/stripe",
-      "version": "0.0.0",
-      "dependencies": {
-        "@gamezilla/attribute": "workspace:*",
-        "@gamezilla/auth": "workspace:*",
-        "@gamezilla/logger": "workspace:*",
-        "@gamezilla/patch-db": "workspace:*",
-        "@gamezilla/secret-store": "workspace:*",
-        "@gamezilla/sql-client": "workspace:*",
-        "@hono/zod-validator": "catalog:",
-        "hono": "catalog:",
-        "pg": "catalog:",
-        "stripe": "catalog:",
-        "zod": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/pg": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/stripe-cli": {
-      "name": "@gamezilla/stripe-cli",
+    "pkgs/stripe-cli": {
+      "name": "@pkgs/stripe-cli",
       "version": "1.0.0",
       "dependencies": {
-        "@gamezilla/doppler": "workspace:*",
-        "@gamezilla/secret-store": "workspace:*",
-        "@gamezilla/stripe": "workspace:*",
+        "@libs/stripe": "workspace:*",
+        "@pkgs/doppler": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
         "stripe": "catalog:",
       },
       "devDependencies": {
@@ -827,16 +838,16 @@
         "typescript": "catalog:",
       },
     },
-    "packages/task-dag": {
-      "name": "@gamezilla/task-dag",
+    "pkgs/task-dag": {
+      "name": "@pkgs/task-dag",
       "version": "0.0.0",
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
-    "packages/ts-reset": {
-      "name": "@gamezilla/ts-reset",
+    "pkgs/ts-reset": {
+      "name": "@pkgs/ts-reset",
       "version": "0.0.0",
       "dependencies": {
         "@total-typescript/ts-reset": "catalog:",
@@ -846,15 +857,15 @@
         "typescript": "catalog:",
       },
     },
-    "packages/tts": {
-      "name": "@gamezilla/tts",
+    "pkgs/tts": {
+      "name": "@pkgs/tts",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/object-store": "workspace:*",
-        "@gamezilla/secret-store": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
         "expo-audio": "catalog:",
         "hono": "catalog:",
         "react": "catalog:",
@@ -865,30 +876,30 @@
         "typescript": "catalog:",
       },
     },
-    "packages/turbo-cache": {
-      "name": "@gamezilla/turbo-cache",
+    "pkgs/turbo-cache": {
+      "name": "@pkgs/turbo-cache",
       "version": "1.0.0",
       "dependencies": {
-        "@gamezilla/logger": "workspace:*",
+        "@pkgs/logger": "workspace:*",
         "hono": "catalog:",
       },
       "devDependencies": {
         "typescript": "catalog:",
       },
     },
-    "packages/ui": {
-      "name": "@gamezilla/ui",
+    "pkgs/ui": {
+      "name": "@pkgs/ui",
       "version": "0.0.0",
       "dependencies": {
         "@dicebear/collection": "catalog:",
         "@dicebear/core": "catalog:",
-        "@gamezilla/assert": "workspace:*",
-        "@gamezilla/i18n": "workspace:*",
-        "@gamezilla/object-store": "workspace:*",
-        "@gamezilla/tts": "workspace:*",
         "@gorhom/bottom-sheet": "catalog:",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/i18n": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/tts": "workspace:*",
         "@react-navigation/native": "catalog:",
         "@shopify/react-native-skia": "catalog:",
         "expo-clipboard": "catalog:",
@@ -912,11 +923,11 @@
         "react-native-safe-area-context": "catalog:",
       },
     },
-    "packages/uuid": {
-      "name": "@gamezilla/uuid",
+    "pkgs/uuid": {
+      "name": "@pkgs/uuid",
       "version": "0.0.0",
       "dependencies": {
-        "@gamezilla/assert": "workspace:*",
+        "@pkgs/assert": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1036,6 +1047,12 @@
     "@0no-co/graphql.web": ["@0no-co/graphql.web@1.2.0", "", { "peerDependencies": { "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0" }, "optionalPeers": ["graphql"] }, "sha512-/1iHy9TTr63gE1YcR5idjx8UREz1s0kFhydf3bBLCXyqjhkIc6igAzTOx3zPifCwFR87tsh/4Pa9cNts6d2otw=="],
 
     "@apideck/better-ajv-errors": ["@apideck/better-ajv-errors@0.3.7", "", { "dependencies": { "jsonpointer": "^5.0.1", "leven": "^3.1.0" }, "peerDependencies": { "ajv": ">=8" } }, "sha512-TajUJwGWbDwkCx/CZi7tRE8PVB7simCvKJfHUsSdvps+aTM/PDPP4gkLmKnc+x3CE//y9i/nj74GqdL/hwk7Iw=="],
+
+    "@apps/api": ["@apps/api@workspace:apps/api"],
+
+    "@apps/client": ["@apps/client@workspace:apps/client"],
+
+    "@apps/turbo-cache": ["@apps/turbo-cache@workspace:apps/turbo-cache"],
 
     "@babel/code-frame": ["@babel/code-frame@7.29.0", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw=="],
 
@@ -1527,102 +1544,6 @@
 
     "@expo/xcpretty": ["@expo/xcpretty@4.4.3", "", { "dependencies": { "@babel/code-frame": "^7.20.0", "chalk": "^4.1.0", "js-yaml": "^4.1.0" }, "bin": { "excpretty": "build/cli.js" } }, "sha512-wC562eD3gS6vO2tWHToFhlFnmHKfKHgF1oyvojeSkLK/ZYop1bMU+7cOMiF9Sq70CzcsLy/EMRy/uRc76QmNRw=="],
 
-    "@gamezilla/api": ["@gamezilla/api@workspace:packages/api"],
-
-    "@gamezilla/app": ["@gamezilla/app@workspace:packages/app"],
-
-    "@gamezilla/assert": ["@gamezilla/assert@workspace:packages/assert"],
-
-    "@gamezilla/assistant": ["@gamezilla/assistant@workspace:packages/assistant"],
-
-    "@gamezilla/async": ["@gamezilla/async@workspace:packages/async"],
-
-    "@gamezilla/attribute": ["@gamezilla/attribute@workspace:packages/attribute"],
-
-    "@gamezilla/auth": ["@gamezilla/auth@workspace:packages/auth"],
-
-    "@gamezilla/browser": ["@gamezilla/browser@workspace:packages/browser"],
-
-    "@gamezilla/chess": ["@gamezilla/chess@workspace:packages/chess"],
-
-    "@gamezilla/client": ["@gamezilla/client@workspace:packages/client"],
-
-    "@gamezilla/client-config": ["@gamezilla/client-config@workspace:packages/client-config"],
-
-    "@gamezilla/distributed-lock": ["@gamezilla/distributed-lock@workspace:packages/distributed-lock"],
-
-    "@gamezilla/doppler": ["@gamezilla/doppler@workspace:packages/doppler"],
-
-    "@gamezilla/equal": ["@gamezilla/equal@workspace:packages/equal"],
-
-    "@gamezilla/git": ["@gamezilla/git@workspace:packages/git"],
-
-    "@gamezilla/i18n": ["@gamezilla/i18n@workspace:packages/i18n"],
-
-    "@gamezilla/infra": ["@gamezilla/infra@workspace:packages/infra"],
-
-    "@gamezilla/keyword": ["@gamezilla/keyword@workspace:packages/keyword"],
-
-    "@gamezilla/kv": ["@gamezilla/kv@workspace:packages/kv"],
-
-    "@gamezilla/llm": ["@gamezilla/llm@workspace:packages/llm"],
-
-    "@gamezilla/logger": ["@gamezilla/logger@workspace:packages/logger"],
-
-    "@gamezilla/matchmaking": ["@gamezilla/matchmaking@workspace:packages/matchmaking"],
-
-    "@gamezilla/message": ["@gamezilla/message@workspace:packages/message"],
-
-    "@gamezilla/object-store": ["@gamezilla/object-store@workspace:packages/object-store"],
-
-    "@gamezilla/patch-db": ["@gamezilla/patch-db@workspace:packages/patch-db"],
-
-    "@gamezilla/patch-db-example": ["@gamezilla/patch-db-example@workspace:packages/patch-db-example"],
-
-    "@gamezilla/pg": ["@gamezilla/pg@workspace:packages/pg"],
-
-    "@gamezilla/polyfill": ["@gamezilla/polyfill@workspace:packages/polyfill"],
-
-    "@gamezilla/postgres": ["@gamezilla/postgres@workspace:packages/postgres"],
-
-    "@gamezilla/profile": ["@gamezilla/profile@workspace:packages/profile"],
-
-    "@gamezilla/pub-sub": ["@gamezilla/pub-sub@workspace:packages/pub-sub"],
-
-    "@gamezilla/qa": ["@gamezilla/qa@workspace:packages/qa"],
-
-    "@gamezilla/room": ["@gamezilla/room@workspace:packages/room"],
-
-    "@gamezilla/room-example": ["@gamezilla/room-example@workspace:packages/room-example"],
-
-    "@gamezilla/secret-store": ["@gamezilla/secret-store@workspace:packages/secret-store"],
-
-    "@gamezilla/secure-storage": ["@gamezilla/secure-storage@workspace:packages/secure-storage"],
-
-    "@gamezilla/spaces": ["@gamezilla/spaces@workspace:packages/spaces"],
-
-    "@gamezilla/sql-client": ["@gamezilla/sql-client@workspace:packages/sql-client"],
-
-    "@gamezilla/sqlite": ["@gamezilla/sqlite@workspace:packages/sqlite"],
-
-    "@gamezilla/static-file-server": ["@gamezilla/static-file-server@workspace:packages/static-file-server"],
-
-    "@gamezilla/stripe": ["@gamezilla/stripe@workspace:packages/stripe"],
-
-    "@gamezilla/stripe-cli": ["@gamezilla/stripe-cli@workspace:packages/stripe-cli"],
-
-    "@gamezilla/task-dag": ["@gamezilla/task-dag@workspace:packages/task-dag"],
-
-    "@gamezilla/ts-reset": ["@gamezilla/ts-reset@workspace:packages/ts-reset"],
-
-    "@gamezilla/tts": ["@gamezilla/tts@workspace:packages/tts"],
-
-    "@gamezilla/turbo-cache": ["@gamezilla/turbo-cache@workspace:packages/turbo-cache"],
-
-    "@gamezilla/ui": ["@gamezilla/ui@workspace:packages/ui"],
-
-    "@gamezilla/uuid": ["@gamezilla/uuid@workspace:packages/uuid"],
-
     "@gorhom/bottom-sheet": ["@gorhom/bottom-sheet@5.2.13", "", { "dependencies": { "@gorhom/portal": "1.0.14", "invariant": "^2.2.4" }, "peerDependencies": { "@types/react": "*", "@types/react-native": "*", "react": "*", "react-native": "*", "react-native-gesture-handler": ">=2.16.1", "react-native-reanimated": ">=3.16.0 || >=4.0.0-" }, "optionalPeers": ["@types/react", "@types/react-native"] }, "sha512-cMxyd9kIowMME9kw2wwXAuWrXUQnPkJQz7rDbOSBBomZ+PpV/C/tlO1UozBrAe2zs3tp9th3JMW21FI/y0VeuQ=="],
 
     "@gorhom/portal": ["@gorhom/portal@1.0.14", "", { "dependencies": { "nanoid": "^3.3.1" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-MXyL4xvCjmgaORr/rtryDNFy3kU4qUbKlwtQqqsygd0xX3mhKjOLn6mQK8wfu0RkoE0pBE0nAasRoHua+/QZ7A=="],
@@ -1724,6 +1645,26 @@
     "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.5.5", "", {}, "sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og=="],
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
+
+    "@libs/app": ["@libs/app@workspace:libs/app"],
+
+    "@libs/assistant": ["@libs/assistant@workspace:libs/assistant"],
+
+    "@libs/auth": ["@libs/auth@workspace:libs/auth"],
+
+    "@libs/chess": ["@libs/chess@workspace:libs/chess"],
+
+    "@libs/client-config": ["@libs/client-config@workspace:libs/client-config"],
+
+    "@libs/infra": ["@libs/infra@workspace:libs/infra"],
+
+    "@libs/profile": ["@libs/profile@workspace:libs/profile"],
+
+    "@libs/qa": ["@libs/qa@workspace:libs/qa"],
+
+    "@libs/spaces": ["@libs/spaces@workspace:libs/spaces"],
+
+    "@libs/stripe": ["@libs/stripe@workspace:libs/stripe"],
 
     "@lingui/babel-plugin-extract-messages": ["@lingui/babel-plugin-extract-messages@5.9.5", "", {}, "sha512-XOAXMPOkpy45784q5bCNN5PizoAecxkBm8kv8CEusI/f9kR3vMCcpH4kvSchU05JkKAVE8eIsdxb2zM6eDJTeA=="],
 
@@ -1840,6 +1781,78 @@
     "@oxc-resolver/binding-win32-x64-msvc": ["@oxc-resolver/binding-win32-x64-msvc@11.19.1", "", { "os": "win32", "cpu": "x64" }, "sha512-6hIU3RQu45B+VNTY4Ru8ppFwjVS/S5qwYyGhBotmjxfEKk41I2DlGtRfGJndZ5+6lneE2pwloqunlOyZuX/XAw=="],
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
+
+    "@pkgs/assert": ["@pkgs/assert@workspace:pkgs/assert"],
+
+    "@pkgs/async": ["@pkgs/async@workspace:pkgs/async"],
+
+    "@pkgs/attribute": ["@pkgs/attribute@workspace:pkgs/attribute"],
+
+    "@pkgs/browser": ["@pkgs/browser@workspace:pkgs/browser"],
+
+    "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
+
+    "@pkgs/doppler": ["@pkgs/doppler@workspace:pkgs/doppler"],
+
+    "@pkgs/equal": ["@pkgs/equal@workspace:pkgs/equal"],
+
+    "@pkgs/git": ["@pkgs/git@workspace:pkgs/git"],
+
+    "@pkgs/i18n": ["@pkgs/i18n@workspace:pkgs/i18n"],
+
+    "@pkgs/keyword": ["@pkgs/keyword@workspace:pkgs/keyword"],
+
+    "@pkgs/kv": ["@pkgs/kv@workspace:pkgs/kv"],
+
+    "@pkgs/llm": ["@pkgs/llm@workspace:pkgs/llm"],
+
+    "@pkgs/logger": ["@pkgs/logger@workspace:pkgs/logger"],
+
+    "@pkgs/matchmaking": ["@pkgs/matchmaking@workspace:pkgs/matchmaking"],
+
+    "@pkgs/message": ["@pkgs/message@workspace:pkgs/message"],
+
+    "@pkgs/object-store": ["@pkgs/object-store@workspace:pkgs/object-store"],
+
+    "@pkgs/patch-db": ["@pkgs/patch-db@workspace:pkgs/patch-db"],
+
+    "@pkgs/patch-db-example": ["@pkgs/patch-db-example@workspace:pkgs/patch-db-example"],
+
+    "@pkgs/pg": ["@pkgs/pg@workspace:pkgs/pg"],
+
+    "@pkgs/polyfill": ["@pkgs/polyfill@workspace:pkgs/polyfill"],
+
+    "@pkgs/postgres": ["@pkgs/postgres@workspace:pkgs/postgres"],
+
+    "@pkgs/pub-sub": ["@pkgs/pub-sub@workspace:pkgs/pub-sub"],
+
+    "@pkgs/room": ["@pkgs/room@workspace:pkgs/room"],
+
+    "@pkgs/room-example": ["@pkgs/room-example@workspace:pkgs/room-example"],
+
+    "@pkgs/secret-store": ["@pkgs/secret-store@workspace:pkgs/secret-store"],
+
+    "@pkgs/secure-storage": ["@pkgs/secure-storage@workspace:pkgs/secure-storage"],
+
+    "@pkgs/sql-client": ["@pkgs/sql-client@workspace:pkgs/sql-client"],
+
+    "@pkgs/sqlite": ["@pkgs/sqlite@workspace:pkgs/sqlite"],
+
+    "@pkgs/static-file-server": ["@pkgs/static-file-server@workspace:pkgs/static-file-server"],
+
+    "@pkgs/stripe-cli": ["@pkgs/stripe-cli@workspace:pkgs/stripe-cli"],
+
+    "@pkgs/task-dag": ["@pkgs/task-dag@workspace:pkgs/task-dag"],
+
+    "@pkgs/ts-reset": ["@pkgs/ts-reset@workspace:pkgs/ts-reset"],
+
+    "@pkgs/tts": ["@pkgs/tts@workspace:pkgs/tts"],
+
+    "@pkgs/turbo-cache": ["@pkgs/turbo-cache@workspace:pkgs/turbo-cache"],
+
+    "@pkgs/ui": ["@pkgs/ui@workspace:pkgs/ui"],
+
+    "@pkgs/uuid": ["@pkgs/uuid@workspace:pkgs/uuid"],
 
     "@playwright/test": ["@playwright/test@1.59.1", "", { "dependencies": { "playwright": "1.59.1" }, "bin": { "playwright": "cli.js" } }, "sha512-PG6q63nQg5c9rIi4/Z5lR5IVF7yU5MqmKaPOe0HSc0O2cX1fPi96sUQu5j7eo4gKCkB2AnNGoWt7y4/Xx3Kcqg=="],
 
@@ -2447,7 +2460,7 @@
 
     "electron-to-chromium": ["electron-to-chromium@1.5.349", "", {}, "sha512-QsWVGyRuY07Aqb234QytTfwd5d9AJlfNIQ5wIOl1L+PZDzI9d9+Fn0FRale/QYlFxt/bUnB0/nLd1jFPGxGK1A=="],
 
-    "emoji-regex": ["emoji-regex@8.0.0", "", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
+    "emoji-regex": ["emoji-regex@9.2.2", "", {}, "sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg=="],
 
     "encodeurl": ["encodeurl@2.0.0", "", {}, "sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg=="],
 
@@ -3517,7 +3530,7 @@
 
     "strict-uri-encode": ["strict-uri-encode@2.0.0", "", {}, "sha512-QwiXZgpRcKkhTj2Scnn++4PKtWsH0kpzZ62L2R6c/LUVYv7hVnZqcg2+sMuT6R7Jusu1vviK/MFsu6kNJfWlEQ=="],
 
-    "string-width": ["string-width@4.2.3", "", { "dependencies": { "emoji-regex": "^8.0.0", "is-fullwidth-code-point": "^3.0.0", "strip-ansi": "^6.0.1" } }, "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g=="],
+    "string-width": ["string-width@5.1.2", "", { "dependencies": { "eastasianwidth": "^0.2.0", "emoji-regex": "^9.2.2", "strip-ansi": "^7.0.1" } }, "sha512-HnLOCR3vjcY8beoNLtcjZ5/nxn2afmME6lhrDrebokqMap+XbeW8n9TXpPDOqdGK5qcI3oT0GKTW6wC7EMiVqA=="],
 
     "string-width-cjs": ["string-width@4.2.3", "", { "dependencies": { "emoji-regex": "^8.0.0", "is-fullwidth-code-point": "^3.0.0", "strip-ansi": "^6.0.1" } }, "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g=="],
 
@@ -3637,7 +3650,7 @@
 
     "type-detect": ["type-detect@4.0.8", "", {}, "sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g=="],
 
-    "type-fest": ["type-fest@0.7.1", "", {}, "sha512-Ne2YiiGN8bmrmJJEuTWTLJR32nh/JdL1+PSicowtNb0WFpn59GK8/lfD61bVtzguz7b3PBt74nxpv/Pw5po5Rg=="],
+    "type-fest": ["type-fest@2.19.0", "", {}, "sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA=="],
 
     "typed-array-buffer": ["typed-array-buffer@1.0.3", "", { "dependencies": { "call-bound": "^1.0.3", "es-errors": "^1.3.0", "is-typed-array": "^1.1.14" } }, "sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw=="],
 
@@ -3969,6 +3982,8 @@
 
     "accepts/negotiator": ["negotiator@0.6.3", "", {}, "sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg=="],
 
+    "ansi-align/string-width": ["string-width@4.2.3", "", { "dependencies": { "emoji-regex": "^8.0.0", "is-fullwidth-code-point": "^3.0.0", "strip-ansi": "^6.0.1" } }, "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g=="],
+
     "ansi-escapes/type-fest": ["type-fest@0.21.3", "", {}, "sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w=="],
 
     "anymatch/picomatch": ["picomatch@2.3.2", "", {}, "sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA=="],
@@ -3989,10 +4004,6 @@
 
     "boxen/chalk": ["chalk@5.0.1", "", {}, "sha512-Fo07WOYGqMfCWHOzSXOt2CxDbC6skS/jO9ynEcmpANMoPrD+W1r1K6Vx7iNm+AQmETU1Xr2t+n8nzkV9t6xh3w=="],
 
-    "boxen/string-width": ["string-width@5.1.2", "", { "dependencies": { "eastasianwidth": "^0.2.0", "emoji-regex": "^9.2.2", "strip-ansi": "^7.0.1" } }, "sha512-HnLOCR3vjcY8beoNLtcjZ5/nxn2afmME6lhrDrebokqMap+XbeW8n9TXpPDOqdGK5qcI3oT0GKTW6wC7EMiVqA=="],
-
-    "boxen/type-fest": ["type-fest@2.19.0", "", {}, "sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA=="],
-
     "boxen/wrap-ansi": ["wrap-ansi@8.1.0", "", { "dependencies": { "ansi-styles": "^6.1.0", "string-width": "^5.0.1", "strip-ansi": "^7.0.1" } }, "sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ=="],
 
     "cheerio/undici": ["undici@7.24.8", "", {}, "sha512-6KQ/+QxK49Z/p3HO6E5ZCZWNnCasyZLa5ExaVYyvPxUwKtbCPMKELJOqh7EqOle0t9cH/7d2TaaTRRa6Nhs4YQ=="],
@@ -4002,6 +4013,8 @@
     "chromium-bidi/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
     "chromium-edge-launcher/lighthouse-logger": ["lighthouse-logger@1.4.2", "", { "dependencies": { "debug": "^2.6.9", "marky": "^1.2.2" } }, "sha512-gPWxznF6TKmUHrOQjlVo2UbaL2EJ71mb2CCeRs/2qBpi4L/g4LUVc9+3lKQ6DTUZwJswfM7ainGrLO1+fOqa2g=="],
+
+    "cliui/string-width": ["string-width@4.2.3", "", { "dependencies": { "emoji-regex": "^8.0.0", "is-fullwidth-code-point": "^3.0.0", "strip-ansi": "^6.0.1" } }, "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g=="],
 
     "compression/debug": ["debug@2.6.9", "", { "dependencies": { "ms": "2.0.0" } }, "sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA=="],
 
@@ -4195,6 +4208,12 @@
 
     "stack-utils/escape-string-regexp": ["escape-string-regexp@2.0.0", "", {}, "sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w=="],
 
+    "stacktrace-parser/type-fest": ["type-fest@0.7.1", "", {}, "sha512-Ne2YiiGN8bmrmJJEuTWTLJR32nh/JdL1+PSicowtNb0WFpn59GK8/lfD61bVtzguz7b3PBt74nxpv/Pw5po5Rg=="],
+
+    "string-width/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "^6.2.2" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
+
+    "string-width-cjs/emoji-regex": ["emoji-regex@8.0.0", "", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
+
     "sucrase/commander": ["commander@4.1.1", "", {}, "sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA=="],
 
     "tempy/type-fest": ["type-fest@0.16.0", "", {}, "sha512-eaBzG6MxNzEn9kiwvtre90cXaNLkmadMWa1zQMs3XORCXNbsH/OewwbxC5ia9dCxIxnTAsSxXJaa/p5y8DlvJg=="],
@@ -4211,17 +4230,21 @@
 
     "whatwg-url-without-unicode/buffer": ["buffer@5.7.1", "", { "dependencies": { "base64-js": "^1.3.1", "ieee754": "^1.1.13" } }, "sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ=="],
 
-    "widest-line/string-width": ["string-width@5.1.2", "", { "dependencies": { "eastasianwidth": "^0.2.0", "emoji-regex": "^9.2.2", "strip-ansi": "^7.0.1" } }, "sha512-HnLOCR3vjcY8beoNLtcjZ5/nxn2afmME6lhrDrebokqMap+XbeW8n9TXpPDOqdGK5qcI3oT0GKTW6wC7EMiVqA=="],
-
     "workbox-build/ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
 
     "workbox-build/source-map": ["source-map@0.8.0-beta.0", "", { "dependencies": { "whatwg-url": "^7.0.0" } }, "sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA=="],
 
     "wrangler/esbuild": ["esbuild@0.27.3", "", { "optionalDependencies": { "@esbuild/aix-ppc64": "0.27.3", "@esbuild/android-arm": "0.27.3", "@esbuild/android-arm64": "0.27.3", "@esbuild/android-x64": "0.27.3", "@esbuild/darwin-arm64": "0.27.3", "@esbuild/darwin-x64": "0.27.3", "@esbuild/freebsd-arm64": "0.27.3", "@esbuild/freebsd-x64": "0.27.3", "@esbuild/linux-arm": "0.27.3", "@esbuild/linux-arm64": "0.27.3", "@esbuild/linux-ia32": "0.27.3", "@esbuild/linux-loong64": "0.27.3", "@esbuild/linux-mips64el": "0.27.3", "@esbuild/linux-ppc64": "0.27.3", "@esbuild/linux-riscv64": "0.27.3", "@esbuild/linux-s390x": "0.27.3", "@esbuild/linux-x64": "0.27.3", "@esbuild/netbsd-arm64": "0.27.3", "@esbuild/netbsd-x64": "0.27.3", "@esbuild/openbsd-arm64": "0.27.3", "@esbuild/openbsd-x64": "0.27.3", "@esbuild/openharmony-arm64": "0.27.3", "@esbuild/sunos-x64": "0.27.3", "@esbuild/win32-arm64": "0.27.3", "@esbuild/win32-ia32": "0.27.3", "@esbuild/win32-x64": "0.27.3" }, "bin": { "esbuild": "bin/esbuild" } }, "sha512-8VwMnyGCONIs6cWue2IdpHxHnAjzxnw2Zr7MkVxB2vjmQ2ivqGFb4LEG3SMnv0Gb2F/G/2yA8zUaiL1gywDCCg=="],
 
+    "wrap-ansi/string-width": ["string-width@4.2.3", "", { "dependencies": { "emoji-regex": "^8.0.0", "is-fullwidth-code-point": "^3.0.0", "strip-ansi": "^6.0.1" } }, "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g=="],
+
+    "wrap-ansi-cjs/string-width": ["string-width@4.2.3", "", { "dependencies": { "emoji-regex": "^8.0.0", "is-fullwidth-code-point": "^3.0.0", "strip-ansi": "^6.0.1" } }, "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g=="],
+
     "write-file-atomic/signal-exit": ["signal-exit@3.0.7", "", {}, "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ=="],
 
     "xml2js/xmlbuilder": ["xmlbuilder@11.0.1", "", {}, "sha512-fDlsI/kFEx7gLvbecc0/ohLG50fugQp8ryHzMTuW9vSa1GJ0XYWKnhsUx7oie3G98+r56aTQIUB4kht42R3JvA=="],
+
+    "yargs/string-width": ["string-width@4.2.3", "", { "dependencies": { "emoji-regex": "^8.0.0", "is-fullwidth-code-point": "^3.0.0", "strip-ansi": "^6.0.1" } }, "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g=="],
 
     "@apideck/better-ajv-errors/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
 
@@ -4377,19 +4400,19 @@
 
     "accepts/mime-types/mime-db": ["mime-db@1.52.0", "", {}, "sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg=="],
 
+    "ansi-align/string-width/emoji-regex": ["emoji-regex@8.0.0", "", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
+
     "babel-plugin-macros/cosmiconfig/yaml": ["yaml@1.10.3", "", {}, "sha512-vIYeF1u3CjlhAFekPPAk2h/Kv4T3mAkMox5OymRiJQB0spDP10LHvt+K7G9Ny6NuuMAb25/6n1qyUjAcGNf/AA=="],
 
     "babel-plugin-syntax-hermes-parser/hermes-parser/hermes-estree": ["hermes-estree@0.29.1", "", {}, "sha512-jl+x31n4/w+wEqm0I2r4CMimukLbLQEYpisys5oCre611CI5fc9TxhqkBBCJ1edDG4Kza0f7CgNz8xVMLZQOmQ=="],
-
-    "boxen/string-width/emoji-regex": ["emoji-regex@9.2.2", "", {}, "sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg=="],
-
-    "boxen/string-width/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "^6.2.2" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
 
     "boxen/wrap-ansi/ansi-styles": ["ansi-styles@6.2.3", "", {}, "sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg=="],
 
     "boxen/wrap-ansi/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "^6.2.2" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
 
     "chromium-edge-launcher/lighthouse-logger/debug": ["debug@2.6.9", "", { "dependencies": { "ms": "2.0.0" } }, "sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA=="],
+
+    "cliui/string-width/emoji-regex": ["emoji-regex@8.0.0", "", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
 
     "compression/debug/ms": ["ms@2.0.0", "", {}, "sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A=="],
 
@@ -4445,6 +4468,8 @@
 
     "serve/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
 
+    "string-width/strip-ansi/ansi-regex": ["ansi-regex@6.2.2", "", {}, "sha512-Bq3SmSpyFHaWjPk8If9yc6svM8c56dB5BAtW4Qbw5jHTwwXXcTLoRMkpDJp6VL0XzlWaCHTXrkFURMYmD0sLqg=="],
+
     "typescript-eslint/@typescript-eslint/eslint-plugin/@typescript-eslint/scope-manager": ["@typescript-eslint/scope-manager@8.59.1", "", { "dependencies": { "@typescript-eslint/types": "8.59.1", "@typescript-eslint/visitor-keys": "8.59.1" } }, "sha512-LwuHQI4pDOYVKvmH2dkaJo6YZCSgouVgnS/z7yBPKBMvgtBvyLqiLy9Z6b7+m/TRcX1NFYUqZetI5Y+aT4GEfg=="],
 
     "typescript-eslint/@typescript-eslint/eslint-plugin/@typescript-eslint/type-utils": ["@typescript-eslint/type-utils@8.59.1", "", { "dependencies": { "@typescript-eslint/types": "8.59.1", "@typescript-eslint/typescript-estree": "8.59.1", "@typescript-eslint/utils": "8.59.1", "debug": "^4.4.3", "ts-api-utils": "^2.5.0" }, "peerDependencies": { "eslint": "^8.57.0 || ^9.0.0 || ^10.0.0", "typescript": ">=4.8.4 <6.1.0" } }, "sha512-klWPBR2ciQHS3f++ug/mVnWKPjBUo7icEL3FAO1lhAR1Z1i5NQYZ1EannMSRYcq5qCv5wNALlXr6fksRHyYl7w=="],
@@ -4452,10 +4477,6 @@
     "typescript-eslint/@typescript-eslint/eslint-plugin/@typescript-eslint/visitor-keys": ["@typescript-eslint/visitor-keys@8.59.1", "", { "dependencies": { "@typescript-eslint/types": "8.59.1", "eslint-visitor-keys": "^5.0.0" } }, "sha512-LdDNl6C5iJExcM0Yh0PwAIBb9PrSiCsWamF/JyEZawm3kFDnRoaq3LGE4bpyRao/fWeGKKyw7icx0YxrLFC5Cg=="],
 
     "typescript-eslint/@typescript-eslint/utils/@typescript-eslint/scope-manager": ["@typescript-eslint/scope-manager@8.59.1", "", { "dependencies": { "@typescript-eslint/types": "8.59.1", "@typescript-eslint/visitor-keys": "8.59.1" } }, "sha512-LwuHQI4pDOYVKvmH2dkaJo6YZCSgouVgnS/z7yBPKBMvgtBvyLqiLy9Z6b7+m/TRcX1NFYUqZetI5Y+aT4GEfg=="],
-
-    "widest-line/string-width/emoji-regex": ["emoji-regex@9.2.2", "", {}, "sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg=="],
-
-    "widest-line/string-width/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "^6.2.2" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
 
     "workbox-build/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
 
@@ -4511,6 +4532,12 @@
 
     "wrangler/esbuild/@esbuild/win32-x64": ["@esbuild/win32-x64@0.27.3", "", { "os": "win32", "cpu": "x64" }, "sha512-4uJGhsxuptu3OcpVAzli+/gWusVGwZZHTlS63hh++ehExkVT8SgiEf7/uC/PclrPPkLhZqGgCTjd0VWLo6xMqA=="],
 
+    "wrap-ansi-cjs/string-width/emoji-regex": ["emoji-regex@8.0.0", "", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
+
+    "wrap-ansi/string-width/emoji-regex": ["emoji-regex@8.0.0", "", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
+
+    "yargs/string-width/emoji-regex": ["emoji-regex@8.0.0", "", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
+
     "@babel/highlight/chalk/ansi-styles/color-convert": ["color-convert@1.9.3", "", { "dependencies": { "color-name": "1.1.3" } }, "sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg=="],
 
     "@babel/highlight/chalk/supports-color/has-flag": ["has-flag@3.0.0", "", {}, "sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw=="],
@@ -4561,8 +4588,6 @@
 
     "@typescript-eslint/utils/@typescript-eslint/typescript-estree/minimatch/brace-expansion": ["brace-expansion@5.0.5", "", { "dependencies": { "balanced-match": "^4.0.2" } }, "sha512-VZznLgtwhn+Mact9tfiwx64fA9erHH/MCXEUfB/0bX/6Fz6ny5EGTXYltMocqg4xFAQZtnO3DHWWXi8RiuN7cQ=="],
 
-    "boxen/string-width/strip-ansi/ansi-regex": ["ansi-regex@6.2.2", "", {}, "sha512-Bq3SmSpyFHaWjPk8If9yc6svM8c56dB5BAtW4Qbw5jHTwwXXcTLoRMkpDJp6VL0XzlWaCHTXrkFURMYmD0sLqg=="],
-
     "boxen/wrap-ansi/strip-ansi/ansi-regex": ["ansi-regex@6.2.2", "", {}, "sha512-Bq3SmSpyFHaWjPk8If9yc6svM8c56dB5BAtW4Qbw5jHTwwXXcTLoRMkpDJp6VL0XzlWaCHTXrkFURMYmD0sLqg=="],
 
     "chromium-edge-launcher/lighthouse-logger/debug/ms": ["ms@2.0.0", "", {}, "sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A=="],
@@ -4582,8 +4607,6 @@
     "typescript-eslint/@typescript-eslint/eslint-plugin/@typescript-eslint/visitor-keys/eslint-visitor-keys": ["eslint-visitor-keys@5.0.1", "", {}, "sha512-tD40eHxA35h0PEIZNeIjkHoDR4YjjJp34biM0mDvplBe//mB+IHCqHDGV7pxF+7MklTvighcCPPZC7ynWyjdTA=="],
 
     "typescript-eslint/@typescript-eslint/utils/@typescript-eslint/scope-manager/@typescript-eslint/visitor-keys": ["@typescript-eslint/visitor-keys@8.59.1", "", { "dependencies": { "@typescript-eslint/types": "8.59.1", "eslint-visitor-keys": "^5.0.0" } }, "sha512-LdDNl6C5iJExcM0Yh0PwAIBb9PrSiCsWamF/JyEZawm3kFDnRoaq3LGE4bpyRao/fWeGKKyw7icx0YxrLFC5Cg=="],
-
-    "widest-line/string-width/strip-ansi/ansi-regex": ["ansi-regex@6.2.2", "", {}, "sha512-Bq3SmSpyFHaWjPk8If9yc6svM8c56dB5BAtW4Qbw5jHTwwXXcTLoRMkpDJp6VL0XzlWaCHTXrkFURMYmD0sLqg=="],
 
     "@babel/highlight/chalk/ansi-styles/color-convert/color-name": ["color-name@1.1.3", "", {}, "sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw=="],
 
@@ -4621,8 +4644,6 @@
 
     "eslint-plugin-expo/@typescript-eslint/utils/@typescript-eslint/scope-manager/@typescript-eslint/visitor-keys/eslint-visitor-keys": ["eslint-visitor-keys@5.0.1", "", {}, "sha512-tD40eHxA35h0PEIZNeIjkHoDR4YjjJp34biM0mDvplBe//mB+IHCqHDGV7pxF+7MklTvighcCPPZC7ynWyjdTA=="],
 
-    "js-beautify/glob/jackspeak/@isaacs/cliui/string-width": ["string-width@5.1.2", "", { "dependencies": { "eastasianwidth": "^0.2.0", "emoji-regex": "^9.2.2", "strip-ansi": "^7.0.1" } }, "sha512-HnLOCR3vjcY8beoNLtcjZ5/nxn2afmME6lhrDrebokqMap+XbeW8n9TXpPDOqdGK5qcI3oT0GKTW6wC7EMiVqA=="],
-
     "js-beautify/glob/jackspeak/@isaacs/cliui/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "^6.2.2" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
 
     "js-beautify/glob/jackspeak/@isaacs/cliui/wrap-ansi": ["wrap-ansi@8.1.0", "", { "dependencies": { "ansi-styles": "^6.1.0", "string-width": "^5.0.1", "strip-ansi": "^7.0.1" } }, "sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ=="],
@@ -4636,8 +4657,6 @@
     "@expo/package-manager/ora/chalk/ansi-styles/color-convert/color-name": ["color-name@1.1.3", "", {}, "sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw=="],
 
     "@expo/package-manager/ora/cli-cursor/restore-cursor/onetime/mimic-fn": ["mimic-fn@1.2.0", "", {}, "sha512-jf84uxzwiuiIVKiOLpfYk7N46TSy8ubTonmneY9vrpHNAnp0QBt2BxWV9dO3/j+BoVAb+a5G6YDPW3M5HOdMWQ=="],
-
-    "js-beautify/glob/jackspeak/@isaacs/cliui/string-width/emoji-regex": ["emoji-regex@9.2.2", "", {}, "sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg=="],
 
     "js-beautify/glob/jackspeak/@isaacs/cliui/strip-ansi/ansi-regex": ["ansi-regex@6.2.2", "", {}, "sha512-Bq3SmSpyFHaWjPk8If9yc6svM8c56dB5BAtW4Qbw5jHTwwXXcTLoRMkpDJp6VL0XzlWaCHTXrkFURMYmD0sLqg=="],
 

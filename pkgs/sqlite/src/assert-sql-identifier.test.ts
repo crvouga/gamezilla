@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { assertSqlIdentifier, assertSqlPrefix } from './assert-sql-identifier';
 
 /** Node crash handler calls `process.exit`; register one that throws so tests can assert failures. */

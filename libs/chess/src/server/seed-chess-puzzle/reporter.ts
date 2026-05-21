@@ -1,4 +1,4 @@
-import type { Logger } from '@gamezilla/logger';
+import type { Logger } from '@pkgs/logger';
 
 const ansi = {
   reset: '\x1b[0m',

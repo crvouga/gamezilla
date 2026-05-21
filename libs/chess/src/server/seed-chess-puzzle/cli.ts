@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
-/** `@gamezilla/chess` package root (`packages/chess`). */
+/** `@libs/chess` package root (`libs/chess`). */
 const CHESS_PACKAGE_ROOT = resolve(SCRIPT_DIR, '../../..');
 
 export const DEFAULT_PUZZLE_URL =

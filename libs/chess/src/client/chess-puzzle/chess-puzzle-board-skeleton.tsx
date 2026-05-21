@@ -1,4 +1,4 @@
-import { Box } from '@gamezilla/ui';
+import { Box } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 /**

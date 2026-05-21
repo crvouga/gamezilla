@@ -1,6 +1,6 @@
 import { expo } from '@better-auth/expo';
-import type { SecretStore } from '@gamezilla/secret-store';
-import { sanitizePostgresUrlForNodePg } from '@gamezilla/sql-client/sanitize-postgres-url-for-node-pg';
+import type { SecretStore } from '@pkgs/secret-store';
+import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
 import { betterAuth } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
 import { Kysely, PostgresDialect } from 'kysely';

@@ -1,4 +1,4 @@
-import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
+import { ForbiddenError } from '@pkgs/patch-db/forbidden-error';
 
 /**
  * Server is the only writer for `account/session` rows — they're upserted

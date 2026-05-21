@@ -1,7 +1,7 @@
 import { cors } from 'hono/cors';
 import type { MiddlewareHandler } from 'hono';
 
-import { tryBetterAuthOptionsResponse } from '@gamezilla/auth/server/better-auth-cors';
+import { tryBetterAuthOptionsResponse } from '@libs/auth/server/better-auth-cors';
 
 export { tryBetterAuthOptionsResponse };
 

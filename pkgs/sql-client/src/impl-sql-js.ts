@@ -1,5 +1,5 @@
 import initSqlJs from 'sql.js';
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import { SQLITE_JS_FOREIGN_KEYS_EXEC } from './sqlite-connection-pragmas';
 

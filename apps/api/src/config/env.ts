@@ -19,7 +19,7 @@ export type RoomNamespace = {
   get(id: object): { fetch(request: Request): Promise<Response> };
 };
 
-import type { R2Bucket } from '@gamezilla/object-store/impl-r2';
+import type { R2Bucket } from '@pkgs/object-store/impl-r2';
 
 /** Cloudflare Hyperdrive binding (`[[hyperdrive]]` in wrangler). */
 export type HyperdriveBinding = {

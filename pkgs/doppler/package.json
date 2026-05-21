@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/doppler",
+  "name": "@pkgs/doppler",
   "version": "0.0.0",
   "private": true,
   "exports": {

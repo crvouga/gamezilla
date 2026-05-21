@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
@@ -203,8 +203,8 @@ export class HyperdriveResource extends ResourceBase {
       });
       assert.fail(
         `Created Hyperdrive config "${name}" with id=${newId}. ` +
-          `Commit this id to packages/infra/src/project-config.ts cloudflare.hyperdrive.id ` +
-          `and packages/api/wrangler.toml [[hyperdrive]] id, then re-run deploy.`
+          `Commit this id to libs/infra/src/project-config.ts cloudflare.hyperdrive.id ` +
+          `and apps/api/wrangler.toml [[hyperdrive]] id, then re-run deploy.`
       );
     }
 
@@ -221,7 +221,7 @@ export class HyperdriveResource extends ResourceBase {
     if (configuredId === PLACEHOLDER_HYPERDRIVE_ID) {
       assert.fail(
         `Hyperdrive "${name}" exists (id=${match.id}) but PROJECT_CONFIG still has placeholder id. ` +
-          `Set cloudflare.hyperdrive.id to ${match.id} and packages/api/wrangler.toml [[hyperdrive]] id, then re-run deploy.`
+          `Set cloudflare.hyperdrive.id to ${match.id} and apps/api/wrangler.toml [[hyperdrive]] id, then re-run deploy.`
       );
     }
 

@@ -6,25 +6,25 @@
  *
  * Patch-db reconciles these against the live database during
  * {@link PatchDbImplPostgres.migrateUp} (creates missing, drops orphaned
- * `pdb_idx_*` indexes); see `packages/patch-db/src/indexes/`.
+ * `pdb_idx_*` indexes); see `pkgs/patch-db/src/indexes/`.
  */
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
   ACCOUNT_SESSION_ENTITY_TYPE,
   AccountProviderAttr,
   AccountSessionAttr,
-} from '@gamezilla/auth/shared/auth-entities';
+} from '@libs/auth/shared/auth-entities';
 import {
   CHESS_PUZZLE_ENTITY_TYPE,
   ChessPuzzleAttr,
-} from '@gamezilla/chess/shared/chess-puzzle-entities';
-import type { PatchDbIndexSpec } from '@gamezilla/patch-db/interface';
+} from '@libs/chess/shared/chess-puzzle-entities';
+import type { PatchDbIndexSpec } from '@pkgs/patch-db/interface';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
-} from '@gamezilla/spaces/shared/space-entities';
+} from '@libs/spaces/shared/space-entities';
 
 export const APP_SNAPSHOT_INDEXES: readonly PatchDbIndexSpec[] = [
   {

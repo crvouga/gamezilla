@@ -1,5 +1,5 @@
-import type { LockHandle } from '@gamezilla/distributed-lock/interface';
-import { LockHeldError } from '@gamezilla/distributed-lock/interface';
+import type { LockHandle } from '@pkgs/distributed-lock/interface';
+import { LockHeldError } from '@pkgs/distributed-lock/interface';
 import type { Command } from './commands/types';
 import { buildDistributedLock } from './lib/build-distributed-lock';
 import { fail, fmtMs, info, kv, ok, warn } from './lib/fmt';

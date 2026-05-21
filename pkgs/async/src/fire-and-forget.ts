@@ -1,4 +1,4 @@
-import { createLogger } from '@gamezilla/logger/logger';
+import { createLogger } from '@pkgs/logger/logger';
 
 const log = createLogger({ name: 'fire-and-forget' });
 

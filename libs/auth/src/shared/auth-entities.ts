@@ -1,4 +1,4 @@
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { createAttrNamespace } from '@pkgs/attribute';
 
 function readString(v: unknown): string {
   return typeof v === 'string' ? v : '';

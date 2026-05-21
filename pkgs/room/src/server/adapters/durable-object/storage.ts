@@ -1,9 +1,5 @@
-import { assert } from '@gamezilla/assert';
-import {
-  assertKeywordRecord,
-  asKeyword,
-  type Keyword,
-} from '@gamezilla/keyword';
+import { assert } from '@pkgs/assert';
+import { assertKeywordRecord, asKeyword, type Keyword } from '@pkgs/keyword';
 import type { LogEntry, RoomModuleName } from '../../../types';
 import type { CommandDedupOutcome, RoomStorage } from '../../core/storage';
 import type { DurableObjectKvStorage } from './types';

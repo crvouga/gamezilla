@@ -12,7 +12,7 @@
  * Skia + chess.js stay out of the bundle for users who never open it.
  */
 
-import { registerComponentExample, type ComponentEntry } from '@gamezilla/ui';
+import { registerComponentExample, type ComponentEntry } from '@pkgs/ui';
 import ChessBoardExample from './chess-board.example';
 
 export const CHESS_COMPONENT_ENTRIES: readonly ComponentEntry[] = [

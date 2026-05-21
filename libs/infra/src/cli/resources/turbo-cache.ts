@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { join } from 'node:path';
 import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
@@ -29,7 +29,7 @@ export class TurboCacheResource extends ResourceBase {
     // secret writes. The TURBO_TOKEN secret is already synced by `provision`,
     // so nothing state-modifying is needed here.
     await runAsync(platform, 'wrangler', ['deploy', '--dry-run'], {
-      cwd: join(REPO_ROOT, 'packages/turbo-cache'),
+      cwd: join(REPO_ROOT, 'apps/turbo-cache'),
       env: wranglerEnv(),
       label: 'turbo-cache: Cloudflare Workers deploy (dry-run)',
     });
@@ -41,7 +41,7 @@ export class TurboCacheResource extends ResourceBase {
     this.syncTurboToken();
 
     await runAsync(platform, 'wrangler', ['deploy'], {
-      cwd: join(REPO_ROOT, 'packages/turbo-cache'),
+      cwd: join(REPO_ROOT, 'apps/turbo-cache'),
       env: wranglerEnv(),
       label: 'turbo-cache: Cloudflare Workers deploy',
     });
@@ -50,7 +50,7 @@ export class TurboCacheResource extends ResourceBase {
   }
 
   destroy(): void {
-    const cacheDir = join(REPO_ROOT, 'packages/turbo-cache');
+    const cacheDir = join(REPO_ROOT, 'apps/turbo-cache');
     const env: NodeJS.ProcessEnv = {
       ...process.env,
       CLOUDFLARE_ACCOUNT_ID: cfAccountId(),
@@ -73,7 +73,7 @@ export class TurboCacheResource extends ResourceBase {
     assert.ok(token.length > 0, 'TURBO_TOKEN must be set');
 
     runCapture('wrangler', ['secret', 'put', 'TURBO_TOKEN'], {
-      cwd: join(REPO_ROOT, 'packages', 'turbo-cache'),
+      cwd: join(REPO_ROOT, 'apps', 'turbo-cache'),
       env: wranglerEnv(),
       input: token,
     });

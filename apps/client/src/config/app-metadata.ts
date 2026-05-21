@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/assert';
-import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/git';
+import { assert } from '@pkgs/assert';
+import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 
 export { COMMIT_HASH_HEX_REGEX };
 
@@ -12,12 +12,12 @@ export function getCommitHash(): string {
   const raw = process.env['EXPO_PUBLIC_COMMIT_HASH'];
   assert.string(
     raw,
-    'EXPO_PUBLIC_COMMIT_HASH is required; run `bun run dev` (with Doppler) or set packages/client/.env.local'
+    'EXPO_PUBLIC_COMMIT_HASH is required; run `bun run dev` (with Doppler) or set apps/client/.env.local'
   );
   const normalized = raw.trim().toLowerCase();
   assert.nonEmptyString(
     normalized,
-    'EXPO_PUBLIC_COMMIT_HASH is required; run `bun run dev` (with Doppler) or set packages/client/.env.local'
+    'EXPO_PUBLIC_COMMIT_HASH is required; run `bun run dev` (with Doppler) or set apps/client/.env.local'
   );
   assert.ok(
     COMMIT_HASH_HEX_REGEX.test(normalized),

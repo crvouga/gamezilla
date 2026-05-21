@@ -13,7 +13,7 @@
  * ```
  */
 
-import type { LocalizedString } from '@gamezilla/i18n';
+import type { LocalizedString } from '@pkgs/i18n';
 import { forwardRef, type ReactNode } from 'react';
 import {
   TextInput as RNTextInput,

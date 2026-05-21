@@ -1,5 +1,5 @@
-import type { SqlClient } from '@gamezilla/sql-client/interface';
-import { assertWhereFragment } from '@gamezilla/sqlite';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { assertWhereFragment } from '@pkgs/sqlite';
 import { assertAttribute, assertPatchId } from '../interface';
 import { buildSqliteUpdateJsonSet } from './update-ops';
 

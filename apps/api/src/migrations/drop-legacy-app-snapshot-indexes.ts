@@ -1,7 +1,7 @@
 /**
  * One-shot cleanup of legacy hand-written `idx_snap_*` snapshot indexes that
  * existed before app code switched to declarative `pdb_idx_*` indexes via
- * `@gamezilla/patch-db`'s `PatchDbEngineOptions.indexes`.
+ * `@pkgs/patch-db`'s `PatchDbEngineOptions.indexes`.
  *
  * The new declarative reconciler only manages indexes whose names start with
  * `pdb_idx_`, so it cannot drop these by itself. Listing names explicitly
@@ -13,8 +13,8 @@
  * Idempotent (`DROP INDEX IF EXISTS`) and tolerates the same `42501 must be
  * owner of …` ownership error patch-db's own DDL tolerates today.
  */
-import type { Logger } from '@gamezilla/logger';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import type { Logger } from '@pkgs/logger';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
 const LEGACY_SNAPSHOT_INDEX_NAMES = [
   'idx_snap_space_host',

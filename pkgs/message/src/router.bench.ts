@@ -12,8 +12,8 @@
  * Each scenario runs warmup iterations to stabilize the JIT, then a measured batch.
  * We report ns/op, ops/sec, and (current vs legacy) speedup.
  */
-import { Assert } from '@gamezilla/assert';
-import { asKeyword } from '@gamezilla/keyword/keyword';
+import { Assert } from '@pkgs/assert';
+import { asKeyword } from '@pkgs/keyword/keyword';
 import {
   acceptUnknownPayload,
   createMessageNamespace,

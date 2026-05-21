@@ -1,4 +1,4 @@
-import { Box, Text } from '@gamezilla/ui';
+import { Box, Text } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useLinkedProviderEntityIds } from '../use-linked-provider-entity-ids';

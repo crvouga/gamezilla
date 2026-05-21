@@ -1,5 +1,5 @@
-import { useBreadcrumbNav } from '@gamezilla/ui/components/use-breadcrumb-nav';
-import { Box, ScreenBase } from '@gamezilla/ui';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+import { Box, ScreenBase } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 
 import { ClientConfigEntityCard } from './client-config-entity-card';

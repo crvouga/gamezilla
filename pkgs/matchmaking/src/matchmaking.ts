@@ -1,5 +1,5 @@
 /**
- * Public, high-level entry point for `@gamezilla/matchmaking`.
+ * Public, high-level entry point for `@pkgs/matchmaking`.
  *
  * `new Matchmaking({ storage, schema, radius?, tuning? })` is the only
  * boot path embedders need. The class:
@@ -19,8 +19,8 @@
  *
  * The public surface is intentionally six methods on one class:
  * `join`, `leave`, `status`, `app`, `ready`, `tick`. Wire-format types
- * for HTTP clients live at `@gamezilla/matchmaking/wire`; SQL client
- * adapters live at `@gamezilla/matchmaking/storage`. Nothing else
+ * for HTTP clients live at `@pkgs/matchmaking/wire`; SQL client
+ * adapters live at `@pkgs/matchmaking/storage`. Nothing else
  * escapes the package.
  *
  * Internal helpers use the TypeScript `private` keyword for consistency
@@ -29,8 +29,8 @@
  * as `private static` methods.
  */
 
-import { assert } from '@gamezilla/assert';
-import { createLogger } from '@gamezilla/logger';
+import { assert } from '@pkgs/assert';
+import { createLogger } from '@pkgs/logger';
 import { Hono, type MiddlewareHandler } from 'hono';
 import type { Pool } from 'pg';
 import { createMatchmakingApp } from './app';
@@ -61,7 +61,7 @@ export { MATCHMAKING_PAYLOAD_LIMITS } from './payload-limits';
  * If you have a `pg.Pool` and want the simplest possible boot, call
  * {@link Matchmaking.fromPool} instead of constructing this shape
  * yourself. Embedders who thread a per-request connection (e.g. the
- * `@gamezilla/api` worker, which pins one `pg.Client` per Hyperdrive
+ * `@apps/api` worker, which pins one `pg.Client` per Hyperdrive
  * request via `AsyncLocalStorage`) pass their own `SqlClient` here.
  */
 export type MatchmakingStorage = {

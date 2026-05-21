@@ -1,4 +1,4 @@
-import { Assert } from '@gamezilla/assert';
+import { Assert } from '@pkgs/assert';
 
 import {
   parseRoomModuleName,

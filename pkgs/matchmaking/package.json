@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/matchmaking",
+  "name": "@pkgs/matchmaking",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -13,10 +13,10 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@gamezilla/assert": "workspace:*",
-    "@gamezilla/attribute": "workspace:*",
-    "@gamezilla/keyword": "workspace:*",
-    "@gamezilla/logger": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/attribute": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "hono": "catalog:",
     "pg": "catalog:"
   },

@@ -1,8 +1,8 @@
-import { APP_ROOM_MODULES } from '@gamezilla/app/shared/games';
-import { createLogger } from '@gamezilla/logger';
-import { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
-import { isSecretStoreError } from '@gamezilla/secret-store';
-import { createDurableObjectAdapter } from '@gamezilla/room/server/adapters/durable-object';
+import { APP_ROOM_MODULES } from '@libs/app/shared/games';
+import { createLogger } from '@pkgs/logger';
+import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
+import { isSecretStoreError } from '@pkgs/secret-store';
+import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
 import { tryBetterAuthOptionsResponse } from './app/cors';
 import { createApiApp } from './app/create-app';
 import type { ApiWorkerEnv } from './config/env';
@@ -15,10 +15,10 @@ import { createApiSecretStore } from './config/secret-store';
 
 /**
  * Room Durable Object class for real-time topics. Named modules are composed
- * in `@gamezilla/app` so the server and client share the same game registry.
+ * in `@libs/app` so the server and client share the same game registry.
  *
  * Exported as `Room` for Wrangler `class_name = "Room"` (see
- * `packages/api/wrangler.toml`).
+ * `apps/api/wrangler.toml`).
  */
 export const Room = createDurableObjectAdapter({ modules: APP_ROOM_MODULES });
 
@@ -106,12 +106,12 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const secretStore = createApiSecretStore(token, { project, config });
   if (env.HYPERDRIVE === undefined || env.HYPERDRIVE === null) {
     throw new ConfigurationError(
-      'HYPERDRIVE Worker binding is required — add [[hyperdrive]] to packages/api/wrangler.toml'
+      'HYPERDRIVE Worker binding is required — add [[hyperdrive]] to apps/api/wrangler.toml'
     );
   }
   if (env.TTS_AUDIO === undefined || env.TTS_AUDIO === null) {
     throw new ConfigurationError(
-      'TTS_AUDIO R2 binding is required — add [[r2_buckets]] to packages/api/wrangler.toml'
+      'TTS_AUDIO R2 binding is required — add [[r2_buckets]] to apps/api/wrangler.toml'
     );
   }
   return await createApiApp({

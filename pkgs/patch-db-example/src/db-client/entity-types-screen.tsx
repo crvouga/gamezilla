@@ -9,8 +9,8 @@ import {
   Text,
   TextInput,
   useTheme,
-} from '@gamezilla/ui';
-import { usePatchDb } from '@gamezilla/patch-db/react';
+} from '@pkgs/ui';
+import { usePatchDb } from '@pkgs/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

@@ -1,5 +1,5 @@
 /**
- * Package-level graph of @gamezilla/* imports discovered from source.
+ * Package-level graph of @apps|@libs|@pkgs / * imports discovered from source.
  * Shared by ci:circular-deps and deps:graph.
  */
 import { Glob } from 'bun';
@@ -7,7 +7,8 @@ import { readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 export const REPO_ROOT = join(import.meta.dirname, '..');
-const SCOPE = '@gamezilla/';
+const SCOPES = ['@apps/', '@libs/', '@pkgs/'] as const;
+const TIER_DIRS = ['apps', 'libs', 'pkgs'] as const;
 const MAX_IMPORTER_SAMPLES = 3;
 
 export type PackageName = string;
@@ -16,7 +17,7 @@ export type PackageName = string;
 export type PackageImportGraph = Map<PackageName, Map<PackageName, string[]>>;
 
 export const IMPORT_PATTERN =
-  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"]@gamezilla\/([^/'"\s)]+)/g;
+  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"]@(?:apps|libs|pkgs)\/([^/'"\s)]+)/g;
 
 export function stripComments(source: string): string {
   return source
@@ -33,19 +34,22 @@ export function stripTypeOnlyImports(source: string): string {
 
 export function discoverPackages(): Map<PackageName, string> {
   const packages = new Map<PackageName, string>();
-  const glob = new Glob('packages/*/package.json');
-  for (const rel of glob.scanSync({ cwd: REPO_ROOT, absolute: false })) {
-    const abs = join(REPO_ROOT, rel);
-    let pkg: { name?: unknown };
-    try {
-      pkg = JSON.parse(readFileSync(abs, 'utf8')) as { name?: unknown };
-    } catch {
-      continue;
+  for (const tier of TIER_DIRS) {
+    const glob = new Glob(`${tier}/*/package.json`);
+    for (const rel of glob.scanSync({ cwd: REPO_ROOT, absolute: false })) {
+      const abs = join(REPO_ROOT, rel);
+      let pkg: { name?: unknown };
+      try {
+        pkg = JSON.parse(readFileSync(abs, 'utf8')) as { name?: unknown };
+      } catch {
+        continue;
+      }
+      if (typeof pkg.name !== 'string') continue;
+      const matchedScope = SCOPES.find((s) => pkg.name!.startsWith(s));
+      if (matchedScope === undefined) continue;
+      const shortName = (pkg.name as string).slice(matchedScope.length);
+      packages.set(shortName, join(abs, '..'));
     }
-    if (typeof pkg.name !== 'string') continue;
-    if (!pkg.name.startsWith(SCOPE)) continue;
-    const shortName = pkg.name.slice(SCOPE.length);
-    packages.set(shortName, join(abs, '..'));
   }
   return packages;
 }

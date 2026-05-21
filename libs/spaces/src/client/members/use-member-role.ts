@@ -1,8 +1,8 @@
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 
 /**
  * `'host'` when `profileId` matches the space's host, `'guest'` otherwise.

@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/assert';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import { assert } from '@pkgs/assert';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { toEntity, toPatch } from '../impl-sqlite/mappers';
 import type { PatchRow, SnapshotRow } from '../impl-sqlite/types';
 import type { Entity, Patch, PatchDbQuery } from '../interface';

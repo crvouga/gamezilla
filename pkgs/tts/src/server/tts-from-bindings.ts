@@ -1,15 +1,12 @@
-import {
-  ObjectStoreImplR2,
-  type R2Bucket,
-} from '@gamezilla/object-store/impl-r2';
-import type { SecretStore } from '@gamezilla/secret-store';
+import { ObjectStoreImplR2, type R2Bucket } from '@pkgs/object-store/impl-r2';
+import type { SecretStore } from '@pkgs/secret-store';
 import { ElevenLabsTtsProvider } from './adapters/elevenlabs-tts-provider';
 import { createTtsApp, type TtsRequireAuth } from './tts-routes';
 
 /**
  * Doppler keys read by {@link createTtsAppFromBindings}. Exported so the
  * host's secret-name registry can mirror them without duplicating string
- * literals — same pattern used by `@gamezilla/stripe/secret-keys.ts`.
+ * literals — same pattern used by `@libs/stripe/secret-keys.ts`.
  */
 export const TtsDopplerKey = {
   elevenLabsApiKey: 'ELEVEN_LABS_API_KEY',

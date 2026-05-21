@@ -1,6 +1,6 @@
-/** Backwards-compat shim; skia-web-root lives in `@gamezilla/ui`. */
+/** Backwards-compat shim; skia-web-root lives in `@pkgs/ui`. */
 export {
   SkiaWebRoot,
   assertSkiaWebLoaded,
   loadSkiaWebOnce,
-} from '@gamezilla/ui/components/skia-web-root';
+} from '@pkgs/ui/components/skia-web-root';

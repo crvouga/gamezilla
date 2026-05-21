@@ -7,7 +7,7 @@
 
 import { PGlite } from '@electric-sql/pglite';
 import { PGLiteSocketServer } from '@electric-sql/pglite-socket';
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 
 let server: PGLiteSocketServer | null = null;
 let db: PGlite | null = null;

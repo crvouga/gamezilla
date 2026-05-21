@@ -12,7 +12,7 @@
 import type {
   SqlClient as MmSqlClient,
   QueryResult,
-} from '@gamezilla/matchmaking/storage';
+} from '@pkgs/matchmaking/storage';
 import type { Client, QueryResultRow } from 'pg';
 
 function txClient(client: Client): MmSqlClient {

@@ -1,7 +1,7 @@
-import { createLogger } from '@gamezilla/logger/logger';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import { createLogger } from '@pkgs/logger/logger';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { describe, expect, test } from 'bun:test';
-import { asKeyword } from '@gamezilla/keyword';
+import { asKeyword } from '@pkgs/keyword';
 import type { IndexDialect } from './dialect';
 import {
   PATCH_DB_INDEX_NAME_PREFIX,

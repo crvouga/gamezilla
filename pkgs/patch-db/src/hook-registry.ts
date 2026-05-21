@@ -1,4 +1,4 @@
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { isPatchDbSystemContext } from './context';
 import type {
   Patch,

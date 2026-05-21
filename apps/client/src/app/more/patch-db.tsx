@@ -1,3 +1,3 @@
-import { PatchDbScreen } from '@gamezilla/client/developer/patch-db-screen';
+import { PatchDbScreen } from '@apps/client/developer/patch-db-screen';
 
 export default PatchDbScreen;

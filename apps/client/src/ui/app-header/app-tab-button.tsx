@@ -5,7 +5,7 @@ import {
   Text,
   useTheme,
   type IconSymbolName,
-} from '@gamezilla/ui';
+} from '@pkgs/ui';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 

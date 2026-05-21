@@ -1,4 +1,4 @@
-import { Badge } from '@gamezilla/ui';
+import { Badge } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useDeviceIsCurrent } from '../use-device-is-current';

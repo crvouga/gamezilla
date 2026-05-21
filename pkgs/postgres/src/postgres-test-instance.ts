@@ -4,7 +4,7 @@
  */
 
 import { SQL } from 'bun';
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import type { PostgresConfig, StartedPostgres } from './postgres-container';
 import { startPostgresContainer } from './postgres-container';
 

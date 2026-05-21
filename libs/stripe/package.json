@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/stripe",
+  "name": "@libs/stripe",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -17,12 +17,12 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@gamezilla/attribute": "workspace:*",
-    "@gamezilla/auth": "workspace:*",
-    "@gamezilla/logger": "workspace:*",
-    "@gamezilla/patch-db": "workspace:*",
-    "@gamezilla/secret-store": "workspace:*",
-    "@gamezilla/sql-client": "workspace:*",
+    "@pkgs/attribute": "workspace:*",
+    "@libs/auth": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/patch-db": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
     "@hono/zod-validator": "catalog:",
     "hono": "catalog:",
     "pg": "catalog:",

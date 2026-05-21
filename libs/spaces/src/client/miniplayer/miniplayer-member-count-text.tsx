@@ -1,5 +1,5 @@
 import { useSpaceMemberCount } from '../members/use-space-member-count';
-import { Text } from '@gamezilla/ui';
+import { Text } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

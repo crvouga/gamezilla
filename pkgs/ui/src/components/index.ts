@@ -1,8 +1,8 @@
 /**
- * @gamezilla/ui -- application-agnostic React Native design system.
+ * @pkgs/ui -- application-agnostic React Native design system.
  *
  * Usage:
- *   import { Box, Text, Stack, Button } from '@gamezilla/ui';
+ *   import { Box, Text, Stack, Button } from '@pkgs/ui';
  */
 
 // Foundation

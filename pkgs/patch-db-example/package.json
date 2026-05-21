@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/patch-db-example",
+  "name": "@pkgs/patch-db-example",
   "version": "0.0.1",
   "private": true,
   "exports": {
@@ -14,11 +14,11 @@
     "tc": "tsc --noEmit"
   },
   "dependencies": {
-    "@gamezilla/assert": "workspace:*",
-    "@gamezilla/attribute": "workspace:*",
-    "@gamezilla/patch-db": "workspace:*",
-    "@gamezilla/pub-sub": "workspace:*",
-    "@gamezilla/ui": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/attribute": "workspace:*",
+    "@pkgs/patch-db": "workspace:*",
+    "@pkgs/pub-sub": "workspace:*",
+    "@pkgs/ui": "workspace:*",
     "@gorhom/bottom-sheet": "catalog:",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",

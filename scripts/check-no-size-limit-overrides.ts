@@ -2,7 +2,7 @@
 /**
  * Fail-fast guardrail: app code never disables Tiger-Style structural caps.
  *
- * The size limits in `packages/eslint-rules/size-limits.cjs` are load-bearing.
+ * The size limits in `pkgs/eslint-rules/size-limits.cjs` are load-bearing.
  * If a function tripped the cap, refactor it — do not punch a hole in the rule.
  * The only legitimate exemption is `testOverrides()`, already wired into the
  * shared base config. See AGENTS.md "Hard Rules".

@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { use, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 

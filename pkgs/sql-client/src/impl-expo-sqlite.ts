@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 
-import { clearExpoSqliteWebOpfsBestEffort } from '@gamezilla/sqlite/clear-expo-sqlite-web-opfs';
+import { clearExpoSqliteWebOpfsBestEffort } from '@pkgs/sqlite/clear-expo-sqlite-web-opfs';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import { applySqliteConnectionPragmas } from './sqlite-connection-pragmas';
 

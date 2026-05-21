@@ -1,6 +1,6 @@
 import type { execSync } from 'node:child_process';
 import { describe, expect, it } from 'bun:test';
-import { DopplerCli } from '@gamezilla/doppler/doppler-cli';
+import { DopplerCli } from '@pkgs/doppler/doppler-cli';
 import { DopplerSecretStore } from './doppler-secret-store';
 import { DopplerScriptSecretStore } from './doppler-script-secret-store';
 

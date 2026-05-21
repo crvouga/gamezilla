@@ -1,21 +1,21 @@
-import { useMyId } from '@gamezilla/auth/client/use-current-user';
-import { useConfigService } from '@gamezilla/auth/client/config-service-context';
-import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
-import { useSessionToken } from '@gamezilla/auth/client/use-session-token';
-import { useKv } from '@gamezilla/kv/kv-context';
+import { useMyId } from '@libs/auth/client/use-current-user';
+import { useConfigService } from '@libs/auth/client/config-service-context';
+import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { useSessionToken } from '@libs/auth/client/use-session-token';
+import { useKv } from '@pkgs/kv/kv-context';
 import { useCurrentSpaceIds } from '../use-current-space-ids';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type {
   Room,
   RoomCommandPayload,
   RoomEvent,
   RoomState,
-} from '@gamezilla/room';
-import { RoomMetaAttr, useRoomSnapshot } from '@gamezilla/room';
+} from '@pkgs/room';
+import { RoomMetaAttr, useRoomSnapshot } from '@pkgs/room';
 import { useMemo } from 'react';
 
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';

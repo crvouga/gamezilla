@@ -2,8 +2,8 @@ import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 
 /**
  * Total member count for a space: 1 for the host (when known) plus the

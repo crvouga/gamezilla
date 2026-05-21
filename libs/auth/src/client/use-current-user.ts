@@ -1,4 +1,4 @@
-import { useEntity } from '@gamezilla/patch-db/react';
+import { useEntity } from '@pkgs/patch-db/react';
 
 import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '../shared';
 import { useCurrentAccountId } from './use-current-account-id';

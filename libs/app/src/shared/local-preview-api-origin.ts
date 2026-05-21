@@ -1,5 +1,5 @@
 /**
- * Loopback origin for `wrangler dev` in this repo (`packages/api` uses port 8788).
+ * Loopback origin for `wrangler dev` in this repo (`apps/api` uses port 8788).
  * Used when `LOCAL_PREVIEW_API_ORIGIN` is unset in env and absent or blank in Doppler.
  */
 export const DEFAULT_LOCAL_PREVIEW_API_ORIGIN =

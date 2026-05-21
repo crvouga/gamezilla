@@ -1,6 +1,6 @@
-import { useDeviceId } from '@gamezilla/auth/client/use-device-id';
-import { useCurrentAccountId } from '@gamezilla/auth/client/use-current-account-id';
-import { usePatchDb } from '@gamezilla/patch-db/react';
+import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
+import { usePatchDb } from '@pkgs/patch-db/react';
 import { useEffect, type ReactNode } from 'react';
 
 import { ensureProfile } from './ensure-profile-entity';

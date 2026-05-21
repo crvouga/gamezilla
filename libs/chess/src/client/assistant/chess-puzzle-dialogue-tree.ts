@@ -1,6 +1,6 @@
-import { defineDialogueTree } from '@gamezilla/assistant/shared';
+import { defineDialogueTree } from '@libs/assistant/shared';
 
-import type { DialogueTreeThemeSpec } from '@gamezilla/assistant/shared';
+import type { DialogueTreeThemeSpec } from '@libs/assistant/shared';
 
 const CHESS_THEMES = [
   'fork',

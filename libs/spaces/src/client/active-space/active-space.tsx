@@ -1,4 +1,4 @@
-import { Box, SafeAreaView } from '@gamezilla/ui';
+import { Box, SafeAreaView } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
 import { useCallback, useState, type ReactNode } from 'react';
 

@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/assert';
-import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@gamezilla/app/shared/local-preview-api-origin';
+import { assert } from '@pkgs/assert';
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app/shared/local-preview-api-origin';
 
 export { DEFAULT_LOCAL_PREVIEW_API_ORIGIN };
 
@@ -71,7 +71,7 @@ export function getApiBaseUrl(): string {
   const raw = process.env['EXPO_PUBLIC_API_URL'];
   assert.nonEmptyString(
     raw,
-    'EXPO_PUBLIC_API_URL is required; run `bun run dev` (with Doppler) or set packages/client/.env.local'
+    'EXPO_PUBLIC_API_URL is required; run `bun run dev` (with Doppler) or set apps/client/.env.local'
   );
   let origin = '';
   assert.notThrows(

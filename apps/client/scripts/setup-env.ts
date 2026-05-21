@@ -8,13 +8,13 @@ import {
   PRODUCTION_API_HTTP_HOSTNAMES,
   assertTigerPolicyForResolvedApiOrigin,
   productionApiUrlTigerExceptionEnabled,
-} from '@gamezilla/client/config/api-servers';
-import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/client/config/app-metadata';
-import { assert } from '@gamezilla/assert';
+} from '@apps/client/config/api-servers';
+import { COMMIT_HASH_HEX_REGEX } from '@apps/client/config/app-metadata';
+import { assert } from '@pkgs/assert';
 import {
   createDopplerSecretStoreForScripts,
   type SecretStore,
-} from '@gamezilla/secret-store';
+} from '@pkgs/secret-store';
 
 const clientRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outPath = join(clientRoot, '.env.local');
@@ -83,7 +83,7 @@ async function resolveLoopbackPreviewOrigin(
   if (trimmed !== null) return trimmed;
   process.stdout.write(
     '[setup-env] LOCAL_PREVIEW_API_ORIGIN missing in env and Doppler; ' +
-      `using default ${DEFAULT_LOCAL_PREVIEW_API_ORIGIN} (wrangler dev in packages/api).\n`
+      `using default ${DEFAULT_LOCAL_PREVIEW_API_ORIGIN} (wrangler dev in apps/api).\n`
   );
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }

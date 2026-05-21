@@ -1,5 +1,5 @@
 import type { Client } from '@neondatabase/serverless';
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import { questionMarkParamsToDollarParams } from './positional-params';
 

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { PlaygroundSimSnapshot } from '@gamezilla/patch-db/sim/playground-sim';
+import type { PlaygroundSimSnapshot } from '@pkgs/patch-db/sim/playground-sim';
 
 const SNAPSHOT_KEY = 'playground-sim-snapshot';
 

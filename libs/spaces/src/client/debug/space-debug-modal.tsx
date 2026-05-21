@@ -14,14 +14,9 @@ import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceMembershipAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import {
-  Box,
-  JsonView,
-  ResponsiveSurface,
-  SegmentedControl,
-} from '@gamezilla/ui';
-import { useEntity, useQuery } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { Box, JsonView, ResponsiveSurface, SegmentedControl } from '@pkgs/ui';
+import { useEntity, useQuery } from '@pkgs/patch-db/react';
 import { Trans } from '@lingui/react/macro';
 import { useState, type ReactNode } from 'react';
 

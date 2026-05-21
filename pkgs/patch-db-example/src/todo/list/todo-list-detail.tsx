@@ -6,7 +6,7 @@ import {
   Text,
   useTheme,
   type ScreenBaseBreadcrumb,
-} from '@gamezilla/ui';
+} from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 

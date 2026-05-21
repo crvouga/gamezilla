@@ -7,7 +7,7 @@ import {
   type GameAdapter,
   type Intent,
   type PlayerView,
-} from '@gamezilla/assistant/shared';
+} from '@libs/assistant/shared';
 
 import { CHESS_PUZZLE_SIGNAL } from './chess-puzzle-assistant-signals';
 

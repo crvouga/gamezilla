@@ -1,7 +1,7 @@
-import { AuthBridge } from '@gamezilla/auth/client/auth-bridge';
-import { AuthModalsProvider } from '@gamezilla/auth/client/auth-modals-provider';
-import { ProfileProvider } from '@gamezilla/profile/client/profile-provider';
-import { preventSplashAutoHide } from '@gamezilla/ui';
+import { AuthBridge } from '@libs/auth/client/auth-bridge';
+import { AuthModalsProvider } from '@libs/auth/client/auth-modals-provider';
+import { ProfileProvider } from '@libs/profile/client/profile-provider';
+import { preventSplashAutoHide } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { ApiClientProviderWrapper } from './api-client-provider';

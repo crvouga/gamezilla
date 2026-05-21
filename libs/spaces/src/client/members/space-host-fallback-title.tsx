@@ -1,14 +1,14 @@
-import { optionalProps } from '@gamezilla/ui/components/optional-props';
+import { optionalProps } from '@pkgs/ui/components/optional-props';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
-} from '@gamezilla/profile/shared/profile-entities';
+} from '@libs/profile/shared/profile-entities';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { Text, type SxProps, type TextVariant } from '@gamezilla/ui';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

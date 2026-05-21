@@ -1,7 +1,7 @@
 import type {
   AssistantSpeakAction,
   DialogueContext,
-} from '@gamezilla/assistant/shared';
+} from '@libs/assistant/shared';
 
 import { boardOrientationFromFen } from '../../shared/chess-puzzle-fsm';
 

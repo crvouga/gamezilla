@@ -17,22 +17,22 @@
 import { describe, expect, test } from 'bun:test';
 
 const FORBIDDEN_SPECIFIERS = [
-  '@gamezilla/matchmaking/matchmaker',
-  '@gamezilla/matchmaking/migrate',
-  '@gamezilla/matchmaking/migrate-sql',
-  '@gamezilla/matchmaking/app',
-  '@gamezilla/matchmaking/tick-sql',
-  '@gamezilla/matchmaking/formula-wire',
-  '@gamezilla/matchmaking/payload-limits',
-  '@gamezilla/matchmaking/join-helpers',
-  '@gamezilla/matchmaking/matchmaker-internals',
-  '@gamezilla/matchmaking/index',
+  '@pkgs/matchmaking/matchmaker',
+  '@pkgs/matchmaking/migrate',
+  '@pkgs/matchmaking/migrate-sql',
+  '@pkgs/matchmaking/app',
+  '@pkgs/matchmaking/tick-sql',
+  '@pkgs/matchmaking/formula-wire',
+  '@pkgs/matchmaking/payload-limits',
+  '@pkgs/matchmaking/join-helpers',
+  '@pkgs/matchmaking/matchmaker-internals',
+  '@pkgs/matchmaking/index',
 ] as const;
 
 const ALLOWED_SUBPATHS = [
-  '@gamezilla/matchmaking',
-  '@gamezilla/matchmaking/storage',
-  '@gamezilla/matchmaking/wire',
+  '@pkgs/matchmaking',
+  '@pkgs/matchmaking/storage',
+  '@pkgs/matchmaking/wire',
 ] as const;
 
 describe('package exports lockdown', () => {

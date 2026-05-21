@@ -1,6 +1,6 @@
 /* eslint-disable complexity */
-import type { AttributeState } from '@gamezilla/attribute';
-import { assert } from '@gamezilla/assert';
+import type { AttributeState } from '@pkgs/attribute';
+import { assert } from '@pkgs/assert';
 import type {
   AttributeKey,
   Entity,

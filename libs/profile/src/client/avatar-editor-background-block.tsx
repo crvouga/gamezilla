@@ -7,7 +7,7 @@ import {
   ResponsiveSurface,
   SegmentedControl,
   Text,
-} from '@gamezilla/ui';
+} from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';

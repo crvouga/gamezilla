@@ -1,4 +1,4 @@
-import type { AppAuthContext } from '@gamezilla/auth/shared/auth-context';
+import type { AppAuthContext } from '@libs/auth/shared/auth-context';
 
 /**
  * Authenticated PatchDB context: signed-in account UUID (not anonymous).

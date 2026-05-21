@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/qa",
+  "name": "@libs/qa",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -13,9 +13,9 @@
     "tc": "tsc --noEmit -p ./tsconfig.json"
   },
   "dependencies": {
-    "@gamezilla/app": "workspace:*",
-    "@gamezilla/assert": "workspace:*",
-    "@gamezilla/secret-store": "workspace:*"
+    "@libs/app": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/secret-store": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",

@@ -1,7 +1,7 @@
-import { assert } from '@gamezilla/assert';
-import { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
-import { SqlClientImplBunSqlite } from '@gamezilla/sql-client/impl-bun-sqlite';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import { assert } from '@pkgs/assert';
+import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { afterEach, describe, expect, test } from 'bun:test';
 import { PatchDbImplSqlite } from '../../impl-sqlite/impl-sqlite';
 import { SyncPatchDb } from '../../impl-sync';

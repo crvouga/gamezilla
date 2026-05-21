@@ -1,11 +1,7 @@
-import { useMyId } from '@gamezilla/auth/client/use-current-user';
-import { AbacEntityAttr } from '@gamezilla/patch-db/abac/abac-entity-attr';
-import type { PatchDbQuery } from '@gamezilla/patch-db/interface';
-import {
-  useEntityAttribute,
-  useQuery,
-  useSync,
-} from '@gamezilla/patch-db/react';
+import { useMyId } from '@libs/auth/client/use-current-user';
+import { AbacEntityAttr } from '@pkgs/patch-db/abac/abac-entity-attr';
+import type { PatchDbQuery } from '@pkgs/patch-db/interface';
+import { useEntityAttribute, useQuery, useSync } from '@pkgs/patch-db/react';
 import { useEffect, useMemo } from 'react';
 
 import {

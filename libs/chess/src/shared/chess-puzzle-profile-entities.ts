@@ -1,4 +1,4 @@
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { createAttrNamespace } from '@pkgs/attribute';
 
 /** PatchDB entity type for per-user puzzle rating cache (one row per user). */
 export const CHESS_PUZZLE_PROFILE_ENTITY_TYPE = 'chess.puzzle.profile';

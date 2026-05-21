@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import type { PatchInput } from './interface';
 
 function patchInputId(p: PatchInput): string | undefined {

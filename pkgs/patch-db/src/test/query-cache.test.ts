@@ -1,5 +1,5 @@
-import { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
-import { SqlClientImplBunSqlite } from '@gamezilla/sql-client/impl-bun-sqlite';
+import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import { toAttributeState, type PatchDbQuery } from '../interface';

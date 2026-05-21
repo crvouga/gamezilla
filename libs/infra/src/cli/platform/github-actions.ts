@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { randomBytes } from 'node:crypto';
 import { appendFileSync } from 'node:fs';
 import type { CiPlatform } from './platform';

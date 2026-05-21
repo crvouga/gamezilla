@@ -1,5 +1,5 @@
-import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/auth/shared';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
+import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@libs/auth/shared';
+import type { PatchDb } from '@pkgs/patch-db/interface';
 
 /**
  * Resolves `account/id` for the row whose `account/stripeCustomerId` matches Stripe `cus_…`.

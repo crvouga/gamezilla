@@ -1,13 +1,13 @@
-import { chessGameShared } from '@gamezilla/chess/shared/chess-game';
-import { assertRoomModuleName } from '@gamezilla/room';
-import type { GameDefinition } from '@gamezilla/spaces/shared/game';
-import { SPACE_ROOM_MODULE_NAME } from '@gamezilla/spaces/shared/space-room-module-name';
-import { createSpaceModule } from '@gamezilla/spaces/shared/space-module';
+import { chessGameShared } from '@libs/chess/shared/chess-game';
+import { assertRoomModuleName } from '@pkgs/room';
+import type { GameDefinition } from '@libs/spaces/shared/game';
+import { SPACE_ROOM_MODULE_NAME } from '@libs/spaces/shared/space-room-module-name';
+import { createSpaceModule } from '@libs/spaces/shared/space-module';
 
 /**
  * Single, authoritative list of every playable game in the app — registered
- * once here so the server-side composition root (`@gamezilla/api`) and the
- * client-side bootstrap (`@gamezilla/app/client/games-bootstrap`) cannot
+ * once here so the server-side composition root (`@apps/api`) and the
+ * client-side bootstrap (`@libs/app/client/games-bootstrap`) cannot
  * drift. If they did, the client would optimistically dispatch commands the
  * server's composed router refuses, or vice versa.
  *

@@ -1,4 +1,4 @@
-import { DopplerCli } from '@gamezilla/doppler/doppler-cli';
+import { DopplerCli } from '@pkgs/doppler/doppler-cli';
 import type { DopplerSecretStore } from './doppler-secret-store';
 import type {
   SecretStore,

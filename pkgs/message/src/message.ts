@@ -1,11 +1,11 @@
-import { assert, type Assert } from '@gamezilla/assert';
-import type { JoinDot, Keyword } from '@gamezilla/keyword/keyword';
+import { assert, type Assert } from '@pkgs/assert';
+import type { JoinDot, Keyword } from '@pkgs/keyword/keyword';
 import {
   assertLocalName,
   assertNamespacedKeyword,
   isNamespacedKeyword,
   joinKeywordSegments,
-} from '@gamezilla/keyword/keyword';
+} from '@pkgs/keyword/keyword';
 
 /**
  * Serializable message envelope: a {@link Keyword} type tag plus an extensible payload.
@@ -65,7 +65,7 @@ export function isMessageEnvelope(value: unknown): value is Message {
  * log replay) so corrupted data fails fast instead of silently dispatching.
  *
  * `a` controls cost: pass `assert` (always-on) at trust boundaries; pass
- * `hotAssert()` from `@gamezilla/assert` on per-routed-message hot paths.
+ * `hotAssert()` from `@pkgs/assert` on per-routed-message hot paths.
  */
 export function assertMessageEnvelope(
   a: Assert,

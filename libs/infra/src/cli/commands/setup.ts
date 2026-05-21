@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { createInterface } from 'node:readline/promises';
 import { ALL_DEPS } from '../deps/registry';
 import { isAtLeastLatest } from '../deps/semver';

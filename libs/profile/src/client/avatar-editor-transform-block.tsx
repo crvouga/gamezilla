@@ -1,6 +1,6 @@
 import type { SchemaField } from './dicebear-schema';
 import type { AvatarConfig } from '../shared/avatar-config';
-import { Box, NumberStepper, Switch, Text } from '@gamezilla/ui';
+import { Box, NumberStepper, Switch, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 
 import { humanizeOptionKey } from './option-helpers';

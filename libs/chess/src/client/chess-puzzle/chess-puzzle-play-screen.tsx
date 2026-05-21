@@ -1,11 +1,11 @@
-import { SpeakingAvatarAssistant } from '@gamezilla/assistant/client';
-import { useMyId } from '@gamezilla/auth/client/use-current-user';
-import { DefineBackButton } from '@gamezilla/spaces/client/nav/spaces-nav-context';
+import { SpeakingAvatarAssistant } from '@libs/assistant/client';
+import { useMyId } from '@libs/auth/client/use-current-user';
+import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@gamezilla/spaces/client/room/use-space-room-selector';
-import { Box, Text } from '@gamezilla/ui';
+} from '@libs/spaces/client/room/use-space-room-selector';
+import { Box, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import {

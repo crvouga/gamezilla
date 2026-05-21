@@ -1,5 +1,5 @@
-import { AbacEntityAttr } from '@gamezilla/patch-db/abac/abac-entity-attr';
-import type { PatchDbWrite, PatchInput } from '@gamezilla/patch-db/interface';
+import { AbacEntityAttr } from '@pkgs/patch-db/abac/abac-entity-attr';
+import type { PatchDbWrite, PatchInput } from '@pkgs/patch-db/interface';
 
 import {
   deriveOutcomeScore,

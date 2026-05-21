@@ -1,4 +1,4 @@
-import type { Keyword } from '@gamezilla/keyword';
+import type { Keyword } from '@pkgs/keyword';
 import type { Entity } from '../interface';
 import { assertAttribute } from '../interface';
 

@@ -1,5 +1,5 @@
 /**
- * Mounts the `@gamezilla/matchmaking` Hono sub-app behind the API's session
+ * Mounts the `@pkgs/matchmaking` Hono sub-app behind the API's session
  * auth.
  *
  * {@link Matchmaking} is constructed once at app boot but delegates every
@@ -29,14 +29,14 @@
  * statement; pass + sweep operations run server-side in `pg_cron`.
  */
 
-import { UnauthorizedError } from '@gamezilla/auth/server/unauthorized-error';
-import { appAuth } from '@gamezilla/auth/shared/auth-context';
-import { assert } from '@gamezilla/assert';
-import { Matchmaking } from '@gamezilla/matchmaking';
+import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
+import { appAuth } from '@libs/auth/shared/auth-context';
+import { assert } from '@pkgs/assert';
+import { Matchmaking } from '@pkgs/matchmaking';
 import type {
   SqlClient as MmSqlClient,
   QueryResult,
-} from '@gamezilla/matchmaking/storage';
+} from '@pkgs/matchmaking/storage';
 import type { Hono, MiddlewareHandler } from 'hono';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { MATCHMAKING_SCHEMA, MATCHMAKING_TUNING } from './schema';

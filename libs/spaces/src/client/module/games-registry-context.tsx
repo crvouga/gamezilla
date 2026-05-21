@@ -1,6 +1,6 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
-import type { GameClientDefinition } from '@gamezilla/spaces/shared/game';
+import type { GameClientDefinition } from '@libs/spaces/shared/game';
 
 const GamesRegistryContext = createContext<
   readonly GameClientDefinition[] | null
@@ -14,8 +14,8 @@ export type GamesRegistryProviderProps = {
 
 /**
  * Provides the set of games available inside a space. Wrap the app shell
- * once at the composition root (`packages/client/src/app/_layout.tsx`) — the
- * spaces UI then reads the registry without `@gamezilla/spaces` knowing
+ * once at the composition root (`apps/client/src/app/_layout.tsx`) — the
+ * spaces UI then reads the registry without `@libs/spaces` knowing
  * anything about specific games.
  */
 export function GamesRegistryProvider({

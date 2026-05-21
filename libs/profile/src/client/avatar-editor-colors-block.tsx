@@ -1,11 +1,6 @@
 import type { SchemaField } from './dicebear-schema';
 import type { AvatarConfig } from '../shared/avatar-config';
-import {
-  Box,
-  MultiSelectSwatchGrid,
-  ResponsiveSurface,
-  Text,
-} from '@gamezilla/ui';
+import { Box, MultiSelectSwatchGrid, ResponsiveSurface, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';

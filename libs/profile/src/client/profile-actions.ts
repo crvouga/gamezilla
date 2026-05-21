@@ -1,5 +1,5 @@
 import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@pkgs/patch-db/interface';
 
 /**
  * Updates display name and/or avatar on the profile row at `profileId`

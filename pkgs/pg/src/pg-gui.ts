@@ -1,5 +1,5 @@
 /**
- * pgweb sidecar lifecycle for `@gamezilla/pg dev`.
+ * pgweb sidecar lifecycle for `@pkgs/pg dev`.
  *
  * Runs the [pgweb](https://github.com/sosedoff/pgweb) HTTP GUI as a foreground
  * child of the wrapper, pre-connected to the local cluster. Same orphan-
@@ -22,7 +22,7 @@ import {
 } from 'node:fs';
 import { dirname } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
-import type { Logger } from '@gamezilla/logger';
+import type { Logger } from '@pkgs/logger';
 
 const HOMEBREW_PREFIXES = ['/opt/homebrew/bin', '/usr/local/bin'];
 

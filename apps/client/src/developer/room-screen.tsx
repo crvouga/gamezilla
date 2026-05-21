@@ -1,6 +1,6 @@
-import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { Box, ScreenBaseHeader } from '@gamezilla/ui';
-import { PlaygroundPage } from '@gamezilla/room-example/pages/playground-page';
+import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
+import { Box, ScreenBaseHeader } from '@pkgs/ui';
+import { PlaygroundPage } from '@pkgs/room-example/pages/playground-page';
 import { Trans } from '@lingui/react/macro';
 
 export function RoomScreen() {

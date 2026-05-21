@@ -1,7 +1,7 @@
 import {
   MainMenuScreen,
   type MainMenuItem,
-} from '@gamezilla/ui/components/main-menu-screen';
+} from '@pkgs/ui/components/main-menu-screen';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useCallback, useMemo } from 'react';
@@ -17,8 +17,8 @@ import {
   GamesRoomAttr,
   SelectGame,
   type SelectedGameId,
-} from '@gamezilla/spaces/shared/games';
-import type { GameClientDefinition } from '@gamezilla/spaces/shared/game';
+} from '@libs/spaces/shared/games';
+import type { GameClientDefinition } from '@libs/spaces/shared/game';
 
 function buildSpaceGameMenuItems(
   games: readonly GameClientDefinition[],

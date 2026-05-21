@@ -1,5 +1,5 @@
 /**
- * `@gamezilla/room` — server-authoritative sessions + optimistic client queue.
+ * `@pkgs/room` — server-authoritative sessions + optimistic client queue.
  *
  * This entrypoint exposes only the **core** client surface: the {@link Room}
  * engine, its React binding, the wire protocol helpers, and the abstract
@@ -8,13 +8,13 @@
  * async key-value storage, etc.) live behind their own subpath imports so
  * callers explicitly opt in to a runtime/backend:
  *
- * - `@gamezilla/room/client/adapters/transport/websocket` — browser WebSocket.
- * - `@gamezilla/room/client/adapters/storage/memory` — in-process (tests).
- * - `@gamezilla/room/client/adapters/storage/web` — synchronous `localStorage`.
- * - `@gamezilla/room/client/adapters/storage/key-value` — async KV (web +
+ * - `@pkgs/room/client/adapters/transport/websocket` — browser WebSocket.
+ * - `@pkgs/room/client/adapters/storage/memory` — in-process (tests).
+ * - `@pkgs/room/client/adapters/storage/web` — synchronous `localStorage`.
+ * - `@pkgs/room/client/adapters/storage/key-value` — async KV (web +
  *   React Native AsyncStorage).
  *
- * Server entry: `@gamezilla/room/server`. Tests: `@gamezilla/room/testkit`.
+ * Server entry: `@pkgs/room/server`. Tests: `@pkgs/room/testkit`.
  *
  * Adding a new transport (WebRTC, SSE, …) or storage backend (SQLite,
  * IndexedDB, …) means dropping a new folder under
@@ -43,8 +43,8 @@ export {
   useRoomSnapshotSelector,
 } from './client/react/use-room-snapshot';
 export { newCommandId } from './protocol/ids';
-export { createAttrNamespace } from '@gamezilla/attribute';
-export { asKeyword, assertKeywordRecord } from '@gamezilla/keyword';
+export { createAttrNamespace } from '@pkgs/attribute';
+export { asKeyword, assertKeywordRecord } from '@pkgs/keyword';
 export {
   parseClientToServerWire,
   parseServerToClientWire,

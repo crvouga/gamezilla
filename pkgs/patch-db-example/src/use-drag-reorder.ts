@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import type { Entity } from '@gamezilla/patch-db/interface';
+import type { Entity } from '@pkgs/patch-db/interface';
 
 /**
  * Simplified reorder helper for React Native.

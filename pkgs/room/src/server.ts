@@ -1,5 +1,5 @@
 /**
- * `@gamezilla/room/server` — runtime-agnostic room engine + interfaces.
+ * `@pkgs/room/server` — runtime-agnostic room engine + interfaces.
  *
  * This entrypoint exposes only the **core** server surface: the
  * authoritative {@link RoomServer} engine and the abstract ports
@@ -7,9 +7,9 @@
  * (Cloudflare Durable Objects, in-memory, etc.) live behind their own
  * subpath imports so callers explicitly opt in to a runtime/backend:
  *
- * - `@gamezilla/room/server/adapters/durable-object` — production hosting
+ * - `@pkgs/room/server/adapters/durable-object` — production hosting
  *   on Cloudflare Workers (DO class factory + KV-backed storage).
- * - `@gamezilla/room/server/adapters/memory` — volatile in-process
+ * - `@pkgs/room/server/adapters/memory` — volatile in-process
  *   storage for tests and the loopback testkit.
  *
  * Adding a new runtime (Node/Bun HTTP server, Postgres-backed storage,

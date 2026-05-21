@@ -1,9 +1,9 @@
-import { DefineBackButton } from '@gamezilla/spaces/client/nav/spaces-nav-context';
+import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@gamezilla/spaces/client/room/use-space-room-selector';
-import { Box, ExplorerDetail, Text } from '@gamezilla/ui';
+} from '@libs/spaces/client/room/use-space-room-selector';
+import { Box, ExplorerDetail, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import {

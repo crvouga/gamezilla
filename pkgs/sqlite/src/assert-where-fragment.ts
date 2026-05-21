@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 
 /**
  * Advances past a SQL string literal that begins at `start` (`sql[start]` must

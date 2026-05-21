@@ -1,7 +1,9 @@
-const { createSharedBlocks } = require('../eslint-rules/base-config.cjs');
-const a11y = require('../eslint-rules/a11y-restrictions.cjs');
+const {
+  createSharedBlocks,
+} = require('../../pkgs/eslint-rules/base-config.cjs');
+const a11y = require('../../pkgs/eslint-rules/a11y-restrictions.cjs');
 
-// `@gamezilla/matchmaking` documents three explicit subpaths
+// `@pkgs/matchmaking` documents three explicit subpaths
 // (`.`, `./storage`, `./wire`). The package.json `exports` map and
 // the root tsconfig path aliases enforce that at the resolver layer;
 // this rule enforces it at the source-author layer. Wildcard re-exports
@@ -12,7 +14,7 @@ const a11y = require('../eslint-rules/a11y-restrictions.cjs');
 const forbidExportStar = {
   selector: 'ExportAllDeclaration',
   message:
-    'Wildcard re-exports (`export * from ...`) are forbidden in @gamezilla/matchmaking: they bypass the curated public surface (the three subpaths in package.json `exports`). Use explicit `export { ... }` instead.',
+    'Wildcard re-exports (`export * from ...`) are forbidden in @pkgs/matchmaking: they bypass the curated public surface (the three subpaths in package.json `exports`). Use explicit `export { ... }` instead.',
 };
 
 module.exports = [

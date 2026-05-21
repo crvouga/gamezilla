@@ -1,5 +1,5 @@
-import type { AttributeState } from '@gamezilla/attribute/attribute';
-import type { Keyword } from '@gamezilla/keyword/keyword';
+import type { AttributeState } from '@pkgs/attribute/attribute';
+import type { Keyword } from '@pkgs/keyword/keyword';
 
 /**
  * One KV row value: flat map keyed by namespaced keywords (same shape as
@@ -13,7 +13,7 @@ export type KvRecord = AttributeState;
  *
  * Row keys are {@link Keyword} only. Row values are always {@link KvRecord} —
  * never raw strings or arbitrary JSON roots. Consumers should compose values
- * with {@link @gamezilla/attribute} `createAttrNamespace` tags.
+ * with {@link @pkgs/attribute} `createAttrNamespace` tags.
  */
 export interface Kv {
   /** Returns null if the key is absent. */

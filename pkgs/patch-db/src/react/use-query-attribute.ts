@@ -1,4 +1,4 @@
-import type { Keyword } from '@gamezilla/keyword';
+import type { Keyword } from '@pkgs/keyword';
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 import type {
   PatchDbQueryOrderBy,
@@ -55,7 +55,7 @@ function readRawForQueryAttribute(
 }
 
 /**
- * Structural match for `@gamezilla/attribute` `AttributeTag` — only `key` and
+ * Structural match for `@pkgs/attribute` `AttributeTag` — only `key` and
  * `parse` are required for {@link useQueryAttribute}.
  */
 export type QueryAttributeLike<T = unknown> = {

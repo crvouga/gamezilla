@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/assert';
-import { SqlClientImplBunSqlite } from '@gamezilla/sql-client/impl-bun-sqlite';
+import { assert } from '@pkgs/assert';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import { PATCH_CREATED_BY_ID, toAttributeState } from '../interface';

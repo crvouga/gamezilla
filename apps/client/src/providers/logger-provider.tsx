@@ -1,5 +1,5 @@
-import { createLogger } from '@gamezilla/logger/logger';
-import { LoggerContextProvider } from '@gamezilla/logger/react';
+import { createLogger } from '@pkgs/logger/logger';
+import { LoggerContextProvider } from '@pkgs/logger/react';
 import { useMemo, type ReactNode } from 'react';
 
 export function LoggerProvider({

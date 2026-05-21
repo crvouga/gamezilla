@@ -1,4 +1,4 @@
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type { ReactNode } from 'react';
 import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
 import { DeviceAvatar } from './device-avatar';

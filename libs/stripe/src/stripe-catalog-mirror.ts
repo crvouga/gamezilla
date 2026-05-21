@@ -1,6 +1,6 @@
-import type { PatchDb } from '@gamezilla/patch-db/interface';
-import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
-import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
+import type { PatchDb } from '@pkgs/patch-db/interface';
+import { PatchMetaAttr } from '@pkgs/patch-db/metadata/patch-metadata';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '@pkgs/patch-db/policy/system-device';
 import type Stripe from 'stripe';
 import { StripeAttr } from './stripe-attrs';
 

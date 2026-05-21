@@ -1,14 +1,14 @@
 # https://github.com/crvouga/gamezilla/actions/workflows/seed-chess-puzzles.yml
 #
-# Manual workflow that runs `packages/chess/scripts/seed-chess-puzzles.ts`
+# Manual workflow that runs `libs/chess/scripts/seed-chess-puzzles.ts`
 # against the Doppler `prod` config (Postgres `DB_URL`). Idempotent:
 # content-addressed patch IDs + `INSERT … ON CONFLICT DO NOTHING` skip
 # unchanged rows, and the script resumes from the saved cursor when the
 # source ETag is unchanged.
 #
 # The seed itself does not run schema migrations (that would couple
-# `@gamezilla/chess` to `@gamezilla/auth` / Better Auth and create a
-# workspace-level dependency cycle). We run `@gamezilla/api db:migrate`
+# `@libs/chess` to `@libs/auth` / Better Auth and create a
+# workspace-level dependency cycle). We run `@apps/api db:migrate`
 # as a separate step first so the `patches` / `snapshots` tables and the
 # `pdb_idx_chess_puzzle__*` declarative indexes exist before the seed
 # starts pumping rows in.
@@ -99,7 +99,7 @@ jobs:
       - uses: ./.github/actions/setup
 
       # Cache the downloaded `.csv.zst` archive between runs. The script
-      # writes to `packages/chess/.cache/lichess/<name>` and stores an
+      # writes to `libs/chess/.cache/lichess/<name>` and stores an
       # ETag manifest alongside it; the cache key uses the workflow file hash
       # so a manual rerun on the same SHA reuses the archive, and a new push
       # that bumps this workflow forces a fresh fetch (cheap relative to a
@@ -107,7 +107,7 @@ jobs:
       - name: Cache Lichess puzzle archive
         uses: actions/cache@v5
         with:
-          path: packages/chess/.cache/lichess
+          path: libs/chess/.cache/lichess
           key: lichess-puzzles-${{ runner.os }}-${{ hashFiles('.github/workflows/seed-chess-puzzles.yml') }}
           restore-keys: |
             lichess-puzzles-${{ runner.os }}-
@@ -121,7 +121,7 @@ jobs:
           # migration set against the `prod` Postgres. Idempotent: existing
           # tables and `pdb_idx_*` indexes are left in place.
           env DOPPLER_CONFIG=prod doppler run -- \
-            bun run --filter '@gamezilla/api' db:migrate
+            bun run --filter '@apps/api' db:migrate
 
       - name: Seed chess puzzles → Doppler `prod` Postgres
         env:
@@ -166,6 +166,6 @@ jobs:
           # the script's `createDopplerSecretStoreForScripts()` can also read
           # any additional secrets it needs.
           env DOPPLER_CONFIG=prod doppler run -- \
-            bun run --filter '@gamezilla/chess' seed:puzzles \
+            bun run --filter '@libs/chess' seed:puzzles \
               --no-pretty \
               "${args[@]}"

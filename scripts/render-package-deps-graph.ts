@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
  * Writes tmp/package-deps-graph.html — Mermaid flowchart (DAG-style layout)
- * of @gamezilla/* runtime imports. Same graph model as ci:circular-deps.
+ * of @apps|@libs|@pkgs/* runtime imports. Same graph model as ci:circular-deps.
  */
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -24,7 +24,9 @@ function mermaidNodeId(shortName: string): string {
 function buildMermaidSource(): string {
   const packages = discoverPackages();
   if (packages.size === 0) {
-    throw new Error('No @gamezilla/* packages found under packages/.');
+    throw new Error(
+      'No @apps|@libs|@pkgs/* packages found under apps/, libs/, pkgs/.'
+    );
   }
   const graph = buildPackageImportGraph(packages);
   const names = [...packages.keys()].sort();
@@ -37,7 +39,7 @@ function buildMermaidSource(): string {
   for (const name of names) {
     const id = idFor.get(name);
     if (!id) continue;
-    const label = `@gamezilla/${name}`.replace(/"/g, '\\"');
+    const label = name.replace(/"/g, '\\"');
     lines.push(`  ${id}["${label}"]`);
   }
 
@@ -65,7 +67,7 @@ function buildHtml(mermaidBody: string): string {
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>@gamezilla package import graph</title>
+  <title>workspace package import graph</title>
   <style>
     html, body {
       margin: 0;
@@ -110,10 +112,10 @@ function buildHtml(mermaidBody: string): string {
 </head>
 <body>
   <header>
-    <h1>@gamezilla workspace — package import graph</h1>
+    <h1>workspace — package import graph</h1>
     <p class="sub">
-      Directed edges from runtime <code>@gamezilla/*</code> imports in TypeScript under
-      <code>packages/*/src</code> (type-only imports omitted). Same model as
+      Directed edges from runtime <code>@apps|@libs|@pkgs/*</code> imports in TypeScript
+      under <code>{apps,libs,pkgs}/*/src</code> (type-only imports omitted). Same model as
       <code>bun run ci:circular-deps</code>. Cycles, if any, appear as loops in the diagram.
     </p>
   </header>

@@ -1,6 +1,6 @@
-import { assert } from '@gamezilla/assert';
-import { asKeyword } from '@gamezilla/keyword';
-import { questionMarkParamsToDollarParams } from '@gamezilla/sql-client/positional-params';
+import { assert } from '@pkgs/assert';
+import { asKeyword } from '@pkgs/keyword';
+import { questionMarkParamsToDollarParams } from '@pkgs/sql-client/positional-params';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { QGameSession, QTask } from '../test/query-test-attrs';
 import {

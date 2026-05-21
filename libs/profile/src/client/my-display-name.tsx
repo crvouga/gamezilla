@@ -1,7 +1,7 @@
 import { useMyProfileId } from './use-my-profile-id';
 import { UserDisplayName } from './user-display-name';
-import { optionalProps } from '@gamezilla/ui/components/optional-props';
-import type { SxProps, TextVariant } from '@gamezilla/ui';
+import { optionalProps } from '@pkgs/ui/components/optional-props';
+import type { SxProps, TextVariant } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export type MyDisplayNameProps = {

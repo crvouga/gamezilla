@@ -14,8 +14,8 @@
  */
 
 import { PGlite } from '@electric-sql/pglite';
-import { Assert } from '@gamezilla/assert';
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { Assert } from '@pkgs/assert';
+import { createAttrNamespace } from '@pkgs/attribute';
 import { expect } from 'bun:test';
 import type { Hono, MiddlewareHandler } from 'hono';
 import { Matchmaking, type MatchmakingOptions } from './matchmaking';

@@ -1,8 +1,8 @@
-import { createLogger } from '@gamezilla/logger';
-import { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
-import { SqlClientImplBunPostgres } from '@gamezilla/sql-client/impl-bun-postgres';
-import { SqlClientImplBunSqlite } from '@gamezilla/sql-client/impl-bun-sqlite';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import { createLogger } from '@pkgs/logger';
+import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
+import { SqlClientImplBunPostgres } from '@pkgs/sql-client/impl-bun-postgres';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { PatchDbImplClientTransport } from '../impl-client-transport';
 import { PatchDbImplPostgres } from '../impl-postgres/impl-postgres';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
@@ -49,7 +49,7 @@ export async function createPostgresFactory(): Promise<{
 
 export const implementations: { name: string; factory: DbFactory }[] = [
   { name: 'PatchDbImplSqlite', factory: createSqliteFactory },
-  // Set `DB_URL` to a reachable Postgres (e.g. PGlite socket / `bun run --filter @gamezilla/pg dev`) to enable:
+  // Set `DB_URL` to a reachable Postgres (e.g. PGlite socket / `bun run --filter @pkgs/pg dev`) to enable:
   // { name: 'PatchDbImplPostgres', factory: createPostgresFactory },
 ];
 

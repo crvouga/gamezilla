@@ -1,5 +1,5 @@
 import { Client, neonConfig } from '@neondatabase/serverless';
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { WsTransactionSqlClient } from './impl-planetscale-postgres-ws-tx';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import { questionMarkParamsToDollarParams } from './positional-params';

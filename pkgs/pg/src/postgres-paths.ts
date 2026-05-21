@@ -1,6 +1,6 @@
 /**
  * Resolved file system layout for the managed local Postgres cluster owned by
- * `@gamezilla/pg`. Single source of truth so start/stop/kill all agree.
+ * `@pkgs/pg`. Single source of truth so start/stop/kill all agree.
  *
  * Cross-platform: paths are built with `node:path` so they work on macOS,
  * Linux, and WSL (and at least don't trip on Windows separators).
@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 
-/** `packages/pg/` (the package root). */
+/** `pkgs/pg/` (the package root). */
 export const APP_ROOT: string = resolve(SCRIPT_DIR, '..');
 
 /**

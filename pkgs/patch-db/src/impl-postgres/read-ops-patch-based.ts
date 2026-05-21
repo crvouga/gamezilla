@@ -1,6 +1,6 @@
-import { assert } from '@gamezilla/assert';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
-import { assertWhereFragment } from '@gamezilla/sqlite';
+import { assert } from '@pkgs/assert';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { assertWhereFragment } from '@pkgs/sqlite';
 import { toPatch } from '../impl-sqlite/mappers';
 import type { PatchRow } from '../impl-sqlite/types';
 import type { PatchDbQuery, PatchDbResult } from '../interface';

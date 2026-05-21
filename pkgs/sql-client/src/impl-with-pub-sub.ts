@@ -1,4 +1,4 @@
-import type { PubSub } from '@gamezilla/pub-sub/interface';
+import type { PubSub } from '@pkgs/pub-sub/interface';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 
 export type SqlClientEvent =

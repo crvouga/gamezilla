@@ -1,4 +1,4 @@
-import { Box, Spinner } from '@gamezilla/ui';
+import { Box, Spinner } from '@pkgs/ui';
 import { Suspense, type ReactNode } from 'react';
 
 export function SuspenseRootProvider({

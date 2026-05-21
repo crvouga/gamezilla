@@ -1,11 +1,11 @@
-import { useMyId } from '@gamezilla/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/client/use-current-user';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { useQuery } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { useQuery } from '@pkgs/patch-db/react';
 import { useMemo } from 'react';
 
 export type CurrentSpaceEntry = {

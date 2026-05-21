@@ -4,7 +4,7 @@ import type { CiPlatform } from '../platform/platform';
 import type { Command } from './types';
 
 /**
- * CI atomic step 4: runs `bun run --filter @gamezilla/stripe sync` to
+ * CI atomic step 4: runs `bun run --filter @libs/stripe sync` to
  * reconcile the Stripe catalog, backfill PatchDB, and refresh webhook
  * endpoints (writes `STRIPE_WEBHOOK_SECRET` back to Doppler). Must run
  * after the API worker is deployed so the webhook URL exists.

@@ -1,14 +1,14 @@
-import { Box, Button, Divider, IconButton, Stack, Text } from '@gamezilla/ui';
-import { useTheme } from '@gamezilla/ui/theme';
-import type { Entity } from '@gamezilla/patch-db/interface';
+import { Box, Button, Divider, IconButton, Stack, Text } from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui/theme';
+import type { Entity } from '@pkgs/patch-db/interface';
 import {
   nextShapeOrder,
   playgroundServerCreateShape,
   playgroundServerDeleteShape,
   playgroundServerRandomizeShape,
   playgroundServerReorderShapes,
-} from '@gamezilla/patch-db/sim/playground-shapes';
-import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
+} from '@pkgs/patch-db/sim/playground-shapes';
+import type { PlaygroundSim } from '@pkgs/patch-db/sim/playground-sim';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback } from 'react';
 import {

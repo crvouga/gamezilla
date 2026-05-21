@@ -1,4 +1,4 @@
-import { Assert, hotAssert } from '@gamezilla/assert';
+import { Assert, hotAssert } from '@pkgs/assert';
 import {
   assertMessageEnvelope,
   type Message,

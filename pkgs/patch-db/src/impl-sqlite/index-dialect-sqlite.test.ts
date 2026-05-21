@@ -1,8 +1,8 @@
-import { createLogger } from '@gamezilla/logger';
-import { SqlClientImplBunSqlite } from '@gamezilla/sql-client/impl-bun-sqlite';
+import { createLogger } from '@pkgs/logger';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
-import { asKeyword } from '@gamezilla/keyword';
+import { asKeyword } from '@pkgs/keyword';
 import {
   normalizeIndexSpec,
   PATCH_DB_INDEX_NAME_PREFIX,

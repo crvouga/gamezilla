@@ -1,4 +1,4 @@
-import { ConfigServiceProvider } from '@gamezilla/auth/client/config-service-context';
+import { ConfigServiceProvider } from '@libs/auth/client/config-service-context';
 import { createConfigService } from '../config/create-config-service';
 import { useMemo, type ReactNode } from 'react';
 

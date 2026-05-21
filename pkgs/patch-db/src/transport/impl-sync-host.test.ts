@@ -1,4 +1,4 @@
-import { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
+import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import { describe, expect, test } from 'bun:test';
 import type { PatchDbQuery } from '../interface';
 import { toAttributeState } from '../interface';

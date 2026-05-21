@@ -1,4 +1,4 @@
-import { Box, Card, CopyToClipboardField, Text } from '@gamezilla/ui';
+import { Box, Card, CopyToClipboardField, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useAccountDeviceIds } from '../use-account-device-ids';

@@ -7,7 +7,7 @@
  * always include the manifest + icons even when this script is not run as
  * part of the build (Puppeteer downloads Chromium, which we don't want in CI).
  *
- * Usage: `bun run pwa:generate` from packages/client
+ * Usage: `bun run pwa:generate` from apps/client
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

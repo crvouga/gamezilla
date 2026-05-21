@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import type {
   RoomCommandPayload,
   RoomEvent,
@@ -119,9 +119,9 @@ function resolveOptions<
  *
  * @example
  * ```ts
- * // packages/api/src/api.ts
- * import { APP_ROOM_MODULES } from '@gamezilla/app/shared/games';
- * import { createDurableObjectAdapter } from '@gamezilla/room/server/adapters/durable-object';
+ * // apps/api/src/api.ts
+ * import { APP_ROOM_MODULES } from '@libs/app/shared/games';
+ * import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
  *
  * export const Room = createDurableObjectAdapter({ modules: APP_ROOM_MODULES });
  * ```

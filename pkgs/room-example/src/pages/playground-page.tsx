@@ -1,4 +1,4 @@
-import { Button, ScrollView, Stack, Text, useTheme } from '@gamezilla/ui';
+import { Button, ScrollView, Stack, Text, useTheme } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 
 import {

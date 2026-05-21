@@ -6,8 +6,8 @@ import {
   expect,
   test,
 } from 'bun:test';
-import { assert } from '@gamezilla/assert';
-import { asKeyword, asKeywordRecord } from '@gamezilla/keyword/keyword';
+import { assert } from '@pkgs/assert';
+import { asKeyword, asKeywordRecord } from '@pkgs/keyword/keyword';
 import { parseKvRecordFromUnknown } from './assert-kv-record';
 import { KvImplInMemory } from './impl-in-memory';
 import { KvImplWeb } from './impl-kv-web';

@@ -10,20 +10,20 @@
   ],
   "ignore": [
     "**/*.bench.ts",
-    "packages/client/babel.config.js",
-    "packages/client/scripts/shims/**",
-    "packages/sql-client/src/absurd-sql-db.worker.ts",
-    "packages/eslint-rules/**/*.cjs",
+    "apps/client/babel.config.js",
+    "apps/client/scripts/shims/**",
+    "pkgs/sql-client/src/absurd-sql-db.worker.ts",
+    "pkgs/eslint-rules/**/*.cjs",
     "lingui.config.cjs",
-    "packages/infra/src/cli/secrets/planetscale.ts",
-    "packages/infra/src/cli/secrets/turbo-token.ts",
-    "packages/client/src/connection/offline-indicator.tsx",
+    "libs/infra/src/cli/secrets/planetscale.ts",
+    "libs/infra/src/cli/secrets/turbo-token.ts",
+    "apps/client/src/connection/offline-indicator.tsx",
   ],
   "ignoreDependencies": [
     "expo-updates",
     "@react-navigation/bottom-tabs",
     "@react-navigation/elements",
-    // `packages/client/scripts/bundle-skia-canvaskit-wasm.ts` uses createRequire only.
+    // `apps/client/scripts/bundle-skia-canvaskit-wasm.ts` uses createRequire only.
     "@shopify/react-native-skia",
     "absurd-sql",
     "canvaskit-wasm",
@@ -50,19 +50,19 @@
     "@total-typescript/ts-reset",
     "turbo",
     "typescript-eslint",
-    "@gamezilla/api",
-    "@gamezilla/assistant",
-    "@gamezilla/chess",
-    "@gamezilla/profile",
+    "@apps/api",
+    "@libs/assistant",
+    "@libs/chess",
+    "@libs/profile",
   ],
   "workspaces": {
     ".": {
       "entry": ["package.json", "scripts/*.ts"],
     },
-    "packages/stripe-cli": {
+    "pkgs/stripe-cli": {
       "entry": "src/dev.ts",
     },
-    "packages/qa": {
+    "libs/qa": {
       "entry": "src/browser/playwright.config.ts",
     },
   },

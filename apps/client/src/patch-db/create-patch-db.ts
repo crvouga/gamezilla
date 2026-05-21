@@ -1,23 +1,20 @@
-import { getCachedDeviceId } from '@gamezilla/auth/client/use-device-id';
-import { getCachedSessionToken } from '@gamezilla/auth/client/use-session-token';
-import { getCachedCurrentAccountId } from '@gamezilla/auth/client/use-current-account-id';
-import type { ConfigService } from '@gamezilla/auth/client/config-service-types';
-import {
-  ACCOUNT_SESSION_ENTITY_TYPE,
-  assertDeviceId,
-} from '@gamezilla/auth/shared';
-import { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
-import { PatchDbImplClientTransport } from '@gamezilla/patch-db/impl-client-transport';
-import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
-import { PATCHES_DB_TOPIC, SyncPatchDb } from '@gamezilla/patch-db/impl-sync';
-import { PatchMetadataStamper } from '@gamezilla/patch-db/metadata/patch-metadata-stamper';
-import type { PatchDbValue } from '@gamezilla/patch-db/react';
-import { hydrateInMemoryStoreFromSqlite } from '@gamezilla/patch-db/react/hydrate-in-memory-store';
-import { InMemoryEntityStore } from '@gamezilla/patch-db/react/in-memory-entity-store';
-import { setInMemoryStoreForDb } from '@gamezilla/patch-db/react/in-memory-store-registry';
-import { PatchDbWriteThroughMirror } from '@gamezilla/patch-db/react/write-through-mirror';
-import type { SubscribablePatchDbLike } from '@gamezilla/patch-db/subscribable';
+import { getCachedDeviceId } from '@libs/auth/client/use-device-id';
+import { getCachedSessionToken } from '@libs/auth/client/use-session-token';
+import { getCachedCurrentAccountId } from '@libs/auth/client/use-current-account-id';
+import type { ConfigService } from '@libs/auth/client/config-service-types';
+import { ACCOUNT_SESSION_ENTITY_TYPE, assertDeviceId } from '@libs/auth/shared';
+import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { PatchDbImplClientTransport } from '@pkgs/patch-db/impl-client-transport';
+import { PatchDbImplSqlite } from '@pkgs/patch-db/impl-sqlite/impl-sqlite';
+import { PATCHES_DB_TOPIC, SyncPatchDb } from '@pkgs/patch-db/impl-sync';
+import { PatchMetadataStamper } from '@pkgs/patch-db/metadata/patch-metadata-stamper';
+import type { PatchDbValue } from '@pkgs/patch-db/react';
+import { hydrateInMemoryStoreFromSqlite } from '@pkgs/patch-db/react/hydrate-in-memory-store';
+import { InMemoryEntityStore } from '@pkgs/patch-db/react/in-memory-entity-store';
+import { setInMemoryStoreForDb } from '@pkgs/patch-db/react/in-memory-store-registry';
+import { PatchDbWriteThroughMirror } from '@pkgs/patch-db/react/write-through-mirror';
+import type { SubscribablePatchDbLike } from '@pkgs/patch-db/subscribable';
 
 import type { ApiClient } from '../api/hc';
 import { createPatchDbHcTransport } from '../api/patch-db-hc-transport';

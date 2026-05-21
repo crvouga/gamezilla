@@ -1,4 +1,4 @@
-import { RegisterCommand } from '@gamezilla/ui';
+import { RegisterCommand } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 import {

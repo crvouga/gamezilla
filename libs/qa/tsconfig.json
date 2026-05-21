@@ -4,5 +4,5 @@
     "noEmit": true,
     "types": ["node", "bun"]
   },
-  "include": ["../ts-reset/src/index.ts", "src/**/*.ts"]
+  "include": ["../../pkgs/ts-reset/src/index.ts", "src/**/*.ts"]
 }

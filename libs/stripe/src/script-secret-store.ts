@@ -1,8 +1,8 @@
 import {
   createCachingSecretStore,
   createDopplerSecretStoreForScripts,
-} from '@gamezilla/secret-store';
-import type { SecretStore } from '@gamezilla/secret-store';
+} from '@pkgs/secret-store';
+import type { SecretStore } from '@pkgs/secret-store';
 
 /**
  * Doppler-backed store for Node/Bun CLI scripts. Uses `DOPPLER_TOKEN` or

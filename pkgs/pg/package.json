@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/pg",
+  "name": "@pkgs/pg",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -14,8 +14,8 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/assert": "workspace:*",
-    "@gamezilla/logger": "workspace:*"
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/logger": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

@@ -1,4 +1,4 @@
-import { Box, TopBar } from '@gamezilla/ui';
+import { Box, TopBar } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { SpaceMembersAvatarGroup } from '../members/space-members-avatar-group';

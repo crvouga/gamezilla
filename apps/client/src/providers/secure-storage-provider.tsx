@@ -1,5 +1,5 @@
-import { createSecureStorage } from '@gamezilla/secure-storage/create';
-import { SecureStorageContextProvider } from '@gamezilla/secure-storage/interface';
+import { createSecureStorage } from '@pkgs/secure-storage/create';
+import { SecureStorageContextProvider } from '@pkgs/secure-storage/interface';
 import { useMemo, type ReactNode } from 'react';
 
 export function SecureStorageProvider({

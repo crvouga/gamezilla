@@ -1,6 +1,6 @@
-import { hotAssert } from '@gamezilla/assert';
-import type { Keyword } from '@gamezilla/keyword/keyword';
-import { assertNamespacedKeyword } from '@gamezilla/keyword/keyword';
+import { hotAssert } from '@pkgs/assert';
+import type { Keyword } from '@pkgs/keyword/keyword';
+import { assertNamespacedKeyword } from '@pkgs/keyword/keyword';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import { KvImplWebTx } from './impl-kv-web-tx';
 import type { Kv, KvRecord } from './interface';

@@ -1,21 +1,22 @@
 #!/usr/bin/env bun
 /**
  * Fail-fast guardrail: forbid package-level circular dependencies between
- * `@gamezilla/*` workspace packages.
+ * `@apps|@libs|@pkgs/*` workspace packages.
  *
  * Why a custom script instead of `dependency-cruiser`'s `no-circular` rule:
  * - depcruise's `doNotFollow.path: 'node_modules'` skips workspace symlinks,
- *   so cross-package `@gamezilla/<name>` imports are never traversed (bun
- *   resolves workspace packages through node_modules symlinks).
+ *   so cross-package `@apps|@libs|@pkgs/<name>` imports are never traversed
+ *   (bun resolves workspace packages through node_modules symlinks).
  * - Its `to: { circular: true }` matcher detects FILE-level cycles only. A
  *   package-level cycle (e.g. chess <-> spaces) can exist with zero
  *   file-level cycle chains, so depcruise reports a clean graph while the
  *   workspace is structurally circular.
  *
  * Algorithm:
- * 1. Discover every workspace package (`packages/<name>/package.json` named
- *    `@gamezilla/<name>`).
- * 2. Scan each package's source files for `@gamezilla/<other>` imports.
+ * 1. Discover every workspace package (`apps|libs|pkgs/<name>/package.json`
+ *    named `@apps|@libs|@pkgs/<name>`).
+ * 2. Scan each package's source files for `@apps|@libs|@pkgs/<other>`
+ *    imports.
  * 3. Build a directed package -> package graph (edges annotated with sample
  *    importer files for actionable error reports).
  * 4. Run Tarjan's SCC; any component of size > 1 is a cycle.
@@ -98,14 +99,14 @@ function findStronglyConnectedComponents(graph: PackageImportGraph): Scc[] {
 function describeCycle(scc: Scc, graph: PackageImportGraph): string[] {
   const lines: string[] = [];
   const sorted = [...scc].sort();
-  lines.push(`  Cycle: ${sorted.map((n) => `@gamezilla/${n}`).join(' <-> ')}`);
+  lines.push(`  Cycle: ${sorted.join(' <-> ')}`);
   const inScc = new Set(scc);
   for (const from of sorted) {
     const edges = graph.get(from);
     if (!edges) continue;
     const targets = [...edges.keys()].filter((t) => inScc.has(t)).sort();
     for (const to of targets) {
-      lines.push(`    @gamezilla/${from} -> @gamezilla/${to}`);
+      lines.push(`    ${from} -> ${to}`);
       const importers = edges.get(to) ?? [];
       for (const importer of importers) {
         lines.push(`      via ${importer}`);
@@ -119,7 +120,7 @@ function main(): never {
   const packages = discoverPackages();
   if (packages.size === 0) {
     console.error(
-      'check:circular-deps: no @gamezilla/* packages found under packages/.'
+      'check:circular-deps: no @apps|@libs|@pkgs/* packages found under apps/, libs/, pkgs/.'
     );
     process.exit(1);
   }
@@ -142,7 +143,7 @@ function main(): never {
     console.error('');
   }
   console.error(
-    'Break the cycle by moving shared types/logic into a leaf package (e.g. @gamezilla/assert / @gamezilla/keyword), inverting a dependency, or merging the packages.'
+    'Break the cycle by moving shared types/logic into a leaf package (e.g. @pkgs/assert / @pkgs/keyword), inverting a dependency, or merging the packages.'
   );
   process.exit(1);
 }

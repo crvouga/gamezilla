@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/assert';
-import { asKeyword, type Keyword } from '@gamezilla/keyword';
+import { assert } from '@pkgs/assert';
+import { asKeyword, type Keyword } from '@pkgs/keyword';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import {
   normalizeIndexSpec,

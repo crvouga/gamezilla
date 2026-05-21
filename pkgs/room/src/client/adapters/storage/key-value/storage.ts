@@ -1,8 +1,8 @@
-import { assert } from '@gamezilla/assert';
-import { createAttrNamespace } from '@gamezilla/attribute';
-import type { Keyword } from '@gamezilla/keyword';
-import type { Kv } from '@gamezilla/kv/interface';
-import { isMessageEnvelope } from '@gamezilla/message';
+import { assert } from '@pkgs/assert';
+import { createAttrNamespace } from '@pkgs/attribute';
+import type { Keyword } from '@pkgs/keyword';
+import type { Kv } from '@pkgs/kv/interface';
+import { isMessageEnvelope } from '@pkgs/message';
 
 import type { LogEntry } from '../../../../types';
 import type { ClientRoomStorage, QueuedCommand } from '../../../core/storage';
@@ -98,7 +98,7 @@ const RoomClientStorageAttr = {
 /**
  * Async {@link Kv}-backed room cache + outbound queue.
  *
- * Use a non-secure client {@link Kv} (e.g. `KvPlatform` from `@gamezilla/kv/kv-platform`):
+ * Use a non-secure client {@link Kv} (e.g. `KvPlatform` from `@pkgs/kv/kv-platform`):
  * committed-log + queue blobs grow past `expo-secure-store`'s
  * 2048 UTF-8 byte per-value cap as soon as a few entries accumulate. None of
  * this data is sensitive — it's a recovery cache for replay-on-reconnect.

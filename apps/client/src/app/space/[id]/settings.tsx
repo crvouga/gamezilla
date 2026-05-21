@@ -1,3 +1,3 @@
-import { SpaceSettingsScreen } from '@gamezilla/spaces/client/space-settings-screen';
+import { SpaceSettingsScreen } from '@libs/spaces/client/space-settings-screen';
 
 export default SpaceSettingsScreen;

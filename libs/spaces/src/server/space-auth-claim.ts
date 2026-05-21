@@ -7,7 +7,7 @@
  * patch-db `enrichContext` hook) so the lookup runs **at most once per read /
  * write batch**, only when ABAC is actually about to inspect the context.
  */
-import { type AttributeState, createAttrNamespace } from '@gamezilla/attribute';
+import { type AttributeState, createAttrNamespace } from '@pkgs/attribute';
 
 const spacesNs = createAttrNamespace('spaces');
 

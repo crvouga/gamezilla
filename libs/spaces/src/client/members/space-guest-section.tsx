@@ -1,7 +1,7 @@
 import { SpaceGuestAvatarGroup } from './space-guest-avatar-group';
 import { SpaceGuestCountText } from './space-guest-count-text';
 import { SpaceGuestNamesLine } from './space-guest-names-line';
-import { Box } from '@gamezilla/ui';
+import { Box } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export type SpaceGuestSectionProps = {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { asKeyword } from '@gamezilla/keyword/keyword';
-import { KvImplInMemory } from '@gamezilla/kv/impl-in-memory';
+import { asKeyword } from '@pkgs/keyword/keyword';
+import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { DistributedLockImplKv } from './impl-kv';
 import { LockHeldError } from './interface';
 

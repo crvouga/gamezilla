@@ -30,10 +30,10 @@
  * polling bursts.
  */
 
-import { Assert, ValidationError } from '@gamezilla/assert';
-import type { AttributeState } from '@gamezilla/attribute';
-import { assertKeywordRecord } from '@gamezilla/keyword';
-import { createLogger } from '@gamezilla/logger';
+import { Assert, ValidationError } from '@pkgs/assert';
+import type { AttributeState } from '@pkgs/attribute';
+import { assertKeywordRecord } from '@pkgs/keyword';
+import { createLogger } from '@pkgs/logger';
 import { Hono, type MiddlewareHandler } from 'hono';
 import type {
   CategoricalTermWire,

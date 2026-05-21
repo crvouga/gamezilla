@@ -1,4 +1,4 @@
-import type { PatchDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@pkgs/patch-db/interface';
 import { describe, expect, it } from 'bun:test';
 import { createStripeCheckoutRoutes } from './stripe-checkout-route';
 

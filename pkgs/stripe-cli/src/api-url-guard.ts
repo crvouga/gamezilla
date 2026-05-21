@@ -1,4 +1,4 @@
-import { isLocalApiUrl } from '@gamezilla/stripe/webhooks-sync-shared';
+import { isLocalApiUrl } from '@libs/stripe/webhooks-sync-shared';
 import { STRIPE_CLI_LOG_TAG } from './constants';
 
 /** Refuse to forward Stripe traffic to a public origin by mistake. */

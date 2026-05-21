@@ -1,4 +1,4 @@
-import { useQuery } from '@gamezilla/patch-db/react';
+import { useQuery } from '@pkgs/patch-db/react';
 import { useMemo } from 'react';
 
 import {

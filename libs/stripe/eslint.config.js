@@ -1,4 +1,6 @@
-const { createSharedBlocks } = require('../eslint-rules/base-config.cjs');
+const {
+  createSharedBlocks,
+} = require('../../pkgs/eslint-rules/base-config.cjs');
 
 module.exports = [
   ...createSharedBlocks(__dirname),

@@ -1,4 +1,4 @@
-import type { PatchDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@pkgs/patch-db/interface';
 
 import type { ApiWorkerBindings } from './api-worker-bindings';
 import type { HostedBetterAuth } from './better-auth-create';

@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { PlaygroundSim } from '@gamezilla/patch-db/sim/playground-sim';
+import type { PlaygroundSim } from '@pkgs/patch-db/sim/playground-sim';
 
 export type SimContextValue = {
   sim: PlaygroundSim;

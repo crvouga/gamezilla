@@ -1,5 +1,5 @@
-import type { GameDefinition } from '@gamezilla/spaces/shared/game';
-import type { RoomState } from '@gamezilla/room';
+import type { GameDefinition } from '@libs/spaces/shared/game';
+import type { RoomState } from '@pkgs/room';
 
 import {
   CHESS_SCREEN,
@@ -20,10 +20,10 @@ export const CHESS_GAME_ID = 'chess';
 
 /**
  * Server/shared chess game definition. Registered into the composed
- * `SpaceModule` at the composition root (`APP_SPACE_MODULE` from `@gamezilla/app/shared/games`).
+ * `SpaceModule` at the composition root (`APP_SPACE_MODULE` from `@libs/app/shared/games`).
  *
  * Note: this is the *only* place chess wires itself into the spaces
- * registry. `@gamezilla/spaces` knows nothing about chess.
+ * registry. `@libs/spaces` knows nothing about chess.
  */
 export const chessGameShared: GameDefinition = {
   id: CHESS_GAME_ID,

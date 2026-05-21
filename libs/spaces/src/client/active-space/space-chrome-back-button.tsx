@@ -1,4 +1,4 @@
-import { BackIconButton } from '@gamezilla/ui';
+import { BackIconButton } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { useSpacesNavBack } from '../nav/spaces-nav-context';

@@ -3,9 +3,9 @@ export {
   assertCreatedByMatchesAuthor,
   authOnlyRead,
   buildAppAuthContext,
-} from '@gamezilla/auth/shared/auth-context';
+} from '@libs/auth/shared/auth-context';
 export type {
   AppAuth,
   AppAuthContext,
   AppClientContext,
-} from '@gamezilla/auth/shared/auth-context';
+} from '@libs/auth/shared/auth-context';

@@ -84,7 +84,9 @@
     "//#ci:syncpack": {
       "inputs": [
         "package.json",
-        "packages/*/package.json",
+        "apps/*/package.json",
+        "libs/*/package.json",
+        "pkgs/*/package.json",
         ".syncpackrc.cjs",
         "scripts/check-catalog-deps.ts",
         "scripts/check-no-patches.ts"
@@ -99,8 +101,12 @@
     },
     "//#ci:depcruise": {
       "inputs": [
-        "packages/**/*.ts",
-        "packages/**/*.tsx",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx",
         ".dependency-cruiser.cjs"
       ],
       "outputs": [],
@@ -108,9 +114,15 @@
     },
     "//#ci:circular-deps": {
       "inputs": [
-        "packages/**/*.ts",
-        "packages/**/*.tsx",
-        "packages/*/package.json",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx",
+        "apps/*/package.json",
+        "libs/*/package.json",
+        "pkgs/*/package.json",
         "scripts/check-circular-deps.ts"
       ],
       "outputs": [],

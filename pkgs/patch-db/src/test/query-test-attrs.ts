@@ -1,7 +1,7 @@
 /**
  * Attribute tags for PatchDB tests and examples (validated {@link Keyword} keys).
  */
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { createAttrNamespace } from '@pkgs/attribute';
 
 const looseString = (v: unknown): string =>
   typeof v === 'string' ? v : String(v ?? '');

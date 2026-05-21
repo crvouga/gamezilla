@@ -1,10 +1,10 @@
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { createAttrNamespace } from '@pkgs/attribute';
 import {
   createMessageNamespace,
   isMessageEnvelope,
   isPlainRecord,
   type Message,
-} from '@gamezilla/message';
+} from '@pkgs/message';
 
 import {
   assertRoomModuleName,

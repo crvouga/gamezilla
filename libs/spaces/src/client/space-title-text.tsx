@@ -1,11 +1,11 @@
 import { SpaceHostFallbackTitle } from './members/space-host-fallback-title';
-import { optionalProps } from '@gamezilla/ui/components/optional-props';
+import { optionalProps } from '@pkgs/ui/components/optional-props';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { Text, type SxProps, type TextVariant } from '@gamezilla/ui';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type { ReactNode } from 'react';
 
 export type SpaceTitleTextProps = {

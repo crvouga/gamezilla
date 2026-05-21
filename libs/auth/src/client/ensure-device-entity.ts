@@ -1,6 +1,6 @@
 import { assertDeviceId, DEVICE_ENTITY_TYPE, DeviceAttr } from '../shared';
-import { assert } from '@gamezilla/assert';
-import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
+import { assert } from '@pkgs/assert';
+import type { Entity, PatchDb } from '@pkgs/patch-db/interface';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';

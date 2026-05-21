@@ -7,30 +7,30 @@ import {
   AccountSessionAttr,
   DEVICE_ENTITY_TYPE,
   DeviceAttr,
-} from '@gamezilla/auth/shared';
-import { CLIENT_CONFIG_ENTITY_TYPE } from '@gamezilla/client-config/shared/client-config-entities';
+} from '@libs/auth/shared';
+import { CLIENT_CONFIG_ENTITY_TYPE } from '@libs/client-config/shared/client-config-entities';
 import {
   CHESS_PUZZLE_ENTITY_TYPE,
   CHESS_PUZZLE_LOAD_ENTITY_TYPE,
-} from '@gamezilla/chess/shared/chess-puzzle-entities';
-import { CHESS_PUZZLE_INTERACTION_ENTITY_TYPE } from '@gamezilla/chess/shared/chess-puzzle-interaction-entities';
-import { CHESS_PUZZLE_PROFILE_ENTITY_TYPE } from '@gamezilla/chess/shared/chess-puzzle-profile-entities';
-import { PROFILE_ENTITY_TYPE } from '@gamezilla/profile/shared/profile-entities';
+} from '@libs/chess/shared/chess-puzzle-entities';
+import { CHESS_PUZZLE_INTERACTION_ENTITY_TYPE } from '@libs/chess/shared/chess-puzzle-interaction-entities';
+import { CHESS_PUZZLE_PROFILE_ENTITY_TYPE } from '@libs/chess/shared/chess-puzzle-profile-entities';
+import { PROFILE_ENTITY_TYPE } from '@libs/profile/shared/profile-entities';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { memberOfSpaceIdsFromContext } from '@gamezilla/spaces/server/space-auth-claim';
-import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
-import type { PatchDbQueryWhereClause } from '@gamezilla/patch-db/interface';
+} from '@libs/spaces/shared/space-entities';
+import { memberOfSpaceIdsFromContext } from '@libs/spaces/server/space-auth-claim';
+import { ForbiddenError } from '@pkgs/patch-db/forbidden-error';
+import type { PatchDbQueryWhereClause } from '@pkgs/patch-db/interface';
 import {
   isPatchDbSystemContext,
   READ_WHERE_ALWAYS_TRUE,
   READ_WHERE_NEVER_TRUE,
-} from '@gamezilla/patch-db/interface';
-import type { VisibilityPolicy } from '@gamezilla/patch-db/policy/visibility-policy-registry';
+} from '@pkgs/patch-db/interface';
+import type { VisibilityPolicy } from '@pkgs/patch-db/policy/visibility-policy-registry';
 
 import {
   AbacEntityAttr,
@@ -45,8 +45,8 @@ import {
   authOnlyRead,
   type AppAuthContext,
 } from './abac-policies-context';
-import { rejectAccountSessionClientWrite } from '@gamezilla/auth/server/account-session-client-revoke';
-import { STRIPE_PATCH_DB_VISIBILITY_POLICIES } from '@gamezilla/stripe/abac-policies';
+import { rejectAccountSessionClientWrite } from '@libs/auth/server/account-session-client-revoke';
+import { STRIPE_PATCH_DB_VISIBILITY_POLICIES } from '@libs/stripe/abac-policies';
 
 type AppVisibilityPolicy = VisibilityPolicy<AppAuthContext>;
 

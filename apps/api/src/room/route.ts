@@ -1,8 +1,5 @@
-import {
-  ANON_ID_HEADER,
-  resolveAccountIdFromBearer,
-} from '@gamezilla/auth/server';
-import { isUuid } from '@gamezilla/uuid';
+import { ANON_ID_HEADER, resolveAccountIdFromBearer } from '@libs/auth/server';
+import { isUuid } from '@pkgs/uuid';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 
@@ -11,7 +8,7 @@ import type { ApiHonoEnv } from '../app/api-hono-types';
 /**
  * Header the room Durable Object adapter reads to learn the actor id for an
  * accepted WebSocket. Must match the DO adapter's `identityHeader` (default
- * `x-actor-id`; see `createDurableObjectAdapter` in `@gamezilla/room`).
+ * `x-actor-id`; see `createDurableObjectAdapter` in `@pkgs/room`).
  */
 export const ROOM_ACTOR_ID_HEADER = 'x-actor-id';
 

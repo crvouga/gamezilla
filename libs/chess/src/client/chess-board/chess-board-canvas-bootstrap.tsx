@@ -1,4 +1,4 @@
-import { Box, Spinner } from '@gamezilla/ui';
+import { Box, Spinner } from '@pkgs/ui';
 import { lazy, Suspense, type ReactNode } from 'react';
 import { setChessBoardCanvas } from './chess-board-canvas-runtime';
 
@@ -31,7 +31,7 @@ const ChessBoardCanvasGate = lazy(async () => {
 /**
  * Mount once at the chess subtree root (`ChessMainMenu`). Loads the
  * Skia-using chess canvas chunk a single time, then renders `children`.
- * Kept inside the chess package so `@gamezilla/client` stays decoupled
+ * Kept inside the chess package so `@apps/client` stays decoupled
  * from any feature package — the only cross-package responsibility at the
  * app root is `SkiaWebRoot`.
  */

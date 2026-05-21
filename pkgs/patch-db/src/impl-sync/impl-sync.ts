@@ -1,8 +1,8 @@
-import { assert } from '@gamezilla/assert';
-import { fireAndForget } from '@gamezilla/async/fire-and-forget';
-import { asKeyword, type Keyword } from '@gamezilla/keyword';
-import { createLogger, type Logger } from '@gamezilla/logger';
-import type { PubSub, Unsubscribe } from '@gamezilla/pub-sub/interface';
+import { assert } from '@pkgs/assert';
+import { fireAndForget } from '@pkgs/async/fire-and-forget';
+import { asKeyword, type Keyword } from '@pkgs/keyword';
+import { createLogger, type Logger } from '@pkgs/logger';
+import type { PubSub, Unsubscribe } from '@pkgs/pub-sub/interface';
 import {
   OPEN_PATCHES_DB_CONTEXT,
   PATCH_REJECTED,

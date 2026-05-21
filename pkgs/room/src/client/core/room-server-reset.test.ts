@@ -1,4 +1,4 @@
-import { asKeyword } from '@gamezilla/keyword';
+import { asKeyword } from '@pkgs/keyword';
 import { describe, expect, it } from 'bun:test';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';

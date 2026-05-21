@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/distributed-lock",
+  "name": "@pkgs/distributed-lock",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -15,10 +15,10 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/assert": "workspace:*",
-    "@gamezilla/attribute": "workspace:*",
-    "@gamezilla/keyword": "workspace:*",
-    "@gamezilla/kv": "workspace:*"
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/attribute": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/kv": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

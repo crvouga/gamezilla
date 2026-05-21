@@ -2,7 +2,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import {
   DismissibleBannerPortalProvider,
   OverlayPortalProvider,
-} from '@gamezilla/ui';
+} from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export function UiPortalsProvider({

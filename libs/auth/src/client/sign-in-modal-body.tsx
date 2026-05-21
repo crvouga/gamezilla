@@ -1,4 +1,4 @@
-import { Box, ModalBody, SocialSignInButton, Text } from '@gamezilla/ui';
+import { Box, ModalBody, SocialSignInButton, Text } from '@pkgs/ui';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 

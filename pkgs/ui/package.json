@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/ui",
+  "name": "@pkgs/ui",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -18,10 +18,10 @@
   "dependencies": {
     "@dicebear/collection": "catalog:",
     "@dicebear/core": "catalog:",
-    "@gamezilla/assert": "workspace:*",
-    "@gamezilla/i18n": "workspace:*",
-    "@gamezilla/object-store": "workspace:*",
-    "@gamezilla/tts": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/i18n": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/tts": "workspace:*",
     "@gorhom/bottom-sheet": "catalog:",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",

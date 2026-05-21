@@ -1,5 +1,5 @@
-import { PatchDbLocalDataActionsContext } from '@gamezilla/auth/client/patch-db-local-data-actions-context';
-import { useSecureStorage } from '@gamezilla/secure-storage/interface';
+import { PatchDbLocalDataActionsContext } from '@libs/auth/client/patch-db-local-data-actions-context';
+import { useSecureStorage } from '@pkgs/secure-storage/interface';
 import { useMemo, type ReactNode } from 'react';
 
 import {

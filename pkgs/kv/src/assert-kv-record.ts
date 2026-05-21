@@ -1,5 +1,5 @@
-import type { Assert } from '@gamezilla/assert';
-import { assertKeywordRecord } from '@gamezilla/keyword/keyword';
+import type { Assert } from '@pkgs/assert';
+import { assertKeywordRecord } from '@pkgs/keyword/keyword';
 import type { KvRecord } from './interface';
 
 /**

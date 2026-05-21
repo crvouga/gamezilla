@@ -1,5 +1,5 @@
-import { useConfigService } from '@gamezilla/auth/client/config-service-context';
-import { TtsProvider } from '@gamezilla/tts/client/tts-context';
+import { useConfigService } from '@libs/auth/client/config-service-context';
+import { TtsProvider } from '@pkgs/tts/client/tts-context';
 import type { ReactNode } from 'react';
 
 /**

@@ -1,0 +1,18 @@
+{
+  "name": "@apps/turbo-cache",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev --port 8787 --inspector-port 9230",
+    "lint": "eslint src --max-warnings 0",
+    "setup": "bun -e \"process.exit(0)\"",
+    "tc": "tsc --noEmit -p ../../tsconfig.json"
+  },
+  "dependencies": {
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/turbo-cache": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

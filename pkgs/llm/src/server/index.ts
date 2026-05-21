@@ -1,5 +1,5 @@
 /**
- * Server-side facade for `@gamezilla/llm`.
+ * Server-side facade for `@pkgs/llm`.
  */
 export {
   createLlmAppFromBindings,

@@ -10,7 +10,7 @@ import type { SecureStorage } from './interface';
  *
  * Per-value limit is 2048 UTF-8 bytes — keep usage to small secrets
  * (deviceId, session tokens). For bulk blobs use client `Kv` via
- * `KvPlatform` from `@gamezilla/kv/kv-platform`.
+ * `KvPlatform` from `@pkgs/kv/kv-platform`.
  */
 export function createExpoSecureStorage(): SecureStorage {
   return wrapSecureStorage({

@@ -1,8 +1,8 @@
-import type { AttributeState } from '@gamezilla/attribute';
+import type { AttributeState } from '@pkgs/attribute';
 import {
   andWhereClause,
   type PatchDbQueryWhereClause,
-} from '@gamezilla/patch-db/interface';
+} from '@pkgs/patch-db/interface';
 
 import { ChessPuzzleAttr } from '../../shared/chess-puzzle-entities';
 

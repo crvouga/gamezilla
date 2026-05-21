@@ -6,7 +6,7 @@
  * in order: `query("SELECT * FROM t WHERE id = ?", [1])`.
  */
 
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 
 export interface RunResult {
   changes: number;

@@ -1,5 +1,5 @@
-import { Box, Card, Divider, Stack, StatusDot, Text } from '@gamezilla/ui';
-import { useTheme } from '@gamezilla/ui/theme';
+import { Box, Card, Divider, Stack, StatusDot, Text } from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui/theme';
 import type { ReactNode } from 'react';
 
 type NodePanelHeaderProps = {

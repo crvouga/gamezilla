@@ -1,6 +1,6 @@
-import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
-import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
-import { Box, Button, Card, ScreenBase, StatusDot, Text } from '@gamezilla/ui';
+import { useServerStatus } from '@apps/client/connection/use-server-status';
+import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
+import { Box, Button, Card, ScreenBase, StatusDot, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { NetworkStateType } from 'expo-network';
 import { useCallback, useEffect } from 'react';

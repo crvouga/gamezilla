@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/git",
+  "name": "@pkgs/git",
   "version": "0.0.0",
   "private": true,
   "exports": {

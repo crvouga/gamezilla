@@ -1,8 +1,8 @@
-import { assert } from '@gamezilla/assert';
-import { createAttrNamespace } from '@gamezilla/attribute/attribute';
-import type { Keyword } from '@gamezilla/keyword/keyword';
-import { assertNamespacedKeyword } from '@gamezilla/keyword/keyword';
-import type { Kv, KvRecord } from '@gamezilla/kv/interface';
+import { assert } from '@pkgs/assert';
+import { createAttrNamespace } from '@pkgs/attribute/attribute';
+import type { Keyword } from '@pkgs/keyword/keyword';
+import { assertNamespacedKeyword } from '@pkgs/keyword/keyword';
+import type { Kv, KvRecord } from '@pkgs/kv/interface';
 import { DefaultLockIdentityProvider } from './default-lock-identity-provider';
 import {
   type DistributedLock,

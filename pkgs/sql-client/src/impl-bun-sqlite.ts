@@ -1,5 +1,5 @@
 import { Database, type SQLQueryBindings } from 'bun:sqlite';
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import { applySqliteConnectionPragmas } from './sqlite-connection-pragmas';
 

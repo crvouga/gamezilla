@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 
 import { resolveLocalPreviewApiOriginSync } from '../constants/local-api-preview';
 
@@ -98,9 +98,9 @@ const turboPreviewCmd: string[] = [
   'turbo',
   'run',
   'preview',
-  '--filter=@gamezilla/pg',
-  '--filter=@gamezilla/api',
-  '--filter=@gamezilla/client',
+  '--filter=@pkgs/pg',
+  '--filter=@apps/api',
+  '--filter=@apps/client',
 ];
 assert.ok(
   turboPreviewCmd.length > 0,

@@ -1,8 +1,8 @@
-import { assertUuid } from '@gamezilla/uuid';
+import { assertUuid } from '@pkgs/uuid';
 import { serializeDefaultAvatarConfig } from '../shared/avatar-config';
 import { generateRandomDisplayName } from '../shared/display-name-generator';
 import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
-import type { Entity, PatchDb } from '@gamezilla/patch-db/interface';
+import type { Entity, PatchDb } from '@pkgs/patch-db/interface';
 
 function profileLooksPresent(
   entity: Entity | undefined,

@@ -1,8 +1,8 @@
-import type { Assert } from '@gamezilla/assert';
-import { assert } from '@gamezilla/assert';
-import type { AttributeState } from '@gamezilla/attribute';
-import type { Keyword } from '@gamezilla/keyword';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import type { Assert } from '@pkgs/assert';
+import { assert } from '@pkgs/assert';
+import type { AttributeState } from '@pkgs/attribute';
+import type { Keyword } from '@pkgs/keyword';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PatchDbContext } from './context';
 import {
   assertAttribute,

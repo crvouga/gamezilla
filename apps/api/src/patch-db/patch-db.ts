@@ -3,12 +3,12 @@
  * synced game state. Clients hold a cache only; the library does not treat
  * client-side state as authoritative over the server.
  */
-import type { SqlClient } from '@gamezilla/sql-client/interface';
-import { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
-import { VisibilityPolicyRegistry } from '@gamezilla/patch-db/policy/visibility-policy-registry';
-import { createPatchDbReadBatcher } from '@gamezilla/patch-db/scheduling/microtask-batcher';
-import { createMemberOfSpaceIdsEnricher } from '@gamezilla/spaces/server/enrich-member-of-space-ids';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
+import type { PatchDb } from '@pkgs/patch-db/interface';
+import { VisibilityPolicyRegistry } from '@pkgs/patch-db/policy/visibility-policy-registry';
+import { createPatchDbReadBatcher } from '@pkgs/patch-db/scheduling/microtask-batcher';
+import { createMemberOfSpaceIdsEnricher } from '@libs/spaces/server/enrich-member-of-space-ids';
 import {
   DEFAULT_PATCH_DB_VISIBILITY_POLICIES,
   type AppAuthContext,

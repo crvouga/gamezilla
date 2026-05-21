@@ -1,11 +1,11 @@
-import { UserDisplayName } from '@gamezilla/profile/client/user-display-name';
-import { optionalProps } from '@gamezilla/ui/components/optional-props';
+import { UserDisplayName } from '@libs/profile/client/user-display-name';
+import { optionalProps } from '@pkgs/ui/components/optional-props';
 import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceMembershipAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import type { SxProps, TextVariant } from '@gamezilla/ui';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import type { SxProps, TextVariant } from '@pkgs/ui';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type { ReactNode } from 'react';
 
 export type SpaceGuestMembershipDisplayNameProps = {

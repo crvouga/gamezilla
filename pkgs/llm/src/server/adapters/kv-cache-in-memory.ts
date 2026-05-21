@@ -1,5 +1,5 @@
-import { KvImplInMemory } from '@gamezilla/kv/impl-in-memory';
-import type { Kv } from '@gamezilla/kv/interface';
+import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
+import type { Kv } from '@pkgs/kv/interface';
 
 /**
  * In-process {@link Kv} for tests and local client-side caching.

@@ -1,5 +1,5 @@
-import { Box, Pressable, Text, TextInput, useTheme } from '@gamezilla/ui';
-import { usePatchDb } from '@gamezilla/patch-db/react';
+import { Box, Pressable, Text, TextInput, useTheme } from '@pkgs/ui';
+import { usePatchDb } from '@pkgs/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState, type ReactNode } from 'react';
 

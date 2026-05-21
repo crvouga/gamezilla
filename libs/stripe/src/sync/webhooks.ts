@@ -10,7 +10,7 @@
  *
  * `dryRun: true` short-circuits before any Stripe or Doppler mutation.
  */
-import type { SecretStore } from '@gamezilla/secret-store';
+import type { SecretStore } from '@pkgs/secret-store';
 import type Stripe from 'stripe';
 import { StripeSecretKeys } from '../secret-keys';
 import {
@@ -22,7 +22,7 @@ import {
 const TAG = 'stripe sync webhooks';
 
 const WEBHOOK_DESCRIPTION =
-  'gamezilla api worker — managed by @gamezilla/stripe sync';
+  'gamezilla api worker — managed by @libs/stripe sync';
 const WEBHOOK_MANAGED_BY_TAG = 'gamezilla_stripe_sync';
 const WEBHOOK_PATH = '/stripe/webhook';
 

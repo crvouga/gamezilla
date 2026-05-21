@@ -3,25 +3,25 @@ import {
   AccountSessionAttr,
   DEVICE_ENTITY_TYPE,
   DeviceAttr,
-} from '@gamezilla/auth/shared';
-import { buildAppAuthContext } from '@gamezilla/auth/shared/auth-context';
-import { ClientConfigAttr } from '@gamezilla/client-config/shared/client-config-entities';
-import { assert } from '@gamezilla/assert';
-import { asKeyword } from '@gamezilla/keyword';
-import { SqlClientImplBunSqlite } from '@gamezilla/sql-client/impl-bun-sqlite';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
-import { PatchDbImplSqlite } from '@gamezilla/patch-db/impl-sqlite/impl-sqlite';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
-import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
+} from '@libs/auth/shared';
+import { buildAppAuthContext } from '@libs/auth/shared/auth-context';
+import { ClientConfigAttr } from '@libs/client-config/shared/client-config-entities';
+import { assert } from '@pkgs/assert';
+import { asKeyword } from '@pkgs/keyword';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { PatchDbImplSqlite } from '@pkgs/patch-db/impl-sqlite/impl-sqlite';
+import type { PatchDb } from '@pkgs/patch-db/interface';
+import { PATCHES_DB_SYSTEM_CONTEXT } from '@pkgs/patch-db/interface';
 import {
   PatchMetaAttr,
   PATCH_REJECT_CODE,
-} from '@gamezilla/patch-db/metadata/patch-metadata';
-import { PATCH_DB_SYSTEM_DEVICE_ID } from '@gamezilla/patch-db/policy/system-device';
+} from '@pkgs/patch-db/metadata/patch-metadata';
+import { PATCH_DB_SYSTEM_DEVICE_ID } from '@pkgs/patch-db/policy/system-device';
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
-} from '@gamezilla/profile/shared/profile-entities';
+} from '@libs/profile/shared/profile-entities';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { AbacEntityAttr } from './abac-patch-attrs';
 import { installDefaultPatchDbPolicies } from './patch-db';

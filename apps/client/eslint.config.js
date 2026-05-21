@@ -1,11 +1,13 @@
 // https://docs.expo.dev/guides/using-eslint/
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
-const eslintPluginGamezillaI18n = require('../eslint-rules/gamezilla-i18n.cjs');
+const eslintPluginGamezillaI18n = require('../../pkgs/eslint-rules/gamezilla-i18n.cjs');
 const eslintPluginLingui = require('eslint-plugin-lingui');
-const { createSharedBlocks } = require('../eslint-rules/base-config.cjs');
-const { linguiRules } = require('../eslint-rules/lingui-rules.cjs');
-const a11yRestrictions = require('../eslint-rules/a11y-restrictions.cjs');
+const {
+  createSharedBlocks,
+} = require('../../pkgs/eslint-rules/base-config.cjs');
+const { linguiRules } = require('../../pkgs/eslint-rules/lingui-rules.cjs');
+const a11yRestrictions = require('../../pkgs/eslint-rules/a11y-restrictions.cjs');
 
 module.exports = defineConfig([
   expoConfig,
@@ -35,16 +37,15 @@ module.exports = defineConfig([
           paths: [
             {
               name: 'expo-status-bar',
-              message: 'Use AppStatusBar from @gamezilla/ui.',
+              message: 'Use AppStatusBar from @pkgs/ui.',
             },
             {
               name: 'expo-splash-screen',
-              message:
-                'Use preventSplashAutoHide or hideSplash from @gamezilla/ui.',
+              message: 'Use preventSplashAutoHide or hideSplash from @pkgs/ui.',
             },
             {
               name: 'expo-symbols',
-              message: 'Use IconSymbol from @gamezilla/ui.',
+              message: 'Use IconSymbol from @pkgs/ui.',
             },
           ],
         },

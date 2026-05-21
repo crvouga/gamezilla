@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { assertAttribute } from '../interface';
 
 function buildSqliteJsonPath(key: string): string {

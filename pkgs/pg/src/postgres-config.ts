@@ -4,7 +4,7 @@
  * useful message instead of a confusing `pg_ctl` error later.
  */
 
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { DATA_DIR, resolveFromAppRoot } from './postgres-paths';
 
 export interface PostgresConfig {
@@ -48,7 +48,7 @@ export interface PgwebConfig {
   readonly port: number;
   /**
    * Optional absolute path to the `pgweb` binary. Defaults to PATH lookup with
-   * Homebrew prefixes as fallback (see `packages/pg/src/pg-gui.ts`).
+   * Homebrew prefixes as fallback (see `pkgs/pg/src/pg-gui.ts`).
    */
   readonly binaryOverride: string | null;
 }

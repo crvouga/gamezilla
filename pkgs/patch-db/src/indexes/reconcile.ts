@@ -9,8 +9,8 @@
  * own DDL tolerates today, so non-owner connections (e.g. an app role that did
  * not create `snapshots`) still boot rather than crash.
  */
-import type { Logger } from '@gamezilla/logger';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import type { Logger } from '@pkgs/logger';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { IndexDialect } from './dialect';
 import {
   normalizeIndexSpecs,

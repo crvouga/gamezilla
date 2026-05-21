@@ -1,5 +1,5 @@
-import { ConfirmationModal } from '@gamezilla/ui';
-import { useLogger } from '@gamezilla/logger/react';
+import { ConfirmationModal } from '@pkgs/ui';
+import { useLogger } from '@pkgs/logger/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 

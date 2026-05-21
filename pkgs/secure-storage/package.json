@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/secure-storage",
+  "name": "@pkgs/secure-storage",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -16,7 +16,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/assert": "workspace:*",
+    "@pkgs/assert": "workspace:*",
     "expo-secure-store": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:"

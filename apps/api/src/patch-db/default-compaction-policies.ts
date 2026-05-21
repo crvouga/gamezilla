@@ -1,7 +1,7 @@
 import {
   PatchDbCompactionPolicyRegistry,
   type PatchDbCompactionPolicy,
-} from '@gamezilla/patch-db/policy/compaction-policy';
+} from '@pkgs/patch-db/policy/compaction-policy';
 
 /** Per-entity-type chain compaction for gamezilla's domain. */
 export const GAMEZILLA_COMPACTION_POLICIES: Readonly<

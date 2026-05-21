@@ -1,4 +1,4 @@
 export type {
   ApiHonoEnv,
   HostedBetterAuth,
-} from '@gamezilla/auth/server/api-hono-env';
+} from '@libs/auth/server/api-hono-env';

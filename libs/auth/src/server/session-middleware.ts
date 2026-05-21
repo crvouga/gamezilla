@@ -1,12 +1,12 @@
-import { assertDeviceId } from '@gamezilla/auth/shared/device-id';
+import { assertDeviceId } from '@libs/auth/shared/device-id';
 import {
   appAuth,
   type AppAuthContext,
   type AppClientContext,
   buildAppAuthContext,
-} from '@gamezilla/auth/shared/auth-context';
-import { assert } from '@gamezilla/assert';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
+} from '@libs/auth/shared/auth-context';
+import { assert } from '@pkgs/assert';
+import type { PatchDb } from '@pkgs/patch-db/interface';
 import type { HostedBetterAuth } from './better-auth-create';
 import { buildAppAuthContextFromBearer } from './bearer-resolve';
 import type { AuthContext } from './types';

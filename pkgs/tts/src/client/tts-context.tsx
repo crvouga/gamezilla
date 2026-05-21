@@ -1,4 +1,4 @@
-import { useObjectStore } from '@gamezilla/object-store/react-context';
+import { useObjectStore } from '@pkgs/object-store/react-context';
 import {
   createContext,
   useCallback,
@@ -66,9 +66,9 @@ export type TtsProviderProps = {
  * `Voice` choice — the chess puzzle screen, for example, hard-codes
  * `Voices.David`.
  *
- * `apiUrl` should be the same origin the rest of your `@gamezilla/api` client
+ * `apiUrl` should be the same origin the rest of your `@apps/api` client
  * code already targets — typically resolved from the runtime config service
- * (see `useConfigService().getApiUrl()` in `packages/auth`).
+ * (see `useConfigService().getApiUrl()` in `libs/auth`).
  */
 export function TtsProvider({
   apiUrl,

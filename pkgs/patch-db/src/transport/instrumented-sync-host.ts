@@ -1,6 +1,6 @@
-import { assert } from '@gamezilla/assert';
-import { createLogger, type Logger } from '@gamezilla/logger';
-import type { PubSub } from '@gamezilla/pub-sub/interface';
+import { assert } from '@pkgs/assert';
+import { createLogger, type Logger } from '@pkgs/logger';
+import type { PubSub } from '@pkgs/pub-sub/interface';
 import {
   PATCHES_DB_INVALIDATED_TYPE,
   PATCHES_DB_TOPIC,

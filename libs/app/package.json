@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/app",
+  "name": "@libs/app",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -18,9 +18,9 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/chess": "workspace:*",
-    "@gamezilla/room": "workspace:*",
-    "@gamezilla/spaces": "workspace:*",
+    "@libs/chess": "workspace:*",
+    "@pkgs/room": "workspace:*",
+    "@libs/spaces": "workspace:*",
     "react": "catalog:"
   },
   "devDependencies": {

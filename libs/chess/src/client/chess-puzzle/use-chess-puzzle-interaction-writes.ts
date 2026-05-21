@@ -1,5 +1,5 @@
-import { useMyId } from '@gamezilla/auth/client/use-current-user';
-import { usePatchDb } from '@gamezilla/patch-db/react';
+import { useMyId } from '@libs/auth/client/use-current-user';
+import { usePatchDb } from '@pkgs/patch-db/react';
 import { useCallback } from 'react';
 
 import type {

@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 
 const SQL_IDENTIFIER_REGEX = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const SQL_PREFIX_REGEX = /^([A-Za-z_][A-Za-z0-9_]*\.)?$/;

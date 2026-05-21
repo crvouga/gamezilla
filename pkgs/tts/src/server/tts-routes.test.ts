@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
-import { ObjectStoreImplInMemory } from '@gamezilla/object-store/impl-in-memory';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import type { TtsSynthesizeResponse } from '../shared/tts-types';
 import { Voices } from '../shared/tts-voice';
 import { InMemoryTtsProvider } from './adapters/in-memory-tts-provider';

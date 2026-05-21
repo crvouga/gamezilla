@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/assistant",
+  "name": "@libs/assistant",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -20,7 +20,7 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@gamezilla/ui": "workspace:*",
+    "@pkgs/ui": "workspace:*",
     "react": "catalog:"
   },
   "devDependencies": {

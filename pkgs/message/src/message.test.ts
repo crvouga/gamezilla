@@ -1,6 +1,6 @@
-import { Assert } from '@gamezilla/assert';
+import { Assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { asKeyword, isNamespacedKeyword } from '@gamezilla/keyword/keyword';
+import { asKeyword, isNamespacedKeyword } from '@pkgs/keyword/keyword';
 import {
   acceptUnknownPayload,
   createMessageNamespace,

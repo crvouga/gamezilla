@@ -1,4 +1,4 @@
-import { useQuery } from '@gamezilla/patch-db/react';
+import { useQuery } from '@pkgs/patch-db/react';
 
 import { TODO_LIST_ENTITY_TYPE } from '../domain/todo-constants';
 import { todoListNotDeletedClause } from './todo-where-clauses';

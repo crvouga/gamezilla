@@ -7,11 +7,11 @@
  *
  * `DB_URL` must be `postgres://` or `postgresql://` (TCP Postgres).
  */
-import { SqlClientImplPg } from '@gamezilla/sql-client/impl-pg';
-import { sanitizePostgresUrlForNodePg } from '@gamezilla/sql-client/sanitize-postgres-url-for-node-pg';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import { SqlClientImplPg } from '@pkgs/sql-client/impl-pg';
+import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Pool } from 'pg';
-import type { PatchDbImplPostgres } from '@gamezilla/patch-db/impl-postgres/impl-postgres';
+import type { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from './script-secret-store';
 import { StripeSecretKeys } from './secret-keys';

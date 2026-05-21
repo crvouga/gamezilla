@@ -6,8 +6,8 @@ import {
   expect,
   test,
 } from 'bun:test';
-import { stopPGliteTestInstance } from '@gamezilla/postgres/pglite-test-instance';
-import { InMemoryPubSub } from '@gamezilla/pub-sub/impl-in-memory';
+import { stopPGliteTestInstance } from '@pkgs/postgres/pglite-test-instance';
+import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import { SqlClientImplBunSqlite } from './impl-bun-sqlite';
 import { SqlClientImplSqlJs } from './impl-sql-js';
 import { SqlClientWithPubSub } from './impl-with-pub-sub';

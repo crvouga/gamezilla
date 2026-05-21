@@ -3,9 +3,9 @@ import {
   SPACE_MEMBERSHIP_ENTITY_TYPE,
   SpaceAttr,
   SpaceMembershipAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
-import { PATCHES_DB_SYSTEM_CONTEXT } from '@gamezilla/patch-db/interface';
+} from '@libs/spaces/shared/space-entities';
+import type { PatchDb } from '@pkgs/patch-db/interface';
+import { PATCHES_DB_SYSTEM_CONTEXT } from '@pkgs/patch-db/interface';
 
 export async function loadMemberOfSpaceIds(
   db: PatchDb,

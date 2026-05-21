@@ -1,9 +1,9 @@
 /**
  * Tappable row inside {@link FloatingMenu}.
- * @internal Used only by {@link FloatingMenu}; not exported from `@gamezilla/ui`.
+ * @internal Used only by {@link FloatingMenu}; not exported from `@pkgs/ui`.
  */
 
-import type { LocalizedString } from '@gamezilla/i18n';
+import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 
 import { Box } from '../box';

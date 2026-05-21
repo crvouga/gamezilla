@@ -1,6 +1,6 @@
 /// <reference path="./absurd-sql-modules.d.ts" />
 
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 
 type WorkerOp =

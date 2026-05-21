@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { PROJECT_CONFIG } from '../../project-config';
 import { cleanupPagesDeployments } from '../lib/cloudflare-pages-deployments';
 import { ok, warn } from '../lib/fmt';

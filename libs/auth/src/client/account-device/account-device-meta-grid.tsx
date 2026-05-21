@@ -7,7 +7,7 @@ import { AccountDeviceModelText } from './account-device-model-text';
 import { AccountDeviceNameText } from './account-device-name-text';
 import { AccountDeviceOsText } from './account-device-os-text';
 import { AccountDevicePlatformText } from './account-device-platform-text';
-import { Box } from '@gamezilla/ui';
+import { Box } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

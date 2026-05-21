@@ -1,6 +1,6 @@
-import type { R2Bucket } from '@gamezilla/object-store/impl-r2';
-import type { SecretStore } from '@gamezilla/secret-store';
-import type { PatchDbApiConfig } from '@gamezilla/patch-db/api';
+import type { R2Bucket } from '@pkgs/object-store/impl-r2';
+import type { SecretStore } from '@pkgs/secret-store';
+import type { PatchDbApiConfig } from '@pkgs/patch-db/api';
 
 export type ApiHandlerConfig = {
   readonly secretStore: SecretStore;

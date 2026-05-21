@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { asKeyword } from '@gamezilla/keyword';
+import { asKeyword } from '@pkgs/keyword';
 import { PatchDbHookRegistry } from '../../hook-registry';
 import type { PatchDb, PatchDbQuery, PatchDbResult } from '../../interface';
 import { OPEN_PATCHES_DB_CONTEXT, toAttributeState } from '../../interface';

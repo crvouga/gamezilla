@@ -1,4 +1,4 @@
-import { OverflowMenuButton, type OverflowMenuAction } from '@gamezilla/ui';
+import { OverflowMenuButton, type OverflowMenuAction } from '@pkgs/ui';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useLingui } from '@lingui/react/macro';

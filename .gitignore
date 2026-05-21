@@ -40,15 +40,15 @@ yarn-error.*
 tmp/package-deps-graph.html
 
 # Lichess puzzle CSV cache (seed:puzzles)
-packages/chess/.cache/
+libs/chess/.cache/
 # Legacy Lichess cache location (kept ignored so old checkouts that still
-# have files under packages/api/.cache don't dirty the tree).
-packages/api/.cache/
+# have files under apps/api/.cache don't dirty the tree).
+apps/api/.cache/
 
-# Local PostgreSQL cluster + lifecycle artifacts (packages/pg)
-packages/pg/.postgres/
+# Local PostgreSQL cluster + lifecycle artifacts (pkgs/pg)
+pkgs/pg/.postgres/
 # Legacy PGlite data dir (kept ignored so old checkouts don't dirty the tree)
-packages/pg/.pglite/
+pkgs/pg/.pglite/
 
 # typescript
 *.tsbuildinfo

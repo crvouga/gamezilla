@@ -1,4 +1,4 @@
-import { createMessageNamespace, isPlainRecord } from '@gamezilla/message';
+import { createMessageNamespace, isPlainRecord } from '@pkgs/message';
 
 import type { ChessPuzzleOrientation } from './chess-puzzle-fsm';
 import {

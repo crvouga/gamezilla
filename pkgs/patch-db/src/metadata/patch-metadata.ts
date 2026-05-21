@@ -3,7 +3,7 @@
  * patch attributes JSON but excluded from entity snapshots by
  * implementations (via {@link PATCH_META_KEYS}).
  */
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { createAttrNamespace } from '@pkgs/attribute';
 
 function readPatchString(v: unknown): string {
   return typeof v === 'string' ? v : String(v ?? '');
@@ -35,7 +35,7 @@ export const PATCH_REJECT_CODE = {
   hook1: patchRejectNs('hook1', rejectCodeParse),
 } as const;
 
-/** Attribute tags from `@gamezilla/attribute` — single source of truth for patch meta wire strings. */
+/** Attribute tags from `@pkgs/attribute` — single source of truth for patch meta wire strings. */
 export const PatchMetaAttr = {
   createdById: patchMetaNs('created-by-id', readPatchString),
   sessionId: patchMetaNs('session-id', readPatchString),

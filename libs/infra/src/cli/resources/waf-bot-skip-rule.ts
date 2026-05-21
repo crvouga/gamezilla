@@ -1,4 +1,4 @@
-import { assert } from '@gamezilla/assert';
+import { assert } from '@pkgs/assert';
 import { PROJECT_CONFIG } from '../../project-config';
 import { info, ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
@@ -83,7 +83,7 @@ export class WafBotSkipRuleResource extends ResourceBase {
         headers,
         body: JSON.stringify({
           name: 'gamezilla zone custom WAF',
-          description: 'Managed by @gamezilla/infra',
+          description: 'Managed by @libs/infra',
           kind: 'zone',
           phase: PHASE,
           rules: [desiredRule],

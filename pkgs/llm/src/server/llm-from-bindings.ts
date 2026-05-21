@@ -1,4 +1,4 @@
-import type { SecretStore } from '@gamezilla/secret-store';
+import type { SecretStore } from '@pkgs/secret-store';
 import { OpenAiLlmProvider } from './adapters/openai-llm-provider';
 import {
   createLlmApp,

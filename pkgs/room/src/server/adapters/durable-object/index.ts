@@ -1,6 +1,6 @@
 /**
  * Cloudflare Workers Durable Object adapter — production room hosting on
- * Workers. Subpath import: `@gamezilla/room/server/adapters/durable-object`.
+ * Workers. Subpath import: `@pkgs/room/server/adapters/durable-object`.
  *
  * The factory returns a DO class wired to the {@link RoomServer} engine
  * with a KV-backed {@link DurableObjectRoomStorage}. Bind it via

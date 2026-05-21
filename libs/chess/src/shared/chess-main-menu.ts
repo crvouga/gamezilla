@@ -1,10 +1,10 @@
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { createAttrNamespace } from '@pkgs/attribute';
 import {
   createMessageNamespace,
   createMessageRouter,
   isPlainRecord,
-} from '@gamezilla/message';
-import type { HandleResult, RoomState } from '@gamezilla/room';
+} from '@pkgs/message';
+import type { HandleResult, RoomState } from '@pkgs/room';
 
 export const CHESS_SCREEN = {
   root: 'root',

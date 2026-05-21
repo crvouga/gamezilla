@@ -1,6 +1,6 @@
 import { PROFILE_ENTITY_TYPE } from '../shared/profile-entities';
-import type { Entity } from '@gamezilla/patch-db/interface';
-import { useQuery } from '@gamezilla/patch-db/react';
+import type { Entity } from '@pkgs/patch-db/interface';
+import { useQuery } from '@pkgs/patch-db/react';
 
 /**
  * Reads a single profile entity by id. Used by editors that need to seed

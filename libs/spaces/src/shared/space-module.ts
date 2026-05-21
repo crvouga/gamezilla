@@ -2,7 +2,7 @@ import {
   createComposedMessageRouter,
   isMessageEnvelope,
   type Message,
-} from '@gamezilla/message';
+} from '@pkgs/message';
 import {
   ROOM_ERROR_TYPE,
   type HandleResult,
@@ -11,7 +11,7 @@ import {
   type RoomModule,
   type RoomModuleName,
   type RoomState,
-} from '@gamezilla/room';
+} from '@pkgs/room';
 
 import {
   counterCmdNs,
@@ -69,8 +69,8 @@ function buildInitialState(games: readonly GameDefinition[]): RoomState {
 
 /**
  * Builds the composed real-time state module for a space, given a registry
- * of games. The composition root (`packages/api/src/api.ts`) supplies the
- * registry; `@gamezilla/spaces` never imports a specific game module.
+ * of games. The composition root (`apps/api/src/api.ts`) supplies the
+ * registry; `@libs/spaces` never imports a specific game module.
  *
  * Adding a new game means dropping a `GameDefinition` into the registry —
  * this factory's body never changes.

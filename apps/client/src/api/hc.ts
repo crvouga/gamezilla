@@ -1,5 +1,5 @@
-import { createApiRpcClient } from '@gamezilla/api/rpc';
-import { assertTigerPolicyForResolvedApiOrigin } from '@gamezilla/client/config/api-servers';
+import { createApiRpcClient } from '@apps/api/rpc';
+import { assertTigerPolicyForResolvedApiOrigin } from '@apps/client/config/api-servers';
 
 /**
  * Typed Hono RPC client for the gamezilla API Worker. Base URL must be the API

@@ -276,7 +276,7 @@ function spawnExpo(passthrough: string[]): ChildProcess {
 async function main(): Promise<void> {
   if (process.platform !== 'darwin') {
     process.stderr.write(
-      '[ios-dev] iOS Simulator is only supported on macOS. Use `bun run --filter @gamezilla/client web` instead.\n'
+      '[ios-dev] iOS Simulator is only supported on macOS. Use `bun run --filter @apps/client web` instead.\n'
     );
     process.exit(1);
   }

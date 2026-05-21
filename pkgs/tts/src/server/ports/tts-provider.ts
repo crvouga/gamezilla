@@ -22,7 +22,7 @@ export interface TtsSynthesizeOutput {
 
 /**
  * Pluggable text-to-speech backend. The only abstraction owned by this package;
- * storage is consumed via {@link @gamezilla/object-store/interface ObjectStore}.
+ * storage is consumed via {@link @pkgs/object-store/interface ObjectStore}.
  *
  * `id` participates in the cache key so swapping providers (e.g. elevenlabs
  * → openai) cannot serve stale audio synthesised by the previous provider for

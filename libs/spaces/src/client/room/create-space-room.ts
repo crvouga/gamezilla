@@ -1,15 +1,15 @@
-import type { Kv } from '@gamezilla/kv/interface';
+import type { Kv } from '@pkgs/kv/interface';
 import {
   Room,
   type RoomCommandPayload,
   type RoomEvent,
   type RoomState,
-} from '@gamezilla/room';
+} from '@pkgs/room';
 import {
   KeyValueClientRoomStorage,
   keyValueRoomClientKeywords,
-} from '@gamezilla/room/client/adapters/storage/key-value';
-import { WebSocketRoomTransport } from '@gamezilla/room/client/adapters/transport/websocket';
+} from '@pkgs/room/client/adapters/storage/key-value';
+import { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
 
 import type { SpaceRoomModule } from '../module/space-module-context';
 import { apiUrlToRoomWebSocketUrl } from './space-room-url';
@@ -20,7 +20,7 @@ export type CreateSpaceRoomParams = {
   /**
    * Composed space {@link RoomModule}, constructed by the composition root
    * via `createSpaceModule(name, [...])`. Threaded in (rather than imported here)
-   * so `@gamezilla/spaces` stays game-agnostic.
+   * so `@libs/spaces` stays game-agnostic.
    */
   module: SpaceRoomModule;
   /**

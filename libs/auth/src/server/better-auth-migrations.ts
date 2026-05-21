@@ -5,7 +5,7 @@
  * `kysely.destroy()` cannot end a pool the caller still owns —
  * `pg.Pool.end()` throws on a second call.
  */
-import { sanitizePostgresUrlForNodePg } from '@gamezilla/sql-client/sanitize-postgres-url-for-node-pg';
+import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
 import type { BetterAuthOptions } from 'better-auth';
 import { getMigrations } from 'better-auth/db/migration';
 import { Kysely, PostgresDialect } from 'kysely';

@@ -1,11 +1,11 @@
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { createAttrNamespace } from '@pkgs/attribute';
 import {
   createMessageNamespace,
   createMessageRouter,
   isPlainRecord,
   type MessageRouter,
-} from '@gamezilla/message';
-import type { HandleResult, RoomState } from '@gamezilla/room';
+} from '@pkgs/message';
+import type { HandleResult, RoomState } from '@pkgs/room';
 
 function validateEmptyPayload(p: unknown): p is Record<string, never> {
   return isPlainRecord(p) && Object.keys(p).length === 0;

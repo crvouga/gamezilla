@@ -1,5 +1,5 @@
 /**
- * Server-side facade for `@gamezilla/tts`. Hosts that just want to mount the
+ * Server-side facade for `@pkgs/tts`. Hosts that just want to mount the
  * pre-wired ElevenLabs+R2 setup should import from here.
  */
 export {

@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/assert';
-import { asKeyword } from '@gamezilla/keyword';
+import { assert } from '@pkgs/assert';
+import { asKeyword } from '@pkgs/keyword';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { PatchDb } from '../interface';
 import { PATCH_SYNCED_AT, toAttributeState } from '../interface';

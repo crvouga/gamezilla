@@ -1,12 +1,12 @@
 import {
   useSignInModal,
   useSignOutModal,
-} from '@gamezilla/auth/client/auth-modals-provider';
-import { useIsSignedIn } from '@gamezilla/auth/client/use-current-user';
-import { useServerStatus } from '@gamezilla/client/connection/use-server-status';
-import { useLogger } from '@gamezilla/logger/react';
-import { useAsync } from '@gamezilla/async/use-async';
-import { Box, StatusDot, Text, type ScreenBaseAction } from '@gamezilla/ui';
+} from '@libs/auth/client/auth-modals-provider';
+import { useIsSignedIn } from '@libs/auth/client/use-current-user';
+import { useServerStatus } from '@apps/client/connection/use-server-status';
+import { useLogger } from '@pkgs/logger/react';
+import { useAsync } from '@pkgs/async/use-async';
+import { Box, StatusDot, Text, type ScreenBaseAction } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';

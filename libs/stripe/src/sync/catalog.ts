@@ -8,7 +8,7 @@
  * Idempotent: identifies products by `metadata.catalog_product_id` and prices
  * by `lookup_key`; archives drifted prices and recreates with `transfer_lookup_key`.
  */
-import type { PatchDb } from '@gamezilla/patch-db/interface';
+import type { PatchDb } from '@pkgs/patch-db/interface';
 import type Stripe from 'stripe';
 import { STRIPE_CATALOG_SPEC } from '../catalog-spec';
 import {

@@ -1,12 +1,12 @@
-import { DefineBackButton } from '@gamezilla/spaces/client/nav/spaces-nav-context';
+import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@gamezilla/spaces/client/room/use-space-room-selector';
+} from '@libs/spaces/client/room/use-space-room-selector';
 import {
   MainMenuScreen,
   type MainMenuItem,
-} from '@gamezilla/ui/components/main-menu-screen';
+} from '@pkgs/ui/components/main-menu-screen';
 import { Trans } from '@lingui/react/macro';
 import { useMemo, type ReactNode } from 'react';
 import {
@@ -53,11 +53,11 @@ function ChessScreenSwitch({ onBackToGames }: ChessMainMenuProps): ReactNode {
  * mount reads it synchronously via the runtime singleton (no Suspense flash).
  *
  * Bootstrap is mounted here — the highest point inside the chess package —
- * to keep `@gamezilla/client` decoupled from any feature package; the only
+ * to keep `@apps/client` decoupled from any feature package; the only
  * cross-package responsibility at the app root is `SkiaWebRoot`.
  *
  * `onBackToGames` is supplied by the games registry host
- * (`<GamesMainMenu>` in `@gamezilla/spaces`) so chess never has to import
+ * (`<GamesMainMenu>` in `@libs/spaces`) so chess never has to import
  * the spaces-specific `SelectGame` command.
  */
 export function ChessMainMenu({

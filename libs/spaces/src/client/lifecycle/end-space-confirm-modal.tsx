@@ -1,4 +1,4 @@
-import { ConfirmationModal } from '@gamezilla/ui';
+import { ConfirmationModal } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 

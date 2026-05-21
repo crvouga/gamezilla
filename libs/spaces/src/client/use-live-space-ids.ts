@@ -1,8 +1,8 @@
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { useQueryEntityIds } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { useQueryEntityIds } from '@pkgs/patch-db/react';
 
 /**
  * Ids of every live (non-ended) space, ordered newest-first.

@@ -5,7 +5,7 @@ import {
   BackIconButton,
   Box,
   type MainMenuItem,
-} from '@gamezilla/ui';
+} from '@pkgs/ui';
 import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Trans, useLingui } from '@lingui/react/macro';

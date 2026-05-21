@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/assert';
-import { COMMIT_HASH_HEX_REGEX } from '@gamezilla/git';
+import { assert } from '@pkgs/assert';
+import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { PROJECT_CONFIG } from '../../project-config';
@@ -45,7 +45,7 @@ export class ClientResource extends ResourceBase {
     const outputs = infraOutputs(ctx);
     const pagesProject = outputs.pages_project_name;
 
-    const clientDir = join(REPO_ROOT, 'packages/client');
+    const clientDir = join(REPO_ROOT, 'apps/client');
 
     await runAsync(platform, 'bun', ['run', 'build'], {
       cwd: clientDir,
@@ -77,7 +77,7 @@ export class ClientResource extends ResourceBase {
       }
     );
 
-    rmSync(join(REPO_ROOT, 'packages/client/dist'), {
+    rmSync(join(REPO_ROOT, 'apps/client/dist'), {
       recursive: true,
       force: true,
     });

@@ -1,16 +1,16 @@
 /**
- * Public surface of `@gamezilla/matchmaking`. This file IS the contract.
+ * Public surface of `@pkgs/matchmaking`. This file IS the contract.
  *
  * Three subpath imports exist and three are intended for consumers:
  *
- *   - `@gamezilla/matchmaking` (this file) — the `Matchmaking` class,
+ *   - `@pkgs/matchmaking` (this file) — the `Matchmaking` class,
  *     the HTTP client, the public types. Everything 99% of embedders
  *     need.
- *   - `@gamezilla/matchmaking/storage` — `SqlClient` plus the two
+ *   - `@pkgs/matchmaking/storage` — `SqlClient` plus the two
  *     adapters (`createPgSqlClient`, `createPgliteSqlClient`) for
  *     embedders that need to thread their own per-request `pg.Client`
  *     instead of relying on `Matchmaking.fromPool`.
- *   - `@gamezilla/matchmaking/wire` — `FormulaWire` types for HTTP /
+ *   - `@pkgs/matchmaking/wire` — `FormulaWire` types for HTTP /
  *     RPC consumers that need to validate JSON without `AttributeTag`s.
  *
  * The package `exports` map in `package.json` enforces this at the
@@ -20,7 +20,7 @@
  *
  * Typical embedder usage:
  *
- *   import { Matchmaking, createAttrNamespace } from '@gamezilla/matchmaking';
+ *   import { Matchmaking, createAttrNamespace } from '@pkgs/matchmaking';
  *
  *   const ns = createAttrNamespace('chess');
  *   const rating = ns('rating', (v) => (typeof v === 'number' ? v : 0));
@@ -76,10 +76,10 @@ export {
 } from './types';
 
 /**
- * Re-exported from `@gamezilla/attribute` for the common case of
+ * Re-exported from `@pkgs/attribute` for the common case of
  * building an attribute namespace alongside a `Matchmaking` boot.
  * Consumers who need more attribute helpers should depend on
- * `@gamezilla/attribute` directly — this single function is the only
+ * `@pkgs/attribute` directly — this single function is the only
  * one intentionally surfaced through the matchmaking barrel.
  */
-export { createAttrNamespace } from '@gamezilla/attribute';
+export { createAttrNamespace } from '@pkgs/attribute';

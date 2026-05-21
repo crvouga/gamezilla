@@ -1,8 +1,8 @@
-import type { Keyword } from '@gamezilla/keyword';
-import { assert } from '@gamezilla/assert';
-import type { Logger } from '@gamezilla/logger';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
-import { assertWhereFragment } from '@gamezilla/sqlite';
+import type { Keyword } from '@pkgs/keyword';
+import { assert } from '@pkgs/assert';
+import type { Logger } from '@pkgs/logger';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { assertWhereFragment } from '@pkgs/sqlite';
 import { PatchDbHookRegistry } from '../hook-registry';
 import type { PatchRow } from '../impl-sqlite/types';
 import type {

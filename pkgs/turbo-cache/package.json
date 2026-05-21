@@ -1,15 +1,16 @@
 {
-  "name": "@gamezilla/turbo-cache",
+  "name": "@pkgs/turbo-cache",
   "version": "1.0.0",
   "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
-    "dev": "wrangler dev --port 8787 --inspector-port 9230",
     "lint": "eslint src --max-warnings 0",
-    "setup": "bun -e \"process.exit(0)\"",
-    "tc": "tsc --noEmit -p ../../tsconfig.json"
+    "tc": "tsc --noEmit -p ./tsconfig.json"
   },
   "dependencies": {
-    "@gamezilla/logger": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "hono": "catalog:"
   },
   "devDependencies": {

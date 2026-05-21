@@ -1,4 +1,4 @@
-import type { Kv } from '@gamezilla/kv/interface';
+import type { Kv } from '@pkgs/kv/interface';
 import { Hono } from 'hono';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import {

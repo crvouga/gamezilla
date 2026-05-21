@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/postgres",
+  "name": "@pkgs/postgres",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -17,7 +17,7 @@
   "dependencies": {
     "@electric-sql/pglite": "catalog:",
     "@electric-sql/pglite-socket": "catalog:",
-    "@gamezilla/assert": "workspace:*"
+    "@pkgs/assert": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

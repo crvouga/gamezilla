@@ -1,4 +1,4 @@
-import type { ConfigService } from '@gamezilla/auth/client/config-service-types';
+import type { ConfigService } from '@libs/auth/client/config-service-types';
 
 import { getApiBaseUrl } from './api-servers';
 

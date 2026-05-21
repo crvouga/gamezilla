@@ -1,5 +1,5 @@
-import type { Message } from '@gamezilla/message';
-import type { RoomModule, RoomState } from '@gamezilla/room';
+import type { Message } from '@pkgs/message';
+import type { RoomModule, RoomState } from '@pkgs/room';
 import { createContext, useContext, type ReactNode } from 'react';
 
 export type SpaceRoomModule = RoomModule<RoomState, Message, Message, string>;
@@ -22,7 +22,7 @@ export type SpaceModuleProviderProps = {
  * </SpaceModuleProvider>
  * ```
  *
- * Keeps `@gamezilla/spaces` ignorant of any specific game and lets the
+ * Keeps `@libs/spaces` ignorant of any specific game and lets the
  * composition root own the full game registry.
  */
 export function SpaceModuleProvider({

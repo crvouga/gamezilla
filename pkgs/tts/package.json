@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/tts",
+  "name": "@pkgs/tts",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -24,9 +24,9 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/assert": "workspace:*",
-    "@gamezilla/object-store": "workspace:*",
-    "@gamezilla/secret-store": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "expo-audio": "catalog:",

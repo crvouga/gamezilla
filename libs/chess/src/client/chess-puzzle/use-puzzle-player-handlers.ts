@@ -1,4 +1,4 @@
-import { useSpaceRoomDispatch } from '@gamezilla/spaces/client/room/use-space-room-selector';
+import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
 import { useCallback } from 'react';
 import {
   CHESS_SCREEN,

@@ -1,4 +1,4 @@
-import { useStackProps } from '@gamezilla/ui';
+import { useStackProps } from '@pkgs/ui';
 import { Stack } from 'expo-router';
 
 export default function ProfileStackLayout() {

@@ -9,6 +9,6 @@
     "outDir": "dist",
     "baseUrl": "."
   },
-  "include": ["../ts-reset/src/index.ts", "src/**/*.ts"],
+  "include": ["../../pkgs/ts-reset/src/index.ts", "src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

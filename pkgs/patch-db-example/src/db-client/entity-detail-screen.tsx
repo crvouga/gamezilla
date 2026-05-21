@@ -10,9 +10,9 @@ import {
   Stack,
   Text,
   useTheme,
-} from '@gamezilla/ui';
-import type { Entity, Patch } from '@gamezilla/patch-db/interface';
-import { usePatchDb, useQueryOne } from '@gamezilla/patch-db/react';
+} from '@pkgs/ui';
+import type { Entity, Patch } from '@pkgs/patch-db/interface';
+import { usePatchDb, useQueryOne } from '@pkgs/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

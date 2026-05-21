@@ -1,4 +1,4 @@
-import { useEntityAttribute } from '@gamezilla/patch-db/react';
+import { useEntityAttribute } from '@pkgs/patch-db/react';
 
 import {
   CHESS_PUZZLE_PROFILE_ENTITY_TYPE,

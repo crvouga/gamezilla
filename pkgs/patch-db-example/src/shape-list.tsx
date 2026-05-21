@@ -1,6 +1,6 @@
-import { Box, Button, Stack, Text } from '@gamezilla/ui';
-import { useTheme } from '@gamezilla/ui/theme';
-import type { Entity } from '@gamezilla/patch-db/interface';
+import { Box, Button, Stack, Text } from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui/theme';
+import type { Entity } from '@pkgs/patch-db/interface';
 import { useLingui } from '@lingui/react/macro';
 import { IconPlus } from './icons';
 import { ShapeRow } from './shape-row';

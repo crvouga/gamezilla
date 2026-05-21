@@ -7,12 +7,12 @@ import {
   Text,
   TextInput,
   useTheme,
-} from '@gamezilla/ui';
+} from '@pkgs/ui';
 import type {
   PatchDbQuery,
   PatchDbQueryWhereClause,
-} from '@gamezilla/patch-db/interface';
-import { usePatchDb } from '@gamezilla/patch-db/react';
+} from '@pkgs/patch-db/interface';
+import { usePatchDb } from '@pkgs/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { useWindowDimensions } from 'react-native';

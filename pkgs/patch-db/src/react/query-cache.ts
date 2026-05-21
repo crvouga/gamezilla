@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/assert';
-import type { Unsubscribe } from '@gamezilla/pub-sub/interface';
+import { assert } from '@pkgs/assert';
+import type { Unsubscribe } from '@pkgs/pub-sub/interface';
 import type { PatchDbQuery } from '../interface';
 import type { SubscribablePatchDbLike } from '../subscribable';
 import {

@@ -1,11 +1,11 @@
-import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@gamezilla/auth/shared';
+import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@libs/auth/shared';
 import {
   type AppAuthContext,
   buildAppAuthContext,
-} from '@gamezilla/auth/shared/auth-context';
-import { createLogger } from '@gamezilla/logger';
-import type { PatchDb } from '@gamezilla/patch-db/interface';
-import { PatchMetaAttr } from '@gamezilla/patch-db/metadata/patch-metadata';
+} from '@libs/auth/shared/auth-context';
+import { createLogger } from '@pkgs/logger';
+import type { PatchDb } from '@pkgs/patch-db/interface';
+import { PatchMetaAttr } from '@pkgs/patch-db/metadata/patch-metadata';
 import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
 import { Hono } from 'hono';

@@ -1,6 +1,6 @@
-import { Box, Text } from '@gamezilla/ui';
-import { SYNC_ERROR_TOPIC } from '@gamezilla/patch-db/impl-sync';
-import { usePubSub } from '@gamezilla/patch-db/react';
+import { Box, Text } from '@pkgs/ui';
+import { SYNC_ERROR_TOPIC } from '@pkgs/patch-db/impl-sync';
+import { usePubSub } from '@pkgs/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Platform, Pressable } from 'react-native';

@@ -3,14 +3,14 @@ import {
   type RoomState,
   useRoomDispatch,
   useRoomSelector,
-} from '@gamezilla/room';
+} from '@pkgs/room';
 
 import { SPACE_ROOM_MODULE_NAME } from '../../shared/space-room-module-name';
 
 /**
  * Registry key for the primary collaborative room in a space session.
  *
- * Colocated with the `useSpaceRoom*` hooks so the `@gamezilla/room` engine
+ * Colocated with the `useSpaceRoom*` hooks so the `@pkgs/room` engine
  * stays domain-agnostic (it knows nothing about "spaces"). Every game plugin
  * that wants to read or dispatch on the space room reaches in via the hooks
  * below, never via this literal directly.

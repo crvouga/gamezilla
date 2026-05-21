@@ -1,5 +1,5 @@
-import { assert } from '@gamezilla/assert';
-import type { SqlClient } from '@gamezilla/sql-client/interface';
+import { assert } from '@pkgs/assert';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PatchRow } from './impl-sqlite/types';
 
 const SQL_LINK_COMPACTION_TO_FIRST_KEPT = `UPDATE patches SET parent_id = ? WHERE patch_id = ?`;

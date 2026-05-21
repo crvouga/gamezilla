@@ -23,7 +23,7 @@ export async function exitUnlessApiHealthy(
     await Bun.sleep(500);
   }
   console.error(
-    `[${STRIPE_CLI_LOG_TAG}] Timed out waiting for ${url} (${String(timeoutMs)}ms). Last error: ${lastErr ?? 'unknown'}. Start @gamezilla/api dev first.`
+    `[${STRIPE_CLI_LOG_TAG}] Timed out waiting for ${url} (${String(timeoutMs)}ms). Last error: ${lastErr ?? 'unknown'}. Start @apps/api dev first.`
   );
   process.exit(1);
 }

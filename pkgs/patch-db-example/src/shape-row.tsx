@@ -1,7 +1,7 @@
-import { Box, IconButton, Stack, Text, useTheme } from '@gamezilla/ui';
-import Svg, { Polygon } from '@gamezilla/ui/svg';
-import type { Entity } from '@gamezilla/patch-db/interface';
-import { SHAPE_ATTR } from '@gamezilla/patch-db/sim/playground-shapes';
+import { Box, IconButton, Stack, Text, useTheme } from '@pkgs/ui';
+import Svg, { Polygon } from '@pkgs/ui/svg';
+import type { Entity } from '@pkgs/patch-db/interface';
+import { SHAPE_ATTR } from '@pkgs/patch-db/sim/playground-shapes';
 import { IconShuffle, IconTrash } from './icons';
 
 function ReorderButton({

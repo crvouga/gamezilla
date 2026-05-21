@@ -1,7 +1,7 @@
 import { StylePickerStrip } from './avatar-editor-style-picker-strip';
 import { styleLabel, type StyleKey } from './dicebear-styles';
 import type { AvatarConfig } from '../shared/avatar-config';
-import { ResponsiveSurface, Text } from '@gamezilla/ui';
+import { ResponsiveSurface, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 
 import { TriggerRow } from './avatar-editor-trigger-row';

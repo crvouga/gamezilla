@@ -1,6 +1,6 @@
 import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
 import type { AvatarConfig } from '../shared/avatar-config';
-import { Box, Button, Text } from '@gamezilla/ui';
+import { Box, Button, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 
 export function AvatarPreview({

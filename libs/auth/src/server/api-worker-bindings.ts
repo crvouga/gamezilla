@@ -1,9 +1,9 @@
-import type { R2Bucket } from '@gamezilla/object-store/impl-r2';
+import type { R2Bucket } from '@pkgs/object-store/impl-r2';
 
 /**
  * Worker `Bindings` shape for `ApiHonoEnv`. Duplicated from
- * `packages/api/src/config/env.ts` (`ApiWorkerEnv`) so `@gamezilla/auth` does not
- * depend on `@gamezilla/api` (avoids a package cycle). Keep fields in sync.
+ * `apps/api/src/config/env.ts` (`ApiWorkerEnv`) so `@libs/auth` does not
+ * depend on `@apps/api` (avoids a package cycle). Keep fields in sync.
  */
 export type HyperdriveBinding = {
   readonly connectionString: string;

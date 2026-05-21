@@ -11,14 +11,10 @@ test(
   async () => {
     const LOCAL_API_ORIGIN = await resolveLocalApiOrigin();
 
-    await runPackageScriptOnce('@gamezilla/api', 'kill', {});
-    await runPackageScriptOnce('@gamezilla/api', 'setup', {});
+    await runPackageScriptOnce('@apps/api', 'kill', {});
+    await runPackageScriptOnce('@apps/api', 'setup', {});
 
-    await using api = startPackageScriptBackground(
-      '@gamezilla/api',
-      'preview',
-      {}
-    );
+    await using api = startPackageScriptBackground('@apps/api', 'preview', {});
     await waitForHttpOk(`${LOCAL_API_ORIGIN}/health`, {
       timeoutMs: 120_000,
       label: 'api /health',

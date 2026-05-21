@@ -1,4 +1,4 @@
-import { asKeyword } from '@gamezilla/keyword';
+import { asKeyword } from '@pkgs/keyword';
 import type {
   Entity,
   PatchDbQuery,

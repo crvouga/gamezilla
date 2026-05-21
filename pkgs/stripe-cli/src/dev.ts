@@ -4,8 +4,8 @@
  *
  * Run from monorepo root (`bun run dev` / turbo) so Doppler project scope matches.
  */
-import { createDopplerSecretStoreForScripts } from '@gamezilla/secret-store';
-import { StripeSecretKeys } from '@gamezilla/stripe/secret-keys';
+import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
+import { StripeSecretKeys } from '@libs/stripe/secret-keys';
 import { exitUnlessLocalApiUrl } from './api-url-guard';
 import { STRIPE_CLI_LOG_TAG } from './constants';
 import {

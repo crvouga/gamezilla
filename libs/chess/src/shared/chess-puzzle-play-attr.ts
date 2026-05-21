@@ -1,4 +1,4 @@
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { createAttrNamespace } from '@pkgs/attribute';
 
 import type { ChessPuzzleOrientation } from './chess-puzzle-fsm';
 

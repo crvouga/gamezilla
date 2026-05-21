@@ -1,6 +1,6 @@
 import { hc, type ApplyGlobalResponse } from 'hono/client';
 
-import type { AppType } from '@gamezilla/api/rpc';
+import type { AppType } from '@apps/api/rpc';
 
 type WithGlobalApiErrors<TAppType> = ApplyGlobalResponse<
   TAppType,
@@ -12,8 +12,8 @@ type WithGlobalApiErrors<TAppType> = ApplyGlobalResponse<
 
 /**
  * Typed Hono RPC client for the gamezilla API. Duplicates the shape of
- * `@gamezilla/api/rpc` so this package does not take a **value** dependency on
- * `@gamezilla/api` (avoids `api` ↔ `client-config` package cycles — `api`
+ * `@apps/api/rpc` so this package does not take a **value** dependency on
+ * `@apps/api` (avoids `api` ↔ `client-config` package cycles — `api`
  * mounts `client-config`). `import type { AppType }` is type-only.
  */
 export function createTypedApiRpcClient(apiUrl: string) {

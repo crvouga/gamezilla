@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 
-import { DEVICE_ENTITY_TYPE } from '@gamezilla/auth/shared';
+import { DEVICE_ENTITY_TYPE } from '@libs/auth/shared';
 import { resolveAccountIdFromBearer } from './bearer-resolve';
 import { ANON_ID_HEADER } from './session-middleware';
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';

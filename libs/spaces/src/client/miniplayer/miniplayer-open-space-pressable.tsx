@@ -1,4 +1,4 @@
-import { Pressable } from '@gamezilla/ui';
+import { Pressable } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';

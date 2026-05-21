@@ -8,7 +8,7 @@
  *
  * Reads `TURBO_TOKEN` from the Doppler `prod` config (same as
  * `bun run infra deploy`'s `syncTurboToken()` in
- * `packages/infra/src/cli/resources/turbo-cache.ts`).
+ * `libs/infra/src/cli/resources/turbo-cache.ts`).
  */
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';

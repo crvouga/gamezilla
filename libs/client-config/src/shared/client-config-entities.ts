@@ -1,4 +1,4 @@
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { createAttrNamespace } from '@pkgs/attribute';
 
 export const clientConfigNs = createAttrNamespace('client-config');
 

@@ -4,7 +4,7 @@
  * helper line shows “Copied” feedback then resets.
  */
 
-import type { LocalizedString } from '@gamezilla/i18n';
+import type { LocalizedString } from '@pkgs/i18n';
 import { useLingui } from '@lingui/react/macro';
 import * as Clipboard from 'expo-clipboard';
 import {

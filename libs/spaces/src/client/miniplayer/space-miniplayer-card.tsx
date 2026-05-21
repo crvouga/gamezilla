@@ -5,7 +5,7 @@ import { MiniplayerOpenSpacePressable } from './miniplayer-open-space-pressable'
 import { MiniplayerSpaceTitle } from './miniplayer-space-title';
 import { SpaceEndOrLeaveButton } from '../lifecycle/space-end-or-leave-button';
 import { SpaceHostAvatar } from '../members/space-host-avatar';
-import { Box, elevation, GradientBox, Text, useTheme } from '@gamezilla/ui';
+import { Box, elevation, GradientBox, Text, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export type SpaceMiniplayerCardProps = {

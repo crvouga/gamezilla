@@ -20,8 +20,8 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
-import { assert } from '@gamezilla/assert';
-import type { Logger } from '@gamezilla/logger';
+import { assert } from '@pkgs/assert';
+import type { Logger } from '@pkgs/logger';
 import type { PostgresConfig } from './postgres-config';
 import type { ResolvedBinaries } from './postgres-binaries';
 

@@ -1,10 +1,10 @@
-import { assert } from '@gamezilla/assert';
-import { createLogger } from '@gamezilla/logger';
-import { createDopplerSecretStoreForScripts } from '@gamezilla/secret-store';
-import { SqlClientImplPg } from '@gamezilla/sql-client/impl-pg';
-import { sanitizePostgresUrlForNodePg } from '@gamezilla/sql-client/sanitize-postgres-url-for-node-pg';
+import { assert } from '@pkgs/assert';
+import { createLogger } from '@pkgs/logger';
+import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
+import { SqlClientImplPg } from '@pkgs/sql-client/impl-pg';
+import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
 import { Pool } from 'pg';
-import { loadBetterAuthOptionsForMigration } from '@gamezilla/auth/server/better-auth-doppler-options';
+import { loadBetterAuthOptionsForMigration } from '@libs/auth/server/better-auth-doppler-options';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
 
 async function main(): Promise<void> {

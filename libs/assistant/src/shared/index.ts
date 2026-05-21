@@ -1,6 +1,6 @@
 /**
- * @gamezilla/assistant — public facade. Import only `@gamezilla/assistant/shared`
- * or `@gamezilla/assistant/client`. Implementation lives under `_internal/`.
+ * @libs/assistant — public facade. Import only `@libs/assistant/shared`
+ * or `@libs/assistant/client`. Implementation lives under `_internal/`.
  */
 export { createAssistant } from './_internal/engine';
 export type { Assistant, AssistantConfig } from './_internal/engine';

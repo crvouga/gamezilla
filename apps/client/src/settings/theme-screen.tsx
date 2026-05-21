@@ -1,11 +1,11 @@
-import { useBreadcrumbNav } from '@gamezilla/client/ui/use-breadcrumb-nav';
+import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
 import {
   Box,
   ScreenBase,
   SegmentedControl,
   Text,
   useThemePreference,
-} from '@gamezilla/ui';
+} from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 
 export function ThemeSettingsScreen() {

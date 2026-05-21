@@ -22,14 +22,14 @@ import { Assert } from './assert';
  *
  * **Usage.**
  * ```ts
- * import { hotAssert } from '@gamezilla/assert';
- * import { assertKeywordRecord } from '@gamezilla/keyword';
+ * import { hotAssert } from '@pkgs/assert';
+ * import { assertKeywordRecord } from '@pkgs/keyword';
  *
  * // hot path: per-dispatch / per-frame
  * assertKeywordRecord(hotAssert(), state, 'room.fold');
  *
  * // cold path: bootstrap / trust boundary
- * import { assert } from '@gamezilla/assert';
+ * import { assert } from '@pkgs/assert';
  * assertKeywordRecord(assert, persistedBlob, 'storage.parse');
  * ```
  */

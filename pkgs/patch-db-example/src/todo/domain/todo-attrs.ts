@@ -1,4 +1,4 @@
-import { createAttrNamespace } from '@gamezilla/attribute';
+import { createAttrNamespace } from '@pkgs/attribute';
 
 const todoListItemNs = createAttrNamespace('todo-list-item');
 const todoListNs = createAttrNamespace('todo-list');

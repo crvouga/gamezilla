@@ -1,6 +1,6 @@
-import { DefineBackButton } from '@gamezilla/spaces/client/nav/spaces-nav-context';
-import { useSpaceRoomDispatch } from '@gamezilla/spaces/client/room/use-space-room-selector';
-import { Box, ExplorerList } from '@gamezilla/ui';
+import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
+import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
+import { Box, ExplorerList } from '@pkgs/ui';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import {
   CHESS_SCREEN,

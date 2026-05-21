@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { asKeyword } from '@gamezilla/keyword';
+import { asKeyword } from '@pkgs/keyword';
 import { normalizeIndexSpec } from '../indexes/index-spec';
 import {
   postgresDdlCreate,

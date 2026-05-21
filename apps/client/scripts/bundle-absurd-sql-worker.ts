@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const clientRoot = join(__dirname, '..');
 const repoRoot = join(clientRoot, '..', '..');
-const entry = join(repoRoot, 'packages/sql-client/src/absurd-sql-db.worker.ts');
+const entry = join(repoRoot, 'pkgs/sql-client/src/absurd-sql-db.worker.ts');
 const outDir = join(
   clientRoot,
   'public',

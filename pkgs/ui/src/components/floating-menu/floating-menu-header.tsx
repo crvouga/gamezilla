@@ -1,6 +1,6 @@
 /**
  * Header block inside {@link FloatingMenu} (title + optional subtitle).
- * @internal Used only by {@link FloatingMenu}; not exported from `@gamezilla/ui`.
+ * @internal Used only by {@link FloatingMenu}; not exported from `@pkgs/ui`.
  */
 
 import type { ReactNode } from 'react';

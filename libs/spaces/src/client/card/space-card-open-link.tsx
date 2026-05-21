@@ -1,13 +1,13 @@
 import {
   PROFILE_ENTITY_TYPE,
   ProfileAttr,
-} from '@gamezilla/profile/shared/profile-entities';
+} from '@libs/profile/shared/profile-entities';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
-} from '@gamezilla/spaces/shared/space-entities';
-import { Pressable, type PressableProps } from '@gamezilla/ui';
-import { useQueryAttribute } from '@gamezilla/patch-db/react';
+} from '@libs/spaces/shared/space-entities';
+import { Pressable, type PressableProps } from '@pkgs/ui';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';

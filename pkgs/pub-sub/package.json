@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/pub-sub",
+  "name": "@pkgs/pub-sub",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -15,7 +15,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@gamezilla/assert": "workspace:*"
+    "@pkgs/assert": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

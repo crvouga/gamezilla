@@ -1,5 +1,5 @@
 {
-  "name": "@gamezilla/polyfill",
+  "name": "@pkgs/polyfill",
   "version": "0.0.0",
   "private": true,
   "exports": {

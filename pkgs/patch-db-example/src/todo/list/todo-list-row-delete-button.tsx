@@ -1,5 +1,5 @@
-import { Pressable, Text, useTheme } from '@gamezilla/ui';
-import { usePatchDb } from '@gamezilla/patch-db/react';
+import { Pressable, Text, useTheme } from '@pkgs/ui';
+import { usePatchDb } from '@pkgs/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useState, type ReactNode } from 'react';
 

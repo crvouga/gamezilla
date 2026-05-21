@@ -1,10 +1,10 @@
-import { useIsSignedIn } from '@gamezilla/auth/client/use-current-user';
+import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import {
   useSignInModal,
   useSignOutModal,
-} from '@gamezilla/auth/client/auth-modals-provider';
-import { RegisterCommand } from '@gamezilla/ui';
-import { useAsync } from '@gamezilla/async/use-async';
+} from '@libs/auth/client/auth-modals-provider';
+import { RegisterCommand } from '@pkgs/ui';
+import { useAsync } from '@pkgs/async/use-async';
 import { useLingui } from '@lingui/react/macro';
 
 export function AccountCommand() {

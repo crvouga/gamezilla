@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 
-import type { Kv } from '@gamezilla/kv/interface';
+import type { Kv } from '@pkgs/kv/interface';
 
 import {
   HttpLlmProvider,
