@@ -73,9 +73,7 @@
       "@gamezilla/pub-sub/*": ["./packages/pub-sub/src/*"],
       "@gamezilla/async/*": ["./packages/async/src/*"],
       "@gamezilla/object-store/*": ["./packages/object-store/src/*"],
-      "@gamezilla/secure-storage": [
-        "./packages/secure-storage/src/index.ts"
-      ],
+      "@gamezilla/secure-storage": ["./packages/secure-storage/src/index.ts"],
       "@gamezilla/secure-storage/*": ["./packages/secure-storage/src/*"],
       "@gamezilla/secret-store": ["./packages/secret-store/src/index.ts"],
       "@gamezilla/secret-store/*": ["./packages/secret-store/src/*"],
@@ -91,9 +89,7 @@
       "@gamezilla/message/*": ["./packages/message/src/*"],
       "@gamezilla/sql-client/*": ["./packages/sql-client/src/*"],
       "@gamezilla/kv/*": ["./packages/kv/src/*"],
-      "@gamezilla/distributed-lock/*": [
-        "./packages/distributed-lock/src/*"
-      ]
+      "@gamezilla/distributed-lock/*": ["./packages/distributed-lock/src/*"]
     }
   },
   "include": [

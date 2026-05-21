@@ -130,7 +130,8 @@ function depRoot(spec: string): string | null {
   return IMPORT_TO_DEP[root] ?? root;
 }
 
-const IMPORT_RE = /(?:from\s+['"]|require\s*\(\s*['"]|import\s*\(\s*['"]|^\s*import\s+['"])([^'"]+)['"]/gm;
+const IMPORT_RE =
+  /(?:from\s+['"]|require\s*\(\s*['"]|import\s*\(\s*['"]|^\s*import\s+['"])([^'"]+)['"]/gm;
 
 let totalMissing = 0;
 for (const pkgName of NEW_PKGS) {
@@ -204,7 +205,9 @@ for (const pkgName of NEW_PKGS) {
     Object.entries(pkgJson.dependencies).sort(([a], [b]) => a.localeCompare(b))
   );
   pkgJson.devDependencies = Object.fromEntries(
-    Object.entries(pkgJson.devDependencies).sort(([a], [b]) => a.localeCompare(b))
+    Object.entries(pkgJson.devDependencies).sort(([a], [b]) =>
+      a.localeCompare(b)
+    )
   );
   await writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2) + '\n');
   console.log(`  → fixed package.json`);

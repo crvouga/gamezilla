@@ -62,7 +62,7 @@ Cross-package imports always use deep paths: `@gamezilla/<name>/client/<file>`, 
 
 Do **not** add `index.ts` barrels that mix `client` / `server` / `shared` (Metro / Wrangler need per-runtime resolution to drop the wrong runtime from the bundle). A per-runtime `client/index.ts` / `server/index.ts` / `shared/index.ts` is fine when there's a real reason to expose a curated facade (see `packages/auth/src/server/index.ts`); add it as an explicit `"./server": "./src/server/index.ts"` entry alongside the wildcard.
 
-Flat (runtime-agnostic) packages — `lib`, `ui`, `api`, `patch-db`, `patch-db-example`, `room-example`, `stripe` — use a single pattern that also resolves bare folder imports via per-folder `index.ts`:
+Flat (runtime-agnostic) packages — the per-utility micro-packages (`@gamezilla/assert`, `@gamezilla/keyword`, `@gamezilla/kv`, …), `ui`, `api`, `patch-db`, `patch-db-example`, `room-example`, `stripe` — use a single pattern that also resolves bare folder imports via per-folder `index.ts`:
 
 ```jsonc
 "exports": {
@@ -90,7 +90,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `p
 Each game is its own package modelled after `@gamezilla/chess`. To add `@gamezilla/connect-four` (or numberlink, tic-tac-toe, battleship, etc.):
 
 1. Scaffold `packages/<game>/`:
-   - `package.json` with `"name": "@gamezilla/<game>"`, per-file `exports`, deps mirroring what the implementation actually imports (typically `@gamezilla/lib`, `@gamezilla/patch-db`, `@lingui/*`, `react`, `react-native`).
+   - `package.json` with `"name": "@gamezilla/<game>"`, per-file `exports`, deps mirroring what the implementation actually imports (typically a granular subset of the `@gamezilla/<util>` micro-packages — `assert`, `keyword`, `attribute`, etc. — plus `@gamezilla/patch-db`, `@lingui/*`, `react`, `react-native`).
    - `tsconfig.json` extending root.
    - `eslint.config.js` copied from `packages/chess/eslint.config.js`.
    - Empty `src/{client,server,shared}/`.
@@ -111,5 +111,5 @@ Each game is its own package modelled after `@gamezilla/chess`. To add `@gamezil
 
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`).
 - Within and across feature packages, `client/` cannot import from `server/` and vice-versa (`client-not-server`, `server-not-client`).
-- `packages/lib` stays runtime-agnostic and feature-agnostic (`lib-no-features`).
+- Every `@gamezilla/<utility>` micro-package (`assert`, `keyword`, `attribute`, `message`, `kv`, `sql-client`, `logger`, etc.) stays runtime-agnostic and feature-agnostic — no imports from `spaces`, `chess`, or any other product package.
 - `packages/client` cannot reach any feature's `server/`; `packages/api` cannot reach any feature's `client/` (`apps-client-no-server`, `apps-api-no-client`).

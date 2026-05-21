@@ -15,7 +15,7 @@ module.exports = {
       path: '<rootDir>/packages/client/src/i18n/locales/{locale}/messages',
       include: [
         '<rootDir>/packages/client/src',
-                '<rootDir>/packages/ui/src',
+        '<rootDir>/packages/ui/src',
         '<rootDir>/packages/patch-db-example/src',
         '<rootDir>/packages/room-example/src',
         '<rootDir>/packages/chess/src',

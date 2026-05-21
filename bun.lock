@@ -418,13 +418,11 @@
         "@gamezilla/logger": "workspace:*",
         "@gamezilla/sql-client": "workspace:*",
         "@react-native-async-storage/async-storage": "catalog:",
-        "pg": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
-        "@types/pg": "catalog:",
         "@types/react": "catalog:",
         "typescript": "catalog:",
       },

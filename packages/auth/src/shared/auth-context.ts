@@ -8,10 +8,7 @@
  * {@link createAttrNamespace}, so the wire format stays uniform with patch
  * attributes and the keys are validated centrally.
  */
-import {
-  type AttributeState,
-  createAttrNamespace,
-} from '@gamezilla/attribute';
+import { type AttributeState, createAttrNamespace } from '@gamezilla/attribute';
 import { ForbiddenError } from '@gamezilla/patch-db/forbidden-error';
 import {
   isPatchDbSystemContext,

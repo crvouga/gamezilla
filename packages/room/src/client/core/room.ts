@@ -1,9 +1,6 @@
 import type { Assert } from '@gamezilla/assert';
 import { assert, hotAssert } from '@gamezilla/assert';
-import {
-  assertKeywordRecord,
-  isNamespacedKeyword,
-} from '@gamezilla/keyword';
+import { assertKeywordRecord, isNamespacedKeyword } from '@gamezilla/keyword';
 import { isMessageEnvelope } from '@gamezilla/message';
 
 import { newCommandId } from '../../protocol/ids';

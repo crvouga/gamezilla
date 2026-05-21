@@ -350,15 +350,9 @@ function packageJsonFor(pkg: Pkg): string {
   const exports: Record<string, unknown> = {};
   if (pkg.hasIndex) {
     exports['.'] =
-      pkg.hasTsx && pkg.name === 'logger'
-        ? './src/index.ts'
-        : './src/index.ts';
+      pkg.hasTsx && pkg.name === 'logger' ? './src/index.ts' : './src/index.ts';
   }
-  exports['./*'] = [
-    './src/*.ts',
-    './src/*.tsx',
-    './src/*/index.ts',
-  ];
+  exports['./*'] = ['./src/*.ts', './src/*.tsx', './src/*/index.ts'];
 
   const dependencies: Record<string, string> = {};
   for (const dep of pkg.internalDeps) {
@@ -466,7 +460,8 @@ module.exports = [
 // ---------------------------------------------------------------------------
 // Codemod helpers
 // ---------------------------------------------------------------------------
-const IMPORT_RE = /(from\s+['"]|import\s*\(\s*['"]|require\s*\(\s*['"]|^\s*import\s+['"]|\/\/\/\s*<reference\s+path=['"])([^'"]+)(['"])/gm;
+const IMPORT_RE =
+  /(from\s+['"]|import\s*\(\s*['"]|require\s*\(\s*['"]|^\s*import\s+['"]|\/\/\/\s*<reference\s+path=['"])([^'"]+)(['"])/gm;
 
 /**
  * Rewrite all `@gamezilla/lib/<seg>[/...]` specifiers to `@gamezilla/<new>[/...]`.
@@ -563,12 +558,21 @@ async function codemodRepo(): Promise<void> {
     if (!existsSync(root)) continue;
     for (const file of walkDir(root)) {
       if (file.includes(`${path.sep}node_modules${path.sep}`)) continue;
-      if (file.includes(`${path.sep}lib${path.sep}`) && file.includes(`packages${path.sep}lib`)) {
+      if (
+        file.includes(`${path.sep}lib${path.sep}`) &&
+        file.includes(`packages${path.sep}lib`)
+      ) {
         // skip files still inside packages/lib (will be deleted)
         continue;
       }
       if (!/\.(ts|tsx|cts|mts)$/.test(file)) continue;
-      if (file.endsWith('.d.ts') === false && !file.endsWith('.ts') && !file.endsWith('.tsx') && !file.endsWith('.cts') && !file.endsWith('.mts')) {
+      if (
+        file.endsWith('.d.ts') === false &&
+        !file.endsWith('.ts') &&
+        !file.endsWith('.tsx') &&
+        !file.endsWith('.cts') &&
+        !file.endsWith('.mts')
+      ) {
         continue;
       }
       await rewriteFileImports(file, rewriteRepoSpecifier);
@@ -692,10 +696,7 @@ async function updateKnip(): Promise<void> {
       'packages/lib/src/sql-client/absurd-sql-db.worker.ts',
       'packages/sql-client/src/absurd-sql-db.worker.ts'
     )
-    .replace(
-      /\s*"packages\/lib\/src\/ts-reset\.ts",\n/,
-      '\n'
-    );
+    .replace(/\s*"packages\/lib\/src\/ts-reset\.ts",\n/, '\n');
   await writeFile(p, next);
   console.log('  updated knip.jsonc');
 }
@@ -703,10 +704,7 @@ async function updateKnip(): Promise<void> {
 async function updateLinguiConfig(): Promise<void> {
   const p = path.join(REPO, 'lingui.config.cjs');
   const raw = await readFile(p, 'utf8');
-  const next = raw.replace(
-    /'<rootDir>\/packages\/lib\/src',\n/,
-    ''
-  );
+  const next = raw.replace(/'<rootDir>\/packages\/lib\/src',\n/, '');
   await writeFile(p, next);
   console.log('  updated lingui.config.cjs');
 }
@@ -754,9 +752,7 @@ async function main(): Promise<void> {
   await updateRootPackageJson();
 
   // Verify packages/lib/src is now empty (ignoring src/ container)
-  const libSrcRemaining = existsSync(LIB_SRC)
-    ? readdirSync(LIB_SRC)
-    : [];
+  const libSrcRemaining = existsSync(LIB_SRC) ? readdirSync(LIB_SRC) : [];
   if (libSrcRemaining.length > 0) {
     console.log(
       `WARNING: packages/lib/src still contains: ${libSrcRemaining.join(', ')}`
