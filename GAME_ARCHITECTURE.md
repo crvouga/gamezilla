@@ -699,7 +699,7 @@ PlanetScale         Serverless MySQL
                     Clients never write directly — local first
                     Read replicas for global low-latency reads
 
-Local dev           Real local PostgreSQL (`@pkgs/pg`) + pgweb GUI + Bun API — no Docker
+Local dev           Real local PostgreSQL (`@pkgs/postgres`) + pgweb GUI + Bun API — no Docker
                     Doppler `local` `DB_URL` → `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`
                     Pre-connected pgweb GUI auto-launches at `http://127.0.0.1:5555` (disable with `PG_GUI=off`).
                     `bun run dev` (root) starts pg + api + client together; `db:migrate` once: `bun run --filter @apps/api db:migrate`
@@ -720,25 +720,25 @@ Cloudflare Workers: 10M requests/month free, then $0.50/M. Durable Objects: firs
 
 ### Local Postgres (managed cluster)
 
-`@pkgs/pg` runs a real PostgreSQL server in the foreground so Turbo's persistent-task lifecycle owns it, with [`pgweb`](https://github.com/sosedoff/pgweb) auto-launched as a sibling pre-connected GUI. The wrapper:
+`@pkgs/postgres` runs a real PostgreSQL server in the foreground so Turbo's persistent-task lifecycle owns it, with [`pgweb`](https://github.com/sosedoff/pgweb) auto-launched as a sibling pre-connected GUI. The wrapper:
 
 - spawns `postgres` directly (no double-fork) inside its own process group, so `SIGINT`/`SIGTERM` from the dev shell can never leave an orphaned cluster behind,
 - after `pg_isready` succeeds, spawns `pgweb` (also in the process group) pointed at the local DB URL — no manual connection step,
 - reconciles a stale `postmaster.pid` from a previous abrupt exit before starting,
 - on shutdown stops `pgweb` first, then runs `pg_ctl stop -m fast` and escalates to `SIGINT → SIGTERM → SIGKILL` on the recorded postmaster PID if that fails,
 - writes its own `wrapper.pid` so `kill` only ever signals the cluster we manage (it will not terminate other Postgres servers that happen to bind the same port),
-- tees the postmaster log to `pkgs/pg/.postgres/run/postgres.log` and pgweb's output to `pkgs/pg/.postgres/run/pgweb.log`; both are forwarded to the terminal with `pg-server:` / `pg-gui:` prefixes,
+- tees the postmaster log to `pkgs/postgres/.postgres/run/postgres.log` and pgweb's output to `pkgs/postgres/.postgres/run/pgweb.log`; both are forwarded to the terminal with `pg-server:` / `pg-gui:` prefixes,
 - treats GUI failures as non-fatal: missing `pgweb` binary or port collision logs a warning and the cluster keeps running.
 
 ```bash
-# From repo root — turbo dev launches @pkgs/pg alongside the api + client.
+# From repo root — turbo dev launches @pkgs/postgres alongside the api + client.
 bun run dev
 
 # Or run just Postgres in this terminal (foreground; Ctrl-C to stop):
-bun run --filter @pkgs/pg dev
+bun run --filter @pkgs/postgres dev
 
 # Graceful stop (only signals our managed wrapper + cluster):
-bun run --filter @pkgs/pg kill
+bun run --filter @pkgs/postgres kill
 
 # Apply migrations against the running cluster:
 DOPPLER_CONFIG=local doppler run -- bun run --filter @apps/api db:migrate

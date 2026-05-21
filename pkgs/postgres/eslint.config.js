@@ -6,7 +6,11 @@ const {
 const { linguiRules } = require('../../pkgs/eslint-rules/lingui-rules.cjs');
 
 module.exports = [
-  ...createSharedBlocks(__dirname),
+  ...createSharedBlocks(__dirname, { filesGlob: 'src/**/*.{ts,tsx}' }),
+  {
+    files: ['src/**/*.ts'],
+    rules: { 'no-console': 'off' },
+  },
   {
     files: ['**/*.test.{ts,tsx}'],
     rules: {

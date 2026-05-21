@@ -10,14 +10,21 @@
     ]
   },
   "scripts": {
-    "lint": "eslint . --max-warnings 0",
-    "tc": "tsc --noEmit",
-    "test": "bun test --pass-with-no-tests"
+    "build": "bun -e \"process.exit(0)\"",
+    "dev": "bun run src/dev.ts",
+    "drop": "bun run src/drop.ts",
+    "kill": "bun run src/kill.ts",
+    "lint": "eslint src --max-warnings 0",
+    "preview": "bun run src/dev.ts",
+    "setup": "bun -e \"process.exit(0)\"",
+    "tc": "tsc --noEmit -p tsconfig.json",
+    "test": "bun test"
   },
   "dependencies": {
     "@electric-sql/pglite": "catalog:",
     "@electric-sql/pglite-socket": "catalog:",
-    "@pkgs/assert": "workspace:*"
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/logger": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

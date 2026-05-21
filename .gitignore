@@ -45,10 +45,10 @@ libs/chess/.cache/
 # have files under apps/api/.cache don't dirty the tree).
 apps/api/.cache/
 
-# Local PostgreSQL cluster + lifecycle artifacts (pkgs/pg)
-pkgs/pg/.postgres/
+# Local PostgreSQL cluster + lifecycle artifacts (pkgs/postgres)
+pkgs/postgres/.postgres/
 # Legacy PGlite data dir (kept ignored so old checkouts don't dirty the tree)
-pkgs/pg/.pglite/
+pkgs/postgres/.pglite/
 
 # typescript
 *.tsbuildinfo

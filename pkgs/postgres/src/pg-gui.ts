@@ -1,5 +1,5 @@
 /**
- * pgweb sidecar lifecycle for `@pkgs/pg dev`.
+ * pgweb sidecar lifecycle for `@pkgs/postgres dev`.
  *
  * Runs the [pgweb](https://github.com/sosedoff/pgweb) HTTP GUI as a foreground
  * child of the wrapper, pre-connected to the local cluster. Same orphan-

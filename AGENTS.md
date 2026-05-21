@@ -22,18 +22,18 @@ When adding a new check, default to a turbo task under `ci:*` (or extend an exis
 
 ## Local database
 
-Local dev runs a **real PostgreSQL cluster** managed by `@pkgs/pg` — no Docker, no PGlite. The wrapper spawns `postgres` directly (in our process group, so it can never be orphaned by the dev shell), waits on `pg_isready`, and translates `SIGINT`/`SIGTERM` from `turbo dev` into a `pg_ctl stop -m fast`. Required CLI tooling (`postgres`, `pg_ctl`, `initdb`, `pg_isready`) is enforced by `bun run infra setup` / `status` via the `PostgresDep` class.
+Local dev runs a **real PostgreSQL cluster** managed by `@pkgs/postgres` — no Docker, no PGlite. The wrapper spawns `postgres` directly (in our process group, so it can never be orphaned by the dev shell), waits on `pg_isready`, and translates `SIGINT`/`SIGTERM` from `turbo dev` into a `pg_ctl stop -m fast`. Required CLI tooling (`postgres`, `pg_ctl`, `initdb`, `pg_isready`) is enforced by `bun run infra setup` / `status` via the `PostgresDep` class.
 
-The whole stack starts together via `bun run dev` at the repo root; to run just Postgres (foreground, logs visible): `bun run --filter @pkgs/pg dev`. Stop it with `bun run --filter @pkgs/pg kill` — this targets only our wrapper PID + cluster data dir; it will **not** terminate unrelated Postgres servers that happen to be on the same port. To wipe every database in the managed cluster (stop + delete `pkgs/pg/.postgres/` so the next `dev` reinitializes from scratch): `bun run --filter @pkgs/pg drop`.
+The whole stack starts together via `bun run dev` at the repo root; to run just Postgres (foreground, logs visible): `bun run --filter @pkgs/postgres dev`. Stop it with `bun run --filter @pkgs/postgres kill` — this targets only our wrapper PID + cluster data dir; it will **not** terminate unrelated Postgres servers that happen to be on the same port. To wipe every database in the managed cluster (stop + delete `pkgs/postgres/.postgres/` so the next `dev` reinitializes from scratch): `bun run --filter @pkgs/postgres drop`.
 
-Set Doppler **`local`** `DB_URL` to `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`. Migrations: `DOPPLER_CONFIG=local doppler run -- bun run --filter @apps/api db:migrate`. Persistent data lives in `pkgs/pg/.postgres/data/`; the wrapper PID and a tee'd `postgres.log` live in `pkgs/pg/.postgres/run/`. Tunables (all optional): `PG_HOST`, `PG_PORT`, `PG_DATA_DIR`, `PG_USER`, `PG_PASSWORD`, `PG_DATABASE`, `PG_BIN_DIR` (force a specific Postgres install).
+Set Doppler **`local`** `DB_URL` to `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`. Migrations: `DOPPLER_CONFIG=local doppler run -- bun run --filter @apps/api db:migrate`. Persistent data lives in `pkgs/postgres/.postgres/data/`; the wrapper PID and a tee'd `postgres.log` live in `pkgs/postgres/.postgres/run/`. Tunables (all optional): `PG_HOST`, `PG_PORT`, `PG_DATA_DIR`, `PG_USER`, `PG_PASSWORD`, `PG_DATABASE`, `PG_BIN_DIR` (force a specific Postgres install).
 
 The wrapper also auto-launches the [`pgweb`](https://github.com/sosedoff/pgweb) GUI as a sibling foreground process (default `http://127.0.0.1:5555` — chosen to sit next to the Postgres port and avoid collisions with Expo Web on `8081` / Jupyter on `8888`), pre-connected to the local DB. Stops with the cluster on Ctrl-C / `turbo dev` shutdown — no orphans. GUI failure (missing binary, port collision) is non-fatal: a warning logs and the cluster keeps running. Required tool: `pgweb` (Homebrew: `brew install pgweb`), enforced by `bun run infra setup` via the `PgwebDep` class. Tunables: `PG_GUI` (set to `off`/`0`/`false` to skip; default off in CI), `PG_GUI_HOST`, `PG_GUI_PORT`, `PG_GUI_BIN`.
 
 Platform support:
 
 - **macOS / Linux** — install Postgres (`brew install postgresql@17` on macOS; `apt-get install postgresql` on Debian/Ubuntu, etc.) and pgweb (`brew install pgweb`); run `bun run dev` directly.
-- **Windows** — run dev inside WSL2; native Windows is not supported by `@pkgs/pg` (the lifecycle script still produces a clear error message + install hint if invoked there).
+- **Windows** — run dev inside WSL2; native Windows is not supported by `@pkgs/postgres` (the lifecycle script still produces a clear error message + install hint if invoked there).
 
 ## Per-feature package layout
 

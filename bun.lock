@@ -675,18 +675,6 @@
         "react-native-screens": "catalog:",
       },
     },
-    "pkgs/pg": {
-      "name": "@pkgs/pg",
-      "version": "1.0.0",
-      "dependencies": {
-        "@pkgs/assert": "workspace:*",
-        "@pkgs/logger": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/polyfill": {
       "name": "@pkgs/polyfill",
       "version": "0.0.0",
@@ -706,6 +694,7 @@
         "@electric-sql/pglite": "catalog:",
         "@electric-sql/pglite-socket": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/logger": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1817,8 +1806,6 @@
     "@pkgs/patch-db": ["@pkgs/patch-db@workspace:pkgs/patch-db"],
 
     "@pkgs/patch-db-example": ["@pkgs/patch-db-example@workspace:pkgs/patch-db-example"],
-
-    "@pkgs/pg": ["@pkgs/pg@workspace:pkgs/pg"],
 
     "@pkgs/polyfill": ["@pkgs/polyfill@workspace:pkgs/polyfill"],
 

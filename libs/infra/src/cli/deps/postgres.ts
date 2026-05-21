@@ -5,7 +5,7 @@ import type { Dep, DepStatus } from './types';
 
 /**
  * Required CLI tooling for the local PostgreSQL cluster managed by
- * `@pkgs/pg` (see `pkgs/pg/src/dev.ts`).
+ * `@pkgs/postgres` (see `pkgs/postgres/src/dev.ts`).
  *
  * We need four binaries: `postgres` (server), `pg_ctl` (lifecycle),
  * `initdb` (cluster bootstrap), `pg_isready` (readiness probe). All ship
@@ -95,7 +95,7 @@ function platformInstallHint(): string {
       `Run \`brew install ${HOMEBREW_FORMULA}\`, then either add`,
       `  $(brew --prefix ${HOMEBREW_FORMULA})/bin to PATH`,
       `or set PG_BIN_DIR=$(brew --prefix ${HOMEBREW_FORMULA})/bin`,
-      'so `pkgs/pg` can find the cluster tools.',
+      'so `pkgs/postgres` can find the cluster tools.',
     ].join(' ');
   }
   if (isLinux()) {

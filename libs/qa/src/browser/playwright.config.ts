@@ -98,7 +98,7 @@ const turboPreviewCmd: string[] = [
   'turbo',
   'run',
   'preview',
-  '--filter=@pkgs/pg',
+  '--filter=@pkgs/postgres',
   '--filter=@apps/api',
   '--filter=@apps/client',
 ];

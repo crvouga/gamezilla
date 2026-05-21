@@ -9,6 +9,6 @@ apps/client/src/i18n/locales/*/messages.ts
 apps/client/expo-env.d.ts
 libs/qa/playwright-report/
 libs/qa/test-results/
-pkgs/pg/.postgres/
-pkgs/pg/.pglite/
+pkgs/postgres/.postgres/
+pkgs/postgres/.pglite/
 .cache

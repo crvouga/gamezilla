@@ -49,7 +49,7 @@ export async function createPostgresFactory(): Promise<{
 
 export const implementations: { name: string; factory: DbFactory }[] = [
   { name: 'PatchDbImplSqlite', factory: createSqliteFactory },
-  // Set `DB_URL` to a reachable Postgres (e.g. PGlite socket / `bun run --filter @pkgs/pg dev`) to enable:
+  // Set `DB_URL` to a reachable Postgres (e.g. PGlite socket / `bun run --filter @pkgs/postgres dev`) to enable:
   // { name: 'PatchDbImplPostgres', factory: createPostgresFactory },
 ];
 

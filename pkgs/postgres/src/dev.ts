@@ -1,5 +1,5 @@
 /**
- * Foreground entrypoint for `bun run --filter @pkgs/pg dev`.
+ * Foreground entrypoint for `bun run --filter @pkgs/postgres dev`.
  *
  * Starts a real local PostgreSQL cluster in the foreground so Turbo's
  * persistent-task lifecycle owns it: SIGINT/SIGTERM from `turbo dev` (or
@@ -133,7 +133,7 @@ async function bootCluster(): Promise<RunningServer> {
   assert.ok(
     probe.state !== 'alive',
     'cluster appears to be already running for this data dir; ' +
-      'run `bun run --filter @pkgs/pg kill` (or stop the existing process) before `dev`',
+      'run `bun run --filter @pkgs/postgres kill` (or stop the existing process) before `dev`',
     { dataDir: config.dataDir, pid: probe.pid }
   );
 

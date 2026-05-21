@@ -48,7 +48,7 @@ export interface PgwebConfig {
   readonly port: number;
   /**
    * Optional absolute path to the `pgweb` binary. Defaults to PATH lookup with
-   * Homebrew prefixes as fallback (see `pkgs/pg/src/pg-gui.ts`).
+   * Homebrew prefixes as fallback (see `pkgs/postgres/src/pg-gui.ts`).
    */
   readonly binaryOverride: string | null;
 }
