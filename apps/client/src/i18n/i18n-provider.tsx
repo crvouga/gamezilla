@@ -1,4 +1,4 @@
-import { Text } from '@gamezilla/ui';
+import { Text } from '@pkgs/ui';
 import { I18nProvider, type TransRenderProps } from '@lingui/react';
 import type { ReactNode } from 'react';
 import { i18n } from './i18n';
