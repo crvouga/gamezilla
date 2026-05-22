@@ -1,23 +1,18 @@
-import type { GamePlugin } from '@libs/spaces/shared/game-plugin';
+import { chessGameClient } from '@libs/chess/client/chess-game-def';
+import type { GameClientDefinition } from '@libs/spaces/shared/game';
+import { assertGameRegistry, assertMatchingGameIds } from '@libs/spaces/shared/load-game-plugins';
 
-import { GAME_PLUGINS as GAME_PLUGINS_SHARED } from './game-plugins';
+import { GAME_DEFINITIONS } from './game-plugins';
 
-const CLIENT_LOADERS: Record<
-  (typeof GAME_PLUGINS_SHARED)[number]['id'],
-  GamePlugin['loadClient']
-> = {
-  chess: () =>
-    import('@libs/chess/client/chess-game-def').then((m) => m.chessGameClient),
-};
+export { GAME_DEFINITIONS };
 
 /**
- * Full plugin registry for the client — shared loaders from {@link GAME_PLUGINS}
- * plus lazy client definitions. Not imported by `apps/api`.
+ * Client UI definitions for each game in {@link GAME_DEFINITIONS}.
+ * Not imported by `apps/api`.
  */
-export const GAME_PLUGINS: readonly GamePlugin[] = GAME_PLUGINS_SHARED.map(
-  (plugin) => ({
-    id: plugin.id,
-    loadShared: plugin.loadShared,
-    loadClient: CLIENT_LOADERS[plugin.id],
-  })
-);
+export const GAME_CLIENT_DEFINITIONS = [
+  chessGameClient,
+] as const satisfies readonly GameClientDefinition[];
+
+assertGameRegistry(GAME_CLIENT_DEFINITIONS);
+assertMatchingGameIds(GAME_DEFINITIONS, GAME_CLIENT_DEFINITIONS);

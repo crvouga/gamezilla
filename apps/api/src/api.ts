@@ -1,8 +1,5 @@
-import { GAME_PLUGINS } from '@libs/games/game-plugins';
-import {
-  composeRoomModules,
-  loadGameDefinitions,
-} from '@libs/spaces/shared/load-game-plugins';
+import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
+import { composeRoomModules } from '@libs/spaces/shared/load-game-plugins';
 import { createLogger } from '@pkgs/logger';
 import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import { isSecretStoreError } from '@pkgs/secret-store';
@@ -18,20 +15,15 @@ import {
 import { createApiSecretStore } from './config/secret-store';
 
 /**
- * Room Durable Object class for real-time topics. Games are loaded from the
- * shared `GAME_PLUGINS` registry in `@libs/games`; the same registry is
- * consumed on the client so the two sides cannot drift.
- *
- * Top-level await resolves the plugin loaders once per isolate, before the
- * Worker runtime instantiates the DO class — required because
- * `createDurableObjectAdapter` needs the composed modules synchronously.
+ * Room Durable Object class for real-time topics. Games come from the eager
+ * `GAME_DEFINITIONS` registry in `@libs/games`; the client uses the same
+ * shared definitions so the two sides cannot drift.
  *
  * Exported as `Room` for Wrangler `class_name = "Room"` (see
  * `apps/api/wrangler.toml`).
  */
-const APP_GAMES_SHARED = await loadGameDefinitions(GAME_PLUGINS);
 export const Room = createDurableObjectAdapter({
-  modules: composeRoomModules(APP_GAMES_SHARED),
+  modules: composeRoomModules(GAME_DEFINITIONS),
 });
 
 const log = createLogger({ name: 'api' });

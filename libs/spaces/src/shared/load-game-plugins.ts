@@ -5,71 +5,45 @@ import {
 } from '@pkgs/room';
 import type { Message } from '@pkgs/message';
 
-import type { GameClientDefinition, GameDefinition } from './game';
-import type { GamePlugin, GamePluginShared } from './game-plugin';
+import type { GameDefinition } from './game';
 import { SPACE_ROOM_MODULE_NAME } from './space-room-module-name';
 import { createSpaceModule } from './space-module';
 
-function assertUniquePluginIds(
-  plugins: readonly { readonly id: string }[]
-): void {
+/** Fail fast when the composition-root registry has duplicate game ids. */
+export function assertGameRegistry(defs: readonly { readonly id: string }[]): void {
   const seen = new Set<string>();
-  for (const plugin of plugins) {
-    if (seen.has(plugin.id)) {
-      throw new Error(`loadGamePlugins: duplicate game id ${plugin.id}`);
+  for (const def of defs) {
+    if (seen.has(def.id)) {
+      throw new Error(`game registry: duplicate game id ${def.id}`);
     }
-    seen.add(plugin.id);
+    seen.add(def.id);
   }
 }
 
-function assertPluginIdsMatch(
-  plugins: readonly { readonly id: string }[],
-  defs: readonly { id: string }[],
-  side: 'shared' | 'client'
+/** Keep shared and client registries aligned (same ids, same order). */
+export function assertMatchingGameIds(
+  shared: readonly { readonly id: string }[],
+  client: readonly { readonly id: string }[]
 ): void {
-  for (let i = 0; i < plugins.length; i += 1) {
-    const plugin = plugins[i];
-    const def = defs[i];
-    if (plugin === undefined || def === undefined) continue;
-    if (plugin.id !== def.id) {
+  if (shared.length !== client.length) {
+    throw new Error(
+      `game registry: shared (${shared.length}) and client (${client.length}) length mismatch`
+    );
+  }
+  for (let i = 0; i < shared.length; i += 1) {
+    const s = shared[i];
+    const c = client[i];
+    if (s === undefined || c === undefined) continue;
+    if (s.id !== c.id) {
       throw new Error(
-        `loadGamePlugins: plugin id "${plugin.id}" does not match loaded ${side} definition id "${def.id}"`
+        `game registry: shared id "${s.id}" does not match client id "${c.id}" at index ${i}`
       );
     }
   }
 }
 
 /**
- * Resolve every plugin's shared `GameDefinition` in parallel. Validates that
- * plugin ids are unique and each loaded definition's id matches the plugin
- * declaration (catches drift between the plugin entry and the loaded module).
- */
-export async function loadGameDefinitions(
-  plugins: readonly GamePluginShared[]
-): Promise<readonly GameDefinition[]> {
-  assertUniquePluginIds(plugins);
-  const defs = await Promise.all(plugins.map((p) => p.loadShared()));
-  assertPluginIdsMatch(plugins, defs, 'shared');
-  return defs;
-}
-
-/**
- * Client counterpart to {@link loadGameDefinitions}. Same validation; resolves
- * the UI half of each plugin.
- */
-export async function loadGameClientDefinitions(
-  plugins: readonly GamePlugin[]
-): Promise<readonly GameClientDefinition[]> {
-  assertUniquePluginIds(plugins);
-  const defs = await Promise.all(plugins.map((p) => p.loadClient()));
-  assertPluginIdsMatch(plugins, defs, 'client');
-  return defs;
-}
-
-/**
- * Compose the canonical space `SpaceModule` from already-loaded game
- * definitions. Use after {@link loadGameDefinitions} on the server, or after
- * the bootstrap helper resolves on the client.
+ * Compose the canonical space `SpaceModule` from game definitions.
  */
 export function composeSpaceRoomModule(
   games: readonly GameDefinition[]
