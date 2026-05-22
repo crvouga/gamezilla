@@ -1,22 +1,22 @@
 /**
- * Verifies self-hosted Turbo remote cache configuration (see AGENTS.md,
- * deployment-pipeline.yml). Expected Doppler `local` / CI secrets:
- * `TURBO_API`, `TURBO_TOKEN`, `TURBO_TEAM`, `TURBO_CACHE` (e.g. `remote:rw`).
+ * Verifies Vercel Remote Cache configuration. Expected Doppler `local` /
+ * CI secrets (managed by `libs/infra/src/cli/resources/doppler.ts` and
+ * `libs/infra/src/cli/secrets/turbo-token.ts`):
  *
- * Keep `EXPECTED_API_ORIGIN` aligned with `turboCachePublicUrl()` in
- * `libs/infra/src/project-config.ts` and `TurboCache.validate` in
- * `libs/infra/src/cli/secrets/turbo-token.ts`.
+ * - `TURBO_TOKEN`: a Vercel Access Token from
+ *   https://vercel.com/account/tokens scoped to the team in `TURBO_TEAM`.
+ * - `TURBO_TEAM`: Vercel team slug (the URL slug, e.g. `acme-co`).
+ * - `TURBO_CACHE` (optional): the `--cache` flag value, e.g. `remote:rw`.
+ *
+ * The torn-down self-hosted Cloudflare cache used to populate `TURBO_API`;
+ * we now reject it explicitly so a stale value can't silently route
+ * cache traffic at a Worker that no longer exists.
  */
-const EXPECTED_API_ORIGIN = 'https://turbo-cache.gamezilla.app';
+const VERCEL_USER_URL = 'https://api.vercel.com/v2/user';
 
-const REQUIRED = [
-  'TURBO_API',
-  'TURBO_TOKEN',
-  'TURBO_TEAM',
-  'TURBO_CACHE',
-] as const;
+const REQUIRED = ['TURBO_TOKEN', 'TURBO_TEAM'] as const;
 
-/** Same rule as `TurboCache.validate` in libs/infra. */
+/** Same shape as `TurboCache.validate` in libs/infra. */
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 
 function isSet(v: string | undefined): boolean {
@@ -31,31 +31,42 @@ function inCi(): boolean {
   );
 }
 
-async function checkToken(apiBase: string, token: string): Promise<void> {
-  const base = apiBase.replace(/\/$/, '');
-  const url = `${base}/v8/artifacts/status?teamId=default`;
-  const res = await fetch(url, {
+async function checkToken(token: string): Promise<void> {
+  const res = await fetch(VERCEL_USER_URL, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  if (res.status === 401 || res.status === 403) {
+    throw new Error(
+      `Vercel rejected TURBO_TOKEN — HTTP ${res.status} from ${VERCEL_USER_URL} (rotate the token in Doppler and re-mirror)`
+    );
+  }
   if (!res.ok) {
-    const hint =
-      res.status === 401
-        ? ' (Doppler TURBO_TOKEN does not match the Worker secret — ' +
-          'run `bun run sync:turbo-token` to push the current Doppler value)'
-        : '';
-    throw new Error(`HTTP ${res.status} from ${url}${hint}`);
+    // Transient 5xx / rate limits shouldn't fail CI on a token Vercel
+    // has accepted before; let the actual cache request surface it.
+    return;
   }
 }
 
 async function main(): Promise<void> {
   const strict = inCi();
+
+  if (isSet(process.env.TURBO_API)) {
+    console.error(
+      'Turbo remote cache: TURBO_API is set, but Vercel Remote Cache does not use it. ' +
+        'Delete it from Doppler (`prod` and `local`) — `infra deploy` clears it ' +
+        'automatically on every CI build via TurboCacheWorkerResource.destroy.'
+    );
+    process.exit(1);
+  }
+
   const present = REQUIRED.filter((k) => isSet(process.env[k]));
 
   if (present.length === 0) {
     if (strict) {
       console.error(
         'Turbo remote cache: required in CI but no TURBO_* env is set. ' +
-          'Configure Doppler `local` with TURBO_API, TURBO_TOKEN, TURBO_TEAM, TURBO_CACHE.'
+          'Configure Doppler `local` with TURBO_TOKEN + TURBO_TEAM ' +
+          '(see libs/infra/src/cli/secrets/turbo-token.ts for hints).'
       );
       process.exit(1);
     }
@@ -73,29 +84,11 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const turboApi = process.env.TURBO_API!.trim();
   const turboToken = process.env.TURBO_TOKEN!.trim();
   const turboTeam = process.env.TURBO_TEAM!.trim();
-  const turboCache = process.env.TURBO_CACHE!.trim();
+  const turboCache = (process.env.TURBO_CACHE ?? '').trim();
 
-  let apiUrl: URL;
-  try {
-    apiUrl = new URL(turboApi);
-  } catch {
-    console.error(
-      `Turbo remote cache: TURBO_API is not a valid URL (${turboApi})`
-    );
-    process.exit(1);
-  }
-
-  if (apiUrl.origin !== EXPECTED_API_ORIGIN) {
-    console.error(
-      `Turbo remote cache: TURBO_API origin must be ${EXPECTED_API_ORIGIN} (got ${apiUrl.origin})`
-    );
-    process.exit(1);
-  }
-
-  if (!TURBO_CACHE_RE.test(turboCache)) {
+  if (turboCache !== '' && !TURBO_CACHE_RE.test(turboCache)) {
     console.error(
       `Turbo remote cache: invalid TURBO_CACHE "${turboCache}" (expected e.g. remote:rw)`
     );
@@ -103,15 +96,17 @@ async function main(): Promise<void> {
   }
 
   try {
-    await checkToken(turboApi, turboToken);
+    await checkToken(turboToken);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    console.error(`Turbo remote cache: token / API check failed: ${msg}`);
+    console.error(`Turbo remote cache: token check failed: ${msg}`);
     process.exit(1);
   }
 
   console.log(
-    `Turbo remote cache OK (API ${apiUrl.origin}, team ${turboTeam}, TURBO_CACHE=${turboCache})`
+    `Turbo remote cache OK (Vercel team ${turboTeam}${
+      turboCache !== '' ? `, TURBO_CACHE=${turboCache}` : ''
+    })`
   );
 }
 

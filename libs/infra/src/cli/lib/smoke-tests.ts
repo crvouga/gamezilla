@@ -1,6 +1,6 @@
 import { Resolver, resolve4, resolve6, resolveNs } from 'node:dns/promises';
 import { assert } from '@pkgs/assert';
-import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
+import { PROJECT_CONFIG } from '../../project-config';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
 import { fmtElapsed, ok, warn } from './fmt';
@@ -33,11 +33,6 @@ function httpEndpoints(outputs: InfraOutputs): readonly HttpEndpointCheck[] {
     {
       label: 'API /health',
       url: `https://api.${PROJECT_CONFIG.domain}`,
-      probePath: '/health',
-    },
-    {
-      label: 'Turbo cache /health',
-      url: turboCachePublicUrl(),
       probePath: '/health',
     },
   ];
@@ -217,7 +212,7 @@ async function checkDns(outputs: InfraOutputs): Promise<void> {
     return;
   }
 
-  for (const sub of ['www', 'api', 'turbo-cache']) {
+  for (const sub of ['www', 'api']) {
     const host = `${sub}.${domain}`;
 
     const localRecords = await lookupViaDefaultResolver(host);

@@ -11,13 +11,19 @@ const REQUIRED_DOMAINS: readonly string[] = [
   `www.${PROJECT_CONFIG.domain}`,
 ];
 
-export class PagesDomainResource extends ResourceBase {
-  readonly id = 'pages-domains';
+/**
+ * Custom domains attached to {@link ClientPagesProjectResource}. Each
+ * Pages project tracks its own domain set, so a sibling
+ * `*-pages-domains.ts` resource should be added if a second Pages
+ * project is introduced rather than overloading this class.
+ */
+export class ClientPagesDomainResource extends ResourceBase {
+  readonly id = 'client-pages-domains';
 
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
     const headers = cfHeaders();
-    const project = PROJECT_CONFIG.cloudflare.pagesProject;
+    const project = PROJECT_CONFIG.cloudflare.clientPagesProject;
     const base = `${CF_API}/accounts/${accountId}/pages/projects/${project}/domains`;
 
     const listRes = await fetch(base, { headers });
@@ -69,7 +75,7 @@ export class PagesDomainResource extends ResourceBase {
       return;
     }
 
-    const project = PROJECT_CONFIG.cloudflare.pagesProject;
+    const project = PROJECT_CONFIG.cloudflare.clientPagesProject;
     const base = `${CF_API}/accounts/${accountId}/pages/projects/${project}/domains`;
 
     const listRes = await fetch(base, { headers });

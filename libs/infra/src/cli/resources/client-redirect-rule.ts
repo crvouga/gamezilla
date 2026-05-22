@@ -8,13 +8,13 @@ import { ResourceBase, type InfraContext } from './types';
 const CF_API = 'https://api.cloudflare.com/client/v4';
 const PHASE = 'http_request_dynamic_redirect';
 
-export class RedirectRuleResource extends ResourceBase {
-  readonly id = 'redirect-rule';
+export class ClientRedirectRuleResource extends ResourceBase {
+  readonly id = 'client-redirect-rule';
 
   async provision(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
     assert.ok(
       !!ctx.zoneId,
-      'redirect-rule: ctx.zoneId must be set by ZoneResource'
+      'client-redirect-rule: ctx.zoneId must be set by ZoneResource'
     );
 
     const headers = cfHeaders();

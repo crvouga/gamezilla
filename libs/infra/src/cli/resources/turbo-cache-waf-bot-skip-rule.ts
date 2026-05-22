@@ -3,7 +3,11 @@ import { PROJECT_CONFIG } from '../../project-config';
 import { info, ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { cfHeaders } from '../secrets/cloudflare';
-import { ResourceBase, type InfraContext } from './types';
+import {
+  ResourceBase,
+  type InfraContext,
+  type ResourceRoutineStatus,
+} from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 const PHASE = 'http_request_firewall_custom';
@@ -42,14 +46,22 @@ type Ruleset = {
  * turbo's cache preflight. Skipping bot checks for this single host lets CI
  * hit the custom domain directly (no more workers.dev TURBO_API_CI remap).
  * Other hosts (www, api, apex) retain full bot protections.
+ *
+ * Currently `'destroyed'` along with {@link TurboCacheWorkerResource}: the
+ * rule exists only to support the self-hosted cache, and Vercel Remote
+ * Cache doesn't need it. The class stays in the registry so the
+ * deploy's `'destroyed'`-resource phase can idempotently clean up the
+ * rule via `destroy()` and so `routineStatus` can be flipped back to
+ * `'created'` when re-enabling the self-hosted stack.
  */
-export class WafBotSkipRuleResource extends ResourceBase {
-  readonly id = 'waf-bot-skip-rule';
+export class TurboCacheWafBotSkipRuleResource extends ResourceBase {
+  readonly id = 'turbo-cache-waf-bot-skip-rule';
+  override readonly routineStatus: ResourceRoutineStatus = 'destroyed';
 
   async provision(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
     assert.ok(
       !!ctx.zoneId,
-      'waf-bot-skip-rule: ctx.zoneId must be set by ZoneResource'
+      'turbo-cache-waf-bot-skip-rule: ctx.zoneId must be set by ZoneResource'
     );
     const headers = cfHeaders();
     const zoneId = ctx.zoneId;
@@ -121,13 +133,21 @@ export class WafBotSkipRuleResource extends ResourceBase {
     ok('WAF bot skip', `${host} (rule appended)`);
   }
 
+  /** Idempotent: looks up the zone, finds the rule by description, deletes
+   * it. 404s and missing zones / rules log as info and exit cleanly. */
   async destroy(_platform: CiPlatform): Promise<void> {
     const headers = cfHeaders();
     const zoneId = await findZoneId(headers);
-    if (!zoneId) return;
+    if (!zoneId) {
+      info('WAF bot skip', 'zone not found — nothing to delete');
+      return;
+    }
 
     const entry = await fetchEntrypoint(zoneId, headers);
-    if (entry === null) return;
+    if (entry === null) {
+      info('WAF bot skip', 'custom WAF ruleset not found — nothing to delete');
+      return;
+    }
 
     const mine = (entry.rules ?? []).find(
       (r) => r.description === RULE_DESCRIPTION

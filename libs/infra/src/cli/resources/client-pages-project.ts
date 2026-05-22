@@ -10,13 +10,20 @@ import { ResourceBase, type InfraContext } from './types';
 const CF_API = 'https://api.cloudflare.com/client/v4';
 const NOT_FOUND_CODES = [8000007];
 
-export class PagesProjectResource extends ResourceBase {
-  readonly id = 'pages-project';
+/**
+ * Cloudflare Pages project that hosts the web client (`apps/client`).
+ * A Cloudflare account can host multiple Pages projects, so each gets
+ * its own resource keyed by name (`client-pages-project`,
+ * `<other>-pages-project`, …) rather than a single generic
+ * `pages-project` class.
+ */
+export class ClientPagesProjectResource extends ResourceBase {
+  readonly id = 'client-pages-project';
 
   async provision(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
     const headers = cfHeaders();
-    const name = PROJECT_CONFIG.cloudflare.pagesProject;
+    const name = PROJECT_CONFIG.cloudflare.clientPagesProject;
 
     const res = await fetch(
       `${CF_API}/accounts/${accountId}/pages/projects/${name}`,
@@ -64,7 +71,7 @@ export class PagesProjectResource extends ResourceBase {
   }
 
   async destroy(): Promise<void> {
-    const name = PROJECT_CONFIG.cloudflare.pagesProject;
+    const name = PROJECT_CONFIG.cloudflare.clientPagesProject;
     const accountId = cfAccountId();
     const headers = cfHeaders();
 

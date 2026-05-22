@@ -1,62 +1,67 @@
 import { ApiWorkerResource } from './api-worker';
+import { ClientPagesDomainResource } from './client-pages-domains';
+import { ClientPagesProjectResource } from './client-pages-project';
+import { ClientRedirectRuleResource } from './client-redirect-rule';
 import { ClientResource } from './client';
 import { DnsRecordsResource } from './dns-records';
 import { DopplerResource } from './doppler';
-import { HyperdriveResource } from './hyperdrive';
-import { PagesDomainResource } from './pages-domains';
-import { PagesProjectResource } from './pages-project';
 import { PlanetScalePostgres } from './planetscale-postgres';
-import { R2BucketResource } from './r2-buckets';
+import { PostgresHyperdriveResource } from './postgres-hyperdrive';
+import { TtsAudioBucketResource, TurboCacheBucketResource } from './r2-buckets';
 import { R2SubscriptionResource } from './r2-subscription';
-import { RedirectRuleResource } from './redirect-rule';
-import { TurboCacheResource } from './turbo-cache';
+import { TurboCacheWafBotSkipRuleResource } from './turbo-cache-waf-bot-skip-rule';
+import { TurboCacheWorkerResource } from './turbo-cache-worker';
 import type { Resource } from './types';
-import { WafBotSkipRuleResource } from './waf-bot-skip-rule';
 import { ZoneResource } from './zone';
 
 export function createRegistry(): readonly Resource[] {
   const doppler = new DopplerResource();
   const r2Subscription = new R2SubscriptionResource();
   const zone = new ZoneResource();
-  const pagesProject = new PagesProjectResource();
+  const clientPagesProject = new ClientPagesProjectResource();
   const planetscalePostgres = new PlanetScalePostgres();
-  const r2Bucket = new R2BucketResource();
+  const ttsAudioBucket = new TtsAudioBucketResource();
+  const turboCacheBucket = new TurboCacheBucketResource();
   const dnsRecords = new DnsRecordsResource();
-  const pagesDomain = new PagesDomainResource();
-  const redirectRule = new RedirectRuleResource();
-  const wafBotSkipRule = new WafBotSkipRuleResource();
-  const turboCache = new TurboCacheResource();
-  const hyperdrive = new HyperdriveResource();
+  const clientPagesDomain = new ClientPagesDomainResource();
+  const clientRedirectRule = new ClientRedirectRuleResource();
+  const turboCacheWafBotSkipRule = new TurboCacheWafBotSkipRuleResource();
+  const turboCacheWorker = new TurboCacheWorkerResource();
+  const postgresHyperdrive = new PostgresHyperdriveResource();
   const apiWorker = new ApiWorkerResource();
   const client = new ClientResource();
 
   r2Subscription.needs(doppler);
   zone.needs(doppler);
-  pagesProject.needs(doppler);
+  clientPagesProject.needs(doppler);
   planetscalePostgres.needs(doppler);
-  r2Bucket.needs(r2Subscription);
-  dnsRecords.needs(zone, pagesProject);
-  pagesDomain.needs(pagesProject);
-  redirectRule.needs(zone);
-  wafBotSkipRule.needs(zone);
-  turboCache.needs(doppler, r2Bucket);
-  hyperdrive.needs(doppler, planetscalePostgres);
-  apiWorker.needs(planetscalePostgres, dnsRecords, hyperdrive);
+  ttsAudioBucket.needs(r2Subscription);
+  turboCacheBucket.needs(r2Subscription);
+  dnsRecords.needs(zone, clientPagesProject);
+  clientPagesDomain.needs(clientPagesProject);
+  clientRedirectRule.needs(zone);
+  turboCacheWafBotSkipRule.needs(zone);
+  // The Worker binds to its bucket, so reverse-topo destroy tears
+  // down the Worker before the bucket it reads from.
+  turboCacheWorker.needs(doppler, turboCacheBucket);
+  postgresHyperdrive.needs(doppler, planetscalePostgres);
+  apiWorker.needs(planetscalePostgres, dnsRecords, postgresHyperdrive);
   client.needs(apiWorker, dnsRecords);
 
   return [
     doppler,
     r2Subscription,
     zone,
-    pagesProject,
+    clientPagesProject,
     planetscalePostgres,
-    r2Bucket,
+    ttsAudioBucket,
+    turboCacheBucket,
     dnsRecords,
-    pagesDomain,
-    redirectRule,
-    wafBotSkipRule,
-    turboCache,
-    hyperdrive,
+    clientPagesDomain,
+    clientRedirectRule,
+    turboCacheWafBotSkipRule,
+    turboCacheWorker,
+    postgresHyperdrive,
     apiWorker,
     client,
   ];

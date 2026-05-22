@@ -175,8 +175,16 @@ async function deleteHyperdriveConfig(
   }
 }
 
-export class HyperdriveResource extends ResourceBase {
-  readonly id = 'hyperdrive';
+/**
+ * Cloudflare Hyperdrive config that fronts the API Worker's PlanetScale
+ * Postgres origin. A Cloudflare account can host multiple Hyperdrive
+ * configs (one per origin) — this resource only manages the
+ * Postgres-backed one. Add a sibling `*-hyperdrive.ts` resource for any
+ * other origin (MySQL, a second Postgres, etc.) rather than overloading
+ * this class.
+ */
+export class PostgresHyperdriveResource extends ResourceBase {
+  readonly id = 'postgres-hyperdrive';
 
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
@@ -189,8 +197,10 @@ export class HyperdriveResource extends ResourceBase {
     );
 
     const origin = parseDbUrlToOrigin(dbUrl);
-    const { name } = PROJECT_CONFIG.cloudflare.hyperdrive;
-    const configuredId = String(PROJECT_CONFIG.cloudflare.hyperdrive.id);
+    const { name } = PROJECT_CONFIG.cloudflare.postgresHyperdrive;
+    const configuredId = String(
+      PROJECT_CONFIG.cloudflare.postgresHyperdrive.id
+    );
 
     const existing = await listHyperdriveConfigs(accountId);
     const match = existing.find((c) => c.name === name) ?? null;
@@ -203,7 +213,7 @@ export class HyperdriveResource extends ResourceBase {
       });
       assert.fail(
         `Created Hyperdrive config "${name}" with id=${newId}. ` +
-          `Commit this id to libs/infra/src/project-config.ts cloudflare.hyperdrive.id ` +
+          `Commit this id to libs/infra/src/project-config.ts cloudflare.postgresHyperdrive.id ` +
           `and apps/api/wrangler.toml [[hyperdrive]] id, then re-run deploy.`
       );
     }
@@ -214,14 +224,14 @@ export class HyperdriveResource extends ResourceBase {
     ) {
       assert.fail(
         `Hyperdrive id drift: Cloudflare has id=${match.id} for "${name}" but ` +
-          `PROJECT_CONFIG.cloudflare.hyperdrive.id=${configuredId}. Update project-config + wrangler.toml.`
+          `PROJECT_CONFIG.cloudflare.postgresHyperdrive.id=${configuredId}. Update project-config + wrangler.toml.`
       );
     }
 
     if (configuredId === PLACEHOLDER_HYPERDRIVE_ID) {
       assert.fail(
         `Hyperdrive "${name}" exists (id=${match.id}) but PROJECT_CONFIG still has placeholder id. ` +
-          `Set cloudflare.hyperdrive.id to ${match.id} and apps/api/wrangler.toml [[hyperdrive]] id, then re-run deploy.`
+          `Set cloudflare.postgresHyperdrive.id to ${match.id} and apps/api/wrangler.toml [[hyperdrive]] id, then re-run deploy.`
       );
     }
 
@@ -232,7 +242,7 @@ export class HyperdriveResource extends ResourceBase {
     });
 
     ok(
-      'Hyperdrive',
+      'Hyperdrive (postgres)',
       `${name} → origin ${origin.host}:${String(origin.port)}/${origin.database} (id ${match.id})`
     );
   }
@@ -240,16 +250,22 @@ export class HyperdriveResource extends ResourceBase {
   async destroy(_platform: CiPlatform): Promise<void> {
     const accountId = cfAccountId();
     if (!accountId) {
-      warn('Hyperdrive', 'CLOUDFLARE_ACCOUNT_ID missing — skipping delete');
+      warn(
+        'Hyperdrive (postgres)',
+        'CLOUDFLARE_ACCOUNT_ID missing — skipping delete'
+      );
       return;
     }
-    const { name } = PROJECT_CONFIG.cloudflare.hyperdrive;
-    const id = String(PROJECT_CONFIG.cloudflare.hyperdrive.id);
+    const { name } = PROJECT_CONFIG.cloudflare.postgresHyperdrive;
+    const id = String(PROJECT_CONFIG.cloudflare.postgresHyperdrive.id);
     if (id === PLACEHOLDER_HYPERDRIVE_ID) {
-      ok('Hyperdrive', `no committed id for ${name} — skipping delete`);
+      ok(
+        'Hyperdrive (postgres)',
+        `no committed id for ${name} — skipping delete`
+      );
       return;
     }
     await deleteHyperdriveConfig(accountId, id);
-    ok('Hyperdrive', `delete requested for ${name} (${String(id)})`);
+    ok('Hyperdrive (postgres)', `delete requested for ${name} (${String(id)})`);
   }
 }

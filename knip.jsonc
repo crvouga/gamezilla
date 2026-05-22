@@ -16,7 +16,6 @@
     "pkgs/eslint-rules/**/*.cjs",
     "lingui.config.cjs",
     "libs/infra/src/cli/secrets/planetscale.ts",
-    "libs/infra/src/cli/secrets/turbo-token.ts",
     "apps/client/src/connection/offline-indicator.tsx",
   ],
   "ignoreDependencies": [

@@ -25,6 +25,9 @@ export function buildVendorDashboardMarkdown(): string[] {
   );
   lines.push(`- **Doppler:** [Dashboard](https://dashboard.doppler.com)`);
   lines.push(
+    `- **Vercel Remote Caching:** [Account tokens](https://vercel.com/account/tokens) · [Team settings](https://vercel.com/dashboard/usage)`
+  );
+  lines.push(
     `- **Squarespace Domains:** [domains.squarespace.com](https://domains.squarespace.com)`
   );
 
@@ -36,16 +39,10 @@ export function buildVendorDashboardMarkdown(): string[] {
       `- **Cloudflare DNS / zone:** [\`${domain}\`](https://dash.cloudflare.com/${accountId}/${domain})`
     );
     lines.push(
-      `- **Cloudflare Pages:** [\`${cloudflare.pagesProject}\`](https://dash.cloudflare.com/${accountId}/pages/view/${cloudflare.pagesProject})`
-    );
-    lines.push(
-      `- **Cloudflare R2:** [\`${cloudflare.turboCacheBucket}\`](https://dash.cloudflare.com/${accountId}/r2/default/buckets/${cloudflare.turboCacheBucket})`
+      `- **Cloudflare Pages:** [\`${cloudflare.clientPagesProject}\`](https://dash.cloudflare.com/${accountId}/pages/view/${cloudflare.clientPagesProject})`
     );
     lines.push(
       `- **Cloudflare Worker (API):** [\`${cloudflare.apiWorker}\`](https://dash.cloudflare.com/${accountId}/workers/services/view/${cloudflare.apiWorker}/production)`
-    );
-    lines.push(
-      `- **Cloudflare Worker (Turbo cache):** [\`${cloudflare.turboCacheWorker}\`](https://dash.cloudflare.com/${accountId}/workers/services/view/${cloudflare.turboCacheWorker}/production)`
     );
   } else {
     lines.push(

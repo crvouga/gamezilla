@@ -8,15 +8,19 @@
 
 ## CI / Turbo Remote Cache
 
-GitHub Actions runs checks with `DOPPLER_CONFIG=local`. For Turbo Remote Cache hits in CI, ensure the Doppler **`local`** config defines `TURBO_API`, `TURBO_TOKEN`, `TURBO_TEAM`, and `TURBO_CACHE` (e.g. `remote:rw`). See `libs/infra/src/cli/secrets/turbo-token.ts` for hints.
+GitHub Actions runs checks with `DOPPLER_CONFIG=local`. Caching is backed by **Vercel Remote Caching** — ensure the Doppler **`local`** config defines `TURBO_TOKEN` (a [Vercel Access Token](https://vercel.com/account/tokens) scoped to the team) and `TURBO_TEAM` (the Vercel team slug). The optional knobs `TURBO_CACHE` (default `remote:rw`), `TURBO_LOG_ORDER`, and `TURBO_TELEMETRY_DISABLED` are derived defaults populated by `infra provision`. The values are mirrored from the active config to `local` automatically (see `mirrorSharedToLocal` in `libs/infra/src/cli/resources/doppler.ts`).
+
+The previous self-hosted Cloudflare Worker cache (Worker `gamezilla-turbo-cache`, R2 bucket `turborepo-cache`, the WAF bot-skip rule, and the `TURBO_API` Doppler key) is torn down but the resource code stays in the registry with `routineStatus: 'destroyed'` — the Worker (`turbo-cache-worker.ts`), the bucket (`TurboCacheBucketResource` in `r2-buckets.ts`), and the WAF rule (`turbo-cache-waf-bot-skip-rule.ts`). Routine `provision` / `dryRun` / `deploy-resources` skip `'destroyed'` resources; `infra deploy` ends with a tail phase that walks every `'destroyed'` resource in reverse topological order (Worker → bucket → rule) and calls its existing `destroy()` so the cloud converges on the registry's intent (`'created'` resources up, `'destroyed'` resources gone) on every production deploy. Every `Resource.destroy()` is required to be idempotent so the phase is a no-op once the stack is fully cleaned up. To bring the self-hosted stack back online, flip `routineStatus` to `'created'` on those three resources and rerun `infra deploy`.
+
+For local development without Doppler, run `bunx turbo login` + `bunx turbo link` to write a personal `.turbo/config.json`.
 
 ## CI/CD job layout
 
 The deployment pipeline (`.github/workflows/deployment-pipeline.yml`) follows three rules:
 
-1. **Turbo-cacheable tasks run inside one `turbo-ci` job.** Format, syncpack + catalog + no-patches, knip, depcruise, circular-deps, audit, i18n, plus per-package `tc` / `lint` / `test` / `build` all live under root `ci:*` scripts and per-package tasks in `turbo.json`. CI invokes them with `bun run check:ci` so Turbo's task graph + remote cache (via the Doppler-injected `TURBO_*` env) handles ordering and reuse with zero extra YAML.
+1. **Turbo-cacheable tasks run inside one `turbo-ci` job.** Format, syncpack + catalog + no-patches, knip, depcruise, circular-deps, audit, i18n, plus per-package `tc` / `lint` / `test` / `build` all live under root `ci:*` scripts and per-package tasks in `turbo.json`. CI invokes them with `bun run check:ci` so Turbo's task graph + Vercel Remote Cache (via the Doppler-injected `TURBO_TOKEN` + `TURBO_TEAM`) handle ordering and reuse with zero extra YAML.
 2. **Non-Turbo tasks get their own job only when they need a different runner shape.** `static` runs actionlint + gitleaks (gitleaks needs `fetch-depth: 0`); `qa-api` and `qa-browser` need Playwright browsers and artifact uploads.
-3. **The production deploy is one atomic `deploy` job.** A single checkout + `infra-setup` runs `bun run infra deploy`, which holds the PlanetScale-backed global lock in-process across every phase (provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config). A tiny always-run `lock-release` job is the safety net for crashed / cancelled deploys.
+3. **The production deploy is one atomic `deploy` job.** A single checkout + `infra-setup` runs `bun run infra deploy`, which holds the PlanetScale-backed global lock in-process across every phase (provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config → ensure-destroyed). A tiny always-run `lock-release` job is the safety net for crashed / cancelled deploys.
 
 When adding a new check, default to a turbo task under `ci:*` (or extend an existing one). Only carve out a new GitHub Actions job if the check truly needs a unique runner shape.
 

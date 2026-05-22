@@ -123,7 +123,7 @@ export class ClientResource extends ResourceBase {
       return;
     }
 
-    const projectName = PROJECT_CONFIG.cloudflare.pagesProject;
+    const projectName = PROJECT_CONFIG.cloudflare.clientPagesProject;
     try {
       await cleanupPagesDeployments({
         accountId,

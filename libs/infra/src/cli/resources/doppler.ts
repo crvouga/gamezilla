@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-import { PROJECT_CONFIG, turboCachePublicUrl } from '../../project-config';
+import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import {
@@ -24,13 +24,13 @@ const apiWorkerPublicOrigin = (): string =>
   `https://api.${PROJECT_CONFIG.domain}`;
 
 const DERIVED_DEFAULTS: Record<string, () => string> = {
-  TURBO_TOKEN: () => crypto.randomUUID(),
-  TURBO_API: () => turboCachePublicUrl(),
-  TURBO_TEAM: () => `team_${PROJECT_CONFIG.domain.replace(/\.\w+$/, '')}`,
+  // Vercel Remote Cache config. `TURBO_TOKEN` and `TURBO_TEAM` are real
+  // Vercel credentials and must be supplied by an operator (registered
+  // in `SECRET_MAP`); only the universally-safe knobs get derived here.
   TURBO_LOG_ORDER: () => 'auto',
   TURBO_TELEMETRY_DISABLED: () => '1',
-  // Force every `turbo` invocation to use the self-hosted remote cache
-  // instead of the local filesystem cache. Same syntax as `--cache`.
+  // Force every `turbo` invocation to use the remote cache instead of
+  // the local filesystem cache. Same syntax as `--cache`.
   TURBO_CACHE: () => 'remote:rw',
   /** Public API Worker origin (same value as EXPO_PUBLIC_API_URL) — required by `stripe:sync` to register the webhook endpoint. */
   API_URL: apiWorkerPublicOrigin,
@@ -84,23 +84,27 @@ const DOPPLER_RESERVED_KEYS: ReadonlyArray<string> = [
  * - `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`: leftovers from when the API
  *   used Clerk for auth before the Better Auth migration. No code references
  *   them anymore.
+ * - `TURBO_API`: pointed at the destroyed self-hosted Cloudflare Turbo
+ *   cache Worker. Vercel Remote Cache discovers its endpoint from
+ *   `TURBO_TOKEN` so this key has no consumer; `TurboCacheWorkerResource.destroy`
+ *   also clears it eagerly during the deploy's `'destroyed'`-resource
+ *   tail phase.
  */
 const STALE_KEYS_TO_DELETE: ReadonlyArray<string> = [
   'CLERK_PUBLISHABLE_KEY',
   'CLERK_SECRET_KEY',
+  'TURBO_API',
 ];
 
 /**
- * Secrets shared between the deployed Turbo cache Worker and the
- * CI/dev clients that authenticate against it. The Worker secret is
- * written by `TurboCacheResource` from the active (prod) config, so the
- * `local` Doppler config — which `bun run check:ci` reads — must hold
- * the *same* values or every cache request 401s. Mirrored prod → local
- * after defaults are populated so drift is structurally impossible.
+ * Vercel Remote Cache config that must be identical between the active
+ * Doppler config and `local` so `bun run check:ci` (which reads `local`)
+ * sees the same Vercel team + token that production rotates from. The
+ * mirror runs unconditionally after defaults are populated so drift is
+ * structurally impossible.
  */
 const SHARED_TURBO_KEYS: ReadonlyArray<string> = [
   'TURBO_TOKEN',
-  'TURBO_API',
   'TURBO_TEAM',
   'TURBO_CACHE',
   'TURBO_LOG_ORDER',
@@ -206,11 +210,12 @@ export class DopplerResource extends ResourceBase {
   }
 
   /**
-   * Invariant: the Turbo cache token (and friends) must be identical in
-   * the active config and `local`. The Worker is gated by `TURBO_TOKEN`
-   * pulled from the active config; `bun run check:ci` reads `local`. If
-   * they diverge every cache request 401s, silently destroying CI cache
-   * hits. Mirror unconditionally so this is structurally impossible.
+   * Invariant: the Vercel Remote Cache config (`TURBO_TOKEN` + friends)
+   * must be identical in the active config and `local`. Vercel
+   * authenticates the token via `TURBO_TOKEN`; `bun run check:ci` reads
+   * `local`. If they diverge every cache request 401s, silently
+   * destroying CI cache hits. Mirror unconditionally so this is
+   * structurally impossible.
    */
   private mirrorSharedToLocal(platform: CiPlatform): void {
     const active = (process.env['DOPPLER_CONFIG'] ?? '').trim();
@@ -250,9 +255,15 @@ export class DopplerResource extends ResourceBase {
     }
 
     if (mirrored > 0) {
-      ok('Turbo cache secrets', `mirrored ${active} → local (${mirrored})`);
+      ok(
+        'Turbo remote cache secrets',
+        `mirrored ${active} → local (${mirrored})`
+      );
     } else if (skipped > 0) {
-      ok('Turbo cache secrets', `already in sync with local (${skipped})`);
+      ok(
+        'Turbo remote cache secrets',
+        `already in sync with local (${skipped})`
+      );
     }
   }
 

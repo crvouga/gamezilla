@@ -46,7 +46,6 @@
     "stripe:check": "bun run --filter '@libs/stripe' check",
     "stripe:listen": "bun run --filter '@libs/stripe-cli' dev",
     "stripe:sync": "bun run --filter '@libs/stripe' sync",
-    "sync:turbo-token": "bun run scripts/sync-turbo-token.ts",
     "wipe": "git clean -xfd"
   },
   "overrides": {

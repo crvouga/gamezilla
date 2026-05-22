@@ -78,7 +78,7 @@ export class DnsRecordsResource extends ResourceBase {
     );
     assert.ok(
       !!ctx.pagesSubdomain,
-      'dns-records: ctx.pagesSubdomain must be set by PagesProjectResource'
+      'dns-records: ctx.pagesSubdomain must be set by ClientPagesProjectResource'
     );
 
     const headers = cfHeaders();

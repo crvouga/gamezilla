@@ -6,6 +6,7 @@ import {
   runWranglerAuthPhase,
 } from '../lib/phases/check-deps';
 import { runDeployResourcesPhase } from '../lib/phases/deploy-resources';
+import { runEnsureDestroyedPhase } from '../lib/phases/ensure-destroyed';
 import { runMigratePhase } from '../lib/phases/migrate';
 import { runDryRunPhase, runProvisionPhase } from '../lib/phases/provision';
 import { runRefreshConfigPhase } from '../lib/phases/refresh-config';
@@ -22,6 +23,10 @@ import type { Command } from './types';
  * `stripe-sync`, `smoke`, `refresh-config`) that share these same phase
  * functions but can run as separate jobs with the lock held externally
  * by `lock-acquire` / `lock-release`.
+ *
+ * After the `'created'` stack is healthy the deploy converges the cloud
+ * on the registry by tearing down every `routineStatus: 'destroyed'`
+ * resource (idempotent — a no-op once they're gone).
  */
 export class DeployCommand implements Command {
   readonly id = 'deploy';
@@ -49,15 +54,14 @@ export class DeployCommand implements Command {
     const outputs = infraOutputs(ctx);
     await runSmokePhase(p, outputs);
     await runRefreshConfigPhase(p, outputs);
+    await runEnsureDestroyedPhase(p);
 
     banner('Deploy Complete', performance.now() - t0);
     ok('client_url', outputs.client_url);
     ok('api_url', outputs.api_url);
-    ok('turbo_cache_url', outputs.turbo_cache_url);
 
     p.setOutput('client_url', outputs.client_url);
     p.setOutput('api_url', outputs.api_url);
-    p.setOutput('turbo_cache_url', outputs.turbo_cache_url);
     p.setOutput('pages_project_name', outputs.pages_project_name);
     p.setOutput('pages_subdomain', outputs.pages_subdomain);
     p.setOutput('cloudflare_nameservers', outputs.cloudflare_nameservers);

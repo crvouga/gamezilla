@@ -6,10 +6,9 @@
 # 1. Turbo-cacheable tasks (format, syncpack/catalog, knip, depcruise,
 #    circular-deps, audit, i18n, tc, lint, test, build) all run inside a
 #    single `turbo-ci` job that invokes `bun run check:ci`. Turbo's task
-#    graph + remote cache (configured through Doppler's `local` config:
-#    TURBO_API / TURBO_TOKEN / TURBO_TEAM / TURBO_CACHE=remote:rw) gives
-#    us maximum parallelism and cross-PR cache reuse with zero extra
-#    GitHub Actions machinery.
+#    graph + Vercel Remote Cache (driven by Doppler `local`'s
+#    `TURBO_TOKEN` + `TURBO_TEAM`) give us maximum parallelism and
+#    cross-PR cache reuse with zero extra GitHub Actions machinery.
 #
 # 2. Non-Turbo tasks live in their own jobs only when they need a runner
 #    shape Turbo can't share: `static` (actionlint + gitleaks both want
@@ -20,10 +19,11 @@
 # 3. The production deploy is a single atomic `deploy` job: one checkout,
 #    one `infra-setup` install of wrangler + Stripe + Postgres, and the
 #    `infra deploy` CLI runs every phase (provision → migrate →
-#    deploy-resources → stripe-sync → smoke → refresh-config) in one
-#    process so `InfraContext` flows in-memory between phases. A tiny
-#    always-run `lock-release` job is the safety net for the
-#    PlanetScale-backed global lock when `deploy` is cancelled / crashed.
+#    deploy-resources → stripe-sync → smoke → refresh-config →
+#    ensure-destroyed) in one process so `InfraContext` flows
+#    in-memory between phases. A tiny always-run `lock-release` job is
+#    the safety net for the PlanetScale-backed global lock when `deploy`
+#    is cancelled / crashed.
 name: Deployment Pipeline
 
 permissions:
@@ -48,8 +48,9 @@ jobs:
   # Single Turbo-orchestrated job for every cacheable repo gate: format,
   # syncpack + catalog + no-patches, knip, depcruise, circular-deps,
   # audit, i18n, plus per-package `tc` / `lint` / `test` / `build`. Turbo
-  # parallelizes across the task graph and reuses the remote cache (via
-  # Doppler-injected TURBO_* env) for cross-PR hits.
+  # parallelizes across the task graph and reuses Vercel Remote Cache
+  # (via Doppler-injected `TURBO_TOKEN` + `TURBO_TEAM`) for cross-PR
+  # hits.
   turbo-ci:
     runs-on: ubuntu-latest
     concurrency:
@@ -60,13 +61,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      # Worker secrets don't follow Doppler rotations. Re-sync prod
-      # TURBO_TOKEN before the cache health gate so check:ci (local
-      # config) and the Worker stay aligned — same as `infra deploy`.
-      - name: Sync Turbo remote cache token
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: env DOPPLER_CONFIG=prod doppler run -- bun run sync:turbo-token
       - name: Turbo CI (cacheable gates + tc/lint/test/build)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
@@ -254,9 +248,9 @@ jobs:
   # One job, one checkout, one `infra-setup`. `bun run infra deploy`
   # acquires the global PlanetScale lock, runs every phase in-process
   # (provision → migrate → deploy-resources → stripe-sync → smoke →
-  # refresh-config), and emits `lock_id` / deploy URLs / nameservers as
-  # step outputs for the report and the always-run `lock-release` safety
-  # net below.
+  # refresh-config → ensure-destroyed), and emits `lock_id` / deploy
+  # URLs / nameservers as step outputs for the report and the
+  # always-run `lock-release` safety net below.
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [turbo-ci, static, qa-api, qa-browser]
@@ -265,7 +259,6 @@ jobs:
       lock_id: ${{ steps.deploy.outputs.lock_id }}
       client_url: ${{ steps.deploy.outputs.client_url }}
       api_url: ${{ steps.deploy.outputs.api_url }}
-      turbo_cache_url: ${{ steps.deploy.outputs.turbo_cache_url }}
       pages_project_name: ${{ steps.deploy.outputs.pages_project_name }}
       pages_subdomain: ${{ steps.deploy.outputs.pages_subdomain }}
       cloudflare_nameservers: ${{ steps.deploy.outputs.cloudflare_nameservers }}
@@ -288,7 +281,7 @@ jobs:
           wrangler: 'true'
           stripe: 'true'
           postgres: 'true'
-      - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config)
+      - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config → ensure-destroyed)
         id: deploy
         working-directory: libs/infra
         env:

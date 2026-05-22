@@ -9,6 +9,12 @@ import { DbUrl } from './db-url';
 import { PsServiceToken, PsServiceTokenId } from './ps-credentials';
 import { StripeSecretKey } from './stripe-secret-key';
 import { StripeWebhookSecret } from './stripe-webhook-secret';
+import {
+  TurboCache,
+  TurboLogOrder,
+  TurboTeam,
+  TurboToken,
+} from './turbo-token';
 import type { SecretEntry } from './types';
 import { WebClientGoogleClientId } from './web-client-google-client-id';
 import { WebClientGoogleClientSecret } from './web-client-google-client-secret';
@@ -30,6 +36,10 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new WebClientGoogleClientSecret(),
   new StripeSecretKey(),
   new StripeWebhookSecret(),
+  new TurboToken(),
+  new TurboTeam(),
+  new TurboCache(),
+  new TurboLogOrder(),
 ];
 
 export function getSecretMap(): ReadonlyArray<SecretEntry> {
@@ -60,6 +70,18 @@ export function setDopplerSecret(name: string, value: string): void {
  */
 export function deleteDopplerSecret(name: string): void {
   runCapture('doppler', ['secrets', 'delete', name, '--yes']);
+}
+
+/** Counterpart to {@link deleteDopplerSecret} — delete from a specific config. */
+export function deleteDopplerSecretIn(config: string, name: string): void {
+  runCapture('doppler', [
+    'secrets',
+    'delete',
+    name,
+    '--yes',
+    '--config',
+    config,
+  ]);
 }
 
 /**
