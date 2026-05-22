@@ -30,9 +30,7 @@ export function GamesBootstrapFromPlugins({
 
   return (
     <SpaceModuleProvider value={module}>
-      <GamesRegistryProvider value={clients}>
-        {children}
-      </GamesRegistryProvider>
+      <GamesRegistryProvider value={clients}>{children}</GamesRegistryProvider>
     </SpaceModuleProvider>
   );
 }

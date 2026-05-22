@@ -10,7 +10,9 @@ import { SPACE_ROOM_MODULE_NAME } from './space-room-module-name';
 import { createSpaceModule } from './space-module';
 
 /** Fail fast when the composition-root registry has duplicate game ids. */
-export function assertGameRegistry(defs: readonly { readonly id: string }[]): void {
+export function assertGameRegistry(
+  defs: readonly { readonly id: string }[]
+): void {
   const seen = new Set<string>();
   for (const def of defs) {
     if (seen.has(def.id)) {

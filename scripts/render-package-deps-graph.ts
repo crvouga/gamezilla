@@ -266,7 +266,9 @@ function main(): void {
   const { source, omitted } = buildMermaidSource();
   writeFileSync(OUT_HTML, buildHtml(source), 'utf8');
   const omittedNote =
-    omitted > 0 ? ` (${omitted} isolated package${omitted === 1 ? '' : 's'} omitted)` : '';
+    omitted > 0
+      ? ` (${omitted} isolated package${omitted === 1 ? '' : 's'} omitted)`
+      : '';
   console.log(`Wrote ${OUT_HTML}${omittedNote}`);
   tryOpen(OUT_HTML);
 }

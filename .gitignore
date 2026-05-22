@@ -73,3 +73,5 @@ app-example
 
 # actionlint binary (downloaded by CI / local check)
 /actionlint
+# Turborepo
+.turbo

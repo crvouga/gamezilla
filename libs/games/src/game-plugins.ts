@@ -6,6 +6,8 @@ import { assertGameRegistry } from '@libs/spaces/shared/load-game-plugins';
  * Authoritative shared game definitions for server (`apps/api`) and client.
  * Add a workspace dep on the game lib and append its `*GameShared` export here.
  */
-export const GAME_DEFINITIONS = [chessGameShared] as const satisfies readonly GameDefinition[];
+export const GAME_DEFINITIONS = [
+  chessGameShared,
+] as const satisfies readonly GameDefinition[];
 
 assertGameRegistry(GAME_DEFINITIONS);
