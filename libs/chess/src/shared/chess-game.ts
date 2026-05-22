@@ -19,8 +19,8 @@ import {
 export const CHESS_GAME_ID = 'chess';
 
 /**
- * Server/shared chess game definition. Registered into the composed
- * `SpaceModule` at the composition root (`APP_SPACE_MODULE` from `@libs/app/shared/games`).
+ * Server/shared chess game definition. Loaded lazily by the chess `GamePlugin`
+ * in `@libs/games` and composed into the space `SpaceModule` at runtime.
  *
  * Note: this is the *only* place chess wires itself into the spaces
  * registry. `@libs/spaces` knows nothing about chess.

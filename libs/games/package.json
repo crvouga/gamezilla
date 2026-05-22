@@ -1,11 +1,11 @@
 {
-  "name": "@libs/app",
+  "name": "@libs/games",
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./shared/*": [
-      "./src/shared/*.ts",
-      "./src/shared/*.tsx"
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx"
     ]
   },
   "scripts": {
@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@libs/chess": "workspace:*",
-    "@pkgs/room": "workspace:*",
     "@libs/spaces": "workspace:*"
   },
   "devDependencies": {

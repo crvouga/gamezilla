@@ -32,10 +32,10 @@
       "name": "@apps/api",
       "version": "1.0.0",
       "dependencies": {
-        "@libs/app": "workspace:*",
         "@libs/auth": "workspace:*",
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
+        "@libs/games": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@libs/stripe": "workspace:*",
@@ -75,10 +75,10 @@
         "@expo/metro-runtime": "catalog:",
         "@gorhom/bottom-sheet": "catalog:",
         "@jlongster/sql.js": "catalog:",
-        "@libs/app": "workspace:*",
         "@libs/auth": "workspace:*",
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
+        "@libs/games": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
@@ -164,19 +164,6 @@
         "@pkgs/turbo-cache": "workspace:*",
       },
       "devDependencies": {
-        "typescript": "catalog:",
-      },
-    },
-    "libs/app": {
-      "name": "@libs/app",
-      "version": "0.0.0",
-      "dependencies": {
-        "@libs/chess": "workspace:*",
-        "@libs/spaces": "workspace:*",
-        "@pkgs/room": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -276,6 +263,18 @@
       },
       "devDependencies": {
         "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/games": {
+      "name": "@libs/games",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/chess": "workspace:*",
+        "@libs/spaces": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1631,13 +1630,13 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
-    "@libs/app": ["@libs/app@workspace:libs/app"],
-
     "@libs/auth": ["@libs/auth@workspace:libs/auth"],
 
     "@libs/chess": ["@libs/chess@workspace:libs/chess"],
 
     "@libs/client-config": ["@libs/client-config@workspace:libs/client-config"],
+
+    "@libs/games": ["@libs/games@workspace:libs/games"],
 
     "@libs/infra": ["@libs/infra@workspace:libs/infra"],
 

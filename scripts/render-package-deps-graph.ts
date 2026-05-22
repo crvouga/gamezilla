@@ -9,11 +9,18 @@ import { join } from 'node:path';
 import {
   REPO_ROOT,
   buildPackageImportGraph,
-  discoverPackages,
+  discoverPackagesWithTier,
+  type Tier,
 } from './workspace-package-import-graph';
 
 const OUT_DIR = join(REPO_ROOT, 'tmp');
 const OUT_HTML = join(OUT_DIR, 'package-deps-graph.html');
+
+const TIER_CLASS: Record<Tier, string> = {
+  apps: 'tierApps',
+  libs: 'tierLibs',
+  pkgs: 'tierPkgs',
+};
 
 function mermaidNodeId(shortName: string): string {
   const base = shortName.replace(/[^a-zA-Z0-9_]/g, '_');
@@ -21,18 +28,43 @@ function mermaidNodeId(shortName: string): string {
   return /^\d/.test(id) ? `pkg_${id}` : id;
 }
 
-function buildMermaidSource(): string {
-  const packages = discoverPackages();
+/** Packages that appear as source or target of at least one edge. */
+function connectedNames(
+  names: string[],
+  graph: ReturnType<typeof buildPackageImportGraph>
+): Set<string> {
+  const connected = new Set<string>();
+  for (const from of names) {
+    const targets = graph.get(from);
+    if (!targets?.size) continue;
+    connected.add(from);
+    for (const to of targets.keys()) connected.add(to);
+  }
+  return connected;
+}
+
+function buildMermaidSource(): { source: string; omitted: number } {
+  const packages = discoverPackagesWithTier();
   if (packages.size === 0) {
     throw new Error(
       'No @apps|@libs|@pkgs/* packages found under apps/, libs/, pkgs/.'
     );
   }
-  const graph = buildPackageImportGraph(packages);
-  const names = [...packages.keys()].sort();
+  const dirs = new Map(
+    [...packages.entries()].map(([name, info]) => [name, info.dir])
+  );
+  const graph = buildPackageImportGraph(dirs);
+  const allNames = [...packages.keys()].sort();
+  const connected = connectedNames(allNames, graph);
+  const names = allNames.filter((n) => connected.has(n));
+  const omitted = allNames.length - names.length;
+
   const idFor = new Map<string, string>();
+  const tierFor = new Map<string, Tier>();
   for (const name of names) {
     idFor.set(name, mermaidNodeId(name));
+    const info = packages.get(name);
+    if (info) tierFor.set(name, info.tier);
   }
 
   const lines: string[] = ['flowchart TD'];
@@ -58,7 +90,32 @@ function buildMermaidSource(): string {
     }
   }
 
-  return lines.join('\n');
+  lines.push(
+    '',
+    '  classDef tierApps fill:#238636,stroke:#3fb950,color:#e6edf3',
+    '  classDef tierLibs fill:#1f6feb,stroke:#58a6ff,color:#e6edf3',
+    '  classDef tierPkgs fill:#8957e5,stroke:#d2a8ff,color:#e6edf3'
+  );
+
+  const byTier = new Map<Tier, string[]>();
+  for (const name of names) {
+    const tier = tierFor.get(name);
+    const id = idFor.get(name);
+    if (!tier || !id) continue;
+    let ids = byTier.get(tier);
+    if (!ids) {
+      ids = [];
+      byTier.set(tier, ids);
+    }
+    ids.push(id);
+  }
+  for (const tier of ['apps', 'libs', 'pkgs'] as const) {
+    const ids = byTier.get(tier);
+    if (!ids?.length) continue;
+    lines.push(`  class ${ids.join(',')} ${TIER_CLASS[tier]}`);
+  }
+
+  return { source: lines.join('\n'), omitted };
 }
 
 function buildHtml(mermaidBody: string): string {
@@ -79,8 +136,12 @@ function buildHtml(mermaidBody: string): string {
     header {
       padding: 1rem 1.25rem;
       border-bottom: 1px solid #30363d;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 0.75rem 1.5rem;
     }
-    h1 {
+    .title-block h1 {
       font-size: 1.1rem;
       font-weight: 600;
       margin: 0;
@@ -99,6 +160,29 @@ function buildHtml(mermaidBody: string): string {
       border-radius: 4px;
       color: #79c0ff;
     }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #8b949e;
+      margin-left: auto;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .swatch {
+      width: 0.85rem;
+      height: 0.85rem;
+      border-radius: 3px;
+      border: 1px solid;
+    }
+    .swatch.apps { background: #238636; border-color: #3fb950; }
+    .swatch.libs { background: #1f6feb; border-color: #58a6ff; }
+    .swatch.pkgs { background: #8957e5; border-color: #d2a8ff; }
     .wrap {
       padding: 1rem 1.25rem 2rem;
       overflow: auto;
@@ -112,12 +196,19 @@ function buildHtml(mermaidBody: string): string {
 </head>
 <body>
   <header>
-    <h1>workspace — package import graph</h1>
-    <p class="sub">
-      Directed edges from runtime <code>@apps|@libs|@pkgs/*</code> imports in TypeScript
-      under <code>{apps,libs,pkgs}/*/src</code> (type-only imports omitted). Same model as
-      <code>bun run ci:circular-deps</code>. Cycles, if any, appear as loops in the diagram.
-    </p>
+    <div class="title-block">
+      <h1>workspace — package import graph</h1>
+      <p class="sub">
+        Directed edges from runtime <code>@apps|@libs|@pkgs/*</code> imports in TypeScript
+        under <code>{apps,libs,pkgs}/*/src</code> (type-only imports omitted). Same model as
+        <code>bun run ci:circular-deps</code>. Packages with no workspace package imports in or out are omitted.
+      </p>
+    </div>
+    <div class="legend" aria-label="tier colors">
+      <span class="legend-item"><span class="swatch apps"></span>@apps</span>
+      <span class="legend-item"><span class="swatch libs"></span>@libs</span>
+      <span class="legend-item"><span class="swatch pkgs"></span>@pkgs</span>
+    </div>
   </header>
   <div class="wrap">
     <div class="mermaid">
@@ -172,9 +263,11 @@ function tryOpen(path: string): void {
 
 function main(): void {
   mkdirSync(OUT_DIR, { recursive: true });
-  const mermaid = buildMermaidSource();
-  writeFileSync(OUT_HTML, buildHtml(mermaid), 'utf8');
-  console.log(`Wrote ${OUT_HTML}`);
+  const { source, omitted } = buildMermaidSource();
+  writeFileSync(OUT_HTML, buildHtml(source), 'utf8');
+  const omittedNote =
+    omitted > 0 ? ` (${omitted} isolated package${omitted === 1 ? '' : 's'} omitted)` : '';
+  console.log(`Wrote ${OUT_HTML}${omittedNote}`);
   tryOpen(OUT_HTML);
 }
 

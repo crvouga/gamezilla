@@ -23,7 +23,7 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@libs/app": "workspace:*",
+    "@libs/games": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@libs/auth": "workspace:*",

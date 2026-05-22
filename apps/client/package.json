@@ -30,7 +30,7 @@
     "@expo-google-fonts/nunito": "catalog:",
     "@expo/metro-runtime": "catalog:",
     "@apps/api": "workspace:*",
-    "@libs/app": "workspace:*",
+    "@libs/games": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/assistant": "workspace:*",
     "@pkgs/async": "workspace:*",
