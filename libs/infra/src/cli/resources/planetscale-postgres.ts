@@ -95,34 +95,53 @@ async function probeDatabase(url: string): Promise<ProbeResult> {
   }
 }
 
+const CLAIM_TABLE_OWNERSHIP_SQL = `
+  DO $$
+  DECLARE r RECORD;
+  BEGIN
+    FOR r IN
+      SELECT tablename FROM pg_tables
+      WHERE schemaname = 'public'
+        AND tableowner <> current_user
+    LOOP
+      EXECUTE format('ALTER TABLE public.%I OWNER TO %I', r.tablename, current_user);
+    END LOOP;
+  END$$
+`;
+
 /**
- * Reassigns ownership of public-schema tables/sequences to CURRENT_USER.
- * Fixes orphaned ownership left by previously deleted PlanetScale roles.
+ * One TCP session for `SELECT 1` plus best-effort ownership claim — avoids
+ * opening two connections during lock acquisition on tight direct limits.
  */
-async function claimTableOwnership(url: string): Promise<void> {
+async function verifyDatabaseAndClaimOwnership(
+  url: string
+): Promise<ProbeResult> {
   const sql = SqlClientImplPostgresTcp.connect(url);
   try {
     await sql.connect();
-    await sql.run(`
-      DO $$
-      DECLARE r RECORD;
-      BEGIN
-        FOR r IN
-          SELECT tablename FROM pg_tables
-          WHERE schemaname = 'public'
-            AND tableowner <> current_user
-        LOOP
-          EXECUTE format('ALTER TABLE public.%I OWNER TO %I', r.tablename, current_user);
-        END LOOP;
-      END$$
-    `);
-  } catch {
-    // Best-effort: if the role lacks permission, the Worker migration
-    // will handle it by skipping DDL on existing tables.
+    const rows = await sql.query<{ ok: number }>('SELECT 1 AS ok');
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return { ok: false, error: 'SELECT 1 returned no rows' };
+    }
+    try {
+      await sql.run(CLAIM_TABLE_OWNERSHIP_SQL);
+    } catch {
+      // Best-effort: if the role lacks permission, the Worker migration
+      // will handle it by skipping DDL on existing tables.
+    }
+    return { ok: true };
+  } catch (e) {
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : String(e),
+    };
   } finally {
     await sql.disconnect().catch(() => undefined);
   }
 }
+
+/** Set after the first successful wire check in this process (lock build). */
+let databaseUrlVerifiedInProcess = false;
 
 function tryFetchCachedDbUrlFromEnv(): string | null {
   const url = (process.env['DB_URL'] ?? '').trim();
@@ -162,20 +181,35 @@ function readDbUrlFromDoppler(): string {
 /**
  * Sets `process.env.DB_URL` from a valid cached Postgres URL, or loads `DB_URL`
  * from Doppler, after a connectivity check and best-effort ownership claim.
+ *
+ * After the first successful check in this process (during distributed-lock
+ * setup), later calls return the cached URL without opening another TCP
+ * session — `Ensure: planetscale-postgres` must not probe while the lock
+ * connection is already held.
  */
 export async function resolveDatabaseUrl(): Promise<string> {
+  if (databaseUrlVerifiedInProcess) {
+    const cached = tryFetchCachedDbUrlFromEnv();
+    if (cached) {
+      return cached;
+    }
+    const url = readDbUrlFromDoppler();
+    process.env['DB_URL'] = url;
+    return url;
+  }
+
   const cached = tryFetchCachedDbUrlFromEnv();
   if (cached) {
-    const probe = await probeDatabase(cached);
+    const probe = await verifyDatabaseAndClaimOwnership(cached);
     if (probe.ok) {
-      await claimTableOwnership(cached);
       process.env['DB_URL'] = cached;
+      databaseUrlVerifiedInProcess = true;
       return cached;
     }
   }
 
   const url = readDbUrlFromDoppler();
-  const probe = await probeDatabase(url);
+  const probe = await verifyDatabaseAndClaimOwnership(url);
   if (!probe.ok) {
     const hint =
       cached !== null
@@ -186,7 +220,7 @@ export async function resolveDatabaseUrl(): Promise<string> {
     );
   }
 
-  await claimTableOwnership(url);
   process.env['DB_URL'] = url;
+  databaseUrlVerifiedInProcess = true;
   return url;
 }
