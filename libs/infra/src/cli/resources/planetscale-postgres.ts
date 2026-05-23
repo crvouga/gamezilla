@@ -67,7 +67,9 @@ export async function pingDatabase(): Promise<DatabasePingResult> {
   }
 }
 
-type ProbeResult = { readonly ok: true } | { readonly ok: false; readonly error: string };
+type ProbeResult =
+  | { readonly ok: true }
+  | { readonly ok: false; readonly error: string };
 
 /**
  * PlanetScale Postgres is reached over the wire protocol (same path as the
