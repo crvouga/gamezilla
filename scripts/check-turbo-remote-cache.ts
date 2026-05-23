@@ -1,44 +1,28 @@
 /**
- * Verifies Vercel Remote Cache configuration. Expected Doppler `local` /
- * CI secrets (managed by `libs/infra/src/cli/resources/doppler.ts` and
- * `libs/infra/src/cli/secrets/turbo-token.ts`):
+ * Verifies Vercel Remote Cache configuration loaded from Doppler `local`
+ * (CI: `DOPPLER_TOKEN_SHARED` → `doppler run` — not GitHub `TURBO_*` secrets).
  *
- * - `TURBO_TOKEN`: a Vercel Access Token from
- *   https://vercel.com/account/tokens scoped to the team in `TURBO_TEAM`.
- * - `TURBO_TEAM`: Vercel team slug (the URL slug, e.g. `acme-co`).
- * - `TURBO_CACHE` (optional): the `--cache` flag value, e.g. `remote:rw`.
+ * Expected Doppler `local` keys (see `libs/infra/src/cli/resources/doppler.ts`):
  *
- * The torn-down self-hosted Cloudflare cache used to populate `TURBO_API`;
- * we now reject it explicitly so a stale value can't silently route
- * cache traffic at a Worker that no longer exists.
+ * - `TURBO_TOKEN`: Vercel access token (https://vercel.com/account/tokens)
+ * - `TURBO_TEAM`: Vercel team slug
+ * - `TURBO_CACHE` (optional): e.g. `remote:rw`
  *
- * In CI, also runs `turbo run --dry-run=json` and fails if Turbo reports
- * `cache.remote: false` — env vars alone are not enough; without a linked
- * remote, `check:ci` would rerun every package cold (~10+ min).
+ * Rejects stale `TURBO_API` from the torn-down self-hosted cache.
+ *
+ * In CI, runs a tiny `turbo run` probe and fails if Turbo prints
+ * "Remote caching unavailable" (auth / team mismatch). `turbo --dry-run`
+ * always reports `cache.remote: false` and must not be used here.
  */
 import { spawnSync } from 'node:child_process';
 
 const VERCEL_USER_URL = 'https://api.vercel.com/v2/user';
+const REMOTE_UNAVAILABLE = 'Remote caching unavailable';
 
 const REQUIRED = ['TURBO_TOKEN', 'TURBO_TEAM'] as const;
 
 /** Same shape as `TurboCache.validate` in libs/infra. */
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
-
-type DryRunCache = {
-  readonly remote?: boolean;
-  readonly status?: string;
-  readonly source?: string;
-};
-
-type DryRunTask = {
-  readonly taskId?: string;
-  readonly cache?: DryRunCache;
-};
-
-type DryRunJson = {
-  readonly tasks?: readonly DryRunTask[];
-};
 
 function isSet(v: string | undefined): boolean {
   return typeof v === 'string' && v.trim().length > 0;
@@ -59,12 +43,15 @@ function fail(message: string): never {
   console.error('════════════════════════════════════════════════════════');
   console.error(message);
   console.error('');
-  console.error('CI expects Doppler `local` to define:');
+  console.error('CI loads TURBO_* from Doppler config `local` via `doppler run`.');
+  console.error('The only GitHub secret involved is DOPPLER_TOKEN_SHARED.');
+  console.error('');
+  console.error('Doppler `local` must define:');
   console.error('  • TURBO_TOKEN — Vercel access token (team-scoped)');
   console.error('  • TURBO_TEAM  — Vercel team slug');
   console.error('');
-  console.error('Without remote cache, `bun run check:ci` reruns every task');
-  console.error('from scratch (~10+ min) and logs look like hung empty lines.');
+  console.error('Run `infra deploy` (or mirror manually) so `prod` turbo secrets');
+  console.error('match `local`. Without remote cache, `check:ci` takes ~10+ min.');
   console.error('See AGENTS.md § CI / Turbo Remote Cache.');
   console.error('');
   process.exit(1);
@@ -76,20 +63,25 @@ async function checkToken(token: string): Promise<void> {
   });
   if (res.status === 401 || res.status === 403) {
     throw new Error(
-      `Vercel rejected TURBO_TOKEN — HTTP ${res.status} from ${VERCEL_USER_URL} (rotate the token in Doppler and re-mirror)`
+      `Vercel rejected TURBO_TOKEN — HTTP ${res.status} from ${VERCEL_USER_URL} (rotate in Doppler and re-mirror to \`local\`)`
     );
   }
   if (!res.ok) {
-    // Transient 5xx / rate limits shouldn't fail CI on a token Vercel
-    // has accepted before; let the actual cache request surface it.
     return;
   }
 }
 
-function assertTurboRemoteCacheLinked(): void {
+function assertTurboRemoteCacheReachable(): void {
   const result = spawnSync(
     'bunx',
-    ['turbo', 'run', 'tc', '--filter=@pkgs/assert', '--dry-run=json'],
+    [
+      'turbo',
+      'run',
+      'tc',
+      '--filter=@pkgs/assert',
+      '--cache=local:rw,remote:r',
+      '--output-logs=none',
+    ],
     {
       encoding: 'utf8',
       env: process.env,
@@ -97,51 +89,25 @@ function assertTurboRemoteCacheLinked(): void {
     }
   );
 
-  const stdout = result.stdout ?? '';
-  const stderr = result.stderr ?? '';
+  const log = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
+
+  if (log.includes(REMOTE_UNAVAILABLE)) {
+    const line =
+      log.split('\n').find((l) => l.includes(REMOTE_UNAVAILABLE)) ??
+      REMOTE_UNAVAILABLE;
+    fail(
+      `${line.trim()}\n` +
+        'Fix TURBO_TOKEN / TURBO_TEAM in Doppler (`local`, mirrored from `prod`).'
+    );
+  }
 
   if (result.status !== 0) {
     fail(
-      `turbo dry-run exited ${String(result.status)}.\n` +
-        `stderr: ${stderr.trim() || '(empty)'}\n` +
-        `stdout: ${stdout.trim().slice(0, 400) || '(empty)'}`
+      `turbo probe exited ${String(result.status)}.\n${log.trim().slice(0, 600) || '(no output)'}`
     );
   }
 
-  let parsed: DryRunJson;
-  try {
-    parsed = JSON.parse(stdout) as DryRunJson;
-  } catch {
-    fail(
-      `turbo dry-run did not return JSON (first 400 chars):\n${stdout.slice(0, 400)}`
-    );
-  }
-
-  const tasks = parsed.tasks ?? [];
-  if (tasks.length === 0) {
-    fail('turbo dry-run scheduled zero tasks for @pkgs/assert#tc');
-  }
-
-  const remoteOff = tasks.filter((t) => t.cache?.remote !== true);
-  if (remoteOff.length > 0) {
-    const detail = remoteOff
-      .map((t) => {
-        const id = t.taskId ?? '(unknown task)';
-        const remote = String(t.cache?.remote ?? false);
-        return `  • ${id} (cache.remote=${remote})`;
-      })
-      .join('\n');
-    fail(
-      'Turbo is not using Vercel Remote Cache for these tasks:\n' +
-        `${detail}\n` +
-        'Confirm TURBO_TOKEN is a valid team token and TURBO_TEAM matches the slug in the Vercel URL.'
-    );
-  }
-
-  const sample = tasks[0]?.cache;
-  console.log(
-    `Turbo remote cache linked (dry-run: remote enabled, sample status=${sample?.status ?? '?'} source=${sample?.source ?? '?'})`
-  );
+  console.log('Turbo remote cache reachable (probe run; no auth warning)');
 }
 
 async function main(): Promise<void> {
@@ -159,8 +125,8 @@ async function main(): Promise<void> {
   if (present.length === 0) {
     if (strict) {
       fail(
-        'required in CI but no TURBO_TOKEN / TURBO_TEAM env is set. ' +
-          'Configure Doppler `local` (see libs/infra/src/cli/secrets/turbo-token.ts).'
+        'TURBO_TOKEN / TURBO_TEAM not in env after `doppler run`. ' +
+          'Set them in Doppler config `local` (see libs/infra/src/cli/secrets/turbo-token.ts).'
       );
     }
     console.log(
@@ -171,16 +137,21 @@ async function main(): Promise<void> {
 
   if (present.length !== REQUIRED.length) {
     const missing = REQUIRED.filter((k) => !isSet(process.env[k]));
-    fail(`incomplete env. Missing: ${missing.join(', ')}`);
+    fail(`incomplete Doppler env. Missing: ${missing.join(', ')}`);
   }
 
   const turboToken = process.env.TURBO_TOKEN!.trim();
   const turboTeam = process.env.TURBO_TEAM!.trim();
   const turboCache = (process.env.TURBO_CACHE ?? '').trim();
+  const dopplerConfig = (process.env.DOPPLER_CONFIG ?? '').trim() || '(unset)';
 
   if (turboCache !== '' && !TURBO_CACHE_RE.test(turboCache)) {
     fail(`invalid TURBO_CACHE "${turboCache}" (expected e.g. remote:rw)`);
   }
+
+  console.log(
+    `Turbo env (Doppler ${dopplerConfig}): TURBO_TEAM=${turboTeam}, TURBO_TOKEN=<${String(turboToken.length)} chars>`
+  );
 
   try {
     await checkToken(turboToken);
@@ -190,7 +161,7 @@ async function main(): Promise<void> {
   }
 
   if (strict) {
-    assertTurboRemoteCacheLinked();
+    assertTurboRemoteCacheReachable();
   }
 
   console.log(

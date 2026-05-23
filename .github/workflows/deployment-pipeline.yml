@@ -53,7 +53,8 @@ jobs:
   # hits. `check:ci` throttles cache HTTP (`--cache-workers=2`), uses
   # read-only remote (`--cache=local:rw,remote:r`), and prints per-task
   # cache status (`--output-logs=hash-only --summarize`) so logs are not
-  # blank lines for minutes. Remote cache is verified before the full graph.
+  # blank lines for minutes. TURBO_TOKEN/TURBO_TEAM come from Doppler
+  # `local` via `doppler run` (only DOPPLER_TOKEN_SHARED is a GH secret).
   turbo-ci:
     runs-on: ubuntu-latest
     concurrency:
@@ -64,8 +65,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - name: Verify Vercel remote cache (fail fast)
+      - name: Verify Vercel remote cache via Doppler (fail fast)
         env:
+          # Unlocks Doppler only — TURBO_TOKEN/TURBO_TEAM are injected by
+          # `doppler run` from the `local` config, not GitHub secrets.
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           CI: true
           GITHUB_ACTIONS: true
