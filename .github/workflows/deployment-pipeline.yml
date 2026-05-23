@@ -50,8 +50,10 @@ jobs:
   # audit, i18n, plus per-package `tc` / `lint` / `test` / `build`. Turbo
   # parallelizes across the task graph and reuses Vercel Remote Cache
   # (via Doppler-injected `TURBO_TOKEN` + `TURBO_TEAM`) for cross-PR
-  # hits. `check:ci` throttles cache HTTP (`--cache-workers=2`) and uses
-  # read-only remote (`--cache=local:rw,remote:r`) to avoid 429s.
+  # hits. `check:ci` throttles cache HTTP (`--cache-workers=2`), uses
+  # read-only remote (`--cache=local:rw,remote:r`), and prints per-task
+  # cache status (`--output-logs=hash-only --summarize`) so logs are not
+  # blank lines for minutes. Remote cache is verified before the full graph.
   turbo-ci:
     runs-on: ubuntu-latest
     concurrency:
@@ -62,6 +64,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
+      - name: Verify Vercel remote cache (fail fast)
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          CI: true
+          GITHUB_ACTIONS: true
+        run: |
+          env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- \
+            bun run scripts/check-turbo-remote-cache.ts
       - name: Turbo CI (cacheable gates + tc/lint/test/build)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
