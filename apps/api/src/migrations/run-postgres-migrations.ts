@@ -1,6 +1,7 @@
 /**
- * Canonical Postgres migration order: legacy index cleanup → patch-db (base
- * DDL + declarative app snapshot indexes) → kv → Better Auth (Kysely).
+ * Canonical Postgres migration order: Better Auth (Kysely, own `max: 1` pool)
+ * → legacy index cleanup → patch-db (base DDL + declarative app snapshot
+ * indexes) → kv (single caller-owned pool, `max: 1`).
  *
  * `dropLegacyAppSnapshotIndexes` runs **before** patch-db's `migrateUp`
  * because the new declarative reconciler only manages indexes whose names
@@ -12,9 +13,9 @@
  * via `options.indexes`; patch-db itself remains application-agnostic and
  * does not know about our domain entity types.
  *
- * Better Auth DDL runs after the transaction. Kysely owns its own short-lived
- * pool (created from `databaseUrl`) so `kysely.destroy()` cannot end a pool
- * the caller still owns — `pg.Pool.end()` throws on a second call.
+ * Better Auth runs first on its own short-lived `max: 1` pool so it never
+ * overlaps the caller pool — `kysely.destroy()` must not end a pool the
+ * caller still owns (`pg.Pool.end()` throws on a second call).
  *
  * Matchmaking does NOT run here. The `Matchmaking` class in
  * `apps/api/src/matchmaking/route.ts` self-migrates on first request
@@ -44,6 +45,8 @@ export async function runPostgresMigrations(
   args: RunPostgresMigrationsArgs
 ): Promise<void> {
   const { sqlClient, databaseUrl, logger, betterAuthOptions } = args;
+  await runBetterAuthMigrations({ databaseUrl, betterAuthOptions });
+
   await sqlClient.transaction(async (tx) => {
     await dropLegacyAppSnapshotIndexes({ sqlClient: tx, logger });
     await PatchDbImplPostgres.migrateUp({
@@ -53,6 +56,4 @@ export async function runPostgresMigrations(
     });
     await KvImplPostgres.migrateUp({ sqlClient: tx, logger });
   });
-
-  await runBetterAuthMigrations({ databaseUrl, betterAuthOptions });
 }

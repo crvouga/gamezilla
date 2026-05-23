@@ -12,6 +12,7 @@ async function main(): Promise<void> {
   const databaseUrl = await store.getRequired('DB_URL');
   const pool = new Pool({
     connectionString: sanitizePostgresUrlForNodePg(databaseUrl),
+    max: 1,
   });
   const sqlClient = new SqlClientImplPg(pool);
   const log = createLogger({ name: 'api:migrate' });

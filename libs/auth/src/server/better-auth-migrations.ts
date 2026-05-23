@@ -24,6 +24,7 @@ export async function runBetterAuthMigrations(
   const { databaseUrl, betterAuthOptions } = args;
   const kyselyPool = new Pool({
     connectionString: sanitizePostgresUrlForNodePg(databaseUrl),
+    max: 1,
   });
   const kysely = new Kysely({
     dialect: new PostgresDialect({ pool: kyselyPool }),

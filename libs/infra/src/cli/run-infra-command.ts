@@ -2,6 +2,7 @@ import type { LockHandle } from '@pkgs/distributed-lock/interface';
 import { LockHeldError } from '@pkgs/distributed-lock/interface';
 import type { Command } from './commands/types';
 import { buildDistributedLock } from './lib/build-distributed-lock';
+import { registerLockDbSessionHooks } from './lib/lock-db-session';
 import { fail, fmtMs, info, kv, ok, warn } from './lib/fmt';
 import type { CiPlatform } from './platform/platform';
 import { DopplerResource } from './resources/doppler';
@@ -63,7 +64,17 @@ export async function runInfraCommand(
     process.exit(1);
   }
 
-  const { lock, disconnect } = conn;
+  let activeLock = conn.lock;
+  let activeDisconnect = conn.disconnect;
+
+  registerLockDbSessionHooks({
+    suspend: () => safeDisconnect(activeDisconnect),
+    resume: async () => {
+      const next = await buildDistributedLock();
+      activeLock = next.lock;
+      activeDisconnect = next.disconnect;
+    },
+  });
 
   let handle: LockHandle | null = null;
 
@@ -79,7 +90,7 @@ export async function runInfraCommand(
         warn('Global lock', describe(e));
       });
       await withTimeout(
-        safeDisconnect(disconnect),
+        safeDisconnect(activeDisconnect),
         RELEASE_TIMEOUT_MS,
         'lock disconnect timed out'
       ).catch((e) => {
@@ -93,7 +104,7 @@ export async function runInfraCommand(
     if (handle === null) return;
     const lockId = handle.id;
     try {
-      await handle.release();
+      await activeLock.releaseIfHeldById(lockId);
       ok('Global lock', 'released');
       return;
     } catch (e) {
@@ -150,11 +161,11 @@ export async function runInfraCommand(
 
   try {
     try {
-      handle = await lock.acquire(command.id);
+      handle = await activeLock.acquire(command.id);
     } catch (e) {
       if (e instanceof LockHeldError) {
         printLockHeld(e);
-        await safeDisconnect(disconnect);
+        await safeDisconnect(activeDisconnect);
         removeAllHandlers();
         process.exit(1);
       }

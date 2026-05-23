@@ -80,7 +80,10 @@ export async function resolveOptionalDbUrl(): Promise<string | undefined> {
 /** Build a {@link SqlClient} for the given `DB_URL` (TCP Postgres). */
 export function createSqlClientFromDbUrl(dbUrl: string): SqlClient {
   return new SqlClientImplPg(
-    new Pool({ connectionString: sanitizePostgresUrlForNodePg(dbUrl) })
+    new Pool({
+      connectionString: sanitizePostgresUrlForNodePg(dbUrl),
+      max: 1,
+    })
   );
 }
 
