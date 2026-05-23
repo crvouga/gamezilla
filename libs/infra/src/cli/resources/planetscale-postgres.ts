@@ -1,4 +1,4 @@
-import { neon, neonConfig } from '@neondatabase/serverless';
+import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/impl-postgres-tcp';
 import { ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { fetchDopplerSecret } from '../secrets/secrets';
@@ -48,14 +48,13 @@ export async function pingDatabase(): Promise<DatabasePingResult> {
       };
     }
     const host = new URL(url).host;
-    const sql = neonSql(url);
-    const rows = await sql`SELECT 1 AS ok`;
-    if (!Array.isArray(rows) || rows.length === 0) {
+    const probe = await probeDatabase(url);
+    if (!probe.ok) {
       return {
         ok: false,
         host,
         durationMs: Date.now() - start,
-        error: 'SELECT 1 returned no rows',
+        error: probe.error,
       };
     }
     return { ok: true, host, durationMs: Date.now() - start };
@@ -68,18 +67,29 @@ export async function pingDatabase(): Promise<DatabasePingResult> {
   }
 }
 
-function neonSql(url: string) {
-  neonConfig.fetchEndpoint = (host) => `https://${host}/sql`;
-  return neon(url);
-}
+type ProbeResult = { readonly ok: true } | { readonly ok: false; readonly error: string };
 
-async function validateConnectivity(url: string): Promise<boolean> {
+/**
+ * PlanetScale Postgres is reached over the wire protocol (same path as the
+ * distributed lock and `db:migrate`), not Neon's HTTP `/sql` API — pooled
+ * `DB_URL` values from Doppler work here but often fail the serverless driver.
+ */
+async function probeDatabase(url: string): Promise<ProbeResult> {
+  const sql = SqlClientImplPostgresTcp.connect(url);
   try {
-    const sql = neonSql(url);
-    const rows = await sql`SELECT 1 AS ok`;
-    return Array.isArray(rows) && rows.length > 0;
-  } catch {
-    return false;
+    await sql.connect();
+    const rows = await sql.query<{ ok: number }>('SELECT 1 AS ok');
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return { ok: false, error: 'SELECT 1 returned no rows' };
+    }
+    return { ok: true };
+  } catch (e) {
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : String(e),
+    };
+  } finally {
+    await sql.disconnect().catch(() => undefined);
   }
 }
 
@@ -88,9 +98,10 @@ async function validateConnectivity(url: string): Promise<boolean> {
  * Fixes orphaned ownership left by previously deleted PlanetScale roles.
  */
 async function claimTableOwnership(url: string): Promise<void> {
-  const sql = neonSql(url);
+  const sql = SqlClientImplPostgresTcp.connect(url);
   try {
-    await sql`
+    await sql.connect();
+    await sql.run(`
       DO $$
       DECLARE r RECORD;
       BEGIN
@@ -102,10 +113,12 @@ async function claimTableOwnership(url: string): Promise<void> {
           EXECUTE format('ALTER TABLE public.%I OWNER TO %I', r.tablename, current_user);
         END LOOP;
       END$$
-    `;
+    `);
   } catch {
     // Best-effort: if the role lacks permission, the Worker migration
     // will handle it by skipping DDL on existing tables.
+  } finally {
+    await sql.disconnect().catch(() => undefined);
   }
 }
 
@@ -151,8 +164,8 @@ function readDbUrlFromDoppler(): string {
 export async function resolveDatabaseUrl(): Promise<string> {
   const cached = tryFetchCachedDbUrlFromEnv();
   if (cached) {
-    const valid = await validateConnectivity(cached);
-    if (valid) {
+    const probe = await probeDatabase(cached);
+    if (probe.ok) {
       await claimTableOwnership(cached);
       process.env['DB_URL'] = cached;
       return cached;
@@ -160,9 +173,15 @@ export async function resolveDatabaseUrl(): Promise<string> {
   }
 
   const url = readDbUrlFromDoppler();
-  const valid = await validateConnectivity(url);
-  if (!valid) {
-    throw new Error('DB_URL connectivity check failed (SELECT 1)');
+  const probe = await probeDatabase(url);
+  if (!probe.ok) {
+    const hint =
+      cached !== null
+        ? ' (env DB_URL also failed — check Doppler `prod` `DB_URL` matches a Postgres wire URL)'
+        : '';
+    throw new Error(
+      `DB_URL connectivity check failed (SELECT 1)${hint}: ${probe.error}`
+    );
   }
 
   await claimTableOwnership(url);

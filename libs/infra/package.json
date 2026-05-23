@@ -17,7 +17,6 @@
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@neondatabase/serverless": "catalog:",
     "picocolors": "catalog:"
   },
   "devDependencies": {
