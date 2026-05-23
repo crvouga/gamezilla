@@ -21,7 +21,7 @@
     "setup": "bun run scripts/setup-env.ts",
     "prestart": "bun run bundle:absurd-sql-worker && bun run bundle:sqljs-wasm && bun run bundle:skia-canvaskit-wasm",
     "start": "expo start --web",
-    "tc": "tsc --noEmit -p ../../tsconfig.json",
+    "tc": "tsc --noEmit -p tsconfig.json",
     "test": "bun test --pass-with-no-tests",
     "preweb": "bun run bundle:absurd-sql-worker && bun run bundle:sqljs-wasm && bun run bundle:skia-canvaskit-wasm",
     "web": "expo start --web"

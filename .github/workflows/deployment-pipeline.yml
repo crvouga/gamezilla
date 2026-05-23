@@ -65,6 +65,9 @@ jobs:
       - name: Turbo CI (cacheable gates + tc/lint/test/build)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          # GHA runners can expose a pseudo-TTY; Turbo's interactive TUI then
+          # buffers task logs and looks hung for 10+ min on `@apps/client`.
+          TURBO_UI: stream
         run: bun run check:ci
 
   # Static repo gates that don't fit Turbo's task graph: actionlint
