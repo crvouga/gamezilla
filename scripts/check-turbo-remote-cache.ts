@@ -85,7 +85,7 @@ function assertTurboRemoteCacheReachable(): void {
       'run',
       'tc',
       '--filter=@pkgs/assert',
-      '--cache=local:rw,remote:r',
+      '--cache=local:rw,remote:rw',
       '--output-logs=none',
     ],
     {
