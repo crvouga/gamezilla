@@ -10,8 +10,8 @@ import { runAsync } from '../../subprocess';
  * `DB_URL` from Doppler via `SecretStore`; CI just needs the DOPPLER
  * env in place (already true for any infra subcommand).
  *
- * Suspends the parent lock DB connection for the subprocess so PlanetScale
- * direct connection limits are not exhausted (lock slot + migrate pool).
+ * Deploy acquires the global lock only after this phase. When a lock is
+ * held (other commands), suspends the lock DB connection for the subprocess.
  */
 export async function runMigratePhase(platform: CiPlatform): Promise<void> {
   await withLockDbSuspended(async () => {
