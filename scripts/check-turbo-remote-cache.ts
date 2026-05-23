@@ -43,15 +43,21 @@ function fail(message: string): never {
   console.error('════════════════════════════════════════════════════════');
   console.error(message);
   console.error('');
-  console.error('CI loads TURBO_* from Doppler config `local` via `doppler run`.');
+  console.error(
+    'CI loads TURBO_* from Doppler config `local` via `doppler run`.'
+  );
   console.error('The only GitHub secret involved is DOPPLER_TOKEN_SHARED.');
   console.error('');
   console.error('Doppler `local` must define:');
   console.error('  • TURBO_TOKEN — Vercel access token (team-scoped)');
   console.error('  • TURBO_TEAM  — Vercel team slug');
   console.error('');
-  console.error('Run `infra deploy` (or mirror manually) so `prod` turbo secrets');
-  console.error('match `local`. Without remote cache, `check:ci` takes ~10+ min.');
+  console.error(
+    'Run `infra deploy` (or mirror manually) so `prod` turbo secrets'
+  );
+  console.error(
+    'match `local`. Without remote cache, `check:ci` takes ~10+ min.'
+  );
   console.error('See AGENTS.md § CI / Turbo Remote Cache.');
   console.error('');
   process.exit(1);
