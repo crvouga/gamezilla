@@ -155,48 +155,50 @@ const chessPuzzleLoadPolicy: AppVisibilityPolicy = {
   },
 };
 
+/**
+ * Owned by `myId` (account id when signed in, device id when anon) so anon
+ * installs accrue ratings against their device until they sign in. Identity
+ * rotation on sign-in is not migrated — pre-sign-in profile data stays under
+ * the device id.
+ */
 const chessPuzzleProfilePolicy: AppVisibilityPolicy = {
   read: () => READ_WHERE_ALWAYS_TRUE,
   write: async (ctx, patch, _tx) => {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    if (appCtx.accountId === null) {
-      throw new ForbiddenError('chess.puzzle.profile requires sign-in');
-    }
     assertCreatedByMatchesAuthor(appCtx, patch);
     const owner = patch.attributes[AbacEntityAttr.owner.key];
-    if (owner !== undefined && owner !== appCtx.accountId) {
+    if (owner !== undefined && owner !== appCtx.myId) {
       throw new ForbiddenError('entity/owner mismatch');
     }
-    if (patch.entityId !== appCtx.accountId) {
+    if (patch.entityId !== appCtx.myId) {
       throw new ForbiddenError('chess.puzzle.profile entityId mismatch', {
-        expected: appCtx.accountId,
+        expected: appCtx.myId,
         actual: patch.entityId,
       });
     }
   },
 };
 
+/**
+ * Anon-friendly: rows are owned by `myId` (account id when signed in, device
+ * id when anon). Reads are scoped to the caller's `myId` so each install only
+ * sees its own puzzle history.
+ */
 const chessPuzzleInteractionPolicy: AppVisibilityPolicy = {
-  read: authOnlyRead((ctx) => {
-    if (ctx.accountId === null) return READ_WHERE_NEVER_TRUE;
-    return {
-      type: '=',
-      attribute: AbacEntityAttr.owner.key,
-      value: ctx.accountId,
-    };
-  }),
+  read: authOnlyRead((ctx) => ({
+    type: '=',
+    attribute: AbacEntityAttr.owner.key,
+    value: ctx.myId,
+  })),
   write: async (ctx, patch, _tx) => {
     if (isPatchDbSystemContext(ctx)) return;
     const appCtx = appAuthFromWriteContext(ctx);
     if (appCtx === null) return;
-    if (appCtx.accountId === null) {
-      throw new ForbiddenError('chess.puzzle.interaction requires sign-in');
-    }
     assertCreatedByMatchesAuthor(appCtx, patch);
     const owner = patch.attributes[AbacEntityAttr.owner.key];
-    if (owner !== undefined && owner !== appCtx.accountId) {
+    if (owner !== undefined && owner !== appCtx.myId) {
       throw new ForbiddenError('entity/owner mismatch');
     }
   },
