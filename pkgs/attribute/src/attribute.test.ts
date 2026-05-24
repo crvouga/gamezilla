@@ -52,27 +52,35 @@ describe('createAttrNamespace', () => {
 
   it('rejects empty name', () => {
     const ns = createAttrNamespace('games');
-    expect(() => ns('', (v) => v)).toThrow();
+    expect(() =>
+      ns.text('', (v) => (typeof v === 'string' ? v : ''))
+    ).toThrow();
   });
 
   it('rejects slash in name', () => {
     const ns = createAttrNamespace('games');
-    expect(() => ns('foo/bar', (v) => v)).toThrow();
+    expect(() =>
+      ns.text('foo/bar', (v) => (typeof v === 'string' ? v : ''))
+    ).toThrow();
   });
 
   it('rejects camelCase local name', () => {
     const ns = createAttrNamespace('games');
-    expect(() => ns('displayName', (v) => v)).toThrow();
+    expect(() =>
+      ns.text('displayName', (v) => (typeof v === 'string' ? v : ''))
+    ).toThrow();
   });
 
   it('rejects single-character local name', () => {
     const ns = createAttrNamespace('games');
-    expect(() => ns('x', (v) => v)).toThrow();
+    expect(() =>
+      ns.text('x', (v) => (typeof v === 'string' ? v : ''))
+    ).toThrow();
   });
 
   it('builds full key as prefix/name', () => {
     const ns = createAttrNamespace('games');
-    const Selected = ns('selected', (v): string | null =>
+    const Selected = ns.textOrNull('selected', (v): string | null =>
       typeof v === 'string' ? v : null
     );
     expect(String(Selected.key)).toBe('games/selected');
@@ -80,7 +88,7 @@ describe('createAttrNamespace', () => {
 
   it('callable builds single-key patch', () => {
     const ns = createAttrNamespace('games');
-    const Selected = ns('selected', (v): 'chess' | null =>
+    const Selected = ns.textOrNull('selected', (v): 'chess' | null =>
       v === 'chess' ? 'chess' : null
     );
     expect(Selected('chess')).toEqual({ 'games/selected': 'chess' });
@@ -89,7 +97,7 @@ describe('createAttrNamespace', () => {
 
   it('.parse validates raw value without wrapping', () => {
     const ns = createAttrNamespace('games');
-    const Selected = ns('selected', (v): 'chess' | null =>
+    const Selected = ns.textOrNull('selected', (v): 'chess' | null =>
       v === 'chess' ? 'chess' : null
     );
     expect(Selected.parse('chess')).toBe('chess');
@@ -98,7 +106,7 @@ describe('createAttrNamespace', () => {
 
   it('.from reads flat key and parses', () => {
     const ns = createAttrNamespace('profile');
-    const DisplayName = ns('display-name', (v): string =>
+    const DisplayName = ns.text('display-name', (v): string =>
       typeof v === 'string' ? v : ''
     );
     const state: AttributeState = DisplayName('Ada');
@@ -108,7 +116,7 @@ describe('createAttrNamespace', () => {
 
   it('parser throw propagates from callable', () => {
     const ns = createAttrNamespace('games');
-    const Selected = ns('selected', (_v): never => {
+    const Selected = ns.text('selected', (_v): never => {
       throw new Error('bad');
     });
     expect(() => Selected('x')).toThrow('bad');
@@ -116,7 +124,7 @@ describe('createAttrNamespace', () => {
 
   it('parser throw propagates from .from', () => {
     const ns = createAttrNamespace('games');
-    const Selected = ns('selected', (_v): never => {
+    const Selected = ns.text('selected', (_v): never => {
       throw new Error('bad');
     });
     const state = { [Selected.key]: 1 } as AttributeState;
@@ -125,9 +133,130 @@ describe('createAttrNamespace', () => {
 
   it('parser throw propagates from .parse', () => {
     const ns = createAttrNamespace('games');
-    const Selected = ns('selected', (_v): never => {
+    const Selected = ns.text('selected', (_v): never => {
       throw new Error('bad');
     });
     expect(() => Selected.parse(1)).toThrow('bad');
+  });
+});
+
+describe('DataType + nullable metadata', () => {
+  it('text tag carries dataType="text", nullable=false', () => {
+    const ns = createAttrNamespace('profile');
+    const tag = ns.text('display-name', (v) =>
+      typeof v === 'string' ? v : ''
+    );
+    expect(tag.dataType).toBe('text');
+    expect(tag.nullable).toBe(false);
+    expect(tag.enumValues).toEqual([]);
+  });
+
+  it('textOrNull tag carries nullable=true', () => {
+    const ns = createAttrNamespace('profile');
+    const tag = ns.textOrNull('cursor', (v): string | null =>
+      typeof v === 'string' ? v : null
+    );
+    expect(tag.dataType).toBe('text');
+    expect(tag.nullable).toBe(true);
+  });
+
+  it('integer tag has dataType="integer"', () => {
+    const ns = createAttrNamespace('chess', 'puzzle');
+    const tag = ns.integer('rating', (v) =>
+      typeof v === 'number' && Number.isInteger(v) ? v : 0
+    );
+    expect(tag.dataType).toBe('integer');
+    expect(tag.nullable).toBe(false);
+  });
+
+  it('boolean / number / bigint / binary tags carry correct dataType', () => {
+    const ns = createAttrNamespace('demo');
+    expect(
+      ns.boolean('flag', (v) => typeof v === 'boolean' && v).dataType
+    ).toBe('boolean');
+    expect(
+      ns.number('amount', (v) => (typeof v === 'number' ? v : 0)).dataType
+    ).toBe('number');
+    expect(
+      ns.bigint('counter', (v) => (typeof v === 'bigint' ? v : 0n)).dataType
+    ).toBe('bigint');
+    expect(
+      ns.binary('blob', (v) => (v instanceof Uint8Array ? v : new Uint8Array()))
+        .dataType
+    ).toBe('binary');
+  });
+
+  it('json / array tags carry correct dataType', () => {
+    const ns = createAttrNamespace('demo');
+    expect(
+      ns.json('cfg', (v) =>
+        v !== null && typeof v === 'object' && !Array.isArray(v)
+          ? (v as Record<string, unknown>)
+          : {}
+      ).dataType
+    ).toBe('json');
+    expect(
+      ns.array<string>('themes', (v) =>
+        Array.isArray(v)
+          ? v.filter((x): x is string => typeof x === 'string')
+          : []
+      ).dataType
+    ).toBe('array');
+  });
+
+  it('date / timestamp / time / email / url / uuid map to text-shaped types', () => {
+    const ns = createAttrNamespace('demo');
+    const readStr = (v: unknown): string => (typeof v === 'string' ? v : '');
+    expect(ns.date('birth-date', readStr).dataType).toBe('date');
+    expect(ns.timestamp('created-at', readStr).dataType).toBe('timestamp');
+    expect(ns.time('cutoff', readStr).dataType).toBe('time');
+    expect(ns.email('contact', readStr).dataType).toBe('email');
+    expect(ns.url('homepage', readStr).dataType).toBe('url');
+    expect(ns.uuid('identifier', readStr).dataType).toBe('uuid');
+  });
+});
+
+describe('enum tag', () => {
+  it('defaults to values[0] on missing / invalid input', () => {
+    const ns = createAttrNamespace('chess', 'puzzle', 'play');
+    const Status = ns.enum('status', [
+      'idle',
+      'solving',
+      'wrong',
+      'solved',
+    ] as const);
+    expect(Status.dataType).toBe('enum');
+    expect(Status.enumValues).toEqual(['idle', 'solving', 'wrong', 'solved']);
+    expect(Status.parse(undefined)).toBe('idle');
+    expect(Status.parse('garbage')).toBe('idle');
+    expect(Status.parse('solving')).toBe('solving');
+  });
+
+  it('enumOrNull returns null on missing / invalid input by default', () => {
+    const ns = createAttrNamespace('chess', 'puzzle', 'play');
+    const Status = ns.enumOrNull('status', ['idle', 'solving'] as const);
+    expect(Status.dataType).toBe('enum');
+    expect(Status.nullable).toBe(true);
+    expect(Status.parse(undefined)).toBeNull();
+    expect(Status.parse('nope')).toBeNull();
+    expect(Status.parse('idle')).toBe('idle');
+  });
+
+  it('accepts a custom parser', () => {
+    const ns = createAttrNamespace('demo');
+    const Status = ns.enum(
+      'status',
+      ['on', 'off'] as const,
+      (v): 'on' | 'off' => (v === 1 ? 'on' : 'off')
+    );
+    expect(Status.parse(1)).toBe('on');
+    expect(Status.parse(0)).toBe('off');
+  });
+
+  it('rejects empty values array', () => {
+    const ns = createAttrNamespace('demo');
+    expect(() =>
+      ns.enum('status', [] as unknown as readonly [string, ...string[]])
+    ).toThrow();
   });
 });

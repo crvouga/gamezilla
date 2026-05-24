@@ -30,16 +30,18 @@ export function useAutoLeaveIfEnded(spaceId: string): void {
   const spaceStillLive = endedAt === null;
 
   const membershipId = useMyGuestMembershipId(spaceId);
-  const membershipExists = useQueryAttribute({
+  const guestId = useQueryAttribute({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     entityId: membershipId ?? '',
-    attribute: SpaceMembershipAttr.guestIdIsPresent,
+    attribute: SpaceMembershipAttr.guestId,
   });
-  const membershipActive = useQueryAttribute({
+  const leftAt = useQueryAttribute({
     entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
     entityId: membershipId ?? '',
-    attribute: SpaceMembershipAttr.leftAtIsAbsent,
+    attribute: SpaceMembershipAttr.leftAt,
   });
+  const membershipExists = guestId.length > 0;
+  const membershipActive = leftAt === null;
 
   useEffect(() => {
     if (spaceId.length === 0) return;

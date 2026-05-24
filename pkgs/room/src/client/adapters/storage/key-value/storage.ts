@@ -90,9 +90,9 @@ function parseQueuedCommandArray(v: unknown): QueuedCommand[] {
 }
 
 const RoomClientStorageAttr = {
-  lastSeq: Committed('last-seq', parseNonNegativeInt),
-  entries: Committed('entries', parseLogEntryArray),
-  commands: Queue('commands', parseQueuedCommandArray),
+  lastSeq: Committed.integer('last-seq', parseNonNegativeInt),
+  entries: Committed.array('entries', parseLogEntryArray),
+  commands: Queue.array('commands', parseQueuedCommandArray),
 } as const;
 
 /**

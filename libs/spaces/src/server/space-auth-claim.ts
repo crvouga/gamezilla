@@ -17,7 +17,7 @@ function readStringArray(v: unknown): readonly string[] {
 }
 
 export const SpaceAuthClaimAttr = {
-  memberOfSpaceIds: spacesNs('member-of-space-ids', readStringArray),
+  memberOfSpaceIds: spacesNs.array('member-of-space-ids', readStringArray),
 } as const;
 
 /** Reads `spaces/member-of-space-ids` off any caller context. */

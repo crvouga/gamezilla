@@ -11,29 +11,29 @@ const looseBool = (v: unknown): boolean => v === true || v === 1;
 
 const taskNs = createAttrNamespace('task');
 export const QTask = {
-  title: taskNs('title', looseString),
-  status: taskNs('status', looseString),
-  done: taskNs('done', looseBool),
-  score: taskNs('score', looseNum),
-  name: taskNs('name', looseString),
+  title: taskNs.text('title', looseString),
+  status: taskNs.text('status', looseString),
+  done: taskNs.boolean('done', looseBool),
+  score: taskNs.number('score', looseNum),
+  name: taskNs.text('name', looseString),
 };
 
 const itemNs = createAttrNamespace('item');
 export const QItem = {
-  tag: itemNs('tag', looseString),
-  score: itemNs('score', looseNum),
-  name: itemNs('name', looseString),
+  tag: itemNs.text('tag', looseString),
+  score: itemNs.number('score', looseNum),
+  name: itemNs.text('name', looseString),
 };
 
 const todoListNs = createAttrNamespace('todo-list');
 export const QTodoList = {
-  name: todoListNs('name', looseString),
-  order: todoListNs('order', looseNum),
-  createdAt: todoListNs('created-at', looseString),
-  deleted: todoListNs('deleted', looseBool),
+  name: todoListNs.text('name', looseString),
+  order: todoListNs.number('order', looseNum),
+  createdAt: todoListNs.timestamp('created-at', looseString),
+  deleted: todoListNs.boolean('deleted', looseBool),
 };
 
 const gameSessionNs = createAttrNamespace('game', 'session');
 export const QGameSession = {
-  score: gameSessionNs('score', looseNum),
+  score: gameSessionNs.number('score', looseNum),
 };

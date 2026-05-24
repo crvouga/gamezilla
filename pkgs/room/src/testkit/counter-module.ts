@@ -20,8 +20,8 @@ function validateEmptyPayload(p: unknown): p is Record<string, never> {
 }
 
 const counterRoomNs = createAttrNamespace('counter');
-const counterCount = counterRoomNs('count', (v): number =>
-  typeof v === 'number' && Number.isFinite(v) ? v : 0
+const counterCount = counterRoomNs.integer('count', (v): number =>
+  typeof v === 'number' && Number.isFinite(v) ? Math.trunc(v) : 0
 );
 
 const cmdNs = createMessageNamespace('space-counter-cmd');

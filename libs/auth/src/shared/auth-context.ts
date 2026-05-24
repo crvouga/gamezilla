@@ -40,11 +40,11 @@ function readNullableString(v: unknown): string | null {
  */
 export const AuthClaimAttr = {
   /** Install / replication device UUID. Empty string when truly anonymous. */
-  deviceId: authNs('device-id', readNonEmptyString),
+  deviceId: authNs.text('device-id', readNonEmptyString),
   /** Account UUID when signed in, else `null`. */
-  accountId: authNs('account-id', readNullableString),
+  accountId: authNs.textOrNull('account-id', readNullableString),
   /** Author id used by patch metadata: `accountId ?? deviceId`. */
-  myId: authNs('my-id', readNonEmptyString),
+  myId: authNs.text('my-id', readNonEmptyString),
 } as const;
 
 /**

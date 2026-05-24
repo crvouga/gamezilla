@@ -15,7 +15,7 @@ function readTrimmedNullableString(v: unknown): string | null {
 }
 
 export const ClientConfigAttr = {
-  googleWebClientId: clientConfigNs(
+  googleWebClientId: clientConfigNs.textOrNull(
     'google-web-client-id',
     readTrimmedNullableString
   ),

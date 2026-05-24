@@ -9,17 +9,17 @@ import type { LlmStructuredRequest, LlmStructuredResult } from './llm-types';
 
 const Cache = createAttrNamespace('llm', 'cache');
 
-function parseJsonObject(v: unknown): Readonly<Record<string, unknown>> {
+function parseJsonObject(v: unknown): Record<string, unknown> {
   assert.ok(
     v !== null && typeof v === 'object' && !Array.isArray(v),
     'llm cache: json must be a plain object',
     { v }
   );
-  return v as Readonly<Record<string, unknown>>;
+  return v as Record<string, unknown>;
 }
 
 const LlmCacheAttr = {
-  json: Cache('json', parseJsonObject),
+  json: Cache.json('json', parseJsonObject),
 } as const;
 
 /**

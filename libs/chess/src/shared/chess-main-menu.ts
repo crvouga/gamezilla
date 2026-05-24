@@ -38,8 +38,8 @@ const gamesNs = createAttrNamespace('chess', 'main-menu');
 
 /** Room keys for the chess in-space main menu (sub-screen under `games/selected === chess`). */
 export const ChessMainMenuScreenAttr = {
-  screen: gamesNs('screen', readChessMainMenuScreen),
-  selectedUiComponentName: gamesNs(
+  screen: gamesNs.text('screen', readChessMainMenuScreen),
+  selectedUiComponentName: gamesNs.textOrNull(
     'selected-ui-component-name',
     readSelectedUiComponentName
   ),

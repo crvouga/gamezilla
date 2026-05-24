@@ -34,11 +34,14 @@ const profNs = createAttrNamespace('chess', 'puzzle', 'profile');
 
 /** Denormalized rating cache — recomputed from interactions on terminal events. */
 export const ChessPuzzleProfileAttr = {
-  ownerId: profNs('owner-id', readNonEmptyString),
-  rating: profNs('rating', readBoundedInt({ min: 400, max: 3000, dflt: 1200 })),
-  ratingDev: profNs(
+  ownerId: profNs.text('owner-id', readNonEmptyString),
+  rating: profNs.integer(
+    'rating',
+    readBoundedInt({ min: 400, max: 3000, dflt: 1200 })
+  ),
+  ratingDev: profNs.integer(
     'rating-deviation',
     readBoundedInt({ min: 30, max: 500, dflt: 350 })
   ),
-  lastInteractionAt: profNs('last-interaction-at', readString),
+  lastInteractionAt: profNs.timestamp('last-interaction-at', readString),
 } as const;

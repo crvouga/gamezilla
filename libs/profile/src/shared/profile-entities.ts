@@ -1,6 +1,6 @@
 import { createAttrNamespace } from '@pkgs/attribute';
 
-import { parseAvatarConfig } from './avatar-config';
+import { parseAvatarConfig, type AvatarConfig } from './avatar-config';
 
 function readString(v: unknown): string {
   return typeof v === 'string' ? v : '';
@@ -20,8 +20,11 @@ export const PROFILE_ENTITY_TYPE = profileNs.prefix;
  * - Signed-in account: `entityId === userId`
  */
 export const ProfileAttr = {
-  id: profileNs('id', readString),
-  createdAt: profileNs('created-at', readString),
-  displayName: profileNs('display-name', readDisplayName),
-  avatarConfig: profileNs('avatar-config', parseAvatarConfig),
+  id: profileNs.uuid('id', readString),
+  createdAt: profileNs.timestamp('created-at', readString),
+  displayName: profileNs.text('display-name', readDisplayName),
+  avatarConfig: profileNs.jsonOrNull<'avatar-config', AvatarConfig>(
+    'avatar-config',
+    parseAvatarConfig
+  ),
 } as const;

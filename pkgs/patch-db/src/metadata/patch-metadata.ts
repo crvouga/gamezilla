@@ -9,40 +9,59 @@ function readPatchString(v: unknown): string {
   return typeof v === 'string' ? v : String(v ?? '');
 }
 
-function readPatchUnknown(v: unknown): unknown {
-  return v;
+function readNullableTimestamp(v: unknown): string | null {
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'string') return v;
+  return null;
 }
 
-function readPatchBooleanish(v: unknown): boolean {
+function readNullableString(v: unknown): string | null {
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'string') return v;
+  return null;
+}
+
+function readBooleanish(v: unknown): boolean {
   return v === true || v === 1;
+}
+
+function rejectCodeParse(_: unknown): true {
+  return true;
 }
 
 const patchMetaNs = createAttrNamespace('patch');
 
 const patchRejectNs = createAttrNamespace('patch', 'reject');
 
-function rejectCodeParse(_: unknown): true {
-  return true;
-}
-
 /**
  * Machine rejection codes on the wire (`PatchRejectionReason.code`).
- * Keys are validated {@link Keyword}s under `patch.reject/*`.
+ * Keys are validated {@link Keyword}s under `patch.reject/*`; the parser is a
+ * tag-only marker so the data type is `boolean` (`true` iff the code is
+ * present), not text.
  */
 export const PATCH_REJECT_CODE = {
-  forbidden: patchRejectNs('forbidden', rejectCodeParse),
-  unknownEntityType: patchRejectNs('unknown-entity-type', rejectCodeParse),
-  hook1: patchRejectNs('hook1', rejectCodeParse),
+  forbidden: patchRejectNs.boolean('forbidden', rejectCodeParse),
+  unknownEntityType: patchRejectNs.boolean(
+    'unknown-entity-type',
+    rejectCodeParse
+  ),
+  hook1: patchRejectNs.boolean('hook1', rejectCodeParse),
 } as const;
 
 /** Attribute tags from `@pkgs/attribute` — single source of truth for patch meta wire strings. */
 export const PatchMetaAttr = {
-  createdById: patchMetaNs('created-by-id', readPatchString),
-  sessionId: patchMetaNs('session-id', readPatchString),
-  syncedAt: patchMetaNs('synced-at', readPatchUnknown),
-  syncRejectedAt: patchMetaNs('sync-rejected-at', readPatchUnknown),
-  syncRejectedReason: patchMetaNs('sync-rejected-reason', readPatchUnknown),
-  rejected: patchMetaNs('rejected', readPatchBooleanish),
+  createdById: patchMetaNs.text('created-by-id', readPatchString),
+  sessionId: patchMetaNs.text('session-id', readPatchString),
+  syncedAt: patchMetaNs.timestampOrNull('synced-at', readNullableTimestamp),
+  syncRejectedAt: patchMetaNs.timestampOrNull(
+    'sync-rejected-at',
+    readNullableTimestamp
+  ),
+  syncRejectedReason: patchMetaNs.textOrNull(
+    'sync-rejected-reason',
+    readNullableString
+  ),
+  rejected: patchMetaNs.boolean('rejected', readBooleanish),
 } as const;
 
 /** Original patch author id (account id when signed in, else install id). */
@@ -71,10 +90,6 @@ export const PATCH_META_KEYS = [
   PatchMetaAttr.syncRejectedReason.key,
   PatchMetaAttr.rejected.key,
 ] as const;
-
-function readBooleanish(v: unknown): boolean {
-  return v === true || v === 1;
-}
 
 /**
  * True when this patch must be ignored for entity snapshots and outbox push

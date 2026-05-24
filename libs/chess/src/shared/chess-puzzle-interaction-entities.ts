@@ -58,14 +58,24 @@ function readString(v: unknown): string {
 const intNs = createAttrNamespace('chess', 'puzzle', 'interaction');
 
 export const ChessPuzzleInteractionAttr = {
-  ownerId: intNs('owner-id', readNonEmptyString),
-  puzzleId: intNs('puzzle-id', readNonEmptyString),
-  puzzleRating: intNs('puzzle-rating', readNonNegativeInteger),
-  kind: intNs('kind', readInteractionKind),
-  solveIdx: intNs('solve-idx', readNonNegativeInteger),
-  uci: intNs('uci', readNullableNonEmptyString),
-  correct: intNs('correct', readNullableBoolean),
-  at: intNs('at', readString),
+  ownerId: intNs.text('owner-id', readNonEmptyString),
+  puzzleId: intNs.text('puzzle-id', readNonEmptyString),
+  puzzleRating: intNs.integer('puzzle-rating', readNonNegativeInteger),
+  kind: intNs.enum(
+    'kind',
+    [
+      CHESS_PUZZLE_INTERACTION_KIND.started,
+      CHESS_PUZZLE_INTERACTION_KIND.moved,
+      CHESS_PUZZLE_INTERACTION_KIND.usedHint,
+      CHESS_PUZZLE_INTERACTION_KIND.solved,
+      CHESS_PUZZLE_INTERACTION_KIND.abandoned,
+    ] as const,
+    readInteractionKind
+  ),
+  solveIdx: intNs.integer('solve-idx', readNonNegativeInteger),
+  uci: intNs.textOrNull('uci', readNullableNonEmptyString),
+  correct: intNs.booleanOrNull('correct', readNullableBoolean),
+  at: intNs.timestamp('at', readString),
 } as const;
 
 /** Parsed interaction row used by derivation helpers. */

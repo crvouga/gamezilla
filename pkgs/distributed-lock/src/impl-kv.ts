@@ -43,12 +43,12 @@ function parseBoolean(v: unknown): boolean {
 }
 
 const LockInfoAttr = {
-  id: Lock('id', parseNonEmptyString),
-  operation: Lock('operation', parseNonEmptyString),
-  holder: Lock('holder', parseString),
-  pid: Lock('pid', parseFiniteNumber),
-  ci: Lock('ci', parseBoolean),
-  startedAt: Lock('started-at', parseString),
+  id: Lock.text('id', parseNonEmptyString),
+  operation: Lock.text('operation', parseNonEmptyString),
+  holder: Lock.text('holder', parseString),
+  pid: Lock.number('pid', parseFiniteNumber),
+  ci: Lock.boolean('ci', parseBoolean),
+  startedAt: Lock.timestamp('started-at', parseString),
 } as const;
 
 function lockInfoFromKvRecord(record: KvRecord): LockInfo {

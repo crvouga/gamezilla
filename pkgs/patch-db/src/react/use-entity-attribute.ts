@@ -1,4 +1,4 @@
-import type { AttributeTag } from '@pkgs/attribute';
+import type { AnyAttributeTag } from '@pkgs/attribute';
 import { useMemo } from 'react';
 import type { PatchEntityType } from '../interface';
 import { useEntity } from './use-entity';
@@ -7,10 +7,10 @@ import { useEntity } from './use-entity';
  * Reads one attribute from one entity id. Prefer over {@link useQueryAttribute}
  * when you have a stable `entityId` string — shares one subscription per entity.
  */
-export function useEntityAttribute<T, K extends string>(
+export function useEntityAttribute<T>(
   entityType: PatchEntityType,
   entityId: string,
-  attr: AttributeTag<T, K>
+  attr: AnyAttributeTag<T>
 ): T {
   const entity = useEntity(entityType, entityId);
   const raw = entity?.attributes[attr.key];

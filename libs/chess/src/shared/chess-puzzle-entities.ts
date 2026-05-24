@@ -61,25 +61,34 @@ const chessPuzzleNs = createAttrNamespace('chess', 'puzzle');
 
 export const ChessPuzzleAttr = {
   /** Lichess `PuzzleId` (same as entity id). */
-  id: chessPuzzleNs('id', readString),
-  fen: chessPuzzleNs('fen', readString),
+  id: chessPuzzleNs.text('id', readString),
+  fen: chessPuzzleNs.text('fen', readString),
   /** Space-separated UCI moves from the export. */
-  moves: chessPuzzleNs('moves', readString),
-  rating: chessPuzzleNs('rating', readNonNegativeInteger),
-  ratingDeviation: chessPuzzleNs('rating-deviation', readNonNegativeInteger),
-  popularity: chessPuzzleNs('popularity', readInteger),
-  nbPlays: chessPuzzleNs('nb-plays', readNonNegativeInteger),
-  themes: chessPuzzleNs('themes', readStringArray),
-  gameUrl: chessPuzzleNs('game-url', readTrimmedNullableString),
-  openingTags: chessPuzzleNs('opening-tags', readStringArray),
+  moves: chessPuzzleNs.text('moves', readString),
+  rating: chessPuzzleNs.integer('rating', readNonNegativeInteger),
+  ratingDeviation: chessPuzzleNs.integer(
+    'rating-deviation',
+    readNonNegativeInteger
+  ),
+  popularity: chessPuzzleNs.integer('popularity', readInteger),
+  nbPlays: chessPuzzleNs.integer('nb-plays', readNonNegativeInteger),
+  themes: chessPuzzleNs.array('themes', readStringArray),
+  gameUrl: chessPuzzleNs.urlOrNull('game-url', readTrimmedNullableString),
+  openingTags: chessPuzzleNs.array('opening-tags', readStringArray),
 } as const;
 
 /** Loader progress fields use the same `chess.puzzle/` attribute namespace. */
 export const ChessPuzzleLoadAttr = {
   /** HTTP `ETag` of the consumed `.csv.zst` (or empty when unknown). */
-  sourceEtag: chessPuzzleNs('load-source-etag', readTrimmedNullableString),
+  sourceEtag: chessPuzzleNs.textOrNull(
+    'load-source-etag',
+    readTrimmedNullableString
+  ),
   /** Last successfully written Lichess `PuzzleId` (lexicographic resume cursor). */
-  cursor: chessPuzzleNs('load-cursor', readTrimmedNullableString),
+  cursor: chessPuzzleNs.textOrNull('load-cursor', readTrimmedNullableString),
   /** ISO timestamp when a full pass finished for this ETag. */
-  finishedAt: chessPuzzleNs('load-finished-at', readTrimmedNullableString),
+  finishedAt: chessPuzzleNs.timestampOrNull(
+    'load-finished-at',
+    readTrimmedNullableString
+  ),
 } as const;

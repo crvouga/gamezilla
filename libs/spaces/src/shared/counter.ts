@@ -15,8 +15,8 @@ const counterRoomNs = createAttrNamespace('counter');
 
 /** Namespaced keys in {@link RoomState} for the space counter slice. */
 export const CounterRoomAttr = {
-  count: counterRoomNs('count', (v): number =>
-    typeof v === 'number' && Number.isFinite(v) ? v : 0
+  count: counterRoomNs.integer('count', (v): number =>
+    typeof v === 'number' && Number.isFinite(v) ? Math.trunc(v) : 0
   ),
 } as const;
 

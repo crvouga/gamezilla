@@ -29,29 +29,29 @@ import type { MatchedStatus, StatusResult } from './types';
  */
 export const testNs = createAttrNamespace('mmtest');
 
-export const RatingAttr = testNs('rating', (v): number => {
+export const RatingAttr = testNs.number('rating', (v): number => {
   if (typeof v !== 'number' || !Number.isFinite(v)) {
     throw new Error('mmtest/rating must be a finite number');
   }
   return v;
 });
 
-export const SkillAttr = testNs('skill', (v): number => {
+export const SkillAttr = testNs.number('skill', (v): number => {
   if (typeof v !== 'number' || !Number.isFinite(v)) {
     throw new Error('mmtest/skill must be a finite number');
   }
   return v;
 });
 
-export const NameAttr = testNs('name', (v): string =>
+export const NameAttr = testNs.text('name', (v): string =>
   typeof v === 'string' ? v : ''
 );
 
-export const RegionAttr = testNs('region', (v): string | undefined =>
-  typeof v === 'string' ? v : undefined
+export const RegionAttr = testNs.textOrNull('region', (v): string | null =>
+  typeof v === 'string' ? v : null
 );
 
-export const KindAttr = testNs('kind', (v): string => {
+export const KindAttr = testNs.text('kind', (v): string => {
   if (typeof v !== 'string' || v.length === 0) {
     throw new Error('mmtest/kind must be a non-empty string');
   }

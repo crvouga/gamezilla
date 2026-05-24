@@ -21,7 +21,7 @@ const gamesRoomNs = createAttrNamespace('games');
 
 /** Namespaced keys in {@link RoomState} for the space games slice. */
 export const GamesRoomAttr = {
-  selected: gamesRoomNs('selected', readSelectedGameId),
+  selected: gamesRoomNs.textOrNull('selected', readSelectedGameId),
 } as const;
 
 function validateSelectGamePayload(

@@ -57,39 +57,62 @@ const playNs = createAttrNamespace('chess', 'puzzle', 'play');
 /** Room state slice for the active chess puzzle solving session. */
 export const ChessPuzzlePlayAttr = {
   /** Lichess `PuzzleId` of the puzzle currently being solved (null when `idle`). */
-  puzzleId: playNs('puzzle-id', readNullableNonEmptyString),
+  puzzleId: playNs.textOrNull('puzzle-id', readNullableNonEmptyString),
   /** Identity captured from the dispatcher of the first `StartChessPuzzlePlay`. */
-  hostIdentity: playNs('host-identity', readNullableNonEmptyString),
+  hostIdentity: playNs.textOrNull('host-identity', readNullableNonEmptyString),
   /** Initial FEN of the puzzle (before the opponent's first move). */
-  fen: playNs('fen', readString),
+  fen: playNs.text('fen', readString),
   /** Space-separated UCI tokens of the full solution line (incl. opponent's first move). */
-  moves: playNs('moves', readString),
-  status: playNs('status', readStatus),
+  moves: playNs.text('moves', readString),
+  status: playNs.enum(
+    'status',
+    [
+      CHESS_PUZZLE_PLAY_STATUS.idle,
+      CHESS_PUZZLE_PLAY_STATUS.solving,
+      CHESS_PUZZLE_PLAY_STATUS.wrong,
+      CHESS_PUZZLE_PLAY_STATUS.solved,
+      CHESS_PUZZLE_PLAY_STATUS.invalid,
+    ] as const,
+    readStatus
+  ),
   /** Index of the next expected token in `moves`. */
-  solveIdx: playNs('solve-idx', readNonNegativeInteger),
+  solveIdx: playNs.integer('solve-idx', readNonNegativeInteger),
   /** FEN currently rendered on the board (after applied moves). */
-  displayFen: playNs('display-fen', readNullableNonEmptyString),
+  displayFen: playNs.textOrNull('display-fen', readNullableNonEmptyString),
   /**
    * FEN that was rendered immediately before the last wrong move. Set
    * alongside `displayFen` when a wrong move is applied so `Retry` can
    * revert just that move (instead of resetting to the puzzle start).
    * Cleared on every other state transition.
    */
-  previousDisplayFen: playNs(
+  previousDisplayFen: playNs.textOrNull(
     'previous-display-fen',
     readNullableNonEmptyString
   ),
   /** Side the host is sitting on; fixed for the session. */
-  orientation: playNs('orientation', readOrientation),
+  orientation: playNs.enum(
+    'orientation',
+    ['white', 'black'] as const,
+    readOrientation
+  ),
   /** Bumps on every wrong-move / reset so the chess board can force a remount when FEN string is unchanged. */
-  layoutKey: playNs('layout-key', readNonNegativeInteger),
-  wrongFromSquare: playNs('wrong-from-square', readNullableNonEmptyString),
-  wrongToSquare: playNs('wrong-to-square', readNullableNonEmptyString),
-  expectedFromSquare: playNs(
+  layoutKey: playNs.integer('layout-key', readNonNegativeInteger),
+  wrongFromSquare: playNs.textOrNull(
+    'wrong-from-square',
+    readNullableNonEmptyString
+  ),
+  wrongToSquare: playNs.textOrNull(
+    'wrong-to-square',
+    readNullableNonEmptyString
+  ),
+  expectedFromSquare: playNs.textOrNull(
     'expected-from-square',
     readNullableNonEmptyString
   ),
-  expectedToSquare: playNs('expected-to-square', readNullableNonEmptyString),
+  expectedToSquare: playNs.textOrNull(
+    'expected-to-square',
+    readNullableNonEmptyString
+  ),
 } as const;
 
 export function isNonEmptyString(v: unknown): v is string {
