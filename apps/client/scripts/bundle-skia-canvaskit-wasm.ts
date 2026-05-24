@@ -1,6 +1,6 @@
 /**
  * Copies Skia's CanvasKit wasm into `public/generated/skia/` for
- * `loadSkiaWebOnce` in `src/ui/skia-web-root.tsx`.
+ * `loadSkiaWebOnce` in `@pkgs/ui/components/skia-web-root`.
  *
  * Skia web defaults to fetching from same-origin assets, so we serve it from
  * `/generated/skia/canvaskit.wasm`.

@@ -67,6 +67,7 @@
       "@pkgs/task-dag": ["../../pkgs/task-dag/src/index.ts"],
       "@pkgs/task-dag/*": ["../../pkgs/task-dag/src/*"],
       "@pkgs/ts-reset": ["../../pkgs/ts-reset/src/index.ts"],
+      "@pkgs/chess-board/*": ["../../pkgs/chess-board/src/*"],
       "@pkgs/ui/*": ["../../pkgs/ui/src/*"],
       "@pkgs/uuid": ["../../pkgs/uuid/src/index.ts"],
       "@pkgs/uuid/*": ["../../pkgs/uuid/src/*"]
