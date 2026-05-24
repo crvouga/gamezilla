@@ -1,23 +1,23 @@
-import {
-  Box,
-  Button,
-  Card,
-  Divider,
-  ScrollView,
-  Spinner,
-  Stack,
-  StatusDot,
-  Text,
-  TextInput,
-} from '@pkgs/ui';
-import { useTheme } from '@pkgs/ui/theme';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { assertUrl } from '@pkgs/patch-db/assert-url';
 import type { Patch, PatchDbResult } from '@pkgs/patch-db/interface';
 import {
   ADMIN_METRIC_ENTITY_TYPE,
   PatchDbClientTransportHttpFetch,
 } from '@pkgs/patch-db/transport';
-import { Trans, useLingui } from '@lingui/react/macro';
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  ScrollView,
+  SpinnerBox,
+  Stack,
+  StatusDot,
+  Text,
+  TextInput,
+} from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -314,14 +314,13 @@ function WaitingCard() {
   const theme = useTheme();
   return (
     <Card elevation={1} sx={{ p: 6 }}>
-      <Stack spacing={3} align="center">
-        <Spinner size="large" />
+      <SpinnerBox sx={{ gap: 3 }}>
         <Text
           variant="caption"
           style={{ color: theme.colors.textSecondary }}
           label={t`Waiting for metrics from server...`}
         />
-      </Stack>
+      </SpinnerBox>
     </Card>
   );
 }

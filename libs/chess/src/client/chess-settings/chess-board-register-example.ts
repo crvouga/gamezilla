@@ -13,7 +13,7 @@
  */
 
 import { registerComponentExample, type ComponentEntry } from '@pkgs/ui';
-import ChessBoardExample from './chess-board.example';
+import ChessBoardExample from '@pkgs/chess-board/chess-board.example';
 
 export const CHESS_COMPONENT_ENTRIES: readonly ComponentEntry[] = [
   { name: 'ChessBoard', category: 'Games', Example: ChessBoardExample },

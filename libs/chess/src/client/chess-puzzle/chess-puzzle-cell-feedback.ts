@@ -1,4 +1,4 @@
-import type { CellFeedback, Square } from '../chess-board/chess-board-types';
+import type { CellFeedback, Square } from '@pkgs/chess-board/chess-board-types';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 
 export function deriveChessPuzzleCellFeedback(args: {

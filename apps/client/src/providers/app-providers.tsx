@@ -1,7 +1,7 @@
 import { AuthBridge } from '@libs/auth/client/auth-bridge';
 import { AuthModalsProvider } from '@libs/auth/client/auth-modals-provider';
 import { ProfileProvider } from '@libs/profile/client/profile-provider';
-import { preventSplashAutoHide } from '@pkgs/ui';
+import { preventSplashAutoHide, SpinnerProvider } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { ApiClientProviderWrapper } from './api-client-provider';
@@ -21,7 +21,6 @@ import { PatchDbLocalDataActionsProvider } from './patch-db-local-data-actions-p
 import { PatchDbProvider } from './patch-db-provider';
 import { SafeAreaProviderWrapper } from './safe-area-provider';
 import { SecureStorageProvider } from './secure-storage-provider';
-import { SkiaRootProvider } from './skia-root-provider';
 import { SqlClientProvider } from './sql-client-provider';
 import { SuspenseRootProvider } from './suspense-root-provider';
 import { TtsProviderWrapper } from './tts-provider';
@@ -35,8 +34,8 @@ export function AppProviders({ children }: { children: ReactNode }): ReactNode {
       <SafeAreaProviderWrapper>
         <FontsProvider>
           <AppThemeProvider>
-            <SuspenseRootProvider>
-              <SkiaRootProvider>
+            <SpinnerProvider>
+              <SuspenseRootProvider>
                 <AppI18nProviderWrapper>
                   <UiPortalsProvider>
                     <LoggerProvider>
@@ -75,8 +74,8 @@ export function AppProviders({ children }: { children: ReactNode }): ReactNode {
                     </LoggerProvider>
                   </UiPortalsProvider>
                 </AppI18nProviderWrapper>
-              </SkiaRootProvider>
-            </SuspenseRootProvider>
+              </SuspenseRootProvider>
+            </SpinnerProvider>
           </AppThemeProvider>
         </FontsProvider>
       </SafeAreaProviderWrapper>

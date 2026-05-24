@@ -91,7 +91,7 @@ function ItemTrailing({
   running: boolean;
   shortcut: string | undefined;
 }) {
-  if (running) return <Spinner size="small" />;
+  if (running) return <Spinner />;
   if (shortcut === undefined) return null;
   return <CommandPaletteKbd shortcut={shortcut} />;
 }

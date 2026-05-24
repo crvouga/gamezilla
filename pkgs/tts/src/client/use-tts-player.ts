@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  *
  * Uses `expo-audio`'s `useAudioPlayer({ uri })` which works identically on
  * web, iOS, and Android — the same API the chess board sounds use
- * (`libs/chess/src/client/chess-board/chess-board-sounds.ts`).
+ * (`pkgs/chess-board/src/chess-board-sounds.ts`).
  *
  * Returns playback controls plus an `isPlaying` flag: true while the
  * platform reports `playing`, **or** for a brief window immediately after

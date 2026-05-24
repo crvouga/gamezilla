@@ -50,7 +50,7 @@ msgstr "{count} people here"
 msgid "{count} selected"
 msgstr "{count} selected"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "{count} user arrow(s) drawn"
 msgstr "{count} user arrow(s) drawn"
 
@@ -517,7 +517,7 @@ msgstr "Are you sure you want to delete \"{name}\"? This cannot be undone."
 msgid "Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload."
 msgstr "Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Arrows"
 msgstr "Arrows"
 
@@ -666,7 +666,7 @@ msgstr "Background colors"
 #~ msgid "Balestra pattern. Bishop covers, queen delivers."
 #~ msgstr "Balestra pattern. Bishop covers, queen delivers."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Basics"
 msgstr "Basics"
 
@@ -694,7 +694,7 @@ msgstr "Basics"
 #~ msgid "Before you take back, look for something stronger."
 #~ msgstr "Before you take back, look for something stronger."
 
-#: libs/chess/src/client/chess-board/chess-board-promotion.tsx
+#: pkgs/chess-board/src/chess-board-promotion.tsx
 msgid "Bishop"
 msgstr "Bishop"
 
@@ -739,7 +739,7 @@ msgstr "Bishop"
 #~ msgid "Bishops crossing nicely. Stay with it."
 #~ msgstr "Bishops crossing nicely. Stay with it."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Black"
 msgstr "Black"
 
@@ -880,17 +880,17 @@ msgstr "Build mode: {buildMode}"
 #~ msgstr "Can you lure something into a trap?"
 
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
-#: libs/chess/src/client/chess-board/chess-board-promotion.tsx
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 #: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 #: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+#: pkgs/chess-board/src/chess-board-promotion.tsx
 #: pkgs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
 #: pkgs/patch-db-example/src/todo/list/todo-lists-overview.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
 msgid "Cancel"
 msgstr "Cancel"
 
-#: libs/chess/src/client/chess-board/chess-board-promotion.tsx
+#: pkgs/chess-board/src/chess-board-promotion.tsx
 msgid "Cancel promotion"
 msgstr "Cancel promotion"
 
@@ -922,11 +922,11 @@ msgstr "Cannot edit"
 #~ msgid "Castling was the move. Calm and strong."
 #~ msgstr "Castling was the move. Calm and strong."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Cell feedback"
 msgstr "Cell feedback"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Cell highlights"
 msgstr "Cell highlights"
 
@@ -1013,7 +1013,7 @@ msgstr "Chess"
 msgid "Chess preferences and developer tools."
 msgstr "Chess preferences and developer tools."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "ChessBoard"
 msgstr "ChessBoard"
 
@@ -1021,7 +1021,7 @@ msgstr "ChessBoard"
 msgid "Choose"
 msgstr "Choose"
 
-#: libs/chess/src/client/chess-board/chess-board-promotion.tsx
+#: pkgs/chess-board/src/chess-board-promotion.tsx
 msgid "Choose a piece to promote to."
 msgstr "Choose a piece to promote to."
 
@@ -1085,7 +1085,7 @@ msgstr "Clear data"
 #~ msgid "Clear edge to grab. Look again."
 #~ msgstr "Clear edge to grab. Look again."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Clear log"
 msgstr "Clear log"
 
@@ -1131,7 +1131,7 @@ msgid "Clients"
 msgstr "Clients"
 
 #: libs/auth/src/client/sign-in-modal.tsx
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 #: pkgs/patch-db-example/src/db-client/query-screen.tsx
 #: pkgs/ui/src/components/responsive-surface/responsive-surface-header.tsx
 msgid "Close"
@@ -1424,7 +1424,7 @@ msgstr "Decrement"
 #~ msgid "Deep mate, fully calculated. Really well done."
 #~ msgstr "Deep mate, fully calculated. Really well done."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Default board, drag or tap-to-move, orientation toggle."
 msgstr "Default board, drag or tap-to-move, orientation toggle."
 
@@ -1790,7 +1790,7 @@ msgstr "Display name shown in the app"
 #~ msgid "Drag or tap pieces. Play the solution line."
 #~ msgstr "Drag or tap pieces. Play the solution line."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Drag overlay"
 msgstr "Drag overlay"
 
@@ -1885,7 +1885,7 @@ msgstr "Empty read result"
 #~ msgid "En passant might be the surprise. Watch the pawns."
 #~ msgstr "En passant might be the surprise. Watch the pawns."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Enable user arrows"
 msgstr "Enable user arrows"
 
@@ -3263,7 +3263,7 @@ msgstr "Inbox"
 msgid "Increment"
 msgstr "Increment"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Inline"
 msgstr "Inline"
 
@@ -3463,7 +3463,7 @@ msgstr "Join this space to see who is here and hang out."
 #~ msgid "Kingside is the target. Drive through."
 #~ msgstr "Kingside is the target. Drive through."
 
-#: libs/chess/src/client/chess-board/chess-board-promotion.tsx
+#: pkgs/chess-board/src/chess-board-promotion.tsx
 msgid "Knight"
 msgstr "Knight"
 
@@ -4078,11 +4078,11 @@ msgstr "Min rotation"
 msgid "Missing device id."
 msgstr "Missing device id."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Modal (legacy)"
 msgstr "Modal (legacy)"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Modal above the board"
 msgstr "Modal above the board"
 
@@ -4119,7 +4119,7 @@ msgstr "More options"
 #~ msgid "Morphy's mate! Beautiful."
 #~ msgstr "Morphy's mate! Beautiful."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Move log"
 msgstr "Move log"
 
@@ -4135,7 +4135,7 @@ msgstr "Move log"
 #~ msgid "Move one piece, reveal a check. Powerful."
 #~ msgstr "Move one piece, reveal a check. Powerful."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Move the white pawn to a8 to trigger promotion. Inline picker is the default."
 msgstr "Move the white pawn to a8 to trigger promotion. Inline picker is the default."
 
@@ -4740,11 +4740,11 @@ msgstr "Online"
 msgid "Open {componentName} example"
 msgstr "Open {componentName} example"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Open a modal above the board"
 msgstr "Open a modal above the board"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Open a modal, then drag a piece — the dragged piece must stay above the modal when the overlay portal is enabled."
 msgstr "Open a modal, then drag a piece — the dragged piece must stay above the modal when the overlay portal is enabled."
 
@@ -4861,7 +4861,7 @@ msgstr "Overall"
 msgid "Partition"
 msgstr "Partition"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Pass `theme` to override any board color (squares, highlights, arrows, feedback)."
 msgstr "Pass `theme` to override any board color (squares, highlights, arrows, feedback)."
 
@@ -4985,7 +4985,7 @@ msgstr "Patches"
 msgid "People in this space"
 msgstr "People in this space"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Per-square indicators; pulse animation for highlighted moves."
 msgstr "Per-square indicators; pulse animation for highlighted moves."
 
@@ -5137,7 +5137,7 @@ msgstr "Playground"
 msgid "Playground failed to start"
 msgstr "Playground failed to start"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Plays a fresh game and prints SAN moves as they happen."
 msgstr "Plays a fresh game and prints SAN moves as they happen."
 
@@ -5192,7 +5192,7 @@ msgstr "production"
 msgid "Profile"
 msgstr "Profile"
 
-#: libs/chess/src/client/chess-board/chess-board-promotion.tsx
+#: pkgs/chess-board/src/chess-board-promotion.tsx
 msgid "Promote pawn"
 msgstr "Promote pawn"
 
@@ -5200,7 +5200,7 @@ msgstr "Promote pawn"
 #~ msgid "Promote the pawn."
 #~ msgstr "Promote the pawn."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Promotion"
 msgstr "Promotion"
 
@@ -5236,7 +5236,7 @@ msgstr "Puzzle"
 #~ msgid "Puzzle {puzzleId} · rating {rating}"
 #~ msgstr "Puzzle {puzzleId} · rating {rating}"
 
-#: libs/chess/src/client/chess-board/chess-board-promotion.tsx
+#: pkgs/chess-board/src/chess-board-promotion.tsx
 msgid "Queen"
 msgstr "Queen"
 
@@ -5429,7 +5429,7 @@ msgstr "Reload"
 msgid "Rename space"
 msgstr "Rename space"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Render dragged piece in app overlay portal"
 msgstr "Render dragged piece in app overlay portal"
 
@@ -5446,7 +5446,7 @@ msgstr "reset"
 msgid "Reset"
 msgstr "Reset"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Reset position"
 msgstr "Reset position"
 
@@ -5790,7 +5790,7 @@ msgstr "Retry"
 #~ msgid "Right move. What comes next?"
 #~ msgstr "Right move. What comes next?"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cmd (yellow). Right-click the same arrow to erase."
 msgstr "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cmd (yellow). Right-click the same arrow to erase."
 
@@ -5802,7 +5802,7 @@ msgstr "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cm
 #~ msgid "Rip the kingside open. The king is the target."
 #~ msgstr "Rip the kingside open. The king is the target."
 
-#: libs/chess/src/client/chess-board/chess-board-promotion.tsx
+#: pkgs/chess-board/src/chess-board-promotion.tsx
 msgid "Rook"
 msgstr "Rook"
 
@@ -5895,7 +5895,7 @@ msgstr "Running…"
 #~ msgid "Same-color or opposite bishops? It changes everything."
 #~ msgstr "Same-color or opposite bishops? It changes everything."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "SAN"
 msgstr "SAN"
 
@@ -6183,7 +6183,7 @@ msgstr "Singleton entity + server refresh"
 #~ msgid "Skewered. Big piece moves, big piece falls."
 #~ msgstr "Skewered. Big piece moves, big piece falls."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Skia-rendered chess board with annotation primitives, inline promotion, an app-level drag overlay, and theming."
 msgstr "Skia-rendered chess board with annotation primitives, inline promotion, an app-level drag overlay, and theming."
 
@@ -6243,7 +6243,7 @@ msgstr "Solid"
 #~ msgid "Solid edge here. Don't rush it."
 #~ msgstr "Solid edge here. Don't rush it."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Solid fills and ring borders — for color-coded threats, defended squares, etc."
 msgstr "Solid fills and ring borders — for color-coded threats, defended squares, etc."
 
@@ -6415,7 +6415,7 @@ msgstr "Status: {serverLine}"
 msgid "str"
 msgstr "str"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Straight and knight L-shape arrows, dashed plan lines, and color overrides."
 msgstr "Straight and knight L-shape arrows, dashed plan lines, and color overrides."
 
@@ -6848,7 +6848,7 @@ msgstr "Theme"
 #~ msgid "Theme search"
 #~ msgstr "Theme search"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Themed boards"
 msgstr "Themed boards"
 
@@ -7263,7 +7263,7 @@ msgstr "Transform"
 #~ msgid "Try an in-between move before capturing."
 #~ msgstr "Try an in-between move before capturing."
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Try dragging a piece on the board with this modal open. With the overlay portal enabled, the dragged piece floats above this modal."
 msgstr "Try dragging a piece on the board with this modal open. With the overlay portal enabled, the dragged piece floats above this modal."
 
@@ -7456,7 +7456,7 @@ msgstr "User agent"
 msgid "User menu"
 msgstr "User menu"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "User-drawn arrows"
 msgstr "User-drawn arrows"
 
@@ -7639,7 +7639,7 @@ msgstr "where (JSON, optional)"
 #~ msgid "Which piece steps away and opens fire?"
 #~ msgstr "Which piece steps away and opens fire?"
 
-#: libs/chess/src/client/chess-board/chess-board.example.tsx
+#: pkgs/chess-board/src/chess-board.example.tsx
 msgid "White"
 msgstr "White"
 

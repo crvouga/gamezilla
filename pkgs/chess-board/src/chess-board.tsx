@@ -1,4 +1,3 @@
-/* eslint-disable lingui/no-unlocalized-strings */
 import { assert } from '@pkgs/assert';
 import { Box, useTheme } from '@pkgs/ui';
 import { assertSkiaWebLoaded } from '@pkgs/ui/components/skia-web-root';

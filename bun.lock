@@ -217,6 +217,7 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/assistant": "workspace:*",
         "@pkgs/attribute": "workspace:*",
+        "@pkgs/chess-board": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/message": "workspace:*",
         "@pkgs/patch-db": "workspace:*",
@@ -224,17 +225,12 @@
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/ui": "workspace:*",
-        "@shopify/react-native-skia": "catalog:",
         "chess.js": "catalog:",
         "csv-parse": "catalog:",
-        "expo-audio": "catalog:",
-        "expo-haptics": "catalog:",
         "fzstd": "catalog:",
         "pg": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
-        "react-native-gesture-handler": "catalog:",
-        "react-native-reanimated": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -281,7 +277,6 @@
     "libs/infra": {
       "name": "@libs/infra",
       "dependencies": {
-        "@neondatabase/serverless": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
         "@pkgs/distributed-lock": "workspace:*",
@@ -453,6 +448,29 @@
       "version": "0.0.0",
       "devDependencies": {
         "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/chess-board": {
+      "name": "@pkgs/chess-board",
+      "version": "0.0.0",
+      "dependencies": {
+        "@lingui/core": "catalog:",
+        "@lingui/react": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/ui": "workspace:*",
+        "@shopify/react-native-skia": "catalog:",
+        "chess.js": "catalog:",
+        "expo-audio": "catalog:",
+        "expo-haptics": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+        "react-native-gesture-handler": "catalog:",
+        "react-native-reanimated": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1776,6 +1794,8 @@
     "@pkgs/attribute": ["@pkgs/attribute@workspace:pkgs/attribute"],
 
     "@pkgs/browser": ["@pkgs/browser@workspace:pkgs/browser"],
+
+    "@pkgs/chess-board": ["@pkgs/chess-board@workspace:pkgs/chess-board"],
 
     "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
 

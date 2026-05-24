@@ -3,7 +3,7 @@ import {
   type ChessPuzzlePlayStatus,
 } from '../../shared/chess-puzzle-play';
 import { useEffect, useRef, useState } from 'react';
-import type { Square } from '../chess-board/chess-board-types';
+import type { Square } from '@pkgs/chess-board/chess-board-types';
 import { solvedPuzzleKingSquare } from './chess-puzzle-solved-king-square';
 
 const CORRECT_FLASH_MS = 1500;

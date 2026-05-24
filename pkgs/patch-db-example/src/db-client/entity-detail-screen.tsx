@@ -1,3 +1,6 @@
+import { useLingui } from '@lingui/react/macro';
+import type { Entity, Patch } from '@pkgs/patch-db/interface';
+import { usePatchDb, useQueryOne } from '@pkgs/patch-db/react';
 import {
   Box,
   Card,
@@ -6,14 +9,11 @@ import {
   Pressable,
   ScrollView,
   SegmentedControl,
-  Spinner,
+  SpinnerBox,
   Stack,
   Text,
   useTheme,
 } from '@pkgs/ui';
-import type { Entity, Patch } from '@pkgs/patch-db/interface';
-import { usePatchDb, useQueryOne } from '@pkgs/patch-db/react';
-import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
@@ -177,11 +177,7 @@ function PatchesPane({
   const { t } = useLingui();
   const theme = useTheme();
   if (loadingPatches) {
-    return (
-      <Box sx={{ p: 6, alignItems: 'center' }}>
-        <Spinner size="large" />
-      </Box>
-    );
+    return <SpinnerBox sx={{ p: 6 }} />;
   }
   if (patchError !== null) {
     return (
@@ -218,14 +214,13 @@ function LoadingEntity() {
   const { t } = useLingui();
   const theme = useTheme();
   return (
-    <Box sx={{ p: 6, alignItems: 'center' }}>
-      <Spinner size="large" />
+    <SpinnerBox sx={{ p: 6 }} size="large">
       <Text
         variant="caption"
         style={{ marginTop: 12, color: theme.colors.textSecondary }}
         label={t`Loading entity…`}
       />
-    </Box>
+    </SpinnerBox>
   );
 }
 

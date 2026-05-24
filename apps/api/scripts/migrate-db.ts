@@ -72,7 +72,11 @@ async function main(): Promise<void> {
   const log = createLogger({ name: 'api:migrate' });
   let lastError: unknown;
 
-  for (let attempt = 0; attempt < CONNECTION_LIMIT_DELAYS_MS.length; attempt++) {
+  for (
+    let attempt = 0;
+    attempt < CONNECTION_LIMIT_DELAYS_MS.length;
+    attempt++
+  ) {
     const delayMs = CONNECTION_LIMIT_DELAYS_MS[attempt] ?? 0;
     if (delayMs > 0) {
       log.warn('Postgres connection limit — retrying migrate', {

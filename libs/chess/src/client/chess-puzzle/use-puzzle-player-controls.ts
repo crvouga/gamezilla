@@ -1,4 +1,4 @@
-import type { Move } from '../chess-board/chess-board-types';
+import type { Move } from '@pkgs/chess-board/chess-board-types';
 import type { ChessPuzzlePlayStatus } from '../../shared/chess-puzzle-play';
 import { useHintStage, type HintStage } from './use-hint-stage';
 import { usePuzzlePlayerEffects } from './use-puzzle-player-effects';

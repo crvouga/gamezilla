@@ -1,5 +1,5 @@
 import type { Chess } from 'chess.js';
-import type { Move } from '../chess-board/chess-board-types';
+import type { Move } from '@pkgs/chess-board/chess-board-types';
 
 export function uciFromMove(m: Move): string {
   let s = m.from + m.to;

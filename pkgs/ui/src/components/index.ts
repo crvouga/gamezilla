@@ -71,7 +71,13 @@ export { Chip, type ChipProps } from './chip';
 export { List, ListItem, type ListProps, type ListItemProps } from './list';
 
 // Feedback
-export { Spinner, type SpinnerProps } from './spinner';
+export {
+  Spinner,
+  SpinnerBox,
+  SpinnerProvider,
+  type SpinnerBoxProps,
+  type SpinnerProps,
+} from './spinner';
 export { Skeleton, type SkeletonProps } from './skeleton';
 export { ProgressBar, type ProgressBarProps } from './progress-bar';
 export {

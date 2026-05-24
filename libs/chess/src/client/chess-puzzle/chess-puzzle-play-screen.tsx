@@ -13,7 +13,7 @@ import {
   ChessPuzzlePlayAttr,
   StartChessPuzzlePlay,
 } from '../../shared/chess-puzzle-play';
-import { ChessBoard } from '../chess-board/chess-board';
+import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import { ChessPuzzleBoardSkeleton } from './chess-puzzle-board-skeleton';
 import { usePuzzleEntity } from './chess-puzzle-play-queries';

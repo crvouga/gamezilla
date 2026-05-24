@@ -9,9 +9,9 @@ export type ChessBoardCanvasComponent = ComponentType<ChessBoardCanvasProps>;
  * `chess-board-canvas` statically pulls `@shopify/react-native-skia`, which
  * captures `Skia = JsiSkApi(global.CanvasKit)` at import time — so the chunk
  * can only be imported AFTER `SkiaWebRoot` finishes loading CanvasKit on
- * web (the app-root Suspense in `app-providers.tsx` enforces that ordering).
- * `ChessBoardCanvasBootstrap` (mounted at `ChessMainMenu`, the chess
- * subtree root) does the import once and parks the resolved component
+ * web. `ChessBoardCanvasBootstrap` (mounted at `ChessMainMenu`, the chess
+ * subtree root) wraps the lazy gate in `SkiaWebRoot` to enforce that
+ * ordering, then does the import once and parks the resolved component
  * here. Per-board mounts read it synchronously via
  * {@link useChessBoardCanvas} — no per-board Suspense boundary.
  */
@@ -27,7 +27,7 @@ const subscribe = (listener: () => void): (() => void) => {
 
 const getSnapshot = (): ChessBoardCanvasComponent | null => cached;
 
-/** Internal — published by the app-root bootstrap once the chunk resolves. */
+/** Internal — published by `ChessBoardCanvasBootstrap` once the chunk resolves. */
 export function setChessBoardCanvas(c: ChessBoardCanvasComponent): void {
   if (cached === c) return;
   cached = c;

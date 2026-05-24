@@ -1,6 +1,6 @@
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { Center, ScreenBase, Spinner } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { ScreenBase, SpinnerBox } from '@pkgs/ui';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import type { ReactNode } from 'react';
 
 /** Static loading view for the space detail screen. */
@@ -9,11 +9,7 @@ export function SpaceLoadingScreen(): ReactNode {
   return (
     <ScreenBase
       breadcrumbs={[{ name: <Trans>Spaces</Trans>, onPress: nav('/') }]}
-      content={({ sx }) => (
-        <Center style={sx} sx={{ flex: 1 }}>
-          <Spinner size="large" />
-        </Center>
-      )}
+      content={({ sx }) => <SpinnerBox style={sx} sx={{ flex: 1 }} />}
     />
   );
 }

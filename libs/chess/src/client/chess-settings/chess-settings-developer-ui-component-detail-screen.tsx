@@ -15,7 +15,7 @@ import {
 import {
   CHESS_COMPONENT_ENTRIES,
   ensureChessBoardExampleRegistered,
-} from '../chess-board/chess-board-register-example';
+} from './chess-board-register-example';
 
 export function ChessSettingsDeveloperUiComponentDetailScreen(): ReactNode {
   const dispatch = useSpaceRoomDispatch();

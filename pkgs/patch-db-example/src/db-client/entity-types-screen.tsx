@@ -4,7 +4,7 @@ import {
   Card,
   FlatList,
   Pressable,
-  Spinner,
+  SpinnerBox,
   Stack,
   Text,
   TextInput,
@@ -134,14 +134,13 @@ function StatusLine({
   const theme = useTheme();
   if (loading) {
     return (
-      <Box sx={{ py: 8, alignItems: 'center' }}>
-        <Spinner size="large" />
+      <SpinnerBox sx={{ py: 8 }}>
         <Text
           variant="caption"
           style={{ marginTop: 12, color: theme.colors.textSecondary }}
           label={t`Scanning snapshots…`}
         />
-      </Box>
+      </SpinnerBox>
     );
   }
   if (error !== null) {

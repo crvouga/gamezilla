@@ -5,6 +5,7 @@ import {
   Pressable,
   ScrollView,
   Spinner,
+  SpinnerBox,
   Stack,
   Text,
   useTheme,
@@ -295,11 +296,7 @@ export function PatchDetailScreen({
   );
 
   if (loading) {
-    return (
-      <Box sx={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Spinner size="large" />
-      </Box>
-    );
+    return <SpinnerBox sx={{ flex: 1 }} />;
   }
 
   if (loadError !== null || patch === null) {

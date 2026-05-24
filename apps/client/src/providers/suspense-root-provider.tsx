@@ -1,4 +1,4 @@
-import { Box, Spinner } from '@pkgs/ui';
+import { SpinnerBox } from '@pkgs/ui';
 import { Suspense, type ReactNode } from 'react';
 
 export function SuspenseRootProvider({
@@ -7,20 +7,6 @@ export function SuspenseRootProvider({
   children: ReactNode;
 }): ReactNode {
   return (
-    <Suspense
-      fallback={
-        <Box
-          sx={{
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Spinner />
-        </Box>
-      }
-    >
-      {children}
-    </Suspense>
+    <Suspense fallback={<SpinnerBox sx={{ flex: 1 }} />}>{children}</Suspense>
   );
 }

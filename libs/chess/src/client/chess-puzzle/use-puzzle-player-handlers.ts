@@ -11,7 +11,7 @@ import {
   ResetChessPuzzlePlay,
   type ChessPuzzlePlayStatus,
 } from '../../shared/chess-puzzle-play';
-import type { Move } from '../chess-board/chess-board-types';
+import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 import type { HintStage } from './use-hint-stage';
 

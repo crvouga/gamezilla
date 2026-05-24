@@ -4,7 +4,7 @@ import {
   Card,
   FlatList,
   Pressable,
-  Spinner,
+  SpinnerBox,
   Stack,
   Text,
   TextInput,
@@ -274,9 +274,7 @@ export function EntitiesScreen({
       />
 
       {pager.loading ? (
-        <Box sx={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Spinner size="large" />
-        </Box>
+        <SpinnerBox sx={{ flex: 1 }} size="large" />
       ) : pager.error !== null ? (
         <Box sx={{ p: 4 }}>
           <Text

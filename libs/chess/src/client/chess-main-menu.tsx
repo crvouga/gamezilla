@@ -14,7 +14,7 @@ import {
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
 } from '../shared/chess-main-menu';
-import { ChessBoardCanvasBootstrap } from './chess-board/chess-board-canvas-bootstrap';
+import { ChessBoardCanvasBootstrap } from '@pkgs/chess-board/chess-board-canvas-bootstrap';
 import { PuzzlePlayScreen } from './chess-puzzle/chess-puzzle-play-screen';
 import { ChessSettingsDeveloperScreen } from './chess-settings/chess-settings-developer-screen';
 import { ChessSettingsDeveloperUiComponentDetailScreen } from './chess-settings/chess-settings-developer-ui-component-detail-screen';
@@ -47,14 +47,15 @@ function ChessScreenSwitch({ onBackToGames }: ChessMainMenuProps): ReactNode {
 
 /**
  * Chess entry point. Wraps the entire chess subtree in
- * `ChessBoardCanvasBootstrap` so the Skia canvas chunk starts loading the
- * moment the user opens any chess screen — by the time they reach a board
- * (puzzle play, picker preview, etc.) the chunk is cached and the per-board
- * mount reads it synchronously via the runtime singleton (no Suspense flash).
+ * `ChessBoardCanvasBootstrap` so CanvasKit (web) and the Skia canvas chunk
+ * start loading the moment the user opens any chess screen — by the time
+ * they reach a board (puzzle play, picker preview, etc.) the chunk is
+ * cached and the per-board mount reads it synchronously via the runtime
+ * singleton (no Suspense flash).
  *
  * Bootstrap is mounted here — the highest point inside the chess package —
- * to keep `@apps/client` decoupled from any feature package; the only
- * cross-package responsibility at the app root is `SkiaWebRoot`.
+ * so `@apps/client` does not import any Skia code; non-chess routes never
+ * pay the CanvasKit WASM load cost.
  *
  * `onBackToGames` is supplied by the games registry host
  * (`<GamesMainMenu>` in `@libs/spaces`) so chess never has to import

@@ -38,11 +38,11 @@ function getSkiaWebPromise(): Promise<void> {
  * Web: suspends until {@link loadSkiaWebOnce} has finished so Skia modules
  * can import safely. Native: no-op pass-through.
  *
- * Wrap with a `<Suspense fallback={...}>` boundary at the app root — that
- * boundary owns the loading UI; this component intentionally has no UI of
- * its own. Suspending (instead of state-gating) means the rest of the
- * provider tree above the Suspense boundary keeps its identity across the
- * loading transition.
+ * Mount this colocated with the feature that needs Skia (e.g. inside the
+ * chess bootstrap), under a `<Suspense fallback={...}>` boundary that owns
+ * the loading UI; this component intentionally has no UI of its own. Do
+ * NOT mount at the app root — that would suspend every route on CanvasKit
+ * WASM even when no Skia surface is rendered.
  */
 export function SkiaWebRoot({ children }: { children: ReactNode }): ReactNode {
   if (Platform.OS === 'web') {
@@ -51,11 +51,11 @@ export function SkiaWebRoot({ children }: { children: ReactNode }): ReactNode {
   return <>{children}</>;
 }
 
-/** Call at the top of Skia surfaces (e.g. chess board) on web after root bootstrap. */
+/** Call at the top of Skia surfaces (e.g. chess board) on web after the colocated bootstrap. */
 export function assertSkiaWebLoaded(): void {
   if (Platform.OS !== 'web') return;
   assert.ok(
     typeof globalThis.CanvasKit !== 'undefined',
-    'Skia Web must be bootstrapped at the app root (SkiaWebRoot) before mounting Skia canvases'
+    'Skia Web must be bootstrapped via SkiaWebRoot before mounting Skia canvases'
   );
 }

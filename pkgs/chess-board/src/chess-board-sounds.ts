@@ -1,13 +1,13 @@
 import { useAudioPlayer } from 'expo-audio';
 import { useCallback, useEffect, useMemo } from 'react';
 
-const moveSrc = require('../../../assets/sounds/chess/move-2.wav');
-const captureSrc = require('../../../assets/sounds/chess/capture-2.wav');
-const checkSrc = require('../../../assets/sounds/chess/check-2.wav');
-const castleSrc = require('../../../assets/sounds/chess/castling-2.wav');
-const promoteSrc = require('../../../assets/sounds/chess/ui_unlock.wav');
-const illegalSrc = require('../../../assets/sounds/chess/navigation-cancel.wav');
-const gameEndSrc = require('../../../assets/sounds/chess/game-over.wav');
+const moveSrc = require('../assets/sounds/chess/move-2.wav');
+const captureSrc = require('../assets/sounds/chess/capture-2.wav');
+const checkSrc = require('../assets/sounds/chess/check-2.wav');
+const castleSrc = require('../assets/sounds/chess/castling-2.wav');
+const promoteSrc = require('../assets/sounds/chess/ui_unlock.wav');
+const illegalSrc = require('../assets/sounds/chess/navigation-cancel.wav');
+const gameEndSrc = require('../assets/sounds/chess/game-over.wav');
 
 async function playFromStart(player: {
   seekTo: (s: number) => Promise<void>;

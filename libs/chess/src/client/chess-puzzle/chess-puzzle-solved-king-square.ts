@@ -1,4 +1,4 @@
-import type { Square } from '../chess-board/chess-board-types';
+import type { Square } from '@pkgs/chess-board/chess-board-types';
 
 const FEN_BLACK_TO_MOVE = 98;
 

@@ -6,6 +6,12 @@
  * it with the built-in `Animated` API. This avoids `ActivityIndicator`,
  * whose visual style varies per platform.
  *
+ * When mounted under a `SpinnerProvider` the rotation `Animated.Value` is
+ * shared across all spinner instances with the same `size`/`color`/
+ * `strokeWidth`, so swapping between sibling loading states does not visibly
+ * restart the animation back to 0°. Without a provider each instance runs
+ * its own local loop (the original behavior).
+ *
  * @example
  * ```tsx
  * <Spinner size="small" />
@@ -18,8 +24,9 @@ import { Animated, Easing } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { useTheme } from '../../theme';
+import { SPIN_DURATION_MS, useSharedSpinnerRotation } from './spinner-context';
 
-export type SpinnerSize = 'small' | 'large' | number;
+export type SpinnerSize = 'small' | 'medium' | 'large' | number;
 
 export type SpinnerProps = {
   /** Color token name or raw color. Defaults to `"tint"`. */
@@ -31,11 +38,11 @@ export type SpinnerProps = {
 };
 
 const SIZE_PRESETS = {
-  small: 18,
-  large: 36,
-} as const satisfies Record<'small' | 'large', number>;
+  small: 24,
+  medium: 36,
+  large: 48,
+} as const satisfies Record<'small' | 'medium' | 'large', number>;
 
-const SPIN_DURATION_MS = 900;
 /** Visible arc covers 25% of the circle perimeter. */
 const ARC_FRACTION = 0.25;
 /** Faded base ring rendered behind the moving arc. */
@@ -45,9 +52,47 @@ function resolveSize(size: SpinnerSize): number {
   return typeof size === 'number' ? size : SIZE_PRESETS[size];
 }
 
+function rotationKey(
+  size: SpinnerSize,
+  color: string,
+  strokeWidth: number | undefined
+): string {
+  return `${String(size)}|${color}|${strokeWidth ?? 'auto'}`;
+}
+
+function useSpinnerRotation(
+  size: SpinnerSize,
+  color: string,
+  strokeWidth: number | undefined
+): Animated.Value {
+  const shared = useSharedSpinnerRotation(
+    rotationKey(size, color, strokeWidth)
+  );
+  const localRef = useRef<Animated.Value | null>(null);
+  if (localRef.current === null) localRef.current = new Animated.Value(0);
+  const local = localRef.current;
+
+  useEffect(() => {
+    if (shared !== null) return undefined;
+    local.setValue(0);
+    const loop = Animated.loop(
+      Animated.timing(local, {
+        toValue: 1,
+        duration: SPIN_DURATION_MS,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [shared, local]);
+
+  return shared ?? local;
+}
+
 export function Spinner({
   color = 'tint',
-  size = 'small',
+  size = 'medium',
   strokeWidth,
 }: SpinnerProps) {
   const theme = useTheme();
@@ -59,21 +104,7 @@ export function Spinner({
   const dash = circumference * ARC_FRACTION;
   const gap = circumference - dash;
 
-  const rotation = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    rotation.setValue(0);
-    const loop = Animated.loop(
-      Animated.timing(rotation, {
-        toValue: 1,
-        duration: SPIN_DURATION_MS,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [rotation]);
+  const rotation = useSpinnerRotation(size, color, strokeWidth);
 
   const spin = rotation.interpolate({
     inputRange: [0, 1],

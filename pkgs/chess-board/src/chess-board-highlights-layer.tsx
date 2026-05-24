@@ -1,4 +1,3 @@
-/* eslint-disable lingui/no-unlocalized-strings */
 import { Circle, Group, Rect } from '@shopify/react-native-skia';
 import { memo, type ReactNode } from 'react';
 import { indexFromSquare, squareToXY } from './chess-board-geometry';

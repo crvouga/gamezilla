@@ -10,7 +10,9 @@ type LockDbSessionHooks = {
 
 let hooks: LockDbSessionHooks | null = null;
 
-export function registerLockDbSessionHooks(next: LockDbSessionHooks | null): void {
+export function registerLockDbSessionHooks(
+  next: LockDbSessionHooks | null
+): void {
   hooks = next;
 }
 

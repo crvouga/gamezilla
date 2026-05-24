@@ -362,7 +362,7 @@ function ButtonContent({
 }) {
   const theme = useTheme();
   const fg = buttonForegroundColor(theme, isDisabled);
-  if (loading) return <Spinner size="small" color={fg} />;
+  if (loading) return <Spinner color={fg} />;
   const iconBoxStyle = {
     alignItems: 'center',
     justifyContent: 'center',

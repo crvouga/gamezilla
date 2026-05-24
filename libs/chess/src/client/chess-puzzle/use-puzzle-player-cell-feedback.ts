@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import type { ChessPuzzlePlayStatus } from '../../shared/chess-puzzle-play';
-import type { Square } from '../chess-board/chess-board-types';
+import type { Square } from '@pkgs/chess-board/chess-board-types';
 import { deriveChessPuzzleCellFeedback } from './chess-puzzle-cell-feedback';
 
 export function usePuzzlePlayerCellFeedback(args: {
