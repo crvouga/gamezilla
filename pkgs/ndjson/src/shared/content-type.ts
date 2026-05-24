@@ -1,7 +1,8 @@
 /**
- * Canonical content-type for NDJSON streaming responses.
+ * Canonical content-type for indexed batch streaming responses.
  *
- * Use as both the server's `Content-Type` header and a client `Accept`
- * header value when negotiating an NDJSON-capable response.
+ * Uses Server-Sent Events (`text/event-stream`) so browser DevTools can
+ * parse and display the stream (EventStream tab). Each event carries one
+ * JSON frame in a `data:` field.
  */
-export const NDJSON_CONTENT_TYPE = 'application/x-ndjson';
+export const EVENT_STREAM_CONTENT_TYPE = 'text/event-stream';

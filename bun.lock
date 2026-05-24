@@ -645,7 +645,6 @@
         "@pkgs/attribute": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/logger": "workspace:*",
-        "@pkgs/ndjson": "workspace:*",
         "@pkgs/pub-sub": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sqlite": "workspace:*",

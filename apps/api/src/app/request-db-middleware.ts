@@ -47,7 +47,12 @@ export function createRequestDbMiddleware(
     );
     const sessionAuth = createSessionAuth({ auth: betterAuth });
 
-    const store = { patchDb, sessionAuth, kv, matchmakingSqlClient };
+    const store = {
+      patchDb,
+      sessionAuth,
+      kv,
+      matchmakingSqlClient,
+    };
     return await apiRequestAsyncLocalStorage.run(store, async () => {
       c.set('patchDb', patchDb);
       c.set('sessionAuth', sessionAuth);

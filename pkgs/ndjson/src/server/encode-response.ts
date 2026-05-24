@@ -21,8 +21,8 @@ function defaultMapTailError(error: unknown): NdjsonErrorFrame {
 
 /**
  * Wrap an `AsyncIterable<NdjsonFrame<T>>` in a `ReadableStream<Uint8Array>`
- * suitable for use as an HTTP response body. Each frame is JSON-serialized
- * and newline-terminated; an uncaught error from the iterable is
+ * suitable for use as an HTTP response body. Each frame is serialized as
+ * one SSE `data:` event; an uncaught error from the iterable is
  * translated to a tail-error + `end` frame pair so consumers always observe
  * the wire contract (every stream ends with one `end` frame).
  */

@@ -7,4 +7,9 @@ export {
   collectIndexedNdjsonStream,
   type CollectIndexedNdjsonOptions,
 } from './consume-stream';
-export { acceptsNdjson, ndjsonAcceptHeader } from './accept-header';
+export {
+  acceptsEventStream,
+  acceptsNdjson,
+  eventStreamAcceptHeader,
+  ndjsonAcceptHeader,
+} from './accept-header';

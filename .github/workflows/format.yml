@@ -4,6 +4,9 @@
 # pull request, then commits and pushes only when the working tree actually
 # changed. Format commits use `[skip ci]` plus job-level guards so this
 # workflow does not loop on its own bot pushes.
+#
+# `.github/workflows/` is in `.prettierignore` and is never staged here:
+# GITHUB_TOKEN cannot push workflow files (needs a PAT with `workflow` scope).
 name: Format
 
 permissions:
@@ -21,8 +24,8 @@ concurrency:
 
 jobs:
   format:
-  # Do not run on pushes from this workflow's bot commit (`[skip ci]` is the
-  # primary guard; this catches cases where a hook still schedules a run).
+    # Do not run on pushes from this workflow's bot commit (`[skip ci]` is the
+    # primary guard; this catches cases where a hook still schedules a run).
     if: >-
       github.actor != 'github-actions[bot]' &&
       (github.event_name != 'push' ||
@@ -86,13 +89,13 @@ jobs:
           BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
         run: |
           set -euo pipefail
-          # Belt-and-suspenders: never commit an empty tree.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git restore --staged .github/workflows/
           if git diff --quiet && git diff --cached --quiet; then
             echo "No formatting changes to commit"
             exit 0
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
           git commit -m "style: apply bun format [skip ci]"
           git push origin "HEAD:${BRANCH}"

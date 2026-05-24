@@ -34,21 +34,31 @@ export function isNdjsonFrame(raw: unknown): raw is NdjsonFrame {
   return isResultFrame(o) || isErrorFrame(o) || isEndFrame(o);
 }
 
-function parseNdjsonLine(line: string): NdjsonFrame | null {
+function payloadFromStreamLine(line: string): string | null {
   const trimmed = line.trim();
   if (trimmed.length === 0) return null;
-  const parsed: unknown = JSON.parse(trimmed);
+  if (trimmed.startsWith(':')) return null;
+  if (trimmed.startsWith('data:')) {
+    return trimmed.slice('data:'.length).trimStart();
+  }
+  return trimmed;
+}
+
+function parseStreamLine(line: string): NdjsonFrame | null {
+  const payload = payloadFromStreamLine(line);
+  if (payload === null) return null;
+  const parsed: unknown = JSON.parse(payload);
   if (!isNdjsonFrame(parsed)) {
     throw new Error(
-      `ndjson: unrecognized frame shape: ${trimmed.slice(0, 120)}`
+      `ndjson: unrecognized frame shape: ${payload.slice(0, 120)}`
     );
   }
   return parsed;
 }
 
 /**
- * Streaming line decoder. Buffers partial chunks across {@link push}
- * calls and yields complete frames as soon as a newline arrives.
+ * Streaming SSE line decoder. Buffers partial chunks across {@link push}
+ * calls and yields complete frames as soon as a `data:` line arrives.
  */
 export class NdjsonStreamDecoder {
   private buffer = '';
@@ -67,12 +77,12 @@ export class NdjsonStreamDecoder {
     while (nl >= 0) {
       const line = this.buffer.slice(0, nl);
       this.buffer = this.buffer.slice(nl + 1);
-      const f = parseNdjsonLine(line);
+      const f = parseStreamLine(line);
       if (f !== null) frames.push(f);
       nl = this.buffer.indexOf('\n');
     }
     if (final && this.buffer.length > 0) {
-      const f = parseNdjsonLine(this.buffer);
+      const f = parseStreamLine(this.buffer);
       this.buffer = '';
       if (f !== null) frames.push(f);
     }

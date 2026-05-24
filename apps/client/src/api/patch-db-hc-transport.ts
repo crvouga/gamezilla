@@ -1,27 +1,10 @@
-import type {
-  PatchDbQuery,
-  PatchDbResult,
-  PatchInput,
-  WritePatchesResult,
-} from '@pkgs/patch-db/interface';
 import type { PatchDbClientTransport } from '@pkgs/patch-db/transport/interface';
-import { NO_CACHE_REQUEST_HEADERS } from '@pkgs/patch-db/transport/paths';
-import { PatchDbTransportRejectedError } from '@pkgs/patch-db/transport/transport-rejected-error';
-import {
-  assertWireReadResponse,
-  assertWireWriteResponse,
-} from '@pkgs/patch-db/validate-remote';
-import type { ApiClient } from './hc';
-
-const JSON_HEADERS = {
-  'Content-Type': 'application/json',
-  Accept: 'application/json',
-} as const;
+import { PatchDbClientTransportHttpFetch } from '@pkgs/patch-db/transport/impl-http-fetch';
 
 /** Must match {@link ANON_ID_HEADER} in apps/api session-middleware. */
 const X_ANON_ID = 'x-anon-id';
 
-export type CreatePatchDbHcTransportOptions = {
+export type CreatePatchDbHttpTransportOptions = {
   /** Same origin + path prefix as read/write (e.g. `https://host/patch-db`). */
   patchDbBaseUrl: string;
   /**
@@ -66,95 +49,24 @@ function authHeaders(options: {
   return {};
 }
 
-function throwHcFailure(status: number, text: string): never {
-  if (status === 401 || status === 403) {
-    throw new PatchDbTransportRejectedError(status, text);
-  }
-  throw new Error(`HTTP ${String(status)}: ${text}`);
-}
-
-async function readJsonBodyOrThrow(res: {
-  readonly status: number;
-  json(): Promise<unknown>;
-}): Promise<unknown> {
-  try {
-    return await res.json();
-  } catch {
-    throw new Error(
-      `Response body is not valid JSON (status ${String(res.status)})`
-    );
-  }
-}
-
-async function patchDbHcRead(
-  client: ApiClient,
-  hdr: () => Record<string, string>,
-  queries: PatchDbQuery[]
-): Promise<PatchDbResult[]> {
-  if (queries.length === 0) {
-    throw new Error(
-      'createPatchDbHcTransport.read: empty queries unsupported over HTTP'
-    );
-  }
-  const res = await client['patch-db']['patches']['read'].$post(
-    { json: { queries } },
-    {
-      headers: {
-        ...JSON_HEADERS,
-        ...NO_CACHE_REQUEST_HEADERS,
-        ...hdr(),
-      },
-    }
-  );
-  if (!res.ok) {
-    const text = await res.text();
-    throwHcFailure(res.status, text);
-  }
-  const raw = await readJsonBodyOrThrow(res);
-  assertWireReadResponse(raw);
-  return raw.results;
-}
-
-async function patchDbHcWrite(
-  client: ApiClient,
-  hdr: () => Record<string, string>,
-  patches: PatchInput[]
-): Promise<WritePatchesResult> {
-  const res = await client['patch-db']['patches']['write'].$post(
-    { json: { patches } },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        ...NO_CACHE_REQUEST_HEADERS,
-        ...hdr(),
-      },
-    }
-  );
-  if (!res.ok) {
-    const text = await res.text();
-    throwHcFailure(res.status, text);
-  }
-  const raw = await readJsonBodyOrThrow(res);
-  assertWireWriteResponse(raw);
-  return raw;
-}
-
 /**
- * Patch-db sync transport using the Hono RPC client (`/patch-db/patches/read|write`).
+ * Patch-db sync transport over `/patch-db/patches/read|write` with batched
+ * JSON request/response (no streaming).
  */
-export function createPatchDbHcTransport(
-  client: ApiClient,
-  options: CreatePatchDbHcTransportOptions
+export function createPatchDbHttpTransport(
+  options: CreatePatchDbHttpTransportOptions
 ): PatchDbClientTransport {
-  const { getAuthToken, getAnonId, patchDbBaseUrl: _patchDbBaseUrl } = options;
-  void _patchDbBaseUrl;
-  const hdr = () =>
-    authHeaders({
-      ...(getAuthToken !== undefined ? { getAuthToken } : {}),
-      ...(getAnonId !== undefined ? { getAnonId } : {}),
-    });
-  return {
-    read: (queries) => patchDbHcRead(client, hdr, queries),
-    write: (patches) => patchDbHcWrite(client, hdr, patches),
-  };
+  const { getAuthToken, getAnonId, patchDbBaseUrl } = options;
+  return new PatchDbClientTransportHttpFetch(patchDbBaseUrl, {
+    getHeaders: () =>
+      authHeaders({
+        ...(getAuthToken !== undefined ? { getAuthToken } : {}),
+        ...(getAnonId !== undefined ? { getAnonId } : {}),
+      }),
+  });
 }
+
+/** @deprecated Use {@link createPatchDbHttpTransport}. */
+export const createPatchDbHcTransport = createPatchDbHttpTransport;
+
+export type CreatePatchDbHcTransportOptions = CreatePatchDbHttpTransportOptions;

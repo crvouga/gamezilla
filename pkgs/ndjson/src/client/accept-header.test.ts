@@ -1,36 +1,52 @@
 import { describe, expect, test } from 'bun:test';
-import { NDJSON_CONTENT_TYPE } from '../shared/content-type';
-import { acceptsNdjson, ndjsonAcceptHeader } from './accept-header';
+import { EVENT_STREAM_CONTENT_TYPE } from '../shared/content-type';
+import {
+  acceptsEventStream,
+  acceptsNdjson,
+  eventStreamAcceptHeader,
+  ndjsonAcceptHeader,
+} from './accept-header';
 
-describe('acceptsNdjson', () => {
-  test('detects exact match', () => {
-    expect(acceptsNdjson(NDJSON_CONTENT_TYPE)).toBe(true);
+describe('acceptsEventStream', () => {
+  test('matches the canonical content type', () => {
+    expect(acceptsEventStream(EVENT_STREAM_CONTENT_TYPE)).toBe(true);
   });
 
-  test('detects ndjson alongside other types', () => {
+  test('matches when listed with q-values', () => {
     expect(
-      acceptsNdjson(`${NDJSON_CONTENT_TYPE}, application/json;q=0.9`)
+      acceptsEventStream(`${EVENT_STREAM_CONTENT_TYPE}, application/json;q=0.9`)
     ).toBe(true);
   });
 
-  test('rejects when ndjson is absent', () => {
-    expect(acceptsNdjson('application/json')).toBe(false);
-    expect(acceptsNdjson('')).toBe(false);
-    expect(acceptsNdjson(null)).toBe(false);
-    expect(acceptsNdjson(undefined)).toBe(false);
+  test('rejects unrelated accept values', () => {
+    expect(acceptsEventStream('application/json')).toBe(false);
+    expect(acceptsEventStream('application/x-ndjson')).toBe(false);
+    expect(acceptsEventStream('')).toBe(false);
+    expect(acceptsEventStream(null)).toBe(false);
+    expect(acceptsEventStream(undefined)).toBe(false);
   });
 });
 
-describe('ndjsonAcceptHeader', () => {
-  test('prefers ndjson with a default fallback to flat JSON', () => {
-    expect(ndjsonAcceptHeader()).toBe(
-      `${NDJSON_CONTENT_TYPE}, application/json`
+describe('eventStreamAcceptHeader', () => {
+  test('prefers SSE with a json fallback by default', () => {
+    expect(eventStreamAcceptHeader()).toBe(
+      `${EVENT_STREAM_CONTENT_TYPE}, application/json`
     );
   });
 
   test('honors a custom fallback', () => {
-    expect(ndjsonAcceptHeader('text/plain')).toBe(
-      `${NDJSON_CONTENT_TYPE}, text/plain`
+    expect(eventStreamAcceptHeader('text/plain')).toBe(
+      `${EVENT_STREAM_CONTENT_TYPE}, text/plain`
     );
+  });
+});
+
+describe('deprecated aliases', () => {
+  test('acceptsNdjson delegates to acceptsEventStream', () => {
+    expect(acceptsNdjson(EVENT_STREAM_CONTENT_TYPE)).toBe(true);
+  });
+
+  test('ndjsonAcceptHeader delegates to eventStreamAcceptHeader', () => {
+    expect(ndjsonAcceptHeader()).toBe(eventStreamAcceptHeader());
   });
 });

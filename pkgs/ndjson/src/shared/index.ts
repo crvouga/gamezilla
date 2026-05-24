@@ -1,4 +1,4 @@
-export { NDJSON_CONTENT_TYPE } from './content-type';
+export { EVENT_STREAM_CONTENT_TYPE } from './content-type';
 export type {
   NdjsonEndFrame,
   NdjsonErrorFrame,

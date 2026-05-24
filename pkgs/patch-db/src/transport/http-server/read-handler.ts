@@ -5,7 +5,6 @@ import type { PatchDbSyncHost } from '../interface';
 import type { PatchDbHttpAuthOptions } from './auth';
 import { resolveRequestContext } from './auth';
 import { jsonReadResponse } from './json-read-response';
-import { clientWantsNdjson, ndjsonReadResponse } from './ndjson-read-response';
 
 function assertReadBody(body: unknown): asserts body is {
   queries: PatchDbQuery[];
@@ -35,8 +34,5 @@ export async function readHandler(
   );
   assertReadBody(body);
   const { queries } = body;
-  if (clientWantsNdjson(c)) {
-    return ndjsonReadResponse(c, host, queries, authResult.ctx);
-  }
   return jsonReadResponse(c, host, queries, authResult.ctx);
 }

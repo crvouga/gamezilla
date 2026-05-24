@@ -16,13 +16,11 @@ import { setInMemoryStoreForDb } from '@pkgs/patch-db/react/in-memory-store-regi
 import { PatchDbWriteThroughMirror } from '@pkgs/patch-db/react/write-through-mirror';
 import type { SubscribablePatchDbLike } from '@pkgs/patch-db/subscribable';
 
-import type { ApiClient } from '../api/hc';
-import { createPatchDbHcTransport } from '../api/patch-db-hc-transport';
+import { createPatchDbHttpTransport } from '../api/patch-db-hc-transport';
 
 export type CreatePatchDbArgs = {
   sql: SqlClient;
   config: ConfigService;
-  apiClient: ApiClient;
 };
 
 /**
@@ -43,7 +41,7 @@ export async function createPatchDb(
   assertDeviceId(installId);
 
   const remote = new PatchDbImplClientTransport(
-    createPatchDbHcTransport(args.apiClient, {
+    createPatchDbHttpTransport({
       patchDbBaseUrl: `${args.config.getApiUrl()}/patch-db`,
       getAuthToken: () => getCachedSessionToken(),
       getAnonId: () => getCachedDeviceId(),

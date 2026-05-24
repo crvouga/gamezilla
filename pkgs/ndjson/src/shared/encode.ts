@@ -1,10 +1,10 @@
 import type { NdjsonFrame } from './frames';
 
 /**
- * Serialize one NDJSON frame to a single newline-terminated line.
- * Always emits exactly one trailing `\n` so receivers can split on
- * newlines without special-casing the last frame.
+ * Serialize one indexed stream frame as a single SSE event.
+ * Emits `data: <json>\n\n` so receivers can split on event boundaries
+ * and browser DevTools can parse the stream.
  */
 export function encodeNdjsonFrame<T>(frame: NdjsonFrame<T>): string {
-  return `${JSON.stringify(frame)}\n`;
+  return `data: ${JSON.stringify(frame)}\n\n`;
 }

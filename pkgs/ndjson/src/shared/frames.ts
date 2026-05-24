@@ -1,14 +1,17 @@
 /**
  * NDJSON frame types for the indexed streaming protocol.
  *
- * One JSON object per line, terminated by `\n`. Each request returns a
- * sequence of frames terminated by exactly one `end` frame:
+ * One SSE `data:` event per indexed frame:
  *
  * ```
- * {"frame":"result","index":0,"result":{...}}\n
- * {"frame":"result","index":2,"result":{...}}\n
- * {"frame":"error","index":1,"status":500,"message":"..."}\n
- * {"frame":"end"}\n
+ * data: {"frame":"result","index":0,"result":{...}}
+ *
+ * data: {"frame":"result","index":2,"result":{...}}
+ *
+ * data: {"frame":"error","index":1,"status":500,"message":"..."}
+ *
+ * data: {"frame":"end"}
+ *
  * ```
  *
  * `result` and `error` frames carry an `index` so the consumer can place

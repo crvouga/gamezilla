@@ -1,3 +1,6 @@
+# GITHUB_TOKEN cannot push workflow file changes; keep them out of the format bot.
+.github/workflows/
+
 node_modules
 dist
 .expo

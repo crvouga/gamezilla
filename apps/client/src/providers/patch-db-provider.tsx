@@ -5,7 +5,6 @@ import { useSqlClient } from '@pkgs/sql-client/react-context';
 import { PatchDbContextProvider } from '@pkgs/patch-db/react';
 import { use, type ReactNode } from 'react';
 
-import { useApiClient } from '../api/api-context';
 import { createPatchDb } from '../patch-db/create-patch-db';
 import { MAIN_SQLITE_DB_NAME } from '../storage/open-main-sql-client';
 
@@ -24,7 +23,6 @@ export function PatchDbProvider({
   children: ReactNode;
 }): ReactNode {
   const sql = useSqlClient();
-  const apiClient = useApiClient();
   const config = useConfigService();
   // Ensures the device id is hydrated/seeded into the secure-storage cache
   // before patch-db boot reads it via `getCachedDeviceId`.
@@ -37,7 +35,6 @@ export function PatchDbProvider({
       createPatchDb({
         sql,
         config,
-        apiClient,
       })
   );
   const value = use(patchDbPromise);
