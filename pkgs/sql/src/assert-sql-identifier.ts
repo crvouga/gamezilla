@@ -26,9 +26,9 @@ export function assertSqlIdentifier(
 
 /**
  * Asserts that `value` is either an empty string or `<identifier>.` — the
- * shape used by patch-db's `tableAlias` / `columnPrefix` / `attributePrefix`
- * arguments, which are concatenated directly in front of column references
- * (e.g. `p.attributes`, `attributes`).
+ * shape used by query builders' `tableAlias` / `columnPrefix` /
+ * `attributePrefix` arguments, which are concatenated directly in front of
+ * column references (e.g. `p.attributes`, `attributes`).
  */
 export function assertSqlPrefix(
   value: unknown,

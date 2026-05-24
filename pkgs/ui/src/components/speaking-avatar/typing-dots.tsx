@@ -15,6 +15,8 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Animated, Easing, View } from 'react-native';
 
+import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+
 /** Total length of one loop cycle. ~1200ms feels close to iMessage. */
 const DOTS_CYCLE_MS = 1200;
 const DOT_SIZE = 6;
@@ -52,7 +54,7 @@ export function TypingDots({
         toValue: 1,
         duration: DOTS_CYCLE_MS,
         easing: Easing.linear,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       })
     );
     animation.start();

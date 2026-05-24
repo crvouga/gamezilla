@@ -2,7 +2,7 @@ import type { Keyword } from '@pkgs/keyword';
 import { assert } from '@pkgs/assert';
 import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { assertWhereFragment } from '@pkgs/sqlite';
+import { assertWhereFragment } from '@pkgs/sql';
 import { PatchDbHookRegistry } from '../hook-registry';
 import type { PatchRow } from '../impl-sqlite/types';
 import type {
@@ -31,7 +31,6 @@ import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
 import { finishCompactionAfterInsert } from '../compact-entity-tx-helpers';
 import { topologicalSortPatches } from '../topological-sort';
 import { assertQueryAgainstSchema } from '../schema/assert-query';
-import { registryToIndexSpecs } from '../schema/schema-to-index-spec';
 import {
   accumulateWritePatchesPostgres,
   type PatchInsertBatchRow,
@@ -41,6 +40,11 @@ import {
   type PatchDbExplainGuardMode,
 } from './explain-guard';
 import { migratePatchDbPostgres } from './migrate';
+import {
+  buildPartitionLayout,
+  EMPTY_PARTITION_LAYOUT,
+  type FrozenPartitionLayout,
+} from './partitioning';
 import { readPatches } from './read-ops';
 import {
   mergePatchRowsIntoSnapshotAttrs,
@@ -64,23 +68,26 @@ export class PatchDbImplPostgres implements PatchDb {
     compactAll: (options, ctx) => this.compactAll(options, ctx),
   };
 
+  private readonly partitionLayout: FrozenPartitionLayout;
+
   constructor(
     private readonly sqlClient: SqlClient,
     private readonly opts: PatchDbEngineOptions = {}
-  ) {}
+  ) {
+    this.partitionLayout =
+      opts.schemaRegistry !== undefined
+        ? buildPartitionLayout(opts.schemaRegistry)
+        : EMPTY_PARTITION_LAYOUT;
+  }
 
   /**
    * Idempotent Postgres DDL for patches + snapshots (no instance required).
    *
-   * Declarative snapshot indexes are reconciled after base DDL: indexes
-   * declared in code but absent in DB are created; indexes present in DB
-   * under the `pdb_idx_` prefix that are no longer declared are dropped.
-   * Non-`pdb_idx_` indexes (engine-owned and unrelated app indexes) are
-   * never touched.
-   *
-   * Indexes are derived from every {@link EntitySchema}'s indexed attributes
-   * + composite indexes via the optional {@link PatchDbEngineOptions.schemaRegistry}.
-   * Without a registry, only base DDL runs (no reconcile pass).
+   * When a {@link PatchDbEngineOptions.schemaRegistry} is supplied, every
+   * registered entity type gets its own `snapshots__<slug>` partition,
+   * typed generated columns for each `.indexed()` scalar attribute, and a
+   * partition-local btree per generated column. Without a registry only
+   * base DDL runs (parent `snapshots` + DEFAULT partition + GIN).
    */
   static async migrateUp(args: {
     sqlClient: SqlClient;
@@ -91,9 +98,7 @@ export class PatchDbImplPostgres implements PatchDb {
     await migratePatchDbPostgres({
       sqlClient: args.sqlClient,
       logger: args.logger,
-      ...(registry !== undefined
-        ? { indexes: registryToIndexSpecs(registry) }
-        : {}),
+      ...(registry !== undefined ? { registry } : {}),
     });
   }
 
@@ -365,6 +370,7 @@ export class PatchDbImplPostgres implements PatchDb {
         ...(explainGuard !== 'off'
           ? { explainGuard: { mode: explainGuard } }
           : {}),
+        partitions: this.partitionLayout,
       };
     })();
     return readPatches(this.sqlClient, rewritten, builderOptions);

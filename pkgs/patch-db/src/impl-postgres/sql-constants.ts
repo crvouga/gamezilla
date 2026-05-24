@@ -1,5 +1,4 @@
-export const DELETE_SNAPSHOT = `DELETE FROM snapshots
-WHERE entity_id = ? AND entity_type = ?`;
+import { assertSqlIdentifier } from '@pkgs/sql';
 
 // `?::text::jsonb` (rather than `CAST(? AS jsonb)`) is intentional. Bun's
 // `bun:sql` Postgres driver runs `jsonStringifyFast` on every parameter
@@ -51,6 +50,12 @@ export const INSERT_PATCHES_BATCH = `INSERT INTO patches (
     )
     ON CONFLICT (patch_id) DO NOTHING`;
 
+// Base DDL for the patch-db tables. Every statement is `CREATE … IF NOT
+// EXISTS` because `migrate.ts` runs this on every boot against a possibly-
+// populated DB and must leave existing data alone. Per-entity snapshot
+// tables, typed generated columns, per-table btrees + GINs, and the
+// `snapshots` UNION ALL view are reconciler-managed (see
+// `pg-reconcile.ts`); the base DDL only owns `patches` + its btrees.
 export const MIGRATIONS = `
 CREATE TABLE IF NOT EXISTS patches (
     patch_id TEXT PRIMARY KEY,
@@ -68,15 +73,6 @@ CREATE INDEX IF NOT EXISTS idx_patches_roots
     ON patches (entity_type, entity_id) WHERE parent_id IS NULL;
 
 CREATE INDEX IF NOT EXISTS idx_patches_parent ON patches (parent_id, entity_type, entity_id);
-
-CREATE TABLE IF NOT EXISTS snapshots (
-    entity_id TEXT NOT NULL,
-    entity_type TEXT NOT NULL,
-    attributes JSONB NOT NULL DEFAULT '{}',
-    PRIMARY KEY (entity_type, entity_id)
-);
-
-CREATE INDEX IF NOT EXISTS idx_snapshots_attrs_gin ON snapshots USING GIN (attributes jsonb_path_ops);
 `;
 
 export const RESOLVE_PARENT_ID = `WITH RECURSIVE lineage AS (
@@ -161,12 +157,24 @@ JOIN lineage l ON p.patch_id = l.patch_id
 WHERE p.entity_id = ? AND p.entity_type = ?
 ORDER BY l.depth ASC, p.patch_id ASC`;
 
-export const UPSERT_SNAPSHOT = `INSERT INTO snapshots (entity_id, entity_type, attributes)
+/**
+ * Single-row UPSERT into a specific per-entity snapshot table. `table`
+ * must already be `assertSqlIdentifier`-validated upstream; we re-validate
+ * here defensively so a stray call from elsewhere in the package can't
+ * smuggle an unsafe identifier into the DDL.
+ */
+export function upsertSnapshotSql(table: string): string {
+  assertSqlIdentifier(table, 'upsertSnapshotSql: table');
+  return `INSERT INTO ${table} (entity_id, entity_type, attributes)
 VALUES (?, ?, ?::text::jsonb)
 ON CONFLICT (entity_type, entity_id) DO UPDATE SET attributes = EXCLUDED.attributes`;
+}
 
-/** One round-trip to upsert many snapshot rows (Neon HTTP = one subrequest per `run`). */
-export const UPSERT_SNAPSHOTS_BATCH = `INSERT INTO snapshots (entity_id, entity_type, attributes)
+/** Batched UPSERT into a specific per-entity snapshot table (Neon HTTP =
+ *  one subrequest per `run`). */
+export function upsertSnapshotsBatchSql(table: string): string {
+  assertSqlIdentifier(table, 'upsertSnapshotsBatchSql: table');
+  return `INSERT INTO ${table} (entity_id, entity_type, attributes)
     SELECT entity_id, entity_type, attributes
     FROM jsonb_to_recordset(?::text::jsonb) AS batch_rows (
         entity_id text,
@@ -174,6 +182,26 @@ export const UPSERT_SNAPSHOTS_BATCH = `INSERT INTO snapshots (entity_id, entity_
         attributes jsonb
     )
     ON CONFLICT (entity_type, entity_id) DO UPDATE SET attributes = EXCLUDED.attributes`;
+}
+
+/** Single-row DELETE from a specific per-entity snapshot table. */
+export function deleteSnapshotSql(table: string): string {
+  assertSqlIdentifier(table, 'deleteSnapshotSql: table');
+  return `DELETE FROM ${table}
+WHERE entity_id = ? AND entity_type = ?`;
+}
+
+/** Multi-row DELETE from a specific per-entity snapshot table. Caller
+ *  supplies the pre-built `(?, ?)` placeholder list for the IN-VALUES
+ *  clause; the table identifier is interpolated here under
+ *  `assertSqlIdentifier`. */
+export function deleteSnapshotsBatchSql(
+  table: string,
+  valuesPlaceholder: string
+): string {
+  assertSqlIdentifier(table, 'deleteSnapshotsBatchSql: table');
+  return `DELETE FROM ${table} WHERE (entity_id, entity_type) IN (VALUES ${valuesPlaceholder})`;
+}
 
 export const SELECT_DEPTH_BY_PATCH_ID = `WITH RECURSIVE path AS (
                         SELECT patch_id, parent_id, 1 AS len FROM patches WHERE patch_id = ?

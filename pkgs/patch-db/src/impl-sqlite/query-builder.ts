@@ -5,17 +5,25 @@ import {
   assertOrderByFragment,
   assertSqlPrefix,
   assertWhereFragment,
-} from '@pkgs/sqlite';
+} from '@pkgs/sql';
 import type {
   AttributeKey,
   PatchDbQuery,
   PatchDbQueryWhereClause,
+  SubqueryRef,
 } from '../interface';
 import {
   assertAttribute,
   assertDirection,
+  isSubqueryRef,
   patchDbAttributeKey,
 } from '../interface';
+
+/**
+ * Hard cap on subquery recursion depth. Mirrors the Postgres builder's
+ * cap so a payload that's safe on one engine is safe on the other.
+ */
+const MAX_SUBQUERY_DEPTH = 4;
 
 export type WhereFragment = { sql: string; params: unknown[] };
 
@@ -92,19 +100,72 @@ function buildContainsClause(
   };
 }
 
-function buildSetClause(clause: SetClause, jsonColumn: string): WhereFragment {
-  const attrKey = patchDbAttributeKey(clause.attribute);
+function buildSubqueryRhsSqlite(
+  outerClause: SetClause,
+  subquery: SubqueryRef,
+  jsonColumn: string,
+  depth: number
+): WhereFragment {
   assert.ok(
-    Array.isArray(clause.values) && clause.values.length > 0,
+    depth < MAX_SUBQUERY_DEPTH,
+    'subquery depth exceeds MAX_SUBQUERY_DEPTH',
+    { depth, max: MAX_SUBQUERY_DEPTH, outerClause }
+  );
+  const outerAttrKey = patchDbAttributeKey(outerClause.attribute);
+  const outerPath = jsonPathForAttribute(outerAttrKey);
+  const innerAttrKey = patchDbAttributeKey(subquery.attribute);
+  const innerPath = jsonPathForAttribute(innerAttrKey);
+
+  const innerJsonColumn = 'sub.attributes';
+  const conditions: string[] = ['sub.entity_type = ?'];
+  const params: unknown[] = [subquery.entityType];
+
+  if (subquery.where !== undefined) {
+    const inner = buildWhereClauseForColumnDepth(
+      subquery.where,
+      innerJsonColumn,
+      depth + 1
+    );
+    conditions.push(inner.sql);
+    params.push(...inner.params);
+  }
+
+  const innerSelect = `SELECT json_extract(${innerJsonColumn}, ?) FROM snapshots sub WHERE ${conditions.join(' AND ')}`;
+  const innerSelectParams = [innerPath, ...params];
+
+  if (outerClause.type === 'in') {
+    return {
+      sql: `(json_extract(${jsonColumn}, ?) IN (${innerSelect}))`,
+      params: [outerPath, ...innerSelectParams],
+    };
+  }
+  return {
+    sql: `(json_extract(${jsonColumn}, ?) IS NULL OR json_extract(${jsonColumn}, ?) NOT IN (${innerSelect}))`,
+    params: [outerPath, outerPath, ...innerSelectParams],
+  };
+}
+
+function buildSetClause(
+  clause: SetClause,
+  jsonColumn: string,
+  depth: number
+): WhereFragment {
+  if (isSubqueryRef(clause.values)) {
+    return buildSubqueryRhsSqlite(clause, clause.values, jsonColumn, depth);
+  }
+  const attrKey = patchDbAttributeKey(clause.attribute);
+  const values = clause.values;
+  assert.ok(
+    values.length > 0,
     `Empty values list for ${clause.type} clause would produce invalid SQL "IN ()"`,
     { clause }
   );
   const path = jsonPathForAttribute(attrKey);
-  const placeholders = clause.values.map(() => '?').join(', ');
+  const placeholders = values.map(() => '?').join(', ');
   const op = clause.type === 'in' ? 'IN' : 'NOT IN';
   return {
     sql: `json_extract(${jsonColumn}, ?) ${op} (${placeholders})`,
-    params: [path, ...clause.values],
+    params: [path, ...values],
   };
 }
 
@@ -123,7 +184,8 @@ function buildExistenceClause(
 
 function buildAndOrClause(
   clause: AndOrClause,
-  jsonColumn: string
+  jsonColumn: string,
+  depth: number
 ): WhereFragment {
   assert.ok(
     Array.isArray(clause.clauses) && clause.clauses.length > 0,
@@ -131,7 +193,7 @@ function buildAndOrClause(
     { clause }
   );
   const parts = clause.clauses.map((c) =>
-    buildWhereClauseForColumn(c, jsonColumn)
+    buildWhereClauseForColumnDepth(c, jsonColumn, depth)
   );
   const sep = clause.type === 'and' ? ' AND ' : ' OR ';
   return {
@@ -140,14 +202,23 @@ function buildAndOrClause(
   };
 }
 
-function buildNotClause(clause: NotClause, jsonColumn: string): WhereFragment {
-  const inner = buildWhereClauseForColumn(clause.clause, jsonColumn);
+function buildNotClause(
+  clause: NotClause,
+  jsonColumn: string,
+  depth: number
+): WhereFragment {
+  const inner = buildWhereClauseForColumnDepth(
+    clause.clause,
+    jsonColumn,
+    depth
+  );
   return { sql: `NOT (${inner.sql})`, params: inner.params };
 }
 
 type ClauseBuilder = (
   clause: PatchDbQueryWhereClause,
-  jsonColumn: string
+  jsonColumn: string,
+  depth: number
 ) => WhereFragment;
 
 const CLAUSE_BUILDERS: Record<PatchDbQueryWhereClause['type'], ClauseBuilder> =
@@ -159,13 +230,13 @@ const CLAUSE_BUILDERS: Record<PatchDbQueryWhereClause['type'], ClauseBuilder> =
     lt: (c, j) => buildBinaryClause(c as BinaryClause, j),
     lte: (c, j) => buildBinaryClause(c as BinaryClause, j),
     contains: (c, j) => buildContainsClause(c as ContainsClause, j),
-    in: (c, j) => buildSetClause(c as SetClause, j),
-    not_in: (c, j) => buildSetClause(c as SetClause, j),
+    in: (c, j, d) => buildSetClause(c as SetClause, j, d),
+    not_in: (c, j, d) => buildSetClause(c as SetClause, j, d),
     exists: (c, j) => buildExistenceClause(c as ExistenceClause, j),
     not_exists: (c, j) => buildExistenceClause(c as ExistenceClause, j),
-    and: (c, j) => buildAndOrClause(c as AndOrClause, j),
-    or: (c, j) => buildAndOrClause(c as AndOrClause, j),
-    not: (c, j) => buildNotClause(c as NotClause, j),
+    and: (c, j, d) => buildAndOrClause(c as AndOrClause, j, d),
+    or: (c, j, d) => buildAndOrClause(c as AndOrClause, j, d),
+    not: (c, j, d) => buildNotClause(c as NotClause, j, d),
   };
 
 /** Always-false predicate, used to short-circuit `in []` / `or []`. */
@@ -184,29 +255,41 @@ const ALWAYS_TRUE: WhereFragment = { sql: '(1 = 1)', params: [] };
  * empty list (e.g. an ABAC predicate when the user has zero memberships)
  * without crashing.
  */
+function isEmptyArrayValuesSqlite(clause: PatchDbQueryWhereClause): boolean {
+  if (clause.type !== 'in' && clause.type !== 'not_in') return false;
+  return Array.isArray(clause.values) && clause.values.length === 0;
+}
+
 function trivialFragmentForEmptyCollection(
   clause: PatchDbQueryWhereClause
 ): WhereFragment | null {
-  if (clause.type === 'in' && clause.values.length === 0) return ALWAYS_FALSE;
-  if (clause.type === 'not_in' && clause.values.length === 0) {
-    return ALWAYS_TRUE;
+  if (isEmptyArrayValuesSqlite(clause)) {
+    return clause.type === 'in' ? ALWAYS_FALSE : ALWAYS_TRUE;
   }
   if (clause.type === 'and' && clause.clauses.length === 0) return ALWAYS_TRUE;
   if (clause.type === 'or' && clause.clauses.length === 0) return ALWAYS_FALSE;
   return null;
 }
 
-function buildWhereClauseForColumn(
+function buildWhereClauseForColumnDepth(
   clause: PatchDbQueryWhereClause,
-  jsonColumn: string
+  jsonColumn: string,
+  depth: number
 ): WhereFragment {
   const trivial = trivialFragmentForEmptyCollection(clause);
   if (trivial !== null) return trivial;
   const builder = CLAUSE_BUILDERS[clause.type];
   assert.defined(builder, 'Invalid where clause type');
-  const fragment = builder(clause, jsonColumn);
+  const fragment = builder(clause, jsonColumn, depth);
   assertWhereFragment(fragment, { clauseType: clause.type, jsonColumn });
   return fragment;
+}
+
+function buildWhereClauseForColumn(
+  clause: PatchDbQueryWhereClause,
+  jsonColumn: string
+): WhereFragment {
+  return buildWhereClauseForColumnDepth(clause, jsonColumn, 0);
 }
 
 export function buildWhereClause(

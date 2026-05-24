@@ -161,7 +161,7 @@ function assertBalancedParens(
 }
 
 /**
- * Validates a SQL fragment built dynamically by the patch-db query builders.
+ * Validates a SQL fragment built dynamically by query builders.
  *
  * Catches the most common ways to accidentally produce invalid SQL:
  *   - Placeholder count mismatch with `params.length`.

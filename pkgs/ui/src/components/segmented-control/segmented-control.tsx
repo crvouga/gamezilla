@@ -20,6 +20,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, View } from 'react-native';
+import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
@@ -62,7 +63,7 @@ function useSegmentIndicator(
     }
     const animation = Animated.spring(translateX, {
       toValue: targetX,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
       stiffness: 260,
       damping: 28,
       mass: 1,

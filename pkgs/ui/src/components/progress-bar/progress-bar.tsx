@@ -10,6 +10,7 @@
 
 import { useEffect, useRef } from 'react';
 import { Animated, View } from 'react-native';
+import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import { useTheme } from '../../theme';
 
 export type ProgressBarProps = {
@@ -39,7 +40,7 @@ export function ProgressBar({
       Animated.timing(translateX, {
         toValue: 1,
         duration: 1200,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       })
     );
     loop.start();

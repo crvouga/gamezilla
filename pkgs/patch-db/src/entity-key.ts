@@ -1,8 +1,7 @@
 /**
  * Foundational entity-key / attribute-key validators shared across patch-db's
- * `interface` (high-level Patch/Entity types) and `indexes/index-spec`
- * (declarative index DDL). Lives in its own module so both can depend on it
- * without forming an import cycle.
+ * `interface` (high-level Patch/Entity types) and the schema layer. Lives in
+ * its own module so both can depend on it without forming an import cycle.
  */
 import type { Assert } from '@pkgs/assert';
 import { assert } from '@pkgs/assert';

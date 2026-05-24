@@ -32,6 +32,7 @@ import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { t } from '@lingui/core/macro';
 import { assert } from '@pkgs/assert';
+import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';
@@ -47,9 +48,6 @@ function useSafeAreaInsetsCompat() {
 
 const EXIT_MS = 220;
 const DEFAULT_SLIDE = 120;
-
-/** RN Web often fails to apply transform animations with the native driver. */
-const BANNER_SLIDE_USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
 export type DismissibleBannerPosition = 'top' | 'bottom';
 
@@ -71,13 +69,13 @@ function useBannerSlide(
         toValue: 0,
         friction: 9,
         tension: 80,
-        useNativeDriver: BANNER_SLIDE_USE_NATIVE_DRIVER,
+        useNativeDriver: USE_NATIVE_DRIVER,
       }).start();
     } else {
       Animated.timing(translateY, {
         toValue: offscreen,
         duration: EXIT_MS,
-        useNativeDriver: BANNER_SLIDE_USE_NATIVE_DRIVER,
+        useNativeDriver: USE_NATIVE_DRIVER,
       }).start();
     }
   }, [visible, layoutHeight, offscreen, translateY]);
@@ -87,7 +85,7 @@ function useBannerSlide(
     Animated.timing(translateY, {
       toValue: d,
       duration: EXIT_MS,
-      useNativeDriver: BANNER_SLIDE_USE_NATIVE_DRIVER,
+      useNativeDriver: USE_NATIVE_DRIVER,
     }).start(({ finished }) => {
       if (finished) onDismiss();
     });

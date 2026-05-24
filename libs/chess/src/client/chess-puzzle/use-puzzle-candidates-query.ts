@@ -12,12 +12,18 @@ import {
 
 export function usePuzzleCandidatesQuery(
   rating: number,
-  excludeIds: readonly string[]
+  ownerId: string,
+  currentPuzzleId: string | null
 ) {
   const puzzleQuery = useMemo(
     () => ({
       entityType: CHESS_PUZZLE_ENTITY_TYPE,
-      where: buildPuzzleWhere(rating, PUZZLE_NEXT_MAX_BAND, excludeIds),
+      where: buildPuzzleWhere(
+        rating,
+        PUZZLE_NEXT_MAX_BAND,
+        ownerId,
+        currentPuzzleId
+      ),
       orderBy: [
         {
           attribute: ChessPuzzleAttr.popularity.key,
@@ -26,7 +32,7 @@ export function usePuzzleCandidatesQuery(
       ],
       limit: 50,
     }),
-    [rating, excludeIds]
+    [rating, ownerId, currentPuzzleId]
   );
   return useQuery(puzzleQuery);
 }

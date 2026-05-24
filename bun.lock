@@ -99,8 +99,8 @@
         "@pkgs/room-example": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secure-storage": "workspace:*",
+        "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
-        "@pkgs/sqlite": "workspace:*",
         "@pkgs/tts": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "@react-native-async-storage/async-storage": "catalog:",
@@ -646,6 +646,7 @@
         "@pkgs/keyword": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/pub-sub": "workspace:*",
+        "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sqlite": "workspace:*",
         "expo-sqlite": "catalog:",
@@ -800,6 +801,17 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/sql": {
+      "name": "@pkgs/sql",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1848,6 +1860,8 @@
     "@pkgs/secret-store": ["@pkgs/secret-store@workspace:pkgs/secret-store"],
 
     "@pkgs/secure-storage": ["@pkgs/secure-storage@workspace:pkgs/secure-storage"],
+
+    "@pkgs/sql": ["@pkgs/sql@workspace:pkgs/sql"],
 
     "@pkgs/sql-client": ["@pkgs/sql-client@workspace:pkgs/sql-client"],
 

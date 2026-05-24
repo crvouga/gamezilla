@@ -4,12 +4,15 @@ import { questionMarkParamsToDollarParams } from '@pkgs/sql-client/positional-pa
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { createEntitySchemaRegistry, defineEntitySchema } from '../schema';
 import { QGameSession, QTask } from '../test/query-test-attrs';
+import { buildPartitionLayout } from './partitioning';
 import {
   buildLimitSQL,
   buildOrderSQL,
   buildPatchConditions,
   buildSnapshotConditions,
   buildWhereClause,
+  MAX_SUBQUERY_DEPTH,
+  type PgQueryBuilderOptions,
 } from './query-builder-pg';
 
 /** Node crash handler calls `process.exit`; register one that throws so tests can assert failures. */
@@ -400,5 +403,255 @@ describe('tiger-style invariants in query-builder-pg', () => {
     });
     expect(sql).toContain('IN (?::text)');
     expect(params).toEqual(['task/status', 'open']);
+  });
+});
+
+describe('partition-aware query builder (Phase 1: generated columns)', () => {
+  function partitionedRegistryOptions(): PgQueryBuilderOptions {
+    const registry = createEntitySchemaRegistry()
+      .register(
+        defineEntitySchema({
+          entityType: 'task',
+          attributes: {
+            score: QTask.score.indexed({ sortable: true }),
+            status: QTask.status.indexed(),
+            title: QTask.title,
+          },
+        })
+      )
+      .freeze();
+    return {
+      schemaRegistry: registry,
+      partitions: buildPartitionLayout(registry),
+    };
+  }
+
+  test('snapshot SELECT switches to partition table when registry knows entity type', () => {
+    const options = partitionedRegistryOptions();
+    const { conditions, source } = buildSnapshotConditions(
+      { entityType: 'task' },
+      options
+    );
+    expect(source.hasTypedColumns).toBe(true);
+    expect(source.table).toBe('snapshots__task');
+    expect(conditions[0]).toBe('s.entity_type = ?');
+  });
+
+  test('numeric `gte` on indexed attribute compiles to typed generated-column comparison', () => {
+    const options = partitionedRegistryOptions();
+    const { conditions, params } = buildSnapshotConditions(
+      {
+        entityType: 'task',
+        where: { type: 'gte', attribute: QTask.score.key, value: 100 },
+      },
+      options
+    );
+    const where = conditions[conditions.length - 1] ?? '';
+    // Generated column path emits a direct typed comparison; the cast is
+    // `::numeric` (matching the column type) and there's no JSONB extract.
+    expect(where).toContain('s.gc_task__score >= ?::numeric');
+    expect(where).not.toContain('->>');
+    expect(params).toContain('task');
+    expect(params).toContain(100);
+  });
+
+  test('text `=` on indexed attribute uses the generated text column', () => {
+    const options = partitionedRegistryOptions();
+    const { conditions, params } = buildSnapshotConditions(
+      {
+        entityType: 'task',
+        where: { type: '=', attribute: QTask.status.key, value: 'open' },
+      },
+      options
+    );
+    const where = conditions[conditions.length - 1] ?? '';
+    expect(where).toContain('s.gc_task__status = ?::text');
+    expect(where).not.toContain('->>');
+    expect(params).toContain('open');
+  });
+
+  test('non-indexed attribute on a registered entity falls back to JSONB extract', () => {
+    const options = partitionedRegistryOptions();
+    const { conditions } = buildSnapshotConditions(
+      {
+        entityType: 'task',
+        where: { type: '=', attribute: QTask.title.key, value: 'hi' },
+      },
+      options
+    );
+    const where = conditions[conditions.length - 1] ?? '';
+    expect(where).toContain('->>');
+    expect(where).not.toContain('s.gc_task__title');
+  });
+
+  test('orderBy switches to generated column when one is registered', () => {
+    const options = partitionedRegistryOptions();
+    const sql = buildOrderSQL(
+      {
+        entityType: 'task',
+        orderBy: [{ attribute: QTask.score.key, direction: 'desc' }],
+      },
+      'ORDER BY s.entity_id ASC',
+      's.',
+      options
+    );
+    expect(sql).toContain('s.gc_task__score DESC');
+    expect(sql).not.toContain('->>');
+  });
+});
+
+describe('subquery RHS on `not_in` / `in` (Phase 2)', () => {
+  function chessRegistryOptions(): PgQueryBuilderOptions {
+    const registry = createEntitySchemaRegistry()
+      .register(
+        defineEntitySchema({
+          entityType: 'task',
+          attributes: {
+            status: QTask.status.indexed(),
+          },
+        })
+      )
+      .register(
+        defineEntitySchema({
+          entityType: 'item',
+          attributes: {
+            tag: asTagFromQItem(),
+          },
+        })
+      )
+      .freeze();
+    return {
+      schemaRegistry: registry,
+      partitions: buildPartitionLayout(registry),
+    };
+  }
+
+  /** Local helper — re-import QItem.tag with `.indexed()` for these tests. */
+  function asTagFromQItem() {
+    // Import inside the helper to avoid hoisting issues with bun:test.
+    const { QItem } = require('../test/query-test-attrs') as {
+      QItem: { tag: { indexed: (s?: unknown) => unknown } };
+    };
+    return QItem.tag.indexed() as never;
+  }
+
+  test('not_in with SubqueryRef compiles to nested SELECT with 3-valued NOT IN', () => {
+    const options = chessRegistryOptions();
+    const { sql, params } = buildWhereClause({
+      type: 'not_in',
+      attribute: QTask.status.key,
+      values: {
+        entityType: 'item',
+        attribute: asKeyword('item/tag'),
+        where: {
+          type: '=',
+          attribute: asKeyword('item/tag'),
+          value: 'forbidden',
+        },
+      },
+    });
+    // `buildWhereClause` (back-compat entry) doesn't carry partition info,
+    // so the inner SELECT lands on the parent `snapshots` table.
+    expect(sql).toContain('NOT IN (SELECT');
+    expect(sql).toContain('FROM snapshots sub');
+    expect(sql).toContain('IS NULL OR');
+    expect(params).toContain('item');
+    expect(params).toContain('forbidden');
+    void options;
+  });
+
+  test('subquery resolves to inner partition + generated column when registered', () => {
+    const options = chessRegistryOptions();
+    const { conditions, params } = buildSnapshotConditions(
+      {
+        entityType: 'task',
+        where: {
+          type: 'not_in',
+          attribute: QTask.status.key,
+          values: {
+            entityType: 'item',
+            attribute: asKeyword('item/tag'),
+            where: {
+              type: '=',
+              attribute: asKeyword('item/tag'),
+              value: 'forbidden',
+            },
+          },
+        },
+      },
+      options
+    );
+    const sql = conditions[conditions.length - 1] ?? '';
+    // Outer column: gen col on snapshots__task.
+    expect(sql).toContain('s.gc_task__status');
+    // Inner SELECT: gen col on snapshots__item.
+    expect(sql).toContain('FROM snapshots__item sub');
+    expect(sql).toContain('SELECT sub.gc_item__tag');
+    // 3-valued NOT IN preserved.
+    expect(sql).toContain('IS NULL OR');
+    // Params include outer entity_type, inner entity_type, and the literal.
+    expect(params).toContain('task');
+    expect(params).toContain('item');
+    expect(params).toContain('forbidden');
+  });
+
+  test('recursive subquery: not_in -> in -> not_in nested compiles to two SELECTs', () => {
+    const { sql } = buildWhereClause({
+      type: 'not_in',
+      attribute: QTask.status.key,
+      values: {
+        entityType: 'item',
+        attribute: asKeyword('item/tag'),
+        where: {
+          type: 'in',
+          attribute: asKeyword('item/tag'),
+          values: {
+            entityType: 'task',
+            attribute: QTask.status.key,
+            where: {
+              type: '=',
+              attribute: QTask.status.key,
+              value: 'open',
+            },
+          },
+        },
+      },
+    });
+    expect(sql.match(/SELECT/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(sql).toContain('NOT IN');
+    expect(sql).toContain('IN (SELECT');
+  });
+
+  test('rejects subquery nesting beyond MAX_SUBQUERY_DEPTH', () => {
+    expect(MAX_SUBQUERY_DEPTH).toBeGreaterThanOrEqual(2);
+    // Build a chain of `MAX_SUBQUERY_DEPTH + 1` nested subqueries, which
+    // must crash before generating SQL.
+    type W = Parameters<typeof buildWhereClause>[0];
+    let inner: W = {
+      type: '=',
+      attribute: QTask.status.key,
+      value: 'leaf',
+    };
+    for (let i = 0; i <= MAX_SUBQUERY_DEPTH; i++) {
+      inner = {
+        type: 'in',
+        attribute: QTask.status.key,
+        values: {
+          entityType: 'task',
+          attribute: QTask.status.key,
+          where: inner,
+        },
+      };
+    }
+    expect(() => buildWhereClause(inner)).toThrow();
+  });
+
+  test('not_in with empty array still short-circuits (1 = 1) — subquery wrapping does not affect array-empty path', () => {
+    const { sql } = buildWhereClause({
+      type: 'not_in',
+      attribute: QTask.status.key,
+      values: [],
+    });
+    expect(sql).toBe('(1 = 1)');
   });
 });

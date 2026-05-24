@@ -16,6 +16,7 @@ import {
 } from 'react';
 import { Animated, Pressable, View, type ViewStyle } from 'react-native';
 
+import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import type { SxProps } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
@@ -53,26 +54,26 @@ function runCopyAnimation(
       Animated.timing(iconScale, {
         toValue: 1.22,
         duration: 90,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       }),
       Animated.spring(iconScale, {
         toValue: 1,
         friction: 5,
         tension: 280,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       }),
     ]),
     Animated.sequence([
       Animated.timing(rowScale, {
         toValue: 1.015,
         duration: 90,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       }),
       Animated.spring(rowScale, {
         toValue: 1,
         friction: 6,
         tension: 320,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       }),
     ]),
   ]).start();
@@ -84,7 +85,7 @@ function useFeedbackOpacity(copied: boolean): Animated.Value {
     Animated.timing(opacity, {
       toValue: copied ? 1 : 0,
       duration: copied ? 160 : 180,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     }).start();
   }, [copied, opacity]);
   return opacity;

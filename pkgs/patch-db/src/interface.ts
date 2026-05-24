@@ -204,6 +204,39 @@ export type SubQuery = {
   where: PatchDbQueryWhereClause;
 };
 
+/**
+ * Subquery RHS for `in` / `not_in` clauses. Represents
+ * `SELECT <attribute> FROM <entityType> [WHERE <where>]` and is recursively
+ * defined: the inner `where` may itself contain `in` / `not_in` clauses
+ * whose `values` is another `SubqueryRef`. Engines that lower this to SQL
+ * (impl-postgres) walk the structure and emit one nested `SELECT` per
+ * level, terminating at literal arrays. Bounded by `MAX_SUBQUERY_DEPTH` in
+ * the query builder so untrusted input cannot DoS the planner.
+ */
+export type SubqueryRef = {
+  /** Entity type of the inner result set. Must be registered + indexed when
+   * `assertQueriesAgainstSchema` is enabled. */
+  entityType: PatchEntityType;
+  /** Attribute projected as the right-hand-side column of the outer `IN` /
+   * `NOT IN`. Must be `.indexed()` so the projection materialises from a
+   * generated-column btree, not a JSONB extract. */
+  attribute: AttributeKey;
+  /** Filter applied to the inner entity type. Optional: `subqueryRef`
+   * with no `where` selects every row of the inner partition. */
+  where?: PatchDbQueryWhereClause;
+};
+
+/**
+ * Type guard discriminating array-RHS from {@link SubqueryRef} on
+ * `in` / `not_in` clauses. Use at every call site that walks `values`
+ * before reading either form.
+ */
+export function isSubqueryRef(
+  values: unknown[] | SubqueryRef
+): values is SubqueryRef {
+  return !Array.isArray(values);
+}
+
 export type PatchDbQueryWhereClause =
   | {
       type: '=';
@@ -218,12 +251,23 @@ export type PatchDbQueryWhereClause =
   | {
       type: 'in';
       attribute: AttributeKey;
-      values: unknown[];
+      /**
+       * Either a literal array of allowed values (back-compat) or a
+       * {@link SubqueryRef} whose projected column becomes the RHS of the
+       * compiled `IN`. Recursive: a subquery's `where` can itself contain
+       * another `in` / `not_in` with a `SubqueryRef`.
+       */
+      values: unknown[] | SubqueryRef;
     }
   | {
       type: 'not_in';
       attribute: AttributeKey;
-      values: unknown[];
+      /**
+       * Either a literal array of forbidden values (back-compat) or a
+       * {@link SubqueryRef}. The compiled SQL preserves 3-valued semantics
+       * for both forms (`IS NULL OR NOT IN (...)`).
+       */
+      values: unknown[] | SubqueryRef;
     }
   | {
       type: 'gt';
@@ -298,11 +342,32 @@ export type PatchDbQuery = {
   /** Lightweight alternative to knownPatches for wire protocol — just patch IDs. */
   knownPatchIds?: string[];
   on?: 'patches' | 'entities';
+  /**
+   * Per-query debug flag. When `true`, the engine attaches diagnostic
+   * `metrics` to {@link PatchDbResult} (timing always; query plan when the
+   * dialect supports `EXPLAIN`). Default off — debugging adds at least one
+   * extra round-trip per query.
+   */
+  debug?: boolean;
 };
+
+function assertSubqueryRef(
+  values: unknown,
+  a: Assert
+): asserts values is SubqueryRef {
+  a.record(values, 'where clause values: subquery ref must be an object');
+  const sub = values as Record<string, unknown>;
+  assertEntityType(sub['entityType'], a);
+  assertAttribute(sub['attribute'], a);
+  if (sub['where'] !== undefined) {
+    assertWhereClause(sub['where'], a);
+  }
+}
 
 /**
  * Recursively asserts every `attribute` field inside a where-clause is a valid
- * namespaced keyword. Combinators (`and`/`or`/`not`) recurse into children.
+ * namespaced keyword. Combinators (`and`/`or`/`not`) recurse into children;
+ * `in`/`not_in` recurse into a {@link SubqueryRef} when `values` is non-array.
  */
 export function assertWhereClause(
   clause: unknown,
@@ -323,7 +388,13 @@ export function assertWhereClause(
     assertWhereClause(c['clause'], a);
     return;
   }
-  // Leaf clause: must carry a valid attribute key.
+  if (t === 'in' || t === 'not_in') {
+    assertAttribute(c['attribute'], a);
+    const v = c['values'];
+    if (Array.isArray(v)) return;
+    assertSubqueryRef(v, a);
+    return;
+  }
   assertAttribute(c['attribute'], a);
 }
 
@@ -368,6 +439,28 @@ export function stripKnownPatchesFromQuery(query: PatchDbQuery): PatchDbQuery {
   return rest;
 }
 
+/**
+ * Per-query diagnostics, optionally attached to {@link PatchDbResult.metrics}.
+ *
+ * `elapsedMs` is always populated when the engine is in metrics mode (i.e.
+ * any query in the batch had `debug: true` or the deployment has metrics
+ * enabled globally — see read-ops). `sortIndex` reports where the query
+ * landed in the deterministic batch order so callers can correlate logs
+ * with the SQL the engine actually ran. `plan` is the parsed
+ * `EXPLAIN (FORMAT JSON, ANALYZE, BUFFERS)` tree, populated only when the
+ * source query had `debug: true`.
+ *
+ * The shape is intentionally loose (`unknown` for `plan`) — the wire
+ * schema validates it as a generic JSON record so engines can change the
+ * `EXPLAIN` flags over time without breaking sync clients.
+ */
+export type PatchDbResultMetrics = {
+  readonly elapsedMs: number;
+  readonly sortIndex: number;
+  readonly partition?: string;
+  readonly plan?: unknown;
+};
+
 export type PatchDbResult = {
   query: PatchDbQuery;
   entities: Entity[];
@@ -375,6 +468,8 @@ export type PatchDbResult = {
   total: number;
   hasMore: boolean;
   nextCursor: string | null;
+  /** Optional per-query diagnostics; see {@link PatchDbResultMetrics}. */
+  metrics?: PatchDbResultMetrics;
 };
 
 /** Unsubscribe from a hook registration. */
@@ -572,13 +667,6 @@ export type PatchDbEngineOptions = {
    */
   explainGuard?: 'off' | 'warn' | 'crash';
 };
-
-export type {
-  PatchDbIndexAttributeRef,
-  PatchDbIndexField,
-  PatchDbIndexSpec,
-  PatchDbIndexWhere,
-} from './indexes/index-spec';
 
 // `assertQueryAgainstSchema` is exported only via `@pkgs/patch-db/schema`
 // to avoid an `interface.ts -> schema/index.ts -> assert-query.ts ->

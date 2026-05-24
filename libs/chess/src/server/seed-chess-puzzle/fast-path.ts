@@ -10,9 +10,22 @@
 import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { INSERT_PATCHES_BATCH } from '@pkgs/patch-db/impl-postgres/sql-constants';
+import { partitionTableName } from '@pkgs/patch-db/impl-postgres/partitioning';
 import { CHESS_PUZZLE_ENTITY_TYPE } from '@libs/chess/shared/chess-puzzle-entities';
 import type { PuzzleBatchEntry } from './row';
 import type { PuzzleSeedReporter } from './reporter';
+
+/**
+ * Per-entity standalone snapshot table that holds `chess.puzzle` rows.
+ * After patch-db pivoted away from declarative partitioning, the unqualified
+ * `snapshots` symbol is a non-updatable `UNION ALL` view; writes have to
+ * target the entity's own table directly. Resolved once at module load so
+ * we fail fast (with the assertSqlIdentifier check inside the helper) if
+ * the entity type ever changes shape.
+ */
+const CHESS_PUZZLE_SNAPSHOTS_TABLE = partitionTableName(
+  CHESS_PUZZLE_ENTITY_TYPE
+);
 
 /**
  * Per-session tuning, applied **once** synchronously after the single
@@ -105,8 +118,13 @@ export function sleep(ms: number): Promise<void> {
  * source of truth — if a snapshot somehow drifts from its patch chain,
  * `recomputeTouchedSnapshots` (run by the normal `PatchDb.write` path)
  * will repair it on the next mutation.
+ *
+ * Writes go to the per-entity standalone table (`snapshots__chess_puzzle`)
+ * because the cross-entity `snapshots` view is a non-updatable `UNION ALL`.
+ * The table carries `PRIMARY KEY (entity_type, entity_id)` so the existing
+ * `ON CONFLICT` clause still resolves to the same conflict target.
  */
-const INSERT_SNAPSHOTS_BATCH_DO_NOTHING = `INSERT INTO snapshots (entity_id, entity_type, attributes)
+const INSERT_SNAPSHOTS_BATCH_DO_NOTHING = `INSERT INTO ${CHESS_PUZZLE_SNAPSHOTS_TABLE} (entity_id, entity_type, attributes)
     SELECT entity_id, entity_type, attributes
     FROM jsonb_to_recordset(?::text::jsonb) AS batch_rows (
         entity_id text,
@@ -181,7 +199,10 @@ export async function flushPuzzleBatchFast(args: {
   });
 }
 
-const SEEDED_TABLES: readonly string[] = ['public.patches', 'public.snapshots'];
+const SEEDED_TABLES: readonly string[] = [
+  'public.patches',
+  `public.${CHESS_PUZZLE_SNAPSHOTS_TABLE}`,
+];
 
 async function tryRun(args: {
   sql: SqlClient;

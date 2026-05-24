@@ -28,6 +28,8 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import { Animated, Easing, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
+import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+
 const VIEW_BOX = '0 0 640 512';
 
 const CONE_PATH =
@@ -60,7 +62,7 @@ function fadeIn(value: Animated.Value): Animated.CompositeAnimation {
     toValue: 1,
     duration: FADE_MS,
     easing: Easing.out(Easing.quad),
-    useNativeDriver: true,
+    useNativeDriver: USE_NATIVE_DRIVER,
   });
 }
 
@@ -69,7 +71,7 @@ function fadeOut(value: Animated.Value): Animated.CompositeAnimation {
     toValue: MIN_OPACITY,
     duration: FADE_MS,
     easing: Easing.in(Easing.quad),
-    useNativeDriver: true,
+    useNativeDriver: USE_NATIVE_DRIVER,
   });
 }
 

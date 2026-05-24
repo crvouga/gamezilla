@@ -1,440 +1,54 @@
-import { assert } from '@pkgs/assert';
-import type { DataType } from '@pkgs/attribute';
-import {
-  assertOffsetLimitFragment,
-  assertOrderByFragment,
-  assertSqlPrefix,
-  assertWhereFragment,
-} from '@pkgs/sqlite';
-import { isNumericIndexDataType } from '../indexes/index-spec';
-import type { FrozenEntitySchemaRegistry } from '../schema/entity-schema-registry';
-import type {
-  AttributeKey,
-  PatchDbQuery,
-  PatchDbQueryWhereClause,
-  PatchEntityType,
-} from '../interface';
-import {
-  assertAttribute,
-  assertDirection,
-  patchDbAttributeKey,
-} from '../interface';
-import { sqliteJsonPathToKey } from './json-path';
-
-export type WhereFragment = { sql: string; params: unknown[] };
-
 /**
- * PGlite's extended query protocol requires params to match the SQL-declared
- * type exactly.  Since our WHERE clauses use `?::text` to compare against the
- * text output of JSONB `->>`, every value in that position must be a string.
- */
-function toTextParam(v: unknown): string {
-  if (typeof v === 'string') return v;
-  if (v === null || v === undefined) return String(v);
-  return String(v);
-}
-
-/** Builds JSON path for keys; uses same quoting rules as SQLite query-builder */
-function jsonPathForAttribute(attribute: AttributeKey): string {
-  assertAttribute(attribute);
-  return /[./[\]]/.test(attribute)
-    ? `$."${attribute.replace(/"/g, '""')}"`
-    : `$.${attribute}`;
-}
-
-type BinaryClause = Extract<
-  PatchDbQueryWhereClause,
-  { type: '=' | '!=' | 'gt' | 'gte' | 'lt' | 'lte' }
->;
-type SetClause = Extract<PatchDbQueryWhereClause, { type: 'in' | 'not_in' }>;
-type ExistenceClause = Extract<
-  PatchDbQueryWhereClause,
-  { type: 'exists' | 'not_exists' }
->;
-type AndOrClause = Extract<PatchDbQueryWhereClause, { type: 'and' | 'or' }>;
-type ContainsClause = Extract<PatchDbQueryWhereClause, { type: 'contains' }>;
-type NotClause = Extract<PatchDbQueryWhereClause, { type: 'not' }>;
-
-const BINARY_OPS_SQL: Record<BinaryClause['type'], string> = {
-  '=': '= ?::text',
-  '!=': 'IS DISTINCT FROM ?::text',
-  gt: '> ?::text',
-  gte: '>= ?::text',
-  lt: '< ?::text',
-  lte: '<= ?::text',
-};
-
-/**
- * Order-sensitive ops compared as text yield lexicographic comparison, which
- * silently wrong-answers on numeric attributes — e.g. `'1200' >= '800'` is
- * FALSE because `'1' < '8'`. For numeric `value`s we cast both sides to
- * `numeric` so range queries (`gt/gte/lt/lte`) sort by magnitude.
+ * Postgres query-builder facade. Composes the WHERE-clause builder
+ * ({@link ./query-builder-pg-where}) and the snapshot/patch/order/limit
+ * builder ({@link ./query-builder-pg-snapshot}) and exposes the
+ * back-compat entry points the rest of the engine depends on.
  *
- * Equality (`=`, `!=`) stays text-based: JSON numbers materialise back to
- * canonical text via `jsonb ->>` (e.g. `1200` → `'1200'`), so `'1200' = '1200'`
- * is correct without paying for a `numeric` cast.
+ * The split mirrors the runtime layout: {@link ./query-builder-pg-where}
+ * is recursion-aware (subqueries) and partition-aware (generated columns),
+ * while {@link ./query-builder-pg-snapshot} ties query shape to a
+ * concrete `FROM`, alias, and tiebreaker order.
  */
-const NUMERIC_ORDER_OPS_SQL: Partial<Record<BinaryClause['type'], string>> = {
-  gt: '>',
-  gte: '>=',
-  lt: '<',
-  lte: '<=',
-};
+import { assertSqlPrefix } from '@pkgs/sql';
+import type { PatchDbQueryWhereClause } from '../interface';
+import {
+  buildWhereClauseInCtx,
+  rootWhereCtx,
+  type WhereFragment,
+} from './query-builder-pg-where';
 
-function topLevelJsonKey(attribute: string): string {
-  assertAttribute(attribute);
-  return sqliteJsonPathToKey(jsonPathForAttribute(attribute));
-}
-
-function buildBinaryClause(
-  clause: BinaryClause,
-  jsonColumn: string
-): WhereFragment {
-  const col = `${jsonColumn}::jsonb`;
-  const key = topLevelJsonKey(patchDbAttributeKey(clause.attribute));
-  const numericOp = NUMERIC_ORDER_OPS_SQL[clause.type];
-  if (numericOp !== undefined && typeof clause.value === 'number') {
-    return {
-      sql: `((${col} ->> ?)::numeric ${numericOp} ?::numeric)`,
-      params: [key, clause.value],
-    };
-  }
-  const opTail = BINARY_OPS_SQL[clause.type];
-  return {
-    sql: `(${col} ->> ?) ${opTail}`,
-    params: [key, toTextParam(clause.value)],
-  };
-}
-
-function buildContainsClause(
-  clause: ContainsClause,
-  jsonColumn: string
-): WhereFragment {
-  const col = `${jsonColumn}::jsonb`;
-  const key = topLevelJsonKey(patchDbAttributeKey(clause.attribute));
-  return {
-    sql: `(${col} ->> ?) LIKE '%' || ?::text || '%'`,
-    params: [key, toTextParam(clause.value)],
-  };
-}
-
-function buildSetClause(clause: SetClause, jsonColumn: string): WhereFragment {
-  assert.ok(
-    Array.isArray(clause.values) && clause.values.length > 0,
-    `Empty values list for ${clause.type} clause would produce invalid SQL "IN ()"`,
-    { clause }
-  );
-  const col = `${jsonColumn}::jsonb`;
-  const key = topLevelJsonKey(patchDbAttributeKey(clause.attribute));
-  const placeholders = clause.values.map(() => '?::text').join(', ');
-  if (clause.type === 'in') {
-    return {
-      sql: `(${col} ->> ?) IN (${placeholders})`,
-      params: [key, ...clause.values.map(toTextParam)],
-    };
-  }
-  return {
-    sql: `((${col} ->> ?) IS NULL OR (${col} ->> ?) NOT IN (${placeholders}))`,
-    params: [key, key, ...clause.values.map(toTextParam)],
-  };
-}
-
-function buildExistenceClause(
-  clause: ExistenceClause,
-  jsonColumn: string
-): WhereFragment {
-  const col = `${jsonColumn}::jsonb`;
-  const key = topLevelJsonKey(patchDbAttributeKey(clause.attribute));
-  const op = clause.type === 'exists' ? 'IS NOT NULL' : 'IS NULL';
-  return {
-    sql: `(${col} -> ?) ${op}`,
-    params: [key],
-  };
-}
-
-function buildAndOrClause(
-  clause: AndOrClause,
-  jsonColumn: string
-): WhereFragment {
-  assert.ok(
-    Array.isArray(clause.clauses) && clause.clauses.length > 0,
-    `Empty clauses list for ${clause.type} clause would produce invalid SQL "()"`,
-    { clause }
-  );
-  const parts = clause.clauses.map((c) =>
-    buildWhereClauseForColumn(c, jsonColumn)
-  );
-  const sep = clause.type === 'and' ? ' AND ' : ' OR ';
-  return {
-    sql: `(${parts.map((p) => p.sql).join(sep)})`,
-    params: parts.flatMap((p) => p.params),
-  };
-}
-
-function buildNotClause(clause: NotClause, jsonColumn: string): WhereFragment {
-  const inner = buildWhereClauseForColumn(clause.clause, jsonColumn);
-  return { sql: `NOT (${inner.sql})`, params: inner.params };
-}
-
-type ClauseBuilder = (
-  clause: PatchDbQueryWhereClause,
-  jsonColumn: string
-) => WhereFragment;
-
-const CLAUSE_BUILDERS: Record<PatchDbQueryWhereClause['type'], ClauseBuilder> =
-  {
-    '=': (c, j) => buildBinaryClause(c as BinaryClause, j),
-    '!=': (c, j) => buildBinaryClause(c as BinaryClause, j),
-    gt: (c, j) => buildBinaryClause(c as BinaryClause, j),
-    gte: (c, j) => buildBinaryClause(c as BinaryClause, j),
-    lt: (c, j) => buildBinaryClause(c as BinaryClause, j),
-    lte: (c, j) => buildBinaryClause(c as BinaryClause, j),
-    contains: (c, j) => buildContainsClause(c as ContainsClause, j),
-    in: (c, j) => buildSetClause(c as SetClause, j),
-    not_in: (c, j) => buildSetClause(c as SetClause, j),
-    exists: (c, j) => buildExistenceClause(c as ExistenceClause, j),
-    not_exists: (c, j) => buildExistenceClause(c as ExistenceClause, j),
-    and: (c, j) => buildAndOrClause(c as AndOrClause, j),
-    or: (c, j) => buildAndOrClause(c as AndOrClause, j),
-    not: (c, j) => buildNotClause(c as NotClause, j),
-  };
-
-/** Always-false predicate, used to short-circuit `in []` / `or []`. */
-const ALWAYS_FALSE: WhereFragment = { sql: '(1 = 0)', params: [] };
-/** Always-true predicate, used to short-circuit `not_in []` / `and []`. */
-const ALWAYS_TRUE: WhereFragment = { sql: '(1 = 1)', params: [] };
+export type {
+  WhereFragment,
+  WhereCtx,
+} from './query-builder-pg-where';
+export {
+  MAX_SUBQUERY_DEPTH,
+  buildWhereClauseForColumn,
+  buildWhereClauseInCtx,
+  rootWhereCtx,
+} from './query-builder-pg-where';
+export type { PgQueryBuilderOptions } from './query-builder-pg-options';
+export type { SnapshotSource } from './query-builder-pg-snapshot';
+export {
+  buildLimitSQL,
+  buildOrderSQL,
+  buildPatchConditions,
+  buildSnapshotConditions,
+  resolveSnapshotSource,
+  snapshotSqlIdentifiers,
+} from './query-builder-pg-snapshot';
 
 /**
- * Returns a trivial WhereFragment when `clause` is an empty collection clause
- * whose answer is fixed by set theory — `in []` matches nothing, `not_in []`
- * matches everything, `and []` is vacuously true, `or []` is vacuously false.
- *
- * Short-circuiting here keeps the assertion in {@link buildSetClause} /
- * {@link buildAndOrClause} as a real defense — those should never be called
- * with an empty collection — while letting the caller pass a runtime-derived
- * empty list (e.g. an ABAC predicate when the user has zero memberships)
- * without crashing.
+ * Back-compat entry point. Tests call `buildWhereClause(clause)` directly;
+ * production callers go through {@link buildSnapshotConditions} /
+ * {@link buildPatchConditions}, which thread partition + schema context.
  */
-function trivialFragmentForEmptyCollection(
-  clause: PatchDbQueryWhereClause
-): WhereFragment | null {
-  if (clause.type === 'in' && clause.values.length === 0) return ALWAYS_FALSE;
-  if (clause.type === 'not_in' && clause.values.length === 0) {
-    return ALWAYS_TRUE;
-  }
-  if (clause.type === 'and' && clause.clauses.length === 0) return ALWAYS_TRUE;
-  if (clause.type === 'or' && clause.clauses.length === 0) return ALWAYS_FALSE;
-  return null;
-}
-
-function buildWhereClauseForColumn(
-  clause: PatchDbQueryWhereClause,
-  jsonColumn: string
-): WhereFragment {
-  const trivial = trivialFragmentForEmptyCollection(clause);
-  if (trivial !== null) return trivial;
-  const builder = CLAUSE_BUILDERS[clause.type];
-  assert.defined(builder, 'Invalid where clause type');
-  const fragment = builder(clause, jsonColumn);
-  assertWhereFragment(fragment, { clauseType: clause.type, jsonColumn });
-  return fragment;
-}
-
 export function buildWhereClause(
   clause: PatchDbQueryWhereClause,
   columnPrefix = ''
 ): WhereFragment {
   assertSqlPrefix(columnPrefix, 'Invalid column prefix for where clause');
   const jsonColumn = `${columnPrefix}attributes`;
-  return buildWhereClauseForColumn(clause, jsonColumn);
-}
-
-/**
- * Pushes an `entity_id = ?` / `entity_id IN (?, …)` predicate onto `conditions`.
- *
- * An empty `entityId[]` short-circuits the whole query to "no matches" by
- * pushing `1=0` — same semantics as `in []` in {@link buildSetClause}.
- */
-function pushEntityIdCondition(
-  query: PatchDbQuery,
-  conditions: string[],
-  params: unknown[],
-  columnExpr: string
-): void {
-  if (query.entityId === null || query.entityId === undefined) return;
-  if (Array.isArray(query.entityId)) {
-    if (query.entityId.length === 0) {
-      conditions.push('1 = 0');
-      return;
-    }
-    const placeholders = query.entityId.map(() => '?').join(', ');
-    conditions.push(`${columnExpr} IN (${placeholders})`);
-    params.push(...query.entityId);
-    return;
-  }
-  conditions.push(`${columnExpr} = ?`);
-  params.push(query.entityId);
-}
-
-export function buildSnapshotConditions(query: PatchDbQuery): {
-  conditions: string[];
-  params: unknown[];
-} {
-  const conditions: string[] = [];
-  const params: unknown[] = [];
-
-  if (query.entityType !== null && query.entityType !== undefined) {
-    conditions.push('entity_type = ?');
-    params.push(query.entityType);
-  }
-
-  pushEntityIdCondition(query, conditions, params, 'entity_id');
-
-  if (query.where) {
-    const fragment = buildWhereClause(query.where);
-    conditions.push(fragment.sql);
-    params.push(...fragment.params);
-  }
-
-  if (conditions.length === 0) {
-    conditions.push('1=1');
-  }
-
-  return { conditions, params };
-}
-
-export function buildPatchConditions(
-  query: PatchDbQuery,
-  tableAlias = 'p'
-): { conditions: string[]; params: unknown[] } {
-  assertSqlPrefix(
-    `${tableAlias}.`,
-    'Invalid tableAlias for patch conditions (must be a simple SQL identifier)'
-  );
-  const conditions: string[] = [];
-  const params: unknown[] = [];
-
-  if (query.entityType !== null && query.entityType !== undefined) {
-    conditions.push(`${tableAlias}.entity_type = ?`);
-    params.push(query.entityType);
-  }
-
-  pushEntityIdCondition(query, conditions, params, `${tableAlias}.entity_id`);
-
-  if (query.where) {
-    const jsonColumn = `${tableAlias}.attributes`;
-    const fragment = buildWhereClauseForColumn(query.where, jsonColumn);
-    conditions.push(fragment.sql);
-    params.push(...fragment.params);
-  }
-
-  if (conditions.length === 0) {
-    conditions.push('1=1');
-  }
-
-  return { conditions, params };
-}
-
-/**
- * Optional context the query builder uses to make schema-aware decisions
- * (typed casts, partition pruning hints, …). When omitted the builder falls
- * back to type-erased TEXT comparisons for everything — same behavior as
- * before the registry existed.
- *
- * `explainGuard` is forwarded to the read-ops layer (not used by the
- * builder itself); we keep it on the options bag so every call site that
- * already plumbs `PgQueryBuilderOptions` automatically picks it up without
- * an extra parameter at every level.
- */
-export type PgQueryBuilderOptions = {
-  readonly schemaRegistry?: FrozenEntitySchemaRegistry;
-  readonly explainGuard?: { readonly mode: 'off' | 'warn' | 'crash' };
-};
-
-function lookupAttributeDataType(
-  options: PgQueryBuilderOptions | undefined,
-  entityType: PatchEntityType | undefined,
-  attribute: AttributeKey
-): DataType | null {
-  if (options === undefined || options.schemaRegistry === undefined) {
-    return null;
-  }
-  if (entityType === undefined || entityType === '') return null;
-  const schema = options.schemaRegistry.get(entityType);
-  if (schema === null) return null;
-  const tag = schema.attributes.get(attribute);
-  return tag?.dataType ?? null;
-}
-
-export function buildOrderSQL(
-  query: PatchDbQuery,
-  defaultOrder: string,
-  attributePrefix = '',
-  options?: PgQueryBuilderOptions
-): string {
-  assertSqlPrefix(
-    attributePrefix,
-    'Invalid attributePrefix for ORDER BY (must be empty or "<identifier>.")'
-  );
-  if (query.orderBy && query.orderBy.length > 0) {
-    const custom = query.orderBy
-      .map((o) => {
-        const attrKey = patchDbAttributeKey(o.attribute);
-        const path = jsonPathForAttribute(attrKey);
-        const key = sqliteJsonPathToKey(path);
-        const escaped = key.replace(/'/g, "''");
-        assertDirection(o.direction);
-        const dir = o.direction === 'desc' ? 'DESC' : 'ASC';
-        const base = `(${attributePrefix}attributes::jsonb ->> '${escaped}')`;
-        // Match the index expression for numeric attributes — without
-        // `::numeric` here, the planner does a Sort node over a Seq Scan
-        // even though a covering numeric expression-index exists. (The
-        // popularity DESC sort on chess.puzzle was the original Phase 0
-        // regression.) Lexicographic JSONB text comparison is also
-        // semantically wrong for numbers (`'1500' < '800'`), so this is
-        // both a perf fix and a correctness fix.
-        const dataType = lookupAttributeDataType(
-          options,
-          query.entityType,
-          attrKey
-        );
-        const expr = isNumericIndexDataType(dataType)
-          ? `(${base}::numeric)`
-          : base;
-        return `${expr} ${dir}`;
-      })
-      .join(', ');
-    const tiebreaker = defaultOrder.replace(/^ORDER BY\s+/i, '');
-    const orderBy = `ORDER BY ${custom}, ${tiebreaker}`;
-    assertOrderByFragment(orderBy);
-    return orderBy;
-  }
-  assertOrderByFragment(defaultOrder);
-  return defaultOrder;
-}
-
-export function buildLimitSQL(query: PatchDbQuery): {
-  sql: string;
-  params: unknown[];
-} {
-  let sql = '';
-  const params: unknown[] = [];
-  if (query.limit !== null && query.limit !== undefined) {
-    assert.nonNegativeInteger(
-      query.limit,
-      'query.limit must be a non-negative safe integer'
-    );
-    sql += ' LIMIT ?';
-    params.push(query.limit);
-  }
-  if (query.offset !== null && query.offset !== undefined) {
-    assert.nonNegativeInteger(
-      query.offset,
-      'query.offset must be a non-negative safe integer'
-    );
-    sql += ' OFFSET ?';
-    params.push(query.offset);
-  }
-  assertOffsetLimitFragment(sql);
-  return { sql, params };
+  const ctx = rootWhereCtx(jsonColumn, undefined, undefined, null);
+  return buildWhereClauseInCtx(clause, ctx);
 }

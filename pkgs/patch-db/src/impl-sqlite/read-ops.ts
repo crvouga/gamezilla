@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { assertWhereFragment } from '@pkgs/sqlite';
+import { assertWhereFragment } from '@pkgs/sql';
 import type { Entity, Patch, PatchDbQuery, PatchDbResult } from '../interface';
 import { entityIdTypeOrWhere } from './entity-pair-or-sql';
 import { toEntity, toEntitySnapshotRowTrusted, toPatch } from './mappers';

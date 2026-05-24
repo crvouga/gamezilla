@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { assertWhereFragment } from '@pkgs/sqlite';
+import { assertWhereFragment } from '@pkgs/sql';
 import { toPatch } from '../impl-sqlite/mappers';
 import type { PatchRow } from '../impl-sqlite/types';
 import type { PatchDbQuery, PatchDbResult } from '../interface';
@@ -119,6 +119,8 @@ type LineageCandSplit = {
   useMatchingEntities: boolean;
   snapWhereSQL: string;
   snapParams: unknown[];
+  /** Snapshot source table (parent or partition) for the inner SELECT. */
+  snapTable: string;
   lineageSeedPredicate: string;
   lineageStepPredicate: string;
   lineageParams: unknown[];
@@ -129,7 +131,8 @@ type LineageCandSplit = {
 function buildLineageCandSplit(
   query: PatchDbQuery,
   snapWhereSQL: string,
-  snapParams: unknown[]
+  snapParams: unknown[],
+  snapTable: string
 ): LineageCandSplit {
   const hasWhere = query.where !== null && query.where !== undefined;
   const useMatchingEntities = hasWhere && query.entityId === undefined;
@@ -138,6 +141,7 @@ function buildLineageCandSplit(
       useMatchingEntities: true,
       snapWhereSQL,
       snapParams,
+      snapTable,
       ...MATCHING_ENTITIES_PREDICATES,
       candConditions: [],
       candParams: [],
@@ -147,7 +151,7 @@ function buildLineageCandSplit(
   const candParams: unknown[] = [];
   if (hasWhere) {
     candConditions.push(
-      `(p.entity_id, p.entity_type) IN (SELECT s.entity_id, s.entity_type FROM snapshots s WHERE ${snapWhereSQL})`
+      `(p.entity_id, p.entity_type) IN (SELECT s.entity_id, s.entity_type FROM ${snapTable} s WHERE ${snapWhereSQL})`
     );
     candParams.push(...snapParams);
   }
@@ -155,6 +159,7 @@ function buildLineageCandSplit(
     useMatchingEntities: false,
     snapWhereSQL,
     snapParams,
+    snapTable,
     ...lineagePredicatesForQuery(query),
     candConditions,
     candParams,
@@ -182,7 +187,7 @@ function buildPatchBasedSql(
   mode: 'select' | 'count'
 ): string {
   const withPrefix = split.useMatchingEntities
-    ? `WITH RECURSIVE matching_entities AS (SELECT s.entity_id, s.entity_type FROM snapshots s WHERE ${split.snapWhereSQL}), `
+    ? `WITH RECURSIVE matching_entities AS (SELECT s.entity_id, s.entity_type FROM ${split.snapTable} s WHERE ${split.snapWhereSQL}), `
     : `WITH RECURSIVE `;
 
   const candWhere = candWhereSql(split);
@@ -299,11 +304,19 @@ export async function readOnePatchBased(
   query: PatchDbQuery,
   options?: PgQueryBuilderOptions
 ): Promise<PatchDbResult> {
-  const { conditions: snapConditions, params: snapParams } =
-    buildSnapshotConditions(query);
+  const {
+    conditions: snapConditions,
+    params: snapParams,
+    source,
+  } = buildSnapshotConditions(query, options);
   const snapWhereSQL = snapConditions.join(' AND ');
 
-  const split = buildLineageCandSplit(query, snapWhereSQL, snapParams);
+  const split = buildLineageCandSplit(
+    query,
+    snapWhereSQL,
+    snapParams,
+    source.table
+  );
 
   const cursor = query.after
     ? await resolveCursor(sqlClient, query.after)

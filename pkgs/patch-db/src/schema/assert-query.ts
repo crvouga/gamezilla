@@ -47,6 +47,7 @@ import type {
   PatchDbQueryWhereClause,
   PatchEntityType,
 } from '../interface';
+import { isSubqueryRef } from '../interface';
 import type { FrozenEntitySchemaRegistry } from './entity-schema-registry';
 
 /**
@@ -99,34 +100,67 @@ function requiresIndex(position: AttributeRefPosition): boolean {
   return WHERE_CLAUSE_TYPES_REQUIRING_INDEX.has(position.clauseType);
 }
 
+/**
+ * Extends {@link AttributeRef} with the entity type the attribute is
+ * scoped to. Outer-clause refs carry the outer query's entity type;
+ * subquery refs carry the subquery's `entityType` so the schema lookup
+ * resolves the right partition.
+ */
+type ScopedAttributeRef = AttributeRef & {
+  /** `null` when scope is the top-level query (uses `query.entityType`). */
+  readonly scopeEntityType: PatchEntityType | null;
+};
+
 function collectWhereAttributeRefs(
   clause: PatchDbQueryWhereClause,
-  out: AttributeRef[]
+  scopeEntityType: PatchEntityType | null,
+  out: ScopedAttributeRef[]
 ): void {
   if (clause.type === 'and' || clause.type === 'or') {
-    for (const child of clause.clauses) collectWhereAttributeRefs(child, out);
+    for (const child of clause.clauses) {
+      collectWhereAttributeRefs(child, scopeEntityType, out);
+    }
     return;
   }
   if (clause.type === 'not') {
-    collectWhereAttributeRefs(clause.clause, out);
+    collectWhereAttributeRefs(clause.clause, scopeEntityType, out);
     return;
   }
   out.push({
     key: clause.attribute,
     position: { kind: 'where', clauseType: clause.type },
+    scopeEntityType,
   });
+  if (
+    (clause.type === 'in' || clause.type === 'not_in') &&
+    isSubqueryRef(clause.values)
+  ) {
+    const sub = clause.values;
+    // The projected attribute itself is in an index-required position
+    // (it materialises the inner SELECT's column). Validate against the
+    // subquery's own entity type so the right schema gets consulted.
+    out.push({
+      key: sub.attribute,
+      position: { kind: 'where', clauseType: 'in' },
+      scopeEntityType: sub.entityType,
+    });
+    if (sub.where !== undefined) {
+      collectWhereAttributeRefs(sub.where, sub.entityType, out);
+    }
+  }
 }
 
-function collectAttributeRefs(query: PatchDbQuery): AttributeRef[] {
-  const refs: AttributeRef[] = [];
+function collectAttributeRefs(query: PatchDbQuery): ScopedAttributeRef[] {
+  const refs: ScopedAttributeRef[] = [];
   if (query.where !== undefined) {
-    collectWhereAttributeRefs(query.where, refs);
+    collectWhereAttributeRefs(query.where, null, refs);
   }
   if (query.orderBy !== undefined) {
     for (const o of query.orderBy) {
       refs.push({
         key: o.attribute,
         position: { kind: 'orderBy', direction: o.direction },
+        scopeEntityType: null,
       });
     }
   }
@@ -151,16 +185,18 @@ function describePosition(position: AttributeRefPosition): string {
 
 function assertEntityTypeKnown(
   query: PatchDbQuery,
-  ref: AttributeRef,
+  ref: ScopedAttributeRef,
   options: AssertQueryAgainstSchemaOptions | undefined
-): query is PatchDbQuery & { entityType: PatchEntityType } {
-  if (query.entityType !== undefined && query.entityType !== '') return true;
+): PatchEntityType | null {
+  const scope =
+    ref.scopeEntityType !== null ? ref.scopeEntityType : query.entityType;
+  if (scope !== undefined && scope !== '') return scope;
   assert.ok(
     options?.strictCrossType !== true,
     'patch-db tiger assert: cross-type query references a non-meta attribute (no per-partition index can help)',
     { attribute: ref.key, position: describePosition(ref.position) }
   );
-  return false;
+  return null;
 }
 
 export function assertQueryAgainstSchema(
@@ -173,10 +209,10 @@ export function assertQueryAgainstSchema(
 
   for (const ref of refs) {
     if (UNIVERSAL_ALLOWLISTED_KEYS.has(ref.key)) continue;
-    if (!assertEntityTypeKnown(query, ref, options)) continue;
+    const scope = assertEntityTypeKnown(query, ref, options);
+    if (scope === null) continue;
 
-    const entityType = query.entityType as PatchEntityType;
-    const schema = registry.get(entityType);
+    const schema = registry.get(scope);
     // Skip validation for entity types not yet registered. This is the
     // gradual-rollout knob: until every entity type has a schema, we'd
     // rather under-enforce than crash policies that target legacy types
@@ -190,7 +226,7 @@ export function assertQueryAgainstSchema(
       tag !== undefined,
       'patch-db tiger assert: query references attribute not declared on this entity type',
       {
-        entityType,
+        entityType: scope,
         attribute: ref.key,
         position: describePosition(ref.position),
       }
@@ -201,7 +237,7 @@ export function assertQueryAgainstSchema(
         tag.index !== null,
         'patch-db tiger assert: query uses non-indexed attribute in an index-required position (add `.indexed()` to the attribute tag and redeploy)',
         {
-          entityType,
+          entityType: scope,
           attribute: ref.key,
           position: describePosition(ref.position),
         }

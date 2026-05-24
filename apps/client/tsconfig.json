@@ -61,6 +61,8 @@
       "@pkgs/secure-storage": ["../../pkgs/secure-storage/src/index.ts"],
       "@pkgs/secure-storage/*": ["../../pkgs/secure-storage/src/*"],
       "@pkgs/sql-client/*": ["../../pkgs/sql-client/src/*"],
+      "@pkgs/sql": ["../../pkgs/sql/src/index.ts"],
+      "@pkgs/sql/*": ["../../pkgs/sql/src/*"],
       "@pkgs/sqlite": ["../../pkgs/sqlite/src/index.ts"],
       "@pkgs/sqlite/*": ["../../pkgs/sqlite/src/*"],
       "@pkgs/static-file-server/*": ["../../pkgs/static-file-server/src/*"],

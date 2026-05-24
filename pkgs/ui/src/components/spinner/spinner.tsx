@@ -23,6 +23,7 @@ import { useEffect, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
+import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import { useTheme } from '../../theme';
 import { SPIN_DURATION_MS, useSharedSpinnerRotation } from './spinner-context';
 
@@ -80,7 +81,7 @@ function useSpinnerRotation(
         toValue: 1,
         duration: SPIN_DURATION_MS,
         easing: Easing.linear,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       })
     );
     loop.start();

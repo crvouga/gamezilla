@@ -25,6 +25,27 @@ function assertObject(
   );
 }
 
+function assertOptionalMetricsField(value: Record<string, unknown>): void {
+  const m = value['metrics'];
+  if (m === undefined) return;
+  assertObject(m, 'PatchDbResult.metrics must be an object when present');
+  assert.ok(
+    typeof m['elapsedMs'] === 'number',
+    'PatchDbResult.metrics.elapsedMs must be a finite number'
+  );
+  assert.ok(
+    typeof m['sortIndex'] === 'number',
+    'PatchDbResult.metrics.sortIndex must be a finite number'
+  );
+  // `partition` (string) and `plan` (unknown JSON) are loose by design.
+  if (m['partition'] !== undefined) {
+    assert.ok(
+      typeof m['partition'] === 'string',
+      'PatchDbResult.metrics.partition must be a string when present'
+    );
+  }
+}
+
 function assertPatchDbResult(value: unknown): asserts value is PatchDbResult {
   assertObject(value, 'PatchDbResult must be an object');
   assert.ok('query' in value, 'PatchDbResult must have query', { value });
@@ -42,6 +63,7 @@ function assertPatchDbResult(value: unknown): asserts value is PatchDbResult {
     value['nextCursor'] === null || typeof value['nextCursor'] === 'string',
     'PatchDbResult.nextCursor must be string or null'
   );
+  assertOptionalMetricsField(value);
 }
 
 function assertEntity(value: unknown): asserts value is Entity {

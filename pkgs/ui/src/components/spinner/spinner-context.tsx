@@ -22,6 +22,8 @@ import {
 } from 'react';
 import { Animated, Easing } from 'react-native';
 
+import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+
 /** One full rotation cycle. Shared with the local-fallback loop in `Spinner`. */
 export const SPIN_DURATION_MS = 900;
 
@@ -45,7 +47,7 @@ function createRotationEntry(): RotationEntry {
       toValue: 1,
       duration: SPIN_DURATION_MS,
       easing: Easing.linear,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     })
   );
   loop.start();

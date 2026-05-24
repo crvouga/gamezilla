@@ -14,6 +14,7 @@ import {
   type FlatList as RNFlatList,
 } from 'react-native';
 
+import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { FlatList } from '../flat-list';
@@ -58,12 +59,12 @@ function useOpenAnimation(isOpen: boolean) {
         Animated.timing(opacity, {
           toValue: 1,
           duration: 140,
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
         Animated.timing(translateY, {
           toValue: 0,
           duration: 140,
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
       ]).start();
     } else {

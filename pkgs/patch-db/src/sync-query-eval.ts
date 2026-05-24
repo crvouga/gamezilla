@@ -8,7 +8,11 @@ import type {
   PatchDbQueryWhereClause,
   PatchDbResult,
 } from './interface';
-import { assertDirection, patchDbAttributeKey } from './interface';
+import {
+  assertDirection,
+  isSubqueryRef,
+  patchDbAttributeKey,
+} from './interface';
 import type { InMemoryEntityStore } from './in-memory-store';
 
 function readAttr(attrs: AttributeState, attribute: AttributeKey): unknown {
@@ -67,10 +71,17 @@ export function evaluateWhere(
     case 'not_exists':
       return attrValue === null || attrValue === undefined;
     case 'in':
+      // In-memory eval cannot run server-side subqueries; treat them as
+      // "no match" so the predicate filters nothing out client-side and
+      // the authoritative answer comes from the next remote read.
+      if (isSubqueryRef(clause.values)) return false;
       return clause.values.length === 0
         ? false
         : clause.values.some((x) => Object.is(x, attrValue));
     case 'not_in':
+      // Same reasoning as `in`: subquery RHS cannot be evaluated locally,
+      // so we let everything pass and rely on the server to enforce.
+      if (isSubqueryRef(clause.values)) return true;
       return clause.values.length === 0
         ? true
         : !clause.values.some((x) => Object.is(x, attrValue));

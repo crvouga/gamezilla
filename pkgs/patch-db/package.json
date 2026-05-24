@@ -21,6 +21,7 @@
     "@pkgs/keyword": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/pub-sub": "workspace:*",
+    "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sqlite": "workspace:*",
     "@hono/zod-validator": "catalog:",

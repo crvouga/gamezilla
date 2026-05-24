@@ -1,4 +1,4 @@
-import { isNamespacedKeyword } from '@pkgs/keyword';
+import { isNamespacedKeyword, isNamespacePrefix } from '@pkgs/keyword';
 import { z } from 'zod';
 
 /**
@@ -71,6 +71,64 @@ function refineWhereLeafAttribute(
   }
 }
 
+function refineSubqueryRefShape(
+  v: unknown,
+  ctx: z.RefinementCtx,
+  path: (string | number)[]
+): void {
+  if (v === null || typeof v !== 'object' || Array.isArray(v)) return;
+  const sub = v as Record<string, unknown>;
+  const et = sub['entityType'];
+  // `entityType` is a `PatchEntityType` — a dot-separated kebab namespace
+  // *prefix* (e.g. `chess.puzzle.interaction`, no `/`). The full
+  // namespaced-keyword validator (`isNamespacedKeyword`) requires a `/`
+  // separator and would wrongly reject every legal entity type.
+  if (typeof et === 'string' && !isNamespacePrefix(et)) {
+    ctx.addIssue({
+      code: 'custom',
+      message:
+        'subquery entityType must be a dot-separated kebab namespace (e.g. chess.puzzle.interaction)',
+      path: [...path, 'entityType'],
+    });
+  }
+  const attr = sub['attribute'];
+  if (typeof attr === 'string' && !isNamespacedKeyword(attr)) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'subquery attribute must be a namespaced keyword',
+      path: [...path, 'attribute'],
+    });
+  }
+  if (sub['where'] !== undefined) {
+    refineWhereClauseShape(sub['where'], ctx, [...path, 'where']);
+  }
+}
+
+function refineLogicalChildren(
+  o: Record<string, unknown>,
+  ctx: z.RefinementCtx,
+  path: (string | number)[]
+): void {
+  const clauses = o['clauses'];
+  if (!Array.isArray(clauses)) return;
+  for (let i = 0; i < clauses.length; i++) {
+    refineWhereClauseShape(clauses[i], ctx, [...path, 'clauses', i]);
+  }
+}
+
+function refineSetClauseRhs(
+  o: Record<string, unknown>,
+  ctx: z.RefinementCtx,
+  path: (string | number)[]
+): void {
+  refineWhereLeafAttribute(o, ctx, path);
+  const values = o['values'];
+  if (values === null || typeof values !== 'object' || Array.isArray(values)) {
+    return;
+  }
+  refineSubqueryRefShape(values, ctx, [...path, 'values']);
+}
+
 function refineWhereClauseShape(
   w: unknown,
   ctx: z.RefinementCtx,
@@ -80,16 +138,15 @@ function refineWhereClauseShape(
   const o = w as Record<string, unknown>;
   const t = o['type'];
   if (t === 'and' || t === 'or') {
-    const clauses = o['clauses'];
-    if (Array.isArray(clauses)) {
-      for (let i = 0; i < clauses.length; i++) {
-        refineWhereClauseShape(clauses[i], ctx, [...path, 'clauses', i]);
-      }
-    }
+    refineLogicalChildren(o, ctx, path);
     return;
   }
   if (t === 'not') {
     refineWhereClauseShape(o['clause'], ctx, [...path, 'clause']);
+    return;
+  }
+  if (t === 'in' || t === 'not_in') {
+    refineSetClauseRhs(o, ctx, path);
     return;
   }
   refineWhereLeafAttribute(o, ctx, path);

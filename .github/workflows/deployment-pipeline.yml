@@ -233,10 +233,15 @@ jobs:
         with:
           path: libs/qa/playwright-report/
 
+  # Deploy the HTML report to GitHub Pages on every main push — green or
+  # red — so the latest run is always one URL away. `always()` is required
+  # so this job is not skipped when `qa-browser` fails; the pages artifact
+  # step in that job already runs under `always()` too.
   publish-playwright-report:
     if: >-
+      always() &&
       github.event_name == 'push' && github.ref == 'refs/heads/main' &&
-      needs.qa-browser.result == 'success'
+      (needs.qa-browser.result == 'success' || needs.qa-browser.result == 'failure')
     needs: [qa-browser]
     runs-on: ubuntu-latest
     outputs:

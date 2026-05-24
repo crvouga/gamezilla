@@ -7,9 +7,7 @@
  * `apps/api/src/patch-db/schema-registry.ts`.
  *
  * Every attribute marked `.indexed()` on its tag becomes a typed generated
- * column + native btree on the entity type's snapshot partition (Phase 2);
- * for now (Phase 1) the legacy expression-index reconciler picks them up
- * via {@link entitySchemaToIndexSpecs}.
+ * column + native btree on the entity type's snapshot partition.
  */
 import { AbacEntityAttr } from '@pkgs/patch-db/abac/abac-entity-attr';
 import {

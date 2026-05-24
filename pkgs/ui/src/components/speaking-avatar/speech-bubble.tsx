@@ -28,6 +28,7 @@
 
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Animated, Easing, View } from 'react-native';
+import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import { defaultColors } from '../../theme';
 import { borderRadius, elevation } from '../../theme/scale';
 import { Text } from '../text';
@@ -83,7 +84,7 @@ function useBubbleEnterAnim(text: string): {
       toValue: 1,
       duration: ENTER_DURATION_MS,
       easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     });
     animation.start();
     return () => {

@@ -1,10 +1,15 @@
 import type { AttributeState } from '@pkgs/attribute';
+import { AbacEntityAttr } from '@pkgs/patch-db/abac/abac-entity-attr';
 import {
   andWhereClause,
   type PatchDbQueryWhereClause,
 } from '@pkgs/patch-db/interface';
 
 import { ChessPuzzleAttr } from '../../shared/chess-puzzle-entities';
+import {
+  CHESS_PUZZLE_INTERACTION_ENTITY_TYPE,
+  ChessPuzzleInteractionAttr,
+} from '../../shared/chess-puzzle-interaction-entities';
 
 export const PUZZLE_NEXT_MAX_BAND = 400;
 
@@ -16,10 +21,21 @@ export function hashSeed(s: string): number {
   return Math.abs(h);
 }
 
+/**
+ * Builds the puzzle picker's WHERE clause. Uses a server-side subquery as
+ * the RHS of `not_in` so the engine excludes every puzzle the current user
+ * has interacted with in a single SQL round-trip — no fan-out fetch of the
+ * interaction history client-side.
+ *
+ * `currentPuzzleId`, when supplied, is excluded as a cheap `!=` clause on
+ * top of the subquery (covers the in-flight puzzle whose interaction row
+ * may not have been indexed yet).
+ */
 export function buildPuzzleWhere(
   rating: number,
   halfWindow: number,
-  excludeIds: readonly string[]
+  ownerId: string,
+  currentPuzzleId: string | null
 ): PatchDbQueryWhereClause {
   let w = andWhereClause(undefined, {
     type: 'gte',
@@ -31,11 +47,26 @@ export function buildPuzzleWhere(
     attribute: ChessPuzzleAttr.rating.key,
     value: rating + halfWindow,
   });
-  if (excludeIds.length > 0) {
+  if (ownerId.length > 0) {
     w = andWhereClause(w, {
       type: 'not_in',
       attribute: ChessPuzzleAttr.id.key,
-      values: [...excludeIds],
+      values: {
+        entityType: CHESS_PUZZLE_INTERACTION_ENTITY_TYPE,
+        attribute: ChessPuzzleInteractionAttr.puzzleId.key,
+        where: {
+          type: '=',
+          attribute: AbacEntityAttr.owner.key,
+          value: ownerId,
+        },
+      },
+    });
+  }
+  if (currentPuzzleId !== null && currentPuzzleId.length > 0) {
+    w = andWhereClause(w, {
+      type: '!=',
+      attribute: ChessPuzzleAttr.id.key,
+      value: currentPuzzleId,
     });
   }
   return w;

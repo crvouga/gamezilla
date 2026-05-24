@@ -23,6 +23,28 @@ function resolvePatchDb(db: PatchDbResolvable): PatchDb {
   return typeof db === 'function' ? db() : db;
 }
 
+function assertOptionalMetricsShape(r: PatchDbResult, index: number): void {
+  if (r.metrics === undefined) return;
+  assert.record(
+    r.metrics,
+    'PatchDbResult.metrics must be an object when present',
+    { index }
+  );
+  assert.ok(
+    typeof r.metrics.elapsedMs === 'number' &&
+      Number.isFinite(r.metrics.elapsedMs),
+    'PatchDbResult.metrics.elapsedMs must be a finite number',
+    { index, elapsedMs: r.metrics.elapsedMs }
+  );
+  assert.ok(
+    typeof r.metrics.sortIndex === 'number' &&
+      Number.isFinite(r.metrics.sortIndex),
+    'PatchDbResult.metrics.sortIndex must be a finite number',
+    { index, sortIndex: r.metrics.sortIndex }
+  );
+  // `partition` and `plan` are loose by design (free-form debug fields).
+}
+
 function assertPatchDbResultShape(r: PatchDbResult, index: number): void {
   assert.ok(
     r !== null && r !== undefined,
@@ -50,6 +72,7 @@ function assertPatchDbResultShape(r: PatchDbResult, index: number): void {
     'PatchDbResult.nextCursor must be string or null',
     { index, nextCursor: r.nextCursor }
   );
+  assertOptionalMetricsShape(r, index);
 }
 
 export class PatchDbImplSyncHost implements PatchDbSyncHost {

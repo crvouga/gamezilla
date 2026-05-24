@@ -7,8 +7,12 @@ import {
   PATCH_META_KEYS,
 } from '../interface';
 import { patchRowIsSyncRejected } from '../patch-row-sync-rejected';
+import { partitionTableName } from './partitioning';
 import { parseAttributes, rowAttributesText } from './read-ops';
-import { UPSERT_SNAPSHOTS_BATCH } from './sql-constants';
+import {
+  deleteSnapshotsBatchSql,
+  upsertSnapshotsBatchSql,
+} from './sql-constants';
 
 export function toPatchRow(row: PatchRow): PatchRow {
   return { ...row, attributes: rowAttributesText(row) };
@@ -122,51 +126,82 @@ type SnapshotUpsertRow = {
   attributes: Record<string, unknown>;
 };
 
-function buildSnapshotMutations(
+/** One DELETE / UPSERT batch targeted at a specific per-entity table.
+ *  We route at the application layer because the `snapshots` view is
+ *  read-only (no `INSTEAD OF` triggers); writes must hit the underlying
+ *  per-entity standalone table, which is `snapshots__<slug>(entity_type)`. */
+type PerEntityBatch = {
+  readonly tableName: string;
+  readonly deleteParams: unknown[];
+  readonly upsertPayload: SnapshotUpsertRow[];
+};
+
+function getOrCreateBatch(
+  batches: Map<string, PerEntityBatch>,
+  entityType: string
+): PerEntityBatch {
+  const existing = batches.get(entityType);
+  if (existing !== undefined) return existing;
+  const created: PerEntityBatch = {
+    tableName: partitionTableName(entityType),
+    deleteParams: [],
+    upsertPayload: [],
+  };
+  batches.set(entityType, created);
+  return created;
+}
+
+function buildPerEntityBatches(
   entityPairs: readonly SnapshotEntityPair[],
   rowsByKey: ReadonlyMap<string, PatchRow[]>
-): {
-  deleteParams: unknown[];
-  upsertPayload: SnapshotUpsertRow[];
-} {
-  const deleteParams: unknown[] = [];
-  const upsertPayload: SnapshotUpsertRow[] = [];
+): ReadonlyMap<string, PerEntityBatch> {
+  const batches = new Map<string, PerEntityBatch>();
   for (const { entityId, entityType, key } of entityPairs) {
     const merged = mergePatchRowsIntoSnapshotAttrs(rowsByKey.get(key) ?? []);
+    const batch = getOrCreateBatch(batches, entityType);
     if (Object.keys(merged).length === 0) {
-      deleteParams.push(entityId, entityType);
+      batch.deleteParams.push(entityId, entityType);
     } else {
-      upsertPayload.push({
+      batch.upsertPayload.push({
         entity_id: entityId,
         entity_type: entityType,
         attributes: merged,
       });
     }
   }
-  return { deleteParams, upsertPayload };
+  return batches;
 }
 
 async function runSnapshotDeletes(
   tx: SqlClient,
-  deleteParams: unknown[]
+  tableName: string,
+  deleteParams: readonly unknown[]
 ): Promise<void> {
   if (deleteParams.length === 0) return;
   const delPh = Array.from(
     { length: deleteParams.length / 2 },
     () => '(?, ?)'
   ).join(', ');
-  await tx.run(
-    `DELETE FROM snapshots WHERE (entity_id, entity_type) IN (VALUES ${delPh})`,
-    deleteParams
-  );
+  await tx.run(deleteSnapshotsBatchSql(tableName, delPh), [...deleteParams]);
 }
 
 async function runSnapshotUpsertsBatch(
   tx: SqlClient,
+  tableName: string,
   upsertPayload: readonly SnapshotUpsertRow[]
 ): Promise<void> {
   if (upsertPayload.length === 0) return;
-  await tx.run(UPSERT_SNAPSHOTS_BATCH, [JSON.stringify(upsertPayload)]);
+  await tx.run(upsertSnapshotsBatchSql(tableName), [
+    JSON.stringify(upsertPayload),
+  ]);
+}
+
+async function applyPerEntityBatch(
+  tx: SqlClient,
+  batch: PerEntityBatch
+): Promise<void> {
+  await runSnapshotDeletes(tx, batch.tableName, batch.deleteParams);
+  await runSnapshotUpsertsBatch(tx, batch.tableName, batch.upsertPayload);
 }
 
 /** Recomputes snapshots for every entity key in `touchedEntities` from the lineage of patches. */
@@ -183,12 +218,10 @@ export async function recomputeTouchedSnapshots(
     [...pairParams, ...pairParams, ...pairParams]
   );
   const rowsByKey = groupSnapshotPatchRowsByKey(patchRows);
-  const { deleteParams, upsertPayload } = buildSnapshotMutations(
-    entityPairs,
-    rowsByKey
-  );
-  await runSnapshotDeletes(tx, deleteParams);
-  await runSnapshotUpsertsBatch(tx, upsertPayload);
+  const batches = buildPerEntityBatches(entityPairs, rowsByKey);
+  for (const batch of batches.values()) {
+    await applyPerEntityBatch(tx, batch);
+  }
 }
 
 export async function recomputeSnapshotSingle(
