@@ -44,11 +44,11 @@ pkgs/ndjson/src/
 └── README.md
 ```
 
-| Import                | Purpose                                                                                                                   |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `@pkgs/ndjson/shared` | Frame types + `encodeNdjsonFrame` + `NdjsonStreamDecoder` + `EVENT_STREAM_CONTENT_TYPE`                                         |
+| Import                | Purpose                                                                                                                             |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `@pkgs/ndjson/shared` | Frame types + `encodeNdjsonFrame` + `NdjsonStreamDecoder` + `EVENT_STREAM_CONTENT_TYPE`                                             |
 | `@pkgs/ndjson/client` | `IndexedNdjsonCollector`, `collectIndexedNdjsonStream`, `acceptsEventStream`, `eventStreamAcceptHeader`, `IndexedNdjsonStreamError` |
-| `@pkgs/ndjson/server` | `streamParallelIndexed`, `encodeNdjsonReadableStream`                                                                     |
+| `@pkgs/ndjson/server` | `streamParallelIndexed`, `encodeNdjsonReadableStream`                                                                               |
 
 ## Server example
 
