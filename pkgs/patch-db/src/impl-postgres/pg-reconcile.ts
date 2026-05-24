@@ -32,7 +32,10 @@
 import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { assertSqlIdentifier } from '@pkgs/sql';
-import { generatedColumnExpression, quoteSqlString } from './migrate-partitions';
+import {
+  generatedColumnExpression,
+  quoteSqlString,
+} from './migrate-partitions';
 import type {
   DesiredCompositeIndex,
   DesiredEntityTable,
@@ -184,9 +187,7 @@ async function dropOrphanedGeneratedColumns(
       'dropOrphanedGeneratedColumns: tableName'
     );
     const clauses = batch.columnNames.map((n) => dropColumnClauseFor(n));
-    await sqlClient.run(
-      `ALTER TABLE ${batch.tableName} ${clauses.join(', ')}`
-    );
+    await sqlClient.run(`ALTER TABLE ${batch.tableName} ${clauses.join(', ')}`);
   }
 }
 
@@ -201,9 +202,7 @@ async function addMissingGeneratedColumns(
       'addMissingGeneratedColumns: tableName'
     );
     const clauses = batch.specs.map((spec) => addColumnClauseFor(spec));
-    await sqlClient.run(
-      `ALTER TABLE ${batch.tableName} ${clauses.join(', ')}`
-    );
+    await sqlClient.run(`ALTER TABLE ${batch.tableName} ${clauses.join(', ')}`);
   }
 }
 
@@ -284,9 +283,7 @@ async function createCompositeIndexes(
 
 /** Builds the `SELECT entity_id, entity_type, attributes FROM <table>`
  *  branches used inside the `UNION ALL` view body. */
-function buildViewBody(
-  branches: readonly DesiredEntityTable[]
-): string {
+function buildViewBody(branches: readonly DesiredEntityTable[]): string {
   const selects = branches.map((b) => {
     assertSqlIdentifier(b.tableName, 'buildViewBody: tableName');
     return `SELECT entity_id, entity_type, attributes FROM ${b.tableName}`;
@@ -331,11 +328,14 @@ function warnOnOrphanedTables(
 }
 
 function sumGeneratedColumnChanges(
-  batches: readonly { columnNames?: readonly string[]; specs?: readonly GeneratedColumnSpec[] }[]
+  batches: readonly {
+    columnNames?: readonly string[];
+    specs?: readonly GeneratedColumnSpec[];
+  }[]
 ): number {
   let n = 0;
   for (const b of batches) {
-    n += (b.columnNames?.length ?? b.specs?.length ?? 0);
+    n += b.columnNames?.length ?? b.specs?.length ?? 0;
   }
   return n;
 }

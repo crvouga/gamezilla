@@ -6,7 +6,10 @@ import {
   CHESS_PUZZLE_INTERACTION_ENTITY_TYPE,
   ChessPuzzleInteractionAttr,
 } from '../../shared/chess-puzzle-interaction-entities';
-import { buildPuzzleWhere, pickPuzzleIdFromPool } from './next-puzzle-id-helpers';
+import {
+  buildPuzzleWhere,
+  pickPuzzleIdFromPool,
+} from './next-puzzle-id-helpers';
 
 type AnyClause = ReturnType<typeof buildPuzzleWhere>;
 
@@ -25,11 +28,13 @@ describe('buildPuzzleWhere (Phase 3: chess subquery wiring)', () => {
     const flat = flattenAndClauses(w);
     const gte = flat.find(
       (c) =>
-        c.type === 'gte' && (c as { attribute: string }).attribute === ChessPuzzleAttr.rating.key
+        c.type === 'gte' &&
+        (c as { attribute: string }).attribute === ChessPuzzleAttr.rating.key
     );
     const lte = flat.find(
       (c) =>
-        c.type === 'lte' && (c as { attribute: string }).attribute === ChessPuzzleAttr.rating.key
+        c.type === 'lte' &&
+        (c as { attribute: string }).attribute === ChessPuzzleAttr.rating.key
     );
     expect(gte).toBeTruthy();
     expect(lte).toBeTruthy();
@@ -78,7 +83,8 @@ describe('buildPuzzleWhere (Phase 3: chess subquery wiring)', () => {
     const flat = flattenAndClauses(w);
     const neq = flat.find(
       (c) =>
-        c.type === '!=' && (c as { attribute: string }).attribute === ChessPuzzleAttr.id.key
+        c.type === '!=' &&
+        (c as { attribute: string }).attribute === ChessPuzzleAttr.id.key
     );
     expect(neq).toBeTruthy();
     expect((neq as { value: string }).value).toBe('puzzle_99');
@@ -128,8 +134,14 @@ describe('pickPuzzleIdFromPool (deterministic seed selection)', () => {
 
   test('falls back to the full entity list when band is empty', () => {
     const entities = [
-      { entityId: 'too-low', attributes: { [ChessPuzzleAttr.rating.key]: 800 } as never },
-      { entityId: 'too-high', attributes: { [ChessPuzzleAttr.rating.key]: 2400 } as never },
+      {
+        entityId: 'too-low',
+        attributes: { [ChessPuzzleAttr.rating.key]: 800 } as never,
+      },
+      {
+        entityId: 'too-high',
+        attributes: { [ChessPuzzleAttr.rating.key]: 2400 } as never,
+      },
     ];
     const picked = pickPuzzleIdFromPool({
       entities,

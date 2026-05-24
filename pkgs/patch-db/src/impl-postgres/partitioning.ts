@@ -103,11 +103,9 @@ export function ginIndexNameFor(entityType: PatchEntityType): string {
  */
 function attributeLocalSlug(attribute: Keyword): string {
   const slash = attribute.indexOf('/');
-  assert.ok(
-    slash >= 0,
-    'attributeLocalSlug: keyword must contain "/"',
-    { attribute }
-  );
+  assert.ok(slash >= 0, 'attributeLocalSlug: keyword must contain "/"', {
+    attribute,
+  });
   const local = attribute.slice(slash + 1);
   return local.replace(/-/g, '_');
 }
@@ -127,11 +125,15 @@ export function generatedColumnNameFor(
   attribute: Keyword
 ): string {
   const name = `${PATCH_DB_GENERATED_COLUMN_PREFIX}${entityTypeSlug(entityType)}__${attributeLocalSlug(attribute)}`;
-  assertSqlIdentifier(name, 'generatedColumnNameFor must produce a SQL identifier', {
-    entityType,
-    attribute,
+  assertSqlIdentifier(
     name,
-  });
+    'generatedColumnNameFor must produce a SQL identifier',
+    {
+      entityType,
+      attribute,
+      name,
+    }
+  );
   assert.ok(
     name.length <= MAX_PG_IDENTIFIER_LEN,
     'generatedColumnNameFor produces too-long identifier; rename the entity type or attribute local segment',

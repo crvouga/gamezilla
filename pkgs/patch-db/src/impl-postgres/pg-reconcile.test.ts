@@ -12,10 +12,7 @@ import type {
   SqlClient,
 } from '@pkgs/sql-client/interface';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import {
-  createEntitySchemaRegistry,
-  defineEntitySchema,
-} from '../schema';
+import { createEntitySchemaRegistry, defineEntitySchema } from '../schema';
 import type { LivePgLayout } from './pg-introspect';
 import {
   compositeIndexNameFor,
@@ -414,8 +411,12 @@ describe('applyPgLayoutDiff: orphaned table emits a warn but no DROP TABLE', () 
     const summary = await applyPgLayoutDiff(sqlClient, diff, logger);
     expect(summary.orphanedTablesKept).toBe(1);
     expect(logger.warnings.length).toBe(1);
-    expect(logger.warnings[0]?.msg).toMatch(/orphaned per-entity snapshot table/i);
-    expect(sqlClient.statements.some((s) => /^DROP TABLE/i.test(s))).toBe(false);
+    expect(logger.warnings[0]?.msg).toMatch(
+      /orphaned per-entity snapshot table/i
+    );
+    expect(sqlClient.statements.some((s) => /^DROP TABLE/i.test(s))).toBe(
+      false
+    );
   });
 });
 
@@ -503,9 +504,9 @@ describe('applyPgLayoutDiff: emits expected DDL shape on full add path', () => {
     await applyPgLayoutDiff(sqlClient, diff, logger);
     expect(sqlClient.statements.length).toBe(1);
     expect(sqlClient.statements[0]).toMatch(/^DROP VIEW IF EXISTS snapshots/i);
-    expect(
-      sqlClient.statements.some((s) => /^CREATE VIEW/i.test(s))
-    ).toBe(false);
+    expect(sqlClient.statements.some((s) => /^CREATE VIEW/i.test(s))).toBe(
+      false
+    );
   });
 
   test('multi-entity registry produces one UNION ALL branch per per-entity table', async () => {
@@ -573,13 +574,8 @@ describe('applyPgLayoutDiff: composite index DDL', () => {
               {
                 name: 'unique-rating-status',
                 unique: true,
-                fields: [
-                  { tag: TaskAttr.rating },
-                  { tag: TaskAttr.status },
-                ],
-                where: [
-                  { kind: 'attributeIsNotNull', tag: TaskAttr.status },
-                ],
+                fields: [{ tag: TaskAttr.rating }, { tag: TaskAttr.status }],
+                where: [{ kind: 'attributeIsNotNull', tag: TaskAttr.status }],
               },
             ],
           })
@@ -596,7 +592,8 @@ describe('applyPgLayoutDiff: composite index DDL', () => {
         (s) =>
           new RegExp(
             `CREATE UNIQUE INDEX IF NOT EXISTS ${expectedIndex} ON ${TASK_TABLE}`
-          ).test(s) && new RegExp(`WHERE ${TASK_STATUS_COL} IS NOT NULL`).test(s)
+          ).test(s) &&
+          new RegExp(`WHERE ${TASK_STATUS_COL} IS NOT NULL`).test(s)
       )
     ).toBe(true);
   });

@@ -54,10 +54,7 @@ async function dropLegacyPartitionedSnapshotsIfPresent(
   await sqlClient.run('DROP TABLE IF EXISTS snapshots CASCADE');
 }
 
-async function applyBaseDdl(
-  sqlClient: SqlClient,
-  log: Logger
-): Promise<void> {
+async function applyBaseDdl(sqlClient: SqlClient, log: Logger): Promise<void> {
   const statements = MIGRATIONS.split(';')
     .map((s) => s.trim())
     .filter(Boolean);

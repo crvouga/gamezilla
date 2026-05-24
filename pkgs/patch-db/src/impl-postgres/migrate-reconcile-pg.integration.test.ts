@@ -31,10 +31,7 @@ import {
   expect,
   test,
 } from 'bun:test';
-import {
-  createEntitySchemaRegistry,
-  defineEntitySchema,
-} from '../schema';
+import { createEntitySchemaRegistry, defineEntitySchema } from '../schema';
 import { migratePatchDbPostgres } from './migrate';
 import { introspectPgLayout, probeSnapshotsRelKind } from './pg-introspect';
 import {
@@ -99,182 +96,190 @@ async function dropAllPatchDbObjects(sqlClient: SqlClient): Promise<void> {
   await sqlClient.run('DROP TABLE IF EXISTS patches CASCADE');
 }
 
-describe.skipIf(!HAS_DB)('migratePatchDbPostgres: reconcile integration', () => {
-  let sqlClient: SqlClient;
-  const logger = createLogger({ name: 'reconcile-it', level: 'silent' });
+describe.skipIf(!HAS_DB)(
+  'migratePatchDbPostgres: reconcile integration',
+  () => {
+    let sqlClient: SqlClient;
+    const logger = createLogger({ name: 'reconcile-it', level: 'silent' });
 
-  beforeAll(async () => {
-    sqlClient = SqlClientImplBunPostgres.connect(DB_URL);
-    await sqlClient.connect();
-  });
+    beforeAll(async () => {
+      sqlClient = SqlClientImplBunPostgres.connect(DB_URL);
+      await sqlClient.connect();
+    });
 
-  afterAll(async () => {
-    if (sqlClient !== undefined) {
-      await dropAllPatchDbObjects(sqlClient).catch(() => {});
-      await sqlClient.disconnect();
-    }
-  });
+    afterAll(async () => {
+      if (sqlClient !== undefined) {
+        await dropAllPatchDbObjects(sqlClient).catch(() => {});
+        await sqlClient.disconnect();
+      }
+    });
 
-  beforeEach(async () => {
-    await dropAllPatchDbObjects(sqlClient);
-  });
+    beforeEach(async () => {
+      await dropAllPatchDbObjects(sqlClient);
+    });
 
-  test('initial migrate creates per-entity table + gen cols + per-col idx + per-table GIN + view; second migrate reaches the same state', async () => {
-    const registry = createEntitySchemaRegistry()
-      .register(
-        defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
-      )
-      .freeze();
-    await migratePatchDbPostgres({ sqlClient, logger, registry });
-    const after1 = await introspectPgLayout(sqlClient);
-    expect(after1.tableNames).toEqual([TASK_TABLE]);
-    // 3 `.indexed()` scalar tags → 3 gen cols + 3 per-col indexes ON the task table.
-    expect(new Set(after1.generatedColumnsByTable.get(TASK_TABLE))).toEqual(
-      new Set([TASK_ID_COL, TASK_RATING_COL, TASK_STATUS_COL])
-    );
-    expect(
-      new Set(after1.singleIndexes.map((i) => i.indexName))
-    ).toEqual(
-      new Set([
-        singleColumnIndexNameFor(TASK_ID_COL),
-        RATING_IDX,
-        STATUS_IDX,
-      ])
-    );
-    expect(after1.compositeIndexes).toEqual([]);
-    // Per-table GIN landed.
-    expect(
-      after1.ginIndexes.some(
-        (g) => g.tableName === TASK_TABLE && g.indexName === 'pdb_gin_task__attrs'
-      )
-    ).toBe(true);
-    // `snapshots` is a VIEW now, not a partitioned parent.
-    expect(await probeSnapshotsRelKind(sqlClient)).toBe('view');
+    test('initial migrate creates per-entity table + gen cols + per-col idx + per-table GIN + view; second migrate reaches the same state', async () => {
+      const registry = createEntitySchemaRegistry()
+        .register(
+          defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
+        )
+        .freeze();
+      await migratePatchDbPostgres({ sqlClient, logger, registry });
+      const after1 = await introspectPgLayout(sqlClient);
+      expect(after1.tableNames).toEqual([TASK_TABLE]);
+      // 3 `.indexed()` scalar tags → 3 gen cols + 3 per-col indexes ON the task table.
+      expect(new Set(after1.generatedColumnsByTable.get(TASK_TABLE))).toEqual(
+        new Set([TASK_ID_COL, TASK_RATING_COL, TASK_STATUS_COL])
+      );
+      expect(new Set(after1.singleIndexes.map((i) => i.indexName))).toEqual(
+        new Set([singleColumnIndexNameFor(TASK_ID_COL), RATING_IDX, STATUS_IDX])
+      );
+      expect(after1.compositeIndexes).toEqual([]);
+      // Per-table GIN landed.
+      expect(
+        after1.ginIndexes.some(
+          (g) =>
+            g.tableName === TASK_TABLE && g.indexName === 'pdb_gin_task__attrs'
+        )
+      ).toBe(true);
+      // `snapshots` is a VIEW now, not a partitioned parent.
+      expect(await probeSnapshotsRelKind(sqlClient)).toBe('view');
 
-    // Second migrate — same registry, same catalog → same state.
-    await migratePatchDbPostgres({ sqlClient, logger, registry });
-    const after2 = await introspectPgLayout(sqlClient);
-    expect([...after2.tableNames].sort()).toEqual(
-      [...after1.tableNames].sort()
-    );
-    expect(
-      [...(after2.generatedColumnsByTable.get(TASK_TABLE) ?? [])].sort()
-    ).toEqual([...(after1.generatedColumnsByTable.get(TASK_TABLE) ?? [])].sort());
-    expect(after2.singleIndexes.map((i) => i.indexName).sort()).toEqual(
-      after1.singleIndexes.map((i) => i.indexName).sort()
-    );
-    expect(after2.compositeIndexes.length).toBe(0);
-    expect(after2.ginIndexes.map((g) => g.indexName).sort()).toEqual(
-      after1.ginIndexes.map((g) => g.indexName).sort()
-    );
-  });
+      // Second migrate — same registry, same catalog → same state.
+      await migratePatchDbPostgres({ sqlClient, logger, registry });
+      const after2 = await introspectPgLayout(sqlClient);
+      expect([...after2.tableNames].sort()).toEqual(
+        [...after1.tableNames].sort()
+      );
+      expect(
+        [...(after2.generatedColumnsByTable.get(TASK_TABLE) ?? [])].sort()
+      ).toEqual(
+        [...(after1.generatedColumnsByTable.get(TASK_TABLE) ?? [])].sort()
+      );
+      expect(after2.singleIndexes.map((i) => i.indexName).sort()).toEqual(
+        after1.singleIndexes.map((i) => i.indexName).sort()
+      );
+      expect(after2.compositeIndexes.length).toBe(0);
+      expect(after2.ginIndexes.map((g) => g.indexName).sort()).toEqual(
+        after1.ginIndexes.map((g) => g.indexName).sort()
+      );
+    });
 
-  test('NO COLUMN BLOAT: `snapshots__task` carries only its own gen cols, never `gc_item__*`', async () => {
-    const registry = createEntitySchemaRegistry()
-      .register(
-        defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
-      )
-      .register(defineEntitySchema({ entityType: 'item', attributes: ItemAttr }))
-      .freeze();
-    await migratePatchDbPostgres({ sqlClient, logger, registry });
-    const live = await introspectPgLayout(sqlClient);
-    // Both per-entity tables exist.
-    expect(new Set(live.tableNames)).toEqual(new Set([TASK_TABLE, ITEM_TABLE]));
-    // `snapshots__task` has its three task gen cols and NO item cols.
-    const taskCols = live.generatedColumnsByTable.get(TASK_TABLE) ?? new Set();
-    expect(taskCols.has(TASK_ID_COL)).toBe(true);
-    expect(taskCols.has(TASK_RATING_COL)).toBe(true);
-    expect(taskCols.has(TASK_STATUS_COL)).toBe(true);
-    expect(taskCols.has(ITEM_SKU_COL)).toBe(false);
-    // Symmetrically, `snapshots__item` has only the item gen col.
-    const itemCols = live.generatedColumnsByTable.get(ITEM_TABLE) ?? new Set();
-    expect(itemCols.has(ITEM_SKU_COL)).toBe(true);
-    expect(itemCols.has(TASK_ID_COL)).toBe(false);
-    expect(itemCols.has(TASK_RATING_COL)).toBe(false);
-  });
+    test('NO COLUMN BLOAT: `snapshots__task` carries only its own gen cols, never `gc_item__*`', async () => {
+      const registry = createEntitySchemaRegistry()
+        .register(
+          defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
+        )
+        .register(
+          defineEntitySchema({ entityType: 'item', attributes: ItemAttr })
+        )
+        .freeze();
+      await migratePatchDbPostgres({ sqlClient, logger, registry });
+      const live = await introspectPgLayout(sqlClient);
+      // Both per-entity tables exist.
+      expect(new Set(live.tableNames)).toEqual(
+        new Set([TASK_TABLE, ITEM_TABLE])
+      );
+      // `snapshots__task` has its three task gen cols and NO item cols.
+      const taskCols =
+        live.generatedColumnsByTable.get(TASK_TABLE) ?? new Set();
+      expect(taskCols.has(TASK_ID_COL)).toBe(true);
+      expect(taskCols.has(TASK_RATING_COL)).toBe(true);
+      expect(taskCols.has(TASK_STATUS_COL)).toBe(true);
+      expect(taskCols.has(ITEM_SKU_COL)).toBe(false);
+      // Symmetrically, `snapshots__item` has only the item gen col.
+      const itemCols =
+        live.generatedColumnsByTable.get(ITEM_TABLE) ?? new Set();
+      expect(itemCols.has(ITEM_SKU_COL)).toBe(true);
+      expect(itemCols.has(TASK_ID_COL)).toBe(false);
+      expect(itemCols.has(TASK_RATING_COL)).toBe(false);
+    });
 
-  test('schema mutation: removing an .indexed() tag drops its gen col + idx; adding a composite creates it', async () => {
-    const v1 = createEntitySchemaRegistry()
-      .register(
-        defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
-      )
-      .freeze();
-    await migratePatchDbPostgres({ sqlClient, logger, registry: v1 });
+    test('schema mutation: removing an .indexed() tag drops its gen col + idx; adding a composite creates it', async () => {
+      const v1 = createEntitySchemaRegistry()
+        .register(
+          defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
+        )
+        .freeze();
+      await migratePatchDbPostgres({ sqlClient, logger, registry: v1 });
 
-    const v2 = createEntitySchemaRegistry()
-      .register(
-        defineEntitySchema({
-          entityType: 'task',
-          attributes: TaskAttrV2,
-          composite: [
-            {
-              name: 'rating-status',
-              fields: [
-                { tag: TaskAttrV1.rating, direction: 'desc' },
-                // status now unindexed, can't be in composite; reuse rating
-                // both ways instead — composite resolver requires .indexed().
-                { tag: TaskAttrV1.rating, direction: 'asc' },
-              ],
-            },
-          ],
-        })
-      )
-      .freeze();
-    await migratePatchDbPostgres({ sqlClient, logger, registry: v2 });
+      const v2 = createEntitySchemaRegistry()
+        .register(
+          defineEntitySchema({
+            entityType: 'task',
+            attributes: TaskAttrV2,
+            composite: [
+              {
+                name: 'rating-status',
+                fields: [
+                  { tag: TaskAttrV1.rating, direction: 'desc' },
+                  // status now unindexed, can't be in composite; reuse rating
+                  // both ways instead — composite resolver requires .indexed().
+                  { tag: TaskAttrV1.rating, direction: 'asc' },
+                ],
+              },
+            ],
+          })
+        )
+        .freeze();
+      await migratePatchDbPostgres({ sqlClient, logger, registry: v2 });
 
-    const after = await introspectPgLayout(sqlClient);
-    expect(after.tableNames).toEqual([TASK_TABLE]);
-    const taskCols = after.generatedColumnsByTable.get(TASK_TABLE) ?? new Set();
-    // `status` gen col + its idx are gone.
-    expect(taskCols.has(TASK_STATUS_COL)).toBe(false);
-    expect(
-      after.singleIndexes.some((i) => i.indexName === STATUS_IDX)
-    ).toBe(false);
-    // `rating` survives because it stayed `.indexed()`.
-    expect(taskCols.has(TASK_RATING_COL)).toBe(true);
-    expect(
-      after.singleIndexes.some((i) => i.indexName === RATING_IDX)
-    ).toBe(true);
-    // New composite landed under the `pdb_cidx_` namespace.
-    expect(
-      after.compositeIndexes.some(
-        (i) => i.tableName === TASK_TABLE && i.indexName === COMPOSITE_IDX
-      )
-    ).toBe(true);
-  });
+      const after = await introspectPgLayout(sqlClient);
+      expect(after.tableNames).toEqual([TASK_TABLE]);
+      const taskCols =
+        after.generatedColumnsByTable.get(TASK_TABLE) ?? new Set();
+      // `status` gen col + its idx are gone.
+      expect(taskCols.has(TASK_STATUS_COL)).toBe(false);
+      expect(after.singleIndexes.some((i) => i.indexName === STATUS_IDX)).toBe(
+        false
+      );
+      // `rating` survives because it stayed `.indexed()`.
+      expect(taskCols.has(TASK_RATING_COL)).toBe(true);
+      expect(after.singleIndexes.some((i) => i.indexName === RATING_IDX)).toBe(
+        true
+      );
+      // New composite landed under the `pdb_cidx_` namespace.
+      expect(
+        after.compositeIndexes.some(
+          (i) => i.tableName === TASK_TABLE && i.indexName === COMPOSITE_IDX
+        )
+      ).toBe(true);
+    });
 
-  test('removing an entity type from the registry leaves the per-entity table in place (additive-only)', async () => {
-    const both = createEntitySchemaRegistry()
-      .register(
-        defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
-      )
-      .register(defineEntitySchema({ entityType: 'item', attributes: ItemAttr }))
-      .freeze();
-    await migratePatchDbPostgres({ sqlClient, logger, registry: both });
-    const initial = await introspectPgLayout(sqlClient);
-    assert.ok(
-      initial.tableNames.includes(ITEM_TABLE),
-      'item per-entity table must exist after initial migrate'
-    );
+    test('removing an entity type from the registry leaves the per-entity table in place (additive-only)', async () => {
+      const both = createEntitySchemaRegistry()
+        .register(
+          defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
+        )
+        .register(
+          defineEntitySchema({ entityType: 'item', attributes: ItemAttr })
+        )
+        .freeze();
+      await migratePatchDbPostgres({ sqlClient, logger, registry: both });
+      const initial = await introspectPgLayout(sqlClient);
+      assert.ok(
+        initial.tableNames.includes(ITEM_TABLE),
+        'item per-entity table must exist after initial migrate'
+      );
 
-    const onlyTask = createEntitySchemaRegistry()
-      .register(
-        defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
-      )
-      .freeze();
-    await migratePatchDbPostgres({ sqlClient, logger, registry: onlyTask });
-    const after = await introspectPgLayout(sqlClient);
-    // `snapshots__item` survives even though `item` was dropped from the
-    // registry — the reconciler logs but does not drop per-entity tables.
-    expect(after.tableNames.includes(ITEM_TABLE)).toBe(true);
-    expect(after.tableNames.includes(TASK_TABLE)).toBe(true);
-  });
+      const onlyTask = createEntitySchemaRegistry()
+        .register(
+          defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
+        )
+        .freeze();
+      await migratePatchDbPostgres({ sqlClient, logger, registry: onlyTask });
+      const after = await introspectPgLayout(sqlClient);
+      // `snapshots__item` survives even though `item` was dropped from the
+      // registry — the reconciler logs but does not drop per-entity tables.
+      expect(after.tableNames.includes(ITEM_TABLE)).toBe(true);
+      expect(after.tableNames.includes(TASK_TABLE)).toBe(true);
+    });
 
-  test('legacy detection: a pre-existing partitioned `snapshots` is dropped before the new layout lands', async () => {
-    // Simulate the pre-pivot state: create `snapshots` as a partitioned
-    // parent with a child partition so we know `migratePatchDbPostgres`
-    // actually nukes the cluster (not just renames it).
-    await sqlClient.run(`
+    test('legacy detection: a pre-existing partitioned `snapshots` is dropped before the new layout lands', async () => {
+      // Simulate the pre-pivot state: create `snapshots` as a partitioned
+      // parent with a child partition so we know `migratePatchDbPostgres`
+      // actually nukes the cluster (not just renames it).
+      await sqlClient.run(`
       CREATE TABLE snapshots (
         entity_id TEXT NOT NULL,
         entity_type TEXT NOT NULL,
@@ -282,23 +287,24 @@ describe.skipIf(!HAS_DB)('migratePatchDbPostgres: reconcile integration', () => 
         PRIMARY KEY (entity_type, entity_id)
       ) PARTITION BY LIST (entity_type)
     `);
-    await sqlClient.run(
-      `CREATE TABLE snapshots__legacy_partition PARTITION OF snapshots FOR VALUES IN ('legacy')`
-    );
-    expect(await probeSnapshotsRelKind(sqlClient)).toBe('partitioned');
+      await sqlClient.run(
+        `CREATE TABLE snapshots__legacy_partition PARTITION OF snapshots FOR VALUES IN ('legacy')`
+      );
+      expect(await probeSnapshotsRelKind(sqlClient)).toBe('partitioned');
 
-    const registry = createEntitySchemaRegistry()
-      .register(
-        defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
-      )
-      .freeze();
-    await migratePatchDbPostgres({ sqlClient, logger, registry });
-    // After migrate: `snapshots` is the new view, the legacy partition is
-    // gone (the partitioned parent's children get cascaded), and the new
-    // per-entity `snapshots__task` exists.
-    expect(await probeSnapshotsRelKind(sqlClient)).toBe('view');
-    const after = await introspectPgLayout(sqlClient);
-    expect(after.tableNames).toContain(TASK_TABLE);
-    expect(after.tableNames).not.toContain('snapshots__legacy_partition');
-  });
-});
+      const registry = createEntitySchemaRegistry()
+        .register(
+          defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
+        )
+        .freeze();
+      await migratePatchDbPostgres({ sqlClient, logger, registry });
+      // After migrate: `snapshots` is the new view, the legacy partition is
+      // gone (the partitioned parent's children get cascaded), and the new
+      // per-entity `snapshots__task` exists.
+      expect(await probeSnapshotsRelKind(sqlClient)).toBe('view');
+      const after = await introspectPgLayout(sqlClient);
+      expect(after.tableNames).toContain(TASK_TABLE);
+      expect(after.tableNames).not.toContain('snapshots__legacy_partition');
+    });
+  }
+);
