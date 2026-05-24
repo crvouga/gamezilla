@@ -611,6 +611,14 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/ndjson": {
+      "name": "@pkgs/ndjson",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/object-store": {
       "name": "@pkgs/object-store",
       "version": "0.0.0",
@@ -637,6 +645,7 @@
         "@pkgs/attribute": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/ndjson": "workspace:*",
         "@pkgs/pub-sub": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sqlite": "workspace:*",
@@ -1818,6 +1827,8 @@
     "@pkgs/matchmaking": ["@pkgs/matchmaking@workspace:pkgs/matchmaking"],
 
     "@pkgs/message": ["@pkgs/message@workspace:pkgs/message"],
+
+    "@pkgs/ndjson": ["@pkgs/ndjson@workspace:pkgs/ndjson"],
 
     "@pkgs/object-store": ["@pkgs/object-store@workspace:pkgs/object-store"],
 

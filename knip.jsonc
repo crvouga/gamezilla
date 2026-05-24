@@ -62,7 +62,7 @@
       "entry": "src/dev.ts",
     },
     "libs/qa": {
-      "entry": "src/browser/playwright.config.ts",
+      "entry": "src/playwright/playwright.config.ts",
     },
   },
 }

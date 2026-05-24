@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "api": "bun test ./src/api/",
-    "browser": "bun --bun x playwright test --config src/browser/playwright.config.ts",
-    "browser:headed": "bun --bun x playwright test --config src/browser/playwright.config.ts --headed",
-    "browser:ui": "bun --bun x playwright test --config src/browser/playwright.config.ts --ui",
+    "browser": "bun --bun x playwright test --config src/playwright/playwright.config.ts",
+    "browser:headed": "bun --bun x playwright test --config src/playwright/playwright.config.ts --headed",
+    "browser:ui": "bun --bun x playwright test --config src/playwright/playwright.config.ts --ui",
     "install:browsers": "bun --bun x playwright install --with-deps chromium",
     "lint": "eslint src --max-warnings 0",
     "qa": "bun run api && bun run browser",

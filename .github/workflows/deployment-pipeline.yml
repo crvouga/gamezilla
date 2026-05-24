@@ -216,7 +216,7 @@ jobs:
 
       # Always upload the report (not just on failure) so the embedded
       # videos -- recorded for every test via `video: 'on'` in
-      # `libs/qa/src/browser/playwright.config.ts` -- are available for
+      # `libs/qa/src/playwright/playwright.config.ts` -- are available for
       # green runs too. `if: always()` excludes only manually cancelled
       # runs; use `if: !cancelled()` if you want those too.
       - name: Upload Playwright report

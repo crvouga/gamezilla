@@ -60,7 +60,8 @@ const intNs = createAttrNamespace('chess', 'puzzle', 'interaction');
 export const ChessPuzzleInteractionAttr = {
   /** Indexed: rating recompute walks an owner's interaction history. */
   ownerId: intNs.text('owner-id', readNonEmptyString).indexed(),
-  puzzleId: intNs.text('puzzle-id', readNonEmptyString),
+  /** Indexed: per-puzzle interaction lookups filter `where puzzleId = ?`. */
+  puzzleId: intNs.text('puzzle-id', readNonEmptyString).indexed(),
   puzzleRating: intNs.integer('puzzle-rating', readNonNegativeInteger),
   kind: intNs.enum(
     'kind',

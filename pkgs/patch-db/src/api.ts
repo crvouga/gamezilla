@@ -4,8 +4,8 @@ import type { PatchDbResolvable } from './interface';
 import type {
   PatchDbHttpAuthOptions,
   createPatchDbHttpHono,
-} from './transport/impl-http-request-handler';
-import { PatchDbHttpRequestHandler } from './transport/impl-http-request-handler';
+} from './transport/http-server';
+import { PatchDbHttpRequestHandler } from './transport/http-server';
 import { PatchDbImplSyncHost } from './transport/impl-sync-host';
 import { PatchDbImplInstrumentedSyncHost } from './transport/instrumented-sync-host';
 import type { PatchDbSyncHost } from './transport/interface';

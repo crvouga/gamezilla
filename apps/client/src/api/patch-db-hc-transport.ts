@@ -4,11 +4,9 @@ import type {
   PatchInput,
   WritePatchesResult,
 } from '@pkgs/patch-db/interface';
-import type { PatchDbClientTransport } from '@pkgs/patch-db/transport';
-import {
-  NO_CACHE_REQUEST_HEADERS,
-  PatchDbTransportRejectedError,
-} from '@pkgs/patch-db/transport';
+import type { PatchDbClientTransport } from '@pkgs/patch-db/transport/interface';
+import { NO_CACHE_REQUEST_HEADERS } from '@pkgs/patch-db/transport/paths';
+import { PatchDbTransportRejectedError } from '@pkgs/patch-db/transport/transport-rejected-error';
 import {
   assertWireReadResponse,
   assertWireWriteResponse,

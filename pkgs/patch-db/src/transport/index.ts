@@ -7,7 +7,7 @@ export {
   createPatchDbHttpHono,
   PatchDbHttpRequestHandler,
   type PatchDbHttpAuthOptions,
-} from './impl-http-request-handler';
+} from './http-server';
 export { PatchDbTransportInProcess } from './impl-in-process';
 export { PatchDbImplSyncHost } from './impl-sync-host';
 export {

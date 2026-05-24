@@ -1,5 +1,6 @@
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import { composeRoomModules } from '@libs/spaces/shared/load-game-plugins';
+import { assert, ThrowingCrashHandler } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
 import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import { isSecretStoreError } from '@pkgs/secret-store';
@@ -13,6 +14,17 @@ import {
   readDopplerScopeBindings,
 } from './config/env';
 import { createApiSecretStore } from './config/secret-store';
+
+/**
+ * On Cloudflare Workers (and `wrangler dev`'s node-shimmed runtime) the default
+ * `NodeCrashHandler` would call `process.exit(1)` on every `assert.crash`,
+ * which wrangler logs as `Canceling the request` and surfaces to clients as an
+ * opaque 500 with no diagnostic context. Register the throwing handler first
+ * (priority 10 beats `NodeCrashHandler`'s 30) so crashes become catchable
+ * `AssertCrashError`s that the HTTP transport can serialize over the wire and
+ * have the client re-raise locally with the original message + context.
+ */
+assert.registerCrashHandler(new ThrowingCrashHandler());
 
 /**
  * Room Durable Object class for real-time topics. Games come from the eager

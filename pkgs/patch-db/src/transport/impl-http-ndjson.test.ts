@@ -8,7 +8,8 @@
  * 3. Surfaces per-query errors as inline `error` frames without aborting
  *    sibling queries that have already completed.
  */
-import { describe, expect, test } from 'bun:test';
+import { afterEach, describe, expect, test } from 'bun:test';
+import { AssertCrashError, assert } from '@pkgs/assert';
 import type {
   PatchDbContext,
   PatchDbQuery,
@@ -16,13 +17,20 @@ import type {
   PatchInput,
 } from '../interface';
 import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
-import { PatchDbHttpRequestHandler } from './impl-http-request-handler';
+import { PatchDbHttpRequestHandler } from './http-server';
 import { PatchDbClientTransportHttpFetch } from './impl-http-fetch';
 import type { PatchDbSyncHost } from './interface';
+import { RecordingCrashHandler } from './recording-crash-handler';
 
 type Plan =
   | { kind: 'ok'; delayMs: number; entityType: string }
-  | { kind: 'error'; delayMs: number; status: number; message: string };
+  | { kind: 'error'; delayMs: number; status: number; message: string }
+  | {
+      kind: 'assertCrash';
+      delayMs: number;
+      message: string;
+      context: Record<string, unknown>;
+    };
 
 class StubHost implements PatchDbSyncHost {
   constructor(private readonly plans: readonly Plan[]) {}
@@ -48,6 +56,9 @@ class StubHost implements PatchDbSyncHost {
       const err = new Error(plan.message) as Error & { httpStatus?: number };
       err.httpStatus = plan.status;
       throw err;
+    }
+    if (plan.kind === 'assertCrash') {
+      throw new AssertCrashError(plan.message, plan.context);
     }
     return [
       {
@@ -147,5 +158,83 @@ describe('NDJSON /patches/read streaming', () => {
     );
     expect(results).toHaveLength(1);
     expect(results[0]?.entities[0]?.entityType).toBe('demo');
+  });
+});
+
+describe('AssertCrashError bubbling: server -> client', () => {
+  let dispose: (() => void) | null = null;
+
+  afterEach(() => {
+    if (dispose !== null) {
+      dispose();
+      dispose = null;
+    }
+  });
+
+  test('NDJSON: server AssertCrashError reaches client crash handler with original message + context', async () => {
+    const recorder = new RecordingCrashHandler();
+    // The host machinery (ThrowingCrashHandler) would normally register
+    // separately on the server runtime — but `StubHost` throws the
+    // AssertCrashError directly, so all we need on the *client* side is a
+    // recorder to verify the dispatch.
+    dispose = assert.registerCrashHandler(recorder);
+
+    const message = 'patch-db tiger assert: simulated server crash';
+    const context = { entityType: 'demo', attribute: 'demo/x' };
+    const plans: Plan[] = [
+      { kind: 'ok', delayMs: 0, entityType: 'demo' },
+      { kind: 'assertCrash', delayMs: 5, message, context },
+    ];
+    const host = new StubHost(plans);
+    const queries: PatchDbQuery[] = plans.map((_p, i) => ({
+      entityType: 'demo',
+      entityId: String(i),
+    }));
+
+    let thrown: unknown = null;
+    try {
+      await callViaTransport(host, queries);
+    } catch (e) {
+      thrown = e;
+    }
+
+    expect(thrown).toBeInstanceOf(AssertCrashError);
+    const err = thrown as AssertCrashError;
+    expect(err.message).toBe(message);
+    expect(err.context).toEqual(context);
+
+    expect(recorder.captured).toHaveLength(1);
+    expect(recorder.captured[0]?.message).toBe(message);
+    expect(recorder.captured[0]?.context).toEqual(context);
+  });
+
+  test('flat JSON: server AssertCrashError reaches client crash handler with original message + context', async () => {
+    const recorder = new RecordingCrashHandler();
+    dispose = assert.registerCrashHandler(recorder);
+
+    const message = 'patch-db tiger assert: simulated server crash (flat)';
+    const context = { entityType: 'demo', attribute: 'demo/y' };
+    const plans: Plan[] = [
+      { kind: 'assertCrash', delayMs: 0, message, context },
+    ];
+    const host = new StubHost(plans);
+
+    let thrown: unknown = null;
+    try {
+      await callViaTransport(host, [{ entityType: 'demo', entityId: '0' }], {
+        useNdjsonStreaming: false,
+      });
+    } catch (e) {
+      thrown = e;
+    }
+
+    expect(thrown).toBeInstanceOf(AssertCrashError);
+    const err = thrown as AssertCrashError;
+    expect(err.message).toBe(message);
+    expect(err.context).toEqual(context);
+
+    expect(recorder.captured).toHaveLength(1);
+    expect(recorder.captured[0]?.message).toBe(message);
+    expect(recorder.captured[0]?.context).toEqual(context);
   });
 });

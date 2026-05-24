@@ -1,10 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  NdjsonStreamDecoder,
-  encodeNdjsonFrame,
-  isNdjsonFrame,
-  type NdjsonReadFrame,
-} from './ndjson';
+import { encodeNdjsonFrame } from './encode';
+import { NdjsonStreamDecoder, isNdjsonFrame } from './decode';
+import type { NdjsonFrame } from './frames';
 
 const enc = (s: string): Uint8Array => new TextEncoder().encode(s);
 
@@ -28,9 +25,7 @@ describe('encodeNdjsonFrame', () => {
 
 describe('isNdjsonFrame', () => {
   test('accepts the three frame kinds', () => {
-    expect(
-      isNdjsonFrame({ frame: 'result', index: 0, result: {} })
-    ).toBe(true);
+    expect(isNdjsonFrame({ frame: 'result', index: 0, result: {} })).toBe(true);
     expect(
       isNdjsonFrame({
         frame: 'error',
@@ -71,7 +66,7 @@ describe('NdjsonStreamDecoder', () => {
       '{"frame":"end"}\n';
     const frames = d.push(enc(payload));
     expect(frames.length).toBe(3);
-    expect((frames[2] as NdjsonReadFrame).frame).toBe('end');
+    expect((frames[2] as NdjsonFrame).frame).toBe('end');
   });
 
   test('buffers partial chunks across pushes', () => {
@@ -80,8 +75,8 @@ describe('NdjsonStreamDecoder', () => {
     expect(first.length).toBe(0);
     const second = d.push(enc('"result":{"a":1}}\n{"frame":"end"}\n'));
     expect(second.length).toBe(2);
-    expect((second[0] as NdjsonReadFrame).frame).toBe('result');
-    expect((second[1] as NdjsonReadFrame).frame).toBe('end');
+    expect((second[0] as NdjsonFrame).frame).toBe('result');
+    expect((second[1] as NdjsonFrame).frame).toBe('end');
   });
 
   test('flushes trailing line without newline when final=true', () => {
