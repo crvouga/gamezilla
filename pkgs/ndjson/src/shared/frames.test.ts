@@ -92,9 +92,7 @@ describe('NdjsonStreamDecoder', () => {
 
   test('ignores blank lines and SSE comments', () => {
     const d = new NdjsonStreamDecoder();
-    const frames = d.push(
-      enc(': keep-alive\n\ndata: {"frame":"end"}\n\n\n')
-    );
+    const frames = d.push(enc(': keep-alive\n\ndata: {"frame":"end"}\n\n\n'));
     expect(frames.length).toBe(1);
   });
 

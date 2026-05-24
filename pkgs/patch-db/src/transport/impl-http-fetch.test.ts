@@ -133,9 +133,7 @@ describe('AssertCrashError bubbling: server -> client', () => {
 
     const message = 'patch-db tiger assert: simulated server crash';
     const context = { entityType: 'demo', attribute: 'demo/x' };
-    const plans: Plan[] = [
-      { kind: 'assertCrash', message, context },
-    ];
+    const plans: Plan[] = [{ kind: 'assertCrash', message, context }];
     const host = new StubHost(plans);
     const queries: PatchDbQuery[] = plans.map((_p, i) => ({
       entityType: 'demo',
