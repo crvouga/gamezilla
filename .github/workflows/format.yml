@@ -1,0 +1,60 @@
+# https://github.com/crvouga/gamezilla/actions/workflows/format.yml
+#
+# Runs `bun format` (sort-package-json + prettier --write) on every push and
+# pull request, then commits and pushes any fixes. Format commits use
+# `[skip ci]` so this workflow does not re-trigger on its own push; the
+# Deployment Pipeline is started via `workflow_run` after this workflow
+# completes successfully.
+name: Format
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: format-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+        with:
+          doppler: 'false'
+
+      - name: Apply bun format
+        run: bun format
+
+      - name: Commit formatted changes
+        if: >-
+          github.event_name == 'push' ||
+          (github.event_name == 'pull_request' &&
+           github.event.pull_request.head.repo.full_name == github.repository)
+        env:
+          BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No formatting changes to commit"
+            exit 0
+          fi
+          git add -A
+          git commit -m "style: apply bun format [skip ci]"
+          git push origin "HEAD:${BRANCH}"
