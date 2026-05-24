@@ -1,10 +1,9 @@
 # https://github.com/crvouga/gamezilla/actions/workflows/format.yml
 #
 # Runs `bun format` (sort-package-json + prettier --write) on every push and
-# pull request, then commits and pushes any fixes. Format commits use
-# `[skip ci]` so this workflow does not re-trigger on its own push; the
-# Deployment Pipeline is started via `workflow_run` after this workflow
-# completes successfully.
+# pull request, then commits and pushes only when the working tree actually
+# changed. Format commits use `[skip ci]` plus job-level guards so this
+# workflow does not loop on its own bot pushes.
 name: Format
 
 permissions:
@@ -22,6 +21,14 @@ concurrency:
 
 jobs:
   format:
+  # Do not run on pushes from this workflow's bot commit (`[skip ci]` is the
+  # primary guard; this catches cases where a hook still schedules a run).
+    if: >-
+      github.actor != 'github-actions[bot]' &&
+      (github.event_name != 'push' ||
+        github.event.head_commit == null ||
+        (!contains(github.event.head_commit.message, '[skip ci]') &&
+         !contains(github.event.head_commit.message, '[ci skip]')))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -33,28 +40,59 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           fetch-depth: 0
 
+      - name: Skip when checked-out tip opts out of CI
+        id: ci_skip
+        run: |
+          set -euo pipefail
+          msg=$(git log -1 --format=%B)
+          if printf '%s' "$msg" | grep -qE '\[(skip ci|ci skip)\]'; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Tip commit opts out of CI; skipping format"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: ./.github/actions/setup
+        if: steps.ci_skip.outputs.skip != 'true'
         with:
           doppler: 'false'
 
       - name: Apply bun format
+        if: steps.ci_skip.outputs.skip != 'true'
         run: bun format
+
+      - name: Detect formatting changes
+        id: changes
+        if: steps.ci_skip.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No formatting changes"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Formatting changes detected"
+            git status --short
+          fi
 
       - name: Commit formatted changes
         if: >-
-          github.event_name == 'push' ||
-          (github.event_name == 'pull_request' &&
-           github.event.pull_request.head.repo.full_name == github.repository)
+          steps.ci_skip.outputs.skip != 'true' &&
+          steps.changes.outputs.changed == 'true' &&
+          (github.event_name == 'push' ||
+           (github.event_name == 'pull_request' &&
+            github.event.pull_request.head.repo.full_name == github.repository))
         env:
           BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Belt-and-suspenders: never commit an empty tree.
           if git diff --quiet && git diff --cached --quiet; then
             echo "No formatting changes to commit"
             exit 0
           fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "style: apply bun format [skip ci]"
           git push origin "HEAD:${BRANCH}"

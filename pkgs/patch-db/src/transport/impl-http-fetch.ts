@@ -142,6 +142,7 @@ function readRequestHeaders(
 ): Record<string, string> {
   const useStreaming = options?.useNdjsonStreaming ?? true;
   const accept = useStreaming ? ndjsonAcceptHeader() : 'application/json';
+
   return {
     'Content-Type': 'application/json',
     Accept: accept,
