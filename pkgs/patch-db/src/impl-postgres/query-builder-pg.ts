@@ -1,14 +1,18 @@
 import { assert } from '@pkgs/assert';
+import type { DataType } from '@pkgs/attribute';
 import {
   assertOffsetLimitFragment,
   assertOrderByFragment,
   assertSqlPrefix,
   assertWhereFragment,
 } from '@pkgs/sqlite';
+import { isNumericIndexDataType } from '../indexes/index-spec';
+import type { FrozenEntitySchemaRegistry } from '../schema/entity-schema-registry';
 import type {
   AttributeKey,
   PatchDbQuery,
   PatchDbQueryWhereClause,
+  PatchEntityType,
 } from '../interface';
 import {
   assertAttribute,
@@ -331,10 +335,42 @@ export function buildPatchConditions(
   return { conditions, params };
 }
 
+/**
+ * Optional context the query builder uses to make schema-aware decisions
+ * (typed casts, partition pruning hints, …). When omitted the builder falls
+ * back to type-erased TEXT comparisons for everything — same behavior as
+ * before the registry existed.
+ *
+ * `explainGuard` is forwarded to the read-ops layer (not used by the
+ * builder itself); we keep it on the options bag so every call site that
+ * already plumbs `PgQueryBuilderOptions` automatically picks it up without
+ * an extra parameter at every level.
+ */
+export type PgQueryBuilderOptions = {
+  readonly schemaRegistry?: FrozenEntitySchemaRegistry;
+  readonly explainGuard?: { readonly mode: 'off' | 'warn' | 'crash' };
+};
+
+function lookupAttributeDataType(
+  options: PgQueryBuilderOptions | undefined,
+  entityType: PatchEntityType | undefined,
+  attribute: AttributeKey
+): DataType | null {
+  if (options === undefined || options.schemaRegistry === undefined) {
+    return null;
+  }
+  if (entityType === undefined || entityType === '') return null;
+  const schema = options.schemaRegistry.get(entityType);
+  if (schema === null) return null;
+  const tag = schema.attributes.get(attribute);
+  return tag?.dataType ?? null;
+}
+
 export function buildOrderSQL(
   query: PatchDbQuery,
   defaultOrder: string,
-  attributePrefix = ''
+  attributePrefix = '',
+  options?: PgQueryBuilderOptions
 ): string {
   assertSqlPrefix(
     attributePrefix,
@@ -343,12 +379,29 @@ export function buildOrderSQL(
   if (query.orderBy && query.orderBy.length > 0) {
     const custom = query.orderBy
       .map((o) => {
-        const path = jsonPathForAttribute(patchDbAttributeKey(o.attribute));
+        const attrKey = patchDbAttributeKey(o.attribute);
+        const path = jsonPathForAttribute(attrKey);
         const key = sqliteJsonPathToKey(path);
         const escaped = key.replace(/'/g, "''");
         assertDirection(o.direction);
         const dir = o.direction === 'desc' ? 'DESC' : 'ASC';
-        return `(${attributePrefix}attributes::jsonb ->> '${escaped}') ${dir}`;
+        const base = `(${attributePrefix}attributes::jsonb ->> '${escaped}')`;
+        // Match the index expression for numeric attributes — without
+        // `::numeric` here, the planner does a Sort node over a Seq Scan
+        // even though a covering numeric expression-index exists. (The
+        // popularity DESC sort on chess.puzzle was the original Phase 0
+        // regression.) Lexicographic JSONB text comparison is also
+        // semantically wrong for numbers (`'1500' < '800'`), so this is
+        // both a perf fix and a correctness fix.
+        const dataType = lookupAttributeDataType(
+          options,
+          query.entityType,
+          attrKey
+        );
+        const expr = isNumericIndexDataType(dataType)
+          ? `(${base}::numeric)`
+          : base;
+        return `${expr} ${dir}`;
       })
       .join(', ');
     const tiebreaker = defaultOrder.replace(/^ORDER BY\s+/i, '');

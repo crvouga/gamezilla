@@ -1,8 +1,4 @@
-import { createLogger, type Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { PatchDbIndexSpec } from '../indexes/index-spec';
-import { reconcileSnapshotIndexes } from '../indexes/reconcile';
-import { sqliteIndexDialect } from './index-dialect-sqlite';
 import { MIGRATIONS } from './sql-constants';
 
 async function runBaseMigrations(sqlClient: SqlClient): Promise<void> {
@@ -18,28 +14,9 @@ async function runBaseMigrations(sqlClient: SqlClient): Promise<void> {
   }
 }
 
-/**
- * Applies base DDL for the patch-db SQLite schema and (optionally) reconciles
- * declarative snapshot indexes. The library only manages indexes whose name
- * starts with `pdb_idx_`.
- */
+/** Applies base DDL for the patch-db SQLite schema. */
 export async function migratePatchDbSqlite(
-  sqlClient: SqlClient,
-  options?: {
-    logger?: Logger;
-    indexes?: readonly PatchDbIndexSpec[];
-  }
+  sqlClient: SqlClient
 ): Promise<void> {
   await runBaseMigrations(sqlClient);
-  if (options?.indexes !== undefined) {
-    const logger =
-      options.logger ??
-      createLogger({ name: 'patch-db-sqlite', level: 'silent' });
-    await reconcileSnapshotIndexes({
-      sqlClient,
-      logger,
-      dialect: sqliteIndexDialect,
-      indexes: options.indexes,
-    });
-  }
 }

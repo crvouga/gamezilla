@@ -40,6 +40,7 @@ describe('normalizeIndexSpec', () => {
     expect(out.fields[0]).toEqual({
       kind: 'attribute',
       attribute: asKeyword('space/host-id'),
+      dataType: null,
     });
   });
 
@@ -52,7 +53,49 @@ describe('normalizeIndexSpec', () => {
     expect(out.fields[0]).toEqual({
       kind: 'attribute',
       attribute: asKeyword('space/host-id'),
+      dataType: null,
     });
+  });
+
+  test('preserves dataType for numeric attributes (drives ::numeric cast)', () => {
+    const out = normalizeIndexSpec({
+      name: 'puzzle-rating',
+      entityType: 'chess.puzzle',
+      fields: [
+        {
+          kind: 'attribute',
+          attribute: asKeyword('chess.puzzle/rating'),
+          dataType: 'integer',
+        },
+      ],
+    });
+    expect(out.fields[0]).toEqual({
+      kind: 'attribute',
+      attribute: asKeyword('chess.puzzle/rating'),
+      dataType: 'integer',
+    });
+  });
+
+  test('dataType is part of the dbName hash so cast-form changes orphan old', () => {
+    const text = normalizeIndexSpec({
+      name: 'rating',
+      entityType: 'chess.puzzle',
+      fields: [
+        { kind: 'attribute', attribute: asKeyword('chess.puzzle/rating') },
+      ],
+    });
+    const numeric = normalizeIndexSpec({
+      name: 'rating',
+      entityType: 'chess.puzzle',
+      fields: [
+        {
+          kind: 'attribute',
+          attribute: asKeyword('chess.puzzle/rating'),
+          dataType: 'integer',
+        },
+      ],
+    });
+    expect(text.dbName).not.toBe(numeric.dbName);
   });
 
   test('emits deterministic dbName with content hash', () => {

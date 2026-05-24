@@ -2,6 +2,7 @@ import { assert } from '@pkgs/assert';
 import { asKeyword } from '@pkgs/keyword';
 import { questionMarkParamsToDollarParams } from '@pkgs/sql-client/positional-params';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { createEntitySchemaRegistry, defineEntitySchema } from '../schema';
 import { QGameSession, QTask } from '../test/query-test-attrs';
 import {
   buildLimitSQL,
@@ -306,6 +307,89 @@ describe('tiger-style invariants in query-builder-pg', () => {
       ''
     );
     expect(wire).toBe(tag);
+  });
+
+  test('numeric ORDER BY emits ::numeric cast when schema is supplied', () => {
+    // Without schema → text comparison (broken on numbers, but back-compat).
+    const def = 'ORDER BY entity_id ASC';
+    const withoutRegistry = buildOrderSQL(
+      {
+        entityType: 'task',
+        orderBy: [{ attribute: QTask.score.key, direction: 'desc' }],
+      },
+      def
+    );
+    expect(withoutRegistry).toContain(
+      `(attributes::jsonb ->> 'task/score') DESC`
+    );
+    expect(withoutRegistry).not.toContain(`::numeric`);
+
+    // With schema → numeric cast so the planner can walk the covering
+    // numeric expression-index instead of a Sort node on text values.
+    const schemaRegistry = createEntitySchemaRegistry()
+      .register(
+        defineEntitySchema({
+          entityType: 'task',
+          attributes: { score: QTask.score.indexed({ sortable: true }) },
+        })
+      )
+      .freeze();
+    const withRegistry = buildOrderSQL(
+      {
+        entityType: 'task',
+        orderBy: [{ attribute: QTask.score.key, direction: 'desc' }],
+      },
+      def,
+      '',
+      { schemaRegistry }
+    );
+    expect(withRegistry).toContain(
+      `((attributes::jsonb ->> 'task/score')::numeric) DESC`
+    );
+  });
+
+  test('text ORDER BY stays text even with schema', () => {
+    const schemaRegistry = createEntitySchemaRegistry()
+      .register(
+        defineEntitySchema({
+          entityType: 'task',
+          attributes: { title: QTask.title },
+        })
+      )
+      .freeze();
+    const sql = buildOrderSQL(
+      {
+        entityType: 'task',
+        orderBy: [{ attribute: QTask.title.key, direction: 'asc' }],
+      },
+      'ORDER BY entity_id ASC',
+      '',
+      { schemaRegistry }
+    );
+    expect(sql).toContain(`(attributes::jsonb ->> 'task/title') ASC`);
+    expect(sql).not.toContain(`::numeric`);
+  });
+
+  test('schema lookup with unknown entityType falls back to text', () => {
+    const schemaRegistry = createEntitySchemaRegistry()
+      .register(
+        defineEntitySchema({
+          entityType: 'task',
+          attributes: { score: QTask.score.indexed({ sortable: true }) },
+        })
+      )
+      .freeze();
+    const sql = buildOrderSQL(
+      {
+        // entityType not registered — builder must not invent a cast.
+        entityType: 'unknown',
+        orderBy: [{ attribute: QTask.score.key, direction: 'desc' }],
+      },
+      'ORDER BY entity_id ASC',
+      '',
+      { schemaRegistry }
+    );
+    expect(sql).not.toContain(`::numeric`);
   });
 
   test('happy path: builds well-formed `in` clause for non-empty values', () => {

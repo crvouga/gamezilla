@@ -14,6 +14,7 @@
  */
 import type { Assert } from '@pkgs/assert';
 import { assert } from '@pkgs/assert';
+import type { DataType } from '@pkgs/attribute';
 import {
   assertAttribute,
   assertEntityType,
@@ -25,8 +26,35 @@ import type { Keyword } from '@pkgs/keyword';
  * object with a `.key` property (e.g. an `AttributeTag` from `@pkgs/attribute`). */
 export type PatchDbIndexAttributeRef = Keyword | { readonly key: Keyword };
 
+/**
+ * Data types for which the Postgres index dialect emits a `::numeric` cast
+ * inside the index expression, matching the cast the query builder emits
+ * for `gt/gte/lt/lte` clauses with a JS number value. Without this match
+ * the planner ignores the index and falls back to a partition / table scan.
+ */
+const NUMERIC_DATA_TYPES: ReadonlySet<DataType> = new Set<DataType>([
+  'integer',
+  'number',
+  'bigint',
+]);
+
+export function isNumericIndexDataType(dataType: DataType | null): boolean {
+  return dataType !== null && NUMERIC_DATA_TYPES.has(dataType);
+}
+
 export type PatchDbIndexField =
-  | { readonly kind: 'attribute'; readonly attribute: PatchDbIndexAttributeRef }
+  | {
+      readonly kind: 'attribute';
+      readonly attribute: PatchDbIndexAttributeRef;
+      /**
+       * Declared {@link DataType} of the attribute, when known. Engines use
+       * this to emit a typed cast in the index expression (e.g. `::numeric`
+       * for `integer` / `number` / `bigint`). When `null` / omitted, the
+       * raw text form is indexed — same behavior as before this field
+       * existed.
+       */
+      readonly dataType?: DataType | null;
+    }
   | { readonly kind: 'entityId' }
   | { readonly kind: 'entityType' };
 
@@ -58,7 +86,11 @@ export type PatchDbIndexSpec = {
 };
 
 export type NormalizedIndexField =
-  | { readonly kind: 'attribute'; readonly attribute: Keyword }
+  | {
+      readonly kind: 'attribute';
+      readonly attribute: Keyword;
+      readonly dataType: DataType | null;
+    }
   | { readonly kind: 'entityId' }
   | { readonly kind: 'entityType' };
 
@@ -133,8 +165,16 @@ function fingerprintContent(
   fields: readonly NormalizedIndexField[],
   where: readonly NormalizedIndexWhere[]
 ): string {
+  // `dataType` is part of the fingerprint because changing the index
+  // expression's cast (e.g. text → numeric) requires a new physical index.
+  // Embedding it in the hash makes the old-form index appear orphaned to
+  // the reconciler so it's dropped automatically on the next deploy.
   const colPart = fields
-    .map((c) => (c.kind === 'attribute' ? `attr:${c.attribute}` : c.kind))
+    .map((c) =>
+      c.kind === 'attribute'
+        ? `attr:${c.attribute}:${c.dataType ?? 'text'}`
+        : c.kind
+    )
     .join('|');
   const wherePart = where.map((w) => `${w.kind}:${w.attribute}`).join('|');
   return djb2Hex(`${entityType}\n${colPart}\n${wherePart}`);
@@ -162,7 +202,11 @@ export function normalizeIndexSpec(
   const fields: NormalizedIndexField[] = spec.fields.map((c) => {
     a.record(c, 'index spec.fields[] must be object');
     if (c.kind === 'attribute') {
-      return { kind: 'attribute', attribute: attributeKeyOf(c.attribute, a) };
+      return {
+        kind: 'attribute',
+        attribute: attributeKeyOf(c.attribute, a),
+        dataType: c.dataType ?? null,
+      };
     }
     a.ok(
       c.kind === 'entityId' || c.kind === 'entityType',

@@ -6,10 +6,7 @@ import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content'
 import { ChessBoardCanvasContent } from './chess-board-canvas-content';
 import { DragPieceOverlay } from './chess-board-drag-piece-overlay';
 import type { useBoardGestures } from './chess-board-gestures';
-import {
-  ChessBoardPromotionInline,
-  ChessBoardPromotionModal,
-} from './chess-board-promotion';
+import { ChessBoardPromotionInline } from './chess-board-promotion';
 import type {
   BoardOrientation,
   BoardTheme,
@@ -34,7 +31,6 @@ export type ChessBoardViewProps = {
   size: number;
   theme: BoardTheme;
   orientation: BoardOrientation;
-  promotionStyle: 'inline' | 'modal';
   dragOverlayPortal: boolean;
   pendingPromotion: PendingPromotion | null;
   pieceImages: PieceImageCache | null;
@@ -92,24 +88,8 @@ function inlinePromotion(p: PromotionInlineProps): ReactNode {
   );
 }
 
-type PromotionModalProps = {
-  pending: PendingPromotion | null;
-  onCancel: () => void;
-  onPick: (p: NonNullable<Move['promotion']>) => void;
-};
-
-function modalPromotion(p: PromotionModalProps): ReactNode {
-  return (
-    <ChessBoardPromotionModal
-      visible={p.pending !== null}
-      onCancel={p.onCancel}
-      onPick={p.onPick}
-    />
-  );
-}
-
 /** Renders the board surface: gesture root → outer view → animated canvas
- * stack → optional inline drag piece + promotion overlays. Pure rendering;
+ * stack → optional inline drag piece + promotion overlay. Pure rendering;
  * all logic and state come from props. */
 export function ChessBoardView(p: ChessBoardViewProps): ReactNode {
   const { size } = p;
@@ -125,25 +105,16 @@ export function ChessBoardView(p: ChessBoardViewProps): ReactNode {
         <Animated.View style={sqStyle}>
           <ChessBoardCanvasContent {...p.contentProps} />
           {inlineDrag(p)}
-          {p.promotionStyle === 'inline'
-            ? inlinePromotion({
-                pending: p.pendingPromotion,
-                size: p.size,
-                orientation: p.orientation,
-                theme: p.theme,
-                pieceImages: p.pieceImages,
-                onCancel: p.onPromotionCancel,
-                onPick: p.onPromotionPick,
-              })
-            : null}
+          {inlinePromotion({
+            pending: p.pendingPromotion,
+            size: p.size,
+            orientation: p.orientation,
+            theme: p.theme,
+            pieceImages: p.pieceImages,
+            onCancel: p.onPromotionCancel,
+            onPick: p.onPromotionPick,
+          })}
         </Animated.View>
-        {p.promotionStyle === 'modal'
-          ? modalPromotion({
-              pending: p.pendingPromotion,
-              onCancel: p.onPromotionCancel,
-              onPick: p.onPromotionPick,
-            })
-          : null}
       </View>
     </GestureDetector>
   );

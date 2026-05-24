@@ -16,5 +16,8 @@ function readOwnerId(v: unknown): string {
 
 const entityNs = createAttrNamespace('entity');
 export const AbacEntityAttr = {
-  owner: entityNs.text('owner', readOwnerId),
+  /** Indexed: ABAC visibility policies filter `WHERE entity/owner = ?` on
+   * almost every read for an authenticated user — this is the hottest
+   * cross-entity-type attribute in the system. */
+  owner: entityNs.text('owner', readOwnerId).indexed(),
 } as const;

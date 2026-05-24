@@ -30,10 +30,16 @@ import { DEFAULT_PATCH_DB_COMPACTION_POLICY } from '../policy/compaction-policy'
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '../policy/system-device';
 import { finishCompactionAfterInsert } from '../compact-entity-tx-helpers';
 import { topologicalSortPatches } from '../topological-sort';
+import { assertQueryAgainstSchema } from '../schema/assert-query';
+import { registryToIndexSpecs } from '../schema/schema-to-index-spec';
 import {
   accumulateWritePatchesPostgres,
   type PatchInsertBatchRow,
 } from './accumulate-write-patches-postgres';
+import {
+  resolveExplainGuardMode,
+  type PatchDbExplainGuardMode,
+} from './explain-guard';
 import { migratePatchDbPostgres } from './migrate';
 import { readPatches } from './read-ops';
 import {
@@ -66,22 +72,28 @@ export class PatchDbImplPostgres implements PatchDb {
   /**
    * Idempotent Postgres DDL for patches + snapshots (no instance required).
    *
-   * When `options.indexes` is supplied, declarative snapshot indexes are
-   * reconciled after base DDL: indexes declared in code but absent in DB are
-   * created; indexes present in DB under the `pdb_idx_` prefix that are no
-   * longer declared are dropped. Non-`pdb_idx_` indexes (engine-owned and
-   * unrelated app indexes) are never touched.
+   * Declarative snapshot indexes are reconciled after base DDL: indexes
+   * declared in code but absent in DB are created; indexes present in DB
+   * under the `pdb_idx_` prefix that are no longer declared are dropped.
+   * Non-`pdb_idx_` indexes (engine-owned and unrelated app indexes) are
+   * never touched.
+   *
+   * Indexes are derived from every {@link EntitySchema}'s indexed attributes
+   * + composite indexes via the optional {@link PatchDbEngineOptions.schemaRegistry}.
+   * Without a registry, only base DDL runs (no reconcile pass).
    */
   static async migrateUp(args: {
     sqlClient: SqlClient;
     logger: Logger;
     options?: PatchDbEngineOptions;
   }): Promise<void> {
-    const indexes = args.options?.indexes;
+    const registry = args.options?.schemaRegistry;
     await migratePatchDbPostgres({
       sqlClient: args.sqlClient,
       logger: args.logger,
-      ...(indexes !== undefined ? { indexes } : {}),
+      ...(registry !== undefined
+        ? { indexes: registryToIndexSpecs(registry) }
+        : {}),
     });
   }
 
@@ -336,7 +348,26 @@ export class PatchDbImplPostgres implements PatchDb {
     for (const q of queries) {
       rewritten.push(await this.hooks.runBeforeRead(q, enrichedCtx));
     }
-    return readPatches(this.sqlClient, rewritten);
+    const registry = this.opts.schemaRegistry;
+    if (
+      registry !== undefined &&
+      this.opts.assertQueriesAgainstSchema !== false
+    ) {
+      for (const q of rewritten) assertQueryAgainstSchema(q, registry);
+    }
+    const explainGuard: PatchDbExplainGuardMode = resolveExplainGuardMode(
+      this.opts.explainGuard
+    );
+    const builderOptions = (() => {
+      if (registry === undefined && explainGuard === 'off') return undefined;
+      return {
+        ...(registry !== undefined ? { schemaRegistry: registry } : {}),
+        ...(explainGuard !== 'off'
+          ? { explainGuard: { mode: explainGuard } }
+          : {}),
+      };
+    })();
+    return readPatches(this.sqlClient, rewritten, builderOptions);
   }
 
   private async distinctEntityKeysForPatchIds(

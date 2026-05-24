@@ -23,11 +23,9 @@ export type DopplerSecretStoreOptions = {
   project?: string;
   /**
    * Doppler config name (e.g. `local`, `prod`). Sent as the `config` query param
-   * when set. Defaults to `options.configName`, then `process.env.DOPPLER_CONFIG`.
+   * when set. Defaults to `process.env.DOPPLER_CONFIG`.
    */
   config?: string;
-  /** @deprecated Prefer {@link DopplerSecretStoreOptions.config}. */
-  configName?: string;
   /** @default globalThis.fetch */
   fetchFn?: DopplerFetch;
   /**
@@ -150,7 +148,7 @@ export class DopplerSecretStore implements SecretStore {
     this.token = t;
     this.fetchFn = options.fetchFn ?? defaultFetch;
     this.projectSlug = trimOpt(options.project);
-    this.configSlug = trimOpt(options.config) ?? trimOpt(options.configName);
+    this.configSlug = trimOpt(options.config);
     this.rateLimitRetries =
       options.rateLimitRetries !== undefined
         ? Math.max(0, Math.floor(options.rateLimitRetries))

@@ -8,13 +8,22 @@ import { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres'
 import type { PatchDb } from '@pkgs/patch-db/interface';
 import { VisibilityPolicyRegistry } from '@pkgs/patch-db/policy/visibility-policy-registry';
 import { createPatchDbReadBatcher } from '@pkgs/patch-db/scheduling/microtask-batcher';
+import type { FrozenEntitySchemaRegistry } from '@pkgs/patch-db/schema/entity-schema-registry';
 import { createMemberOfSpaceIdsEnricher } from '@libs/spaces/server/enrich-member-of-space-ids';
 import {
   DEFAULT_PATCH_DB_VISIBILITY_POLICIES,
   type AppAuthContext,
 } from './abac-policies';
 import { createGamezillaCompactionPolicyRegistry } from './default-compaction-policies';
-import { APP_SNAPSHOT_INDEXES } from './snapshot-indexes';
+import { buildAppPatchDbSchemaRegistry } from './schema-registry';
+
+/**
+ * Frozen at module load so every request shares one registry instance (the
+ * schema set is process-wide). Reads of undeclared entity types will crash
+ * via tiger asserts wherever the engine consults the registry.
+ */
+const APP_PATCH_DB_SCHEMA_REGISTRY: FrozenEntitySchemaRegistry =
+  buildAppPatchDbSchemaRegistry();
 
 const uninstallByDb = new WeakMap<PatchDb, () => void>();
 
@@ -50,7 +59,7 @@ export function createRequestPatchDb(sqlClient: SqlClient): PatchDb {
   const innerPostgres = new PatchDbImplPostgres(sqlClient, {
     autoCompactOnWrite: true,
     compactionPolicy: compaction.resolve,
-    indexes: APP_SNAPSHOT_INDEXES,
+    schemaRegistry: APP_PATCH_DB_SCHEMA_REGISTRY,
   });
   installDefaultPatchDbPolicies(innerPostgres);
   return createPatchDbReadBatcher(innerPostgres);

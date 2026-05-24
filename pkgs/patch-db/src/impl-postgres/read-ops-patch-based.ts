@@ -4,10 +4,12 @@ import { assertWhereFragment } from '@pkgs/sqlite';
 import { toPatch } from '../impl-sqlite/mappers';
 import type { PatchRow } from '../impl-sqlite/types';
 import type { PatchDbQuery, PatchDbResult } from '../interface';
+import { assertExplainHasNoSeqScan } from './explain-guard';
 import {
   buildLimitSQL,
   buildOrderSQL,
   buildSnapshotConditions,
+  type PgQueryBuilderOptions,
 } from './query-builder-pg';
 import {
   batchFetchSnapshots,
@@ -16,6 +18,17 @@ import {
   toPatchRow,
 } from './read-ops-shared';
 import { SELECT_DEPTH_BY_PATCH_ID } from './sql-constants';
+
+async function maybeAssertNoSeqScan(
+  sqlClient: SqlClient,
+  sql: string,
+  params: readonly unknown[],
+  options: PgQueryBuilderOptions | undefined
+): Promise<void> {
+  const guard = options?.explainGuard;
+  if (guard === undefined || guard.mode === 'off') return;
+  await assertExplainHasNoSeqScan(sqlClient, sql, params, { mode: guard.mode });
+}
 
 type LineagePredicates = {
   lineageSeedPredicate: string;
@@ -283,7 +296,8 @@ async function resolveCursor(
 
 export async function readOnePatchBased(
   sqlClient: SqlClient,
-  query: PatchDbQuery
+  query: PatchDbQuery,
+  options?: PgQueryBuilderOptions
 ): Promise<PatchDbResult> {
   const { conditions: snapConditions, params: snapParams } =
     buildSnapshotConditions(query);
@@ -297,7 +311,7 @@ export async function readOnePatchBased(
 
   const defaultOrder =
     'ORDER BY p.entity_id ASC, p.entity_type ASC, p.lineage_depth ASC, p.patch_id ASC';
-  const orderSQL = buildOrderSQL(query, defaultOrder, 'p.');
+  const orderSQL = buildOrderSQL(query, defaultOrder, 'p.', options);
   const limit = buildLimitSQL(query);
 
   const selectSql = buildPatchBasedSql(
@@ -310,6 +324,7 @@ export async function readOnePatchBased(
     { sql: selectSql, params: allParams },
     { context: 'readOnePatchBased' }
   );
+  await maybeAssertNoSeqScan(sqlClient, selectSql, allParams, options);
 
   const rows = await sqlClient.query<
     PatchRow & { total_count: string | number }

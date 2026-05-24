@@ -174,8 +174,3 @@ export class VisibilityPolicyRegistry<
     return { accepted, rejected };
   }
 }
-
-/** @deprecated Use {@link VisibilityPolicy} `read` parameter type directly. */
-export type VisibilityPolicyReadContext<
-  TCtx extends PatchDbContext = PatchDbContext,
-> = TCtx;

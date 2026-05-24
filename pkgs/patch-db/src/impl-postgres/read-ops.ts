@@ -4,11 +4,13 @@ import { assertWhereFragment } from '@pkgs/sqlite';
 import { parseAttributes, toEntity, toPatch } from '../impl-sqlite/mappers';
 import type { PatchRow, SnapshotRow } from '../impl-sqlite/types';
 import type { Entity, Patch, PatchDbQuery, PatchDbResult } from '../interface';
+import { assertExplainHasNoSeqScan } from './explain-guard';
 import {
   buildLimitSQL,
   buildOrderSQL,
   buildPatchConditions,
   buildSnapshotConditions,
+  type PgQueryBuilderOptions,
 } from './query-builder-pg';
 import { readOnePatchBased } from './read-ops-patch-based';
 import {
@@ -19,6 +21,17 @@ import {
   rowAttributesText,
   toPatchRow,
 } from './read-ops-shared';
+
+async function maybeAssertNoSeqScan(
+  sqlClient: SqlClient,
+  sql: string,
+  params: readonly unknown[],
+  options: PgQueryBuilderOptions | undefined
+): Promise<void> {
+  const guard = options?.explainGuard;
+  if (guard === undefined || guard.mode === 'off') return;
+  await assertExplainHasNoSeqScan(sqlClient, sql, params, { mode: guard.mode });
+}
 
 function isDefaultEntityView(q: PatchDbQuery): boolean {
   return q.on !== 'patches';
@@ -168,7 +181,8 @@ async function readBareSingleEntityBatchPostgres(
 
 export async function readPatches(
   sqlClient: SqlClient,
-  queries: PatchDbQuery[]
+  queries: PatchDbQuery[],
+  options?: PgQueryBuilderOptions
 ): Promise<PatchDbResult[]> {
   if (queries.length === 0) return [];
   const results: PatchDbResult[] = new Array(queries.length);
@@ -193,7 +207,7 @@ export async function readPatches(
     } else {
       const q = slice[0];
       assert.defined(q, 'slice must be non-empty');
-      results[start] = await readOne(sqlClient, q);
+      results[start] = await readOne(sqlClient, q, options);
     }
   }
   return results;
@@ -201,10 +215,11 @@ export async function readPatches(
 
 async function readOne(
   sqlClient: SqlClient,
-  query: PatchDbQuery
+  query: PatchDbQuery,
+  options?: PgQueryBuilderOptions
 ): Promise<PatchDbResult> {
   if (query.on === 'patches') {
-    return readOnePatchesMode(sqlClient, query);
+    return readOnePatchesMode(sqlClient, query, options);
   }
   if (isBareSingleEntityFastPathQuery(query)) {
     const batch = await readBareSingleEntityBatchPostgres(sqlClient, [query]);
@@ -216,19 +231,25 @@ async function readOne(
   const usePatchBasedLogic =
     (query.after !== null && query.after !== undefined) || isSingleEntityQuery;
   if (usePatchBasedLogic) {
-    return readOnePatchBased(sqlClient, query);
+    return readOnePatchBased(sqlClient, query, options);
   }
-  return readOneSnapshotBased(sqlClient, query);
+  return readOneSnapshotBased(sqlClient, query, options);
 }
 
 async function readOnePatchesMode(
   sqlClient: SqlClient,
-  query: PatchDbQuery
+  query: PatchDbQuery,
+  options?: PgQueryBuilderOptions
 ): Promise<PatchDbResult> {
   const { conditions, params } = buildPatchConditions(query, 'p');
   const whereSQL = conditions.join(' AND ');
 
-  const orderSQL = buildOrderSQL(query, 'ORDER BY p.patch_id ASC', 'p.');
+  const orderSQL = buildOrderSQL(
+    query,
+    'ORDER BY p.patch_id ASC',
+    'p.',
+    options
+  );
   const limit = buildLimitSQL(query);
 
   const sql = `SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes::text AS attributes,
@@ -239,6 +260,7 @@ async function readOnePatchesMode(
     { sql, params: allParams },
     { context: 'readOnePatchesMode' }
   );
+  await maybeAssertNoSeqScan(sqlClient, sql, allParams, options);
   const rows = await sqlClient.query<
     PatchRow & { total_count: string | number }
   >(sql, allParams);
@@ -261,12 +283,13 @@ async function readOnePatchesMode(
 
 async function readOneSnapshotBased(
   sqlClient: SqlClient,
-  query: PatchDbQuery
+  query: PatchDbQuery,
+  options?: PgQueryBuilderOptions
 ): Promise<PatchDbResult> {
   const { conditions, params } = buildSnapshotConditions(query);
   const whereSQL = conditions.join(' AND ');
 
-  const orderSQL = buildOrderSQL(query, 'ORDER BY entity_id ASC');
+  const orderSQL = buildOrderSQL(query, 'ORDER BY entity_id ASC', '', options);
   const limit = buildLimitSQL(query);
 
   const sql = `SELECT entity_id, entity_type, attributes::text AS attributes, COUNT(*) OVER() AS total_count FROM snapshots WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
@@ -275,6 +298,7 @@ async function readOneSnapshotBased(
     { sql, params: allParams },
     { context: 'readOneSnapshotBased' }
   );
+  await maybeAssertNoSeqScan(sqlClient, sql, allParams, options);
   const rows = await sqlClient.query<
     SnapshotRow & { total_count: string | number }
   >(sql, allParams);

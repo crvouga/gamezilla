@@ -99,6 +99,19 @@ export type DataTypeValue<D extends DataType> = D extends
  */
 export type AttributeParser<T> = (value: unknown) => T;
 
+/**
+ * Index intent attached to an {@link AttributeTag} via {@link AttributeTag.indexed}.
+ * Storage / query engines use this to decide whether a covering generated
+ * column + native btree should exist for the tag. Engines forbid indexing
+ * `json`, `array`, and `binary` data types (no sane scalar column form).
+ */
+export type AttributeIndexSpec = {
+  /** `true` when the engine should support ORDER BY on this attribute. */
+  readonly sortable: boolean;
+  /** `true` when the value is unique within its entity type's partition. */
+  readonly unique: boolean;
+};
+
 export interface AttributeTag<
   T = unknown,
   K extends string = string,
@@ -119,6 +132,12 @@ export interface AttributeTag<
    * declared at construction time. Empty tuple for all other data types.
    */
   readonly enumValues: readonly string[];
+  /**
+   * Index intent (see {@link AttributeIndexSpec}). `null` for tags that do
+   * not opt into a covering generated column / index. Set via the fluent
+   * {@link AttributeTag.indexed} method.
+   */
+  readonly index: AttributeIndexSpec | null;
   readonly parse: AttributeParser<T>;
   /**
    * Builds a single-key patch `{ [key]: parse(value) }` for PatchDB writes.
@@ -127,6 +146,21 @@ export interface AttributeTag<
   (value: unknown): { readonly [P in K & Keyword]: T };
   /** Reads `state[key]` then parses (missing key yields `undefined`). */
   from(state: AttributeState): T;
+  /**
+   * Returns a tag with the same identity / parser / data type, but marked
+   * with an {@link AttributeIndexSpec}. Engines downstream (patch-db Postgres)
+   * use this to provision a typed generated column + native btree so range
+   * / equality / ORDER BY queries hit the index instead of `::cast` on JSONB.
+   *
+   * Calling {@link indexed} on a `json`, `array`, or `binary` tag crashes —
+   * those data types have no scalar column form.
+   *
+   * Idempotent: subsequent calls overwrite the spec, never accumulate.
+   */
+  indexed(opts?: {
+    readonly sortable?: boolean;
+    readonly unique?: boolean;
+  }): AttributeTag<T, K, D, Nullable>;
 }
 
 /** Generic / unbranded view used by patch-db indexes, react hooks, etc. */
@@ -147,7 +181,41 @@ type TagOpts = {
   dataType: DataType;
   nullable: boolean;
   enumValues?: readonly string[];
+  index?: AttributeIndexSpec | null;
 };
+
+/**
+ * Data types for which {@link AttributeTag.indexed} would have no scalar
+ * column form on Postgres. Indexing these crashes at the call site instead
+ * of failing silently during schema reconciliation.
+ */
+const UN_INDEXABLE_DATA_TYPES: ReadonlySet<DataType> = new Set<DataType>([
+  'json',
+  'array',
+  'binary',
+]);
+
+function normalizeIndexSpec(
+  opts: { sortable?: boolean; unique?: boolean } | undefined
+): AttributeIndexSpec {
+  return Object.freeze({
+    sortable: opts?.sortable === true,
+    unique: opts?.unique === true,
+  });
+}
+
+function defineReadonly<T extends object>(
+  target: T,
+  name: string,
+  value: unknown
+): void {
+  Object.defineProperty(target, name, {
+    value,
+    enumerable: false,
+    configurable: false,
+    writable: false,
+  });
+}
 
 function createAttributeTag<
   T,
@@ -168,43 +236,41 @@ function createAttributeTag<
 
   const brandedKey = fullKey as K & Keyword;
   const enumValues = Object.freeze([...(opts.enumValues ?? [])]);
+  const index: AttributeIndexSpec | null = opts.index ?? null;
 
   function attr(value: unknown): { readonly [P in K & Keyword]: T } {
     return { [fullKey]: parse(value) } as { readonly [P in K & Keyword]: T };
   }
-  Object.defineProperty(attr, 'key', {
-    value: brandedKey,
-    enumerable: false,
-    configurable: false,
-    writable: false,
-  });
-  Object.defineProperty(attr, 'dataType', {
-    value: opts.dataType,
-    enumerable: false,
-    configurable: false,
-    writable: false,
-  });
-  Object.defineProperty(attr, 'nullable', {
-    value: opts.nullable,
-    enumerable: false,
-    configurable: false,
-    writable: false,
-  });
-  Object.defineProperty(attr, 'enumValues', {
-    value: enumValues,
-    enumerable: false,
-    configurable: false,
-    writable: false,
-  });
-  Object.defineProperty(attr, 'parse', {
-    value: parse,
-    enumerable: false,
-    configurable: false,
-    writable: false,
-  });
+  defineReadonly(attr, 'key', brandedKey);
+  defineReadonly(attr, 'dataType', opts.dataType);
+  defineReadonly(attr, 'nullable', opts.nullable);
+  defineReadonly(attr, 'enumValues', enumValues);
+  defineReadonly(attr, 'index', index);
+  defineReadonly(attr, 'parse', parse);
   (attr as { from?: (state: AttributeState) => T }).from = (
     state: AttributeState
   ): T => parse(state[fullKey]);
+  (
+    attr as {
+      indexed?: (opts?: {
+        sortable?: boolean;
+        unique?: boolean;
+      }) => AttributeTag<T, K, D, N>;
+    }
+  ).indexed = (indexOpts?: {
+    sortable?: boolean;
+    unique?: boolean;
+  }): AttributeTag<T, K, D, N> => {
+    assert.ok(
+      !UN_INDEXABLE_DATA_TYPES.has(opts.dataType),
+      'Tiger: indexed() not allowed on json/array/binary tags (no scalar column form)',
+      { key: fullKey, dataType: opts.dataType }
+    );
+    return createAttributeTag(fullKey, parse, {
+      ...opts,
+      index: normalizeIndexSpec(indexOpts),
+    });
+  };
   return attr as AttributeTag<T, K, D, N>;
 }
 

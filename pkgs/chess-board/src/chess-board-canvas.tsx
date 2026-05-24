@@ -40,7 +40,6 @@ export type ChessBoardCanvasProps = Required<
     | 'showCoordinates'
     | 'highlightLastMove'
     | 'highlightLegalMoves'
-    | 'promotionStyle'
     | 'dragOverlayPortal'
     | 'enableUserArrows'
   >
@@ -258,7 +257,6 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
       size={props.size}
       theme={props.theme}
       orientation={props.orientation}
-      promotionStyle={props.promotionStyle}
       dragOverlayPortal={props.dragOverlayPortal}
       pendingPromotion={bundle.interaction.pendingPromotion}
       pieceImages={bundle.pieceImages}

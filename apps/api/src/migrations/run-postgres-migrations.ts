@@ -1,17 +1,12 @@
 /**
  * Canonical Postgres migration order: Better Auth (Kysely, own `max: 1` pool)
- * → legacy index cleanup → patch-db (base DDL + declarative app snapshot
- * indexes) → kv (single caller-owned pool, `max: 1`).
+ * → patch-db (base DDL + declarative app snapshot indexes) → kv (single
+ * caller-owned pool, `max: 1`).
  *
- * `dropLegacyAppSnapshotIndexes` runs **before** patch-db's `migrateUp`
- * because the new declarative reconciler only manages indexes whose names
- * start with `pdb_idx_`; the legacy hand-written `idx_snap_*` indexes must be
- * dropped explicitly. After one production deploy cycle this step can be
- * removed entirely.
- *
- * App-specific snapshot indexes are passed to `PatchDbImplPostgres.migrateUp`
- * via `options.indexes`; patch-db itself remains application-agnostic and
- * does not know about our domain entity types.
+ * App-specific snapshot indexes are derived from the frozen
+ * {@link FrozenEntitySchemaRegistry} built in
+ * `apps/api/src/patch-db/schema-registry.ts`; patch-db itself remains
+ * application-agnostic and only consumes the injected registry.
  *
  * Better Auth runs first on its own short-lived `max: 1` pool so it never
  * overlaps the caller pool — `kysely.destroy()` must not end a pool the
@@ -31,8 +26,7 @@ import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
-import { APP_SNAPSHOT_INDEXES } from '../patch-db/snapshot-indexes';
-import { dropLegacyAppSnapshotIndexes } from './drop-legacy-app-snapshot-indexes';
+import { buildAppPatchDbSchemaRegistry } from '../patch-db/schema-registry';
 
 export type RunPostgresMigrationsArgs = {
   sqlClient: SqlClient;
@@ -47,12 +41,12 @@ export async function runPostgresMigrations(
   const { sqlClient, databaseUrl, logger, betterAuthOptions } = args;
   await runBetterAuthMigrations({ databaseUrl, betterAuthOptions });
 
+  const schemaRegistry = buildAppPatchDbSchemaRegistry();
   await sqlClient.transaction(async (tx) => {
-    await dropLegacyAppSnapshotIndexes({ sqlClient: tx, logger });
     await PatchDbImplPostgres.migrateUp({
       sqlClient: tx,
       logger,
-      options: { indexes: APP_SNAPSHOT_INDEXES },
+      options: { schemaRegistry },
     });
     await KvImplPostgres.migrateUp({ sqlClient: tx, logger });
   });

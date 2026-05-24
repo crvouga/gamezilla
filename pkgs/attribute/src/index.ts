@@ -1,6 +1,7 @@
 export { createAttrNamespace } from './attribute';
 export type {
   AnyAttributeTag,
+  AttributeIndexSpec,
   AttributeNamespace,
   AttributeParser,
   AttributeState,

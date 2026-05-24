@@ -17,9 +17,80 @@ describe('postgresDdlCreate', () => {
     const ddl = postgresDdlCreate(spec);
     expect(ddl).toContain(`CREATE INDEX IF NOT EXISTS "${spec.dbName}"`);
     expect(ddl).toContain(' ON snapshots ');
-    expect(ddl).toContain(`(attributes->>'space/host-id')`);
+    // Text path: matches `(attributes::jsonb ->> 'k')` from query builder.
+    expect(ddl).toContain(`(attributes::jsonb ->> 'space/host-id')`);
+    expect(ddl).not.toContain(`::numeric`);
     expect(ddl).toContain(` WHERE entity_type = 'space'`);
     expect(ddl).not.toContain(` AND `);
+  });
+
+  test('numeric attribute emits ::numeric cast matching the query builder', () => {
+    // chess.puzzle/rating is `dataType: integer`; query builder does
+    // `((attributes::jsonb ->> 'k')::numeric) > ?::numeric` for `gt` etc.
+    // Without the same cast in the index expression, the planner ignores
+    // it (this was the original Phase 0 perf regression).
+    const spec = normalizeIndexSpec({
+      name: 'puzzle-rating',
+      entityType: 'chess.puzzle',
+      fields: [
+        {
+          kind: 'attribute',
+          attribute: asKeyword('chess.puzzle/rating'),
+          dataType: 'integer',
+        },
+      ],
+    });
+    const ddl = postgresDdlCreate(spec);
+    expect(ddl).toContain(
+      `((attributes::jsonb ->> 'chess.puzzle/rating')::numeric)`
+    );
+    expect(ddl).toContain(`WHERE entity_type = 'chess.puzzle'`);
+  });
+
+  test('number / bigint attributes also get ::numeric cast', () => {
+    for (const dt of ['number', 'bigint'] as const) {
+      const spec = normalizeIndexSpec({
+        name: 'amount',
+        entityType: 'demo',
+        fields: [
+          {
+            kind: 'attribute',
+            attribute: asKeyword('demo/amount'),
+            dataType: dt,
+          },
+        ],
+      });
+      const ddl = postgresDdlCreate(spec);
+      expect(ddl).toContain(`((attributes::jsonb ->> 'demo/amount')::numeric)`);
+    }
+  });
+
+  test('text-shaped attributes (text/uuid/enum/email/url/date/...) stay text', () => {
+    for (const dt of [
+      'text',
+      'uuid',
+      'enum',
+      'email',
+      'url',
+      'date',
+      'timestamp',
+      'boolean',
+    ] as const) {
+      const spec = normalizeIndexSpec({
+        name: 'label',
+        entityType: 'demo',
+        fields: [
+          {
+            kind: 'attribute',
+            attribute: asKeyword('demo/label'),
+            dataType: dt,
+          },
+        ],
+      });
+      const ddl = postgresDdlCreate(spec);
+      expect(ddl).toContain(`(attributes::jsonb ->> 'demo/label')`);
+      expect(ddl).not.toContain(`::numeric`);
+    }
   });
 
   test('multi-column entityType + entityId with attribute-absent partial WHERE', () => {

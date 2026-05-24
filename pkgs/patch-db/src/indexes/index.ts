@@ -3,11 +3,11 @@ export {
   normalizeIndexSpec,
   normalizeIndexSpecs,
   PATCH_DB_INDEX_NAME_PREFIX,
-  type NormalizedIndexField as NormalizedIndexColumn,
+  type NormalizedIndexField,
   type NormalizedIndexSpec,
   type NormalizedIndexWhere,
   type PatchDbIndexAttributeRef,
-  type PatchDbIndexField as PatchDbIndexColumn,
+  type PatchDbIndexField,
   type PatchDbIndexSpec,
   type PatchDbIndexWhere,
 } from './index-spec';

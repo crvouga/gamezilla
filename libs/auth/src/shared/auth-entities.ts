@@ -69,7 +69,8 @@ const accountProviderNs = createAttrNamespace('account', 'provider');
 export const ACCOUNT_PROVIDER_ENTITY_TYPE = accountProviderNs.prefix;
 
 export const AccountProviderAttr = {
-  accountId: accountProviderNs.text('account-id', readString),
+  /** Indexed: provider rows are looked up by account during session validation. */
+  accountId: accountProviderNs.text('account-id', readString).indexed(),
   provider: accountProviderNs.textOrNull('provider', readTrimmedNullableString),
   providerUserId: accountProviderNs.textOrNull(
     'provider-user-id',
@@ -86,8 +87,10 @@ const accountSessionNs = createAttrNamespace('account', 'session');
 
 export const ACCOUNT_SESSION_ENTITY_TYPE = accountSessionNs.prefix;
 export const AccountSessionAttr = {
-  deviceId: accountSessionNs.text('device-id', readString),
-  accountId: accountSessionNs.text('account-id', readString),
+  /** Indexed: sessions are revoked / listed by device. */
+  deviceId: accountSessionNs.text('device-id', readString).indexed(),
+  /** Indexed: sessions are listed by account on every authn check. */
+  accountId: accountSessionNs.text('account-id', readString).indexed(),
   token: accountSessionNs.text('token', readString),
   expiresAt: accountSessionNs.timestampOrNull(
     'expires-at',

@@ -695,8 +695,8 @@ msgstr "Basics"
 #~ msgstr "Before you take back, look for something stronger."
 
 #: pkgs/chess-board/src/chess-board-promotion.tsx
-msgid "Bishop"
-msgstr "Bishop"
+#~ msgid "Bishop"
+#~ msgstr "Bishop"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Bishop activity good. Stay on color."
@@ -883,7 +883,6 @@ msgstr "Build mode: {buildMode}"
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 #: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 #: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
-#: pkgs/chess-board/src/chess-board-promotion.tsx
 #: pkgs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
 #: pkgs/patch-db-example/src/todo/list/todo-lists-overview.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
@@ -1022,8 +1021,8 @@ msgid "Choose"
 msgstr "Choose"
 
 #: pkgs/chess-board/src/chess-board-promotion.tsx
-msgid "Choose a piece to promote to."
-msgstr "Choose a piece to promote to."
+#~ msgid "Choose a piece to promote to."
+#~ msgstr "Choose a piece to promote to."
 
 #: libs/auth/src/client/sign-in-modal-body.tsx
 msgid "Choose a sign-in method"
@@ -3264,8 +3263,8 @@ msgid "Increment"
 msgstr "Increment"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
-msgid "Inline"
-msgstr "Inline"
+#~ msgid "Inline"
+#~ msgstr "Inline"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Interference clean. Defender isolated."
@@ -3464,8 +3463,8 @@ msgstr "Join this space to see who is here and hang out."
 #~ msgstr "Kingside is the target. Drive through."
 
 #: pkgs/chess-board/src/chess-board-promotion.tsx
-msgid "Knight"
-msgstr "Knight"
+#~ msgid "Knight"
+#~ msgstr "Knight"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Knight and rook in sync. Keep coordinating."
@@ -4079,8 +4078,8 @@ msgid "Missing device id."
 msgstr "Missing device id."
 
 #: pkgs/chess-board/src/chess-board.example.tsx
-msgid "Modal (legacy)"
-msgstr "Modal (legacy)"
+#~ msgid "Modal (legacy)"
+#~ msgstr "Modal (legacy)"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Modal above the board"
@@ -4136,8 +4135,12 @@ msgstr "Move log"
 #~ msgstr "Move one piece, reveal a check. Powerful."
 
 #: pkgs/chess-board/src/chess-board.example.tsx
-msgid "Move the white pawn to a8 to trigger promotion. Inline picker is the default."
-msgstr "Move the white pawn to a8 to trigger promotion. Inline picker is the default."
+#~ msgid "Move the white pawn to a8 to trigger promotion. Inline picker is the default."
+#~ msgstr "Move the white pawn to a8 to trigger promotion. Inline picker is the default."
+
+#: pkgs/chess-board/src/chess-board.example.tsx
+msgid "Move the white pawn to a8 to trigger the inline canvas promotion picker."
+msgstr "Move the white pawn to a8 to trigger the inline canvas promotion picker."
 
 #: apps/client/src/developer/developer-screen.tsx
 #: apps/client/src/developer/room-screen.tsx
@@ -5193,8 +5196,8 @@ msgid "Profile"
 msgstr "Profile"
 
 #: pkgs/chess-board/src/chess-board-promotion.tsx
-msgid "Promote pawn"
-msgstr "Promote pawn"
+#~ msgid "Promote pawn"
+#~ msgstr "Promote pawn"
 
 #: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 #~ msgid "Promote the pawn."
@@ -5237,8 +5240,8 @@ msgstr "Puzzle"
 #~ msgstr "Puzzle {puzzleId} · rating {rating}"
 
 #: pkgs/chess-board/src/chess-board-promotion.tsx
-msgid "Queen"
-msgstr "Queen"
+#~ msgid "Queen"
+#~ msgstr "Queen"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Queen and rook combined. Beautifully done."
@@ -5803,8 +5806,8 @@ msgstr "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cm
 #~ msgstr "Rip the kingside open. The king is the target."
 
 #: pkgs/chess-board/src/chess-board-promotion.tsx
-msgid "Rook"
-msgstr "Rook"
+#~ msgid "Rook"
+#~ msgstr "Rook"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Rook active — keep it working."

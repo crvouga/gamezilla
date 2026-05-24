@@ -71,11 +71,7 @@ export class PatchDbImplSqlite implements PatchDb {
   ) {}
 
   async migrate(): Promise<void> {
-    const indexes = this.opts.indexes;
-    await migratePatchDbSqlite(
-      this.sqlClient,
-      indexes !== undefined ? { indexes } : undefined
-    );
+    await migratePatchDbSqlite(this.sqlClient);
     this.hasEnsuredCoreTables = true;
   }
 
@@ -99,11 +95,7 @@ export class PatchDbImplSqlite implements PatchDb {
     this.ensureCoreTablesInFlight = (async () => {
       const tableNames = await this.queryCoreTableNames();
       if (!this.hasRequiredCoreTables(tableNames)) {
-        const indexes = this.opts.indexes;
-        await migratePatchDbSqlite(
-          this.sqlClient,
-          indexes !== undefined ? { indexes } : undefined
-        );
+        await migratePatchDbSqlite(this.sqlClient);
       }
       this.hasEnsuredCoreTables = true;
     })();

@@ -20,11 +20,20 @@ export const SPACE_ENTITY_TYPE = spaceNs.prefix;
 
 export const SpaceAttr = {
   title: spaceNs.textOrNull('title', readNonEmptyStringOrNull),
-  /** Host's id (account id when signed in, else install id). */
-  hostId: spaceNs.textOrNull('host-id', readNonEmptyStringOrNull),
-  createdAt: spaceNs.timestampOrNull('created-at', readTrimmedNullableString),
-  /** `null` when the space is still live; ISO timestamp string when ended. */
-  endedAt: spaceNs.timestampOrNull('ended-at', readTrimmedNullableString),
+  /** Host's id (account id when signed in, else install id). Indexed so the
+   * `WHERE host-id = ?` lookup during reconnect is a single btree probe. */
+  hostId: spaceNs.textOrNull('host-id', readNonEmptyStringOrNull).indexed(),
+  /** Indexed + sortable: the lobby lists live spaces newest-first
+   * (`ORDER BY created-at DESC`); without a btree this sorts the entire
+   * space table on every list refresh. */
+  createdAt: spaceNs
+    .timestampOrNull('created-at', readTrimmedNullableString)
+    .indexed({ sortable: true }),
+  /** `null` when the space is still live; ISO timestamp string when ended.
+   * Indexed so "list live spaces" (`WHERE ended-at IS NULL`) is fast. */
+  endedAt: spaceNs
+    .timestampOrNull('ended-at', readTrimmedNullableString)
+    .indexed(),
 } as const;
 
 /**
@@ -36,15 +45,19 @@ export const spaceMembershipNs = createAttrNamespace('space', 'membership');
 export const SPACE_MEMBERSHIP_ENTITY_TYPE = spaceMembershipNs.prefix;
 
 export const SpaceMembershipAttr = {
-  guestId: spaceMembershipNs.text('guest-id', readString),
-  spaceId: spaceMembershipNs.text('space-id', readString),
-  joinedAt: spaceMembershipNs.timestampOrNull(
-    'joined-at',
-    readTrimmedNullableString
-  ),
-  /** `null` while membership is active; ISO timestamp when the member left. */
-  leftAt: spaceMembershipNs.timestampOrNull(
-    'left-at',
-    readTrimmedNullableString
-  ),
+  /** Indexed: "what spaces is this guest in" is the hot reconnect query. */
+  guestId: spaceMembershipNs.text('guest-id', readString).indexed(),
+  /** Indexed: "who's in this space" is read on every member join/leave. */
+  spaceId: spaceMembershipNs.text('space-id', readString).indexed(),
+  /** Indexed + sortable: the membership UI sorts members by join order
+   * (`ORDER BY joined-at ASC`) so this needs a btree to avoid a per-space
+   * sort over the full member set. */
+  joinedAt: spaceMembershipNs
+    .timestampOrNull('joined-at', readTrimmedNullableString)
+    .indexed({ sortable: true }),
+  /** `null` while membership is active; ISO timestamp when the member left.
+   * Indexed so "active members of space X" (`WHERE left-at IS NULL`) is fast. */
+  leftAt: spaceMembershipNs
+    .timestampOrNull('left-at', readTrimmedNullableString)
+    .indexed(),
 } as const;

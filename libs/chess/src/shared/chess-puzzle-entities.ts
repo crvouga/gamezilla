@@ -60,17 +60,27 @@ function readStringArray(v: unknown): string[] {
 const chessPuzzleNs = createAttrNamespace('chess', 'puzzle');
 
 export const ChessPuzzleAttr = {
-  /** Lichess `PuzzleId` (same as entity id). */
-  id: chessPuzzleNs.text('id', readString),
+  /** Lichess `PuzzleId` (same as entity id). Indexed so picker / player
+   * lookups by puzzle id hit a unique btree on a typed `TEXT` generated
+   * column instead of falling back to a `WHERE entity_type = ?` scan. */
+  id: chessPuzzleNs.text('id', readString).indexed({ unique: true }),
   fen: chessPuzzleNs.text('fen', readString),
   /** Space-separated UCI moves from the export. */
   moves: chessPuzzleNs.text('moves', readString),
-  rating: chessPuzzleNs.integer('rating', readNonNegativeInteger),
+  /** Indexed + sortable: the puzzle picker walks puzzles in a rating window
+   * (`WHERE rating BETWEEN ? AND ?`), which is unworkable as a JSONB scan. */
+  rating: chessPuzzleNs.integer('rating', readNonNegativeInteger).indexed({
+    sortable: true,
+  }),
   ratingDeviation: chessPuzzleNs.integer(
     'rating-deviation',
     readNonNegativeInteger
   ),
-  popularity: chessPuzzleNs.integer('popularity', readInteger),
+  /** Indexed + sortable: `ORDER BY popularity DESC LIMIT N` is the hot path
+   * for the picker; without a numeric btree this sorts 5M rows. */
+  popularity: chessPuzzleNs.integer('popularity', readInteger).indexed({
+    sortable: true,
+  }),
   nbPlays: chessPuzzleNs.integer('nb-plays', readNonNegativeInteger),
   themes: chessPuzzleNs.array('themes', readStringArray),
   gameUrl: chessPuzzleNs.urlOrNull('game-url', readTrimmedNullableString),

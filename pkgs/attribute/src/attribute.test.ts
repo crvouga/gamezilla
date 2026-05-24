@@ -260,3 +260,60 @@ describe('enum tag', () => {
     ).toThrow();
   });
 });
+
+describe('indexed()', () => {
+  it('returns null index by default', () => {
+    const ns = createAttrNamespace('demo');
+    const Tag = ns.text('name', (v) => String(v));
+    expect(Tag.index).toBeNull();
+  });
+
+  it('returns a tag with index spec set, preserving identity', () => {
+    const ns = createAttrNamespace('demo');
+    const Base = ns.integer('rating', (v) => Number(v));
+    const Indexed = Base.indexed({ sortable: true });
+    expect(Indexed.key).toBe(Base.key);
+    expect(Indexed.dataType).toBe('integer');
+    expect(Indexed.nullable).toBe(false);
+    expect(Indexed.parse(42)).toBe(42);
+    expect(Indexed.index).toEqual({ sortable: true, unique: false });
+  });
+
+  it('defaults sortable/unique to false', () => {
+    const ns = createAttrNamespace('demo');
+    const Tag = ns.text('owner', (v) => String(v)).indexed();
+    expect(Tag.index).toEqual({ sortable: false, unique: false });
+  });
+
+  it('supports unique: true', () => {
+    const ns = createAttrNamespace('demo');
+    const Tag = ns.uuid('id', (v) => String(v)).indexed({ unique: true });
+    expect(Tag.index).toEqual({ sortable: false, unique: true });
+  });
+
+  it('is idempotent — repeated calls overwrite, never accumulate', () => {
+    const ns = createAttrNamespace('demo');
+    const Base = ns.text('owner', (v) => String(v));
+    const A = Base.indexed({ sortable: true });
+    const B = A.indexed({ unique: true });
+    expect(B.index).toEqual({ sortable: false, unique: true });
+  });
+
+  it('rejects indexed() on json tags (no scalar column form)', () => {
+    const ns = createAttrNamespace('demo');
+    const Tag = ns.json('payload', (v) => v as Record<string, unknown>);
+    expect(() => Tag.indexed()).toThrow();
+  });
+
+  it('rejects indexed() on array tags', () => {
+    const ns = createAttrNamespace('demo');
+    const Tag = ns.array('tags', (v) => (v as string[]) ?? []);
+    expect(() => Tag.indexed()).toThrow();
+  });
+
+  it('rejects indexed() on binary tags', () => {
+    const ns = createAttrNamespace('demo');
+    const Tag = ns.binary('blob', (v) => v as Uint8Array);
+    expect(() => Tag.indexed()).toThrow();
+  });
+});

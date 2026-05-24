@@ -226,32 +226,21 @@ function HighlightsSection(): ReactNode {
 }
 
 function PromotionSection(): ReactNode {
-  const [style, setStyle] = useState<'inline' | 'modal'>('inline');
   const [resetNonce, setResetNonce] = useState(0);
-  const { t } = useLingui();
   return (
     <ExampleSection
       title={<Trans>Promotion</Trans>}
       description={
         <Trans>
-          Move the white pawn to a8 to trigger promotion. Inline picker is the
-          default.
+          Move the white pawn to a8 to trigger the inline canvas promotion
+          picker.
         </Trans>
       }
     >
       <Stack spacing={3}>
-        <SegmentedControl
-          segments={[
-            { key: 'inline', label: t`Inline` },
-            { key: 'modal', label: t`Modal (legacy)` },
-          ]}
-          selected={style}
-          onSelect={(k) => setStyle(k as 'inline' | 'modal')}
-        />
         <ChessBoard
           key={`promo-${resetNonce}`}
           fen={PRE_PROMOTION_FEN}
-          promotionStyle={style}
           showCoordinates
           highlightLastMove
           highlightLegalMoves

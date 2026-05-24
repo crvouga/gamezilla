@@ -13,9 +13,9 @@ import {
   type AttributeKey,
   type PatchEntityType,
 } from './entity-key';
-import type { PatchDbIndexSpec } from './indexes/index-spec';
 import { PatchMetaAttr } from './metadata/patch-metadata';
 import type { PatchDbCompactionPolicyResolver } from './policy/compaction-policy';
+import type { FrozenEntitySchemaRegistry } from './schema/entity-schema-registry';
 
 export {
   asEntityType,
@@ -539,18 +539,66 @@ export type PatchDbEngineOptions = {
    */
   compactionPolicy?: PatchDbCompactionPolicyResolver;
   /**
-   * Declarative snapshot indexes. Reconciled (create missing, drop orphaned)
-   * during the engine's `migrateUp`. The library only manages indexes whose
-   * name starts with `pdb_idx_` and never touches indexes outside that prefix
-   * (engine-owned indexes from {@link MIGRATIONS} are kept; everything else is
-   * the app's responsibility).
+   * Frozen registry of {@link EntitySchema}s for every entity type this
+   * deployment writes / reads. Apps build it via
+   * {@link createEntitySchemaRegistry} at boot from feature-package schema
+   * exports and freeze before passing in.
+   *
+   * Used by the engine for:
+   * - Reconciling generated columns + native btrees on the entity-type
+   *   partitions (replaces the legacy `indexes` option).
+   * - Tiger-style query asserts: reads that touch undeclared / unindexed
+   *   attributes crash instead of fanning out to a Seq Scan.
    */
-  indexes?: readonly PatchDbIndexSpec[];
+  schemaRegistry?: FrozenEntitySchemaRegistry;
+  /**
+   * When `true` (default whenever `schemaRegistry` is provided), every
+   * incoming query is validated against the registry before SQL generation:
+   * undeclared entity types, undeclared attributes, and `where`/`orderBy`
+   * positions that demand an index against a non-indexed attribute all
+   * crash loudly. Pass `false` to opt out (e.g. during a staged rollout).
+   *
+   * See `assertQueryAgainstSchema` for the exact rules and allowlist.
+   */
+  assertQueriesAgainstSchema?: boolean;
+  /**
+   * Engages the dev-time `EXPLAIN (FORMAT JSON)` guard around snapshot /
+   * patches scan queries. Adds one extra round-trip per guarded query and
+   * crashes (or warns) on `Seq Scan` over a guarded relation.
+   *
+   * Defaults to `off`. The env var `PATCH_DB_EXPLAIN_GUARD` (`1` / `crash`,
+   * `warn`, `0` / `off`) overrides this. Intended for dev / CI; do not
+   * enable in production hot paths.
+   */
+  explainGuard?: 'off' | 'warn' | 'crash';
 };
 
 export type {
   PatchDbIndexAttributeRef,
-  PatchDbIndexField as PatchDbIndexColumn,
+  PatchDbIndexField,
   PatchDbIndexSpec,
   PatchDbIndexWhere,
 } from './indexes/index-spec';
+
+// `assertQueryAgainstSchema` is exported only via `@pkgs/patch-db/schema`
+// to avoid an `interface.ts -> schema/index.ts -> assert-query.ts ->
+// interface.ts` import cycle (dependency-cruiser rejects). The two
+// imports below cherry-pick from leaf modules instead of the schema
+// barrel for the same reason.
+export {
+  defineEntitySchema,
+  type CompositeIndexFieldSpec,
+  type CompositeIndexSpec,
+  type DefineEntitySchemaArgs,
+  type EntitySchema,
+  type EntitySchemaIndex,
+  type EntitySchemaIndexDirection,
+  type EntitySchemaIndexField,
+  type EntitySchemaWherePredicate,
+} from './schema/entity-schema';
+export {
+  createEntitySchemaRegistry,
+  EMPTY_FROZEN_ENTITY_SCHEMA_REGISTRY,
+  EntitySchemaRegistry,
+  type FrozenEntitySchemaRegistry,
+} from './schema/entity-schema-registry';

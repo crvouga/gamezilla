@@ -58,7 +58,8 @@ function readString(v: unknown): string {
 const intNs = createAttrNamespace('chess', 'puzzle', 'interaction');
 
 export const ChessPuzzleInteractionAttr = {
-  ownerId: intNs.text('owner-id', readNonEmptyString),
+  /** Indexed: rating recompute walks an owner's interaction history. */
+  ownerId: intNs.text('owner-id', readNonEmptyString).indexed(),
   puzzleId: intNs.text('puzzle-id', readNonEmptyString),
   puzzleRating: intNs.integer('puzzle-rating', readNonNegativeInteger),
   kind: intNs.enum(
@@ -75,7 +76,8 @@ export const ChessPuzzleInteractionAttr = {
   solveIdx: intNs.integer('solve-idx', readNonNegativeInteger),
   uci: intNs.textOrNull('uci', readNullableNonEmptyString),
   correct: intNs.booleanOrNull('correct', readNullableBoolean),
-  at: intNs.timestamp('at', readString),
+  /** Indexed + sortable: history is fetched `ORDER BY at DESC LIMIT N`. */
+  at: intNs.timestamp('at', readString).indexed({ sortable: true }),
 } as const;
 
 /** Parsed interaction row used by derivation helpers. */

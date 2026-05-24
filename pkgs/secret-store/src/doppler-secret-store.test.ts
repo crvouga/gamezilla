@@ -127,11 +127,11 @@ describe('DopplerSecretStore', () => {
     );
   });
 
-  it('includes config query when configName is set', async () => {
+  it('includes config query when config is set', async () => {
     let url = '';
     const store = new DopplerSecretStore({
       token: 'tok',
-      configName: 'shared',
+      config: 'shared',
       fetchFn: mockFetch((input) => {
         url = fetchInputToUrl(input);
         return Promise.resolve(
