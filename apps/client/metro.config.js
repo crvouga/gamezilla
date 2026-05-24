@@ -1,6 +1,5 @@
 // @ts-check
 const { getDefaultConfig } = require('expo/metro-config');
-const fs = require('fs');
 const path = require('path');
 
 const projectRoot = __dirname;
@@ -46,36 +45,7 @@ config.resolver.unstable_enablePackageExports = true;
 //     Pin all such imports to the client's resolution.
 const dedupeAliasOrigin = path.join(projectRoot, 'package.json');
 const dedupeAliasPrefixes = ['@lingui/core', '@lingui/react', 'expo-router'];
-const chessBoardSrcRoot = path.join(monorepoRoot, 'pkgs/chess-board/src');
 const previousResolveRequest = config.resolver.resolveRequest;
-
-/**
- * Metro's package-exports resolver substitutes `*` into the first matching
- * pattern only (e.g. `./src/*.ts`) and does not fall through to `./src/*.tsx`
- * when the `.ts` file is absent. `@pkgs/chess-board` mixes flat `.ts` and
- * `.tsx` entrypoints, so resolve both extensions explicitly.
- */
-/** @param {string} moduleName */
-function resolveChessBoardSubpath(moduleName) {
-  if (!moduleName.startsWith('@pkgs/chess-board/')) return null;
-  const subpath = moduleName.slice('@pkgs/chess-board/'.length);
-  if (!subpath || subpath.includes('..')) return null;
-  for (const ext of ['.tsx', '.ts']) {
-    const candidate = path.join(chessBoardSrcRoot, `${subpath}${ext}`);
-    if (fs.existsSync(candidate)) {
-      return { type: 'sourceFile', filePath: candidate };
-    }
-  }
-  const indexTs = path.join(chessBoardSrcRoot, subpath, 'index.ts');
-  if (fs.existsSync(indexTs)) {
-    return { type: 'sourceFile', filePath: indexTs };
-  }
-  const indexTsx = path.join(chessBoardSrcRoot, subpath, 'index.tsx');
-  if (fs.existsSync(indexTsx)) {
-    return { type: 'sourceFile', filePath: indexTsx };
-  }
-  return null;
-}
 // @ts-ignore
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   const matchesDedupeAlias = dedupeAliasPrefixes.some(
@@ -87,10 +57,6 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       return previousResolveRequest(aliasContext, moduleName, platform);
     }
     return aliasContext.resolveRequest(aliasContext, moduleName, platform);
-  }
-  const chessBoardResolved = resolveChessBoardSubpath(moduleName);
-  if (chessBoardResolved !== null) {
-    return chessBoardResolved;
   }
   if (typeof previousResolveRequest === 'function') {
     return previousResolveRequest(context, moduleName, platform);
