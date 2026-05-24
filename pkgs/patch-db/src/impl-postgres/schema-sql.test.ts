@@ -15,8 +15,12 @@ test('postgres migrations: no `snapshots` parent / partition / view (reconciler 
   // (see `pg-reconcile.ts`). Mentioning `snapshots` here would defeat the
   // legacy-detection step in `migrate.ts` (it would re-create a parent
   // right after we just dropped one).
-  expect(MIGRATIONS).not.toMatch(/CREATE\s+TABLE\s+(IF\s+NOT\s+EXISTS\s+)?snapshots\b/i);
-  expect(MIGRATIONS).not.toMatch(/CREATE\s+VIEW\s+(IF\s+NOT\s+EXISTS\s+)?snapshots\b/i);
+  expect(MIGRATIONS).not.toMatch(
+    /CREATE\s+TABLE\s+(IF\s+NOT\s+EXISTS\s+)?snapshots\b/i
+  );
+  expect(MIGRATIONS).not.toMatch(
+    /CREATE\s+VIEW\s+(IF\s+NOT\s+EXISTS\s+)?snapshots\b/i
+  );
   expect(MIGRATIONS).not.toContain('PARTITION OF snapshots');
   expect(MIGRATIONS).not.toContain('PARTITION BY LIST');
 });

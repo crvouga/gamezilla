@@ -84,9 +84,7 @@ export type DesiredPgLayout = {
   readonly tables: ReadonlyMap<string, DesiredEntityTable>;
 };
 
-function buildSingleIndex(
-  spec: GeneratedColumnSpec
-): DesiredSingleIndex {
+function buildSingleIndex(spec: GeneratedColumnSpec): DesiredSingleIndex {
   return {
     indexName: singleColumnIndexNameFor(spec.columnName),
     columnName: spec.columnName,
@@ -108,7 +106,11 @@ function resolveCompositeColumn(
   assert.defined(
     gen,
     'composite index references an attribute that has no generated column (mark it `.indexed()` and use a scalar data type)',
-    { entityType: ctx.entityType, compositeName: ctx.localName, attribute: attributeKey }
+    {
+      entityType: ctx.entityType,
+      compositeName: ctx.localName,
+      attribute: attributeKey,
+    }
   );
   return { columnName: gen.columnName, direction };
 }
@@ -121,7 +123,11 @@ function resolveCompositePredicate(
   assert.defined(
     gen,
     'composite index `where` predicate references an attribute with no generated column (mark it `.indexed()` and use a scalar data type)',
-    { entityType: ctx.entityType, compositeName: ctx.localName, attribute: attributeKey }
+    {
+      entityType: ctx.entityType,
+      compositeName: ctx.localName,
+      attribute: attributeKey,
+    }
   );
   return { columnName: gen.columnName };
 }

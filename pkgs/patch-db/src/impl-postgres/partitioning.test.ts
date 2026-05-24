@@ -88,7 +88,9 @@ describe('computeGeneratedColumns', () => {
     const score = byName.get(`${PATCH_DB_GENERATED_COLUMN_PREFIX}task__score`);
     expect(score?.attribute).toBe(QTask.score.key);
     expect(score?.dataType).toBe('number');
-    const status = byName.get(`${PATCH_DB_GENERATED_COLUMN_PREFIX}task__status`);
+    const status = byName.get(
+      `${PATCH_DB_GENERATED_COLUMN_PREFIX}task__status`
+    );
     expect(status?.attribute).toBe(QTask.status.key);
     expect(status?.dataType).toBe('text');
   });
@@ -170,6 +172,8 @@ describe('buildPartitionLayout / buildPartitionInfo', () => {
     });
     const info = buildPartitionInfo(schema);
     const col = info.columnsByAttribute.get(QTask.score.key);
-    expect(col?.columnName).toBe(`${PATCH_DB_GENERATED_COLUMN_PREFIX}task__score`);
+    expect(col?.columnName).toBe(
+      `${PATCH_DB_GENERATED_COLUMN_PREFIX}task__score`
+    );
   });
 });

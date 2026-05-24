@@ -67,7 +67,7 @@ describe('assertWireReadResponse: optional metrics', () => {
               elapsedMs: 1,
               sortIndex: 0,
               partition: 'snapshots__chess_puzzle',
-              plan: { 'Plan': { Node: 'Index Scan' } },
+              plan: { Plan: { Node: 'Index Scan' } },
             },
           }),
         ],

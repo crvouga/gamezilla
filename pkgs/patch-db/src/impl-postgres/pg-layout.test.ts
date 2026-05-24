@@ -8,10 +8,7 @@
 import { assert } from '@pkgs/assert';
 import { createAttrNamespace } from '@pkgs/attribute';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import {
-  createEntitySchemaRegistry,
-  defineEntitySchema,
-} from '../schema';
+import { createEntitySchemaRegistry, defineEntitySchema } from '../schema';
 import {
   compositeIndexNameFor,
   generatedColumnNameFor,
@@ -44,13 +41,17 @@ const TaskAttr = {
     .indexed({ sortable: true }),
   status: taskNs.text('status', (v) => String(v ?? '')).indexed(),
   title: taskNs.text('title', (v) => String(v ?? '')),
-  themes: taskNs.array('themes', (v) => (Array.isArray(v) ? (v as string[]) : [])),
+  themes: taskNs.array('themes', (v) =>
+    Array.isArray(v) ? (v as string[]) : []
+  ),
 };
 
 describe('computeDesiredPgLayout: per-entity tables + generated columns', () => {
   test('one per-entity table per registered schema, keyed by table name', () => {
     const registry = createEntitySchemaRegistry()
-      .register(defineEntitySchema({ entityType: 'task', attributes: TaskAttr }))
+      .register(
+        defineEntitySchema({ entityType: 'task', attributes: TaskAttr })
+      )
       .register(
         defineEntitySchema({
           entityType: 'other',
@@ -68,14 +69,18 @@ describe('computeDesiredPgLayout: per-entity tables + generated columns', () => 
 
   test('only `.indexed()` scalar attributes become generated columns; arrays are skipped', () => {
     const registry = createEntitySchemaRegistry()
-      .register(defineEntitySchema({ entityType: 'task', attributes: TaskAttr }))
+      .register(
+        defineEntitySchema({ entityType: 'task', attributes: TaskAttr })
+      )
       .freeze();
     const layout = computeDesiredPgLayout(registry);
     const table = layout.tables.get(partitionTableName('task'));
     expect(table).toBeDefined();
     expect(table?.generatedColumns.size).toBe(3);
     expect(
-      table?.generatedColumns.has(generatedColumnNameFor('task', TaskAttr.id.key))
+      table?.generatedColumns.has(
+        generatedColumnNameFor('task', TaskAttr.id.key)
+      )
     ).toBe(true);
     expect(
       table?.generatedColumns.has(
@@ -91,7 +96,9 @@ describe('computeDesiredPgLayout: per-entity tables + generated columns', () => 
 
   test('every generated column gets one single-column btree, named `<col>_idx`', () => {
     const registry = createEntitySchemaRegistry()
-      .register(defineEntitySchema({ entityType: 'task', attributes: TaskAttr }))
+      .register(
+        defineEntitySchema({ entityType: 'task', attributes: TaskAttr })
+      )
       .freeze();
     const layout = computeDesiredPgLayout(registry);
     const table = layout.tables.get(partitionTableName('task'));
@@ -104,7 +111,9 @@ describe('computeDesiredPgLayout: per-entity tables + generated columns', () => 
 
   test('each per-entity table carries a per-table GIN index name', () => {
     const registry = createEntitySchemaRegistry()
-      .register(defineEntitySchema({ entityType: 'task', attributes: TaskAttr }))
+      .register(
+        defineEntitySchema({ entityType: 'task', attributes: TaskAttr })
+      )
       .freeze();
     const layout = computeDesiredPgLayout(registry);
     const table = layout.tables.get(partitionTableName('task'));
@@ -161,10 +170,7 @@ describe('computeDesiredPgLayout: composite indexes', () => {
             {
               name: 'rating-status-strict',
               unique: true,
-              fields: [
-                { tag: TaskAttr.rating },
-                { tag: TaskAttr.status },
-              ],
+              fields: [{ tag: TaskAttr.rating }, { tag: TaskAttr.status }],
               where: [{ kind: 'attributeIsNotNull', tag: TaskAttr.status }],
             },
           ],

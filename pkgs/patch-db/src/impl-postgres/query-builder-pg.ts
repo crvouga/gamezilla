@@ -17,10 +17,7 @@ import {
   type WhereFragment,
 } from './query-builder-pg-where';
 
-export type {
-  WhereFragment,
-  WhereCtx,
-} from './query-builder-pg-where';
+export type { WhereFragment, WhereCtx } from './query-builder-pg-where';
 export {
   MAX_SUBQUERY_DEPTH,
   buildWhereClauseForColumn,

@@ -155,8 +155,7 @@ export function diffSingleIndexes(
   }
   const toAdd: SingleIndexOnTable[] = [];
   for (const table of desired.tables.values()) {
-    const liveNames =
-      liveByTable.get(table.tableName) ?? new Set<string>();
+    const liveNames = liveByTable.get(table.tableName) ?? new Set<string>();
     for (const spec of table.singleIndexes.values()) {
       if (!liveNames.has(spec.indexName)) {
         toAdd.push({ tableName: table.tableName, spec });
@@ -193,8 +192,7 @@ export function diffCompositeIndexes(
   }
   const toAdd: CompositeIndexOnTable[] = [];
   for (const table of desired.tables.values()) {
-    const liveNames =
-      liveByTable.get(table.tableName) ?? new Set<string>();
+    const liveNames = liveByTable.get(table.tableName) ?? new Set<string>();
     for (const spec of table.compositeIndexes.values()) {
       if (!liveNames.has(spec.indexName)) {
         toAdd.push({ tableName: table.tableName, spec });
@@ -204,8 +202,7 @@ export function diffCompositeIndexes(
   const toDrop: IndexRefOnTable[] = [];
   for (const [tableName, liveNames] of liveByTable) {
     const desiredNames =
-      desiredByTable.get(tableName) ??
-      new Map<string, DesiredCompositeIndex>();
+      desiredByTable.get(tableName) ?? new Map<string, DesiredCompositeIndex>();
     for (const indexName of liveNames) {
       if (!desiredNames.has(indexName)) {
         toDrop.push({ tableName, indexName });
@@ -229,8 +226,7 @@ export function diffGinIndexes(
   }
   const toAdd: GinIndexOnTable[] = [];
   for (const table of desired.tables.values()) {
-    const liveNames =
-      liveByTable.get(table.tableName) ?? new Set<string>();
+    const liveNames = liveByTable.get(table.tableName) ?? new Set<string>();
     if (!liveNames.has(table.ginIndexName)) {
       toAdd.push({
         tableName: table.tableName,
