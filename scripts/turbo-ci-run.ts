@@ -8,9 +8,7 @@
 import { spawnSync } from 'node:child_process';
 
 function inCi(): boolean {
-  return (
-    process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true'
-  );
+  return process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true';
 }
 
 const cache = inCi() ? 'local:rw,remote:rw' : 'local:rw,remote:r';
