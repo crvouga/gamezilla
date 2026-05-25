@@ -1,22 +1,20 @@
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
+import { useSpaceRoomSelector } from '@libs/spaces/client/room/use-space-room-selector';
+import { Box } from '@pkgs/ui';
 import {
-  useSpaceRoomDispatch,
-  useSpaceRoomSelector,
-} from '@libs/spaces/client/room/use-space-room-selector';
-import { Box, Text } from '@pkgs/ui';
-import { Trans } from '@lingui/react/macro';
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import {
-  CHESS_PUZZLE_PLAY_STATUS,
-  ChessPuzzlePlayAttr,
-  StartChessPuzzlePlay,
-} from '../../shared/chess-puzzle-play';
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { ChessPuzzlePlayAttr } from '../../shared/chess-puzzle-play';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import { ChessPuzzleBoardSkeleton } from './chess-puzzle-board-skeleton';
-import { usePuzzleEntity } from './chess-puzzle-play-queries';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import { useNextPuzzleId } from './use-next-puzzle-id';
 import {
@@ -26,27 +24,7 @@ import {
 
 const BOARD_MAX_WIDTH = 720;
 
-function LoadingFirstPuzzle(): ReactNode {
-  return (
-    <Box
-      sx={{
-        alignSelf: 'stretch',
-        gap: 4,
-        px: 4,
-        pt: 8,
-        alignItems: 'center',
-      }}
-    >
-      <Text
-        variant="body"
-        sx={{ color: 'textSecondary', textAlign: 'center' }}
-        label={<Trans>Loading puzzle…</Trans>}
-      />
-    </Box>
-  );
-}
-
-function PuzzleBoardSlot(
+const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
   p: Pick<
     PuzzlePlayerChromeModel,
     | 'displayFen'
@@ -61,6 +39,10 @@ function PuzzleBoardSlot(
   if (p.displayFen === null || p.displayFen.length === 0) {
     return <ChessPuzzleBoardSkeleton />;
   }
+  // `cellFeedback` / `arrows` are always defined (memoized in their hooks
+  // with frozen empty defaults), so we pass them unconditionally. A
+  // conditional prop-spread would change the prop-bag shape every render
+  // and defeat the memo on `ChessBoard`'s canvas props.
   return (
     <ChessBoard
       controlled
@@ -72,13 +54,11 @@ function PuzzleBoardSlot(
       showCoordinates
       highlightLastMove
       highlightLegalMoves
-      {...(p.cellFeedback !== undefined
-        ? { cellFeedback: p.cellFeedback }
-        : {})}
-      {...(p.arrows.length > 0 ? { arrows: p.arrows } : {})}
+      cellFeedback={p.cellFeedback}
+      arrows={p.arrows}
     />
   );
-}
+});
 
 function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
   return (
@@ -115,7 +95,7 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
           hintStage={p.hintStage}
           onHint={p.onHint}
           onRetry={p.onRetry}
-          onNext={() => void p.onNext()}
+          onNext={p.onNext}
         />
       </Box>
     </Box>
@@ -127,6 +107,14 @@ type PuzzlePlayerProps = {
   onRequestNext: () => void;
 };
 
+/**
+ * The player itself is the long-lived component: it owns the Skia board,
+ * the chess.js game instance, the assistant, and all per-attempt local
+ * state. Cycling puzzles updates the `puzzleId` prop in place — the
+ * component instance survives, so we never tear down + rebuild the Skia
+ * canvas, re-rasterize the piece SVGs, or replay the slide-from-zero
+ * mount animation.
+ */
 function PuzzlePlayer({
   puzzleId,
   onRequestNext,
@@ -137,70 +125,77 @@ function PuzzlePlayer({
 
 export function PuzzlePlayScreen(): ReactNode {
   const myId = useMyId();
-  const dispatch = useSpaceRoomDispatch();
-  const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
 
   const [activePuzzleId, setActivePuzzleId] = useState<string | null>(null);
   const [attemptSeed, setAttemptSeed] = useState(0);
 
-  const { puzzleId: nextId, loading: nextLoading } = useNextPuzzleId({
+  /** Last attemptSeed value we've already swapped `activePuzzleId` for. */
+  const placedAttemptRef = useRef(0);
+
+  const { puzzleId: nextId } = useNextPuzzleId({
     currentPuzzleId: activePuzzleId ?? roomPuzzleId,
     seed: `${myId}-${attemptSeed}`,
   });
 
-  // Picking the next puzzle to render:
-  //   - First mount (`attemptSeed === 0`): if the room is mid-session, resume
-  //     it by mirroring `roomPuzzleId`; otherwise fall through to `nextId`.
-  //   - After the user pressed Next (`attemptSeed > 0`): the Clear command
-  //     is in-flight and `roomPuzzleId` is still the just-finished puzzle.
-  //     Wait until the Clear lands (`roomPuzzleId === null`) before picking
-  //     `nextId`, otherwise we'd snap right back to the old puzzle.
+  // Atomic puzzle-id swap: never null `activePuzzleId` between puzzles,
+  // so `PuzzlePlayer` stays mounted across the entire session.
+  //
+  //   1. First mount with no candidate yet (`activePuzzleId === null`):
+  //      resume the room session if there is one, else wait for `nextId`
+  //      and adopt it as soon as it's available.
+  //   2. Mid-session "Next" press (`attemptSeed > placedAttemptRef`):
+  //      wait for `ClearChessPuzzlePlay` to land (`roomPuzzleId === null`)
+  //      and for the candidate query to produce a fresh `nextId`, then
+  //      swap `activePuzzleId` in a single state update. The old id is
+  //      replaced directly, never via an intermediate `null`.
   useEffect(() => {
-    if (activePuzzleId !== null) return;
-    if (attemptSeed === 0 && roomPuzzleId !== null) {
-      setActivePuzzleId(roomPuzzleId);
+    if (activePuzzleId === null) {
+      if (attemptSeed === 0 && roomPuzzleId !== null) {
+        setActivePuzzleId(roomPuzzleId);
+        placedAttemptRef.current = attemptSeed;
+        return;
+      }
+      if (nextId !== null) {
+        setActivePuzzleId(nextId);
+        placedAttemptRef.current = attemptSeed;
+      }
       return;
     }
-    if (attemptSeed > 0 && roomPuzzleId !== null) return;
-    if (nextId !== null) {
-      setActivePuzzleId(nextId);
-    }
+    if (attemptSeed === placedAttemptRef.current) return;
+    if (roomPuzzleId !== null) return;
+    if (nextId === null || nextId === activePuzzleId) return;
+    setActivePuzzleId(nextId);
+    placedAttemptRef.current = attemptSeed;
   }, [activePuzzleId, attemptSeed, nextId, roomPuzzleId]);
 
-  const { fen, movesStr } = usePuzzleEntity(activePuzzleId ?? '');
-
-  useEffect(() => {
-    if (activePuzzleId === null) return;
-    if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) return;
-    if (fen.length === 0 || movesStr.length === 0) return;
-    dispatch(
-      StartChessPuzzlePlay({
-        puzzleId: activePuzzleId,
-        fen,
-        moves: movesStr,
-      })
-    );
-  }, [activePuzzleId, dispatch, fen, movesStr, roomStatus]);
-
   const onRequestNext = useCallback(() => {
-    setActivePuzzleId(null);
     setAttemptSeed((s) => s + 1);
   }, []);
 
-  if (nextLoading || activePuzzleId === null) {
+  // Until we have a first puzzle id, render only the skeleton in the
+  // board slot's footprint — but DO NOT unmount the player once it has
+  // mounted; pressing Next never re-enters this branch.
+  if (activePuzzleId === null) {
     return (
       <Box sx={{ alignSelf: 'stretch' }}>
-        <LoadingFirstPuzzle />
+        <Box
+          sx={{
+            alignSelf: 'center',
+            maxWidth: BOARD_MAX_WIDTH,
+            gap: 4,
+            pb: 8,
+            pt: 4,
+          }}
+          style={{ width: '100%' }}
+        >
+          <ChessPuzzleBoardSkeleton />
+        </Box>
       </Box>
     );
   }
 
   return (
-    <PuzzlePlayer
-      key={activePuzzleId}
-      puzzleId={activePuzzleId}
-      onRequestNext={onRequestNext}
-    />
+    <PuzzlePlayer puzzleId={activePuzzleId} onRequestNext={onRequestNext} />
   );
 }

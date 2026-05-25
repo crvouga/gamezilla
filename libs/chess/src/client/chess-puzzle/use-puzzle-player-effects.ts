@@ -9,16 +9,28 @@ import { solvedPuzzleKingSquare } from './chess-puzzle-solved-king-square';
 const CORRECT_FLASH_MS = 1500;
 
 export function usePuzzlePlayerEffects(args: {
+  puzzleId: string;
   solveIdx: number;
   status: ChessPuzzlePlayStatus | 'loading';
   displayFen: string | null;
 }): { showCorrectFlash: boolean; solvedCrownSquare: Square | null } {
-  const { solveIdx, status, displayFen } = args;
+  const { puzzleId, solveIdx, status, displayFen } = args;
   const prevSolveIdxRef = useRef(solveIdx);
   const [showCorrectFlash, setShowCorrectFlash] = useState(false);
   const [solvedCrownSquare, setSolvedCrownSquare] = useState<Square | null>(
     null
   );
+
+  // The screen no longer remounts the player on puzzle change, so we have
+  // to explicitly reset the cross-puzzle bookkeeping: a stale crown from
+  // the previous solved puzzle would otherwise paint on the new board for
+  // up to `CORRECT_FLASH_MS`, and a stale `prevSolveIdx` could suppress
+  // the first correct-move flash on the new attempt.
+  useEffect(() => {
+    prevSolveIdxRef.current = 0;
+    setShowCorrectFlash(false);
+    setSolvedCrownSquare(null);
+  }, [puzzleId]);
 
   useEffect(() => {
     if (

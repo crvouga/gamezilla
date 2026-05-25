@@ -1,5 +1,5 @@
 import { Canvas } from '@shopify/react-native-skia';
-import { type ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 import { ChessBoardArrows } from './chess-board-arrows';
 import { ChessBoardFeedback } from './chess-board-feedback';
 import {
@@ -198,7 +198,7 @@ function OverlayLayers(p: OverlayLayersProps): ReactNode {
   );
 }
 
-export function ChessBoardCanvasContent(
+function ChessBoardCanvasContentImpl(
   props: ChessBoardCanvasContentProps
 ): ReactNode {
   const { size, game, interaction } = props;
@@ -246,3 +246,5 @@ export function ChessBoardCanvasContent(
     </Canvas>
   );
 }
+
+export const ChessBoardCanvasContent = memo(ChessBoardCanvasContentImpl);

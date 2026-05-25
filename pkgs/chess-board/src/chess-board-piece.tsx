@@ -5,7 +5,7 @@ import {
   MipmapMode,
   type SkImage,
 } from '@shopify/react-native-skia';
-import { useEffect, type ReactNode } from 'react';
+import { memo, useEffect, useRef, type ReactNode } from 'react';
 import type { SharedValue } from 'react-native-reanimated';
 import {
   Easing,
@@ -38,7 +38,7 @@ export type ChessBoardPieceSkiaProps = {
 };
 
 /* eslint-disable max-lines-per-function */
-export function ChessBoardPieceSkia(
+function ChessBoardPieceSkiaImpl(
   props: ChessBoardPieceSkiaProps
 ): ReactNode {
   const {
@@ -57,7 +57,20 @@ export function ChessBoardPieceSkia(
   const opacity = useSharedValue(fadeInOnMount ? 0 : 1);
   const scaleSV = useSharedValue(restScale);
 
+  // The position effect must not animate on the FIRST render — the shared
+  // value initializer already seeded the correct target, so a withTiming
+  // call here would either be a no-op (size>0 path) or animate from a
+  // stale `(0,0)` (size=0 path, now guarded in `ChessBoard`). Either way,
+  // skipping the first run is correct and saves a needless Reanimated
+  // worklet dispatch per piece per mount (× 32 pieces = ~32 hops).
+  const isFirstPositionRef = useRef(true);
   useEffect(() => {
+    if (isFirstPositionRef.current) {
+      isFirstPositionRef.current = false;
+      topLeftX.value = targetCenterX - pieceSize / 2;
+      topLeftY.value = targetCenterY - pieceSize / 2;
+      return;
+    }
     topLeftX.value = withTiming(targetCenterX - pieceSize / 2, {
       duration: MOVE_MS,
       easing: Easing.out(Easing.cubic),
@@ -131,6 +144,8 @@ export function ChessBoardPieceSkia(
     </Group>
   );
 }
+
+export const ChessBoardPieceSkia = memo(ChessBoardPieceSkiaImpl);
 
 export type ChessBoardDragPieceSkiaProps = {
   image: SkImage;

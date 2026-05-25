@@ -1,7 +1,7 @@
 import { assert } from '@pkgs/assert';
 import { Box, useTheme } from '@pkgs/ui';
 import { assertSkiaWebLoaded } from '@pkgs/ui/components/skia-web-root';
-import { useMemo, useState, type ReactNode } from 'react';
+import { memo, useCallback, useMemo, useState, type ReactNode } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import type { ChessBoardCanvasProps } from './chess-board-canvas';
 import { useChessBoardCanvas } from './chess-board-canvas-runtime';
@@ -176,7 +176,21 @@ function useChessBoardCanvasProps(
   );
 }
 
-export function ChessBoard(props: ChessBoardProps): ReactNode {
+/**
+ * Stable styles for the outer measured/explicit-size shells. Module-level
+ * constants so React.memo on the wrapped board can shallow-compare.
+ */
+const MEASURED_STYLE = {
+  width: '100%' as const,
+  aspectRatio: 1,
+  overflow: 'visible' as const,
+};
+
+function explicitSizeStyle(size: number) {
+  return { width: size, height: size, overflow: 'visible' as const };
+}
+
+function ChessBoardImpl(props: ChessBoardProps): ReactNode {
   assertSkiaWebLoaded();
 
   const { size, testID, theme: themeOverride } = props;
@@ -190,12 +204,19 @@ export function ChessBoard(props: ChessBoardProps): ReactNode {
   const [measured, setMeasured] = useState<number | null>(null);
   const boardSize = size ?? measured ?? 0;
 
-  const onLayout = (e: LayoutChangeEvent) => {
-    if (size !== undefined) return;
-    const w = e.nativeEvent.layout.width;
-    const next = Math.floor(w);
-    if (next > 0 && next !== measured) setMeasured(next);
-  };
+  // `setMeasured`'s closure captures `measured` per render; wrapping in
+  // `useCallback([measured, size])` is fine — the dep set is tiny, and the
+  // alternative (functional updater) would still allocate a new closure
+  // every render under React's strict-mode double-invoke.
+  const onLayout = useCallback(
+    (e: LayoutChangeEvent) => {
+      if (size !== undefined) return;
+      const w = e.nativeEvent.layout.width;
+      const next = Math.floor(w);
+      if (next > 0 && next !== measured) setMeasured(next);
+    },
+    [measured, size]
+  );
 
   const canvasProps = useChessBoardCanvasProps(props, boardSize, theme);
 
@@ -220,19 +241,33 @@ export function ChessBoard(props: ChessBoardProps): ReactNode {
   const ChessBoardCanvas = useChessBoardCanvas();
   assert.defined(ChessBoardCanvas, 'ChessBoardCanvas must be defined');
 
+  // Gate the canvas until we have a real measured size. Skipping this
+  // mount-step is the single most important fix for the "pieces slide
+  // from top-left" mount animation: `ChessBoardPieceSkia` seeds its
+  // `useSharedValue` with `targetCenterX/Y - pieceSize/2`. If we render
+  // it once with `size=0` those shared values lock onto `(0,0)`, and the
+  // next render's `useEffect` `withTiming` animates from `(0,0)` to the
+  // real target. By only mounting the canvas after `onLayout` has
+  // produced a non-zero width, the shared values are seeded at the
+  // correct target on the very first frame and the animation effect
+  // becomes a no-op (timing from x → x). Total cost: at most one extra
+  // frame on first mount (`<Box aspectRatio=1>` measures synchronously
+  // after first commit).
+  const canvasReady = boardSize > 0;
+
   return (
     <Box
       testID={testID}
       onLayout={onLayout}
       sx={{ alignSelf: 'center' }}
-      style={
-        size !== undefined
-          ? { width: size, height: size, overflow: 'visible' }
-          : { width: '100%', aspectRatio: 1, overflow: 'visible' }
-      }
+      style={size !== undefined ? explicitSizeStyle(size) : MEASURED_STYLE}
     >
-      {/* eslint-disable-next-line react-hooks/static-components -- see hook call above */}
-      <ChessBoardCanvas {...canvasProps} />
+      {canvasReady ? (
+        // eslint-disable-next-line react-hooks/static-components -- see hook call above
+        <ChessBoardCanvas {...canvasProps} />
+      ) : null}
     </Box>
   );
 }
+
+export const ChessBoard = memo(ChessBoardImpl);

@@ -28,10 +28,17 @@ export type BoardGesturesArgs = {
   onDragEnd: () => void;
   onHoverSquare?: (sq: Square | null) => void;
   onDrop: (fromSq: Square, toSq: Square) => void;
+  /**
+   * Single-hop finger-up commit. Replaces the previous 3-4
+   * `runOnJS(...)` calls inside `onPanEnd` with one bridge crossing —
+   * see {@link useChessBoardHandlers.commitDrop} for the ordering
+   * rationale (drop applies before dragFrom clears so the source square
+   * never flashes back the lifted piece for a frame).
+   */
+  commitDrop: (p: { startSq: Square | null; toSq: Square | null }) => void;
 };
 
 const PICKUP_IN_MS = 120;
-const PICKUP_OUT_MS = 140;
 const PICKUP_SCALE = 1.8;
 const PICKUP_OPACITY = 0.6;
 
@@ -148,6 +155,7 @@ type PanContext = {
   onDragEnd: () => void;
   onHoverSquare?: (sq: Square | null) => void;
   onDrop: (fromSq: Square, toSq: Square) => void;
+  commitDrop: (p: { startSq: Square | null; toSq: Square | null }) => void;
 };
 
 /** Encode `Square | null` as a number for SharedValue (worklets need primitives). */
@@ -194,42 +202,46 @@ function onPanUpdate(ctx: PanContext, e: { x: number; y: number }): void {
   emitHover(ctx, idx, hoverSq);
 }
 
+function snapPickupReset(ctx: PanContext): void {
+  'worklet';
+  // The overlay is hidden via `isDragging = false` (see
+  // `ChessBoardDragPieceSkia`'s `useDerivedValue`), so the previous
+  // `withTiming(... PICKUP_OUT_MS)` ramp on `dragPickupScale` /
+  // `dragPickupOpacity` was never visible — but every drop still paid
+  // for two reanimated timing worklets. Snap the values back instantly.
+  if (ctx.dragPickupScale) ctx.dragPickupScale.value = 1;
+  if (ctx.dragPickupOpacity) ctx.dragPickupOpacity.value = 1;
+}
+
 function onPanEnd(
   ctx: PanContext,
   e: { x: number; y: number; translationX: number; translationY: number }
 ): void {
   'worklet';
   if (!ctx.isDragging.value) return;
-  pickupTo(ctx, 1, 1, PICKUP_OUT_MS);
+  snapPickupReset(ctx);
   ctx.isDragging.value = false;
+  ctx.lastHoverIndex.value = HOVER_NONE;
 
   const toSq = xyToSquare(e.x, e.y, ctx.size, ctx.orientation);
   const startX = e.x - e.translationX;
   const startY = e.y - e.translationY;
   const startSq = xyToSquare(startX, startY, ctx.size, ctx.orientation);
 
-  ctx.lastHoverIndex.value = HOVER_NONE;
-  runOnJS(ctx.onDragEnd)();
-  if (ctx.onHoverSquare) {
-    runOnJS(ctx.onHoverSquare)(null);
-  }
-  runOnJS(ctx.setSelected)(null);
-
-  if (toSq !== null && startSq !== null && startSq !== toSq) {
-    runOnJS(ctx.onDrop)(startSq, toSq);
-  }
+  // Single bridge crossing. `commitDrop` handles drop + interaction-state
+  // teardown in one React-batched commit.
+  runOnJS(ctx.commitDrop)({ startSq, toSq });
 }
 
 function onPanFinalize(ctx: PanContext): void {
   'worklet';
   if (!ctx.isDragging.value) return;
-  pickupTo(ctx, 1, 1, PICKUP_OUT_MS);
+  snapPickupReset(ctx);
   ctx.isDragging.value = false;
   ctx.lastHoverIndex.value = HOVER_NONE;
-  runOnJS(ctx.onDragEnd)();
-  if (ctx.onHoverSquare) {
-    runOnJS(ctx.onHoverSquare)(null);
-  }
+  // No drop on cancel; the same commit path still tears down dragFrom /
+  // hover / selected with the null/null sentinel.
+  runOnJS(ctx.commitDrop)({ startSq: null, toSq: null });
 }
 
 function buildPanGesture(ctx: PanContext, interactive: boolean) {
@@ -271,6 +283,7 @@ function buildPanContext(
     onDragStart: args.onDragStart,
     onDragEnd: args.onDragEnd,
     onDrop: args.onDrop,
+    commitDrop: args.commitDrop,
   };
   if (args.dragPickupScale) ctx.dragPickupScale = args.dragPickupScale;
   if (args.dragPickupOpacity) ctx.dragPickupOpacity = args.dragPickupOpacity;
@@ -300,6 +313,7 @@ export function useBoardGestures(args: BoardGesturesArgs) {
     onDragEnd,
     onHoverSquare,
     onDrop,
+    commitDrop,
   } = args;
 
   return useMemo(() => {
@@ -326,6 +340,7 @@ export function useBoardGestures(args: BoardGesturesArgs) {
     interactive,
     legalTargets,
     onDrop,
+    commitDrop,
     onDragEnd,
     onDragStart,
     orientation,

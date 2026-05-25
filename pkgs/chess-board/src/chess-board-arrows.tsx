@@ -5,7 +5,7 @@ import {
   Skia,
   type SkPath,
 } from '@shopify/react-native-skia';
-import { useMemo, type ReactNode } from 'react';
+import { memo, useMemo, type ReactNode } from 'react';
 import type {
   BoardArrow,
   BoardOrientation,
@@ -226,7 +226,7 @@ export type ChessBoardArrowsProps = {
   theme: BoardTheme;
 };
 
-export function ChessBoardArrows(props: ChessBoardArrowsProps): ReactNode {
+function ChessBoardArrowsImpl(props: ChessBoardArrowsProps): ReactNode {
   const { arrows, size, orientation, theme } = props;
   if (arrows.length === 0) return null;
   return (
@@ -243,3 +243,5 @@ export function ChessBoardArrows(props: ChessBoardArrowsProps): ReactNode {
     </Group>
   );
 }
+
+export const ChessBoardArrows = memo(ChessBoardArrowsImpl);

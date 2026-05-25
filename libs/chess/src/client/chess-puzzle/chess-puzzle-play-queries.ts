@@ -1,8 +1,8 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { AbacEntityAttr } from '@pkgs/patch-db/abac/abac-entity-attr';
 import type { PatchDbQuery } from '@pkgs/patch-db/interface';
-import { useEntityAttribute, useQuery, useSync } from '@pkgs/patch-db/react';
-import { useEffect, useMemo } from 'react';
+import { useEntityAttribute, useQuery } from '@pkgs/patch-db/react';
+import { useMemo } from 'react';
 
 import {
   CHESS_PUZZLE_ENTITY_TYPE,
@@ -21,7 +21,6 @@ export function usePuzzleEntity(puzzleId: string): {
   rating: number;
   themes: readonly string[];
 } {
-  const sync = useSync();
   const selectedPuzzleSyncQuery = useMemo(
     (): PatchDbQuery => ({
       entityType: CHESS_PUZZLE_ENTITY_TYPE,
@@ -34,11 +33,10 @@ export function usePuzzleEntity(puzzleId: string): {
     }),
     [puzzleId]
   );
+  // The subscription itself triggers a server fetch when the query changes;
+  // a manual `runPollNow` here was firing on every puzzle transition and
+  // adding round-trip latency for no benefit.
   void useQuery(selectedPuzzleSyncQuery);
-
-  useEffect(() => {
-    void sync.runPollNow();
-  }, [puzzleId, sync]);
 
   const fen = useEntityAttribute(
     CHESS_PUZZLE_ENTITY_TYPE,

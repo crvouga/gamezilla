@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 import { View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { type SharedValue } from 'react-native-reanimated';
@@ -91,7 +91,7 @@ function inlinePromotion(p: PromotionInlineProps): ReactNode {
 /** Renders the board surface: gesture root → outer view → animated canvas
  * stack → optional inline drag piece + promotion overlay. Pure rendering;
  * all logic and state come from props. */
-export function ChessBoardView(p: ChessBoardViewProps): ReactNode {
+function ChessBoardViewImpl(p: ChessBoardViewProps): ReactNode {
   const { size } = p;
   const sqStyle = { width: size, height: size, overflow: 'visible' as const };
   return (
@@ -119,3 +119,5 @@ export function ChessBoardView(p: ChessBoardViewProps): ReactNode {
     </GestureDetector>
   );
 }
+
+export const ChessBoardView = memo(ChessBoardViewImpl);

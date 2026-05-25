@@ -8,28 +8,25 @@ import type { ChessBoardSounds } from './chess-board-sounds';
 import type { Move, PieceColor, Position, Square } from './chess-board-types';
 import type { useChessBoardApplyMoveSound } from './use-chess-board-apply-move-sound';
 import type { useChessGame, TryMoveResult } from './use-chess-game';
-import { moveRequiresPromotionOnFen, tryMoveOnFen } from './use-chess-game';
 import type { PendingPromotion } from './use-chess-board-interaction-state';
 
 type GameLike = ReturnType<typeof useChessGame>;
 type ApplyMoveSoundLike = ReturnType<typeof useChessBoardApplyMoveSound>;
 
 /**
- * Controlled boards validate on a copy (`tryMoveOnFen`) but must still apply
- * the ply to the live `useChessGame` instance so `lastMove` + `position` feed
- * `useChessPieceRows` / piece slide animations; parent `fen` then replaces via
- * `useExternalFenSync` (e.g. engine reply).
+ * Applies the ply to the live `useChessGame` instance so `lastMove` +
+ * `position` feed `useChessPieceRows` / piece slide animations. On
+ * controlled boards, `useExternalFenSync` keeps the live instance in
+ * lock-step with `rulesFen` via `useLayoutEffect` (sync runs before
+ * paint, so any drop the user can possibly trigger sees a fresh
+ * instance), which makes the previous throwaway `tryMoveOnFen(rulesFen)`
+ * dry-run pure waste — `new Chess(fen)` + a second move scan per drop.
  */
 export function applyPlyForBoardUi(
-  rulesFen: string | undefined,
+  _rulesFen: string | undefined,
   tryMove: GameLike['tryMove'],
   m: { from: Square; to: Square; promotion?: Move['promotion'] }
 ): TryMoveResult {
-  if (rulesFen !== undefined) {
-    const dry = tryMoveOnFen(rulesFen, m);
-    if (!dry.ok) return dry;
-    return tryMove(m);
-  }
   return tryMove(m);
 }
 
@@ -68,10 +65,11 @@ export function handleDropAttempt(args: DropAttemptArgs): void {
     onMove,
     setPendingPromotion,
   } = args;
-  const needsPromotion = rulesFen
-    ? moveRequiresPromotionOnFen(rulesFen, fromSq, toSq)
-    : game.moveRequiresPromotion(fromSq, toSq);
-  if (needsPromotion) {
+  // Live `game` instance reflects the controlled `rulesFen` via
+  // `useExternalFenSync` (layout-effect sync), so the live
+  // `moveRequiresPromotion` is authoritative — no need to spin up a
+  // throwaway `new Chess(rulesFen)` here.
+  if (game.moveRequiresPromotion(fromSq, toSq)) {
     const moverColor = position[indexFromSquare(fromSq)]?.color ?? turn;
     setPendingPromotion({ from: fromSq, to: toSq, color: moverColor });
     return;

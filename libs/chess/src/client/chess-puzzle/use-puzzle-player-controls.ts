@@ -5,6 +5,7 @@ import { usePuzzlePlayerEffects } from './use-puzzle-player-effects';
 import { usePuzzlePlayerHandlers } from './use-puzzle-player-handlers';
 
 export function usePuzzlePlayerControls(args: {
+  puzzleId: string;
   solveIdx: number;
   status: ChessPuzzlePlayStatus | 'loading';
   displayFen: string | null;
@@ -23,11 +24,13 @@ export function usePuzzlePlayerControls(args: {
   onMove: (m: Move) => void;
   onHint: () => void;
   onRetry: () => void;
-  onNext: () => Promise<void>;
+  onNext: () => void;
   backToRoot: () => void;
 } {
-  const { solveIdx, status, displayFen, onMoveRaw, setLastUci } = args;
+  const { puzzleId, solveIdx, status, displayFen, onMoveRaw, setLastUci } =
+    args;
   const { showCorrectFlash, solvedCrownSquare } = usePuzzlePlayerEffects({
+    puzzleId,
     solveIdx,
     status,
     displayFen,

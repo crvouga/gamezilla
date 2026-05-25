@@ -1,5 +1,5 @@
 import { Skia, type SkImage, type SkSVG } from '@shopify/react-native-skia';
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import type { PieceCode } from './chess-board-types';
 import { PIECE_SVGS, PIECE_SVGS_CBURNETT } from './chess-pieces-svg';
 
@@ -65,44 +65,90 @@ async function resolveSvgXml(code: PieceCode, source: string): Promise<string> {
   }
 }
 
-export function usePieceSkiaImages(): PieceImageCache | null {
-  const [cache, setCache] = useState<PieceImageCache | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    const svgs: SkSVG[] = [];
-
-    async function load() {
-      const entries = Object.entries(PIECE_SVGS) as [PieceCode, string][];
-      const results = await Promise.all(
-        entries.map(async ([code, source]) => {
-          const xml = await resolveSvgXml(code, source);
-          const svg = Skia.SVG.MakeFromString(xml);
-          if (svg === null) {
-            throw new Error(`Failed to parse SVG for piece ${code}`);
-          }
-          svgs.push(svg);
-          await waitForSvgReady(svg);
-          return [code, rasterizePiece(svg)] as const;
-        })
-      );
-
-      if (cancelled) return;
-
-      const out = {} as PieceImageCache;
-      for (const [code, image] of results) {
-        out[code] = image;
-      }
-      setCache(out);
+async function loadPieceImages(): Promise<PieceImageCache> {
+  const entries = Object.entries(PIECE_SVGS) as [PieceCode, string][];
+  const svgs: SkSVG[] = [];
+  try {
+    const results = await Promise.all(
+      entries.map(async ([code, source]) => {
+        const xml = await resolveSvgXml(code, source);
+        const svg = Skia.SVG.MakeFromString(xml);
+        if (svg === null) {
+          throw new Error(`Failed to parse SVG for piece ${code}`);
+        }
+        svgs.push(svg);
+        await waitForSvgReady(svg);
+        return [code, rasterizePiece(svg)] as const;
+      })
+    );
+    const out = {} as PieceImageCache;
+    for (const [code, image] of results) {
+      out[code] = image;
     }
+    return out;
+  } finally {
+    for (const svg of svgs) svg.dispose();
+  }
+}
 
-    void load();
+/**
+ * Module-level singleton holding the rasterized piece images.
+ *
+ * Promotes the previously per-mount `useState` cache (which forced every
+ * `ChessBoard` mount to re-fetch and re-rasterize the 12 SVGs) into a
+ * process-wide cache that loads once and is shared across every board.
+ *
+ * The first `usePieceSkiaImages` call kicks off the async load; every
+ * subsequent caller gets the cached value synchronously and skips the
+ * load. The cache is never released — 12 × 512×512 raster images is a
+ * fixed, bounded cost and chess UIs commonly mount/unmount boards.
+ */
+const pieceCacheSubscribers = new Set<() => void>();
+let pieceCacheValue: PieceImageCache | null = null;
+let pieceCacheLoadingPromise: Promise<void> | null = null;
 
-    return () => {
-      cancelled = true;
-      for (const svg of svgs) svg.dispose();
-    };
+function ensurePieceCacheLoad(): void {
+  if (pieceCacheValue !== null || pieceCacheLoadingPromise !== null) return;
+  pieceCacheLoadingPromise = (async () => {
+    try {
+      pieceCacheValue = await loadPieceImages();
+    } finally {
+      pieceCacheLoadingPromise = null;
+      for (const notify of pieceCacheSubscribers) notify();
+    }
+  })();
+}
+
+function subscribePieceCache(notify: () => void): () => void {
+  pieceCacheSubscribers.add(notify);
+  return () => {
+    pieceCacheSubscribers.delete(notify);
+  };
+}
+
+function getPieceCacheSnapshot(): PieceImageCache | null {
+  return pieceCacheValue;
+}
+
+export function usePieceSkiaImages(): PieceImageCache | null {
+  // SSR / non-DOM contexts can't run the snapshot synchronously safely;
+  // fall back to a local fetch in those (extremely rare) cases.
+  const cache = useSyncExternalStore(
+    subscribePieceCache,
+    getPieceCacheSnapshot,
+    getPieceCacheSnapshot
+  );
+  useEffect(() => {
+    ensurePieceCacheLoad();
   }, []);
-
   return cache;
+}
+
+/**
+ * Force-kicks the cache load before any board mounts. Mounted from the
+ * chess subtree bootstrap so the first puzzle / engine board appears
+ * with pieces already drawn instead of waiting one Suspense round-trip.
+ */
+export function preloadPieceSkiaImages(): void {
+  ensurePieceCacheLoad();
 }

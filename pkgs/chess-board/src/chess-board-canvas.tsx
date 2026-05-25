@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react';
+import { memo, useMemo, type ReactNode } from 'react';
 import { indexFromSquare, squareFromIndex } from './chess-board-geometry';
 import { useBoardGestures } from './chess-board-gestures';
 import { PIECE_DRAW_SCALE } from './chess-board-piece';
@@ -190,6 +190,7 @@ function useGestureWiring(
     onDragEnd: handlers.onDragEnd,
     onHoverSquare: handlers.onHoverSquare,
     onDrop: handlers.onDrop,
+    commitDrop: handlers.commitDrop,
   });
 }
 
@@ -248,10 +249,50 @@ function useWiringBundle(
   };
 }
 
-export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
+function ChessBoardCanvasImpl(props: ChessBoardCanvasProps): ReactNode {
   const bundle = useGameStateBundle(props);
   const wiring = useWiringBundle(props, bundle);
   const pieceDraw = (props.size / 8) * PIECE_DRAW_SCALE;
+  // `contentProps` was previously a fresh object every render even when
+  // every individual field was unchanged. `React.memo(ChessBoardView)`
+  // would then bail out on every other prop but still re-render because
+  // of the spread shape. Memoize so unrelated re-renders (e.g. theme
+  // colour-scheme flip propagated from app theme without any board
+  // state change) don't reconcile the entire content tree.
+  const contentProps = useMemo(
+    () => ({
+      size: props.size,
+      orientation: props.orientation,
+      theme: props.theme,
+      showCoordinates: props.showCoordinates,
+      highlightLastMove: props.highlightLastMove,
+      cellHighlights: props.cellHighlights,
+      cellFeedback: props.cellFeedback,
+      pieceImages: bundle.pieceImages,
+      pieceDraw,
+      interaction: bundle.interaction,
+      game: bundle.game,
+      legalTargets: bundle.legalTargets,
+      checkKingSquare: wiring.checkKingSquare,
+      mergedArrows: wiring.mergedArrows,
+    }),
+    [
+      props.size,
+      props.orientation,
+      props.theme,
+      props.showCoordinates,
+      props.highlightLastMove,
+      props.cellHighlights,
+      props.cellFeedback,
+      bundle.pieceImages,
+      pieceDraw,
+      bundle.interaction,
+      bundle.game,
+      bundle.legalTargets,
+      wiring.checkKingSquare,
+      wiring.mergedArrows,
+    ]
+  );
   return (
     <ChessBoardView
       size={props.size}
@@ -269,22 +310,9 @@ export function ChessBoardCanvas(props: ChessBoardCanvasProps): ReactNode {
       userArrowsWebHandlers={wiring.userArrows.webEventHandlers}
       onPromotionCancel={wiring.handlers.onPromotionCancel}
       onPromotionPick={wiring.handlers.onPromotionPick}
-      contentProps={{
-        size: props.size,
-        orientation: props.orientation,
-        theme: props.theme,
-        showCoordinates: props.showCoordinates,
-        highlightLastMove: props.highlightLastMove,
-        cellHighlights: props.cellHighlights,
-        cellFeedback: props.cellFeedback,
-        pieceImages: bundle.pieceImages,
-        pieceDraw,
-        interaction: bundle.interaction,
-        game: bundle.game,
-        legalTargets: bundle.legalTargets,
-        checkKingSquare: wiring.checkKingSquare,
-        mergedArrows: wiring.mergedArrows,
-      }}
+      contentProps={contentProps}
     />
   );
 }
+
+export const ChessBoardCanvas = memo(ChessBoardCanvasImpl);

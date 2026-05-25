@@ -28,7 +28,7 @@ export function usePuzzlePlayerHandlers(args: {
   onMove: (m: Move) => void;
   onHint: () => void;
   onRetry: () => void;
-  onNext: () => Promise<void>;
+  onNext: () => void;
   backToRoot: () => void;
 } {
   const {
@@ -76,9 +76,14 @@ export function usePuzzlePlayerHandlers(args: {
     dispatch(ResetChessPuzzlePlay({}));
   }, [appendAbandoned, dispatch, status]);
 
-  const onNext = useCallback(async () => {
+  // Fire-and-forget so the ActionBar can take `onNext: () => void` and
+  // every render reuses the same stable callback identity. We dispatch
+  // `Clear` immediately and request the next puzzle before the optional
+  // `appendAbandoned` write resolves — losing that write on a tab close
+  // is acceptable; blocking the UI transition is not.
+  const onNext = useCallback((): void => {
     if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) {
-      await appendAbandoned();
+      void appendAbandoned();
     }
     dispatch(ClearChessPuzzlePlay({}));
     onRequestNext();

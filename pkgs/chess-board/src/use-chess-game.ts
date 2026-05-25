@@ -142,30 +142,6 @@ function tryMoveOnMutableChess(
   }
 }
 
-/** Validate a ply on a throwaway position (controlled board: parent owns FEN). */
-export function tryMoveOnFen(
-  fen: string,
-  m: { from: Square; to: Square; promotion?: Move['promotion'] }
-): TryMoveResult {
-  return tryMoveOnMutableChess(new Chess(fen), m);
-}
-
-export function moveRequiresPromotionOnFen(
-  fen: string,
-  from: Square,
-  to: Square
-): boolean {
-  const chess = new Chess(fen);
-  const moves = chess.moves({
-    square: from as unknown as ChessSquare,
-    verbose: true,
-  }) as ChessJsMove[];
-  for (const mv of moves) {
-    if (String(mv.to) === to && mv.promotion) return true;
-  }
-  return false;
-}
-
 export function useChessGame(options: UseChessGameOptions = {}) {
   const initialFen = options.initialFen;
 
