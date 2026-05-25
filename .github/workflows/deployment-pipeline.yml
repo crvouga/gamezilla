@@ -50,8 +50,9 @@ jobs:
   # audit, i18n, plus per-package `tc` / `lint` / `test` / `build`. Turbo
   # parallelizes across the task graph and reuses Vercel Remote Cache
   # (via Doppler-injected `TURBO_TOKEN` + `TURBO_TEAM`) for cross-PR
-  # hits. `check:ci` throttles cache HTTP (`--cache-workers=2`) and writes
-  # artifacts to Vercel (`--cache=local:rw,remote:rw`). Per-task cache
+  # hits. `check:ci` throttles cache HTTP (`--cache-workers=1` via
+  # `scripts/turbo-ci-run.ts`) and writes artifacts to Vercel
+  # (`--cache=local:rw,remote:rw` in CI). Per-task cache
   # status (`--output-logs=hash-only --summarize`) keeps logs readable.
   # TURBO_TOKEN/TURBO_TEAM come from Doppler
   # `local` via `doppler run` (only DOPPLER_TOKEN_SHARED is a GH secret).
