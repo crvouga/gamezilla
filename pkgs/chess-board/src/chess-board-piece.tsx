@@ -38,9 +38,7 @@ export type ChessBoardPieceSkiaProps = {
 };
 
 /* eslint-disable max-lines-per-function */
-function ChessBoardPieceSkiaImpl(
-  props: ChessBoardPieceSkiaProps
-): ReactNode {
+function ChessBoardPieceSkiaImpl(props: ChessBoardPieceSkiaProps): ReactNode {
   const {
     image,
     pieceSize,
