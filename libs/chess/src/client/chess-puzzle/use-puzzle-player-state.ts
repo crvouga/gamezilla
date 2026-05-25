@@ -35,9 +35,7 @@ function useStartPuzzleSessionOnMount(args: {
     if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) return;
     if (fen.length === 0 || movesStr.length === 0) return;
     if (roomPuzzleId !== null) return;
-    dispatch(
-      StartChessPuzzlePlay({ puzzleId, fen, moves: movesStr })
-    );
+    dispatch(StartChessPuzzlePlay({ puzzleId, fen, moves: movesStr }));
   }, [dispatch, fen, movesStr, puzzleId, roomPuzzleId, roomStatus]);
 }
 
