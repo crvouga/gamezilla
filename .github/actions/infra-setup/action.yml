@@ -48,8 +48,13 @@ runs:
       run: |
         set -euo pipefail
         export NPM_CONFIG_PREFIX="$HOME/.local/share/npm-global"
+        mkdir -p "$NPM_CONFIG_PREFIX/bin"
         echo "$NPM_CONFIG_PREFIX/bin" >> "$GITHUB_PATH"
-        if command -v wrangler >/dev/null 2>&1; then
+        # `$GITHUB_PATH` only takes effect in subsequent steps; export PATH
+        # here so the verification + cache-hit `command -v` resolve in the
+        # current shell.
+        export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
+        if [ -x "$NPM_CONFIG_PREFIX/bin/wrangler" ]; then
           wrangler --version
           exit 0
         fi
@@ -73,6 +78,10 @@ runs:
         STRIPE_VERSION="${{ inputs.stripe_version }}"
         mkdir -p "$HOME/.local/bin"
         echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        # `$GITHUB_PATH` only takes effect in subsequent steps; export PATH
+        # here so the verification commands below resolve in the current
+        # shell.
+        export PATH="$HOME/.local/bin:$PATH"
         if [ -x "$HOME/.local/bin/stripe" ]; then
           stripe version
           exit 0
