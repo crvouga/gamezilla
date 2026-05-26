@@ -6,12 +6,13 @@
  * with no row data loss in `patches` and no destructive drops of per-entity
  * tables that the registry still claims:
  *
- *   0. Detect a legacy partitioned `snapshots` (pre-architectural-pivot)
- *      and DROP CASCADE it. The previous declarative-partitioning design
- *      forced every partition to share the parent's columns, causing
- *      generated-column bloat. After this one-time cleanup, snapshots
- *      regenerate lazily from `patches` via `recomputeTouchedSnapshots`
- *      on the next write to each entity; `patches` itself is untouched.
+ *   0. Detect a legacy `snapshots` table (pre-architectural-pivot —
+ *      partitioned parent or plain table) and DROP CASCADE it. The
+ *      previous designs forced every entity to share one relation,
+ *      causing generated-column bloat. After this one-time cleanup,
+ *      snapshots regenerate lazily from `patches` via
+ *      `recomputeTouchedSnapshots` on the next write to each entity;
+ *      `patches` itself is untouched.
  *   1. Apply the base DDL ({@link MIGRATIONS}) — only `patches` + its
  *      btrees now; per-entity snapshot tables + their indexes + the
  *      `snapshots` view are 100% reconciler-managed.
@@ -37,21 +38,26 @@
 import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { FrozenEntitySchemaRegistry } from '../schema/entity-schema-registry';
-import { introspectPgLayout, probeSnapshotsRelKind } from './pg-introspect';
+import {
+  dropSnapshotsRelIfPresent,
+  introspectPgLayout,
+  probeSnapshotsRelKind,
+} from './pg-introspect';
 import { computeDesiredPgLayout } from './pg-layout';
 import { applyPgLayoutDiff, diffPgLayout } from './pg-reconcile';
 import { MIGRATIONS } from './sql-constants';
 
-async function dropLegacyPartitionedSnapshotsIfPresent(
+async function dropLegacySnapshotsIfPresent(
   sqlClient: SqlClient,
   log: Logger
 ): Promise<void> {
   const kind = await probeSnapshotsRelKind(sqlClient);
-  if (kind !== 'partitioned') return;
+  if (kind === 'view' || kind === 'absent') return;
   log.warn(
-    'patch-db postgres migrate: dropping legacy partitioned `snapshots` (data lost; snapshots are derived state and refill from patches lazily)'
+    'patch-db postgres migrate: dropping legacy `snapshots` relation (data lost; snapshots are derived state and refill from patches lazily)',
+    { relKind: kind }
   );
-  await sqlClient.run('DROP TABLE IF EXISTS snapshots CASCADE');
+  await dropSnapshotsRelIfPresent(sqlClient);
 }
 
 async function applyBaseDdl(sqlClient: SqlClient, log: Logger): Promise<void> {
@@ -68,7 +74,7 @@ async function applyBaseDdl(sqlClient: SqlClient, log: Logger): Promise<void> {
 
 /**
  * Entry point used by `PatchDbImplPostgres.migrate`. Detects + nukes any
- * legacy partitioned snapshots cluster, applies idempotent base DDL, then
+ * legacy snapshots relation, applies idempotent base DDL, then
  * reconciles registry-derived per-entity tables / generated columns /
  * single + composite btrees / GINs / the `snapshots` view against the
  * live catalog.
@@ -91,7 +97,7 @@ export async function migratePatchDbPostgres(args: {
   const log = args.logger.child({ migration: 'patch-db-postgres' });
   log.info('patch-db postgres migrate: start');
   try {
-    await dropLegacyPartitionedSnapshotsIfPresent(args.sqlClient, log);
+    await dropLegacySnapshotsIfPresent(args.sqlClient, log);
     await applyBaseDdl(args.sqlClient, log);
     if (args.registry !== undefined) {
       const desired = computeDesiredPgLayout(args.registry);

@@ -9,9 +9,10 @@
  * of every reconcile so its branch list matches the live desired set.
  *
  * Apply order (matters for correctness):
- *   1. DROP `snapshots` view (if any). The view depends on the per-entity
- *      tables, so dropping it first releases the dependency edges that
- *      would otherwise block ALTER TABLE / DROP COLUMN on those tables.
+ *   1. DROP the live `snapshots` relation (view or legacy table, if any).
+ *      The view depends on the per-entity tables, so dropping it first
+ *      releases the dependency edges that would otherwise block ALTER
+ *      TABLE / DROP COLUMN on those tables.
  *   2. CREATE missing per-entity tables. Each is a plain `CREATE TABLE
  *      IF NOT EXISTS` with a `CHECK (entity_type = '<lit>')` constraint
  *      so the `UNION ALL` view supports constraint exclusion.
@@ -41,7 +42,7 @@ import type {
   DesiredEntityTable,
   DesiredPgLayout,
 } from './pg-layout';
-import type { LivePgLayout } from './pg-introspect';
+import { dropSnapshotsRelIfPresent, type LivePgLayout } from './pg-introspect';
 import type { GeneratedColumnSpec } from './partitioning';
 import { PATCH_DB_SNAPSHOTS_VIEW_NAME, pgColumnTypeFor } from './partitioning';
 import {
@@ -151,21 +152,16 @@ function addColumnClauseFor(spec: GeneratedColumnSpec): string {
   return `ADD COLUMN ${spec.columnName} ${colType} GENERATED ALWAYS AS ${generatedColumnExpression(spec)} STORED`;
 }
 
-function dropSnapshotsViewIfPresent(sqlClient: SqlClient): Promise<unknown> {
-  return sqlClient.run(
-    `DROP VIEW IF EXISTS ${PATCH_DB_SNAPSHOTS_VIEW_NAME} CASCADE`
-  );
-}
-
 async function createMissingTables(
   sqlClient: SqlClient,
   tables: readonly DesiredEntityTable[]
 ): Promise<void> {
   for (const table of tables) {
-    assertSqlIdentifier(table.tableName, 'createMissingTables: tableName');
+    const tableName = String(table.tableName);
+    assertSqlIdentifier(tableName, 'createMissingTables: tableName');
     const check = quoteSqlString(table.entityType);
     await sqlClient.run(
-      `CREATE TABLE IF NOT EXISTS ${table.tableName} (
+      `CREATE TABLE IF NOT EXISTS ${tableName} (
         entity_id TEXT NOT NULL,
         entity_type TEXT NOT NULL,
         attributes JSONB NOT NULL DEFAULT '{}',
@@ -366,7 +362,7 @@ export async function applyPgLayoutDiff(
     viewBranchCount: diff.viewBranches.length,
   });
 
-  await dropSnapshotsViewIfPresent(sqlClient);
+  await dropSnapshotsRelIfPresent(sqlClient);
   await createMissingTables(sqlClient, diff.tablesToCreate);
   await dropOrphanedGeneratedColumns(sqlClient, diff.generatedColumnsToDrop);
   await addMissingGeneratedColumns(sqlClient, diff.generatedColumnsToAdd);

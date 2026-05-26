@@ -33,7 +33,11 @@ import {
 } from 'bun:test';
 import { createEntitySchemaRegistry, defineEntitySchema } from '../schema';
 import { migratePatchDbPostgres } from './migrate';
-import { introspectPgLayout, probeSnapshotsRelKind } from './pg-introspect';
+import {
+  dropSnapshotsRelIfPresent,
+  introspectPgLayout,
+  probeSnapshotsRelKind,
+} from './pg-introspect';
 import {
   compositeIndexNameFor,
   generatedColumnNameFor,
@@ -82,12 +86,7 @@ const COMPOSITE_IDX = compositeIndexNameFor('task', 'rating-status');
  *  partitioned design / standalone-table fallback). Postgres rejects
  *  `DROP VIEW` against a table and vice versa, so we probe first. */
 async function dropAllPatchDbObjects(sqlClient: SqlClient): Promise<void> {
-  const kind = await probeSnapshotsRelKind(sqlClient);
-  if (kind === 'view') {
-    await sqlClient.run('DROP VIEW IF EXISTS snapshots CASCADE');
-  } else if (kind !== 'absent') {
-    await sqlClient.run('DROP TABLE IF EXISTS snapshots CASCADE');
-  }
+  await dropSnapshotsRelIfPresent(sqlClient);
   await sqlClient.run('DROP TABLE IF EXISTS snapshots__task CASCADE');
   await sqlClient.run('DROP TABLE IF EXISTS snapshots__item CASCADE');
   await sqlClient.run(
@@ -273,6 +272,28 @@ describe.skipIf(!HAS_DB)(
       // registry — the reconciler logs but does not drop per-entity tables.
       expect(after.tableNames.includes(ITEM_TABLE)).toBe(true);
       expect(after.tableNames.includes(TASK_TABLE)).toBe(true);
+    });
+
+    test('legacy detection: a pre-existing plain `snapshots` table is dropped before the new layout lands', async () => {
+      await sqlClient.run(`
+      CREATE TABLE snapshots (
+        entity_id TEXT NOT NULL,
+        entity_type TEXT NOT NULL,
+        attributes JSONB NOT NULL DEFAULT '{}',
+        PRIMARY KEY (entity_type, entity_id)
+      )
+    `);
+      expect(await probeSnapshotsRelKind(sqlClient)).toBe('other');
+
+      const registry = createEntitySchemaRegistry()
+        .register(
+          defineEntitySchema({ entityType: 'task', attributes: TaskAttrV1 })
+        )
+        .freeze();
+      await migratePatchDbPostgres({ sqlClient, logger, registry });
+      expect(await probeSnapshotsRelKind(sqlClient)).toBe('view');
+      const after = await introspectPgLayout(sqlClient);
+      expect(after.tableNames).toContain(TASK_TABLE);
     });
 
     test('legacy detection: a pre-existing partitioned `snapshots` is dropped before the new layout lands', async () => {

@@ -13,7 +13,7 @@ import type {
 } from '@pkgs/sql-client/interface';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { createEntitySchemaRegistry, defineEntitySchema } from '../schema';
-import type { LivePgLayout } from './pg-introspect';
+import type { LivePgLayout, SnapshotsRelKind } from './pg-introspect';
 import {
   compositeIndexNameFor,
   generatedColumnNameFor,
@@ -372,9 +372,20 @@ function createFakeLogger(): FakeLogger {
 
 class RecordingSqlClient implements SqlClient {
   readonly statements: string[] = [];
+  snapshotsRelKind: SnapshotsRelKind = 'absent';
   async connect(): Promise<void> {}
   async disconnect(): Promise<void> {}
-  async query<T = Record<string, unknown>>(): Promise<T[]> {
+  async query<T = Record<string, unknown>>(sql: string): Promise<T[]> {
+    if (sql.includes("c.relname = 'snapshots'")) {
+      if (this.snapshotsRelKind === 'absent') return [];
+      const relkind =
+        this.snapshotsRelKind === 'view'
+          ? 'v'
+          : this.snapshotsRelKind === 'partitioned'
+            ? 'p'
+            : 'r';
+      return [{ relkind }] as T[];
+    }
     return [];
   }
   async run(sql: string): Promise<RunResult> {
@@ -427,8 +438,10 @@ describe('applyPgLayoutDiff: emits expected DDL shape on full add path', () => {
     const logger = createFakeLogger();
     const sqlClient = new RecordingSqlClient();
     await applyPgLayoutDiff(sqlClient, diff, logger);
-    // First statement is the prophylactic DROP VIEW IF EXISTS.
-    expect(sqlClient.statements[0]).toMatch(/^DROP VIEW IF EXISTS snapshots/i);
+    // Fresh DB: no prior `snapshots` relation, so no drop is emitted.
+    expect(sqlClient.statements.some((s) => /^DROP (VIEW|TABLE)/i.test(s))).toBe(
+      false
+    );
     // CREATE TABLE with CHECK predicate (standalone — no `PARTITION OF`).
     expect(
       sqlClient.statements.some(
@@ -485,6 +498,7 @@ describe('applyPgLayoutDiff: emits expected DDL shape on full add path', () => {
     const diff = diffPgLayout(desired, live);
     const logger = createFakeLogger();
     const sqlClient = new RecordingSqlClient();
+    sqlClient.snapshotsRelKind = 'view';
     await applyPgLayoutDiff(sqlClient, diff, logger);
     // Two statements: drop the prior view + create the new (identical) one.
     // The reconciler rebuilds the view on every run because doing so is
@@ -494,7 +508,7 @@ describe('applyPgLayoutDiff: emits expected DDL shape on full add path', () => {
     expect(sqlClient.statements[1]).toMatch(/^CREATE VIEW snapshots AS/i);
   });
 
-  test('empty registry leaves no `snapshots` symbol behind (only DROP VIEW emitted)', async () => {
+  test('empty registry leaves no `snapshots` symbol behind (no DDL emitted)', async () => {
     const desired = computeDesiredPgLayout(
       createEntitySchemaRegistry().freeze()
     );
@@ -502,11 +516,23 @@ describe('applyPgLayoutDiff: emits expected DDL shape on full add path', () => {
     const logger = createFakeLogger();
     const sqlClient = new RecordingSqlClient();
     await applyPgLayoutDiff(sqlClient, diff, logger);
-    expect(sqlClient.statements.length).toBe(1);
-    expect(sqlClient.statements[0]).toMatch(/^DROP VIEW IF EXISTS snapshots/i);
+    expect(sqlClient.statements.length).toBe(0);
     expect(sqlClient.statements.some((s) => /^CREATE VIEW/i.test(s))).toBe(
       false
     );
+  });
+
+  test('legacy plain-table `snapshots` is dropped with DROP TABLE before CREATE VIEW', async () => {
+    const desired = buildTaskLayout();
+    const diff = diffPgLayout(desired, EMPTY_LIVE);
+    const logger = createFakeLogger();
+    const sqlClient = new RecordingSqlClient();
+    sqlClient.snapshotsRelKind = 'other';
+    await applyPgLayoutDiff(sqlClient, diff, logger);
+    expect(sqlClient.statements[0]).toMatch(/^DROP TABLE IF EXISTS snapshots/i);
+    expect(
+      sqlClient.statements.some((s) => /^CREATE VIEW snapshots AS/i.test(s))
+    ).toBe(true);
   });
 
   test('multi-entity registry produces one UNION ALL branch per per-entity table', async () => {

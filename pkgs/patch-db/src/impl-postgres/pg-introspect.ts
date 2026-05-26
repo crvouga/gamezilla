@@ -20,6 +20,7 @@ import {
   PATCH_DB_GIN_INDEX_PREFIX,
   PATCH_DB_PARTITION_PREFIX,
   PATCH_DB_SINGLE_INDEX_SUFFIX,
+  PATCH_DB_SNAPSHOTS_VIEW_NAME,
 } from './partitioning';
 
 /** What kind of object `snapshots` currently is in the catalog. Used by the
@@ -153,6 +154,26 @@ export async function probeSnapshotsRelKind(
   );
   const raw = rows[0]?.relkind ?? null;
   return classifyRelKind(raw);
+}
+
+/** Drops the live `snapshots` relation before the reconciler rebuilds it as
+ *  a view. Postgres rejects `DROP VIEW` against a table (and vice versa),
+ *  so we probe `pg_class.relkind` first. */
+export async function dropSnapshotsRelIfPresent(
+  sqlClient: SqlClient
+): Promise<void> {
+  const kind = await probeSnapshotsRelKind(sqlClient);
+  if (kind === 'view') {
+    await sqlClient.run(
+      `DROP VIEW IF EXISTS ${PATCH_DB_SNAPSHOTS_VIEW_NAME} CASCADE`
+    );
+    return;
+  }
+  if (kind !== 'absent') {
+    await sqlClient.run(
+      `DROP TABLE IF EXISTS ${PATCH_DB_SNAPSHOTS_VIEW_NAME} CASCADE`
+    );
+  }
 }
 
 function groupGeneratedColumnsByTable(
