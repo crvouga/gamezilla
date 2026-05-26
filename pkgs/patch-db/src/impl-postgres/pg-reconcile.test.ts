@@ -439,9 +439,9 @@ describe('applyPgLayoutDiff: emits expected DDL shape on full add path', () => {
     const sqlClient = new RecordingSqlClient();
     await applyPgLayoutDiff(sqlClient, diff, logger);
     // Fresh DB: no prior `snapshots` relation, so no drop is emitted.
-    expect(sqlClient.statements.some((s) => /^DROP (VIEW|TABLE)/i.test(s))).toBe(
-      false
-    );
+    expect(
+      sqlClient.statements.some((s) => /^DROP (VIEW|TABLE)/i.test(s))
+    ).toBe(false);
     // CREATE TABLE with CHECK predicate (standalone — no `PARTITION OF`).
     expect(
       sqlClient.statements.some(
