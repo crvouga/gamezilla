@@ -281,8 +281,9 @@ async function createCompositeIndexes(
  *  branches used inside the `UNION ALL` view body. */
 function buildViewBody(branches: readonly DesiredEntityTable[]): string {
   const selects = branches.map((b) => {
-    assertSqlIdentifier(b.tableName, 'buildViewBody: tableName');
-    return `SELECT entity_id, entity_type, attributes FROM ${b.tableName}`;
+    const tableName = String(b.tableName);
+    assertSqlIdentifier(tableName, 'buildViewBody: tableName');
+    return `SELECT entity_id, entity_type, attributes FROM ${tableName}`;
   });
   return selects.join('\nUNION ALL\n');
 }

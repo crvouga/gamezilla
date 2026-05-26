@@ -6,10 +6,18 @@ inputs:
     description: Install the latest wrangler CLI globally (npm install -g wrangler)
     required: false
     default: 'false'
+  wrangler_version:
+    description: Wrangler version to install (cached).
+    required: false
+    default: '4.94.0'
   stripe:
     description: Install the latest Stripe CLI to /usr/local/bin
     required: false
     default: 'false'
+  stripe_version:
+    description: Stripe CLI version to install (cached).
+    required: false
+    default: '1.41.2'
   postgres:
     description: Install the postgresql package and put pg_ctl/initdb/pg_isready on PATH
     required: false
@@ -25,18 +33,52 @@ runs:
     # `--version` output to stderr with empty stdout, tripping the dep
     # version probe in `libs/infra/src/cli/deps/spawn.ts`. `npm` writes
     # a plain Node shebang script that prints to stdout cleanly.
+    - name: Cache wrangler install
+      if: inputs.wrangler == 'true'
+      uses: actions/cache@v5
+      id: cache-wrangler
+      with:
+        path: |
+          ~/.local/share/npm-global
+        key: wrangler-${{ runner.os }}-${{ inputs.wrangler_version }}
+
     - name: Install wrangler
       if: inputs.wrangler == 'true'
       shell: bash
-      run: npm install -g wrangler@latest
+      run: |
+        set -euo pipefail
+        export NPM_CONFIG_PREFIX="$HOME/.local/share/npm-global"
+        echo "$NPM_CONFIG_PREFIX/bin" >> "$GITHUB_PATH"
+        if command -v wrangler >/dev/null 2>&1; then
+          wrangler --version
+          exit 0
+        fi
+        npm install -g "wrangler@${{ inputs.wrangler_version }}"
+        wrangler --version
+
+    - name: Cache Stripe CLI
+      if: inputs.stripe == 'true'
+      uses: actions/cache@v5
+      id: cache-stripe
+      with:
+        path: |
+          ~/.local/bin/stripe
+        key: stripe-${{ runner.os }}-${{ inputs.stripe_version }}
 
     - name: Install Stripe CLI
       if: inputs.stripe == 'true'
       shell: bash
       run: |
-        STRIPE_VERSION=$(curl -fsSL https://api.github.com/repos/stripe/stripe-cli/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+        set -euo pipefail
+        STRIPE_VERSION="${{ inputs.stripe_version }}"
+        mkdir -p "$HOME/.local/bin"
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        if [ -x "$HOME/.local/bin/stripe" ]; then
+          stripe version
+          exit 0
+        fi
         curl -fsSL "https://github.com/stripe/stripe-cli/releases/download/v${STRIPE_VERSION}/stripe_${STRIPE_VERSION}_linux_x86_64.tar.gz" \
-          | tar -xz -C /usr/local/bin stripe
+          | tar -xz -C "$HOME/.local/bin" stripe
         stripe version
 
     # `infra` hard-checks local Postgres tooling (`postgres`, `pg_ctl`,
@@ -52,8 +94,12 @@ runs:
       if: inputs.postgres == 'true'
       shell: bash
       run: |
-        sudo apt-get update
-        sudo apt-get install -y postgresql
+        set -euo pipefail
+        # Prefer the preinstalled runner image to avoid `apt-get update`.
+        if ! ls /usr/lib/postgresql/*/bin/postgres >/dev/null 2>&1; then
+          sudo apt-get update
+          sudo apt-get install -y postgresql
+        fi
         PG_BIN_DIR="$(find /usr/lib/postgresql -maxdepth 2 -mindepth 2 -type d -name bin 2>/dev/null | sort -V | tail -n 1)"
         if [ -z "$PG_BIN_DIR" ]; then
           echo "::error::Failed to locate PostgreSQL bin directory under /usr/lib/postgresql/*/bin"
