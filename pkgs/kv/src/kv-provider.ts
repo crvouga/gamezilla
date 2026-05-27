@@ -7,7 +7,12 @@
  * pass `kv` do not pull `KvPlatform` into their render path beyond the import
  * graph.
  */
-import { createElement, useMemo, type ReactElement, type ReactNode } from 'react';
+import {
+  createElement,
+  useMemo,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 
 import type { Kv } from './interface';
 import { KvContextProvider } from './kv-context';

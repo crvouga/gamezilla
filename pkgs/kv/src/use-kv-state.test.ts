@@ -2,11 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { asKeyword, asKeywordRecord } from '@pkgs/keyword/keyword';
 
 import { KvImplInMemory } from './impl-in-memory';
-import {
-  booleanKvCodec,
-  enumKvCodec,
-  jsonKvCodec,
-} from './kv-state-codec';
+import { booleanKvCodec, enumKvCodec, jsonKvCodec } from './kv-state-codec';
 import { decodePersistedRecord } from './use-kv-state';
 
 const VALUE_ATTR = asKeyword('ui.prefs/value');
@@ -71,7 +67,10 @@ describe('jsonKvCodec', () => {
   });
 
   test('decode rejects values that fail the type guard', () => {
-    const record = asKeywordRecord({ 'ui.prefs/value': { a: 'no' } }, 'bad json');
+    const record = asKeywordRecord(
+      { 'ui.prefs/value': { a: 'no' } },
+      'bad json'
+    );
     expect(codec.decode(record)).toBeUndefined();
   });
 });
