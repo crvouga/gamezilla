@@ -1,5 +1,5 @@
 {
-  "$schema": "https://v2-9-14.turborepo.dev/schema.json",
+  "$schema": "https://v2-9-15.turborepo.dev/schema.json",
   "ui": "stream",
   "concurrency": "10",
   "globalDependencies": ["bun.lock", "tsconfig.json", "package.json"],
@@ -148,6 +148,16 @@
         "pkgs/*/package.json",
         "scripts/check-tier-imports.ts",
         "scripts/workspace-package-import-graph.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:ui-adapters": {
+      "inputs": [
+        "pkgs/ui/src/ports/ui-adapter.ts",
+        "pkgs/ui/src/adapters/inhouse/index.ts",
+        "pkgs/ui/src/adapters/heroui/index.ts",
+        "scripts/check-ui-adapter-conformance.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"

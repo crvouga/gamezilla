@@ -2,7 +2,6 @@ import { runCapture } from '../subprocess';
 import { ApiUrl } from './api-url';
 import { BetterAuthAppName } from './better-auth-app-name';
 import { BetterAuthSecret } from './better-auth-secret';
-import { BetterAuthTrustedOrigins } from './better-auth-trusted-origins';
 import { CfAccountId } from './cf-account-id';
 import { CfApiToken } from './cf-api-token';
 import { DbUrl } from './db-url';
@@ -31,7 +30,6 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new ApiUrl(),
   new BetterAuthSecret(),
   new BetterAuthAppName(),
-  new BetterAuthTrustedOrigins(),
   new WebClientGoogleClientId(),
   new WebClientGoogleClientSecret(),
   new StripeSecretKey(),

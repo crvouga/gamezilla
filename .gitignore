@@ -75,3 +75,5 @@ app-example
 /actionlint
 # Turborepo
 .turbo
+# heroui-agents-md
+.heroui-docs/

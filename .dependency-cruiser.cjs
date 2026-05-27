@@ -92,6 +92,35 @@ module.exports = {
       from: { path: '^libs/' },
       to: { path: '^apps/' },
     },
+    // ──────────────────────────────────────────────────────────────────────
+    // `@pkgs/ui` ports-and-adapters boundary
+    //
+    // The port (`@pkgs/ui` public API) is the only surface consumers see.
+    // Adapter internals (`pkgs/ui/src/adapters/**`) are private; HeroUI Native
+    // and its peers stay confined to the HeroUI adapter folder so swapping
+    // adapters never leaks implementation details.
+    // ──────────────────────────────────────────────────────────────────────
+    {
+      name: 'ui-adapter-internals-private',
+      severity: 'error',
+      comment:
+        '@pkgs/ui adapter internals are private. The boot-time switch in pkgs/ui/src/adapter-registry.ts is the only legitimate importer; everything else must go through the @pkgs/ui public surface.',
+      from: {
+        pathNot: '^pkgs/ui/src/(adapters/|adapter-registry\\.ts$)',
+      },
+      to: { path: '^pkgs/ui/src/adapters/' },
+    },
+    {
+      name: 'heroui-confined-to-adapter',
+      severity: 'error',
+      comment:
+        'heroui-native and its companion deps (uniwind, tailwind-merge, tailwind-variants) may only be imported from pkgs/ui/src/adapters/heroui/**. Everything else must go through the @pkgs/ui port surface. (ESLint no-restricted-imports in pkgs/ui/eslint.config.js is the primary enforcer; depcruise is defence-in-depth and only fires when the dep is part of the cruised graph.)',
+      from: { pathNot: '^pkgs/ui/src/adapters/heroui/' },
+      to: {
+        dependencyTypes: ['npm', 'npm-dev', 'npm-no-pkg', 'npm-unknown'],
+        path: '^(heroui-native|uniwind|tailwind-merge|tailwind-variants)(/|$)',
+      },
+    },
   ],
   options: {
     doNotFollow: {

@@ -80,7 +80,9 @@
       "@pkgs/sql-client/*": ["./pkgs/sql-client/src/*"],
       "@pkgs/kv/*": ["./pkgs/kv/src/*"],
       "@pkgs/distributed-lock/*": ["./pkgs/distributed-lock/src/*"],
-      "@pkgs/ndjson/*": ["./pkgs/ndjson/src/*"]
+      "@pkgs/ndjson/*": ["./pkgs/ndjson/src/*"],
+      "@pkgs/os": ["./pkgs/os/src/index.ts"],
+      "@pkgs/os/*": ["./pkgs/os/src/*"]
     }
   },
   "include": [
@@ -158,7 +160,8 @@
     "pkgs/sql-client/src/**/*.tsx",
     "pkgs/kv/src/**/*.ts",
     "pkgs/distributed-lock/src/**/*.ts",
-    "pkgs/ndjson/src/**/*.ts"
+    "pkgs/ndjson/src/**/*.ts",
+    "pkgs/os/src/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]
 }

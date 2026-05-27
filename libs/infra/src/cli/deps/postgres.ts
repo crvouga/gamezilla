@@ -1,6 +1,14 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { captureVersion, spawnInstall, verifyRun, whichSync } from './spawn';
+import {
+  captureVersion,
+  currentOs,
+  FirstAvailableInstaller,
+  Homebrew,
+  PackageManagerInstaller,
+  verifyRun,
+  which,
+} from '@pkgs/os';
 import type { Dep, DepStatus } from './types';
 
 /**
@@ -22,9 +30,11 @@ import type { Dep, DepStatus } from './types';
  *   we let `setup`/`status` warn "could not resolve latest" and rely on
  *   `check()` for hard enforcement that the binaries exist.
  *
- * Install policy mirrors `StripeDep`: macOS via Homebrew, Linux/Windows via
- * explicit guidance — we do not silently `apt-get install` on a developer's
- * machine, but we also never fall through with a cryptic ENOENT.
+ * Install policy: defers entirely to the cross-platform {@link PackageManagerInstaller}
+ * registered below. Homebrew is the only one that needs special handling
+ * (keg-only formulas install outside the default PATH); we look those bin
+ * dirs up directly via {@link Homebrew.binDirFor} when probing for
+ * binaries.
  */
 const REQUIRED_BINARIES = [
   'postgres',
@@ -34,79 +44,68 @@ const REQUIRED_BINARIES = [
 ] as const;
 
 const HOMEBREW_FORMULA = 'postgresql@17';
+const HOMEBREW_FALLBACK_FORMULAS = [
+  HOMEBREW_FORMULA,
+  'postgresql@16',
+  'postgresql@15',
+  'postgresql',
+] as const;
 
-function isMacOS(): boolean {
-  return process.platform === 'darwin';
-}
+const installer = new FirstAvailableInstaller(
+  [
+    new PackageManagerInstaller({
+      entries: [
+        { packageManagerId: 'homebrew', package: HOMEBREW_FORMULA },
+        { packageManagerId: 'apt', package: 'postgresql' },
+        { packageManagerId: 'dnf', package: 'postgresql-server' },
+        { packageManagerId: 'pacman', package: 'postgresql' },
+        {
+          packageManagerId: 'winget',
+          package: 'PostgreSQL.PostgreSQL',
+        },
+        { packageManagerId: 'scoop', package: 'postgresql' },
+        { packageManagerId: 'chocolatey', package: 'postgresql' },
+      ],
+    }),
+  ],
+  manualInstallHint()
+);
 
-function isLinux(): boolean {
-  return process.platform === 'linux';
-}
-
-function hasHomebrew(): boolean {
-  return whichSync('brew');
-}
-
-/**
- * Homebrew installs `postgresql@N` keg-only (not on default PATH). Look in
- * the standard Apple-Silicon and Intel install prefixes for an existing
- * cluster bin directory so `check()` doesn't false-negative right after
- * `brew install`.
- */
-function homebrewKegBinDir(): string | null {
-  if (!isMacOS()) return null;
-  const prefixes = ['/opt/homebrew/opt', '/usr/local/opt'];
-  const formulas = [
-    HOMEBREW_FORMULA,
-    'postgresql@16',
-    'postgresql@15',
-    'postgresql',
-  ];
-  for (const prefix of prefixes) {
-    for (const formula of formulas) {
-      const dir = join(prefix, formula, 'bin');
-      if (REQUIRED_BINARIES.every((b) => existsSync(join(dir, b)))) {
-        return dir;
-      }
-    }
-  }
+/** Resolve `postgres` binary path: PATH first, then any Homebrew keg formula. */
+function findCanonicalBin(): string | null {
+  if (REQUIRED_BINARIES.every((b) => which(b))) return 'postgres';
+  const dir = homebrewKegBinDir();
+  if (dir !== null) return join(dir, 'postgres');
   return null;
 }
 
-function findCanonicalBin(): string | null {
-  if (REQUIRED_BINARIES.every((b) => whichSync(b))) return 'postgres';
-  const kegDir = homebrewKegBinDir();
-  if (kegDir !== null) return join(kegDir, 'postgres');
+function homebrewKegBinDir(): string | null {
+  if (currentOs().platform !== 'darwin') return null;
+  const brew = new Homebrew();
+  if (!brew.isAvailable()) return null;
+  for (const formula of HOMEBREW_FALLBACK_FORMULAS) {
+    const dir = brew.binDirFor(formula);
+    if (dir === null) continue;
+    if (REQUIRED_BINARIES.every((b) => existsSync(join(dir, b)))) return dir;
+  }
   return null;
 }
 
 function missingBinaries(): readonly string[] {
-  if (REQUIRED_BINARIES.every((b) => whichSync(b))) return [];
-  const kegDir = homebrewKegBinDir();
-  if (kegDir !== null) {
-    return REQUIRED_BINARIES.filter((b) => !existsSync(join(kegDir, b)));
+  if (REQUIRED_BINARIES.every((b) => which(b))) return [];
+  const dir = homebrewKegBinDir();
+  if (dir !== null) {
+    return REQUIRED_BINARIES.filter((b) => !existsSync(join(dir, b)));
   }
-  return REQUIRED_BINARIES.filter((b) => !whichSync(b));
+  return REQUIRED_BINARIES.filter((b) => !which(b));
 }
 
-function platformInstallHint(): string {
-  if (isMacOS() && hasHomebrew()) {
-    return [
-      `Run \`brew install ${HOMEBREW_FORMULA}\`, then either add`,
-      `  $(brew --prefix ${HOMEBREW_FORMULA})/bin to PATH`,
-      `or set PG_BIN_DIR=$(brew --prefix ${HOMEBREW_FORMULA})/bin`,
-      'so `pkgs/postgres` can find the cluster tools.',
-    ].join(' ');
-  }
-  if (isLinux()) {
-    return [
-      'Install via your package manager (Debian/Ubuntu: `sudo apt-get install -y postgresql`;',
-      'Fedora/RHEL: `sudo dnf install -y postgresql-server`; Arch: `sudo pacman -S postgresql`)',
-      'and ensure `postgres`, `pg_ctl`, `initdb`, `pg_isready` are on PATH',
-      '(or set PG_BIN_DIR=/usr/lib/postgresql/<version>/bin).',
-    ].join(' ');
-  }
-  return 'Install PostgreSQL and ensure `postgres`, `pg_ctl`, `initdb`, `pg_isready` are on PATH.';
+function manualInstallHint(): string {
+  return (
+    'Install PostgreSQL and ensure `postgres`, `pg_ctl`, `initdb`, `pg_isready` are on PATH ' +
+    '(macOS: `brew install postgresql@17` + add `$(brew --prefix postgresql@17)/bin` to PATH ' +
+    'or `PG_BIN_DIR`; Linux: install via your package manager; Windows: `winget install PostgreSQL.PostgreSQL`).'
+  );
 }
 
 export class PostgresDep implements Dep {
@@ -114,12 +113,10 @@ export class PostgresDep implements Dep {
   readonly bin = 'postgres';
 
   version(): string | null {
-    const inPath = whichSync('postgres');
-    if (inPath) return captureVersion('postgres', ['--version']);
-    const kegDir = homebrewKegBinDir();
-    if (kegDir !== null) {
-      return captureVersion(join(kegDir, 'postgres'), ['--version']);
-    }
+    if (which('postgres')) return captureVersion('postgres', ['--version']);
+    const dir = homebrewKegBinDir();
+    if (dir !== null)
+      return captureVersion(join(dir, 'postgres'), ['--version']);
     return null;
   }
 
@@ -128,7 +125,7 @@ export class PostgresDep implements Dep {
     if (missing.length > 0) {
       return {
         ok: false,
-        reason: `missing binaries: ${missing.join(', ')} — ${platformInstallHint()}`,
+        reason: `missing binaries: ${missing.join(', ')} — ${manualInstallHint()}`,
       };
     }
     const v = this.version();
@@ -138,29 +135,16 @@ export class PostgresDep implements Dep {
     return { ok: true, version: v };
   }
 
-  // PostgreSQL upstream tags don't map cleanly onto our `semverCompare` (e.g.
-  // `REL_17_6`); returning null tells `version-check` to warn-only on "latest"
-  // resolution while still hard-failing on missing binaries.
   fetchLatestVersion(): Promise<string | null> {
     return Promise.resolve(null);
   }
 
   install(): void {
-    if (isMacOS() && hasHomebrew()) {
-      spawnInstall('brew', ['install', HOMEBREW_FORMULA]);
-      return;
-    }
-    throw new Error(
-      `Automatic PostgreSQL install requires Homebrew on macOS. ${platformInstallHint()}`
-    );
+    installer.install();
   }
 
   upgrade(): void {
-    if (isMacOS() && hasHomebrew()) {
-      spawnInstall('brew', ['upgrade', HOMEBREW_FORMULA]);
-      return;
-    }
-    this.install();
+    installer.upgrade();
   }
 
   verify(): void {

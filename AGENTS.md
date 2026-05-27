@@ -6,6 +6,42 @@
 
 - **Never disable structural size limits for app code.** The Tiger-Style caps in `pkgs/eslint-rules/size-limits.cjs` (`max-lines`, `max-lines-per-function`, `max-statements`, `max-depth`, `max-params`, `max-nested-callbacks`, `complexity`, `max-classes-per-file`, `max-statements-per-line`) are load-bearing. Do **not** add per-file `'off'` overrides in any `{apps,libs,pkgs}/*/eslint.config.js`, and do **not** add `/* eslint-disable max-lines-per-function */` (or sibling) comments in source files. If a function tripped the cap, refactor it: extract sub-components, helper hooks, or pure helpers. The cap is the constraint, not a suggestion. The only legitimate exemption is `testOverrides()` (already wired in via the shared base config). Run `bun run scripts/check-no-size-limit-overrides.ts` to scan for offenders.
 
+## `@pkgs/ui` ports & adapters
+
+The design system uses a strict ports-and-adapters layout. Consumers always import from `@pkgs/ui`; the actual component implementations come from a swappable **adapter** chosen at boot.
+
+```
+pkgs/ui/src/
+  index.ts              # public API -- destructures from the active adapter once at module load
+  ui-impl.ts            # UI_IMPL constant, read once from EXPO_PUBLIC_UI_IMPL
+  adapter-registry.ts   # the single `switch (UI_IMPL)` that picks the adapter
+  ports/                # contract: UIAdapter interface + UiImpl union (no implementation)
+  components/           # in-house implementations (source files referenced by inhouseAdapter)
+  theme/                # shared by every adapter
+  adapters/
+    inhouse/index.ts    # inhouseAdapter: UIAdapter -- default look-and-feel
+    heroui/index.ts     # heroUIAdapter: Partial<UIAdapter> -- HeroUI Native overrides
+```
+
+Switching adapters is a build-time concern: set `EXPO_PUBLIC_UI_IMPL=heroui` in `apps/client/.env.local` (or pass it through Doppler). The `adapter-registry.ts` `switch` dispatches once at module load, binding the public `Button`, `Text`, etc. exports to the chosen adapter's functions — render-time has no dispatch overhead.
+
+**Architecture invariants (enforced, do not bypass):**
+
+1. **HeroUI confinement.** `heroui-native`, `uniwind`, `tailwind-merge`, and `tailwind-variants` may only be imported from `pkgs/ui/src/adapters/heroui/**`. Enforced by `.dependency-cruiser.cjs` (`heroui-confined-to-adapter`) and `pkgs/ui/eslint.config.js` (`no-restricted-imports`).
+2. **Adapter privacy.** Code outside `pkgs/ui/src/adapters/**` must not deep-import adapter internals — go through the `@pkgs/ui` public surface. Enforced by depcruise (`ui-adapter-internals-private`). Only `pkgs/ui/src/adapter-registry.ts` is whitelisted; it's the boot-time dispatcher.
+3. **Conformance.** `bun run ci:ui-adapters` runs `scripts/check-ui-adapter-conformance.ts`, which statically parses `ports/ui-adapter.ts` and both adapter `index.ts` files to verify `inhouseAdapter` implements every `UIAdapter` slot and `heroUIAdapter` doesn't export extras. TypeScript also enforces this via the typed `const` declarations (`inhouseAdapter: UIAdapter`, `heroUIAdapter: Partial<UIAdapter>`).
+
+**Adding a new component:**
+
+1. Implement the in-house version in `pkgs/ui/src/components/<name>/<name>.tsx` and re-export from `components/index.ts`.
+2. Add the slot to the `UIAdapter` interface in `pkgs/ui/src/ports/ui-adapter.ts` (`Foo: typeof Inhouse.Foo;`).
+3. Add `Foo,` to `pkgs/ui/src/adapters/inhouse/index.ts` (both the import block and the object literal).
+4. Add `Foo` to the destructure block in `pkgs/ui/src/index.ts`.
+5. Optionally override in `pkgs/ui/src/adapters/heroui/<name>.tsx` by adding a key to `heroUIAdapter`.
+6. `bun run ci:ui-adapters` and `bun run --filter @pkgs/ui tc lint` verify everything wires up.
+
+**HeroUI activation status:** the heroui adapter ships compiled implementations for `Button`, `Checkbox`, `Chip`, `Divider`, `Skeleton`, `Spinner`, `Switch`, and `Text`. The remaining ~64 slots fall through to the in-house adapter via the spread merge. To actually render HeroUI at runtime, follow the four-step activation in `pkgs/ui/src/adapters/heroui/README.md` (Uniwind + Tailwind v4 setup in `apps/client`, mount `HeroUIThemeBridge`, set `EXPO_PUBLIC_UI_IMPL=heroui`). Until that lands, `UI_IMPL` defaults to `inhouse` and the existing app surface is unchanged.
+
 ## CI / Turbo Remote Cache
 
 GitHub Actions runs checks with `DOPPLER_CONFIG=local`. Caching is backed by **Vercel Remote Caching** — ensure the Doppler **`local`** config defines `TURBO_TOKEN` (a [Vercel Access Token](https://vercel.com/account/tokens) scoped to the team) and `TURBO_TEAM` (the Vercel team slug). The optional knobs `TURBO_CACHE` (default `remote:rw`), `TURBO_LOG_ORDER`, and `TURBO_TELEMETRY_DISABLED` are derived defaults populated by `infra provision`. The values are mirrored from the active config to `local` automatically (see `mirrorSharedToLocal` in `libs/infra/src/cli/resources/doppler.ts`). The `turbo-ci` job runs `scripts/check-turbo-remote-cache.ts` under `doppler run` first (Doppler `local` must expose `TURBO_TOKEN` + `TURBO_TEAM`; only `DOPPLER_TOKEN_SHARED` is a GitHub secret). The script rejects missing env, bad tokens, and Turbo’s `Remote caching unavailable` probe warning; without remote cache CI reruns every task cold (~10+ min) with misleading blank log lines. `bun run check:ci` invokes `scripts/turbo-ci-run.ts`, which passes `--concurrency=6 --cache-workers=1 --summarize --output-logs=hash-only --log-order=grouped` to every Turbo invocation: fewer parallel tasks and serialized cache HTTP stay under Vercel's artifact API rate limit. CI uses `--cache=local:rw,remote:rw` so later runs hit `cache hit` instead of cold `cache miss`; local `bun check` uses `remote:r` (read-only) to avoid upload 429s against the shared Vercel cache.
@@ -137,3 +173,9 @@ pkgs  →  pkgs only    (leaf tier: reusable, app-agnostic)
 - Within and across feature packages, `client/` cannot import from `server/` and vice-versa (`client-not-server`, `server-not-client`).
 - Every `@pkgs/<utility>` micro-package (`assert`, `keyword`, `attribute`, `message`, `kv`, `sql-client`, `logger`, etc.) stays runtime-agnostic and feature-agnostic — no imports from `spaces`, `chess`, or any other product package.
 - `apps/client` cannot reach any feature's `server/`; `apps/api` cannot reach any feature's `client/` (`apps-client-no-server`, `apps-api-no-client`).
+
+<!-- HEROUI-NATIVE-AGENTS-MD-START -->
+
+[HeroUI Native Docs Index]|root: ./.heroui-docs/native|STOP. What you remember about HeroUI Native is WRONG for this project. Always search docs and read before any task.|If docs missing, run this command first: heroui agents-md --native --output AGENTS.md
+
+<!-- HEROUI-NATIVE-AGENTS-MD-END -->
