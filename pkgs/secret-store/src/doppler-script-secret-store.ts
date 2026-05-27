@@ -32,10 +32,7 @@ export class DopplerScriptSecretStore implements SecretStore {
     this.cli = cli;
   }
 
-  getRequired(
-    name: string,
-    init?: SecretStoreGetInit
-  ): Promise<SecretString> {
+  getRequired(name: string, init?: SecretStoreGetInit): Promise<SecretString> {
     return this.reader.getRequired(name, init);
   }
 

@@ -31,10 +31,7 @@ export type SecretStoreSetInit = {
  *     {@link setSecret} rather than silently no-op.
  */
 export interface SecretStore {
-  getRequired(
-    name: string,
-    init?: SecretStoreGetInit
-  ): Promise<SecretString>;
+  getRequired(name: string, init?: SecretStoreGetInit): Promise<SecretString>;
 
   /** Missing or blank (after trim) → `null`. HTTP / parse failures still throw. */
   getOptional(

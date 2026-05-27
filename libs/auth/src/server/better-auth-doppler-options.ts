@@ -10,12 +10,12 @@ export async function loadBetterAuthOptionsForMigration(
   const secret = (await store.getRequired('BETTER_AUTH_SECRET'))
     .readSecretValue()
     .trim();
-  const apiUrlRaw = (
-    await store.getRequired('API_URL')
-  ).readSecretValue();
+  const apiUrlRaw = (await store.getRequired('API_URL')).readSecretValue();
   const apiOrigin = apiUrlRaw.replace(/\/$/, '');
   const baseURL = `${apiOrigin}/api/auth`;
-  const googleClientId = (await store.getRequired('WEB_CLIENT_GOOGLE_CLIENT_ID'))
+  const googleClientId = (
+    await store.getRequired('WEB_CLIENT_GOOGLE_CLIENT_ID')
+  )
     .readSecretValue()
     .trim();
   const googleClientSecret = (

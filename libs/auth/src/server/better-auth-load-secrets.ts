@@ -143,7 +143,9 @@ export async function loadBetterAuthSecretsWorker(
 
   const trustedRaw =
     (
-      await secretStore.getOptional(BetterAuthDopplerKey.betterAuthTrustedOrigins)
+      await secretStore.getOptional(
+        BetterAuthDopplerKey.betterAuthTrustedOrigins
+      )
     )?.readSecretValue() ?? null;
   const trustedOrigins = buildTrustedOrigins(apiOrigin, trustedRaw);
 

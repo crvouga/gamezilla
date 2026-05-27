@@ -13,8 +13,7 @@ describe('createStripeWebhookRoutes', () => {
     } as unknown as PatchDb;
     const secretStore = {
       getRequired: async (name: string) => new SecretString(name, ''),
-      getOptional: async (name: string) =>
-        new SecretString(name, 'whsec_test'),
+      getOptional: async (name: string) => new SecretString(name, 'whsec_test'),
       getRequiredMany: async () => ({}),
     } as unknown as SecretStore;
 
@@ -73,8 +72,7 @@ describe('createStripeWebhookRoutes', () => {
 
     const secretStore = {
       getRequired: async (name: string) => new SecretString(name, ''),
-      getOptional: async (name: string) =>
-        new SecretString(name, 'whsec_test'),
+      getOptional: async (name: string) => new SecretString(name, 'whsec_test'),
       getRequiredMany: async () => ({}),
     } as unknown as SecretStore;
 
