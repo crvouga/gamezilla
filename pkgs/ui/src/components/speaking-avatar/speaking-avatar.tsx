@@ -24,7 +24,9 @@
  * mute audio (the bubble entrance animation still runs).
  *
  * Mute affordance: when `speak !== false`, tapping the avatar head
- * toggles a local `muted` flag and the audio kickoff in `useSpeak` is
+ * toggles a `muted` flag persisted via {@link useKvState} (so the choice
+ * survives reloads when an ambient `<KvProvider>` is mounted; falls back
+ * to in-memory state otherwise). The audio kickoff in `useSpeak` is
  * gated on `!muted`. A tiny `SoundIndicator` sits in the bottom-right
  * of the head and visualises three states: `'idle'` (audio enabled,
  * nothing playing), `'playing'` (pulsing while TTS audio is actively
@@ -39,9 +41,12 @@
  * ```
  */
 
+import { asKeyword } from '@pkgs/keyword/keyword';
+import { booleanKvCodec } from '@pkgs/kv/kv-state-codec';
+import { useKvState } from '@pkgs/kv/use-kv-state';
 import { useSpeak } from '@pkgs/tts/client/use-speak';
 import { type Voice } from '@pkgs/tts/shared/tts-voice';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useMemo, type ReactNode } from 'react';
 import { type StyleProp, type ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { defaultColors } from '../../theme';
@@ -50,6 +55,10 @@ import { Pressable } from '../pressable';
 import { SoundIndicator, type SoundIndicatorState } from '../sound-indicator';
 import { SPEAKING_AVATAR_SVG } from './speaking-avatar-svg';
 import { SpeechBubble } from './speech-bubble';
+
+const MUTED_ROW_KEY = asKeyword('ui/speaking-avatar-muted');
+const MUTED_VALUE_ATTR = asKeyword('ui/value');
+const MUTED_CODEC = booleanKvCodec(MUTED_VALUE_ATTR);
 
 function resolveIndicatorState(
   muted: boolean,
@@ -101,10 +110,14 @@ export function SpeakingAvatar({
 }: SpeakingAvatarProps): ReactNode {
   const svg = useMemo(() => SPEAKING_AVATAR_SVG, []);
 
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useKvState<boolean>({
+    key: MUTED_ROW_KEY,
+    default: false,
+    codec: MUTED_CODEC,
+  });
   const toggleMuted = useCallback(() => {
     setMuted((m) => !m);
-  }, []);
+  }, [setMuted]);
 
   const ttsEnabled = !muted && !bubbleResolving && message.trim().length > 0;
 

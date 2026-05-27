@@ -12,9 +12,9 @@ import {
 } from 'react';
 import { Platform } from 'react-native';
 
-import type { ThemePreferenceStorage } from '../../theme';
 import { CommandRegistryStore } from './command-registry-store';
 import { HistoryStore } from './history-store';
+import type { KeyValueStorage } from './key-value-storage';
 import {
   matchesWebShortcut,
   type WebKeyboardEventLike,
@@ -27,7 +27,7 @@ const DEFAULT_STORAGE_KEY = '@app/command-history';
 
 export type CommandRegistryProviderProps = {
   children: ReactNode;
-  storage?: ThemePreferenceStorage;
+  storage?: KeyValueStorage;
   storageKey?: string;
   historyLimit?: number;
   openShortcuts?: string[];
@@ -64,7 +64,7 @@ function useStableStore(): CommandRegistryStore {
 }
 
 function useStableHistoryStore(
-  storage: ThemePreferenceStorage | undefined,
+  storage: KeyValueStorage | undefined,
   storageKey: string,
   historyLimit: number
 ): HistoryStore {

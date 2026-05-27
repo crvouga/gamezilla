@@ -1,28 +1,27 @@
 /**
- * Light / dark / system preference with optional persistence.
- * Pass a storage adapter (e.g. AsyncStorage) from the app; shared stays dependency-free.
+ * Light / dark / system preference persisted via {@link useKvState}
+ * (i.e. through any ambient `<KvProvider>`). When no provider is mounted
+ * the hook silently falls back to in-memory state.
  */
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useCallback, useMemo, type ReactNode } from 'react';
+import { createContext, useContext } from 'react';
+
+import { asKeyword } from '@pkgs/keyword/keyword';
+import { enumKvCodec } from '@pkgs/kv/kv-state-codec';
+import { useKvState } from '@pkgs/kv/use-kv-state';
 
 import type { ThemeProviderProps } from './theme-context';
 
-const DEFAULT_STORAGE_KEY = '@app/color-scheme-preference';
+const COLOR_SCHEME_ROW_KEY = asKeyword('ui.prefs/color-scheme');
+const COLOR_SCHEME_VALUE_ATTR = asKeyword('ui.prefs/value');
+const COLOR_SCHEME_VALUES = ['light', 'dark', 'system'] as const;
+const COLOR_SCHEME_CODEC = enumKvCodec<(typeof COLOR_SCHEME_VALUES)[number]>(
+  COLOR_SCHEME_VALUE_ATTR,
+  COLOR_SCHEME_VALUES
+);
 
 export type ThemePreference = ThemeProviderProps['colorScheme'];
-
-export type ThemePreferenceStorage = {
-  getItem(key: string): Promise<string | null>;
-  setItem(key: string, value: string): Promise<void>;
-};
 
 type ThemePreferenceContextValue = {
   preference: ThemePreference;
@@ -34,38 +33,22 @@ const ThemePreferenceContext =
 
 export type ThemePreferenceProviderProps = {
   children: ReactNode;
-  /** When set, preference is loaded/saved here. Omit for in-memory only (`system` default). */
-  storage?: ThemePreferenceStorage;
-  /** AsyncStorage key (or equivalent) when `storage` is set. */
-  storageKey?: string;
 };
 
 export function ThemePreferenceProvider({
   children,
-  storage,
-  storageKey = DEFAULT_STORAGE_KEY,
 }: ThemePreferenceProviderProps) {
-  const [preference, setPreferenceState] = useState<ThemePreference>('system');
-
-  useEffect(() => {
-    if (storage === undefined) {
-      return;
-    }
-    void storage.getItem(storageKey).then((raw) => {
-      if (raw === 'light' || raw === 'dark' || raw === 'system') {
-        setPreferenceState(raw);
-      }
-    });
-  }, [storage, storageKey]);
+  const [preference, setPreferenceState] = useKvState<ThemePreference>({
+    key: COLOR_SCHEME_ROW_KEY,
+    default: 'system',
+    codec: COLOR_SCHEME_CODEC,
+  });
 
   const setPreference = useCallback(
     (p: ThemePreference) => {
       setPreferenceState(p);
-      if (storage !== undefined) {
-        void storage.setItem(storageKey, p);
-      }
     },
-    [storage, storageKey]
+    [setPreferenceState]
   );
 
   const value = useMemo(

@@ -1,5 +1,6 @@
 /**
- * One-shot wiring: preference (optional persistence) → design tokens → React Navigation theme → status bar.
+ * One-shot wiring: preference (persisted via ambient `<KvProvider>`) →
+ * design tokens → React Navigation theme → status bar.
  */
 
 import { type ReactNode } from 'react';
@@ -13,14 +14,11 @@ import { ThemeProvider, type ThemeProviderProps } from './theme-context';
 import {
   ThemePreferenceProvider,
   useThemePreference,
-  type ThemePreferenceStorage,
 } from './theme-preference';
 import { WebScrollbarTheme } from './web-scrollbar-theme';
 
 export type AppThemeRootProps = {
   children: ReactNode;
-  storage?: ThemePreferenceStorage;
-  storageKey?: string;
   fonts?: Partial<FontStacks>;
   systemFallback?: ColorScheme;
   /**
@@ -69,8 +67,6 @@ function AppThemeShell({
 
 export function AppThemeRoot({
   children,
-  storage,
-  storageKey,
   fonts,
   systemFallback = 'light',
   colorScheme,
@@ -78,10 +74,7 @@ export function AppThemeRoot({
   textCasing,
 }: AppThemeRootProps) {
   return (
-    <ThemePreferenceProvider
-      {...(storage !== undefined ? { storage } : {})}
-      {...(storageKey !== undefined ? { storageKey } : {})}
-    >
+    <ThemePreferenceProvider>
       <AppThemeShell
         systemFallback={systemFallback}
         {...(fonts !== undefined ? { fonts } : {})}

@@ -12,4 +12,13 @@ export function useKv(): Kv {
   return v;
 }
 
+/**
+ * Returns the ambient {@link Kv} or `null` when no provider is mounted.
+ * Use for components that should degrade gracefully without persistence
+ * (storybook previews, isolated unit tests, etc.).
+ */
+export function useKvOptional(): Kv | null {
+  return useContext(KvContext);
+}
+
 export const KvContextProvider = KvContext.Provider;

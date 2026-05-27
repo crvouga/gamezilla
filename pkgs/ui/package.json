@@ -20,6 +20,8 @@
     "@dicebear/core": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/i18n": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/kv": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/tts": "workspace:*",
     "@gorhom/bottom-sheet": "catalog:",

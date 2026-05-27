@@ -33,14 +33,14 @@ export function AppProviders({ children }: { children: ReactNode }): ReactNode {
     <GestureHandlerProvider>
       <SafeAreaProviderWrapper>
         <FontsProvider>
-          <AppThemeProvider>
-            <SpinnerProvider>
-              <SuspenseRootProvider>
-                <AppI18nProviderWrapper>
-                  <UiPortalsProvider>
-                    <LoggerProvider>
-                      <SecureStorageProvider>
-                        <KvProvider>
+          <KvProvider>
+            <AppThemeProvider>
+              <SpinnerProvider>
+                <SuspenseRootProvider>
+                  <AppI18nProviderWrapper>
+                    <UiPortalsProvider>
+                      <LoggerProvider>
+                        <SecureStorageProvider>
                           <ConfigServiceProviderWrapper>
                             <ObjectStoreProviderWrapper>
                               <LlmProviderWrapper>
@@ -69,14 +69,14 @@ export function AppProviders({ children }: { children: ReactNode }): ReactNode {
                               </LlmProviderWrapper>
                             </ObjectStoreProviderWrapper>
                           </ConfigServiceProviderWrapper>
-                        </KvProvider>
-                      </SecureStorageProvider>
-                    </LoggerProvider>
-                  </UiPortalsProvider>
-                </AppI18nProviderWrapper>
-              </SuspenseRootProvider>
-            </SpinnerProvider>
-          </AppThemeProvider>
+                        </SecureStorageProvider>
+                      </LoggerProvider>
+                    </UiPortalsProvider>
+                  </AppI18nProviderWrapper>
+                </SuspenseRootProvider>
+              </SpinnerProvider>
+            </AppThemeProvider>
+          </KvProvider>
         </FontsProvider>
       </SafeAreaProviderWrapper>
     </GestureHandlerProvider>

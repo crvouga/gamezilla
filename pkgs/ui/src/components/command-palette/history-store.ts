@@ -1,10 +1,10 @@
-import type { ThemePreferenceStorage } from '../../theme';
+import type { KeyValueStorage } from './key-value-storage';
 
 const DEFAULT_KEY = '@app/command-history';
 const DEFAULT_LIMIT = 20;
 
 export type HistoryStoreOptions = {
-  storage?: ThemePreferenceStorage | undefined;
+  storage?: KeyValueStorage | undefined;
   storageKey?: string;
   limit?: number;
 };
@@ -15,7 +15,7 @@ export type HistoryListener = () => void;
  * MRU list of command ids with optional AsyncStorage persistence.
  */
 export class HistoryStore {
-  private readonly storage: ThemePreferenceStorage | undefined;
+  private readonly storage: KeyValueStorage | undefined;
   private readonly storageKey: string;
   private readonly limit: number;
   private ids: string[] = [];
