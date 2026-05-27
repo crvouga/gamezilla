@@ -7383,8 +7383,12 @@ msgid "Type a command or search…"
 msgstr "Type a command or search…"
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
-msgid "Type something..."
-msgstr "Type something..."
+#~ msgid "Type something..."
+#~ msgstr "Type something..."
+
+#: pkgs/ui/src/components/text-input/text-input.example.tsx
+msgid "Type something…"
+msgstr "Type something…"
 
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Type: {networkTypeLabel}"
