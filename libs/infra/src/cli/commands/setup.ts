@@ -27,7 +27,9 @@ export class SetupCommand implements Command {
 
     const deps = process.env['CI'] ? DEPLOY_DEPS : ALL_DEPS;
 
-    await runStep(this.platform, 'Dependencies', () => this.ensureDepsAsync(deps));
+    await runStep(this.platform, 'Dependencies', () =>
+      this.ensureDepsAsync(deps)
+    );
 
     const missingEnvs = await runStep(this.platform, 'Load secrets', () => {
       const secrets = loadSecretsIntoEnv();
@@ -110,9 +112,7 @@ export class SetupCommand implements Command {
     }
   }
 
-  private async ensureDepsAsync(
-    deps: readonly Dep[]
-  ): Promise<void> {
+  private async ensureDepsAsync(deps: readonly Dep[]): Promise<void> {
     for (const dep of deps) {
       let st = dep.check();
 
