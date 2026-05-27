@@ -9,6 +9,10 @@ function isMacOS(): boolean {
   return process.platform === 'darwin';
 }
 
+function isLinux(): boolean {
+  return process.platform === 'linux';
+}
+
 function hasHomebrew(): boolean {
   return whichSync('brew');
 }
@@ -45,6 +49,37 @@ function unlinkLegacyStripeCliIfNeeded(): void {
 
 function ensureStripeFormulaLinked(): void {
   spawnInstall('brew', ['link', '--overwrite', 'stripe']);
+}
+
+function ensureLocalBinOnPath(): void {
+  const home = process.env['HOME'];
+  if (!home) return;
+  const bin = `${home}/.local/bin`;
+  // GitHub Actions + most shells already include ~/.local/bin; ensure it for
+  // child processes spawned from this CLI too.
+  const path = process.env['PATH'] ?? '';
+  if (!path.split(':').includes(bin)) {
+    process.env['PATH'] = `${bin}:${path}`;
+  }
+}
+
+function installOrUpgradeStripeCliLinuxLatest(): void {
+  ensureLocalBinOnPath();
+  spawnInstall('bash', [
+    '-lc',
+    [
+      'set -euo pipefail',
+      // Resolve latest tag name via GitHub API (same source as fetchLatestVersion()).
+      // Example: {"tag_name":"v1.42.0", ...}
+      'TAG="$(curl -fsSL https://api.github.com/repos/stripe/stripe-cli/releases/latest | ' +
+        "python3 -c \"import json,sys; print(json.load(sys.stdin).get('tag_name',''))\" )\"",
+      'VER="${TAG#v}"',
+      'if [ -z "$VER" ]; then echo "Failed to resolve Stripe CLI latest version" 1>&2; exit 1; fi',
+      'mkdir -p "$HOME/.local/bin"',
+      'curl -fsSL "https://github.com/stripe/stripe-cli/releases/download/v${VER}/stripe_${VER}_linux_x86_64.tar.gz" | tar -xz -C "$HOME/.local/bin" stripe',
+      '"$HOME/.local/bin/stripe" version',
+    ].join('\n'),
+  ]);
 }
 
 export class StripeDep implements Dep {
@@ -93,6 +128,11 @@ export class StripeDep implements Dep {
       return;
     }
 
+    if (isLinux()) {
+      installOrUpgradeStripeCliLinuxLatest();
+      return;
+    }
+
     throw new Error(
       'Automatic Stripe CLI install requires Homebrew on macOS. ' +
         'Install manually: https://docs.stripe.com/stripe-cli#install'
@@ -109,6 +149,10 @@ export class StripeDep implements Dep {
         spawnInstall('brew', ['install', 'stripe/stripe-cli/stripe']);
       }
       ensureStripeFormulaLinked();
+      return;
+    }
+    if (isLinux()) {
+      installOrUpgradeStripeCliLinuxLatest();
       return;
     }
     this.install();

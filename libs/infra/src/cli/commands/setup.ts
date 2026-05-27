@@ -1,7 +1,8 @@
 import { assert } from '@pkgs/assert';
 import { createInterface } from 'node:readline/promises';
-import { ALL_DEPS } from '../deps/registry';
+import { ALL_DEPS, DEPLOY_DEPS } from '../deps/registry';
 import { isAtLeastLatest } from '../deps/semver';
+import type { Dep } from '../deps/types';
 import { banner, fmt, fail as fmtFail, info, ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
@@ -24,7 +25,9 @@ export class SetupCommand implements Command {
     const t0 = performance.now();
     banner('Setup');
 
-    await runStep(this.platform, 'Dependencies', () => this.ensureDepsAsync());
+    const deps = process.env['CI'] ? DEPLOY_DEPS : ALL_DEPS;
+
+    await runStep(this.platform, 'Dependencies', () => this.ensureDepsAsync(deps));
 
     const missingEnvs = await runStep(this.platform, 'Load secrets', () => {
       const secrets = loadSecretsIntoEnv();
@@ -38,6 +41,14 @@ export class SetupCommand implements Command {
     if (missingEnvs.size > 0) {
       await this.promptForMissingSecrets(missingEnvs);
     }
+
+    // Defer tool verification until secrets are loaded into `process.env` so
+    // auth-gated binaries (e.g. `wrangler whoami`) succeed in CI.
+    await runStep(this.platform, 'Verify tools', () => {
+      for (const dep of deps) {
+        if (dep.verify) dep.verify();
+      }
+    });
 
     banner('Setup Complete', performance.now() - t0);
     ok('CLI is ready');
@@ -99,8 +110,10 @@ export class SetupCommand implements Command {
     }
   }
 
-  private async ensureDepsAsync(): Promise<void> {
-    for (const dep of ALL_DEPS) {
+  private async ensureDepsAsync(
+    deps: readonly Dep[]
+  ): Promise<void> {
+    for (const dep of deps) {
       let st = dep.check();
 
       if (!st.ok) {
@@ -149,7 +162,6 @@ export class SetupCommand implements Command {
       }
 
       ok(dep.name, st.version);
-      if (dep.verify) dep.verify();
     }
   }
 }

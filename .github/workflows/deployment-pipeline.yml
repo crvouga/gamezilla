@@ -304,6 +304,8 @@ jobs:
           wrangler: 'true'
           stripe: 'true'
           postgres: 'true'
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
       - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config → ensure-destroyed)
         id: deploy
         working-directory: libs/infra
