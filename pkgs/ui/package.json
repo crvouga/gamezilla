@@ -34,9 +34,14 @@
     "expo-router": "catalog:",
     "expo-splash-screen": "catalog:",
     "expo-status-bar": "catalog:",
+    "heroui-native": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",
-    "react-native-svg": "catalog:"
+    "react-native-svg": "catalog:",
+    "tailwind-merge": "catalog:",
+    "tailwind-variants": "catalog:",
+    "tailwindcss": "catalog:",
+    "uniwind": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
