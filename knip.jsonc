@@ -45,6 +45,9 @@
     "react-native-svg",
     "eslint-plugin-naming",
     "wrangler",
+    // Pre-staged for HeroUI adapter activation per pkgs/ui/src/adapters/heroui/README.md;
+    // installed in pkgs/ui/package.json but not imported until Tailwind + Metro wiring lands.
+    "uniwind",
     "@lingui/conf",
     "@total-typescript/ts-reset",
     "turbo",

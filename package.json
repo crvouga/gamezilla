@@ -74,7 +74,7 @@
     "prettier": "catalog:",
     "sort-package-json": "catalog:",
     "syncpack": "catalog:",
-    "turbo": "^2.9.15",
+    "turbo": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:"
   },
@@ -180,7 +180,7 @@
     "tailwind-merge": "^3.4.0",
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4.2.4",
-    "turbo": "^2.9.14",
+    "turbo": "^2.9.15",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.59.1",
     "uniwind": "^1.7.0",

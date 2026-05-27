@@ -1,5 +1,4 @@
-import type { SecretStore } from '@pkgs/secret-store';
-import { SecretString } from '@pkgs/secret-string/secret-string';
+import { SecretString, type SecretStore } from '@pkgs/secret-store';
 import type { PatchDb, PatchInput } from '@pkgs/patch-db/interface';
 import { describe, expect, it, mock } from 'bun:test';
 import Stripe from 'stripe';
