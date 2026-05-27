@@ -21,7 +21,11 @@ export type KvStateCodec<T> = {
   encode: (value: T) => KvRecord;
 };
 
-function makeRecord(valueAttr: Keyword, value: unknown, label: string): KvRecord {
+function makeRecord(
+  valueAttr: Keyword,
+  value: unknown,
+  label: string
+): KvRecord {
   const record = { [valueAttr]: value } as KvRecord;
   assertKvRecord(hotAssert(), record, label);
   return record;

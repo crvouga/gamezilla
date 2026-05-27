@@ -51,7 +51,9 @@ export function decodePersistedRecord<T>(
 }
 
 function applyUpdater<T>(updater: SetStateAction<T>, prev: T): T {
-  return typeof updater === 'function' ? (updater as (p: T) => T)(prev) : updater;
+  return typeof updater === 'function'
+    ? (updater as (p: T) => T)(prev)
+    : updater;
 }
 
 function persistValue<T>(
