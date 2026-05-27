@@ -99,6 +99,31 @@ function useBubbleEnterAnim(text: string): {
   return { opacity: progress, translateX };
 }
 
+function SpeechBubbleMessage(props: {
+  loading: boolean;
+  text: string;
+  numberOfLines: number;
+  textColor: string;
+  secondaryColor: string;
+}): ReactNode {
+  const { loading, text, numberOfLines, textColor, secondaryColor } = props;
+  if (loading) {
+    return (
+      <TypingDots color={secondaryColor} height={BUBBLE_LINE_HEIGHT} />
+    );
+  }
+  return (
+    <Text
+      variant="bodyBold"
+      numberOfLines={numberOfLines}
+      ellipsizeMode="tail"
+      style={{ color: textColor, lineHeight: BUBBLE_LINE_HEIGHT }}
+    >
+      {text}
+    </Text>
+  );
+}
+
 export function SpeechBubble({
   text,
   header,
@@ -152,24 +177,13 @@ export function SpeechBubble({
         }}
       >
         {header !== undefined ? header : null}
-        {loading ? (
-          <TypingDots
-            color={theme.colors.textSecondary}
-            height={BUBBLE_LINE_HEIGHT}
-          />
-        ) : (
-          <Text
-            variant="bodyBold"
-            numberOfLines={numberOfLines}
-            ellipsizeMode="tail"
-            style={{
-              color: theme.colors.text,
-              lineHeight: BUBBLE_LINE_HEIGHT,
-            }}
-          >
-            {text}
-          </Text>
-        )}
+        <SpeechBubbleMessage
+          loading={loading}
+          text={text}
+          numberOfLines={numberOfLines}
+          textColor={theme.colors.text}
+          secondaryColor={theme.colors.textSecondary}
+        />
       </View>
     </Animated.View>
   );
