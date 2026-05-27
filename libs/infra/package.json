@@ -16,6 +16,7 @@
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/os": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "picocolors": "catalog:"
   },

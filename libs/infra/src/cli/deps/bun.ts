@@ -1,4 +1,10 @@
-import { captureVersion, spawnInstall, verifyRun, whichSync } from './spawn';
+import {
+  captureVersion,
+  CurlScriptInstaller,
+  run,
+  verifyRun,
+  which,
+} from '@pkgs/os';
 import type { Dep, DepStatus } from './types';
 
 const UA = 'gamezilla-infra-cli';
@@ -8,12 +14,16 @@ export class BunDep implements Dep {
   readonly name = 'bun';
   readonly bin = 'bun';
 
+  private readonly installer = new CurlScriptInstaller({
+    url: 'https://bun.sh/install',
+  });
+
   version(): string | null {
     return captureVersion('bun', ['--version']);
   }
 
   check(): DepStatus {
-    if (!whichSync('bun')) return { ok: false, reason: 'not found on PATH' };
+    if (!which('bun')) return { ok: false, reason: 'not found on PATH' };
     const v = this.version();
     if (!v) return { ok: false, reason: 'could not determine version' };
     return { ok: true, version: v };
@@ -42,11 +52,11 @@ export class BunDep implements Dep {
   }
 
   install(): void {
-    spawnInstall('bash', ['-c', 'curl -fsSL https://bun.sh/install | bash']);
+    this.installer.install();
   }
 
   upgrade(): void {
-    spawnInstall('bun', ['upgrade']);
+    run('bun', ['upgrade']);
   }
 
   verify(): void {

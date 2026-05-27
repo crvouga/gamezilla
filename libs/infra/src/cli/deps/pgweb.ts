@@ -1,57 +1,63 @@
-import { captureVersion, spawnInstall, verifyRun, whichSync } from './spawn';
+import {
+  captureVersion,
+  currentOs,
+  FirstAvailableInstaller,
+  GithubReleaseTarballInstaller,
+  PackageManagerInstaller,
+  verifyRun,
+  which,
+} from '@pkgs/os';
 import type { Dep, DepStatus } from './types';
 
 /**
- * `pgweb` is the local Postgres web GUI launched by `pkgs/postgres/src/dev.ts`. It's
- * a single Go binary; we treat it like our other CLI tools (postgres / stripe
- * / wrangler / doppler / bun): registered in `ALL_DEPS` so `setup` enforces
- * its presence, `status` reports it, and `deploy` refuses to run when it is
- * missing. The `dev` script itself treats a missing binary as a soft warning
- * (the cluster keeps running), but for a configured workstation we want it
- * present so developers don't silently lose the GUI.
+ * `pgweb` is the local Postgres web GUI launched by `pkgs/postgres/src/dev.ts`.
+ * It's a single Go binary; we treat it like our other CLI tools (postgres /
+ * stripe / wrangler / doppler / bun): registered in `ALL_DEPS` so `setup`
+ * enforces its presence, `status` reports it, and `deploy` refuses to run
+ * when it is missing. The `dev` script itself treats a missing binary as a
+ * soft warning (the cluster keeps running), but for a configured workstation
+ * we want it present so developers don't silently lose the GUI.
  */
-
-const HOMEBREW_FORMULA = 'pgweb';
-
-function isMacOS(): boolean {
-  return process.platform === 'darwin';
-}
-
-function isLinux(): boolean {
-  return process.platform === 'linux';
-}
-
-function hasHomebrew(): boolean {
-  return whichSync('brew');
-}
-
-function platformInstallHint(): string {
-  if (isMacOS()) {
-    return `Run \`brew install ${HOMEBREW_FORMULA}\`.`;
-  }
-  if (isLinux()) {
-    return 'Download the pgweb release for your distro from https://github.com/sosedoff/pgweb/releases and place it on PATH.';
-  }
-  return 'Native Windows is not supported by `pkgs/postgres`. Install pgweb inside WSL2 (https://github.com/sosedoff/pgweb).';
-}
-
 const UA = 'gamezilla-infra-cli';
 const FETCH_TIMEOUT_MS = 15_000;
+
+const installer = new FirstAvailableInstaller(
+  [
+    new PackageManagerInstaller({
+      entries: [
+        { packageManagerId: 'homebrew', package: 'pgweb' },
+        { packageManagerId: 'scoop', package: 'pgweb' },
+      ],
+    }),
+    new GithubReleaseTarballInstaller({
+      repo: 'sosedoff/pgweb',
+      binName: 'pgweb',
+      archive: (_version, os) => {
+        const arch = os.releaseArchName() === 'arm64' ? 'arm64' : 'amd64';
+        return {
+          name: `pgweb_${os.releaseOsName()}_${arch}.zip`,
+          format: 'zip',
+        };
+      },
+    }),
+  ],
+  'Install pgweb manually: https://github.com/sosedoff/pgweb/releases'
+);
 
 export class PgwebDep implements Dep {
   readonly name = 'pgweb';
   readonly bin = 'pgweb';
 
   version(): string | null {
-    if (!whichSync('pgweb')) return null;
+    if (!which('pgweb')) return null;
     return captureVersion('pgweb', ['--version']);
   }
 
   check(): DepStatus {
-    if (!whichSync('pgweb')) {
+    if (!which('pgweb')) {
       return {
         ok: false,
-        reason: `not found on PATH — ${platformInstallHint()}`,
+        reason: `not found on PATH — ${installHint()}`,
       };
     }
     const v = this.version();
@@ -82,24 +88,23 @@ export class PgwebDep implements Dep {
   }
 
   install(): void {
-    if (isMacOS() && hasHomebrew()) {
-      spawnInstall('brew', ['install', HOMEBREW_FORMULA]);
-      return;
-    }
-    throw new Error(
-      `Automatic pgweb install requires Homebrew on macOS. ${platformInstallHint()}`
-    );
+    installer.install();
   }
 
   upgrade(): void {
-    if (isMacOS() && hasHomebrew()) {
-      spawnInstall('brew', ['upgrade', HOMEBREW_FORMULA]);
-      return;
-    }
-    this.install();
+    installer.upgrade();
   }
 
   verify(): void {
     verifyRun('pgweb', ['--version']);
   }
+}
+
+function installHint(): string {
+  const os = currentOs();
+  const pm = os.preferredPackageManager();
+  if (pm !== null) {
+    return `try \`${pm.id} install pgweb\` or download from https://github.com/sosedoff/pgweb/releases`;
+  }
+  return 'install via your platform package manager or download from https://github.com/sosedoff/pgweb/releases';
 }

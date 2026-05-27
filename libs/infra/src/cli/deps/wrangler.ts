@@ -1,9 +1,9 @@
 import {
   captureVersionDiagnostic,
-  spawnInstall,
+  NpmGlobalInstaller,
   verifyRun,
-  whichSync,
-} from './spawn';
+  which,
+} from '@pkgs/os';
 import type { Dep, DepStatus } from './types';
 
 const UA = 'gamezilla-infra-cli';
@@ -23,12 +23,17 @@ export class WranglerDep implements Dep {
   readonly name = 'wrangler';
   readonly bin = 'wrangler';
 
+  private readonly installer = new NpmGlobalInstaller({
+    pkg: 'wrangler',
+    tag: 'latest',
+  });
+
   version(): string | null {
     return captureVersionDiagnostic('wrangler', ['--version']).version;
   }
 
   check(): DepStatus {
-    if (!whichSync('wrangler'))
+    if (!which('wrangler'))
       return { ok: false, reason: 'not found on PATH' };
     const d = captureVersionDiagnostic('wrangler', ['--version']);
     if (d.version !== null) return { ok: true, version: d.version };
@@ -56,11 +61,11 @@ export class WranglerDep implements Dep {
   }
 
   install(): void {
-    spawnInstall('npm', ['install', '-g', 'wrangler@latest']);
+    this.installer.install();
   }
 
   upgrade(): void {
-    spawnInstall('npm', ['install', '-g', 'wrangler@latest']);
+    this.installer.upgrade();
   }
 
   verify(): void {

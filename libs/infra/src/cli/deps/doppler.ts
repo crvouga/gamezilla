@@ -1,7 +1,15 @@
 import { mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { captureVersion, spawnInstall, verifyRun, whichSync } from './spawn';
+import {
+  captureVersion,
+  CurlScriptInstaller,
+  FirstAvailableInstaller,
+  PackageManagerInstaller,
+  run,
+  verifyRun,
+  which,
+} from '@pkgs/os';
 import type { Dep, DepStatus } from './types';
 
 const UA = 'gamezilla-infra-cli';
@@ -12,16 +20,31 @@ function dopplerInstallBinDir(): string {
   return join(homedir(), '.bun', 'bin');
 }
 
-function isMacOS(): boolean {
-  return process.platform === 'darwin';
-}
-
-function hasHomebrew(): boolean {
-  return whichSync('brew');
-}
-
-function hasGpg(): boolean {
-  return whichSync('gpg');
+function buildInstaller(): FirstAvailableInstaller {
+  const binDir = dopplerInstallBinDir();
+  mkdirSync(binDir, { recursive: true });
+  const scriptArgs: string[] = ['--install-path', binDir];
+  if (!which('gpg')) scriptArgs.push('--no-verify');
+  return new FirstAvailableInstaller(
+    [
+      new PackageManagerInstaller({
+        entries: [
+          {
+            packageManagerId: 'homebrew',
+            package: 'dopplerhq/cli/doppler',
+          },
+          { packageManagerId: 'scoop', package: 'doppler' },
+          { packageManagerId: 'winget', package: 'Doppler.Doppler' },
+        ],
+      }),
+      new CurlScriptInstaller({
+        url: 'https://cli.doppler.com/install.sh',
+        shell: 'sh',
+        scriptArgs,
+      }),
+    ],
+    'Install Doppler CLI manually: https://docs.doppler.com/docs/install-cli'
+  );
 }
 
 export class DopplerDep implements Dep {
@@ -33,7 +56,7 @@ export class DopplerDep implements Dep {
   }
 
   check(): DepStatus {
-    if (!whichSync('doppler'))
+    if (!which('doppler'))
       return { ok: false, reason: 'not found on PATH' };
     const v = this.version();
     if (!v) return { ok: false, reason: 'could not determine version' };
@@ -63,39 +86,22 @@ export class DopplerDep implements Dep {
   }
 
   install(): void {
-    if (isMacOS() && hasHomebrew()) {
-      spawnInstall('brew', ['install', 'dopplerhq/cli/doppler']);
-      return;
-    }
-
-    const binDir = dopplerInstallBinDir();
-    mkdirSync(binDir, { recursive: true });
-    const escaped = binDir.replace(/'/g, `'\\''`);
-
-    if (!hasGpg()) {
-      spawnInstall('bash', [
-        '-c',
-        `curl -fsSL https://cli.doppler.com/install.sh | sh -s -- --install-path '${escaped}' --no-verify`,
-      ]);
-      return;
-    }
-
-    spawnInstall('bash', [
-      '-c',
-      `curl -fsSL https://cli.doppler.com/install.sh | sh -s -- --install-path '${escaped}'`,
-    ]);
+    buildInstaller().install();
   }
 
   upgrade(): void {
-    if (
-      isMacOS() &&
-      hasHomebrew() &&
-      !whichSync(join(dopplerInstallBinDir(), 'doppler'))
-    ) {
-      spawnInstall('brew', ['upgrade', 'dopplerhq/cli/doppler']);
-      return;
+    if (which('doppler')) {
+      // `doppler update` is the in-place self-updater. It refuses to operate
+      // on Homebrew-managed installs (it knows when it can't update itself),
+      // so callers fall through to the PM-based installer in that case.
+      try {
+        run('doppler', ['update']);
+        return;
+      } catch {
+        // fall through
+      }
     }
-    spawnInstall('doppler', ['update']);
+    buildInstaller().upgrade();
   }
 
   verify(): void {

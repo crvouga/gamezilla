@@ -1,86 +1,46 @@
-import { spawnSync } from 'node:child_process';
-import { captureVersion, spawnInstall, verifyRun, whichSync } from './spawn';
+import {
+  captureVersion,
+  FirstAvailableInstaller,
+  GithubReleaseTarballInstaller,
+  PackageManagerInstaller,
+  verifyRun,
+  which,
+} from '@pkgs/os';
+import { StripeHomebrewInstaller } from './stripe-homebrew-installer';
 import type { Dep, DepStatus } from './types';
 
 const UA = 'gamezilla-infra-cli';
 const FETCH_TIMEOUT_MS = 15_000;
 
-function isMacOS(): boolean {
-  return process.platform === 'darwin';
-}
-
-function isLinux(): boolean {
-  return process.platform === 'linux';
-}
-
-function hasHomebrew(): boolean {
-  return whichSync('brew');
-}
-
-function ensureStripeHomebrewTap(): void {
-  spawnInstall('brew', ['tap', 'stripe/stripe-cli']);
-}
-
-function hasStripeHomebrewFormulaInstalled(): boolean {
-  const result = spawnSync(
-    'brew',
-    ['list', '--formula', 'stripe/stripe-cli/stripe'],
-    {
-      stdio: 'ignore',
-      env: process.env,
-    }
-  );
-  return result.status === 0 && !result.error;
-}
-
-function hasLegacyStripeCliFormulaInstalled(): boolean {
-  const result = spawnSync('brew', ['list', '--formula', 'stripe-cli'], {
-    stdio: 'ignore',
-    env: process.env,
-  });
-  return result.status === 0 && !result.error;
-}
-
-function unlinkLegacyStripeCliIfNeeded(): void {
-  if (hasLegacyStripeCliFormulaInstalled()) {
-    spawnInstall('brew', ['unlink', 'stripe-cli']);
-  }
-}
-
-function ensureStripeFormulaLinked(): void {
-  spawnInstall('brew', ['link', '--overwrite', 'stripe']);
-}
-
-function ensureLocalBinOnPath(): void {
-  const home = process.env['HOME'];
-  if (!home) return;
-  const bin = `${home}/.local/bin`;
-  // GitHub Actions + most shells already include ~/.local/bin; ensure it for
-  // child processes spawned from this CLI too.
-  const path = process.env['PATH'] ?? '';
-  if (!path.split(':').includes(bin)) {
-    process.env['PATH'] = `${bin}:${path}`;
-  }
-}
-
-function installOrUpgradeStripeCliLinuxLatest(): void {
-  ensureLocalBinOnPath();
-  spawnInstall('bash', [
-    '-lc',
-    [
-      'set -euo pipefail',
-      // Resolve latest tag name via GitHub API (same source as fetchLatestVersion()).
-      // Example: {"tag_name":"v1.42.0", ...}
-      'TAG="$(curl -fsSL https://api.github.com/repos/stripe/stripe-cli/releases/latest | ' +
-        "python3 -c \"import json,sys; print(json.load(sys.stdin).get('tag_name',''))\" )\"",
-      'VER="${TAG#v}"',
-      'if [ -z "$VER" ]; then echo "Failed to resolve Stripe CLI latest version" 1>&2; exit 1; fi',
-      'mkdir -p "$HOME/.local/bin"',
-      'curl -fsSL "https://github.com/stripe/stripe-cli/releases/download/v${VER}/stripe_${VER}_linux_x86_64.tar.gz" | tar -xz -C "$HOME/.local/bin" stripe',
-      '"$HOME/.local/bin/stripe" version',
-    ].join('\n'),
-  ]);
-}
+const installer = new FirstAvailableInstaller(
+  [
+    new StripeHomebrewInstaller(),
+    new PackageManagerInstaller({
+      entries: [
+        { packageManagerId: 'scoop', package: 'stripe' },
+        { packageManagerId: 'winget', package: 'Stripe.StripeCLI' },
+      ],
+    }),
+    new GithubReleaseTarballInstaller({
+      repo: 'stripe/stripe-cli',
+      binName: 'stripe',
+      archive: (version, os) => {
+        const arch = os.releaseArchName() === 'arm64' ? 'arm64' : 'x86_64';
+        if (os.platform === 'win32') {
+          return {
+            name: `stripe_${version}_windows_${arch}.zip`,
+            format: 'zip',
+          };
+        }
+        return {
+          name: `stripe_${version}_${os.releaseOsName()}_${arch}.tar.gz`,
+          format: 'tar.gz',
+        };
+      },
+    }),
+  ],
+  'Install Stripe CLI manually: https://docs.stripe.com/stripe-cli#install'
+);
 
 export class StripeDep implements Dep {
   readonly name = 'stripe';
@@ -91,7 +51,7 @@ export class StripeDep implements Dep {
   }
 
   check(): DepStatus {
-    if (!whichSync('stripe')) return { ok: false, reason: 'not found on PATH' };
+    if (!which('stripe')) return { ok: false, reason: 'not found on PATH' };
     const v = this.version();
     if (!v) return { ok: false, reason: 'could not determine version' };
     return { ok: true, version: v };
@@ -120,42 +80,11 @@ export class StripeDep implements Dep {
   }
 
   install(): void {
-    if (isMacOS() && hasHomebrew()) {
-      ensureStripeHomebrewTap();
-      unlinkLegacyStripeCliIfNeeded();
-      spawnInstall('brew', ['install', 'stripe/stripe-cli/stripe']);
-      ensureStripeFormulaLinked();
-      return;
-    }
-
-    if (isLinux()) {
-      installOrUpgradeStripeCliLinuxLatest();
-      return;
-    }
-
-    throw new Error(
-      'Automatic Stripe CLI install requires Homebrew on macOS. ' +
-        'Install manually: https://docs.stripe.com/stripe-cli#install'
-    );
+    installer.install();
   }
 
   upgrade(): void {
-    if (isMacOS() && hasHomebrew()) {
-      ensureStripeHomebrewTap();
-      unlinkLegacyStripeCliIfNeeded();
-      if (hasStripeHomebrewFormulaInstalled()) {
-        spawnInstall('brew', ['upgrade', 'stripe/stripe-cli/stripe']);
-      } else {
-        spawnInstall('brew', ['install', 'stripe/stripe-cli/stripe']);
-      }
-      ensureStripeFormulaLinked();
-      return;
-    }
-    if (isLinux()) {
-      installOrUpgradeStripeCliLinuxLatest();
-      return;
-    }
-    this.install();
+    installer.upgrade();
   }
 
   verify(): void {
