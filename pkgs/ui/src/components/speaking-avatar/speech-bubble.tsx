@@ -108,9 +108,7 @@ function SpeechBubbleMessage(props: {
 }): ReactNode {
   const { loading, text, numberOfLines, textColor, secondaryColor } = props;
   if (loading) {
-    return (
-      <TypingDots color={secondaryColor} height={BUBBLE_LINE_HEIGHT} />
-    );
+    return <TypingDots color={secondaryColor} height={BUBBLE_LINE_HEIGHT} />;
   }
   return (
     <Text
