@@ -33,8 +33,7 @@ export class WranglerDep implements Dep {
   }
 
   check(): DepStatus {
-    if (!which('wrangler'))
-      return { ok: false, reason: 'not found on PATH' };
+    if (!which('wrangler')) return { ok: false, reason: 'not found on PATH' };
     const d = captureVersionDiagnostic('wrangler', ['--version']);
     if (d.version !== null) return { ok: true, version: d.version };
     return {

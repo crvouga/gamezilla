@@ -56,8 +56,7 @@ export class DopplerDep implements Dep {
   }
 
   check(): DepStatus {
-    if (!which('doppler'))
-      return { ok: false, reason: 'not found on PATH' };
+    if (!which('doppler')) return { ok: false, reason: 'not found on PATH' };
     const v = this.version();
     if (!v) return { ok: false, reason: 'could not determine version' };
     return { ok: true, version: v };

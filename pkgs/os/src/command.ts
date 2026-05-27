@@ -143,7 +143,6 @@ export function captureVersionDiagnostic(
   args: readonly string[]
 ): CaptureVersionDiagnostic {
   const r = capture(bin, args);
-  const version =
-    r.status === 0 ? parseVersionFromStdout(r.stdout) : null;
+  const version = r.status === 0 ? parseVersionFromStdout(r.stdout) : null;
   return { version, stdout: r.stdout, stderr: r.stderr, status: r.status };
 }

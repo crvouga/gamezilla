@@ -53,9 +53,7 @@ export class GithubReleaseTarballInstaller implements Installer {
     const installDir = this.opts.installDir ?? os.defaultBinDir();
     const version = resolveLatestSync(this.opts.repo);
     if (version === null) {
-      throw new Error(
-        `failed to resolve latest release for ${this.opts.repo}`
-      );
+      throw new Error(`failed to resolve latest release for ${this.opts.repo}`);
     }
     const archive = this.opts.archive(version, os);
     const url = `https://github.com/${this.opts.repo}/releases/download/v${version}/${archive.name}`;
