@@ -25,11 +25,7 @@ export default function BadgeExample() {
             <Badge label="Neutral" intent="neutral" />
           </Stack>
 
-          <Text
-            variant="label"
-            sx={{ color: 'textSecondary' }}
-            label="Sizes"
-          />
+          <Text variant="label" sx={{ color: 'textSecondary' }} label="Sizes" />
           <Stack direction="horizontal" spacing={2} align="center">
             <Badge label="3" intent="destructive" size="sm" />
             <Badge label="99+" intent="brand" size="sm" />

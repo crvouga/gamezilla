@@ -23,7 +23,10 @@ export default function PressableExample() {
             sx={{ p: 4, background: 'surface', borderRadius: 10 }}
             onPress={() => setCount((c) => c + 1)}
           >
-            <Text variant="body" label={`Tint feedback · tap count: ${count}`} />
+            <Text
+              variant="body"
+              label={`Tint feedback · tap count: ${count}`}
+            />
           </Pressable>
 
           <Pressable

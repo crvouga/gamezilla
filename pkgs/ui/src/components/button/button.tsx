@@ -320,9 +320,7 @@ function ButtonContent({
           fontWeight: size.text.fontWeight,
           includeFontPadding: false,
           textAlignVertical: 'center',
-          ...(Platform.OS === 'web'
-            ? { letterSpacing: 0.1 }
-            : {}),
+          ...(Platform.OS === 'web' ? { letterSpacing: 0.1 } : {}),
         }}
         label={title}
       />

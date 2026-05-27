@@ -146,7 +146,9 @@ export function SpeechBubble({
           height: bubbleHeight,
           justifyContent: 'center',
           ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
-          ...(lift.elevation !== undefined ? { elevation: lift.elevation } : {}),
+          ...(lift.elevation !== undefined
+            ? { elevation: lift.elevation }
+            : {}),
         }}
       >
         {header !== undefined ? header : null}
