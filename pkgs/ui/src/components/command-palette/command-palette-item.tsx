@@ -44,7 +44,7 @@ export function CommandPaletteItem({
         px: 3,
         flexDirection: 'column',
         gap: 1,
-        background: selected ? 'tintMuted' : 'transparent',
+        background: selected ? 'tintSubtle' : 'transparent',
         borderLeftWidth: 3,
         borderLeftColor: selected ? 'tint' : 'transparent',
         opacity: enabled ? 1 : 0.45,

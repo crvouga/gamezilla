@@ -181,9 +181,9 @@ function CopyRow({
     alignItems: 'center',
     gap: 8,
     borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: borderRadius.sm,
-    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.outline,
+    borderRadius: borderRadius.md,
+    backgroundColor: theme.colors.surfaceMuted,
     paddingVertical: 10,
     paddingHorizontal: 12,
   };

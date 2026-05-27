@@ -49,7 +49,7 @@ import { type Voice } from '@pkgs/tts/shared/tts-voice';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { type StyleProp, type ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { defaultColors } from '../../theme';
+import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { SoundIndicator, type SoundIndicatorState } from '../sound-indicator';
@@ -108,6 +108,7 @@ export function SpeakingAvatar({
   numberOfLines,
   style,
 }: SpeakingAvatarProps): ReactNode {
+  const theme = useTheme();
   const svg = useMemo(() => SPEAKING_AVATAR_SVG, []);
 
   const [muted, setMuted] = useKvState<boolean>({
@@ -137,6 +138,7 @@ export function SpeakingAvatar({
         onPress={toggleMuted}
         accessibilityRole="button"
         accessibilityLabel={muted ? 'Unmute coach' : 'Mute coach'}
+        feedback="none"
         style={{ position: 'relative' }}
       >
         <SvgXml xml={svg} />
@@ -150,9 +152,9 @@ export function SpeakingAvatar({
           <SoundIndicator
             state={indicatorState}
             size={14}
-            backgroundColor={defaultColors.light.surface}
-            color={defaultColors.light.text}
-            mutedColor={defaultColors.light.textSecondary}
+            backgroundColor={theme.colors.surfaceElevated}
+            color={theme.colors.text}
+            mutedColor={theme.colors.textSecondary}
           />
         </Box>
       </Pressable>

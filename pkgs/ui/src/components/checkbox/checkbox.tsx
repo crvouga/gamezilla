@@ -1,8 +1,9 @@
 /**
  * `Checkbox` -- a simple check toggle built with Pressable.
  *
- * Renders a bordered box with a checkmark character when checked.
- * No external icon library required.
+ * Checked state fills the box with `tint` and renders the check in `onTint`
+ * so it stays legible on both color schemes. Hover / press use Pressable's
+ * default tint feedback (around the whole row).
  *
  * @example
  * ```tsx
@@ -11,9 +12,10 @@
  */
 
 import type { ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
+import { Pressable } from '../pressable';
 import { Text } from '../text';
 
 export type CheckboxProps = {
@@ -38,6 +40,8 @@ export function Checkbox({
     <Pressable
       onPress={() => !disabled && onToggle(!checked)}
       disabled={disabled}
+      feedback="none"
+      sx={{ borderRadius: borderRadius.xs }}
       style={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -47,10 +51,10 @@ export function Checkbox({
     >
       <View
         style={{
-          width: 22,
-          height: 22,
-          borderRadius: borderRadius.sm,
-          borderWidth: 2,
+          width: 20,
+          height: 20,
+          borderRadius: borderRadius.xs,
+          borderWidth: 1.5,
           borderColor: boxBorder,
           backgroundColor: boxBg,
           alignItems: 'center',
@@ -60,10 +64,10 @@ export function Checkbox({
         {checked && (
           <Text
             style={{
-              color: theme.colors.surface,
-              fontSize: 14,
-              fontWeight: 'bold',
-              lineHeight: 16,
+              color: theme.colors.onTint,
+              fontSize: 13,
+              fontWeight: '700',
+              lineHeight: 15,
             }}
             label="✓"
           />

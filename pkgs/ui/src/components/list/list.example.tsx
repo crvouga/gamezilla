@@ -23,7 +23,15 @@ export default function ListExample() {
             title="Notifications"
             subtitle="Manage alerts"
             leading={<Avatar initials="🔔" size={36} background="warning" />}
-            trailing={<Badge label="3" color="destructive" size="sm" />}
+            trailing={<Badge label="3" intent="destructive" size="sm" />}
+            onPress={() => {}}
+          />
+          <ListItem
+            title="Selected row"
+            subtitle="Highlights with tintSubtle background"
+            leading={<Avatar initials="⭐" size={36} background="tint" />}
+            trailing={<Text variant="caption" label="›" />}
+            selected
             onPress={() => {}}
           />
           <ListItem

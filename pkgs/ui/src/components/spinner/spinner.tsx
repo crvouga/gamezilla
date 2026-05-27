@@ -99,7 +99,7 @@ export function Spinner({
   const theme = useTheme();
   const stroke = theme.colors[color as keyof typeof theme.colors] ?? color;
   const diameter = resolveSize(size);
-  const sw = strokeWidth ?? Math.max(2, Math.round(diameter * 0.12));
+  const sw = strokeWidth ?? Math.max(2, Math.round(diameter * 0.1));
   const radius = (diameter - sw) / 2;
   const circumference = 2 * Math.PI * radius;
   const dash = circumference * ARC_FRACTION;

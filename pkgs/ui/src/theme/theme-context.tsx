@@ -11,6 +11,12 @@ import { getBreakpoint, type BreakpointName } from './breakpoints';
 import type { ColorScheme, ColorTokens } from './colors';
 import { COLOR_PALETTE } from './colors';
 import { fonts, type FontStacks } from './fonts';
+import { motion, type Motion } from './motion';
+import {
+  makeElevation,
+  type ElevationLevel,
+  type ElevationStyle,
+} from './scale';
 import { createSx } from './sx';
 import { defaultTextCasing, type TextCasing } from './text-casing';
 
@@ -31,6 +37,14 @@ export type Theme = {
   layout: ThemeLayout;
   /** Derived from `layout.width` via {@link getBreakpoint}. */
   breakpoint: BreakpointName;
+  /** Motion design tokens (durations, easings). */
+  motion: Motion;
+  /**
+   * Scheme-aware elevation. In light mode returns shadow only; in dark mode
+   * also returns the recommended `backgroundColor` lift so cards stay
+   * legible without relying on shadow contrast.
+   */
+  elevation: (level: ElevationLevel) => ElevationStyle;
 };
 
 const ThemeContext = createContext<Theme | null>(null);
@@ -97,6 +111,8 @@ export function ThemeProvider({
         fontScale: layout.fontScale,
       },
       breakpoint: getBreakpoint(layout.width),
+      motion,
+      elevation: makeElevation(colors, resolvedScheme),
     };
   }, [resolvedScheme, colorOverrides, fontsProp, textCasingProp, layout]);
 

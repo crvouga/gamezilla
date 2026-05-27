@@ -111,9 +111,22 @@ function VariantsSection() {
         <MenuRow
           title="Inbox"
           caption="Direct messages and mentions"
-          trailing={<Badge label="3" color="destructive" size="sm" />}
+          trailing={<Badge label="3" intent="destructive" size="sm" />}
           onPress={() => {}}
         />
+      </CardGroup>
+
+      <Text variant="label" label="Selected state" />
+      <CardGroup>
+        <MenuRow
+          title="Light"
+          caption="Currently selected appearance"
+          selected
+          hideChevron
+          onPress={() => {}}
+        />
+        <MenuRow title="Dark" hideChevron onPress={() => {}} />
+        <MenuRow title="System" hideChevron onPress={() => {}} />
       </CardGroup>
 
       <Text variant="label" label="No chevron" />

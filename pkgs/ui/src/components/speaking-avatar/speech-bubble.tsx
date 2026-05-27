@@ -29,8 +29,9 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Animated, Easing, View } from 'react-native';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { defaultColors } from '../../theme';
-import { borderRadius, elevation } from '../../theme/scale';
+import { useTheme } from '../../theme';
+import { duration } from '../../theme/motion';
+import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
 import { TypingDots } from './typing-dots';
 
@@ -41,8 +42,8 @@ const BUBBLE_PADDING_HORIZONTAL = 16;
 const BUBBLE_LINE_HEIGHT = 26;
 /** Default lines reserved in the bubble; sized to cover typical coach copy without truncating. */
 const DEFAULT_NUMBER_OF_LINES = 2;
-/** Total length of the slide+fade entrance, in ms. */
-const ENTER_DURATION_MS = 600;
+/** Total length of the slide+fade entrance. Token-driven. */
+const ENTER_DURATION_MS = duration.slow * 2;
 /** How many px the bubble translates rightward over the entrance (starts left of resting). */
 const ENTER_TRANSLATE_X = 24;
 
@@ -104,10 +105,12 @@ export function SpeechBubble({
   numberOfLines = DEFAULT_NUMBER_OF_LINES,
   loading = false,
 }: SpeechBubbleProps): ReactNode {
-  // Keep the bubble visually "light" in both schemes: in dark mode we
-  // intentionally invert to the light palette's surface/text so the bubble
-  // reads as a callout against the dark backdrop instead of blending in.
-  const bubbleSurface = defaultColors.light.surface;
+  const theme = useTheme();
+  // Scheme-aware: in light mode the bubble pops above `background` as a
+  // raised plate; in dark mode `surfaceElevated` gives the same "lifted
+  // callout" feel without inverting to the light palette.
+  const bubbleSurface = theme.colors.surfaceElevated;
+  const lift = theme.elevation(2);
   const bubbleHeight =
     numberOfLines * BUBBLE_LINE_HEIGHT +
     2 * BUBBLE_PADDING_VERTICAL +
@@ -134,23 +137,22 @@ export function SpeechBubble({
         }}
       />
       <View
-        style={[
-          elevation(1),
-          {
-            flex: 1,
-            backgroundColor: bubbleSurface,
-            borderRadius: borderRadius.md,
-            paddingVertical: BUBBLE_PADDING_VERTICAL,
-            paddingHorizontal: BUBBLE_PADDING_HORIZONTAL,
-            height: bubbleHeight,
-            justifyContent: 'center',
-          },
-        ]}
+        style={{
+          flex: 1,
+          backgroundColor: bubbleSurface,
+          borderRadius: borderRadius.md,
+          paddingVertical: BUBBLE_PADDING_VERTICAL,
+          paddingHorizontal: BUBBLE_PADDING_HORIZONTAL,
+          height: bubbleHeight,
+          justifyContent: 'center',
+          ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
+          ...(lift.elevation !== undefined ? { elevation: lift.elevation } : {}),
+        }}
       >
         {header !== undefined ? header : null}
         {loading ? (
           <TypingDots
-            color={defaultColors.light.textSecondary}
+            color={theme.colors.textSecondary}
             height={BUBBLE_LINE_HEIGHT}
           />
         ) : (
@@ -159,7 +161,7 @@ export function SpeechBubble({
             numberOfLines={numberOfLines}
             ellipsizeMode="tail"
             style={{
-              color: defaultColors.light.text,
+              color: theme.colors.text,
               lineHeight: BUBBLE_LINE_HEIGHT,
             }}
           >

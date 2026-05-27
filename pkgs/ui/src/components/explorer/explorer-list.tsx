@@ -11,9 +11,9 @@
  */
 
 import { useMemo } from 'react';
-import { Pressable, View } from 'react-native';
-import { useTheme } from '../../theme';
+import { View } from 'react-native';
 import { borderRadius } from '../../theme/scale';
+import { Pressable } from '../pressable';
 import { ScrollView } from '../scroll-view';
 import { Text } from '../text';
 import {
@@ -27,7 +27,6 @@ export type ExplorerListProps = {
 };
 
 export function ExplorerList({ onSelect, entries }: ExplorerListProps) {
-  const theme = useTheme();
   const globalRegistry = useComponentRegistry();
   const registry = entries ?? globalRegistry;
   const categories = useMemo(
@@ -46,18 +45,15 @@ export function ExplorerList({ onSelect, entries }: ExplorerListProps) {
               <Pressable
                 key={c.name}
                 onPress={() => onSelect(c.name)}
-                style={({ pressed }) => [
-                  theme.sx({
-                    py: 3,
-                    px: 4,
-                    background: 'surface',
-                    borderRadius: borderRadius.sm,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }),
-                  pressed && { opacity: 0.7 },
-                ]}
+                sx={{
+                  py: 3,
+                  px: 4,
+                  background: 'surface',
+                  borderRadius: borderRadius.md,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
               >
                 <Text variant="body" label={c.name} />
                 <Text variant="caption" label="›" />

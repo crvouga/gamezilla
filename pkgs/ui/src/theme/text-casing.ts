@@ -12,8 +12,13 @@ import type { TextStyle } from 'react-native';
 
 export type TextCasing = 'none' | 'lowercase' | 'uppercase' | 'capitalize';
 
-/** Default casing for UI chrome (headers, labels, buttons). */
-export const defaultTextCasing: TextCasing = 'capitalize';
+/**
+ * Default casing for UI chrome (headers, labels, buttons). Modern systems
+ * lean on sentence-case in product chrome -- `capitalize` reads dated -- so
+ * the default is `'none'`. Apps can opt back in per surface via `Text`'s
+ * `casing` prop or by overriding `textCasing` on the `ThemeProvider`.
+ */
+export const defaultTextCasing: TextCasing = 'none';
 
 export function textCasingToStyle(
   casing: TextCasing

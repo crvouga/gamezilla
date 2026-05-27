@@ -1,3 +1,4 @@
+import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { Text } from '../text';
 import { isMacPlatform } from './keyboard-shortcut';
@@ -57,10 +58,10 @@ export function CommandPaletteKbd({ shortcut }: CommandPaletteKbdProps) {
           sx={{
             px: 1.5,
             py: 0.5,
-            borderRadius: 6,
+            borderRadius: borderRadius.xs,
             borderWidth: 1,
             borderColor: 'border',
-            background: 'surface',
+            background: 'surfaceMuted',
           }}
         >
           <Text variant="caption" sx={{ color: 'textSecondary' }} label={p} />

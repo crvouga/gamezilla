@@ -67,11 +67,7 @@ export function FloatingMenu({
   return (
     <ModalRoot visible={visible} onRequestClose={onClose}>
       <View style={{ flex: 1 }}>
-        <RNPressable
-          accessibilityLabel="Dismiss menu"
-          onPress={onClose}
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.25)' }}
-        />
+        <FloatingMenuBackdrop onClose={onClose} />
         {anchor !== null ? (
           <FloatingMenuPanel
             top={position.top}
@@ -82,6 +78,17 @@ export function FloatingMenu({
         ) : null}
       </View>
     </ModalRoot>
+  );
+}
+
+function FloatingMenuBackdrop({ onClose }: { onClose: () => void }) {
+  const theme = useTheme();
+  return (
+    <RNPressable
+      accessibilityLabel="Dismiss menu"
+      onPress={onClose}
+      style={{ flex: 1, backgroundColor: theme.colors.scrim }}
+    />
   );
 }
 
@@ -96,6 +103,9 @@ function FloatingMenuPanel({
   width: number;
   content: FloatingMenuContent;
 }) {
+  const theme = useTheme();
+  const lift = theme.elevation(3);
+  const bg = lift.backgroundColor ?? theme.colors.surfaceOverlay;
   return (
     <View
       style={{
@@ -109,13 +119,15 @@ function FloatingMenuPanel({
     >
       <Box
         sx={{
-          background: 'surface',
           borderRadius: borderRadius.lg,
           borderWidth: 1,
           borderColor: 'border',
           py: 2,
-          boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.12)',
-          elevation: 8,
+        }}
+        style={{
+          backgroundColor: bg,
+          ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
+          ...(lift.elevation !== undefined ? { elevation: lift.elevation } : {}),
         }}
       >
         <FloatingMenuHeader

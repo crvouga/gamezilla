@@ -13,5 +13,5 @@ export function AccountDeviceCurrentBadge({
 }: AccountDeviceCurrentBadgeProps): ReactNode {
   const isCurrent = useDeviceIsCurrent(deviceId);
   if (!isCurrent) return null;
-  return <Badge label={<Trans>This device</Trans>} color="info" size="sm" />;
+  return <Badge label={<Trans>This device</Trans>} intent="info" size="sm" />;
 }

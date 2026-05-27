@@ -1,84 +1,97 @@
 import { useState } from 'react';
 import { Box } from '../box';
 import { Divider } from '../divider';
+import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
 import { IconSymbol } from '../symbol-icon';
 import { Text } from '../text';
-import { Button } from './button';
+import { Button, buttonForegroundColor, type ButtonIntent } from './button';
+import { useTheme } from '../../theme';
 
-const ICON_WHITE = '#ffffff';
+function ButtonRow({
+  intent,
+  loading,
+  setLoading,
+}: {
+  intent: ButtonIntent;
+  loading: boolean;
+  setLoading: (b: boolean) => void;
+}) {
+  const theme = useTheme();
+  const iconColor = buttonForegroundColor(theme, intent, false);
+  return (
+    <Stack spacing={2}>
+      <Button title="Default" intent={intent} onPress={() => {}} />
+      <Button
+        title="With icon"
+        intent={intent}
+        endIcon={
+          <IconSymbol name="chevron.right" size={16} color={iconColor} />
+        }
+        onPress={() => {}}
+      />
+      <Button title="Disabled" intent={intent} disabled onPress={() => {}} />
+      <Button
+        title={loading ? 'Loading…' : 'Tap to load'}
+        intent={intent}
+        loading={loading}
+        onPress={() => {
+          setLoading(true);
+          setTimeout(() => setLoading(false), 2000);
+        }}
+      />
+    </Stack>
+  );
+}
 
 export default function ButtonExample() {
-  const [loading, setLoading] = useState(false);
+  const [primaryLoading, setPrimaryLoading] = useState(false);
 
   return (
     <Box sx={{ p: 4, gap: 4 }}>
       <Text variant="heading" label="Button" />
 
-      <Stack spacing={2}>
-        <Text variant="label" label="Intents" />
-        <Button title="Primary" intent="primary" onPress={() => {}} />
-        <Button title="Danger" intent="danger" onPress={() => {}} />
-        <Button title="Neutral" intent="neutral" onPress={() => {}} />
-      </Stack>
+      <Text variant="label" sx={{ color: 'textSecondary' }} label="Sizes" />
+      <SchemePreview>
+        <Stack spacing={2}>
+          <Button title="Small" size="sm" onPress={() => {}} />
+          <Button title="Medium" size="md" onPress={() => {}} />
+          <Button title="Large" size="lg" onPress={() => {}} />
+        </Stack>
+      </SchemePreview>
 
       <Divider />
 
-      <Stack spacing={2}>
-        <Text variant="label" label="Sizes" />
-        <Button title="Small" size="sm" onPress={() => {}} />
-        <Button title="Medium" size="md" onPress={() => {}} />
-        <Button title="Large" size="lg" onPress={() => {}} />
-      </Stack>
+      <Text variant="label" sx={{ color: 'textSecondary' }} label="Primary" />
+      <SchemePreview>
+        <ButtonRow
+          intent="primary"
+          loading={primaryLoading}
+          setLoading={setPrimaryLoading}
+        />
+      </SchemePreview>
 
       <Divider />
 
-      <Stack spacing={2}>
-        <Text variant="label" label="Icons" />
-        <Button
-          title="Continue"
-          intent="primary"
-          endIcon={
-            <IconSymbol name="chevron.right" size={18} color={ICON_WHITE} />
-          }
-          onPress={() => {}}
+      <Text variant="label" sx={{ color: 'textSecondary' }} label="Danger" />
+      <SchemePreview>
+        <ButtonRow
+          intent="danger"
+          loading={false}
+          setLoading={() => {}}
         />
-        <Button
-          title="Send"
-          intent="primary"
-          startIcon={
-            <IconSymbol name="paperplane.fill" size={16} color={ICON_WHITE} />
-          }
-          onPress={() => {}}
-        />
-        <Button
-          title="Sign out"
+      </SchemePreview>
+
+      <Divider />
+
+      <Text variant="label" sx={{ color: 'textSecondary' }} label="Neutral" />
+      <SchemePreview>
+        <ButtonRow
           intent="neutral"
-          startIcon={
-            <IconSymbol
-              name="arrow.right.from.bracket"
-              size={16}
-              color="#ffffff"
-            />
-          }
-          onPress={() => {}}
+          loading={false}
+          setLoading={() => {}}
         />
-      </Stack>
-
-      <Divider />
-
-      <Stack spacing={2}>
-        <Text variant="label" label="States" />
-        <Button title="Disabled" disabled onPress={() => {}} />
-        <Button
-          title={loading ? 'Loading...' : 'Tap to load'}
-          loading={loading}
-          onPress={() => {
-            setLoading(true);
-            setTimeout(() => setLoading(false), 2000);
-          }}
-        />
-      </Stack>
+      </SchemePreview>
     </Box>
   );
 }

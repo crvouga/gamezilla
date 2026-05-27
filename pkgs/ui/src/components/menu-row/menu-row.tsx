@@ -2,8 +2,9 @@
  * `MenuRow` -- a tappable navigation row with title, optional caption, and a
  * trailing disclosure chevron.
  *
- * Designed for settings, menu, and "more" screens where each row routes to a
- * destination. Pair multiple `MenuRow`s in a vertical container.
+ * Hover (web) and press tints come automatically from {@link Pressable}'s
+ * default `'tint'` feedback. Pass `selected` to opt into a `tintSubtle` row
+ * fill for "current section" / multi-select patterns.
  *
  * @example
  * ```tsx
@@ -18,6 +19,7 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 import { useTheme } from '../../theme';
+import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { IconSymbol } from '../symbol-icon';
@@ -32,6 +34,8 @@ export type MenuRowProps = {
   trailing?: ReactNode;
   /** Hide the trailing disclosure chevron. Defaults to `false`. */
   hideChevron?: boolean;
+  /** Render the row in its "current selection" state. */
+  selected?: boolean;
   onPress?: () => void;
   disabled?: boolean;
   testID?: string;
@@ -44,6 +48,7 @@ export function MenuRow({
   leading,
   trailing,
   hideChevron = false,
+  selected = false,
   onPress,
   disabled = false,
   testID,
@@ -58,18 +63,28 @@ export function MenuRow({
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      sx={{ borderRadius: borderRadius.md }}
+      style={{
+        borderRadius: borderRadius.md,
+        backgroundColor: selected ? theme.colors.tintSubtle : undefined,
+      }}
     >
       <Box
         sx={{
           flexDirection: 'row',
           alignItems: 'center',
+          px: 3,
           py: 3,
           gap: 3,
         }}
       >
         {leading}
         <Box sx={{ flex: 1, gap: 1 }}>
-          <Text variant="bodyBold" label={title} />
+          {selected ? (
+            <Text variant="bodyBold" sx={{ color: 'tint' }} label={title} />
+          ) : (
+            <Text variant="bodyBold" label={title} />
+          )}
           {caption ? <Text variant="caption" label={caption} /> : null}
         </Box>
         {trailing ??
@@ -77,7 +92,7 @@ export function MenuRow({
             <IconSymbol
               name="chevron.right"
               size={20}
-              color={theme.colors.icon}
+              color={selected ? theme.colors.tint : theme.colors.icon}
             />
           ))}
       </Box>

@@ -12,9 +12,10 @@
  */
 
 import { type PropsWithChildren, type ReactNode, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
+import { Pressable } from '../pressable';
 import { Text } from '../text';
 
 export type CollapsibleProps = PropsWithChildren<{
@@ -45,22 +46,18 @@ export function Collapsible({
   defaultOpen = false,
   renderIcon,
 }: CollapsibleProps) {
-  const theme = useTheme();
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
     <View>
       <Pressable
         onPress={() => setIsOpen((v) => !v)}
-        style={({ pressed }) => [
-          theme.sx({
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 2,
-            py: 2,
-          }),
-          pressed && { opacity: 0.7 },
-        ]}
+        sx={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 2,
+          py: 2,
+        }}
       >
         {renderIcon ? renderIcon(isOpen) : <DefaultIcon isOpen={isOpen} />}
         <Text variant="bodyBold" label={title} />

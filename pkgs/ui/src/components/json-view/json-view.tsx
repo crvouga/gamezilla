@@ -227,10 +227,10 @@ export function JsonView({
     <Box
       testID={testID}
       sx={{
-        background: 'surface',
+        background: 'surfaceMuted',
         borderWidth: 1,
         borderColor: 'border',
-        borderRadius: borderRadius.sm,
+        borderRadius: borderRadius.md,
         ...sx,
       }}
     >

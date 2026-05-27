@@ -32,10 +32,20 @@ export {
   elevation,
   fontSize,
   lineHeight,
+  makeElevation,
   spacing,
   type BorderRadiusKey,
   type ElevationLevel,
+  type ElevationStyle,
 } from './scale';
+export {
+  duration,
+  easing,
+  motion,
+  type DurationKey,
+  type EasingKey,
+  type Motion,
+} from './motion';
 export { createSx, type SxProps } from './sx';
 export {
   defaultTextCasing,

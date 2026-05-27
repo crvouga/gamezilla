@@ -4,6 +4,7 @@ import { default as BoxExample } from '../box/box.example';
 import { default as GradientBoxExample } from '../gradient-box/gradient-box.example';
 import { default as TextExample } from '../text/text.example';
 import { default as PressableExample } from '../pressable/pressable.example';
+import { default as ThemeTokensExample } from '../theme-tokens/theme-tokens.example';
 
 import { default as StackExample } from '../stack/stack.example';
 import { default as CenterExample } from '../center/center.example';
@@ -64,6 +65,7 @@ export type ComponentEntry = {
 
 const builtInEntries: ComponentEntry[] = [
   // Foundation
+  { name: 'Theme Tokens', category: 'Foundation', Example: ThemeTokensExample },
   { name: 'Box', category: 'Foundation', Example: BoxExample },
   { name: 'GradientBox', category: 'Foundation', Example: GradientBoxExample },
   { name: 'Text', category: 'Foundation', Example: TextExample },

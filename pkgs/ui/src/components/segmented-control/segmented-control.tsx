@@ -19,10 +19,11 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, View } from 'react-native';
+import { Animated, View } from 'react-native';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { useTheme } from '../../theme';
+import { useTheme, type Theme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
+import { Pressable } from '../pressable';
 import { Text } from '../text';
 
 export type Segment<K extends string = string> = {
@@ -96,7 +97,7 @@ export function SegmentedControl<K extends string = string>({
       onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
       style={{
         flexDirection: 'row',
-        backgroundColor: theme.colors.surface,
+        backgroundColor: theme.colors.surfaceMuted,
         borderRadius: borderRadius.md,
         padding: CONTAINER_PADDING,
         gap: SEGMENT_GAP,
@@ -107,7 +108,7 @@ export function SegmentedControl<K extends string = string>({
         <SegmentIndicator
           width={segmentWidth}
           translateX={translateX}
-          color={theme.colors.surface}
+          theme={theme}
         />
       ) : null}
       {segments.map((seg) => (
@@ -126,12 +127,14 @@ export function SegmentedControl<K extends string = string>({
 function SegmentIndicator({
   width,
   translateX,
-  color,
+  theme,
 }: {
   width: number;
   translateX: Animated.Value;
-  color: string;
+  theme: Theme;
 }) {
+  const lift = theme.elevation(1);
+  const bg = lift.backgroundColor ?? theme.colors.surfaceElevated;
   return (
     <Animated.View
       pointerEvents="none"
@@ -142,10 +145,10 @@ function SegmentIndicator({
         left: CONTAINER_PADDING,
         width,
         borderRadius: borderRadius.sm,
-        backgroundColor: color,
-        boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
-        elevation: 2,
+        backgroundColor: bg,
         transform: [{ translateX }],
+        ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
+        ...(lift.elevation !== undefined ? { elevation: lift.elevation } : {}),
       }}
     />
   );
@@ -167,17 +170,16 @@ function SegmentButton<K extends string>({
     <Pressable
       onPress={() => onSelect(segment.key)}
       disabled={disabled || isActive}
-      style={({ pressed }) => [
-        {
-          flex: 1,
-          alignItems: 'center' as const,
-          paddingVertical: 8,
-          paddingHorizontal: 14,
-          borderRadius: borderRadius.sm,
-          backgroundColor: 'transparent',
-        },
-        pressed && !isActive && { opacity: 0.7 },
-      ]}
+      feedback={isActive ? 'none' : 'tint'}
+      sx={{ borderRadius: borderRadius.sm }}
+      style={{
+        flex: 1,
+        alignItems: 'center' as const,
+        paddingVertical: 8,
+        paddingHorizontal: 14,
+        borderRadius: borderRadius.sm,
+        backgroundColor: 'transparent',
+      }}
     >
       <Text
         variant="label"

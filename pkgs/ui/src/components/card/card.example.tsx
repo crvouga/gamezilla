@@ -1,6 +1,7 @@
 import { Box } from '../box';
-import { Text } from '../text';
+import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
+import { Text } from '../text';
 import { Card } from './card';
 
 export default function CardExample() {
@@ -8,23 +9,20 @@ export default function CardExample() {
     <Box sx={{ p: 4, gap: 4 }}>
       <Text variant="heading" label="Card" />
 
-      {([0, 1, 2, 3, 4] as const).map((level) => (
-        <Card key={level} elevation={level} sx={{ p: 4 }}>
-          <Text variant="subtitle" label={`Elevation ${level}`} />
-          <Text
-            variant="body"
-            sx={{ color: 'textSecondary' }}
-            label={`Card content with shadow level ${level}`}
-          />
-        </Card>
-      ))}
-
-      <Card elevation={0} sx={{ p: 4 }}>
-        <Stack spacing={2}>
-          <Text variant="subtitle" label="Flat card (border, no shadow)" />
-          <Text variant="caption" label="elevation=0 uses a border instead" />
+      <SchemePreview>
+        <Stack spacing={3}>
+          {([0, 1, 2, 3, 4, 5] as const).map((level) => (
+            <Card key={level} elevation={level} sx={{ p: 4 }}>
+              <Text variant="subtitle" label={`Elevation ${level}`} />
+              <Text
+                variant="body"
+                sx={{ color: 'textSecondary' }}
+                label={`Scheme-aware shadow + dark-mode surface lift`}
+              />
+            </Card>
+          ))}
         </Stack>
-      </Card>
+      </SchemePreview>
     </Box>
   );
 }

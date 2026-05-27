@@ -15,6 +15,8 @@ import {
 } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+import { useTheme } from '../../theme';
+import { duration as motionDuration } from '../../theme/motion';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { FlatList } from '../flat-list';
@@ -58,12 +60,12 @@ function useOpenAnimation(isOpen: boolean) {
       Animated.parallel([
         Animated.timing(opacity, {
           toValue: 1,
-          duration: 140,
+          duration: motionDuration.fast,
           useNativeDriver: USE_NATIVE_DRIVER,
         }),
         Animated.timing(translateY, {
           toValue: 0,
-          duration: 140,
+          duration: motionDuration.fast,
           useNativeDriver: USE_NATIVE_DRIVER,
         }),
       ]).start();
@@ -330,16 +332,21 @@ function PaletteCard({
   renderDeps: RenderRowDeps;
   footerLegend: string | undefined;
 }) {
+  const theme = useTheme();
+  const lift = theme.elevation(5);
+  const bg = lift.backgroundColor ?? theme.colors.surfaceOverlay;
   return (
     <Box
       sx={{
-        background: 'surface',
         borderRadius: borderRadius.lg,
         borderWidth: 1,
         borderColor: 'border',
         overflow: 'hidden',
-        boxShadow: '0px 12px 32px rgba(0, 0, 0, 0.18)',
-        elevation: 12,
+      }}
+      style={{
+        backgroundColor: bg,
+        ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
+        ...(lift.elevation !== undefined ? { elevation: lift.elevation } : {}),
       }}
     >
       {runningId !== null ? (
@@ -380,12 +387,13 @@ function PaletteOverlay({
   close: () => void;
   children: ReactNode;
 }) {
+  const theme = useTheme();
   return (
     <View style={{ flex: 1 }}>
       <RNPressable
         accessibilityLabel="Dismiss command palette"
         onPress={close}
-        style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }}
+        style={{ flex: 1, backgroundColor: theme.colors.scrim }}
       />
       <View
         style={{

@@ -4,6 +4,7 @@ import {
   IconSymbol,
   buttonForegroundColor,
   useTheme,
+  type ButtonIntent,
   type IconSymbolName,
 } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
@@ -16,9 +17,11 @@ const ICON_SIZE = 18;
 
 function ActionIcon({
   name,
+  intent,
   disabled,
 }: {
   name: IconSymbolName;
+  intent: ButtonIntent;
   disabled: boolean;
 }): ReactNode {
   const theme = useTheme();
@@ -26,7 +29,7 @@ function ActionIcon({
     <IconSymbol
       name={name}
       size={ICON_SIZE}
-      color={buttonForegroundColor(theme, disabled)}
+      color={buttonForegroundColor(theme, intent, disabled)}
     />
   );
 }
@@ -81,7 +84,13 @@ export function ChessPuzzleActionBar({
         flex={1}
         intent="neutral"
         title={hint.label}
-        startIcon={<ActionIcon name={hint.icon} disabled={hint.disabled} />}
+        startIcon={
+          <ActionIcon
+            name={hint.icon}
+            intent="neutral"
+            disabled={hint.disabled}
+          />
+        }
         disabled={hint.disabled}
         onPress={onHint}
       />
@@ -92,6 +101,7 @@ export function ChessPuzzleActionBar({
         startIcon={
           <ActionIcon
             name="arrow.right.from.bracket"
+            intent="neutral"
             disabled={retryDisabled}
           />
         }
@@ -102,7 +112,13 @@ export function ChessPuzzleActionBar({
         flex={1}
         intent="primary"
         title={<Trans>Next</Trans>}
-        endIcon={<ActionIcon name="chevron.right" disabled={nextDisabled} />}
+        endIcon={
+          <ActionIcon
+            name="chevron.right"
+            intent="primary"
+            disabled={nextDisabled}
+          />
+        }
         disabled={nextDisabled}
         onPress={onNext}
       />

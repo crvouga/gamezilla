@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { Box } from '../box';
 import { Collapsible } from '../collapsible';
 import { useTheme } from '../../theme';
+import { borderRadius } from '../../theme/scale';
 
 export type SectionCardProps = {
   title: string;
@@ -24,7 +25,7 @@ export function SectionCard({
       sx={{
         borderWidth: 1,
         borderColor: theme.colors.border,
-        borderRadius: 2,
+        borderRadius: borderRadius.md,
         overflow: 'hidden',
         marginBottom: 2,
       }}

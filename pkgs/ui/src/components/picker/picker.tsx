@@ -7,10 +7,11 @@ import type { LocalizedString } from '@pkgs/i18n';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
-import { FlatList, Pressable, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { List, ListItem } from '../list';
+import { Pressable } from '../pressable';
 import { ResponsiveSurface } from '../responsive-surface';
 import { Text } from '../text';
 
@@ -116,21 +117,19 @@ function PickerTrigger<T extends string | number>({
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      style={({ pressed }) => [
-        {
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderRadius: borderRadius.sm,
-          borderWidth: 1,
-          borderColor: theme.colors.border,
-          backgroundColor: theme.colors.surface,
-          gap: 10,
-        },
-        pressed && { opacity: 0.7 },
-        disabled && { opacity: 0.4 },
-      ]}
+      sx={{ borderRadius: borderRadius.md }}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        borderRadius: borderRadius.md,
+        borderWidth: 1,
+        borderColor: theme.colors.outline,
+        backgroundColor: theme.colors.surfaceMuted,
+        gap: 10,
+        opacity: disabled ? 0.4 : 1,
+      }}
     >
       {selected?.preview !== undefined ? (
         <View style={{ flexShrink: 0 }}>{selected.preview}</View>

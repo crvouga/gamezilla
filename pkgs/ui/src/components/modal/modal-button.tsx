@@ -3,9 +3,9 @@
  */
 
 import type { ReactNode } from 'react';
-import { Pressable } from 'react-native';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
+import { Pressable } from '../pressable';
 import { Text } from '../text';
 
 export type ModalButtonProps = {
@@ -34,11 +34,10 @@ export function ModalButton({
     <Pressable
       disabled={disabled}
       onPress={disabled ? () => {} : onPress}
-      style={({ pressed }) => [
-        theme.sx({ py: 2, px: 4, borderRadius: borderRadius.sm }),
-        pressed && !disabled && { opacity: 0.7 },
-        disabled && { opacity: 0.45 },
-      ]}
+      sx={{ py: 2, px: 4, borderRadius: borderRadius.md }}
+      style={{
+        opacity: disabled ? 0.45 : 1,
+      }}
     >
       <Text variant="bodyBold" style={{ color }} label={label} />
     </Pressable>

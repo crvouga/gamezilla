@@ -1,6 +1,10 @@
 /**
  * `IconButton` -- a circular button that renders a single child icon.
  *
+ * Uses the themed {@link Pressable} so hover (web) and press feedback come
+ * from the `interactiveHover` / `interactivePress` overlay tokens. Disabled
+ * dims the whole control via opacity.
+ *
  * @example
  * ```tsx
  * <IconButton size={40} onPress={handleClose}>
@@ -11,8 +15,9 @@
 
 import type { LocalizedString } from '@pkgs/i18n';
 import { type ReactNode } from 'react';
-import { Pressable, type PressableProps } from 'react-native';
+import type { PressableProps as RNPressableProps } from 'react-native';
 import { useTheme } from '../../theme';
+import { Pressable } from '../pressable';
 
 export type IconButtonProps = {
   children: ReactNode;
@@ -24,7 +29,7 @@ export type IconButtonProps = {
   disabled?: boolean;
   testID?: string;
   accessibilityLabel?: LocalizedString;
-  accessibilityRole?: PressableProps['accessibilityRole'];
+  accessibilityRole?: RNPressableProps['accessibilityRole'];
 };
 
 export function IconButton({
@@ -41,6 +46,7 @@ export function IconButton({
   const bg = background
     ? (theme.colors[background as keyof typeof theme.colors] ?? background)
     : 'transparent';
+  const radius = size / 2;
 
   return (
     <Pressable
@@ -49,18 +55,16 @@ export function IconButton({
       testID={testID}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole={accessibilityRole}
-      style={({ pressed }) => [
-        {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          backgroundColor: bg,
-          alignItems: 'center' as const,
-          justifyContent: 'center' as const,
-        },
-        pressed && !disabled && { opacity: 0.7 },
-        disabled && { opacity: 0.4 },
-      ]}
+      sx={{ borderRadius: radius }}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: radius,
+        backgroundColor: bg,
+        alignItems: 'center' as const,
+        justifyContent: 'center' as const,
+        opacity: disabled ? 0.4 : 1,
+      }}
     >
       {children}
     </Pressable>

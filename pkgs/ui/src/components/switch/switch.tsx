@@ -1,6 +1,10 @@
 /**
  * `Switch` -- themed toggle switch with optional label.
  *
+ * Track color animates between `outline` (off) and `tint` (on); thumb stays
+ * on the active scheme's `surfaceElevated` so it reads as a raised pebble
+ * on both ramps.
+ *
  * @example
  * ```tsx
  * <Switch label="Dark mode" value={dark} onValueChange={setDark} />
@@ -25,7 +29,7 @@ export function Switch({ label, ...rest }: SwitchProps) {
   const theme = useTheme();
 
   const track = {
-    false: theme.colors.border,
+    false: theme.colors.outline,
     true: theme.colors.tint,
   };
 
@@ -33,7 +37,8 @@ export function Switch({ label, ...rest }: SwitchProps) {
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
       <RNSwitch
         trackColor={track}
-        thumbColor={theme.colors.surface}
+        thumbColor={theme.colors.surfaceElevated}
+        ios_backgroundColor={theme.colors.outline}
         {...rest}
       />
       {label && <Text variant="body" label={label} />}
