@@ -13,16 +13,16 @@ Consumers (`apps/*`, `libs/*`, `pkgs/*`) cannot import `heroui-native` directly.
 
 ## Implemented slots (Phase 2)
 
-| Port slot | HeroUI primitive |
-| --- | --- |
-| `Button` | `Button` + `Button.Label` (variant maps from our `intent`) |
-| `Checkbox` | `Checkbox` + optional `ControlField` for label rows |
-| `Chip` | `Chip` (`primary` when selected, `soft` otherwise) |
-| `Divider` | `Separator` |
-| `Skeleton` | `Skeleton` (`shimmer` variant) |
-| `Spinner` | `Spinner` (size maps `small/medium/large` → `sm/md/lg`) |
-| `Switch` | `Switch` + `Switch.Thumb` |
-| `Text` | `Text` (variant maps our `body`/`heading`/etc → HeroUI `h1`-`h6`/`body`) |
+| Port slot  | HeroUI primitive                                                         |
+| ---------- | ------------------------------------------------------------------------ |
+| `Button`   | `Button` + `Button.Label` (variant maps from our `intent`)               |
+| `Checkbox` | `Checkbox` + optional `ControlField` for label rows                      |
+| `Chip`     | `Chip` (`primary` when selected, `soft` otherwise)                       |
+| `Divider`  | `Separator`                                                              |
+| `Skeleton` | `Skeleton` (`shimmer` variant)                                           |
+| `Spinner`  | `Spinner` (size maps `small/medium/large` → `sm/md/lg`)                  |
+| `Switch`   | `Switch` + `Switch.Thumb`                                                |
+| `Text`     | `Text` (variant maps our `body`/`heading`/etc → HeroUI `h1`-`h6`/`body`) |
 
 Every other slot in `UIAdapter` (about 64 of 72) falls through to the in-house adapter via the spread merge in `adapter-registry.ts`. New HeroUI implementations get added by:
 
@@ -50,11 +50,9 @@ To activate HeroUI for `apps/client`:
    // ...
    <ThemeProvider>
      <GestureHandlerRootView style={{ flex: 1 }}>
-       <HeroUIThemeBridge>
-         {children}
-       </HeroUIThemeBridge>
+       <HeroUIThemeBridge>{children}</HeroUIThemeBridge>
      </GestureHandlerRootView>
-   </ThemeProvider>
+   </ThemeProvider>;
    ```
    (NB: the import path above is the only legitimate `pkgs/ui/src/adapters/**` import allowed by the depcruise `ui-adapter-internals-private` rule; we may want to lift it to a port-level `RootProvider` slot in `UIAdapter` instead, which would let `app-providers.tsx` consume the active adapter's provider through the public API.)
 4. **Flip the env var.** Set `EXPO_PUBLIC_UI_IMPL=heroui` in `apps/client/.env.local` (or in Doppler's `local` config so `setup-env.ts` picks it up) and rebuild.

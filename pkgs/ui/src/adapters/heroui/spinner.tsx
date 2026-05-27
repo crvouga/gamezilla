@@ -30,9 +30,6 @@ function mapSize(size: PortSpinnerSize): HeroUISpinnerSize {
   }
 }
 
-export function Spinner({
-  color = 'tint',
-  size = 'medium',
-}: SpinnerProps) {
+export function Spinner({ color = 'tint', size = 'medium' }: SpinnerProps) {
   return <HeroUISpinner size={mapSize(size)} color={color} />;
 }

@@ -106,8 +106,7 @@ module.exports = {
       comment:
         '@pkgs/ui adapter internals are private. The boot-time switch in pkgs/ui/src/adapter-registry.ts is the only legitimate importer; everything else must go through the @pkgs/ui public surface.',
       from: {
-        pathNot:
-          '^pkgs/ui/src/(adapters/|adapter-registry\\.ts$)',
+        pathNot: '^pkgs/ui/src/(adapters/|adapter-registry\\.ts$)',
       },
       to: { path: '^pkgs/ui/src/adapters/' },
     },

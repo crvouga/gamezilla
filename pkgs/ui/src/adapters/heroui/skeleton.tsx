@@ -17,9 +17,6 @@ export function Skeleton({
   borderRadius = 4,
 }: SkeletonProps) {
   return (
-    <HeroUISkeleton
-      variant="shimmer"
-      style={{ width, height, borderRadius }}
-    />
+    <HeroUISkeleton variant="shimmer" style={{ width, height, borderRadius }} />
   );
 }

@@ -24,10 +24,7 @@ import { join, relative } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '..');
 const PORTS_FILE = join(REPO_ROOT, 'pkgs/ui/src/ports/ui-adapter.ts');
-const INHOUSE_FILE = join(
-  REPO_ROOT,
-  'pkgs/ui/src/adapters/inhouse/index.ts'
-);
+const INHOUSE_FILE = join(REPO_ROOT, 'pkgs/ui/src/adapters/inhouse/index.ts');
 const HEROUI_FILE = join(REPO_ROOT, 'pkgs/ui/src/adapters/heroui/index.ts');
 
 function readObjectMemberKeys(
@@ -89,10 +86,7 @@ function diff(
 }
 
 function main(): never {
-  const slots = readObjectMemberKeys(
-    PORTS_FILE,
-    'export interface UIAdapter'
-  );
+  const slots = readObjectMemberKeys(PORTS_FILE, 'export interface UIAdapter');
   if (slots.length === 0) {
     console.error(
       `check:ui-adapter-conformance: extracted zero UIAdapter slots from ${relative(REPO_ROOT, PORTS_FILE)}; aborting.`

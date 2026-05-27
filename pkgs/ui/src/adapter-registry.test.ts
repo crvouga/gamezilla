@@ -62,10 +62,7 @@ describe('adapter-registry', () => {
   });
 
   test('public index re-exports every UIAdapter slot', () => {
-    const indexSlots = readSlots(
-      join(SRC_DIR, 'index.ts'),
-      'export const {'
-    );
+    const indexSlots = readSlots(join(SRC_DIR, 'index.ts'), 'export const {');
     const missing = portSlots.filter((s) => !indexSlots.includes(s));
     expect(missing).toEqual([]);
   });
