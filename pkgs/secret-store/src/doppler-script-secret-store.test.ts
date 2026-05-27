@@ -32,15 +32,13 @@ function makeCli(execCalls: string[]): DopplerCli {
 describe('DopplerScriptSecretStore', () => {
   it('delegates reads to the wrapped DopplerSecretStore', async () => {
     const store = new DopplerScriptSecretStore(makeReader(), makeCli([]));
-    await expect(store.getRequired('FOO')).resolves.toBe('bar');
-    await expect(store.getOptional('FOO')).resolves.toBe('bar');
-    await expect(store.getRequiredMany(['FOO'])).resolves.toEqual({
-      FOO: 'bar',
-    });
-    await expect(store.getOptionalMany(['FOO', 'MISSING'])).resolves.toEqual({
-      FOO: 'bar',
-      MISSING: null,
-    });
+    expect((await store.getRequired('FOO')).readSecretValue()).toBe('bar');
+    expect((await store.getOptional('FOO'))?.readSecretValue()).toBe('bar');
+    const req = await store.getRequiredMany(['FOO']);
+    expect(req['FOO']?.readSecretValue()).toBe('bar');
+    const opt = await store.getOptionalMany(['FOO', 'MISSING']);
+    expect(opt['FOO']?.readSecretValue()).toBe('bar');
+    expect(opt['MISSING']).toBeNull();
   });
 
   it('routes setSecret to the Doppler CLI', async () => {

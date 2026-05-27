@@ -108,8 +108,13 @@ export function createStripeWebhookRoutes(args: {
       const sig = c.req.header('stripe-signature') ?? '';
       const raw = await c.req.text();
 
-      const webhookSecret = await secretStore.getOptional(webhookSecretKey);
-      if (webhookSecret === null || webhookSecret.trim().length === 0) {
+      const webhookSecret = (
+        await secretStore.getOptional(webhookSecretKey)
+      )?.readSecretValue();
+      if (
+        typeof webhookSecret !== 'string' ||
+        webhookSecret.trim().length === 0
+      ) {
         log.error('stripe webhook: signing secret missing from secret store');
         return c.json(
           { error: 'Stripe webhook secret is not configured' },

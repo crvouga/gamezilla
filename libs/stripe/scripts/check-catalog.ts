@@ -42,7 +42,9 @@ async function resolveStripeSecretOrSkip(): Promise<string | null> {
 
   let trimmed: string;
   try {
-    const raw = await store.getOptional(StripeSecretKeys.secretKey);
+    const raw = (
+      await store.getOptional(StripeSecretKeys.secretKey)
+    )?.readSecretValue();
     trimmed = typeof raw === 'string' ? raw.trim() : '';
   } catch (e: unknown) {
     if (isCi()) {

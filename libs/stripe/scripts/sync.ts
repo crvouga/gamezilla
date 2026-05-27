@@ -30,7 +30,7 @@ const SCRIPT_TAG = 'stripe sync';
 
 async function assertApiUrlBase(): Promise<string> {
   const store = createStripeScriptSecretStore();
-  const raw = await store.getOptional('API_URL');
+  const raw = (await store.getOptional('API_URL'))?.readSecretValue();
   const trimmed = typeof raw === 'string' ? raw.trim() : '';
   if (trimmed.length === 0) {
     console.error(

@@ -1,3 +1,5 @@
+import type { SecretString } from '@pkgs/secret-string/secret-string';
+
 export type SecretStoreGetInit = {
   signal?: AbortSignal;
 };
@@ -12,10 +14,16 @@ export type SecretStoreSetInit = {
  * to a CLI, or compose other implementations.
  *
  * Read semantics:
+ *   - All read APIs return {@link SecretString} (or `null` for optional misses)
+ *     so the raw value cannot be accidentally `console.log`-ed or
+ *     `JSON.stringify`-ed. Callers must opt in to the raw value via
+ *     {@link SecretString.readSecretValue}.
  *   - Optional keys: absent or blank after trim → `null`. Transport / HTTP /
  *     parse errors throw.
  *
  * Write semantics:
+ *   - {@link setSecret} takes a plaintext `string` (callers supply the raw
+ *     value to write).
  *   - {@link setSecret} MUST be idempotent: writing the same value twice MUST
  *     succeed; writing a different value MUST overwrite without error.
  *   - Implementations whose underlying transport cannot write (e.g. the
@@ -23,10 +31,16 @@ export type SecretStoreSetInit = {
  *     {@link setSecret} rather than silently no-op.
  */
 export interface SecretStore {
-  getRequired(name: string, init?: SecretStoreGetInit): Promise<string>;
+  getRequired(
+    name: string,
+    init?: SecretStoreGetInit
+  ): Promise<SecretString>;
 
   /** Missing or blank (after trim) → `null`. HTTP / parse failures still throw. */
-  getOptional(name: string, init?: SecretStoreGetInit): Promise<string | null>;
+  getOptional(
+    name: string,
+    init?: SecretStoreGetInit
+  ): Promise<SecretString | null>;
 
   /**
    * One batch fetch when supported. Throws if any name is missing or blank.
@@ -35,7 +49,7 @@ export interface SecretStore {
   getRequiredMany(
     names: readonly string[],
     init?: SecretStoreGetInit
-  ): Promise<Record<string, string>>;
+  ): Promise<Record<string, SecretString>>;
 
   /**
    * Best-effort batch fetch: returns one entry per requested name. Missing or
@@ -49,7 +63,7 @@ export interface SecretStore {
   getOptionalMany(
     names: readonly string[],
     init?: SecretStoreGetInit
-  ): Promise<Record<string, string | null>>;
+  ): Promise<Record<string, SecretString | null>>;
 
   setSecret(
     name: string,

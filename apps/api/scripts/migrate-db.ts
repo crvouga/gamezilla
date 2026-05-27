@@ -36,7 +36,7 @@ async function resolveDatabaseUrlForMigrate(): Promise<string> {
     return fromEnv;
   }
   const store = createDopplerSecretStoreForScripts();
-  return store.getRequired('DB_URL');
+  return (await store.getRequired('DB_URL')).readSecretValue();
 }
 
 async function runMigrateOnce(): Promise<void> {

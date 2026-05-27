@@ -42,7 +42,9 @@ describe('DopplerSecretStore', () => {
         )
       ),
     });
-    await expect(store.getRequired('FOO')).resolves.toBe('bar');
+    const s = await store.getRequired('FOO');
+    expect(s.readSecretValue()).toBe('bar');
+    expect(s.name).toBe('FOO');
   });
 
   it('getRequired throws SecretMissingError when key absent', async () => {
@@ -93,7 +95,8 @@ describe('DopplerSecretStore', () => {
     });
     await expect(store.getOptional('NONE')).resolves.toBeNull();
     await expect(store.getOptional('A')).resolves.toBeNull();
-    await expect(store.getOptional('B')).resolves.toBe('ok');
+    const b = await store.getOptional('B');
+    expect(b?.readSecretValue()).toBe('ok');
   });
 
   it('getRequiredMany batches one request', async () => {
@@ -111,7 +114,8 @@ describe('DopplerSecretStore', () => {
       }),
     });
     const r = await store.getRequiredMany(['A', 'B']);
-    expect(r).toEqual({ A: '1', B: '2' });
+    expect(r['A']?.readSecretValue()).toBe('1');
+    expect(r['B']?.readSecretValue()).toBe('2');
     expect(url).toContain('secrets=A%2CB');
   });
 
@@ -143,7 +147,8 @@ describe('DopplerSecretStore', () => {
       }),
     });
 
-    await expect(store.getRequired('A')).resolves.toBe('1');
+    const a1 = await store.getRequired('A');
+    expect(a1.readSecretValue()).toBe('1');
     expect(url).toContain('config=shared');
   });
 
@@ -163,7 +168,8 @@ describe('DopplerSecretStore', () => {
       }),
     });
 
-    await expect(store.getRequired('A')).resolves.toBe('1');
+    const a2 = await store.getRequired('A');
+    expect(a2.readSecretValue()).toBe('1');
     expect(url).toContain('project=my-app');
   });
 
@@ -203,11 +209,10 @@ describe('DopplerSecretStore', () => {
         )
       ),
     });
-    await expect(store.getOptionalMany(['A', 'B', 'C'])).resolves.toEqual({
-      A: 'a',
-      B: null,
-      C: null,
-    });
+    const r = await store.getOptionalMany(['A', 'B', 'C']);
+    expect(r['A']?.readSecretValue()).toBe('a');
+    expect(r['B']).toBeNull();
+    expect(r['C']).toBeNull();
   });
 
   it('retries on HTTP 429 honoring Retry-After', async () => {
@@ -237,7 +242,8 @@ describe('DopplerSecretStore', () => {
         );
       }),
     });
-    await expect(store.getRequired('FOO')).resolves.toBe('bar');
+    const foo = await store.getRequired('FOO');
+    expect(foo.readSecretValue()).toBe('bar');
     expect(calls).toBe(2);
     expect(sleeps).toEqual([2000]);
   });

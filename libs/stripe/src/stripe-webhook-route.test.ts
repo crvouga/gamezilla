@@ -1,4 +1,5 @@
 import type { SecretStore } from '@pkgs/secret-store';
+import { SecretString } from '@pkgs/secret-string/secret-string';
 import type { PatchDb, PatchInput } from '@pkgs/patch-db/interface';
 import { describe, expect, it, mock } from 'bun:test';
 import Stripe from 'stripe';
@@ -12,8 +13,9 @@ describe('createStripeWebhookRoutes', () => {
       write: async () => [],
     } as unknown as PatchDb;
     const secretStore = {
-      getRequired: async () => '',
-      getOptional: async () => 'whsec_test',
+      getRequired: async (name: string) => new SecretString(name, ''),
+      getOptional: async (name: string) =>
+        new SecretString(name, 'whsec_test'),
       getRequiredMany: async () => ({}),
     } as unknown as SecretStore;
 
@@ -37,7 +39,7 @@ describe('createStripeWebhookRoutes', () => {
       write: async () => [],
     } as unknown as PatchDb;
     const secretStore = {
-      getRequired: async () => '',
+      getRequired: async (name: string) => new SecretString(name, ''),
       getOptional: async () => null,
       getRequiredMany: async () => ({}),
     } as unknown as SecretStore;
@@ -71,8 +73,9 @@ describe('createStripeWebhookRoutes', () => {
     } as unknown as PatchDb;
 
     const secretStore = {
-      getRequired: async () => '',
-      getOptional: async () => 'whsec_test',
+      getRequired: async (name: string) => new SecretString(name, ''),
+      getOptional: async (name: string) =>
+        new SecretString(name, 'whsec_test'),
       getRequiredMany: async () => ({}),
     } as unknown as SecretStore;
 

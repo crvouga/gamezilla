@@ -58,11 +58,13 @@ function createDopplerStore(): SecretStore {
 async function resolveApiOriginFromDoppler(
   store: SecretStore
 ): Promise<string | null> {
-  const expo = await store.getOptional('EXPO_PUBLIC_API_URL');
+  const expo = (
+    await store.getOptional('EXPO_PUBLIC_API_URL')
+  )?.readSecretValue();
   if (typeof expo === 'string' && expo.trim().length > 0) {
     return expo.trim();
   }
-  const api = await store.getOptional('API_URL');
+  const api = (await store.getOptional('API_URL'))?.readSecretValue();
   if (typeof api === 'string' && api.trim().length > 0) {
     return api.trim();
   }
@@ -75,7 +77,9 @@ async function resolveLoopbackPreviewOrigin(
   const fromEnv = readLocalPreviewApiOriginFromProcessEnv();
   if (fromEnv !== null) return fromEnv;
   const s = store ?? createDopplerStore();
-  const fromDoppler = await s.getOptional('LOCAL_PREVIEW_API_ORIGIN');
+  const fromDoppler = (
+    await s.getOptional('LOCAL_PREVIEW_API_ORIGIN')
+  )?.readSecretValue();
   const trimmed =
     typeof fromDoppler === 'string' && fromDoppler.trim().length > 0
       ? fromDoppler.trim()

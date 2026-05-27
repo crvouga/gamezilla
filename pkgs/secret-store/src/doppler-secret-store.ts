@@ -1,3 +1,4 @@
+import type { SecretString } from '@pkgs/secret-string/secret-string';
 import {
   SecretBlankError,
   SecretMissingError,
@@ -9,6 +10,7 @@ import type {
   SecretStoreGetInit,
   SecretStoreSetInit,
 } from './interface';
+import { wrapSecret, wrapSecretOptional } from './wrap-secret';
 
 const DOPPLER_DOWNLOAD =
   'https://api.doppler.com/v3/configs/config/secrets/download';
@@ -156,25 +158,28 @@ export class DopplerSecretStore implements SecretStore {
     this.sleep = options.sleep ?? defaultSleep;
   }
 
-  async getRequired(name: string, init?: SecretStoreGetInit): Promise<string> {
+  async getRequired(
+    name: string,
+    init?: SecretStoreGetInit
+  ): Promise<SecretString> {
     assertNonBlankName(name);
     const row = await this.downloadSecretRow([name], init);
-    return this.requiredFromRow(row, name);
+    return wrapSecret(name, this.requiredFromRow(row, name));
   }
 
   async getOptional(
     name: string,
     init?: SecretStoreGetInit
-  ): Promise<string | null> {
+  ): Promise<SecretString | null> {
     assertNonBlankName(name);
     const row = await this.downloadSecretRow([name], init);
-    return this.optionalFromRow(row, name);
+    return wrapSecretOptional(name, this.optionalFromRow(row, name));
   }
 
   async getRequiredMany(
     names: readonly string[],
     init?: SecretStoreGetInit
-  ): Promise<Record<string, string>> {
+  ): Promise<Record<string, SecretString>> {
     if (names.length === 0) {
       return {};
     }
@@ -183,9 +188,9 @@ export class DopplerSecretStore implements SecretStore {
     }
     const unique = [...new Set(names)];
     const row = await this.downloadSecretRow(unique, init);
-    const out: Record<string, string> = {};
+    const out: Record<string, SecretString> = {};
     for (const name of names) {
-      out[name] = this.requiredFromRow(row, name);
+      out[name] = wrapSecret(name, this.requiredFromRow(row, name));
     }
     return out;
   }
@@ -193,7 +198,7 @@ export class DopplerSecretStore implements SecretStore {
   async getOptionalMany(
     names: readonly string[],
     init?: SecretStoreGetInit
-  ): Promise<Record<string, string | null>> {
+  ): Promise<Record<string, SecretString | null>> {
     if (names.length === 0) {
       return {};
     }
@@ -202,9 +207,9 @@ export class DopplerSecretStore implements SecretStore {
     }
     const unique = [...new Set(names)];
     const row = await this.downloadSecretRow(unique, init);
-    const out: Record<string, string | null> = {};
+    const out: Record<string, SecretString | null> = {};
     for (const name of names) {
-      out[name] = this.optionalFromRow(row, name);
+      out[name] = wrapSecretOptional(name, this.optionalFromRow(row, name));
     }
     return out;
   }

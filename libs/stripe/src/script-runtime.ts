@@ -29,7 +29,9 @@ export async function assertStripeSecretKey(
   scriptTag: string
 ): Promise<string> {
   const store = createStripeScriptSecretStore();
-  const raw = await store.getOptional(StripeSecretKeys.secretKey);
+  const raw = (
+    await store.getOptional(StripeSecretKeys.secretKey)
+  )?.readSecretValue();
   const trimmed = typeof raw === 'string' ? raw.trim() : '';
   if (trimmed.length === 0) {
     console.error(
@@ -46,7 +48,7 @@ export async function assertStripeSecretKey(
  */
 export async function assertDbUrl(scriptTag: string): Promise<string> {
   const store = createStripeScriptSecretStore();
-  const raw = (await store.getOptional('DB_URL')) ?? '';
+  const raw = (await store.getOptional('DB_URL'))?.readSecretValue() ?? '';
   const u = raw.trim();
   if (u.length === 0) {
     console.error(
@@ -70,7 +72,7 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
  */
 export async function resolveOptionalDbUrl(): Promise<string | undefined> {
   const store = createStripeScriptSecretStore();
-  const raw = (await store.getOptional('DB_URL')) ?? '';
+  const raw = (await store.getOptional('DB_URL'))?.readSecretValue() ?? '';
   const u = raw.trim();
   if (u.length === 0) return undefined;
   if (isPostgresDbUrl(u)) return u;

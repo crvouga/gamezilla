@@ -16,7 +16,8 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/doppler": "workspace:*"
+    "@pkgs/doppler": "workspace:*",
+    "@pkgs/secret-string": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

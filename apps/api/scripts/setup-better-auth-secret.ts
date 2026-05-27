@@ -9,8 +9,10 @@ function randomHex32Bytes(): string {
 
 async function main(): Promise<void> {
   const store = createDopplerSecretStoreForScripts();
-  const existing = await store.getOptional(ApiSecretName.betterAuthSecret);
-  if (existing !== null && existing.trim().length >= 32) {
+  const existing = (
+    await store.getOptional(ApiSecretName.betterAuthSecret)
+  )?.readSecretValue();
+  if (typeof existing === 'string' && existing.trim().length >= 32) {
     process.stdout.write(
       '[setup-better-auth-secret] BETTER_AUTH_SECRET already present in Doppler; skipping.\n'
     );

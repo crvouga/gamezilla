@@ -1,4 +1,5 @@
 import { DopplerCli } from '@pkgs/doppler/doppler-cli';
+import type { SecretString } from '@pkgs/secret-string/secret-string';
 import type { DopplerSecretStore } from './doppler-secret-store';
 import type {
   SecretStore,
@@ -31,25 +32,31 @@ export class DopplerScriptSecretStore implements SecretStore {
     this.cli = cli;
   }
 
-  getRequired(name: string, init?: SecretStoreGetInit): Promise<string> {
+  getRequired(
+    name: string,
+    init?: SecretStoreGetInit
+  ): Promise<SecretString> {
     return this.reader.getRequired(name, init);
   }
 
-  getOptional(name: string, init?: SecretStoreGetInit): Promise<string | null> {
+  getOptional(
+    name: string,
+    init?: SecretStoreGetInit
+  ): Promise<SecretString | null> {
     return this.reader.getOptional(name, init);
   }
 
   getRequiredMany(
     names: readonly string[],
     init?: SecretStoreGetInit
-  ): Promise<Record<string, string>> {
+  ): Promise<Record<string, SecretString>> {
     return this.reader.getRequiredMany(names, init);
   }
 
   getOptionalMany(
     names: readonly string[],
     init?: SecretStoreGetInit
-  ): Promise<Record<string, string | null>> {
+  ): Promise<Record<string, SecretString | null>> {
     return this.reader.getOptionalMany(names, init);
   }
 

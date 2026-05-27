@@ -1,9 +1,11 @@
+import type { SecretString } from '@pkgs/secret-string/secret-string';
 import { SecretMissingError } from './errors';
 import type {
   SecretStore,
   SecretStoreGetInit,
   SecretStoreSetInit,
 } from './interface';
+import { wrapSecret, wrapSecretOptional } from './wrap-secret';
 
 export type CachingSecretStoreOptions = {
   /** Time-to-live for successfully resolved values, in ms. */
@@ -36,6 +38,10 @@ type PendingBatch = {
  * sequentially still costs N upstream calls, but M parallel inbound requests
  * each loading the same N secrets cost N (not M*N) calls in steady state and
  * exactly N calls during a cold start.
+ *
+ * The cache stores raw `string` values internally; results are re-wrapped into
+ * {@link SecretString} at the public read boundary so cache hits do not bypass
+ * redaction.
  */
 export class CachingSecretStore implements SecretStore {
   private readonly inner: SecretStore;
@@ -96,7 +102,14 @@ export class CachingSecretStore implements SecretStore {
       const init: SecretStoreGetInit | undefined =
         signal !== undefined ? { signal } : undefined;
       const names = [...batch.names];
-      this.inner.getOptionalMany(names, init).then(resolveBatch, rejectBatch);
+      this.inner.getOptionalMany(names, init).then((wrapped) => {
+        const unwrapped: Record<string, string | null> = {};
+        for (const n of names) {
+          const v = wrapped[n] ?? null;
+          unwrapped[n] = v === null ? null : v.readSecretValue();
+        }
+        resolveBatch(unwrapped);
+      }, rejectBatch);
     });
     return batch;
   }
@@ -132,10 +145,13 @@ export class CachingSecretStore implements SecretStore {
     return inflight;
   }
 
-  async getRequired(name: string, init?: SecretStoreGetInit): Promise<string> {
+  async getRequired(
+    name: string,
+    init?: SecretStoreGetInit
+  ): Promise<SecretString> {
     const p = this.peek(name);
     if (p !== undefined && p !== null) {
-      return p;
+      return wrapSecret(name, p);
     }
     if (p === null) {
       this.cache.delete(name);
@@ -144,28 +160,29 @@ export class CachingSecretStore implements SecretStore {
     if (value === null) {
       throw new SecretMissingError(name);
     }
-    return value;
+    return wrapSecret(name, value);
   }
 
   async getOptional(
     name: string,
     init?: SecretStoreGetInit
-  ): Promise<string | null> {
+  ): Promise<SecretString | null> {
     const p = this.peek(name);
     if (p !== undefined) {
-      return p;
+      return wrapSecretOptional(name, p);
     }
-    return this.fetchCoalesced(name, init);
+    const value = await this.fetchCoalesced(name, init);
+    return wrapSecretOptional(name, value);
   }
 
   async getRequiredMany(
     names: readonly string[],
     init?: SecretStoreGetInit
-  ): Promise<Record<string, string>> {
+  ): Promise<Record<string, SecretString>> {
     if (names.length === 0) {
       return {};
     }
-    const out: Record<string, string> = {};
+    const out: Record<string, SecretString> = {};
     await Promise.all(
       names.map(async (name) => {
         out[name] = await this.getRequired(name, init);
@@ -177,11 +194,11 @@ export class CachingSecretStore implements SecretStore {
   async getOptionalMany(
     names: readonly string[],
     init?: SecretStoreGetInit
-  ): Promise<Record<string, string | null>> {
+  ): Promise<Record<string, SecretString | null>> {
     if (names.length === 0) {
       return {};
     }
-    const out: Record<string, string | null> = {};
+    const out: Record<string, SecretString | null> = {};
     await Promise.all(
       names.map(async (name) => {
         out[name] = await this.getOptional(name, init);

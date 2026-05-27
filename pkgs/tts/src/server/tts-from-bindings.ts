@@ -33,9 +33,9 @@ export type CreateTtsAppFromBindingsOptions = {
 export async function createTtsAppFromBindings(
   options: CreateTtsAppFromBindingsOptions
 ): Promise<ReturnType<typeof createTtsApp>> {
-  const apiKey = await options.secretStore.getRequired(
-    TtsDopplerKey.elevenLabsApiKey
-  );
+  const apiKey = (
+    await options.secretStore.getRequired(TtsDopplerKey.elevenLabsApiKey)
+  ).readSecretValue();
 
   const provider = new ElevenLabsTtsProvider({ apiKey });
   const objectStore = new ObjectStoreImplR2(options.r2Bucket);

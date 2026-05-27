@@ -1,3 +1,4 @@
+import type { SecretString } from '@pkgs/secret-string/secret-string';
 import { SecretMissingError } from './errors';
 import type {
   SecretStore,
@@ -18,7 +19,10 @@ export class CombinedSecretStore implements SecretStore {
     private readonly fallback: SecretStore
   ) {}
 
-  async getRequired(name: string, init?: SecretStoreGetInit): Promise<string> {
+  async getRequired(
+    name: string,
+    init?: SecretStoreGetInit
+  ): Promise<SecretString> {
     const value = await this.getOptional(name, init);
     if (value !== null) {
       return value;
@@ -29,7 +33,7 @@ export class CombinedSecretStore implements SecretStore {
   async getOptional(
     name: string,
     init?: SecretStoreGetInit
-  ): Promise<string | null> {
+  ): Promise<SecretString | null> {
     const primaryValue = await this.primary.getOptional(name, init);
     if (primaryValue !== null) {
       return primaryValue;
@@ -40,8 +44,8 @@ export class CombinedSecretStore implements SecretStore {
   async getRequiredMany(
     names: readonly string[],
     init?: SecretStoreGetInit
-  ): Promise<Record<string, string>> {
-    const out: Record<string, string> = {};
+  ): Promise<Record<string, SecretString>> {
+    const out: Record<string, SecretString> = {};
     for (const name of names) {
       out[name] = await this.getRequired(name, init);
     }
@@ -51,19 +55,19 @@ export class CombinedSecretStore implements SecretStore {
   async getOptionalMany(
     names: readonly string[],
     init?: SecretStoreGetInit
-  ): Promise<Record<string, string | null>> {
+  ): Promise<Record<string, SecretString | null>> {
     if (names.length === 0) return {};
     const primary = await this.primary.getOptionalMany(names, init);
     const missing = names.filter((n) => primary[n] === null);
     if (missing.length === 0) {
-      const out: Record<string, string | null> = {};
+      const out: Record<string, SecretString | null> = {};
       for (const name of names) {
         out[name] = primary[name] ?? null;
       }
       return out;
     }
     const fallback = await this.fallback.getOptionalMany(missing, init);
-    const out: Record<string, string | null> = {};
+    const out: Record<string, SecretString | null> = {};
     for (const name of names) {
       const p = primary[name];
       out[name] = p !== null && p !== undefined ? p : (fallback[name] ?? null);

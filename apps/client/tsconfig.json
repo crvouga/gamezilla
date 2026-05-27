@@ -58,6 +58,7 @@
       "@pkgs/room-example/*": ["../../pkgs/room-example/src/*"],
       "@pkgs/secret-store": ["../../pkgs/secret-store/src/index.ts"],
       "@pkgs/secret-store/*": ["../../pkgs/secret-store/src/*"],
+      "@pkgs/secret-string/*": ["../../pkgs/secret-string/src/*"],
       "@pkgs/secure-storage": ["../../pkgs/secure-storage/src/index.ts"],
       "@pkgs/secure-storage/*": ["../../pkgs/secure-storage/src/*"],
       "@pkgs/sql-client/*": ["../../pkgs/sql-client/src/*"],

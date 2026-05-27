@@ -34,9 +34,10 @@ const DOPPLER_WEB_CLIENT_GOOGLE_CLIENT_ID = 'WEB_CLIENT_GOOGLE_CLIENT_ID';
 async function loadClientConfigAttributesFromDoppler(
   secretStore: SecretStore
 ): Promise<Record<string, unknown>> {
-  const googleWebClientId = await secretStore.getOptional(
-    DOPPLER_WEB_CLIENT_GOOGLE_CLIENT_ID
-  );
+  const googleWebClientId =
+    (
+      await secretStore.getOptional(DOPPLER_WEB_CLIENT_GOOGLE_CLIENT_ID)
+    )?.readSecretValue() ?? null;
   return ClientConfigAttr.googleWebClientId(googleWebClientId);
 }
 

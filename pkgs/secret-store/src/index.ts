@@ -24,3 +24,4 @@ export type {
   SecretStoreGetInit,
   SecretStoreSetInit,
 } from './interface';
+export { SecretString } from '@pkgs/secret-string/secret-string';

@@ -113,29 +113,38 @@ export async function loadBetterAuthSecretsWorker(
 ): Promise<LoadedBetterAuthSecretsWorker> {
   const secret = (
     await secretStore.getRequired(BetterAuthDopplerKey.betterAuthSecret)
-  ).trim();
+  )
+    .readSecretValue()
+    .trim();
   const googleClientId = (
     await secretStore.getRequired(BetterAuthDopplerKey.googleWebClientId)
-  ).trim();
+  )
+    .readSecretValue()
+    .trim();
   const googleClientSecret = (
     await secretStore.getRequired(BetterAuthDopplerKey.googleWebClientSecret)
-  ).trim();
-  const apiUrlRaw = await secretStore.getRequired(BetterAuthDopplerKey.apiUrl);
+  )
+    .readSecretValue()
+    .trim();
+  const apiUrlRaw = (
+    await secretStore.getRequired(BetterAuthDopplerKey.apiUrl)
+  ).readSecretValue();
   const apiOrigin = apiUrlRaw.replace(/\/$/, '');
   const hostedAuthOrigin = normalizeLocalHostedAuthOrigin(apiOrigin);
   const baseURL = `${hostedAuthOrigin}/api/auth`;
 
-  const appNameRaw = await secretStore.getOptional(
-    BetterAuthDopplerKey.betterAuthAppName
-  );
+  const appNameRaw = (
+    await secretStore.getOptional(BetterAuthDopplerKey.betterAuthAppName)
+  )?.readSecretValue();
   const appName =
     typeof appNameRaw === 'string' && appNameRaw.trim().length > 0
       ? appNameRaw.trim()
       : 'gamezilla';
 
-  const trustedRaw = await secretStore.getOptional(
-    BetterAuthDopplerKey.betterAuthTrustedOrigins
-  );
+  const trustedRaw =
+    (
+      await secretStore.getOptional(BetterAuthDopplerKey.betterAuthTrustedOrigins)
+    )?.readSecretValue() ?? null;
   const trustedOrigins = buildTrustedOrigins(apiOrigin, trustedRaw);
 
   return {
@@ -153,6 +162,8 @@ export async function loadBetterAuthSecrets(
   secretStore: SecretStore
 ): Promise<LoadedBetterAuthSecrets> {
   const worker = await loadBetterAuthSecretsWorker(secretStore);
-  const dbUrl = await secretStore.getRequired(BetterAuthDopplerKey.dbUrl);
+  const dbUrl = (
+    await secretStore.getRequired(BetterAuthDopplerKey.dbUrl)
+  ).readSecretValue();
   return { ...worker, dbUrl };
 }

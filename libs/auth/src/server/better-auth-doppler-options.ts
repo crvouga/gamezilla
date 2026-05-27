@@ -7,16 +7,22 @@ import { bearer } from 'better-auth/plugins';
 export async function loadBetterAuthOptionsForMigration(
   store: SecretStore
 ): Promise<Omit<BetterAuthOptions, 'database'>> {
-  const secret = (await store.getRequired('BETTER_AUTH_SECRET')).trim();
-  const apiUrlRaw = await store.getRequired('API_URL');
+  const secret = (await store.getRequired('BETTER_AUTH_SECRET'))
+    .readSecretValue()
+    .trim();
+  const apiUrlRaw = (
+    await store.getRequired('API_URL')
+  ).readSecretValue();
   const apiOrigin = apiUrlRaw.replace(/\/$/, '');
   const baseURL = `${apiOrigin}/api/auth`;
-  const googleClientId = (
-    await store.getRequired('WEB_CLIENT_GOOGLE_CLIENT_ID')
-  ).trim();
+  const googleClientId = (await store.getRequired('WEB_CLIENT_GOOGLE_CLIENT_ID'))
+    .readSecretValue()
+    .trim();
   const googleClientSecret = (
     await store.getRequired('WEB_CLIENT_GOOGLE_CLIENT_SECRET')
-  ).trim();
+  )
+    .readSecretValue()
+    .trim();
   return {
     secret,
     baseURL,

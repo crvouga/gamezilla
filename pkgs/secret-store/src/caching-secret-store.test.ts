@@ -2,6 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import { CachingSecretStore } from './caching-secret-store';
 import { SecretMissingError } from './errors';
 import type { SecretStore } from './interface';
+import { wrapSecret, wrapSecretOptional } from './wrap-secret';
 
 type CountingStore = SecretStore & {
   readonly counts: { g: number; o: number; m: number; om: number; s: number };
@@ -31,28 +32,28 @@ function createCountingStore(
       counts.g += 1;
       const v = valueOf(name);
       if (v === null) throw new SecretMissingError(name);
-      return v;
+      return wrapSecret(name, v);
     },
     async getOptional(name: string) {
       counts.o += 1;
-      return valueOf(name);
+      return wrapSecretOptional(name, valueOf(name));
     },
     async getRequiredMany(names: readonly string[]) {
       counts.m += 1;
-      const out: Record<string, string> = {};
+      const out: Record<string, ReturnType<typeof wrapSecret>> = {};
       for (const n of names) {
         const v = valueOf(n);
         if (v === null) throw new SecretMissingError(n);
-        out[n] = v;
+        out[n] = wrapSecret(n, v);
       }
       return out;
     },
     async getOptionalMany(names: readonly string[]) {
       counts.om += 1;
       omCalls.push([...names]);
-      const out: Record<string, string | null> = {};
+      const out: Record<string, ReturnType<typeof wrapSecretOptional>> = {};
       for (const n of names) {
-        out[n] = valueOf(n);
+        out[n] = wrapSecretOptional(n, valueOf(n));
       }
       return out;
     },
@@ -69,12 +70,12 @@ describe('CachingSecretStore', () => {
     const inner = createCountingStore();
     const cache = new CachingSecretStore(inner, { ttlMs: 1000, now: () => t });
 
-    await expect(cache.getRequired('A')).resolves.toBe('A-v');
-    await expect(cache.getRequired('A')).resolves.toBe('A-v');
+    expect((await cache.getRequired('A')).readSecretValue()).toBe('A-v');
+    expect((await cache.getRequired('A')).readSecretValue()).toBe('A-v');
     expect(inner.counts.om).toBe(1);
 
     t += 1001;
-    await expect(cache.getRequired('A')).resolves.toBe('A-v');
+    expect((await cache.getRequired('A')).readSecretValue()).toBe('A-v');
     expect(inner.counts.om).toBe(2);
   });
 
@@ -108,7 +109,11 @@ describe('CachingSecretStore', () => {
       cache.getRequired('A'),
       cache.getRequired('A'),
     ]);
-    expect(results).toEqual(['A-v', 'A-v', 'A-v']);
+    expect(results.map((s) => s.readSecretValue())).toEqual([
+      'A-v',
+      'A-v',
+      'A-v',
+    ]);
     expect(inner.counts.om).toBe(1);
   });
 
@@ -116,12 +121,14 @@ describe('CachingSecretStore', () => {
     const inner = createCountingStore();
     const cache = new CachingSecretStore(inner, { ttlMs: 1000 });
 
-    const results = await Promise.all([
+    const [a, b, c] = await Promise.all([
       cache.getRequired('A'),
       cache.getOptional('B'),
       cache.getRequired('C'),
     ]);
-    expect(results).toEqual(['A-v', 'B-v', 'C-v']);
+    expect(a.readSecretValue()).toBe('A-v');
+    expect(b?.readSecretValue()).toBe('B-v');
+    expect(c.readSecretValue()).toBe('C-v');
     expect(inner.counts.om).toBe(1);
     expect(inner.omCalls).toHaveLength(1);
     expect([...(inner.omCalls[0] ?? [])].sort()).toEqual(['A', 'B', 'C']);
@@ -155,10 +162,10 @@ describe('CachingSecretStore', () => {
     let calls = 0;
     const inner: SecretStore = {
       async getRequired(name: string) {
-        return name;
+        return wrapSecret(name, name);
       },
       async getOptional(name: string) {
-        return name;
+        return wrapSecret(name, name);
       },
       async getRequiredMany() {
         return {};
@@ -166,13 +173,13 @@ describe('CachingSecretStore', () => {
       async getOptionalMany() {
         calls += 1;
         if (calls === 1) throw new Error('boom');
-        return { A: 'A-v' };
+        return { A: wrapSecret('A', 'A-v') };
       },
       async setSecret() {},
     };
     const cache = new CachingSecretStore(inner, { ttlMs: 1000 });
     await expect(cache.getRequired('A')).rejects.toThrow('boom');
-    await expect(cache.getRequired('A')).resolves.toBe('A-v');
+    expect((await cache.getRequired('A')).readSecretValue()).toBe('A-v');
     expect(calls).toBe(2);
   });
 });

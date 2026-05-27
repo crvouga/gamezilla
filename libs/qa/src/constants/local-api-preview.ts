@@ -19,7 +19,7 @@ export async function resolveLocalPreviewApiOrigin(): Promise<string> {
   const fromEnv = trimStringOrNull(process.env['LOCAL_PREVIEW_API_ORIGIN']);
   if (fromEnv !== null) return fromEnv;
   const store = createDopplerSecretStoreForScripts();
-  const fromDoppler = await store.getOptional(SECRET_NAME);
+  const fromDoppler = (await store.getOptional(SECRET_NAME))?.readSecretValue();
   const trimmed =
     typeof fromDoppler === 'string' && fromDoppler.trim().length > 0
       ? fromDoppler.trim()

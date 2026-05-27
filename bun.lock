@@ -23,7 +23,7 @@
         "prettier": "catalog:",
         "sort-package-json": "catalog:",
         "syncpack": "catalog:",
-        "turbo": "catalog:",
+        "turbo": "^2.9.15",
         "typescript": "catalog:",
         "typescript-eslint": "catalog:",
       },
@@ -792,7 +792,16 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/doppler": "workspace:*",
+        "@pkgs/secret-string": "workspace:*",
       },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/secret-string": {
+      "name": "@pkgs/secret-string",
+      "version": "0.0.0",
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
@@ -1881,6 +1890,8 @@
     "@pkgs/room-example": ["@pkgs/room-example@workspace:pkgs/room-example"],
 
     "@pkgs/secret-store": ["@pkgs/secret-store@workspace:pkgs/secret-store"],
+
+    "@pkgs/secret-string": ["@pkgs/secret-string@workspace:pkgs/secret-string"],
 
     "@pkgs/secure-storage": ["@pkgs/secure-storage@workspace:pkgs/secure-storage"],
 

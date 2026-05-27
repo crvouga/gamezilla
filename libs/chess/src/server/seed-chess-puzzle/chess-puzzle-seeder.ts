@@ -521,7 +521,7 @@ export class ChessPuzzleSeeder {
       note: 'Schema (patches/snapshots + pdb_idx_chess_puzzle__*) must already exist; run `bun run --filter @apps/api db:migrate` first on a fresh database.',
     });
     const store = createDopplerSecretStoreForScripts();
-    const databaseUrl = await store.getRequired('DB_URL');
+    const databaseUrl = (await store.getRequired('DB_URL')).readSecretValue();
     const { sql: sqlClient, client } = this.#createSqlClient(databaseUrl);
     await client.connect();
     try {

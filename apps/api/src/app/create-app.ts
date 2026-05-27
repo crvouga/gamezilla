@@ -110,7 +110,9 @@ function createApiErrorHandler() {
 async function createStripeClient(
   secretStore: ApiHandlerConfig['secretStore']
 ): Promise<Stripe> {
-  const raw = await secretStore.getOptional(ApiSecretName.stripeSecretKey);
+  const raw = (
+    await secretStore.getOptional(ApiSecretName.stripeSecretKey)
+  )?.readSecretValue();
   const key =
     typeof raw === 'string' && raw.trim().length > 0
       ? raw.trim()

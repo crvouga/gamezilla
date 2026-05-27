@@ -35,8 +35,8 @@ async function main(): Promise<void> {
     secretStore.getRequired(StripeSecretKeys.secretKey),
     secretStore.getRequired('API_URL'),
   ]);
-  const stripeKey = stripeKeyRaw.trim();
-  const apiUrl = apiUrlRaw.trim();
+  const stripeKey = stripeKeyRaw.readSecretValue().trim();
+  const apiUrl = apiUrlRaw.readSecretValue().trim();
   exitUnlessLocalApiUrl(apiUrl);
 
   await exitUnlessStripeCliWorks(repoRoot);
