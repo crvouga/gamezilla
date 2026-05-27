@@ -168,7 +168,7 @@ function resolveExpoPublicUiImpl(): UiImpl {
         );
     }
   }
-  return 'inhouse';
+  return 'heroui';
 }
 
 function resolveExpoPublicCommitHash(): string {
