@@ -75,22 +75,14 @@ export default function ButtonExample() {
 
       <Text variant="label" sx={{ color: 'textSecondary' }} label="Danger" />
       <SchemePreview>
-        <ButtonRow
-          intent="danger"
-          loading={false}
-          setLoading={() => {}}
-        />
+        <ButtonRow intent="danger" loading={false} setLoading={() => {}} />
       </SchemePreview>
 
       <Divider />
 
       <Text variant="label" sx={{ color: 'textSecondary' }} label="Neutral" />
       <SchemePreview>
-        <ButtonRow
-          intent="neutral"
-          loading={false}
-          setLoading={() => {}}
-        />
+        <ButtonRow intent="neutral" loading={false} setLoading={() => {}} />
       </SchemePreview>
     </Box>
   );

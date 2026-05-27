@@ -115,11 +115,7 @@ export default function ThemeTokensExample() {
 
 function SectionTitle({ title }: { title: string }) {
   return (
-    <Text
-      variant="title"
-      sx={{ mt: 4, mb: 2, color: 'text' }}
-      label={title}
-    />
+    <Text variant="title" sx={{ mt: 4, mb: 2, color: 'text' }} label={title} />
   );
 }
 
@@ -210,7 +206,11 @@ function RadiusSample({ radiusKey }: { radiusKey: BorderRadiusKey }) {
           borderColor: theme.colors.tint,
         }}
       />
-      <Text variant="caption" sx={{ color: 'textSecondary' }} label={radiusKey} />
+      <Text
+        variant="caption"
+        sx={{ color: 'textSecondary' }}
+        label={radiusKey}
+      />
       <Text variant="caption" sx={{ color: 'textSecondary' }} label={display} />
     </View>
   );
@@ -283,10 +283,16 @@ function ElevationSample({ level }: { level: ElevationLevel }) {
           backgroundColor: bg,
           borderRadius: borderRadius.md,
           ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
-          ...(lift.elevation !== undefined ? { elevation: lift.elevation } : {}),
+          ...(lift.elevation !== undefined
+            ? { elevation: lift.elevation }
+            : {}),
         }}
       />
-      <Text variant="caption" sx={{ color: 'textSecondary' }} label={`level ${level}`} />
+      <Text
+        variant="caption"
+        sx={{ color: 'textSecondary' }}
+        label={`level ${level}`}
+      />
     </View>
   );
 }

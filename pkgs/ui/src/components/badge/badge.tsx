@@ -87,10 +87,7 @@ export function Badge({
         paddingVertical: py,
       }}
     >
-      <Text
-        style={{ color: fg, fontSize, fontWeight: '600' }}
-        label={label}
-      />
+      <Text style={{ color: fg, fontSize, fontWeight: '600' }} label={label} />
     </View>
   );
 }

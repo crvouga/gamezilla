@@ -166,7 +166,9 @@ export function makeElevation(
  * valid CSS color back.
  */
 function shadowColorWithAlpha(base: string, mul: number): string {
-  const rgba = base.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)/);
+  const rgba = base.match(
+    /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)/
+  );
   if (rgba) {
     const r = rgba[1];
     const g = rgba[2];

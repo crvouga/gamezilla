@@ -32,7 +32,9 @@ export function ModalContent({ children, style }: ModalContentProps) {
         {
           backgroundColor: bg,
           ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
-          ...(lift.elevation !== undefined ? { elevation: lift.elevation } : {}),
+          ...(lift.elevation !== undefined
+            ? { elevation: lift.elevation }
+            : {}),
         },
         style,
       ]}
