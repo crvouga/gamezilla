@@ -115,7 +115,8 @@ export class PostgresDep implements Dep {
   version(): string | null {
     if (which('postgres')) return captureVersion('postgres', ['--version']);
     const dir = homebrewKegBinDir();
-    if (dir !== null) return captureVersion(join(dir, 'postgres'), ['--version']);
+    if (dir !== null)
+      return captureVersion(join(dir, 'postgres'), ['--version']);
     return null;
   }
 

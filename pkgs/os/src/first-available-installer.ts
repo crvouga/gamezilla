@@ -33,7 +33,8 @@ export class FirstAvailableInstaller implements Installer {
         failures.push(e instanceof Error ? e.message : String(e));
       }
     }
-    const detail = failures.length > 0 ? `\n  - ${failures.join('\n  - ')}` : '';
+    const detail =
+      failures.length > 0 ? `\n  - ${failures.join('\n  - ')}` : '';
     throw new Error(`${this.manualHint}${detail}`);
   }
 }
