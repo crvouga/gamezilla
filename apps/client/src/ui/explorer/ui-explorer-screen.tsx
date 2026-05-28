@@ -14,10 +14,7 @@ export function UiExplorerScreen() {
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },
         { name: <Trans>Developer</Trans>, onPress: nav('/more/developer') },
-        {
-          name: <Trans>UI Components</Trans>,
-          subtitle: <Trans>Shared UI explorer</Trans>,
-        },
+        { name: <Trans>UI Components</Trans> },
       ]}
       content={({ sx }) => (
         <Box style={sx}>

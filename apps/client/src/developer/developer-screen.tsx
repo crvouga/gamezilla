@@ -70,10 +70,7 @@ export function DeveloperScreen() {
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },
-        {
-          name: <Trans>Developer</Trans>,
-          subtitle: <Trans>Demos and internal tools</Trans>,
-        },
+        { name: <Trans>Developer</Trans> },
       ]}
       content={({ sx }) => (
         <Box style={sx}>

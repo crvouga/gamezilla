@@ -29,10 +29,7 @@ export function AboutScreen() {
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },
-        {
-          name: <Trans>About</Trans>,
-          subtitle: <Trans>App version and build metadata</Trans>,
-        },
+        { name: <Trans>About</Trans> },
       ]}
       scroll
       content={({ sx }) => (

@@ -24,10 +24,7 @@ export function AccountScreen() {
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },
-        {
-          name: <Trans>Account</Trans>,
-          subtitle: <Trans>Devices and sign-in provider records</Trans>,
-        },
+        { name: <Trans>Account</Trans> },
       ]}
       scroll
       content={({ sx }) => (

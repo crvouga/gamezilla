@@ -153,10 +153,7 @@ export function ServerStatusScreen() {
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },
-        {
-          name: <Trans>Connection</Trans>,
-          subtitle: <Trans>Network and API status</Trans>,
-        },
+        { name: <Trans>Connection</Trans> },
       ]}
       scroll
       content={({ sx }) => (

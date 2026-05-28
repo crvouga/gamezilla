@@ -13,10 +13,7 @@ export function PatchDbScreen() {
           { name: <Trans>Spaces</Trans>, onPress: nav('/') },
           { name: <Trans>Settings</Trans>, onPress: nav('/more') },
           { name: <Trans>Developer</Trans>, onPress: nav('/more/developer') },
-          {
-            name: <Trans>Patch DB Playground</Trans>,
-            subtitle: <Trans>Sync simulation with server and clients</Trans>,
-          },
+          { name: <Trans>Patch DB Playground</Trans> },
         ]}
       />
       <Box sx={{ flex: 1, minHeight: 0 }}>

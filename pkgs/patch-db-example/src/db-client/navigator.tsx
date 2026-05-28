@@ -413,7 +413,6 @@ export function buildExplorerScreenBreadcrumbs(
     const entityId = p.entityId;
     items.push({
       name: short(entityId, 28),
-      subtitle: entityType,
       onPress: () => applyParams(carryQuery(p, { entityType, entityId })),
     });
   }
@@ -423,7 +422,6 @@ export function buildExplorerScreenBreadcrumbs(
     const patchId = p.patchId;
     items.push({
       name: short(patchId, 24),
-      subtitle: t`Patch`,
       onPress: () =>
         applyParams(carryQuery(p, { entityType, entityId, patchId })),
     });

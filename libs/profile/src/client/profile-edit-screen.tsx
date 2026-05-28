@@ -12,10 +12,7 @@ export function ProfileEditScreen() {
     <ScreenBase
       breadcrumbs={[
         { name: <Trans>Profile</Trans>, onPress: nav('/profile') },
-        {
-          name: <Trans>Edit profile</Trans>,
-          subtitle: <Trans>Choose what to update</Trans>,
-        },
+        { name: <Trans>Edit profile</Trans> },
       ]}
       content={({ sx }) => (
         <Box style={sx}>

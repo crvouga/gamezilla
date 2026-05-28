@@ -56,4 +56,11 @@ export type GameClientDefinition = {
   readonly title: ReactNode;
   /** Mounted when this game is the currently selected game in the space. */
   readonly MainMenu: ComponentType<GameClientMenuProps>;
+  /**
+   * Optional: warm heavy, lazily-loaded assets (WASM, dynamic chunks) before
+   * the user selects this game. Fired by the games picker while the list is
+   * shown so selecting the game does not block on a first-time load. Must be
+   * idempotent and safe to call repeatedly.
+   */
+  readonly preload?: () => void;
 };

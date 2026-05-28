@@ -24,10 +24,7 @@ export function ThemeSettingsScreen() {
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },
-        {
-          name: <Trans>Appearance</Trans>,
-          subtitle: <Trans>Theme</Trans>,
-        },
+        { name: <Trans>Appearance</Trans> },
       ]}
       content={({ sx }) => (
         <Box style={sx}>

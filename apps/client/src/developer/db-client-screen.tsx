@@ -83,7 +83,7 @@ export function DbClientScreen() {
             name: <Trans>Patch DB Client</Trans>,
             ...(hasExplorerCrumbs
               ? { onPress: () => applyParams({}) }
-              : { subtitle: <Trans>Browse entities and patch history</Trans> }),
+              : {}),
           },
           ...explorerCrumbs,
         ]}

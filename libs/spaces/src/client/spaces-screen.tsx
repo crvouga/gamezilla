@@ -75,10 +75,7 @@ export function SpacesScreen({
   return (
     <ScreenBase
       breadcrumbs={[
-        {
-          name: <Trans>Spaces</Trans>,
-          subtitle: <Trans>Rooms to play with friends</Trans>,
-        },
+        { name: <Trans>Spaces</Trans> },
       ]}
       actions={isMobile ? [...accountActions] : []}
       centerTabs={centerTabs}

@@ -4,8 +4,6 @@ import type { IconSymbolName } from '../symbol-icon';
 
 export type ScreenBaseBreadcrumb = {
   name: ReactNode;
-  /** On the last (current) crumb this becomes the page subtitle. */
-  subtitle?: ReactNode;
   /** Omit on the final "current" crumb; required on ancestors. */
   onPress?: () => void;
 };

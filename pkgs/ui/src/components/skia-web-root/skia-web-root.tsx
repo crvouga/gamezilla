@@ -35,6 +35,16 @@ function getSkiaWebPromise(): Promise<void> {
 }
 
 /**
+ * Warm CanvasKit ahead of time, sharing the exact promise `SkiaWebRoot`
+ * suspends on. Call this before a Skia surface mounts (e.g. while the user
+ * browses a menu) so the WASM is already initialized by the time the surface
+ * renders — no Suspense fallback, no main-thread-blocked frozen spinner.
+ */
+export function preloadSkiaWeb(): Promise<void> {
+  return getSkiaWebPromise();
+}
+
+/**
  * Web: suspends until {@link loadSkiaWebOnce} has finished so Skia modules
  * can import safely. Native: no-op pass-through.
  *

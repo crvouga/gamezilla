@@ -53,12 +53,7 @@ export type TodoListsOverviewProps = {
 type LinguiT = ReturnType<typeof useLingui>['t'];
 
 function defaultBreadcrumbs(t: LinguiT): ScreenBaseBreadcrumb[] {
-  return [
-    {
-      name: t`Todo Lists`,
-      subtitle: t`Group your todos by list`,
-    },
-  ];
+  return [{ name: t`Todo Lists` }];
 }
 
 export function TodoListsOverview({

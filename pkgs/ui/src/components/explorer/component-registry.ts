@@ -3,7 +3,6 @@ import { useSyncExternalStore, type ComponentType } from 'react';
 import { default as AppLogoExample } from '../app-logo/app-logo.example';
 import { default as BoxExample } from '../box/box.example';
 import { default as GradientBoxExample } from '../gradient-box/gradient-box.example';
-import { default as PageHeaderExample } from '../page-header/page-header.example';
 import { default as TextExample } from '../text/text.example';
 import { default as PressableExample } from '../pressable/pressable.example';
 import { default as ThemeTokensExample } from '../theme-tokens/theme-tokens.example';
@@ -88,7 +87,6 @@ const builtInEntries: ComponentEntry[] = [
   { name: 'ScrollView', category: 'Layout', Example: ScrollViewExample },
   { name: 'SafeAreaView', category: 'Layout', Example: SafeAreaViewExample },
   { name: 'ScreenBase', category: 'Layout', Example: ScreenBaseExample },
-  { name: 'PageHeader', category: 'Layout', Example: PageHeaderExample },
 
   // Icons
   { name: 'BrandIcon', category: 'Icons', Example: BrandIconExample },

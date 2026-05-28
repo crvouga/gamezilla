@@ -1,11 +1,8 @@
 /**
- * Full screen shell: header + constrained body + optional scroll / keyboard avoiding.
- *
- * When the deepest breadcrumb carries a `subtitle`, an iOS-large-title-style
- * {@link PageHeader} is rendered above the body content. The header bar
- * itself stays at the locked {@link TOP_BAR_CONTENT_HEIGHT} regardless of
- * subtitle presence, so every screen's top chrome lines up to the same
- * baseline.
+ * Full screen shell: header + constrained body + optional scroll / keyboard
+ * avoiding. The header bar always renders at the locked
+ * {@link TOP_BAR_CONTENT_HEIGHT}, so every screen's top chrome lines up to
+ * the same baseline.
  */
 
 import type { ReactNode } from 'react';
@@ -13,13 +10,8 @@ import type { ReactNode } from 'react';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { KeyboardAvoidingView } from '../keyboard-avoiding-view';
-import { PageHeader } from '../page-header';
 import { ScrollView } from '../scroll-view';
-import type {
-  BodyContentProps,
-  ScreenBaseBreadcrumb,
-  ScreenBaseProps,
-} from './screen-base-types';
+import type { BodyContentProps, ScreenBaseProps } from './screen-base-types';
 import { ScreenBaseHeader } from './screen-base-header';
 
 const MAX_CONTENT_WIDTH = 1120;
@@ -52,16 +44,6 @@ function ConstrainedInner({ children }: { children: ReactNode }) {
   );
 }
 
-function derivePageHeader(
-  breadcrumbs: ScreenBaseBreadcrumb[]
-): { title: ReactNode; subtitle: ReactNode } | null {
-  const current = breadcrumbs[breadcrumbs.length - 1];
-  if (!current) return null;
-  const { name, subtitle } = current;
-  if (subtitle === undefined || subtitle === null) return null;
-  return { title: name, subtitle };
-}
-
 export function ScreenBase({
   breadcrumbs,
   actions,
@@ -72,13 +54,8 @@ export function ScreenBase({
   headerEnd,
   leading,
 }: ScreenBaseProps) {
-  const pageHeader = derivePageHeader(breadcrumbs);
-
   const inner = (
     <ConstrainedInner>
-      {pageHeader !== null ? (
-        <PageHeader title={pageHeader.title} subtitle={pageHeader.subtitle} />
-      ) : null}
       {content({ sx: { flex: 1 } } satisfies BodyContentProps)}
     </ConstrainedInner>
   );

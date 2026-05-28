@@ -1,3 +1,4 @@
+import { preloadSkiaWeb } from '@pkgs/ui/components/skia-web-root';
 import { useSyncExternalStore, type ComponentType } from 'react';
 import type { ChessBoardCanvasProps } from './chess-board-canvas';
 
@@ -42,4 +43,26 @@ export function setChessBoardCanvas(c: ChessBoardCanvasComponent): void {
  */
 export function useChessBoardCanvas(): ChessBoardCanvasComponent | null {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
+
+/**
+ * Stable promise that warms CanvasKit (web) and the Skia-using canvas chunk,
+ * then publishes the resolved component to the singleton above.
+ *
+ * Idempotent: the first call kicks off the load; later calls return the same
+ * promise. `ChessBoardCanvasBootstrap` suspends on this when the singleton is
+ * not yet set, and callers can fire it ahead of time (e.g. from the games
+ * picker) so the canvas is already cached when chess mounts — eliminating the
+ * Suspense fallback (and the main-thread-blocked frozen spinner) entirely.
+ */
+let canvasPreloadPromise: Promise<void> | null = null;
+export function preloadChessBoardCanvas(): Promise<void> {
+  if (canvasPreloadPromise === null) {
+    canvasPreloadPromise = (async (): Promise<void> => {
+      await preloadSkiaWeb();
+      const m = await import('./chess-board-canvas');
+      setChessBoardCanvas(m.ChessBoardCanvas);
+    })();
+  }
+  return canvasPreloadPromise;
 }

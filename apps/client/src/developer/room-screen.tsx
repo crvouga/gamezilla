@@ -13,10 +13,7 @@ export function RoomScreen() {
           { name: <Trans>Spaces</Trans>, onPress: nav('/') },
           { name: <Trans>Settings</Trans>, onPress: nav('/more') },
           { name: <Trans>Developer</Trans>, onPress: nav('/more/developer') },
-          {
-            name: <Trans>Room Playground</Trans>,
-            subtitle: <Trans>Multi-peer tic-tac-toe simulator</Trans>,
-          },
+          { name: <Trans>Room Playground</Trans> },
         ]}
       />
       <Box sx={{ flex: 1, minHeight: 0 }}>

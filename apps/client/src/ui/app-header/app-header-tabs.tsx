@@ -1,55 +1,38 @@
 /**
- * Centered tab strip rendered inside the screen header on desktop. Mounted
- * by the top-level tab screens (Spaces / Profile) via {@link ScreenBaseHeader}
- * `centerTabs` so we never stack two top bars.
+ * Hosts the navigator's `BottomTabBar` inside the desktop screen header's
+ * center slot. Visually and behaviorally identical to the mobile bottom
+ * bar -- it IS the same component, fed the same live `BottomTabBarProps`
+ * via {@link useTabBarProps} (published by {@link AppTabBarBridge}).
+ *
+ * The wrapper is a column flex (the navigator's natural parent shape):
+ * `BottomTabBar`'s outer view has no `flex` or `width` of its own, so
+ * inside a row-flex parent it collapses to its content width (and its
+ * `flex: 1` items then shrink to `flex-basis: 0`, ellipsizing labels).
+ * A column parent makes the bar take 100% width by default, so each tab
+ * gets the full {@link HEADER_TAB_WIDTH} slot. `style.height` is the only
+ * `style` prop `BottomTabBar` honors (via `getTabBarHeight`); it pins the
+ * row to {@link TOP_BAR_CONTENT_HEIGHT} so the header chrome stays a
+ * uniform height across every screen.
  */
 
-import { Box, type IconSymbolName } from '@pkgs/ui';
-import { useLingui } from '@lingui/react/macro';
-import { usePathname } from 'expo-router';
+import { BottomTabBar } from '@react-navigation/bottom-tabs';
+import { Box, TOP_BAR_CONTENT_HEIGHT } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import { AppTabButton } from './app-tab-button';
+import { useTabBarProps } from './app-tab-bar-context';
 
-type AppTabSpec = {
-  href: '/' | '/profile';
-  label: string;
-  icon: IconSymbolName;
-};
-
-function useAppTabs(): readonly AppTabSpec[] {
-  const { t } = useLingui();
-  return [
-    { href: '/', label: t`Spaces`, icon: 'house.fill' },
-    { href: '/profile', label: t`Profile`, icon: 'person.fill' },
-  ];
-}
-
-function normalizePathname(pathname: string): string {
-  const stripped = pathname.split('?')[0]?.replace(/\/$/, '') ?? '';
-  return stripped === '' ? '/' : stripped;
-}
-
-function isTabActive(tab: AppTabSpec, normalized: string): boolean {
-  if (tab.href === '/') return normalized === '/';
-  return normalized === tab.href || normalized.startsWith(`${tab.href}/`);
-}
+const HEADER_TAB_WIDTH = 160;
 
 export function AppHeaderTabs(): ReactNode {
-  const tabs = useAppTabs();
-  const pathname = usePathname();
-  const normalized = normalizePathname(pathname);
+  const props = useTabBarProps();
+  if (props === null) return null;
+  const width = props.state.routes.length * HEADER_TAB_WIDTH;
   return (
-    <Box sx={{ flexDirection: 'row', alignItems: 'stretch', gap: 1 }}>
-      {tabs.map((tab) => (
-        <AppTabButton
-          key={tab.href}
-          href={tab.href}
-          label={tab.label}
-          icon={tab.icon}
-          active={isTabActive(tab, normalized)}
-        />
-      ))}
+    <Box sx={{ width, height: TOP_BAR_CONTENT_HEIGHT }}>
+      <BottomTabBar
+        {...props}
+        style={{ height: TOP_BAR_CONTENT_HEIGHT }}
+      />
     </Box>
   );
 }

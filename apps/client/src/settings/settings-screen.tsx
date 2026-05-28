@@ -49,10 +49,7 @@ export function SettingsScreen() {
     <ScreenBase
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
-        {
-          name: <Trans>Settings</Trans>,
-          subtitle: <Trans>App preferences and tools</Trans>,
-        },
+        { name: <Trans>Settings</Trans> },
       ]}
       content={({ sx }) => (
         <Box style={sx}>

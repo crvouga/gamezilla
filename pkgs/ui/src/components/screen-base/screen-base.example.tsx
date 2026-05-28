@@ -8,7 +8,7 @@ export default function ScreenBaseExample() {
       <ScreenBase
         breadcrumbs={[
           { name: 'Design system', onPress: () => {} },
-          { name: 'ScreenBase', subtitle: 'Example screen' },
+          { name: 'ScreenBase' },
         ]}
         actions={[
           { type: 'secondary', label: 'Secondary', onPress: () => {} },

@@ -4,7 +4,7 @@ import {
 } from '@pkgs/ui/components/main-menu-screen';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useGamesRegistry } from './games-registry-context';
 import { useSpaceSessionUi } from '../active-space/space-session-ui-context';
@@ -51,6 +51,12 @@ function GameListMenu({
     },
     [dispatch]
   );
+
+  // Warm each game's heavy assets while the picker is shown so selecting a
+  // game does not block on a first-time load (no Suspense spinner on entry).
+  useEffect(() => {
+    for (const game of games) game.preload?.();
+  }, [games]);
 
   const items = useMemo(
     () => buildSpaceGameMenuItems(games, isHost, selectedGame, onSelectGame),

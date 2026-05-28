@@ -16,10 +16,7 @@ export function TodoListsScreen() {
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },
         { name: <Trans>Developer</Trans>, onPress: nav('/more/developer') },
-        {
-          name: <Trans>Todos</Trans>,
-          subtitle: <Trans>Group your todos by list</Trans>,
-        },
+        { name: <Trans>Todos</Trans> },
       ]}
       onClearLocalDatabase={() => void clearLocalDatabaseAndReload()}
     />

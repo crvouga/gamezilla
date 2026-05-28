@@ -7,10 +7,6 @@
  *   - `leading`  -> caller-supplied leading content + auto back button (mobile).
  *   - `center`   -> centered tabs (desktop) or page title (otherwise).
  *   - `trailing` -> inline action buttons + overflow ellipsis + headerEnd.
- *
- * Subtitles attached to the deepest breadcrumb are intentionally **not**
- * rendered here -- {@link ScreenBase} surfaces them via {@link PageHeader}
- * inside the body so the header bar stays a uniform height.
  */
 
 import { useLingui } from '@lingui/react/macro';
