@@ -29,7 +29,7 @@
     "ci:tier-imports": "bun run scripts/check-tier-imports.ts",
     "ci:ui-adapters": "bun run scripts/check-ui-adapter-conformance.ts",
     "db:drop": "bun run --filter @pkgs/postgres drop",
-    "db:migrate": "bun run --filter @apps/api db:migrate",
+    "db:migrate": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- bun run --filter @apps/api db:migrate",
     "deps:graph": "bun run scripts/render-package-deps-graph.ts",
     "dev": "env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- turbo dev --ui=tui",
     "format": "sort-package-json && prettier --write .",
