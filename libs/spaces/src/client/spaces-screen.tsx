@@ -74,9 +74,7 @@ export function SpacesScreen({
 
   return (
     <ScreenBase
-      breadcrumbs={[
-        { name: <Trans>Spaces</Trans> },
-      ]}
+      breadcrumbs={[{ name: <Trans>Spaces</Trans> }]}
       actions={isMobile ? [...accountActions] : []}
       centerTabs={centerTabs}
       headerEnd={headerEnd}
