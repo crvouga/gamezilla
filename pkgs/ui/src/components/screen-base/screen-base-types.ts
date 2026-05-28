@@ -49,6 +49,13 @@ export type ScreenBaseProps = {
    * actions (e.g. an account avatar trigger). Ignored on mobile.
    */
   headerEnd?: ReactNode;
+  /**
+   * Optional content rendered in the leading (left) slot of the top bar,
+   * before any auto-rendered back button. Top-level screens use this for
+   * the app logo; nested screens leave it empty and let the back button
+   * occupy the slot.
+   */
+  leading?: ReactNode;
 };
 
 export type ScreenBaseHeaderProps = {
@@ -56,7 +63,9 @@ export type ScreenBaseHeaderProps = {
   /** When omitted, empty. */
   actions?: ScreenBaseAction[] | undefined;
   /** See {@link ScreenBaseProps.centerTabs}. */
-  centerTabs?: ReactNode;
+  centerTabs?: ReactNode | undefined;
   /** See {@link ScreenBaseProps.headerEnd}. */
-  headerEnd?: ReactNode;
+  headerEnd?: ReactNode | undefined;
+  /** See {@link ScreenBaseProps.leading}. */
+  leading?: ReactNode | undefined;
 };

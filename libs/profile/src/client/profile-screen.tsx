@@ -18,12 +18,15 @@ export type ProfileScreenProps = {
   readonly centerTabs?: ReactNode;
   /** Desktop trailing slot (account avatar trigger). */
   readonly headerEnd?: ReactNode;
+  /** Leading slot (typically the app logo on root tabs). */
+  readonly leading?: ReactNode;
 };
 
 export function ProfileScreen({
   accountActions,
   centerTabs,
   headerEnd,
+  leading,
 }: ProfileScreenProps) {
   const { t } = useLingui();
   const router = useRouter();
@@ -35,6 +38,7 @@ export function ProfileScreen({
       actions={isMobile ? [...accountActions] : []}
       centerTabs={centerTabs}
       headerEnd={headerEnd}
+      leading={leading}
       content={({ sx }) => (
         <Box style={sx}>
           <Box sx={{ alignItems: 'center', gap: 2 }}>

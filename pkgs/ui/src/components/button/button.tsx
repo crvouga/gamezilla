@@ -1,31 +1,33 @@
 /**
- * `Button` -- themed pressable button with three intents and three sizes.
+ * `Button` -- themed pressable with three intents, three sizes, three variants.
  *
- * Renders a refined two-tone gradient face that lifts off the surface via a
- * scheme-aware elevation. Hover brightens one ramp step; press shifts the
- * face down 1px and drops one shadow level, producing tactile feedback
- * without moving the outer Pressable's hit target.
+ * Flat, modern surface (Linear / shadcn / Radix lineage) -- no gradient,
+ * no gloss. Solid fills paired with dedicated `on*` foreground tokens so
+ * the label keeps high contrast in both schemes.
  *
- * `primary` / `danger` / `neutral` intents pull their gradient stops from
- * the active theme (`tint` -> `tintActive` for primary; semantic gradients
- * for the others). The label color comes from the `onTint` token so it
- * reads correctly against the chosen background in both schemes.
+ * `intent` chooses the color role (primary / danger / neutral); `variant`
+ * chooses how much visual weight that color carries:
+ *   - `solid` (default) -- saturated fill + `on*` label, looks like the
+ *     primary action.
+ *   - `outline` -- transparent bg + colored border + intent-colored label.
+ *   - `ghost` -- transparent bg, no border, intent-colored label, gets a
+ *     subtle interactive overlay on hover/press.
  *
- * Vendor-branded buttons (e.g. "Sign in with Google", "Sign in with Apple")
- * have their own component because their colors, padding, label, and logo
- * are dictated by external branding guidelines.
+ * Hover/press feedback is delegated to {@link Pressable}'s tint overlay,
+ * so the same interaction language is consistent across every pressable
+ * surface in the system.
  *
  * @example
  * ```tsx
- * <Button title="Save" intent="primary" size="md" onPress={save} />
+ * <Button title="Save" intent="primary" onPress={save} />
  * <Button title="Delete" intent="danger" onPress={del} />
- * <Button title="Cancel" intent="neutral" onPress={cancel} />
+ * <Button title="Cancel" intent="neutral" variant="outline" onPress={cancel} />
+ * <Button title="Skip" intent="neutral" variant="ghost" onPress={skip} />
  * ```
  */
 
-import { LinearGradient } from 'expo-linear-gradient';
 import { type ReactNode } from 'react';
-import { Platform, View, type ColorValue } from 'react-native';
+import { Platform, View } from 'react-native';
 import { useTheme, type Theme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';
@@ -34,12 +36,15 @@ import { Text } from '../text';
 
 export type ButtonIntent = 'primary' | 'danger' | 'neutral';
 export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonVariant = 'solid' | 'outline' | 'ghost';
 
 export type ButtonProps = {
   title: ReactNode;
   onPress?: () => void;
   /** Color/role of the button. Defaults to `"primary"`. */
   intent?: ButtonIntent;
+  /** Visual weight of the button. Defaults to `"solid"`. */
+  variant?: ButtonVariant;
   /** Size preset. Defaults to `"md"`. */
   size?: ButtonSize;
   disabled?: boolean;
@@ -55,74 +60,154 @@ export type ButtonProps = {
   flex?: number;
 };
 
+const sizeMap = {
+  sm: {
+    py: 1.5,
+    px: 3,
+    borderRadius: borderRadius.md,
+    minHeight: 32,
+    text: { fontSize: 13, lineHeight: 18, fontWeight: '600' },
+    iconGap: 1.5,
+  },
+  md: {
+    py: 2.5,
+    px: 4,
+    borderRadius: borderRadius.md,
+    minHeight: 40,
+    text: { fontSize: 14, lineHeight: 20, fontWeight: '600' },
+    iconGap: 2,
+  },
+  lg: {
+    py: 3,
+    px: 5,
+    borderRadius: borderRadius.md,
+    minHeight: 48,
+    text: { fontSize: 16, lineHeight: 22, fontWeight: '600' },
+    iconGap: 2,
+  },
+} as const;
+
+type SizeSpec = (typeof sizeMap)[ButtonSize];
+
+type IntentTokens = {
+  /** Background color for `variant="solid"`. */
+  solidBg: string;
+  /** Foreground (label/icon) on top of `solidBg`. */
+  solidFg: string;
+  /** Foreground for `variant="outline"` and `variant="ghost"`. */
+  accent: string;
+  /** Border color for `variant="outline"`. */
+  outlineBorder: string;
+};
+
+function resolveIntentTokens(theme: Theme, intent: ButtonIntent): IntentTokens {
+  const c = theme.colors;
+  if (intent === 'primary') {
+    return {
+      solidBg: c.tint,
+      solidFg: c.onPrimary,
+      accent: c.tint,
+      outlineBorder: c.tint,
+    };
+  }
+  if (intent === 'danger') {
+    return {
+      solidBg: c.destructive,
+      solidFg: c.onDestructive,
+      accent: c.destructive,
+      outlineBorder: c.destructive,
+    };
+  }
+  return {
+    solidBg: c.surface,
+    solidFg: c.text,
+    accent: c.text,
+    outlineBorder: c.outline,
+  };
+}
+
+type FaceStyle = {
+  backgroundColor: string;
+  borderColor: string;
+  borderWidth: number;
+  foregroundColor: string;
+  /** Whether to render the small elevation shadow under the face. */
+  withElevation: boolean;
+};
+
+function resolveFaceStyle(
+  theme: Theme,
+  intent: ButtonIntent,
+  variant: ButtonVariant,
+  isDisabled: boolean
+): FaceStyle {
+  const c = theme.colors;
+  if (isDisabled) {
+    return {
+      backgroundColor: variant === 'solid' ? c.disabled : 'transparent',
+      borderColor: c.border,
+      borderWidth: variant === 'solid' ? 0 : 1,
+      foregroundColor: c.textSecondary,
+      withElevation: false,
+    };
+  }
+  const tokens = resolveIntentTokens(theme, intent);
+  if (variant === 'outline') {
+    return {
+      backgroundColor: 'transparent',
+      borderColor: tokens.outlineBorder,
+      borderWidth: 1,
+      foregroundColor: tokens.accent,
+      withElevation: false,
+    };
+  }
+  if (variant === 'ghost') {
+    return {
+      backgroundColor: 'transparent',
+      borderColor: 'transparent',
+      borderWidth: 0,
+      foregroundColor: tokens.accent,
+      withElevation: false,
+    };
+  }
+  // solid
+  if (intent === 'neutral') {
+    return {
+      backgroundColor: tokens.solidBg,
+      borderColor: c.outline,
+      borderWidth: 1,
+      foregroundColor: tokens.solidFg,
+      withElevation: theme.colorScheme === 'light',
+    };
+  }
+  return {
+    backgroundColor: tokens.solidBg,
+    borderColor: 'transparent',
+    borderWidth: 0,
+    foregroundColor: tokens.solidFg,
+    withElevation: theme.colorScheme === 'light',
+  };
+}
+
 /**
  * Foreground color (label, spinner, suggested icon) applied on top of the
- * gradient face. Exposed so consumers passing `startIcon` / `endIcon` can
+ * button face. Exposed so consumers passing `startIcon` / `endIcon` can
  * tint their icons to match the label.
  */
 export function buttonForegroundColor(
   theme: Theme,
   intent: ButtonIntent,
-  isDisabled: boolean
+  isDisabled: boolean,
+  variant: ButtonVariant = 'solid'
 ): string {
-  if (isDisabled) return theme.colors.textSecondary;
-  return intent === 'neutral' ? theme.colors.text : theme.colors.onTint;
+  return resolveFaceStyle(theme, intent, variant, isDisabled).foregroundColor;
 }
-
-const sizeMap = {
-  sm: {
-    py: 2,
-    px: 3,
-    borderRadius: borderRadius.md,
-    minHeight: 36,
-    text: { fontSize: 14, lineHeight: 18, fontWeight: '600' },
-    iconGap: 1.5,
-  },
-  md: {
-    py: 3,
-    px: 4,
-    borderRadius: borderRadius.md,
-    minHeight: 44,
-    text: { fontSize: 15, lineHeight: 20, fontWeight: '600' },
-    iconGap: 2,
-  },
-  lg: {
-    py: 4,
-    px: 5,
-    borderRadius: borderRadius.lg,
-    minHeight: 52,
-    text: { fontSize: 17, lineHeight: 22, fontWeight: '700' },
-    iconGap: 2,
-  },
-} as const;
-
-const GRADIENT_TOKENS_BY_INTENT = {
-  primary: ['gradientPrimaryStart', 'gradientPrimaryEnd'],
-  danger: ['gradientDangerStart', 'gradientDangerEnd'],
-  neutral: ['gradientNeutralStart', 'gradientNeutralEnd'],
-} as const satisfies Record<ButtonIntent, readonly [string, string]>;
-
-function resolveGradientStops(
-  theme: Theme,
-  intent: ButtonIntent,
-  isDisabled: boolean
-): readonly [ColorValue, ColorValue] {
-  if (isDisabled) {
-    return [theme.colors.disabled, theme.colors.disabled];
-  }
-  if (intent === 'neutral') {
-    return [theme.colors.surfaceElevated, theme.colors.surface];
-  }
-  const [startToken, endToken] = GRADIENT_TOKENS_BY_INTENT[intent];
-  return [theme.colors[startToken], theme.colors[endToken]];
-}
-
-type SizeSpec = (typeof sizeMap)[ButtonSize];
 
 export function Button({
   title,
   onPress,
   intent = 'primary',
+  variant = 'solid',
   size = 'md',
   disabled = false,
   loading = false,
@@ -130,177 +215,66 @@ export function Button({
   endIcon,
   flex,
 }: ButtonProps) {
+  const theme = useTheme();
   const s = sizeMap[size];
   const isDisabled = disabled || loading;
+  const face = resolveFaceStyle(theme, intent, variant, isDisabled);
+  const shadow = face.withElevation ? theme.elevation(1) : undefined;
 
   return (
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
-      feedback="none"
       sx={{ borderRadius: s.borderRadius }}
       style={() => ({
         userSelect: 'none',
         ...(flex !== undefined ? { flex } : {}),
+        backgroundColor: face.backgroundColor,
+        borderColor: face.borderColor,
+        borderWidth: face.borderWidth,
+        borderRadius: s.borderRadius,
+        paddingHorizontal: s.px * 4,
+        paddingVertical: s.py * 4,
+        minHeight: s.minHeight,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: s.iconGap * 4,
+        ...(shadow?.boxShadow ? { boxShadow: shadow.boxShadow } : {}),
+        ...(shadow?.elevation !== undefined
+          ? { elevation: shadow.elevation }
+          : {}),
       })}
     >
-      {({ pressed }) => (
-        <ButtonFace
-          intent={intent}
-          size={s}
-          pressed={pressed && !isDisabled}
-          isDisabled={isDisabled}
-        >
-          <ButtonContent
-            title={title}
-            size={s}
-            intent={intent}
-            isDisabled={isDisabled}
-            loading={loading}
-            startIcon={startIcon}
-            endIcon={endIcon}
-          />
-        </ButtonFace>
-      )}
+      <ButtonContent
+        title={title}
+        size={s}
+        foregroundColor={face.foregroundColor}
+        loading={loading}
+        startIcon={startIcon}
+        endIcon={endIcon}
+      />
     </Pressable>
-  );
-}
-
-const PRESS_TRANSLATE_Y = 1;
-const HOVER_OVERLAY_LIGHT = 'rgba(255, 255, 255, 0.10)';
-const FACE_INNER_STROKE = 'rgba(255, 255, 255, 0.20)';
-
-function elevationLevelFor(pressed: boolean, isDisabled: boolean): 0 | 1 | 2 {
-  if (isDisabled) return 0;
-  if (pressed) return 1;
-  return 2;
-}
-
-function ButtonFace({
-  intent,
-  size,
-  pressed,
-  isDisabled,
-  children,
-}: {
-  intent: ButtonIntent;
-  size: SizeSpec;
-  pressed: boolean;
-  isDisabled: boolean;
-  children: ReactNode;
-}) {
-  const theme = useTheme();
-  const radius = size.borderRadius;
-  const stops = resolveGradientStops(theme, intent, isDisabled);
-  // Three-stop gradient holds the top color through the upper third so the
-  // transition reads as gentle shading on a real surface rather than a
-  // two-tone split.
-  const faceColors: readonly [ColorValue, ColorValue, ColorValue] = [
-    stops[0],
-    stops[0],
-    stops[1],
-  ];
-  const faceLocations = [0, 0.35, 1] as const;
-  const liftStyle = theme.elevation(elevationLevelFor(pressed, isDisabled));
-  return (
-    <View
-      style={{
-        borderRadius: radius,
-        transform: pressed ? [{ translateY: PRESS_TRANSLATE_Y }] : undefined,
-        ...(liftStyle.boxShadow ? { boxShadow: liftStyle.boxShadow } : {}),
-        ...(liftStyle.elevation !== undefined
-          ? { elevation: liftStyle.elevation }
-          : {}),
-      }}
-    >
-      <LinearGradient
-        colors={faceColors}
-        locations={faceLocations}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={[
-          theme.sx({
-            py: size.py,
-            px: size.px,
-            minHeight: size.minHeight,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: size.iconGap,
-            overflow: 'hidden',
-            position: 'relative',
-          }),
-          {
-            borderRadius: radius,
-            borderWidth: isDisabled || intent === 'neutral' ? 0 : 1,
-            borderColor: FACE_INNER_STROKE,
-          },
-          intent === 'neutral'
-            ? { borderWidth: 1, borderColor: theme.colors.border }
-            : undefined,
-        ]}
-      >
-        {pressed || isDisabled ? null : (
-          <ButtonHoverGloss radius={radius} intent={intent} />
-        )}
-        {children}
-      </LinearGradient>
-    </View>
-  );
-}
-
-/**
- * A whisper-soft top gloss that fades to transparent. Helps the face read as
- * a slightly tilted surface without crossing into "arcade gloss" territory.
- * Skipped for neutral (we want it to read flat-ish) and for disabled / pressed.
- */
-function ButtonHoverGloss({
-  radius,
-  intent,
-}: {
-  radius: number;
-  intent: ButtonIntent;
-}): ReactNode {
-  if (intent === 'neutral') return null;
-  return (
-    <LinearGradient
-      pointerEvents="none"
-      colors={[HOVER_OVERLAY_LIGHT, 'rgba(255, 255, 255, 0)']}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: '55%',
-        borderTopLeftRadius: radius,
-        borderTopRightRadius: radius,
-      }}
-    />
   );
 }
 
 function ButtonContent({
   title,
   size,
-  intent,
-  isDisabled,
+  foregroundColor,
   loading,
   startIcon,
   endIcon,
 }: {
   title: ReactNode;
   size: SizeSpec;
-  intent: ButtonIntent;
-  isDisabled: boolean;
+  foregroundColor: string;
   loading: boolean;
   startIcon: ReactNode;
   endIcon: ReactNode;
 }) {
-  const theme = useTheme();
-  const fg = buttonForegroundColor(theme, intent, isDisabled);
-  if (loading) return <Spinner color={fg} />;
+  if (loading)
+    return <Spinner color={foregroundColor} size={size.text.lineHeight} />;
   const iconBoxStyle = {
     alignItems: 'center',
     justifyContent: 'center',
@@ -314,7 +288,7 @@ function ButtonContent({
       <Text
         variant="bodyBold"
         style={{
-          color: fg,
+          color: foregroundColor,
           fontSize: size.text.fontSize,
           lineHeight: size.text.lineHeight,
           fontWeight: size.text.fontWeight,

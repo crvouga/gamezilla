@@ -70,7 +70,10 @@ export function SpaceSettingsScreen(): ReactNode {
   return (
     <SafeAreaView sx={{ flex: 1, background: 'background' }}>
       <Box sx={{ flex: 1, minHeight: 0 }}>
-        <TopBar leading={<BackIconButton onPress={() => router.back()} />} />
+        <TopBar
+          safeAreaTop={false}
+          leading={<BackIconButton onPress={() => router.back()} />}
+        />
         <Box sx={{ flex: 1, minHeight: 0 }}>
           <MainMenuScreen
             title={<Trans>Space settings</Trans>}

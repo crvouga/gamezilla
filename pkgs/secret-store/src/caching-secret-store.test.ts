@@ -158,6 +158,100 @@ describe('CachingSecretStore', () => {
     expect(inner.counts.om).toBe(2);
   });
 
+  it('force=true bypasses cache and refreshes the stored value', async () => {
+    let t = 0;
+    let current: string | null = 'old-v';
+    const counts = { om: 0 };
+    const inner: SecretStore = {
+      async getRequired(name: string) {
+        return wrapSecret(name, current ?? '');
+      },
+      async getOptional(name: string) {
+        return wrapSecretOptional(name, current);
+      },
+      async getRequiredMany() {
+        return {};
+      },
+      async getOptionalMany(names: readonly string[]) {
+        counts.om += 1;
+        const out: Record<string, ReturnType<typeof wrapSecretOptional>> = {};
+        for (const n of names) {
+          out[n] = wrapSecretOptional(n, current);
+        }
+        return out;
+      },
+      async setSecret() {},
+    };
+    const cache = new CachingSecretStore(inner, {
+      ttlMs: 60_000,
+      now: () => t,
+    });
+
+    expect((await cache.getRequired('A')).readSecretValue()).toBe('old-v');
+    expect((await cache.getRequired('A')).readSecretValue()).toBe('old-v');
+    expect(counts.om).toBe(1);
+
+    current = 'new-v';
+
+    expect((await cache.getRequired('A')).readSecretValue()).toBe('old-v');
+    expect(counts.om).toBe(1);
+
+    expect(
+      (await cache.getRequired('A', { force: true })).readSecretValue()
+    ).toBe('new-v');
+    expect(counts.om).toBe(2);
+
+    expect((await cache.getRequired('A')).readSecretValue()).toBe('new-v');
+    expect(counts.om).toBe(2);
+
+    t += 60_001;
+    expect((await cache.getRequired('A')).readSecretValue()).toBe('new-v');
+    expect(counts.om).toBe(3);
+  });
+
+  it('force=true on getOptional refreshes a cached-null entry', async () => {
+    let current: string | null = null;
+    const counts = { om: 0 };
+    const inner: SecretStore = {
+      async getRequired(name: string) {
+        return wrapSecret(name, current ?? '');
+      },
+      async getOptional(name: string) {
+        return wrapSecretOptional(name, current);
+      },
+      async getRequiredMany() {
+        return {};
+      },
+      async getOptionalMany(names: readonly string[]) {
+        counts.om += 1;
+        const out: Record<string, ReturnType<typeof wrapSecretOptional>> = {};
+        for (const n of names) {
+          out[n] = wrapSecretOptional(n, current);
+        }
+        return out;
+      },
+      async setSecret() {},
+    };
+    const cache = new CachingSecretStore(inner, { ttlMs: 60_000 });
+
+    expect(await cache.getOptional('A')).toBeNull();
+    expect(await cache.getOptional('A')).toBeNull();
+    expect(counts.om).toBe(1);
+
+    current = 'rotated';
+
+    expect(await cache.getOptional('A')).toBeNull();
+    expect(counts.om).toBe(1);
+
+    const refreshed = await cache.getOptional('A', { force: true });
+    expect(refreshed?.readSecretValue()).toBe('rotated');
+    expect(counts.om).toBe(2);
+
+    const cached = await cache.getOptional('A');
+    expect(cached?.readSecretValue()).toBe('rotated');
+    expect(counts.om).toBe(2);
+  });
+
   it('does not cache transport failures (next call retries)', async () => {
     let calls = 0;
     const inner: SecretStore = {

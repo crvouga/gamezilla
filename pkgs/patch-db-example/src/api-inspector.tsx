@@ -10,8 +10,9 @@ import {
   Button,
   Card,
   Divider,
+  ErrorState,
+  LoadingState,
   ScrollView,
-  SpinnerBox,
   Stack,
   StatusDot,
   Text,
@@ -253,22 +254,13 @@ function ConnectionCard({ state }: { state: InspectorState }) {
 }
 
 function ErrorCard({ message }: { message: string }) {
-  const theme = useTheme();
+  const { t } = useLingui();
   return (
-    <Card
-      elevation={0}
-      sx={{ p: 4 }}
-      style={{
-        borderColor: theme.colors.destructive + '44',
-        backgroundColor: theme.colors.destructive + '0a',
-      }}
-    >
-      <Text
-        variant="body"
-        style={{ color: theme.colors.destructive }}
-        label={message}
-      />
-    </Card>
+    <ErrorState
+      variant="compact"
+      title={t`Failed to fetch metrics`}
+      body={message}
+    />
   );
 }
 
@@ -311,16 +303,12 @@ function MetricsCard({ result }: { result: PatchDbResult }) {
 
 function WaitingCard() {
   const { t } = useLingui();
-  const theme = useTheme();
   return (
-    <Card elevation={1} sx={{ p: 6 }}>
-      <SpinnerBox sx={{ gap: 3 }}>
-        <Text
-          variant="caption"
-          style={{ color: theme.colors.textSecondary }}
-          label={t`Waiting for metrics from server...`}
-        />
-      </SpinnerBox>
+    <Card elevation={1}>
+      <LoadingState
+        variant="compact"
+        caption={t`Waiting for metrics from server…`}
+      />
     </Card>
   );
 }

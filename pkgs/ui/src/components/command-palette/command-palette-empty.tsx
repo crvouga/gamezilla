@@ -1,14 +1,5 @@
-import { Box } from '../box';
-import { Text } from '../text';
+import { EmptyState } from '../empty-state';
 
 export function CommandPaletteEmpty() {
-  return (
-    <Box sx={{ py: 6, px: 4 }}>
-      <Text
-        variant="body"
-        sx={{ color: 'textSecondary', textAlign: 'center' }}
-        label="No matching commands"
-      />
-    </Box>
-  );
+  return <EmptyState variant="compact" title="No matching commands" />;
 }

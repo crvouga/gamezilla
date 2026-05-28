@@ -1,4 +1,4 @@
-import { SpinnerBox } from '@pkgs/ui';
+import { LoadingState } from '@pkgs/ui';
 import { SkiaWebRoot } from '@pkgs/ui/components/skia-web-root';
 import { lazy, Suspense, type ReactNode } from 'react';
 import { setChessBoardCanvas } from './chess-board-canvas-runtime';
@@ -47,7 +47,7 @@ export function ChessBoardCanvasBootstrap({
   children: ReactNode;
 }): ReactNode {
   return (
-    <Suspense fallback={<SpinnerBox sx={{ flex: 1 }} />}>
+    <Suspense fallback={<LoadingState />}>
       <SkiaWebRoot>
         <ChessBoardCanvasGate>{children}</ChessBoardCanvasGate>
       </SkiaWebRoot>

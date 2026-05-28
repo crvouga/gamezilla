@@ -1,5 +1,5 @@
 import type { PlaygroundSim } from '@pkgs/patch-db/sim/playground-sim';
-import { Box, SpinnerBox, Stack, Text, useTheme } from '@pkgs/ui';
+import { Box, ErrorState, LoadingState, Stack, useTheme } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -36,43 +36,15 @@ export function PlaygroundApp() {
 function PlaygroundRoute() {
   const { t } = useLingui();
   const boot = usePlaygroundBoot();
-  const theme = useTheme();
 
   if (boot.bootErr) {
     return (
-      <Box
-        sx={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          p: 6,
-          gap: 3,
-        }}
-      >
-        <Text
-          variant="subtitle"
-          style={{ color: theme.colors.destructive }}
-          label={t`Playground failed to start`}
-        />
-        <Text
-          variant="caption"
-          style={{ color: theme.colors.textSecondary, textAlign: 'center' }}
-          label={boot.bootErr}
-        />
-      </Box>
+      <ErrorState title={t`Playground failed to start`} body={boot.bootErr} />
     );
   }
 
   if (!boot.sim) {
-    return (
-      <SpinnerBox sx={{ flex: 1, gap: 3 }}>
-        <Text
-          variant="caption"
-          style={{ color: theme.colors.textSecondary }}
-          label={boot.bootLabel}
-        />
-      </SpinnerBox>
-    );
+    return <LoadingState caption={boot.bootLabel} />;
   }
 
   return (

@@ -91,6 +91,82 @@ async function recordVerifiedStripeWebhookInPatchDb(
   await patchDb.write(patches, PATCHES_DB_STRIPE_WEBHOOK_CONTEXT);
 }
 
+async function readWebhookSecret(
+  secretStore: SecretStore,
+  webhookSecretKey: string,
+  force: boolean
+): Promise<string | null> {
+  const init = force ? { force: true } : undefined;
+  const raw = (
+    await secretStore.getOptional(webhookSecretKey, init)
+  )?.readSecretValue();
+  if (typeof raw !== 'string') return null;
+  const trimmed = raw.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+/**
+ * Verifies a Stripe webhook payload. Re-fetches the signing secret under
+ * `force: true` once on missing-secret or signature verification failure so a
+ * rotated `whsec_…` (Stripe CLI dev sessions, prod rotation) self-heals
+ * without restarting the Worker isolate that owns the cache. When the fresh
+ * read matches the cached secret the second verification fails the same way
+ * — its `StripeSignatureVerificationError` is what the outer handler turns
+ * into a 400.
+ */
+async function constructStripeEventSelfHealing(args: {
+  readonly stripe: Stripe;
+  readonly secretStore: SecretStore;
+  readonly webhookSecretKey: string;
+  readonly raw: string;
+  readonly signature: string;
+}): Promise<Stripe.Event | { readonly missingSecret: true }> {
+  const { stripe, secretStore, webhookSecretKey, raw, signature } = args;
+  const cryptoProvider = Stripe.createSubtleCryptoProvider();
+
+  const cachedSecret = await readWebhookSecret(
+    secretStore,
+    webhookSecretKey,
+    false
+  );
+  let firstAttemptError: unknown = null;
+  if (cachedSecret !== null) {
+    try {
+      return await stripe.webhooks.constructEventAsync(
+        raw,
+        signature,
+        cachedSecret,
+        undefined,
+        cryptoProvider
+      );
+    } catch (e: unknown) {
+      if (!(e instanceof Stripe.errors.StripeSignatureVerificationError)) {
+        throw e;
+      }
+      firstAttemptError = e;
+    }
+  }
+
+  const freshSecret = await readWebhookSecret(
+    secretStore,
+    webhookSecretKey,
+    true
+  );
+  if (freshSecret === null) {
+    return { missingSecret: true };
+  }
+  if (freshSecret === cachedSecret && firstAttemptError !== null) {
+    throw firstAttemptError;
+  }
+  return await stripe.webhooks.constructEventAsync(
+    raw,
+    signature,
+    freshSecret,
+    undefined,
+    cryptoProvider
+  );
+}
+
 export function createStripeWebhookRoutes(args: {
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
@@ -108,13 +184,14 @@ export function createStripeWebhookRoutes(args: {
       const sig = c.req.header('stripe-signature') ?? '';
       const raw = await c.req.text();
 
-      const webhookSecret = (
-        await secretStore.getOptional(webhookSecretKey)
-      )?.readSecretValue();
-      if (
-        typeof webhookSecret !== 'string' ||
-        webhookSecret.trim().length === 0
-      ) {
+      const result = await constructStripeEventSelfHealing({
+        stripe,
+        secretStore,
+        webhookSecretKey,
+        raw,
+        signature: sig,
+      });
+      if ('missingSecret' in result) {
         log.error('stripe webhook: signing secret missing from secret store');
         return c.json(
           { error: 'Stripe webhook secret is not configured' },
@@ -122,13 +199,7 @@ export function createStripeWebhookRoutes(args: {
         );
       }
 
-      const event = await stripe.webhooks.constructEventAsync(
-        raw,
-        sig,
-        webhookSecret.trim(),
-        undefined,
-        Stripe.createSubtleCryptoProvider()
-      );
+      const event = result;
       const objectId = stripeEventObjectId(event);
 
       await recordVerifiedStripeWebhookInPatchDb(getPatchDb(), event, objectId);

@@ -2,6 +2,15 @@ import type { SecretString } from '@pkgs/secret-string/secret-string';
 
 export type SecretStoreGetInit = {
   signal?: AbortSignal;
+  /**
+   * Skip any in-memory caching layer (e.g. {@link CachingSecretStore}) and
+   * read directly from the underlying transport. Implementations without a
+   * cache ignore this flag. The freshly-fetched value is still written back
+   * to the cache so subsequent (non-`force`) reads observe it. Use sparingly:
+   * this exists for self-healing paths (e.g. webhook signature failure should
+   * bypass a stale cached signing secret), not for routine reads.
+   */
+  force?: boolean;
 };
 
 export type SecretStoreSetInit = {

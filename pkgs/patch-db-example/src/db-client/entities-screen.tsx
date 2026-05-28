@@ -2,9 +2,11 @@ import {
   Box,
   Button,
   Card,
+  EmptyState,
+  ErrorState,
   FlatList,
+  LoadingState,
   Pressable,
-  SpinnerBox,
   Stack,
   Text,
   TextInput,
@@ -214,10 +216,9 @@ function EntityList({
         />
       )}
       ListEmptyComponent={
-        <Text
-          variant="body"
-          style={{ opacity: 0.7, textAlign: 'center', padding: 24 }}
-          label={
+        <EmptyState
+          variant="compact"
+          title={
             total === 0
               ? t`No entities for this type.`
               : t`No rows match filter.`
@@ -249,7 +250,7 @@ export function EntitiesScreen({
   entityType,
   onSelectEntity,
 }: EntitiesScreenProps) {
-  const theme = useTheme();
+  const { t } = useLingui();
   const pager = useEntityPager(entityType);
   const [search, setSearch] = useState('');
 
@@ -274,13 +275,13 @@ export function EntitiesScreen({
       />
 
       {pager.loading ? (
-        <SpinnerBox sx={{ flex: 1 }} size="large" />
+        <LoadingState size="large" />
       ) : pager.error !== null ? (
         <Box sx={{ p: 4 }}>
-          <Text
-            variant="body"
-            style={{ color: theme.colors.destructive }}
-            label={pager.error}
+          <ErrorState
+            variant="compact"
+            title={t`Failed to load entities`}
+            body={pager.error}
           />
         </Box>
       ) : (

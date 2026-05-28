@@ -135,16 +135,16 @@ export function ConfirmationModal({
       />
       <ModalFooter>
         <ModalButton
-          label={display.cancelLabel}
-          variant="cancel"
-          disabled={submitting}
-          onPress={onCancel}
-        />
-        <ModalButton
           label={display.confirmLabel}
           variant={confirmVariant}
           disabled={submitting}
           onPress={handleConfirm}
+        />
+        <ModalButton
+          label={display.cancelLabel}
+          variant="cancel"
+          disabled={submitting}
+          onPress={onCancel}
         />
       </ModalFooter>
     </ResponsiveSurface>

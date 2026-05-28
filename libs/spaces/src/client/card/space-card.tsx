@@ -1,11 +1,11 @@
-import { SpaceCardOpenLink } from './space-card-open-link';
+import { Box, elevation, GradientBox, useTheme } from '@pkgs/ui';
+import type { ReactNode } from 'react';
 import { SpaceGuestSection } from '../members/space-guest-section';
 import { SpaceHostAvatar } from '../members/space-host-avatar';
 import { SpaceHostNameText } from '../members/space-host-name-text';
 import { SpaceLiveBadge } from '../space-live-badge';
 import { SpaceTitleText } from '../space-title-text';
-import { Box, elevation, GradientBox, useTheme } from '@pkgs/ui';
-import type { ReactNode } from 'react';
+import { SpaceCardOpenLink } from './space-card-open-link';
 
 export type SpaceCardProps = {
   spaceId: string;
@@ -26,8 +26,8 @@ const SPACE_CARD_RADIUS = 16;
 export function SpaceCard({ spaceId }: SpaceCardProps): ReactNode {
   const theme = useTheme();
   const gradientColors = [
-    theme.colors.gradientPrimaryStart,
-    theme.colors.gradientPrimaryEnd,
+    theme.colors.tintActive,
+    theme.colors.tintActive,
   ] as const;
 
   return (

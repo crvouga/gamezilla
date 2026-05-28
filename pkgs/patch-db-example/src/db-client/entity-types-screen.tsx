@@ -1,10 +1,12 @@
 import {
   Box,
   Button,
-  Card,
+  EmptyState,
+  ErrorState,
   FlatList,
+  LoadingState,
   Pressable,
-  SpinnerBox,
+  Card,
   Stack,
   Text,
   TextInput,
@@ -133,33 +135,15 @@ function StatusLine({
   const { t } = useLingui();
   const theme = useTheme();
   if (loading) {
-    return (
-      <SpinnerBox sx={{ py: 8 }}>
-        <Text
-          variant="caption"
-          style={{ marginTop: 12, color: theme.colors.textSecondary }}
-          label={t`Scanning snapshots…`}
-        />
-      </SpinnerBox>
-    );
+    return <LoadingState variant="compact" caption={t`Scanning snapshots…`} />;
   }
   if (error !== null) {
     return (
-      <Card
-        elevation={0}
-        sx={{ p: 4 }}
-        style={{
-          borderWidth: 1,
-          borderColor: theme.colors.destructive + '44',
-          backgroundColor: theme.colors.destructive + '0a',
-        }}
-      >
-        <Text
-          variant="body"
-          style={{ color: theme.colors.destructive }}
-          label={error}
-        />
-      </Card>
+      <ErrorState
+        variant="compact"
+        title={t`Failed to scan snapshots`}
+        body={error}
+      />
     );
   }
   return (
@@ -250,10 +234,9 @@ export function EntityTypesScreen({
             />
           )}
           ListEmptyComponent={
-            <Text
-              variant="body"
-              style={{ opacity: 0.7, textAlign: 'center', padding: 24 }}
-              label={
+            <EmptyState
+              variant="compact"
+              title={
                 filter.trim()
                   ? t`No types match filter.`
                   : t`No entities in this database.`

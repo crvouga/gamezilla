@@ -4,6 +4,7 @@ import { stripeWebhookUrl } from './webhook-urls';
 
 const PROBE_MAX_ATTEMPTS = 15;
 const PROBE_RETRY_MS = 2000;
+const PROBE_BODY_PREVIEW_LIMIT = 200;
 
 function buildProbeEventJson(): string {
   const event = {
@@ -23,9 +24,51 @@ function buildProbeEventJson(): string {
   return JSON.stringify(event);
 }
 
+function formatProbeDetail(status: number, body: string): string {
+  const trimmed = body.trim();
+  if (trimmed.length === 0) return `HTTP ${String(status)}`;
+  const preview =
+    trimmed.length > PROBE_BODY_PREVIEW_LIMIT
+      ? `${trimmed.slice(0, PROBE_BODY_PREVIEW_LIMIT)}…`
+      : trimmed;
+  return `HTTP ${String(status)} ${preview}`;
+}
+
+type ProbeAttempt =
+  | { readonly kind: 'ok'; readonly status: number }
+  | { readonly kind: 'http'; readonly detail: string }
+  | { readonly kind: 'error'; readonly detail: string };
+
+async function probeOnce(args: {
+  readonly url: string;
+  readonly signature: string;
+  readonly payload: string;
+}): Promise<ProbeAttempt> {
+  try {
+    const res = await fetch(args.url, {
+      method: 'POST',
+      headers: {
+        'stripe-signature': args.signature,
+        'Content-Type': 'application/json',
+      },
+      body: args.payload,
+    });
+    if (res.ok) return { kind: 'ok', status: res.status };
+    const text = await res.text().catch(() => '');
+    return { kind: 'http', detail: formatProbeDetail(res.status, text) };
+  } catch (e: unknown) {
+    const detail = `fetch error: ${e instanceof Error ? e.message : String(e)}`;
+    return { kind: 'error', detail };
+  }
+}
+
 /**
- * POST a Stripe-signed test event to `/stripe/webhook` so the signing secret in
- * Doppler matches `whsec`. Retries for API Doppler cache (~5m).
+ * POST a Stripe-signed test event to `/stripe/webhook` so the signing secret
+ * in Doppler matches `whsec`. The Worker self-heals a stale cached secret on
+ * the same request (see `constructStripeEventSelfHealing` in
+ * `@libs/stripe/stripe-webhook-route`), so the probe usually succeeds on the
+ * first attempt; the retry loop covers Worker boot races and Doppler write
+ * propagation.
  */
 export async function verifyWebhookWithSignedProbe(args: {
   readonly apiBase: string;
@@ -41,27 +84,23 @@ export async function verifyWebhookWithSignedProbe(args: {
     secret: args.whsec,
   });
   const url = stripeWebhookUrl(args.apiBase);
-  let lastDetail = '';
+  let lastDetail = '(no attempts)';
   for (let attempt = 1; attempt <= PROBE_MAX_ATTEMPTS; attempt += 1) {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'stripe-signature': signature,
-        'Content-Type': 'application/json',
-      },
-      body: payload,
-    });
-    const text = await res.text().catch(() => '');
-    if (res.ok) {
+    const result = await probeOnce({ url, signature, payload });
+    if (result.kind === 'ok') {
       console.log(
-        `[${STRIPE_CLI_LOG_TAG}] webhook probe OK — ${url} accepted signed test event (HTTP ${String(res.status)})`
+        `[${STRIPE_CLI_LOG_TAG}] webhook probe OK — ${url} accepted signed test event (HTTP ${String(result.status)})`
       );
       return;
     }
-    lastDetail = text.length > 0 ? text : `HTTP ${String(res.status)}`;
-    if (attempt === 1 || attempt === PROBE_MAX_ATTEMPTS) {
+    lastDetail = result.detail;
+    if (
+      result.kind === 'error' ||
+      attempt === 1 ||
+      attempt === PROBE_MAX_ATTEMPTS
+    ) {
       console.log(
-        `[${STRIPE_CLI_LOG_TAG}] webhook probe attempt ${String(attempt)}/${String(PROBE_MAX_ATTEMPTS)}: HTTP ${String(res.status)}`
+        `[${STRIPE_CLI_LOG_TAG}] webhook probe attempt ${String(attempt)}/${String(PROBE_MAX_ATTEMPTS)}: ${lastDetail}`
       );
     }
     if (attempt < PROBE_MAX_ATTEMPTS) {
@@ -69,11 +108,11 @@ export async function verifyWebhookWithSignedProbe(args: {
     }
   }
   const hint =
-    'If you just set STRIPE_WEBHOOK_SECRET, restart `wrangler dev` or wait for the API Doppler secret cache to refresh.';
-  console.error(
-    `[${STRIPE_CLI_LOG_TAG}] webhook probe failed after ${String(PROBE_MAX_ATTEMPTS)} attempts. Last: ${lastDetail}. ${hint}`
-  );
-  throw new Error(
-    `${STRIPE_CLI_LOG_TAG}: API /stripe/webhook rejected the signed probe (misconfigured Stripe webhook secret, wrong API_URL, or API not wired). ${hint}`
-  );
+    'If you just rotated STRIPE_WEBHOOK_SECRET, the next probe attempt should refresh the Worker cache; ' +
+    'if it does not, check that `wrangler dev` is running and API_URL points at it.';
+  const summary = `${STRIPE_CLI_LOG_TAG}: API ${url} rejected the signed probe after ${String(
+    PROBE_MAX_ATTEMPTS
+  )} attempts. Last response: ${lastDetail}. ${hint}`;
+  console.error(`[${STRIPE_CLI_LOG_TAG}] ${summary}`);
+  throw new Error(summary);
 }

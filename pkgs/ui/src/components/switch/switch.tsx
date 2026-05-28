@@ -37,7 +37,7 @@ export function Switch({ label, ...rest }: SwitchProps) {
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
       <RNSwitch
         trackColor={track}
-        thumbColor={theme.colors.surfaceElevated}
+        thumbColor={theme.colors.onPrimary}
         ios_backgroundColor={theme.colors.outline}
         {...rest}
       />

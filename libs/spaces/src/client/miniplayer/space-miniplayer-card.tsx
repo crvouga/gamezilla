@@ -23,8 +23,8 @@ export function SpaceMiniplayerCard({
 }: SpaceMiniplayerCardProps): ReactNode {
   const theme = useTheme();
   const gradientColors = [
-    theme.colors.gradientPrimaryStart,
-    theme.colors.gradientPrimaryEnd,
+    theme.colors.tintHover,
+    theme.colors.tintActive,
   ] as const;
 
   return (

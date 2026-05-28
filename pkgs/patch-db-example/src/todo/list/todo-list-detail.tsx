@@ -1,5 +1,6 @@
 import {
   Box,
+  EmptyState,
   KeyboardAvoidingView,
   Pressable,
   ScreenBaseHeader,
@@ -62,20 +63,20 @@ function TodoListBody({
   filter: TodoFilter;
 }) {
   const { t } = useLingui();
-  const theme = useTheme();
   const ids = useTodoIdsInList(listId, filter);
 
   if (ids.length === 0) {
     return (
-      <Text
-        style={theme.sx({ opacity: 0.7, fontStyle: 'italic' })}
-        label={
+      <EmptyState
+        variant="compact"
+        title={
           filter === 'all'
-            ? t`No todos yet. Add one above!`
+            ? t`No todos yet`
             : filter === 'active'
-              ? t`No active todos.`
-              : t`No completed todos.`
+              ? t`No active todos`
+              : t`No completed todos`
         }
+        body={filter === 'all' ? t`Add one above to get started.` : undefined}
       />
     );
   }

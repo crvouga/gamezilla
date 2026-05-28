@@ -18,7 +18,7 @@ export default function GradientBoxExample() {
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
-        label="Default horizontal gradient uses theme gradientPrimaryStart → gradientPrimaryEnd."
+        label="Default horizontal gradient uses theme tintHover → tintActive."
       />
 
       <GradientBox

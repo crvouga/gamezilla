@@ -7,9 +7,8 @@
  * caller-owned list (e.g. chess-only entries from chess settings).
  */
 
-import { View } from 'react-native';
+import { EmptyState } from '../empty-state';
 import { ScrollView } from '../scroll-view';
-import { Text } from '../text';
 import {
   useComponentRegistry,
   type ComponentEntry,
@@ -30,12 +29,10 @@ export function ExplorerDetail({
 
   if (!entry) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text
-          variant="body"
-          label={`Component "${componentName}" not found.`}
-        />
-      </View>
+      <EmptyState
+        title="Component not found"
+        body={`No example registered for "${componentName}".`}
+      />
     );
   }
 
