@@ -1,10 +1,13 @@
 /**
  * `TextInput` -- styled text input with label, error, and helper text.
  *
- * Focus animates the border to the active `tint` and adds a 2px `focusRing`
- * outline on web for accessibility polish. Error state swaps the border to
- * `destructive` and tints the surface with the matching subtle surface so
- * the field still reads as a coherent input rather than a stripped one.
+ * Flat surface field with a real focus ring on every platform: web uses
+ * the `outline*` CSS properties, native renders a 2px ring as an extra
+ * border layer so the focused state reads the same in light and dark.
+ *
+ * Error state swaps the border to `destructive` and tints the surface
+ * with the matching subtle surface so the field still reads as a
+ * coherent input rather than a stripped one.
  *
  * @example
  * ```tsx
@@ -26,7 +29,7 @@ import {
   type TextInputProps as RNTextInputProps,
   View,
 } from 'react-native';
-import type { SxProps } from '../../theme';
+import type { SxProps, Theme } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
@@ -59,6 +62,56 @@ function resolveBorderColor(args: {
   return args.outline;
 }
 
+function resolveSurfaceBg(theme: Theme, hasError: boolean): string {
+  return hasError ? theme.colors.destructiveSurface : theme.colors.surface;
+}
+
+function resolveFocusRingColor(theme: Theme, hasError: boolean): string {
+  return hasError ? theme.colors.destructive : theme.colors.focusRing;
+}
+
+function resolveWebFocusRingStyle(
+  theme: Theme,
+  hasError: boolean,
+  focused: boolean
+) {
+  if (!focused || Platform.OS !== 'web') return undefined;
+  return {
+    outlineStyle: 'solid' as const,
+    outlineWidth: 2,
+    outlineColor: resolveFocusRingColor(theme, hasError),
+    outlineOffset: 2,
+  };
+}
+
+function resolveNativeFocusRingStyle(focused: boolean) {
+  if (!focused || Platform.OS === 'web') return undefined;
+  return {
+    borderWidth: 2,
+    // Compensate so the padded content keeps its position when the
+    // border width grows by 1px on focus.
+    margin: -1,
+  };
+}
+
+function FieldFooter({
+  error,
+  helperText,
+}: {
+  error: LocalizedString | undefined;
+  helperText: LocalizedString | undefined;
+}) {
+  if (error) {
+    return (
+      <Text variant="caption" sx={{ color: 'destructive' }} label={error} />
+    );
+  }
+  if (helperText) {
+    return <Text variant="caption" label={helperText} />;
+  }
+  return null;
+}
+
 export const TextInput = forwardRef<RNTextInput, TextInputProps>(
   function TextInput(
     { label, error, helperText, sx: sxProp, onFocus, onBlur, ...rest },
@@ -66,7 +119,6 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
   ) {
     const theme = useTheme();
     const [focused, setFocused] = useState(false);
-    const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
     const hasError = error !== undefined;
     const borderColor = resolveBorderColor({
       hasError,
@@ -85,23 +137,8 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
       onBlur?.(e);
     };
 
-    const surfaceBg = hasError
-      ? theme.colors.destructiveSurface
-      : theme.colors.surfaceMuted;
-    const focusRingStyle =
-      focused && Platform.OS === 'web'
-        ? {
-            outlineStyle: 'solid' as const,
-            outlineWidth: 2,
-            outlineColor: hasError
-              ? theme.colors.destructive
-              : theme.colors.focusRing,
-            outlineOffset: 2,
-          }
-        : undefined;
-
     return (
-      <View style={[{ gap: 4 }, sxStyle]}>
+      <View style={[{ gap: 4 }, sxProp ? theme.sx(sxProp) : undefined]}>
         {label && <Text variant="label" label={label} />}
         <RNTextInput
           ref={ref}
@@ -110,7 +147,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
           onBlur={handleBlur}
           style={[
             theme.sx({
-              py: 3,
+              py: 2.5,
               px: 4,
               fontSize: 'base',
               borderRadius: borderRadius.md,
@@ -119,17 +156,14 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
             {
               color: theme.colors.text,
               borderColor,
-              backgroundColor: surfaceBg,
+              backgroundColor: resolveSurfaceBg(theme, hasError),
             },
-            focusRingStyle,
+            resolveWebFocusRingStyle(theme, hasError, focused),
+            resolveNativeFocusRingStyle(focused),
           ]}
           {...rest}
         />
-        {error ? (
-          <Text variant="caption" sx={{ color: 'destructive' }} label={error} />
-        ) : helperText ? (
-          <Text variant="caption" label={helperText} />
-        ) : null}
+        <FieldFooter error={error} helperText={helperText} />
       </View>
     );
   }

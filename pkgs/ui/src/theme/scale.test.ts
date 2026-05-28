@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { BLUE } from './colors/color-palette-blue';
+import { PALETTE } from './colors/color-palette';
 import {
   borderRadius,
   elevation,
@@ -12,7 +12,8 @@ const LEVELS: ReadonlyArray<ElevationLevel> = [0, 1, 2, 3, 4, 5];
 function extractAlphas(boxShadow: string | undefined): number[] {
   if (!boxShadow) return [];
   const out: number[] = [];
-  const re = /rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*([\d.]+)\s*\)/g;
+  const re =
+    /(?:rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+|hsla\(\s*[\d.]+\s*,\s*[\d.]+%\s*,\s*[\d.]+%)\s*,\s*([\d.]+)\s*\)/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(boxShadow)) !== null) {
     out.push(Number(m[1]));
@@ -38,8 +39,8 @@ describe('borderRadius scale', () => {
 });
 
 describe('makeElevation', () => {
-  const lightElev = makeElevation(BLUE.light, 'light');
-  const darkElev = makeElevation(BLUE.dark, 'dark');
+  const lightElev = makeElevation(PALETTE.light, 'light');
+  const darkElev = makeElevation(PALETTE.dark, 'dark');
 
   test('level 0 returns empty style in both schemes', () => {
     expect(lightElev(0)).toEqual({});

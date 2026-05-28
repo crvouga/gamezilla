@@ -43,6 +43,7 @@ export {
   type ButtonProps,
   type ButtonIntent,
   type ButtonSize,
+  type ButtonVariant,
 } from './button';
 export {
   SocialSignInButton,
@@ -66,7 +67,12 @@ export { Checkbox, type CheckboxProps } from './checkbox';
 export { Card, type CardProps } from './card';
 export { Avatar, type AvatarProps } from './avatar';
 export { AvatarGroup, type AvatarGroupProps } from './avatar-group';
-export { Badge, type BadgeProps } from './badge';
+export {
+  Badge,
+  type BadgeProps,
+  type BadgeIntent,
+  type BadgeTone,
+} from './badge';
 export { Chip, type ChipProps } from './chip';
 export { List, ListItem, type ListProps, type ListItemProps } from './list';
 

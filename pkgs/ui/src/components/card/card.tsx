@@ -49,7 +49,10 @@ export const Card = forwardRef<View, CardProps>(function Card(
         {
           backgroundColor: lifted,
           borderRadius: borderRadius.lg,
-          borderWidth: level === 0 ? 1 : 0,
+          // Always render a hairline border so the card has definition
+          // even when the elevation shadow is faint (light mode) or when
+          // the surface lift sits very close to its neighbor (dark mode).
+          borderWidth: 1,
           borderColor: theme.colors.border,
           ...(shadow.boxShadow ? { boxShadow: shadow.boxShadow } : {}),
           ...(shadow.elevation !== undefined

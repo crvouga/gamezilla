@@ -1,12 +1,18 @@
 /**
  * `ModalButton` -- action button used inside `ModalFooter`.
+ *
+ * Backed by the design-system {@link Button} so confirmation modals share
+ * the same flat / on-color contract as every other action surface:
+ *   - `default`  -> solid primary Button.
+ *   - `destructive` -> solid danger Button.
+ *   - `cancel`   -> ghost neutral Button.
+ *
+ * Sized `md` (40pt min-height) so the iOS-style full-width stack stays
+ * above the recommended tap target.
  */
 
 import type { ReactNode } from 'react';
-import { useTheme } from '../../theme';
-import { borderRadius } from '../../theme/scale';
-import { Pressable } from '../pressable';
-import { Text } from '../text';
+import { Button } from '../button';
 
 export type ModalButtonProps = {
   label: ReactNode;
@@ -21,25 +27,36 @@ export function ModalButton({
   onPress,
   disabled = false,
 }: ModalButtonProps) {
-  const theme = useTheme();
-
-  const color =
-    variant === 'destructive'
-      ? theme.colors.destructive
-      : variant === 'cancel'
-        ? theme.colors.tint
-        : theme.colors.text;
-
+  if (variant === 'destructive') {
+    return (
+      <Button
+        title={label}
+        intent="danger"
+        size="md"
+        onPress={onPress}
+        disabled={disabled}
+      />
+    );
+  }
+  if (variant === 'cancel') {
+    return (
+      <Button
+        title={label}
+        intent="neutral"
+        variant="ghost"
+        size="md"
+        onPress={onPress}
+        disabled={disabled}
+      />
+    );
+  }
   return (
-    <Pressable
+    <Button
+      title={label}
+      intent="primary"
+      size="md"
+      onPress={onPress}
       disabled={disabled}
-      onPress={disabled ? () => {} : onPress}
-      sx={{ py: 2, px: 4, borderRadius: borderRadius.md }}
-      style={{
-        opacity: disabled ? 0.45 : 1,
-      }}
-    >
-      <Text variant="bodyBold" style={{ color }} label={label} />
-    </Pressable>
+    />
   );
 }

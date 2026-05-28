@@ -99,6 +99,8 @@ export function SegmentedControl<K extends string = string>({
         flexDirection: 'row',
         backgroundColor: theme.colors.surfaceMuted,
         borderRadius: borderRadius.md,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
         padding: CONTAINER_PADDING,
         gap: SEGMENT_GAP,
         position: 'relative',
@@ -133,8 +135,6 @@ function SegmentIndicator({
   translateX: Animated.Value;
   theme: Theme;
 }) {
-  const lift = theme.elevation(1);
-  const bg = lift.backgroundColor ?? theme.colors.surfaceElevated;
   return (
     <Animated.View
       pointerEvents="none"
@@ -145,10 +145,10 @@ function SegmentIndicator({
         left: CONTAINER_PADDING,
         width,
         borderRadius: borderRadius.sm,
-        backgroundColor: bg,
+        backgroundColor: theme.colors.surfaceElevated,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
         transform: [{ translateX }],
-        ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
-        ...(lift.elevation !== undefined ? { elevation: lift.elevation } : {}),
       }}
     />
   );
@@ -185,7 +185,7 @@ function SegmentButton<K extends string>({
         variant="label"
         style={{
           color: isActive ? theme.colors.text : theme.colors.textSecondary,
-          fontWeight: isActive ? '600' : '400',
+          fontWeight: isActive ? '600' : '500',
         }}
         label={segment.label}
       />

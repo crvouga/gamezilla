@@ -1,9 +1,9 @@
 /**
  * `Checkbox` -- a simple check toggle built with Pressable.
  *
- * Checked state fills the box with `tint` and renders the check in `onTint`
- * so it stays legible on both color schemes. Hover / press use Pressable's
- * default tint feedback (around the whole row).
+ * Checked state fills the box with `tint` and renders a real SVG checkmark
+ * stroked in `onPrimary` so the contrast holds in both schemes. Hover /
+ * press feedback comes from {@link Pressable}'s tint overlay.
  *
  * @example
  * ```tsx
@@ -13,6 +13,7 @@
 
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';
@@ -25,6 +26,8 @@ export type CheckboxProps = {
   disabled?: boolean;
 };
 
+const BOX_SIZE = 18;
+
 export function Checkbox({
   checked,
   onToggle,
@@ -33,26 +36,25 @@ export function Checkbox({
 }: CheckboxProps) {
   const theme = useTheme();
 
-  const boxBg = checked ? theme.colors.tint : 'transparent';
+  const boxBg = checked ? theme.colors.tint : theme.colors.surface;
   const boxBorder = checked ? theme.colors.tint : theme.colors.outline;
 
   return (
     <Pressable
       onPress={() => !disabled && onToggle(!checked)}
       disabled={disabled}
-      feedback="none"
       sx={{ borderRadius: borderRadius.xs }}
       style={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        opacity: disabled ? 0.4 : 1,
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       <View
         style={{
-          width: 20,
-          height: 20,
+          width: BOX_SIZE,
+          height: BOX_SIZE,
           borderRadius: borderRadius.xs,
           borderWidth: 1.5,
           borderColor: boxBorder,
@@ -61,17 +63,18 @@ export function Checkbox({
           justifyContent: 'center',
         }}
       >
-        {checked && (
-          <Text
-            style={{
-              color: theme.colors.onTint,
-              fontSize: 13,
-              fontWeight: '700',
-              lineHeight: 15,
-            }}
-            label="✓"
-          />
-        )}
+        {checked ? (
+          <Svg width={BOX_SIZE - 4} height={BOX_SIZE - 4} viewBox="0 0 16 16">
+            <Path
+              d="M3.5 8.5 L7 12 L13 4.5"
+              fill="none"
+              stroke={theme.colors.onPrimary}
+              strokeWidth={2.25}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </Svg>
+        ) : null}
       </View>
       {label && <Text variant="body" label={label} />}
     </Pressable>

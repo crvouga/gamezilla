@@ -9,7 +9,9 @@ export type ColorTokens = {
   // Surfaces (lowest -> highest visual elevation)
   background: string;
   surface: string;
-  /** Sunken variant -- input fills, code blocks, recessed regions. */
+  /** Deeper than `background` -- the page-level recessed canvas. */
+  surfaceSunken: string;
+  /** Inline recessed fill -- input fields, code blocks, segmented control track. */
   surfaceMuted: string;
   /** Raised above `surface` -- modals, raised cards. */
   surfaceElevated: string;
@@ -29,8 +31,23 @@ export type ColorTokens = {
   tintSubtle: string;
   /** Higher-alpha tint -- legacy alias retained for chips, switches, etc. */
   tintMuted: string;
-  /** Readable foreground on top of `tint` per scheme. */
+  /** Solid tint @ ~12% alpha (or surface mix) for selected pills in dark mode. */
+  tintHighlight: string;
+  /**
+   * Readable foreground on top of `tint` per scheme.
+   * @deprecated Prefer the per-intent `on*` tokens for new code.
+   */
   onTint: string;
+  /** High-contrast label/icon on top of saturated `tint`. */
+  onPrimary: string;
+  /** High-contrast label/icon on top of `destructive`. */
+  onDestructive: string;
+  /** High-contrast label/icon on top of `success`. */
+  onSuccess: string;
+  /** High-contrast label/icon on top of `warning` (often dark — yellows need it). */
+  onWarning: string;
+  /** High-contrast label/icon on top of `info`. */
+  onInfo: string;
 
   // Interactive overlays for hover/press (composited over any surface)
   interactiveHover: string;
@@ -63,16 +80,6 @@ export type ColorTokens = {
   scrim: string;
   /** Base color for `theme.elevation()` shadows. */
   shadowColor: string;
-
-  /** Subtle brand gradient (two close, dark stops for light text on top). */
-  gradientPrimaryStart: string;
-  gradientPrimaryEnd: string;
-  /** Danger/destructive gradient (dark stops in both schemes). */
-  gradientDangerStart: string;
-  gradientDangerEnd: string;
-  /** Neutral/secondary gradient (dark stops in both schemes). */
-  gradientNeutralStart: string;
-  gradientNeutralEnd: string;
 };
 
 export type ColorTokenName = keyof ColorTokens;

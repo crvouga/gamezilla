@@ -2,7 +2,10 @@
  * `GradientBox` — themed linear gradient surface using `expo-linear-gradient`.
  *
  * Use `sx` for layout (padding, radius, flex). Gradient stops default to
- * `gradientPrimaryStart` / `gradientPrimaryEnd` from the theme.
+ * two close shades of the active brand `tint` (`tintHover` -> `tintActive`)
+ * so callers get a subtle brand-colored gradient out of the box. Override
+ * `colors` to render any other gradient (success, destructive, neutral,
+ * custom hex pairs, etc).
  */
 
 import { LinearGradient } from 'expo-linear-gradient';
@@ -33,10 +36,7 @@ export function GradientBox({
   const theme = useTheme();
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const colors: readonly [ColorValue, ColorValue, ...ColorValue[]] =
-    colorsProp ?? [
-      theme.colors.gradientPrimaryStart,
-      theme.colors.gradientPrimaryEnd,
-    ];
+    colorsProp ?? [theme.colors.tintActive, theme.colors.tintActive];
 
   return (
     <LinearGradient

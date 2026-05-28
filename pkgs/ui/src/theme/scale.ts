@@ -81,22 +81,23 @@ type ElevationLayer = {
 
 const ELEVATION_LAYERS: Record<ElevationLevel, ElevationLayer[]> = {
   0: [],
-  1: [{ y: 1, blur: 2, alphaMul: 0.45 }],
-  2: [
-    { y: 1, blur: 2, alphaMul: 0.35 },
-    { y: 2, blur: 6, alphaMul: 0.55 },
-  ],
+  // Soft, linear-style shadows. Single layer at the lower tiers (no
+  // contact shadow doubling), broader/softer blur at the higher tiers.
+  // Alphas are tuned so light-mode reads as "lifted off the page" without
+  // any one card hogging the visual weight.
+  1: [{ y: 1, blur: 2, alphaMul: 0.35 }],
+  2: [{ y: 2, blur: 6, alphaMul: 0.45 }],
   3: [
-    { y: 2, blur: 4, alphaMul: 0.4 },
-    { y: 4, blur: 12, alphaMul: 0.6 },
+    { y: 1, blur: 2, alphaMul: 0.3 },
+    { y: 4, blur: 12, alphaMul: 0.5 },
   ],
   4: [
-    { y: 4, blur: 8, alphaMul: 0.5 },
-    { y: 8, blur: 24, alphaMul: 0.7 },
+    { y: 2, blur: 4, alphaMul: 0.35 },
+    { y: 8, blur: 24, alphaMul: 0.6 },
   ],
   5: [
-    { y: 8, blur: 16, alphaMul: 0.55 },
-    { y: 16, blur: 40, alphaMul: 0.8 },
+    { y: 4, blur: 8, alphaMul: 0.4 },
+    { y: 16, blur: 40, alphaMul: 0.7 },
   ],
 };
 
@@ -161,11 +162,21 @@ export function makeElevation(
 }
 
 /**
- * Multiplies the alpha component of an rgba/hex shadow color. Falls back to
- * returning the raw color when we can't parse it -- callers always get a
- * valid CSS color back.
+ * Multiplies the alpha component of an rgba/hsla/hex shadow color. Falls
+ * back to returning the raw color when we can't parse it -- callers always
+ * get a valid CSS color back.
  */
 function shadowColorWithAlpha(base: string, mul: number): string {
+  const hsla = base.match(
+    /hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*([\d.]+)\s*)?\)/
+  );
+  if (hsla) {
+    const h = hsla[1];
+    const s = hsla[2];
+    const l = hsla[3];
+    const a = hsla[4] === undefined ? 1 : Number(hsla[4]);
+    return `hsla(${h}, ${s}%, ${l}%, ${(a * mul).toFixed(3)})`;
+  }
   const rgba = base.match(
     /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)/
   );

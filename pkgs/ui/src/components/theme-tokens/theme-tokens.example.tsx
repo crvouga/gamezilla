@@ -29,6 +29,7 @@ const COLOR_GROUPS: readonly {
     tokens: [
       'background',
       'surface',
+      'surfaceSunken',
       'surfaceMuted',
       'surfaceElevated',
       'surfaceOverlay',
@@ -46,7 +47,18 @@ const COLOR_GROUPS: readonly {
       'tintActive',
       'tintSubtle',
       'tintMuted',
+      'tintHighlight',
+    ],
+  },
+  {
+    title: 'On-color foregrounds',
+    tokens: [
       'onTint',
+      'onPrimary',
+      'onDestructive',
+      'onSuccess',
+      'onWarning',
+      'onInfo',
     ],
   },
   {

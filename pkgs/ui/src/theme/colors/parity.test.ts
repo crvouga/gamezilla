@@ -1,16 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { BLUE } from './color-palette-blue';
-import { BRUTALISM } from './color-palette-brutalism';
-import { CLAUDE } from './color-palette-claude';
-import { PURPLE } from './color-palette-purple';
-import type { ColorPalette, ColorScheme, ColorTokens } from './types';
-
-const PALETTES: ReadonlyArray<readonly [string, ColorPalette]> = [
-  ['BLUE', BLUE],
-  ['PURPLE', PURPLE],
-  ['BRUTALISM', BRUTALISM],
-  ['CLAUDE', CLAUDE],
-];
+import { PALETTE } from './color-palette';
+import type { ColorScheme, ColorTokens } from './types';
 
 const SCHEMES: ReadonlyArray<ColorScheme> = ['light', 'dark'];
 
@@ -19,6 +9,7 @@ const SCHEMES: ReadonlyArray<ColorScheme> = ['light', 'dark'];
 const REQUIRED_TOKENS: ReadonlyArray<keyof ColorTokens> = [
   'background',
   'surface',
+  'surfaceSunken',
   'surfaceMuted',
   'surfaceElevated',
   'surfaceOverlay',
@@ -30,7 +21,13 @@ const REQUIRED_TOKENS: ReadonlyArray<keyof ColorTokens> = [
   'tintActive',
   'tintSubtle',
   'tintMuted',
+  'tintHighlight',
   'onTint',
+  'onPrimary',
+  'onDestructive',
+  'onSuccess',
+  'onWarning',
+  'onInfo',
   'interactiveHover',
   'interactivePress',
   'border',
@@ -49,32 +46,25 @@ const REQUIRED_TOKENS: ReadonlyArray<keyof ColorTokens> = [
   'disabled',
   'scrim',
   'shadowColor',
-  'gradientPrimaryStart',
-  'gradientPrimaryEnd',
-  'gradientDangerStart',
-  'gradientDangerEnd',
-  'gradientNeutralStart',
-  'gradientNeutralEnd',
 ];
 
 describe('color palette parity', () => {
-  for (const [paletteName, palette] of PALETTES) {
-    for (const scheme of SCHEMES) {
-      const tokens = palette[scheme];
-      test(`${paletteName}.${scheme} provides every ColorTokens key`, () => {
-        for (const key of REQUIRED_TOKENS) {
-          const value = tokens[key];
-          expect(value).toBeDefined();
-          expect(typeof value).toBe('string');
-          expect((value as string).length).toBeGreaterThan(0);
-        }
-      });
+  for (const scheme of SCHEMES) {
+    const tokens = PALETTE[scheme];
 
-      test(`${paletteName}.${scheme} has no extra tokens beyond ColorTokens`, () => {
-        const actualKeys = Object.keys(tokens).sort();
-        const expectedKeys = [...REQUIRED_TOKENS].sort();
-        expect(actualKeys).toEqual(expectedKeys);
-      });
-    }
+    test(`PALETTE.${scheme} provides every ColorTokens key`, () => {
+      for (const key of REQUIRED_TOKENS) {
+        const value = tokens[key];
+        expect(value).toBeDefined();
+        expect(typeof value).toBe('string');
+        expect((value as string).length).toBeGreaterThan(0);
+      }
+    });
+
+    test(`PALETTE.${scheme} has no extra tokens beyond ColorTokens`, () => {
+      const actualKeys = Object.keys(tokens).sort();
+      const expectedKeys = [...REQUIRED_TOKENS].sort();
+      expect(actualKeys).toEqual(expectedKeys);
+    });
   }
 });

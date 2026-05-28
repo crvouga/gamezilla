@@ -2,13 +2,14 @@
  * `IconButton` -- a circular button that renders a single child icon.
  *
  * Uses the themed {@link Pressable} so hover (web) and press feedback come
- * from the `interactiveHover` / `interactivePress` overlay tokens. Disabled
- * dims the whole control via opacity.
+ * from the `interactiveHover` / `interactivePress` overlay tokens.
+ * Disabled swaps the foreground (via the icon's own consumer) without
+ * relying on flat opacity to dim the entire press target.
  *
  * @example
  * ```tsx
  * <IconButton size={40} onPress={handleClose}>
- *   <Text style={{ fontSize: 18 }}>✕</Text>
+ *   <IconSymbol name="xmark" size={18} />
  * </IconButton>
  * ```
  */
@@ -63,7 +64,7 @@ export function IconButton({
         backgroundColor: bg,
         alignItems: 'center' as const,
         justifyContent: 'center' as const,
-        opacity: disabled ? 0.4 : 1,
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       {children}

@@ -78,15 +78,15 @@ export function RenameSpaceModal({
       />
       <ModalFooter>
         <ModalButton
+          label={<Trans>Save</Trans>}
+          disabled={submitting}
+          onPress={onSubmit}
+        />
+        <ModalButton
           label={<Trans>Cancel</Trans>}
           variant="cancel"
           disabled={submitting}
           onPress={onClose}
-        />
-        <ModalButton
-          label={<Trans>Save</Trans>}
-          disabled={submitting}
-          onPress={onSubmit}
         />
       </ModalFooter>
     </ResponsiveSurface>
