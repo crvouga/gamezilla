@@ -29,10 +29,7 @@ export function AppHeaderTabs(): ReactNode {
   const width = props.state.routes.length * HEADER_TAB_WIDTH;
   return (
     <Box sx={{ width, height: TOP_BAR_CONTENT_HEIGHT }}>
-      <BottomTabBar
-        {...props}
-        style={{ height: TOP_BAR_CONTENT_HEIGHT }}
-      />
+      <BottomTabBar {...props} style={{ height: TOP_BAR_CONTENT_HEIGHT }} />
     </Box>
   );
 }

@@ -81,9 +81,7 @@ export function DbClientScreen() {
           },
           {
             name: <Trans>Patch DB Client</Trans>,
-            ...(hasExplorerCrumbs
-              ? { onPress: () => applyParams({}) }
-              : {}),
+            ...(hasExplorerCrumbs ? { onPress: () => applyParams({}) } : {}),
           },
           ...explorerCrumbs,
         ]}
