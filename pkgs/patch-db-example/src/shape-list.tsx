@@ -1,32 +1,10 @@
-import { Box, Button, Stack, Text } from '@pkgs/ui';
+import { Box, Button, EmptyState, Stack, Text } from '@pkgs/ui';
 import { useTheme } from '@pkgs/ui/theme';
 import type { Entity } from '@pkgs/patch-db/interface';
 import { useLingui } from '@lingui/react/macro';
 import { IconPlus } from './icons';
 import { ShapeRow } from './shape-row';
 import { useReorder } from './use-drag-reorder';
-
-function EmptyShapesPlaceholder() {
-  const { t } = useLingui();
-  const theme = useTheme();
-  return (
-    <Box
-      sx={{ py: 4, alignItems: 'center' }}
-      style={{
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        borderStyle: 'dashed',
-      }}
-    >
-      <Text
-        variant="caption"
-        style={{ color: theme.colors.textSecondary }}
-        label={t`No shapes yet`}
-      />
-    </Box>
-  );
-}
 
 function ShapeNote({ note }: { note: string }) {
   const theme = useTheme();
@@ -70,7 +48,7 @@ export function ShapeList({
   return (
     <Stack spacing={2}>
       {entities.length === 0 ? (
-        <EmptyShapesPlaceholder />
+        <EmptyState variant="compact" title={t`No shapes yet`} />
       ) : (
         <Stack spacing={1}>
           {entities.map((e, i) => (

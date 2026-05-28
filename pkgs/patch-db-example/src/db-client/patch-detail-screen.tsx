@@ -2,10 +2,11 @@ import {
   Box,
   Card,
   Divider,
+  ErrorState,
+  LoadingState,
   Pressable,
   ScrollView,
   Spinner,
-  SpinnerBox,
   Stack,
   Text,
   useTheme,
@@ -281,7 +282,6 @@ export function PatchDetailScreen({
   onNavigateToPatch,
 }: PatchDetailScreenProps) {
   const { t } = useLingui();
-  const theme = useTheme();
   const db = usePatchDb();
   const { patch, loading, loadError } = useLoadPatch(
     db,
@@ -296,16 +296,16 @@ export function PatchDetailScreen({
   );
 
   if (loading) {
-    return <SpinnerBox sx={{ flex: 1 }} />;
+    return <LoadingState />;
   }
 
   if (loadError !== null || patch === null) {
     return (
       <Box sx={{ flex: 1, p: 4 }}>
-        <Text
-          variant="body"
-          style={{ color: theme.colors.destructive }}
-          label={loadError ?? t`Patch not found`}
+        <ErrorState
+          variant="compact"
+          title={t`Patch not loaded`}
+          body={loadError ?? t`Patch not found`}
         />
       </Box>
     );

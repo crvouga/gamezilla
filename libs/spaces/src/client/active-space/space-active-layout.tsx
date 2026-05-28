@@ -24,6 +24,7 @@ export function SpaceActiveLayout({
   return (
     <Box sx={{ flex: 1, minHeight: 0 }}>
       <TopBar
+        safeAreaTop={false}
         leading={
           <>
             <SpaceChromeHomeButton />

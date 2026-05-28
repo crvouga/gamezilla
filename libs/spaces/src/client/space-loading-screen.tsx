@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { ScreenBase, SpinnerBox } from '@pkgs/ui';
+import { LoadingState, ScreenBase } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import type { ReactNode } from 'react';
 
@@ -9,7 +9,7 @@ export function SpaceLoadingScreen(): ReactNode {
   return (
     <ScreenBase
       breadcrumbs={[{ name: <Trans>Spaces</Trans>, onPress: nav('/') }]}
-      content={({ sx }) => <SpinnerBox style={sx} sx={{ flex: 1 }} />}
+      content={() => <LoadingState />}
     />
   );
 }

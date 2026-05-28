@@ -5,11 +5,13 @@ import {
   Box,
   Card,
   Divider,
+  EmptyState,
+  ErrorState,
   FlatList,
+  LoadingState,
   Pressable,
   ScrollView,
   SegmentedControl,
-  SpinnerBox,
   Stack,
   Text,
   useTheme,
@@ -177,15 +179,15 @@ function PatchesPane({
   const { t } = useLingui();
   const theme = useTheme();
   if (loadingPatches) {
-    return <SpinnerBox sx={{ p: 6 }} />;
+    return <LoadingState variant="compact" />;
   }
   if (patchError !== null) {
     return (
       <Box sx={{ p: 4 }}>
-        <Text
-          variant="body"
-          style={{ color: theme.colors.destructive }}
-          label={patchError}
+        <ErrorState
+          variant="compact"
+          title={t`Failed to load patches`}
+          body={patchError}
         />
       </Box>
     );
@@ -200,10 +202,9 @@ function PatchesPane({
         <PatchRowCard patch={item} onPress={() => onSelectPatch(item)} />
       )}
       ListEmptyComponent={
-        <Text
-          variant="body"
-          style={{ opacity: 0.7 }}
-          label={t`No patches for this entity.`}
+        <EmptyState
+          variant="compact"
+          title={t`No patches for this entity.`}
         />
       }
     />
@@ -212,16 +213,7 @@ function PatchesPane({
 
 function LoadingEntity() {
   const { t } = useLingui();
-  const theme = useTheme();
-  return (
-    <SpinnerBox sx={{ p: 6 }} size="large">
-      <Text
-        variant="caption"
-        style={{ marginTop: 12, color: theme.colors.textSecondary }}
-        label={t`Loading entity…`}
-      />
-    </SpinnerBox>
-  );
+  return <LoadingState size="large" caption={t`Loading entity…`} />;
 }
 
 export function EntityDetailScreen({

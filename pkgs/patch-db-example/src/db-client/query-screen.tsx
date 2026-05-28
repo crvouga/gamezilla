@@ -1,6 +1,7 @@
 import {
   Button,
   Card,
+  ErrorState,
   ScrollView,
   SegmentedControl,
   Stack,
@@ -178,24 +179,8 @@ function QueryFormCard({
 }
 
 function ErrorCard({ message }: { message: string }) {
-  const theme = useTheme();
-  return (
-    <Card
-      elevation={0}
-      sx={{ p: 3 }}
-      style={{
-        borderWidth: 1,
-        borderColor: theme.colors.destructive + '44',
-        backgroundColor: theme.colors.destructive + '0a',
-      }}
-    >
-      <Text
-        variant="mono"
-        style={{ fontSize: 12, color: theme.colors.destructive }}
-        label={message}
-      />
-    </Card>
-  );
+  const { t } = useLingui();
+  return <ErrorState variant="compact" title={t`Query failed`} body={message} />;
 }
 
 function ResultCard({ json }: { json: string }) {

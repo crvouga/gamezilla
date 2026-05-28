@@ -2,7 +2,7 @@ import { createTypedApiRpcClient } from '../typed-api-rpc-client';
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 import { useAsync, type AsyncRunContext } from '@pkgs/async/use-async';
-import { Button, Card, Text } from '@pkgs/ui';
+import { Button, Card, ErrorState, SuccessState, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback } from 'react';
 
@@ -68,16 +68,17 @@ export function ClientConfigServerRefreshCard() {
         disabled={refreshServer.loading}
       />
       {refreshServer.state.status === 'success' ? (
-        <Text
-          variant="caption"
-          label={t`Server client config updated. Local view updates after the next PatchDB sync.`}
+        <SuccessState
+          variant="compact"
+          title={t`Server client config updated`}
+          body={t`Local view updates after the next PatchDB sync.`}
         />
       ) : null}
       {refreshServer.error !== null ? (
-        <Text
-          variant="caption"
-          sx={{ color: 'destructive' }}
-          label={refreshServer.error.message}
+        <ErrorState
+          variant="compact"
+          title={t`Refresh failed`}
+          body={refreshServer.error.message}
         />
       ) : null}
     </Card>

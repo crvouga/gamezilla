@@ -5,6 +5,7 @@ import { useLiveSpaceIds } from './use-live-space-ids';
 import {
   Box,
   Button,
+  EmptyState,
   ScreenBase,
   ScrollView,
   Text,
@@ -19,13 +20,11 @@ function SpacesList() {
   const spaceIds = useLiveSpaceIds();
   if (spaceIds.length === 0) {
     return (
-      <Box sx={{ py: 8, alignItems: 'center' }}>
-        <Text
-          variant="body"
-          sx={{ color: 'textSecondary' }}
-          label={<Trans>No live spaces. Tap + New space to start one.</Trans>}
-        />
-      </Box>
+      <EmptyState
+        icon="house.fill"
+        title={<Trans>No live spaces</Trans>}
+        body={<Trans>Tap + New space above to start one.</Trans>}
+      />
     );
   }
   return (
@@ -50,12 +49,15 @@ export type SpacesScreenProps = {
   readonly centerTabs?: ReactNode;
   /** Desktop trailing slot (account avatar trigger). */
   readonly headerEnd?: ReactNode;
+  /** Leading slot (typically the app logo on root tabs). */
+  readonly leading?: ReactNode;
 };
 
 export function SpacesScreen({
   accountActions,
   centerTabs,
   headerEnd,
+  leading,
 }: SpacesScreenProps) {
   const isMobile = useBreakpoint() === 'mobile';
   const router = useRouter();
@@ -81,6 +83,7 @@ export function SpacesScreen({
       actions={isMobile ? [...accountActions] : []}
       centerTabs={centerTabs}
       headerEnd={headerEnd}
+      leading={leading}
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 3 }}>
           <Button

@@ -3,7 +3,7 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/client/room/use-space-room-selector';
-import { Box, ExplorerDetail, Text } from '@pkgs/ui';
+import { Box, EmptyState, ExplorerDetail } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, useEffect, type ReactNode } from 'react';
 import {
@@ -43,14 +43,10 @@ export function ChessSettingsDeveloperUiComponentDetailScreen(): ReactNode {
     <Box sx={{ alignSelf: 'stretch' }} style={{ flex: 1 }}>
       <DefineBackButton onPress={back} />
       {selectedName === null ? (
-        <Box sx={{ p: 4, gap: 2, alignItems: 'center' }}>
-          <Text variant="title" label={<Trans>No component selected</Trans>} />
-          <Text
-            variant="caption"
-            sx={{ color: 'textSecondary' }}
-            label={<Trans>Pick one from the previous screen.</Trans>}
-          />
-        </Box>
+        <EmptyState
+          title={<Trans>No component selected</Trans>}
+          body={<Trans>Pick one from the previous screen.</Trans>}
+        />
       ) : (
         <ExplorerDetail
           componentName={selectedName}

@@ -1,9 +1,9 @@
 import {
   Box,
   ConfirmationModal,
+  EmptyState,
   FlatList,
   ScreenBaseHeader,
-  Text,
   useTheme,
   type ScreenBaseBreadcrumb,
 } from '@pkgs/ui';
@@ -106,9 +106,10 @@ export function TodoListsOverview({
             <TodoListRow listId={listId} onOpen={() => onOpenList(listId)} />
           )}
           ListEmptyComponent={
-            <Text
-              style={theme.sx({ opacity: 0.7, fontStyle: 'italic', mt: 6 })}
-              label={t`No lists yet. Create one above or add todos to Inbox.`}
+            <EmptyState
+              variant="compact"
+              title={t`No lists yet`}
+              body={t`Create one above or add todos to Inbox.`}
             />
           }
         />

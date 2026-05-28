@@ -1,9 +1,9 @@
 import {
   Box,
+  EmptyState,
   ModalBackdrop,
   ModalContent,
   ModalRoot,
-  Text,
   type ScreenBaseBreadcrumb,
 } from '@pkgs/ui';
 import type { Patch } from '@pkgs/patch-db/interface';
@@ -146,23 +146,7 @@ function visibleKindsForLayout(
 }
 
 function EmptyColumnPlaceholder({ hint }: { hint: ReactNode }) {
-  return (
-    <Box
-      sx={{
-        flex: 1,
-        px: 3,
-        py: 4,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Text
-        variant="caption"
-        style={{ textAlign: 'center', opacity: 0.65 }}
-        label={hint}
-      />
-    </Box>
-  );
+  return <EmptyState variant="compact" title={hint} />;
 }
 
 function short(value: string, max = 28): string {

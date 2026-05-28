@@ -42,6 +42,12 @@ type PendingBatch = {
  * The cache stores raw `string` values internally; results are re-wrapped into
  * {@link SecretString} at the public read boundary so cache hits do not bypass
  * redaction.
+ *
+ * Pass `{ force: true }` on a read to bypass the cache for one call (the
+ * freshly-fetched value is still written back to the cache). This is the
+ * escape hatch for self-healing paths — e.g. the Stripe webhook route
+ * re-reads the signing secret under `force` after a signature verification
+ * failure so a rotated `whsec_…` propagates without restarting the worker.
  */
 export class CachingSecretStore implements SecretStore {
   private readonly inner: SecretStore;
@@ -149,11 +155,15 @@ export class CachingSecretStore implements SecretStore {
     name: string,
     init?: SecretStoreGetInit
   ): Promise<SecretString> {
-    const p = this.peek(name);
-    if (p !== undefined && p !== null) {
-      return wrapSecret(name, p);
-    }
-    if (p === null) {
+    if (init?.force !== true) {
+      const p = this.peek(name);
+      if (p !== null && p !== undefined) {
+        return wrapSecret(name, p);
+      }
+      if (p === null) {
+        this.cache.delete(name);
+      }
+    } else {
       this.cache.delete(name);
     }
     const value = await this.fetchCoalesced(name, init);
@@ -167,9 +177,13 @@ export class CachingSecretStore implements SecretStore {
     name: string,
     init?: SecretStoreGetInit
   ): Promise<SecretString | null> {
-    const p = this.peek(name);
-    if (p !== undefined) {
-      return wrapSecretOptional(name, p);
+    if (init?.force !== true) {
+      const p = this.peek(name);
+      if (p !== undefined) {
+        return wrapSecretOptional(name, p);
+      }
+    } else {
+      this.cache.delete(name);
     }
     const value = await this.fetchCoalesced(name, init);
     return wrapSecretOptional(name, value);

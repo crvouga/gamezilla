@@ -1,4 +1,4 @@
-import { ActivityIndicator, View } from 'react-native';
+import { LoadingState } from '@pkgs/ui';
 import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 
@@ -12,15 +12,5 @@ export default function SsoCallbackScreen() {
   useEffect(() => {
     router.replace('/(tabs)');
   }, [router]);
-  return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <ActivityIndicator size="large" />
-    </View>
-  );
+  return <LoadingState size="large" />;
 }

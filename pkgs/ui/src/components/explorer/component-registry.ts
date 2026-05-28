@@ -1,7 +1,9 @@
 import { useSyncExternalStore, type ComponentType } from 'react';
 
+import { default as AppLogoExample } from '../app-logo/app-logo.example';
 import { default as BoxExample } from '../box/box.example';
 import { default as GradientBoxExample } from '../gradient-box/gradient-box.example';
+import { default as PageHeaderExample } from '../page-header/page-header.example';
 import { default as TextExample } from '../text/text.example';
 import { default as PressableExample } from '../pressable/pressable.example';
 import { default as ThemeTokensExample } from '../theme-tokens/theme-tokens.example';
@@ -35,6 +37,10 @@ import { default as ProgressBarExample } from '../progress-bar/progress-bar.exam
 import { default as DismissibleBannerExample } from '../dismissible-top-banner/dismissible-top-banner.example';
 import { default as SoundIndicatorExample } from '../sound-indicator/sound-indicator.example';
 import { default as SpeakingAvatarExample } from '../speaking-avatar/speaking-avatar.example';
+import { default as LoadingStateExample } from '../loading-state/loading-state.example';
+import { default as EmptyStateExample } from '../empty-state/empty-state.example';
+import { default as ErrorStateExample } from '../error-state/error-state.example';
+import { default as SuccessStateExample } from '../success-state/success-state.example';
 
 import { default as CollapsibleExample } from '../collapsible/collapsible.example';
 import { default as JsonViewExample } from '../json-view/json-view.example';
@@ -71,6 +77,9 @@ const builtInEntries: ComponentEntry[] = [
   { name: 'Text', category: 'Foundation', Example: TextExample },
   { name: 'Pressable', category: 'Foundation', Example: PressableExample },
 
+  // Brand
+  { name: 'AppLogo', category: 'Brand', Example: AppLogoExample },
+
   // Layout
   { name: 'Stack', category: 'Layout', Example: StackExample },
   { name: 'Center', category: 'Layout', Example: CenterExample },
@@ -79,6 +88,7 @@ const builtInEntries: ComponentEntry[] = [
   { name: 'ScrollView', category: 'Layout', Example: ScrollViewExample },
   { name: 'SafeAreaView', category: 'Layout', Example: SafeAreaViewExample },
   { name: 'ScreenBase', category: 'Layout', Example: ScreenBaseExample },
+  { name: 'PageHeader', category: 'Layout', Example: PageHeaderExample },
 
   // Icons
   { name: 'BrandIcon', category: 'Icons', Example: BrandIconExample },
@@ -132,6 +142,10 @@ const builtInEntries: ComponentEntry[] = [
     category: 'Feedback',
     Example: SpeakingAvatarExample,
   },
+  { name: 'LoadingState', category: 'Feedback', Example: LoadingStateExample },
+  { name: 'EmptyState', category: 'Feedback', Example: EmptyStateExample },
+  { name: 'ErrorState', category: 'Feedback', Example: ErrorStateExample },
+  { name: 'SuccessState', category: 'Feedback', Example: SuccessStateExample },
 
   // Disclosure
   { name: 'Collapsible', category: 'Disclosure', Example: CollapsibleExample },

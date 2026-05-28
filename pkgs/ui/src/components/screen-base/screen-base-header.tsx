@@ -1,8 +1,18 @@
 /**
- * App screen header: safe area, breadcrumbs, title from last crumb, actions + overflow.
+ * App screen header: composes the {@link TopBar} primitive with optional
+ * desktop breadcrumbs above it. Every screen gets the same chrome height
+ * because `TopBar`'s content height is locked.
+ *
+ * Slot mapping:
+ *   - `leading`  -> caller-supplied leading content + auto back button (mobile).
+ *   - `center`   -> centered tabs (desktop) or page title (otherwise).
+ *   - `trailing` -> inline action buttons + overflow ellipsis + headerEnd.
+ *
+ * Subtitles attached to the deepest breadcrumb are intentionally **not**
+ * rendered here -- {@link ScreenBase} surfaces them via {@link PageHeader}
+ * inside the body so the header bar stays a uniform height.
  */
 
-import { t } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import {
   Fragment,
@@ -16,6 +26,7 @@ import {
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { useBreakpoint, useTheme } from '../../theme';
+import { BackIconButton } from '../back-icon-button';
 import { Box } from '../box';
 import { Button } from '../button';
 import {
@@ -27,18 +38,18 @@ import { IconButton } from '../icon-button';
 import { Pressable } from '../pressable';
 import { IconSymbol } from '../symbol-icon';
 import { Text } from '../text';
+import { TopBar } from '../top-bar';
 import { partitionScreenActions } from './partition-screen-actions';
 import type {
   ScreenBaseAction,
   ScreenBaseHeaderProps,
 } from './screen-base-types';
 
-const BAR_CONTENT_HEIGHT = 58;
-const TITLE_SIDE_GUTTER = 80;
+const BREADCRUMB_BAR_HEIGHT = 28;
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
 
-/** Prefer `useContext` over `useSafeAreaInsets` so monorepo Metro cannot bundle two copies of the library (mismatched context). `useSafeAreaInsets` throws when the context is null, which defeats the fallback. */
+/** Prefer `useContext` over `useSafeAreaInsets` so monorepo Metro cannot bundle two copies of the library (mismatched context). */
 function useSafeAreaInsetsCompat() {
   return useContext(SafeAreaInsetsContext) ?? ZERO_SAFE_AREA;
 }
@@ -144,8 +155,7 @@ function BreadcrumbsBar({ breadcrumbs }: { breadcrumbs: BreadcrumbItem[] }) {
         alignItems: 'center',
         gap: 1,
         px: 4,
-        pt: 3,
-        pb: 1,
+        height: BREADCRUMB_BAR_HEIGHT,
       }}
     >
       {breadcrumbs.map((c, i) => (
@@ -160,61 +170,25 @@ function BreadcrumbsBar({ breadcrumbs }: { breadcrumbs: BreadcrumbItem[] }) {
   );
 }
 
-function TitleArea({
-  title,
-  subtitle,
-}: {
-  title: ReactNode | undefined;
-  subtitle?: ReactNode;
-}) {
+function HeaderTitle({ title }: { title: ReactNode }) {
   return (
-    <Box
-      sx={{
-        alignItems: 'center',
-        alignSelf: 'stretch',
-        paddingHorizontal: TITLE_SIDE_GUTTER,
-        gap: 0.5,
-      }}
-    >
-      {title !== undefined && title !== null ? (
-        <Text
-          accessibilityRole="header"
-          aria-level={1}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          variant="navigationTitle"
-          sx={{ textAlign: 'center' }}
-          label={title}
-        />
-      ) : null}
-      {subtitle !== undefined ? (
-        <Text
-          variant="caption"
-          numberOfLines={2}
-          ellipsizeMode="tail"
-          sx={{ textAlign: 'center' }}
-          label={subtitle}
-        />
-      ) : null}
-    </Box>
+    <Text
+      accessibilityRole="header"
+      aria-level={1}
+      numberOfLines={1}
+      ellipsizeMode="tail"
+      variant="navigationTitle"
+      sx={{ textAlign: 'center' }}
+      label={title}
+    />
   );
 }
 
 /**
  * Renders the screen title as a semantic `<h1>` that is visually hidden
- * but still discoverable by screen readers, heading-navigation, and
- * accessibility testers (Playwright `getByRole('heading', { level: 1 })`).
- *
- * Used on layouts where `TitleArea` is suppressed in favor of
- * `CenterTabsArea` (desktop tab-based navigation). Every page is
- * required by WCAG 2.4.6 / 1.3.1 to expose a single top-level heading;
- * dropping the visible title for a different visual treatment must not
- * also drop the semantic one.
- *
- * Standard "sr-only" clip pattern: 1×1 absolutely-positioned, overflow
- * hidden, clipped to zero. The browser still includes it in the
- * accessibility tree but it has no visual presence and cannot receive
- * pointer input.
+ * but still discoverable by screen readers and accessibility testers.
+ * Used when `centerTabs` replaces the visible title so the page still
+ * exposes a single top-level heading per WCAG 2.4.6 / 1.3.1.
  */
 function VisuallyHiddenTitle({ title }: { title: ReactNode }) {
   if (title === undefined || title === null) return null;
@@ -233,76 +207,31 @@ function VisuallyHiddenTitle({ title }: { title: ReactNode }) {
   );
 }
 
-function CenterTabsArea({ children }: { children: ReactNode }) {
-  return (
-    <Box
-      sx={{
-        alignSelf: 'stretch',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: TITLE_SIDE_GUTTER,
-      }}
-    >
-      {children}
-    </Box>
-  );
-}
+type TrailingProps = {
+  inline: ScreenBaseAction[];
+  hasOverflow: boolean;
+  overflowTriggerRef: React.RefObject<React.ElementRef<typeof Box> | null>;
+  onOpenOverflow: () => void;
+  headerEnd: ReactNode | undefined;
+};
 
-function BackButton({
-  label,
-  onPress,
-}: {
-  label: ReactNode;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={t`Go back`}
-      hitSlop={8}
-      sx={{
-        position: 'absolute',
-        left: 12,
-        top: 0,
-        bottom: 0,
-        justifyContent: 'center',
-        zIndex: 1,
-      }}
-    >
-      <Text variant="label" sx={{ color: 'tint' }} label={label} />
-    </Pressable>
-  );
-}
-
-function ActionsBar({
+function HeaderTrailing({
   inline,
   hasOverflow,
   overflowTriggerRef,
   onOpenOverflow,
   headerEnd,
-}: {
-  inline: ScreenBaseAction[];
-  hasOverflow: boolean;
-  overflowTriggerRef: React.RefObject<React.ElementRef<typeof Box> | null>;
-  onOpenOverflow: () => void;
-  headerEnd?: ReactNode;
-}) {
+}: TrailingProps) {
   const theme = useTheme();
+  if (
+    inline.length === 0 &&
+    !hasOverflow &&
+    (headerEnd === undefined || headerEnd === null)
+  ) {
+    return null;
+  }
   return (
-    <Box
-      sx={{
-        position: 'absolute',
-        right: 8,
-        top: 0,
-        bottom: 0,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        zIndex: 2,
-        maxWidth: 320,
-      }}
-    >
+    <>
       {inline.map((a, i) => {
         const bp = actionToButtonProps(a);
         return (
@@ -325,7 +254,7 @@ function ActionsBar({
         </Box>
       ) : null}
       {headerEnd}
-    </Box>
+    </>
   );
 }
 
@@ -360,87 +289,55 @@ function useOverflowMenu(overflow: ScreenBaseAction[]) {
   return { open, anchor, triggerRef, close, openOverflow, content };
 }
 
-function deriveTitleData(breadcrumbs: BreadcrumbItem[]) {
-  const current = breadcrumbs[breadcrumbs.length - 1];
-  const subtitle =
-    current?.subtitle !== undefined && current?.subtitle !== null
-      ? current.subtitle
-      : undefined;
-  const backCrumb =
-    breadcrumbs.length >= 2 ? breadcrumbs[breadcrumbs.length - 2] : undefined;
-  return { title: current?.name, subtitle, backCrumb };
+function deriveBackCrumb(
+  breadcrumbs: BreadcrumbItem[]
+): BreadcrumbItem | undefined {
+  return breadcrumbs.length >= 2
+    ? breadcrumbs[breadcrumbs.length - 2]
+    : undefined;
 }
 
-function deriveBackLabel(
-  backCrumb: BreadcrumbItem | undefined,
-  fallback: ReactNode
-): ReactNode {
-  if (backCrumb === undefined) return fallback;
-  return (
-    <>
-      {'\u2190 '}
-      {backCrumb.name}
-    </>
-  );
-}
-
-type HeaderBarProps = {
-  centerTabs: ReactNode | undefined;
+function deriveLayout(
+  breadcrumbs: BreadcrumbItem[],
+  centerTabs: ReactNode | undefined,
+  isMobile: boolean
+): {
   title: ReactNode | undefined;
-  subtitle: ReactNode | undefined;
+  backCrumb: BreadcrumbItem | undefined;
   showBack: boolean;
-  backLabel: ReactNode;
-  onBack: () => void;
-  inline: ScreenBaseAction[];
-  hasOverflow: boolean;
-  overflowTriggerRef: React.RefObject<React.ElementRef<typeof Box> | null>;
-  onOpenOverflow: () => void;
-  headerEnd: ReactNode | undefined;
-};
+  renderedCenterTabs: ReactNode | undefined;
+  renderBreadcrumbs: boolean;
+} {
+  const current = breadcrumbs[breadcrumbs.length - 1];
+  const backCrumb = deriveBackCrumb(breadcrumbs);
+  const renderedCenterTabs = !isMobile ? centerTabs : undefined;
+  return {
+    title: current?.name,
+    backCrumb,
+    showBack:
+      isMobile && backCrumb !== undefined && backCrumb.onPress !== undefined,
+    renderedCenterTabs,
+    renderBreadcrumbs:
+      !isMobile && renderedCenterTabs === undefined && breadcrumbs.length > 0,
+  };
+}
 
-function HeaderBar(props: HeaderBarProps) {
-  const {
-    centerTabs,
-    title,
-    subtitle,
-    showBack,
-    backLabel,
-    onBack,
-    inline,
-    hasOverflow,
-    overflowTriggerRef,
-    onOpenOverflow,
-    headerEnd,
-  } = props;
-  return (
-    <Box
-      sx={{
-        position: 'relative',
-        minHeight: BAR_CONTENT_HEIGHT,
-        justifyContent: 'center',
-      }}
-    >
-      {centerTabs !== undefined ? (
-        <>
-          <VisuallyHiddenTitle title={title} />
-          <CenterTabsArea>{centerTabs}</CenterTabsArea>
-        </>
-      ) : (
-        <TitleArea
-          title={title}
-          {...(subtitle !== undefined ? { subtitle } : {})}
-        />
-      )}
-      {showBack ? <BackButton label={backLabel} onPress={onBack} /> : null}
-      <ActionsBar
-        inline={inline}
-        hasOverflow={hasOverflow}
-        overflowTriggerRef={overflowTriggerRef}
-        onOpenOverflow={onOpenOverflow}
-        headerEnd={headerEnd}
-      />
-    </Box>
-  );
+function renderCenterSlot(
+  renderedCenterTabs: ReactNode | undefined,
+  title: ReactNode | undefined
+): ReactNode {
+  if (renderedCenterTabs !== undefined) {
+    return (
+      <>
+        <VisuallyHiddenTitle title={title} />
+        {renderedCenterTabs}
+      </>
+    );
+  }
+  if (title !== undefined && title !== null) {
+    return <HeaderTitle title={title} />;
+  }
+  return null;
 }
 
 export function ScreenBaseHeader({
@@ -448,6 +345,7 @@ export function ScreenBaseHeader({
   actions: actionsProp,
   centerTabs,
   headerEnd,
+  leading: leadingProp,
 }: ScreenBaseHeaderProps) {
   const insets = useSafeAreaInsetsCompat();
   const isMobile = useBreakpoint() === 'mobile';
@@ -456,35 +354,39 @@ export function ScreenBaseHeader({
     isMobile
   );
   const menu = useOverflowMenu(overflow);
-  const { title, subtitle, backCrumb } = deriveTitleData(breadcrumbs);
-  const showBack =
-    isMobile && backCrumb !== undefined && backCrumb.onPress !== undefined;
-  const renderedCenterTabs = !isMobile ? centerTabs : undefined;
-  const renderBreadcrumbs =
-    !isMobile && renderedCenterTabs === undefined && breadcrumbs.length > 0;
+  const { title, backCrumb, showBack, renderedCenterTabs, renderBreadcrumbs } =
+    deriveLayout(breadcrumbs, centerTabs, isMobile);
+
+  const onBack = () => {
+    backCrumb?.onPress?.();
+  };
+
+  const leadingSlot = (
+    <>
+      {leadingProp}
+      {showBack ? <BackIconButton size={36} onPress={onBack} /> : null}
+    </>
+  );
+
+  const trailingSlot = (
+    <HeaderTrailing
+      inline={inline}
+      hasOverflow={overflow.length > 0}
+      overflowTriggerRef={menu.triggerRef}
+      onOpenOverflow={menu.openOverflow}
+      headerEnd={!isMobile ? headerEnd : undefined}
+    />
+  );
 
   return (
-    <Box
-      sx={{
-        background: 'surface',
-        borderBottomWidth: 1,
-        borderColor: 'border',
-        paddingTop: insets.top,
-      }}
-    >
+    <Box sx={{ background: 'surface', paddingTop: insets.top }}>
       {renderBreadcrumbs ? <BreadcrumbsBar breadcrumbs={breadcrumbs} /> : null}
-      <HeaderBar
-        centerTabs={renderedCenterTabs}
-        title={title}
-        subtitle={subtitle}
-        showBack={showBack}
-        backLabel={deriveBackLabel(backCrumb, t`Back`)}
-        onBack={() => backCrumb?.onPress?.()}
-        inline={inline}
-        hasOverflow={overflow.length > 0}
-        overflowTriggerRef={menu.triggerRef}
-        onOpenOverflow={menu.openOverflow}
-        headerEnd={!isMobile ? headerEnd : undefined}
+      <TopBar
+        safeAreaTop={false}
+        centerAlign="center"
+        leading={leadingSlot}
+        center={renderCenterSlot(renderedCenterTabs, title)}
+        trailing={trailingSlot}
       />
       <FloatingMenu
         open={menu.open}
