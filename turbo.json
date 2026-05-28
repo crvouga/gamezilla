@@ -152,16 +152,6 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#ci:ui-adapters": {
-      "inputs": [
-        "pkgs/ui/src/ports/ui-adapter.ts",
-        "pkgs/ui/src/adapters/inhouse/index.ts",
-        "pkgs/ui/src/adapters/heroui/index.ts",
-        "scripts/check-ui-adapter-conformance.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
     "//#ci:audit": {
       "cache": false
     },

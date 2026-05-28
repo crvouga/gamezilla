@@ -149,28 +149,6 @@ async function resolveExpoPublicApiUrl(): Promise<string> {
   process.exit(1);
 }
 
-type UiImpl = 'inhouse' | 'heroui';
-
-function resolveExpoPublicUiImpl(): UiImpl {
-  const raw = process.env.EXPO_PUBLIC_UI_IMPL;
-  if (typeof raw === 'string') {
-    const trimmed = raw.trim();
-    switch (trimmed) {
-      case 'inhouse':
-        return 'inhouse';
-      case 'heroui':
-        return 'heroui';
-      case '':
-        break;
-      default:
-        process.stdout.write(
-          `[setup-env] EXPO_PUBLIC_UI_IMPL="${trimmed}" is not a recognised @pkgs/ui adapter (expected 'inhouse' | 'heroui'); falling back to 'inhouse'.\n`
-        );
-    }
-  }
-  return 'heroui';
-}
-
 function resolveExpoPublicCommitHash(): string {
   const v = process.env.EXPO_PUBLIC_COMMIT_HASH;
   if (typeof v === 'string' && v.trim().length > 0) {
@@ -216,17 +194,15 @@ async function main(): Promise<void> {
   assertTigerPolicyForResolvedApiOrigin(origin, 'forbid-prod-on-this-machine');
 
   const commitHash = resolveExpoPublicCommitHash();
-  const uiImpl = resolveExpoPublicUiImpl();
 
   const body =
     `EXPO_PUBLIC_API_URL=${JSON.stringify(origin)}\n` +
-    `EXPO_PUBLIC_COMMIT_HASH=${JSON.stringify(commitHash)}\n` +
-    `EXPO_PUBLIC_UI_IMPL=${JSON.stringify(uiImpl)}\n`;
+    `EXPO_PUBLIC_COMMIT_HASH=${JSON.stringify(commitHash)}\n`;
   writeFileSync(tmpPath, body, { encoding: 'utf8' });
   renameSync(tmpPath, outPath);
 
   process.stdout.write(
-    `[setup-env] wrote .env.local with EXPO_PUBLIC_API_URL=${origin} EXPO_PUBLIC_COMMIT_HASH=${commitHash.slice(0, 7)}… EXPO_PUBLIC_UI_IMPL=${uiImpl}\n`
+    `[setup-env] wrote .env.local with EXPO_PUBLIC_API_URL=${origin} EXPO_PUBLIC_COMMIT_HASH=${commitHash.slice(0, 7)}…\n`
   );
 }
 
