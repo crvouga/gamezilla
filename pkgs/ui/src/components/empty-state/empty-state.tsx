@@ -75,9 +75,7 @@ export function EmptyState({
           label={body}
         />
       ) : null}
-      {action !== undefined ? (
-        <EmptyStateActionButton action={action} />
-      ) : null}
+      {action !== undefined ? <EmptyStateActionButton action={action} /> : null}
     </StateBlock>
   );
 }

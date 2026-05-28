@@ -40,9 +40,19 @@ function resolveColor(color: string | undefined, colors: ColorTokens): string {
   return color;
 }
 
-function AppLogoMark({ size, fill }: { size: number; fill: string }): ReactNode {
+function AppLogoMark({
+  size,
+  fill,
+}: {
+  size: number;
+  fill: string;
+}): ReactNode {
   return (
-    <Svg width={size} height={size} viewBox={`0 0 ${MARK_VIEW_BOX} ${MARK_VIEW_BOX}`}>
+    <Svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${MARK_VIEW_BOX} ${MARK_VIEW_BOX}`}
+    >
       {/* Top tile -- a confident, slightly larger square that anchors the mark. */}
       <Rect x={4} y={2} width={16} height={8} rx={2.5} ry={2.5} fill={fill} />
       {/* Middle tile -- offset right, creates the controller-grid rhythm. */}

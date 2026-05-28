@@ -202,10 +202,7 @@ function PatchesPane({
         <PatchRowCard patch={item} onPress={() => onSelectPatch(item)} />
       )}
       ListEmptyComponent={
-        <EmptyState
-          variant="compact"
-          title={t`No patches for this entity.`}
-        />
+        <EmptyState variant="compact" title={t`No patches for this entity.`} />
       }
     />
   );

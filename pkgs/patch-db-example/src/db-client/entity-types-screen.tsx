@@ -135,9 +135,7 @@ function StatusLine({
   const { t } = useLingui();
   const theme = useTheme();
   if (loading) {
-    return (
-      <LoadingState variant="compact" caption={t`Scanning snapshots…`} />
-    );
+    return <LoadingState variant="compact" caption={t`Scanning snapshots…`} />;
   }
   if (error !== null) {
     return (

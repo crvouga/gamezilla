@@ -58,7 +58,9 @@ export function ErrorState({
   variant = 'fill',
 }: ErrorStateProps): ReactNode {
   if (variant === 'compact') {
-    return <ErrorStateCompact icon={icon} title={title} body={body} retry={retry} />;
+    return (
+      <ErrorStateCompact icon={icon} title={title} body={body} retry={retry} />
+    );
   }
   return <ErrorStateFill icon={icon} title={title} body={body} retry={retry} />;
 }
@@ -134,17 +136,9 @@ function ErrorStateCompact({
         />
       </Box>
       <Box sx={{ flex: 1, gap: 1 }}>
-        <Text
-          variant="bodyBold"
-          sx={{ color: 'destructive' }}
-          label={title}
-        />
+        <Text variant="bodyBold" sx={{ color: 'destructive' }} label={title} />
         {body !== undefined && body !== null ? (
-          <Text
-            variant="caption"
-            sx={{ color: 'destructive' }}
-            label={body}
-          />
+          <Text variant="caption" sx={{ color: 'destructive' }} label={body} />
         ) : null}
         {retry !== undefined ? (
           <Box sx={{ mt: 1, alignItems: 'flex-start' }}>

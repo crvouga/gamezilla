@@ -25,11 +25,7 @@ export default function AppLogoExample() {
 
       <Divider />
 
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary' }}
-        label="Mark only"
-      />
+      <Text variant="label" sx={{ color: 'textSecondary' }} label="Mark only" />
       <SchemePreview>
         <Stack direction="horizontal" spacing={4} align="center">
           <AppLogo size={20} wordmark={false} />

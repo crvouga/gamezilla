@@ -29,10 +29,7 @@ export default function PageHeaderExample() {
       <SchemePreview>
         <Stack spacing={4}>
           <PageHeader title="Spaces" subtitle="Rooms to play with friends" />
-          <PageHeader
-            title="Settings"
-            subtitle="App preferences and tools"
-          />
+          <PageHeader title="Settings" subtitle="App preferences and tools" />
         </Stack>
       </SchemePreview>
 

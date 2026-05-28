@@ -55,7 +55,12 @@ export function SuccessState({
 }: SuccessStateProps): ReactNode {
   if (variant === 'compact') {
     return (
-      <SuccessStateCompact icon={icon} title={title} body={body} action={action} />
+      <SuccessStateCompact
+        icon={icon}
+        title={title}
+        body={body}
+        action={action}
+      />
     );
   }
   return (

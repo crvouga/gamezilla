@@ -94,7 +94,11 @@ export async function verifyWebhookWithSignedProbe(args: {
       return;
     }
     lastDetail = result.detail;
-    if (result.kind === 'error' || attempt === 1 || attempt === PROBE_MAX_ATTEMPTS) {
+    if (
+      result.kind === 'error' ||
+      attempt === 1 ||
+      attempt === PROBE_MAX_ATTEMPTS
+    ) {
       console.log(
         `[${STRIPE_CLI_LOG_TAG}] webhook probe attempt ${String(attempt)}/${String(PROBE_MAX_ATTEMPTS)}: ${lastDetail}`
       );

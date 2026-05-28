@@ -182,7 +182,10 @@ describe('CachingSecretStore', () => {
       },
       async setSecret() {},
     };
-    const cache = new CachingSecretStore(inner, { ttlMs: 60_000, now: () => t });
+    const cache = new CachingSecretStore(inner, {
+      ttlMs: 60_000,
+      now: () => t,
+    });
 
     expect((await cache.getRequired('A')).readSecretValue()).toBe('old-v');
     expect((await cache.getRequired('A')).readSecretValue()).toBe('old-v');

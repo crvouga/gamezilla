@@ -180,7 +180,9 @@ function QueryFormCard({
 
 function ErrorCard({ message }: { message: string }) {
   const { t } = useLingui();
-  return <ErrorState variant="compact" title={t`Query failed`} body={message} />;
+  return (
+    <ErrorState variant="compact" title={t`Query failed`} body={message} />
+  );
 }
 
 function ResultCard({ json }: { json: string }) {
