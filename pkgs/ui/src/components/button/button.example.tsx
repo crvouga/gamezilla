@@ -133,7 +133,11 @@ export default function ButtonExample() {
       <VariantBlock intent="primary" variant="ghost" label="Primary · ghost" />
       <Divider />
       <VariantBlock intent="danger" label="Danger" />
-      <VariantBlock intent="danger" variant="outline" label="Danger · outline" />
+      <VariantBlock
+        intent="danger"
+        variant="outline"
+        label="Danger · outline"
+      />
       <Divider />
       <VariantBlock intent="neutral" label="Neutral" />
       <VariantBlock intent="neutral" variant="ghost" label="Neutral · ghost" />

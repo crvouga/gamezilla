@@ -273,7 +273,8 @@ function ButtonContent({
   startIcon: ReactNode;
   endIcon: ReactNode;
 }) {
-  if (loading) return <Spinner color={foregroundColor} size={size.text.lineHeight} />;
+  if (loading)
+    return <Spinner color={foregroundColor} size={size.text.lineHeight} />;
   const iconBoxStyle = {
     alignItems: 'center',
     justifyContent: 'center',
