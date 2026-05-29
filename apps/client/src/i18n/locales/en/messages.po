@@ -6234,8 +6234,8 @@ msgid "Sign in to link this device to a server account and see all devices for t
 msgstr "Sign in to link this device to a server account and see all devices for that account."
 
 #: libs/auth/src/client/sign-in-modal-body.tsx
-msgid "Sign in to link this device to your server user. Your data stays local first."
-msgstr "Sign in to link this device to your server user. Your data stays local first."
+#~ msgid "Sign in to link this device to your server user. Your data stays local first."
+#~ msgstr "Sign in to link this device to your server user. Your data stays local first."
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Sign in with Google"
