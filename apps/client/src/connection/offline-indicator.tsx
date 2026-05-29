@@ -1,4 +1,4 @@
-import { Box, Text } from '@pkgs/ui';
+import { borderRadius, Box, Text } from '@pkgs/ui';
 import { SYNC_ERROR_TOPIC } from '@pkgs/patch-db/impl-sync';
 import { usePubSub } from '@pkgs/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
@@ -63,12 +63,12 @@ export function OfflineIndicator(): ReactNode {
         sx={{
           px: 3,
           py: 1,
-          borderRadius: 9999,
+          borderRadius: borderRadius.full,
           background: 'destructive',
           opacity: 0.95,
         }}
       >
-        <Text variant="caption" label={label} style={{ color: '#ffffff' }} />
+        <Text variant="caption" sx={{ color: 'onDestructive' }} label={label} />
       </Box>
     </Pressable>
   );

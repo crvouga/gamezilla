@@ -12,9 +12,6 @@ export type SpaceMiniplayerCardProps = {
   spaceId: string;
 };
 
-/* eslint-disable-next-line lingui/no-unlocalized-strings -- color token */
-const SEPARATOR_COLOR = 'rgba(255,255,255,0.55)';
-
 const SPACE_CARD_RADIUS = 16;
 
 /** A single miniplayer entry — gradient + atoms. No `useQuery` here. */
@@ -66,7 +63,6 @@ export function SpaceMiniplayerCard({
               <MiniplayerHostNameLine spaceId={spaceId} />
               <Text
                 variant="caption"
-                sx={{ color: SEPARATOR_COLOR }}
                 // eslint-disable-next-line workspaceI18n/text-must-be-trans -- typographic separator
                 label="·"
               />

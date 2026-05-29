@@ -17,10 +17,6 @@ export type DeviceAvatarProps = {
   vividBackdrop?: boolean;
 };
 
-/** Frosted plate / glyph for use over vivid (gradient) backgrounds. */
-const VIVID_PLATE = String('rgba(255,255,255,0.22)');
-const VIVID_GLYPH = String('rgba(255,255,255,0.92)');
-
 /**
  * Renders a profile avatar: generic user silhouette when there is no persisted
  * config (e.g. not synced); otherwise the persisted DiceBear avatar. Uses
@@ -37,8 +33,8 @@ export function DeviceAvatar({
       <Avatar
         size={size}
         icon="person.fill"
-        background={vividBackdrop ? VIVID_PLATE : 'outline'}
-        foreground={vividBackdrop ? VIVID_GLYPH : 'tabIconDefault'}
+        background={vividBackdrop ? 'onTintScrim' : 'outline'}
+        foreground={vividBackdrop ? 'onTint' : 'tabIconDefault'}
       />
     );
   }

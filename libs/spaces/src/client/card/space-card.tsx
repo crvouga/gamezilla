@@ -11,11 +11,6 @@ export type SpaceCardProps = {
   spaceId: string;
 };
 
-/* eslint-disable lingui/no-unlocalized-strings -- color tokens, not user-facing copy */
-const TITLE_COLOR = '#FFFFFF';
-const SUBTITLE_COLOR = 'rgba(255,255,255,0.85)';
-/* eslint-enable lingui/no-unlocalized-strings */
-
 const HOST_AVATAR_SIZE = 44;
 const SPACE_CARD_RADIUS = 16;
 
@@ -62,14 +57,9 @@ export function SpaceCard({ spaceId }: SpaceCardProps): ReactNode {
               <SpaceTitleText
                 spaceId={spaceId}
                 variant="bodyBold"
-                sx={{ color: TITLE_COLOR }}
                 numberOfLines={1}
               />
-              <SpaceHostNameText
-                spaceId={spaceId}
-                variant="caption"
-                sx={{ color: SUBTITLE_COLOR }}
-              />
+              <SpaceHostNameText spaceId={spaceId} variant="caption" />
             </Box>
           </Box>
           <SpaceLiveBadge spaceId={spaceId} />

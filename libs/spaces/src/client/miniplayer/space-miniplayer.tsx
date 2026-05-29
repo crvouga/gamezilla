@@ -1,18 +1,15 @@
-import { SpaceMiniplayerCard } from './space-miniplayer-card';
-import { useSpaceMiniplayerVisibleSpaceIds } from './use-space-miniplayer-visible-space-ids';
 import { Box } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SpaceMiniplayerCard } from './space-miniplayer-card';
+import { useSpaceMiniplayerVisibleSpaceIds } from './use-space-miniplayer-visible-space-ids';
 
 function MiniplayerDock({ children }: { children: ReactNode }) {
   const insets = useSafeAreaInsets();
   return (
     <Box
-      style={{
-        paddingTop: 8,
-        paddingHorizontal: 12,
-        paddingBottom: insets.bottom > 0 ? insets.bottom : 12,
-      }}
+      sx={{ pt: 2, px: 1 }}
+      style={{ paddingBottom: insets.bottom > 0 ? insets.bottom : 12 }}
     >
       {children}
     </Box>

@@ -48,6 +48,12 @@ export type ColorTokens = {
   onWarning: string;
   /** High-contrast label/icon on top of `info`. */
   onInfo: string;
+  /**
+   * Translucent dark overlay to place on top of a brand/`tint` gradient
+   * (pills, plates) so that `onTint` (white) content stays AA-legible
+   * regardless of where it falls on the gradient ramp.
+   */
+  onTintScrim: string;
 
   // Interactive overlays for hover/press (composited over any surface)
   interactiveHover: string;
@@ -64,6 +70,12 @@ export type ColorTokens = {
 
   // Semantic + matching subtle surfaces
   destructive: string;
+  /**
+   * Darker destructive shade for solid fills (danger buttons / badges) so a
+   * white `onDestructive` label keeps >= 4.5:1 contrast in both schemes —
+   * the bright `destructive` is tuned for foreground/text legibility instead.
+   */
+  destructiveActive: string;
   destructiveSurface: string;
   success: string;
   successSurface: string;

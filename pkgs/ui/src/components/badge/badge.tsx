@@ -22,7 +22,7 @@
 
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
-import { useTheme, type ColorTokens } from '../../theme';
+import { bestOnColor, useTheme, type ColorTokens } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
 
@@ -46,8 +46,7 @@ export type BadgeProps = {
   /**
    * Optional raw color override (palette token name or any CSS color).
    * When set, supersedes `intent` and renders solid. Foreground is auto-
-   * derived to white since the caller is opting out of the semantic
-   * surface contract.
+   * derived from the fill's luminance for a contrast-safe label.
    */
   color?: string;
   /** Size preset. Defaults to `"md"`. */
@@ -66,7 +65,7 @@ const INTENT_TO_TOKENS: Record<BadgeIntent, IntentTokens> = {
   },
   brand: {
     subtle: { bg: 'tintSubtle', fg: 'tint' },
-    solid: { bg: 'tint', fg: 'onPrimary' },
+    solid: { bg: 'tintActive', fg: 'onPrimary' },
   },
   success: {
     subtle: { bg: 'successSurface', fg: 'success' },
@@ -78,7 +77,7 @@ const INTENT_TO_TOKENS: Record<BadgeIntent, IntentTokens> = {
   },
   destructive: {
     subtle: { bg: 'destructiveSurface', fg: 'destructive' },
-    solid: { bg: 'destructive', fg: 'onDestructive' },
+    solid: { bg: 'destructiveActive', fg: 'onDestructive' },
   },
   info: {
     subtle: { bg: 'infoSurface', fg: 'info' },
@@ -100,7 +99,7 @@ export function Badge({
       ? (theme.colors[color as keyof typeof theme.colors] ?? color)
       : theme.colors[tokens.bg];
   const fg =
-    color !== undefined ? theme.colors.onPrimary : theme.colors[tokens.fg];
+    color !== undefined ? bestOnColor(bg).fg : theme.colors[tokens.fg];
 
   const isSmall = size === 'sm';
   const px = isSmall ? 6 : 8;

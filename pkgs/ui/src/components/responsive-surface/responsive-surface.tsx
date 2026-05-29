@@ -12,7 +12,7 @@ import {
 import type { PropsWithChildren, ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { View } from 'react-native';
-import { useTheme } from '../../theme';
+import { useTheme, OnColorReset } from '../../theme';
 import { ModalBackdrop } from '../modal/modal-backdrop';
 import { ModalContent } from '../modal/modal-content';
 import { ModalRoot } from '../modal/modal-root';
@@ -61,6 +61,29 @@ function SurfaceBody({
     ? { flex: 1, minHeight: bodyHeight, overflow: 'hidden' as const }
     : { height: bodyHeight, overflow: 'hidden' as const };
   return <View style={style}>{children}</View>;
+}
+
+function MobileSheetBody({
+  title,
+  bodyHeight,
+  onClose,
+  children,
+}: {
+  title: ReactNode | undefined;
+  bodyHeight: number | undefined;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <OnColorReset>
+      {title !== undefined ? (
+        <ResponsiveSurfaceHeader title={title} onClose={onClose} />
+      ) : null}
+      <SurfaceBody bodyHeight={bodyHeight} fillParent>
+        {children}
+      </SurfaceBody>
+    </OnColorReset>
+  );
 }
 
 function MobileSheet({
@@ -122,15 +145,13 @@ function MobileSheet({
       <BottomSheetView
         style={{ paddingHorizontal: 16, paddingBottom: 24, flexGrow: 1 }}
       >
-        {title !== undefined ? (
-          <ResponsiveSurfaceHeader
-            title={title}
-            onClose={() => sheetRef.current?.dismiss()}
-          />
-        ) : null}
-        <SurfaceBody bodyHeight={bodyHeight} fillParent>
+        <MobileSheetBody
+          title={title}
+          bodyHeight={bodyHeight}
+          onClose={() => sheetRef.current?.dismiss()}
+        >
           {children}
-        </SurfaceBody>
+        </MobileSheetBody>
       </BottomSheetView>
     </BottomSheetModal>
   );

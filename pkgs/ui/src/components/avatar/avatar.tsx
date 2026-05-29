@@ -21,7 +21,7 @@
 import { Image, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
-import { useTheme } from '../../theme';
+import { bestOnColor, useTheme } from '../../theme';
 import { IconSymbol, type IconSymbolName } from '../symbol-icon';
 import { Text } from '../text';
 
@@ -31,8 +31,8 @@ export type AvatarProps = {
   /** Background color token or raw color. Defaults to `'tint'`. */
   background?: string;
   /**
-   * Foreground (icon / initials) color token or raw color.
-   * Defaults to `'surface'`.
+   * Foreground (icon / initials) color token or raw color. When omitted it is
+   * auto-derived from `background` for a contrast-safe label in both schemes.
    */
   foreground?: string;
   /**
@@ -55,7 +55,7 @@ function isNonEmpty(value: string | null | undefined): value is string {
 export function Avatar({
   size = 40,
   background = 'tint',
-  foreground = 'surface',
+  foreground,
   svg,
   uri,
   initials,
@@ -65,7 +65,9 @@ export function Avatar({
   const bg =
     theme.colors[background as keyof typeof theme.colors] ?? background;
   const fg =
-    theme.colors[foreground as keyof typeof theme.colors] ?? foreground;
+    foreground !== undefined
+      ? (theme.colors[foreground as keyof typeof theme.colors] ?? foreground)
+      : bestOnColor(bg).fg;
 
   const containerStyle = {
     width: size,

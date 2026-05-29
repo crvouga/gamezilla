@@ -1,9 +1,9 @@
 /**
  * `Switch` -- themed toggle switch with optional label.
  *
- * Track color animates between `outline` (off) and `tint` (on); thumb stays
- * on the active scheme's `surfaceElevated` so it reads as a raised pebble
- * on both ramps.
+ * Track color animates between `outline` (off) and `tint` (on); the thumb
+ * stays `onPrimary` (white in both schemes) so it reads as a high-contrast
+ * raised pebble against both the neutral off-track and the saturated on-track.
  *
  * @example
  * ```tsx

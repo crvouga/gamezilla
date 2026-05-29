@@ -28,7 +28,7 @@ export function AccountScreen() {
       ]}
       scroll
       content={({ sx }) => (
-        <Box style={{ ...sx, gap: 12 }}>
+        <Box style={sx} sx={{ gap: 3 }}>
           <AccountDevicesCard
             accountId={accountId}
             onOpenDevice={onOpenDevice}

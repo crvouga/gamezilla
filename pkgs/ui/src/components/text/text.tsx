@@ -15,7 +15,9 @@ import { forwardRef, type ReactNode } from 'react';
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 import {
   textCasingToStyle,
+  useOnColor,
   useTheme,
+  type OnColorSet,
   type SxProps,
   type Theme,
 } from '../../theme';
@@ -102,6 +104,25 @@ function variantFontFamily(
   return { fontFamily: theme.fonts.sans };
 }
 
+/** Variants whose color is a deliberate accent and should ignore on-color. */
+const ACCENT_COLOR_VARIANTS = new Set<TextVariant>(['link']);
+
+/**
+ * Default text color derived from the surrounding on-color context. Outside a
+ * colored surface this resolves to the theme's standard `text` /
+ * `textSecondary`, preserving normal screens; on a colored surface it becomes
+ * the contrast-safe foreground. Returns `undefined` for accent variants
+ * (e.g. `link`) so their variant color wins.
+ */
+function defaultColorForVariant(
+  variant: TextVariant,
+  onColor: OnColorSet
+): string | undefined {
+  if (ACCENT_COLOR_VARIANTS.has(variant)) return undefined;
+  if (variant === 'caption') return onColor.fgMuted;
+  return onColor.fg;
+}
+
 export type TextProps = RNTextProps & {
   /** Typographic variant preset. Defaults to `"body"`. */
   variant?: TextVariant;
@@ -119,17 +140,21 @@ export const Text = forwardRef<RNText, TextProps>(function Text(
   ref
 ) {
   const theme = useTheme();
+  const onColor = useOnColor();
   const base = theme.sx(variantStyles[variant]);
   const variantFont = variantFontFamily(variant, theme);
   const casingStyle = CASING_VARIANTS.has(variant)
     ? textCasingToStyle(theme.textCasing)
     : undefined;
+  const defaultColor = defaultColorForVariant(variant, onColor);
+  const colorStyle =
+    defaultColor !== undefined ? { color: defaultColor } : undefined;
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const content = label ?? children;
   return (
     <RNText
       ref={ref}
-      style={[base, variantFont, casingStyle, sxStyle, style]}
+      style={[base, variantFont, casingStyle, colorStyle, sxStyle, style]}
       {...rest}
     >
       {content}

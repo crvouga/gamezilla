@@ -17,7 +17,7 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import { type ReactNode } from 'react';
 import type { PressableProps as RNPressableProps } from 'react-native';
-import { useTheme } from '../../theme';
+import { OnColorProvider, useTheme } from '../../theme';
 import { Pressable } from '../pressable';
 
 export type IconButtonProps = {
@@ -44,7 +44,8 @@ export function IconButton({
   accessibilityRole = 'button',
 }: IconButtonProps) {
   const theme = useTheme();
-  const bg = background
+  const hasBackground = background !== undefined;
+  const bg = hasBackground
     ? (theme.colors[background as keyof typeof theme.colors] ?? background)
     : 'transparent';
   const radius = size / 2;
@@ -67,7 +68,11 @@ export function IconButton({
         opacity: disabled ? 0.5 : 1,
       }}
     >
-      {children}
+      {hasBackground ? (
+        <OnColorProvider background={bg}>{children}</OnColorProvider>
+      ) : (
+        children
+      )}
     </Pressable>
   );
 }

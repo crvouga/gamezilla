@@ -157,7 +157,7 @@ export function ServerStatusScreen() {
       ]}
       scroll
       content={({ sx }) => (
-        <Box style={{ ...sx, gap: 12 }}>
+        <Box style={sx} sx={{ gap: 3 }}>
           <OverallRow aggregateStatus={aggregateStatus} />
           <DeviceNetworkCard networkState={networkState} health={health} />
           <Card elevation={1} sx={{ p: 4, gap: 2 }}>

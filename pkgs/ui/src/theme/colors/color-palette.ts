@@ -56,6 +56,7 @@ export const PALETTE: ColorPalette = {
     onSuccess: 'hsla(0, 0%, 100%, 1)',
     onWarning: 'hsla(240, 10%, 4%, 1)',
     onInfo: 'hsla(0, 0%, 100%, 1)',
+    onTintScrim: 'hsla(240, 10%, 4%, 0.32)',
 
     interactiveHover: 'hsla(240, 10%, 4%, 0.04)',
     interactivePress: 'hsla(240, 10%, 4%, 0.08)',
@@ -68,13 +69,14 @@ export const PALETTE: ColorPalette = {
     tabIconSelected: 'hsla(221, 83%, 53%, 1)',
 
     destructive: 'hsla(0, 72%, 51%, 1)',
+    destructiveActive: 'hsla(0, 72%, 44%, 1)',
     destructiveSurface: 'hsla(0, 72%, 51%, 0.10)',
-    success: 'hsla(142, 76%, 36%, 1)',
-    successSurface: 'hsla(142, 76%, 36%, 0.10)',
+    success: 'hsla(142, 72%, 29%, 1)',
+    successSurface: 'hsla(142, 72%, 29%, 0.10)',
     warning: 'hsla(32, 95%, 44%, 1)',
     warningSurface: 'hsla(32, 95%, 44%, 0.14)',
-    info: 'hsla(201, 98%, 39%, 1)',
-    infoSurface: 'hsla(201, 98%, 39%, 0.10)',
+    info: 'hsla(201, 98%, 36%, 1)',
+    infoSurface: 'hsla(201, 98%, 36%, 0.10)',
 
     disabled: 'hsla(240, 5%, 90%, 1)',
 
@@ -105,6 +107,7 @@ export const PALETTE: ColorPalette = {
     onSuccess: 'hsla(240, 10%, 4%, 1)',
     onWarning: 'hsla(240, 10%, 4%, 1)',
     onInfo: 'hsla(240, 10%, 4%, 1)',
+    onTintScrim: 'hsla(0, 0%, 0%, 0.40)',
 
     interactiveHover: 'hsla(0, 0%, 98%, 0.06)',
     interactivePress: 'hsla(0, 0%, 98%, 0.12)',
@@ -117,6 +120,7 @@ export const PALETTE: ColorPalette = {
     tabIconSelected: 'hsla(0, 0%, 98%, 1)',
 
     destructive: 'hsla(0, 84%, 60%, 1)',
+    destructiveActive: 'hsla(0, 74%, 50%, 1)',
     destructiveSurface: 'hsla(0, 84%, 60%, 0.16)',
     success: 'hsla(142, 71%, 58%, 1)',
     successSurface: 'hsla(142, 71%, 58%, 0.14)',

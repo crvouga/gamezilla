@@ -1,7 +1,8 @@
-import { Text } from '@pkgs/ui';
+import { useTheme, type Theme } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { ChessPuzzleStatusBadge } from './chess-puzzle-status-badge';
 
 export type ChessPuzzleStatusKind =
   | 'whiteToMove'
@@ -11,6 +12,10 @@ export type ChessPuzzleStatusKind =
   | 'solved';
 
 const SIZE = 22;
+
+// Literal chess piece colors (side to move), not theme UI chrome.
+const PIECE_WHITE = '#ffffff';
+const PIECE_BLACK = '#1a1a1a';
 
 const styles = StyleSheet.create({
   root: {
@@ -23,88 +28,68 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderWidth: 1.5,
-    borderColor: '#ffffff',
+    borderColor: PIECE_WHITE,
   },
   blackSquare: {
     width: 14,
     height: 14,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: PIECE_BLACK,
   },
   centerDot: {
     position: 'absolute',
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#1a1a1a',
-  },
-  badge: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeMark: {
-    color: '#000',
-    fontSize: 12,
-    fontWeight: '700',
-    lineHeight: 14,
+    backgroundColor: PIECE_BLACK,
   },
 });
+
+/** Semantic outcome badge tokens (fill + contrast-safe mark) by kind. */
+function outcomeColors(
+  theme: Theme,
+  kind: 'correct' | 'wrong' | 'solved'
+): { bg: string; fg: string } {
+  const c = theme.colors;
+  if (kind === 'correct') return { bg: c.success, fg: c.onSuccess };
+  if (kind === 'wrong') return { bg: c.destructive, fg: c.onDestructive };
+  return { bg: c.warning, fg: c.onWarning };
+}
+
+function outcomeMark(kind: 'correct' | 'wrong' | 'solved'): ReactNode {
+  if (kind === 'correct') {
+    return <Trans id="chess.puzzleStatus.correctMark">✓</Trans>;
+  }
+  if (kind === 'wrong') {
+    return <Trans id="chess.puzzleStatus.wrongMark">✕</Trans>;
+  }
+  return <Trans id="chess.puzzleStatus.solvedMark">★</Trans>;
+}
 
 export function ChessPuzzleStatusIcon({
   kind,
 }: {
   kind: ChessPuzzleStatusKind;
 }): ReactNode {
-  switch (kind) {
-    case 'whiteToMove':
-      return (
-        <View style={styles.root}>
-          <View style={styles.whiteSquare} />
-          <View style={styles.centerDot} />
-        </View>
-      );
-    case 'blackToMove':
-      return (
-        <View style={styles.root}>
-          <View style={styles.blackSquare} />
-        </View>
-      );
-    case 'correct':
-      return (
-        <View style={styles.root}>
-          <View style={[styles.badge, { backgroundColor: '#22a06b' }]}>
-            <Text
-              style={styles.badgeMark}
-              label={<Trans id="chess.puzzleStatus.correctMark">✓</Trans>}
-            />
-          </View>
-        </View>
-      );
-    case 'wrong':
-      return (
-        <View style={styles.root}>
-          <View style={[styles.badge, { backgroundColor: '#e5484d' }]}>
-            <Text
-              style={styles.badgeMark}
-              label={<Trans id="chess.puzzleStatus.wrongMark">✕</Trans>}
-            />
-          </View>
-        </View>
-      );
-    case 'solved':
-      return (
-        <View style={styles.root}>
-          <View style={[styles.badge, { backgroundColor: '#f5a623' }]}>
-            <Text
-              style={styles.badgeMark}
-              label={<Trans id="chess.puzzleStatus.solvedMark">★</Trans>}
-            />
-          </View>
-        </View>
-      );
-    default:
-      return null;
+  const theme = useTheme();
+  if (kind === 'whiteToMove') {
+    return (
+      <View style={styles.root}>
+        <View style={styles.whiteSquare} />
+        <View style={styles.centerDot} />
+      </View>
+    );
   }
+  if (kind === 'blackToMove') {
+    return (
+      <View style={styles.root}>
+        <View style={styles.blackSquare} />
+      </View>
+    );
+  }
+  const { bg, fg } = outcomeColors(theme, kind);
+  return (
+    <View style={styles.root}>
+      <ChessPuzzleStatusBadge bg={bg} fg={fg} mark={outcomeMark(kind)} />
+    </View>
+  );
 }

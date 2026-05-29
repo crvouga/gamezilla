@@ -30,7 +30,7 @@ export function AccountDeviceDetailScreen() {
       ]}
       scroll
       content={({ sx }) => (
-        <Box style={{ ...sx, gap: 12 }}>
+        <Box style={sx} sx={{ gap: 3 }}>
           {deviceId === null ? (
             <Text variant="body" label={<Trans>Missing device id.</Trans>} />
           ) : (

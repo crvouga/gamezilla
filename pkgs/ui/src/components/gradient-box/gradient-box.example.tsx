@@ -24,15 +24,11 @@ export default function GradientBoxExample() {
       <GradientBox
         sx={{ p: 4, borderRadius: 16, minHeight: 88, justifyContent: 'center' }}
       >
-        <Text
-          variant="bodyBold"
-          sx={{ color: '#FFFFFF' }}
-          label="Primary gradient card"
-        />
+        <Text variant="bodyBold" label="Primary gradient card" />
         <Text
           variant="caption"
-          sx={{ color: 'rgba(255,255,255,0.9)', mt: 1 }}
-          label="Rounded, padded surface"
+          sx={{ mt: 1 }}
+          label="Auto contrast-safe text — no hardcoded color"
         />
       </GradientBox>
 
@@ -42,11 +38,7 @@ export default function GradientBoxExample() {
         end={{ x: 1, y: 1 }}
         sx={{ p: 4, borderRadius: 12 }}
       >
-        <Text
-          variant="bodyBold"
-          sx={{ color: '#FFFFFF' }}
-          label="Custom stops (diagonal)"
-        />
+        <Text variant="bodyBold" label="Custom stops (diagonal)" />
       </GradientBox>
     </Box>
   );

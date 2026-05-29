@@ -28,11 +28,33 @@
 
 import { type ReactNode } from 'react';
 import { Platform, View } from 'react-native';
-import { useTheme, type Theme } from '../../theme';
+import {
+  bestOnColor,
+  contrastRatio,
+  OnColorProvider,
+  parseColor,
+  useTheme,
+  type Theme,
+} from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
 import { Text } from '../text';
+
+/** WCAG AA threshold for normal-weight text. */
+const MIN_CONTRAST = 4.5;
+
+/**
+ * Keep the curated `on*` label color, but if a (possibly overridden) fill
+ * would drop it below AA, swap to the best-contrast foreground for that fill.
+ */
+function ensureContrast(fg: string, bg: string): string {
+  const fgRgb = parseColor(fg);
+  const bgRgb = parseColor(bg);
+  if (!fgRgb || !bgRgb) return fg;
+  if (contrastRatio(fgRgb, bgRgb) >= MIN_CONTRAST) return fg;
+  return bestOnColor(bg).fg;
+}
 
 export type ButtonIntent = 'primary' | 'danger' | 'neutral';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -104,7 +126,9 @@ function resolveIntentTokens(theme: Theme, intent: ButtonIntent): IntentTokens {
   const c = theme.colors;
   if (intent === 'primary') {
     return {
-      solidBg: c.tint,
+      // `tintActive` (darker brand) keeps a white label AA-legible in both
+      // schemes; `tint` stays for the outline/ghost accent on neutral fills.
+      solidBg: c.tintActive,
       solidFg: c.onPrimary,
       accent: c.tint,
       outlineBorder: c.tint,
@@ -112,7 +136,7 @@ function resolveIntentTokens(theme: Theme, intent: ButtonIntent): IntentTokens {
   }
   if (intent === 'danger') {
     return {
-      solidBg: c.destructive,
+      solidBg: c.destructiveActive,
       solidFg: c.onDestructive,
       accent: c.destructive,
       outlineBorder: c.destructive,
@@ -176,7 +200,7 @@ function resolveFaceStyle(
       backgroundColor: tokens.solidBg,
       borderColor: c.outline,
       borderWidth: 1,
-      foregroundColor: tokens.solidFg,
+      foregroundColor: ensureContrast(tokens.solidFg, tokens.solidBg),
       withElevation: theme.colorScheme === 'light',
     };
   }
@@ -184,7 +208,7 @@ function resolveFaceStyle(
     backgroundColor: tokens.solidBg,
     borderColor: 'transparent',
     borderWidth: 0,
-    foregroundColor: tokens.solidFg,
+    foregroundColor: ensureContrast(tokens.solidFg, tokens.solidBg),
     withElevation: theme.colorScheme === 'light',
   };
 }
@@ -246,14 +270,22 @@ export function Button({
           : {}),
       })}
     >
-      <ButtonContent
-        title={title}
-        size={s}
-        foregroundColor={face.foregroundColor}
-        loading={loading}
-        startIcon={startIcon}
-        endIcon={endIcon}
-      />
+      <OnColorProvider
+        value={{
+          fg: face.foregroundColor,
+          fgMuted: face.foregroundColor,
+          icon: face.foregroundColor,
+        }}
+      >
+        <ButtonContent
+          title={title}
+          size={s}
+          foregroundColor={face.foregroundColor}
+          loading={loading}
+          startIcon={startIcon}
+          endIcon={endIcon}
+        />
+      </OnColorProvider>
     </Pressable>
   );
 }

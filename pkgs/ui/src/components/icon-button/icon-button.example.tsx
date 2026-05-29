@@ -14,11 +14,11 @@ export default function IconButtonExample() {
         </IconButton>
 
         <IconButton onPress={() => {}} size={48} background="tint">
-          <Text variant="bodyBold" sx={{ color: 'surface' }} label="+" />
+          <Text variant="bodyBold" label="+" />
         </IconButton>
 
         <IconButton onPress={() => {}} size={32} background="destructive">
-          <Text sx={{ color: 'surface', fontSize: 'xs' }} label="🗑" />
+          <Text sx={{ fontSize: 'xs' }} label="🗑" />
         </IconButton>
 
         <IconButton disabled onPress={() => {}} background="surface">

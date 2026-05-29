@@ -15,8 +15,9 @@ import type { BodyContentProps, ScreenBaseProps } from './screen-base-types';
 import { ScreenBaseHeader } from './screen-base-header';
 
 const MAX_CONTENT_WIDTH = 1120;
-const BODY_PADDING = 16;
-const BODY_GAP = 12;
+/** Spacing-scale steps (1 = 4px): body padding 16px, body gap 12px. */
+const BODY_PADDING_STEP = 4;
+const BODY_GAP_STEP = 3;
 const SCROLL_BOTTOM_PADDING = 24;
 
 /**
@@ -31,8 +32,8 @@ function ConstrainedInner({ children }: { children: ReactNode }) {
     <Box
       sx={{
         flex: 1,
-        padding: BODY_PADDING,
-        gap: BODY_GAP,
+        p: BODY_PADDING_STEP,
+        gap: BODY_GAP_STEP,
         ...(wide
           ? { alignSelf: 'center' as const, maxWidth: MAX_CONTENT_WIDTH }
           : {}),

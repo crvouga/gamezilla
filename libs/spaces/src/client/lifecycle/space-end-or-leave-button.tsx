@@ -10,12 +10,6 @@ export type SpaceEndOrLeaveButtonProps = {
   spaceId: string;
 };
 
-/* eslint-disable lingui/no-unlocalized-strings -- color tokens, not user-facing copy */
-const ACTION_BG = 'rgba(255,255,255,0.22)';
-const ACTION_BG_DESTRUCTIVE = 'rgba(0,0,0,0.28)';
-const ACTION_TEXT = '#FFFFFF';
-/* eslint-enable lingui/no-unlocalized-strings */
-
 /**
  * Single button that ends or leaves a space depending on the current user's
  * role. Owns its confirm modal state and dispatches `endSpace` / `leaveSpace`.
@@ -40,12 +34,12 @@ export function SpaceEndOrLeaveButton({
           py: 2,
           px: 4,
           borderRadius: borderRadius.full,
-          backgroundColor: isHost ? ACTION_BG_DESTRUCTIVE : ACTION_BG,
+          backgroundColor: 'onTintScrim',
         }}
       >
         <Text
           variant="caption"
-          sx={{ color: ACTION_TEXT, fontWeight: '600' }}
+          sx={{ color: 'onTint', fontWeight: '600' }}
           label={isHost ? <Trans>End</Trans> : <Trans>Leave</Trans>}
         />
       </Pressable>

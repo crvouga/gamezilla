@@ -2,7 +2,7 @@ import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
 } from '@libs/spaces/shared/space-entities';
-import { Box, StatusDot, Text } from '@pkgs/ui';
+import { borderRadius, Box, StatusDot, Text } from '@pkgs/ui';
 import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
@@ -10,11 +10,6 @@ import type { ReactNode } from 'react';
 export type SpaceLiveBadgeProps = {
   spaceId: string;
 };
-
-/* eslint-disable lingui/no-unlocalized-strings -- RGBA tokens, not user-facing copy */
-const PILL_BG = 'rgba(255,255,255,0.22)';
-const PILL_TEXT = '#FFFFFF';
-/* eslint-enable lingui/no-unlocalized-strings */
 
 /**
  * "Live" pill that renders only while the space is still live (no `endedAt`).
@@ -35,19 +30,15 @@ export function SpaceLiveBadge({ spaceId }: SpaceLiveBadgeProps): ReactNode {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 1,
-        backgroundColor: PILL_BG,
-        borderRadius: 999,
+        backgroundColor: 'onTintScrim',
+        borderRadius: borderRadius.full,
         px: 2,
         py: 1,
         alignSelf: 'flex-start',
       }}
     >
       <StatusDot status="online" size={8} />
-      <Text
-        variant="caption"
-        sx={{ color: PILL_TEXT }}
-        label={<Trans>Live</Trans>}
-      />
+      <Text variant="caption" sx={{ color: 'onTint' }} label={<Trans>Live</Trans>} />
     </Box>
   );
 }

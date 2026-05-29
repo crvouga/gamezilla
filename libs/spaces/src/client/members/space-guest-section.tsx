@@ -8,11 +8,6 @@ export type SpaceGuestSectionProps = {
   spaceId: string;
 };
 
-/* eslint-disable lingui/no-unlocalized-strings -- RGBA tokens, not user-facing copy */
-const COUNT_COLOR = 'rgba(255,255,255,0.95)';
-const NAMES_COLOR = 'rgba(255,255,255,0.9)';
-/* eslint-enable lingui/no-unlocalized-strings */
-
 const AVATAR_SIZE = 24;
 const AVATAR_GROUP_RING = 'surface' as const;
 const AVATAR_MAX_VISIBLE = 6;
@@ -26,11 +21,7 @@ export function SpaceGuestSection({
 }: SpaceGuestSectionProps): ReactNode {
   return (
     <Box sx={{ mt: 3, gap: 1.5 }}>
-      <SpaceGuestCountText
-        spaceId={spaceId}
-        variant="caption"
-        sx={{ color: COUNT_COLOR }}
-      />
+      <SpaceGuestCountText spaceId={spaceId} variant="caption" />
       <SpaceGuestAvatarGroup
         spaceId={spaceId}
         size={AVATAR_SIZE}
@@ -40,7 +31,6 @@ export function SpaceGuestSection({
       <SpaceGuestNamesLine
         spaceId={spaceId}
         variant="caption"
-        sx={{ color: NAMES_COLOR }}
         numberOfLines={1}
       />
     </Box>
