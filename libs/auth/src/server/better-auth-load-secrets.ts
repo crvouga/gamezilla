@@ -37,7 +37,6 @@ const LOCAL_WEB_CLIENT_TRUSTED = [
   'http://127.0.0.1:19006',
 ] as const;
 
-
 /**
  * Google OAuth `state` cookie is host-only. In local web dev, `localhost` and
  * `127.0.0.1` are different cookie jars; mixing them causes callback

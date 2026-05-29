@@ -38,7 +38,9 @@ const normalize = (
 
 async function submitAccountForm(
   ev: Event,
-  onSubmit: (payload: FormPayload) => Promise<{ ok: boolean; message?: string }>,
+  onSubmit: (
+    payload: FormPayload
+  ) => Promise<{ ok: boolean; message?: string }>,
   setStatus: (s: PanelStatus) => void
 ): Promise<void> {
   ev.preventDefault();
@@ -61,7 +63,9 @@ async function submitAccountForm(
 export const AccountPanel = (props: {
   mode: Mode;
   onCancel: () => void;
-  onSubmit: (payload: FormPayload) => Promise<{ ok: boolean; message?: string }>;
+  onSubmit: (
+    payload: FormPayload
+  ) => Promise<{ ok: boolean; message?: string }>;
 }) => {
   const { mode } = props;
   const [status, setStatus] = useState<PanelStatus>({ kind: 'idle' });

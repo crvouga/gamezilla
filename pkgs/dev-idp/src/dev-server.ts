@@ -22,10 +22,7 @@ import { Hono } from 'hono';
 import { Client } from 'pg';
 
 import { buildClientBundle } from './client-bundle';
-import {
-  DEV_IDP_DEFAULT_PORT,
-  DEV_IDP_PATH_PREFIX,
-} from './config';
+import { DEV_IDP_DEFAULT_PORT, DEV_IDP_PATH_PREFIX } from './config';
 import {
   DevIdpUserStore,
   type DevIdpUserCreateInput,
@@ -77,8 +74,7 @@ const DEFAULT_CONNECT_TIMEOUT_MS = 60_000;
 export async function startDevIdpServer(
   options: DevIdpServerOptions = {}
 ): Promise<DevIdpServerHandle> {
-  const log =
-    options.logger ?? noopLogger();
+  const log = options.logger ?? noopLogger();
   const port = options.port ?? DEV_IDP_DEFAULT_PORT;
   const host = options.host ?? DEFAULT_HOST;
   const dbUrl = options.dbUrl ?? DEFAULT_DB_URL;
@@ -103,9 +99,7 @@ export async function startDevIdpServer(
   const router = createDevIdpRouter({ getKv: () => kv, clientBundle });
   const app = new Hono();
   app.route(DEV_IDP_PATH_PREFIX, router);
-  app.get('/', (c) =>
-    c.redirect(`${DEV_IDP_PATH_PREFIX}/authorize`)
-  );
+  app.get('/', (c) => c.redirect(`${DEV_IDP_PATH_PREFIX}/authorize`));
   app.notFound((c) =>
     c.json({ error: 'not_found', path: new URL(c.req.raw.url).pathname }, 404)
   );

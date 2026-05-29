@@ -1,10 +1,12 @@
 /** @jsxImportSource hono/jsx/dom */
 import { c } from '../styles';
 
-const stop = (handler: () => void) => (ev: MouseEvent): void => {
-  ev.stopPropagation();
-  handler();
-};
+const stop =
+  (handler: () => void) =>
+  (ev: MouseEvent): void => {
+    ev.stopPropagation();
+    handler();
+  };
 
 const ConfirmDeleteButtons = (props: {
   onConfirm: () => void;

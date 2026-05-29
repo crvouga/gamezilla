@@ -14,10 +14,7 @@ import { createAttrNamespace } from '@pkgs/attribute';
 import { asKeyword, type Keyword } from '@pkgs/keyword/keyword';
 import type { Kv, KvRecord } from '@pkgs/kv/interface';
 
-import {
-  DEV_IDP_ACCESS_TOKEN_TTL_SEC,
-  DEV_IDP_CODE_TTL_MS,
-} from './config';
+import { DEV_IDP_ACCESS_TOKEN_TTL_SEC, DEV_IDP_CODE_TTL_MS } from './config';
 import type { DevIdpUserProfile } from './dev-idp-user-store';
 
 export const DEV_IDP_CODES_KEY: Keyword = asKeyword('dev-idp.kv/codes');

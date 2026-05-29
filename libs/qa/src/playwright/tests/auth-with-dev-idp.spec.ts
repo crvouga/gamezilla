@@ -14,7 +14,8 @@ test('user signs in with the local dev IdP', async ({ page }) => {
   // After the callback completes the app shows the signed-in account label
   // wherever the "Sign in" button used to be. Just assert the modal trigger
   // is gone from the chrome — the heaviest signal that auth succeeded.
-  await expect(
-    page.getByRole('button', { name: /^sign in$/i })
-  ).toHaveCount(0, { timeout: 30_000 });
+  await expect(page.getByRole('button', { name: /^sign in$/i })).toHaveCount(
+    0,
+    { timeout: 30_000 }
+  );
 });
