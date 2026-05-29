@@ -65,7 +65,10 @@ describe('luminance + contrast', () => {
   });
 
   test('contrast is symmetric', () => {
-    expect(ratio('#ffffff', '#1d4ed8')).toBeCloseTo(ratio('#1d4ed8', '#ffffff'), 5);
+    expect(ratio('#ffffff', '#1d4ed8')).toBeCloseTo(
+      ratio('#1d4ed8', '#ffffff'),
+      5
+    );
   });
 });
 
@@ -81,8 +84,16 @@ describe('bestOnColor', () => {
   });
 
   test('chosen foreground always clears AA against the fill', () => {
-    for (const fill of ['#000000', '#ffffff', '#1d4ed8', '#f5a623', '#22a06b']) {
-      expect(ratio(bestOnColor(fill).fg, fill)).toBeGreaterThanOrEqual(AA_NORMAL);
+    for (const fill of [
+      '#000000',
+      '#ffffff',
+      '#1d4ed8',
+      '#f5a623',
+      '#22a06b',
+    ]) {
+      expect(ratio(bestOnColor(fill).fg, fill)).toBeGreaterThanOrEqual(
+        AA_NORMAL
+      );
     }
   });
 });

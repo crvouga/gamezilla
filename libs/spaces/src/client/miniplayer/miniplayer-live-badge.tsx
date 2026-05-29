@@ -17,7 +17,11 @@ export function MiniplayerLiveBadge(): ReactNode {
       }}
     >
       <StatusDot status="online" size={6} />
-      <Text variant="caption" sx={{ color: 'onTint' }} label={<Trans>Live</Trans>} />
+      <Text
+        variant="caption"
+        sx={{ color: 'onTint' }}
+        label={<Trans>Live</Trans>}
+      />
     </Box>
   );
 }

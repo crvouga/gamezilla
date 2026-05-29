@@ -38,7 +38,11 @@ export function SpaceLiveBadge({ spaceId }: SpaceLiveBadgeProps): ReactNode {
       }}
     >
       <StatusDot status="online" size={8} />
-      <Text variant="caption" sx={{ color: 'onTint' }} label={<Trans>Live</Trans>} />
+      <Text
+        variant="caption"
+        sx={{ color: 'onTint' }}
+        label={<Trans>Live</Trans>}
+      />
     </Box>
   );
 }
