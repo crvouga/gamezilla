@@ -255,12 +255,12 @@ export class DopplerResource extends ResourceBase {
     }
 
     if (mirrored > 0) {
-      ok('Turbo remote cache secrets', `mirrored ${active} → dev (${mirrored})`);
-    } else if (skipped > 0) {
       ok(
         'Turbo remote cache secrets',
-        `already in sync with dev (${skipped})`
+        `mirrored ${active} → dev (${mirrored})`
       );
+    } else if (skipped > 0) {
+      ok('Turbo remote cache secrets', `already in sync with dev (${skipped})`);
     }
   }
 
