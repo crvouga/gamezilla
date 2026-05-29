@@ -98,8 +98,7 @@ export function Badge({
     color !== undefined
       ? (theme.colors[color as keyof typeof theme.colors] ?? color)
       : theme.colors[tokens.bg];
-  const fg =
-    color !== undefined ? bestOnColor(bg).fg : theme.colors[tokens.fg];
+  const fg = color !== undefined ? bestOnColor(bg).fg : theme.colors[tokens.fg];
 
   const isSmall = size === 'sm';
   const px = isSmall ? 6 : 8;

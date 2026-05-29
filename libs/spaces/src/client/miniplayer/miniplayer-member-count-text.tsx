@@ -14,10 +14,6 @@ export function MiniplayerMemberCountText({
   const { t } = useLingui();
   const count = useSpaceMemberCount(spaceId);
   return (
-    <Text
-      variant="caption"
-      numberOfLines={1}
-      label={t`${count} people here`}
-    />
+    <Text variant="caption" numberOfLines={1} label={t`${count} people here`} />
   );
 }

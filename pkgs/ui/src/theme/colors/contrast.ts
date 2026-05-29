@@ -63,9 +63,7 @@ function parseHex(input: string): Rgb | null {
 }
 
 function parseRgb(input: string): Rgb | null {
-  const m = input.match(
-    /rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i
-  );
+  const m = input.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
   if (!m) return null;
   return {
     r: clamp255(Number(m[1])),
@@ -100,9 +98,7 @@ function hslToRgb(h: number, s: number, l: number): Rgb {
 }
 
 function parseHsl(input: string): Rgb | null {
-  const m = input.match(
-    /hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%/i
-  );
+  const m = input.match(/hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%/i);
   if (!m) return null;
   return hslToRgb(Number(m[1]), Number(m[2]) / 100, Number(m[3]) / 100);
 }
