@@ -17,7 +17,7 @@ const JOIN_MAX_WIDTH = 480;
 /**
  * Pure layout for the not-yet-joined state of the space detail screen. Uses
  * the shared {@link ScreenBase} chrome (breadcrumb-driven back on mobile,
- * clickable breadcrumbs on desktop) plus the standard overflow-only debug
+ * centered title from the trail) plus the standard overflow-only debug
  * action; the bespoke inline back button on the join card was removed in
  * favor of chrome-managed navigation.
  */

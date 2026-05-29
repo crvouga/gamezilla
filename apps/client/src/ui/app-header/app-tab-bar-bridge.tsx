@@ -13,7 +13,7 @@ import {
   BottomTabBar,
   type BottomTabBarProps,
 } from '@react-navigation/bottom-tabs';
-import { useBreakpoint } from '@pkgs/ui';
+import { TOP_BAR_CONTENT_HEIGHT, useBreakpoint } from '@pkgs/ui';
 import { useLayoutEffect, type ReactNode } from 'react';
 
 import { publishTabBarProps } from './app-tab-bar-context';
@@ -26,5 +26,17 @@ export function AppTabBarBridge(props: BottomTabBarProps): ReactNode {
   }, [props]);
 
   if (!isMobile) return null;
-  return <BottomTabBar {...props} />;
+  // React Navigation's default UIKit bar is 49pt tall, but the stacked
+  // icon (28pt wrapper) + `fontSize: 13` label + 5pt vertical padding need
+  // 56pt, so the default clips the label. Pin the content row to the same
+  // `TOP_BAR_CONTENT_HEIGHT` the desktop header re-host uses (see
+  // `AppHeaderTabs`), adding the bottom safe-area inset so the home
+  // indicator still gets its gap. `BottomTabBar` reads `style.height` only
+  // to size itself and applies `paddingBottom: insets.bottom` on top.
+  return (
+    <BottomTabBar
+      {...props}
+      style={{ height: TOP_BAR_CONTENT_HEIGHT + props.insets.bottom }}
+    />
+  );
 }

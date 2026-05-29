@@ -1,6 +1,9 @@
 import type { SecretStore } from '@pkgs/secret-store';
 
+import { isLocalApiOrigin } from '../shared/local-api-origin';
 import { BetterAuthDopplerKey } from './better-auth-doppler-keys';
+
+export { isLocalApiOrigin };
 
 /** Expo / deep-link schemes — not sensitive; always allowed unless overridden by Doppler list. */
 const DEFAULT_MOBILE_TRUSTED = [
@@ -34,9 +37,6 @@ const LOCAL_WEB_CLIENT_TRUSTED = [
   'http://127.0.0.1:19006',
 ] as const;
 
-function isLocalApiOrigin(apiOrigin: string): boolean {
-  return /127\.0\.0\.1|localhost/i.test(apiOrigin);
-}
 
 /**
  * Google OAuth `state` cookie is host-only. In local web dev, `localhost` and

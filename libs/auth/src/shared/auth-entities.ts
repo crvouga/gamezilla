@@ -103,3 +103,10 @@ export const AccountSessionAttr = {
 } as const;
 
 export const GOOGLE_PROVIDER = 'google' as const;
+
+/**
+ * Provider id for the local fake OAuth2 / OIDC identity provider shipped by
+ * `@pkgs/dev-idp`. Mirrors {@link GOOGLE_PROVIDER}: anywhere we branch on
+ * `provider`, this constant is the single source of truth.
+ */
+export const DEV_PROVIDER = 'dev' as const;

@@ -1,0 +1,34 @@
+{
+  "name": "@pkgs/dev-idp",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "dev": "bun run src/dev.ts",
+    "kill": "lsof -ti :5556 | xargs kill -9 2>/dev/null || true",
+    "lint": "eslint src --max-warnings 0",
+    "tc": "tsc --noEmit -p ./tsconfig.json",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/attribute": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "hono": "catalog:",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "typescript": "catalog:"
+  }
+}

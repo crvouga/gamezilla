@@ -1,7 +1,8 @@
-import { GOOGLE_PROVIDER } from '../shared';
+import { DEV_PROVIDER, GOOGLE_PROVIDER } from '../shared';
 
 const PROVIDER_LABELS: Record<string, string> = {
   [GOOGLE_PROVIDER]: 'Google',
+  [DEV_PROVIDER]: 'Test Account',
 };
 
 /** Returns the localized display label for a provider key. */

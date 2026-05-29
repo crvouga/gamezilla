@@ -6,7 +6,7 @@
  * the reference branding guideline link.
  */
 
-import { Path, Svg } from 'react-native-svg';
+import { Circle, Path, Svg } from 'react-native-svg';
 
 export type BrandIconSvgProps = {
   size: number;
@@ -38,6 +38,26 @@ export function GoogleBrandLogo({ size }: BrandIconSvgProps) {
       <Path
         fill="#1976D2"
         d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
+      />
+    </Svg>
+  );
+}
+
+/**
+ * Local "Dev IdP" brand mark — a minimal user silhouette in indigo.
+ * Directly evokes "test user account" without ever being mistaken for a
+ * real production provider's logo.
+ *
+ * This logo is owned by the in-repo `@pkgs/dev-idp` package; we get to set
+ * its branding guidelines. Treat the palette as fixed (don't retint).
+ */
+export function DevIdpBrandLogo({ size }: BrandIconSvgProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48">
+      <Circle cx="24" cy="18" r="8" fill="#6366F1" />
+      <Path
+        fill="#6366F1"
+        d="M8 44 C 8 33 15 28 24 28 C 33 28 40 33 40 44 Z"
       />
     </Svg>
   );

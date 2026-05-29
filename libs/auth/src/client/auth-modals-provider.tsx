@@ -11,8 +11,10 @@ import { useSignOut } from './use-sign-out';
 import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
 import { SignInModal } from './sign-in-modal';
 import { useSignIn } from './use-sign-in';
+import { useSignInWithDev } from './use-sign-in-with-dev';
 import { HOSTED_SIGN_IN_UNAVAILABLE_REASON } from './auth-errors';
 import { useConfigService } from './config-service-context';
+import { isLocalApiOrigin } from '../shared/local-api-origin';
 
 export type AuthModals = {
   signInModalOpen: boolean;
@@ -40,6 +42,7 @@ export function AuthModalsProvider({
   const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
   const apiUrl = useConfigService().getApiUrl();
   const signIn = useSignIn();
+  const signInWithDev = useSignInWithDev();
   const signOut = useSignOut();
 
   const openSignInModal = useCallback(() => setSignInModalOpen(true), []);
@@ -79,6 +82,7 @@ export function AuthModalsProvider({
   const signInUnavailableReason = signInAvailable
     ? null
     : HOSTED_SIGN_IN_UNAVAILABLE_REASON;
+  const devSignInAvailable = signInAvailable && isLocalApiOrigin(apiUrl);
 
   return (
     <Ctx.Provider value={value}>
@@ -87,7 +91,9 @@ export function AuthModalsProvider({
         onClose={closeSignInModal}
         signInAvailable={signInAvailable}
         signInUnavailableReason={signInUnavailableReason}
+        devSignInAvailable={devSignInAvailable}
         onSignInWithHosted={signIn}
+        onSignInWithDev={signInWithDev}
       />
       {signOutModal}
       {children}

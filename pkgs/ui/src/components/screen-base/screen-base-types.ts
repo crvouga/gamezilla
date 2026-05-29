@@ -31,15 +31,20 @@ export type BodyContentProps = {
 };
 
 export type ScreenBaseProps = {
+  /**
+   * Navigation trail for the header: the last item supplies the centered
+   * title; earlier items with `onPress` drive the mobile back button. Not
+   * rendered as a visible breadcrumb row.
+   */
   breadcrumbs: ScreenBaseBreadcrumb[];
   actions?: ScreenBaseAction[];
   content: (p: BodyContentProps) => ReactNode;
   scroll?: boolean;
   keyboardAvoiding?: boolean;
   /**
-   * Desktop-only: rendered in the center of the header in place of the
-   * breadcrumb title (e.g. a tab strip for top-level screens). On mobile
-   * the breadcrumb title is used as usual.
+   * Desktop-only: rendered in the center of the header in place of the page
+   * title (e.g. a tab strip for top-level screens). On mobile the title from
+   * `breadcrumbs` is used as usual.
    */
   centerTabs?: ReactNode;
   /**

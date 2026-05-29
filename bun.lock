@@ -157,16 +157,6 @@
         "workbox-build": "catalog:",
       },
     },
-    "apps/turbo-cache": {
-      "name": "@apps/turbo-cache",
-      "version": "1.0.0",
-      "dependencies": {
-        "@pkgs/turbo-cache": "workspace:*",
-      },
-      "devDependencies": {
-        "typescript": "catalog:",
-      },
-    },
     "libs/auth": {
       "name": "@libs/auth",
       "version": "0.0.0",
@@ -178,6 +168,7 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
         "@pkgs/attribute": "workspace:*",
+        "@pkgs/dev-idp": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/patch-db": "workspace:*",
@@ -472,6 +463,25 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/dev-idp": {
+      "name": "@pkgs/dev-idp",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/attribute": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "hono": "catalog:",
+        "pg": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1094,8 +1104,6 @@
     "@apps/api": ["@apps/api@workspace:apps/api"],
 
     "@apps/client": ["@apps/client@workspace:apps/client"],
-
-    "@apps/turbo-cache": ["@apps/turbo-cache@workspace:apps/turbo-cache"],
 
     "@babel/code-frame": ["@babel/code-frame@7.29.0", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw=="],
 
@@ -1836,6 +1844,8 @@
     "@pkgs/browser": ["@pkgs/browser@workspace:pkgs/browser"],
 
     "@pkgs/chess-board": ["@pkgs/chess-board@workspace:pkgs/chess-board"],
+
+    "@pkgs/dev-idp": ["@pkgs/dev-idp@workspace:pkgs/dev-idp"],
 
     "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
 

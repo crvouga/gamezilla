@@ -18,9 +18,9 @@
  * ```
  */
 
+import { useLingui } from '@lingui/react/macro';
 import type { LocalizedString } from '@pkgs/i18n';
 import { asLocalized } from '@pkgs/i18n';
-import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import {
   Platform,

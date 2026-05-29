@@ -1248,6 +1248,10 @@ msgstr "Connection and server status. {statusWord}. {latency}."
 msgid "Continue with Google"
 msgstr "Continue with Google"
 
+#: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
+msgid "Continue with test account"
+msgstr "Continue with test account"
+
 #: pkgs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
@@ -6237,6 +6241,10 @@ msgstr "Sign in to link this device to your server user. Your data stays local f
 msgid "Sign in with Google"
 msgstr "Sign in with Google"
 
+#: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
+msgid "Sign in with test account"
+msgstr "Sign in with test account"
+
 #: apps/client/src/ui/app-commands/account-command.tsx
 #: apps/client/src/ui/app-header/app-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
@@ -6253,6 +6261,10 @@ msgstr "Sign out?"
 msgid "Sign up with Google"
 msgstr "Sign up with Google"
 
+#: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
+msgid "Sign up with test account"
+msgstr "Sign up with test account"
+
 #: libs/auth/src/client/sign-in-modal-body.tsx
 msgid "Sign-in is not available."
 msgstr "Sign-in is not available."
@@ -6265,6 +6277,7 @@ msgstr "Sign-in providers"
 msgid "Sign-out failed: {detail}"
 msgstr "Sign-out failed: {detail}"
 
+#: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Signing in…"
 msgstr "Signing in…"

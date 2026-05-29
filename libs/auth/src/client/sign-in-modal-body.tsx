@@ -1,32 +1,28 @@
-import { Box, ModalBody, SocialSignInButton, Text } from '@pkgs/ui';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
+import { Box, ModalBody, SocialSignInButton, Text } from '@pkgs/ui';
 
 export function SignInModalBody(props: {
   signInAvailable: boolean;
   signInUnavailableReason: string | null;
   errorMessage: string | undefined;
   loading: boolean;
+  /** When true, show the dev-only "Continue with test account" button. */
+  devSignInAvailable: boolean;
   onPressGoogle: () => void;
+  onPressDev: () => void;
 }) {
   const {
     signInAvailable,
     signInUnavailableReason,
     errorMessage,
     loading,
+    devSignInAvailable,
     onPressGoogle,
+    onPressDev,
   } = props;
   return (
     <ModalBody>
-      <Text
-        variant="body"
-        label={
-          <Trans>
-            Sign in to link this device to your server user. Your data stays
-            local first.
-          </Trans>
-        }
-      />
       <Box sx={{ marginTop: 3, alignSelf: 'stretch', gap: 2 }}>
         <Text
           variant="caption"
@@ -41,6 +37,16 @@ export function SignInModalBody(props: {
           loading={loading && signInAvailable}
           disabled={!signInAvailable}
         />
+        {devSignInAvailable ? (
+          <SocialSignInButton
+            provider="dev"
+            action="signIn"
+            theme={'light' as const}
+            onPress={onPressDev}
+            loading={loading && signInAvailable}
+            disabled={!signInAvailable}
+          />
+        ) : null}
       </Box>
       {!signInAvailable ? (
         <Text

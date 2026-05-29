@@ -13,7 +13,7 @@ import { msg } from '@lingui/core/macro';
 
 import type { BrandIconName } from '../brand-icon';
 
-export type SocialSignInProvider = 'google';
+export type SocialSignInProvider = 'google' | 'dev';
 
 export type SocialSignInButtonTheme = 'light' | 'dark' | 'neutral';
 
@@ -61,6 +61,29 @@ const GOOGLE_SPEC: SocialProviderSpec = {
   loadingLabel: msg`Signing in…`,
 };
 
+/**
+ * In-repo "Dev IdP" branding spec. Mirrors Google's button layout so the
+ * dev account chooser feels like a real social IdP entry point, but uses
+ * an in-house palette (indigo / cyan flask) so it can never be confused
+ * for a production provider. The button only renders in non-production
+ * builds (`isLocalApiOrigin(apiUrl)`).
+ */
+const DEV_SPEC: SocialProviderSpec = {
+  brandIcon: 'dev',
+  themes: {
+    light: { fill: '#FFFFFF', stroke: '#C7D2FE', font: '#1F1F1F' },
+    dark: { fill: '#1E1B4B', stroke: '#6366F1', font: '#E0E7FF' },
+    neutral: { fill: '#EEF2FF', stroke: null, font: '#312E81' },
+  },
+  defaultLabels: {
+    signIn: msg`Sign in with test account`,
+    signUp: msg`Sign up with test account`,
+    continue: msg`Continue with test account`,
+  },
+  loadingLabel: msg`Signing in…`,
+};
+
 export const SOCIAL_PROVIDER_SPECS = {
   google: GOOGLE_SPEC,
+  dev: DEV_SPEC,
 } as const satisfies Record<SocialSignInProvider, SocialProviderSpec>;

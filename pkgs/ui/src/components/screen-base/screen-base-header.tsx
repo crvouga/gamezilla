@@ -1,17 +1,15 @@
 /**
- * App screen header: composes the {@link TopBar} primitive with optional
- * desktop breadcrumbs above it. Every screen gets the same chrome height
- * because `TopBar`'s content height is locked.
+ * App screen header: composes the {@link TopBar} primitive. Every screen
+ * gets the same chrome height because `TopBar`'s content height is locked.
  *
  * Slot mapping:
  *   - `leading`  -> caller-supplied leading content + auto back button (mobile).
- *   - `center`   -> centered tabs (desktop) or page title (otherwise).
+ *   - `center`   -> centered tabs (desktop) or page title (from breadcrumbs).
  *   - `trailing` -> inline action buttons + overflow ellipsis + headerEnd.
  */
 
 import { useLingui } from '@lingui/react/macro';
 import {
-  Fragment,
   useCallback,
   useContext,
   useMemo,
@@ -31,7 +29,6 @@ import {
   type FloatingMenuContent,
 } from '../floating-menu';
 import { IconButton } from '../icon-button';
-import { Pressable } from '../pressable';
 import { IconSymbol } from '../symbol-icon';
 import { Text } from '../text';
 import { TopBar } from '../top-bar';
@@ -40,8 +37,6 @@ import type {
   ScreenBaseAction,
   ScreenBaseHeaderProps,
 } from './screen-base-types';
-
-const BREADCRUMB_BAR_HEIGHT = 28;
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
 
@@ -109,62 +104,6 @@ function buildOverflowMenuContent(
 }
 
 type BreadcrumbItem = ScreenBaseHeaderProps['breadcrumbs'][number];
-
-function BreadcrumbCell({
-  crumb,
-  isLast,
-}: {
-  crumb: BreadcrumbItem;
-  isLast: boolean;
-}) {
-  if (isLast) {
-    return (
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={crumb.name}
-      />
-    );
-  }
-  if (crumb.onPress !== undefined) {
-    return (
-      <Pressable onPress={crumb.onPress} hitSlop={4}>
-        <Text variant="caption" sx={{ color: 'tint' }} label={crumb.name} />
-      </Pressable>
-    );
-  }
-  return (
-    <Text
-      variant="caption"
-      sx={{ color: 'textSecondary' }}
-      label={crumb.name}
-    />
-  );
-}
-
-function BreadcrumbsBar({ breadcrumbs }: { breadcrumbs: BreadcrumbItem[] }) {
-  return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        gap: 1,
-        px: 4,
-        height: BREADCRUMB_BAR_HEIGHT,
-      }}
-    >
-      {breadcrumbs.map((c, i) => (
-        <Fragment key={`breadcrumb-${String(i)}`}>
-          {i > 0 ? (
-            <Text variant="caption" sx={{ color: 'textSecondary' }} label="/" />
-          ) : null}
-          <BreadcrumbCell crumb={c} isLast={i === breadcrumbs.length - 1} />
-        </Fragment>
-      ))}
-    </Box>
-  );
-}
 
 function HeaderTitle({ title }: { title: ReactNode }) {
   return (
@@ -302,7 +241,6 @@ function deriveLayout(
   backCrumb: BreadcrumbItem | undefined;
   showBack: boolean;
   renderedCenterTabs: ReactNode | undefined;
-  renderBreadcrumbs: boolean;
 } {
   const current = breadcrumbs[breadcrumbs.length - 1];
   const backCrumb = deriveBackCrumb(breadcrumbs);
@@ -313,8 +251,6 @@ function deriveLayout(
     showBack:
       isMobile && backCrumb !== undefined && backCrumb.onPress !== undefined,
     renderedCenterTabs,
-    renderBreadcrumbs:
-      !isMobile && renderedCenterTabs === undefined && breadcrumbs.length > 0,
   };
 }
 
@@ -350,8 +286,11 @@ export function ScreenBaseHeader({
     isMobile
   );
   const menu = useOverflowMenu(overflow);
-  const { title, backCrumb, showBack, renderedCenterTabs, renderBreadcrumbs } =
-    deriveLayout(breadcrumbs, centerTabs, isMobile);
+  const { title, backCrumb, showBack, renderedCenterTabs } = deriveLayout(
+    breadcrumbs,
+    centerTabs,
+    isMobile
+  );
 
   const onBack = () => {
     backCrumb?.onPress?.();
@@ -376,7 +315,6 @@ export function ScreenBaseHeader({
 
   return (
     <Box sx={{ background: 'surface', paddingTop: insets.top }}>
-      {renderBreadcrumbs ? <BreadcrumbsBar breadcrumbs={breadcrumbs} /> : null}
       <TopBar
         safeAreaTop={false}
         centerAlign="center"

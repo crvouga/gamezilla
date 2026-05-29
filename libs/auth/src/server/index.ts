@@ -11,3 +11,4 @@ export {
   buildAppAuthContextFromBearer,
 } from './bearer-resolve';
 export type { HostedBetterAuth } from './better-auth-create';
+export { isLocalApiOrigin } from './better-auth-load-secrets';

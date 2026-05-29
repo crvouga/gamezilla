@@ -1,7 +1,11 @@
 import { expo } from '@better-auth/expo';
 import type { SecretStore } from '@pkgs/secret-store';
-import type { BetterAuthOptions } from 'better-auth';
+import type { BetterAuthOptions, BetterAuthPlugin } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
+import { genericOAuth } from 'better-auth/plugins/generic-oauth';
+
+import { isLocalApiOrigin } from './better-auth-load-secrets';
+import { devIdpProviderConfig } from './dev-idp-provider';
 
 /** Better Auth options (minus `database`) for `getMigrations` / scripts. */
 export async function loadBetterAuthOptionsForMigration(
@@ -23,6 +27,10 @@ export async function loadBetterAuthOptionsForMigration(
   )
     .readSecretValue()
     .trim();
+  const plugins: BetterAuthPlugin[] = [bearer(), expo()];
+  if (isLocalApiOrigin(apiOrigin)) {
+    plugins.push(genericOAuth({ config: [devIdpProviderConfig()] }));
+  }
   return {
     secret,
     baseURL,
@@ -34,6 +42,6 @@ export async function loadBetterAuthOptionsForMigration(
         clientSecret: googleClientSecret,
       },
     },
-    plugins: [bearer(), expo()],
+    plugins,
   };
 }

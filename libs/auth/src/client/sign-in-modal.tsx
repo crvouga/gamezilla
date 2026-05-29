@@ -14,7 +14,10 @@ export type SignInModalProps = {
   onClose: () => void;
   signInAvailable: boolean;
   signInUnavailableReason: string | null;
+  /** When true, show the dev-only "Continue with test account" button. */
+  devSignInAvailable: boolean;
   onSignInWithHosted: () => Promise<void>;
+  onSignInWithDev: () => Promise<void>;
 };
 
 export function SignInModal({
@@ -22,11 +25,13 @@ export function SignInModal({
   onClose,
   signInAvailable,
   signInUnavailableReason,
+  devSignInAvailable,
   onSignInWithHosted,
+  onSignInWithDev,
 }: SignInModalProps) {
   const signIn = useAsync({
-    operation: async () => {
-      await onSignInWithHosted();
+    operation: async (_ctx, runner: () => Promise<void>) => {
+      await runner();
       onClose();
     },
   });
@@ -40,14 +45,17 @@ export function SignInModal({
     cancelAll('Sign-in modal closed');
   }, [cancelAll, reset, visible]);
 
-  const handleHostedSignIn = useCallback(async () => {
-    if (!signInAvailable || loading) return;
-    try {
-      await run();
-    } catch {
-      // Hook state already captures and exposes the error.
-    }
-  }, [signInAvailable, loading, run]);
+  const trigger = useCallback(
+    async (runner: () => Promise<void>) => {
+      if (!signInAvailable || loading) return;
+      try {
+        await run(runner);
+      } catch {
+        // Hook state already captures and exposes the error.
+      }
+    },
+    [signInAvailable, loading, run]
+  );
 
   const errorMessage =
     error === null || error === undefined ? undefined : error.message;
@@ -59,8 +67,12 @@ export function SignInModal({
         signInUnavailableReason={signInUnavailableReason}
         errorMessage={errorMessage}
         loading={loading}
+        devSignInAvailable={devSignInAvailable}
         onPressGoogle={() => {
-          void handleHostedSignIn();
+          void trigger(onSignInWithHosted);
+        }}
+        onPressDev={() => {
+          void trigger(onSignInWithDev);
         }}
       />
       <ModalFooter>

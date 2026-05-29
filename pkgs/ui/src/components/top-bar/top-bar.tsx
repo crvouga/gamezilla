@@ -1,10 +1,14 @@
 /**
  * `TopBar` -- app-agnostic horizontal navigation bar with slot layout.
  *
- * Composes three slots: `leading`, `center`, and `trailing`. The center slot
- * is flex-stretched between the two edges; consumers control internal
- * alignment with `centerAlign`. Background, border, and safe-area inset come
- * from the active theme so the bar matches surrounding chrome out of the box.
+ * Composes three slots: `leading`, `center`, and `trailing`. When
+ * `centerAlign` is `'center'` and a center slot is present, the center is
+ * absolutely positioned across the full bar width (iOS navigation-bar style)
+ * so asymmetric leading/trailing chrome (e.g. a logo on one side only) does
+ * not shove the title off-center. Otherwise the center slot is flex-stretched
+ * between the edges and aligned with `centerAlign`. Background, border, and
+ * safe-area inset come from the active theme so the bar matches surrounding
+ * chrome out of the box.
  *
  * The inner row height is locked to {@link TOP_BAR_CONTENT_HEIGHT} -- 56pt,
  * matching the iOS large-tap-target convention and the modal action button
@@ -70,6 +74,111 @@ const ALIGN_MAP: Record<
   end: 'flex-end',
 };
 
+const SIDE_SLOT_SX = {
+  flex: 1,
+  flexDirection: 'row' as const,
+  alignItems: 'center' as const,
+  gap: 2,
+  minWidth: 0,
+  zIndex: 1,
+};
+
+type TopBarSlotsProps = Pick<
+  TopBarProps,
+  'leading' | 'center' | 'trailing' | 'centerAlign'
+>;
+
+function TopBarFlexLayout({
+  leading,
+  center,
+  trailing,
+  centerAlign,
+}: TopBarSlotsProps): ReactNode {
+  return (
+    <>
+      {leading !== undefined ? (
+        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+          {leading}
+        </Box>
+      ) : null}
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: ALIGN_MAP[centerAlign ?? 'start'],
+        }}
+      >
+        {center}
+      </Box>
+      {trailing !== undefined ? (
+        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+          {trailing}
+        </Box>
+      ) : null}
+    </>
+  );
+}
+
+function TopBarAbsoluteCenterLayout({
+  leading,
+  center,
+  trailing,
+}: TopBarSlotsProps): ReactNode {
+  return (
+    <Box
+      sx={{
+        position: 'relative',
+        flex: 1,
+        minWidth: 0,
+        alignSelf: 'stretch',
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
+    >
+      <Box sx={{ ...SIDE_SLOT_SX, justifyContent: 'flex-start' }}>
+        {leading}
+      </Box>
+      <Box sx={{ ...SIDE_SLOT_SX, justifyContent: 'flex-end' }}>
+        {trailing}
+      </Box>
+      <Box
+        sx={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          pointerEvents: 'box-none',
+          zIndex: 0,
+        }}
+      >
+        <Box
+          sx={{ pointerEvents: 'auto', minWidth: 0 }}
+          style={{ maxWidth: '75%' }}
+        >
+          {center}
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+function TopBarContentRow(props: TopBarSlotsProps): ReactNode {
+  const useAbsoluteCenter =
+    props.centerAlign === 'center' &&
+    props.center !== undefined &&
+    props.center !== null;
+  if (useAbsoluteCenter) {
+    return <TopBarAbsoluteCenterLayout {...props} />;
+  }
+  return <TopBarFlexLayout {...props} />;
+}
+
 export function TopBar({
   leading,
   center,
@@ -97,39 +206,12 @@ export function TopBar({
           height: TOP_BAR_CONTENT_HEIGHT,
         }}
       >
-        {leading !== undefined ? (
-          <Box
-            sx={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 2,
-            }}
-          >
-            {leading}
-          </Box>
-        ) : null}
-        <Box
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: ALIGN_MAP[centerAlign],
-          }}
-        >
-          {center}
-        </Box>
-        {trailing !== undefined ? (
-          <Box
-            sx={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 2,
-            }}
-          >
-            {trailing}
-          </Box>
-        ) : null}
+        <TopBarContentRow
+          leading={leading}
+          center={center}
+          trailing={trailing}
+          centerAlign={centerAlign}
+        />
       </Box>
     </Box>
   );

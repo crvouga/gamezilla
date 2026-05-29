@@ -16,21 +16,29 @@ export default function SocialSignInButtonExample() {
   return (
     <Box sx={{ p: 4, gap: 4 }}>
       <Text variant="heading" label="SocialSignInButton" />
+      <GoogleExamples onPress={handlePress} loading={loading} />
+      <DevExamples onPress={handlePress} />
+    </Box>
+  );
+}
 
+function GoogleExamples({
+  onPress,
+  loading,
+}: {
+  onPress: () => void;
+  loading: boolean;
+}) {
+  return (
+    <>
       <Stack spacing={3}>
         <Text variant="label" label="Google · Light · Rectangular (default)" />
-        <SocialSignInButton provider="google" onPress={handlePress} />
+        <SocialSignInButton provider="google" onPress={onPress} />
       </Stack>
-
       <Stack spacing={3}>
         <Text variant="label" label="Google · Light · Pill" />
-        <SocialSignInButton
-          provider="google"
-          shape="pill"
-          onPress={handlePress}
-        />
+        <SocialSignInButton provider="google" shape="pill" onPress={onPress} />
       </Stack>
-
       <Stack spacing={3}>
         <Text variant="label" label="Google · Dark · Pill · Sign in" />
         <SocialSignInButton
@@ -38,10 +46,9 @@ export default function SocialSignInButtonExample() {
           theme="dark"
           shape="pill"
           action="signIn"
-          onPress={handlePress}
+          onPress={onPress}
         />
       </Stack>
-
       <Stack spacing={3}>
         <Text
           variant="label"
@@ -51,23 +58,46 @@ export default function SocialSignInButtonExample() {
           provider="google"
           theme="neutral"
           action="signUp"
-          onPress={handlePress}
+          onPress={onPress}
         />
       </Stack>
-
       <Stack spacing={3}>
         <Text variant="label" label="Loading state" />
         <SocialSignInButton
           provider="google"
           loading={loading}
-          onPress={handlePress}
+          onPress={onPress}
         />
       </Stack>
-
       <Stack spacing={3}>
         <Text variant="label" label="Disabled" />
-        <SocialSignInButton provider="google" disabled onPress={handlePress} />
+        <SocialSignInButton provider="google" disabled onPress={onPress} />
       </Stack>
-    </Box>
+    </>
+  );
+}
+
+function DevExamples({ onPress }: { onPress: () => void }) {
+  return (
+    <>
+      <Stack spacing={3}>
+        <Text variant="label" label="Dev IdP · Light · Rectangular" />
+        <SocialSignInButton provider="dev" onPress={onPress} />
+      </Stack>
+      <Stack spacing={3}>
+        <Text variant="label" label="Dev IdP · Dark · Pill · Sign in" />
+        <SocialSignInButton
+          provider="dev"
+          theme="dark"
+          shape="pill"
+          action="signIn"
+          onPress={onPress}
+        />
+      </Stack>
+      <Stack spacing={3}>
+        <Text variant="label" label="Dev IdP · Neutral · Rectangular" />
+        <SocialSignInButton provider="dev" theme="neutral" onPress={onPress} />
+      </Stack>
+    </>
   );
 }
