@@ -11,10 +11,7 @@ export function panelStatusState(
   return 'idle';
 }
 
-export function panelStatusText(
-  status: PanelStatus,
-  isEdit: boolean
-): string {
+export function panelStatusText(status: PanelStatus, isEdit: boolean): string {
   if (status.kind === 'submitting') return isEdit ? 'Saving…' : 'Adding…';
   if (status.kind === 'error') return status.message;
   return '';

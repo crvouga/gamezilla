@@ -140,9 +140,7 @@ function TopBarAbsoluteCenterLayout({
       <Box sx={{ ...SIDE_SLOT_SX, justifyContent: 'flex-start' }}>
         {leading}
       </Box>
-      <Box sx={{ ...SIDE_SLOT_SX, justifyContent: 'flex-end' }}>
-        {trailing}
-      </Box>
+      <Box sx={{ ...SIDE_SLOT_SX, justifyContent: 'flex-end' }}>{trailing}</Box>
       <Box
         sx={{
           position: 'absolute',

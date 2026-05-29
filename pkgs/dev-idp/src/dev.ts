@@ -17,9 +17,7 @@
  */
 import { createLogger } from '@pkgs/logger';
 
-import {
-  DEV_IDP_DEFAULT_PORT,
-} from './config';
+import { DEV_IDP_DEFAULT_PORT } from './config';
 import type { DevIdpUserCreateInput } from './dev-idp-user-store';
 import { startDevIdpServer, type DevIdpServerHandle } from './dev-server';
 
@@ -109,7 +107,8 @@ function readPortFromEnv(): number {
 }
 
 function readDbUrlFromEnv(): string | undefined {
-  const raw = process.env['DEV_IDP_DB_URL']?.trim() ?? process.env['DB_URL']?.trim();
+  const raw =
+    process.env['DEV_IDP_DB_URL']?.trim() ?? process.env['DB_URL']?.trim();
   return raw !== undefined && raw !== '' ? raw : undefined;
 }
 

@@ -55,10 +55,7 @@ export function DevIdpBrandLogo({ size }: BrandIconSvgProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 48 48">
       <Circle cx="24" cy="18" r="8" fill="#6366F1" />
-      <Path
-        fill="#6366F1"
-        d="M8 44 C 8 33 15 28 24 28 C 33 28 40 33 40 44 Z"
-      />
+      <Path fill="#6366F1" d="M8 44 C 8 33 15 28 24 28 C 33 28 40 33 40 44 Z" />
     </Svg>
   );
 }

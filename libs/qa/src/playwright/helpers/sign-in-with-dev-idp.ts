@@ -79,9 +79,7 @@ async function waitForListReady(page: Page): Promise<void> {
   await list.waitFor({ state: 'visible', timeout: 30_000 });
   await page.waitForFunction(
     () => {
-      const el = document.querySelector(
-        '[data-testid="dev-idp-account-list"]'
-      );
+      const el = document.querySelector('[data-testid="dev-idp-account-list"]');
       const state = el?.getAttribute('data-state');
       return state === 'loaded' || state === 'empty' || state === 'error';
     },

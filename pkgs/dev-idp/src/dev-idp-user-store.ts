@@ -113,7 +113,8 @@ export class DevIdpUserStore {
   async list(): Promise<DevIdpUserProfile[]> {
     const table = await readTable(this.kv);
     return Object.values(table).sort(
-      (a, b) => a.createdAt.localeCompare(b.createdAt) || a.sub.localeCompare(b.sub)
+      (a, b) =>
+        a.createdAt.localeCompare(b.createdAt) || a.sub.localeCompare(b.sub)
     );
   }
 
@@ -205,8 +206,7 @@ function applyPatch(
 ): DevIdpUserProfile {
   const email = patch.email !== undefined ? patch.email.trim() : current.email;
   const name = patch.name !== undefined ? patch.name.trim() : current.name;
-  const picture =
-    patch.picture === undefined ? current.picture : patch.picture;
+  const picture = patch.picture === undefined ? current.picture : patch.picture;
   return {
     sub: current.sub,
     email,

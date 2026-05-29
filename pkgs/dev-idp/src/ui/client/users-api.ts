@@ -48,14 +48,19 @@ export async function listUsers(apiPath: string): Promise<ListResult> {
 
 export async function createUser(
   apiPath: string,
-  body: { readonly name: string; readonly email: string; readonly picture: string | null }
+  body: {
+    readonly name: string;
+    readonly email: string;
+    readonly picture: string | null;
+  }
 ): Promise<MutateResult> {
   const r = await fetch(apiPath, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
   });
-  if (!r.ok) return { ok: false, status: r.status, message: `HTTP ${String(r.status)}` };
+  if (!r.ok)
+    return { ok: false, status: r.status, message: `HTTP ${String(r.status)}` };
   return { ok: true };
 }
 
@@ -73,7 +78,8 @@ export async function updateUser(
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
   });
-  if (!r.ok) return { ok: false, status: r.status, message: `HTTP ${String(r.status)}` };
+  if (!r.ok)
+    return { ok: false, status: r.status, message: `HTTP ${String(r.status)}` };
   return { ok: true };
 }
 
