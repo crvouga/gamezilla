@@ -2,7 +2,7 @@
   "name": "@libs/infra",
   "private": true,
   "scripts": {
-    "infra": "DOPPLER_PROJECT=gamezilla DOPPLER_CONFIG=prod bun run ./src/bin/cli.ts",
+    "infra": "DOPPLER_PROJECT=gamezilla DOPPLER_CONFIG=prd bun run ./src/bin/cli.ts",
     "lint": "eslint src --max-warnings 0",
     "pipeline-report": "bun run ./src/bin/pipeline-report.ts",
     "tc": "tsc --noEmit -p ./tsconfig.json"

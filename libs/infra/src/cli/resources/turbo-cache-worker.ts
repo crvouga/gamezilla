@@ -16,7 +16,7 @@ import {
 const NOT_FOUND_CODES = [10000, 10007, 10090];
 
 /** Doppler keys belonging to the self-hosted Turbo cache stack. Cleared in
- * both the active config (`prod`) and `local` so a future re-provision
+ * both the active config (`prd`) and `dev` so a future re-provision
  * starts from a clean slate without stale URLs/tokens lingering. */
 const SELF_HOSTED_DOPPLER_KEYS: readonly string[] = ['TURBO_API'];
 
@@ -105,10 +105,10 @@ export class TurboCacheWorkerResource extends ResourceBase {
         info(key, 'not present in active Doppler config');
       }
       try {
-        deleteDopplerSecretIn('local', key);
-        ok(key, 'deleted from Doppler local');
+        deleteDopplerSecretIn('dev', key);
+        ok(key, 'deleted from Doppler dev');
       } catch {
-        info(key, 'not present in Doppler local');
+        info(key, 'not present in Doppler dev');
       }
     }
   }

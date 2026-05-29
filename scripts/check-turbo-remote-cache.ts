@@ -1,8 +1,8 @@
 /**
- * Verifies Vercel Remote Cache configuration loaded from Doppler `local`
+ * Verifies Vercel Remote Cache configuration loaded from Doppler `dev`
  * (CI: `DOPPLER_TOKEN_SHARED` → `doppler run` — not GitHub `TURBO_*` secrets).
  *
- * Expected Doppler `local` keys (see `libs/infra/src/cli/resources/doppler.ts`):
+ * Expected Doppler `dev` keys (see `libs/infra/src/cli/resources/doppler.ts`):
  *
  * - `TURBO_TOKEN`: Vercel access token (https://vercel.com/account/tokens)
  * - `TURBO_TEAM`: Vercel team slug
@@ -44,19 +44,19 @@ function fail(message: string): never {
   console.error(message);
   console.error('');
   console.error(
-    'CI loads TURBO_* from Doppler config `local` via `doppler run`.'
+    'CI loads TURBO_* from Doppler config `dev` via `doppler run`.'
   );
   console.error('The only GitHub secret involved is DOPPLER_TOKEN_SHARED.');
   console.error('');
-  console.error('Doppler `local` must define:');
+  console.error('Doppler `dev` must define:');
   console.error('  • TURBO_TOKEN — Vercel access token (team-scoped)');
   console.error('  • TURBO_TEAM  — Vercel team slug');
   console.error('');
   console.error(
-    'Run `infra deploy` (or mirror manually) so `prod` turbo secrets'
+    'Run `infra deploy` (or mirror manually) so `prd` turbo secrets'
   );
   console.error(
-    'match `local`. Without remote cache, `check:ci` takes ~10+ min.'
+    'match `dev`. Without remote cache, `check:ci` takes ~10+ min.'
   );
   console.error('See AGENTS.md § CI / Turbo Remote Cache.');
   console.error('');
@@ -103,7 +103,7 @@ function assertTurboRemoteCacheReachable(): void {
       REMOTE_UNAVAILABLE;
     fail(
       `${line.trim()}\n` +
-        'Fix TURBO_TOKEN / TURBO_TEAM in Doppler (`local`, mirrored from `prod`).'
+        'Fix TURBO_TOKEN / TURBO_TEAM in Doppler (`dev`, mirrored from `prd`).'
     );
   }
 
@@ -122,7 +122,7 @@ async function main(): Promise<void> {
   if (isSet(process.env.TURBO_API)) {
     fail(
       'TURBO_API is set, but Vercel Remote Cache does not use it. ' +
-        'Delete it from Doppler (`prod` and `local`).'
+        'Delete it from Doppler (`prd` and `dev`).'
     );
   }
 
@@ -132,7 +132,7 @@ async function main(): Promise<void> {
     if (strict) {
       fail(
         'TURBO_TOKEN / TURBO_TEAM not in env after `doppler run`. ' +
-          'Set them in Doppler config `local` (see libs/infra/src/cli/secrets/turbo-token.ts).'
+          'Set them in Doppler config `dev` (see libs/infra/src/cli/secrets/turbo-token.ts).'
       );
     }
     console.log(

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'hono/jsx';
 
 import type { DevIdpClientConfig } from '../page';
 import type { AccountListState } from './account-list';
-import type { AccountPanelMode, FormPayload } from './account-forms';
+import type { AccountPanelMode, FormPayload } from './account-form-types';
 import { submitSignInForm } from './sign-in-form';
 import {
   createUser,

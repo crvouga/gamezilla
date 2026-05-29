@@ -36,11 +36,11 @@
  * long as they run in **session pooling** mode (transaction mode breaks
  * `SET …` statements that need to persist across the seed's batches).
  *
- * Local (Doppler `local`, `DB_URL` → PGlite socket or other Postgres):
- *   DOPPLER_CONFIG=local doppler run -- bun run --filter @libs/chess seed:puzzles
+ * Local (Doppler `dev`, `DB_URL` → PGlite socket or other Postgres):
+ *   DOPPLER_CONFIG=dev doppler run -- bun run --filter @libs/chess seed:puzzles
  *
- * Production (Doppler `prod`, `DB_URL` → Postgres):
- *   DOPPLER_CONFIG=prod doppler run -- bun run --filter @libs/chess seed:puzzles
+ * Production (Doppler `prd`, `DB_URL` → Postgres):
+ *   DOPPLER_CONFIG=prd doppler run -- bun run --filter @libs/chess seed:puzzles
  *
  * Options: `--source`, `--cache-dir`, `--batch-size` (default 1000),
  *   `--limit`, `--no-resume`, `--dry-run`, `--pace-ms` (default 250),

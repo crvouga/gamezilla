@@ -84,7 +84,7 @@ export function deleteDopplerSecretIn(config: string, name: string): void {
 
 /**
  * Read a secret from a *specific* Doppler config (not the active one).
- * Used to mirror values across configs (e.g. prod → local) so secrets
+ * Used to mirror values across configs (e.g. prd → dev) so secrets
  * shared between server and CI/dev don't drift.
  */
 export function fetchDopplerSecretFrom(config: string, name: string): string {

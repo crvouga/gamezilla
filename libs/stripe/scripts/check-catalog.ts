@@ -55,7 +55,7 @@ async function resolveStripeSecretOrSkip(): Promise<string | null> {
       process.exit(1);
     }
     console.log(
-      `[${SCRIPT_TAG}] skip catalog sync — Doppler request failed (set DOPPLER_CONFIG=local and ensure secrets exist):`,
+      `[${SCRIPT_TAG}] skip catalog sync — Doppler request failed (set DOPPLER_CONFIG=dev and ensure secrets exist):`,
       e instanceof Error ? e.message : String(e)
     );
     return null;

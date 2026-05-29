@@ -1,6 +1,6 @@
 /**
  * Local Stripe webhook forwarder: `stripe listen` → API `/stripe/webhook`,
- * then writes the CLI signing secret to Doppler `local` as STRIPE_WEBHOOK_SECRET.
+ * then writes the CLI signing secret to Doppler `dev` as STRIPE_WEBHOOK_SECRET.
  *
  * Run from monorepo root (`bun run dev` / turbo) so Doppler project scope matches.
  */
@@ -9,9 +9,9 @@ import { StripeSecretKeys } from '@libs/stripe/secret-keys';
 import { exitUnlessLocalApiUrl } from './api-url-guard';
 import { STRIPE_CLI_LOG_TAG } from './constants';
 import {
-  exitUnlessLocalDopplerConfig,
+  exitUnlessDevDopplerConfig,
   resolveDopplerConfigName,
-} from './doppler-local';
+} from './doppler-dev';
 import { resolveWorkspaceRoot } from './repo-root';
 import {
   runStripeListenUntilExit,
@@ -28,7 +28,7 @@ async function main(): Promise<void> {
   process.chdir(repoRoot);
 
   const dopplerConfig = resolveDopplerConfigName();
-  exitUnlessLocalDopplerConfig(dopplerConfig);
+  exitUnlessDevDopplerConfig(dopplerConfig);
 
   const secretStore = createDopplerSecretStoreForScripts();
   const [stripeKeyRaw, apiUrlRaw] = await Promise.all([

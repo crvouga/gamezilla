@@ -24,7 +24,7 @@ export type DopplerSecretStoreOptions = {
    */
   project?: string;
   /**
-   * Doppler config name (e.g. `local`, `prod`). Sent as the `config` query param
+   * Doppler config name (e.g. `dev`, `prd`). Sent as the `config` query param
    * when set. Defaults to `process.env.DOPPLER_CONFIG`.
    */
   config?: string;

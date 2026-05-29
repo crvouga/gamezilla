@@ -1,5 +1,5 @@
 /**
- * Doppler keys — same names in `local` and `prod` configs.
+ * Doppler keys — same names in `dev` and `prd` configs.
  *
  * Stripe key names are duplicated here (rather than imported from
  * `@libs/stripe/doppler-keys`) to avoid a turbo build cycle: the stripe

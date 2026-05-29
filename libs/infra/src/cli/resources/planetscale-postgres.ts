@@ -213,7 +213,7 @@ export async function resolveDatabaseUrl(): Promise<string> {
   if (!probe.ok) {
     const hint =
       cached !== null
-        ? ' (env DB_URL also failed — check Doppler `prod` `DB_URL` matches a Postgres wire URL)'
+        ? ' (env DB_URL also failed — check Doppler `prd` `DB_URL` matches a Postgres wire URL)'
         : '';
     throw new Error(
       `DB_URL connectivity check failed (SELECT 1)${hint}: ${probe.error}`

@@ -98,7 +98,7 @@ const STALE_KEYS_TO_DELETE: ReadonlyArray<string> = [
 
 /**
  * Vercel Remote Cache config that must be identical between the active
- * Doppler config and `local` so `bun run check:ci` (which reads `local`)
+ * Doppler config and `dev` so `bun run check:ci` (which reads `dev`)
  * sees the same Vercel team + token that production rotates from. The
  * mirror runs unconditionally after defaults are populated so drift is
  * structurally impossible.
@@ -118,7 +118,7 @@ export class DopplerResource extends ResourceBase {
     this.loadSecrets(platform);
     await this.validateSecrets(platform);
     this.ensureDefaults();
-    this.mirrorSharedToLocal(platform);
+    this.mirrorSharedToDev(platform);
     this.cleanupStaleSecrets();
     this.warnOnOrphans(platform);
   }
@@ -211,17 +211,17 @@ export class DopplerResource extends ResourceBase {
 
   /**
    * Invariant: the Vercel Remote Cache config (`TURBO_TOKEN` + friends)
-   * must be identical in the active config and `local`. Vercel
+   * must be identical in the active config and `dev`. Vercel
    * authenticates the token via `TURBO_TOKEN`; `bun run check:ci` reads
-   * `local`. If they diverge every cache request 401s, silently
+   * `dev`. If they diverge every cache request 401s, silently
    * destroying CI cache hits. Mirror unconditionally so this is
    * structurally impossible.
    */
-  private mirrorSharedToLocal(platform: CiPlatform): void {
+  private mirrorSharedToDev(platform: CiPlatform): void {
     const active = (process.env['DOPPLER_CONFIG'] ?? '').trim();
-    if (active === '' || active === 'local') {
+    if (active === '' || active === 'dev') {
       // Nothing to mirror: either we don't know what config is active,
-      // or we're already operating on `local` (no other source to copy
+      // or we're already operating on `dev` (no other source to copy
       // from).
       return;
     }
@@ -234,7 +234,7 @@ export class DopplerResource extends ResourceBase {
 
       let current: string | null = null;
       try {
-        current = fetchDopplerSecretFrom('local', key);
+        current = fetchDopplerSecretFrom('dev', key);
       } catch {
         current = null;
       }
@@ -245,24 +245,21 @@ export class DopplerResource extends ResourceBase {
       }
 
       try {
-        setDopplerSecretIn('local', key, source);
+        setDopplerSecretIn('dev', key, source);
         mirrored++;
       } catch (e) {
         platform.warning(
-          `Failed to mirror ${key} from ${active} → local: ${e instanceof Error ? e.message : String(e)}`
+          `Failed to mirror ${key} from ${active} → dev: ${e instanceof Error ? e.message : String(e)}`
         );
       }
     }
 
     if (mirrored > 0) {
-      ok(
-        'Turbo remote cache secrets',
-        `mirrored ${active} → local (${mirrored})`
-      );
+      ok('Turbo remote cache secrets', `mirrored ${active} → dev (${mirrored})`);
     } else if (skipped > 0) {
       ok(
         'Turbo remote cache secrets',
-        `already in sync with local (${skipped})`
+        `already in sync with dev (${skipped})`
       );
     }
   }

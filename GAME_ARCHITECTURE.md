@@ -700,7 +700,7 @@ PlanetScale         Serverless MySQL
                     Read replicas for global low-latency reads
 
 Local dev           Real local PostgreSQL (`@pkgs/postgres`) + pgweb GUI + Bun API — no Docker
-                    Doppler `local` `DB_URL` → `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`
+                    Doppler `dev` `DB_URL` → `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`
                     Pre-connected pgweb GUI auto-launches at `http://127.0.0.1:5555` (disable with `PG_GUI=off`).
                     `bun run dev` (root) starts pg + api + client together; `db:migrate` once: `bun run --filter @apps/api db:migrate`
 ```
@@ -741,10 +741,10 @@ bun run --filter @pkgs/postgres dev
 bun run --filter @pkgs/postgres kill
 
 # Apply migrations against the running cluster:
-DOPPLER_CONFIG=local doppler run -- bun run --filter @apps/api db:migrate
+DOPPLER_CONFIG=dev doppler run -- bun run --filter @apps/api db:migrate
 ```
 
-Set Doppler `local` `DB_URL` to match the server log (`postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`).
+Set Doppler `dev` `DB_URL` to match the server log (`postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`).
 
 Required tooling: `postgres`, `pg_ctl`, `initdb`, `pg_isready`, `pgweb`. Enforced by `bun run infra setup` and `status` via the `PostgresDep` and `PgwebDep` classes.
 

@@ -1,7 +1,7 @@
 # https://github.com/crvouga/gamezilla/actions/workflows/seed-chess-puzzles.yml
 #
 # Manual workflow that runs `libs/chess/scripts/seed-chess-puzzles.ts`
-# against the Doppler `prod` config (Postgres `DB_URL`). Idempotent:
+# against the Doppler `prd` config (Postgres `DB_URL`). Idempotent:
 # content-addressed patch IDs + `INSERT … ON CONFLICT DO NOTHING` skip
 # unchanged rows, and the script resumes from the saved cursor when the
 # source ETag is unchanged.
@@ -112,18 +112,18 @@ jobs:
           restore-keys: |
             lichess-puzzles-${{ runner.os }}-
 
-      - name: Apply Postgres migrations → Doppler `prod`
+      - name: Apply Postgres migrations → Doppler `prd`
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
         run: |
           set -euo pipefail
           # `db:migrate` runs the canonical patch-db + KV + Better Auth
-          # migration set against the `prod` Postgres. Idempotent: existing
+          # migration set against the `prd` Postgres. Idempotent: existing
           # tables and `pdb_idx_*` indexes are left in place.
-          env DOPPLER_CONFIG=prod doppler run -- \
+          env DOPPLER_CONFIG=prd doppler run -- \
             bun run --filter '@apps/api' db:migrate
 
-      - name: Seed chess puzzles → Doppler `prod` Postgres
+      - name: Seed chess puzzles → Doppler `prd` Postgres
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           SEED_LIMIT: ${{ inputs.limit }}
@@ -162,10 +162,10 @@ jobs:
             args+=(--rebuild-indexes)
           fi
           # `--no-pretty` for clean GH Actions log lines (no ANSI carriage
-          # returns). `doppler run` injects `DB_URL` from the `prod` config so
+          # returns). `doppler run` injects `DB_URL` from the `prd` config so
           # the script's `createDopplerSecretStoreForScripts()` can also read
           # any additional secrets it needs.
-          env DOPPLER_CONFIG=prod doppler run -- \
+          env DOPPLER_CONFIG=prd doppler run -- \
             bun run --filter '@libs/chess' seed:puzzles \
               --no-pretty \
               "${args[@]}"

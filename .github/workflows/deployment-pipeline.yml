@@ -6,7 +6,7 @@
 # 1. Turbo-cacheable tasks (format, syncpack/catalog, knip, depcruise,
 #    circular-deps, audit, i18n, tc, lint, test, build) all run inside a
 #    single `turbo-ci` job that invokes `bun run check:ci`. Turbo's task
-#    graph + Vercel Remote Cache (driven by Doppler `local`'s
+#    graph + Vercel Remote Cache (driven by Doppler `dev`'s
 #    `TURBO_TOKEN` + `TURBO_TEAM`) give us maximum parallelism and
 #    cross-PR cache reuse with zero extra GitHub Actions machinery.
 #
@@ -55,7 +55,7 @@ jobs:
   # (`--cache=local:rw,remote:rw` in CI). Per-task cache
   # status (`--output-logs=hash-only --summarize`) keeps logs readable.
   # TURBO_TOKEN/TURBO_TEAM come from Doppler
-  # `local` via `doppler run` (only DOPPLER_TOKEN_SHARED is a GH secret).
+  # `dev` via `doppler run` (only DOPPLER_TOKEN_SHARED is a GH secret).
   turbo-ci:
     runs-on: ubuntu-latest
     concurrency:
@@ -69,12 +69,12 @@ jobs:
       - name: Verify Vercel remote cache via Doppler (fail fast)
         env:
           # Unlocks Doppler only — TURBO_TOKEN/TURBO_TEAM are injected by
-          # `doppler run` from the `local` config, not GitHub secrets.
+          # `doppler run` from the `dev` config, not GitHub secrets.
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           CI: true
           GITHUB_ACTIONS: true
         run: |
-          env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=local doppler run -- \
+          env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=dev doppler run -- \
             bun run scripts/check-turbo-remote-cache.ts
       - name: Turbo CI (cacheable gates + tc/lint/test/build)
         env:
@@ -369,4 +369,4 @@ jobs:
           NEEDS_JSON: ${{ toJSON(needs) }}
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: env DOPPLER_CONFIG=prod doppler run -- bun run libs/infra/src/bin/pipeline-report.ts
+        run: env DOPPLER_CONFIG=prd doppler run -- bun run libs/infra/src/bin/pipeline-report.ts

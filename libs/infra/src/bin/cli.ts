@@ -4,12 +4,12 @@ import { GitHubActionsPlatform } from '../cli/platform/github-actions';
 import { LocalPlatform } from '../cli/platform/local';
 
 /**
- * Infra CLI targets Doppler config `prod` unless `DOPPLER_CONFIG` is set.
+ * Infra CLI targets Doppler config `prd` unless `DOPPLER_CONFIG` is set.
  * Unset/empty would follow `~/.doppler` defaults and can break `doppler secrets get`.
  */
 const dopplerConfigRaw = process.env['DOPPLER_CONFIG'];
 if (typeof dopplerConfigRaw !== 'string' || dopplerConfigRaw.trim() === '') {
-  process.env['DOPPLER_CONFIG'] = 'prod';
+  process.env['DOPPLER_CONFIG'] = 'prd';
 }
 
 const isGitHubActions = process.env['GITHUB_ACTIONS'] === 'true';
