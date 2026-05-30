@@ -69,7 +69,9 @@ const result = spawnSync(
 );
 
 if (result.error !== undefined) {
-  console.error(`doppler-run: failed to spawn doppler: ${result.error.message}`);
+  console.error(
+    `doppler-run: failed to spawn doppler: ${result.error.message}`
+  );
   process.exit(1);
 }
 
