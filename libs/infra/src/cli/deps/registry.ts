@@ -4,9 +4,11 @@ import { PgwebDep } from './pgweb';
 import { PostgresDep } from './postgres';
 import { StripeDep } from './stripe';
 import type { Dep } from './types';
+import { TurboDep } from './turbo';
 import { WranglerDep } from './wrangler';
 
 const wrangler = new WranglerDep();
+const turbo = new TurboDep();
 const bun = new BunDep();
 const doppler = new DopplerDep();
 const stripe = new StripeDep();
@@ -24,6 +26,7 @@ const pgweb = new PgwebDep();
  */
 export const ALL_DEPS: readonly Dep[] = [
   wrangler,
+  turbo,
   bun,
   doppler,
   stripe,

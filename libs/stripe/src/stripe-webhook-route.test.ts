@@ -237,8 +237,8 @@ describe('createStripeWebhookRoutes', () => {
     const patches = writeCalls[0]!.patches;
     expect(patches.length).toBe(1);
     const p = patches[0]!;
-    expect(p.entityType).toBe('stripe.customer.created');
-    expect(p.entityId).toBe('cus_test_1');
+    expect(p.entityType).toBe('stripe.webhook-event-cache');
+    expect(p.entityId).toBe('customer.created::cus_test_1');
     expect(p.attributes[StripeAttr.payload.key]).toEqual(event);
     expect(p.attributes[StripeAttr.objectType.key]).toBe('event');
   });

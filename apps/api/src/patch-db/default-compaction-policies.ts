@@ -29,6 +29,7 @@ export const GAMEZILLA_COMPACTION_POLICIES: Readonly<
   'stripe.dispute': { keepLatest: 1 },
   'stripe.checkout-session': { keepLatest: 1 },
   'stripe.webhook-event': { keepLatest: 1 },
+  'stripe.webhook-event-cache': { keepLatest: 1 },
   'chat.message': 'never',
   'audit.event': 'never',
   'chess.puzzle': { keepLatest: 1 },

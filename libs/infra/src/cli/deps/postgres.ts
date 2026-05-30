@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  capture,
   captureVersion,
   currentOs,
   FirstAvailableInstaller,
@@ -10,6 +11,9 @@ import {
   which,
 } from '@pkgs/os';
 import type { Dep, DepStatus } from './types';
+
+const UA = 'gamezilla-infra-cli';
+const FETCH_TIMEOUT_MS = 15_000;
 
 /**
  * Required CLI tooling for the local PostgreSQL cluster managed by
@@ -23,12 +27,9 @@ import type { Dep, DepStatus } from './types';
  *
  * - `version()` reports the `postgres` major.minor (e.g. `17.4`) extracted from
  *   `postgres --version`.
- * - `fetchLatestVersion()` returns `null` on purpose. PostgreSQL releases use
- *   tags like `REL_17_6` that are not directly comparable to the runtime
- *   `17.4` string our `semverCompare` understands; rather than ship a fragile
- *   parser that occasionally flags `deploy` as outdated for cosmetic reasons,
- *   we let `setup`/`status` warn "could not resolve latest" and rely on
- *   `check()` for hard enforcement that the binaries exist.
+ * - `fetchLatestVersion()` resolves the newest patch for our target major
+ *   (`17`) from Homebrew on macOS, otherwise from postgresql.org's
+ *   `versions.json` (`17` + `latestMinor` → `17.10`).
  *
  * Install policy: defers entirely to the cross-platform {@link PackageManagerInstaller}
  * registered below. Homebrew is the only one that needs special handling
@@ -44,6 +45,7 @@ const REQUIRED_BINARIES = [
 ] as const;
 
 const HOMEBREW_FORMULA = 'postgresql@17';
+const POSTGRES_TARGET_MAJOR = '17';
 const HOMEBREW_FALLBACK_FORMULAS = [
   HOMEBREW_FORMULA,
   'postgresql@16',
@@ -108,6 +110,45 @@ function manualInstallHint(): string {
   );
 }
 
+function fetchHomebrewPostgresStable(): string | null {
+  if (currentOs().platform !== 'darwin') return null;
+  const brew = new Homebrew();
+  if (!brew.isAvailable()) return null;
+  const r = capture('brew', ['info', HOMEBREW_FORMULA, '--json=v2']);
+  if (r.status !== 0) return null;
+  try {
+    const j = JSON.parse(r.stdout) as {
+      formulae?: ReadonlyArray<{ versions?: { stable?: string } }>;
+    };
+    const stable = j.formulae?.[0]?.versions?.stable?.trim();
+    return stable !== undefined && stable.length > 0 ? stable : null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchPostgresqlOrgLatestPatch(
+  major: string
+): Promise<string | null> {
+  try {
+    const res = await fetch('https://www.postgresql.org/versions.json', {
+      headers: { Accept: 'application/json', 'User-Agent': UA },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
+    if (!res.ok) return null;
+    const rows = (await res.json()) as ReadonlyArray<{
+      major?: string;
+      latestMinor?: string;
+    }>;
+    const row = rows.find((entry) => entry.major === major);
+    const minor = row?.latestMinor?.trim();
+    if (minor === undefined || minor.length === 0) return null;
+    return `${major}.${minor}`;
+  } catch {
+    return null;
+  }
+}
+
 export class PostgresDep implements Dep {
   readonly name = 'postgres';
   readonly bin = 'postgres';
@@ -135,8 +176,10 @@ export class PostgresDep implements Dep {
     return { ok: true, version: v };
   }
 
-  fetchLatestVersion(): Promise<string | null> {
-    return Promise.resolve(null);
+  async fetchLatestVersion(): Promise<string | null> {
+    const fromBrew = fetchHomebrewPostgresStable();
+    if (fromBrew !== null) return fromBrew;
+    return fetchPostgresqlOrgLatestPatch(POSTGRES_TARGET_MAJOR);
   }
 
   install(): void {

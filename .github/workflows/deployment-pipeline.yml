@@ -30,6 +30,9 @@ permissions:
   contents: read
   actions: write
 
+# `DOPPLER_TOKEN_SHARED` is a project token — not config-scoped. Repo scripts
+# use `scripts/doppler-run.ts`, which reads project/config from `doppler.yaml`.
+
 on:
   push:
     branches: [main]
@@ -73,9 +76,7 @@ jobs:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           CI: true
           GITHUB_ACTIONS: true
-        run: |
-          env -u CURSOR_AGENT -u CURSOR_TRACE_ID DOPPLER_CONFIG=dev doppler run -- \
-            bun run scripts/check-turbo-remote-cache.ts
+        run: bun run scripts/doppler-run.ts -- bun run scripts/check-turbo-remote-cache.ts
       - name: Turbo CI (cacheable gates + tc/lint/test/build)
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
@@ -369,4 +370,4 @@ jobs:
           NEEDS_JSON: ${{ toJSON(needs) }}
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: env DOPPLER_CONFIG=prd doppler run -- bun run libs/infra/src/bin/pipeline-report.ts
+        run: DOPPLER_CONFIG=prd bun run scripts/doppler-run.ts -- bun run libs/infra/src/bin/pipeline-report.ts

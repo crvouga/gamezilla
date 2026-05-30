@@ -6,9 +6,16 @@ import { PatchMetaAttr } from '@pkgs/patch-db/metadata/patch-metadata';
 import { PATCH_DB_SYSTEM_DEVICE_ID } from '@pkgs/patch-db/policy/system-device';
 import { Hono } from 'hono';
 import Stripe from 'stripe';
-import { stripeEventObjectId } from './event-object-id';
+import {
+  stripeEventObjectId,
+  stripeWebhookEventCacheEntityId,
+} from './event-object-id';
 import { resolveAccountIdByStripeCustomerId } from './resolve-account-by-stripe-customer';
 import { StripeAttr, StripeEntityAttr } from './stripe-attrs';
+import {
+  STRIPE_WEBHOOK_EVENT_CACHE_ENTITY_TYPE,
+  STRIPE_WEBHOOK_EVENT_ENTITY_TYPE,
+} from './stripe-schema';
 
 /** Stripe webhook handler — bypasses ABAC like other system contexts. */
 const PATCHES_DB_STRIPE_WEBHOOK_CONTEXT =
@@ -37,11 +44,6 @@ function extractStripeCustomerId(event: Stripe.Event): string | null {
   return customerIdFromString(c) ?? customerIdFromObject(c);
 }
 
-/** Stripe event types use `_`; entity types use kebab segments after `stripe.`. */
-function webhookEventEntityType(eventType: string): string {
-  return `stripe.${eventType.replace(/_/g, '-')}`;
-}
-
 async function recordVerifiedStripeWebhookInPatchDb(
   patchDb: PatchDb,
   event: Stripe.Event,
@@ -61,6 +63,8 @@ async function recordVerifiedStripeWebhookInPatchDb(
     ...StripeAttr.payload(event as unknown),
     ...StripeAttr.objectType('event'),
     ...StripeAttr.source('stripe_webhook'),
+    ...StripeAttr.webhookEventType(event.type),
+    ...StripeAttr.stripeObjectId(objectId),
     ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
   };
   if (accountId !== null) {
@@ -69,8 +73,8 @@ async function recordVerifiedStripeWebhookInPatchDb(
 
   const patches: Parameters<PatchDb['write']>[0] = [
     {
-      entityId: objectId,
-      entityType: webhookEventEntityType(event.type),
+      entityId: stripeWebhookEventCacheEntityId(event.type, objectId),
+      entityType: STRIPE_WEBHOOK_EVENT_CACHE_ENTITY_TYPE,
       attributes: eventCacheAttrs,
     },
   ];
@@ -78,7 +82,7 @@ async function recordVerifiedStripeWebhookInPatchDb(
   if (accountId !== null) {
     patches.push({
       entityId: objectId,
-      entityType: 'stripe.webhook-event',
+      entityType: STRIPE_WEBHOOK_EVENT_ENTITY_TYPE,
       attributes: {
         ...StripeEntityAttr.owner(accountId),
         ...StripeAttr.webhookEventType(event.type),

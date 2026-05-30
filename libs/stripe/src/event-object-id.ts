@@ -16,3 +16,11 @@ export function stripeEventObjectId(event: Stripe.Event): string {
   }
   return event.id;
 }
+
+/** Stable cache key: one row per `(event type, Stripe object id)` pair. */
+export function stripeWebhookEventCacheEntityId(
+  eventType: string,
+  objectId: string
+): string {
+  return `${eventType}::${objectId}`;
+}

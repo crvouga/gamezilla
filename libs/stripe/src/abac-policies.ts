@@ -97,4 +97,5 @@ export const STRIPE_PATCH_DB_VISIBILITY_POLICIES: Readonly<
   'stripe.dispute': stripeOwnedSnapshotPolicy,
   'stripe.checkout-session': stripeOwnedSnapshotPolicy,
   'stripe.webhook-event': stripeWebhookEventPolicy,
+  'stripe.webhook-event-cache': stripeOwnedSnapshotPolicy,
 };

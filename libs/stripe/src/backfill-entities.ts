@@ -5,7 +5,8 @@
  * `customer`, `subscription`). We persist raw Stripe API payloads under
  * `entityType=stripe.<object>` (with `checkout.session` → `stripe.checkout-session`),
  * `entityId=<object.id>`, attribute `stripe/payload`. This sits alongside
- * webhook-event rows (`stripe.<event.type>`) so the two sources never collide.
+ * webhook-event-cache rows (`stripe.webhook-event-cache`, keyed by
+ * `event.type::object.id`) so the two sources never collide.
  */
 import type { PatchDb } from '@pkgs/patch-db/interface';
 import { PatchMetaAttr } from '@pkgs/patch-db/metadata/patch-metadata';

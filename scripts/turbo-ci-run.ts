@@ -2,16 +2,39 @@
  * Shared Turbo flags for `check:ci` — keeps cache HTTP under Vercel's rate
  * limit and avoids noisy 429 warnings on local runs.
  *
- * - `--cache-workers=1` serializes artifact uploads (see AGENTS.md).
- * - Local dev uses `remote:r` (read hits, skip uploads); CI uses `remote:rw`.
+ * - CI always uses `local:rw,remote:rw`.
+ * - Local runs under Doppler (`TURBO_CACHE=remote:rw`) honor that env var so
+ *   cache uploads work and Turbo does not warn about a read-only remote.
+ * - Local runs without Doppler fall back to `remote:r` (read hits only).
  */
 import { spawnSync } from 'node:child_process';
+
+const TURBO_CACHE_RE =
+  /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 
 function inCi(): boolean {
   return process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true';
 }
 
-const cache = inCi() ? 'local:rw,remote:rw' : 'local:rw,remote:r';
+function resolveCacheFlag(): string {
+  if (inCi()) return 'local:rw,remote:rw';
+
+  const fromEnv = process.env.TURBO_CACHE?.trim();
+  if (
+    fromEnv !== undefined &&
+    fromEnv.length > 0 &&
+    TURBO_CACHE_RE.test(fromEnv)
+  ) {
+    if (fromEnv.includes(',')) return fromEnv;
+    if (fromEnv.startsWith('remote:')) return `local:rw,${fromEnv}`;
+    if (fromEnv.startsWith('local:')) return `${fromEnv},remote:rw`;
+    return fromEnv;
+  }
+
+  return 'local:rw,remote:r';
+}
+
+const cache = resolveCacheFlag();
 
 const TURBO_CI_FLAGS = [
   '--concurrency=6',

@@ -61,8 +61,30 @@ export const StripeCatalogProductSchema: EntitySchema = makeStripeSchema(
   STRIPE_PATCH_ENTITY_CATALOG_PRODUCT
 );
 
+/** Owner-scoped webhook delivery index (one row per Stripe object id). */
+export const STRIPE_WEBHOOK_EVENT_ENTITY_TYPE = 'stripe.webhook-event' as const;
+
+/** Full webhook payload cache keyed by `event.type::object.id`. */
+export const STRIPE_WEBHOOK_EVENT_CACHE_ENTITY_TYPE =
+  'stripe.webhook-event-cache' as const;
+
+export const StripeWebhookEventSchema: EntitySchema = defineEntitySchema({
+  entityType: STRIPE_WEBHOOK_EVENT_ENTITY_TYPE,
+  attributes: {
+    webhookEventType: StripeAttr.webhookEventType,
+    stripeObjectId: StripeAttr.stripeObjectId,
+    owner: AbacEntityAttr.owner,
+  },
+});
+
+export const StripeWebhookEventCacheSchema: EntitySchema = makeStripeSchema(
+  STRIPE_WEBHOOK_EVENT_CACHE_ENTITY_TYPE
+);
+
 export const ALL_STRIPE_ENTITY_SCHEMAS: readonly EntitySchema[] = [
   ...Object.values(STRIPE_ENTITY_SCHEMAS_BY_OBJECT),
   StripeCatalogPriceSchema,
   StripeCatalogProductSchema,
+  StripeWebhookEventSchema,
+  StripeWebhookEventCacheSchema,
 ];

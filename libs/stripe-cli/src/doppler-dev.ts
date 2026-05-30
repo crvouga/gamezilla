@@ -12,7 +12,7 @@ export function exitUnlessDevDopplerConfig(config: string): void {
   if (config === 'dev') return;
   console.error(
     `[${STRIPE_CLI_LOG_TAG}] Refusing to write STRIPE_WEBHOOK_SECRET: Doppler config must be \`dev\` (got ${config.length > 0 ? JSON.stringify(config) : 'empty'}). ` +
-      'Set DOPPLER_CONFIG=dev or run `doppler setup` for this repo.'
+      'Set DOPPLER_CONFIG=dev, run `doppler setup --no-interactive` from the repo root, or use `bun run scripts/doppler-run.ts`.'
   );
   process.exit(1);
 }

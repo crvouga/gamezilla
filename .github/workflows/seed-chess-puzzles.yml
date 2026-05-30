@@ -34,6 +34,10 @@ name: Seed chess puzzles (prod)
 permissions:
   contents: read
 
+# `DOPPLER_TOKEN_SHARED` is a project token — not config-scoped. Use
+# `scripts/doppler-run.ts` (defaults from `doppler.yaml`) with
+# `DOPPLER_CONFIG=prd` for prod steps.
+
 on:
   workflow_dispatch:
     inputs:
@@ -120,7 +124,7 @@ jobs:
           # `db:migrate` runs the canonical patch-db + KV + Better Auth
           # migration set against the `prd` Postgres. Idempotent: existing
           # tables and `pdb_idx_*` indexes are left in place.
-          env DOPPLER_CONFIG=prd doppler run -- \
+          DOPPLER_CONFIG=prd bun run scripts/doppler-run.ts -- \
             bun run --filter '@apps/api' db:migrate
 
       - name: Seed chess puzzles → Doppler `prd` Postgres
@@ -165,7 +169,7 @@ jobs:
           # returns). `doppler run` injects `DB_URL` from the `prd` config so
           # the script's `createDopplerSecretStoreForScripts()` can also read
           # any additional secrets it needs.
-          env DOPPLER_CONFIG=prd doppler run -- \
+          DOPPLER_CONFIG=prd bun run scripts/doppler-run.ts -- \
             bun run --filter '@libs/chess' seed:puzzles \
               --no-pretty \
               "${args[@]}"
