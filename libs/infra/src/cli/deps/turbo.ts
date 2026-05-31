@@ -84,7 +84,9 @@ export class TurboDep implements Dep {
   verify(): void {
     const bin = this.installer.globalBinPath();
     if (bin === null) {
-      throw new Error('global turbo binary not found on PATH via npm prefix -g');
+      throw new Error(
+        'global turbo binary not found on PATH via npm prefix -g'
+      );
     }
     verifyRun(bin, ['--version']);
   }

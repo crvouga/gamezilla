@@ -9,8 +9,7 @@
  */
 import { spawnSync } from 'node:child_process';
 
-const TURBO_CACHE_RE =
-  /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
+const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 
 function inCi(): boolean {
   return process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true';
