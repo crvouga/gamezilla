@@ -5,6 +5,7 @@ import { BetterAuthSecret } from './better-auth-secret';
 import { CfAccountId } from './cf-account-id';
 import { CfApiToken } from './cf-api-token';
 import { DbUrl } from './db-url';
+import { ExpoToken } from './expo-token';
 import { PsServiceToken, PsServiceTokenId } from './ps-credentials';
 import { StripeSecretKey } from './stripe-secret-key';
 import { StripeWebhookSecret } from './stripe-webhook-secret';
@@ -38,6 +39,7 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new TurboTeam(),
   new TurboCache(),
   new TurboLogOrder(),
+  new ExpoToken(),
 ];
 
 export function getSecretMap(): ReadonlyArray<SecretEntry> {

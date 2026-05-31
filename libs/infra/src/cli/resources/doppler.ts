@@ -111,6 +111,12 @@ const SHARED_TURBO_KEYS: ReadonlyArray<string> = [
   'TURBO_TELEMETRY_DISABLED',
 ];
 
+/** CI reads Doppler `dev`; mirror from the active config so tokens stay aligned. */
+const SHARED_MIRROR_TO_DEV_KEYS: ReadonlyArray<string> = [
+  ...SHARED_TURBO_KEYS,
+  'EXPO_TOKEN',
+];
+
 export class DopplerResource extends ResourceBase {
   readonly id = 'doppler';
 
@@ -228,7 +234,7 @@ export class DopplerResource extends ResourceBase {
 
     let mirrored = 0;
     let skipped = 0;
-    for (const key of SHARED_TURBO_KEYS) {
+    for (const key of SHARED_MIRROR_TO_DEV_KEYS) {
       const source = process.env[key];
       if (typeof source !== 'string' || source.length === 0) continue;
 
@@ -255,12 +261,9 @@ export class DopplerResource extends ResourceBase {
     }
 
     if (mirrored > 0) {
-      ok(
-        'Turbo remote cache secrets',
-        `mirrored ${active} → dev (${mirrored})`
-      );
+      ok('Doppler dev mirror', `mirrored ${active} → dev (${mirrored})`);
     } else if (skipped > 0) {
-      ok('Turbo remote cache secrets', `already in sync with dev (${skipped})`);
+      ok('Doppler dev mirror', `already in sync with dev (${skipped})`);
     }
   }
 

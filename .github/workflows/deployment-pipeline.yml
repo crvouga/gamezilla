@@ -300,13 +300,10 @@ jobs:
   # `deploy` is intentionally skipped (manual dev/preview builds don't gate
   # on a prod deploy).
   #
-  # `EXPO_TOKEN` is pulled from the Doppler `dev` config via the shared
-  # project token, same as every other secret; EAS CLI authenticates from
-  # the injected `EXPO_TOKEN` env var. Runs in `apps/client` so EAS
-  # resolves the right project (all EAS files live there per
-  # https://docs.expo.dev/build-reference/build-with-monorepos);
-  # `scripts/doppler-run.ts` is not usable here because it pins the child
-  # command's cwd to the repo root.
+  # `EXPO_TOKEN` is loaded from Doppler `dev` into `GITHUB_ENV`, then passed
+  # to `expo-github-action` so EAS CLI is authenticated for every step.
+  # Runs in `apps/client` so EAS resolves the right project (all EAS files
+  # live there per https://docs.expo.dev/build-reference/build-with-monorepos).
   eas-mobile:
     needs: [turbo-ci, static, qa-api, qa-browser, deploy]
     if: >-
@@ -337,10 +334,27 @@ jobs:
         with:
           doppler: 'true'
 
+      # EAS CLI reads `EXPO_TOKEN` from the environment (not `doppler run`).
+      # Load from Doppler `dev` and pass into expo-github-action so every
+      # step in this job is authenticated.
+      - name: Load EXPO_TOKEN from Doppler
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: |
+          set -euo pipefail
+          token=$(doppler secrets get EXPO_TOKEN --plain -p gamezilla -c dev)
+          if [ -z "${token}" ]; then
+            echo "::error::EXPO_TOKEN is missing in Doppler project gamezilla config dev. Create a token at https://expo.dev/settings/access-tokens then run: doppler secrets set EXPO_TOKEN --project gamezilla --config dev"
+            exit 1
+          fi
+          echo "::add-mask::${token}"
+          echo "EXPO_TOKEN=${token}" >> "$GITHUB_ENV"
+
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
+          token: ${{ env.EXPO_TOKEN }}
 
       # On a manual run the profile picks the matching update channel; a
       # push to main always uses production. `development-simulator` shares
@@ -360,12 +374,10 @@ jobs:
 
       - name: EAS Build (native binaries)
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           EXPO_PUBLIC_COMMIT_HASH: ${{ github.sha }}
         run: |
           set -euo pipefail
-          doppler run -p gamezilla -c dev -- \
-            eas build --platform all --profile "${{ steps.eas.outputs.profile }}" --non-interactive --no-wait
+          eas build --platform all --profile "${{ steps.eas.outputs.profile }}" --non-interactive --no-wait
 
       # Compile i18n + generate the bundled web/worker assets before the OTA
       # bundle (the `eas-build-post-install` hook only runs on EAS Build
@@ -375,12 +387,10 @@ jobs:
 
       - name: EAS Update (OTA bundle for dev clients + Expo Go)
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
           EXPO_PUBLIC_COMMIT_HASH: ${{ github.sha }}
         run: |
           set -euo pipefail
-          doppler run -p gamezilla -c dev -- \
-            eas update --channel "${{ steps.eas.outputs.channel }}" --message "${{ github.sha }}" --non-interactive
+          eas update --channel "${{ steps.eas.outputs.channel }}" --message "${{ github.sha }}" --non-interactive
 
   # ── Atomic production deploy ─────────────────────────────────────────
   # One job, one checkout, one `infra-setup`. `bun run infra deploy`
