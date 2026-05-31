@@ -21,7 +21,8 @@ export const DEVICE_ENTITY_TYPE = deviceNs.prefix;
 
 /** Device entity attributes (`device/…`). */
 export const DeviceAttr = {
-  id: deviceNs.text('id', readString),
+  /** Indexed: the device ABAC read policy scopes every query to `id = deviceId`. */
+  id: deviceNs.text('id', readString).indexed(),
   createdAt: deviceNs.timestampOrNull('created-at', readTrimmedNullableString),
   /** 'ios' | 'android' | 'web' — from React Native Platform.OS */
   platform: deviceNs.textOrNull('platform', readTrimmedNullableString),
@@ -55,7 +56,8 @@ const accountNs = createAttrNamespace('account');
 export const ACCOUNT_ENTITY_TYPE = accountNs.prefix;
 
 export const AccountAttr = {
-  id: accountNs.text('id', readString),
+  /** Indexed: the account ABAC read policy scopes every query to `id = accountId`. */
+  id: accountNs.text('id', readString).indexed(),
   createdAt: accountNs.timestamp('created-at', readString),
   /** Stripe customer id (`cus_…`) for this account — set by checkout in the API. */
   stripeCustomerId: accountNs.textOrNull(
@@ -71,11 +73,17 @@ export const ACCOUNT_PROVIDER_ENTITY_TYPE = accountProviderNs.prefix;
 export const AccountProviderAttr = {
   /** Indexed: provider rows are looked up by account during session validation. */
   accountId: accountProviderNs.text('account-id', readString).indexed(),
-  provider: accountProviderNs.textOrNull('provider', readTrimmedNullableString),
-  providerUserId: accountProviderNs.textOrNull(
-    'provider-user-id',
-    readTrimmedNullableString
-  ),
+  /**
+   * Indexed: account provisioning resolves an account by
+   * (`provider`, `provider-user-id`) via a `where =` lookup, so both clauses
+   * sit in an index-required position.
+   */
+  provider: accountProviderNs
+    .textOrNull('provider', readTrimmedNullableString)
+    .indexed(),
+  providerUserId: accountProviderNs
+    .textOrNull('provider-user-id', readTrimmedNullableString)
+    .indexed(),
   email: accountProviderNs.emailOrNull('email', readTrimmedNullableString),
   linkedAt: accountProviderNs.timestampOrNull(
     'linked-at',
