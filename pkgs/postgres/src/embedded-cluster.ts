@@ -140,7 +140,6 @@ async function withTimeout<T>(
   let timer: ReturnType<typeof setTimeout> | null = null;
   const timeout = new Promise<'timeout'>((resolve) => {
     timer = setTimeout(() => resolve('timeout'), ms);
-    if (typeof timer.unref === 'function') timer.unref();
   });
   try {
     await Promise.race([p.then(() => undefined), timeout]);
