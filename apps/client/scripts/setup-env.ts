@@ -42,13 +42,13 @@ function trimStringOrNull(v: string | undefined): string | null {
 
 function readApiOriginFromProcessEnv(): string | null {
   return (
-    trimStringOrNull(process.env.EXPO_PUBLIC_API_URL) ??
-    trimStringOrNull(process.env.API_URL)
+    trimStringOrNull(process.env['EXPO_PUBLIC_API_URL']) ??
+    trimStringOrNull(process.env['API_URL'])
   );
 }
 
 function readLocalPreviewApiOriginFromProcessEnv(): string | null {
-  return trimStringOrNull(process.env.LOCAL_PREVIEW_API_ORIGIN);
+  return trimStringOrNull(process.env['LOCAL_PREVIEW_API_ORIGIN']);
 }
 
 function createDopplerStore(): SecretStore {
@@ -150,7 +150,7 @@ async function resolveExpoPublicApiUrl(): Promise<string> {
 }
 
 function resolveExpoPublicCommitHash(): string {
-  const v = process.env.EXPO_PUBLIC_COMMIT_HASH;
+  const v = process.env['EXPO_PUBLIC_COMMIT_HASH'];
   if (typeof v === 'string' && v.trim().length > 0) {
     const normalized = v.trim().toLowerCase();
     assert.ok(

@@ -4,7 +4,8 @@
 # CI/CD design guidelines (Turbo-first + atomic deploy):
 #
 # 1. Turbo-cacheable tasks (format, syncpack/catalog, knip, depcruise,
-#    circular-deps, audit, i18n, tc, lint, test, build) all run inside a
+#    circular-deps, audit, i18n, expo-go compat, tc, lint, test, build)
+#    all run inside a
 #    single `turbo-ci` job that invokes `bun run check:ci`. Turbo's task
 #    graph + Vercel Remote Cache (driven by Doppler `dev`'s
 #    `TURBO_TOKEN` + `TURBO_TEAM`) give us maximum parallelism and
@@ -60,7 +61,9 @@ on:
 jobs:
   # Single Turbo-orchestrated job for every cacheable repo gate: format,
   # syncpack + catalog + no-patches, knip, depcruise, circular-deps,
-  # audit, i18n, plus per-package `tc` / `lint` / `test` / `build`. Turbo
+  # audit, i18n, Expo Go compat (`ci:expo-go` native-module allowlist +
+  # `ci:expo-go-deps` = `expo install --check` version pin), plus
+  # per-package `tc` / `lint` / `test` / `build`. Turbo
   # parallelizes across the task graph and reuses Vercel Remote Cache
   # (via Doppler-injected `TURBO_TOKEN` + `TURBO_TEAM`) for cross-PR
   # hits. `check:ci` throttles cache HTTP (`--cache-workers=1` via
@@ -282,21 +285,37 @@ jobs:
   # Triggers an EAS Build (native iOS/Android binaries, ~15-30 min in
   # Expo's cloud, fired with `--no-wait`) AND publishes an EAS Update so
   # the same commit's JS bundle is delivered over-the-air to dev clients
-  # and Expo Go on the matching channel. Gated on the same green checks as
-  # `deploy` so we never build mobile from broken code, but kept off the
-  # `deploy` job's critical path (it neither blocks nor is blocked by the
-  # Cloudflare Pages web deploy). `EXPO_TOKEN` is pulled from the Doppler
-  # `dev` config via the shared project token, same as every other secret;
-  # EAS CLI authenticates from the injected `EXPO_TOKEN` env var. Runs in
-  # `apps/client` so EAS resolves the right project (all EAS files live
-  # there per https://docs.expo.dev/build-reference/build-with-monorepos);
+  # and Expo Go on the matching channel.
+  #
+  # Runs AFTER the atomic `deploy` job (`needs: [..., deploy]`): the mobile
+  # client talks to https://api.gamezilla.app, so the server, DB
+  # migrations, Stripe sync, and pushed client-config for this commit must
+  # be live BEFORE we ship the matching native binaries / OTA bundle —
+  # otherwise a freshly-updated client could hit an older API or a schema
+  # that hasn't migrated yet. The `if` below uses `always()` + explicit
+  # result checks so the gate still works on `workflow_dispatch`, where
+  # `deploy` is intentionally skipped (manual dev/preview builds don't gate
+  # on a prod deploy).
+  #
+  # `EXPO_TOKEN` is pulled from the Doppler `dev` config via the shared
+  # project token, same as every other secret; EAS CLI authenticates from
+  # the injected `EXPO_TOKEN` env var. Runs in `apps/client` so EAS
+  # resolves the right project (all EAS files live there per
+  # https://docs.expo.dev/build-reference/build-with-monorepos);
   # `scripts/doppler-run.ts` is not usable here because it pins the child
   # command's cwd to the repo root.
   eas-mobile:
+    needs: [turbo-ci, static, qa-api, qa-browser, deploy]
     if: >-
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      github.event_name == 'workflow_dispatch'
-    needs: [turbo-ci, static, qa-api, qa-browser]
+      always() &&
+      needs.turbo-ci.result == 'success' &&
+      needs.static.result == 'success' &&
+      needs.qa-api.result == 'success' &&
+      needs.qa-browser.result == 'success' &&
+      (
+        needs.deploy.result == 'success' ||
+        (github.event_name == 'workflow_dispatch' && needs.deploy.result == 'skipped')
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:

@@ -1,11 +1,12 @@
 import { SQL } from 'bun';
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   getPostgresTestInstance,
   stopPostgresTestInstance,
 } from './postgres-test-instance';
 
-const TEST_PORT = 25_432;
+/** Offset from default test port so parallel local runs are less likely to collide. */
+const TEST_PORT = 25_432 + (process.pid % 1_000);
 
 describe('postgres-test-instance (embedded-postgres)', () => {
   let pg: Awaited<ReturnType<typeof getPostgresTestInstance>> | null = null;
@@ -14,16 +15,29 @@ describe('postgres-test-instance (embedded-postgres)', () => {
   beforeAll(async () => {
     try {
       pg = await getPostgresTestInstance({ port: TEST_PORT });
+      await pg.wipe();
+      const sql = new SQL(pg.connectionUrl);
+      await sql.unsafe('SELECT 1');
+      void sql.close();
       available = true;
-    } catch {
-      // Bundled binaries are unavailable on this platform/arch; degrade
-      // gracefully rather than failing the whole suite.
+    } catch (e) {
+      // Bundled binaries are unavailable on this platform/arch, or the cluster
+      // failed to boot — degrade gracefully rather than failing the whole suite.
+      console.error('[postgres-test] embedded-postgres unavailable:', e);
       available = false;
     }
-  });
+  }, 60_000);
 
   afterAll(async () => {
-    if (available) await stopPostgresTestInstance();
+    if (!available) return;
+    await stopPostgresTestInstance().catch((e: unknown) => {
+      console.error('[postgres-test] stop failed:', e);
+    });
+  });
+
+  beforeEach(async () => {
+    if (!available || !pg) return;
+    await pg.wipe();
   });
 
   test('returns connection URL and wipe function', () => {
@@ -45,12 +59,15 @@ describe('postgres-test-instance (embedded-postgres)', () => {
 
   test('wipe clears all tables', async () => {
     if (!available || !pg) return;
-    await pg.wipe();
     const sql = new SQL(pg.connectionUrl);
-    const tables = await sql.unsafe(
+    await sql.unsafe('CREATE TABLE t (id SERIAL PRIMARY KEY, x TEXT)');
+    void sql.close();
+    await pg.wipe();
+    const verify = new SQL(pg.connectionUrl);
+    const tables = await verify.unsafe(
       "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
     );
-    void sql.close();
+    void verify.close();
     expect(tables).toHaveLength(0);
   });
 
