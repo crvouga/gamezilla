@@ -7,16 +7,13 @@
  */
 import { spawnSync } from 'node:child_process';
 import { constants } from 'node:fs';
-import {
-  accessSync,
-  mkdtempSync,
-  rmSync,
-} from 'node:fs';
+import { accessSync, mkdtempSync, rmSync } from 'node:fs';
 import { arch, platform, tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const GITLEAKS_VERSION = process.env.GITLEAKS_VERSION?.trim() || '8.30.1';
-const INSTALL_DIR = process.env.GITLEAKS_INSTALL_DIR?.trim() || '/usr/local/bin';
+const INSTALL_DIR =
+  process.env.GITLEAKS_INSTALL_DIR?.trim() || '/usr/local/bin';
 
 function resolvePlatform(): string {
   const plat = platform();
