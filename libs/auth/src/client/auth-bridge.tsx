@@ -8,10 +8,7 @@ import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
 } from './auth-storage-keys';
-import {
-  useAuthClient,
-  type SessionSnapshot,
-} from './auth-client-provider';
+import { useAuthClient, type SessionSnapshot } from './auth-client-provider';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { useConfigService } from './config-service-context';
 import { refreshAuth } from './refresh-auth-fetch';
