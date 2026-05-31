@@ -1,5 +1,5 @@
 {
-  "name": "@pkgs/room-example",
+  "name": "@pkgs/room-widgets",
   "version": "0.0.1",
   "private": true,
   "exports": {

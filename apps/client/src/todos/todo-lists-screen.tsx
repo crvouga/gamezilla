@@ -1,6 +1,6 @@
 import { usePatchDbLocalDataActions } from '@libs/auth/client/patch-db-local-data-actions-context';
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
-import { TodoListsOverview } from '@pkgs/patch-db-example/todo';
+import { TodoListsOverview } from '@pkgs/patch-db-widgets/todo';
 import { Trans } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 

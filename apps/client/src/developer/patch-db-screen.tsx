@@ -1,6 +1,6 @@
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
 import { Box, ScreenBaseHeader } from '@pkgs/ui';
-import { PlaygroundApp } from '@pkgs/patch-db-example/playground-app';
+import { PlaygroundApp } from '@pkgs/patch-db-widgets/playground-app';
 import { Trans } from '@lingui/react/macro';
 
 export function PatchDbScreen() {

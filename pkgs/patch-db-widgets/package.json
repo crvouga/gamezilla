@@ -1,5 +1,5 @@
 {
-  "name": "@pkgs/patch-db-example",
+  "name": "@pkgs/patch-db-widgets",
   "version": "0.0.1",
   "private": true,
   "exports": {

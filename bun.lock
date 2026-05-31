@@ -93,10 +93,10 @@
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/patch-db": "workspace:*",
-        "@pkgs/patch-db-example": "workspace:*",
+        "@pkgs/patch-db-widgets": "workspace:*",
         "@pkgs/polyfill": "workspace:*",
         "@pkgs/pub-sub": "workspace:*",
-        "@pkgs/room-example": "workspace:*",
+        "@pkgs/room-widgets": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secure-storage": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -683,8 +683,8 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/patch-db-example": {
-      "name": "@pkgs/patch-db-example",
+    "pkgs/patch-db-widgets": {
+      "name": "@pkgs/patch-db-widgets",
       "version": "0.0.1",
       "dependencies": {
         "@gorhom/bottom-sheet": "catalog:",
@@ -776,8 +776,8 @@
         "react": "catalog:",
       },
     },
-    "pkgs/room-example": {
-      "name": "@pkgs/room-example",
+    "pkgs/room-widgets": {
+      "name": "@pkgs/room-widgets",
       "version": "0.0.1",
       "dependencies": {
         "@lingui/core": "catalog:",
@@ -1903,7 +1903,7 @@
 
     "@pkgs/patch-db": ["@pkgs/patch-db@workspace:pkgs/patch-db"],
 
-    "@pkgs/patch-db-example": ["@pkgs/patch-db-example@workspace:pkgs/patch-db-example"],
+    "@pkgs/patch-db-widgets": ["@pkgs/patch-db-widgets@workspace:pkgs/patch-db-widgets"],
 
     "@pkgs/polyfill": ["@pkgs/polyfill@workspace:pkgs/polyfill"],
 
@@ -1913,7 +1913,7 @@
 
     "@pkgs/room": ["@pkgs/room@workspace:pkgs/room"],
 
-    "@pkgs/room-example": ["@pkgs/room-example@workspace:pkgs/room-example"],
+    "@pkgs/room-widgets": ["@pkgs/room-widgets@workspace:pkgs/room-widgets"],
 
     "@pkgs/secret-store": ["@pkgs/secret-store@workspace:pkgs/secret-store"],
 

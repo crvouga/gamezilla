@@ -21,11 +21,11 @@ msgstr "?"
 msgid "›"
 msgstr "›"
 
-#: pkgs/patch-db-example/src/playground-layout.tsx
+#: pkgs/patch-db-widgets/src/playground-layout.tsx
 msgid "({count})"
 msgstr "({count})"
 
-#: pkgs/patch-db-example/src/todo/item/todo-item-title-text.tsx
+#: pkgs/patch-db-widgets/src/todo/item/todo-item-title-text.tsx
 msgid "(untitled)"
 msgstr "(untitled)"
 
@@ -54,11 +54,11 @@ msgstr "{count} selected"
 msgid "{count} user arrow(s) drawn"
 msgstr "{count} user arrow(s) drawn"
 
-#: pkgs/patch-db-example/src/db-client/entity-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-detail-screen.tsx
 msgid "{createdAt} · {createdBy}"
 msgstr "{createdAt} · {createdBy}"
 
-#: pkgs/patch-db-example/src/api-inspector.tsx
+#: pkgs/patch-db-widgets/src/api-inspector.tsx
 msgid "{entityType} / {entityIdShort} · {patchCount} patches"
 msgstr "{entityType} / {entityIdShort} · {patchCount} patches"
 
@@ -68,7 +68,7 @@ msgstr "{entityType} / {entityIdShort} · {patchCount} patches"
 msgid "{hostDisplayName}'s space"
 msgstr "{hostDisplayName}'s space"
 
-#: pkgs/patch-db-example/src/client-node-panel.tsx
+#: pkgs/patch-db-widgets/src/client-node-panel.tsx
 msgid "{latencyMs} ms"
 msgstr "{latencyMs} ms"
 
@@ -77,15 +77,15 @@ msgstr "{latencyMs} ms"
 msgid "{ms} ms"
 msgstr "{ms} ms"
 
-#: pkgs/patch-db-example/src/db-client/entities-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
 msgid "{total} total · {loaded} loaded · {shown} shown"
 msgstr "{total} total · {loaded} loaded · {shown} shown"
 
-#: pkgs/patch-db-example/src/db-client/entity-types-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-types-screen.tsx
 msgid "{totalRows} snapshot row(s) · {typeCount} type(s)"
 msgstr "{totalRows} snapshot row(s) · {typeCount} type(s)"
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-create-bar.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-create-bar.tsx
 msgid "+ New List"
 msgstr "+ New List"
 
@@ -120,7 +120,7 @@ msgstr "🌙 Dark"
 msgid "💻 System"
 msgstr "💻 System"
 
-#: pkgs/patch-db-example/src/playground-header.tsx
+#: pkgs/patch-db-widgets/src/playground-header.tsx
 msgid "0 ms"
 msgstr "0 ms"
 
@@ -128,27 +128,27 @@ msgstr "0 ms"
 msgid "1 guest"
 msgstr "1 guest"
 
-#: pkgs/patch-db-example/src/playground-header.tsx
+#: pkgs/patch-db-widgets/src/playground-header.tsx
 msgid "1 s"
 msgstr "1 s"
 
-#: pkgs/patch-db-example/src/playground-header.tsx
+#: pkgs/patch-db-widgets/src/playground-header.tsx
 msgid "150 ms"
 msgstr "150 ms"
 
-#: pkgs/patch-db-example/src/playground-header.tsx
+#: pkgs/patch-db-widgets/src/playground-header.tsx
 msgid "2 s"
 msgstr "2 s"
 
-#: pkgs/patch-db-example/src/playground-header.tsx
+#: pkgs/patch-db-widgets/src/playground-header.tsx
 msgid "5 s"
 msgstr "5 s"
 
-#: pkgs/patch-db-example/src/playground-header.tsx
+#: pkgs/patch-db-widgets/src/playground-header.tsx
 msgid "50 ms"
 msgstr "50 ms"
 
-#: pkgs/patch-db-example/src/playground-header.tsx
+#: pkgs/patch-db-widgets/src/playground-header.tsx
 msgid "500 ms"
 msgstr "500 ms"
 
@@ -307,7 +307,7 @@ msgstr "Account"
 msgid "Account ID"
 msgstr "Account ID"
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-detail.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 msgid "Active"
 msgstr "Active"
 
@@ -319,17 +319,17 @@ msgstr "Active"
 #~ msgid "Active rook. Don't trade it down."
 #~ msgstr "Active rook. Don't trade it down."
 
-#: pkgs/patch-db-example/src/todo/item/todo-add-bar.tsx
-#: pkgs/patch-db-example/src/todo/list/todo-list-create-bar.tsx
+#: pkgs/patch-db-widgets/src/todo/item/todo-add-bar.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-create-bar.tsx
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "Add"
 msgstr "Add"
 
-#: pkgs/patch-db-example/src/todo/item/todo-add-bar.tsx
+#: pkgs/patch-db-widgets/src/todo/item/todo-add-bar.tsx
 msgid "Add a todo..."
 msgstr "Add a todo..."
 
-#: pkgs/patch-db-example/src/playground-header.tsx
+#: pkgs/patch-db-widgets/src/playground-header.tsx
 msgid "Add Client"
 msgstr "Add Client"
 
@@ -337,15 +337,15 @@ msgstr "Add Client"
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-detail.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 msgid "Add one above to get started."
 msgstr "Add one above to get started."
 
-#: pkgs/patch-db-example/src/shape-list.tsx
+#: pkgs/patch-db-widgets/src/shape-list.tsx
 msgid "Add Shape"
 msgstr "Add Shape"
 
-#: pkgs/patch-db-example/src/api-inspector.tsx
+#: pkgs/patch-db-widgets/src/api-inspector.tsx
 msgid "Admin Metrics"
 msgstr "Admin Metrics"
 
@@ -373,7 +373,7 @@ msgstr "Admin Metrics"
 #~ msgid "Aim at the weakest square — f2 or f7. Classic."
 #~ msgstr "Aim at the weakest square — f2 or f7. Classic."
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-detail.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 msgid "All"
 msgstr "All"
 
@@ -514,11 +514,11 @@ msgstr "Appearance"
 #~ msgid "Arabian setup is right. Finish it."
 #~ msgstr "Arabian setup is right. Finish it."
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-delete-confirmation-modal.tsx
 msgid "Are you sure you want to delete \"{name}\"? This cannot be undone."
 msgstr "Are you sure you want to delete \"{name}\"? This cannot be undone."
 
-#: pkgs/patch-db-example/src/todo/list/todo-lists-overview.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
 msgid "Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload."
 msgstr "Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload."
 
@@ -544,7 +544,7 @@ msgstr "Arrows"
 #~ msgid "Attraction worked. Piece pulled to its doom."
 #~ msgstr "Attraction worked. Piece pulled to its doom."
 
-#: pkgs/patch-db-example/src/db-client/entity-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-detail-screen.tsx
 msgid "Attributes"
 msgstr "Attributes"
 
@@ -552,7 +552,7 @@ msgstr "Attributes"
 msgid "auth"
 msgstr "auth"
 
-#: pkgs/patch-db-example/src/server-node-panel.tsx
+#: pkgs/patch-db-widgets/src/server-node-panel.tsx
 msgid "Authority"
 msgstr "Authority"
 
@@ -807,7 +807,7 @@ msgstr "Bluetooth"
 #~ msgid "Bold sacrifice — now follow through."
 #~ msgstr "Bold sacrifice — now follow through."
 
-#: pkgs/patch-db-example/src/db-client/format-value.tsx
+#: pkgs/patch-db-widgets/src/db-client/format-value.tsx
 msgid "bool"
 msgstr "bool"
 
@@ -887,8 +887,8 @@ msgstr "Build mode: {buildMode}"
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 #: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 #: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
-#: pkgs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
-#: pkgs/patch-db-example/src/todo/list/todo-lists-overview.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-delete-confirmation-modal.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
 msgid "Cancel"
 msgstr "Cancel"
@@ -1068,7 +1068,7 @@ msgstr "Choose style"
 msgid "clear"
 msgstr "clear"
 
-#: pkgs/patch-db-example/src/todo/list/todo-lists-overview.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
 msgid "Clear"
 msgstr "Clear"
 
@@ -1076,11 +1076,11 @@ msgstr "Clear"
 #~ msgid "Clear a square — or a whole line. Make room."
 #~ msgstr "Clear a square — or a whole line. Make room."
 
-#: pkgs/patch-db-example/src/todo/list/todo-lists-overview.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
 msgid "Clear All Data"
 msgstr "Clear All Data"
 
-#: pkgs/patch-db-example/src/todo/list/todo-lists-overview.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
 msgid "Clear data"
 msgstr "Clear data"
 
@@ -1116,11 +1116,11 @@ msgstr "Clear SQLite and reload (same as Clear data in Todos)"
 #~ msgid "Cleared the path and struck. Excellent."
 #~ msgstr "Cleared the path and struck. Excellent."
 
-#: pkgs/room-example/src/pages/playground-page.tsx
+#: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "Client A (alice)"
 msgstr "Client A (alice)"
 
-#: pkgs/room-example/src/pages/playground-page.tsx
+#: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "Client B (bob)"
 msgstr "Client B (bob)"
 
@@ -1129,7 +1129,7 @@ msgstr "Client B (bob)"
 msgid "Client config"
 msgstr "Client config"
 
-#: pkgs/patch-db-example/src/playground-layout.tsx
+#: pkgs/patch-db-widgets/src/playground-layout.tsx
 msgid "Clients"
 msgstr "Clients"
 
@@ -1139,7 +1139,7 @@ msgstr "close"
 
 #: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/chess-board/src/chess-board.example.tsx
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 #: pkgs/ui/src/components/responsive-surface/responsive-surface-header.tsx
 msgid "Close"
 msgstr "Close"
@@ -1185,7 +1185,7 @@ msgstr "Commit (short): {shortCommitHash}"
 msgid "Commit hash"
 msgstr "Commit hash"
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-detail.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 msgid "Completed"
 msgstr "Completed"
 
@@ -1197,7 +1197,7 @@ msgstr "Component"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: pkgs/patch-db-example/src/api-inspector.tsx
+#: pkgs/patch-db-widgets/src/api-inspector.tsx
 msgid "Connect"
 msgstr "Connect"
 
@@ -1209,7 +1209,7 @@ msgstr "Connect"
 msgid "Connected"
 msgstr "Connected"
 
-#: pkgs/patch-db-example/src/api-inspector.tsx
+#: pkgs/patch-db-widgets/src/api-inspector.tsx
 msgid "Connected to {url}"
 msgstr "Connected to {url}"
 
@@ -1217,7 +1217,7 @@ msgstr "Connected to {url}"
 msgid "Connected: {connectedAt}"
 msgstr "Connected: {connectedAt}"
 
-#: pkgs/patch-db-example/src/api-inspector.tsx
+#: pkgs/patch-db-widgets/src/api-inspector.tsx
 msgid "Connecting to {url}"
 msgstr "Connecting to {url}"
 
@@ -1333,7 +1333,7 @@ msgstr "Counter unavailable — sign in and open this space on the device where 
 msgid "create"
 msgstr "create"
 
-#: pkgs/patch-db-example/src/todo/list/todo-lists-overview.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
 msgid "Create one above or add todos to Inbox."
 msgstr "Create one above or add todos to Inbox."
 
@@ -1523,13 +1523,13 @@ msgstr "Default board, drag or tap-to-move, orientation toggle."
 #~ msgid "Deflection complete. Defender was the key."
 #~ msgstr "Deflection complete. Defender was the key."
 
-#: pkgs/patch-db-example/src/todo/item/todo-item-row.tsx
-#: pkgs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
-#: pkgs/patch-db-example/src/todo/list/todo-list-row-delete-button.tsx
+#: pkgs/patch-db-widgets/src/todo/item/todo-item-row.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-delete-confirmation-modal.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-row-delete-button.tsx
 msgid "Delete"
 msgstr "Delete"
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-delete-confirmation-modal.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-delete-confirmation-modal.tsx
 msgid "Delete List"
 msgstr "Delete List"
 
@@ -1609,7 +1609,7 @@ msgstr "Discard"
 msgid "Discard changes?"
 msgstr "Discard changes?"
 
-#: pkgs/patch-db-example/src/api-inspector.tsx
+#: pkgs/patch-db-widgets/src/api-inspector.tsx
 msgid "Disconnect"
 msgstr "Disconnect"
 
@@ -1879,8 +1879,8 @@ msgstr "Effects"
 msgid "Email"
 msgstr "Email"
 
-#: pkgs/patch-db-example/src/db-client/entities-screen.tsx
-#: pkgs/patch-db-example/src/db-client/patch-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/patch-detail-screen.tsx
 msgid "Empty read result"
 msgstr "Empty read result"
 
@@ -1983,7 +1983,7 @@ msgstr "End space?"
 #~ msgid "Endgame. Every single move matters."
 #~ msgstr "Endgame. Every single move matters."
 
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "entities"
 msgstr "entities"
 
@@ -1991,11 +1991,11 @@ msgstr "entities"
 msgid "Entity type client-config, id client-config__singleton"
 msgstr "Entity type client-config, id client-config__singleton"
 
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "entityId (optional)"
 msgstr "entityId (optional)"
 
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "entityType (optional)"
 msgstr "entityType (optional)"
 
@@ -2146,19 +2146,19 @@ msgstr "exit"
 #~ msgid "f2/f7 cracked. Classic finish."
 #~ msgstr "f2/f7 cracked. Classic finish."
 
-#: pkgs/patch-db-example/src/api-inspector.tsx
+#: pkgs/patch-db-widgets/src/api-inspector.tsx
 msgid "Failed to fetch metrics"
 msgstr "Failed to fetch metrics"
 
-#: pkgs/patch-db-example/src/db-client/entities-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
 msgid "Failed to load entities"
 msgstr "Failed to load entities"
 
-#: pkgs/patch-db-example/src/db-client/entity-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-detail-screen.tsx
 msgid "Failed to load patches"
 msgstr "Failed to load patches"
 
-#: pkgs/patch-db-example/src/db-client/entity-types-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-types-screen.tsx
 msgid "Failed to scan snapshots"
 msgstr "Failed to scan snapshots"
 
@@ -2178,11 +2178,11 @@ msgstr "Failed to scan snapshots"
 msgid "Features"
 msgstr "Features"
 
-#: pkgs/patch-db-example/src/db-client/entities-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
 msgid "Filter loaded rows (id or attributes)…"
 msgstr "Filter loaded rows (id or attributes)…"
 
-#: pkgs/patch-db-example/src/db-client/entity-types-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-types-screen.tsx
 msgid "Filter types…"
 msgstr "Filter types…"
 
@@ -2908,7 +2908,7 @@ msgstr "Gamezilla"
 msgid "Give your space a name"
 msgstr "Give your space a name"
 
-#: pkgs/patch-db-example/src/playground-header.tsx
+#: pkgs/patch-db-widgets/src/playground-header.tsx
 msgid "Global latency"
 msgstr "Global latency"
 
@@ -3307,7 +3307,7 @@ msgstr "host"
 msgid "Host"
 msgstr "Host"
 
-#: pkgs/patch-db-example/src/api-inspector.tsx
+#: pkgs/patch-db-widgets/src/api-inspector.tsx
 msgid "https://..."
 msgstr "https://..."
 
@@ -3319,7 +3319,7 @@ msgstr "https://..."
 #~ msgid "In-between move worked. Sharp play."
 #~ msgstr "In-between move worked. Sharp play."
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-row-name-text.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-row-name-text.tsx
 msgid "Inbox"
 msgstr "Inbox"
 
@@ -3636,7 +3636,7 @@ msgstr "Join this space to see who is here and hang out."
 msgid "Last seen"
 msgstr "Last seen"
 
-#: pkgs/patch-db-example/src/client-node-panel.tsx
+#: pkgs/patch-db-widgets/src/client-node-panel.tsx
 msgid "Latency"
 msgstr "Latency"
 
@@ -3652,7 +3652,7 @@ msgstr "latency checking"
 msgid "latency unavailable"
 msgstr "latency unavailable"
 
-#: pkgs/patch-db-example/src/client-node-panel.tsx
+#: pkgs/patch-db-widgets/src/client-node-panel.tsx
 msgid "Latency: {latencyLabel}"
 msgstr "Latency: {latencyLabel}"
 
@@ -3717,7 +3717,7 @@ msgstr "Light, dark, or system theme"
 #~ msgid "Like Morphy at the opera. Pin and finish."
 #~ msgstr "Like Morphy at the opera. Pin and finish."
 
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "limit"
 msgstr "limit"
 
@@ -3746,7 +3746,7 @@ msgstr "Limited or checking"
 #~ msgid "Lines opening up. Keep the pressure."
 #~ msgstr "Lines opening up. Keep the pressure."
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-create-bar.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-create-bar.tsx
 msgid "List name..."
 msgstr "List name..."
 
@@ -3755,11 +3755,11 @@ msgstr "List name..."
 msgid "Live"
 msgstr "Live"
 
-#: pkgs/patch-db-example/src/db-client/entities-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
 msgid "Load more"
 msgstr "Load more"
 
-#: pkgs/patch-db-example/src/db-client/entity-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-detail-screen.tsx
 msgid "Loading entity…"
 msgstr "Loading entity…"
 
@@ -3775,7 +3775,7 @@ msgstr "Loading entity…"
 #~ msgid "Loading your puzzle."
 #~ msgstr "Loading your puzzle."
 
-#: pkgs/patch-db-example/src/db-client/entities-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
 msgid "Loading…"
 msgstr "Loading…"
 
@@ -4542,11 +4542,11 @@ msgstr "No"
 msgid "No active session"
 msgstr "No active session"
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-detail.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 msgid "No active todos"
 msgstr "No active todos"
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-detail.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 #~ msgid "No active todos."
 #~ msgstr "No active todos."
 
@@ -4554,11 +4554,11 @@ msgstr "No active todos"
 #~ msgid "No check, no capture — just a strong move."
 #~ msgstr "No check, no capture — just a strong move."
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-detail.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 msgid "No completed todos"
 msgstr "No completed todos"
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-detail.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 #~ msgid "No completed todos."
 #~ msgstr "No completed todos."
 
@@ -4570,11 +4570,11 @@ msgstr "No component selected"
 msgid "No device data yet."
 msgstr "No device data yet."
 
-#: pkgs/patch-db-example/src/db-client/entities-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
 msgid "No entities for this type."
 msgstr "No entities for this type."
 
-#: pkgs/patch-db-example/src/db-client/entity-types-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-types-screen.tsx
 msgid "No entities in this database."
 msgstr "No entities in this database."
 
@@ -4591,11 +4591,11 @@ msgstr "No guests yet"
 msgid "No host listed"
 msgstr "No host listed"
 
-#: pkgs/patch-db-example/src/todo/list/todo-lists-overview.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
 msgid "No lists yet"
 msgstr "No lists yet"
 
-#: pkgs/patch-db-example/src/todo/list/todo-lists-overview.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
 #~ msgid "No lists yet. Create one above or add todos to Inbox."
 #~ msgstr "No lists yet. Create one above or add todos to Inbox."
 
@@ -4619,7 +4619,7 @@ msgstr "No live spaces"
 msgid "No OAuth provider records on file for this user."
 msgstr "No OAuth provider records on file for this user."
 
-#: pkgs/patch-db-example/src/db-client/entity-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-detail-screen.tsx
 msgid "No patches for this entity."
 msgstr "No patches for this entity."
 
@@ -4627,7 +4627,7 @@ msgstr "No patches for this entity."
 #~ msgid "No puzzle selected"
 #~ msgstr "No puzzle selected"
 
-#: pkgs/patch-db-example/src/db-client/entities-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
 msgid "No rows match filter."
 msgstr "No rows match filter."
 
@@ -4639,7 +4639,7 @@ msgstr "No rows match filter."
 #~ msgid "No rush — let the position come to you."
 #~ msgstr "No rush — let the position come to you."
 
-#: pkgs/patch-db-example/src/shape-list.tsx
+#: pkgs/patch-db-widgets/src/shape-list.tsx
 msgid "No shapes yet"
 msgstr "No shapes yet"
 
@@ -4647,15 +4647,15 @@ msgstr "No shapes yet"
 #~ msgid "No themes listed"
 #~ msgstr "No themes listed"
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-detail.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 msgid "No todos yet"
 msgstr "No todos yet"
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-detail.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 #~ msgid "No todos yet. Add one above!"
 #~ msgstr "No todos yet. Add one above!"
 
-#: pkgs/patch-db-example/src/db-client/entity-types-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-types-screen.tsx
 msgid "No types match filter."
 msgstr "No types match filter."
 
@@ -4721,11 +4721,11 @@ msgstr "None"
 #~ msgstr "Now grab the piece behind."
 
 #: libs/client-config/src/client/client-config-entity-card.tsx
-#: pkgs/patch-db-example/src/db-client/format-value.tsx
+#: pkgs/patch-db-widgets/src/db-client/format-value.tsx
 msgid "null"
 msgstr "null"
 
-#: pkgs/patch-db-example/src/db-client/format-value.tsx
+#: pkgs/patch-db-widgets/src/db-client/format-value.tsx
 msgid "num"
 msgstr "num"
 
@@ -4733,7 +4733,7 @@ msgstr "num"
 msgid "OAuth provider details are listed here once you are signed in."
 msgstr "OAuth provider details are listed here once you are signed in."
 
-#: pkgs/patch-db-example/src/db-client/format-value.tsx
+#: pkgs/patch-db-widgets/src/db-client/format-value.tsx
 msgid "obj"
 msgstr "obj"
 
@@ -4759,7 +4759,7 @@ msgstr "Off"
 msgid "Offline"
 msgstr "Offline"
 
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "offset"
 msgstr "offset"
 
@@ -4988,8 +4988,8 @@ msgstr "Overall"
 #~ msgid "Pace yourself through this one."
 #~ msgstr "Pace yourself through this one."
 
-#: pkgs/patch-db-example/src/client-node-panel.tsx
-#: pkgs/patch-db-example/src/server-node-panel.tsx
+#: pkgs/patch-db-widgets/src/client-node-panel.tsx
+#: pkgs/patch-db-widgets/src/server-node-panel.tsx
 msgid "Partition"
 msgstr "Partition"
 
@@ -4997,7 +4997,7 @@ msgstr "Partition"
 msgid "Pass `theme` to override any board color (squares, highlights, arrows, feedback)."
 msgstr "Pass `theme` to override any board color (squares, highlights, arrows, feedback)."
 
-#: pkgs/patch-db-example/src/db-client/patch-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/patch-detail-screen.tsx
 msgid "Patch attributes"
 msgstr "Patch attributes"
 
@@ -5015,24 +5015,24 @@ msgstr "Patch DB Playground"
 msgid "Patch DB todo lists (demo)"
 msgstr "Patch DB todo lists (demo)"
 
-#: pkgs/patch-db-example/src/db-client/patch-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/patch-detail-screen.tsx
 msgid "Patch metadata"
 msgstr "Patch metadata"
 
-#: pkgs/patch-db-example/src/db-client/patch-detail-screen.tsx
-#: pkgs/patch-db-example/src/db-client/patch-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/patch-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/patch-detail-screen.tsx
 msgid "Patch not found"
 msgstr "Patch not found"
 
-#: pkgs/patch-db-example/src/db-client/patch-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/patch-detail-screen.tsx
 msgid "Patch not loaded"
 msgstr "Patch not loaded"
 
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "patches"
 msgstr "patches"
 
-#: pkgs/patch-db-example/src/db-client/entity-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-detail-screen.tsx
 msgid "Patches"
 msgstr "Patches"
 
@@ -5265,11 +5265,11 @@ msgstr "Platform: {platformOs}"
 #~ msgid "Played by a master. Their idea is in here."
 #~ msgstr "Played by a master. Their idea is in here."
 
-#: pkgs/patch-db-example/src/nav.tsx
+#: pkgs/patch-db-widgets/src/nav.tsx
 msgid "Playground"
 msgstr "Playground"
 
-#: pkgs/patch-db-example/src/playground-app.tsx
+#: pkgs/patch-db-widgets/src/playground-app.tsx
 msgid "Playground failed to start"
 msgstr "Playground failed to start"
 
@@ -5455,11 +5455,11 @@ msgstr "Puzzle"
 #~ msgid "Queenside pressure. Break through."
 #~ msgstr "Queenside pressure. Break through."
 
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "Query"
 msgstr "Query"
 
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "Query failed"
 msgstr "Query failed"
 
@@ -5512,13 +5512,13 @@ msgstr "Read-only: OAuth identities stored for your account."
 #~ msgid "Reasonable idea, but something better is there."
 #~ msgstr "Reasonable idea, but something better is there."
 
-#: pkgs/patch-db-example/src/api-inspector.tsx
-#: pkgs/patch-db-example/src/client-node-panel.tsx
-#: pkgs/patch-db-example/src/server-node-panel.tsx
+#: pkgs/patch-db-widgets/src/api-inspector.tsx
+#: pkgs/patch-db-widgets/src/client-node-panel.tsx
+#: pkgs/patch-db-widgets/src/server-node-panel.tsx
 msgid "Reconnect"
 msgstr "Reconnect"
 
-#: pkgs/patch-db-example/src/db-client/entity-types-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-types-screen.tsx
 msgid "Refresh"
 msgstr "Refresh"
 
@@ -5576,7 +5576,7 @@ msgstr "Rename space"
 msgid "Render dragged piece in app overlay portal"
 msgstr "Render dragged piece in app overlay portal"
 
-#: pkgs/patch-db-example/src/nav.tsx
+#: pkgs/patch-db-widgets/src/nav.tsx
 msgid "Req Res"
 msgstr "Req Res"
 
@@ -5585,7 +5585,7 @@ msgid "reset"
 msgstr "reset"
 
 #: libs/profile/src/client/avatar-editor-screen.tsx
-#: pkgs/patch-db-example/src/playground-header.tsx
+#: pkgs/patch-db-widgets/src/playground-header.tsx
 msgid "Reset"
 msgstr "Reset"
 
@@ -5909,7 +5909,7 @@ msgstr "Reset position"
 #~ msgid "Reset. Who's blocking a checking line?"
 #~ msgstr "Reset. Who's blocking a checking line?"
 
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "Result"
 msgstr "Result"
 
@@ -5994,7 +5994,7 @@ msgstr "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cm
 msgid "Room Playground"
 msgstr "Room Playground"
 
-#: pkgs/room-example/src/pages/playground-page.tsx
+#: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "Room v2 (loopback)"
 msgstr "Room v2 (loopback)"
 
@@ -6006,15 +6006,15 @@ msgstr "Room v2 (loopback)"
 #~ msgid "route"
 #~ msgstr "route"
 
-#: pkgs/patch-db-example/src/db-client/entity-types-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-types-screen.tsx
 msgid "Run query"
 msgstr "Run query"
 
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "Run read([query])"
 msgstr "Run read([query])"
 
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "Running…"
 msgstr "Running…"
 
@@ -6068,7 +6068,7 @@ msgstr "Save"
 #~ msgid "Scan the position before you touch a piece."
 #~ msgstr "Scan the position before you touch a piece."
 
-#: pkgs/patch-db-example/src/db-client/entity-types-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-types-screen.tsx
 msgid "Scanning snapshots…"
 msgstr "Scanning snapshots…"
 
@@ -6097,7 +6097,7 @@ msgstr "Select…"
 #~ msgstr "self"
 
 #: libs/client-config/src/client/client-config-server-refresh.tsx
-#: pkgs/patch-db-example/src/playground-layout.tsx
+#: pkgs/patch-db-widgets/src/playground-layout.tsx
 msgid "Server"
 msgstr "Server"
 
@@ -6109,7 +6109,7 @@ msgstr "Server client config updated"
 #~ msgid "Server client config updated. Local view updates after the next PatchDB sync."
 #~ msgstr "Server client config updated. Local view updates after the next PatchDB sync."
 
-#: pkgs/patch-db-example/src/api-inspector.tsx
+#: pkgs/patch-db-widgets/src/api-inspector.tsx
 msgid "Server Connection"
 msgstr "Server Connection"
 
@@ -6164,8 +6164,8 @@ msgstr "Settings"
 #~ msgid "Setup is right. Two more moves to mate."
 #~ msgstr "Setup is right. Two more moves to mate."
 
-#: pkgs/patch-db-example/src/client-node-panel.tsx
-#: pkgs/patch-db-example/src/server-node-panel.tsx
+#: pkgs/patch-db-widgets/src/client-node-panel.tsx
+#: pkgs/patch-db-widgets/src/server-node-panel.tsx
 msgid "Shapes ({entityCount})"
 msgstr "Shapes ({entityCount})"
 
@@ -6592,7 +6592,7 @@ msgstr "Status: {serverLine}"
 msgid "stop"
 msgstr "stop"
 
-#: pkgs/patch-db-example/src/db-client/format-value.tsx
+#: pkgs/patch-db-widgets/src/db-client/format-value.tsx
 msgid "str"
 msgstr "str"
 
@@ -7499,7 +7499,7 @@ msgstr "Try dragging a piece on the board with this modal open. With the overlay
 #~ msgid "Two checks at once is unstoppable. Spot the move."
 #~ msgstr "Two checks at once is unstoppable. Spot the move."
 
-#: pkgs/room-example/src/pages/playground-page.tsx
+#: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "Two clients share one in-memory RoomServer; increments converge on both."
 msgstr "Two clients share one in-memory RoomServer; increments converge on both."
 
@@ -7608,7 +7608,7 @@ msgstr "Unknown"
 msgid "Unreachable"
 msgstr "Unreachable"
 
-#: pkgs/patch-db-example/src/todo/list/todo-list-row-name-text.tsx
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-row-name-text.tsx
 msgid "Untitled"
 msgstr "Untitled"
 
@@ -7657,8 +7657,8 @@ msgstr "User-drawn arrows"
 msgid "Username"
 msgstr "Username"
 
-#: pkgs/patch-db-example/src/db-client/entity-detail-screen.tsx
-#: pkgs/patch-db-example/src/db-client/patch-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/entity-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/patch-detail-screen.tsx
 msgid "Value"
 msgstr "Value"
 
@@ -7686,7 +7686,7 @@ msgstr "Version: {appVersion}"
 #~ msgid "Very long line. Every move should be forcing."
 #~ msgstr "Very long line. Every move should be forcing."
 
-#: pkgs/patch-db-example/src/db-client/patch-detail-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/patch-detail-screen.tsx
 msgid "View parent patch"
 msgstr "View parent patch"
 
@@ -7730,11 +7730,11 @@ msgstr "View profile"
 #~ msgid "Wait — mate was one move. Stay sharp."
 #~ msgstr "Wait — mate was one move. Stay sharp."
 
-#: pkgs/patch-db-example/src/api-inspector.tsx
+#: pkgs/patch-db-widgets/src/api-inspector.tsx
 #~ msgid "Waiting for metrics from server..."
 #~ msgstr "Waiting for metrics from server..."
 
-#: pkgs/patch-db-example/src/api-inspector.tsx
+#: pkgs/patch-db-widgets/src/api-inspector.tsx
 msgid "Waiting for metrics from server…"
 msgstr "Waiting for metrics from server…"
 
@@ -7811,7 +7811,7 @@ msgstr "Waiting for metrics from server…"
 #~ msgid "What's the biggest threat on the board right now?"
 #~ msgstr "What's the biggest threat on the board right now?"
 
-#: pkgs/patch-db-example/src/db-client/query-screen.tsx
+#: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "where (JSON, optional)"
 msgstr "where (JSON, optional)"
 

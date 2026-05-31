@@ -1,5 +1,5 @@
 /**
- * Serves the `pkgs/patch-db-example` folder over HTTP (default port 8765).
+ * Serves the `pkgs/patch-db-widgets` folder over HTTP (default port 8765).
  * Use if `file://` blocks sql.js WASM; open http://127.0.0.1:8765
  */
 import { createLogger } from '@pkgs/logger';
@@ -15,8 +15,8 @@ const ROOT = join(
   '..',
   '..',
   '..',
-  'packages',
-  'patch-db-example'
+  'pkgs',
+  'patch-db-widgets'
 );
 
 const port = Number(process.env['PATCHDB_APP_PORT'] ?? '8765');

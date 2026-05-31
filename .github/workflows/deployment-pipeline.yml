@@ -47,16 +47,6 @@ on:
       - LICENSE
       - .gitignore
   workflow_dispatch:
-    inputs:
-      eas_profile:
-        description: EAS build profile for the eas-mobile job (push to main uses production)
-        default: production
-        type: choice
-        options:
-          - development
-          - development-simulator
-          - preview
-          - production
 
 jobs:
   # Single Turbo-orchestrated job for every cacheable repo gate: format,
@@ -297,7 +287,7 @@ jobs:
   # otherwise a freshly-updated client could hit an older API or a schema
   # that hasn't migrated yet. The `if` below uses `always()` + explicit
   # result checks so the gate still works on `workflow_dispatch`, where
-  # `deploy` is intentionally skipped (manual dev/preview builds don't gate
+  # `deploy` is intentionally skipped (manual `development` builds don't gate
   # on a prod deploy).
   #
   # `EXPO_TOKEN` is loaded from Doppler `dev` into `GITHUB_ENV`, then passed
@@ -356,21 +346,20 @@ jobs:
           eas-version: latest
           token: ${{ env.EXPO_TOKEN }}
 
-      # On a manual run the profile picks the matching update channel; a
-      # push to main always uses production. `development-simulator` shares
-      # the `development` channel (it inherits the channel via `extends`).
+      # Two environments only: a push to `main` ships `production`; a manual
+      # `workflow_dispatch` run ships `development`. Profile and update
+      # channel always match by name.
       - name: Resolve EAS profile + channel
         id: eas
         run: |
           set -euo pipefail
-          PROFILE="${{ github.event.inputs.eas_profile || 'production' }}"
-          case "$PROFILE" in
-            development|development-simulator) CHANNEL=development ;;
-            preview) CHANNEL=preview ;;
-            *) CHANNEL=production ;;
-          esac
-          echo "profile=$PROFILE" >> "$GITHUB_OUTPUT"
-          echo "channel=$CHANNEL" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ENV=development
+          else
+            ENV=production
+          fi
+          echo "profile=$ENV" >> "$GITHUB_OUTPUT"
+          echo "channel=$ENV" >> "$GITHUB_OUTPUT"
 
       - name: EAS Build (native binaries)
         env:

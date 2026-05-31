@@ -2,7 +2,7 @@ import type { PatchDbQuery, PatchDbResult, PatchInput } from '../interface';
 
 /**
  * True when sim should record events and persist on destroy.
- * TODO: Re-enable when patch-db-example recording returns (e.g. `PATCHDB_APP_RECORDING=1`).
+ * TODO: Re-enable when patch-db-widgets recording returns (e.g. `PATCHDB_APP_RECORDING=1`).
  */
 export function isPatchDbAppEnabled(): boolean {
   return false;

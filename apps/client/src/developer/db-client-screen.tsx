@@ -5,7 +5,7 @@ import {
   ExplorerRoute,
   type PatchDbExplorerApplyParams,
   type PatchDbExplorerParams,
-} from '@pkgs/patch-db-example/db-client/navigator';
+} from '@pkgs/patch-db-widgets/db-client/navigator';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';

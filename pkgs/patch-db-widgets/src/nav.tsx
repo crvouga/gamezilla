@@ -5,7 +5,7 @@ import { useLingui } from '@lingui/react/macro';
 
 export type PatchdbAppMode = 'playground' | 'syncInspector';
 
-const MODE_STORAGE_KEY = 'patch-db-example-mode';
+const MODE_STORAGE_KEY = 'patch-db-widgets-mode';
 
 let cachedMode: PatchdbAppMode = 'playground';
 

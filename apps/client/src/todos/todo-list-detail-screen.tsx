@@ -1,5 +1,5 @@
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
-import { INBOX_LIST_ID, TodoListDetail } from '@pkgs/patch-db-example/todo';
+import { INBOX_LIST_ID, TodoListDetail } from '@pkgs/patch-db-widgets/todo';
 import { Trans } from '@lingui/react/macro';
 import { useLocalSearchParams } from 'expo-router';
 
