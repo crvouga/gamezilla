@@ -5,11 +5,10 @@
  * origin is local (see {@link isLocalApiOrigin}); the server-side provider
  * is gated symmetrically, so the call is a no-op against production.
  */
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 import { DEV_PROVIDER } from '../shared/auth-entities';
-import { authBaseUrl, useAuthClient } from './better-auth-client';
-import { useConfigService } from './config-service-context';
+import { useAuthClient } from './auth-client-provider';
 
 type SignInOauth2Result = {
   error?: { message?: string } | null;
@@ -33,9 +32,7 @@ function navigateIfRedirectUrl(res: SignInOauth2Result): void {
 
 /** Returns an async sign-in trigger that drives the dev IdP `genericOAuth` flow. */
 export function useSignInWithDev(): () => Promise<void> {
-  const apiUrl = useConfigService().getApiUrl();
-  const baseURL = useMemo(() => authBaseUrl(apiUrl), [apiUrl]);
-  const authClient = useAuthClient(baseURL);
+  const authClient = useAuthClient();
 
   return useCallback(async () => {
     const callbackURL = resolveCallbackUrl();

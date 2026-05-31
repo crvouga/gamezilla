@@ -9,10 +9,9 @@ import {
   SESSION_TOKEN_KEY,
 } from './auth-storage-keys';
 import {
-  authBaseUrl,
   useAuthClient,
   type SessionSnapshot,
-} from './better-auth-client';
+} from './auth-client-provider';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { useConfigService } from './config-service-context';
 import { refreshAuth } from './refresh-auth-fetch';
@@ -138,8 +137,7 @@ function useRefreshOnAppForeground(args: {
  */
 export function AuthBridge(): ReactNode {
   const apiUrl = useConfigService().getApiUrl();
-  const baseURL = useMemo(() => authBaseUrl(apiUrl), [apiUrl]);
-  const authClient = useAuthClient(baseURL);
+  const authClient = useAuthClient();
   const snapshot: SessionSnapshot = authClient.useSession();
   const storage = useSecureStorage();
   const deviceId = useDeviceId();

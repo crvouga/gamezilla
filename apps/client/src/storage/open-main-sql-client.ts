@@ -1,9 +1,10 @@
+import { assertDatabaseName } from '@pkgs/sql';
 import { SqlClientImplExpoSqlite } from '@pkgs/sql-client/impl-expo-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { assertDatabaseName } from '@pkgs/sql';
 
 /** Single shared local database name. No per-account file split. */
 export const MAIN_SQLITE_DB_NAME = 'main';
+assertDatabaseName(MAIN_SQLITE_DB_NAME);
 
 /**
  * Opens the one and only client SQLite database (`main`) on every platform

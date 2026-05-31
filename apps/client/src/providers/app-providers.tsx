@@ -1,4 +1,5 @@
 import { AuthBridge } from '@libs/auth/client/auth-bridge';
+import { AuthClientProvider } from '@libs/auth/client/auth-client-provider';
 import { AuthModalsProvider } from '@libs/auth/client/auth-modals-provider';
 import { ProfileProvider } from '@libs/profile/client/profile-provider';
 import { preventSplashAutoHide, SpinnerProvider } from '@pkgs/ui';
@@ -36,44 +37,46 @@ export function AppProviders({ children }: { children: ReactNode }): ReactNode {
           <KvProvider>
             <AppThemeProvider>
               <SpinnerProvider>
-                <SuspenseRootProvider>
-                  <AppI18nProviderWrapper>
-                    <UiPortalsProvider>
-                      <LoggerProvider>
-                        <SecureStorageProvider>
-                          <ConfigServiceProviderWrapper>
-                            <ObjectStoreProviderWrapper>
-                              <LlmProviderWrapper>
-                                <TtsProviderWrapper>
-                                  <ApiClientProviderWrapper>
-                                    <SqlClientProvider>
-                                      <PatchDbProvider>
-                                        <DeviceEntityBootstrapProvider>
-                                          <PatchDbLocalDataActionsProvider>
-                                            <ProfileProvider>
-                                              <AuthBridge />
-                                              <AuthModalsProvider>
-                                                <GamesBootstrapProvider>
-                                                  <CommandRegistryProviderWrapper>
-                                                    {children}
-                                                  </CommandRegistryProviderWrapper>
-                                                </GamesBootstrapProvider>
-                                              </AuthModalsProvider>
-                                            </ProfileProvider>
-                                          </PatchDbLocalDataActionsProvider>
-                                        </DeviceEntityBootstrapProvider>
-                                      </PatchDbProvider>
-                                    </SqlClientProvider>
-                                  </ApiClientProviderWrapper>
-                                </TtsProviderWrapper>
-                              </LlmProviderWrapper>
-                            </ObjectStoreProviderWrapper>
-                          </ConfigServiceProviderWrapper>
-                        </SecureStorageProvider>
-                      </LoggerProvider>
-                    </UiPortalsProvider>
-                  </AppI18nProviderWrapper>
-                </SuspenseRootProvider>
+                <SecureStorageProvider>
+                  <ConfigServiceProviderWrapper>
+                    <AuthClientProvider>
+                      <SuspenseRootProvider>
+                        <AppI18nProviderWrapper>
+                          <UiPortalsProvider>
+                            <LoggerProvider>
+                              <ObjectStoreProviderWrapper>
+                                <LlmProviderWrapper>
+                                  <TtsProviderWrapper>
+                                    <ApiClientProviderWrapper>
+                                      <SqlClientProvider>
+                                        <PatchDbProvider>
+                                          <DeviceEntityBootstrapProvider>
+                                            <PatchDbLocalDataActionsProvider>
+                                              <ProfileProvider>
+                                                <AuthBridge />
+                                                <AuthModalsProvider>
+                                                  <GamesBootstrapProvider>
+                                                    <CommandRegistryProviderWrapper>
+                                                      {children}
+                                                    </CommandRegistryProviderWrapper>
+                                                  </GamesBootstrapProvider>
+                                                </AuthModalsProvider>
+                                              </ProfileProvider>
+                                            </PatchDbLocalDataActionsProvider>
+                                          </DeviceEntityBootstrapProvider>
+                                        </PatchDbProvider>
+                                      </SqlClientProvider>
+                                    </ApiClientProviderWrapper>
+                                  </TtsProviderWrapper>
+                                </LlmProviderWrapper>
+                              </ObjectStoreProviderWrapper>
+                            </LoggerProvider>
+                          </UiPortalsProvider>
+                        </AppI18nProviderWrapper>
+                      </SuspenseRootProvider>
+                    </AuthClientProvider>
+                  </ConfigServiceProviderWrapper>
+                </SecureStorageProvider>
               </SpinnerProvider>
             </AppThemeProvider>
           </KvProvider>

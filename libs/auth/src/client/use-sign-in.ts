@@ -1,8 +1,7 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
-import type { AuthClient } from './better-auth-client';
-import { authBaseUrl, useAuthClient } from './better-auth-client';
-import { useConfigService } from './config-service-context';
+import type { AuthClient } from './auth-client-provider';
+import { useAuthClient } from './auth-client-provider';
 
 type SignInSocialResult = {
   error?: { message?: string } | null;
@@ -32,9 +31,7 @@ function navigateIfRedirectUrl(
  * snapshot rolls forward; this hook only fires the redirect.
  */
 export function useSignIn(): () => Promise<void> {
-  const apiUrl = useConfigService().getApiUrl();
-  const baseURL = useMemo(() => authBaseUrl(apiUrl), [apiUrl]);
-  const authClient = useAuthClient(baseURL);
+  const authClient = useAuthClient();
 
   return useCallback(async () => {
     const callbackURL = resolveCallbackUrl();

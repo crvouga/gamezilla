@@ -7,8 +7,10 @@
  *
  * The indicator is `position: absolute` so it escapes the icon-over-label
  * column flex inside the button and sits at the bottom of the tap area.
- * Behavior + accessibility stay identical to React Navigation's default
- * `PlatformPressable` -- we just wrap it.
+ * Icon + label children are wrapped with `pointerEvents="none"` so clicks
+ * on SVG/text hit the `PlatformPressable` on web (nested targets otherwise
+ * swallow the press). Behavior + accessibility stay identical to React
+ * Navigation's default `PlatformPressable` -- we just wrap it.
  */
 
 import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
@@ -22,26 +24,35 @@ const INDICATOR_HEIGHT = 3;
 export function AppTabBarButton(props: BottomTabBarButtonProps): ReactNode {
   const theme = useTheme();
   const focused = props['aria-selected'] === true;
-  if (!focused) {
-    return <PlatformPressable {...props} />;
-  }
-  const { children, ...rest } = props;
+  const { children, style, ...rest } = props;
   return (
-    <PlatformPressable {...rest}>
-      {children}
+    <PlatformPressable {...rest} style={style}>
       <View
         pointerEvents="none"
         style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: INDICATOR_HEIGHT,
-          borderTopLeftRadius: INDICATOR_HEIGHT,
-          borderTopRightRadius: INDICATOR_HEIGHT,
-          backgroundColor: theme.colors.tint,
+          flex: 1,
+          alignSelf: 'stretch',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
-      />
+      >
+        {children}
+      </View>
+      {focused ? (
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: INDICATOR_HEIGHT,
+            borderTopLeftRadius: INDICATOR_HEIGHT,
+            borderTopRightRadius: INDICATOR_HEIGHT,
+            backgroundColor: theme.colors.tint,
+          }}
+        />
+      ) : null}
     </PlatformPressable>
   );
 }

@@ -81,6 +81,9 @@ const SIDE_SLOT_SX = {
   gap: 2,
   minWidth: 0,
   zIndex: 1,
+  // Empty flex padding must not steal presses from the centered overlay
+  // (desktop header tabs). Interactive children still receive presses.
+  pointerEvents: 'box-none' as const,
 };
 
 type TopBarSlotsProps = Pick<
@@ -152,7 +155,8 @@ function TopBarAbsoluteCenterLayout({
           alignItems: 'center',
           justifyContent: 'center',
           pointerEvents: 'box-none',
-          zIndex: 0,
+          // Above side slots so centered tabs receive presses on desktop web.
+          zIndex: 2,
         }}
       >
         <Box

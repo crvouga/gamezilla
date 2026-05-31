@@ -1,14 +1,13 @@
 import { useLogger } from '@pkgs/logger/react';
 import { useSecureStorage } from '@pkgs/secure-storage/interface';
 import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
 } from './auth-storage-keys';
-import { authBaseUrl, useAuthClient } from './better-auth-client';
-import { useConfigService } from './config-service-context';
+import { useAuthClient } from './auth-client-provider';
 
 /**
  * Signs out of Better Auth and clears the locally cached bearer + accountId.
@@ -18,9 +17,7 @@ import { useConfigService } from './config-service-context';
  */
 export function useSignOut(): () => Promise<void> {
   const log = useLogger('auth-sign-out');
-  const apiUrl = useConfigService().getApiUrl();
-  const baseURL = useMemo(() => authBaseUrl(apiUrl), [apiUrl]);
-  const authClient = useAuthClient(baseURL);
+  const authClient = useAuthClient();
   const storage = useSecureStorage();
 
   return useCallback(async () => {
