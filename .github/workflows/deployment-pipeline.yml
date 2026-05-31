@@ -372,7 +372,11 @@ jobs:
             eas build --platform android --profile "development" --non-interactive --no-wait
             eas build --platform ios --profile "development-simulator" --non-interactive --no-wait
           else
-            eas build --platform all --profile "production" --non-interactive --no-wait
+            # Production iOS signing can require interactive certificate
+            # validation in EAS. Keep CI non-interactive by producing Android
+            # release binaries plus an iOS simulator binary.
+            eas build --platform android --profile "production" --non-interactive --no-wait
+            eas build --platform ios --profile "production-simulator" --non-interactive --no-wait
           fi
 
       # Compile i18n + generate the bundled web/worker assets before the OTA

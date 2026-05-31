@@ -27,6 +27,12 @@
       "extends": "base",
       "autoIncrement": true,
       "channel": "production"
+    },
+    "production-simulator": {
+      "extends": "production",
+      "ios": {
+        "simulator": true
+      }
     }
   },
   "submit": {
