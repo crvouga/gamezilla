@@ -5,6 +5,7 @@ import {
   runCheckDepsPhase,
   runWranglerAuthPhase,
 } from '../lib/phases/check-deps';
+import { runDeployClientEasPhase } from '../lib/phases/deploy-client-eas';
 import { runDeployResourcesPhase } from '../lib/phases/deploy-resources';
 import { runEnsureDestroyedPhase } from '../lib/phases/ensure-destroyed';
 import { runWithGlobalLock } from '../lib/global-lock-session';
@@ -36,7 +37,8 @@ export class DeployCommand implements Command {
   /** Lock is acquired in {@link execute} after migrate (see {@link runWithGlobalLock}). */
   readonly requiresLock = false;
   readonly group = 'lifecycle' as const;
-  readonly summary = 'Provision infra, deploy apps, smoke test, refresh config';
+  readonly summary =
+    'Provision infra, deploy apps (web + EAS mobile), smoke test, refresh config';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -60,6 +62,7 @@ export class DeployCommand implements Command {
       const outputs = infraOutputs(ctx);
       await runSmokePhase(p, outputs);
       await runRefreshConfigPhase(p, outputs);
+      await runDeployClientEasPhase(p, ctx);
       await runEnsureDestroyedPhase(p);
 
       banner('Deploy Complete', performance.now() - t0);

@@ -1,5 +1,6 @@
 import { BunDep } from './bun';
 import { DopplerDep } from './doppler';
+import { EasDep } from './eas';
 import { PgwebDep } from './pgweb';
 import { StripeDep } from './stripe';
 import type { Dep } from './types';
@@ -12,6 +13,7 @@ const bun = new BunDep();
 const doppler = new DopplerDep();
 const stripe = new StripeDep();
 const pgweb = new PgwebDep();
+const eas = new EasDep();
 
 /**
  * Every CLI dep the toolchain knows about. Used by `setup` (installs
@@ -33,6 +35,7 @@ export const ALL_DEPS: readonly Dep[] = [
   doppler,
   stripe,
   pgweb,
+  eas,
 ];
 
 /**
@@ -45,7 +48,14 @@ export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, doppler];
 
 /**
  * Deps required by the legacy single-process `deploy` lifecycle: the
- * provision set plus Stripe (for `runStripeSyncPhase`). Still excludes
- * `pgweb` (dev-only).
+ * provision set plus Stripe (for `runStripeSyncPhase`) and the EAS CLI
+ * (for the `deploy-client-eas` phase — native EAS Build + OTA update).
+ * Still excludes `pgweb` (dev-only).
  */
-export const DEPLOY_DEPS: readonly Dep[] = [wrangler, bun, doppler, stripe];
+export const DEPLOY_DEPS: readonly Dep[] = [
+  wrangler,
+  bun,
+  doppler,
+  stripe,
+  eas,
+];

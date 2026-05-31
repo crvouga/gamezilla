@@ -3,6 +3,7 @@ import type { CiPlatform } from '../platform/platform';
 import type { Command, CommandGroup } from './types';
 
 import { DeployCommand } from './deploy';
+import { DeployClientEasCommand } from './deploy-client-eas';
 import { DeployResourcesCommand } from './deploy-resources';
 import { DestroyCommand } from './destroy';
 import { LockAcquireCommand } from './lock-acquire';
@@ -44,6 +45,7 @@ export function createCommandRegistry(platform: CiPlatform): Command[] {
     new ProvisionCommand(platform),
     new MigrateCommand(platform),
     new DeployResourcesCommand(platform),
+    new DeployClientEasCommand(platform),
     new StripeSyncCommand(platform),
     new SmokeCommand(platform),
     new RefreshConfigCommand(platform),

@@ -274,153 +274,20 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v5
 
-  # ── Native mobile build + OTA update ─────────────────────────────────
-  # Triggers an EAS Build (native iOS/Android binaries, ~15-30 min in
-  # Expo's cloud, fired with `--no-wait`) AND publishes an EAS Update so
-  # the same commit's JS bundle is delivered over-the-air to dev clients
-  # and Expo Go on the matching channel.
-  #
-  # Runs AFTER the atomic `deploy` job (`needs: [..., deploy]`): the mobile
-  # client talks to https://api.gamezilla.app, so the server, DB
-  # migrations, Stripe sync, and pushed client-config for this commit must
-  # be live BEFORE we ship the matching native binaries / OTA bundle —
-  # otherwise a freshly-updated client could hit an older API or a schema
-  # that hasn't migrated yet. The `if` below uses `always()` + explicit
-  # result checks so the gate still works on `workflow_dispatch`, where
-  # `deploy` is intentionally skipped (manual `development` builds don't gate
-  # on a prod deploy).
-  #
-  # `EXPO_TOKEN` is loaded from Doppler `dev` into `GITHUB_ENV`, then passed
-  # to `expo-github-action` so EAS CLI is authenticated for every step.
-  # Runs in `apps/client` so EAS resolves the right project (all EAS files
-  # live there per https://docs.expo.dev/build-reference/build-with-monorepos).
-  eas-mobile:
-    needs: [turbo-ci, static, qa-api, qa-browser, deploy]
-    if: >-
-      always() &&
-      needs.turbo-ci.result == 'success' &&
-      needs.static.result == 'success' &&
-      needs.qa-api.result == 'success' &&
-      needs.qa-browser.result == 'success' &&
-      (
-        needs.deploy.result == 'success' ||
-        (github.event_name == 'workflow_dispatch' && needs.deploy.result == 'skipped')
-      )
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    # `expo/expo-github-action@v8` (Jan 2024) still runs on Node 20 and uses
-    # the deprecated Actions cache API — restore/save fails with 400/422.
-    # Pin to current `main` until a v9 tag ships; opt into Node 24 for the
-    # runner deprecation warning (default June 2026).
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-    permissions:
-      contents: read
-    concurrency:
-      group: eas-mobile
-      cancel-in-progress: false
-    defaults:
-      run:
-        working-directory: apps/client
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - uses: ./.github/actions/setup
-        with:
-          doppler: 'true'
-
-      # EAS CLI reads `EXPO_TOKEN` from the environment (not `doppler run`).
-      # Load from Doppler `dev` and pass into expo-github-action so every
-      # step in this job is authenticated. `EXPO_PUBLIC_API_URL` is also
-      # loaded here: `eas build` picks it up from eas.json profile env on
-      # EAS workers, but `eas update` bundles on this runner and only
-      # inlines `EXPO_PUBLIC_*` present in the process env / `.env` files.
-      - name: Load EAS secrets from Doppler
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-        run: |
-          set -euo pipefail
-          token=$(doppler secrets get EXPO_TOKEN --plain -p gamezilla -c dev)
-          if [ -z "${token}" ]; then
-            echo "::error::EXPO_TOKEN is missing in Doppler project gamezilla config dev. Create a token at https://expo.dev/settings/access-tokens then run: doppler secrets set EXPO_TOKEN --project gamezilla --config dev"
-            exit 1
-          fi
-          api_url=$(doppler secrets get EXPO_PUBLIC_API_URL --plain -p gamezilla -c dev)
-          if [ -z "${api_url}" ]; then
-            echo "::error::EXPO_PUBLIC_API_URL is missing in Doppler project gamezilla config dev."
-            exit 1
-          fi
-          echo "::add-mask::${token}"
-          echo "EXPO_TOKEN=${token}" >> "$GITHUB_ENV"
-          echo "EXPO_PUBLIC_API_URL=${api_url}" >> "$GITHUB_ENV"
-          # Expo Go and dev-client OTA bundles run with __DEV__; opt into the
-          # production API origin baked above (see api-servers Tiger policy).
-          echo "EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1" >> "$GITHUB_ENV"
-
-      - name: Setup Expo and EAS
-        uses: expo/expo-github-action@b184ff86a3c926240f1b6db41764c83a01c02eef
-        with:
-          eas-version: latest
-          token: ${{ env.EXPO_TOKEN }}
-
-      # Two environments only: a push to `main` ships `production`; a manual
-      # `workflow_dispatch` run ships `development`. Profile and update
-      # channel always match by name.
-      - name: Resolve EAS profile + channel
-        id: eas
-        run: |
-          set -euo pipefail
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            ENV=development
-          else
-            ENV=production
-          fi
-          echo "profile=$ENV" >> "$GITHUB_OUTPUT"
-          echo "channel=$ENV" >> "$GITHUB_OUTPUT"
-
-      - name: EAS Build (native binaries)
-        env:
-          EXPO_PUBLIC_COMMIT_HASH: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          if [ "${{ steps.eas.outputs.profile }}" = "development" ]; then
-            # iOS internal distribution requires device credentials and fails in
-            # non-interactive CI. Use simulator builds for manual dev runs.
-            eas build --platform android --profile "development" --non-interactive --no-wait
-            eas build --platform ios --profile "development-simulator" --non-interactive --no-wait
-          else
-            # Production iOS signing can require interactive certificate
-            # validation in EAS. Keep CI non-interactive by producing Android
-            # release binaries plus an iOS simulator binary.
-            eas build --platform android --profile "production" --non-interactive --no-wait
-            eas build --platform ios --profile "production-simulator" --non-interactive --no-wait
-          fi
-
-      # Compile i18n + generate the bundled web/worker assets before the OTA
-      # bundle (the `eas-build-post-install` hook only runs on EAS Build
-      # workers, not for a locally-run `eas update`).
-      - name: Prepare JS bundle
-        run: bun run prebuild
-
-      - name: EAS Update (OTA bundle for dev clients + Expo Go)
-        env:
-          EXPO_PUBLIC_COMMIT_HASH: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          eas update \
-            --channel "${{ steps.eas.outputs.channel }}" \
-            --environment "${{ steps.eas.outputs.profile }}" \
-            --message "${{ github.sha }}" \
-            --non-interactive
-
   # ── Atomic production deploy ─────────────────────────────────────────
   # One job, one checkout, one `infra-setup`. `bun run infra deploy`
   # acquires the global PlanetScale lock, runs every phase in-process
   # (provision → migrate → deploy-resources → stripe-sync → smoke →
-  # refresh-config → ensure-destroyed), and emits `lock_id` / deploy
-  # URLs / nameservers as step outputs for the report and the
-  # always-run `lock-release` safety net below.
+  # refresh-config → deploy-client-eas → ensure-destroyed), and emits
+  # `lock_id` / deploy URLs / nameservers as step outputs for the report
+  # and the always-run `lock-release` safety net below.
+  #
+  # `deploy-client-eas` fires the native EAS Build (`--no-wait`) and an OTA
+  # `eas update` after the API + web client are live and smoke-tested — the
+  # mobile client targets https://api.gamezilla.app, so the server, DB
+  # migrations, Stripe sync, and pushed client-config for this commit must
+  # be live before we ship matching native binaries / OTA bundle. This was
+  # previously the separate `eas-mobile` GitHub Actions job.
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [turbo-ci, static, qa-api, qa-browser]
@@ -442,7 +309,10 @@ jobs:
     concurrency:
       group: deploy
       cancel-in-progress: false
-    timeout-minutes: 60
+    # 90m (was 60m): the deploy now also bundles + publishes the EAS OTA
+    # update (`deploy-client-eas` phase), which adds ~5-10 min of Metro
+    # bundling on top of the web + API deploy.
+    timeout-minutes: 90
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -450,9 +320,10 @@ jobs:
         with:
           wrangler: 'true'
           stripe: 'true'
+          eas: 'true'
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-      - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config → ensure-destroyed)
+      - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config → deploy-client-eas → ensure-destroyed)
         id: deploy
         working-directory: libs/infra
         env:
@@ -494,7 +365,6 @@ jobs:
         qa-api,
         qa-browser,
         publish-playwright-report,
-        eas-mobile,
         deploy,
         lock-release,
       ]
