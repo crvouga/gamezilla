@@ -32,10 +32,12 @@ type RotationKey = string;
 type RotationEntry = {
   rotation: Animated.Value;
   loop: Animated.CompositeAnimation;
+  consumers: number;
 };
 
 type SpinnerContextValue = {
-  getRotation: (key: RotationKey) => Animated.Value;
+  ensureEntry: (key: RotationKey) => RotationEntry;
+  subscribe: (key: RotationKey) => () => void;
 };
 
 const SpinnerContext = createContext<SpinnerContextValue | null>(null);
@@ -50,8 +52,18 @@ function createRotationEntry(): RotationEntry {
       useNativeDriver: USE_NATIVE_DRIVER,
     })
   );
-  loop.start();
-  return { rotation, loop };
+  return { rotation, loop, consumers: 0 };
+}
+
+function ensureEntry(
+  map: Map<RotationKey, RotationEntry>,
+  key: RotationKey
+): RotationEntry {
+  const existing = map.get(key);
+  if (existing !== undefined) return existing;
+  const entry = createRotationEntry();
+  map.set(key, entry);
+  return entry;
 }
 
 function useStableRotationMap(): Map<RotationKey, RotationEntry> {
@@ -69,12 +81,15 @@ export function SpinnerProvider({
 
   const value = useMemo<SpinnerContextValue>(
     () => ({
-      getRotation: (key) => {
-        const existing = map.get(key);
-        if (existing !== undefined) return existing.rotation;
-        const entry = createRotationEntry();
-        map.set(key, entry);
-        return entry.rotation;
+      ensureEntry: (key) => ensureEntry(map, key),
+      subscribe: (key) => {
+        const entry = ensureEntry(map, key);
+        entry.consumers += 1;
+        if (entry.consumers === 1) entry.loop.start();
+        return () => {
+          entry.consumers -= 1;
+          if (entry.consumers === 0) entry.loop.stop();
+        };
       },
     }),
     [map]
@@ -82,7 +97,7 @@ export function SpinnerProvider({
 
   useEffect(() => {
     return () => {
-      for (const { loop } of map.values()) loop.stop();
+      for (const entry of map.values()) entry.loop.stop();
       map.clear();
     };
   }, [map]);
@@ -95,11 +110,21 @@ export function SpinnerProvider({
 /**
  * Returns the shared rotation `Animated.Value` for `key` when a
  * `SpinnerProvider` is mounted above, or `null` otherwise.
+ *
+ * The rotation loop starts in `useEffect` (after mount) so native-driver
+ * transforms attach reliably on iOS; starting loops during render was
+ * leaving playground spinners frozen under `SpinnerProvider`.
  */
 export function useSharedSpinnerRotation(
   key: RotationKey
 ): Animated.Value | null {
   const ctx = useContext(SpinnerContext);
+
+  useEffect(() => {
+    if (ctx === null) return undefined;
+    return ctx.subscribe(key);
+  }, [ctx, key]);
+
   if (ctx === null) return null;
-  return ctx.getRotation(key);
+  return ctx.ensureEntry(key).rotation;
 }
