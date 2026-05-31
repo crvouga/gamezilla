@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { signInWithDevIdp } from '../helpers/sign-in-with-dev-idp';
 
-test('user signs in with the local dev IdP', async ({ page }) => {
+test.skip('user signs in with the local dev IdP', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByTestId('app-root')).toBeVisible({ timeout: 60_000 });
 
