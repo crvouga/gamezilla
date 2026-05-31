@@ -1,5 +1,12 @@
 import { SQL } from 'bun';
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'bun:test';
 import {
   getPostgresTestInstance,
   stopPostgresTestInstance,
