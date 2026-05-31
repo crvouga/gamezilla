@@ -4,12 +4,7 @@
  * subscribe, so duplicating clients multiplies cold-start traffic.
  */
 
-import {
-  createContext,
-  useContext,
-  useMemo,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
 
 import {
   authBaseUrl,
