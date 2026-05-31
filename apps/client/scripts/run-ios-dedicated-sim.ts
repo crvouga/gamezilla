@@ -34,27 +34,31 @@
  *   EXPO_DEV_SIM_RUNTIME      default: highest-version available iOS runtime
  *   EXPO_DEV_PORT             default 5173
  */
+import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 import { execFileSync, spawn, type ChildProcess } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
-import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 
 /**
  * Native bundle id of the development build. Must match
  * `expo.ios.bundleIdentifier` in `apps/client/app.json` (Expo requires static
  * JSON there, so it cannot import this value).
  */
-const DEV_CLIENT_BUNDLE_ID = 'app.gamezilla';
-
-const SIM_NAME = process.env['EXPO_DEV_SIM_NAME'] ?? `${APP_IDENTITY.slug}-dev`;
-const SIM_DEVICE_TYPE =
+const DEV_CLIENT_BUNDLE_ID: string = 'app.gamezilla';
+const SIM_NAME = String(
+  process.env['EXPO_DEV_SIM_NAME'] ?? `${APP_IDENTITY.slug}-dev`
+);
+const SIM_DEVICE_TYPE: string = String(
   process.env['EXPO_DEV_SIM_DEVICE_TYPE'] ??
-  'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro';
-const SIM_RUNTIME_OVERRIDE = process.env['EXPO_DEV_SIM_RUNTIME'] ?? null;
-const EXPO_PORT = Number(process.env['EXPO_DEV_PORT'] ?? 5173);
+    'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro'
+);
+const SIM_RUNTIME_OVERRIDE: string | null = String(
+  process.env['EXPO_DEV_SIM_RUNTIME'] ?? null
+);
+const EXPO_PORT: number = Number(process.env['EXPO_DEV_PORT'] ?? 5173);
 const EXPO_HOST = '127.0.0.1';
-const DEV_SERVER_TIMEOUT_MS = 60_000;
+const DEV_SERVER_TIMEOUT_MS: number = 60_000;
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const clientRoot = join(scriptDir, '..');

@@ -127,15 +127,11 @@ jobs:
       # `gitleaks/gitleaks-action@v2` pins gitleaks 8.24.3, which has a
       # bug where top-level `[[allowlists]]` are silently dropped when
       # combined with `[extend].useDefault = true` (fixed in 8.25+). It
-      # also targets the deprecated Node.js 20 runtime. Install the
-      # latest gitleaks release directly so our `.gitleaks.toml`
-      # allowlist actually applies.
+      # also targets the deprecated Node.js 20 runtime. Install a pinned
+      # release via `scripts/install-gitleaks.ts` (retries on transient
+      # GitHub CDN 502s) so our `.gitleaks.toml` allowlist actually applies.
       - name: Install gitleaks
-        run: |
-          GITLEAKS_VERSION=$(curl -fsSL https://api.github.com/repos/gitleaks/gitleaks/releases/latest | jq -r '.tag_name' | sed 's/^v//')
-          curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
-            | sudo tar -xz -C /usr/local/bin gitleaks
-          gitleaks version
+        run: bun run scripts/install-gitleaks.ts
 
       - name: Gitleaks
         env:
