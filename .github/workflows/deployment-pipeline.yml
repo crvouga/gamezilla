@@ -308,6 +308,12 @@ jobs:
       )
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # `expo/expo-github-action@v8` (Jan 2024) still runs on Node 20 and uses
+    # the deprecated Actions cache API — restore/save fails with 400/422.
+    # Pin to current `main` until a v9 tag ships; opt into Node 24 for the
+    # runner deprecation warning (default June 2026).
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     permissions:
       contents: read
     concurrency:
@@ -341,7 +347,7 @@ jobs:
           echo "EXPO_TOKEN=${token}" >> "$GITHUB_ENV"
 
       - name: Setup Expo and EAS
-        uses: expo/expo-github-action@v8
+        uses: expo/expo-github-action@b184ff86a3c926240f1b6db41764c83a01c02eef
         with:
           eas-version: latest
           token: ${{ env.EXPO_TOKEN }}
