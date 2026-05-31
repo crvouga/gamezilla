@@ -1,3 +1,5 @@
+import { PROJECT_CONFIG } from '../../project-config';
+import { PIPELINE_REPORT_USER_AGENT } from '../constants';
 import type { NeedState } from './pipeline-needs';
 
 /**
@@ -59,7 +61,7 @@ async function fetchAllRunJobs(ctx: PromptCtx): Promise<RunJob[]> {
         Authorization: `Bearer ${ctx.token}`,
         Accept: 'application/vnd.github+json',
         'X-GitHub-Api-Version': '2022-11-28',
-        'User-Agent': 'gamezilla-pipeline-report',
+        'User-Agent': PIPELINE_REPORT_USER_AGENT,
       },
     });
     if (!res.ok) {
@@ -79,7 +81,7 @@ async function fetchJobLog(ctx: PromptCtx, jobId: number): Promise<string> {
       Authorization: `Bearer ${ctx.token}`,
       Accept: 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'gamezilla-pipeline-report',
+      'User-Agent': PIPELINE_REPORT_USER_AGENT,
     },
     redirect: 'follow',
   });
@@ -169,7 +171,7 @@ function renderLocalPromptBody(
   failures: ReadonlyArray<{ readonly jobId: string; readonly output: string }>
 ): string {
   const lines: string[] = [];
-  lines.push('# Fix local pipeline failures for gamezilla.app');
+  lines.push(`# Fix local pipeline failures for ${PROJECT_CONFIG.domain}`);
   lines.push('');
   lines.push(
     'The Deployment Pipeline checks failed when run locally via `bun run check:deployment-pipeline`.'
@@ -201,7 +203,7 @@ function renderPromptBody(
   sections: ReadonlyArray<FailureSection>
 ): string {
   const lines: string[] = [];
-  lines.push('# Fix CI failures for gamezilla.app');
+  lines.push(`# Fix CI failures for ${PROJECT_CONFIG.domain}`);
   lines.push('');
   lines.push(
     `Workflow run: ${ctx.serverUrl}/${ctx.repo}/actions/runs/${ctx.runId}`

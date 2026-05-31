@@ -1,4 +1,5 @@
 import { assert } from '@pkgs/assert';
+import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/local-preview-api-origin';
 
 export { DEFAULT_LOCAL_PREVIEW_API_ORIGIN };
@@ -7,7 +8,7 @@ export { DEFAULT_LOCAL_PREVIEW_API_ORIGIN };
  * Production Worker hostname(s). Development must not target these unless
  * {@link productionApiUrlTigerExceptionEnabled} (Tiger Style: fail loud, never silent drift to prod).
  */
-export const PRODUCTION_API_HTTP_HOSTNAMES = ['api.gamezilla.app'] as const;
+export const PRODUCTION_API_HTTP_HOSTNAMES = [APP_IDENTITY.apiHost] as const;
 
 function isProductionApiHttpHostname(hostname: string): boolean {
   return (PRODUCTION_API_HTTP_HOSTNAMES as readonly string[]).includes(

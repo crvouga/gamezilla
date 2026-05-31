@@ -17,7 +17,7 @@
 #    artifacts).
 #
 # 3. The production deploy is a single atomic `deploy` job: one checkout,
-#    one `infra-setup` install of wrangler + Stripe + Postgres, and the
+#    one `infra-setup` install of wrangler + Stripe, and the
 #    `infra deploy` CLI runs every phase (provision → migrate →
 #    deploy-resources → stripe-sync → smoke → refresh-config →
 #    ensure-destroyed) in one process so `InfraContext` flows
@@ -304,7 +304,6 @@ jobs:
         with:
           wrangler: 'true'
           stripe: 'true'
-          postgres: 'true'
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
       - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config → ensure-destroyed)
@@ -333,8 +332,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/infra-setup
-        with:
-          postgres: 'true'
       - name: Release global deploy lock
         working-directory: libs/infra
         env:

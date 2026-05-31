@@ -28,9 +28,7 @@ export interface PostgresConfig {
   readonly locale: string;
   /** Encoding used for `initdb --encoding` (defaults to `UTF8`). */
   readonly encoding: string;
-  /** How long to wait for `pg_isready` after starting the postmaster. */
-  readonly startupTimeoutMs: number;
-  /** How long to wait for `pg_ctl stop -m fast` before escalating. */
+  /** How long to wait for a graceful fast shutdown before escalating signals. */
   readonly shutdownTimeoutMs: number;
   /** Web GUI sidecar (`pgweb`) configuration. */
   readonly gui: PgwebConfig;
@@ -61,7 +59,6 @@ const DEFAULTS = {
   database: 'postgres',
   locale: 'C',
   encoding: 'UTF8',
-  startupTimeoutMs: 30_000,
   shutdownTimeoutMs: 15_000,
   guiHost: '127.0.0.1',
   // 5555 sits next to the Postgres port (5432) so the two dev URLs cluster in
@@ -130,11 +127,6 @@ export function loadPostgresConfig(): PostgresConfig {
   const locale = readString('PG_LOCALE', DEFAULTS.locale);
   const encoding = readString('PG_ENCODING', DEFAULTS.encoding);
 
-  const startupTimeoutMs = readInt(
-    'PG_STARTUP_TIMEOUT_MS',
-    DEFAULTS.startupTimeoutMs,
-    { min: 1_000, max: 5 * 60_000 }
-  );
   const shutdownTimeoutMs = readInt(
     'PG_SHUTDOWN_TIMEOUT_MS',
     DEFAULTS.shutdownTimeoutMs,
@@ -160,7 +152,6 @@ export function loadPostgresConfig(): PostgresConfig {
     database,
     locale,
     encoding,
-    startupTimeoutMs,
     shutdownTimeoutMs,
     gui: {
       enabled: readGuiEnabled(),

@@ -64,5 +64,8 @@
     "libs/qa": {
       "entry": "src/playwright/playwright.config.ts",
     },
+    "libs/infra": {
+      "entry": "src/bin/cli.ts",
+    },
   },
 }

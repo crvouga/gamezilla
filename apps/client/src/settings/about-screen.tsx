@@ -4,6 +4,7 @@ import {
   getCommitHash,
   getShortCommitHash,
 } from '@apps/client/config/app-metadata';
+import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 import { Box, Card, CopyToClipboardField, ScreenBase, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import Constants from 'expo-constants';
@@ -18,7 +19,7 @@ export function AboutScreen() {
   const appName =
     Constants.expoConfig?.name ??
     Constants.expoConfig?.slug ??
-    String('gamezilla');
+    APP_IDENTITY.displayName;
   const appVersion = Constants.expoConfig?.version ?? '—';
 
   const buildMode = __DEV__ ? t`development` : t`production`;

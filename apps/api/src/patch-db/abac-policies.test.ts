@@ -30,7 +30,7 @@ async function createSqliteFactory(): Promise<{
   return { db, teardown: () => client.disconnect() };
 }
 
-describe('gamezilla default policies (system + auth writes)', () => {
+describe('app default policies (system + auth writes)', () => {
   let db: PatchDb;
   let teardown: () => Promise<void>;
 

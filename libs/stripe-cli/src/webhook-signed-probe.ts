@@ -8,12 +8,12 @@ const PROBE_BODY_PREVIEW_LIMIT = 200;
 
 function buildProbeEventJson(): string {
   const event = {
-    id: 'evt_gamezilla_stripe_cli_probe',
+    id: 'evt_stripe_cli_probe',
     object: 'event',
     type: 'customer.created',
     data: {
       object: {
-        id: 'cus_gamezilla_stripe_cli_probe',
+        id: 'cus_stripe_cli_probe',
         object: 'customer',
       },
     },

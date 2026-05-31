@@ -1,7 +1,6 @@
 import { BunDep } from './bun';
 import { DopplerDep } from './doppler';
 import { PgwebDep } from './pgweb';
-import { PostgresDep } from './postgres';
 import { StripeDep } from './stripe';
 import type { Dep } from './types';
 import { TurboDep } from './turbo';
@@ -12,7 +11,6 @@ const turbo = new TurboDep();
 const bun = new BunDep();
 const doppler = new DopplerDep();
 const stripe = new StripeDep();
-const postgres = new PostgresDep();
 const pgweb = new PgwebDep();
 
 /**
@@ -23,6 +21,10 @@ const pgweb = new PgwebDep();
  * + `pgweb`) and must check the matching subset via `PROVISION_DEPS`
  * / `DEPLOY_DEPS` so `runCheckDepsPhase` doesn't fail on tools the
  * runner never installed.
+ *
+ * The local PostgreSQL cluster (`@pkgs/postgres`) no longer needs a system
+ * dep: its binaries ship via the `embedded-postgres` npm package and are
+ * hydrated by `bun install`, so there is nothing for `setup` to install.
  */
 export const ALL_DEPS: readonly Dep[] = [
   wrangler,
@@ -30,33 +32,20 @@ export const ALL_DEPS: readonly Dep[] = [
   bun,
   doppler,
   stripe,
-  postgres,
   pgweb,
 ];
 
 /**
  * Deps required by the CI `provision` phase: Wrangler talks to the
- * Cloudflare API, Bun + Doppler power the CLI runtime + secrets, and
- * Postgres binaries back the global deploy lock (`pkgs/postgres`). The
- * Stripe CLI is unused here (no catalog sync in this phase) and
- * `pgweb` is a local dev GUI that CI runners never install.
+ * Cloudflare API, and Bun + Doppler power the CLI runtime + secrets. The
+ * Stripe CLI is unused here (no catalog sync in this phase) and `pgweb`
+ * is a local dev GUI that CI runners never install.
  */
-export const PROVISION_DEPS: readonly Dep[] = [
-  wrangler,
-  bun,
-  doppler,
-  postgres,
-];
+export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, doppler];
 
 /**
  * Deps required by the legacy single-process `deploy` lifecycle: the
  * provision set plus Stripe (for `runStripeSyncPhase`). Still excludes
  * `pgweb` (dev-only).
  */
-export const DEPLOY_DEPS: readonly Dep[] = [
-  wrangler,
-  bun,
-  doppler,
-  postgres,
-  stripe,
-];
+export const DEPLOY_DEPS: readonly Dep[] = [wrangler, bun, doppler, stripe];

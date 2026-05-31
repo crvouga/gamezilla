@@ -2,7 +2,7 @@ import { createApiRpcClient } from '@apps/api/rpc';
 import { assertTigerPolicyForResolvedApiOrigin } from '@apps/client/config/api-servers';
 
 /**
- * Typed Hono RPC client for the gamezilla API Worker. Base URL must be the API
+ * Typed Hono RPC client for the API Worker. Base URL must be the API
  * origin (no `/patch-db` suffix).
  */
 export function createApiClient(apiUrl: string) {

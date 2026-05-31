@@ -10,7 +10,7 @@
  *   its own named sim.
  *
  * What it does:
- *   1. Find (or `simctl create`) a simulator named `gamezilla-dev`.
+ *   1. Find (or `simctl create`) a simulator named `<slug>-dev`.
  *   2. Boot it if not already booted (other booted sims are left alone).
  *   3. Foreground `Simulator.app` (no `--CurrentDeviceUDID` arg so multiple
  *      windows stay visible).
@@ -22,10 +22,10 @@
  * Extra argv (`--web`, `--tunnel`, etc.) is forwarded to `expo start`.
  *
  * Configurable via env (all optional):
- *   GAMEZILLA_SIM_NAME         default `gamezilla-dev`
- *   GAMEZILLA_SIM_DEVICE_TYPE  default iPhone 17 Pro
- *   GAMEZILLA_SIM_RUNTIME      default: highest-version available iOS runtime
- *   GAMEZILLA_EXPO_PORT        default 5173
+ *   EXPO_DEV_SIM_NAME         default `<slug>-dev`
+ *   EXPO_DEV_SIM_DEVICE_TYPE  default iPhone 17 Pro
+ *   EXPO_DEV_SIM_RUNTIME      default: highest-version available iOS runtime
+ *   EXPO_DEV_PORT             default 5173
  */
 import { execFileSync, spawn, type ChildProcess } from 'node:child_process';
 import { readdirSync, statSync } from 'node:fs';
@@ -33,13 +33,15 @@ import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
+import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 
-const SIM_NAME = process.env['GAMEZILLA_SIM_NAME'] ?? 'gamezilla-dev';
+const SIM_NAME =
+  process.env['EXPO_DEV_SIM_NAME'] ?? `${APP_IDENTITY.slug}-dev`;
 const SIM_DEVICE_TYPE =
-  process.env['GAMEZILLA_SIM_DEVICE_TYPE'] ??
+  process.env['EXPO_DEV_SIM_DEVICE_TYPE'] ??
   'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro';
-const SIM_RUNTIME_OVERRIDE = process.env['GAMEZILLA_SIM_RUNTIME'] ?? null;
-const EXPO_PORT = Number(process.env['GAMEZILLA_EXPO_PORT'] ?? 5173);
+const SIM_RUNTIME_OVERRIDE = process.env['EXPO_DEV_SIM_RUNTIME'] ?? null;
+const EXPO_PORT = Number(process.env['EXPO_DEV_PORT'] ?? 5173);
 const EXPO_HOST = '127.0.0.1';
 const DEV_SERVER_TIMEOUT_MS = 60_000;
 

@@ -1,5 +1,6 @@
 import type { SecretStore } from '@pkgs/secret-store';
 
+import { APP_IDENTITY, appDeepLinkOrigin } from '../shared/app-identity';
 import { isLocalApiOrigin } from '../shared/local-api-origin';
 import { BetterAuthDopplerKey } from './better-auth-doppler-keys';
 
@@ -7,8 +8,8 @@ export { isLocalApiOrigin };
 
 /** Expo / deep-link schemes — not sensitive; always allowed unless overridden by Doppler list. */
 const DEFAULT_MOBILE_TRUSTED = [
-  'gamezilla://',
-  'gamezilla://*',
+  appDeepLinkOrigin(),
+  `${appDeepLinkOrigin()}*`,
   'exp://**',
 ] as const;
 
@@ -138,7 +139,7 @@ export async function loadBetterAuthSecretsWorker(
   const appName =
     typeof appNameRaw === 'string' && appNameRaw.trim().length > 0
       ? appNameRaw.trim()
-      : 'gamezilla';
+      : APP_IDENTITY.displayName;
 
   const trustedRaw =
     (

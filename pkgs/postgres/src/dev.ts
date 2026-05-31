@@ -36,17 +36,13 @@ import {
   type PostgresConfig,
 } from './postgres-config';
 import {
-  initClusterIfNeeded,
   probePostmaster,
   reconcileStalePostmaster,
-  startPostmaster,
-  stopCluster,
-  waitUntilReady,
 } from './postgres-lifecycle';
 import {
-  resolvePostgresBinaries,
-  type ResolvedBinaries,
-} from './postgres-binaries';
+  createEmbeddedCluster,
+  type EmbeddedCluster,
+} from './embedded-cluster';
 import { resolvePgwebBinary, startPgweb, type StartedGui } from './pg-gui';
 import {
   GUI_LOG_FILE,
@@ -72,9 +68,11 @@ function clearWrapperPidFile(): void {
 
 interface RunningServer {
   readonly config: PostgresConfig;
-  readonly binaries: ResolvedBinaries;
+  readonly cluster: EmbeddedCluster;
   /** null when the GUI sidecar is disabled or pgweb couldn't start. */
   gui: StartedGui | null;
+  /** Cancels the unexpected-exit watcher during graceful shutdown. */
+  readonly stopExitWatch: () => void;
 }
 
 /**
@@ -117,14 +115,30 @@ function startGuiBestEffort(
   }
 }
 
+/**
+ * If the postmaster dies on its own (crash, OOM, kill -9 from elsewhere) there
+ * is nothing useful left for the wrapper to do — exit so Turbo shows the
+ * failure instead of hanging on "ready" forever.
+ */
+function onUnexpectedExit(): void {
+  if (shutdownInFlight) return;
+  log.error('postmaster exited unexpectedly');
+  void shutdown('postmaster-exit').then(() => process.exit(1));
+}
+
+function attachGuiWatch(running: RunningServer, dbUrl: string): void {
+  if (running.gui === null) return;
+  log.info('dev sidecar ready', { dbUrl, guiUrl: buildGuiUrl(running.config) });
+  // If pgweb dies on its own, log + warn but keep the cluster running.
+  void running.gui.exited.then(({ code, signal }) => {
+    if (shutdownInFlight) return;
+    log.warn('pgweb sidecar exited (cluster keeps running)', { code, signal });
+    running.gui = null;
+  });
+}
+
 async function bootCluster(): Promise<RunningServer> {
   const config = loadPostgresConfig();
-  const binaries = resolvePostgresBinaries();
-
-  log.info('postgres binaries resolved', {
-    source: binaries.source,
-    postgres: binaries.paths.postgres,
-  });
 
   // Reconcile stale state from previous abrupt exits before doing anything.
   reconcileStalePostmaster(config.dataDir, log);
@@ -137,12 +151,9 @@ async function bootCluster(): Promise<RunningServer> {
     { dataDir: config.dataDir, pid: probe.pid }
   );
 
-  initClusterIfNeeded(binaries, config, log);
-
-  const child = startPostmaster(binaries, config, LOG_FILE, log);
-  log.info('postmaster spawned', { pid: child.pid });
-
-  await waitUntilReady(binaries, config, log);
+  const cluster = createEmbeddedCluster(config, LOG_FILE, log);
+  await cluster.initIfNeeded();
+  await cluster.start();
 
   const dbUrl = buildConnectionUrl(config);
   log.info('postgres ready', {
@@ -154,34 +165,10 @@ async function bootCluster(): Promise<RunningServer> {
   });
 
   const gui = startGuiBestEffort(config, dbUrl);
-  const running: RunningServer = { config, binaries, gui };
+  const stopExitWatch = cluster.watchExit(onUnexpectedExit);
+  const running: RunningServer = { config, cluster, gui, stopExitWatch };
 
-  if (gui !== null) {
-    log.info('dev sidecar ready', {
-      dbUrl,
-      guiUrl: buildGuiUrl(config),
-    });
-    // If pgweb dies on its own, log + warn but keep the cluster running.
-    void gui.exited.then(({ code, signal }) => {
-      if (shutdownInFlight) return;
-      log.warn('pgweb sidecar exited (cluster keeps running)', {
-        code,
-        signal,
-      });
-      running.gui = null;
-    });
-  }
-
-  // If the postmaster dies on its own (crash, OOM, kill -9 from elsewhere)
-  // there is nothing useful left for the wrapper to do — exit so Turbo
-  // shows the failure instead of hanging on "ready" forever.
-  void child.exited.then(({ code, signal }) => {
-    if (shutdownInFlight) return;
-    log.error('postmaster exited unexpectedly', { code, signal });
-    void shutdown('postmaster-exit').then(() => {
-      process.exit(typeof code === 'number' ? code : 1);
-    });
-  });
+  attachGuiWatch(running, dbUrl);
 
   return running;
 }
@@ -196,12 +183,15 @@ function shutdown(reason: string): Promise<void> {
   shutdownPromise = (async () => {
     log.info('shutting down', { reason });
     try {
+      // Cancel the crash watcher so the graceful stop below isn't mistaken
+      // for an unexpected exit.
+      server?.stopExitWatch();
       // Stop the GUI BEFORE the cluster so it doesn't see torn-down connections.
       if (server?.gui) {
         await server.gui.stop(server.config.shutdownTimeoutMs);
       }
       if (server !== null) {
-        await stopCluster(server.binaries, server.config, log);
+        await server.cluster.stop(server.config.shutdownTimeoutMs);
       }
     } catch (e) {
       log.error('shutdown failed', {

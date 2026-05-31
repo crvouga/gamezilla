@@ -11,7 +11,7 @@ type WithGlobalApiErrors<TAppType> = ApplyGlobalResponse<
 >;
 
 /**
- * Typed Hono RPC client for the gamezilla API. Duplicates the shape of
+ * Typed Hono RPC client for the API. Duplicates the shape of
  * `@apps/api/rpc` so this package does not take a **value** dependency on
  * `@apps/api` (avoids `api` ↔ `client-config` package cycles — `api`
  * mounts `client-config`). `import type { AppType }` is type-only.

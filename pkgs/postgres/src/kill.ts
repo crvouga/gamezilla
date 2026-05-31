@@ -20,12 +20,7 @@ import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { createLogger, type Logger } from '@pkgs/logger';
 import { loadPostgresConfig } from './postgres-config';
-import {
-  probePostmaster,
-  reconcileStalePostmaster,
-  stopCluster,
-} from './postgres-lifecycle';
-import { resolvePostgresBinaries } from './postgres-binaries';
+import { stopClusterByPid } from './postgres-lifecycle';
 import { WRAPPER_PID_FILE } from './postgres-paths';
 
 const log = createLogger({ name: 'pg' });
@@ -89,21 +84,6 @@ async function signalWrapper(pid: number, timeoutMs: number): Promise<void> {
  */
 export async function killCluster(logger: Logger): Promise<void> {
   const config = loadPostgresConfig();
-  const binaries = (() => {
-    try {
-      return resolvePostgresBinaries();
-    } catch (e) {
-      // Even without the binaries we can still try to signal the wrapper PID,
-      // so don't make this fatal.
-      logger.warn(
-        'postgres binaries unavailable; will only signal wrapper PID',
-        {
-          error: e instanceof Error ? e.message : String(e),
-        }
-      );
-      return null;
-    }
-  })();
 
   const wrapperPid = readWrapperPid();
   if (wrapperPid !== null && isAlive(wrapperPid)) {
@@ -119,22 +99,11 @@ export async function killCluster(logger: Logger): Promise<void> {
     logger.info('no wrapper.pid present');
   }
 
-  if (binaries !== null) {
-    await stopCluster(binaries, config, logger);
-  } else {
-    // Without binaries we can still clean up a stale postmaster.pid pointing
-    // at a dead PID; live ones we have to leave to the user.
-    reconcileStalePostmaster(config.dataDir, logger);
-    const probe = probePostmaster(config.dataDir);
-    if (probe.state === 'alive') {
-      logger.warn(
-        'postmaster still alive; install postgres CLI tools to enable graceful stop',
-        {
-          pid: probe.pid,
-        }
-      );
-    }
-  }
+  // Belt-and-suspenders: stop the cluster directly by its recorded
+  // `postmaster.pid` in case the wrapper already exited without cleaning up
+  // (crash / kill -9). Scoped to our data dir's recorded PID only — never
+  // "anything on the port".
+  await stopClusterByPid(config, logger);
 }
 
 async function main(): Promise<void> {

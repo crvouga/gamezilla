@@ -1,12 +1,4 @@
-import {
-  afterAll,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  test,
-} from 'bun:test';
-import { stopPGliteTestInstance } from '@pkgs/postgres/pglite-test-instance';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import { SqlClientImplBunSqlite } from './impl-bun-sqlite';
 import { SqlClientImplSqlJs } from './impl-sql-js';
@@ -14,8 +6,6 @@ import { SqlClientWithPubSub } from './impl-with-pub-sub';
 import type { SqlClient } from './interface';
 
 type ClientFactory = () => Promise<SqlClient>;
-
-let cachedPostgresClient: SqlClient | null = null;
 
 async function loadImplementations(): Promise<
   { name: string; createClient: ClientFactory }[]
@@ -78,14 +68,6 @@ describe.each(implementations)('$name', ({ createClient, name }) => {
         // already disconnected
       }
     }
-  });
-
-  afterAll(async () => {
-    if (cachedPostgresClient) {
-      await cachedPostgresClient.disconnect();
-      cachedPostgresClient = null;
-    }
-    await stopPGliteTestInstance();
   });
 
   test('connect and disconnect', async () => {

@@ -28,7 +28,6 @@
     "sql.js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/postgres": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@types/react": "catalog:",

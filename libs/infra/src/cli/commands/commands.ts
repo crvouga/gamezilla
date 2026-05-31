@@ -53,7 +53,7 @@ export function createCommandRegistry(platform: CiPlatform): Command[] {
 
 export function printHelp(commands: Command[]): void {
   console.log('');
-  console.log(fmt.bold('infra') + fmt.dim(' — gamezilla infrastructure CLI'));
+  console.log(fmt.bold('infra') + fmt.dim(' — infrastructure CLI'));
   console.log('');
   console.log(`Usage: ${fmt.cyan('bun run infra <command>')}`);
 

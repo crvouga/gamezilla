@@ -10,9 +10,9 @@ import {
   verifyRun,
   which,
 } from '@pkgs/os';
+import { INFRA_CLI_USER_AGENT as UA } from '../constants';
 import type { Dep, DepStatus } from './types';
 
-const UA = 'gamezilla-infra-cli';
 const FETCH_TIMEOUT_MS = 15_000;
 
 /** Same directory as the Bun installer uses so one PATH entry covers both. */

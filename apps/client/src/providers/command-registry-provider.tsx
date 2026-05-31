@@ -8,7 +8,7 @@ import type { ReactNode } from 'react';
 // existing installs don't lose their history when @pkgs/ui's neutral default
 // key changes.
 // eslint-disable-next-line lingui/no-unlocalized-strings -- AsyncStorage key, not user-facing.
-const COMMAND_HISTORY_STORAGE_KEY = '@gamezilla/command-history';
+const COMMAND_HISTORY_STORAGE_KEY = '@app/command-history';
 
 export function CommandRegistryProviderWrapper({
   children,

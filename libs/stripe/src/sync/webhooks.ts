@@ -21,8 +21,9 @@ import {
 
 const TAG = 'stripe sync webhooks';
 
-const WEBHOOK_DESCRIPTION =
-  'gamezilla api worker — managed by @libs/stripe sync';
+const WEBHOOK_DESCRIPTION = 'API worker — managed by @libs/stripe sync';
+// Deployed Stripe endpoint metadata value. Do not change without migrating
+// the `managed_by` metadata on existing live webhook endpoints.
 const WEBHOOK_MANAGED_BY_TAG = 'gamezilla_stripe_sync';
 const WEBHOOK_PATH = '/stripe/webhook';
 

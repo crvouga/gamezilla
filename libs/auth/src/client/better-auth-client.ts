@@ -3,6 +3,7 @@ import { genericOAuthClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 import * as SecureStore from 'expo-secure-store';
 import { useMemo } from 'react';
+import { APP_IDENTITY } from '../shared/app-identity';
 
 export type AuthClient = ReturnType<typeof createAuthClient>;
 export type SessionSnapshot = ReturnType<AuthClient['useSession']>;
@@ -40,8 +41,8 @@ export function useAuthClient(baseURL: string): AuthClient {
         baseURL,
         plugins: [
           expoClient({
-            scheme: 'gamezilla',
-            storagePrefix: 'gamezilla',
+            scheme: APP_IDENTITY.urlScheme,
+            storagePrefix: APP_IDENTITY.slug,
             storage: SecureStore,
           }),
           genericOAuthClient(),

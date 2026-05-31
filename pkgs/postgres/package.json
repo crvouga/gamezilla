@@ -21,10 +21,9 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@electric-sql/pglite": "catalog:",
-    "@electric-sql/pglite-socket": "catalog:",
     "@pkgs/assert": "workspace:*",
-    "@pkgs/logger": "workspace:*"
+    "@pkgs/logger": "workspace:*",
+    "embedded-postgres": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

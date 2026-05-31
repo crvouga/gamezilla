@@ -14,7 +14,7 @@ import {
   DEFAULT_PATCH_DB_VISIBILITY_POLICIES,
   type AppAuthContext,
 } from './abac-policies';
-import { createGamezillaCompactionPolicyRegistry } from './default-compaction-policies';
+import { createAppCompactionPolicyRegistry } from './default-compaction-policies';
 import { buildAppPatchDbSchemaRegistry } from './schema-registry';
 
 /**
@@ -28,7 +28,7 @@ const APP_PATCH_DB_SCHEMA_REGISTRY: FrozenEntitySchemaRegistry =
 const uninstallByDb = new WeakMap<PatchDb, () => void>();
 
 /**
- * Registers gamezilla's default ABAC visibility policies on {@link PatchDb.hooks}.
+ * Registers the app's default ABAC visibility policies on {@link PatchDb.hooks}.
  * Idempotent per db instance. Also wires the lazy `member-of-space-ids`
  * enricher so visibility policies see fresh memberships without forcing the
  * session middleware to fetch them up-front on every request.
@@ -55,7 +55,7 @@ export type { AppAuthContext };
  * Builds a request-scoped {@link PatchDb} (Postgres + read batcher + policies).
  */
 export function createRequestPatchDb(sqlClient: SqlClient): PatchDb {
-  const compaction = createGamezillaCompactionPolicyRegistry();
+  const compaction = createAppCompactionPolicyRegistry();
   const innerPostgres = new PatchDbImplPostgres(sqlClient, {
     autoCompactOnWrite: true,
     compactionPolicy: compaction.resolve,

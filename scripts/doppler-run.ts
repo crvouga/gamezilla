@@ -22,7 +22,8 @@ function readDopplerYamlDefaults(): DopplerDefaults {
   try {
     text = readFileSync(DOPPLER_YAML, 'utf8');
   } catch {
-    return { project: 'gamezilla', config: 'dev' };
+    console.error(`doppler-run: could not read ${DOPPLER_YAML}`);
+    process.exit(1);
   }
 
   const setupBlock = text.match(/setup:\s*([\s\S]*)/)?.[1] ?? text;

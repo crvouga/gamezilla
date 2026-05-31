@@ -14,7 +14,7 @@ export const ApiSecretName = {
   googleWebClientSecret: 'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
   /** Secret for Better Auth session signing (`bun` / openssl random hex). */
   betterAuthSecret: 'BETTER_AUTH_SECRET',
-  /** Optional display name; defaults to `gamezilla` when unset or blank. */
+  /** Optional display name; defaults to the product display name when unset or blank. */
   betterAuthAppName: 'BETTER_AUTH_APP_NAME',
   /**
    * Optional newline-separated extra `trustedOrigins` for Better Auth (e.g.

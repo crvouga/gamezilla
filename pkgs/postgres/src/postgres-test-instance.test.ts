@@ -5,9 +5,9 @@ import {
   stopPostgresTestInstance,
 } from './postgres-test-instance';
 
-const TEST_PORT = 25432;
+const TEST_PORT = 25_432;
 
-describe.skip('postgres-test-instance', () => {
+describe('postgres-test-instance (embedded-postgres)', () => {
   let pg: Awaited<ReturnType<typeof getPostgresTestInstance>> | null = null;
   let available = false;
 
@@ -16,6 +16,8 @@ describe.skip('postgres-test-instance', () => {
       pg = await getPostgresTestInstance({ port: TEST_PORT });
       available = true;
     } catch {
+      // Bundled binaries are unavailable on this platform/arch; degrade
+      // gracefully rather than failing the whole suite.
       available = false;
     }
   });

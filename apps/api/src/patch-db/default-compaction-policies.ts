@@ -3,8 +3,8 @@ import {
   type PatchDbCompactionPolicy,
 } from '@pkgs/patch-db/policy/compaction-policy';
 
-/** Per-entity-type chain compaction for gamezilla's domain. */
-export const GAMEZILLA_COMPACTION_POLICIES: Readonly<
+/** Per-entity-type chain compaction for the app's domain. */
+export const APP_COMPACTION_POLICIES: Readonly<
   Record<string, PatchDbCompactionPolicy>
 > = {
   profile: { keepLatest: 2 },
@@ -36,8 +36,8 @@ export const GAMEZILLA_COMPACTION_POLICIES: Readonly<
   'chess.puzzle.load': { keepLatest: 1 },
 };
 
-export function createGamezillaCompactionPolicyRegistry(): PatchDbCompactionPolicyRegistry {
+export function createAppCompactionPolicyRegistry(): PatchDbCompactionPolicyRegistry {
   const reg = new PatchDbCompactionPolicyRegistry();
-  reg.registerAll(GAMEZILLA_COMPACTION_POLICIES);
+  reg.registerAll(APP_COMPACTION_POLICIES);
   return reg;
 }

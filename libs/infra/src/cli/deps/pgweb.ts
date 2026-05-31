@@ -7,6 +7,7 @@ import {
   verifyRun,
   which,
 } from '@pkgs/os';
+import { INFRA_CLI_USER_AGENT as UA } from '../constants';
 import type { Dep, DepStatus } from './types';
 
 /**
@@ -18,7 +19,6 @@ import type { Dep, DepStatus } from './types';
  * soft warning (the cluster keeps running), but for a configured workstation
  * we want it present so developers don't silently lose the GUI.
  */
-const UA = 'gamezilla-infra-cli';
 const FETCH_TIMEOUT_MS = 15_000;
 
 const installer = new FirstAvailableInstaller(

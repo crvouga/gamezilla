@@ -5,7 +5,7 @@ export class BetterAuthAppName implements SecretEntry {
   readonly env = 'BETTER_AUTH_APP_NAME';
   readonly optional = true;
   readonly hint =
-    'Optional Better Auth app display name (default: gamezilla). Leave unset to use the default.';
+    'Optional Better Auth app display name (defaults to the product display name). Leave unset to use the default.';
 
   async validate(value: string): Promise<string | null> {
     const v = value.trim();

@@ -699,7 +699,7 @@ PlanetScale         Serverless MySQL
                     Clients never write directly — local first
                     Read replicas for global low-latency reads
 
-Local dev           Real local PostgreSQL (`@pkgs/postgres`) + pgweb GUI + Bun API — no Docker
+Local dev           Real local PostgreSQL 18 (`@pkgs/postgres`, binaries via embedded-postgres npm) + pgweb GUI + Bun API — no Docker, no system install
                     Doppler `dev` `DB_URL` → `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`
                     Pre-connected pgweb GUI auto-launches at `http://127.0.0.1:5555` (disable with `PG_GUI=off`).
                     `bun run dev` (root) starts pg + api + client together; `db:migrate` once: `bun run --filter @apps/api db:migrate`
@@ -720,12 +720,12 @@ Cloudflare Workers: 10M requests/month free, then $0.50/M. Durable Objects: firs
 
 ### Local Postgres (managed cluster)
 
-`@pkgs/postgres` runs a real PostgreSQL server in the foreground so Turbo's persistent-task lifecycle owns it, with [`pgweb`](https://github.com/sosedoff/pgweb) auto-launched as a sibling pre-connected GUI. The wrapper:
+`@pkgs/postgres` runs a real PostgreSQL 18 server in the foreground so Turbo's persistent-task lifecycle owns it, with [`pgweb`](https://github.com/sosedoff/pgweb) auto-launched as a sibling pre-connected GUI. The cluster binaries ship via the [`embedded-postgres`](https://github.com/leinelissen/embedded-postgres) npm package (hydrated by `bun install` — no system Postgres install). The wrapper:
 
-- spawns `postgres` directly (no double-fork) inside its own process group, so `SIGINT`/`SIGTERM` from the dev shell can never leave an orphaned cluster behind,
-- after `pg_isready` succeeds, spawns `pgweb` (also in the process group) pointed at the local DB URL — no manual connection step,
+- drives `embedded-postgres`, which spawns `postgres` directly inside our process group, so `SIGINT`/`SIGTERM` from the dev shell can never leave an orphaned cluster behind,
+- once the postmaster logs `database system is ready to accept connections`, spawns `pgweb` (also in the process group) pointed at the local DB URL — no manual connection step,
 - reconciles a stale `postmaster.pid` from a previous abrupt exit before starting,
-- on shutdown stops `pgweb` first, then runs `pg_ctl stop -m fast` and escalates to `SIGINT → SIGTERM → SIGKILL` on the recorded postmaster PID if that fails,
+- on shutdown stops `pgweb` first, then fast-shuts-down the cluster and escalates to `SIGINT → SIGTERM → SIGKILL` on the recorded postmaster PID if that wedges,
 - writes its own `wrapper.pid` so `kill` only ever signals the cluster we manage (it will not terminate other Postgres servers that happen to bind the same port),
 - tees the postmaster log to `pkgs/postgres/.postgres/run/postgres.log` and pgweb's output to `pkgs/postgres/.postgres/run/pgweb.log`; both are forwarded to the terminal with `pg-server:` / `pg-gui:` prefixes,
 - treats GUI failures as non-fatal: missing `pgweb` binary or port collision logs a warning and the cluster keeps running.
@@ -746,17 +746,17 @@ DOPPLER_CONFIG=dev doppler run -- bun run --filter @apps/api db:migrate
 
 Set Doppler `dev` `DB_URL` to match the server log (`postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`).
 
-Required tooling: `postgres`, `pg_ctl`, `initdb`, `pg_isready`, `pgweb`. Enforced by `bun run infra setup` and `status` via the `PostgresDep` and `PgwebDep` classes.
+Required tooling: only `pgweb` (the optional GUI), enforced by `bun run infra setup` / `status` via the `PgwebDep` class. The PostgreSQL 18 server binaries (`postgres`, `initdb`, `pg_ctl`) ship via the `embedded-postgres` npm package and are hydrated by `bun install` — no system Postgres install and no `PostgresDep`.
 
-| Platform | Postgres install                                                                                                           | pgweb install                                                            | Notes                                                                                                                                                                                 |
-| -------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| macOS    | `brew install postgresql@17`                                                                                               | `brew install pgweb`                                                     | Homebrew installs keg-only; the wrapper auto-discovers `/opt/homebrew/opt/postgresql@17/bin` and `/usr/local/opt/...`. Override with `PG_BIN_DIR=$(brew --prefix postgresql@17)/bin`. |
-| Linux    | `apt-get install postgresql` (Debian/Ubuntu), `dnf install postgresql-server` (Fedora/RHEL), `pacman -S postgresql` (Arch) | Download from https://github.com/sosedoff/pgweb/releases and put on PATH | The wrapper also probes `/usr/lib/postgresql/<version>/bin` automatically.                                                                                                            |
-| Windows  | Run dev inside WSL2                                                                                                        | Install pgweb inside WSL2                                                | Native Windows is not supported; the wrapper exits with a clear install hint if invoked there.                                                                                        |
+| Platform | Postgres install                | pgweb install                                                            | Notes                                                                                          |
+| -------- | ------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| macOS    | bundled via npm (no action)     | `brew install pgweb`                                                     | Postgres 18 binaries come from `@embedded-postgres/darwin-*`, hydrated by `bun install`.       |
+| Linux    | bundled via npm (no action)     | Download from https://github.com/sosedoff/pgweb/releases and put on PATH | Postgres 18 binaries come from `@embedded-postgres/linux-*`, hydrated by `bun install`.        |
+| Windows  | Run dev inside WSL2             | Install pgweb inside WSL2                                                 | Native Windows is not exercised; run dev inside WSL2.                                           |
 
 Tunables (all optional, env-driven):
 
-- Cluster: `PG_HOST`, `PG_PORT`, `PG_DATA_DIR`, `PG_USER`, `PG_PASSWORD`, `PG_DATABASE`, `PG_LOCALE`, `PG_ENCODING`, `PG_STARTUP_TIMEOUT_MS`, `PG_SHUTDOWN_TIMEOUT_MS`, `PG_BIN_DIR`.
+- Cluster: `PG_HOST`, `PG_PORT`, `PG_DATA_DIR`, `PG_USER`, `PG_PASSWORD`, `PG_DATABASE`, `PG_LOCALE`, `PG_ENCODING`, `PG_SHUTDOWN_TIMEOUT_MS`.
 - GUI sidecar: `PG_GUI` (set to `off`/`0`/`false` to disable; default off in CI), `PG_GUI_HOST` (default `127.0.0.1`), `PG_GUI_PORT` (default `5555` — picked to sit next to the Postgres port and avoid Expo Web's `8081`), `PG_GUI_BIN` (force a specific `pgweb` binary).
 
 ---
