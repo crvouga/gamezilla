@@ -234,6 +234,15 @@ export {
   type ResponsiveSurfaceHeaderProps,
 } from './responsive-surface';
 
+export {
+  MutationModal,
+  useMutationLifecycle,
+  type MutationModalProps,
+  type MutationPhase,
+  type UseMutationLifecycleParams,
+  type UseMutationLifecycleResult,
+} from './mutation-modal';
+
 export { Picker, type PickerProps, type PickerOption } from './picker';
 
 export {

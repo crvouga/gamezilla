@@ -47,6 +47,9 @@ function useTopBarTopInset(safeAreaTop: boolean): number {
 
 export type TopBarCenterAlign = 'start' | 'center' | 'end';
 
+/** How the center slot is positioned when `centerAlign` is `'center'`. */
+export type TopBarCenterPosition = 'absolute' | 'flex';
+
 export type TopBarProps = {
   /** Slot pinned to the left edge (typically back/home + identity). */
   leading?: ReactNode;
@@ -56,6 +59,12 @@ export type TopBarProps = {
   trailing?: ReactNode;
   /** Cross-axis alignment for the center slot. Defaults to `'start'`. */
   centerAlign?: TopBarCenterAlign;
+  /**
+   * When `centerAlign` is `'center'`, `absolute` overlays the full bar width
+   * (best for titles). `flex` keeps the center in the row (best for tab strips
+   * and other interactive center chrome).
+   */
+  centerPosition?: TopBarCenterPosition;
   /**
    * When true, applies the safe-area top inset above the bar. Defaults to
    * `true` -- the bar is a screen-level surface that must clear the system
@@ -80,15 +89,15 @@ const SIDE_SLOT_SX = {
   alignItems: 'center' as const,
   gap: 2,
   minWidth: 0,
-  zIndex: 1,
-  // Empty flex padding must not steal presses from the centered overlay
-  // (desktop header tabs). Interactive children still receive presses.
+  // Above the centered overlay so leading/trailing controls stay pressable.
+  // `box-none` keeps empty flex padding transparent to the overlay below.
+  zIndex: 3,
   pointerEvents: 'box-none' as const,
 };
 
 type TopBarSlotsProps = Pick<
   TopBarProps,
-  'leading' | 'center' | 'trailing' | 'centerAlign'
+  'leading' | 'center' | 'trailing' | 'centerAlign' | 'centerPosition'
 >;
 
 function TopBarFlexLayout({
@@ -155,7 +164,7 @@ function TopBarAbsoluteCenterLayout({
           alignItems: 'center',
           justifyContent: 'center',
           pointerEvents: 'box-none',
-          // Above side slots so centered tabs receive presses on desktop web.
+          // Below side slots; centered tab strip receives presses in the middle.
           zIndex: 2,
         }}
       >
@@ -174,7 +183,8 @@ function TopBarContentRow(props: TopBarSlotsProps): ReactNode {
   const useAbsoluteCenter =
     props.centerAlign === 'center' &&
     props.center !== undefined &&
-    props.center !== null;
+    props.center !== null &&
+    props.centerPosition !== 'flex';
   if (useAbsoluteCenter) {
     return <TopBarAbsoluteCenterLayout {...props} />;
   }
@@ -186,6 +196,7 @@ export function TopBar({
   center,
   trailing,
   centerAlign = 'start',
+  centerPosition = 'absolute',
   safeAreaTop = true,
 }: TopBarProps): ReactNode {
   const paddingTop = useTopBarTopInset(safeAreaTop);
@@ -213,6 +224,7 @@ export function TopBar({
           center={center}
           trailing={trailing}
           centerAlign={centerAlign}
+          centerPosition={centerPosition}
         />
       </Box>
     </Box>

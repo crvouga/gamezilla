@@ -157,3 +157,58 @@ describe('AssertCrashError bubbling: server -> client', () => {
     expect(recorder.captured[0]?.context).toEqual(context);
   });
 });
+
+describe('HTTP 500 server errors', () => {
+  let dispose: (() => void) | null = null;
+  const prevNodeEnv = process.env.NODE_ENV;
+
+  afterEach(() => {
+    if (dispose !== null) {
+      dispose();
+      dispose = null;
+    }
+    if (prevNodeEnv === undefined) {
+      delete process.env.NODE_ENV;
+    } else {
+      process.env.NODE_ENV = prevNodeEnv;
+    }
+  });
+
+  test('dev (non-test) HTTP 500 reaches crash handler with status context', async () => {
+    process.env.NODE_ENV = 'development';
+    const recorder = new RecordingCrashHandler();
+    dispose = assert.registerCrashHandler(recorder);
+
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify({ error: 'relation missing' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })) as unknown as typeof fetch;
+
+    const client = new PatchDbClientTransportHttpFetch(
+      'http://patch-db.local/patch-db'
+    );
+    let thrown: unknown = null;
+    try {
+      await client.write(
+        [
+          {
+            entityId: 'e1',
+            entityType: 'demo',
+            attributes: { 'demo/x': '1' } as never,
+          },
+        ],
+        OPEN_PATCHES_DB_CONTEXT
+      );
+    } catch (e) {
+      thrown = e;
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+
+    expect(thrown).toBeInstanceOf(AssertCrashError);
+    expect(recorder.captured).toHaveLength(1);
+    expect(recorder.captured[0]?.context?.['status']).toBe(500);
+  });
+});

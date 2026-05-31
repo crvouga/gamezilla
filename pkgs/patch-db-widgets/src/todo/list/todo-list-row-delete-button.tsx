@@ -24,8 +24,7 @@ export function TodoListRowDeleteButton({
 
   if (listId === INBOX_LIST_ID) return null;
 
-  const confirmDelete = async () => {
-    setConfirmOpen(false);
+  const deleteList = async () => {
     await db.write([
       {
         entityId: listId,
@@ -53,8 +52,8 @@ export function TodoListRowDeleteButton({
       <TodoListDeleteConfirmationModal
         listId={listId}
         visible={confirmOpen}
-        onConfirm={() => void confirmDelete()}
-        onCancel={() => setConfirmOpen(false)}
+        operation={deleteList}
+        onClose={() => setConfirmOpen(false)}
       />
     </>
   );

@@ -1,5 +1,4 @@
 import { AppTabBarBridge } from '@apps/client/ui/app-header/app-tab-bar-bridge';
-import { AppTabBarButton } from '@apps/client/ui/app-header/app-tab-bar-button';
 import { IconSymbol, useTabsProps } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { Tabs } from 'expo-router';
@@ -7,24 +6,14 @@ import { Tabs } from 'expo-router';
 /**
  * Top-level tab layout.
  *
- * One bar definition (`Tabs.Screen` options) drives both surfaces:
- * - Mobile: native bottom tab bar rendered by {@link AppTabBarBridge}.
- * - Desktop: the same `BottomTabBar` re-hosted inside each top-level
- *   screen's header `centerTabs` slot (see `app-header-tabs.tsx`). The
- *   bridge returns `null` on desktop so the bar is only drawn once.
+ * One bar definition (`Tabs.Screen` options) drives both surfaces via
+ * {@link AppTabBar}: mobile bottom bar and desktop header center strip.
  */
 export default function TabsLayout() {
   const { t } = useLingui();
   const tabsProps = useTabsProps();
   return (
-    <Tabs
-      {...tabsProps}
-      tabBar={(props) => <AppTabBarBridge {...props} />}
-      screenOptions={{
-        ...tabsProps.screenOptions,
-        tabBarButton: (props) => <AppTabBarButton {...props} />,
-      }}
-    >
+    <Tabs {...tabsProps} tabBar={(props) => <AppTabBarBridge {...props} />}>
       <Tabs.Screen
         name="index"
         options={{

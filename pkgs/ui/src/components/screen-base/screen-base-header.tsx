@@ -318,6 +318,7 @@ export function ScreenBaseHeader({
       <TopBar
         safeAreaTop={false}
         centerAlign="center"
+        centerPosition={renderedCenterTabs !== undefined ? 'flex' : 'absolute'}
         leading={leadingSlot}
         center={renderCenterSlot(renderedCenterTabs, title)}
         trailing={trailingSlot}

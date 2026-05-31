@@ -43,6 +43,18 @@ export const PATCH_DB_COMPOSITE_INDEX_PREFIX = 'pdb_cidx_';
 export const PATCH_DB_SNAPSHOTS_VIEW_NAME = 'snapshots';
 /** Identifier prefix for every per-entity GIN index on `attributes`. */
 export const PATCH_DB_GIN_INDEX_PREFIX = 'pdb_gin_';
+/**
+ * Shared snapshot table for entity types that are not registered in the
+ * schema registry (e.g. playground todos). Rows carry `entity_type` as a
+ * column; there is no per-type `CHECK` constraint and no typed generated
+ * columns — reads/writes use JSONB only.
+ *
+ * Not to be confused with the legacy partitioned-design child table
+ * `snapshots__default`, which introspection deliberately ignores.
+ */
+export const UNREGISTERED_SNAPSHOT_TABLE = `${PATCH_DB_PARTITION_PREFIX}unregistered`;
+/** GIN index on {@link UNREGISTERED_SNAPSHOT_TABLE}.attributes. */
+export const UNREGISTERED_SNAPSHOT_GIN_INDEX = `${PATCH_DB_GIN_INDEX_PREFIX}unregistered__attrs`;
 
 /** PG `NAMEDATALEN - 1`. We reuse the same bound for portability + safety. */
 const MAX_PG_IDENTIFIER_LEN = 63;
@@ -74,6 +86,22 @@ export function partitionTableName(entityType: PatchEntityType): string {
     { entityType, name, max: MAX_PG_IDENTIFIER_LEN }
   );
   return name;
+}
+
+/**
+ * Resolves the snapshot table for writes/reads. Registered entity types
+ * target their dedicated `snapshots__<slug>` table; everything else falls
+ * back to {@link UNREGISTERED_SNAPSHOT_TABLE}.
+ */
+export function snapshotTableForEntityType(
+  entityType: PatchEntityType,
+  partitions: FrozenPartitionLayout = EMPTY_PARTITION_LAYOUT
+): string {
+  const info = partitions.get(entityType);
+  if (info !== null) {
+    return info.tableName;
+  }
+  return UNREGISTERED_SNAPSHOT_TABLE;
 }
 
 /**

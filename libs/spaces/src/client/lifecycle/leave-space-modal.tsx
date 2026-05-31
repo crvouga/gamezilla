@@ -1,7 +1,7 @@
 import { useSpaceActions } from './space-actions';
 import { LeaveSpaceConfirmModal } from './leave-space-confirm-modal';
 import { useRouter } from 'expo-router';
-import type { ReactNode } from 'react';
+import { useCallback, type ReactNode } from 'react';
 
 export type LeaveSpaceModalProps = {
   spaceId: string;
@@ -11,7 +11,8 @@ export type LeaveSpaceModalProps = {
 
 /**
  * Leave-space modal keyed by `spaceId`. Owns its own dispatch via
- * {@link useSpaceActions} and navigates back on confirm.
+ * {@link useSpaceActions} and navigates back once the success state is
+ * dismissed.
  */
 export function LeaveSpaceModal({
   spaceId,
@@ -20,16 +21,17 @@ export function LeaveSpaceModal({
 }: LeaveSpaceModalProps): ReactNode {
   const router = useRouter();
   const { leaveSpace } = useSpaceActions();
+  const operation = useCallback(
+    () => leaveSpace(spaceId),
+    [leaveSpace, spaceId]
+  );
 
   return (
     <LeaveSpaceConfirmModal
       visible={visible}
       onClose={onClose}
-      onConfirm={() => {
-        onClose();
-        void leaveSpace(spaceId);
-        router.back();
-      }}
+      operation={operation}
+      onSuccess={() => router.back()}
     />
   );
 }

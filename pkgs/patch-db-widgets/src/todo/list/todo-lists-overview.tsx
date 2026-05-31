@@ -1,8 +1,8 @@
 import {
   Box,
-  ConfirmationModal,
   EmptyState,
   FlatList,
+  MutationModal,
   ScreenBaseHeader,
   useTheme,
   type ScreenBaseBreadcrumb,
@@ -17,24 +17,26 @@ import { TodoListRow } from './todo-list-row';
 
 function ClearDbModal({
   visible,
-  onConfirm,
-  onCancel,
+  operation,
+  onClose,
 }: {
   visible: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
+  operation: () => Promise<void>;
+  onClose: () => void;
 }) {
   const { t } = useLingui();
   return (
-    <ConfirmationModal
+    <MutationModal
       visible={visible}
+      onClose={onClose}
       title={t`Clear All Data`}
       message={t`Are you sure you want to delete the local database? All todos and lists will be permanently removed. The app will reload.`}
-      confirmLabel={t`Clear`}
-      cancelLabel={t`Cancel`}
+      submitLabel={t`Clear`}
       variant="destructive"
-      onConfirm={onConfirm}
-      onCancel={onCancel}
+      operation={operation}
+      loadingLabel={t`Clearing local database…`}
+      successTitle={t`Local database cleared`}
+      errorTitle={t`Couldn't clear data`}
     />
   );
 }
@@ -69,7 +71,6 @@ export function TodoListsOverview({
   const rowIds = useMemo(() => [INBOX_LIST_ID, ...listIds], [listIds]);
 
   const deleteLocalDatabase = async () => {
-    setDeleteDbModalVisible(false);
     await onClearLocalDatabase?.();
   };
 
@@ -110,8 +111,8 @@ export function TodoListsOverview({
         />
         <ClearDbModal
           visible={deleteDbModalVisible}
-          onConfirm={() => void deleteLocalDatabase()}
-          onCancel={() => setDeleteDbModalVisible(false)}
+          operation={deleteLocalDatabase}
+          onClose={() => setDeleteDbModalVisible(false)}
         />
       </Box>
     </Box>

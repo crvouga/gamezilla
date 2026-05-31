@@ -26,6 +26,8 @@
   "dependencies": {
     "@better-auth/core": "catalog:",
     "@better-auth/expo": "catalog:",
+    "@lingui/core": "catalog:",
+    "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/async": "workspace:*",
     "@pkgs/attribute": "workspace:*",
@@ -38,8 +40,6 @@
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
-    "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
     "better-auth": "catalog:",
     "expo-constants": "catalog:",
     "expo-device": "catalog:",

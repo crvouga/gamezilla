@@ -15,11 +15,11 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@jlongster/sql.js": "catalog:",
+    "@neondatabase/serverless": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/pub-sub": "workspace:*",
     "@pkgs/sqlite": "workspace:*",
-    "@jlongster/sql.js": "catalog:",
-    "@neondatabase/serverless": "catalog:",
     "absurd-sql": "catalog:",
     "expo-sqlite": "catalog:",
     "pg": "catalog:",

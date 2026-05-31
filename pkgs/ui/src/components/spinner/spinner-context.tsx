@@ -31,7 +31,7 @@ type RotationKey = string;
 
 type RotationEntry = {
   rotation: Animated.Value;
-  loop: Animated.CompositeAnimation;
+  loop: Animated.CompositeAnimation | null;
   consumers: number;
 };
 
@@ -43,16 +43,32 @@ type SpinnerContextValue = {
 const SpinnerContext = createContext<SpinnerContextValue | null>(null);
 
 function createRotationEntry(): RotationEntry {
-  const rotation = new Animated.Value(0);
-  const loop = Animated.loop(
-    Animated.timing(rotation, {
+  return { rotation: new Animated.Value(0), loop: null, consumers: 0 };
+}
+
+/**
+ * (Re)start the loop from 0. A stopped `Animated.loop` composite cannot be
+ * reliably restarted, so we build a fresh one on every cold start — otherwise
+ * a spinner that mounts after all siblings have unmounted (e.g. a modal that
+ * opens later in the session) renders frozen.
+ */
+function startEntry(entry: RotationEntry): void {
+  entry.loop?.stop();
+  entry.rotation.setValue(0);
+  entry.loop = Animated.loop(
+    Animated.timing(entry.rotation, {
       toValue: 1,
       duration: SPIN_DURATION_MS,
       easing: Easing.linear,
       useNativeDriver: USE_NATIVE_DRIVER,
     })
   );
-  return { rotation, loop, consumers: 0 };
+  entry.loop.start();
+}
+
+function stopEntry(entry: RotationEntry): void {
+  entry.loop?.stop();
+  entry.loop = null;
 }
 
 function ensureEntry(
@@ -85,10 +101,10 @@ export function SpinnerProvider({
       subscribe: (key) => {
         const entry = ensureEntry(map, key);
         entry.consumers += 1;
-        if (entry.consumers === 1) entry.loop.start();
+        if (entry.consumers === 1) startEntry(entry);
         return () => {
           entry.consumers -= 1;
-          if (entry.consumers === 0) entry.loop.stop();
+          if (entry.consumers === 0) stopEntry(entry);
         };
       },
     }),
@@ -97,7 +113,7 @@ export function SpinnerProvider({
 
   useEffect(() => {
     return () => {
-      for (const entry of map.values()) entry.loop.stop();
+      for (const entry of map.values()) stopEntry(entry);
       map.clear();
     };
   }, [map]);

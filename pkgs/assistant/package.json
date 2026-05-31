@@ -24,8 +24,8 @@
     "react": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "catalog:",
     "@types/bun": "catalog:",
+    "@types/react": "catalog:",
     "typescript": "catalog:"
   }
 }

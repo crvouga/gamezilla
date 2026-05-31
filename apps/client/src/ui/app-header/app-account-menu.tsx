@@ -1,8 +1,6 @@
 /**
- * Compact account menu trigger for {@link AppHeader}. Reuses the same
- * floating-menu rows the legacy sidebar exposed (Profile / Connection /
- * Sign in/out / Settings), but the trigger is a single circular avatar in
- * the header's trailing slot — Facebook-style.
+ * Compact account menu trigger for {@link AppHeader}. Standard user-menu items
+ * (Account / Settings / Sign in or out) anchored on the header avatar.
  */
 
 import {
@@ -10,7 +8,6 @@ import {
   useSignOutModal,
 } from '@libs/auth/client/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
-import { useServerStatus } from '@apps/client/connection/use-server-status';
 import { useAsync } from '@pkgs/async/use-async';
 import { useLogger } from '@pkgs/logger/react';
 import { MyDisplayName } from '@libs/profile/client/my-display-name';
@@ -19,15 +16,12 @@ import {
   Box,
   FloatingMenu,
   Pressable,
-  StatusDot,
-  Text,
   type FloatingMenuContent,
 } from '@pkgs/ui';
 import { t } from '@lingui/core/macro';
 import { useRouter } from 'expo-router';
 import {
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -39,7 +33,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const TRIGGER_SIZE = 40;
 
 type AnchorRect = { x: number; y: number; width: number; height: number };
-type ServerStatus = ReturnType<typeof useServerStatus>;
 
 function useAccountMenuActions(args: {
   isAuthenticated: boolean;
@@ -51,19 +44,14 @@ function useAccountMenuActions(args: {
   const router = useRouter();
   const log = useLogger('app-account-menu');
 
-  const onProfile = useCallback(() => {
+  const onAccount = useCallback(() => {
     close();
-    router.push('/profile');
+    router.push('/more/account');
   }, [close, router]);
 
   const onSettings = useCallback(() => {
     close();
     router.push('/more');
-  }, [close, router]);
-
-  const onServerStatus = useCallback(() => {
-    close();
-    router.push('/more/server-status');
   }, [close, router]);
 
   const { run: runAuth } = useAsync({
@@ -86,70 +74,10 @@ function useAccountMenuActions(args: {
     void runAuth().catch(() => {});
   }, [close, runAuth]);
 
-  return { onProfile, onSettings, onServerStatus, onAuth };
-}
-
-function ConnectionTrailing({
-  aggregateStatus,
-  health,
-}: {
-  aggregateStatus: ServerStatus['aggregateStatus'];
-  health: ServerStatus['health'];
-}) {
-  const ms = health.latencyMs;
-  const label =
-    health.phase === 'loading' ? '…' : ms !== null ? t`${ms} ms` : '—';
-  return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        flexShrink: 0,
-      }}
-    >
-      <StatusDot status={aggregateStatus} size={10} />
-      <Text variant="caption" sx={{ color: 'textSecondary' }} label={label} />
-    </Box>
-  );
-}
-
-function aggregateStatusWord(s: ServerStatus['aggregateStatus']): string {
-  if (s === 'online') return t`Online`;
-  if (s === 'offline') return t`Offline`;
-  return t`Limited or checking`;
-}
-
-function latencyPhrase(health: ServerStatus['health']): string {
-  if (health.phase === 'loading') return t`latency checking`;
-  const ms = health.latencyMs;
-  if (ms !== null) return t`latency ${ms} ms`;
-  return t`latency unavailable`;
+  return { onAccount, onSettings, onAuth };
 }
 
 type MenuRow = FloatingMenuContent['rows'][number];
-
-function buildConnectionRow(args: {
-  serverStatus: ServerStatus;
-  onServerStatus: () => void;
-}): MenuRow {
-  const { serverStatus, onServerStatus } = args;
-  const { aggregateStatus, health } = serverStatus;
-  const statusWord = aggregateStatusWord(aggregateStatus);
-  const latency = latencyPhrase(health);
-  const accLabel = t`Connection and server status. ${statusWord}. ${latency}.`;
-  return {
-    type: 'item',
-    id: 'server-status',
-    label: t`Connection`,
-    icon: 'wifi',
-    trailing: (
-      <ConnectionTrailing aggregateStatus={aggregateStatus} health={health} />
-    ),
-    onPress: onServerStatus,
-    accessibilityLabel: accLabel,
-  };
-}
 
 function buildAuthRow(isAuthenticated: boolean, onAuth: () => void): MenuRow {
   const label = isAuthenticated ? t`Sign out` : t`Sign in`;
@@ -165,34 +93,22 @@ function buildAuthRow(isAuthenticated: boolean, onAuth: () => void): MenuRow {
 
 function buildMenuContent(args: {
   isAuthenticated: boolean;
-  serverStatus: ServerStatus;
-  onProfile: () => void;
-  onServerStatus: () => void;
+  onAccount: () => void;
   onAuth: () => void;
   onSettings: () => void;
 }): FloatingMenuContent {
-  const {
-    isAuthenticated,
-    serverStatus,
-    onProfile,
-    onServerStatus,
-    onAuth,
-    onSettings,
-  } = args;
+  const { isAuthenticated, onAccount, onAuth, onSettings } = args;
   return {
     header: { title: <MyDisplayName variant="bodyBold" /> },
     rows: [
       {
         type: 'item',
-        id: 'profile',
-        label: t`Profile`,
+        id: 'account',
+        label: t`Account`,
         icon: 'person.fill',
-        onPress: onProfile,
-        accessibilityLabel: t`View profile`,
+        onPress: onAccount,
+        accessibilityLabel: t`Account`,
       },
-      buildConnectionRow({ serverStatus, onServerStatus }),
-      buildAuthRow(isAuthenticated, onAuth),
-      { type: 'divider', id: 'after-auth' },
       {
         type: 'item',
         id: 'settings',
@@ -201,6 +117,8 @@ function buildMenuContent(args: {
         onPress: onSettings,
         accessibilityLabel: t`Settings`,
       },
+      { type: 'divider', id: 'before-auth' },
+      buildAuthRow(isAuthenticated, onAuth),
     ],
   };
 }
@@ -236,40 +154,24 @@ export function AppAccountMenu(): ReactNode {
   const { open: openSignInModal } = useSignInModal();
   const { open: openSignOutConfirm } = useSignOutModal();
   const insets = useSafeAreaInsets();
-  const serverStatus = useServerStatus();
-  const { refresh } = serverStatus;
   const { triggerRef, open, anchor, openMenu, close } = useFloatingAnchor();
 
-  useEffect(() => {
-    if (open) refresh();
-  }, [open, refresh]);
-
-  const { onProfile, onSettings, onServerStatus, onAuth } =
-    useAccountMenuActions({
-      isAuthenticated,
-      openSignOutConfirm,
-      openSignInModal,
-      close,
-    });
+  const { onAccount, onSettings, onAuth } = useAccountMenuActions({
+    isAuthenticated,
+    openSignOutConfirm,
+    openSignInModal,
+    close,
+  });
 
   const menuContent = useMemo(
     () =>
       buildMenuContent({
         isAuthenticated,
-        serverStatus,
-        onProfile,
-        onServerStatus,
+        onAccount,
         onAuth,
         onSettings,
       }),
-    [
-      isAuthenticated,
-      serverStatus,
-      onProfile,
-      onServerStatus,
-      onAuth,
-      onSettings,
-    ]
+    [isAuthenticated, onAccount, onAuth, onSettings]
   );
 
   return (

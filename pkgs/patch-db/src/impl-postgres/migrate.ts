@@ -39,13 +39,18 @@ import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { FrozenEntitySchemaRegistry } from '../schema/entity-schema-registry';
 import {
+  buildUnregisteredSnapshotTable,
+  computeDesiredPgLayout,
+  type DesiredPgLayout,
+} from './pg-layout';
+import {
   dropSnapshotsRelIfPresent,
   introspectPgLayout,
   probeSnapshotsRelKind,
 } from './pg-introspect';
-import { computeDesiredPgLayout } from './pg-layout';
 import { applyPgLayoutDiff, diffPgLayout } from './pg-reconcile';
 import { MIGRATIONS } from './sql-constants';
+import { UNREGISTERED_SNAPSHOT_TABLE } from './partitioning';
 
 async function dropLegacySnapshotsIfPresent(
   sqlClient: SqlClient,
@@ -72,6 +77,18 @@ async function applyBaseDdl(sqlClient: SqlClient, log: Logger): Promise<void> {
   }
 }
 
+function desiredLayoutForMigrate(
+  registry: FrozenEntitySchemaRegistry | undefined
+): DesiredPgLayout {
+  if (registry !== undefined) {
+    return computeDesiredPgLayout(registry);
+  }
+  const fallback = buildUnregisteredSnapshotTable();
+  return Object.freeze({
+    tables: new Map([[UNREGISTERED_SNAPSHOT_TABLE, fallback]]),
+  });
+}
+
 /**
  * Entry point used by `PatchDbImplPostgres.migrate`. Detects + nukes any
  * legacy snapshots relation, applies idempotent base DDL, then
@@ -89,8 +106,8 @@ export async function migratePatchDbPostgres(args: {
    * Frozen schema registry. When supplied, the reconciler converges every
    * registered entity type's `snapshots__<slug>` table + typed generated
    * columns + per-table single + composite btrees + GIN + the `snapshots`
-   * UNION ALL view against the live catalog. Without a registry, only the
-   * base DDL (patches + btrees) runs.
+   * UNION ALL view against the live catalog. Without a registry, the
+   * reconciler still ensures {@link UNREGISTERED_SNAPSHOT_TABLE} + view exist.
    */
   registry?: FrozenEntitySchemaRegistry;
 }): Promise<void> {
@@ -99,12 +116,10 @@ export async function migratePatchDbPostgres(args: {
   try {
     await dropLegacySnapshotsIfPresent(args.sqlClient, log);
     await applyBaseDdl(args.sqlClient, log);
-    if (args.registry !== undefined) {
-      const desired = computeDesiredPgLayout(args.registry);
-      const live = await introspectPgLayout(args.sqlClient);
-      const diff = diffPgLayout(desired, live);
-      await applyPgLayoutDiff(args.sqlClient, diff, args.logger);
-    }
+    const desired = desiredLayoutForMigrate(args.registry);
+    const live = await introspectPgLayout(args.sqlClient);
+    const diff = diffPgLayout(desired, live);
+    await applyPgLayoutDiff(args.sqlClient, diff, args.logger);
     log.info('patch-db postgres migrate: complete');
   } catch (error) {
     log.error('patch-db postgres migrate: failed', {

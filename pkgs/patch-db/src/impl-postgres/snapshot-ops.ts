@@ -7,7 +7,8 @@ import {
   PATCH_META_KEYS,
 } from '../interface';
 import { patchRowIsSyncRejected } from '../patch-row-sync-rejected';
-import { partitionTableName } from './partitioning';
+import { snapshotTableForEntityType } from './partitioning';
+import type { FrozenPartitionLayout } from './partitioning';
 import { parseAttributes, rowAttributesText } from './read-ops';
 import {
   deleteSnapshotsBatchSql,
@@ -138,12 +139,13 @@ type PerEntityBatch = {
 
 function getOrCreateBatch(
   batches: Map<string, PerEntityBatch>,
-  entityType: string
+  entityType: string,
+  partitions?: FrozenPartitionLayout
 ): PerEntityBatch {
   const existing = batches.get(entityType);
   if (existing !== undefined) return existing;
   const created: PerEntityBatch = {
-    tableName: partitionTableName(entityType),
+    tableName: snapshotTableForEntityType(entityType, partitions),
     deleteParams: [],
     upsertPayload: [],
   };
@@ -153,12 +155,13 @@ function getOrCreateBatch(
 
 function buildPerEntityBatches(
   entityPairs: readonly SnapshotEntityPair[],
-  rowsByKey: ReadonlyMap<string, PatchRow[]>
+  rowsByKey: ReadonlyMap<string, PatchRow[]>,
+  partitions?: FrozenPartitionLayout
 ): ReadonlyMap<string, PerEntityBatch> {
   const batches = new Map<string, PerEntityBatch>();
   for (const { entityId, entityType, key } of entityPairs) {
     const merged = mergePatchRowsIntoSnapshotAttrs(rowsByKey.get(key) ?? []);
-    const batch = getOrCreateBatch(batches, entityType);
+    const batch = getOrCreateBatch(batches, entityType, partitions);
     if (Object.keys(merged).length === 0) {
       batch.deleteParams.push(entityId, entityType);
     } else {
@@ -207,7 +210,8 @@ async function applyPerEntityBatch(
 /** Recomputes snapshots for every entity key in `touchedEntities` from the lineage of patches. */
 export async function recomputeTouchedSnapshots(
   tx: SqlClient,
-  touchedEntities: Set<string>
+  touchedEntities: Set<string>,
+  partitions?: FrozenPartitionLayout
 ): Promise<void> {
   if (touchedEntities.size === 0) return;
   const entityPairs = collectSnapshotEntityPairs(touchedEntities);
@@ -218,7 +222,7 @@ export async function recomputeTouchedSnapshots(
     [...pairParams, ...pairParams, ...pairParams]
   );
   const rowsByKey = groupSnapshotPatchRowsByKey(patchRows);
-  const batches = buildPerEntityBatches(entityPairs, rowsByKey);
+  const batches = buildPerEntityBatches(entityPairs, rowsByKey, partitions);
   for (const batch of batches.values()) {
     await applyPerEntityBatch(tx, batch);
   }
@@ -227,7 +231,12 @@ export async function recomputeTouchedSnapshots(
 export async function recomputeSnapshotSingle(
   tx: SqlClient,
   entityId: string,
-  entityType: string
+  entityType: string,
+  partitions?: FrozenPartitionLayout
 ): Promise<void> {
-  await recomputeTouchedSnapshots(tx, new Set([`${entityId}\0${entityType}`]));
+  await recomputeTouchedSnapshots(
+    tx,
+    new Set([`${entityId}\0${entityType}`]),
+    partitions
+  );
 }

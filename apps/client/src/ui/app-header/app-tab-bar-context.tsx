@@ -3,10 +3,8 @@
  *
  * The navigator publishes its props once per render via
  * {@link AppTabBarBridge}, and the desktop screen header consumes them via
- * {@link useTabBarProps} so it can re-host the same `BottomTabBar` that
- * mobile shows at the bottom -- guaranteeing the two surfaces stay in
- * lockstep (active tab, badges, screen options) without a parallel
- * implementation.
+ * {@link useTabBarProps} so {@link AppTabBar} stays in lockstep on both
+ * surfaces without re-hosting React Navigation's `BottomTabBar`.
  */
 
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';

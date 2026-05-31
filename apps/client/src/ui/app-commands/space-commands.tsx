@@ -207,35 +207,22 @@ function SpaceLifecycleConfirmModals({
 }): ReactNode {
   const router = useRouter();
   const { endSpace, leaveSpace } = useSpaceActions();
-  const onConfirmEnd = useCallback(() => {
-    if (pending?.kind !== 'end') return;
-    const id = pending.spaceId;
-    onClose();
-    void (async () => {
-      await endSpace(id);
-      router.replace('/');
-    })();
-  }, [pending, onClose, endSpace, router]);
-  const onConfirmLeave = useCallback(() => {
-    if (pending?.kind !== 'leave') return;
-    const id = pending.spaceId;
-    onClose();
-    void (async () => {
-      await leaveSpace(id);
-      router.replace('/');
-    })();
-  }, [pending, onClose, leaveSpace, router]);
+  const endId = pending?.kind === 'end' ? pending.spaceId : '';
+  const leaveId = pending?.kind === 'leave' ? pending.spaceId : '';
+  const onSuccess = useCallback(() => router.replace('/'), [router]);
   return (
     <>
       <EndSpaceConfirmModal
         visible={pending?.kind === 'end'}
         onClose={onClose}
-        onConfirm={onConfirmEnd}
+        operation={() => endSpace(endId)}
+        onSuccess={onSuccess}
       />
       <LeaveSpaceConfirmModal
         visible={pending?.kind === 'leave'}
         onClose={onClose}
-        onConfirm={onConfirmLeave}
+        operation={() => leaveSpace(leaveId)}
+        onSuccess={onSuccess}
       />
     </>
   );

@@ -50,6 +50,7 @@ import { default as SegmentedControlExample } from '../segmented-control/segment
 import { default as StatusDotExample } from '../status-dot/status-dot.example';
 
 import { default as ModalExample } from '../modal/modal.example';
+import { default as MutationModalExample } from '../mutation-modal/mutation-modal.example';
 import { default as CommandPaletteExample } from '../command-palette/command-palette.example';
 
 import { default as ResponsiveSurfaceExample } from '../responsive-surface/responsive-surface.example';
@@ -164,6 +165,11 @@ const builtInEntries: ComponentEntry[] = [
 
   // Overlay
   { name: 'Modal', category: 'Overlay', Example: ModalExample },
+  {
+    name: 'MutationModal',
+    category: 'Overlay',
+    Example: MutationModalExample,
+  },
   {
     name: 'CommandPalette',
     category: 'Overlay',

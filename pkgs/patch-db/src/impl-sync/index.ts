@@ -1,8 +1,15 @@
 export {
-  SYNC_ERROR_TOPIC,
+  SERVER_WRITE_TOPIC,
+  clearServerWriteEventRing,
+  recentServerWriteEvents,
+  type ServerWriteEvent,
+  type ServerWriteOutcome,
+  type ServerWritePatchSummary,
+} from './impl-sync-server-write-log';
+export { SYNC_ERROR_TOPIC, type SyncErrorEvent } from './impl-sync-topics';
+export {
   SyncPatchDb,
   defaultSyncPatchDbScheduler,
-  type SyncErrorEvent,
   type SyncPatchDbOptions,
   type SyncPatchDbScheduleHandle,
   type SyncPatchDbScheduler,

@@ -14,14 +14,14 @@
     "tc": "tsc --noEmit"
   },
   "dependencies": {
+    "@gorhom/bottom-sheet": "catalog:",
+    "@lingui/core": "catalog:",
+    "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/patch-db": "workspace:*",
     "@pkgs/pub-sub": "workspace:*",
     "@pkgs/ui": "workspace:*",
-    "@gorhom/bottom-sheet": "catalog:",
-    "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
     "@react-native-async-storage/async-storage": "catalog:",
     "expo": "catalog:",
     "expo-sqlite": "catalog:",

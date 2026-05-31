@@ -20,6 +20,7 @@ import {
   ginIndexNameFor,
   partitionTableName,
   singleColumnIndexNameFor,
+  UNREGISTERED_SNAPSHOT_TABLE,
 } from './partitioning';
 import { computeDesiredPgLayout } from './pg-layout';
 import { applyPgLayoutDiff, diffPgLayout } from './pg-reconcile';
@@ -99,8 +100,10 @@ describe('diffPgLayout: empty live layout (initial migration)', () => {
   test('produces ADDs only — no drops', () => {
     const desired = buildTaskLayout();
     const diff = diffPgLayout(desired, EMPTY_LIVE);
-    expect(diff.tablesToCreate.length).toBe(1);
-    expect(diff.tablesToCreate[0]?.tableName).toBe(TASK_TABLE);
+    expect(diff.tablesToCreate.length).toBe(2);
+    expect(diff.tablesToCreate.map((t) => t.tableName).sort()).toEqual(
+      [TASK_TABLE, UNREGISTERED_SNAPSHOT_TABLE].sort()
+    );
     expect(diff.orphanedTableNames).toEqual([]);
     expect(diff.generatedColumnsToAdd.length).toBe(1);
     expect(diff.generatedColumnsToAdd[0]?.tableName).toBe(TASK_TABLE);
@@ -110,9 +113,8 @@ describe('diffPgLayout: empty live layout (initial migration)', () => {
     expect(diff.singleIndexesToDrop).toEqual([]);
     expect(diff.compositeIndexesToAdd).toEqual([]);
     expect(diff.compositeIndexesToDrop).toEqual([]);
-    expect(diff.ginIndexesToAdd.length).toBe(1);
-    expect(diff.ginIndexesToAdd[0]?.indexName).toBe(TASK_GIN_IDX);
-    expect(diff.viewBranches.length).toBe(1);
+    expect(diff.ginIndexesToAdd.length).toBe(2);
+    expect(diff.viewBranches.length).toBe(2);
   });
 });
 
@@ -171,7 +173,7 @@ describe('diffPgLayout: live equals desired (idempotent re-run)', () => {
     expect(diff.compositeIndexesToDrop).toEqual([]);
     expect(diff.ginIndexesToAdd).toEqual([]);
     expect(diff.ginIndexesToDrop).toEqual([]);
-    expect(diff.viewBranches.length).toBe(1);
+    expect(diff.viewBranches.length).toBe(2);
   });
 });
 
@@ -508,7 +510,7 @@ describe('applyPgLayoutDiff: emits expected DDL shape on full add path', () => {
     expect(sqlClient.statements[1]).toMatch(/^CREATE VIEW snapshots AS/i);
   });
 
-  test('empty registry leaves no `snapshots` symbol behind (no DDL emitted)', async () => {
+  test('empty registry still creates unregistered fallback + view', async () => {
     const desired = computeDesiredPgLayout(
       createEntitySchemaRegistry().freeze()
     );
@@ -516,9 +518,15 @@ describe('applyPgLayoutDiff: emits expected DDL shape on full add path', () => {
     const logger = createFakeLogger();
     const sqlClient = new RecordingSqlClient();
     await applyPgLayoutDiff(sqlClient, diff, logger);
-    expect(sqlClient.statements.length).toBe(0);
+    expect(
+      sqlClient.statements.some((s) =>
+        new RegExp(
+          `CREATE TABLE IF NOT EXISTS ${UNREGISTERED_SNAPSHOT_TABLE}`
+        ).test(s)
+      )
+    ).toBe(true);
     expect(sqlClient.statements.some((s) => /^CREATE VIEW/i.test(s))).toBe(
-      false
+      true
     );
   });
 
@@ -547,7 +555,8 @@ describe('applyPgLayoutDiff: emits expected DDL shape on full add path', () => {
     assert.defined(viewStmt, 'CREATE VIEW snapshots must be emitted');
     expect(viewStmt).toContain(`FROM ${TASK_TABLE}`);
     expect(viewStmt).toContain(`FROM ${ITEM_TABLE}`);
-    expect((viewStmt.match(/UNION ALL/g) ?? []).length).toBe(1);
+    expect(viewStmt).toContain(`FROM ${UNREGISTERED_SNAPSHOT_TABLE}`);
+    expect((viewStmt.match(/UNION ALL/g) ?? []).length).toBe(2);
   });
 });
 

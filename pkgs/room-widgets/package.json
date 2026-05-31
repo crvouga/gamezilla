@@ -14,11 +14,11 @@
     "tc": "tsc --noEmit"
   },
   "dependencies": {
+    "@lingui/core": "catalog:",
+    "@lingui/react": "catalog:",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/ui": "workspace:*",
-    "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
     "expo": "catalog:",
     "make-plural": "catalog:",
     "react": "catalog:",

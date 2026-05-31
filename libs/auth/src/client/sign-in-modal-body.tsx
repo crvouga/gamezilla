@@ -1,6 +1,6 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { Box, ModalBody, SocialSignInButton, Text } from '@pkgs/ui';
+import { Box, ErrorState, ModalBody, SocialSignInButton, Text } from '@pkgs/ui';
 
 export function SignInModalBody(props: {
   signInAvailable: boolean;
@@ -56,7 +56,11 @@ export function SignInModalBody(props: {
         />
       ) : null}
       {typeof errorMessage === 'string' && errorMessage.length > 0 ? (
-        <Text variant="caption" sx={{ color: 'error' }} label={errorMessage} />
+        <ErrorState
+          variant="compact"
+          title={t`Sign-in failed`}
+          body={errorMessage}
+        />
       ) : null}
     </ModalBody>
   );

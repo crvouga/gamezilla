@@ -12,9 +12,9 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@libs/stripe": "workspace:*",
     "@pkgs/doppler": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
-    "@libs/stripe": "workspace:*",
     "stripe": "catalog:"
   },
   "devDependencies": {

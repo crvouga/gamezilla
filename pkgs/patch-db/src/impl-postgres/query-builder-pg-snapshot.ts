@@ -15,7 +15,10 @@ import type { AttributeKey, PatchDbQuery, PatchEntityType } from '../interface';
 import { assertDirection, patchDbAttributeKey } from '../interface';
 import { sqliteJsonPathToKey } from './json-path';
 import { isNumericIndexDataType } from './numeric-data-type';
-import type { GeneratedColumnSpec } from './partitioning';
+import {
+  type GeneratedColumnSpec,
+  UNREGISTERED_SNAPSHOT_TABLE,
+} from './partitioning';
 import type { PgQueryBuilderOptions } from './query-builder-pg-options';
 import {
   buildWhereClauseForColumn,
@@ -94,6 +97,15 @@ export function resolveSnapshotSource(
       assertSqlIdentifier(info.tableName, 'snapshot per-entity table name');
       return { table: info.tableName, alias: 's', hasTypedColumns: true };
     }
+    assertSqlIdentifier(
+      UNREGISTERED_SNAPSHOT_TABLE,
+      'unregistered snapshot table name'
+    );
+    return {
+      table: UNREGISTERED_SNAPSHOT_TABLE,
+      alias: 's',
+      hasTypedColumns: false,
+    };
   }
   return { table: 'snapshots', alias: 's', hasTypedColumns: false };
 }

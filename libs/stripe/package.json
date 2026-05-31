@@ -17,13 +17,13 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@pkgs/attribute": "workspace:*",
+    "@hono/zod-validator": "catalog:",
     "@libs/auth": "workspace:*",
+    "@pkgs/attribute": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/patch-db": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@hono/zod-validator": "catalog:",
     "hono": "catalog:",
     "pg": "catalog:",
     "stripe": "catalog:",

@@ -46,18 +46,12 @@ export function SpaceEndOrLeaveButton({
       <EndSpaceConfirmModal
         visible={confirmEnd}
         onClose={() => setConfirmEnd(false)}
-        onConfirm={() => {
-          setConfirmEnd(false);
-          void endSpace(spaceId);
-        }}
+        operation={() => endSpace(spaceId)}
       />
       <LeaveSpaceConfirmModal
         visible={confirmLeave}
         onClose={() => setConfirmLeave(false)}
-        onConfirm={() => {
-          setConfirmLeave(false);
-          void leaveSpace(spaceId);
-        }}
+        operation={() => leaveSpace(spaceId)}
       />
     </>
   );

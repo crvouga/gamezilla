@@ -74,8 +74,12 @@ msgstr "{latencyMs} ms"
 
 #: apps/client/src/ui/app-header/app-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
-msgid "{ms} ms"
-msgstr "{ms} ms"
+#~ msgid "{ms} ms"
+#~ msgstr "{ms} ms"
+
+#: pkgs/patch-db-widgets/src/server-writes-panel.tsx
+msgid "{timeLabel} · {patchCount} patches · {entityTypes}"
+msgstr "{timeLabel} · {patchCount} patches · {entityTypes}"
 
 #: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
 msgid "{total} total · {loaded} loaded · {shown} shown"
@@ -92,6 +96,10 @@ msgstr "+ New List"
 #: libs/spaces/src/client/spaces-screen.tsx
 msgid "+ New space"
 msgstr "+ New space"
+
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "+1"
+msgstr "+1"
 
 #: apps/client/src/settings/theme-screen.tsx
 msgid "☀️ Light"
@@ -298,6 +306,9 @@ msgid "About"
 msgstr "About"
 
 #: apps/client/src/ui/app-commands/account-command.tsx
+#: apps/client/src/ui/app-header/app-account-menu.tsx
+#: apps/client/src/ui/app-header/app-account-menu.tsx
+#: apps/client/src/ui/use-account-actions.tsx
 #: libs/auth/src/client/account-device/account-device-detail-screen.tsx
 #: libs/auth/src/client/account-screen.tsx
 msgid "Account"
@@ -883,13 +894,9 @@ msgstr "Build mode: {buildMode}"
 #~ msgid "Can you lure something into a trap?"
 #~ msgstr "Can you lure something into a trap?"
 
-#: libs/auth/src/client/use-sign-out-confirmation.tsx
-#: libs/spaces/src/client/active-space/rename-space-modal.tsx
-#: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
-#: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
-#: pkgs/patch-db-widgets/src/todo/list/todo-list-delete-confirmation-modal.tsx
-#: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
+#: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
+#: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -1068,6 +1075,7 @@ msgstr "Choose style"
 msgid "clear"
 msgstr "clear"
 
+#: pkgs/patch-db-widgets/src/server-writes-panel.tsx
 #: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
 msgid "Clear"
 msgstr "Clear"
@@ -1116,13 +1124,21 @@ msgstr "Clear SQLite and reload (same as Clear data in Todos)"
 #~ msgid "Cleared the path and struck. Excellent."
 #~ msgstr "Cleared the path and struck. Excellent."
 
-#: pkgs/room-widgets/src/pages/playground-page.tsx
-msgid "Client A (alice)"
-msgstr "Client A (alice)"
+#: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
+msgid "Clearing local database…"
+msgstr "Clearing local database…"
 
 #: pkgs/room-widgets/src/pages/playground-page.tsx
-msgid "Client B (bob)"
-msgstr "Client B (bob)"
+msgid "Client {label}"
+msgstr "Client {label}"
+
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+#~ msgid "Client A (alice)"
+#~ msgstr "Client A (alice)"
+
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+#~ msgid "Client B (bob)"
+#~ msgstr "Client B (bob)"
 
 #: apps/client/src/developer/developer-screen.tsx
 #: libs/client-config/src/client/client-config-screen.tsx
@@ -1185,6 +1201,10 @@ msgstr "Commit (short): {shortCommitHash}"
 msgid "Commit hash"
 msgstr "Commit hash"
 
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "Committed count"
+msgstr "Committed count"
+
 #: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 msgid "Completed"
 msgstr "Completed"
@@ -1227,14 +1247,16 @@ msgstr "Connecting to room…"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
-#: apps/client/src/ui/app-header/app-account-menu.tsx
-#: apps/client/src/ui/use-account-actions.tsx
 msgid "Connection"
 msgstr "Connection"
 
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "Connection {id}"
+msgstr "Connection {id}"
+
 #: apps/client/src/ui/app-header/app-account-menu.tsx
-msgid "Connection and server status. {statusWord}. {latency}."
-msgstr "Connection and server status. {statusWord}. {latency}."
+#~ msgid "Connection and server status. {statusWord}. {latency}."
+#~ msgstr "Connection and server status. {statusWord}. {latency}."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Connection cut. Keep going."
@@ -1245,12 +1267,16 @@ msgstr "Connection and server status. {statusWord}. {latency}."
 #~ msgstr "Construct the kill box around the king."
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
+msgid "Continue with dev IDP"
+msgstr "Continue with dev IDP"
+
+#: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Continue with Google"
 msgstr "Continue with Google"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
-msgid "Continue with test account"
-msgstr "Continue with test account"
+#~ msgid "Continue with test account"
+#~ msgstr "Continue with test account"
 
 #: pkgs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
 msgid "Copied to clipboard"
@@ -1313,9 +1339,29 @@ msgstr "Correct"
 #~ msgid "Could not remove local data"
 #~ msgstr "Could not remove local data"
 
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
+msgid "Could not wipe database"
+msgstr "Could not wipe database"
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Could you step between defender and target?"
 #~ msgstr "Could you step between defender and target?"
+
+#: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
+msgid "Couldn't clear data"
+msgstr "Couldn't clear data"
+
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-delete-confirmation-modal.tsx
+msgid "Couldn't delete list"
+msgstr "Couldn't delete list"
+
+#: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+msgid "Couldn't end space"
+msgstr "Couldn't end space"
+
+#: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+msgid "Couldn't leave space"
+msgstr "Couldn't leave space"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Couldn't load that one — let's try a different puzzle."
@@ -1324,6 +1370,10 @@ msgstr "Correct"
 #: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 #~ msgid "Couldn't load that puzzle."
 #~ msgstr "Couldn't load that puzzle."
+
+#: libs/spaces/src/client/active-space/rename-space-modal.tsx
+msgid "Couldn't rename space"
+msgstr "Couldn't rename space"
 
 #: libs/spaces/src/client/debug/space-counter-panel.tsx
 msgid "Counter unavailable — sign in and open this space on the device where you created it to host, or wait for the host to come online."
@@ -1336,6 +1386,10 @@ msgstr "create"
 #: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
 msgid "Create one above or add todos to Inbox."
 msgstr "Create one above or add todos to Inbox."
+
+#: pkgs/patch-db-widgets/src/server-writes-panel.tsx
+msgid "Create or edit data locally — pushes appear here with success or failure details."
+msgstr "Create or edit data locally — pushes appear here with success or failure details."
 
 #: libs/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "Created"
@@ -1532,6 +1586,10 @@ msgstr "Delete"
 #: pkgs/patch-db-widgets/src/todo/list/todo-list-delete-confirmation-modal.tsx
 msgid "Delete List"
 msgstr "Delete List"
+
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-delete-confirmation-modal.tsx
+msgid "Deleting…"
+msgstr "Deleting…"
 
 #: apps/client/src/developer/developer-screen.tsx
 #~ msgid "Demos and internal tools"
@@ -1740,6 +1798,10 @@ msgstr "Display name shown in the app"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Don't worry. Reset and check every candidate."
 #~ msgstr "Don't worry. Reset and check every candidate."
+
+#: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
+msgid "Done"
+msgstr "Done"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Double check — devastating and unstoppable."
@@ -1983,6 +2045,10 @@ msgstr "End space?"
 #~ msgid "Endgame. Every single move matters."
 #~ msgstr "Endgame. Every single move matters."
 
+#: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+msgid "Ending space…"
+msgstr "Ending space…"
+
 #: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "entities"
 msgstr "entities"
@@ -2058,6 +2124,10 @@ msgstr "Ethernet"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Every move they have is bad. Find the waiting move."
 #~ msgstr "Every move they have is bad. Find the waiting move."
+
+#: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+msgid "Everyone has been returned to the lobby."
+msgstr "Everyone has been returned to the lobby."
 
 #: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 msgid "Everyone will leave this space. This cannot be undone."
@@ -2905,6 +2975,7 @@ msgstr "Gamezilla"
 #~ msgstr "Getting things ready for you."
 
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
+#: pkgs/ui/src/components/mutation-modal/mutation-modal.example.tsx
 msgid "Give your space a name"
 msgstr "Give your space a name"
 
@@ -3307,6 +3378,10 @@ msgstr "host"
 msgid "Host"
 msgstr "Host"
 
+#: pkgs/patch-db-widgets/src/server-writes-panel.tsx
+msgid "HTTP {httpStatus}"
+msgstr "HTTP {httpStatus}"
+
 #: pkgs/patch-db-widgets/src/api-inspector.tsx
 msgid "https://..."
 msgstr "https://..."
@@ -3318,6 +3393,10 @@ msgstr "https://..."
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "In-between move worked. Sharp play."
 #~ msgstr "In-between move worked. Sharp play."
+
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "In-memory server; each client dispatches commands through loopback transport."
+msgstr "In-memory server; each client dispatches commands through loopback transport."
 
 #: pkgs/patch-db-widgets/src/todo/list/todo-list-row-name-text.tsx
 msgid "Inbox"
@@ -3641,16 +3720,16 @@ msgid "Latency"
 msgstr "Latency"
 
 #: apps/client/src/ui/app-header/app-account-menu.tsx
-msgid "latency {ms} ms"
-msgstr "latency {ms} ms"
+#~ msgid "latency {ms} ms"
+#~ msgstr "latency {ms} ms"
 
 #: apps/client/src/ui/app-header/app-account-menu.tsx
-msgid "latency checking"
-msgstr "latency checking"
+#~ msgid "latency checking"
+#~ msgstr "latency checking"
 
 #: apps/client/src/ui/app-header/app-account-menu.tsx
-msgid "latency unavailable"
-msgstr "latency unavailable"
+#~ msgid "latency unavailable"
+#~ msgstr "latency unavailable"
 
 #: pkgs/patch-db-widgets/src/client-node-panel.tsx
 msgid "Latency: {latencyLabel}"
@@ -3682,6 +3761,10 @@ msgstr "Leave space"
 #: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
 msgid "Leave space?"
 msgstr "Leave space?"
+
+#: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+msgid "Leaving…"
+msgstr "Leaving…"
 
 #: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 #~ msgid "Let's try a different puzzle."
@@ -3722,7 +3805,6 @@ msgid "limit"
 msgstr "limit"
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/ui/app-header/app-account-menu.tsx
 msgid "Limited or checking"
 msgstr "Limited or checking"
 
@@ -3746,6 +3828,10 @@ msgstr "Limited or checking"
 #~ msgid "Lines opening up. Keep the pressure."
 #~ msgstr "Lines opening up. Keep the pressure."
 
+#: pkgs/patch-db-widgets/src/todo/list/todo-list-delete-confirmation-modal.tsx
+msgid "List deleted"
+msgstr "List deleted"
+
 #: pkgs/patch-db-widgets/src/todo/list/todo-list-create-bar.tsx
 msgid "List name..."
 msgstr "List name..."
@@ -3754,6 +3840,14 @@ msgstr "List name..."
 #: libs/spaces/src/client/space-live-badge.tsx
 msgid "Live"
 msgstr "Live"
+
+#: pkgs/patch-db-widgets/src/server-writes-panel.tsx
+msgid "Live log of patch pushes to the remote patch-db API"
+msgstr "Live log of patch pushes to the remote patch-db API"
+
+#: apps/client/src/developer/developer-screen.tsx
+msgid "Live log of sync pushes with failure details"
+msgstr "Live log of sync pushes with failure details"
 
 #: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
 msgid "Load more"
@@ -3786,6 +3880,14 @@ msgstr "lobby"
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "local"
 msgstr "local"
+
+#: pkgs/patch-db-widgets/src/todo/list/todo-lists-overview.tsx
+msgid "Local database cleared"
+msgstr "Local database cleared"
+
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
+msgid "Local database wiped"
+msgstr "Local database wiped"
 
 #: libs/client-config/src/client/client-config-entity-card.tsx
 msgid "Local PatchDB (synced)"
@@ -4639,6 +4741,10 @@ msgstr "No rows match filter."
 #~ msgid "No rush — let the position come to you."
 #~ msgstr "No rush — let the position come to you."
 
+#: pkgs/patch-db-widgets/src/server-writes-panel.tsx
+msgid "No server writes yet"
+msgstr "No server writes yet"
+
 #: pkgs/patch-db-widgets/src/shape-list.tsx
 msgid "No shapes yet"
 msgstr "No shapes yet"
@@ -4755,7 +4861,6 @@ msgstr "Off"
 
 #: apps/client/src/connection/offline-indicator.tsx
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/ui/app-header/app-account-menu.tsx
 msgid "Offline"
 msgstr "Offline"
 
@@ -4848,7 +4953,6 @@ msgstr "offset"
 #~ msgstr "One-move mate — perfectly found."
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/ui/app-header/app-account-menu.tsx
 msgid "Online"
 msgstr "Online"
 
@@ -5010,6 +5114,14 @@ msgstr "Patch DB Client"
 #: apps/client/src/developer/patch-db-screen.tsx
 msgid "Patch DB Playground"
 msgstr "Patch DB Playground"
+
+#: apps/client/src/developer/developer-screen.tsx
+msgid "Patch DB Server Writes"
+msgstr "Patch DB Server Writes"
+
+#: apps/client/src/settings/settings-screen.tsx
+msgid "Patch DB sync pushes and why they failed"
+msgstr "Patch DB sync pushes and why they failed"
 
 #: apps/client/src/developer/developer-screen.tsx
 msgid "Patch DB todo lists (demo)"
@@ -5318,8 +5430,6 @@ msgid "production"
 msgstr "production"
 
 #: apps/client/src/app/(tabs)/_layout.tsx
-#: apps/client/src/ui/app-header/app-account-menu.tsx
-#: apps/client/src/ui/use-account-actions.tsx
 #: libs/profile/src/client/avatar-editor-screen.tsx
 #: libs/profile/src/client/profile-edit-screen.tsx
 #: libs/profile/src/client/profile-screen.tsx
@@ -5995,8 +6105,12 @@ msgid "Room Playground"
 msgstr "Room Playground"
 
 #: pkgs/room-widgets/src/pages/playground-page.tsx
-msgid "Room v2 (loopback)"
-msgstr "Room v2 (loopback)"
+msgid "Room simulation"
+msgstr "Room simulation"
+
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+#~ msgid "Room v2 (loopback)"
+#~ msgstr "Room v2 (loopback)"
 
 #: libs/spaces/src/client/spaces-screen.tsx
 #~ msgid "Rooms to play with friends"
@@ -6048,6 +6162,10 @@ msgstr "SAN"
 msgid "Save"
 msgstr "Save"
 
+#: libs/spaces/src/client/active-space/rename-space-modal.tsx
+msgid "Saving…"
+msgstr "Saving…"
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Saw the hanging piece. Good eye."
 #~ msgstr "Saw the hanging piece. Good eye."
@@ -6098,6 +6216,7 @@ msgstr "Select…"
 
 #: libs/client-config/src/client/client-config-server-refresh.tsx
 #: pkgs/patch-db-widgets/src/playground-layout.tsx
+#: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "Server"
 msgstr "Server"
 
@@ -6117,6 +6236,12 @@ msgstr "Server Connection"
 msgid "Server health"
 msgstr "Server health"
 
+#: apps/client/src/developer/patch-db-server-writes-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
+#: pkgs/patch-db-widgets/src/server-writes-panel.tsx
+msgid "Server writes"
+msgstr "Server writes"
+
 #: libs/auth/src/client/account-device/account-devices-card.tsx
 msgid "Server-side account; tap to copy"
 msgstr "Server-side account; tap to copy"
@@ -6133,6 +6258,7 @@ msgstr "Server-side account; tap to copy"
 #: apps/client/src/developer/db-client-screen.tsx
 #: apps/client/src/developer/developer-screen.tsx
 #: apps/client/src/developer/patch-db-screen.tsx
+#: apps/client/src/developer/patch-db-server-writes-screen.tsx
 #: apps/client/src/developer/room-screen.tsx
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
@@ -6238,12 +6364,16 @@ msgstr "Sign in to link this device to a server account and see all devices for 
 #~ msgstr "Sign in to link this device to your server user. Your data stays local first."
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
+msgid "Sign in with dev IDP"
+msgstr "Sign in with dev IDP"
+
+#: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Sign in with Google"
 msgstr "Sign in with Google"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
-msgid "Sign in with test account"
-msgstr "Sign in with test account"
+#~ msgid "Sign in with test account"
+#~ msgstr "Sign in with test account"
 
 #: apps/client/src/ui/app-commands/account-command.tsx
 #: apps/client/src/ui/app-header/app-account-menu.tsx
@@ -6258,12 +6388,20 @@ msgid "Sign out?"
 msgstr "Sign out?"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
+msgid "Sign up with dev IDP"
+msgstr "Sign up with dev IDP"
+
+#: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Sign up with Google"
 msgstr "Sign up with Google"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
-msgid "Sign up with test account"
-msgstr "Sign up with test account"
+#~ msgid "Sign up with test account"
+#~ msgstr "Sign up with test account"
+
+#: libs/auth/src/client/sign-in-modal-body.tsx
+msgid "Sign-in failed"
+msgstr "Sign-in failed"
 
 #: libs/auth/src/client/sign-in-modal-body.tsx
 msgid "Sign-in is not available."
@@ -6274,8 +6412,16 @@ msgid "Sign-in providers"
 msgstr "Sign-in providers"
 
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
-msgid "Sign-out failed: {detail}"
-msgstr "Sign-out failed: {detail}"
+msgid "Sign-out failed"
+msgstr "Sign-out failed"
+
+#: libs/auth/src/client/use-sign-out-confirmation.tsx
+#~ msgid "Sign-out failed: {detail}"
+#~ msgstr "Sign-out failed: {detail}"
+
+#: libs/auth/src/client/use-sign-out-confirmation.tsx
+msgid "Signed out"
+msgstr "Signed out"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
@@ -6434,6 +6580,10 @@ msgstr "Solved"
 #~ msgid "Something went sideways with that puzzle. Skipping ahead."
 #~ msgstr "Something went sideways with that puzzle. Skipping ahead."
 
+#: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
+msgid "Something went wrong"
+msgstr "Something went wrong"
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Something went wrong there. Skipping ahead."
 #~ msgstr "Something went wrong there. Skipping ahead."
@@ -6499,9 +6649,18 @@ msgstr "Space {suffix}"
 msgid "Space debug"
 msgstr "Space debug"
 
+#: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+msgid "Space ended"
+msgstr "Space ended"
+
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
+#: pkgs/ui/src/components/mutation-modal/mutation-modal.example.tsx
 msgid "Space name"
 msgstr "Space name"
+
+#: libs/spaces/src/client/active-space/rename-space-modal.tsx
+msgid "Space renamed"
+msgstr "Space renamed"
 
 #: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
 #: libs/spaces/src/client/space-settings-screen.tsx
@@ -6513,6 +6672,7 @@ msgstr "Space settings"
 #: apps/client/src/developer/db-client-screen.tsx
 #: apps/client/src/developer/developer-screen.tsx
 #: apps/client/src/developer/patch-db-screen.tsx
+#: apps/client/src/developer/patch-db-server-writes-screen.tsx
 #: apps/client/src/developer/room-screen.tsx
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
@@ -6563,6 +6723,10 @@ msgstr "start"
 #: apps/client/src/ui/app-commands/space-commands.tsx
 msgid "Start new space"
 msgstr "Start new space"
+
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "Starting simulation…"
+msgstr "Starting simulation…"
 
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Status: {networkLine}"
@@ -7234,6 +7398,10 @@ msgstr "Tools for debugging and exploring the UI."
 #~ msgid "Top-tier puzzle. Be exact."
 #~ msgstr "Top-tier puzzle. Be exact."
 
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "Topic: {topic} · {clientCount} connections"
+msgstr "Topic: {topic} · {clientCount} connections"
+
 #: libs/profile/src/client/avatar-editor-transform-block.tsx
 msgid "Transform"
 msgstr "Transform"
@@ -7285,6 +7453,10 @@ msgstr "Transform"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Try a check. One of them mates."
 #~ msgstr "Try a check. One of them mates."
+
+#: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
+msgid "Try again"
+msgstr "Try again"
 
 #: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 #~ msgid "Try again!"
@@ -7500,8 +7672,8 @@ msgstr "Try dragging a piece on the board with this modal open. With the overlay
 #~ msgstr "Two checks at once is unstoppable. Spot the move."
 
 #: pkgs/room-widgets/src/pages/playground-page.tsx
-msgid "Two clients share one in-memory RoomServer; increments converge on both."
-msgstr "Two clients share one in-memory RoomServer; increments converge on both."
+#~ msgid "Two clients share one in-memory RoomServer; increments converge on both."
+#~ msgstr "Two clients share one in-memory RoomServer; increments converge on both."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Two masters battling — every tempo matters."
@@ -7691,8 +7863,8 @@ msgid "View parent patch"
 msgstr "View parent patch"
 
 #: apps/client/src/ui/app-header/app-account-menu.tsx
-msgid "View profile"
-msgstr "View profile"
+#~ msgid "View profile"
+#~ msgstr "View profile"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Visualize move two first, then find what gets you there."
@@ -7891,6 +8063,14 @@ msgstr "Wipe local database"
 msgid "Wipe local database?"
 msgstr "Wipe local database?"
 
+#: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
+msgid "Wiping local database…"
+msgstr "Wiping local database…"
+
+#: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
+msgid "Working…"
+msgstr "Working…"
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "World-class precision needed here."
 #~ msgstr "World-class precision needed here."
@@ -7955,6 +8135,10 @@ msgstr "You can rejoin from the host's invite link."
 msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
 
+#: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+msgid "You left the space"
+msgstr "You left the space"
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "You saw it. Take the piece."
 #~ msgstr "You saw it. Take the piece."
@@ -7975,6 +8159,10 @@ msgstr "You’re already in a space"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "You're better — let's convert that edge."
 #~ msgstr "You're better — let's convert that edge."
+
+#: libs/auth/src/client/use-sign-out-confirmation.tsx
+msgid "You're signed out on this device."
+msgstr "You're signed out on this device."
 
 #: packages/chess/src/client/assistant/chess-puzzle-assistant-payload-rows.ts
 #~ msgid "You've got this. Try again."

@@ -28,6 +28,11 @@ function useMoreRows(): readonly MoreRow[] {
       href: '/more/server-status',
     },
     {
+      title: t`Server writes`,
+      caption: t`Patch DB sync pushes and why they failed`,
+      href: '/more/patch-db-server-writes' as Href,
+    },
+    {
       title: t`Developer`,
       caption: t`Todos, UI explorer, Patch DB and Room playgrounds`,
       href: '/more/developer',

@@ -38,9 +38,7 @@ export async function signInWithDevIdp(
   account: DevIdpTestAccount = DEFAULT_TEST_ACCOUNT
 ): Promise<void> {
   await openSignInModal(page);
-  await page
-    .getByRole('button', { name: /sign in with test account/i })
-    .click();
+  await page.getByRole('button', { name: /sign in with dev idp/i }).click();
   // The dev IdP is a standalone server (see `@pkgs/dev-idp/dev-server.ts`);
   // Better Auth redirects the browser to its origin (default
   // `http://127.0.0.1:5556`), so the URL path is just `/dev-idp/authorize`

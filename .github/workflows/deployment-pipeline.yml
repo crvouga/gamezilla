@@ -366,7 +366,14 @@ jobs:
           EXPO_PUBLIC_COMMIT_HASH: ${{ github.sha }}
         run: |
           set -euo pipefail
-          eas build --platform all --profile "${{ steps.eas.outputs.profile }}" --non-interactive --no-wait
+          if [ "${{ steps.eas.outputs.profile }}" = "development" ]; then
+            # iOS internal distribution requires device credentials and fails in
+            # non-interactive CI. Use simulator builds for manual dev runs.
+            eas build --platform android --profile "development" --non-interactive --no-wait
+            eas build --platform ios --profile "development-simulator" --non-interactive --no-wait
+          else
+            eas build --platform all --profile "production" --non-interactive --no-wait
+          fi
 
       # Compile i18n + generate the bundled web/worker assets before the OTA
       # bundle (the `eas-build-post-install` hook only runs on EAS Build

@@ -76,9 +76,9 @@ const DEV_SPEC: SocialProviderSpec = {
     neutral: { fill: '#EEF2FF', stroke: null, font: '#312E81' },
   },
   defaultLabels: {
-    signIn: msg`Sign in with test account`,
-    signUp: msg`Sign up with test account`,
-    continue: msg`Continue with test account`,
+    signIn: msg`Sign in with dev IDP`,
+    signUp: msg`Sign up with dev IDP`,
+    continue: msg`Continue with dev IDP`,
   },
   loadingLabel: msg`Signing in…`,
 };

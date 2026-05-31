@@ -15,6 +15,9 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@hono/zod-validator": "catalog:",
+    "@lingui/core": "catalog:",
+    "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/async": "workspace:*",
     "@pkgs/attribute": "workspace:*",
@@ -24,9 +27,6 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sqlite": "workspace:*",
-    "@hono/zod-validator": "catalog:",
-    "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
     "expo-sqlite": "catalog:",
     "hono": "catalog:",
     "make-plural": "catalog:",

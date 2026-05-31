@@ -24,11 +24,11 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@lingui/core": "catalog:",
+    "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
-    "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
     "expo-audio": "catalog:",
     "hono": "catalog:",
     "react": "catalog:",

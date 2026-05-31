@@ -18,6 +18,7 @@ import {
   PATCH_SUFFIX_WRITE,
 } from './paths';
 import { PatchDbTransportRejectedError } from './transport-rejected-error';
+import { shouldAssertOnPatchDbHttpServerError } from './http-server-error-assert';
 import {
   MAX_PATCHES_PER_REQUEST,
   MAX_QUERIES_PER_REQUEST,
@@ -71,6 +72,14 @@ function throwHttpFailure(res: Response, text: string): never {
   if (parsed !== null) {
     dispatchAssertCrash(parsed.message, parsed.context);
     throw new AssertCrashError(parsed.message, parsed.context);
+  }
+  if (res.status >= 500 && shouldAssertOnPatchDbHttpServerError()) {
+    const message = `patch-db sync HTTP ${res.status}: ${text.slice(0, 512)}`;
+    dispatchAssertCrash(message, {
+      status: res.status,
+      body: text.slice(0, 2048),
+    });
+    throw new AssertCrashError(message, { status: res.status });
   }
   throw new Error(`HTTP ${res.status}: ${text}`);
 }

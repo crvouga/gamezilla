@@ -1,7 +1,7 @@
 import { useSpaceActions } from './space-actions';
 import { EndSpaceConfirmModal } from './end-space-confirm-modal';
 import { useRouter } from 'expo-router';
-import type { ReactNode } from 'react';
+import { useCallback, type ReactNode } from 'react';
 
 export type EndSpaceModalProps = {
   spaceId: string;
@@ -11,7 +11,8 @@ export type EndSpaceModalProps = {
 
 /**
  * End-space modal keyed by `spaceId`. Owns its own dispatch via
- * {@link useSpaceActions} and navigates back on confirm.
+ * {@link useSpaceActions} and navigates back once the success state is
+ * dismissed.
  */
 export function EndSpaceModal({
   spaceId,
@@ -20,18 +21,14 @@ export function EndSpaceModal({
 }: EndSpaceModalProps): ReactNode {
   const router = useRouter();
   const { endSpace } = useSpaceActions();
+  const operation = useCallback(() => endSpace(spaceId), [endSpace, spaceId]);
 
   return (
     <EndSpaceConfirmModal
       visible={visible}
       onClose={onClose}
-      onConfirm={() => {
-        onClose();
-        void (async () => {
-          await endSpace(spaceId);
-          router.back();
-        })();
-      }}
+      operation={operation}
+      onSuccess={() => router.back()}
     />
   );
 }

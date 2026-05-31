@@ -1,9 +1,4 @@
-import {
-  ModalButton,
-  ModalFooter,
-  ResponsiveSurface,
-  TextInput,
-} from '@pkgs/ui';
+import { MutationModal, TextInput } from '@pkgs/ui';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
@@ -23,7 +18,8 @@ export type RenameSpaceModalProps = {
 /**
  * Host-only modal for editing {@link SpaceAttr.title}. Prefills the input
  * with the persisted custom title (no fallback to the host-name template
- * so an empty input means "clear the custom title"). Closes on success.
+ * so an empty input means "clear the custom title"). Submitting runs the
+ * rename through the shared mutation lifecycle (loading -> success / error).
  */
 export function RenameSpaceModal({
   spaceId,
@@ -38,7 +34,6 @@ export function RenameSpaceModal({
   });
   const { renameSpace } = useSpaceActions();
   const [value, setValue] = useState<string>('');
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -46,24 +41,21 @@ export function RenameSpaceModal({
     }
   }, [visible, persistedTitle]);
 
-  const onSubmit = useCallback(() => {
-    if (submitting) return;
-    setSubmitting(true);
-    void (async () => {
-      try {
-        await renameSpace(spaceId, value);
-        onClose();
-      } finally {
-        setSubmitting(false);
-      }
-    })();
-  }, [onClose, renameSpace, spaceId, submitting, value]);
+  const operation = useCallback(
+    () => renameSpace(spaceId, value),
+    [renameSpace, spaceId, value]
+  );
 
   return (
-    <ResponsiveSurface
+    <MutationModal
       visible={visible}
-      onClose={submitting ? () => undefined : onClose}
+      onClose={onClose}
       title={<Trans>Rename space</Trans>}
+      submitLabel={<Trans>Save</Trans>}
+      operation={operation}
+      loadingLabel={<Trans>Saving…</Trans>}
+      successTitle={<Trans>Space renamed</Trans>}
+      errorTitle={<Trans>Couldn't rename space</Trans>}
     >
       <TextInput
         label={<Trans>Space name</Trans>}
@@ -73,22 +65,7 @@ export function RenameSpaceModal({
         autoFocus
         autoCapitalize="words"
         autoCorrect
-        editable={!submitting}
-        sx={{ mb: 4 }}
       />
-      <ModalFooter>
-        <ModalButton
-          label={<Trans>Save</Trans>}
-          disabled={submitting}
-          onPress={onSubmit}
-        />
-        <ModalButton
-          label={<Trans>Cancel</Trans>}
-          variant="cancel"
-          disabled={submitting}
-          onPress={onClose}
-        />
-      </ModalFooter>
-    </ResponsiveSurface>
+    </MutationModal>
   );
 }

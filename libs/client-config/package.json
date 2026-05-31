@@ -23,16 +23,16 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@libs/auth": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/react": "catalog:",
     "@pkgs/async": "workspace:*",
     "@pkgs/attribute": "workspace:*",
-    "@libs/auth": "workspace:*",
     "@pkgs/equal": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/patch-db": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/ui": "workspace:*",
-    "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
     "hono": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:"

@@ -1,6 +1,5 @@
-import { assert } from '@pkgs/assert';
+import { assert, AssertCrashError } from '@pkgs/assert';
 import { fireAndForget } from '@pkgs/async/fire-and-forget';
-import { asKeyword, type Keyword } from '@pkgs/keyword';
 import { createLogger, type Logger } from '@pkgs/logger';
 import type { PubSub, Unsubscribe } from '@pkgs/pub-sub/interface';
 import {
@@ -18,8 +17,6 @@ import {
   type PatchInput,
   type WritePatchesResult,
 } from '../interface';
-import { PatchDbTransportRejectedError } from '../transport/transport-rejected-error';
-import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
 import {
   ActiveQueryRegistry,
   PATCHES_DB_INVALIDATED_TYPE,
@@ -32,22 +29,14 @@ import {
   mergeRemotePatchesIntoLocal,
   toWireQueriesFromSyncQueries,
 } from './impl-sync-poll-helpers';
+import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
+import { createPatchDbReadBatcher } from '../scheduling/microtask-batcher';
+import { pushUnsynced, pushUnsyncedChunksThenPoll } from './impl-sync-push';
 import {
   clearRejectedPushMarkersOnLocal,
-  discardTransportRejectedChunk,
   unsyncedPatchesQueryForPush,
 } from './impl-sync-rejected-pushes';
-import { createPatchDbReadBatcher } from '../scheduling/microtask-batcher';
-
-/** Topic for sync errors. Subscribe to surface push/poll failures to the UI after consecutive failures. */
-export const SYNC_ERROR_TOPIC: Keyword = asKeyword('patch-db.bus/sync-error');
-
-const MAX_CONSECUTIVE_FAILURES = 5;
-
-export type SyncErrorEvent = {
-  source: 'push' | 'poll';
-  error: unknown;
-};
+import { SYNC_ERROR_TOPIC, type SyncErrorEvent } from './impl-sync-topics';
 
 /** Handle returned by {@link SyncPatchDbScheduler.scheduleInterval}. */
 export type SyncPatchDbScheduleHandle = {
@@ -210,7 +199,7 @@ export class SyncPatchDb implements PatchDb {
    * Use with {@link SyncPatchDbOptions.pushDriver} `"manual"` or to force an extra push.
    */
   async runPushNow(): Promise<void> {
-    await this.pushUnsynced();
+    await pushUnsynced(this.pushDeps());
   }
 
   /**
@@ -231,7 +220,9 @@ export class SyncPatchDb implements PatchDb {
     );
     const patches = result.patches;
     if (patches.length === 0) return;
-    await this.pushUnsyncedChunksThenPoll(patches, { strictRejections: true });
+    await pushUnsyncedChunksThenPoll(this.pushDeps(), patches, {
+      strictRejections: true,
+    });
   }
 
   /**
@@ -368,11 +359,31 @@ export class SyncPatchDb implements PatchDb {
     const pushIntervalMs = this.options.pushIntervalMs ?? 2000;
     const scheduler = this.options.scheduler ?? defaultSyncPatchDbScheduler;
     this.pushScheduleHandle = scheduler.scheduleInterval(pushIntervalMs, () => {
-      fireAndForget(this.pushUnsynced(), {
+      fireAndForget(pushUnsynced(this.pushDeps()), {
         component: 'SyncPatchDb',
         op: 'pushUnsynced',
       });
     });
+  }
+
+  private pushDeps() {
+    return {
+      local: this.local,
+      remote: this.remote,
+      pubSub: this.pubSub,
+      log: this.log,
+      logPushPollFailures: this.logPushPollFailures,
+      maxPushBatchSize: this.maxPushBatchSize,
+      isDestroyed: () => this.destroyed,
+      getPushConsecutiveFailures: () => this.pushConsecutiveFailures,
+      setPushConsecutiveFailures: (n: number) => {
+        this.pushConsecutiveFailures = n;
+      },
+      assertChunkMatchesWriteResult:
+        this.assertChunkMatchesWriteResult.bind(this),
+      applyChunkPushWriteResult: this.applyChunkPushWriteResult.bind(this),
+      poll: () => this.poll(),
+    };
   }
 
   private assertChunkMatchesWriteResult(
@@ -476,89 +487,22 @@ export class SyncPatchDb implements PatchDb {
     await this.markPatchesAsAlreadyOnRemote(patchIds);
   }
 
-  private onPushFailure(err: unknown): void {
-    this.pushConsecutiveFailures += 1;
+  private onPollFailure(err: unknown): void {
+    if (err instanceof AssertCrashError) {
+      throw err;
+    }
+    this.pollConsecutiveFailures += 1;
     if (this.logPushPollFailures) {
-      this.log.error('push failed', {
+      this.log.error('poll failed', {
         error: err instanceof Error ? err.message : String(err),
-        consecutiveFailures: this.pushConsecutiveFailures,
+        consecutiveFailures: this.pollConsecutiveFailures,
       });
     }
-    if (this.pushConsecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+    if (this.pollConsecutiveFailures >= 5) {
       this.pubSub.publish(SYNC_ERROR_TOPIC, {
-        source: 'push',
+        source: 'poll',
         error: err,
       } satisfies SyncErrorEvent);
-    }
-  }
-
-  /**
-   * Pushes `patches` in order in wire-sized chunks; on 401/403 marks the
-   * failing chunk rejected locally and returns without polling.
-   */
-  private async pushUnsyncedChunksThenPoll(
-    patches: readonly Patch[],
-    opts: { strictRejections?: boolean } = {}
-  ): Promise<void> {
-    const batchSize = this.maxPushBatchSize;
-    const strict = opts.strictRejections === true;
-    for (let i = 0; i < patches.length; i += batchSize) {
-      if (this.destroyed) return;
-      const chunk = patches.slice(i, i + batchSize);
-      try {
-        const writeResult = await this.remote.write(
-          chunk,
-          OPEN_PATCHES_DB_CONTEXT
-        );
-        this.assertChunkMatchesWriteResult(chunk, writeResult);
-        await this.applyChunkPushWriteResult(writeResult);
-        if (strict && writeResult.rejected.length > 0) {
-          const detail = writeResult.rejected
-            .map((r) => r.reason || r.code)
-            .join('; ');
-          throw new Error(detail.length > 0 ? detail : 'patch push rejected');
-        }
-      } catch (chunkErr) {
-        if (chunkErr instanceof PatchDbTransportRejectedError) {
-          await discardTransportRejectedChunk({
-            local: this.local,
-            chunk,
-            err: chunkErr,
-            pubSub: this.pubSub,
-            log: this.log,
-            logPushPollFailures: this.logPushPollFailures,
-          });
-          this.pushConsecutiveFailures = 0;
-          if (strict) {
-            throw chunkErr;
-          }
-          return;
-        }
-        throw chunkErr;
-      }
-    }
-    await this.poll();
-  }
-
-  private async pushUnsynced(): Promise<void> {
-    if (this.destroyed) return;
-    try {
-      const [result] = await this.local.read(
-        [unsyncedPatchesQueryForPush()],
-        OPEN_PATCHES_DB_CONTEXT
-      );
-      assert.ok(
-        result !== null && result !== undefined,
-        'read([query]) must return one result'
-      );
-      const patches = result.patches;
-      if (patches.length === 0) {
-        this.pushConsecutiveFailures = 0;
-        return;
-      }
-      await this.pushUnsyncedChunksThenPoll(patches);
-    } catch (err) {
-      this.onPushFailure(err);
     }
   }
 
@@ -576,22 +520,6 @@ export class SyncPatchDb implements PatchDb {
       results
     );
     return { hasNewPatches };
-  }
-
-  private onPollFailure(err: unknown): void {
-    this.pollConsecutiveFailures += 1;
-    if (this.logPushPollFailures) {
-      this.log.error('poll failed', {
-        error: err instanceof Error ? err.message : String(err),
-        consecutiveFailures: this.pollConsecutiveFailures,
-      });
-    }
-    if (this.pollConsecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-      this.pubSub.publish(SYNC_ERROR_TOPIC, {
-        source: 'poll',
-        error: err,
-      } satisfies SyncErrorEvent);
-    }
   }
 
   private async poll(): Promise<void> {

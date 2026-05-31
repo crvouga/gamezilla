@@ -13,6 +13,8 @@ import {
   PATCH_DB_GENERATED_COLUMN_PREFIX,
   PATCH_DB_PARTITION_PREFIX,
   pgColumnTypeFor,
+  snapshotTableForEntityType,
+  UNREGISTERED_SNAPSHOT_TABLE,
 } from './partitioning';
 
 function registerThrowingCrashHandlerForTests(): () => void {
@@ -47,6 +49,19 @@ describe('partitioning: pure helpers', () => {
   test('partitionTableName composes the snapshots prefix', () => {
     expect(partitionTableName('chess.puzzle')).toBe(
       `${PATCH_DB_PARTITION_PREFIX}chess_puzzle`
+    );
+  });
+
+  test('snapshotTableForEntityType uses unregistered fallback when not in layout', () => {
+    const registry = createEntitySchemaRegistry()
+      .register(defineEntitySchema({ entityType: 'task', attributes: QTask }))
+      .freeze();
+    const layout = buildPartitionLayout(registry);
+    expect(snapshotTableForEntityType('task', layout)).toBe(
+      partitionTableName('task')
+    );
+    expect(snapshotTableForEntityType('todo-list-item', layout)).toBe(
+      UNREGISTERED_SNAPSHOT_TABLE
     );
   });
 

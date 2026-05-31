@@ -1,31 +1,39 @@
-import { ConfirmationModal } from '@pkgs/ui';
+import { MutationModal } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
 export type EndSpaceConfirmModalProps = {
   visible: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  /** Runs the end-space write. Surfaces loading / success / error in place. */
+  operation: () => Promise<void>;
+  /** Runs after the user dismisses the success state (e.g. navigation). */
+  onSuccess?: () => void;
 };
 
 /** Confirm-end shell (space-agnostic; action wiring lives at the call site). */
 export function EndSpaceConfirmModal({
   visible,
   onClose,
-  onConfirm,
+  operation,
+  onSuccess,
 }: EndSpaceConfirmModalProps): ReactNode {
   return (
-    <ConfirmationModal
+    <MutationModal
       visible={visible}
+      onClose={onClose}
       title={<Trans>End space?</Trans>}
       message={
         <Trans>Everyone will leave this space. This cannot be undone.</Trans>
       }
-      confirmLabel={<Trans>End space</Trans>}
-      cancelLabel={<Trans>Cancel</Trans>}
+      submitLabel={<Trans>End space</Trans>}
       variant="destructive"
-      onConfirm={onConfirm}
-      onCancel={onClose}
+      operation={operation}
+      onSuccess={onSuccess}
+      loadingLabel={<Trans>Ending space…</Trans>}
+      successTitle={<Trans>Space ended</Trans>}
+      successBody={<Trans>Everyone has been returned to the lobby.</Trans>}
+      errorTitle={<Trans>Couldn't end space</Trans>}
     />
   );
 }

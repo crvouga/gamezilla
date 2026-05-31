@@ -22,15 +22,15 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/attribute": "workspace:*",
     "@libs/auth": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/react": "catalog:",
+    "@pkgs/attribute": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/patch-db": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/ui": "workspace:*",
-    "@lingui/core": "catalog:",
-    "@lingui/react": "catalog:",
     "expo-clipboard": "catalog:",
     "expo-router": "catalog:",
     "react": "catalog:",

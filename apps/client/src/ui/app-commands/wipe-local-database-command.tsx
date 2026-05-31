@@ -1,12 +1,15 @@
 import { usePatchDbLocalDataActions } from '@libs/auth/client/patch-db-local-data-actions-context';
-import { ConfirmationModal, RegisterCommand } from '@pkgs/ui';
+import { MutationModal, RegisterCommand } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 export function WipeLocalDatabaseCommand() {
   const { t } = useLingui();
   const { clearLocalDatabaseAndReload } = usePatchDbLocalDataActions();
   const [visible, setVisible] = useState(false);
+  const operation = useCallback(async () => {
+    await clearLocalDatabaseAndReload();
+  }, [clearLocalDatabaseAndReload]);
   return (
     <>
       <RegisterCommand
@@ -28,8 +31,9 @@ export function WipeLocalDatabaseCommand() {
           setVisible(true);
         }}
       />
-      <ConfirmationModal
+      <MutationModal
         visible={visible}
+        onClose={() => setVisible(false)}
         title={<Trans>Wipe local database?</Trans>}
         message={
           <Trans>
@@ -37,13 +41,12 @@ export function WipeLocalDatabaseCommand() {
             undo this.
           </Trans>
         }
+        submitLabel={<Trans>Wipe and reload</Trans>}
         variant="destructive"
-        confirmLabel={<Trans>Wipe and reload</Trans>}
-        onConfirm={() => {
-          setVisible(false);
-          void clearLocalDatabaseAndReload();
-        }}
-        onCancel={() => setVisible(false)}
+        operation={operation}
+        loadingLabel={<Trans>Wiping local database…</Trans>}
+        successTitle={<Trans>Local database wiped</Trans>}
+        errorTitle={<Trans>Could not wipe database</Trans>}
       />
     </>
   );

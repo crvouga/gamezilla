@@ -3,28 +3,22 @@ import {
   useSignOutModal,
 } from '@libs/auth/client/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
-import { useServerStatus } from '@apps/client/connection/use-server-status';
 import { useLogger } from '@pkgs/logger/react';
 import { useAsync } from '@pkgs/async/use-async';
-import { Box, StatusDot, Text, type ScreenBaseAction } from '@pkgs/ui';
+import { type ScreenBaseAction } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 
-type ServerStatus = ReturnType<typeof useServerStatus>;
-
 function useAccountNav() {
   const router = useRouter();
-  const onProfile = useCallback(() => {
-    router.push('/profile');
+  const onAccount = useCallback(() => {
+    router.push('/more/account');
   }, [router]);
   const onSettings = useCallback(() => {
     router.push('/more');
   }, [router]);
-  const onServerStatus = useCallback(() => {
-    router.push('/more/server-status');
-  }, [router]);
-  return { onProfile, onSettings, onServerStatus };
+  return { onAccount, onSettings };
 }
 
 function useAuthAction(
@@ -56,63 +50,12 @@ function useAuthAction(
   }, [run]);
 }
 
-function ConnectionTrailing({
-  aggregateStatus,
-  health,
-}: {
-  aggregateStatus: ServerStatus['aggregateStatus'];
-  health: ServerStatus['health'];
-}) {
-  const { t } = useLingui();
-  const ms = health.latencyMs;
-  const latencyLabel =
-    health.phase === 'loading' ? '…' : ms !== null ? t`${ms} ms` : '—';
-  return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        flexShrink: 0,
-      }}
-    >
-      <StatusDot status={aggregateStatus} size={10} />
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={latencyLabel}
-      />
-    </Box>
-  );
-}
-
 type Labels = {
-  profile: string;
-  connection: string;
+  account: string;
   settings: string;
   signIn: string;
   signOut: string;
 };
-
-function buildConnectionAction(
-  labels: Labels,
-  serverStatus: ServerStatus,
-  onServerStatus: () => void
-): ScreenBaseAction {
-  return {
-    type: 'default',
-    label: labels.connection,
-    icon: 'wifi',
-    overflow: 'always',
-    onPress: onServerStatus,
-    trailing: (
-      <ConnectionTrailing
-        aggregateStatus={serverStatus.aggregateStatus}
-        health={serverStatus.health}
-      />
-    ),
-  };
-}
 
 function buildAuthAction(
   labels: Labels,
@@ -134,31 +77,19 @@ function buildAuthAction(
 function buildActions(args: {
   labels: Labels;
   isAuthenticated: boolean;
-  serverStatus: ServerStatus;
-  onProfile: () => void;
+  onAccount: () => void;
   onSettings: () => void;
-  onServerStatus: () => void;
   onAuth: () => Promise<void>;
 }): ScreenBaseAction[] {
-  const {
-    labels,
-    isAuthenticated,
-    serverStatus,
-    onProfile,
-    onSettings,
-    onServerStatus,
-    onAuth,
-  } = args;
+  const { labels, isAuthenticated, onAccount, onSettings, onAuth } = args;
   return [
     {
       type: 'default',
-      label: labels.profile,
-      onPress: onProfile,
+      label: labels.account,
+      onPress: onAccount,
       icon: 'person.fill',
       overflow: 'always',
     },
-    buildConnectionAction(labels, serverStatus, onServerStatus),
-    buildAuthAction(labels, isAuthenticated, onAuth),
     {
       type: 'default',
       label: labels.settings,
@@ -166,11 +97,12 @@ function buildActions(args: {
       icon: 'gearshape.fill',
       overflow: 'always',
     },
+    buildAuthAction(labels, isAuthenticated, onAuth),
   ];
 }
 
 /**
- * Header overflow actions for user / connection / settings.
+ * Header overflow actions for account / settings / sign in or out.
  * Tab roots should pass these only on mobile (`useBreakpoint() === 'mobile'`).
  */
 export function useAccountActions(): ScreenBaseAction[] {
@@ -178,8 +110,7 @@ export function useAccountActions(): ScreenBaseAction[] {
   const isAuthenticated = useIsSignedIn();
   const { open: openSignInModal } = useSignInModal();
   const { open: openSignOutConfirm } = useSignOutModal();
-  const serverStatus = useServerStatus();
-  const { onProfile, onSettings, onServerStatus } = useAccountNav();
+  const { onAccount, onSettings } = useAccountNav();
   const onAuth = useAuthAction(
     isAuthenticated,
     openSignOutConfirm,
@@ -188,8 +119,7 @@ export function useAccountActions(): ScreenBaseAction[] {
 
   const labels = useMemo<Labels>(
     () => ({
-      profile: t`Profile`,
-      connection: t`Connection`,
+      account: t`Account`,
       settings: t`Settings`,
       signIn: t`Sign in`,
       signOut: t`Sign out`,
@@ -202,20 +132,10 @@ export function useAccountActions(): ScreenBaseAction[] {
       buildActions({
         labels,
         isAuthenticated,
-        serverStatus,
-        onProfile,
+        onAccount,
         onSettings,
-        onServerStatus,
         onAuth,
       }),
-    [
-      labels,
-      isAuthenticated,
-      serverStatus,
-      onProfile,
-      onSettings,
-      onServerStatus,
-      onAuth,
-    ]
+    [labels, isAuthenticated, onAccount, onSettings, onAuth]
   );
 }

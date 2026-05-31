@@ -10,9 +10,9 @@
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/async": "workspace:*",
-    "@pkgs/git": "workspace:*",
     "@pkgs/distributed-lock": "workspace:*",
     "@pkgs/doppler": "workspace:*",
+    "@pkgs/git": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",

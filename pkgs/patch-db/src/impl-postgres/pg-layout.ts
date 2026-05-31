@@ -39,6 +39,8 @@ import {
   ginIndexNameFor,
   partitionTableName,
   singleColumnIndexNameFor,
+  UNREGISTERED_SNAPSHOT_GIN_INDEX,
+  UNREGISTERED_SNAPSHOT_TABLE,
 } from './partitioning';
 
 /** One column reference inside a composite-index spec, resolved to its
@@ -77,6 +79,8 @@ export type DesiredEntityTable = {
   readonly generatedColumns: ReadonlyMap<string, GeneratedColumnSpec>;
   readonly singleIndexes: ReadonlyMap<string, DesiredSingleIndex>;
   readonly compositeIndexes: ReadonlyMap<string, DesiredCompositeIndex>;
+  /** When true, table holds any unregistered entity type (no CHECK). */
+  readonly isUnregisteredFallback?: boolean;
 };
 
 export type DesiredPgLayout = {
@@ -202,6 +206,19 @@ function buildDesiredEntityTable(schema: EntitySchema): DesiredEntityTable {
   });
 }
 
+/** Shared fallback table for entity types absent from the registry. */
+export function buildUnregisteredSnapshotTable(): DesiredEntityTable {
+  return Object.freeze({
+    entityType: '__patch_db_unregistered__',
+    tableName: UNREGISTERED_SNAPSHOT_TABLE,
+    ginIndexName: UNREGISTERED_SNAPSHOT_GIN_INDEX,
+    generatedColumns: new Map<string, GeneratedColumnSpec>(),
+    singleIndexes: new Map<string, DesiredSingleIndex>(),
+    compositeIndexes: new Map<string, DesiredCompositeIndex>(),
+    isUnregisteredFallback: true,
+  });
+}
+
 /**
  * Pure: turns a frozen schema registry into the Postgres layout the
  * reconciler should converge toward. Independent of any DB connection;
@@ -223,5 +240,6 @@ export function computeDesiredPgLayout(
     );
     tables.set(table.tableName, table);
   }
+  tables.set(UNREGISTERED_SNAPSHOT_TABLE, buildUnregisteredSnapshotTable());
   return Object.freeze({ tables });
 }

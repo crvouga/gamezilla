@@ -15,10 +15,10 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/assert": "workspace:*",
-    "@pkgs/ui": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/ui": "workspace:*",
     "@shopify/react-native-skia": "catalog:",
     "chess.js": "catalog:",
     "expo-audio": "catalog:",

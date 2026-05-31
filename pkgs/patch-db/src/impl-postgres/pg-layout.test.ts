@@ -10,12 +10,16 @@ import { createAttrNamespace } from '@pkgs/attribute';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { createEntitySchemaRegistry, defineEntitySchema } from '../schema';
 import {
+  buildUnregisteredSnapshotTable,
+  computeDesiredPgLayout,
+} from './pg-layout';
+import {
   compositeIndexNameFor,
   generatedColumnNameFor,
   partitionTableName,
   singleColumnIndexNameFor,
+  UNREGISTERED_SNAPSHOT_TABLE,
 } from './partitioning';
-import { computeDesiredPgLayout } from './pg-layout';
 
 let disposeCrashHandler: () => void;
 beforeAll(() => {
@@ -62,9 +66,11 @@ describe('computeDesiredPgLayout: per-entity tables + generated columns', () => 
       )
       .freeze();
     const layout = computeDesiredPgLayout(registry);
-    expect(layout.tables.size).toBe(2);
+    expect(layout.tables.size).toBe(3);
     expect(layout.tables.has(partitionTableName('task'))).toBe(true);
     expect(layout.tables.has(partitionTableName('other'))).toBe(true);
+    expect(layout.tables.has(UNREGISTERED_SNAPSHOT_TABLE)).toBe(true);
+    expect(buildUnregisteredSnapshotTable().isUnregisteredFallback).toBe(true);
   });
 
   test('only `.indexed()` scalar attributes become generated columns; arrays are skipped', () => {
@@ -210,9 +216,10 @@ describe('computeDesiredPgLayout: composite indexes', () => {
 });
 
 describe('computeDesiredPgLayout: empty registry', () => {
-  test('returns an empty layout', () => {
+  test('still includes the unregistered fallback table', () => {
     const registry = createEntitySchemaRegistry().freeze();
     const layout = computeDesiredPgLayout(registry);
-    expect(layout.tables.size).toBe(0);
+    expect(layout.tables.size).toBe(1);
+    expect(layout.tables.has(UNREGISTERED_SNAPSHOT_TABLE)).toBe(true);
   });
 });

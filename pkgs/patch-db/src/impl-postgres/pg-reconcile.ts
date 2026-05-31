@@ -159,6 +159,17 @@ async function createMissingTables(
   for (const table of tables) {
     const tableName = String(table.tableName);
     assertSqlIdentifier(tableName, 'createMissingTables: tableName');
+    if (table.isUnregisteredFallback === true) {
+      await sqlClient.run(
+        `CREATE TABLE IF NOT EXISTS ${tableName} (
+        entity_id TEXT NOT NULL,
+        entity_type TEXT NOT NULL,
+        attributes JSONB NOT NULL DEFAULT '{}',
+        PRIMARY KEY (entity_type, entity_id)
+      )`
+      );
+      continue;
+    }
     const check = quoteSqlString(table.entityType);
     await sqlClient.run(
       `CREATE TABLE IF NOT EXISTS ${tableName} (

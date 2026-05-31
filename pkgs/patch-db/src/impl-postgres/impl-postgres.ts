@@ -269,7 +269,12 @@ export class PatchDbImplPostgres implements PatchDb {
       firstKeptPatchId: firstKept.patch_id,
     });
 
-    await recomputeSnapshotSingle(tx, entityId, entityType);
+    await recomputeSnapshotSingle(
+      tx,
+      entityId,
+      entityType,
+      this.partitionLayout
+    );
     return { removedPatchIds, compactionPatchId: patchId };
   }
 
@@ -337,7 +342,11 @@ export class PatchDbImplPostgres implements PatchDb {
       if (acc.batchRows.length > 0) {
         await this.insertPatchRowsBatch(tx, acc.batchRows);
       }
-      await recomputeTouchedSnapshots(tx, acc.touchedEntities);
+      await recomputeTouchedSnapshots(
+        tx,
+        acc.touchedEntities,
+        this.partitionLayout
+      );
       await this.hooks.runAfterWrite(writtenPatches, enrichedCtx, tx);
       await this.runAfterWriteCompactionPass(tx, acc.touchedEntities);
     });
@@ -429,7 +438,11 @@ export class PatchDbImplPostgres implements PatchDb {
       await this.distinctEntityKeysForPatchIds(touchedPatchIds);
     if (touchedEntities.size === 0) return;
     await this.sqlClient.transaction(async (tx) => {
-      await recomputeTouchedSnapshots(tx, touchedEntities);
+      await recomputeTouchedSnapshots(
+        tx,
+        touchedEntities,
+        this.partitionLayout
+      );
     });
   }
 
