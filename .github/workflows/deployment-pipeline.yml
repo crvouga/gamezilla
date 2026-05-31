@@ -332,8 +332,11 @@ jobs:
 
       # EAS CLI reads `EXPO_TOKEN` from the environment (not `doppler run`).
       # Load from Doppler `dev` and pass into expo-github-action so every
-      # step in this job is authenticated.
-      - name: Load EXPO_TOKEN from Doppler
+      # step in this job is authenticated. `EXPO_PUBLIC_API_URL` is also
+      # loaded here: `eas build` picks it up from eas.json profile env on
+      # EAS workers, but `eas update` bundles on this runner and only
+      # inlines `EXPO_PUBLIC_*` present in the process env / `.env` files.
+      - name: Load EAS secrets from Doppler
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
         run: |
@@ -343,8 +346,17 @@ jobs:
             echo "::error::EXPO_TOKEN is missing in Doppler project gamezilla config dev. Create a token at https://expo.dev/settings/access-tokens then run: doppler secrets set EXPO_TOKEN --project gamezilla --config dev"
             exit 1
           fi
+          api_url=$(doppler secrets get EXPO_PUBLIC_API_URL --plain -p gamezilla -c dev)
+          if [ -z "${api_url}" ]; then
+            echo "::error::EXPO_PUBLIC_API_URL is missing in Doppler project gamezilla config dev."
+            exit 1
+          fi
           echo "::add-mask::${token}"
           echo "EXPO_TOKEN=${token}" >> "$GITHUB_ENV"
+          echo "EXPO_PUBLIC_API_URL=${api_url}" >> "$GITHUB_ENV"
+          # Expo Go and dev-client OTA bundles run with __DEV__; opt into the
+          # production API origin baked above (see api-servers Tiger policy).
+          echo "EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1" >> "$GITHUB_ENV"
 
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@b184ff86a3c926240f1b6db41764c83a01c02eef
@@ -396,7 +408,11 @@ jobs:
           EXPO_PUBLIC_COMMIT_HASH: ${{ github.sha }}
         run: |
           set -euo pipefail
-          eas update --channel "${{ steps.eas.outputs.channel }}" --message "${{ github.sha }}" --non-interactive
+          eas update \
+            --channel "${{ steps.eas.outputs.channel }}" \
+            --environment "${{ steps.eas.outputs.profile }}" \
+            --message "${{ github.sha }}" \
+            --non-interactive
 
   # ── Atomic production deploy ─────────────────────────────────────────
   # One job, one checkout, one `infra-setup`. `bun run infra deploy`

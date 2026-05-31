@@ -68,11 +68,17 @@ export function assertTigerPolicyForResolvedApiOrigin(
 }
 
 export function getApiBaseUrl(): string {
-  // eslint-disable-next-line expo/no-dynamic-env-var -- `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
-  const raw = process.env['EXPO_PUBLIC_API_URL'];
+  const raw =
+    process.env['EXPO_PUBLIC_API_URL'] ??
+    // Release native binaries may omit the env when eas.json profile env is
+    // present; Expo Go / dev-client OTA bundles must set it on the bundler
+    // (CI `eas update` loads from Doppler — eas.json alone is not enough).
+    (!isExpoOrMetroDevelopmentBundle()
+      ? `https://${APP_IDENTITY.apiHost}`
+      : undefined);
   assert.nonEmptyString(
     raw,
-    'EXPO_PUBLIC_API_URL is required; run `bun run dev` (with Doppler) or set apps/client/.env.local'
+    'EXPO_PUBLIC_API_URL is required; run `bun run dev` (with Doppler), set apps/client/.env.local, or export EXPO_PUBLIC_API_URL (and EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1 for Expo Go OTA) before `eas update`'
   );
   let origin = '';
   assert.notThrows(
