@@ -1,14 +1,15 @@
 import { useLogger } from '@pkgs/logger/react';
 import { useSecureStorage } from '@pkgs/secure-storage/interface';
 import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
+import type { PropsWithChildren } from 'react';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
+import { useAuthClient, type SessionSnapshot } from './auth-client-provider';
 import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
 } from './auth-storage-keys';
-import { useAuthClient, type SessionSnapshot } from './auth-client-provider';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { useConfigService } from './config-service-context';
 import { refreshAuth } from './refresh-auth-fetch';
@@ -132,7 +133,7 @@ function useRefreshOnAppForeground(args: {
  * Pure side-effect component — renders nothing visible. Mount somewhere
  * inside the patch-db provider tree but outside any per-route layout.
  */
-export function AuthBridge(): ReactNode {
+export function AuthBridge(props: PropsWithChildren): ReactNode {
   const apiUrl = useConfigService().getApiUrl();
   const authClient = useAuthClient();
   const snapshot: SessionSnapshot = authClient.useSession();
@@ -175,7 +176,7 @@ export function AuthBridge(): ReactNode {
     deps,
   });
 
-  return null;
+  return props.children;
 }
 
 async function handleSignedIn(args: {

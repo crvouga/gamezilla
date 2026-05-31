@@ -2,7 +2,11 @@ import { AuthBridge } from '@libs/auth/client/auth-bridge';
 import { AuthClientProvider } from '@libs/auth/client/auth-client-provider';
 import { AuthModalsProvider } from '@libs/auth/client/auth-modals-provider';
 import { ProfileProvider } from '@libs/profile/client/profile-provider';
-import { preventSplashAutoHide, SpinnerProvider } from '@pkgs/ui';
+import {
+  ComposeProviders,
+  preventSplashAutoHide,
+  SpinnerProvider,
+} from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { ApiClientProviderWrapper } from './api-client-provider';
@@ -15,8 +19,8 @@ import { FontsProvider } from './fonts-provider';
 import { GamesBootstrapProvider } from './games-bootstrap-provider';
 import { GestureHandlerProvider } from './gesture-handler-provider';
 import { KvProvider } from './kv-provider';
-import { LoggerProvider } from './logger-provider';
 import { LlmProviderWrapper } from './llm-provider';
+import { LoggerProvider } from './logger-provider';
 import { ObjectStoreProviderWrapper } from './object-store-provider';
 import { PatchDbLocalDataActionsProvider } from './patch-db-local-data-actions-provider';
 import { PatchDbProvider } from './patch-db-provider';
@@ -29,59 +33,37 @@ import { UiPortalsProvider } from './ui-portals-provider';
 
 void preventSplashAutoHide();
 
+const appProviders = [
+  GestureHandlerProvider,
+  SafeAreaProviderWrapper,
+  FontsProvider,
+  KvProvider,
+  AppThemeProvider,
+  SpinnerProvider,
+  SecureStorageProvider,
+  ConfigServiceProviderWrapper,
+  AuthClientProvider,
+  SuspenseRootProvider,
+  AppI18nProviderWrapper,
+  UiPortalsProvider,
+  LoggerProvider,
+  ObjectStoreProviderWrapper,
+  LlmProviderWrapper,
+  TtsProviderWrapper,
+  ApiClientProviderWrapper,
+  SqlClientProvider,
+  PatchDbProvider,
+  DeviceEntityBootstrapProvider,
+  PatchDbLocalDataActionsProvider,
+  ProfileProvider,
+  AuthBridge,
+  AuthModalsProvider,
+  GamesBootstrapProvider,
+  CommandRegistryProviderWrapper,
+];
+
 export function AppProviders({ children }: { children: ReactNode }): ReactNode {
   return (
-    <GestureHandlerProvider>
-      <SafeAreaProviderWrapper>
-        <FontsProvider>
-          <KvProvider>
-            <AppThemeProvider>
-              <SpinnerProvider>
-                <SecureStorageProvider>
-                  <ConfigServiceProviderWrapper>
-                    <AuthClientProvider>
-                      <SuspenseRootProvider>
-                        <AppI18nProviderWrapper>
-                          <UiPortalsProvider>
-                            <LoggerProvider>
-                              <ObjectStoreProviderWrapper>
-                                <LlmProviderWrapper>
-                                  <TtsProviderWrapper>
-                                    <ApiClientProviderWrapper>
-                                      <SqlClientProvider>
-                                        <PatchDbProvider>
-                                          <DeviceEntityBootstrapProvider>
-                                            <PatchDbLocalDataActionsProvider>
-                                              <ProfileProvider>
-                                                <AuthBridge />
-                                                <AuthModalsProvider>
-                                                  <GamesBootstrapProvider>
-                                                    <CommandRegistryProviderWrapper>
-                                                      {children}
-                                                    </CommandRegistryProviderWrapper>
-                                                  </GamesBootstrapProvider>
-                                                </AuthModalsProvider>
-                                              </ProfileProvider>
-                                            </PatchDbLocalDataActionsProvider>
-                                          </DeviceEntityBootstrapProvider>
-                                        </PatchDbProvider>
-                                      </SqlClientProvider>
-                                    </ApiClientProviderWrapper>
-                                  </TtsProviderWrapper>
-                                </LlmProviderWrapper>
-                              </ObjectStoreProviderWrapper>
-                            </LoggerProvider>
-                          </UiPortalsProvider>
-                        </AppI18nProviderWrapper>
-                      </SuspenseRootProvider>
-                    </AuthClientProvider>
-                  </ConfigServiceProviderWrapper>
-                </SecureStorageProvider>
-              </SpinnerProvider>
-            </AppThemeProvider>
-          </KvProvider>
-        </FontsProvider>
-      </SafeAreaProviderWrapper>
-    </GestureHandlerProvider>
+    <ComposeProviders providers={appProviders}>{children}</ComposeProviders>
   );
 }

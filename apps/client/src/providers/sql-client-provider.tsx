@@ -3,7 +3,7 @@ import { SqlClientProvider as SqlClientCtxProvider } from '@pkgs/sql-client/reac
 import { use, type ReactNode } from 'react';
 
 import {
-  MAIN_SQLITE_DB_NAME,
+  getMainSqliteDbName,
   openMainSqlClient,
 } from '../storage/open-main-sql-client';
 
@@ -22,7 +22,7 @@ export function SqlClientProvider({
 }): ReactNode {
   const sqlPromise = useCachedPromise(
     // eslint-disable-next-line lingui/no-unlocalized-strings -- Internal cache key, not user-facing.
-    `sql-client:${MAIN_SQLITE_DB_NAME}`,
+    `sql-client:${getMainSqliteDbName()}`,
     () => openMainSqlClient()
   );
   const sql = use(sqlPromise);

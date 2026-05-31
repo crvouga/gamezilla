@@ -13,7 +13,7 @@ import type { SecureStorage } from '@pkgs/secure-storage/interface';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 
-import { MAIN_SQLITE_DB_NAME } from '../storage/open-main-sql-client';
+import { getMainSqliteDbName } from '../storage/open-main-sql-client';
 
 export type PatchDbLocalDataDeps = {
   secure: SecureStorage;
@@ -32,5 +32,5 @@ export async function clearLocalDatabaseAndReloadWithDeps(
 
   await writeSecureStorageItem(d.secure, SESSION_TOKEN_KEY, null);
   await writeSecureStorageItem(d.secure, LAST_LOCAL_ACCOUNT_ID_KEY, null);
-  await SQLite.deleteDatabaseAsync(MAIN_SQLITE_DB_NAME).catch(() => {});
+  await SQLite.deleteDatabaseAsync(getMainSqliteDbName()).catch(() => {});
 }

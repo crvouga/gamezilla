@@ -6,7 +6,7 @@ import { PatchDbContextProvider } from '@pkgs/patch-db/react';
 import { use, type ReactNode } from 'react';
 
 import { createPatchDb } from '../patch-db/create-patch-db';
-import { MAIN_SQLITE_DB_NAME } from '../storage/open-main-sql-client';
+import { getMainSqliteDbName } from '../storage/open-main-sql-client';
 
 /**
  * Builds the patch-db once per app instance on top of the static SQL client
@@ -30,7 +30,7 @@ export function PatchDbProvider({
 
   const patchDbPromise = useCachedPromise(
     // eslint-disable-next-line lingui/no-unlocalized-strings -- Internal cache key, not user-facing.
-    `patch-db:${MAIN_SQLITE_DB_NAME}`,
+    `patch-db:${getMainSqliteDbName()}`,
     () =>
       createPatchDb({
         sql,

@@ -16,8 +16,15 @@
  *      windows stay visible).
  *   4. Spawn `expo start --port 5173 --clear` (no `--ios` — we open the URL
  *      ourselves so Expo can't pick the wrong sim).
- *   5. Wait for the Metro dev server to respond, then
- *      `xcrun simctl openurl <UDID> exp://127.0.0.1:5173` against our sim.
+ *   5. Wait for the Metro dev server to respond, then open the
+ *      `expo-development-client` deep link against our sim so the installed
+ *      dev client (not Expo Go) loads the Metro bundle.
+ *
+ * Requires the development build (`expo-dev-client`) to already be installed
+ * on the simulator. Build + install it once with EAS:
+ *   `bunx eas-cli build --profile development-simulator --platform ios`
+ *   `bunx eas-cli build:run --profile development-simulator --platform ios`
+ * (or `bunx expo run:ios --device "<slug>-dev"` for a local Xcode build).
  *
  * Extra argv (`--web`, `--tunnel`, etc.) is forwarded to `expo start`.
  *
@@ -28,12 +35,17 @@
  *   EXPO_DEV_PORT             default 5173
  */
 import { execFileSync, spawn, type ChildProcess } from 'node:child_process';
-import { readdirSync, statSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
+
+/**
+ * Native bundle id of the development build. Must match
+ * `expo.ios.bundleIdentifier` in `apps/client/app.json` (Expo requires static
+ * JSON there, so it cannot import this value).
+ */
+const DEV_CLIENT_BUNDLE_ID = 'app.gamezilla';
 
 const SIM_NAME = process.env['EXPO_DEV_SIM_NAME'] ?? `${APP_IDENTITY.slug}-dev`;
 const SIM_DEVICE_TYPE =
@@ -177,13 +189,11 @@ async function waitForDevServer(
   );
 }
 
-const EXPO_GO_BUNDLE_ID = 'host.exp.Exponent';
-
-function isExpoGoInstalled(udid: string): boolean {
+function isDevClientInstalled(udid: string): boolean {
   try {
     execFileSync(
       'xcrun',
-      ['simctl', 'get_app_container', udid, EXPO_GO_BUNDLE_ID],
+      ['simctl', 'get_app_container', udid, DEV_CLIENT_BUNDLE_ID],
       { stdio: 'pipe' }
     );
     return true;
@@ -192,59 +202,29 @@ function isExpoGoInstalled(udid: string): boolean {
   }
 }
 
-/**
- * Locate the most recent Expo Go `.app` bundle in Expo CLI's own cache
- * directory (populated by any prior `expo start --ios` run on this machine).
- * Returns null if no cached bundle is present, in which case the caller
- * should fall back to instructing the user.
- */
-function findCachedExpoGoBundle(): string | null {
-  const cacheDir = join(homedir(), '.expo', 'ios-simulator-app-cache');
-  let entries: string[];
-  try {
-    entries = readdirSync(cacheDir);
-  } catch {
-    return null;
-  }
-  const candidates = entries
-    .filter((n) => /^(Expo-Go|Exponent)-.+\.app$/.test(n))
-    .map((n) => {
-      const path = join(cacheDir, n);
-      return { path, mtime: statSync(path).mtimeMs };
-    })
-    .sort((a, b) => b.mtime - a.mtime);
-  return candidates[0]?.path ?? null;
+function ensureDevClientInstalled(udid: string): boolean {
+  if (isDevClientInstalled(udid)) return true;
+  process.stderr.write(
+    `[ios-dev] The development build (${DEV_CLIENT_BUNDLE_ID}) is not installed on "${SIM_NAME}".\n` +
+      '[ios-dev] Build + install it once, then re-run this script:\n' +
+      '[ios-dev]   bunx eas-cli build --profile development-simulator --platform ios\n' +
+      '[ios-dev]   bunx eas-cli build:run --profile development-simulator --platform ios\n' +
+      '[ios-dev] (or `bunx expo run:ios` for a local Xcode build).\n'
+  );
+  return false;
 }
 
-function ensureExpoGoInstalled(udid: string): boolean {
-  if (isExpoGoInstalled(udid)) return true;
-  const cached = findCachedExpoGoBundle();
-  if (cached === null) {
-    process.stderr.write(
-      '[ios-dev] Expo Go is not installed on this simulator and no cached bundle was found under ~/.expo/ios-simulator-app-cache/.\n' +
-        '[ios-dev] First-time setup: temporarily shut down other booted iOS sims, run `bunx expo start --ios` once so Expo CLI downloads + installs Expo Go onto "' +
-        SIM_NAME +
-        '", then re-run this script.\n'
-    );
-    return false;
-  }
-  try {
-    process.stdout.write(
-      `[ios-dev] Installing cached Expo Go from ${cached}\n`
-    );
-    execFileSync('xcrun', ['simctl', 'install', udid, cached], {
-      stdio: 'inherit',
-    });
-    return true;
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    process.stderr.write(`[ios-dev] Failed to install Expo Go: ${msg}\n`);
-    return false;
-  }
+/**
+ * Dev-client deep link that tells the installed development build to load the
+ * Metro bundle from our pinned dev server, e.g.
+ * `gamezilla://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A5173`.
+ */
+function devClientUrl(metroUrl: string): string {
+  return `${APP_IDENTITY.urlScheme}://expo-development-client/?url=${encodeURIComponent(metroUrl)}`;
 }
 
 function openOnSim(udid: string, url: string): void {
-  if (!ensureExpoGoInstalled(udid)) return;
+  if (!ensureDevClientInstalled(udid)) return;
   try {
     execFileSync('xcrun', ['simctl', 'openurl', udid, url], {
       stdio: 'inherit',
@@ -302,10 +282,9 @@ async function main(): Promise<void> {
   });
 
   const devServerUrl = new URL(`http://${EXPO_HOST}:${EXPO_PORT}`);
-  const expoGoUrl = `exp://${EXPO_HOST}:${EXPO_PORT}`;
   try {
     await waitForDevServer(devServerUrl, DEV_SERVER_TIMEOUT_MS, abort.signal);
-    openOnSim(udid, expoGoUrl);
+    openOnSim(udid, devClientUrl(devServerUrl.href));
   } catch (err: unknown) {
     if (abort.signal.aborted) return;
     const msg = err instanceof Error ? err.message : String(err);

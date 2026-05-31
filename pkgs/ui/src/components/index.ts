@@ -19,6 +19,10 @@ export { Stack, type StackProps } from './stack';
 export { Center, type CenterProps } from './center';
 export { Divider, type DividerProps } from './divider';
 export { Spacer } from './spacer';
+export {
+  ComposeProviders,
+  type ComposeProvidersProps,
+} from './compose-providers';
 export { ScrollView, type ScrollViewProps } from './scroll-view';
 export { SafeAreaView, type SafeAreaViewProps } from './safe-area-view';
 export { FlatList, type FlatListProps } from './flat-list';

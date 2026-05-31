@@ -46,6 +46,16 @@ on:
       - LICENSE
       - .gitignore
   workflow_dispatch:
+    inputs:
+      eas_profile:
+        description: EAS build profile for the eas-mobile job (push to main uses production)
+        default: production
+        type: choice
+        options:
+          - development
+          - development-simulator
+          - preview
+          - production
 
 jobs:
   # Single Turbo-orchestrated job for every cacheable repo gate: format,
@@ -268,6 +278,88 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v5
 
+  # ── Native mobile build + OTA update ─────────────────────────────────
+  # Triggers an EAS Build (native iOS/Android binaries, ~15-30 min in
+  # Expo's cloud, fired with `--no-wait`) AND publishes an EAS Update so
+  # the same commit's JS bundle is delivered over-the-air to dev clients
+  # and Expo Go on the matching channel. Gated on the same green checks as
+  # `deploy` so we never build mobile from broken code, but kept off the
+  # `deploy` job's critical path (it neither blocks nor is blocked by the
+  # Cloudflare Pages web deploy). `EXPO_TOKEN` is pulled from the Doppler
+  # `dev` config via the shared project token, same as every other secret;
+  # EAS CLI authenticates from the injected `EXPO_TOKEN` env var. Runs in
+  # `apps/client` so EAS resolves the right project (all EAS files live
+  # there per https://docs.expo.dev/build-reference/build-with-monorepos);
+  # `scripts/doppler-run.ts` is not usable here because it pins the child
+  # command's cwd to the repo root.
+  eas-mobile:
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      github.event_name == 'workflow_dispatch'
+    needs: [turbo-ci, static, qa-api, qa-browser]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    concurrency:
+      group: eas-mobile
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: apps/client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+        with:
+          doppler: 'true'
+
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+
+      # On a manual run the profile picks the matching update channel; a
+      # push to main always uses production. `development-simulator` shares
+      # the `development` channel (it inherits the channel via `extends`).
+      - name: Resolve EAS profile + channel
+        id: eas
+        run: |
+          set -euo pipefail
+          PROFILE="${{ github.event.inputs.eas_profile || 'production' }}"
+          case "$PROFILE" in
+            development|development-simulator) CHANNEL=development ;;
+            preview) CHANNEL=preview ;;
+            *) CHANNEL=production ;;
+          esac
+          echo "profile=$PROFILE" >> "$GITHUB_OUTPUT"
+          echo "channel=$CHANNEL" >> "$GITHUB_OUTPUT"
+
+      - name: EAS Build (native binaries)
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          EXPO_PUBLIC_COMMIT_HASH: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          doppler run -p gamezilla -c dev -- \
+            eas build --platform all --profile "${{ steps.eas.outputs.profile }}" --non-interactive --no-wait
+
+      # Compile i18n + generate the bundled web/worker assets before the OTA
+      # bundle (the `eas-build-post-install` hook only runs on EAS Build
+      # workers, not for a locally-run `eas update`).
+      - name: Prepare JS bundle
+        run: bun run prebuild
+
+      - name: EAS Update (OTA bundle for dev clients + Expo Go)
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          EXPO_PUBLIC_COMMIT_HASH: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          doppler run -p gamezilla -c dev -- \
+            eas update --channel "${{ steps.eas.outputs.channel }}" --message "${{ github.sha }}" --non-interactive
+
   # ── Atomic production deploy ─────────────────────────────────────────
   # One job, one checkout, one `infra-setup`. `bun run infra deploy`
   # acquires the global PlanetScale lock, runs every phase in-process
@@ -348,6 +440,7 @@ jobs:
         qa-api,
         qa-browser,
         publish-playwright-report,
+        eas-mobile,
         deploy,
         lock-release,
       ]

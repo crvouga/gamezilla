@@ -134,6 +134,7 @@
     "pkgs/postgres/src/**/*.ts",
     "apps/client/.expo/types/**/*.ts",
     "apps/client/expo-env.d.ts",
+    "apps/client/scripts/**/*.ts",
     "pkgs/assert/src/**/*.ts",
     "pkgs/logger/src/**/*.ts",
     "pkgs/logger/src/**/*.tsx",
