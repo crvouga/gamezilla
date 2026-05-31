@@ -160,22 +160,20 @@ describe('AssertCrashError bubbling: server -> client', () => {
 
 describe('HTTP 500 server errors', () => {
   let dispose: (() => void) | null = null;
-  const prevNodeEnv = process.env.NODE_ENV;
+  const env = process.env as Record<string, string | undefined>;
+  const prevNodeEnv = env['NODE_ENV'];
 
   afterEach(() => {
     if (dispose !== null) {
       dispose();
       dispose = null;
     }
-    if (prevNodeEnv === undefined) {
-      delete process.env.NODE_ENV;
-    } else {
-      process.env.NODE_ENV = prevNodeEnv;
-    }
+    if (prevNodeEnv === undefined) delete env['NODE_ENV'];
+    else env['NODE_ENV'] = prevNodeEnv;
   });
 
   test('dev (non-test) HTTP 500 reaches crash handler with status context', async () => {
-    process.env.NODE_ENV = 'development';
+    env['NODE_ENV'] = 'development';
     const recorder = new RecordingCrashHandler();
     dispose = assert.registerCrashHandler(recorder);
 
