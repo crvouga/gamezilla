@@ -54,16 +54,6 @@
     "js-cookie": "^3.0.7",
     "serialize-javascript": "7.0.5"
   },
-  "trustedDependencies": [
-    "@embedded-postgres/darwin-arm64",
-    "@embedded-postgres/darwin-x64",
-    "@embedded-postgres/linux-arm",
-    "@embedded-postgres/linux-arm64",
-    "@embedded-postgres/linux-ia32",
-    "@embedded-postgres/linux-ppc64",
-    "@embedded-postgres/linux-x64",
-    "@embedded-postgres/windows-x64"
-  ],
   "devDependencies": {
     "@lingui/cli": "catalog:",
     "@lingui/conf": "catalog:",
@@ -193,5 +183,15 @@
     "workbox-window": "^7.4.0",
     "wrangler": "^4.54.0",
     "zod": "^4.3.6"
-  }
+  },
+  "trustedDependencies": [
+    "@embedded-postgres/darwin-arm64",
+    "@embedded-postgres/darwin-x64",
+    "@embedded-postgres/linux-arm",
+    "@embedded-postgres/linux-arm64",
+    "@embedded-postgres/linux-ia32",
+    "@embedded-postgres/linux-ppc64",
+    "@embedded-postgres/linux-x64",
+    "@embedded-postgres/windows-x64"
+  ]
 }

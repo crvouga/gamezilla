@@ -35,8 +35,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 
-const SIM_NAME =
-  process.env['EXPO_DEV_SIM_NAME'] ?? `${APP_IDENTITY.slug}-dev`;
+const SIM_NAME = process.env['EXPO_DEV_SIM_NAME'] ?? `${APP_IDENTITY.slug}-dev`;
 const SIM_DEVICE_TYPE =
   process.env['EXPO_DEV_SIM_DEVICE_TYPE'] ??
   'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro';

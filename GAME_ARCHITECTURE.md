@@ -748,11 +748,11 @@ Set Doppler `dev` `DB_URL` to match the server log (`postgres://postgres:postgre
 
 Required tooling: only `pgweb` (the optional GUI), enforced by `bun run infra setup` / `status` via the `PgwebDep` class. The PostgreSQL 18 server binaries (`postgres`, `initdb`, `pg_ctl`) ship via the `embedded-postgres` npm package and are hydrated by `bun install` — no system Postgres install and no `PostgresDep`.
 
-| Platform | Postgres install                | pgweb install                                                            | Notes                                                                                          |
-| -------- | ------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| macOS    | bundled via npm (no action)     | `brew install pgweb`                                                     | Postgres 18 binaries come from `@embedded-postgres/darwin-*`, hydrated by `bun install`.       |
-| Linux    | bundled via npm (no action)     | Download from https://github.com/sosedoff/pgweb/releases and put on PATH | Postgres 18 binaries come from `@embedded-postgres/linux-*`, hydrated by `bun install`.        |
-| Windows  | Run dev inside WSL2             | Install pgweb inside WSL2                                                 | Native Windows is not exercised; run dev inside WSL2.                                           |
+| Platform | Postgres install            | pgweb install                                                            | Notes                                                                                    |
+| -------- | --------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| macOS    | bundled via npm (no action) | `brew install pgweb`                                                     | Postgres 18 binaries come from `@embedded-postgres/darwin-*`, hydrated by `bun install`. |
+| Linux    | bundled via npm (no action) | Download from https://github.com/sosedoff/pgweb/releases and put on PATH | Postgres 18 binaries come from `@embedded-postgres/linux-*`, hydrated by `bun install`.  |
+| Windows  | Run dev inside WSL2         | Install pgweb inside WSL2                                                | Native Windows is not exercised; run dev inside WSL2.                                    |
 
 Tunables (all optional, env-driven):
 
