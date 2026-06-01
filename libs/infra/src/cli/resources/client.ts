@@ -6,10 +6,10 @@ import { PROJECT_CONFIG } from '../../project-config';
 import { cleanupPagesDeployments } from '../lib/cloudflare-pages-deployments';
 import {
   assertExpoTokenPresent,
-  deployClientEas,
+  publishClientEasUpdate,
   resolveEasProfile,
   resolveEasProfileWithNotice,
-} from '../lib/deploy-client-eas';
+} from '../lib/eas-mobile';
 import { ok, warn } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
@@ -42,11 +42,11 @@ export class ClientResource extends ResourceBase {
     this.validateBuildInputs(platform, ctx);
     ok('client dry-run', 'API URL + commit SHA validated');
 
-    // When the EAS mobile deploy will run, fail fast on a missing token now
+    // When the EAS OTA update will run, fail fast on a missing token now
     // rather than after the web client + API have already shipped.
     if (resolveEasProfile() !== null) {
       assertExpoTokenPresent();
-      ok('client dry-run', 'EXPO_TOKEN present for EAS mobile deploy');
+      ok('client dry-run', 'EXPO_TOKEN present for EAS OTA update');
     }
   }
 
@@ -99,20 +99,25 @@ export class ClientResource extends ResourceBase {
   }
 
   /**
-   * Native mobile half of the client deploy: fire EAS Build + publish an
-   * OTA `eas update`. Kept separate from {@link deploy} (web → Cloudflare
-   * Pages) because it must run *after* the API deploy, migrate, stripe-sync,
-   * smoke, and refresh-config — the mobile client targets the live API, so a
-   * freshly-shipped bundle must never reach a not-yet-migrated server.
+   * Mobile half of the client deploy: publish an OTA `eas update`. Kept
+   * separate from {@link deploy} (web → Cloudflare Pages) because it must run
+   * *after* the API deploy, migrate, stripe-sync, smoke, and refresh-config —
+   * the mobile client targets the live API, so a freshly-shipped bundle must
+   * never reach a not-yet-migrated server. Native binaries are NOT built here
+   * (rare, manual `build-client-native` command); a routine `main` push is
+   * almost always JS-only.
    *
    * Skips with a notice when no EAS profile resolves (local `infra deploy`
-   * without an explicit `EAS_PROFILE`), so a developer never fires cloud
-   * builds by accident.
+   * without an explicit `EAS_PROFILE`), so a developer never publishes an
+   * update by accident.
    */
-  async deployEas(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+  async publishEasUpdate(
+    platform: CiPlatform,
+    _ctx: InfraContext
+  ): Promise<void> {
     const profile = resolveEasProfileWithNotice(platform);
     if (profile === null) return;
-    await deployClientEas(platform, profile);
+    await publishClientEasUpdate(platform, profile);
   }
 
   /**

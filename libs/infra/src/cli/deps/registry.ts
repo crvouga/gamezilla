@@ -49,8 +49,9 @@ export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, doppler];
 /**
  * Deps required by the legacy single-process `deploy` lifecycle: the
  * provision set plus Stripe (for `runStripeSyncPhase`) and the EAS CLI
- * (for the `deploy-client-eas` phase — native EAS Build + OTA update).
- * Still excludes `pgweb` (dev-only).
+ * (for the `publish-client-eas-update` phase — OTA `eas update`; the manual
+ * `build-client-native` command reuses the same dep). Still excludes
+ * `pgweb` (dev-only).
  */
 export const DEPLOY_DEPS: readonly Dep[] = [
   wrangler,

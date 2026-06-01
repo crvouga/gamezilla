@@ -14,29 +14,11 @@ import { ok } from './fmt';
 export type EasProfile = 'production' | 'development';
 
 /**
- * Native build profile matrix per environment — mirrors the matrix the
- * `eas-mobile` GitHub Actions job used. iOS produces a simulator build in
- * CI because device signing requires interactive certificate validation.
- */
-const EAS_BUILD_MATRIX: Record<
-  EasProfile,
-  ReadonlyArray<{ platform: 'android' | 'ios'; profile: string }>
-> = {
-  production: [
-    { platform: 'android', profile: 'production' },
-    { platform: 'ios', profile: 'production-simulator' },
-  ],
-  development: [
-    { platform: 'android', profile: 'development' },
-    { platform: 'ios', profile: 'development-simulator' },
-  ],
-};
-
-/**
- * Resolve the EAS profile to deploy. Explicit `EAS_PROFILE` env wins; in
- * GitHub Actions a push to `main` defaults to `production`. Returns `null`
- * when EAS should be skipped (local `infra deploy` with no explicit
- * `EAS_PROFILE` — prevents accidental cloud builds from a workstation).
+ * Resolve the EAS profile. Explicit `EAS_PROFILE` env wins; in GitHub
+ * Actions a push to `main` defaults to `production`. Returns `null` when no
+ * profile resolves (local invocation with no explicit `EAS_PROFILE`) — the
+ * OTA path treats that as "skip", the native build path treats it as a hard
+ * error (see {@link requireEasProfile}).
  */
 export function resolveEasProfile(): EasProfile | null {
   const raw = process.env['EAS_PROFILE']?.trim();
@@ -50,12 +32,28 @@ export function resolveEasProfile(): EasProfile | null {
   return null;
 }
 
+/**
+ * Like {@link resolveEasProfile} but never `null`: native builds + store
+ * submission are explicit, irreversible actions, so a missing profile is a
+ * hard error rather than a silent skip — prevents an accidental release from
+ * a developer workstation.
+ */
+export function requireEasProfile(): EasProfile {
+  const profile = resolveEasProfile();
+  assert.ok(
+    profile !== null,
+    'eas build: EAS_PROFILE must be set to "production" or "development" ' +
+      '(refusing to build/submit native binaries without an explicit profile)'
+  );
+  return profile;
+}
+
 function resolveCommitHash(): string {
   const fromEnv = process.env['EXPO_PUBLIC_COMMIT_HASH']?.trim().toLowerCase();
   if (fromEnv !== undefined && fromEnv.length > 0) {
     assert.ok(
       COMMIT_HASH_HEX_REGEX.test(fromEnv),
-      'deploy-client-eas: EXPO_PUBLIC_COMMIT_HASH must be a lowercase hex commit SHA',
+      'eas-mobile: EXPO_PUBLIC_COMMIT_HASH must be a lowercase hex commit SHA',
       { fromEnv }
     );
     return fromEnv;
@@ -64,7 +62,7 @@ function resolveCommitHash(): string {
   const commitHash = rawSha.trim().toLowerCase();
   assert.ok(
     COMMIT_HASH_HEX_REGEX.test(commitHash),
-    'deploy-client-eas: git HEAD must be a valid lowercase hex commit SHA',
+    'eas-mobile: git HEAD must be a valid lowercase hex commit SHA',
     { rawSha }
   );
   return commitHash;
@@ -87,52 +85,34 @@ function easEnv(commitHash: string): NodeJS.ProcessEnv {
   };
 }
 
+function clientDir(): string {
+  return join(REPO_ROOT, 'apps/client');
+}
+
 /**
- * Fire native EAS Build (Android + iOS simulator) without waiting — the
- * cloud builds run independently (~15-30 min) — then publish an OTA
- * `eas update` so the matching JS bundle reaches dev clients + Expo Go on
- * the same channel.
+ * Publish an OTA `eas update` so the matching JS bundle reaches clients +
+ * Expo Go on the channel for `profile`. This is the only EAS action the
+ * routine `infra deploy` runs — native deps rarely change, so a push to
+ * `main` is almost always JS-only. Native binaries are produced separately
+ * by {@link buildAndSubmitClientNative} (manual workflow).
  *
  * Runs in `apps/client` so EAS resolves the right project (all EAS config
  * lives there per https://docs.expo.dev/build-reference/build-with-monorepos).
  */
-export async function deployClientEas(
+export async function publishClientEasUpdate(
   platform: CiPlatform,
   profile: EasProfile
 ): Promise<void> {
   assertExpoTokenPresent();
   const commitHash = resolveCommitHash();
-  const clientDir = join(REPO_ROOT, 'apps/client');
+  const cwd = clientDir();
   const env = easEnv(commitHash);
-
-  for (const { platform: target, profile: buildProfile } of EAS_BUILD_MATRIX[
-    profile
-  ]) {
-    await runAsync(
-      platform,
-      'eas',
-      [
-        'build',
-        '--platform',
-        target,
-        '--profile',
-        buildProfile,
-        '--non-interactive',
-        '--no-wait',
-      ],
-      {
-        cwd: clientDir,
-        env,
-        label: `eas build: ${target} (${buildProfile})`,
-      }
-    );
-  }
 
   // Compile i18n + bundle the WASM workers before the OTA bundle. The
   // `eas-build-post-install` hook only runs on EAS Build workers, not for a
   // locally-run `eas update`.
   await runAsync(platform, 'bun', ['run', 'prebuild'], {
-    cwd: clientDir,
+    cwd,
     env,
     label: 'client: prebuild (i18n + wasm bundles)',
   });
@@ -151,14 +131,59 @@ export async function deployClientEas(
       '--non-interactive',
     ],
     {
-      cwd: clientDir,
+      cwd,
       env,
       label: `eas update: ${profile} channel`,
     }
   );
 
+  platform.notice(`EAS OTA update published (${profile} channel).`);
+}
+
+/**
+ * Build native binaries (Android + iOS, in parallel on EAS) and, for
+ * `production`, submit them to the App Store / Play Store via `--auto-submit`
+ * (uses the same-named submit profile in `apps/client/eas.json`).
+ *
+ * Manual / rare: run only when native deps actually change. Waits for the
+ * builds (no `--no-wait`) so a release surfaces failures in the workflow.
+ *
+ * Prerequisite: production store credentials must be configured on EAS for
+ * `--auto-submit` to succeed in `--non-interactive` mode.
+ */
+export async function buildAndSubmitClientNative(
+  platform: CiPlatform,
+  profile: EasProfile
+): Promise<void> {
+  assertExpoTokenPresent();
+  const commitHash = resolveCommitHash();
+  const cwd = clientDir();
+  const env = easEnv(commitHash);
+
+  const args = [
+    'build',
+    '--platform',
+    'all',
+    '--profile',
+    profile,
+    '--message',
+    commitHash,
+    '--non-interactive',
+  ];
+  // Only production releases go to the stores; the `development` profile is
+  // an internal-distribution build with no matching submit profile.
+  if (profile === 'production') args.push('--auto-submit');
+
+  await runAsync(platform, 'eas', args, {
+    cwd,
+    env,
+    label: `eas build: all (${profile})${profile === 'production' ? ' + submit' : ''}`,
+  });
+
   platform.notice(
-    `EAS native builds fired and OTA update published (${profile} channel).`
+    profile === 'production'
+      ? 'EAS native build + store submission complete (production).'
+      : `EAS native build complete (${profile}).`
   );
 }
 
@@ -170,14 +195,14 @@ export function assertExpoTokenPresent(): void {
   const token = process.env['EXPO_TOKEN']?.trim();
   assert.nonEmptyString(
     token,
-    'deploy-client-eas: EXPO_TOKEN is required for EAS CLI auth. ' +
+    'eas-mobile: EXPO_TOKEN is required for EAS CLI auth. ' +
       'Set it in Doppler (config prd) or export EXPO_TOKEN before running.'
   );
 }
 
 /**
- * Resolve + log whether EAS will deploy. Returns the profile, or `null`
- * (with a skip notice) when EAS should be skipped.
+ * Resolve + log whether the OTA update will run. Returns the profile, or
+ * `null` (with a skip notice) when no profile resolves.
  */
 export function resolveEasProfileWithNotice(
   platform: CiPlatform
@@ -185,10 +210,10 @@ export function resolveEasProfileWithNotice(
   const profile = resolveEasProfile();
   if (profile === null) {
     platform.notice(
-      'deploy-client-eas skipped — set EAS_PROFILE=development to deploy the mobile client locally.'
+      'eas update skipped — set EAS_PROFILE=development to publish an OTA update locally.'
     );
     return null;
   }
-  ok('deploy-client-eas', `profile ${profile}`);
+  ok('eas update', `profile ${profile}`);
   return profile;
 }

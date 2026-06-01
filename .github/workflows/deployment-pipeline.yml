@@ -278,16 +278,17 @@ jobs:
   # One job, one checkout, one `infra-setup`. `bun run infra deploy`
   # acquires the global PlanetScale lock, runs every phase in-process
   # (provision → migrate → deploy-resources → stripe-sync → smoke →
-  # refresh-config → deploy-client-eas → ensure-destroyed), and emits
-  # `lock_id` / deploy URLs / nameservers as step outputs for the report
-  # and the always-run `lock-release` safety net below.
+  # refresh-config → publish-client-eas-update → ensure-destroyed), and
+  # emits `lock_id` / deploy URLs / nameservers as step outputs for the
+  # report and the always-run `lock-release` safety net below.
   #
-  # `deploy-client-eas` fires the native EAS Build (`--no-wait`) and an OTA
-  # `eas update` after the API + web client are live and smoke-tested — the
-  # mobile client targets https://api.gamezilla.app, so the server, DB
-  # migrations, Stripe sync, and pushed client-config for this commit must
-  # be live before we ship matching native binaries / OTA bundle. This was
-  # previously the separate `eas-mobile` GitHub Actions job.
+  # `publish-client-eas-update` publishes an OTA `eas update` (JS bundle
+  # only — no native build) after the API + web client are live and
+  # smoke-tested, so the mobile client (which targets
+  # https://api.gamezilla.app) never ships a bundle ahead of the matching
+  # server / DB migrations / Stripe sync / client-config. Native binaries
+  # are built rarely + manually via the `eas-build-release.yml` workflow
+  # (`infra build-client-native`), not here.
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [turbo-ci, static, qa-api, qa-browser]
@@ -309,10 +310,11 @@ jobs:
     concurrency:
       group: deploy
       cancel-in-progress: false
-    # 90m (was 60m): the deploy now also bundles + publishes the EAS OTA
-    # update (`deploy-client-eas` phase), which adds ~5-10 min of Metro
-    # bundling on top of the web + API deploy.
-    timeout-minutes: 90
+    # 75m (was 60m): the deploy now also bundles + publishes the EAS OTA
+    # update (`publish-client-eas-update` phase), which adds ~5-10 min of
+    # Metro bundling on top of the web + API deploy. No native builds run
+    # here (those are the manual `eas-build-release.yml` workflow).
+    timeout-minutes: 75
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -323,7 +325,7 @@ jobs:
           eas: 'true'
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
-      - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config → deploy-client-eas → ensure-destroyed)
+      - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config → publish-client-eas-update → ensure-destroyed)
         id: deploy
         working-directory: libs/infra
         env:

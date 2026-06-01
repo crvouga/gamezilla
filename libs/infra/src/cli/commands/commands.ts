@@ -2,8 +2,8 @@ import { fmt } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import type { Command, CommandGroup } from './types';
 
+import { BuildClientNativeCommand } from './build-client-native';
 import { DeployCommand } from './deploy';
-import { DeployClientEasCommand } from './deploy-client-eas';
 import { DeployResourcesCommand } from './deploy-resources';
 import { DestroyCommand } from './destroy';
 import { LockAcquireCommand } from './lock-acquire';
@@ -17,6 +17,7 @@ import { SmokeCommand } from './smoke';
 import { StatusCommand } from './status';
 import { StripeSyncCommand } from './stripe-sync';
 import { UnlockCommand } from './unlock';
+import { UpdateClientEasCommand } from './update-client-eas';
 
 /** Display order for grouped help output. */
 export const COMMAND_GROUP_ORDER: readonly CommandGroup[] = [
@@ -45,7 +46,8 @@ export function createCommandRegistry(platform: CiPlatform): Command[] {
     new ProvisionCommand(platform),
     new MigrateCommand(platform),
     new DeployResourcesCommand(platform),
-    new DeployClientEasCommand(platform),
+    new BuildClientNativeCommand(platform),
+    new UpdateClientEasCommand(platform),
     new StripeSyncCommand(platform),
     new SmokeCommand(platform),
     new RefreshConfigCommand(platform),

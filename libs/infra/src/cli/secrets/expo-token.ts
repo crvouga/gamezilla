@@ -6,10 +6,12 @@ const WHOAMI_QUERY = 'query { viewer { username } }';
 /**
  * Expo access token for EAS Build / Update in CI (`EXPO_TOKEN`).
  *
- * Create at https://expo.dev/settings/access-tokens. `infra deploy` reads
- * Doppler config `prd` (it runs the `deploy-client-eas` phase), so the token
- * must live there; it is mirrored to `dev` via `SHARED_MIRROR_TO_DEV_KEYS`
- * for the `dev`-config CI checks.
+ * Create at https://expo.dev/settings/access-tokens. Both EAS paths need it:
+ * `infra deploy` publishes an OTA `eas update` (the `publish-client-eas-update`
+ * phase) and the manual `infra build-client-native` command runs `eas build`
+ * + store submission. Both read Doppler config `prd`, so the token must live
+ * there; it is mirrored to `dev` via `SHARED_MIRROR_TO_DEV_KEYS` for the
+ * `dev`-config CI checks.
  */
 export class ExpoToken implements SecretEntry {
   readonly secretKey = 'EXPO_TOKEN';

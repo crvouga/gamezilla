@@ -5,11 +5,11 @@ import {
   runCheckDepsPhase,
   runWranglerAuthPhase,
 } from '../lib/phases/check-deps';
-import { runDeployClientEasPhase } from '../lib/phases/deploy-client-eas';
 import { runDeployResourcesPhase } from '../lib/phases/deploy-resources';
 import { runEnsureDestroyedPhase } from '../lib/phases/ensure-destroyed';
 import { runWithGlobalLock } from '../lib/global-lock-session';
 import { runMigratePhase } from '../lib/phases/migrate';
+import { runPublishClientEasUpdatePhase } from '../lib/phases/publish-client-eas-update';
 import { runDryRunPhase, runProvisionPhase } from '../lib/phases/provision';
 import { runRefreshConfigPhase } from '../lib/phases/refresh-config';
 import { runSmokePhase } from '../lib/phases/smoke';
@@ -38,7 +38,7 @@ export class DeployCommand implements Command {
   readonly requiresLock = false;
   readonly group = 'lifecycle' as const;
   readonly summary =
-    'Provision infra, deploy apps (web + EAS mobile), smoke test, refresh config';
+    'Provision infra, deploy apps (web + EAS OTA update), smoke test, refresh config';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -62,7 +62,7 @@ export class DeployCommand implements Command {
       const outputs = infraOutputs(ctx);
       await runSmokePhase(p, outputs);
       await runRefreshConfigPhase(p, outputs);
-      await runDeployClientEasPhase(p, ctx);
+      await runPublishClientEasUpdatePhase(p, ctx);
       await runEnsureDestroyedPhase(p);
 
       banner('Deploy Complete', performance.now() - t0);
