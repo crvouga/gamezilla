@@ -1,6 +1,6 @@
 import { isDevBuild } from '@pkgs/assert';
 
-/** True when HTTP 5xx responses should crash via the assert handler chain. */
+/** True when HTTP 500 responses should crash via the assert handler chain. */
 export function shouldAssertOnPatchDbHttpServerError(): boolean {
   if (!isDevBuild()) return false;
   if (typeof process !== 'undefined') {

@@ -16,7 +16,10 @@ type SignInOauth2Result = {
 };
 
 function resolveCallbackUrl(): string {
-  if (typeof window !== 'undefined') {
+  // On React Native/Hermes `window` exists but `window.location` does not, so
+  // guard on `window.location`. Returning the relative path lets the
+  // `@better-auth/expo` client rewrite it into the app's deep-link scheme.
+  if (typeof window !== 'undefined' && window.location !== undefined) {
     return `${window.location.origin}/sso-callback`;
   }
   return '/sso-callback';
@@ -25,7 +28,9 @@ function resolveCallbackUrl(): string {
 function navigateIfRedirectUrl(res: SignInOauth2Result): void {
   const url = res.data?.url;
   if (typeof url !== 'string' || url.length === 0) return;
-  if (typeof window === 'undefined') return;
+  // Native has no `window.location`; the `@better-auth/expo` client opens the
+  // OAuth browser session itself, so this web-only redirect must be skipped.
+  if (typeof window === 'undefined' || window.location === undefined) return;
   if (window.location.href === url) return;
   window.location.href = url;
 }

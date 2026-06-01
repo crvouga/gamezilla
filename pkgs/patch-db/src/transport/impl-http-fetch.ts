@@ -73,7 +73,7 @@ function throwHttpFailure(res: Response, text: string): never {
     dispatchAssertCrash(parsed.message, parsed.context);
     throw new AssertCrashError(parsed.message, parsed.context);
   }
-  if (res.status >= 500 && shouldAssertOnPatchDbHttpServerError()) {
+  if (res.status === 500 && shouldAssertOnPatchDbHttpServerError()) {
     const message = `patch-db sync HTTP ${res.status}: ${text.slice(0, 512)}`;
     dispatchAssertCrash(message, {
       status: res.status,

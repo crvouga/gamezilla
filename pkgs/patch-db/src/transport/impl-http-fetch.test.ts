@@ -209,4 +209,42 @@ describe('HTTP 500 server errors', () => {
     expect(recorder.captured).toHaveLength(1);
     expect(recorder.captured[0]?.context?.['status']).toBe(500);
   });
+
+  test('dev HTTP 503 rejects without crash handler (transient worker restart)', async () => {
+    env['NODE_ENV'] = 'development';
+    const recorder = new RecordingCrashHandler();
+    dispose = assert.registerCrashHandler(recorder);
+
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = (async () =>
+      new Response(
+        'Your worker restarted mid-request. Please try sending the request again.',
+        { status: 503 }
+      )) as unknown as typeof fetch;
+
+    const client = new PatchDbClientTransportHttpFetch(
+      'http://patch-db.local/patch-db'
+    );
+    let thrown: unknown = null;
+    try {
+      await client.write(
+        [
+          {
+            entityId: 'e1',
+            entityType: 'demo',
+            attributes: { 'demo/x': '1' } as never,
+          },
+        ],
+        OPEN_PATCHES_DB_CONTEXT
+      );
+    } catch (e) {
+      thrown = e;
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+
+    expect(thrown).toBeInstanceOf(Error);
+    expect(thrown).not.toBeInstanceOf(AssertCrashError);
+    expect(recorder.captured).toHaveLength(0);
+  });
 });
