@@ -43,8 +43,7 @@ function listFilesRecursive(dir: string): string[] {
 function hasNativeBundle(files: readonly string[], platform: string): boolean {
   const jsPrefix = join('_expo', 'static', 'js', platform);
   return files.some(
-    (f) =>
-      f.includes(jsPrefix) && (f.endsWith('.hbc') || f.endsWith('.js'))
+    (f) => f.includes(jsPrefix) && (f.endsWith('.hbc') || f.endsWith('.js'))
   );
 }
 

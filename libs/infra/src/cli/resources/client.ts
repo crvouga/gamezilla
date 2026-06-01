@@ -53,7 +53,10 @@ export class ClientResource extends ResourceBase {
         'EXPO_PUBLIC_API_URL must be set for the EAS OTA update (Doppler/env); ' +
           'a missing value blank-screens the published bundle on launch'
       );
-      ok('client dry-run', 'EXPO_TOKEN + EXPO_PUBLIC_API_URL present for EAS OTA update');
+      ok(
+        'client dry-run',
+        'EXPO_TOKEN + EXPO_PUBLIC_API_URL present for EAS OTA update'
+      );
     }
   }
 
