@@ -19,9 +19,11 @@ export function authBaseUrl(apiUrl: string): string {
   const trimmed = apiUrl.trim();
   let origin =
     trimmed.length > 0 ? trimmed.replace(/\/$/, '') : 'http://127.0.0.1:8788';
+  // On React Native/Hermes `window` is defined but `window.location` is not,
+  // so guard with optional chaining (this localhost rewrite is web-dev only).
   if (
     typeof window !== 'undefined' &&
-    window.location.hostname === 'localhost'
+    window.location?.hostname === 'localhost'
   ) {
     try {
       const u = new URL(origin);

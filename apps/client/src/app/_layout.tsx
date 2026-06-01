@@ -1,4 +1,5 @@
 import { AppProviders } from '@apps/client/providers/app-providers';
+import { RootErrorBoundary } from '@apps/client/providers/root-error-boundary';
 import { SpaceMiniplayer } from '@libs/spaces/client/miniplayer/space-miniplayer';
 import { Box, useStackProps } from '@pkgs/ui';
 import { Stack } from 'expo-router';
@@ -39,13 +40,15 @@ function AppStack() {
 
 export default function RootLayout() {
   return (
-    <AppProviders>
-      <Box sx={{ flex: 1, flexDirection: 'column', minHeight: 0 }}>
-        <Box sx={{ flex: 1, minHeight: 0 }}>
-          <AppStack />
+    <RootErrorBoundary>
+      <AppProviders>
+        <Box sx={{ flex: 1, flexDirection: 'column', minHeight: 0 }}>
+          <Box sx={{ flex: 1, minHeight: 0 }}>
+            <AppStack />
+          </Box>
+          <SpaceMiniplayer />
         </Box>
-        <SpaceMiniplayer />
-      </Box>
-    </AppProviders>
+      </AppProviders>
+    </RootErrorBoundary>
   );
 }
