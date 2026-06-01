@@ -42,11 +42,18 @@ export class ClientResource extends ResourceBase {
     this.validateBuildInputs(platform, ctx);
     ok('client dry-run', 'API URL + commit SHA validated');
 
-    // When the EAS OTA update will run, fail fast on a missing token now
-    // rather than after the web client + API have already shipped.
+    // When the EAS OTA update will run, fail fast now (before the web client
+    // + API have shipped) on a missing token or a missing API URL. A missing
+    // EXPO_PUBLIC_API_URL would otherwise bundle a dev OTA that blank-screens
+    // on launch (see apps/client/src/config/api-servers.ts).
     if (resolveEasProfile() !== null) {
       assertExpoTokenPresent();
-      ok('client dry-run', 'EXPO_TOKEN present for EAS OTA update');
+      assert.nonEmptyString(
+        process.env['EXPO_PUBLIC_API_URL'],
+        'EXPO_PUBLIC_API_URL must be set for the EAS OTA update (Doppler/env); ' +
+          'a missing value blank-screens the published bundle on launch'
+      );
+      ok('client dry-run', 'EXPO_TOKEN + EXPO_PUBLIC_API_URL present for EAS OTA update');
     }
   }
 

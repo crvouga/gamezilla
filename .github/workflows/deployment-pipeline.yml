@@ -241,6 +241,79 @@ jobs:
         with:
           path: libs/qa/playwright-report/
 
+  # Pre-deploy native launch gate. The web `qa-browser` job builds a
+  # PRODUCTION web export (`__DEV__ === false`), so it structurally cannot
+  # catch the Expo Go OTA white-screen, which is a startup crash in a
+  # DEV-mode bundle (`__DEV__ === true` -> the `getApiBaseUrl` Tiger guard
+  # in apps/client/src/config/api-servers.ts throws on first render). This
+  # job reproduces it with the SAME build commands the release uses:
+  #
+  #  1. native:bundle -> `@apps/client qa:export:native` = `bun run prebuild`
+  #     + `expo export --platform android ios` (the Metro bundling step
+  #     `eas update` performs), asserting the native JS bundles export
+  #     without import/resolution errors.
+  #  2. native:launch -> `expo export --platform web --dev` served to
+  #     Chromium, asserting `app-root` mounts with no uncaught startup error.
+  #
+  # `deploy` needs this, so a non-launching bundle blocks the OTA publish.
+  # Named `qa-native` (not `qa-mobile-launch`) so future device/emulator
+  # native e2e grows under the same job + `libs/qa/src/native/` tree.
+  qa-native:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: qa-native-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+
+      # Native (ios + android) bundle smoke: the exact `expo export` Metro
+      # bundling `eas update` runs. No browser needed for this step.
+      - name: Native bundle export smoke
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: bun run --filter '@libs/qa' native:bundle
+
+      # Chromium for the dev-mode web launch test (same caching strategy as
+      # qa-browser: key on the resolved Playwright version, not the lockfile).
+      - name: Resolve Playwright version
+        id: playwright
+        working-directory: libs/qa
+        run: |
+          version=$(node -p "require('@playwright/test/package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Resolved @playwright/test version: $version"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      - name: Install Playwright browsers (cache miss)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: bun run --filter '@libs/qa' install:browsers
+
+      - name: Install Playwright system deps (cache hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: bun --bun x playwright install-deps chromium
+
+      - name: Expo Go dev-bundle launch test
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+        run: bun run --filter '@libs/qa' native:launch
+
+      - name: Upload native launch Playwright report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: qa-native-playwright-report
+          path: libs/qa/playwright-report/
+          retention-days: 7
+
   # Deploy the HTML report to GitHub Pages on every main push — green or
   # red — so the latest run is always one URL away. `always()` is required
   # so this job is not skipped when `qa-browser` fails; the pages artifact
@@ -291,7 +364,7 @@ jobs:
   # (`infra build-client-native`), not here.
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [turbo-ci, static, qa-api, qa-browser]
+    needs: [turbo-ci, static, qa-api, qa-browser, qa-native]
     runs-on: ubuntu-latest
     outputs:
       lock_id: ${{ steps.deploy.outputs.lock_id }}
@@ -366,6 +439,7 @@ jobs:
         static,
         qa-api,
         qa-browser,
+        qa-native,
         publish-playwright-report,
         deploy,
         lock-release,

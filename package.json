@@ -45,6 +45,7 @@
     "qa": "bun run scripts/doppler-run.ts -- turbo run qa --filter=@libs/qa",
     "qa:api": "bun run scripts/doppler-run.ts -- bun run --filter '@libs/qa' api",
     "qa:browser": "bun run scripts/doppler-run.ts -- bun run --filter '@libs/qa' browser",
+    "qa:native": "bun run scripts/doppler-run.ts -- bun run --filter '@libs/qa' native",
     "stripe:check": "bun run --filter '@libs/stripe' check",
     "stripe:listen": "bun run --filter '@libs/stripe-cli' dev",
     "stripe:sync": "bun run --filter '@libs/stripe' sync",

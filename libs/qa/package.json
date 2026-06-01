@@ -9,6 +9,9 @@
     "browser:ui": "bun --bun x playwright test --config src/playwright/playwright.config.ts --ui",
     "install:browsers": "bun --bun x playwright install --with-deps chromium",
     "lint": "eslint src --max-warnings 0",
+    "native": "bun run native:bundle && bun run native:launch",
+    "native:bundle": "bun test ./src/native/",
+    "native:launch": "bun --bun x playwright test --config src/playwright/playwright.native.config.ts",
     "qa": "bun run api && bun run browser",
     "tc": "tsc --noEmit -p ./tsconfig.json"
   },

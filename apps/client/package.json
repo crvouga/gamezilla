@@ -20,6 +20,8 @@
     "lint": "expo lint --no-cache --max-warnings 0",
     "preview": "serve -s dist -l 5173",
     "pwa:generate": "bun run scripts/generate-pwa-assets.ts",
+    "qa:export:native": "bun run prebuild && expo export --platform android --platform ios --output-dir .qa-native --clear",
+    "qa:export:web-dev": "bun run prebuild && expo export --platform web --dev --output-dir .qa-dist-dev",
     "setup": "bun run scripts/setup-env.ts",
     "prestart": "bun run bundle:absurd-sql-worker && bun run bundle:sqljs-wasm && bun run bundle:skia-canvaskit-wasm",
     "start": "expo start --web",

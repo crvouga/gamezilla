@@ -62,7 +62,11 @@
       "entry": "src/dev.ts",
     },
     "libs/qa": {
-      "entry": "src/playwright/playwright.config.ts",
+      "entry": [
+        "src/playwright/playwright.config.ts",
+        "src/playwright/playwright.native.config.ts",
+        "src/native/*.test.ts",
+      ],
     },
     "libs/infra": {
       "entry": "src/bin/cli.ts",
