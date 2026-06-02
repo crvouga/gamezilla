@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Box } from '../box';
 import { Divider } from '../divider';
 import { SchemePreview } from '../explorer/scheme-preview';
@@ -11,7 +11,12 @@ import {
   type ButtonIntent,
   type ButtonVariant,
 } from './button';
+import { useMutationButton } from './use-mutation-button';
 import { useTheme } from '../../theme';
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function ButtonRow({
   intent,
@@ -96,6 +101,41 @@ function VariantBlock({
   );
 }
 
+function FeedbackBlock() {
+  const succeed = useMutationButton({
+    operation: useCallback(() => delay(900), []),
+    labels: {
+      idle: 'Save',
+      loading: 'Saving…',
+      success: 'Saved',
+      error: "Couldn't save",
+    },
+  });
+  const fail = useMutationButton({
+    operation: useCallback(async () => {
+      await delay(900);
+      throw new Error('Network unreachable');
+    }, []),
+    labels: {
+      idle: 'Join space',
+      loading: 'Joining…',
+      success: 'Joined',
+      error: "Couldn't join",
+    },
+  });
+  return (
+    <>
+      <SectionLabel label="Feedback (loading → success / error)" />
+      <SchemePreview>
+        <Stack spacing={2}>
+          <Button {...succeed.buttonProps} />
+          <Button intent="primary" {...fail.buttonProps} />
+        </Stack>
+      </SchemePreview>
+    </>
+  );
+}
+
 function SizesBlock() {
   return (
     <>
@@ -118,6 +158,8 @@ export default function ButtonExample() {
     <Box sx={{ p: 4, gap: 4 }}>
       <Text variant="heading" label="Button" />
       <SizesBlock />
+      <Divider />
+      <FeedbackBlock />
       <Divider />
       <VariantBlock
         intent="primary"

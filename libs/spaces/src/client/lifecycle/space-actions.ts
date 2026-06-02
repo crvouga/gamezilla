@@ -142,6 +142,14 @@ export function useSpaceActions() {
     return spaceId;
   }, [db, myId]);
 
+  // Awaits the local write so the trigger can show inline loading before
+  // navigating; resolves with the new space id. Throws if the write fails.
+  const createSpaceAsync = useCallback(async (): Promise<string> => {
+    const spaceId = crypto.randomUUID();
+    await writeCreateSpaceAction(db, myId, spaceId);
+    return spaceId;
+  }, [db, myId]);
+
   const joinSpace = useCallback(
     async (spaceId: string) => {
       return joinSpaceAction(db, myId, spaceId);
@@ -170,5 +178,12 @@ export function useSpaceActions() {
     [db, myId]
   );
 
-  return { createSpace, joinSpace, leaveSpace, endSpace, renameSpace };
+  return {
+    createSpace,
+    createSpaceAsync,
+    joinSpace,
+    leaveSpace,
+    endSpace,
+    renameSpace,
+  };
 }

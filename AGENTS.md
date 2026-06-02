@@ -27,6 +27,17 @@ pkgs/ui/src/
 2. Add the public export to `pkgs/ui/src/components/index.ts`.
 3. `bun run --filter @pkgs/ui tc lint` verifies it wires up.
 
+### Mutation UX
+
+Every mutation should make its outcome obvious. Pick the surface by weight, not by feature:
+
+- **Destructive or confirm-first mutations** (sign out, leave / end space, delete, rename, wipe DB) → `MutationModal`. It runs the whole `idle → loading → success / error` lifecycle in place: success is dismissible, errors are retryable. Thin wrappers (`EndSpaceConfirmModal`, `useSignOutConfirmationModal`, …) compose over it. Navigate from `onSuccess` only when the surface is a full screen; floating controls (the space miniplayer) skip navigation and let the UI react to the underlying state change.
+- **Lightweight, no-confirm actions** (join space, create space, anything that today was a bare `void doThing()`) → `Button` with `useMutationButton`. The button itself flips to a spinner, then a success check, then a retryable error face — no extra dialog. Pass `onSuccess` (with `successHoldMs: 0` to navigate immediately, or the default brief hold to flash success first).
+- **Screen form save / cancel** → `FormActionsFooter` in the `ScreenBase` `footer` slot, never header `actions`. On mobile it pins to the bottom above the safe-area inset; on wider screens it renders inline at the end of the form. The submit button is a `useMutationButton`, so saves show `Saving… → Saved` then run `onSuccess` (e.g. `router.back()`).
+- **Card-level inline async** (admin refreshers) → the `client-config-server-refresh.tsx` pattern: `useAsync` + compact `SuccessState` / `ErrorState` beneath the button.
+
+`useMutationButton` and `MutationModal` both build on `useMutationLifecycle`, so the phase semantics stay identical across modal and inline surfaces.
+
 ## CI / Turbo Remote Cache
 
 GitHub Actions runs checks with `DOPPLER_CONFIG=dev`. Caching is backed by **Vercel Remote Caching** — ensure the Doppler **`dev`** config defines `TURBO_TOKEN` (a [Vercel Access Token](https://vercel.com/account/tokens) scoped to the team) and `TURBO_TEAM` (the Vercel team slug). The optional knobs `TURBO_CACHE` (default `remote:rw`), `TURBO_LOG_ORDER`, and `TURBO_TELEMETRY_DISABLED` are derived defaults populated by `infra provision`. The values are mirrored from the active config to `dev` automatically (see `mirrorSharedToDev` in `libs/infra/src/cli/resources/doppler.ts`). The `turbo-ci` job runs `scripts/check-turbo-remote-cache.ts` under `doppler run` first (Doppler `dev` must expose `TURBO_TOKEN` + `TURBO_TEAM`; only `DOPPLER_TOKEN_SHARED` is a GitHub secret). The script rejects missing env, bad tokens, and Turbo’s `Remote caching unavailable` probe warning; without remote cache CI reruns every task cold (~10+ min) with misleading blank log lines. `bun run check:ci` invokes `scripts/turbo-ci-run.ts`, which passes `--concurrency=6 --cache-workers=1 --summarize --output-logs=hash-only --log-order=grouped` to every Turbo invocation: fewer parallel tasks and serialized cache HTTP stay under Vercel's artifact API rate limit. CI uses `--cache=local:rw,remote:rw` so later runs hit `cache hit` instead of cold `cache miss`; local `bun check` uses `remote:r` (read-only) to avoid upload 429s against the shared Vercel cache.

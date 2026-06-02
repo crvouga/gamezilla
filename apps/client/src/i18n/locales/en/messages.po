@@ -894,6 +894,8 @@ msgstr "Build mode: {buildMode}"
 #~ msgid "Can you lure something into a trap?"
 #~ msgstr "Can you lure something into a trap?"
 
+#: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/profile-username-screen.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
@@ -1352,6 +1354,10 @@ msgstr "Could not wipe database"
 msgid "Couldn't clear data"
 msgstr "Couldn't clear data"
 
+#: libs/spaces/src/client/spaces-screen.tsx
+msgid "Couldn't create space"
+msgstr "Couldn't create space"
+
 #: pkgs/patch-db-widgets/src/todo/list/todo-list-delete-confirmation-modal.tsx
 msgid "Couldn't delete list"
 msgstr "Couldn't delete list"
@@ -1359,6 +1365,10 @@ msgstr "Couldn't delete list"
 #: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 msgid "Couldn't end space"
 msgstr "Couldn't end space"
+
+#: libs/spaces/src/client/lifecycle/space-join-button.tsx
+msgid "Couldn't join"
+msgstr "Couldn't join"
 
 #: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
 msgid "Couldn't leave space"
@@ -1375,6 +1385,11 @@ msgstr "Couldn't leave space"
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 msgid "Couldn't rename space"
 msgstr "Couldn't rename space"
+
+#: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/profile-username-screen.tsx
+msgid "Couldn't save"
+msgstr "Couldn't save"
 
 #: libs/spaces/src/client/debug/space-counter-panel.tsx
 msgid "Counter unavailable — sign in and open this space on the device where you created it to host, or wait for the host to come online."
@@ -1393,8 +1408,13 @@ msgid "Create or edit data locally — pushes appear here with success or failur
 msgstr "Create or edit data locally — pushes appear here with success or failure details."
 
 #: libs/auth/src/client/account-device/account-device-meta-grid.tsx
+#: libs/spaces/src/client/spaces-screen.tsx
 msgid "Created"
 msgstr "Created"
+
+#: libs/spaces/src/client/spaces-screen.tsx
+msgid "Creating…"
+msgstr "Creating…"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Creative choice — bring it home."
@@ -3472,6 +3492,14 @@ msgstr "Join this space"
 #: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
 msgid "Join this space to see who is here and hang out."
 msgstr "Join this space to see who is here and hang out."
+
+#: libs/spaces/src/client/lifecycle/space-join-button.tsx
+msgid "Joined"
+msgstr "Joined"
+
+#: libs/spaces/src/client/lifecycle/space-join-button.tsx
+msgid "Joining…"
+msgstr "Joining…"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Just a few moves. Work it out."
@@ -6164,6 +6192,13 @@ msgstr "SAN"
 msgid "Save"
 msgstr "Save"
 
+#: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/profile-username-screen.tsx
+msgid "Saved"
+msgstr "Saved"
+
+#: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/profile-username-screen.tsx
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 msgid "Saving…"
 msgstr "Saving…"

@@ -5,9 +5,11 @@
  * the same baseline.
  */
 
-import type { ReactNode } from 'react';
+import { useContext, type ReactNode } from 'react';
+import { StyleSheet } from 'react-native';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
-import { useTheme } from '../../theme';
+import { useBreakpoint, useTheme } from '../../theme';
 import { Box } from '../box';
 import { KeyboardAvoidingView } from '../keyboard-avoiding-view';
 import { ScrollView } from '../scroll-view';
@@ -45,6 +47,34 @@ function ConstrainedInner({ children }: { children: ReactNode }) {
   );
 }
 
+const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
+
+/** See note in `screen-base-header.tsx`: prefer context over the hook so Metro cannot bundle two copies. */
+function useSafeAreaBottom(): number {
+  return (useContext(SafeAreaInsetsContext) ?? ZERO_SAFE_AREA).bottom;
+}
+
+/** Bottom-pinned footer (mobile): full-bleed surface with a top divider. */
+function PinnedFooter({ children }: { children: ReactNode }) {
+  const bottomInset = useSafeAreaBottom();
+  return (
+    <Box
+      sx={{
+        background: 'surface',
+        borderColor: 'border',
+        px: BODY_PADDING_STEP,
+        pt: BODY_GAP_STEP,
+      }}
+      style={{
+        borderTopWidth: StyleSheet.hairlineWidth,
+        paddingBottom: bottomInset + SCROLL_BOTTOM_PADDING / 2,
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
 export function ScreenBase({
   breadcrumbs,
   actions,
@@ -54,10 +84,16 @@ export function ScreenBase({
   centerTabs,
   headerEnd,
   leading,
+  footer,
 }: ScreenBaseProps) {
+  const isWide = useBreakpoint() !== 'mobile';
+  const inlineFooter = footer !== undefined && isWide;
+  const pinnedFooter = footer !== undefined && !isWide;
+
   const inner = (
     <ConstrainedInner>
       {content({ sx: { flex: 1 } } satisfies BodyContentProps)}
+      {inlineFooter ? <Box sx={{ pt: BODY_GAP_STEP }}>{footer}</Box> : null}
     </ConstrainedInner>
   );
 
@@ -75,10 +111,19 @@ export function ScreenBase({
     <Box sx={{ flex: 1 }}>{inner}</Box>
   );
 
+  const bodyWithFooter = (
+    <Box sx={{ flex: 1 }}>
+      {body}
+      {pinnedFooter ? <PinnedFooter>{footer}</PinnedFooter> : null}
+    </Box>
+  );
+
   const wrapped = keyboardAvoiding ? (
-    <KeyboardAvoidingView sx={{ flex: 1 }}>{body}</KeyboardAvoidingView>
+    <KeyboardAvoidingView sx={{ flex: 1 }}>
+      {bodyWithFooter}
+    </KeyboardAvoidingView>
   ) : (
-    body
+    bodyWithFooter
   );
 
   return (

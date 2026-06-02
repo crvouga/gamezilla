@@ -69,7 +69,6 @@ export type UseAvatarEditor = {
   draft: AvatarConfig;
   setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
   initialized: boolean;
-  saving: boolean;
   showDiscard: boolean;
   setShowDiscard: (v: boolean) => void;
   surface: string | null;
@@ -159,27 +158,19 @@ function useDraftMutators(args: {
 function useSaveAction(args: {
   draft: AvatarConfig;
   profileId: string | null;
-  setSaving: (v: boolean) => void;
 }) {
-  const { draft, profileId, setSaving } = args;
-  const router = useRouter();
+  const { draft, profileId } = args;
   const db = usePatchDb();
   return useCallback(async () => {
     if (profileId === null) return;
-    setSaving(true);
-    try {
-      await db.write([
-        {
-          entityId: profileId,
-          entityType: PROFILE_ENTITY_TYPE,
-          attributes: ProfileAttr.avatarConfig(serializeAvatarConfig(draft)),
-        },
-      ]);
-      router.back();
-    } finally {
-      setSaving(false);
-    }
-  }, [db, draft, profileId, router, setSaving]);
+    await db.write([
+      {
+        entityId: profileId,
+        entityType: PROFILE_ENTITY_TYPE,
+        attributes: ProfileAttr.avatarConfig(serializeAvatarConfig(draft)),
+      },
+    ]);
+  }, [db, draft, profileId]);
 }
 
 function useEditorActions(args: {
@@ -190,10 +181,9 @@ function useEditorActions(args: {
   seedFallback: string;
   profileId: string | null;
   setShowDiscard: (v: boolean) => void;
-  setSaving: (v: boolean) => void;
 }) {
   const { draft, setDraft, dirty, styleKey, seedFallback, profileId } = args;
-  const { setShowDiscard, setSaving } = args;
+  const { setShowDiscard } = args;
 
   const { onBack, confirmDiscard } = useDiscardActions({
     dirty,
@@ -203,7 +193,7 @@ function useEditorActions(args: {
     setDraft,
     styleKey,
   });
-  const save = useSaveAction({ draft, profileId, setSaving });
+  const save = useSaveAction({ draft, profileId });
   const copySeed = useCallback(async () => {
     const s = draft.seed.trim() || seedFallback;
     await Clipboard.setStringAsync(s);
@@ -226,7 +216,6 @@ export function useAvatarEditor(): UseAvatarEditor {
     persisted,
   });
 
-  const [saving, setSaving] = useState(false);
   const [showDiscard, setShowDiscard] = useState(false);
   const [surface, setSurface] = useState<string | null>(null);
 
@@ -247,7 +236,6 @@ export function useAvatarEditor(): UseAvatarEditor {
     seedFallback,
     profileId,
     setShowDiscard,
-    setSaving,
   });
 
   const closeSurface = useCallback(() => setSurface(null), []);
@@ -258,7 +246,6 @@ export function useAvatarEditor(): UseAvatarEditor {
     draft,
     setDraft,
     initialized,
-    saving,
     showDiscard,
     setShowDiscard,
     surface,

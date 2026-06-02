@@ -59,6 +59,13 @@ export type ScreenBaseProps = {
    * occupy the slot.
    */
   leading?: ReactNode;
+  /**
+   * Optional actions area (typically a {@link FormActionsFooter}). On mobile
+   * it is pinned to the bottom of the screen above the safe-area inset so it
+   * stays visible while scrolling; on wider screens it renders inline at the
+   * end of the form body.
+   */
+  footer?: ReactNode;
 };
 
 export type ScreenBaseHeaderProps = {

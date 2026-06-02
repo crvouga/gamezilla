@@ -1,5 +1,6 @@
-import { Box, ConfirmationModal, ScreenBase } from '@pkgs/ui';
+import { Box, ConfirmationModal, FormActionsFooter, ScreenBase } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { useRouter } from 'expo-router';
 
 import { BackgroundBlock } from './avatar-editor-background-block';
 import { ColorsBlock } from './avatar-editor-colors-block';
@@ -92,6 +93,7 @@ function EditorBody({ editor }: { editor: UseAvatarEditor }) {
 }
 
 export function AvatarEditorScreen() {
+  const router = useRouter();
   const editor = useAvatarEditor();
   const {
     profileId,
@@ -100,7 +102,6 @@ export function AvatarEditorScreen() {
     confirmDiscard,
     onBack,
     initialized,
-    saving,
     dirty,
     save,
     resetStyleDefaults,
@@ -130,16 +131,22 @@ export function AvatarEditorScreen() {
             disabled: !initialized,
             overflow: 'never',
           },
-          {
-            type: 'submit',
-            label: <Trans>Save</Trans>,
-            onPress: () => void save(),
-            loading: saving,
-            disabled: saving || !dirty || profileId === null,
-            overflow: 'never',
-          },
         ]}
         scroll
+        footer={
+          <FormActionsFooter
+            cancel={{ label: <Trans>Cancel</Trans>, onPress: onBack }}
+            submit={{
+              label: <Trans>Save</Trans>,
+              loadingLabel: <Trans>Saving…</Trans>,
+              successLabel: <Trans>Saved</Trans>,
+              errorLabel: <Trans>Couldn't save</Trans>,
+              operation: save,
+              onSuccess: () => router.back(),
+              disabled: !dirty || profileId === null,
+            }}
+          />
+        }
         content={({ sx }) => (
           <Box style={sx}>
             <EditorBody editor={editor} />

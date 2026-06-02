@@ -39,6 +39,7 @@ import {
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
+import { IconSymbol, type IconSymbolName } from '../symbol-icon';
 import { Text } from '../text';
 
 /** WCAG AA threshold for normal-weight text. */
@@ -59,6 +60,13 @@ function ensureContrast(fg: string, bg: string): string {
 export type ButtonIntent = 'primary' | 'danger' | 'neutral';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 export type ButtonVariant = 'solid' | 'outline' | 'ghost';
+/**
+ * Mutation lifecycle the button reflects in place. `loading` shows a spinner,
+ * `success` flips to a solid success face with a check, `error` to a solid
+ * destructive face with an X that re-presses as a retry. See
+ * {@link useMutationButton} for driving this from an async operation.
+ */
+export type ButtonFeedback = 'idle' | 'loading' | 'success' | 'error';
 
 export type ButtonProps = {
   title: ReactNode;
@@ -71,6 +79,19 @@ export type ButtonProps = {
   size?: ButtonSize;
   disabled?: boolean;
   loading?: boolean;
+  /**
+   * Mutation feedback state. When set it supersedes `loading` and drives the
+   * face + content (loading spinner, success check, retryable error).
+   */
+  feedback?: ButtonFeedback;
+  /** Label while `feedback === 'loading'`. Falls back to `title`. */
+  loadingLabel?: ReactNode;
+  /** Label while `feedback === 'success'`. Falls back to `title`. */
+  successLabel?: ReactNode;
+  /** Label while `feedback === 'error'`. Falls back to `title`. */
+  errorLabel?: ReactNode;
+  /** Press handler while `feedback === 'error'`. Falls back to `onPress`. */
+  onRetry?: () => void;
   /** Rendered before the label. */
   startIcon?: ReactNode;
   /** Rendered after the label. */
@@ -214,6 +235,37 @@ function resolveFaceStyle(
 }
 
 /**
+ * Solid face for the success / error feedback phases. Returns `null` for the
+ * idle / loading phases so the caller falls back to the intent-driven face.
+ */
+function resolveFeedbackFace(
+  theme: Theme,
+  feedback: ButtonFeedback
+): FaceStyle | null {
+  const c = theme.colors;
+  const withElevation = theme.colorScheme === 'light';
+  if (feedback === 'success') {
+    return {
+      backgroundColor: c.success,
+      borderColor: 'transparent',
+      borderWidth: 0,
+      foregroundColor: ensureContrast(c.onSuccess, c.success),
+      withElevation,
+    };
+  }
+  if (feedback === 'error') {
+    return {
+      backgroundColor: c.destructiveActive,
+      borderColor: 'transparent',
+      borderWidth: 0,
+      foregroundColor: ensureContrast(c.onDestructive, c.destructiveActive),
+      withElevation,
+    };
+  }
+  return null;
+}
+
+/**
  * Foreground color (label, spinner, suggested icon) applied on top of the
  * button face. Exposed so consumers passing `startIcon` / `endIcon` can
  * tint their icons to match the label.
@@ -227,28 +279,50 @@ export function buttonForegroundColor(
   return resolveFaceStyle(theme, intent, variant, isDisabled).foregroundColor;
 }
 
-export function Button({
-  title,
-  onPress,
-  intent = 'primary',
-  variant = 'solid',
-  size = 'md',
-  disabled = false,
-  loading = false,
-  startIcon,
-  endIcon,
-  flex,
-}: ButtonProps) {
+type ButtonRender = {
+  phase: ButtonFeedback;
+  face: FaceStyle;
+  nonInteractive: boolean;
+  handlePress: (() => void) | undefined;
+};
+
+function buttonPhase(props: ButtonProps): ButtonFeedback {
+  if (props.feedback !== undefined) return props.feedback;
+  return props.loading === true ? 'loading' : 'idle';
+}
+
+/** Collapse props + feedback phase into the face, press handler, and disabled flag. */
+function resolveButtonRender(theme: Theme, props: ButtonProps): ButtonRender {
+  const phase = buttonPhase(props);
+  const nonInteractive =
+    (props.disabled ?? false) || phase === 'loading' || phase === 'success';
+  const face =
+    resolveFeedbackFace(theme, phase) ??
+    resolveFaceStyle(
+      theme,
+      props.intent ?? 'primary',
+      props.variant ?? 'solid',
+      nonInteractive
+    );
+  const handlePress =
+    phase === 'error' ? (props.onRetry ?? props.onPress) : props.onPress;
+  return { phase, face, nonInteractive, handlePress };
+}
+
+export function Button(props: ButtonProps) {
+  const { size = 'md', flex } = props;
   const theme = useTheme();
   const s = sizeMap[size];
-  const isDisabled = disabled || loading;
-  const face = resolveFaceStyle(theme, intent, variant, isDisabled);
+  const { phase, face, nonInteractive, handlePress } = resolveButtonRender(
+    theme,
+    props
+  );
   const shadow = face.withElevation ? theme.elevation(1) : undefined;
 
   return (
     <Pressable
-      onPress={onPress}
-      disabled={isDisabled}
+      onPress={handlePress}
+      disabled={nonInteractive}
       sx={{ borderRadius: s.borderRadius }}
       style={() => ({
         userSelect: 'none',
@@ -278,35 +352,140 @@ export function Button({
         }}
       >
         <ButtonContent
-          title={title}
+          props={props}
+          phase={phase}
           size={s}
           foregroundColor={face.foregroundColor}
-          loading={loading}
-          startIcon={startIcon}
-          endIcon={endIcon}
         />
       </OnColorProvider>
     </Pressable>
   );
 }
 
+/** Icon paired with each terminal feedback phase. */
+const FEEDBACK_ICON = {
+  success: 'check.circle.fill',
+  error: 'xmark',
+} as const satisfies Record<'success' | 'error', IconSymbolName>;
+
 function ButtonContent({
+  props,
+  phase,
+  size,
+  foregroundColor,
+}: {
+  props: ButtonProps;
+  phase: ButtonFeedback;
+  size: SizeSpec;
+  foregroundColor: string;
+}) {
+  if (phase === 'loading') {
+    return (
+      <ButtonStatusContent
+        spinner
+        size={size}
+        foregroundColor={foregroundColor}
+        label={props.loadingLabel}
+      />
+    );
+  }
+  if (phase === 'success' || phase === 'error') {
+    const label = phase === 'success' ? props.successLabel : props.errorLabel;
+    return (
+      <ButtonStatusContent
+        icon={FEEDBACK_ICON[phase]}
+        size={size}
+        foregroundColor={foregroundColor}
+        label={label ?? props.title}
+      />
+    );
+  }
+  return (
+    <ButtonIdleContent
+      title={props.title}
+      size={size}
+      foregroundColor={foregroundColor}
+      startIcon={props.startIcon}
+      endIcon={props.endIcon}
+    />
+  );
+}
+
+function ButtonLabelText({
+  label,
+  size,
+  foregroundColor,
+}: {
+  label: ReactNode;
+  size: SizeSpec;
+  foregroundColor: string;
+}) {
+  return (
+    <Text
+      variant="bodyBold"
+      style={{
+        color: foregroundColor,
+        fontSize: size.text.fontSize,
+        lineHeight: size.text.lineHeight,
+        fontWeight: size.text.fontWeight,
+        includeFontPadding: false,
+        textAlignVertical: 'center',
+        ...(Platform.OS === 'web' ? { letterSpacing: 0.1 } : {}),
+      }}
+      label={label}
+    />
+  );
+}
+
+/** Loading / success / error content: a leading indicator plus optional label. */
+function ButtonStatusContent({
+  spinner = false,
+  icon,
+  size,
+  foregroundColor,
+  label,
+}: {
+  spinner?: boolean;
+  icon?: IconSymbolName;
+  size: SizeSpec;
+  foregroundColor: string;
+  label: ReactNode;
+}) {
+  const indicator = spinner ? (
+    <Spinner color={foregroundColor} size={size.text.lineHeight} />
+  ) : (
+    <IconSymbol
+      name={icon ?? 'xmark'}
+      size={size.text.lineHeight}
+      color={foregroundColor}
+    />
+  );
+  if (label === undefined || label === null) return indicator;
+  return (
+    <>
+      {indicator}
+      <ButtonLabelText
+        label={label}
+        size={size}
+        foregroundColor={foregroundColor}
+      />
+    </>
+  );
+}
+
+function ButtonIdleContent({
   title,
   size,
   foregroundColor,
-  loading,
   startIcon,
   endIcon,
 }: {
   title: ReactNode;
   size: SizeSpec;
   foregroundColor: string;
-  loading: boolean;
   startIcon: ReactNode;
   endIcon: ReactNode;
 }) {
-  if (loading)
-    return <Spinner color={foregroundColor} size={size.text.lineHeight} />;
   const iconBoxStyle = {
     alignItems: 'center',
     justifyContent: 'center',
@@ -317,18 +496,10 @@ function ButtonContent({
       {startIcon !== undefined ? (
         <View style={iconBoxStyle}>{startIcon}</View>
       ) : null}
-      <Text
-        variant="bodyBold"
-        style={{
-          color: foregroundColor,
-          fontSize: size.text.fontSize,
-          lineHeight: size.text.lineHeight,
-          fontWeight: size.text.fontWeight,
-          includeFontPadding: false,
-          textAlignVertical: 'center',
-          ...(Platform.OS === 'web' ? { letterSpacing: 0.1 } : {}),
-        }}
+      <ButtonLabelText
         label={title}
+        size={size}
+        foregroundColor={foregroundColor}
       />
       {endIcon !== undefined ? (
         <View style={iconBoxStyle}>{endIcon}</View>

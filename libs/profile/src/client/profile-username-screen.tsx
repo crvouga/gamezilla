@@ -2,7 +2,13 @@ import { useMyProfileId } from './use-my-profile-id';
 import { useProfileEntityById } from './use-profile-entity-by-id';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
-import { Box, ScreenBase, TextInput, type BodyContentProps } from '@pkgs/ui';
+import {
+  Box,
+  FormActionsFooter,
+  ScreenBase,
+  TextInput,
+  type BodyContentProps,
+} from '@pkgs/ui';
 import type { Entity } from '@pkgs/patch-db/interface';
 import { usePatchDb } from '@pkgs/patch-db/react';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -67,26 +73,19 @@ export function ProfileUsernameScreen() {
   const db = usePatchDb();
   const profileId = useMyProfileId();
   const entity = useProfileEntityById(profileId);
-  const [saving, setSaving] = useState(false);
   const [value, setValue] = useSyncedDisplayName(entity);
   const nav = useBreadcrumbNav();
 
   const save = useCallback(async () => {
     if (profileId === null) return;
-    setSaving(true);
-    try {
-      await db.write([
-        {
-          entityId: profileId,
-          entityType: PROFILE_ENTITY_TYPE,
-          attributes: ProfileAttr.displayName(value.trim()),
-        },
-      ]);
-      router.back();
-    } finally {
-      setSaving(false);
-    }
-  }, [db, profileId, router, value]);
+    await db.write([
+      {
+        entityId: profileId,
+        entityType: PROFILE_ENTITY_TYPE,
+        attributes: ProfileAttr.displayName(value.trim()),
+      },
+    ]);
+  }, [db, profileId, value]);
 
   return (
     <ScreenBase
@@ -95,16 +94,24 @@ export function ProfileUsernameScreen() {
         { name: <Trans>Edit profile</Trans>, onPress: nav('/profile/edit') },
         { name: <Trans>Username</Trans> },
       ]}
-      actions={[
-        {
-          type: 'submit',
-          label: <Trans>Save</Trans>,
-          onPress: () => void save(),
-          loading: saving,
-          disabled: saving,
-        },
-      ]}
       keyboardAvoiding
+      footer={
+        <FormActionsFooter
+          cancel={{
+            label: <Trans>Cancel</Trans>,
+            onPress: () => router.back(),
+          }}
+          submit={{
+            label: <Trans>Save</Trans>,
+            loadingLabel: <Trans>Saving…</Trans>,
+            successLabel: <Trans>Saved</Trans>,
+            errorLabel: <Trans>Couldn't save</Trans>,
+            operation: save,
+            onSuccess: () => router.back(),
+            disabled: profileId === null,
+          }}
+        />
+      }
       content={({ sx }) => (
         <ProfileUsernameScreenBody sx={sx} value={value} setValue={setValue} />
       )}

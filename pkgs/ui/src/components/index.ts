@@ -47,10 +47,15 @@ export {
 export {
   Button,
   buttonForegroundColor,
+  useMutationButton,
   type ButtonProps,
   type ButtonIntent,
   type ButtonSize,
   type ButtonVariant,
+  type ButtonFeedback,
+  type UseMutationButtonParams,
+  type UseMutationButtonResult,
+  type MutationButtonLabels,
 } from './button';
 export {
   SocialSignInButton,
@@ -286,6 +291,12 @@ export {
   type ScreenBaseHeaderProps,
   type ScreenBaseProps,
 } from './screen-base';
+export {
+  FormActionsFooter,
+  type FormActionsFooterProps,
+  type FormSubmitAction,
+  type FormCancelAction,
+} from './form-actions-footer';
 
 // Navigation chrome
 export {

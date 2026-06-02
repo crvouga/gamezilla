@@ -10,11 +10,12 @@ import {
   ScrollView,
   Text,
   useBreakpoint,
+  useMutationButton,
   type ScreenBaseAction,
 } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
-import type { ReactNode } from 'react';
+import { useCallback, useRef, type ReactNode } from 'react';
 
 function SpacesList() {
   const spaceIds = useLiveSpaceIds();
@@ -61,16 +62,31 @@ export function SpacesScreen({
 }: SpacesScreenProps) {
   const isMobile = useBreakpoint() === 'mobile';
   const router = useRouter();
-  const { createSpace } = useSpaceActions();
+  const { createSpaceAsync } = useSpaceActions();
   const { t } = useLingui();
   const currentSpaceCount = useCurrentSpaceCount();
   const alreadyInSpace = currentSpaceCount > 0;
 
-  const onNewSpace = () => {
-    if (alreadyInSpace) return;
-    const newId = createSpace();
-    router.push({ pathname: '/space/[id]', params: { id: newId } });
-  };
+  const createdIdRef = useRef<string | null>(null);
+  const create = useMutationButton({
+    operation: useCallback(async () => {
+      createdIdRef.current = await createSpaceAsync();
+    }, [createSpaceAsync]),
+    labels: {
+      idle: t`+ New space`,
+      loading: t`Creating…`,
+      success: t`Created`,
+      error: t`Couldn't create space`,
+    },
+    onSuccess: useCallback(() => {
+      const id = createdIdRef.current;
+      if (id !== null) {
+        router.push({ pathname: '/space/[id]', params: { id } });
+      }
+    }, [router]),
+    successHoldMs: 0,
+    disabled: alreadyInSpace,
+  });
 
   return (
     <ScreenBase
@@ -81,11 +97,7 @@ export function SpacesScreen({
       leading={leading}
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 3 }}>
-          <Button
-            title={t`+ New space`}
-            disabled={alreadyInSpace}
-            onPress={() => void onNewSpace()}
-          />
+          <Button {...create.buttonProps} />
           {alreadyInSpace ? (
             <Text
               variant="caption"
