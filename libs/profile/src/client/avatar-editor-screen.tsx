@@ -1,4 +1,9 @@
-import { Box, ConfirmationModal, FormActionsFooter, ScreenBase } from '@pkgs/ui';
+import {
+  Box,
+  ConfirmationModal,
+  FormActionsFooter,
+  ScreenBase,
+} from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
