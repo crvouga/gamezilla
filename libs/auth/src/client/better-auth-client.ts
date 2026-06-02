@@ -3,6 +3,7 @@ import { genericOAuthClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 import * as SecureStore from 'expo-secure-store';
 import { APP_IDENTITY } from '../shared/app-identity';
+import { isLocalApiOrigin } from '../shared/local-api-origin';
 
 export type AuthClient = ReturnType<typeof createAuthClient>;
 export type SessionSnapshot = ReturnType<AuthClient['useSession']>;
@@ -12,19 +13,15 @@ const authClientCache = new Map<string, AuthClient>();
 
 /**
  * Resolves the Better Auth handler URL from the configured API origin.
- * Forces `localhost` (not `127.0.0.1`) on local web dev so the Better Auth
- * state cookie persists across the `/sign-in` -> `/callback` redirect.
+ * Forces `localhost` (not `127.0.0.1`) for local API origins so Better Auth
+ * state cookies persist across sign-in, the expo authorization proxy, and the
+ * OAuth callback (host-only cookies treat the two loopback hosts as different).
  */
 export function authBaseUrl(apiUrl: string): string {
   const trimmed = apiUrl.trim();
   let origin =
     trimmed.length > 0 ? trimmed.replace(/\/$/, '') : 'http://127.0.0.1:8788';
-  // On React Native/Hermes `window` is defined but `window.location` is not,
-  // so guard with optional chaining (this localhost rewrite is web-dev only).
-  if (
-    typeof window !== 'undefined' &&
-    window.location?.hostname === 'localhost'
-  ) {
+  if (isLocalApiOrigin(origin)) {
     try {
       const u = new URL(origin);
       if (u.hostname === '127.0.0.1') {
@@ -35,7 +32,8 @@ export function authBaseUrl(apiUrl: string): string {
       /* keep origin when URL parsing fails */
     }
   }
-  return `${origin}/api/auth`;
+  const baseURL = `${origin}/api/auth`;
+  return baseURL;
 }
 
 /** Construct the shared Better Auth client (at most once per base URL). */
@@ -49,6 +47,7 @@ export function createAppAuthClient(baseURL: string): AuthClient {
         scheme: APP_IDENTITY.urlScheme,
         storagePrefix: APP_IDENTITY.slug,
         storage: SecureStore,
+        webBrowserOptions: { preferEphemeralSession: false },
       }),
       genericOAuthClient(),
     ],

@@ -65,6 +65,8 @@ export async function createBetterAuthRequestStack(
     plugins.push(genericOAuth({ config: [devIdpProviderConfig()] }));
   }
 
+  const localApi = isLocalApiOrigin(cfg.apiOrigin);
+
   const auth = betterAuth({
     appName: cfg.appName,
     baseURL: cfg.baseURL,
@@ -72,6 +74,14 @@ export async function createBetterAuthRequestStack(
     secret: cfg.secret,
     trustedOrigins: [...cfg.trustedOrigins],
     database: { db, type: 'postgres' },
+    // Local: keep DB-backed OAuth state but skip the signed `state` cookie check —
+    // Expo Web (cross-origin fetch) and ASWebAuthenticationSession often never send
+    // that cookie on callback; verification rows in Postgres are enough.
+    // Production native: cookie strategy so @better-auth/expo can replay `oauth_state`
+    // from SecureStore through `/expo-authorization-proxy`.
+    account: localApi
+      ? { skipStateCookieCheck: true }
+      : { storeStateStrategy: 'cookie' },
     emailAndPassword: { enabled: false },
     socialProviders: {
       google: {

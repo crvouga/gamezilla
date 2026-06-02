@@ -1,4 +1,5 @@
 export { MutationModal, type MutationModalProps } from './mutation-modal';
+export { MutationStateTransition } from './mutation-modal-transition';
 export {
   useMutationLifecycle,
   mutationPhaseFromStatus,

@@ -13,6 +13,7 @@ import {
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { useConfigService } from './config-service-context';
 import { refreshAuth } from './refresh-auth-fetch';
+import { isSnapshotSignedIn } from './session-snapshot';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
 import { useSessionToken } from './use-session-token';
@@ -31,14 +32,6 @@ type RefreshDeps = {
   lastSyncedTokenRef: TokenRef;
   inFlightRef: FlagRef;
 };
-
-function isSnapshotSignedIn(snapshot: SessionSnapshot): boolean {
-  return (
-    (snapshot.error === null || snapshot.error === undefined) &&
-    snapshot.data !== null &&
-    snapshot.data !== undefined
-  );
-}
 
 function normalizeToken(raw: unknown): string | null {
   return typeof raw === 'string' && raw.length > 0 ? raw : null;

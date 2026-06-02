@@ -236,6 +236,7 @@ export {
 
 export {
   MutationModal,
+  MutationStateTransition,
   useMutationLifecycle,
   type MutationModalProps,
   type MutationPhase,

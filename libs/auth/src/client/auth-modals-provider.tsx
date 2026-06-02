@@ -1,7 +1,9 @@
+import { useLogger } from '@pkgs/logger/react';
 import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -9,9 +11,10 @@ import {
 
 import { useSignOut } from './use-sign-out';
 import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
-import { SignInModal } from './sign-in-modal';
+import { SignInModal, type SignInModalProps } from './sign-in-modal';
 import { useSignIn } from './use-sign-in';
 import { useSignInWithDev } from './use-sign-in-with-dev';
+import { useSignInPending } from './sign-in-pending';
 import { HOSTED_SIGN_IN_UNAVAILABLE_REASON } from './auth-errors';
 import { useConfigService } from './config-service-context';
 import { isLocalApiOrigin } from '../shared/local-api-origin';
@@ -40,13 +43,15 @@ export function AuthModalsProvider({
 }): ReactNode {
   const [signInModalOpen, setSignInModalOpen] = useState(false);
   const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
-  const apiUrl = useConfigService().getApiUrl();
-  const signIn = useSignIn();
-  const signInWithDev = useSignInWithDev();
   const signOut = useSignOut();
 
   const openSignInModal = useCallback(() => setSignInModalOpen(true), []);
   const closeSignInModal = useCallback(() => setSignInModalOpen(false), []);
+  const signInModalProps = useSignInModalConnection({
+    signInModalOpen,
+    openSignInModal,
+    closeSignInModal,
+  });
 
   const {
     openSignOutConfirm,
@@ -78,27 +83,60 @@ export function AuthModalsProvider({
     ]
   );
 
-  const signInAvailable = apiUrl.trim().length > 0;
-  const signInUnavailableReason = signInAvailable
-    ? null
-    : HOSTED_SIGN_IN_UNAVAILABLE_REASON;
-  const devSignInAvailable = signInAvailable && isLocalApiOrigin(apiUrl);
-
   return (
     <Ctx.Provider value={value}>
-      <SignInModal
-        visible={signInModalOpen}
-        onClose={closeSignInModal}
-        signInAvailable={signInAvailable}
-        signInUnavailableReason={signInUnavailableReason}
-        devSignInAvailable={devSignInAvailable}
-        onSignInWithHosted={signIn}
-        onSignInWithDev={signInWithDev}
-      />
+      <SignInModal {...signInModalProps} />
       {signOutModal}
       {children}
     </Ctx.Provider>
   );
+}
+
+/**
+ * Derives the {@link SignInModal} props from config + the durable pending
+ * marker, and auto-opens the modal (into its loading state) when a sign-in was
+ * in flight before an OAuth redirect unloaded the page.
+ */
+function useSignInModalConnection(args: {
+  signInModalOpen: boolean;
+  openSignInModal: () => void;
+  closeSignInModal: () => void;
+}): SignInModalProps {
+  const { signInModalOpen, openSignInModal, closeSignInModal } = args;
+  const apiUrl = useConfigService().getApiUrl();
+  const signIn = useSignIn();
+  const signInWithDev = useSignInWithDev();
+  const signInLog = useLogger('auth-sign-in');
+  const { pending, isHydrated } = useSignInPending();
+  const resumePending = isHydrated && pending !== null;
+
+  useEffect(() => {
+    if (resumePending) openSignInModal();
+  }, [resumePending, openSignInModal]);
+
+  const onError = useCallback(
+    (err: Error) => {
+      signInLog.error('sign in failed', { error: err.message });
+    },
+    [signInLog]
+  );
+
+  const signInAvailable = apiUrl.trim().length > 0;
+  return {
+    visible: signInModalOpen,
+    onClose: closeSignInModal,
+    resumePending,
+    signInAvailable,
+    signInUnavailableReason: signInAvailable
+      ? null
+      : HOSTED_SIGN_IN_UNAVAILABLE_REASON,
+    devSignInAvailable: signInAvailable && isLocalApiOrigin(apiUrl),
+    onSignInWithHosted: async () => {
+      await signIn();
+    },
+    onSignInWithDev: signInWithDev,
+    onError,
+  };
 }
 
 export function useAuthModals(): AuthModals {

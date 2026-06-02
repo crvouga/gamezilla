@@ -1,12 +1,10 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { Box, ErrorState, ModalBody, SocialSignInButton, Text } from '@pkgs/ui';
+import { Box, ModalBody, SocialSignInButton, Text } from '@pkgs/ui';
 
 export function SignInModalBody(props: {
   signInAvailable: boolean;
   signInUnavailableReason: string | null;
-  errorMessage: string | undefined;
-  loading: boolean;
   /** When true, show the dev-only "Continue with test account" button. */
   devSignInAvailable: boolean;
   onPressGoogle: () => void;
@@ -15,8 +13,6 @@ export function SignInModalBody(props: {
   const {
     signInAvailable,
     signInUnavailableReason,
-    errorMessage,
-    loading,
     devSignInAvailable,
     onPressGoogle,
     onPressDev,
@@ -34,7 +30,6 @@ export function SignInModalBody(props: {
           action="signIn"
           theme={'light' as const}
           onPress={onPressGoogle}
-          loading={loading && signInAvailable}
           disabled={!signInAvailable}
         />
         {devSignInAvailable ? (
@@ -43,7 +38,6 @@ export function SignInModalBody(props: {
             action="signIn"
             theme={'light' as const}
             onPress={onPressDev}
-            loading={loading && signInAvailable}
             disabled={!signInAvailable}
           />
         ) : null}
@@ -53,13 +47,6 @@ export function SignInModalBody(props: {
           variant="caption"
           sx={{ color: 'textSecondary' }}
           label={signInUnavailableReason ?? t`Sign-in is not available.`}
-        />
-      ) : null}
-      {typeof errorMessage === 'string' && errorMessage.length > 0 ? (
-        <ErrorState
-          variant="compact"
-          title={t`Sign-in failed`}
-          body={errorMessage}
         />
       ) : null}
     </ModalBody>

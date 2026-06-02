@@ -1154,6 +1154,7 @@ msgid "close"
 msgstr "close"
 
 #: libs/auth/src/client/sign-in-modal.tsx
+#: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/chess-board/src/chess-board.example.tsx
 #: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 #: pkgs/ui/src/components/responsive-surface/responsive-surface-header.tsx
@@ -1799,6 +1800,7 @@ msgstr "Display name shown in the app"
 #~ msgid "Don't worry. Reset and check every candidate."
 #~ msgstr "Don't worry. Reset and check every candidate."
 
+#: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
 msgid "Done"
 msgstr "Done"
@@ -6399,7 +6401,7 @@ msgstr "Sign up with Google"
 #~ msgid "Sign up with test account"
 #~ msgstr "Sign up with test account"
 
-#: libs/auth/src/client/sign-in-modal-body.tsx
+#: libs/auth/src/client/sign-in-modal.tsx
 msgid "Sign-in failed"
 msgstr "Sign-in failed"
 
@@ -6411,6 +6413,10 @@ msgstr "Sign-in is not available."
 msgid "Sign-in providers"
 msgstr "Sign-in providers"
 
+#: libs/auth/src/client/sign-in-modal.tsx
+msgid "Sign-in was cancelled or didn't finish."
+msgstr "Sign-in was cancelled or didn't finish."
+
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "Sign-out failed"
 msgstr "Sign-out failed"
@@ -6419,10 +6425,15 @@ msgstr "Sign-out failed"
 #~ msgid "Sign-out failed: {detail}"
 #~ msgstr "Sign-out failed: {detail}"
 
+#: libs/auth/src/client/sign-in-modal.tsx
+msgid "Signed in"
+msgstr "Signed in"
+
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "Signed out"
 msgstr "Signed out"
 
+#: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Signing in…"
@@ -7454,6 +7465,7 @@ msgstr "Transform"
 #~ msgid "Try a check. One of them mates."
 #~ msgstr "Try a check. One of them mates."
 
+#: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
 msgid "Try again"
 msgstr "Try again"
@@ -8159,6 +8171,10 @@ msgstr "You’re already in a space"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "You're better — let's convert that edge."
 #~ msgstr "You're better — let's convert that edge."
+
+#: libs/auth/src/client/sign-in-modal.tsx
+msgid "You're signed in on this device."
+msgstr "You're signed in on this device."
 
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "You're signed out on this device."

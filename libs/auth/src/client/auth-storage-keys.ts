@@ -20,3 +20,10 @@ export const SESSION_TOKEN_KEY = 'sessionToken';
  * every successful `/auth/refresh`.
  */
 export const LAST_LOCAL_ACCOUNT_ID_KEY = 'lastLocalAccountId';
+
+/**
+ * ISO timestamp recorded when a sign-in flow starts. Survives the OAuth
+ * redirect (full page unload on web) so the sign-in modal can resume into its
+ * loading state and report the outcome once the session resolves.
+ */
+export const SIGN_IN_PENDING_KEY = 'signInPending';
