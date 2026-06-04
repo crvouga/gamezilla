@@ -65,7 +65,9 @@ function runOrFail(
   const { stdout, stderr, status } = runCapture(command, args, options);
   if (status !== 0) {
     const detail = stderr.length > 0 ? stderr : stdout;
-    fail(`${label} failed (exit ${status ?? 'unknown'})${detail ? `: ${detail}` : ''}`);
+    fail(
+      `${label} failed (exit ${status ?? 'unknown'})${detail ? `: ${detail}` : ''}`
+    );
   }
   return stdout;
 }
@@ -89,8 +91,7 @@ function readDopplerProjectFromYaml(): string {
 function resolveScope(): { project: string; config: string } {
   const project =
     process.env.DOPPLER_PROJECT?.trim() || readDopplerProjectFromYaml();
-  const config =
-    process.env.DOPPLER_CONFIG?.trim() || DEFAULT_DOPPLER_CONFIG;
+  const config = process.env.DOPPLER_CONFIG?.trim() || DEFAULT_DOPPLER_CONFIG;
   return { project, config };
 }
 
@@ -166,15 +167,7 @@ function persistTokenToDoppler(
 ): void {
   runOrFail(
     'doppler',
-    [
-      'secrets',
-      'set',
-      SECRET_NAME,
-      '--project',
-      project,
-      '--config',
-      config,
-    ],
+    ['secrets', 'set', SECRET_NAME, '--project', project, '--config', config],
     `doppler secrets set ${SECRET_NAME}`,
     { input: token }
   );
@@ -183,7 +176,10 @@ function persistTokenToDoppler(
 function resolveToken(project: string, config: string): string {
   const fromDoppler = tryFetchTokenFromDoppler(project, config);
   if (fromDoppler !== null) {
-    return validateToken(fromDoppler, `Doppler project=${project} config=${config}`);
+    return validateToken(
+      fromDoppler,
+      `Doppler project=${project} config=${config}`
+    );
   }
 
   const fromEnv = tryFetchTokenFromEnv();
@@ -230,11 +226,7 @@ function resolveGitHubRepo(): string {
     return fromGh.stdout;
   }
 
-  const remote = runCapture('git', [
-    'remote',
-    'get-url',
-    'origin',
-  ]);
+  const remote = runCapture('git', ['remote', 'get-url', 'origin']);
   if (remote.status !== 0 || remote.stdout.length === 0) {
     fail(
       'could not resolve GitHub repo (run inside a git repo with `gh` configured or an origin remote)'
