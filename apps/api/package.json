@@ -12,7 +12,7 @@
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
     "db:migrate": "bun run scripts/migrate-db.ts",
-    "dev": "bun run --filter @libs/client-config dev:refresh & wrangler dev --port 8788 --inspector-port 9231",
+    "dev": "bun run scripts/migrate-db.ts --wait && bun run --filter @libs/client-config dev:refresh & wrangler dev --port 8788 --inspector-port 9231",
     "kill": "lsof -ti :8788 | xargs kill -9 2>/dev/null || true",
     "lint": "eslint src --max-warnings 0",
     "preview": "wrangler dev --port 8788",

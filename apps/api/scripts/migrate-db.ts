@@ -1,13 +1,16 @@
 import { assert } from '@pkgs/assert';
-import { createLogger } from '@pkgs/logger';
+import { createLogger, type Logger } from '@pkgs/logger';
 import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
 import { SqlClientImplPg } from '@pkgs/sql-client/impl-pg';
 import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
-import { Pool } from 'pg';
+import { Client, Pool } from 'pg';
 import { loadBetterAuthOptionsForMigration } from '@libs/auth/server/better-auth-doppler-options';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
 
 const CONNECTION_LIMIT_DELAYS_MS = [0, 3_000, 8_000, 15_000, 30_000] as const;
+const WAIT_FOR_POSTGRES_MS = 60_000;
+const WAIT_FOR_POSTGRES_RETRY_MS = 1_000;
+const WAIT_FOR_POSTGRES = process.argv.includes('--wait');
 
 function isPostgresUrl(url: string): boolean {
   return url.startsWith('postgresql://') || url.startsWith('postgres://');
@@ -37,6 +40,54 @@ async function resolveDatabaseUrlForMigrate(): Promise<string> {
   }
   const store = createDopplerSecretStoreForScripts();
   return (await store.getRequired('DB_URL')).readSecretValue();
+}
+
+async function waitForPostgresReachable(
+  databaseUrl: string,
+  log: Logger
+): Promise<void> {
+  const started = Date.now();
+  let attempt = 0;
+  let lastError: unknown = null;
+  const connectionString = sanitizePostgresUrlForNodePg(databaseUrl);
+
+  while (Date.now() - started < WAIT_FOR_POSTGRES_MS) {
+    attempt += 1;
+    const client = new Client({ connectionString });
+    try {
+      await client.connect();
+      await client.query('SELECT 1');
+      if (attempt > 1) {
+        log.info('postgres reachable for migrate', {
+          attempt,
+          elapsedMs: Date.now() - started,
+        });
+      }
+      await client.end();
+      return;
+    } catch (error) {
+      lastError = error;
+      try {
+        await client.end();
+      } catch {
+        // ignore
+      }
+      if (attempt === 1 || attempt % 5 === 0) {
+        log.info('waiting for postgres before migrate', {
+          attempt,
+          elapsedMs: Date.now() - started,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+      await sleep(WAIT_FOR_POSTGRES_RETRY_MS);
+    }
+  }
+
+  assert.fail('postgres did not become reachable before migrate', {
+    timeoutMs: WAIT_FOR_POSTGRES_MS,
+    lastError:
+      lastError instanceof Error ? lastError.message : String(lastError),
+  });
 }
 
 async function runMigrateOnce(): Promise<void> {
@@ -70,6 +121,10 @@ async function runMigrateOnce(): Promise<void> {
 
 async function main(): Promise<void> {
   const log = createLogger({ name: 'api:migrate' });
+  if (WAIT_FOR_POSTGRES) {
+    const databaseUrl = await resolveDatabaseUrlForMigrate();
+    await waitForPostgresReachable(databaseUrl, log);
+  }
   let lastError: unknown;
 
   for (
