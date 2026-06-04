@@ -132,7 +132,9 @@ export async function loadBetterAuthSecretsWorker(
   const apiUrlRaw =
     trimmedOverride.length > 0
       ? trimmedOverride
-      : (await secretStore.getRequired(BetterAuthDopplerKey.apiUrl)).readSecretValue();
+      : (
+          await secretStore.getRequired(BetterAuthDopplerKey.apiUrl)
+        ).readSecretValue();
   const apiOrigin = apiUrlRaw.replace(/\/$/, '');
   const hostedAuthOrigin = normalizeLocalHostedAuthOrigin(apiOrigin);
   const baseURL = `${hostedAuthOrigin}/api/auth`;
