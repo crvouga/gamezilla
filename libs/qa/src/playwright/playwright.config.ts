@@ -51,18 +51,43 @@ assert.equals(
   'resolved local API preview origin must already be in canonical-origin form (no path/query/hash)'
 );
 
-process.env['API_URL'] = LOCAL_API_PREVIEW_ORIGIN;
-process.env['EXPO_PUBLIC_API_URL'] = LOCAL_API_PREVIEW_ORIGIN;
+const baseURL = 'http://localhost:5173';
+let baseURLParsed: URL | undefined;
+assert.notThrows(
+  () => {
+    baseURLParsed = new URL(baseURL);
+  },
+  'baseURL must parse as a URL',
+  { baseURL }
+);
+assert.defined(baseURLParsed, 'baseURLParsed must be defined after URL parse');
+assert.enum(
+  baseURLParsed.protocol,
+  ['http:', 'https:'],
+  'baseURL must use http(s)'
+);
+
+// Bake the API origin into the client export as same-origin (:5173) so Better
+// Auth cookies are first-party. The preview server proxies `/api/*` to the
+// wrangler worker at LOCAL_API_PREVIEW_ORIGIN.
+process.env['LOCAL_PREVIEW_API_PROXY_TARGET'] = LOCAL_API_PREVIEW_ORIGIN;
+process.env['API_URL'] = baseURL;
+process.env['EXPO_PUBLIC_API_URL'] = baseURL;
 
 assert.equals(
-  process.env['API_URL'],
+  process.env['LOCAL_PREVIEW_API_PROXY_TARGET'],
   LOCAL_API_PREVIEW_ORIGIN,
-  'API_URL must be set after override'
+  'LOCAL_PREVIEW_API_PROXY_TARGET must point at the wrangler preview worker'
+);
+assert.equals(
+  process.env['API_URL'],
+  baseURL,
+  'API_URL must be the web preview origin (same-origin auth cookies)'
 );
 assert.equals(
   process.env['EXPO_PUBLIC_API_URL'],
-  LOCAL_API_PREVIEW_ORIGIN,
-  'EXPO_PUBLIC_API_URL must be set after override'
+  baseURL,
+  'EXPO_PUBLIC_API_URL must match API_URL for the client export'
 );
 
 const BUN_NODE_SHIM_PATTERN = /(?:^|\/)bun-node-[^/]+$/;
@@ -99,6 +124,7 @@ const turboPreviewCmd: string[] = [
   'run',
   'preview',
   '--filter=@pkgs/postgres',
+  '--filter=@pkgs/dev-idp',
   '--filter=@apps/api',
   '--filter=@apps/client',
 ];
@@ -108,22 +134,6 @@ assert.ok(
 );
 assert.all(turboPreviewCmd, (segment): asserts segment is string =>
   assert.nonEmptyString(segment, 'turbo command segment must be non-empty')
-);
-
-const baseURL = 'http://localhost:5173';
-let baseURLParsed: URL | undefined;
-assert.notThrows(
-  () => {
-    baseURLParsed = new URL(baseURL);
-  },
-  'baseURL must parse as a URL',
-  { baseURL }
-);
-assert.defined(baseURLParsed, 'baseURLParsed must be defined after URL parse');
-assert.enum(
-  baseURLParsed.protocol,
-  ['http:', 'https:'],
-  'baseURL must use http(s)'
 );
 
 const isCi = Boolean(process.env['CI']);
@@ -163,7 +173,7 @@ export default defineConfig({
     cwd: repoRoot,
     url: baseURL,
     reuseExistingServer: !isCi,
-    timeout: 180_000,
+    timeout: 240_000,
     stdout: 'pipe',
     stderr: 'pipe',
   },

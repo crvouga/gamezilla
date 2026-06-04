@@ -27,14 +27,14 @@
 # so a pool would only add idle connections without any throughput gain.
 #
 # All production credentials come from Doppler — the only repository secret
-# this workflow needs is `DOPPLER_TOKEN_SHARED`. `doppler run -- …` injects
+# this workflow needs is `DOPPLER_SERVICE_TOKEN`. `doppler run -- …` injects
 # `DB_URL` (and any other prod secrets) into each step's process env.
 name: Seed chess puzzles (prod)
 
 permissions:
   contents: read
 
-# `DOPPLER_TOKEN_SHARED` is a project token — not config-scoped. Use
+# `DOPPLER_SERVICE_TOKEN` is a project token — not config-scoped. Use
 # `scripts/doppler-run.ts` (defaults from `doppler.yaml`) with
 # `DOPPLER_CONFIG=prd` for prod steps.
 
@@ -118,7 +118,7 @@ jobs:
 
       - name: Apply Postgres migrations → Doppler `prd`
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
         run: |
           set -euo pipefail
           # `db:migrate` runs the canonical patch-db + KV + Better Auth
@@ -129,7 +129,7 @@ jobs:
 
       - name: Seed chess puzzles → Doppler `prd` Postgres
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
           SEED_LIMIT: ${{ inputs.limit }}
           SEED_DRY_RUN: ${{ inputs.dry_run }}
           SEED_NO_RESUME: ${{ inputs.no_resume }}

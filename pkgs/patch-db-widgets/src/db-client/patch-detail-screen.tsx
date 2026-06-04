@@ -1,3 +1,6 @@
+import { useLingui } from '@lingui/react/macro';
+import type { Patch } from '@pkgs/patch-db/interface';
+import { usePatchDb } from '@pkgs/patch-db/react';
 import {
   Box,
   Card,
@@ -11,9 +14,6 @@ import {
   Text,
   useTheme,
 } from '@pkgs/ui';
-import type { Patch } from '@pkgs/patch-db/interface';
-import { usePatchDb } from '@pkgs/patch-db/react';
-import { useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
@@ -296,7 +296,7 @@ export function PatchDetailScreen({
   );
 
   if (loading) {
-    return <LoadingState />;
+    return <LoadingState size="large" />;
   }
 
   if (loadError !== null || patch === null) {

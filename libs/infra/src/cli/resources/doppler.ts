@@ -52,6 +52,9 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
  * recognizes them as managed instead of flagging them stale.
  */
 const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
+  // Doppler project service token mirrored to GitHub Actions via
+  // `bun run gh:seed-doppler-service-token` (scripts/seed-github-doppler-service-token.ts).
+  'DOPPLER_SERVICE_TOKEN',
   'EXPO_PUBLIC_COMMIT_HASH',
   'LOCAL_PREVIEW_API_ORIGIN',
   'PLANETSCALE_DATABASE',

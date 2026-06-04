@@ -47,18 +47,25 @@ const STATE_AREA_MIN_HEIGHT = 200;
 export function SignInModal(props: SignInModalProps): ReactNode {
   const { t } = useLingui();
   const { visible, onClose, resumePending, signInAvailable, onError } = props;
-  const { phase, error, start, reset } = useSignInModalLifecycle({
+  const { phase, error, start, reset, dismiss } = useSignInModalLifecycle({
     resumePending,
     onError,
   });
 
   const phaseRef = useRef<SignInPhase>(phase);
   phaseRef.current = phase;
+  const wasVisibleRef = useRef(false);
   useEffect(() => {
-    if (visible) return;
+    if (visible) {
+      wasVisibleRef.current = true;
+      return;
+    }
+    // Ignore the initial closed render before OAuth resume opens the surface.
+    if (!wasVisibleRef.current) return;
     // Reset for the next open once the modal is dismissed, but never drop a
     // redirect that is still in flight.
     if (phaseRef.current === 'loading') return;
+    if (phaseRef.current === 'success') return;
     reset();
   }, [visible, reset]);
 
@@ -70,7 +77,12 @@ export function SignInModal(props: SignInModalProps): ReactNode {
     [signInAvailable, start]
   );
 
-  const surfaceClose = phase === 'loading' ? () => undefined : onClose;
+  const dismissModal = useCallback(() => {
+    dismiss();
+    onClose();
+  }, [dismiss, onClose]);
+
+  const surfaceClose = phase === 'loading' ? () => undefined : dismissModal;
 
   return (
     <ResponsiveSurface
@@ -83,6 +95,7 @@ export function SignInModal(props: SignInModalProps): ReactNode {
           phase={phase}
           error={error}
           onClose={onClose}
+          onDismiss={dismissModal}
           onRetry={reset}
           idleBody={
             <SignInModalBody
@@ -107,12 +120,14 @@ function SignInPhaseContent({
   phase,
   error,
   onClose,
+  onDismiss,
   onRetry,
   idleBody,
 }: {
   phase: SignInPhase;
   error: Error | null;
   onClose: () => void;
+  onDismiss: () => void;
   onRetry: () => void;
   idleBody: ReactNode;
 }): ReactNode {
@@ -130,7 +145,7 @@ function SignInPhaseContent({
           <SuccessState
             title={t`Signed in`}
             body={t`You're signed in on this device.`}
-            action={{ label: t`Done`, onPress: onClose }}
+            action={{ label: t`Done`, onPress: onDismiss }}
           />
         </StateArea>
       );

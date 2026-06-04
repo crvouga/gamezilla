@@ -1,21 +1,24 @@
-import { expect, test } from '@playwright/test';
+import { test } from '@playwright/test';
 
-import { signInWithDevIdp } from '../helpers/sign-in-with-dev-idp';
+import { createAppSession } from '../dsl/app-session';
+import {
+  createQaPlaywrightLog,
+  playwrightStep,
+} from '../logging/playwright-step';
 
-test.skip('user signs in with the local dev IdP', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.getByTestId('app-root')).toBeVisible({ timeout: 60_000 });
+test('sign in and sign out with dev-idp', async ({ page }, testInfo) => {
+  const log = createQaPlaywrightLog(testInfo);
+  const app = createAppSession(page);
 
-  await signInWithDevIdp(page, {
-    name: 'Playwright Tester',
-    email: 'playwright@example.com',
-  });
-
-  // After the callback completes the app shows the signed-in account label
-  // wherever the "Sign in" button used to be. Just assert the modal trigger
-  // is gone from the chrome — the heaviest signal that auth succeeded.
-  await expect(page.getByRole('button', { name: /^sign in$/i })).toHaveCount(
-    0,
-    { timeout: 30_000 }
+  await playwrightStep(log, 'boot: app shell ready', () => app.expectBooted());
+  await playwrightStep(log, 'auth: sign in with dev-idp', () =>
+    app.auth.signInWithDevIdp()
+  );
+  await playwrightStep(log, 'auth: dismiss sign-in success', () =>
+    app.auth.dismissSignInSuccess()
+  );
+  await playwrightStep(log, 'auth: sign out', () => app.auth.signOut());
+  await playwrightStep(log, 'auth: assert signed out', () =>
+    app.auth.expectSignedOut()
   );
 });

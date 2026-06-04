@@ -43,7 +43,7 @@ export function ChessBoardCanvasBootstrap({
   children: ReactNode;
 }): ReactNode {
   return (
-    <Suspense fallback={<LoadingState />}>
+    <Suspense fallback={<LoadingState size="large" />}>
       <ChessBoardCanvasGate>{children}</ChessBoardCanvasGate>
     </Suspense>
   );

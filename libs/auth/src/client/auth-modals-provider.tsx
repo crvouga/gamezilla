@@ -3,7 +3,7 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -85,9 +85,9 @@ export function AuthModalsProvider({
 
   return (
     <Ctx.Provider value={value}>
+      {children}
       <SignInModal {...signInModalProps} />
       {signOutModal}
-      {children}
     </Ctx.Provider>
   );
 }
@@ -110,7 +110,7 @@ function useSignInModalConnection(args: {
   const { pending, isHydrated } = useSignInPending();
   const resumePending = isHydrated && pending !== null;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (resumePending) openSignInModal();
   }, [resumePending, openSignInModal]);
 
@@ -122,8 +122,12 @@ function useSignInModalConnection(args: {
   );
 
   const signInAvailable = apiUrl.trim().length > 0;
+  // Keep the modal visible while a pending marker is active so OAuth resume
+  // cannot settle the session (and flip to success) before `openSignInModal`
+  // runs in an effect — that race dropped the success UI on web redirects.
+  const signInModalVisible = signInModalOpen || resumePending;
   return {
-    visible: signInModalOpen,
+    visible: signInModalVisible,
     onClose: closeSignInModal,
     resumePending,
     signInAvailable,

@@ -13,6 +13,7 @@
     "dev": "bun run src/dev.ts",
     "kill": "lsof -ti :5556 | xargs kill -9 2>/dev/null || true",
     "lint": "eslint src --max-warnings 0",
+    "preview": "bun run src/dev.ts",
     "tc": "tsc --noEmit -p ./tsconfig.json",
     "test": "bun test --pass-with-no-tests"
   },

@@ -38,6 +38,8 @@ export type UseSignInModalLifecycleResult = {
   start: (runner: () => Promise<void>) => Promise<void>;
   /** Return to the provider picker (idle) and drop any captured error. */
   reset: () => void;
+  /** Clear the pending marker and reset (success dismiss). */
+  dismiss: () => void;
 };
 
 export function useSignInModalLifecycle({
@@ -55,18 +57,28 @@ export function useSignInModalLifecycle({
     if (!resumePending) return;
     setPhase('loading');
     setAwaitingCallback(true);
-  }, [resumePending]);
+    if (!snapshot.isPending && isSnapshotSignedIn(snapshot)) {
+      setAwaitingCallback(false);
+      setPhase('success');
+    }
+  }, [resumePending, snapshot]);
 
   useEffect(() => {
     if (phase !== 'loading' || !awaitingCallback || snapshot.isPending) return;
-    void clearSignInPending(storage);
-    setAwaitingCallback(false);
     if (isSnapshotSignedIn(snapshot)) {
+      setAwaitingCallback(false);
       setPhase('success');
       return;
     }
     const err = snapshotError(snapshot);
-    if (err !== null) onError?.(err);
+    // After an OAuth redirect the session snapshot can briefly read "signed
+    // out" with no error while Better Auth finishes the callback — do not
+    // treat that as failure or we clear `signInPending` before the modal
+    // can resume.
+    if (err === null) return;
+    setAwaitingCallback(false);
+    void clearSignInPending(storage);
+    onError?.(err);
     setError(err);
     setPhase('error');
   }, [phase, awaitingCallback, snapshot, storage, onError]);
@@ -99,5 +111,10 @@ export function useSignInModalLifecycle({
     setAwaitingCallback(false);
   }, []);
 
-  return { phase, error, start, reset };
+  const dismiss = useCallback(() => {
+    void clearSignInPending(storage);
+    reset();
+  }, [storage, reset]);
+
+  return { phase, error, start, reset, dismiss };
 }

@@ -19,7 +19,7 @@
     "ios": "bun run scripts/run-ios-dedicated-sim.ts",
     "kill": "lsof -ti :5173 | xargs kill -9 2>/dev/null || true",
     "lint": "expo lint --no-cache --max-warnings 0",
-    "preview": "serve -s dist -l 5173",
+    "preview": "bun run scripts/preview-server.ts",
     "pwa:generate": "bun run scripts/generate-pwa-assets.ts",
     "qa:export:native": "bun run prebuild && expo export --platform android --platform ios --output-dir .qa-native --clear",
     "qa:export:web-dev": "bun run prebuild && expo export --platform web --dev --output-dir .qa-dist-dev",
@@ -116,7 +116,6 @@
     "eslint-plugin-lingui": "catalog:",
     "eslint-plugin-naming": "catalog:",
     "pwa-asset-generator": "catalog:",
-    "serve": "catalog:",
     "typescript": "catalog:",
     "workbox-build": "catalog:"
   }

@@ -9,7 +9,7 @@ export function SpaceLoadingScreen(): ReactNode {
   return (
     <ScreenBase
       breadcrumbs={[{ name: <Trans>Spaces</Trans>, onPress: nav('/') }]}
-      content={() => <LoadingState />}
+      content={() => <LoadingState size="large" />}
     />
   );
 }

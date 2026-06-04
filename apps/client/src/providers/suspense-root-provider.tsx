@@ -6,5 +6,7 @@ export function SuspenseRootProvider({
 }: {
   children: ReactNode;
 }): ReactNode {
-  return <Suspense fallback={<LoadingState />}>{children}</Suspense>;
+  return (
+    <Suspense fallback={<LoadingState size="large" />}>{children}</Suspense>
+  );
 }

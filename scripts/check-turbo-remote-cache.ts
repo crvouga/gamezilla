@@ -1,6 +1,6 @@
 /**
  * Verifies Vercel Remote Cache configuration loaded from Doppler `dev`
- * (CI: `DOPPLER_TOKEN_SHARED` → `doppler run` — not GitHub `TURBO_*` secrets).
+ * (CI: `DOPPLER_SERVICE_TOKEN` → `doppler run` — not GitHub `TURBO_*` secrets).
  *
  * Expected Doppler `dev` keys (see `libs/infra/src/cli/resources/doppler.ts`):
  *
@@ -46,7 +46,7 @@ function fail(message: string): never {
   console.error(
     'CI loads TURBO_* from Doppler config `dev` via `doppler run`.'
   );
-  console.error('The only GitHub secret involved is DOPPLER_TOKEN_SHARED.');
+  console.error('The only GitHub secret involved is DOPPLER_SERVICE_TOKEN.');
   console.error('');
   console.error('Doppler `dev` must define:');
   console.error('  • TURBO_TOKEN — Vercel access token (team-scoped)');

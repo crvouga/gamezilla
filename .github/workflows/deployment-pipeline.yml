@@ -31,7 +31,7 @@ permissions:
   contents: read
   actions: write
 
-# `DOPPLER_TOKEN_SHARED` is a project token — not config-scoped. Repo scripts
+# `DOPPLER_SERVICE_TOKEN` is a project token — not config-scoped. Repo scripts
 # use `scripts/doppler-run.ts`, which reads project/config from `doppler.yaml`.
 
 on:
@@ -61,7 +61,7 @@ jobs:
   # (`--cache=local:rw,remote:rw` in CI). Per-task cache
   # status (`--output-logs=hash-only --summarize`) keeps logs readable.
   # TURBO_TOKEN/TURBO_TEAM come from Doppler
-  # `dev` via `doppler run` (only DOPPLER_TOKEN_SHARED is a GH secret).
+  # `dev` via `doppler run` (only DOPPLER_SERVICE_TOKEN is a GH secret).
   turbo-ci:
     runs-on: ubuntu-latest
     concurrency:
@@ -76,13 +76,13 @@ jobs:
         env:
           # Unlocks Doppler only — TURBO_TOKEN/TURBO_TEAM are injected by
           # `doppler run` from the `dev` config, not GitHub secrets.
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
           CI: true
           GITHUB_ACTIONS: true
         run: bun run scripts/doppler-run.ts -- bun run scripts/check-turbo-remote-cache.ts
       - name: Turbo CI (cacheable gates + tc/lint/test/build)
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
           # GHA runners can expose a pseudo-TTY; Turbo's interactive TUI then
           # buffers task logs and looks hung for 10+ min on `@apps/client`.
           TURBO_UI: stream
@@ -160,7 +160,7 @@ jobs:
       - uses: ./.github/actions/setup
       - name: QA API integration
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
         run: bun run qa:api
 
   qa-browser:
@@ -219,7 +219,7 @@ jobs:
 
       - name: QA Playwright + turbo preview
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
         run: bun run qa:browser
 
       # Always upload the report (not just on failure) so the embedded
@@ -273,7 +273,7 @@ jobs:
       # bundling `eas update` runs. No browser needed for this step.
       - name: Native bundle export smoke
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
         run: bun run --filter '@libs/qa' native:bundle
 
       # Chromium for the dev-mode web launch test (same caching strategy as
@@ -303,7 +303,7 @@ jobs:
 
       - name: Expo Go dev-bundle launch test
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
         run: bun run --filter '@libs/qa' native:launch
 
       - name: Upload native launch Playwright report
@@ -397,12 +397,12 @@ jobs:
           stripe: 'true'
           eas: 'true'
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
       - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config → publish-client-eas-update → ensure-destroyed)
         id: deploy
         working-directory: libs/infra
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
         run: bun run infra deploy
 
   # Safety-net lock release. The happy-path release happens in-process
@@ -427,7 +427,7 @@ jobs:
       - name: Release global deploy lock
         working-directory: libs/infra
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
           INFRA_LOCK_ID: ${{ needs.deploy.outputs.lock_id }}
         run: bun run infra lock-release
 
@@ -458,6 +458,6 @@ jobs:
       - name: Write pipeline report
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_SHARED }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: DOPPLER_CONFIG=prd bun run scripts/doppler-run.ts -- bun run libs/infra/src/bin/pipeline-report.ts

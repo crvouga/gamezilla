@@ -17,7 +17,7 @@ export default function LoadingStateExample() {
       />
       <SchemePreview>
         <Box style={{ height: 240 }}>
-          <LoadingState />
+          <LoadingState size="large" />
         </Box>
       </SchemePreview>
 

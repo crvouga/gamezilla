@@ -6468,6 +6468,7 @@ msgstr "Signed in"
 msgid "Signed out"
 msgstr "Signed out"
 
+#: apps/client/src/app/sso-callback.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts

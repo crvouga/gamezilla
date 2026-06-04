@@ -11,7 +11,7 @@
  *
  * @example
  * ```tsx
- * <Suspense fallback={<LoadingState />}>{children}</Suspense>
+ * <Suspense fallback={<LoadingState size="large" />}>{children}</Suspense>
  * <LoadingState caption={t`Loading entity…`} />
  * <LoadingState variant="compact" caption={t`Waiting for metrics…`} />
  * ```
