@@ -44,10 +44,7 @@ export async function expectSignOutConfirmIdle(page: Page): Promise<void> {
 /** Submits the destructive sign-out confirm (idle modal must be visible). */
 export async function confirmSignOut(page: Page): Promise<void> {
   await expectSignOutConfirmIdle(page);
-  await page
-    .getByRole('dialog')
-    .getByText('Sign out', { exact: true })
-    .click();
+  await page.getByRole('dialog').getByText('Sign out', { exact: true }).click();
 }
 
 /** Sign-out modal shows the in-flight loading state. */
