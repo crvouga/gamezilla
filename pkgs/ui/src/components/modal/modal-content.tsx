@@ -36,11 +36,7 @@ export function ModalContent({
   const theme = useTheme();
   const lift = theme.elevation(4);
   const marginPx = spacing[MODAL_CONTENT_MARGIN_STEP];
-  const widthPx = resolveModalLayoutWidth(
-    size,
-    theme.layout.width,
-    marginPx
-  );
+  const widthPx = resolveModalLayoutWidth(size, theme.layout.width, marginPx);
 
   return (
     <Box
