@@ -7,6 +7,15 @@ const monorepoRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
+// Watchman can fail on macOS with FSEventStreamStart (especially in large monorepos
+// or when the daemon is wedged). Metro retries the initial crawl with the node
+// crawler but still crashes when starting WatchmanWatcher for live updates.
+// Opt in with EXPO_USE_WATCHMAN=1 when watchman is healthy.
+config.resolver = {
+  ...config.resolver,
+  useWatchman: process.env['EXPO_USE_WATCHMAN'] === '1',
+};
+
 // 1. Watch shared workspace packages for HMR (not the full monorepo — avoids watcher
 //    crashes from backend dist artifacts and transient pnpm temp directories)
 config.watchFolders = [

@@ -1,3 +1,4 @@
+import { isLocalApiOrigin } from '@libs/auth/shared/local-api-origin';
 import { assert } from '@pkgs/assert';
 import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/local-preview-api-origin';
@@ -67,7 +68,43 @@ export function assertTigerPolicyForResolvedApiOrigin(
   );
 }
 
+/** Ports where `preview-server.ts` serves the export and proxies `/api/*`. */
+const WEB_PREVIEW_PORTS = new Set(['5173', '4173']);
+
+/**
+ * Playwright / `preview-server` serves the static export on a loopback port and
+ * proxies `/api/*` to wrangler. Auth cookies are first-party only when the
+ * client calls `window.location.origin`, not the cross-port wrangler URL baked
+ * into `EXPO_PUBLIC_API_URL` at export time.
+ */
+function readWebSameOriginPreviewApi(): string | null {
+  if (typeof window === 'undefined' || window.location === undefined) {
+    return null;
+  }
+  const origin = window.location.origin;
+  if (!isLocalApiOrigin(origin)) return null;
+  let port = '';
+  assert.notThrows(
+    () => {
+      port = new URL(origin).port;
+    },
+    'web preview origin must parse as URL',
+    { origin }
+  );
+  if (!WEB_PREVIEW_PORTS.has(port)) return null;
+  return origin;
+}
+
 export function getApiBaseUrl(): string {
+  const previewSameOrigin = readWebSameOriginPreviewApi();
+  if (previewSameOrigin !== null) {
+    assertTigerPolicyForResolvedApiOrigin(
+      previewSameOrigin,
+      'forbid-prod-in-expo-dev-bundle'
+    );
+    return previewSameOrigin;
+  }
+
   // Direct read — Expo inlines `EXPO_PUBLIC_*` at bundle time (see
   // `app-metadata.ts`). Do not nullish-coalesce to a production default in
   // this expression or Metro constant-folds past the env read when `__DEV__`

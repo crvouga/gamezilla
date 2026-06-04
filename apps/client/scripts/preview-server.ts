@@ -1,7 +1,7 @@
 /**
- * Serves the Expo web export on :5173 and proxies `/api/*` to the local API
- * worker so Better Auth session cookies stay first-party (cross-port requests
- * from the static preview to :8788 do not persist session cookies in Chromium).
+ * Serves the Expo web export on :5173 and proxies API worker routes (`/api/*`,
+ * `/auth/*`, `/patch-db/*`) to wrangler so Better Auth cookies and PatchDB
+ * sync stay first-party.
  */
 import { assert } from '@pkgs/assert';
 import { join } from 'node:path';
@@ -59,11 +59,19 @@ function stripHopByHopEncodingHeaders(headers: Headers): void {
   headers.delete('content-length');
 }
 
+function isProxiedApiPath(pathname: string): boolean {
+  return (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/auth/') ||
+    pathname.startsWith('/patch-db/')
+  );
+}
+
 async function proxyApi(req: Request, url: URL): Promise<Response> {
   const upstream = new URL(`${url.pathname}${url.search}`, proxyTarget);
   assert.ok(
-    upstream.pathname.startsWith('/api/'),
-    `proxy only handles /api/*, got: ${upstream.pathname}`
+    isProxiedApiPath(upstream.pathname),
+    `proxy only handles /api/*, /auth/*, and /patch-db/*, got: ${upstream.pathname}`
   );
   const headers = new Headers(req.headers);
   headers.set('host', upstream.host);
@@ -86,7 +94,7 @@ const server = Bun.serve({
   port,
   async fetch(req) {
     const url = new URL(req.url);
-    if (url.pathname.startsWith('/api/')) {
+    if (isProxiedApiPath(url.pathname)) {
       return proxyApi(req, url);
     }
     return serveStatic(url.pathname);

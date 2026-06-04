@@ -6,7 +6,6 @@ import {
   markSignInPending,
   useSignInPending,
 } from '@libs/auth/client/sign-in-pending';
-import { isSnapshotSignedIn } from '@libs/auth/client/session-snapshot';
 import { assert } from '@pkgs/assert';
 import { useSecureStorage } from '@pkgs/secure-storage/interface';
 import { seedCachedSecureStorageValue } from '@pkgs/secure-storage/use-secure-storage-item';
@@ -14,7 +13,19 @@ import { Box, LoadingState, SuccessState } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import * as WebBrowser from 'expo-web-browser';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useLayoutEffect } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+
+const SESSION_POLL_MS = 500;
+
+function isGetSessionSignedIn(data: unknown): boolean {
+  if (data === null || data === undefined || typeof data !== 'object') {
+    return false;
+  }
+  const record = data as { user?: unknown; session?: unknown };
+  const hasUser = record.user !== null && record.user !== undefined;
+  const hasSession = record.session !== null && record.session !== undefined;
+  return hasUser || hasSession;
+}
 
 /**
  * Web OAuth callback route. `WebBrowser.maybeCompleteAuthSession()` in
@@ -26,11 +37,14 @@ export default function SsoCallbackScreen() {
   const router = useRouter();
   const storage = useSecureStorage();
   const authClient = useAuthClient();
-  const snapshot = authClient.useSession();
   const { pending, isHydrated } = useSignInPending();
   const { openSignInModal, closeSignInModal } = useAuthModals();
-  const sessionResolved = !snapshot.isPending && isSnapshotSignedIn(snapshot);
+  const [sessionResolved, setSessionResolved] = useState(false);
 
+  assert.ok(
+    typeof authClient.getSession === 'function',
+    'auth client must expose getSession for OAuth callback refresh'
+  );
   assert.ok(
     typeof WebBrowser.maybeCompleteAuthSession === 'function',
     'expo-web-browser must expose maybeCompleteAuthSession'
@@ -39,6 +53,29 @@ export default function SsoCallbackScreen() {
   useEffect(() => {
     WebBrowser.maybeCompleteAuthSession();
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const poll = async (): Promise<void> => {
+      try {
+        const res = await authClient.getSession();
+        if (cancelled) return;
+        if (isGetSessionSignedIn(res.data)) {
+          setSessionResolved(true);
+        }
+      } catch {
+        /* transient preview / cold-start noise — keep polling */
+      }
+    };
+    void poll();
+    const id = setInterval(() => {
+      void poll();
+    }, SESSION_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [authClient]);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -59,7 +96,7 @@ export default function SsoCallbackScreen() {
     router.replace('/(tabs)');
   }, [storage, closeSignInModal, router]);
 
-  if (sessionResolved && isHydrated) {
+  if (sessionResolved) {
     return (
       <Box sx={{ flex: 1, justifyContent: 'center', padding: 4 }}>
         <SuccessState
