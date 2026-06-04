@@ -289,7 +289,7 @@ function DragOverlaySection(): ReactNode {
 
       <ModalRoot visible={showModal} onRequestClose={() => setShowModal(false)}>
         <ModalBackdrop onPress={() => setShowModal(false)}>
-          <ModalContent style={{ maxWidth: 420 }}>
+          <ModalContent size="medium">
             <ModalHeader title={t`Modal above the board`} />
             <ModalBody>
               <Box sx={{ gap: 3 }}>

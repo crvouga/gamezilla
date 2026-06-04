@@ -230,6 +230,7 @@ export {
   type ModalBodyProps,
   type ModalButtonProps,
   type ConfirmationModalProps,
+  type ModalSize,
 } from './modal';
 
 export {

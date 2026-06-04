@@ -21,6 +21,7 @@ import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useRef } from 'react';
 import { Box } from '../box';
+import type { ModalSize } from '../../theme/modal-size';
 import { ResponsiveSurface } from '../responsive-surface';
 import { Text } from '../text';
 import { ModalBody } from './modal-body';
@@ -40,6 +41,8 @@ export type ConfirmationModalProps = {
   submitting?: boolean;
   onConfirm: () => void | Promise<void>;
   onCancel: () => void;
+  /** Centered modal width on tablet/desktop. Default `medium`. */
+  size?: ModalSize;
 };
 
 type LatchedContent = {
@@ -106,6 +109,7 @@ export function ConfirmationModal({
   submitting = false,
   onConfirm,
   onCancel,
+  size,
 }: ConfirmationModalProps) {
   const { t } = useLingui();
   const display = useLatchedContent(visible, {
@@ -128,6 +132,7 @@ export function ConfirmationModal({
       visible={visible}
       onClose={handleClose}
       title={display.title}
+      {...(size !== undefined ? { size } : {})}
     >
       <ConfirmationModalBody
         message={display.message}

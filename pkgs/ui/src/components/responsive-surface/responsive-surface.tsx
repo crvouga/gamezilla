@@ -13,6 +13,7 @@ import type { PropsWithChildren, ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { View } from 'react-native';
 import { useTheme, OnColorReset } from '../../theme';
+import type { ModalSize } from '../../theme/modal-size';
 import { ModalBackdrop } from '../modal/modal-backdrop';
 import { ModalContent } from '../modal/modal-content';
 import { ModalRoot } from '../modal/modal-root';
@@ -23,8 +24,10 @@ export type ResponsiveSurfaceProps = PropsWithChildren<{
   onClose: () => void;
   /** Optional title row above `children`. */
   title?: ReactNode;
-  /** Max width of the centered modal content (px). */
-  maxWidth?: number;
+  /** Centered modal width bucket on tablet/desktop. Default `medium`. */
+  size?: ModalSize;
+  /** Max height of centered modal content in px (tablet/desktop only). */
+  maxHeight?: number;
   /** Bottom sheet snap points when `breakpoint === 'mobile'`. */
   snapPoints?: (string | number)[];
   /**
@@ -161,14 +164,18 @@ function DesktopModal({
   visible,
   onClose,
   title,
-  maxWidth = 400,
+  size = 'medium',
+  maxHeight,
   bodyHeight,
   children,
 }: ResponsiveSurfaceProps) {
   return (
     <ModalRoot visible={visible} onRequestClose={onClose}>
       <ModalBackdrop onPress={onClose}>
-        <ModalContent style={{ width: '100%', maxWidth }}>
+        <ModalContent
+          size={size}
+          {...(maxHeight !== undefined ? { maxHeight } : {})}
+        >
           {title !== undefined ? (
             <ResponsiveSurfaceHeader title={title} onClose={onClose} />
           ) : null}

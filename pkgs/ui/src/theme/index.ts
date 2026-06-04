@@ -47,6 +47,12 @@ export {
   type ElevationStyle,
 } from './scale';
 export {
+  MODAL_CONTENT_MARGIN_STEP,
+  MODAL_WIDTH_PX,
+  resolveModalLayoutWidth,
+  type ModalSize,
+} from './modal-size';
+export {
   duration,
   easing,
   motion,

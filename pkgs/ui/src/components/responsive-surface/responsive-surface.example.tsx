@@ -1,11 +1,15 @@
 import { useState } from 'react';
+import type { ModalSize } from '../../theme/modal-size';
 import { Box } from '../box';
 import { Button } from '../button';
+import { Stack } from '../stack';
 import { Text } from '../text';
 import { ResponsiveSurface } from './responsive-surface';
 
+const SIZES: ModalSize[] = ['small', 'medium', 'large', 'fullWidth'];
+
 export default function ResponsiveSurfaceExample() {
-  const [open, setOpen] = useState(false);
+  const [openSize, setOpenSize] = useState<ModalSize | null>(null);
 
   return (
     <Box sx={{ p: 4, gap: 4 }}>
@@ -13,19 +17,31 @@ export default function ResponsiveSurfaceExample() {
       <Text
         variant="caption"
         sx={{ opacity: 0.75 }}
-        label="On mobile breakpoint: bottom sheet. On tablet/desktop: centered modal."
+        label="On mobile: bottom sheet. On tablet/desktop: centered modal with a width bucket."
       />
-      <Button title="Open surface" onPress={() => setOpen(true)} />
-      <ResponsiveSurface
-        visible={open}
-        onClose={() => setOpen(false)}
-        title="Example"
-      >
-        <Text
-          variant="body"
-          label="Surface body. Close via the ✕, backdrop tap, or swipe down (mobile)."
-        />
-      </ResponsiveSurface>
+      <Stack spacing={2}>
+        {SIZES.map((size) => (
+          <Button
+            key={size}
+            title={`Open — ${size}`}
+            onPress={() => setOpenSize(size)}
+          />
+        ))}
+      </Stack>
+      {SIZES.map((size) => (
+        <ResponsiveSurface
+          key={size}
+          visible={openSize === size}
+          onClose={() => setOpenSize(null)}
+          title={`Size: ${size}`}
+          size={size}
+        >
+          <Text
+            variant="body"
+            label="Surface body. Close via ✕, backdrop tap, or swipe down (mobile)."
+          />
+        </ResponsiveSurface>
+      ))}
     </Box>
   );
 }

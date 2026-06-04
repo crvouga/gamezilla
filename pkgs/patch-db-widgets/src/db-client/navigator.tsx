@@ -442,7 +442,8 @@ export function ExplorerRoute({
   onExit?: () => void;
 }) {
   const { t } = useLingui();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  const queryModalMaxHeight = Math.round(height * 0.88);
   const params = useMemo(() => normalizeParams(rawParams), [rawParams]);
   const applyParams = useCallback<ApplyParams>(
     (next) => {
@@ -480,13 +481,7 @@ export function ExplorerRoute({
       />
       <ModalRoot visible={params.query === '1'} onRequestClose={dismissQuery}>
         <ModalBackdrop onPress={dismissQuery}>
-          <ModalContent
-            style={{
-              maxWidth: 720,
-              width: '92%',
-              maxHeight: '88%',
-            }}
-          >
+          <ModalContent size="large" maxHeight={queryModalMaxHeight}>
             <QueryScreen onClose={dismissQuery} />
           </ModalContent>
         </ModalBackdrop>
