@@ -68,14 +68,12 @@ export function assertTigerPolicyForResolvedApiOrigin(
 }
 
 export function getApiBaseUrl(): string {
-  const raw =
-    process.env['EXPO_PUBLIC_API_URL'] ??
-    // Release native binaries may omit the env when eas.json profile env is
-    // present; Expo Go / dev-client OTA bundles must set it on the bundler
-    // (CI `eas update` loads from Doppler — eas.json alone is not enough).
-    (!isExpoOrMetroDevelopmentBundle()
-      ? `https://${APP_IDENTITY.apiHost}`
-      : undefined);
+  // Direct read — Expo inlines `EXPO_PUBLIC_*` at bundle time (see
+  // `app-metadata.ts`). Do not nullish-coalesce to a production default in
+  // this expression or Metro constant-folds past the env read when `__DEV__`
+  // is false (qa preview / `expo export -p web` then bakes api.gamezilla.app
+  // even when `EXPO_PUBLIC_API_URL` is set for the Playwright webServer).
+  const raw = process.env['EXPO_PUBLIC_API_URL'];
   assert.nonEmptyString(
     raw,
     'EXPO_PUBLIC_API_URL is required; run `bun run dev` (with Doppler), set apps/client/.env.local, or export EXPO_PUBLIC_API_URL (and EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1 for Expo Go OTA) before `eas update`'

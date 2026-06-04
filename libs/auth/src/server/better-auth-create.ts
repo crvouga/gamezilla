@@ -50,9 +50,13 @@ export type BetterAuthRequestStack = {
  */
 export async function createBetterAuthRequestStack(
   secretStore: SecretStore,
-  hyperdriveConnectionString: string
+  hyperdriveConnectionString: string,
+  options?: { readonly apiUrlOverride?: string | null }
 ): Promise<BetterAuthRequestStack> {
-  const cfg = await loadBetterAuthSecretsWorker(secretStore);
+  const cfg = await loadBetterAuthSecretsWorker(
+    secretStore,
+    options?.apiUrlOverride
+  );
   const pool = new Pool({
     connectionString: sanitizePostgresUrlForNodePg(hyperdriveConnectionString),
     max: 1,

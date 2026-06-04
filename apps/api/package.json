@@ -15,7 +15,7 @@
     "dev": "bun run scripts/migrate-db.ts --wait && bun run --filter @libs/client-config dev:refresh & wrangler dev --port 8788 --inspector-port 9231",
     "kill": "lsof -ti :8788 | xargs kill -9 2>/dev/null || true",
     "lint": "eslint src --max-warnings 0",
-    "preview": "wrangler dev --port 8788",
+    "preview": "bun run scripts/migrate-db.ts --wait && wrangler dev --port 8788",
     "setup": "bun run scripts/setup-dev-vars.ts && bun run scripts/setup-better-auth-secret.ts",
     "stripe:check": "bun run --filter @libs/stripe check",
     "stripe:sync": "bun run --filter @libs/stripe sync",

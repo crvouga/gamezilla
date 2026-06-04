@@ -69,6 +69,17 @@ function resolveDopplerScope(): DopplerScope {
   return { token, project, config };
 }
 
+function readApiUrlOverrideFromEnv(): string | null {
+  const preview = process.env['BETTER_AUTH_PREVIEW_API_URL']?.trim() ?? '';
+  if (preview.length > 0) return preview;
+  const expo = process.env['EXPO_PUBLIC_API_URL']?.trim() ?? '';
+  if (expo.length > 0 && /127\.0\.0\.1|localhost/i.test(expo)) {
+    return expo;
+  }
+  const raw = process.env['API_URL']?.trim() ?? '';
+  return raw.length > 0 ? raw : null;
+}
+
 async function main(): Promise<void> {
   const { token, project, config } = resolveDopplerScope();
   const lines: string[] = [`DOPPLER_TOKEN=${encodeDevVarValue(token)}`];
@@ -77,6 +88,10 @@ async function main(): Promise<void> {
   }
   if (config !== null) {
     lines.push(`DOPPLER_CONFIG=${encodeDevVarValue(config)}`);
+  }
+  const apiUrlOverride = readApiUrlOverrideFromEnv();
+  if (apiUrlOverride !== null) {
+    lines.push(`API_URL=${encodeDevVarValue(apiUrlOverride)}`);
   }
 
   const body = `${lines.join('\n')}\n`;

@@ -12,6 +12,7 @@ import {
   assertDopplerTokenBinding,
   ConfigurationError,
   readDopplerScopeBindings,
+  readOptionalApiUrlOverride,
 } from './config/env';
 import { createApiSecretStore } from './config/secret-store';
 
@@ -133,6 +134,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   return await createApiApp({
     pubSub,
     secretStore,
+    apiUrlOverride: readOptionalApiUrlOverride(env),
     ttsAudioBucket: env.TTS_AUDIO,
   });
 }

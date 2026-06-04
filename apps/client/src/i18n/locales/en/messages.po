@@ -1820,6 +1820,7 @@ msgstr "Display name shown in the app"
 #~ msgid "Don't worry. Reset and check every candidate."
 #~ msgstr "Don't worry. Reset and check every candidate."
 
+#: apps/client/src/app/sso-callback.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
 msgid "Done"
@@ -6460,6 +6461,7 @@ msgstr "Sign-out failed"
 #~ msgid "Sign-out failed: {detail}"
 #~ msgstr "Sign-out failed: {detail}"
 
+#: apps/client/src/app/sso-callback.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 msgid "Signed in"
 msgstr "Signed in"
@@ -8208,6 +8210,7 @@ msgstr "You’re already in a space"
 #~ msgid "You're better — let's convert that edge."
 #~ msgstr "You're better — let's convert that edge."
 
+#: apps/client/src/app/sso-callback.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 msgid "You're signed in on this device."
 msgstr "You're signed in on this device."

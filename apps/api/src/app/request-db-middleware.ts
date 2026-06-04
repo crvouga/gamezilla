@@ -16,7 +16,8 @@ import type { ApiHonoEnv } from './api-hono-types';
  * Per-request Hyperdrive Postgres + Better Auth + session auth (AsyncLocalStorage for patch-db host).
  */
 export function createRequestDbMiddleware(
-  secretStore: SecretStore
+  secretStore: SecretStore,
+  apiUrlOverride?: string | null
 ): MiddlewareHandler<ApiHonoEnv<AuthContext>> {
   return async (c, next) => {
     if (c.req.path === '/health') {
@@ -43,7 +44,8 @@ export function createRequestDbMiddleware(
     const matchmakingSqlClient = createMatchmakingSqlClientFromPgClient(client);
     const { auth: betterAuth, dispose } = await createBetterAuthRequestStack(
       secretStore,
-      cs
+      cs,
+      { apiUrlOverride }
     );
     const sessionAuth = createSessionAuth({ auth: betterAuth });
 

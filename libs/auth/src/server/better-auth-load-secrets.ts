@@ -109,7 +109,8 @@ export type LoadedBetterAuthSecrets = LoadedBetterAuthSecretsWorker & {
  * `connectionString` for Kysely instead).
  */
 export async function loadBetterAuthSecretsWorker(
-  secretStore: SecretStore
+  secretStore: SecretStore,
+  apiUrlOverride?: string | null
 ): Promise<LoadedBetterAuthSecretsWorker> {
   const secret = (
     await secretStore.getRequired(BetterAuthDopplerKey.betterAuthSecret)
@@ -126,9 +127,12 @@ export async function loadBetterAuthSecretsWorker(
   )
     .readSecretValue()
     .trim();
-  const apiUrlRaw = (
-    await secretStore.getRequired(BetterAuthDopplerKey.apiUrl)
-  ).readSecretValue();
+  const trimmedOverride =
+    typeof apiUrlOverride === 'string' ? apiUrlOverride.trim() : '';
+  const apiUrlRaw =
+    trimmedOverride.length > 0
+      ? trimmedOverride
+      : (await secretStore.getRequired(BetterAuthDopplerKey.apiUrl)).readSecretValue();
   const apiOrigin = apiUrlRaw.replace(/\/$/, '');
   const hostedAuthOrigin = normalizeLocalHostedAuthOrigin(apiOrigin);
   const baseURL = `${hostedAuthOrigin}/api/auth`;

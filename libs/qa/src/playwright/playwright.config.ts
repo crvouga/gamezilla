@@ -71,9 +71,15 @@ assert.enum(
 // Auth cookies are first-party. The preview server proxies `/api/*` to the
 // wrangler worker at LOCAL_API_PREVIEW_ORIGIN.
 process.env['LOCAL_PREVIEW_API_PROXY_TARGET'] = LOCAL_API_PREVIEW_ORIGIN;
+process.env['BETTER_AUTH_PREVIEW_API_URL'] = baseURL;
 process.env['API_URL'] = baseURL;
 process.env['EXPO_PUBLIC_API_URL'] = baseURL;
 
+assert.equals(
+  process.env['BETTER_AUTH_PREVIEW_API_URL'],
+  baseURL,
+  'BETTER_AUTH_PREVIEW_API_URL must match the web preview origin for same-origin OAuth'
+);
 assert.equals(
   process.env['LOCAL_PREVIEW_API_PROXY_TARGET'],
   LOCAL_API_PREVIEW_ORIGIN,

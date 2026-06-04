@@ -51,6 +51,14 @@ async function serveStatic(pathname: string): Promise<Response> {
   return new Response(indexFile);
 }
 
+function stripHopByHopEncodingHeaders(headers: Headers): void {
+  // Bun's `fetch` decompresses upstream bodies but can leave `Content-Encoding`
+  // on the Response headers. Forwarding those to the browser causes
+  // ERR_CONTENT_DECODING_FAILED on `/api/*` auth and patch-db calls.
+  headers.delete('content-encoding');
+  headers.delete('content-length');
+}
+
 async function proxyApi(req: Request, url: URL): Promise<Response> {
   const upstream = new URL(`${url.pathname}${url.search}`, proxyTarget);
   assert.ok(
@@ -59,11 +67,18 @@ async function proxyApi(req: Request, url: URL): Promise<Response> {
   );
   const headers = new Headers(req.headers);
   headers.set('host', upstream.host);
-  return fetch(upstream, {
+  const res = await fetch(upstream, {
     method: req.method,
     headers,
     body: req.method === 'GET' || req.method === 'HEAD' ? undefined : req.body,
     redirect: 'manual',
+  });
+  const outHeaders = new Headers(res.headers);
+  stripHopByHopEncodingHeaders(outHeaders);
+  return new Response(res.body, {
+    status: res.status,
+    statusText: res.statusText,
+    headers: outHeaders,
   });
 }
 

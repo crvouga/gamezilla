@@ -13,7 +13,7 @@ export async function expectDevIdpChooser(page: Page): Promise<void> {
   try {
     await expect(chooser).toBeVisible({ timeout: 30_000 });
   } catch (err) {
-    if (await page.getByText('Sign-in failed').isVisible()) {
+    if (await page.getByText('Sign-in failed', { exact: true }).isVisible()) {
       throw new Error(
         'OAuth redirect to dev IdP did not occur (sign-in modal shows Sign-in failed).',
         { cause: err }

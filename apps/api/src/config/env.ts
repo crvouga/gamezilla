@@ -30,6 +30,13 @@ export type ApiWorkerEnv = {
   DOPPLER_TOKEN: string;
   DOPPLER_PROJECT?: string;
   DOPPLER_CONFIG?: string;
+  /**
+   * Optional loopback preview origin (e.g. `http://localhost:5173`) written
+   * into `.dev.vars` by `setup-dev-vars` when Playwright / turbo preview sets
+   * `API_URL` in the environment. Overrides Doppler `API_URL` so Better Auth
+   * OAuth callbacks stay same-origin with the static web preview.
+   */
+  API_URL?: string;
   /** Cloudflare Hyperdrive — Worker uses {@link HyperdriveBinding.connectionString} for Postgres. */
   HYPERDRIVE: HyperdriveBinding;
   /** Room Durable Object namespace (one DO per topic). Omitted in unit tests. */
@@ -91,4 +98,9 @@ export function readDopplerScopeBindings(env: ApiWorkerEnv): {
     project: readOptionalBinding(env.DOPPLER_PROJECT),
     config: readOptionalBinding(env.DOPPLER_CONFIG),
   };
+}
+
+/** Non-empty `API_URL` Worker binding from `.dev.vars` (preview / QA only). */
+export function readOptionalApiUrlOverride(env: ApiWorkerEnv): string | null {
+  return readOptionalBinding(env.API_URL);
 }
