@@ -45,7 +45,7 @@ export function createRequestDbMiddleware(
     const { auth: betterAuth, dispose } = await createBetterAuthRequestStack(
       secretStore,
       cs,
-      { apiUrlOverride }
+      apiUrlOverride === undefined ? undefined : { apiUrlOverride }
     );
     const sessionAuth = createSessionAuth({ auth: betterAuth });
 

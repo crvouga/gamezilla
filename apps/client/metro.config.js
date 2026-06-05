@@ -7,25 +7,17 @@ const monorepoRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-// Watchman can fail on macOS with FSEventStreamStart (especially in large monorepos
-// or when the daemon is wedged). Metro retries the initial crawl with the node
-// crawler but still crashes when starting WatchmanWatcher for live updates.
-// Opt in with EXPO_USE_WATCHMAN=1 when watchman is healthy.
+// Watchman is required for live file watching in this monorepo — the Node
+// fallback hits EMFILE when `node_modules` is watched. Bun's content-addressed
+// `.bun` store is ignored via root `.watchmanconfig` (see repo root).
+// Use Node watcher directly for local dev stability. The Watchman daemon can
+// become unstable on some macOS setups with Bun's large node_modules store.
 config.resolver = {
   ...config.resolver,
-  useWatchman: process.env['EXPO_USE_WATCHMAN'] === '1',
+  useWatchman: true,
 };
 
-// 1. Watch shared workspace packages for HMR (not the full monorepo — avoids watcher
-//    crashes from backend dist artifacts and transient pnpm temp directories)
-config.watchFolders = [
-  path.resolve(monorepoRoot, 'apps'),
-  path.resolve(monorepoRoot, 'libs'),
-  path.resolve(monorepoRoot, 'pkgs'),
-  path.resolve(monorepoRoot, 'node_modules'),
-];
-
-// 2. Let Metro know where to resolve packages and in what order
+// 1. Let Metro know where to resolve packages and in what order
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(monorepoRoot, 'node_modules'),
@@ -53,7 +45,7 @@ config.resolver.unstable_enablePackageExports = true;
 //         another workspace reads from its own empty `storeRef`.
 //     Pin all such imports to the client's resolution.
 const dedupeAliasOrigin = path.join(projectRoot, 'package.json');
-const dedupeAliasPrefixes = ['@lingui/core', '@lingui/react', 'expo-router'];
+const dedupeAliasPrefixes = ['@lingui/core', '@lingui/react'];
 const previousResolveRequest = config.resolver.resolveRequest;
 // @ts-ignore
 config.resolver.resolveRequest = (context, moduleName, platform) => {

@@ -78,7 +78,7 @@ async function proxyApi(req: Request, url: URL): Promise<Response> {
   const res = await fetch(upstream, {
     method: req.method,
     headers,
-    body: req.method === 'GET' || req.method === 'HEAD' ? undefined : req.body,
+    ...(req.method !== 'GET' && req.method !== 'HEAD' ? { body: req.body } : {}),
     redirect: 'manual',
   });
   const outHeaders = new Headers(res.headers);
