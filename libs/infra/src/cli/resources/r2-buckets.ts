@@ -47,7 +47,10 @@ export class R2BucketResource extends ResourceBase {
     const create = await fetch(`${CF_API}/accounts/${accountId}/r2/buckets`, {
       method: 'POST',
       headers: { ...headers, 'cf-r2-jurisdiction': 'default' },
-      body: JSON.stringify({ name: BUCKET_NAME, locationHint: BUCKET_LOCATION }),
+      body: JSON.stringify({
+        name: BUCKET_NAME,
+        locationHint: BUCKET_LOCATION,
+      }),
     });
 
     if (!create.ok) {

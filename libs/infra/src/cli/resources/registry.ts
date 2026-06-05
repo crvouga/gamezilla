@@ -35,7 +35,12 @@ export function createRegistry(): readonly Resource[] {
   clientPagesDomain.needs(clientPagesProject);
   clientRedirectRule.needs(zone);
   postgresHyperdrive.needs(doppler, planetscalePostgres);
-  apiWorker.needs(planetscalePostgres, dnsRecords, postgresHyperdrive, r2Bucket);
+  apiWorker.needs(
+    planetscalePostgres,
+    dnsRecords,
+    postgresHyperdrive,
+    r2Bucket
+  );
   client.needs(apiWorker, dnsRecords);
 
   return [
