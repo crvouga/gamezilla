@@ -1,5 +1,4 @@
-import { EndSpaceConfirmModal } from '@libs/spaces/client/lifecycle/end-space-confirm-modal';
-import { LeaveSpaceConfirmModal } from '@libs/spaces/client/lifecycle/leave-space-confirm-modal';
+import { useSpaceLifecycleModals } from '@libs/spaces/client/lifecycle/space-lifecycle-modal-provider';
 import { useSpaceActions } from '@libs/spaces/client/lifecycle/space-actions';
 import { useCurrentSpaceCount } from '@libs/spaces/client/use-current-space-count';
 import { useCurrentSpaceIds } from '@libs/spaces/client/use-current-space-ids';
@@ -9,39 +8,17 @@ import { useSpaceCommandLabel } from '@libs/spaces/client/use-space-command-labe
 import { RegisterCommand } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { usePathname, useRouter } from 'expo-router';
-import { useCallback, useState, type ReactNode } from 'react';
-
-type PendingAction = { kind: 'end' | 'leave'; spaceId: string } | null;
-
-type LifecycleRequest = {
-  onRequestEnd: (spaceId: string) => void;
-  onRequestLeave: (spaceId: string) => void;
-};
+import { useCallback, type ReactNode } from 'react';
 
 const SPACE_ROUTE_RE = /^\/space\/([^/?#]+)/;
 
 export function SpaceCommands(): ReactNode {
-  const [pending, setPending] = useState<PendingAction>(null);
-  const onRequestEnd = useCallback(
-    (spaceId: string) => setPending({ kind: 'end', spaceId }),
-    []
-  );
-  const onRequestLeave = useCallback(
-    (spaceId: string) => setPending({ kind: 'leave', spaceId }),
-    []
-  );
-  const onClose = useCallback(() => setPending(null), []);
-
   return (
     <>
       <SpaceCreateCommand />
       <SpaceJoinCurrentCommand />
       <LiveSpaceCommands />
-      <CurrentSpaceCommands
-        onRequestEnd={onRequestEnd}
-        onRequestLeave={onRequestLeave}
-      />
-      <SpaceLifecycleConfirmModals pending={pending} onClose={onClose} />
+      <CurrentSpaceCommands />
     </>
   );
 }
@@ -139,10 +116,7 @@ function LiveSpaceCommand({ spaceId }: { spaceId: string }): ReactNode {
   );
 }
 
-function CurrentSpaceCommands({
-  onRequestEnd,
-  onRequestLeave,
-}: LifecycleRequest): ReactNode {
+function CurrentSpaceCommands(): ReactNode {
   const { entries } = useCurrentSpaceIds();
   return (
     <>
@@ -151,8 +125,6 @@ function CurrentSpaceCommands({
           key={entry.spaceId}
           spaceId={entry.spaceId}
           role={entry.role}
-          onRequestEnd={onRequestEnd}
-          onRequestLeave={onRequestLeave}
         />
       ))}
     </>
@@ -162,14 +134,16 @@ function CurrentSpaceCommands({
 function CurrentSpaceCommand({
   spaceId,
   role,
-  onRequestEnd,
-  onRequestLeave,
-}: LifecycleRequest & {
+}: {
   spaceId: string;
   role: 'host' | 'guest';
 }): ReactNode {
   const { t } = useLingui();
+  const router = useRouter();
   const label = useSpaceCommandLabel(spaceId);
+  const { requestEndSpace, requestLeaveSpace } = useSpaceLifecycleModals();
+  const onSuccess = useCallback(() => router.replace('/'), [router]);
+
   if (role === 'host') {
     return (
       <RegisterCommand
@@ -179,7 +153,7 @@ function CurrentSpaceCommand({
         icon="xmark"
         keywords={[t`end`, t`stop`, t`close`, t`host`, t`space`]}
         run={async () => {
-          onRequestEnd(spaceId);
+          requestEndSpace(spaceId, { onSuccess });
         }}
       />
     );
@@ -192,38 +166,8 @@ function CurrentSpaceCommand({
       icon="arrow.right.from.bracket"
       keywords={[t`leave`, t`exit`, t`guest`, t`space`]}
       run={async () => {
-        onRequestLeave(spaceId);
+        requestLeaveSpace(spaceId, { onSuccess });
       }}
     />
-  );
-}
-
-function SpaceLifecycleConfirmModals({
-  pending,
-  onClose,
-}: {
-  pending: PendingAction;
-  onClose: () => void;
-}): ReactNode {
-  const router = useRouter();
-  const { endSpace, leaveSpace } = useSpaceActions();
-  const endId = pending?.kind === 'end' ? pending.spaceId : '';
-  const leaveId = pending?.kind === 'leave' ? pending.spaceId : '';
-  const onSuccess = useCallback(() => router.replace('/'), [router]);
-  return (
-    <>
-      <EndSpaceConfirmModal
-        visible={pending?.kind === 'end'}
-        onClose={onClose}
-        operation={() => endSpace(endId)}
-        onSuccess={onSuccess}
-      />
-      <LeaveSpaceConfirmModal
-        visible={pending?.kind === 'leave'}
-        onClose={onClose}
-        operation={() => leaveSpace(leaveId)}
-        onSuccess={onSuccess}
-      />
-    </>
   );
 }

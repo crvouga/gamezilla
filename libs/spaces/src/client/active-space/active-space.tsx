@@ -2,8 +2,7 @@ import { Box, SafeAreaView } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
 import { useCallback, useState, type ReactNode } from 'react';
 
-import { EndSpaceModal } from '../lifecycle/end-space-modal';
-import { LeaveSpaceModal } from '../lifecycle/leave-space-modal';
+import { useSpaceLifecycleModals } from '../lifecycle/space-lifecycle-modal-provider';
 import { ActiveSpaceBody } from './active-space-body';
 import { RenameSpaceModal } from './rename-space-modal';
 
@@ -13,43 +12,37 @@ export type ActiveSpaceProps = {
 };
 
 /**
- * Wrapper around an active space session — body + end/leave/rename
- * confirmation modals. Pure layout + local UI state. The room provider is
- * hoisted to the screen level so room state is observable from the debug
- * modal too.
+ * Wrapper around an active space session — body + rename confirmation modal.
+ * End/leave confirms live in {@link SpaceLifecycleModalProvider} so they stay
+ * mounted through loading → success when membership changes.
  */
 export function ActiveSpace({
   spaceId,
   onOpenDebug,
 }: ActiveSpaceProps): ReactNode {
   const router = useRouter();
-  const [confirmEnd, setConfirmEnd] = useState(false);
-  const [confirmLeave, setConfirmLeave] = useState(false);
+  const { requestEndSpace, requestLeaveSpace } = useSpaceLifecycleModals();
   const [renameOpen, setRenameOpen] = useState(false);
   const onPressHome = useCallback(() => {
     router.replace('/');
   }, [router]);
+  const onRequestEnd = useCallback(() => {
+    requestEndSpace(spaceId, { onSuccess: () => router.back() });
+  }, [requestEndSpace, spaceId, router]);
+  const onRequestLeave = useCallback(() => {
+    requestLeaveSpace(spaceId, { onSuccess: () => router.back() });
+  }, [requestLeaveSpace, spaceId, router]);
 
   return (
     <SafeAreaView sx={{ flex: 1, background: 'background' }}>
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <ActiveSpaceBody
           spaceId={spaceId}
-          onRequestEnd={() => setConfirmEnd(true)}
-          onRequestLeave={() => setConfirmLeave(true)}
+          onRequestEnd={onRequestEnd}
+          onRequestLeave={onRequestLeave}
           onRequestRename={() => setRenameOpen(true)}
           onPressHome={onPressHome}
           onPressDebug={onOpenDebug}
-        />
-        <EndSpaceModal
-          spaceId={spaceId}
-          visible={confirmEnd}
-          onClose={() => setConfirmEnd(false)}
-        />
-        <LeaveSpaceModal
-          spaceId={spaceId}
-          visible={confirmLeave}
-          onClose={() => setConfirmLeave(false)}
         />
         <RenameSpaceModal
           spaceId={spaceId}

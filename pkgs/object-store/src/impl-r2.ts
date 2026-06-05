@@ -1,4 +1,5 @@
 import type { ObjectStore, StoredObject } from './interface';
+import { ObjectStoreWithPrefix } from './impl-with-prefix';
 
 /**
  * Cloudflare R2 binding shape. Declared inline so this package doesn't need

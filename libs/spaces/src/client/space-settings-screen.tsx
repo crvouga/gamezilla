@@ -12,8 +12,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 
 import { RenameSpaceModal } from './active-space/rename-space-modal';
-import { EndSpaceModal } from './lifecycle/end-space-modal';
-import { LeaveSpaceModal } from './lifecycle/leave-space-modal';
+import { useSpaceLifecycleModals } from './lifecycle/space-lifecycle-modal-provider';
 import { useCurrentSpaceRole } from './use-current-space-role';
 
 function buildInviteLinkForSpace(spaceId: string): string {
@@ -28,8 +27,8 @@ function buildInviteLinkForSpace(spaceId: string): string {
 
 /**
  * Minimal settings surface for an active space: rename, copy invite link,
- * and the destructive End / Leave action. Reuses the same modals as the
- * overflow menu so behavior is consistent across entry points.
+ * and the destructive End / Leave action. End/leave confirms use
+ * {@link SpaceLifecycleModalProvider} for consistent mutation UX.
  */
 export function SpaceSettingsScreen(): ReactNode {
   const { t } = useLingui();
@@ -38,14 +37,21 @@ export function SpaceSettingsScreen(): ReactNode {
   const spaceId = typeof id === 'string' ? id : '';
   const role = useCurrentSpaceRole(spaceId);
   const isHost = role === 'host';
+  const { requestEndSpace, requestLeaveSpace } = useSpaceLifecycleModals();
 
   const [renameOpen, setRenameOpen] = useState(false);
-  const [endOpen, setEndOpen] = useState(false);
-  const [leaveOpen, setLeaveOpen] = useState(false);
 
   const onCopyInviteLink = useCallback(() => {
     void Clipboard.setStringAsync(buildInviteLinkForSpace(spaceId));
   }, [spaceId]);
+
+  const onEnd = useCallback(() => {
+    requestEndSpace(spaceId, { onSuccess: () => router.back() });
+  }, [requestEndSpace, spaceId, router]);
+
+  const onLeave = useCallback(() => {
+    requestLeaveSpace(spaceId, { onSuccess: () => router.back() });
+  }, [requestLeaveSpace, spaceId, router]);
 
   const items = useMemo<MainMenuItem[]>(
     () =>
@@ -61,10 +67,10 @@ export function SpaceSettingsScreen(): ReactNode {
         },
         onRename: () => setRenameOpen(true),
         onCopyInvite: onCopyInviteLink,
-        onEnd: () => setEndOpen(true),
-        onLeave: () => setLeaveOpen(true),
+        onEnd,
+        onLeave,
       }),
-    [isHost, onCopyInviteLink, t]
+    [isHost, onCopyInviteLink, onEnd, onLeave, t]
   );
 
   return (
@@ -85,16 +91,6 @@ export function SpaceSettingsScreen(): ReactNode {
           spaceId={spaceId}
           visible={renameOpen}
           onClose={() => setRenameOpen(false)}
-        />
-        <EndSpaceModal
-          spaceId={spaceId}
-          visible={endOpen}
-          onClose={() => setEndOpen(false)}
-        />
-        <LeaveSpaceModal
-          spaceId={spaceId}
-          visible={leaveOpen}
-          onClose={() => setLeaveOpen(false)}
         />
       </Box>
     </SafeAreaView>

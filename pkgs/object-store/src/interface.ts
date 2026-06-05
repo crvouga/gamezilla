@@ -53,4 +53,11 @@ export interface ObjectStore {
    * `null` for stores whose backend has no addressable URL (e.g. S3/B2).
    */
   getUri(key: string): Promise<string | null>;
+
+  /**
+   * Returns a new store scoped to `prefix`. Caller keys are relative (must not
+   * include the prefix). All I/O operates on `prefix + key`. Nested calls compose
+   * prefixes (`a/` + `b/` → `a/b/`).
+   */
+  withPrefix(prefix: string): ObjectStore;
 }

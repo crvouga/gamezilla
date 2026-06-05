@@ -31,6 +31,9 @@ export function LeaveSpaceConfirmModal({
       onSuccess={onSuccess}
       loadingLabel={<Trans>Leaving…</Trans>}
       successTitle={<Trans>You left the space</Trans>}
+      successBody={
+        <Trans>You can rejoin from the invite link if the space is still live.</Trans>
+      }
       errorTitle={<Trans>Couldn't leave space</Trans>}
     />
   );

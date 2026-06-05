@@ -70,3 +70,77 @@ export async function dismissSignOutModalSuccess(page: Page): Promise<void> {
     timeout: 10_000,
   });
 }
+
+/** Leave-space confirmation modal is showing its idle copy. */
+export async function expectLeaveSpaceConfirmIdle(page: Page): Promise<void> {
+  await expect(page.getByText('Leave space?')).toBeVisible({ timeout: 10_000 });
+  await expect(
+    page.getByText('You can join again later if the space is still live.')
+  ).toBeVisible();
+}
+
+/** Submits the leave-space confirm (idle modal must be visible). */
+export async function confirmLeaveSpace(page: Page): Promise<void> {
+  await expectLeaveSpaceConfirmIdle(page);
+  await page.getByRole('dialog').getByText('Leave', { exact: true }).click();
+}
+
+/** Leave-space modal shows the in-flight loading state. */
+export async function expectLeaveSpaceModalLoading(page: Page): Promise<void> {
+  await expect(page.getByText('Leaving…')).toBeVisible({ timeout: 15_000 });
+}
+
+/** Leave-space modal shows the dismissible success state. */
+export async function expectLeaveSpaceModalSuccess(page: Page): Promise<void> {
+  await expect(page.getByText('You left the space', { exact: true })).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(
+    page.getByText('You can rejoin from the invite link if the space is still live.')
+  ).toBeVisible();
+  await expect(page.getByText('Done')).toBeVisible();
+}
+
+/** End-space confirmation modal is showing its idle copy. */
+export async function expectEndSpaceConfirmIdle(page: Page): Promise<void> {
+  await expect(page.getByText('End space?')).toBeVisible({ timeout: 10_000 });
+  await expect(
+    page.getByText('Everyone will leave this space. This cannot be undone.')
+  ).toBeVisible();
+}
+
+/** Submits the end-space confirm (idle modal must be visible). */
+export async function confirmEndSpace(page: Page): Promise<void> {
+  await expectEndSpaceConfirmIdle(page);
+  await page
+    .getByRole('dialog')
+    .getByText('End space', { exact: true })
+    .click();
+}
+
+/** End-space modal shows the in-flight loading state. */
+export async function expectEndSpaceModalLoading(page: Page): Promise<void> {
+  await expect(page.getByText('Ending space…')).toBeVisible({ timeout: 15_000 });
+}
+
+/** End-space modal shows the dismissible success state. */
+export async function expectEndSpaceModalSuccess(page: Page): Promise<void> {
+  await expect(page.getByText('Space ended', { exact: true })).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(
+    page.getByText('Everyone has been returned to the lobby.')
+  ).toBeVisible();
+  await expect(page.getByText('Done')).toBeVisible();
+}
+
+/** Dismisses a space lifecycle success modal via Done. */
+export async function dismissSpaceLifecycleModalSuccess(
+  page: Page,
+  successTitle: string
+): Promise<void> {
+  await page.getByText('Done').click();
+  await expect(page.getByText(successTitle, { exact: true })).toHaveCount(0, {
+    timeout: 10_000,
+  });
+}

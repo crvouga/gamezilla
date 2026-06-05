@@ -1,4 +1,5 @@
 import type { ObjectStore, StoredObject } from './interface';
+import { ObjectStoreWithPrefix } from './impl-with-prefix';
 
 type Entry = {
   readonly bytes: Uint8Array;
@@ -65,5 +66,9 @@ export class ObjectStoreImplInMemory implements ObjectStore {
     new Uint8Array(ab).set(entry.bytes);
     const blob = new Blob([ab], { type: entry.contentType });
     return Promise.resolve(URL.createObjectURL(blob));
+  }
+
+  withPrefix(prefix: string): ObjectStore {
+    return new ObjectStoreWithPrefix(this, prefix);
   }
 }

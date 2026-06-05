@@ -24,7 +24,7 @@ export async function createTtsAppFromBindings(
 
   return createTtsApp({
     provider,
-    objectStore: options.objectStore,
+    objectStore: options.objectStore.withPrefix(TTS_OBJECT_STORE_PREFIX),
     requireAuth: options.requireAuth,
   });
 }

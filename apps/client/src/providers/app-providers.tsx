@@ -2,6 +2,7 @@ import { AuthBridge } from '@libs/auth/client/auth-bridge';
 import { AuthClientProvider } from '@libs/auth/client/auth-client-provider';
 import { AuthModalsProvider } from '@libs/auth/client/auth-modals-provider';
 import { ProfileProvider } from '@libs/profile/client/profile-provider';
+import { SpaceLifecycleModalProvider } from '@libs/spaces/client/lifecycle/space-lifecycle-modal-provider';
 import {
   ComposeProviders,
   preventSplashAutoHide,
@@ -53,6 +54,7 @@ const appProviders = [
   ApiClientProviderWrapper,
   SqlClientProvider,
   PatchDbProvider,
+  SpaceLifecycleModalProvider,
   DeviceEntityBootstrapProvider,
   PatchDbLocalDataActionsProvider,
   ProfileProvider,

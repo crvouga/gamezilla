@@ -172,7 +172,7 @@ describe('HTTP 500 server errors', () => {
     else env['NODE_ENV'] = prevNodeEnv;
   });
 
-  test('dev (non-test) HTTP 500 reaches crash handler with status context', async () => {
+  test('dev (non-test) HTTP 500 rejects without crash handler', async () => {
     env['NODE_ENV'] = 'development';
     const recorder = new RecordingCrashHandler();
     dispose = assert.registerCrashHandler(recorder);
@@ -205,9 +205,9 @@ describe('HTTP 500 server errors', () => {
       globalThis.fetch = realFetch;
     }
 
-    expect(thrown).toBeInstanceOf(AssertCrashError);
-    expect(recorder.captured).toHaveLength(1);
-    expect(recorder.captured[0]?.context?.['status']).toBe(500);
+    expect(thrown).toBeInstanceOf(Error);
+    expect(thrown).not.toBeInstanceOf(AssertCrashError);
+    expect(recorder.captured).toHaveLength(0);
   });
 
   test('dev HTTP 503 rejects without crash handler (transient worker restart)', async () => {
