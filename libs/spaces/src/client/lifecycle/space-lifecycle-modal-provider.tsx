@@ -121,7 +121,9 @@ function EndSpaceLifecycleModal({
       visible={active !== null}
       onClose={onClose}
       operation={operation}
-      {...(active?.onSuccess !== undefined ? { onSuccess: active.onSuccess } : {})}
+      {...(active?.onSuccess !== undefined
+        ? { onSuccess: active.onSuccess }
+        : {})}
     />
   );
 }
@@ -146,7 +148,9 @@ function LeaveSpaceLifecycleModal({
       visible={active !== null}
       onClose={onClose}
       operation={operation}
-      {...(active?.onSuccess !== undefined ? { onSuccess: active.onSuccess } : {})}
+      {...(active?.onSuccess !== undefined
+        ? { onSuccess: active.onSuccess }
+        : {})}
     />
   );
 }
