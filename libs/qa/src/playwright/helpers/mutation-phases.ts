@@ -92,11 +92,15 @@ export async function expectLeaveSpaceModalLoading(page: Page): Promise<void> {
 
 /** Leave-space modal shows the dismissible success state. */
 export async function expectLeaveSpaceModalSuccess(page: Page): Promise<void> {
-  await expect(page.getByText('You left the space', { exact: true })).toBeVisible({
+  await expect(
+    page.getByText('You left the space', { exact: true })
+  ).toBeVisible({
     timeout: 30_000,
   });
   await expect(
-    page.getByText('You can rejoin from the invite link if the space is still live.')
+    page.getByText(
+      'You can rejoin from the invite link if the space is still live.'
+    )
   ).toBeVisible();
   await expect(page.getByText('Done')).toBeVisible();
 }
@@ -120,7 +124,9 @@ export async function confirmEndSpace(page: Page): Promise<void> {
 
 /** End-space modal shows the in-flight loading state. */
 export async function expectEndSpaceModalLoading(page: Page): Promise<void> {
-  await expect(page.getByText('Ending space…')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('Ending space…')).toBeVisible({
+    timeout: 15_000,
+  });
 }
 
 /** End-space modal shows the dismissible success state. */

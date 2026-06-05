@@ -8,7 +8,9 @@ export function normalizeObjectStorePrefix(prefix: string): string {
 }
 
 function joinObjectStorePrefixes(left: string, right: string): string {
-  return normalizeObjectStorePrefix(`${left}${normalizeObjectStorePrefix(right)}`);
+  return normalizeObjectStorePrefix(
+    `${left}${normalizeObjectStorePrefix(right)}`
+  );
 }
 
 /**
