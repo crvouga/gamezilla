@@ -64,7 +64,7 @@ describe('ttsCacheKey', () => {
   test('renaming a Voice (same voiceId/model, different name) → different key', async () => {
     /**
      * Guarantees that operators relabelling a `Voices.*` constant invalidate
-     * the existing R2 cache. Two inputs share `voiceId` + `model` + provider
+     * the existing object-store cache. Two inputs share `voiceId` + `model` + provider
      * but differ in the human-facing `name` — they MUST hash to different
      * keys so the rename can't serve stale audio.
      */

@@ -638,6 +638,7 @@
       "name": "@pkgs/object-store",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/assert": "workspace:*",
         "expo-file-system": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
@@ -929,17 +930,6 @@
       },
       "devDependencies": {
         "@types/react": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/turbo-cache": {
-      "name": "@pkgs/turbo-cache",
-      "version": "1.0.0",
-      "dependencies": {
-        "@pkgs/logger": "workspace:*",
-        "hono": "catalog:",
-      },
-      "devDependencies": {
         "typescript": "catalog:",
       },
     },
@@ -1940,8 +1930,6 @@
     "@pkgs/ts-reset": ["@pkgs/ts-reset@workspace:pkgs/ts-reset"],
 
     "@pkgs/tts": ["@pkgs/tts@workspace:pkgs/tts"],
-
-    "@pkgs/turbo-cache": ["@pkgs/turbo-cache@workspace:pkgs/turbo-cache"],
 
     "@pkgs/ui": ["@pkgs/ui@workspace:pkgs/ui"],
 

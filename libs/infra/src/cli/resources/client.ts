@@ -36,7 +36,7 @@ export class ClientResource extends ResourceBase {
    * preconditions that would otherwise blow up mid-build or mid-upload. Any
    * build-time failure still shows up at `deploy`, but by then the earlier
    * Workers in the pipeline have also been dry-run-validated, so we fail in a
-   * consistent place rather than after turbo-cache has already shipped.
+   * consistent place rather than after earlier Workers have already shipped.
    */
   async dryRun(platform: CiPlatform, ctx: InfraContext): Promise<void> {
     this.validateBuildInputs(platform, ctx);

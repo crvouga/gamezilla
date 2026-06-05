@@ -125,7 +125,7 @@ async function createStripeClient(
 async function createTtsAppForApi(config: ApiHandlerConfig) {
   return await createTtsAppFromBindings({
     secretStore: config.secretStore,
-    r2Bucket: config.ttsAudioBucket,
+    objectStore: config.objectStore,
     requireAuth: async (req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'tts auth: request store missing');

@@ -1,6 +1,6 @@
 /**
  * Server-side facade for `@pkgs/tts`. Hosts that just want to mount the
- * pre-wired ElevenLabs+R2 setup should import from here.
+ * pre-wired ElevenLabs+B2 setup should import from here.
  */
 export {
   createTtsAppFromBindings,

@@ -107,8 +107,7 @@ function readPortFromEnv(): number {
 }
 
 function readDbUrlFromEnv(): string | undefined {
-  const raw =
-    process.env['DEV_IDP_DB_URL']?.trim() ?? process.env['DB_URL']?.trim();
+  const raw = process.env['DB_URL']?.trim();
   return raw !== undefined && raw !== '' ? raw : undefined;
 }
 

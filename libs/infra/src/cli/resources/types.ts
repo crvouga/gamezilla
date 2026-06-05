@@ -37,7 +37,7 @@ export interface Resource {
    * or uploading artifacts. The `deploy` command runs every resource's
    * `dryRun` up-front and aborts the whole pipeline on the first failure, so
    * a bad Worker bundle or broken secret never results in a half-deployed
-   * stack (e.g. turbo-cache shipped but api-worker failed mid-deploy).
+   * stack (e.g. client shipped but api-worker failed mid-deploy).
    *
    * NOTE: `wrangler deploy --dry-run` only validates locally (bundle,
    * bindings, migration syntax). It does NOT contact the Cloudflare API, so

@@ -128,8 +128,6 @@
     "libs/games/src/**/*.tsx",
     "pkgs/assistant/src/**/*.ts",
     "pkgs/assistant/src/**/*.tsx",
-    "pkgs/turbo-cache/src/**/*.ts",
-    "apps/turbo-cache/src/**/*.ts",
     "libs/stripe-cli/src/**/*.ts",
     "pkgs/postgres/src/**/*.ts",
     "apps/client/.expo/types/**/*.ts",

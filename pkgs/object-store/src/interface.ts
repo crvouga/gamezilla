@@ -3,7 +3,7 @@
  *
  * Tiny, async, transport-agnostic surface — exactly what a "blob keyed by id"
  * cache needs (TTS audio, exported files, derived avatars, etc.). Implementations
- * live in sibling `impl-*.ts` files (R2, in-memory, future S3 / fs / Bun.s3).
+ * live in sibling `impl-*.ts` files (S3/B2, in-memory, expo file-system).
  *
  * Mirrors the {@link ../sql-client/interface.ts SqlClient} shape: one interface,
  * multiple `impl-*.ts` siblings, plus a conformance suite in `interface.test.ts`.
@@ -23,7 +23,7 @@
  * URI semantics:
  *   - {@link ObjectStore.getUri} returns a URL the host runtime can load
  *     directly (`file://` on native, `blob:` on web). Stores that don't expose
- *     direct URLs (e.g. the R2 binding — bytes must be streamed through HTTP)
+ *     direct URLs (e.g. remote S3/B2 — bytes must be streamed through HTTP)
  *     return `null`. Returns `null` when the key is missing.
  */
 
@@ -50,7 +50,7 @@ export interface ObjectStore {
   /**
    * Returns a URL that the host runtime can load directly without reading bytes
    * through {@link ObjectStore.get} again. Returns `null` for missing keys, and
-   * `null` for stores whose backend has no addressable URL (e.g. R2 binding).
+   * `null` for stores whose backend has no addressable URL (e.g. S3/B2).
    */
   getUri(key: string): Promise<string | null>;
 }

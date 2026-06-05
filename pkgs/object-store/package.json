@@ -15,6 +15,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@pkgs/assert": "workspace:*",
     "expo-file-system": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:"

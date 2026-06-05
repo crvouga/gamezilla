@@ -8,7 +8,7 @@
  *
  * Each variant pairs a stable display `name` with a `provider` discriminant
  * and the provider-native ids (`voiceId`, `model`). Renaming a `name`
- * invalidates the existing R2 audio cache because `name` participates in
+ * invalidates the existing object-store audio cache because `name` participates in
  * the cache key (see `tts-cache-key.ts`) — a renamed entry is, by design,
  * a different voice.
  *
@@ -73,7 +73,7 @@ export const VOICES: readonly Voice[] = Object.values(Voices);
  * Maps the {@link Voice} discriminant to the server-side `TtsProvider.id`
  * (the namespace under which audio is cached). The two strings are
  * intentionally different — `'eleven-labs'` (hyphenated) is the public-facing
- * Voice tag, `'elevenlabs'` (no hyphen) is the internal R2 cache namespace
+ * Voice tag, `'elevenlabs'` (no hyphen) is the internal object-store cache namespace
  * — so this mapping is the single source of truth for the client cache key
  * to match the server cache key.
  */

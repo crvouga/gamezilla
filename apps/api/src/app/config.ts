@@ -1,4 +1,4 @@
-import type { R2Bucket } from '@pkgs/object-store/impl-r2';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { PatchDbApiConfig } from '@pkgs/patch-db/api';
 
@@ -9,10 +9,5 @@ export type ApiHandlerConfig = {
   readonly pubSub: PatchDbApiConfig['pubSub'];
   readonly basePath?: string;
   readonly instrumentation?: PatchDbApiConfig['instrumentation'];
-  /**
-   * R2 bucket for cached TTS audio. Required: the TTS sub-app is mounted
-   * unconditionally and `createTtsAppFromBindings` asserts this binding
-   * is present.
-   */
-  readonly ttsAudioBucket: R2Bucket;
+  readonly objectStore: ObjectStore;
 };

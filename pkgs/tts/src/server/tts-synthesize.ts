@@ -1,4 +1,5 @@
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
 import { ttsCacheKey } from '../shared/tts-cache-key';
 import { ttsContentTypeFor, type TtsAudioFormat } from '../shared/tts-types';
 import type { TtsProvider, TtsSynthesizeInput } from './ports/tts-provider';
@@ -7,14 +8,14 @@ import type { TtsProvider, TtsSynthesizeInput } from './ports/tts-provider';
  * Object key under which an audio blob is cached in the {@link ObjectStore}.
  * Namespacing by provider id keeps multiple providers' caches from colliding
  * on the same hash, and keeps a future bucket sweep predictable
- * (`prefix=tts/elevenlabs/`).
+ * (`prefix=tts-audio/elevenlabs/`).
  */
 export function ttsObjectKey(
   providerId: string,
   hash: string,
   format: TtsAudioFormat
 ): string {
-  return `tts/${providerId}/${hash}.${format}`;
+  return `${ObjectStorePrefix.ttsAudio}${providerId}/${hash}.${format}`;
 }
 
 export type TtsSynthesizeResult = {
@@ -34,7 +35,7 @@ export type SynthesizeWithCacheDeps = {
 /**
  * Cache-then-generate orchestration. Pure function over the {@link TtsProvider}
  * port and the {@link ObjectStore} interface — never imports a concrete
- * adapter, so the same code runs against R2 in production and an in-memory
+ * adapter, so the same code runs against B2 in production and an in-memory
  * store in tests.
  *
  * Algorithm:

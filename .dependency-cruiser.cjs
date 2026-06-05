@@ -100,7 +100,7 @@ module.exports = {
     },
     // Skip generated build artifacts that bundlers/wranglers stage inside
     // a package directory. These are not source and produce false positives
-    // (e.g. wrangler dev bundles `apps/turbo-cache` into `pkgs/turbo-cache/.wrangler/`).
+    // (e.g. wrangler dev stages `.wrangler/` inside a package directory).
     exclude: '(^|/)(\\.wrangler|\\.turbo|\\.expo|dist|build|coverage)/',
     tsPreCompilationDeps: true,
     includeOnly: '^(apps|libs|pkgs)/',

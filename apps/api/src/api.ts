@@ -3,6 +3,7 @@ import { composeRoomModules } from '@libs/spaces/shared/load-game-plugins';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
 import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
+import { ObjectStoreImplR2 } from '@pkgs/object-store/impl-r2';
 import { isSecretStoreError } from '@pkgs/secret-store';
 import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
 import { tryBetterAuthOptionsResponse } from './app/cors';
@@ -126,16 +127,17 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
       'HYPERDRIVE Worker binding is required — add [[hyperdrive]] to apps/api/wrangler.toml'
     );
   }
-  if (env.TTS_AUDIO === undefined || env.TTS_AUDIO === null) {
+  if (env.OBJECT_STORE === undefined || env.OBJECT_STORE === null) {
     throw new ConfigurationError(
-      'TTS_AUDIO R2 binding is required — add [[r2_buckets]] to apps/api/wrangler.toml'
+      'OBJECT_STORE R2 binding is required — add [[r2_buckets]] to apps/api/wrangler.toml'
     );
   }
+  const objectStore = new ObjectStoreImplR2(env.OBJECT_STORE);
   return await createApiApp({
     pubSub,
     secretStore,
     apiUrlOverride: readOptionalApiUrlOverride(env),
-    ttsAudioBucket: env.TTS_AUDIO,
+    objectStore,
   });
 }
 

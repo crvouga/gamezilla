@@ -39,14 +39,10 @@ export type ApiWorkerEnv = {
   API_URL?: string;
   /** Cloudflare Hyperdrive — Worker uses {@link HyperdriveBinding.connectionString} for Postgres. */
   HYPERDRIVE: HyperdriveBinding;
+  /** Catch-all R2 bucket for object storage. Required at boot; omitted in unit tests. */
+  OBJECT_STORE?: R2Bucket;
   /** Room Durable Object namespace (one DO per topic). Omitted in unit tests. */
   ROOM?: RoomNamespace;
-  /**
-   * R2 bucket binding for cached TTS audio. Required — the api boot path
-   * asserts this in `bootApp` (mirrors the `HYPERDRIVE` check) and refuses
-   * to serve traffic when missing.
-   */
-  TTS_AUDIO: R2Bucket;
 };
 
 /**

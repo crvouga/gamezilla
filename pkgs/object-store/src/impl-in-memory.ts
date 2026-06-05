@@ -8,7 +8,7 @@ type Entry = {
 /**
  * In-process {@link ObjectStore} backed by a `Map`. Used by the conformance
  * suite in `interface.test.ts` and by feature unit tests that want to exercise
- * cache-then-generate flows without R2 / S3 / network.
+ * cache-then-generate flows without S3 / network.
  *
  * `put` defensively copies the input bytes so callers can reuse their buffer;
  * `get` returns a fresh `ReadableStream` per call so multiple readers don't

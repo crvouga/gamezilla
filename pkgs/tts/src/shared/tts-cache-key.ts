@@ -10,7 +10,7 @@
  * different provider doesn't collide on the same key. The full `Voice`
  * discriminant (`name`, `provider`, `voiceId`, `model`) is folded in too —
  * renaming a `Voice` entry (or pointing it at a different ElevenLabs id)
- * counts as a different voice and invalidates the existing R2 cache.
+ * counts as a different voice and invalidates the existing object-store cache.
  *
  * Uses `crypto.subtle` which is available in every runtime that hosts the
  * server (Workers, Bun, Node 18+, browsers). This module is `shared/` so it

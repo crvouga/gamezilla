@@ -2,13 +2,12 @@ import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
-import {
-  ResourceBase,
-  type InfraContext,
-  type ResourceRoutineStatus,
-} from './types';
+import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
+
+const BUCKET_NAME = PROJECT_CONFIG.cloudflare.objectStoreBucket;
+
 const BUCKET_LOCATION = 'ENAM';
 
 interface R2Object {
@@ -21,86 +20,53 @@ interface R2ListResponse {
   result_info?: { cursor?: string };
 }
 
-function r2Headers(): Record<string, string> {
-  return { ...cfHeaders(), 'cf-r2-jurisdiction': 'default' };
-}
-
-/**
- * One R2 bucket = one resource. Every bucket subclass picks its own
- * `id` + `bucketName` (and optionally flips `routineStatus` to
- * `'destroyed'`); the lifecycle methods themselves are identical, so
- * they live on the base class.
- */
-abstract class R2BucketResourceBase extends ResourceBase {
-  abstract readonly bucketName: string;
+export class R2BucketResource extends ResourceBase {
+  readonly id = 'r2-buckets';
 
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
-    const headers = r2Headers();
-    const bucket = this.bucketName;
+    const headers = cfHeaders();
 
     const res = await fetch(
-      `${CF_API}/accounts/${accountId}/r2/buckets/${bucket}`,
-      { headers }
+      `${CF_API}/accounts/${accountId}/r2/buckets/${BUCKET_NAME}`,
+      { headers: { ...headers, 'cf-r2-jurisdiction': 'default' } }
     );
 
     if (res.ok) {
-      ok(`R2 ${bucket}`, 'exists');
+      ok(`R2 ${BUCKET_NAME}`, 'exists');
       return;
     }
 
     if (res.status !== 404) {
       const text = await res.text();
       throw new Error(
-        `R2 ${bucket}: lookup failed: HTTP ${res.status} — ${text}`
+        `R2 ${BUCKET_NAME}: lookup failed: HTTP ${res.status} — ${text}`
       );
     }
 
     const create = await fetch(`${CF_API}/accounts/${accountId}/r2/buckets`, {
       method: 'POST',
-      headers,
-      body: JSON.stringify({ name: bucket, locationHint: BUCKET_LOCATION }),
+      headers: { ...headers, 'cf-r2-jurisdiction': 'default' },
+      body: JSON.stringify({ name: BUCKET_NAME, locationHint: BUCKET_LOCATION }),
     });
 
     if (!create.ok) {
       const text = await create.text();
       throw new Error(
-        `R2 ${bucket}: create failed: HTTP ${create.status} — ${text}`
+        `R2 ${BUCKET_NAME}: create failed: HTTP ${create.status} — ${text}`
       );
     }
 
-    ok(`R2 ${bucket}`, 'created');
+    ok(`R2 ${BUCKET_NAME}`, 'created');
   }
 
-  /** Idempotent: empty the bucket, then delete it. 404 at any step is
-   * success — the `'destroyed'`-resource tail phase of `infra deploy`
-   * reruns this on every deploy, so it must converge on already-absent
-   * buckets. */
   async destroy(platform: CiPlatform): Promise<void> {
     const accountId = cfAccountId();
-    const headers = r2Headers();
-    await emptyBucket(platform, accountId, headers, this.bucketName);
-    await deleteBucket(accountId, headers, this.bucketName);
+    const headers = { ...cfHeaders(), 'cf-r2-jurisdiction': 'default' };
+
+    await emptyBucket(platform, accountId, headers, BUCKET_NAME);
+    await deleteBucket(accountId, headers, BUCKET_NAME);
   }
-}
-
-/** `'created'`: backs the TTS audio cache binding in `apps/api/wrangler.toml`. */
-export class TtsAudioBucketResource extends R2BucketResourceBase {
-  readonly id = 'r2-bucket-tts-audio';
-  readonly bucketName = PROJECT_CONFIG.cloudflare.ttsAudioBucket;
-}
-
-/**
- * `'destroyed'`: backed the self-hosted Turborepo remote cache Worker
- * (`apps/turbo-cache`). The resource stays in the registry so
- * `infra deploy`'s `'destroyed'`-resource tail phase keeps the bucket
- * gone, and so flipping `routineStatus` to `'created'` is the only
- * thing needed to recreate it alongside its consumer Worker.
- */
-export class TurboCacheBucketResource extends R2BucketResourceBase {
-  readonly id = 'r2-bucket-turbo-cache';
-  readonly bucketName = PROJECT_CONFIG.cloudflare.turboCacheBucket;
-  override readonly routineStatus: ResourceRoutineStatus = 'destroyed';
 }
 
 async function emptyBucket(

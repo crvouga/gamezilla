@@ -7,7 +7,7 @@ import type { Command } from './types';
 
 /**
  * CI atomic step 5: DNS diagnostics + HTTP smoke checks against the
- * deployed client / API / turbo-cache endpoints. Hydrates `InfraContext`
+ * deployed client / API endpoints. Hydrates `InfraContext`
  * from `INFRA_CONTEXT` env so the pages.dev fallback URL is correct.
  */
 export class SmokeCommand implements Command {

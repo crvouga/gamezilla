@@ -14,7 +14,7 @@ import { topoSort } from '../../resources/topo-sort';
  * cleaned up.
  *
  * Order is reverse topological (dependents first) — same shape as
- * `infra destroy` — so a Worker comes down before its R2 bucket, etc.
+ * `infra destroy` — so dependents come down before their dependencies.
  */
 export async function runEnsureDestroyedPhase(
   platform: CiPlatform
