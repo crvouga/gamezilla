@@ -90,7 +90,11 @@ describe('ObjectStoreWithPrefix', () => {
   });
 
   test('getUri delegates with prefix', async () => {
-    await scoped.put('k', new Uint8Array([1, 2, 3]), 'application/octet-stream');
+    await scoped.put(
+      'k',
+      new Uint8Array([1, 2, 3]),
+      'application/octet-stream'
+    );
     const scopedUri = await scoped.getUri('k');
     const rootUnprefixed = await root.getUri('k');
     const rootPrefixed = await root.getUri('tts-audio/k');
