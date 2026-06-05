@@ -56,7 +56,12 @@ export {
   type UseMutationButtonParams,
   type UseMutationButtonResult,
   type MutationButtonLabels,
+  type MutationFabProps,
 } from './button';
+export {
+  FloatingActionButton,
+  type FloatingActionButtonProps,
+} from './floating-action-button';
 export {
   SocialSignInButton,
   type SocialSignInButtonProps,

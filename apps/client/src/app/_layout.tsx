@@ -42,11 +42,15 @@ export default function RootLayout() {
   return (
     <RootErrorBoundary>
       <AppProviders>
-        <Box sx={{ flex: 1, flexDirection: 'column', minHeight: 0 }}>
+        <Box
+          sx={{ flex: 1, minHeight: 0 }}
+          style={{ position: 'relative' }}
+        >
           <Box sx={{ flex: 1, minHeight: 0 }}>
             <AppStack />
           </Box>
-          <SpaceMiniplayer />
+          {/* eslint-disable-next-line lingui/no-unlocalized-strings -- internal slot id, not user-facing */}
+          <SpaceMiniplayer slot="root" />
         </Box>
       </AppProviders>
     </RootErrorBoundary>

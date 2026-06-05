@@ -66,6 +66,15 @@ export type ScreenBaseProps = {
    * end of the form body.
    */
   footer?: ReactNode;
+  /**
+   * Primary screen action rendered as a floating overlay (e.g. a
+   * {@link FloatingActionButton}). Does not affect body layout; prefer this
+   * over inline buttons in `content` for actions that should not shift scroll
+   * content.
+   */
+  floatingAction?: ReactNode;
+  /** Extra bottom inset for {@link floatingAction} above safe area / tab bar. */
+  floatingActionBottomInset?: number;
 };
 
 export type ScreenBaseHeaderProps = {

@@ -1,10 +1,14 @@
-import { Box, elevation, GradientBox, useTheme } from '@pkgs/ui';
+import { Box, elevation } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { SpaceGuestSection } from '../members/space-guest-section';
 import { SpaceHostAvatar } from '../members/space-host-avatar';
 import { SpaceHostNameText } from '../members/space-host-name-text';
 import { SpaceLiveBadge } from '../space-live-badge';
 import { SpaceTitleText } from '../space-title-text';
+import {
+  SPACE_CARD_BORDER_RADIUS,
+  SpaceCardGradientBox,
+} from './space-card-gradient';
 import { SpaceCardOpenLink } from './space-card-open-link';
 
 export type SpaceCardProps = {
@@ -12,27 +16,17 @@ export type SpaceCardProps = {
 };
 
 const HOST_AVATAR_SIZE = 44;
-const SPACE_CARD_RADIUS = 16;
 
 /**
  * Pure layout: gradient surface, host header, live badge, guest section.
  * Every visible field comes from an id-driven atom; no `useQuery` here.
  */
 export function SpaceCard({ spaceId }: SpaceCardProps): ReactNode {
-  const theme = useTheme();
-  const gradientColors = [
-    theme.colors.tintActive,
-    theme.colors.tintActive,
-  ] as const;
-
   return (
     <SpaceCardOpenLink spaceId={spaceId}>
-      <GradientBox
-        colors={gradientColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <SpaceCardGradientBox
         sx={{
-          borderRadius: SPACE_CARD_RADIUS,
+          borderRadius: SPACE_CARD_BORDER_RADIUS,
           p: 4,
           minHeight: 112,
           justifyContent: 'space-between',
@@ -65,7 +59,7 @@ export function SpaceCard({ spaceId }: SpaceCardProps): ReactNode {
           <SpaceLiveBadge spaceId={spaceId} />
         </Box>
         <SpaceGuestSection spaceId={spaceId} />
-      </GradientBox>
+      </SpaceCardGradientBox>
     </SpaceCardOpenLink>
   );
 }

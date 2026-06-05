@@ -16,6 +16,7 @@ import { default as SafeAreaViewExample } from '../safe-area-view/safe-area-view
 
 import { default as BrandIconExample } from '../brand-icon/brand-icon.example';
 import { default as ButtonExample } from '../button/button.example';
+import { default as FloatingActionButtonExample } from '../floating-action-button/floating-action-button.example';
 import { default as IconButtonExample } from '../icon-button/icon-button.example';
 import { default as SocialSignInButtonExample } from '../social-sign-in-button/social-sign-in-button.example';
 import { default as TextInputExample } from '../text-input/text-input.example';
@@ -100,6 +101,11 @@ const builtInEntries: ComponentEntry[] = [
 
   // Inputs
   { name: 'Button', category: 'Inputs', Example: ButtonExample },
+  {
+    name: 'FloatingActionButton',
+    category: 'Inputs',
+    Example: FloatingActionButtonExample,
+  },
   { name: 'IconButton', category: 'Inputs', Example: IconButtonExample },
   {
     name: 'SocialSignInButton',

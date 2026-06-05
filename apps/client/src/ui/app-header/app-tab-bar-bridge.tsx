@@ -6,7 +6,8 @@
  */
 
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { useBreakpoint } from '@pkgs/ui';
+import { SpaceMiniplayer } from '@libs/spaces/client/miniplayer/space-miniplayer';
+import { Box, useBreakpoint } from '@pkgs/ui';
 import { useLayoutEffect, type ReactNode } from 'react';
 
 import { AppTabBar } from './app-tab-bar';
@@ -22,5 +23,11 @@ export function AppTabBarBridge(props: BottomTabBarProps): ReactNode {
   }, [props]);
 
   if (!isMobile) return null;
-  return <AppTabBar {...props} layout={BOTTOM_LAYOUT} />;
+  return (
+    <Box>
+      {/* eslint-disable-next-line lingui/no-unlocalized-strings -- internal slot id, not user-facing */}
+      <SpaceMiniplayer slot="tabBar" />
+      <AppTabBar {...props} layout={BOTTOM_LAYOUT} />
+    </Box>
+  );
 }

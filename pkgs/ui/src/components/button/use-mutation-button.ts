@@ -22,8 +22,10 @@
  * ```
  */
 
+import { asLocalized, type LocalizedString } from '@pkgs/i18n';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { useMutationLifecycle } from '../mutation-modal/use-mutation-lifecycle';
+import type { FloatingActionButtonProps } from '../floating-action-button/floating-action-button';
 import type { ButtonFeedback, ButtonProps } from './button';
 
 export type MutationButtonLabels = {
@@ -43,8 +45,8 @@ export type UseMutationButtonParams = {
   /** Side-effect notified on failure (e.g. structured logging). */
   onError?: ((error: Error) => void) | undefined;
   /**
-   * How long the success face shows before `onSuccess` runs (or, if no
-   * `onSuccess`, before the button resets to idle). Defaults to 900ms.
+   * How long the success face shows before `onSuccess` runs and the button
+   * resets to idle. Defaults to 900ms.
    */
   successHoldMs?: number | undefined;
   /** Disable the button in the idle phase (e.g. failed validation). */
@@ -64,6 +66,20 @@ export type MutationButtonProps = Pick<
   | 'disabled'
 >;
 
+/** Props to spread onto a {@link FloatingActionButton}. */
+export type MutationFabProps = Pick<
+  FloatingActionButtonProps,
+  | 'feedback'
+  | 'onPress'
+  | 'onRetry'
+  | 'disabled'
+  | 'accessibilityLabel'
+  | 'label'
+  | 'loadingLabel'
+  | 'successLabel'
+  | 'errorLabel'
+>;
+
 export type UseMutationButtonResult = {
   feedback: ButtonFeedback;
   /** Populated only while `feedback === 'error'`. */
@@ -73,9 +89,31 @@ export type UseMutationButtonResult = {
   /** Return to idle and drop any captured error. */
   reset: () => void;
   buttonProps: MutationButtonProps;
+  fabProps: MutationFabProps;
 };
 
 const DEFAULT_SUCCESS_HOLD_MS = 900;
+
+function nodeToAccessibilityLabel(value: ReactNode): LocalizedString {
+  if (typeof value === 'string') return value as LocalizedString;
+  return asLocalized(String(value));
+}
+
+function accessibilityLabelForPhase(
+  phase: ButtonFeedback,
+  labels: MutationButtonLabels
+): LocalizedString {
+  switch (phase) {
+    case 'loading':
+      return nodeToAccessibilityLabel(labels.loading ?? labels.idle);
+    case 'success':
+      return nodeToAccessibilityLabel(labels.success ?? labels.idle);
+    case 'error':
+      return nodeToAccessibilityLabel(labels.error ?? labels.idle);
+    default:
+      return nodeToAccessibilityLabel(labels.idle);
+  }
+}
 
 export function useMutationButton({
   operation,
@@ -99,8 +137,11 @@ export function useMutationButton({
     if (phase !== 'success') return undefined;
     const id = setTimeout(() => {
       const cb = onSuccessRef.current;
-      if (cb !== undefined) cb();
-      else resetRef.current();
+      try {
+        if (cb !== undefined) cb();
+      } finally {
+        resetRef.current();
+      }
     }, successHoldMs);
     return () => clearTimeout(id);
   }, [phase, successHoldMs]);
@@ -127,5 +168,20 @@ export function useMutationButton({
     ]
   );
 
-  return { feedback: phase, error, run, reset, buttonProps };
+  const fabProps = useMemo<MutationFabProps>(
+    () => ({
+      feedback: phase,
+      label: labels.idle,
+      loadingLabel: labels.loading,
+      successLabel: labels.success,
+      errorLabel: labels.error,
+      onPress: () => void run(),
+      onRetry: () => void run(),
+      disabled,
+      accessibilityLabel: accessibilityLabelForPhase(phase, labels),
+    }),
+    [labels, phase, run, disabled]
+  );
+
+  return { feedback: phase, error, run, reset, buttonProps, fabProps };
 }

@@ -28,80 +28,42 @@
 
 import { type ReactNode } from 'react';
 import { Platform, View } from 'react-native';
-import {
-  bestOnColor,
-  contrastRatio,
-  OnColorProvider,
-  parseColor,
-  useTheme,
-  type Theme,
-} from '../../theme';
+import { OnColorProvider, useTheme, type Theme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
 import { IconSymbol, type IconSymbolName } from '../symbol-icon';
 import { Text } from '../text';
+import {
+  MUTATION_FEEDBACK_ICONS,
+  mutationPressableForegroundColor,
+  resolveMutationPressableRender,
+  type ButtonFeedback,
+  type ButtonIntent,
+  type ButtonVariant,
+} from './mutation-pressable-face';
 
-/** WCAG AA threshold for normal-weight text. */
-const MIN_CONTRAST = 4.5;
-
-/**
- * Keep the curated `on*` label color, but if a (possibly overridden) fill
- * would drop it below AA, swap to the best-contrast foreground for that fill.
- */
-function ensureContrast(fg: string, bg: string): string {
-  const fgRgb = parseColor(fg);
-  const bgRgb = parseColor(bg);
-  if (!fgRgb || !bgRgb) return fg;
-  if (contrastRatio(fgRgb, bgRgb) >= MIN_CONTRAST) return fg;
-  return bestOnColor(bg).fg;
-}
-
-export type ButtonIntent = 'primary' | 'danger' | 'neutral';
-export type ButtonSize = 'sm' | 'md' | 'lg';
-export type ButtonVariant = 'solid' | 'outline' | 'ghost';
-/**
- * Mutation lifecycle the button reflects in place. `loading` shows a spinner,
- * `success` flips to a solid success face with a check, `error` to a solid
- * destructive face with an X that re-presses as a retry. See
- * {@link useMutationButton} for driving this from an async operation.
- */
-export type ButtonFeedback = 'idle' | 'loading' | 'success' | 'error';
+export type { ButtonFeedback, ButtonIntent, ButtonVariant };
 
 export type ButtonProps = {
   title: ReactNode;
   onPress?: () => void;
-  /** Color/role of the button. Defaults to `"primary"`. */
   intent?: ButtonIntent;
-  /** Visual weight of the button. Defaults to `"solid"`. */
   variant?: ButtonVariant;
-  /** Size preset. Defaults to `"md"`. */
   size?: ButtonSize;
   disabled?: boolean;
   loading?: boolean;
-  /**
-   * Mutation feedback state. When set it supersedes `loading` and drives the
-   * face + content (loading spinner, success check, retryable error).
-   */
   feedback?: ButtonFeedback;
-  /** Label while `feedback === 'loading'`. Falls back to `title`. */
   loadingLabel?: ReactNode;
-  /** Label while `feedback === 'success'`. Falls back to `title`. */
   successLabel?: ReactNode;
-  /** Label while `feedback === 'error'`. Falls back to `title`. */
   errorLabel?: ReactNode;
-  /** Press handler while `feedback === 'error'`. Falls back to `onPress`. */
   onRetry?: () => void;
-  /** Rendered before the label. */
   startIcon?: ReactNode;
-  /** Rendered after the label. */
   endIcon?: ReactNode;
-  /**
-   * Apply a `flex` value to the outer button so it can fill or share space
-   * inside a flex container (e.g. `flex={1}` for an equal-width row item).
-   */
   flex?: number;
 };
+
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
 const sizeMap = {
   sm: {
@@ -132,191 +94,21 @@ const sizeMap = {
 
 type SizeSpec = (typeof sizeMap)[ButtonSize];
 
-type IntentTokens = {
-  /** Background color for `variant="solid"`. */
-  solidBg: string;
-  /** Foreground (label/icon) on top of `solidBg`. */
-  solidFg: string;
-  /** Foreground for `variant="outline"` and `variant="ghost"`. */
-  accent: string;
-  /** Border color for `variant="outline"`. */
-  outlineBorder: string;
-};
-
-function resolveIntentTokens(theme: Theme, intent: ButtonIntent): IntentTokens {
-  const c = theme.colors;
-  if (intent === 'primary') {
-    return {
-      // `tintActive` (darker brand) keeps a white label AA-legible in both
-      // schemes; `tint` stays for the outline/ghost accent on neutral fills.
-      solidBg: c.tintActive,
-      solidFg: c.onPrimary,
-      accent: c.tint,
-      outlineBorder: c.tint,
-    };
-  }
-  if (intent === 'danger') {
-    return {
-      solidBg: c.destructiveActive,
-      solidFg: c.onDestructive,
-      accent: c.destructive,
-      outlineBorder: c.destructive,
-    };
-  }
-  return {
-    solidBg: c.surface,
-    solidFg: c.text,
-    accent: c.text,
-    outlineBorder: c.outline,
-  };
-}
-
-type FaceStyle = {
-  backgroundColor: string;
-  borderColor: string;
-  borderWidth: number;
-  foregroundColor: string;
-  /** Whether to render the small elevation shadow under the face. */
-  withElevation: boolean;
-};
-
-function resolveFaceStyle(
-  theme: Theme,
-  intent: ButtonIntent,
-  variant: ButtonVariant,
-  isDisabled: boolean
-): FaceStyle {
-  const c = theme.colors;
-  if (isDisabled) {
-    return {
-      backgroundColor: variant === 'solid' ? c.disabled : 'transparent',
-      borderColor: c.border,
-      borderWidth: variant === 'solid' ? 0 : 1,
-      foregroundColor: c.textSecondary,
-      withElevation: false,
-    };
-  }
-  const tokens = resolveIntentTokens(theme, intent);
-  if (variant === 'outline') {
-    return {
-      backgroundColor: 'transparent',
-      borderColor: tokens.outlineBorder,
-      borderWidth: 1,
-      foregroundColor: tokens.accent,
-      withElevation: false,
-    };
-  }
-  if (variant === 'ghost') {
-    return {
-      backgroundColor: 'transparent',
-      borderColor: 'transparent',
-      borderWidth: 0,
-      foregroundColor: tokens.accent,
-      withElevation: false,
-    };
-  }
-  // solid
-  if (intent === 'neutral') {
-    return {
-      backgroundColor: tokens.solidBg,
-      borderColor: c.outline,
-      borderWidth: 1,
-      foregroundColor: ensureContrast(tokens.solidFg, tokens.solidBg),
-      withElevation: theme.colorScheme === 'light',
-    };
-  }
-  return {
-    backgroundColor: tokens.solidBg,
-    borderColor: 'transparent',
-    borderWidth: 0,
-    foregroundColor: ensureContrast(tokens.solidFg, tokens.solidBg),
-    withElevation: theme.colorScheme === 'light',
-  };
-}
-
-/**
- * Solid face for the success / error feedback phases. Returns `null` for the
- * idle / loading phases so the caller falls back to the intent-driven face.
- */
-function resolveFeedbackFace(
-  theme: Theme,
-  feedback: ButtonFeedback
-): FaceStyle | null {
-  const c = theme.colors;
-  const withElevation = theme.colorScheme === 'light';
-  if (feedback === 'success') {
-    return {
-      backgroundColor: c.success,
-      borderColor: 'transparent',
-      borderWidth: 0,
-      foregroundColor: ensureContrast(c.onSuccess, c.success),
-      withElevation,
-    };
-  }
-  if (feedback === 'error') {
-    return {
-      backgroundColor: c.destructiveActive,
-      borderColor: 'transparent',
-      borderWidth: 0,
-      foregroundColor: ensureContrast(c.onDestructive, c.destructiveActive),
-      withElevation,
-    };
-  }
-  return null;
-}
-
-/**
- * Foreground color (label, spinner, suggested icon) applied on top of the
- * button face. Exposed so consumers passing `startIcon` / `endIcon` can
- * tint their icons to match the label.
- */
 export function buttonForegroundColor(
   theme: Theme,
   intent: ButtonIntent,
   isDisabled: boolean,
   variant: ButtonVariant = 'solid'
 ): string {
-  return resolveFaceStyle(theme, intent, variant, isDisabled).foregroundColor;
-}
-
-type ButtonRender = {
-  phase: ButtonFeedback;
-  face: FaceStyle;
-  nonInteractive: boolean;
-  handlePress: (() => void) | undefined;
-};
-
-function buttonPhase(props: ButtonProps): ButtonFeedback {
-  if (props.feedback !== undefined) return props.feedback;
-  return props.loading === true ? 'loading' : 'idle';
-}
-
-/** Collapse props + feedback phase into the face, press handler, and disabled flag. */
-function resolveButtonRender(theme: Theme, props: ButtonProps): ButtonRender {
-  const phase = buttonPhase(props);
-  const nonInteractive =
-    (props.disabled ?? false) || phase === 'loading' || phase === 'success';
-  const face =
-    resolveFeedbackFace(theme, phase) ??
-    resolveFaceStyle(
-      theme,
-      props.intent ?? 'primary',
-      props.variant ?? 'solid',
-      nonInteractive
-    );
-  const handlePress =
-    phase === 'error' ? (props.onRetry ?? props.onPress) : props.onPress;
-  return { phase, face, nonInteractive, handlePress };
+  return mutationPressableForegroundColor(theme, intent, isDisabled, variant);
 }
 
 export function Button(props: ButtonProps) {
   const { size = 'md', flex } = props;
   const theme = useTheme();
   const s = sizeMap[size];
-  const { phase, face, nonInteractive, handlePress } = resolveButtonRender(
-    theme,
-    props
-  );
+  const { phase, face, nonInteractive, handlePress } =
+    resolveMutationPressableRender(theme, props);
   const shadow = face.withElevation ? theme.elevation(1) : undefined;
 
   return (
@@ -362,12 +154,6 @@ export function Button(props: ButtonProps) {
   );
 }
 
-/** Icon paired with each terminal feedback phase. */
-const FEEDBACK_ICON = {
-  success: 'check.circle.fill',
-  error: 'xmark',
-} as const satisfies Record<'success' | 'error', IconSymbolName>;
-
 function ButtonContent({
   props,
   phase,
@@ -393,7 +179,7 @@ function ButtonContent({
     const label = phase === 'success' ? props.successLabel : props.errorLabel;
     return (
       <ButtonStatusContent
-        icon={FEEDBACK_ICON[phase]}
+        icon={MUTATION_FEEDBACK_ICONS[phase]}
         size={size}
         foregroundColor={foregroundColor}
         label={label ?? props.title}
@@ -437,7 +223,6 @@ function ButtonLabelText({
   );
 }
 
-/** Loading / success / error content: a leading indicator plus optional label. */
 function ButtonStatusContent({
   spinner = false,
   icon,

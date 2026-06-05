@@ -21,6 +21,8 @@ const MAX_CONTENT_WIDTH = 1120;
 const BODY_PADDING_STEP = 4;
 const BODY_GAP_STEP = 3;
 const SCROLL_BOTTOM_PADDING = 24;
+const FLOATING_ACTION_MARGIN = 16;
+const FLOATING_ACTION_Z_INDEX = 10;
 
 /**
  * Centers content up to {@link MAX_CONTENT_WIDTH} while always letting the
@@ -75,6 +77,32 @@ function PinnedFooter({ children }: { children: ReactNode }) {
   );
 }
 
+function FloatingActionHost({
+  children,
+  extraBottomInset = 0,
+}: {
+  children: ReactNode;
+  extraBottomInset?: number;
+}) {
+  const isMobile = useBreakpoint() === 'mobile';
+  const bottomInset = useSafeAreaBottom();
+  const bottom = isMobile
+    ? FLOATING_ACTION_MARGIN + extraBottomInset
+    : bottomInset + FLOATING_ACTION_MARGIN + extraBottomInset;
+  return (
+    <Box
+      style={{
+        position: 'absolute',
+        right: FLOATING_ACTION_MARGIN,
+        bottom,
+        zIndex: FLOATING_ACTION_Z_INDEX,
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
 export function ScreenBase({
   breadcrumbs,
   actions,
@@ -85,19 +113,56 @@ export function ScreenBase({
   headerEnd,
   leading,
   footer,
+  floatingAction,
+  floatingActionBottomInset = 0,
 }: ScreenBaseProps) {
   const isWide = useBreakpoint() !== 'mobile';
   const inlineFooter = footer !== undefined && isWide;
   const pinnedFooter = footer !== undefined && !isWide;
 
+  return (
+    <Box sx={{ flex: 1 }}>
+      <ScreenBaseHeader
+        breadcrumbs={breadcrumbs}
+        actions={actions ?? []}
+        centerTabs={centerTabs}
+        headerEnd={headerEnd}
+        leading={leading}
+      />
+      {renderScreenBody({
+        scroll,
+        keyboardAvoiding,
+        content,
+        inlineFooter,
+        pinnedFooter,
+        footer,
+        floatingAction,
+        floatingActionBottomInset,
+      })}
+    </Box>
+  );
+}
+
+function renderScreenBody(args: {
+  scroll: boolean;
+  keyboardAvoiding: boolean;
+  content: ScreenBaseProps['content'];
+  inlineFooter: boolean;
+  pinnedFooter: boolean;
+  footer: ScreenBaseProps['footer'];
+  floatingAction: ScreenBaseProps['floatingAction'];
+  floatingActionBottomInset: number;
+}): ReactNode {
   const inner = (
     <ConstrainedInner>
-      {content({ sx: { flex: 1 } } satisfies BodyContentProps)}
-      {inlineFooter ? <Box sx={{ pt: BODY_GAP_STEP }}>{footer}</Box> : null}
+      {args.content({ sx: { flex: 1 } } satisfies BodyContentProps)}
+      {args.inlineFooter ? (
+        <Box sx={{ pt: BODY_GAP_STEP }}>{args.footer}</Box>
+      ) : null}
     </ConstrainedInner>
   );
 
-  const body = scroll ? (
+  const body = args.scroll ? (
     <ScrollView
       sx={{ flex: 1 }}
       contentContainerStyle={{
@@ -112,30 +177,23 @@ export function ScreenBase({
   );
 
   const bodyWithFooter = (
-    <Box sx={{ flex: 1 }}>
+    <Box sx={{ flex: 1, minHeight: 0 }} style={{ position: 'relative' }}>
       {body}
-      {pinnedFooter ? <PinnedFooter>{footer}</PinnedFooter> : null}
+      {args.pinnedFooter ? <PinnedFooter>{args.footer}</PinnedFooter> : null}
+      {args.floatingAction !== undefined ? (
+        <FloatingActionHost extraBottomInset={args.floatingActionBottomInset}>
+          {args.floatingAction}
+        </FloatingActionHost>
+      ) : null}
     </Box>
   );
 
-  const wrapped = keyboardAvoiding ? (
-    <KeyboardAvoidingView sx={{ flex: 1 }}>
-      {bodyWithFooter}
-    </KeyboardAvoidingView>
-  ) : (
-    bodyWithFooter
-  );
-
-  return (
-    <Box sx={{ flex: 1 }}>
-      <ScreenBaseHeader
-        breadcrumbs={breadcrumbs}
-        actions={actions ?? []}
-        centerTabs={centerTabs}
-        headerEnd={headerEnd}
-        leading={leading}
-      />
-      {wrapped}
-    </Box>
-  );
+  if (args.keyboardAvoiding) {
+    return (
+      <KeyboardAvoidingView sx={{ flex: 1 }}>
+        {bodyWithFooter}
+      </KeyboardAvoidingView>
+    );
+  }
+  return bodyWithFooter;
 }

@@ -294,6 +294,7 @@
         "@dicebear/collection": "catalog:",
         "@dicebear/core": "catalog:",
         "@libs/auth": "workspace:*",
+        "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/attribute": "workspace:*",

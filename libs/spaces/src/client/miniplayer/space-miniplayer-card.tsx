@@ -5,32 +5,25 @@ import { MiniplayerOpenSpacePressable } from './miniplayer-open-space-pressable'
 import { MiniplayerSpaceTitle } from './miniplayer-space-title';
 import { SpaceEndOrLeaveButton } from '../lifecycle/space-end-or-leave-button';
 import { SpaceHostAvatar } from '../members/space-host-avatar';
-import { Box, elevation, GradientBox, Text, useTheme } from '@pkgs/ui';
+import {
+  SPACE_CARD_BORDER_RADIUS,
+  SpaceCardGradientBox,
+} from '../card/space-card-gradient';
+import { Box, elevation, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export type SpaceMiniplayerCardProps = {
   spaceId: string;
 };
 
-const SPACE_CARD_RADIUS = 16;
-
 /** A single miniplayer entry — gradient + atoms. No `useQuery` here. */
 export function SpaceMiniplayerCard({
   spaceId,
 }: SpaceMiniplayerCardProps): ReactNode {
-  const theme = useTheme();
-  const gradientColors = [
-    theme.colors.tintHover,
-    theme.colors.tintActive,
-  ] as const;
-
   return (
-    <GradientBox
-      colors={gradientColors}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
+    <SpaceCardGradientBox
       sx={{
-        borderRadius: SPACE_CARD_RADIUS,
+        borderRadius: SPACE_CARD_BORDER_RADIUS,
         flexDirection: 'row',
         alignItems: 'center',
         p: 3,
@@ -73,6 +66,6 @@ export function SpaceMiniplayerCard({
         <MiniplayerLiveBadge />
       </MiniplayerOpenSpacePressable>
       <SpaceEndOrLeaveButton spaceId={spaceId} />
-    </GradientBox>
+    </SpaceCardGradientBox>
   );
 }

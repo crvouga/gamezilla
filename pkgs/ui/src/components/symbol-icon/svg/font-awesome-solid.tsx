@@ -195,6 +195,16 @@ export function CircleCheckFa(props: FaIconProps) {
   );
 }
 
+/** svgs-full/solid/plus.svg */
+export function PlusFa(props: FaIconProps) {
+  return (
+    <FaSvg
+      {...props}
+      d="M320 552C337.7 552 352 537.7 352 520L352 352L520 352C537.7 352 552 337.7 552 320C552 302.3 537.7 288 520 288L352 288L352 120C352 102.3 337.7 88 320 88C302.3 88 288 102.3 288 120L288 288L120 288C102.3 288 88 302.3 88 320C88 337.7 102.3 352 120 352L288 352L288 520C288 537.7 302.3 552 320 552z"
+    />
+  );
+}
+
 /** @fortawesome/fontawesome-free 6.5.2 solid/volume-high.svg (viewBox 0 0 640 512) */
 export function VolumeHighFa(props: FaIconProps) {
   const { size, color } = props;

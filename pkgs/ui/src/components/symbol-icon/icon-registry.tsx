@@ -19,6 +19,7 @@ import {
   PaintbrushFillFa,
   PaperplaneFillFa,
   PersonFillFa,
+  PlusFa,
   RightToBracketFa,
   VolumeHighFa,
   VolumeXmarkFa,
@@ -32,6 +33,7 @@ export type FaIconComponent = ComponentType<FaIconProps>;
 export const ICON_REGISTRY = {
   'house.fill': HouseFillFa,
   'person.fill': PersonFillFa,
+  plus: PlusFa,
   'paperplane.fill': PaperplaneFillFa,
   'chevron.left.forwardslash.chevron.right': CodeSlashFa,
   'chevron.right': ChevronRightFa,

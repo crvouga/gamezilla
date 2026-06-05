@@ -1,5 +1,6 @@
 import { MyDisplayName } from './my-display-name';
 import { MyProfileAvatar } from './my-profile-avatar';
+import { useSpaceMiniplayerLayoutInsets } from '@libs/spaces/client/miniplayer/use-space-miniplayer-layout-insets';
 import {
   Box,
   Button,
@@ -31,6 +32,7 @@ export function ProfileScreen({
   const { t } = useLingui();
   const router = useRouter();
   const isMobile = useBreakpoint() === 'mobile';
+  const miniplayerInsets = useSpaceMiniplayerLayoutInsets();
 
   return (
     <ScreenBase
@@ -40,7 +42,17 @@ export function ProfileScreen({
       headerEnd={headerEnd}
       leading={leading}
       content={({ sx }) => (
-        <Box style={sx}>
+        <Box
+          style={{
+            ...sx,
+            ...(miniplayerInsets.top > 0
+              ? { paddingTop: miniplayerInsets.top }
+              : {}),
+            ...(miniplayerInsets.bottom > 0
+              ? { paddingBottom: miniplayerInsets.bottom }
+              : {}),
+          }}
+        >
           <Box sx={{ alignItems: 'center', gap: 2 }}>
             <MyProfileAvatar size={80} />
             <MyDisplayName variant="title" />

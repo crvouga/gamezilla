@@ -1,30 +1,27 @@
-import { useSpaceActions } from './lifecycle/space-actions';
+import { CreateSpaceFloatingAction } from './create-space-floating-action';
 import { SpaceCard } from './card/space-card';
+import { useSpaceMiniplayerLayoutInsets } from './miniplayer/use-space-miniplayer-layout-insets';
 import { useCurrentSpaceCount } from './use-current-space-count';
 import { useLiveSpaceIds } from './use-live-space-ids';
 import {
   Box,
-  Button,
   EmptyState,
   ScreenBase,
   ScrollView,
-  Text,
   useBreakpoint,
-  useMutationButton,
   type ScreenBaseAction,
 } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
-import { useRouter } from 'expo-router';
-import { useCallback, useRef, type ReactNode } from 'react';
+import { Trans } from '@lingui/react/macro';
+import type { ReactNode } from 'react';
 
-function SpacesList() {
+function SpacesList({ bottomInset }: { bottomInset: number }) {
   const spaceIds = useLiveSpaceIds();
   if (spaceIds.length === 0) {
     return (
       <EmptyState
         icon="house.fill"
         title={<Trans>No live spaces</Trans>}
-        body={<Trans>Tap + New space above to start one.</Trans>}
+        body={<Trans>Tap New space to start one.</Trans>}
       />
     );
   }
@@ -32,7 +29,7 @@ function SpacesList() {
     <ScrollView
       style={{ flex: 1 }}
       contentContainerStyle={{
-        paddingBottom: 24,
+        paddingBottom: 24 + bottomInset,
         gap: 12,
       }}
     >
@@ -61,32 +58,8 @@ export function SpacesScreen({
   leading,
 }: SpacesScreenProps) {
   const isMobile = useBreakpoint() === 'mobile';
-  const router = useRouter();
-  const { createSpaceAsync } = useSpaceActions();
-  const { t } = useLingui();
-  const currentSpaceCount = useCurrentSpaceCount();
-  const alreadyInSpace = currentSpaceCount > 0;
-
-  const createdIdRef = useRef<string | null>(null);
-  const create = useMutationButton({
-    operation: useCallback(async () => {
-      createdIdRef.current = await createSpaceAsync();
-    }, [createSpaceAsync]),
-    labels: {
-      idle: t`+ New space`,
-      loading: t`Creating…`,
-      success: t`Created`,
-      error: t`Couldn't create space`,
-    },
-    onSuccess: useCallback(() => {
-      const id = createdIdRef.current;
-      if (id !== null) {
-        router.push({ pathname: '/space/[id]', params: { id } });
-      }
-    }, [router]),
-    successHoldMs: 0,
-    disabled: alreadyInSpace,
-  });
+  const canCreateSpace = useCurrentSpaceCount() === 0;
+  const miniplayerInsets = useSpaceMiniplayerLayoutInsets();
 
   return (
     <ScreenBase
@@ -95,17 +68,19 @@ export function SpacesScreen({
       centerTabs={centerTabs}
       headerEnd={headerEnd}
       leading={leading}
+      floatingAction={
+        canCreateSpace ? <CreateSpaceFloatingAction /> : undefined
+      }
       content={({ sx }) => (
-        <Box style={sx} sx={{ gap: 3 }}>
-          <Button {...create.buttonProps} />
-          {alreadyInSpace ? (
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary' }}
-              label={<Trans>You’re already in a space</Trans>}
-            />
-          ) : null}
-          <SpacesList />
+        <Box
+          style={{
+            ...sx,
+            ...(miniplayerInsets.top > 0
+              ? { paddingTop: miniplayerInsets.top }
+              : {}),
+          }}
+        >
+          <SpacesList bottomInset={miniplayerInsets.bottom} />
         </Box>
       )}
     />
