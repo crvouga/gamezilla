@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "bun run src/dev.ts",
-    "kill": "lsof -ti :5556 | xargs kill -9 2>/dev/null || true",
+    "kill": "bun run src/kill.ts",
     "lint": "eslint src --max-warnings 0",
     "preview": "bun run src/dev.ts",
     "tc": "tsc --noEmit -p ./tsconfig.json",
@@ -23,6 +23,7 @@
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/os": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",
     "pg": "catalog:"

@@ -13,7 +13,7 @@
     "build": "bun -e \"process.exit(0)\"",
     "db:migrate": "bun run scripts/migrate-db.ts",
     "dev": "bun run scripts/migrate-db.ts --wait && bun run --filter @libs/client-config dev:refresh & wrangler dev --port 8788 --inspector-port 9231",
-    "kill": "lsof -ti :8788 | xargs kill -9 2>/dev/null || true",
+    "kill": "bun run scripts/kill-dev.ts",
     "lint": "eslint src --max-warnings 0",
     "preview": "bun run scripts/migrate-db.ts --wait && wrangler dev --port 8788",
     "setup": "bun run scripts/setup-dev-vars.ts && bun run scripts/setup-better-auth-secret.ts",
@@ -51,6 +51,7 @@
     "stripe": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "typescript": "catalog:",

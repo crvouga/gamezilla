@@ -60,6 +60,7 @@
         "stripe": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/os": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "typescript": "catalog:",
@@ -143,6 +144,7 @@
       },
       "devDependencies": {
         "@lingui/babel-plugin-lingui-macro": "catalog:",
+        "@pkgs/os": "workspace:*",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
@@ -476,6 +478,7 @@
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/os": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "hono": "catalog:",
         "pg": "catalog:",
@@ -648,6 +651,9 @@
     "pkgs/os": {
       "name": "@pkgs/os",
       "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
@@ -737,6 +743,7 @@
       "dependencies": {
         "@pkgs/assert": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/os": "workspace:*",
         "embedded-postgres": "catalog:",
       },
       "devDependencies": {

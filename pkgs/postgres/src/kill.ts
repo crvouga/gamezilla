@@ -1,11 +1,10 @@
 /**
  * Stops the managed local PostgreSQL cluster started by `dev.ts`.
  *
- * Scope is intentional: this targets *our* cluster only — identified by the
- * data directory (`PG_DATA_DIR`/default) and the wrapper PID file we wrote in
- * `dev.ts`. It will never `kill -9 $(lsof -ti :5432)` style operations because
- * that pattern terminates unrelated Postgres servers (Homebrew, Docker, system
- * `postgresql.service`) that happen to bind the same port.
+ * Scope: first shut down *our* cluster (wrapper PID + data-dir `postmaster.pid`).
+ * Then reclaim the dev ports (`PG_PORT`, `PG_GUI_PORT`) so a stale listener from
+ * a prior hard turbo exit — or another local dev stack on the same port — does
+ * not block the next `@pkgs/postgres#dev` boot.
  *
  * Order of operations:
  *
@@ -19,6 +18,7 @@
 import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { createLogger, type Logger } from '@pkgs/logger';
+import { killListenersOnPorts } from '@pkgs/os/kill-port';
 import { loadPostgresConfig } from './postgres-config';
 import { stopClusterByPid } from './postgres-lifecycle';
 import { WRAPPER_PID_FILE } from './postgres-paths';
@@ -106,8 +106,16 @@ export async function killCluster(logger: Logger): Promise<void> {
   await stopClusterByPid(config, logger);
 }
 
+function reclaimDevPorts(): void {
+  const config = loadPostgresConfig();
+  const ports = [config.port];
+  if (config.gui.enabled) ports.push(config.gui.port);
+  killListenersOnPorts(ports);
+}
+
 async function main(): Promise<void> {
   await killCluster(log);
+  reclaimDevPorts();
   log.info('kill complete');
 }
 

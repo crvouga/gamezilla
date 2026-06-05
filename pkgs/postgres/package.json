@@ -23,6 +23,7 @@
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/os": "workspace:*",
     "embedded-postgres": "catalog:"
   },
   "devDependencies": {

@@ -18,7 +18,7 @@
     "eas-build-post-install": "bun run prebuild",
     "install:deps": "CI=1 npx expo install --check || true",
     "ios": "bun run scripts/run-ios-dedicated-sim.ts",
-    "kill": "lsof -ti :5173 | xargs kill -9 2>/dev/null || true",
+    "kill": "bun run scripts/kill-dev.ts",
     "lint": "expo lint --no-cache --max-warnings 0",
     "preview": "bun run scripts/preview-server.ts",
     "pwa:generate": "bun run scripts/generate-pwa-assets.ts",
@@ -105,6 +105,7 @@
     "workbox-window": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/os": "workspace:*",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",

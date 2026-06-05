@@ -42,5 +42,6 @@ export type {
 export { PackageManagerInstaller } from './package-manager-installer';
 export type { Arch, Platform } from './platform';
 export { currentArch, currentPlatform } from './platform';
+export { killListenersOnPort, killListenersOnPorts } from './kill-port';
 export { runAsRoot } from './sudo';
 export { WindowsOs } from './windows-os';

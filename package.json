@@ -33,6 +33,7 @@
     "db:migrate": "bun run scripts/doppler-run.ts -- bun run --filter @apps/api db:migrate",
     "deps:graph": "bun run scripts/render-package-deps-graph.ts",
     "dev": "bun run scripts/doppler-run.ts -- turbo dev --ui=tui",
+    "kill": "turbo kill",
     "format": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" && prettier --write .",
     "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/deployment-pipeline.yml",
     "gh:seed-doppler-service-token": "DOPPLER_CONFIG=prd bun run scripts/seed-github-doppler-service-token.ts",
