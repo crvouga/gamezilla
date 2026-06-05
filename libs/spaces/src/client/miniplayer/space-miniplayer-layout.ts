@@ -17,7 +17,9 @@ export function getSpaceMiniplayerDesktopTopOffset(topInset: number): number {
   return topInset + TOP_BAR_CONTENT_HEIGHT;
 }
 
-export function getSpaceMiniplayerMobileTabBarOffset(bottomInset: number): number {
+export function getSpaceMiniplayerMobileTabBarOffset(
+  bottomInset: number
+): number {
   return TOP_BAR_CONTENT_HEIGHT + bottomInset;
 }
 
@@ -28,8 +30,6 @@ const CARD_GAP = 8;
 export function estimateSpaceMiniplayerHeight(cardCount: number): number {
   if (cardCount <= 0) return 0;
   return (
-    DOCK_PADDING_TOP +
-    cardCount * CARD_MIN_HEIGHT +
-    (cardCount - 1) * CARD_GAP
+    DOCK_PADDING_TOP + cardCount * CARD_MIN_HEIGHT + (cardCount - 1) * CARD_GAP
   );
 }
