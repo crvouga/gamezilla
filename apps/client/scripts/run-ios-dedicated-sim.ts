@@ -210,10 +210,15 @@ function ensureDevClientInstalled(udid: string): boolean {
   if (isDevClientInstalled(udid)) return true;
   process.stderr.write(
     `[ios-dev] The development build (${DEV_CLIENT_BUNDLE_ID}) is not installed on "${SIM_NAME}".\n` +
-      '[ios-dev] Build + install it once, then re-run this script:\n' +
-      '[ios-dev]   bunx eas-cli build --profile development-simulator --platform ios\n' +
-      '[ios-dev]   bunx eas-cli build:run --profile development-simulator --platform ios\n' +
-      '[ios-dev] (or `bunx expo run:ios` for a local Xcode build).\n'
+      '[ios-dev] Metro keeps running — use web at http://127.0.0.1:' +
+      String(EXPO_PORT) +
+      ' (or `bun run --filter @apps/client dev`).\n' +
+      '[ios-dev] Install the native dev client once, then re-run `bun run dev:ios`:\n' +
+      '[ios-dev]   bunx expo run:ios --device "' +
+      SIM_NAME +
+      '"\n' +
+      '[ios-dev] (or EAS: `bunx eas-cli build --profile development-simulator --platform ios` +\n' +
+      '[ios-dev]  `bunx eas-cli build:run --profile development-simulator --platform ios`).\n'
   );
   return false;
 }
