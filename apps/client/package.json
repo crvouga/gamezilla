@@ -105,8 +105,8 @@
     "workbox-window": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/os": "workspace:*",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

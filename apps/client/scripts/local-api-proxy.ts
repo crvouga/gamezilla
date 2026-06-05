@@ -55,7 +55,9 @@ export async function proxyHttpRequest(
   const res = await fetch(upstream, {
     method: req.method,
     headers,
-    ...(req.method !== 'GET' && req.method !== 'HEAD' ? { body: req.body } : {}),
+    ...(req.method !== 'GET' && req.method !== 'HEAD'
+      ? { body: req.body }
+      : {}),
     redirect: 'manual',
   });
   const outHeaders = new Headers(res.headers);
@@ -73,16 +75,15 @@ type WebSocketProxyData = {
   pendingFromClient: WebSocketMessage[];
 };
 
-type WebSocketMessage = Parameters<ServerWebSocket<WebSocketProxyData>['send']>[0];
+type WebSocketMessage = Parameters<
+  ServerWebSocket<WebSocketProxyData>['send']
+>[0];
 
 function httpOriginToWebSocketOrigin(origin: string): string {
   return origin.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:');
 }
 
-function buildWebSocketUpstreamUrl(
-  reqUrl: URL,
-  targetOrigin: string
-): string {
+function buildWebSocketUpstreamUrl(reqUrl: URL, targetOrigin: string): string {
   const wsOrigin = httpOriginToWebSocketOrigin(targetOrigin);
   return `${wsOrigin}${reqUrl.pathname}${reqUrl.search}`;
 }
@@ -118,7 +119,10 @@ export function sendToUpstream(
   } catch {}
 }
 
-function sendToClient(client: ProxyClientSocket, message: WebSocketMessage): void {
+function sendToClient(
+  client: ProxyClientSocket,
+  message: WebSocketMessage
+): void {
   if (client.readyState !== WebSocket.OPEN) return;
   try {
     client.send(message);
