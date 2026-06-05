@@ -16,7 +16,12 @@ function spawnDevServer(passthrough: string[]): ChildProcess {
   process.stdout.write(`[client-dev] expo ${args.join(' ')}\n`);
   return spawn(
     'sh',
-    ['-c', 'ulimit -n 65536 2>/dev/null || true; exec "$0" "$@"', expoBin, ...args],
+    [
+      '-c',
+      'ulimit -n 65536 2>/dev/null || true; exec "$0" "$@"',
+      expoBin,
+      ...args,
+    ],
     {
       stdio: 'inherit',
       cwd: clientRoot,
@@ -25,7 +30,9 @@ function spawnDevServer(passthrough: string[]): ChildProcess {
   );
 }
 
-const child = spawnDevServer(process.argv.slice(2).filter((arg) => arg !== '--'));
+const child = spawnDevServer(
+  process.argv.slice(2).filter((arg) => arg !== '--')
+);
 
 for (const sig of ['SIGINT', 'SIGTERM'] as const) {
   process.on(sig, () => {
