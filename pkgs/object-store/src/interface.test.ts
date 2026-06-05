@@ -9,6 +9,10 @@ const implementations: Factory[] = [
     name: 'ObjectStoreImplInMemory',
     create: () => new ObjectStoreImplInMemory(),
   },
+  {
+    name: 'ObjectStoreImplInMemory (withPrefix test/)',
+    create: () => new ObjectStoreImplInMemory().withPrefix('test/'),
+  },
 ];
 
 async function readAllBytes(

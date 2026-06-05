@@ -1,5 +1,4 @@
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
 import { ttsCacheKey } from '../shared/tts-cache-key';
 import { ttsContentTypeFor, type TtsAudioFormat } from '../shared/tts-types';
 import type { TtsProvider, TtsSynthesizeInput } from './ports/tts-provider';
@@ -7,15 +6,15 @@ import type { TtsProvider, TtsSynthesizeInput } from './ports/tts-provider';
 /**
  * Object key under which an audio blob is cached in the {@link ObjectStore}.
  * Namespacing by provider id keeps multiple providers' caches from colliding
- * on the same hash, and keeps a future bucket sweep predictable
- * (`prefix=tts-audio/elevenlabs/`).
+ * on the same hash. The feature prefix (`tts-audio/`) is applied via
+ * {@link ObjectStore.withPrefix} at the API binding layer.
  */
 export function ttsObjectKey(
   providerId: string,
   hash: string,
   format: TtsAudioFormat
 ): string {
-  return `${ObjectStorePrefix.ttsAudio}${providerId}/${hash}.${format}`;
+  return `${providerId}/${hash}.${format}`;
 }
 
 export type TtsSynthesizeResult = {

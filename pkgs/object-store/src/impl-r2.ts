@@ -86,4 +86,8 @@ export class ObjectStoreImplR2 implements ObjectStore {
   async getUri(_key: string): Promise<string | null> {
     return null;
   }
+
+  withPrefix(prefix: string): ObjectStore {
+    return new ObjectStoreWithPrefix(this, prefix);
+  }
 }

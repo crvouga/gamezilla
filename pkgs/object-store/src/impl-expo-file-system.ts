@@ -2,6 +2,7 @@ import { Directory, File, Paths } from 'expo-file-system';
 import { Platform } from 'react-native';
 
 import type { ObjectStore, StoredObject } from './interface';
+import { ObjectStoreWithPrefix } from './impl-with-prefix';
 
 /**
  * Local-first {@link ObjectStore} for the Expo client. On native (iOS / Android)
@@ -328,6 +329,10 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
     } catch {
       return { contentType: 'application/octet-stream' };
     }
+  }
+
+  withPrefix(prefix: string): ObjectStore {
+    return new ObjectStoreWithPrefix(this, prefix);
   }
 }
 

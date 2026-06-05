@@ -1,4 +1,5 @@
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
 import type { SecretStore } from '@pkgs/secret-store';
 import { ElevenLabsTtsProvider } from './adapters/elevenlabs-tts-provider';
 import { createTtsApp, type TtsRequireAuth } from './tts-routes';
@@ -24,7 +25,7 @@ export async function createTtsAppFromBindings(
 
   return createTtsApp({
     provider,
-    objectStore: options.objectStore.withPrefix(TTS_OBJECT_STORE_PREFIX),
+    objectStore: options.objectStore.withPrefix(ObjectStorePrefix.ttsAudio),
     requireAuth: options.requireAuth,
   });
 }
