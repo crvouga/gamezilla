@@ -82,11 +82,7 @@ function JoinPromptBody({
       <EmptyState
         icon="house.fill"
         title={<Trans>This space is not available</Trans>}
-        body={
-          <Trans>
-            It may have ended or the link might be invalid.
-          </Trans>
-        }
+        body={<Trans>It may have ended or the link might be invalid.</Trans>}
         action={{ label: t`Back to Spaces`, onPress: () => nav('/') }}
       />
     );

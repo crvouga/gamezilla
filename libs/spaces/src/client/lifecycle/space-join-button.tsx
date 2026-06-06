@@ -20,9 +20,7 @@ export function SpaceJoinButton({
   const currentCount = useCurrentSpaceCount();
   const inThisSpace = role !== null;
   const disabled =
-    !joinable ||
-    (!inThisSpace && currentCount > 0) ||
-    spaceId.length === 0;
+    !joinable || (!inThisSpace && currentCount > 0) || spaceId.length === 0;
 
   const join = useMutationButton({
     operation: useCallback(() => joinSpace(spaceId), [joinSpace, spaceId]),

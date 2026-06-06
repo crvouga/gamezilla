@@ -140,12 +140,15 @@ export function useSpaceActions() {
   const db = usePatchDb();
   const myId = useMyId();
 
-  const createSpace = useCallback((onCreated?: (spaceId: string) => void): string => {
-    const spaceId = crypto.randomUUID();
-    onCreated?.(spaceId);
-    void writeCreateSpaceAction(db, myId, spaceId);
-    return spaceId;
-  }, [db, myId]);
+  const createSpace = useCallback(
+    (onCreated?: (spaceId: string) => void): string => {
+      const spaceId = crypto.randomUUID();
+      onCreated?.(spaceId);
+      void writeCreateSpaceAction(db, myId, spaceId);
+      return spaceId;
+    },
+    [db, myId]
+  );
 
   const joinSpace = useCallback(
     async (spaceId: string) => {
