@@ -27,7 +27,11 @@ function SpaceMiniplayerCards({ spaceIds }: { spaceIds: string[] }): ReactNode {
   );
 }
 
-function TabBarMiniplayerDock({ children }: { children: ReactNode }): ReactNode {
+function TabBarMiniplayerDock({
+  children,
+}: {
+  children: ReactNode;
+}): ReactNode {
   return <Box sx={{ pt: 1, px: 1 }}>{children}</Box>;
 }
 
