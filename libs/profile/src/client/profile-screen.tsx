@@ -45,9 +45,6 @@ export function ProfileScreen({
         <Box
           style={{
             ...sx,
-            ...(miniplayerInsets.top > 0
-              ? { paddingTop: miniplayerInsets.top }
-              : {}),
             ...(miniplayerInsets.bottom > 0
               ? { paddingBottom: miniplayerInsets.bottom }
               : {}),

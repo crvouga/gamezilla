@@ -1,9 +1,22 @@
 import { SpaceJoinBlockedNote } from './space-join-blocked-note';
 import { SpaceJoinButton } from './space-join-button';
-import { SpaceJoinHostSection } from './space-join-host-section';
+import { useSpaceJoinSnapshot } from './use-space-join-snapshot';
+import { SpaceGuestSection } from '../members/space-guest-section';
 import { SpaceTitleText } from '../space-title-text';
+import {
+  SPACE_CARD_BORDER_RADIUS,
+  SpaceCardGradientBox,
+} from '../card/space-card-gradient';
+import { SpaceSummaryHeader } from '../card/space-summary-header';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { Box, Card, ScreenBase, Text, type ScreenBaseAction } from '@pkgs/ui';
+import {
+  Box,
+  EmptyState,
+  LoadingState,
+  ScreenBase,
+  Text,
+  type ScreenBaseAction,
+} from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMemo, type ReactNode } from 'react';
 
@@ -14,19 +27,13 @@ export type SpaceJoinPromptProps = {
 
 const JOIN_MAX_WIDTH = 480;
 
-/**
- * Pure layout for the not-yet-joined state of the space detail screen. Uses
- * the shared {@link ScreenBase} chrome (breadcrumb-driven back on mobile,
- * centered title from the trail) plus the standard overflow-only debug
- * action; the bespoke inline back button on the join card was removed in
- * favor of chrome-managed navigation.
- */
 export function SpaceJoinPrompt({
   spaceId,
   onOpenDebug,
 }: SpaceJoinPromptProps): ReactNode {
   const { t } = useLingui();
   const nav = useBreadcrumbNav();
+  const snapshot = useSpaceJoinSnapshot(spaceId);
   const actions = useMemo<ScreenBaseAction[]>(
     () => [
       {
@@ -49,31 +56,80 @@ export function SpaceJoinPrompt({
       actions={actions}
       content={({ sx }) => (
         <Box style={sx}>
-          <Box
-            sx={{
-              alignSelf: 'center',
-              maxWidth: JOIN_MAX_WIDTH,
-              gap: 4,
-            }}
-            style={{ width: '100%' }}
-          >
-            <Card elevation={0} sx={{ p: 4, gap: 3 }}>
-              <SpaceJoinHostSection spaceId={spaceId} />
-              <Text
-                variant="body"
-                sx={{ color: 'textSecondary' }}
-                label={
-                  <Trans>
-                    Join this space to see who is here and hang out.
-                  </Trans>
-                }
-              />
-              <SpaceJoinBlockedNote spaceId={spaceId} />
-            </Card>
-            <SpaceJoinButton spaceId={spaceId} />
-          </Box>
+          <JoinPromptBody spaceId={spaceId} snapshot={snapshot} />
         </Box>
       )}
     />
+  );
+}
+
+function JoinPromptBody({
+  spaceId,
+  snapshot,
+}: {
+  spaceId: string;
+  snapshot: ReturnType<typeof useSpaceJoinSnapshot>;
+}): ReactNode {
+  const nav = useBreadcrumbNav();
+  const { t } = useLingui();
+
+  if (snapshot.status === 'loading') {
+    return <LoadingState size="large" />;
+  }
+
+  if (snapshot.status === 'unavailable') {
+    return (
+      <EmptyState
+        icon="house.fill"
+        title={<Trans>This space is not available</Trans>}
+        body={
+          <Trans>
+            It may have ended or the link might be invalid.
+          </Trans>
+        }
+        action={{ label: t`Back to Spaces`, onPress: () => nav('/') }}
+      />
+    );
+  }
+
+  return (
+    <Box
+      sx={{
+        alignSelf: 'center',
+        maxWidth: JOIN_MAX_WIDTH,
+        gap: 4,
+      }}
+      style={{ width: '100%' }}
+    >
+      <SpaceCardGradientBox
+        sx={{
+          borderRadius: SPACE_CARD_BORDER_RADIUS,
+          p: 4,
+          minHeight: 112,
+          justifyContent: 'space-between',
+          gap: 0,
+        }}
+      >
+        <SpaceSummaryHeader spaceId={spaceId} />
+        <SpaceGuestSection spaceId={spaceId} />
+      </SpaceCardGradientBox>
+      <Text
+        variant="body"
+        sx={{ color: 'textSecondary' }}
+        label={
+          snapshot.status === 'ended' ? (
+            <Trans>This space has ended.</Trans>
+          ) : (
+            <Trans>Join to see who is here and hang out.</Trans>
+          )
+        }
+      />
+      {snapshot.status === 'live' ? (
+        <>
+          <SpaceJoinBlockedNote spaceId={spaceId} />
+          <SpaceJoinButton spaceId={spaceId} joinable={snapshot.joinable} />
+        </>
+      ) : null}
+    </Box>
   );
 }

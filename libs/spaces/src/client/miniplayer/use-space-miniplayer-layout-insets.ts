@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   estimateSpaceMiniplayerHeight,
+  getSpaceMiniplayerBottomInset,
   isTabRootRoute,
 } from './space-miniplayer-layout';
 import { useSpaceMiniplayerVisibleSpaceIds } from './use-space-miniplayer-visible-space-ids';
@@ -26,17 +27,12 @@ export function useSpaceMiniplayerLayoutInsets(): SpaceMiniplayerLayoutInsets {
       return { top: 0, bottom: 0 };
     }
 
-    const height = estimateSpaceMiniplayerHeight(spaceIds.length);
-
-    if (!isMobile) {
-      return { top: height, bottom: 0 };
-    }
-
-    if (onTabRoute) {
+    if (isMobile && onTabRoute) {
       return { top: 0, bottom: 0 };
     }
 
-    const bottomInset = insets.bottom > 0 ? insets.bottom : 12;
+    const height = estimateSpaceMiniplayerHeight(spaceIds.length);
+    const bottomInset = getSpaceMiniplayerBottomInset(insets.bottom);
     return { top: 0, bottom: height + bottomInset };
   }, [spaceIds.length, isMobile, onTabRoute, insets.bottom]);
 }

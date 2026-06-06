@@ -37,8 +37,9 @@ function SpaceCreateCommand(): ReactNode {
       keywords={[t`new`, t`create`, t`start`, t`space`, t`host`]}
       enabled={currentCount === 0}
       run={async () => {
-        const id = createSpace();
-        router.push({ pathname: '/space/[id]', params: { id } });
+        createSpace((id) => {
+          router.push({ pathname: '/space/[id]', params: { id } });
+        });
       }}
     />
   );

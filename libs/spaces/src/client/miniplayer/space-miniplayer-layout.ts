@@ -13,12 +13,12 @@ export function isTabRootRoute(rawPath: string): boolean {
   return false;
 }
 
-export function getSpaceMiniplayerDesktopTopOffset(topInset: number): number {
-  return topInset + TOP_BAR_CONTENT_HEIGHT;
-}
-
 export function getSpaceMiniplayerMobileTabBarOffset(bottomInset: number): number {
   return TOP_BAR_CONTENT_HEIGHT + bottomInset;
+}
+
+export function getSpaceMiniplayerBottomInset(safeAreaBottom: number): number {
+  return safeAreaBottom > 0 ? safeAreaBottom : 12;
 }
 
 const DOCK_PADDING_TOP = 4;

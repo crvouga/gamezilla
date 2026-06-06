@@ -11,9 +11,19 @@ import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { useBreakpoint, useTheme } from '../../theme';
 import { Box } from '../box';
+import { FloatingActionButton } from '../floating-action-button/floating-action-button';
 import { KeyboardAvoidingView } from '../keyboard-avoiding-view';
 import { ScrollView } from '../scroll-view';
-import type { BodyContentProps, ScreenBaseProps } from './screen-base-types';
+import { ScreenBaseContentHeader } from './screen-base-content-header';
+import {
+  ScreenBasePrimaryActionMutation,
+  type ScreenBasePrimaryActionRenderProps,
+} from './screen-base-primary-action';
+import type {
+  BodyContentProps,
+  ScreenBaseBreadcrumb,
+  ScreenBaseProps,
+} from './screen-base-types';
 import { ScreenBaseHeader } from './screen-base-header';
 
 const MAX_CONTENT_WIDTH = 1120;
@@ -103,6 +113,23 @@ function FloatingActionHost({
   );
 }
 
+function pageTitleFromBreadcrumbs(
+  breadcrumbs: ScreenBaseBreadcrumb[]
+): ReactNode | undefined {
+  return breadcrumbs[breadcrumbs.length - 1]?.name;
+}
+
+function renderPrimaryActionFab(
+  props: ScreenBasePrimaryActionRenderProps
+): ReactNode {
+  return (
+    <FloatingActionButton
+      {...props.fabProps}
+      icon={props.icon ?? 'plus'}
+    />
+  );
+}
+
 export function ScreenBase({
   breadcrumbs,
   actions,
@@ -113,12 +140,27 @@ export function ScreenBase({
   headerEnd,
   leading,
   footer,
-  floatingAction,
-  floatingActionBottomInset = 0,
+  primaryAction,
+  primaryActionBottomInset = 0,
 }: ScreenBaseProps) {
   const isWide = useBreakpoint() !== 'mobile';
   const inlineFooter = footer !== undefined && isWide;
   const pinnedFooter = footer !== undefined && !isWide;
+  const pageTitle = pageTitleFromBreadcrumbs(breadcrumbs);
+
+  const body = (primaryActionProps?: ScreenBasePrimaryActionRenderProps) =>
+    renderScreenBody({
+      scroll,
+      keyboardAvoiding,
+      content,
+      inlineFooter,
+      pinnedFooter,
+      footer,
+      isWide,
+      pageTitle,
+      primaryActionProps,
+      primaryActionBottomInset,
+    });
 
   return (
     <Box sx={{ flex: 1 }}>
@@ -129,18 +171,76 @@ export function ScreenBase({
         headerEnd={headerEnd}
         leading={leading}
       />
-      {renderScreenBody({
-        scroll,
-        keyboardAvoiding,
-        content,
-        inlineFooter,
-        pinnedFooter,
-        footer,
-        floatingAction,
-        floatingActionBottomInset,
-      })}
+      {primaryAction !== undefined ? (
+        <ScreenBasePrimaryActionMutation config={primaryAction}>
+          {(primaryActionProps) => body(primaryActionProps)}
+        </ScreenBasePrimaryActionMutation>
+      ) : (
+        body(undefined)
+      )}
     </Box>
   );
+}
+
+function renderWideContentHeader(
+  pageTitle: ReactNode | undefined,
+  primaryActionProps: ScreenBasePrimaryActionRenderProps | undefined
+): ReactNode {
+  if (
+    primaryActionProps === undefined ||
+    pageTitle === undefined ||
+    pageTitle === null
+  ) {
+    return null;
+  }
+  return (
+    <ScreenBaseContentHeader
+      title={pageTitle}
+      buttonProps={primaryActionProps.buttonProps}
+      icon={primaryActionProps.icon}
+    />
+  );
+}
+
+function renderConstrainedBody(args: {
+  content: ScreenBaseProps['content'];
+  inlineFooter: boolean;
+  footer: ScreenBaseProps['footer'];
+  isWide: boolean;
+  pageTitle: ReactNode | undefined;
+  primaryActionProps: ScreenBasePrimaryActionRenderProps | undefined;
+}): ReactNode {
+  return (
+    <ConstrainedInner>
+      {args.isWide
+        ? renderWideContentHeader(args.pageTitle, args.primaryActionProps)
+        : null}
+      {args.content({ sx: { flex: 1 } } satisfies BodyContentProps)}
+      {args.inlineFooter ? (
+        <Box sx={{ pt: BODY_GAP_STEP }}>{args.footer}</Box>
+      ) : null}
+    </ConstrainedInner>
+  );
+}
+
+function renderScrollableBody(
+  scroll: boolean,
+  inner: ReactNode
+): ReactNode {
+  if (scroll) {
+    return (
+      <ScrollView
+        sx={{ flex: 1 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: SCROLL_BOTTOM_PADDING,
+        }}
+      >
+        {inner}
+      </ScrollView>
+    );
+  }
+  return <Box sx={{ flex: 1 }}>{inner}</Box>;
 }
 
 function renderScreenBody(args: {
@@ -150,39 +250,21 @@ function renderScreenBody(args: {
   inlineFooter: boolean;
   pinnedFooter: boolean;
   footer: ScreenBaseProps['footer'];
-  floatingAction: ScreenBaseProps['floatingAction'];
-  floatingActionBottomInset: number;
+  isWide: boolean;
+  pageTitle: ReactNode | undefined;
+  primaryActionProps: ScreenBasePrimaryActionRenderProps | undefined;
+  primaryActionBottomInset: number;
 }): ReactNode {
-  const inner = (
-    <ConstrainedInner>
-      {args.content({ sx: { flex: 1 } } satisfies BodyContentProps)}
-      {args.inlineFooter ? (
-        <Box sx={{ pt: BODY_GAP_STEP }}>{args.footer}</Box>
-      ) : null}
-    </ConstrainedInner>
-  );
-
-  const body = args.scroll ? (
-    <ScrollView
-      sx={{ flex: 1 }}
-      contentContainerStyle={{
-        flexGrow: 1,
-        paddingBottom: SCROLL_BOTTOM_PADDING,
-      }}
-    >
-      {inner}
-    </ScrollView>
-  ) : (
-    <Box sx={{ flex: 1 }}>{inner}</Box>
-  );
+  const inner = renderConstrainedBody(args);
+  const body = renderScrollableBody(args.scroll, inner);
 
   const bodyWithFooter = (
     <Box sx={{ flex: 1, minHeight: 0 }} style={{ position: 'relative' }}>
       {body}
       {args.pinnedFooter ? <PinnedFooter>{args.footer}</PinnedFooter> : null}
-      {args.floatingAction !== undefined ? (
-        <FloatingActionHost extraBottomInset={args.floatingActionBottomInset}>
-          {args.floatingAction}
+      {!args.isWide && args.primaryActionProps !== undefined ? (
+        <FloatingActionHost extraBottomInset={args.primaryActionBottomInset}>
+          {renderPrimaryActionFab(args.primaryActionProps)}
         </FloatingActionHost>
       ) : null}
     </Box>

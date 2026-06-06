@@ -228,7 +228,7 @@ export function ServerWritesPanel() {
   const { events, clear } = useServerWriteEvents();
 
   return (
-    <ScrollView sx={{ flex: 1, p: 4 }}>
+    <ScrollView style={{ flex: 1 }} sx={{ p: 4 }}>
       <Stack spacing={4}>
         <Stack direction="horizontal" spacing={2} align="center">
           <Box sx={{ flex: 1 }}>

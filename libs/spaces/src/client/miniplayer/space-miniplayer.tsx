@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SpaceMiniplayerCard } from './space-miniplayer-card';
 import {
-  getSpaceMiniplayerDesktopTopOffset,
+  getSpaceMiniplayerBottomInset,
   isTabRootRoute,
 } from './space-miniplayer-layout';
 import { useSpaceMiniplayerVisibleSpaceIds } from './use-space-miniplayer-visible-space-ids';
@@ -32,35 +32,16 @@ function TabBarMiniplayerDock({ children }: { children: ReactNode }): ReactNode 
 }
 
 function RootMiniplayerDock({ children }: { children: ReactNode }): ReactNode {
-  const isMobile = useBreakpoint() === 'mobile';
   const insets = useSafeAreaInsets();
 
-  if (!isMobile) {
-    return (
-      <Box
-        sx={{ pt: 1, px: 1, background: 'surface' }}
-        style={{
-          position: 'absolute',
-          top: getSpaceMiniplayerDesktopTopOffset(insets.top),
-          left: 0,
-          right: 0,
-          zIndex: MINIPLAYER_Z_INDEX,
-        }}
-      >
-        {children}
-      </Box>
-    );
-  }
-
-  const bottomInset = insets.bottom > 0 ? insets.bottom : 12;
   return (
     <Box
-      sx={{ pt: 1, px: 1 }}
+      sx={{ pt: 1, px: 1, background: 'surface' }}
       style={{
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: bottomInset,
+        bottom: getSpaceMiniplayerBottomInset(insets.bottom),
         zIndex: MINIPLAYER_Z_INDEX,
       }}
     >

@@ -15,17 +15,19 @@ function isoNow(): string {
   return new Date().toISOString();
 }
 
-async function readSpaceHostId(
+async function readSpaceEntity(
   db: PatchDb,
   spaceId: string
-): Promise<string | null> {
+): Promise<{ hostId: string; endedAt: string | null } | null> {
   const [res] = await db.read([
     { entityType: SPACE_ENTITY_TYPE, entityId: spaceId, limit: 1 },
   ]);
   const ent = res?.entities[0];
   if (!ent) return null;
-  const raw = ent.attributes[SpaceAttr.hostId.key];
-  return typeof raw === 'string' && raw.length > 0 ? raw : null;
+  const hostId = SpaceAttr.hostId.from(ent.attributes);
+  if (hostId === null) return null;
+  const endedAt = SpaceAttr.endedAt.from(ent.attributes);
+  return { hostId, endedAt };
 }
 
 async function writeCreateSpaceAction(
@@ -51,11 +53,14 @@ async function joinSpaceAction(
   myId: string,
   spaceId: string
 ): Promise<void> {
-  const hostId = await readSpaceHostId(db, spaceId);
-  if (hostId === null) {
+  const space = await readSpaceEntity(db, spaceId);
+  if (space === null) {
     throw new Error('Space not found');
   }
-  if (hostId === myId) {
+  if (space.endedAt !== null) {
+    throw new Error('Space has ended');
+  }
+  if (space.hostId === myId) {
     throw new Error('Host is already in this space');
   }
   const now = isoNow();
@@ -92,8 +97,8 @@ async function endSpaceAction(
   myId: string,
   spaceId: string
 ): Promise<void> {
-  const hostId = await readSpaceHostId(db, spaceId);
-  if (hostId !== myId) {
+  const space = await readSpaceEntity(db, spaceId);
+  if (space === null || space.hostId !== myId) {
     throw new Error('Only the host can end this space');
   }
   const now = isoNow();
@@ -112,8 +117,8 @@ async function renameSpaceAction(
   spaceId: string,
   title: string
 ): Promise<void> {
-  const hostId = await readSpaceHostId(db, spaceId);
-  if (hostId !== myId) {
+  const space = await readSpaceEntity(db, spaceId);
+  if (space === null || space.hostId !== myId) {
     throw new Error('Only the host can rename this space');
   }
   // hostId is re-stamped so the spaces ABAC policy can authorise the write
@@ -135,18 +140,10 @@ export function useSpaceActions() {
   const db = usePatchDb();
   const myId = useMyId();
 
-  const createSpace = useCallback((): string => {
+  const createSpace = useCallback((onCreated?: (spaceId: string) => void): string => {
     const spaceId = crypto.randomUUID();
-    // Navigate-first UX: do not block route transition on local write+fanout.
+    onCreated?.(spaceId);
     void writeCreateSpaceAction(db, myId, spaceId);
-    return spaceId;
-  }, [db, myId]);
-
-  // Awaits the local write so the trigger can show inline loading before
-  // navigating; resolves with the new space id. Throws if the write fails.
-  const createSpaceAsync = useCallback(async (): Promise<string> => {
-    const spaceId = crypto.randomUUID();
-    await writeCreateSpaceAction(db, myId, spaceId);
     return spaceId;
   }, [db, myId]);
 
@@ -180,7 +177,6 @@ export function useSpaceActions() {
 
   return {
     createSpace,
-    createSpaceAsync,
     joinSpace,
     leaveSpace,
     endSpace,

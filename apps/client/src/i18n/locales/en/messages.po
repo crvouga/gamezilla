@@ -94,8 +94,8 @@ msgid "+ New List"
 msgstr "+ New List"
 
 #: libs/spaces/src/client/spaces-screen.tsx
-msgid "+ New space"
-msgstr "+ New space"
+#~ msgid "+ New space"
+#~ msgstr "+ New space"
 
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "+1"
@@ -631,6 +631,10 @@ msgstr "Back to Dev"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 #~ msgid "Back to puzzle menu"
 #~ msgstr "Back to puzzle menu"
+
+#: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
+msgid "Back to Spaces"
+msgstr "Back to Spaces"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Back to start. King has nowhere safe."
@@ -2020,6 +2024,10 @@ msgstr "End space"
 msgid "End space?"
 msgstr "End space?"
 
+#: libs/spaces/src/client/space-ended-badge.tsx
+msgid "Ended"
+msgstr "Ended"
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Endgame — every move matters."
 #~ msgstr "Endgame — every move matters."
@@ -3395,7 +3403,6 @@ msgid "host"
 msgstr "host"
 
 #: libs/spaces/src/client/active-space/space-members-list.tsx
-#: libs/spaces/src/client/lifecycle/space-join-host-section.tsx
 #: libs/spaces/src/client/members/member-host-badge.tsx
 #: libs/spaces/src/client/members/space-members-host-block.tsx
 msgid "Host"
@@ -3469,6 +3476,10 @@ msgstr "Internet reachable: {reachable}"
 #~ msgid "Invalid puzzle data"
 #~ msgstr "Invalid puzzle data"
 
+#: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
+msgid "It may have ended or the link might be invalid."
+msgstr "It may have ended or the link might be invalid."
+
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "John Doe"
 msgstr "John Doe"
@@ -3491,8 +3502,12 @@ msgid "Join this space"
 msgstr "Join this space"
 
 #: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
-msgid "Join this space to see who is here and hang out."
-msgstr "Join this space to see who is here and hang out."
+#~ msgid "Join this space to see who is here and hang out."
+#~ msgstr "Join this space to see who is here and hang out."
+
+#: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
+msgid "Join to see who is here and hang out."
+msgstr "Join to see who is here and hang out."
 
 #: libs/spaces/src/client/lifecycle/space-join-button.tsx
 msgid "Joined"
@@ -4408,6 +4423,10 @@ msgstr "Network reachability and API server health"
 #: apps/client/src/ui/app-commands/space-commands.tsx
 msgid "new"
 msgstr "new"
+
+#: libs/spaces/src/client/spaces-screen.tsx
+msgid "New space"
+msgstr "New space"
 
 #: apps/client/src/pwa/update-prompt.tsx
 msgid "New version available — reload to update"
@@ -6958,8 +6977,8 @@ msgstr "system"
 #~ msgstr "Take your time. Look at the whole board first."
 
 #: libs/spaces/src/client/spaces-screen.tsx
-msgid "Tap + New space above to start one."
-msgstr "Tap + New space above to start one."
+#~ msgid "Tap + New space above to start one."
+#~ msgstr "Tap + New space above to start one."
 
 #: pkgs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "Tap the field or icon to copy"
@@ -7372,6 +7391,14 @@ msgstr "This is a modal screen."
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "This runs deep. Stay precise."
 #~ msgstr "This runs deep. Stay precise."
+
+#: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
+msgid "This space has ended."
+msgstr "This space has ended."
+
+#: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
+msgid "This space is not available"
+msgstr "This space is not available"
 
 #: libs/spaces/src/client/members/member-this-tab-badge.tsx
 msgid "This tab"
@@ -7842,6 +7869,10 @@ msgstr "Use dark theme"
 msgid "Use light theme"
 msgstr "Use light theme"
 
+#: libs/spaces/src/client/spaces-screen.tsx
+msgid "Use New space to start one."
+msgstr "Use New space to start one."
+
 #: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "Use system theme"
 msgstr "Use system theme"
@@ -8181,6 +8212,10 @@ msgstr "You can join again later if the space is still live."
 msgid "You can rejoin from the host's invite link."
 msgstr "You can rejoin from the host's invite link."
 
+#: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+msgid "You can rejoin from the invite link if the space is still live."
+msgstr "You can rejoin from the invite link if the space is still live."
+
 #: libs/profile/src/client/avatar-editor-screen.tsx
 msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
@@ -8198,7 +8233,6 @@ msgid "You will need to sign in again to sync with your user."
 msgstr "You will need to sign in again to sync with your user."
 
 #: libs/spaces/src/client/lifecycle/space-join-blocked-note.tsx
-#: libs/spaces/src/client/spaces-screen.tsx
 msgid "You’re already in a space"
 msgstr "You’re already in a space"
 

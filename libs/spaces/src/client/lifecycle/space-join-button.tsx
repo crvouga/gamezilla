@@ -7,16 +7,22 @@ import { useCallback, type ReactNode } from 'react';
 
 export type SpaceJoinButtonProps = {
   spaceId: string;
+  joinable: boolean;
 };
 
-/** Owns the `joinSpace` dispatch + the disabled rule, with inline feedback. */
-export function SpaceJoinButton({ spaceId }: SpaceJoinButtonProps): ReactNode {
+export function SpaceJoinButton({
+  spaceId,
+  joinable,
+}: SpaceJoinButtonProps): ReactNode {
   const { t } = useLingui();
   const { joinSpace } = useSpaceActions();
   const role = useCurrentSpaceRole(spaceId);
   const currentCount = useCurrentSpaceCount();
   const inThisSpace = role !== null;
-  const disabled = (!inThisSpace && currentCount > 0) || spaceId.length === 0;
+  const disabled =
+    !joinable ||
+    (!inThisSpace && currentCount > 0) ||
+    spaceId.length === 0;
 
   const join = useMutationButton({
     operation: useCallback(() => joinSpace(spaceId), [joinSpace, spaceId]),

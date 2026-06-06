@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import type { MutationButtonLabels } from '../button/use-mutation-button';
 import type { IconSymbolName } from '../symbol-icon';
 
 export type ScreenBaseBreadcrumb = {
@@ -28,6 +29,16 @@ export type ScreenBaseAction = {
 
 export type BodyContentProps = {
   sx: { flex: 1 };
+};
+
+export type ScreenBasePrimaryAction = {
+  labels: MutationButtonLabels;
+  operation: () => Promise<void>;
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+  disabled?: boolean;
+  successHoldMs?: number;
+  icon?: IconSymbolName;
 };
 
 export type ScreenBaseProps = {
@@ -67,14 +78,13 @@ export type ScreenBaseProps = {
    */
   footer?: ReactNode;
   /**
-   * Primary screen action rendered as a floating overlay (e.g. a
-   * {@link FloatingActionButton}). Does not affect body layout; prefer this
-   * over inline buttons in `content` for actions that should not shift scroll
-   * content.
+   * Primary screen action. On mobile, {@link ScreenBase} renders a floating
+   * action button; on wider breakpoints it renders an in-content title row
+   * with an inline primary button beside the page title.
    */
-  floatingAction?: ReactNode;
-  /** Extra bottom inset for {@link floatingAction} above safe area / tab bar. */
-  floatingActionBottomInset?: number;
+  primaryAction?: ScreenBasePrimaryAction;
+  /** Extra bottom inset for the mobile primary-action FAB above the tab bar. */
+  primaryActionBottomInset?: number;
 };
 
 export type ScreenBaseHeaderProps = {

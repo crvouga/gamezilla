@@ -295,6 +295,7 @@ export {
   type ScreenBaseActionType,
   type ScreenBaseBreadcrumb,
   type ScreenBaseHeaderProps,
+  type ScreenBasePrimaryAction,
   type ScreenBaseProps,
 } from './screen-base';
 export {

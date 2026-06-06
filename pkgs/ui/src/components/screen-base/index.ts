@@ -7,5 +7,6 @@ export type {
   ScreenBaseActionType,
   ScreenBaseBreadcrumb,
   ScreenBaseHeaderProps,
+  ScreenBasePrimaryAction,
   ScreenBaseProps,
 } from './screen-base-types';

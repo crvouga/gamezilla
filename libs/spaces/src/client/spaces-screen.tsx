@@ -1,5 +1,5 @@
-import { CreateSpaceFloatingAction } from './create-space-floating-action';
 import { SpaceCard } from './card/space-card';
+import { useSpaceActions } from './lifecycle/space-actions';
 import { useSpaceMiniplayerLayoutInsets } from './miniplayer/use-space-miniplayer-layout-insets';
 import { useCurrentSpaceCount } from './use-current-space-count';
 import { useLiveSpaceIds } from './use-live-space-ids';
@@ -10,9 +10,11 @@ import {
   ScrollView,
   useBreakpoint,
   type ScreenBaseAction,
+  type ScreenBasePrimaryAction,
 } from '@pkgs/ui';
-import { Trans } from '@lingui/react/macro';
-import type { ReactNode } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
+import { useRouter } from 'expo-router';
+import { useMemo, type ReactNode } from 'react';
 
 function SpacesList({ bottomInset }: { bottomInset: number }) {
   const spaceIds = useLiveSpaceIds();
@@ -21,7 +23,7 @@ function SpacesList({ bottomInset }: { bottomInset: number }) {
       <EmptyState
         icon="house.fill"
         title={<Trans>No live spaces</Trans>}
-        body={<Trans>Tap New space to start one.</Trans>}
+        body={<Trans>Use New space to start one.</Trans>}
       />
     );
   }
@@ -60,26 +62,39 @@ export function SpacesScreen({
   const isMobile = useBreakpoint() === 'mobile';
   const canCreateSpace = useCurrentSpaceCount() === 0;
   const miniplayerInsets = useSpaceMiniplayerLayoutInsets();
+  const router = useRouter();
+  const { createSpace } = useSpaceActions();
+  const { t } = useLingui();
+
+  const primaryAction = useMemo((): ScreenBasePrimaryAction | undefined => {
+    if (!canCreateSpace) return undefined;
+    return {
+      labels: {
+        idle: t`New space`,
+        loading: t`Creating…`,
+        success: t`Created`,
+        error: t`Couldn't create space`,
+      },
+      operation: async () => {
+        createSpace((id) => {
+          router.push({ pathname: '/space/[id]', params: { id } });
+        });
+      },
+      successHoldMs: 0,
+      icon: 'plus',
+    };
+  }, [canCreateSpace, createSpace, router, t]);
 
   return (
     <ScreenBase
-      breadcrumbs={[{ name: <Trans>Spaces</Trans> }]}
+      breadcrumbs={[{ name: t`Spaces` }]}
       actions={isMobile ? [...accountActions] : []}
       centerTabs={centerTabs}
       headerEnd={headerEnd}
       leading={leading}
-      floatingAction={
-        canCreateSpace ? <CreateSpaceFloatingAction /> : undefined
-      }
+      {...(primaryAction !== undefined ? { primaryAction } : {})}
       content={({ sx }) => (
-        <Box
-          style={{
-            ...sx,
-            ...(miniplayerInsets.top > 0
-              ? { paddingTop: miniplayerInsets.top }
-              : {}),
-          }}
-        >
+        <Box style={sx}>
           <SpacesList bottomInset={miniplayerInsets.bottom} />
         </Box>
       )}
