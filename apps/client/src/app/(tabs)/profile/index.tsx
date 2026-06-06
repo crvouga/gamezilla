@@ -12,6 +12,7 @@ export default function ProfileTab() {
       leading={<AppHeaderLogo />}
       centerTabs={<AppHeaderTabs />}
       headerEnd={<AppAccountMenu />}
+      bottomInset={0}
     />
   );
 }

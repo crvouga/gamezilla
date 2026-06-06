@@ -1,6 +1,5 @@
 import { MyDisplayName } from './my-display-name';
 import { MyProfileAvatar } from './my-profile-avatar';
-import { useSpaceMiniplayerLayoutInsets } from '@libs/spaces/client/miniplayer/use-space-miniplayer-layout-insets';
 import {
   Box,
   Button,
@@ -21,6 +20,10 @@ export type ProfileScreenProps = {
   readonly headerEnd?: ReactNode;
   /** Leading slot (typically the app logo on root tabs). */
   readonly leading?: ReactNode;
+  /** Bottom inset to add to content padding (e.g., for space miniplayer height).
+   * Use {@link useSpaceMiniplayerLayoutInsets} from @libs/spaces when
+   * rendering inside a space context, or pass 0 otherwise. */
+  readonly bottomInset?: number;
 };
 
 export function ProfileScreen({
@@ -28,11 +31,11 @@ export function ProfileScreen({
   centerTabs,
   headerEnd,
   leading,
+  bottomInset = 0,
 }: ProfileScreenProps) {
   const { t } = useLingui();
   const router = useRouter();
   const isMobile = useBreakpoint() === 'mobile';
-  const miniplayerInsets = useSpaceMiniplayerLayoutInsets();
 
   return (
     <ScreenBase
@@ -45,9 +48,7 @@ export function ProfileScreen({
         <Box
           style={{
             ...sx,
-            ...(miniplayerInsets.bottom > 0
-              ? { paddingBottom: miniplayerInsets.bottom }
-              : {}),
+            ...(bottomInset > 0 ? { paddingBottom: bottomInset } : {}),
           }}
         >
           <Box sx={{ alignItems: 'center', gap: 2 }}>
