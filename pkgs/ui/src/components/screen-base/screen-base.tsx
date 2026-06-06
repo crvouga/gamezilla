@@ -123,10 +123,7 @@ function renderPrimaryActionFab(
   props: ScreenBasePrimaryActionRenderProps
 ): ReactNode {
   return (
-    <FloatingActionButton
-      {...props.fabProps}
-      icon={props.icon ?? 'plus'}
-    />
+    <FloatingActionButton {...props.fabProps} icon={props.icon ?? 'plus'} />
   );
 }
 
@@ -223,10 +220,7 @@ function renderConstrainedBody(args: {
   );
 }
 
-function renderScrollableBody(
-  scroll: boolean,
-  inner: ReactNode
-): ReactNode {
+function renderScrollableBody(scroll: boolean, inner: ReactNode): ReactNode {
   if (scroll) {
     return (
       <ScrollView
