@@ -13,9 +13,6 @@ export function isTabRootRoute(rawPath: string): boolean {
   return false;
 }
 
-<<<<<<< HEAD
-export function getSpaceMiniplayerMobileTabBarOffset(bottomInset: number): number {
-=======
 export function getSpaceMiniplayerDesktopTopOffset(topInset: number): number {
   return topInset + TOP_BAR_CONTENT_HEIGHT;
 }
@@ -23,7 +20,6 @@ export function getSpaceMiniplayerDesktopTopOffset(topInset: number): number {
 export function getSpaceMiniplayerMobileTabBarOffset(
   bottomInset: number
 ): number {
->>>>>>> 0267a3c447af7926399a89ff87702e81b979c7d8
   return TOP_BAR_CONTENT_HEIGHT + bottomInset;
 }
 
