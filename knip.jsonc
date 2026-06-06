@@ -53,6 +53,8 @@
     "@pkgs/assistant",
     "@libs/chess",
     "@libs/profile",
+    "@libs/spaces",
+    "@pkgs/assert",
   ],
   "workspaces": {
     ".": {
