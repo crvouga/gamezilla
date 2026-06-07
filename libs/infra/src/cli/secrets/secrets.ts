@@ -1,5 +1,12 @@
 import { runCapture } from '../subprocess';
 import { ApiUrl } from './api-url';
+import {
+  B2ApplicationKey,
+  B2ApplicationKeyId,
+  B2BucketName,
+  B2S3Endpoint,
+  B2S3Region,
+} from './b2-credentials';
 import { BetterAuthAppName } from './better-auth-app-name';
 import { BetterAuthSecret } from './better-auth-secret';
 import { CfAccountId } from './cf-account-id';
@@ -40,6 +47,11 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new TurboCache(),
   new TurboLogOrder(),
   new ExpoToken(),
+  new B2ApplicationKeyId(),
+  new B2ApplicationKey(),
+  new B2BucketName(),
+  new B2S3Endpoint(),
+  new B2S3Region(),
 ];
 
 export function getSecretMap(): ReadonlyArray<SecretEntry> {

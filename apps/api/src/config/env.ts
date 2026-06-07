@@ -19,8 +19,6 @@ export type RoomNamespace = {
   get(id: object): { fetch(request: Request): Promise<Response> };
 };
 
-import type { R2Bucket } from '@pkgs/object-store/impl-r2';
-
 export type ApiWorkerEnv = {
   DOPPLER_TOKEN: string;
   DOPPLER_PROJECT?: string;
@@ -32,8 +30,6 @@ export type ApiWorkerEnv = {
    * OAuth callbacks stay same-origin with the static web preview.
    */
   API_URL?: string;
-  /** Catch-all R2 bucket for object storage. Required at boot; omitted in unit tests. */
-  OBJECT_STORE?: R2Bucket;
   /** Room Durable Object namespace (one DO per topic). Omitted in unit tests. */
   ROOM?: RoomNamespace;
 };

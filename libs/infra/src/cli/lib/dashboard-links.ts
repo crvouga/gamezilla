@@ -46,7 +46,7 @@ export function buildVendorDashboardMarkdown(): string[] {
     );
   } else {
     lines.push(
-      `- **Cloudflare:** [Dashboard](https://dash.cloudflare.com/) — add \`CLOUDFLARE_ACCOUNT_ID\` to Doppler (\`shared\`) for direct links to zone, Pages, R2, and Workers`
+      `- **Cloudflare:** [Dashboard](https://dash.cloudflare.com/) — add \`CLOUDFLARE_ACCOUNT_ID\` to Doppler (\`shared\`) for direct links to zone, Pages, and Workers`
     );
   }
 

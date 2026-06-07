@@ -1,4 +1,5 @@
 import { ApiWorkerResource } from './api-worker';
+import { B2BucketResource } from './b2-buckets';
 import { ClientPagesDomainResource } from './client-pages-domains';
 import { ClientPagesProjectResource } from './client-pages-project';
 import { ClientRedirectRuleResource } from './client-redirect-rule';
@@ -18,6 +19,7 @@ export function createRegistry(): readonly Resource[] {
   const zone = new ZoneResource();
   const clientPagesProject = new ClientPagesProjectResource();
   const planetscalePostgres = new PlanetScalePostgres();
+  const b2Bucket = new B2BucketResource();
   const r2Bucket = new R2BucketResource();
   const dnsRecords = new DnsRecordsResource();
   const clientPagesDomain = new ClientPagesDomainResource();
@@ -30,11 +32,12 @@ export function createRegistry(): readonly Resource[] {
   zone.needs(doppler);
   clientPagesProject.needs(doppler);
   planetscalePostgres.needs(doppler);
+  b2Bucket.needs(doppler);
   r2Bucket.needs(r2Subscription);
   dnsRecords.needs(zone, clientPagesProject);
   clientPagesDomain.needs(clientPagesProject);
   clientRedirectRule.needs(zone);
-  apiWorker.needs(planetscalePostgres, dnsRecords, r2Bucket);
+  apiWorker.needs(planetscalePostgres, dnsRecords, b2Bucket);
   client.needs(apiWorker, dnsRecords);
 
   return [
@@ -43,6 +46,7 @@ export function createRegistry(): readonly Resource[] {
     zone,
     clientPagesProject,
     planetscalePostgres,
+    b2Bucket,
     r2Bucket,
     dnsRecords,
     clientPagesDomain,

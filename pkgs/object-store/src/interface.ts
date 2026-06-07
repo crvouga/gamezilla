@@ -23,7 +23,7 @@
  * URI semantics:
  *   - {@link ObjectStore.getUri} returns a URL the host runtime can load
  *     directly (`file://` on native, `blob:` on web). Stores that don't expose
- *     direct URLs (e.g. remote S3/B2 — bytes must be streamed through HTTP)
+ *     direct URLs (e.g. remote B2 — bytes must be streamed through HTTP)
  *     return `null`. Returns `null` when the key is missing.
  */
 
@@ -50,7 +50,7 @@ export interface ObjectStore {
   /**
    * Returns a URL that the host runtime can load directly without reading bytes
    * through {@link ObjectStore.get} again. Returns `null` for missing keys, and
-   * `null` for stores whose backend has no addressable URL (e.g. S3/B2).
+   * `null` for stores whose backend has no addressable URL (e.g. B2).
    */
   getUri(key: string): Promise<string | null>;
 

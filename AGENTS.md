@@ -46,7 +46,7 @@ GitHub Actions runs checks with `DOPPLER_CONFIG=dev`. Caching is backed by **Ver
 
 For local development without Doppler, run `bunx turbo login` + `bunx turbo link` to write a personal `.turbo/config.json`.
 
-Object storage (TTS audio cache, etc.) uses a **single Cloudflare R2 bucket** (`gamezilla`) via the API Worker's `OBJECT_STORE` wrangler binding. Keys are prefixed by feature (e.g. `tts-audio/`). Provisioned by `infra deploy` (`r2-subscription` + `r2-buckets` resources).
+Object storage (TTS audio cache, etc.) uses **Backblaze B2** (S3-compatible) via `@pkgs/object-store/impl-b2`. The API Worker fetches `B2_*` credentials from Doppler at boot and injects a namespaced store through `createB2ObjectStore`, which always applies the global `gamezilla/` key prefix before feature-level prefixes (e.g. `tts-audio/`). The B2 bucket and application keys are externally managed (like PlanetScale); `infra deploy` verifies Doppler secrets via the `b2-buckets` resource. Retired Cloudflare R2 resources (`r2-subscription`, `r2-buckets`) stay in the registry as `routineStatus: 'destroyed'` so deploy tears down the old bucket.
 
 ## CI/CD job layout
 

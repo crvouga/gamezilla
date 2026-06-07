@@ -3,7 +3,6 @@ import { composeRoomModules } from '@libs/spaces/shared/load-game-plugins';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
 import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
-import { ObjectStoreImplR2 } from '@pkgs/object-store/impl-r2';
 import { isSecretStoreError } from '@pkgs/secret-store';
 import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
 import { tryBetterAuthOptionsResponse } from './app/cors';
@@ -16,6 +15,7 @@ import {
   readOptionalApiUrlOverride,
 } from './config/env';
 import { createApiSecretStore } from './config/secret-store';
+import { createApiObjectStore } from './config/object-store';
 
 /**
  * On Cloudflare Workers (and `wrangler dev`'s node-shimmed runtime) the default
@@ -122,12 +122,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const token = assertDopplerTokenBinding(env);
   const { project, config } = readDopplerScopeBindings(env);
   const secretStore = createApiSecretStore(token, { project, config });
-  if (env.OBJECT_STORE === undefined || env.OBJECT_STORE === null) {
-    throw new ConfigurationError(
-      'OBJECT_STORE R2 binding is required — add [[r2_buckets]] to apps/api/wrangler.toml'
-    );
-  }
-  const objectStore = new ObjectStoreImplR2(env.OBJECT_STORE);
+  const objectStore = await createApiObjectStore(secretStore);
   return await createApiApp({
     pubSub,
     secretStore,

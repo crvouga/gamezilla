@@ -15,6 +15,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "catalog:",
     "@pkgs/assert": "workspace:*",
     "expo-file-system": "catalog:",
     "react": "catalog:",

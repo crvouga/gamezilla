@@ -18,6 +18,7 @@ interface CfApiResponse {
 
 export class R2SubscriptionResource extends ResourceBase {
   readonly id = 'r2-subscription';
+  override readonly routineStatus = 'destroyed' as const;
 
   async provision(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();

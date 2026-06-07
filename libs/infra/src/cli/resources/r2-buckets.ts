@@ -6,7 +6,7 @@ import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
-const BUCKET_NAME = PROJECT_CONFIG.cloudflare.objectStoreBucket;
+const BUCKET_NAME = PROJECT_CONFIG.objectStore.namespace;
 
 const BUCKET_LOCATION = 'ENAM';
 
@@ -22,6 +22,7 @@ interface R2ListResponse {
 
 export class R2BucketResource extends ResourceBase {
   readonly id = 'r2-buckets';
+  override readonly routineStatus = 'destroyed' as const;
 
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
