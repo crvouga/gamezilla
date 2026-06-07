@@ -67,7 +67,9 @@ describe('postgres-test-instance (embedded-postgres)', () => {
   test('wipe clears tables in the application schema', async () => {
     if (!available || !pg) return;
     const sql = new SQL(pg.connectionUrl);
-    await sql.unsafe('CREATE TABLE gamezilla.t (id SERIAL PRIMARY KEY, x TEXT)');
+    await sql.unsafe(
+      'CREATE TABLE gamezilla.t (id SERIAL PRIMARY KEY, x TEXT)'
+    );
     void sql.close();
     await pg.wipe();
     const verify = new SQL(pg.connectionUrl);
