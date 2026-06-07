@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { file } from 'bun';
 
 import { startWebDevProxyServer } from './local-api-proxy';
+import { previewStackReadyResponse } from './preview-stack-ready';
 
 const DIST_DIR = join(import.meta.dir, '..', 'dist');
 const INDEX_HTML = join(DIST_DIR, 'index.html');
@@ -33,6 +34,9 @@ function resolveStaticPath(pathname: string): string {
 }
 
 async function serveStatic(pathname: string): Promise<Response> {
+  if (pathname === '/ready') {
+    return previewStackReadyResponse();
+  }
   const diskPath = resolveStaticPath(pathname);
   const candidate = file(diskPath);
   if (await candidate.exists()) {

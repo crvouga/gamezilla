@@ -52,6 +52,8 @@ assert.equals(
 );
 
 const baseURL = 'http://localhost:5173';
+/** Playwright readiness probe — static `/` is up before API + dev IdP finish booting. */
+const previewReadyURL = `${baseURL}/ready`;
 let baseURLParsed: URL | undefined;
 assert.notThrows(
   () => {
@@ -177,7 +179,7 @@ export default defineConfig({
   webServer: {
     command: turboPreviewCmd.join(' '),
     cwd: repoRoot,
-    url: baseURL,
+    url: previewReadyURL,
     reuseExistingServer: !isCi,
     timeout: 240_000,
     stdout: 'pipe',
