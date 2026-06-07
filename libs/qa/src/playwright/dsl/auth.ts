@@ -39,7 +39,7 @@ export class AuthDSL {
   async dismissSignInSuccess(): Promise<void> {
     await dismissSignInModalSuccess(this.page);
     await expect(
-      this.page.getByRole('heading', { level: 1, name: 'Spaces' })
+      this.page.getByRole('heading', { level: 1, name: 'Spaces' }).first()
     ).toBeVisible({ timeout: 30_000 });
   }
 
