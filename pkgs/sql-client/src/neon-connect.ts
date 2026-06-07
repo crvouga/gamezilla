@@ -57,7 +57,9 @@ export async function openNeonRequestSession(
   args: OpenNeonRequestSessionArgs
 ): Promise<OpenNeonRequestSessionResult> {
   configureNeonForWorkers();
-  const sqlClient = new SqlClientImplPlanetScalePostgresWs(args.connectionString);
+  const sqlClient = new SqlClientImplPlanetScalePostgresWs(
+    args.connectionString
+  );
   await sqlClient.connect();
   const neonClient = sqlClient.neonClient();
   const queryable = neonClientQueryable(neonClient);

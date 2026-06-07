@@ -198,9 +198,7 @@ function buildDesiredEntityTable(schema: EntitySchema): DesiredEntityTable {
   return Object.freeze({
     entityType: schema.entityType,
     tableName: partitionTableName(schema.entityType),
-    ginIndexName: schema.ginIndex
-      ? ginIndexNameFor(schema.entityType)
-      : null,
+    ginIndexName: schema.ginIndex ? ginIndexNameFor(schema.entityType) : null,
     generatedColumns,
     singleIndexes,
     compositeIndexes,
