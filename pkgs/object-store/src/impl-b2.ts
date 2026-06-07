@@ -30,9 +30,9 @@ function isS3NotFound(err: unknown): boolean {
   return false;
 }
 
-async function readTransformableBody(
-  body: { transformToByteArray: () => Promise<Uint8Array | ArrayBuffer> }
-): Promise<Uint8Array> {
+async function readTransformableBody(body: {
+  transformToByteArray: () => Promise<Uint8Array | ArrayBuffer>;
+}): Promise<Uint8Array> {
   const bytes = await body.transformToByteArray();
   return bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
 }
