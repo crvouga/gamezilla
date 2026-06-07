@@ -685,6 +685,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/postgres": "workspace:*",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "typescript": "catalog:",
@@ -746,6 +747,7 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/os": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
         "embedded-postgres": "catalog:",
       },
       "devDependencies": {

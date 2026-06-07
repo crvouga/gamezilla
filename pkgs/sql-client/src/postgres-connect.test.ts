@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import {
   createPgPool,
   ensurePostgresSchema,
@@ -46,42 +46,48 @@ describe('withPostgresSearchPathOption', () => {
   });
 });
 
+// These hit the ambient `DATABASE_URL`, which under `doppler run` is the shared
+// remote dev database. Keep the connection footprint minimal (`max: 1`, each
+// pool closed in its own `finally`) so this suite never contends for connection
+// slots with other DB-touching suites running concurrently under `bun check`.
 describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
   const dbScope = gamezillaPostgresDbScope();
-  const pools: Array<{ end: () => Promise<void> }> = [];
-
-  afterAll(async () => {
-    for (const pool of pools) await pool.end().catch(() => {});
-  });
 
   test('ensurePostgresSchema creates the schema and is idempotent', async () => {
     const { pool, sqlClient } = createPgPool({
       connectionString: DATABASE_URL,
       dbScope,
+      max: 1,
     });
-    pools.push(pool);
-    await ensurePostgresSchema(sqlClient, dbScope);
-    // Second call must not throw (CREATE SCHEMA IF NOT EXISTS).
-    await ensurePostgresSchema(sqlClient, dbScope);
-    const rows = await sqlClient.query<{ exists: boolean }>(
-      "SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'gamezilla') AS exists"
-    );
-    expect(rows[0]?.exists).toBe(true);
+    try {
+      await ensurePostgresSchema(sqlClient, dbScope);
+      // Second call must not throw (CREATE SCHEMA IF NOT EXISTS).
+      await ensurePostgresSchema(sqlClient, dbScope);
+      const rows = await sqlClient.query<{ exists: boolean }>(
+        "SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'gamezilla') AS exists"
+      );
+      expect(rows[0]?.exists).toBe(true);
+    } finally {
+      await pool.end();
+    }
   });
 
   test('createPgPool pins every pooled connection to the schema', async () => {
     const { pool, sqlClient } = createPgPool({
       connectionString: DATABASE_URL,
       dbScope,
-      max: 3,
+      max: 1,
     });
-    pools.push(pool);
-    await ensurePostgresSchema(sqlClient, dbScope);
-    for (let i = 0; i < 6; i++) {
-      const rows = await sqlClient.query<{ current_schema: string }>(
-        'SELECT current_schema() AS current_schema'
-      );
-      expect(rows[0]?.current_schema).toBe('gamezilla');
+    try {
+      await ensurePostgresSchema(sqlClient, dbScope);
+      for (let i = 0; i < 3; i++) {
+        const rows = await sqlClient.query<{ current_schema: string }>(
+          'SELECT current_schema() AS current_schema'
+        );
+        expect(rows[0]?.current_schema).toBe('gamezilla');
+      }
+    } finally {
+      await pool.end();
     }
   });
 

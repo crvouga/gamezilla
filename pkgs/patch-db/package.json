@@ -35,6 +35,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/postgres": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "typescript": "catalog:"
