@@ -1,7 +1,11 @@
 /**
- * Canonical Postgres migration order: Better Auth (Kysely, own `max: 1` pool)
- * → patch-db (base DDL + declarative app snapshot indexes) → kv (single
- * caller-owned pool, `max: 1`).
+ * Canonical Postgres migration order: ensure the application schema exists →
+ * Better Auth (Kysely, own `max: 1` pool) → patch-db (base DDL + declarative
+ * app snapshot indexes) → kv (single caller-owned pool, `max: 1`).
+ *
+ * {@link ensurePostgresSchema} runs first because every connection is pinned to
+ * the `gamezilla` schema via `search_path`; the schema must exist before the
+ * first `CREATE TABLE` resolves there.
  *
  * App-specific snapshot indexes are derived from the frozen
  * {@link FrozenEntitySchemaRegistry} built in
@@ -24,6 +28,8 @@ import {
 } from '@libs/auth/server/better-auth-migrations';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Logger } from '@pkgs/logger';
+import { ensurePostgresSchema } from '@pkgs/sql-client/postgres-connect';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
 import { buildAppPatchDbSchemaRegistry } from '../patch-db/schema-registry';
@@ -33,13 +39,15 @@ export type RunPostgresMigrationsArgs = {
   databaseUrl: string;
   logger: Logger;
   betterAuthOptions: BetterAuthMigrationOptions;
+  dbScope: PostgresDbScope;
 };
 
 export async function runPostgresMigrations(
   args: RunPostgresMigrationsArgs
 ): Promise<void> {
-  const { sqlClient, databaseUrl, logger, betterAuthOptions } = args;
-  await runBetterAuthMigrations({ databaseUrl, betterAuthOptions });
+  const { sqlClient, databaseUrl, logger, betterAuthOptions, dbScope } = args;
+  await ensurePostgresSchema(sqlClient, dbScope);
+  await runBetterAuthMigrations({ databaseUrl, betterAuthOptions, dbScope });
 
   const schemaRegistry = buildAppPatchDbSchemaRegistry();
   await sqlClient.transaction(async (tx) => {

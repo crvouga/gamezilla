@@ -199,9 +199,11 @@ export async function flushPuzzleBatchFast(args: {
   });
 }
 
+// Unqualified so they resolve through the connection's pinned `search_path`
+// (the application schema), not a hardcoded `public`.
 const SEEDED_TABLES: readonly string[] = [
-  'public.patches',
-  `public.${CHESS_PUZZLE_SNAPSHOTS_TABLE}`,
+  'patches',
+  CHESS_PUZZLE_SNAPSHOTS_TABLE,
 ];
 
 async function tryRun(args: {

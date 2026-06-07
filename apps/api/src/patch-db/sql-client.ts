@@ -1,6 +1,7 @@
-import { SqlClientImplPgClient } from '@pkgs/sql-client/impl-pg';
+import { openPgClient } from '@pkgs/sql-client/postgres-connect';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { Client } from 'pg';
+import type { Client } from '@pkgs/sql-client/pg-types';
 
 export type RequestDb = {
   readonly client: Client;
@@ -8,12 +9,12 @@ export type RequestDb = {
 };
 
 /**
- * One `pg.Client` per Worker request (Cloudflare Hyperdrive + no global pool).
+ * One `pg.Client` per Worker request (Cloudflare Hyperdrive + no global pool),
+ * with its session `search_path` pinned to the application schema.
  */
 export async function openRequestDb(
-  connectionString: string
+  connectionString: string,
+  dbScope: PostgresDbScope
 ): Promise<RequestDb> {
-  const client = new Client({ connectionString });
-  await client.connect();
-  return { client, sqlClient: new SqlClientImplPgClient(client) };
+  return openPgClient({ connectionString, dbScope });
 }

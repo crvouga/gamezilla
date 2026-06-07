@@ -1,0 +1,142 @@
+/**
+ * The only sanctioned way to open a Postgres connection in this codebase.
+ *
+ * Every factory pins the session to a {@link PostgresDbScope}, so unqualified
+ * SQL always resolves to the application schema and never to `public`. Direct
+ * `new Pool()` / `new Client()` outside `@pkgs/sql-client` is banned by CI
+ * (`scripts/check-no-direct-pg-imports.ts`), which makes pointing at a
+ * different schema impossible without going through here.
+ */
+import { Client, Pool } from 'pg';
+import { SqlClientImplPg, SqlClientImplPgClient } from './impl-pg';
+import type { PostgresSqlClient, SqlClient } from './interface';
+import { quotePgIdent, type PostgresDbScope } from './postgres-schema';
+import {
+  assertPgSessionSchema,
+  setPgSessionSchema,
+} from './postgres-session-schema';
+import { sanitizePostgresUrlForNodePg } from './sanitize-postgres-url-for-node-pg';
+
+/**
+ * Schema-agnostic reachability probe (`SELECT 1`). Use before migrations when
+ * the application schema may not exist yet; throws if Postgres is unreachable.
+ */
+export async function pingPostgres(connectionString: string): Promise<void> {
+  const client = new Client({
+    connectionString: sanitizePostgresUrlForNodePg(connectionString),
+  });
+  try {
+    await client.connect();
+    await client.query('SELECT 1');
+  } finally {
+    try {
+      await client.end();
+    } catch {
+      /* best-effort close on an unconnected/failed client */
+    }
+  }
+}
+
+/** Extra `pg.Client` knobs that standalone tools occasionally need. */
+export type PgClientOptions = {
+  readonly keepAlive?: boolean;
+  readonly keepAliveInitialDelayMillis?: number;
+  readonly application_name?: string;
+};
+
+export type OpenPgClientArgs = {
+  readonly connectionString: string;
+  readonly dbScope: PostgresDbScope;
+  /**
+   * Create the schema if it does not exist before pinning the session. Use for
+   * standalone tools / scripts that may connect before migrations have run
+   * (the API request path leaves this false — the schema always exists there).
+   */
+  readonly ensureSchema?: boolean;
+  readonly clientOptions?: PgClientOptions;
+};
+
+export type OpenPgClientResult = {
+  readonly client: Client;
+  readonly sqlClient: PostgresSqlClient;
+};
+
+/**
+ * Opens one pinned `pg.Client` (one TCP session). For Cloudflare Hyperdrive +
+ * Workers: construct per request, do not share across requests. The session is
+ * pinned via an explicit `SET search_path` so it works even when the transport
+ * does not forward startup `options`.
+ */
+export async function openPgClient(
+  args: OpenPgClientArgs
+): Promise<OpenPgClientResult> {
+  const client = new Client({
+    connectionString: sanitizePostgresUrlForNodePg(args.connectionString),
+    ...args.clientOptions,
+  });
+  await client.connect();
+  await setPgSessionSchema(client, args.dbScope);
+  if (args.ensureSchema === true) {
+    await client.query(
+      `CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(args.dbScope.schema)}`
+    );
+  }
+  await assertPgSessionSchema(client, args.dbScope);
+  return { client, sqlClient: new SqlClientImplPgClient(client, args.dbScope) };
+}
+
+export type CreatePgPoolArgs = {
+  readonly connectionString: string;
+  readonly dbScope: PostgresDbScope;
+  readonly max?: number;
+};
+
+export type CreatePgPoolResult = {
+  readonly pool: Pool;
+  readonly sqlClient: PostgresSqlClient;
+};
+
+/**
+ * Creates a `pg.Pool` whose every connection has `search_path` pinned to the
+ * scope's schema. The awaited `onConnect` hook runs `SET search_path` before a
+ * connection is handed out, so the pin is race-free and survives proxies
+ * (e.g. Hyperdrive) that may not forward startup `options`.
+ */
+export function createPgPool(args: CreatePgPoolArgs): CreatePgPoolResult {
+  const pool = new Pool({
+    connectionString: sanitizePostgresUrlForNodePg(args.connectionString),
+    max: args.max ?? 1,
+    onConnect: async (client) => {
+      await setPgSessionSchema(client, args.dbScope);
+    },
+  });
+  return { pool, sqlClient: new SqlClientImplPg(pool, args.dbScope) };
+}
+
+/**
+ * Creates the application schema if it does not exist, then verifies the live
+ * session resolves to it. Idempotent; call once at the start of every
+ * migration entry point before any DDL runs.
+ */
+export async function ensurePostgresSchema(
+  sqlClient: SqlClient,
+  dbScope: PostgresDbScope
+): Promise<void> {
+  await sqlClient.run(
+    `CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(dbScope.schema)}`
+  );
+  await assertPgSessionSchema(toPgQueryable(sqlClient), dbScope);
+}
+
+/** Adapts a {@link SqlClient} to the {@link assertPgSessionSchema} row shape. */
+function toPgQueryable(sqlClient: SqlClient): {
+  query<R extends Record<string, unknown>>(
+    queryText: string
+  ): Promise<{ rows: R[] }>;
+} {
+  return {
+    query: async <R extends Record<string, unknown>>(queryText: string) => ({
+      rows: await sqlClient.query<R>(queryText),
+    }),
+  };
+}

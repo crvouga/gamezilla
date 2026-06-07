@@ -62,7 +62,7 @@ async function migrateKvLegacyUpdatedAtColumn(
 ): Promise<void> {
   const legacy = await sqlClient.query<{ column_name: string }>(
     `SELECT column_name FROM information_schema.columns
-     WHERE table_schema = 'public' AND table_name = ? AND column_name = 'updated_at'`,
+     WHERE table_schema = current_schema() AND table_name = ? AND column_name = 'updated_at'`,
     [TABLE]
   );
   assert.array(legacy, 'kv migrate: legacy column query must return array');
@@ -85,7 +85,7 @@ async function migrateKvValueColumnToJsonbIfNeeded(
 ): Promise<void> {
   const rows = await sqlClient.query<{ data_type: string }>(
     `SELECT data_type FROM information_schema.columns
-     WHERE table_schema = 'public' AND table_name = ? AND column_name = 'value'`,
+     WHERE table_schema = current_schema() AND table_name = ? AND column_name = 'value'`,
     [TABLE]
   );
   assert.array(rows, 'kv migrate: value column type query must return array');
@@ -120,7 +120,7 @@ async function applyKvStorageOptimizations(
   // 'p' = permanent (logged), 'u' = unlogged, 't' = temp.
   const rows = await sqlClient.query<{ relpersistence: string }>(
     `SELECT relpersistence FROM pg_class
-     WHERE relname = ? AND relnamespace = 'public'::regnamespace`,
+     WHERE relname = ? AND relnamespace = current_schema()::regnamespace`,
     [TABLE]
   );
   assert.array(rows, 'kv migrate: pg_class lookup must return array');
@@ -140,7 +140,7 @@ async function runKvPostgresMigrations(
   log: Logger
 ): Promise<void> {
   const existing = await sqlClient.query<{ tablename: string }>(
-    `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename = ?`,
+    `SELECT tablename FROM pg_tables WHERE schemaname = current_schema() AND tablename = ?`,
     [TABLE]
   );
   if (existing.length === 0) {

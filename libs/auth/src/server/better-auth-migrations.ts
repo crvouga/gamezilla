@@ -5,25 +5,27 @@
  * `kysely.destroy()` cannot end a pool the caller still owns —
  * `pg.Pool.end()` throws on a second call.
  */
-import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
+import { createPgPool } from '@pkgs/sql-client/postgres-connect';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import type { BetterAuthOptions } from 'better-auth';
 import { getMigrations } from 'better-auth/db/migration';
 import { Kysely, PostgresDialect } from 'kysely';
-import { Pool } from 'pg';
 
 export type BetterAuthMigrationOptions = Omit<BetterAuthOptions, 'database'>;
 
 export type RunBetterAuthMigrationsArgs = {
   databaseUrl: string;
   betterAuthOptions: BetterAuthMigrationOptions;
+  dbScope: PostgresDbScope;
 };
 
 export async function runBetterAuthMigrations(
   args: RunBetterAuthMigrationsArgs
 ): Promise<void> {
-  const { databaseUrl, betterAuthOptions } = args;
-  const kyselyPool = new Pool({
-    connectionString: sanitizePostgresUrlForNodePg(databaseUrl),
+  const { databaseUrl, betterAuthOptions, dbScope } = args;
+  const { pool: kyselyPool } = createPgPool({
+    connectionString: databaseUrl,
+    dbScope,
     max: 1,
   });
   const kysely = new Kysely({

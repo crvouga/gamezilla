@@ -64,15 +64,15 @@ describe('postgres-test-instance (embedded-postgres)', () => {
     expect(rows).toHaveLength(2);
   });
 
-  test('wipe clears all tables', async () => {
+  test('wipe clears tables in the application schema', async () => {
     if (!available || !pg) return;
     const sql = new SQL(pg.connectionUrl);
-    await sql.unsafe('CREATE TABLE t (id SERIAL PRIMARY KEY, x TEXT)');
+    await sql.unsafe('CREATE TABLE gamezilla.t (id SERIAL PRIMARY KEY, x TEXT)');
     void sql.close();
     await pg.wipe();
     const verify = new SQL(pg.connectionUrl);
     const tables = await verify.unsafe(
-      "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+      "SELECT tablename FROM pg_tables WHERE schemaname = 'gamezilla'"
     );
     void verify.close();
     expect(tables).toHaveLength(0);

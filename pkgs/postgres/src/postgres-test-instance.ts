@@ -2,7 +2,7 @@
  * Singleton embedded-postgres instance for tests. Boots a real PostgreSQL
  * cluster from the bundled `embedded-postgres` binaries (no Docker, no system
  * install) in a unique temp data dir, reuses it across the test process, and
- * exposes `wipe()` to reset the public schema for fast per-test reuse.
+ * exposes `wipe()` to reset the application schema for fast per-test reuse.
  */
 
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import { SQL } from 'bun';
 import EmbeddedPostgres from 'embedded-postgres';
 import { assert } from '@pkgs/assert';
+import { GAMEZILLA_POSTGRES_SCHEMA } from '@pkgs/sql-client/postgres-schema';
 
 export type PostgresTestConfig = {
   port?: number;
@@ -32,11 +33,18 @@ const DEFAULTS = {
   database: 'postgres',
 } satisfies Required<PostgresTestConfig>;
 
+// Reset both the legacy `public` schema and the application's `gamezilla`
+// schema so every test starts from a clean slate. Connections opened through
+// `@pkgs/sql-client` pin `search_path` to `gamezilla`.
 const WIPE_SQL = `
 DROP SCHEMA IF EXISTS public CASCADE;
 CREATE SCHEMA public;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO public;
+DROP SCHEMA IF EXISTS ${GAMEZILLA_POSTGRES_SCHEMA} CASCADE;
+CREATE SCHEMA ${GAMEZILLA_POSTGRES_SCHEMA};
+GRANT ALL ON SCHEMA ${GAMEZILLA_POSTGRES_SCHEMA} TO postgres;
+GRANT ALL ON SCHEMA ${GAMEZILLA_POSTGRES_SCHEMA} TO public;
 `.trim();
 
 type Started = {

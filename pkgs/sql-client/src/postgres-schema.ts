@@ -9,37 +9,30 @@
  * without editing this file.
  */
 
-export const POSTGRES_SCHEMA = 'gamezilla';
+export const GAMEZILLA_POSTGRES_SCHEMA = 'gamezilla';
 
-export type PostgresSchemaName = typeof POSTGRES_SCHEMA;
-export function assertPostgresSchema(
-  schema: string
-): asserts schema is PostgresSchemaName {
-  if (schema !== POSTGRES_SCHEMA) {
-    throw new Error(`Expected schema ${POSTGRES_SCHEMA}, got ${schema}`);
-  }
-}
+export type GamezillaPostgresSchemaName = typeof GAMEZILLA_POSTGRES_SCHEMA;
 
 /**
  * Nominal handle for "the application's Postgres schema". Constructed only via
- * {@link postgresDbScope} — the private constructor makes it
+ * {@link gamezillaPostgresDbScope} — the private constructor makes it
  * impossible to forge a scope that points anywhere else.
  */
 export class PostgresDbScope {
-  readonly schema: PostgresSchemaName = POSTGRES_SCHEMA;
+  readonly schema: GamezillaPostgresSchemaName = GAMEZILLA_POSTGRES_SCHEMA;
 
   private constructor() {
-    // Use postgresDbScope(); construction is intentionally closed.
+    // Use gamezillaPostgresDbScope(); construction is intentionally closed.
   }
 
-  /** @internal Only `postgresDbScope` may mint a scope. */
+  /** @internal Only `gamezillaPostgresDbScope` may mint a scope. */
   static __create(): PostgresDbScope {
     return new PostgresDbScope();
   }
 }
 
 /** The one and only valid {@link PostgresDbScope}. */
-export function postgresDbScope(): PostgresDbScope {
+export function gamezillaPostgresDbScope(): PostgresDbScope {
   return PostgresDbScope.__create();
 }
 

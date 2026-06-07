@@ -17,10 +17,12 @@
 import { assert } from '@pkgs/assert';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Logger } from '@pkgs/logger/logger';
-import { SqlClientImplPgClient } from '@pkgs/sql-client/impl-pg-client';
-import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
+import {
+  openPgClient,
+  type OpenPgClientResult,
+} from '@pkgs/sql-client/postgres-connect';
+import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import { Hono } from 'hono';
-import { Client } from 'pg';
 
 import { buildClientBundle } from './client-bundle';
 import { DEV_IDP_DEFAULT_PORT, DEV_IDP_PATH_PREFIX } from './config';
@@ -87,8 +89,11 @@ export async function startDevIdpServer(
   const clientBundle = await buildClientBundle();
   log.info('dev-idp: client bundle built', { bytes: clientBundle.bytes });
 
-  const pgClient = await connectPgWithRetry(dbUrl, connectTimeoutMs, log);
-  const sqlClient = new SqlClientImplPgClient(pgClient);
+  const { client: pgClient, sqlClient } = await connectPgWithRetry(
+    dbUrl,
+    connectTimeoutMs,
+    log
+  );
   const kv = await KvImplPostgres.open({ sqlClient, logger: log });
 
   if (options.seedUsers !== undefined && options.seedUsers.length > 0) {
@@ -149,32 +154,29 @@ async function connectPgWithRetry(
   dbUrl: string,
   timeoutMs: number,
   log: Logger
-): Promise<Client> {
+): Promise<OpenPgClientResult> {
   const start = Date.now();
   let attempt = 0;
   let lastError: unknown = null;
   while (Date.now() - start < timeoutMs) {
     attempt += 1;
-    const client = new Client({
-      connectionString: sanitizePostgresUrlForNodePg(dbUrl),
-    });
     try {
-      await client.connect();
-      await client.query('SELECT 1');
+      // `ensureSchema` so a fresh local cluster (started in parallel under
+      // `turbo dev`, before `db:migrate`) gets the application schema.
+      const result = await openPgClient({
+        connectionString: dbUrl,
+        dbScope: gamezillaPostgresDbScope(),
+        ensureSchema: true,
+      });
       if (attempt > 1) {
         log.info('dev-idp: postgres reachable', {
           attempt,
           elapsedMs: Date.now() - start,
         });
       }
-      return client;
+      return result;
     } catch (err) {
       lastError = err;
-      try {
-        await client.end();
-      } catch {
-        // ignore
-      }
       if (attempt === 1 || attempt % 5 === 0) {
         log.info('dev-idp: waiting for postgres', {
           attempt,

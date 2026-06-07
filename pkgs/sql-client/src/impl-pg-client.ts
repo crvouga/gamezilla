@@ -11,8 +11,9 @@ import type {
   RunResult,
   SqlClient,
 } from './interface';
+import type { PostgresDbScope } from './postgres-schema';
+import { assertPgSessionSchema } from './postgres-session-schema';
 import { questionMarkParamsToDollarParams } from './positional-params';
-import { assertPostgresSchema, type PostgresDbScope } from './postgres-schema';
 
 export class SqlClientImplPgClient implements PostgresSqlClient {
   constructor(
@@ -21,7 +22,7 @@ export class SqlClientImplPgClient implements PostgresSqlClient {
   ) {}
 
   async connect(): Promise<void> {
-    await assertPostgresSchema(this.dbScope.schema);
+    await assertPgSessionSchema(this.client, this.dbScope);
   }
 
   async disconnect(): Promise<void> {

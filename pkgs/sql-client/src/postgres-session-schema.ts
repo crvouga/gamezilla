@@ -1,0 +1,70 @@
+/**
+ * Low-level helpers that pin a Postgres session's `search_path` to a
+ * {@link PostgresDbScope}. Two complementary mechanisms are used so the schema
+ * is enforced regardless of how the connection was opened:
+ *
+ *   1. {@link setPgSessionSchema} runs `SET search_path` on a connection. For
+ *      `node-postgres` pools this is wired through the awaited `onConnect`
+ *      hook, so every pooled connection is configured before it is handed out
+ *      (race-free, and forwarded correctly through proxies like Hyperdrive).
+ *   2. {@link withPostgresSearchPathOption} bakes `options=-c search_path=...`
+ *      into the connection string. PostgreSQL applies it per physical
+ *      connection at startup — used for Bun's `SQL` driver, which has no
+ *      awaited per-connection hook.
+ *
+ * {@link assertPgSessionSchema} verifies the live session actually resolves to
+ * the expected schema.
+ */
+import { assert } from '@pkgs/assert';
+import { quotePgIdent, type PostgresDbScope } from './postgres-schema';
+
+/** Anything that can run a text query and hand back rows (pg `Client` / `Pool` / `PoolClient`). */
+export interface PgQueryable {
+  query<R extends Record<string, unknown> = Record<string, unknown>>(
+    queryText: string
+  ): Promise<{ rows: R[] }>;
+}
+
+/**
+ * Adds the startup `options=-c search_path=<schema>` parameter to a Postgres
+ * connection string. PostgreSQL applies it per physical connection, so every
+ * connection in a pool resolves unqualified names to the scope's schema with
+ * no setup race. TLS sanitizing is left to the caller (drivers differ).
+ */
+export function withPostgresSearchPathOption(
+  connectionString: string,
+  dbScope: PostgresDbScope
+): string {
+  try {
+    const url = new URL(connectionString);
+    url.searchParams.set('options', `-c search_path=${dbScope.schema}`);
+    return url.toString();
+  } catch {
+    return connectionString;
+  }
+}
+
+/** Pins a connection's `search_path` to the scope's schema. */
+export async function setPgSessionSchema(
+  queryable: PgQueryable,
+  dbScope: PostgresDbScope
+): Promise<void> {
+  await queryable.query(`SET search_path TO ${quotePgIdent(dbScope.schema)}`);
+}
+
+/** Asserts the live session resolves unqualified names to the scope's schema. */
+export async function assertPgSessionSchema(
+  queryable: PgQueryable,
+  dbScope: PostgresDbScope
+): Promise<void> {
+  const result = await queryable.query<{ current_schema: string | null }>(
+    'SELECT current_schema() AS current_schema'
+  );
+  const current = result.rows[0]?.current_schema ?? null;
+  assert.equals(
+    current,
+    dbScope.schema,
+    'Postgres session search_path must resolve to the application schema',
+    { expected: dbScope.schema, current }
+  );
+}

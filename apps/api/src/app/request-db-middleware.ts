@@ -4,6 +4,7 @@ import type { AuthContext } from '@libs/auth/server/types';
 import { assert } from '@pkgs/assert';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { SecretStore } from '@pkgs/secret-store';
+import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import type { MiddlewareHandler } from 'hono';
 import { ConfigurationError } from '../config/env';
 import { createMatchmakingSqlClientFromPgClient } from '../matchmaking/sql-client-adapter';
@@ -36,16 +37,18 @@ export function createRequestDbMiddleware(
       'Hyperdrive connectionString must be a non-empty string'
     );
 
-    const { client, sqlClient } = await openRequestDb(cs);
+    const dbScope = gamezillaPostgresDbScope();
+    const { client, sqlClient } = await openRequestDb(cs, dbScope);
     const patchDb = createRequestPatchDb(sqlClient);
-    // `public.kv` is created by API DB migrations (`KvImplPostgres.migrateUp` in
-    // `run-postgres-migrations.ts`). Never run DDL on every request.
+    // The `kv` table is created by API DB migrations (`KvImplPostgres.migrateUp`
+    // in `run-postgres-migrations.ts`) in the `gamezilla` schema, which every
+    // connection's `search_path` is pinned to. Never run DDL on every request.
     const kv = new KvImplPostgres(sqlClient);
     const matchmakingSqlClient = createMatchmakingSqlClientFromPgClient(client);
     const { auth: betterAuth, dispose } = await createBetterAuthRequestStack(
       secretStore,
       cs,
-      apiUrlOverride === undefined ? undefined : { apiUrlOverride }
+      { dbScope, apiUrlOverride: apiUrlOverride ?? null }
     );
     const sessionAuth = createSessionAuth({ auth: betterAuth });
 

@@ -24,6 +24,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/os": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
     "embedded-postgres": "catalog:"
   },
   "devDependencies": {

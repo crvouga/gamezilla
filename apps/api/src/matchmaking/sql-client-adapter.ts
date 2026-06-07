@@ -13,7 +13,7 @@ import type {
   SqlClient as MmSqlClient,
   QueryResult,
 } from '@pkgs/matchmaking/storage';
-import type { Client, QueryResultRow } from 'pg';
+import type { Client, QueryResultRow } from '@pkgs/sql-client/pg-types';
 
 function txClient(client: Client): MmSqlClient {
   return {

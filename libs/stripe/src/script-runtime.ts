@@ -8,10 +8,9 @@
  * `DATABASE_URL` must be `postgres://` or `postgresql://` (TCP Postgres).
  */
 import type { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
-import { SqlClientImplPg } from '@pkgs/sql-client/impl-pg';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
-import { Pool } from 'pg';
+import { createPgPool } from '@pkgs/sql-client/postgres-connect';
+import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from './script-secret-store';
 import { StripeSecretKeys } from './secret-keys';
@@ -83,12 +82,11 @@ export async function resolveOptionalDbUrl(): Promise<string | undefined> {
 
 /** Build a {@link SqlClient} for the given `DATABASE_URL` (TCP Postgres). */
 export function createSqlClientFromDbUrl(dbUrl: string): SqlClient {
-  return new SqlClientImplPg(
-    new Pool({
-      connectionString: sanitizePostgresUrlForNodePg(dbUrl),
-      max: 1,
-    })
-  );
+  return createPgPool({
+    connectionString: dbUrl,
+    dbScope: gamezillaPostgresDbScope(),
+    max: 1,
+  }).sqlClient;
 }
 
 export function createStripeClientFromSecret(secretKey: string): Stripe {

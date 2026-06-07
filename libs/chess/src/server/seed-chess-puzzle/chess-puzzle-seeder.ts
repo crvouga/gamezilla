@@ -65,10 +65,9 @@ import {
 } from '@pkgs/patch-db/interface';
 import { PatchDbCompactionPolicyRegistry } from '@pkgs/patch-db/policy/compaction-policy';
 import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
-import { SqlClientImplPgClient } from '@pkgs/sql-client/impl-pg-client';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
-import { Client } from 'pg';
+import { openPgClient } from '@pkgs/sql-client/postgres-connect';
+import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
 import {
@@ -148,17 +147,17 @@ export class ChessPuzzleSeeder {
    * serial, so a pool only adds idle connections that count against the
    * primary's `max_connections` budget without any throughput benefit.
    */
-  #createSqlClient(databaseUrl: string): {
-    sql: SqlClient;
-    client: Client;
-  } {
-    const client = new Client({
-      connectionString: sanitizePostgresUrlForNodePg(databaseUrl),
-      keepAlive: true,
-      keepAliveInitialDelayMillis: 10_000,
-      application_name: 'seed:puzzles',
+  async #createSqlClient(databaseUrl: string): Promise<{ sql: SqlClient }> {
+    const { sqlClient } = await openPgClient({
+      connectionString: databaseUrl,
+      dbScope: gamezillaPostgresDbScope(),
+      clientOptions: {
+        keepAlive: true,
+        keepAliveInitialDelayMillis: 10_000,
+        application_name: 'seed:puzzles',
+      },
     });
-    return { sql: new SqlClientImplPgClient(client), client };
+    return { sql: sqlClient };
   }
 
   #createSeedPatchDb(sql: SqlClient): PatchDb {
@@ -524,8 +523,7 @@ export class ChessPuzzleSeeder {
     const databaseUrl = (
       await store.getRequired('DATABASE_URL')
     ).readSecretValue();
-    const { sql: sqlClient, client } = this.#createSqlClient(databaseUrl);
-    await client.connect();
+    const { sql: sqlClient } = await this.#createSqlClient(databaseUrl);
     try {
       await applySessionTuning(sqlClient, log);
       const patchDb = this.#createSeedPatchDb(sqlClient);

@@ -1,11 +1,11 @@
 import { expo } from '@better-auth/expo';
 import type { SecretStore } from '@pkgs/secret-store';
-import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
+import { createPgPool } from '@pkgs/sql-client/postgres-connect';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import { betterAuth, type BetterAuthPlugin } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
 import { genericOAuth } from 'better-auth/plugins/generic-oauth';
 import { Kysely, PostgresDialect } from 'kysely';
-import { Pool } from 'pg';
 import {
   isLocalApiOrigin,
   loadBetterAuthSecretsWorker,
@@ -51,14 +51,18 @@ export type BetterAuthRequestStack = {
 export async function createBetterAuthRequestStack(
   secretStore: SecretStore,
   hyperdriveConnectionString: string,
-  options?: { readonly apiUrlOverride?: string | null }
+  options: {
+    readonly dbScope: PostgresDbScope;
+    readonly apiUrlOverride?: string | null;
+  }
 ): Promise<BetterAuthRequestStack> {
   const cfg = await loadBetterAuthSecretsWorker(
     secretStore,
-    options?.apiUrlOverride
+    options.apiUrlOverride
   );
-  const pool = new Pool({
-    connectionString: sanitizePostgresUrlForNodePg(hyperdriveConnectionString),
+  const { pool } = createPgPool({
+    connectionString: hyperdriveConnectionString,
+    dbScope: options.dbScope,
     max: 1,
   });
   await pool.query('SELECT 1');

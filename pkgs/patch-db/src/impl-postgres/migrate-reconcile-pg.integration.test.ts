@@ -23,6 +23,8 @@ import { createAttrNamespace } from '@pkgs/attribute';
 import { createLogger } from '@pkgs/logger';
 import { SqlClientImplBunPostgres } from '@pkgs/sql-client/impl-bun-postgres';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { ensurePostgresSchema } from '@pkgs/sql-client/postgres-connect';
+import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import {
   afterAll,
   beforeAll,
@@ -93,8 +95,10 @@ describe.skipIf(!HAS_DB)(
     const logger = createLogger({ name: 'reconcile-it', level: 'silent' });
 
     beforeAll(async () => {
-      sqlClient = SqlClientImplBunPostgres.connect(DATABASE_URL);
+      const dbScope = gamezillaPostgresDbScope();
+      sqlClient = SqlClientImplBunPostgres.connect(DATABASE_URL, dbScope);
       await sqlClient.connect();
+      await ensurePostgresSchema(sqlClient, dbScope);
     });
 
     afterAll(async () => {

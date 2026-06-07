@@ -3,6 +3,8 @@ import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import { SqlClientImplBunPostgres } from '@pkgs/sql-client/impl-bun-postgres';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { ensurePostgresSchema } from '@pkgs/sql-client/postgres-connect';
+import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import { PatchDbImplClientTransport } from '../impl-client-transport';
 import { PatchDbImplPostgres } from '../impl-postgres/impl-postgres';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
@@ -41,8 +43,10 @@ export async function createPostgresFactory(): Promise<{
       'createPostgresFactory: set DATABASE_URL for Postgres tests'
     );
   }
-  const client: SqlClient = SqlClientImplBunPostgres.connect(url);
+  const dbScope = gamezillaPostgresDbScope();
+  const client: SqlClient = SqlClientImplBunPostgres.connect(url, dbScope);
   await client.connect();
+  await ensurePostgresSchema(client, dbScope);
   const logger = createLogger({ name: 'patch-db-test', level: 'silent' });
   await PatchDbImplPostgres.migrateUp({ sqlClient: client, logger });
   const db = new PatchDbImplPostgres(client);

@@ -1,24 +1,42 @@
 import { SQL } from 'bun';
 import { assert } from '@pkgs/assert';
-import type { PreparedStatement, RunResult, SqlClient } from './interface';
+import type {
+  PostgresSqlClient,
+  PreparedStatement,
+  RunResult,
+  SqlClient,
+} from './interface';
+import type { PostgresDbScope } from './postgres-schema';
+import { withPostgresSearchPathOption } from './postgres-session-schema';
 import { questionMarkParamsToDollarParams } from './positional-params';
 import { sanitizePostgresUrlForBunSql } from './sanitize-postgres-url-for-bun-sql';
 
 type BunSql = InstanceType<typeof SQL>;
 
-export class SqlClientImplBunPostgres implements SqlClient {
+export class SqlClientImplBunPostgres implements PostgresSqlClient {
   private client: SqlClient;
 
-  constructor(connection: string | URL | BunSql) {
+  constructor(
+    connection: string | URL | BunSql,
+    readonly dbScope: PostgresDbScope
+  ) {
     const sql =
       typeof connection === 'string' || connection instanceof URL
-        ? new SQL(sanitizePostgresUrlForBunSql(connection))
+        ? new SQL(
+            withPostgresSearchPathOption(
+              sanitizePostgresUrlForBunSql(connection),
+              dbScope
+            )
+          )
         : connection;
     this.client = createClient(sql);
   }
 
-  static connect(connection: string | URL): SqlClientImplBunPostgres {
-    return new SqlClientImplBunPostgres(connection);
+  static connect(
+    connection: string | URL,
+    dbScope: PostgresDbScope
+  ): SqlClientImplBunPostgres {
+    return new SqlClientImplBunPostgres(connection, dbScope);
   }
 
   connect(): Promise<void> {

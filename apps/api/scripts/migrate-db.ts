@@ -2,9 +2,11 @@ import { loadBetterAuthOptionsForMigration } from '@libs/auth/server/better-auth
 import { assert } from '@pkgs/assert';
 import { createLogger, type Logger } from '@pkgs/logger';
 import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
-import { SqlClientImplPg } from '@pkgs/sql-client/impl-pg';
-import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
-import { Client, Pool } from 'pg';
+import {
+  createPgPool,
+  pingPostgres,
+} from '@pkgs/sql-client/postgres-connect';
+import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
 
 const CONNECTION_LIMIT_DELAYS_MS = [0, 3_000, 8_000, 15_000, 30_000] as const;
@@ -49,29 +51,20 @@ async function waitForPostgresReachable(
   const started = Date.now();
   let attempt = 0;
   let lastError: unknown = null;
-  const connectionString = sanitizePostgresUrlForNodePg(databaseUrl);
 
   while (Date.now() - started < WAIT_FOR_POSTGRES_MS) {
     attempt += 1;
-    const client = new Client({ connectionString });
     try {
-      await client.connect();
-      await client.query('SELECT 1');
+      await pingPostgres(databaseUrl);
       if (attempt > 1) {
         log.info('postgres reachable for migrate', {
           attempt,
           elapsedMs: Date.now() - started,
         });
       }
-      await client.end();
       return;
     } catch (error) {
       lastError = error;
-      try {
-        await client.end();
-      } catch {
-        // ignore
-      }
       if (attempt === 1 || attempt % 5 === 0) {
         log.info('waiting for postgres before migrate', {
           attempt,
@@ -92,13 +85,13 @@ async function waitForPostgresReachable(
 
 async function runMigrateOnce(): Promise<void> {
   const databaseUrl = await resolveDatabaseUrlForMigrate();
-  const pool = new Pool({
-    connectionString: sanitizePostgresUrlForNodePg(databaseUrl),
+  const dbScope = gamezillaPostgresDbScope();
+  const { pool, sqlClient } = createPgPool({
+    connectionString: databaseUrl,
+    dbScope,
     max: 1,
   });
-  const sqlClient = new SqlClientImplPg(pool);
   const log = createLogger({ name: 'api:migrate' });
-  await sqlClient.connect();
   try {
     await runPostgresMigrations({
       sqlClient,
@@ -107,6 +100,7 @@ async function runMigrateOnce(): Promise<void> {
       betterAuthOptions: await loadBetterAuthOptionsForMigration(
         createDopplerSecretStoreForScripts()
       ),
+      dbScope,
     });
     log.info(
       'postgres migrations finished (patch-db + kv + better-auth; matchmaking self-migrates on first request; legacy entities dropped if present)'

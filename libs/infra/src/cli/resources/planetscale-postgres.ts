@@ -1,4 +1,5 @@
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/impl-postgres-tcp';
+import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import { ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { fetchDopplerSecret } from '../secrets/secrets';
@@ -78,7 +79,7 @@ type ProbeResult =
  * `DATABASE_URL` values from Doppler work here but often fail the serverless driver.
  */
 async function probeDatabase(url: string): Promise<ProbeResult> {
-  const sql = SqlClientImplPostgresTcp.connect(url);
+  const sql = SqlClientImplPostgresTcp.connect(url, gamezillaPostgresDbScope());
   try {
     await sql.connect();
     const rows = await sql.query<{ ok: number }>('SELECT 1 AS ok');
@@ -96,16 +97,18 @@ async function probeDatabase(url: string): Promise<ProbeResult> {
   }
 }
 
+// Claims ownership of tables in the application schema (the session's pinned
+// `search_path`, i.e. `current_schema()`), not `public`.
 const CLAIM_TABLE_OWNERSHIP_SQL = `
   DO $$
   DECLARE r RECORD;
   BEGIN
     FOR r IN
       SELECT tablename FROM pg_tables
-      WHERE schemaname = 'public'
+      WHERE schemaname = current_schema()
         AND tableowner <> current_user
     LOOP
-      EXECUTE format('ALTER TABLE public.%I OWNER TO %I', r.tablename, current_user);
+      EXECUTE format('ALTER TABLE %I.%I OWNER TO %I', current_schema(), r.tablename, current_user);
     END LOOP;
   END$$
 `;
@@ -117,7 +120,7 @@ const CLAIM_TABLE_OWNERSHIP_SQL = `
 async function verifyDatabaseAndClaimOwnership(
   url: string
 ): Promise<ProbeResult> {
-  const sql = SqlClientImplPostgresTcp.connect(url);
+  const sql = SqlClientImplPostgresTcp.connect(url, gamezillaPostgresDbScope());
   try {
     await sql.connect();
     const rows = await sql.query<{ ok: number }>('SELECT 1 AS ok');

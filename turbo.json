@@ -133,6 +133,19 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:no-direct-pg-imports": {
+      "inputs": [
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx",
+        "scripts/check-no-direct-pg-imports.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:tier-imports": {
       "inputs": [
         "apps/**/*.ts",
