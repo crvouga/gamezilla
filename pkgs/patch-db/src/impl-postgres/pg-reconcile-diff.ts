@@ -212,19 +212,21 @@ export function diffCompositeIndexes(
   return { toAdd, toDrop };
 }
 
-export function diffGinIndexes(
-  desired: DesiredPgLayout,
-  live: LivePgLayout
-): {
-  toAdd: readonly GinIndexOnTable[];
-  toDrop: readonly IndexRefOnTable[];
-} {
-  const liveByTable = indexLookup(live.ginIndexes);
-  const desiredGinByTable = new Map<string, string>();
+function desiredGinIndexByTable(
+  desired: DesiredPgLayout
+): ReadonlyMap<string, string> {
+  const byTable = new Map<string, string>();
   for (const table of desired.tables.values()) {
     if (table.ginIndexName === null) continue;
-    desiredGinByTable.set(table.tableName, table.ginIndexName);
+    byTable.set(table.tableName, table.ginIndexName);
   }
+  return byTable;
+}
+
+function collectMissingGinIndexes(
+  desired: DesiredPgLayout,
+  liveByTable: LiveIndexByTable
+): GinIndexOnTable[] {
   const toAdd: GinIndexOnTable[] = [];
   for (const table of desired.tables.values()) {
     if (table.ginIndexName === null) continue;
@@ -236,6 +238,13 @@ export function diffGinIndexes(
       });
     }
   }
+  return toAdd;
+}
+
+function collectStaleGinIndexes(
+  liveByTable: LiveIndexByTable,
+  desiredGinByTable: ReadonlyMap<string, string>
+): IndexRefOnTable[] {
   const toDrop: IndexRefOnTable[] = [];
   for (const [tableName, liveNames] of liveByTable) {
     const desiredName = desiredGinByTable.get(tableName);
@@ -245,7 +254,22 @@ export function diffGinIndexes(
       }
     }
   }
-  return { toAdd, toDrop };
+  return toDrop;
+}
+
+export function diffGinIndexes(
+  desired: DesiredPgLayout,
+  live: LivePgLayout
+): {
+  toAdd: readonly GinIndexOnTable[];
+  toDrop: readonly IndexRefOnTable[];
+} {
+  const liveByTable = indexLookup(live.ginIndexes);
+  const desiredGinByTable = desiredGinIndexByTable(desired);
+  return {
+    toAdd: collectMissingGinIndexes(desired, liveByTable),
+    toDrop: collectStaleGinIndexes(liveByTable, desiredGinByTable),
+  };
 }
 
 export function viewBranchesOf(
