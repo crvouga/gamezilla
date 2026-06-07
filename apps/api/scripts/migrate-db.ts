@@ -2,10 +2,7 @@ import { loadBetterAuthOptionsForMigration } from '@libs/auth/server/better-auth
 import { assert } from '@pkgs/assert';
 import { createLogger, type Logger } from '@pkgs/logger';
 import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
-import {
-  createPgPool,
-  pingPostgres,
-} from '@pkgs/sql-client/postgres-connect';
+import { createPgPool, pingPostgres } from '@pkgs/sql-client/postgres-connect';
 import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
 
