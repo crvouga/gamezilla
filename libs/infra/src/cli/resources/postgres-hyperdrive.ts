@@ -28,22 +28,26 @@ function parseDbUrlToOrigin(dbUrl: string): HyperdriveOriginPublic {
   const trimmed = dbUrl.trim();
   assert.ok(
     trimmed.startsWith('postgresql://') || trimmed.startsWith('postgres://'),
-    'DB_URL must be postgres:// or postgresql:// for Hyperdrive',
+    'DATABASE_URL must be postgres:// or postgresql:// for Hyperdrive',
     { prefix: trimmed.slice(0, 24) }
   );
   const u = new URL(trimmed);
   const schemeRaw = u.protocol.replace(/:$/, '').toLowerCase();
   assert.ok(
     schemeRaw === 'postgres' || schemeRaw === 'postgresql',
-    'DB_URL scheme must be postgres or postgresql',
+    'DATABASE_URL scheme must be postgres or postgresql',
     { scheme: schemeRaw }
   );
   const scheme = schemeRaw === 'postgresql' ? 'postgresql' : 'postgres';
   const host = u.hostname;
-  assert.ok(host.length > 0, 'DB_URL must include a host', { dbUrl: trimmed });
+  assert.ok(host.length > 0, 'DATABASE_URL must include a host', {
+    dbUrl: trimmed,
+  });
   const port = u.port !== '' ? Number(u.port) : 5432;
-  assert.integer(port, 'DB_URL port must be an integer');
-  assert.ok(port >= 1 && port <= 65_535, 'DB_URL port out of range', { port });
+  assert.integer(port, 'DATABASE_URL port must be an integer');
+  assert.ok(port >= 1 && port <= 65_535, 'DATABASE_URL port out of range', {
+    port,
+  });
   let database = u.pathname.replace(/^\//, '');
   if (database === '') database = 'postgres';
   const user = u.username !== '' ? decodeURIComponent(u.username) : 'postgres';
@@ -190,10 +194,10 @@ export class PostgresHyperdriveResource extends ResourceBase {
     const accountId = cfAccountId();
     assert.nonEmptyString(accountId, 'CLOUDFLARE_ACCOUNT_ID must be set');
 
-    const dbUrl = (process.env['DB_URL'] ?? '').trim();
+    const dbUrl = (process.env['DATABASE_URL'] ?? '').trim();
     assert.nonEmptyString(
       dbUrl,
-      'DB_URL must be set (Doppler) to provision Hyperdrive origin'
+      'DATABASE_URL must be set (Doppler) to provision Hyperdrive origin'
     );
 
     const origin = parseDbUrlToOrigin(dbUrl);

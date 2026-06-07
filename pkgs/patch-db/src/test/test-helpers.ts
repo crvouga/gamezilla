@@ -35,9 +35,11 @@ export async function createPostgresFactory(): Promise<{
   db: PatchDb;
   teardown: () => Promise<void>;
 }> {
-  const url = process.env['DB_URL'];
+  const url = process.env['DATABASE_URL'];
   if (url === undefined || url === '') {
-    throw new Error('createPostgresFactory: set DB_URL for Postgres tests');
+    throw new Error(
+      'createPostgresFactory: set DATABASE_URL for Postgres tests'
+    );
   }
   const client: SqlClient = SqlClientImplBunPostgres.connect(url);
   await client.connect();
@@ -49,7 +51,7 @@ export async function createPostgresFactory(): Promise<{
 
 export const implementations: { name: string; factory: DbFactory }[] = [
   { name: 'PatchDbImplSqlite', factory: createSqliteFactory },
-  // Set `DB_URL` to a reachable Postgres (e.g. PGlite socket / `bun run --filter @pkgs/postgres dev`) to enable:
+  // Set `DATABASE_URL` to a reachable Postgres (e.g. PGlite socket / `bun run --filter @pkgs/postgres dev`) to enable:
   // { name: 'PatchDbImplPostgres', factory: createPostgresFactory },
 ];
 

@@ -62,7 +62,7 @@ const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
   'PLANETSCALE_ORG',
   // Auto-populated by the Doppler ↔ Planetscale integration alongside
   // PLANETSCALE_DATABASE / PLANETSCALE_ORG. Not consumed by the infra CLI
-  // (we connect via PLANETSCALE_SERVICE_TOKEN_* + DB_URL), but kept so the
+  // (we connect via PLANETSCALE_SERVICE_TOKEN_* + DATABASE_URL), but kept so the
   // integration sync doesn't fight the orphan check.
   'PLANETSCALE_DATABASE_URL',
   // Stripe publishable key (pk_…) mirrored from the Stripe Dashboard.

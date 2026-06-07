@@ -36,10 +36,10 @@
  * long as they run in **session pooling** mode (transaction mode breaks
  * `SET …` statements that need to persist across the seed's batches).
  *
- * Local (Doppler `dev`, `DB_URL` → PGlite socket or other Postgres):
+ * Local (Doppler `dev`, `DATABASE_URL` → PGlite socket or other Postgres):
  *   DOPPLER_CONFIG=dev doppler run -- bun run --filter @libs/chess seed:puzzles
  *
- * Production (Doppler `prd`, `DB_URL` → Postgres):
+ * Production (Doppler `prd`, `DATABASE_URL` → Postgres):
  *   DOPPLER_CONFIG=prd doppler run -- bun run --filter @libs/chess seed:puzzles
  *
  * Options: `--source`, `--cache-dir`, `--batch-size` (default 1000),
@@ -57,10 +57,6 @@ import {
   ChessPuzzleLoadAttr,
 } from '@libs/chess/shared/chess-puzzle-entities';
 import { createLogger, type Logger } from '@pkgs/logger';
-import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
-import { SqlClientImplPgClient } from '@pkgs/sql-client/impl-pg-client';
-import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
-import type { SqlClient } from '@pkgs/sql-client/interface';
 import { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
 import {
   PATCHES_DB_SYSTEM_CONTEXT,
@@ -68,6 +64,10 @@ import {
   type PatchInput,
 } from '@pkgs/patch-db/interface';
 import { PatchDbCompactionPolicyRegistry } from '@pkgs/patch-db/policy/compaction-policy';
+import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
+import { SqlClientImplPgClient } from '@pkgs/sql-client/impl-pg-client';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
 import { Client } from 'pg';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
@@ -77,11 +77,11 @@ import {
   flushPuzzleBatchFast,
   runFinalMaintenance,
   runInterimMaintenance,
-  type SeedStats,
   sleep,
+  type SeedStats,
 } from './fast-path';
-import { contentAddressedPatchId, rowToPuzzleBatchEntry } from './row';
 import { createPuzzleSeedReporter, type PuzzleSeedReporter } from './reporter';
+import { contentAddressedPatchId, rowToPuzzleBatchEntry } from './row';
 import {
   ensureCachedArchive,
   iteratePuzzleRows,
@@ -521,7 +521,9 @@ export class ChessPuzzleSeeder {
       note: 'Schema (patches/snapshots + pdb_idx_chess_puzzle__*) must already exist; run `bun run --filter @apps/api db:migrate` first on a fresh database.',
     });
     const store = createDopplerSecretStoreForScripts();
-    const databaseUrl = (await store.getRequired('DB_URL')).readSecretValue();
+    const databaseUrl = (
+      await store.getRequired('DATABASE_URL')
+    ).readSecretValue();
     const { sql: sqlClient, client } = this.#createSqlClient(databaseUrl);
     await client.connect();
     try {

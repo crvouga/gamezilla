@@ -62,7 +62,7 @@ export interface DevIdpServerHandle {
   readonly stop: () => Promise<void>;
 }
 
-const DEFAULT_DB_URL =
+const DEFAULT_DATABASE_URL =
   'postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable';
 
 const DEFAULT_HOST = '127.0.0.1';
@@ -78,7 +78,7 @@ export async function startDevIdpServer(
   const log = options.logger ?? noopLogger();
   const port = options.port ?? DEV_IDP_DEFAULT_PORT;
   const host = options.host ?? DEFAULT_HOST;
-  const dbUrl = options.dbUrl ?? DEFAULT_DB_URL;
+  const dbUrl = options.dbUrl ?? DEFAULT_DATABASE_URL;
   const connectTimeoutMs =
     options.connectTimeoutMs ?? DEFAULT_CONNECT_TIMEOUT_MS;
 

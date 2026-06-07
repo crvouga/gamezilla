@@ -9,7 +9,7 @@ export class PlanetScalePostgres extends ResourceBase {
 
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const url = await resolveDatabaseUrl();
-    ok('DB_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
+    ok('DATABASE_URL', url.replace(/\/\/[^@]+@/, '//***:***@'));
   }
 
   async destroy(): Promise<void> {
@@ -25,26 +25,27 @@ export interface DatabasePingResult {
 }
 
 /**
- * Pings the database with `SELECT 1` using `DB_URL` from the environment.
+ * Pings the database with `SELECT 1` using `DATABASE_URL` from the environment.
  * Read-only and safe to call from health checks.
  */
 export async function pingDatabase(): Promise<DatabasePingResult> {
   const start = Date.now();
   try {
-    const url = (process.env['DB_URL'] ?? '').trim();
+    const url = (process.env['DATABASE_URL'] ?? '').trim();
     if (!url) {
       return {
         ok: false,
         durationMs: Date.now() - start,
         error:
-          'DB_URL not set — run `bun run infra deploy` or ensure Doppler exposes DB_URL',
+          'DATABASE_URL not set — run `bun run infra deploy` or ensure Doppler exposes DATABASE_URL',
       };
     }
     if (!url.startsWith('postgresql://') && !url.startsWith('postgres://')) {
       return {
         ok: false,
         durationMs: Date.now() - start,
-        error: 'DB_URL is malformed (expected postgres:// or postgresql://)',
+        error:
+          'DATABASE_URL is malformed (expected postgres:// or postgresql://)',
       };
     }
     const host = new URL(url).host;
@@ -74,7 +75,7 @@ type ProbeResult =
 /**
  * PlanetScale Postgres is reached over the wire protocol (same path as the
  * distributed lock and `db:migrate`), not Neon's HTTP `/sql` API — pooled
- * `DB_URL` values from Doppler work here but often fail the serverless driver.
+ * `DATABASE_URL` values from Doppler work here but often fail the serverless driver.
  */
 async function probeDatabase(url: string): Promise<ProbeResult> {
   const sql = SqlClientImplPostgresTcp.connect(url);
@@ -144,7 +145,7 @@ async function verifyDatabaseAndClaimOwnership(
 let databaseUrlVerifiedInProcess = false;
 
 function tryFetchCachedDbUrlFromEnv(): string | null {
-  const url = (process.env['DB_URL'] ?? '').trim();
+  const url = (process.env['DATABASE_URL'] ?? '').trim();
   if (!url) return null;
   return url.startsWith('postgresql://') || url.startsWith('postgres://')
     ? url
@@ -152,12 +153,12 @@ function tryFetchCachedDbUrlFromEnv(): string | null {
 }
 
 function readDbUrlFromDoppler(): string {
-  let raw = process.env['DB_URL'];
+  let raw = process.env['DATABASE_URL'];
   if (typeof raw !== 'string' || raw.trim().length === 0) {
     try {
-      const fromDoppler = fetchDopplerSecret('DB_URL').trim();
+      const fromDoppler = fetchDopplerSecret('DATABASE_URL').trim();
       if (fromDoppler.length > 0) {
-        process.env['DB_URL'] = fromDoppler;
+        process.env['DATABASE_URL'] = fromDoppler;
         raw = fromDoppler;
       }
     } catch {
@@ -166,20 +167,20 @@ function readDbUrlFromDoppler(): string {
   }
   if (typeof raw !== 'string' || raw.trim().length === 0) {
     throw new Error(
-      'DB_URL is not set and could not be read from Doppler. Add secret DB_URL in your Doppler config, ensure `doppler setup` / `DOPPLER_TOKEN` targets that project, or export DB_URL in the shell.'
+      'DATABASE_URL is not set and could not be read from Doppler. Add secret DATABASE_URL in your Doppler config, ensure `doppler setup` / `DOPPLER_TOKEN` targets that project, or export DATABASE_URL in the shell.'
     );
   }
   const url = raw.trim();
   if (!url.startsWith('postgresql://') && !url.startsWith('postgres://')) {
     throw new Error(
-      'DB_URL for PlanetScale must start with postgres:// or postgresql://'
+      'DATABASE_URL for PlanetScale must start with postgres:// or postgresql://'
     );
   }
   return url;
 }
 
 /**
- * Sets `process.env.DB_URL` from a valid cached Postgres URL, or loads `DB_URL`
+ * Sets `process.env.DATABASE_URL` from a valid cached Postgres URL, or loads `DATABASE_URL`
  * from Doppler, after a connectivity check and best-effort ownership claim.
  *
  * After the first successful check in this process (during distributed-lock
@@ -194,7 +195,7 @@ export async function resolveDatabaseUrl(): Promise<string> {
       return cached;
     }
     const url = readDbUrlFromDoppler();
-    process.env['DB_URL'] = url;
+    process.env['DATABASE_URL'] = url;
     return url;
   }
 
@@ -202,7 +203,7 @@ export async function resolveDatabaseUrl(): Promise<string> {
   if (cached) {
     const probe = await verifyDatabaseAndClaimOwnership(cached);
     if (probe.ok) {
-      process.env['DB_URL'] = cached;
+      process.env['DATABASE_URL'] = cached;
       databaseUrlVerifiedInProcess = true;
       return cached;
     }
@@ -213,14 +214,14 @@ export async function resolveDatabaseUrl(): Promise<string> {
   if (!probe.ok) {
     const hint =
       cached !== null
-        ? ' (env DB_URL also failed — check Doppler `prd` `DB_URL` matches a Postgres wire URL)'
+        ? ' (env DATABASE_URL also failed — check Doppler `prd` `DATABASE_URL` matches a Postgres wire URL)'
         : '';
     throw new Error(
-      `DB_URL connectivity check failed (SELECT 1)${hint}: ${probe.error}`
+      `DATABASE_URL connectivity check failed (SELECT 1)${hint}: ${probe.error}`
     );
   }
 
-  process.env['DB_URL'] = url;
+  process.env['DATABASE_URL'] = url;
   databaseUrlVerifiedInProcess = true;
   return url;
 }

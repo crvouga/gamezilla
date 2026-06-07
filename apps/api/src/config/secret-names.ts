@@ -23,7 +23,7 @@ export const ApiSecretName = {
    * deep links and local wrangler URLs when `API_URL` points at localhost.
    */
   betterAuthTrustedOrigins: 'BETTER_AUTH_TRUSTED_ORIGINS',
-  dbUrl: 'DB_URL',
+  dbUrl: 'DATABASE_URL',
   apiUrl: 'API_URL',
   stripeSecretKey: 'STRIPE_SECRET_KEY',
   stripeWebhookSecret: 'STRIPE_WEBHOOK_SECRET',

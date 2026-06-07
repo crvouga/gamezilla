@@ -3,8 +3,8 @@ import type { SecretEntry } from './types';
 const POSTGRES_URL_PREFIX = /^(postgres|postgresql):\/\//i;
 
 export class DbUrl implements SecretEntry {
-  readonly secretKey = 'DB_URL';
-  readonly env = 'DB_URL';
+  readonly secretKey = 'DATABASE_URL';
+  readonly env = 'DATABASE_URL';
   readonly hint =
     'Postgres connection URL (postgresql://…) or local PGlite HTTP (http://127.0.0.1:15432)';
 

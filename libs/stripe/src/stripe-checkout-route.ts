@@ -107,7 +107,7 @@ async function handleStripeCheckout(
   );
   if (priceId === null || priceId.length === 0) {
     log.error(
-      'checkout: no catalog_price row for priceKey — run stripe catalog sync with DB_URL so API payloads are dumped to patch-db'
+      'checkout: no catalog_price row for priceKey — run stripe catalog sync with DATABASE_URL so API payloads are dumped to patch-db'
     );
     return c.json(
       {

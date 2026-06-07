@@ -1,6 +1,6 @@
 /**
  * End-to-end reconciliation test against a real Postgres cluster. Skipped
- * unless `DB_URL` is set (e.g. `bun run --filter @pkgs/postgres dev`).
+ * unless `DATABASE_URL` is set (e.g. `bun run --filter @pkgs/postgres dev`).
  *
  * Locks in the contracts that {@link migratePatchDbPostgres} must uphold
  * to keep the registry and the catalog in lock-step:
@@ -46,8 +46,8 @@ import {
   UNREGISTERED_SNAPSHOT_TABLE,
 } from './partitioning';
 
-const DB_URL = process.env['DB_URL'] ?? '';
-const HAS_DB = DB_URL.length > 0;
+const DATABASE_URL = process.env['DATABASE_URL'] ?? '';
+const HAS_DB = DATABASE_URL.length > 0;
 
 const taskNs = createAttrNamespace('task');
 const TaskAttrV1 = {
@@ -93,7 +93,7 @@ describe.skipIf(!HAS_DB)(
     const logger = createLogger({ name: 'reconcile-it', level: 'silent' });
 
     beforeAll(async () => {
-      sqlClient = SqlClientImplBunPostgres.connect(DB_URL);
+      sqlClient = SqlClientImplBunPostgres.connect(DATABASE_URL);
       await sqlClient.connect();
     });
 

@@ -1,17 +1,17 @@
 /**
  * Shared runtime for Stripe CLI sync scripts.
  *
- * Centralizes secret resolution (Stripe key, `DB_URL`), Stripe client
+ * Centralizes secret resolution (Stripe key, `DATABASE_URL`), Stripe client
  * construction, and PatchDb setup so per-entity scripts stay thin and
  * consistent (Tiger Style: small surface, fail fast).
  *
- * `DB_URL` must be `postgres://` or `postgresql://` (TCP Postgres).
+ * `DATABASE_URL` must be `postgres://` or `postgresql://` (TCP Postgres).
  */
-import { SqlClientImplPg } from '@pkgs/sql-client/impl-pg';
-import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { Pool } from 'pg';
 import type { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
+import { SqlClientImplPg } from '@pkgs/sql-client/impl-pg';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
+import { Pool } from 'pg';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from './script-secret-store';
 import { StripeSecretKeys } from './secret-keys';
@@ -43,22 +43,23 @@ export async function assertStripeSecretKey(
 }
 
 /**
- * Read `DB_URL` from Doppler. Exits when missing or unsupported — backfill
+ * Read `DATABASE_URL` from Doppler. Exits when missing or unsupported — backfill
  * scripts only do persistence, so absent DB makes them a no-op (footgun).
  */
 export async function assertDbUrl(scriptTag: string): Promise<string> {
   const store = createStripeScriptSecretStore();
-  const raw = (await store.getOptional('DB_URL'))?.readSecretValue() ?? '';
+  const raw =
+    (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';
   const u = raw.trim();
   if (u.length === 0) {
     console.error(
-      `[${scriptTag}] DB_URL is missing in Doppler — set a postgres://… connection string`
+      `[${scriptTag}] DATABASE_URL is missing in Doppler — set a postgres://… connection string`
     );
     process.exit(1);
   }
   if (!isPostgresDbUrl(u)) {
     console.error(
-      `[${scriptTag}] DB_URL must be a postgres:// or postgresql:// URL`
+      `[${scriptTag}] DATABASE_URL must be a postgres:// or postgresql:// URL`
     );
     process.exit(1);
   }
@@ -66,20 +67,21 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
 }
 
 /**
- * Optional `DB_URL` resolver — preserves soft-skip semantics for callers that
+ * Optional `DATABASE_URL` resolver — preserves soft-skip semantics for callers that
  * want catalog reconcile without patch-db persistence (e.g. CI gate scripts
  * running where no Postgres is reachable).
  */
 export async function resolveOptionalDbUrl(): Promise<string | undefined> {
   const store = createStripeScriptSecretStore();
-  const raw = (await store.getOptional('DB_URL'))?.readSecretValue() ?? '';
+  const raw =
+    (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';
   const u = raw.trim();
   if (u.length === 0) return undefined;
   if (isPostgresDbUrl(u)) return u;
   return undefined;
 }
 
-/** Build a {@link SqlClient} for the given `DB_URL` (TCP Postgres). */
+/** Build a {@link SqlClient} for the given `DATABASE_URL` (TCP Postgres). */
 export function createSqlClientFromDbUrl(dbUrl: string): SqlClient {
   return new SqlClientImplPg(
     new Pool({

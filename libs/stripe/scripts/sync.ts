@@ -3,7 +3,7 @@
  *
  * Reads via Doppler (`DOPPLER_TOKEN` or `doppler login`):
  *   - `STRIPE_SECRET_KEY` (required)
- *   - `DB_URL`            (required; `postgres://…` or `http://…` for local PGlite)
+ *   - `DATABASE_URL`            (required; `postgres://…` or `http://…` for local PGlite)
  *   - `API_URL`           (required; absolute origin of the API Worker, no path)
  *
  * Writes via Doppler CLI on webhook rebuild:

@@ -8,6 +8,6 @@ export const BetterAuthDopplerKey = {
   betterAuthSecret: 'BETTER_AUTH_SECRET',
   betterAuthAppName: 'BETTER_AUTH_APP_NAME',
   betterAuthTrustedOrigins: 'BETTER_AUTH_TRUSTED_ORIGINS',
-  dbUrl: 'DB_URL',
+  dbUrl: 'DATABASE_URL',
   apiUrl: 'API_URL',
 } as const;

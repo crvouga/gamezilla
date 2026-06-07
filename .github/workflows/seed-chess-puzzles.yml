@@ -1,7 +1,7 @@
 # https://github.com/crvouga/gamezilla/actions/workflows/seed-chess-puzzles.yml
 #
 # Manual workflow that runs `libs/chess/scripts/seed-chess-puzzles.ts`
-# against the Doppler `prd` config (Postgres `DB_URL`). Idempotent:
+# against the Doppler `prd` config (Postgres `DATABASE_URL`). Idempotent:
 # content-addressed patch IDs + `INSERT … ON CONFLICT DO NOTHING` skip
 # unchanged rows, and the script resumes from the saved cursor when the
 # source ETag is unchanged.
@@ -28,7 +28,7 @@
 #
 # All production credentials come from Doppler — the only repository secret
 # this workflow needs is `DOPPLER_SERVICE_TOKEN`. `doppler run -- …` injects
-# `DB_URL` (and any other prod secrets) into each step's process env.
+# `DATABASE_URL` (and any other prod secrets) into each step's process env.
 name: Seed chess puzzles (prod)
 
 permissions:
@@ -166,7 +166,7 @@ jobs:
             args+=(--rebuild-indexes)
           fi
           # `--no-pretty` for clean GH Actions log lines (no ANSI carriage
-          # returns). `doppler run` injects `DB_URL` from the `prd` config so
+          # returns). `doppler run` injects `DATABASE_URL` from the `prd` config so
           # the script's `createDopplerSecretStoreForScripts()` can also read
           # any additional secrets it needs.
           DOPPLER_CONFIG=prd bun run scripts/doppler-run.ts -- \

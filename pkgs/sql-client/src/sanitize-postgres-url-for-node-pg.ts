@@ -7,7 +7,7 @@
  * parsing the connection string.
  *
  * Managed providers (PlanetScale Postgres in our case) emit
- * `?sslmode=verify-full&sslrootcert=system` on the `DB_URL` they hand
+ * `?sslmode=verify-full&sslrootcert=system` on the `DATABASE_URL` they hand
  * out, so any script that opens `new Pool({ connectionString })` blows
  * up before sending a single byte.
  *

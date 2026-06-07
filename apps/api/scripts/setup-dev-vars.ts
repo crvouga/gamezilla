@@ -101,7 +101,9 @@ async function main(): Promise<void> {
   process.stdout.write(
     `[setup-dev-vars] wrote .dev.vars with keys: ${lines
       .map((l) => l.split('=')[0])
-      .join(', ')} (DB_URL and other config load from Doppler at Worker boot)\n`
+      .join(
+        ', '
+      )} (DATABASE_URL and other config load from Doppler at Worker boot)\n`
   );
 }
 
