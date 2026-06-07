@@ -5,14 +5,23 @@
  */
 import type { Client } from 'pg';
 import { createPgSessionClient, readLastInsertRowid } from './impl-pg-shared';
-import type { PreparedStatement, RunResult, SqlClient } from './interface';
+import type {
+  PostgresSqlClient,
+  PreparedStatement,
+  RunResult,
+  SqlClient,
+} from './interface';
 import { questionMarkParamsToDollarParams } from './positional-params';
+import { assertPostgresSchema, type PostgresDbScope } from './postgres-schema';
 
-export class SqlClientImplPgClient implements SqlClient {
-  constructor(private readonly client: Client) {}
+export class SqlClientImplPgClient implements PostgresSqlClient {
+  constructor(
+    private readonly client: Client,
+    readonly dbScope: PostgresDbScope
+  ) {}
 
   async connect(): Promise<void> {
-    await this.client.query('SELECT 1');
+    await assertPostgresSchema(this.dbScope.schema);
   }
 
   async disconnect(): Promise<void> {

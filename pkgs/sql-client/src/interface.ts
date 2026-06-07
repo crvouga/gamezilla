@@ -7,6 +7,7 @@
  */
 
 import { assert } from '@pkgs/assert';
+import type { PostgresDbScope } from './postgres-schema';
 
 export interface RunResult {
   changes: number;
@@ -62,6 +63,15 @@ export interface SqlClient {
    * @returns A prepared statement.
    */
   prepare(sql: string): PreparedStatement;
+}
+
+/**
+ * A {@link SqlClient} backed by Postgres whose session is pinned to a known
+ * {@link PostgresDbScope}. The scope travels with the client so DDL/catalog
+ * code can qualify by `dbScope.schema` instead of hardcoding `public`.
+ */
+export interface PostgresSqlClient extends SqlClient {
+  readonly dbScope: PostgresDbScope;
 }
 
 export function assertQuery(
