@@ -106,19 +106,12 @@ function readPortFromEnv(): number {
   return n;
 }
 
-function readDbUrlFromEnv(): string | undefined {
-  const raw = process.env['DB_URL']?.trim();
-  return raw !== undefined && raw !== '' ? raw : undefined;
-}
-
 async function main(): Promise<void> {
   installSignalHandlers();
   const port = readPortFromEnv();
-  const dbUrl = readDbUrlFromEnv();
   try {
     server = await startDevIdpServer({
       port,
-      ...(dbUrl !== undefined ? { dbUrl } : {}),
       seedUsers: DEFAULT_SEED_USERS,
       logger: log,
     });

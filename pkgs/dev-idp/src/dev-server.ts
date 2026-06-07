@@ -18,6 +18,7 @@ import { assert } from '@pkgs/assert';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Logger } from '@pkgs/logger/logger';
 import { SqlClientImplPgClient } from '@pkgs/sql-client/impl-pg-client';
+import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client/sanitize-postgres-url-for-node-pg';
 import { Hono } from 'hono';
 import { Client } from 'pg';
 
@@ -154,7 +155,9 @@ async function connectPgWithRetry(
   let lastError: unknown = null;
   while (Date.now() - start < timeoutMs) {
     attempt += 1;
-    const client = new Client({ connectionString: dbUrl });
+    const client = new Client({
+      connectionString: sanitizePostgresUrlForNodePg(dbUrl),
+    });
     try {
       await client.connect();
       await client.query('SELECT 1');

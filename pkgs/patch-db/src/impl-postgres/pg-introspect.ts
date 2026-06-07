@@ -176,6 +176,22 @@ export async function dropSnapshotsRelIfPresent(
   }
 }
 
+/** Drops every patch-db object the reconciler owns in the current schema.
+ *  Integration tests use this to start from a clean slate on shared dev DBs
+ *  that may already carry per-entity tables from app migrations. */
+export async function dropAllPatchDbLayoutObjects(
+  sqlClient: SqlClient
+): Promise<void> {
+  await dropSnapshotsRelIfPresent(sqlClient);
+  const tableRows = await sqlClient.query<{ table_name: string }>(
+    SELECT_TABLES
+  );
+  for (const row of tableRows) {
+    await sqlClient.run(`DROP TABLE IF EXISTS ${row.table_name} CASCADE`);
+  }
+  await sqlClient.run('DROP TABLE IF EXISTS patches CASCADE');
+}
+
 function groupGeneratedColumnsByTable(
   rows: readonly { table_name: string; column_name: string }[]
 ): ReadonlyMap<string, ReadonlySet<string>> {

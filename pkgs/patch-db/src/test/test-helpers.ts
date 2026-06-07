@@ -124,6 +124,7 @@ export async function createSyncDbFactory(
     pubSub,
     teardown: async () => {
       syncDb.destroy();
+      await syncDb.flushPendingReads().catch(() => {});
       await localClient.disconnect();
       await remoteClient.disconnect();
     },

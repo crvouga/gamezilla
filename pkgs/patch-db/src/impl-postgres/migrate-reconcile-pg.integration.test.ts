@@ -34,7 +34,7 @@ import {
 import { createEntitySchemaRegistry, defineEntitySchema } from '../schema';
 import { migratePatchDbPostgres } from './migrate';
 import {
-  dropSnapshotsRelIfPresent,
+  dropAllPatchDbLayoutObjects,
   introspectPgLayout,
   probeSnapshotsRelKind,
 } from './pg-introspect';
@@ -43,6 +43,7 @@ import {
   generatedColumnNameFor,
   partitionTableName,
   singleColumnIndexNameFor,
+  UNREGISTERED_SNAPSHOT_TABLE,
 } from './partitioning';
 
 const DB_URL = process.env['DB_URL'] ?? '';
@@ -81,18 +82,8 @@ const RATING_IDX = singleColumnIndexNameFor(TASK_RATING_COL);
 const STATUS_IDX = singleColumnIndexNameFor(TASK_STATUS_COL);
 const COMPOSITE_IDX = compositeIndexNameFor('task', 'rating-status');
 
-/** Drop every patch-db symbol we might find. Has to handle two shapes for
- *  `snapshots`: either a view (new architecture) or a table (legacy
- *  partitioned design / standalone-table fallback). Postgres rejects
- *  `DROP VIEW` against a table and vice versa, so we probe first. */
-async function dropAllPatchDbObjects(sqlClient: SqlClient): Promise<void> {
-  await dropSnapshotsRelIfPresent(sqlClient);
-  await sqlClient.run('DROP TABLE IF EXISTS snapshots__task CASCADE');
-  await sqlClient.run('DROP TABLE IF EXISTS snapshots__item CASCADE');
-  await sqlClient.run(
-    'DROP TABLE IF EXISTS snapshots__legacy_partition CASCADE'
-  );
-  await sqlClient.run('DROP TABLE IF EXISTS patches CASCADE');
+function expectedTables(...tables: readonly string[]): string[] {
+  return [...tables, UNREGISTERED_SNAPSHOT_TABLE].sort();
 }
 
 describe.skipIf(!HAS_DB)(
@@ -108,13 +99,13 @@ describe.skipIf(!HAS_DB)(
 
     afterAll(async () => {
       if (sqlClient !== undefined) {
-        await dropAllPatchDbObjects(sqlClient).catch(() => {});
+        await dropAllPatchDbLayoutObjects(sqlClient).catch(() => {});
         await sqlClient.disconnect();
       }
     });
 
     beforeEach(async () => {
-      await dropAllPatchDbObjects(sqlClient);
+      await dropAllPatchDbLayoutObjects(sqlClient);
     });
 
     test('initial migrate creates per-entity table + gen cols + per-col idx + per-table GIN + view; second migrate reaches the same state', async () => {
@@ -125,7 +116,7 @@ describe.skipIf(!HAS_DB)(
         .freeze();
       await migratePatchDbPostgres({ sqlClient, logger, registry });
       const after1 = await introspectPgLayout(sqlClient);
-      expect(after1.tableNames).toEqual([TASK_TABLE]);
+      expect([...after1.tableNames].sort()).toEqual(expectedTables(TASK_TABLE));
       // 3 `.indexed()` scalar tags → 3 gen cols + 3 per-col indexes ON the task table.
       expect(new Set(after1.generatedColumnsByTable.get(TASK_TABLE))).toEqual(
         new Set([TASK_ID_COL, TASK_RATING_COL, TASK_STATUS_COL])
@@ -176,8 +167,8 @@ describe.skipIf(!HAS_DB)(
       await migratePatchDbPostgres({ sqlClient, logger, registry });
       const live = await introspectPgLayout(sqlClient);
       // Both per-entity tables exist.
-      expect(new Set(live.tableNames)).toEqual(
-        new Set([TASK_TABLE, ITEM_TABLE])
+      expect([...live.tableNames].sort()).toEqual(
+        expectedTables(TASK_TABLE, ITEM_TABLE)
       );
       // `snapshots__task` has its three task gen cols and NO item cols.
       const taskCols =
@@ -224,7 +215,7 @@ describe.skipIf(!HAS_DB)(
       await migratePatchDbPostgres({ sqlClient, logger, registry: v2 });
 
       const after = await introspectPgLayout(sqlClient);
-      expect(after.tableNames).toEqual([TASK_TABLE]);
+      expect([...after.tableNames].sort()).toEqual(expectedTables(TASK_TABLE));
       const taskCols =
         after.generatedColumnsByTable.get(TASK_TABLE) ?? new Set();
       // `status` gen col + its idx are gone.

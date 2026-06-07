@@ -233,21 +233,26 @@ export class ActiveQueryRegistry {
       return;
     }
     const run = (async () => {
-      const result = await this.read(entry.query);
-      if (this.isDestroyed()) return;
-      entry.lastResult = result;
-      for (const l of [...entry.listeners]) l(result);
-      if (
-        !entry.hydratedEmptyFired &&
-        result.entities.length === 0 &&
-        result.patches.length === 0
-      ) {
-        entry.hydratedEmptyFired = true;
-        this.onHydratedEmptyOnce?.({
-          queryKey: key,
-          query: entry.query,
-          result,
-        });
+      try {
+        const result = await this.read(entry.query);
+        if (this.isDestroyed() || !this.entries.has(key)) return;
+        entry.lastResult = result;
+        for (const l of [...entry.listeners]) l(result);
+        if (
+          !entry.hydratedEmptyFired &&
+          result.entities.length === 0 &&
+          result.patches.length === 0
+        ) {
+          entry.hydratedEmptyFired = true;
+          this.onHydratedEmptyOnce?.({
+            queryKey: key,
+            query: entry.query,
+            result,
+          });
+        }
+      } catch (err) {
+        if (this.isDestroyed() || !this.entries.has(key)) return;
+        throw err;
       }
     })();
     const settle = () => {
@@ -268,7 +273,7 @@ export class ActiveQueryRegistry {
       () => settle(),
       (err) => {
         settle();
-        throw err;
+        if (!this.isDestroyed() && this.entries.has(key)) throw err;
       }
     );
     await entry.inFlight;
