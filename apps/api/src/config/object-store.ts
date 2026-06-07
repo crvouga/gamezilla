@@ -11,19 +11,14 @@ import type { SecretStore } from '@pkgs/secret-store';
 export async function createApiObjectStore(
   secretStore: SecretStore
 ): Promise<ObjectStore> {
-  const [
-    applicationKeyId,
-    applicationKey,
-    bucketName,
-    s3Endpoint,
-    s3Region,
-  ] = await Promise.all([
-    secretStore.getRequired(B2DopplerKey.applicationKeyId),
-    secretStore.getRequired(B2DopplerKey.applicationKey),
-    secretStore.getRequired(B2DopplerKey.bucketName),
-    secretStore.getRequired(B2DopplerKey.s3Endpoint),
-    secretStore.getRequired(B2DopplerKey.s3Region),
-  ]);
+  const [applicationKeyId, applicationKey, bucketName, s3Endpoint, s3Region] =
+    await Promise.all([
+      secretStore.getRequired(B2DopplerKey.applicationKeyId),
+      secretStore.getRequired(B2DopplerKey.applicationKey),
+      secretStore.getRequired(B2DopplerKey.bucketName),
+      secretStore.getRequired(B2DopplerKey.s3Endpoint),
+      secretStore.getRequired(B2DopplerKey.s3Region),
+    ]);
 
   return createB2ObjectStore({
     applicationKeyId: applicationKeyId.readSecretValue(),

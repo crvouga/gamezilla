@@ -42,7 +42,10 @@ describe('createB2ObjectStore namespace enforcement', () => {
 
   test('logical keys map to gamezilla/ in the inner store', async () => {
     const root = new ObjectStoreImplInMemory();
-    const namespaced = new ObjectStoreWithPrefix(root, ObjectStoreNamespace.root);
+    const namespaced = new ObjectStoreWithPrefix(
+      root,
+      ObjectStoreNamespace.root
+    );
     await namespaced.put('k', new Uint8Array([1, 2]), 'text/plain');
     expect(await root.head('gamezilla/k')).toBe(true);
     expect(await root.head('k')).toBe(false);
