@@ -125,6 +125,21 @@ describe('computeDesiredPgLayout: per-entity tables + generated columns', () => 
     const table = layout.tables.get(partitionTableName('task'));
     expect(table?.ginIndexName).toMatch(/^pdb_gin_task__attrs$/);
   });
+
+  test('ginIndex: false omits the per-entity GIN index name', () => {
+    const registry = createEntitySchemaRegistry()
+      .register(
+        defineEntitySchema({
+          entityType: 'task',
+          attributes: TaskAttr,
+          ginIndex: false,
+        })
+      )
+      .freeze();
+    const layout = computeDesiredPgLayout(registry);
+    const table = layout.tables.get(partitionTableName('task'));
+    expect(table?.ginIndexName).toBeNull();
+  });
 });
 
 describe('computeDesiredPgLayout: composite indexes', () => {

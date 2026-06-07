@@ -88,6 +88,12 @@ export type EntitySchema = {
    * plus any composite indexes from {@link DefineEntitySchemaArgs.composite}.
    */
   readonly indexes: readonly EntitySchemaIndex[];
+  /**
+   * When `false`, the reconciler skips the per-entity `pdb_gin_*__attrs`
+   * index. Use for large read-mostly tables whose hot paths are covered
+   * entirely by typed generated-column btrees (no JSONB containment).
+   */
+  readonly ginIndex: boolean;
 };
 
 export type DefineEntitySchemaArgs = {
@@ -99,6 +105,8 @@ export type DefineEntitySchemaArgs = {
   readonly attributes: Readonly<Record<string, AnyAttributeTag>>;
   /** Optional composite indexes. Single-field indexes are automatic. */
   readonly composite?: readonly CompositeIndexSpec[];
+  /** When `false`, omit the per-entity GIN on `attributes` (default `true`). */
+  readonly ginIndex?: boolean;
 };
 
 const INDEX_LOCAL_NAME_PATTERN = /^[a-z][a-z0-9-]*$/;
@@ -238,5 +246,6 @@ export function defineEntitySchema(args: DefineEntitySchemaArgs): EntitySchema {
       AnyAttributeTag
     >,
     indexes: Object.freeze([...singleFieldIndexes, ...compositeIndexes]),
+    ginIndex: args.ginIndex !== false,
   });
 }

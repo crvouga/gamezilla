@@ -57,7 +57,7 @@ const CHESS_PUZZLE_SNAPSHOTS_TABLE = partitionTableName(
  *   seed were ever stuck in a transaction, the server kills the session
  *   instead of silently holding locks (and a connection slot) forever.
  */
-const SESSION_TUNING_SQL: readonly string[] = [
+const SESSION_TUNING_SELF_HOSTED: readonly string[] = [
   "SET synchronous_commit = 'off'",
   "SET maintenance_work_mem = '256MB'",
   "SET work_mem = '64MB'",
@@ -65,11 +65,38 @@ const SESSION_TUNING_SQL: readonly string[] = [
   "SET idle_in_transaction_session_timeout = '60s'",
 ];
 
+/** Managed Postgres (Neon, Supabase, …) often denies CHECKPOINT; keep
+ *  synchronous_commit on and cap maintenance_work_mem to reduce temp spill. */
+const SESSION_TUNING_MANAGED: readonly string[] = [
+  "SET synchronous_commit = 'on'",
+  "SET maintenance_work_mem = '64MB'",
+  "SET work_mem = '32MB'",
+  'SET statement_timeout = 0',
+  "SET idle_in_transaction_session_timeout = '60s'",
+];
+
+async function checkpointAllowed(sql: SqlClient): Promise<boolean> {
+  try {
+    await sql.run('CHECKPOINT');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function applySessionTuning(
   sql: SqlClient,
   log: Logger
 ): Promise<void> {
-  for (const stmt of SESSION_TUNING_SQL) {
+  const stmts = (await checkpointAllowed(sql))
+    ? SESSION_TUNING_SELF_HOSTED
+    : SESSION_TUNING_MANAGED;
+  if (stmts === SESSION_TUNING_MANAGED) {
+    log.info(
+      'seed:puzzles: managed Postgres detected (CHECKPOINT denied) — conservative session tuning'
+    );
+  }
+  for (const stmt of stmts) {
     try {
       await sql.run(stmt);
     } catch (err) {

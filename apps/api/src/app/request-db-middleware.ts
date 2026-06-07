@@ -6,15 +6,15 @@ import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { SecretStore } from '@pkgs/secret-store';
 import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import type { MiddlewareHandler } from 'hono';
-import { ConfigurationError } from '../config/env';
-import { createMatchmakingSqlClientFromPgClient } from '../matchmaking/sql-client-adapter';
+import { ApiSecretName } from '../config/secret-names';
+import { createMatchmakingSqlClientFromNeonClient } from '../matchmaking/sql-client-adapter';
 import { createRequestPatchDb } from '../patch-db/patch-db';
 import { openRequestDb } from '../patch-db/sql-client';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import type { ApiHonoEnv } from './api-hono-types';
 
 /**
- * Per-request Hyperdrive Postgres + Better Auth + session auth (AsyncLocalStorage for patch-db host).
+ * Per-request Neon Postgres + Better Auth + session auth (AsyncLocalStorage for patch-db host).
  */
 export function createRequestDbMiddleware(
   secretStore: SecretStore,
@@ -25,29 +25,23 @@ export function createRequestDbMiddleware(
       return next();
     }
 
-    const hyper = c.env.HYPERDRIVE;
-    if (hyper === undefined || hyper === null) {
-      throw new ConfigurationError(
-        'HYPERDRIVE Worker binding is required (configure apps/api/wrangler.toml)'
-      );
-    }
-    const cs = hyper.connectionString;
-    assert.nonEmptyString(
-      cs,
-      'Hyperdrive connectionString must be a non-empty string'
-    );
+    const dbUrl = (
+      await secretStore.getRequired(ApiSecretName.dbUrl)
+    ).readSecretValue();
+    assert.nonEmptyString(dbUrl, 'DATABASE_URL must be a non-empty string');
 
     const dbScope = gamezillaPostgresDbScope();
-    const { client, sqlClient } = await openRequestDb(cs, dbScope);
+    const { neonClient, sqlClient } = await openRequestDb(dbUrl, dbScope);
     const patchDb = createRequestPatchDb(sqlClient);
     // The `kv` table is created by API DB migrations (`KvImplPostgres.migrateUp`
     // in `run-postgres-migrations.ts`) in the `gamezilla` schema, which every
     // connection's `search_path` is pinned to. Never run DDL on every request.
     const kv = new KvImplPostgres(sqlClient);
-    const matchmakingSqlClient = createMatchmakingSqlClientFromPgClient(client);
+    const matchmakingSqlClient =
+      createMatchmakingSqlClientFromNeonClient(neonClient);
     const { auth: betterAuth, dispose } = await createBetterAuthRequestStack(
       secretStore,
-      cs,
+      dbUrl,
       { dbScope, apiUrlOverride: apiUrlOverride ?? null }
     );
     const sessionAuth = createSessionAuth({ auth: betterAuth });
@@ -65,14 +59,10 @@ export function createRequestDbMiddleware(
       try {
         await next();
       } finally {
-        // Defer Postgres + Better Auth cleanup beyond the response.
-        // `pg.Client.end()` does not resolve under Workers' `nodejs_compat`
-        // socket emulation when peering with the local PGlite socket, so
-        // awaiting it inline would block the Hono response forever.
         c.executionCtx.waitUntil(
           (async () => {
             await dispose().catch(() => {});
-            await client.end().catch(() => {});
+            await sqlClient.disconnect().catch(() => {});
           })()
         );
       }

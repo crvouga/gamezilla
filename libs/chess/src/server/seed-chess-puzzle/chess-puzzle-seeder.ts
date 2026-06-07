@@ -79,6 +79,7 @@ import {
   sleep,
   type SeedStats,
 } from './fast-path';
+import { dropPuzzleSnapshotIndexes } from './defer-indexes';
 import { createPuzzleSeedReporter, type PuzzleSeedReporter } from './reporter';
 import { contentAddressedPatchId, rowToPuzzleBatchEntry } from './row';
 import {
@@ -273,6 +274,7 @@ export class ChessPuzzleSeeder {
       checkpointEvery: cli.checkpointEvery,
       progressEvery: cli.progressEvery,
       rebuildIndexes: cli.rebuildIndexes,
+      deferIndexes: cli.deferIndexes,
       limit: cli.limit,
       dryRun: cli.dryRun,
       prettyOutput: cli.prettyOutput,
@@ -526,6 +528,9 @@ export class ChessPuzzleSeeder {
     const { sql: sqlClient } = await this.#createSqlClient(databaseUrl);
     try {
       await applySessionTuning(sqlClient, log);
+      if (cli.deferIndexes) {
+        await dropPuzzleSnapshotIndexes({ sql: sqlClient, log });
+      }
       const patchDb = this.#createSeedPatchDb(sqlClient);
       await this.#runSeedInner({
         cli,

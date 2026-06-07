@@ -11,11 +11,6 @@ routes = [{ pattern = "api.gamezilla.app", custom_domain = true }]
 binding = "OBJECT_STORE"
 bucket_name = "gamezilla"
 
-[[hyperdrive]]
-binding = "HYPERDRIVE"
-id = "3b8852ba7f4a43a981f672e3140b6acd"
-localConnectionString = "postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable"
-
 [[durable_objects.bindings]]
 name = "ROOM"
 class_name = "Room"

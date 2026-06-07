@@ -18,6 +18,8 @@ export const DEFAULT_BATCH_SIZE = 1000;
 export const DEFAULT_PACE_MS = 250;
 export const DEFAULT_CHECKPOINT_EVERY = 25;
 export const DEFAULT_PROGRESS_EVERY = 10;
+/** Drop chess-puzzle snapshot secondary indexes before bulk insert. */
+export const DEFAULT_DEFER_INDEXES = false;
 
 export type Cli = {
   source: string;
@@ -34,6 +36,8 @@ export type Cli = {
   progressEvery: number;
   /** After the seed completes, REINDEX `pdb_idx_chess_puzzle__*` concurrently. */
   rebuildIndexes: boolean;
+  /** Drop chess-puzzle snapshot secondary indexes before bulk insert. */
+  deferIndexes: boolean;
   /** Colored stderr progress + concise phases (vs JSON lines). */
   prettyOutput: boolean;
 };
@@ -104,6 +108,7 @@ export function parseCli(argv: string[]): Cli {
       'checkpoint-every': { type: 'string' },
       'progress-every': { type: 'string' },
       'rebuild-indexes': { type: 'boolean', default: false },
+      'defer-indexes': { type: 'boolean', default: DEFAULT_DEFER_INDEXES },
       'no-resume': { type: 'boolean', default: false },
       'dry-run': { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
@@ -141,6 +146,7 @@ export function parseCli(argv: string[]): Cli {
       DEFAULT_PROGRESS_EVERY
     ),
     rebuildIndexes: values['rebuild-indexes'] === true,
+    deferIndexes: values['defer-indexes'] === true,
     prettyOutput: resolvePrettyOutput(values as Record<string, unknown>),
   };
 }

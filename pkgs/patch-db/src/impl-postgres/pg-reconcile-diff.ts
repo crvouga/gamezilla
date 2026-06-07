@@ -222,10 +222,12 @@ export function diffGinIndexes(
   const liveByTable = indexLookup(live.ginIndexes);
   const desiredGinByTable = new Map<string, string>();
   for (const table of desired.tables.values()) {
+    if (table.ginIndexName === null) continue;
     desiredGinByTable.set(table.tableName, table.ginIndexName);
   }
   const toAdd: GinIndexOnTable[] = [];
   for (const table of desired.tables.values()) {
+    if (table.ginIndexName === null) continue;
     const liveNames = liveByTable.get(table.tableName) ?? new Set<string>();
     if (!liveNames.has(table.ginIndexName)) {
       toAdd.push({

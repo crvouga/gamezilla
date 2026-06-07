@@ -80,9 +80,9 @@ process.env['BETTER_AUTH_PREVIEW_API_URL'] = baseURL;
 process.env['API_URL'] = baseURL;
 process.env['EXPO_PUBLIC_API_URL'] = baseURL;
 // Doppler `dev` `DATABASE_URL` may target hosted Postgres, but `turbo preview` boots
-// `@pkgs/postgres` and wrangler Hyperdrive uses `localConnectionString` in
-// `apps/api/wrangler.toml`. Without this override, `migrate-db` runs against
-// Doppler while Better Auth reads an empty local cluster — OAuth fails in CI.
+// `@pkgs/postgres` and the API Worker reads `DATABASE_URL` from Doppler at request
+// time. Without this override, `migrate-db` runs against Doppler while Better Auth
+// reads an empty local cluster — OAuth fails in CI.
 process.env['DATABASE_URL'] = LOCAL_EMBEDDED_POSTGRES_URL;
 
 assert.equals(
@@ -172,7 +172,7 @@ export default defineConfig({
   // makes literally unreachable — the test process is killed before the
   // 60s poll can complete. Set a per-test budget that exceeds every
   // locator timeout below by a comfortable margin so a single slow
-  // dependency (cold isolate boot, Hyperdrive connect, large bundle
+  // dependency (cold isolate boot, Neon connect, large bundle
   // hydrate) doesn't cause a spurious 30s timeout that masks the real
   // failure mode.
   timeout: 120_000,

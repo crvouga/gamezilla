@@ -144,10 +144,12 @@ function liveFromDesired(
         indexName: c.indexName,
       });
     }
-    ginIndexes.push({
-      tableName: table.tableName,
-      indexName: table.ginIndexName,
-    });
+    if (table.ginIndexName !== null) {
+      ginIndexes.push({
+        tableName: table.tableName,
+        indexName: table.ginIndexName,
+      });
+    }
   }
   return Object.freeze({
     tableNames,

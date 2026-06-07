@@ -7,7 +7,7 @@ import type { SessionAuth } from './session-middleware';
 export type { HostedBetterAuth } from './better-auth-create';
 
 /**
- * Hono `Bindings` + `Variables` for the API Worker (Hyperdrive-per-request DB + auth).
+ * Hono `Bindings` + `Variables` for the API Worker (Neon-per-request DB + auth).
  *
  * `TAuthContext` is unused now that `sessionAuth` resolves directly to the
  * concrete `AuthContext`, but kept as a phantom parameter so existing

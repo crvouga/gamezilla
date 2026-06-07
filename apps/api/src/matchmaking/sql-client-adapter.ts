@@ -1,27 +1,28 @@
 /**
- * Adapts a per-request `pg.Client` (the connection the API checks out via
- * Hyperdrive for the lifetime of one HTTP request) into the matchmaking
- * package's {@link MmSqlClient} port.
+ * Adapts a per-request Neon WebSocket `Client` (the connection the API opens
+ * for the lifetime of one HTTP request) into the matchmaking package's
+ * {@link MmSqlClient} port.
  *
- * Unlike {@link createPgSqlClient} (which expects a `pg.Pool` and uses
- * `pool.connect()` to pin a single connection per transaction), this adapter
- * runs `BEGIN`/`COMMIT`/`ROLLBACK` directly on the supplied client because we
+ * Runs `BEGIN`/`COMMIT`/`ROLLBACK` directly on the supplied client because we
  * already own the connection exclusively for this request.
  */
 
 import type {
+  NeonQueryResultRow,
+  NeonWsClient,
+} from '@pkgs/sql-client/neon-types';
+import type {
   SqlClient as MmSqlClient,
   QueryResult,
 } from '@pkgs/matchmaking/storage';
-import type { Client, QueryResultRow } from '@pkgs/sql-client/pg-types';
 
-function txClient(client: Client): MmSqlClient {
+function txClient(client: NeonWsClient): MmSqlClient {
   return {
     async query<T = Record<string, unknown>>(
       sql: string,
       params?: readonly unknown[]
     ): Promise<QueryResult<T>> {
-      const result = await client.query<QueryResultRow & T>(
+      const result = await client.query<NeonQueryResultRow & T>(
         sql,
         params === undefined ? undefined : [...params]
       );
@@ -33,15 +34,15 @@ function txClient(client: Client): MmSqlClient {
   };
 }
 
-export function createMatchmakingSqlClientFromPgClient(
-  client: Client
+export function createMatchmakingSqlClientFromNeonClient(
+  client: NeonWsClient
 ): MmSqlClient {
   return {
     async query<T = Record<string, unknown>>(
       sql: string,
       params?: readonly unknown[]
     ): Promise<QueryResult<T>> {
-      const result = await client.query<QueryResultRow & T>(
+      const result = await client.query<NeonQueryResultRow & T>(
         sql,
         params === undefined ? undefined : [...params]
       );

@@ -33,6 +33,7 @@ import {
 export const ChessPuzzleSchema: EntitySchema = defineEntitySchema({
   entityType: CHESS_PUZZLE_ENTITY_TYPE,
   attributes: ChessPuzzleAttr,
+  ginIndex: false,
   composite: [
     {
       // Picker walks `WHERE rating BETWEEN ? AND ? ORDER BY popularity DESC LIMIT N` —

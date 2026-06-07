@@ -18,18 +18,6 @@ export const PROJECT_CONFIG = {
      * `apps/api/wrangler.toml` `[[r2_buckets]] bucket_name`.
      */
     objectStoreBucket: 'gamezilla',
-    /**
-     * Hyperdrive config fronting the API Worker's PlanetScale Postgres
-     * origin. A Cloudflare account can host multiple Hyperdrive configs
-     * (one per origin), so each gets its own keyed entry under
-     * `cloudflare.*Hyperdrive`. After the first `infra deploy`, replace
-     * `id` with the UUID returned by Cloudflare and mirror it in
-     * `apps/api/wrangler.toml` `[[hyperdrive]]`.
-     */
-    postgresHyperdrive: {
-      name: 'gamezilla-api-postgres',
-      id: '3b8852ba7f4a43a981f672e3140b6acd',
-    },
   },
   /** PlanetScale org + database slugs (independent of GitHub `owner`/`repo`). */
   planetscale: {

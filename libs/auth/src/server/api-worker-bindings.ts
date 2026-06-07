@@ -5,10 +5,6 @@
  */
 import type { R2Bucket } from '@pkgs/object-store/impl-r2';
 
-export type HyperdriveBinding = {
-  readonly connectionString: string;
-};
-
 export type RoomNamespace = {
   idFromName(name: string): object;
   get(id: object): { fetch(request: Request): Promise<Response> };
@@ -18,7 +14,6 @@ export type ApiWorkerBindings = {
   DOPPLER_TOKEN: string;
   DOPPLER_PROJECT?: string;
   DOPPLER_CONFIG?: string;
-  HYPERDRIVE: HyperdriveBinding;
   OBJECT_STORE?: R2Bucket;
   ROOM?: RoomNamespace;
 };

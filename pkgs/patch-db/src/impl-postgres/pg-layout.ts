@@ -73,9 +73,8 @@ export type DesiredSingleIndex = {
 export type DesiredEntityTable = {
   readonly entityType: PatchEntityType;
   readonly tableName: string;
-  /** GIN index name on `attributes` for this table. The reconciler owns
-   *  it (no longer a parent-level base-DDL object). */
-  readonly ginIndexName: string;
+  /** GIN index name on `attributes`, or `null` when the schema opts out. */
+  readonly ginIndexName: string | null;
   readonly generatedColumns: ReadonlyMap<string, GeneratedColumnSpec>;
   readonly singleIndexes: ReadonlyMap<string, DesiredSingleIndex>;
   readonly compositeIndexes: ReadonlyMap<string, DesiredCompositeIndex>;
@@ -199,7 +198,9 @@ function buildDesiredEntityTable(schema: EntitySchema): DesiredEntityTable {
   return Object.freeze({
     entityType: schema.entityType,
     tableName: partitionTableName(schema.entityType),
-    ginIndexName: ginIndexNameFor(schema.entityType),
+    ginIndexName: schema.ginIndex
+      ? ginIndexNameFor(schema.entityType)
+      : null,
     generatedColumns,
     singleIndexes,
     compositeIndexes,

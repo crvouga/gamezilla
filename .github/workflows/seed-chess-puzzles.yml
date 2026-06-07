@@ -13,18 +13,27 @@
 # `pdb_idx_chess_puzzle__*` declarative indexes exist before the seed
 # starts pumping rows in.
 #
+# Production Postgres is Neon. The free tier's 512 MB project cap cannot
+# hold the full ~2.65M-row Lichess dataset once patches, snapshots, and
+# btree indexes land — upgrade Neon storage before expecting a complete
+# seed. The script is resumable: a failed run picks up from the saved
+# cursor after you scale the project.
+#
 # The seed uses a fast-path that writes `patches` + `snapshots` in one
-# transaction (no per-batch CTE re-read, no snapshot UPDATE). Default knobs
-# (`batch_size=1000`, `pace_ms=250`, `checkpoint_every=25`,
-# `progress_every=10`) keep WAL pressure low enough to fit comfortably in
-# the PlanetScale free-tier 10 GB cap, at the cost of taking longer than a
-# full-throttle seed.
+# transaction (no per-batch CTE re-read, no snapshot UPDATE). With
+# `--defer-indexes` (default here) secondary btrees on
+# `snapshots__chess_puzzle` are dropped before streaming and recreated
+# by a post-seed `db:migrate`. `chess.puzzle` also opts out of the
+# per-entity JSONB GIN (picker queries use typed generated columns only).
+# Default knobs (`batch_size=500`, `pace_ms=500`, `checkpoint_every=10`,
+# `progress_every=10`) keep write pressure low on managed Postgres where
+# `CHECKPOINT` is denied.
 #
 # Connection budget: the seed opens **exactly one** TCP session (`pg.Client`,
-# not `pg.Pool`) so it never trips PlanetScale's "high connections on
-# primary" warning. Sessions are sequential — one batch transaction at a
-# time with serial CHECKPOINT / VACUUM / progress writes between batches —
-# so a pool would only add idle connections without any throughput gain.
+# not `pg.Pool`) so it never trips Neon's connection warnings. Sessions are
+# sequential — one batch transaction at a time with serial VACUUM / progress
+# writes between batches — so a pool would only add idle connections without
+# any throughput gain.
 #
 # All production credentials come from Doppler — the only repository secret
 # this workflow needs is `DOPPLER_SERVICE_TOKEN`. `doppler run -- …` injects
@@ -57,25 +66,30 @@ on:
         default: false
         type: boolean
       batch_size:
-        description: 'Rows per fast-path INSERT transaction (default 1000). Smaller = less WAL per commit.'
+        description: 'Rows per fast-path INSERT transaction (default 500). Smaller = less WAL per commit.'
         required: false
-        default: '1000'
+        default: '500'
         type: string
       pace_ms:
-        description: 'Sleep (ms) after each batch flush so autovacuum / WAL writer keep up (default 250).'
+        description: 'Sleep (ms) after each batch flush so autovacuum / WAL writer keep up (default 500).'
         required: false
-        default: '250'
+        default: '500'
         type: string
       checkpoint_every:
-        description: 'Issue CHECKPOINT + lightweight VACUUM ANALYZE every N batches (default 25, set 0 to disable).'
+        description: 'Issue lightweight VACUUM ANALYZE every N batches (default 10, set 0 to disable). CHECKPOINT is skipped on Neon.'
         required: false
-        default: '25'
+        default: '10'
         type: string
       progress_every:
         description: 'Persist the resume cursor every N batches instead of every batch (default 10).'
         required: false
         default: '10'
         type: string
+      defer_indexes:
+        description: 'Drop chess-puzzle snapshot secondary indexes before streaming; post-seed migrate recreates them.'
+        required: false
+        default: true
+        type: boolean
       rebuild_indexes:
         description: 'After the seed completes, REINDEX `pdb_idx_chess_puzzle__*` concurrently to reclaim index bloat.'
         required: false
@@ -91,7 +105,7 @@ jobs:
     concurrency:
       group: seed-chess-puzzles-prod
       cancel-in-progress: false
-    # Throttled seed (small batches + per-batch sleep + periodic CHECKPOINT)
+    # Throttled seed (small batches + per-batch sleep + periodic VACUUM)
     # is significantly slower than the legacy 5k-batch path. 600 minutes is a
     # generous ceiling for a full ~2.65M-row pass; resume-from-cursor will
     # pick up where a previous run left off if we still hit the cap.
@@ -123,7 +137,8 @@ jobs:
           set -euo pipefail
           # `db:migrate` runs the canonical patch-db + KV + Better Auth
           # migration set against the `prd` Postgres. Idempotent: existing
-          # tables and `pdb_idx_*` indexes are left in place.
+          # tables and `pdb_idx_*` indexes are left in place; drops the
+          # chess.puzzle GIN when the schema opts out.
           DOPPLER_CONFIG=prd bun run scripts/doppler-run.ts -- \
             bun run --filter '@apps/api' db:migrate
 
@@ -137,6 +152,7 @@ jobs:
           SEED_PACE_MS: ${{ inputs.pace_ms }}
           SEED_CHECKPOINT_EVERY: ${{ inputs.checkpoint_every }}
           SEED_PROGRESS_EVERY: ${{ inputs.progress_every }}
+          SEED_DEFER_INDEXES: ${{ inputs.defer_indexes }}
           SEED_REBUILD_INDEXES: ${{ inputs.rebuild_indexes }}
         run: |
           set -euo pipefail
@@ -162,6 +178,9 @@ jobs:
           if [ -n "${SEED_PROGRESS_EVERY}" ]; then
             args+=(--progress-every "${SEED_PROGRESS_EVERY}")
           fi
+          if [ "${SEED_DEFER_INDEXES}" = "true" ]; then
+            args+=(--defer-indexes)
+          fi
           if [ "${SEED_REBUILD_INDEXES}" = "true" ]; then
             args+=(--rebuild-indexes)
           fi
@@ -173,3 +192,14 @@ jobs:
             bun run --filter '@libs/chess' seed:puzzles \
               --no-pretty \
               "${args[@]}"
+
+      - name: Recreate chess puzzle indexes → Doppler `prd`
+        if: ${{ inputs.defer_indexes && !inputs.dry_run }}
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Reconcile declarative indexes (and drop any legacy GIN) after the
+          # bulk insert finished without maintaining btrees per row.
+          DOPPLER_CONFIG=prd bun run scripts/doppler-run.ts -- \
+            bun run --filter '@apps/api' db:migrate

@@ -21,11 +21,6 @@ export type RoomNamespace = {
 
 import type { R2Bucket } from '@pkgs/object-store/impl-r2';
 
-/** Cloudflare Hyperdrive binding (`[[hyperdrive]]` in wrangler). */
-export type HyperdriveBinding = {
-  readonly connectionString: string;
-};
-
 export type ApiWorkerEnv = {
   DOPPLER_TOKEN: string;
   DOPPLER_PROJECT?: string;
@@ -37,8 +32,6 @@ export type ApiWorkerEnv = {
    * OAuth callbacks stay same-origin with the static web preview.
    */
   API_URL?: string;
-  /** Cloudflare Hyperdrive — Worker uses {@link HyperdriveBinding.connectionString} for Postgres. */
-  HYPERDRIVE: HyperdriveBinding;
   /** Catch-all R2 bucket for object storage. Required at boot; omitted in unit tests. */
   OBJECT_STORE?: R2Bucket;
   /** Room Durable Object namespace (one DO per topic). Omitted in unit tests. */

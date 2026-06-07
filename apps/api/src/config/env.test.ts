@@ -7,7 +7,6 @@ import {
 
 const mockEnv = (token: string): ApiWorkerEnv => ({
   DOPPLER_TOKEN: token,
-  HYPERDRIVE: { connectionString: 'postgres://localhost/postgres' },
 });
 
 describe('assertDopplerTokenBinding', () => {

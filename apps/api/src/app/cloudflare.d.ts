@@ -66,11 +66,6 @@ declare interface ExecutionContext {
   passThroughOnException(): void;
 }
 
-/** Cloudflare Hyperdrive binding (see `[[hyperdrive]]` in wrangler.toml). */
-declare interface Hyperdrive {
-  readonly connectionString: string;
-}
-
 declare interface ExportedHandler<Env = unknown> {
   fetch?(
     request: Request,

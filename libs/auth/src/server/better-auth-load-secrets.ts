@@ -105,8 +105,7 @@ export type LoadedBetterAuthSecrets = LoadedBetterAuthSecretsWorker & {
 };
 
 /**
- * Better Auth options from Doppler **without** `DATABASE_URL` (Worker uses Hyperdrive
- * `connectionString` for Kysely instead).
+ * Better Auth options from Doppler **without** `DATABASE_URL` (Worker loads it per request).
  */
 export async function loadBetterAuthSecretsWorker(
   secretStore: SecretStore,

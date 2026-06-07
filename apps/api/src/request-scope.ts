@@ -11,11 +11,11 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 export type ApiRequestAsyncStore = {
   readonly patchDb: PatchDb;
   readonly sessionAuth: SessionAuth;
-  /** Postgres-backed {@link Kv} for LLM response caching (per Hyperdrive request). */
+  /** Postgres-backed {@link Kv} for LLM response caching (per Neon request). */
   readonly kv: Kv;
   /**
-   * Matchmaking-flavored SqlClient backed by the same per-request `pg.Client`
-   * that the patch-db host uses. Built once in
+   * Matchmaking-flavored SqlClient backed by the same per-request Neon WebSocket
+   * client that the patch-db host uses. Built once in
    * `createRequestDbMiddleware` so the long-lived `Matchmaker` instance can
    * delegate to a fresh request connection on every call.
    */

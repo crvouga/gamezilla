@@ -57,6 +57,11 @@ export class SqlClientImplPlanetScalePostgresWs implements SqlClient {
     });
   }
 
+  /** Underlying WebSocket client — valid only after {@link connect}. */
+  neonClient(): Client {
+    return assertConnected(this.client);
+  }
+
   async query<T = Record<string, unknown>>(
     sql: string,
     params?: unknown[]

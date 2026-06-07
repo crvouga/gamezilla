@@ -1,6 +1,6 @@
 import { expo } from '@better-auth/expo';
 import type { SecretStore } from '@pkgs/secret-store';
-import { createPgPool } from '@pkgs/sql-client/postgres-connect';
+import { createNeonPool } from '@pkgs/sql-client/neon-connect';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import { betterAuth, type BetterAuthPlugin } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
@@ -40,17 +40,17 @@ export type HostedBetterAuth = {
 
 export type BetterAuthRequestStack = {
   readonly auth: HostedBetterAuth;
-  /** Ends per-request Kysely pool (Hyperdrive-friendly `max: 1`). */
+  /** Ends per-request Kysely pool (Neon `max: 1`). */
   readonly dispose: () => Promise<void>;
 };
 
 /**
- * Per-request Better Auth + Kysely over Hyperdrive (`connectionString`).
- * Uses a short-lived `pg.Pool({ max: 1 })` because `PostgresDialect` requires a pool.
+ * Per-request Better Auth + Kysely over Neon (`DATABASE_URL` from Doppler).
+ * Uses a short-lived Neon `Pool({ max: 1 })` because `PostgresDialect` requires a pool.
  */
 export async function createBetterAuthRequestStack(
   secretStore: SecretStore,
-  hyperdriveConnectionString: string,
+  databaseUrl: string,
   options: {
     readonly dbScope: PostgresDbScope;
     readonly apiUrlOverride?: string | null;
@@ -60,8 +60,8 @@ export async function createBetterAuthRequestStack(
     secretStore,
     options.apiUrlOverride
   );
-  const { pool } = createPgPool({
-    connectionString: hyperdriveConnectionString,
+  const { pool } = createNeonPool({
+    connectionString: databaseUrl,
     dbScope: options.dbScope,
     max: 1,
   });

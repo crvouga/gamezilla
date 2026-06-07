@@ -122,11 +122,6 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const token = assertDopplerTokenBinding(env);
   const { project, config } = readDopplerScopeBindings(env);
   const secretStore = createApiSecretStore(token, { project, config });
-  if (env.HYPERDRIVE === undefined || env.HYPERDRIVE === null) {
-    throw new ConfigurationError(
-      'HYPERDRIVE Worker binding is required — add [[hyperdrive]] to apps/api/wrangler.toml'
-    );
-  }
   if (env.OBJECT_STORE === undefined || env.OBJECT_STORE === null) {
     throw new ConfigurationError(
       'OBJECT_STORE R2 binding is required — add [[r2_buckets]] to apps/api/wrangler.toml'
