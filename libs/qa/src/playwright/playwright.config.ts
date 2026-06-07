@@ -54,6 +54,9 @@ assert.equals(
 const baseURL = 'http://localhost:5173';
 /** Playwright readiness probe — static `/` is up before API + dev IdP finish booting. */
 const previewReadyURL = `${baseURL}/ready`;
+/** Mirrors {@link @pkgs/postgres} defaults and {@link @pkgs/dev-idp} `DEFAULT_DB_URL`. */
+const LOCAL_EMBEDDED_POSTGRES_URL =
+  'postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable';
 let baseURLParsed: URL | undefined;
 assert.notThrows(
   () => {
@@ -76,6 +79,11 @@ process.env['LOCAL_PREVIEW_API_PROXY_TARGET'] = LOCAL_API_PREVIEW_ORIGIN;
 process.env['BETTER_AUTH_PREVIEW_API_URL'] = baseURL;
 process.env['API_URL'] = baseURL;
 process.env['EXPO_PUBLIC_API_URL'] = baseURL;
+// Doppler `dev` `DB_URL` may target hosted Postgres, but `turbo preview` boots
+// `@pkgs/postgres` and wrangler Hyperdrive uses `localConnectionString` in
+// `apps/api/wrangler.toml`. Without this override, `migrate-db` runs against
+// Doppler while Better Auth reads an empty local cluster — OAuth fails in CI.
+process.env['DB_URL'] = LOCAL_EMBEDDED_POSTGRES_URL;
 
 assert.equals(
   process.env['BETTER_AUTH_PREVIEW_API_URL'],
@@ -96,6 +104,11 @@ assert.equals(
   process.env['EXPO_PUBLIC_API_URL'],
   baseURL,
   'EXPO_PUBLIC_API_URL must match API_URL for the client export'
+);
+assert.equals(
+  process.env['DB_URL'],
+  LOCAL_EMBEDDED_POSTGRES_URL,
+  'DB_URL must target the embedded @pkgs/postgres cluster for preview migrations'
 );
 
 const BUN_NODE_SHIM_PATTERN = /(?:^|\/)bun-node-[^/]+$/;

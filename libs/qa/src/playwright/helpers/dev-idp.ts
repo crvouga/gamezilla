@@ -14,8 +14,12 @@ export async function expectDevIdpChooser(page: Page): Promise<void> {
     await expect(chooser).toBeVisible({ timeout: 30_000 });
   } catch (err) {
     if (await page.getByText('Sign-in failed', { exact: true }).isVisible()) {
+      const dialogText =
+        (await page.getByRole('dialog').textContent())?.trim() ?? '';
       throw new Error(
-        'OAuth redirect to dev IdP did not occur (sign-in modal shows Sign-in failed).',
+        dialogText.length > 0
+          ? `OAuth redirect to dev IdP did not occur (sign-in modal: ${dialogText})`
+          : 'OAuth redirect to dev IdP did not occur (sign-in modal shows Sign-in failed).',
         { cause: err }
       );
     }
