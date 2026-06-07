@@ -218,6 +218,23 @@ export class ActiveQueryRegistry {
     return entry;
   }
 
+  /** Delivers a completed read to listeners and fires the hydrated-empty hook once. */
+  private applyReadResult(
+    key: string,
+    entry: ActiveQuery,
+    result: PatchDbResult
+  ): void {
+    if (this.isDestroyed() || !this.entries.has(key)) return;
+    entry.lastResult = result;
+    for (const l of [...entry.listeners]) l(result);
+    const isHydratedEmpty =
+      result.entities.length === 0 && result.patches.length === 0;
+    if (!entry.hydratedEmptyFired && isHydratedEmpty) {
+      entry.hydratedEmptyFired = true;
+      this.onHydratedEmptyOnce?.({ queryKey: key, query: entry.query, result });
+    }
+  }
+
   /**
    * Runs at most one read in flight per key. Invalidations that fire while a
    * read is pending collapse into a single follow-up read that runs after the
@@ -235,21 +252,7 @@ export class ActiveQueryRegistry {
     const run = (async () => {
       try {
         const result = await this.read(entry.query);
-        if (this.isDestroyed() || !this.entries.has(key)) return;
-        entry.lastResult = result;
-        for (const l of [...entry.listeners]) l(result);
-        if (
-          !entry.hydratedEmptyFired &&
-          result.entities.length === 0 &&
-          result.patches.length === 0
-        ) {
-          entry.hydratedEmptyFired = true;
-          this.onHydratedEmptyOnce?.({
-            queryKey: key,
-            query: entry.query,
-            result,
-          });
-        }
+        this.applyReadResult(key, entry, result);
       } catch (err) {
         if (this.isDestroyed() || !this.entries.has(key)) return;
         throw err;
