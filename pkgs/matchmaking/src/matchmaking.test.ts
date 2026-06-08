@@ -480,7 +480,7 @@ describe('Matchmaking.tick - parallel drain across partitions', () => {
   // drains overlap on the SQL side instead of running sequentially.
   // PGlite serialises all queries through a single connection so we
   // can only assert correctness (every partition drains, total pair
-  // count is right) — but real Postgres + Hyperdrive will pipeline
+  // count is right) — but real Postgres will pipeline
   // the 8 drains for the actual scale win.
   test('drains 8 partitions concurrently and produces all pairs', async () => {
     const partitioned = await bootMatchmaking({

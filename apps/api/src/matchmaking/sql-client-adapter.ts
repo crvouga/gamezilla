@@ -1,32 +1,31 @@
 /**
- * Adapts a per-request Neon WebSocket `Client` (the connection the API opens
- * for the lifetime of one HTTP request) into the matchmaking package's
+ * Adapts a per-request {@link SqlClient} into the matchmaking package's
  * {@link MmSqlClient} port.
- *
- * Runs `BEGIN`/`COMMIT`/`ROLLBACK` directly on the supplied client because we
- * already own the connection exclusively for this request.
  */
 
-import type {
-  NeonQueryResultRow,
-  NeonWsClient,
-} from '@pkgs/sql-client/neon-types';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type {
   SqlClient as MmSqlClient,
   QueryResult,
 } from '@pkgs/matchmaking/storage';
 
-function txClient(client: NeonWsClient): MmSqlClient {
+function wrapQuery<T>(
+  sqlClient: SqlClient,
+  sql: string,
+  params?: readonly unknown[]
+): Promise<QueryResult<T>> {
+  return sqlClient
+    .query<T>(sql, params === undefined ? undefined : [...params])
+    .then((rows) => ({ rows }));
+}
+
+function txClient(sqlClient: SqlClient): MmSqlClient {
   return {
-    async query<T = Record<string, unknown>>(
+    query<T = Record<string, unknown>>(
       sql: string,
       params?: readonly unknown[]
     ): Promise<QueryResult<T>> {
-      const result = await client.query<NeonQueryResultRow & T>(
-        sql,
-        params === undefined ? undefined : [...params]
-      );
-      return { rows: result.rows as T[] };
+      return wrapQuery<T>(sqlClient, sql, params);
     },
     tx<T>(_fn: (tx: MmSqlClient) => Promise<T>): Promise<T> {
       throw new Error('Nested transactions are not supported');
@@ -34,32 +33,18 @@ function txClient(client: NeonWsClient): MmSqlClient {
   };
 }
 
-export function createMatchmakingSqlClientFromNeonClient(
-  client: NeonWsClient
+export function createMatchmakingSqlClientFromSqlClient(
+  sqlClient: SqlClient
 ): MmSqlClient {
   return {
     async query<T = Record<string, unknown>>(
       sql: string,
       params?: readonly unknown[]
     ): Promise<QueryResult<T>> {
-      const result = await client.query<NeonQueryResultRow & T>(
-        sql,
-        params === undefined ? undefined : [...params]
-      );
-      return { rows: result.rows as T[] };
+      return wrapQuery<T>(sqlClient, sql, params);
     },
     async tx<T>(fn: (tx: MmSqlClient) => Promise<T>): Promise<T> {
-      await client.query('BEGIN');
-      try {
-        const result = await fn(txClient(client));
-        await client.query('COMMIT');
-        return result;
-      } catch (err: unknown) {
-        await client.query('ROLLBACK').catch(() => {
-          /* swallow rollback errors so the original error propagates */
-        });
-        throw err;
-      }
+      return sqlClient.transaction((tx) => fn(txClient(tx)));
     },
   };
 }

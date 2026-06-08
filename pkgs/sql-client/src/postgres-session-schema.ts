@@ -6,7 +6,7 @@
  *   1. {@link setPgSessionSchema} runs `SET search_path` on a connection. For
  *      `node-postgres` pools this is wired through the awaited `onConnect`
  *      hook, so every pooled connection is configured before it is handed out
- *      (race-free, and forwarded correctly through proxies like Hyperdrive).
+ *      (race-free before the connection is handed out).
  *   2. {@link withPostgresSearchPathOption} bakes `options=-c search_path=...`
  *      into the connection string. PostgreSQL applies it per physical
  *      connection at startup — used for Bun's `SQL` driver, which has no

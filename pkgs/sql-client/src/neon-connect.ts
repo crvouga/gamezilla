@@ -1,42 +1,25 @@
 /**
  * Sanctioned Neon serverless connection factories for Cloudflare Workers.
  *
- * Uses `@neondatabase/serverless` WebSocket `Client` (per request) and `Pool`
- * (Better Auth / Kysely). Every factory pins the session `search_path` to the
- * application schema.
+ * Uses `@neondatabase/serverless` HTTP `/sql` for per-request SQL and for
+ * short-lived pools (Better Auth / Kysely). Every factory pins the session
+ * `search_path` to the application schema.
  */
-import {
-  neonConfig,
-  Pool as NeonPool,
-  type Client as NeonClient,
-} from '@neondatabase/serverless';
+import { neonConfig, Pool as NeonPool } from '@neondatabase/serverless';
 import type { Pool } from 'pg';
-import { SqlClientImplPlanetScalePostgresWs } from './impl-planetscale-postgres-ws';
-import type { SqlClient } from './interface';
+import { SqlClientImplNeonHttp } from './impl-neon-http';
+import type { PostgresSqlClient } from './interface';
 import type { PostgresDbScope } from './postgres-schema';
-import {
-  assertPgSessionSchema,
-  setPgSessionSchema,
-  type PgQueryable,
-} from './postgres-session-schema';
+import { withPostgresSearchPathOption } from './postgres-session-schema';
 
 let neonWorkersConfigured = false;
 
-/** One-time Neon driver setup for Cloudflare Workers (WebSocket + HTTP fetch). */
+/** One-time Neon driver setup for Cloudflare Workers (HTTP fetch). */
 export function configureNeonForWorkers(): void {
   if (neonWorkersConfigured) return;
   neonWorkersConfigured = true;
-  neonConfig.webSocketConstructor = WebSocket;
   neonConfig.fetchEndpoint = (host) => `https://${host}/sql`;
-}
-
-function neonClientQueryable(client: NeonClient): PgQueryable {
-  return {
-    query: async <R extends Record<string, unknown>>(queryText: string) => {
-      const result = await client.query(queryText);
-      return { rows: result.rows as R[] };
-    },
-  };
+  neonConfig.poolQueryViaFetch = true;
 }
 
 export type OpenNeonRequestSessionArgs = {
@@ -45,27 +28,23 @@ export type OpenNeonRequestSessionArgs = {
 };
 
 export type OpenNeonRequestSessionResult = {
-  readonly sqlClient: SqlClient;
-  readonly neonClient: NeonClient;
+  readonly sqlClient: PostgresSqlClient;
 };
 
 /**
- * Opens one Neon WebSocket session per Worker request. Real Postgres
- * transactions; construct per request, do not share across requests.
+ * Opens one stateless Neon HTTP session per Worker request. Construct per
+ * request; do not share across requests.
  */
 export async function openNeonRequestSession(
   args: OpenNeonRequestSessionArgs
 ): Promise<OpenNeonRequestSessionResult> {
   configureNeonForWorkers();
-  const sqlClient = new SqlClientImplPlanetScalePostgresWs(
-    args.connectionString
+  const sqlClient = new SqlClientImplNeonHttp(
+    args.connectionString,
+    args.dbScope
   );
   await sqlClient.connect();
-  const neonClient = sqlClient.neonClient();
-  const queryable = neonClientQueryable(neonClient);
-  await setPgSessionSchema(queryable, args.dbScope);
-  await assertPgSessionSchema(queryable, args.dbScope);
-  return { sqlClient, neonClient };
+  return { sqlClient };
 }
 
 export type CreateNeonPoolArgs = {
@@ -75,22 +54,24 @@ export type CreateNeonPoolArgs = {
 };
 
 export type CreateNeonPoolResult = {
-  /** Neon `Pool` — pg-compatible for Kysely `PostgresDialect`. */
+  /** Neon `Pool` over HTTP — pg-compatible for Kysely `PostgresDialect`. */
   readonly pool: Pool;
 };
 
 /**
- * Short-lived Neon WebSocket pool (`max: 1` per request for Better Auth).
- * Pins `search_path` on every connection via the pool `connect` event.
+ * Short-lived Neon HTTP pool (`max: 1` per request for Better Auth).
+ * `search_path` is pinned via the connection string startup option so
+ * `poolQueryViaFetch` stays enabled (no pool event listeners).
  */
 export function createNeonPool(args: CreateNeonPoolArgs): CreateNeonPoolResult {
   configureNeonForWorkers();
+  const connectionString = withPostgresSearchPathOption(
+    args.connectionString,
+    args.dbScope
+  );
   const pool = new NeonPool({
-    connectionString: args.connectionString,
+    connectionString,
     max: args.max ?? 1,
-  });
-  pool.on('connect', (client: NeonClient) => {
-    void setPgSessionSchema(client as PgQueryable, args.dbScope);
   });
   return { pool: pool as unknown as Pool };
 }

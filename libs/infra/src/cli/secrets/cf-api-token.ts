@@ -11,8 +11,7 @@ export class CfApiToken implements SecretEntry {
     '  Zone permissions:    DNS Edit, Zone Settings Write, Zone WAF Write,',
     '                       Workers Routes Edit',
     '  Account permissions: Cloudflare Pages Edit, Workers Scripts Edit,',
-    '                       Workers KV Storage Edit, Workers R2 Storage Edit,',
-    '                       Account Settings Read',
+    '                       Workers KV Storage Edit, Account Settings Read',
     'Zone Resources: All zones  |  Account Resources: All accounts',
   ].join('\n');
 
@@ -156,8 +155,7 @@ export class CfApiToken implements SecretEntry {
           'Tip: start with the "Edit Zone DNS" template, then add:',
           '  Zone: Zone WAF Write, Workers Routes Edit',
           '  Account: Cloudflare Pages Edit, Workers Scripts Edit,',
-          '           Workers KV Storage Edit, Workers R2 Storage Edit,',
-          '           Account Settings Read',
+          '           Workers KV Storage Edit, Account Settings Read',
           'Zone Resources → All zones  |  Account Resources → All accounts',
         ].join('\n');
       }

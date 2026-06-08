@@ -4,7 +4,7 @@
  * Works in Bun/Node and in Cloudflare Workers with `nodejs_compat` (TCP to
  * Postgres). Uses real `BEGIN`/`COMMIT` in {@link SqlClient#transaction}.
  *
- * For Cloudflare Hyperdrive (one client per request, no module-scope pool),
+ * For per-request TCP clients (one client per request, no module-scope pool),
  * prefer `SqlClientImplPgClient` from `./impl-pg-client`.
  */
 import type { Pool } from 'pg';

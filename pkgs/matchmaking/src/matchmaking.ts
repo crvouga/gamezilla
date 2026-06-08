@@ -536,8 +536,8 @@ export class Matchmaking {
    * pool in the package's internal {@link SqlClient} adapter — the
    * only place on the public surface where the `pg` import is visible.
    *
-   * For per-request connection wiring (e.g. Hyperdrive isolates that
-   * pin one client per request), construct `new Matchmaking(...)`
+   * For per-request connection wiring (e.g. Neon HTTP per request),
+   * construct `new Matchmaking(...)`
    * directly and pass your own `SqlClient` via `storage`.
    */
   static fromPool(

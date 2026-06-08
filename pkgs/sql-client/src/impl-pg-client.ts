@@ -1,6 +1,6 @@
 /**
  * {@link SqlClient} over a single {@link Client} (one TCP session). For
- * Cloudflare Hyperdrive + Workers: construct per request; do not share
+ * Cloudflare Workers (TCP via nodejs_compat): construct per request; do not share
  * across requests.
  */
 import type { Client } from 'pg';

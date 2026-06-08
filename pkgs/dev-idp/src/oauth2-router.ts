@@ -38,7 +38,7 @@ import { renderChooserPage } from './ui/render';
 /**
  * Resolver for the durable {@link Kv}. The dev IdP router is constructed once
  * (at app boot), but its host environment may only expose a `Kv` per request
- * (e.g. Cloudflare Workers + Hyperdrive: a fresh `pg.Client` per request).
+ * (e.g. Cloudflare Workers: a fresh Neon HTTP client per request).
  * Pass a callback that returns the live durable `Kv` for the current call.
  */
 export type DevIdpGetKv = () => Kv;

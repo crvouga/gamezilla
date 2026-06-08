@@ -40,13 +40,14 @@ export type HostedBetterAuth = {
 
 export type BetterAuthRequestStack = {
   readonly auth: HostedBetterAuth;
-  /** Ends per-request Kysely pool (Neon `max: 1`). */
+  /** Ends per-request Kysely pool (Neon HTTP `max: 1`). */
   readonly dispose: () => Promise<void>;
 };
 
 /**
- * Per-request Better Auth + Kysely over Neon (`DATABASE_URL` from Vault).
- * Uses a short-lived Neon `Pool({ max: 1 })` because `PostgresDialect` requires a pool.
+ * Per-request Better Auth + Kysely over Neon HTTP (`DATABASE_URL` from Vault).
+ * Uses a short-lived Neon HTTP `Pool({ max: 1 })` because `PostgresDialect`
+ * requires a pool.
  */
 export async function createBetterAuthRequestStack(
   secretStore: SecretStore,

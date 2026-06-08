@@ -46,7 +46,7 @@ GitHub Actions runs checks with `VAULT_CONFIG=dev`. Caching is backed by the **s
 
 To rotate / re-seed the client secrets from the cache repo, run (in `../turborepo-remote-cache`): `bun run seed:turbo-client -- --target-project gamezilla --all-configs`.
 
-Object storage (TTS audio cache, etc.) uses **Backblaze B2** (S3-compatible) via `@pkgs/object-store/impl-b2`. The API Worker fetches `B2_*` credentials from Vault at boot and injects a namespaced store through `createB2ObjectStore`, which always applies the global `gamezilla/` key prefix before feature-level prefixes (e.g. `tts-audio/`). The B2 bucket and application keys are externally managed (like PlanetScale); `infra deploy` verifies Vault secrets via the `b2-buckets` resource. Retired Cloudflare R2 resources (`r2-subscription`, `r2-buckets`) stay in the registry as `routineStatus: 'destroyed'` so deploy tears down the old bucket.
+Object storage (TTS audio cache, etc.) uses **Backblaze B2** (S3-compatible) via `@pkgs/object-store/impl-b2`. The API Worker fetches `B2_*` credentials from Vault at boot and injects a namespaced store through `createB2ObjectStore`, which always applies the global `gamezilla/` key prefix before feature-level prefixes (e.g. `tts-audio/`). The B2 bucket and application keys are externally managed (like PlanetScale); `infra deploy` verifies Vault secrets via the `b2-buckets` resource.
 
 ## CI/CD job layout
 

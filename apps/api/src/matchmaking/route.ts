@@ -3,7 +3,7 @@
  * auth.
  *
  * {@link Matchmaking} is constructed once at app boot but delegates every
- * SQL call to a per-request Neon WebSocket client via
+ * SQL call to a per-request Neon HTTP client via
  * {@link apiRequestAsyncLocalStorage} — this keeps a single matchmaking
  * instance while still honouring the API's one-connection-per-request
  * invariant.

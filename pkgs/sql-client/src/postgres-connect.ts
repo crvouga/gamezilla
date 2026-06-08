@@ -62,8 +62,8 @@ export type OpenPgClientResult = {
 };
 
 /**
- * Opens one pinned `pg.Client` (one TCP session). For Cloudflare Hyperdrive +
- * Workers: construct per request, do not share across requests. The session is
+ * Opens one pinned `pg.Client` (one TCP session). For per-request TCP wiring:
+ * construct per request, do not share across requests. The session is
  * pinned via an explicit `SET search_path` so it works even when the transport
  * does not forward startup `options`.
  */
@@ -99,8 +99,8 @@ export type CreatePgPoolResult = {
 /**
  * Creates a `pg.Pool` whose every connection has `search_path` pinned to the
  * scope's schema. The awaited `onConnect` hook runs `SET search_path` before a
- * connection is handed out, so the pin is race-free and survives proxies
- * (e.g. Hyperdrive) that may not forward startup `options`.
+ * connection is handed out, so the pin is race-free even when startup
+ * `options` are not forwarded by the transport.
  */
 export function createPgPool(args: CreatePgPoolArgs): CreatePgPoolResult {
   const pool = new Pool({
