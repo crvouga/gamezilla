@@ -53,10 +53,4 @@ export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, vault];
  * `build-client-native` command reuses the same dep). Still excludes
  * `pgweb` (dev-only).
  */
-export const DEPLOY_DEPS: readonly Dep[] = [
-  wrangler,
-  bun,
-  vault,
-  stripe,
-  eas,
-];
+export const DEPLOY_DEPS: readonly Dep[] = [wrangler, bun, vault, stripe, eas];

@@ -1,8 +1,5 @@
 import type { SecretStore } from '@pkgs/secret-store';
-import {
-  createCachingSecretStore,
-  VaultSecretStore,
-} from '@pkgs/secret-store';
+import { createCachingSecretStore, VaultSecretStore } from '@pkgs/secret-store';
 
 export type CreateApiSecretStoreOptions = {
   readonly project?: string | null;

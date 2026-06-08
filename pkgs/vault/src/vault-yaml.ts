@@ -41,8 +41,7 @@ export function readVaultYamlDefaults(
   const mount = text.match(/^mount:\s*(\S+)/m)?.[1] ?? VAULT_DEFAULTS.mount;
   const project =
     text.match(/^project:\s*(\S+)/m)?.[1] ?? VAULT_DEFAULTS.project;
-  const config =
-    text.match(/^config:\s*(\S+)/m)?.[1] ?? VAULT_DEFAULTS.config;
+  const config = text.match(/^config:\s*(\S+)/m)?.[1] ?? VAULT_DEFAULTS.config;
   return { addr, mount, project, config };
 }
 

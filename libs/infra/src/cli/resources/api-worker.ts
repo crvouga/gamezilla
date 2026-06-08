@@ -41,8 +41,7 @@ function resolveVaultConfigForDeploy(): VaultDeployConfig {
   }
 
   const scope = cli.resolveScope();
-  const project =
-    (process.env['VAULT_PROJECT'] ?? '').trim() || scope.project;
+  const project = (process.env['VAULT_PROJECT'] ?? '').trim() || scope.project;
   const config = (process.env['VAULT_CONFIG'] ?? '').trim() || scope.config;
   const addr = (process.env['VAULT_ADDR'] ?? '').trim() || scope.addr;
 

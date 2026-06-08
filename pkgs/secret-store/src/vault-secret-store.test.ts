@@ -74,9 +74,7 @@ describe('VaultSecretStore', () => {
     const store = new VaultSecretStore({
       token: 't',
       config: 'dev',
-      fetchFn: mockFetch(() =>
-        Promise.resolve(kvResponse({ A: '', B: 'ok' }))
-      ),
+      fetchFn: mockFetch(() => Promise.resolve(kvResponse({ A: '', B: 'ok' }))),
     });
     await expect(store.getOptional('NONE')).resolves.toBeNull();
     await expect(store.getOptional('A')).resolves.toBeNull();

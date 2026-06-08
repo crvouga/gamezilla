@@ -11,13 +11,13 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/async": "workspace:*",
     "@pkgs/distributed-lock": "workspace:*",
-    "@pkgs/vault": "workspace:*",
     "@pkgs/git": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "@pkgs/vault": "workspace:*",
     "picocolors": "catalog:"
   },
   "devDependencies": {

@@ -1,4 +1,7 @@
-import { readVaultYamlDefaults, resolveVaultYamlPath } from '@pkgs/vault/vault-yaml';
+import {
+  readVaultYamlDefaults,
+  resolveVaultYamlPath,
+} from '@pkgs/vault/vault-yaml';
 import { REPO_ROOT } from '../paths';
 import { runCapture } from '../subprocess';
 import { ApiUrl } from './api-url';
