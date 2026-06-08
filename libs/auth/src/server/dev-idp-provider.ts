@@ -19,7 +19,7 @@ import type { GenericOAuthConfig } from 'better-auth/plugins/generic-oauth';
 
 import { DEV_PROVIDER } from '../shared/auth-entities';
 
-export function devIdpProviderConfig(): GenericOAuthConfig {
+export function devIdpProviderConfig(baseURL: string): GenericOAuthConfig {
   return {
     providerId: DEV_PROVIDER,
     clientId: DEV_IDP_CLIENT_ID,
@@ -27,6 +27,7 @@ export function devIdpProviderConfig(): GenericOAuthConfig {
     authorizationUrl: devIdpEndpointUrl(DEV_IDP_DEFAULT_ORIGIN, 'authorize'),
     tokenUrl: devIdpEndpointUrl(DEV_IDP_DEFAULT_ORIGIN, 'token'),
     userInfoUrl: devIdpEndpointUrl(DEV_IDP_DEFAULT_ORIGIN, 'userinfo'),
+    redirectURI: `${baseURL}/callback/dev`,
     scopes: [...DEV_IDP_SCOPES],
     pkce: true,
     authentication: 'post',
