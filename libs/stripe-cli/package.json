@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@libs/stripe": "workspace:*",
-    "@pkgs/vault": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
+    "@pkgs/vault": "workspace:*",
     "stripe": "catalog:"
   },
   "devDependencies": {

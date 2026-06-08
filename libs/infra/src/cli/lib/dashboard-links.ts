@@ -24,9 +24,7 @@ export function buildVendorDashboardMarkdown(): string[] {
   lines.push(
     `- **PlanetScale:** [Organization \`${psOrg}\`](https://app.planetscale.com/${psOrg}) · [Database \`${psDb}\`](https://app.planetscale.com/${psOrg}/${psDb})`
   );
-  lines.push(
-    `- **Vault:** [Dashboard](${VAULT_DEFAULTS.addr})`
-  );
+  lines.push(`- **Vault:** [Dashboard](${VAULT_DEFAULTS.addr})`);
   lines.push(
     `- **Vercel Remote Caching:** [Account tokens](https://vercel.com/account/tokens) · [Team settings](https://vercel.com/dashboard/usage)`
   );

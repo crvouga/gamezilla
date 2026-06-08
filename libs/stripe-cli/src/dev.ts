@@ -8,10 +8,7 @@ import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import { StripeSecretKeys } from '@libs/stripe/secret-keys';
 import { exitUnlessLocalApiUrl } from './api-url-guard';
 import { STRIPE_CLI_LOG_TAG } from './constants';
-import {
-  exitUnlessDevVaultConfig,
-  resolveVaultConfigName,
-} from './vault-dev';
+import { exitUnlessDevVaultConfig, resolveVaultConfigName } from './vault-dev';
 import { resolveWorkspaceRoot } from './repo-root';
 import {
   runStripeListenUntilExit,

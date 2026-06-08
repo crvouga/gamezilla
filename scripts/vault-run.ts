@@ -81,9 +81,7 @@ function runWithCli(
   );
 
   if (result.error !== undefined) {
-    console.error(
-      `vault-run: failed to spawn vault: ${result.error.message}`
-    );
+    console.error(`vault-run: failed to spawn vault: ${result.error.message}`);
     return 1;
   }
   return result.status ?? 1;

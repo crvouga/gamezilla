@@ -47,9 +47,7 @@ function fail(message: string): never {
   console.error('════════════════════════════════════════════════════════');
   console.error(message);
   console.error('');
-  console.error(
-    'CI loads TURBO_* from Vault config `dev` via `vault run`.'
-  );
+  console.error('CI loads TURBO_* from Vault config `dev` via `vault run`.');
   console.error('The only GitHub secret involved is VAULT_SERVICE_TOKEN.');
   console.error('');
   console.error('Vault `dev` must define (self-hosted turborepo cache):');

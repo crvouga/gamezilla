@@ -70,7 +70,10 @@ export class VaultCli {
   private readonly processEnv: NodeJS.ProcessEnv;
   private readonly execSyncFn: typeof execSync;
   private readonly cwd: string;
-  private readonly readFileFn: (path: string, encoding: BufferEncoding) => string;
+  private readonly readFileFn: (
+    path: string,
+    encoding: BufferEncoding
+  ) => string;
 
   constructor(options?: VaultCliOptions) {
     const resolved = resolveVaultCliOptions(options);
