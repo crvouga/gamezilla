@@ -30,7 +30,10 @@ export class ClientResource extends ResourceBase {
         headers: cfHeaders(),
         deleteAliased: true,
       });
-      ok('Client', `Pages deployments cleaned for ${LEGACY_CLIENT_PAGES_PROJECT}`);
+      ok(
+        'Client',
+        `Pages deployments cleaned for ${LEGACY_CLIENT_PAGES_PROJECT}`
+      );
     } catch (e) {
       warn(
         'Client',

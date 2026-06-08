@@ -98,10 +98,7 @@ async function deleteLegacyPagesCnameRecords(
     if (del.ok || del.status === 404) {
       ok('DNS CNAME (legacy Pages removed)', `${normalized} → ${rec.content}`);
     } else {
-      warn(
-        'DNS legacy Pages delete',
-        `${normalized} — HTTP ${del.status}`
-      );
+      warn('DNS legacy Pages delete', `${normalized} — HTTP ${del.status}`);
     }
   }
 }
