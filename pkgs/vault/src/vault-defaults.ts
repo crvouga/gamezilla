@@ -4,7 +4,7 @@
  * `bun run --filter @pkgs/vault write-vault-yaml` after changing these.
  */
 export const VAULT_DEFAULTS = {
-  addr: 'https://secret-store.chrisvouga.dev',
+  addr: 'https://vault.chrisvouga.dev',
   mount: 'secret',
   project: 'personal',
   config: 'dev',
