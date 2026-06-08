@@ -1,61 +1,67 @@
 import type { SecretEntry } from './types';
 
-const VERCEL_USER_URL = 'https://api.vercel.com/v2/user';
-const VERCEL_TEAM_SLUG_RE = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
+const TEAM_SLUG_RE = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
 
 /**
- * Vercel Access Token used by Turborepo's Vercel Remote Cache backend.
- *
- * Generate at https://vercel.com/account/tokens with scope to the team
- * named in `TURBO_TEAM`. Validation calls Vercel's `/v2/user` endpoint
- * (the Bearer-auth health check the Vercel CLI uses internally) so we
- * fail fast on a wrong / expired token rather than waiting for the
- * first cache write to 401.
+ * Origin of the self-hosted Turborepo Remote Cache (the standalone
+ * `turborepo-remote-cache` Cloudflare Worker). Turbo reads it from the
+ * `TURBO_API` env var. Must be an `https` URL (e.g.
+ * `https://turborepo.chrisvouga.dev`). The bearer token in
+ * {@link TurboToken} authenticates against this origin.
+ */
+export class TurboApi implements SecretEntry {
+  readonly secretKey = 'TURBO_API';
+  readonly env = 'TURBO_API';
+  readonly hint =
+    'Self-hosted cache origin (e.g. https://turborepo.chrisvouga.dev) — the TURBO_API env for the turbo CLI';
+
+  async validate(value: string): Promise<string | null> {
+    try {
+      const url = new URL(value);
+      if (url.protocol !== 'https:') {
+        return `TURBO_API must be an https URL, got "${value}"`;
+      }
+    } catch {
+      return `Invalid TURBO_API "${value}" — expected an https URL (e.g. https://turborepo.chrisvouga.dev)`;
+    }
+    return null;
+  }
+}
+
+/**
+ * Bearer token Turbo clients send to the self-hosted cache Worker (matches the
+ * Worker's own `TURBO_TOKEN`). Reachability + auth are verified end-to-end by
+ * `scripts/check-turbo-remote-cache.ts` (which hits `${TURBO_API}/v8/artifacts/status`),
+ * so validation here only enforces presence — a network probe would make
+ * secret validation flaky.
  */
 export class TurboToken implements SecretEntry {
   readonly secretKey = 'TURBO_TOKEN';
   readonly env = 'TURBO_TOKEN';
   readonly hint =
-    'Vercel Access Token from https://vercel.com/account/tokens (scoped to the team in TURBO_TEAM)';
+    'Bearer token the self-hosted turborepo-remote-cache Worker validates (matches its TURBO_TOKEN)';
 
   async validate(token: string): Promise<string | null> {
-    try {
-      const res = await fetch(VERCEL_USER_URL, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.status === 401 || res.status === 403) {
-        return `Vercel rejected TURBO_TOKEN — HTTP ${res.status} from ${VERCEL_USER_URL} (token revoked or wrong scope?)`;
-      }
-      if (!res.ok) {
-        // Transient errors (5xx, rate limits) shouldn't block CI on a
-        // value Vercel has actually accepted before; soft-pass and let
-        // a real cache call surface the failure.
-        return null;
-      }
-      return null;
-    } catch {
-      return null;
+    if (token.trim().length === 0) {
+      return 'TURBO_TOKEN must not be empty';
     }
+    return null;
   }
 }
 
 /**
- * Vercel team slug — the URL slug for the team that owns the Remote
- * Cache. Find it in the team URL or `Settings → General`.
- *
- * Validation only enforces basic slug shape; correctness against the
- * actual team is implicitly checked when {@link TurboToken} authenticates
- * against `/v2/user` (and ultimately when Turbo issues a cache request).
+ * Turbo team slug. The self-hosted cache accepts any slug (we use `local`);
+ * Turbo just requires the value to be present and well-formed for remote
+ * cache requests.
  */
 export class TurboTeam implements SecretEntry {
   readonly secretKey = 'TURBO_TEAM';
   readonly env = 'TURBO_TEAM';
-  readonly hint =
-    'Vercel team slug (e.g. `acme-co`) — visible in the Vercel dashboard URL';
+  readonly hint = 'Any team slug (we use `local`) — required by the turbo CLI for remote cache';
 
   async validate(value: string): Promise<string | null> {
-    if (!VERCEL_TEAM_SLUG_RE.test(value)) {
-      return `Invalid TURBO_TEAM "${value}" — expected a Vercel team slug (lowercase letters, digits, dashes)`;
+    if (!TEAM_SLUG_RE.test(value)) {
+      return `Invalid TURBO_TEAM "${value}" — expected a slug (lowercase letters, digits, dashes)`;
     }
     return null;
   }

@@ -17,6 +17,7 @@ import { PsServiceToken, PsServiceTokenId } from './ps-credentials';
 import { StripeSecretKey } from './stripe-secret-key';
 import { StripeWebhookSecret } from './stripe-webhook-secret';
 import {
+  TurboApi,
   TurboCache,
   TurboLogOrder,
   TurboTeam,
@@ -42,6 +43,7 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new WebClientGoogleClientSecret(),
   new StripeSecretKey(),
   new StripeWebhookSecret(),
+  new TurboApi(),
   new TurboToken(),
   new TurboTeam(),
   new TurboCache(),

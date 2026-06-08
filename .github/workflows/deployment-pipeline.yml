@@ -7,9 +7,10 @@
 #    circular-deps, audit, i18n, expo-go compat, tc, lint, test, build)
 #    all run inside a
 #    single `turbo-ci` job that invokes `bun run check:ci`. Turbo's task
-#    graph + Vercel Remote Cache (driven by Doppler `dev`'s
-#    `TURBO_TOKEN` + `TURBO_TEAM`) give us maximum parallelism and
-#    cross-PR cache reuse with zero extra GitHub Actions machinery.
+#    graph + the self-hosted remote cache (driven by Doppler `dev`'s
+#    `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`) give us maximum
+#    parallelism and cross-PR cache reuse with zero extra GitHub Actions
+#    machinery.
 #
 # 2. Non-Turbo tasks live in their own jobs only when they need a runner
 #    shape Turbo can't share: `static` (actionlint + gitleaks both want
@@ -54,13 +55,13 @@ jobs:
   # audit, i18n, Expo Go compat (`ci:expo-go` native-module allowlist +
   # `ci:expo-go-deps` = `expo install --check` version pin), plus
   # per-package `tc` / `lint` / `test` / `build`. Turbo
-  # parallelizes across the task graph and reuses Vercel Remote Cache
-  # (via Doppler-injected `TURBO_TOKEN` + `TURBO_TEAM`) for cross-PR
-  # hits. `check:ci` throttles cache HTTP (`--cache-workers=1` via
-  # `scripts/turbo-ci-run.ts`) and writes artifacts to Vercel
+  # parallelizes across the task graph and reuses the self-hosted remote
+  # cache (via Doppler-injected `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`)
+  # for cross-PR hits. `check:ci` throttles cache HTTP (`--cache-workers=1`
+  # via `scripts/turbo-ci-run.ts`) and writes artifacts to the cache Worker
   # (`--cache=local:rw,remote:rw` in CI). Per-task cache
   # status (`--output-logs=hash-only --summarize`) keeps logs readable.
-  # TURBO_TOKEN/TURBO_TEAM come from Doppler
+  # TURBO_API/TURBO_TOKEN/TURBO_TEAM come from Doppler
   # `dev` via `doppler run` (only DOPPLER_SERVICE_TOKEN is a GH secret).
   turbo-ci:
     runs-on: ubuntu-latest
@@ -72,10 +73,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - name: Verify Vercel remote cache via Doppler (fail fast)
+      - name: Verify self-hosted remote cache via Doppler (fail fast)
         env:
-          # Unlocks Doppler only — TURBO_TOKEN/TURBO_TEAM are injected by
-          # `doppler run` from the `dev` config, not GitHub secrets.
+          # Unlocks Doppler only — TURBO_API/TURBO_TOKEN/TURBO_TEAM are
+          # injected by `doppler run` from `dev`, not GitHub secrets.
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
           CI: true
           GITHUB_ACTIONS: true
