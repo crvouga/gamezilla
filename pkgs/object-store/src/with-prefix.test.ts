@@ -121,4 +121,22 @@ describe('ObjectStoreWithPrefix', () => {
     expect(await viaMethod.head('k')).toBe(true);
     expect(await root.head('x/k')).toBe(true);
   });
+
+  test('rejects empty logical keys', () => {
+    expect(() =>
+      scoped.put('', new Uint8Array([1]), 'text/plain')
+    ).toThrow('must be non-empty');
+  });
+
+  test('rejects absolute logical keys', () => {
+    expect(() =>
+      scoped.put('/abs', new Uint8Array([1]), 'text/plain')
+    ).toThrow('must not start with "/"');
+  });
+
+  test('rejects traversal logical keys', () => {
+    expect(() =>
+      scoped.put('../evil', new Uint8Array([1]), 'text/plain')
+    ).toThrow('must not contain ".."');
+  });
 });

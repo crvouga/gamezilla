@@ -9,6 +9,7 @@ import {
 import type { B2ObjectStoreConfig } from './b2-config';
 import { ObjectStoreWithPrefix } from './impl-with-prefix';
 import type { ObjectStore, StoredObject } from './interface';
+import { assertRemoteObjectKey } from './namespace-guard';
 import { ObjectStoreNamespace } from './prefixes';
 
 const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
@@ -108,6 +109,7 @@ function bytesStream(bytes: Uint8Array): ReadableStream<Uint8Array> {
  */
 class ObjectStoreImplB2S3 implements ObjectStore {
   private readonly client: S3Client;
+  private readonly namespace = ObjectStoreNamespace.root;
 
   constructor(
     private readonly bucketName: string,
@@ -124,7 +126,12 @@ class ObjectStoreImplB2S3 implements ObjectStore {
     });
   }
 
+  private guardKey(key: string): void {
+    assertRemoteObjectKey(key, this.namespace);
+  }
+
   async get(key: string): Promise<StoredObject | null> {
+    this.guardKey(key);
     try {
       const response = await this.client.send(
         new GetObjectCommand({ Bucket: this.bucketName, Key: key })
@@ -155,6 +162,7 @@ class ObjectStoreImplB2S3 implements ObjectStore {
     bytes: Uint8Array,
     contentType: string
   ): Promise<void> {
+    this.guardKey(key);
     await this.client.send(
       new PutObjectCommand({
         Bucket: this.bucketName,
@@ -166,6 +174,7 @@ class ObjectStoreImplB2S3 implements ObjectStore {
   }
 
   async head(key: string): Promise<boolean> {
+    this.guardKey(key);
     try {
       await this.client.send(
         new HeadObjectCommand({ Bucket: this.bucketName, Key: key })
@@ -178,6 +187,7 @@ class ObjectStoreImplB2S3 implements ObjectStore {
   }
 
   async delete(key: string): Promise<void> {
+    this.guardKey(key);
     try {
       await this.client.send(
         new DeleteObjectCommand({ Bucket: this.bucketName, Key: key })
@@ -192,8 +202,10 @@ class ObjectStoreImplB2S3 implements ObjectStore {
     return null;
   }
 
-  withPrefix(prefix: string): ObjectStore {
-    return new ObjectStoreWithPrefix(this, prefix);
+  withPrefix(_prefix: string): ObjectStore {
+    throw new Error(
+      'B2 transport does not support withPrefix; call withPrefix on createB2ObjectStore() result'
+    );
   }
 }
 
@@ -201,7 +213,8 @@ class ObjectStoreImplB2S3 implements ObjectStore {
  * Returns a B2-backed {@link ObjectStore} with {@link ObjectStoreNamespace.root}
  * applied. This is the only supported entry point for remote object storage —
  * feature code receives logical keys; the wrapper maps them to
- * `gamezilla/<feature>/…` in the bucket.
+ * `gamezilla/<feature>/…` in the bucket. Every S3 command is rejected unless
+ * the wire key starts with `gamezilla/` (enforced in {@link ObjectStoreImplB2S3}).
  */
 export function createB2ObjectStore(config: B2ObjectStoreConfig): ObjectStore {
   return new ObjectStoreWithPrefix(

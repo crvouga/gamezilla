@@ -1,4 +1,5 @@
 import type { ObjectStore, StoredObject } from './interface';
+import { assertLogicalObjectKey } from './namespace-guard';
 
 export function normalizeObjectStorePrefix(prefix: string): string {
   if (prefix.length === 0) {
@@ -29,6 +30,7 @@ export class ObjectStoreWithPrefix implements ObjectStore {
   }
 
   private scopedKey(key: string): string {
+    assertLogicalObjectKey(key);
     return `${this.prefix}${key}`;
   }
 

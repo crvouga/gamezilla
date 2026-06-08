@@ -3,6 +3,7 @@ import { createB2ObjectStore } from './impl-b2';
 import { ObjectStoreImplInMemory } from './impl-in-memory';
 import { ObjectStoreWithPrefix } from './impl-with-prefix';
 import type { ObjectStore } from './interface';
+import { assertRemoteObjectKey } from './namespace-guard';
 import { ObjectStoreNamespace } from './prefixes';
 
 async function readAllBytes(
@@ -65,4 +66,52 @@ describe('createB2ObjectStore namespace enforcement', () => {
     await store.put('hash', new Uint8Array([9]), 'audio/mpeg');
     expect(await root.head('gamezilla/tts-audio/hash')).toBe(true);
   });
+
+  test('production wiring only passes gamezilla/ wire keys to transport', async () => {
+    const transport = new GuardedTransportMemory();
+    let store: ObjectStore = new ObjectStoreWithPrefix(
+      transport,
+      ObjectStoreNamespace.root
+    );
+    store = store.withPrefix('tts-audio/');
+    await store.put('hash', new Uint8Array([9]), 'audio/mpeg');
+    expect(await transport.head('gamezilla/tts-audio/hash')).toBe(true);
+    expect(() => assertRemoteObjectKey('other-project/leak')).toThrow();
+  });
 });
+
+/** In-memory transport that mirrors B2 S3 wire-key enforcement. */
+class GuardedTransportMemory implements ObjectStore {
+  private readonly inner = new ObjectStoreImplInMemory();
+
+  get(key: string) {
+    assertRemoteObjectKey(key);
+    return this.inner.get(key);
+  }
+
+  put(key: string, bytes: Uint8Array, contentType: string) {
+    assertRemoteObjectKey(key);
+    return this.inner.put(key, bytes, contentType);
+  }
+
+  head(key: string) {
+    assertRemoteObjectKey(key);
+    return this.inner.head(key);
+  }
+
+  delete(key: string) {
+    assertRemoteObjectKey(key);
+    return this.inner.delete(key);
+  }
+
+  getUri(key: string) {
+    assertRemoteObjectKey(key);
+    return this.inner.getUri(key);
+  }
+
+  withPrefix(_prefix: string): ObjectStore {
+    throw new Error(
+      'B2 transport does not support withPrefix; call withPrefix on createB2ObjectStore() result'
+    );
+  }
+}
