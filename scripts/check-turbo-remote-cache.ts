@@ -53,7 +53,9 @@ function fail(message: string): never {
   console.error('The only GitHub secret involved is DOPPLER_SERVICE_TOKEN.');
   console.error('');
   console.error('Doppler `dev` must define (self-hosted turborepo cache):');
-  console.error('  • TURBO_API   — cache origin (https://turborepo.chrisvouga.dev)');
+  console.error(
+    '  • TURBO_API   — cache origin (https://turborepo.chrisvouga.dev)'
+  );
   console.error('  • TURBO_TOKEN — bearer token the cache Worker validates');
   console.error('  • TURBO_TEAM  — any team slug (we use `local`)');
   console.error('');
@@ -164,7 +166,9 @@ async function main(): Promise<void> {
       fail(`TURBO_API must be an https URL, got "${turboApi}"`);
     }
   } catch {
-    fail(`invalid TURBO_API "${turboApi}" (expected e.g. https://turborepo.chrisvouga.dev)`);
+    fail(
+      `invalid TURBO_API "${turboApi}" (expected e.g. https://turborepo.chrisvouga.dev)`
+    );
   }
 
   if (turboCache !== '' && !TURBO_CACHE_RE.test(turboCache)) {

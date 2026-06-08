@@ -57,7 +57,8 @@ export class TurboToken implements SecretEntry {
 export class TurboTeam implements SecretEntry {
   readonly secretKey = 'TURBO_TEAM';
   readonly env = 'TURBO_TEAM';
-  readonly hint = 'Any team slug (we use `local`) — required by the turbo CLI for remote cache';
+  readonly hint =
+    'Any team slug (we use `local`) — required by the turbo CLI for remote cache';
 
   async validate(value: string): Promise<string | null> {
     if (!TEAM_SLUG_RE.test(value)) {
