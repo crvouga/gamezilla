@@ -140,20 +140,29 @@ if (childArgs.length === 0) {
 
 const { project, config, addr, mount } = resolveScope();
 
+const token = (process.env.VAULT_TOKEN ?? '').trim();
+
+// Prefer HTTP injection whenever a token is available (CI mints one via OIDC).
+// The on-PATH `vault` in CI is the raw OpenBao `bao` binary — symlinked by the
+// setup action so `infra`'s `vault kv` calls resolve — and `bao` has NO `run`
+// subcommand; only the secret-store `vault` wrapper does. Routing a token
+// environment through `vault run` would invoke `bao run` and fail, so HTTP
+// injection (which only needs the token + KV path) takes precedence.
+if (token.length > 0) {
+  process.exit(
+    await runWithHttpInject(token, addr, mount, project, config, childArgs)
+  );
+}
+
+// No token to inject: fall back to the secret-store `vault` wrapper's `run`
+// (local dev authenticated through the wrapper rather than a raw VAULT_TOKEN).
 if (which('vault')) {
   process.exit(runWithCli(project, config, childArgs));
 }
 
-const token = (process.env.VAULT_TOKEN ?? '').trim();
-if (token.length === 0) {
-  console.error(
-    'vault-run: `vault` CLI not on PATH and VAULT_TOKEN is unset. ' +
-      'Install the vault wrapper (`./scripts/install-cli.sh` from secret-store) ' +
-      'or authenticate via OIDC / `vault login`.'
-  );
-  process.exit(1);
-}
-
-process.exit(
-  await runWithHttpInject(token, addr, mount, project, config, childArgs)
+console.error(
+  'vault-run: `vault` CLI not on PATH and VAULT_TOKEN is unset. ' +
+    'Install the vault wrapper (`./scripts/install-cli.sh` from secret-store) ' +
+    'or authenticate via OIDC / `vault login`.'
 );
+process.exit(1);
