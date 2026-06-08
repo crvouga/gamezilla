@@ -198,7 +198,10 @@ export class ApiWorkerResource extends ResourceBase {
       );
     }
 
-    ok('api-worker dry-run', 'client bundle + worker bindings validated locally');
+    ok(
+      'api-worker dry-run',
+      'client bundle + worker bindings validated locally'
+    );
   }
 
   async deploy(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
