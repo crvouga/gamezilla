@@ -1,0 +1,27 @@
+name: Authenticate to Vault (OIDC)
+description: Mint a short-lived VAULT_TOKEN via GitHub Actions JWT
+
+runs:
+  using: composite
+  steps:
+    - name: Read Vault address from .vault.yaml
+      id: vault_addr
+      shell: bash
+      run: |
+        set -euo pipefail
+        addr="$(grep -E '^addr:' .vault.yaml | awk '{print $2}')"
+        if [ -z "$addr" ]; then
+          echo "::error::.vault.yaml is missing addr:" >&2
+          exit 1
+        fi
+        echo "addr=$addr" >> "$GITHUB_OUTPUT"
+
+    - name: Authenticate to Vault
+      uses: hashicorp/vault-action@v3
+      with:
+        url: ${{ steps.vault_addr.outputs.addr }}
+        method: jwt
+        path: jwt
+        role: github-actions
+        exportToken: true
+        jwtGithubAudience: ${{ steps.vault_addr.outputs.addr }}

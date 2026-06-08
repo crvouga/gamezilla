@@ -17,14 +17,14 @@ export function createStripeApp(args: {
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
   readonly requireAuth: StripeRequireAuth;
-  /** Doppler secret name for the webhook signing secret. */
-  readonly webhookSecretDopplerKey: string;
+  /** Secret name for the webhook signing secret. */
+  readonly webhookSecretKey: string;
 }) {
   const webhook = createStripeWebhookRoutes({
     secretStore: args.secretStore,
     stripe: args.stripe,
     getPatchDb: args.getPatchDb,
-    webhookSecretKey: args.webhookSecretDopplerKey,
+    webhookSecretKey: args.webhookSecretKey,
   });
   const checkout = createStripeCheckoutRoutes({
     getPatchDb: args.getPatchDb,

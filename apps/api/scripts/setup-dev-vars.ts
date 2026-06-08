@@ -1,4 +1,4 @@
-import { DopplerCli } from '@pkgs/doppler';
+import { VaultCli } from '@pkgs/vault';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,59 +14,38 @@ function encodeDevVarValue(value: string): string {
     .replaceAll('\n', '\\n')}"`;
 }
 
-/**
- * Doppler config-scoped service tokens (`dp.st.…`) are self-describing — the
- * secrets-download API does not require `project`/`config`. All other token
- * formats (CLI `dp.ct.`, personal `dp.pt.`, service account `dp.sa.`) require
- * both query params and otherwise return HTTP 400.
- */
-function tokenRequiresScopeParams(token: string): boolean {
-  return !token.startsWith('dp.st.');
-}
-
-type DopplerScope = {
+type VaultScope = {
   token: string;
-  project: string | null;
-  config: string | null;
+  project: string;
+  config: string;
+  addr: string;
 };
 
-function resolveDopplerScope(): DopplerScope {
-  const cli = new DopplerCli();
+function resolveVaultScope(): VaultScope {
+  const cli = new VaultCli({ cwd: join(apiRoot, '../..') });
   let token: string;
   try {
     const resolved = cli.resolveToken();
-    if (resolved.source === 'cli') {
+    if (resolved.source === 'file') {
       process.stdout.write(
-        '[setup-dev-vars] DOPPLER_TOKEN not set in env; using `doppler configure get token --plain`.\n'
+        '[setup-dev-vars] VAULT_TOKEN not set in env; using ~/.vault-token.\n'
       );
     }
     token = resolved.token;
   } catch {
     process.stderr.write(
-      '[setup-dev-vars] DOPPLER_TOKEN is required. Set it in env, or login/configure Doppler CLI so `doppler configure get token --plain` succeeds.\n'
+      '[setup-dev-vars] VAULT_TOKEN is required. Set it in env, or run `vault login` so ~/.vault-token is populated.\n'
     );
     process.exit(1);
   }
 
-  const envProject = process.env['DOPPLER_PROJECT']?.trim() ?? '';
-  const envConfig = process.env['DOPPLER_CONFIG']?.trim() ?? '';
-  const project =
-    envProject.length > 0 ? envProject : cli.tryConfigureGetProjectPlain();
-  const config =
-    envConfig.length > 0 ? envConfig : cli.tryConfigureGetConfigPlain();
-
-  if (
-    tokenRequiresScopeParams(token) &&
-    (project === null || config === null)
-  ) {
-    process.stderr.write(
-      '[setup-dev-vars] DOPPLER_TOKEN is not a config-scoped service token (`dp.st.…`); ' +
-        'DOPPLER_PROJECT and DOPPLER_CONFIG must be resolvable from env or `doppler configure`.\n'
-    );
-    process.exit(1);
-  }
-
-  return { token, project, config };
+  const scope = cli.resolveScope();
+  return {
+    token,
+    project: scope.project,
+    config: scope.config,
+    addr: scope.addr,
+  };
 }
 
 function readApiUrlOverrideFromEnv(): string | null {
@@ -81,14 +60,13 @@ function readApiUrlOverrideFromEnv(): string | null {
 }
 
 async function main(): Promise<void> {
-  const { token, project, config } = resolveDopplerScope();
-  const lines: string[] = [`DOPPLER_TOKEN=${encodeDevVarValue(token)}`];
-  if (project !== null) {
-    lines.push(`DOPPLER_PROJECT=${encodeDevVarValue(project)}`);
-  }
-  if (config !== null) {
-    lines.push(`DOPPLER_CONFIG=${encodeDevVarValue(config)}`);
-  }
+  const { token, project, config, addr } = resolveVaultScope();
+  const lines: string[] = [
+    `VAULT_TOKEN=${encodeDevVarValue(token)}`,
+    `VAULT_PROJECT=${encodeDevVarValue(project)}`,
+    `VAULT_CONFIG=${encodeDevVarValue(config)}`,
+    `VAULT_ADDR=${encodeDevVarValue(addr)}`,
+  ];
   const apiUrlOverride = readApiUrlOverrideFromEnv();
   if (apiUrlOverride !== null) {
     lines.push(`API_URL=${encodeDevVarValue(apiUrlOverride)}`);
@@ -103,7 +81,7 @@ async function main(): Promise<void> {
       .map((l) => l.split('=')[0])
       .join(
         ', '
-      )} (DATABASE_URL and other config load from Doppler at Worker boot)\n`
+      )} (DATABASE_URL and other config load from Vault at Worker boot)\n`
   );
 }
 

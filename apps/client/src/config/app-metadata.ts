@@ -12,12 +12,12 @@ export function getCommitHash(): string {
   const raw = process.env['EXPO_PUBLIC_COMMIT_HASH'];
   assert.string(
     raw,
-    'EXPO_PUBLIC_COMMIT_HASH is required; run `bun run dev` (with Doppler) or set apps/client/.env.local'
+    'EXPO_PUBLIC_COMMIT_HASH is required; run `bun run dev` (with Vault) or set apps/client/.env.local'
   );
   const normalized = raw.trim().toLowerCase();
   assert.nonEmptyString(
     normalized,
-    'EXPO_PUBLIC_COMMIT_HASH is required; run `bun run dev` (with Doppler) or set apps/client/.env.local'
+    'EXPO_PUBLIC_COMMIT_HASH is required; run `bun run dev` (with Vault) or set apps/client/.env.local'
   );
   assert.ok(
     COMMIT_HASH_HEX_REGEX.test(normalized),

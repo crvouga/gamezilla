@@ -6,7 +6,7 @@ export class PipelineReportCommand implements Command {
   readonly id = 'pipeline-report';
   readonly group = 'ci' as const;
   readonly summary =
-    'Write GitHub Actions step summary from NEEDS_JSON (no Doppler / lock)';
+    'Write GitHub Actions step summary from NEEDS_JSON (no Vault / lock)';
 
   constructor(_platform: CiPlatform) {}
 

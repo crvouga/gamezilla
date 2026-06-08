@@ -1,7 +1,7 @@
-import { loadBetterAuthOptionsForMigration } from '@libs/auth/server/better-auth-doppler-options';
+import { loadBetterAuthOptionsForMigration } from '@libs/auth/server/better-auth-migration-options';
 import { assert } from '@pkgs/assert';
 import { createLogger, type Logger } from '@pkgs/logger';
-import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
+import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import { createPgPool, pingPostgres } from '@pkgs/sql-client/postgres-connect';
 import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
@@ -37,7 +37,7 @@ async function resolveDatabaseUrlForMigrate(): Promise<string> {
   if (fromEnv.length > 0 && isPostgresUrl(fromEnv)) {
     return fromEnv;
   }
-  const store = createDopplerSecretStoreForScripts();
+  const store = createVaultSecretStoreForScripts();
   return (await store.getRequired('DATABASE_URL')).readSecretValue();
 }
 
@@ -95,7 +95,7 @@ async function runMigrateOnce(): Promise<void> {
       databaseUrl,
       logger: log,
       betterAuthOptions: await loadBetterAuthOptionsForMigration(
-        createDopplerSecretStoreForScripts()
+        createVaultSecretStoreForScripts()
       ),
       dbScope,
     });

@@ -1,5 +1,5 @@
 import { BunDep } from './bun';
-import { DopplerDep } from './doppler';
+import { VaultDep } from './vault';
 import { EasDep } from './eas';
 import { PgwebDep } from './pgweb';
 import { StripeDep } from './stripe';
@@ -10,7 +10,7 @@ import { WranglerDep } from './wrangler';
 const wrangler = new WranglerDep();
 const turbo = new TurboDep();
 const bun = new BunDep();
-const doppler = new DopplerDep();
+const vault = new VaultDep();
 const stripe = new StripeDep();
 const pgweb = new PgwebDep();
 const eas = new EasDep();
@@ -32,7 +32,7 @@ export const ALL_DEPS: readonly Dep[] = [
   wrangler,
   turbo,
   bun,
-  doppler,
+  vault,
   stripe,
   pgweb,
   eas,
@@ -40,11 +40,11 @@ export const ALL_DEPS: readonly Dep[] = [
 
 /**
  * Deps required by the CI `provision` phase: Wrangler talks to the
- * Cloudflare API, and Bun + Doppler power the CLI runtime + secrets. The
+ * Cloudflare API, and Bun + Vault power the CLI runtime + secrets. The
  * Stripe CLI is unused here (no catalog sync in this phase) and `pgweb`
  * is a local dev GUI that CI runners never install.
  */
-export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, doppler];
+export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, vault];
 
 /**
  * Deps required by the legacy single-process `deploy` lifecycle: the
@@ -56,7 +56,7 @@ export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, doppler];
 export const DEPLOY_DEPS: readonly Dep[] = [
   wrangler,
   bun,
-  doppler,
+  vault,
   stripe,
   eas,
 ];

@@ -1,7 +1,7 @@
 import type { SecretEntry } from './types';
 
 /**
- * Optional until `stripe:sync` creates the webhook endpoint and writes this to Doppler.
+ * Optional until `stripe:sync` creates the webhook endpoint and writes this to Vault.
  */
 export class StripeWebhookSecret implements SecretEntry {
   readonly secretKey = 'STRIPE_WEBHOOK_SECRET';

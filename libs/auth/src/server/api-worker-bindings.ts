@@ -9,8 +9,9 @@ export type RoomNamespace = {
 };
 
 export type ApiWorkerBindings = {
-  DOPPLER_TOKEN: string;
-  DOPPLER_PROJECT?: string;
-  DOPPLER_CONFIG?: string;
+  VAULT_TOKEN: string;
+  VAULT_PROJECT?: string;
+  VAULT_CONFIG?: string;
+  VAULT_ADDR?: string;
   ROOM?: RoomNamespace;
 };

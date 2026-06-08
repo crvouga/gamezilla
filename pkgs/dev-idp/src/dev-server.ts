@@ -5,7 +5,7 @@
  * so the IdP's user / code / token records survive worker reloads and share
  * the same `kv` table the API also reads from.
  *
- * Spawns no Cloudflare worker, no Hyperdrive, no Doppler: the server is the
+ * Spawns no Cloudflare worker, no Hyperdrive, no Vault: the server is the
  * dev-only counterpart to `@libs/stripe-cli` — `bun dev` boots it alongside
  * Postgres + Expo + the API worker so developers get a real OAuth IdP at a
  * known origin (`DEV_IDP_DEFAULT_ORIGIN`) without polluting the production

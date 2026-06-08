@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-import { DopplerCli } from '@pkgs/doppler';
+import { VaultCli } from '@pkgs/vault';
 import { join } from 'node:path';
 import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
@@ -16,40 +16,18 @@ import { ResourceBase, type InfraContext } from './types';
 
 const NOT_FOUND_CODES = [10000, 10007, 10090];
 
-const KNOWN_TOKEN_PREFIXES = ['dp.st.', 'dp.ct.', 'dp.pt.', 'dp.sa.'] as const;
-const CONFIG_SCOPED_TOKEN_PREFIX = 'dp.st.';
-const DOPPLER_DOWNLOAD_URL =
-  'https://api.doppler.com/v3/configs/config/secrets/download';
-
-type DopplerDeployConfig = {
+type VaultDeployConfig = {
   token: string;
-  project: string | null;
-  config: string | null;
+  project: string;
+  config: string;
+  addr: string;
 };
 
-function assertKnownTokenFormat(token: string): void {
-  const recognized = KNOWN_TOKEN_PREFIXES.some((p) => token.startsWith(p));
-  if (!recognized) {
-    assert.fail(
-      `DOPPLER_TOKEN has unrecognized prefix "${token.slice(0, 6)}…". ` +
-        `Expected one of: ${KNOWN_TOKEN_PREFIXES.join(', ')}. ` +
-        `This will fail at runtime. Use a valid Doppler service/CLI/personal token.`
-    );
-  }
-}
-
-/**
- * Resolve the Doppler token (and optional project/config scope) to push to the
- * Worker. Config-scoped service tokens (`dp.st.…`) carry their scope
- * implicitly; all other token types (CLI `dp.ct.…`, personal `dp.pt.…`, etc.)
- * need explicit `project` and `config` params or the Doppler download API
- * returns HTTP 400.
- */
-function resolveDopplerConfigForDeploy(): DopplerDeployConfig {
-  const cli = new DopplerCli();
+function resolveVaultConfigForDeploy(): VaultDeployConfig {
+  const cli = new VaultCli({ cwd: REPO_ROOT });
   let token: string;
 
-  const fromEnv = (process.env['DOPPLER_TOKEN'] ?? '').trim();
+  const fromEnv = (process.env['VAULT_TOKEN'] ?? '').trim();
   if (fromEnv.length > 0) {
     token = fromEnv;
   } else {
@@ -57,60 +35,45 @@ function resolveDopplerConfigForDeploy(): DopplerDeployConfig {
       token = cli.resolveToken().token;
     } catch {
       assert.fail(
-        'DOPPLER_TOKEN is required for API Worker deploy. Set DOPPLER_TOKEN in env (e.g. CI), or run `doppler login` / `doppler configure` so `doppler configure get token --plain` works.'
+        'VAULT_TOKEN is required for API Worker deploy. Set VAULT_TOKEN in env (e.g. CI), or run `vault login` so ~/.vault-token is populated.'
       );
     }
   }
 
-  assertKnownTokenFormat(token);
-
-  if (token.startsWith(CONFIG_SCOPED_TOKEN_PREFIX)) {
-    return { token, project: null, config: null };
-  }
-
+  const scope = cli.resolveScope();
   const project =
-    (process.env['DOPPLER_PROJECT'] ?? '').trim() ||
-    cli.tryConfigureGetProjectPlain();
-  const config =
-    (process.env['DOPPLER_CONFIG'] ?? '').trim() ||
-    cli.tryConfigureGetConfigPlain();
+    (process.env['VAULT_PROJECT'] ?? '').trim() || scope.project;
+  const config = (process.env['VAULT_CONFIG'] ?? '').trim() || scope.config;
+  const addr = (process.env['VAULT_ADDR'] ?? '').trim() || scope.addr;
 
   if (!project || !config) {
     assert.fail(
-      `DOPPLER_TOKEN is not a config-scoped service token (dp.st.…) so DOPPLER_PROJECT and DOPPLER_CONFIG are required. ` +
-        `Resolved project=${project ?? '(missing)'}, config=${config ?? '(missing)'}. ` +
-        `Either use a config-scoped service token, or set DOPPLER_PROJECT / DOPPLER_CONFIG in env, or run \`doppler configure\`.`
+      `VAULT_PROJECT and VAULT_CONFIG are required. ` +
+        `Resolved project=${project || '(missing)'}, config=${config || '(missing)'}. ` +
+        `Set them in env or run \`vault setup --project personal --config prd\`.`
     );
   }
 
-  return { token, project, config };
+  return { token, project, config, addr };
 }
 
-/**
- * Hit the Doppler secrets-download API with the exact same token+scope that the
- * Worker will use at runtime. If this fails, the Worker would fail too — abort
- * the deploy now instead of shipping a broken config to production.
- */
-async function preflightDopplerDownload(
-  cfg: DopplerDeployConfig
-): Promise<void> {
-  const params = new URLSearchParams({ format: 'json' });
-  if (cfg.project !== null) params.set('project', cfg.project);
-  if (cfg.config !== null) params.set('config', cfg.config);
+async function preflightVaultKvRead(cfg: VaultDeployConfig): Promise<void> {
+  const base = cfg.addr.replace(/\/$/, '');
+  const url = `${base}/v1/secret/data/${cfg.project}/${cfg.config}`;
 
   let response: Response;
   try {
-    response = await fetch(`${DOPPLER_DOWNLOAD_URL}?${params}`, {
+    response = await fetch(url, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${cfg.token}`,
+        'X-Vault-Token': cfg.token,
         Accept: 'application/json',
       },
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     assert.fail(
-      `Doppler preflight: network error reaching secrets-download API — ${msg}. ` +
+      `Vault preflight: network error reaching KV API — ${msg}. ` +
         `The Worker would fail at boot with the same token. Fix connectivity or token before deploying.`
     );
   }
@@ -121,18 +84,18 @@ async function preflightDopplerDownload(
       const body = await response.text();
       if (body.length > 0) detail += `: ${body.slice(0, 500)}`;
     } catch {
-      /* body read failed, status is enough */
+      /* body read failed */
     }
 
     const hint =
-      response.status === 400
-        ? ' (HTTP 400 usually means a non–config-scoped token without project/config params, or wrong project/config slug)'
-        : response.status === 401 || response.status === 403
-          ? ' (token may be expired, revoked, or scoped to a different project)'
+      response.status === 403 || response.status === 401
+        ? ' (token may be expired, revoked, or lack read access to the path)'
+        : response.status === 404
+          ? ' (secret path may not exist — run the Vault→Vault migration helper)'
           : '';
 
     assert.fail(
-      `Doppler preflight failed: ${detail}.${hint} ` +
+      `Vault preflight failed: ${detail}.${hint} ` +
         `Aborting deploy — the Worker would return "api misconfigured" at runtime with this token.`
     );
   }
@@ -151,12 +114,8 @@ export class ApiWorkerResource extends ResourceBase {
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
 
   async dryRun(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
-    await this.validateDopplerForDeploy();
+    await this.validateVaultForDeploy();
 
-    // `wrangler deploy --dry-run` bundles the Worker and validates bindings /
-    // migration syntax *locally* without contacting the Cloudflare API. This
-    // catches TypeScript errors, missing imports, invalid wrangler.toml, and
-    // binding mismatches before we start touching production.
     const apiDir = join(REPO_ROOT, 'apps/api');
     await runAsync(platform, 'wrangler', ['deploy', '--dry-run'], {
       cwd: apiDir,
@@ -171,33 +130,31 @@ export class ApiWorkerResource extends ResourceBase {
     const apiDir = join(REPO_ROOT, 'apps/api');
     const env = wranglerEnv();
 
-    const doppler = await this.validateDopplerForDeploy();
+    const vaultCfg = await this.validateVaultForDeploy();
 
-    await runCaptureAsync('wrangler', ['secret', 'put', 'DOPPLER_TOKEN'], {
+    await runCaptureAsync('wrangler', ['secret', 'put', 'VAULT_TOKEN'], {
       cwd: apiDir,
       env,
-      input: doppler.token,
+      input: vaultCfg.token,
+    });
+    await runCaptureAsync('wrangler', ['secret', 'put', 'VAULT_PROJECT'], {
+      cwd: apiDir,
+      env,
+      input: vaultCfg.project,
+    });
+    await runCaptureAsync('wrangler', ['secret', 'put', 'VAULT_CONFIG'], {
+      cwd: apiDir,
+      env,
+      input: vaultCfg.config,
+    });
+    await runCaptureAsync('wrangler', ['secret', 'put', 'VAULT_ADDR'], {
+      cwd: apiDir,
+      env,
+      input: vaultCfg.addr,
     });
 
-    if (doppler.project !== null) {
-      await runCaptureAsync('wrangler', ['secret', 'put', 'DOPPLER_PROJECT'], {
-        cwd: apiDir,
-        env,
-        input: doppler.project,
-      });
-    }
-    if (doppler.config !== null) {
-      await runCaptureAsync('wrangler', ['secret', 'put', 'DOPPLER_CONFIG'], {
-        cwd: apiDir,
-        env,
-        input: doppler.config,
-      });
-    }
-
     platform.notice(
-      doppler.project !== null
-        ? 'DOPPLER_TOKEN + DOPPLER_PROJECT/CONFIG secrets pushed to Workers (non–config-scoped token).'
-        : 'DOPPLER_TOKEN secret pushed to Workers (config-scoped service token).'
+      'VAULT_TOKEN + VAULT_PROJECT/CONFIG/ADDR secrets pushed to Workers.'
     );
 
     await runAsync(platform, 'wrangler', ['deploy'], {
@@ -209,22 +166,14 @@ export class ApiWorkerResource extends ResourceBase {
     platform.notice('Workers API deployed.');
   }
 
-  /**
-   * Shared between `dryRun` and `deploy`: verify the Doppler token format and
-   * that the Worker-runtime scope can actually hit Doppler's download API.
-   * Idempotent — running it twice per CI job (once in dry-run, once in deploy)
-   * adds a few hundred ms but keeps both phases self-sufficient.
-   */
-  private async validateDopplerForDeploy(): Promise<DopplerDeployConfig> {
-    const doppler = resolveDopplerConfigForDeploy();
-    await preflightDopplerDownload(doppler);
+  private async validateVaultForDeploy(): Promise<VaultDeployConfig> {
+    const vaultCfg = resolveVaultConfigForDeploy();
+    await preflightVaultKvRead(vaultCfg);
     ok(
-      'Doppler preflight',
-      doppler.project !== null
-        ? `token + project=${doppler.project} config=${doppler.config} verified`
-        : 'config-scoped service token verified'
+      'Vault preflight',
+      `token + project=${vaultCfg.project} config=${vaultCfg.config} verified`
     );
-    return doppler;
+    return vaultCfg;
   }
 
   destroy(): void {

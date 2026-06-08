@@ -61,7 +61,7 @@ export function assertTigerPolicyForResolvedApiOrigin(
   assert.fail(
     'Tiger invariant: local / development client must not use production API. ' +
       'Set `EXPO_PUBLIC_API_URL` / `API_URL` to a non-production origin, ' +
-      'or set env / Doppler `LOCAL_PREVIEW_API_ORIGIN`, or rely on the default ' +
+      'or set env / Vault `LOCAL_PREVIEW_API_ORIGIN`, or rely on the default ' +
       `local preview (${DEFAULT_LOCAL_PREVIEW_API_ORIGIN}). ` +
       'If you intentionally need prod from a dev shell or bundle, set EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1.',
     { origin, hostname, policy }
@@ -114,7 +114,7 @@ export function getApiBaseUrl(): string {
   const raw = process.env['EXPO_PUBLIC_API_URL'];
   assert.nonEmptyString(
     raw,
-    'EXPO_PUBLIC_API_URL is required; run `bun run dev` (with Doppler), set apps/client/.env.local, or export EXPO_PUBLIC_API_URL (and EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1 for Expo Go OTA) before `eas update`'
+    'EXPO_PUBLIC_API_URL is required; run `bun run dev` (with Vault), set apps/client/.env.local, or export EXPO_PUBLIC_API_URL (and EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1 for Expo Go OTA) before `eas update`'
   );
   let origin = '';
   assert.notThrows(

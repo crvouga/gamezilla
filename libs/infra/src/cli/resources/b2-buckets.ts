@@ -5,8 +5,8 @@ import { ResourceBase, type InfraContext } from './types';
 /**
  * Backblaze B2 bucket for object storage. Externally managed (like PlanetScale
  * Postgres) — operators create the bucket and application key in the Backblaze
- * console, then store credentials in Doppler. Provision only verifies the
- * secrets are present after {@link DopplerResource} loads them.
+ * console, then store credentials in Vault. Provision only verifies the
+ * secrets are present after {@link VaultResource} loads them.
  */
 export class B2BucketResource extends ResourceBase {
   readonly id = 'b2-buckets';
@@ -15,7 +15,7 @@ export class B2BucketResource extends ResourceBase {
     const bucket = (process.env['B2_BUCKET_NAME'] ?? '').trim();
     if (bucket.length === 0) {
       throw new Error(
-        'B2_BUCKET_NAME is missing from Doppler — create a Backblaze B2 bucket and store B2_* secrets before deploying'
+        'B2_BUCKET_NAME is missing from Vault — create a Backblaze B2 bucket and store B2_* secrets before deploying'
       );
     }
     ok('B2 bucket', `${bucket} (externally managed)`);

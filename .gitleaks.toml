@@ -7,7 +7,7 @@ useDefault = true
 # False positive: the prose "typed tokens, parent/child scoping" in llm.md
 # trips the default `generic-api-key` rule because "tokens" is a keyword and
 # "parent/child" looks high-entropy enough to score as a value. llm.md is
-# documentation only -- real secrets live in Doppler, not in markdown.
+# documentation only -- real secrets live in Vault, not in markdown.
 [[allowlists]]
 description = "DI documentation prose in llm.md"
 paths = ['''(?:^|/)llm\.md$''']

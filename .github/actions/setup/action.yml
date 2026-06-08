@@ -1,21 +1,15 @@
 name: Setup repo (Node + Bun + deps)
-description: Node 22, Bun, cache install store, bun install, optional Doppler CLI (run actions/checkout first)
+description: Node 22, Bun, cache install store, bun install, optional Vault CLI (run actions/checkout first)
 
 inputs:
-  doppler:
-    description: Whether to install the Doppler CLI
+  vault:
+    description: Whether to install the OpenBao CLI (bao) for vault kv passthrough
     required: false
     default: 'true'
 
 runs:
   using: composite
   steps:
-    # Wrangler 4.x requires Node.js v22+. The runner's default Node is v20
-    # and `setup-bun` does not configure Node, so any Wrangler-touching job
-    # (deploy, qa-api, qa-browser via `apps/api preview`) aborts with
-    # "Wrangler requires at least Node.js v22.0.0" without this step.
-    # Installed in the shared setup so every job inherits a Wrangler-
-    # compatible Node toolchain by default.
     - name: Setup Node.js
       uses: actions/setup-node@v6
       with:
@@ -24,7 +18,6 @@ runs:
     - name: Setup Bun
       uses: oven-sh/setup-bun@v2
       with:
-        # Pin to avoid re-downloading Bun on every run.
         bun-version: '1.3.14'
 
     - name: Cache Bun install store
@@ -39,35 +32,26 @@ runs:
       shell: bash
       run: bun install --frozen-lockfile
 
-    # `dopplerhq/cli-action@v4` shells out to download the Doppler binary
-    # from `cli.doppler.com` but does NOT pass `--retry` to curl, so a
-    # single transient slowdown on Doppler's CDN kills the whole job with
-    # `spawnSync /bin/sh ETIMEDOUT` (see
-    # https://github.com/crvouga/gamezilla/actions/runs/26082253421).
-    # The official `install.sh` already uses `curl --retry 5
-    # --connect-timeout 10 --max-time 60` internally, so invoking it
-    # directly is strictly more robust than the action wrapper for the
-    # exact same install path.
-    - name: Install Doppler CLI
-      if: inputs.doppler == 'true'
+    - name: Install OpenBao CLI (bao)
+      if: inputs.vault == 'true'
       shell: bash
       run: |
         set -euo pipefail
-        for attempt in 1 2 3; do
-          if curl -fsSL --retry 5 --retry-all-errors \
-            --connect-timeout 10 --max-time 120 \
-            https://cli.doppler.com/install.sh \
-            | sudo sh; then
-            exit 0
-          fi
-          echo "Doppler CLI install attempt ${attempt}/3 failed; retrying..." >&2
-          sleep $((attempt * 5))
-        done
-        echo "ERROR: Doppler CLI install failed after 3 attempts" >&2
-        exit 1
-      env:
-        # `install.sh` writes shell completions to the invoking user's
-        # default shell; on a GitHub-hosted runner that is the ephemeral
-        # `runner` user, so this is benign — left as a marker that the
-        # script may probe `$SHELL`/`$HOME` and we accept the defaults.
-        SHELL: /bin/bash
+        if command -v bao >/dev/null 2>&1; then
+          echo "bao already on PATH"
+          exit 0
+        fi
+        BAO_VERSION="2.2.0"
+        ARCH="$(uname -m)"
+        case "$ARCH" in
+          x86_64) BAO_ARCH="amd64" ;;
+          aarch64|arm64) BAO_ARCH="arm64" ;;
+          *) echo "unsupported arch: $ARCH" >&2; exit 1 ;;
+        esac
+        URL="https://github.com/openbao/openbao/releases/download/v${BAO_VERSION}/bao_${BAO_VERSION}_linux_${BAO_ARCH}.zip"
+        curl -fsSL "$URL" -o /tmp/bao.zip
+        unzip -o /tmp/bao.zip -d /tmp/bao-bin
+        sudo install -m 0755 /tmp/bao-bin/bao /usr/local/bin/bao
+        # Passthrough subcommands the wrapper would delegate to the real binary.
+        sudo ln -sf /usr/local/bin/bao /usr/local/bin/vault
+        bao version

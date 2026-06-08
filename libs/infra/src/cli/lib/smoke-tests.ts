@@ -70,7 +70,7 @@ function isTransientHttpStatus(status: number): boolean {
 
 /**
  * The API Worker returns a structured 503 when it latches into a permanent
- * fatal state (e.g. Doppler misconfiguration). This will never self-heal, so
+ * fatal state (e.g. Vault misconfiguration). This will never self-heal, so
  * retrying only wastes the full timeout budget. Detect it early and fail fast.
  */
 function isFatalApiMisconfiguration(result: {
@@ -313,7 +313,7 @@ async function checkHttpEndpoint(
       platform.error(
         `${opts.label} ${url} — FATAL: API misconfigured (${reason}). ` +
           `This is a permanent config error that will not self-heal. ` +
-          `Fix the Worker's Doppler secrets and re-deploy.`
+          `Fix the Worker's Vault secrets and re-deploy.`
       );
       assert.fail(
         `smoke-test: ${opts.label} returned fatal "api misconfigured" — reason: ${reason}`

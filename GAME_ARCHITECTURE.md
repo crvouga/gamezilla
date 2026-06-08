@@ -700,7 +700,7 @@ PlanetScale         Serverless MySQL
                     Read replicas for global low-latency reads
 
 Local dev           Real local PostgreSQL 18 (`@pkgs/postgres`, binaries via embedded-postgres npm) + pgweb GUI + Bun API — no Docker, no system install
-                    Doppler `dev` `DATABASE_URL` → `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`
+                    Vault `dev` `DATABASE_URL` → `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`
                     Pre-connected pgweb GUI auto-launches at `http://127.0.0.1:5555` (disable with `PG_GUI=off`).
                     `bun run dev` (root) starts pg + api + client together; `db:migrate` once: `bun run --filter @apps/api db:migrate`
 ```
@@ -741,10 +741,10 @@ bun run --filter @pkgs/postgres dev
 bun run --filter @pkgs/postgres kill
 
 # Apply migrations against the running cluster:
-DOPPLER_CONFIG=dev doppler run -- bun run --filter @apps/api db:migrate
+VAULT_CONFIG=dev vault run -- bun run --filter @apps/api db:migrate
 ```
 
-Set Doppler `dev` `DATABASE_URL` to match the server log (`postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`).
+Set Vault `dev` `DATABASE_URL` to match the server log (`postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`).
 
 Required tooling: only `pgweb` (the optional GUI), enforced by `bun run infra setup` / `status` via the `PgwebDep` class. The PostgreSQL 18 server binaries (`postgres`, `initdb`, `pg_ctl`) ship via the `embedded-postgres` npm package and are hydrated by `bun install` — no system Postgres install and no `PostgresDep`.
 

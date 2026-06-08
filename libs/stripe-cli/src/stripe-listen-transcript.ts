@@ -8,13 +8,13 @@ import type { WriteQueue } from './write-queue';
 export type StripeListenTranscriptDeps = {
   readonly writeQueue: WriteQueue;
   readonly secretStore: SecretStore;
-  readonly dopplerConfig: string;
+  readonly vaultConfig: string;
   readonly apiUrl: string;
   readonly stripeSecretKey: string;
 };
 
 /**
- * Prefixes each `stripe listen` line and, on first `whsec_…`, writes Doppler and
+ * Prefixes each `stripe listen` line and, on first `whsec_…`, writes Vault and
  * runs the signed webhook probe (serialized via {@link WriteQueue}).
  */
 export function createStripeListenTranscriptHandler(
@@ -22,7 +22,7 @@ export function createStripeListenTranscriptHandler(
 ): (line: string) => void {
   let lastWritten: string | null = null;
   let webhookProbeDone = false;
-  const { writeQueue, secretStore, dopplerConfig, apiUrl, stripeSecretKey } =
+  const { writeQueue, secretStore, vaultConfig, apiUrl, stripeSecretKey } =
     deps;
 
   return (line: string): void => {
@@ -33,7 +33,7 @@ export function createStripeListenTranscriptHandler(
       await secretStore.setSecret(StripeSecretKeys.webhookSecret, whsec);
       lastWritten = whsec;
       console.log(
-        `[${STRIPE_CLI_LOG_TAG}] wrote ${StripeSecretKeys.webhookSecret} to Doppler (${dopplerConfig})`
+        `[${STRIPE_CLI_LOG_TAG}] wrote ${StripeSecretKeys.webhookSecret} to Vault (${vaultConfig})`
       );
       if (!webhookProbeDone) {
         webhookProbeDone = true;

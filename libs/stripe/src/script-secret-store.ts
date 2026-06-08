@@ -1,14 +1,14 @@
 import {
   createCachingSecretStore,
-  createDopplerSecretStoreForScripts,
+  createVaultSecretStoreForScripts,
 } from '@pkgs/secret-store';
 import type { SecretStore } from '@pkgs/secret-store';
 
 /**
- * Doppler-backed store for Node/Bun CLI scripts. Uses `DOPPLER_TOKEN` or
- * `doppler configure get token` — config is implied by the token (dev vs prd).
+ * Vault-backed store for Node/Bun CLI scripts. Uses `VAULT_TOKEN` or
+ * `~/.vault-token` — config is implied by `.vault.yaml` / `VAULT_CONFIG`.
  */
 export function createStripeScriptSecretStore(): SecretStore {
-  const store = createDopplerSecretStoreForScripts();
+  const store = createVaultSecretStoreForScripts();
   return createCachingSecretStore(store, { ttlMs: 60_000 });
 }

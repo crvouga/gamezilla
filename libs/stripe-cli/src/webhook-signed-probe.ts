@@ -64,10 +64,10 @@ async function probeOnce(args: {
 
 /**
  * POST a Stripe-signed test event to `/stripe/webhook` so the signing secret
- * in Doppler matches `whsec`. The Worker self-heals a stale cached secret on
+ * in Vault matches `whsec`. The Worker self-heals a stale cached secret on
  * the same request (see `constructStripeEventSelfHealing` in
  * `@libs/stripe/stripe-webhook-route`), so the probe usually succeeds on the
- * first attempt; the retry loop covers Worker boot races and Doppler write
+ * first attempt; the retry loop covers Worker boot races and Vault write
  * propagation.
  */
 export async function verifyWebhookWithSignedProbe(args: {

@@ -1,8 +1,8 @@
 /**
- * Doppler secret **names** read by Better Auth bootstrap. Keep aligned with
+ * Secret **names** read by Better Auth bootstrap. Keep aligned with
  * `apps/api/src/config/secret-names.ts` (`ApiSecretName`).
  */
-export const BetterAuthDopplerKey = {
+export const BetterAuthSecretName = {
   googleWebClientId: 'WEB_CLIENT_GOOGLE_CLIENT_ID',
   googleWebClientSecret: 'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
   betterAuthSecret: 'BETTER_AUTH_SECRET',

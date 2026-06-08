@@ -81,8 +81,8 @@ async function listHyperdriveConfigs(
         `Hyperdrive list failed: HTTP 403 — CLOUDFLARE_API_TOKEN is missing ` +
           `the "Workers Hyperdrive Edit" Account permission. Edit the token at ` +
           `https://dash.cloudflare.com/profile/api-tokens, add that permission ` +
-          `(Account Resources → All accounts), then update the token in Doppler ` +
-          `(\`doppler secrets set CLOUDFLARE_API_TOKEN=...\`). Detail: ${detail.slice(0, 400)}`
+          `(Account Resources → All accounts), then update the token in Vault ` +
+          `(\`vault secrets set CLOUDFLARE_API_TOKEN=...\`). Detail: ${detail.slice(0, 400)}`
       );
     }
     assert.fail(
@@ -203,7 +203,7 @@ export class PostgresHyperdriveResource extends ResourceBase {
     const dbUrl = (process.env['DATABASE_URL'] ?? '').trim();
     assert.nonEmptyString(
       dbUrl,
-      'DATABASE_URL must be set (Doppler) to provision Hyperdrive origin'
+      'DATABASE_URL must be set (Vault) to provision Hyperdrive origin'
     );
 
     const origin = parseDbUrlToOrigin(dbUrl);

@@ -171,7 +171,7 @@ function createStripeSubApp(config: ApiHandlerConfig, stripe: Stripe) {
       }
       return { accountId: auth.accountId, deviceId: auth.deviceId };
     },
-    webhookSecretDopplerKey: ApiSecretName.stripeWebhookSecret,
+    webhookSecretKey: ApiSecretName.stripeWebhookSecret,
   });
 }
 

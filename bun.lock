@@ -41,7 +41,6 @@
         "@libs/stripe": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/attribute": "workspace:*",
-        "@pkgs/doppler": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/llm": "workspace:*",
@@ -55,6 +54,7 @@
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/tts": "workspace:*",
         "@pkgs/uuid": "workspace:*",
+        "@pkgs/vault": "workspace:*",
         "hono": "catalog:",
         "pg": "catalog:",
         "stripe": "catalog:",
@@ -273,13 +273,13 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
         "@pkgs/distributed-lock": "workspace:*",
-        "@pkgs/doppler": "workspace:*",
         "@pkgs/git": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/os": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
+        "@pkgs/vault": "workspace:*",
         "picocolors": "catalog:",
       },
       "devDependencies": {
@@ -380,8 +380,8 @@
       "version": "1.0.0",
       "dependencies": {
         "@libs/stripe": "workspace:*",
-        "@pkgs/doppler": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
+        "@pkgs/vault": "workspace:*",
         "stripe": "catalog:",
       },
       "devDependencies": {
@@ -499,14 +499,6 @@
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
       },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/doppler": {
-      "name": "@pkgs/doppler",
-      "version": "0.0.0",
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
@@ -813,8 +805,8 @@
       "name": "@pkgs/secret-store",
       "version": "0.0.0",
       "dependencies": {
-        "@pkgs/doppler": "workspace:*",
         "@pkgs/secret-string": "workspace:*",
+        "@pkgs/vault": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -982,6 +974,14 @@
       "dependencies": {
         "@pkgs/assert": "workspace:*",
       },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/vault": {
+      "name": "@pkgs/vault",
+      "version": "0.0.0",
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
@@ -1932,8 +1932,6 @@
 
     "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
 
-    "@pkgs/doppler": ["@pkgs/doppler@workspace:pkgs/doppler"],
-
     "@pkgs/equal": ["@pkgs/equal@workspace:pkgs/equal"],
 
     "@pkgs/git": ["@pkgs/git@workspace:pkgs/git"],
@@ -1995,6 +1993,8 @@
     "@pkgs/ui": ["@pkgs/ui@workspace:pkgs/ui"],
 
     "@pkgs/uuid": ["@pkgs/uuid@workspace:pkgs/uuid"],
+
+    "@pkgs/vault": ["@pkgs/vault@workspace:pkgs/vault"],
 
     "@playwright/test": ["@playwright/test@1.59.1", "", { "dependencies": { "playwright": "1.59.1" }, "bin": { "playwright": "cli.js" } }, "sha512-PG6q63nQg5c9rIi4/Z5lR5IVF7yU5MqmKaPOe0HSc0O2cX1fPi96sUQu5j7eo4gKCkB2AnNGoWt7y4/Xx3Kcqg=="],
 

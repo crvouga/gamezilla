@@ -1,9 +1,10 @@
+import { VAULT_DEFAULTS } from '@pkgs/vault';
 import { PROJECT_CONFIG } from '../../project-config';
 
 /**
  * Markdown bullets linking to vendor consoles. Uses {@link PROJECT_CONFIG} for
  * stable public slugs. `CLOUDFLARE_ACCOUNT_ID` is read from the environment (e.g.
- * injected by `doppler run` in CI from the `shared` Doppler config); if unset,
+ * injected by `vault run` in CI from the `shared` Vault config); if unset,
  * generic Cloudflare dashboard links are used.
  */
 export function buildVendorDashboardMarkdown(): string[] {
@@ -23,7 +24,9 @@ export function buildVendorDashboardMarkdown(): string[] {
   lines.push(
     `- **PlanetScale:** [Organization \`${psOrg}\`](https://app.planetscale.com/${psOrg}) · [Database \`${psDb}\`](https://app.planetscale.com/${psOrg}/${psDb})`
   );
-  lines.push(`- **Doppler:** [Dashboard](https://dashboard.doppler.com)`);
+  lines.push(
+    `- **Vault:** [Dashboard](${VAULT_DEFAULTS.addr})`
+  );
   lines.push(
     `- **Vercel Remote Caching:** [Account tokens](https://vercel.com/account/tokens) · [Team settings](https://vercel.com/dashboard/usage)`
   );
@@ -46,7 +49,7 @@ export function buildVendorDashboardMarkdown(): string[] {
     );
   } else {
     lines.push(
-      `- **Cloudflare:** [Dashboard](https://dash.cloudflare.com/) — add \`CLOUDFLARE_ACCOUNT_ID\` to Doppler (\`shared\`) for direct links to zone, Pages, and Workers`
+      `- **Cloudflare:** [Dashboard](https://dash.cloudflare.com/) — add \`CLOUDFLARE_ACCOUNT_ID\` to Vault (\`shared\`) for direct links to zone, Pages, and Workers`
     );
   }
 

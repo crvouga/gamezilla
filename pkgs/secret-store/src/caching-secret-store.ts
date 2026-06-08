@@ -34,7 +34,7 @@ type PendingBatch = {
  *    {@link SecretStore.getOptionalMany} round-trip.
  *
  * This protects against cold-cache request bursts that would otherwise fan
- * out into a Doppler 429 storm: a single inbound request loading N secrets
+ * out into a Vault 429 storm: a single inbound request loading N secrets
  * sequentially still costs N upstream calls, but M parallel inbound requests
  * each loading the same N secrets cost N (not M*N) calls in steady state and
  * exactly N calls during a cold start.

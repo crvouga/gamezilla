@@ -1,6 +1,6 @@
 /**
  * Verifies the self-hosted Turborepo Remote Cache configuration loaded from
- * Doppler `dev` (CI: `DOPPLER_SERVICE_TOKEN` → `doppler run` — not GitHub
+ * Vault `dev` (CI: `VAULT_SERVICE_TOKEN` → `vault run` — not GitHub
  * `TURBO_*` secrets).
  *
  * The cache is the standalone `turborepo-remote-cache` Cloudflare Worker at
@@ -48,11 +48,11 @@ function fail(message: string): never {
   console.error(message);
   console.error('');
   console.error(
-    'CI loads TURBO_* from Doppler config `dev` via `doppler run`.'
+    'CI loads TURBO_* from Vault config `dev` via `vault run`.'
   );
-  console.error('The only GitHub secret involved is DOPPLER_SERVICE_TOKEN.');
+  console.error('The only GitHub secret involved is VAULT_SERVICE_TOKEN.');
   console.error('');
-  console.error('Doppler `dev` must define (self-hosted turborepo cache):');
+  console.error('Vault `dev` must define (self-hosted turborepo cache):');
   console.error(
     '  • TURBO_API   — cache origin (https://turborepo.chrisvouga.dev)'
   );
@@ -87,7 +87,7 @@ async function checkCacheReachable(api: string, token: string): Promise<void> {
   }
   if (res.status === 401 || res.status === 403) {
     throw new Error(
-      `cache rejected TURBO_TOKEN — HTTP ${res.status} from ${statusUrl} (rotate in Doppler and re-mirror)`
+      `cache rejected TURBO_TOKEN — HTTP ${res.status} from ${statusUrl} (rotate in Vault and re-mirror)`
     );
   }
 }
@@ -118,7 +118,7 @@ function assertTurboRemoteCacheReachable(): void {
       REMOTE_UNAVAILABLE;
     fail(
       `${line.trim()}\n` +
-        'Fix TURBO_API / TURBO_TOKEN / TURBO_TEAM in Doppler (`dev`, mirrored from `prd`).'
+        'Fix TURBO_API / TURBO_TOKEN / TURBO_TEAM in Vault (`dev`, mirrored from `prd`).'
     );
   }
 
@@ -139,26 +139,26 @@ async function main(): Promise<void> {
   if (present.length === 0) {
     if (strict) {
       fail(
-        'TURBO_API / TURBO_TOKEN / TURBO_TEAM not in env after `doppler run`. ' +
-          'Set them in Doppler config `dev` (see libs/infra/src/cli/secrets/turbo-token.ts).'
+        'TURBO_API / TURBO_TOKEN / TURBO_TEAM not in env after `vault run`. ' +
+          'Set them in Vault config `dev` (see libs/infra/src/cli/secrets/turbo-token.ts).'
       );
     }
     console.log(
-      'Turbo remote cache: no TURBO_* env set — skip (local dev without Doppler secrets).'
+      'Turbo remote cache: no TURBO_* env set — skip (local dev without Vault secrets).'
     );
     process.exit(0);
   }
 
   if (present.length !== REQUIRED.length) {
     const missing = REQUIRED.filter((k) => !isSet(process.env[k]));
-    fail(`incomplete Doppler env. Missing: ${missing.join(', ')}`);
+    fail(`incomplete Vault env. Missing: ${missing.join(', ')}`);
   }
 
   const turboApi = process.env.TURBO_API!.trim();
   const turboToken = process.env.TURBO_TOKEN!.trim();
   const turboTeam = process.env.TURBO_TEAM!.trim();
   const turboCache = (process.env.TURBO_CACHE ?? '').trim();
-  const dopplerConfig = (process.env.DOPPLER_CONFIG ?? '').trim() || '(unset)';
+  const vaultConfig = (process.env.VAULT_CONFIG ?? '').trim() || '(unset)';
 
   try {
     const url = new URL(turboApi);
@@ -176,7 +176,7 @@ async function main(): Promise<void> {
   }
 
   console.log(
-    `Turbo env (Doppler ${dopplerConfig}): TURBO_API=${turboApi}, TURBO_TEAM=${turboTeam}, TURBO_TOKEN=<${String(turboToken.length)} chars>`
+    `Turbo env (Vault ${vaultConfig}): TURBO_API=${turboApi}, TURBO_TEAM=${turboTeam}, TURBO_TOKEN=<${String(turboToken.length)} chars>`
   );
 
   try {

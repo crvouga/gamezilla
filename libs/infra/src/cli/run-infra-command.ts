@@ -1,7 +1,7 @@
 import type { Command } from './commands/types';
 import { runWithGlobalLock } from './lib/global-lock-session';
 import type { CiPlatform } from './platform/platform';
-import { DopplerResource } from './resources/doppler';
+import { VaultResource } from './resources/vault';
 
 /**
  * Runs a command; acquires the global lock when {@link Command.requiresLock} is set.
@@ -14,7 +14,7 @@ export async function runInfraCommand(
   platform: CiPlatform
 ): Promise<void> {
   if (command.id !== 'setup' && command.id !== 'pipeline-report') {
-    new DopplerResource().loadSecretsQuick();
+    new VaultResource().loadSecretsQuick();
   }
 
   if (command.requiresLock !== true) {

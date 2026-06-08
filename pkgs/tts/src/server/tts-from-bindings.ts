@@ -4,7 +4,7 @@ import type { SecretStore } from '@pkgs/secret-store';
 import { ElevenLabsTtsProvider } from './adapters/elevenlabs-tts-provider';
 import { createTtsApp, type TtsRequireAuth } from './tts-routes';
 
-export const TtsDopplerKey = {
+export const TtsSecretName = {
   elevenLabsApiKey: 'ELEVEN_LABS_API_KEY',
 } as const;
 
@@ -18,7 +18,7 @@ export async function createTtsAppFromBindings(
   options: CreateTtsAppFromBindingsOptions
 ): Promise<ReturnType<typeof createTtsApp>> {
   const apiKey = (
-    await options.secretStore.getRequired(TtsDopplerKey.elevenLabsApiKey)
+    await options.secretStore.getRequired(TtsSecretName.elevenLabsApiKey)
   ).readSecretValue();
 
   const provider = new ElevenLabsTtsProvider({ apiKey });

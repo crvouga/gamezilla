@@ -2,13 +2,13 @@
  * Webhook endpoint reconciliation: one endpoint, all events (`*`).
  *
  * When state drifts: delete every existing endpoint, create the desired one,
- * push the freshly-issued `whsec_…` signing secret to Doppler so the API
+ * push the freshly-issued `whsec_…` signing secret to Vault so the API
  * Worker can verify incoming events on next deploy.
  *
  * Pure orchestration — no secret resolution. Callers pass a ready-to-use
- * Stripe client + Doppler CLI, and the absolute origin of the API Worker.
+ * Stripe client + Vault CLI, and the absolute origin of the API Worker.
  *
- * `dryRun: true` short-circuits before any Stripe or Doppler mutation.
+ * `dryRun: true` short-circuits before any Stripe or Vault mutation.
  */
 import type { SecretStore } from '@pkgs/secret-store';
 import type Stripe from 'stripe';
@@ -122,7 +122,7 @@ export async function runStripeWebhookSync(args: {
   readonly stripe: Stripe;
   /**
    * Used to persist the freshly-issued `whsec_…` after a rebuild. Must be a
-   * write-capable {@link SecretStore} (typically a `DopplerScriptSecretStore`);
+   * write-capable {@link SecretStore} (typically a `VaultScriptSecretStore`);
    * read-only HTTP impls will throw on `setSecret`.
    */
   readonly secretStore: SecretStore;
@@ -138,7 +138,7 @@ export async function runStripeWebhookSync(args: {
       `[${TAG}] desiredUrl=${desiredUrl} skipped — API_URL is not publicly accessible. ` +
         'Use the Stripe CLI for local webhooks: ' +
         `\`stripe listen --forward-to ${desiredUrl}\` ` +
-        '(then paste the printed `whsec_…` into Doppler as STRIPE_WEBHOOK_SECRET).'
+        '(then paste the printed `whsec_…` into Vault as STRIPE_WEBHOOK_SECRET).'
     );
     return { kind: 'skipped-local', desiredUrl };
   }

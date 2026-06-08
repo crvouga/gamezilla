@@ -5,7 +5,7 @@ import { ClientPagesProjectResource } from './client-pages-project';
 import { ClientRedirectRuleResource } from './client-redirect-rule';
 import { ClientResource } from './client';
 import { DnsRecordsResource } from './dns-records';
-import { DopplerResource } from './doppler';
+import { VaultResource } from './vault';
 import { PlanetScalePostgres } from './planetscale-postgres';
 import { PostgresHyperdriveResource } from './postgres-hyperdrive';
 import { R2BucketResource } from './r2-buckets';
@@ -14,7 +14,7 @@ import type { Resource } from './types';
 import { ZoneResource } from './zone';
 
 export function createRegistry(): readonly Resource[] {
-  const doppler = new DopplerResource();
+  const vault = new VaultResource();
   const r2Subscription = new R2SubscriptionResource();
   const zone = new ZoneResource();
   const clientPagesProject = new ClientPagesProjectResource();
@@ -28,11 +28,11 @@ export function createRegistry(): readonly Resource[] {
   const apiWorker = new ApiWorkerResource();
   const client = new ClientResource();
 
-  r2Subscription.needs(doppler);
-  zone.needs(doppler);
-  clientPagesProject.needs(doppler);
-  planetscalePostgres.needs(doppler);
-  b2Bucket.needs(doppler);
+  r2Subscription.needs(vault);
+  zone.needs(vault);
+  clientPagesProject.needs(vault);
+  planetscalePostgres.needs(vault);
+  b2Bucket.needs(vault);
   r2Bucket.needs(r2Subscription);
   dnsRecords.needs(zone, clientPagesProject);
   clientPagesDomain.needs(clientPagesProject);
@@ -41,7 +41,7 @@ export function createRegistry(): readonly Resource[] {
   client.needs(apiWorker, dnsRecords);
 
   return [
-    doppler,
+    vault,
     r2Subscription,
     zone,
     clientPagesProject,

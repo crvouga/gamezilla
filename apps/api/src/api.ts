@@ -9,9 +9,9 @@ import { tryBetterAuthOptionsResponse } from './app/cors';
 import { createApiApp } from './app/create-app';
 import type { ApiWorkerEnv } from './config/env';
 import {
-  assertDopplerTokenBinding,
+  assertVaultTokenBinding,
   ConfigurationError,
-  readDopplerScopeBindings,
+  readVaultScopeBindings,
   readOptionalApiUrlOverride,
 } from './config/env';
 import { createApiSecretStore } from './config/secret-store';
@@ -119,9 +119,9 @@ function latchFatal(reason: string): void {
 }
 
 async function bootApp(env: ApiWorkerEnv): Promise<App> {
-  const token = assertDopplerTokenBinding(env);
-  const { project, config } = readDopplerScopeBindings(env);
-  const secretStore = createApiSecretStore(token, { project, config });
+  const token = assertVaultTokenBinding(env);
+  const { project, config, addr } = readVaultScopeBindings(env);
+  const secretStore = createApiSecretStore(token, { project, config, addr });
   const objectStore = await createApiObjectStore(secretStore);
   return await createApiApp({
     pubSub,

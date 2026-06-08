@@ -1,17 +1,17 @@
 /**
  * Local Stripe webhook forwarder: `stripe listen` → API `/stripe/webhook`,
- * then writes the CLI signing secret to Doppler `dev` as STRIPE_WEBHOOK_SECRET.
+ * then writes the CLI signing secret to Vault `dev` as STRIPE_WEBHOOK_SECRET.
  *
- * Run from monorepo root (`bun run dev` / turbo) so Doppler project scope matches.
+ * Run from monorepo root (`bun run dev` / turbo) so Vault project scope matches.
  */
-import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
+import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import { StripeSecretKeys } from '@libs/stripe/secret-keys';
 import { exitUnlessLocalApiUrl } from './api-url-guard';
 import { STRIPE_CLI_LOG_TAG } from './constants';
 import {
-  exitUnlessDevDopplerConfig,
-  resolveDopplerConfigName,
-} from './doppler-dev';
+  exitUnlessDevVaultConfig,
+  resolveVaultConfigName,
+} from './vault-dev';
 import { resolveWorkspaceRoot } from './repo-root';
 import {
   runStripeListenUntilExit,
@@ -27,10 +27,10 @@ async function main(): Promise<void> {
   const repoRoot = resolveWorkspaceRoot(import.meta.dir);
   process.chdir(repoRoot);
 
-  const dopplerConfig = resolveDopplerConfigName();
-  exitUnlessDevDopplerConfig(dopplerConfig);
+  const vaultConfig = resolveVaultConfigName();
+  exitUnlessDevVaultConfig(vaultConfig);
 
-  const secretStore = createDopplerSecretStoreForScripts();
+  const secretStore = createVaultSecretStoreForScripts();
   const [stripeKeyRaw, apiUrlRaw] = await Promise.all([
     secretStore.getRequired(StripeSecretKeys.secretKey),
     secretStore.getRequired('API_URL'),
@@ -46,7 +46,7 @@ async function main(): Promise<void> {
   const onTranscriptLine = createStripeListenTranscriptHandler({
     writeQueue,
     secretStore,
-    dopplerConfig,
+    vaultConfig,
     apiUrl,
     stripeSecretKey: stripeKey,
   });

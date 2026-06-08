@@ -36,11 +36,11 @@
  * long as they run in **session pooling** mode (transaction mode breaks
  * `SET …` statements that need to persist across the seed's batches).
  *
- * Local (Doppler `dev`, `DATABASE_URL` → PGlite socket or other Postgres):
- *   DOPPLER_CONFIG=dev doppler run -- bun run --filter @libs/chess seed:puzzles
+ * Local (Vault `dev`, `DATABASE_URL` → PGlite socket or other Postgres):
+ *   VAULT_CONFIG=dev vault run -- bun run --filter @libs/chess seed:puzzles
  *
- * Production (Doppler `prd`, `DATABASE_URL` → Postgres):
- *   DOPPLER_CONFIG=prd doppler run -- bun run --filter @libs/chess seed:puzzles
+ * Production (Vault `prd`, `DATABASE_URL` → Postgres):
+ *   VAULT_CONFIG=prd vault run -- bun run --filter @libs/chess seed:puzzles
  *
  * Options: `--source`, `--cache-dir`, `--batch-size` (default 1000),
  *   `--limit`, `--no-resume`, `--dry-run`, `--pace-ms` (default 250),
@@ -64,7 +64,7 @@ import {
   type PatchInput,
 } from '@pkgs/patch-db/interface';
 import { PatchDbCompactionPolicyRegistry } from '@pkgs/patch-db/policy/compaction-policy';
-import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
+import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres-connect';
 import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
@@ -521,7 +521,7 @@ export class ChessPuzzleSeeder {
     reporter.phase('Connect database (single TCP session)', {
       note: 'Schema (patches/snapshots + pdb_idx_chess_puzzle__*) must already exist; run `bun run --filter @apps/api db:migrate` first on a fresh database.',
     });
-    const store = createDopplerSecretStoreForScripts();
+    const store = createVaultSecretStoreForScripts();
     const databaseUrl = (
       await store.getRequired('DATABASE_URL')
     ).readSecretValue();

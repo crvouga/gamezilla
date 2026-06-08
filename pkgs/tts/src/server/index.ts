@@ -4,7 +4,7 @@
  */
 export {
   createTtsAppFromBindings,
-  TtsDopplerKey,
+  TtsSecretName,
   type CreateTtsAppFromBindingsOptions,
 } from './tts-from-bindings';
 export {

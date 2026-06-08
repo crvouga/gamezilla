@@ -1,4 +1,5 @@
 import type { SecretString } from '@pkgs/secret-string/secret-string';
+import { VAULT_DEFAULTS } from '@pkgs/vault';
 import {
   SecretBlankError,
   SecretMissingError,
@@ -12,28 +13,20 @@ import type {
 } from './interface';
 import { wrapSecret, wrapSecretOptional } from './wrap-secret';
 
-const DOPPLER_DOWNLOAD =
-  'https://api.doppler.com/v3/configs/config/secrets/download';
-
-export type DopplerSecretStoreOptions = {
+export type VaultSecretStoreOptions = {
   token: string;
-  /**
-   * Doppler project slug for the download API. Required for many personal/CLI
-   * tokens; optional for config-scoped service tokens. Defaults to
-   * `process.env.DOPPLER_PROJECT` when unset.
-   */
+  /** Vault API address. @default {@link VAULT_DEFAULTS.addr} */
+  addr?: string;
+  /** KV v2 mount path. @default {@link VAULT_DEFAULTS.mount} */
+  mount?: string;
+  /** Project slug (first path segment). @default {@link VAULT_DEFAULTS.project} */
   project?: string;
-  /**
-   * Doppler config name (e.g. `dev`, `prd`). Sent as the `config` query param
-   * when set. Defaults to `process.env.DOPPLER_CONFIG`.
-   */
+  /** Config name (second path segment, e.g. `dev`, `prd`). */
   config?: string;
   /** @default globalThis.fetch */
-  fetchFn?: DopplerFetch;
+  fetchFn?: VaultFetch;
   /**
-   * On HTTP 429 (rate-limited), retry up to this many extra attempts honoring
-   * the `Retry-After` response header (seconds; falls back to exponential
-   * backoff capped at 5s). `0` disables retries (test-friendly default).
+   * On HTTP 429, retry up to this many extra attempts honoring `Retry-After`.
    * @default 3
    */
   rateLimitRetries?: number;
@@ -41,13 +34,12 @@ export type DopplerSecretStoreOptions = {
   sleep?: (ms: number) => Promise<void>;
 };
 
-type DopplerFetch = (
+type VaultFetch = (
   input: RequestInfo | URL,
   init?: RequestInit
 ) => Promise<Response>;
 
-const defaultFetch: DopplerFetch = (input, init) =>
-  globalThis.fetch(input, init);
+const defaultFetch: VaultFetch = (input, init) => globalThis.fetch(input, init);
 
 function assertNonBlankName(name: string): void {
   if (name.length === 0) {
@@ -78,35 +70,6 @@ function parseSecret(
   return { value: trimmed };
 }
 
-async function readDopplerJsonObjectBody(
-  response: Response
-): Promise<Record<string, unknown>> {
-  if (!response.ok) {
-    throw new SecretStoreRequestError(
-      `Doppler secrets download failed: HTTP ${response.status}`,
-      response.status
-    );
-  }
-  let json: unknown;
-  try {
-    json = await response.json();
-  } catch {
-    throw new SecretStoreParseError(
-      'Doppler secrets download: response body is not valid JSON'
-    );
-  }
-  if (json === null || typeof json !== 'object' || Array.isArray(json)) {
-    throw new SecretStoreParseError(
-      'Doppler secrets download: expected JSON object body'
-    );
-  }
-  return json as Record<string, unknown>;
-}
-
-/**
- * Doppler [Secrets Download](https://docs.doppler.com/reference/secrets-download)
- * using a config-scoped token (no `project` / `config` query params).
- */
 function trimOpt(value: string | undefined): string | null {
   if (value === undefined) return null;
   const t = value.trim();
@@ -118,11 +81,6 @@ const RATE_LIMIT_BACKOFF_CAP_MS = 5_000;
 const defaultSleep = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-/**
- * Parses Doppler's `Retry-After` header. Doppler returns delta-seconds. Caps at
- * {@link RATE_LIMIT_BACKOFF_CAP_MS} so a misbehaving upstream cannot stall the
- * Worker request for arbitrary seconds.
- */
 function parseRetryAfterMs(header: string | null): number | null {
   if (header === null) return null;
   const trimmed = header.trim();
@@ -132,25 +90,77 @@ function parseRetryAfterMs(header: string | null): number | null {
   return Math.min(Math.round(seconds * 1000), RATE_LIMIT_BACKOFF_CAP_MS);
 }
 
-export class DopplerSecretStore implements SecretStore {
+function buildKvDataUrl(addr: string, mount: string, path: string): string {
+  const base = addr.replace(/\/$/, '');
+  return `${base}/v1/${mount}/data/${path}`;
+}
+
+function assertRecordObject(
+  value: unknown,
+  message: string
+): Record<string, unknown> {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new SecretStoreParseError(message);
+  }
+  return value as Record<string, unknown>;
+}
+
+async function readJsonBody(response: Response): Promise<unknown> {
+  try {
+    return await response.json();
+  } catch {
+    throw new SecretStoreParseError(
+      'Vault KV read: response body is not valid JSON'
+    );
+  }
+}
+
+async function readVaultKvDataBody(
+  response: Response
+): Promise<Record<string, unknown>> {
+  if (!response.ok) {
+    throw new SecretStoreRequestError(
+      `Vault KV read failed: HTTP ${response.status}`,
+      response.status
+    );
+  }
+  const root = assertRecordObject(
+    await readJsonBody(response),
+    'Vault KV read: expected JSON object body'
+  );
+  const dataWrapper = assertRecordObject(
+    root['data'],
+    'Vault KV read: expected { data: { data: { ... } } }'
+  );
+  return assertRecordObject(
+    dataWrapper['data'],
+    'Vault KV read: expected data.data object'
+  );
+}
+
+export class VaultSecretStore implements SecretStore {
   private readonly token: string;
-  private readonly fetchFn: DopplerFetch;
-  private readonly projectSlug: string | null;
+  private readonly addr: string;
+  private readonly mount: string;
+  private readonly projectSlug: string;
   private readonly configSlug: string | null;
+  private readonly fetchFn: VaultFetch;
   private readonly rateLimitRetries: number;
   private readonly sleep: (ms: number) => Promise<void>;
 
-  constructor(options: DopplerSecretStoreOptions) {
+  constructor(options: VaultSecretStoreOptions) {
     const t = options.token.trim();
     if (t.length === 0) {
       throw new SecretStoreRequestError(
-        'DopplerSecretStore: token is required (non-empty string)'
+        'VaultSecretStore: token is required (non-empty string)'
       );
     }
     this.token = t;
-    this.fetchFn = options.fetchFn ?? defaultFetch;
-    this.projectSlug = trimOpt(options.project);
+    this.addr = trimOpt(options.addr) ?? VAULT_DEFAULTS.addr;
+    this.mount = trimOpt(options.mount) ?? VAULT_DEFAULTS.mount;
+    this.projectSlug = trimOpt(options.project) ?? VAULT_DEFAULTS.project;
     this.configSlug = trimOpt(options.config);
+    this.fetchFn = options.fetchFn ?? defaultFetch;
     this.rateLimitRetries =
       options.rateLimitRetries !== undefined
         ? Math.max(0, Math.floor(options.rateLimitRetries))
@@ -186,8 +196,7 @@ export class DopplerSecretStore implements SecretStore {
     for (const n of names) {
       assertNonBlankName(n);
     }
-    const unique = [...new Set(names)];
-    const row = await this.downloadSecretRow(unique, init);
+    const row = await this.downloadSecretRow(names, init);
     const out: Record<string, SecretString> = {};
     for (const name of names) {
       out[name] = wrapSecret(name, this.requiredFromRow(row, name));
@@ -205,8 +214,7 @@ export class DopplerSecretStore implements SecretStore {
     for (const n of names) {
       assertNonBlankName(n);
     }
-    const unique = [...new Set(names)];
-    const row = await this.downloadSecretRow(unique, init);
+    const row = await this.downloadSecretRow(names, init);
     const out: Record<string, SecretString | null> = {};
     for (const name of names) {
       out[name] = wrapSecretOptional(name, this.optionalFromRow(row, name));
@@ -214,21 +222,15 @@ export class DopplerSecretStore implements SecretStore {
     return out;
   }
 
-  /**
-   * Doppler's `secrets/download` is read-only — there is no symmetric write
-   * endpoint we can call with the same auth flow. Use a CLI-backed factory
-   * such as `createDopplerSecretStoreForScripts` (which composes this class
-   * with `DopplerScriptSecretStore`) when you need writes.
-   */
   async setSecret(
     name: string,
     _value: string,
     _init?: SecretStoreSetInit
   ): Promise<void> {
     throw new SecretStoreRequestError(
-      `DopplerSecretStore is HTTP-read-only; cannot setSecret("${name}"). ` +
-        'For Bun/Node scripts use createDopplerSecretStoreForScripts() ' +
-        'which routes writes through the Doppler CLI.'
+      `VaultSecretStore is HTTP-read-only; cannot setSecret("${name}"). ` +
+        'For Bun/Node scripts use createVaultSecretStoreForScripts() ' +
+        'which routes writes through the Vault CLI.'
     );
   }
 
@@ -239,7 +241,7 @@ export class DopplerSecretStore implements SecretStore {
     const p = row[name];
     if (p === undefined) {
       throw new SecretStoreParseError(
-        `Doppler response row missing key "${name}"`
+        `Vault response row missing key "${name}"`
       );
     }
     if (p === 'missing') {
@@ -262,24 +264,26 @@ export class DopplerSecretStore implements SecretStore {
     return p.value;
   }
 
+  private secretPath(): string {
+    if (this.configSlug === null) {
+      throw new SecretStoreRequestError(
+        'VaultSecretStore: config is required (set config option or VAULT_CONFIG)'
+      );
+    }
+    return `${this.projectSlug}/${this.configSlug}`;
+  }
+
   private async downloadSecretRow(
     names: readonly string[],
     init?: SecretStoreGetInit
   ): Promise<Record<string, ParsedSecret>> {
-    const params = new URLSearchParams();
-    params.set('format', 'json');
-    params.set('secrets', names.join(','));
-    if (this.projectSlug !== null) {
-      params.set('project', this.projectSlug);
-    }
-    if (this.configSlug !== null) {
-      params.set('config', this.configSlug);
-    }
+    const path = this.secretPath();
+    const url = buildKvDataUrl(this.addr, this.mount, path);
 
     const requestInit: RequestInit = {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${this.token}`,
+        'X-Vault-Token': this.token,
         Accept: 'application/json',
       },
     };
@@ -287,9 +291,8 @@ export class DopplerSecretStore implements SecretStore {
       requestInit.signal = init.signal;
     }
 
-    const url = `${DOPPLER_DOWNLOAD}?${params}`;
     const response = await this.fetchWithRateLimitRetry(url, requestInit);
-    const body = await readDopplerJsonObjectBody(response);
+    const body = await readVaultKvDataBody(response);
     const out: Record<string, ParsedSecret> = {};
     for (const name of names) {
       out[name] = parseSecret(body, name);
@@ -297,13 +300,6 @@ export class DopplerSecretStore implements SecretStore {
     return out;
   }
 
-  /**
-   * Calls Doppler with bounded retries on HTTP 429. Honors the `Retry-After`
-   * header (seconds) when present and otherwise uses exponential backoff
-   * capped at 5s. The Worker dev loop fans out 6+ concurrent secret reads on
-   * every cold isolate; without backoff the Doppler edge returns 429 in a
-   * tight loop and the wrangler reload churn never converges.
-   */
   private async fetchWithRateLimitRetry(
     url: string,
     init: RequestInit
@@ -316,7 +312,7 @@ export class DopplerSecretStore implements SecretStore {
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         throw new SecretStoreRequestError(
-          `Doppler secrets download failed (network): ${msg}`
+          `Vault KV read failed (network): ${msg}`
         );
       }
       if (response.status !== 429 || attempt >= this.rateLimitRetries) {

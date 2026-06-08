@@ -25,7 +25,7 @@ runs:
     # setup step above), so no system PostgreSQL install is needed here.
 
     # Keep CLI tool versions in sync with `infra setup` (no pinned versions in YAML).
-    # Requires `DOPPLER_TOKEN` to be set by the calling workflow so `infra setup`
+    # Requires Vault OIDC auth (`vault-auth` action) before this step so `infra setup`
     # can load secrets before running auth-gated verifications.
     - name: infra setup (wrangler/stripe/eas)
       if: inputs.wrangler == 'true' || inputs.stripe == 'true' || inputs.eas == 'true'

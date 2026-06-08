@@ -1,7 +1,0 @@
-# Default Doppler scope for this repo (`doppler setup --no-interactive` reads this).
-# Day-to-day scripts use `bun run scripts/doppler-run.ts`, which applies the same
-# project/config unless overridden via DOPPLER_PROJECT / DOPPLER_CONFIG.
-setup:
-  - project: personal
-    config: dev
-    path: .

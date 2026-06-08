@@ -1,4 +1,4 @@
-import { createDopplerSecretStoreForScripts } from '@pkgs/secret-store';
+import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import { ApiSecretName } from '../src/config/secret-names';
 
 function randomHex32Bytes(): string {
@@ -8,20 +8,20 @@ function randomHex32Bytes(): string {
 }
 
 async function main(): Promise<void> {
-  const store = createDopplerSecretStoreForScripts();
+  const store = createVaultSecretStoreForScripts();
   const existing = (
     await store.getOptional(ApiSecretName.betterAuthSecret)
   )?.readSecretValue();
   if (typeof existing === 'string' && existing.trim().length >= 32) {
     process.stdout.write(
-      '[setup-better-auth-secret] BETTER_AUTH_SECRET already present in Doppler; skipping.\n'
+      '[setup-better-auth-secret] BETTER_AUTH_SECRET already present in Vault; skipping.\n'
     );
     return;
   }
   const hex = randomHex32Bytes();
   await store.setSecret(ApiSecretName.betterAuthSecret, hex);
   process.stdout.write(
-    '[setup-better-auth-secret] wrote BETTER_AUTH_SECRET to Doppler (≥32 chars).\n'
+    '[setup-better-auth-secret] wrote BETTER_AUTH_SECRET to Vault (≥32 chars).\n'
   );
 }
 

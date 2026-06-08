@@ -1,3 +1,5 @@
+import { readVaultYamlDefaults, resolveVaultYamlPath } from '@pkgs/vault/vault-yaml';
+import { REPO_ROOT } from '../paths';
 import { runCapture } from '../subprocess';
 import { ApiUrl } from './api-url';
 import {
@@ -56,90 +58,140 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new B2S3Region(),
 ];
 
+type VaultCoords = {
+  readonly mount: string;
+  readonly project: string;
+  readonly config: string;
+};
+
+function resolveVaultCoords(configOverride?: string): VaultCoords {
+  const yaml = readVaultYamlDefaults(resolveVaultYamlPath(REPO_ROOT));
+  const mount = process.env['VAULT_MOUNT']?.trim() || yaml.mount;
+  const project = process.env['VAULT_PROJECT']?.trim() || yaml.project;
+  const config =
+    configOverride?.trim() ||
+    process.env['VAULT_CONFIG']?.trim() ||
+    yaml.config;
+  return { mount, project, config };
+}
+
+function kvPath(configOverride?: string): string {
+  const { project, config } = resolveVaultCoords(configOverride);
+  return `${project}/${config}`;
+}
+
 export function getSecretMap(): ReadonlyArray<SecretEntry> {
   return SECRET_MAP;
 }
 
-export function fetchDopplerSecret(name: string): string {
-  return runCapture('doppler', ['secrets', 'get', name, '--plain']);
+export function fetchVaultSecret(name: string): string {
+  const { mount } = resolveVaultCoords();
+  return runCapture('vault', [
+    'kv',
+    'get',
+    `-mount=${mount}`,
+    `-field=${name}`,
+    kvPath(),
+  ]);
 }
 
-export function dopplerSecretExists(name: string): boolean {
+export function vaultSecretExists(name: string): boolean {
   try {
-    const value = fetchDopplerSecret(name);
+    const value = fetchVaultSecret(name);
     return value !== '';
   } catch {
     return false;
   }
 }
 
-export function setDopplerSecret(name: string, value: string): void {
-  runCapture('doppler', ['secrets', 'set', `${name}=${value}`]);
-}
-
-/**
- * Deletes a secret from the active Doppler config. Idempotent on the
- * Doppler side (`--yes` skips the confirmation prompt; deleting an
- * already-missing key returns 0).
- */
-export function deleteDopplerSecret(name: string): void {
-  runCapture('doppler', ['secrets', 'delete', name, '--yes']);
-}
-
-/** Counterpart to {@link deleteDopplerSecret} — delete from a specific config. */
-export function deleteDopplerSecretIn(config: string, name: string): void {
-  runCapture('doppler', [
-    'secrets',
-    'delete',
-    name,
-    '--yes',
-    '--config',
-    config,
+export function setVaultSecret(name: string, value: string): void {
+  const { mount } = resolveVaultCoords();
+  runCapture('vault', [
+    'kv',
+    'patch',
+    `-mount=${mount}`,
+    kvPath(),
+    `${name}=${value}`,
   ]);
 }
 
-/**
- * Read a secret from a *specific* Doppler config (not the active one).
- * Used to mirror values across configs (e.g. prd → dev) so secrets
- * shared between server and CI/dev don't drift.
- */
-export function fetchDopplerSecretFrom(config: string, name: string): string {
-  return runCapture('doppler', [
-    'secrets',
+export function deleteVaultSecret(name: string): void {
+  const { mount } = resolveVaultCoords();
+  runCapture('vault', [
+    'kv',
+    'patch',
+    `-mount=${mount}`,
+    `-delete=${name}`,
+    kvPath(),
+  ]);
+}
+
+export function deleteVaultSecretIn(config: string, name: string): void {
+  const { mount } = resolveVaultCoords(config);
+  runCapture('vault', [
+    'kv',
+    'patch',
+    `-mount=${mount}`,
+    `-delete=${name}`,
+    kvPath(config),
+  ]);
+}
+
+export function fetchVaultSecretFrom(config: string, name: string): string {
+  const { mount } = resolveVaultCoords(config);
+  return runCapture('vault', [
+    'kv',
     'get',
-    name,
-    '--plain',
-    '--config',
-    config,
+    `-mount=${mount}`,
+    `-field=${name}`,
+    kvPath(config),
   ]);
 }
 
-/** Counterpart to {@link fetchDopplerSecretFrom} — write into a specific config. */
-export function setDopplerSecretIn(
+export function setVaultSecretIn(
   config: string,
   name: string,
   value: string
 ): void {
-  runCapture('doppler', [
-    'secrets',
-    'set',
+  const { mount } = resolveVaultCoords(config);
+  runCapture('vault', [
+    'kv',
+    'patch',
+    `-mount=${mount}`,
+    kvPath(config),
     `${name}=${value}`,
-    '--config',
-    config,
   ]);
 }
 
-/**
- * Lists every secret name in the active Doppler project/config.
- * Uses `--json` to avoid parsing the CLI's human-formatted table output.
- */
-export function listDopplerSecretNames(): ReadonlyArray<string> {
-  const raw = runCapture('doppler', ['secrets', '--json']);
+export function listVaultSecretNames(
+  configOverride?: string
+): ReadonlyArray<string> {
+  const { mount } = resolveVaultCoords(configOverride);
+  const raw = runCapture('vault', [
+    'kv',
+    'get',
+    `-mount=${mount}`,
+    '-format=json',
+    kvPath(configOverride),
+  ]);
   const parsed: unknown = JSON.parse(raw);
   if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
     return [];
   }
-  return Object.keys(parsed as Record<string, unknown>);
+  const root = parsed as Record<string, unknown>;
+  const dataWrapper = root['data'];
+  if (
+    dataWrapper === null ||
+    typeof dataWrapper !== 'object' ||
+    Array.isArray(dataWrapper)
+  ) {
+    return [];
+  }
+  const inner = (dataWrapper as Record<string, unknown>)['data'];
+  if (inner === null || typeof inner !== 'object' || Array.isArray(inner)) {
+    return [];
+  }
+  return Object.keys(inner as Record<string, unknown>);
 }
 
 export function loadSecretsIntoEnv(): Array<{
@@ -150,10 +202,10 @@ export function loadSecretsIntoEnv(): Array<{
   const results: Array<{ env: string; set: boolean; optional: boolean }> = [];
 
   for (const entry of SECRET_MAP) {
-    const { secretKey: doppler, env } = entry;
+    const { secretKey, env } = entry;
     const optional = entry.optional === true;
     try {
-      const value = fetchDopplerSecret(doppler);
+      const value = fetchVaultSecret(secretKey);
       process.env[env] = value;
       results.push({ env, set: true, optional });
     } catch {

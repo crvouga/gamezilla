@@ -1,36 +1,37 @@
 import type { SecretStore } from '@pkgs/secret-store';
 import {
   createCachingSecretStore,
-  DopplerSecretStore,
+  VaultSecretStore,
 } from '@pkgs/secret-store';
 
 export type CreateApiSecretStoreOptions = {
-  /**
-   * Optional Doppler project slug. Required by the secrets-download API when
-   * the token is not a config-scoped service token (e.g. dev `.dev.vars` uses
-   * a CLI token `dp.ct.…`). Leave `null` in production with `dp.st.…`.
-   */
   readonly project?: string | null;
-  /** Optional Doppler config name. See {@link CreateApiSecretStoreOptions.project}. */
   readonly config?: string | null;
+  readonly addr?: string | null;
 };
 
+function optionalField<K extends string>(
+  key: K,
+  value: string | null | undefined
+): Partial<Record<K, string>> {
+  return value !== undefined && value !== null
+    ? ({ [key]: value } as Partial<Record<K, string>>)
+    : {};
+}
+
 /**
- * Doppler secrets for this Worker. In production the config-scoped
- * `DOPPLER_TOKEN` carries the project/config implicitly, so `project`/`config`
- * are omitted. In dev, `setup-dev-vars` writes a CLI token plus
- * `DOPPLER_PROJECT`/`DOPPLER_CONFIG` so the same code path works.
+ * Vault KV secrets for this Worker. `setup-dev-vars` writes `VAULT_TOKEN`
+ * plus `VAULT_PROJECT`/`VAULT_CONFIG` into `.dev.vars` for local dev.
  */
 export function createApiSecretStore(
   token: string,
   options: CreateApiSecretStoreOptions = {}
 ): SecretStore {
-  const project = options.project ?? null;
-  const config = options.config ?? null;
-  const store = new DopplerSecretStore({
+  const store = new VaultSecretStore({
     token,
-    ...(project !== null ? { project } : {}),
-    ...(config !== null ? { config } : {}),
+    ...optionalField('project', options.project),
+    ...optionalField('config', options.config),
+    ...optionalField('addr', options.addr),
   });
   return createCachingSecretStore(store, { ttlMs: 300_000 });
 }

@@ -46,7 +46,7 @@ describe('withPostgresSearchPathOption', () => {
   });
 });
 
-// These hit the ambient `DATABASE_URL`, which under `doppler run` is the shared
+// These hit the ambient `DATABASE_URL`, which under `vault run` is the shared
 // remote dev database. Keep the connection footprint minimal (`max: 1`, each
 // pool closed in its own `finally`) so this suite never contends for connection
 // slots with other DB-touching suites running concurrently under `bun check`.

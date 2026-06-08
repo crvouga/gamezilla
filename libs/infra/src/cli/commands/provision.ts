@@ -21,7 +21,7 @@ export class ProvisionCommand implements Command {
   readonly id = 'provision';
   readonly group = 'phase' as const;
   readonly summary =
-    'Provision Cloudflare/Doppler/PlanetScale resources + dry-run';
+    'Provision Cloudflare/Vault/PlanetScale resources + dry-run';
 
   constructor(private readonly platform: CiPlatform) {}
 

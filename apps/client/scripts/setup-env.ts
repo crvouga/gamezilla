@@ -12,7 +12,7 @@ import {
 import { COMMIT_HASH_HEX_REGEX } from '@apps/client/config/app-metadata';
 import { assert } from '@pkgs/assert';
 import {
-  createDopplerSecretStoreForScripts,
+  createVaultSecretStoreForScripts,
   type SecretStore,
 } from '@pkgs/secret-store';
 
@@ -51,11 +51,11 @@ function readLocalPreviewApiOriginFromProcessEnv(): string | null {
   return trimStringOrNull(process.env['LOCAL_PREVIEW_API_ORIGIN']);
 }
 
-function createDopplerStore(): SecretStore {
-  return createDopplerSecretStoreForScripts();
+function createVaultStore(): SecretStore {
+  return createVaultSecretStoreForScripts();
 }
 
-async function resolveApiOriginFromDoppler(
+async function resolveApiOriginFromVault(
   store: SecretStore
 ): Promise<string | null> {
   const expo = (
@@ -76,17 +76,17 @@ async function resolveLoopbackPreviewOrigin(
 ): Promise<string> {
   const fromEnv = readLocalPreviewApiOriginFromProcessEnv();
   if (fromEnv !== null) return fromEnv;
-  const s = store ?? createDopplerStore();
-  const fromDoppler = (
+  const s = store ?? createVaultStore();
+  const fromVault = (
     await s.getOptional('LOCAL_PREVIEW_API_ORIGIN')
   )?.readSecretValue();
   const trimmed =
-    typeof fromDoppler === 'string' && fromDoppler.trim().length > 0
-      ? fromDoppler.trim()
+    typeof fromVault === 'string' && fromVault.trim().length > 0
+      ? fromVault.trim()
       : null;
   if (trimmed !== null) return trimmed;
   process.stdout.write(
-    '[setup-env] LOCAL_PREVIEW_API_ORIGIN missing in env and Doppler; ' +
+    '[setup-env] LOCAL_PREVIEW_API_ORIGIN missing in env and Vault; ' +
       `using default ${DEFAULT_LOCAL_PREVIEW_API_ORIGIN} (wrangler dev in apps/api).\n`
   );
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
@@ -116,7 +116,7 @@ async function resolveExpoPublicApiUrl(): Promise<string> {
   const fromInjectedEnv = readApiOriginFromProcessEnv();
   if (fromInjectedEnv !== null) {
     process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_API_URL / API_URL from process env (e.g. doppler run).\n'
+      '[setup-env] EXPO_PUBLIC_API_URL / API_URL from process env (e.g. vault run).\n'
     );
     return applyProductionHostnameGuard(
       null,
@@ -127,24 +127,24 @@ async function resolveExpoPublicApiUrl(): Promise<string> {
 
   let store: SecretStore;
   try {
-    store = createDopplerStore();
+    store = createVaultStore();
   } catch {
     process.stderr.write(
-      '[setup-env] Doppler token missing. Set DOPPLER_TOKEN or run `doppler login` so EXPO_PUBLIC_API_URL / API_URL can be read from Doppler.\n'
+      '[setup-env] Vault token missing. Set VAULT_TOKEN or run `vault login` so EXPO_PUBLIC_API_URL / API_URL can be read from Vault.\n'
     );
     process.exit(1);
   }
 
-  const fromDoppler = await resolveApiOriginFromDoppler(store);
-  if (fromDoppler !== null) {
+  const fromVault = await resolveApiOriginFromVault(store);
+  if (fromVault !== null) {
     process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_API_URL / API_URL from Doppler API.\n'
+      '[setup-env] EXPO_PUBLIC_API_URL / API_URL from Vault API.\n'
     );
-    return applyProductionHostnameGuard(store, fromDoppler, 'Doppler API URL');
+    return applyProductionHostnameGuard(store, fromVault, 'Vault API URL');
   }
 
   process.stderr.write(
-    '[setup-env] Set EXPO_PUBLIC_API_URL or API_URL in Doppler (local config).\n'
+    '[setup-env] Set EXPO_PUBLIC_API_URL or API_URL in Vault (local config).\n'
   );
   process.exit(1);
 }

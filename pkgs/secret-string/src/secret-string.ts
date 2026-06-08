@@ -29,7 +29,7 @@ export class SecretString {
     this.#value = value;
   }
 
-  /** Logical Doppler / env key label — safe to log. */
+  /** Logical secret / env key label — safe to log. */
   get name(): string {
     return this.#name;
   }

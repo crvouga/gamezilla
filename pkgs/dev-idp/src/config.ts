@@ -3,7 +3,7 @@
  * exposed by {@link @pkgs/dev-idp}. These are intentionally non-secrets —
  * the IdP only runs on the developer's machine (alongside Postgres, Expo,
  * etc.) so there is nothing to protect. Hard-coding them keeps the whole
- * package independent of any infra plumbing (Doppler / env / wrangler).
+ * package independent of any infra plumbing (Vault / env / wrangler).
  *
  * The dev IdP is **its own process**, the same way `@pkgs/postgres` ships
  * a real Postgres cluster and `@libs/stripe-cli` shells out to the Stripe

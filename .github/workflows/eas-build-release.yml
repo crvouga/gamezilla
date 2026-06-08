@@ -18,6 +18,7 @@ name: EAS Build + Release (manual)
 
 permissions:
   contents: read
+  id-token: write
 
 on:
   workflow_dispatch:
@@ -42,19 +43,16 @@ jobs:
     # Waits for parallel iOS + Android builds and (production) store
     # submission, which can take well over an hour combined.
     timeout-minutes: 120
-    permissions:
-      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - uses: ./.github/actions/vault-auth
       - uses: ./.github/actions/infra-setup
         with:
           eas: 'true'
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
       - name: Build native binaries + submit to stores
         working-directory: libs/infra
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
+          VAULT_CONFIG: prd
           EAS_PROFILE: ${{ inputs.profile }}
         run: bun run infra build-client-native

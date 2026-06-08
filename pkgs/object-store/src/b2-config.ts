@@ -1,5 +1,5 @@
-/** Doppler keys for Backblaze B2 (S3-compatible) object storage. */
-export const B2DopplerKey = {
+/** Secret names for Backblaze B2 (S3-compatible) object storage. */
+export const B2SecretName = {
   applicationKeyId: 'B2_APPLICATION_KEY_ID',
   applicationKey: 'B2_APPLICATION_KEY',
   bucketName: 'B2_BUCKET_NAME',

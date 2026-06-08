@@ -21,7 +21,7 @@ function isPostgresDbUrl(u: string): boolean {
 }
 
 /**
- * Read `STRIPE_SECRET_KEY` from Doppler. Exits process on missing/blank — these
+ * Read `STRIPE_SECRET_KEY` from Vault. Exits process on missing/blank — these
  * scripts have no useful behavior without it.
  */
 export async function assertStripeSecretKey(
@@ -34,7 +34,7 @@ export async function assertStripeSecretKey(
   const trimmed = typeof raw === 'string' ? raw.trim() : '';
   if (trimmed.length === 0) {
     console.error(
-      `[${scriptTag}] STRIPE_SECRET_KEY is missing or blank in Doppler (set DOPPLER_TOKEN or run \`doppler login\`)`
+      `[${scriptTag}] STRIPE_SECRET_KEY is missing or blank in Vault (set VAULT_TOKEN or run \`vault login\`)`
     );
     process.exit(1);
   }
@@ -42,7 +42,7 @@ export async function assertStripeSecretKey(
 }
 
 /**
- * Read `DATABASE_URL` from Doppler. Exits when missing or unsupported — backfill
+ * Read `DATABASE_URL` from Vault. Exits when missing or unsupported — backfill
  * scripts only do persistence, so absent DB makes them a no-op (footgun).
  */
 export async function assertDbUrl(scriptTag: string): Promise<string> {
@@ -52,7 +52,7 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
   const u = raw.trim();
   if (u.length === 0) {
     console.error(
-      `[${scriptTag}] DATABASE_URL is missing in Doppler — set a postgres://… connection string`
+      `[${scriptTag}] DATABASE_URL is missing in Vault — set a postgres://… connection string`
     );
     process.exit(1);
   }

@@ -2,11 +2,11 @@ import type { SecretStore } from '@pkgs/secret-store';
 
 import { APP_IDENTITY, appDeepLinkOrigin } from '../shared/app-identity';
 import { isLocalApiOrigin } from '../shared/local-api-origin';
-import { BetterAuthDopplerKey } from './better-auth-doppler-keys';
+import { BetterAuthSecretName } from './better-auth-secret-names';
 
 export { isLocalApiOrigin };
 
-/** Expo / deep-link schemes — not sensitive; always allowed unless overridden by Doppler list. */
+/** Expo / deep-link schemes — not sensitive; always allowed unless overridden by secret list. */
 const DEFAULT_MOBILE_TRUSTED = [
   appDeepLinkOrigin(),
   `${appDeepLinkOrigin()}*`,
@@ -69,16 +69,16 @@ function parseTrustedOriginsMultiline(raw: string | null): string[] {
 }
 
 /**
- * When {@link BetterAuthDopplerKey.betterAuthTrustedOrigins} is set in Doppler, it is
+ * When {@link BetterAuthSecretName.betterAuthTrustedOrigins} is set, it is
  * the source of truth (plus API origin). Otherwise we derive a safe default
  * (API origin + mobile schemes + local wrangler + common web dev origins when API_URL is local).
  */
 function buildTrustedOrigins(
   apiOrigin: string,
-  dopplerExtra: string | null
+  secretExtra: string | null
 ): readonly string[] {
   const trimmedApi = apiOrigin.replace(/\/$/, '');
-  const extra = parseTrustedOriginsMultiline(dopplerExtra);
+  const extra = parseTrustedOriginsMultiline(secretExtra);
   if (extra.length > 0) {
     return [...new Set([trimmedApi, ...extra])];
   }
@@ -105,24 +105,24 @@ export type LoadedBetterAuthSecrets = LoadedBetterAuthSecretsWorker & {
 };
 
 /**
- * Better Auth options from Doppler **without** `DATABASE_URL` (Worker loads it per request).
+ * Better Auth options from the secret store **without** `DATABASE_URL` (Worker loads it per request).
  */
 export async function loadBetterAuthSecretsWorker(
   secretStore: SecretStore,
   apiUrlOverride?: string | null
 ): Promise<LoadedBetterAuthSecretsWorker> {
   const secret = (
-    await secretStore.getRequired(BetterAuthDopplerKey.betterAuthSecret)
+    await secretStore.getRequired(BetterAuthSecretName.betterAuthSecret)
   )
     .readSecretValue()
     .trim();
   const googleClientId = (
-    await secretStore.getRequired(BetterAuthDopplerKey.googleWebClientId)
+    await secretStore.getRequired(BetterAuthSecretName.googleWebClientId)
   )
     .readSecretValue()
     .trim();
   const googleClientSecret = (
-    await secretStore.getRequired(BetterAuthDopplerKey.googleWebClientSecret)
+    await secretStore.getRequired(BetterAuthSecretName.googleWebClientSecret)
   )
     .readSecretValue()
     .trim();
@@ -132,14 +132,14 @@ export async function loadBetterAuthSecretsWorker(
     trimmedOverride.length > 0
       ? trimmedOverride
       : (
-          await secretStore.getRequired(BetterAuthDopplerKey.apiUrl)
+          await secretStore.getRequired(BetterAuthSecretName.apiUrl)
         ).readSecretValue();
   const apiOrigin = apiUrlRaw.replace(/\/$/, '');
   const hostedAuthOrigin = normalizeLocalHostedAuthOrigin(apiOrigin);
   const baseURL = `${hostedAuthOrigin}/api/auth`;
 
   const appNameRaw = (
-    await secretStore.getOptional(BetterAuthDopplerKey.betterAuthAppName)
+    await secretStore.getOptional(BetterAuthSecretName.betterAuthAppName)
   )?.readSecretValue();
   const appName =
     typeof appNameRaw === 'string' && appNameRaw.trim().length > 0
@@ -149,7 +149,7 @@ export async function loadBetterAuthSecretsWorker(
   const trustedRaw =
     (
       await secretStore.getOptional(
-        BetterAuthDopplerKey.betterAuthTrustedOrigins
+        BetterAuthSecretName.betterAuthTrustedOrigins
       )
     )?.readSecretValue() ?? null;
   const trustedOrigins = buildTrustedOrigins(apiOrigin, trustedRaw);
@@ -170,7 +170,7 @@ export async function loadBetterAuthSecrets(
 ): Promise<LoadedBetterAuthSecrets> {
   const worker = await loadBetterAuthSecretsWorker(secretStore);
   const dbUrl = (
-    await secretStore.getRequired(BetterAuthDopplerKey.dbUrl)
+    await secretStore.getRequired(BetterAuthSecretName.dbUrl)
   ).readSecretValue();
   return { ...worker, dbUrl };
 }

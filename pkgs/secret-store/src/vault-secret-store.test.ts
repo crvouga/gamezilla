@@ -5,7 +5,7 @@ import {
   SecretStoreParseError,
   SecretStoreRequestError,
 } from './errors';
-import { DopplerSecretStore } from './doppler-secret-store';
+import { VaultSecretStore } from './vault-secret-store';
 
 function mockFetch(
   impl: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
@@ -20,27 +20,28 @@ function fetchInputToUrl(input: RequestInfo | URL): string {
   return '';
 }
 
-describe('DopplerSecretStore', () => {
+function kvResponse(data: Record<string, string>): Response {
+  return new Response(
+    JSON.stringify({ data: { data, metadata: { version: 1 } } }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } }
+  );
+}
+
+describe('VaultSecretStore', () => {
   it('throws when token is blank', () => {
-    expect(() => new DopplerSecretStore({ token: '' })).toThrow(
+    expect(() => new VaultSecretStore({ token: '', config: 'dev' })).toThrow(
       SecretStoreRequestError
     );
-    expect(() => new DopplerSecretStore({ token: '  ' })).toThrow(
+    expect(() => new VaultSecretStore({ token: '  ', config: 'dev' })).toThrow(
       SecretStoreRequestError
     );
   });
 
   it('getRequired returns trimmed value', async () => {
-    const store = new DopplerSecretStore({
-      token: 'dp.st.x',
-      fetchFn: mockFetch(() =>
-        Promise.resolve(
-          new Response(JSON.stringify({ FOO: '  bar  ' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        )
-      ),
+    const store = new VaultSecretStore({
+      token: 'hvs.x',
+      config: 'dev',
+      fetchFn: mockFetch(() => Promise.resolve(kvResponse({ FOO: '  bar  ' }))),
     });
     const s = await store.getRequired('FOO');
     expect(s.readSecretValue()).toBe('bar');
@@ -48,16 +49,10 @@ describe('DopplerSecretStore', () => {
   });
 
   it('getRequired throws SecretMissingError when key absent', async () => {
-    const store = new DopplerSecretStore({
+    const store = new VaultSecretStore({
       token: 't',
-      fetchFn: mockFetch(() =>
-        Promise.resolve(
-          new Response(JSON.stringify({}), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        )
-      ),
+      config: 'dev',
+      fetchFn: mockFetch(() => Promise.resolve(kvResponse({}))),
     });
     await expect(store.getRequired('MISSING')).rejects.toBeInstanceOf(
       SecretMissingError
@@ -65,16 +60,10 @@ describe('DopplerSecretStore', () => {
   });
 
   it('getRequired throws SecretBlankError when key blank', async () => {
-    const store = new DopplerSecretStore({
+    const store = new VaultSecretStore({
       token: 't',
-      fetchFn: mockFetch(() =>
-        Promise.resolve(
-          new Response(JSON.stringify({ FOO: '  ' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        )
-      ),
+      config: 'dev',
+      fetchFn: mockFetch(() => Promise.resolve(kvResponse({ FOO: '  ' }))),
     });
     await expect(store.getRequired('FOO')).rejects.toBeInstanceOf(
       SecretBlankError
@@ -82,15 +71,11 @@ describe('DopplerSecretStore', () => {
   });
 
   it('getOptional returns null when absent or blank', async () => {
-    const store = new DopplerSecretStore({
+    const store = new VaultSecretStore({
       token: 't',
+      config: 'dev',
       fetchFn: mockFetch(() =>
-        Promise.resolve(
-          new Response(JSON.stringify({ A: '', B: 'ok' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        )
+        Promise.resolve(kvResponse({ A: '', B: 'ok' }))
       ),
     });
     await expect(store.getOptional('NONE')).resolves.toBeNull();
@@ -101,27 +86,24 @@ describe('DopplerSecretStore', () => {
 
   it('getRequiredMany batches one request', async () => {
     let url = '';
-    const store = new DopplerSecretStore({
+    const store = new VaultSecretStore({
       token: 'tok',
+      config: 'dev',
       fetchFn: mockFetch((input) => {
         url = fetchInputToUrl(input);
-        return Promise.resolve(
-          new Response(JSON.stringify({ A: '1', B: '2' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
+        return Promise.resolve(kvResponse({ A: '1', B: '2' }));
       }),
     });
     const r = await store.getRequiredMany(['A', 'B']);
     expect(r['A']?.readSecretValue()).toBe('1');
     expect(r['B']?.readSecretValue()).toBe('2');
-    expect(url).toContain('secrets=A%2CB');
+    expect(url).toContain('/v1/secret/data/personal/dev');
   });
 
   it('throws SecretStoreRequestError on non-OK HTTP', async () => {
-    const store = new DopplerSecretStore({
+    const store = new VaultSecretStore({
       token: 't',
+      config: 'dev',
       fetchFn: mockFetch(() =>
         Promise.resolve(new Response('n', { status: 401 }))
       ),
@@ -131,51 +113,51 @@ describe('DopplerSecretStore', () => {
     );
   });
 
-  it('includes config query when config is set', async () => {
+  it('uses custom project and config in path', async () => {
     let url = '';
-    const store = new DopplerSecretStore({
+    const store = new VaultSecretStore({
       token: 'tok',
-      config: 'shared',
+      project: 'my-app',
+      config: 'prd',
       fetchFn: mockFetch((input) => {
         url = fetchInputToUrl(input);
-        return Promise.resolve(
-          new Response(JSON.stringify({ A: '1' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
+        return Promise.resolve(kvResponse({ A: '1' }));
       }),
     });
 
     const a1 = await store.getRequired('A');
     expect(a1.readSecretValue()).toBe('1');
-    expect(url).toContain('config=shared');
+    expect(url).toContain('/v1/secret/data/my-app/prd');
   });
 
-  it('includes project query when project is set', async () => {
-    let url = '';
-    const store = new DopplerSecretStore({
-      token: 'tok',
-      project: 'my-app',
-      fetchFn: mockFetch((input) => {
-        url = fetchInputToUrl(input);
-        return Promise.resolve(
-          new Response(JSON.stringify({ A: '1' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
+  it('sends X-Vault-Token header', async () => {
+    let tokenHeader = '';
+    const store = new VaultSecretStore({
+      token: 'hvs.secret',
+      config: 'dev',
+      fetchFn: mockFetch((_input, init) => {
+        const headers = init?.headers;
+        if (headers instanceof Headers) {
+          tokenHeader = headers.get('X-Vault-Token') ?? '';
+        } else if (
+          headers !== undefined &&
+          typeof headers === 'object' &&
+          !Array.isArray(headers)
+        ) {
+          const raw = (headers as Record<string, string>)['X-Vault-Token'];
+          tokenHeader = typeof raw === 'string' ? raw : '';
+        }
+        return Promise.resolve(kvResponse({ A: '1' }));
       }),
     });
-
-    const a2 = await store.getRequired('A');
-    expect(a2.readSecretValue()).toBe('1');
-    expect(url).toContain('project=my-app');
+    await store.getRequired('A');
+    expect(tokenHeader).toBe('hvs.secret');
   });
 
   it('throws SecretStoreParseError on invalid JSON', async () => {
-    const store = new DopplerSecretStore({
+    const store = new VaultSecretStore({
       token: 't',
+      config: 'dev',
       fetchFn: mockFetch(() =>
         Promise.resolve(
           new Response('not-json', {
@@ -191,22 +173,18 @@ describe('DopplerSecretStore', () => {
   });
 
   it('setSecret rejects with SecretStoreRequestError (HTTP transport is read-only)', async () => {
-    const store = new DopplerSecretStore({ token: 'dp.st.x' });
+    const store = new VaultSecretStore({ token: 'hvs.x', config: 'dev' });
     await expect(store.setSecret('FOO', 'bar')).rejects.toBeInstanceOf(
       SecretStoreRequestError
     );
   });
 
   it('getOptionalMany returns null for missing or blank keys', async () => {
-    const store = new DopplerSecretStore({
+    const store = new VaultSecretStore({
       token: 't',
+      config: 'dev',
       fetchFn: mockFetch(() =>
-        Promise.resolve(
-          new Response(JSON.stringify({ A: 'a', B: '   ' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        )
+        Promise.resolve(kvResponse({ A: 'a', B: '   ' }))
       ),
     });
     const r = await store.getOptionalMany(['A', 'B', 'C']);
@@ -218,8 +196,9 @@ describe('DopplerSecretStore', () => {
   it('retries on HTTP 429 honoring Retry-After', async () => {
     let calls = 0;
     const sleeps: number[] = [];
-    const store = new DopplerSecretStore({
+    const store = new VaultSecretStore({
       token: 't',
+      config: 'dev',
       rateLimitRetries: 2,
       sleep: async (ms) => {
         sleeps.push(ms);
@@ -234,12 +213,7 @@ describe('DopplerSecretStore', () => {
             })
           );
         }
-        return Promise.resolve(
-          new Response(JSON.stringify({ FOO: 'bar' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
+        return Promise.resolve(kvResponse({ FOO: 'bar' }));
       }),
     });
     const foo = await store.getRequired('FOO');
@@ -250,8 +224,9 @@ describe('DopplerSecretStore', () => {
 
   it('gives up after rateLimitRetries and surfaces the 429', async () => {
     let calls = 0;
-    const store = new DopplerSecretStore({
+    const store = new VaultSecretStore({
       token: 't',
+      config: 'dev',
       rateLimitRetries: 1,
       sleep: async () => {},
       fetchFn: mockFetch(() => {

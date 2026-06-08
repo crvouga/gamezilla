@@ -13,7 +13,7 @@ import type { Dep, DepStatus } from './types';
 /**
  * `pgweb` is the local Postgres web GUI launched by `pkgs/postgres/src/dev.ts`.
  * It's a single Go binary; we treat it like our other CLI tools (postgres /
- * stripe / wrangler / doppler / bun): registered in `ALL_DEPS` so `setup`
+ * stripe / wrangler / vault / bun): registered in `ALL_DEPS` so `setup`
  * enforces its presence, `status` reports it, and `deploy` refuses to run
  * when it is missing. The `dev` script itself treats a missing binary as a
  * soft warning (the cluster keeps running), but for a configured workstation

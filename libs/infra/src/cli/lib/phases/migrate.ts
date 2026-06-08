@@ -7,8 +7,8 @@ import { withLockDbSuspended } from '../lock-db-session';
 
 /**
  * Runs `bun run db:migrate` from `apps/api`. The migrate script loads
- * `DATABASE_URL` from Doppler via `SecretStore`; CI just needs the DOPPLER
- * env in place (already true for any infra subcommand).
+ * `DATABASE_URL` from Vault via `SecretStore`; CI just needs Vault auth
+ * in place (already true for any infra subcommand).
  *
  * Deploy acquires the global lock only after this phase. When a lock is
  * held (other commands), suspends the lock DB connection for the subprocess.

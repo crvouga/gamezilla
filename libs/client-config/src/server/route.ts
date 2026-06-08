@@ -28,15 +28,15 @@ function snapshotAttributes(
   return { ...attrs };
 }
 
-/** Doppler key — keep aligned with `apps/api/src/config/secret-names.ts`. */
-const DOPPLER_WEB_CLIENT_GOOGLE_CLIENT_ID = 'WEB_CLIENT_GOOGLE_CLIENT_ID';
+/** Vault key — keep aligned with `apps/api/src/config/secret-names.ts`. */
+const VAULT_WEB_CLIENT_GOOGLE_CLIENT_ID = 'WEB_CLIENT_GOOGLE_CLIENT_ID';
 
-async function loadClientConfigAttributesFromDoppler(
+async function loadClientConfigAttributesFromVault(
   secretStore: SecretStore
 ): Promise<Record<string, unknown>> {
   const googleWebClientId =
     (
-      await secretStore.getOptional(DOPPLER_WEB_CLIENT_GOOGLE_CLIENT_ID)
+      await secretStore.getOptional(VAULT_WEB_CLIENT_GOOGLE_CLIENT_ID)
     )?.readSecretValue() ?? null;
   return ClientConfigAttr.googleWebClientId(googleWebClientId);
 }
@@ -46,7 +46,7 @@ async function loadClientConfigAttributesFromDoppler(
  * so clients receive it via the normal sync cycle. Invoked by the infra deploy pipeline
  * after smoke tests pass (not by clients).
  *
- * Resolves `WEB_CLIENT_GOOGLE_CLIENT_ID` from Doppler via {@link SecretStore}.
+ * Resolves `WEB_CLIENT_GOOGLE_CLIENT_ID` from Vault via {@link SecretStore}.
  *
  * Response JSON includes `outcome`, `before`, and `after` attribute snapshots for debugging
  * and deploy logs.
@@ -63,7 +63,7 @@ async function handleClientConfigRefresh(
   const db = c.get('patchDb');
   const { logger, secretStore } = deps;
   logger.info('POST /client-config/refresh: requested');
-  const configNew = await loadClientConfigAttributesFromDoppler(secretStore);
+  const configNew = await loadClientConfigAttributesFromVault(secretStore);
 
   const configPrevResult = await db.read([
     {

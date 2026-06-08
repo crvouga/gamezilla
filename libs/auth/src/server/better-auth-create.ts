@@ -45,7 +45,7 @@ export type BetterAuthRequestStack = {
 };
 
 /**
- * Per-request Better Auth + Kysely over Neon (`DATABASE_URL` from Doppler).
+ * Per-request Better Auth + Kysely over Neon (`DATABASE_URL` from Vault).
  * Uses a short-lived Neon `Pool({ max: 1 })` because `PostgresDialect` requires a pool.
  */
 export async function createBetterAuthRequestStack(

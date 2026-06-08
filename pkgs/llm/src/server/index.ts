@@ -3,7 +3,7 @@
  */
 export {
   createLlmAppFromBindings,
-  LlmDopplerKey,
+  LlmSecretName,
   type CreateLlmAppFromBindingsOptions,
 } from './llm-from-bindings';
 export {

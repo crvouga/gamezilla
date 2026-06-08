@@ -7,7 +7,7 @@
 #    circular-deps, audit, i18n, expo-go compat, tc, lint, test, build)
 #    all run inside a
 #    single `turbo-ci` job that invokes `bun run check:ci`. Turbo's task
-#    graph + the self-hosted remote cache (driven by Doppler `dev`'s
+#    graph + the self-hosted remote cache (driven by Vault `dev`'s
 #    `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`) give us maximum
 #    parallelism and cross-PR cache reuse with zero extra GitHub Actions
 #    machinery.
@@ -31,9 +31,10 @@ name: Deployment Pipeline
 permissions:
   contents: read
   actions: write
+  id-token: write
 
-# `DOPPLER_SERVICE_TOKEN` is a project token — not config-scoped. Repo scripts
-# use `scripts/doppler-run.ts`, which reads project/config from `doppler.yaml`.
+# CI authenticates to Vault via GitHub Actions OIDC (no stored token).
+# Repo scripts use `scripts/vault-run.ts`, which reads project/config from `.vault.yaml`.
 
 on:
   push:
@@ -56,13 +57,12 @@ jobs:
   # `ci:expo-go-deps` = `expo install --check` version pin), plus
   # per-package `tc` / `lint` / `test` / `build`. Turbo
   # parallelizes across the task graph and reuses the self-hosted remote
-  # cache (via Doppler-injected `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`)
+  # cache (via Vault-injected `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`)
   # for cross-PR hits. `check:ci` throttles cache HTTP (`--cache-workers=1`
   # via `scripts/turbo-ci-run.ts`) and writes artifacts to the cache Worker
   # (`--cache=local:rw,remote:rw` in CI). Per-task cache
   # status (`--output-logs=hash-only --summarize`) keeps logs readable.
-  # TURBO_API/TURBO_TOKEN/TURBO_TEAM come from Doppler
-  # `dev` via `doppler run` (only DOPPLER_SERVICE_TOKEN is a GH secret).
+  # TURBO_API/TURBO_TOKEN/TURBO_TEAM come from Vault `dev` via `vault run`.
   turbo-ci:
     runs-on: ubuntu-latest
     concurrency:
@@ -73,17 +73,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - name: Verify self-hosted remote cache via Doppler (fail fast)
+      - uses: ./.github/actions/vault-auth
+      - name: Verify self-hosted remote cache via Vault (fail fast)
         env:
-          # Unlocks Doppler only — TURBO_API/TURBO_TOKEN/TURBO_TEAM are
-          # injected by `doppler run` from `dev`, not GitHub secrets.
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
           CI: true
           GITHUB_ACTIONS: true
-        run: bun run scripts/doppler-run.ts -- bun run scripts/check-turbo-remote-cache.ts
+        run: bun run scripts/vault-run.ts -- bun run scripts/check-turbo-remote-cache.ts
       - name: Turbo CI (cacheable gates + tc/lint/test/build)
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
           # GHA runners can expose a pseudo-TTY; Turbo's interactive TUI then
           # buffers task logs and looks hung for 10+ min on `@apps/client`.
           TURBO_UI: stream
@@ -159,9 +156,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
+      - uses: ./.github/actions/vault-auth
       - name: QA API integration
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
         run: bun run qa:api
 
   qa-browser:
@@ -218,9 +214,8 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: bun --bun x playwright install-deps chromium
 
+      - uses: ./.github/actions/vault-auth
       - name: QA Playwright + turbo preview
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
         run: bun run qa:browser
 
       # Always upload the report (not just on failure) so the embedded
@@ -272,9 +267,8 @@ jobs:
 
       # Native (ios + android) bundle smoke: the exact `expo export` Metro
       # bundling `eas update` runs. No browser needed for this step.
+      - uses: ./.github/actions/vault-auth
       - name: Native bundle export smoke
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
         run: bun run --filter '@libs/qa' native:bundle
 
       # Chromium for the dev-mode web launch test (same caching strategy as
@@ -303,8 +297,6 @@ jobs:
         run: bun --bun x playwright install-deps chromium
 
       - name: Expo Go dev-bundle launch test
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
         run: bun run --filter '@libs/qa' native:launch
 
       - name: Upload native launch Playwright report
@@ -377,6 +369,7 @@ jobs:
       zone_id: ${{ steps.deploy.outputs.zone_id }}
     permissions:
       contents: read
+      id-token: write
     # GitHub-level mutex (belt-and-suspenders alongside the PlanetScale
     # lock acquired inside `infra deploy`). `cancel-in-progress: false`
     # so a queued push to main never preempts an in-flight deploy mid
@@ -392,18 +385,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - uses: ./.github/actions/vault-auth
       - uses: ./.github/actions/infra-setup
         with:
           wrangler: 'true'
           stripe: 'true'
           eas: 'true'
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
       - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config → publish-client-eas-update → ensure-destroyed)
         id: deploy
         working-directory: libs/infra
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
+          VAULT_CONFIG: prd
         run: bun run infra deploy
 
   # Safety-net lock release. The happy-path release happens in-process
@@ -420,15 +412,17 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
     timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - uses: ./.github/actions/vault-auth
       - uses: ./.github/actions/infra-setup
       - name: Release global deploy lock
         working-directory: libs/infra
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
+          VAULT_CONFIG: prd
           INFRA_LOCK_ID: ${{ needs.deploy.outputs.lock_id }}
         run: bun run infra lock-release
 
@@ -456,9 +450,9 @@ jobs:
       # REST API to fetch per-job logs for any failed `needs.*` job and embed
       # them in an LLM fix prompt appended to the step summary. Needs the
       # workflow-level `actions: write` permission (which includes read).
+      - uses: ./.github/actions/vault-auth
       - name: Write pipeline report
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: DOPPLER_CONFIG=prd bun run scripts/doppler-run.ts -- bun run libs/infra/src/bin/pipeline-report.ts
+        run: VAULT_CONFIG=prd bun run scripts/vault-run.ts -- bun run libs/infra/src/bin/pipeline-report.ts

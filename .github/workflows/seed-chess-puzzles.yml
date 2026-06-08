@@ -1,7 +1,7 @@
 # https://github.com/crvouga/gamezilla/actions/workflows/seed-chess-puzzles.yml
 #
 # Manual workflow that runs `libs/chess/scripts/seed-chess-puzzles.ts`
-# against the Doppler `prd` config (Postgres `DATABASE_URL`). Idempotent:
+# against the Vault `prd` config (Postgres `DATABASE_URL`). Idempotent:
 # content-addressed patch IDs + `INSERT … ON CONFLICT DO NOTHING` skip
 # unchanged rows, and the script resumes from the saved cursor when the
 # source ETag is unchanged.
@@ -35,17 +35,16 @@
 # writes between batches — so a pool would only add idle connections without
 # any throughput gain.
 #
-# All production credentials come from Doppler — the only repository secret
-# this workflow needs is `DOPPLER_SERVICE_TOKEN`. `doppler run -- …` injects
+# All production credentials come from Vault via OIDC. `vault run -- …` injects
 # `DATABASE_URL` (and any other prod secrets) into each step's process env.
 name: Seed chess puzzles (prod)
 
 permissions:
   contents: read
+  id-token: write
 
-# `DOPPLER_SERVICE_TOKEN` is a project token — not config-scoped. Use
-# `scripts/doppler-run.ts` (defaults from `doppler.yaml`) with
-# `DOPPLER_CONFIG=prd` for prod steps.
+# CI authenticates via GitHub Actions OIDC. Use `scripts/vault-run.ts`
+# (defaults from `.vault.yaml`) with `VAULT_CONFIG=prd` for prod steps.
 
 on:
   workflow_dispatch:
@@ -115,6 +114,7 @@ jobs:
         uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup
+      - uses: ./.github/actions/vault-auth
 
       # Cache the downloaded `.csv.zst` archive between runs. The script
       # writes to `libs/chess/.cache/lichess/<name>` and stores an
@@ -130,21 +130,18 @@ jobs:
           restore-keys: |
             lichess-puzzles-${{ runner.os }}-
 
-      - name: Apply Postgres migrations → Doppler `prd`
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
+      - name: Apply Postgres migrations → Vault `prd`
         run: |
           set -euo pipefail
           # `db:migrate` runs the canonical patch-db + KV + Better Auth
           # migration set against the `prd` Postgres. Idempotent: existing
           # tables and `pdb_idx_*` indexes are left in place; drops the
           # chess.puzzle GIN when the schema opts out.
-          DOPPLER_CONFIG=prd bun run scripts/doppler-run.ts -- \
+          VAULT_CONFIG=prd bun run scripts/vault-run.ts -- \
             bun run --filter '@apps/api' db:migrate
 
-      - name: Seed chess puzzles → Doppler `prd` Postgres
+      - name: Seed chess puzzles → Vault `prd` Postgres
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
           SEED_LIMIT: ${{ inputs.limit }}
           SEED_DRY_RUN: ${{ inputs.dry_run }}
           SEED_NO_RESUME: ${{ inputs.no_resume }}
@@ -185,21 +182,19 @@ jobs:
             args+=(--rebuild-indexes)
           fi
           # `--no-pretty` for clean GH Actions log lines (no ANSI carriage
-          # returns). `doppler run` injects `DATABASE_URL` from the `prd` config so
-          # the script's `createDopplerSecretStoreForScripts()` can also read
+          # returns). `vault run` injects `DATABASE_URL` from the `prd` config so
+          # the script's `createVaultSecretStoreForScripts()` can also read
           # any additional secrets it needs.
-          DOPPLER_CONFIG=prd bun run scripts/doppler-run.ts -- \
+          VAULT_CONFIG=prd bun run scripts/vault-run.ts -- \
             bun run --filter '@libs/chess' seed:puzzles \
               --no-pretty \
               "${args[@]}"
 
-      - name: Recreate chess puzzle indexes → Doppler `prd`
+      - name: Recreate chess puzzle indexes → Vault `prd`
         if: ${{ inputs.defer_indexes && !inputs.dry_run }}
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_SERVICE_TOKEN }}
         run: |
           set -euo pipefail
           # Reconcile declarative indexes (and drop any legacy GIN) after the
           # bulk insert finished without maintaining btrees per row.
-          DOPPLER_CONFIG=prd bun run scripts/doppler-run.ts -- \
+          VAULT_CONFIG=prd bun run scripts/vault-run.ts -- \
             bun run --filter '@apps/api' db:migrate

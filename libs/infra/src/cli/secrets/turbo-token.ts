@@ -68,7 +68,7 @@ export class TurboTeam implements SecretEntry {
   }
 }
 
-/** Optional — derived default `auto` is populated by `DopplerResource`
+/** Optional — derived default `auto` is populated by `VaultResource`
  * when absent. Listed here so the value (when set) is validated and the
  * orphan check recognizes it as managed. */
 export class TurboLogOrder implements SecretEntry {
@@ -84,7 +84,7 @@ export class TurboLogOrder implements SecretEntry {
 
 /** Forces turbo to use the remote cache for every invocation. Same
  * syntax as the `--cache` CLI flag. Optional — derived default
- * `remote:rw` is populated by `DopplerResource` when absent. */
+ * `remote:rw` is populated by `VaultResource` when absent. */
 export class TurboCache implements SecretEntry {
   readonly secretKey = 'TURBO_CACHE';
   readonly env = 'TURBO_CACHE';

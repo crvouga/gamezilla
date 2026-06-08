@@ -1,8 +1,8 @@
 /**
- * Doppler keys — same names in `dev` and `prd` configs.
+ * Secret names — same keys in `dev` and `prd` configs.
  *
  * Stripe key names are duplicated here (rather than imported from
- * `@libs/stripe/doppler-keys`) to avoid a turbo build cycle: the stripe
+ * `@libs/stripe/secret-keys`) to avoid a turbo build cycle: the stripe
  * feature package depends on auth, which must not depend on stripe for these
  * literals.
  *

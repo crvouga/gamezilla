@@ -1,13 +1,10 @@
 /**
  * Cloudflare Worker bindings for the API Worker.
  *
- * - `DOPPLER_TOKEN` (required): a Doppler token used to download secrets at boot.
- *   In production this is a config-scoped service token (`dp.st.…`), which does
- *   not require `project`/`config` query params.
- * - `DOPPLER_PROJECT` / `DOPPLER_CONFIG` (optional): only needed when the token
- *   is *not* a config-scoped service token (e.g. CLI tokens `dp.ct.…` written
- *   into `.dev.vars` by `setup-dev-vars`). The Doppler secrets-download API
- *   returns HTTP 400 for non-service tokens unless these are supplied.
+ * - `VAULT_TOKEN` (required): Vault token used to read secrets at boot.
+ * - `VAULT_PROJECT` (optional): project slug; defaults to `personal`.
+ * - `VAULT_CONFIG` (required for non-root tokens): config name (`dev` / `prd`).
+ * - `VAULT_ADDR` (optional): Vault API address; defaults to the store URL.
  */
 /**
  * Structural shape of the Durable Object namespace consumed by the room
@@ -20,13 +17,14 @@ export type RoomNamespace = {
 };
 
 export type ApiWorkerEnv = {
-  DOPPLER_TOKEN: string;
-  DOPPLER_PROJECT?: string;
-  DOPPLER_CONFIG?: string;
+  VAULT_TOKEN: string;
+  VAULT_PROJECT?: string;
+  VAULT_CONFIG?: string;
+  VAULT_ADDR?: string;
   /**
    * Optional loopback preview origin (e.g. `http://localhost:5173`) written
    * into `.dev.vars` by `setup-dev-vars` when Playwright / turbo preview sets
-   * `API_URL` in the environment. Overrides Doppler `API_URL` so Better Auth
+   * `API_URL` in the environment. Overrides Vault `API_URL` so Better Auth
    * OAuth callbacks stay same-origin with the static web preview.
    */
   API_URL?: string;
@@ -50,14 +48,14 @@ export class ConfigurationError extends Error {
 }
 
 /**
- * Validates `DOPPLER_TOKEN` at boot. Throws {@link ConfigurationError}
+ * Validates `VAULT_TOKEN` at boot. Throws {@link ConfigurationError}
  * when missing, wrong type, or whitespace-only.
  */
-export function assertDopplerTokenBinding(env: ApiWorkerEnv): string {
-  const raw = env.DOPPLER_TOKEN;
+export function assertVaultTokenBinding(env: ApiWorkerEnv): string {
+  const raw = env.VAULT_TOKEN;
   if (typeof raw !== 'string' || raw.trim().length === 0) {
     throw new ConfigurationError(
-      'DOPPLER_TOKEN is required (non-empty string). Set this Worker secret or add it to .dev.vars; remaining API config is loaded from Doppler.'
+      'VAULT_TOKEN is required (non-empty string). Set this Worker secret or add it to .dev.vars; remaining API config is loaded from Vault.'
     );
   }
   return raw.trim();
@@ -70,18 +68,17 @@ function readOptionalBinding(value: string | undefined): string | null {
 }
 
 /**
- * Reads optional `DOPPLER_PROJECT` and `DOPPLER_CONFIG` bindings. Required by
- * the Doppler secrets-download API for non-service tokens (CLI / personal /
- * service-account). Production with a config-scoped service token returns both
- * `null` and the API works without them.
+ * Reads `VAULT_PROJECT` and `VAULT_CONFIG` bindings for KV path scoping.
  */
-export function readDopplerScopeBindings(env: ApiWorkerEnv): {
+export function readVaultScopeBindings(env: ApiWorkerEnv): {
   project: string | null;
   config: string | null;
+  addr: string | null;
 } {
   return {
-    project: readOptionalBinding(env.DOPPLER_PROJECT),
-    config: readOptionalBinding(env.DOPPLER_CONFIG),
+    project: readOptionalBinding(env.VAULT_PROJECT),
+    config: readOptionalBinding(env.VAULT_CONFIG),
+    addr: readOptionalBinding(env.VAULT_ADDR),
   };
 }
 

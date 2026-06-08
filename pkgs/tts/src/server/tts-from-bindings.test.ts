@@ -5,7 +5,7 @@ import type { SecretStore } from '@pkgs/secret-store';
 import { wrapSecret } from '@pkgs/secret-store/wrap-secret';
 import type { TtsSynthesizeResponse } from '../shared/tts-types';
 import { Voices } from '../shared/tts-voice';
-import { createTtsAppFromBindings, TtsDopplerKey } from './tts-from-bindings';
+import { createTtsAppFromBindings, TtsSecretName } from './tts-from-bindings';
 import { ttsObjectKey } from './tts-synthesize';
 
 const SAMPLE_MP3 = new Uint8Array([0xff, 0xfb, 0x90, 0x00, 0x01, 0x02, 0x03]);
@@ -13,7 +13,7 @@ const SAMPLE_MP3 = new Uint8Array([0xff, 0xfb, 0x90, 0x00, 0x01, 0x02, 0x03]);
 function makeSecretStore(apiKey = 'test-eleven-key'): SecretStore {
   return {
     getRequired: async (name) => {
-      if (name === TtsDopplerKey.elevenLabsApiKey) {
+      if (name === TtsSecretName.elevenLabsApiKey) {
         return wrapSecret(name, apiKey);
       }
       throw new Error(`unexpected secret: ${name}`);

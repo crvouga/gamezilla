@@ -79,9 +79,9 @@ process.env['LOCAL_PREVIEW_API_PROXY_TARGET'] = LOCAL_API_PREVIEW_ORIGIN;
 process.env['BETTER_AUTH_PREVIEW_API_URL'] = baseURL;
 process.env['API_URL'] = baseURL;
 process.env['EXPO_PUBLIC_API_URL'] = baseURL;
-// Doppler `dev` `DATABASE_URL` may target hosted Postgres, but `turbo preview` boots
-// `@pkgs/postgres` and the API Worker reads `DATABASE_URL` from Doppler at request
-// time. Without this override, `migrate-db` runs against Doppler while Better Auth
+// Vault `dev` `DATABASE_URL` may target hosted Postgres, but `turbo preview` boots
+// `@pkgs/postgres` and the API Worker reads `DATABASE_URL` from Vault at request
+// time. Without this override, `migrate-db` runs against Vault while Better Auth
 // reads an empty local cluster — OAuth fails in CI.
 process.env['DATABASE_URL'] = LOCAL_EMBEDDED_POSTGRES_URL;
 

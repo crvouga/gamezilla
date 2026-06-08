@@ -1,9 +1,9 @@
 /**
  * CI gate: run catalog reconcile only — no patch-db dump, no webhook mutation.
  *
- * - CI (`CI=true` / `GITHUB_ACTIONS=true`): require Doppler-resolvable
+ * - CI (`CI=true` / `GITHUB_ACTIONS=true`): require Vault-resolvable
  *   `STRIPE_SECRET_KEY`; fail loudly if missing.
- * - Local: silently skip when Doppler / `STRIPE_SECRET_KEY` is unavailable so
+ * - Local: silently skip when Vault / `STRIPE_SECRET_KEY` is unavailable so
  *   the dev workflow doesn't block on a dashboard-only secret.
  *
  * Catalog dump to patch-db is intentionally skipped here — the gate's job is
@@ -30,12 +30,12 @@ async function resolveStripeSecretOrSkip(): Promise<string | null> {
   } catch {
     if (isCi()) {
       console.error(
-        `[${SCRIPT_TAG}] CI needs DOPPLER_TOKEN (or Doppler CLI login) so catalog sync can load secrets`
+        `[${SCRIPT_TAG}] CI needs VAULT_TOKEN (or Vault CLI login) so catalog sync can load secrets`
       );
       process.exit(1);
     }
     console.log(
-      `[${SCRIPT_TAG}] skip catalog sync — could not resolve Doppler token (set DOPPLER_TOKEN or run \`doppler login\`)`
+      `[${SCRIPT_TAG}] skip catalog sync — could not resolve Vault token (set VAULT_TOKEN or run \`vault login\`)`
     );
     return null;
   }
@@ -49,13 +49,13 @@ async function resolveStripeSecretOrSkip(): Promise<string | null> {
   } catch (e: unknown) {
     if (isCi()) {
       console.error(
-        `[${SCRIPT_TAG}] CI: failed to read STRIPE_SECRET_KEY from Doppler`,
+        `[${SCRIPT_TAG}] CI: failed to read STRIPE_SECRET_KEY from Vault`,
         e instanceof Error ? e.message : String(e)
       );
       process.exit(1);
     }
     console.log(
-      `[${SCRIPT_TAG}] skip catalog sync — Doppler request failed (set DOPPLER_CONFIG=dev and ensure secrets exist):`,
+      `[${SCRIPT_TAG}] skip catalog sync — Vault request failed (set VAULT_CONFIG=dev and ensure secrets exist):`,
       e instanceof Error ? e.message : String(e)
     );
     return null;
@@ -64,12 +64,12 @@ async function resolveStripeSecretOrSkip(): Promise<string | null> {
   if (trimmed.length === 0) {
     if (isCi()) {
       console.error(
-        `[${SCRIPT_TAG}] CI needs STRIPE_SECRET_KEY in Doppler for catalog sync`
+        `[${SCRIPT_TAG}] CI needs STRIPE_SECRET_KEY in Vault for catalog sync`
       );
       process.exit(1);
     }
     console.log(
-      `[${SCRIPT_TAG}] skip catalog sync — STRIPE_SECRET_KEY missing in Doppler`
+      `[${SCRIPT_TAG}] skip catalog sync — STRIPE_SECRET_KEY missing in Vault`
     );
     return null;
   }

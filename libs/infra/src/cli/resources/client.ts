@@ -50,7 +50,7 @@ export class ClientResource extends ResourceBase {
       assertExpoTokenPresent();
       assert.nonEmptyString(
         process.env['EXPO_PUBLIC_API_URL'],
-        'EXPO_PUBLIC_API_URL must be set for the EAS OTA update (Doppler/env); ' +
+        'EXPO_PUBLIC_API_URL must be set for the EAS OTA update (Vault/env); ' +
           'a missing value blank-screens the published bundle on launch'
       );
       ok(

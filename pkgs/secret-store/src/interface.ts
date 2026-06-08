@@ -19,7 +19,7 @@ export type SecretStoreSetInit = {
 
 /**
  * Async key/value secrets — both read and write surfaces in one abstraction.
- * Implementations may call remote stores (e.g. Doppler) over HTTP, shell out
+ * Implementations may call remote stores (e.g. Vault) over HTTP, shell out
  * to a CLI, or compose other implementations.
  *
  * Read semantics:
@@ -64,7 +64,7 @@ export interface SecretStore {
    * the primitive {@link CachingSecretStore} uses to coalesce concurrent
    * `getRequired` / `getOptional` cache misses into one upstream call so a
    * burst of inbound requests does not fan out into a burst of secret-store
-   * requests (Doppler rate-limits at HTTP 429).
+   * requests (Vault rate-limits at HTTP 429).
    */
   getOptionalMany(
     names: readonly string[],

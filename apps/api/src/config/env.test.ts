@@ -1,28 +1,28 @@
 import { describe, expect, it } from 'bun:test';
 import {
-  assertDopplerTokenBinding,
+  assertVaultTokenBinding,
   ConfigurationError,
   type ApiWorkerEnv,
 } from './env';
 
 const mockEnv = (token: string): ApiWorkerEnv => ({
-  DOPPLER_TOKEN: token,
+  VAULT_TOKEN: token,
 });
 
-describe('assertDopplerTokenBinding', () => {
-  it('throws ConfigurationError when DOPPLER_TOKEN is unset or blank', () => {
-    expect(() => assertDopplerTokenBinding(mockEnv(''))).toThrow(
+describe('assertVaultTokenBinding', () => {
+  it('throws ConfigurationError when VAULT_TOKEN is unset or blank', () => {
+    expect(() => assertVaultTokenBinding(mockEnv(''))).toThrow(
       ConfigurationError
     );
-    expect(() => assertDopplerTokenBinding(mockEnv('   '))).toThrow(
+    expect(() => assertVaultTokenBinding(mockEnv('   '))).toThrow(
       ConfigurationError
     );
     expect(() =>
-      assertDopplerTokenBinding(mockEnv(1 as unknown as string))
+      assertVaultTokenBinding(mockEnv(1 as unknown as string))
     ).toThrow(ConfigurationError);
   });
 
   it('returns trimmed token when valid', () => {
-    expect(assertDopplerTokenBinding(mockEnv('  dp.st.x  '))).toBe('dp.st.x');
+    expect(assertVaultTokenBinding(mockEnv('  hvs.x  '))).toBe('hvs.x');
   });
 });

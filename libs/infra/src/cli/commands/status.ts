@@ -60,15 +60,15 @@ export class StatusCommand implements Command {
       );
     }
 
-    // ── 2. Secrets (Doppler) ────────────────────────────────────────────
-    heading('Secrets (Doppler)');
+    // ── 2. Secrets (Vault) ────────────────────────────────────────────
+    heading('Secrets (Vault)');
     const secretResults = loadSecretsIntoEnv();
     const missingSecrets: string[] = [];
     for (const s of secretResults) {
       if (s.set) {
         ok(s.env);
       } else {
-        fail(s.env, 'not found in Doppler');
+        fail(s.env, 'not found in Vault');
         missingSecrets.push(s.env);
         failed = true;
       }

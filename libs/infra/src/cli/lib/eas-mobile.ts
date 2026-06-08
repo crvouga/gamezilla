@@ -196,7 +196,7 @@ export function assertExpoTokenPresent(): void {
   assert.nonEmptyString(
     token,
     'eas-mobile: EXPO_TOKEN is required for EAS CLI auth. ' +
-      'Set it in Doppler (config prd) or export EXPO_TOKEN before running.'
+      'Set it in Vault (config prd) or export EXPO_TOKEN before running.'
   );
 }
 

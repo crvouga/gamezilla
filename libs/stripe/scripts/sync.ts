@@ -1,16 +1,16 @@
 /**
  * Single Stripe sync entry point — catalog + patch-db backfills + webhook endpoints.
  *
- * Reads via Doppler (`DOPPLER_TOKEN` or `doppler login`):
+ * Reads via Vault (`VAULT_TOKEN` or `vault login`):
  *   - `STRIPE_SECRET_KEY` (required)
  *   - `DATABASE_URL`            (required; `postgres://…` or `http://…` for local PGlite)
  *   - `API_URL`           (required; absolute origin of the API Worker, no path)
  *
- * Writes via Doppler CLI on webhook rebuild:
+ * Writes via Vault CLI on webhook rebuild:
  *   - `STRIPE_WEBHOOK_SECRET`
  *
  * Flags:
- *   --dry-run   Webhook step logs plan without mutating Stripe / Doppler.
+ *   --dry-run   Webhook step logs plan without mutating Stripe / Vault.
  *               (Catalog + patch-db steps are idempotent and always run.)
  *
  * All real work lives in `../src/sync/*` so other entry points (CI gate, future
@@ -34,7 +34,7 @@ async function assertApiUrlBase(): Promise<string> {
   const trimmed = typeof raw === 'string' ? raw.trim() : '';
   if (trimmed.length === 0) {
     console.error(
-      `[${SCRIPT_TAG}] API_URL is required in Doppler — absolute origin of the API Worker (no path), e.g. https://api.gamezilla.app`
+      `[${SCRIPT_TAG}] API_URL is required in Vault — absolute origin of the API Worker (no path), e.g. https://api.gamezilla.app`
     );
     process.exit(1);
   }

@@ -1,5 +1,5 @@
 {
-  "name": "@pkgs/doppler",
+  "name": "@pkgs/vault",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -13,7 +13,8 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "tc": "tsc --noEmit",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test --pass-with-no-tests",
+    "write-vault-yaml": "bun run scripts/write-vault-yaml.ts"
   },
   "dependencies": {},
   "devDependencies": {

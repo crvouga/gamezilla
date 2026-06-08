@@ -8,10 +8,10 @@ import {
 } from './llm-routes';
 
 /**
- * Doppler keys read by {@link createLlmAppFromBindings}. Mirror in the host's
+ * Secret names read by {@link createLlmAppFromBindings}. Mirror in the host's
  * {@link ApiSecretName} registry.
  */
-export const LlmDopplerKey = {
+export const LlmSecretName = {
   openAiApiKey: 'OPENAI_API_KEY',
   openAiBaseUrl: 'OPENAI_BASE_URL',
 } as const;
@@ -23,7 +23,7 @@ export type CreateLlmAppFromBindingsOptions = {
 };
 
 /**
- * Pre-wired Hono sub-app: loads OpenAI credentials from Doppler and mounts
+ * Pre-wired Hono sub-app: loads OpenAI credentials from the secret store and mounts
  * {@link createLlmApp}. Both secrets are required — the secret store crashes
  * if either is missing.
  */
@@ -31,10 +31,10 @@ export async function createLlmAppFromBindings(
   options: CreateLlmAppFromBindingsOptions
 ): Promise<ReturnType<typeof createLlmApp>> {
   const apiKey = (
-    await options.secretStore.getRequired(LlmDopplerKey.openAiApiKey)
+    await options.secretStore.getRequired(LlmSecretName.openAiApiKey)
   ).readSecretValue();
   const baseUrl = (
-    await options.secretStore.getRequired(LlmDopplerKey.openAiBaseUrl)
+    await options.secretStore.getRequired(LlmSecretName.openAiBaseUrl)
   ).readSecretValue();
 
   const provider = new OpenAiLlmProvider({
