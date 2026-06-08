@@ -27,9 +27,7 @@ export function assertRemoteObjectKey(
     );
   }
   if (!key.startsWith(namespace)) {
-    throw new Error(
-      `Remote object key must start with "${namespace}": ${key}`
-    );
+    throw new Error(`Remote object key must start with "${namespace}": ${key}`);
   }
 }
 
