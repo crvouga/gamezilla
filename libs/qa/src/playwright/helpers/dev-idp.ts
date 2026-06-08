@@ -7,6 +7,21 @@ export type DevIdpTestAccount = {
 
 const CREATE_PANEL = 'dev-idp-create-panel';
 
+/**
+ * Sign-in handoff to the dev IdP has begun.
+ *
+ * Clicking the dev provider flips the modal to its `loading` ("Signing in…")
+ * state and then immediately redirects the page (`window.location.href`) to the
+ * dev IdP chooser. On fast machines the navigation preempts the browser paint
+ * of that transient caption, so accept either the loading modal or the chooser
+ * page the redirect lands on — whichever wins the race.
+ */
+export async function expectDevIdpHandoffStarted(page: Page): Promise<void> {
+  await expect(
+    page.getByText('Signing in…').or(page.getByTestId('dev-idp-page'))
+  ).toBeVisible({ timeout: 30_000 });
+}
+
 /** Asserts the dev IdP authorize chooser is showing. */
 export async function expectDevIdpChooser(page: Page): Promise<void> {
   const chooser = page.getByTestId('dev-idp-page');

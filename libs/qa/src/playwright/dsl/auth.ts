@@ -2,6 +2,7 @@ import { expect, type Page } from '@playwright/test';
 
 import {
   expectDevIdpChooser,
+  expectDevIdpHandoffStarted,
   expectLeftDevIdpChooser,
   pickFirstDevIdpAccount,
 } from '../helpers/dev-idp';
@@ -10,7 +11,6 @@ import {
   confirmSignOut,
   dismissSignInModalSuccess,
   dismissSignOutModalSuccess,
-  expectSignInModalLoading,
   expectSignInModalResumed,
   expectSignInModalSuccess,
   expectSignOutModalLoading,
@@ -27,7 +27,7 @@ export class AuthDSL {
     await this.page
       .getByRole('button', { name: /sign in with dev idp/i })
       .click();
-    await expectSignInModalLoading(this.page);
+    await expectDevIdpHandoffStarted(this.page);
     await expectDevIdpChooser(this.page);
     await pickFirstDevIdpAccount(this.page);
     await expectLeftDevIdpChooser(this.page);

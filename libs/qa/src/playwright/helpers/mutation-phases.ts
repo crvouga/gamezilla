@@ -1,10 +1,5 @@
 import { expect, type Page } from '@playwright/test';
 
-/** Sign-in modal entered the OAuth handoff loading state. */
-export async function expectSignInModalLoading(page: Page): Promise<void> {
-  await expect(page.getByText('Signing in…')).toBeVisible({ timeout: 10_000 });
-}
-
 /** Sign-in modal re-opened after OAuth redirect (loading or success). */
 export async function expectSignInModalResumed(page: Page): Promise<void> {
   await expect(
