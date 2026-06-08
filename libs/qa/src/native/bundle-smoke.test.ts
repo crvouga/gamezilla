@@ -53,7 +53,7 @@ test(
     rmSync(OUTPUT_DIR, { recursive: true, force: true });
 
     await runPackageScriptOnce('@apps/client', 'qa:export:native', {
-      EXPO_PUBLIC_API_URL: 'https://api.gamezilla.app',
+      EXPO_PUBLIC_API_URL: 'https://www.gamezilla.app',
       EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL: '1',
     });
 

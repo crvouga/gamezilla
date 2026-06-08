@@ -108,7 +108,7 @@ export function getApiBaseUrl(): string {
   // Direct read — Expo inlines `EXPO_PUBLIC_*` at bundle time (see
   // `app-metadata.ts`). Do not nullish-coalesce to a production default in
   // this expression or Metro constant-folds past the env read when `__DEV__`
-  // is false (qa preview / `expo export -p web` then bakes api.gamezilla.app
+  // is false (qa preview / `expo export -p web` then bakes www.gamezilla.app
   // even when `EXPO_PUBLIC_API_URL` is set for the Playwright webServer).
   // eslint-disable-next-line expo/no-dynamic-env-var -- `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
   const raw = process.env['EXPO_PUBLIC_API_URL'];

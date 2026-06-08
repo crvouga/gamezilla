@@ -7,13 +7,6 @@ import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
-interface RequiredCname {
-  readonly name: string;
-  readonly content: string;
-  /** Cloudflare: false = DNS-only; true = proxied (Pages apex/www). */
-  readonly proxied: boolean;
-}
-
 /** Legacy custom-domain CNAMEs for the previous hosted-auth vendor — deleted on deploy if still present. */
 function legacyVendorAuthCnameHostnames(domain: string): readonly string[] {
   return [
@@ -68,6 +61,82 @@ async function deleteLegacyVendorAuthCnameRecords(
   }
 }
 
+function isPagesDevCname(content: string): boolean {
+  return content.endsWith('.pages.dev') || content.includes('.pages.dev');
+}
+
+/**
+ * Removes apex/www CNAMEs that pointed at the retired Cloudflare Pages project
+ * so `wrangler deploy --env production` can attach Worker custom domains.
+ */
+async function deleteLegacyPagesCnameRecords(
+  zoneId: string,
+  headers: Record<string, string>,
+  domain: string
+): Promise<void> {
+  const targets = new Set([domain, `www.${domain}`]);
+  const res = await fetch(
+    `${CF_API}/zones/${zoneId}/dns_records?per_page=100&type=CNAME`,
+    { headers }
+  );
+  if (!res.ok) return;
+
+  const body = (await res.json()) as {
+    result?: Array<{ id: string; name: string; content: string; type: string }>;
+  };
+
+  for (const rec of body.result ?? []) {
+    if (rec.type !== 'CNAME') continue;
+    const normalized = rec.name.replace(/\.$/, '');
+    if (!targets.has(normalized)) continue;
+    if (!isPagesDevCname(rec.content)) continue;
+
+    const del = await fetch(`${CF_API}/zones/${zoneId}/dns_records/${rec.id}`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (del.ok || del.status === 404) {
+      ok('DNS CNAME (legacy Pages removed)', `${normalized} → ${rec.content}`);
+    } else {
+      warn(
+        'DNS legacy Pages delete',
+        `${normalized} — HTTP ${del.status}`
+      );
+    }
+  }
+}
+
+/** Drops the retired `api.` subdomain CNAME so it cannot shadow the Worker. */
+async function deleteLegacyApiSubdomainCname(
+  zoneId: string,
+  headers: Record<string, string>,
+  domain: string
+): Promise<void> {
+  const apiHost = `api.${domain}`;
+  const res = await fetch(
+    `${CF_API}/zones/${zoneId}/dns_records?per_page=100&type=CNAME&name=${apiHost}`,
+    { headers }
+  );
+  if (!res.ok) return;
+
+  const body = (await res.json()) as {
+    result?: Array<{ id: string; name: string; type: string }>;
+  };
+
+  for (const rec of body.result ?? []) {
+    if (rec.type !== 'CNAME') continue;
+    const del = await fetch(`${CF_API}/zones/${zoneId}/dns_records/${rec.id}`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (del.ok || del.status === 404) {
+      ok('DNS CNAME (legacy api subdomain removed)', apiHost);
+    } else {
+      warn('DNS legacy api delete', `${apiHost} — HTTP ${del.status}`);
+    }
+  }
+}
+
 export class DnsRecordsResource extends ResourceBase {
   readonly id = 'dns-records';
 
@@ -76,87 +145,19 @@ export class DnsRecordsResource extends ResourceBase {
       !!ctx.zoneId,
       'dns-records: ctx.zoneId must be set by ZoneResource'
     );
-    assert.ok(
-      !!ctx.pagesSubdomain,
-      'dns-records: ctx.pagesSubdomain must be set by ClientPagesProjectResource'
-    );
 
     const headers = cfHeaders();
     const zoneId = ctx.zoneId;
     const domain = PROJECT_CONFIG.domain;
 
-    const required: RequiredCname[] = [
-      { name: domain, content: ctx.pagesSubdomain, proxied: true },
-      { name: `www.${domain}`, content: ctx.pagesSubdomain, proxied: true },
-    ];
-
-    const res = await fetch(
-      `${CF_API}/zones/${zoneId}/dns_records?per_page=100&type=CNAME`,
-      { headers }
-    );
-    assert.ok(res.ok, `DNS records list failed: HTTP ${res.status}`);
-
-    const body = (await res.json()) as {
-      result?: Array<{
-        id: string;
-        name: string;
-        content: string;
-        type: string;
-        proxied?: boolean;
-      }>;
-    };
-    const existing = body.result ?? [];
-
-    for (const rec of required) {
-      const match = existing.find(
-        (e) => e.name === rec.name && e.type === 'CNAME'
-      );
-
-      const proxied = match?.proxied ?? false;
-      if (match && match.content === rec.content && proxied === rec.proxied) {
-        ok('DNS CNAME', `${rec.name} → ${rec.content} (exists)`);
-        continue;
-      }
-
-      if (match) {
-        const update = await fetch(
-          `${CF_API}/zones/${zoneId}/dns_records/${match.id}`,
-          {
-            method: 'PATCH',
-            headers,
-            body: JSON.stringify({
-              content: rec.content,
-              proxied: rec.proxied,
-            }),
-          }
-        );
-        assert.ok(
-          update.ok,
-          `DNS record update failed for ${rec.name}: HTTP ${update.status}`
-        );
-        ok('DNS CNAME', `${rec.name} → ${rec.content} (updated)`);
-        continue;
-      }
-
-      const create = await fetch(`${CF_API}/zones/${zoneId}/dns_records`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          type: 'CNAME',
-          name: rec.name === domain ? '@' : rec.name,
-          content: rec.content,
-          proxied: rec.proxied,
-          ttl: 1,
-        }),
-      });
-      assert.ok(
-        create.ok,
-        `DNS record create failed for ${rec.name}: HTTP ${create.status}`
-      );
-      ok('DNS CNAME', `${rec.name} → ${rec.content} (created)`);
-    }
-
+    await deleteLegacyPagesCnameRecords(zoneId, headers, domain);
+    await deleteLegacyApiSubdomainCname(zoneId, headers, domain);
     await deleteLegacyVendorAuthCnameRecords(zoneId, headers, domain);
+
+    ok(
+      'DNS',
+      `legacy Pages + api.${domain} CNAME cleanup complete (Worker custom domains managed by wrangler)`
+    );
   }
 
   async destroy(_platform: CiPlatform): Promise<void> {

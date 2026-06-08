@@ -21,7 +21,7 @@ assert.notThrows(
 );
 
 const apiWorkerPublicOrigin = (): string =>
-  `https://api.${PROJECT_CONFIG.domain}`;
+  `https://www.${PROJECT_CONFIG.domain}`;
 
 const DERIVED_DEFAULTS: Record<string, () => string> = {
   TURBO_LOG_ORDER: () => 'auto',

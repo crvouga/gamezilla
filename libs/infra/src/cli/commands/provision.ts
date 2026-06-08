@@ -40,12 +40,10 @@ export class ProvisionCommand implements Command {
     const outputs = infraOutputs(ctx);
 
     banner('Provision Complete', performance.now() - t0);
-    ok('pages_subdomain', outputs.pages_subdomain);
     ok('cloudflare_nameservers', outputs.cloudflare_nameservers);
 
     p.setOutput('infra_context', serializeInfraContext(ctx));
     p.setOutput('zone_id', ctx.zoneId ?? '');
-    p.setOutput('pages_subdomain', outputs.pages_subdomain);
     p.setOutput('cloudflare_nameservers', outputs.cloudflare_nameservers);
   }
 }

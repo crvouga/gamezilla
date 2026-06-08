@@ -3,7 +3,6 @@ import type { CiPlatform } from '../platform/platform';
 export interface InfraContext {
   zoneId?: string;
   nameservers?: string[];
-  pagesSubdomain?: string;
 }
 
 /**

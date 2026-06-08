@@ -24,15 +24,11 @@ function httpEndpoints(outputs: InfraOutputs): readonly HttpEndpointCheck[] {
   return [
     {
       label: 'Client',
-      url: `https://www.${PROJECT_CONFIG.domain}`,
-      // During initial provisioning, custom-domain DNS can lag behind the
-      // Pages deployment; allow pages.dev to satisfy health checks meanwhile.
-      fallbackUrl: `https://${outputs.pages_subdomain}`,
-      fallbackLabel: 'Client (Pages fallback)',
+      url: outputs.client_url,
     },
     {
       label: 'API /health',
-      url: `https://api.${PROJECT_CONFIG.domain}`,
+      url: outputs.api_url,
       probePath: '/health',
     },
   ];

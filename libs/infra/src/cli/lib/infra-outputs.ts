@@ -4,20 +4,18 @@ import type { InfraContext } from '../resources/types';
 export interface InfraOutputs {
   readonly client_url: string;
   readonly api_url: string;
-  readonly pages_project_name: string;
-  readonly pages_subdomain: string;
   readonly cloudflare_nameservers: string;
 }
 
+export function productionOrigin(): string {
+  return `https://www.${PROJECT_CONFIG.domain}`;
+}
+
 export function infraOutputs(ctx: InfraContext): InfraOutputs {
-  const d = PROJECT_CONFIG.domain;
+  const origin = productionOrigin();
   return {
-    client_url: `https://www.${d}`,
-    api_url: `https://api.${d}`,
-    pages_project_name: PROJECT_CONFIG.cloudflare.clientPagesProject,
-    pages_subdomain:
-      ctx.pagesSubdomain ??
-      `${PROJECT_CONFIG.cloudflare.clientPagesProject}.pages.dev`,
+    client_url: origin,
+    api_url: origin,
     cloudflare_nameservers: (ctx.nameservers ?? []).join(', '),
   };
 }

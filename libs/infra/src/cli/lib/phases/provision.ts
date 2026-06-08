@@ -14,7 +14,7 @@ function isActive(resource: Resource): boolean {
 /**
  * Walks every active resource in topo order and runs `provision()` to make
  * sure the underlying infra exists. `ctx` is mutated in place — `zoneId`,
- * `nameservers`, `pagesSubdomain` are populated by upstream resources and
+ * `nameservers` are populated by upstream resources and
  * read by downstream ones (and by `infraOutputs(ctx)` later).
  */
 export async function runProvisionPhase(

@@ -34,7 +34,7 @@ async function assertApiUrlBase(): Promise<string> {
   const trimmed = typeof raw === 'string' ? raw.trim() : '';
   if (trimmed.length === 0) {
     console.error(
-      `[${SCRIPT_TAG}] API_URL is required in Vault — absolute origin of the API Worker (no path), e.g. https://api.gamezilla.app`
+      `[${SCRIPT_TAG}] API_URL is required in Vault — absolute origin of the unified Worker (no path), e.g. https://www.gamezilla.app`
     );
     process.exit(1);
   }

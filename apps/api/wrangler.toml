@@ -5,8 +5,6 @@ compatibility_flags = ["nodejs_compat", "no_handle_cross_request_promise_resolut
 workers_dev = false
 preview_urls = false
 
-routes = [{ pattern = "api.gamezilla.app", custom_domain = true }]
-
 [[durable_objects.bindings]]
 name = "ROOM"
 class_name = "Room"
@@ -53,3 +51,30 @@ deleted_classes = ["MatchmakingTicker"]
 [observability.logs]
 enabled = true
 invocation_logs = true
+
+# Production deploy (`wrangler deploy --env production`) serves the Expo web
+# export from `apps/client/dist` and binds custom domains on the apex + www
+# hostnames. `run_worker_first` invokes this Worker only for API paths; all
+# other requests are served from the assets binding (SPA fallback).
+[env.production]
+routes = [
+  { pattern = "gamezilla.app", custom_domain = true },
+  { pattern = "www.gamezilla.app", custom_domain = true },
+]
+
+[env.production.assets]
+directory = "../client/dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = [
+  "/api/*",
+  "/auth/*",
+  "/patch-db/*",
+  "/health",
+  "/room",
+  "/matchmaking/*",
+  "/stripe/*",
+  "/client-config/*",
+  "/llm/*",
+  "/tts/*",
+]

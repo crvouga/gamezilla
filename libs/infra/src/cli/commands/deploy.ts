@@ -71,8 +71,6 @@ export class DeployCommand implements Command {
 
       p.setOutput('client_url', outputs.client_url);
       p.setOutput('api_url', outputs.api_url);
-      p.setOutput('pages_project_name', outputs.pages_project_name);
-      p.setOutput('pages_subdomain', outputs.pages_subdomain);
       p.setOutput('cloudflare_nameservers', outputs.cloudflare_nameservers);
     });
   }

@@ -5,6 +5,8 @@ import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
+/** Retired Pages project — kept for idempotent `destroy()` teardown only. */
+const LEGACY_CLIENT_PAGES_PROJECT = 'gamezilla-client';
 
 const REQUIRED_DOMAINS: readonly string[] = [
   PROJECT_CONFIG.domain,
@@ -19,11 +21,12 @@ const REQUIRED_DOMAINS: readonly string[] = [
  */
 export class ClientPagesDomainResource extends ResourceBase {
   readonly id = 'client-pages-domains';
+  override readonly routineStatus = 'destroyed';
 
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const accountId = cfAccountId();
     const headers = cfHeaders();
-    const project = PROJECT_CONFIG.cloudflare.clientPagesProject;
+    const project = LEGACY_CLIENT_PAGES_PROJECT;
     const base = `${CF_API}/accounts/${accountId}/pages/projects/${project}/domains`;
 
     const listRes = await fetch(base, { headers });
@@ -75,7 +78,7 @@ export class ClientPagesDomainResource extends ResourceBase {
       return;
     }
 
-    const project = PROJECT_CONFIG.cloudflare.clientPagesProject;
+    const project = LEGACY_CLIENT_PAGES_PROJECT;
     const base = `${CF_API}/accounts/${accountId}/pages/projects/${project}/domains`;
 
     const listRes = await fetch(base, { headers });

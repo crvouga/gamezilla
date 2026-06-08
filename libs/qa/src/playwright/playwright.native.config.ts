@@ -15,7 +15,7 @@ import { assert } from '@pkgs/assert';
 // would never exercise the failing path.
 // ---------------------------------------------------------------------------
 
-const PRODUCTION_API_URL = 'https://api.gamezilla.app';
+const PRODUCTION_API_URL = 'https://www.gamezilla.app';
 
 process.env['EXPO_PUBLIC_API_URL'] = PRODUCTION_API_URL;
 process.env['EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL'] = '1';

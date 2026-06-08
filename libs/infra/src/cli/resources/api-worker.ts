@@ -1,13 +1,23 @@
 import { assert } from '@pkgs/assert';
+import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { VaultCli } from '@pkgs/vault';
+import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { PROJECT_CONFIG } from '../../project-config';
+import {
+  assertExpoTokenPresent,
+  publishClientEasUpdate,
+  resolveEasProfile,
+  resolveEasProfileWithNotice,
+} from '../lib/eas-mobile';
 import { ok, warn } from '../lib/fmt';
+import { productionOrigin } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId } from '../secrets/cloudflare';
 import {
   runAsync,
+  runCapture,
   runCaptureAsync,
   runSafe,
   type SpawnResult,
@@ -15,6 +25,7 @@ import {
 import { ResourceBase, type InfraContext } from './types';
 
 const NOT_FOUND_CODES = [10000, 10007, 10090];
+const WRANGLER_ENV = 'production';
 
 type VaultDeployConfig = {
   token: string;
@@ -107,6 +118,46 @@ function wranglerEnv(): NodeJS.ProcessEnv {
   };
 }
 
+function wranglerArgs(...args: string[]): string[] {
+  return ['--env', WRANGLER_ENV, ...args];
+}
+
+function resolveCommitHash(): string {
+  const rawSha = runCapture('git', ['rev-parse', 'HEAD'], { cwd: REPO_ROOT });
+  const commitHash = rawSha.trim().toLowerCase();
+  assert.ok(
+    COMMIT_HASH_HEX_REGEX.test(commitHash),
+    'api-worker: git HEAD must be a valid lowercase hex commit SHA',
+    { rawSha }
+  );
+  return commitHash;
+}
+
+async function buildClientForWorker(
+  platform: CiPlatform,
+  commitHash: string
+): Promise<void> {
+  const clientDir = join(REPO_ROOT, 'apps/client');
+  const apiUrl = productionOrigin();
+
+  await runAsync(platform, 'bun', ['run', 'build'], {
+    cwd: clientDir,
+    label: 'api-worker: expo export (client static assets)',
+    env: {
+      ...process.env,
+      EXPO_PUBLIC_API_URL: apiUrl,
+      EXPO_PUBLIC_COMMIT_HASH: commitHash,
+    },
+  });
+}
+
+function cleanupClientDist(): void {
+  rmSync(join(REPO_ROOT, 'apps/client/dist'), {
+    recursive: true,
+    force: true,
+  });
+}
+
 export class ApiWorkerResource extends ResourceBase {
   readonly id = 'api-worker';
 
@@ -114,39 +165,68 @@ export class ApiWorkerResource extends ResourceBase {
 
   async dryRun(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     await this.validateVaultForDeploy();
+    const commitHash = resolveCommitHash();
+
+    await buildClientForWorker(platform, commitHash);
 
     const apiDir = join(REPO_ROOT, 'apps/api');
-    await runAsync(platform, 'wrangler', ['deploy', '--dry-run'], {
-      cwd: apiDir,
-      env: wranglerEnv(),
-      label: 'workers-api: Cloudflare Workers deploy (dry-run)',
-    });
+    try {
+      await runAsync(
+        platform,
+        'wrangler',
+        wranglerArgs('deploy', '--dry-run'),
+        {
+          cwd: apiDir,
+          env: wranglerEnv(),
+          label: 'api-worker: Cloudflare Workers deploy (dry-run)',
+        }
+      );
+    } finally {
+      cleanupClientDist();
+    }
 
-    ok('workers-api dry-run', 'bundle + bindings validated locally');
+    if (resolveEasProfile() !== null) {
+      assertExpoTokenPresent();
+      assert.nonEmptyString(
+        process.env['EXPO_PUBLIC_API_URL'] ?? productionOrigin(),
+        'EXPO_PUBLIC_API_URL must be set for the EAS OTA update (Vault/env); ' +
+          'a missing value blank-screens the published bundle on launch'
+      );
+      ok(
+        'api-worker dry-run',
+        'EXPO_TOKEN + EXPO_PUBLIC_API_URL present for EAS OTA update'
+      );
+    }
+
+    ok('api-worker dry-run', 'client bundle + worker bindings validated locally');
   }
 
   async deploy(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const apiDir = join(REPO_ROOT, 'apps/api');
     const env = wranglerEnv();
+    const commitHash = resolveCommitHash();
 
     const vaultCfg = await this.validateVaultForDeploy();
 
-    await runCaptureAsync('wrangler', ['secret', 'put', 'VAULT_TOKEN'], {
+    await buildClientForWorker(platform, commitHash);
+
+    const secretArgs = wranglerArgs('secret', 'put');
+    await runCaptureAsync('wrangler', [...secretArgs, 'VAULT_TOKEN'], {
       cwd: apiDir,
       env,
       input: vaultCfg.token,
     });
-    await runCaptureAsync('wrangler', ['secret', 'put', 'VAULT_PROJECT'], {
+    await runCaptureAsync('wrangler', [...secretArgs, 'VAULT_PROJECT'], {
       cwd: apiDir,
       env,
       input: vaultCfg.project,
     });
-    await runCaptureAsync('wrangler', ['secret', 'put', 'VAULT_CONFIG'], {
+    await runCaptureAsync('wrangler', [...secretArgs, 'VAULT_CONFIG'], {
       cwd: apiDir,
       env,
       input: vaultCfg.config,
     });
-    await runCaptureAsync('wrangler', ['secret', 'put', 'VAULT_ADDR'], {
+    await runCaptureAsync('wrangler', [...secretArgs, 'VAULT_ADDR'], {
       cwd: apiDir,
       env,
       input: vaultCfg.addr,
@@ -156,13 +236,32 @@ export class ApiWorkerResource extends ResourceBase {
       'VAULT_TOKEN + VAULT_PROJECT/CONFIG/ADDR secrets pushed to Workers.'
     );
 
-    await runAsync(platform, 'wrangler', ['deploy'], {
-      cwd: apiDir,
-      env,
-      label: 'workers-api: Cloudflare Workers deploy',
-    });
+    try {
+      await runAsync(platform, 'wrangler', wranglerArgs('deploy'), {
+        cwd: apiDir,
+        env,
+        label: 'api-worker: Cloudflare Workers deploy (API + static assets)',
+      });
+    } finally {
+      cleanupClientDist();
+    }
 
-    platform.notice('Workers API deployed.');
+    platform.notice(
+      'Worker deployed with API routes + client static assets on gamezilla.app / www.gamezilla.app.'
+    );
+  }
+
+  /**
+   * Mobile half of the client deploy: publish an OTA `eas update`. Runs after
+   * the unified Worker (API + web) is live and smoke-tested.
+   */
+  async publishEasUpdate(
+    platform: CiPlatform,
+    _ctx: InfraContext
+  ): Promise<void> {
+    const profile = resolveEasProfileWithNotice(platform);
+    if (profile === null) return;
+    await publishClientEasUpdate(platform, profile);
   }
 
   private async validateVaultForDeploy(): Promise<VaultDeployConfig> {
@@ -182,7 +281,7 @@ export class ApiWorkerResource extends ResourceBase {
       CLOUDFLARE_ACCOUNT_ID: cfAccountId(),
     };
 
-    const r = runSafe('wrangler', ['delete', '--force'], {
+    const r = runSafe('wrangler', wranglerArgs('delete', '--force'), {
       cwd: apiDir,
       env,
     });

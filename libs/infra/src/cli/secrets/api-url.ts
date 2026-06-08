@@ -4,7 +4,7 @@ export class ApiUrl implements SecretEntry {
   readonly secretKey = 'API_URL';
   readonly env = 'API_URL';
   readonly hint =
-    'Public origin of the API Worker (https://api.…), no path — used by Stripe webhooks and tooling';
+    'Public origin of the unified Worker (https://www.…), no path — used by Stripe webhooks and tooling';
 
   async validate(value: string): Promise<string | null> {
     const v = value.trim();

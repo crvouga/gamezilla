@@ -1,5 +1,3 @@
-import { assert } from '@pkgs/assert';
-import { PROJECT_CONFIG } from '../../project-config';
 import { cleanupPagesDeployments } from '../lib/cloudflare-pages-deployments';
 import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
@@ -7,8 +5,9 @@ import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import { runSafe, type SpawnResult } from '../subprocess';
 import { ResourceBase, type InfraContext } from './types';
 
-const CF_API = 'https://api.cloudflare.com/client/v4';
 const NOT_FOUND_CODES = [8000007];
+/** Retired Pages project — kept for idempotent `destroy()` teardown only. */
+const LEGACY_CLIENT_PAGES_PROJECT = 'gamezilla-client';
 
 /**
  * Cloudflare Pages project that hosts the web client (`apps/client`).
@@ -19,59 +18,12 @@ const NOT_FOUND_CODES = [8000007];
  */
 export class ClientPagesProjectResource extends ResourceBase {
   readonly id = 'client-pages-project';
+  override readonly routineStatus = 'destroyed';
 
-  async provision(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
-    const accountId = cfAccountId();
-    const headers = cfHeaders();
-    const name = PROJECT_CONFIG.cloudflare.clientPagesProject;
-
-    const res = await fetch(
-      `${CF_API}/accounts/${accountId}/pages/projects/${name}`,
-      { headers }
-    );
-
-    if (res.ok) {
-      const body = (await res.json()) as {
-        result: { subdomain: string };
-      };
-      ctx.pagesSubdomain = body.result.subdomain;
-      ok('Pages project', `${name} (exists)`);
-      return;
-    }
-
-    if (res.status !== 404) {
-      const text = await res.text();
-      throw new Error(
-        `Pages project lookup failed: HTTP ${res.status} — ${text}`
-      );
-    }
-
-    const create = await fetch(
-      `${CF_API}/accounts/${accountId}/pages/projects`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          name,
-          production_branch: 'main',
-          deployment_configs: {
-            production: { compatibility_date: '2024-01-01' },
-            preview: { compatibility_date: '2024-01-01' },
-          },
-        }),
-      }
-    );
-    assert.ok(create.ok, `Pages project create failed: HTTP ${create.status}`);
-
-    const created = (await create.json()) as {
-      result: { subdomain: string };
-    };
-    ctx.pagesSubdomain = created.result.subdomain;
-    ok('Pages project', `${name} (created)`);
-  }
+  async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
 
   async destroy(): Promise<void> {
-    const name = PROJECT_CONFIG.cloudflare.clientPagesProject;
+    const name = LEGACY_CLIENT_PAGES_PROJECT;
     const accountId = cfAccountId();
     const headers = cfHeaders();
 

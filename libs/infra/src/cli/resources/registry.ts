@@ -14,32 +14,30 @@ export function createRegistry(): readonly Resource[] {
   const vault = new VaultResource();
   const zone = new ZoneResource();
   const clientPagesProject = new ClientPagesProjectResource();
+  const clientPagesDomain = new ClientPagesDomainResource();
+  const client = new ClientResource();
   const planetscalePostgres = new PlanetScalePostgres();
   const b2Bucket = new B2BucketResource();
   const dnsRecords = new DnsRecordsResource();
-  const clientPagesDomain = new ClientPagesDomainResource();
   const clientRedirectRule = new ClientRedirectRuleResource();
   const apiWorker = new ApiWorkerResource();
-  const client = new ClientResource();
 
   zone.needs(vault);
-  clientPagesProject.needs(vault);
   planetscalePostgres.needs(vault);
   b2Bucket.needs(vault);
-  dnsRecords.needs(zone, clientPagesProject);
-  clientPagesDomain.needs(clientPagesProject);
+  dnsRecords.needs(zone);
   clientRedirectRule.needs(zone);
+  clientPagesDomain.needs(clientPagesProject);
   apiWorker.needs(planetscalePostgres, dnsRecords, b2Bucket);
-  client.needs(apiWorker, dnsRecords);
 
   return [
     vault,
     zone,
     clientPagesProject,
+    clientPagesDomain,
     planetscalePostgres,
     b2Bucket,
     dnsRecords,
-    clientPagesDomain,
     clientRedirectRule,
     apiWorker,
     client,

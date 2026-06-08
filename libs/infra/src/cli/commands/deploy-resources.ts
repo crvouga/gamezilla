@@ -7,10 +7,9 @@ import type { Command } from './types';
 
 /**
  * CI atomic step 3: deploys every active resource that has a `deploy()`
- * method (api-worker, client) in topological order. Hydrates
- * `InfraContext` from `INFRA_CONTEXT` env (set by the workflow from
- * `needs.provision.outputs.infra_context`) so deploys see the same
- * `pagesSubdomain` etc. the provision phase resolved. Resources with
+ * method (api-worker) in topological order. Hydrates `InfraContext` from
+ * `INFRA_CONTEXT` env (set by the workflow from
+ * `needs.provision.outputs.infra_context`). Resources with
  * `routineStatus: 'destroyed'` (currently the self-hosted Turbo cache)
  * are skipped; the deploy's `'destroyed'`-resource tail phase tears
  * them down via `destroy()`.
@@ -18,7 +17,7 @@ import type { Command } from './types';
 export class DeployResourcesCommand implements Command {
   readonly id = 'deploy-resources';
   readonly group = 'phase' as const;
-  readonly summary = 'Deploy api-worker and client (Pages)';
+  readonly summary = 'Deploy unified api-worker (API + static web client)';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -38,6 +37,5 @@ export class DeployResourcesCommand implements Command {
 
     p.setOutput('client_url', outputs.client_url);
     p.setOutput('api_url', outputs.api_url);
-    p.setOutput('pages_project_name', outputs.pages_project_name);
   }
 }

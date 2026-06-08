@@ -23,8 +23,6 @@ const KNOWN_JOB_ORDER: readonly string[] = [
 const DEPLOY_OUTPUT_KEYS: readonly string[] = [
   'client_url',
   'api_url',
-  'pages_project_name',
-  'pages_subdomain',
   'cloudflare_nameservers',
   'zone_id',
 ];

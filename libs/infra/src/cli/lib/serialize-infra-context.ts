@@ -1,8 +1,8 @@
 import type { InfraContext } from '../resources/types';
 
 /**
- * `InfraContext` is built up by the `provision` phase (zoneId, nameservers,
- * pagesSubdomain) and read by `deploy-resources`, `smoke`, and
+ * `InfraContext` is built up by the `provision` phase (zoneId, nameservers)
+ * and read by `deploy-resources`, `smoke`, and
  * `refresh-config`. When those phases run as separate GitHub Actions jobs,
  * the context has to round-trip through `job.outputs` — these helpers do
  * the JSON shuttling.
@@ -15,8 +15,6 @@ export function serializeInfraContext(ctx: InfraContext): string {
   const out: Record<string, unknown> = {};
   if (ctx.zoneId !== undefined) out['zoneId'] = ctx.zoneId;
   if (ctx.nameservers !== undefined) out['nameservers'] = ctx.nameservers;
-  if (ctx.pagesSubdomain !== undefined)
-    out['pagesSubdomain'] = ctx.pagesSubdomain;
   return JSON.stringify(out);
 }
 
@@ -44,9 +42,6 @@ export function deserializeInfraContext(
       (v): v is string => typeof v === 'string'
     );
     ctx.nameservers = ns;
-  }
-  if (typeof obj['pagesSubdomain'] === 'string') {
-    ctx.pagesSubdomain = obj['pagesSubdomain'];
   }
   return ctx;
 }

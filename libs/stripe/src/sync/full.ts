@@ -33,7 +33,7 @@ export async function runStripeFullSync(args: {
   readonly patchDb: PatchDb;
   /** Used by the webhook step to persist the freshly-issued `whsec_…`. */
   readonly secretStore: SecretStore;
-  /** Absolute origin of the API Worker, e.g. `https://api.gamezilla.app`. */
+  /** Absolute origin of the unified Worker, e.g. `https://www.gamezilla.app`. */
   readonly apiUrlBase: string;
   /** When true, webhook reconcile logs the plan without mutating Stripe/secrets. */
   readonly dryRun?: boolean;

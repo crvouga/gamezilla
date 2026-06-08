@@ -154,6 +154,11 @@ async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {
   }
 }
 
+/**
+ * Production traffic reaches this handler only for API paths (see
+ * `run_worker_first` in `wrangler.toml` / `is-api-request-path.ts`).
+ * Static web assets are served by the ASSETS binding for all other routes.
+ */
 async function handleWorkerFetch(
   request: Request,
   env: ApiWorkerEnv,

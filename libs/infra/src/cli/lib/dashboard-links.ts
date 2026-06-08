@@ -40,14 +40,11 @@ export function buildVendorDashboardMarkdown(): string[] {
       `- **Cloudflare DNS / zone:** [\`${domain}\`](https://dash.cloudflare.com/${accountId}/${domain})`
     );
     lines.push(
-      `- **Cloudflare Pages:** [\`${cloudflare.clientPagesProject}\`](https://dash.cloudflare.com/${accountId}/pages/view/${cloudflare.clientPagesProject})`
-    );
-    lines.push(
-      `- **Cloudflare Worker (API):** [\`${cloudflare.apiWorker}\`](https://dash.cloudflare.com/${accountId}/workers/services/view/${cloudflare.apiWorker}/production)`
+      `- **Cloudflare Worker (API + web):** [\`${cloudflare.apiWorker}\`](https://dash.cloudflare.com/${accountId}/workers/services/view/${cloudflare.apiWorker}/production)`
     );
   } else {
     lines.push(
-      `- **Cloudflare:** [Dashboard](https://dash.cloudflare.com/) — add \`CLOUDFLARE_ACCOUNT_ID\` to Vault (\`shared\`) for direct links to zone, Pages, and Workers`
+      `- **Cloudflare:** [Dashboard](https://dash.cloudflare.com/) — add \`CLOUDFLARE_ACCOUNT_ID\` to Vault (\`shared\`) for direct links to zone and Workers`
     );
   }
 
