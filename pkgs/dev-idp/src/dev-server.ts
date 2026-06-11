@@ -152,7 +152,11 @@ export async function startDevIdpServer(
       const errorMsg = e instanceof Error ? e.message : String(e);
       // Ignore "terminating connection due to administrator command" errors
       // that occur when Postgres shuts down during our shutdown sequence.
-      if (!errorMsg.includes('terminating connection due to administrator command')) {
+      if (
+        !errorMsg.includes(
+          'terminating connection due to administrator command'
+        )
+      ) {
         log.warn('dev-idp: pg client.end threw', {
           error: errorMsg,
         });
