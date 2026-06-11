@@ -30,11 +30,20 @@ export function createStripeListenTranscriptHandler(
     writeQueue.enqueue(async () => {
       const whsec = parseWhsecFromLine(line);
       if (whsec === null || whsec === lastWritten) return;
-      await secretStore.setSecret(StripeSecretKeys.webhookSecret, whsec);
-      lastWritten = whsec;
-      console.log(
-        `[${STRIPE_CLI_LOG_TAG}] wrote ${StripeSecretKeys.webhookSecret} to Vault (${vaultConfig})`
-      );
+      try {
+        await secretStore.setSecret(StripeSecretKeys.webhookSecret, whsec);
+        lastWritten = whsec;
+        console.log(
+          `[${STRIPE_CLI_LOG_TAG}] wrote ${StripeSecretKeys.webhookSecret} to Vault (${vaultConfig})`
+        );
+      } catch (e) {
+        // If Vault is unreachable (e.g., not running), log a warning but continue.
+        // The webhook secret will still be functional for Stripe's purposes.
+        const errorMsg = e instanceof Error ? e.message : String(e);
+        console.warn(
+          `[${STRIPE_CLI_LOG_TAG}] Failed to write ${StripeSecretKeys.webhookSecret} to Vault: ${errorMsg}. Continuing without persisting the secret.`
+        );
+      }
       if (!webhookProbeDone) {
         webhookProbeDone = true;
         await verifyWebhookWithSignedProbe({

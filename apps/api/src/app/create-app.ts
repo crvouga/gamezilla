@@ -207,7 +207,14 @@ export async function createApiApp(config: ApiHandlerConfig) {
   const patchMount = resolvedBase as '/patch-db';
 
   const baseApp = new Hono<ApiHonoEnv<AuthContext>>()
-    .use('*', createRequestDbMiddleware(secretStore, config.apiUrlOverride))
+    .use(
+      '*',
+      createRequestDbMiddleware(
+        secretStore,
+        config.apiUrlOverride,
+        config.databaseUrlOverride
+      )
+    )
     .use('*', apiCors)
     .route('/', healthApp)
     .route('/', createClientConfigApp(log, secretStore))

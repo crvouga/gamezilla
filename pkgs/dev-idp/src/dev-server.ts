@@ -94,6 +94,16 @@ export async function startDevIdpServer(
     connectTimeoutMs,
     log
   );
+
+  // Attach an error handler to the PostgreSQL client. The 'pg' library emits
+  // 'error' events for connection failures and server-initiated terminations.
+  // Without this handler, those errors become uncaughtException events.
+  pgClient.on('error', (err: Error) => {
+    log.warn('dev-idp: postgres client error', {
+      error: err.message,
+    });
+  });
+
   const kv = await KvImplPostgres.open({ sqlClient, logger: log });
 
   if (options.seedUsers !== undefined && options.seedUsers.length > 0) {
@@ -134,11 +144,19 @@ export async function startDevIdpServer(
       });
     }
     try {
+      // Close the PostgreSQL connection. During shutdown, the connection
+      // may already be terminated by the database server, so we suppress
+      // connection-related errors.
       await pgClient.end();
     } catch (e) {
-      log.warn('dev-idp: pg client.end threw', {
-        error: e instanceof Error ? e.message : String(e),
-      });
+      const errorMsg = e instanceof Error ? e.message : String(e);
+      // Ignore "terminating connection due to administrator command" errors
+      // that occur when Postgres shuts down during our shutdown sequence.
+      if (!errorMsg.includes('terminating connection due to administrator command')) {
+        log.warn('dev-idp: pg client.end threw', {
+          error: errorMsg,
+        });
+      }
     }
   };
 

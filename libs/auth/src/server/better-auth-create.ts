@@ -1,6 +1,10 @@
 import { expo } from '@better-auth/expo';
 import type { SecretStore } from '@pkgs/secret-store';
 import { createNeonPool } from '@pkgs/sql-client/neon-connect';
+import {
+  createPgPool,
+  isLoopbackPostgresUrl,
+} from '@pkgs/sql-client/postgres-connect';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import { betterAuth, type BetterAuthPlugin } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
@@ -61,11 +65,14 @@ export async function createBetterAuthRequestStack(
     secretStore,
     options.apiUrlOverride
   );
-  const { pool } = createNeonPool({
+  const poolArgs = {
     connectionString: databaseUrl,
     dbScope: options.dbScope,
-    max: 1,
-  });
+    max: 1 as const,
+  };
+  const { pool } = isLoopbackPostgresUrl(databaseUrl)
+    ? createPgPool(poolArgs)
+    : createNeonPool(poolArgs);
   await pool.query('SELECT 1');
   const db = new Kysely({ dialect: new PostgresDialect({ pool }) });
 

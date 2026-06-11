@@ -13,6 +13,7 @@ import {
   ConfigurationError,
   readVaultScopeBindings,
   readOptionalApiUrlOverride,
+  readOptionalDatabaseUrlOverride,
 } from './config/env';
 import { createApiSecretStore } from './config/secret-store';
 import { createApiObjectStore } from './config/object-store';
@@ -127,6 +128,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     pubSub,
     secretStore,
     apiUrlOverride: readOptionalApiUrlOverride(env),
+    databaseUrlOverride: readOptionalDatabaseUrlOverride(env),
     objectStore,
   });
 }

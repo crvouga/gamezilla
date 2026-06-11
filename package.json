@@ -78,7 +78,7 @@
     "prettier": "catalog:",
     "sort-package-json": "catalog:",
     "syncpack": "catalog:",
-    "turbo": "catalog:",
+    "turbo": "^2.9.17",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:"
   },

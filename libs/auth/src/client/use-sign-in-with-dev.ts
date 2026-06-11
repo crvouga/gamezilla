@@ -36,12 +36,18 @@ export function useSignInWithDev(): () => Promise<void> {
         oauth2: (args: {
           providerId: string;
           callbackURL: string;
+          disableRedirect?: boolean;
         }) => Promise<SignInOauth2Result>;
       };
     };
+    // On web, Better Auth's oauth2 with disableRedirect=false (default)
+    // handles the redirect internally and doesn't return a URL to navigate.
+    // Set disableRedirect=true so we always get the URL and can perform
+    // window.location.href navigation consistently across all platforms.
     const res = await client.signIn.oauth2({
       providerId: DEV_PROVIDER,
       callbackURL,
+      disableRedirect: true,
     });
     if (res.error !== undefined && res.error !== null) {
       throw new Error(res.error.message ?? 'Dev sign-in failed');

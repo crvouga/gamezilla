@@ -44,6 +44,24 @@ export type PgClientOptions = {
   readonly application_name?: string;
 };
 
+/** True when `connectionString` targets loopback Postgres (embedded dev cluster). */
+export function isLoopbackPostgresUrl(connectionString: string): boolean {
+  try {
+    const url = new URL(connectionString);
+    if (url.protocol !== 'postgres:' && url.protocol !== 'postgresql:') {
+      return false;
+    }
+    return (
+      url.hostname === '127.0.0.1' ||
+      url.hostname === 'localhost' ||
+      url.hostname === '::1' ||
+      url.hostname === '0.0.0.0'
+    );
+  } catch {
+    return false;
+  }
+}
+
 export type OpenPgClientArgs = {
   readonly connectionString: string;
   readonly dbScope: PostgresDbScope;

@@ -27,7 +27,8 @@ export function devIdpProviderConfig(baseURL: string): GenericOAuthConfig {
     authorizationUrl: devIdpEndpointUrl(DEV_IDP_DEFAULT_ORIGIN, 'authorize'),
     tokenUrl: devIdpEndpointUrl(DEV_IDP_DEFAULT_ORIGIN, 'token'),
     userInfoUrl: devIdpEndpointUrl(DEV_IDP_DEFAULT_ORIGIN, 'userinfo'),
-    redirectURI: `${baseURL}/callback/dev`,
+    // Omit redirectURI to let Better Auth use its default.
+    // The default is constructed based on the app's baseURL and basePath options.
     scopes: [...DEV_IDP_SCOPES],
     pkce: true,
     authentication: 'post',

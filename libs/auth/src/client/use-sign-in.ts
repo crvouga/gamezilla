@@ -34,9 +34,13 @@ export function useSignIn(): () => Promise<SignInTriggerResult> {
 
   return useCallback(async () => {
     const callbackURL = resolveOAuthCallbackUrl();
+    // Explicitly disable Better Auth's automatic redirect so we always get
+    // the URL to navigate with window.location.href, ensuring consistent
+    // behavior across web and native platforms.
     const res = (await authClient.signIn.social({
       provider: 'google',
       callbackURL,
+      disableRedirect: true,
     })) as unknown as SignInSocialResult;
     if (res.error !== undefined && res.error !== null) {
       throw new Error(res.error.message ?? 'Hosted sign-in failed');

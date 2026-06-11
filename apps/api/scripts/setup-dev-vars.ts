@@ -1,4 +1,5 @@
 import { VaultCli } from '@pkgs/vault';
+import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -59,6 +60,20 @@ function readApiUrlOverrideFromEnv(): string | null {
   return raw.length > 0 ? raw : null;
 }
 
+function isPostgresWireUrl(url: string): boolean {
+  return url.startsWith('postgresql://') || url.startsWith('postgres://');
+}
+
+function readDatabaseUrlOverrideFromEnv(): string | null {
+  const raw = process.env['DATABASE_URL']?.trim() ?? '';
+  if (raw.length === 0 || !isPostgresWireUrl(raw)) return null;
+  // `vault run` / `bun qa` inject hosted Neon into env before Playwright sets the
+  // embedded-postgres URL. Only pin loopback URLs into `.dev.vars` — same
+  // contract as preview/QA needing the local cluster, never Vault production DB.
+  if (!isLoopbackPostgresUrl(raw)) return null;
+  return raw;
+}
+
 async function main(): Promise<void> {
   const { token, project, config, addr } = resolveVaultScope();
   const lines: string[] = [
@@ -70,6 +85,10 @@ async function main(): Promise<void> {
   const apiUrlOverride = readApiUrlOverrideFromEnv();
   if (apiUrlOverride !== null) {
     lines.push(`API_URL=${encodeDevVarValue(apiUrlOverride)}`);
+  }
+  const databaseUrlOverride = readDatabaseUrlOverrideFromEnv();
+  if (databaseUrlOverride !== null) {
+    lines.push(`DATABASE_URL=${encodeDevVarValue(databaseUrlOverride)}`);
   }
 
   const body = `${lines.join('\n')}\n`;

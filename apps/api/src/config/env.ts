@@ -28,6 +28,13 @@ export type ApiWorkerEnv = {
    * OAuth callbacks stay same-origin with the static web preview.
    */
   API_URL?: string;
+  /**
+   * Optional Postgres wire URL written into `.dev.vars` by `setup-dev-vars`
+   * when Playwright / turbo preview sets `DATABASE_URL` in the environment.
+   * Overrides Vault `DATABASE_URL` so `migrate-db` and the Worker hit the
+   * same embedded `@pkgs/postgres` cluster during QA preview.
+   */
+  DATABASE_URL?: string;
   /** Room Durable Object namespace (one DO per topic). Omitted in unit tests. */
   ROOM?: RoomNamespace;
 };
@@ -85,4 +92,11 @@ export function readVaultScopeBindings(env: ApiWorkerEnv): {
 /** Non-empty `API_URL` Worker binding from `.dev.vars` (preview / QA only). */
 export function readOptionalApiUrlOverride(env: ApiWorkerEnv): string | null {
   return readOptionalBinding(env.API_URL);
+}
+
+/** Non-empty `DATABASE_URL` Worker binding from `.dev.vars` (preview / QA only). */
+export function readOptionalDatabaseUrlOverride(
+  env: ApiWorkerEnv
+): string | null {
+  return readOptionalBinding(env.DATABASE_URL);
 }

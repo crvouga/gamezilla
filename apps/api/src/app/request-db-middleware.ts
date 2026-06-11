@@ -14,20 +14,33 @@ import { apiRequestAsyncLocalStorage } from '../request-scope';
 import type { ApiHonoEnv } from './api-hono-types';
 
 /**
- * Per-request Neon HTTP Postgres + Better Auth + session auth (AsyncLocalStorage for patch-db host).
+ * Per-request Postgres + Better Auth + session auth (AsyncLocalStorage for patch-db host).
  */
+async function resolveRequestDatabaseUrl(
+  secretStore: SecretStore,
+  databaseUrlOverride?: string | null
+): Promise<string> {
+  const override = databaseUrlOverride?.trim();
+  if (override !== undefined && override !== null && override.length > 0) {
+    return override;
+  }
+  return (await secretStore.getRequired(ApiSecretName.dbUrl)).readSecretValue();
+}
+
 export function createRequestDbMiddleware(
   secretStore: SecretStore,
-  apiUrlOverride?: string | null
+  apiUrlOverride?: string | null,
+  databaseUrlOverride?: string | null
 ): MiddlewareHandler<ApiHonoEnv<AuthContext>> {
   return async (c, next) => {
     if (c.req.path === '/health') {
       return next();
     }
 
-    const dbUrl = (
-      await secretStore.getRequired(ApiSecretName.dbUrl)
-    ).readSecretValue();
+    const dbUrl = await resolveRequestDatabaseUrl(
+      secretStore,
+      databaseUrlOverride
+    );
     assert.nonEmptyString(dbUrl, 'DATABASE_URL must be a non-empty string');
 
     const dbScope = gamezillaPostgresDbScope();
