@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 
 import type { RoomCommandPayload, RoomState } from '../../types';
-import { RoomMetaAttr } from '../core/room-meta';
 import { useRoomFromRegistry } from './room-clients-context';
 import { useRoomSnapshotSelector } from './use-room-snapshot';
 
@@ -18,8 +17,9 @@ export function useRoomSelector<R>(
 }
 
 /**
- * Dispatch a command to the named room. No-ops when the room is missing or
- * not yet synced (same guard as typical space UI controls).
+ * Dispatch a command to the named room. No-ops when the room is missing.
+ * Commands dispatched while disconnected are enqueued locally and flushed
+ * automatically when the server connection is restored.
  */
 export function useRoomDispatch(
   roomName: string
@@ -28,7 +28,6 @@ export function useRoomDispatch(
   return useCallback(
     (payload: RoomCommandPayload) => {
       if (room === null) return;
-      if (!RoomMetaAttr.isSynced.from(room.getSnapshot())) return;
       room.dispatch(payload);
     },
     [room]

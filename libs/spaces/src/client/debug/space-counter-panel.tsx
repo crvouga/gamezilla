@@ -61,15 +61,14 @@ export function SpaceCounterPanel(): ReactNode {
           title={t`Decrement`}
           intent="neutral"
           onPress={decrement}
-          disabled={!isSynced}
         />
-        <Button title={t`Increment`} onPress={increment} disabled={!isSynced} />
+        <Button title={t`Increment`} onPress={increment} />
       </Box>
       {!isSynced ? (
         <Text
           variant="caption"
           sx={{ color: 'textSecondary' }}
-          label={<Trans>Connecting to room…</Trans>}
+          label={<Trans>Offline — changes will sync when reconnected</Trans>}
         />
       ) : null}
     </Box>
