@@ -19,11 +19,7 @@ import { productionOrigin } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId } from '../secrets/cloudflare';
-import {
-  runAsync,
-  runCapture,
-  runCaptureAsync,
-} from '../subprocess';
+import { runAsync, runCapture, runCaptureAsync } from '../subprocess';
 import { ResourceBase, type InfraContext } from './types';
 
 const WRANGLER_ENV = 'production';
