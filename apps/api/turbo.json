@@ -11,7 +11,13 @@
       "cache": false
     },
     "preview": {
-      "dependsOn": ["kill", "setup", "^build", "build", "@pkgs/postgres#preview:wait"],
+      "dependsOn": [
+        "kill",
+        "setup",
+        "^build",
+        "build",
+        "@pkgs/postgres#preview:wait"
+      ],
       "persistent": true,
       "cache": false
     }
