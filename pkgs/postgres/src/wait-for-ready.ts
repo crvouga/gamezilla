@@ -25,7 +25,10 @@ async function main(): Promise<void> {
     try {
       await pingPostgres(databaseUrl);
       if (attempt > 1) {
-        log.info('postgres ready', { attempt, elapsedMs: Date.now() - started });
+        log.info('postgres ready', {
+          attempt,
+          elapsedMs: Date.now() - started,
+        });
       }
       return;
     } catch (error) {
