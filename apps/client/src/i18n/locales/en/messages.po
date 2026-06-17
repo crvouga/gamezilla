@@ -4341,6 +4341,7 @@ msgstr "Model"
 
 #: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
 #: pkgs/ui/src/components/screen-base/screen-base-header.tsx
+#: pkgs/ui/src/components/screen-base/screen-base-header.tsx
 msgid "More"
 msgstr "More"
 
