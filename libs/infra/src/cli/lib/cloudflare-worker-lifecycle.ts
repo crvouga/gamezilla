@@ -42,8 +42,7 @@ export function readLatestWranglerLogTail(maxBytes = 20_000): string {
 function wranglerLogDir(): string {
   const home = homedir();
   if (currentPlatform() === 'win32') {
-    const appData =
-      process.env['APPDATA'] ?? join(home, 'AppData', 'Roaming');
+    const appData = process.env['APPDATA'] ?? join(home, 'AppData', 'Roaming');
     return join(appData, '.wrangler', 'logs');
   }
   if (currentPlatform() === 'darwin') {
@@ -79,19 +78,18 @@ export function deleteWorkerByName(workerName: string): void {
     return;
   }
 
-  warn('Worker delete', `${workerName}: ${r.stderr.trim() || 'unexpected failure'}`);
+  warn(
+    'Worker delete',
+    `${workerName}: ${r.stderr.trim() || 'unexpected failure'}`
+  );
 }
 
 /** Delete the unified production Worker (`wrangler.toml` `[env.production]`). */
 export function deleteProductionWorker(): void {
-  const r = runSafe(
-    'wrangler',
-    ['--env', WRANGLER_ENV, 'delete', '--force'],
-    {
-      cwd: apiDir(),
-      env: wranglerEnv(),
-    }
-  );
+  const r = runSafe('wrangler', ['--env', WRANGLER_ENV, 'delete', '--force'], {
+    cwd: apiDir(),
+    env: wranglerEnv(),
+  });
 
   if (r.exitCode === 0 || isWorkerNotFound(r)) {
     ok('Worker deleted', PROJECT_CONFIG.cloudflare.apiWorker);
