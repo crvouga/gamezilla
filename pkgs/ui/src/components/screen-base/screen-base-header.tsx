@@ -158,6 +158,7 @@ function HeaderTrailing({
   headerEnd,
 }: TrailingProps) {
   const theme = useTheme();
+  const { t } = useLingui();
   if (
     inline.length === 0 &&
     !hasOverflow &&
@@ -183,7 +184,12 @@ function HeaderTrailing({
       })}
       {hasOverflow ? (
         <Box ref={overflowTriggerRef} collapsable={false}>
-          <IconButton size={36} onPress={onOpenOverflow}>
+          <IconButton
+            size={36}
+            onPress={onOpenOverflow}
+            testID="header-overflow-menu"
+            accessibilityLabel={t`More`}
+          >
             <IconSymbol name="ellipsis" size={20} color={theme.colors.icon} />
           </IconButton>
         </Box>

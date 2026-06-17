@@ -5,8 +5,12 @@ export const PROJECT_CONFIG = {
     repo: 'gamezilla',
   },
   cloudflare: {
-    /** Worker name — must match `apps/api/wrangler.toml` `name`. */
+    /** Worker name — must match `[env.production].name` in `apps/api/wrangler.toml`. */
     apiWorker: 'gamezilla',
+    /** Retired Workers removed on every deploy by `ensure-destroyed`. */
+    legacyWorkers: ['gamezilla-api', 'gamezilla-production'] as const,
+    /** Retired Cloudflare Pages project (web client was split out pre-unified Worker). */
+    legacyPagesProject: 'gamezilla-client',
   },
   postgres: {
     /** Schema owned by this app inside the shared Postgres database. */

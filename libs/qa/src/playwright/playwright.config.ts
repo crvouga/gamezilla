@@ -191,7 +191,12 @@ export default defineConfig({
     trace: 'on-first-retry',
     video: 'on',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
+    // Pixel 5 (Chromium + mobile viewport). iPhone presets use WebKit, but CI
+    // and `install:browsers` only fetch Chromium — see deployment-pipeline.yml.
+    { name: 'mobile', use: { ...devices['Pixel 5'] } },
+  ],
   webServer: {
     command: turboPreviewCmd.join(' '),
     cwd: repoRoot,

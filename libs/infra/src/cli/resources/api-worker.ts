@@ -3,13 +3,17 @@ import { COMMIT_HASH_HEX_REGEX, assertCommitDateIso } from '@pkgs/git';
 import { VaultCli } from '@pkgs/vault';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { PROJECT_CONFIG } from '../../project-config';
 import {
   assertExpoTokenPresent,
   publishClientEasUpdate,
   resolveEasProfile,
   resolveEasProfileWithNotice,
 } from '../lib/eas-mobile';
+import {
+  deleteProductionWorker,
+  isDoMigrationStateError,
+  readLatestWranglerLogTail,
+} from '../lib/cloudflare-worker-lifecycle';
 import { ok, warn } from '../lib/fmt';
 import { productionOrigin } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
@@ -19,12 +23,9 @@ import {
   runAsync,
   runCapture,
   runCaptureAsync,
-  runSafe,
-  type SpawnResult,
 } from '../subprocess';
 import { ResourceBase, type InfraContext } from './types';
 
-const NOT_FOUND_CODES = [10000, 10007, 10090];
 const WRANGLER_ENV = 'production';
 
 type VaultDeployConfig = {
@@ -253,11 +254,7 @@ export class ApiWorkerResource extends ResourceBase {
     );
 
     try {
-      await runAsync(platform, 'wrangler', wranglerArgs('deploy'), {
-        cwd: apiDir,
-        env,
-        label: 'api-worker: Cloudflare Workers deploy (API + static assets)',
-      });
+      await deployProductionWorker(platform, apiDir, env);
     } finally {
       cleanupClientDist();
     }
@@ -291,36 +288,54 @@ export class ApiWorkerResource extends ResourceBase {
   }
 
   destroy(): void {
-    const apiDir = join(REPO_ROOT, 'apps/api');
-    const env: NodeJS.ProcessEnv = {
-      ...process.env,
-      CLOUDFLARE_ACCOUNT_ID: cfAccountId(),
-    };
-
-    const workerNames = [
-      PROJECT_CONFIG.cloudflare.apiWorker,
-      'gamezilla-api',
-    ] as const;
-
-    for (const workerName of workerNames) {
-      const r = runSafe(
-        'wrangler',
-        [...wranglerArgs('delete', '--force'), '--name', workerName],
-        {
-          cwd: apiDir,
-          env,
-        }
-      );
-
-      if (r.exitCode === 0 || isNotFound(r)) {
-        ok('Worker deleted', workerName);
-      } else {
-        warn('Worker delete', r.stderr.trim() || 'unexpected failure');
-      }
-    }
+    deleteProductionWorker();
   }
 }
 
-function isNotFound(r: SpawnResult): boolean {
-  return NOT_FOUND_CODES.some((code) => r.stderr.includes(`[code: ${code}]`));
+/**
+ * Deploy the production Worker. If Cloudflare rejects the DO migration because
+ * an earlier deploy recorded migration tags without exporting the class (the
+ * pre-fix `[env.production]` gap), delete the script and retry once so
+ * migrations apply against a clean slate.
+ */
+async function deployProductionWorker(
+  platform: CiPlatform,
+  apiDir: string,
+  env: NodeJS.ProcessEnv
+): Promise<void> {
+  const deployArgs = wranglerArgs('deploy');
+  const label = 'api-worker: Cloudflare Workers deploy (API + static assets)';
+
+  let deployFailed = false;
+  try {
+    await runAsync(platform, 'wrangler', deployArgs, {
+      cwd: apiDir,
+      env,
+      label,
+    });
+  } catch {
+    deployFailed = true;
+  }
+  if (!deployFailed) return;
+
+  if (!isDoMigrationStateError(readLatestWranglerLogTail())) {
+    assert.fail(`${label} failed`);
+  }
+
+  warn(
+    'DO migration',
+    'script migration state is inconsistent with exports — deleting worker and redeploying'
+  );
+  platform.notice(
+    'Resetting the production Worker script (Durable Object storage is wiped). ' +
+      'This is a one-time recovery from deploys that ran before ROOM bindings ' +
+      'were wired into `[env.production]`.'
+  );
+  deleteProductionWorker();
+
+  await runAsync(platform, 'wrangler', deployArgs, {
+    cwd: apiDir,
+    env,
+    label,
+  });
 }

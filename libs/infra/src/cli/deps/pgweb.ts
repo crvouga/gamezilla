@@ -1,5 +1,5 @@
 import {
-  captureVersion,
+  captureVersionDiagnostic,
   currentOs,
   FirstAvailableInstaller,
   GithubReleaseTarballInstaller,
@@ -50,7 +50,7 @@ export class PgwebDep implements Dep {
 
   version(): string | null {
     if (!which('pgweb')) return null;
-    return captureVersion('pgweb', ['--version']);
+    return captureVersionDiagnostic('pgweb', ['--version']).version;
   }
 
   check(): DepStatus {
@@ -60,9 +60,9 @@ export class PgwebDep implements Dep {
         reason: `not found on PATH — ${installHint()}`,
       };
     }
-    const v = this.version();
-    if (v === null) return { ok: false, reason: 'could not determine version' };
-    return { ok: true, version: v };
+    const d = captureVersionDiagnostic('pgweb', ['--version']);
+    if (d.version !== null) return { ok: true, version: d.version };
+    return { ok: false, reason: 'could not determine version' };
   }
 
   async fetchLatestVersion(): Promise<string | null> {

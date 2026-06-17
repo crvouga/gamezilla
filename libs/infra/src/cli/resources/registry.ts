@@ -1,4 +1,5 @@
 import { ApiWorkerResource } from './api-worker';
+import { LegacyCloudflareStackResource } from './legacy-cloudflare-stack';
 import { S3BucketResource } from './s3-bucket';
 import { ClientRedirectRuleResource } from './client-redirect-rule';
 import { DnsRecordsResource } from './dns-records';
@@ -15,6 +16,7 @@ export function createRegistry(): readonly Resource[] {
   const dnsRecords = new DnsRecordsResource();
   const clientRedirectRule = new ClientRedirectRuleResource();
   const apiWorker = new ApiWorkerResource();
+  const legacyCloudflareStack = new LegacyCloudflareStackResource();
 
   zone.needs(vault);
   planetscalePostgres.needs(vault);
@@ -31,5 +33,6 @@ export function createRegistry(): readonly Resource[] {
     dnsRecords,
     clientRedirectRule,
     apiWorker,
+    legacyCloudflareStack,
   ];
 }
