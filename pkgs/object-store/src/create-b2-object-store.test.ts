@@ -72,7 +72,9 @@ describe('createB2ObjectStore namespace enforcement', () => {
     store = store.withPrefix('tts-audio/');
     await store.put('hash', new Uint8Array([9]), 'audio/mpeg');
     expect(await transport.head('acme/tts-audio/hash')).toBe(true);
-    expect(() => assertRemoteObjectKey('other-project/leak', TEST_ROOT)).toThrow();
+    expect(() =>
+      assertRemoteObjectKey('other-project/leak', TEST_ROOT)
+    ).toThrow();
   });
 });
 

@@ -185,8 +185,7 @@ function audioCacheHeaders(contentType: string): Record<string, string> {
  * never declares Worker bindings of its own.
  */
 export function createTtsApp(options: CreateTtsAppOptions) {
-  const { provider, objectStore, requireAuth, publicPathPrefix = '' } =
-    options;
+  const { provider, objectStore, requireAuth, publicPathPrefix = '' } = options;
 
   return new Hono()
     .post('/tts/synthesize', async (c) => {

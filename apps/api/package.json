@@ -23,11 +23,11 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@libs/infra": "workspace:*",
     "@libs/auth": "workspace:*",
     "@libs/chess": "workspace:*",
     "@libs/client-config": "workspace:*",
     "@libs/games": "workspace:*",
+    "@libs/infra": "workspace:*",
     "@libs/profile": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@libs/stripe": "workspace:*",

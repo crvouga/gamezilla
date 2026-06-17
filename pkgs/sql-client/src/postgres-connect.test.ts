@@ -4,10 +4,7 @@ import {
   ensurePostgresSchema,
   openPgClient,
 } from './postgres-connect';
-import {
-  createPostgresDbScope,
-  quotePgIdent,
-} from './postgres-schema';
+import { createPostgresDbScope, quotePgIdent } from './postgres-schema';
 import { withPostgresSearchPathOption } from './postgres-session-schema';
 
 const DATABASE_URL = process.env['DATABASE_URL'] ?? '';

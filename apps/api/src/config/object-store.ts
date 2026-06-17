@@ -1,6 +1,4 @@
-import {
-  appObjectStoreRootPrefix,
-} from '@libs/infra/namespace-bindings';
+import { appObjectStoreRootPrefix } from '@libs/infra/namespace-bindings';
 import { createLogger } from '@pkgs/logger';
 import { B2SecretName } from '@pkgs/object-store/b2-config';
 import { createB2ObjectStore } from '@pkgs/object-store/impl-b2';

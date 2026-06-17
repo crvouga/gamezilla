@@ -112,7 +112,10 @@ export class TtsClient {
     };
     if (req.signal !== undefined) init.signal = req.signal;
 
-    const response = await this.fetchFn(`${this.base}/api/tts/synthesize`, init);
+    const response = await this.fetchFn(
+      `${this.base}/api/tts/synthesize`,
+      init
+    );
     if (!response.ok) {
       const detail = await response.text().catch(() => '');
       throw new TtsClientError(
