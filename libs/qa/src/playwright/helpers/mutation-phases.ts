@@ -34,10 +34,24 @@ async function clickMutationModalSubmit(
   label: string
 ): Promise<void> {
   const dialog = page.getByRole('dialog');
-  await expect(dialog.getByText(label, { exact: true })).toBeVisible({
-    timeout: 10_000,
-  });
-  await dialog.getByText(label, { exact: true }).click();
+  if ((await dialog.count()) > 0) {
+    const submit = dialog.getByRole('button', { name: label, exact: true });
+    if ((await submit.count()) > 0) {
+      await expect(submit).toBeVisible({ timeout: 10_000 });
+      await submit.click();
+      return;
+    }
+    await expect(dialog.getByText(label, { exact: true })).toBeVisible({
+      timeout: 10_000,
+    });
+    await dialog.getByText(label, { exact: true }).click();
+    return;
+  }
+
+  // Mobile bottom sheet — no dialog role; submit is a footer button.
+  const submit = page.getByRole('button', { name: label, exact: true });
+  await expect(submit).toBeVisible({ timeout: 10_000 });
+  await submit.click();
 }
 
 /** Sign-out confirmation modal is showing its idle copy. */

@@ -7,10 +7,6 @@ import {
 } from '../logging/playwright-step';
 
 test('sign in and sign out with dev-idp', async ({ page }, testInfo) => {
-  test.skip(
-    testInfo.project.name === 'mobile',
-    'Mobile uses overflow + bottom-sheet chrome; auth DSL targets desktop header menu.'
-  );
   const log = createQaPlaywrightLog(testInfo);
   const app = createAppSession(page);
 
