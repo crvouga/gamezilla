@@ -14,6 +14,10 @@
       "dependsOn": ["kill"],
       "persistent": true,
       "cache": false
+    },
+    "preview:wait": {
+      "dependsOn": ["kill"],
+      "cache": false
     }
   }
 }
