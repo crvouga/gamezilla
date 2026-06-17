@@ -1,8 +1,5 @@
 import { assert } from '@pkgs/assert';
-import {
-  COMMIT_HASH_HEX_REGEX,
-  assertCommitDateIso,
-} from '@pkgs/git';
+import { COMMIT_HASH_HEX_REGEX, assertCommitDateIso } from '@pkgs/git';
 
 export { COMMIT_HASH_HEX_REGEX };
 

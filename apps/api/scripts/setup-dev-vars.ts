@@ -1,13 +1,13 @@
-import { buildConnectionUrl, loadPostgresConfig } from '@pkgs/postgres/postgres-config';
+import {
+  buildConnectionUrl,
+  loadPostgresConfig,
+} from '@pkgs/postgres/postgres-config';
 import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
 import { VaultCli } from '@pkgs/vault';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-  DEV_VARS_PATH,
-  encodeDevVarValue,
-} from './dev-vars';
+import { DEV_VARS_PATH, encodeDevVarValue } from './dev-vars';
 
 const apiRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outPath = DEV_VARS_PATH;

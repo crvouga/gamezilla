@@ -134,11 +134,9 @@ function resolveCommitHash(): string {
 }
 
 function resolveCommitDate(): string {
-  const rawDate = runCapture(
-    'git',
-    ['log', '-1', '--format=%cI', 'HEAD'],
-    { cwd: REPO_ROOT }
-  );
+  const rawDate = runCapture('git', ['log', '-1', '--format=%cI', 'HEAD'], {
+    cwd: REPO_ROOT,
+  });
   const commitDate = rawDate.trim();
   assertCommitDateIso(commitDate);
   return commitDate;
