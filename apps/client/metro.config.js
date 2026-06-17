@@ -7,17 +7,25 @@ const monorepoRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-// Watchman is required for live file watching in this monorepo — the Node
-// fallback hits EMFILE when `node_modules` is watched. Bun's content-addressed
-// `.bun` store is ignored via root `.watchmanconfig` (see repo root).
-// Use Node watcher directly for local dev stability. The Watchman daemon can
-// become unstable on some macOS setups with Bun's large node_modules store.
+// Watchman can wedge on large Bun monorepos (recrawl storms, SIGKILL under
+// memory pressure). Default to Metro's Node crawler; opt in when healthy:
+//   EXPO_USE_WATCHMAN=1 bun dev
+// `watchFolders` below scopes HMR to workspace sources without watching the
+// full repo root (infra artifacts, QA exports, etc.).
 config.resolver = {
   ...config.resolver,
-  useWatchman: true,
+  useWatchman: process.env['EXPO_USE_WATCHMAN'] === '1',
 };
 
-// 1. Let Metro know where to resolve packages and in what order
+// Watch shared workspace packages for HMR — not the full monorepo root.
+config.watchFolders = [
+  path.resolve(monorepoRoot, 'apps'),
+  path.resolve(monorepoRoot, 'libs'),
+  path.resolve(monorepoRoot, 'pkgs'),
+  path.resolve(monorepoRoot, 'node_modules'),
+];
+
+// Let Metro know where to resolve packages and in what order
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(monorepoRoot, 'node_modules'),

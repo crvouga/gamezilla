@@ -1,3 +1,13 @@
 {
-  "ignore_dirs": [".git", ".turbo", ".postgres", ".expo", "dist", "build"]
+  "ignore_dirs": [
+    ".git",
+    ".turbo",
+    ".postgres",
+    ".expo",
+    ".qa-dist-dev",
+    ".qa-native",
+    "dist",
+    "build",
+    "node_modules"
+  ]
 }

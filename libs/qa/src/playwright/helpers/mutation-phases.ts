@@ -39,17 +39,18 @@ export async function expectSignOutConfirmIdle(page: Page): Promise<void> {
 /** Submits the destructive sign-out confirm (idle modal must be visible). */
 export async function confirmSignOut(page: Page): Promise<void> {
   await expectSignOutConfirmIdle(page);
-  // Desktop: centered modal (`role="dialog"`). Mobile: bottom sheet actions are
-  // plain pressables beside Cancel — not inside a dialog node in the a11y tree.
-  await page
+  const desktopConfirm = page
     .getByRole('dialog')
+    .getByText('Sign out', { exact: true });
+  if (await desktopConfirm.first().isVisible()) {
+    await desktopConfirm.click();
+    return;
+  }
+  // Mobile bottom sheet: destructive action sits in the body row below the copy.
+  await page
+    .getByText('You will need to sign in again to sync with your user.')
+    .locator('..')
     .getByText('Sign out', { exact: true })
-    .or(
-      page
-        .getByText('Cancel')
-        .locator('..')
-        .getByText('Sign out', { exact: true })
-    )
     .click();
 }
 
