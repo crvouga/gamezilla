@@ -15,6 +15,7 @@ import {
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
 } from './config/env';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { createApiSecretStore } from './config/secret-store';
 import { createApiObjectStore } from './config/object-store';
 
@@ -124,9 +125,11 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const { project, config, addr } = readVaultScopeBindings(env);
   const secretStore = createApiSecretStore(token, { project, config, addr });
   const objectStore = await createApiObjectStore(secretStore);
+  const dbScope = appPostgresDbScope();
   return await createApiApp({
     pubSub,
     secretStore,
+    dbScope,
     apiUrlOverride: readOptionalApiUrlOverride(env),
     databaseUrlOverride: readOptionalDatabaseUrlOverride(env),
     objectStore,
@@ -170,7 +173,7 @@ async function handleWorkerFetch(
 
   // Keep health checks independent from DB pressure so deploy checks and
   // load-balancer liveness don't flap when Postgres is saturated.
-  if (url.pathname === '/health') {
+  if (url.pathname === '/api/health') {
     if (request.method === 'HEAD') {
       return new Response(null, {
         status: 200,

@@ -1,39 +1,27 @@
 /**
- * The single source of truth for the Postgres schema this application owns.
+ * Nominal handle for an application's Postgres schema. Consumers receive an
+ * injected {@link PostgresDbScope} instead of hardcoding schema names — the
+ * product-specific schema string is configured once at the composition root.
  *
- * Every Postgres connection in the codebase runs with `search_path` pinned to
- * this schema (see `./postgres-connect`), so all unqualified DDL/DML resolves
- * here and never touches `public`. The schema name string lives ONLY in this
- * module — consumers receive an injected {@link PostgresDbScope} instead of
- * re-deriving the name, which makes pointing at a different schema impossible
- * without editing this file.
+ * Every Postgres connection pins `search_path` to {@link PostgresDbScope.schema}
+ * (see `./postgres-connect`), so all unqualified DDL/DML resolves there.
  */
 
-export const GAMEZILLA_POSTGRES_SCHEMA = 'gamezilla';
-
-export type GamezillaPostgresSchemaName = typeof GAMEZILLA_POSTGRES_SCHEMA;
-
-/**
- * Nominal handle for "the application's Postgres schema". Constructed only via
- * {@link gamezillaPostgresDbScope} — the private constructor makes it
- * impossible to forge a scope that points anywhere else.
- */
 export class PostgresDbScope {
-  readonly schema: GamezillaPostgresSchemaName = GAMEZILLA_POSTGRES_SCHEMA;
+  readonly schema: string;
 
-  private constructor() {
-    // Use gamezillaPostgresDbScope(); construction is intentionally closed.
-  }
-
-  /** @internal Only `gamezillaPostgresDbScope` may mint a scope. */
-  static __create(): PostgresDbScope {
-    return new PostgresDbScope();
+  constructor(schema: string) {
+    const trimmed = schema.trim();
+    if (trimmed.length === 0) {
+      throw new Error('PostgresDbScope schema must be non-empty');
+    }
+    this.schema = trimmed;
   }
 }
 
-/** The one and only valid {@link PostgresDbScope}. */
-export function gamezillaPostgresDbScope(): PostgresDbScope {
-  return PostgresDbScope.__create();
+/** Mints a {@link PostgresDbScope} for the given schema name. */
+export function createPostgresDbScope(schema: string): PostgresDbScope {
+  return new PostgresDbScope(schema);
 }
 
 /**

@@ -1,4 +1,4 @@
-name = "gamezilla-api"
+name = "gamezilla"
 main = "src/api.ts"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat", "no_handle_cross_request_promise_resolution"]
@@ -66,15 +66,4 @@ routes = [
 directory = "../client/dist"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
-run_worker_first = [
-  "/api/*",
-  "/auth/*",
-  "/patch-db/*",
-  "/health",
-  "/room",
-  "/matchmaking/*",
-  "/stripe/*",
-  "/client-config/*",
-  "/llm/*",
-  "/tts/*",
-]
+run_worker_first = ["/api/*"]

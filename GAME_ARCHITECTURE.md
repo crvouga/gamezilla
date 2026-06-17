@@ -283,7 +283,7 @@ const gameId = 'game-abc123';
 const playerId = 'player-1';
 
 const ws = new WebSocket(
-  `https://api.gamezilla.app/game/${gameId}/ws?playerId=${playerId}`
+  `https://www.gamezilla.app/api/room?spaceId=${spaceId}`
 );
 ```
 
@@ -655,25 +655,33 @@ setTimeout(() => {
 ## Wrangler Configuration
 
 ```toml
-name = "gamezilla-api"
+name = "gamezilla"
 main = "src/api.ts"
 compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat"]
 
-[observability]
-enabled = true
+[assets]
+directory = "../client/dist"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[[routes]]
+pattern = "gamezilla.app/*"
+zone_name = "gamezilla.app"
 
 [[durable_objects.bindings]]
-name = "GAME_ROOM"
-class_name = "GameRoom"
+name = "ROOM"
+class_name = "Room"
 
 [[migrations]]
 tag = "v1"
-new_sqlite_classes = ["GameRoom"]
+new_sqlite_classes = ["Room"]
 
 [vars]
 ENVIRONMENT = "production"
 ```
+
+Backend routes live under `/api/*` (health, auth, patch-db, stripe, tts, llm, room WebSocket). All other paths serve the client SPA from the `ASSETS` binding on `gamezilla.app` / `www.gamezilla.app`.
 
 ---
 

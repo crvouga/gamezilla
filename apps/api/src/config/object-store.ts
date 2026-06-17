@@ -1,3 +1,6 @@
+import {
+  appObjectStoreRootPrefix,
+} from '@libs/infra/namespace-bindings';
 import { createLogger } from '@pkgs/logger';
 import { B2SecretName } from '@pkgs/object-store/b2-config';
 import { createB2ObjectStore } from '@pkgs/object-store/impl-b2';
@@ -17,7 +20,7 @@ const B2_SECRET_NAMES = [
 
 /**
  * Backblaze B2 object store for the API Worker. Credentials are loaded from
- * Vault at boot; every key is scoped under `gamezilla/` inside
+ * Vault at boot; every key is scoped under the configured root prefix inside
  * {@link createB2ObjectStore}.
  *
  * Object storage only backs non-critical caches (e.g. TTS audio). When the B2
@@ -46,5 +49,6 @@ export async function createApiObjectStore(
     bucketName: secrets[B2SecretName.bucketName]!.readSecretValue(),
     s3Endpoint: secrets[B2SecretName.s3Endpoint]!.readSecretValue(),
     s3Region: secrets[B2SecretName.s3Region]!.readSecretValue(),
+    rootPrefix: appObjectStoreRootPrefix(),
   });
 }

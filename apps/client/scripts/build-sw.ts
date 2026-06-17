@@ -17,12 +17,8 @@ const { count, size, warnings } = await generateSW({
     '**/*.{html,js,css,wasm,ttf,woff2,png,jpg,jpeg,svg,ico,webmanifest,json}',
   ],
   navigateFallback: '/index.html',
-  navigateFallbackDenylist: [/^\/api\//, /^\/patch-db\//],
+  navigateFallbackDenylist: [/^\/api\//],
   runtimeCaching: [
-    {
-      urlPattern: /\/patch-db\//,
-      handler: 'NetworkOnly' as const,
-    },
     {
       urlPattern: /^\/api\//,
       handler: 'NetworkOnly' as const,

@@ -15,13 +15,13 @@ test(
     await runPackageScriptOnce('@apps/api', 'setup', {});
 
     await using api = startPackageScriptBackground('@apps/api', 'preview', {});
-    await waitForHttpOk(`${LOCAL_API_ORIGIN}/health`, {
+    await waitForHttpOk(`${LOCAL_API_ORIGIN}/api/health`, {
       timeoutMs: 120_000,
-      label: 'api /health',
+      label: 'api /api/health',
       process: api,
     });
 
-    const res = await fetch(`${LOCAL_API_ORIGIN}/health`);
+    const res = await fetch(`${LOCAL_API_ORIGIN}/api/health`);
     expect(res.ok).toBe(true);
     expect(await res.json()).toEqual({ status: 'ok' });
   },

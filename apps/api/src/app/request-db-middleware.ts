@@ -4,7 +4,7 @@ import type { AuthContext } from '@libs/auth/server/types';
 import { assert } from '@pkgs/assert';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { SecretStore } from '@pkgs/secret-store';
-import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import type { MiddlewareHandler } from 'hono';
 import { ApiSecretName } from '../config/secret-names';
 import { createMatchmakingSqlClientFromSqlClient } from '../matchmaking/sql-client-adapter';
@@ -29,11 +29,12 @@ async function resolveRequestDatabaseUrl(
 
 export function createRequestDbMiddleware(
   secretStore: SecretStore,
+  dbScope: PostgresDbScope,
   apiUrlOverride?: string | null,
   databaseUrlOverride?: string | null
 ): MiddlewareHandler<ApiHonoEnv<AuthContext>> {
   return async (c, next) => {
-    if (c.req.path === '/health') {
+    if (new URL(c.req.url).pathname === '/api/health') {
       return next();
     }
 
@@ -43,11 +44,10 @@ export function createRequestDbMiddleware(
     );
     assert.nonEmptyString(dbUrl, 'DATABASE_URL must be a non-empty string');
 
-    const dbScope = gamezillaPostgresDbScope();
     const { sqlClient } = await openRequestDb(dbUrl, dbScope);
     const patchDb = createRequestPatchDb(sqlClient);
     // The `kv` table is created by API DB migrations (`KvImplPostgres.migrateUp`
-    // in `run-postgres-migrations.ts`) in the `gamezilla` schema, which every
+    // in `run-postgres-migrations.ts`) in the application schema, which every
     // connection's `search_path` is pinned to. Never run DDL on every request.
     const kv = new KvImplPostgres(sqlClient);
     const matchmakingSqlClient =

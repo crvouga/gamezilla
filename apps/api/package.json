@@ -23,6 +23,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@libs/infra": "workspace:*",
     "@libs/auth": "workspace:*",
     "@libs/chess": "workspace:*",
     "@libs/client-config": "workspace:*",
@@ -52,6 +53,7 @@
   },
   "devDependencies": {
     "@pkgs/os": "workspace:*",
+    "@pkgs/postgres": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "typescript": "catalog:",

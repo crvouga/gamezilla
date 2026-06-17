@@ -6,7 +6,11 @@ export const PROJECT_CONFIG = {
   },
   cloudflare: {
     /** Worker name — must match `apps/api/wrangler.toml` `name`. */
-    apiWorker: 'gamezilla-api',
+    apiWorker: 'gamezilla',
+  },
+  postgres: {
+    /** Schema owned by this app inside the shared Postgres database. */
+    schema: 'gamezilla',
   },
   /** Backblaze B2 object storage — bucket and keys are externally managed. */
   objectStore: {

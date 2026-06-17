@@ -42,7 +42,7 @@ export async function createPatchDb(
 
   const remote = new PatchDbImplClientTransport(
     createPatchDbHttpTransport({
-      patchDbBaseUrl: `${args.config.getApiUrl()}/patch-db`,
+      patchDbBaseUrl: `${args.config.getApiUrl()}/api/patch-db`,
       getAuthToken: () => getCachedSessionToken(),
       getAnonId: () => getCachedDeviceId(),
     })

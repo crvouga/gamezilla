@@ -5,7 +5,7 @@ import { runHttpSmokeTests } from '../smoke-tests';
 
 /**
  * Runs DNS diagnostics + HTTP smoke tests against the deployed endpoints
- * (client, API `/health`).
+ * (client, API `/api/health`).
  */
 export async function runSmokePhase(
   platform: CiPlatform,

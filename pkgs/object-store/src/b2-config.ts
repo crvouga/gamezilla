@@ -15,4 +15,6 @@ export type B2ObjectStoreConfig = {
   readonly bucketName: string;
   readonly s3Endpoint: string;
   readonly s3Region: string;
+  /** Wire-key root prefix (e.g. `gamezilla/`). Injected at the composition root. */
+  readonly rootPrefix: string;
 };

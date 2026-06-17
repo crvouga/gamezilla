@@ -126,6 +126,7 @@ async function createTtsAppForApi(config: ApiHandlerConfig) {
   return await createTtsAppFromBindings({
     secretStore: config.secretStore,
     objectStore: config.objectStore,
+    publicPathPrefix: '/api',
     requireAuth: async (req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'tts auth: request store missing');
@@ -185,7 +186,7 @@ function createStripeSubApp(config: ApiHandlerConfig, stripe: Stripe) {
  * it like the Stripe CLI keeps the production worker free of dev fixtures.
  */
 export async function createApiApp(config: ApiHandlerConfig) {
-  const { secretStore } = config;
+  const { secretStore, dbScope } = config;
   const [stripe, ttsApp, llmApp] = await Promise.all([
     createStripeClient(secretStore),
     createTtsAppForApi(config),
@@ -206,11 +207,12 @@ export async function createApiApp(config: ApiHandlerConfig) {
   /** RPC client keys use the literal mount path; wire URL stays `basePath`-driven. */
   const patchMount = resolvedBase as '/patch-db';
 
-  const baseApp = new Hono<ApiHonoEnv<AuthContext>>()
+  const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
     .use(
       '*',
       createRequestDbMiddleware(
         secretStore,
+        dbScope,
         config.apiUrlOverride,
         config.databaseUrlOverride
       )
@@ -218,9 +220,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .use('*', apiCors)
     .route('/', healthApp)
     .route('/', createClientConfigApp(log, secretStore))
-    .route('/', createAuthApiRoutes());
-
-  const app = baseApp
+    .route('/', createAuthApiRoutes())
     .route('/', ttsApp)
     .route('/', llmApp)
     .route('/', createStripeSubApp(config, stripe))
@@ -228,8 +228,9 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/matchmaking', createMatchmakingSubApp())
     .route(patchMount, patchDbApp);
 
-  app.onError(createApiErrorHandler());
+  apiRouter.onError(createApiErrorHandler());
 
-  await mountHostedAuthHandler(app, secretStore);
-  return app;
+  await mountHostedAuthHandler(apiRouter, secretStore);
+
+  return new Hono().route('/api', apiRouter);
 }

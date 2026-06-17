@@ -9,8 +9,9 @@ import {
   assertTigerPolicyForResolvedApiOrigin,
   productionApiUrlTigerExceptionEnabled,
 } from '@apps/client/config/api-servers';
-import { COMMIT_HASH_HEX_REGEX } from '@apps/client/config/app-metadata';
+import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { assert } from '@pkgs/assert';
+import { assertCommitDateIso } from '@pkgs/git';
 import {
   createVaultSecretStoreForScripts,
   type SecretStore,
@@ -180,6 +181,29 @@ function resolveExpoPublicCommitHash(): string {
   return normalized;
 }
 
+function resolveExpoPublicCommitDate(): string {
+  const v = process.env['EXPO_PUBLIC_COMMIT_DATE'];
+  if (typeof v === 'string' && v.trim().length > 0) {
+    const normalized = v.trim();
+    assertCommitDateIso(normalized);
+    return normalized;
+  }
+
+  let stdout = '';
+  assert.notThrows(() => {
+    stdout = execFileSync('git', ['log', '-1', '--format=%cI', 'HEAD'], {
+      cwd: clientRoot,
+      encoding: 'utf8',
+    });
+  }, 'EXPO_PUBLIC_COMMIT_DATE is required and git log -1 --format=%cI HEAD failed');
+  const normalized = stdout.trim();
+  assertCommitDateIso(normalized);
+  process.stdout.write(
+    `[setup-env] EXPO_PUBLIC_COMMIT_DATE unset; using git HEAD committer date ${normalized}\n`
+  );
+  return normalized;
+}
+
 async function main(): Promise<void> {
   const raw = await resolveExpoPublicApiUrl();
   let origin = '';
@@ -194,15 +218,17 @@ async function main(): Promise<void> {
   assertTigerPolicyForResolvedApiOrigin(origin, 'forbid-prod-on-this-machine');
 
   const commitHash = resolveExpoPublicCommitHash();
+  const commitDate = resolveExpoPublicCommitDate();
 
   const body =
     `EXPO_PUBLIC_API_URL=${JSON.stringify(origin)}\n` +
-    `EXPO_PUBLIC_COMMIT_HASH=${JSON.stringify(commitHash)}\n`;
+    `EXPO_PUBLIC_COMMIT_HASH=${JSON.stringify(commitHash)}\n` +
+    `EXPO_PUBLIC_COMMIT_DATE=${JSON.stringify(commitDate)}\n`;
   writeFileSync(tmpPath, body, { encoding: 'utf8' });
   renameSync(tmpPath, outPath);
 
   process.stdout.write(
-    `[setup-env] wrote .env.local with EXPO_PUBLIC_API_URL=${origin} EXPO_PUBLIC_COMMIT_HASH=${commitHash.slice(0, 7)}…\n`
+    `[setup-env] wrote .env.local with EXPO_PUBLIC_API_URL=${origin} EXPO_PUBLIC_COMMIT_HASH=${commitHash.slice(0, 7)}… EXPO_PUBLIC_COMMIT_DATE=${commitDate}\n`
   );
 }
 

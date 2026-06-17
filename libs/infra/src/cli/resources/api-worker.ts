@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
+import { COMMIT_HASH_HEX_REGEX, assertCommitDateIso } from '@pkgs/git';
 import { VaultCli } from '@pkgs/vault';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -133,9 +133,21 @@ function resolveCommitHash(): string {
   return commitHash;
 }
 
+function resolveCommitDate(): string {
+  const rawDate = runCapture(
+    'git',
+    ['log', '-1', '--format=%cI', 'HEAD'],
+    { cwd: REPO_ROOT }
+  );
+  const commitDate = rawDate.trim();
+  assertCommitDateIso(commitDate);
+  return commitDate;
+}
+
 async function buildClientForWorker(
   platform: CiPlatform,
-  commitHash: string
+  commitHash: string,
+  commitDate: string
 ): Promise<void> {
   const clientDir = join(REPO_ROOT, 'apps/client');
   const apiUrl = productionOrigin();
@@ -147,6 +159,7 @@ async function buildClientForWorker(
       ...process.env,
       EXPO_PUBLIC_API_URL: apiUrl,
       EXPO_PUBLIC_COMMIT_HASH: commitHash,
+      EXPO_PUBLIC_COMMIT_DATE: commitDate,
     },
   });
 }
@@ -166,8 +179,9 @@ export class ApiWorkerResource extends ResourceBase {
   async dryRun(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     await this.validateVaultForDeploy();
     const commitHash = resolveCommitHash();
+    const commitDate = resolveCommitDate();
 
-    await buildClientForWorker(platform, commitHash);
+    await buildClientForWorker(platform, commitHash, commitDate);
 
     const apiDir = join(REPO_ROOT, 'apps/api');
     try {
@@ -208,10 +222,11 @@ export class ApiWorkerResource extends ResourceBase {
     const apiDir = join(REPO_ROOT, 'apps/api');
     const env = wranglerEnv();
     const commitHash = resolveCommitHash();
+    const commitDate = resolveCommitDate();
 
     const vaultCfg = await this.validateVaultForDeploy();
 
-    await buildClientForWorker(platform, commitHash);
+    await buildClientForWorker(platform, commitHash, commitDate);
 
     const secretArgs = wranglerArgs('secret', 'put');
     await runCaptureAsync('wrangler', [...secretArgs, 'VAULT_TOKEN'], {
@@ -284,15 +299,26 @@ export class ApiWorkerResource extends ResourceBase {
       CLOUDFLARE_ACCOUNT_ID: cfAccountId(),
     };
 
-    const r = runSafe('wrangler', wranglerArgs('delete', '--force'), {
-      cwd: apiDir,
-      env,
-    });
+    const workerNames = [
+      PROJECT_CONFIG.cloudflare.apiWorker,
+      'gamezilla-api',
+    ] as const;
 
-    if (r.exitCode === 0 || isNotFound(r)) {
-      ok('Worker deleted', PROJECT_CONFIG.cloudflare.apiWorker);
-    } else {
-      warn('Worker delete', r.stderr.trim() || 'unexpected failure');
+    for (const workerName of workerNames) {
+      const r = runSafe(
+        'wrangler',
+        [...wranglerArgs('delete', '--force'), '--name', workerName],
+        {
+          cwd: apiDir,
+          env,
+        }
+      );
+
+      if (r.exitCode === 0 || isNotFound(r)) {
+        ok('Worker deleted', workerName);
+      } else {
+        warn('Worker delete', r.stderr.trim() || 'unexpected failure');
+      }
     }
   }
 }

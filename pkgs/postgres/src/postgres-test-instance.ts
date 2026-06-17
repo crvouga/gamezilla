@@ -11,18 +11,20 @@ import { join } from 'node:path';
 import { SQL } from 'bun';
 import EmbeddedPostgres from 'embedded-postgres';
 import { assert } from '@pkgs/assert';
-import { GAMEZILLA_POSTGRES_SCHEMA } from '@pkgs/sql-client/postgres-schema';
+import { quotePgIdent } from '@pkgs/sql-client/postgres-schema';
 
 export type PostgresTestConfig = {
   port?: number;
   user?: string;
   password?: string;
   database?: string;
+  /** Application schema to reset on `wipe()` (default `test`). */
+  schema?: string;
 };
 
 export type PostgresTestInstance = {
   connectionUrl: string;
-  config: Required<PostgresTestConfig>;
+  config: Required<PostgresTestConfig> & { schema: string };
   wipe: () => Promise<void>;
 };
 
@@ -31,27 +33,28 @@ const DEFAULTS = {
   user: 'postgres',
   password: 'postgres',
   database: 'postgres',
+  schema: 'test',
 } satisfies Required<PostgresTestConfig>;
 
-// Reset both the legacy `public` schema and the application's `gamezilla`
-// schema so every test starts from a clean slate. Connections opened through
-// `@pkgs/sql-client` pin `search_path` to `gamezilla`.
-const WIPE_SQL = `
+function buildWipeSql(schema: string): string {
+  const ident = quotePgIdent(schema);
+  return `
 DROP SCHEMA IF EXISTS public CASCADE;
 CREATE SCHEMA public;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO public;
-DROP SCHEMA IF EXISTS ${GAMEZILLA_POSTGRES_SCHEMA} CASCADE;
-CREATE SCHEMA ${GAMEZILLA_POSTGRES_SCHEMA};
-GRANT ALL ON SCHEMA ${GAMEZILLA_POSTGRES_SCHEMA} TO postgres;
-GRANT ALL ON SCHEMA ${GAMEZILLA_POSTGRES_SCHEMA} TO public;
+DROP SCHEMA IF EXISTS ${ident} CASCADE;
+CREATE SCHEMA ${ident};
+GRANT ALL ON SCHEMA ${ident} TO postgres;
+GRANT ALL ON SCHEMA ${ident} TO public;
 `.trim();
+}
 
 type Started = {
   pg: EmbeddedPostgres;
   dataDir: string;
   connectionUrl: string;
-  config: Required<PostgresTestConfig>;
+  config: Required<PostgresTestConfig> & { schema: string };
 };
 
 let instance: Started | null = null;
@@ -63,7 +66,7 @@ function buildUrl(c: Required<PostgresTestConfig>): string {
 }
 
 async function startEmbedded(
-  config: Required<PostgresTestConfig>
+  config: Required<PostgresTestConfig> & { schema: string }
 ): Promise<Started> {
   const dataDir = mkdtempSync(join(tmpdir(), 'gz-pg-test-'));
   const pg = new EmbeddedPostgres({
@@ -83,14 +86,15 @@ async function startEmbedded(
   return { pg, dataDir, connectionUrl: buildUrl(config), config };
 }
 
-async function wipeDatabase(url: string): Promise<void> {
+async function wipeDatabase(url: string, schema: string): Promise<void> {
+  const wipeSql = buildWipeSql(schema);
   try {
     wipeClient ??= new SQL(url);
-    await wipeClient.unsafe(WIPE_SQL).simple();
+    await wipeClient.unsafe(wipeSql).simple();
   } catch {
     void wipeClient?.close();
     wipeClient = new SQL(url);
-    await wipeClient.unsafe(WIPE_SQL).simple();
+    await wipeClient.unsafe(wipeSql).simple();
   }
 }
 
@@ -99,14 +103,15 @@ async function wipeDatabase(url: string): Promise<void> {
  * call, reuses it on subsequent calls. Use `wipe()` before each test for a
  * clean slate.
  *
- * @param config - Optional overrides (port, user, etc.). Use a unique port if
- *   running multiple test suites in parallel.
+ * @param config - Optional overrides (port, user, schema, etc.). Use a unique
+ *   port if running multiple test suites in parallel.
  */
 export async function getPostgresTestInstance(
   config: PostgresTestConfig = {}
 ): Promise<PostgresTestInstance> {
+  const merged = { ...DEFAULTS, ...config };
   if (!instance) {
-    instance = await startEmbedded({ ...DEFAULTS, ...config });
+    instance = await startEmbedded(merged);
   }
 
   const inst = instance;
@@ -115,7 +120,7 @@ export async function getPostgresTestInstance(
     connectionUrl: inst.connectionUrl,
     config: inst.config,
     wipe: async () => {
-      await wipeDatabase(inst.connectionUrl);
+      await wipeDatabase(inst.connectionUrl, inst.config.schema);
     },
   };
 }

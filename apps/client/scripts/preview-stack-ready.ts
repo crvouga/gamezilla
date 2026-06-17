@@ -38,7 +38,7 @@ async function probeOk(url: string): Promise<boolean> {
 export async function previewStackReadyResponse(): Promise<Response> {
   const apiTarget = resolveLocalPreviewApiProxyTarget();
   const [apiReady, devIdpReady] = await Promise.all([
-    probeOk(`${apiTarget}/health`),
+    probeOk(`${apiTarget}/api/health`),
     probeOk(resolveDevIdpAuthorizeUrl()),
   ]);
   if (apiReady && devIdpReady) {

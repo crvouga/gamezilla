@@ -38,6 +38,8 @@
       "@pkgs/matchmaking/storage": ["./pkgs/matchmaking/src/storage.ts"],
       "@pkgs/matchmaking/wire": ["./pkgs/matchmaking/src/wire.ts"],
       "@libs/games/*": ["./libs/games/src/*"],
+      "@libs/infra/namespace-bindings": ["./libs/infra/src/namespace-bindings.ts"],
+      "@libs/infra/project-config": ["./libs/infra/src/project-config.ts"],
       "@pkgs/assistant/shared": ["./pkgs/assistant/src/shared/index.ts"],
       "@pkgs/assistant/client": ["./pkgs/assistant/src/client/index.ts"],
       "@pkgs/assert": ["./pkgs/assert/src/index.ts"],

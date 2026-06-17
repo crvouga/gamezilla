@@ -30,7 +30,7 @@ import {
 import { SqlClientImplBunPostgres } from '@pkgs/sql-client/impl-bun-postgres';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { ensurePostgresSchema } from '@pkgs/sql-client/postgres-connect';
-import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import {
   afterAll,
   beforeAll,
@@ -100,8 +100,11 @@ describe('migratePatchDbPostgres: reconcile integration', () => {
   const logger = createLogger({ name: 'reconcile-it', level: 'silent' });
 
   beforeAll(async () => {
-    const instance = await getPostgresTestInstance({ port: TEST_PG_PORT });
-    const dbScope = gamezillaPostgresDbScope();
+    const instance = await getPostgresTestInstance({
+      port: TEST_PG_PORT,
+      schema: 'test',
+    });
+    const dbScope = createPostgresDbScope(instance.config.schema);
     sqlClient = SqlClientImplBunPostgres.connect(
       instance.connectionUrl,
       dbScope

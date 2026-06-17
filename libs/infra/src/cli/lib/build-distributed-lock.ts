@@ -4,7 +4,7 @@ import { asKeyword } from '@pkgs/keyword';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { createLogger } from '@pkgs/logger';
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/impl-postgres-tcp';
-import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { resolveDatabaseUrl } from '../resources/planetscale-postgres';
 
 export interface DistributedLockConnection {
@@ -20,7 +20,7 @@ export interface DistributedLockConnection {
  */
 export async function buildDistributedLock(): Promise<DistributedLockConnection> {
   const url = await resolveDatabaseUrl();
-  const sql = new SqlClientImplPostgresTcp(url, gamezillaPostgresDbScope());
+  const sql = new SqlClientImplPostgresTcp(url, appPostgresDbScope());
   await sql.connect();
   // Long CI deploys can leave the TCP session idle; a stuck `BEGIN` on release
   // would otherwise block the process forever (no stdin — not an interactive hang).

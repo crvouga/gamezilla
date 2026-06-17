@@ -25,7 +25,7 @@ const WEBHOOK_DESCRIPTION = 'API worker — managed by @libs/stripe sync';
 // Deployed Stripe endpoint metadata value. Do not change without migrating
 // the `managed_by` metadata on existing live webhook endpoints.
 const WEBHOOK_MANAGED_BY_TAG = 'gamezilla_stripe_sync';
-const WEBHOOK_PATH = '/stripe/webhook';
+const WEBHOOK_PATH = '/api/stripe/webhook';
 
 export type WebhookSyncResult =
   | {

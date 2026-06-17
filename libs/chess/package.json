@@ -23,6 +23,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@libs/infra": "workspace:*",
     "@libs/auth": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@lingui/core": "catalog:",

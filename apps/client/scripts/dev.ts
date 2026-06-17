@@ -2,8 +2,8 @@
  * Start Expo web dev behind a loopback reverse proxy on :5173.
  *
  * Metro listens on `EXPO_METRO_PORT` (default 5174). The proxy on
- * `EXPO_DEV_PORT` (default 5173) forwards `/api/*`, `/auth/*`, `/patch-db/*`,
- * and `/room` WebSockets to wrangler so `getApiBaseUrl()` same-origin logic
+ * `EXPO_DEV_PORT` (default 5173) forwards `/api/*` (including WebSocket
+ * `/api/room`) to wrangler so `getApiBaseUrl()` same-origin logic
  * works during `bun dev`, matching `preview-server.ts` / Playwright.
  */
 import { spawn, type ChildProcess } from 'node:child_process';

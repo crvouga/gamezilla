@@ -66,15 +66,16 @@ describe('postgres-test-instance (embedded-postgres)', () => {
 
   test('wipe clears tables in the application schema', async () => {
     if (!available || !pg) return;
+    const schema = pg.config.schema;
     const sql = new SQL(pg.connectionUrl);
     await sql.unsafe(
-      'CREATE TABLE gamezilla.t (id SERIAL PRIMARY KEY, x TEXT)'
+      `CREATE TABLE ${schema}.t (id SERIAL PRIMARY KEY, x TEXT)`
     );
     void sql.close();
     await pg.wipe();
     const verify = new SQL(pg.connectionUrl);
     const tables = await verify.unsafe(
-      "SELECT tablename FROM pg_tables WHERE schemaname = 'gamezilla'"
+      `SELECT tablename FROM pg_tables WHERE schemaname = '${schema}'`
     );
     void verify.close();
     expect(tables).toHaveLength(0);

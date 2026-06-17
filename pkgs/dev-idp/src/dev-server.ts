@@ -21,7 +21,7 @@ import {
   openPgClient,
   type OpenPgClientResult,
 } from '@pkgs/sql-client/postgres-connect';
-import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import { devIdpPostgresDbScope } from './postgres-schema-env';
 import { Hono } from 'hono';
 
 import { buildClientBundle } from './client-bundle';
@@ -195,7 +195,7 @@ async function connectPgWithRetry(
       // `turbo dev`, before `db:migrate`) gets the application schema.
       const result = await openPgClient({
         connectionString: dbUrl,
-        dbScope: gamezillaPostgresDbScope(),
+        dbScope: devIdpPostgresDbScope(),
         ensureSchema: true,
       });
       if (attempt > 1) {

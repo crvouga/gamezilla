@@ -6,7 +6,7 @@ import type { CiPlatform } from '../platform/platform';
 import type { Command } from './types';
 
 /**
- * CI atomic step 6: POSTs `/client-config/refresh` so the Worker writes
+ * CI atomic step 6: POSTs `/api/client-config/refresh` so the Worker writes
  * the latest client runtime config into PatchDB. Final pipeline step.
  */
 export class RefreshConfigCommand implements Command {

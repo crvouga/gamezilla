@@ -1,19 +1,17 @@
-import { VaultCli } from '@pkgs/vault';
+import { buildConnectionUrl, loadPostgresConfig } from '@pkgs/postgres/postgres-config';
 import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
+import { VaultCli } from '@pkgs/vault';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  DEV_VARS_PATH,
+  encodeDevVarValue,
+} from './dev-vars';
 
 const apiRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
-const outPath = join(apiRoot, '.dev.vars');
+const outPath = DEV_VARS_PATH;
 const tmpPath = `${outPath}.${process.pid}.tmp`;
-
-function encodeDevVarValue(value: string): string {
-  return `"${value
-    .replaceAll('\\', '\\\\')
-    .replaceAll('"', '\\"')
-    .replaceAll('\n', '\\n')}"`;
-}
 
 type VaultScope = {
   token: string;
@@ -67,11 +65,20 @@ function isPostgresWireUrl(url: string): boolean {
 function readDatabaseUrlOverrideFromEnv(): string | null {
   const raw = process.env['DATABASE_URL']?.trim() ?? '';
   if (raw.length === 0 || !isPostgresWireUrl(raw)) return null;
-  // `vault run` / `bun qa` inject hosted Neon into env before Playwright sets the
-  // embedded-postgres URL. Only pin loopback URLs into `.dev.vars` — same
-  // contract as preview/QA needing the local cluster, never Vault production DB.
+  // Playwright / turbo preview sets loopback before setup; honor that override.
   if (!isLoopbackPostgresUrl(raw)) return null;
   return raw;
+}
+
+/**
+ * Local `bun dev` always boots `@pkgs/postgres`. Vault `dev` may still expose a
+ * hosted `DATABASE_URL`, but the Worker and migrate script must hit the same
+ * embedded cluster (see `libs/qa` preview wiring).
+ */
+function resolveDatabaseUrlForDevVars(): string {
+  const fromEnv = readDatabaseUrlOverrideFromEnv();
+  if (fromEnv !== null) return fromEnv;
+  return buildConnectionUrl(loadPostgresConfig());
 }
 
 async function main(): Promise<void> {
@@ -86,10 +93,9 @@ async function main(): Promise<void> {
   if (apiUrlOverride !== null) {
     lines.push(`API_URL=${encodeDevVarValue(apiUrlOverride)}`);
   }
-  const databaseUrlOverride = readDatabaseUrlOverrideFromEnv();
-  if (databaseUrlOverride !== null) {
-    lines.push(`DATABASE_URL=${encodeDevVarValue(databaseUrlOverride)}`);
-  }
+  lines.push(
+    `DATABASE_URL=${encodeDevVarValue(resolveDatabaseUrlForDevVars())}`
+  );
 
   const body = `${lines.join('\n')}\n`;
   writeFileSync(tmpPath, body, { encoding: 'utf8' });
@@ -100,7 +106,7 @@ async function main(): Promise<void> {
       .map((l) => l.split('=')[0])
       .join(
         ', '
-      )} (DATABASE_URL and other config load from Vault at Worker boot)\n`
+      )} (Worker secrets load from Vault; DATABASE_URL pins the embedded Postgres cluster)\n`
   );
 }
 

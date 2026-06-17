@@ -67,7 +67,7 @@ import { PatchDbCompactionPolicyRegistry } from '@pkgs/patch-db/policy/compactio
 import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres-connect';
-import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
 import {
@@ -151,7 +151,7 @@ export class ChessPuzzleSeeder {
   async #createSqlClient(databaseUrl: string): Promise<{ sql: SqlClient }> {
     const { sqlClient } = await openPgClient({
       connectionString: databaseUrl,
-      dbScope: gamezillaPostgresDbScope(),
+      dbScope: appPostgresDbScope(),
       clientOptions: {
         keepAlive: true,
         keepAliveInitialDelayMillis: 10_000,

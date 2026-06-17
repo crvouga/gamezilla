@@ -10,7 +10,7 @@ import type { B2ObjectStoreConfig } from './b2-config';
 import { ObjectStoreWithPrefix } from './impl-with-prefix';
 import type { ObjectStore, StoredObject } from './interface';
 import { assertRemoteObjectKey } from './namespace-guard';
-import { ObjectStoreNamespace } from './prefixes';
+import { normalizeObjectStoreRootPrefix } from './prefixes';
 
 const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
 
@@ -104,17 +104,18 @@ function bytesStream(bytes: Uint8Array): ReadableStream<Uint8Array> {
 /**
  * Low-level {@link ObjectStore} backed by Backblaze B2's S3-compatible API.
  * Keys are passed through verbatim — callers must not use this directly;
- * compose via {@link createB2ObjectStore} so every key is scoped under
- * {@link ObjectStoreNamespace.root}.
+ * compose via {@link createB2ObjectStore} so every key is scoped under an
+ * injected root prefix.
  */
 class ObjectStoreImplB2S3 implements ObjectStore {
   private readonly client: S3Client;
-  private readonly namespace = ObjectStoreNamespace.root;
+  private readonly namespace: string;
 
   constructor(
     private readonly bucketName: string,
     config: B2ObjectStoreConfig
   ) {
+    this.namespace = normalizeObjectStoreRootPrefix(config.rootPrefix);
     this.client = new S3Client({
       region: config.s3Region,
       endpoint: config.s3Endpoint,
@@ -210,15 +211,14 @@ class ObjectStoreImplB2S3 implements ObjectStore {
 }
 
 /**
- * Returns a B2-backed {@link ObjectStore} with {@link ObjectStoreNamespace.root}
- * applied. This is the only supported entry point for remote object storage —
- * feature code receives logical keys; the wrapper maps them to
- * `gamezilla/<feature>/…` in the bucket. Every S3 command is rejected unless
- * the wire key starts with `gamezilla/` (enforced in {@link ObjectStoreImplB2S3}).
+ * Returns a B2-backed {@link ObjectStore} with the configured root prefix
+ * applied. Feature code receives logical keys; the wrapper maps them to
+ * `<rootPrefix><feature>/…` in the bucket.
  */
 export function createB2ObjectStore(config: B2ObjectStoreConfig): ObjectStore {
+  const rootPrefix = normalizeObjectStoreRootPrefix(config.rootPrefix);
   return new ObjectStoreWithPrefix(
     new ObjectStoreImplB2S3(config.bucketName, config),
-    ObjectStoreNamespace.root
+    rootPrefix
   );
 }

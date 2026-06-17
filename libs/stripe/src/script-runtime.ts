@@ -10,7 +10,7 @@
 import type { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPgPool } from '@pkgs/sql-client/postgres-connect';
-import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from './script-secret-store';
 import { StripeSecretKeys } from './secret-keys';
@@ -84,7 +84,7 @@ export async function resolveOptionalDbUrl(): Promise<string | undefined> {
 export function createSqlClientFromDbUrl(dbUrl: string): SqlClient {
   return createPgPool({
     connectionString: dbUrl,
-    dbScope: gamezillaPostgresDbScope(),
+    dbScope: appPostgresDbScope(),
     max: 1,
   }).sqlClient;
 }

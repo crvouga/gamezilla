@@ -120,7 +120,7 @@ export class HttpLlmProvider implements LlmProvider {
     const fetchFn =
       this.options.fetch ?? ((url, init) => globalThis.fetch(url, init));
 
-    const response = await fetchFn(`${base}/llm/structured`, {
+    const response = await fetchFn(`${base}/api/llm/structured`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input),

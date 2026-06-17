@@ -36,6 +36,7 @@
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
         "@libs/games": "workspace:*",
+        "@libs/infra": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@libs/stripe": "workspace:*",
@@ -61,6 +62,7 @@
       },
       "devDependencies": {
         "@pkgs/os": "workspace:*",
+        "@pkgs/postgres": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "typescript": "catalog:",
@@ -204,6 +206,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
+        "@libs/infra": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
@@ -359,6 +362,7 @@
       "dependencies": {
         "@hono/zod-validator": "catalog:",
         "@libs/auth": "workspace:*",
+        "@libs/infra": "workspace:*",
         "@pkgs/attribute": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/patch-db": "workspace:*",
@@ -515,6 +519,9 @@
     "pkgs/git": {
       "name": "@pkgs/git",
       "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
@@ -852,7 +859,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@jlongster/sql.js": "catalog:",
-        "@neondatabase/serverless": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/pub-sub": "workspace:*",
         "@pkgs/sqlite": "workspace:*",
@@ -1024,7 +1030,6 @@
     "@lingui/conf": "5.9.5",
     "@lingui/core": "5.9.5",
     "@lingui/react": "5.9.5",
-    "@neondatabase/serverless": "^1.0.0",
     "@playwright/test": "^1.56.0",
     "@react-native-async-storage/async-storage": "~2.2.0",
     "@react-navigation/bottom-tabs": "^7.4.0",
@@ -1820,8 +1825,6 @@
     "@messageformat/parser": ["@messageformat/parser@5.1.1", "", { "dependencies": { "moo": "^0.5.1" } }, "sha512-3p0YRGCcTUCYvBKLIxtDDyrJ0YijGIwrTRu1DT8gIviIDZru8H23+FkY6MJBzM1n9n20CiM4VeDYuBsrrwnLjg=="],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.4", "", { "dependencies": { "@tybys/wasm-util": "^0.10.1" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" } }, "sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow=="],
-
-    "@neondatabase/serverless": ["@neondatabase/serverless@1.1.0", "", {}, "sha512-r3ZZhRjEcfEdKIZnoB1RusNgvHuaBRqfCzV4Gi+5A9yUX0S4HTws/ASWqt13wL4y4I+0rqsWGdA2w7EQXHi3+Q=="],
 
     "@noble/ciphers": ["@noble/ciphers@2.2.0", "", {}, "sha512-Z6pjIZ/8IJcCGzb2S/0Px5J81yij85xASuk1teLNeg75bfT07MV3a/O2Mtn1I2se43k3lkVEcFaR10N4cgQcZA=="],
 

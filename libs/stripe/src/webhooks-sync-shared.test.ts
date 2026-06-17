@@ -6,7 +6,7 @@ import {
   type WebhookEndpointSummary,
 } from './webhooks-sync-shared';
 
-const desired = 'https://www.gamezilla.app/stripe/webhook';
+const desired = 'https://www.gamezilla.app/api/stripe/webhook';
 
 describe('webhookEndpointsInSync', () => {
   it('is true for single enabled * endpoint at desired URL', () => {
@@ -32,7 +32,7 @@ describe('webhookEndpointsInSync', () => {
   it('is false when URL mismatches', () => {
     const eps: WebhookEndpointSummary[] = [
       {
-        url: 'https://wrong.example/stripe/webhook',
+        url: 'https://wrong.example/api/stripe/webhook',
         enabled_events: ['*'],
         status: 'enabled',
       },

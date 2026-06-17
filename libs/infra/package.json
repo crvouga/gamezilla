@@ -1,6 +1,10 @@
 {
   "name": "@libs/infra",
   "private": true,
+  "exports": {
+    "./namespace-bindings": "./src/namespace-bindings.ts",
+    "./project-config": "./src/project-config.ts"
+  },
   "scripts": {
     "infra": "VAULT_CONFIG=prd bun run ../../scripts/vault-run.ts -- bun run libs/infra/src/bin/cli.ts",
     "lint": "eslint src --max-warnings 0",

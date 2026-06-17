@@ -106,7 +106,6 @@
     "@lingui/conf": "5.9.5",
     "@lingui/core": "5.9.5",
     "@lingui/react": "5.9.5",
-    "@neondatabase/serverless": "^1.0.0",
     "@playwright/test": "^1.56.0",
     "@react-native-async-storage/async-storage": "~2.2.0",
     "@react-navigation/bottom-tabs": "^7.4.0",

@@ -66,7 +66,7 @@ function fetchMockSynthThenAudio(
 ) {
   return mock(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : String(input);
-    if (url.endsWith('/tts/synthesize') && init?.method === 'POST') {
+    if (url.endsWith('/api/tts/synthesize') && init?.method === 'POST') {
       return jsonResponse(synthResponse);
     }
     return audioResponse(audioBytes);
@@ -83,7 +83,7 @@ describe('TtsClient.synthesize', () => {
     // via the intermediate audio download.
     expect(fetchMock.mock.calls.length).toBe(2);
     const audioCall = fetchMock.mock.calls[1] as unknown as [string];
-    expect(audioCall[0]).toBe('http://127.0.0.1:8788/tts/audio/abc.mp3');
+    expect(audioCall[0]).toBe('http://127.0.0.1:8788/api/tts/audio/abc.mp3');
     expect(result.cached).toBe(false);
     expect(typeof result.url).toBe('string');
     expect(result.url.length).toBeGreaterThan(0);
@@ -94,7 +94,7 @@ describe('TtsClient.synthesize', () => {
     const client = makeClient(fetchMock, 'https://api.example.com///');
     await client.synthesize(SAMPLE_REQUEST);
     const audioCall = fetchMock.mock.calls[1] as unknown as [string];
-    expect(audioCall[0]).toBe('https://api.example.com/tts/audio/abc.mp3');
+    expect(audioCall[0]).toBe('https://api.example.com/api/tts/audio/abc.mp3');
   });
 
   test('passes absolute URLs through unchanged', async () => {

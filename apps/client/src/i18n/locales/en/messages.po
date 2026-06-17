@@ -461,8 +461,8 @@ msgstr "Always"
 #~ msgstr "Anastasia's pattern — knight blocks the escape, rook delivers."
 
 #: apps/client/src/settings/about-screen.tsx
-msgid "API"
-msgstr "API"
+#~ msgid "API"
+#~ msgstr "API"
 
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "API endpoint"
@@ -486,8 +486,12 @@ msgstr "App"
 #~ msgstr "App version and build metadata"
 
 #: apps/client/src/settings/settings-screen.tsx
-msgid "App version, build, and commit hash"
-msgstr "App version, build, and commit hash"
+#~ msgid "App version, build, and commit hash"
+#~ msgstr "App version, build, and commit hash"
+
+#: apps/client/src/settings/settings-screen.tsx
+msgid "App version, build, commit hash, and commit date"
+msgstr "App version, build, commit hash, and commit date"
 
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/settings/theme-screen.tsx
@@ -1211,6 +1215,10 @@ msgstr "Commit hash"
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "Committed count"
 msgstr "Committed count"
+
+#: apps/client/src/settings/about-screen.tsx
+msgid "Committed: {formattedCommitDate}"
+msgstr "Committed: {formattedCommitDate}"
 
 #: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 msgid "Completed"

@@ -1,10 +1,6 @@
 import { expo } from '@better-auth/expo';
 import type { SecretStore } from '@pkgs/secret-store';
-import { createNeonPool } from '@pkgs/sql-client/neon-connect';
-import {
-  createPgPool,
-  isLoopbackPostgresUrl,
-} from '@pkgs/sql-client/postgres-connect';
+import { createPgPool } from '@pkgs/sql-client/postgres-connect';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import { betterAuth, type BetterAuthPlugin } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
@@ -44,14 +40,13 @@ export type HostedBetterAuth = {
 
 export type BetterAuthRequestStack = {
   readonly auth: HostedBetterAuth;
-  /** Ends per-request Kysely pool (Neon HTTP `max: 1`). */
+  /** Ends per-request Kysely pool (`max: 1`). */
   readonly dispose: () => Promise<void>;
 };
 
 /**
- * Per-request Better Auth + Kysely over Neon HTTP (`DATABASE_URL` from Vault).
- * Uses a short-lived Neon HTTP `Pool({ max: 1 })` because `PostgresDialect`
- * requires a pool.
+ * Per-request Better Auth + Kysely over TCP `pg` (`DATABASE_URL` from Vault).
+ * Uses a short-lived `pg` pool (`max: 1`) because `PostgresDialect` requires a pool.
  */
 export async function createBetterAuthRequestStack(
   secretStore: SecretStore,
@@ -65,14 +60,11 @@ export async function createBetterAuthRequestStack(
     secretStore,
     options.apiUrlOverride
   );
-  const poolArgs = {
+  const { pool } = createPgPool({
     connectionString: databaseUrl,
     dbScope: options.dbScope,
-    max: 1 as const,
-  };
-  const { pool } = isLoopbackPostgresUrl(databaseUrl)
-    ? createPgPool(poolArgs)
-    : createNeonPool(poolArgs);
+    max: 1,
+  });
   await pool.query('SELECT 1');
   const db = new Kysely({ dialect: new PostgresDialect({ pool }) });
 

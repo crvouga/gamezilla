@@ -2,8 +2,13 @@ import { loadBetterAuthOptionsForMigration } from '@libs/auth/server/better-auth
 import { assert } from '@pkgs/assert';
 import { createLogger, type Logger } from '@pkgs/logger';
 import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
-import { createPgPool, pingPostgres } from '@pkgs/sql-client/postgres-connect';
-import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import {
+  createPgPool,
+  isLoopbackPostgresUrl,
+  pingPostgres,
+} from '@pkgs/sql-client/postgres-connect';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { readDevVarsDatabaseUrl } from './dev-vars';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
 
 const CONNECTION_LIMIT_DELAYS_MS = [0, 3_000, 8_000, 15_000, 30_000] as const;
@@ -33,7 +38,15 @@ function sleep(ms: number): Promise<void> {
 }
 
 async function resolveDatabaseUrlForMigrate(): Promise<string> {
+  const fromDevVars = readDevVarsDatabaseUrl();
+  if (fromDevVars !== null && isPostgresUrl(fromDevVars)) {
+    return fromDevVars;
+  }
   const fromEnv = (process.env['DATABASE_URL'] ?? '').trim();
+  if (fromEnv.length > 0 && isPostgresUrl(fromEnv)) {
+    // Prefer loopback when Vault injects a hosted URL during `bun dev`.
+    if (isLoopbackPostgresUrl(fromEnv)) return fromEnv;
+  }
   if (fromEnv.length > 0 && isPostgresUrl(fromEnv)) {
     return fromEnv;
   }
@@ -82,7 +95,7 @@ async function waitForPostgresReachable(
 
 async function runMigrateOnce(): Promise<void> {
   const databaseUrl = await resolveDatabaseUrlForMigrate();
-  const dbScope = gamezillaPostgresDbScope();
+  const dbScope = appPostgresDbScope();
   const { pool, sqlClient } = createPgPool({
     connectionString: databaseUrl,
     dbScope,
