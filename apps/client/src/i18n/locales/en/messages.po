@@ -1249,8 +1249,8 @@ msgid "Connecting to {url}"
 msgstr "Connecting to {url}"
 
 #: libs/spaces/src/client/debug/space-counter-panel.tsx
-msgid "Connecting to room…"
-msgstr "Connecting to room…"
+#~ msgid "Connecting to room…"
+#~ msgstr "Connecting to room…"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
@@ -4913,6 +4913,10 @@ msgstr "Off"
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Offline"
 msgstr "Offline"
+
+#: libs/spaces/src/client/debug/space-counter-panel.tsx
+msgid "Offline — changes will sync when reconnected"
+msgstr "Offline — changes will sync when reconnected"
 
 #: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "offset"
