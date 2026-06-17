@@ -28,6 +28,18 @@ export async function dismissSignInModalSuccess(page: Page): Promise<void> {
   });
 }
 
+/** Clicks the primary submit action in an open {@link MutationModal} idle phase. */
+async function clickMutationModalSubmit(
+  page: Page,
+  label: string
+): Promise<void> {
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByText(label, { exact: true })).toBeVisible({
+    timeout: 10_000,
+  });
+  await dialog.getByText(label, { exact: true }).click();
+}
+
 /** Sign-out confirmation modal is showing its idle copy. */
 export async function expectSignOutConfirmIdle(page: Page): Promise<void> {
   await expect(page.getByText('Sign out?')).toBeVisible({ timeout: 10_000 });
@@ -39,19 +51,7 @@ export async function expectSignOutConfirmIdle(page: Page): Promise<void> {
 /** Submits the destructive sign-out confirm (idle modal must be visible). */
 export async function confirmSignOut(page: Page): Promise<void> {
   await expectSignOutConfirmIdle(page);
-  const desktopConfirm = page
-    .getByRole('dialog')
-    .getByText('Sign out', { exact: true });
-  if (await desktopConfirm.first().isVisible()) {
-    await desktopConfirm.click();
-    return;
-  }
-  // Mobile bottom sheet: destructive action sits in the body row below the copy.
-  await page
-    .getByText('You will need to sign in again to sync with your user.')
-    .locator('..')
-    .getByText('Sign out', { exact: true })
-    .click();
+  await clickMutationModalSubmit(page, 'Sign out');
 }
 
 /** Sign-out modal shows the in-flight loading state (or success if sign-out is instant). */
@@ -93,7 +93,7 @@ export async function expectLeaveSpaceConfirmIdle(page: Page): Promise<void> {
 /** Submits the leave-space confirm (idle modal must be visible). */
 export async function confirmLeaveSpace(page: Page): Promise<void> {
   await expectLeaveSpaceConfirmIdle(page);
-  await page.getByRole('dialog').getByText('Leave', { exact: true }).click();
+  await clickMutationModalSubmit(page, 'Leave');
 }
 
 /** Leave-space modal shows the in-flight loading state. */
@@ -127,10 +127,7 @@ export async function expectEndSpaceConfirmIdle(page: Page): Promise<void> {
 /** Submits the end-space confirm (idle modal must be visible). */
 export async function confirmEndSpace(page: Page): Promise<void> {
   await expectEndSpaceConfirmIdle(page);
-  await page
-    .getByRole('dialog')
-    .getByText('End space', { exact: true })
-    .click();
+  await clickMutationModalSubmit(page, 'End space');
 }
 
 /** End-space modal shows the in-flight loading state. */
