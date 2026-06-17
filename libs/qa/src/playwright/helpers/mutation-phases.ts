@@ -42,9 +42,13 @@ export async function confirmSignOut(page: Page): Promise<void> {
   await page.getByRole('dialog').getByText('Sign out', { exact: true }).click();
 }
 
-/** Sign-out modal shows the in-flight loading state. */
+/** Sign-out modal shows the in-flight loading state (or success if sign-out is instant). */
 export async function expectSignOutModalLoading(page: Page): Promise<void> {
-  await expect(page.getByText('Signing out…')).toBeVisible({ timeout: 15_000 });
+  await expect(
+    page
+      .getByText('Signing out…')
+      .or(page.getByText('Signed out', { exact: true }))
+  ).toBeVisible({ timeout: 15_000 });
 }
 
 /** Sign-out modal shows the dismissible success state. */

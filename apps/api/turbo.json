@@ -9,6 +9,11 @@
       "dependsOn": ["kill", "install:deps", "setup"],
       "persistent": true,
       "cache": false
+    },
+    "preview": {
+      "dependsOn": ["kill", "setup", "^build", "build", "@pkgs/postgres#preview"],
+      "persistent": true,
+      "cache": false
     }
   }
 }
