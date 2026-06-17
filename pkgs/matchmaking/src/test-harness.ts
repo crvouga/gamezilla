@@ -62,6 +62,17 @@ export const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
+ * PGlite `joined_at` defaults to `now()` on INSERT. Back-to-back joins in
+ * the same event-loop turn (common on busy Linux CI runners) can share the
+ * same timestamp and make FIFO-order assertions nondeterministic.
+ */
+export async function pauseForJoinedAtOrdering(): Promise<void> {
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 50);
+  });
+}
+
+/**
  * Registers a crash handler that converts library `Assert.crash`
  * calls into thrown `Error`s. Call from `beforeAll`. The returned
  * dispose runs in `afterAll`. Keeps the SUT-side asserts loud during
