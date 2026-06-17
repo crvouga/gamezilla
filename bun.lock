@@ -323,6 +323,7 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
       },
       "devDependencies": {
         "@playwright/test": "catalog:",

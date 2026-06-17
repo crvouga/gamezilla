@@ -4,6 +4,10 @@ import path from 'node:path';
 
 import { assert } from '@pkgs/assert';
 
+import {
+  LOCAL_EMBEDDED_POSTGRES_URL,
+  previewStackEnv,
+} from '../constants/embedded-postgres';
 import { resolveLocalPreviewApiOriginSync } from '../constants/local-api-preview';
 
 // Top-level `await` would turn this file into an async ES module, which
@@ -54,9 +58,7 @@ assert.equals(
 const baseURL = 'http://localhost:5173';
 /** Playwright readiness probe — static `/` is up before API + dev IdP finish booting. */
 const previewReadyURL = `${baseURL}/ready`;
-/** Mirrors {@link @pkgs/postgres} defaults and {@link @pkgs/dev-idp} `DEFAULT_DATABASE_URL`. */
-const LOCAL_EMBEDDED_POSTGRES_URL =
-  'postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable';
+const previewEnv = previewStackEnv();
 let baseURLParsed: URL | undefined;
 assert.notThrows(
   () => {
@@ -83,7 +85,8 @@ process.env['EXPO_PUBLIC_API_URL'] = baseURL;
 // `@pkgs/postgres` and the API Worker reads `DATABASE_URL` from Vault at request
 // time. Without this override, `migrate-db` runs against Vault while Better Auth
 // reads an empty local cluster — OAuth fails in CI.
-process.env['DATABASE_URL'] = LOCAL_EMBEDDED_POSTGRES_URL;
+process.env['DATABASE_URL'] = previewEnv['DATABASE_URL']!;
+process.env['POSTGRES_SCHEMA'] = previewEnv['POSTGRES_SCHEMA']!;
 
 assert.equals(
   process.env['BETTER_AUTH_PREVIEW_API_URL'],
