@@ -19,7 +19,7 @@ import type { GenericOAuthConfig } from 'better-auth/plugins/generic-oauth';
 
 import { DEV_PROVIDER } from '../shared/auth-entities';
 
-export function devIdpProviderConfig(baseURL: string): GenericOAuthConfig {
+export function devIdpProviderConfig(): GenericOAuthConfig {
   return {
     providerId: DEV_PROVIDER,
     clientId: DEV_IDP_CLIENT_ID,

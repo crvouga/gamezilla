@@ -132,8 +132,18 @@ export async function startDevIdpServer(
     authorize: `${url}${DEV_IDP_PATH_PREFIX}/authorize`,
   });
 
+  const stop = createDevIdpStopHandler(server, pgClient, log);
+
+  return { url, port, stop };
+}
+
+function createDevIdpStopHandler(
+  server: ReturnType<typeof Bun.serve>,
+  pgClient: OpenPgClientResult['client'],
+  log: Logger
+): () => Promise<void> {
   let stopped = false;
-  const stop = async (): Promise<void> => {
+  return async (): Promise<void> => {
     if (stopped) return;
     stopped = true;
     try {
@@ -163,8 +173,6 @@ export async function startDevIdpServer(
       }
     }
   };
-
-  return { url, port, stop };
 }
 
 /**

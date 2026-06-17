@@ -29,7 +29,7 @@ export async function loadBetterAuthOptionsForMigration(
     .trim();
   const plugins: BetterAuthPlugin[] = [bearer(), expo()];
   if (isLocalApiOrigin(apiOrigin)) {
-    plugins.push(genericOAuth({ config: [devIdpProviderConfig(baseURL)] }));
+    plugins.push(genericOAuth({ config: [devIdpProviderConfig()] }));
   }
   return {
     secret,
