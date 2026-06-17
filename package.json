@@ -55,9 +55,12 @@
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
+    "esbuild": "^0.28.1",
     "fast-uri": "^3.1.2",
     "js-cookie": "^3.0.7",
-    "serialize-javascript": "7.0.5"
+    "serialize-javascript": "7.0.5",
+    "shell-quote": "^1.8.4",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@lingui/cli": "catalog:",
@@ -129,7 +132,7 @@
     "csv-parse": "^6.2.1",
     "dependency-cruiser": "^17.4.0",
     "embedded-postgres": "18.3.0-beta.17",
-    "esbuild": "^0.28.0",
+    "esbuild": "^0.28.1",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "eslint-import-resolver-typescript": "^4.4.4",
@@ -160,7 +163,7 @@
     "expo-updates": "~29.0.18",
     "expo-web-browser": "~15.0.11",
     "fzstd": "^0.1.1",
-    "hono": "^4.7.0",
+    "hono": "^4.12.25",
     "knip": "^6.11.0",
     "kysely": "^0.28.9",
     "make-plural": "^8.1.0",
