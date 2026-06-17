@@ -3,7 +3,13 @@
   "extends": ["//"],
   "tasks": {
     "preview": {
-      "dependsOn": ["kill", "setup", "^build", "build", "@pkgs/postgres#preview"],
+      "dependsOn": [
+        "kill",
+        "setup",
+        "^build",
+        "build",
+        "@pkgs/postgres#preview"
+      ],
       "persistent": true,
       "cache": false
     }
