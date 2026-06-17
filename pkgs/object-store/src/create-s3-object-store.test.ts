@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { createB2ObjectStore } from './impl-b2';
+import { createS3ObjectStore } from './impl-s3';
 import { ObjectStoreImplInMemory } from './impl-in-memory';
 import { ObjectStoreWithPrefix } from './impl-with-prefix';
 import type { ObjectStore } from './interface';
@@ -8,12 +8,12 @@ import { normalizeObjectStoreRootPrefix } from './prefixes';
 
 const TEST_ROOT = normalizeObjectStoreRootPrefix('acme');
 
-const B2_CONFIG = {
-  applicationKeyId: 'key-id',
-  applicationKey: 'key-secret',
-  bucketName: 'bucket',
-  s3Endpoint: 'https://s3.us-west-004.backblazeb2.com',
-  s3Region: 'us-west-004',
+const S3_CONFIG = {
+  accessKeyId: 'key-id',
+  secretAccessKey: 'key-secret',
+  bucket: 'bucket',
+  endpoint: 'https://s3.us-west-004.backblazeb2.com',
+  region: 'us-west-004',
   rootPrefix: TEST_ROOT,
 } as const;
 
@@ -40,9 +40,9 @@ async function readAllBytes(
   return out;
 }
 
-describe('createB2ObjectStore namespace enforcement', () => {
+describe('createS3ObjectStore namespace enforcement', () => {
   test('wraps the S3 store with the injected root prefix', () => {
-    const store = createB2ObjectStore(B2_CONFIG);
+    const store = createS3ObjectStore(S3_CONFIG);
     expect(store).toBeInstanceOf(ObjectStoreWithPrefix);
   });
 
@@ -76,7 +76,7 @@ describe('createB2ObjectStore namespace enforcement', () => {
   });
 });
 
-/** In-memory transport that mirrors B2 S3 wire-key enforcement. */
+/** In-memory transport that mirrors S3 wire-key enforcement. */
 class GuardedTransportMemory implements ObjectStore {
   private readonly inner = new ObjectStoreImplInMemory();
 
@@ -109,7 +109,7 @@ class GuardedTransportMemory implements ObjectStore {
 
   withPrefix(_prefix: string): ObjectStore {
     throw new Error(
-      'B2 transport does not support withPrefix; call withPrefix on createB2ObjectStore() result'
+      'S3 transport does not support withPrefix; call withPrefix on createS3ObjectStore() result'
     );
   }
 }

@@ -6,7 +6,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 
-import type { B2ObjectStoreConfig } from './b2-config';
+import type { S3ObjectStoreConfig } from './s3-config';
 import { ObjectStoreWithPrefix } from './impl-with-prefix';
 import type { ObjectStore, StoredObject } from './interface';
 import { assertRemoteObjectKey } from './namespace-guard';
@@ -65,7 +65,7 @@ async function bodyToBytes(body: unknown): Promise<Uint8Array> {
   if (body instanceof ArrayBuffer) {
     return new Uint8Array(body);
   }
-  throw new Error('ObjectStoreImplB2: unsupported S3 response body type');
+  throw new Error('ObjectStoreImplS3: unsupported S3 response body type');
 }
 
 async function readStreamBytes(
@@ -102,26 +102,26 @@ function bytesStream(bytes: Uint8Array): ReadableStream<Uint8Array> {
 }
 
 /**
- * Low-level {@link ObjectStore} backed by Backblaze B2's S3-compatible API.
+ * Low-level {@link ObjectStore} backed by an S3-compatible API.
  * Keys are passed through verbatim — callers must not use this directly;
- * compose via {@link createB2ObjectStore} so every key is scoped under an
+ * compose via {@link createS3ObjectStore} so every key is scoped under an
  * injected root prefix.
  */
-class ObjectStoreImplB2S3 implements ObjectStore {
+class ObjectStoreImplS3 implements ObjectStore {
   private readonly client: S3Client;
   private readonly namespace: string;
 
   constructor(
-    private readonly bucketName: string,
-    config: B2ObjectStoreConfig
+    private readonly bucket: string,
+    config: S3ObjectStoreConfig
   ) {
     this.namespace = normalizeObjectStoreRootPrefix(config.rootPrefix);
     this.client = new S3Client({
-      region: config.s3Region,
-      endpoint: config.s3Endpoint,
+      region: config.region,
+      endpoint: config.endpoint,
       credentials: {
-        accessKeyId: config.applicationKeyId,
-        secretAccessKey: config.applicationKey,
+        accessKeyId: config.accessKeyId,
+        secretAccessKey: config.secretAccessKey,
       },
       forcePathStyle: true,
     });
@@ -135,7 +135,7 @@ class ObjectStoreImplB2S3 implements ObjectStore {
     this.guardKey(key);
     try {
       const response = await this.client.send(
-        new GetObjectCommand({ Bucket: this.bucketName, Key: key })
+        new GetObjectCommand({ Bucket: this.bucket, Key: key })
       );
       const bytes = await bodyToBytes(response.Body);
       const contentType =
@@ -166,7 +166,7 @@ class ObjectStoreImplB2S3 implements ObjectStore {
     this.guardKey(key);
     await this.client.send(
       new PutObjectCommand({
-        Bucket: this.bucketName,
+        Bucket: this.bucket,
         Key: key,
         Body: bytes,
         ContentType: contentType,
@@ -178,7 +178,7 @@ class ObjectStoreImplB2S3 implements ObjectStore {
     this.guardKey(key);
     try {
       await this.client.send(
-        new HeadObjectCommand({ Bucket: this.bucketName, Key: key })
+        new HeadObjectCommand({ Bucket: this.bucket, Key: key })
       );
       return true;
     } catch (err: unknown) {
@@ -191,7 +191,7 @@ class ObjectStoreImplB2S3 implements ObjectStore {
     this.guardKey(key);
     try {
       await this.client.send(
-        new DeleteObjectCommand({ Bucket: this.bucketName, Key: key })
+        new DeleteObjectCommand({ Bucket: this.bucket, Key: key })
       );
     } catch (err: unknown) {
       if (isS3NotFound(err)) return;
@@ -205,20 +205,20 @@ class ObjectStoreImplB2S3 implements ObjectStore {
 
   withPrefix(_prefix: string): ObjectStore {
     throw new Error(
-      'B2 transport does not support withPrefix; call withPrefix on createB2ObjectStore() result'
+      'S3 transport does not support withPrefix; call withPrefix on createS3ObjectStore() result'
     );
   }
 }
 
 /**
- * Returns a B2-backed {@link ObjectStore} with the configured root prefix
+ * Returns an S3-backed {@link ObjectStore} with the configured root prefix
  * applied. Feature code receives logical keys; the wrapper maps them to
  * `<rootPrefix><feature>/…` in the bucket.
  */
-export function createB2ObjectStore(config: B2ObjectStoreConfig): ObjectStore {
+export function createS3ObjectStore(config: S3ObjectStoreConfig): ObjectStore {
   const rootPrefix = normalizeObjectStoreRootPrefix(config.rootPrefix);
   return new ObjectStoreWithPrefix(
-    new ObjectStoreImplB2S3(config.bucketName, config),
+    new ObjectStoreImplS3(config.bucket, config),
     rootPrefix
   );
 }

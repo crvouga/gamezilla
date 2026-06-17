@@ -12,7 +12,7 @@ export const PROJECT_CONFIG = {
     /** Schema owned by this app inside the shared Postgres database. */
     schema: 'gamezilla',
   },
-  /** Backblaze B2 object storage — bucket and keys are externally managed. */
+  /** S3-compatible object storage — bucket and credentials are externally managed. */
   objectStore: {
     /** Key prefix enforced on every remote object-store write. */
     namespace: 'gamezilla',
