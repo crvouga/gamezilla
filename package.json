@@ -48,6 +48,7 @@
     "qa:api": "bun run scripts/vault-run.ts -- bun run --filter '@libs/qa' api",
     "qa:browser": "bun run scripts/vault-run.ts -- bun run --filter '@libs/qa' browser",
     "qa:native": "bun run scripts/vault-run.ts -- bun run --filter '@libs/qa' native",
+    "qa:production-client": "bun run --filter '@libs/qa' native:bundle",
     "qa:report": "bun run scripts/vault-run.ts -- bun run --filter '@libs/qa' report",
     "stripe:check": "bun run --filter '@libs/stripe' check",
     "stripe:listen": "bun run --filter '@libs/stripe-cli' dev",

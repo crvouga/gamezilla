@@ -71,38 +71,49 @@ export function assertTigerPolicyForResolvedApiOrigin(
 /** Ports where `preview-server.ts` serves the export and proxies `/api/*`. */
 const WEB_PREVIEW_PORTS = new Set(['5173', '4173']);
 
+function isProductionWebHostname(hostname: string): boolean {
+  return (
+    isProductionApiHttpHostname(hostname) || hostname === APP_IDENTITY.domain
+  );
+}
+
 /**
- * Playwright / `preview-server` serves the static export on a loopback port and
- * proxies `/api/*` to wrangler. Auth cookies are first-party only when the
- * client calls `window.location.origin`, not the cross-port wrangler URL baked
- * into `EXPO_PUBLIC_API_URL` at export time.
+ * When the web client and API share an origin, always call that origin — not a
+ * build-time `EXPO_PUBLIC_API_URL` that may point at loopback wrangler.
+ *
+ * - Production: Worker serves static assets + `/api/*` on apex + www.
+ * - Preview / dev: `preview-server` / `dev.ts` proxy `/api/*` on :5173 / :4173.
  */
-function readWebSameOriginPreviewApi(): string | null {
+function readWebSameOriginApi(): string | null {
   if (typeof window === 'undefined' || window.location === undefined) {
     return null;
   }
   const origin = window.location.origin;
-  if (!isLocalApiOrigin(origin)) return null;
+  let hostname = '';
   let port = '';
   assert.notThrows(
     () => {
-      port = new URL(origin).port;
+      const parsed = new URL(origin);
+      hostname = parsed.hostname;
+      port = parsed.port;
     },
-    'web preview origin must parse as URL',
+    'web origin must parse as URL',
     { origin }
   );
+  if (isProductionWebHostname(hostname)) return origin;
+  if (!isLocalApiOrigin(origin)) return null;
   if (!WEB_PREVIEW_PORTS.has(port)) return null;
   return origin;
 }
 
 export function getApiBaseUrl(): string {
-  const previewSameOrigin = readWebSameOriginPreviewApi();
-  if (previewSameOrigin !== null) {
+  const sameOriginWebApi = readWebSameOriginApi();
+  if (sameOriginWebApi !== null) {
     assertTigerPolicyForResolvedApiOrigin(
-      previewSameOrigin,
+      sameOriginWebApi,
       'forbid-prod-in-expo-dev-bundle'
     );
-    return previewSameOrigin;
+    return sameOriginWebApi;
   }
 
   // Direct read — Expo inlines `EXPO_PUBLIC_*` at bundle time (see

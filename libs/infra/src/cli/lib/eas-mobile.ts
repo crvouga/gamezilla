@@ -5,6 +5,7 @@ import type { CiPlatform } from '../platform/platform';
 import { REPO_ROOT } from '../paths';
 import { runAsync, runCapture } from '../subprocess';
 import { ok } from './fmt';
+import { productionOrigin } from './infra-outputs';
 
 /**
  * EAS profile / channel. `production` ships from a push to `main`;
@@ -94,6 +95,7 @@ function resolveCommitDate(): string {
 function easEnv(commitHash: string, commitDate: string): NodeJS.ProcessEnv {
   return {
     ...process.env,
+    EXPO_PUBLIC_API_URL: productionOrigin(),
     EXPO_PUBLIC_COMMIT_HASH: commitHash,
     EXPO_PUBLIC_COMMIT_DATE: commitDate,
     EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL: '1',
@@ -123,6 +125,12 @@ export async function publishClientEasUpdate(
   const commitDate = resolveCommitDate();
   const cwd = clientDir();
   const env = easEnv(commitHash, commitDate);
+
+  await runAsync(platform, 'bun', ['run', 'check:production-env'], {
+    cwd,
+    env,
+    label: 'eas update: production client build env gate',
+  });
 
   // Compile i18n + bundle the WASM workers before the OTA bundle. The
   // `eas-build-post-install` hook only runs on EAS Build workers, not for a

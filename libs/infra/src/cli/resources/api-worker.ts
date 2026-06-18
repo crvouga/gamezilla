@@ -146,17 +146,40 @@ async function buildClientForWorker(
 ): Promise<void> {
   const clientDir = join(REPO_ROOT, 'apps/client');
   const apiUrl = productionOrigin();
+  const buildEnv: NodeJS.ProcessEnv = {
+    ...process.env,
+    EXPO_PUBLIC_API_URL: apiUrl,
+    EXPO_PUBLIC_COMMIT_HASH: commitHash,
+    EXPO_PUBLIC_COMMIT_DATE: commitDate,
+  };
+
+  await runAsync(
+    platform,
+    'bun',
+    ['run', 'check:production-env'],
+    {
+      cwd: clientDir,
+      label: 'api-worker: production client build env gate',
+      env: buildEnv,
+    }
+  );
 
   await runAsync(platform, 'bun', ['run', 'build'], {
     cwd: clientDir,
     label: 'api-worker: expo export (client static assets)',
-    env: {
-      ...process.env,
-      EXPO_PUBLIC_API_URL: apiUrl,
-      EXPO_PUBLIC_COMMIT_HASH: commitHash,
-      EXPO_PUBLIC_COMMIT_DATE: commitDate,
-    },
+    env: buildEnv,
   });
+
+  await runAsync(
+    platform,
+    'bun',
+    ['run', 'check:production-dist'],
+    {
+      cwd: clientDir,
+      label: 'api-worker: production web dist API URL gate',
+      env: buildEnv,
+    }
+  );
 }
 
 function cleanupClientDist(): void {

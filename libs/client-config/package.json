@@ -26,6 +26,7 @@
     "@libs/auth": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
+    "@pkgs/assert": "workspace:*",
     "@pkgs/async": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/equal": "workspace:*",
