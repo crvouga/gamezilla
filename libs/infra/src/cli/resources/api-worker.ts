@@ -153,16 +153,11 @@ async function buildClientForWorker(
     EXPO_PUBLIC_COMMIT_DATE: commitDate,
   };
 
-  await runAsync(
-    platform,
-    'bun',
-    ['run', 'check:production-env'],
-    {
-      cwd: clientDir,
-      label: 'api-worker: production client build env gate',
-      env: buildEnv,
-    }
-  );
+  await runAsync(platform, 'bun', ['run', 'check:production-env'], {
+    cwd: clientDir,
+    label: 'api-worker: production client build env gate',
+    env: buildEnv,
+  });
 
   await runAsync(platform, 'bun', ['run', 'build'], {
     cwd: clientDir,
@@ -170,16 +165,11 @@ async function buildClientForWorker(
     env: buildEnv,
   });
 
-  await runAsync(
-    platform,
-    'bun',
-    ['run', 'check:production-dist'],
-    {
-      cwd: clientDir,
-      label: 'api-worker: production web dist API URL gate',
-      env: buildEnv,
-    }
-  );
+  await runAsync(platform, 'bun', ['run', 'check:production-dist'], {
+    cwd: clientDir,
+    label: 'api-worker: production web dist API URL gate',
+    env: buildEnv,
+  });
 }
 
 function cleanupClientDist(): void {

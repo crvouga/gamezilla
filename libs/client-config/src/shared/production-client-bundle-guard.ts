@@ -66,16 +66,9 @@ function listBundleFilesUnder(root: string): string[] {
   return paths;
 }
 
-export function assertProductionBundlesAtDir(
-  dir: string,
-  label: string
-): void {
+export function assertProductionBundlesAtDir(dir: string, label: string): void {
   const files = listBundleFilesUnder(dir);
-  assert.ok(
-    files.length > 0,
-    `${label}: no JS/HBC bundles found`,
-    { dir }
-  );
+  assert.ok(files.length > 0, `${label}: no JS/HBC bundles found`, { dir });
 
   let scannedChunks = 0;
   for (const file of files) {
