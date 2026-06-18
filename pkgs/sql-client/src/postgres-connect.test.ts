@@ -6,7 +6,10 @@ import {
   openPgClient,
 } from './postgres-connect';
 import { createPostgresDbScope, quotePgIdent } from './postgres-schema';
-import { withPostgresSearchPathOption } from './postgres-session-schema';
+import {
+  postgresRejectsStartupSearchPathOption,
+  withPostgresSearchPathOption,
+} from './postgres-session-schema';
 
 const DATABASE_URL = process.env['DATABASE_URL'] ?? '';
 const HAS_DB = DATABASE_URL.length > 0;
@@ -41,6 +44,18 @@ describe('withPostgresSearchPathOption', () => {
       createPostgresDbScope('my_app')
     );
     expect(out).toBe('not a url');
+  });
+
+  test('skips startup options on Neon pooler hosts', () => {
+    const input =
+      'postgres://u:p@ep-cool-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require';
+    expect(postgresRejectsStartupSearchPathOption(input)).toBe(true);
+    const out = withPostgresSearchPathOption(
+      input,
+      createPostgresDbScope('my_app')
+    );
+    expect(out).toBe(input);
+    expect(new URL(out).searchParams.get('options')).toBeNull();
   });
 });
 

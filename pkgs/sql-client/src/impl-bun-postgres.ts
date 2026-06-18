@@ -7,7 +7,11 @@ import type {
   SqlClient,
 } from './interface';
 import type { PostgresDbScope } from './postgres-schema';
-import { withPostgresSearchPathOption } from './postgres-session-schema';
+import { quotePgIdent } from './postgres-schema';
+import {
+  postgresRejectsStartupSearchPathOption,
+  withPostgresSearchPathOption,
+} from './postgres-session-schema';
 import { questionMarkParamsToDollarParams } from './positional-params';
 import { sanitizePostgresUrlForBunSql } from './sanitize-postgres-url-for-bun-sql';
 
@@ -15,11 +19,19 @@ type BunSql = InstanceType<typeof SQL>;
 
 export class SqlClientImplBunPostgres implements PostgresSqlClient {
   private client: SqlClient;
+  private readonly needsSessionSearchPath: boolean;
 
   constructor(
     connection: string | URL | BunSql,
     readonly dbScope: PostgresDbScope
   ) {
+    const needsSessionSearchPath =
+      typeof connection === 'string'
+        ? postgresRejectsStartupSearchPathOption(connection)
+        : connection instanceof URL
+          ? postgresRejectsStartupSearchPathOption(connection.toString())
+          : false;
+    this.needsSessionSearchPath = needsSessionSearchPath;
     const sql =
       typeof connection === 'string' || connection instanceof URL
         ? new SQL(
@@ -39,8 +51,13 @@ export class SqlClientImplBunPostgres implements PostgresSqlClient {
     return new SqlClientImplBunPostgres(connection, dbScope);
   }
 
-  connect(): Promise<void> {
-    return this.client.connect();
+  async connect(): Promise<void> {
+    await this.client.connect();
+    if (this.needsSessionSearchPath) {
+      await this.client.run(
+        `SET search_path TO ${quotePgIdent(this.dbScope.schema)}`
+      );
+    }
   }
 
   disconnect(): Promise<void> {

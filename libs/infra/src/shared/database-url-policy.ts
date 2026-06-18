@@ -60,17 +60,10 @@ async function fetchProductionDatabaseUrlFromVault(): Promise<string | null> {
   }
 }
 
-/**
- * Tiger invariant: block production-looking `DATABASE_URL` in dev / test contexts.
- * Compares against loopback, optional hostname denylist, and Vault `prd` `DATABASE_URL`.
- */
-export async function assertNonProdDatabaseUrl(
+function assertValidDevPostgresWireUrl(
   url: string,
-  context: Record<string, unknown> = {},
-  options?: { readonly productionUrl?: string | null }
-): Promise<void> {
-  if (productionDatabaseUrlTigerExceptionEnabled()) return;
-
+  context: Record<string, unknown>
+): void {
   assert.nonEmptyString(
     url,
     'DATABASE_URL must be a non-empty string',
@@ -82,7 +75,6 @@ export async function assertNonProdDatabaseUrl(
       { ...context, url: normalizeDatabaseUrlForCompare(url) }
     );
   }
-
   if (isLoopbackPostgresUrl(url)) {
     assert.fail(
       'Tiger invariant: non-production DATABASE_URL must not target loopback Postgres. ' +
@@ -91,7 +83,12 @@ export async function assertNonProdDatabaseUrl(
       context
     );
   }
+}
 
+function parsePostgresHostname(
+  url: string,
+  context: Record<string, unknown>
+): string {
   let hostname = '';
   assert.notThrows(
     () => {
@@ -100,7 +97,13 @@ export async function assertNonProdDatabaseUrl(
     'DATABASE_URL must parse as a URL',
     context
   );
+  return hostname;
+}
 
+function assertHostnameNotProductionOnly(
+  hostname: string,
+  context: Record<string, unknown>
+): void {
   for (const denied of PROJECT_CONFIG.postgres.productionHostnames) {
     if (hostname === denied) {
       assert.fail(
@@ -109,24 +112,45 @@ export async function assertNonProdDatabaseUrl(
       );
     }
   }
+}
+
+function assertDiffersFromProductionUrl(
+  url: string,
+  prodUrl: string | null,
+  context: Record<string, unknown>
+): void {
+  if (prodUrl === null || !isPostgresWireUrl(prodUrl)) return;
+  const normalized = normalizeDatabaseUrlForCompare(url);
+  const normalizedProd = normalizeDatabaseUrlForCompare(prodUrl);
+  if (normalized === normalizedProd) {
+    assert.fail(
+      'Tiger invariant: DATABASE_URL matches Vault `prd` `DATABASE_URL`. ' +
+        'Non-deploy contexts must use Vault `dev` only. ' +
+        'If intentional, set ALLOW_PRODUCTION_DATABASE_URL=1.',
+      context
+    );
+  }
+}
+
+/**
+ * Tiger invariant: block production-looking `DATABASE_URL` in dev / test contexts.
+ * Compares against loopback, optional hostname denylist, and Vault `prd` `DATABASE_URL`.
+ */
+export async function assertNonProdDatabaseUrl(
+  url: string,
+  context: Record<string, unknown> = {},
+  options?: { readonly productionUrl?: string | null }
+): Promise<void> {
+  if (productionDatabaseUrlTigerExceptionEnabled()) return;
+
+  assertValidDevPostgresWireUrl(url, context);
+  assertHostnameNotProductionOnly(parsePostgresHostname(url, context), context);
 
   const prodUrl =
     options?.productionUrl !== undefined
       ? options.productionUrl
       : await fetchProductionDatabaseUrlFromVault();
-
-  if (prodUrl !== null && isPostgresWireUrl(prodUrl)) {
-    const normalized = normalizeDatabaseUrlForCompare(url);
-    const normalizedProd = normalizeDatabaseUrlForCompare(prodUrl);
-    if (normalized === normalizedProd) {
-      assert.fail(
-        'Tiger invariant: DATABASE_URL matches Vault `prd` `DATABASE_URL`. ' +
-          'Non-deploy contexts must use Vault `dev` only. ' +
-          'If intentional, set ALLOW_PRODUCTION_DATABASE_URL=1.',
-        context
-      );
-    }
-  }
+  assertDiffersFromProductionUrl(url, prodUrl, context);
 }
 
 /**
