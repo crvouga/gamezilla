@@ -57,6 +57,17 @@ export function sanitizePostgresUrlForNodePg(connection: string | URL): string {
   if (url === null) return originalSerialized;
 
   let changed = false;
+  const sslmode = url.searchParams.get('sslmode');
+  if (
+    sslmode === 'require' ||
+    sslmode === 'prefer' ||
+    sslmode === 'verify-ca'
+  ) {
+    // pg@8.20 / pg-connection-string@2.12 warn that these modes are currently
+    // aliased to verify-full; pin explicitly so CI logs stay clean.
+    url.searchParams.set('sslmode', 'verify-full');
+    changed = true;
+  }
   for (const key of LIBPQ_TLS_PATH_KEYS) {
     const value = url.searchParams.get(key);
     if (value !== null && LIBPQ_SENTINEL_VALUES.has(value)) {

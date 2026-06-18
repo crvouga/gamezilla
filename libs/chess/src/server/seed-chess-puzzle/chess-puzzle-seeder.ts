@@ -471,13 +471,9 @@ export class ChessPuzzleSeeder {
     log: Logger;
     sql: SqlClient;
     patchDb: PatchDb;
+    prior: PuzzleLoadPriorState;
   }): Promise<void> {
-    const { cli, profile, resolved, reporter, log, sql, patchDb } = args;
-    const prior = this.#loadStateFromAttrs(
-      await this.#readLoadSnapshotAttrs(patchDb)
-    );
-    if (this.#maybeReportAlreadyComplete({ cli, resolved, prior, reporter }))
-      return;
+    const { cli, profile, resolved, reporter, log, sql, prior } = args;
     const resumeCursor = this.#resolveResumeCursor({
       cli,
       resolved,
@@ -556,19 +552,26 @@ export class ChessPuzzleSeeder {
         deferIndexes: profile.deferIndexes,
         rebuildIndexes: profile.rebuildIndexes,
       });
-      if (profile.deferIndexes) {
-        await dropPuzzleSnapshotIndexes({ sql: sqlClient, log });
-      }
-      const patchDb = this.#createSeedPatchDb(sqlClient);
-      await this.#runSeedInner({
-        cli,
-        profile,
-        resolved,
-        reporter,
-        log,
-        sql: sqlClient,
-        patchDb,
-      });
+    const patchDb = this.#createSeedPatchDb(sqlClient);
+    const prior = this.#loadStateFromAttrs(
+      await this.#readLoadSnapshotAttrs(patchDb)
+    );
+    if (this.#maybeReportAlreadyComplete({ cli, resolved, prior, reporter })) {
+      return;
+    }
+    if (profile.deferIndexes) {
+      await dropPuzzleSnapshotIndexes({ sql: sqlClient, log });
+    }
+    await this.#runSeedInner({
+      cli,
+      profile,
+      resolved,
+      reporter,
+      log,
+      sql: sqlClient,
+      patchDb,
+      prior,
+    });
     } finally {
       await sqlClient.disconnect();
     }

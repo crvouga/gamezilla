@@ -21,9 +21,8 @@
 #
 # Tuning is automatic: the seed picks a `fast` or `managed` profile from a
 # CHECKPOINT probe (Neon denies CHECKPOINT). With `--defer-indexes` (default)
-# secondary btrees are dropped before streaming and recreated by post-seed
-# `db:migrate`, so inserts stay heap-only and the script skips per-batch
-# throttling / interim VACUUM.
+# secondary btrees are dropped only when streaming will run, then recreated by
+# post-seed `db:migrate`. Already-complete datasets skip the drop entirely.
 #
 # Connection budget: the seed opens **exactly one** TCP session (`pg.Client`,
 # not `pg.Pool`) so it never trips Neon's connection warnings.
