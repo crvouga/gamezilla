@@ -552,26 +552,28 @@ export class ChessPuzzleSeeder {
         deferIndexes: profile.deferIndexes,
         rebuildIndexes: profile.rebuildIndexes,
       });
-    const patchDb = this.#createSeedPatchDb(sqlClient);
-    const prior = this.#loadStateFromAttrs(
-      await this.#readLoadSnapshotAttrs(patchDb)
-    );
-    if (this.#maybeReportAlreadyComplete({ cli, resolved, prior, reporter })) {
-      return;
-    }
-    if (profile.deferIndexes) {
-      await dropPuzzleSnapshotIndexes({ sql: sqlClient, log });
-    }
-    await this.#runSeedInner({
-      cli,
-      profile,
-      resolved,
-      reporter,
-      log,
-      sql: sqlClient,
-      patchDb,
-      prior,
-    });
+      const patchDb = this.#createSeedPatchDb(sqlClient);
+      const prior = this.#loadStateFromAttrs(
+        await this.#readLoadSnapshotAttrs(patchDb)
+      );
+      if (
+        this.#maybeReportAlreadyComplete({ cli, resolved, prior, reporter })
+      ) {
+        return;
+      }
+      if (profile.deferIndexes) {
+        await dropPuzzleSnapshotIndexes({ sql: sqlClient, log });
+      }
+      await this.#runSeedInner({
+        cli,
+        profile,
+        resolved,
+        reporter,
+        log,
+        sql: sqlClient,
+        patchDb,
+        prior,
+      });
     } finally {
       await sqlClient.disconnect();
     }
