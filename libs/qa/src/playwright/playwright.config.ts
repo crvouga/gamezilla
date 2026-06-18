@@ -4,10 +4,8 @@ import path from 'node:path';
 
 import { assert } from '@pkgs/assert';
 
-import { previewStackEnv } from '../constants/preview-stack-env';
-import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
-import { assertDevVaultConfig } from '@libs/infra/shared/database-url-policy';
 import { resolveLocalPreviewApiOriginSync } from '../constants/local-api-preview';
+import { applyPlaywrightPreviewEnv } from './playwright-preview-env';
 
 // Top-level `await` would turn this file into an async ES module, which
 // Playwright's config loader (CommonJS `require()` via pirates) refuses to
@@ -19,6 +17,12 @@ const LOCAL_API_PREVIEW_ORIGIN = resolveLocalPreviewApiOriginSync();
 // at the config-load boundary, rather than as a confused turbo task or a
 // `[WebServer] exit 1` from a spawned child. Every assertion below has fired
 // at least once in CI history; do not weaken without proof.
+//
+// Vault-backed env (DATABASE_URL, etc.) is applied only when secrets are
+// already injected — see `applyPlaywrightPreviewEnv` + globalSetup. The
+// Playwright VS Code extension loads this file without `vault run`; crashing
+// on missing DATABASE_URL breaks test discovery (`listFiles: test server
+// connection closed`).
 // ---------------------------------------------------------------------------
 
 assert.nonEmptyString(
@@ -72,49 +76,10 @@ assert.enum(
   'baseURL must use http(s)'
 );
 
-// Bake the API origin into the client export as same-origin (:5173) so Better
-// Auth cookies are first-party. The preview server proxies `/api/*` to the
-// wrangler worker at LOCAL_API_PREVIEW_ORIGIN.
-process.env['LOCAL_PREVIEW_API_PROXY_TARGET'] = LOCAL_API_PREVIEW_ORIGIN;
-process.env['BETTER_AUTH_PREVIEW_API_URL'] = baseURL;
-process.env['API_URL'] = baseURL;
-process.env['EXPO_PUBLIC_API_URL'] = baseURL;
-const previewEnv = previewStackEnv();
-process.env['DATABASE_URL'] = previewEnv['DATABASE_URL']!;
-process.env['POSTGRES_SCHEMA'] = previewEnv['POSTGRES_SCHEMA']!;
-process.env['VAULT_CONFIG'] = previewEnv['VAULT_CONFIG']!;
-
-assertDevVaultConfig(process.env['VAULT_CONFIG'] ?? '');
-assert.ok(
-  !isLoopbackPostgresUrl(process.env['DATABASE_URL'] ?? ''),
-  'DATABASE_URL must be Vault dev hosted Postgres, not loopback',
-  { databaseUrlHost: new URL(process.env['DATABASE_URL']!).hostname }
-);
-
-assert.equals(
-  process.env['BETTER_AUTH_PREVIEW_API_URL'],
+void applyPlaywrightPreviewEnv({
   baseURL,
-  'BETTER_AUTH_PREVIEW_API_URL must match the web preview origin for same-origin OAuth'
-);
-assert.equals(
-  process.env['LOCAL_PREVIEW_API_PROXY_TARGET'],
-  LOCAL_API_PREVIEW_ORIGIN,
-  'LOCAL_PREVIEW_API_PROXY_TARGET must point at the wrangler preview worker'
-);
-assert.equals(
-  process.env['API_URL'],
-  baseURL,
-  'API_URL must be the web preview origin (same-origin auth cookies)'
-);
-assert.equals(
-  process.env['EXPO_PUBLIC_API_URL'],
-  baseURL,
-  'EXPO_PUBLIC_API_URL must match API_URL for the client export'
-);
-assert.nonEmptyString(
-  process.env['DATABASE_URL'],
-  'DATABASE_URL must be set from Vault dev for preview migrations'
-);
+  localApiPreviewOrigin: LOCAL_API_PREVIEW_ORIGIN,
+});
 
 const BUN_NODE_SHIM_PATTERN = /(?:^|\/)bun-node-[^/]+$/;
 const rawPath = process.env['PATH'];
@@ -165,6 +130,7 @@ const isCi = Boolean(process.env['CI']);
 
 export default defineConfig({
   testDir: './tests',
+  globalSetup: path.join(__dirname, 'playwright-global-setup.ts'),
   fullyParallel: false,
   forbidOnly: isCi,
   retries: isCi ? 1 : 0,
