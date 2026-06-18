@@ -18,7 +18,6 @@ import { CfAccountId } from './cf-account-id';
 import { CfApiToken } from './cf-api-token';
 import { DbUrl } from './db-url';
 import { ExpoToken } from './expo-token';
-import { PsServiceToken, PsServiceTokenId } from './ps-credentials';
 import { StripeSecretKey } from './stripe-secret-key';
 import { StripeWebhookSecret } from './stripe-webhook-secret';
 import {
@@ -38,8 +37,6 @@ export type { SecretEntry } from './types';
 const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new CfApiToken(),
   new CfAccountId(),
-  new PsServiceTokenId(),
-  new PsServiceToken(),
   new DbUrl(),
   new ApiUrl(),
   new BetterAuthSecret(),
@@ -207,10 +204,17 @@ export function loadSecretsIntoEnv(): Array<{
   for (const entry of SECRET_MAP) {
     const { secretKey, env } = entry;
     const optional = entry.optional === true;
-    try {
-      const value = fetchVaultSecret(secretKey);
-      process.env[env] = value;
+
+    const existing = process.env[env];
+    if (typeof existing === 'string' && existing.trim().length > 0) {
       results.push({ env, set: true, optional });
+      continue;
+    }
+
+    try {
+      const value = fetchVaultSecret(secretKey).trim();
+      process.env[env] = value;
+      results.push({ env, set: value.length > 0, optional });
     } catch {
       results.push({ env, set: false, optional });
     }
