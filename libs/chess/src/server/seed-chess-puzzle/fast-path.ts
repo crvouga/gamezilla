@@ -300,9 +300,7 @@ export async function writeLoadProgressFast(args: {
   };
   await sql.transaction(async (tx) => {
     await tx.run(INSERT_PATCHES_BATCH, [JSON.stringify([patchRow])]);
-    await tx.run(INSERT_LOAD_SNAPSHOT_UPSERT, [
-      JSON.stringify([snapshotRow]),
-    ]);
+    await tx.run(INSERT_LOAD_SNAPSHOT_UPSERT, [JSON.stringify([snapshotRow])]);
   });
 }
 
