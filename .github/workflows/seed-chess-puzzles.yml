@@ -19,21 +19,14 @@
 # before expecting a complete prod seed. The script is resumable: a failed
 # run picks up from the saved cursor after you scale the project.
 #
-# The seed uses a fast-path that writes `patches` + `snapshots` in one
-# transaction (no per-batch CTE re-read, no snapshot UPDATE). With
-# `--defer-indexes` (default here) secondary btrees on
-# `snapshots__chess_puzzle` are dropped before streaming and recreated
-# by a post-seed `db:migrate`. `chess.puzzle` also opts out of the
-# per-entity JSONB GIN (picker queries use typed generated columns only).
-# Default knobs (`batch_size=500`, `pace_ms=500`, `checkpoint_every=10`,
-# `progress_every=10`) keep write pressure low on managed Postgres where
-# `CHECKPOINT` is denied.
+# Tuning is automatic: the seed picks a `fast` or `managed` profile from a
+# CHECKPOINT probe (Neon denies CHECKPOINT). With `--defer-indexes` (default)
+# secondary btrees are dropped before streaming and recreated by post-seed
+# `db:migrate`, so inserts stay heap-only and the script skips per-batch
+# throttling / interim VACUUM.
 #
 # Connection budget: the seed opens **exactly one** TCP session (`pg.Client`,
-# not `pg.Pool`) so it never trips Neon's connection warnings. Sessions are
-# sequential — one batch transaction at a time with serial VACUUM / progress
-# writes between batches — so a pool would only add idle connections without
-# any throughput gain.
+# not `pg.Pool`) so it never trips Neon's connection warnings.
 #
 # All credentials come from Vault via OIDC. `vault run -- …` injects
 # `DATABASE_URL` (and any other secrets) into each step's process env.
@@ -72,35 +65,10 @@ on:
         required: false
         default: false
         type: boolean
-      batch_size:
-        description: 'Rows per fast-path INSERT transaction (default 500). Smaller = less WAL per commit.'
-        required: false
-        default: '500'
-        type: string
-      pace_ms:
-        description: 'Sleep (ms) after each batch flush so autovacuum / WAL writer keep up (default 500).'
-        required: false
-        default: '500'
-        type: string
-      checkpoint_every:
-        description: 'Issue lightweight VACUUM ANALYZE every N batches (default 10, set 0 to disable). CHECKPOINT is skipped on Neon.'
-        required: false
-        default: '10'
-        type: string
-      progress_every:
-        description: 'Persist the resume cursor every N batches instead of every batch (default 10).'
-        required: false
-        default: '10'
-        type: string
       defer_indexes:
         description: 'Drop chess-puzzle snapshot secondary indexes before streaming; post-seed migrate recreates them.'
         required: false
         default: true
-        type: boolean
-      rebuild_indexes:
-        description: 'After the seed completes, REINDEX `pdb_idx_chess_puzzle__*` concurrently to reclaim index bloat.'
-        required: false
-        default: false
         type: boolean
 
 jobs:
@@ -114,10 +82,8 @@ jobs:
     concurrency:
       group: seed-chess-puzzles-${{ inputs.environment }}
       cancel-in-progress: false
-    # Throttled seed (small batches + per-batch sleep + periodic VACUUM)
-    # is significantly slower than the legacy 5k-batch path. 600 minutes is a
-    # generous ceiling for a full ~2.65M-row pass; resume-from-cursor will
-    # pick up where a previous run left off if we still hit the cap.
+    # Full ~2.65M-row pass at profile batch sizes is still multi-hour; resume
+    # from cursor picks up where a previous run left off if we hit the cap.
     timeout-minutes: 600
     steps:
       - name: Checkout
@@ -143,10 +109,6 @@ jobs:
       - name: Apply Postgres migrations → Vault `${{ env.VAULT_CONFIG }}`
         run: |
           set -euo pipefail
-          # `db:migrate` runs the canonical patch-db + KV + Better Auth
-          # migration set against the selected Postgres. Idempotent: existing
-          # tables and `pdb_idx_*` indexes are left in place; drops the
-          # chess.puzzle GIN when the schema opts out.
           bun run scripts/vault-run.ts -- \
             bun run --filter '@apps/api' db:migrate
 
@@ -155,15 +117,15 @@ jobs:
           SEED_LIMIT: ${{ inputs.limit }}
           SEED_DRY_RUN: ${{ inputs.dry_run }}
           SEED_NO_RESUME: ${{ inputs.no_resume }}
-          SEED_BATCH_SIZE: ${{ inputs.batch_size }}
-          SEED_PACE_MS: ${{ inputs.pace_ms }}
-          SEED_CHECKPOINT_EVERY: ${{ inputs.checkpoint_every }}
-          SEED_PROGRESS_EVERY: ${{ inputs.progress_every }}
           SEED_DEFER_INDEXES: ${{ inputs.defer_indexes }}
-          SEED_REBUILD_INDEXES: ${{ inputs.rebuild_indexes }}
         run: |
           set -euo pipefail
-          args=()
+          args=(--no-pretty)
+          if [ "${SEED_DEFER_INDEXES}" = "true" ]; then
+            args+=(--defer-indexes)
+          else
+            args+=(--no-defer-indexes)
+          fi
           if [ -n "${SEED_LIMIT}" ]; then
             args+=(--limit "${SEED_LIMIT}")
           fi
@@ -173,38 +135,13 @@ jobs:
           if [ "${SEED_NO_RESUME}" = "true" ]; then
             args+=(--no-resume)
           fi
-          if [ -n "${SEED_BATCH_SIZE}" ]; then
-            args+=(--batch-size "${SEED_BATCH_SIZE}")
-          fi
-          if [ -n "${SEED_PACE_MS}" ]; then
-            args+=(--pace-ms "${SEED_PACE_MS}")
-          fi
-          if [ -n "${SEED_CHECKPOINT_EVERY}" ]; then
-            args+=(--checkpoint-every "${SEED_CHECKPOINT_EVERY}")
-          fi
-          if [ -n "${SEED_PROGRESS_EVERY}" ]; then
-            args+=(--progress-every "${SEED_PROGRESS_EVERY}")
-          fi
-          if [ "${SEED_DEFER_INDEXES}" = "true" ]; then
-            args+=(--defer-indexes)
-          fi
-          if [ "${SEED_REBUILD_INDEXES}" = "true" ]; then
-            args+=(--rebuild-indexes)
-          fi
-          # `--no-pretty` for clean GH Actions log lines (no ANSI carriage
-          # returns). `vault run` injects `DATABASE_URL` from the selected
-          # Vault config so the script's `createVaultSecretStoreForScripts()`
-          # can also read any additional secrets it needs.
           bun run scripts/vault-run.ts -- \
             bun run --filter '@libs/chess' seed:puzzles \
-              --no-pretty \
               "${args[@]}"
 
       - name: Recreate chess puzzle indexes → Vault `${{ env.VAULT_CONFIG }}`
         if: ${{ inputs.defer_indexes && !inputs.dry_run }}
         run: |
           set -euo pipefail
-          # Reconcile declarative indexes (and drop any legacy GIN) after the
-          # bulk insert finished without maintaining btrees per row.
           bun run scripts/vault-run.ts -- \
             bun run --filter '@apps/api' db:migrate
