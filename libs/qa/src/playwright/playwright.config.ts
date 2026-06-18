@@ -4,9 +4,7 @@ import path from 'node:path';
 
 import { assert } from '@pkgs/assert';
 
-import {
-  previewStackEnv,
-} from '../constants/preview-stack-env';
+import { previewStackEnv } from '../constants/preview-stack-env';
 import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
 import { assertDevVaultConfig } from '@libs/infra/shared/database-url-policy';
 import { resolveLocalPreviewApiOriginSync } from '../constants/local-api-preview';

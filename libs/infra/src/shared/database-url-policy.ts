@@ -71,7 +71,11 @@ export async function assertNonProdDatabaseUrl(
 ): Promise<void> {
   if (productionDatabaseUrlTigerExceptionEnabled()) return;
 
-  assert.nonEmptyString(url, 'DATABASE_URL must be a non-empty string', context);
+  assert.nonEmptyString(
+    url,
+    'DATABASE_URL must be a non-empty string',
+    context
+  );
   if (!isPostgresWireUrl(url)) {
     assert.fail(
       'Tiger invariant: DATABASE_URL must be a postgres:// or postgresql:// wire URL',
