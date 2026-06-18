@@ -31,7 +31,10 @@ const ENTRYPOINTS: readonly EntrypointRule[] = [
   },
   {
     file: 'libs/stripe/src/script-runtime.ts',
-    mustInclude: ['assertDevVaultConfig', 'assertDatabaseUrlAllowedForVaultConfig'],
+    mustInclude: [
+      'assertDevVaultConfig',
+      'assertDatabaseUrlAllowedForVaultConfig',
+    ],
   },
   {
     file: 'libs/chess/src/server/seed-chess-puzzle/chess-puzzle-seeder.ts',

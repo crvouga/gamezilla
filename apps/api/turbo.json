@@ -11,12 +11,7 @@
       "cache": false
     },
     "preview": {
-      "dependsOn": [
-        "kill",
-        "setup",
-        "^build",
-        "build"
-      ],
+      "dependsOn": ["kill", "setup", "^build", "build"],
       "persistent": true,
       "cache": false
     }
