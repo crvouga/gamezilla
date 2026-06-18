@@ -20,10 +20,6 @@ runs:
   steps:
     - uses: ./.github/actions/setup
 
-    # The local PostgreSQL cluster (`@pkgs/postgres`) ships its binaries via
-    # the `embedded-postgres` npm package (hydrated by `bun install` in the
-    # setup step above), so no system PostgreSQL install is needed here.
-
     # Keep CLI tool versions in sync with `infra setup` (no pinned versions in YAML).
     # Requires Vault OIDC auth (`vault-auth` action) before this step so `infra setup`
     # can load secrets before running auth-gated verifications.

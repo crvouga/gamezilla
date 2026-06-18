@@ -132,6 +132,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     dbScope,
     apiUrlOverride: readOptionalApiUrlOverride(env),
     databaseUrlOverride: readOptionalDatabaseUrlOverride(env),
+    vaultConfig: readVaultScopeBindings(env).config,
     objectStore,
   });
 }

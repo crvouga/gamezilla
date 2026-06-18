@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@libs/client-config": "workspace:*",
+    "@libs/infra": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/secret-store": "workspace:*",

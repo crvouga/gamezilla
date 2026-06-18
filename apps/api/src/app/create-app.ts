@@ -214,7 +214,8 @@ export async function createApiApp(config: ApiHandlerConfig) {
         secretStore,
         dbScope,
         config.apiUrlOverride,
-        config.databaseUrlOverride
+        config.databaseUrlOverride,
+        config.vaultConfig
       )
     )
     .use('*', apiCors)

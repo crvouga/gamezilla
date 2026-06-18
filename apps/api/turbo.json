@@ -15,8 +15,7 @@
         "kill",
         "setup",
         "^build",
-        "build",
-        "@pkgs/postgres#preview:wait"
+        "build"
       ],
       "persistent": true,
       "cache": false

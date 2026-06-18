@@ -140,6 +140,13 @@ if (childArgs.length === 0) {
 
 const { project, config, addr, mount } = resolveScope();
 
+process.stderr.write(`vault-run: project=${project} config=${config}\n`);
+if (config === 'prd' && !childArgs.some((a) => a.includes('infra'))) {
+  process.stderr.write(
+    'vault-run: warning — VAULT_CONFIG=prd injects production secrets; use only for `bun run infra` / deploy.\n'
+  );
+}
+
 const token = (process.env.VAULT_TOKEN ?? '').trim();
 
 // Prefer HTTP injection whenever a token is available (CI mints one via OIDC).

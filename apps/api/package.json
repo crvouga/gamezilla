@@ -53,7 +53,6 @@
   },
   "devDependencies": {
     "@pkgs/os": "workspace:*",
-    "@pkgs/postgres": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "typescript": "catalog:",

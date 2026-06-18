@@ -1,12 +1,14 @@
 import { loadBetterAuthOptionsForMigration } from '@libs/auth/server/better-auth-migration-options';
+import {
+  assertDatabaseUrlAllowedForVaultConfig,
+  assertDevVaultConfig,
+  DEVELOPMENT_VAULT_CONFIG,
+} from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
 import { createLogger, type Logger } from '@pkgs/logger';
 import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
-import {
-  createPgPool,
-  isLoopbackPostgresUrl,
-  pingPostgres,
-} from '@pkgs/sql-client/postgres-connect';
+import { createPgPool, pingPostgres } from '@pkgs/sql-client/postgres-connect';
+import { VaultCli } from '@pkgs/vault/vault-cli';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { readDevVarsDatabaseUrl } from './dev-vars';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
@@ -18,6 +20,12 @@ const WAIT_FOR_POSTGRES = process.argv.includes('--wait');
 
 function isPostgresUrl(url: string): boolean {
   return url.startsWith('postgresql://') || url.startsWith('postgres://');
+}
+
+function resolveVaultConfigForMigrate(): string {
+  const fromEnv = process.env['VAULT_CONFIG']?.trim() ?? '';
+  if (fromEnv.length > 0) return fromEnv;
+  return new VaultCli().resolveScope().config;
 }
 
 function isPostgresConnectionLimitError(error: unknown): boolean {
@@ -44,14 +52,21 @@ async function resolveDatabaseUrlForMigrate(): Promise<string> {
   }
   const fromEnv = (process.env['DATABASE_URL'] ?? '').trim();
   if (fromEnv.length > 0 && isPostgresUrl(fromEnv)) {
-    // Prefer loopback when Vault injects a hosted URL during `bun dev`.
-    if (isLoopbackPostgresUrl(fromEnv)) return fromEnv;
-  }
-  if (fromEnv.length > 0 && isPostgresUrl(fromEnv)) {
     return fromEnv;
   }
   const store = createVaultSecretStoreForScripts();
   return (await store.getRequired('DATABASE_URL')).readSecretValue();
+}
+
+async function assertMigrateDatabasePolicy(databaseUrl: string): Promise<void> {
+  const vaultConfig = resolveVaultConfigForMigrate();
+  if (vaultConfig !== DEVELOPMENT_VAULT_CONFIG) {
+    return;
+  }
+  assertDevVaultConfig(vaultConfig);
+  await assertDatabaseUrlAllowedForVaultConfig(databaseUrl, vaultConfig, {
+    surface: 'api:migrate',
+  });
 }
 
 async function waitForPostgresReachable(
@@ -95,6 +110,7 @@ async function waitForPostgresReachable(
 
 async function runMigrateOnce(): Promise<void> {
   const databaseUrl = await resolveDatabaseUrlForMigrate();
+  await assertMigrateDatabasePolicy(databaseUrl);
   const dbScope = appPostgresDbScope();
   const { pool, sqlClient } = createPgPool({
     connectionString: databaseUrl,
@@ -127,6 +143,7 @@ async function main(): Promise<void> {
   const log = createLogger({ name: 'api:migrate' });
   if (WAIT_FOR_POSTGRES) {
     const databaseUrl = await resolveDatabaseUrlForMigrate();
+    await assertMigrateDatabasePolicy(databaseUrl);
     await waitForPostgresReachable(databaseUrl, log);
   }
   let lastError: unknown;

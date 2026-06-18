@@ -36,7 +36,7 @@
  * long as they run in **session pooling** mode (transaction mode breaks
  * `SET …` statements that need to persist across the seed's batches).
  *
- * Local (Vault `dev`, `DATABASE_URL` → PGlite socket or other Postgres):
+ * Dev (Vault `dev`, hosted dev Postgres):
  *   VAULT_CONFIG=dev vault run -- bun run --filter @libs/chess seed:puzzles
  *
  * Production (Vault `prd`, `DATABASE_URL` → Postgres):
@@ -67,7 +67,13 @@ import { PatchDbCompactionPolicyRegistry } from '@pkgs/patch-db/policy/compactio
 import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres-connect';
+import {
+  assertDatabaseUrlAllowedForVaultConfig,
+  assertDevVaultConfig,
+  PRODUCTION_VAULT_CONFIG,
+} from '@libs/infra/shared/database-url-policy';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { VaultCli } from '@pkgs/vault/vault-cli';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
 import {
@@ -522,9 +528,18 @@ export class ChessPuzzleSeeder {
       note: 'Schema (patches/snapshots + pdb_idx_chess_puzzle__*) must already exist; run `bun run --filter @apps/api db:migrate` first on a fresh database.',
     });
     const store = createVaultSecretStoreForScripts();
+    const vaultConfig =
+      process.env['VAULT_CONFIG']?.trim() ||
+      new VaultCli().resolveScope().config;
+    if (vaultConfig !== PRODUCTION_VAULT_CONFIG) {
+      assertDevVaultConfig(vaultConfig);
+    }
     const databaseUrl = (
       await store.getRequired('DATABASE_URL')
     ).readSecretValue();
+    await assertDatabaseUrlAllowedForVaultConfig(databaseUrl, vaultConfig, {
+      surface: 'chess:seed-puzzles',
+    });
     const { sql: sqlClient } = await this.#createSqlClient(databaseUrl);
     try {
       await applySessionTuning(sqlClient, log);

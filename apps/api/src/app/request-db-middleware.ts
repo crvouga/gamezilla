@@ -1,6 +1,10 @@
 import { createBetterAuthRequestStack } from '@libs/auth/server/better-auth-create';
 import { createSessionAuth } from '@libs/auth/server/session-middleware';
 import type { AuthContext } from '@libs/auth/server/types';
+import {
+  assertDatabaseUrlAllowedForVaultConfig,
+  DEVELOPMENT_VAULT_CONFIG,
+} from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { SecretStore } from '@pkgs/secret-store';
@@ -27,11 +31,26 @@ async function resolveRequestDatabaseUrl(
   return (await secretStore.getRequired(ApiSecretName.dbUrl)).readSecretValue();
 }
 
+let devDatabasePolicyChecked = false;
+
+async function ensureDevDatabasePolicy(
+  databaseUrl: string,
+  vaultConfig: string | null
+): Promise<void> {
+  if (vaultConfig !== DEVELOPMENT_VAULT_CONFIG) return;
+  if (devDatabasePolicyChecked) return;
+  await assertDatabaseUrlAllowedForVaultConfig(databaseUrl, vaultConfig, {
+    surface: 'api-worker',
+  });
+  devDatabasePolicyChecked = true;
+}
+
 export function createRequestDbMiddleware(
   secretStore: SecretStore,
   dbScope: PostgresDbScope,
   apiUrlOverride?: string | null,
-  databaseUrlOverride?: string | null
+  databaseUrlOverride?: string | null,
+  vaultConfig?: string | null
 ): MiddlewareHandler<ApiHonoEnv<AuthContext>> {
   return async (c, next) => {
     if (new URL(c.req.url).pathname === '/api/health') {
@@ -43,6 +62,7 @@ export function createRequestDbMiddleware(
       databaseUrlOverride
     );
     assert.nonEmptyString(dbUrl, 'DATABASE_URL must be a non-empty string');
+    await ensureDevDatabasePolicy(dbUrl, vaultConfig ?? null);
 
     const { sqlClient } = await openRequestDb(dbUrl, dbScope);
     const patchDb = createRequestPatchDb(sqlClient);

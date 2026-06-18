@@ -1,8 +1,8 @@
 import {
-  buildConnectionUrl,
-  loadPostgresConfig,
-} from '@pkgs/postgres/postgres-config';
-import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
+  assertDevVaultConfig,
+  assertNonProdDatabaseUrl,
+} from '@libs/infra/shared/database-url-policy';
+import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import { VaultCli } from '@pkgs/vault';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -58,31 +58,25 @@ function readApiUrlOverrideFromEnv(): string | null {
   return raw.length > 0 ? raw : null;
 }
 
-function isPostgresWireUrl(url: string): boolean {
-  return url.startsWith('postgresql://') || url.startsWith('postgres://');
-}
-
-function readDatabaseUrlOverrideFromEnv(): string | null {
-  const raw = process.env['DATABASE_URL']?.trim() ?? '';
-  if (raw.length === 0 || !isPostgresWireUrl(raw)) return null;
-  // Playwright / turbo preview sets loopback before setup; honor that override.
-  if (!isLoopbackPostgresUrl(raw)) return null;
-  return raw;
-}
-
-/**
- * Local `bun dev` always boots `@pkgs/postgres`. Vault `dev` may still expose a
- * hosted `DATABASE_URL`, but the Worker and migrate script must hit the same
- * embedded cluster (see `libs/qa` preview wiring).
- */
-function resolveDatabaseUrlForDevVars(): string {
-  const fromEnv = readDatabaseUrlOverrideFromEnv();
-  if (fromEnv !== null) return fromEnv;
-  return buildConnectionUrl(loadPostgresConfig());
+async function resolveDatabaseUrlForDevVars(
+  vaultConfig: string
+): Promise<string> {
+  assertDevVaultConfig(vaultConfig);
+  const store = createVaultSecretStoreForScripts();
+  const databaseUrl = (
+    await store.getRequired('DATABASE_URL')
+  ).readSecretValue();
+  await assertNonProdDatabaseUrl(databaseUrl, {
+    surface: 'setup-dev-vars',
+    vaultConfig,
+  });
+  return databaseUrl;
 }
 
 async function main(): Promise<void> {
   const { token, project, config, addr } = resolveVaultScope();
+  assertDevVaultConfig(config);
+  const databaseUrl = await resolveDatabaseUrlForDevVars(config);
   const lines: string[] = [
     `VAULT_TOKEN=${encodeDevVarValue(token)}`,
     `VAULT_PROJECT=${encodeDevVarValue(project)}`,
@@ -93,9 +87,7 @@ async function main(): Promise<void> {
   if (apiUrlOverride !== null) {
     lines.push(`API_URL=${encodeDevVarValue(apiUrlOverride)}`);
   }
-  lines.push(
-    `DATABASE_URL=${encodeDevVarValue(resolveDatabaseUrlForDevVars())}`
-  );
+  lines.push(`DATABASE_URL=${encodeDevVarValue(databaseUrl)}`);
 
   const body = `${lines.join('\n')}\n`;
   writeFileSync(tmpPath, body, { encoding: 'utf8' });
@@ -106,7 +98,7 @@ async function main(): Promise<void> {
       .map((l) => l.split('=')[0])
       .join(
         ', '
-      )} (Worker secrets load from Vault; DATABASE_URL pins the embedded Postgres cluster)\n`
+      )} (Worker secrets load from Vault; DATABASE_URL mirrors Vault \`dev\`)\n`
   );
 }
 

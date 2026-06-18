@@ -3,13 +3,15 @@
   "private": true,
   "exports": {
     "./namespace-bindings": "./src/namespace-bindings.ts",
-    "./project-config": "./src/project-config.ts"
+    "./project-config": "./src/project-config.ts",
+    "./shared/database-url-policy": "./src/shared/database-url-policy.ts"
   },
   "scripts": {
     "infra": "VAULT_CONFIG=prd bun run ../../scripts/vault-run.ts -- bun run libs/infra/src/bin/cli.ts",
     "lint": "eslint src --max-warnings 0",
     "pipeline-report": "bun run ./src/bin/pipeline-report.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.json"
+    "tc": "tsc --noEmit -p ./tsconfig.json",
+    "test": "bun test src/shared/database-url-policy.test.ts"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
@@ -20,6 +22,7 @@
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/os": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/vault": "workspace:*",
     "picocolors": "catalog:"

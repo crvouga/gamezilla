@@ -5,9 +5,10 @@ import path from 'node:path';
 import { assert } from '@pkgs/assert';
 
 import {
-  LOCAL_EMBEDDED_POSTGRES_URL,
   previewStackEnv,
-} from '../constants/embedded-postgres';
+} from '../constants/preview-stack-env';
+import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
+import { assertDevVaultConfig } from '@libs/infra/shared/database-url-policy';
 import { resolveLocalPreviewApiOriginSync } from '../constants/local-api-preview';
 
 // Top-level `await` would turn this file into an async ES module, which
@@ -58,7 +59,6 @@ assert.equals(
 const baseURL = 'http://localhost:5173';
 /** Playwright readiness probe — static `/` is up before API + dev IdP finish booting. */
 const previewReadyURL = `${baseURL}/ready`;
-const previewEnv = previewStackEnv();
 let baseURLParsed: URL | undefined;
 assert.notThrows(
   () => {
@@ -81,12 +81,17 @@ process.env['LOCAL_PREVIEW_API_PROXY_TARGET'] = LOCAL_API_PREVIEW_ORIGIN;
 process.env['BETTER_AUTH_PREVIEW_API_URL'] = baseURL;
 process.env['API_URL'] = baseURL;
 process.env['EXPO_PUBLIC_API_URL'] = baseURL;
-// Vault `dev` `DATABASE_URL` may target hosted Postgres, but `turbo preview` boots
-// `@pkgs/postgres` and the API Worker reads `DATABASE_URL` from Vault at request
-// time. Without this override, `migrate-db` runs against Vault while Better Auth
-// reads an empty local cluster — OAuth fails in CI.
+const previewEnv = previewStackEnv();
 process.env['DATABASE_URL'] = previewEnv['DATABASE_URL']!;
 process.env['POSTGRES_SCHEMA'] = previewEnv['POSTGRES_SCHEMA']!;
+process.env['VAULT_CONFIG'] = previewEnv['VAULT_CONFIG']!;
+
+assertDevVaultConfig(process.env['VAULT_CONFIG'] ?? '');
+assert.ok(
+  !isLoopbackPostgresUrl(process.env['DATABASE_URL'] ?? ''),
+  'DATABASE_URL must be Vault dev hosted Postgres, not loopback',
+  { databaseUrlHost: new URL(process.env['DATABASE_URL']!).hostname }
+);
 
 assert.equals(
   process.env['BETTER_AUTH_PREVIEW_API_URL'],
@@ -108,10 +113,9 @@ assert.equals(
   baseURL,
   'EXPO_PUBLIC_API_URL must match API_URL for the client export'
 );
-assert.equals(
+assert.nonEmptyString(
   process.env['DATABASE_URL'],
-  LOCAL_EMBEDDED_POSTGRES_URL,
-  'DATABASE_URL must target the embedded @pkgs/postgres cluster for preview migrations'
+  'DATABASE_URL must be set from Vault dev for preview migrations'
 );
 
 const BUN_NODE_SHIM_PATTERN = /(?:^|\/)bun-node-[^/]+$/;
@@ -147,7 +151,6 @@ const turboPreviewCmd: string[] = [
   'turbo',
   'run',
   'preview',
-  '--filter=@pkgs/postgres',
   '--filter=@pkgs/dev-idp',
   '--filter=@apps/api',
   '--filter=@apps/client',

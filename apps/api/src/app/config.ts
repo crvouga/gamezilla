@@ -10,6 +10,8 @@ export type ApiHandlerConfig = {
   readonly apiUrlOverride?: string | null;
   /** When set, overrides Vault `DATABASE_URL` for preview / QA. */
   readonly databaseUrlOverride?: string | null;
+  /** Vault config binding (`dev` / `prd`) for database safety checks. */
+  readonly vaultConfig?: string | null;
   readonly pubSub: PatchDbApiConfig['pubSub'];
   readonly basePath?: string;
   readonly instrumentation?: PatchDbApiConfig['instrumentation'];

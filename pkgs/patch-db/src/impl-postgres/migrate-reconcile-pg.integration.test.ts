@@ -1,8 +1,6 @@
 /**
- * End-to-end reconciliation test against a real Postgres cluster. Boots its own
- * embedded-postgres instance (no Docker, no shared remote DB) so it runs
- * hermetically and deterministically in CI without contending for connection
- * slots on the shared dev database.
+ * End-to-end reconciliation test against the Vault `dev` hosted Postgres database.
+ * Uses an isolated schema so layout mutations do not touch the application schema.
  *
  * Locks in the contracts that {@link migratePatchDbPostgres} must uphold
  * to keep the registry and the catalog in lock-step:
@@ -23,13 +21,12 @@
 import { assert } from '@pkgs/assert';
 import { createAttrNamespace } from '@pkgs/attribute';
 import { createLogger } from '@pkgs/logger';
-import {
-  getPostgresTestInstance,
-  stopPostgresTestInstance,
-} from '@pkgs/postgres/postgres-test-instance';
 import { SqlClientImplBunPostgres } from '@pkgs/sql-client/impl-bun-postgres';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { ensurePostgresSchema } from '@pkgs/sql-client/postgres-connect';
+import {
+  ensurePostgresSchema,
+  isLoopbackPostgresUrl,
+} from '@pkgs/sql-client/postgres-connect';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import {
   afterAll,
@@ -54,9 +51,9 @@ import {
   UNREGISTERED_SNAPSHOT_TABLE,
 } from './partitioning';
 
-// Dedicated port so this suite's embedded cluster never collides with the
-// `@pkgs/postgres` test instance (default 25432) when both run concurrently.
-const TEST_PG_PORT = 25_433;
+const DATABASE_URL = process.env['DATABASE_URL'] ?? '';
+const HAS_DB = DATABASE_URL.length > 0;
+const TEST_SCHEMA = 'patch_db_reconcile_it';
 
 const taskNs = createAttrNamespace('task');
 const TaskAttrV1 = {
@@ -95,20 +92,17 @@ function expectedTables(...tables: readonly string[]): string[] {
   return [...tables, UNREGISTERED_SNAPSHOT_TABLE].sort();
 }
 
-describe('migratePatchDbPostgres: reconcile integration', () => {
+describe.skipIf(!HAS_DB)('migratePatchDbPostgres: reconcile integration', () => {
   let sqlClient: SqlClient;
   const logger = createLogger({ name: 'reconcile-it', level: 'silent' });
 
   beforeAll(async () => {
-    const instance = await getPostgresTestInstance({
-      port: TEST_PG_PORT,
-      schema: 'test',
-    });
-    const dbScope = createPostgresDbScope(instance.config.schema);
-    sqlClient = SqlClientImplBunPostgres.connect(
-      instance.connectionUrl,
-      dbScope
+    assert.ok(
+      !isLoopbackPostgresUrl(DATABASE_URL),
+      'DATABASE_URL must be Vault dev hosted Postgres, not loopback'
     );
+    const dbScope = createPostgresDbScope(TEST_SCHEMA);
+    sqlClient = SqlClientImplBunPostgres.connect(DATABASE_URL, dbScope);
     await sqlClient.connect();
     await ensurePostgresSchema(sqlClient, dbScope);
   });
@@ -118,7 +112,6 @@ describe('migratePatchDbPostgres: reconcile integration', () => {
       await dropAllPatchDbLayoutObjects(sqlClient).catch(() => {});
       await sqlClient.disconnect();
     }
-    await stopPostgresTestInstance();
   });
 
   beforeEach(async () => {

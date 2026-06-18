@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   createPgPool,
   ensurePostgresSchema,
+  isLoopbackPostgresUrl,
   openPgClient,
 } from './postgres-connect';
 import { createPostgresDbScope, quotePgIdent } from './postgres-schema';
@@ -49,6 +50,10 @@ describe('withPostgresSearchPathOption', () => {
 // slots with other DB-touching suites running concurrently under `bun check`.
 describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
   const dbScope = createPostgresDbScope(TEST_SCHEMA);
+
+  test('DATABASE_URL is not loopback (Vault dev hosted Postgres)', () => {
+    expect(isLoopbackPostgresUrl(DATABASE_URL)).toBe(false);
+  });
 
   test('ensurePostgresSchema creates the schema and is idempotent', async () => {
     const { pool, sqlClient } = createPgPool({

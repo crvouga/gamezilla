@@ -10,7 +10,12 @@
 import type { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPgPool } from '@pkgs/sql-client/postgres-connect';
+import {
+  assertDatabaseUrlAllowedForVaultConfig,
+  assertDevVaultConfig,
+} from '@libs/infra/shared/database-url-policy';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { VaultCli } from '@pkgs/vault/vault-cli';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from './script-secret-store';
 import { StripeSecretKeys } from './secret-keys';
@@ -41,11 +46,19 @@ export async function assertStripeSecretKey(
   return trimmed;
 }
 
+function resolveVaultConfigName(): string {
+  const fromEnv = process.env['VAULT_CONFIG']?.trim() ?? '';
+  if (fromEnv.length > 0) return fromEnv;
+  return new VaultCli().resolveScope().config;
+}
+
 /**
  * Read `DATABASE_URL` from Vault. Exits when missing or unsupported — backfill
  * scripts only do persistence, so absent DB makes them a no-op (footgun).
  */
 export async function assertDbUrl(scriptTag: string): Promise<string> {
+  const vaultConfig = resolveVaultConfigName();
+  assertDevVaultConfig(vaultConfig);
   const store = createStripeScriptSecretStore();
   const raw =
     (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';
@@ -62,6 +75,9 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
     );
     process.exit(1);
   }
+  await assertDatabaseUrlAllowedForVaultConfig(u, vaultConfig, {
+    surface: scriptTag,
+  });
   return u;
 }
 

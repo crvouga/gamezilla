@@ -1,8 +1,5 @@
 import { expect, test } from 'bun:test';
-import {
-  previewStackEnv,
-  waitForEmbeddedPostgres,
-} from '../constants/embedded-postgres';
+import { previewStackEnv } from '../constants/preview-stack-env';
 import {
   resolveLocalApiOrigin,
   runPackageScriptOnce,
@@ -16,16 +13,8 @@ test(
     const LOCAL_API_ORIGIN = await resolveLocalApiOrigin();
     const env = previewStackEnv();
 
-    await runPackageScriptOnce('@pkgs/postgres', 'kill', {});
     await runPackageScriptOnce('@apps/api', 'kill', {});
     await runPackageScriptOnce('@apps/api', 'setup', {});
-
-    await using _pg = startPackageScriptBackground(
-      '@pkgs/postgres',
-      'preview',
-      env
-    );
-    await waitForEmbeddedPostgres(120_000);
 
     await using api = startPackageScriptBackground('@apps/api', 'preview', env);
     await waitForHttpOk(`${LOCAL_API_ORIGIN}/api/health`, {

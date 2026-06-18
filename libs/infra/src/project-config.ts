@@ -15,6 +15,11 @@ export const PROJECT_CONFIG = {
   postgres: {
     /** Schema owned by this app inside the shared Postgres database. */
     schema: 'gamezilla',
+    /**
+     * Hostnames that must never appear when `VAULT_CONFIG !== 'prd'`.
+     * Primary prod detection is dual-fetch against Vault `prd` `DATABASE_URL`.
+     */
+    productionHostnames: [] as const,
   },
   /** S3-compatible object storage — bucket and credentials are externally managed. */
   objectStore: {

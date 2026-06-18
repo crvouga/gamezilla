@@ -146,6 +146,20 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:database-url-policy": {
+      "inputs": [
+        "apps/api/scripts/setup-dev-vars.ts",
+        "apps/api/scripts/migrate-db.ts",
+        "apps/api/src/app/request-db-middleware.ts",
+        "libs/stripe/src/script-runtime.ts",
+        "libs/chess/src/server/seed-chess-puzzle/chess-puzzle-seeder.ts",
+        "pkgs/dev-idp/src/dev-server.ts",
+        "libs/qa/src/constants/preview-stack-env.ts",
+        "scripts/check-database-url-policy.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:tier-imports": {
       "inputs": [
         "apps/**/*.ts",
