@@ -45,13 +45,22 @@ async function ensureDevDatabasePolicy(
   devDatabasePolicyChecked = true;
 }
 
+export type RequestDbMiddlewareOptions = {
+  readonly apiUrlOverride?: string | null | undefined;
+  readonly databaseUrlOverride?: string | null | undefined;
+  readonly vaultConfig?: string | null | undefined;
+};
+
 export function createRequestDbMiddleware(
   secretStore: SecretStore,
   dbScope: PostgresDbScope,
-  apiUrlOverride?: string | null,
-  databaseUrlOverride?: string | null,
-  vaultConfig?: string | null
+  options: RequestDbMiddlewareOptions = {}
 ): MiddlewareHandler<ApiHonoEnv<AuthContext>> {
+  const {
+    apiUrlOverride = null,
+    databaseUrlOverride = null,
+    vaultConfig = null,
+  } = options;
   return async (c, next) => {
     if (new URL(c.req.url).pathname === '/api/health') {
       return next();
@@ -62,7 +71,7 @@ export function createRequestDbMiddleware(
       databaseUrlOverride
     );
     assert.nonEmptyString(dbUrl, 'DATABASE_URL must be a non-empty string');
-    await ensureDevDatabasePolicy(dbUrl, vaultConfig ?? null);
+    await ensureDevDatabasePolicy(dbUrl, vaultConfig);
 
     const { sqlClient } = await openRequestDb(dbUrl, dbScope);
     const patchDb = createRequestPatchDb(sqlClient);
@@ -75,7 +84,7 @@ export function createRequestDbMiddleware(
     const { auth: betterAuth, dispose } = await createBetterAuthRequestStack(
       secretStore,
       dbUrl,
-      { dbScope, apiUrlOverride: apiUrlOverride ?? null }
+      { dbScope, apiUrlOverride }
     );
     const sessionAuth = createSessionAuth({ auth: betterAuth });
 

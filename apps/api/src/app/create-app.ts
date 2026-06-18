@@ -210,13 +210,11 @@ export async function createApiApp(config: ApiHandlerConfig) {
   const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
     .use(
       '*',
-      createRequestDbMiddleware(
-        secretStore,
-        dbScope,
-        config.apiUrlOverride,
-        config.databaseUrlOverride,
-        config.vaultConfig
-      )
+      createRequestDbMiddleware(secretStore, dbScope, {
+        apiUrlOverride: config.apiUrlOverride,
+        databaseUrlOverride: config.databaseUrlOverride,
+        vaultConfig: config.vaultConfig,
+      })
     )
     .use('*', apiCors)
     .route('/', healthApp)
