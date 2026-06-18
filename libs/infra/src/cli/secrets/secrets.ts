@@ -4,7 +4,8 @@ import {
 } from '@pkgs/vault/vault-yaml';
 import { REPO_ROOT } from '../paths';
 import { runCapture } from '../subprocess';
-import { ApiUrl } from './api-url';
+import { CfAccountId } from './cf-account-id';
+import { CfApiToken } from './cf-api-token';
 import {
   S3AccessKeyId,
   S3Bucket,
@@ -14,8 +15,6 @@ import {
 } from './s3-credentials';
 import { BetterAuthAppName } from './better-auth-app-name';
 import { BetterAuthSecret } from './better-auth-secret';
-import { CfAccountId } from './cf-account-id';
-import { CfApiToken } from './cf-api-token';
 import { DbUrl } from './db-url';
 import { ExpoToken } from './expo-token';
 import { StripeSecretKey } from './stripe-secret-key';
@@ -38,7 +37,6 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new CfApiToken(),
   new CfAccountId(),
   new DbUrl(),
-  new ApiUrl(),
   new BetterAuthSecret(),
   new BetterAuthAppName(),
   new WebClientGoogleClientId(),

@@ -4,7 +4,8 @@
  * Reads via Vault (`VAULT_TOKEN` or `vault login`):
  *   - `STRIPE_SECRET_KEY` (required)
  *   - `DATABASE_URL`            (required; `postgres://…` or `http://…` for local PGlite)
- *   - `API_URL`           (required; absolute origin of the API Worker, no path)
+ *
+ * Production API origin is derived from project config (not Vault `API_URL`).
  *
  * Writes via Vault CLI on webhook rebuild:
  *   - `STRIPE_WEBHOOK_SECRET`
@@ -16,6 +17,7 @@
  * All real work lives in `../src/sync/*` so other entry points (CI gate, future
  * Worker cron, tests) can compose the same orchestration without spawning bun.
  */
+import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 import {
   assertDbUrl,
   assertStripeSecretKey,
@@ -28,17 +30,8 @@ import { runStripeFullSync } from '../src/sync';
 
 const SCRIPT_TAG = 'stripe sync';
 
-async function assertApiUrlBase(): Promise<string> {
-  const store = createStripeScriptSecretStore();
-  const raw = (await store.getOptional('API_URL'))?.readSecretValue();
-  const trimmed = typeof raw === 'string' ? raw.trim() : '';
-  if (trimmed.length === 0) {
-    console.error(
-      `[${SCRIPT_TAG}] API_URL is required in Vault — absolute origin of the unified Worker (no path), e.g. https://www.gamezilla.app`
-    );
-    process.exit(1);
-  }
-  return trimmed.replace(/\/+$/, '');
+function resolveProductionApiUrlBase(): string {
+  return `https://${APP_IDENTITY.apiHost}`.replace(/\/+$/, '');
 }
 
 async function main(): Promise<void> {
@@ -46,7 +39,7 @@ async function main(): Promise<void> {
   const [secret, dbUrl, apiUrlBase] = await Promise.all([
     assertStripeSecretKey(SCRIPT_TAG),
     assertDbUrl(SCRIPT_TAG),
-    assertApiUrlBase(),
+    Promise.resolve(resolveProductionApiUrlBase()),
   ]);
 
   const stripe = createStripeClientFromSecret(secret);

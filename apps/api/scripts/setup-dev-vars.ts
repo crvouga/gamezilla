@@ -2,6 +2,7 @@ import {
   assertDevVaultConfig,
   assertNonProdDatabaseUrl,
 } from '@libs/infra/shared/database-url-policy';
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/local-preview-api-origin';
 import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import { VaultCli } from '@pkgs/vault';
 import { renameSync, writeFileSync } from 'node:fs';
@@ -47,15 +48,16 @@ function resolveVaultScope(): VaultScope {
   };
 }
 
-function readApiUrlOverrideFromEnv(): string | null {
+function readApiUrlForDevVars(): string {
   const preview = process.env['BETTER_AUTH_PREVIEW_API_URL']?.trim() ?? '';
   if (preview.length > 0) return preview;
+  const localPreview = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim() ?? '';
+  if (localPreview.length > 0) return localPreview;
   const expo = process.env['EXPO_PUBLIC_API_URL']?.trim() ?? '';
   if (expo.length > 0 && /127\.0\.0\.1|localhost/i.test(expo)) {
     return expo;
   }
-  const raw = process.env['API_URL']?.trim() ?? '';
-  return raw.length > 0 ? raw : null;
+  return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }
 
 async function resolveDatabaseUrlForDevVars(
@@ -82,11 +84,8 @@ async function main(): Promise<void> {
     `VAULT_PROJECT=${encodeDevVarValue(project)}`,
     `VAULT_CONFIG=${encodeDevVarValue(config)}`,
     `VAULT_ADDR=${encodeDevVarValue(addr)}`,
+    `API_URL=${encodeDevVarValue(readApiUrlForDevVars())}`,
   ];
-  const apiUrlOverride = readApiUrlOverrideFromEnv();
-  if (apiUrlOverride !== null) {
-    lines.push(`API_URL=${encodeDevVarValue(apiUrlOverride)}`);
-  }
   lines.push(`DATABASE_URL=${encodeDevVarValue(databaseUrl)}`);
 
   const body = `${lines.join('\n')}\n`;

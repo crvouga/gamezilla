@@ -104,6 +104,22 @@ export type LoadedBetterAuthSecrets = LoadedBetterAuthSecretsWorker & {
   readonly dbUrl: string;
 };
 
+async function resolveWorkerApiUrlRaw(
+  secretStore: SecretStore,
+  apiUrlOverride?: string | null
+): Promise<string> {
+  const trimmedOverride =
+    typeof apiUrlOverride === 'string' ? apiUrlOverride.trim() : '';
+  if (trimmedOverride.length > 0) return trimmedOverride;
+  const fromVault = (
+    await secretStore.getOptional(BetterAuthSecretName.apiUrl)
+  )?.readSecretValue();
+  if (typeof fromVault === 'string' && fromVault.trim().length > 0) {
+    return fromVault.trim();
+  }
+  return `https://${APP_IDENTITY.apiHost}`;
+}
+
 /**
  * Better Auth options from the secret store **without** `DATABASE_URL` (Worker loads it per request).
  */
@@ -126,14 +142,7 @@ export async function loadBetterAuthSecretsWorker(
   )
     .readSecretValue()
     .trim();
-  const trimmedOverride =
-    typeof apiUrlOverride === 'string' ? apiUrlOverride.trim() : '';
-  const apiUrlRaw =
-    trimmedOverride.length > 0
-      ? trimmedOverride
-      : (
-          await secretStore.getRequired(BetterAuthSecretName.apiUrl)
-        ).readSecretValue();
+  const apiUrlRaw = await resolveWorkerApiUrlRaw(secretStore, apiUrlOverride);
   const apiOrigin = apiUrlRaw.replace(/\/$/, '');
   const hostedAuthOrigin = normalizeLocalHostedAuthOrigin(apiOrigin);
   const baseURL = `${hostedAuthOrigin}/api/auth`;

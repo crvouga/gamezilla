@@ -1,4 +1,6 @@
 import { loadBetterAuthOptionsForMigration } from '@libs/auth/server/better-auth-migration-options';
+import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
+import { resolveLocalPreviewApiOrigin } from '@libs/client-config/shared/resolve-local-preview-api-origin';
 import {
   assertDatabaseUrlAllowedForVaultConfig,
   assertDevVaultConfig,
@@ -108,9 +110,19 @@ async function waitForPostgresReachable(
   });
 }
 
+async function resolveApiOriginForMigrate(
+  vaultConfig: string
+): Promise<string> {
+  if (vaultConfig !== DEVELOPMENT_VAULT_CONFIG) {
+    return `https://${APP_IDENTITY.apiHost}`;
+  }
+  return resolveLocalPreviewApiOrigin();
+}
+
 async function runMigrateOnce(): Promise<void> {
   const databaseUrl = await resolveDatabaseUrlForMigrate();
   await assertMigrateDatabasePolicy(databaseUrl);
+  const vaultConfig = resolveVaultConfigForMigrate();
   const dbScope = appPostgresDbScope();
   const { pool, sqlClient } = createPgPool({
     connectionString: databaseUrl,
@@ -124,7 +136,8 @@ async function runMigrateOnce(): Promise<void> {
       databaseUrl,
       logger: log,
       betterAuthOptions: await loadBetterAuthOptionsForMigration(
-        createVaultSecretStoreForScripts()
+        createVaultSecretStoreForScripts(),
+        await resolveApiOriginForMigrate(vaultConfig)
       ),
       dbScope,
     });
