@@ -13,9 +13,7 @@ import { useCallback, useMemo, useState, type ReactNode } from 'react';
 
 import { RenameSpaceModal } from './active-space/rename-space-modal';
 import { useSpaceLifecycleModals } from './lifecycle/space-lifecycle-modal-provider';
-import {
-  useStripRedundantSpaceRouteSearchParams,
-} from './space-routes';
+import { useStripRedundantSpaceRouteSearchParams } from './space-routes';
 import { useCurrentSpaceRole } from './use-current-space-role';
 
 function buildInviteLinkForSpace(spaceId: string): string {
