@@ -146,14 +146,12 @@ export function evaluateQuery(
   const filtered = applyWhere(query, candidates);
   applyOrder(query, filtered);
 
-  const total = filtered.length;
-  const { slice, hasMore } = applyPage(query, filtered, total);
+  const { slice, hasMore } = applyPage(query, filtered);
 
   return {
     query,
     entities: slice,
     patches: [],
-    total,
     hasMore,
     nextCursor: null,
   };
@@ -226,18 +224,15 @@ function applyOrder(query: PatchDbQuery, entities: Entity[]): void {
 
 function applyPage(
   query: PatchDbQuery,
-  entities: Entity[],
-  total: number
+  entities: Entity[]
 ): { slice: Entity[]; hasMore: boolean } {
   const offset = query.offset ?? 0;
   const limit = query.limit;
-  const slice =
-    limit === undefined || limit === null
-      ? entities.slice(offset)
-      : entities.slice(offset, offset + limit);
-  const hasMore =
-    limit !== undefined && limit !== null
-      ? offset + slice.length < total
-      : false;
-  return { slice, hasMore };
+  const afterOffset = entities.slice(offset);
+  if (limit === undefined || limit === null) {
+    return { slice: afterOffset, hasMore: false };
+  }
+  const window = afterOffset.slice(0, limit + 1);
+  const hasMore = window.length > limit;
+  return { slice: window.slice(0, limit), hasMore };
 }

@@ -18,7 +18,6 @@ function emptyResult(q: PatchDbQuery): PatchDbResult {
     query: q,
     entities: [],
     patches: [],
-    total: 0,
     hasMore: false,
     nextCursor: null,
   };

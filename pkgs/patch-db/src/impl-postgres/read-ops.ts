@@ -28,10 +28,11 @@ import {
 import {
   batchFetchPatchesForEntities,
   batchFetchSnapshots,
-  computeHasMore,
   computeOrderedEntityKeys,
+  hasMoreFromOverFetch,
   rowAttributesText,
   toPatchRow,
+  trimToRequestedLimit,
 } from './read-ops-shared';
 
 async function maybeAssertNoSeqScan(
@@ -134,11 +135,13 @@ async function readBareSingleEntityBatchPostgres(
     const id = query.entityId as string;
     const k = `${id}\0${entityType}`;
     const patchList = byKey.get(k) ?? [];
-    const total = patchList.length;
     const lim = query.limit;
-    const patchesOut =
-      lim === null || lim === undefined ? patchList : patchList.slice(0, lim);
-    const hasMore = computeHasMore(query, patchesOut.length, total);
+    const overFetched =
+      lim === null || lim === undefined
+        ? patchList
+        : patchList.slice(0, lim + 1);
+    const patchesOut = trimToRequestedLimit(overFetched, query);
+    const hasMore = hasMoreFromOverFetch(query, overFetched.length);
     const lastPatch = patchesOut[patchesOut.length - 1];
     const nextCursor =
       lastPatch !== null && lastPatch !== undefined ? lastPatch.patchId : null;
@@ -150,7 +153,6 @@ async function readBareSingleEntityBatchPostgres(
       query,
       entities,
       patches: patchesOut,
-      total,
       hasMore,
       nextCursor,
     };
@@ -294,9 +296,9 @@ function buildSqlForExplain(
       'p.',
       options
     );
-    const limit = buildLimitSQL(query);
+    const limit = buildLimitSQL(query, { overFetch: true });
     const sql = `SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes::text AS attributes,
-              p.created_at, p.recorded_at, p.parent_id, COUNT(*) OVER() AS total_count
+              p.created_at, p.recorded_at, p.parent_id
        FROM patches p WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
     return { sql, params: [...params, ...limit.params] };
   }
@@ -316,8 +318,8 @@ function buildSqlForExplain(
     orderPrefix,
     options
   );
-  const limit = buildLimitSQL(query);
-  const sql = `SELECT ${alias}.entity_id, ${alias}.entity_type, ${alias}.attributes::text AS attributes, COUNT(*) OVER() AS total_count FROM ${table} ${alias} WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
+  const limit = buildLimitSQL(query, { overFetch: true });
+  const sql = `SELECT ${alias}.entity_id, ${alias}.entity_type, ${alias}.attributes::text AS attributes FROM ${table} ${alias} WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
   return { sql, params: [...params, ...limit.params] };
 }
 
@@ -358,10 +360,10 @@ async function readOnePatchesMode(
     'p.',
     options
   );
-  const limit = buildLimitSQL(query);
+  const limit = buildLimitSQL(query, { overFetch: true });
 
   const sql = `SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes::text AS attributes,
-              p.created_at, p.recorded_at, p.parent_id, COUNT(*) OVER() AS total_count
+              p.created_at, p.recorded_at, p.parent_id
        FROM patches p WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
   const allParams = [...params, ...limit.params];
   assertWhereFragment(
@@ -369,16 +371,13 @@ async function readOnePatchesMode(
     { context: 'readOnePatchesMode' }
   );
   await maybeAssertNoSeqScan(sqlClient, sql, allParams, options);
-  const rows = await sqlClient.query<
-    PatchRow & { total_count: string | number }
-  >(sql, allParams);
+  const rows = await sqlClient.query<PatchRow>(sql, allParams);
 
-  const total = rows.length > 0 ? Number(rows[0]!.total_count) : 0;
-  const patches = rows.map((r) => toPatch(toPatchRow(r)));
-  const hasMore =
-    query.limit !== null && query.limit !== undefined
-      ? (query.offset ?? 0) + patches.length < total
-      : false;
+  const patches = trimToRequestedLimit(
+    rows.map((r) => toPatch(toPatchRow(r))),
+    query
+  );
+  const hasMore = hasMoreFromOverFetch(query, rows.length);
   const lastPatch = patches[patches.length - 1];
   const nextCursor =
     lastPatch !== null && lastPatch !== undefined ? lastPatch.patchId : null;
@@ -386,7 +385,7 @@ async function readOnePatchesMode(
   const entityKeysOrdered = computeOrderedEntityKeys(patches);
   const entities = await batchFetchSnapshots(sqlClient, entityKeysOrdered);
 
-  return { query, entities, patches, total, hasMore, nextCursor };
+  return { query, entities, patches, hasMore, nextCursor };
 }
 
 async function readOneSnapshotBased(
@@ -414,31 +413,29 @@ async function readOneSnapshotBased(
     orderPrefix,
     options
   );
-  const limit = buildLimitSQL(query);
+  const limit = buildLimitSQL(query, { overFetch: true });
 
-  const sql = `SELECT ${alias}.entity_id, ${alias}.entity_type, ${alias}.attributes::text AS attributes, COUNT(*) OVER() AS total_count FROM ${table} ${alias} WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
+  const sql = `SELECT ${alias}.entity_id, ${alias}.entity_type, ${alias}.attributes::text AS attributes FROM ${table} ${alias} WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
   const allParams = [...params, ...limit.params];
   assertWhereFragment(
     { sql, params: allParams },
     { context: 'readOneSnapshotBased' }
   );
   await maybeAssertNoSeqScan(sqlClient, sql, allParams, options);
-  const rows = await sqlClient.query<
-    SnapshotRow & { total_count: string | number }
-  >(sql, allParams);
+  const rows = await sqlClient.query<SnapshotRow>(sql, allParams);
 
-  const total = rows.length > 0 ? Number(rows[0]!.total_count) : 0;
-  const entities = rows.map((r) =>
-    toEntity({ ...r, attributes: rowAttributesText(r) })
+  const entities = trimToRequestedLimit(
+    rows.map((r) => toEntity({ ...r, attributes: rowAttributesText(r) })),
+    query
   );
-  const hasMore =
-    query.limit !== null && query.limit !== undefined
-      ? (query.offset ?? 0) + entities.length < total
-      : false;
+  const hasMore = hasMoreFromOverFetch(query, rows.length);
 
-  const patches = await batchFetchPatchesForEntities(sqlClient, rows);
+  const patches = await batchFetchPatchesForEntities(
+    sqlClient,
+    entities.map((e) => ({ entity_id: e.entityId, entity_type: e.entityType }))
+  );
 
-  return { query, entities, patches, total, hasMore, nextCursor: null };
+  return { query, entities, patches, hasMore, nextCursor: null };
 }
 
 export {

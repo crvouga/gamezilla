@@ -465,7 +465,6 @@ export type PatchDbResult = {
   query: PatchDbQuery;
   entities: Entity[];
   patches: Patch[];
-  total: number;
   hasMore: boolean;
   nextCursor: string | null;
   /** Optional per-query diagnostics; see {@link PatchDbResultMetrics}. */

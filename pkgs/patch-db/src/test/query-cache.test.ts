@@ -80,7 +80,6 @@ describe('PatchDbQueryCache', () => {
 
     const initial = cache.getOrCreateResult(queryKey, query);
     expect(initial.entities).toEqual([]);
-    expect(initial.total).toBe(0);
     expect(initial.isLoading).toBe(false);
   });
 

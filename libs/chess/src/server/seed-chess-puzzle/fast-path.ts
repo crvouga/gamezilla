@@ -340,10 +340,14 @@ async function reindexPuzzleIndexes(
   log: Logger
 ): Promise<void> {
   // `REINDEX INDEX CONCURRENTLY` cannot run inside a transaction block.
-  // We list only `pdb_idx_chess_puzzle__*` so the seed doesn't bloat by
-  // rebuilding unrelated declarative indexes belonging to other features.
   const idxRows = await sql.query<{ indexname: string }>(
-    "SELECT indexname FROM pg_indexes WHERE schemaname = current_schema() AND indexname LIKE 'pdb_idx_chess_puzzle__%' ORDER BY indexname"
+    `SELECT indexname
+     FROM pg_indexes
+     WHERE schemaname = current_schema()
+       AND tablename = ?
+       AND indexname NOT LIKE '%\\_pkey' ESCAPE '\\'
+     ORDER BY indexname`,
+    [CHESS_PUZZLE_SNAPSHOTS_TABLE]
   );
   for (const { indexname } of idxRows) {
     await tryRun({

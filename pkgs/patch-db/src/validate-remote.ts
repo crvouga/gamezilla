@@ -52,10 +52,6 @@ function assertPatchDbResult(value: unknown): asserts value is PatchDbResult {
   assert.array(value['entities'], 'PatchDbResult.entities must be an array');
   assert.array(value['patches'], 'PatchDbResult.patches must be an array');
   assert.ok(
-    typeof value['total'] === 'number',
-    'PatchDbResult.total must be number'
-  );
-  assert.ok(
     typeof value['hasMore'] === 'boolean',
     'PatchDbResult.hasMore must be boolean'
   );

@@ -203,7 +203,6 @@ export class PatchDbQueryCache {
         query: next.query,
         entities,
         patches,
-        total: next.total,
         hasMore: next.hasMore,
         nextCursor: next.nextCursor,
         isLoading: false,

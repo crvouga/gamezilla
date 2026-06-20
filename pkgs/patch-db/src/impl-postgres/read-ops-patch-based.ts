@@ -13,9 +13,10 @@ import {
 } from './query-builder-pg';
 import {
   batchFetchSnapshots,
-  computeHasMore,
   computeOrderedEntityKeys,
+  hasMoreFromOverFetch,
   toPatchRow,
+  trimToRequestedLimit,
 } from './read-ops-shared';
 import { SELECT_DEPTH_BY_PATCH_ID } from './sql-constants';
 
@@ -180,11 +181,9 @@ function candWhereSql(split: LineageCandSplit): string {
   return '1=1';
 }
 
-/** When `mode === 'count'`, `tail.orderSQL` and `tail.limitSql` are ignored. */
 function buildPatchBasedSql(
   split: LineageCandSplit,
-  tail: PatchBasedSqlTail,
-  mode: 'select' | 'count'
+  tail: PatchBasedSqlTail
 ): string {
   const withPrefix = split.useMatchingEntities
     ? `WITH RECURSIVE matching_entities AS (SELECT s.entity_id, s.entity_type FROM ${split.snapTable} s WHERE ${split.snapWhereSQL}), `
@@ -192,7 +191,7 @@ function buildPatchBasedSql(
 
   const candWhere = candWhereSql(split);
 
-  const core = `${withPrefix}lineage AS (
+  return `${withPrefix}lineage AS (
     SELECT patch_id, 0 AS depth
     FROM patches
     WHERE parent_id IS NULL AND ${split.lineageSeedPredicate}
@@ -208,15 +207,8 @@ cand AS (
   FROM patches p
   JOIN lineage l ON p.patch_id = l.patch_id
   WHERE ${candWhere}${tail.cursorCondition}
-)`;
-
-  if (mode === 'count') {
-    return `${core} SELECT COUNT(*)::bigint AS cnt FROM cand`;
-  }
-
-  return `${core}
-SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes, p.created_at, p.recorded_at, p.parent_id,
-       (SELECT COUNT(*)::bigint FROM cand) AS total_count
+)
+SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes, p.created_at, p.recorded_at, p.parent_id
 FROM cand p
 ${tail.orderSQL}${tail.limitSql}`;
 }
@@ -234,40 +226,6 @@ function patchBasedParams(
     ...cursor.params,
     ...limit.params,
   ];
-}
-
-function totalFromPatchBasedRows(
-  rows: ReadonlyArray<PatchRow & { total_count: string | number }>
-): number | null {
-  if (rows.length === 0) return null;
-  const raw = rows[0]!.total_count;
-  return typeof raw === 'bigint' ? Number(raw) : Number(raw);
-}
-
-async function countPatchesForPatchBased(
-  sqlClient: SqlClient,
-  split: LineageCandSplit
-): Promise<number> {
-  const countSql = buildPatchBasedSql(
-    split,
-    { cursorCondition: '', orderSQL: '', limitSql: '' },
-    'count'
-  );
-  const params = patchBasedParams(
-    split,
-    { condition: '', params: [] },
-    { sql: '', params: [] }
-  );
-  assertWhereFragment(
-    { sql: countSql, params },
-    { context: 'countPatchesForPatchBased' }
-  );
-  const countRows = await sqlClient.query<{ cnt: string | number }>(
-    countSql,
-    params
-  );
-  const rawTotal = countRows[0]?.cnt ?? 0;
-  return typeof rawTotal === 'bigint' ? Number(rawTotal) : Number(rawTotal);
 }
 
 async function resolveCursor(
@@ -325,13 +283,13 @@ export async function readOnePatchBased(
   const defaultOrder =
     'ORDER BY p.entity_id ASC, p.entity_type ASC, p.lineage_depth ASC, p.patch_id ASC';
   const orderSQL = buildOrderSQL(query, defaultOrder, 'p.', options);
-  const limit = buildLimitSQL(query);
+  const limit = buildLimitSQL(query, { overFetch: true });
 
-  const selectSql = buildPatchBasedSql(
-    split,
-    { cursorCondition: cursor.condition, orderSQL, limitSql: limit.sql },
-    'select'
-  );
+  const selectSql = buildPatchBasedSql(split, {
+    cursorCondition: cursor.condition,
+    orderSQL,
+    limitSql: limit.sql,
+  });
   const allParams = patchBasedParams(split, cursor, limit);
   assertWhereFragment(
     { sql: selectSql, params: allParams },
@@ -339,16 +297,13 @@ export async function readOnePatchBased(
   );
   await maybeAssertNoSeqScan(sqlClient, selectSql, allParams, options);
 
-  const rows = await sqlClient.query<
-    PatchRow & { total_count: string | number }
-  >(selectSql, allParams);
+  const rows = await sqlClient.query<PatchRow>(selectSql, allParams);
 
-  const totalFromRows = totalFromPatchBasedRows(rows);
-  const total =
-    totalFromRows ?? (await countPatchesForPatchBased(sqlClient, split));
-
-  const patches = rows.map((r) => toPatch(toPatchRow(r)));
-  const hasMore = computeHasMore(query, patches.length, total);
+  const patches = trimToRequestedLimit(
+    rows.map((r) => toPatch(toPatchRow(r))),
+    query
+  );
+  const hasMore = hasMoreFromOverFetch(query, rows.length);
   const lastPatch = patches[patches.length - 1];
   const nextCursor =
     lastPatch !== null && lastPatch !== undefined ? lastPatch.patchId : null;
@@ -356,5 +311,5 @@ export async function readOnePatchBased(
   const entityKeysOrdered = computeOrderedEntityKeys(patches);
   const entities = await batchFetchSnapshots(sqlClient, entityKeysOrdered);
 
-  return { query, entities, patches, total, hasMore, nextCursor };
+  return { query, entities, patches, hasMore, nextCursor };
 }

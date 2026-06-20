@@ -348,6 +348,42 @@ function sumGeneratedColumnChanges(
   return n;
 }
 
+function collectTablesForAnalyze(diff: PgLayoutDiff): readonly string[] {
+  const names = new Set<string>();
+  for (const t of diff.tablesToCreate) {
+    names.add(t.tableName);
+  }
+  for (const batch of diff.generatedColumnsToAdd) {
+    names.add(batch.tableName);
+  }
+  for (const batch of diff.singleIndexesToAdd) {
+    names.add(batch.tableName);
+  }
+  for (const batch of diff.compositeIndexesToAdd) {
+    names.add(batch.tableName);
+  }
+  for (const batch of diff.ginIndexesToAdd) {
+    names.add(batch.tableName);
+  }
+  return [...names];
+}
+
+async function analyzeReconciledTables(
+  sqlClient: SqlClient,
+  diff: PgLayoutDiff,
+  log: Logger
+): Promise<void> {
+  const tables = collectTablesForAnalyze(diff);
+  if (tables.length === 0) return;
+  log.info('patch-db reconcile: ANALYZE after index/column changes', {
+    tableCount: tables.length,
+  });
+  for (const tableName of tables) {
+    assertSqlIdentifier(tableName, 'analyzeReconciledTables: tableName');
+    await sqlClient.run(`ANALYZE ${tableName}`);
+  }
+}
+
 export async function applyPgLayoutDiff(
   sqlClient: SqlClient,
   diff: PgLayoutDiff,
@@ -384,6 +420,7 @@ export async function applyPgLayoutDiff(
   await createGinIndexes(sqlClient, diff.ginIndexesToAdd);
   await createSingleIndexes(sqlClient, diff.singleIndexesToAdd);
   await createCompositeIndexes(sqlClient, diff.compositeIndexesToAdd);
+  await analyzeReconciledTables(sqlClient, diff, log);
   await rebuildSnapshotsView(sqlClient, diff.viewBranches);
   warnOnOrphanedTables(log, diff.orphanedTableNames);
 

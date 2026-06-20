@@ -2,7 +2,9 @@ import { assert } from '@pkgs/assert';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { toEntity, toPatch } from '../impl-sqlite/mappers';
 import type { PatchRow, SnapshotRow } from '../impl-sqlite/types';
-import type { Entity, Patch, PatchDbQuery } from '../interface';
+import type { Entity, Patch } from '../interface';
+
+export { hasMoreFromOverFetch, trimToRequestedLimit } from '../read-pagination';
 
 export function rowAttributesText(row: PatchRow | SnapshotRow): string {
   const a = row.attributes;
@@ -12,24 +14,6 @@ export function rowAttributesText(row: PatchRow | SnapshotRow): string {
 
 export function toPatchRow(row: PatchRow): PatchRow {
   return { ...row, attributes: rowAttributesText(row) };
-}
-
-export function computeHasMore(
-  query: PatchDbQuery,
-  patchesLength: number,
-  total: number
-): boolean {
-  if (query.after !== null && query.after !== undefined) {
-    return (
-      query.limit !== null &&
-      query.limit !== undefined &&
-      patchesLength >= query.limit
-    );
-  }
-  if (query.limit !== null && query.limit !== undefined) {
-    return (query.offset ?? 0) + patchesLength < total;
-  }
-  return false;
 }
 
 export function computeOrderedEntityKeys(patches: readonly Patch[]): string[] {

@@ -43,22 +43,22 @@ function useEntityTypeCounts(): LoadState {
     setError(null);
     const next = new Map<string, number>();
     let offset = 0;
-    let total = 0;
+    let scanned = 0;
     try {
       while (true) {
         const results = await db.read([{ limit: PAGE_SIZE, offset }]);
         const result = results[0];
         if (result === undefined) break;
-        total = result.total;
+        scanned += result.entities.length;
         for (const e of result.entities) {
           const t = e.entityType;
           next.set(t, (next.get(t) ?? 0) + 1);
         }
         if (!result.hasMore) break;
-        offset += PAGE_SIZE;
+        offset += result.entities.length;
       }
       setCounts(next);
-      setTotalRows(total);
+      setTotalRows(scanned);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
