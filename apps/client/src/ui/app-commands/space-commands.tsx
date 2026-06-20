@@ -4,6 +4,7 @@ import { useCurrentSpaceCount } from '@libs/spaces/client/use-current-space-coun
 import { useCurrentSpaceIds } from '@libs/spaces/client/use-current-space-ids';
 import { useCurrentSpaceRole } from '@libs/spaces/client/use-current-space-role';
 import { useLiveSpaceIds } from '@libs/spaces/client/use-live-space-ids';
+import { spaceDetailHref } from '@libs/spaces/client/space-routes';
 import { useSpaceCommandLabel } from '@libs/spaces/client/use-space-command-label';
 import { RegisterCommand } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
@@ -38,7 +39,7 @@ function SpaceCreateCommand(): ReactNode {
       enabled={currentCount === 0}
       run={async () => {
         createSpace((id) => {
-          router.push({ pathname: '/space/[id]', params: { id } });
+          router.push(spaceDetailHref(id));
         });
       }}
     />
@@ -99,7 +100,7 @@ function LiveSpaceCommand({ spaceId }: { spaceId: string }): ReactNode {
         icon="house.fill"
         keywords={[t`open`, t`go to`, t`space`]}
         run={async () => {
-          router.push({ pathname: '/space/[id]', params: { id: spaceId } });
+          router.push(spaceDetailHref(spaceId));
         }}
       />
       <RegisterCommand

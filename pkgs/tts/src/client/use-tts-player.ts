@@ -1,6 +1,36 @@
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+function isAutoplayBlockedError(error: unknown): boolean {
+  if (error === null || typeof error !== 'object') return false;
+  return 'name' in error && error.name === 'NotAllowedError';
+}
+
+/** Web browsers reject `play()` until the user has interacted with the page. */
+function playAudioOrIgnoreAutoplayBlock(
+  play: () => void | Promise<void>,
+  onBlocked: () => void
+): void {
+  try {
+    const result = play();
+    if (result !== undefined && typeof (result as Promise<void>).then === 'function') {
+      void (result as Promise<void>).catch((error: unknown) => {
+        if (isAutoplayBlockedError(error)) {
+          onBlocked();
+          return;
+        }
+        throw error;
+      });
+    }
+  } catch (error) {
+    if (isAutoplayBlockedError(error)) {
+      onBlocked();
+      return;
+    }
+    throw error;
+  }
+}
+
 /**
  * Internal: cross-platform audio playback for a TTS-served URL.
  *
@@ -63,7 +93,10 @@ export function useTtsPlayer(): TtsPlayerState {
       void player.seekTo(0).finally(() => {
         if (requestedUrlRef.current !== requestedUrl) return;
         setPlayingLeadIn(true);
-        player.play();
+        playAudioOrIgnoreAutoplayBlock(
+          () => player.play(),
+          () => setPlayingLeadIn(false)
+        );
         requestedUrlRef.current = null;
       });
     }
@@ -76,7 +109,10 @@ export function useTtsPlayer(): TtsPlayerState {
         await player.seekTo(0);
         if (requestedUrlRef.current !== url) return;
         setPlayingLeadIn(true);
-        player.play();
+        playAudioOrIgnoreAutoplayBlock(
+          () => player.play(),
+          () => setPlayingLeadIn(false)
+        );
         requestedUrlRef.current = null;
         return;
       }

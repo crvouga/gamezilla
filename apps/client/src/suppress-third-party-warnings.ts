@@ -10,6 +10,12 @@ const SUPPRESSED_WARNING_PATTERNS: readonly RegExp[] = [
   // of `style.pointerEvents`. Tracked upstream:
   // https://github.com/gorhom/react-native-bottom-sheet/issues/2403
   /props\.pointerEvents is deprecated/,
+  // Expo Router warns when `pathname` includes `[param]` and `params` repeats it.
+  /Route '.*' with param .* was specified both in the path and as a param/,
+  // React DevTools + @shopify/react-native-skia reconciler on web (harmless).
+  /React instrumentation encountered an error: Error: Invalid argument not valid semver/,
+  // react-native-svg still reads `element.ref` on web under React 19.
+  /Accessing element\.ref was removed in React 19/,
 ];
 
 function shouldSuppress(args: readonly unknown[]): boolean {
@@ -22,8 +28,13 @@ function shouldSuppress(args: readonly unknown[]): boolean {
 export function suppressThirdPartyWarnings(): void {
   if (typeof console === 'undefined') return;
   const originalWarn = console.warn.bind(console);
+  const originalError = console.error.bind(console);
   console.warn = (...args: unknown[]) => {
     if (shouldSuppress(args)) return;
     originalWarn(...args);
+  };
+  console.error = (...args: unknown[]) => {
+    if (shouldSuppress(args)) return;
+    originalError(...args);
   };
 }
