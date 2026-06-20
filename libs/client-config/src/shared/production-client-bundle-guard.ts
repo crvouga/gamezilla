@@ -23,7 +23,24 @@ export function extractInlinedApiUrlFromBundleSource(
   source: string
 ): string | null {
   const match = source.match(INLINED_API_URL_RE);
-  return match?.[2] ?? null;
+  if (match?.[2] !== undefined) return match[2];
+  return extractInlinedApiUrlFromHermesBundle(source);
+}
+
+/**
+ * Hermes `.hbc` bundles embed string-table entries as raw UTF-8 — the minified
+ * JS pattern above does not survive bytecode compilation.
+ */
+function extractInlinedApiUrlFromHermesBundle(source: string): string | null {
+  const candidates = [
+    productionClientApiOrigin(),
+    `https://${APP_IDENTITY.apiHost}`,
+    `https://api.${APP_IDENTITY.domain}`,
+  ];
+  for (const url of candidates) {
+    if (source.includes(url)) return url;
+  }
+  return null;
 }
 
 export function assertProductionClientBuildEnv(

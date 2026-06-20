@@ -6,6 +6,7 @@ export async function expectSignInModalResumed(page: Page): Promise<void> {
     page
       .getByText('Signing in…')
       .or(page.getByText('Signed in', { exact: true }))
+      .or(page.getByText('Sign-in failed', { exact: true }))
   ).toBeVisible({ timeout: 60_000 });
 }
 
@@ -33,22 +34,26 @@ async function clickMutationModalSubmit(
   page: Page,
   label: string
 ): Promise<void> {
-  const dialog = page.getByRole('dialog');
-  if ((await dialog.count()) > 0) {
+  const dialogs = page.getByRole('dialog');
+  const dialogCount = await dialogs.count();
+  // Newest dialog first — mobile bottom sheets may expose `dialog` while
+  // footer buttons sit outside that subtree in the a11y tree.
+  for (let i = dialogCount - 1; i >= 0; i -= 1) {
+    const dialog = dialogs.nth(i);
     const submit = dialog.getByRole('button', { name: label, exact: true });
     if ((await submit.count()) > 0) {
       await expect(submit).toBeVisible({ timeout: 10_000 });
       await submit.click();
       return;
     }
-    await expect(dialog.getByText(label, { exact: true })).toBeVisible({
-      timeout: 10_000,
-    });
-    await dialog.getByText(label, { exact: true }).click();
-    return;
+    const textSubmit = dialog.getByText(label, { exact: true });
+    if ((await textSubmit.count()) > 0) {
+      await expect(textSubmit).toBeVisible({ timeout: 10_000 });
+      await textSubmit.click();
+      return;
+    }
   }
 
-  // Mobile bottom sheet — no dialog role; submit is a footer button.
   const submit = page.getByRole('button', { name: label, exact: true });
   await expect(submit).toBeVisible({ timeout: 10_000 });
   await submit.click();

@@ -16,4 +16,7 @@ test('extractInlinedApiUrlFromBundleSource parses minified getApiBaseUrl chunks'
   );
 
   expect(extractInlinedApiUrlFromBundleSource('no api url here')).toBeNull();
+
+  const hermesStub = `EXPO_PUBLIC_API_URL is required\x00${prod}\x00`;
+  expect(extractInlinedApiUrlFromBundleSource(hermesStub)).toBe(prod);
 });
