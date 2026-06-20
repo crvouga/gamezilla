@@ -13,7 +13,10 @@ function playAudioOrIgnoreAutoplayBlock(
 ): void {
   try {
     const result = play();
-    if (result !== undefined && typeof (result as Promise<void>).then === 'function') {
+    if (
+      result !== undefined &&
+      typeof (result as Promise<void>).then === 'function'
+    ) {
       void (result as Promise<void>).catch((error: unknown) => {
         if (isAutoplayBlockedError(error)) {
           onBlocked();
