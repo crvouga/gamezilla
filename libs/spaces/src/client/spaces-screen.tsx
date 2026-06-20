@@ -15,7 +15,7 @@ import {
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useMemo, type ReactNode } from 'react';
-import { spaceDetailHref } from './space-routes';
+import { openSpaceDetail } from './space-routes';
 
 function SpacesList({ bottomInset }: { bottomInset: number }) {
   const spaceIds = useLiveSpaceIds();
@@ -78,7 +78,7 @@ export function SpacesScreen({
       },
       operation: async () => {
         createSpace((id) => {
-          router.push(spaceDetailHref(id));
+          openSpaceDetail(router, id);
         });
       },
       successHoldMs: 0,

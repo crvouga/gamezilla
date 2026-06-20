@@ -2,7 +2,7 @@ import { Pressable } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
-import { spaceDetailHref } from '../space-routes';
+import { openSpaceDetail } from '../space-routes';
 
 export type MiniplayerOpenSpacePressableProps = {
   spaceId: string;
@@ -18,7 +18,7 @@ export function MiniplayerOpenSpacePressable({
   const { t } = useLingui();
   return (
     <Pressable
-      onPress={() => router.push(spaceDetailHref(spaceId))}
+      onPress={() => openSpaceDetail(router, spaceId)}
       accessibilityRole="button"
       accessibilityLabel={t`Tap to return to your space`}
       sx={{

@@ -5,7 +5,7 @@ import { useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, type ReactNode } from 'react';
 
 import { useCurrentSpaceRole } from '../use-current-space-role';
-import { spaceSettingsHref } from '../space-routes';
+import { openSpaceSettings } from '../space-routes';
 import { useSpaceSessionUi } from './space-session-ui-context';
 
 function buildInviteLinkForSpace(spaceId: string): string {
@@ -44,7 +44,7 @@ export function SpaceChromeOverflowMenu(): ReactNode {
   }, [spaceId]);
 
   const onOpenSettings = useCallback(() => {
-    router.push(spaceSettingsHref(spaceId));
+    openSpaceSettings(router, spaceId);
   }, [router, spaceId]);
 
   const actions = useMemo<readonly OverflowMenuAction[]>(

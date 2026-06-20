@@ -13,6 +13,9 @@ import { useCallback, useMemo, useState, type ReactNode } from 'react';
 
 import { RenameSpaceModal } from './active-space/rename-space-modal';
 import { useSpaceLifecycleModals } from './lifecycle/space-lifecycle-modal-provider';
+import {
+  useStripRedundantSpaceRouteSearchParams,
+} from './space-routes';
 import { useCurrentSpaceRole } from './use-current-space-role';
 
 function buildInviteLinkForSpace(spaceId: string): string {
@@ -35,6 +38,7 @@ export function SpaceSettingsScreen(): ReactNode {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const spaceId = typeof id === 'string' ? id : '';
+  useStripRedundantSpaceRouteSearchParams(spaceId);
   const role = useCurrentSpaceRole(spaceId);
   const isHost = role === 'host';
   const { requestEndSpace, requestLeaveSpace } = useSpaceLifecycleModals();

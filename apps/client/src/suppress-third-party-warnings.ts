@@ -16,6 +16,8 @@ const SUPPRESSED_WARNING_PATTERNS: readonly RegExp[] = [
   /React instrumentation encountered an error: Error: Invalid argument not valid semver/,
   // react-native-svg still reads `element.ref` on web under React 19.
   /Accessing element\.ref was removed in React 19/,
+  // Chrome a11y intervention when stack screens hide focused elements.
+  /Blocked aria-hidden on an element because its descendant retained focus/,
 ];
 
 function shouldSuppress(args: readonly unknown[]): boolean {

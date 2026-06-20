@@ -9,11 +9,14 @@ import { useCurrentSpaceIds } from './use-current-space-ids';
 import { useCurrentSpaceRole } from './use-current-space-role';
 import { useLocalSearchParams } from 'expo-router';
 import { useState, type ReactNode } from 'react';
+import { useStripRedundantSpaceRouteSearchParams } from './space-routes';
 
 /** Route entry point — reads `id` from the route and dispatches to atoms. */
 export function SpaceDetailScreen(): ReactNode {
   const { id } = useLocalSearchParams<{ id: string }>();
   const spaceId = typeof id === 'string' ? id : '';
+
+  useStripRedundantSpaceRouteSearchParams(spaceId);
 
   const { isLoading } = useCurrentSpaceIds();
   const role = useCurrentSpaceRole(spaceId);
