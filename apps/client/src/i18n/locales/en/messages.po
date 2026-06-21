@@ -72,6 +72,10 @@ msgstr "{hostDisplayName}'s space"
 msgid "{latencyMs} ms"
 msgstr "{latencyMs} ms"
 
+#: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
+msgid "{loaded} loaded · {shown} shown"
+msgstr "{loaded} loaded · {shown} shown"
+
 #: apps/client/src/ui/app-header/app-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
 #~ msgid "{ms} ms"
@@ -82,8 +86,8 @@ msgid "{timeLabel} · {patchCount} patches · {entityTypes}"
 msgstr "{timeLabel} · {patchCount} patches · {entityTypes}"
 
 #: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
-msgid "{total} total · {loaded} loaded · {shown} shown"
-msgstr "{total} total · {loaded} loaded · {shown} shown"
+#~ msgid "{total} total · {loaded} loaded · {shown} shown"
+#~ msgstr "{total} total · {loaded} loaded · {shown} shown"
 
 #: pkgs/patch-db-widgets/src/db-client/entity-types-screen.tsx
 msgid "{totalRows} snapshot row(s) · {typeCount} type(s)"
