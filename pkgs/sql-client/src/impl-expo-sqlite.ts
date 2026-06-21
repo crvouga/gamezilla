@@ -13,6 +13,9 @@ import { applySqliteConnectionPragmas } from './sqlite-connection-pragmas';
  */
 const WEB_RECOVERY_RELOAD_KEY = 'expo-sqlite.web-recovery-reloaded';
 
+/** Fail fast instead of leaving Suspense on a hung OPFS / worker open. */
+const OPEN_DATABASE_TIMEOUT_MS = 25_000;
+
 /**
  * URL escape hatch. Appending `?reset-db=1` to any page of the app forces a full reset on
  * next load: clears the one-shot recovery flag, wipes OPFS, deletes the DB file, and strips
@@ -85,6 +88,17 @@ async function openDatabaseOnce(
   recovery: boolean,
   directory?: string
 ): Promise<SqlClientImplExpoSqlite> {
+  return withOpenTimeout(
+    databaseName,
+    openDatabaseOnceInner(databaseName, recovery, directory)
+  );
+}
+
+async function openDatabaseOnceInner(
+  databaseName: string,
+  recovery: boolean,
+  directory?: string
+): Promise<SqlClientImplExpoSqlite> {
   const opts =
     Platform.OS === 'web' && recovery ? { useNewConnection: true } : {};
   const db =
@@ -92,6 +106,27 @@ async function openDatabaseOnce(
       ? await SQLite.openDatabaseAsync(databaseName, opts, directory)
       : await SQLite.openDatabaseAsync(databaseName, opts);
   return new SqlClientImplExpoSqlite(db);
+}
+
+async function withOpenTimeout<T>(
+  databaseName: string,
+  promise: Promise<T>
+): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(
+        new Error(
+          `Timed out opening SQLite database "${databaseName}" after ${OPEN_DATABASE_TIMEOUT_MS}ms`
+        )
+      );
+    }, OPEN_DATABASE_TIMEOUT_MS);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId !== undefined) clearTimeout(timeoutId);
+  }
 }
 
 /**

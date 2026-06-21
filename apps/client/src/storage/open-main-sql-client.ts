@@ -1,4 +1,5 @@
 import { assertDatabaseName } from '@pkgs/sql';
+import { tryAcquireExpoSqliteWebSessionLock } from '@pkgs/sql-client/expo-sqlite-web-session-lock';
 import { SqlClientImplExpoSqlite } from '@pkgs/sql-client/impl-expo-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Platform } from 'react-native';
@@ -54,6 +55,7 @@ export function getMainSqliteDbName(): string {
  * only worries about establishing a connected `SqlClient`.
  */
 export async function openMainSqlClient(): Promise<SqlClient> {
+  await tryAcquireExpoSqliteWebSessionLock();
   const databaseName = getMainSqliteDbName();
   const client = await SqlClientImplExpoSqlite.open(databaseName);
   await client.connect();
