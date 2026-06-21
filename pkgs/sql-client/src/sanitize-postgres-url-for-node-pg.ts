@@ -57,7 +57,11 @@ function resolvePostgresUrl(connection: string | URL): URL | null {
 
 function normalizeSslModeForNodePg(url: URL): boolean {
   const sslmode = url.searchParams.get('sslmode');
-  if (sslmode !== 'require' && sslmode !== 'prefer' && sslmode !== 'verify-ca') {
+  if (
+    sslmode !== 'require' &&
+    sslmode !== 'prefer' &&
+    sslmode !== 'verify-ca'
+  ) {
     return false;
   }
   // pg@8.20 / pg-connection-string@2.12 warn that these modes are currently
@@ -83,8 +87,7 @@ export function sanitizePostgresUrlForNodePg(connection: string | URL): string {
   const url = resolvePostgresUrl(connection);
   if (url === null) return serialized;
 
-  const changed =
-    normalizeSslModeForNodePg(url) || stripLibpqTlsSentinels(url);
+  const changed = normalizeSslModeForNodePg(url) || stripLibpqTlsSentinels(url);
   return changed ? url.toString() : serialized;
 }
 
