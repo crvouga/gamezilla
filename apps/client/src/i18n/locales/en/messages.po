@@ -1358,6 +1358,10 @@ msgstr "Correct"
 #~ msgid "Could not remove local data"
 #~ msgstr "Could not remove local data"
 
+#: apps/client/src/providers/local-database-boot-screen.tsx
+msgid "Could not start local database"
+msgstr "Could not start local database"
+
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "Could not wipe database"
 msgstr "Could not wipe database"
@@ -2972,6 +2976,14 @@ msgstr "Games"
 #: apps/client/src/i18n/catalog-bootstrap.ts
 msgid "Gamezilla"
 msgstr "Gamezilla"
+
+#: apps/client/src/providers/local-database-boot-screen.tsx
+msgid "Gamezilla is open in another tab"
+msgstr "Gamezilla is open in another tab"
+
+#: apps/client/src/providers/local-database-boot-screen.tsx
+msgid "Gamezilla stores offline data in one browser tab at a time. Close every other tab of this site, then reload. If you want to use this tab instead, reset local data below (your account on the server is unchanged)."
+msgstr "Gamezilla stores offline data in one browser tab at a time. Close every other tab of this site, then reload. If you want to use this tab instead, reset local data below (your account on the server is unchanged)."
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Geometric finish — pieces in line."
@@ -5766,6 +5778,10 @@ msgstr "reset"
 msgid "Reset"
 msgstr "Reset"
 
+#: apps/client/src/providers/local-database-boot-screen.tsx
+msgid "Reset local data and reload"
+msgstr "Reset local data and reload"
+
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Reset position"
 msgstr "Reset position"
@@ -7547,6 +7563,7 @@ msgstr "Transform"
 #~ msgid "Try a check. One of them mates."
 #~ msgstr "Try a check. One of them mates."
 
+#: apps/client/src/providers/local-database-boot-screen.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
 msgid "Try again"
