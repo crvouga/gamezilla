@@ -54,7 +54,9 @@ export function tryAcquireExpoSqliteWebSessionLockWith(
   return requestExpoSqliteWebSessionLock(deps.locks, deps.onPageHide);
 }
 
-export function defaultExpoSqliteWebSessionOnPageHide(release: () => void): void {
+export function defaultExpoSqliteWebSessionOnPageHide(
+  release: () => void
+): void {
   if (typeof window === 'undefined') {
     release();
     return;
