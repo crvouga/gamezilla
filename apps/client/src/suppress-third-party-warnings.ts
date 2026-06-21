@@ -20,11 +20,17 @@ const SUPPRESSED_WARNING_PATTERNS: readonly RegExp[] = [
   /Blocked aria-hidden on an element because its descendant retained focus/,
 ];
 
+function argText(arg: unknown): string {
+  if (typeof arg === 'string') return arg;
+  if (arg instanceof Error) return arg.message;
+  return '';
+}
+
+/** LogBox passes `console.error('…%s', err)` — match across all args, not just the template. */
 function shouldSuppress(args: readonly unknown[]): boolean {
   if (args.length === 0) return false;
-  const first = args[0];
-  if (typeof first !== 'string') return false;
-  return SUPPRESSED_WARNING_PATTERNS.some((pattern) => pattern.test(first));
+  const combined = args.map(argText).join(' ');
+  return SUPPRESSED_WARNING_PATTERNS.some((pattern) => pattern.test(combined));
 }
 
 export function suppressThirdPartyWarnings(): void {

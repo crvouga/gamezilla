@@ -124,7 +124,9 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const token = assertVaultTokenBinding(env);
   const { project, config, addr } = readVaultScopeBindings(env);
   const secretStore = createApiSecretStore(token, { project, config, addr });
-  const objectStore = await createApiObjectStore(secretStore);
+  const objectStore = await createApiObjectStore(secretStore, {
+    vaultConfig: config,
+  });
   const dbScope = appPostgresDbScope();
   return await createApiApp({
     pubSub,

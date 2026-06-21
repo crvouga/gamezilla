@@ -1,3 +1,4 @@
+import { DEVELOPMENT_VAULT_CONFIG } from '@libs/infra/shared/database-url-policy';
 import { appObjectStoreRootPrefix } from '@libs/infra/namespace-bindings';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
@@ -28,9 +29,20 @@ const S3_SECRET_NAMES = [
  * fatal and answering every request with `503`. Production misconfiguration is
  * caught earlier by the deploy-time `s3-bucket` resource check.
  */
+export type CreateApiObjectStoreOptions = {
+  /** Vault config slug (`dev` / `prd`). Dev uses an in-memory store so local wrangler is not blocked by remote S3. */
+  readonly vaultConfig?: string | null;
+};
+
 export async function createApiObjectStore(
-  secretStore: SecretStore
+  secretStore: SecretStore,
+  options: CreateApiObjectStoreOptions = {}
 ): Promise<ObjectStore> {
+  if (options.vaultConfig === DEVELOPMENT_VAULT_CONFIG) {
+    log.warn('dev vault config — using in-memory object store');
+    return new ObjectStoreImplInMemory();
+  }
+
   const secrets = await secretStore.getOptionalMany(S3_SECRET_NAMES);
   const missing = S3_SECRET_NAMES.filter((name) => secrets[name] === null);
 
