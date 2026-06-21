@@ -78,23 +78,26 @@ export function useSpaceRoomConnection(
   const transportRef = useRef<WebSocketRoomTransport | null>(null);
   const roomRef = useRef<SpaceRoom | null>(null);
   const module = useSpaceModule();
+  const bootstrapRef = useRef(bootstrap);
+  bootstrapRef.current = bootstrap;
+  const bootstrapKey =
+    bootstrap === null
+      ? null
+      : `${bootstrap.spaceId}:${bootstrap.myId}:${bootstrap.installId}`;
 
   useEffect(() => {
-    roomRef.current = null;
-    setRoom(null);
-    transportRef.current = null;
-    setTransport(null);
     const token = normalizeSessionToken(sessionToken);
-    if (bootstrap === null) {
+    const activeBootstrap = bootstrapRef.current;
+    if (activeBootstrap === null) {
       return;
     }
     const hasBearer = token !== null;
-    const hasAnon = bootstrap.myId.length > 0;
+    const hasAnon = activeBootstrap.myId.length > 0;
     if (!hasBearer && !hasAnon) {
       return;
     }
     const cancel = openConnection({
-      bootstrap,
+      bootstrap: activeBootstrap,
       token,
       configService,
       kv,
@@ -115,7 +118,7 @@ export function useSpaceRoomConnection(
       r?.destroy();
       t?.destroy();
     };
-  }, [bootstrap, configService, kv, sessionToken, module]);
+  }, [bootstrapKey, configService, kv, sessionToken, module]);
 
   return { room, roomRef, transport };
 }
