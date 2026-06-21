@@ -39,35 +39,35 @@ const LIBPQ_TLS_PATH_KEYS = [
  */
 const LIBPQ_SENTINEL_VALUES = new Set<string>(['system']);
 
-export function sanitizePostgresUrlForNodePg(connection: string | URL): string {
-  const originalSerialized =
-    typeof connection === 'string' ? connection : connection.toString();
-  let url: URL | null;
-  if (typeof connection === 'string') {
-    url = tryParsePostgresUrl(connection);
-  } else {
-    if (
-      connection.protocol !== 'postgres:' &&
-      connection.protocol !== 'postgresql:'
-    ) {
-      return originalSerialized;
-    }
-    url = new URL(connection.href);
-  }
-  if (url === null) return originalSerialized;
+function isPostgresProtocol(protocol: string): boolean {
+  return protocol === 'postgres:' || protocol === 'postgresql:';
+}
 
-  let changed = false;
-  const sslmode = url.searchParams.get('sslmode');
-  if (
-    sslmode === 'require' ||
-    sslmode === 'prefer' ||
-    sslmode === 'verify-ca'
-  ) {
-    // pg@8.20 / pg-connection-string@2.12 warn that these modes are currently
-    // aliased to verify-full; pin explicitly so CI logs stay clean.
-    url.searchParams.set('sslmode', 'verify-full');
-    changed = true;
+function originalSerialized(connection: string | URL): string {
+  return typeof connection === 'string' ? connection : connection.toString();
+}
+
+function resolvePostgresUrl(connection: string | URL): URL | null {
+  if (typeof connection === 'string') {
+    return tryParsePostgresUrl(connection);
   }
+  if (!isPostgresProtocol(connection.protocol)) return null;
+  return new URL(connection.href);
+}
+
+function normalizeSslModeForNodePg(url: URL): boolean {
+  const sslmode = url.searchParams.get('sslmode');
+  if (sslmode !== 'require' && sslmode !== 'prefer' && sslmode !== 'verify-ca') {
+    return false;
+  }
+  // pg@8.20 / pg-connection-string@2.12 warn that these modes are currently
+  // aliased to verify-full; pin explicitly so CI logs stay clean.
+  url.searchParams.set('sslmode', 'verify-full');
+  return true;
+}
+
+function stripLibpqTlsSentinels(url: URL): boolean {
+  let changed = false;
   for (const key of LIBPQ_TLS_PATH_KEYS) {
     const value = url.searchParams.get(key);
     if (value !== null && LIBPQ_SENTINEL_VALUES.has(value)) {
@@ -75,13 +75,23 @@ export function sanitizePostgresUrlForNodePg(connection: string | URL): string {
       changed = true;
     }
   }
-  return changed ? url.toString() : originalSerialized;
+  return changed;
+}
+
+export function sanitizePostgresUrlForNodePg(connection: string | URL): string {
+  const serialized = originalSerialized(connection);
+  const url = resolvePostgresUrl(connection);
+  if (url === null) return serialized;
+
+  const changed =
+    normalizeSslModeForNodePg(url) || stripLibpqTlsSentinels(url);
+  return changed ? url.toString() : serialized;
 }
 
 function tryParsePostgresUrl(connection: string): URL | null {
   try {
     const u = new URL(connection);
-    if (u.protocol !== 'postgres:' && u.protocol !== 'postgresql:') return null;
+    if (!isPostgresProtocol(u.protocol)) return null;
     return u;
   } catch {
     return null;
