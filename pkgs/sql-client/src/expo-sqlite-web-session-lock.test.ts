@@ -20,11 +20,7 @@ describe('tryAcquireExpoSqliteWebSessionLockWith', () => {
   test('rejects when another tab holds the lock', async () => {
     const locks = {
       request: mock(
-        (
-          _name: string,
-          _options: unknown,
-          callback: (lock: null) => void
-        ) => {
+        (_name: string, _options: unknown, callback: (lock: null) => void) => {
           callback(null);
           return Promise.resolve();
         }
@@ -38,9 +34,9 @@ describe('tryAcquireExpoSqliteWebSessionLockWith', () => {
         onPageHide: () => {},
       })
     ).rejects.toBeInstanceOf(ExpoSqliteWebSessionLockError);
-    expect(isExpoSqliteWebSessionLockError(new ExpoSqliteWebSessionLockError())).toBe(
-      true
-    );
+    expect(
+      isExpoSqliteWebSessionLockError(new ExpoSqliteWebSessionLockError())
+    ).toBe(true);
   });
 
   test('resolves when the lock is available', async () => {

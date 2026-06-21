@@ -1,7 +1,5 @@
 import { RESET_DB_QUERY_PARAM } from '@pkgs/sql-client/impl-expo-sqlite';
-import {
-  isExpoSqliteWebSessionLockError,
-} from '@pkgs/sql-client/expo-sqlite-web-session-lock';
+import { isExpoSqliteWebSessionLockError } from '@pkgs/sql-client/expo-sqlite-web-session-lock';
 import { ErrorState, LoadingState } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
