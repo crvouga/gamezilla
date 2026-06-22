@@ -3,7 +3,13 @@
   "extends": ["//"],
   "tasks": {
     "preview": {
-      "dependsOn": ["kill", "setup", "^build", "build"],
+      "dependsOn": [
+        "kill",
+        "setup",
+        "^build",
+        "build",
+        "@apps/api#migrate"
+      ],
       "persistent": true,
       "cache": false
     }

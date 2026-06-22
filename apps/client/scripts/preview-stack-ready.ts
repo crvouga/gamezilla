@@ -28,7 +28,9 @@ async function probeOk(url: string): Promise<boolean> {
     const res = await fetch(url, {
       signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
     });
-    return res.ok;
+    if (!res.ok) return false;
+    const body = (await res.text()).trim();
+    return body.length > 0;
   } catch {
     return false;
   }

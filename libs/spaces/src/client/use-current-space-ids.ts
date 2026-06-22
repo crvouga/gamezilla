@@ -1,4 +1,3 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
 import {
   SPACE_ENTITY_TYPE,
   SPACE_MEMBERSHIP_ENTITY_TYPE,
@@ -7,6 +6,12 @@ import {
 } from '@libs/spaces/shared/space-entities';
 import { useQuery } from '@pkgs/patch-db/react';
 import { useMemo } from 'react';
+
+import {
+  guestIdMatchesIdentityWhere,
+  hostIdMatchesIdentityWhere,
+  useReplicationIdentityIds,
+} from './use-replication-identity-ids';
 
 export type CurrentSpaceEntry = {
   spaceId: string;
@@ -25,29 +30,43 @@ export function useCurrentSpaceIds(): {
   entries: CurrentSpaceEntry[];
   isLoading: boolean;
 } {
-  const myId = useMyId();
-  const hostedRes = useQuery({
-    entityType: SPACE_ENTITY_TYPE,
-    where: {
-      type: 'and',
-      clauses: [
-        { type: '=', attribute: SpaceAttr.hostId.key, value: myId },
-        { type: 'not_exists', attribute: SpaceAttr.endedAt.key },
-      ],
-    },
-    orderBy: [{ attribute: SpaceAttr.createdAt.key, direction: 'desc' }],
-  });
+  const identityIds = useReplicationIdentityIds();
+  const hostIdentityWhere = hostIdMatchesIdentityWhere(identityIds);
+  const guestIdentityWhere = guestIdMatchesIdentityWhere(identityIds);
 
-  const guestMemRes = useQuery({
-    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    where: {
-      type: 'and',
-      clauses: [
-        { type: '=', attribute: SpaceMembershipAttr.guestId.key, value: myId },
-        { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt.key },
-      ],
-    },
-  });
+  const hostedRes = useQuery(
+    hostIdentityWhere === null
+      ? { entityType: SPACE_ENTITY_TYPE, limit: 0 }
+      : {
+          entityType: SPACE_ENTITY_TYPE,
+          where: {
+            type: 'and',
+            clauses: [
+              hostIdentityWhere,
+              { type: 'not_exists', attribute: SpaceAttr.endedAt.key },
+            ],
+          },
+          orderBy: [{ attribute: SpaceAttr.createdAt.key, direction: 'desc' }],
+        }
+  );
+
+  const guestMemRes = useQuery(
+    guestIdentityWhere === null
+      ? { entityType: SPACE_MEMBERSHIP_ENTITY_TYPE, limit: 0 }
+      : {
+          entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
+          where: {
+            type: 'and',
+            clauses: [
+              guestIdentityWhere,
+              {
+                type: 'not_exists',
+                attribute: SpaceMembershipAttr.leftAt.key,
+              },
+            ],
+          },
+        }
+  );
 
   const guestSpaceIds = useMemo(() => {
     const ids: string[] = [];

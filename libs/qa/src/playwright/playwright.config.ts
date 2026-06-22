@@ -5,6 +5,11 @@ import path from 'node:path';
 import { assert } from '@pkgs/assert';
 
 import { resolveLocalPreviewApiOriginSync } from '../constants/local-api-preview';
+import {
+  QA_DEV_IDP_PORT,
+  QA_PREVIEW_BASE_URL,
+  QA_PREVIEW_PORT,
+} from '../constants/qa-preview-ports';
 import { applyPlaywrightPreviewEnv } from './playwright-preview-env';
 
 // Top-level `await` would turn this file into an async ES module, which
@@ -58,8 +63,8 @@ assert.equals(
   'resolved local API preview origin must already be in canonical-origin form (no path/query/hash)'
 );
 
-const baseURL = 'http://localhost:5173';
-/** Playwright readiness probe — static `/` is up before API + dev IdP finish booting. */
+const baseURL = QA_PREVIEW_BASE_URL;
+/** Readiness probe — must be served by `preview-server.ts`, not the Expo SPA fallback. */
 const previewReadyURL = `${baseURL}/ready`;
 let baseURLParsed: URL | undefined;
 assert.notThrows(
@@ -110,6 +115,12 @@ assert.ok(
 );
 
 const turboPreviewCmd: string[] = [
+  'bun',
+  'run',
+  '--filter',
+  '@libs/qa',
+  'kill-preview-ports',
+  '&&',
   'bun',
   'turbo',
   'run',
@@ -172,5 +183,15 @@ export default defineConfig({
     timeout: 240_000,
     stdout: 'pipe',
     stderr: 'pipe',
+    env: {
+      ...process.env,
+      PREVIEW_PORT: String(QA_PREVIEW_PORT),
+      DEV_IDP_PORT: String(QA_DEV_IDP_PORT),
+      BETTER_AUTH_PREVIEW_API_URL: baseURL,
+      EXPO_PUBLIC_API_URL: baseURL,
+      EXPO_PUBLIC_E2E: '1',
+      API_URL: baseURL,
+      LOCAL_PREVIEW_API_PROXY_TARGET: LOCAL_API_PREVIEW_ORIGIN,
+    },
   },
 });

@@ -13,6 +13,7 @@ import type { PatchDbValue } from '@pkgs/patch-db/react';
 import { hydrateInMemoryStoreFromSqlite } from '@pkgs/patch-db/react/hydrate-in-memory-store';
 import { InMemoryEntityStore } from '@pkgs/patch-db/react/in-memory-entity-store';
 import { setInMemoryStoreForDb } from '@pkgs/patch-db/react/in-memory-store-registry';
+import { refreshPatchDbQueryCacheForDb } from '@pkgs/patch-db/react/query-cache';
 import { PatchDbWriteThroughMirror } from '@pkgs/patch-db/react/write-through-mirror';
 import type { SubscribablePatchDbLike } from '@pkgs/patch-db/subscribable';
 
@@ -49,9 +50,20 @@ export async function createPatchDb(
   );
 
   const pubSub = new InMemoryPubSub();
+  const store = new InMemoryEntityStore();
+  let decoratedDb: SubscribablePatchDbLike | undefined;
   const sync = new SyncPatchDb(local, remote, pubSub, {
     pushIntervalMs: 2000,
     pollIntervalMs: 5000,
+    onPollMerged: (results) => {
+      const entities = results.flatMap((result) => result.entities);
+      if (entities.length > 0) {
+        store.upsertEntities(entities);
+        if (decoratedDb !== undefined) {
+          refreshPatchDbQueryCacheForDb(decoratedDb);
+        }
+      }
+    },
   });
 
   const stamper = new PatchMetadataStamper(sync, {
@@ -63,14 +75,18 @@ export async function createPatchDb(
     assertDeviceId: (id) => assertDeviceId(id),
   });
 
-  const store = new InMemoryEntityStore();
   await hydrateInMemoryStoreFromSqlite(local, store);
 
   const decorated = new PatchDbWriteThroughMirror(stamper, store);
-  setInMemoryStoreForDb(decorated as SubscribablePatchDbLike, store);
+  decoratedDb = decorated as SubscribablePatchDbLike;
+  setInMemoryStoreForDb(decoratedDb, store);
 
   pubSub.subscribe(PATCHES_DB_TOPIC, () => {
-    void hydrateInMemoryStoreFromSqlite(local, store);
+    void hydrateInMemoryStoreFromSqlite(local, store).then(() => {
+      if (decoratedDb !== undefined) {
+        refreshPatchDbQueryCacheForDb(decoratedDb);
+      }
+    });
   });
 
   await stamper.clearRejectedPushes();

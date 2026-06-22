@@ -77,7 +77,7 @@ export function SpacesScreen({
         error: t`Couldn't create space`,
       },
       operation: async () => {
-        createSpace((id) => {
+        await createSpace((id) => {
           openSpaceDetail(router, id);
         });
       },

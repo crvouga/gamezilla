@@ -5,7 +5,7 @@ import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import { toAttributeState, type PatchDbQuery } from '../interface';
 import { hydrateInMemoryStoreFromSqlite } from '../react/hydrate-in-memory-store';
 import { InMemoryEntityStore } from '../react/in-memory-entity-store';
-import { setInMemoryStoreForDb } from '../react/in-memory-store-registry';
+import { setInMemoryStoreForDb, getInMemoryStoreForDb } from '../react/in-memory-store-registry';
 import { PatchDbQueryCache } from '../react/query-cache';
 import { PatchDbWriteThroughMirror } from '../react/write-through-mirror';
 import { SubscribablePatchDb } from '../subscribable';
@@ -209,6 +209,81 @@ describe('PatchDbQueryCache', () => {
     expect(cache.getResult(queryKey)).toBeNull();
   });
 
+  test('reacts to direct store.upsertEntities (remote poll merge path)', () => {
+    const cache = new PatchDbQueryCache(db);
+    const store = getInMemoryStoreForDb(db);
+    const query: PatchDbQuery = { entityType: 'chess.puzzle', limit: 50 };
+    const queryKey = JSON.stringify(query);
+
+    let notifications = 0;
+    cache.subscribe(queryKey, query, () => {
+      notifications += 1;
+    });
+    expect(cache.getResult(queryKey)?.entities.length).toBe(0);
+
+    store.upsertEntities([
+      {
+        entityId: 'p1',
+        entityType: 'chess.puzzle',
+        attributes: toAttributeState({
+          'chess.puzzle/rating': 1200,
+          'chess.puzzle/popularity': 100,
+        }),
+      },
+    ]);
+
+    expect(notifications).toBeGreaterThan(0);
+    expect(cache.getResult(queryKey)?.entities.length).toBe(1);
+  });
+
+  test('refreshes stale snapshot when store updates before store listener attached', () => {
+    const cache = new PatchDbQueryCache(db);
+    const store = getInMemoryStoreForDb(db);
+    const query: PatchDbQuery = { entityType: 'chess.puzzle', limit: 50 };
+    const queryKey = JSON.stringify(query);
+
+    expect(cache.getOrCreateResult(queryKey, query).entities.length).toBe(0);
+
+    store.upsertEntities([
+      {
+        entityId: 'p1',
+        entityType: 'chess.puzzle',
+        attributes: toAttributeState({
+          'chess.puzzle/rating': 1200,
+          'chess.puzzle/popularity': 100,
+        }),
+      },
+    ]);
+
+    expect(cache.getOrCreateResult(queryKey, query).entities.length).toBe(0);
+
+    cache.subscribe(queryKey, query, () => {});
+    expect(cache.getResult(queryKey)?.entities.length).toBe(1);
+  });
+
+  test('refreshAllEntries re-evaluates after out-of-band store writes', () => {
+    const cache = new PatchDbQueryCache(db);
+    const store = getInMemoryStoreForDb(db);
+    const query: PatchDbQuery = { entityType: 'chess.puzzle', limit: 50 };
+    const queryKey = JSON.stringify(query);
+
+    cache.subscribe(queryKey, query, () => {});
+    expect(cache.getResult(queryKey)?.entities.length).toBe(0);
+
+    store.upsertEntities([
+      {
+        entityId: 'p1',
+        entityType: 'chess.puzzle',
+        attributes: toAttributeState({
+          'chess.puzzle/rating': 1200,
+          'chess.puzzle/popularity': 100,
+        }),
+      },
+    ]);
+    cache.refreshAllEntries();
+    expect(cache.getResult(queryKey)?.entities.length).toBe(1);
+  });
+
   test('snapshot identity stays stable when invalidations do not change rows', async () => {
     const cache = new PatchDbQueryCache(db);
     const query: PatchDbQuery = { entityType: 'todo' };
@@ -237,5 +312,33 @@ describe('PatchDbQueryCache', () => {
     const after = cache.getResult(queryKey);
     expect(after).toBe(before);
     expect(after?.entities).toBe(before?.entities);
+  });
+});
+
+describe('InMemoryEntityStore.upsertEntities', () => {
+  test('merges attributes instead of replacing the whole entity', () => {
+    const store = new InMemoryEntityStore();
+    store.upsertEntities([
+      {
+        entityId: 's1',
+        entityType: 'space',
+        attributes: toAttributeState({
+          'space/host-id': 'host-a',
+          'space/created-at': '2026-01-01T00:00:00.000Z',
+        }),
+      },
+    ]);
+    store.upsertEntities([
+      {
+        entityId: 's1',
+        entityType: 'space',
+        attributes: toAttributeState({
+          'space/title': 'My space',
+        }),
+      },
+    ]);
+    const entity = store.getEntity('space', 's1');
+    expect(entity?.attributes['space/host-id']).toBe('host-a');
+    expect(entity?.attributes['space/title']).toBe('My space');
   });
 });

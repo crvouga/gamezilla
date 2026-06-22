@@ -6,6 +6,8 @@
  * - `VAULT_CONFIG` (required for non-root tokens): config name (`dev` / `prd`).
  * - `VAULT_ADDR` (optional): Vault API address; defaults to the store URL.
  */
+import { readDevIdpPortFromBinding } from '@pkgs/dev-idp/config';
+
 /**
  * Structural shape of the Durable Object namespace consumed by the room
  * route. Defined locally so this module compiles for downstream consumers
@@ -34,6 +36,11 @@ export type ApiWorkerEnv = {
    * same hosted dev database during local preview / QA.
    */
   DATABASE_URL?: string;
+  /**
+   * Optional dev IdP TCP port (e.g. `5557` for Playwright QA). Written into
+   * `.dev.vars` by `setup-dev-vars` when turbo preview sets `DEV_IDP_PORT`.
+   */
+  DEV_IDP_PORT?: string;
   /** Room Durable Object namespace (one DO per topic). Omitted in unit tests. */
   ROOM?: RoomNamespace;
 };
@@ -98,4 +105,9 @@ export function readOptionalDatabaseUrlOverride(
   env: ApiWorkerEnv
 ): string | null {
   return readOptionalBinding(env.DATABASE_URL);
+}
+
+/** Dev IdP port from `.dev.vars` / preview env; defaults via {@link readDevIdpPortFromBinding}. */
+export function readDevIdpPortBinding(env: ApiWorkerEnv): number {
+  return readDevIdpPortFromBinding(env.DEV_IDP_PORT);
 }

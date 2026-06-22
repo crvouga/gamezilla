@@ -12,6 +12,7 @@
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
     "db:migrate": "bun run scripts/migrate-db.ts",
+    "migrate": "bun run scripts/migrate-db.ts",
     "dev": "bun run scripts/migrate-db.ts --wait && bun run --filter @libs/client-config dev:refresh & wrangler dev --port 8788 --inspector-port 9231",
     "kill": "bun run scripts/kill-dev.ts",
     "lint": "eslint src --max-warnings 0",
@@ -32,6 +33,7 @@
     "@libs/spaces": "workspace:*",
     "@libs/stripe": "workspace:*",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/dev-idp": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",

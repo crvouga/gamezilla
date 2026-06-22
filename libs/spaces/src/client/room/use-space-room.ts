@@ -3,7 +3,11 @@ import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
 import { useSessionToken } from '@libs/auth/client/use-session-token';
 import { useKv } from '@pkgs/kv/kv-context';
-import { useCurrentSpaceIds } from '../use-current-space-ids';
+import { useCurrentSpaceRole } from '../use-current-space-role';
+import {
+  isReplicationHost,
+  useReplicationIdentityIds,
+} from '../use-replication-identity-ids';
 import {
   SPACE_ENTITY_TYPE,
   SpaceAttr,
@@ -31,23 +35,27 @@ export type SpaceRoomUiState = {
 };
 
 export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
+  const myId = useMyId();
+  const identityIds = useReplicationIdentityIds();
   const endedAt = useQueryAttribute({
     entityType: SPACE_ENTITY_TYPE,
     entityId: spaceId,
     attribute: SpaceAttr.endedAt,
   });
   const isLive = endedAt === null;
-  const { entries } = useCurrentSpaceIds();
-  const myId = useMyId();
+  const role = useCurrentSpaceRole(spaceId);
+  const hostId = useQueryAttribute({
+    entityType: SPACE_ENTITY_TYPE,
+    entityId: spaceId,
+    attribute: SpaceAttr.hostId,
+  });
+  const isHostByEntity =
+    endedAt === null && isReplicationHost(hostId, identityIds);
+  const inThisSpace = role !== null || isHostByEntity;
   const deviceId = useDeviceId();
   const configService = useConfigService();
   const kv = useKv();
   const sessionToken = useSessionToken();
-
-  const inThisSpace = useMemo(
-    () => entries.some((e) => e.spaceId === spaceId),
-    [entries, spaceId]
-  );
 
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
     if (spaceId.length === 0 || !isLive || !inThisSpace || myId.length === 0) {

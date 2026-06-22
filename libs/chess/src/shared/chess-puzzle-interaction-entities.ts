@@ -77,6 +77,10 @@ export const ChessPuzzleInteractionAttr = {
   solveIdx: intNs.integer('solve-idx', readNonNegativeInteger),
   uci: intNs.textOrNull('uci', readNullableNonEmptyString),
   correct: intNs.booleanOrNull('correct', readNullableBoolean),
+  /** Player elo before this terminal event (0 on non-terminal rows). */
+  ratingBefore: intNs.integer('rating-before', readNonNegativeInteger),
+  /** Player elo after this terminal event (0 on non-terminal rows). */
+  ratingAfter: intNs.integer('rating-after', readNonNegativeInteger),
   /** Indexed + sortable: history is fetched `ORDER BY at DESC LIMIT N`. */
   at: intNs.timestamp('at', readString).indexed({ sortable: true }),
 } as const;
@@ -88,6 +92,9 @@ export type ChessPuzzleInteractionRow = {
   readonly solveIdx: number;
   readonly uci: string | null;
   readonly correct: boolean | null;
+  readonly puzzleRating: number;
+  readonly ratingBefore: number;
+  readonly ratingAfter: number;
   readonly at: string;
 };
 
@@ -100,6 +107,9 @@ export function interactionRowFromEntityAttributes(
     solveIdx: ChessPuzzleInteractionAttr.solveIdx.from(attrs),
     uci: ChessPuzzleInteractionAttr.uci.from(attrs),
     correct: ChessPuzzleInteractionAttr.correct.from(attrs),
+    puzzleRating: ChessPuzzleInteractionAttr.puzzleRating.from(attrs),
+    ratingBefore: ChessPuzzleInteractionAttr.ratingBefore.from(attrs),
+    ratingAfter: ChessPuzzleInteractionAttr.ratingAfter.from(attrs),
     at: ChessPuzzleInteractionAttr.at.from(attrs),
   };
 }

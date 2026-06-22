@@ -7,6 +7,8 @@ import {
   type ChessPuzzleStatusKind,
 } from './chess-puzzle-status-icons';
 
+import { ChessPuzzleEloChip } from './chess-puzzle-elo-chip';
+
 const HEADER_ROW_HEIGHT = 22;
 
 export { HEADER_ROW_HEIGHT };
@@ -30,12 +32,14 @@ function statusLabel(kind: ChessPuzzleStatusKind): ReactNode {
 
 export type ChessPuzzleStatusHeaderProps = {
   kind: ChessPuzzleStatusKind;
-  rating?: number;
+  playerElo?: number;
+  puzzleRating?: number;
 };
 
 export function ChessPuzzleStatusHeader({
   kind,
-  rating,
+  playerElo,
+  puzzleRating,
 }: ChessPuzzleStatusHeaderProps): ReactNode {
   const theme = useTheme();
   return (
@@ -54,18 +58,18 @@ export function ChessPuzzleStatusHeader({
         style={{ flex: 1, color: theme.colors.text }}
         label={statusLabel(kind)}
       />
-      {rating !== undefined && rating > 0 ? (
-        <Box
-          sx={{ px: 2, py: 1, borderRadius: 6 }}
-          style={{ backgroundColor: theme.colors.surfaceMuted }}
-        >
-          <Text
-            variant="caption"
-            style={{ color: theme.colors.textSecondary }}
-            label={String(rating)}
+      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+        {playerElo !== undefined && playerElo > 0 ? (
+          <ChessPuzzleEloChip
+            elo={playerElo}
+            variant="primary"
+            testID="chess-puzzle-player-elo"
           />
-        </Box>
-      ) : null}
+        ) : null}
+        {puzzleRating !== undefined && puzzleRating > 0 ? (
+          <ChessPuzzleEloChip elo={puzzleRating} variant="muted" />
+        ) : null}
+      </Box>
     </Box>
   );
 }

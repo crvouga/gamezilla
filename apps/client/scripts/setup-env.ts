@@ -214,11 +214,15 @@ async function main(): Promise<void> {
 
   const commitHash = resolveExpoPublicCommitHash();
   const commitDate = resolveExpoPublicCommitDate();
+  const e2eFlag = trimStringOrNull(process.env['EXPO_PUBLIC_E2E']);
 
-  const body =
+  let body =
     `EXPO_PUBLIC_API_URL=${JSON.stringify(origin)}\n` +
     `EXPO_PUBLIC_COMMIT_HASH=${JSON.stringify(commitHash)}\n` +
     `EXPO_PUBLIC_COMMIT_DATE=${JSON.stringify(commitDate)}\n`;
+  if (e2eFlag !== null) {
+    body += `EXPO_PUBLIC_E2E=${JSON.stringify(e2eFlag)}\n`;
+  }
   writeFileSync(tmpPath, body, { encoding: 'utf8' });
   renameSync(tmpPath, outPath);
 

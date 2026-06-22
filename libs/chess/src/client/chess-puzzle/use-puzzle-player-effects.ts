@@ -5,8 +5,10 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import type { Square } from '@pkgs/chess-board/chess-board-types';
 import { solvedPuzzleKingSquare } from './chess-puzzle-solved-king-square';
+import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
 
 const CORRECT_FLASH_MS = 1500;
+const ELO_TICK_DELAY_MS = 400;
 
 export function usePuzzlePlayerEffects(args: {
   puzzleId: string;
@@ -15,6 +17,8 @@ export function usePuzzlePlayerEffects(args: {
   displayFen: string | null;
 }): { showCorrectFlash: boolean; solvedCrownSquare: Square | null } {
   const { puzzleId, solveIdx, status, displayFen } = args;
+  const feedback = useChessPuzzleFeedback();
+  const prevStatusRef = useRef<ChessPuzzlePlayStatus | 'loading' | null>(null);
   const prevSolveIdxRef = useRef(solveIdx);
   const [showCorrectFlash, setShowCorrectFlash] = useState(false);
   const [solvedCrownSquare, setSolvedCrownSquare] = useState<Square | null>(
@@ -28,9 +32,25 @@ export function usePuzzlePlayerEffects(args: {
   // the first correct-move flash on the new attempt.
   useEffect(() => {
     prevSolveIdxRef.current = 0;
+    prevStatusRef.current = null;
     setShowCorrectFlash(false);
     setSolvedCrownSquare(null);
   }, [puzzleId]);
+
+  useEffect(() => {
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = status;
+    if (prev === status) return;
+    if (status === CHESS_PUZZLE_PLAY_STATUS.wrong) {
+      feedback.onWrongMove();
+    }
+    if (status === CHESS_PUZZLE_PLAY_STATUS.solved) {
+      feedback.onSolved();
+      const t = setTimeout(() => feedback.onEloTick(), ELO_TICK_DELAY_MS);
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, [feedback, status]);
 
   useEffect(() => {
     if (

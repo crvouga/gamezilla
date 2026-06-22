@@ -13,17 +13,19 @@ import {
 export function usePuzzleCandidatesQuery(
   rating: number,
   ownerId: string,
-  currentPuzzleId: string | null
+  currentPuzzleId: string | null,
+  halfWindow: number | null = PUZZLE_NEXT_MAX_BAND
 ) {
-  const puzzleQuery = useMemo(
-    () => ({
+  const puzzleQuery = useMemo(() => {
+    const where = buildPuzzleWhere(
+      rating,
+      halfWindow,
+      ownerId,
+      currentPuzzleId
+    );
+    return {
       entityType: CHESS_PUZZLE_ENTITY_TYPE,
-      where: buildPuzzleWhere(
-        rating,
-        PUZZLE_NEXT_MAX_BAND,
-        ownerId,
-        currentPuzzleId
-      ),
+      ...(where !== undefined ? { where } : {}),
       orderBy: [
         {
           attribute: ChessPuzzleAttr.popularity.key,
@@ -31,8 +33,7 @@ export function usePuzzleCandidatesQuery(
         },
       ],
       limit: 50,
-    }),
-    [rating, ownerId, currentPuzzleId]
-  );
+    };
+  }, [rating, ownerId, currentPuzzleId, halfWindow]);
   return useQuery(puzzleQuery);
 }

@@ -1,4 +1,7 @@
 import { useEffect, useMemo } from 'react';
+import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
+import { useMyId } from '@libs/auth/client/use-current-user';
+import { useSessionToken } from '@libs/auth/client/use-session-token';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -10,10 +13,20 @@ import {
   StartChessPuzzlePlay,
 } from '../../shared/chess-puzzle-play';
 import { useChessPuzzleInteractionRecorder } from './use-chess-puzzle-interaction-recorder';
-import { usePuzzleEntityAndInteractions } from './chess-puzzle-play-queries';
+import { usePuzzleEntityAndInteractions, useChessPuzzleAllInteractions } from './chess-puzzle-play-queries';
+import { useChessPuzzleCompletion } from './use-chess-puzzle-completion';
 import { usePuzzleSolver } from './use-chess-puzzle-solver';
 import { usePuzzlePlayerControls } from './use-puzzle-player-controls';
 import { usePuzzlePlayerVisual } from './use-puzzle-player-visual';
+import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
+
+const DEFAULT_PLAYER_ELO = 1200;
+
+function usePuzzleSessionIdentityReady(): boolean {
+  const token = useSessionToken();
+  const accountId = useCurrentAccountId();
+  return token === null || accountId !== null;
+}
 
 /**
  * Dispatches `StartChessPuzzlePlay` once the room is idle for `puzzleId`
@@ -26,23 +39,53 @@ function useStartPuzzleSessionOnMount(args: {
   puzzleId: string;
   fen: string;
   movesStr: string;
+  /** Bumps on every "Next" press so we re-dispatch Start even when `puzzleId` is unchanged. */
+  playGeneration: number;
+  /** Screen bumps this after puzzle-id swap lands so Start never races ahead of the parent. */
+  readyGeneration: number;
 }): void {
-  const { puzzleId, fen, movesStr } = args;
+  const { puzzleId, fen, movesStr, playGeneration, readyGeneration } = args;
   const dispatch = useSpaceRoomDispatch();
   const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
+  const identityReady = usePuzzleSessionIdentityReady();
   useEffect(() => {
+    if (!identityReady) return;
+    if (playGeneration !== readyGeneration) return;
     if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) return;
     if (fen.length === 0 || movesStr.length === 0) return;
     if (roomPuzzleId !== null) return;
     dispatch(StartChessPuzzlePlay({ puzzleId, fen, moves: movesStr }));
-  }, [dispatch, fen, movesStr, puzzleId, roomPuzzleId, roomStatus]);
+  }, [
+    dispatch,
+    fen,
+    movesStr,
+    playGeneration,
+    readyGeneration,
+    puzzleId,
+    roomPuzzleId,
+    roomStatus,
+    identityReady,
+  ]);
 }
 
-function usePuzzlePlayerModel(puzzleId: string) {
+function usePuzzlePlayerModel(
+  puzzleId: string,
+  playGeneration: number,
+  readyGeneration: number
+) {
+  const myId = useMyId();
+  const { profileRating, profileRd } = useChessPuzzleProfileRatings(myId);
+  const playerElo = profileRating > 0 ? profileRating : DEFAULT_PLAYER_ELO;
   const { fen, movesStr, rating, themes, interactions } =
     usePuzzleEntityAndInteractions(puzzleId);
-  useStartPuzzleSessionOnMount({ puzzleId, fen, movesStr });
+  useStartPuzzleSessionOnMount({
+    puzzleId,
+    fen,
+    movesStr,
+    playGeneration,
+    readyGeneration,
+  });
   const {
     displayFen,
     layoutKey,
@@ -66,6 +109,8 @@ function usePuzzlePlayerModel(puzzleId: string) {
     });
   return {
     rating,
+    playerElo,
+    profileRd,
     themes,
     interactions,
     displayFen,
@@ -92,10 +137,13 @@ function frozenPlayerModel(args: {
   m: ReturnType<typeof usePuzzlePlayerModel>;
   controls: PlayerControls;
   visual: PlayerVisual;
+  completion: ReturnType<typeof useChessPuzzleCompletion>;
 }) {
-  const { m, controls, visual } = args;
+  const { m, controls, visual, completion } = args;
   return {
     rating: m.rating,
+    playerElo: m.playerElo,
+    completion,
     backToRoot: controls.backToRoot,
     assistant: visual.assistant,
     statusKind: visual.statusKind,
@@ -114,6 +162,8 @@ function frozenPlayerModel(args: {
     onHint: controls.onHint,
     onRetry: controls.onRetry,
     onNext: controls.onNext,
+    expectedFromSquare: m.expectedFromSquare,
+    expectedToSquare: m.expectedToSquare,
   };
 }
 
@@ -122,6 +172,13 @@ function usePuzzlePlayerUi(
   onRequestNext: () => void,
   m: ReturnType<typeof usePuzzlePlayerModel>
 ) {
+  const allInteractions = useChessPuzzleAllInteractions();
+  const completion = useChessPuzzleCompletion({
+    puzzleId,
+    interactions: m.interactions,
+    allInteractions,
+    status: m.status,
+  });
   const controls = usePuzzlePlayerControls({
     puzzleId,
     solveIdx: m.solveIdx,
@@ -156,16 +213,22 @@ function usePuzzlePlayerUi(
   // (`PuzzleBoardSlot`, eventually `ChessPuzzleActionBar`) skip identical
   // prop bags. All callers go through this single object — no spread.
   return useMemo(
-    () => frozenPlayerModel({ m, controls, visual }),
-    [m, controls, visual]
+    () => frozenPlayerModel({ m, controls, visual, completion }),
+    [m, controls, visual, completion]
   );
 }
 
 export function usePuzzlePlayerState(args: {
   puzzleId: string;
+  playGeneration: number;
+  readyGeneration: number;
   onRequestNext: () => void;
 }) {
-  const m = usePuzzlePlayerModel(args.puzzleId);
+  const m = usePuzzlePlayerModel(
+    args.puzzleId,
+    args.playGeneration,
+    args.readyGeneration
+  );
   return usePuzzlePlayerUi(args.puzzleId, args.onRequestNext, m);
 }
 

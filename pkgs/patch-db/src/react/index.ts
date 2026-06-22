@@ -3,6 +3,7 @@ export {
   forceDetachPatchDbQuerySubscriptionsForDb,
   getCacheForDb,
   PatchDbQueryCache,
+  refreshPatchDbQueryCacheForDb,
   type CachedQueryResult,
   type PatchDbQueryCacheOptions,
 } from './query-cache';

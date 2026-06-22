@@ -46,6 +46,31 @@ export const DEV_IDP_DEFAULT_PORT = 5556;
  */
 export const DEV_IDP_DEFAULT_ORIGIN = `http://127.0.0.1:${DEV_IDP_DEFAULT_PORT}`;
 
+/** Resolves the dev IdP TCP port from an optional `DEV_IDP_PORT` binding. */
+export function readDevIdpPortFromBinding(
+  raw: string | undefined
+): number {
+  const trimmed = raw?.trim();
+  if (trimmed === undefined || trimmed === '') return DEV_IDP_DEFAULT_PORT;
+  const n = Number(trimmed);
+  if (!Number.isInteger(n) || n < 1 || n > 65_535) {
+    return DEV_IDP_DEFAULT_PORT;
+  }
+  return n;
+}
+
+/** Loopback origin for the standalone dev IdP (`127.0.0.1`, not `localhost`). */
+export function resolveDevIdpOrigin(port?: number): string {
+  const resolved =
+    port ??
+    readDevIdpPortFromBinding(
+      typeof process !== 'undefined'
+        ? process.env['DEV_IDP_PORT']
+        : undefined
+    );
+  return `http://127.0.0.1:${String(resolved)}`;
+}
+
 /** Default OAuth scopes — emulate Google "openid email profile". */
 export const DEV_IDP_SCOPES: readonly string[] = ['openid', 'email', 'profile'];
 

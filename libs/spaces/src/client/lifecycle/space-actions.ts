@@ -141,10 +141,10 @@ export function useSpaceActions() {
   const myId = useMyId();
 
   const createSpace = useCallback(
-    (onCreated?: (spaceId: string) => void): string => {
+    async (onCreated?: (spaceId: string) => void): Promise<string> => {
       const spaceId = crypto.randomUUID();
+      await writeCreateSpaceAction(db, myId, spaceId);
       onCreated?.(spaceId);
-      void writeCreateSpaceAction(db, myId, spaceId);
       return spaceId;
     },
     [db, myId]

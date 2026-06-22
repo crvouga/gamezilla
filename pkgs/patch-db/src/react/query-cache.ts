@@ -1,6 +1,7 @@
 import { assert } from '@pkgs/assert';
 import type { Unsubscribe } from '@pkgs/pub-sub/interface';
 import type { PatchDbQuery } from '../interface';
+import type { InMemoryEntityStore } from '../in-memory-store';
 import type { SubscribablePatchDbLike } from '../subscribable';
 import {
   resultsShallowEqual,
@@ -92,6 +93,11 @@ export class PatchDbQueryCache {
 
     entry.listeners.add(listener);
 
+    this.recomputeEntry(entry, getInMemoryStoreForDb(this.db), null, true);
+    if (entry.result.entities.length > 0) {
+      listener();
+    }
+
     if (entry.syncEntitiesUnsub === null) {
       entry.syncEntitiesUnsub = this.db.subscribe.entities(query, () => {
         /* Sync layer drives local SQLite + hydrate; cache reacts via store. */
@@ -103,6 +109,9 @@ export class PatchDbQueryCache {
       this.storeUnsub = store.subscribe((touched) => {
         this.onStoreChanged(touched);
       });
+      // Store may have been hydrated (e.g. remote poll merge) before the first
+      // React query subscriber attached its listener — sync once on attach.
+      this.onStoreChanged(new Set());
     }
 
     return () => {
@@ -141,6 +150,14 @@ export class PatchDbQueryCache {
   isOpen(queryKey: string): boolean {
     const entry = this.entries.get(queryKey);
     return entry !== undefined && this.storeUnsub !== null;
+  }
+
+  /** Re-evaluates every subscribed query against the current in-memory store. */
+  refreshAllEntries(): void {
+    const store = getInMemoryStoreForDb(this.db);
+    for (const entry of this.entries.values()) {
+      this.recomputeEntry(entry, store, null, true);
+    }
   }
 
   /**
@@ -185,31 +202,41 @@ export class PatchDbQueryCache {
     return entry;
   }
 
+  private recomputeEntry(
+    entry: CacheEntry,
+    store: InMemoryEntityStore,
+    touched: readonly string[] | null,
+    notify: boolean
+  ): void {
+    if (
+      touched !== null &&
+      this.shouldSkipEntry(entry.query, touched)
+    ) {
+      return;
+    }
+    const next = evaluateQuery(entry.query, store);
+    const prev = entry.result;
+    const { entities, patches } = reuseStableArrays(prev, next);
+    const nextResult: CachedQueryResult = {
+      query: next.query,
+      entities,
+      patches,
+      hasMore: next.hasMore,
+      nextCursor: next.nextCursor,
+      isLoading: false,
+    };
+    if (resultsShallowEqual(prev, nextResult)) return;
+    entry.result = nextResult;
+    if (notify && entry.listeners.size > 0) {
+      for (const l of [...entry.listeners]) l();
+    }
+  }
+
   private onStoreChanged(touched: ReadonlySet<string>): void {
     const store = getInMemoryStoreForDb(this.db);
     const touchedArray = touched.size > 0 ? Array.from(touched) : null;
     for (const entry of this.entries.values()) {
-      if (entry.listeners.size === 0) continue;
-      if (
-        touchedArray !== null &&
-        this.shouldSkipEntry(entry.query, touchedArray)
-      ) {
-        continue;
-      }
-      const next = evaluateQuery(entry.query, store);
-      const prev = entry.result;
-      const { entities, patches } = reuseStableArrays(prev, next);
-      const nextResult: CachedQueryResult = {
-        query: next.query,
-        entities,
-        patches,
-        hasMore: next.hasMore,
-        nextCursor: next.nextCursor,
-        isLoading: false,
-      };
-      if (resultsShallowEqual(prev, nextResult)) continue;
-      entry.result = nextResult;
-      for (const l of [...entry.listeners]) l();
+      this.recomputeEntry(entry, store, touchedArray, true);
     }
   }
 
@@ -274,4 +301,13 @@ export function forceDetachPatchDbQuerySubscriptionsForDb(
   if (cache === undefined) return;
   cache.forceDetachAll();
   cacheByDb.delete(db);
+}
+
+/** Re-evaluates subscribed React queries after out-of-band in-memory store writes. */
+export function refreshPatchDbQueryCacheForDb(
+  db: SubscribablePatchDbLike
+): void {
+  const cache = cacheByDb.get(db);
+  if (cache === undefined) return;
+  cache.refreshAllEntries();
 }

@@ -7,6 +7,15 @@ import { SpaceRoomProvider } from './room/space-room-context';
 import { useAutoLeaveIfEnded } from './lifecycle/use-auto-leave-if-ended';
 import { useCurrentSpaceIds } from './use-current-space-ids';
 import { useCurrentSpaceRole } from './use-current-space-role';
+import {
+  isReplicationHost,
+  useReplicationIdentityIds,
+} from './use-replication-identity-ids';
+import {
+  SPACE_ENTITY_TYPE,
+  SpaceAttr,
+} from '@libs/spaces/shared/space-entities';
+import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { useState, type ReactNode } from 'react';
 import {
   useSpaceRouteId,
@@ -37,9 +46,22 @@ type SpaceDetailBodyProps = {
 };
 
 function SpaceDetailBody({ spaceId }: SpaceDetailBodyProps): ReactNode {
+  const identityIds = useReplicationIdentityIds();
   const { isLoading } = useCurrentSpaceIds();
   const role = useCurrentSpaceRole(spaceId);
-  const inThisSpace = role !== null;
+  const hostId = useQueryAttribute({
+    entityType: SPACE_ENTITY_TYPE,
+    entityId: spaceId,
+    attribute: SpaceAttr.hostId,
+  });
+  const endedAt = useQueryAttribute({
+    entityType: SPACE_ENTITY_TYPE,
+    entityId: spaceId,
+    attribute: SpaceAttr.endedAt,
+  });
+  const isHostByEntity =
+    endedAt === null && isReplicationHost(hostId, identityIds);
+  const inThisSpace = role !== null || isHostByEntity;
 
   useAutoLeaveIfEnded(spaceId);
 

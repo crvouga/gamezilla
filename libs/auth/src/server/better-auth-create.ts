@@ -54,6 +54,7 @@ export async function createBetterAuthRequestStack(
   options: {
     readonly dbScope: PostgresDbScope;
     readonly apiUrlOverride?: string | null;
+    readonly devIdpPort?: number;
   }
 ): Promise<BetterAuthRequestStack> {
   const cfg = await loadBetterAuthSecretsWorker(
@@ -70,7 +71,17 @@ export async function createBetterAuthRequestStack(
 
   const plugins: BetterAuthPlugin[] = [bearer(), expo()];
   if (isLocalApiOrigin(cfg.apiOrigin)) {
-    plugins.push(genericOAuth({ config: [devIdpProviderConfig()] }));
+    plugins.push(
+      genericOAuth({
+        config: [
+          devIdpProviderConfig(
+            options.devIdpPort !== undefined
+              ? { devIdpPort: options.devIdpPort }
+              : undefined
+          ),
+        ],
+      })
+    );
   }
 
   const localApi = isLocalApiOrigin(cfg.apiOrigin);

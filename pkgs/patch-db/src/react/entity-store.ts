@@ -89,6 +89,18 @@ export class PatchDbEntityStore {
 
     entry.listeners.add(listener);
 
+    const store = getInMemoryStoreForDb(this.db);
+    const nextEntity = store.getEntity(entityType, entityId);
+    const prev = entry.result.entity;
+    const entity =
+      nextEntity !== null && entityShallowEqual(prev, nextEntity)
+        ? prev
+        : nextEntity;
+    if (prev !== entity) {
+      entry.result = { entity };
+      listener();
+    }
+
     if (entry.syncEntitiesUnsub === null) {
       entry.syncEntitiesUnsub = this.db.subscribe.entities(
         { entityType: entry.entityType, entityId: entry.entityId, limit: 1 },

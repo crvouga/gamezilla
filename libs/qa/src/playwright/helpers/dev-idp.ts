@@ -28,6 +28,12 @@ export async function expectDevIdpChooser(page: Page): Promise<void> {
   try {
     await expect(chooser).toBeVisible({ timeout: 30_000 });
   } catch (err) {
+    if (await page.getByText('Internal Server Error').isVisible()) {
+      throw new Error(
+        'Dev IdP authorize returned 500 — stop `bun run dev` or free DEV_IDP_PORT, then re-run `bun run qa:browser`',
+        { cause: err }
+      );
+    }
     if (await page.getByText('Sign-in failed', { exact: true }).isVisible()) {
       const dialogText =
         (await page.getByRole('dialog').textContent())?.trim() ?? '';
@@ -70,6 +76,12 @@ export async function pickFirstDevIdpAccount(page: Page): Promise<void> {
   await row.click();
 }
 
+function devIdpAccountRow(page: Page, email: string) {
+  return page.locator(
+    `[data-testid="dev-idp-account-row"][data-email="${email}"]`
+  );
+}
+
 /** Clicks an account row matching `data-email`, creating it when missing. */
 export async function pickDevIdpAccount(
   page: Page,
@@ -77,27 +89,25 @@ export async function pickDevIdpAccount(
 ): Promise<void> {
   await waitForDevIdpAccountListReady(page);
   await ensureDevIdpTestAccount(page, account);
-  await page
-    .getByTestId('dev-idp-account-row')
-    .filter({ has: page.locator(`[data-email="${account.email}"]`) })
-    .first()
-    .click();
+  await devIdpAccountRow(page, account.email).click();
 }
 
 async function ensureDevIdpTestAccount(
   page: Page,
   account: DevIdpTestAccount
 ): Promise<void> {
-  const existing = page
-    .getByTestId('dev-idp-account-row')
-    .filter({ has: page.locator(`[data-email="${account.email}"]`) });
+  const existing = devIdpAccountRow(page, account.email);
   if ((await existing.count()) > 0) return;
 
   await page.getByTestId('dev-idp-add-account-trigger').click();
+  await expect(page.getByTestId(CREATE_PANEL)).toBeVisible({ timeout: 10_000 });
   await page.getByTestId(`${CREATE_PANEL}-name`).fill(account.name);
   await page.getByTestId(`${CREATE_PANEL}-email`).fill(account.email);
   await page.getByTestId(`${CREATE_PANEL}-submit`).click();
-  await existing.first().waitFor({ state: 'visible', timeout: 10_000 });
+  await expect(page.getByTestId(CREATE_PANEL)).toHaveCount(0, {
+    timeout: 30_000,
+  });
+  await expect(existing).toBeVisible({ timeout: 30_000 });
 }
 
 /** Asserts the dev IdP chooser is gone after account selection. */

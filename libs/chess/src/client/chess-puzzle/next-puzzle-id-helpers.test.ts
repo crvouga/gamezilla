@@ -1,4 +1,4 @@
-import { isSubqueryRef } from '@pkgs/patch-db/interface';
+import { isSubqueryRef, type PatchDbQueryWhereClause } from '@pkgs/patch-db/interface';
 import { describe, expect, test } from 'bun:test';
 
 import { ChessPuzzleAttr } from '../../shared/chess-puzzle-entities';
@@ -11,7 +11,16 @@ import {
   pickPuzzleIdFromPool,
 } from './next-puzzle-id-helpers';
 
-type AnyClause = ReturnType<typeof buildPuzzleWhere>;
+type AnyClause = PatchDbQueryWhereClause;
+
+function builtWhere(
+  ...args: Parameters<typeof buildPuzzleWhere>
+): AnyClause {
+  const w = buildPuzzleWhere(...args);
+  expect(w).toBeDefined();
+  if (w === undefined) throw new Error('expected defined where clause');
+  return w;
+}
 
 function flattenAndClauses(clause: AnyClause): readonly AnyClause[] {
   if (clause.type === 'and') {
@@ -24,8 +33,7 @@ function flattenAndClauses(clause: AnyClause): readonly AnyClause[] {
 
 describe('buildPuzzleWhere (Phase 3: chess subquery wiring)', () => {
   test('rating band lower / upper bounds always present', () => {
-    const w = buildPuzzleWhere(1500, 200, '', null);
-    const flat = flattenAndClauses(w);
+    const flat = flattenAndClauses(builtWhere(1500, 200, '', null));
     const gte = flat.find(
       (c) =>
         c.type === 'gte' &&
@@ -43,15 +51,13 @@ describe('buildPuzzleWhere (Phase 3: chess subquery wiring)', () => {
   });
 
   test('clamps rating lower bound at 0 when window dips below', () => {
-    const w = buildPuzzleWhere(50, 500, '', null);
-    const flat = flattenAndClauses(w);
+    const flat = flattenAndClauses(builtWhere(50, 500, '', null));
     const gte = flat.find((c) => c.type === 'gte');
     expect(gte && (gte as { value: number }).value).toBe(0);
   });
 
   test('with ownerId, emits exactly one not_in clause whose values is a SubqueryRef', () => {
-    const w = buildPuzzleWhere(1500, 200, 'user_123', null);
-    const flat = flattenAndClauses(w);
+    const flat = flattenAndClauses(builtWhere(1500, 200, 'user_123', null));
     const notIns = flat.filter((c) => c.type === 'not_in');
     expect(notIns.length).toBe(1);
     const notIn = notIns[0] as {
@@ -73,14 +79,12 @@ describe('buildPuzzleWhere (Phase 3: chess subquery wiring)', () => {
   });
 
   test('without ownerId, no not_in clause is emitted (subquery would be unbounded)', () => {
-    const w = buildPuzzleWhere(1500, 200, '', null);
-    const flat = flattenAndClauses(w);
+    const flat = flattenAndClauses(builtWhere(1500, 200, '', null));
     expect(flat.find((c) => c.type === 'not_in')).toBe(undefined);
   });
 
   test('currentPuzzleId emits an additional `!=` clause separate from the subquery', () => {
-    const w = buildPuzzleWhere(1500, 200, 'user_123', 'puzzle_99');
-    const flat = flattenAndClauses(w);
+    const flat = flattenAndClauses(builtWhere(1500, 200, 'user_123', 'puzzle_99'));
     const neq = flat.find(
       (c) =>
         c.type === '!=' &&
@@ -92,9 +96,14 @@ describe('buildPuzzleWhere (Phase 3: chess subquery wiring)', () => {
     expect(flat.find((c) => c.type === 'not_in')).toBeTruthy();
   });
 
+  test('null halfWindow omits rating band clauses', () => {
+    const flat = flattenAndClauses(builtWhere(1500, null, 'user_123', null));
+    expect(flat.find((c) => c.type === 'gte')).toBe(undefined);
+    expect(flat.find((c) => c.type === 'lte')).toBe(undefined);
+  });
+
   test('empty currentPuzzleId is treated as null (no `!=` clause emitted)', () => {
-    const w = buildPuzzleWhere(1500, 200, '', '');
-    const flat = flattenAndClauses(w);
+    const flat = flattenAndClauses(builtWhere(1500, 200, '', ''));
     expect(flat.find((c) => c.type === '!=')).toBe(undefined);
   });
 });

@@ -6,7 +6,7 @@ import {
   CHESS_PUZZLE_PROFILE_ENTITY_TYPE,
   ChessPuzzleProfileAttr,
 } from '../../shared/chess-puzzle-profile-entities';
-import { pickPuzzleIdFromPool } from './next-puzzle-id-helpers';
+import { pickPuzzleIdFromPool, PUZZLE_NEXT_MAX_BAND } from './next-puzzle-id-helpers';
 import { usePuzzleCandidatesQuery } from './use-puzzle-candidates-query';
 
 const DEFAULT_RATING = 1200;
@@ -22,7 +22,14 @@ const PREFERRED_BAND = 50;
 export function useNextPuzzleId(args: {
   currentPuzzleId: string | null;
   seed: string;
-}): { puzzleId: string | null; rating: number; loading: boolean } {
+}): {
+  puzzleId: string | null;
+  rating: number;
+  loading: boolean;
+  bandedCount: number;
+  fallbackCount: number;
+  replayCount: number;
+} {
   const { currentPuzzleId, seed } = args;
   const myId = useMyId();
 
@@ -33,7 +40,30 @@ export function useNextPuzzleId(args: {
   );
   const rating = profileRating > 0 ? profileRating : DEFAULT_RATING;
 
-  const puzzleResult = usePuzzleCandidatesQuery(rating, myId, currentPuzzleId);
+  const bandedResult = usePuzzleCandidatesQuery(
+    rating,
+    myId,
+    currentPuzzleId,
+    PUZZLE_NEXT_MAX_BAND
+  );
+  const fallbackResult = usePuzzleCandidatesQuery(
+    rating,
+    myId,
+    currentPuzzleId,
+    null
+  );
+  const replayResult = usePuzzleCandidatesQuery(
+    rating,
+    '',
+    currentPuzzleId,
+    null
+  );
+  const puzzleResult =
+    bandedResult.entities.length > 0
+      ? bandedResult
+      : fallbackResult.entities.length > 0
+        ? fallbackResult
+        : replayResult;
 
   const puzzleId = useMemo(
     () =>
@@ -46,10 +76,21 @@ export function useNextPuzzleId(args: {
     [puzzleResult.entities, rating, seed]
   );
 
+  const loading =
+    myId.length === 0 ||
+    bandedResult.isLoading ||
+    (bandedResult.entities.length === 0 && fallbackResult.isLoading) ||
+    (bandedResult.entities.length === 0 &&
+      fallbackResult.entities.length === 0 &&
+      replayResult.isLoading);
+
   return {
     puzzleId,
     rating,
-    loading: myId.length === 0 || puzzleResult.isLoading,
+    loading,
+    bandedCount: bandedResult.entities.length,
+    fallbackCount: fallbackResult.entities.length,
+    replayCount: replayResult.entities.length,
   };
 }
 

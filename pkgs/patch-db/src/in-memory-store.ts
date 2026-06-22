@@ -83,15 +83,11 @@ export class InMemoryEntityStore {
     if (entities.length === 0) return;
     const touched = new Set<EntityKey>();
     for (const e of entities) {
-      let byId = this.byType.get(e.entityType);
-      if (byId === undefined) {
-        byId = new Map<string, Entity>();
-        this.byType.set(e.entityType, byId);
+      if (this.applyAttributes(e.entityType, e.entityId, e.attributes)) {
+        touched.add(toEntityKey(e.entityType, e.entityId));
       }
-      byId.set(e.entityId, e);
-      touched.add(toEntityKey(e.entityType, e.entityId));
     }
-    this.bumpAndEmit(touched);
+    if (touched.size > 0) this.bumpAndEmit(touched);
   }
 
   removeEntities(

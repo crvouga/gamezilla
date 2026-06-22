@@ -20,6 +20,7 @@ import { ChessSettingsDeveloperScreen } from './chess-settings/chess-settings-de
 import { ChessSettingsDeveloperUiComponentDetailScreen } from './chess-settings/chess-settings-developer-ui-component-detail-screen';
 import { ChessSettingsDeveloperUiComponentsScreen } from './chess-settings/chess-settings-developer-ui-components-screen';
 import { ChessSettingsScreen } from './chess-settings/chess-settings-screen';
+import { ChessStatsScreen } from './chess-puzzle/chess-stats-screen';
 
 export type ChessMainMenuProps = {
   /** Called by chess's root menu to return to the games picker. */
@@ -32,6 +33,8 @@ function ChessScreenSwitch({ onBackToGames }: ChessMainMenuProps): ReactNode {
   switch (screen) {
     case CHESS_SCREEN.puzzle:
       return <PuzzlePlayScreen />;
+    case CHESS_SCREEN.stats:
+      return <ChessStatsScreen />;
     case CHESS_SCREEN.settings:
       return <ChessSettingsScreen />;
     case CHESS_SCREEN.settingsDeveloper:
@@ -78,8 +81,17 @@ function RootMainMenu({ onBackToGames }: ChessMainMenuProps): ReactNode {
       {
         key: 'puzzle',
         title: <Trans>Puzzle</Trans>,
+        testID: 'chess-menu-puzzle',
         onPress: () =>
           dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle })),
+      },
+      {
+        key: 'stats',
+        title: <Trans>Stats</Trans>,
+        caption: <Trans>Elo trend and game log.</Trans>,
+        testID: 'chess-menu-stats',
+        onPress: () =>
+          dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.stats })),
       },
       {
         key: 'custom-games',

@@ -73,7 +73,7 @@ export function assertTigerPolicyForResolvedApiOrigin(
 }
 
 /** Ports where `preview-server.ts` serves the export and proxies `/api/*`. */
-const WEB_PREVIEW_PORTS = new Set(['5173', '4173']);
+const WEB_PREVIEW_PORTS = new Set(['5173', '4173', '5175']);
 
 function isProductionWebHostname(hostname: string): boolean {
   return (

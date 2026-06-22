@@ -20,6 +20,15 @@ function readAttr(attrs: AttributeState, attribute: AttributeKey): unknown {
   return attrs[key];
 }
 
+function asComparableNumber(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number.parseInt(value, 10);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
 export function evaluateWhere(
   clause: PatchDbQueryWhereClause,
   attrs: AttributeState
@@ -46,22 +55,26 @@ export function evaluateWhere(
       return attrValue === clause.value;
     case '!=':
       return attrValue !== clause.value;
-    case 'gt':
-      return typeof attrValue === 'number' && typeof clause.value === 'number'
-        ? attrValue > clause.value
-        : false;
-    case 'gte':
-      return typeof attrValue === 'number' && typeof clause.value === 'number'
-        ? attrValue >= clause.value
-        : false;
-    case 'lt':
-      return typeof attrValue === 'number' && typeof clause.value === 'number'
-        ? attrValue < clause.value
-        : false;
-    case 'lte':
-      return typeof attrValue === 'number' && typeof clause.value === 'number'
-        ? attrValue <= clause.value
-        : false;
+    case 'gt': {
+      const left = asComparableNumber(attrValue);
+      const right = asComparableNumber(clause.value);
+      return left !== null && right !== null ? left > right : false;
+    }
+    case 'gte': {
+      const left = asComparableNumber(attrValue);
+      const right = asComparableNumber(clause.value);
+      return left !== null && right !== null ? left >= right : false;
+    }
+    case 'lt': {
+      const left = asComparableNumber(attrValue);
+      const right = asComparableNumber(clause.value);
+      return left !== null && right !== null ? left < right : false;
+    }
+    case 'lte': {
+      const left = asComparableNumber(attrValue);
+      const right = asComparableNumber(clause.value);
+      return left !== null && right !== null ? left <= right : false;
+    }
     case 'contains':
       return typeof attrValue === 'string'
         ? attrValue.includes(clause.value)

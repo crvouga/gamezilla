@@ -1,7 +1,7 @@
 import { useEntity } from '@pkgs/patch-db/react';
 
 import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '../shared';
-import { useCurrentAccountId } from './use-current-account-id';
+import { useCurrentAccountId, getCachedCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
 import { useSessionToken } from './use-session-token';
 
@@ -56,7 +56,12 @@ export function useIsSignedIn(): boolean {
 export function useMyId(): string {
   const accountId = useCurrentAccountId();
   const deviceId = useDeviceId();
+  const token = useSessionToken();
   if (accountId !== null) return accountId;
+  if (token !== null) {
+    const cachedAccountId = getCachedCurrentAccountId();
+    if (cachedAccountId !== null) return cachedAccountId;
+  }
   return deviceId ?? '';
 }
 

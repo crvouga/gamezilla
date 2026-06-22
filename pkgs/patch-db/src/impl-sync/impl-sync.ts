@@ -98,6 +98,13 @@ export type SyncPatchDbOptions = {
    * subscriptions. Default false.
    */
   targetedInvalidation?: boolean;
+  /**
+   * Called after each successful remote poll merge with the raw remote read
+   * results. Used by the client to upsert reference-data snapshots (e.g.
+   * `chess.puzzle`) into the in-memory query store without waiting for a full
+   * SQLite hydration pass.
+   */
+  onPollMerged?: (results: readonly PatchDbResult[]) => void;
 };
 
 const defaultLog = createLogger({ name: 'patch-db:sync' });
@@ -118,6 +125,7 @@ export class SyncPatchDb implements PatchDb {
   private readonly logPushPollFailures: boolean;
   private readonly maxPushBatchSize: number;
   private readonly targetedInvalidation: boolean;
+  private readonly onPollMerged: SyncPatchDbOptions['onPollMerged'];
   /** Stops subscription callbacks after {@link destroy} (e.g. HMR / teardown races). */
   private destroyed = false;
 
@@ -152,6 +160,7 @@ export class SyncPatchDb implements PatchDb {
     this.logPushPollFailures = options.logPushPollFailures !== false;
     this.maxPushBatchSize = options.maxPushBatchSize ?? MAX_PATCHES_PER_REQUEST;
     this.targetedInvalidation = options.targetedInvalidation === true;
+    this.onPollMerged = options.onPollMerged;
     assert.ok(
       Number.isSafeInteger(this.maxPushBatchSize) &&
         this.maxPushBatchSize > 0 &&
@@ -519,6 +528,7 @@ export class SyncPatchDb implements PatchDb {
       this.local,
       results
     );
+    this.onPollMerged?.(results);
     return { hasNewPatches };
   }
 

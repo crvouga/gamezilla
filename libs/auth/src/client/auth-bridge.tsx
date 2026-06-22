@@ -16,7 +16,7 @@ import { refreshAuth } from './refresh-auth-fetch';
 import { isSnapshotSignedIn } from './session-snapshot';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
-import { useSessionToken } from './use-session-token';
+import { getCachedSessionToken, useSessionToken } from './use-session-token';
 
 type Storage = ReturnType<typeof useSecureStorage>;
 type Logger = ReturnType<typeof useLogger>;
@@ -83,6 +83,11 @@ function useReconcileBetterAuthSession(args: {
     if (isPending) return;
     void (async () => {
       if (!isSignedIn || token === null) {
+        // Better Auth can briefly report "signed out" between get-session
+        // polls while secure storage still holds a bearer. Clearing local
+        // account id there swaps replication identity to deviceId and drops
+        // hosted-space membership until the next refresh completes.
+        if (getCachedSessionToken() !== null) return;
         await handleSignedOut(deps);
         return;
       }

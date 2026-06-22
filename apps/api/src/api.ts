@@ -14,6 +14,7 @@ import {
   readVaultScopeBindings,
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
+  readDevIdpPortBinding,
 } from './config/env';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { createApiSecretStore } from './config/secret-store';
@@ -134,6 +135,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     dbScope,
     apiUrlOverride: readOptionalApiUrlOverride(env),
     databaseUrlOverride: readOptionalDatabaseUrlOverride(env),
+    devIdpPort: readDevIdpPortBinding(env),
     vaultConfig: readVaultScopeBindings(env).config,
     objectStore,
   });

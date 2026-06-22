@@ -20,6 +20,9 @@ function row(
     solveIdx: partial.solveIdx ?? 0,
     uci: partial.uci ?? null,
     correct: partial.correct ?? null,
+    puzzleRating: partial.puzzleRating ?? 1200,
+    ratingBefore: partial.ratingBefore ?? 0,
+    ratingAfter: partial.ratingAfter ?? 0,
     at: partial.at,
   };
 }

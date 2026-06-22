@@ -11,8 +11,12 @@
       "cache": false
     },
     "preview": {
-      "dependsOn": ["kill", "setup", "^build", "build"],
+      "dependsOn": ["kill", "setup", "^build", "build", "migrate"],
       "persistent": true,
+      "cache": false
+    },
+    "migrate": {
+      "dependsOn": ["kill", "setup"],
       "cache": false
     }
   }

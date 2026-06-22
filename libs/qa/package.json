@@ -5,6 +5,7 @@
   "scripts": {
     "api": "bun test ./src/api/",
     "browser": "bun --bun x playwright test --config src/playwright/playwright.config.ts",
+    "kill-preview-ports": "bun run scripts/kill-preview-ports.ts",
     "browser:headed": "bun --bun x playwright test --config src/playwright/playwright.config.ts --headed",
     "browser:ui": "bun --bun x playwright test --config src/playwright/playwright.config.ts --ui",
     "install:browsers": "bun --bun x playwright install --with-deps chromium",
@@ -21,6 +22,7 @@
     "@libs/infra": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/os": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql-client": "workspace:*"
   },

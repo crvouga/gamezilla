@@ -9,6 +9,7 @@ import type { HandleResult, RoomState } from '@pkgs/room';
 export const CHESS_SCREEN = {
   root: 'root',
   puzzle: 'puzzle',
+  stats: 'stats',
   settings: 'settings',
   settingsDeveloper: 'settings-developer',
   settingsDeveloperUi: 'settings-developer-ui',

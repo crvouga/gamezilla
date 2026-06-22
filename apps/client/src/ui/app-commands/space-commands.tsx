@@ -38,7 +38,7 @@ function SpaceCreateCommand(): ReactNode {
       keywords={[t`new`, t`create`, t`start`, t`space`, t`host`]}
       enabled={currentCount === 0}
       run={async () => {
-        createSpace((id) => {
+        await createSpace((id) => {
           openSpaceDetail(router, id);
         });
       }}

@@ -4,7 +4,9 @@ import {
   expectDevIdpChooser,
   expectDevIdpHandoffStarted,
   expectLeftDevIdpChooser,
+  pickDevIdpAccount,
   pickFirstDevIdpAccount,
+  type DevIdpTestAccount,
 } from '../helpers/dev-idp';
 import { openUserMenu, openUserMenuAndClick } from '../helpers/chrome-menu';
 import {
@@ -22,14 +24,18 @@ export class AuthDSL {
   constructor(private readonly page: Page) {}
 
   /** Menu → dev IdP → account → sign-in success (steps 2–7). */
-  async signInWithDevIdp(): Promise<void> {
+  async signInWithDevIdp(account?: DevIdpTestAccount): Promise<void> {
     await openUserMenuAndClick(this.page, 'Sign in');
     await this.page
       .getByRole('button', { name: /sign in with dev idp/i })
       .click();
     await expectDevIdpHandoffStarted(this.page);
     await expectDevIdpChooser(this.page);
-    await pickFirstDevIdpAccount(this.page);
+    if (account !== undefined) {
+      await pickDevIdpAccount(this.page, account);
+    } else {
+      await pickFirstDevIdpAccount(this.page);
+    }
     await expectLeftDevIdpChooser(this.page);
     await expectSignInModalResumed(this.page);
     await expectSignInModalSuccess(this.page);

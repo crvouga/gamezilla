@@ -213,6 +213,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
       createRequestDbMiddleware(secretStore, dbScope, {
         apiUrlOverride: config.apiUrlOverride,
         databaseUrlOverride: config.databaseUrlOverride,
+        devIdpPort: config.devIdpPort,
         vaultConfig: config.vaultConfig,
       })
     )

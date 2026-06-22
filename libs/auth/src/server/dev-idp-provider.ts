@@ -11,22 +11,28 @@
 import {
   DEV_IDP_CLIENT_ID,
   DEV_IDP_CLIENT_SECRET,
-  DEV_IDP_DEFAULT_ORIGIN,
   DEV_IDP_SCOPES,
   devIdpEndpointUrl,
+  resolveDevIdpOrigin,
 } from '@pkgs/dev-idp/config';
 import type { GenericOAuthConfig } from 'better-auth/plugins/generic-oauth';
 
 import { DEV_PROVIDER } from '../shared/auth-entities';
 
-export function devIdpProviderConfig(): GenericOAuthConfig {
+export function devIdpProviderConfig(options?: {
+  readonly devIdpPort?: number;
+}): GenericOAuthConfig {
+  const origin = resolveDevIdpOrigin(options?.devIdpPort);
+  const authorizationUrl = devIdpEndpointUrl(origin, 'authorize');
+  const tokenUrl = devIdpEndpointUrl(origin, 'token');
+  const userInfoUrl = devIdpEndpointUrl(origin, 'userinfo');
   return {
     providerId: DEV_PROVIDER,
     clientId: DEV_IDP_CLIENT_ID,
     clientSecret: DEV_IDP_CLIENT_SECRET,
-    authorizationUrl: devIdpEndpointUrl(DEV_IDP_DEFAULT_ORIGIN, 'authorize'),
-    tokenUrl: devIdpEndpointUrl(DEV_IDP_DEFAULT_ORIGIN, 'token'),
-    userInfoUrl: devIdpEndpointUrl(DEV_IDP_DEFAULT_ORIGIN, 'userinfo'),
+    authorizationUrl,
+    tokenUrl,
+    userInfoUrl,
     // Omit redirectURI to let Better Auth use its default.
     // The default is constructed based on the app's baseURL and basePath options.
     scopes: [...DEV_IDP_SCOPES],

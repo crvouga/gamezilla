@@ -104,6 +104,36 @@ export function usePuzzleInteractions(
   );
 }
 
+export function useChessPuzzleAllInteractions(): ChessPuzzleInteractionRow[] {
+  const myId = useMyId();
+  const query = useMemo(
+    (): PatchDbQuery => ({
+      entityType: CHESS_PUZZLE_INTERACTION_ENTITY_TYPE,
+      where: {
+        type: '=',
+        attribute: AbacEntityAttr.owner.key,
+        value: myId,
+      },
+      orderBy: [
+        {
+          attribute: ChessPuzzleInteractionAttr.at.key,
+          direction: 'desc',
+        },
+      ],
+      limit: 100,
+    }),
+    [myId]
+  );
+  const result = useQuery(query);
+  return useMemo(
+    () =>
+      result.entities.map((e) =>
+        interactionRowFromEntityAttributes(e.attributes)
+      ),
+    [result.entities]
+  );
+}
+
 export function usePuzzleEntityAndInteractions(puzzleId: string): {
   fen: string;
   movesStr: string;

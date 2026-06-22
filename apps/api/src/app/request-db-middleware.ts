@@ -48,6 +48,7 @@ async function ensureDevDatabasePolicy(
 export type RequestDbMiddlewareOptions = {
   readonly apiUrlOverride?: string | null | undefined;
   readonly databaseUrlOverride?: string | null | undefined;
+  readonly devIdpPort?: number | undefined;
   readonly vaultConfig?: string | null | undefined;
 };
 
@@ -59,6 +60,7 @@ export function createRequestDbMiddleware(
   const {
     apiUrlOverride = null,
     databaseUrlOverride = null,
+    devIdpPort,
     vaultConfig = null,
   } = options;
   return async (c, next) => {
@@ -84,7 +86,11 @@ export function createRequestDbMiddleware(
     const { auth: betterAuth, dispose } = await createBetterAuthRequestStack(
       secretStore,
       dbUrl,
-      { dbScope, apiUrlOverride }
+      {
+        dbScope,
+        apiUrlOverride,
+        ...(devIdpPort !== undefined ? { devIdpPort } : {}),
+      }
     );
     const sessionAuth = createSessionAuth({ auth: betterAuth });
 

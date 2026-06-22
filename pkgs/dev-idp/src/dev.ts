@@ -17,7 +17,7 @@
  */
 import { createLogger } from '@pkgs/logger';
 
-import { DEV_IDP_DEFAULT_PORT } from './config';
+import { readDevIdpPortFromBinding } from './config';
 import type { DevIdpUserCreateInput } from './dev-idp-user-store';
 import { startDevIdpServer, type DevIdpServerHandle } from './dev-server';
 
@@ -92,23 +92,9 @@ function installSignalHandlers(): void {
   });
 }
 
-function readPortFromEnv(): number {
-  const raw = process.env['DEV_IDP_PORT']?.trim();
-  if (raw === undefined || raw === '') return DEV_IDP_DEFAULT_PORT;
-  const n = Number(raw);
-  if (!Number.isInteger(n) || n < 1 || n > 65_535) {
-    log.warn('dev-idp: ignoring invalid DEV_IDP_PORT; using default', {
-      raw,
-      default: DEV_IDP_DEFAULT_PORT,
-    });
-    return DEV_IDP_DEFAULT_PORT;
-  }
-  return n;
-}
-
 async function main(): Promise<void> {
   installSignalHandlers();
-  const port = readPortFromEnv();
+  const port = readDevIdpPortFromBinding(process.env['DEV_IDP_PORT']);
   try {
     server = await startDevIdpServer({
       port,

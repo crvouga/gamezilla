@@ -33,20 +33,23 @@ export function hashSeed(s: string): number {
  */
 export function buildPuzzleWhere(
   rating: number,
-  halfWindow: number,
+  halfWindow: number | null,
   ownerId: string,
   currentPuzzleId: string | null
-): PatchDbQueryWhereClause {
-  let w = andWhereClause(undefined, {
-    type: 'gte',
-    attribute: ChessPuzzleAttr.rating.key,
-    value: Math.max(0, rating - halfWindow),
-  });
-  w = andWhereClause(w, {
-    type: 'lte',
-    attribute: ChessPuzzleAttr.rating.key,
-    value: rating + halfWindow,
-  });
+): PatchDbQueryWhereClause | undefined {
+  let w: PatchDbQueryWhereClause | undefined = undefined;
+  if (halfWindow !== null) {
+    w = andWhereClause(w, {
+      type: 'gte',
+      attribute: ChessPuzzleAttr.rating.key,
+      value: Math.max(0, rating - halfWindow),
+    });
+    w = andWhereClause(w, {
+      type: 'lte',
+      attribute: ChessPuzzleAttr.rating.key,
+      value: rating + halfWindow,
+    });
+  }
   if (ownerId.length > 0) {
     w = andWhereClause(w, {
       type: 'not_in',

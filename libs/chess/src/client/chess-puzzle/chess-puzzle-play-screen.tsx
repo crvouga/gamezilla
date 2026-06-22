@@ -1,8 +1,9 @@
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
-import { useSpaceRoomSelector } from '@libs/spaces/client/room/use-space-room-selector';
+import { useSpaceRoomDispatch, useSpaceRoomSelector } from '@libs/spaces/client/room/use-space-room-selector';
 import { Box } from '@pkgs/ui';
+import { useSync } from '@pkgs/patch-db/react';
 import {
   memo,
   useCallback,
@@ -11,10 +12,17 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import {
+  CHESS_SCREEN,
+  SetChessMainMenuScreen,
+} from '../../shared/chess-main-menu';
 import { ChessPuzzlePlayAttr } from '../../shared/chess-puzzle-play';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import { ChessPuzzleBoardSkeleton } from './chess-puzzle-board-skeleton';
+import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
+import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
+import { ChessPuzzleSummaryOverlay } from './chess-puzzle-summary-overlay';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import { useNextPuzzleId } from './use-next-puzzle-id';
 import {
@@ -46,6 +54,7 @@ const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
   return (
     <ChessBoard
       controlled
+      testID="chess-puzzle-board"
       fen={p.displayFen}
       fenSyncKey={p.layoutKey}
       orientation={p.orientation}
@@ -77,7 +86,11 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
         <SpeakingAvatarAssistant
           assistant={p.assistant}
           header={
-            <ChessPuzzleStatusHeader kind={p.statusKind} rating={p.rating} />
+            <ChessPuzzleStatusHeader
+              kind={p.statusKind}
+              playerElo={p.playerElo}
+              puzzleRating={p.rating}
+            />
           }
           numberOfLines={2}
         />
@@ -97,6 +110,18 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
           onRetry={p.onRetry}
           onNext={p.onNext}
         />
+        {p.completion !== null ? (
+          <ChessPuzzleSummaryOverlay
+            completion={p.completion}
+            onContinue={p.onNext}
+            onRetry={p.onRetry}
+          />
+        ) : null}
+        <ChessPuzzleE2EHints
+          orientation={p.orientation}
+          expectedFromSquare={p.expectedFromSquare}
+          expectedToSquare={p.expectedToSquare}
+        />
       </Box>
     </Box>
   );
@@ -104,6 +129,8 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
 
 type PuzzlePlayerProps = {
   puzzleId: string;
+  playGeneration: number;
+  readyGeneration: number;
   onRequestNext: () => void;
 };
 
@@ -117,26 +144,73 @@ type PuzzlePlayerProps = {
  */
 function PuzzlePlayer({
   puzzleId,
+  playGeneration,
+  readyGeneration,
   onRequestNext,
 }: PuzzlePlayerProps): ReactNode {
-  const p = usePuzzlePlayerState({ puzzleId, onRequestNext });
+  const p = usePuzzlePlayerState({
+    puzzleId,
+    playGeneration,
+    readyGeneration,
+    onRequestNext,
+  });
   return <PuzzlePlayerChrome {...p} />;
+}
+
+function useKickPuzzleSyncWhileIdle(
+  activePuzzleId: string | null,
+  nextId: string | null
+): void {
+  const sync = useSync();
+  useEffect(() => {
+    if (activePuzzleId !== null || nextId !== null) return;
+    let cancelled = false;
+    const kick = (): void => {
+      if (cancelled) return;
+      void sync.runPollNow();
+    };
+    kick();
+    const timer = setInterval(kick, 3000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [activePuzzleId, nextId, sync]);
 }
 
 export function PuzzlePlayScreen(): ReactNode {
   const myId = useMyId();
+  const dispatch = useSpaceRoomDispatch();
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
+  const backToChessRoot = useCallback(() => {
+    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
+  }, [dispatch]);
 
   const [activePuzzleId, setActivePuzzleId] = useState<string | null>(null);
   const [attemptSeed, setAttemptSeed] = useState(0);
+  /** Player may Start only after the screen commits puzzle placement for this seed. */
+  const [readyGeneration, setReadyGeneration] = useState(0);
 
   /** Last attemptSeed value we've already swapped `activePuzzleId` for. */
   const placedAttemptRef = useRef(0);
 
-  const { puzzleId: nextId } = useNextPuzzleId({
+  const commitAttempt = useCallback((seed: number): void => {
+    placedAttemptRef.current = seed;
+    setReadyGeneration(seed);
+  }, []);
+
+  const {
+    puzzleId: nextId,
+    loading: nextLoading,
+    bandedCount,
+    fallbackCount,
+    replayCount,
+  } = useNextPuzzleId({
     currentPuzzleId: activePuzzleId ?? roomPuzzleId,
     seed: `${myId}-${attemptSeed}`,
   });
+
+  useKickPuzzleSyncWhileIdle(activePuzzleId, nextId);
 
   // Atomic puzzle-id swap: never null `activePuzzleId` between puzzles,
   // so `PuzzlePlayer` stays mounted across the entire session.
@@ -153,32 +227,49 @@ export function PuzzlePlayScreen(): ReactNode {
     if (activePuzzleId === null) {
       if (attemptSeed === 0 && roomPuzzleId !== null) {
         setActivePuzzleId(roomPuzzleId);
-        placedAttemptRef.current = attemptSeed;
+        commitAttempt(attemptSeed);
         return;
       }
       if (nextId !== null) {
         setActivePuzzleId(nextId);
-        placedAttemptRef.current = attemptSeed;
+        commitAttempt(attemptSeed);
       }
       return;
     }
     if (attemptSeed === placedAttemptRef.current) return;
     if (roomPuzzleId !== null) return;
-    if (nextId === null || nextId === activePuzzleId) return;
-    setActivePuzzleId(nextId);
-    placedAttemptRef.current = attemptSeed;
-  }, [activePuzzleId, attemptSeed, nextId, roomPuzzleId]);
+    if (nextId !== null && nextId !== activePuzzleId) {
+      setActivePuzzleId(nextId);
+    }
+    // Whether we swapped ids or restart the same puzzle, the generation
+    // bump in `PuzzlePlayer` re-dispatches Start once the room is idle.
+    commitAttempt(attemptSeed);
+  }, [activePuzzleId, attemptSeed, commitAttempt, nextId, roomPuzzleId]);
 
   const onRequestNext = useCallback(() => {
     setAttemptSeed((s) => s + 1);
   }, []);
+
+  const e2ePickStatus = (
+    <ChessPuzzleE2ELoadingStatus
+      myId={myId}
+      nextId={nextId}
+      activePuzzleId={activePuzzleId}
+      bandedCount={bandedCount}
+      fallbackCount={fallbackCount}
+      replayCount={replayCount}
+      loading={nextLoading}
+    />
+  );
 
   // Until we have a first puzzle id, render only the skeleton in the
   // board slot's footprint — but DO NOT unmount the player once it has
   // mounted; pressing Next never re-enters this branch.
   if (activePuzzleId === null) {
     return (
-      <Box sx={{ alignSelf: 'stretch' }}>
+      <Box testID="chess-puzzle-play-screen" sx={{ alignSelf: 'stretch' }}>
+        <DefineBackButton onPress={backToChessRoot} />
+        {e2ePickStatus}
         <Box
           sx={{
             alignSelf: 'center',
@@ -196,6 +287,14 @@ export function PuzzlePlayScreen(): ReactNode {
   }
 
   return (
-    <PuzzlePlayer puzzleId={activePuzzleId} onRequestNext={onRequestNext} />
+    <Box testID="chess-puzzle-play-screen" sx={{ alignSelf: 'stretch' }}>
+      {e2ePickStatus}
+      <PuzzlePlayer
+        puzzleId={activePuzzleId}
+        playGeneration={attemptSeed}
+        readyGeneration={readyGeneration}
+        onRequestNext={onRequestNext}
+      />
+    </Box>
   );
 }

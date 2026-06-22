@@ -88,6 +88,11 @@ async function main(): Promise<void> {
   ];
   lines.push(`DATABASE_URL=${encodeDevVarValue(databaseUrl)}`);
 
+  const devIdpPort = process.env['DEV_IDP_PORT']?.trim() ?? '';
+  if (devIdpPort.length > 0) {
+    lines.push(`DEV_IDP_PORT=${encodeDevVarValue(devIdpPort)}`);
+  }
+
   const body = `${lines.join('\n')}\n`;
   writeFileSync(tmpPath, body, { encoding: 'utf8' });
   renameSync(tmpPath, outPath);

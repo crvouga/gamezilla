@@ -3,6 +3,10 @@ import { assert } from '@pkgs/assert';
 import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
 
 import { previewStackEnv } from '../constants/preview-stack-env';
+import {
+  QA_DEV_IDP_PORT,
+  QA_PREVIEW_PORT,
+} from '../constants/qa-preview-ports';
 
 /**
  * Applies Vault-backed preview env when `DATABASE_URL` is already injected
@@ -21,6 +25,9 @@ export function applyPlaywrightPreviewEnv(args: {
   process.env['BETTER_AUTH_PREVIEW_API_URL'] = args.baseURL;
   process.env['API_URL'] = args.baseURL;
   process.env['EXPO_PUBLIC_API_URL'] = args.baseURL;
+  process.env['EXPO_PUBLIC_E2E'] = '1';
+  process.env['PREVIEW_PORT'] = String(QA_PREVIEW_PORT);
+  process.env['DEV_IDP_PORT'] = String(QA_DEV_IDP_PORT);
 
   const previewEnv = previewStackEnv();
   process.env['DATABASE_URL'] = previewEnv['DATABASE_URL']!;
