@@ -14,8 +14,7 @@ function buildPoints(series: readonly number[]): string {
   return series
     .map((value, idx) => {
       const x = (idx / lastIdx) * SPARKLINE_WIDTH;
-      const y =
-        SPARKLINE_HEIGHT - ((value - min) / range) * SPARKLINE_HEIGHT;
+      const y = SPARKLINE_HEIGHT - ((value - min) / range) * SPARKLINE_HEIGHT;
       return `${x},${y}`;
     })
     .join(' ');

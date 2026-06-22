@@ -208,10 +208,7 @@ export class PatchDbQueryCache {
     touched: readonly string[] | null,
     notify: boolean
   ): void {
-    if (
-      touched !== null &&
-      this.shouldSkipEntry(entry.query, touched)
-    ) {
+    if (touched !== null && this.shouldSkipEntry(entry.query, touched)) {
       return;
     }
     const next = evaluateQuery(entry.query, store);

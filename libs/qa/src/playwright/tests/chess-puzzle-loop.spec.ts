@@ -32,7 +32,9 @@ test('chess puzzle loop: solve puzzles, elo summary, stats', async ({
     app.chess.openChessPuzzle()
   );
 
-  const eloBefore = await page.getByTestId('chess-puzzle-player-elo').textContent();
+  const eloBefore = await page
+    .getByTestId('chess-puzzle-player-elo')
+    .textContent();
 
   for (let i = 0; i < 2; i += 1) {
     await playwrightStep(log, `chess: solve puzzle ${i + 1}`, () =>

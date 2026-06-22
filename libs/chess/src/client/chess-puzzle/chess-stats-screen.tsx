@@ -4,7 +4,10 @@ import { Box, ScrollView, Text, useTheme } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 
-import { CHESS_SCREEN, SetChessMainMenuScreen } from '../../shared/chess-main-menu';
+import {
+  CHESS_SCREEN,
+  SetChessMainMenuScreen,
+} from '../../shared/chess-main-menu';
 import { ChessEloSparkline } from './chess-elo-sparkline';
 import { ChessGameLog } from './chess-game-log';
 import { ChessPuzzleEloChip } from './chess-puzzle-elo-chip';
@@ -27,7 +30,13 @@ export function ChessStatsScreen(): ReactNode {
       <DefineBackButton onPress={backToRoot} />
       <ScrollView sx={{ flex: 1, alignSelf: 'stretch' }}>
         <Box
-          sx={{ alignSelf: 'center', maxWidth: CONTENT_MAX_WIDTH, gap: 4, p: 4, pb: 8 }}
+          sx={{
+            alignSelf: 'center',
+            maxWidth: CONTENT_MAX_WIDTH,
+            gap: 4,
+            p: 4,
+            pb: 8,
+          }}
           style={{ width: '100%' }}
         >
           <Text

@@ -5,7 +5,10 @@ import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
 import { toAttributeState, type PatchDbQuery } from '../interface';
 import { hydrateInMemoryStoreFromSqlite } from '../react/hydrate-in-memory-store';
 import { InMemoryEntityStore } from '../react/in-memory-entity-store';
-import { setInMemoryStoreForDb, getInMemoryStoreForDb } from '../react/in-memory-store-registry';
+import {
+  setInMemoryStoreForDb,
+  getInMemoryStoreForDb,
+} from '../react/in-memory-store-registry';
 import { PatchDbQueryCache } from '../react/query-cache';
 import { PatchDbWriteThroughMirror } from '../react/write-through-mirror';
 import { SubscribablePatchDb } from '../subscribable';

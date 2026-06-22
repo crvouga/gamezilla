@@ -4,9 +4,10 @@ import { Animated } from 'react-native';
 
 const SLIDE_MS = 280;
 
-export function useSummaryOverlayAnimation(
-  completionKey: string
-): { fade: Animated.Value; slide: Animated.Value } {
+export function useSummaryOverlayAnimation(completionKey: string): {
+  fade: Animated.Value;
+  slide: Animated.Value;
+} {
   const slide = useRef(new Animated.Value(24)).current;
   const fade = useRef(new Animated.Value(0)).current;
 

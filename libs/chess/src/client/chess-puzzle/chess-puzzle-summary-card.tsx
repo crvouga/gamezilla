@@ -10,7 +10,11 @@ function outcomeLabel(outcome: PuzzleCompletion['outcome']): ReactNode {
   return <Trans>Puzzle abandoned</Trans>;
 }
 
-function SummaryMeta({ completion }: { completion: PuzzleCompletion }): ReactNode {
+function SummaryMeta({
+  completion,
+}: {
+  completion: PuzzleCompletion;
+}): ReactNode {
   const theme = useTheme();
   const streak = completion.streak;
   const puzzleRating = completion.puzzleRating;
@@ -65,7 +69,12 @@ export function ChessPuzzleSummaryCard({
       />
       <SummaryMeta completion={completion} />
       <Box sx={{ flexDirection: 'row', gap: 2 }}>
-        <Button flex={1} intent="neutral" title={<Trans>Retry</Trans>} onPress={onRetry} />
+        <Button
+          flex={1}
+          intent="neutral"
+          title={<Trans>Retry</Trans>}
+          onPress={onRetry}
+        />
         <Button
           flex={1}
           intent="primary"
