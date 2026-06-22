@@ -22,7 +22,8 @@ const SIM_DEVICE_TYPE = String(
   process.env['EXPO_DEV_SIM_DEVICE_TYPE'] ??
     'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro'
 );
-const SIM_RUNTIME_OVERRIDE = process.env['EXPO_DEV_SIM_RUNTIME']?.trim() || null;
+const SIM_RUNTIME_OVERRIDE =
+  process.env['EXPO_DEV_SIM_RUNTIME']?.trim() || null;
 
 type SimDevice = { udid: string; name: string; state: string };
 type SimRuntime = {
@@ -93,9 +94,7 @@ export function provisionDedicatedSim(): string {
     return existing.udid;
   }
   const runtime = SIM_RUNTIME_OVERRIDE ?? pickLatestIosRuntime();
-  log(
-    `Creating simulator "${SIM_NAME}" (${SIM_DEVICE_TYPE} on ${runtime})…`
-  );
+  log(`Creating simulator "${SIM_NAME}" (${SIM_DEVICE_TYPE} on ${runtime})…`);
   const udid = execFileSync(
     'xcrun',
     ['simctl', 'create', SIM_NAME, SIM_DEVICE_TYPE, runtime],
@@ -187,10 +186,7 @@ export function installDevClientOnSim(simName: string): void {
   }
 }
 
-export function ensureDevClientInstalled(
-  udid: string,
-  simName: string
-): void {
+export function ensureDevClientInstalled(udid: string, simName: string): void {
   if (isDevClientInstalled(udid)) {
     log(`Development build already installed on "${simName}".`);
     return;
@@ -208,10 +204,7 @@ export function devClientDeepLink(metroUrl: string): string {
   return `${APP_IDENTITY.urlScheme}://expo-development-client/?url=${encodeURIComponent(metroUrl)}`;
 }
 
-export function openDevClientOnSim(
-  udid: string,
-  metroUrl: string
-): void {
+export function openDevClientOnSim(udid: string, metroUrl: string): void {
   const url = devClientDeepLink(metroUrl);
   execFileSync('xcrun', ['simctl', 'openurl', udid, url], {
     stdio: 'inherit',
@@ -251,7 +244,6 @@ export async function autoOpenDedicatedSim(
 
 export function isAutoOpenIosEnabled(): boolean {
   return (
-    process.platform === 'darwin' &&
-    process.env['EXPO_DEV_AUTO_IOS'] !== '0'
+    process.platform === 'darwin' && process.env['EXPO_DEV_AUTO_IOS'] !== '0'
   );
 }
