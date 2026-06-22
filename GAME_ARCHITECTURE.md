@@ -283,7 +283,7 @@ const gameId = 'game-abc123';
 const playerId = 'player-1';
 
 const ws = new WebSocket(
-  `https://api.gamezilla.app/game/${gameId}/ws?playerId=${playerId}`
+  `https://www.gamezilla.app/api/room?spaceId=${spaceId}`
 );
 ```
 
@@ -655,25 +655,33 @@ setTimeout(() => {
 ## Wrangler Configuration
 
 ```toml
-name = "gamezilla-api"
+name = "gamezilla"
 main = "src/api.ts"
 compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat"]
 
-[observability]
-enabled = true
+[assets]
+directory = "../client/dist"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[[routes]]
+pattern = "gamezilla.app/*"
+zone_name = "gamezilla.app"
 
 [[durable_objects.bindings]]
-name = "GAME_ROOM"
-class_name = "GameRoom"
+name = "ROOM"
+class_name = "Room"
 
 [[migrations]]
 tag = "v1"
-new_sqlite_classes = ["GameRoom"]
+new_sqlite_classes = ["Room"]
 
 [vars]
 ENVIRONMENT = "production"
 ```
+
+Backend routes live under `/api/*` (health, auth, patch-db, stripe, tts, llm, room WebSocket). All other paths serve the client SPA from the `ASSETS` binding on `gamezilla.app` / `www.gamezilla.app`.
 
 ---
 
@@ -699,10 +707,8 @@ PlanetScale         Serverless MySQL
                     Clients never write directly — local first
                     Read replicas for global low-latency reads
 
-Local dev           Real local PostgreSQL 18 (`@pkgs/postgres`, binaries via embedded-postgres npm) + pgweb GUI + Bun API — no Docker, no system install
-                    Vault `dev` `DATABASE_URL` → `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`
-                    Pre-connected pgweb GUI auto-launches at `http://127.0.0.1:5555` (disable with `PG_GUI=off`).
-                    `bun run dev` (root) starts pg + api + client together; `db:migrate` once: `bun run --filter @apps/api db:migrate`
+Local dev           Hosted dev Postgres via Vault `personal/dev` `DATABASE_URL` (no local Postgres process)
+                    `bun run dev` starts api + client + dev-idp under `vault run`; `db:migrate`: `bun db:migrate`
 ```
 
 ### Scale estimates
@@ -718,46 +724,18 @@ Chess.com          500k-1M       ~$2,000-5,000
 
 Cloudflare Workers: 10M requests/month free, then $0.50/M. Durable Objects: first 1M requests free, $0.15/M after. PlanetScale: hobby tier free, scaler from $39/month.
 
-### Local Postgres (managed cluster)
+### Dev database (Vault `dev` only)
 
-`@pkgs/postgres` runs a real PostgreSQL 18 server in the foreground so Turbo's persistent-task lifecycle owns it, with [`pgweb`](https://github.com/sosedoff/pgweb) auto-launched as a sibling pre-connected GUI. The cluster binaries ship via the [`embedded-postgres`](https://github.com/leinelissen/embedded-postgres) npm package (hydrated by `bun install` — no system Postgres install). The wrapper:
+There is no local Postgres process. Development and CI use `DATABASE_URL` from Vault **`personal/dev`** (hosted dev Postgres). `bun run dev` and `bun db:migrate` run under `vault run` (`VAULT_CONFIG=dev` from `.vault.yaml`). `@apps/api` `setup` mirrors the Vault `dev` URL into `.dev.vars` for wrangler.
 
-- drives `embedded-postgres`, which spawns `postgres` directly inside our process group, so `SIGINT`/`SIGTERM` from the dev shell can never leave an orphaned cluster behind,
-- once the postmaster logs `database system is ready to accept connections`, spawns `pgweb` (also in the process group) pointed at the local DB URL — no manual connection step,
-- reconciles a stale `postmaster.pid` from a previous abrupt exit before starting,
-- on shutdown stops `pgweb` first, then fast-shuts-down the cluster and escalates to `SIGINT → SIGTERM → SIGKILL` on the recorded postmaster PID if that wedges,
-- writes its own `wrapper.pid` so `kill` only ever signals the cluster we manage (it will not terminate other Postgres servers that happen to bind the same port),
-- tees the postmaster log to `pkgs/postgres/.postgres/run/postgres.log` and pgweb's output to `pkgs/postgres/.postgres/run/pgweb.log`; both are forwarded to the terminal with `pg-server:` / `pg-gui:` prefixes,
-- treats GUI failures as non-fatal: missing `pgweb` binary or port collision logs a warning and the cluster keeps running.
+Production deploy (`bun run infra`, `VAULT_CONFIG=prd`) is the only path that uses Vault `prd` `DATABASE_URL`.
+
+Tiger-style guards in `@libs/infra/shared/database-url-policy` block loopback URLs, `VAULT_CONFIG=prd` in dev scripts, and URLs matching Vault `prd` `DATABASE_URL`. Opt out with `ALLOW_PRODUCTION_DATABASE_URL=1`.
 
 ```bash
-# From repo root — turbo dev launches @pkgs/postgres alongside the api + client.
 bun run dev
-
-# Or run just Postgres in this terminal (foreground; Ctrl-C to stop):
-bun run --filter @pkgs/postgres dev
-
-# Graceful stop (only signals our managed wrapper + cluster):
-bun run --filter @pkgs/postgres kill
-
-# Apply migrations against the running cluster:
-VAULT_CONFIG=dev vault run -- bun run --filter @apps/api db:migrate
+bun db:migrate
 ```
-
-Set Vault `dev` `DATABASE_URL` to match the server log (`postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`).
-
-Required tooling: only `pgweb` (the optional GUI), enforced by `bun run infra setup` / `status` via the `PgwebDep` class. The PostgreSQL 18 server binaries (`postgres`, `initdb`, `pg_ctl`) ship via the `embedded-postgres` npm package and are hydrated by `bun install` — no system Postgres install and no `PostgresDep`.
-
-| Platform | Postgres install            | pgweb install                                                            | Notes                                                                                    |
-| -------- | --------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| macOS    | bundled via npm (no action) | `brew install pgweb`                                                     | Postgres 18 binaries come from `@embedded-postgres/darwin-*`, hydrated by `bun install`. |
-| Linux    | bundled via npm (no action) | Download from https://github.com/sosedoff/pgweb/releases and put on PATH | Postgres 18 binaries come from `@embedded-postgres/linux-*`, hydrated by `bun install`.  |
-| Windows  | Run dev inside WSL2         | Install pgweb inside WSL2                                                | Native Windows is not exercised; run dev inside WSL2.                                    |
-
-Tunables (all optional, env-driven):
-
-- Cluster: `PG_HOST`, `PG_PORT`, `PG_DATA_DIR`, `PG_USER`, `PG_PASSWORD`, `PG_DATABASE`, `PG_LOCALE`, `PG_ENCODING`, `PG_SHUTDOWN_TIMEOUT_MS`.
-- GUI sidecar: `PG_GUI` (set to `off`/`0`/`false` to disable; default off in CI), `PG_GUI_HOST` (default `127.0.0.1`), `PG_GUI_PORT` (default `5555` — picked to sit next to the Postgres port and avoid Expo Web's `8081`), `PG_GUI_BIN` (force a specific `pgweb` binary).
 
 ---
 

@@ -12,7 +12,7 @@ export function apiUrlToRoomWebSocketUrl(
 ): string {
   const base = apiUrl.replace(/\/$/, '');
   const wsBase = base.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:');
-  const u = new URL(`${wsBase}/room`);
+  const u = new URL(`${wsBase}/api/room`);
   u.searchParams.set('topic', topic);
   u.searchParams.set('module', SPACE_ROOM_MODULE_NAME);
   if (sessionToken !== null && sessionToken.length > 0) {

@@ -14,23 +14,26 @@ export const DEFAULT_PUZZLE_URL =
   'https://database.lichess.org/lichess_db_puzzle.csv.zst';
 export const DEFAULT_CACHE_DIR = join(CHESS_PACKAGE_ROOT, '.cache', 'lichess');
 
-export const DEFAULT_BATCH_SIZE = 1000;
-export const DEFAULT_PACE_MS = 250;
-export const DEFAULT_CHECKPOINT_EVERY = 25;
-export const DEFAULT_PROGRESS_EVERY = 10;
+export const DEFAULT_BATCH_SIZE = 2000;
+export const DEFAULT_PACE_MS = 0;
+export const DEFAULT_CHECKPOINT_EVERY = 0;
+export const DEFAULT_PROGRESS_EVERY = 50;
 /** Drop chess-puzzle snapshot secondary indexes before bulk insert. */
-export const DEFAULT_DEFER_INDEXES = false;
+export const DEFAULT_DEFER_INDEXES = true;
+
+export type ProfileName = 'auto' | 'fast' | 'managed';
 
 export type Cli = {
   source: string;
   cacheDir: string;
+  profile: ProfileName;
   batchSize: number;
   limit: number | null;
   noResume: boolean;
   dryRun: boolean;
   /** Sleep after each batch flush (ms) so autovacuum / WAL writer keep up. */
   paceMs: number;
-  /** Issue `CHECKPOINT` + lightweight `VACUUM ANALYZE` every N batches. */
+  /** Issue `CHECKPOINT` + lightweight `VACUUM ANALYZE` every N batches (0 = off). */
   checkpointEvery: number;
   /** Persist the resume cursor every N batches instead of every batch. */
   progressEvery: number;
@@ -40,7 +43,31 @@ export type Cli = {
   deferIndexes: boolean;
   /** Colored stderr progress + concise phases (vs JSON lines). */
   prettyOutput: boolean;
+  /** Flags explicitly passed on the command line (for profile merge). */
+  explicitTuning: ReadonlySet<string>;
 };
+
+const TUNING_FLAGS = [
+  '--batch-size',
+  '--pace-ms',
+  '--checkpoint-every',
+  '--progress-every',
+  '--rebuild-indexes',
+  '--defer-indexes',
+  '--no-defer-indexes',
+] as const;
+
+function collectExplicitTuning(argv: string[]): ReadonlySet<string> {
+  const explicit = new Set<string>();
+  for (const arg of argv) {
+    for (const flag of TUNING_FLAGS) {
+      if (arg === flag || arg.startsWith(`${flag}=`)) {
+        explicit.add(flag);
+      }
+    }
+  }
+  return explicit;
+}
 
 function parsePositiveIntFlag(
   raw: unknown,
@@ -80,6 +107,15 @@ function parseLimitFlag(raw: unknown): number | null {
   return n;
 }
 
+function parseProfileFlag(raw: unknown): ProfileName {
+  const text = typeof raw === 'string' ? raw.trim() : '';
+  if (text === '' || text === 'auto') return 'auto';
+  if (text === 'fast' || text === 'managed') return text;
+  throw new Error(
+    `Invalid --profile: ${String(raw)} (must be auto, fast, or managed)`
+  );
+}
+
 function resolvePrettyOutput(values: Record<string, unknown>): boolean {
   if (values['json'] === true) return false;
   if (values['no-pretty'] === true) return false;
@@ -102,13 +138,15 @@ export function parseCli(argv: string[]): Cli {
     options: {
       source: { type: 'string' },
       'cache-dir': { type: 'string' },
+      profile: { type: 'string' },
       'batch-size': { type: 'string' },
       limit: { type: 'string' },
       'pace-ms': { type: 'string' },
       'checkpoint-every': { type: 'string' },
       'progress-every': { type: 'string' },
       'rebuild-indexes': { type: 'boolean', default: false },
-      'defer-indexes': { type: 'boolean', default: DEFAULT_DEFER_INDEXES },
+      'defer-indexes': { type: 'boolean', default: false },
+      'no-defer-indexes': { type: 'boolean', default: false },
       'no-resume': { type: 'boolean', default: false },
       'dry-run': { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
@@ -119,9 +157,18 @@ export function parseCli(argv: string[]): Cli {
     allowPositionals: false,
   });
 
+  const explicitTuning = collectExplicitTuning(argv);
+  const deferIndexes =
+    values['no-defer-indexes'] === true
+      ? false
+      : values['defer-indexes'] === true
+        ? true
+        : DEFAULT_DEFER_INDEXES;
+
   return {
     source: readStringFlag(values.source, DEFAULT_PUZZLE_URL),
     cacheDir: readStringFlag(values['cache-dir'], DEFAULT_CACHE_DIR),
+    profile: parseProfileFlag(values.profile),
     batchSize: parsePositiveIntFlag(
       values['batch-size'],
       '--batch-size',
@@ -135,7 +182,7 @@ export function parseCli(argv: string[]): Cli {
       '--pace-ms',
       DEFAULT_PACE_MS
     ),
-    checkpointEvery: parsePositiveIntFlag(
+    checkpointEvery: parseNonNegativeIntFlag(
       values['checkpoint-every'],
       '--checkpoint-every',
       DEFAULT_CHECKPOINT_EVERY
@@ -146,7 +193,8 @@ export function parseCli(argv: string[]): Cli {
       DEFAULT_PROGRESS_EVERY
     ),
     rebuildIndexes: values['rebuild-indexes'] === true,
-    deferIndexes: values['defer-indexes'] === true,
+    deferIndexes,
     prettyOutput: resolvePrettyOutput(values as Record<string, unknown>),
+    explicitTuning,
   };
 }

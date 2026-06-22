@@ -36,6 +36,11 @@ export type CreateTtsAppOptions = {
   readonly provider: TtsProvider;
   readonly objectStore: ObjectStore;
   readonly requireAuth: TtsRequireAuth;
+  /**
+   * Public URL prefix where the parent mounts this sub-app (e.g. `/api`).
+   * Used when building root-relative audio URLs in synthesize responses.
+   */
+  readonly publicPathPrefix?: string;
 };
 
 type ParsedSynthesizeBody =
@@ -141,8 +146,13 @@ function parseSynthesizeBody(raw: unknown): ParsedSynthesizeBody {
  * custom domain even when serving on `127.0.0.1`. The client knows its real
  * `apiUrl` and resolves the absolute URL itself in `TtsClient.synthesize`.
  */
-function buildAudioPath(hash: string, format: TtsAudioFormat): string {
-  return `/tts/audio/${hash}.${format}`;
+function buildAudioPath(
+  hash: string,
+  format: TtsAudioFormat,
+  publicPathPrefix = ''
+): string {
+  const prefix = publicPathPrefix.replace(/\/+$/, '');
+  return `${prefix}/tts/audio/${hash}.${format}`;
 }
 
 function audioCacheHeaders(contentType: string): Record<string, string> {
@@ -175,7 +185,7 @@ function audioCacheHeaders(contentType: string): Record<string, string> {
  * never declares Worker bindings of its own.
  */
 export function createTtsApp(options: CreateTtsAppOptions) {
-  const { provider, objectStore, requireAuth } = options;
+  const { provider, objectStore, requireAuth, publicPathPrefix = '' } = options;
 
   return new Hono()
     .post('/tts/synthesize', async (c) => {
@@ -197,7 +207,7 @@ export function createTtsApp(options: CreateTtsAppOptions) {
           }
         );
         const body: TtsSynthesizeResponse = {
-          url: buildAudioPath(result.hash, parsed.format),
+          url: buildAudioPath(result.hash, parsed.format, publicPathPrefix),
           hash: result.hash,
           contentType: result.contentType,
           cached: result.cached,

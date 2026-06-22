@@ -51,7 +51,6 @@ type PageState = {
   entities: Entity[];
   offset: number;
   hasMore: boolean;
-  total: number;
   fetchPage: (start: number, append: boolean) => Promise<void>;
 };
 
@@ -64,7 +63,6 @@ function useEntityPager(entityType: string): PageState {
   const [entities, setEntities] = useState<Entity[]>([]);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
-  const [total, setTotal] = useState(0);
 
   const fetchPage = useCallback(
     async (startOffset: number, append: boolean) => {
@@ -80,7 +78,6 @@ function useEntityPager(entityType: string): PageState {
           setError(t`Empty read result`);
           return;
         }
-        setTotal(result.total);
         setHasMore(result.hasMore);
         setOffset(startOffset + result.entities.length);
         setEntities((prev) =>
@@ -109,7 +106,6 @@ function useEntityPager(entityType: string): PageState {
     entities,
     offset,
     hasMore,
-    total,
     fetchPage,
   };
 }
@@ -117,13 +113,11 @@ function useEntityPager(entityType: string): PageState {
 function FilterBar({
   search,
   setSearch,
-  total,
   loaded,
   shown,
 }: {
   search: string;
   setSearch: (v: string) => void;
-  total: number;
   loaded: number;
   shown: number;
 }) {
@@ -151,7 +145,7 @@ function FilterBar({
       <Text
         variant="caption"
         style={{ color: theme.colors.textSecondary }}
-        label={t`${total} total · ${loaded} loaded · ${shown} shown`}
+        label={t`${loaded} loaded · ${shown} shown`}
       />
     </Stack>
   );
@@ -188,14 +182,14 @@ function EntityCard({
 
 function EntityList({
   filtered,
-  total,
+  loaded,
   hasMore,
   loadingMore,
   onLoadMore,
   onSelectEntity,
 }: {
   filtered: Entity[];
-  total: number;
+  loaded: number;
   hasMore: boolean;
   loadingMore: boolean;
   onLoadMore: () => void;
@@ -219,7 +213,7 @@ function EntityList({
         <EmptyState
           variant="compact"
           title={
-            total === 0
+            loaded === 0
               ? t`No entities for this type.`
               : t`No rows match filter.`
           }
@@ -269,7 +263,6 @@ export function EntitiesScreen({
       <FilterBar
         search={search}
         setSearch={setSearch}
-        total={pager.total}
         loaded={pager.entities.length}
         shown={filtered.length}
       />
@@ -287,7 +280,7 @@ export function EntitiesScreen({
       ) : (
         <EntityList
           filtered={filtered}
-          total={pager.entities.length}
+          loaded={pager.entities.length}
           hasMore={pager.hasMore}
           loadingMore={pager.loadingMore}
           onLoadMore={onLoadMore}

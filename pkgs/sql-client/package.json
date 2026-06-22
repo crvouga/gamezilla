@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@jlongster/sql.js": "catalog:",
-    "@neondatabase/serverless": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/pub-sub": "workspace:*",
     "@pkgs/sqlite": "workspace:*",

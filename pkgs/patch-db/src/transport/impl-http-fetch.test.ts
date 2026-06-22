@@ -56,7 +56,6 @@ class StubHost implements PatchDbSyncHost {
           },
         ],
         patches: [],
-        total: 1,
         hasMore: false,
         nextCursor: null,
       };

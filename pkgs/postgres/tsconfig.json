@@ -1,9 +1,0 @@
-{
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "types": ["@types/bun"]
-  },
-  "include": ["../ts-reset/src/index.ts", "./src/**/*.ts", "./src/**/*.d.ts"],
-  "exclude": ["node_modules"]
-}

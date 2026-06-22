@@ -112,7 +112,10 @@ export class TtsClient {
     };
     if (req.signal !== undefined) init.signal = req.signal;
 
-    const response = await this.fetchFn(`${this.base}/tts/synthesize`, init);
+    const response = await this.fetchFn(
+      `${this.base}/api/tts/synthesize`,
+      init
+    );
     if (!response.ok) {
       const detail = await response.text().catch(() => '');
       throw new TtsClientError(
@@ -153,6 +156,13 @@ export class TtsClient {
    */
   private absolutize(url: string): string {
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
-    return `${this.base}${url.startsWith('/') ? url : `/${url}`}`;
+    const path = url.startsWith('/') ? url : `/${url}`;
+    if (path.startsWith('/api/')) {
+      return `${this.base}${path}`;
+    }
+    if (path.startsWith('/tts/')) {
+      return `${this.base}/api${path}`;
+    }
+    return `${this.base}${path}`;
   }
 }

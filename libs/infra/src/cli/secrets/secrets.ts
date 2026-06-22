@@ -4,21 +4,19 @@ import {
 } from '@pkgs/vault/vault-yaml';
 import { REPO_ROOT } from '../paths';
 import { runCapture } from '../subprocess';
-import { ApiUrl } from './api-url';
-import {
-  B2ApplicationKey,
-  B2ApplicationKeyId,
-  B2BucketName,
-  B2S3Endpoint,
-  B2S3Region,
-} from './b2-credentials';
-import { BetterAuthAppName } from './better-auth-app-name';
-import { BetterAuthSecret } from './better-auth-secret';
 import { CfAccountId } from './cf-account-id';
 import { CfApiToken } from './cf-api-token';
+import {
+  S3AccessKeyId,
+  S3Bucket,
+  S3Endpoint,
+  S3Region,
+  S3SecretAccessKey,
+} from './s3-credentials';
+import { BetterAuthAppName } from './better-auth-app-name';
+import { BetterAuthSecret } from './better-auth-secret';
 import { DbUrl } from './db-url';
 import { ExpoToken } from './expo-token';
-import { PsServiceToken, PsServiceTokenId } from './ps-credentials';
 import { StripeSecretKey } from './stripe-secret-key';
 import { StripeWebhookSecret } from './stripe-webhook-secret';
 import {
@@ -38,10 +36,7 @@ export type { SecretEntry } from './types';
 const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new CfApiToken(),
   new CfAccountId(),
-  new PsServiceTokenId(),
-  new PsServiceToken(),
   new DbUrl(),
-  new ApiUrl(),
   new BetterAuthSecret(),
   new BetterAuthAppName(),
   new WebClientGoogleClientId(),
@@ -54,11 +49,11 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new TurboCache(),
   new TurboLogOrder(),
   new ExpoToken(),
-  new B2ApplicationKeyId(),
-  new B2ApplicationKey(),
-  new B2BucketName(),
-  new B2S3Endpoint(),
-  new B2S3Region(),
+  new S3AccessKeyId(),
+  new S3SecretAccessKey(),
+  new S3Bucket(),
+  new S3Endpoint(),
+  new S3Region(),
 ];
 
 type VaultCoords = {
@@ -207,10 +202,17 @@ export function loadSecretsIntoEnv(): Array<{
   for (const entry of SECRET_MAP) {
     const { secretKey, env } = entry;
     const optional = entry.optional === true;
-    try {
-      const value = fetchVaultSecret(secretKey);
-      process.env[env] = value;
+
+    const existing = process.env[env];
+    if (typeof existing === 'string' && existing.trim().length > 0) {
       results.push({ env, set: true, optional });
+      continue;
+    }
+
+    try {
+      const value = fetchVaultSecret(secretKey).trim();
+      process.env[env] = value;
+      results.push({ env, set: value.length > 0, optional });
     } catch {
       results.push({ env, set: false, optional });
     }

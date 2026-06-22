@@ -12,6 +12,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@libs/client-config": "workspace:*",
     "@libs/stripe": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/vault": "workspace:*",

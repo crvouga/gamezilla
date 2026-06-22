@@ -11,6 +11,7 @@ import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
+import { openSpaceDetail } from '../space-routes';
 
 export type SpaceCardOpenLinkProps = {
   spaceId: string;
@@ -55,9 +56,7 @@ export function SpaceCardOpenLink({
     accessibilityLabelOverride ?? t`Open space ${resolvedTitle}`;
   return (
     <Pressable
-      onPress={() =>
-        router.push({ pathname: '/space/[id]', params: { id: spaceId } })
-      }
+      onPress={() => openSpaceDetail(router, spaceId)}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       style={style}

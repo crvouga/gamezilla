@@ -5,9 +5,8 @@
  * etc.) so there is nothing to protect. Hard-coding them keeps the whole
  * package independent of any infra plumbing (Vault / env / wrangler).
  *
- * The dev IdP is **its own process**, the same way `@pkgs/postgres` ships
- * a real Postgres cluster and `@libs/stripe-cli` shells out to the Stripe
- * CLI. The default origin below is what every consumer (Better Auth's
+ * The dev IdP is **its own process**, the same way `@libs/stripe-cli` shells out to the
+ * Stripe CLI. The default origin below is what every consumer (Better Auth's
  * generic-oauth provider, the API worker, Playwright) treats as the IdP
  * authority during local development.
  */
@@ -34,8 +33,7 @@ export const DEV_IDP_PATH_PREFIX = '/dev-idp';
 
 /**
  * Default TCP port for the standalone dev IdP HTTP server. Picked to sit
- * adjacent to Postgres (5432) / pgweb (5555) in the developer's mental
- * port map. IANA unassigned and not used by any common dev tool.
+ * adjacent to common dev ports in the developer's mental port map.
  */
 export const DEV_IDP_DEFAULT_PORT = 5556;
 

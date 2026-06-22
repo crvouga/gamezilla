@@ -237,23 +237,26 @@ jobs:
         with:
           path: libs/qa/playwright-report/
 
-  # Pre-deploy native launch gate. The web `qa-browser` job builds a
+  # Pre-deploy client release gates. The web `qa-browser` job builds a
   # PRODUCTION web export (`__DEV__ === false`), so it structurally cannot
   # catch the Expo Go OTA white-screen, which is a startup crash in a
   # DEV-mode bundle (`__DEV__ === true` -> the `getApiBaseUrl` Tiger guard
   # in apps/client/src/config/api-servers.ts throws on first render). This
   # job reproduces it with the SAME build commands the release uses:
   #
-  #  1. native:bundle -> `@apps/client qa:export:native` = `bun run prebuild`
-  #     + `expo export --platform android ios` (the Metro bundling step
-  #     `eas update` performs), asserting the native JS bundles export
-  #     without import/resolution errors.
+  #  1. native:bundle -> production web + native export smoke:
+  #     - `production-web-bundle.test.ts` runs `expo export -p web` with the
+  #       production API origin and scans JS bundles for an inlined loopback
+  #       `EXPO_PUBLIC_API_URL` (the misconfig that shipped localhost:5173).
+  #     - `bundle-smoke.test.ts` runs `qa:export:native` (the Metro step
+  #       `eas update` performs) and applies the same API URL scan.
   #  2. native:launch -> `expo export --platform web --dev` served to
   #     Chromium, asserting `app-root` mounts with no uncaught startup error.
   #
-  # `deploy` needs this, so a non-launching bundle blocks the OTA publish.
-  # Named `qa-native` (not `qa-mobile-launch`) so future device/emulator
-  # native e2e grows under the same job + `libs/qa/src/native/` tree.
+  # `deploy` needs this, so a non-launching bundle or loopback API URL blocks
+  # the Worker deploy + OTA publish. `infra deploy` also re-runs the bundle
+  # scanners immediately before shipping web assets and asserts production env
+  # before `eas update`.
   qa-native:
     runs-on: ubuntu-latest
     concurrency:
@@ -265,10 +268,10 @@ jobs:
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
 
-      # Native (ios + android) bundle smoke: the exact `expo export` Metro
-      # bundling `eas update` runs. No browser needed for this step.
+      # Production client bundle gates (web export + native export): refuse to
+      # ship when Metro inlined a loopback `EXPO_PUBLIC_API_URL`.
       - uses: ./.github/actions/vault-auth
-      - name: Native bundle export smoke
+      - name: Production client bundle API URL gate
         run: bun run --filter '@libs/qa' native:bundle
 
       # Chromium for the dev-mode web launch test (same caching strategy as

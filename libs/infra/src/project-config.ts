@@ -5,10 +5,23 @@ export const PROJECT_CONFIG = {
     repo: 'gamezilla',
   },
   cloudflare: {
-    /** Worker name — must match `apps/api/wrangler.toml` `name`. */
-    apiWorker: 'gamezilla-api',
+    /** Worker name — must match `[env.production].name` in `apps/api/wrangler.toml`. */
+    apiWorker: 'gamezilla',
+    /** Retired Workers removed on every deploy by `ensure-destroyed`. */
+    legacyWorkers: ['gamezilla-api', 'gamezilla-production'] as const,
+    /** Retired Cloudflare Pages project (web client was split out pre-unified Worker). */
+    legacyPagesProject: 'gamezilla-client',
   },
-  /** Backblaze B2 object storage — bucket and keys are externally managed. */
+  postgres: {
+    /** Schema owned by this app inside the shared Postgres database. */
+    schema: 'gamezilla',
+    /**
+     * Hostnames that must never appear when `VAULT_CONFIG !== 'prd'`.
+     * Primary prod detection is dual-fetch against Vault `prd` `DATABASE_URL`.
+     */
+    productionHostnames: [] as const,
+  },
+  /** S3-compatible object storage — bucket and credentials are externally managed. */
   objectStore: {
     /** Key prefix enforced on every remote object-store write. */
     namespace: 'gamezilla',

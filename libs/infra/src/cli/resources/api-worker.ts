@@ -1,30 +1,27 @@
 import { assert } from '@pkgs/assert';
-import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
+import { COMMIT_HASH_HEX_REGEX, assertCommitDateIso } from '@pkgs/git';
 import { VaultCli } from '@pkgs/vault';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { PROJECT_CONFIG } from '../../project-config';
 import {
   assertExpoTokenPresent,
   publishClientEasUpdate,
   resolveEasProfile,
   resolveEasProfileWithNotice,
 } from '../lib/eas-mobile';
+import {
+  deleteProductionWorker,
+  isDoMigrationStateError,
+  readLatestWranglerLogTail,
+} from '../lib/cloudflare-worker-lifecycle';
 import { ok, warn } from '../lib/fmt';
 import { productionOrigin } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId } from '../secrets/cloudflare';
-import {
-  runAsync,
-  runCapture,
-  runCaptureAsync,
-  runSafe,
-  type SpawnResult,
-} from '../subprocess';
+import { runAsync, runCapture, runCaptureAsync } from '../subprocess';
 import { ResourceBase, type InfraContext } from './types';
 
-const NOT_FOUND_CODES = [10000, 10007, 10090];
 const WRANGLER_ENV = 'production';
 
 type VaultDeployConfig = {
@@ -133,21 +130,45 @@ function resolveCommitHash(): string {
   return commitHash;
 }
 
+function resolveCommitDate(): string {
+  const rawDate = runCapture('git', ['log', '-1', '--format=%cI', 'HEAD'], {
+    cwd: REPO_ROOT,
+  });
+  const commitDate = rawDate.trim();
+  assertCommitDateIso(commitDate);
+  return commitDate;
+}
+
 async function buildClientForWorker(
   platform: CiPlatform,
-  commitHash: string
+  commitHash: string,
+  commitDate: string
 ): Promise<void> {
   const clientDir = join(REPO_ROOT, 'apps/client');
   const apiUrl = productionOrigin();
+  const buildEnv: NodeJS.ProcessEnv = {
+    ...process.env,
+    EXPO_PUBLIC_API_URL: apiUrl,
+    EXPO_PUBLIC_COMMIT_HASH: commitHash,
+    EXPO_PUBLIC_COMMIT_DATE: commitDate,
+  };
+
+  await runAsync(platform, 'bun', ['run', 'check:production-env'], {
+    cwd: clientDir,
+    label: 'api-worker: production client build env gate',
+    env: buildEnv,
+  });
 
   await runAsync(platform, 'bun', ['run', 'build'], {
     cwd: clientDir,
     label: 'api-worker: expo export (client static assets)',
-    env: {
-      ...process.env,
-      EXPO_PUBLIC_API_URL: apiUrl,
-      EXPO_PUBLIC_COMMIT_HASH: commitHash,
-    },
+    env: buildEnv,
+  });
+
+  await runAsync(platform, 'bun', ['run', 'check:production-dist'], {
+    cwd: clientDir,
+    label: 'api-worker: production web dist API URL gate',
+    env: buildEnv,
   });
 }
 
@@ -166,8 +187,9 @@ export class ApiWorkerResource extends ResourceBase {
   async dryRun(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     await this.validateVaultForDeploy();
     const commitHash = resolveCommitHash();
+    const commitDate = resolveCommitDate();
 
-    await buildClientForWorker(platform, commitHash);
+    await buildClientForWorker(platform, commitHash, commitDate);
 
     const apiDir = join(REPO_ROOT, 'apps/api');
     try {
@@ -208,10 +230,11 @@ export class ApiWorkerResource extends ResourceBase {
     const apiDir = join(REPO_ROOT, 'apps/api');
     const env = wranglerEnv();
     const commitHash = resolveCommitHash();
+    const commitDate = resolveCommitDate();
 
     const vaultCfg = await this.validateVaultForDeploy();
 
-    await buildClientForWorker(platform, commitHash);
+    await buildClientForWorker(platform, commitHash, commitDate);
 
     const secretArgs = wranglerArgs('secret', 'put');
     await runCaptureAsync('wrangler', [...secretArgs, 'VAULT_TOKEN'], {
@@ -240,11 +263,7 @@ export class ApiWorkerResource extends ResourceBase {
     );
 
     try {
-      await runAsync(platform, 'wrangler', wranglerArgs('deploy'), {
-        cwd: apiDir,
-        env,
-        label: 'api-worker: Cloudflare Workers deploy (API + static assets)',
-      });
+      await deployProductionWorker(platform, apiDir, env);
     } finally {
       cleanupClientDist();
     }
@@ -278,25 +297,54 @@ export class ApiWorkerResource extends ResourceBase {
   }
 
   destroy(): void {
-    const apiDir = join(REPO_ROOT, 'apps/api');
-    const env: NodeJS.ProcessEnv = {
-      ...process.env,
-      CLOUDFLARE_ACCOUNT_ID: cfAccountId(),
-    };
-
-    const r = runSafe('wrangler', wranglerArgs('delete', '--force'), {
-      cwd: apiDir,
-      env,
-    });
-
-    if (r.exitCode === 0 || isNotFound(r)) {
-      ok('Worker deleted', PROJECT_CONFIG.cloudflare.apiWorker);
-    } else {
-      warn('Worker delete', r.stderr.trim() || 'unexpected failure');
-    }
+    deleteProductionWorker();
   }
 }
 
-function isNotFound(r: SpawnResult): boolean {
-  return NOT_FOUND_CODES.some((code) => r.stderr.includes(`[code: ${code}]`));
+/**
+ * Deploy the production Worker. If Cloudflare rejects the DO migration because
+ * an earlier deploy recorded migration tags without exporting the class (the
+ * pre-fix `[env.production]` gap), delete the script and retry once so
+ * migrations apply against a clean slate.
+ */
+async function deployProductionWorker(
+  platform: CiPlatform,
+  apiDir: string,
+  env: NodeJS.ProcessEnv
+): Promise<void> {
+  const deployArgs = wranglerArgs('deploy');
+  const label = 'api-worker: Cloudflare Workers deploy (API + static assets)';
+
+  let deployFailed = false;
+  try {
+    await runAsync(platform, 'wrangler', deployArgs, {
+      cwd: apiDir,
+      env,
+      label,
+    });
+  } catch {
+    deployFailed = true;
+  }
+  if (!deployFailed) return;
+
+  if (!isDoMigrationStateError(readLatestWranglerLogTail())) {
+    assert.fail(`${label} failed`);
+  }
+
+  warn(
+    'DO migration',
+    'script migration state is inconsistent with exports — deleting worker and redeploying'
+  );
+  platform.notice(
+    'Resetting the production Worker script (Durable Object storage is wiped). ' +
+      'This is a one-time recovery from deploys that ran before ROOM bindings ' +
+      'were wired into `[env.production]`.'
+  );
+  deleteProductionWorker();
+
+  await runAsync(platform, 'wrangler', deployArgs, {
+    cwd: apiDir,
+    env,
+    label,
+  });
 }

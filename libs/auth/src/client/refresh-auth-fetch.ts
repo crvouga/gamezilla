@@ -42,7 +42,7 @@ export async function refreshAuth(
     accountSessionExpiresAt,
   } = args;
   const base = apiUrl.replace(/\/$/, '');
-  const res = await fetch(`${base}/auth/refresh`, {
+  const res = await fetch(`${base}/api/auth/refresh`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${bearerToken}`,

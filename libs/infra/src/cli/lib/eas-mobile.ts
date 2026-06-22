@@ -1,10 +1,11 @@
 import { assert } from '@pkgs/assert';
-import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
+import { COMMIT_HASH_HEX_REGEX, assertCommitDateIso } from '@pkgs/git';
 import { join } from 'node:path';
 import type { CiPlatform } from '../platform/platform';
 import { REPO_ROOT } from '../paths';
 import { runAsync, runCapture } from '../subprocess';
 import { ok } from './fmt';
+import { productionOrigin } from './infra-outputs';
 
 /**
  * EAS profile / channel. `production` ships from a push to `main`;
@@ -68,6 +69,20 @@ function resolveCommitHash(): string {
   return commitHash;
 }
 
+function resolveCommitDate(): string {
+  const fromEnv = process.env['EXPO_PUBLIC_COMMIT_DATE']?.trim();
+  if (fromEnv !== undefined && fromEnv.length > 0) {
+    assertCommitDateIso(fromEnv);
+    return fromEnv;
+  }
+  const rawDate = runCapture('git', ['log', '-1', '--format=%cI', 'HEAD'], {
+    cwd: REPO_ROOT,
+  });
+  const commitDate = rawDate.trim();
+  assertCommitDateIso(commitDate);
+  return commitDate;
+}
+
 /**
  * Subprocess env for `eas`. `EXPO_TOKEN` authenticates the CLI; the
  * `EXPO_PUBLIC_*` vars are inlined into the OTA bundle by Metro during
@@ -77,10 +92,12 @@ function resolveCommitHash(): string {
  * opts the dev/Expo-Go bundle past the Tiger production-API guard
  * (see `apps/client/src/config/api-servers.ts`).
  */
-function easEnv(commitHash: string): NodeJS.ProcessEnv {
+function easEnv(commitHash: string, commitDate: string): NodeJS.ProcessEnv {
   return {
     ...process.env,
+    EXPO_PUBLIC_API_URL: productionOrigin(),
     EXPO_PUBLIC_COMMIT_HASH: commitHash,
+    EXPO_PUBLIC_COMMIT_DATE: commitDate,
     EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL: '1',
   };
 }
@@ -105,8 +122,15 @@ export async function publishClientEasUpdate(
 ): Promise<void> {
   assertExpoTokenPresent();
   const commitHash = resolveCommitHash();
+  const commitDate = resolveCommitDate();
   const cwd = clientDir();
-  const env = easEnv(commitHash);
+  const env = easEnv(commitHash, commitDate);
+
+  await runAsync(platform, 'bun', ['run', 'check:production-env'], {
+    cwd,
+    env,
+    label: 'eas update: production client build env gate',
+  });
 
   // Compile i18n + bundle the WASM workers before the OTA bundle. The
   // `eas-build-post-install` hook only runs on EAS Build workers, not for a
@@ -157,8 +181,9 @@ export async function buildAndSubmitClientNative(
 ): Promise<void> {
   assertExpoTokenPresent();
   const commitHash = resolveCommitHash();
+  const commitDate = resolveCommitDate();
   const cwd = clientDir();
-  const env = easEnv(commitHash);
+  const env = easEnv(commitHash, commitDate);
 
   const args = [
     'build',

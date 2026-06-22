@@ -39,7 +39,7 @@ function useMoreRows(): readonly MoreRow[] {
     },
     {
       title: t`About`,
-      caption: t`App version, build, and commit hash`,
+      caption: t`App version, build, commit hash, and commit date`,
       href: '/more/about' as Href,
     },
   ];

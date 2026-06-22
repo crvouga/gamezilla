@@ -9,8 +9,9 @@ import {
   assertTigerPolicyForResolvedApiOrigin,
   productionApiUrlTigerExceptionEnabled,
 } from '@apps/client/config/api-servers';
-import { COMMIT_HASH_HEX_REGEX } from '@apps/client/config/app-metadata';
+import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { assert } from '@pkgs/assert';
+import { assertCommitDateIso } from '@pkgs/git';
 import {
   createVaultSecretStoreForScripts,
   type SecretStore,
@@ -41,10 +42,7 @@ function trimStringOrNull(v: string | undefined): string | null {
 }
 
 function readApiOriginFromProcessEnv(): string | null {
-  return (
-    trimStringOrNull(process.env['EXPO_PUBLIC_API_URL']) ??
-    trimStringOrNull(process.env['API_URL'])
-  );
+  return trimStringOrNull(process.env['EXPO_PUBLIC_API_URL']);
 }
 
 function readLocalPreviewApiOriginFromProcessEnv(): string | null {
@@ -63,10 +61,6 @@ async function resolveApiOriginFromVault(
   )?.readSecretValue();
   if (typeof expo === 'string' && expo.trim().length > 0) {
     return expo.trim();
-  }
-  const api = (await store.getOptional('API_URL'))?.readSecretValue();
-  if (typeof api === 'string' && api.trim().length > 0) {
-    return api.trim();
   }
   return null;
 }
@@ -116,37 +110,39 @@ async function resolveExpoPublicApiUrl(): Promise<string> {
   const fromInjectedEnv = readApiOriginFromProcessEnv();
   if (fromInjectedEnv !== null) {
     process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_API_URL / API_URL from process env (e.g. vault run).\n'
+      '[setup-env] EXPO_PUBLIC_API_URL from process env (e.g. vault run).\n'
     );
     return applyProductionHostnameGuard(
       null,
       fromInjectedEnv,
-      'process env API URL'
+      'process env EXPO_PUBLIC_API_URL'
     );
   }
 
-  let store: SecretStore;
+  let store: SecretStore | null = null;
   try {
     store = createVaultStore();
   } catch {
-    process.stderr.write(
-      '[setup-env] Vault token missing. Set VAULT_TOKEN or run `vault login` so EXPO_PUBLIC_API_URL / API_URL can be read from Vault.\n'
+    process.stdout.write(
+      '[setup-env] Vault token missing; using local preview API origin.\n'
     );
-    process.exit(1);
+    return resolveLoopbackPreviewOrigin(null);
   }
 
   const fromVault = await resolveApiOriginFromVault(store);
   if (fromVault !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_API_URL / API_URL from Vault API.\n'
+    process.stdout.write('[setup-env] EXPO_PUBLIC_API_URL from Vault API.\n');
+    return applyProductionHostnameGuard(
+      store,
+      fromVault,
+      'Vault EXPO_PUBLIC_API_URL'
     );
-    return applyProductionHostnameGuard(store, fromVault, 'Vault API URL');
   }
 
-  process.stderr.write(
-    '[setup-env] Set EXPO_PUBLIC_API_URL or API_URL in Vault (local config).\n'
+  process.stdout.write(
+    '[setup-env] EXPO_PUBLIC_API_URL unset in env and Vault; using local preview API origin.\n'
   );
-  process.exit(1);
+  return resolveLoopbackPreviewOrigin(store);
 }
 
 function resolveExpoPublicCommitHash(): string {
@@ -180,6 +176,29 @@ function resolveExpoPublicCommitHash(): string {
   return normalized;
 }
 
+function resolveExpoPublicCommitDate(): string {
+  const v = process.env['EXPO_PUBLIC_COMMIT_DATE'];
+  if (typeof v === 'string' && v.trim().length > 0) {
+    const normalized = v.trim();
+    assertCommitDateIso(normalized);
+    return normalized;
+  }
+
+  let stdout = '';
+  assert.notThrows(() => {
+    stdout = execFileSync('git', ['log', '-1', '--format=%cI', 'HEAD'], {
+      cwd: clientRoot,
+      encoding: 'utf8',
+    });
+  }, 'EXPO_PUBLIC_COMMIT_DATE is required and git log -1 --format=%cI HEAD failed');
+  const normalized = stdout.trim();
+  assertCommitDateIso(normalized);
+  process.stdout.write(
+    `[setup-env] EXPO_PUBLIC_COMMIT_DATE unset; using git HEAD committer date ${normalized}\n`
+  );
+  return normalized;
+}
+
 async function main(): Promise<void> {
   const raw = await resolveExpoPublicApiUrl();
   let origin = '';
@@ -194,15 +213,17 @@ async function main(): Promise<void> {
   assertTigerPolicyForResolvedApiOrigin(origin, 'forbid-prod-on-this-machine');
 
   const commitHash = resolveExpoPublicCommitHash();
+  const commitDate = resolveExpoPublicCommitDate();
 
   const body =
     `EXPO_PUBLIC_API_URL=${JSON.stringify(origin)}\n` +
-    `EXPO_PUBLIC_COMMIT_HASH=${JSON.stringify(commitHash)}\n`;
+    `EXPO_PUBLIC_COMMIT_HASH=${JSON.stringify(commitHash)}\n` +
+    `EXPO_PUBLIC_COMMIT_DATE=${JSON.stringify(commitDate)}\n`;
   writeFileSync(tmpPath, body, { encoding: 'utf8' });
   renameSync(tmpPath, outPath);
 
   process.stdout.write(
-    `[setup-env] wrote .env.local with EXPO_PUBLIC_API_URL=${origin} EXPO_PUBLIC_COMMIT_HASH=${commitHash.slice(0, 7)}…\n`
+    `[setup-env] wrote .env.local with EXPO_PUBLIC_API_URL=${origin} EXPO_PUBLIC_COMMIT_HASH=${commitHash.slice(0, 7)}… EXPO_PUBLIC_COMMIT_DATE=${commitDate}\n`
   );
 }
 

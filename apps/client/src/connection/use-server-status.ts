@@ -58,7 +58,7 @@ async function fetchHealth(
 function useHealthUrl(apiUrl: string): string {
   return useMemo(() => {
     const base = apiUrl.replace(/\/+$/, '');
-    return `${base}/health`;
+    return `${base}/api/health`;
   }, [apiUrl]);
 }
 

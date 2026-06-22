@@ -7,7 +7,7 @@
  * (or Ctrl-C) are translated into a graceful `server.stop(true)` plus
  * `pg.Client.end()` before the process exits.
  *
- * Mirrors the lifecycle invariants of `@pkgs/postgres`:
+ * Mirrors the lifecycle invariants of other turbo persistent dev services:
  *   - The server is a direct child of the wrapper; on abnormal wrapper
  *     exit the OS sends SIGHUP to the group and the listener tears down.
  *   - Signal handler is single-flight + idempotent; double Ctrl-C does

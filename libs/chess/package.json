@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
+    "@libs/infra": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",

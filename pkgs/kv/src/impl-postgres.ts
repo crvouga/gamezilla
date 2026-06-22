@@ -101,6 +101,37 @@ async function migrateKvValueColumnToJsonbIfNeeded(
 }
 
 /**
+ * Legacy installs created `kv` without a `key` primary key (or with only NOT
+ * NULL). `ON CONFLICT (key)` requires a unique/PK target — add one idempotently.
+ * TRUNCATE first: rows without a PK are not safe to upsert anyway.
+ */
+async function ensureKvPrimaryKeyOnKeyColumn(
+  sqlClient: SqlClient,
+  log: Logger
+): Promise<void> {
+  const rows = await sqlClient.query<{ column_name: string }>(
+    `SELECT kcu.column_name
+     FROM information_schema.table_constraints tc
+     JOIN information_schema.key_column_usage kcu
+       ON tc.constraint_name = kcu.constraint_name
+      AND tc.table_schema = kcu.table_schema
+     WHERE tc.table_schema = current_schema()
+       AND tc.table_name = ?
+       AND tc.constraint_type IN ('PRIMARY KEY', 'UNIQUE')
+       AND kcu.column_name = 'key'`,
+    [TABLE]
+  );
+  assert.array(rows, 'kv migrate: key constraint query must return array');
+  if (rows.length > 0) return;
+  log.warn(
+    'kv postgres migrate: kv.key has no unique constraint — TRUNCATE + ADD PRIMARY KEY',
+    { table: TABLE }
+  );
+  await sqlClient.run(`TRUNCATE ${TABLE}`);
+  await sqlClient.run(`ALTER TABLE ${TABLE} ADD PRIMARY KEY (key)`);
+}
+
+/**
  * Brings an existing kv table up to the Redis-style optimized layout.
  * All operations are idempotent. The UNLOGGED conversion rewrites the heap
  * under ACCESS EXCLUSIVE — fast on tiny tables, disruptive on huge ones.
@@ -162,6 +193,9 @@ async function runKvPostgresMigrations(
   }
   await migrateKvLegacyUpdatedAtColumn(sqlClient, log);
   await migrateKvValueColumnToJsonbIfNeeded(sqlClient, log);
+  if (existing.length > 0) {
+    await ensureKvPrimaryKeyOnKeyColumn(sqlClient, log);
+  }
   await applyKvStorageOptimizations(sqlClient, log);
 }
 

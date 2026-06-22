@@ -4,8 +4,9 @@
  *
  * Run from monorepo root (`bun run dev` / turbo) so Vault project scope matches.
  */
-import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
+import { resolveLocalPreviewApiOrigin } from '@libs/client-config/shared/resolve-local-preview-api-origin';
 import { StripeSecretKeys } from '@libs/stripe/secret-keys';
+import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import { exitUnlessLocalApiUrl } from './api-url-guard';
 import { STRIPE_CLI_LOG_TAG } from './constants';
 import { exitUnlessDevVaultConfig, resolveVaultConfigName } from './vault-dev';
@@ -28,12 +29,11 @@ async function main(): Promise<void> {
   exitUnlessDevVaultConfig(vaultConfig);
 
   const secretStore = createVaultSecretStoreForScripts();
-  const [stripeKeyRaw, apiUrlRaw] = await Promise.all([
+  const [stripeKeyRaw, apiUrl] = await Promise.all([
     secretStore.getRequired(StripeSecretKeys.secretKey),
-    secretStore.getRequired('API_URL'),
+    resolveLocalPreviewApiOrigin(),
   ]);
   const stripeKey = stripeKeyRaw.readSecretValue().trim();
-  const apiUrl = apiUrlRaw.readSecretValue().trim();
   exitUnlessLocalApiUrl(apiUrl);
 
   await exitUnlessStripeCliWorks(repoRoot);

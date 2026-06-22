@@ -29,10 +29,9 @@ export type ApiWorkerEnv = {
    */
   API_URL?: string;
   /**
-   * Optional Postgres wire URL written into `.dev.vars` by `setup-dev-vars`
-   * when Playwright / turbo preview sets `DATABASE_URL` in the environment.
-   * Overrides Vault `DATABASE_URL` so `migrate-db` and the Worker hit the
-   * same embedded `@pkgs/postgres` cluster during QA preview.
+   * Optional Postgres wire URL written into `.dev.vars` by `setup-dev-vars`.
+   * Mirrors Vault `dev` `DATABASE_URL` so the Worker and `migrate-db` use the
+   * same hosted dev database during local preview / QA.
    */
   DATABASE_URL?: string;
   /** Room Durable Object namespace (one DO per topic). Omitted in unit tests. */

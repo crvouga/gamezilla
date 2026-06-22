@@ -2,6 +2,7 @@ import { assert } from '@pkgs/assert';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { assertWhereFragment } from '@pkgs/sql';
 import type { Entity, Patch, PatchDbQuery, PatchDbResult } from '../interface';
+import { hasMoreFromOverFetch, trimToRequestedLimit } from '../read-pagination';
 import { entityIdTypeOrWhere } from './entity-pair-or-sql';
 import { toEntity, toEntitySnapshotRowTrusted, toPatch } from './mappers';
 import {
@@ -50,25 +51,18 @@ async function readOnePatchesMode(
   const whereSQL = conditions.join(' AND ');
 
   const orderSQL = buildOrderSQL(query, 'ORDER BY p.patch_id ASC', 'p.');
-  const limit = buildLimitSQL(query);
+  const limit = buildLimitSQL(query, { overFetch: true });
 
-  const sql = `SELECT p.*, COUNT(*) OVER() AS total_count FROM patches p WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
+  const sql = `SELECT p.* FROM patches p WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
   const allParams = [...params, ...limit.params];
   assertWhereFragment(
     { sql, params: allParams },
     { context: 'sqlite.readOnePatchesMode' }
   );
-  const rows = await sqlClient.query<PatchRow & { total_count: number }>(
-    sql,
-    allParams
-  );
+  const rows = await sqlClient.query<PatchRow>(sql, allParams);
 
-  const total = rows.length > 0 ? Number(rows[0]!.total_count) : 0;
-  const patches = rows.map(toPatch);
-  const hasMore =
-    query.limit !== null && query.limit !== undefined
-      ? (query.offset ?? 0) + patches.length < total
-      : false;
+  const patches = trimToRequestedLimit(rows.map(toPatch), query);
+  const hasMore = hasMoreFromOverFetch(query, rows.length);
   const lastPatch = patches[patches.length - 1];
   const nextCursor =
     lastPatch !== null && lastPatch !== undefined ? lastPatch.patchId : null;
@@ -76,7 +70,7 @@ async function readOnePatchesMode(
   const entityKeysOrdered = computeOrderedEntityKeys(patches);
   const entities = await batchFetchSnapshots(sqlClient, entityKeysOrdered);
 
-  return { query, entities, patches, total, hasMore, nextCursor };
+  return { query, entities, patches, hasMore, nextCursor };
 }
 
 type PatchBasedFilter = { conditions: string[]; params: unknown[] };
@@ -180,7 +174,7 @@ async function readOnePatchBased(
   const defaultOrder =
     'ORDER BY p.entity_id ASC, p.entity_type ASC, p.lineage_depth ASC, p.patch_id ASC';
   const orderSQL = buildOrderSQL(query, defaultOrder, 'p.');
-  const limit = buildLimitSQL(query);
+  const limit = buildLimitSQL(query, { overFetch: true });
 
   const selectSql = `${LINEAGE_CTE},
 cand AS (
@@ -190,8 +184,7 @@ cand AS (
   JOIN lineage l ON p.patch_id = l.patch_id AND p.entity_id = l.entity_id AND p.entity_type = l.entity_type
   WHERE ${patchWhereSQL}${cursor.condition}
 )
-SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes, p.created_at, p.recorded_at, p.parent_id,
-       (SELECT COUNT(*) FROM cand) AS total_count
+SELECT p.patch_id, p.entity_id, p.entity_type, p.attributes, p.created_at, p.recorded_at, p.parent_id
 FROM cand p
 ${orderSQL}${limit.sql}`;
   const allParams = [...patchParams, ...cursor.params, ...limit.params];
@@ -200,20 +193,10 @@ ${orderSQL}${limit.sql}`;
     { context: 'sqlite.readOnePatchBased' }
   );
 
-  const rows = await sqlClient.query<PatchRow & { total_count: number }>(
-    selectSql,
-    allParams
-  );
+  const rows = await sqlClient.query<PatchRow>(selectSql, allParams);
 
-  const total = await resolvePatchBasedTotal(
-    sqlClient,
-    rows,
-    patchWhereSQL,
-    patchParams
-  );
-
-  const patches = rows.map(toPatch);
-  const hasMore = computeHasMore(query, patches.length, total);
+  const patches = trimToRequestedLimit(rows.map(toPatch), query);
+  const hasMore = hasMoreFromOverFetch(query, rows.length);
   const lastPatch = patches[patches.length - 1];
   const nextCursor =
     lastPatch !== null && lastPatch !== undefined ? lastPatch.patchId : null;
@@ -221,41 +204,7 @@ ${orderSQL}${limit.sql}`;
   const entityKeysOrdered = computeOrderedEntityKeys(patches);
   const entities = await batchFetchSnapshots(sqlClient, entityKeysOrdered);
 
-  return { query, entities, patches, total, hasMore, nextCursor };
-}
-
-async function resolvePatchBasedTotal(
-  sqlClient: SqlClient,
-  rows: readonly { total_count: number }[],
-  patchWhereSQL: string,
-  patchParams: readonly unknown[]
-): Promise<number> {
-  if (rows.length > 0) {
-    return Number(rows[0]!.total_count);
-  }
-  const countRows = await sqlClient.query<{ cnt: number }>(
-    `SELECT COUNT(*) as cnt FROM patches p WHERE ${patchWhereSQL}`,
-    [...patchParams]
-  );
-  return countRows[0]?.cnt ?? 0;
-}
-
-function computeHasMore(
-  query: PatchDbQuery,
-  patchesLength: number,
-  total: number
-): boolean {
-  if (query.after !== null && query.after !== undefined) {
-    return (
-      query.limit !== null &&
-      query.limit !== undefined &&
-      patchesLength >= query.limit
-    );
-  }
-  if (query.limit !== null && query.limit !== undefined) {
-    return (query.offset ?? 0) + patchesLength < total;
-  }
-  return false;
+  return { query, entities, patches, hasMore, nextCursor };
 }
 
 function computeOrderedEntityKeys(patches: readonly Patch[]): string[] {
@@ -279,29 +228,25 @@ async function readOneSnapshotBased(
   const whereSQL = conditions.join(' AND ');
 
   const orderSQL = buildOrderSQL(query, 'ORDER BY entity_id ASC');
-  const limit = buildLimitSQL(query);
+  const limit = buildLimitSQL(query, { overFetch: true });
 
-  const sql = `SELECT *, COUNT(*) OVER() AS total_count FROM snapshots WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
+  const sql = `SELECT * FROM snapshots WHERE ${whereSQL} ${orderSQL}${limit.sql}`;
   const allParams = [...params, ...limit.params];
   assertWhereFragment(
     { sql, params: allParams },
     { context: 'sqlite.readOneSnapshotBased' }
   );
-  const rows = await sqlClient.query<SnapshotRow & { total_count: number }>(
-    sql,
-    allParams
+  const rows = await sqlClient.query<SnapshotRow>(sql, allParams);
+
+  const entities = trimToRequestedLimit(rows.map(toEntity), query);
+  const hasMore = hasMoreFromOverFetch(query, rows.length);
+
+  const patches = await batchFetchPatchesForEntities(
+    sqlClient,
+    entities.map((e) => ({ entity_id: e.entityId, entity_type: e.entityType }))
   );
 
-  const total = rows.length > 0 ? Number(rows[0]!.total_count) : 0;
-  const entities = rows.map(toEntity);
-  const hasMore =
-    query.limit !== null && query.limit !== undefined
-      ? (query.offset ?? 0) + entities.length < total
-      : false;
-
-  const patches = await batchFetchPatchesForEntities(sqlClient, rows);
-
-  return { query, entities, patches, total, hasMore, nextCursor: null };
+  return { query, entities, patches, hasMore, nextCursor: null };
 }
 
 /**

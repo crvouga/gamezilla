@@ -22,6 +22,7 @@ import {
   KindAttr,
   type MmHarness,
   NameAttr,
+  pauseForJoinedAtOrdering,
   RatingAttr,
   RegionAttr,
   registerTestCrashHandler,
@@ -992,6 +993,9 @@ describe('Matchmaking - group matching (groupSize)', () => {
   test('groupSize: 4 with 5 candidates - groups the oldest four, leaves one waiting', async () => {
     const ids = [];
     for (let i = 0; i < 5; i += 1) {
+      if (i > 0) {
+        await pauseForJoinedAtOrdering();
+      }
       const r = await h.mm.join({
         data: RatingAttr(1000 + i * 2),
         formulas: [SimpleFormula],
@@ -1233,11 +1237,13 @@ describe('Matchmaking - priority', () => {
         },
       ],
     });
+    await pauseForJoinedAtOrdering();
     const b = await h.mm.join({
       data: RatingAttr(1005),
       formulas: [SimpleFormula],
       priority: 100,
     });
+    await pauseForJoinedAtOrdering();
     const c = await h.mm.join({
       data: RatingAttr(1010),
       formulas: [SimpleFormula],
@@ -1255,11 +1261,13 @@ describe('Matchmaking - priority', () => {
       formulas: [SimpleFormula],
       priority: 0,
     });
+    await pauseForJoinedAtOrdering();
     const second = await h.mm.join({
       data: RatingAttr(1005),
       formulas: [SimpleFormula],
       priority: 0,
     });
+    await pauseForJoinedAtOrdering();
     const third = await h.mm.join({
       data: RatingAttr(1010),
       formulas: [SimpleFormula],
@@ -1477,8 +1485,7 @@ describe('Matchmaking - updateFormulas', () => {
       data: RatingAttr(1000),
       formulas: [SimpleFormula],
     });
-    // small wall-clock gap so joined_at differs measurably
-    await new Promise<void>((r) => setTimeout(r, 5));
+    await pauseForJoinedAtOrdering();
     const second = await h.mm.join({
       data: RatingAttr(1005),
       formulas: [SimpleFormula],

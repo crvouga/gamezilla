@@ -1,4 +1,4 @@
-name = "gamezilla-api"
+name = "gamezilla"
 main = "src/api.ts"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat", "no_handle_cross_request_promise_resolution"]
@@ -56,25 +56,30 @@ invocation_logs = true
 # export from `apps/client/dist` and binds custom domains on the apex + www
 # hostnames. `run_worker_first` invokes this Worker only for API paths; all
 # other requests are served from the assets binding (SPA fallback).
+#
+# Without `name` here wrangler would publish as `gamezilla-production`.
+# `durable_objects` / `migrations` are not inherited by named environments —
+# duplicate them here so production deploy keeps ROOM bindings + DO migrations.
 [env.production]
+name = "gamezilla"
 routes = [
   { pattern = "gamezilla.app", custom_domain = true },
   { pattern = "www.gamezilla.app", custom_domain = true },
 ]
 
+[[env.production.durable_objects.bindings]]
+name = "ROOM"
+class_name = "Room"
+
+# Production uses a single migration — the historical v1–v5 chain only exists at
+# the top level for local `wrangler dev`. DO state is not preserved across deploys
+# (see comments on `[[migrations]]` above).
+[[env.production.migrations]]
+tag = "v1-unified-worker-room"
+new_sqlite_classes = ["Room"]
+
 [env.production.assets]
 directory = "../client/dist"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
-run_worker_first = [
-  "/api/*",
-  "/auth/*",
-  "/patch-db/*",
-  "/health",
-  "/room",
-  "/matchmaking/*",
-  "/stripe/*",
-  "/client-config/*",
-  "/llm/*",
-  "/tts/*",
-]
+run_worker_first = ["/api/*"]

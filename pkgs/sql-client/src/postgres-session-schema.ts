@@ -26,15 +26,42 @@ export interface PgQueryable {
 }
 
 /**
+ * PgBouncer / Neon pooler endpoints reject libpq startup `options` (including
+ * `-c search_path=…`). Callers must pin the schema with
+ * {@link setPgSessionSchema} after the session is established.
+ */
+export function postgresRejectsStartupSearchPathOption(
+  connectionString: string
+): boolean {
+  try {
+    const url = new URL(connectionString);
+    if (url.protocol !== 'postgres:' && url.protocol !== 'postgresql:') {
+      return false;
+    }
+    const host = url.hostname.toLowerCase();
+    return host.includes('-pooler') || host.includes('.pooler.');
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Adds the startup `options=-c search_path=<schema>` parameter to a Postgres
  * connection string. PostgreSQL applies it per physical connection, so every
  * connection in a pool resolves unqualified names to the scope's schema with
  * no setup race. TLS sanitizing is left to the caller (drivers differ).
+ *
+ * When {@link postgresRejectsStartupSearchPathOption} is true the URL is
+ * returned unchanged — the caller must run {@link setPgSessionSchema} after
+ * connect (see {@link SqlClientImplBunPostgres}).
  */
 export function withPostgresSearchPathOption(
   connectionString: string,
   dbScope: PostgresDbScope
 ): string {
+  if (postgresRejectsStartupSearchPathOption(connectionString)) {
+    return connectionString;
+  }
   try {
     const url = new URL(connectionString);
     url.searchParams.set('options', `-c search_path=${dbScope.schema}`);

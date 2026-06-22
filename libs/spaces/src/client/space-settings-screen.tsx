@@ -7,12 +7,16 @@ import {
   type MainMenuItem,
 } from '@pkgs/ui';
 import * as Clipboard from 'expo-clipboard';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 
 import { RenameSpaceModal } from './active-space/rename-space-modal';
 import { useSpaceLifecycleModals } from './lifecycle/space-lifecycle-modal-provider';
+import {
+  useSpaceRouteId,
+  useStripRedundantSpaceRouteSearchParams,
+} from './space-routes';
 import { useCurrentSpaceRole } from './use-current-space-role';
 
 function buildInviteLinkForSpace(spaceId: string): string {
@@ -33,8 +37,8 @@ function buildInviteLinkForSpace(spaceId: string): string {
 export function SpaceSettingsScreen(): ReactNode {
   const { t } = useLingui();
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const spaceId = typeof id === 'string' ? id : '';
+  const spaceId = useSpaceRouteId();
+  useStripRedundantSpaceRouteSearchParams(spaceId);
   const role = useCurrentSpaceRole(spaceId);
   const isHost = role === 'host';
   const { requestEndSpace, requestLeaveSpace } = useSpaceLifecycleModals();

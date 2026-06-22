@@ -1,7 +1,7 @@
 /**
- * Serves the Expo web export on :5173 and proxies API worker routes (`/api/*`,
- * `/auth/*`, `/patch-db/*`, `/room` WebSocket) to wrangler so Better Auth
- * cookies, PatchDB sync, and space rooms stay first-party.
+ * Serves the Expo web export on :5173 and proxies `/api/*` (including
+ * `/api/room` WebSocket) to wrangler so Better Auth cookies, PatchDB sync,
+ * and space rooms stay first-party.
  */
 import { assert } from '@pkgs/assert';
 import { join } from 'node:path';

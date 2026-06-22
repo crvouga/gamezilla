@@ -18,10 +18,11 @@ import { assert } from '@pkgs/assert';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Logger } from '@pkgs/logger/logger';
 import {
+  isLoopbackPostgresUrl,
   openPgClient,
   type OpenPgClientResult,
 } from '@pkgs/sql-client/postgres-connect';
-import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import { devIdpPostgresDbScope } from './postgres-schema-env';
 import { Hono } from 'hono';
 
 import { buildClientBundle } from './client-bundle';
@@ -39,10 +40,8 @@ export interface DevIdpServerOptions {
   /** Listen host. Defaults to `127.0.0.1`. */
   readonly host?: string;
   /**
-   * Postgres connection string used for the durable `Kv` backing the IdP
-   * (users, auth codes, access tokens). Defaults to the same local DSN
-   * `@pkgs/postgres` exposes via `buildConnectionUrl` so a single
-   * `bun dev` boots a fully wired stack.
+   * Postgres connection string for the durable `Kv` backing the IdP.
+   * Defaults to `process.env.DATABASE_URL` from `vault run` (Vault `dev`).
    */
   readonly dbUrl?: string;
   /** Optional default test accounts seeded on first boot (idempotent). */
@@ -64,11 +63,36 @@ export interface DevIdpServerHandle {
   readonly stop: () => Promise<void>;
 }
 
-const DEFAULT_DATABASE_URL =
-  'postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable';
-
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_CONNECT_TIMEOUT_MS = 60_000;
+
+/** Strips the password from a Postgres URL for safe logging. */
+function maskDbUrl(dbUrl: string): string {
+  try {
+    const u = new URL(dbUrl);
+    if (u.password.length > 0) u.password = '***';
+    return u.toString();
+  } catch {
+    return '***';
+  }
+}
+
+function resolveDatabaseUrl(options: DevIdpServerOptions): string {
+  const fromOptions = options.dbUrl?.trim() ?? '';
+  const fromEnv = process.env['DATABASE_URL']?.trim() ?? '';
+  const dbUrl = fromOptions.length > 0 ? fromOptions : fromEnv;
+  assert.nonEmptyString(
+    dbUrl,
+    'DATABASE_URL is required — run the dev IdP under `vault run` (Vault `dev`) so Vault injects the hosted dev database URL'
+  );
+  if (isLoopbackPostgresUrl(dbUrl)) {
+    assert.fail(
+      'dev-idp: DATABASE_URL must not target loopback Postgres. Local embedded Postgres was removed; use Vault `dev` `DATABASE_URL`.',
+      { dbUrl: maskDbUrl(dbUrl) }
+    );
+  }
+  return dbUrl;
+}
 
 /**
  * Boots the standalone dev IdP server. Resolves once Postgres is reachable,
@@ -80,7 +104,7 @@ export async function startDevIdpServer(
   const log = options.logger ?? noopLogger();
   const port = options.port ?? DEV_IDP_DEFAULT_PORT;
   const host = options.host ?? DEFAULT_HOST;
-  const dbUrl = options.dbUrl ?? DEFAULT_DATABASE_URL;
+  const dbUrl = resolveDatabaseUrl(options);
   const connectTimeoutMs =
     options.connectTimeoutMs ?? DEFAULT_CONNECT_TIMEOUT_MS;
 
@@ -176,9 +200,8 @@ function createDevIdpStopHandler(input: {
 }
 
 /**
- * Connects to Postgres with linear backoff. Under `turbo dev` the IdP
- * and `@pkgs/postgres` start in parallel — the cluster typically takes
- * a few seconds to become reachable, so we retry instead of crashing.
+ * Connects to Postgres with linear backoff. Under `turbo dev` the hosted dev
+ * database may take a moment to accept connections on a cold start.
  */
 async function connectPgWithRetry(
   dbUrl: string,
@@ -191,11 +214,10 @@ async function connectPgWithRetry(
   while (Date.now() - start < timeoutMs) {
     attempt += 1;
     try {
-      // `ensureSchema` so a fresh local cluster (started in parallel under
-      // `turbo dev`, before `db:migrate`) gets the application schema.
+      // `ensureSchema` so a fresh database (before `db:migrate`) gets the app schema.
       const result = await openPgClient({
         connectionString: dbUrl,
-        dbScope: gamezillaPostgresDbScope(),
+        dbScope: devIdpPostgresDbScope(),
         ensureSchema: true,
       });
       if (attempt > 1) {
@@ -227,17 +249,6 @@ async function connectPgWithRetry(
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/** Strips the password from a Postgres URL for safe logging. */
-function maskDbUrl(dbUrl: string): string {
-  try {
-    const u = new URL(dbUrl);
-    if (u.password.length > 0) u.password = '***';
-    return u.toString();
-  } catch {
-    return '***';
-  }
 }
 
 function noopLogger(): Logger {

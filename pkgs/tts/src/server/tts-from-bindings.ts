@@ -12,6 +12,7 @@ export type CreateTtsAppFromBindingsOptions = {
   readonly secretStore: SecretStore;
   readonly objectStore: ObjectStore;
   readonly requireAuth: TtsRequireAuth;
+  readonly publicPathPrefix?: string;
 };
 
 export async function createTtsAppFromBindings(
@@ -27,5 +28,8 @@ export async function createTtsAppFromBindings(
     provider,
     objectStore: options.objectStore.withPrefix(ObjectStorePrefix.ttsAudio),
     requireAuth: options.requireAuth,
+    ...(options.publicPathPrefix !== undefined
+      ? { publicPathPrefix: options.publicPathPrefix }
+      : {}),
   });
 }

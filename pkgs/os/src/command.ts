@@ -109,20 +109,21 @@ export function verifyRun(bin: string, args: readonly string[]): void {
 }
 
 /**
- * Stricter than a free regex scan: requires the FIRST non-empty line of
- * stdout to contain a semver. Prevents false positives from error messages
- * that embed version numbers (e.g. "Wrangler requires Node.js v22.0.0").
+ * Requires stdout to contain a semver on some non-empty line. We prefer the
+ * first matching line so routine `tool --version` output still wins; preamble
+ * lines (e.g. pgweb's DATABASE_URL deprecation when Vault injects that var)
+ * are skipped until a semver appears.
  */
 function parseVersionFromStdout(s: string): string | null {
   const lines = s
     .split('\n')
     .map((l) => l.trim())
     .filter((l) => l.length > 0);
-  if (lines.length === 0) return null;
-  const first = lines[0];
-  if (first === undefined) return null;
-  const match = SEMVER_REGEX.exec(first);
-  return match ? match[0] : null;
+  for (const line of lines) {
+    const match = SEMVER_REGEX.exec(line);
+    if (match) return match[0];
+  }
+  return null;
 }
 
 /** Resolve a binary's version via `<bin> <args>`. Null on non-zero or unparseable. */

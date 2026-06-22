@@ -10,10 +10,10 @@
     ]
   },
   "scripts": {
-    "dev": "bun run src/dev.ts",
+    "dev": "POSTGRES_SCHEMA=gamezilla bun run src/dev.ts",
     "kill": "bun run src/kill.ts",
     "lint": "eslint src --max-warnings 0",
-    "preview": "bun run src/dev.ts",
+    "preview": "POSTGRES_SCHEMA=gamezilla bun run src/dev.ts",
     "tc": "tsc --noEmit -p ./tsconfig.json",
     "test": "bun test --pass-with-no-tests"
   },

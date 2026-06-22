@@ -10,7 +10,7 @@ export async function mountHostedAuthRoutes(
   app: Hono<ApiHonoEnv<AuthContext>>,
   _secretStore: SecretStore
 ): Promise<void> {
-  app.all('/api/auth/*', async (c) => {
+  app.all('/auth/*', async (c) => {
     const auth = c.get('betterAuth');
     assert.defined(
       auth,

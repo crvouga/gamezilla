@@ -494,6 +494,12 @@ describe('applyPgLayoutDiff: emits expected DDL shape on full add path', () => {
           new RegExp(`FROM ${TASK_TABLE}`).test(s)
       )
     ).toBe(true);
+    // Stats refreshed after index/column DDL so the planner sees new btrees.
+    expect(
+      sqlClient.statements.some((s) =>
+        new RegExp(`^ANALYZE ${TASK_TABLE}$`).test(s)
+      )
+    ).toBe(true);
   });
 
   test('idempotent re-run emits only the DROP VIEW + CREATE VIEW pair', async () => {
@@ -631,6 +637,59 @@ describe('applyPgLayoutDiff: composite index DDL', () => {
             `CREATE UNIQUE INDEX IF NOT EXISTS ${expectedIndex} ON ${TASK_TABLE}`
           ).test(s) &&
           new RegExp(`WHERE ${TASK_STATUS_COL} IS NOT NULL`).test(s)
+      )
+    ).toBe(true);
+  });
+
+  test('chess.puzzle rating-popularity composite uses pdb_cidx_chess_puzzle__rating_popularity', async () => {
+    const puzzleNs = createAttrNamespace('chess', 'puzzle');
+    const PuzzleAttr = {
+      id: puzzleNs.text('id', (v) => String(v ?? '')).indexed({ unique: true }),
+      rating: puzzleNs
+        .integer('rating', (v) => Number(v ?? 0))
+        .indexed({ sortable: true }),
+      popularity: puzzleNs
+        .integer('popularity', (v) => Number(v ?? 0))
+        .indexed({ sortable: true }),
+    };
+    const puzzleTable = partitionTableName('chess.puzzle');
+    const expectedIndex = compositeIndexNameFor(
+      'chess.puzzle',
+      'rating-popularity'
+    );
+    expect(expectedIndex).toBe('pdb_cidx_chess_puzzle__rating_popularity');
+    const desired = computeDesiredPgLayout(
+      createEntitySchemaRegistry()
+        .register(
+          defineEntitySchema({
+            entityType: 'chess.puzzle',
+            attributes: PuzzleAttr,
+            ginIndex: false,
+            composite: [
+              {
+                name: 'rating-popularity',
+                fields: [
+                  { tag: PuzzleAttr.rating, direction: 'asc' },
+                  { tag: PuzzleAttr.popularity, direction: 'desc' },
+                ],
+              },
+            ],
+          })
+        )
+        .freeze()
+    );
+    const diff = diffPgLayout(desired, EMPTY_LIVE);
+    expect(diff.compositeIndexesToAdd.length).toBe(1);
+    expect(diff.compositeIndexesToAdd[0]?.tableName).toBe(puzzleTable);
+    expect(diff.compositeIndexesToAdd[0]?.spec.indexName).toBe(expectedIndex);
+    const logger = createFakeLogger();
+    const sqlClient = new RecordingSqlClient();
+    await applyPgLayoutDiff(sqlClient, diff, logger);
+    expect(
+      sqlClient.statements.some((s) =>
+        new RegExp(
+          `CREATE INDEX IF NOT EXISTS ${expectedIndex} ON ${puzzleTable}`
+        ).test(s)
       )
     ).toBe(true);
   });

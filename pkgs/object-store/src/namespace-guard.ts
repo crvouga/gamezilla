@@ -1,14 +1,9 @@
-import { ObjectStoreNamespace } from './prefixes';
-
 /**
  * Validates a wire key before any remote object-store I/O. Every S3 command
- * for the shared B2 bucket must pass this gate so projects cannot clobber
+ * for the shared bucket must pass this gate so projects cannot clobber
  * each other's prefixes.
  */
-export function assertRemoteObjectKey(
-  key: string,
-  namespace: string = ObjectStoreNamespace.root
-): void {
+export function assertRemoteObjectKey(key: string, namespace: string): void {
   if (key.length === 0) {
     throw new Error('Remote object key must be non-empty');
   }

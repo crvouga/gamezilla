@@ -29,7 +29,6 @@ function baseResult(extra?: Record<string, unknown>): unknown {
     query: { entityType: 'task' },
     entities: [],
     patches: [],
-    total: 0,
     hasMore: false,
     nextCursor: null,
     ...extra,

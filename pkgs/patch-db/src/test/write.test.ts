@@ -54,7 +54,6 @@ describe.each(implementations)('$name', ({ factory }) => {
     const result = results[0];
     assert.defined(result, 'result must be defined');
     expect(result.patches).toHaveLength(3);
-    expect(result.total).toBe(3);
 
     const patch0 = result.patches[0];
     assert.defined(patch0, 'patch0 must be defined');

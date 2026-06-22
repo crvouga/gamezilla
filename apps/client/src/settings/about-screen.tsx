@@ -1,6 +1,8 @@
+import { i18n } from '@apps/client/i18n/i18n';
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
-import { getApiBaseUrl } from '@apps/client/config/api-servers';
 import {
+  formatCommitDate,
+  getCommitDate,
   getCommitHash,
   getShortCommitHash,
 } from '@apps/client/config/app-metadata';
@@ -15,7 +17,7 @@ export function AboutScreen() {
   const nav = useBreadcrumbNav();
   const fullCommitHash = getCommitHash();
   const shortCommitHash = getShortCommitHash();
-  const apiOrigin = getApiBaseUrl();
+  const formattedCommitDate = formatCommitDate(getCommitDate(), i18n.locale);
   const appName =
     Constants.expoConfig?.name ??
     Constants.expoConfig?.slug ??
@@ -47,6 +49,10 @@ export function AboutScreen() {
               variant="caption"
               label={t`Commit (short): ${shortCommitHash}`}
             />
+            <Text
+              variant="caption"
+              label={t`Committed: ${formattedCommitDate}`}
+            />
             <CopyToClipboardField
               label={<Trans>Full commit</Trans>}
               helperText={t`Tap to copy`}
@@ -55,11 +61,6 @@ export function AboutScreen() {
             />
             <Text variant="caption" label={t`Build mode: ${buildMode}`} />
             <Text variant="caption" label={t`Platform: ${platformOs}`} />
-          </Card>
-
-          <Card elevation={1} sx={{ p: 4, gap: 2 }}>
-            <Text variant="bodyBold" label={<Trans>API</Trans>} />
-            <Text variant="body" selectable label={apiOrigin} />
           </Card>
         </Box>
       )}

@@ -25,15 +25,11 @@ export function resolveLocalPreviewApiProxyTarget(): string {
 }
 
 export function isProxiedHttpApiPath(pathname: string): boolean {
-  return (
-    pathname.startsWith('/api/') ||
-    pathname.startsWith('/auth/') ||
-    pathname.startsWith('/patch-db/')
-  );
+  return pathname.startsWith('/api/');
 }
 
 export function isProxiedRoomWebSocketPath(pathname: string): boolean {
-  return pathname === '/room';
+  return pathname === '/api/room';
 }
 
 export function stripHopByHopEncodingHeaders(headers: Headers): void {

@@ -2,22 +2,23 @@ import { describe, expect, test } from 'bun:test';
 import {
   createPgPool,
   ensurePostgresSchema,
+  isLoopbackPostgresUrl,
   openPgClient,
 } from './postgres-connect';
+import { createPostgresDbScope, quotePgIdent } from './postgres-schema';
 import {
-  GAMEZILLA_POSTGRES_SCHEMA,
-  gamezillaPostgresDbScope,
-  quotePgIdent,
-} from './postgres-schema';
-import { withPostgresSearchPathOption } from './postgres-session-schema';
+  postgresRejectsStartupSearchPathOption,
+  withPostgresSearchPathOption,
+} from './postgres-session-schema';
 
 const DATABASE_URL = process.env['DATABASE_URL'] ?? '';
 const HAS_DB = DATABASE_URL.length > 0;
+const TEST_SCHEMA = 'gamezilla_test_scope';
 
 describe('postgres-schema', () => {
-  test('scope schema is the canonical gamezilla constant', () => {
-    expect(gamezillaPostgresDbScope().schema).toBe(GAMEZILLA_POSTGRES_SCHEMA);
-    expect(GAMEZILLA_POSTGRES_SCHEMA).toBe('gamezilla');
+  test('scope carries the injected schema name', () => {
+    const scope = createPostgresDbScope('my_app');
+    expect(scope.schema).toBe('my_app');
   });
 
   test('quotePgIdent double-quotes and escapes embedded quotes', () => {
@@ -30,19 +31,31 @@ describe('withPostgresSearchPathOption', () => {
   test('pins search_path via the libpq startup options parameter', () => {
     const out = withPostgresSearchPathOption(
       'postgres://u:p@host:5432/db?sslmode=disable',
-      gamezillaPostgresDbScope()
+      createPostgresDbScope('my_app')
     );
     const url = new URL(out);
-    expect(url.searchParams.get('options')).toBe('-c search_path=gamezilla');
+    expect(url.searchParams.get('options')).toBe('-c search_path=my_app');
     expect(url.searchParams.get('sslmode')).toBe('disable');
   });
 
   test('returns the input unchanged when it is not a URL', () => {
     const out = withPostgresSearchPathOption(
       'not a url',
-      gamezillaPostgresDbScope()
+      createPostgresDbScope('my_app')
     );
     expect(out).toBe('not a url');
+  });
+
+  test('skips startup options on Neon pooler hosts', () => {
+    const input =
+      'postgres://u:p@ep-cool-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require';
+    expect(postgresRejectsStartupSearchPathOption(input)).toBe(true);
+    const out = withPostgresSearchPathOption(
+      input,
+      createPostgresDbScope('my_app')
+    );
+    expect(out).toBe(input);
+    expect(new URL(out).searchParams.get('options')).toBeNull();
   });
 });
 
@@ -51,7 +64,11 @@ describe('withPostgresSearchPathOption', () => {
 // pool closed in its own `finally`) so this suite never contends for connection
 // slots with other DB-touching suites running concurrently under `bun check`.
 describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
-  const dbScope = gamezillaPostgresDbScope();
+  const dbScope = createPostgresDbScope(TEST_SCHEMA);
+
+  test('DATABASE_URL is not loopback (Vault dev hosted Postgres)', () => {
+    expect(isLoopbackPostgresUrl(DATABASE_URL)).toBe(false);
+  });
 
   test('ensurePostgresSchema creates the schema and is idempotent', async () => {
     const { pool, sqlClient } = createPgPool({
@@ -64,7 +81,7 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
       // Second call must not throw (CREATE SCHEMA IF NOT EXISTS).
       await ensurePostgresSchema(sqlClient, dbScope);
       const rows = await sqlClient.query<{ exists: boolean }>(
-        "SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'gamezilla') AS exists"
+        `SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = '${TEST_SCHEMA}') AS exists`
       );
       expect(rows[0]?.exists).toBe(true);
     } finally {
@@ -84,7 +101,7 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
         const rows = await sqlClient.query<{ current_schema: string }>(
           'SELECT current_schema() AS current_schema'
         );
-        expect(rows[0]?.current_schema).toBe('gamezilla');
+        expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
       }
     } finally {
       await pool.end();
@@ -101,7 +118,7 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
       const rows = await sqlClient.query<{ current_schema: string }>(
         'SELECT current_schema() AS current_schema'
       );
-      expect(rows[0]?.current_schema).toBe('gamezilla');
+      expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
     } finally {
       await client.end();
     }

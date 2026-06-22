@@ -28,7 +28,6 @@ function assertPatchDbResultShape(r: PatchDbResult, index: number): void {
   assert.array(r.patches, 'PatchDbResult.patches must be an array', {
     index,
   });
-  assert.number(r.total, 'PatchDbResult.total must be a finite number');
   assert.ok(
     typeof r.hasMore === 'boolean',
     'PatchDbResult.hasMore must be boolean',

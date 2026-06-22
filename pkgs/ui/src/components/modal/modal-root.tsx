@@ -26,6 +26,7 @@ export function ModalRoot({
       transparent
       animationType="fade"
       onRequestClose={onRequestClose}
+      accessibilityViewIsModal
     >
       <OnColorReset>{children}</OnColorReset>
     </Modal>

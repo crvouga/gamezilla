@@ -3,10 +3,10 @@ function trimTrailingSlashes(url: string): string {
 }
 
 export function healthCheckUrl(apiBase: string): string {
-  return `${trimTrailingSlashes(apiBase)}/health`;
+  return `${trimTrailingSlashes(apiBase)}/api/health`;
 }
 
 /** Full URL for Stripe `listen --forward-to` and for signed POST probes. */
 export function stripeWebhookUrl(apiBase: string): string {
-  return `${trimTrailingSlashes(apiBase)}/stripe/webhook`;
+  return `${trimTrailingSlashes(apiBase)}/api/stripe/webhook`;
 }

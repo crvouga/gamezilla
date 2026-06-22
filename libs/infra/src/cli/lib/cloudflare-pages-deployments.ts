@@ -15,6 +15,8 @@ interface Deployment {
 
 interface PagesProject {
   production_deployment?: { id: string } | null;
+  canonical_deployment?: { id: string } | null;
+  latest_deployment?: { id: string } | null;
 }
 
 interface CfListResponse<T> {
@@ -118,17 +120,36 @@ function hasAlias(d: Deployment): boolean {
   return Array.isArray(d.aliases) && d.aliases.length > 0;
 }
 
+function liveProductionId(project: PagesProject): string | null {
+  return (
+    project.production_deployment?.id ??
+    project.canonical_deployment?.id ??
+    project.latest_deployment?.id ??
+    null
+  );
+}
+
+function isActiveProductionDeleteError(body: string): boolean {
+  return (
+    body.includes('active production deployment') ||
+    body.includes('"code": 8000034')
+  );
+}
+
 async function deleteDeployment(
   accountId: string,
   projectName: string,
   headers: Record<string, string>,
   id: string
-): Promise<boolean> {
+): Promise<'deleted' | 'kept-production' | 'failed'> {
   const res = await fetch(
     `${CF_API}/accounts/${accountId}/pages/projects/${projectName}/deployments/${id}?force=true`,
     { method: 'DELETE', headers }
   );
-  return res.ok;
+  if (res.ok) return 'deleted';
+  const body = await res.text();
+  if (isActiveProductionDeleteError(body)) return 'kept-production';
+  return 'failed';
 }
 
 function sleep(ms: number): Promise<void> {
@@ -153,6 +174,29 @@ async function pooled<T>(
   await Promise.all(
     Array.from({ length: Math.min(concurrency, items.length) }, () => worker())
   );
+}
+
+export async function deletePagesProject(
+  accountId: string,
+  projectName: string,
+  headers: Record<string, string>
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const res = await fetch(
+    `${CF_API}/accounts/${accountId}/pages/projects/${projectName}`,
+    { method: 'DELETE', headers }
+  );
+  if (res.ok || res.status === 404) return { ok: true };
+  const body = await res.text();
+  let message = body;
+  try {
+    const parsed = JSON.parse(body) as {
+      errors?: Array<{ message: string }>;
+    };
+    message = parsed.errors?.map((e) => e.message).join('; ') ?? body;
+  } catch {
+    // keep raw body
+  }
+  return { ok: false, message };
 }
 
 export async function cleanupPagesDeployments(
@@ -195,24 +239,23 @@ export async function cleanupPagesDeployments(
     }
     throw e;
   }
-  const liveProductionId = project.production_deployment?.id ?? null;
-  if (liveProductionId) {
-    info('Keeping live production deployment', liveProductionId);
+  const liveId = liveProductionId(project);
+  if (liveId) {
+    info('Keeping live production deployment', liveId);
   } else {
     warn('Pages deployments', 'no live production deployment found');
   }
 
   const deployments = await listAllDeployments(accountId, projectName, headers);
   const toDelete = deployments.filter((deployment) => {
-    if (deployment.id === liveProductionId) return false;
+    if (deployment.id === liveId) return false;
     if (!deleteAliased && hasAlias(deployment)) return false;
     return true;
   });
 
   const skippedAliased = deleteAliased
     ? 0
-    : deployments.filter((d) => d.id !== liveProductionId && hasAlias(d))
-        .length;
+    : deployments.filter((d) => d.id !== liveId && hasAlias(d)).length;
   if (skippedAliased > 0) {
     info('Skipped aliased deployments', String(skippedAliased));
   }
@@ -224,7 +267,7 @@ export async function cleanupPagesDeployments(
       deleted: 0,
       failed: 0,
       skippedAliased,
-      keptProductionId: liveProductionId,
+      keptProductionId: liveId,
     };
   }
 
@@ -233,16 +276,17 @@ export async function cleanupPagesDeployments(
 
   await pooled(toDelete, concurrency, async (deployment) => {
     for (let attempt = 0; attempt < attempts; attempt++) {
-      const success = await deleteDeployment(
+      const outcome = await deleteDeployment(
         accountId,
         projectName,
         headers,
         deployment.id
       );
-      if (success) {
+      if (outcome === 'deleted') {
         deleted++;
         return;
       }
+      if (outcome === 'kept-production') return;
       await sleep((attempt + 1) * 1_000);
     }
     failed++;
@@ -259,6 +303,6 @@ export async function cleanupPagesDeployments(
     deleted,
     failed,
     skippedAliased,
-    keptProductionId: liveProductionId,
+    keptProductionId: liveId,
   };
 }

@@ -9,7 +9,11 @@ export { DEFAULT_LOCAL_PREVIEW_API_ORIGIN };
  * Production Worker hostname(s). Development must not target these unless
  * {@link productionApiUrlTigerExceptionEnabled} (Tiger Style: fail loud, never silent drift to prod).
  */
-export const PRODUCTION_API_HTTP_HOSTNAMES = [APP_IDENTITY.apiHost] as const;
+export const PRODUCTION_API_HTTP_HOSTNAMES = [
+  APP_IDENTITY.apiHost,
+  /** Legacy dedicated API subdomain (replaced by www Worker routing). */
+  `api.${APP_IDENTITY.domain}`,
+] as const;
 
 function isProductionApiHttpHostname(hostname: string): boolean {
   return (PRODUCTION_API_HTTP_HOSTNAMES as readonly string[]).includes(
@@ -71,13 +75,48 @@ export function assertTigerPolicyForResolvedApiOrigin(
 /** Ports where `preview-server.ts` serves the export and proxies `/api/*`. */
 const WEB_PREVIEW_PORTS = new Set(['5173', '4173']);
 
+function isProductionWebHostname(hostname: string): boolean {
+  return (
+    isProductionApiHttpHostname(hostname) || hostname === APP_IDENTITY.domain
+  );
+}
+
 /**
- * Playwright / `preview-server` serves the static export on a loopback port and
- * proxies `/api/*` to wrangler. Auth cookies are first-party only when the
- * client calls `window.location.origin`, not the cross-port wrangler URL baked
- * into `EXPO_PUBLIC_API_URL` at export time.
+ * When the web client and API share an origin, always call that origin — not a
+ * build-time `EXPO_PUBLIC_API_URL` that may point at loopback wrangler.
+ *
+ * - Production: Worker serves static assets + `/api/*` on apex + www.
+ * - Preview / dev: `preview-server` / `dev.ts` proxy `/api/*` on :5173 / :4173.
  */
-function readWebSameOriginPreviewApi(): string | null {
+function readWebSameOriginApi(): string | null {
+  if (typeof window === 'undefined' || window.location === undefined) {
+    return null;
+  }
+  const origin = window.location.origin;
+  let hostname = '';
+  let port = '';
+  assert.notThrows(
+    () => {
+      const parsed = new URL(origin);
+      hostname = parsed.hostname;
+      port = parsed.port;
+    },
+    'web origin must parse as URL',
+    { origin }
+  );
+  if (isProductionWebHostname(hostname)) return origin;
+  if (!isLocalApiOrigin(origin)) return null;
+  if (!WEB_PREVIEW_PORTS.has(port)) return null;
+  return origin;
+}
+
+/**
+ * Expo Metro on :5174 is not the API proxy — wrangler dev (:8788) serves
+ * `/api/*`. Applies in `__DEV__` web bundles on loopback when the user opens
+ * Metro directly instead of the :5173 reverse proxy from `scripts/dev.ts`.
+ */
+function readDevLoopbackWranglerApi(): string | null {
+  if (!isExpoOrMetroDevelopmentBundle()) return null;
   if (typeof window === 'undefined' || window.location === undefined) {
     return null;
   }
@@ -88,21 +127,45 @@ function readWebSameOriginPreviewApi(): string | null {
     () => {
       port = new URL(origin).port;
     },
-    'web preview origin must parse as URL',
+    'web origin must parse as URL',
     { origin }
   );
-  if (!WEB_PREVIEW_PORTS.has(port)) return null;
-  return origin;
+  if (WEB_PREVIEW_PORTS.has(port)) return null;
+  return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
+}
+
+function coerceDevBundleApiOrigin(origin: string): string {
+  if (!isExpoOrMetroDevelopmentBundle()) return origin;
+  if (productionApiUrlTigerExceptionEnabled()) return origin;
+  let hostname = '';
+  assert.notThrows(
+    () => {
+      hostname = new URL(origin).hostname;
+    },
+    'API origin must parse as URL',
+    { origin }
+  );
+  if (!isProductionApiHttpHostname(hostname)) return origin;
+  return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }
 
 export function getApiBaseUrl(): string {
-  const previewSameOrigin = readWebSameOriginPreviewApi();
-  if (previewSameOrigin !== null) {
+  const sameOriginWebApi = readWebSameOriginApi();
+  if (sameOriginWebApi !== null) {
     assertTigerPolicyForResolvedApiOrigin(
-      previewSameOrigin,
+      sameOriginWebApi,
       'forbid-prod-in-expo-dev-bundle'
     );
-    return previewSameOrigin;
+    return sameOriginWebApi;
+  }
+
+  const devLoopbackWranglerApi = readDevLoopbackWranglerApi();
+  if (devLoopbackWranglerApi !== null) {
+    assertTigerPolicyForResolvedApiOrigin(
+      devLoopbackWranglerApi,
+      'forbid-prod-in-expo-dev-bundle'
+    );
+    return devLoopbackWranglerApi;
   }
 
   // Direct read — Expo inlines `EXPO_PUBLIC_*` at bundle time (see
@@ -124,6 +187,7 @@ export function getApiBaseUrl(): string {
     'EXPO_PUBLIC_API_URL must be a valid absolute URL',
     { raw }
   );
+  origin = coerceDevBundleApiOrigin(origin);
   assertTigerPolicyForResolvedApiOrigin(
     origin,
     'forbid-prod-in-expo-dev-bundle'

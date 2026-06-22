@@ -1,19 +1,18 @@
+import {
+  assertDevVaultConfig,
+  assertNonProdDatabaseUrl,
+} from '@libs/infra/shared/database-url-policy';
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/local-preview-api-origin';
+import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import { VaultCli } from '@pkgs/vault';
-import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DEV_VARS_PATH, encodeDevVarValue } from './dev-vars';
 
 const apiRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
-const outPath = join(apiRoot, '.dev.vars');
+const outPath = DEV_VARS_PATH;
 const tmpPath = `${outPath}.${process.pid}.tmp`;
-
-function encodeDevVarValue(value: string): string {
-  return `"${value
-    .replaceAll('\\', '\\\\')
-    .replaceAll('"', '\\"')
-    .replaceAll('\n', '\\n')}"`;
-}
 
 type VaultScope = {
   token: string;
@@ -49,47 +48,45 @@ function resolveVaultScope(): VaultScope {
   };
 }
 
-function readApiUrlOverrideFromEnv(): string | null {
+function readApiUrlForDevVars(): string {
   const preview = process.env['BETTER_AUTH_PREVIEW_API_URL']?.trim() ?? '';
   if (preview.length > 0) return preview;
+  const localPreview = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim() ?? '';
+  if (localPreview.length > 0) return localPreview;
   const expo = process.env['EXPO_PUBLIC_API_URL']?.trim() ?? '';
   if (expo.length > 0 && /127\.0\.0\.1|localhost/i.test(expo)) {
     return expo;
   }
-  const raw = process.env['API_URL']?.trim() ?? '';
-  return raw.length > 0 ? raw : null;
+  return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }
 
-function isPostgresWireUrl(url: string): boolean {
-  return url.startsWith('postgresql://') || url.startsWith('postgres://');
-}
-
-function readDatabaseUrlOverrideFromEnv(): string | null {
-  const raw = process.env['DATABASE_URL']?.trim() ?? '';
-  if (raw.length === 0 || !isPostgresWireUrl(raw)) return null;
-  // `vault run` / `bun qa` inject hosted Neon into env before Playwright sets the
-  // embedded-postgres URL. Only pin loopback URLs into `.dev.vars` — same
-  // contract as preview/QA needing the local cluster, never Vault production DB.
-  if (!isLoopbackPostgresUrl(raw)) return null;
-  return raw;
+async function resolveDatabaseUrlForDevVars(
+  vaultConfig: string
+): Promise<string> {
+  assertDevVaultConfig(vaultConfig);
+  const store = createVaultSecretStoreForScripts();
+  const databaseUrl = (
+    await store.getRequired('DATABASE_URL')
+  ).readSecretValue();
+  await assertNonProdDatabaseUrl(databaseUrl, {
+    surface: 'setup-dev-vars',
+    vaultConfig,
+  });
+  return databaseUrl;
 }
 
 async function main(): Promise<void> {
   const { token, project, config, addr } = resolveVaultScope();
+  assertDevVaultConfig(config);
+  const databaseUrl = await resolveDatabaseUrlForDevVars(config);
   const lines: string[] = [
     `VAULT_TOKEN=${encodeDevVarValue(token)}`,
     `VAULT_PROJECT=${encodeDevVarValue(project)}`,
     `VAULT_CONFIG=${encodeDevVarValue(config)}`,
     `VAULT_ADDR=${encodeDevVarValue(addr)}`,
+    `API_URL=${encodeDevVarValue(readApiUrlForDevVars())}`,
   ];
-  const apiUrlOverride = readApiUrlOverrideFromEnv();
-  if (apiUrlOverride !== null) {
-    lines.push(`API_URL=${encodeDevVarValue(apiUrlOverride)}`);
-  }
-  const databaseUrlOverride = readDatabaseUrlOverrideFromEnv();
-  if (databaseUrlOverride !== null) {
-    lines.push(`DATABASE_URL=${encodeDevVarValue(databaseUrlOverride)}`);
-  }
+  lines.push(`DATABASE_URL=${encodeDevVarValue(databaseUrl)}`);
 
   const body = `${lines.join('\n')}\n`;
   writeFileSync(tmpPath, body, { encoding: 'utf8' });
@@ -100,7 +97,7 @@ async function main(): Promise<void> {
       .map((l) => l.split('=')[0])
       .join(
         ', '
-      )} (DATABASE_URL and other config load from Vault at Worker boot)\n`
+      )} (Worker secrets load from Vault; DATABASE_URL mirrors Vault \`dev\`)\n`
   );
 }
 

@@ -46,7 +46,7 @@ GitHub Actions runs checks with `VAULT_CONFIG=dev`. Caching is backed by the **s
 
 To rotate / re-seed the client secrets from the cache repo, run (in `../turborepo-remote-cache`): `bun run seed:turbo-client -- --target-project gamezilla --all-configs`.
 
-Object storage (TTS audio cache, etc.) uses **Backblaze B2** (S3-compatible) via `@pkgs/object-store/impl-b2`. The API Worker fetches `B2_*` credentials from Vault at boot and injects a namespaced store through `createB2ObjectStore`, which always applies the global `gamezilla/` key prefix before feature-level prefixes (e.g. `tts-audio/`). The B2 transport layer rejects any S3 wire key that does not start with `gamezilla/`, so the shared bucket cannot be written outside this project's namespace. The B2 bucket and application keys are externally managed (like PlanetScale); `infra deploy` verifies Vault secrets via the `b2-buckets` resource.
+Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store/impl-s3`. The API Worker fetches `S3_*` credentials from Vault at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PROJECT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix, so the shared bucket cannot be written outside this project's namespace. The bucket and credentials are externally managed (like PlanetScale); `infra deploy` verifies Vault secrets via the `s3-bucket` resource.
 
 ## CI/CD job layout
 
@@ -60,18 +60,21 @@ When adding a new check, default to a turbo task under `ci:*` (or extend an exis
 
 ## Local database
 
-Local dev runs a **real PostgreSQL 18 cluster** managed by `@pkgs/postgres` — no Docker, no PGlite, **no system Postgres install**. The cluster binaries (`postgres`, `initdb`, `pg_ctl`) ship via the [`embedded-postgres`](https://github.com/leinelissen/embedded-postgres) npm package and are hydrated by `bun install` (the platform-specific `@embedded-postgres/*` binary packages are listed in the root `package.json` `trustedDependencies` so Bun runs their symlink post-install). The wrapper (`pkgs/postgres/src/embedded-cluster.ts`) drives `embedded-postgres`, which spawns `postgres` directly in our process group (so it can never be orphaned by the dev shell), resolves once the postmaster logs `database system is ready to accept connections`, and on `SIGINT`/`SIGTERM` from `turbo dev` performs a fast shutdown (escalating signals on the recorded `postmaster.pid` if it wedges). There is no `PostgresDep` to install.
+Local dev and CI use **hosted dev Postgres** only — there is no embedded/local Postgres process. `DATABASE_URL` comes exclusively from Vault **`personal/dev`** (injected by `bun run scripts/vault-run.ts`, which defaults to `VAULT_CONFIG=dev` from repo-root `.vault.yaml`).
 
-The whole stack starts together via `bun run dev` at the repo root; to run just Postgres (foreground, logs visible): `bun run --filter @pkgs/postgres dev`. Stop it with `bun run --filter @pkgs/postgres kill` — this targets only our wrapper PID + cluster data dir; it will **not** terminate unrelated Postgres servers that happen to be on the same port. To wipe every database in the managed cluster (stop + delete `pkgs/postgres/.postgres/` so the next `dev` reinitializes from scratch): `bun run --filter @pkgs/postgres drop`.
+- **`bun run dev`** — `vault run` → turbo starts api + client + dev-idp; `@apps/api` `setup` writes `.dev.vars` with the Vault `dev` `DATABASE_URL` (mirrored, not loopback).
+- **`bun db:migrate`** — `vault run` → `@apps/api db:migrate` against Vault `dev` `DATABASE_URL`.
+- **Production** — only `bun run infra` sets `VAULT_CONFIG=prd`; deploy runs `db:migrate` against Vault `prd` `DATABASE_URL`.
 
-Set Vault **`dev`** `DATABASE_URL` to `postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable`. Migrations: `bun db:migrate` (the root script wraps `bun run --filter @apps/api db:migrate` in `VAULT_CONFIG=dev vault run --` so the migrate script picks up the right project/config; without it, a globally-configured Vault CLI token has no project/config bound and the secrets/download API returns HTTP 400). Persistent data lives in `pkgs/postgres/.postgres/data/`; the wrapper PID and a tee'd `postgres.log` live in `pkgs/postgres/.postgres/run/`. Tunables (all optional): `PG_HOST`, `PG_PORT`, `PG_DATA_DIR`, `PG_USER`, `PG_PASSWORD`, `PG_DATABASE`.
+### Database safety (Tiger policy)
 
-The wrapper also auto-launches the [`pgweb`](https://github.com/sosedoff/pgweb) GUI as a sibling foreground process (default `http://127.0.0.1:5555` — chosen to sit next to the Postgres port and avoid collisions with Expo Web on `8081` / Jupyter on `8888`), pre-connected to the local DB. Stops with the cluster on Ctrl-C / `turbo dev` shutdown — no orphans. GUI failure (missing binary, port collision) is non-fatal: a warning logs and the cluster keeps running. Required tool: `pgweb` (Homebrew: `brew install pgweb`), enforced by `bun run infra setup` via the `PgwebDep` class. Tunables: `PG_GUI` (set to `off`/`0`/`false` to skip; default off in CI), `PG_GUI_HOST`, `PG_GUI_PORT`, `PG_GUI_BIN`.
+Non-deploy contexts must never reach production Postgres. Guards live in `@libs/infra/shared/database-url-policy`:
 
-Platform support (only `pgweb` needs a manual install now; the Postgres binaries come from npm):
-
-- **macOS / Linux** — install pgweb (`brew install pgweb`); run `bun run dev` directly.
-- **Windows** — run dev inside WSL2; native Windows is not exercised by `@pkgs/postgres`.
+1. **`assertDevVaultConfig`** — scripts exit unless `VAULT_CONFIG === 'dev'`.
+2. **`assertNonProdDatabaseUrl`** — rejects loopback URLs and URLs equal to Vault `prd` `DATABASE_URL` (dual-fetch at setup/migrate time).
+3. **API worker** — when `VAULT_CONFIG` binding is `dev`, the first DB request asserts non-prod URL.
+4. **`ci:database-url-policy`** — static check that every DATABASE_URL entrypoint wires the guards.
+5. **Escape hatch** — `ALLOW_PRODUCTION_DATABASE_URL=1` (mirrors `EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL` for the API).
 
 ## Per-feature package layout
 

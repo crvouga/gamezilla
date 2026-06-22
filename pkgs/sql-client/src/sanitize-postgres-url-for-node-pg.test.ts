@@ -30,9 +30,11 @@ describe('sanitizePostgresUrlForNodePg', () => {
     expect(out).toContain('sslmode=verify-full');
   });
 
-  test('returns original string when no sentinel value present', () => {
+  test('normalizes legacy sslmode aliases to verify-full', () => {
     const raw = 'postgres://u:p@h/db?sslmode=require';
-    expect(sanitizePostgresUrlForNodePg(raw)).toBe(raw);
+    const out = sanitizePostgresUrlForNodePg(raw);
+    expect(out).toContain('sslmode=verify-full');
+    expect(out).not.toContain('sslmode=require');
   });
 
   test('preserves the original string verbatim when unchanged', () => {

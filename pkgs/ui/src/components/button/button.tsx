@@ -113,6 +113,7 @@ export function Button(props: ButtonProps) {
 
   return (
     <Pressable
+      accessibilityRole="button"
       onPress={handlePress}
       disabled={nonInteractive}
       sx={{ borderRadius: s.borderRadius }}

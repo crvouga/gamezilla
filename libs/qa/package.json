@@ -13,13 +13,16 @@
     "native:bundle": "bun test ./src/native/",
     "native:launch": "bun --bun x playwright test --config src/playwright/playwright.native.config.ts",
     "qa": "bun run api && bun run browser",
+    "report": "bun --bun x playwright show-report playwright-report",
     "tc": "tsc --noEmit -p ./tsconfig.json"
   },
   "dependencies": {
     "@libs/client-config": "workspace:*",
+    "@libs/infra": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/logger": "workspace:*",
-    "@pkgs/secret-store": "workspace:*"
+    "@pkgs/secret-store": "workspace:*",
+    "@pkgs/sql-client": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",

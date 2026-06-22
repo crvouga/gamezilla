@@ -1,10 +1,14 @@
 import { createBetterAuthRequestStack } from '@libs/auth/server/better-auth-create';
 import { createSessionAuth } from '@libs/auth/server/session-middleware';
 import type { AuthContext } from '@libs/auth/server/types';
+import {
+  assertDatabaseUrlAllowedForVaultConfig,
+  DEVELOPMENT_VAULT_CONFIG,
+} from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { SecretStore } from '@pkgs/secret-store';
-import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import type { MiddlewareHandler } from 'hono';
 import { ApiSecretName } from '../config/secret-names';
 import { createMatchmakingSqlClientFromSqlClient } from '../matchmaking/sql-client-adapter';
@@ -27,13 +31,38 @@ async function resolveRequestDatabaseUrl(
   return (await secretStore.getRequired(ApiSecretName.dbUrl)).readSecretValue();
 }
 
+let devDatabasePolicyChecked = false;
+
+async function ensureDevDatabasePolicy(
+  databaseUrl: string,
+  vaultConfig: string | null
+): Promise<void> {
+  if (vaultConfig !== DEVELOPMENT_VAULT_CONFIG) return;
+  if (devDatabasePolicyChecked) return;
+  await assertDatabaseUrlAllowedForVaultConfig(databaseUrl, vaultConfig, {
+    surface: 'api-worker',
+  });
+  devDatabasePolicyChecked = true;
+}
+
+export type RequestDbMiddlewareOptions = {
+  readonly apiUrlOverride?: string | null | undefined;
+  readonly databaseUrlOverride?: string | null | undefined;
+  readonly vaultConfig?: string | null | undefined;
+};
+
 export function createRequestDbMiddleware(
   secretStore: SecretStore,
-  apiUrlOverride?: string | null,
-  databaseUrlOverride?: string | null
+  dbScope: PostgresDbScope,
+  options: RequestDbMiddlewareOptions = {}
 ): MiddlewareHandler<ApiHonoEnv<AuthContext>> {
+  const {
+    apiUrlOverride = null,
+    databaseUrlOverride = null,
+    vaultConfig = null,
+  } = options;
   return async (c, next) => {
-    if (c.req.path === '/health') {
+    if (new URL(c.req.url).pathname === '/api/health') {
       return next();
     }
 
@@ -42,12 +71,12 @@ export function createRequestDbMiddleware(
       databaseUrlOverride
     );
     assert.nonEmptyString(dbUrl, 'DATABASE_URL must be a non-empty string');
+    await ensureDevDatabasePolicy(dbUrl, vaultConfig);
 
-    const dbScope = gamezillaPostgresDbScope();
     const { sqlClient } = await openRequestDb(dbUrl, dbScope);
     const patchDb = createRequestPatchDb(sqlClient);
     // The `kv` table is created by API DB migrations (`KvImplPostgres.migrateUp`
-    // in `run-postgres-migrations.ts`) in the `gamezilla` schema, which every
+    // in `run-postgres-migrations.ts`) in the application schema, which every
     // connection's `search_path` is pinned to. Never run DDL on every request.
     const kv = new KvImplPostgres(sqlClient);
     const matchmakingSqlClient =
@@ -55,7 +84,7 @@ export function createRequestDbMiddleware(
     const { auth: betterAuth, dispose } = await createBetterAuthRequestStack(
       secretStore,
       dbUrl,
-      { dbScope, apiUrlOverride: apiUrlOverride ?? null }
+      { dbScope, apiUrlOverride }
     );
     const sessionAuth = createSessionAuth({ auth: betterAuth });
 

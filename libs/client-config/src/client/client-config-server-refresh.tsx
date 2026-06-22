@@ -12,7 +12,7 @@ async function postClientConfigRefresh(
 ): Promise<void> {
   const apiUrl = configService.getApiUrl();
   const client = createTypedApiRpcClient(apiUrl);
-  const res = await client['client-config']['refresh'].$post(undefined, {
+  const res = await client.api['client-config'].refresh.$post(undefined, {
     init: { signal: ctx.signal },
   });
   const text = await res.text();

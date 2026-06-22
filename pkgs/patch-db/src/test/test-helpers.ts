@@ -4,7 +4,7 @@ import { SqlClientImplBunPostgres } from '@pkgs/sql-client/impl-bun-postgres';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { ensurePostgresSchema } from '@pkgs/sql-client/postgres-connect';
-import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import { PatchDbImplClientTransport } from '../impl-client-transport';
 import { PatchDbImplPostgres } from '../impl-postgres/impl-postgres';
 import { PatchDbImplSqlite } from '../impl-sqlite/impl-sqlite';
@@ -43,7 +43,7 @@ export async function createPostgresFactory(): Promise<{
       'createPostgresFactory: set DATABASE_URL for Postgres tests'
     );
   }
-  const dbScope = gamezillaPostgresDbScope();
+  const dbScope = createPostgresDbScope('test');
   const client: SqlClient = SqlClientImplBunPostgres.connect(url, dbScope);
   await client.connect();
   await ensurePostgresSchema(client, dbScope);
@@ -55,7 +55,7 @@ export async function createPostgresFactory(): Promise<{
 
 export const implementations: { name: string; factory: DbFactory }[] = [
   { name: 'PatchDbImplSqlite', factory: createSqliteFactory },
-  // Set `DATABASE_URL` to a reachable Postgres (e.g. PGlite socket / `bun run --filter @pkgs/postgres dev`) to enable:
+  // Set `DATABASE_URL` to Vault `dev` hosted Postgres to enable:
   // { name: 'PatchDbImplPostgres', factory: createPostgresFactory },
 ];
 

@@ -1,9 +1,7 @@
 import { ApiWorkerResource } from './api-worker';
-import { B2BucketResource } from './b2-buckets';
-import { ClientPagesDomainResource } from './client-pages-domains';
-import { ClientPagesProjectResource } from './client-pages-project';
+import { LegacyCloudflareStackResource } from './legacy-cloudflare-stack';
+import { S3BucketResource } from './s3-bucket';
 import { ClientRedirectRuleResource } from './client-redirect-rule';
-import { ClientResource } from './client';
 import { DnsRecordsResource } from './dns-records';
 import { VaultResource } from './vault';
 import { PlanetScalePostgres } from './planetscale-postgres';
@@ -13,33 +11,28 @@ import { ZoneResource } from './zone';
 export function createRegistry(): readonly Resource[] {
   const vault = new VaultResource();
   const zone = new ZoneResource();
-  const clientPagesProject = new ClientPagesProjectResource();
-  const clientPagesDomain = new ClientPagesDomainResource();
-  const client = new ClientResource();
   const planetscalePostgres = new PlanetScalePostgres();
-  const b2Bucket = new B2BucketResource();
+  const s3Bucket = new S3BucketResource();
   const dnsRecords = new DnsRecordsResource();
   const clientRedirectRule = new ClientRedirectRuleResource();
   const apiWorker = new ApiWorkerResource();
+  const legacyCloudflareStack = new LegacyCloudflareStackResource();
 
   zone.needs(vault);
   planetscalePostgres.needs(vault);
-  b2Bucket.needs(vault);
+  s3Bucket.needs(vault);
   dnsRecords.needs(zone);
   clientRedirectRule.needs(zone);
-  clientPagesDomain.needs(clientPagesProject);
-  apiWorker.needs(planetscalePostgres, dnsRecords, b2Bucket);
+  apiWorker.needs(planetscalePostgres, dnsRecords, s3Bucket);
 
   return [
     vault,
     zone,
-    clientPagesProject,
-    clientPagesDomain,
     planetscalePostgres,
-    b2Bucket,
+    s3Bucket,
     dnsRecords,
     clientRedirectRule,
     apiWorker,
-    client,
+    legacyCloudflareStack,
   ];
 }

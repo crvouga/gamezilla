@@ -1,5 +1,5 @@
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/impl-postgres-tcp';
-import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { fetchVaultSecret } from '../secrets/secrets';
@@ -79,7 +79,7 @@ type ProbeResult =
  * `DATABASE_URL` values from Vault work here but often fail the serverless driver.
  */
 async function probeDatabase(url: string): Promise<ProbeResult> {
-  const sql = SqlClientImplPostgresTcp.connect(url, gamezillaPostgresDbScope());
+  const sql = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
   try {
     await sql.connect();
     const rows = await sql.query<{ ok: number }>('SELECT 1 AS ok');
@@ -120,7 +120,7 @@ const CLAIM_TABLE_OWNERSHIP_SQL = `
 async function verifyDatabaseAndClaimOwnership(
   url: string
 ): Promise<ProbeResult> {
-  const sql = SqlClientImplPostgresTcp.connect(url, gamezillaPostgresDbScope());
+  const sql = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
   try {
     await sql.connect();
     const rows = await sql.query<{ ok: number }>('SELECT 1 AS ok');

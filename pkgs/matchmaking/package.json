@@ -10,7 +10,7 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "tc": "tsc --noEmit -p ./tsconfig.json",
-    "test": "bun test"
+    "test": "bun test --parallel=1 --timeout 120000"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",

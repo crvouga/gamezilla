@@ -8,7 +8,7 @@ const RETRY_MS = 5_000;
 
 function clientConfigRefreshUrl(apiUrl: string): string {
   const base = apiUrl.replace(/\/+$/, '');
-  return `${base}/client-config/refresh`;
+  return `${base}/api/client-config/refresh`;
 }
 
 function sleep(ms: number): Promise<void> {

@@ -414,7 +414,10 @@ export function buildOrderSQL(
   return defaultOrder;
 }
 
-export function buildLimitSQL(query: PatchDbQuery): {
+export function buildLimitSQL(
+  query: PatchDbQuery,
+  options?: { overFetch?: boolean }
+): {
   sql: string;
   params: unknown[];
 } {
@@ -425,8 +428,10 @@ export function buildLimitSQL(query: PatchDbQuery): {
       query.limit,
       'query.limit must be a non-negative safe integer'
     );
+    const fetchLimit =
+      options?.overFetch === true ? query.limit + 1 : query.limit;
     sql += ' LIMIT ?';
-    params.push(query.limit);
+    params.push(fetchLimit);
   }
   if (query.offset !== null && query.offset !== undefined) {
     assert.nonNegativeInteger(

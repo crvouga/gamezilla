@@ -11,7 +11,11 @@ import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { INSERT_PATCHES_BATCH } from '@pkgs/patch-db/impl-postgres/sql-constants';
 import { partitionTableName } from '@pkgs/patch-db/impl-postgres/partitioning';
-import { CHESS_PUZZLE_ENTITY_TYPE } from '@libs/chess/shared/chess-puzzle-entities';
+import {
+  CHESS_PUZZLE_ENTITY_TYPE,
+  CHESS_PUZZLE_LOAD_ENTITY_TYPE,
+} from '@libs/chess/shared/chess-puzzle-entities';
+import type { PatchInput } from '@pkgs/patch-db/interface';
 import type { PuzzleBatchEntry } from './row';
 import type { PuzzleSeedReporter } from './reporter';
 
@@ -25,6 +29,9 @@ import type { PuzzleSeedReporter } from './reporter';
  */
 const CHESS_PUZZLE_SNAPSHOTS_TABLE = partitionTableName(
   CHESS_PUZZLE_ENTITY_TYPE
+);
+const CHESS_PUZZLE_LOAD_SNAPSHOTS_TABLE = partitionTableName(
+  CHESS_PUZZLE_LOAD_ENTITY_TYPE
 );
 
 /**
@@ -53,16 +60,15 @@ const CHESS_PUZZLE_SNAPSHOTS_TABLE = partitionTableName(
  * - `statement_timeout = 0` — explicit unlimited; managed Postgres
  *   defaults can be aggressive and our `VACUUM ANALYZE` may run for
  *   minutes on a multi-GB table.
- * - `idle_in_transaction_session_timeout = '60s'` — defensive: if the
- *   seed were ever stuck in a transaction, the server kills the session
- *   instead of silently holding locks (and a connection slot) forever.
+ * - `idle_in_transaction_session_timeout = 0` — disabled so large batch
+ *   transactions are not killed mid-insert on managed Postgres.
  */
 const SESSION_TUNING_SELF_HOSTED: readonly string[] = [
   "SET synchronous_commit = 'off'",
   "SET maintenance_work_mem = '256MB'",
   "SET work_mem = '64MB'",
   'SET statement_timeout = 0',
-  "SET idle_in_transaction_session_timeout = '60s'",
+  'SET idle_in_transaction_session_timeout = 0',
 ];
 
 /** Managed Postgres (Neon, Supabase, …) often denies CHECKPOINT; keep
@@ -72,26 +78,26 @@ const SESSION_TUNING_MANAGED: readonly string[] = [
   "SET maintenance_work_mem = '64MB'",
   "SET work_mem = '32MB'",
   'SET statement_timeout = 0',
-  "SET idle_in_transaction_session_timeout = '60s'",
+  'SET idle_in_transaction_session_timeout = 0',
 ];
 
-async function checkpointAllowed(sql: SqlClient): Promise<boolean> {
+/** `true` when CHECKPOINT is denied (Neon, Supabase, …). */
+export async function detectManagedPostgres(sql: SqlClient): Promise<boolean> {
   try {
     await sql.run('CHECKPOINT');
-    return true;
-  } catch {
     return false;
+  } catch {
+    return true;
   }
 }
 
 export async function applySessionTuning(
   sql: SqlClient,
   log: Logger
-): Promise<void> {
-  const stmts = (await checkpointAllowed(sql))
-    ? SESSION_TUNING_SELF_HOSTED
-    : SESSION_TUNING_MANAGED;
-  if (stmts === SESSION_TUNING_MANAGED) {
+): Promise<boolean> {
+  const managed = await detectManagedPostgres(sql);
+  const stmts = managed ? SESSION_TUNING_MANAGED : SESSION_TUNING_SELF_HOSTED;
+  if (managed) {
     log.info(
       'seed:puzzles: managed Postgres detected (CHECKPOINT denied) — conservative session tuning'
     );
@@ -106,6 +112,7 @@ export async function applySessionTuning(
       });
     }
   }
+  return managed;
 }
 
 export type SeedStats = {
@@ -159,6 +166,15 @@ const INSERT_SNAPSHOTS_BATCH_DO_NOTHING = `INSERT INTO ${CHESS_PUZZLE_SNAPSHOTS_
         attributes jsonb
     )
     ON CONFLICT (entity_type, entity_id) DO NOTHING`;
+
+const INSERT_LOAD_SNAPSHOT_UPSERT = `INSERT INTO ${CHESS_PUZZLE_LOAD_SNAPSHOTS_TABLE} (entity_id, entity_type, attributes)
+    SELECT entity_id, entity_type, attributes
+    FROM jsonb_to_recordset(?::text::jsonb) AS batch_rows (
+        entity_id text,
+        entity_type text,
+        attributes jsonb
+    )
+    ON CONFLICT (entity_type, entity_id) DO UPDATE SET attributes = EXCLUDED.attributes`;
 
 function buildPatchInsertRows(
   state: SeedStats,
@@ -262,13 +278,42 @@ async function tryRun(args: {
  * unconstrained `VACUUM ANALYZE` runs at the end of the seed via
  * {@link runFinalMaintenance}.
  */
+export async function writeLoadProgressFast(args: {
+  sql: SqlClient;
+  patch: PatchInput;
+}): Promise<void> {
+  const { sql, patch } = args;
+  const nowIso = new Date().toISOString();
+  const patchRow = {
+    patch_id: patch.patchId,
+    entity_id: patch.entityId,
+    entity_type: patch.entityType,
+    attributes: patch.attributes,
+    created_at: nowIso,
+    recorded_at: nowIso,
+    parent_id: patch.parentId,
+  };
+  const snapshotRow = {
+    entity_id: patch.entityId,
+    entity_type: patch.entityType,
+    attributes: patch.attributes,
+  };
+  await sql.transaction(async (tx) => {
+    await tx.run(INSERT_PATCHES_BATCH, [JSON.stringify([patchRow])]);
+    await tx.run(INSERT_LOAD_SNAPSHOT_UPSERT, [JSON.stringify([snapshotRow])]);
+  });
+}
+
 export async function runInterimMaintenance(args: {
   sql: SqlClient;
   reporter: PuzzleSeedReporter;
   log: Logger;
   state: SeedStats;
+  deferIndexes: boolean;
+  checkpointEvery: number;
 }): Promise<void> {
-  const { sql, reporter, log, state } = args;
+  const { sql, reporter, log, state, deferIndexes, checkpointEvery } = args;
+  if (deferIndexes || checkpointEvery <= 0) return;
   reporter.phase('Interim maintenance (CHECKPOINT + VACUUM ANALYZE)', {
     batchesFlushedSoFar: state.batchesFlushed,
     processedSoFar: state.processed,
@@ -295,10 +340,14 @@ async function reindexPuzzleIndexes(
   log: Logger
 ): Promise<void> {
   // `REINDEX INDEX CONCURRENTLY` cannot run inside a transaction block.
-  // We list only `pdb_idx_chess_puzzle__*` so the seed doesn't bloat by
-  // rebuilding unrelated declarative indexes belonging to other features.
   const idxRows = await sql.query<{ indexname: string }>(
-    "SELECT indexname FROM pg_indexes WHERE schemaname = current_schema() AND indexname LIKE 'pdb_idx_chess_puzzle__%' ORDER BY indexname"
+    `SELECT indexname
+     FROM pg_indexes
+     WHERE schemaname = current_schema()
+       AND tablename = ?
+       AND indexname NOT LIKE '%\\_pkey' ESCAPE '\\'
+     ORDER BY indexname`,
+    [CHESS_PUZZLE_SNAPSHOTS_TABLE]
   );
   for (const { indexname } of idxRows) {
     await tryRun({

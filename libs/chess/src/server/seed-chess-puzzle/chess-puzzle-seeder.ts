@@ -36,18 +36,18 @@
  * long as they run in **session pooling** mode (transaction mode breaks
  * `SET …` statements that need to persist across the seed's batches).
  *
- * Local (Vault `dev`, `DATABASE_URL` → PGlite socket or other Postgres):
+ * Dev (Vault `dev`, hosted dev Postgres):
  *   VAULT_CONFIG=dev vault run -- bun run --filter @libs/chess seed:puzzles
  *
  * Production (Vault `prd`, `DATABASE_URL` → Postgres):
  *   VAULT_CONFIG=prd vault run -- bun run --filter @libs/chess seed:puzzles
  *
- * Options: `--source`, `--cache-dir`, `--batch-size` (default 1000),
- *   `--limit`, `--no-resume`, `--dry-run`, `--pace-ms` (default 250),
- *   `--checkpoint-every` (default 25), `--progress-every` (default 10),
- *   `--rebuild-indexes`, `--json` (one JSON log line per event),
+ * Options: `--profile auto|fast|managed` (default `auto`), `--source`,
+ *   `--cache-dir`, `--batch-size`, `--limit`, `--no-resume`, `--dry-run`,
+ *   `--pace-ms`, `--checkpoint-every`, `--progress-every`, `--defer-indexes`,
+ *   `--no-defer-indexes`, `--rebuild-indexes`, `--json`,
  *   `--pretty` / `--no-pretty` (TTY progress styling).
- * Default: colored progress on stderr when stderr is a TTY and `CI` is unset.
+ * Profiles pick batch size / throttling; explicit flags override the preset.
  */
 
 import {
@@ -67,7 +67,13 @@ import { PatchDbCompactionPolicyRegistry } from '@pkgs/patch-db/policy/compactio
 import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres-connect';
-import { gamezillaPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import {
+  assertDatabaseUrlAllowedForVaultConfig,
+  assertDevVaultConfig,
+  PRODUCTION_VAULT_CONFIG,
+} from '@libs/infra/shared/database-url-policy';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { VaultCli } from '@pkgs/vault/vault-cli';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
 import {
@@ -77,9 +83,15 @@ import {
   runFinalMaintenance,
   runInterimMaintenance,
   sleep,
+  writeLoadProgressFast,
   type SeedStats,
 } from './fast-path';
 import { dropPuzzleSnapshotIndexes } from './defer-indexes';
+import {
+  formatProfileLabel,
+  resolveSeedProfile,
+  type ResolvedSeedProfile,
+} from './profile';
 import { createPuzzleSeedReporter, type PuzzleSeedReporter } from './reporter';
 import { contentAddressedPatchId, rowToPuzzleBatchEntry } from './row';
 import {
@@ -91,9 +103,9 @@ import {
 
 type StreamContext = {
   cli: Cli;
+  profile: ResolvedSeedProfile;
   resolved: ResolvedSource;
   sql: SqlClient;
-  patchDb: PatchDb;
   reporter: PuzzleSeedReporter;
   log: Logger;
   resumeCursor: string | null;
@@ -151,7 +163,7 @@ export class ChessPuzzleSeeder {
   async #createSqlClient(databaseUrl: string): Promise<{ sql: SqlClient }> {
     const { sqlClient } = await openPgClient({
       connectionString: databaseUrl,
-      dbScope: gamezillaPostgresDbScope(),
+      dbScope: appPostgresDbScope(),
       clientOptions: {
         keepAlive: true,
         keepAliveInitialDelayMillis: 10_000,
@@ -170,8 +182,8 @@ export class ChessPuzzleSeeder {
     // `autoCompactOnWrite: false`: each puzzle's `patchId` is content-addressed
     // and `INSERT … ON CONFLICT DO NOTHING` keeps it at exactly one patch per
     // entity, so post-write compaction is always a no-op. This PatchDb is
-    // only used for the small `chess.puzzle.load` progress entity (a few
-    // writes total) — bulk puzzle inserts go through `flushPuzzleBatchFast`.
+    // only used for the initial `chess.puzzle.load` read — bulk puzzle
+    // inserts and progress writes go through the fast path.
     return new PatchDbImplPostgres(sql, {
       autoCompactOnWrite: false,
       compactionPolicy: compaction.resolve,
@@ -243,22 +255,20 @@ export class ChessPuzzleSeeder {
   }
 
   async #persistResumeCursor(args: {
-    patchDb: PatchDb;
+    sql: SqlClient;
     state: SeedStats;
     sourceEtag: string;
   }): Promise<void> {
-    const { patchDb, state, sourceEtag } = args;
+    const { sql, state, sourceEtag } = args;
     if (state.lastPuzzleId === null) return;
-    await patchDb.write(
-      [
-        this.#loadProgressPatchInput({
-          sourceEtag,
-          cursor: state.lastPuzzleId,
-          finishedAt: null,
-        }),
-      ],
-      PATCHES_DB_SYSTEM_CONTEXT
-    );
+    await writeLoadProgressFast({
+      sql,
+      patch: this.#loadProgressPatchInput({
+        sourceEtag,
+        cursor: state.lastPuzzleId,
+        finishedAt: null,
+      }),
+    });
   }
 
   async #resolveArchive(
@@ -269,12 +279,7 @@ export class ChessPuzzleSeeder {
     reporter.phase('Lichess puzzle seed', {
       source: cli.source,
       cacheDir: cli.cacheDir,
-      batchSize: cli.batchSize,
-      paceMs: cli.paceMs,
-      checkpointEvery: cli.checkpointEvery,
-      progressEvery: cli.progressEvery,
-      rebuildIndexes: cli.rebuildIndexes,
-      deferIndexes: cli.deferIndexes,
+      profile: cli.profile,
       limit: cli.limit,
       dryRun: cli.dryRun,
       prettyOutput: cli.prettyOutput,
@@ -339,7 +344,7 @@ export class ChessPuzzleSeeder {
     rowState: StreamRowState;
   }): Promise<void> {
     const { ctx, rowState } = args;
-    if (rowState.state.batch.length < ctx.cli.batchSize) return;
+    if (rowState.state.batch.length < ctx.profile.batchSize) return;
     await flushPuzzleBatchFast({
       sql: ctx.sql,
       reporter: ctx.reporter,
@@ -347,27 +352,29 @@ export class ChessPuzzleSeeder {
     });
     if (
       rowState.state.batchesFlushed - rowState.lastProgressBatchIdx >=
-      ctx.cli.progressEvery
+      ctx.profile.progressEvery
     ) {
       await this.#persistResumeCursor({
-        patchDb: ctx.patchDb,
+        sql: ctx.sql,
         state: rowState.state,
         sourceEtag: ctx.resolved.etag,
       });
       rowState.lastProgressBatchIdx = rowState.state.batchesFlushed;
     }
     if (
-      ctx.cli.checkpointEvery > 0 &&
-      rowState.state.batchesFlushed % ctx.cli.checkpointEvery === 0
+      ctx.profile.checkpointEvery > 0 &&
+      rowState.state.batchesFlushed % ctx.profile.checkpointEvery === 0
     ) {
       await runInterimMaintenance({
         sql: ctx.sql,
         reporter: ctx.reporter,
         log: ctx.log,
         state: rowState.state,
+        deferIndexes: ctx.profile.deferIndexes,
+        checkpointEvery: ctx.profile.checkpointEvery,
       });
     }
-    await sleep(ctx.cli.paceMs);
+    await sleep(ctx.profile.paceMs);
   }
 
   async #processPuzzleRow(args: {
@@ -392,10 +399,12 @@ export class ChessPuzzleSeeder {
       lastProgressBatchIdx: 0,
     };
     ctx.reporter.phase('Stream puzzles into PatchDB (fast path)', {
-      batchSize: ctx.cli.batchSize,
-      paceMs: ctx.cli.paceMs,
-      checkpointEvery: ctx.cli.checkpointEvery,
-      progressEvery: ctx.cli.progressEvery,
+      profile: formatProfileLabel(this.#cli, ctx.profile),
+      batchSize: ctx.profile.batchSize,
+      paceMs: ctx.profile.paceMs,
+      checkpointEvery: ctx.profile.checkpointEvery,
+      progressEvery: ctx.profile.progressEvery,
+      deferIndexes: ctx.profile.deferIndexes,
     });
     try {
       await iteratePuzzleRows(
@@ -412,7 +421,7 @@ export class ChessPuzzleSeeder {
       state: rowState.state,
     });
     await this.#persistResumeCursor({
-      patchDb: ctx.patchDb,
+      sql: ctx.sql,
       state: rowState.state,
       sourceEtag: ctx.resolved.etag,
     });
@@ -456,18 +465,15 @@ export class ChessPuzzleSeeder {
 
   async #runSeedInner(args: {
     cli: Cli;
+    profile: ResolvedSeedProfile;
     resolved: ResolvedSource;
     reporter: PuzzleSeedReporter;
     log: Logger;
     sql: SqlClient;
     patchDb: PatchDb;
+    prior: PuzzleLoadPriorState;
   }): Promise<void> {
-    const { cli, resolved, reporter, log, sql, patchDb } = args;
-    const prior = this.#loadStateFromAttrs(
-      await this.#readLoadSnapshotAttrs(patchDb)
-    );
-    if (this.#maybeReportAlreadyComplete({ cli, resolved, prior, reporter }))
-      return;
+    const { cli, profile, resolved, reporter, log, sql, prior } = args;
     const resumeCursor = this.#resolveResumeCursor({
       cli,
       resolved,
@@ -476,28 +482,26 @@ export class ChessPuzzleSeeder {
     });
     const stats = await this.#streamPuzzles({
       cli,
+      profile,
       resolved,
       sql,
-      patchDb,
       reporter,
       log,
       resumeCursor,
     });
-    await patchDb.write(
-      [
-        this.#loadProgressPatchInput({
-          sourceEtag: resolved.etag,
-          cursor: stats.lastPuzzleId,
-          finishedAt: new Date().toISOString(),
-        }),
-      ],
-      PATCHES_DB_SYSTEM_CONTEXT
-    );
+    await writeLoadProgressFast({
+      sql,
+      patch: this.#loadProgressPatchInput({
+        sourceEtag: resolved.etag,
+        cursor: stats.lastPuzzleId,
+        finishedAt: new Date().toISOString(),
+      }),
+    });
     await runFinalMaintenance({
       sql,
       reporter,
       log,
-      rebuildIndexes: cli.rebuildIndexes,
+      rebuildIndexes: profile.rebuildIndexes,
     });
     reporter.phase('seed:puzzles: done', {
       processed: stats.processed,
@@ -522,23 +526,53 @@ export class ChessPuzzleSeeder {
       note: 'Schema (patches/snapshots + pdb_idx_chess_puzzle__*) must already exist; run `bun run --filter @apps/api db:migrate` first on a fresh database.',
     });
     const store = createVaultSecretStoreForScripts();
+    const vaultConfig =
+      process.env['VAULT_CONFIG']?.trim() ||
+      new VaultCli().resolveScope().config;
+    if (vaultConfig !== PRODUCTION_VAULT_CONFIG) {
+      assertDevVaultConfig(vaultConfig);
+    }
     const databaseUrl = (
       await store.getRequired('DATABASE_URL')
     ).readSecretValue();
+    await assertDatabaseUrlAllowedForVaultConfig(databaseUrl, vaultConfig, {
+      surface: 'chess:seed-puzzles',
+    });
     const { sql: sqlClient } = await this.#createSqlClient(databaseUrl);
     try {
-      await applySessionTuning(sqlClient, log);
-      if (cli.deferIndexes) {
+      const managed = await applySessionTuning(sqlClient, log);
+      const profile = resolveSeedProfile({ cli, managed });
+      reporter.phase('Seed profile resolved', {
+        profile: formatProfileLabel(cli, profile),
+        managedDetected: profile.managedDetected,
+        batchSize: profile.batchSize,
+        paceMs: profile.paceMs,
+        checkpointEvery: profile.checkpointEvery,
+        progressEvery: profile.progressEvery,
+        deferIndexes: profile.deferIndexes,
+        rebuildIndexes: profile.rebuildIndexes,
+      });
+      const patchDb = this.#createSeedPatchDb(sqlClient);
+      const prior = this.#loadStateFromAttrs(
+        await this.#readLoadSnapshotAttrs(patchDb)
+      );
+      if (
+        this.#maybeReportAlreadyComplete({ cli, resolved, prior, reporter })
+      ) {
+        return;
+      }
+      if (profile.deferIndexes) {
         await dropPuzzleSnapshotIndexes({ sql: sqlClient, log });
       }
-      const patchDb = this.#createSeedPatchDb(sqlClient);
       await this.#runSeedInner({
         cli,
+        profile,
         resolved,
         reporter,
         log,
         sql: sqlClient,
         patchDb,
+        prior,
       });
     } finally {
       await sqlClient.disconnect();

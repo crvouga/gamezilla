@@ -27,9 +27,9 @@ function httpEndpoints(outputs: InfraOutputs): readonly HttpEndpointCheck[] {
       url: outputs.client_url,
     },
     {
-      label: 'API /health',
+      label: 'API /api/health',
       url: outputs.api_url,
-      probePath: '/health',
+      probePath: '/api/health',
     },
   ];
 }

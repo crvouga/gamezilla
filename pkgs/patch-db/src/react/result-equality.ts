@@ -17,7 +17,6 @@ export function makeEmptyResult(query: PatchDbQuery): CachedQueryResult {
     query,
     entities: [] as Entity[],
     patches: [] as Patch[],
-    total: 0,
     hasMore: false,
     nextCursor: null,
     isLoading: true,
@@ -68,7 +67,6 @@ export function resultsShallowEqual(
   return (
     a.entities === b.entities &&
     a.patches === b.patches &&
-    a.total === b.total &&
     a.hasMore === b.hasMore &&
     a.nextCursor === b.nextCursor &&
     a.isLoading === b.isLoading

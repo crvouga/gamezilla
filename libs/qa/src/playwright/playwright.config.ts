@@ -5,6 +5,7 @@ import path from 'node:path';
 import { assert } from '@pkgs/assert';
 
 import { resolveLocalPreviewApiOriginSync } from '../constants/local-api-preview';
+import { applyPlaywrightPreviewEnv } from './playwright-preview-env';
 
 // Top-level `await` would turn this file into an async ES module, which
 // Playwright's config loader (CommonJS `require()` via pirates) refuses to
@@ -16,6 +17,12 @@ const LOCAL_API_PREVIEW_ORIGIN = resolveLocalPreviewApiOriginSync();
 // at the config-load boundary, rather than as a confused turbo task or a
 // `[WebServer] exit 1` from a spawned child. Every assertion below has fired
 // at least once in CI history; do not weaken without proof.
+//
+// Vault-backed env (DATABASE_URL, etc.) is applied only when secrets are
+// already injected — see `applyPlaywrightPreviewEnv` + globalSetup. The
+// Playwright VS Code extension loads this file without `vault run`; crashing
+// on missing DATABASE_URL breaks test discovery (`listFiles: test server
+// connection closed`).
 // ---------------------------------------------------------------------------
 
 assert.nonEmptyString(
@@ -54,9 +61,6 @@ assert.equals(
 const baseURL = 'http://localhost:5173';
 /** Playwright readiness probe — static `/` is up before API + dev IdP finish booting. */
 const previewReadyURL = `${baseURL}/ready`;
-/** Mirrors {@link @pkgs/postgres} defaults and {@link @pkgs/dev-idp} `DEFAULT_DATABASE_URL`. */
-const LOCAL_EMBEDDED_POSTGRES_URL =
-  'postgres://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable';
 let baseURLParsed: URL | undefined;
 assert.notThrows(
   () => {
@@ -72,44 +76,10 @@ assert.enum(
   'baseURL must use http(s)'
 );
 
-// Bake the API origin into the client export as same-origin (:5173) so Better
-// Auth cookies are first-party. The preview server proxies `/api/*` to the
-// wrangler worker at LOCAL_API_PREVIEW_ORIGIN.
-process.env['LOCAL_PREVIEW_API_PROXY_TARGET'] = LOCAL_API_PREVIEW_ORIGIN;
-process.env['BETTER_AUTH_PREVIEW_API_URL'] = baseURL;
-process.env['API_URL'] = baseURL;
-process.env['EXPO_PUBLIC_API_URL'] = baseURL;
-// Vault `dev` `DATABASE_URL` may target hosted Postgres, but `turbo preview` boots
-// `@pkgs/postgres` and the API Worker reads `DATABASE_URL` from Vault at request
-// time. Without this override, `migrate-db` runs against Vault while Better Auth
-// reads an empty local cluster — OAuth fails in CI.
-process.env['DATABASE_URL'] = LOCAL_EMBEDDED_POSTGRES_URL;
-
-assert.equals(
-  process.env['BETTER_AUTH_PREVIEW_API_URL'],
+void applyPlaywrightPreviewEnv({
   baseURL,
-  'BETTER_AUTH_PREVIEW_API_URL must match the web preview origin for same-origin OAuth'
-);
-assert.equals(
-  process.env['LOCAL_PREVIEW_API_PROXY_TARGET'],
-  LOCAL_API_PREVIEW_ORIGIN,
-  'LOCAL_PREVIEW_API_PROXY_TARGET must point at the wrangler preview worker'
-);
-assert.equals(
-  process.env['API_URL'],
-  baseURL,
-  'API_URL must be the web preview origin (same-origin auth cookies)'
-);
-assert.equals(
-  process.env['EXPO_PUBLIC_API_URL'],
-  baseURL,
-  'EXPO_PUBLIC_API_URL must match API_URL for the client export'
-);
-assert.equals(
-  process.env['DATABASE_URL'],
-  LOCAL_EMBEDDED_POSTGRES_URL,
-  'DATABASE_URL must target the embedded @pkgs/postgres cluster for preview migrations'
-);
+  localApiPreviewOrigin: LOCAL_API_PREVIEW_ORIGIN,
+});
 
 const BUN_NODE_SHIM_PATTERN = /(?:^|\/)bun-node-[^/]+$/;
 const rawPath = process.env['PATH'];
@@ -144,7 +114,6 @@ const turboPreviewCmd: string[] = [
   'turbo',
   'run',
   'preview',
-  '--filter=@pkgs/postgres',
   '--filter=@pkgs/dev-idp',
   '--filter=@apps/api',
   '--filter=@apps/client',
@@ -161,6 +130,7 @@ const isCi = Boolean(process.env['CI']);
 
 export default defineConfig({
   testDir: './tests',
+  globalSetup: path.join(__dirname, 'playwright-global-setup.ts'),
   fullyParallel: false,
   forbidOnly: isCi,
   retries: isCi ? 1 : 0,
@@ -188,7 +158,12 @@ export default defineConfig({
     trace: 'on-first-retry',
     video: 'on',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
+    // Pixel 5 (Chromium + mobile viewport). iPhone presets use WebKit, but CI
+    // and `install:browsers` only fetch Chromium — see deployment-pipeline.yml.
+    { name: 'mobile', use: { ...devices['Pixel 5'] } },
+  ],
   webServer: {
     command: turboPreviewCmd.join(' '),
     cwd: repoRoot,

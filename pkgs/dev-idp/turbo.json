@@ -1,0 +1,11 @@
+{
+  "$schema": "https://v2-9-18.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "preview": {
+      "dependsOn": ["kill", "setup", "^build", "build"],
+      "persistent": true,
+      "cache": false
+    }
+  }
+}

@@ -27,7 +27,6 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
   TURBO_LOG_ORDER: () => 'auto',
   TURBO_TELEMETRY_DISABLED: () => '1',
   TURBO_CACHE: () => 'remote:rw',
-  API_URL: apiWorkerPublicOrigin,
   EXPO_PUBLIC_API_URL: apiWorkerPublicOrigin,
   BETTER_AUTH_SECRET: () =>
     Array.from(crypto.getRandomValues(new Uint8Array(32)), (b) =>
@@ -37,8 +36,11 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
 
 const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
   'EXPO_PUBLIC_COMMIT_HASH',
+  'EXPO_PUBLIC_COMMIT_DATE',
   'LOCAL_PREVIEW_API_ORIGIN',
   'PLANETSCALE_DATABASE',
+  'PLANETSCALE_SERVICE_TOKEN_ID',
+  'PLANETSCALE_SERVICE_TOKEN',
   'STRIPE_WEBHOOK_SECRET',
   'PLANETSCALE_ORG',
   'PLANETSCALE_DATABASE_URL',
@@ -46,6 +48,7 @@ const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
 ];
 
 const STALE_KEYS_TO_DELETE: ReadonlyArray<string> = [
+  'API_URL',
   'CLERK_PUBLISHABLE_KEY',
   'CLERK_SECRET_KEY',
 ];

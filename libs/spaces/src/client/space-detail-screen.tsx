@@ -7,14 +7,36 @@ import { SpaceRoomProvider } from './room/space-room-context';
 import { useAutoLeaveIfEnded } from './lifecycle/use-auto-leave-if-ended';
 import { useCurrentSpaceIds } from './use-current-space-ids';
 import { useCurrentSpaceRole } from './use-current-space-role';
-import { useLocalSearchParams } from 'expo-router';
 import { useState, type ReactNode } from 'react';
+import {
+  useSpaceRouteId,
+  useStripRedundantSpaceRouteSearchParams,
+} from './space-routes';
 
 /** Route entry point — reads `id` from the route and dispatches to atoms. */
 export function SpaceDetailScreen(): ReactNode {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const spaceId = typeof id === 'string' ? id : '';
+  const spaceId = useSpaceRouteId();
 
+  useStripRedundantSpaceRouteSearchParams(spaceId);
+
+  if (spaceId.length === 0) {
+    return <SpaceLoadingScreen />;
+  }
+
+  return (
+    <SpacesNavProvider>
+      <SpaceRoomProvider spaceId={spaceId}>
+        <SpaceDetailBody spaceId={spaceId} />
+      </SpaceRoomProvider>
+    </SpacesNavProvider>
+  );
+}
+
+type SpaceDetailBodyProps = {
+  spaceId: string;
+};
+
+function SpaceDetailBody({ spaceId }: SpaceDetailBodyProps): ReactNode {
   const { isLoading } = useCurrentSpaceIds();
   const role = useCurrentSpaceRole(spaceId);
   const inThisSpace = role !== null;
@@ -25,24 +47,22 @@ export function SpaceDetailScreen(): ReactNode {
   const openDebug = () => setDebugOpen(true);
   const closeDebug = () => setDebugOpen(false);
 
-  if (spaceId.length === 0 || isLoading) {
+  if (isLoading) {
     return <SpaceLoadingScreen />;
   }
 
   return (
-    <SpacesNavProvider>
-      <SpaceRoomProvider spaceId={spaceId}>
-        {inThisSpace ? (
-          <ActiveSpace spaceId={spaceId} onOpenDebug={openDebug} />
-        ) : (
-          <SpaceJoinPrompt spaceId={spaceId} onOpenDebug={openDebug} />
-        )}
-        <SpaceDebugModal
-          visible={debugOpen}
-          onClose={closeDebug}
-          spaceId={spaceId}
-        />
-      </SpaceRoomProvider>
-    </SpacesNavProvider>
+    <>
+      {inThisSpace ? (
+        <ActiveSpace spaceId={spaceId} onOpenDebug={openDebug} />
+      ) : (
+        <SpaceJoinPrompt spaceId={spaceId} onOpenDebug={openDebug} />
+      )}
+      <SpaceDebugModal
+        visible={debugOpen}
+        onClose={closeDebug}
+        spaceId={spaceId}
+      />
+    </>
   );
 }

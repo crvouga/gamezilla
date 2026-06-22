@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
+import { COMMIT_HASH_HEX_REGEX, assertCommitDateIso } from '@pkgs/git';
 
 export { COMMIT_HASH_HEX_REGEX };
 
@@ -29,4 +29,31 @@ export function getCommitHash(): string {
 
 export function getShortCommitHash(): string {
   return getCommitHash().slice(0, 7);
+}
+
+/**
+ * Committer date baked into the bundle at build time (git `log --format=%cI`).
+ */
+export function getCommitDate(): string {
+  // eslint-disable-next-line expo/no-dynamic-env-var -- `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
+  const raw = process.env['EXPO_PUBLIC_COMMIT_DATE'];
+  assert.string(
+    raw,
+    'EXPO_PUBLIC_COMMIT_DATE is required; run `bun run dev` (with Vault) or set apps/client/.env.local'
+  );
+  const normalized = raw.trim();
+  assertCommitDateIso(normalized);
+  return normalized;
+}
+
+export function formatCommitDate(iso: string, locale: string): string {
+  assertCommitDateIso(iso);
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short',
+  }).format(new Date(iso));
 }

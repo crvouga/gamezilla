@@ -72,6 +72,10 @@ msgstr "{hostDisplayName}'s space"
 msgid "{latencyMs} ms"
 msgstr "{latencyMs} ms"
 
+#: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
+msgid "{loaded} loaded · {shown} shown"
+msgstr "{loaded} loaded · {shown} shown"
+
 #: apps/client/src/ui/app-header/app-account-menu.tsx
 #: apps/client/src/ui/use-account-actions.tsx
 #~ msgid "{ms} ms"
@@ -82,8 +86,8 @@ msgid "{timeLabel} · {patchCount} patches · {entityTypes}"
 msgstr "{timeLabel} · {patchCount} patches · {entityTypes}"
 
 #: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
-msgid "{total} total · {loaded} loaded · {shown} shown"
-msgstr "{total} total · {loaded} loaded · {shown} shown"
+#~ msgid "{total} total · {loaded} loaded · {shown} shown"
+#~ msgstr "{total} total · {loaded} loaded · {shown} shown"
 
 #: pkgs/patch-db-widgets/src/db-client/entity-types-screen.tsx
 msgid "{totalRows} snapshot row(s) · {typeCount} type(s)"
@@ -461,8 +465,8 @@ msgstr "Always"
 #~ msgstr "Anastasia's pattern — knight blocks the escape, rook delivers."
 
 #: apps/client/src/settings/about-screen.tsx
-msgid "API"
-msgstr "API"
+#~ msgid "API"
+#~ msgstr "API"
 
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "API endpoint"
@@ -486,8 +490,12 @@ msgstr "App"
 #~ msgstr "App version and build metadata"
 
 #: apps/client/src/settings/settings-screen.tsx
-msgid "App version, build, and commit hash"
-msgstr "App version, build, and commit hash"
+#~ msgid "App version, build, and commit hash"
+#~ msgstr "App version, build, and commit hash"
+
+#: apps/client/src/settings/settings-screen.tsx
+msgid "App version, build, commit hash, and commit date"
+msgstr "App version, build, commit hash, and commit date"
 
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/settings/theme-screen.tsx
@@ -1212,6 +1220,10 @@ msgstr "Commit hash"
 msgid "Committed count"
 msgstr "Committed count"
 
+#: apps/client/src/settings/about-screen.tsx
+msgid "Committed: {formattedCommitDate}"
+msgstr "Committed: {formattedCommitDate}"
+
 #: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 msgid "Completed"
 msgstr "Completed"
@@ -1249,8 +1261,8 @@ msgid "Connecting to {url}"
 msgstr "Connecting to {url}"
 
 #: libs/spaces/src/client/debug/space-counter-panel.tsx
-msgid "Connecting to room…"
-msgstr "Connecting to room…"
+#~ msgid "Connecting to room…"
+#~ msgstr "Connecting to room…"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
@@ -1345,6 +1357,10 @@ msgstr "Correct"
 #: packages/auth/src/client/use-account-remove-local-data.ts
 #~ msgid "Could not remove local data"
 #~ msgstr "Could not remove local data"
+
+#: apps/client/src/providers/local-database-boot-screen.tsx
+msgid "Could not start local database"
+msgstr "Could not start local database"
 
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "Could not wipe database"
@@ -2961,6 +2977,14 @@ msgstr "Games"
 msgid "Gamezilla"
 msgstr "Gamezilla"
 
+#: apps/client/src/providers/local-database-boot-screen.tsx
+msgid "Gamezilla is open in another tab"
+msgstr "Gamezilla is open in another tab"
+
+#: apps/client/src/providers/local-database-boot-screen.tsx
+msgid "Gamezilla stores offline data in one browser tab at a time. Close every other tab of this site, then reload. If you want to use this tab instead, reset local data below (your account on the server is unchanged)."
+msgstr "Gamezilla stores offline data in one browser tab at a time. Close every other tab of this site, then reload. If you want to use this tab instead, reset local data below (your account on the server is unchanged)."
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Geometric finish — pieces in line."
 #~ msgstr "Geometric finish — pieces in line."
@@ -4333,6 +4357,7 @@ msgstr "Model"
 
 #: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
 #: pkgs/ui/src/components/screen-base/screen-base-header.tsx
+#: pkgs/ui/src/components/screen-base/screen-base-header.tsx
 msgid "More"
 msgstr "More"
 
@@ -4913,6 +4938,10 @@ msgstr "Off"
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Offline"
 msgstr "Offline"
+
+#: libs/spaces/src/client/debug/space-counter-panel.tsx
+msgid "Offline — changes will sync when reconnected"
+msgstr "Offline — changes will sync when reconnected"
 
 #: pkgs/patch-db-widgets/src/db-client/query-screen.tsx
 msgid "offset"
@@ -5748,6 +5777,10 @@ msgstr "reset"
 #: pkgs/patch-db-widgets/src/playground-header.tsx
 msgid "Reset"
 msgstr "Reset"
+
+#: apps/client/src/providers/local-database-boot-screen.tsx
+msgid "Reset local data and reload"
+msgstr "Reset local data and reload"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Reset position"
@@ -7530,6 +7563,7 @@ msgstr "Transform"
 #~ msgid "Try a check. One of them mates."
 #~ msgstr "Try a check. One of them mates."
 
+#: apps/client/src/providers/local-database-boot-screen.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
 msgid "Try again"
