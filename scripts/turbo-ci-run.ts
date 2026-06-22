@@ -35,8 +35,7 @@ function resolveCacheFlag(): string {
 
 const cache = resolveCacheFlag();
 
-const TURBO_OUTPUT_LOGS =
-  process.env.TURBO_OUTPUT_LOGS?.trim() || 'hash-only';
+const TURBO_OUTPUT_LOGS = process.env.TURBO_OUTPUT_LOGS?.trim() || 'hash-only';
 
 const TURBO_CI_FLAGS = [
   '--concurrency=6',

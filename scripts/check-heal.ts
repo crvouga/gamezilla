@@ -154,7 +154,9 @@ async function main(): Promise<void> {
   if (!cli.dryRun) {
     try {
       resolvedApiKey = requireApiKey(cli.apiKey);
-      healLog(`api key: ${describeApiKeySource(cli.apiKey)} (${resolvedApiKey.slice(0, 8)}…)`);
+      healLog(
+        `api key: ${describeApiKeySource(cli.apiKey)} (${resolvedApiKey.slice(0, 8)}…)`
+      );
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error(`check:heal: ${msg}`);
@@ -168,7 +170,9 @@ async function main(): Promise<void> {
     process.stdout.write(
       `\ncheck:heal iteration ${String(iteration)}/${String(cli.maxIterations)}\n`
     );
-    healLog(`iteration ${String(iteration)}/${String(cli.maxIterations)} begin`);
+    healLog(
+      `iteration ${String(iteration)}/${String(cli.maxIterations)} begin`
+    );
 
     const checkStarted = Date.now();
     const failures = await runCheckSteps();

@@ -5,9 +5,7 @@ import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import { ChessPuzzleBoardSkeleton } from './chess-puzzle-board-skeleton';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
-import {
-  ChessPuzzleE2ELoadingStatus,
-} from './chess-puzzle-e2e-loading-status';
+import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
 import { ChessPuzzleSummaryOverlay } from './chess-puzzle-summary-overlay';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
@@ -178,9 +176,7 @@ export function PuzzlePlayScreen(): ReactNode {
     e2eLoadingStatus,
   } = usePuzzlePlayScreenState();
 
-  const e2ePickStatus = (
-    <ChessPuzzleE2ELoadingStatus {...e2eLoadingStatus} />
-  );
+  const e2ePickStatus = <ChessPuzzleE2ELoadingStatus {...e2eLoadingStatus} />;
 
   // Until we have a first puzzle id, render only the skeleton in the
   // board slot's footprint — but DO NOT unmount the player once it has
