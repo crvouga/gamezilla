@@ -5,11 +5,19 @@
  * `EXPO_DEV_PORT` (default 5173) forwards `/api/*` (including WebSocket
  * `/api/room`) to wrangler so `getApiBaseUrl()` same-origin logic
  * works during `bun dev`, matching `preview-server.ts` / Playwright.
+ *
+ * On macOS, auto-opens the project-dedicated iOS simulator with the
+ * development build once Metro is ready (`EXPO_DEV_AUTO_IOS=0` to disable).
  */
 import { spawn, type ChildProcess } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import {
+  autoOpenDedicatedSim,
+  isAutoOpenIosEnabled,
+  SIM_NAME,
+} from './ios-dedicated-sim';
 import { startWebDevProxyServer } from './local-api-proxy';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
@@ -44,6 +52,8 @@ function spawnDevServer(passthrough: string[]): ChildProcess {
   );
 }
 
+const abort = new AbortController();
+
 const proxy = startWebDevProxyServer({
   port: Number(proxyPort),
   webTarget: `http://127.0.0.1:${metroPort}`,
@@ -53,12 +63,18 @@ const proxy = startWebDevProxyServer({
 process.stdout.write(
   `[client-dev] open ${proxy.url.origin} (metro :${metroPort})\n`
 );
+if (isAutoOpenIosEnabled()) {
+  process.stderr.write(
+    `[client-dev] iOS sim "${SIM_NAME}" will open when Metro is ready (EXPO_DEV_AUTO_IOS=0 to disable).\n`
+  );
+}
 
 const child = spawnDevServer(
   process.argv.slice(2).filter((arg) => arg !== '--')
 );
 
 function shutdown(sig: NodeJS.Signals): void {
+  abort.abort();
   child.kill(sig);
   void proxy.stop(true);
 }
@@ -70,6 +86,25 @@ for (const sig of ['SIGINT', 'SIGTERM'] as const) {
 }
 
 child.on('exit', (code) => {
+  abort.abort();
   void proxy.stop(true);
   process.exit(code ?? 0);
 });
+
+if (isAutoOpenIosEnabled()) {
+  const metroUrl = `http://127.0.0.1:${metroPort}`;
+  void autoOpenDedicatedSim({
+    metroUrl,
+    abort: abort.signal,
+  }).catch((err: unknown) => {
+    if (abort.signal.aborted) return;
+    const msg = err instanceof Error ? err.message : String(err);
+    process.stderr.write(`[client-dev] iOS sim auto-open failed: ${msg}\n`);
+    process.stderr.write(
+      `[client-dev] Web dev still available at http://127.0.0.1:${proxyPort}\n`
+    );
+    process.stderr.write(
+      `[client-dev] Install dev client manually: bunx expo run:ios --device "${SIM_NAME}"\n`
+    );
+  });
+}
