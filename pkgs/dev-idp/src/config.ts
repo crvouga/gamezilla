@@ -47,9 +47,7 @@ export const DEV_IDP_DEFAULT_PORT = 5556;
 export const DEV_IDP_DEFAULT_ORIGIN = `http://127.0.0.1:${DEV_IDP_DEFAULT_PORT}`;
 
 /** Resolves the dev IdP TCP port from an optional `DEV_IDP_PORT` binding. */
-export function readDevIdpPortFromBinding(
-  raw: string | undefined
-): number {
+export function readDevIdpPortFromBinding(raw: string | undefined): number {
   const trimmed = raw?.trim();
   if (trimmed === undefined || trimmed === '') return DEV_IDP_DEFAULT_PORT;
   const n = Number(trimmed);
@@ -64,9 +62,7 @@ export function resolveDevIdpOrigin(port?: number): string {
   const resolved =
     port ??
     readDevIdpPortFromBinding(
-      typeof process !== 'undefined'
-        ? process.env['DEV_IDP_PORT']
-        : undefined
+      typeof process !== 'undefined' ? process.env['DEV_IDP_PORT'] : undefined
     );
   return `http://127.0.0.1:${String(resolved)}`;
 }

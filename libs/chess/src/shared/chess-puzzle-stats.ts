@@ -36,8 +36,7 @@ function terminalRows(
   interactions: readonly ChessPuzzleInteractionRow[]
 ): ChessPuzzleInteractionRow[] {
   return interactions.filter(
-    (r) =>
-      isTerminalKind(r.kind) && r.ratingBefore > 0 && r.ratingAfter > 0
+    (r) => isTerminalKind(r.kind) && r.ratingBefore > 0 && r.ratingAfter > 0
   );
 }
 
@@ -93,7 +92,11 @@ export function deriveChessPuzzleStats(args: {
     null
   );
   const currentElo =
-    latest !== null ? latest.ratingAfter : args.profileRating > 0 ? args.profileRating : 1200;
+    latest !== null
+      ? latest.ratingAfter
+      : args.profileRating > 0
+        ? args.profileRating
+        : 1200;
 
   return {
     currentElo,

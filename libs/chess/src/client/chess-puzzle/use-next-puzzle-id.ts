@@ -6,7 +6,10 @@ import {
   CHESS_PUZZLE_PROFILE_ENTITY_TYPE,
   ChessPuzzleProfileAttr,
 } from '../../shared/chess-puzzle-profile-entities';
-import { pickPuzzleIdFromPool, PUZZLE_NEXT_MAX_BAND } from './next-puzzle-id-helpers';
+import {
+  pickPuzzleIdFromPool,
+  PUZZLE_NEXT_MAX_BAND,
+} from './next-puzzle-id-helpers';
 import { usePuzzleCandidatesQuery } from './use-puzzle-candidates-query';
 
 const DEFAULT_RATING = 1200;

@@ -116,7 +116,12 @@ export async function createSpaceIfNeeded(page: Page): Promise<void> {
 }
 
 async function ensureChessRootMenu(page: Page): Promise<void> {
-  if (await page.getByTestId('chess-menu-puzzle').isVisible().catch(() => false)) {
+  if (
+    await page
+      .getByTestId('chess-menu-puzzle')
+      .isVisible()
+      .catch(() => false)
+  ) {
     return;
   }
 
@@ -160,7 +165,12 @@ export async function openChessPuzzle(page: Page): Promise<void> {
       (await playerElo.isVisible().catch(() => false));
     if (!puzzleReady) {
       if (!(await playScreen.isVisible().catch(() => false))) {
-        if (!(await page.getByTestId('chess-menu-puzzle').isVisible().catch(() => false))) {
+        if (
+          !(await page
+            .getByTestId('chess-menu-puzzle')
+            .isVisible()
+            .catch(() => false))
+        ) {
           await openChessFromGames(page);
         }
         await page.getByTestId('chess-menu-puzzle').click();

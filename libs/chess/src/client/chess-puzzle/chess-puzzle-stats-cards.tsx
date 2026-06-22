@@ -39,12 +39,15 @@ export function ChessPuzzleStatsCards({
 }: ChessPuzzleStatsCardsProps): ReactNode {
   return (
     <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
-      <StatTile label={<Trans>Played</Trans>} value={String(stats.totalPlayed)} />
-      <StatTile label={<Trans>Solved</Trans>} value={String(stats.totalSolved)} />
       <StatTile
-        label={<Trans>Accuracy</Trans>}
-        value={`${stats.accuracy}%`}
+        label={<Trans>Played</Trans>}
+        value={String(stats.totalPlayed)}
       />
+      <StatTile
+        label={<Trans>Solved</Trans>}
+        value={String(stats.totalSolved)}
+      />
+      <StatTile label={<Trans>Accuracy</Trans>} value={`${stats.accuracy}%`} />
       <StatTile
         label={<Trans>Best streak</Trans>}
         value={String(stats.bestStreak)}

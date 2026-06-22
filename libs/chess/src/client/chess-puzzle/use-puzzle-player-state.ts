@@ -13,7 +13,10 @@ import {
   StartChessPuzzlePlay,
 } from '../../shared/chess-puzzle-play';
 import { useChessPuzzleInteractionRecorder } from './use-chess-puzzle-interaction-recorder';
-import { usePuzzleEntityAndInteractions, useChessPuzzleAllInteractions } from './chess-puzzle-play-queries';
+import {
+  usePuzzleEntityAndInteractions,
+  useChessPuzzleAllInteractions,
+} from './chess-puzzle-play-queries';
 import { useChessPuzzleCompletion } from './use-chess-puzzle-completion';
 import { usePuzzleSolver } from './use-chess-puzzle-solver';
 import { usePuzzlePlayerControls } from './use-puzzle-player-controls';

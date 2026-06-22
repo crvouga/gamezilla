@@ -1,7 +1,10 @@
 import { useEntity } from '@pkgs/patch-db/react';
 
 import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '../shared';
-import { useCurrentAccountId, getCachedCurrentAccountId } from './use-current-account-id';
+import {
+  useCurrentAccountId,
+  getCachedCurrentAccountId,
+} from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
 import { useSessionToken } from './use-session-token';
 

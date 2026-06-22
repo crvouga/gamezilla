@@ -9,10 +9,7 @@ export type ChessPuzzleE2EHintsProps = {
   expectedToSquare: string | null;
 };
 
-function buildUci(
-  from: string | null,
-  to: string | null
-): string | null {
+function buildUci(from: string | null, to: string | null): string | null {
   if (from === null || to === null) return null;
   if (from.length === 0 || to.length === 0) return null;
   return `${from}${to}`;

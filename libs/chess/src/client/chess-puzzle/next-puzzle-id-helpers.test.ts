@@ -1,4 +1,7 @@
-import { isSubqueryRef, type PatchDbQueryWhereClause } from '@pkgs/patch-db/interface';
+import {
+  isSubqueryRef,
+  type PatchDbQueryWhereClause,
+} from '@pkgs/patch-db/interface';
 import { describe, expect, test } from 'bun:test';
 
 import { ChessPuzzleAttr } from '../../shared/chess-puzzle-entities';
@@ -13,9 +16,7 @@ import {
 
 type AnyClause = PatchDbQueryWhereClause;
 
-function builtWhere(
-  ...args: Parameters<typeof buildPuzzleWhere>
-): AnyClause {
+function builtWhere(...args: Parameters<typeof buildPuzzleWhere>): AnyClause {
   const w = buildPuzzleWhere(...args);
   expect(w).toBeDefined();
   if (w === undefined) throw new Error('expected defined where clause');
@@ -84,7 +85,9 @@ describe('buildPuzzleWhere (Phase 3: chess subquery wiring)', () => {
   });
 
   test('currentPuzzleId emits an additional `!=` clause separate from the subquery', () => {
-    const flat = flattenAndClauses(builtWhere(1500, 200, 'user_123', 'puzzle_99'));
+    const flat = flattenAndClauses(
+      builtWhere(1500, 200, 'user_123', 'puzzle_99')
+    );
     const neq = flat.find(
       (c) =>
         c.type === '!=' &&

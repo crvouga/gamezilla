@@ -1,7 +1,10 @@
 import { AbacEntityAttr } from '@pkgs/patch-db/abac/abac-entity-attr';
 import type { PatchInput } from '@pkgs/patch-db/interface';
 
-import { deriveOutcomeScore, sliceCurrentPlay } from '../../shared/chess-puzzle-derive';
+import {
+  deriveOutcomeScore,
+  sliceCurrentPlay,
+} from '../../shared/chess-puzzle-derive';
 import type { ChessPuzzleInteractionRow } from '../../shared/chess-puzzle-interaction-entities';
 import {
   CHESS_PUZZLE_PROFILE_ENTITY_TYPE,

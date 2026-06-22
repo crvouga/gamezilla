@@ -1,7 +1,10 @@
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
-import { useSpaceRoomDispatch, useSpaceRoomSelector } from '@libs/spaces/client/room/use-space-room-selector';
+import {
+  useSpaceRoomDispatch,
+  useSpaceRoomSelector,
+} from '@libs/spaces/client/room/use-space-room-selector';
 import { Box } from '@pkgs/ui';
 import { useSync } from '@pkgs/patch-db/react';
 import {

@@ -44,7 +44,9 @@ function seedChessPuzzles(repoRoot: string): void {
 }
 
 /** Ensures hosted dev Postgres has enough chess puzzles for browser QA. */
-export async function ensureChessPuzzlesSeeded(repoRoot: string): Promise<void> {
+export async function ensureChessPuzzlesSeeded(
+  repoRoot: string
+): Promise<void> {
   const count = await countChessPuzzles();
   if (count >= MIN_PUZZLES) {
     process.stdout.write(
