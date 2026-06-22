@@ -17,7 +17,10 @@ export interface InvokeAgentResult {
   readonly durationMs: number;
 }
 
-function resolveAgentCommand(): { readonly cmd: string; readonly prefix: string[] } {
+function resolveAgentCommand(): {
+  readonly cmd: string;
+  readonly prefix: string[];
+} {
   if (which('agent')) {
     return { cmd: 'agent', prefix: [] };
   }
@@ -77,9 +80,7 @@ export async function invokeAgent(
   }
   args.push(options.prompt);
 
-  healLog(
-    `agent: starting (${formatAgentCommand(cmd, args, options.prompt)})`
-  );
+  healLog(`agent: starting (${formatAgentCommand(cmd, args, options.prompt)})`);
   if (options.continueSession) {
     healLog('agent: continuing previous session');
   }

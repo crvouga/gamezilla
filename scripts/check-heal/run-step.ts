@@ -75,9 +75,7 @@ export async function runStep(
   );
 
   if (exitCode === 0) {
-    healLog(
-      `step ${step.stepId}: passed (${formatDuration(durationMs)})`
-    );
+    healLog(`step ${step.stepId}: passed (${formatDuration(durationMs)})`);
   } else {
     healLog(
       `step ${step.stepId}: failed exit ${String(exitCode)} (${formatDuration(durationMs)}, ${String(output.length)} chars captured)`

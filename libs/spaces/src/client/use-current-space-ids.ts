@@ -4,7 +4,11 @@ import {
   SpaceAttr,
   SpaceMembershipAttr,
 } from '@libs/spaces/shared/space-entities';
-import type { Entity, PatchDbQuery, PatchDbQueryWhereClause } from '@pkgs/patch-db/interface';
+import type {
+  Entity,
+  PatchDbQuery,
+  PatchDbQueryWhereClause,
+} from '@pkgs/patch-db/interface';
 import { useQuery } from '@pkgs/patch-db/react';
 import { useMemo } from 'react';
 
