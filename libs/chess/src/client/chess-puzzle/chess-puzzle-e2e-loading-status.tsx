@@ -1,3 +1,4 @@
+/* eslint-disable lingui/no-unlocalized-strings -- E2E test instrumentation, not user-facing copy */
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 

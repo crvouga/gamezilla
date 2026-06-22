@@ -167,19 +167,53 @@ function cleanEntireLog(raw: string): string {
     .join('\n');
 }
 
+interface LocalPromptOptions {
+  readonly title: string;
+  readonly failureIntro: string;
+  readonly fixInstructions: string;
+  readonly constraints?: ReadonlyArray<string>;
+}
+
+const DEPLOYMENT_PIPELINE_LOCAL_PROMPT: LocalPromptOptions = {
+  title: `Fix local pipeline failures for ${PROJECT_CONFIG.domain}`,
+  failureIntro:
+    'The Deployment Pipeline checks failed when run locally via `bun run check:deployment-pipeline`.',
+  fixInstructions:
+    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check:deployment-pipeline` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:ci`, `bun run check:static`, `bun run ci:knip`, `bun run qa:browser`).',
+};
+
+const CHECK_HEAL_LOCAL_PROMPT: LocalPromptOptions = {
+  title: `Fix \`bun check\` failures for ${PROJECT_CONFIG.domain}`,
+  failureIntro:
+    'The `bun check` gates failed when run locally via `bun run check:heal` (`check:static` + `check:ci`).',
+  fixInstructions:
+    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching step from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:ci`, `bun run ci:depcruise`, `bun run ci:syncpack`, `bun run ci:i18n`).',
+  constraints: [
+    'Never patch dependencies (`bun patch`, `patch-package`, `patches/`, etc.).',
+    'Never disable Tiger-style size-limit ESLint rules (`max-lines`, `max-lines-per-function`, etc.). Refactor instead.',
+    'Fix the root cause; do not suppress rules or add blanket eslint-disable comments.',
+    'Do not create git commits unless explicitly asked.',
+    'After edits, re-run the failing step(s) to verify before finishing.',
+  ],
+};
+
 function renderLocalPromptBody(
-  failures: ReadonlyArray<{ readonly jobId: string; readonly output: string }>
+  failures: ReadonlyArray<{ readonly jobId: string; readonly output: string }>,
+  options: LocalPromptOptions
 ): string {
   const lines: string[] = [];
-  lines.push(`# Fix local pipeline failures for ${PROJECT_CONFIG.domain}`);
+  lines.push(`# ${options.title}`);
   lines.push('');
-  lines.push(
-    'The Deployment Pipeline checks failed when run locally via `bun run check:deployment-pipeline`.'
-  );
+  lines.push(options.failureIntro);
   lines.push('');
-  lines.push(
-    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check:deployment-pipeline` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:ci`, `bun run check:static`, `bun run ci:knip`, `bun run qa:browser`).'
-  );
+  lines.push(options.fixInstructions);
+  if (options.constraints !== undefined && options.constraints.length > 0) {
+    lines.push('');
+    lines.push('Constraints:');
+    for (const c of options.constraints) {
+      lines.push(`- ${c}`);
+    }
+  }
   lines.push('');
   for (const f of failures) {
     lines.push(`## \`${f.jobId}\``);
@@ -343,7 +377,19 @@ export function buildLocalLlmFixPromptMarkdown(
 ): string {
   if (failures.length === 0) return '';
   return renderMarkdownSection(
-    renderLocalPromptBody(failures),
+    renderLocalPromptBody(failures, DEPLOYMENT_PIPELINE_LOCAL_PROMPT),
     'Click to expand. Copy the entire fenced block into an LLM to fix all local pipeline failures.'
   );
+}
+
+/** Plain-text prompt body for the `check:heal` agent loop (no markdown wrapper). */
+export function buildCheckHealPromptBody(
+  failures: ReadonlyArray<{ readonly stepId: string; readonly output: string }>
+): string {
+  if (failures.length === 0) return '';
+  const mapped = failures.map((f) => ({
+    jobId: f.stepId,
+    output: f.output,
+  }));
+  return renderLocalPromptBody(mapped, CHECK_HEAL_LOCAL_PROMPT);
 }

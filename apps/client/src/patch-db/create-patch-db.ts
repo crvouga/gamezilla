@@ -51,7 +51,9 @@ export async function createPatchDb(
 
   const pubSub = new InMemoryPubSub();
   const store = new InMemoryEntityStore();
-  let decoratedDb: SubscribablePatchDbLike | undefined;
+  const decoratedDbHolder: { value: SubscribablePatchDbLike | undefined } = {
+    value: undefined,
+  };
   const sync = new SyncPatchDb(local, remote, pubSub, {
     pushIntervalMs: 2000,
     pollIntervalMs: 5000,
@@ -59,8 +61,8 @@ export async function createPatchDb(
       const entities = results.flatMap((result) => result.entities);
       if (entities.length > 0) {
         store.upsertEntities(entities);
-        if (decoratedDb !== undefined) {
-          refreshPatchDbQueryCacheForDb(decoratedDb);
+        if (decoratedDbHolder.value !== undefined) {
+          refreshPatchDbQueryCacheForDb(decoratedDbHolder.value);
         }
       }
     },
@@ -78,14 +80,13 @@ export async function createPatchDb(
   await hydrateInMemoryStoreFromSqlite(local, store);
 
   const decorated = new PatchDbWriteThroughMirror(stamper, store);
-  decoratedDb = decorated as SubscribablePatchDbLike;
+  const decoratedDb = decorated as SubscribablePatchDbLike;
+  decoratedDbHolder.value = decoratedDb;
   setInMemoryStoreForDb(decoratedDb, store);
 
   pubSub.subscribe(PATCHES_DB_TOPIC, () => {
     void hydrateInMemoryStoreFromSqlite(local, store).then(() => {
-      if (decoratedDb !== undefined) {
-        refreshPatchDbQueryCacheForDb(decoratedDb);
-      }
+      refreshPatchDbQueryCacheForDb(decoratedDb);
     });
   });
 

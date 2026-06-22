@@ -11,7 +11,7 @@
     "lint": "eslint src --max-warnings 0",
     "pipeline-report": "bun run ./src/bin/pipeline-report.ts",
     "tc": "tsc --noEmit -p ./tsconfig.json",
-    "test": "bun test src/shared/database-url-policy.test.ts"
+    "test": "bun test src/shared/database-url-policy.test.ts src/cli/lib/build-llm-fix-prompt.test.ts"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",

@@ -1,3 +1,4 @@
+import { asKeyword } from '@pkgs/keyword';
 import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
@@ -341,7 +342,7 @@ describe('InMemoryEntityStore.upsertEntities', () => {
       },
     ]);
     const entity = store.getEntity('space', 's1');
-    expect(entity?.attributes['space/host-id']).toBe('host-a');
-    expect(entity?.attributes['space/title']).toBe('My space');
+    expect(entity?.attributes[asKeyword('space/host-id')]).toBe('host-a');
+    expect(entity?.attributes[asKeyword('space/title')]).toBe('My space');
   });
 });

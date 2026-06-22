@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "check": "bun run check:static && bun run check:ci",
+    "check:heal": "bun run scripts/vault-run.ts -- bun run scripts/check-heal.ts",
     "check:actionlint": "actionlint -color",
     "check:ci": "bun run check:ci:turbo && bun run check:ci:build",
     "check:ci:build": "bun run scripts/vault-run.ts -- bun run scripts/turbo-ci-run.ts build --filter='!@apps/client'",
