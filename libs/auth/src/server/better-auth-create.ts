@@ -78,7 +78,7 @@ export async function createBetterAuthRequestStack(
 
   const plugins: BetterAuthPlugin[] = [bearer(), expo()];
   if (isLocalApiOrigin(cfg.apiOrigin)) {
-    plugins.push(genericOAuth({ config: [devIdpProviderConfig(cfg.baseURL)] }));
+    plugins.push(genericOAuth({ config: [devIdpProviderConfig()] }));
   }
 
   const localApi = isLocalApiOrigin(cfg.apiOrigin);

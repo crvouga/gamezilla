@@ -55,9 +55,11 @@
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
+    "esbuild": "^0.28.1",
     "fast-uri": "^3.1.2",
     "js-cookie": "^3.0.7",
-    "serialize-javascript": "7.0.5"
+    "serialize-javascript": "7.0.5",
+    "shell-quote": "^1.8.4"
   },
   "devDependencies": {
     "@lingui/cli": "catalog:",
@@ -129,7 +131,7 @@
     "csv-parse": "^6.2.1",
     "dependency-cruiser": "^17.4.0",
     "embedded-postgres": "18.3.0-beta.17",
-    "esbuild": "^0.28.0",
+    "esbuild": "^0.28.1",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "eslint-import-resolver-typescript": "^4.4.4",
@@ -182,7 +184,7 @@
     "sql.js": "^1.14.0",
     "stripe": "^18.0.0",
     "syncpack": "^14.3.1",
-    "turbo": "^2.9.17",
+    "turbo": "^2.9.18",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.59.1",
     "unique-names-generator": "^4.7.1",

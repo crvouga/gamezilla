@@ -2,6 +2,7 @@
  * {@link PostgresSqlClient} backed by `@neondatabase/serverless` HTTP `/sql`.
  * Stateless per query; suitable for Cloudflare Workers without Hyperdrive.
  */
+import { assert } from '@pkgs/assert';
 import {
   neon,
   neonConfig,
@@ -19,7 +20,7 @@ import type {
   RunResult,
   SqlClient,
 } from './interface';
-import type { PostgresDbScope } from './postgres-schema';
+import { quotePgIdent, type PostgresDbScope } from './postgres-schema';
 import {
   assertPgSessionSchema,
   withPostgresSearchPathOption,
@@ -33,8 +34,8 @@ type QueuedQuery = {
 
 /**
  * {@link SqlClient} over Neon's stateless HTTP driver. Pins every request to
- * {@link PostgresDbScope} via the connection string `search_path` startup
- * option.
+ * {@link PostgresDbScope} by running `SET search_path` inside each Neon HTTP
+ * transaction (startup `options` are not reliably forwarded over `/sql`).
  *
  * `transaction()` batches the callback's queued statements into one Neon HTTP
  * transaction. Queries inside the callback must not depend on prior row
@@ -42,6 +43,7 @@ type QueuedQuery = {
  */
 export class SqlClientImplNeonHttp implements PostgresSqlClient {
   private readonly sql: NeonQueryFunction<false, true>;
+  private readonly sessionSchemaSql: string;
 
   constructor(
     connectionString: string,
@@ -50,6 +52,7 @@ export class SqlClientImplNeonHttp implements PostgresSqlClient {
     neonConfig.fetchEndpoint = (host) => `https://${host}/sql`;
     const scopedUrl = withPostgresSearchPathOption(connectionString, dbScope);
     this.sql = neon(scopedUrl, { fullResults: true });
+    this.sessionSchemaSql = `SET search_path TO ${quotePgIdent(dbScope.schema)}`;
   }
 
   async connect(): Promise<void> {
@@ -67,10 +70,11 @@ export class SqlClientImplNeonHttp implements PostgresSqlClient {
     let lastError: unknown = null;
     while (attempt <= NEON_HTTP_MAX_QUERY_RETRIES) {
       try {
-        const result =
-          params === undefined
-            ? await this.sql.query(sql)
-            : await this.sql.query(sql, params);
+        const [, result] = await this.sql.transaction((txn) => [
+          txn.query(this.sessionSchemaSql),
+          params === undefined ? txn.query(sql) : txn.query(sql, params),
+        ]);
+        assert.ok(result !== undefined, 'Neon HTTP transaction missing query result');
         return {
           rows: result.rows,
           rowCount: result.rowCount,
@@ -97,9 +101,10 @@ export class SqlClientImplNeonHttp implements PostgresSqlClient {
     let lastError: unknown = null;
     while (attempt <= NEON_HTTP_MAX_QUERY_RETRIES) {
       try {
-        await this.sql.transaction((txn) =>
-          queries.map((q) => txn.query(q.sql, q.params))
-        );
+        await this.sql.transaction((txn) => [
+          txn.query(this.sessionSchemaSql),
+          ...queries.map((q) => txn.query(q.sql, q.params)),
+        ]);
         return;
       } catch (err) {
         if (

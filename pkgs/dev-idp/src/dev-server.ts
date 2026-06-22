@@ -132,14 +132,24 @@ export async function startDevIdpServer(
     authorize: `${url}${DEV_IDP_PATH_PREFIX}/authorize`,
   });
 
+  const stop = createDevIdpStopHandler({ server, pgClient, log });
+
+  return { url, port, stop };
+}
+
+function createDevIdpStopHandler(input: {
+  readonly server: ReturnType<typeof Bun.serve>;
+  readonly pgClient: OpenPgClientResult['client'];
+  readonly log: Logger;
+}): () => Promise<void> {
   let stopped = false;
-  const stop = async (): Promise<void> => {
+  return async (): Promise<void> => {
     if (stopped) return;
     stopped = true;
     try {
-      await server.stop(true);
+      await input.server.stop(true);
     } catch (e) {
-      log.warn('dev-idp: server.stop threw', {
+      input.log.warn('dev-idp: server.stop threw', {
         error: e instanceof Error ? e.message : String(e),
       });
     }
@@ -147,7 +157,7 @@ export async function startDevIdpServer(
       // Close the PostgreSQL connection. During shutdown, the connection
       // may already be terminated by the database server, so we suppress
       // connection-related errors.
-      await pgClient.end();
+      await input.pgClient.end();
     } catch (e) {
       const errorMsg = e instanceof Error ? e.message : String(e);
       // Ignore "terminating connection due to administrator command" errors
@@ -157,14 +167,12 @@ export async function startDevIdpServer(
           'terminating connection due to administrator command'
         )
       ) {
-        log.warn('dev-idp: pg client.end threw', {
+        input.log.warn('dev-idp: pg client.end threw', {
           error: errorMsg,
         });
       }
     }
   };
-
-  return { url, port, stop };
 }
 
 /**
