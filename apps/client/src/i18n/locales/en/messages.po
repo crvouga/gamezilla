@@ -81,6 +81,10 @@ msgstr "{loaded} loaded · {shown} shown"
 #~ msgid "{ms} ms"
 #~ msgstr "{ms} ms"
 
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-summary-card.tsx
+msgid "{streak} puzzle streak"
+msgstr "{streak} puzzle streak"
+
 #: pkgs/patch-db-widgets/src/server-writes-panel.tsx
 msgid "{timeLabel} · {patchCount} patches · {entityTypes}"
 msgstr "{timeLabel} · {patchCount} patches · {entityTypes}"
@@ -304,6 +308,10 @@ msgstr "500 ms"
 #~ msgid "A three-mover. Forcing moves only."
 #~ msgstr "A three-mover. Forcing moves only."
 
+#: libs/chess/src/client/chess-puzzle/chess-game-log-row.tsx
+msgid "Abandoned · {puzzleRating}"
+msgstr "Abandoned · {puzzleRating}"
+
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
 msgid "About"
@@ -321,6 +329,10 @@ msgstr "Account"
 #: libs/auth/src/client/account-device/account-devices-card.tsx
 msgid "Account ID"
 msgstr "Account ID"
+
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-stats-cards.tsx
+msgid "Accuracy"
+msgstr "Accuracy"
 
 #: pkgs/patch-db-widgets/src/todo/list/todo-list-detail.tsx
 msgid "Active"
@@ -720,6 +732,10 @@ msgstr "Basics"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Before you take back, look for something stronger."
 #~ msgstr "Before you take back, look for something stronger."
+
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-stats-cards.tsx
+msgid "Best streak"
+msgstr "Best streak"
 
 #: pkgs/chess-board/src/chess-board-promotion.tsx
 #~ msgid "Bishop"
@@ -1285,6 +1301,10 @@ msgstr "Connection {id}"
 #~ msgid "Construct the kill box around the king."
 #~ msgstr "Construct the kill box around the king."
 
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-summary-card.tsx
+msgid "Continue"
+msgstr "Continue"
+
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Continue with dev IDP"
 msgstr "Continue with dev IDP"
@@ -1467,6 +1487,10 @@ msgstr "Creating…"
 #: apps/client/src/ui/app-commands/space-commands.tsx
 msgid "current"
 msgstr "current"
+
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-stats-cards.tsx
+msgid "Current streak"
+msgstr "Current streak"
 
 #: apps/client/src/spaces/debug/space-debug-current-spaces-section.tsx
 #~ msgid "currentSpaces"
@@ -1979,6 +2003,10 @@ msgstr "Edit profile"
 #: libs/profile/src/client/avatar-editor-effects-block.tsx
 msgid "Effects"
 msgstr "Effects"
+
+#: libs/chess/src/client/chess-main-menu.tsx
+msgid "Elo trend and game log."
+msgstr "Elo trend and game log."
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Email"
@@ -2968,6 +2996,10 @@ msgstr "First seen"
 #: apps/client/src/settings/about-screen.tsx
 msgid "Full commit"
 msgstr "Full commit"
+
+#: libs/chess/src/client/chess-puzzle/chess-stats-screen.tsx
+msgid "Game log"
+msgstr "Game log"
 
 #: libs/spaces/src/client/module/games-main-menu.tsx
 msgid "Games"
@@ -4804,6 +4836,10 @@ msgstr "No patches for this entity."
 #~ msgid "No puzzle selected"
 #~ msgstr "No puzzle selected"
 
+#: libs/chess/src/client/chess-puzzle/chess-game-log.tsx
+msgid "No puzzles played yet."
+msgstr "No puzzles played yet."
+
 #: pkgs/patch-db-widgets/src/db-client/entities-screen.tsx
 msgid "No rows match filter."
 msgstr "No rows match filter."
@@ -5452,6 +5488,10 @@ msgstr "Platform: {platformOs}"
 #~ msgid "Play"
 #~ msgstr "Play"
 
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-stats-cards.tsx
+msgid "Played"
+msgstr "Played"
+
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Played by a master. Their idea is in here."
 #~ msgstr "Played by a master. Their idea is in here."
@@ -5559,6 +5599,22 @@ msgstr "Puzzle"
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
 #~ msgid "Puzzle {puzzleId} · rating {rating}"
 #~ msgstr "Puzzle {puzzleId} · rating {rating}"
+
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-summary-card.tsx
+msgid "Puzzle abandoned"
+msgstr "Puzzle abandoned"
+
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-summary-card.tsx
+msgid "Puzzle rating {puzzleRating}"
+msgstr "Puzzle rating {puzzleRating}"
+
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-summary-card.tsx
+msgid "Puzzle solved!"
+msgstr "Puzzle solved!"
+
+#: libs/chess/src/client/chess-puzzle/chess-stats-screen.tsx
+msgid "Puzzle stats"
+msgstr "Puzzle stats"
 
 #: pkgs/chess-board/src/chess-board-promotion.tsx
 #~ msgid "Queen"
@@ -6107,6 +6163,7 @@ msgid "Result"
 msgstr "Result"
 
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar.tsx
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-summary-card.tsx
 msgid "Retry"
 msgstr "Retry"
 
@@ -6653,9 +6710,14 @@ msgstr "Solid fills and ring borders — for color-coded threats, defended squar
 msgid "Solution"
 msgstr "Solution"
 
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-stats-cards.tsx
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-status-header.tsx
 msgid "Solved"
 msgstr "Solved"
+
+#: libs/chess/src/client/chess-puzzle/chess-game-log-row.tsx
+msgid "Solved · {puzzleRating}"
+msgstr "Solved · {puzzleRating}"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Solved a master-game puzzle. Great work."
@@ -6828,6 +6890,10 @@ msgstr "Start new space"
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "Starting simulation…"
 msgstr "Starting simulation…"
+
+#: libs/chess/src/client/chess-main-menu.tsx
+msgid "Stats"
+msgstr "Stats"
 
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Status: {networkLine}"
