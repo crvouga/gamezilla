@@ -11,10 +11,17 @@ const config = getDefaultConfig(projectRoot);
 // that store on every dev start (`expo start --clear`) races when another
 // Metro process still holds files — ENOTEMPTY on macOS. Keep cache local and
 // only clear via EXPO_DEV_CLEAR=1 (see scripts/metro-dev-cache.ts).
-const { FileStore } = require(require.resolve('metro-cache', {
-  paths: [require.resolve('expo/metro-config')],
-}));
-const metroCacheRoot = path.join(projectRoot, 'node_modules', '.cache', 'metro');
+const { FileStore } = require(
+  require.resolve('metro-cache', {
+    paths: [require.resolve('expo/metro-config')],
+  })
+);
+const metroCacheRoot = path.join(
+  projectRoot,
+  'node_modules',
+  '.cache',
+  'metro'
+);
 config.cacheStores = [new FileStore({ root: metroCacheRoot })];
 
 // Watchman can wedge on large Bun monorepos (recrawl storms, SIGKILL under
