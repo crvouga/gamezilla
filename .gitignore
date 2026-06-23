@@ -61,6 +61,8 @@ app-example
 # generated native folders
 /ios
 /android
+apps/client/ios/
+apps/client/android/
 
 .cursor/debug*.log
 

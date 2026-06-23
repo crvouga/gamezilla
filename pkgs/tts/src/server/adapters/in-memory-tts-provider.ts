@@ -61,6 +61,8 @@ export class InMemoryTtsProvider implements TtsProvider {
   readonly id: string;
   /** Number of times {@link synthesize} has been called — handy for cache tests. */
   callCount = 0;
+  /** Last input passed to {@link synthesize} — handy for asserting normalization. */
+  lastInput: TtsSynthesizeInput | null = null;
 
   constructor(options: InMemoryTtsProviderOptions = {}) {
     this.id = options.id ?? 'in-memory';
@@ -68,6 +70,7 @@ export class InMemoryTtsProvider implements TtsProvider {
 
   synthesize(input: TtsSynthesizeInput): Promise<TtsSynthesizeOutput> {
     this.callCount += 1;
+    this.lastInput = input;
     if (input.format === 'wav') {
       return Promise.resolve({
         bytes: buildSilentWav(input.text.length || 1),

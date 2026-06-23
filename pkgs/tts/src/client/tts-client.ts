@@ -1,5 +1,6 @@
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
+import { normalizeTextForTts } from '../shared/normalize-text-for-tts';
 import { ttsCacheKey } from '../shared/tts-cache-key';
 import {
   ttsContentTypeFor,
@@ -66,11 +67,15 @@ export class TtsClient {
   async synthesize(
     req: TtsClientSynthesizeRequest
   ): Promise<TtsSynthesizeResponse> {
+    const normalizedReq: TtsClientSynthesizeRequest = {
+      ...req,
+      text: normalizeTextForTts(req.text),
+    };
     const key = await ttsCacheKey({
-      providerId: ttsProviderIdForVoice(req.voice),
-      voice: req.voice,
-      text: req.text,
-      format: req.format,
+      providerId: ttsProviderIdForVoice(normalizedReq.voice),
+      voice: normalizedReq.voice,
+      text: normalizedReq.text,
+      format: normalizedReq.format,
     });
 
     if (await this.objectStore.head(key)) {
@@ -85,8 +90,8 @@ export class TtsClient {
       }
     }
 
-    const remote = await this.synthesizeRemote(req);
-    const audio = await this.downloadAudio(remote.url, req.signal);
+    const remote = await this.synthesizeRemote(normalizedReq);
+    const audio = await this.downloadAudio(remote.url, normalizedReq.signal);
     await this.objectStore.put(key, audio.bytes, audio.contentType);
     const localUri = await this.objectStore.getUri(key);
     return {

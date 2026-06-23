@@ -8,6 +8,10 @@
  *
  * On macOS, auto-opens the project-dedicated iOS simulator with the
  * development build once Metro is ready (`EXPO_DEV_AUTO_IOS=0` to disable).
+ *
+ * Metro cache is project-local (`node_modules/.cache/metro`). We do not pass
+ * `--clear` on every start — it races on the shared system temp store. Opt in
+ * to a reset with `EXPO_DEV_CLEAR=1`.
  */
 import { spawn, type ChildProcess } from 'node:child_process';
 import { dirname, join } from 'node:path';
@@ -19,22 +23,17 @@ import {
   SIM_NAME,
 } from './ios-dedicated-sim';
 import { startWebDevProxyServer } from './local-api-proxy';
+import { maybeClearMetroCache } from './metro-dev-cache';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const clientRoot = join(scriptDir, '..');
+maybeClearMetroCache(clientRoot);
 const expoBin = join(clientRoot, 'node_modules', '.bin', 'expo');
 const proxyPort = String(process.env['EXPO_DEV_PORT'] ?? 5173);
 const metroPort = String(process.env['EXPO_METRO_PORT'] ?? 5174);
 
 function spawnDevServer(passthrough: string[]): ChildProcess {
-  const args = [
-    'start',
-    '--web',
-    '--port',
-    metroPort,
-    '--clear',
-    ...passthrough,
-  ];
+  const args = ['start', '--web', '--port', metroPort, ...passthrough];
   process.stdout.write(`[client-dev] expo ${args.join(' ')}\n`);
   return spawn(
     'sh',

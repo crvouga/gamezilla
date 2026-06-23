@@ -20,22 +20,18 @@ import {
   isAutoOpenIosEnabled,
   SIM_NAME,
 } from './ios-dedicated-sim';
+import { maybeClearMetroCache } from './metro-dev-cache';
 
 const EXPO_PORT = Number(process.env['EXPO_DEV_PORT'] ?? 5173);
 const EXPO_HOST = '127.0.0.1';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const clientRoot = join(scriptDir, '..');
+maybeClearMetroCache(clientRoot);
 const expoBin = join(clientRoot, 'node_modules', '.bin', 'expo');
 
 function spawnExpo(passthrough: string[]): ChildProcess {
-  const args = [
-    'start',
-    '--port',
-    String(EXPO_PORT),
-    '--clear',
-    ...passthrough,
-  ];
+  const args = ['start', '--port', String(EXPO_PORT), ...passthrough];
   process.stderr.write(`[ios-dev] expo ${args.join(' ')}\n`);
   return spawn(expoBin, args, {
     stdio: 'inherit',

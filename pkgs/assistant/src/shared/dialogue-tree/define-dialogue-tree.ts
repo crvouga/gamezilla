@@ -53,6 +53,9 @@ function resolveNode(
 /**
  * Builds a {@link DialogueTree} from a record-based DSL:
  * bucket -> theme -> variants or sequence steps, with optional `__default__`.
+ *
+ * Coach line strings should use plain ASCII punctuation (`.`, `,`, `-`) so
+ * TTS reads them reliably; avoid em dashes and other typographic Unicode.
  */
 export function defineDialogueTree(spec: DialogueTreeSpec): DialogueTree {
   return {

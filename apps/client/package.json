@@ -4,7 +4,7 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "android": "expo start --android",
+    "android": "expo run:android",
     "prebuild": "bun run bundle:absurd-sql-worker && bun run bundle:sqljs-wasm && bun run bundle:skia-canvaskit-wasm && cd ../.. && bun run i18n:compile",
     "build": "expo customize tsconfig.json && expo export -p web && bun run scripts/build-sw.ts",
     "bundle:absurd-sql-worker": "bun run scripts/bundle-absurd-sql-worker.ts",

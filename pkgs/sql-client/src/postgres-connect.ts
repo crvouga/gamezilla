@@ -93,12 +93,12 @@ export async function openPgClient(
     ...args.clientOptions,
   });
   await client.connect();
-  await setPgSessionSchema(client, args.dbScope);
   if (args.ensureSchema === true) {
     await client.query(
       `CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(args.dbScope.schema)}`
     );
   }
+  await setPgSessionSchema(client, args.dbScope);
   await assertPgSessionSchema(client, args.dbScope);
   return { client, sqlClient: new SqlClientImplPgClient(client, args.dbScope) };
 }

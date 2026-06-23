@@ -1,5 +1,6 @@
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { Hono } from 'hono';
+import { normalizeTextForTts } from '../shared/normalize-text-for-tts';
 import {
   TTS_AUDIO_FORMATS,
   ttsContentTypeFor,
@@ -77,7 +78,7 @@ function parseText(raw: unknown): string | { readonly error: string } {
   if (trimmed.length > TEXT_MAX_LEN) {
     return { error: `text must be <= ${TEXT_MAX_LEN} chars` };
   }
-  return trimmed;
+  return normalizeTextForTts(trimmed);
 }
 
 function isNonEmptyString(value: unknown): value is string {

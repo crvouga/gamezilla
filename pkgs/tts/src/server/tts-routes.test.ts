@@ -41,6 +41,19 @@ describe('createTtsApp', () => {
     });
   });
 
+  test('POST /tts/synthesize: normalizes typographic punctuation before provider call', async () => {
+    const res = await app.fetch(
+      jsonRequest('/tts/synthesize', {
+        ...VALID_BODY,
+        text: 'Checkmate is in the air — can you find it?',
+      })
+    );
+    expect(res.status).toBe(200);
+    expect(provider.lastInput?.text).toBe(
+      'Checkmate is in the air, can you find it?'
+    );
+  });
+
   test('POST /tts/synthesize: happy path returns url, hash, cached=false', async () => {
     const res = await app.fetch(jsonRequest('/tts/synthesize', VALID_BODY));
     expect(res.status).toBe(200);
