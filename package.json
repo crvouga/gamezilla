@@ -41,6 +41,7 @@
     "i18n:extract": "lingui extract",
     "infra": "VAULT_CONFIG=prd bun run scripts/vault-run.ts -- bun run libs/infra/src/bin/cli.ts",
     "kill": "turbo kill",
+    "pg:monitoring": "bun run scripts/enable-pg-monitoring.ts",
     "preview": "bun run scripts/vault-run.ts -- turbo run preview --filter=@pkgs/dev-idp --filter=@apps/api --filter=@apps/client",
     "pw": "bun run --filter '@libs/qa' browser",
     "pw:headed": "bun run --filter '@libs/qa' browser:headed",
