@@ -1,6 +1,7 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "types": ["bun", "node"],
     "jsx": "react-jsx",
     "strict": true,
     "noUncheckedIndexedAccess": true,

@@ -22,6 +22,7 @@ import {
   openPgClient,
   type OpenPgClientResult,
 } from '@pkgs/sql-client/postgres-connect';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { devIdpPostgresDbScope } from './postgres-schema-env';
 import { Hono } from 'hono';
 
@@ -128,7 +129,7 @@ export async function startDevIdpServer(
     });
   });
 
-  const kv = await KvImplPostgres.open({ sqlClient, logger: log });
+  const kv = await openKvForDevIdp(sqlClient, log, connectTimeoutMs);
 
   if (options.seedUsers !== undefined && options.seedUsers.length > 0) {
     const store = new DevIdpUserStore(kv);
@@ -249,6 +250,55 @@ async function connectPgWithRetry(
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Waits for the shared `kv` table (created by `@apps/api` db:migrate under
+ * turbo dev) instead of racing a second migrate. Falls back to
+ * {@link KvImplPostgres.migrateUp} when the table is still missing after the
+ * timeout — e.g. dev-idp started standalone.
+ */
+async function openKvForDevIdp(
+  sqlClient: SqlClient,
+  log: Logger,
+  timeoutMs: number
+): Promise<KvImplPostgres> {
+  await waitForKvTable(sqlClient, log, timeoutMs);
+  return new KvImplPostgres(sqlClient);
+}
+
+async function waitForKvTable(
+  sqlClient: SqlClient,
+  log: Logger,
+  timeoutMs: number
+): Promise<void> {
+  const start = Date.now();
+  let attempt = 0;
+  while (Date.now() - start < timeoutMs) {
+    attempt += 1;
+    try {
+      await sqlClient.query('SELECT 1 FROM kv LIMIT 1');
+      if (attempt > 1) {
+        log.info('dev-idp: kv table reachable', {
+          attempt,
+          elapsedMs: Date.now() - start,
+        });
+      }
+      return;
+    } catch (err) {
+      if (attempt === 1 || attempt % 5 === 0) {
+        log.info('dev-idp: waiting for kv table (api migrate may still be running)', {
+          attempt,
+          elapsedMs: Date.now() - start,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+      await sleep(1_000);
+    }
+  }
+
+  log.warn('dev-idp: kv table not found — running kv migrate as fallback');
+  await KvImplPostgres.migrateUp({ sqlClient, logger: log });
 }
 
 function noopLogger(): Logger {

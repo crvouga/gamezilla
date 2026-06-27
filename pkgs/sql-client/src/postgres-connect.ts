@@ -13,6 +13,7 @@ import type { PostgresSqlClient, SqlClient } from './interface';
 import { quotePgIdent, type PostgresDbScope } from './postgres-schema';
 import {
   assertPgSessionSchema,
+  postgresRejectsStartupSearchPathOption,
   setPgSessionSchema,
 } from './postgres-session-schema';
 import { sanitizePostgresUrlForNodePg } from './sanitize-postgres-url-for-node-pg';
@@ -100,7 +101,17 @@ export async function openPgClient(
   }
   await setPgSessionSchema(client, args.dbScope);
   await assertPgSessionSchema(client, args.dbScope);
-  return { client, sqlClient: new SqlClientImplPgClient(client, args.dbScope) };
+  const pinSearchPathEachQuery = postgresRejectsStartupSearchPathOption(
+    args.connectionString
+  );
+  return {
+    client,
+    sqlClient: new SqlClientImplPgClient(
+      client,
+      args.dbScope,
+      pinSearchPathEachQuery
+    ),
+  };
 }
 
 export type CreatePgPoolArgs = {
@@ -121,6 +132,9 @@ export type CreatePgPoolResult = {
  * `options` are not forwarded by the transport.
  */
 export function createPgPool(args: CreatePgPoolArgs): CreatePgPoolResult {
+  const pinSearchPathEachQuery = postgresRejectsStartupSearchPathOption(
+    args.connectionString
+  );
   const pool = new Pool({
     connectionString: sanitizePostgresUrlForNodePg(args.connectionString),
     max: args.max ?? 1,
@@ -128,7 +142,10 @@ export function createPgPool(args: CreatePgPoolArgs): CreatePgPoolResult {
       await setPgSessionSchema(client, args.dbScope);
     },
   });
-  return { pool, sqlClient: new SqlClientImplPg(pool, args.dbScope) };
+  return {
+    pool,
+    sqlClient: new SqlClientImplPg(pool, args.dbScope, pinSearchPathEachQuery),
+  };
 }
 
 /**

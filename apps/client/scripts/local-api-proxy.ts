@@ -71,9 +71,10 @@ type WebSocketProxyData = {
   pendingFromClient: WebSocketMessage[];
 };
 
-type WebSocketMessage = Parameters<
-  ServerWebSocket<WebSocketProxyData>['send']
->[0];
+type WebSocketMessage = Exclude<
+  Parameters<ServerWebSocket<WebSocketProxyData>['send']>[0],
+  SharedArrayBuffer
+>;
 
 function httpOriginToWebSocketOrigin(origin: string): string {
   return origin.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:');

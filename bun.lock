@@ -9,6 +9,7 @@
         "@lingui/conf": "catalog:",
         "@total-typescript/ts-reset": "catalog:",
         "@types/bun": "catalog:",
+        "@types/node": "catalog:",
         "@types/react": "catalog:",
         "@typescript-eslint/eslint-plugin": "catalog:",
         "@typescript-eslint/parser": "catalog:",
@@ -42,6 +43,7 @@
         "@libs/stripe": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/attribute": "workspace:*",
+        "@pkgs/dev-idp": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/llm": "workspace:*",
@@ -324,6 +326,7 @@
         "@libs/infra": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/os": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
       },
@@ -1087,7 +1090,7 @@
     "stripe": "^18.0.0",
     "syncpack": "^14.3.1",
     "turbo": "^2.9.18",
-    "typescript": "~5.9.2",
+    "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.1",
     "unique-names-generator": "^4.7.1",
     "workbox-build": "^7.4.0",
@@ -3776,7 +3779,7 @@
 
     "typed-query-selector": ["typed-query-selector@2.12.2", "", {}, "sha512-EOPFbyIub4ngnEdqi2yOcNeDLaX/0jcE1JoAXQDDMIthap7FoN795lc/SHfIq2d416VufXpM8z/lD+WRm2gfOQ=="],
 
-    "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
+    "typescript": ["typescript@6.0.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw=="],
 
     "typescript-eslint": ["typescript-eslint@8.59.1", "", { "dependencies": { "@typescript-eslint/eslint-plugin": "8.59.1", "@typescript-eslint/parser": "8.59.1", "@typescript-eslint/typescript-estree": "8.59.1", "@typescript-eslint/utils": "8.59.1" }, "peerDependencies": { "eslint": "^8.57.0 || ^9.0.0 || ^10.0.0", "typescript": ">=4.8.4 <6.1.0" } }, "sha512-xqDcFVBmlrltH64lklOVp1wYxgJr6LVdg3NamBgH2OOQDLFdTKfIZXF5PfghrnXQKXZGTQs8tr1vL7fJvq8CTQ=="],
 

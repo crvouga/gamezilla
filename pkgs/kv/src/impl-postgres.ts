@@ -197,6 +197,7 @@ async function runKvPostgresMigrations(
     await ensureKvPrimaryKeyOnKeyColumn(sqlClient, log);
   }
   await applyKvStorageOptimizations(sqlClient, log);
+  await sqlClient.query(`SELECT 1 FROM ${TABLE} LIMIT 0`);
 }
 
 /**

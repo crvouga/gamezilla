@@ -12,13 +12,17 @@ import type {
   SqlClient,
 } from './interface';
 import type { PostgresDbScope } from './postgres-schema';
-import { assertPgSessionSchema } from './postgres-session-schema';
+import {
+  assertPgSessionSchema,
+  setPgSessionSchema,
+} from './postgres-session-schema';
 import { questionMarkParamsToDollarParams } from './positional-params';
 
 export class SqlClientImplPgClient implements PostgresSqlClient {
   constructor(
     private readonly client: Client,
-    readonly dbScope: PostgresDbScope
+    readonly dbScope: PostgresDbScope,
+    private readonly pinSearchPathEachQuery = false
   ) {}
 
   async connect(): Promise<void> {
@@ -29,16 +33,24 @@ export class SqlClientImplPgClient implements PostgresSqlClient {
     await this.client.end();
   }
 
+  private async ensureSessionPinned(): Promise<void> {
+    if (this.pinSearchPathEachQuery) {
+      await setPgSessionSchema(this.client, this.dbScope);
+    }
+  }
+
   async query<T = Record<string, unknown>>(
     sql: string,
     params?: unknown[]
   ): Promise<T[]> {
+    await this.ensureSessionPinned();
     const [text, vals] = questionMarkParamsToDollarParams(sql, params);
     const res = await this.client.query(text, vals);
     return res.rows as T[];
   }
 
   async run(sql: string, params?: unknown[]): Promise<RunResult> {
+    await this.ensureSessionPinned();
     const [text, vals] = questionMarkParamsToDollarParams(sql, params);
     const res = await this.client.query(text, vals);
     return {
@@ -58,6 +70,7 @@ export class SqlClientImplPgClient implements PostgresSqlClient {
   }
 
   async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+    await this.ensureSessionPinned();
     try {
       await this.client.query('BEGIN');
       const txSql = createPgSessionClient(this.client);
