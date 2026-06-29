@@ -79,6 +79,17 @@ export async function setPgSessionSchema(
   await queryable.query(`SET search_path TO ${quotePgIdent(dbScope.schema)}`);
 }
 
+/**
+ * Prefixes SQL with `SET search_path` so Neon/PgBouncer transaction pooling
+ * gets one round trip instead of a separate pin query before every statement.
+ */
+export function sqlBundledWithSearchPath(
+  dbScope: PostgresDbScope,
+  sql: string
+): string {
+  return `SET search_path TO ${quotePgIdent(dbScope.schema)}; ${sql}`;
+}
+
 /** Asserts the live session resolves unqualified names to the scope's schema. */
 export async function assertPgSessionSchema(
   queryable: PgQueryable,
@@ -93,5 +104,36 @@ export async function assertPgSessionSchema(
     dbScope.schema,
     'Postgres session search_path must resolve to the application schema',
     { expected: dbScope.schema, current }
+  );
+}
+
+/**
+ * Pins and verifies `search_path` on a new session. Neon/PgBouncer pooler
+ * endpoints can hand out a backend before session GUCs stick — retry SET +
+ * verify when {@link postgresRejectsStartupSearchPathOption} is true.
+ */
+export async function pinAndVerifyPgSessionSchema(
+  queryable: PgQueryable,
+  dbScope: PostgresDbScope,
+  connectionString: string
+): Promise<void> {
+  const pooler = postgresRejectsStartupSearchPathOption(connectionString);
+  const maxAttempts = pooler ? 4 : 1;
+  let lastCurrent: string | null = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    await setPgSessionSchema(queryable, dbScope);
+    const result = await queryable.query<{ current_schema: string | null }>(
+      'SELECT current_schema() AS current_schema'
+    );
+    lastCurrent = result.rows[0]?.current_schema ?? null;
+    if (lastCurrent === dbScope.schema) {
+      return;
+    }
+  }
+  assert.equals(
+    lastCurrent,
+    dbScope.schema,
+    'Postgres session search_path must resolve to the application schema',
+    { expected: dbScope.schema, current: lastCurrent }
   );
 }

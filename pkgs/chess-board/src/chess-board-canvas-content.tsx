@@ -1,5 +1,7 @@
-import { Canvas } from '@shopify/react-native-skia';
-import { memo, type ReactNode } from 'react';
+import { Canvas, type SkImage } from '@shopify/react-native-skia';
+import { memo, useMemo, type ReactNode } from 'react';
+import type { SharedValue } from 'react-native-reanimated';
+import { indexFromSquare } from './chess-board-geometry';
 import { ChessBoardArrows } from './chess-board-arrows';
 import { ChessBoardFeedback } from './chess-board-feedback';
 import {
@@ -14,6 +16,7 @@ import {
   useChessPieceRows,
   type ChessPieceRow,
 } from './chess-board-piece-identities';
+import { ChessBoardDragPieceSkia } from './chess-board-piece';
 import {
   ChessBoardCaptureGhostLayer,
   ChessBoardPiecesLayer,
@@ -31,6 +34,7 @@ import type {
   Square,
 } from './chess-board-types';
 import type { PieceImageCache } from './chess-pieces-cache';
+import { pieceCode } from './chess-pieces-svg';
 import { useChessBoardCaptureGhost } from './use-chess-board-capture-ghost';
 import type { ChessBoardInteractionState } from './use-chess-board-interaction-state';
 import type { useChessGame } from './use-chess-game';
@@ -50,6 +54,14 @@ export type ChessBoardCanvasContentProps = {
   legalTargets: readonly Square[];
   checkKingSquare: Square | null;
   mergedArrows: readonly BoardArrow[];
+  /** Inline drag layer (when `dragOverlayPortal` is false). */
+  inlineDrag?: {
+    dragX: SharedValue<number>;
+    dragY: SharedValue<number>;
+    isDragging: SharedValue<boolean>;
+    dragPickupScale: SharedValue<number>;
+    dragPickupOpacity: SharedValue<number>;
+  } | null;
 };
 
 type StaticLayersProps = {
@@ -179,6 +191,51 @@ type OverlayLayersProps = {
   theme: BoardTheme;
 };
 
+function useInlineDragImage(args: {
+  dragFrom: Square | null;
+  position: ReturnType<typeof useChessGame>['position'];
+  pieceImages: PieceImageCache | null;
+}): SkImage | null {
+  const { dragFrom, position, pieceImages } = args;
+  return useMemo(() => {
+    if (pieceImages === null) return null;
+    if (dragFrom !== null) {
+      const piece = position[indexFromSquare(dragFrom)] ?? null;
+      if (piece) {
+        const code = pieceCode(piece.color, piece.type);
+        if (code !== null) return pieceImages[code];
+      }
+    }
+    return pieceImages.wp;
+  }, [dragFrom, position, pieceImages]);
+}
+
+function InlineDragLayer(p: {
+  inlineDrag: NonNullable<ChessBoardCanvasContentProps['inlineDrag']>;
+  dragFrom: Square | null;
+  position: ReturnType<typeof useChessGame>['position'];
+  pieceImages: PieceImageCache | null;
+  pieceDraw: number;
+}): ReactNode {
+  const image = useInlineDragImage({
+    dragFrom: p.dragFrom,
+    position: p.position,
+    pieceImages: p.pieceImages,
+  });
+  if (image === null) return null;
+  return (
+    <ChessBoardDragPieceSkia
+      image={image}
+      pieceSize={p.pieceDraw}
+      dragX={p.inlineDrag.dragX}
+      dragY={p.inlineDrag.dragY}
+      isDragging={p.inlineDrag.isDragging}
+      pickupScale={p.inlineDrag.dragPickupScale}
+      pickupOpacity={p.inlineDrag.dragPickupOpacity}
+    />
+  );
+}
+
 function OverlayLayers(p: OverlayLayersProps): ReactNode {
   return (
     <>
@@ -236,6 +293,15 @@ function ChessBoardCanvasContentImpl(
         orientation={props.orientation}
         pieceDraw={props.pieceDraw}
       />
+      {props.inlineDrag !== undefined && props.inlineDrag !== null ? (
+        <InlineDragLayer
+          inlineDrag={props.inlineDrag}
+          dragFrom={interaction.dragFrom}
+          position={position}
+          pieceImages={props.pieceImages}
+          pieceDraw={props.pieceDraw}
+        />
+      ) : null}
       <OverlayLayers
         arrows={props.mergedArrows}
         cellFeedback={props.cellFeedback}

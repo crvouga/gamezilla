@@ -3,7 +3,7 @@ import { genericOAuthClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 import * as SecureStore from 'expo-secure-store';
 import { APP_IDENTITY } from '../shared/app-identity';
-import { isLocalApiOrigin } from '../shared/local-api-origin';
+import { normalizeLoopbackOriginToLocalhost } from '../shared/local-api-origin';
 
 export type AuthClient = ReturnType<typeof createAuthClient>;
 export type SessionSnapshot = ReturnType<AuthClient['useSession']>;
@@ -20,18 +20,8 @@ const authClientCache = new Map<string, AuthClient>();
 export function authBaseUrl(apiUrl: string): string {
   const trimmed = apiUrl.trim();
   let origin =
-    trimmed.length > 0 ? trimmed.replace(/\/$/, '') : 'http://127.0.0.1:8788';
-  if (isLocalApiOrigin(origin)) {
-    try {
-      const u = new URL(origin);
-      if (u.hostname === '127.0.0.1') {
-        u.hostname = 'localhost';
-        origin = u.origin;
-      }
-    } catch {
-      /* keep origin when URL parsing fails */
-    }
-  }
+    trimmed.length > 0 ? trimmed.replace(/\/$/, '') : 'http://localhost:8788';
+  origin = normalizeLoopbackOriginToLocalhost(origin);
   const baseURL = `${origin}/api/auth`;
   return baseURL;
 }

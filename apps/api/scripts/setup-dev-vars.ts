@@ -3,6 +3,7 @@ import {
   assertNonProdDatabaseUrl,
 } from '@libs/infra/shared/database-url-policy';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/local-preview-api-origin';
+import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/shared/local-api-origin';
 import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
 import { VaultCli } from '@pkgs/vault';
 import { renameSync, writeFileSync } from 'node:fs';
@@ -52,10 +53,12 @@ function readApiUrlForDevVars(): string {
   const preview = process.env['BETTER_AUTH_PREVIEW_API_URL']?.trim() ?? '';
   if (preview.length > 0) return preview;
   const localPreview = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim() ?? '';
-  if (localPreview.length > 0) return localPreview;
+  if (localPreview.length > 0) {
+    return normalizeLoopbackOriginToLocalhost(localPreview);
+  }
   const expo = process.env['EXPO_PUBLIC_API_URL']?.trim() ?? '';
   if (expo.length > 0 && /127\.0\.0\.1|localhost/i.test(expo)) {
-    return expo;
+    return normalizeLoopbackOriginToLocalhost(expo);
   }
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }

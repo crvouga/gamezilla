@@ -16,6 +16,7 @@ import {
   createVaultSecretStoreForScripts,
   type SecretStore,
 } from '@pkgs/secret-store';
+import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/shared/local-api-origin';
 
 const clientRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outPath = join(clientRoot, '.env.local');
@@ -209,6 +210,8 @@ async function main(): Promise<void> {
     'EXPO_PUBLIC_API_URL must be a valid URL',
     { value: raw }
   );
+
+  origin = normalizeLoopbackOriginToLocalhost(origin);
 
   assertTigerPolicyForResolvedApiOrigin(origin, 'forbid-prod-on-this-machine');
 

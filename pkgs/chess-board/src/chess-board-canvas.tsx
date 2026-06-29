@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { memo, useMemo, type ReactNode } from 'react';
 import { indexFromSquare, squareFromIndex } from './chess-board-geometry';
 import { useBoardGestures } from './chess-board-gestures';
@@ -11,7 +12,9 @@ import type {
   PieceCode,
   Square,
 } from './chess-board-types';
+import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content';
 import { ChessBoardView } from './chess-board-view';
+import { isDragOverlayPortalActive } from './chess-board-drag-platform';
 import { usePieceSkiaImages } from './chess-pieces-cache';
 import { pieceCode } from './chess-pieces-svg';
 import { useChessBoardApplyMoveSound } from './use-chess-board-apply-move-sound';
@@ -185,7 +188,9 @@ function useGestureWiring(
     isDragging: drag.isDragging,
     dragPickupScale: drag.dragPickupScale,
     dragPickupOpacity: drag.dragPickupOpacity,
+    snapPickup: Platform.OS !== 'web',
     setSelected: handlers.setSelected,
+    onPanPickupStart: handlers.onPanPickupStart,
     onDragStart: handlers.onDragStart,
     onDragEnd: handlers.onDragEnd,
     onHoverSquare: handlers.onHoverSquare,
@@ -216,7 +221,8 @@ function useWiringBundle(
     bundle.interaction.dragFrom,
     bundle.game.position
   );
-  const dragOverlay = useChessBoardDragOverlay(props.dragOverlayPortal);
+  const portalDragActive = isDragOverlayPortalActive(props.dragOverlayPortal);
+  const dragOverlay = useChessBoardDragOverlay(portalDragActive);
   const userArrows = useUserArrowsForBoard(props);
   const composedContainerRef = useComposedContainerRef(
     dragOverlay.containerRef,
@@ -225,7 +231,7 @@ function useWiringBundle(
   const pieceDraw = (props.size / 8) * PIECE_DRAW_SCALE;
   useChessBoardDragPortal({
     dragOverlay,
-    enabled: props.dragOverlayPortal,
+    enabled: portalDragActive,
     pieceImages: bundle.pieceImages,
     draggedPieceCode,
     dragX: bundle.drag.dragX,
@@ -249,17 +255,14 @@ function useWiringBundle(
   };
 }
 
-function ChessBoardCanvasImpl(props: ChessBoardCanvasProps): ReactNode {
-  const bundle = useGameStateBundle(props);
-  const wiring = useWiringBundle(props, bundle);
-  const pieceDraw = (props.size / 8) * PIECE_DRAW_SCALE;
-  // `contentProps` was previously a fresh object every render even when
-  // every individual field was unchanged. `React.memo(ChessBoardView)`
-  // would then bail out on every other prop but still re-render because
-  // of the spread shape. Memoize so unrelated re-renders (e.g. theme
-  // colour-scheme flip propagated from app theme without any board
-  // state change) don't reconcile the entire content tree.
-  const contentProps = useMemo(
+function useContentProps(
+  props: ChessBoardCanvasProps,
+  bundle: GameStateBundle,
+  wiring: Pick<WiringBundle, 'checkKingSquare' | 'mergedArrows'>,
+  pieceDraw: number
+): ChessBoardCanvasContentProps {
+  const portalDragActive = isDragOverlayPortalActive(props.dragOverlayPortal);
+  return useMemo(
     () => ({
       size: props.size,
       orientation: props.orientation,
@@ -275,6 +278,15 @@ function ChessBoardCanvasImpl(props: ChessBoardCanvasProps): ReactNode {
       legalTargets: bundle.legalTargets,
       checkKingSquare: wiring.checkKingSquare,
       mergedArrows: wiring.mergedArrows,
+      inlineDrag: portalDragActive
+        ? null
+        : {
+            dragX: bundle.drag.dragX,
+            dragY: bundle.drag.dragY,
+            isDragging: bundle.drag.isDragging,
+            dragPickupScale: bundle.drag.dragPickupScale,
+            dragPickupOpacity: bundle.drag.dragPickupOpacity,
+          },
     }),
     [
       props.size,
@@ -284,15 +296,28 @@ function ChessBoardCanvasImpl(props: ChessBoardCanvasProps): ReactNode {
       props.highlightLastMove,
       props.cellHighlights,
       props.cellFeedback,
+      portalDragActive,
       bundle.pieceImages,
       pieceDraw,
       bundle.interaction,
       bundle.game,
       bundle.legalTargets,
+      bundle.drag.dragX,
+      bundle.drag.dragY,
+      bundle.drag.isDragging,
+      bundle.drag.dragPickupScale,
+      bundle.drag.dragPickupOpacity,
       wiring.checkKingSquare,
       wiring.mergedArrows,
     ]
   );
+}
+
+function ChessBoardCanvasImpl(props: ChessBoardCanvasProps): ReactNode {
+  const bundle = useGameStateBundle(props);
+  const wiring = useWiringBundle(props, bundle);
+  const pieceDraw = (props.size / 8) * PIECE_DRAW_SCALE;
+  const contentProps = useContentProps(props, bundle, wiring, pieceDraw);
   return (
     <ChessBoardView
       size={props.size}
@@ -302,8 +327,6 @@ function ChessBoardCanvasImpl(props: ChessBoardCanvasProps): ReactNode {
       pendingPromotion={bundle.interaction.pendingPromotion}
       pieceImages={bundle.pieceImages}
       pieceDraw={pieceDraw}
-      draggedPieceCode={wiring.draggedPieceCode}
-      drag={bundle.drag}
       gesture={wiring.gesture}
       dragOverlay={wiring.dragOverlay}
       composedContainerRef={wiring.composedContainerRef}

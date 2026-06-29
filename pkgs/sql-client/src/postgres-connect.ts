@@ -8,13 +8,17 @@
  * different schema impossible without going through here.
  */
 import { Client, Pool } from 'pg';
+import {
+  pgRawQueryWithSearchPathPin,
+  type PgExecutor,
+} from './impl-pg-shared';
 import { SqlClientImplPg, SqlClientImplPgClient } from './impl-pg';
 import type { PostgresSqlClient, SqlClient } from './interface';
 import { quotePgIdent, type PostgresDbScope } from './postgres-schema';
 import {
   assertPgSessionSchema,
+  pinAndVerifyPgSessionSchema,
   postgresRejectsStartupSearchPathOption,
-  setPgSessionSchema,
 } from './postgres-session-schema';
 import { sanitizePostgresUrlForNodePg } from './sanitize-postgres-url-for-node-pg';
 
@@ -99,8 +103,7 @@ export async function openPgClient(
       `CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(args.dbScope.schema)}`
     );
   }
-  await setPgSessionSchema(client, args.dbScope);
-  await assertPgSessionSchema(client, args.dbScope);
+  await pinAndVerifyPgSessionSchema(client, args.dbScope, args.connectionString);
   const pinSearchPathEachQuery = postgresRejectsStartupSearchPathOption(
     args.connectionString
   );
@@ -112,6 +115,76 @@ export async function openPgClient(
       pinSearchPathEachQuery
     ),
   };
+}
+
+/**
+ * Presents one pinned {@link Client} as a `pg.Pool` for Kysely / Better Auth
+ * without opening a second TCP session. The adapter pins `search_path` on every
+ * query via {@link pgRawQueryWithSearchPathPin} — real `pg.Pool` monkey-patches
+ * deadlock on Neon pooler URLs when `max: 1`.
+ */
+export function adaptPgClientAsPool(
+  client: Client,
+  dbScope: PostgresDbScope,
+  connectionString: string
+): Pool {
+  const pinSearchPathEachQuery = postgresRejectsStartupSearchPathOption(
+    connectionString
+  );
+  const execQuery = client.query.bind(client) as PgExecutor['query'];
+  const runPinnedQuery = (text: string, values?: unknown[]) =>
+    pgRawQueryWithSearchPathPin({
+      queryable: { query: execQuery },
+      execQuery,
+      dbScope,
+      pinSearchPathEachQuery,
+      text,
+      ...(values !== undefined && values.length > 0 ? { values } : {}),
+    });
+  const checkoutClient = (): PoolClient => {
+    const poolClient = client as unknown as PoolClient;
+    poolClient.query = ((text: string, values?: unknown[]) =>
+      runPinnedQuery(text, values)) as typeof poolClient.query;
+    poolClient.release = () => undefined;
+    return poolClient;
+  };
+  const poolAdapter = {
+    connect: (
+      callback?: (
+        err: Error | undefined,
+        client: PoolClient | undefined,
+        done: (release?: boolean | (() => void)) => void
+      ) => void
+    ) => {
+      if (typeof callback === 'function') {
+        callback(undefined, checkoutClient(), () => undefined);
+        return undefined;
+      }
+      return Promise.resolve(checkoutClient());
+    },
+    query: (
+      text: string,
+      values?: unknown[],
+      callback?: (err: Error | undefined, result: unknown) => void
+    ) => {
+      const run = runPinnedQuery(text, values);
+      if (typeof callback === 'function') {
+        void run
+          .then((result) => callback(undefined, result))
+          .catch((err: unknown) => {
+            callback(err instanceof Error ? err : new Error(String(err)), undefined);
+          });
+        return undefined;
+      }
+      return run;
+    },
+    end: async () => undefined,
+    on: () => poolAdapter,
+    totalCount: 1,
+    idleCount: 0,
+    waitingCount: 0,
+  };
+  return poolAdapter as unknown as Pool;
 }
 
 export type CreatePgPoolArgs = {
@@ -138,9 +211,6 @@ export function createPgPool(args: CreatePgPoolArgs): CreatePgPoolResult {
   const pool = new Pool({
     connectionString: sanitizePostgresUrlForNodePg(args.connectionString),
     max: args.max ?? 1,
-    onConnect: async (client) => {
-      await setPgSessionSchema(client, args.dbScope);
-    },
   });
   return {
     pool,

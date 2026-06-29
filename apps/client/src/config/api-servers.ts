@@ -1,4 +1,7 @@
-import { isLocalApiOrigin } from '@libs/auth/shared/local-api-origin';
+import {
+  isLocalApiOrigin,
+  normalizeLoopbackOriginToLocalhost,
+} from '@libs/auth/shared/local-api-origin';
 import { assert } from '@pkgs/assert';
 import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/local-preview-api-origin';
@@ -131,7 +134,7 @@ function readDevLoopbackWranglerApi(): string | null {
     { origin }
   );
   if (WEB_PREVIEW_PORTS.has(port)) return null;
-  return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
+  return normalizeLoopbackOriginToLocalhost(DEFAULT_LOCAL_PREVIEW_API_ORIGIN);
 }
 
 function coerceDevBundleApiOrigin(origin: string): string {
@@ -188,6 +191,7 @@ export function getApiBaseUrl(): string {
     { raw }
   );
   origin = coerceDevBundleApiOrigin(origin);
+  origin = normalizeLoopbackOriginToLocalhost(origin);
   assertTigerPolicyForResolvedApiOrigin(
     origin,
     'forbid-prod-in-expo-dev-bundle'

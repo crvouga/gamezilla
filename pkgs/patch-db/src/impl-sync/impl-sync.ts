@@ -145,6 +145,7 @@ export class SyncPatchDb implements PatchDb {
   private pollScheduleHandle: SyncPatchDbScheduleHandle | null = null;
   private pollInProgress = false;
   private pollEmptyLocalPending = false;
+  private pushInProgress = false;
   private pushConsecutiveFailures = 0;
   private pollConsecutiveFailures = 0;
 
@@ -208,7 +209,7 @@ export class SyncPatchDb implements PatchDb {
    * Use with {@link SyncPatchDbOptions.pushDriver} `"manual"` or to force an extra push.
    */
   async runPushNow(): Promise<void> {
-    await pushUnsynced(this.pushDeps());
+    await this.runPushCycle(false);
   }
 
   /**
@@ -218,20 +219,48 @@ export class SyncPatchDb implements PatchDb {
    * must surface failure to the user (e.g. sign-out).
    */
   async runPushNowStrict(): Promise<void> {
+    await this.runPushCycle(true);
+  }
+
+  private pushIdle: Promise<void> = Promise.resolve();
+
+  /** Serialize push work; interval ticks skip when busy, strict/manual wait. */
+  private async runPushCycle(strict: boolean): Promise<void> {
     if (this.destroyed) return;
-    const [result] = await this.local.read(
-      [unsyncedPatchesQueryForPush()],
-      OPEN_PATCHES_DB_CONTEXT
-    );
-    assert.ok(
-      result !== null && result !== undefined,
-      'read([query]) must return one result'
-    );
-    const patches = result.patches;
-    if (patches.length === 0) return;
-    await pushUnsyncedChunksThenPoll(this.pushDeps(), patches, {
-      strictRejections: true,
+    if (this.pushInProgress) {
+      if (!strict) return;
+      await this.pushIdle;
+      if (this.destroyed) return;
+    }
+    if (this.pushInProgress) return;
+
+    let releaseIdle!: () => void;
+    this.pushIdle = new Promise<void>((resolve) => {
+      releaseIdle = resolve;
     });
+    this.pushInProgress = true;
+    try {
+      if (strict) {
+        const [result] = await this.local.read(
+          [unsyncedPatchesQueryForPush()],
+          OPEN_PATCHES_DB_CONTEXT
+        );
+        assert.ok(
+          result !== null && result !== undefined,
+          'read([query]) must return one result'
+        );
+        const patches = result.patches;
+        if (patches.length === 0) return;
+        await pushUnsyncedChunksThenPoll(this.pushDeps(), patches, {
+          strictRejections: true,
+        });
+        return;
+      }
+      await pushUnsynced(this.pushDeps());
+    } finally {
+      this.pushInProgress = false;
+      releaseIdle();
+    }
   }
 
   /**
@@ -368,9 +397,9 @@ export class SyncPatchDb implements PatchDb {
     const pushIntervalMs = this.options.pushIntervalMs ?? 2000;
     const scheduler = this.options.scheduler ?? defaultSyncPatchDbScheduler;
     this.pushScheduleHandle = scheduler.scheduleInterval(pushIntervalMs, () => {
-      fireAndForget(pushUnsynced(this.pushDeps()), {
+      fireAndForget(this.runPushCycle(false), {
         component: 'SyncPatchDb',
-        op: 'pushUnsynced',
+        op: 'push-interval',
       });
     });
   }

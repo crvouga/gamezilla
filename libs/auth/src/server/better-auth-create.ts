@@ -1,6 +1,8 @@
 import { expo } from '@better-auth/expo';
 import type { SecretStore } from '@pkgs/secret-store';
-import { createPgPool } from '@pkgs/sql-client/postgres-connect';
+import { adaptPgClientAsPool, openPgClient } from '@pkgs/sql-client/postgres-connect';
+import type { Pool } from '@pkgs/sql-client/pg-types';
+import type { Client } from '@pkgs/sql-client/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import { betterAuth, type BetterAuthPlugin } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
@@ -53,6 +55,8 @@ export async function createBetterAuthRequestStack(
   databaseUrl: string,
   options: {
     readonly dbScope: PostgresDbScope;
+    /** When set, reuses the request-scoped pool (avoids a second Neon connection). */
+    readonly pool?: Pool;
     readonly apiUrlOverride?: string | null;
     readonly devIdpPort?: number;
   }
@@ -61,12 +65,20 @@ export async function createBetterAuthRequestStack(
     secretStore,
     options.apiUrlOverride
   );
-  const { pool } = createPgPool({
-    connectionString: databaseUrl,
-    dbScope: options.dbScope,
-    max: 1,
-  });
-  await pool.query('SELECT 1');
+  let pool = options.pool;
+  let ownedClient: Client | undefined;
+  if (pool === undefined) {
+    const opened = await openPgClient({
+      connectionString: databaseUrl,
+      dbScope: options.dbScope,
+    });
+    ownedClient = opened.client;
+    pool = adaptPgClientAsPool(
+      opened.client,
+      options.dbScope,
+      databaseUrl
+    );
+  }
   const db = new Kysely({ dialect: new PostgresDialect({ pool }) });
 
   const plugins: BetterAuthPlugin[] = [bearer(), expo()];
@@ -115,6 +127,9 @@ export async function createBetterAuthRequestStack(
     auth,
     dispose: async () => {
       await db.destroy();
+      if (ownedClient !== undefined) {
+        await ownedClient.end().catch(() => {});
+      }
     },
   };
 }

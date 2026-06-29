@@ -46,7 +46,6 @@ const appProviders = [
   AuthClientProvider,
   SuspenseRootProvider,
   AppI18nProviderWrapper,
-  UiPortalsProvider,
   LoggerProvider,
   ObjectStoreProviderWrapper,
   LlmProviderWrapper,
@@ -62,6 +61,7 @@ const appProviders = [
   AuthModalsProvider,
   GamesBootstrapProvider,
   CommandRegistryProviderWrapper,
+  UiPortalsProvider,
 ];
 
 export function AppProviders({ children }: { children: ReactNode }): ReactNode {

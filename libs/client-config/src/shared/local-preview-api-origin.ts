@@ -3,4 +3,4 @@
  * Used when `LOCAL_PREVIEW_API_ORIGIN` is unset in env and absent or blank in Vault.
  */
 export const DEFAULT_LOCAL_PREVIEW_API_ORIGIN =
-  'http://127.0.0.1:8788' as const;
+  'http://localhost:8788' as const;

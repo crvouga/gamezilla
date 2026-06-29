@@ -185,6 +185,7 @@
     "react-native-svg": "15.12.1",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.5.1",
+    "react-scan": "^0.5.7",
     "sort-package-json": "^3.6.1",
     "sql.js": "^1.14.0",
     "stripe": "^18.0.0",

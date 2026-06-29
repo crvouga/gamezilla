@@ -6,6 +6,7 @@ import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import { isSecretStoreError } from '@pkgs/secret-store';
 import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
 import { tryBetterAuthOptionsResponse } from './app/cors';
+import { isLocalApiOrigin } from '@libs/auth/shared/local-api-origin';
 import { createApiApp } from './app/create-app';
 import type { ApiWorkerEnv } from './config/env';
 import {
@@ -200,6 +201,17 @@ async function handleWorkerFetch(
   if (request.method === 'OPTIONS') {
     const authPreflight = tryBetterAuthOptionsResponse(request);
     return authPreflight ?? preflightResponse(request);
+  }
+
+  // OAuth state cookies are host-only — `127.0.0.1` and `localhost` are different
+  // jars on loopback. Canonicalize auth traffic to `localhost` in local dev.
+  if (
+    isLocalApiOrigin(url.origin) &&
+    url.hostname === '127.0.0.1' &&
+    url.pathname.startsWith('/api/auth')
+  ) {
+    url.hostname = 'localhost';
+    return Response.redirect(url.toString(), 307);
   }
 
   const app = await ensureApp(env);

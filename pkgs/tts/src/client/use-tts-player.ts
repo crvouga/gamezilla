@@ -142,7 +142,11 @@ export function useTtsPlayer(): TtsPlayerState {
     requestedUrlRef.current = null;
     setPlayingLeadIn(false);
     if (currentUrl !== null) {
-      player.pause();
+      try {
+        player.pause();
+      } catch {
+        // Native player may already be disposed (fast unmount / source swap).
+      }
     }
   }, [player, currentUrl]);
 

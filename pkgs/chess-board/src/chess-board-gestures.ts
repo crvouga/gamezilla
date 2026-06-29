@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Platform } from 'react-native';
 import { Gesture } from 'react-native-gesture-handler';
 import {
   Easing,
@@ -23,7 +24,10 @@ export type BoardGesturesArgs = {
   isDragging: SharedValue<boolean>;
   dragPickupScale?: SharedValue<number>;
   dragPickupOpacity?: SharedValue<number>;
+  /** Native: snap pickup scale/opacity instantly (withTiming crashes some iOS Skia paths). */
+  snapPickup?: boolean;
   setSelected: (sq: Square | null) => void;
+  onPanPickupStart: (from: Square) => void;
   onDragStart: (from: Square) => void;
   onDragEnd: () => void;
   onHoverSquare?: (sq: Square | null) => void;
@@ -139,6 +143,19 @@ function buildTapGesture(args: TapArgs) {
     });
 }
 
+function snapPickupTo(
+  ctx: {
+    dragPickupScale?: SharedValue<number>;
+    dragPickupOpacity?: SharedValue<number>;
+  },
+  toScale: number,
+  toOpacity: number
+): void {
+  'worklet';
+  if (ctx.dragPickupScale) ctx.dragPickupScale.value = toScale;
+  if (ctx.dragPickupOpacity) ctx.dragPickupOpacity.value = toOpacity;
+}
+
 type PanContext = {
   size: number;
   orientation: BoardOrientation;
@@ -149,8 +166,10 @@ type PanContext = {
   isDragging: SharedValue<boolean>;
   dragPickupScale?: SharedValue<number>;
   dragPickupOpacity?: SharedValue<number>;
+  snapPickup: boolean;
   lastHoverIndex: SharedValue<number>;
   setSelected: (sq: Square | null) => void;
+  onPanPickupStart: (from: Square) => void;
   onDragStart: (from: Square) => void;
   onDragEnd: () => void;
   onHoverSquare?: (sq: Square | null) => void;
@@ -182,13 +201,16 @@ function onPanBegin(ctx: PanContext, e: { x: number; y: number }): void {
   const p = ctx.position[idx] ?? null;
   if (!p || p.color !== ctx.turn) return;
 
+  runOnJS(ctx.onPanPickupStart)(sq);
   ctx.dragX.value = e.x;
   ctx.dragY.value = e.y;
   ctx.isDragging.value = true;
-  pickupTo(ctx, PICKUP_SCALE, PICKUP_OPACITY, PICKUP_IN_MS);
+  if (ctx.snapPickup) {
+    snapPickupTo(ctx, PICKUP_SCALE, PICKUP_OPACITY);
+  } else {
+    pickupTo(ctx, PICKUP_SCALE, PICKUP_OPACITY, PICKUP_IN_MS);
+  }
   emitHover(ctx, idx, sq);
-  runOnJS(ctx.setSelected)(sq);
-  runOnJS(ctx.onDragStart)(sq);
 }
 
 function onPanUpdate(ctx: PanContext, e: { x: number; y: number }): void {
@@ -279,7 +301,9 @@ function buildPanContext(
     dragY: args.dragY,
     isDragging: args.isDragging,
     lastHoverIndex,
+    snapPickup: args.snapPickup ?? false,
     setSelected: args.setSelected,
+    onPanPickupStart: args.onPanPickupStart,
     onDragStart: args.onDragStart,
     onDragEnd: args.onDragEnd,
     onDrop: args.onDrop,
@@ -308,7 +332,9 @@ export function useBoardGestures(args: BoardGesturesArgs) {
     isDragging,
     dragPickupScale,
     dragPickupOpacity,
+    snapPickup = Platform.OS !== 'web',
     setSelected,
+    onPanPickupStart,
     onDragStart,
     onDragEnd,
     onHoverSquare,
@@ -342,6 +368,7 @@ export function useBoardGestures(args: BoardGesturesArgs) {
     onDrop,
     commitDrop,
     onDragEnd,
+    onPanPickupStart,
     onDragStart,
     orientation,
     position,
@@ -354,6 +381,7 @@ export function useBoardGestures(args: BoardGesturesArgs) {
     isDragging,
     dragPickupScale,
     dragPickupOpacity,
+    snapPickup,
     onHoverSquare,
     lastHoverIndex,
   ]);

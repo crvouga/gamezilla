@@ -67,6 +67,68 @@ export interface DevIdpServerHandle {
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_CONNECT_TIMEOUT_MS = 60_000;
 
+type DevIdpPgSession = {
+  pgClient: OpenPgClientResult['client'];
+  kv: KvImplPostgres;
+};
+
+function attachPgClientErrorLogger(
+  pgClient: OpenPgClientResult['client'],
+  log: Logger
+): void {
+  pgClient.on('error', (err: Error) => {
+    log.warn('dev-idp: postgres client error', { error: err.message });
+  });
+}
+
+function isPgConnectionLostError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return (
+    msg.includes('not queryable') ||
+    msg.includes('Connection terminated') ||
+    msg.includes('ECONNRESET') ||
+    msg.includes('connection closed')
+  );
+}
+
+async function openDevIdpPgSession(
+  dbUrl: string,
+  connectTimeoutMs: number,
+  log: Logger
+): Promise<DevIdpPgSession> {
+  const { client: pgClient, sqlClient } = await connectPgWithRetry(
+    dbUrl,
+    connectTimeoutMs,
+    log
+  );
+  attachPgClientErrorLogger(pgClient, log);
+  const kv = await openKvForDevIdp(sqlClient, log, connectTimeoutMs);
+  return { pgClient, kv };
+}
+
+async function ensureDevIdpPgSession(
+  session: DevIdpPgSession,
+  dbUrl: string,
+  connectTimeoutMs: number,
+  log: Logger
+): Promise<void> {
+  try {
+    await session.pgClient.query('SELECT 1');
+    return;
+  } catch (err) {
+    if (!isPgConnectionLostError(err)) throw err;
+  }
+  log.warn('dev-idp: postgres reconnecting after connection loss');
+  try {
+    await session.pgClient.end();
+  } catch {
+    /* client may already be dead */
+  }
+  const next = await openDevIdpPgSession(dbUrl, connectTimeoutMs, log);
+  session.pgClient = next.pgClient;
+  session.kv = next.kv;
+}
+
 /** Strips the password from a Postgres URL for safe logging. */
 function maskDbUrl(dbUrl: string): string {
   try {
@@ -114,31 +176,28 @@ export async function startDevIdpServer(
   const clientBundle = await buildClientBundle();
   log.info('dev-idp: client bundle built', { bytes: clientBundle.bytes });
 
-  const { client: pgClient, sqlClient } = await connectPgWithRetry(
-    dbUrl,
-    connectTimeoutMs,
-    log
-  );
-
-  // Attach an error handler to the PostgreSQL client. The 'pg' library emits
-  // 'error' events for connection failures and server-initiated terminations.
-  // Without this handler, those errors become uncaughtException events.
-  pgClient.on('error', (err: Error) => {
-    log.warn('dev-idp: postgres client error', {
-      error: err.message,
-    });
-  });
-
-  const kv = await openKvForDevIdp(sqlClient, log, connectTimeoutMs);
+  const session = await openDevIdpPgSession(dbUrl, connectTimeoutMs, log);
 
   if (options.seedUsers !== undefined && options.seedUsers.length > 0) {
-    const store = new DevIdpUserStore(kv);
+    const store = new DevIdpUserStore(session.kv);
     const seeded = await store.seedIfEmpty(options.seedUsers);
     log.info('dev-idp: seed check complete', { userCount: seeded.length });
   }
 
-  const router = createDevIdpRouter({ getKv: () => kv, clientBundle });
+  const router = createDevIdpRouter({
+    getKv: () => session.kv,
+    clientBundle,
+  });
   const app = new Hono();
+  app.use('*', async (_c, next) => {
+    await ensureDevIdpPgSession(session, dbUrl, connectTimeoutMs, log);
+    await next();
+  });
+  app.onError((err, c) => {
+    const message = err instanceof Error ? err.message : String(err);
+    log.error('dev-idp: request failed', { error: message });
+    return c.text('Internal Server Error', 500);
+  });
   app.route(DEV_IDP_PATH_PREFIX, router);
   app.get('/', (c) => c.redirect(`${DEV_IDP_PATH_PREFIX}/authorize`));
   app.notFound((c) =>
@@ -157,14 +216,18 @@ export async function startDevIdpServer(
     authorize: `${url}${DEV_IDP_PATH_PREFIX}/authorize`,
   });
 
-  const stop = createDevIdpStopHandler({ server, pgClient, log });
+  const stop = createDevIdpStopHandler({
+    server,
+    getPgClient: () => session.pgClient,
+    log,
+  });
 
   return { url, port, stop };
 }
 
 function createDevIdpStopHandler(input: {
   readonly server: ReturnType<typeof Bun.serve>;
-  readonly pgClient: OpenPgClientResult['client'];
+  readonly getPgClient: () => OpenPgClientResult['client'];
   readonly log: Logger;
 }): () => Promise<void> {
   let stopped = false;
@@ -182,7 +245,7 @@ function createDevIdpStopHandler(input: {
       // Close the PostgreSQL connection. During shutdown, the connection
       // may already be terminated by the database server, so we suppress
       // connection-related errors.
-      await input.pgClient.end();
+      await input.getPgClient().end();
     } catch (e) {
       const errorMsg = e instanceof Error ? e.message : String(e);
       // Ignore "terminating connection due to administrator command" errors

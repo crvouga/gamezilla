@@ -1,31 +1,21 @@
 import { memo, type ReactNode } from 'react';
 import { View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
-import Animated, { type SharedValue } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content';
 import { ChessBoardCanvasContent } from './chess-board-canvas-content';
-import { DragPieceOverlay } from './chess-board-drag-piece-overlay';
 import type { useBoardGestures } from './chess-board-gestures';
 import { ChessBoardPromotionInline } from './chess-board-promotion';
 import type {
   BoardOrientation,
   BoardTheme,
   Move,
-  PieceCode,
 } from './chess-board-types';
 import type { PieceImageCache } from './chess-pieces-cache';
 import type { UseChessBoardDragOverlayResult } from './use-chess-board-drag-overlay';
 import type { PendingPromotion } from './use-chess-board-interaction-state';
 
 type GestureLike = ReturnType<typeof useBoardGestures>;
-
-type DragValues = {
-  dragX: SharedValue<number>;
-  dragY: SharedValue<number>;
-  isDragging: SharedValue<boolean>;
-  dragPickupScale: SharedValue<number>;
-  dragPickupOpacity: SharedValue<number>;
-};
 
 export type ChessBoardViewProps = {
   size: number;
@@ -35,8 +25,6 @@ export type ChessBoardViewProps = {
   pendingPromotion: PendingPromotion | null;
   pieceImages: PieceImageCache | null;
   pieceDraw: number;
-  draggedPieceCode: PieceCode | null;
-  drag: DragValues;
   gesture: GestureLike;
   dragOverlay: UseChessBoardDragOverlayResult;
   composedContainerRef: (n: View | null) => void;
@@ -45,22 +33,6 @@ export type ChessBoardViewProps = {
   onPromotionPick: (p: NonNullable<Move['promotion']>) => void;
   contentProps: ChessBoardCanvasContentProps;
 };
-
-function inlineDrag(p: ChessBoardViewProps): ReactNode {
-  if (p.dragOverlayPortal) return null;
-  return (
-    <DragPieceOverlay
-      pieceImages={p.pieceImages}
-      draggedPieceCode={p.draggedPieceCode}
-      dragX={p.drag.dragX}
-      dragY={p.drag.dragY}
-      isDragging={p.drag.isDragging}
-      dragPickupOpacity={p.drag.dragPickupOpacity}
-      dragPickupScale={p.drag.dragPickupScale}
-      pieceDraw={p.pieceDraw}
-    />
-  );
-}
 
 type PromotionInlineProps = {
   pending: PendingPromotion | null;
@@ -104,7 +76,6 @@ function ChessBoardViewImpl(p: ChessBoardViewProps): ReactNode {
       >
         <Animated.View style={sqStyle}>
           <ChessBoardCanvasContent {...p.contentProps} />
-          {inlineDrag(p)}
           {inlinePromotion({
             pending: p.pendingPromotion,
             size: p.size,

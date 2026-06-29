@@ -21,6 +21,8 @@ export type ChessBoardHandlersArgs = {
 
 export type ChessBoardHandlers = {
   setSelected: (sq: Square | null) => void;
+  /** Batched pickup: sets dragFrom + selected before isDragging flips on UI thread. */
+  onPanPickupStart: (from: Square) => void;
   onDragStart: (from: Square) => void;
   onDragEnd: () => void;
   onHoverSquare: (sq: Square | null) => void;
@@ -43,7 +45,7 @@ export type ChessBoardHandlers = {
 
 type InteractionHandlers = Pick<
   ChessBoardHandlers,
-  'setSelected' | 'onDragStart' | 'onDragEnd' | 'onHoverSquare'
+  'setSelected' | 'onPanPickupStart' | 'onDragStart' | 'onDragEnd' | 'onHoverSquare'
 >;
 
 function useInteractionHandlers(
@@ -51,6 +53,10 @@ function useInteractionHandlers(
 ): InteractionHandlers {
   const setSelected = useStableHandler((sq: Square | null) => {
     interaction.setSelected(sq);
+  });
+  const onPanPickupStart = useStableHandler((from: Square) => {
+    interaction.setDragFrom(from);
+    interaction.setSelected(from);
   });
   const onDragStart = useStableHandler((from: Square) => {
     interaction.setDragFrom(from);
@@ -62,7 +68,7 @@ function useInteractionHandlers(
   const onHoverSquare = useStableHandler((sq: Square | null) => {
     interaction.setHoveredSquare(sq);
   });
-  return { setSelected, onDragStart, onDragEnd, onHoverSquare };
+  return { setSelected, onPanPickupStart, onDragStart, onDragEnd, onHoverSquare };
 }
 
 type DropHandlers = Pick<ChessBoardHandlers, 'onDrop' | 'commitDrop'>;

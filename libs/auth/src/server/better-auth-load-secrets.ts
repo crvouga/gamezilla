@@ -1,7 +1,10 @@
 import type { SecretStore } from '@pkgs/secret-store';
 
 import { APP_IDENTITY, appDeepLinkOrigin } from '../shared/app-identity';
-import { isLocalApiOrigin } from '../shared/local-api-origin';
+import {
+  isLocalApiOrigin,
+  normalizeLoopbackOriginToLocalhost,
+} from '../shared/local-api-origin';
 import { BetterAuthSecretName } from './better-auth-secret-names';
 
 export { isLocalApiOrigin };
@@ -28,6 +31,8 @@ const LOCAL_DEV_TRUSTED = [
 const LOCAL_WEB_CLIENT_TRUSTED = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
+  'http://localhost:5174',
+  'http://127.0.0.1:5174',
   'http://localhost:5175',
   'http://127.0.0.1:5175',
   'http://localhost:4173',
@@ -47,17 +52,7 @@ const LOCAL_WEB_CLIENT_TRUSTED = [
  * `localhost` for hosted auth URLs in local mode.
  */
 function normalizeLocalHostedAuthOrigin(apiOrigin: string): string {
-  if (!isLocalApiOrigin(apiOrigin)) return apiOrigin;
-  try {
-    const u = new URL(apiOrigin);
-    if (u.hostname === '127.0.0.1') {
-      u.hostname = 'localhost';
-      return u.origin;
-    }
-  } catch {
-    /* keep input on parse failure */
-  }
-  return apiOrigin;
+  return normalizeLoopbackOriginToLocalhost(apiOrigin);
 }
 
 function parseTrustedOriginsMultiline(raw: string | null): string[] {

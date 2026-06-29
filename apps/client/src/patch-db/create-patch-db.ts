@@ -18,6 +18,7 @@ import { PatchDbWriteThroughMirror } from '@pkgs/patch-db/react/write-through-mi
 import type { SubscribablePatchDbLike } from '@pkgs/patch-db/subscribable';
 
 import { createPatchDbHttpTransport } from '../api/patch-db-hc-transport';
+import { createCoalescedSqliteHydration } from './coalesced-sqlite-hydration';
 
 export type CreatePatchDbArgs = {
   sql: SqlClient;
@@ -84,11 +85,10 @@ export async function createPatchDb(
   decoratedDbHolder.value = decoratedDb;
   setInMemoryStoreForDb(decoratedDb, store);
 
-  pubSub.subscribe(PATCHES_DB_TOPIC, () => {
-    void hydrateInMemoryStoreFromSqlite(local, store).then(() => {
-      refreshPatchDbQueryCacheForDb(decoratedDb);
-    });
-  });
+  pubSub.subscribe(
+    PATCHES_DB_TOPIC,
+    createCoalescedSqliteHydration({ local, store, decoratedDb })
+  );
 
   await stamper.clearRejectedPushes();
   // accountSession is now strictly server-managed (system context only); drop

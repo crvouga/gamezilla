@@ -9,6 +9,8 @@ import type { SecretStore } from '@pkgs/secret-store';
 
 const log = createLogger({ name: 'api-object-store' });
 
+let devInMemoryObjectStoreNoticed = false;
+
 const S3_SECRET_NAMES = [
   S3SecretName.accessKeyId,
   S3SecretName.secretAccessKey,
@@ -39,7 +41,10 @@ export async function createApiObjectStore(
   options: CreateApiObjectStoreOptions = {}
 ): Promise<ObjectStore> {
   if (options.vaultConfig === DEVELOPMENT_VAULT_CONFIG) {
-    log.warn('dev vault config — using in-memory object store');
+    if (!devInMemoryObjectStoreNoticed) {
+      devInMemoryObjectStoreNoticed = true;
+      log.debug('dev vault config — using in-memory object store');
+    }
     return new ObjectStoreImplInMemory();
   }
 

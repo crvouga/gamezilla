@@ -107,6 +107,54 @@ function jsonHeaders(
   };
 }
 
+const TRANSIENT_HTTP_ATTEMPTS = 3;
+const TRANSIENT_HTTP_DELAY_MS = 400;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function isTransientPatchDbHttpFailure(
+  res: Response
+): Promise<boolean> {
+  if (res.status === 502 || res.status === 504) return true;
+  if (res.status !== 503) return false;
+  try {
+    const text = await res.clone().text();
+    try {
+      const parsed: unknown = JSON.parse(text);
+      if (
+        parsed !== null &&
+        typeof parsed === 'object' &&
+        !Array.isArray(parsed) &&
+        (parsed as Record<string, unknown>)['error'] === 'api misconfigured'
+      ) {
+        return false;
+      }
+    } catch {
+      /* wrangler plain-text 503 during local reload */
+    }
+    return true;
+  } catch {
+    return true;
+  }
+}
+
+async function fetchPatchDbHttp(
+  url: string,
+  init: RequestInit
+): Promise<Response> {
+  let last: Response | undefined;
+  for (let attempt = 1; attempt <= TRANSIENT_HTTP_ATTEMPTS; attempt++) {
+    last = await fetch(url, init);
+    if (last.ok) return last;
+    const retry = await isTransientPatchDbHttpFailure(last);
+    if (!retry || attempt >= TRANSIENT_HTTP_ATTEMPTS) return last;
+    await sleep(TRANSIENT_HTTP_DELAY_MS * attempt);
+  }
+  return last!;
+}
+
 export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
   constructor(
     private readonly baseUrl: string,
@@ -147,7 +195,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
     void _ctx;
     assertReadQueriesSupported(queries);
     const url = this.requestUrl(PATCH_SUFFIX_READ);
-    const res = await fetch(url, {
+    const res = await fetchPatchDbHttp(url, {
       method: 'POST',
       headers: jsonHeaders(this.options),
       body: JSON.stringify({ queries }),
@@ -180,7 +228,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
       }
     );
     const url = this.requestUrl(PATCH_SUFFIX_WRITE);
-    const res = await fetch(url, {
+    const res = await fetchPatchDbHttp(url, {
       method: 'POST',
       headers: jsonHeaders(this.options),
       body: JSON.stringify({ patches }),

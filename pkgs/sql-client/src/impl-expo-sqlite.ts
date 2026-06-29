@@ -282,21 +282,23 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   prepare(sql: string): PreparedStatement {
     const stmt = this.db.prepareSync(sql);
     return {
-      query: async <T = Record<string, unknown>>(params?: unknown[]) => {
-        const result = await stmt.executeAsync(
-          (params ?? []) as SQLite.SQLiteBindParams
-        );
-        return result.getAllAsync() as Promise<T[]>;
-      },
-      run: async (params?: unknown[]) => {
-        const result = await stmt.executeAsync(
-          (params ?? []) as SQLite.SQLiteBindParams
-        );
-        return {
-          changes: result.changes,
-          lastInsertRowid: result.lastInsertRowId,
-        };
-      },
+      query: async <T = Record<string, unknown>>(params?: unknown[]) =>
+        this.runSerialized(async () => {
+          const result = await stmt.executeAsync(
+            (params ?? []) as SQLite.SQLiteBindParams
+          );
+          return result.getAllAsync() as Promise<T[]>;
+        }),
+      run: async (params?: unknown[]) =>
+        this.runSerialized(async () => {
+          const result = await stmt.executeAsync(
+            (params ?? []) as SQLite.SQLiteBindParams
+          );
+          return {
+            changes: result.changes,
+            lastInsertRowid: result.lastInsertRowId,
+          };
+        }),
     };
   }
 
