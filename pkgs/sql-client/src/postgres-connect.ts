@@ -8,10 +8,7 @@
  * different schema impossible without going through here.
  */
 import { Client, Pool } from 'pg';
-import {
-  pgRawQueryWithSearchPathPin,
-  type PgExecutor,
-} from './impl-pg-shared';
+import { pgRawQueryWithSearchPathPin, type PgExecutor } from './impl-pg-shared';
 import { SqlClientImplPg, SqlClientImplPgClient } from './impl-pg';
 import type { PostgresSqlClient, SqlClient } from './interface';
 import { quotePgIdent, type PostgresDbScope } from './postgres-schema';
@@ -103,7 +100,11 @@ export async function openPgClient(
       `CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(args.dbScope.schema)}`
     );
   }
-  await pinAndVerifyPgSessionSchema(client, args.dbScope, args.connectionString);
+  await pinAndVerifyPgSessionSchema(
+    client,
+    args.dbScope,
+    args.connectionString
+  );
   const pinSearchPathEachQuery = postgresRejectsStartupSearchPathOption(
     args.connectionString
   );
@@ -128,9 +129,8 @@ export function adaptPgClientAsPool(
   dbScope: PostgresDbScope,
   connectionString: string
 ): Pool {
-  const pinSearchPathEachQuery = postgresRejectsStartupSearchPathOption(
-    connectionString
-  );
+  const pinSearchPathEachQuery =
+    postgresRejectsStartupSearchPathOption(connectionString);
   const execQuery = client.query.bind(client) as PgExecutor['query'];
   const runPinnedQuery = (text: string, values?: unknown[]) =>
     pgRawQueryWithSearchPathPin({
@@ -172,7 +172,10 @@ export function adaptPgClientAsPool(
         void run
           .then((result) => callback(undefined, result))
           .catch((err: unknown) => {
-            callback(err instanceof Error ? err : new Error(String(err)), undefined);
+            callback(
+              err instanceof Error ? err : new Error(String(err)),
+              undefined
+            );
           });
         return undefined;
       }

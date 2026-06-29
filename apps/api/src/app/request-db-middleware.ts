@@ -93,16 +93,24 @@ async function attachRequestDatabase(
   const { apiUrlOverride = null, devIdpPort } = options;
   // #region agent log
   const dbOpenStarted = Date.now();
-  debugRequestDbLog('request-db-middleware.ts:open-db-start', 'opening request db', {
-    path: new URL(c.req.url).pathname,
-  });
+  debugRequestDbLog(
+    'request-db-middleware.ts:open-db-start',
+    'opening request db',
+    {
+      path: new URL(c.req.url).pathname,
+    }
+  );
   // #endregion
   const { sqlClient, pool } = await openRequestDb(dbUrl, dbScope);
   // #region agent log
-  debugRequestDbLog('request-db-middleware.ts:open-db-done', 'request db open ok', {
-    path: new URL(c.req.url).pathname,
-    ms: Date.now() - dbOpenStarted,
-  });
+  debugRequestDbLog(
+    'request-db-middleware.ts:open-db-done',
+    'request db open ok',
+    {
+      path: new URL(c.req.url).pathname,
+      ms: Date.now() - dbOpenStarted,
+    }
+  );
   // #endregion
   const patchDb = createRequestPatchDb(sqlClient);
   const kv = new KvImplPostgres(sqlClient);

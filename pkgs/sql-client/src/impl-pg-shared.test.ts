@@ -13,7 +13,9 @@ const testScope = createPostgresDbScope('gamezilla');
 describe('readLastInsertRowid', () => {
   test('returns 0 when rows is undefined (multi-statement SET + DDL)', () => {
     expect(readLastInsertRowid(undefined)).toBe(0);
-    expect(pgRunResultFromQuery({ rows: undefined, rowCount: null } as never)).toEqual({
+    expect(
+      pgRunResultFromQuery({ rows: undefined, rowCount: null } as never)
+    ).toEqual({
       changes: 0,
       lastInsertRowid: 0,
     });

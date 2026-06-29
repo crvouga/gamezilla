@@ -350,11 +350,14 @@ async function waitForKvTable(
       return;
     } catch (err) {
       if (attempt === 1 || attempt % 5 === 0) {
-        log.info('dev-idp: waiting for kv table (api migrate may still be running)', {
-          attempt,
-          elapsedMs: Date.now() - start,
-          error: err instanceof Error ? err.message : String(err),
-        });
+        log.info(
+          'dev-idp: waiting for kv table (api migrate may still be running)',
+          {
+            attempt,
+            elapsedMs: Date.now() - start,
+            error: err instanceof Error ? err.message : String(err),
+          }
+        );
       }
       await sleep(1_000);
     }

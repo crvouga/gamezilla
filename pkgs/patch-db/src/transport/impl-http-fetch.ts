@@ -114,9 +114,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function isTransientPatchDbHttpFailure(
-  res: Response
-): Promise<boolean> {
+async function isTransientPatchDbHttpFailure(res: Response): Promise<boolean> {
   if (res.status === 502 || res.status === 504) return true;
   if (res.status !== 503) return false;
   try {

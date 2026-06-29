@@ -1,6 +1,9 @@
 import { expo } from '@better-auth/expo';
 import type { SecretStore } from '@pkgs/secret-store';
-import { adaptPgClientAsPool, openPgClient } from '@pkgs/sql-client/postgres-connect';
+import {
+  adaptPgClientAsPool,
+  openPgClient,
+} from '@pkgs/sql-client/postgres-connect';
 import type { Pool } from '@pkgs/sql-client/pg-types';
 import type { Client } from '@pkgs/sql-client/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
@@ -73,11 +76,7 @@ export async function createBetterAuthRequestStack(
       dbScope: options.dbScope,
     });
     ownedClient = opened.client;
-    pool = adaptPgClientAsPool(
-      opened.client,
-      options.dbScope,
-      databaseUrl
-    );
+    pool = adaptPgClientAsPool(opened.client, options.dbScope, databaseUrl);
   }
   const db = new Kysely({ dialect: new PostgresDialect({ pool }) });
 

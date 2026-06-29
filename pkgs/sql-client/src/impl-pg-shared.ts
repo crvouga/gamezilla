@@ -5,9 +5,7 @@
 import type { Pool, PoolClient, QueryResult } from 'pg';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import type { PostgresDbScope } from './postgres-schema';
-import {
-  setPgSessionSchema,
-} from './postgres-session-schema';
+import { setPgSessionSchema } from './postgres-session-schema';
 import { questionMarkParamsToDollarParams } from './positional-params';
 
 export function readLastInsertRowid(
