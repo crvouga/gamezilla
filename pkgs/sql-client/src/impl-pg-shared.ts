@@ -5,7 +5,7 @@
 import type { Pool, PoolClient, QueryResult } from 'pg';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import type { PostgresDbScope } from './postgres-schema';
-import { setPgSessionSchema } from './postgres-session-schema';
+import { quotePgIdent } from './postgres-schema';
 import { questionMarkParamsToDollarParams } from './positional-params';
 
 export function readLastInsertRowid(
@@ -61,17 +61,32 @@ function isPgPool(queryable: PgExecutor): queryable is Pool {
   );
 }
 
+/**
+ * Runs one statement on Neon/PgBouncer transaction poolers where session GUCs
+ * do not survive separate round trips. Wraps SET LOCAL in BEGIN/COMMIT so the
+ * pin and the statement share one backend and node-pg returns query rows.
+ */
 async function pgQueryOnPinnedSession(
   executor: PgExecutor,
   dbScope: PostgresDbScope,
   text: string,
   vals: readonly unknown[]
 ): Promise<QueryResult> {
-  await setPgSessionSchema(executor, dbScope);
-  if (vals.length > 0) {
-    return executor.query(text, [...vals]);
+  await executor.query('BEGIN');
+  try {
+    await executor.query(
+      `SET LOCAL search_path TO ${quotePgIdent(dbScope.schema)}`
+    );
+    const result =
+      vals.length > 0
+        ? await executor.query(text, [...vals])
+        : await executor.query(text);
+    await executor.query('COMMIT');
+    return result;
+  } catch (err) {
+    await executor.query('ROLLBACK').catch(() => {});
+    throw err;
   }
-  return executor.query(text);
 }
 
 export async function pgQueryWithOptionalSearchPathPin(
@@ -120,11 +135,12 @@ export async function pgRawQueryWithSearchPathPin(
     }
     return execQuery(text);
   }
-  await setPgSessionSchema({ query: execQuery }, dbScope);
-  if (values !== undefined && values.length > 0) {
-    return execQuery(text, values);
-  }
-  return execQuery(text);
+  return pgQueryOnPinnedSession(
+    { query: execQuery },
+    dbScope,
+    text,
+    values ?? []
+  );
 }
 
 function pinPgExecutorQuery(

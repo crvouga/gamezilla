@@ -10,6 +10,9 @@ import {
 import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
 import { clearWebClientPersistentState } from '@pkgs/browser/clear-web-client-state';
 import type { SecureStorage } from '@pkgs/secure-storage/interface';
+import {
+  RESET_DB_QUERY_PARAM,
+} from '@pkgs/sql-client/impl-expo-sqlite';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 
@@ -25,7 +28,9 @@ export async function clearLocalDatabaseAndReloadWithDeps(
   if (Platform.OS === 'web') {
     if (typeof window !== 'undefined') {
       await clearWebClientPersistentState();
-      window.location.reload();
+      const url = new URL(window.location.href);
+      url.searchParams.set(RESET_DB_QUERY_PARAM, '1');
+      window.location.replace(url.toString());
     }
     return;
   }

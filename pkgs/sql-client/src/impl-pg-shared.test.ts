@@ -42,12 +42,14 @@ describe('pgQueryWithOptionalSearchPathPin', () => {
       pinSearchPathEachQuery: true,
       sql: 'SELECT 1 FROM kv LIMIT 1',
     });
-    expect(calls).toHaveLength(2);
-    expect(calls[0]?.text).toContain('SET search_path TO');
-    expect(calls[1]?.text).toBe('SELECT 1 FROM kv LIMIT 1');
+    expect(calls).toHaveLength(4);
+    expect(calls[0]?.text).toBe('BEGIN');
+    expect(calls[1]?.text).toContain('SET LOCAL search_path TO');
+    expect(calls[2]?.text).toContain('SELECT 1 FROM kv LIMIT 1');
+    expect(calls[3]?.text).toBe('COMMIT');
   });
 
-  test('pins search_path separately before no-param queries on pooler connections', async () => {
+  test('wraps no-param queries in BEGIN/SET LOCAL/COMMIT on pooler connections', async () => {
     const calls: { text: string; vals?: unknown[] }[] = [];
     const queryable = {
       query: async (text: string, vals?: unknown[]) => {
@@ -61,12 +63,14 @@ describe('pgQueryWithOptionalSearchPathPin', () => {
       pinSearchPathEachQuery: true,
       sql: 'SELECT 1 FROM kv LIMIT 1',
     });
-    expect(calls).toHaveLength(2);
-    expect(calls[0]?.text).toContain('SET search_path TO');
-    expect(calls[1]?.text).toBe('SELECT 1 FROM kv LIMIT 1');
+    expect(calls).toHaveLength(4);
+    expect(calls[0]?.text).toBe('BEGIN');
+    expect(calls[1]?.text).toContain('SET LOCAL search_path TO');
+    expect(calls[2]?.text).toBe('SELECT 1 FROM kv LIMIT 1');
+    expect(calls[3]?.text).toBe('COMMIT');
   });
 
-  test('pins search_path separately before parameterized queries', async () => {
+  test('wraps parameterized queries in BEGIN/SET LOCAL/COMMIT on pooler connections', async () => {
     const calls: { text: string; vals?: unknown[] }[] = [];
     const queryable = {
       query: async (text: string, vals?: unknown[]) => {
@@ -81,15 +85,17 @@ describe('pgQueryWithOptionalSearchPathPin', () => {
       sql: 'SELECT 1 FROM kv WHERE key = ?',
       params: ['dev-idp'],
     });
-    expect(calls).toHaveLength(2);
-    expect(calls[0]?.text).toContain('SET search_path TO');
-    expect(calls[1]?.text).toBe('SELECT 1 FROM kv WHERE key = $1');
-    expect(calls[1]?.vals).toEqual(['dev-idp']);
+    expect(calls).toHaveLength(4);
+    expect(calls[0]?.text).toBe('BEGIN');
+    expect(calls[1]?.text).toContain('SET LOCAL search_path TO');
+    expect(calls[2]?.text).toBe('SELECT 1 FROM kv WHERE key = $1');
+    expect(calls[2]?.vals).toEqual(['dev-idp']);
+    expect(calls[3]?.text).toBe('COMMIT');
   });
 });
 
 describe('pgRawQueryWithSearchPathPin', () => {
-  test('pins search_path separately before native $1 queries', async () => {
+  test('wraps parameterized native $1 queries in BEGIN/SET LOCAL/COMMIT', async () => {
     const calls: { text: string; vals?: unknown[] }[] = [];
     const queryable = {
       query: async (text: string, vals?: unknown[]) => {
@@ -105,11 +111,13 @@ describe('pgRawQueryWithSearchPathPin', () => {
       text: 'SELECT 1 FROM verification WHERE identifier = $1',
       values: ['oauth-state'],
     });
-    expect(calls).toHaveLength(2);
-    expect(calls[0]?.text).toContain('SET search_path TO');
-    expect(calls[1]?.text).toBe(
+    expect(calls).toHaveLength(4);
+    expect(calls[0]?.text).toBe('BEGIN');
+    expect(calls[1]?.text).toContain('SET LOCAL search_path TO');
+    expect(calls[2]?.text).toBe(
       'SELECT 1 FROM verification WHERE identifier = $1'
     );
-    expect(calls[1]?.vals).toEqual(['oauth-state']);
+    expect(calls[2]?.vals).toEqual(['oauth-state']);
+    expect(calls[3]?.text).toBe('COMMIT');
   });
 });

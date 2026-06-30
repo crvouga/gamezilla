@@ -23,13 +23,14 @@ import { GestureHandlerProvider } from './gesture-handler-provider';
 import { KvProvider } from './kv-provider';
 import { LlmProviderWrapper } from './llm-provider';
 import { LoggerProvider } from './logger-provider';
-import { ObservabilityProvider } from './observability-provider';
 import { ObjectStoreProviderWrapper } from './object-store-provider';
+import { ObservabilityProvider } from './observability-provider';
 import { PatchDbLocalDataActionsProvider } from './patch-db-local-data-actions-provider';
 import { PatchDbProvider } from './patch-db-provider';
 import { SafeAreaProviderWrapper } from './safe-area-provider';
 import { SecureStorageProvider } from './secure-storage-provider';
 import { SqlClientProvider } from './sql-client-provider';
+import { SqliteWebRecoveryGate } from './sqlite-web-recovery-gate';
 import { SuspenseRootProvider } from './suspense-root-provider';
 import { TtsProviderWrapper } from './tts-provider';
 import { UiPortalsProvider } from './ui-portals-provider';
@@ -56,6 +57,7 @@ const appProviders = [
   TtsProviderWrapper,
   ApiClientProviderWrapper,
   SqlClientProvider,
+  SqliteWebRecoveryGate,
   PatchDbProvider,
   SpaceLifecycleModalProvider,
   DeviceEntityBootstrapProvider,
@@ -70,7 +72,7 @@ const appProviders = [
 export function AppProviders({ children }: { children: ReactNode }): ReactNode {
   return (
     <>
-      <ReactScanDev />
+      {false && <ReactScanDev />}
       <ComposeProviders providers={appProviders}>{children}</ComposeProviders>
     </>
   );

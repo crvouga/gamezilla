@@ -2,8 +2,17 @@ import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 
 import { clearExpoSqliteWebOpfsBestEffort } from '@pkgs/sqlite/clear-expo-sqlite-web-opfs';
+import {
+  isRecoverableExpoSqliteWebRuntimeError,
+  publishExpoSqliteWebFatalError,
+} from './expo-sqlite-web-recovery';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import { applySqliteConnectionPragmas } from './sqlite-connection-pragmas';
+
+export {
+  isRecoverableExpoSqliteWebRuntimeError,
+  subscribeExpoSqliteWebFatalError,
+} from './expo-sqlite-web-recovery';
 
 /**
  * Set after we clear OPFS + reload once. While set, we must not clear OPFS again from the
@@ -173,7 +182,18 @@ export class SqlClientImplExpoSqlite implements SqlClient {
         )
       );
     }
-    const done = this.opChain.then(() => fn());
+    const done = this.opChain.then(async () => {
+      try {
+        return await fn();
+      } catch (error) {
+        if (isRecoverableExpoSqliteWebRuntimeError(error)) {
+          publishExpoSqliteWebFatalError(
+            error instanceof Error ? error : new Error(String(error))
+          );
+        }
+        throw error;
+      }
+    });
     this.opChain = done.then(
       () => undefined,
       () => undefined
