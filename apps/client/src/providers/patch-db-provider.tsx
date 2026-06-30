@@ -86,6 +86,8 @@ export function PatchDbProvider({
   }
 
   return (
-    <PatchDbContextProvider value={boot.value}>{children}</PatchDbContextProvider>
+    <PatchDbContextProvider value={boot.value}>
+      {children}
+    </PatchDbContextProvider>
   );
 }

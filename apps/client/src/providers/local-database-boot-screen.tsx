@@ -19,8 +19,8 @@ function bootErrorBody(error: Error): ReactNode {
   if (isRecoverableExpoSqliteWebRuntimeError(error)) {
     return (
       <Trans>
-        Local storage hit a browser error. Reset local data below to start
-        fresh — your account on the server is unchanged.
+        Local storage hit a browser error. Reset local data below to start fresh
+        — your account on the server is unchanged.
       </Trans>
     );
   }
@@ -58,7 +58,9 @@ export function LocalDatabaseBootErrorScreen({
       }
       body={bootErrorBody(error)}
       retry={{
-        label: canResetLocalData ? t`Reset local data and reload` : t`Try again`,
+        label: canResetLocalData
+          ? t`Reset local data and reload`
+          : t`Try again`,
         onPress: () => {
           if (typeof window === 'undefined') return;
           if (canResetLocalData) {

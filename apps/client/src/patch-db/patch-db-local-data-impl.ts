@@ -10,9 +10,7 @@ import {
 import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
 import { clearWebClientPersistentState } from '@pkgs/browser/clear-web-client-state';
 import type { SecureStorage } from '@pkgs/secure-storage/interface';
-import {
-  RESET_DB_QUERY_PARAM,
-} from '@pkgs/sql-client/impl-expo-sqlite';
+import { RESET_DB_QUERY_PARAM } from '@pkgs/sql-client/impl-expo-sqlite';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 
