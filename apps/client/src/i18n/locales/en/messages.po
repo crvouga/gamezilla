@@ -3987,6 +3987,10 @@ msgstr "local"
 msgid "Local database cleared"
 msgstr "Local database cleared"
 
+#: apps/client/src/providers/local-database-boot-screen.tsx
+msgid "Local database needs a reset"
+msgstr "Local database needs a reset"
+
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "Local database wiped"
 msgstr "Local database wiped"
@@ -3994,6 +3998,10 @@ msgstr "Local database wiped"
 #: libs/client-config/src/client/client-config-entity-card.tsx
 msgid "Local PatchDB (synced)"
 msgstr "Local PatchDB (synced)"
+
+#: apps/client/src/providers/local-database-boot-screen.tsx
+msgid "Local storage hit a browser error. Reset local data below to start fresh — your account on the server is unchanged."
+msgstr "Local storage hit a browser error. Reset local data below to start fresh — your account on the server is unchanged."
 
 #: libs/client-config/src/client/client-config-server-refresh.tsx
 msgid "Local view updates after the next PatchDB sync."
