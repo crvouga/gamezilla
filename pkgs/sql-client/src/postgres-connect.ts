@@ -134,9 +134,8 @@ export function adaptPgClientAsPool(
   dbScope: PostgresDbScope,
   connectionString: string
 ): Pool {
-  const pinSearchPathEachQuery = postgresRejectsStartupSearchPathOption(
-    connectionString
-  );
+  const pinSearchPathEachQuery =
+    postgresRejectsStartupSearchPathOption(connectionString);
   const execQuery = client.query.bind(client) as PgExecutor['query'];
   const runPinnedQuery = (text: string, values?: unknown[]) =>
     pgRawQueryWithSearchPathPin({
@@ -178,7 +177,10 @@ export function adaptPgClientAsPool(
         void run
           .then((result) => callback(undefined, result))
           .catch((err: unknown) => {
-            callback(err instanceof Error ? err : new Error(String(err)), undefined);
+            callback(
+              err instanceof Error ? err : new Error(String(err)),
+              undefined
+            );
           });
         return undefined;
       }

@@ -6,11 +6,7 @@ import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content'
 import { ChessBoardCanvasContent } from './chess-board-canvas-content';
 import type { useBoardGestures } from './chess-board-gestures';
 import { ChessBoardPromotionInline } from './chess-board-promotion';
-import type {
-  BoardOrientation,
-  BoardTheme,
-  Move,
-} from './chess-board-types';
+import type { BoardOrientation, BoardTheme, Move } from './chess-board-types';
 import type { PieceImageCache } from './chess-pieces-cache';
 import type { UseChessBoardDragOverlayResult } from './use-chess-board-drag-overlay';
 import type { PendingPromotion } from './use-chess-board-interaction-state';

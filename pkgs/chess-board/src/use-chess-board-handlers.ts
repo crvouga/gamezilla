@@ -45,7 +45,11 @@ export type ChessBoardHandlers = {
 
 type InteractionHandlers = Pick<
   ChessBoardHandlers,
-  'setSelected' | 'onPanPickupStart' | 'onDragStart' | 'onDragEnd' | 'onHoverSquare'
+  | 'setSelected'
+  | 'onPanPickupStart'
+  | 'onDragStart'
+  | 'onDragEnd'
+  | 'onHoverSquare'
 >;
 
 function useInteractionHandlers(
@@ -68,7 +72,13 @@ function useInteractionHandlers(
   const onHoverSquare = useStableHandler((sq: Square | null) => {
     interaction.setHoveredSquare(sq);
   });
-  return { setSelected, onPanPickupStart, onDragStart, onDragEnd, onHoverSquare };
+  return {
+    setSelected,
+    onPanPickupStart,
+    onDragStart,
+    onDragEnd,
+    onHoverSquare,
+  };
 }
 
 type DropHandlers = Pick<ChessBoardHandlers, 'onDrop' | 'commitDrop'>;
