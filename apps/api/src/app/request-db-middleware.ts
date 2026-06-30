@@ -121,7 +121,13 @@ async function attachRequestDatabase(
     }
   );
   const sessionAuth = createSessionAuth({ auth: betterAuth });
-  const store = { patchDb, sessionAuth, kv, matchmakingSqlClient, observability };
+  const store = {
+    patchDb,
+    sessionAuth,
+    kv,
+    matchmakingSqlClient,
+    observability,
+  };
   return await apiRequestAsyncLocalStorage.run(store, async () => {
     c.set('patchDb', patchDb);
     c.set('sessionAuth', sessionAuth);

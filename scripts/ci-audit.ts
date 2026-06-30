@@ -37,9 +37,7 @@ const combined = `${r.stderr ?? ''}${r.stdout ?? ''}`;
 
 if (r.error !== undefined && timedOut(combined, r.error)) {
   if (!inCi) {
-    console.warn(
-      '[ci:audit] bun audit timed out; skipping audit outside CI.'
-    );
+    console.warn('[ci:audit] bun audit timed out; skipping audit outside CI.');
     process.exit(0);
   }
   console.error('[ci:audit] bun audit timed out.');

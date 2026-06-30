@@ -19,9 +19,11 @@ export function parseTraceparent(value: string): SpanContext | undefined {
   if (parts.length !== 4) return undefined;
   const [version, traceId, spanId, flagsHex] = parts;
   if (version !== VERSION) return undefined;
-  if (traceId === undefined || !/^[0-9a-f]{32}$/.test(traceId)) return undefined;
+  if (traceId === undefined || !/^[0-9a-f]{32}$/.test(traceId))
+    return undefined;
   if (spanId === undefined || !/^[0-9a-f]{16}$/.test(spanId)) return undefined;
-  if (flagsHex === undefined || !/^[0-9a-f]{2}$/.test(flagsHex)) return undefined;
+  if (flagsHex === undefined || !/^[0-9a-f]{2}$/.test(flagsHex))
+    return undefined;
   const traceFlags = parseInt(flagsHex, 16);
   if (!Number.isFinite(traceFlags)) return undefined;
   return { traceId, spanId, traceFlags };

@@ -55,13 +55,7 @@ export function ObservabilityProvider({
       ...(forceNoop !== undefined ? { forceNoop } : {}),
       ...(collectorUrl !== undefined ? { collectorUrl } : {}),
     });
-  }, [
-    observabilityOverride,
-    serviceName,
-    backendEnv,
-    forceNoop,
-    collectorUrl,
-  ]);
+  }, [observabilityOverride, serviceName, backendEnv, forceNoop, collectorUrl]);
 
   return (
     <ObservabilityContext.Provider value={observability}>
@@ -73,9 +67,7 @@ export function ObservabilityProvider({
 export function useObservability(): Observability {
   const obs = useContext(ObservabilityContext);
   if (obs === null) {
-    throw new Error(
-      'useObservability: ObservabilityProvider missing'
-    );
+    throw new Error('useObservability: ObservabilityProvider missing');
   }
   return obs;
 }

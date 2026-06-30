@@ -4,7 +4,11 @@ import {
 } from '../shared/trace-context';
 import type { StartSpanOptions, SpanContext } from '../shared/types';
 import { BaseSpan } from './base-span';
-import type { Observability, SpanContextStorage, SpanExporter } from './observability';
+import type {
+  Observability,
+  SpanContextStorage,
+  SpanExporter,
+} from './observability';
 
 export class BaseObservability implements Observability {
   readonly serviceName: string;
@@ -32,10 +36,7 @@ export class BaseObservability implements Observability {
     return this.storage.runWith(ctx, fn);
   }
 
-  withSpanContextAsync<T>(
-    ctx: SpanContext,
-    fn: () => Promise<T>
-  ): Promise<T> {
+  withSpanContextAsync<T>(ctx: SpanContext, fn: () => Promise<T>): Promise<T> {
     return this.storage.runWithAsync(ctx, fn);
   }
 
@@ -62,8 +63,7 @@ export class BaseObservability implements Observability {
       parent: active,
       attributes: {
         ...(attributes ?? {}),
-        'exception.type':
-          error instanceof Error ? error.name : typeof error,
+        'exception.type': error instanceof Error ? error.name : typeof error,
         'exception.message':
           error instanceof Error ? error.message : String(error),
       },

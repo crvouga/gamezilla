@@ -3,13 +3,31 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./client/*": ["./src/client/*.ts", "./src/client/*.tsx"],
-    "./server/*": ["./src/server/*.ts", "./src/server/*.tsx"],
-    "./shared/*": ["./src/shared/*.ts"],
-    "./port/*": ["./src/port/*.ts"],
-    "./impl-noop/*": ["./src/impl-noop/*.ts"],
-    "./impl-local-file/*": ["./src/impl-local-file/*.ts"],
-    "./*": ["./src/*.ts", "./src/*.tsx", "./src/*/index.ts"]
+    "./client/*": [
+      "./src/client/*.ts",
+      "./src/client/*.tsx"
+    ],
+    "./server/*": [
+      "./src/server/*.ts",
+      "./src/server/*.tsx"
+    ],
+    "./shared/*": [
+      "./src/shared/*.ts"
+    ],
+    "./port/*": [
+      "./src/port/*.ts"
+    ],
+    "./impl-noop/*": [
+      "./src/impl-noop/*.ts"
+    ],
+    "./impl-local-file/*": [
+      "./src/impl-local-file/*.ts"
+    ],
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
   },
   "scripts": {
     "dev": "bun run src/impl-local-file/dev.ts",

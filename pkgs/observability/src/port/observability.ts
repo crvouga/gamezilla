@@ -1,6 +1,17 @@
-import type { Span, SpanContext, StartSpanOptions, ExportedSpanRecord } from '../shared/types';
+import type {
+  Span,
+  SpanContext,
+  StartSpanOptions,
+  ExportedSpanRecord,
+} from '../shared/types';
 
-export type { SpanContext, StartSpanOptions, SpanKind, SpanStatus, Span } from '../shared/types';
+export type {
+  SpanContext,
+  StartSpanOptions,
+  SpanKind,
+  SpanStatus,
+  Span,
+} from '../shared/types';
 
 /**
  * Runtime-agnostic tracing port for fullstack observability.

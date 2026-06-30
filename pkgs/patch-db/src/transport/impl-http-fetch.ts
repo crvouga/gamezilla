@@ -205,11 +205,15 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
     void _ctx;
     assertReadQueriesSupported(queries);
     const url = this.requestUrl(PATCH_SUFFIX_READ);
-    const res = await fetchPatchDbHttp(url, {
-      method: 'POST',
-      headers: jsonHeaders(this.options),
-      body: JSON.stringify({ queries }),
-    }, this.fetchFn());
+    const res = await fetchPatchDbHttp(
+      url,
+      {
+        method: 'POST',
+        headers: jsonHeaders(this.options),
+        body: JSON.stringify({ queries }),
+      },
+      this.fetchFn()
+    );
     if (!res.ok) {
       const text = await res.text();
       throwHttpFailure(res, text);
@@ -238,11 +242,15 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
       }
     );
     const url = this.requestUrl(PATCH_SUFFIX_WRITE);
-    const res = await fetchPatchDbHttp(url, {
-      method: 'POST',
-      headers: jsonHeaders(this.options),
-      body: JSON.stringify({ patches }),
-    }, this.fetchFn());
+    const res = await fetchPatchDbHttp(
+      url,
+      {
+        method: 'POST',
+        headers: jsonHeaders(this.options),
+        body: JSON.stringify({ patches }),
+      },
+      this.fetchFn()
+    );
     if (!res.ok) {
       const text = await res.text();
       throwHttpFailure(res, text);

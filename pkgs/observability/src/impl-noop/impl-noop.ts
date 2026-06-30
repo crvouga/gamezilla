@@ -11,8 +11,7 @@ class NoopSpan implements Span {
   readonly spanContext: SpanContext;
 
   constructor(options?: StartSpanOptions) {
-    const traceId =
-      options?.parent?.traceId ?? createTraceId();
+    const traceId = options?.parent?.traceId ?? createTraceId();
     const spanId = createSpanId();
     this.spanContext = sampledSpanContext(traceId, spanId);
   }

@@ -189,7 +189,10 @@ async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {
  * Static web assets are served by the ASSETS binding for all other routes.
  */
 /** Health checks stay independent from DB pressure (deploy / load-balancer liveness). */
-function handleHealthRequest(request: Request, pathname: string): Response | null {
+function handleHealthRequest(
+  request: Request,
+  pathname: string
+): Response | null {
   if (pathname !== '/api/health') return null;
   if (request.method === 'HEAD') {
     return new Response(null, {

@@ -14,7 +14,9 @@ export type ObservabilityConfig = {
   readonly fetchFn?: HttpFetchFn;
 };
 
-export function createObservability(config: ObservabilityConfig): Observability {
+export function createObservability(
+  config: ObservabilityConfig
+): Observability {
   if (config.backend === 'local-file') {
     return createLocalFileObservability({
       serviceName: config.serviceName,

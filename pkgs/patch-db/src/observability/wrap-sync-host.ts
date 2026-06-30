@@ -47,7 +47,10 @@ async function observedRead(
       for (let i = 0; i < results.length; i += 1) {
         const metrics = results[i]?.metrics;
         if (metrics?.elapsedMs !== undefined) {
-          span.addEvent('query.metrics', { index: i, elapsedMs: metrics.elapsedMs });
+          span.addEvent('query.metrics', {
+            index: i,
+            elapsedMs: metrics.elapsedMs,
+          });
         }
       }
       span.setStatus({ code: 'ok' });

@@ -44,10 +44,7 @@ export function createObservabilityMiddleware(
     return observability.withSpanContextAsync(span.spanContext, async () => {
       try {
         await next();
-        span.setAttribute(
-          Semconv.httpResponseStatusCode,
-          c.res.status
-        );
+        span.setAttribute(Semconv.httpResponseStatusCode, c.res.status);
         if (c.res.status >= 500) {
           span.setStatus({ code: 'error', message: `HTTP ${c.res.status}` });
         } else {
