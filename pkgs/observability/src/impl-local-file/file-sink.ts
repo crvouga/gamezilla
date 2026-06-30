@@ -1,4 +1,10 @@
-import { mkdirSync, appendFileSync, readdirSync, statSync, unlinkSync } from 'node:fs';
+import {
+  mkdirSync,
+  appendFileSync,
+  readdirSync,
+  statSync,
+  unlinkSync,
+} from 'node:fs';
 import { join, dirname } from 'node:path';
 import type { ExportedSpanRecord } from '../shared/types';
 
@@ -85,9 +91,7 @@ export class ObservabilityFileSink {
 
   cleanup(serviceName?: string): void {
     const services =
-      serviceName !== undefined
-        ? [serviceName]
-        : this.listServices();
+      serviceName !== undefined ? [serviceName] : this.listServices();
     const now = Date.now();
     for (const service of services) {
       const files = this.listServiceFiles(service)

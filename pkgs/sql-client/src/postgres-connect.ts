@@ -8,10 +8,7 @@
  * different schema impossible without going through here.
  */
 import { Client, Pool, type PoolClient } from 'pg';
-import {
-  pgRawQueryWithSearchPathPin,
-  type PgExecutor,
-} from './impl-pg-shared';
+import { pgRawQueryWithSearchPathPin, type PgExecutor } from './impl-pg-shared';
 import { SqlClientImplPg, SqlClientImplPgClient } from './impl-pg';
 import type { PostgresSqlClient, SqlClient } from './interface';
 import { quotePgIdent, type PostgresDbScope } from './postgres-schema';

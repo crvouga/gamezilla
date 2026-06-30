@@ -90,7 +90,10 @@ const previousResolveRequest = config.resolver.resolveRequest;
 
 /** Prefer `apps/client/node_modules` symlinks over Bun store realpaths for Watchman SHA-1. */
 function resolveViaClientNodeModules(moduleName) {
-  if (moduleName === 'canvaskit-wasm' || moduleName.startsWith('canvaskit-wasm/')) {
+  if (
+    moduleName === 'canvaskit-wasm' ||
+    moduleName.startsWith('canvaskit-wasm/')
+  ) {
     return null;
   }
   const segments = moduleName.split('/');
@@ -147,7 +150,9 @@ function moduleNameFromBunStorePath(filePath) {
   const afterStore = filePath.slice(bunIdx + marker.length);
   const nestedIdx = afterStore.indexOf(`${path.sep}node_modules${path.sep}`);
   if (nestedIdx === -1) return null;
-  const rel = afterStore.slice(nestedIdx + `${path.sep}node_modules${path.sep}`.length);
+  const rel = afterStore.slice(
+    nestedIdx + `${path.sep}node_modules${path.sep}`.length
+  );
   return rel.split(path.sep).join('/');
 }
 
@@ -230,7 +235,11 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       if (typeof previousResolveRequest === 'function') {
         resolved = previousResolveRequest(aliasContext, moduleName, platform);
       } else {
-        resolved = aliasContext.resolveRequest(aliasContext, moduleName, platform);
+        resolved = aliasContext.resolveRequest(
+          aliasContext,
+          moduleName,
+          platform
+        );
       }
       if (resolved != null) return normalizeResolvedPath(resolved);
     } catch (err) {

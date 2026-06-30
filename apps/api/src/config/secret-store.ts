@@ -40,10 +40,7 @@ export function createApiSecretStore(
   const devBindings = options.devBindings ?? {};
   const inner =
     Object.keys(devBindings).length > 0
-      ? createCombinedSecretStore(
-          createRecordSecretStore(devBindings),
-          vault
-        )
+      ? createCombinedSecretStore(createRecordSecretStore(devBindings), vault)
       : vault;
   return createCachingSecretStore(inner, { ttlMs: 300_000 });
 }

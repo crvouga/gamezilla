@@ -1,8 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { createNoopObservability } from '../impl-noop/impl-noop';
-import {
-  createLocalFileObservabilityWithExporter,
-} from '../impl-local-file/impl-local-file';
+import { createLocalFileObservabilityWithExporter } from '../impl-local-file/impl-local-file';
 import { InMemorySpanContextStorage } from './in-memory-context-storage';
 import { TRACEPARENT_HEADER } from '../shared/trace-context';
 import type { ExportedSpanRecord, HttpFetchFn } from '../shared/types';
