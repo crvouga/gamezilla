@@ -52,8 +52,30 @@ export type PgSearchPathPinQueryArgs = {
  * Runs SQL on pooler connections with the correct `search_path` pin strategy.
  * Parameterized statements cannot bundle `SET search_path` (Postgres rejects
  * multi-command prepared statements); those get a separate pin query first.
- * No-param statements bundle pin + SQL in one simple-protocol round trip.
+ * For {@link Pool} callers, pin + query share one checked-out client so Neon
+ * transaction poolers do not split SET and the follow-up across backends.
  */
+function isPgPool(queryable: PgExecutor): queryable is Pool {
+  const candidate = queryable as Pool;
+  return (
+    typeof candidate.connect === 'function' &&
+    typeof candidate.totalCount === 'number'
+  );
+}
+
+async function pgQueryOnPinnedSession(
+  executor: PgExecutor,
+  dbScope: PostgresDbScope,
+  text: string,
+  vals: readonly unknown[]
+): Promise<QueryResult> {
+  await setPgSessionSchema(executor, dbScope);
+  if (vals.length > 0) {
+    return executor.query(text, [...vals]);
+  }
+  return executor.query(text);
+}
+
 export async function pgQueryWithOptionalSearchPathPin(
   args: PgSearchPathPinQueryArgs
 ): Promise<QueryResult> {
@@ -65,11 +87,15 @@ export async function pgQueryWithOptionalSearchPathPin(
     }
     return queryable.query(text);
   }
-  await setPgSessionSchema(queryable, dbScope);
-  if (vals.length > 0) {
-    return queryable.query(text, vals);
+  if (isPgPool(queryable)) {
+    const client = await queryable.connect();
+    try {
+      return await pgQueryOnPinnedSession(client, dbScope, text, vals);
+    } finally {
+      client.release();
+    }
   }
-  return queryable.query(text);
+  return pgQueryOnPinnedSession(queryable, dbScope, text, vals);
 }
 
 export type PgRawSearchPathPinQueryArgs = {

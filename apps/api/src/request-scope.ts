@@ -1,6 +1,7 @@
 import type { SessionAuth } from '@libs/auth/server/session-middleware';
 import type { Kv } from '@pkgs/kv/interface';
 import type { SqlClient as MmSqlClient } from '@pkgs/matchmaking/storage';
+import type { Observability } from '@pkgs/observability/port/observability';
 import type { PatchDb } from '@pkgs/patch-db/interface';
 import { AsyncLocalStorage } from 'node:async_hooks';
 
@@ -20,6 +21,7 @@ export type ApiRequestAsyncStore = {
    * delegate to a fresh request connection on every call.
    */
   readonly matchmakingSqlClient: MmSqlClient;
+  readonly observability: Observability;
 };
 
 export const apiRequestAsyncLocalStorage =

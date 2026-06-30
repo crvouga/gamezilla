@@ -4,10 +4,14 @@
     ".turbo",
     ".postgres",
     ".expo",
+    ".observability",
     ".qa-dist-dev",
     ".qa-native",
     "dist",
     "build",
-    "node_modules"
+    "node_modules",
+    ".bun",
+    ".cache",
+    "coverage"
   ]
 }

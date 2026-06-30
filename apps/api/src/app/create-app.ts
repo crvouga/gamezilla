@@ -6,6 +6,9 @@ import { appAuth } from '@libs/auth/shared/auth-context';
 import { createClientConfigApp } from '@libs/client-config/server/route';
 import { assert, ValidationError } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
+import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
+import { isObservabilityActive } from '@pkgs/observability/port/create-observability';
+import { wrapPatchDbSyncHostForObservability } from '@pkgs/patch-db/observability';
 import { createLlmAppFromBindings } from '@pkgs/llm/server';
 import { createMatchmakingSubApp } from '../matchmaking/route';
 import type { PatchDbApiConfig } from '@pkgs/patch-db/api';
@@ -46,7 +49,7 @@ function toPatchDbApiConfig(
     req: Request
   ) => Promise<Readonly<Record<string, unknown>>>
 ): PatchDbApiConfig {
-  const { pubSub, basePath, instrumentation } = config;
+  const { pubSub, basePath, instrumentation, observability } = config;
   const patchDbConfig: PatchDbApiConfig = {
     db: () => {
       const s = apiRequestAsyncLocalStorage.getStore();
@@ -66,6 +69,10 @@ function toPatchDbApiConfig(
   }
   if (instrumentation !== undefined) {
     patchDbConfig.instrumentation = instrumentation;
+  }
+  if (isObservabilityActive(observability)) {
+    patchDbConfig.syncHostWrapper = (host) =>
+      wrapPatchDbSyncHostForObservability(observability, host);
   }
   return patchDbConfig;
 }
@@ -186,7 +193,7 @@ function createStripeSubApp(config: ApiHandlerConfig, stripe: Stripe) {
  * it like the Stripe CLI keeps the production worker free of dev fixtures.
  */
 export async function createApiApp(config: ApiHandlerConfig) {
-  const { secretStore, dbScope } = config;
+  const { secretStore, dbScope, observability } = config;
   const [stripe, ttsApp, llmApp] = await Promise.all([
     createStripeClient(secretStore),
     createTtsAppForApi(config),
@@ -210,11 +217,18 @@ export async function createApiApp(config: ApiHandlerConfig) {
   const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
     .use(
       '*',
+      createObservabilityMiddleware(observability, {
+        match: (path) => path.startsWith('/api/patch-db'),
+      })
+    )
+    .use(
+      '*',
       createRequestDbMiddleware(secretStore, dbScope, {
         apiUrlOverride: config.apiUrlOverride,
         databaseUrlOverride: config.databaseUrlOverride,
         devIdpPort: config.devIdpPort,
         vaultConfig: config.vaultConfig,
+        observability,
       })
     )
     .use('*', apiCors)

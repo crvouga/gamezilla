@@ -18,11 +18,13 @@ import { PatchDbWriteThroughMirror } from '@pkgs/patch-db/react/write-through-mi
 import type { SubscribablePatchDbLike } from '@pkgs/patch-db/subscribable';
 
 import { createPatchDbHttpTransport } from '../api/patch-db-hc-transport';
+import type { PatchDbHttpFetchFn } from '@pkgs/patch-db/transport/impl-http-fetch';
 import { createCoalescedSqliteHydration } from './coalesced-sqlite-hydration';
 
 export type CreatePatchDbArgs = {
   sql: SqlClient;
   config: ConfigService;
+  fetchFn?: PatchDbHttpFetchFn;
 };
 
 /**
@@ -47,6 +49,7 @@ export async function createPatchDb(
       patchDbBaseUrl: `${args.config.getApiUrl()}/api/patch-db`,
       getAuthToken: () => getCachedSessionToken(),
       getAnonId: () => getCachedDeviceId(),
+      ...(args.fetchFn !== undefined ? { fetch: args.fetchFn } : {}),
     })
   );
 

@@ -21,6 +21,30 @@ describe('readLastInsertRowid', () => {
 });
 
 describe('pgQueryWithOptionalSearchPathPin', () => {
+  test('checks out one pool client so SET and query share a session', async () => {
+    const calls: { text: string; vals?: unknown[] }[] = [];
+    const client = {
+      query: async (text: string, vals?: unknown[]) => {
+        calls.push(vals === undefined ? { text } : { text, vals });
+        return { rows: [{ ok: 1 }], rowCount: 1 };
+      },
+      release: () => undefined,
+    };
+    const queryable = {
+      connect: async () => client,
+      totalCount: 1,
+    } as unknown as PgExecutor;
+    await pgQueryWithOptionalSearchPathPin({
+      queryable,
+      dbScope: testScope,
+      pinSearchPathEachQuery: true,
+      sql: 'SELECT 1 FROM kv LIMIT 1',
+    });
+    expect(calls).toHaveLength(2);
+    expect(calls[0]?.text).toContain('SET search_path TO');
+    expect(calls[1]?.text).toBe('SELECT 1 FROM kv LIMIT 1');
+  });
+
   test('pins search_path separately before no-param queries on pooler connections', async () => {
     const calls: { text: string; vals?: unknown[] }[] = [];
     const queryable = {

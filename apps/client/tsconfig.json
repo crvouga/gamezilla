@@ -47,6 +47,7 @@
       "@pkgs/message": ["../../pkgs/message/src/index.ts"],
       "@pkgs/message/*": ["../../pkgs/message/src/*"],
       "@pkgs/object-store/*": ["../../pkgs/object-store/src/*"],
+      "@pkgs/observability/*": ["../../pkgs/observability/src/*"],
       "@pkgs/patch-db/*": ["../../pkgs/patch-db/src/*"],
       "@pkgs/patch-db-widgets/*": ["../../pkgs/patch-db-widgets/src/*"],
       "@pkgs/polyfill": ["../../pkgs/polyfill/src/index.ts"],

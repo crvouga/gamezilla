@@ -25,6 +25,8 @@ export type PatchDbApiConfig = {
     | {
         flushIntervalMs: number;
       };
+  /** Optional wrapper applied after {@link PatchDbImplSyncHost} construction. */
+  syncHostWrapper?: (host: PatchDbSyncHost) => PatchDbSyncHost;
 };
 
 export type PatchDbApiRequestHandler = (
@@ -61,6 +63,9 @@ export function createPatchDbApiHandler(
   }
 
   let host: PatchDbSyncHost = new PatchDbImplSyncHost(config.db, config.pubSub);
+  if (config.syncHostWrapper !== undefined) {
+    host = config.syncHostWrapper(host);
+  }
   let disposeInstrumentation: (() => void) | undefined;
 
   const inst = config.instrumentation;

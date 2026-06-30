@@ -85,6 +85,7 @@
       "@pkgs/sql-client/*": ["./pkgs/sql-client/src/*"],
       "@pkgs/kv/*": ["./pkgs/kv/src/*"],
       "@pkgs/dev-idp/*": ["./pkgs/dev-idp/src/*"],
+      "@pkgs/observability/*": ["./pkgs/observability/src/*"],
       "@pkgs/distributed-lock/*": ["./pkgs/distributed-lock/src/*"],
       "@pkgs/ndjson/*": ["./pkgs/ndjson/src/*"],
       "@pkgs/os": ["./pkgs/os/src/index.ts"],
@@ -166,6 +167,8 @@
     "pkgs/kv/src/**/*.ts",
     "pkgs/dev-idp/src/**/*.ts",
     "pkgs/dev-idp/src/**/*.tsx",
+    "pkgs/observability/src/**/*.ts",
+    "pkgs/observability/src/**/*.tsx",
     "pkgs/distributed-lock/src/**/*.ts",
     "pkgs/ndjson/src/**/*.ts",
     "pkgs/os/src/**/*.ts"

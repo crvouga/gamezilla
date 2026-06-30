@@ -1,9 +1,11 @@
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
 import { useCachedPromise } from '@pkgs/async/use-cached-promise';
+import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
+import { useObservability } from '@pkgs/observability/client/observability-provider';
 import { useSqlClient } from '@pkgs/sql-client/react-context';
 import { PatchDbContextProvider } from '@pkgs/patch-db/react';
-import { use, type ReactNode } from 'react';
+import { use, useMemo, type ReactNode } from 'react';
 
 import { createPatchDb } from '../patch-db/create-patch-db';
 import { getMainSqliteDbName } from '../storage/open-main-sql-client';
@@ -24,6 +26,11 @@ export function PatchDbProvider({
 }): ReactNode {
   const sql = useSqlClient();
   const config = useConfigService();
+  const observability = useObservability();
+  const fetchFn = useMemo(
+    () => instrumentFetch(observability, fetch),
+    [observability]
+  );
   // Ensures the device id is hydrated/seeded into the secure-storage cache
   // before patch-db boot reads it via `getCachedDeviceId`.
   useDeviceId();
@@ -35,6 +42,7 @@ export function PatchDbProvider({
       createPatchDb({
         sql,
         config,
+        fetchFn,
       })
   );
   const value = use(patchDbPromise);

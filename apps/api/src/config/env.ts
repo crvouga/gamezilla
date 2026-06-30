@@ -36,11 +36,21 @@ export type ApiWorkerEnv = {
    * same hosted dev database during local preview / QA.
    */
   DATABASE_URL?: string;
+  /** Mirrored from Vault `dev` by `setup-dev-vars` for local Better Auth. */
+  BETTER_AUTH_SECRET?: string;
+  /** Mirrored from Vault `dev` by `setup-dev-vars` for local Google OAuth. */
+  WEB_CLIENT_GOOGLE_CLIENT_ID?: string;
+  /** Mirrored from Vault `dev` by `setup-dev-vars` for local Google OAuth. */
+  WEB_CLIENT_GOOGLE_CLIENT_SECRET?: string;
   /**
    * Optional dev IdP TCP port (e.g. `5557` for Playwright QA). Written into
    * `.dev.vars` by `setup-dev-vars` when turbo preview sets `DEV_IDP_PORT`.
    */
   DEV_IDP_PORT?: string;
+  /** Local observability backend override (`local-file` enables span export). */
+  OBSERVABILITY_BACKEND?: string;
+  /** Optional span collector origin for local-file backend. */
+  OBSERVABILITY_COLLECTOR_URL?: string;
   /** Room Durable Object namespace (one DO per topic). Omitted in unit tests. */
   ROOM?: RoomNamespace;
 };

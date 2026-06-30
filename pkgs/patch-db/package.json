@@ -23,6 +23,7 @@
     "@pkgs/attribute": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/observability": "workspace:*",
     "@pkgs/pub-sub": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

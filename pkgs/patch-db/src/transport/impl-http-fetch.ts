@@ -75,9 +75,16 @@ function throwHttpFailure(res: Response, text: string): never {
   throw new Error(`HTTP ${res.status}: ${text}`);
 }
 
+export type PatchDbHttpFetchFn = (
+  input: RequestInfo | URL,
+  init?: RequestInit
+) => Promise<Response>;
+
 export type PatchDbClientTransportHttpFetchOptions = {
   /** Extra headers (e.g. `Authorization: Bearer …`) for authenticated patch-db API. */
   getHeaders?: () => Record<string, string>;
+  /** Override fetch (e.g. observability-instrumented fetch). */
+  fetch?: PatchDbHttpFetchFn;
 };
 
 function assertReadQueriesSupported(queries: PatchDbQuery[]): void {
@@ -142,11 +149,12 @@ async function isTransientPatchDbHttpFailure(
 
 async function fetchPatchDbHttp(
   url: string,
-  init: RequestInit
+  init: RequestInit,
+  fetchFn: PatchDbHttpFetchFn
 ): Promise<Response> {
   let last: Response | undefined;
   for (let attempt = 1; attempt <= TRANSIENT_HTTP_ATTEMPTS; attempt++) {
-    last = await fetch(url, init);
+    last = await fetchFn(url, init);
     if (last.ok) return last;
     const retry = await isTransientPatchDbHttpFailure(last);
     if (!retry || attempt >= TRANSIENT_HTTP_ATTEMPTS) return last;
@@ -188,6 +196,10 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
     return url;
   }
 
+  private fetchFn(): PatchDbHttpFetchFn {
+    return this.options?.fetch ?? fetch;
+  }
+
   async read(
     queries: PatchDbQuery[],
     _ctx?: PatchDbContext
@@ -199,7 +211,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
       method: 'POST',
       headers: jsonHeaders(this.options),
       body: JSON.stringify({ queries }),
-    });
+    }, this.fetchFn());
     if (!res.ok) {
       const text = await res.text();
       throwHttpFailure(res, text);
@@ -232,7 +244,7 @@ export class PatchDbClientTransportHttpFetch implements PatchDbClientTransport {
       method: 'POST',
       headers: jsonHeaders(this.options),
       body: JSON.stringify({ patches }),
-    });
+    }, this.fetchFn());
     if (!res.ok) {
       const text = await res.text();
       throwHttpFailure(res, text);

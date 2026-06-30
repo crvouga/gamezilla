@@ -7,6 +7,9 @@ import {
 } from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
+import type { Observability } from '@pkgs/observability/port/observability';
+import { isObservabilityActive } from '@pkgs/observability/port/create-observability';
+import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import type { MiddlewareHandler } from 'hono';
@@ -50,32 +53,8 @@ export type RequestDbMiddlewareOptions = {
   readonly databaseUrlOverride?: string | null | undefined;
   readonly devIdpPort?: number | undefined;
   readonly vaultConfig?: string | null | undefined;
+  readonly observability: Observability;
 };
-
-// #region agent log
-function debugRequestDbLog(
-  location: string,
-  message: string,
-  data: Record<string, unknown>
-): void {
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Debug-Session-Id': 'bd0dfc',
-    },
-    body: JSON.stringify({
-      sessionId: 'bd0dfc',
-      location,
-      message,
-      data,
-      timestamp: Date.now(),
-      hypothesisId: 'K',
-      runId: 'post-fix',
-    }),
-  }).catch(() => {});
-}
-// #endregion
 
 type AttachRequestDatabaseArgs = {
   readonly c: Parameters<MiddlewareHandler<ApiHonoEnv<AuthContext>>>[0];
@@ -86,24 +65,47 @@ type AttachRequestDatabaseArgs = {
   readonly options: RequestDbMiddlewareOptions;
 };
 
+async function openObservedRequestDb(
+  observability: Observability,
+  dbUrl: string,
+  dbScope: PostgresDbScope
+): Promise<Awaited<ReturnType<typeof openRequestDb>>> {
+  if (!isObservabilityActive(observability)) {
+    return openRequestDb(dbUrl, dbScope);
+  }
+  const span = observability.startSpan({
+    name: 'db.open',
+    kind: 'internal',
+  });
+  return observability.withSpanContextAsync(span.spanContext, async () => {
+    try {
+      const db = await openRequestDb(dbUrl, dbScope);
+      span.setStatus({ code: 'ok' });
+      return db;
+    } catch (err: unknown) {
+      observability.recordException(err);
+      span.setStatus({
+        code: 'error',
+        message: err instanceof Error ? err.message : String(err),
+      });
+      throw err;
+    } finally {
+      span.end();
+    }
+  });
+}
+
 async function attachRequestDatabase(
   args: AttachRequestDatabaseArgs
-): Promise<Response | undefined> {
+): Promise<Response | void> {
   const { c, next, secretStore, dbScope, dbUrl, options } = args;
-  const { apiUrlOverride = null, devIdpPort } = options;
-  // #region agent log
-  const dbOpenStarted = Date.now();
-  debugRequestDbLog('request-db-middleware.ts:open-db-start', 'opening request db', {
-    path: new URL(c.req.url).pathname,
-  });
-  // #endregion
-  const { sqlClient, pool } = await openRequestDb(dbUrl, dbScope);
-  // #region agent log
-  debugRequestDbLog('request-db-middleware.ts:open-db-done', 'request db open ok', {
-    path: new URL(c.req.url).pathname,
-    ms: Date.now() - dbOpenStarted,
-  });
-  // #endregion
+  const { apiUrlOverride = null, devIdpPort, observability } = options;
+  const opened = await openObservedRequestDb(observability, dbUrl, dbScope);
+  const sqlClient = wrapSqlClientForObservability(
+    observability,
+    opened.sqlClient
+  );
+  const { pool } = opened;
   const patchDb = createRequestPatchDb(sqlClient);
   const kv = new KvImplPostgres(sqlClient);
   const matchmakingSqlClient =
@@ -119,13 +121,13 @@ async function attachRequestDatabase(
     }
   );
   const sessionAuth = createSessionAuth({ auth: betterAuth });
-  const store = { patchDb, sessionAuth, kv, matchmakingSqlClient };
+  const store = { patchDb, sessionAuth, kv, matchmakingSqlClient, observability };
   return await apiRequestAsyncLocalStorage.run(store, async () => {
     c.set('patchDb', patchDb);
     c.set('sessionAuth', sessionAuth);
     c.set('betterAuth', betterAuth);
     try {
-      await next();
+      return await next();
     } finally {
       c.executionCtx.waitUntil(
         (async () => {
@@ -140,7 +142,7 @@ async function attachRequestDatabase(
 export function createRequestDbMiddleware(
   secretStore: SecretStore,
   dbScope: PostgresDbScope,
-  options: RequestDbMiddlewareOptions = {}
+  options: RequestDbMiddlewareOptions
 ): MiddlewareHandler<ApiHonoEnv<AuthContext>> {
   const { databaseUrlOverride = null, vaultConfig = null } = options;
   return async (c, next) => {

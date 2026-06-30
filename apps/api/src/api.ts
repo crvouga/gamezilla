@@ -19,7 +19,10 @@ import {
 } from './config/env';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { createApiSecretStore } from './config/secret-store';
+import { readDevBindingSecrets } from './config/dev-binding-secrets';
 import { createApiObjectStore } from './config/object-store';
+import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
+import { DEVELOPMENT_VAULT_CONFIG } from '@libs/infra/shared/database-url-policy';
 
 /**
  * On Cloudflare Workers (and `wrangler dev`'s node-shimmed runtime) the default
@@ -125,11 +128,25 @@ function latchFatal(reason: string): void {
 async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const token = assertVaultTokenBinding(env);
   const { project, config, addr } = readVaultScopeBindings(env);
-  const secretStore = createApiSecretStore(token, { project, config, addr });
+  const secretStore = createApiSecretStore(token, {
+    project,
+    config,
+    addr,
+    devBindings: readDevBindingSecrets(env),
+  });
   const objectStore = await createApiObjectStore(secretStore, {
     vaultConfig: config,
   });
   const dbScope = appPostgresDbScope();
+  const observability = createServerObservability({
+    serviceName: 'gamezilla-api',
+    envBackend: env.OBSERVABILITY_BACKEND,
+    forceNoop: config !== DEVELOPMENT_VAULT_CONFIG,
+    ...(env.OBSERVABILITY_COLLECTOR_URL !== undefined &&
+    env.OBSERVABILITY_COLLECTOR_URL.length > 0
+      ? { collectorUrl: env.OBSERVABILITY_COLLECTOR_URL }
+      : {}),
+  });
   return await createApiApp({
     pubSub,
     secretStore,
@@ -139,6 +156,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     devIdpPort: readDevIdpPortBinding(env),
     vaultConfig: readVaultScopeBindings(env).config,
     objectStore,
+    observability,
   });
 }
 
@@ -170,6 +188,41 @@ async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {
  * `run_worker_first` in `wrangler.toml` / `is-api-request-path.ts`).
  * Static web assets are served by the ASSETS binding for all other routes.
  */
+/** Health checks stay independent from DB pressure (deploy / load-balancer liveness). */
+function handleHealthRequest(request: Request, pathname: string): Response | null {
+  if (pathname !== '/api/health') return null;
+  if (request.method === 'HEAD') {
+    return new Response(null, {
+      status: 200,
+      headers: { ...ERROR_CORS_HEADERS },
+    });
+  }
+  if (request.method === 'GET') {
+    return new Response(JSON.stringify({ status: 'ok' as const }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        ...ERROR_CORS_HEADERS,
+      },
+    });
+  }
+  return null;
+}
+
+function maybeRedirectLocalAuth(url: URL): Response | null {
+  // OAuth state cookies are host-only — `127.0.0.1` and `localhost` are different
+  // jars on loopback. Canonicalize auth traffic to `localhost` in local dev.
+  if (
+    !isLocalApiOrigin(url.origin) ||
+    url.hostname !== '127.0.0.1' ||
+    !url.pathname.startsWith('/api/auth')
+  ) {
+    return null;
+  }
+  url.hostname = 'localhost';
+  return Response.redirect(url.toString(), 307);
+}
+
 async function handleWorkerFetch(
   request: Request,
   env: ApiWorkerEnv,
@@ -177,25 +230,8 @@ async function handleWorkerFetch(
 ): Promise<Response> {
   const url = new URL(request.url);
 
-  // Keep health checks independent from DB pressure so deploy checks and
-  // load-balancer liveness don't flap when Postgres is saturated.
-  if (url.pathname === '/api/health') {
-    if (request.method === 'HEAD') {
-      return new Response(null, {
-        status: 200,
-        headers: { ...ERROR_CORS_HEADERS },
-      });
-    }
-    if (request.method === 'GET') {
-      return new Response(JSON.stringify({ status: 'ok' as const }), {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          ...ERROR_CORS_HEADERS,
-        },
-      });
-    }
-  }
+  const health = handleHealthRequest(request, url.pathname);
+  if (health !== null) return health;
 
   // Preflights must not depend on app boot / database availability.
   if (request.method === 'OPTIONS') {
@@ -203,16 +239,8 @@ async function handleWorkerFetch(
     return authPreflight ?? preflightResponse(request);
   }
 
-  // OAuth state cookies are host-only — `127.0.0.1` and `localhost` are different
-  // jars on loopback. Canonicalize auth traffic to `localhost` in local dev.
-  if (
-    isLocalApiOrigin(url.origin) &&
-    url.hostname === '127.0.0.1' &&
-    url.pathname.startsWith('/api/auth')
-  ) {
-    url.hostname = 'localhost';
-    return Response.redirect(url.toString(), 307);
-  }
+  const authRedirect = maybeRedirectLocalAuth(url);
+  if (authRedirect !== null) return authRedirect;
 
   const app = await ensureApp(env);
   if (app === null) {

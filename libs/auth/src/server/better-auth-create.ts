@@ -11,6 +11,7 @@ import { Kysely, PostgresDialect } from 'kysely';
 import {
   isLocalApiOrigin,
   loadBetterAuthSecretsWorker,
+  type LoadedBetterAuthSecretsWorker,
 } from './better-auth-load-secrets';
 import { devIdpProviderConfig } from './dev-idp-provider';
 
@@ -46,59 +47,55 @@ export type BetterAuthRequestStack = {
   readonly dispose: () => Promise<void>;
 };
 
-/**
- * Per-request Better Auth + Kysely over TCP `pg` (`DATABASE_URL` from Vault).
- * Uses a short-lived `pg` pool (`max: 1`) because `PostgresDialect` requires a pool.
- */
-export async function createBetterAuthRequestStack(
-  secretStore: SecretStore,
-  databaseUrl: string,
-  options: {
-    readonly dbScope: PostgresDbScope;
-    /** When set, reuses the request-scoped pool (avoids a second Neon connection). */
-    readonly pool?: Pool;
-    readonly apiUrlOverride?: string | null;
-    readonly devIdpPort?: number;
-  }
-): Promise<BetterAuthRequestStack> {
-  const cfg = await loadBetterAuthSecretsWorker(
-    secretStore,
-    options.apiUrlOverride
-  );
-  let pool = options.pool;
-  let ownedClient: Client | undefined;
-  if (pool === undefined) {
-    const opened = await openPgClient({
-      connectionString: databaseUrl,
-      dbScope: options.dbScope,
-    });
-    ownedClient = opened.client;
-    pool = adaptPgClientAsPool(
-      opened.client,
-      options.dbScope,
-      databaseUrl
-    );
-  }
-  const db = new Kysely({ dialect: new PostgresDialect({ pool }) });
+type RequestPool = {
+  readonly pool: Pool;
+  readonly ownedClient?: Client;
+};
 
+async function resolveRequestPool(
+  databaseUrl: string,
+  dbScope: PostgresDbScope,
+  existing?: Pool
+): Promise<RequestPool> {
+  if (existing !== undefined) {
+    return { pool: existing };
+  }
+  const opened = await openPgClient({
+    connectionString: databaseUrl,
+    dbScope,
+  });
+  return {
+    pool: adaptPgClientAsPool(opened.client, dbScope, databaseUrl),
+    ownedClient: opened.client,
+  };
+}
+
+function buildBetterAuthPlugins(
+  apiOrigin: string,
+  devIdpPort?: number
+): BetterAuthPlugin[] {
   const plugins: BetterAuthPlugin[] = [bearer(), expo()];
-  if (isLocalApiOrigin(cfg.apiOrigin)) {
+  if (isLocalApiOrigin(apiOrigin)) {
     plugins.push(
       genericOAuth({
         config: [
           devIdpProviderConfig(
-            options.devIdpPort !== undefined
-              ? { devIdpPort: options.devIdpPort }
-              : undefined
+            devIdpPort !== undefined ? { devIdpPort } : undefined
           ),
         ],
       })
     );
   }
+  return plugins;
+}
 
+function createHostedBetterAuth(
+  cfg: LoadedBetterAuthSecretsWorker,
+  db: Kysely<unknown>,
+  plugins: BetterAuthPlugin[]
+): HostedBetterAuth {
   const localApi = isLocalApiOrigin(cfg.apiOrigin);
-
-  const auth = betterAuth({
+  return betterAuth({
     appName: cfg.appName,
     baseURL: cfg.baseURL,
     basePath: '/api/auth',
@@ -122,6 +119,35 @@ export async function createBetterAuthRequestStack(
     },
     plugins,
   }) as HostedBetterAuth;
+}
+
+/**
+ * Per-request Better Auth + Kysely over TCP `pg` (`DATABASE_URL` from Vault).
+ * Uses a short-lived `pg` pool (`max: 1`) because `PostgresDialect` requires a pool.
+ */
+export async function createBetterAuthRequestStack(
+  secretStore: SecretStore,
+  databaseUrl: string,
+  options: {
+    readonly dbScope: PostgresDbScope;
+    /** When set, reuses the request-scoped pool (avoids a second Neon connection). */
+    readonly pool?: Pool;
+    readonly apiUrlOverride?: string | null;
+    readonly devIdpPort?: number;
+  }
+): Promise<BetterAuthRequestStack> {
+  const cfg = await loadBetterAuthSecretsWorker(
+    secretStore,
+    options.apiUrlOverride
+  );
+  const { pool, ownedClient } = await resolveRequestPool(
+    databaseUrl,
+    options.dbScope,
+    options.pool
+  );
+  const db = new Kysely({ dialect: new PostgresDialect({ pool }) });
+  const plugins = buildBetterAuthPlugins(cfg.apiOrigin, options.devIdpPort);
+  const auth = createHostedBetterAuth(cfg, db, plugins);
 
   return {
     auth,

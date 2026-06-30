@@ -41,6 +41,7 @@
     "@pkgs/logger": "workspace:*",
     "@pkgs/matchmaking": "workspace:*",
     "@pkgs/object-store": "workspace:*",
+    "@pkgs/observability": "workspace:*",
     "@pkgs/patch-db": "workspace:*",
     "@pkgs/pub-sub": "workspace:*",
     "@pkgs/room": "workspace:*",

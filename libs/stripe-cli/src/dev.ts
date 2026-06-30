@@ -17,7 +17,7 @@ import {
 } from './stripe-listen-process';
 import { createStripeListenTranscriptHandler } from './stripe-listen-transcript';
 import { exitUnlessStripeCliWorks } from './stripe-cli-binary';
-import { exitUnlessApiHealthy } from './wait-for-api-health';
+import { waitUntilApiHealthy } from './wait-for-api-health';
 import { stripeWebhookUrl } from './webhook-urls';
 import { WriteQueue } from './write-queue';
 
@@ -37,7 +37,7 @@ async function main(): Promise<void> {
   exitUnlessLocalApiUrl(apiUrl);
 
   await exitUnlessStripeCliWorks(repoRoot);
-  await exitUnlessApiHealthy(apiUrl, 60_000);
+  await waitUntilApiHealthy(apiUrl);
 
   const writeQueue = new WriteQueue();
   const onTranscriptLine = createStripeListenTranscriptHandler({

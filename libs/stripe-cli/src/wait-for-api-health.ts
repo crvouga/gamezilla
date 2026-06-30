@@ -1,15 +1,19 @@
 import { STRIPE_CLI_LOG_TAG } from './constants';
 import { healthCheckUrl } from './webhook-urls';
 
-/** Poll until `GET {apiBase}/health` returns 2xx or `timeoutMs` elapses. */
-export async function exitUnlessApiHealthy(
+const DEFAULT_LOG_INTERVAL_MS = 10_000;
+
+/** Poll until `GET {apiBase}/health` returns 2xx. Blocks indefinitely — turbo `dev` tasks start in parallel. */
+export async function waitUntilApiHealthy(
   apiBase: string,
-  timeoutMs: number
+  options?: { logIntervalMs?: number }
 ): Promise<void> {
   const url = healthCheckUrl(apiBase);
-  const deadline = Date.now() + timeoutMs;
+  const logIntervalMs = options?.logIntervalMs ?? DEFAULT_LOG_INTERVAL_MS;
   let lastErr: string | undefined;
-  while (Date.now() < deadline) {
+  let lastLogAt = 0;
+
+  while (true) {
     try {
       const res = await fetch(url, { signal: AbortSignal.timeout(2_000) });
       if (res.ok) {
@@ -20,10 +24,14 @@ export async function exitUnlessApiHealthy(
     } catch (e) {
       lastErr = e instanceof Error ? e.message : String(e);
     }
+
+    const now = Date.now();
+    if (now - lastLogAt >= logIntervalMs) {
+      console.log(
+        `[${STRIPE_CLI_LOG_TAG}] Waiting for ${url}… (${lastErr ?? 'unknown'})`
+      );
+      lastLogAt = now;
+    }
     await Bun.sleep(500);
   }
-  console.error(
-    `[${STRIPE_CLI_LOG_TAG}] Timed out waiting for ${url} (${String(timeoutMs)}ms). Last error: ${lastErr ?? 'unknown'}. Start @apps/api dev first.`
-  );
-  process.exit(1);
 }

@@ -24,17 +24,15 @@ const metroCacheRoot = path.join(
 );
 config.cacheStores = [new FileStore({ root: metroCacheRoot })];
 
-// Watchman can wedge on large Bun monorepos (recrawl storms, SIGKILL under
-// memory pressure). Default to Metro's Node crawler; opt in when healthy:
-//   EXPO_USE_WATCHMAN=1 bun dev
-// `watchFolders` below scopes HMR to workspace sources without watching the
-// full repo root (infra artifacts, QA exports, etc.).
+// Watchman avoids EMFILE but breaks on some macOS FSEvents setups and misses Bun
+// symlinks. `dev.ts` probes Watchman and sets EXPO_USE_WATCHMAN; force off with
+// EXPO_USE_WATCHMAN=0 or on (after repair) with EXPO_USE_WATCHMAN=1.
 config.resolver = {
   ...config.resolver,
   useWatchman: process.env['EXPO_USE_WATCHMAN'] === '1',
 };
 
-// Watch shared workspace packages for HMR — not the full monorepo root.
+// Workspace sources for HMR — include hoisted `node_modules` so Metro can SHA-1 Bun packages.
 config.watchFolders = [
   path.resolve(monorepoRoot, 'apps'),
   path.resolve(monorepoRoot, 'libs'),
@@ -70,13 +68,180 @@ config.resolver.unstable_enablePackageExports = true;
 //         another workspace reads from its own empty `storeRef`.
 //     Pin all such imports to the client's resolution.
 const dedupeAliasOrigin = path.join(projectRoot, 'package.json');
-const dedupeAliasPrefixes = ['@lingui/core', '@lingui/react'];
+const dedupeAliasPrefixes = [
+  '@lingui/core',
+  '@lingui/react',
+  'react',
+  'react-dom',
+];
+const clientPkgRequire = require('module').createRequire(dedupeAliasOrigin);
+/** CanvasKit JS loader ABI must match the WASM copied in bundle-skia-canvaskit-wasm.ts. */
+let skiaWebOrigin = dedupeAliasOrigin;
+try {
+  skiaWebOrigin = clientPkgRequire.resolve(
+    '@shopify/react-native-skia/lib/module/web/LoadSkiaWeb.js'
+  );
+} catch {
+  // Skia not installed — resolve from client root until deps are present.
+}
+const skiaPinnedPrefixes = ['canvaskit-wasm'];
+const fs = require('fs');
 const previousResolveRequest = config.resolver.resolveRequest;
+
+/** Prefer `apps/client/node_modules` symlinks over Bun store realpaths for Watchman SHA-1. */
+function resolveViaClientNodeModules(moduleName) {
+  if (moduleName === 'canvaskit-wasm' || moduleName.startsWith('canvaskit-wasm/')) {
+    return null;
+  }
+  const segments = moduleName.split('/');
+  let pkgName;
+  let subpath;
+  if (moduleName.startsWith('@') && segments.length >= 2) {
+    pkgName = `${segments[0]}/${segments[1]}`;
+    subpath = segments.slice(2).join('/');
+  } else if (moduleName.startsWith('@')) {
+    return null;
+  } else {
+    pkgName = segments[0] ?? '';
+    subpath = segments.slice(1).join('/');
+  }
+  if (pkgName.length === 0) return null;
+
+  const base = path.join(projectRoot, 'node_modules', pkgName);
+  if (!fs.existsSync(base)) return null;
+
+  if (subpath.length === 0) {
+    try {
+      const pkgJsonPath = path.join(base, 'package.json');
+      if (!fs.existsSync(pkgJsonPath)) return null;
+      const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+      const main = pkg.main ?? 'index.js';
+      if (typeof main !== 'string') return null;
+      const mainPath = path.join(base, main);
+      if (fs.existsSync(mainPath)) return mainPath;
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
+  const joined = path.join(base, subpath);
+  const candidates = [
+    joined,
+    `${joined}.js`,
+    `${joined}.tsx`,
+    `${joined}.ts`,
+    path.join(joined, 'index.js'),
+    path.join(joined, 'index.tsx'),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return null;
+}
+
+function moduleNameFromBunStorePath(filePath) {
+  const marker = `${path.sep}.bun${path.sep}`;
+  const bunIdx = filePath.indexOf(marker);
+  if (bunIdx === -1) return null;
+  const afterStore = filePath.slice(bunIdx + marker.length);
+  const nestedIdx = afterStore.indexOf(`${path.sep}node_modules${path.sep}`);
+  if (nestedIdx === -1) return null;
+  const rel = afterStore.slice(nestedIdx + `${path.sep}node_modules${path.sep}`.length);
+  return rel.split(path.sep).join('/');
+}
+
+function normalizeResolvedPath(resolved) {
+  if (resolved?.filePath == null) return resolved;
+  if (resolved.filePath.includes(`${path.sep}canvaskit-wasm${path.sep}`)) {
+    return resolved;
+  }
+  const mapped = resolveViaClientNodeModules(
+    moduleNameFromBunStorePath(resolved.filePath) ?? ''
+  );
+  if (mapped !== null) {
+    return { ...resolved, filePath: mapped };
+  }
+  return resolved;
+}
+
+/** Bun store symlinks are invisible to Watchman crawls; Node resolution still works. */
+function resolveOrigins(context) {
+  /** @type {string[]} */
+  const origins = [];
+  const seeds = [context?.originModulePath, dedupeAliasOrigin].filter(
+    (origin) => typeof origin === 'string' && origin.length > 0
+  );
+  for (const origin of seeds) {
+    if (!origins.includes(origin)) {
+      origins.push(origin);
+    }
+    try {
+      const real = fs.realpathSync(origin);
+      if (!origins.includes(real)) {
+        origins.push(real);
+      }
+    } catch {
+      // Ignore broken symlinks — try the next seed.
+    }
+  }
+  return origins;
+}
+
+function resolveWithNodeRequire(context, moduleName) {
+  const viaClient = resolveViaClientNodeModules(moduleName);
+  if (viaClient !== null) {
+    return { filePath: viaClient, type: 'sourceFile' };
+  }
+  for (const origin of resolveOrigins(context)) {
+    try {
+      const req = require('module').createRequire(origin);
+      const filePath = req.resolve(moduleName);
+      // Node built-ins (e.g. `buffer`) resolve to a bare id, not a file path.
+      if (!path.isAbsolute(filePath) || !fs.existsSync(filePath)) {
+        continue;
+      }
+      const mapped = resolveViaClientNodeModules(
+        moduleNameFromBunStorePath(filePath) ?? moduleName
+      );
+      if (mapped !== null) {
+        return { filePath: mapped, type: 'sourceFile' };
+      }
+      return { filePath, type: 'sourceFile' };
+    } catch {
+      // Try the next origin (symlink vs Bun store realpath).
+    }
+  }
+  return null;
+}
+
 // @ts-ignore
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   const matchesDedupeAlias = dedupeAliasPrefixes.some(
     (prefix) => moduleName === prefix || moduleName.startsWith(prefix + '/')
   );
+  const matchesSkiaPinned = skiaPinnedPrefixes.some(
+    (prefix) => moduleName === prefix || moduleName.startsWith(prefix + '/')
+  );
+  if (matchesSkiaPinned) {
+    const aliasContext = { ...context, originModulePath: skiaWebOrigin };
+    try {
+      let resolved;
+      if (typeof previousResolveRequest === 'function') {
+        resolved = previousResolveRequest(aliasContext, moduleName, platform);
+      } else {
+        resolved = aliasContext.resolveRequest(aliasContext, moduleName, platform);
+      }
+      if (resolved != null) return normalizeResolvedPath(resolved);
+    } catch (err) {
+      const nodeResult = resolveWithNodeRequire(aliasContext, moduleName);
+      if (nodeResult !== null) return nodeResult;
+      throw err;
+    }
+    const nodeResult = resolveWithNodeRequire(aliasContext, moduleName);
+    if (nodeResult !== null) return nodeResult;
+    return null;
+  }
   if (matchesDedupeAlias) {
     const aliasContext = { ...context, originModulePath: dedupeAliasOrigin };
     if (typeof previousResolveRequest === 'function') {
@@ -84,10 +249,22 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     }
     return aliasContext.resolveRequest(aliasContext, moduleName, platform);
   }
-  if (typeof previousResolveRequest === 'function') {
-    return previousResolveRequest(context, moduleName, platform);
+  try {
+    let resolved;
+    if (typeof previousResolveRequest === 'function') {
+      resolved = previousResolveRequest(context, moduleName, platform);
+    } else {
+      resolved = context.resolveRequest(context, moduleName, platform);
+    }
+    if (resolved != null) return normalizeResolvedPath(resolved);
+  } catch (err) {
+    const nodeResult = resolveWithNodeRequire(context, moduleName);
+    if (nodeResult !== null) return nodeResult;
+    throw err;
   }
-  return context.resolveRequest(context, moduleName, platform);
+  const nodeResult = resolveWithNodeRequire(context, moduleName);
+  if (nodeResult !== null) return nodeResult;
+  return null;
 };
 
 // 4. Normalize HMR entry-point URLs from the web dev client.

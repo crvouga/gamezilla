@@ -10,6 +10,7 @@ import {
 } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
+import { ReactScanDev } from '../dev/react-scan-dev';
 import { ApiClientProviderWrapper } from './api-client-provider';
 import { AppI18nProviderWrapper } from './app-i18n-provider';
 import { AppThemeProvider } from './app-theme-provider';
@@ -22,6 +23,7 @@ import { GestureHandlerProvider } from './gesture-handler-provider';
 import { KvProvider } from './kv-provider';
 import { LlmProviderWrapper } from './llm-provider';
 import { LoggerProvider } from './logger-provider';
+import { ObservabilityProvider } from './observability-provider';
 import { ObjectStoreProviderWrapper } from './object-store-provider';
 import { PatchDbLocalDataActionsProvider } from './patch-db-local-data-actions-provider';
 import { PatchDbProvider } from './patch-db-provider';
@@ -40,6 +42,7 @@ const appProviders = [
   FontsProvider,
   KvProvider,
   AppThemeProvider,
+  UiPortalsProvider,
   SpinnerProvider,
   SecureStorageProvider,
   ConfigServiceProviderWrapper,
@@ -47,6 +50,7 @@ const appProviders = [
   SuspenseRootProvider,
   AppI18nProviderWrapper,
   LoggerProvider,
+  ObservabilityProvider,
   ObjectStoreProviderWrapper,
   LlmProviderWrapper,
   TtsProviderWrapper,
@@ -61,11 +65,13 @@ const appProviders = [
   AuthModalsProvider,
   GamesBootstrapProvider,
   CommandRegistryProviderWrapper,
-  UiPortalsProvider,
 ];
 
 export function AppProviders({ children }: { children: ReactNode }): ReactNode {
   return (
-    <ComposeProviders providers={appProviders}>{children}</ComposeProviders>
+    <>
+      <ReactScanDev />
+      <ComposeProviders providers={appProviders}>{children}</ComposeProviders>
+    </>
   );
 }

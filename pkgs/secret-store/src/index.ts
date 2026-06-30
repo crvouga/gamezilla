@@ -14,6 +14,10 @@ export {
   CombinedSecretStore,
   createCombinedSecretStore,
 } from './combined-secret-store';
+export {
+  RecordSecretStore,
+  createRecordSecretStore,
+} from './record-secret-store';
 export type { CachingSecretStoreOptions } from './caching-secret-store';
 export { VaultSecretStore } from './vault-secret-store';
 export type { VaultSecretStoreOptions } from './vault-secret-store';

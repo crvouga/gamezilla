@@ -22,12 +22,16 @@ import {
   isAutoOpenIosEnabled,
   SIM_NAME,
 } from './ios-dedicated-sim';
+import { configureMetroWatchmanEnv } from './metro-watchman-env';
 import { startWebDevProxyServer } from './local-api-proxy';
 import { maybeClearMetroCache } from './metro-dev-cache';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const clientRoot = join(scriptDir, '..');
+const monorepoRoot = join(clientRoot, '../..');
 maybeClearMetroCache(clientRoot);
+
+const devEnv = configureMetroWatchmanEnv(monorepoRoot);
 const expoBin = join(clientRoot, 'node_modules', '.bin', 'expo');
 const proxyPort = String(process.env['EXPO_DEV_PORT'] ?? 5173);
 const metroPort = String(process.env['EXPO_METRO_PORT'] ?? 5174);
@@ -46,7 +50,7 @@ function spawnDevServer(passthrough: string[]): ChildProcess {
     {
       stdio: 'inherit',
       cwd: clientRoot,
-      env: process.env,
+      env: devEnv,
     }
   );
 }

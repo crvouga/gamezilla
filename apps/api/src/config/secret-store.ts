@@ -1,10 +1,17 @@
 import type { SecretStore } from '@pkgs/secret-store';
-import { createCachingSecretStore, VaultSecretStore } from '@pkgs/secret-store';
+import {
+  createCachingSecretStore,
+  createCombinedSecretStore,
+  createRecordSecretStore,
+  VaultSecretStore,
+} from '@pkgs/secret-store';
 
 export type CreateApiSecretStoreOptions = {
   readonly project?: string | null;
   readonly config?: string | null;
   readonly addr?: string | null;
+  /** `.dev.vars` mirrors — preferred over live Vault reads when set. */
+  readonly devBindings?: Readonly<Record<string, string>>;
 };
 
 function optionalField<K extends string>(
@@ -24,11 +31,19 @@ export function createApiSecretStore(
   token: string,
   options: CreateApiSecretStoreOptions = {}
 ): SecretStore {
-  const store = new VaultSecretStore({
+  const vault = new VaultSecretStore({
     token,
     ...optionalField('project', options.project),
     ...optionalField('config', options.config),
     ...optionalField('addr', options.addr),
   });
-  return createCachingSecretStore(store, { ttlMs: 300_000 });
+  const devBindings = options.devBindings ?? {};
+  const inner =
+    Object.keys(devBindings).length > 0
+      ? createCombinedSecretStore(
+          createRecordSecretStore(devBindings),
+          vault
+        )
+      : vault;
+  return createCachingSecretStore(inner, { ttlMs: 300_000 });
 }

@@ -7,7 +7,7 @@
  * (`scripts/check-no-direct-pg-imports.ts`), which makes pointing at a
  * different schema impossible without going through here.
  */
-import { Client, Pool } from 'pg';
+import { Client, Pool, type PoolClient } from 'pg';
 import {
   pgRawQueryWithSearchPathPin,
   type PgExecutor,
@@ -93,6 +93,9 @@ export type OpenPgClientResult = {
 export async function openPgClient(
   args: OpenPgClientArgs
 ): Promise<OpenPgClientResult> {
+  const pinSearchPathEachQuery = postgresRejectsStartupSearchPathOption(
+    args.connectionString
+  );
   const client = new Client({
     connectionString: sanitizePostgresUrlForNodePg(args.connectionString),
     ...args.clientOptions,
@@ -103,10 +106,13 @@ export async function openPgClient(
       `CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(args.dbScope.schema)}`
     );
   }
-  await pinAndVerifyPgSessionSchema(client, args.dbScope, args.connectionString);
-  const pinSearchPathEachQuery = postgresRejectsStartupSearchPathOption(
-    args.connectionString
-  );
+  if (!pinSearchPathEachQuery) {
+    await pinAndVerifyPgSessionSchema(
+      client,
+      args.dbScope,
+      args.connectionString
+    );
+  }
   return {
     client,
     sqlClient: new SqlClientImplPgClient(

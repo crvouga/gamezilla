@@ -66,6 +66,9 @@ apps/client/android/
 
 .cursor/debug*.log
 
+# Local observability span export (opt-in dev debugging)
+.observability/
+
 # infra cost report
 .cost-report.md
 

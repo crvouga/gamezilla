@@ -1,5 +1,8 @@
 import type { PatchDbClientTransport } from '@pkgs/patch-db/transport/interface';
-import { PatchDbClientTransportHttpFetch } from '@pkgs/patch-db/transport/impl-http-fetch';
+import {
+  PatchDbClientTransportHttpFetch,
+  type PatchDbHttpFetchFn,
+} from '@pkgs/patch-db/transport/impl-http-fetch';
 
 /** Must match {@link ANON_ID_HEADER} in apps/api session-middleware. */
 const X_ANON_ID = 'x-anon-id';
@@ -19,6 +22,8 @@ export type CreatePatchDbHttpTransportOptions = {
    * can resolve patch-db `myId` for anonymous clients.
    */
   getAnonId?: () => string | null;
+  /** Override fetch (e.g. observability-instrumented fetch). */
+  fetch?: PatchDbHttpFetchFn;
 };
 
 function bearerPlusAnonHeaders(
@@ -56,13 +61,14 @@ function authHeaders(options: {
 export function createPatchDbHttpTransport(
   options: CreatePatchDbHttpTransportOptions
 ): PatchDbClientTransport {
-  const { getAuthToken, getAnonId, patchDbBaseUrl } = options;
+  const { getAuthToken, getAnonId, patchDbBaseUrl, fetch: fetchFn } = options;
   return new PatchDbClientTransportHttpFetch(patchDbBaseUrl, {
     getHeaders: () =>
       authHeaders({
         ...(getAuthToken !== undefined ? { getAuthToken } : {}),
         ...(getAnonId !== undefined ? { getAnonId } : {}),
       }),
+    ...(fetchFn !== undefined ? { fetch: fetchFn } : {}),
   });
 }
 

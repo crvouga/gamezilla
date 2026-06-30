@@ -1,4 +1,5 @@
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import type { PatchDbApiConfig } from '@pkgs/patch-db/api';
@@ -18,4 +19,5 @@ export type ApiHandlerConfig = {
   readonly basePath?: string;
   readonly instrumentation?: PatchDbApiConfig['instrumentation'];
   readonly objectStore: ObjectStore;
+  readonly observability: Observability;
 };

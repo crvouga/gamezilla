@@ -19,7 +19,7 @@ export { tryBetterAuthOptionsResponse };
  */
 const innerApiCors = cors({
   origin: '*',
-  exposeHeaders: ['set-auth-token'],
+  exposeHeaders: ['set-auth-token', 'traceparent'],
   credentials: false,
 });
 

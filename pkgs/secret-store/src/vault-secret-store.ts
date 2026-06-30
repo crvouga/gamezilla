@@ -77,7 +77,9 @@ function trimOpt(value: string | undefined): string | null {
 }
 
 const DEFAULT_RATE_LIMIT_RETRIES = 3;
+const DEFAULT_SERVER_ERROR_RETRIES = 2;
 const RATE_LIMIT_BACKOFF_CAP_MS = 5_000;
+const SERVER_ERROR_BACKOFF_MS = 250;
 const defaultSleep = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -304,7 +306,8 @@ export class VaultSecretStore implements SecretStore {
     url: string,
     init: RequestInit
   ): Promise<Response> {
-    let attempt = 0;
+    let rateLimitAttempt = 0;
+    let serverErrorAttempt = 0;
     while (true) {
       let response: Response;
       try {
@@ -315,16 +318,27 @@ export class VaultSecretStore implements SecretStore {
           `Vault KV read failed (network): ${msg}`
         );
       }
-      if (response.status !== 429 || attempt >= this.rateLimitRetries) {
-        return response;
+      if (response.status === 429 && rateLimitAttempt < this.rateLimitRetries) {
+        const retryAfterMs = parseRetryAfterMs(
+          response.headers.get('Retry-After')
+        );
+        const backoffMs =
+          retryAfterMs ??
+          Math.min(2 ** rateLimitAttempt * 250, RATE_LIMIT_BACKOFF_CAP_MS);
+        rateLimitAttempt += 1;
+        await this.sleep(backoffMs);
+        continue;
       }
-      const retryAfterMs = parseRetryAfterMs(
-        response.headers.get('Retry-After')
-      );
-      const backoffMs =
-        retryAfterMs ?? Math.min(2 ** attempt * 250, RATE_LIMIT_BACKOFF_CAP_MS);
-      attempt += 1;
-      await this.sleep(backoffMs);
+      if (
+        response.status >= 500 &&
+        response.status <= 599 &&
+        serverErrorAttempt < DEFAULT_SERVER_ERROR_RETRIES
+      ) {
+        serverErrorAttempt += 1;
+        await this.sleep(SERVER_ERROR_BACKOFF_MS * serverErrorAttempt);
+        continue;
+      }
+      return response;
     }
   }
 }
