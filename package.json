@@ -87,7 +87,7 @@
     "prettier": "catalog:",
     "sort-package-json": "catalog:",
     "syncpack": "catalog:",
-    "turbo": "catalog:",
+    "turbo": "^2.10.1",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:"
   },
