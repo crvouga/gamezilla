@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { type PatchDbResult, toAttributeState } from '../interface';
-import { sqlJsPlaygroundDbFactory } from './playground-db-factory-sqljs';
+import { bunPlaygroundDbFactory } from './playground-db-factory-bun';
 import { shapeListQuery, SHAPE_ATTR } from './playground-shapes';
 import { createPlaygroundSim } from './playground-sim';
 
-const dbFactory = sqlJsPlaygroundDbFactory();
+const dbFactory = bunPlaygroundDbFactory();
 
 function entityCount(results: PatchDbResult[]): number {
   const first = results[0];
@@ -16,7 +16,7 @@ function entityIds(results: PatchDbResult[]): Set<string> {
   return new Set((first?.entities ?? []).map((e) => e.entityId));
 }
 
-describe('playground sim (sql.js)', () => {
+describe('playground sim (bun sqlite)', () => {
   test('two clients sync a shape through manual push/poll', async () => {
     const sim = await createPlaygroundSim({ clientCount: 2, dbFactory });
     try {

@@ -9,7 +9,6 @@
     ".qa-native",
     "dist",
     "build",
-    "node_modules",
     ".bun",
     ".cache",
     "coverage",

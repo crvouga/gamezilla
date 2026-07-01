@@ -50,7 +50,7 @@ export function getMainSqliteDbName(): string {
 
 /**
  * Opens the local client SQLite database on every platform (expo-sqlite
- * native + sql.js OPFS on web). The patch-db schema migrations run later
+ * native + OPFS on web). The patch-db schema migrations run later
  * inside `createPatchDb` via `PatchDbImplSqlite.migrate()`, so this function
  * only worries about establishing a connected `SqlClient`.
  */

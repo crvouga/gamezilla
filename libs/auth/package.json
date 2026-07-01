@@ -45,7 +45,6 @@
     "expo-network": "catalog:",
     "expo-router": "catalog:",
     "expo-secure-store": "catalog:",
-    "expo-sqlite": "catalog:",
     "expo-web-browser": "catalog:",
     "hono": "catalog:",
     "kysely": "catalog:",

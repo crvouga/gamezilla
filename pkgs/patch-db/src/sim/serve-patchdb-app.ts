@@ -1,6 +1,6 @@
 /**
  * Serves the `pkgs/patch-db-widgets` folder over HTTP (default port 8765).
- * Use if `file://` blocks sql.js WASM; open http://127.0.0.1:8765
+ * Open http://127.0.0.1:8765
  */
 import { createLogger } from '@pkgs/logger';
 import { Hono } from 'hono';

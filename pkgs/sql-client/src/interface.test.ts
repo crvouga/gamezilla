@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import { SqlClientImplBunSqlite } from './impl-bun-sqlite';
-import { SqlClientImplSqlJs } from './impl-sql-js';
 import { SqlClientWithPubSub } from './impl-with-pub-sub';
 import type { SqlClient } from './interface';
 
@@ -11,10 +10,6 @@ async function loadImplementations(): Promise<
   { name: string; createClient: ClientFactory }[]
 > {
   const impls: { name: string; createClient: ClientFactory }[] = [
-    {
-      name: 'SqlClientImplSqlJs',
-      createClient: () => SqlClientImplSqlJs.openMemory(),
-    },
     {
       name: 'SqlClientImplBunSqlite',
       createClient: () =>
@@ -46,7 +41,7 @@ async function loadImplementations(): Promise<
 
 const implementations = await loadImplementations();
 
-describe.each(implementations)('$name', ({ createClient, name }) => {
+describe.each(implementations)('$name', ({ createClient }) => {
   let client: SqlClient | null = null;
   let available = true;
 
@@ -176,26 +171,4 @@ describe.each(implementations)('$name', ({ createClient, name }) => {
     await client.disconnect();
   });
 
-  test('concurrent transactions serialize (no nested BEGIN)', async () => {
-    if (!client || !available) return;
-    if (name !== 'SqlClientImplSqlJs') return;
-    await client.connect();
-    await client.run('CREATE TABLE conc_tx (id INTEGER PRIMARY KEY)');
-    await Promise.all([
-      client.transaction(async (tx) => {
-        await tx.run('INSERT INTO conc_tx (id) VALUES (?)', [1]);
-      }),
-      client.transaction(async (tx) => {
-        await tx.run('INSERT INTO conc_tx (id) VALUES (?)', [2]);
-      }),
-    ]);
-    if (client === null || client === undefined)
-      throw new Error('client must be set');
-    const rows = await client.query<{ id: number }>(
-      'SELECT id FROM conc_tx ORDER BY id'
-    );
-    expect(rows).toHaveLength(2);
-    expect(rows.map((r) => r.id)).toEqual([1, 2]);
-    await client.disconnect();
-  });
 });

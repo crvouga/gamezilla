@@ -15,22 +15,18 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@jlongster/sql.js": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/pub-sub": "workspace:*",
     "@pkgs/sqlite": "workspace:*",
-    "absurd-sql": "catalog:",
     "expo-sqlite": "catalog:",
     "pg": "catalog:",
     "react": "catalog:",
-    "react-native": "catalog:",
-    "sql.js": "catalog:"
+    "react-native": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@types/react": "catalog:",
-    "@types/sql.js": "catalog:",
     "typescript": "catalog:"
   }
 }

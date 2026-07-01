@@ -160,10 +160,9 @@ function audioCacheHeaders(contentType: string): Record<string, string> {
   return {
     'Content-Type': contentType,
     'Cache-Control': 'public, max-age=31536000, immutable',
-    // Required so COEP=`require-corp` documents (e.g. our Expo dev server, which
-    // sets it for SharedArrayBuffer / absurd-sql) can load this audio
-    // cross-origin via `<audio src>`. Without CORP, the browser silently blocks
-    // the resource and surfaces only "no supported source was found".
+    // Required so COEP=`require-corp` documents (expo-sqlite web / SharedArrayBuffer)
+    // can load this audio cross-origin via `<audio src>`. Without CORP, the browser
+    // silently blocks the resource and surfaces only "no supported source was found".
     'Cross-Origin-Resource-Policy': 'cross-origin',
   };
 }

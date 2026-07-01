@@ -24,20 +24,27 @@ const metroCacheRoot = path.join(
 );
 config.cacheStores = [new FileStore({ root: metroCacheRoot })];
 
-// Watchman is opt-in (`EXPO_USE_WATCHMAN=1`); default Node crawl uses `blockList`
-// below to skip native trees that trigger EMFILE on macOS.
+// Watchman on `apps/client` when available (see configureMetroWatchmanEnv).
+// Node crawl must not watch `node_modules` — Bun symlinks resolve into
+// `node_modules/.bun` (~340k files) and hit EMFILE on macOS.
 config.resolver = {
   ...config.resolver,
   useWatchman: process.env['EXPO_USE_WATCHMAN'] === '1',
 };
 
-// Workspace sources for HMR — not the full hoisted `node_modules` tree (EMFILE).
-config.watchFolders = [
+// Workspace sources for HMR. With Watchman, also include the Bun store so Metro
+// can SHA-1 deps resolved via `apps/client/node_modules` symlinks. Node crawl
+// must never watch `node_modules` directly (symlinks fan out into `.bun`).
+/** @type {string[]} */
+const watchFolders = [
   path.resolve(monorepoRoot, 'apps'),
   path.resolve(monorepoRoot, 'libs'),
   path.resolve(monorepoRoot, 'pkgs'),
-  path.resolve(monorepoRoot, 'node_modules/.bun'),
 ];
+if (process.env['EXPO_USE_WATCHMAN'] === '1') {
+  watchFolders.push(path.resolve(monorepoRoot, 'node_modules/.bun'));
+}
+config.watchFolders = watchFolders;
 
 // `blockList` keeps native / build trees out of the Node watcher fallback.
 config.resolver.blockList = [
@@ -99,7 +106,20 @@ try {
 }
 const skiaPinnedPrefixes = ['canvaskit-wasm'];
 const fs = require('fs');
+const useWatchman = process.env['EXPO_USE_WATCHMAN'] === '1';
 const previousResolveRequest = config.resolver.resolveRequest;
+
+/** Watchman indexes Bun store targets, not `apps/client/node_modules` symlink paths. */
+function metroResolvedPath(filePath) {
+  if (!useWatchman) {
+    return filePath;
+  }
+  try {
+    return fs.realpathSync(filePath);
+  } catch {
+    return filePath;
+  }
+}
 
 /** Prefer `apps/client/node_modules` symlinks over Bun store realpaths for Watchman SHA-1. */
 function resolveViaClientNodeModules(moduleName) {
@@ -180,7 +200,7 @@ function normalizeResolvedPath(resolved) {
     moduleNameFromBunStorePath(resolved.filePath) ?? ''
   );
   if (mapped !== null) {
-    return { ...resolved, filePath: mapped };
+    return { ...resolved, filePath: metroResolvedPath(mapped) };
   }
   return resolved;
 }
@@ -211,7 +231,7 @@ function resolveOrigins(context) {
 function resolveWithNodeRequire(context, moduleName) {
   const viaClient = resolveViaClientNodeModules(moduleName);
   if (viaClient !== null) {
-    return { filePath: viaClient, type: 'sourceFile' };
+    return { filePath: metroResolvedPath(viaClient), type: 'sourceFile' };
   }
   for (const origin of resolveOrigins(context)) {
     try {
@@ -225,9 +245,9 @@ function resolveWithNodeRequire(context, moduleName) {
         moduleNameFromBunStorePath(filePath) ?? moduleName
       );
       if (mapped !== null) {
-        return { filePath: mapped, type: 'sourceFile' };
+        return { filePath: metroResolvedPath(mapped), type: 'sourceFile' };
       }
-      return { filePath, type: 'sourceFile' };
+      return { filePath: metroResolvedPath(filePath), type: 'sourceFile' };
     } catch {
       // Try the next origin (symlink vs Bun store realpath).
     }
@@ -269,7 +289,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (matchesDedupeAlias) {
     const viaClient = resolveViaClientNodeModules(moduleName);
     if (viaClient !== null) {
-      return { filePath: viaClient, type: 'sourceFile' };
+      return { filePath: metroResolvedPath(viaClient), type: 'sourceFile' };
     }
     const aliasContext = { ...context, originModulePath: dedupeAliasOrigin };
     let resolved;
@@ -378,11 +398,12 @@ config.server.rewriteRequestUrl = (/** @type {string} */ url) =>
 // Add wasm asset support
 config.resolver.assetExts.push('wasm');
 
-// Cross-origin isolation so `SharedArrayBuffer` exists in the app + workers.
-// absurd-sql needs it; without SAB it uses fragile IndexedDB fallback and can throw
-// "Fallback mode unable to write file changes" on writes.
-// https://github.com/jlongster/absurd-sql#requirements — use `require-corp` (not
-// `credentialless`) so isolation matches what sql.js/absurd-sql expect in practice.
+// expo-sqlite on web needs wasm assets (above) and cross-origin isolation so
+// SharedArrayBuffer is available to the expo-sqlite worker.
+// https://docs.expo.dev/versions/latest/sdk/sqlite/#web-setup
+const {
+  applyExpoSqliteWebIsolationHeaders,
+} = require('./scripts/expo-sqlite-web-headers.js');
 // @ts-ignore
 config.server.enhanceMiddleware = (
   /** @type {(arg0: any, arg1: any, arg2: any) => void} */ middleware
@@ -392,8 +413,7 @@ config.server.enhanceMiddleware = (
     /** @type {{ setHeader: (arg0: string, arg1: string) => void; }} */ res,
     /** @type {any} */ next
   ) => {
-    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    applyExpoSqliteWebIsolationHeaders(res);
     middleware(req, res, next);
   };
 };
