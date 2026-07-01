@@ -170,5 +170,4 @@ describe.each(implementations)('$name', ({ createClient }) => {
     expect(rows).toHaveLength(0);
     await client.disconnect();
   });
-
 });
