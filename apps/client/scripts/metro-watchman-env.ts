@@ -13,11 +13,9 @@ export function configureMetroWatchmanEnv(
   const { baseEnv = process.env } = args;
   const env = { ...baseEnv };
   if (env['EXPO_USE_WATCHMAN'] === '1') {
-    const probe = spawnSync(
-      'watchman',
-      ['watch-project', args.monorepoRoot],
-      { encoding: 'utf8' }
-    );
+    const probe = spawnSync('watchman', ['watch-project', args.monorepoRoot], {
+      encoding: 'utf8',
+    });
     const combined = `${probe.stdout ?? ''}${probe.stderr ?? ''}`;
     const ok =
       probe.status === 0 &&

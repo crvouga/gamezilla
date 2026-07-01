@@ -276,7 +276,11 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     if (typeof previousResolveRequest === 'function') {
       resolved = previousResolveRequest(aliasContext, moduleName, platform);
     } else {
-      resolved = aliasContext.resolveRequest(aliasContext, moduleName, platform);
+      resolved = aliasContext.resolveRequest(
+        aliasContext,
+        moduleName,
+        platform
+      );
     }
     if (resolved != null) return normalizeResolvedPath(resolved);
     return resolved;
