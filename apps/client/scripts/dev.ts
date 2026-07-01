@@ -31,7 +31,7 @@ const clientRoot = join(scriptDir, '..');
 const monorepoRoot = join(clientRoot, '../..');
 maybeClearMetroCache(clientRoot);
 
-const devEnv = configureMetroWatchmanEnv(monorepoRoot);
+const devEnv = configureMetroWatchmanEnv({ monorepoRoot, clientRoot });
 const expoBin = join(clientRoot, 'node_modules', '.bin', 'expo');
 const proxyPort = String(process.env['EXPO_DEV_PORT'] ?? 5173);
 const metroPort = String(process.env['EXPO_METRO_PORT'] ?? 5174);
@@ -43,7 +43,7 @@ function spawnDevServer(passthrough: string[]): ChildProcess {
     'sh',
     [
       '-c',
-      'ulimit -n 65536 2>/dev/null || true; exec "$0" "$@"',
+      'ulimit -n 1048576 2>/dev/null || ulimit -n 65536 2>/dev/null || true; exec "$0" "$@"',
       expoBin,
       ...args,
     ],

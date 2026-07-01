@@ -24,20 +24,33 @@ const metroCacheRoot = path.join(
 );
 config.cacheStores = [new FileStore({ root: metroCacheRoot })];
 
-// Watchman avoids EMFILE but breaks on some macOS FSEvents setups and misses Bun
-// symlinks. `dev.ts` probes Watchman and sets EXPO_USE_WATCHMAN; force off with
-// EXPO_USE_WATCHMAN=0 or on (after repair) with EXPO_USE_WATCHMAN=1.
+// Watchman is opt-in (`EXPO_USE_WATCHMAN=1`); default Node crawl uses `blockList`
+// below to skip native trees that trigger EMFILE on macOS.
 config.resolver = {
   ...config.resolver,
   useWatchman: process.env['EXPO_USE_WATCHMAN'] === '1',
 };
 
-// Workspace sources for HMR — include hoisted `node_modules` so Metro can SHA-1 Bun packages.
+// Workspace sources for HMR — not the full hoisted `node_modules` tree (EMFILE).
 config.watchFolders = [
   path.resolve(monorepoRoot, 'apps'),
   path.resolve(monorepoRoot, 'libs'),
   path.resolve(monorepoRoot, 'pkgs'),
-  path.resolve(monorepoRoot, 'node_modules'),
+  path.resolve(monorepoRoot, 'node_modules/.bun'),
+];
+
+// `blockList` keeps native / build trees out of the Node watcher fallback.
+config.resolver.blockList = [
+  ...(Array.isArray(config.resolver.blockList)
+    ? config.resolver.blockList
+    : config.resolver.blockList
+      ? [config.resolver.blockList]
+      : []),
+  /[/\\]apps[/\\]client[/\\]ios[/\\].*/,
+  /[/\\]apps[/\\]client[/\\]android[/\\].*/,
+  /[/\\]\.expo[/\\].*/,
+  /[/\\]\.qa-dist-dev[/\\].*/,
+  /[/\\]\.qa-native[/\\].*/,
 ];
 
 // Let Metro know where to resolve packages and in what order
@@ -138,7 +151,9 @@ function resolveViaClientNodeModules(moduleName) {
     path.join(joined, 'index.tsx'),
   ];
   for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) return candidate;
+    if (!fs.existsSync(candidate)) continue;
+    if (fs.statSync(candidate).isDirectory()) continue;
+    return candidate;
   }
   return null;
 }
@@ -252,11 +267,19 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     return null;
   }
   if (matchesDedupeAlias) {
-    const aliasContext = { ...context, originModulePath: dedupeAliasOrigin };
-    if (typeof previousResolveRequest === 'function') {
-      return previousResolveRequest(aliasContext, moduleName, platform);
+    const viaClient = resolveViaClientNodeModules(moduleName);
+    if (viaClient !== null) {
+      return { filePath: viaClient, type: 'sourceFile' };
     }
-    return aliasContext.resolveRequest(aliasContext, moduleName, platform);
+    const aliasContext = { ...context, originModulePath: dedupeAliasOrigin };
+    let resolved;
+    if (typeof previousResolveRequest === 'function') {
+      resolved = previousResolveRequest(aliasContext, moduleName, platform);
+    } else {
+      resolved = aliasContext.resolveRequest(aliasContext, moduleName, platform);
+    }
+    if (resolved != null) return normalizeResolvedPath(resolved);
+    return resolved;
   }
   try {
     let resolved;

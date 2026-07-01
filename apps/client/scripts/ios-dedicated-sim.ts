@@ -225,8 +225,6 @@ export async function autoOpenDedicatedSim(
   if (process.platform !== 'darwin') return;
 
   const udid = provisionDedicatedSim();
-  bootSimIfNeeded(udid);
-  openSimulatorApp();
 
   const metro = new URL(options.metroUrl);
   const timeoutMs = options.devServerTimeoutMs ?? 120_000;
@@ -234,6 +232,9 @@ export async function autoOpenDedicatedSim(
   log(`Waiting for Metro at ${metro.href}…`);
   await waitForDevServer(metro, timeoutMs, options.abort);
   if (options.abort.aborted) return;
+
+  bootSimIfNeeded(udid);
+  openSimulatorApp();
 
   log('Metro is up — ensuring development build is installed…');
   ensureDevClientInstalled(udid, SIM_NAME);

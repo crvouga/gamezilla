@@ -32,8 +32,7 @@ export function SqlClientProvider({
   const [boot, setBoot] = useState<BootState>({ phase: 'loading' });
 
   const sqlPromise = useCachedPromise(
-    // eslint-disable-next-line lingui/no-unlocalized-strings -- Internal cache key, not user-facing.
-    `sql-client:${getMainSqliteDbName()}`,
+    `sql-client:${getMainSqliteDbName()}` as const,
     () => openMainSqlClient()
   );
 
@@ -42,15 +41,13 @@ export function SqlClientProvider({
     void sqlPromise.then(
       (sql) => {
         if (!cancelled) {
-          // eslint-disable-next-line lingui/no-unlocalized-strings -- internal boot phase, not user-facing
-          setBoot({ phase: 'ready', sql });
+          setBoot({ phase: 'ready' as const, sql });
         }
       },
       (error: unknown) => {
         if (cancelled) return;
         const err = error instanceof Error ? error : new Error(String(error));
-        // eslint-disable-next-line lingui/no-unlocalized-strings -- internal boot phase, not user-facing
-        setBoot({ phase: 'error', error: err });
+        setBoot({ phase: 'error' as const, error: err });
       }
     );
     return () => {

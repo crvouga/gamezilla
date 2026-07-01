@@ -1,0 +1,12 @@
+{
+  "ignore_dirs": [
+    ".expo",
+    "ios",
+    "android",
+    "Pods",
+    "build",
+    "dist",
+    ".cache",
+    "coverage"
+  ]
+}

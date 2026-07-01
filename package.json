@@ -34,7 +34,7 @@
     "client:ios": "bun run scripts/vault-run.ts -- bun run --filter @apps/client ios",
     "db:migrate": "bun run scripts/vault-run.ts -- bun run --filter @apps/api db:migrate",
     "deps:graph": "bun run scripts/render-package-deps-graph.ts",
-    "dev": "bun run scripts/vault-run.ts -- turbo dev --ui=tui",
+    "dev": "bun run scripts/vault-run.ts -- turbo dev --ui=stream",
     "format": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" && prettier --write .",
     "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/deployment-pipeline.yml",
     "i18n:compile": "lingui compile --typescript && bun run scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
