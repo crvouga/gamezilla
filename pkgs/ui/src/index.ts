@@ -13,4 +13,8 @@ import './lingui-augmentation';
 export * from './components';
 export * from './explorer';
 export { hideSplash, preventSplashAutoHide } from './expo/splash-screen';
+export {
+  isAutoplayBlockedError,
+  playAudioOrIgnoreAutoplayBlock,
+} from './expo/safe-audio-play';
 export * from './theme';

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { SqlClientImplBunPostgres } from './impl-bun-postgres';
 import {
   createPgPool,
   ensurePostgresSchema,
@@ -121,6 +122,22 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
       expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
     } finally {
       await client.end();
+    }
+  });
+
+  test('SqlClientImplBunPostgres pins every query on Neon pooler URLs', async () => {
+    const sqlClient = SqlClientImplBunPostgres.connect(DATABASE_URL, dbScope);
+    try {
+      await sqlClient.connect();
+      await ensurePostgresSchema(sqlClient, dbScope);
+      for (let i = 0; i < 3; i++) {
+        const rows = await sqlClient.query<{ current_schema: string }>(
+          'SELECT current_schema() AS current_schema'
+        );
+        expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
+      }
+    } finally {
+      await sqlClient.disconnect();
     }
   });
 });

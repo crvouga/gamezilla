@@ -20,6 +20,7 @@ export function isRecoverableExpoSqliteWebRuntimeError(
 
 export function publishExpoSqliteWebFatalError(error: Error): void {
   if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+  if (typeof window.dispatchEvent !== 'function') return;
   window.dispatchEvent(
     new CustomEvent<Error>(EXPO_SQLITE_WEB_FATAL_EVENT, { detail: error })
   );
@@ -28,7 +29,8 @@ export function publishExpoSqliteWebFatalError(error: Error): void {
 export function subscribeExpoSqliteWebFatalError(
   listener: (error: Error) => void
 ): () => void {
-  if (typeof window === 'undefined') return () => {};
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return () => {};
+  if (typeof window.addEventListener !== 'function') return () => {};
   const handler = (event: Event) => {
     const detail = (event as CustomEvent<Error>).detail;
     if (detail instanceof Error) {

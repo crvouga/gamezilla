@@ -10,6 +10,7 @@ import type { PostgresDbScope } from './postgres-schema';
 import { quotePgIdent } from './postgres-schema';
 import {
   postgresRejectsStartupSearchPathOption,
+  sqlBundledWithSearchPath,
   withPostgresSearchPathOption,
 } from './postgres-session-schema';
 import { questionMarkParamsToDollarParams } from './positional-params';
@@ -17,21 +18,24 @@ import { sanitizePostgresUrlForBunSql } from './sanitize-postgres-url-for-bun-sq
 
 type BunSql = InstanceType<typeof SQL>;
 
+type BunClientOptions = {
+  readonly pinSearchPathEachQuery: boolean;
+  readonly dbScope: PostgresDbScope;
+};
+
 export class SqlClientImplBunPostgres implements PostgresSqlClient {
   private client: SqlClient;
-  private readonly needsSessionSearchPath: boolean;
 
   constructor(
     connection: string | URL | BunSql,
     readonly dbScope: PostgresDbScope
   ) {
-    const needsSessionSearchPath =
+    const pinSearchPathEachQuery =
       typeof connection === 'string'
         ? postgresRejectsStartupSearchPathOption(connection)
         : connection instanceof URL
           ? postgresRejectsStartupSearchPathOption(connection.toString())
           : false;
-    this.needsSessionSearchPath = needsSessionSearchPath;
     const sql =
       typeof connection === 'string' || connection instanceof URL
         ? new SQL(
@@ -41,7 +45,7 @@ export class SqlClientImplBunPostgres implements PostgresSqlClient {
             )
           )
         : connection;
-    this.client = createClient(sql);
+    this.client = createClient(sql, { pinSearchPathEachQuery, dbScope });
   }
 
   static connect(
@@ -53,11 +57,6 @@ export class SqlClientImplBunPostgres implements PostgresSqlClient {
 
   async connect(): Promise<void> {
     await this.client.connect();
-    if (this.needsSessionSearchPath) {
-      await this.client.run(
-        `SET search_path TO ${quotePgIdent(this.dbScope.schema)}`
-      );
-    }
   }
 
   disconnect(): Promise<void> {
@@ -84,7 +83,64 @@ export class SqlClientImplBunPostgres implements PostgresSqlClient {
   }
 }
 
-function createClient(sql: BunSql): SqlClient {
+type BunPinnedQueryArgs = {
+  readonly sql: BunSql;
+  readonly options: BunClientOptions;
+  readonly querySql: string;
+  readonly params?: unknown[] | undefined;
+  /** Bundled SET+SQL is run-only; queries need BEGIN/SET LOCAL for row results. */
+  readonly mode: 'query' | 'run';
+};
+
+async function withBunSearchPathPin<T>(
+  args: BunPinnedQueryArgs,
+  fn: (conn: BunSql, text: string, vals: unknown[]) => Promise<T>
+): Promise<T> {
+  const { sql, options, querySql, params, mode } = args;
+  const [text, vals] = questionMarkParamsToDollarParams(querySql, params);
+  if (!options.pinSearchPathEachQuery) {
+    return fn(sql, text, vals);
+  }
+  if (vals.length === 0 && mode === 'run') {
+    return fn(sql, sqlBundledWithSearchPath(options.dbScope, text), vals);
+  }
+  return sql.begin(async (tx) => {
+    const conn = tx as unknown as BunSql;
+    await conn.unsafe(
+      `SET LOCAL search_path TO ${quotePgIdent(options.dbScope.schema)}`
+    );
+    return fn(conn, text, vals);
+  });
+}
+
+async function bunQueryRows<T>(
+  conn: BunSql,
+  pgSql: string,
+  pgParams: unknown[]
+): Promise<T[]> {
+  const result = await conn.unsafe(pgSql, pgParams);
+  assert.array(
+    result,
+    'Postgres query must return array of rows; driver contract violation'
+  );
+  return result as T[];
+}
+
+async function bunRunStatement(
+  conn: BunSql,
+  pgSql: string,
+  pgParams: unknown[]
+): Promise<RunResult> {
+  const result = await conn.unsafe(pgSql, pgParams);
+  const rows = Array.isArray(result) ? result : [];
+  return {
+    changes: getChanges(result, rows),
+    lastInsertRowid: getLastInsertRowid(result, rows),
+  };
+}
+
+function createClient(sql: BunSql, options: BunClientOptions): SqlClient {
+  const unpinned = { ...options, pinSearchPathEachQuery: false };
   return {
     connect: () => Promise.resolve(),
     // Bounded timeout: Bun's `sql.close()` with no argument waits for all
@@ -93,64 +149,40 @@ function createClient(sql: BunSql): SqlClient {
     // pool; anything longer indicates stuck handles we would kill anyway.
     disconnect: () => sql.close({ timeout: 5 }),
     prepare: (querySql: string): PreparedStatement => ({
-      query: async <T = Record<string, unknown>>(params?: unknown[]) => {
-        const [pgSql, pgParams] = questionMarkParamsToDollarParams(
-          querySql,
-          params
-        );
-        const result = await sql.unsafe(pgSql, pgParams);
-        assert.array(
-          result,
-          'Postgres query must return array of rows; driver contract violation'
-        );
-        return result as T[];
-      },
-      run: async (params?: unknown[]) => {
-        const [pgSql, pgParams] = questionMarkParamsToDollarParams(
-          querySql,
-          params
-        );
-        const result = await sql.unsafe(pgSql, pgParams);
-        const rows = Array.isArray(result) ? result : [];
-        return {
-          changes: getChanges(result, rows),
-          lastInsertRowid: getLastInsertRowid(result, rows),
-        };
-      },
+      query: async <T = Record<string, unknown>>(params?: unknown[]) =>
+        withBunSearchPathPin(
+          { sql, options, querySql, params, mode: 'query' },
+          (conn, text, vals) => bunQueryRows<T>(conn, text, vals)
+        ),
+      run: async (params?: unknown[]) =>
+        withBunSearchPathPin(
+          { sql, options, querySql, params, mode: 'run' },
+          (conn, text, vals) => bunRunStatement(conn, text, vals)
+        ),
     }),
     query: async <T = Record<string, unknown>>(
       querySql: string,
       params?: unknown[]
-    ) => {
-      const [pgSql, pgParams] = questionMarkParamsToDollarParams(
-        querySql,
-        params
-      );
-      const result = await sql.unsafe(pgSql, pgParams);
-      assert.array(
-        result,
-        'Postgres query must return array of rows; driver contract violation'
-      );
-      return result as T[];
-    },
-    run: async (querySql: string, params?: unknown[]) => {
-      const [pgSql, pgParams] = questionMarkParamsToDollarParams(
-        querySql,
-        params
-      );
-      const result = await sql.unsafe(pgSql, pgParams);
-      const rows = Array.isArray(result) ? result : [];
-      const changes = getChanges(result, rows);
-      const lastInsertRowid = getLastInsertRowid(result, rows);
-      return { changes, lastInsertRowid };
-    },
-    transaction: async (fn) => {
-      return sql.begin(async (tx) => {
-        // Bun sql.begin callback receives a tx compatible with BunSql.
-        const txClient = createClient(tx as unknown as BunSql);
-        return fn(txClient);
-      });
-    },
+    ) =>
+      withBunSearchPathPin(
+        { sql, options, querySql, params, mode: 'query' },
+        (conn, text, vals) => bunQueryRows<T>(conn, text, vals)
+      ),
+    run: async (querySql: string, params?: unknown[]) =>
+      withBunSearchPathPin(
+        { sql, options, querySql, params, mode: 'run' },
+        (conn, text, vals) => bunRunStatement(conn, text, vals)
+      ),
+    transaction: async (fn) =>
+      sql.begin(async (tx) => {
+        const conn = tx as unknown as BunSql;
+        if (options.pinSearchPathEachQuery) {
+          await conn.unsafe(
+            `SET LOCAL search_path TO ${quotePgIdent(options.dbScope.schema)}`
+          );
+        }
+        return fn(createClient(conn, unpinned));
+      }),
   };
 }
 

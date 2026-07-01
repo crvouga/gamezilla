@@ -87,7 +87,7 @@
     "prettier": "catalog:",
     "sort-package-json": "catalog:",
     "syncpack": "catalog:",
-    "turbo": "^2.10.1",
+    "turbo": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:"
   },
@@ -190,7 +190,7 @@
     "sql.js": "^1.14.0",
     "stripe": "^18.0.0",
     "syncpack": "^14.3.1",
-    "turbo": "^2.9.18",
+    "turbo": "^2.10.1",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.1",
     "unique-names-generator": "^4.7.1",

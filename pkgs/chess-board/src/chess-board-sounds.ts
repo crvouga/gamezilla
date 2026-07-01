@@ -1,3 +1,4 @@
+import { playAudioOrIgnoreAutoplayBlock } from '@pkgs/ui';
 import { useAudioPlayer } from 'expo-audio';
 import { useCallback, useEffect, useMemo } from 'react';
 
@@ -18,7 +19,7 @@ async function playFromStart(player: {
   } catch {
     // seek can fail before load; still try play
   }
-  player.play();
+  playAudioOrIgnoreAutoplayBlock(() => player.play());
 }
 
 type WarmablePlayer = {
