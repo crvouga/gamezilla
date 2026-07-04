@@ -10,11 +10,14 @@ import {
 import { ChessPuzzleEloChip } from './chess-puzzle-elo-chip';
 
 const HEADER_ROW_HEIGHT = 22;
+const ELO_PLACEHOLDER = 1200;
 
 export { HEADER_ROW_HEIGHT };
 
 function statusLabel(kind: ChessPuzzleStatusKind): ReactNode {
   switch (kind) {
+    case 'loading':
+      return <Trans>Loading puzzle…</Trans>;
     case 'whiteToMove':
       return <Trans>White to move</Trans>;
     case 'blackToMove':
@@ -30,6 +33,27 @@ function statusLabel(kind: ChessPuzzleStatusKind): ReactNode {
   }
 }
 
+function EloChipSlot(args: {
+  elo: number;
+  variant: 'primary' | 'muted';
+  visible: boolean;
+  testID?: string;
+}): ReactNode {
+  const chip = (
+    <ChessPuzzleEloChip
+      elo={args.elo}
+      variant={args.variant}
+      {...(args.testID !== undefined ? { testID: args.testID } : {})}
+    />
+  );
+  if (args.visible) return chip;
+  return (
+    <Box style={{ opacity: 0 }} pointerEvents="none">
+      <ChessPuzzleEloChip elo={ELO_PLACEHOLDER} variant={args.variant} />
+    </Box>
+  );
+}
+
 export type ChessPuzzleStatusHeaderProps = {
   kind: ChessPuzzleStatusKind;
   playerElo?: number;
@@ -42,6 +66,11 @@ export function ChessPuzzleStatusHeader({
   puzzleRating,
 }: ChessPuzzleStatusHeaderProps): ReactNode {
   const theme = useTheme();
+  const showPlayerChip =
+    kind !== 'loading' && playerElo !== undefined && playerElo > 0;
+  const showPuzzleChip =
+    kind !== 'loading' && puzzleRating !== undefined && puzzleRating > 0;
+
   return (
     <Box
       sx={{
@@ -59,16 +88,17 @@ export function ChessPuzzleStatusHeader({
         label={statusLabel(kind)}
       />
       <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
-        {playerElo !== undefined && playerElo > 0 ? (
-          <ChessPuzzleEloChip
-            elo={playerElo}
-            variant="primary"
-            testID="chess-puzzle-player-elo"
-          />
-        ) : null}
-        {puzzleRating !== undefined && puzzleRating > 0 ? (
-          <ChessPuzzleEloChip elo={puzzleRating} variant="muted" />
-        ) : null}
+        <EloChipSlot
+          elo={playerElo ?? ELO_PLACEHOLDER}
+          variant="primary"
+          visible={showPlayerChip}
+          testID="chess-puzzle-player-elo"
+        />
+        <EloChipSlot
+          elo={puzzleRating ?? ELO_PLACEHOLDER}
+          variant="muted"
+          visible={showPuzzleChip}
+        />
       </Box>
     </Box>
   );

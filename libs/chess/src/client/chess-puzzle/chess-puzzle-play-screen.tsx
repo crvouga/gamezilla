@@ -1,14 +1,16 @@
 import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
-import { Box } from '@pkgs/ui';
-import { memo, type ReactNode } from 'react';
+import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
+import { Box, SpeakingAvatar } from '@pkgs/ui';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
+import { memo, type ReactNode } from 'react';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
-import { ChessPuzzleBoardSkeleton } from './chess-puzzle-board-skeleton';
+import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
 import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
 import { ChessPuzzleSummaryOverlay } from './chess-puzzle-summary-overlay';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
-import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
+import type { HintStage } from './use-hint-stage';
+import type { SolveStatus } from './use-chess-puzzle-solver';
 import {
   usePuzzlePlayerState,
   type PuzzlePlayerChromeModel,
@@ -16,6 +18,62 @@ import {
 import { usePuzzlePlayScreenState } from './use-puzzle-play-screen-state';
 
 const BOARD_MAX_WIDTH = 720;
+
+const LOADING_SHELL_STATUS = 'loading' as const satisfies SolveStatus;
+const LOADING_SHELL_HINT_STAGE = 'none' as const satisfies HintStage;
+
+const noop = (): void => {};
+
+type PuzzlePlayLayoutProps = {
+  backToRoot: () => void;
+  assistant: ReactNode;
+  boardSlot: ReactNode;
+  status: SolveStatus;
+  hintStage: HintStage;
+  onHint: () => void;
+  onRetry: () => void;
+  onNext: () => void;
+  completion: PuzzlePlayerChromeModel['completion'];
+  e2eHints?: ReactNode;
+  e2eLoadingStatus?: ReactNode;
+};
+
+function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
+  return (
+    <Box sx={{ alignSelf: 'stretch' }}>
+      <DefineBackButton onPress={p.backToRoot} />
+      {p.e2eLoadingStatus}
+      <Box
+        sx={{
+          alignSelf: 'center',
+          maxWidth: BOARD_MAX_WIDTH,
+          gap: 4,
+          pb: 8,
+          pt: 4,
+        }}
+        style={{ width: '100%' }}
+      >
+        {p.assistant}
+        {p.boardSlot}
+        <ChessPuzzleActionBar
+          status={p.status}
+          hintStage={p.hintStage}
+          onHint={p.onHint}
+          onRetry={p.onRetry}
+          onNext={p.onNext}
+        />
+        {p.completion !== null ? (
+          <ChessPuzzleSummaryOverlay
+            completion={p.completion}
+            onContinue={p.onNext}
+            onRetry={p.onRetry}
+          />
+        ) : null}
+        {p.e2eHints}
+      </Box>
+    </Box>
+  );
+}
 
 const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
   p: Pick<
@@ -30,7 +88,7 @@ const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
   >
 ): ReactNode {
   if (p.displayFen === null || p.displayFen.length === 0) {
-    return <ChessPuzzleBoardSkeleton />;
+    return <ChessPuzzleBoardLoadingState />;
   }
   // `cellFeedback` / `arrows` are always defined (memoized in their hooks
   // with frozen empty defaults), so we pass them unconditionally. A
@@ -56,18 +114,9 @@ const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
 
 function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
   return (
-    <Box sx={{ alignSelf: 'stretch' }}>
-      <DefineBackButton onPress={p.backToRoot} />
-      <Box
-        sx={{
-          alignSelf: 'center',
-          maxWidth: BOARD_MAX_WIDTH,
-          gap: 4,
-          pb: 8,
-          pt: 4,
-        }}
-        style={{ width: '100%' }}
-      >
+    <PuzzlePlayLayout
+      backToRoot={p.backToRoot}
+      assistant={
         <SpeakingAvatarAssistant
           assistant={p.assistant}
           header={
@@ -79,6 +128,8 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
           }
           numberOfLines={2}
         />
+      }
+      boardSlot={
         <PuzzleBoardSlot
           displayFen={p.displayFen}
           layoutKey={p.layoutKey}
@@ -88,27 +139,21 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
           cellFeedback={p.cellFeedback}
           arrows={p.arrows}
         />
-        <ChessPuzzleActionBar
-          status={p.status}
-          hintStage={p.hintStage}
-          onHint={p.onHint}
-          onRetry={p.onRetry}
-          onNext={p.onNext}
-        />
-        {p.completion !== null ? (
-          <ChessPuzzleSummaryOverlay
-            completion={p.completion}
-            onContinue={p.onNext}
-            onRetry={p.onRetry}
-          />
-        ) : null}
+      }
+      status={p.status}
+      hintStage={p.hintStage}
+      onHint={p.onHint}
+      onRetry={p.onRetry}
+      onNext={p.onNext}
+      completion={p.completion}
+      e2eHints={
         <ChessPuzzleE2EHints
           orientation={p.orientation}
           expectedFromSquare={p.expectedFromSquare}
           expectedToSquare={p.expectedToSquare}
         />
-      </Box>
-    </Box>
+      }
+    />
   );
 }
 
@@ -147,22 +192,25 @@ function PuzzlePlayLoadingShell(p: {
   e2eLoadingStatus: ReactNode;
 }): ReactNode {
   return (
-    <Box testID="chess-puzzle-play-screen" sx={{ alignSelf: 'stretch' }}>
-      <DefineBackButton onPress={p.backToChessRoot} />
-      {p.e2eLoadingStatus}
-      <Box
-        sx={{
-          alignSelf: 'center',
-          maxWidth: BOARD_MAX_WIDTH,
-          gap: 4,
-          pb: 8,
-          pt: 4,
-        }}
-        style={{ width: '100%' }}
-      >
-        <ChessPuzzleBoardSkeleton />
-      </Box>
-    </Box>
+    <PuzzlePlayLayout
+      backToRoot={p.backToChessRoot}
+      e2eLoadingStatus={p.e2eLoadingStatus}
+      assistant={
+        <SpeakingAvatar
+          message=""
+          bubbleResolving
+          header={<ChessPuzzleStatusHeader kind="loading" />}
+          numberOfLines={2}
+        />
+      }
+      boardSlot={<ChessPuzzleBoardLoadingState />}
+      status={LOADING_SHELL_STATUS}
+      hintStage={LOADING_SHELL_HINT_STAGE}
+      onHint={noop}
+      onRetry={noop}
+      onNext={noop}
+      completion={null}
+    />
   );
 }
 
@@ -178,15 +226,17 @@ export function PuzzlePlayScreen(): ReactNode {
 
   const e2ePickStatus = <ChessPuzzleE2ELoadingStatus {...e2eLoadingStatus} />;
 
-  // Until we have a first puzzle id, render only the skeleton in the
-  // board slot's footprint — but DO NOT unmount the player once it has
-  // mounted; pressing Next never re-enters this branch.
+  // Until we have a first puzzle id, render the same chrome footprint as
+  // the player — but DO NOT unmount the player once it has mounted;
+  // pressing Next never re-enters this branch.
   if (activePuzzleId === null) {
     return (
-      <PuzzlePlayLoadingShell
-        backToChessRoot={backToChessRoot}
-        e2eLoadingStatus={e2ePickStatus}
-      />
+      <Box testID="chess-puzzle-play-screen" sx={{ alignSelf: 'stretch' }}>
+        <PuzzlePlayLoadingShell
+          backToChessRoot={backToChessRoot}
+          e2eLoadingStatus={e2ePickStatus}
+        />
+      </Box>
     );
   }
 

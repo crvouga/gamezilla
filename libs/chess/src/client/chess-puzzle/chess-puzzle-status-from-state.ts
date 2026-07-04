@@ -7,6 +7,7 @@ export function chessPuzzleStatusKindFromState(args: {
   showCorrectFlash: boolean;
 }): ChessPuzzleStatusKind {
   const { status, orientation, showCorrectFlash } = args;
+  if (status === 'loading') return 'loading';
   if (status === 'wrong') return 'wrong';
   if (status === 'solved') return 'solved';
   if (showCorrectFlash) return 'correct';

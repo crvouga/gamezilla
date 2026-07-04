@@ -91,6 +91,7 @@ const dedupeAliasOrigin = path.join(projectRoot, 'package.json');
 const dedupeAliasPrefixes = [
   '@lingui/core',
   '@lingui/react',
+  '@pkgs/patch-db',
   'react',
   'react-dom',
 ];

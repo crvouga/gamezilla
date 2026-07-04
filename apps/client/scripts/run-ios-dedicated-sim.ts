@@ -10,7 +10,7 @@
  *   EXPO_DEV_SIM_DEVICE_TYPE  default iPhone 17 Pro
  *   EXPO_DEV_SIM_RUNTIME      default: highest-version available iOS runtime
  *   EXPO_DEV_SIM_RUNTIME      default: highest-version available iOS runtime
- *   EXPO_METRO_PORT           default 5174
+ *   EXPO_METRO_PORT           default 5173
  *   EXPO_DEV_AUTO_IOS         set `0` to skip auto-opening the sim
  */
 import { spawn, type ChildProcess } from 'node:child_process';
@@ -23,7 +23,7 @@ import {
 } from './ios-dedicated-sim';
 import { maybeClearMetroCache } from './metro-dev-cache';
 
-const EXPO_PORT = Number(process.env['EXPO_METRO_PORT'] ?? 5174);
+const EXPO_PORT = Number(process.env['EXPO_METRO_PORT'] ?? 5173);
 const EXPO_HOST = '127.0.0.1';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));

@@ -16,6 +16,7 @@ export {
 export {
   PatchDbContextProvider,
   usePatchDb,
+  usePatchDbValue,
   usePubSub,
   useSync,
   type PatchDbValue,

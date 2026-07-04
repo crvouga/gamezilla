@@ -13,8 +13,8 @@ const REPO_ROOT = join(import.meta.dirname, '..');
 const DEV_PORTS = [
   8788, // wrangler API
   9231, // wrangler inspector
-  5174, // Expo web / Metro
-  5173, // client static preview
+  5173, // Expo web / Metro + static preview (PREVIEW_PORT)
+  5174, // legacy Expo web / Metro
   5556, // dev IdP (DEV_IDP_DEFAULT_PORT)
   8799, // observability collector
 ] as const;

@@ -27,6 +27,7 @@ import { ObjectStoreProviderWrapper } from './object-store-provider';
 import { ObservabilityProvider } from './observability-provider';
 import { PatchDbLocalDataActionsProvider } from './patch-db-local-data-actions-provider';
 import { PatchDbProvider } from './patch-db-provider';
+import { AppPortalContentBridgeProvider } from './portal-content-bridge-provider';
 import { SafeAreaProviderWrapper } from './safe-area-provider';
 import { SecureStorageProvider } from './secure-storage-provider';
 import { SqlClientProvider } from './sql-client-provider';
@@ -44,7 +45,6 @@ const appProviders = [
   KvProvider,
   AppThemeProvider,
   AppI18nProviderWrapper,
-  UiPortalsProvider,
   SpinnerProvider,
   SecureStorageProvider,
   ConfigServiceProviderWrapper,
@@ -59,11 +59,13 @@ const appProviders = [
   SqlClientProvider,
   SqliteWebRecoveryGate,
   PatchDbProvider,
+  AppPortalContentBridgeProvider,
   SpaceLifecycleModalProvider,
   DeviceEntityBootstrapProvider,
   PatchDbLocalDataActionsProvider,
   ProfileProvider,
   AuthBridge,
+  UiPortalsProvider,
   AuthModalsProvider,
   GamesBootstrapProvider,
   CommandRegistryProviderWrapper,

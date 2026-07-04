@@ -17,6 +17,7 @@ import type { ModalSize } from '../../theme/modal-size';
 import { ModalBackdrop } from '../modal/modal-backdrop';
 import { ModalContent } from '../modal/modal-content';
 import { ModalRoot } from '../modal/modal-root';
+import { usePortalContentWrap } from '../portal-content-bridge';
 import { ResponsiveSurfaceHeader } from './responsive-surface-header';
 
 export type ResponsiveSurfaceProps = PropsWithChildren<{
@@ -45,8 +46,13 @@ export type ResponsiveSurfaceProps = PropsWithChildren<{
 
 export function ResponsiveSurface(props: ResponsiveSurfaceProps) {
   const theme = useTheme();
-  if (theme.breakpoint === 'mobile') return <MobileSheet {...props} />;
-  return <DesktopModal {...props} />;
+  const wrapPortalContent = usePortalContentWrap();
+  const bridgedProps = {
+    ...props,
+    children: wrapPortalContent(props.children),
+  };
+  if (theme.breakpoint === 'mobile') return <MobileSheet {...bridgedProps} />;
+  return <DesktopModal {...bridgedProps} />;
 }
 
 function SurfaceBody({

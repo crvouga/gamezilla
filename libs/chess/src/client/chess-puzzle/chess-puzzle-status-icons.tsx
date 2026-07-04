@@ -1,10 +1,11 @@
-import { useTheme, type Theme } from '@pkgs/ui';
+import { Spinner, useTheme, type Theme } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ChessPuzzleStatusBadge } from './chess-puzzle-status-badge';
 
 export type ChessPuzzleStatusKind =
+  | 'loading'
   | 'whiteToMove'
   | 'blackToMove'
   | 'correct'
@@ -71,6 +72,13 @@ export function ChessPuzzleStatusIcon({
   kind: ChessPuzzleStatusKind;
 }): ReactNode {
   const theme = useTheme();
+  if (kind === 'loading') {
+    return (
+      <View style={styles.root}>
+        <Spinner size="small" />
+      </View>
+    );
+  }
   if (kind === 'whiteToMove') {
     return (
       <View style={styles.root}>

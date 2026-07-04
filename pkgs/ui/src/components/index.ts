@@ -147,6 +147,14 @@ export {
   type OverlayPortalProviderProps,
 } from './overlay-portal';
 
+// Portal context bridge (ResponsiveSurface / bottom-sheet)
+export {
+  PortalContentBridgeProvider,
+  usePortalContentWrap,
+  type PortalContentBridgeProviderProps,
+  type PortalContentWrap,
+} from './portal-content-bridge';
+
 // Disclosure
 export { Collapsible, type CollapsibleProps } from './collapsible';
 

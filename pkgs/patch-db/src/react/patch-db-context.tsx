@@ -19,7 +19,8 @@ const PatchDbContext = createContext<PatchDbValue | null>(null);
 
 export const PatchDbContextProvider = PatchDbContext.Provider;
 
-function usePatchDbValue(): PatchDbValue {
+/** Full patch-db context value — use when re-supplying context inside portals. */
+export function usePatchDbValue(): PatchDbValue {
   const v = useContext(PatchDbContext);
   if (v === null) {
     throw new Error(

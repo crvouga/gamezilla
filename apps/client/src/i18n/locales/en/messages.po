@@ -3959,9 +3959,9 @@ msgstr "Load more"
 msgid "Loading entity…"
 msgstr "Loading entity…"
 
-#: libs/chess/src/client/chess-puzzle/chess-puzzle-play-screen.tsx
-#~ msgid "Loading puzzle…"
-#~ msgstr "Loading puzzle…"
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "Loading puzzle…"
+msgstr "Loading puzzle…"
 
 #: packages/chess/src/client/chess-puzzle/chess-puzzle-play-dialog-content.ts
 #~ msgid "Loading your next challenge. You've got this."
