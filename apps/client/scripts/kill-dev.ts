@@ -8,6 +8,6 @@ function readPort(name: string, fallback: number): number {
 }
 
 killListenersOnPorts([
-  readPort('EXPO_DEV_PORT', 5173),
   readPort('EXPO_METRO_PORT', 5174),
+  readPort('PREVIEW_PORT', 5173),
 ]);

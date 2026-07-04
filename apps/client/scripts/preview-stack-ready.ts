@@ -1,9 +1,9 @@
 /**
- * Readiness probe for Playwright / `turbo preview`: the static export on :5173
- * becomes reachable before wrangler and the dev IdP finish booting, so probing
- * `/` alone starts browser tests while OAuth still fails with "Dev sign-in failed".
+ * Readiness probe for Playwright / `turbo preview`: the static export on
+ * `PREVIEW_PORT` becomes reachable before wrangler and the dev IdP finish
+ * booting, so probing `/` alone starts browser tests while OAuth still fails.
  */
-import { resolveLocalPreviewApiProxyTarget } from './local-api-proxy';
+import { resolveLocalPreviewApiOriginSync } from '@libs/client-config/shared/resolve-local-preview-api-origin';
 
 /** Mirrors {@link @pkgs/dev-idp/config} defaults — not imported to avoid a client → dev-idp dep. */
 const DEV_IDP_DEFAULT_PORT = 5556;
@@ -38,7 +38,7 @@ async function probeOk(url: string): Promise<boolean> {
 
 /** Returns 200 when the API worker and dev IdP are both accepting traffic. */
 export async function previewStackReadyResponse(): Promise<Response> {
-  const apiTarget = resolveLocalPreviewApiProxyTarget();
+  const apiTarget = resolveLocalPreviewApiOriginSync();
   const [apiReady, devIdpReady] = await Promise.all([
     probeOk(`${apiTarget}/api/health`),
     probeOk(resolveDevIdpAuthorizeUrl()),

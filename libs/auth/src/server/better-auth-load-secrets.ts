@@ -25,8 +25,10 @@ const LOCAL_DEV_TRUSTED = [
 
 /**
  * Browser app origins when the API runs locally. `trustedOrigins` is the **page**
- * `Origin` (Vite, Expo web, Next), not the API host — missing entries surface as
- * opaque “CORS” failures because Better Auth rejects the request first.
+ * `Origin` (Metro web, static preview, Expo web), not the API host — missing
+ * entries surface as opaque “CORS” failures because Better Auth rejects the
+ * request first. API traffic uses Bearer tokens; these origins are for OAuth
+ * sign-in pages calling `/api/auth/*` cross-origin from wrangler (:8788).
  */
 const LOCAL_WEB_CLIENT_TRUSTED = [
   'http://localhost:5173',

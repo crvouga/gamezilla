@@ -24,10 +24,9 @@ export type ApiWorkerEnv = {
   VAULT_CONFIG?: string;
   VAULT_ADDR?: string;
   /**
-   * Optional loopback preview origin (e.g. `http://localhost:5173`) written
-   * into `.dev.vars` by `setup-dev-vars` when Playwright / turbo preview sets
-   * `API_URL` in the environment. Overrides Vault `API_URL` so Better Auth
-   * OAuth callbacks stay same-origin with the static web preview.
+   * Loopback wrangler origin (e.g. `http://localhost:8788`) written into
+   * `.dev.vars` by `setup-dev-vars` when Playwright / turbo preview sets
+   * `API_URL` in the environment. Overrides Vault `API_URL` for local Better Auth.
    */
   API_URL?: string;
   /**

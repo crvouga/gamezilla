@@ -18,7 +18,10 @@ import {
 } from '@pkgs/secret-store';
 import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/shared/local-api-origin';
 
+import { resolveExpoUseWatchmanForSetup } from './metro-watchman-env';
+
 const clientRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+const monorepoRoot = join(clientRoot, '../..');
 const outPath = join(clientRoot, '.env.local');
 const tmpPath = `${outPath}.${process.pid}.tmp`;
 
@@ -218,11 +221,16 @@ async function main(): Promise<void> {
   const commitHash = resolveExpoPublicCommitHash();
   const commitDate = resolveExpoPublicCommitDate();
   const e2eFlag = trimStringOrNull(process.env['EXPO_PUBLIC_E2E']);
+  const expoUseWatchman = resolveExpoUseWatchmanForSetup({
+    clientRoot,
+    monorepoRoot,
+  });
 
   let body =
     `EXPO_PUBLIC_API_URL=${JSON.stringify(origin)}\n` +
     `EXPO_PUBLIC_COMMIT_HASH=${JSON.stringify(commitHash)}\n` +
-    `EXPO_PUBLIC_COMMIT_DATE=${JSON.stringify(commitDate)}\n`;
+    `EXPO_PUBLIC_COMMIT_DATE=${JSON.stringify(commitDate)}\n` +
+    `EXPO_USE_WATCHMAN=${JSON.stringify(expoUseWatchman)}\n`;
   if (e2eFlag !== null) {
     body += `EXPO_PUBLIC_E2E=${JSON.stringify(e2eFlag)}\n`;
   }

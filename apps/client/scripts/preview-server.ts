@@ -1,13 +1,11 @@
 /**
- * Serves the Expo web export on :5173 and proxies `/api/*` (including
- * `/api/room` WebSocket) to wrangler so Better Auth cookies, PatchDB sync,
- * and space rooms stay first-party.
+ * Serves the Expo web export on `PREVIEW_PORT` (default :5173).
+ * API traffic uses `EXPO_PUBLIC_API_URL` (wrangler on :8788) with Bearer auth.
  */
 import { assert } from '@pkgs/assert';
 import { join } from 'node:path';
 import { file } from 'bun';
 
-import { startWebDevProxyServer } from './local-api-proxy';
 import { applyExpoSqliteWebIsolationHeadersToFetch } from './expo-sqlite-web-headers.js';
 import { previewStackReadyResponse } from './preview-stack-ready';
 
@@ -46,9 +44,12 @@ async function serveStatic(pathname: string): Promise<Response> {
   return new Response(body, { headers });
 }
 
-startWebDevProxyServer({
+const server = Bun.serve({
   port,
-  webTarget: '',
-  serveWeb: serveStatic,
-  logLabel: 'preview-server',
+  fetch(req) {
+    const url = new URL(req.url);
+    return serveStatic(url.pathname);
+  },
 });
+
+process.stdout.write(`[preview-server] static web=${server.url.origin}\n`);

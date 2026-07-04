@@ -24,7 +24,7 @@ const metroCacheRoot = path.join(
 );
 config.cacheStores = [new FileStore({ root: metroCacheRoot })];
 
-// Watchman on `apps/client` when available (see configureMetroWatchmanEnv).
+// Watchman on `apps/client` when available (see setup-env.ts → EXPO_USE_WATCHMAN).
 // Node crawl must not watch `node_modules` — Bun symlinks resolve into
 // `node_modules/.bun` (~340k files) and hit EMFILE on macOS.
 config.resolver = {
@@ -325,7 +325,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
 
 // 4. Normalize HMR entry-point URLs from the web dev client.
 //    The browser sends its current page URL (e.g.
-//    `http://localhost:5173/more/server-status?platform=web`) to Metro's
+//    `http://localhost:5174/more/server-status?platform=web`) to Metro's
 //    HmrServer when registering an entry point. Two failure modes arise:
 //      a) Empty path (`/?platform=web`) — `jsc-safe-url.toJscSafeUrl` rejects
 //         with "empty path cannot be converted to a JSC-safe format".

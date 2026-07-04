@@ -51,8 +51,6 @@ function resolveVaultScope(): VaultScope {
 }
 
 function readApiUrlForDevVars(): string {
-  const preview = process.env['BETTER_AUTH_PREVIEW_API_URL']?.trim() ?? '';
-  if (preview.length > 0) return preview;
   const localPreview = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim() ?? '';
   if (localPreview.length > 0) {
     return normalizeLoopbackOriginToLocalhost(localPreview);

@@ -187,11 +187,9 @@ export default defineConfig({
       ...process.env,
       PREVIEW_PORT: String(QA_PREVIEW_PORT),
       DEV_IDP_PORT: String(QA_DEV_IDP_PORT),
-      BETTER_AUTH_PREVIEW_API_URL: baseURL,
-      EXPO_PUBLIC_API_URL: baseURL,
+      EXPO_PUBLIC_API_URL: LOCAL_API_PREVIEW_ORIGIN,
       EXPO_PUBLIC_E2E: '1',
-      API_URL: baseURL,
-      LOCAL_PREVIEW_API_PROXY_TARGET: LOCAL_API_PREVIEW_ORIGIN,
+      API_URL: LOCAL_API_PREVIEW_ORIGIN,
     },
   },
 });

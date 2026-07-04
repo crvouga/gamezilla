@@ -21,10 +21,8 @@ export function applyPlaywrightPreviewEnv(args: {
   const databaseUrl = process.env['DATABASE_URL']?.trim() ?? '';
   if (databaseUrl.length === 0) return false;
 
-  process.env['LOCAL_PREVIEW_API_PROXY_TARGET'] = args.localApiPreviewOrigin;
-  process.env['BETTER_AUTH_PREVIEW_API_URL'] = args.baseURL;
-  process.env['API_URL'] = args.baseURL;
-  process.env['EXPO_PUBLIC_API_URL'] = args.baseURL;
+  process.env['API_URL'] = args.localApiPreviewOrigin;
+  process.env['EXPO_PUBLIC_API_URL'] = args.localApiPreviewOrigin;
   process.env['EXPO_PUBLIC_E2E'] = '1';
   process.env['PREVIEW_PORT'] = String(QA_PREVIEW_PORT);
   process.env['DEV_IDP_PORT'] = String(QA_DEV_IDP_PORT);
@@ -42,24 +40,22 @@ export function applyPlaywrightPreviewEnv(args: {
   );
 
   assert.equals(
-    process.env['BETTER_AUTH_PREVIEW_API_URL'],
-    args.baseURL,
-    'BETTER_AUTH_PREVIEW_API_URL must match the web preview origin for same-origin OAuth'
-  );
-  assert.equals(
-    process.env['LOCAL_PREVIEW_API_PROXY_TARGET'],
-    args.localApiPreviewOrigin,
-    'LOCAL_PREVIEW_API_PROXY_TARGET must point at the wrangler preview worker'
-  );
-  assert.equals(
     process.env['API_URL'],
-    args.baseURL,
-    'API_URL must be the web preview origin (same-origin auth cookies)'
+    args.localApiPreviewOrigin,
+    'API_URL must point at wrangler dev for preview'
   );
   assert.equals(
     process.env['EXPO_PUBLIC_API_URL'],
-    args.baseURL,
-    'EXPO_PUBLIC_API_URL must match API_URL for the client export'
+    args.localApiPreviewOrigin,
+    'EXPO_PUBLIC_API_URL must point at wrangler dev for the client export'
+  );
+  assert.ok(
+    process.env['EXPO_PUBLIC_API_URL'] !== args.baseURL,
+    'static preview origin and API origin must differ (Bearer auth is cross-origin)',
+    {
+      apiUrl: process.env['EXPO_PUBLIC_API_URL'],
+      baseURL: args.baseURL,
+    }
   );
   assert.nonEmptyString(
     process.env['DATABASE_URL'],
@@ -75,7 +71,7 @@ export function assertPlaywrightPreviewEnvReady(): void {
     'Playwright browser tests require Vault dev secrets — run `bun run qa:browser` from the repo root (wraps `vault run`)'
   );
   assert.nonEmptyString(
-    process.env['LOCAL_PREVIEW_API_PROXY_TARGET'],
-    'LOCAL_PREVIEW_API_PROXY_TARGET must be set for the preview webServer'
+    process.env['EXPO_PUBLIC_API_URL'],
+    'EXPO_PUBLIC_API_URL must be set for the preview webServer'
   );
 }

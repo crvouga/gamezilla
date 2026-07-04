@@ -1,7 +1,7 @@
 /**
  * Dedicated loopback ports for Playwright `turbo preview` so `qa:browser` never
- * collides with `bun run dev` (:5173) or Expo Metro (:5174). Reusing the dev
- * port makes Playwright treat the SPA fallback on `/ready` as "server up" while
+ * collides with `bun run dev` (Metro :5174) or the default static preview (:5173).
+ * Reusing the dev port makes Playwright treat the SPA fallback on `/ready` as "server up" while
  * OAuth and dev-idp are absent or stale.
  */
 export const QA_PREVIEW_PORT = 5175;
