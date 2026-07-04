@@ -12,10 +12,12 @@ export type RunStripeListenArgs = {
   readonly writeQueue: WriteQueue;
 };
 
+const SHUTDOWN_EXIT = 130;
+
 function killListenChild(child: Subprocess): void {
   if (child.exitCode !== null) return;
   try {
-    child.kill('SIGINT');
+    child.kill('SIGKILL');
   } catch {
     // ignore
   }
@@ -30,34 +32,40 @@ export async function runStripeListenUntilExit(
   args: RunStripeListenArgs
 ): Promise<number> {
   const { child, onTranscriptLine, writeQueue } = args;
+  const abort = new AbortController();
 
-  const forwardSignal = (): void => {
+  const onShutdownSignal = (): void => {
+    abort.abort();
     killListenChild(child);
   };
-  process.on('SIGINT', forwardSignal);
-  process.on('SIGTERM', forwardSignal);
+  process.on('SIGINT', onShutdownSignal);
+  process.on('SIGTERM', onShutdownSignal);
 
   const pipeOut = readLinesFromStream(
     asReadableUint8Stream(child.stdout),
-    onTranscriptLine
+    onTranscriptLine,
+    abort.signal
   );
   const pipeErr = readLinesFromStream(
     asReadableUint8Stream(child.stderr),
-    onTranscriptLine
+    onTranscriptLine,
+    abort.signal
   );
 
   try {
     await Promise.all([pipeOut, pipeErr, child.exited]);
     await writeQueue.flush();
   } catch (e: unknown) {
+    if (abort.signal.aborted) return SHUTDOWN_EXIT;
     killListenChild(child);
     await child.exited.catch(() => {});
     throw e;
   } finally {
-    process.off('SIGINT', forwardSignal);
-    process.off('SIGTERM', forwardSignal);
+    process.off('SIGINT', onShutdownSignal);
+    process.off('SIGTERM', onShutdownSignal);
   }
 
+  if (abort.signal.aborted) return SHUTDOWN_EXIT;
   return await child.exited;
 }
 

@@ -9,10 +9,17 @@ export function asReadableUint8Stream(
   return stream;
 }
 
-/** Read `stream` line-by-line (LF split, strip CR) until EOF. */
+function readAbortError(signal: AbortSignal): Error {
+  return signal.reason instanceof Error
+    ? signal.reason
+    : new DOMException('Aborted', 'AbortError');
+}
+
+/** Read `stream` line-by-line (LF split, strip CR) until EOF or `signal` aborts. */
 export async function readLinesFromStream(
   stream: ReadableStream<Uint8Array> | undefined,
-  onLine: (line: string) => void
+  onLine: (line: string) => void,
+  signal?: AbortSignal
 ): Promise<void> {
   if (stream === undefined) return;
   const reader = stream.getReader();
@@ -20,6 +27,7 @@ export async function readLinesFromStream(
   let buf = '';
   try {
     for (;;) {
+      if (signal?.aborted === true) throw readAbortError(signal);
       const { done, value } = await reader.read();
       if (done) break;
       buf += dec.decode(value, { stream: true });
@@ -31,6 +39,11 @@ export async function readLinesFromStream(
     }
     if (buf.length > 0) onLine(buf.replace(/\r$/, ''));
   } finally {
+    try {
+      await reader.cancel();
+    } catch {
+      // stream may already be closed
+    }
     reader.releaseLock();
   }
 }

@@ -40,7 +40,7 @@
     "i18n:compile": "lingui compile --typescript && bun run scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
     "i18n:extract": "lingui extract",
     "infra": "VAULT_CONFIG=prd bun run scripts/vault-run.ts -- bun run libs/infra/src/bin/cli.ts",
-    "kill": "turbo kill",
+    "kill": "bun run scripts/kill-dev-stack.ts",
     "pg:monitoring": "bun run scripts/enable-pg-monitoring.ts",
     "preview": "bun run scripts/vault-run.ts -- turbo run preview --filter=@pkgs/dev-idp --filter=@apps/api --filter=@apps/client",
     "pw": "bun run --filter '@libs/qa' browser",

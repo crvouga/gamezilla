@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
-    "dev": "bun run --watch src/dev.ts",
+    "dev": "bun run src/dev.ts",
     "kill": "pkill -f '[s]tripe listen' 2>/dev/null || true",
     "lint": "eslint src --max-warnings 0",
     "setup": "bun -e \"process.exit(0)\"",
