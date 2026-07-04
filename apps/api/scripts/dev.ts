@@ -52,11 +52,10 @@ for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
   });
 }
 
-const migrate = spawnSync(
-  'bun',
-  ['run', 'scripts/migrate-db.ts', '--wait'],
-  { cwd: API_DIR, stdio: 'inherit' }
-);
+const migrate = spawnSync('bun', ['run', 'scripts/migrate-db.ts', '--wait'], {
+  cwd: API_DIR,
+  stdio: 'inherit',
+});
 if (migrate.status !== 0) {
   process.exit(migrate.status ?? 1);
 }
@@ -70,7 +69,13 @@ children.push(refresh);
 
 const wrangler = spawn(
   'wrangler',
-  ['dev', '--port', String(API_PORT), '--inspector-port', String(INSPECTOR_PORT)],
+  [
+    'dev',
+    '--port',
+    String(API_PORT),
+    '--inspector-port',
+    String(INSPECTOR_PORT),
+  ],
   { cwd: API_DIR, stdio: 'inherit' }
 );
 children.push(wrangler);
