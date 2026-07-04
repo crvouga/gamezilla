@@ -1,11 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-  capture,
-  captureVersionDiagnostic,
-  run,
-  verifyRun,
-} from '@pkgs/os';
+import { capture, captureVersionDiagnostic, run, verifyRun } from '@pkgs/os';
 import { INFRA_CLI_USER_AGENT as UA } from '../constants';
 import { REPO_ROOT } from '../paths';
 import type { Dep, DepStatus } from './types';
