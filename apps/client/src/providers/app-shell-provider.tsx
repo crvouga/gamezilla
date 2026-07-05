@@ -25,8 +25,6 @@ export function AppShellProvider({
   children: ReactNode;
 }): ReactNode {
   return (
-    <ComposeProviders providers={shellProviders}>
-      {children}
-    </ComposeProviders>
+    <ComposeProviders providers={shellProviders}>{children}</ComposeProviders>
   );
 }
