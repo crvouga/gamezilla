@@ -22,11 +22,7 @@ type BootState =
 /**
  * Builds patch-db once per app instance on top of the shared SQL client.
  */
-export function PatchDbBoot({
-  children,
-}: {
-  children: ReactNode;
-}): ReactNode {
+export function PatchDbBoot({ children }: { children: ReactNode }): ReactNode {
   const sql = useSqlClient();
   const config = useConfigService();
   const observability = useObservability();

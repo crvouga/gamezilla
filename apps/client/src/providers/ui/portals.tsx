@@ -5,11 +5,7 @@ import {
 } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-export function AppUiPortals({
-  children,
-}: {
-  children: ReactNode;
-}): ReactNode {
+export function AppUiPortals({ children }: { children: ReactNode }): ReactNode {
   return (
     <OverlayPortalProvider>
       <DismissibleBannerPortalProvider>
