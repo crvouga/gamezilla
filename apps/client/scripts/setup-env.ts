@@ -203,6 +203,31 @@ function resolveExpoPublicCommitDate(): string {
   return normalized;
 }
 
+async function resolveExpoPublicSentryDsn(
+  store: SecretStore | null
+): Promise<string | null> {
+  const fromEnv = trimStringOrNull(process.env['EXPO_PUBLIC_SENTRY_DSN']);
+  if (fromEnv !== null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_SENTRY_DSN from process env (e.g. vault run).\n'
+    );
+    return fromEnv;
+  }
+  if (store === null) return null;
+  const fromVault = (
+    await store.getOptional('EXPO_PUBLIC_SENTRY_DSN')
+  )?.readSecretValue();
+  const trimmed =
+    typeof fromVault === 'string' && fromVault.trim().length > 0
+      ? fromVault.trim()
+      : null;
+  if (trimmed !== null) {
+    process.stdout.write('[setup-env] EXPO_PUBLIC_SENTRY_DSN from Vault.\n');
+    return trimmed;
+  }
+  return null;
+}
+
 async function main(): Promise<void> {
   const raw = await resolveExpoPublicApiUrl();
   let origin = '';
@@ -226,11 +251,28 @@ async function main(): Promise<void> {
     monorepoRoot,
   });
 
+  let store: SecretStore | null = null;
+  try {
+    store = createVaultStore();
+  } catch {
+    store = null;
+  }
+
+  const sentryDsn = await resolveExpoPublicSentryDsn(store);
+  if (sentryDsn === null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_SENTRY_DSN unset; Sentry error reporting disabled in dev.\n'
+    );
+  }
+
   let body =
     `EXPO_PUBLIC_API_URL=${JSON.stringify(origin)}\n` +
     `EXPO_PUBLIC_COMMIT_HASH=${JSON.stringify(commitHash)}\n` +
     `EXPO_PUBLIC_COMMIT_DATE=${JSON.stringify(commitDate)}\n` +
     `EXPO_USE_WATCHMAN=${JSON.stringify(expoUseWatchman)}\n`;
+  if (sentryDsn !== null) {
+    body += `EXPO_PUBLIC_SENTRY_DSN=${JSON.stringify(sentryDsn)}\n`;
+  }
   if (e2eFlag !== null) {
     body += `EXPO_PUBLIC_E2E=${JSON.stringify(e2eFlag)}\n`;
   }

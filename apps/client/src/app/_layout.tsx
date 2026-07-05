@@ -2,6 +2,7 @@ import { AppProviders } from '@apps/client/providers/app-providers';
 import { RootErrorBoundary } from '@apps/client/providers/root-error-boundary';
 import { SpaceMiniplayer } from '@libs/spaces/client/miniplayer/space-miniplayer';
 import { Box, useStackProps } from '@pkgs/ui';
+import * as Sentry from '@sentry/react-native';
 import { Stack } from 'expo-router';
 import 'react-native-reanimated';
 
@@ -38,7 +39,7 @@ function AppStack() {
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <RootErrorBoundary>
       <AppProviders>
@@ -46,10 +47,11 @@ export default function RootLayout() {
           <Box sx={{ flex: 1, minHeight: 0 }}>
             <AppStack />
           </Box>
-          {/* eslint-disable-next-line lingui/no-unlocalized-strings -- internal slot id, not user-facing */}
-          <SpaceMiniplayer slot="root" />
+          <SpaceMiniplayer slot={'root' as const} />
         </Box>
       </AppProviders>
     </RootErrorBoundary>
   );
 }
+
+export default Sentry.wrap(RootLayout);

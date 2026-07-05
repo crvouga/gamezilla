@@ -63,7 +63,15 @@
       "expo-secure-store",
       "expo-web-browser",
       "expo-audio",
-      "expo-dev-client"
+      "expo-dev-client",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "organization": "gamezilla",
+          "project": "react-native"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -32,6 +32,7 @@
     "ci:syncpack": "syncpack lint --dependency-types prod,dev && bun run scripts/check-catalog-deps.ts && bun run scripts/check-no-patches.ts",
     "ci:tier-imports": "bun run scripts/check-tier-imports.ts",
     "client:ios": "bun run scripts/vault-run.ts -- bun run --filter @apps/client ios",
+    "client:sentry-dsn": "bun run --filter @apps/client setup:sentry-dsn",
     "db:migrate": "bun run scripts/vault-run.ts -- bun run --filter @apps/api db:migrate",
     "deps:graph": "bun run scripts/render-package-deps-graph.ts",
     "dev": "bun run scripts/vault-run.ts -- turbo dev --ui=tui",
@@ -195,5 +196,8 @@
     "workbox-window": "^7.4.0",
     "wrangler": "^4.54.0",
     "zod": "^4.3.6"
+  },
+  "dependencies": {
+    "@sentry/react-native": "^8.17.1"
   }
 }
