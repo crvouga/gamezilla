@@ -30,10 +30,12 @@ const appProviders = [
   AppGamesProvider,
 ];
 
+const USE_REACT_SCAN_DEV = false;
+
 export function AppProviders({ children }: { children: ReactNode }): ReactNode {
   return (
     <>
-      {true ? <ReactScanDev /> : null}
+      {USE_REACT_SCAN_DEV ? <ReactScanDev /> : null}
       <ComposeProviders providers={appProviders}>{children}</ComposeProviders>
     </>
   );

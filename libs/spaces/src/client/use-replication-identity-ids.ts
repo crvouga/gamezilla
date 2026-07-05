@@ -1,8 +1,4 @@
-import {
-  getCachedCurrentAccountId,
-  useCurrentAccountId,
-} from '@libs/auth/client/use-current-account-id';
-import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { useMyId } from '@libs/auth/client/use-current-user';
 import { useMemo } from 'react';
 
 import type {
@@ -14,26 +10,14 @@ import {
   SpaceMembershipAttr,
 } from '@libs/spaces/shared/space-entities';
 
-/** Stable install id + signed-in account id (when present). */
+/**
+ * Replication ids for space host/guest PatchDB queries. Matches {@link useMyId}:
+ * account id when signed in, install device id when anonymous — never both.
+ * Including device id after sign-in would keep anonymous-only spaces "live".
+ */
 export function useReplicationIdentityIds(): readonly string[] {
-  const accountId = useCurrentAccountId();
-  const deviceId = useDeviceId();
-  return useMemo(() => {
-    const ids: string[] = [];
-    if (accountId !== null && accountId.length > 0) ids.push(accountId);
-    const cachedAccountId = getCachedCurrentAccountId();
-    if (
-      cachedAccountId !== null &&
-      cachedAccountId.length > 0 &&
-      !ids.includes(cachedAccountId)
-    ) {
-      ids.push(cachedAccountId);
-    }
-    if (deviceId !== null && deviceId.length > 0 && !ids.includes(deviceId)) {
-      ids.push(deviceId);
-    }
-    return ids;
-  }, [accountId, deviceId]);
+  const myId = useMyId();
+  return useMemo(() => (myId.length > 0 ? [myId] : []), [myId]);
 }
 
 export function isReplicationHost(
