@@ -1,7 +1,4 @@
-import {
-  PatchDbContextProvider,
-  usePatchDbValue,
-} from '@pkgs/patch-db/react';
+import { PatchDbContextProvider, usePatchDbValue } from '@pkgs/patch-db/react';
 import { PortalContentBridgeProvider } from '@pkgs/ui';
 import { useCallback, type ReactNode } from 'react';
 
