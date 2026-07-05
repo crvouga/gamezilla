@@ -13,7 +13,9 @@ if (dsn !== null) {
   Sentry.init({
     dsn,
     debug: __DEV__,
-    environment: trimEnv('EXPO_PUBLIC_SENTRY_ENV') ?? (__DEV__ ? 'development' : 'production'),
+    environment:
+      trimEnv('EXPO_PUBLIC_SENTRY_ENV') ??
+      (__DEV__ ? 'development' : 'production'),
     tracesSampleRate: __DEV__ ? 1.0 : 0.2,
     integrations(integrations) {
       integrations.push(Sentry.expoRouterIntegration());

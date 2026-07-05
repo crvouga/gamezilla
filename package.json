@@ -68,6 +68,9 @@
     "undici": "7.28.0",
     "ws": "^8.21.0"
   },
+  "dependencies": {
+    "@sentry/react-native": "^8.17.1"
+  },
   "devDependencies": {
     "@lingui/cli": "catalog:",
     "@lingui/conf": "catalog:",
@@ -196,8 +199,5 @@
     "workbox-window": "^7.4.0",
     "wrangler": "^4.54.0",
     "zod": "^4.3.6"
-  },
-  "dependencies": {
-    "@sentry/react-native": "^8.17.1"
   }
 }
