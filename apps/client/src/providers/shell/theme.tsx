@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import { useAppFonts } from './fonts-context';
 
-export function AppThemeProvider({
+export function AppTheme({
   children,
 }: {
   children: ReactNode;

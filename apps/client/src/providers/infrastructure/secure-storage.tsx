@@ -2,7 +2,7 @@ import { createSecureStorage } from '@pkgs/secure-storage/create';
 import { SecureStorageContextProvider } from '@pkgs/secure-storage/interface';
 import { useMemo, type ReactNode } from 'react';
 
-export function SecureStorageProvider({
+export function AppSecureStorage({
   children,
 }: {
   children: ReactNode;

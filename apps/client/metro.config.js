@@ -89,6 +89,7 @@ config.resolver.unstable_enablePackageExports = true;
 //     Pin all such imports to the client's resolution.
 const dedupeAliasOrigin = path.join(projectRoot, 'package.json');
 const dedupeAliasPrefixes = [
+  '@gorhom/bottom-sheet',
   '@lingui/core',
   '@lingui/react',
   '@pkgs/patch-db',

@@ -7,10 +7,9 @@ import { useCallback, type ReactNode } from 'react';
 
 /**
  * Re-supplies patch-db context inside {@link ResponsiveSurface} portals
- * (`@gorhom/bottom-sheet` / `@gorhom/portal`), where the host subtree does
- * not inherit {@link PatchDbContextProvider}.
+ * (`@gorhom/bottom-sheet` / `@gorhom/portal`).
  */
-export function AppPortalContentBridgeProvider({
+export function AppPortalContentBridge({
   children,
 }: {
   children: ReactNode;
@@ -23,6 +22,8 @@ export function AppPortalContentBridgeProvider({
     [patchDb]
   );
   return (
-    <PortalContentBridgeProvider wrap={wrap}>{children}</PortalContentBridgeProvider>
+    <PortalContentBridgeProvider wrap={wrap}>
+      {children}
+    </PortalContentBridgeProvider>
   );
 }

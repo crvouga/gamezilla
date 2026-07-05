@@ -5,11 +5,11 @@ import { useEffect, useState, type ReactNode } from 'react';
 import {
   getMainSqliteDbName,
   openMainSqlClient,
-} from '../storage/open-main-sql-client';
+} from '../../storage/open-main-sql-client';
 import {
   LocalDatabaseBootErrorScreen,
   LocalDatabaseBootLoadingScreen,
-} from './local-database-boot-screen';
+} from './boot-screens';
 
 type BootState =
   | { phase: 'loading' }
@@ -18,13 +18,9 @@ type BootState =
 
 /**
  * Opens the single shared `main` SQLite database once per app instance and
- * exposes the resulting `SqlClient` via {@link SqlClientCtxProvider}. Consumers
- * (most notably `PatchDbProvider`) read it through `useSqlClient()`.
- *
- * Uses explicit boot phases instead of `React.use()` so OPFS lock / recovery
- * failures surface a recovery screen instead of an infinite Suspense spinner.
+ * exposes the resulting `SqlClient` via {@link SqlClientCtxProvider}.
  */
-export function SqlClientProvider({
+export function SqlClientBoot({
   children,
 }: {
   children: ReactNode;

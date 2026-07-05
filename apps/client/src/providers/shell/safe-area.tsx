@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export function SafeAreaProviderWrapper({
+export function AppSafeArea({
   children,
 }: {
   children: ReactNode;

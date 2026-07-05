@@ -5,12 +5,8 @@ import {
 import { GamesBootstrapFromPlugins } from '@libs/spaces/client/module/games-bootstrap-from-plugins';
 import type { ReactNode } from 'react';
 
-/**
- * Provides the composed `SpaceModule` and client games registry from the eager
- * `@libs/games` registry so the rest of the app can mount spaces / games without
- * any direct dependency on a specific game module.
- */
-export function GamesBootstrapProvider({
+/** Composed space module and client games registry from `@libs/games`. */
+export function AppGamesProvider({
   children,
 }: {
   children: ReactNode;

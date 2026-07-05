@@ -5,9 +5,9 @@ import { useMemo, type ReactNode } from 'react';
 import {
   clearLocalDatabaseAndReloadWithDeps,
   type PatchDbLocalDataDeps,
-} from '../patch-db/patch-db-local-data-impl';
+} from '../../patch-db/patch-db-local-data-impl';
 
-export function PatchDbLocalDataActionsProvider({
+export function PatchDbLocalDataActions({
   children,
 }: {
   children: ReactNode;

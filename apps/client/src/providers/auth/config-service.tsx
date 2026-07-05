@@ -1,8 +1,8 @@
 import { ConfigServiceProvider } from '@libs/auth/client/config-service-context';
-import { createConfigService } from '../config/create-config-service';
+import { createConfigService } from '../../config/create-config-service';
 import { useMemo, type ReactNode } from 'react';
 
-export function ConfigServiceProviderWrapper({
+export function AppConfigService({
   children,
 }: {
   children: ReactNode;

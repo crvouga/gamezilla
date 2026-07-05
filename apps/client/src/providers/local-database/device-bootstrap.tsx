@@ -4,12 +4,9 @@ import { usePatchDb } from '@pkgs/patch-db/react';
 import { useEffect, type ReactNode } from 'react';
 
 /**
- * Idempotently writes / refreshes the local `device/<deviceId>` entity. The
- * server-side `POST /auth/refresh` re-asserts the row authoritatively after
- * sign-in, so this is just a best-effort cold-start ping for the offline
- * "what device am I?" UX.
+ * Idempotently writes / refreshes the local `device/<deviceId>` entity.
  */
-export function DeviceEntityBootstrapProvider({
+export function DeviceEntityBootstrap({
   children,
 }: {
   children: ReactNode;

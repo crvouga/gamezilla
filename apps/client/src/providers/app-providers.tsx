@@ -1,80 +1,39 @@
-import { AuthBridge } from '@libs/auth/client/auth-bridge';
-import { AuthClientProvider } from '@libs/auth/client/auth-client-provider';
-import { AuthModalsProvider } from '@libs/auth/client/auth-modals-provider';
-import { ProfileProvider } from '@libs/profile/client/profile-provider';
-import { SpaceLifecycleModalProvider } from '@libs/spaces/client/lifecycle/space-lifecycle-modal-provider';
-import {
-  ComposeProviders,
-  preventSplashAutoHide,
-  SpinnerProvider,
-} from '@pkgs/ui';
+import { ComposeProviders, preventSplashAutoHide } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { ReactScanDev } from '../dev/react-scan-dev';
-import { ApiClientProviderWrapper } from './api-client-provider';
-import { AppI18nProviderWrapper } from './app-i18n-provider';
-import { AppThemeProvider } from './app-theme-provider';
-import { CommandRegistryProviderWrapper } from './command-registry-provider';
-import { ConfigServiceProviderWrapper } from './config-service-provider';
-import { DeviceEntityBootstrapProvider } from './device-entity-bootstrap-provider';
-import { FontsProvider } from './fonts-provider';
-import { GamesBootstrapProvider } from './games-bootstrap-provider';
-import { GestureHandlerProvider } from './gesture-handler-provider';
-import { KvProvider } from './kv-provider';
-import { LlmProviderWrapper } from './llm-provider';
-import { LoggerProvider } from './logger-provider';
-import { ObjectStoreProviderWrapper } from './object-store-provider';
-import { ObservabilityProvider } from './observability-provider';
-import { PatchDbLocalDataActionsProvider } from './patch-db-local-data-actions-provider';
-import { PatchDbProvider } from './patch-db-provider';
-import { AppPortalContentBridgeProvider } from './portal-content-bridge-provider';
-import { SafeAreaProviderWrapper } from './safe-area-provider';
-import { SecureStorageProvider } from './secure-storage-provider';
-import { SqlClientProvider } from './sql-client-provider';
-import { SqliteWebRecoveryGate } from './sqlite-web-recovery-gate';
-import { SuspenseRootProvider } from './suspense-root-provider';
-import { TtsProviderWrapper } from './tts-provider';
-import { UiPortalsProvider } from './ui-portals-provider';
+import { AppAuthProvider } from './app-auth-provider';
+import { AppGamesProvider } from './app-games-provider';
+import { AppInfrastructureProvider } from './app-infrastructure-provider';
+import { AppLocalDatabaseProvider } from './app-local-database-provider';
+import { AppServicesProvider } from './app-services-provider';
+import { AppShellProvider } from './app-shell-provider';
+import { AppUiProvider } from './app-ui-provider';
 
 void preventSplashAutoHide();
 
+/**
+ * App-wide provider stack (outermost → innermost).
+ *
+ * Ordering constraints:
+ * - Infrastructure (config, secure storage) before auth and services.
+ * - Local database (SQLite + patch-db) before UI (portal bridge reads patch-db).
+ * - UI (BottomSheetModalProvider) before modal hosts inside AppUiProvider.
+ */
 const appProviders = [
-  GestureHandlerProvider,
-  SafeAreaProviderWrapper,
-  FontsProvider,
-  KvProvider,
-  AppThemeProvider,
-  AppI18nProviderWrapper,
-  SpinnerProvider,
-  SecureStorageProvider,
-  ConfigServiceProviderWrapper,
-  AuthClientProvider,
-  SuspenseRootProvider,
-  LoggerProvider,
-  ObservabilityProvider,
-  ObjectStoreProviderWrapper,
-  LlmProviderWrapper,
-  TtsProviderWrapper,
-  ApiClientProviderWrapper,
-  SqlClientProvider,
-  SqliteWebRecoveryGate,
-  PatchDbProvider,
-  AppPortalContentBridgeProvider,
-  SpaceLifecycleModalProvider,
-  DeviceEntityBootstrapProvider,
-  PatchDbLocalDataActionsProvider,
-  ProfileProvider,
-  AuthBridge,
-  UiPortalsProvider,
-  AuthModalsProvider,
-  GamesBootstrapProvider,
-  CommandRegistryProviderWrapper,
+  AppShellProvider,
+  AppInfrastructureProvider,
+  AppAuthProvider,
+  AppServicesProvider,
+  AppLocalDatabaseProvider,
+  AppUiProvider,
+  AppGamesProvider,
 ];
 
 export function AppProviders({ children }: { children: ReactNode }): ReactNode {
   return (
     <>
-      {false && <ReactScanDev />}
+      {true ? <ReactScanDev /> : null}
       <ComposeProviders providers={appProviders}>{children}</ComposeProviders>
     </>
   );

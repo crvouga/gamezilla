@@ -1,13 +1,13 @@
 import { subscribeExpoSqliteWebFatalError } from '@pkgs/sql-client/impl-expo-sqlite';
 import { useEffect, useState, type ReactNode } from 'react';
 
-import { LocalDatabaseBootErrorScreen } from './local-database-boot-screen';
+import { LocalDatabaseBootErrorScreen } from './boot-screens';
 
 /**
  * When expo-sqlite's OPFS worker hits an unrecoverable I/O error mid-session,
  * show the same reset-local-data screen used at boot instead of a blank crash.
  */
-export function SqliteWebRecoveryGate({
+export function SqliteRecoveryGate({
   children,
 }: {
   children: ReactNode;

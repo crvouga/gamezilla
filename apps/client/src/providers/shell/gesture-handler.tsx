@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-export function GestureHandlerProvider({
+export function AppGestureHandler({
   children,
 }: {
   children: ReactNode;

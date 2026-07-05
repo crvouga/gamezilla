@@ -16,7 +16,7 @@ const nunitoFontStacks: Partial<FontStacks> = {
   rounded: String('Nunito_700Bold'),
 };
 
-export function FontsProvider({
+export function AppFontsProvider({
   children,
 }: {
   children: ReactNode;

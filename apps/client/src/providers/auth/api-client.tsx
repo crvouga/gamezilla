@@ -1,9 +1,9 @@
-import { ApiClientProvider } from '../api/api-context';
-import { createApiClient } from '../api/hc';
+import { ApiClientProvider } from '../../api/api-context';
+import { createApiClient } from '../../api/hc';
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useMemo, type ReactNode } from 'react';
 
-export function ApiClientProviderWrapper({
+export function AppApiClient({
   children,
 }: {
   children: ReactNode;

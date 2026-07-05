@@ -5,7 +5,7 @@ import {
 } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-export function UiPortalsProvider({
+export function AppUiPortals({
   children,
 }: {
   children: ReactNode;

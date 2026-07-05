@@ -3,7 +3,7 @@ import { isLocalApiOrigin } from '@libs/auth/shared/local-api-origin';
 import { ObservabilityProvider as BaseObservabilityProvider } from '@pkgs/observability/client/observability-provider';
 import { useMemo, type ReactNode } from 'react';
 
-export function ObservabilityProvider({
+export function AppObservability({
   children,
 }: {
   children: ReactNode;
