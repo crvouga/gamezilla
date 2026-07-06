@@ -59,14 +59,21 @@
       "entry": "src/dev.ts",
     },
     "libs/integration-test": {
-      "entry": ["scripts/kill-preview-ports.ts", "src/preview-stack-env.ts"],
+      "entry": [
+        "scripts/kill-preview-ports.ts",
+        "scripts/wait-for-api-health.ts",
+        "scripts/wait-for-browser-e2e-stack.ts",
+        "scripts/wait-for-native-e2e-stack.ts",
+        "scripts/clear-playwright-blob-lane.ts",
+        "scripts/merge-playwright-report.ts",
+        "playwright/playwright.config.ts",
+        "playwright/playwright.native.config.ts",
+        "playwright/playwright.merge.config.ts",
+        "src/preview-stack-env.ts"
+      ],
     },
     "apps/client": {
-      "entry": [
-        "e2e/playwright.config.ts",
-        "e2e/playwright.native.config.ts",
-        "src/integration/*.test.ts",
-      ],
+      "entry": ["src/integration/*.test.ts"],
     },
     "libs/infra": {
       "entry": "src/bin/cli.ts",

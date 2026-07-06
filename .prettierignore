@@ -9,8 +9,7 @@ dist
 # Generated files
 apps/client/src/i18n/locales/*/messages.ts
 apps/client/expo-env.d.ts
-apps/client/e2e/playwright-report/
-apps/client/e2e/test-results/
+qa/
 pkgs/postgres/.postgres/
 pkgs/postgres/.pglite/
 .cache

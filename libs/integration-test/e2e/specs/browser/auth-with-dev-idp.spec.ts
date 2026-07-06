@@ -1,12 +1,12 @@
 import { test } from '@playwright/test';
 
-import { expectAppBooted } from '@libs/integration-test/app-boot';
+import { expectAppBooted } from '../../../src/app-boot';
 import {
   createQaPlaywrightLog,
   playwrightStep,
-} from '@libs/integration-test/playwright-step';
+} from '../../../src/playwright-step';
 
-import { AuthDSL } from './dsl/auth';
+import { AuthDSL } from '../../dsl/auth';
 
 test('sign in and sign out with dev-idp', async ({ page }, testInfo) => {
   const log = createQaPlaywrightLog(testInfo);

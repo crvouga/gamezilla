@@ -3,7 +3,7 @@ import { expect, type Page } from '@playwright/test';
 import {
   openUserMenu,
   openUserMenuAndClick,
-} from '@libs/integration-test/chrome-menu';
+} from '../../src/chrome-menu';
 import {
   confirmSignOut,
   dismissSignInModalSuccess,
@@ -12,7 +12,7 @@ import {
   expectSignInModalSuccess,
   expectSignOutModalLoading,
   expectSignOutModalSuccess,
-} from '@libs/integration-test/mutation-phases';
+} from '../../src/mutation-phases';
 
 import {
   expectDevIdpChooser,

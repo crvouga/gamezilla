@@ -4,9 +4,6 @@
   "workspaces": {
     "": {
       "name": "gamezilla",
-      "dependencies": {
-        "@sentry/react-native": "^8.17.1",
-      },
       "devDependencies": {
         "@lingui/cli": "catalog:",
         "@lingui/conf": "catalog:",
@@ -157,7 +154,6 @@
       "devDependencies": {
         "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@pkgs/os": "workspace:*",
-        "@playwright/test": "catalog:",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
@@ -207,7 +203,6 @@
         "react-native": "catalog:",
       },
       "devDependencies": {
-        "@playwright/test": "catalog:",
         "@types/pg": "catalog:",
         "@types/react": "catalog:",
         "typescript": "catalog:",
@@ -241,7 +236,6 @@
         "react-native": "catalog:",
       },
       "devDependencies": {
-        "@playwright/test": "catalog:",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@types/react": "catalog:",

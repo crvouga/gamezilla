@@ -42,7 +42,7 @@ export type ApiWorkerEnv = {
   /** Mirrored from Vault `dev` by `setup-dev-vars` for local Google OAuth. */
   WEB_CLIENT_GOOGLE_CLIENT_SECRET?: string;
   /**
-   * Optional dev IdP TCP port (e.g. `5557` for Playwright QA). Written into
+   * Optional dev IdP TCP port override (default `5556`). Written into
    * `.dev.vars` by `setup-dev-vars` when turbo preview sets `DEV_IDP_PORT`.
    */
   DEV_IDP_PORT?: string;

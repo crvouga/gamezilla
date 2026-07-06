@@ -1,0 +1,140 @@
+import { execFileSync } from 'node:child_process';
+
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from './local-api-preview';
+
+/** Expo web — `bun dev` (Metro) and `bun preview` (static export) both use :5173. */
+export const DEV_CLIENT_PORT = 5173;
+
+/** Dev IdP — matches {@link @pkgs/dev-idp} default. */
+export const DEV_IDP_PORT = 5556;
+
+export const DEV_CLIENT_BASE_URL = `http://localhost:${String(DEV_CLIENT_PORT)}`;
+
+const DEV_IDP_AUTHORIZE_URL = `http://127.0.0.1:${String(DEV_IDP_PORT)}/dev-idp/authorize`;
+
+/** Dev-mode web bundle server for native launch E2E (`expo export --dev` + serve). */
+export const NATIVE_E2E_PORT = 5174;
+
+export const NATIVE_E2E_BASE_URL = `http://localhost:${String(NATIVE_E2E_PORT)}`;
+
+export type LocalE2eStack = {
+  readonly baseURL: string;
+  readonly readyURL: string;
+};
+
+type StackProbe = {
+  readonly label: string;
+  readonly url: string;
+  readonly ok: boolean;
+};
+
+function probeHttpOkSync(url: string): boolean {
+  try {
+    execFileSync('curl', ['-sf', '--max-time', '2', '-o', '/dev/null', url], {
+      stdio: 'ignore',
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function devStackProbes(apiOrigin: string): StackProbe[] {
+  return [
+    {
+      label: 'API health',
+      url: `${apiOrigin}/api/health`,
+      ok: probeHttpOkSync(`${apiOrigin}/api/health`),
+    },
+    {
+      label: 'Dev IdP authorize',
+      url: DEV_IDP_AUTHORIZE_URL,
+      ok: probeHttpOkSync(DEV_IDP_AUTHORIZE_URL),
+    },
+    {
+      label: 'Web client',
+      url: `${DEV_CLIENT_BASE_URL}/`,
+      ok: probeHttpOkSync(`${DEV_CLIENT_BASE_URL}/`),
+    },
+  ];
+}
+
+function devStackReady(apiOrigin: string): boolean {
+  return devStackProbes(apiOrigin).every((probe) => probe.ok);
+}
+
+function formatProbeList(probes: StackProbe[]): string {
+  return probes
+    .map((probe) => `  • ${probe.label}: ${probe.url} ${probe.ok ? '✓' : '✗'}`)
+    .join('\n');
+}
+
+function browserStackNotRunningMessage(apiOrigin: string): string {
+  return [
+    '',
+    '══════════════════════════════════════════════════════════════════',
+    '  Browser E2E / integration tests require a running dev stack',
+    '══════════════════════════════════════════════════════════════════',
+    '',
+    'Integration tests do not start servers. Required endpoints:',
+    formatProbeList(devStackProbes(apiOrigin)),
+    '',
+    'Start the stack (same ports for dev and QA):',
+    '  bun dev       # client :5173, IdP :5556, API :8788',
+    '  bun preview   # static export on :5173, IdP :5556, API :8788',
+    '',
+    'Then re-run:',
+    '  bun qa:browser   or   bun pw',
+    '',
+  ].join('\n');
+}
+
+/**
+ * Returns the local browser E2E stack when dev ports are healthy, or throws
+ * with a loud message when nothing is running.
+ */
+export function requireLocalE2eStackSync(
+  apiOrigin: string = DEFAULT_LOCAL_PREVIEW_API_ORIGIN
+): LocalE2eStack {
+  if (!devStackReady(apiOrigin)) {
+    throw new Error(browserStackNotRunningMessage(apiOrigin));
+  }
+  return {
+    baseURL: DEV_CLIENT_BASE_URL,
+    readyURL: `${DEV_CLIENT_BASE_URL}/`,
+  };
+}
+
+/** @deprecated Use {@link requireLocalE2eStackSync}. */
+export function detectLocalE2eStackSync(
+  apiOrigin: string = DEFAULT_LOCAL_PREVIEW_API_ORIGIN
+): LocalE2eStack {
+  return requireLocalE2eStackSync(apiOrigin);
+}
+
+export function assertNativeE2eStackRunningSync(
+  baseURL: string = NATIVE_E2E_BASE_URL
+): void {
+  const url = `${baseURL}/`;
+  if (probeHttpOkSync(url)) return;
+
+  throw new Error(
+    [
+      '',
+      '══════════════════════════════════════════════════════════════════',
+      '  Native launch E2E requires a running dev web bundle server',
+      '══════════════════════════════════════════════════════════════════',
+      '',
+      'Playwright does not export or serve the bundle. Expected:',
+      `  • ${url} ✗`,
+      '',
+      'Start the server, then re-run:',
+      '  bun run --filter @apps/client qa:export:web-dev',
+      `  bun --bun x serve -s apps/client/.qa-dist-dev -l ${String(NATIVE_E2E_PORT)}`,
+      '',
+      'Then:',
+      '  bun qa:native',
+      '',
+    ].join('\n')
+  );
+}

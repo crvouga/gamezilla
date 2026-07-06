@@ -31,7 +31,7 @@ module.exports = [
     },
   },
   {
-    files: ['**/*.test.{ts,tsx}'],
+    files: ['**/*.{test,spec}.{ts,tsx}'],
     rules: {
       'lingui/no-unlocalized-strings': 'off',
       'lingui/t-call-in-function': 'off',

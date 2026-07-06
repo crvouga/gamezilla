@@ -92,6 +92,41 @@ function spawnPackageScript(
   };
 }
 
+/** Fail fast when a required server is not already running. */
+export async function assertHttpOk(
+  url: string,
+  opts: {
+    readonly label: string;
+    readonly startHint: string;
+  }
+): Promise<void> {
+  let lastErr: string | undefined;
+  try {
+    const res = await fetch(url);
+    if (res.ok) return;
+    lastErr = `HTTP ${String(res.status)}`;
+  } catch (e) {
+    lastErr = e instanceof Error ? e.message : String(e);
+  }
+
+  throw new Error(
+    [
+      '',
+      '══════════════════════════════════════════════════════════════════',
+      `  ${opts.label} is not running`,
+      '══════════════════════════════════════════════════════════════════',
+      '',
+      'Integration tests do not start servers.',
+      '',
+      `Probe failed: ${url}`,
+      `Last error: ${lastErr ?? 'unknown'}`,
+      '',
+      opts.startHint,
+      '',
+    ].join('\n')
+  );
+}
+
 export async function waitForHttpOk(
   url: string,
   opts: {

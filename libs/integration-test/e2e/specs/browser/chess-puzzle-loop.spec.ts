@@ -3,9 +3,9 @@ import { expect, test } from '@playwright/test';
 import {
   createQaPlaywrightLog,
   playwrightStep,
-} from '@libs/integration-test/playwright-step';
+} from '../../../src/playwright-step';
 
-import { createAppSession } from './app-session';
+import { createAppSession } from '../../session/app-session';
 
 test('chess puzzle loop: solve puzzles, elo summary, stats', async ({
   page,

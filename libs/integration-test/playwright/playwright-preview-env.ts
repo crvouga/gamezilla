@@ -2,11 +2,7 @@ import { assertDevVaultConfig } from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
 import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
 
-import { previewStackEnv } from '@libs/integration-test/preview-stack-env';
-import {
-  QA_DEV_IDP_PORT,
-  QA_PREVIEW_PORT,
-} from '@libs/integration-test/qa-preview-ports';
+import { previewStackEnv } from '../src/preview-stack-env';
 
 /**
  * Applies Vault-backed preview env when `DATABASE_URL` is already injected
@@ -24,8 +20,6 @@ export function applyPlaywrightPreviewEnv(args: {
   process.env['API_URL'] = args.localApiPreviewOrigin;
   process.env['EXPO_PUBLIC_API_URL'] = args.localApiPreviewOrigin;
   process.env['EXPO_PUBLIC_E2E'] = '1';
-  process.env['PREVIEW_PORT'] = String(QA_PREVIEW_PORT);
-  process.env['DEV_IDP_PORT'] = String(QA_DEV_IDP_PORT);
 
   const previewEnv = previewStackEnv();
   process.env['DATABASE_URL'] = previewEnv['DATABASE_URL']!;
@@ -72,6 +66,6 @@ export function assertPlaywrightPreviewEnvReady(): void {
   );
   assert.nonEmptyString(
     process.env['EXPO_PUBLIC_API_URL'],
-    'EXPO_PUBLIC_API_URL must be set for the preview webServer'
+    'EXPO_PUBLIC_API_URL must be set for browser E2E against a running stack'
   );
 }

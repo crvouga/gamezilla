@@ -5,7 +5,6 @@
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./scripts/**/*.ts",
-    "./e2e/**/*.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
   ],

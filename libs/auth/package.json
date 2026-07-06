@@ -16,16 +16,12 @@
     "./shared/*": [
       "./src/shared/*.ts",
       "./src/shared/*.tsx"
-    ],
-    "./e2e/*": [
-      "./src/e2e/*.ts",
-      "./src/e2e/**/*.ts"
     ]
   },
   "scripts": {
-    "lint": "eslint src --max-warnings 0 --ignore-pattern 'src/e2e/**'",
+    "lint": "eslint src --max-warnings 0",
     "tc": "tsc --noEmit",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/e2e/**'"
+    "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
     "@better-auth/core": "catalog:",
@@ -57,7 +53,6 @@
     "react-native": "catalog:"
   },
   "devDependencies": {
-    "@playwright/test": "catalog:",
     "@types/pg": "catalog:",
     "@types/react": "catalog:",
     "typescript": "catalog:"

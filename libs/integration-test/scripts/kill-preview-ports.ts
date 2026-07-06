@@ -1,3 +1,3 @@
-import { ensureQaPreviewPortsFree } from '../src/ensure-qa-preview-ports-free';
+import { ensureDevStackPortsFree } from '../src/ensure-dev-stack-ports-free';
 
-ensureQaPreviewPortsFree();
+ensureDevStackPortsFree();

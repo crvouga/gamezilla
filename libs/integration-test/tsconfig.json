@@ -4,7 +4,9 @@
     "../../pkgs/ts-reset/src/index.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
-    "./scripts/**/*.ts"
+    "./scripts/**/*.ts",
+    "./playwright/**/*.ts",
+    "./e2e/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

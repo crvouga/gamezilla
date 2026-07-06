@@ -1,9 +1,9 @@
 import type { Page } from '@playwright/test';
 
-import { AuthDSL } from '@libs/auth/e2e/dsl/auth';
-import { expectAppBooted } from '@libs/integration-test/app-boot';
+import { expectAppBooted } from '../../src/app-boot';
 
-import { ChessDSL } from './dsl/chess';
+import { AuthDSL } from '../dsl/auth';
+import { ChessDSL } from '../dsl/chess';
 
 /** Facade for a single browser session against the web app. */
 export class AppSession {
