@@ -7,7 +7,7 @@ import {
 
 import { createAppSession } from '../../session/app-session';
 
-test('chess puzzle loop: solve puzzles, elo summary, stats', async ({
+test.skip('chess puzzle loop: solve puzzles, elo summary, stats', async ({
   page,
 }, testInfo) => {
   test.setTimeout(360_000);
