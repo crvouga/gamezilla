@@ -45,7 +45,7 @@ const ENTRYPOINTS: readonly EntrypointRule[] = [
     mustInclude: ['isLoopbackPostgresUrl'],
   },
   {
-    file: 'libs/qa/src/constants/preview-stack-env.ts',
+    file: 'libs/integration-test/src/preview-stack-env.ts',
     mustInclude: ['assertDevVaultConfig', 'isLoopbackPostgresUrl'],
   },
 ];

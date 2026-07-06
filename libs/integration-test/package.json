@@ -1,0 +1,31 @@
+{
+  "name": "@libs/integration-test",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "kill-preview-ports": "bun run scripts/kill-preview-ports.ts",
+    "lint": "eslint src scripts --max-warnings 0",
+    "tc": "tsc --noEmit -p ./tsconfig.json"
+  },
+  "dependencies": {
+    "@libs/infra": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/os": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
+    "@pkgs/sql-client": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

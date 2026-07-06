@@ -35,9 +35,10 @@ export function extractPropagationContext(
   return undefined;
 }
 
-export function readPropagationCarrier(
-  carrier: Record<string, string>
-): { sentryTrace?: string; baggage?: string } {
+export function readPropagationCarrier(carrier: Record<string, string>): {
+  sentryTrace?: string;
+  baggage?: string;
+} {
   const sentryTrace = carrier[SENTRY_TRACE_HEADER];
   const baggage = carrier[SENTRY_BAGGAGE_HEADER];
   return {

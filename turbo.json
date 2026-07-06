@@ -78,8 +78,21 @@
       "persistent": true,
       "cache": false
     },
-    "qa": {
-      "cache": false
+    "test:integration": {
+      "dependsOn": ["^tc"],
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.test.ts", "**/integration/**"],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:e2e": {
+      "dependsOn": ["^tc"],
+      "cache": false,
+      "outputs": ["e2e/playwright-report/**", "e2e/test-results/**"]
+    },
+    "test:e2e:native": {
+      "dependsOn": ["^tc"],
+      "cache": false,
+      "outputs": ["e2e/playwright-report/**", "e2e/test-results/**"]
     },
     "//#ci:format": {
       "inputs": ["$TURBO_DEFAULT$"],
@@ -155,7 +168,7 @@
         "libs/stripe/src/script-runtime.ts",
         "libs/chess/src/server/seed-chess-puzzle/chess-puzzle-seeder.ts",
         "pkgs/dev-idp/src/dev-server.ts",
-        "libs/qa/src/constants/preview-stack-env.ts",
+        "libs/integration-test/src/preview-stack-env.ts",
         "scripts/check-database-url-policy.ts"
       ],
       "outputs": [],

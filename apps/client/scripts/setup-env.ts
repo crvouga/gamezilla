@@ -275,7 +275,8 @@ async function main(): Promise<void> {
   }
 
   const sentryDsn = await resolveExpoPublicSentryDsn(store);
-  const observabilityBackend = await resolveExpoPublicObservabilityBackend(store);
+  const observabilityBackend =
+    await resolveExpoPublicObservabilityBackend(store);
   if (sentryDsn === null) {
     process.stdout.write(
       '[setup-env] EXPO_PUBLIC_SENTRY_DSN unset; Sentry error reporting disabled in dev.\n'

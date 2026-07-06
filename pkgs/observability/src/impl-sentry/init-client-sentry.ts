@@ -16,7 +16,9 @@ function trimEnv(key: string): string | null {
 }
 
 function isSentryBackendEnabled(): boolean {
-  return trimEnv('EXPO_PUBLIC_OBSERVABILITY_BACKEND')?.toLowerCase() === 'sentry';
+  return (
+    trimEnv('EXPO_PUBLIC_OBSERVABILITY_BACKEND')?.toLowerCase() === 'sentry'
+  );
 }
 
 export function initClientSentry(): boolean {

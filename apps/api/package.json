@@ -21,7 +21,8 @@
     "stripe:check": "bun run --filter @libs/stripe check",
     "stripe:sync": "bun run --filter @libs/stripe sync",
     "tc": "tsc --noEmit -p ../../tsconfig.json",
-    "test": "bun test"
+    "test": "bun test --path-ignore-patterns='**/integration/**'",
+    "test:integration": "bun test src/integration/"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -29,6 +30,7 @@
     "@libs/client-config": "workspace:*",
     "@libs/games": "workspace:*",
     "@libs/infra": "workspace:*",
+    "@libs/integration-test": "workspace:*",
     "@libs/profile": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@libs/stripe": "workspace:*",

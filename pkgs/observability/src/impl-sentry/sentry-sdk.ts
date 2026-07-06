@@ -11,9 +11,11 @@ export type SentrySdk = {
   ) => T;
   readonly spanToTraceparentHeader: (span: SentrySpanType) => string;
   readonly spanToTraceHeader: (span: SentrySpanType) => string;
-  readonly spanContext: (
-    span: SentrySpanType
-  ) => { traceId: string; spanId: string; traceFlags: number };
+  readonly spanContext: (span: SentrySpanType) => {
+    traceId: string;
+    spanId: string;
+    traceFlags: number;
+  };
   readonly continueTrace: <T>(
     options: { sentryTrace?: string; baggage?: string },
     callback: () => T

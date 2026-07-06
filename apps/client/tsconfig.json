@@ -5,6 +5,7 @@
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./scripts/**/*.ts",
+    "./e2e/**/*.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
   ],
@@ -17,7 +18,9 @@
       "@pkgs/assistant/client": ["../../pkgs/assistant/src/client/index.ts"],
       "@libs/auth/*": ["../../libs/auth/src/*"],
       "@libs/chess/*": ["../../libs/chess/src/*"],
+      "@libs/integration-test/*": ["../../libs/integration-test/src/*"],
       "@libs/client-config/*": ["../../libs/client-config/src/*"],
+      "@libs/infra/*": ["../../libs/infra/src/*"],
       "@pkgs/llm/*": ["../../pkgs/llm/src/*"],
       "@libs/profile/*": ["../../libs/profile/src/*"],
       "@libs/spaces/*": ["../../libs/spaces/src/*"],

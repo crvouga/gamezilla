@@ -58,11 +58,14 @@
     "libs/stripe-cli": {
       "entry": "src/dev.ts",
     },
-    "libs/qa": {
+    "libs/integration-test": {
+      "entry": ["scripts/kill-preview-ports.ts", "src/preview-stack-env.ts"],
+    },
+    "apps/client": {
       "entry": [
-        "src/playwright/playwright.config.ts",
-        "src/playwright/playwright.native.config.ts",
-        "src/native/*.test.ts",
+        "e2e/playwright.config.ts",
+        "e2e/playwright.native.config.ts",
+        "src/integration/*.test.ts",
       ],
     },
     "libs/infra": {

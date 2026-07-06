@@ -14,13 +14,17 @@
     "./shared/*": [
       "./src/shared/*.ts",
       "./src/shared/*.tsx"
+    ],
+    "./e2e/*": [
+      "./src/e2e/*.ts",
+      "./src/e2e/**/*.ts"
     ]
   },
   "scripts": {
-    "lint": "eslint src scripts --max-warnings 0",
+    "lint": "eslint src scripts --max-warnings 0 --ignore-pattern 'src/e2e/**'",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/e2e/**'"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -47,6 +51,7 @@
     "react-native": "catalog:"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@types/react": "catalog:",

@@ -288,11 +288,13 @@ const workerHandler = {
   },
 } satisfies ExportedHandler<ApiWorkerEnv>;
 
-function sentryWorkerOptions(env: ApiWorkerEnv): {
-  dsn: string;
-  tracesSampleRate: number;
-  environment: string;
-} | Record<string, never> {
+function sentryWorkerOptions(env: ApiWorkerEnv):
+  | {
+      dsn: string;
+      tracesSampleRate: number;
+      environment: string;
+    }
+  | Record<string, never> {
   const backend = env.OBSERVABILITY_BACKEND?.trim().toLowerCase();
   const dsn = env.SENTRY_DSN?.trim();
   if (backend !== 'sentry' || dsn === undefined || dsn.length === 0) {

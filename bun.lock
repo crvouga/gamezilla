@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "gamezilla",
+      "dependencies": {
+        "@sentry/react-native": "^8.17.1",
+      },
       "devDependencies": {
         "@lingui/cli": "catalog:",
         "@lingui/conf": "catalog:",
@@ -38,6 +41,7 @@
         "@libs/client-config": "workspace:*",
         "@libs/games": "workspace:*",
         "@libs/infra": "workspace:*",
+        "@libs/integration-test": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@libs/stripe": "workspace:*",
@@ -84,6 +88,7 @@
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
         "@libs/games": "workspace:*",
+        "@libs/integration-test": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
@@ -152,6 +157,7 @@
       "devDependencies": {
         "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@pkgs/os": "workspace:*",
+        "@playwright/test": "catalog:",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
@@ -201,6 +207,7 @@
         "react-native": "catalog:",
       },
       "devDependencies": {
+        "@playwright/test": "catalog:",
         "@types/pg": "catalog:",
         "@types/react": "catalog:",
         "typescript": "catalog:",
@@ -234,6 +241,7 @@
         "react-native": "catalog:",
       },
       "devDependencies": {
+        "@playwright/test": "catalog:",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@types/react": "catalog:",
@@ -297,6 +305,24 @@
         "typescript": "catalog:",
       },
     },
+    "libs/integration-test": {
+      "name": "@libs/integration-test",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/infra": "workspace:*",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/os": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+      },
+      "devDependencies": {
+        "@playwright/test": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/profile": {
       "name": "@libs/profile",
       "version": "0.0.0",
@@ -320,26 +346,6 @@
       "devDependencies": {
         "@types/react": "catalog:",
         "typescript": "catalog:",
-      },
-    },
-    "libs/qa": {
-      "name": "@libs/qa",
-      "version": "1.0.0",
-      "dependencies": {
-        "@libs/client-config": "workspace:*",
-        "@libs/infra": "workspace:*",
-        "@pkgs/assert": "workspace:*",
-        "@pkgs/logger": "workspace:*",
-        "@pkgs/os": "workspace:*",
-        "@pkgs/secret-store": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-      },
-      "devDependencies": {
-        "@playwright/test": "catalog:",
-        "@types/bun": "catalog:",
-        "@types/node": "catalog:",
-        "typescript": "catalog:",
-        "wrangler": "catalog:",
       },
     },
     "libs/spaces": {
@@ -1787,9 +1793,9 @@
 
     "@libs/infra": ["@libs/infra@workspace:libs/infra"],
 
-    "@libs/profile": ["@libs/profile@workspace:libs/profile"],
+    "@libs/integration-test": ["@libs/integration-test@workspace:libs/integration-test"],
 
-    "@libs/qa": ["@libs/qa@workspace:libs/qa"],
+    "@libs/profile": ["@libs/profile@workspace:libs/profile"],
 
     "@libs/spaces": ["@libs/spaces@workspace:libs/spaces"],
 

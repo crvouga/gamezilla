@@ -183,13 +183,13 @@ jobs:
       # Resolve the actually-installed @playwright/test version (not the
       # caret range from package.json) so the browser cache key only
       # invalidates when Playwright itself bumps -- not on every unrelated
-      # bun.lock change. Resolved from libs/qa because that's the package
+      # bun.lock change. Resolved from apps/client because that's the package
       # that lists @playwright/test as a devDependency (bun install uses
       # isolated node_modules, so the package is not resolvable from repo
       # root). See https://playwright.dev/docs/ci#caching-browsers.
       - name: Resolve Playwright version
         id: playwright
-        working-directory: libs/qa
+        working-directory: apps/client
         run: |
           version=$(node -p "require('@playwright/test/package.json').version")
           echo "version=$version" >> "$GITHUB_OUTPUT"
@@ -208,7 +208,7 @@ jobs:
       # browser binary needs its system libs reinstalled each run.
       - name: Install Playwright browsers (cache miss)
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: bun run --filter '@libs/qa' install:browsers
+        run: bun run --filter '@apps/client' install:browsers
 
       - name: Install Playwright system deps (cache hit)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
@@ -220,7 +220,7 @@ jobs:
 
       # Always upload the report (not just on failure) so the embedded
       # videos -- recorded for every test via `video: 'on'` in
-      # `libs/qa/src/playwright/playwright.config.ts` -- are available for
+      # `apps/client/e2e/playwright.config.ts` -- are available for
       # green runs too. `if: always()` excludes only manually cancelled
       # runs; use `if: !cancelled()` if you want those too.
       - name: Upload Playwright report
@@ -228,14 +228,14 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: playwright-report
-          path: libs/qa/playwright-report/
+          path: apps/client/e2e/playwright-report/
           retention-days: 7
 
       - name: Upload Playwright report as Pages artifact
-        if: ${{ always() && hashFiles('libs/qa/playwright-report/index.html') != '' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ always() && hashFiles('apps/client/e2e/playwright-report/index.html') != '' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         uses: actions/upload-pages-artifact@v5
         with:
-          path: libs/qa/playwright-report/
+          path: apps/client/e2e/playwright-report/
 
   # Pre-deploy client release gates. The web `qa-browser` job builds a
   # PRODUCTION web export (`__DEV__ === false`), so it structurally cannot
@@ -272,13 +272,13 @@ jobs:
       # ship when Metro inlined a loopback `EXPO_PUBLIC_API_URL`.
       - uses: ./.github/actions/vault-auth
       - name: Production client bundle API URL gate
-        run: bun run --filter '@libs/qa' native:bundle
+        run: bun run qa:production-client
 
       # Chromium for the dev-mode web launch test (same caching strategy as
       # qa-browser: key on the resolved Playwright version, not the lockfile).
       - name: Resolve Playwright version
         id: playwright
-        working-directory: libs/qa
+        working-directory: apps/client
         run: |
           version=$(node -p "require('@playwright/test/package.json').version")
           echo "version=$version" >> "$GITHUB_OUTPUT"
@@ -293,21 +293,21 @@ jobs:
 
       - name: Install Playwright browsers (cache miss)
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: bun run --filter '@libs/qa' install:browsers
+        run: bun run --filter '@apps/client' install:browsers
 
       - name: Install Playwright system deps (cache hit)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: bun --bun x playwright install-deps chromium
 
       - name: Expo Go dev-bundle launch test
-        run: bun run --filter '@libs/qa' native:launch
+        run: bun run --filter '@apps/client' test:e2e:native
 
       - name: Upload native launch Playwright report
         if: always()
         uses: actions/upload-artifact@v6
         with:
           name: qa-native-playwright-report
-          path: libs/qa/playwright-report/
+          path: apps/client/e2e/playwright-report/
           retention-days: 7
 
   # Deploy the HTML report to GitHub Pages on every main push — green or

@@ -53,7 +53,8 @@ export function createLoggerObservability(
   options: LoggerObservabilityOptions
 ): Observability {
   const logger =
-    options.logger ?? createLogger({ name: options.serviceName, level: 'info' });
+    options.logger ??
+    createLogger({ name: options.serviceName, level: 'info' });
   const storage = options.storage ?? new InMemorySpanContextStorage();
 
   return new BaseObservability({

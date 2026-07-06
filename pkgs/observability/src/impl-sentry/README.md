@@ -6,22 +6,22 @@ Sentry is **dormant by default**. DSN secrets alone do not activate it.
 
 ## Defaults (without explicit backend)
 
-| Surface | Dev | Prod |
-| --- | --- | --- |
-| Client | `local-file` | `logger` |
-| API | `local-file` | `logger` |
+| Surface | Dev          | Prod     |
+| ------- | ------------ | -------- |
+| Client  | `local-file` | `logger` |
+| API     | `local-file` | `logger` |
 
 ## Opt-in activation
 
 Set `OBSERVABILITY_BACKEND=sentry` (API) and `EXPO_PUBLIC_OBSERVABILITY_BACKEND=sentry` (client), plus DSN secrets:
 
-| Secret / env | Surface | Purpose |
-| --- | --- | --- |
-| `EXPO_PUBLIC_SENTRY_DSN` | Client | `Sentry.init` + client adapter |
-| `EXPO_PUBLIC_OBSERVABILITY_BACKEND=sentry` | Client | Required to enable Sentry |
-| `SENTRY_DSN` | API Worker | `Sentry.withSentry` + server adapter |
-| `OBSERVABILITY_BACKEND=sentry` | API Worker | Required to enable Sentry |
-| `SENTRY_AUTH_TOKEN` | Scripts only | `bun run client:sentry-dsn` |
+| Secret / env                               | Surface      | Purpose                              |
+| ------------------------------------------ | ------------ | ------------------------------------ |
+| `EXPO_PUBLIC_SENTRY_DSN`                   | Client       | `Sentry.init` + client adapter       |
+| `EXPO_PUBLIC_OBSERVABILITY_BACKEND=sentry` | Client       | Required to enable Sentry            |
+| `SENTRY_DSN`                               | API Worker   | `Sentry.withSentry` + server adapter |
+| `OBSERVABILITY_BACKEND=sentry`             | API Worker   | Required to enable Sentry            |
+| `SENTRY_AUTH_TOKEN`                        | Scripts only | `bun run client:sentry-dsn`          |
 
 Populate DSN secrets via:
 

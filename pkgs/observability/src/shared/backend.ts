@@ -1,8 +1,4 @@
-export type ObservabilityBackend =
-  | 'noop'
-  | 'local-file'
-  | 'logger'
-  | 'sentry';
+export type ObservabilityBackend = 'noop' | 'local-file' | 'logger' | 'sentry';
 
 export const DEFAULT_COLLECTOR_URL = 'http://127.0.0.1:8799';
 
