@@ -33,7 +33,29 @@ export type SyncPushDeps = {
   ) => void;
   applyChunkPushWriteResult: (result: WritePatchesResult) => Promise<void>;
   poll: () => Promise<void>;
+  /** When true, patch is dropped from the outbox (marked synced) before push. */
+  shouldQuarantinePatchBeforePush?: (patch: Patch) => boolean;
+  quarantinePatchesBeforePush?: (patchIds: readonly string[]) => Promise<void>;
 };
+
+export async function filterQuarantinedPatchesBeforePush(
+  deps: SyncPushDeps,
+  patches: readonly Patch[]
+): Promise<readonly Patch[]> {
+  const shouldQuarantine = deps.shouldQuarantinePatchBeforePush;
+  const quarantine = deps.quarantinePatchesBeforePush;
+  if (
+    shouldQuarantine === undefined ||
+    quarantine === undefined ||
+    patches.length === 0
+  ) {
+    return patches;
+  }
+  const drop = patches.filter(shouldQuarantine);
+  if (drop.length === 0) return patches;
+  await quarantine(drop.map((patch) => patch.patchId));
+  return patches.filter((patch) => !shouldQuarantine(patch));
+}
 
 function onPushFailure(deps: SyncPushDeps, err: unknown): void {
   if (err instanceof AssertCrashError) {
@@ -118,7 +140,10 @@ export async function pushUnsynced(deps: SyncPushDeps): Promise<void> {
       result !== null && result !== undefined,
       'read([query]) must return one result'
     );
-    const patches = result.patches;
+    const patches = await filterQuarantinedPatchesBeforePush(
+      deps,
+      result.patches
+    );
     if (patches.length === 0) {
       deps.setPushConsecutiveFailures(0);
       return;

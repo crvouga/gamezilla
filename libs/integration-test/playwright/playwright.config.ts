@@ -103,10 +103,10 @@ export default defineConfig({
   forbidOnly: isCi,
   retries: isCi ? 1 : 0,
   workers: 1,
-  outputDir: qaPaths.laneResultsDir('browser'),
+  outputDir: qaPaths.resultsDir,
   reporter: [
     ['list'],
-    ['blob', { outputDir: qaPaths.laneBlobDir('browser') }],
+    ['html', { open: 'never', outputFolder: qaPaths.reportDir }],
   ],
   timeout: 120_000,
   expect: {

@@ -1,4 +1,5 @@
 import { ProfileProvider } from '@libs/profile/client/profile-provider';
+import { AuthPatchDbBridge } from '@libs/auth/client/auth-patch-db-bridge';
 import { ComposeProviders } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
@@ -12,6 +13,7 @@ const localDatabaseProviders = [
   SqliteRecoveryGate,
   SqlClientBoot,
   PatchDbBoot,
+  AuthPatchDbBridge,
   PatchDbLocalDataActions,
   DeviceEntityBootstrap,
   ProfileProvider,

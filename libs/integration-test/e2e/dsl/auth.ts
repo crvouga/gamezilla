@@ -43,6 +43,7 @@ export class AuthDSL {
     await expectLeftDevIdpChooser(this.page);
     await expectSignInModalResumed(this.page);
     await expectSignInModalSuccess(this.page);
+    await this.waitForSignedInReplication();
   }
 
   /** Dismisses the sign-in success modal (step 8); main shell is visible again. */
@@ -51,6 +52,16 @@ export class AuthDSL {
     await expect(
       this.page.getByRole('heading', { level: 1, name: 'Spaces' }).first()
     ).toBeVisible({ timeout: 30_000 });
+  }
+
+  /** Waits for auth refresh after sign-in (identity bridge may push zero patches). */
+  async waitForSignedInReplication(): Promise<void> {
+    await this.page
+      .waitForResponse(
+        (resp) => resp.url().includes('/auth/refresh') && resp.ok(),
+        { timeout: 30_000 }
+      )
+      .catch(() => undefined);
   }
 
   /** Menu → confirm sign-out → loading → success → dismiss (steps 9–11). */

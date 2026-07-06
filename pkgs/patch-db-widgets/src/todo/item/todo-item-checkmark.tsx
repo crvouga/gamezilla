@@ -1,5 +1,5 @@
-import { Text, useTheme } from '@pkgs/ui';
 import { useQueryAttribute } from '@pkgs/patch-db/react';
+import { Text, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import {

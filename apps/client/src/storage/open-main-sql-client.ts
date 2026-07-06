@@ -55,9 +55,18 @@ export function getMainSqliteDbName(): string {
  * only worries about establishing a connected `SqlClient`.
  */
 export async function openMainSqlClient(): Promise<SqlClient> {
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'b580fa'},body:JSON.stringify({sessionId:'b580fa',location:'open-main-sql-client.ts:openMainSqlClient:start',message:'sql boot start',hypothesisId:'H5',data:{dbName:getMainSqliteDbName()},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   await tryAcquireExpoSqliteWebSessionLock();
   const databaseName = getMainSqliteDbName();
   const client = await SqlClientImplExpoSqlite.open(databaseName);
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'b580fa'},body:JSON.stringify({sessionId:'b580fa',location:'open-main-sql-client.ts:openMainSqlClient:opened',message:'sql opened',hypothesisId:'H5',data:{dbName:databaseName},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   await client.connect();
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'b580fa'},body:JSON.stringify({sessionId:'b580fa',location:'open-main-sql-client.ts:openMainSqlClient:connected',message:'sql connected',hypothesisId:'H5',data:{dbName:databaseName},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   return client;
 }

@@ -54,10 +54,10 @@ export default defineConfig({
   forbidOnly: isCi,
   retries: isCi ? 1 : 0,
   workers: 1,
-  outputDir: qaPaths.laneResultsDir('native'),
+  outputDir: qaPaths.resultsDir,
   reporter: [
     ['list'],
-    ['blob', { outputDir: qaPaths.laneBlobDir('native') }],
+    ['html', { open: 'never', outputFolder: qaPaths.reportDir }],
   ],
   timeout: 120_000,
   expect: { timeout: 15_000 },

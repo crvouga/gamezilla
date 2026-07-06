@@ -31,12 +31,26 @@ import {
 } from './impl-sync-poll-helpers';
 import { MAX_PATCHES_PER_REQUEST } from '../transport/wire-schemas';
 import { createPatchDbReadBatcher } from '../scheduling/microtask-batcher';
-import { pushUnsynced, pushUnsyncedChunksThenPoll } from './impl-sync-push';
+import {
+  filterQuarantinedPatchesBeforePush,
+  pushUnsynced,
+  pushUnsyncedChunksThenPoll,
+} from './impl-sync-push';
 import {
   clearRejectedPushMarkersOnLocal,
   unsyncedPatchesQueryForPush,
 } from './impl-sync-rejected-pushes';
+import { PATCH_CREATED_BY_ID } from '../metadata/patch-metadata';
 import { SYNC_ERROR_TOPIC, type SyncErrorEvent } from './impl-sync-topics';
+
+function patchAuthorForIdentityFlush(patch: Patch): string {
+  return (
+    patch.createdBy ??
+    (typeof patch.attributes[PATCH_CREATED_BY_ID] === 'string'
+      ? patch.attributes[PATCH_CREATED_BY_ID]
+      : '')
+  );
+}
 
 /** Handle returned by {@link SyncPatchDbScheduler.scheduleInterval}. */
 export type SyncPatchDbScheduleHandle = {
@@ -105,6 +119,11 @@ export type SyncPatchDbOptions = {
    * SQLite hydration pass.
    */
   onPollMerged?: (results: readonly PatchDbResult[]) => void;
+  /**
+   * When signed in, anonymous patches stamped with the install device id must
+   * not share a push batch with account-authored writes (ABAC rejects them).
+   */
+  shouldQuarantinePatchBeforePush?: (patch: Patch) => boolean;
 };
 
 const defaultLog = createLogger({ name: 'patch-db:sync' });
@@ -249,7 +268,10 @@ export class SyncPatchDb implements PatchDb {
           result !== null && result !== undefined,
           'read([query]) must return one result'
         );
-        const patches = result.patches;
+        const patches = await filterQuarantinedPatchesBeforePush(
+          this.pushDeps(),
+          result.patches
+        );
         if (patches.length === 0) return;
         await pushUnsyncedChunksThenPoll(this.pushDeps(), patches, {
           strictRejections: true,
@@ -421,6 +443,14 @@ export class SyncPatchDb implements PatchDb {
         this.assertChunkMatchesWriteResult.bind(this),
       applyChunkPushWriteResult: this.applyChunkPushWriteResult.bind(this),
       poll: () => this.poll(),
+      ...(this.options.shouldQuarantinePatchBeforePush !== undefined
+        ? {
+            shouldQuarantinePatchBeforePush:
+              this.options.shouldQuarantinePatchBeforePush,
+            quarantinePatchesBeforePush: (patchIds: readonly string[]) =>
+              this.markPatchesAsAlreadyOnRemote(patchIds),
+          }
+        : {}),
     };
   }
 
@@ -522,6 +552,30 @@ export class SyncPatchDb implements PatchDb {
     const patchIds = result.patches
       .filter((p) => p.entityType === entityType)
       .map((p) => p.patchId);
+    await this.markPatchesAsAlreadyOnRemote(patchIds);
+  }
+
+  /**
+   * Drops unsynced outbox rows stamped with a prior replication identity (e.g.
+   * install `deviceId` patches after sign-in when `myId` becomes `accountId`).
+   * Without this, batched pushes reject stale rows with
+   * `patch/created-by-id must match author`.
+   */
+  async markUnsyncedPatchesWithCreatedByAsAlreadyOnRemote(
+    createdBy: string
+  ): Promise<void> {
+    if (createdBy.length === 0) return;
+    const [result] = await this.local.read(
+      [{ on: 'patches' }],
+      OPEN_PATCHES_DB_CONTEXT
+    );
+    assert.ok(
+      result !== null && result !== undefined,
+      'read([query]) must return one result'
+    );
+    const patchIds = result.patches
+      .filter((patch) => patchAuthorForIdentityFlush(patch) === createdBy)
+      .map((patch) => patch.patchId);
     await this.markPatchesAsAlreadyOnRemote(patchIds);
   }
 

@@ -9,6 +9,8 @@ import { PatchDbImplClientTransport } from '@pkgs/patch-db/impl-client-transport
 import { PatchDbImplSqlite } from '@pkgs/patch-db/impl-sqlite/impl-sqlite';
 import { PATCHES_DB_TOPIC, SyncPatchDb } from '@pkgs/patch-db/impl-sync';
 import { PatchMetadataStamper } from '@pkgs/patch-db/metadata/patch-metadata-stamper';
+import { PATCH_CREATED_BY_ID } from '@pkgs/patch-db/metadata/patch-metadata';
+import type { Patch } from '@pkgs/patch-db/interface';
 import type { PatchDbValue } from '@pkgs/patch-db/react';
 import { hydrateInMemoryStoreFromSqlite } from '@pkgs/patch-db/react/hydrate-in-memory-store';
 import { InMemoryEntityStore } from '@pkgs/patch-db/react/in-memory-entity-store';
@@ -42,6 +44,9 @@ export type CreatePatchDbArgs = {
 export async function createPatchDb(
   args: CreatePatchDbArgs
 ): Promise<PatchDbValue> {
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'b580fa'},body:JSON.stringify({sessionId:'b580fa',location:'create-patch-db.ts:createPatchDb:start',message:'patch-db boot start',hypothesisId:'H6',data:{deviceId:getCachedDeviceId()},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   const sql =
     args.observability !== undefined &&
     isObservabilityActive(args.observability)
@@ -49,6 +54,9 @@ export async function createPatchDb(
       : args.sql;
   const local = new PatchDbImplSqlite(sql);
   await local.migrate();
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'b580fa'},body:JSON.stringify({sessionId:'b580fa',location:'create-patch-db.ts:createPatchDb:migrated',message:'patch-db migrated',hypothesisId:'H6',timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
 
   const installId = getCachedDeviceId();
   assertDeviceId(installId);
@@ -70,6 +78,16 @@ export async function createPatchDb(
   const sync = new SyncPatchDb(local, remote, pubSub, {
     pushIntervalMs: 2000,
     pollIntervalMs: 5000,
+    shouldQuarantinePatchBeforePush: (patch: Patch) => {
+      const accountId = getCachedCurrentAccountId();
+      if (accountId === null || accountId.length === 0) return false;
+      const author =
+        patch.createdBy ??
+        (typeof patch.attributes[PATCH_CREATED_BY_ID] === 'string'
+          ? patch.attributes[PATCH_CREATED_BY_ID]
+          : '');
+      return author === installId && author !== accountId;
+    },
     onPollMerged: (results) => {
       const entities = results.flatMap((result) => result.entities);
       if (entities.length > 0) {
@@ -91,6 +109,9 @@ export async function createPatchDb(
   });
 
   await hydrateInMemoryStoreFromSqlite(local, store);
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'b580fa'},body:JSON.stringify({sessionId:'b580fa',location:'create-patch-db.ts:createPatchDb:hydrated',message:'patch-db hydrated',hypothesisId:'H6',timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
 
   const decorated = new PatchDbWriteThroughMirror(stamper, store);
   const decoratedDb = decorated as SubscribablePatchDbLike;
@@ -108,6 +129,9 @@ export async function createPatchDb(
   await sync.markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote(
     ACCOUNT_SESSION_ENTITY_TYPE
   );
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'b580fa'},body:JSON.stringify({sessionId:'b580fa',location:'create-patch-db.ts:createPatchDb:ready',message:'patch-db boot ready',hypothesisId:'H6',timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
 
   return {
     db: decorated as SubscribablePatchDbLike,

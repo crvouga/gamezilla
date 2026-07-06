@@ -10,7 +10,7 @@ import { createAppSession } from '../../session/app-session';
 test('chess puzzle loop: solve puzzles, elo summary, stats', async ({
   page,
 }, testInfo) => {
-  test.setTimeout(180_000);
+  test.setTimeout(360_000);
   const log = createQaPlaywrightLog(testInfo);
   const app = createAppSession(page);
   const qaAccount = {

@@ -10,6 +10,7 @@ import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
 } from './auth-storage-keys';
+import { flushPatchDbIdentityOnSignIn } from './patch-db-identity-flush';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { useConfigService } from './config-service-context';
 import { refreshAuth } from './refresh-auth-fetch';
@@ -214,6 +215,10 @@ async function runRefresh(args: {
       LAST_LOCAL_ACCOUNT_ID_KEY,
       accountId
     );
+    // #region agent log
+    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'b580fa'},body:JSON.stringify({sessionId:'b580fa',location:'auth-bridge.tsx:runRefresh:beforeFlush',message:'auth refresh wrote accountId',hypothesisId:'H1',data:{accountId},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    await flushPatchDbIdentityOnSignIn(deps.deviceId);
     deps.lastSyncedTokenRef.current = token;
   } catch (e) {
     deps.log.error('auth/refresh failed', {
