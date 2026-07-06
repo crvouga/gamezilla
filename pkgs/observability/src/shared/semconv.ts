@@ -13,6 +13,7 @@ export const Semconv = {
 } as const;
 
 export const DB_SYSTEM_POSTGRESQL = 'postgresql';
+export const DB_SYSTEM_SQLITE = 'sqlite';
 
 export function truncateStatement(sql: string, maxLen = 120): string {
   const normalized = sql.replace(/\s+/g, ' ').trim();

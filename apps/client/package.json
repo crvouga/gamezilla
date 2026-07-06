@@ -73,7 +73,7 @@
     "@react-navigation/elements": "catalog:",
     "@react-navigation/native": "catalog:",
     "@react-navigation/native-stack": "catalog:",
-    "@sentry/react-native": "^8.17.1",
+    "@sentry/react-native": "catalog:",
     "@shopify/react-native-skia": "catalog:",
     "buffer": "catalog:",
     "expo": "catalog:",

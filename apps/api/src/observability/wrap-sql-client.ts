@@ -1,4 +1,4 @@
-import { isObservabilityActive } from '@pkgs/observability/port/create-observability';
+import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
 import type { Observability } from '@pkgs/observability/port/observability';
 import {
   DB_SYSTEM_POSTGRESQL,

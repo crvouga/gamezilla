@@ -8,7 +8,8 @@ import {
   type SecretStore,
 } from '@pkgs/secret-store';
 
-const VAULT_SECRET_NAME = 'EXPO_PUBLIC_SENTRY_DSN';
+const CLIENT_DSN_SECRET = 'EXPO_PUBLIC_SENTRY_DSN';
+const API_DSN_SECRET = 'SENTRY_DSN';
 const DEFAULT_ORG = 'gamezilla';
 const DEFAULT_PROJECT = 'react-native';
 const SENTRY_API_ORIGIN = 'https://sentry.io';
@@ -150,17 +151,25 @@ function maskDsn(dsn: string): string {
   }
 }
 
+async function secretPresent(
+  store: SecretStore,
+  name: string
+): Promise<boolean> {
+  const value = trimStringOrNull(
+    (await store.getOptional(name))?.readSecretValue()
+  );
+  return value !== null;
+}
+
 async function main(): Promise<void> {
   const options = parseCliOptions(process.argv.slice(2));
   const store = createVaultSecretStoreForScripts();
 
   if (!options.force) {
-    const existing = trimStringOrNull(
-      (await store.getOptional(VAULT_SECRET_NAME))?.readSecretValue()
-    );
-    if (existing !== null) {
+    const hasClientDsn = await secretPresent(store, CLIENT_DSN_SECRET);
+    if (hasClientDsn) {
       process.stdout.write(
-        `[setup-sentry-dsn] ${VAULT_SECRET_NAME} already present in Vault; skipping (pass --force to overwrite).\n`
+        `[setup-sentry-dsn] ${CLIENT_DSN_SECRET} already present in Vault; skipping (pass --force to overwrite).\n`
       );
       return;
     }
@@ -176,15 +185,17 @@ async function main(): Promise<void> {
 
   if (options.dryRun) {
     process.stdout.write(
-      `[setup-sentry-dsn] dry-run: would write ${VAULT_SECRET_NAME}=${maskDsn(dsn)} for ${options.org}/${options.project}\n`
+      `[setup-sentry-dsn] dry-run: would write ${CLIENT_DSN_SECRET} and ${API_DSN_SECRET} for ${options.org}/${options.project} (${maskDsn(dsn)})\n`
     );
     return;
   }
 
-  await store.setSecret(VAULT_SECRET_NAME, dsn);
+  await store.setSecret(CLIENT_DSN_SECRET, dsn);
+  await store.setSecret(API_DSN_SECRET, dsn);
   process.stdout.write(
-    `[setup-sentry-dsn] wrote ${VAULT_SECRET_NAME} to Vault for ${options.org}/${options.project} (${maskDsn(dsn)}).\n` +
-      '[setup-sentry-dsn] Run `bun run --filter @apps/client setup` to refresh .env.local.\n'
+    `[setup-sentry-dsn] wrote ${CLIENT_DSN_SECRET} and ${API_DSN_SECRET} to Vault for ${options.org}/${options.project} (${maskDsn(dsn)}).\n` +
+      '[setup-sentry-dsn] Sentry stays dormant until OBSERVABILITY_BACKEND=sentry is set explicitly.\n' +
+      '[setup-sentry-dsn] Run `bun run --filter @apps/client setup` and restart dev to pick up changes.\n'
   );
 }
 

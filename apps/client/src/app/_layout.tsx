@@ -1,3 +1,4 @@
+import { isClientSentryEnabled } from '@pkgs/observability/impl-sentry/init-client-sentry';
 import { AppProviders } from '@apps/client/providers/app-providers';
 import { RootErrorBoundary } from '@apps/client/providers/root-error-boundary';
 import { SpaceMiniplayer } from '@libs/spaces/client/miniplayer/space-miniplayer';
@@ -54,4 +55,4 @@ function RootLayout() {
   );
 }
 
-export default Sentry.wrap(RootLayout);
+export default isClientSentryEnabled() ? Sentry.wrap(RootLayout) : RootLayout;

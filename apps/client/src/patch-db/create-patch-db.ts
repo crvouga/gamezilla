@@ -20,11 +20,15 @@ import type { SubscribablePatchDbLike } from '@pkgs/patch-db/subscribable';
 import { createPatchDbHttpTransport } from '../api/patch-db-hc-transport';
 import type { PatchDbHttpFetchFn } from '@pkgs/patch-db/transport/impl-http-fetch';
 import { createCoalescedSqliteHydration } from './coalesced-sqlite-hydration';
+import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
+import type { Observability } from '@pkgs/observability/port/observability';
+import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
 
 export type CreatePatchDbArgs = {
   sql: SqlClient;
   config: ConfigService;
   fetchFn?: PatchDbHttpFetchFn;
+  observability?: Observability;
 };
 
 /**
@@ -38,7 +42,12 @@ export type CreatePatchDbArgs = {
 export async function createPatchDb(
   args: CreatePatchDbArgs
 ): Promise<PatchDbValue> {
-  const local = new PatchDbImplSqlite(args.sql);
+  const sql =
+    args.observability !== undefined &&
+    isObservabilityActive(args.observability)
+      ? wrapSqlClientForObservability(args.observability, args.sql)
+      : args.sql;
+  const local = new PatchDbImplSqlite(sql);
   await local.migrate();
 
   const installId = getCachedDeviceId();

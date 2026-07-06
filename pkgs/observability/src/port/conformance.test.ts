@@ -1,12 +1,52 @@
 import { describe, expect, test } from 'bun:test';
+import type { Span as SentrySpanType } from '@sentry/core';
 import { createNoopObservability } from '../impl-noop/impl-noop';
 import { createLocalFileObservabilityWithExporter } from '../impl-local-file/impl-local-file';
+import { createLoggerObservabilityWithExporter } from '../impl-logger/impl-logger';
+import { createSentryObservability } from '../impl-sentry/sentry-observability';
+import type { SentrySdk } from '../impl-sentry/sentry-sdk';
 import { InMemorySpanContextStorage } from './in-memory-context-storage';
 import { TRACEPARENT_HEADER } from '../shared/trace-context';
+import { isSlowSpan, slowThresholdMsForSpan } from '../shared/slow-thresholds';
 import type { ExportedSpanRecord, HttpFetchFn } from '../shared/types';
 import type { Observability } from './observability';
 
 type Factory = { readonly name: string; create: () => Observability };
+
+function createMockSentrySdk(): SentrySdk {
+  let spanCounter = 0;
+  const rootTraceId = 'a'.repeat(32);
+  return {
+    startInactiveSpan: (options) => {
+      spanCounter += 1;
+      const parent = options.parentSpan as SentrySpanType | undefined;
+      const traceId =
+        parent !== undefined ? parent.spanContext().traceId : rootTraceId;
+      const spanId = spanCounter.toString(16).padStart(16, '0');
+      return {
+        setAttribute: () => {},
+        addEvent: () => {},
+        setStatus: () => {},
+        end: () => {},
+        spanContext: () => ({ traceId, spanId, traceFlags: 1 }),
+        name: String(options.name ?? 'span'),
+      } as unknown as SentrySpanType;
+    },
+    withActiveSpan: (_span, callback) => callback(),
+    spanToTraceparentHeader: (span) => {
+      const ctx = span.spanContext();
+      return `00-${ctx.traceId}-${ctx.spanId}-01`;
+    },
+    spanToTraceHeader: (span) => {
+      const ctx = span.spanContext();
+      return `${ctx.spanId}-${ctx.traceId}-1`;
+    },
+    spanContext: (span) => span.spanContext(),
+    continueTrace: (_options, callback) => callback(),
+    captureException: () => {},
+    flush: async () => true,
+  };
+}
 
 function conformanceSuite(factory: Factory): void {
   describe(factory.name, () => {
@@ -75,6 +115,28 @@ describe('Observability port conformance', () => {
     },
   });
 
+  conformanceSuite({
+    name: 'logger',
+    create: () => {
+      const exported: ExportedSpanRecord[] = [];
+      return createLoggerObservabilityWithExporter({
+        serviceName: 'test-logger',
+        exporter: (r) => exported.push(r),
+        storage: new InMemorySpanContextStorage(),
+      });
+    },
+  });
+
+  conformanceSuite({
+    name: 'sentry',
+    create: () =>
+      createSentryObservability({
+        serviceName: 'test-sentry',
+        sdk: createMockSentrySdk(),
+        storage: new InMemorySpanContextStorage(),
+      }),
+  });
+
   test('noop startSpan/end is cheap and does not call fetch', async () => {
     let fetchCalls = 0;
     const original = globalThis.fetch;
@@ -90,5 +152,16 @@ describe('Observability port conformance', () => {
     } finally {
       globalThis.fetch = original;
     }
+  });
+});
+
+describe('slow thresholds', () => {
+  test('db.query default threshold is 100ms', () => {
+    expect(slowThresholdMsForSpan('db.query')).toBe(100);
+  });
+
+  test('isSlowSpan respects threshold', () => {
+    expect(isSlowSpan('db.query', 99)).toBe(false);
+    expect(isSlowSpan('db.query', 100)).toBe(true);
   });
 });

@@ -7,7 +7,7 @@ import { createClientConfigApp } from '@libs/client-config/server/route';
 import { assert, ValidationError } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
-import { isObservabilityActive } from '@pkgs/observability/port/create-observability';
+import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
 import { wrapPatchDbSyncHostForObservability } from '@pkgs/patch-db/observability';
 import { createLlmAppFromBindings } from '@pkgs/llm/server';
 import { createMatchmakingSubApp } from '../matchmaking/route';
@@ -218,7 +218,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .use(
       '*',
       createObservabilityMiddleware(observability, {
-        match: (path) => path.startsWith('/api/patch-db'),
+        match: (path) => path.startsWith('/api/'),
       })
     )
     .use(

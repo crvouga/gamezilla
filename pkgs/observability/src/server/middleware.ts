@@ -1,8 +1,12 @@
 import type { MiddlewareHandler } from 'hono';
 import { TRACEPARENT_HEADER } from '../shared/trace-context';
 import { Semconv } from '../shared/semconv';
-import { isObservabilityActive } from '../port/create-observability';
+import { isObservabilityActive } from '../port/is-observability-active';
 import type { Observability } from '../port/observability';
+import {
+  SENTRY_BAGGAGE_HEADER,
+  SENTRY_TRACE_HEADER,
+} from '../impl-sentry/sentry-sdk';
 
 export type ObservabilityMiddlewareOptions = {
   readonly match?: (path: string) => boolean;
@@ -13,6 +17,14 @@ function headersFromRequest(req: Request): Record<string, string> {
   const traceparent = req.headers.get(TRACEPARENT_HEADER);
   if (traceparent !== null && traceparent.length > 0) {
     carrier[TRACEPARENT_HEADER] = traceparent;
+  }
+  const sentryTrace = req.headers.get(SENTRY_TRACE_HEADER);
+  if (sentryTrace !== null && sentryTrace.length > 0) {
+    carrier[SENTRY_TRACE_HEADER] = sentryTrace;
+  }
+  const baggage = req.headers.get(SENTRY_BAGGAGE_HEADER);
+  if (baggage !== null && baggage.length > 0) {
+    carrier[SENTRY_BAGGAGE_HEADER] = baggage;
   }
   return carrier;
 }

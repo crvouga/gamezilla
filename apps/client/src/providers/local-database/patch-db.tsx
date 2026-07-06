@@ -40,6 +40,7 @@ export function PatchDbBoot({ children }: { children: ReactNode }): ReactNode {
         sql,
         config,
         fetchFn,
+        observability,
       })
   );
 

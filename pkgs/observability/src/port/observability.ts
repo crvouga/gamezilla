@@ -1,3 +1,4 @@
+import type { ObservabilityBackend } from '../shared/backend';
 import type {
   Span,
   SpanContext,
@@ -32,8 +33,8 @@ export type {
 export interface Observability {
   /** Logical service name stamped on every exported span (e.g. `gamezilla-api`). */
   readonly serviceName: string;
-  /** Active adapter; `noop` is zero-cost, `local-file` POSTs spans to the dev collector. */
-  readonly backend: 'noop' | 'local-file';
+  /** Active adapter; `noop` is zero-cost, `local-file` POSTs spans to the dev collector, `logger` emits structured logs, `sentry` exports to Sentry Performance. */
+  readonly backend: ObservabilityBackend;
 
   /** Returns the span context bound to the current async scope, if any. */
   activeSpanContext(): SpanContext | undefined;

@@ -22,7 +22,7 @@ import { createApiSecretStore } from './config/secret-store';
 import { readDevBindingSecrets } from './config/dev-binding-secrets';
 import { createApiObjectStore } from './config/object-store';
 import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
-import { DEVELOPMENT_VAULT_CONFIG } from '@libs/infra/shared/database-url-policy';
+import * as Sentry from '@sentry/cloudflare';
 
 /**
  * On Cloudflare Workers (and `wrangler dev`'s node-shimmed runtime) the default
@@ -141,7 +141,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const observability = createServerObservability({
     serviceName: 'gamezilla-api',
     envBackend: env.OBSERVABILITY_BACKEND,
-    forceNoop: config !== DEVELOPMENT_VAULT_CONFIG,
+    isProduction: env.VAULT_CONFIG === 'prd',
     ...(env.OBSERVABILITY_COLLECTOR_URL !== undefined &&
     env.OBSERVABILITY_COLLECTOR_URL.length > 0
       ? { collectorUrl: env.OBSERVABILITY_COLLECTOR_URL }
@@ -260,7 +260,7 @@ async function handleWorkerFetch(
   );
 }
 
-export default {
+const workerHandler = {
   async fetch(
     request: Request,
     env: ApiWorkerEnv,
@@ -287,3 +287,22 @@ export default {
     }
   },
 } satisfies ExportedHandler<ApiWorkerEnv>;
+
+function sentryWorkerOptions(env: ApiWorkerEnv): {
+  dsn: string;
+  tracesSampleRate: number;
+  environment: string;
+} | Record<string, never> {
+  const backend = env.OBSERVABILITY_BACKEND?.trim().toLowerCase();
+  const dsn = env.SENTRY_DSN?.trim();
+  if (backend !== 'sentry' || dsn === undefined || dsn.length === 0) {
+    return {};
+  }
+  return {
+    dsn,
+    tracesSampleRate: 1.0,
+    environment: env.VAULT_CONFIG ?? 'dev',
+  };
+}
+
+export default Sentry.withSentry(sentryWorkerOptions, workerHandler);

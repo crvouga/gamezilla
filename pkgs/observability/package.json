@@ -23,6 +23,12 @@
     "./impl-local-file/*": [
       "./src/impl-local-file/*.ts"
     ],
+    "./impl-logger/*": [
+      "./src/impl-logger/*.ts"
+    ],
+    "./impl-sentry/*": [
+      "./src/impl-sentry/*.ts"
+    ],
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",
@@ -39,6 +45,10 @@
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@sentry/cloudflare": "catalog:",
+    "@sentry/core": "catalog:",
+    "@sentry/react-native": "catalog:",
     "hono": "catalog:",
     "react": "catalog:"
   },

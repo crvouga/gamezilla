@@ -46,10 +46,12 @@ export type ApiWorkerEnv = {
    * `.dev.vars` by `setup-dev-vars` when turbo preview sets `DEV_IDP_PORT`.
    */
   DEV_IDP_PORT?: string;
-  /** Local observability backend override (`local-file` enables span export). */
+  /** Local observability backend override (`local-file` or `sentry`). */
   OBSERVABILITY_BACKEND?: string;
   /** Optional span collector origin for local-file backend. */
   OBSERVABILITY_COLLECTOR_URL?: string;
+  /** Sentry DSN for error reporting and performance monitoring. */
+  SENTRY_DSN?: string;
   /** Room Durable Object namespace (one DO per topic). Omitted in unit tests. */
   ROOM?: RoomNamespace;
 };

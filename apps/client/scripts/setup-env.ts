@@ -228,6 +228,22 @@ async function resolveExpoPublicSentryDsn(
   return null;
 }
 
+async function resolveExpoPublicObservabilityBackend(
+  store: SecretStore | null
+): Promise<string | null> {
+  const fromEnv = trimStringOrNull(
+    process.env['EXPO_PUBLIC_OBSERVABILITY_BACKEND']
+  );
+  if (fromEnv !== null) return fromEnv;
+  if (store === null) return null;
+  const fromVault = (
+    await store.getOptional('EXPO_PUBLIC_OBSERVABILITY_BACKEND')
+  )?.readSecretValue();
+  return trimStringOrNull(
+    typeof fromVault === 'string' ? fromVault : undefined
+  );
+}
+
 async function main(): Promise<void> {
   const raw = await resolveExpoPublicApiUrl();
   let origin = '';
@@ -259,6 +275,7 @@ async function main(): Promise<void> {
   }
 
   const sentryDsn = await resolveExpoPublicSentryDsn(store);
+  const observabilityBackend = await resolveExpoPublicObservabilityBackend(store);
   if (sentryDsn === null) {
     process.stdout.write(
       '[setup-env] EXPO_PUBLIC_SENTRY_DSN unset; Sentry error reporting disabled in dev.\n'
@@ -272,6 +289,9 @@ async function main(): Promise<void> {
     `EXPO_USE_WATCHMAN=${JSON.stringify(expoUseWatchman)}\n`;
   if (sentryDsn !== null) {
     body += `EXPO_PUBLIC_SENTRY_DSN=${JSON.stringify(sentryDsn)}\n`;
+  }
+  if (observabilityBackend !== null) {
+    body += `EXPO_PUBLIC_OBSERVABILITY_BACKEND=${JSON.stringify(observabilityBackend)}\n`;
   }
   if (e2eFlag !== null) {
     body += `EXPO_PUBLIC_E2E=${JSON.stringify(e2eFlag)}\n`;

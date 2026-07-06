@@ -1,3 +1,4 @@
+import type { ObservabilityBackend } from '../shared/backend';
 import {
   extractTraceContext,
   injectTraceContext,
@@ -12,13 +13,13 @@ import type {
 
 export class BaseObservability implements Observability {
   readonly serviceName: string;
-  readonly backend: 'noop' | 'local-file';
+  readonly backend: ObservabilityBackend;
   private readonly storage: SpanContextStorage;
   private readonly exporter: SpanExporter;
 
   constructor(args: {
     readonly serviceName: string;
-    readonly backend: 'noop' | 'local-file';
+    readonly backend: ObservabilityBackend;
     readonly storage: SpanContextStorage;
     readonly exporter: SpanExporter;
   }) {

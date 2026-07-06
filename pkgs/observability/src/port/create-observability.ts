@@ -4,6 +4,8 @@ import type { HttpFetchFn } from '../shared/types';
 import type { Observability } from './observability';
 import { createNoopObservability } from '../impl-noop/impl-noop';
 import { createLocalFileObservability } from '../impl-local-file/impl-local-file';
+import { createLoggerObservability } from '../impl-logger/impl-logger';
+import { createClientSentryObservability } from '../impl-sentry/create-client-sentry-observability';
 
 export type ObservabilityConfig = {
   readonly serviceName: string;
@@ -14,6 +16,7 @@ export type ObservabilityConfig = {
   readonly fetchFn?: HttpFetchFn;
 };
 
+/** Client-side factory. Server code uses `createServerObservability` instead. */
 export function createObservability(
   config: ObservabilityConfig
 ): Observability {
@@ -24,9 +27,17 @@ export function createObservability(
       ...(config.fetchFn !== undefined ? { fetchFn: config.fetchFn } : {}),
     });
   }
+  if (config.backend === 'logger') {
+    return createLoggerObservability({
+      serviceName: config.serviceName,
+    });
+  }
+  if (config.backend === 'sentry') {
+    return createClientSentryObservability({
+      serviceName: config.serviceName,
+    });
+  }
   return createNoopObservability(config.serviceName);
 }
 
-export function isObservabilityActive(obs: Observability): boolean {
-  return obs.backend !== 'noop';
-}
+export { isObservabilityActive } from './is-observability-active';

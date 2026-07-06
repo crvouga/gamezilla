@@ -50,6 +50,7 @@
     "@pkgs/tts": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "@pkgs/vault": "workspace:*",
+    "@sentry/cloudflare": "catalog:",
     "hono": "catalog:",
     "pg": "catalog:",
     "stripe": "catalog:"

@@ -1,7 +1,8 @@
 /**
  * Validates Expo SDK dependency versions (`expo install --check --json`).
  *
- * - Ignores intentional monorepo skew (root catalog TypeScript 6 vs Expo's ~5.9).
+ * - Ignores intentional monorepo skew (root catalog TypeScript 6 vs Expo's ~5.9;
+ *   Sentry React Native 8 vs Expo's ~7.2).
  * - Times out after 60s so `bun check` does not hang on a slow registry.
  * - Outside CI, timeouts are treated as a skip (same policy as `ci:audit`).
  */
@@ -14,6 +15,9 @@ const CHECK_TIMEOUT_MS = 60_000;
 
 /** Dev deps the monorepo pins above Expo's bundled recommendation. */
 const ALLOWED_DEV_SKEW = new Set(['typescript']);
+
+/** Runtime deps pinned above Expo's bundled recommendation (e.g. Sentry v8). */
+const ALLOWED_DEP_SKEW = new Set(['@sentry/react-native']);
 
 const inCi =
   process.env['CI'] === 'true' || process.env['GITHUB_ACTIONS'] === 'true';
@@ -50,13 +54,21 @@ function parseExpoCheckJson(stdout: string): ExpoCheckJson | null {
 function offendingDeps(report: ExpoCheckJson): string[] {
   const deps = report.dependencies ?? [];
   return deps
-    .filter(
-      (d) =>
-        !(
-          d.packageType === 'devDependencies' &&
-          ALLOWED_DEV_SKEW.has(d.packageName)
-        )
-    )
+    .filter((d) => {
+      if (
+        d.packageType === 'devDependencies' &&
+        ALLOWED_DEV_SKEW.has(d.packageName)
+      ) {
+        return false;
+      }
+      if (
+        d.packageType === 'dependencies' &&
+        ALLOWED_DEP_SKEW.has(d.packageName)
+      ) {
+        return false;
+      }
+      return true;
+    })
     .map(
       (d) =>
         `${d.packageName}@${d.actualVersion} (expected ${d.expectedVersionOrRange}, ${d.packageType})`

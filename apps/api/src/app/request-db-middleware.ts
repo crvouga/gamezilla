@@ -8,7 +8,7 @@ import {
 import { assert } from '@pkgs/assert';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Observability } from '@pkgs/observability/port/observability';
-import { isObservabilityActive } from '@pkgs/observability/port/create-observability';
+import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
 import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';

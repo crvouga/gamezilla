@@ -2,7 +2,7 @@ import { TRACEPARENT_HEADER } from '../shared/trace-context';
 import type { HttpFetchFn } from '../shared/types';
 import { Semconv } from '../shared/semconv';
 import type { Observability } from '../port/observability';
-import { isObservabilityActive } from '../port/create-observability';
+import { isObservabilityActive } from '../port/is-observability-active';
 
 export function instrumentFetch(
   observability: Observability,
