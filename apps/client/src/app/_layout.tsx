@@ -42,7 +42,20 @@ function AppStack() {
 
 function RootLayout() {
   // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'b580fa'},body:JSON.stringify({sessionId:'b580fa',location:'_layout.tsx:RootLayout:render',message:'RootLayout render',hypothesisId:'H8',timestamp:Date.now()})}).catch(()=>{});
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Debug-Session-Id': 'b580fa',
+    },
+    body: JSON.stringify({
+      sessionId: 'b580fa',
+      location: '_layout.tsx:RootLayout:render',
+      message: 'RootLayout render',
+      hypothesisId: 'H8',
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
   // #endregion
   return (
     <RootErrorBoundary>

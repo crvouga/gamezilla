@@ -12,16 +12,16 @@
   "scripts": {
     "install:browsers": "bun --bun x playwright install --with-deps chromium",
     "kill-preview-ports": "bun run scripts/kill-preview-ports.ts",
-    "wait-for-api-health": "bun run scripts/wait-for-api-health.ts",
-    "wait-for-browser-e2e-stack": "bun run scripts/wait-for-browser-e2e-stack.ts",
-    "wait-for-native-e2e-stack": "bun run scripts/wait-for-native-e2e-stack.ts",
     "lint": "eslint src scripts playwright e2e --max-warnings 0",
     "tc": "tsc --noEmit -p ./tsconfig.json",
     "test:e2e": "bun --bun x playwright test --config playwright/playwright.config.ts",
     "test:e2e:headed": "bun --bun x playwright test --config playwright/playwright.config.ts --headed",
     "test:e2e:native": "bun --bun x playwright test --config playwright/playwright.native.config.ts",
     "test:e2e:report": "bun --bun x playwright show-report ../../qa/playwright-report",
-    "test:e2e:ui": "bun --bun x playwright test --config playwright/playwright.config.ts --ui"
+    "test:e2e:ui": "bun --bun x playwright test --config playwright/playwright.config.ts --ui",
+    "wait-for-api-health": "bun run scripts/wait-for-api-health.ts",
+    "wait-for-browser-e2e-stack": "bun run scripts/wait-for-browser-e2e-stack.ts",
+    "wait-for-native-e2e-stack": "bun run scripts/wait-for-native-e2e-stack.ts"
   },
   "dependencies": {
     "@libs/infra": "workspace:*",
