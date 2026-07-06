@@ -4,12 +4,8 @@ import { createLogger, type Logger } from '@pkgs/logger';
 import type { PubSub, Unsubscribe } from '@pkgs/pub-sub/interface';
 import {
   OPEN_PATCHES_DB_CONTEXT,
-  PATCH_REJECTED,
-  PATCH_SYNC_REJECTED_AT,
-  PATCH_SYNC_REJECTED_REASON,
   PATCH_SYNCED_AT,
   toAttributeState,
-  type Patch,
   type PatchDb,
   type PatchDbContext,
   type PatchDbQuery,
@@ -35,96 +31,31 @@ import {
   filterQuarantinedPatchesBeforePush,
   pushUnsynced,
   pushUnsyncedChunksThenPoll,
+  assertChunkMatchesWriteResult,
+  applyChunkPushWriteResult,
 } from './impl-sync-push';
+import {
+  markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote,
+  markPatchesAsAlreadyOnRemote,
+  markUnsyncedPatchesWithCreatedByAsAlreadyOnRemote,
+} from './impl-sync-outbox';
 import {
   clearRejectedPushMarkersOnLocal,
   unsyncedPatchesQueryForPush,
 } from './impl-sync-rejected-pushes';
-import { PATCH_CREATED_BY_ID } from '../metadata/patch-metadata';
 import { SYNC_ERROR_TOPIC, type SyncErrorEvent } from './impl-sync-topics';
+import {
+  defaultSyncPatchDbScheduler,
+  type SyncPatchDbOptions,
+  type SyncPatchDbScheduleHandle,
+} from './impl-sync-options';
 
-function patchAuthorForIdentityFlush(patch: Patch): string {
-  return (
-    patch.createdBy ??
-    (typeof patch.attributes[PATCH_CREATED_BY_ID] === 'string'
-      ? patch.attributes[PATCH_CREATED_BY_ID]
-      : '')
-  );
-}
-
-/** Handle returned by {@link SyncPatchDbScheduler.scheduleInterval}. */
-export type SyncPatchDbScheduleHandle = {
-  cancel: () => void;
-};
-
-/**
- * Injectable interval scheduler (default uses `setInterval`).
- * Use in tests with a deterministic scheduler.
- */
-export type SyncPatchDbScheduler = {
-  scheduleInterval(
-    intervalMs: number,
-    callback: () => void
-  ): SyncPatchDbScheduleHandle;
-};
-
-export const defaultSyncPatchDbScheduler: SyncPatchDbScheduler = {
-  scheduleInterval(intervalMs, callback) {
-    const id = setInterval(callback, intervalMs);
-    return {
-      cancel: () => clearInterval(id),
-    };
-  },
-};
-
-export type SyncPatchDbOptions = {
-  pushIntervalMs?: number;
-  pollIntervalMs?: number;
-  /**
-   * `interval` (default): repeat {@link SyncPatchDb.runPushNow} on a timer.
-   * `manual`: no timer; call {@link SyncPatchDb.runPushNow} explicitly (tests / simulation).
-   */
-  pushDriver?: 'interval' | 'manual';
-  /**
-   * `interval` (default): repeat {@link SyncPatchDb.runPollNow} on a timer.
-   * `manual`: no timer; call {@link SyncPatchDb.runPollNow} explicitly (tests / simulation).
-   */
-  pollDriver?: 'interval' | 'manual';
-  /** Scheduler for push and poll timers (default: real-time `setInterval`). */
-  scheduler?: SyncPatchDbScheduler;
-  /**
-   * When false, failed push/poll cycles are not logged to stderr (failures still increment counters and may publish {@link SYNC_ERROR_TOPIC}).
-   * Default true. Deterministic sim tests set this to false to avoid expected-failure noise.
-   */
-  logPushPollFailures?: boolean;
-  /** Structured logger for push/poll diagnostics. Falls back to a default logger if omitted. */
-  logger?: Logger;
-  /**
-   * Maximum number of patches sent per `remote.write` call. Defaults to
-   * {@link MAX_PATCHES_PER_REQUEST}. Overridable for deterministic tests; in
-   * production this MUST stay at or below the wire contract bound — the HTTP
-   * client transport will crash if a single request exceeds it.
-   */
-  maxPushBatchSize?: number;
-  /**
-   * When true, local writes publish invalidation `touched` hints so
-   * {@link ActiveQueryRegistry} can skip re-reads for unrelated single-entity
-   * subscriptions. Default false.
-   */
-  targetedInvalidation?: boolean;
-  /**
-   * Called after each successful remote poll merge with the raw remote read
-   * results. Used by the client to upsert reference-data snapshots (e.g.
-   * `chess.puzzle`) into the in-memory query store without waiting for a full
-   * SQLite hydration pass.
-   */
-  onPollMerged?: (results: readonly PatchDbResult[]) => void;
-  /**
-   * When signed in, anonymous patches stamped with the install device id must
-   * not share a push batch with account-authored writes (ABAC rejects them).
-   */
-  shouldQuarantinePatchBeforePush?: (patch: Patch) => boolean;
-};
+export {
+  defaultSyncPatchDbScheduler,
+  type SyncPatchDbOptions,
+  type SyncPatchDbScheduleHandle,
+  type SyncPatchDbScheduler,
+} from './impl-sync-options';
 
 const defaultLog = createLogger({ name: 'patch-db:sync' });
 
@@ -439,9 +370,12 @@ export class SyncPatchDb implements PatchDb {
       setPushConsecutiveFailures: (n: number) => {
         this.pushConsecutiveFailures = n;
       },
-      assertChunkMatchesWriteResult:
-        this.assertChunkMatchesWriteResult.bind(this),
-      applyChunkPushWriteResult: this.applyChunkPushWriteResult.bind(this),
+      assertChunkMatchesWriteResult,
+      applyChunkPushWriteResult: async (result: WritePatchesResult) => {
+        await applyChunkPushWriteResult(this.local, result);
+        this.pushConsecutiveFailures = 0;
+        this.publishInvalidation();
+      },
       poll: () => this.poll(),
       ...(this.options.shouldQuarantinePatchBeforePush !== undefined
         ? {
@@ -452,54 +386,6 @@ export class SyncPatchDb implements PatchDb {
           }
         : {}),
     };
-  }
-
-  private assertChunkMatchesWriteResult(
-    chunk: readonly Patch[],
-    result: WritePatchesResult
-  ): void {
-    assert.ok(
-      result.accepted.length + result.rejected.length === chunk.length,
-      'remote.write must account for every patch in chunk',
-      {
-        chunk: chunk.length,
-        accepted: result.accepted.length,
-        rejected: result.rejected.length,
-      }
-    );
-    const ids = new Set(chunk.map((p) => p.patchId));
-    for (const p of result.accepted) {
-      assert.ok(ids.has(p.patchId), 'accepted patchId must be from chunk');
-    }
-    for (const r of result.rejected) {
-      assert.ok(ids.has(r.patchId), 'rejected patchId must be from chunk');
-    }
-  }
-
-  private async applyChunkPushWriteResult(
-    result: WritePatchesResult
-  ): Promise<void> {
-    const now = new Date().toISOString();
-    const updates = [
-      ...result.accepted.map((p) => ({
-        patchId: p.patchId,
-        attributes: toAttributeState({ [PATCH_SYNCED_AT]: '1' }),
-      })),
-      ...result.rejected.map((r) => ({
-        patchId: r.patchId,
-        attributes: toAttributeState({
-          [PATCH_SYNC_REJECTED_AT]: now,
-          [PATCH_SYNC_REJECTED_REASON]:
-            `${String(r.code)}: ${String(r.reason)}`.slice(0, 256),
-          [PATCH_REJECTED]: true,
-        }),
-      })),
-    ];
-    if (updates.length > 0) {
-      await this.local.update(updates, OPEN_PATCHES_DB_CONTEXT);
-    }
-    this.pushConsecutiveFailures = 0;
-    this.publishInvalidation();
   }
 
   /**
@@ -518,14 +404,7 @@ export class SyncPatchDb implements PatchDb {
   async markPatchesAsAlreadyOnRemote(
     patchIds: readonly string[]
   ): Promise<void> {
-    if (patchIds.length === 0) return;
-    await this.local.update(
-      patchIds.map((patchId) => ({
-        patchId,
-        attributes: toAttributeState({ [PATCH_SYNCED_AT]: '1' }),
-      })),
-      OPEN_PATCHES_DB_CONTEXT
-    );
+    await markPatchesAsAlreadyOnRemote(this.local, patchIds);
     this.publishInvalidation();
   }
 
@@ -541,18 +420,11 @@ export class SyncPatchDb implements PatchDb {
   async markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote(
     entityType: string
   ): Promise<void> {
-    const [result] = await this.local.read(
-      [unsyncedPatchesQueryForPush()],
-      OPEN_PATCHES_DB_CONTEXT
+    await markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote(
+      this.local,
+      entityType
     );
-    assert.ok(
-      result !== null && result !== undefined,
-      'read([query]) must return one result'
-    );
-    const patchIds = result.patches
-      .filter((p) => p.entityType === entityType)
-      .map((p) => p.patchId);
-    await this.markPatchesAsAlreadyOnRemote(patchIds);
+    this.publishInvalidation();
   }
 
   /**
@@ -564,19 +436,11 @@ export class SyncPatchDb implements PatchDb {
   async markUnsyncedPatchesWithCreatedByAsAlreadyOnRemote(
     createdBy: string
   ): Promise<void> {
-    if (createdBy.length === 0) return;
-    const [result] = await this.local.read(
-      [{ on: 'patches' }],
-      OPEN_PATCHES_DB_CONTEXT
+    await markUnsyncedPatchesWithCreatedByAsAlreadyOnRemote(
+      this.local,
+      createdBy
     );
-    assert.ok(
-      result !== null && result !== undefined,
-      'read([query]) must return one result'
-    );
-    const patchIds = result.patches
-      .filter((patch) => patchAuthorForIdentityFlush(patch) === createdBy)
-      .map((patch) => patch.patchId);
-    await this.markPatchesAsAlreadyOnRemote(patchIds);
+    this.publishInvalidation();
   }
 
   private onPollFailure(err: unknown): void {

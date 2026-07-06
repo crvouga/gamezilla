@@ -77,51 +77,6 @@ async function isSpaceJoinPromptVisible(page: Page): Promise<boolean> {
     .catch(() => false);
 }
 
-async function waitForHostGamesPicker(page: Page): Promise<void> {
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    if (await isHostGamesPickerVisible(page)) return;
-    try {
-      await expect
-        .poll(
-          async () => {
-            if (await isSpaceJoinPromptVisible(page)) return 'join';
-            if (await isHostGamesPickerVisible(page)) return 'host';
-            return 'loading';
-          },
-          { timeout: SPACE_NAV_TIMEOUT_MS, intervals: [100, 250, 500, 1000] }
-        )
-        .toBe('host');
-      return;
-    } catch {
-      if (attempt === 1 || !(await isSpaceJoinPromptVisible(page))) {
-        throw new Error('Timed out waiting for host games picker');
-      }
-      await goToSpacesHome(page);
-      const newSpace = page.getByRole('button', { name: /new space/i });
-      if (await newSpace.isVisible().catch(() => false)) {
-        await newSpace.click();
-        await page.waitForURL(/\/space\//, { timeout: SPACE_NAV_TIMEOUT_MS });
-      } else {
-        await endActiveSpaceFromLobby(page);
-        await expect(newSpace).toBeVisible({ timeout: SPACE_NAV_TIMEOUT_MS });
-        await newSpace.click();
-        await page.waitForURL(/\/space\//, { timeout: SPACE_NAV_TIMEOUT_MS });
-      }
-    }
-  }
-}
-
-/** Navigates back from nested chess screens until the host games picker shows. */
-async function resetToHostGamesMenu(page: Page): Promise<void> {
-  for (let i = 0; i < 8; i += 1) {
-    if (await isHostGamesPickerVisible(page)) return;
-    const back = page.getByRole('button', { name: /^Back$/i });
-    if (!(await back.isVisible().catch(() => false))) break;
-    await back.click();
-  }
-  await waitForHostGamesPicker(page);
-}
-
 async function goToSpacesHome(page: Page): Promise<void> {
   const goToSpaces = page.getByRole('button', { name: /go to spaces/i });
   if (await goToSpaces.isVisible().catch(() => false)) {

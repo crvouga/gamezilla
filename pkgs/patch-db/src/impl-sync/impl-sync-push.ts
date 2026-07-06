@@ -2,7 +2,14 @@ import { AssertCrashError, assert } from '@pkgs/assert';
 import type { Logger } from '@pkgs/logger';
 import type { PubSub } from '@pkgs/pub-sub/interface';
 import type { Patch, PatchDb, WritePatchesResult } from '../interface';
-import { OPEN_PATCHES_DB_CONTEXT } from '../interface';
+import {
+  OPEN_PATCHES_DB_CONTEXT,
+  PATCH_REJECTED,
+  PATCH_SYNC_REJECTED_AT,
+  PATCH_SYNC_REJECTED_REASON,
+  PATCH_SYNCED_AT,
+  toAttributeState,
+} from '../interface';
 import { PatchDbTransportRejectedError } from '../transport/transport-rejected-error';
 import {
   publishServerWriteAccepted,
@@ -16,6 +23,53 @@ import {
 import { SYNC_ERROR_TOPIC, type SyncErrorEvent } from './impl-sync-topics';
 
 const MAX_CONSECUTIVE_FAILURES = 5;
+
+export function assertChunkMatchesWriteResult(
+  chunk: readonly Patch[],
+  result: WritePatchesResult
+): void {
+  assert.ok(
+    result.accepted.length + result.rejected.length === chunk.length,
+    'remote.write must account for every patch in chunk',
+    {
+      chunk: chunk.length,
+      accepted: result.accepted.length,
+      rejected: result.rejected.length,
+    }
+  );
+  const ids = new Set(chunk.map((p) => p.patchId));
+  for (const p of result.accepted) {
+    assert.ok(ids.has(p.patchId), 'accepted patchId must be from chunk');
+  }
+  for (const r of result.rejected) {
+    assert.ok(ids.has(r.patchId), 'rejected patchId must be from chunk');
+  }
+}
+
+export async function applyChunkPushWriteResult(
+  local: PatchDb,
+  result: WritePatchesResult
+): Promise<void> {
+  const now = new Date().toISOString();
+  const updates = [
+    ...result.accepted.map((p) => ({
+      patchId: p.patchId,
+      attributes: toAttributeState({ [PATCH_SYNCED_AT]: '1' }),
+    })),
+    ...result.rejected.map((r) => ({
+      patchId: r.patchId,
+      attributes: toAttributeState({
+        [PATCH_SYNC_REJECTED_AT]: now,
+        [PATCH_SYNC_REJECTED_REASON]:
+          `${String(r.code)}: ${String(r.reason)}`.slice(0, 256),
+        [PATCH_REJECTED]: true,
+      }),
+    })),
+  ];
+  if (updates.length > 0) {
+    await local.update(updates, OPEN_PATCHES_DB_CONTEXT);
+  }
+}
 
 export type SyncPushDeps = {
   readonly local: PatchDb;
