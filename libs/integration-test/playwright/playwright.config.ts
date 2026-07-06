@@ -72,9 +72,7 @@ void applyPlaywrightPreviewEnv({
   localApiPreviewOrigin: LOCAL_API_PREVIEW_ORIGIN,
 });
 
-process.stdout.write(
-  `[e2e] baseURL=${baseURL} readyURL=${previewReadyURL}\n`
-);
+process.stdout.write(`[e2e] baseURL=${baseURL} readyURL=${previewReadyURL}\n`);
 
 assert.nonEmptyString(__dirname, '__dirname must resolve to a non-empty path');
 

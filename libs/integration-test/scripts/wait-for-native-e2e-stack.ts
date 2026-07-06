@@ -1,4 +1,7 @@
-import { NATIVE_E2E_BASE_URL, assertNativeE2eStackRunningSync } from '../src/local-e2e-stack';
+import {
+  NATIVE_E2E_BASE_URL,
+  assertNativeE2eStackRunningSync,
+} from '../src/local-e2e-stack';
 
 const timeoutMs = Number(process.env['NATIVE_E2E_STACK_WAIT_MS'] ?? '900_000');
 const pollMs = 1_000;

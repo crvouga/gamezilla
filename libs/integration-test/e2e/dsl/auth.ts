@@ -1,9 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 
-import {
-  openUserMenu,
-  openUserMenuAndClick,
-} from '../../src/chrome-menu';
+import { openUserMenu, openUserMenuAndClick } from '../../src/chrome-menu';
 import {
   confirmSignOut,
   dismissSignInModalSuccess,
