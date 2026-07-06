@@ -72,9 +72,7 @@ void applyPlaywrightPreviewEnv({
   localApiPreviewOrigin: LOCAL_API_PREVIEW_ORIGIN,
 });
 
-process.stdout.write(
-  `[e2e] baseURL=${baseURL} readyURL=${previewReadyURL}\n`
-);
+process.stdout.write(`[e2e] baseURL=${baseURL} readyURL=${previewReadyURL}\n`);
 
 assert.nonEmptyString(__dirname, '__dirname must resolve to a non-empty path');
 
@@ -104,10 +102,7 @@ export default defineConfig({
   retries: isCi ? 1 : 0,
   workers: 1,
   outputDir: qaPaths.laneResultsDir('browser'),
-  reporter: [
-    ['list'],
-    ['blob', { outputDir: qaPaths.laneBlobDir('browser') }],
-  ],
+  reporter: [['list'], ['blob', { outputDir: qaPaths.laneBlobDir('browser') }]],
   timeout: 120_000,
   expect: {
     timeout: 15_000,

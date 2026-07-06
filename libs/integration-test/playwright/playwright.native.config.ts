@@ -55,10 +55,7 @@ export default defineConfig({
   retries: isCi ? 1 : 0,
   workers: 1,
   outputDir: qaPaths.laneResultsDir('native'),
-  reporter: [
-    ['list'],
-    ['blob', { outputDir: qaPaths.laneBlobDir('native') }],
-  ],
+  reporter: [['list'], ['blob', { outputDir: qaPaths.laneBlobDir('native') }]],
   timeout: 120_000,
   expect: { timeout: 15_000 },
   use: {

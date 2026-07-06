@@ -7,8 +7,13 @@ import {
   resolveGamezillaRepoRoot,
 } from '../src/qa-playwright-paths';
 
-const pkgDir = path.join(resolveGamezillaRepoRoot(import.meta.dir), 'libs/integration-test');
-const { blobDir, reportDir } = qaPlaywrightPaths(resolveGamezillaRepoRoot(pkgDir));
+const pkgDir = path.join(
+  resolveGamezillaRepoRoot(import.meta.dir),
+  'libs/integration-test'
+);
+const { blobDir, reportDir } = qaPlaywrightPaths(
+  resolveGamezillaRepoRoot(pkgDir)
+);
 
 function collectBlobReportFiles(dir: string): string[] {
   if (!existsSync(dir)) return [];

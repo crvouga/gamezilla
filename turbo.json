@@ -87,12 +87,20 @@
     "test:e2e": {
       "dependsOn": ["^tc"],
       "cache": false,
-      "outputs": ["../../qa/playwright-report/**", "../../qa/test-results/**", "../../qa/blob-report/**"]
+      "outputs": [
+        "../../qa/playwright-report/**",
+        "../../qa/test-results/**",
+        "../../qa/blob-report/**"
+      ]
     },
     "test:e2e:native": {
       "dependsOn": ["^tc"],
       "cache": false,
-      "outputs": ["../../qa/playwright-report/**", "../../qa/test-results/**", "../../qa/blob-report/**"]
+      "outputs": [
+        "../../qa/playwright-report/**",
+        "../../qa/test-results/**",
+        "../../qa/blob-report/**"
+      ]
     },
     "//#ci:format": {
       "inputs": ["$TURBO_DEFAULT$"],

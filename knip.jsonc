@@ -69,7 +69,7 @@
         "playwright/playwright.config.ts",
         "playwright/playwright.native.config.ts",
         "playwright/playwright.merge.config.ts",
-        "src/preview-stack-env.ts"
+        "src/preview-stack-env.ts",
       ],
     },
     "apps/client": {
