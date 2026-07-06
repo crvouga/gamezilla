@@ -216,7 +216,21 @@ async function runRefresh(args: {
       accountId
     );
     // #region agent log
-    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'b580fa'},body:JSON.stringify({sessionId:'b580fa',location:'auth-bridge.tsx:runRefresh:beforeFlush',message:'auth refresh wrote accountId',hypothesisId:'H1',data:{accountId},timestamp:Date.now()})}).catch(()=>{});
+    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Debug-Session-Id': 'b580fa',
+      },
+      body: JSON.stringify({
+        sessionId: 'b580fa',
+        location: 'auth-bridge.tsx:runRefresh:beforeFlush',
+        message: 'auth refresh wrote accountId',
+        hypothesisId: 'H1',
+        data: { accountId },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
     // #endregion
     await flushPatchDbIdentityOnSignIn(deps.deviceId);
     deps.lastSyncedTokenRef.current = token;

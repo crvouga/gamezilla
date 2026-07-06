@@ -8,7 +8,10 @@ export const QA_PLAYWRIGHT_REPORT_DIR = path.join(
   QA_ARTIFACTS_DIR,
   'playwright-report'
 );
-export const QA_PLAYWRIGHT_RESULTS_DIR = path.join(QA_ARTIFACTS_DIR, 'test-results');
+export const QA_PLAYWRIGHT_RESULTS_DIR = path.join(
+  QA_ARTIFACTS_DIR,
+  'test-results'
+);
 
 export function resolveGamezillaRepoRoot(fromDir: string): string {
   let dir = path.resolve(fromDir);

@@ -38,8 +38,10 @@ async function logChessE2eState(
     .isVisible()
     .catch(() => false);
   const pickStatus =
-    (await page.getByTestId('chess-puzzle-pick-status').textContent().catch(() => null)) ??
-    null;
+    (await page
+      .getByTestId('chess-puzzle-pick-status')
+      .textContent()
+      .catch(() => null)) ?? null;
   fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320', {
     method: 'POST',
     headers: {
@@ -224,7 +226,11 @@ export async function openChessPuzzle(page: Page): Promise<void> {
   await expect(async () => {
     if (await isSpaceJoinPromptVisible(page)) {
       // #region agent log
-      await logChessE2eState(page, 'chess-puzzle.ts:openChessPuzzle:join-prompt', 'H3');
+      await logChessE2eState(
+        page,
+        'chess-puzzle.ts:openChessPuzzle:join-prompt',
+        'H3'
+      );
       // #endregion
       await reestablishHostSpace(page);
       await openChessFromGames(page);
