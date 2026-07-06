@@ -54,7 +54,10 @@ function parseCliOptions(argv: readonly string[]): CliOptions {
     }
     if (arg === '--org') {
       const next = argv[i + 1];
-      assert.ok(typeof next === 'string' && next.length > 0, '--org requires a value');
+      assert.ok(
+        typeof next === 'string' && next.length > 0,
+        '--org requires a value'
+      );
       org = next;
       i += 1;
       continue;
@@ -71,7 +74,10 @@ function parseCliOptions(argv: readonly string[]): CliOptions {
     }
     if (arg === '--dsn') {
       const next = argv[i + 1];
-      assert.ok(typeof next === 'string' && next.length > 0, '--dsn requires a value');
+      assert.ok(
+        typeof next === 'string' && next.length > 0,
+        '--dsn requires a value'
+      );
       dsn = next.trim();
       i += 1;
     }
@@ -130,13 +136,20 @@ async function fetchPublicDsnFromSentryApi(args: {
   }
 
   const keys = (await res.json()) as SentryProjectKey[];
-  assert.ok(Array.isArray(keys) && keys.length > 0, 'Sentry project has no client keys');
+  assert.ok(
+    Array.isArray(keys) && keys.length > 0,
+    'Sentry project has no client keys'
+  );
 
   const preferred =
-    keys.find((key) => key.isActive !== false && typeof key.dsn?.public === 'string') ??
-    keys.find((key) => typeof key.dsn?.public === 'string');
+    keys.find(
+      (key) => key.isActive !== false && typeof key.dsn?.public === 'string'
+    ) ?? keys.find((key) => typeof key.dsn?.public === 'string');
   const dsn = preferred?.dsn?.public?.trim();
-  assert.ok(typeof dsn === 'string' && dsn.length > 0, 'Sentry client key has no public DSN');
+  assert.ok(
+    typeof dsn === 'string' && dsn.length > 0,
+    'Sentry client key has no public DSN'
+  );
   return dsn;
 }
 

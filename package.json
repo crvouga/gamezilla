@@ -68,6 +68,9 @@
     "undici": "7.28.0",
     "ws": "^8.21.0"
   },
+  "dependencies": {
+    "@sentry/react-native": "^8.17.1"
+  },
   "devDependencies": {
     "@lingui/cli": "catalog:",
     "@lingui/conf": "catalog:",
