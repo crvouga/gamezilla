@@ -7,7 +7,11 @@ import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { PatchDbImplClientTransport } from '@pkgs/patch-db/impl-client-transport';
 import { PatchDbImplSqlite } from '@pkgs/patch-db/impl-sqlite/impl-sqlite';
-import { PATCHES_DB_TOPIC, SyncPatchDb, type SyncPatchDbOptions } from '@pkgs/patch-db/impl-sync';
+import {
+  PATCHES_DB_TOPIC,
+  SyncPatchDb,
+  type SyncPatchDbOptions,
+} from '@pkgs/patch-db/impl-sync';
 import { PatchMetadataStamper } from '@pkgs/patch-db/metadata/patch-metadata-stamper';
 import { PATCH_CREATED_BY_ID } from '@pkgs/patch-db/metadata/patch-metadata';
 import type { Patch } from '@pkgs/patch-db/interface';
