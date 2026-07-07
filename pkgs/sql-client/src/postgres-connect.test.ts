@@ -60,14 +60,14 @@ describe('withPostgresSearchPathOption', () => {
   });
 });
 
-// These hit the ambient `DATABASE_URL`, which under `vault run` is the shared
+// These hit the ambient `DATABASE_URL`, which under `secrets-run` is the shared
 // remote dev database. Keep the connection footprint minimal (`max: 1`, each
 // pool closed in its own `finally`) so this suite never contends for connection
 // slots with other DB-touching suites running concurrently under `bun check`.
 describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
   const dbScope = createPostgresDbScope(TEST_SCHEMA);
 
-  test('DATABASE_URL is not loopback (Vault dev hosted Postgres)', () => {
+  test('DATABASE_URL is not loopback (secret store dev hosted Postgres)', () => {
     expect(isLoopbackPostgresUrl(DATABASE_URL)).toBe(false);
   });
 

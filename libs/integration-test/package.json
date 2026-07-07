@@ -32,6 +32,7 @@
     "@pkgs/sql-client": "workspace:*"
   },
   "devDependencies": {
+    "@clerk/testing": "catalog:",
     "@playwright/test": "catalog:",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",

@@ -7,7 +7,7 @@
 #    circular-deps, audit, i18n, expo-go compat, tc, lint, test, build)
 #    all run inside a
 #    single `turbo-ci` job that invokes `bun run check:ci`. Turbo's task
-#    graph + the self-hosted remote cache (driven by Vault `dev`'s
+#    graph + the self-hosted remote cache (driven by Infisical `dev`'s
 #    `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`) give us maximum
 #    parallelism and cross-PR cache reuse with zero extra GitHub Actions
 #    machinery.
@@ -33,8 +33,8 @@ permissions:
   actions: write
   id-token: write
 
-# CI authenticates to Vault via GitHub Actions OIDC (no stored token).
-# Repo scripts use `scripts/vault-run.ts`, which reads project/config from `.vault.yaml`.
+# CI authenticates to Infisical via GitHub Actions OIDC (no stored token).
+# Repo scripts use `scripts/secrets-run.ts`, which reads scope from `.infisical.json`.
 
 on:
   push:
@@ -57,12 +57,12 @@ jobs:
   # `ci:expo-go-deps` = `expo install --check` version pin), plus
   # per-package `tc` / `lint` / `test` / `build`. Turbo
   # parallelizes across the task graph and reuses the self-hosted remote
-  # cache (via Vault-injected `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`)
+  # cache (via secrets-injected `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`)
   # for cross-PR hits. `check:ci` throttles cache HTTP (`--cache-workers=1`
   # via `scripts/turbo-ci-run.ts`) and writes artifacts to the cache Worker
   # (`--cache=local:rw,remote:rw` in CI). Per-task cache
   # status (`--output-logs=hash-only --summarize`) keeps logs readable.
-  # TURBO_API/TURBO_TOKEN/TURBO_TEAM come from Vault `dev` via `vault run`.
+  # TURBO_API/TURBO_TOKEN/TURBO_TEAM come from secrets env `dev` via `secrets-run`.
   turbo-ci:
     runs-on: ubuntu-latest
     concurrency:
@@ -73,12 +73,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - uses: ./.github/actions/vault-auth
-      - name: Verify self-hosted remote cache via Vault (fail fast)
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
+          env-slug: dev
+      - name: Verify self-hosted remote cache via secrets (fail fast)
         env:
           CI: true
           GITHUB_ACTIONS: true
-        run: bun run scripts/vault-run.ts -- bun run scripts/check-turbo-remote-cache.ts
+        run: bun run scripts/secrets-run.ts -- bun run scripts/check-turbo-remote-cache.ts
       - name: Turbo CI (cacheable gates + tc/lint/test/build)
         env:
           # GHA runners can expose a pseudo-TTY; Turbo's interactive TUI then
@@ -156,12 +160,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - uses: ./.github/actions/vault-auth
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
+          env-slug: dev
       - name: Start API preview
         run: |
-          nohup bun run scripts/vault-run.ts -- bun run --filter @apps/api preview > /tmp/api-preview.log 2>&1 &
+          nohup bun run scripts/secrets-run.ts -- bun run --filter @apps/api preview > /tmp/api-preview.log 2>&1 &
           echo $! > /tmp/api-preview.pid
-          bun run scripts/vault-run.ts -- bun run --filter @libs/integration-test wait-for-api-health
+          bun run scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-api-health
       - name: QA API integration
         run: bun run qa:api
       - name: Stop API preview
@@ -222,12 +230,16 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: bun --bun x playwright install-deps chromium
 
-      - uses: ./.github/actions/vault-auth
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
+          env-slug: dev
       - name: Start preview stack
         run: |
-          nohup bun run scripts/vault-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@pkgs/dev-idp --filter=@apps/api --filter=@apps/client' > /tmp/preview-stack.log 2>&1 &
+          nohup bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client' > /tmp/preview-stack.log 2>&1 &
           echo $! > /tmp/preview-stack.pid
-          bun run scripts/vault-run.ts -- bun run --filter @libs/integration-test wait-for-browser-e2e-stack
+          bun run scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-browser-e2e-stack
       - name: QA Playwright
         run: bun run qa:browser
       - name: Stop preview stack
@@ -289,7 +301,11 @@ jobs:
 
       # Production client bundle gates (web export + native export): refuse to
       # ship when Metro inlined a loopback `EXPO_PUBLIC_API_URL`.
-      - uses: ./.github/actions/vault-auth
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
+          env-slug: dev
       - name: Production client bundle API URL gate
         run: bun run qa:production-client
 
@@ -416,7 +432,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - uses: ./.github/actions/vault-auth
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
+          env-slug: prd
       - uses: ./.github/actions/infra-setup
         with:
           wrangler: 'true'
@@ -426,7 +446,7 @@ jobs:
         id: deploy
         working-directory: libs/infra
         env:
-          VAULT_CONFIG: prd
+          SECRETS_ENV: prd
         run: bun run infra deploy
 
   # Safety-net lock release. The happy-path release happens in-process
@@ -448,12 +468,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - uses: ./.github/actions/vault-auth
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
+          env-slug: prd
       - uses: ./.github/actions/infra-setup
       - name: Release global deploy lock
         working-directory: libs/infra
         env:
-          VAULT_CONFIG: prd
+          SECRETS_ENV: prd
           INFRA_LOCK_ID: ${{ needs.deploy.outputs.lock_id }}
         run: bun run infra lock-release
 
@@ -481,9 +505,13 @@ jobs:
       # REST API to fetch per-job logs for any failed `needs.*` job and embed
       # them in an LLM fix prompt appended to the step summary. Needs the
       # workflow-level `actions: write` permission (which includes read).
-      - uses: ./.github/actions/vault-auth
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
+          env-slug: prd
       - name: Write pipeline report
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: VAULT_CONFIG=prd bun run scripts/vault-run.ts -- bun run libs/infra/src/bin/pipeline-report.ts
+        run: SECRETS_ENV=prd bun run scripts/secrets-run.ts -- bun run libs/infra/src/bin/pipeline-report.ts

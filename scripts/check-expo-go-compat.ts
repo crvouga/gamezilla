@@ -45,6 +45,16 @@ const WORKSPACE_SCOPES = ['@apps/', '@libs/', '@pkgs/'] as const;
  */
 const CORE_EXPO_GO_PACKAGES = ['expo'] as const;
 
+/**
+ * Native-module packages that remain loadable in Expo Go via a JS-only path
+ * (browser OAuth through bundled modules like `expo-web-browser`). Clerk
+ * documents this as the JavaScript integration — native UI / native OAuth
+ * require a dev build, but `@pkgs/auth-clerk` uses `useSSO` + web browser only.
+ *
+ * Do not add packages here that hard-require their native module at import.
+ */
+const EXPO_GO_JS_NATIVE_ALLOWLIST = ['@clerk/expo'] as const;
+
 function isWorkspacePackage(name: string): boolean {
   return WORKSPACE_SCOPES.some((scope) => name.startsWith(scope));
 }
@@ -63,6 +73,7 @@ function loadExpoGoAllowedSet(): ReadonlySet<string> {
   return new Set([
     ...Object.keys(readJson(BUNDLED_NATIVE_MODULES)),
     ...CORE_EXPO_GO_PACKAGES,
+    ...EXPO_GO_JS_NATIVE_ALLOWLIST,
   ]);
 }
 

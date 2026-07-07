@@ -4,8 +4,8 @@
  * Unlike a plain submit mutation, sign-in hands control to an external OAuth
  * flow that unloads the web page. So the loading state has to outlive the
  * trigger: we mark a durable pending flag, then resolve the outcome from the
- * Better Auth session snapshot once it settles (on this mount for native /
- * no-redirect flows, or on the next mount after the redirect on web).
+ * auth port session once it settles (on this mount for native flows, or on the
+ * next mount after the redirect on web).
  *
  * The `awaitingCallback` gate is load-bearing: while we are in `loading` but
  * the OAuth handoff has not produced a session yet, the snapshot still reads
@@ -17,8 +17,8 @@
 import { useSecureStorage } from '@pkgs/secure-storage/interface';
 import { useCallback, useEffect, useState } from 'react';
 
-import { useAuthClient } from './auth-client-provider';
-import { isSnapshotSignedIn, snapshotError } from './session-snapshot';
+import { useAuthClientPort } from './auth-client-provider';
+import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
 import { clearSignInPending, markSignInPending } from './sign-in-pending';
 
 export type SignInPhase = 'idle' | 'loading' | 'success' | 'error';
@@ -47,8 +47,8 @@ export function useSignInModalLifecycle({
   onError,
 }: UseSignInModalLifecycleParams): UseSignInModalLifecycleResult {
   const storage = useSecureStorage();
-  const authClient = useAuthClient();
-  const snapshot = authClient.useSession();
+  const port = useAuthClientPort();
+  const authState = port.useAuthSession();
   const [phase, setPhase] = useState<SignInPhase>('idle');
   const [error, setError] = useState<Error | null>(null);
   const [awaitingCallback, setAwaitingCallback] = useState(false);
@@ -57,31 +57,29 @@ export function useSignInModalLifecycle({
     if (!resumePending) return;
     setPhase('loading');
     setAwaitingCallback(true);
-    if (!snapshot.isPending && isSnapshotSignedIn(snapshot)) {
+    if (authState.isHydrated && isAuthSessionSignedIn(authState)) {
       setAwaitingCallback(false);
       setPhase('success');
     }
-  }, [resumePending, snapshot]);
+  }, [resumePending, authState]);
 
   useEffect(() => {
-    if (phase !== 'loading' || !awaitingCallback || snapshot.isPending) return;
-    if (isSnapshotSignedIn(snapshot)) {
+    if (phase !== 'loading' || !awaitingCallback || !authState.isHydrated) {
+      return;
+    }
+    if (isAuthSessionSignedIn(authState)) {
       setAwaitingCallback(false);
       setPhase('success');
       return;
     }
-    const err = snapshotError(snapshot);
-    // After an OAuth redirect the session snapshot can briefly read "signed
-    // out" with no error while Better Auth finishes the callback — do not
-    // treat that as failure or we clear `signInPending` before the modal
-    // can resume.
+    const err = authSessionError(authState);
     if (err === null) return;
     setAwaitingCallback(false);
     void clearSignInPending(storage);
     onError?.(err);
     setError(err);
     setPhase('error');
-  }, [phase, awaitingCallback, snapshot, storage, onError]);
+  }, [phase, awaitingCallback, authState, storage, onError]);
 
   const start = useCallback(
     async (runner: () => Promise<void>): Promise<void> => {
@@ -89,8 +87,6 @@ export function useSignInModalLifecycle({
       setPhase('loading');
       await markSignInPending(storage);
       try {
-        // On web this navigates away and never resolves; the pending marker
-        // resumes the flow on the next mount.
         await runner();
       } catch (e) {
         await clearSignInPending(storage);

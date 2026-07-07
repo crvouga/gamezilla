@@ -57,8 +57,6 @@ jobs:
 
       - uses: ./.github/actions/setup
         if: steps.ci_skip.outputs.skip != 'true'
-        with:
-          vault: 'false'
 
       - name: Apply bun format
         if: steps.ci_skip.outputs.skip != 'true'

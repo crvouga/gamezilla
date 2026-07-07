@@ -7,22 +7,23 @@ import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
 } from './auth-storage-keys';
-import { useAuthClient } from './auth-client-provider';
+import { useAuthClientPort } from './auth-client-provider';
 
 /**
- * Signs out of Better Auth and clears the locally cached bearer + accountId.
- * The server-side `account/session` row is left in place — the next refresh
- * from another device will rotate or expire it; offline sign-out still works
- * because the local clear runs regardless of the network call's outcome.
+ * Signs out via {@link AuthClientPort.signOut} and clears the locally cached
+ * bearer + accountId. The server-side `account/session` row is left in place —
+ * the next refresh from another device will rotate or expire it; offline
+ * sign-out still works because the local clear runs regardless of the network
+ * call's outcome.
  */
 export function useSignOut(): () => Promise<void> {
   const log = useLogger('auth-sign-out');
-  const authClient = useAuthClient();
+  const port = useAuthClientPort();
   const storage = useSecureStorage();
 
   return useCallback(async () => {
     try {
-      await authClient.signOut();
+      await port.signOut();
     } catch (err) {
       log.warn('Hosted sign-out failed', {
         error: err instanceof Error ? err.message : String(err),
@@ -43,5 +44,5 @@ export function useSignOut(): () => Promise<void> {
         });
       }
     }
-  }, [authClient, storage, log]);
+  }, [port, storage, log]);
 }

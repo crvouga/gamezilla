@@ -83,13 +83,13 @@ describe('pgQueryWithOptionalSearchPathPin', () => {
       dbScope: testScope,
       pinSearchPathEachQuery: true,
       sql: 'SELECT 1 FROM kv WHERE key = ?',
-      params: ['dev-idp'],
+      params: ['test-app'],
     });
     expect(calls).toHaveLength(4);
     expect(calls[0]?.text).toBe('BEGIN');
     expect(calls[1]?.text).toContain('SET LOCAL search_path TO');
     expect(calls[2]?.text).toBe('SELECT 1 FROM kv WHERE key = $1');
-    expect(calls[2]?.vals).toEqual(['dev-idp']);
+    expect(calls[2]?.vals).toEqual(['test-app']);
     expect(calls[3]?.text).toBe('COMMIT');
   });
 });

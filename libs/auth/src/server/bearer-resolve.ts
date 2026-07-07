@@ -3,46 +3,40 @@ import {
   type AppAuthContext,
   buildAppAuthContext,
 } from '@libs/auth/shared/auth-context';
+import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { PatchDb } from '@pkgs/patch-db/interface';
 
-import { ensureInternalAccountIdForExternalUser } from './better-auth-account-provisioning';
-import type { HostedBetterAuth } from './better-auth-create';
+import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
 
 /**
- * Validates the bearer token via Better Auth and resolves the internal account
- * id, or `null` if verification fails.
+ * Validates the bearer token via the auth server port and resolves the internal
+ * account id, or `null` if verification fails.
  */
 export async function resolveAccountIdFromBearer(args: {
   db: PatchDb;
-  auth: HostedBetterAuth;
+  authServer: AuthServerPort;
   bearerToken: string;
   deviceId: string;
 }): Promise<string | null> {
-  const { db, auth, bearerToken, deviceId } = args;
+  const { db, authServer, bearerToken, deviceId } = args;
   assertUuid(deviceId, 'deviceId must be a valid UUID');
   const trimmed = bearerToken.trim();
   if (trimmed.length === 0) return null;
-  let session: Awaited<ReturnType<typeof auth.api.getSession>>;
-  try {
-    session = await auth.api.getSession({
-      headers: new Headers({ authorization: `Bearer ${trimmed}` }),
-    });
-  } catch {
-    return null;
-  }
-  if (session === null || session.user === undefined) return null;
-  const { id, email } = session.user;
-  if (typeof id !== 'string' || id.length === 0) return null;
+
+  const session = await authServer.verifySessionToken(trimmed);
+  if (session === null) return null;
+
   return await ensureInternalAccountIdForExternalUser({
     db,
-    externalUserId: id,
-    email: typeof email === 'string' ? email : null,
+    externalUserId: session.externalUserId,
+    email: session.email,
+    provider: authServer.providerLabel,
   });
 }
 
 export async function buildAppAuthContextFromBearer(args: {
   db: PatchDb;
-  auth: HostedBetterAuth;
+  authServer: AuthServerPort;
   bearerToken: string;
   deviceId: string;
 }): Promise<AppAuthContext | null> {

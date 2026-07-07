@@ -3,10 +3,7 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 
 import { assert } from '@pkgs/assert';
-import {
-  createVaultSecretStoreForScripts,
-  type SecretStore,
-} from '@pkgs/secret-store';
+import { createScriptSecretStore, type SecretStore } from '@pkgs/secret-store';
 
 const CLIENT_DSN_SECRET = 'EXPO_PUBLIC_SENTRY_DSN';
 const API_DSN_SECRET = 'SENTRY_DSN';
@@ -100,16 +97,16 @@ async function resolveSentryAuthToken(store: SecretStore): Promise<string> {
   const fromEnv = trimStringOrNull(process.env['SENTRY_AUTH_TOKEN']);
   if (fromEnv !== null) return fromEnv;
 
-  const fromVault = trimStringOrNull(
+  const fromStore = trimStringOrNull(
     (await store.getOptional('SENTRY_AUTH_TOKEN'))?.readSecretValue()
   );
-  if (fromVault !== null) return fromVault;
+  if (fromStore !== null) return fromStore;
 
   const fromRc = readSentryCliAuthTokenFromRc();
   if (fromRc !== null) return fromRc;
 
   throw new Error(
-    'SENTRY_AUTH_TOKEN is missing. Set it in the environment, store it in Vault as ' +
+    'SENTRY_AUTH_TOKEN is missing. Set it in the environment, store it in secret store as ' +
       'SENTRY_AUTH_TOKEN, or log in with `sentry-cli login` (writes ~/.sentryclirc). ' +
       'Create a token at https://sentry.io/settings/account/api/auth-tokens/ ' +
       'with project:read scope.'
@@ -176,13 +173,13 @@ async function secretPresent(
 
 async function main(): Promise<void> {
   const options = parseCliOptions(process.argv.slice(2));
-  const store = createVaultSecretStoreForScripts();
+  const store = createScriptSecretStore();
 
   if (!options.force) {
     const hasClientDsn = await secretPresent(store, CLIENT_DSN_SECRET);
     if (hasClientDsn) {
       process.stdout.write(
-        `[setup-sentry-dsn] ${CLIENT_DSN_SECRET} already present in Vault; skipping (pass --force to overwrite).\n`
+        `[setup-sentry-dsn] ${CLIENT_DSN_SECRET} already present in secret store; skipping (pass --force to overwrite).\n`
       );
       return;
     }
@@ -206,7 +203,7 @@ async function main(): Promise<void> {
   await store.setSecret(CLIENT_DSN_SECRET, dsn);
   await store.setSecret(API_DSN_SECRET, dsn);
   process.stdout.write(
-    `[setup-sentry-dsn] wrote ${CLIENT_DSN_SECRET} and ${API_DSN_SECRET} to Vault for ${options.org}/${options.project} (${maskDsn(dsn)}).\n` +
+    `[setup-sentry-dsn] wrote ${CLIENT_DSN_SECRET} and ${API_DSN_SECRET} to secret store for ${options.org}/${options.project} (${maskDsn(dsn)}).\n` +
       '[setup-sentry-dsn] Sentry stays dormant until OBSERVABILITY_BACKEND=sentry is set explicitly.\n' +
       '[setup-sentry-dsn] Run `bun run --filter @apps/client setup` and restart dev to pick up changes.\n'
   );

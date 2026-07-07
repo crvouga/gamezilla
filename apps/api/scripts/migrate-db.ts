@@ -1,20 +1,20 @@
-import { loadBetterAuthOptionsForMigration } from '@libs/auth/server/better-auth-migration-options';
-import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
-import { resolveLocalPreviewApiOrigin } from '@libs/client-config/shared/resolve-local-preview-api-origin';
 import {
-  assertDatabaseUrlAllowedForVaultConfig,
-  assertDevVaultConfig,
-  DEVELOPMENT_VAULT_CONFIG,
+  assertDevSecretsEnv,
+  DEVELOPMENT_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
+import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-url-policy-tooling';
 import { assert } from '@pkgs/assert';
 import { createLogger, type Logger } from '@pkgs/logger';
-import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
+import { createScriptSecretStore } from '@pkgs/secret-store';
+import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { createPgPool, pingPostgres } from '@pkgs/sql-client/postgres-connect';
-import { VaultCli } from '@pkgs/vault/vault-cli';
+import { join } from 'node:path';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { readDevVarsDatabaseUrl } from './dev-vars';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
 
+const apiRoot = join(import.meta.dirname, '..');
+const REPO_ROOT = join(apiRoot, '../..');
 const CONNECTION_LIMIT_DELAYS_MS = [0, 3_000, 8_000, 15_000, 30_000] as const;
 const WAIT_FOR_POSTGRES_MS = 60_000;
 const WAIT_FOR_POSTGRES_RETRY_MS = 1_000;
@@ -24,10 +24,10 @@ function isPostgresUrl(url: string): boolean {
   return url.startsWith('postgresql://') || url.startsWith('postgres://');
 }
 
-function resolveVaultConfigForMigrate(): string {
-  const fromEnv = process.env['VAULT_CONFIG']?.trim() ?? '';
+function resolveSecretsEnvForMigrate(): string {
+  const fromEnv = process.env['SECRETS_ENV']?.trim() ?? '';
   if (fromEnv.length > 0) return fromEnv;
-  return new VaultCli().resolveScope().config;
+  return resolveSecretsScope(REPO_ROOT).env;
 }
 
 function isPostgresConnectionLimitError(error: unknown): boolean {
@@ -56,18 +56,19 @@ async function resolveDatabaseUrlForMigrate(): Promise<string> {
   if (fromEnv.length > 0 && isPostgresUrl(fromEnv)) {
     return fromEnv;
   }
-  const store = createVaultSecretStoreForScripts();
+  const store = createScriptSecretStore();
   return (await store.getRequired('DATABASE_URL')).readSecretValue();
 }
 
 async function assertMigrateDatabasePolicy(databaseUrl: string): Promise<void> {
-  const vaultConfig = resolveVaultConfigForMigrate();
-  if (vaultConfig !== DEVELOPMENT_VAULT_CONFIG) {
+  const secretsEnv = resolveSecretsEnvForMigrate();
+  if (secretsEnv !== DEVELOPMENT_SECRETS_ENV) {
     return;
   }
-  assertDevVaultConfig(vaultConfig);
-  await assertDatabaseUrlAllowedForVaultConfig(databaseUrl, vaultConfig, {
+  assertDevSecretsEnv(secretsEnv);
+  await assertNonProdDatabaseUrlForTooling(databaseUrl, {
     surface: 'api:migrate',
+    secretsEnv,
   });
 }
 
@@ -110,19 +111,9 @@ async function waitForPostgresReachable(
   });
 }
 
-async function resolveApiOriginForMigrate(
-  vaultConfig: string
-): Promise<string> {
-  if (vaultConfig !== DEVELOPMENT_VAULT_CONFIG) {
-    return `https://${APP_IDENTITY.apiHost}`;
-  }
-  return resolveLocalPreviewApiOrigin();
-}
-
 async function runMigrateOnce(): Promise<void> {
   const databaseUrl = await resolveDatabaseUrlForMigrate();
   await assertMigrateDatabasePolicy(databaseUrl);
-  const vaultConfig = resolveVaultConfigForMigrate();
   const dbScope = appPostgresDbScope();
   const { pool, sqlClient } = createPgPool({
     connectionString: databaseUrl,
@@ -133,19 +124,14 @@ async function runMigrateOnce(): Promise<void> {
   try {
     await runPostgresMigrations({
       sqlClient,
-      databaseUrl,
       logger: log,
-      betterAuthOptions: await loadBetterAuthOptionsForMigration(
-        createVaultSecretStoreForScripts(),
-        await resolveApiOriginForMigrate(vaultConfig)
-      ),
       dbScope,
     });
     log.info(
-      'postgres migrations finished (patch-db + kv + better-auth; matchmaking self-migrates on first request; legacy entities dropped if present)'
+      'postgres migrations finished (patch-db + kv; legacy auth tables dropped if present; matchmaking self-migrates on first request)'
     );
     process.stdout.write(
-      '[api:migrate] completed (patch-db + kv + better-auth; matchmaking self-migrates on first request; legacy entities dropped if present)\n'
+      '[api:migrate] completed (patch-db + kv; legacy auth tables dropped if present; matchmaking self-migrates on first request)\n'
     );
   } finally {
     await pool.end();

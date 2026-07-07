@@ -3,13 +3,13 @@ import { LegacyCloudflareStackResource } from './legacy-cloudflare-stack';
 import { S3BucketResource } from './s3-bucket';
 import { ClientRedirectRuleResource } from './client-redirect-rule';
 import { DnsRecordsResource } from './dns-records';
-import { VaultResource } from './vault';
+import { SecretsResource } from './secrets';
 import { PlanetScalePostgres } from './planetscale-postgres';
 import type { Resource } from './types';
 import { ZoneResource } from './zone';
 
 export function createRegistry(): readonly Resource[] {
-  const vault = new VaultResource();
+  const secrets = new SecretsResource();
   const zone = new ZoneResource();
   const planetscalePostgres = new PlanetScalePostgres();
   const s3Bucket = new S3BucketResource();
@@ -18,15 +18,15 @@ export function createRegistry(): readonly Resource[] {
   const apiWorker = new ApiWorkerResource();
   const legacyCloudflareStack = new LegacyCloudflareStackResource();
 
-  zone.needs(vault);
-  planetscalePostgres.needs(vault);
-  s3Bucket.needs(vault);
+  zone.needs(secrets);
+  planetscalePostgres.needs(secrets);
+  s3Bucket.needs(secrets);
   dnsRecords.needs(zone);
   clientRedirectRule.needs(zone);
   apiWorker.needs(planetscalePostgres, dnsRecords, s3Bucket);
 
   return [
-    vault,
+    secrets,
     zone,
     planetscalePostgres,
     s3Bucket,

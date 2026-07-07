@@ -1,12 +1,14 @@
 import { useEntity } from '@pkgs/patch-db/react';
 
 import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '../shared';
+import { useAuthClientPort } from './auth-client-provider';
 import {
   useCurrentAccountId,
   getCachedCurrentAccountId,
 } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
-import { useSessionToken } from './use-session-token';
+import { useFreshAuthToken } from './use-fresh-auth-token';
+import { isAuthSessionSignedIn } from './session-snapshot';
 
 export type CurrentUser = {
   accountId: string;
@@ -46,8 +48,13 @@ export function useCurrentUser(): CurrentUser | null {
  * the moment `<AuthBridge>` writes both keys.
  */
 export function useIsSignedIn(): boolean {
+  const port = useAuthClientPort();
+  const authState = port.useAuthSession();
   const accountId = useCurrentAccountId();
-  const token = useSessionToken();
+  const token = useFreshAuthToken();
+
+  if (isAuthSessionSignedIn(authState)) return true;
+
   return accountId !== null && token !== null;
 }
 
@@ -59,7 +66,7 @@ export function useIsSignedIn(): boolean {
 export function useMyId(): string {
   const accountId = useCurrentAccountId();
   const deviceId = useDeviceId();
-  const token = useSessionToken();
+  const token = useFreshAuthToken();
   if (accountId !== null) return accountId;
   if (token !== null) {
     const cachedAccountId = getCachedCurrentAccountId();

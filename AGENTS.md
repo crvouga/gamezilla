@@ -42,17 +42,17 @@ Centered modals (`ModalContent`, `ResponsiveSurface`, `ConfirmationModal`, `Muta
 
 ## CI / Turbo Remote Cache
 
-GitHub Actions runs checks with `VAULT_CONFIG=dev`. Caching is backed by the **self-hosted [`turborepo-remote-cache`](https://turborepo.chrisvouga.dev)** Cloudflare Worker (Turborepo `/v8/artifacts/*` API backed by Backblaze B2; maintained in the sibling `turborepo-remote-cache` repo) — ensure the Vault **`dev`** config defines `TURBO_API` (the cache origin `https://turborepo.chrisvouga.dev`), `TURBO_TOKEN` (the bearer token the cache Worker validates), and `TURBO_TEAM` (any slug — we use `local`). The optional knobs `TURBO_CACHE` (default `remote:rw`), `TURBO_LOG_ORDER`, and `TURBO_TELEMETRY_DISABLED` are derived defaults populated by `infra provision`. The values are mirrored from the active config to `dev` automatically (see `mirrorSharedToDev` in `libs/infra/src/cli/resources/vault.ts`). The `turbo-ci` job runs `scripts/check-turbo-remote-cache.ts` under `vault run` first (Vault `dev` must expose `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`; CI authenticates via GitHub Actions OIDC — no stored token). The script rejects missing env, a bad/expired token (via `GET ${TURBO_API}/v8/artifacts/status`), and Turbo’s `Remote caching unavailable` probe warning; without remote cache CI reruns every task cold (~10+ min) with misleading blank log lines. `bun run check:ci` invokes `scripts/turbo-ci-run.ts`, which passes `--concurrency=6 --cache-workers=1 --summarize --output-logs=hash-only --log-order=grouped` to every Turbo invocation: fewer parallel tasks and serialized cache HTTP keep load light on the cache Worker. CI uses `--cache=local:rw,remote:rw` so later runs hit `cache hit` instead of cold `cache miss`; local `bun check` uses `remote:r` (read-only).
+GitHub Actions runs checks with `SECRETS_ENV=dev`. Caching is backed by the **self-hosted [`turborepo-remote-cache`](https://turborepo.chrisvouga.dev)** Cloudflare Worker (Turborepo `/v8/artifacts/*` API backed by Backblaze B2; maintained in the sibling `turborepo-remote-cache` repo) — ensure the secrets env **`dev`** config defines `TURBO_API` (the cache origin `https://turborepo.chrisvouga.dev`), `TURBO_TOKEN` (the bearer token the cache Worker validates), and `TURBO_TEAM` (any slug — we use `local`). The optional knobs `TURBO_CACHE` (default `remote:rw`), `TURBO_LOG_ORDER`, and `TURBO_TELEMETRY_DISABLED` are derived defaults populated by `infra provision`. The values are mirrored from the active config to `dev` automatically (see `mirrorSharedToDev` in `libs/infra/src/cli/resources/secrets.ts`). The `turbo-ci` job runs `scripts/check-turbo-remote-cache.ts` under `secrets-run` first (secrets env `dev` must expose `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`; CI authenticates via GitHub Actions OIDC — no stored token). The script rejects missing env, a bad/expired token (via `GET ${TURBO_API}/v8/artifacts/status`), and Turbo’s `Remote caching unavailable` probe warning; without remote cache CI reruns every task cold (~10+ min) with misleading blank log lines. `bun run check:ci` invokes `scripts/turbo-ci-run.ts`, which passes `--concurrency=6 --cache-workers=1 --summarize --output-logs=hash-only --log-order=grouped` to every Turbo invocation: fewer parallel tasks and serialized cache HTTP keep load light on the cache Worker. CI uses `--cache=local:rw,remote:rw` so later runs hit `cache hit` instead of cold `cache miss`; local `bun check` uses `remote:r` (read-only).
 
 To rotate / re-seed the client secrets from the cache repo, run (in `../turborepo-remote-cache`): `bun run seed:turbo-client -- --target-project gamezilla --all-configs`.
 
-Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store/impl-s3`. The API Worker fetches `S3_*` credentials from Vault at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PROJECT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix, so the shared bucket cannot be written outside this project's namespace. The bucket and credentials are externally managed (like PlanetScale); `infra deploy` verifies Vault secrets via the `s3-bucket` resource.
+Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store/impl-s3`. The API Worker fetches `S3_*` credentials from the secret store at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PROJECT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix, so the shared bucket cannot be written outside this project's namespace. The bucket and credentials are externally managed (like PlanetScale); `infra deploy` verifies secrets via the `s3-bucket` resource.
 
 ## CI/CD job layout
 
 The deployment pipeline (`.github/workflows/deployment-pipeline.yml`) follows three rules:
 
-1. **Turbo-cacheable tasks run inside one `turbo-ci` job.** Format, syncpack + catalog + no-patches, knip, depcruise, circular-deps, audit, i18n, plus per-package `tc` / `lint` / `test` / `build` all live under root `ci:*` scripts and per-package tasks in `turbo.json`. CI invokes them with `bun run check:ci` so Turbo's task graph + the self-hosted remote cache (via the Vault-injected `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`) handle ordering and reuse with zero extra YAML. Root `turbo.json` sets `"ui": "stream"` (not `tui`) so CI logs stream live — `bun run dev` still passes `--ui=tui`. `check:ci:turbo` runs `@apps/client setup` first so `expo lint` has `.env.local`.
+1. **Turbo-cacheable tasks run inside one `turbo-ci` job.** Format, syncpack + catalog + no-patches, knip, depcruise, circular-deps, audit, i18n, plus per-package `tc` / `lint` / `test` / `build` all live under root `ci:*` scripts and per-package tasks in `turbo.json`. CI invokes them with `bun run check:ci` so Turbo's task graph + the self-hosted remote cache (via the secrets-injected `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`) handle ordering and reuse with zero extra YAML. Root `turbo.json` sets `"ui": "stream"` (not `tui`) so CI logs stream live — `bun run dev` still passes `--ui=tui`. `check:ci:turbo` runs `@apps/client setup` first so `expo lint` has `.env.local`.
 2. **Non-Turbo tasks get their own job only when they need a different runner shape.** `static` runs actionlint + gitleaks (gitleaks needs `fetch-depth: 0`); `qa-api` and `qa-browser` need Playwright browsers and artifact uploads.
 3. **The production deploy is one atomic `deploy` job.** A single checkout + `infra-setup` runs `bun run infra deploy`: provision and `db:migrate` run before the PlanetScale-backed global lock is acquired (avoids holding a direct slot during migrate); the lock then covers deploy-resources → stripe-sync → smoke → refresh-config → ensure-destroyed. `db:migrate` retries on Postgres `53300` / “too many clients”. A tiny always-run `lock-release` job is the safety net for crashed / cancelled deploys.
 
@@ -60,19 +60,19 @@ When adding a new check, default to a turbo task under `ci:*` (or extend an exis
 
 ## Local database
 
-Local dev and CI use **hosted dev Postgres** only — there is no embedded/local Postgres process. `DATABASE_URL` comes exclusively from Vault **`personal/dev`** (injected by `bun run scripts/vault-run.ts`, which defaults to `VAULT_CONFIG=dev` from repo-root `.vault.yaml`).
+Local dev and CI use **hosted dev Postgres** only — there is no embedded/local Postgres process. `DATABASE_URL` comes exclusively from secrets env **`dev`** (injected by `bun run scripts/secrets-run.ts`, which defaults to `SECRETS_ENV=dev` from the repo-root secrets scope config).
 
-- **`bun run dev`** — `vault run` → turbo starts api + client + dev-idp; `@apps/api` `setup` writes `.dev.vars` with the Vault `dev` `DATABASE_URL` (mirrored, not loopback).
-- **`bun db:migrate`** — `vault run` → `@apps/api db:migrate` against Vault `dev` `DATABASE_URL`.
-- **Production** — only `bun run infra` sets `VAULT_CONFIG=prd`; deploy runs `db:migrate` against Vault `prd` `DATABASE_URL`.
+- **`bun run dev`** — `secrets-run` → turbo starts api + client; `@apps/api` `setup` writes `.dev.vars` with the secrets env `dev` `DATABASE_URL` (mirrored, not loopback).
+- **`bun db:migrate`** — `secrets-run` → `@apps/api db:migrate` against secrets env `dev` `DATABASE_URL`.
+- **Production** — only `bun run infra` sets `SECRETS_ENV=prd`; deploy runs `db:migrate` against secrets env `prd` `DATABASE_URL`.
 
 ### Database safety (Tiger policy)
 
 Non-deploy contexts must never reach production Postgres. Guards live in `@libs/infra/shared/database-url-policy`:
 
-1. **`assertDevVaultConfig`** — scripts exit unless `VAULT_CONFIG === 'dev'`.
-2. **`assertNonProdDatabaseUrl`** — rejects loopback URLs and URLs equal to Vault `prd` `DATABASE_URL` (dual-fetch at setup/migrate time).
-3. **API worker** — when `VAULT_CONFIG` binding is `dev`, the first DB request asserts non-prod URL.
+1. **`assertDevSecretsEnv`** — scripts exit unless `SECRETS_ENV === 'dev'`.
+2. **`assertNonProdDatabaseUrl`** — rejects loopback URLs and URLs equal to secrets env `prd` `DATABASE_URL` (dual-fetch at setup/migrate time).
+3. **API worker** — when `SECRETS_ENV` binding is `dev`, the first DB request asserts non-prod URL.
 4. **`ci:database-url-policy`** — static check that every DATABASE_URL entrypoint wires the guards.
 5. **Escape hatch** — `ALLOW_PRODUCTION_DATABASE_URL=1` (mirrors `EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL` for the API).
 
@@ -127,7 +127,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite (`account-db*`), Better Auth bootstrap + Postgres migrations runner.
+- `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite (`account-db*`), auth port/adapters + Postgres migrations runner.
 - `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`.
 - `@libs/client-config` — server-pushed runtime config (singleton `clientConfig` entity): shared entity defs, server `POST /client-config/refresh` route, client cards / screens, and `dev-refresh-client-config.ts`.
 - `@libs/profile` — public profile, dicebear avatar editor, display-name generator.

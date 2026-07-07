@@ -1,11 +1,5 @@
 name: Setup repo (Node + Bun + deps)
-description: Node 22, Bun, cache install store, bun install, optional Vault CLI (run actions/checkout first)
-
-inputs:
-  vault:
-    description: Whether to install the OpenBao CLI (bao) for vault kv passthrough
-    required: false
-    default: 'true'
+description: Node 22, Bun, cache install store, bun install (run actions/checkout first)
 
 runs:
   using: composite
@@ -31,28 +25,3 @@ runs:
     - name: Install dependencies
       shell: bash
       run: bun install --frozen-lockfile
-
-    - name: Install OpenBao CLI (bao)
-      if: inputs.vault == 'true'
-      shell: bash
-      run: |
-        set -euo pipefail
-        if command -v bao >/dev/null 2>&1; then
-          echo "bao already on PATH"
-          exit 0
-        fi
-        BAO_VERSION="2.2.0"
-        ARCH="$(uname -m)"
-        case "$ARCH" in
-          x86_64|amd64) BAO_ARCH="x86_64" ;;
-          aarch64|arm64) BAO_ARCH="arm64" ;;
-          *) echo "unsupported arch: $ARCH" >&2; exit 1 ;;
-        esac
-        URL="https://github.com/openbao/openbao/releases/download/v${BAO_VERSION}/bao_${BAO_VERSION}_Linux_${BAO_ARCH}.tar.gz"
-        curl -fsSL "$URL" -o /tmp/bao.tar.gz
-        mkdir -p /tmp/bao-bin
-        tar -xzf /tmp/bao.tar.gz -C /tmp/bao-bin
-        sudo install -m 0755 /tmp/bao-bin/bao /usr/local/bin/bao
-        # Passthrough subcommands the wrapper would delegate to the real binary.
-        sudo ln -sf /usr/local/bin/bao /usr/local/bin/vault
-        bao version

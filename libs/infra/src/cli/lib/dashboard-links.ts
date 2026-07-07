@@ -1,11 +1,10 @@
-import { VAULT_DEFAULTS } from '@pkgs/vault';
+import { SECRETS_DEFAULTS } from '@pkgs/secrets-config/defaults';
 import { PROJECT_CONFIG } from '../../project-config';
 
 /**
  * Markdown bullets linking to vendor consoles. Uses {@link PROJECT_CONFIG} for
  * stable public slugs. `CLOUDFLARE_ACCOUNT_ID` is read from the environment (e.g.
- * injected by `vault run` in CI from the `shared` Vault config); if unset,
- * generic Cloudflare dashboard links are used.
+ * injected by `secrets-run` in CI); if unset, generic Cloudflare dashboard links are used.
  */
 export function buildVendorDashboardMarkdown(): string[] {
   const lines: string[] = [];
@@ -24,7 +23,7 @@ export function buildVendorDashboardMarkdown(): string[] {
   lines.push(
     `- **PlanetScale:** [Organization \`${psOrg}\`](https://app.planetscale.com/${psOrg}) · [Database \`${psDb}\`](https://app.planetscale.com/${psOrg}/${psDb})`
   );
-  lines.push(`- **Vault:** [Dashboard](${VAULT_DEFAULTS.addr})`);
+  lines.push(`- **Infisical:** [Dashboard](${SECRETS_DEFAULTS.domain})`);
   lines.push(
     `- **Vercel Remote Caching:** [Account tokens](https://vercel.com/account/tokens) · [Team settings](https://vercel.com/dashboard/usage)`
   );
@@ -44,7 +43,7 @@ export function buildVendorDashboardMarkdown(): string[] {
     );
   } else {
     lines.push(
-      `- **Cloudflare:** [Dashboard](https://dash.cloudflare.com/) — add \`CLOUDFLARE_ACCOUNT_ID\` to Vault (\`shared\`) for direct links to zone and Workers`
+      `- **Cloudflare:** [Dashboard](https://dash.cloudflare.com/) — add \`CLOUDFLARE_ACCOUNT_ID\` to Infisical for direct links to zone and Workers`
     );
   }
 

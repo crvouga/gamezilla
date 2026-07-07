@@ -13,11 +13,9 @@ import { useSignOut } from './use-sign-out';
 import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
 import { SignInModal, type SignInModalProps } from './sign-in-modal';
 import { useSignIn } from './use-sign-in';
-import { useSignInWithDev } from './use-sign-in-with-dev';
 import { useSignInPending } from './sign-in-pending';
 import { HOSTED_SIGN_IN_UNAVAILABLE_REASON } from './auth-errors';
 import { useConfigService } from './config-service-context';
-import { isLocalApiOrigin } from '../shared/local-api-origin';
 
 export type AuthModals = {
   signInModalOpen: boolean;
@@ -33,7 +31,7 @@ const Ctx = createContext<AuthModals | null>(null);
 /**
  * Owns just the open/close state for the sign-in modal and the sign-out
  * confirmation modal, plus mounts the modals themselves. Auth state
- * (`useCurrentUser`, `useSessionToken`, etc.) is intentionally not exposed
+ * (`useCurrentUser`, `useFreshAuthToken`, etc.) is intentionally not exposed
  * here — components read those hooks directly.
  */
 export function AuthModalsProvider({
@@ -105,7 +103,6 @@ function useSignInModalConnection(args: {
   const { signInModalOpen, openSignInModal, closeSignInModal } = args;
   const apiUrl = useConfigService().getApiUrl();
   const signIn = useSignIn();
-  const signInWithDev = useSignInWithDev();
   const signInLog = useLogger('auth-sign-in');
   const { pending, isHydrated } = useSignInPending();
   const resumePending = isHydrated && pending !== null;
@@ -122,9 +119,6 @@ function useSignInModalConnection(args: {
   );
 
   const signInAvailable = apiUrl.trim().length > 0;
-  // Keep the modal visible while a pending marker is active so OAuth resume
-  // cannot settle the session (and flip to success) before `openSignInModal`
-  // runs in an effect — that race dropped the success UI on web redirects.
   const signInModalVisible = signInModalOpen || resumePending;
   return {
     visible: signInModalVisible,
@@ -134,11 +128,9 @@ function useSignInModalConnection(args: {
     signInUnavailableReason: signInAvailable
       ? null
       : HOSTED_SIGN_IN_UNAVAILABLE_REASON,
-    devSignInAvailable: signInAvailable && isLocalApiOrigin(apiUrl),
     onSignInWithHosted: async () => {
       await signIn();
     },
-    onSignInWithDev: signInWithDev,
     onError,
   };
 }

@@ -5,12 +5,7 @@ import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from './local-api-preview';
 /** Expo web — `bun dev` (Metro) and `bun preview` (static export) both use :5173. */
 export const DEV_CLIENT_PORT = 5173;
 
-/** Dev IdP — matches {@link @pkgs/dev-idp} default. */
-export const DEV_IDP_PORT = 5556;
-
 export const DEV_CLIENT_BASE_URL = `http://localhost:${String(DEV_CLIENT_PORT)}`;
-
-const DEV_IDP_AUTHORIZE_URL = `http://127.0.0.1:${String(DEV_IDP_PORT)}/dev-idp/authorize`;
 
 /** Dev-mode web bundle server for native launch E2E (`expo export --dev` + serve). */
 export const NATIVE_E2E_PORT = 5174;
@@ -47,11 +42,6 @@ function devStackProbes(apiOrigin: string): StackProbe[] {
       ok: probeHttpOkSync(`${apiOrigin}/api/health`),
     },
     {
-      label: 'Dev IdP authorize',
-      url: DEV_IDP_AUTHORIZE_URL,
-      ok: probeHttpOkSync(DEV_IDP_AUTHORIZE_URL),
-    },
-    {
       label: 'Web client',
       url: `${DEV_CLIENT_BASE_URL}/`,
       ok: probeHttpOkSync(`${DEV_CLIENT_BASE_URL}/`),
@@ -80,8 +70,8 @@ function browserStackNotRunningMessage(apiOrigin: string): string {
     formatProbeList(devStackProbes(apiOrigin)),
     '',
     'Start the stack (same ports for dev and QA):',
-    '  bun dev       # client :5173, IdP :5556, API :8788',
-    '  bun preview   # static export on :5173, IdP :5556, API :8788',
+    '  bun dev       # client :5173, API :8788',
+    '  bun preview   # static export on :5173, API :8788',
     '',
     'Then re-run:',
     '  bun qa:browser   or   bun pw',

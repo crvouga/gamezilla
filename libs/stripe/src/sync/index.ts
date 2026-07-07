@@ -7,11 +7,11 @@
  *   - {@link runStripeEntitiesSync} — backfill every Stripe object type into
  *     patch-db (also exposes {@link runStripeEntityBackfill} for one-offs).
  *   - {@link runStripeWebhookSync} — reconcile a single `*` webhook endpoint
- *     and write its `whsec_` to Vault.
+ *     and write its `whsec_` to secret store.
  *
  * Composed:
  *   - {@link runStripeFullSync} — catalog → entities → webhooks on a single
- *     shared Stripe + PatchDb + Vault CLI; this is what `scripts/sync.ts`
+ *     shared Stripe + PatchDb + secret store CLI; this is what `scripts/sync.ts`
  *     calls and what deploys invoke.
  */
 export {

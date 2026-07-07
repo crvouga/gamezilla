@@ -44,12 +44,11 @@ export function GoogleBrandLogo({ size }: BrandIconSvgProps) {
 }
 
 /**
- * Local "Dev IdP" brand mark — a minimal user silhouette in indigo.
+ * Local dev test-user brand mark — a minimal user silhouette in indigo.
  * Directly evokes "test user account" without ever being mistaken for a
  * real production provider's logo.
  *
- * This logo is owned by the in-repo `@pkgs/dev-idp` package; we get to set
- * its branding guidelines. Treat the palette as fixed (don't retint).
+ * Treat the palette as fixed (don't retint).
  */
 export function DevIdpBrandLogo({ size }: BrandIconSvgProps) {
   return (

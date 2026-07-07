@@ -1,27 +1,11 @@
 /**
  * Readiness probe for Playwright / `turbo preview`: the static export on
- * `PREVIEW_PORT` becomes reachable before wrangler and the dev IdP finish
- * booting, so probing `/` alone starts browser tests while OAuth still fails.
+ * `PREVIEW_PORT` becomes reachable before wrangler finishes booting, so probing
+ * `/` alone starts browser tests while the API is still down.
  */
 import { resolveLocalPreviewApiOriginSync } from '@libs/client-config/shared/resolve-local-preview-api-origin';
 
-/** Mirrors {@link @pkgs/dev-idp/config} defaults — not imported to avoid a client → dev-idp dep. */
-const DEV_IDP_DEFAULT_PORT = 5556;
-const DEV_IDP_PATH_PREFIX = '/dev-idp';
-const DEV_IDP_AUTHORIZE_PATH = `${DEV_IDP_PATH_PREFIX}/authorize`;
-
 const PROBE_TIMEOUT_MS = 2_000;
-
-function resolveDevIdpAuthorizeUrl(): string {
-  const raw = process.env['DEV_IDP_PORT']?.trim();
-  const port =
-    raw !== undefined && raw.length > 0 ? Number(raw) : DEV_IDP_DEFAULT_PORT;
-  const resolved =
-    Number.isInteger(port) && port > 0 && port <= 65_535
-      ? port
-      : DEV_IDP_DEFAULT_PORT;
-  return `http://127.0.0.1:${String(resolved)}${DEV_IDP_AUTHORIZE_PATH}`;
-}
 
 async function probeOk(url: string): Promise<boolean> {
   try {
@@ -36,14 +20,11 @@ async function probeOk(url: string): Promise<boolean> {
   }
 }
 
-/** Returns 200 when the API worker and dev IdP are both accepting traffic. */
+/** Returns 200 when the API worker is accepting traffic. */
 export async function previewStackReadyResponse(): Promise<Response> {
   const apiTarget = resolveLocalPreviewApiOriginSync();
-  const [apiReady, devIdpReady] = await Promise.all([
-    probeOk(`${apiTarget}/api/health`),
-    probeOk(resolveDevIdpAuthorizeUrl()),
-  ]);
-  if (apiReady && devIdpReady) {
+  const apiReady = await probeOk(`${apiTarget}/api/health`);
+  if (apiReady) {
     return new Response('ok', { status: 200 });
   }
   return new Response('preview stack not ready', { status: 503 });

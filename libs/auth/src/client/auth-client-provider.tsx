@@ -1,44 +1,33 @@
-/**
- * Single app-wide Better Auth client. `createAuthClient` must not be called
- * per hook — each instance owns a session atom that fetches `/get-session` on
- * subscribe, so duplicating clients multiplies cold-start traffic.
- */
+import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
+import { createContext, useContext, type ReactNode } from 'react';
 
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
-
-import {
-  authBaseUrl,
-  createAppAuthClient,
-  type AuthClient,
-  type SessionSnapshot,
-} from './better-auth-client';
-import { useConfigService } from './config-service-context';
-
-const AuthClientContext = createContext<AuthClient | null>(null);
+const AuthClientPortContext = createContext<AuthClientPort | null>(null);
 
 export function AuthClientProvider({
+  port,
   children,
 }: {
-  children: ReactNode;
+  readonly port: AuthClientPort;
+  readonly children: ReactNode;
 }): ReactNode {
-  const apiUrl = useConfigService().getApiUrl();
-  const baseURL = useMemo(() => authBaseUrl(apiUrl), [apiUrl]);
-  const client = useMemo(() => createAppAuthClient(baseURL), [baseURL]);
   return (
-    <AuthClientContext.Provider value={client}>
+    <AuthClientPortContext.Provider value={port}>
       {children}
-    </AuthClientContext.Provider>
+    </AuthClientPortContext.Provider>
   );
 }
 
-export type { AuthClient, SessionSnapshot };
-
-export function useAuthClient(): AuthClient {
-  const client = useContext(AuthClientContext);
-  if (client === null) {
+export function useAuthClientPort(): AuthClientPort {
+  const port = useContext(AuthClientPortContext);
+  if (port === null) {
     throw new Error(
-      'useAuthClient: AuthClientProvider missing — wrap with AppProviders'
+      'useAuthClientPort: AuthClientProvider missing — wrap with AppProviders'
     );
   }
-  return client;
+  return port;
+}
+
+/** @deprecated Prefer {@link useAuthClientPort}. */
+export function useAuthClient(): AuthClientPort {
+  return useAuthClientPort();
 }

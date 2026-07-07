@@ -2,7 +2,7 @@
  * Top-level Stripe sync orchestrator.
  *
  * Composes catalog reconcile → patch-db backfills → webhook reconcile in a
- * stable order on a single shared Stripe client + PatchDb + Vault CLI.
+ * stable order on a single shared Stripe client + PatchDb + secret store CLI.
  *
  * The order matters:
  *   1. Catalog: ensures Products/Prices exist + patch-db has the latest

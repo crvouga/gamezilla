@@ -3,7 +3,7 @@ export interface SecretEntry {
   readonly env: string;
   readonly hint: string;
   /**
-   * When true, missing values in Vault are not warnings or errors — the
+   * When true, missing values in the secret store are not warnings or errors — the
    * code that consumes the env var must handle absence gracefully (typically
    * via {@link SecretStore.getOptional}).
    */

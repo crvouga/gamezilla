@@ -1,5 +1,5 @@
 import { getCachedDeviceId } from '@libs/auth/client/use-device-id';
-import { getCachedSessionToken } from '@libs/auth/client/use-session-token';
+import { getCachedAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import { getCachedCurrentAccountId } from '@libs/auth/client/use-current-account-id';
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 import { ACCOUNT_SESSION_ENTITY_TYPE, assertDeviceId } from '@libs/auth/shared';
@@ -151,7 +151,7 @@ export async function createPatchDb(
   const remote = new PatchDbImplClientTransport(
     createPatchDbHttpTransport({
       patchDbBaseUrl: `${args.config.getApiUrl()}/api/patch-db`,
-      getAuthToken: () => getCachedSessionToken(),
+      getAuthToken: () => getCachedAuthToken(),
       getAnonId: () => getCachedDeviceId(),
       ...(args.fetchFn !== undefined ? { fetch: args.fetchFn } : {}),
     })

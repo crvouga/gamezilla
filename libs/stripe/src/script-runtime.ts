@@ -10,23 +10,24 @@
 import type { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPgPool } from '@pkgs/sql-client/postgres-connect';
-import {
-  assertDatabaseUrlAllowedForVaultConfig,
-  assertDevVaultConfig,
-} from '@libs/infra/shared/database-url-policy';
+import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
+import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
+import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
-import { VaultCli } from '@pkgs/vault/vault-cli';
+import { join } from 'node:path';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from './script-secret-store';
 import { StripeSecretKeys } from './secret-keys';
 import { createStripeScriptPatchDb } from './stripe-script-patch-db';
+
+const REPO_ROOT = join(import.meta.dirname, '../../..');
 
 function isPostgresDbUrl(u: string): boolean {
   return u.startsWith('postgres://') || u.startsWith('postgresql://');
 }
 
 /**
- * Read `STRIPE_SECRET_KEY` from Vault. Exits process on missing/blank — these
+ * Read `STRIPE_SECRET_KEY` from the secret store. Exits process on missing/blank — these
  * scripts have no useful behavior without it.
  */
 export async function assertStripeSecretKey(
@@ -39,33 +40,33 @@ export async function assertStripeSecretKey(
   const trimmed = typeof raw === 'string' ? raw.trim() : '';
   if (trimmed.length === 0) {
     console.error(
-      `[${scriptTag}] STRIPE_SECRET_KEY is missing or blank in Vault (set VAULT_TOKEN or run \`vault login\`)`
+      `[${scriptTag}] STRIPE_SECRET_KEY is missing or blank — run under \`bun run scripts/secrets-run.ts\``
     );
     process.exit(1);
   }
   return trimmed;
 }
 
-function resolveVaultConfigName(): string {
-  const fromEnv = process.env['VAULT_CONFIG']?.trim() ?? '';
+function resolveSecretsEnvName(): string {
+  const fromEnv = process.env['SECRETS_ENV']?.trim() ?? '';
   if (fromEnv.length > 0) return fromEnv;
-  return new VaultCli().resolveScope().config;
+  return resolveSecretsScope(REPO_ROOT).env;
 }
 
 /**
- * Read `DATABASE_URL` from Vault. Exits when missing or unsupported — backfill
+ * Read `DATABASE_URL` from the secret store. Exits when missing or unsupported — backfill
  * scripts only do persistence, so absent DB makes them a no-op (footgun).
  */
 export async function assertDbUrl(scriptTag: string): Promise<string> {
-  const vaultConfig = resolveVaultConfigName();
-  assertDevVaultConfig(vaultConfig);
+  const secretsEnv = resolveSecretsEnvName();
+  assertDevSecretsEnv(secretsEnv);
   const store = createStripeScriptSecretStore();
   const raw =
     (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';
   const u = raw.trim();
   if (u.length === 0) {
     console.error(
-      `[${scriptTag}] DATABASE_URL is missing in Vault — set a postgres://… connection string`
+      `[${scriptTag}] DATABASE_URL is missing — set a postgres://… connection string`
     );
     process.exit(1);
   }
@@ -75,7 +76,7 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
     );
     process.exit(1);
   }
-  await assertDatabaseUrlAllowedForVaultConfig(u, vaultConfig, {
+  await assertDatabaseUrlAllowedForSecretsEnvForTooling(u, secretsEnv, {
     surface: scriptTag,
   });
   return u;

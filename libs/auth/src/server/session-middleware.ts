@@ -6,8 +6,8 @@ import {
   buildAppAuthContext,
 } from '@libs/auth/shared/auth-context';
 import { assert } from '@pkgs/assert';
+import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { PatchDb } from '@pkgs/patch-db/interface';
-import type { HostedBetterAuth } from './better-auth-create';
 import { buildAppAuthContextFromBearer } from './bearer-resolve';
 import type { AuthContext } from './types';
 import { UnauthorizedError } from './unauthorized-error';
@@ -20,7 +20,7 @@ export const ANON_ID_HEADER = 'x-anon-id';
 const UNAUTH_CLIENT_CONTEXT: AppClientContext = {};
 
 export type SessionAuthDeps = {
-  readonly auth: HostedBetterAuth;
+  readonly authServer: AuthServerPort;
 };
 
 function buildAnonAppAuthContext(anonId: string): AppAuthContext {
@@ -41,7 +41,7 @@ export type SessionAuth = {
 };
 
 export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
-  const { auth } = deps;
+  const { authServer } = deps;
 
   /**
    * Token-only request resolution. Session JWT in `Authorization: Bearer …` plus
@@ -77,7 +77,7 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
 
     const ctx = await buildAppAuthContextFromBearer({
       db,
-      auth,
+      authServer,
       bearerToken: token,
       deviceId: anonRaw,
     });

@@ -1,0 +1,29 @@
+name: Inject secrets from Infisical (OIDC)
+description: Fetch secrets via Infisical machine identity and export to GITHUB_ENV
+
+inputs:
+  identity-id:
+    description: Infisical machine identity ID for OIDC
+    required: true
+  project-slug:
+    description: Infisical project slug
+    required: true
+  env-slug:
+    description: Infisical environment slug (dev or prd)
+    required: true
+  domain:
+    description: Infisical API domain
+    required: false
+    default: https://app.infisical.com
+
+runs:
+  using: composite
+  steps:
+    - name: Fetch secrets from Infisical
+      uses: Infisical/secrets-action@v1.0.15
+      with:
+        method: oidc
+        identity-id: ${{ inputs.identity-id }}
+        project-slug: ${{ inputs.project-slug }}
+        env-slug: ${{ inputs.env-slug }}
+        domain: ${{ inputs.domain }}

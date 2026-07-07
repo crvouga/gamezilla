@@ -3,9 +3,9 @@
  * limit and avoids noisy 429 warnings on local runs.
  *
  * - CI always uses `local:rw,remote:rw`.
- * - Local runs under Vault (`TURBO_CACHE=remote:rw`) honor that env var so
+ * - Local runs under secret store (`TURBO_CACHE=remote:rw`) honor that env var so
  *   cache uploads work and Turbo does not warn about a read-only remote.
- * - Local runs without Vault fall back to `remote:r` (read hits only).
+ * - Local runs without secret store fall back to `remote:r` (read hits only).
  */
 import { spawnSync } from 'node:child_process';
 

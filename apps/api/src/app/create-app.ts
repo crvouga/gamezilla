@@ -1,4 +1,3 @@
-import { mountHostedAuthHandler } from '@libs/auth/server';
 import { createAuthApiRoutes } from '@libs/auth/server/auth-routes';
 import type { AuthContext } from '@libs/auth/server/types';
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
@@ -186,14 +185,10 @@ function createStripeSubApp(config: ApiHandlerConfig, stripe: Stripe) {
 /**
  * Composes the API Worker app from mounted sub-apps (`app.route()`), per
  * [Hono best practices](https://hono.dev/docs/guides/best-practices).
- *
- * The local OAuth2 dev IdP is **not** mounted here — it runs as a separate
- * Bun process at `DEV_IDP_DEFAULT_ORIGIN` (`@pkgs/dev-idp` ships its own
- * `dev` script auto-launched by the root `bun dev` / `turbo dev`). Treating
- * it like the Stripe CLI keeps the production worker free of dev fixtures.
  */
 export async function createApiApp(config: ApiHandlerConfig) {
-  const { secretStore, dbScope, observability } = config;
+  const { secretStore, dbScope, observability, authServer, secretsEnv } =
+    config;
   const [stripe, ttsApp, llmApp] = await Promise.all([
     createStripeClient(secretStore),
     createTtsAppForApi(config),
@@ -224,16 +219,16 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .use(
       '*',
       createRequestDbMiddleware(secretStore, dbScope, {
+        authServer,
         apiUrlOverride: config.apiUrlOverride,
         databaseUrlOverride: config.databaseUrlOverride,
-        devIdpPort: config.devIdpPort,
-        vaultConfig: config.vaultConfig,
+        secretsEnv,
         observability,
       })
     )
     .use('*', apiCors)
     .route('/', healthApp)
-    .route('/', createClientConfigApp(log, secretStore))
+    .route('/', createClientConfigApp(log))
     .route('/', createAuthApiRoutes())
     .route('/', ttsApp)
     .route('/', llmApp)
@@ -243,8 +238,6 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route(patchMount, patchDbApp);
 
   apiRouter.onError(createApiErrorHandler());
-
-  await mountHostedAuthHandler(apiRouter, secretStore);
 
   return new Hono().route('/api', apiRouter);
 }

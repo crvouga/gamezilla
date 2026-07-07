@@ -9,9 +9,8 @@ export type RoomNamespace = {
 };
 
 export type ApiWorkerBindings = {
-  VAULT_TOKEN: string;
-  VAULT_PROJECT?: string;
-  VAULT_CONFIG?: string;
-  VAULT_ADDR?: string;
+  SECRETS_ENV?: string;
+  API_URL?: string;
+  DATABASE_URL?: string;
   ROOM?: RoomNamespace;
 };

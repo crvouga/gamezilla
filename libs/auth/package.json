@@ -24,13 +24,11 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@better-auth/core": "catalog:",
-    "@better-auth/expo": "catalog:",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
-    "@pkgs/dev-idp": "workspace:*",
+    "@pkgs/auth": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/patch-db": "workspace:*",
@@ -39,7 +37,6 @@
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
-    "better-auth": "catalog:",
     "expo-constants": "catalog:",
     "expo-device": "catalog:",
     "expo-network": "catalog:",
@@ -47,13 +44,10 @@
     "expo-secure-store": "catalog:",
     "expo-web-browser": "catalog:",
     "hono": "catalog:",
-    "kysely": "catalog:",
-    "pg": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:"
   },
   "devDependencies": {
-    "@types/pg": "catalog:",
     "@types/react": "catalog:",
     "typescript": "catalog:"
   }

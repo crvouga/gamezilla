@@ -60,15 +60,15 @@ export class StatusCommand implements Command {
       );
     }
 
-    // ── 2. Secrets (Vault) ────────────────────────────────────────────
-    heading('Secrets (Vault)');
+    // ── 2. Secrets ────────────────────────────────────────────
+    heading('Secrets');
     const secretResults = loadSecretsIntoEnv();
     const missingSecrets: string[] = [];
     for (const s of secretResults) {
       if (s.set) {
         ok(s.env);
       } else {
-        fail(s.env, 'not found in Vault');
+        fail(s.env, 'not found in the secret store');
         missingSecrets.push(s.env);
         failed = true;
       }

@@ -1,7 +1,7 @@
 /**
  * Canonical Postgres migration order: ensure the application schema exists →
- * Better Auth (Kysely, own `max: 1` pool) → patch-db (base DDL + declarative
- * app snapshot indexes) → kv (single caller-owned pool, `max: 1`).
+ * drop legacy auth tables → patch-db (base DDL + declarative app
+ * snapshot indexes) → kv (single caller-owned pool, `max: 1`).
  *
  * {@link ensurePostgresSchema} runs first because every connection is pinned to
  * the `gamezilla` schema via `search_path`; the schema must exist before the
@@ -12,20 +12,12 @@
  * `apps/api/src/patch-db/schema-registry.ts`; patch-db itself remains
  * application-agnostic and only consumes the injected registry.
  *
- * Better Auth runs first on its own short-lived `max: 1` pool so it never
- * overlaps the caller pool — `kysely.destroy()` must not end a pool the
- * caller still owns (`pg.Pool.end()` throws on a second call).
- *
  * Matchmaking does NOT run here. The `Matchmaking` class in
  * `apps/api/src/matchmaking/route.ts` self-migrates on first request
  * via a cached boot promise; the schema is declared once in that file as
  * `MATCHMAKING_SCHEMA`. Drift between migrate and runtime is impossible
  * by construction.
  */
-import {
-  runBetterAuthMigrations,
-  type BetterAuthMigrationOptions,
-} from '@libs/auth/server/better-auth-migrations';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Logger } from '@pkgs/logger';
 import { ensurePostgresSchema } from '@pkgs/sql-client/postgres-connect';
@@ -33,21 +25,20 @@ import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
 import { buildAppPatchDbSchemaRegistry } from '../patch-db/schema-registry';
+import { dropLegacyAuthTables } from './drop-legacy-auth-tables';
 
 export type RunPostgresMigrationsArgs = {
   sqlClient: SqlClient;
-  databaseUrl: string;
   logger: Logger;
-  betterAuthOptions: BetterAuthMigrationOptions;
   dbScope: PostgresDbScope;
 };
 
 export async function runPostgresMigrations(
   args: RunPostgresMigrationsArgs
 ): Promise<void> {
-  const { sqlClient, databaseUrl, logger, betterAuthOptions, dbScope } = args;
+  const { sqlClient, logger, dbScope } = args;
   await ensurePostgresSchema(sqlClient, dbScope);
-  await runBetterAuthMigrations({ databaseUrl, betterAuthOptions, dbScope });
+  await dropLegacyAuthTables(sqlClient, logger);
 
   const schemaRegistry = buildAppPatchDbSchemaRegistry();
   await sqlClient.transaction(async (tx) => {

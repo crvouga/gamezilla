@@ -13,17 +13,10 @@ test.skip('chess puzzle loop: solve puzzles, elo summary, stats', async ({
   test.setTimeout(360_000);
   const log = createQaPlaywrightLog(testInfo);
   const app = createAppSession(page);
-  const qaAccount = {
-    name: 'Chess QA',
-    email: `chess-qa-${String(Date.now())}@test.local`,
-  };
 
   await playwrightStep(log, 'boot: app shell ready', () => app.expectBooted());
-  await playwrightStep(log, 'auth: sign in with dev-idp', () =>
-    app.auth.signInWithDevIdp(qaAccount)
-  );
-  await playwrightStep(log, 'auth: dismiss sign-in success', () =>
-    app.auth.dismissSignInSuccess()
+  await playwrightStep(log, 'auth: sign in with Clerk', () =>
+    app.auth.signIn()
   );
 
   await playwrightStep(log, 'chess: enter space with games', () =>

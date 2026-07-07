@@ -12,10 +12,7 @@ import {
 import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { assert } from '@pkgs/assert';
 import { assertCommitDateIso } from '@pkgs/git';
-import {
-  createVaultSecretStoreForScripts,
-  type SecretStore,
-} from '@pkgs/secret-store';
+import { createScriptSecretStore, type SecretStore } from '@pkgs/secret-store';
 import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/shared/local-api-origin';
 
 import { resolveExpoUseWatchmanForSetup } from './metro-watchman-env';
@@ -53,11 +50,11 @@ function readLocalPreviewApiOriginFromProcessEnv(): string | null {
   return trimStringOrNull(process.env['LOCAL_PREVIEW_API_ORIGIN']);
 }
 
-function createVaultStore(): SecretStore {
-  return createVaultSecretStoreForScripts();
+function createSecretsStore(): SecretStore {
+  return createScriptSecretStore();
 }
 
-async function resolveApiOriginFromVault(
+async function resolveApiOriginFromSecrets(
   store: SecretStore
 ): Promise<string | null> {
   const expo = (
@@ -74,17 +71,17 @@ async function resolveLoopbackPreviewOrigin(
 ): Promise<string> {
   const fromEnv = readLocalPreviewApiOriginFromProcessEnv();
   if (fromEnv !== null) return fromEnv;
-  const s = store ?? createVaultStore();
-  const fromVault = (
+  const s = store ?? createSecretsStore();
+  const fromSecrets = (
     await s.getOptional('LOCAL_PREVIEW_API_ORIGIN')
   )?.readSecretValue();
   const trimmed =
-    typeof fromVault === 'string' && fromVault.trim().length > 0
-      ? fromVault.trim()
+    typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
+      ? fromSecrets.trim()
       : null;
   if (trimmed !== null) return trimmed;
   process.stdout.write(
-    '[setup-env] LOCAL_PREVIEW_API_ORIGIN missing in env and Vault; ' +
+    '[setup-env] LOCAL_PREVIEW_API_ORIGIN missing in env and secrets; ' +
       `using default ${DEFAULT_LOCAL_PREVIEW_API_ORIGIN} (wrangler dev in apps/api).\n`
   );
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
@@ -114,7 +111,7 @@ async function resolveExpoPublicApiUrl(): Promise<string> {
   const fromInjectedEnv = readApiOriginFromProcessEnv();
   if (fromInjectedEnv !== null) {
     process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_API_URL from process env (e.g. vault run).\n'
+      '[setup-env] EXPO_PUBLIC_API_URL from process env (e.g. secrets-run).\n'
     );
     return applyProductionHostnameGuard(
       null,
@@ -125,26 +122,28 @@ async function resolveExpoPublicApiUrl(): Promise<string> {
 
   let store: SecretStore | null = null;
   try {
-    store = createVaultStore();
+    store = createSecretsStore();
   } catch {
     process.stdout.write(
-      '[setup-env] Vault token missing; using local preview API origin.\n'
+      '[setup-env] secrets not injected; using local preview API origin.\n'
     );
     return resolveLoopbackPreviewOrigin(null);
   }
 
-  const fromVault = await resolveApiOriginFromVault(store);
-  if (fromVault !== null) {
-    process.stdout.write('[setup-env] EXPO_PUBLIC_API_URL from Vault API.\n');
+  const fromSecrets = await resolveApiOriginFromSecrets(store);
+  if (fromSecrets !== null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_API_URL from secret store API.\n'
+    );
     return applyProductionHostnameGuard(
       store,
-      fromVault,
-      'Vault EXPO_PUBLIC_API_URL'
+      fromSecrets,
+      'secret store EXPO_PUBLIC_API_URL'
     );
   }
 
   process.stdout.write(
-    '[setup-env] EXPO_PUBLIC_API_URL unset in env and Vault; using local preview API origin.\n'
+    '[setup-env] EXPO_PUBLIC_API_URL unset in env and secret store; using local preview API origin.\n'
   );
   return resolveLoopbackPreviewOrigin(store);
 }
@@ -209,20 +208,61 @@ async function resolveExpoPublicSentryDsn(
   const fromEnv = trimStringOrNull(process.env['EXPO_PUBLIC_SENTRY_DSN']);
   if (fromEnv !== null) {
     process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_SENTRY_DSN from process env (e.g. vault run).\n'
+      '[setup-env] EXPO_PUBLIC_SENTRY_DSN from process env (e.g. secrets-run).\n'
     );
     return fromEnv;
   }
   if (store === null) return null;
-  const fromVault = (
+  const fromSecrets = (
     await store.getOptional('EXPO_PUBLIC_SENTRY_DSN')
   )?.readSecretValue();
   const trimmed =
-    typeof fromVault === 'string' && fromVault.trim().length > 0
-      ? fromVault.trim()
+    typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
+      ? fromSecrets.trim()
       : null;
   if (trimmed !== null) {
-    process.stdout.write('[setup-env] EXPO_PUBLIC_SENTRY_DSN from Vault.\n');
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_SENTRY_DSN from secret store.\n'
+    );
+    return trimmed;
+  }
+  return null;
+}
+
+async function resolveExpoPublicAuthPublishableKey(
+  store: SecretStore | null
+): Promise<string | null> {
+  const fromExpoEnv = trimStringOrNull(
+    process.env['EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY']
+  );
+  if (fromExpoEnv !== null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY from process env (e.g. secrets-run).\n'
+    );
+    return fromExpoEnv;
+  }
+
+  const fromAuthEnv = trimStringOrNull(process.env['AUTH_PUBLISHABLE_KEY']);
+  if (fromAuthEnv !== null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY from AUTH_PUBLISHABLE_KEY in process env.\n'
+    );
+    return fromAuthEnv;
+  }
+
+  if (store === null) return null;
+
+  const fromSecrets = (
+    await store.getOptional('AUTH_PUBLISHABLE_KEY')
+  )?.readSecretValue();
+  const trimmed =
+    typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
+      ? fromSecrets.trim()
+      : null;
+  if (trimmed !== null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY from secret store AUTH_PUBLISHABLE_KEY.\n'
+    );
     return trimmed;
   }
   return null;
@@ -236,11 +276,11 @@ async function resolveExpoPublicObservabilityBackend(
   );
   if (fromEnv !== null) return fromEnv;
   if (store === null) return null;
-  const fromVault = (
+  const fromSecrets = (
     await store.getOptional('EXPO_PUBLIC_OBSERVABILITY_BACKEND')
   )?.readSecretValue();
   return trimStringOrNull(
-    typeof fromVault === 'string' ? fromVault : undefined
+    typeof fromSecrets === 'string' ? fromSecrets : undefined
   );
 }
 
@@ -269,17 +309,23 @@ async function main(): Promise<void> {
 
   let store: SecretStore | null = null;
   try {
-    store = createVaultStore();
+    store = createSecretsStore();
   } catch {
     store = null;
   }
 
   const sentryDsn = await resolveExpoPublicSentryDsn(store);
+  const authPublishableKey = await resolveExpoPublicAuthPublishableKey(store);
   const observabilityBackend =
     await resolveExpoPublicObservabilityBackend(store);
   if (sentryDsn === null) {
     process.stdout.write(
       '[setup-env] EXPO_PUBLIC_SENTRY_DSN unset; Sentry error reporting disabled in dev.\n'
+    );
+  }
+  if (authPublishableKey === null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY unset; sign-in disabled until AUTH_PUBLISHABLE_KEY is provisioned.\n'
     );
   }
 
@@ -290,6 +336,9 @@ async function main(): Promise<void> {
     `EXPO_USE_WATCHMAN=${JSON.stringify(expoUseWatchman)}\n`;
   if (sentryDsn !== null) {
     body += `EXPO_PUBLIC_SENTRY_DSN=${JSON.stringify(sentryDsn)}\n`;
+  }
+  if (authPublishableKey !== null) {
+    body += `EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY=${JSON.stringify(authPublishableKey)}\n`;
   }
   if (observabilityBackend !== null) {
     body += `EXPO_PUBLIC_OBSERVABILITY_BACKEND=${JSON.stringify(observabilityBackend)}\n`;

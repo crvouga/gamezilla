@@ -1,6 +1,0 @@
-# Generated from @pkgs/vault — edit pkgs/vault/src/vault-defaults.ts then:
-#   bun run --filter @pkgs/vault write-vault-yaml
-addr: https://vault.chrisvouga.dev
-mount: secret
-project: personal
-config: dev

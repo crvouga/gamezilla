@@ -7,6 +7,7 @@ import {
   DeviceAttr,
 } from '@libs/auth/shared';
 import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
+import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { Entity, PatchDb, PatchInput } from '@pkgs/patch-db/interface';
 import {
   PATCHES_DB_SYSTEM_CONTEXT,
@@ -14,17 +15,15 @@ import {
 } from '@pkgs/patch-db/interface';
 import { PatchMetaAttr } from '@pkgs/patch-db/metadata/patch-metadata';
 
-import type { HostedBetterAuth } from './better-auth-create';
-
 /**
  * Idempotent server-side upsert run from `POST /auth/refresh`. Given a
- * resolved `accountId` (Better Auth bearer + device pair) plus the client's
- * device snapshot + posted session expiry, makes the following PatchDB
- * tables match the latest server state:
+ * resolved `accountId` (bearer + device pair) plus the client's device snapshot
+ * + posted session expiry, makes the following PatchDB tables match the latest
+ * server state:
  *
  *   - `account/<accountId>` — already created by `resolveAccountIdFromBearer`,
  *     no extra work here.
- *   - `account/provider/<id>` — one row per linked Better Auth account.
+ *   - `account/provider/<id>` — one row per auth provider identity.
  *   - `account/session/<id>` — keyed by `(deviceId, accountId)` tuple, holds
  *     bearer token + expiry. Server is the only writer.
  *   - `device/<deviceId>` — populated from the posted `device/...` attribute
@@ -37,7 +36,7 @@ import type { HostedBetterAuth } from './better-auth-create';
  */
 export async function refreshAuthSnapshot(args: {
   db: PatchDb;
-  auth: HostedBetterAuth;
+  authServer: AuthServerPort;
   bearerToken: string;
   accountId: string;
   deviceId: string;
@@ -46,7 +45,7 @@ export async function refreshAuthSnapshot(args: {
 }): Promise<void> {
   const {
     db,
-    auth,
+    authServer,
     bearerToken,
     accountId,
     deviceId,
@@ -56,7 +55,7 @@ export async function refreshAuthSnapshot(args: {
   assertUuid(accountId, 'accountId must be UUID');
   assertDeviceId(deviceId);
 
-  await upsertLinkedProviders({ db, auth, bearerToken, accountId });
+  await upsertLinkedProviders({ db, authServer, bearerToken, accountId });
   await upsertAccountSession({
     db,
     accountId,
@@ -69,51 +68,41 @@ export async function refreshAuthSnapshot(args: {
 
 async function upsertLinkedProviders(args: {
   db: PatchDb;
-  auth: HostedBetterAuth;
+  authServer: AuthServerPort;
   bearerToken: string;
   accountId: string;
 }): Promise<void> {
-  const { db, auth, bearerToken, accountId } = args;
-  const headers = new Headers({ authorization: `Bearer ${bearerToken}` });
+  const { db, authServer, bearerToken, accountId } = args;
 
-  let session: Awaited<ReturnType<typeof auth.api.getSession>> = null;
+  let session: Awaited<ReturnType<AuthServerPort['verifySessionToken']>> = null;
   try {
-    session = await auth.api.getSession({ headers });
+    session = await authServer.verifySessionToken(bearerToken);
   } catch {
     session = null;
   }
-  const userEmail = readNullableString(session?.user?.email);
+  if (session === null) return;
 
-  let linked: Awaited<ReturnType<typeof auth.api.listUserAccounts>> = [];
-  try {
-    linked = await auth.api.listUserAccounts({ headers });
-  } catch {
-    linked = [];
+  let email = session.email;
+  if (email === null) {
+    try {
+      const profile = await authServer.getUserProfile(session.externalUserId);
+      email = profile?.email ?? null;
+    } catch {
+      email = null;
+    }
   }
 
   const existing = await readProviderEntitiesForAccount(db, accountId);
-  const seen = new Set<string>();
-
-  for (const entry of linked) {
-    const provider = readNullableString(entry.providerId);
-    const providerUserId = readNullableString(entry.accountId);
-    if (provider === null || providerUserId === null) continue;
-    const linkedAt = readIsoDate(entry.createdAt);
-    seen.add(providerKey(provider, providerUserId));
-    await ensureProviderRow({
-      db,
-      accountId,
-      provider,
-      providerUserId,
-      email: userEmail,
-      linkedAt,
-      existing,
-    });
-  }
-}
-
-function providerKey(provider: string, providerUserId: string): string {
-  return `${provider}\u0000${providerUserId}`;
+  const linkedAt = new Date().toISOString();
+  await ensureProviderRow({
+    db,
+    accountId,
+    provider: authServer.providerLabel,
+    providerUserId: session.externalUserId,
+    email,
+    linkedAt,
+    existing,
+  });
 }
 
 async function readProviderEntitiesForAccount(
@@ -360,10 +349,4 @@ function readNullableString(v: unknown): string | null {
   if (typeof v !== 'string') return null;
   const t = v.trim();
   return t.length > 0 ? t : null;
-}
-
-function readIsoDate(v: unknown): string {
-  if (v instanceof Date) return v.toISOString();
-  if (typeof v === 'string' && v.length > 0) return v;
-  return new Date().toISOString();
 }

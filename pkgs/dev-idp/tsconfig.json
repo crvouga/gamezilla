@@ -1,9 +1,0 @@
-{
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx"
-  },
-  "include": ["../ts-reset/src/index.ts", "./src/**/*.ts", "./src/**/*.tsx"],
-  "exclude": ["node_modules"]
-}

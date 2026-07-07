@@ -1,17 +1,17 @@
 /**
  * Single Stripe sync entry point — catalog + patch-db backfills + webhook endpoints.
  *
- * Reads via Vault (`VAULT_TOKEN` or `vault login`):
+ * Reads via secret store (`SECRETS_TOKEN` or secrets CLI login):
  *   - `STRIPE_SECRET_KEY` (required)
  *   - `DATABASE_URL`            (required; `postgres://…` or `http://…` for local PGlite)
  *
- * Production API origin is derived from project config (not Vault `API_URL`).
+ * Production API origin is derived from project config (not secret store `API_URL`).
  *
- * Writes via Vault CLI on webhook rebuild:
+ * Writes via secret store CLI on webhook rebuild:
  *   - `STRIPE_WEBHOOK_SECRET`
  *
  * Flags:
- *   --dry-run   Webhook step logs plan without mutating Stripe / Vault.
+ *   --dry-run   Webhook step logs plan without mutating Stripe / secret store.
  *               (Catalog + patch-db steps are idempotent and always run.)
  *
  * All real work lives in `../src/sync/*` so other entry points (CI gate, future

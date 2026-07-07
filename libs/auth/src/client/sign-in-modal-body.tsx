@@ -5,18 +5,9 @@ import { Box, ModalBody, SocialSignInButton, Text } from '@pkgs/ui';
 export function SignInModalBody(props: {
   signInAvailable: boolean;
   signInUnavailableReason: string | null;
-  /** When true, show the dev-only "Continue with test account" button. */
-  devSignInAvailable: boolean;
   onPressGoogle: () => void;
-  onPressDev: () => void;
 }) {
-  const {
-    signInAvailable,
-    signInUnavailableReason,
-    devSignInAvailable,
-    onPressGoogle,
-    onPressDev,
-  } = props;
+  const { signInAvailable, signInUnavailableReason, onPressGoogle } = props;
   return (
     <ModalBody>
       <Box sx={{ marginTop: 3, alignSelf: 'stretch', gap: 2 }}>
@@ -32,15 +23,6 @@ export function SignInModalBody(props: {
           onPress={onPressGoogle}
           disabled={!signInAvailable}
         />
-        {devSignInAvailable ? (
-          <SocialSignInButton
-            provider="dev"
-            action="signIn"
-            theme={'light' as const}
-            onPress={onPressDev}
-            disabled={!signInAvailable}
-          />
-        ) : null}
       </Box>
       {!signInAvailable ? (
         <Text

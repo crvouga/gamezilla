@@ -3,17 +3,14 @@
  * Enable slow-query monitoring on a PostgreSQL database:
  * pg_stat_statements, log_min_duration_statement, auto_explain.
  *
- * Vault: same DATABASE_URL as the main app — `personal/dev` or `personal/prd`
- * (project/mount from repo-root `.vault.yaml`, overridable via VAULT_PROJECT /
- * VAULT_MOUNT). Prod CLI arg maps to Vault config `prd`.
+ * Infisical: same DATABASE_URL as the main app — `dev` or `prd`
+ * (scope from repo-root `.infisical.json`, overridable via SECRETS_ENV).
+ * Prod CLI arg maps to secrets env `prd`.
  */
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { which } from '@pkgs/os/command';
-import {
-  readVaultYamlDefaults,
-  resolveVaultYamlPath,
-} from '@pkgs/vault/vault-yaml';
+import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
 
 const REPO_ROOT = join(import.meta.dirname, '..');
 
@@ -94,15 +91,8 @@ function requireCmd(name: string): void {
   }
 }
 
-function resolveVaultCoords(env: TargetEnv): {
-  mount: string;
-  path: string;
-} {
-  const yaml = readVaultYamlDefaults(resolveVaultYamlPath(REPO_ROOT));
-  const mount = process.env['VAULT_MOUNT']?.trim() || yaml.mount;
-  const project = process.env['VAULT_PROJECT']?.trim() || yaml.project;
-  const config = env === 'prod' ? 'prd' : 'dev';
-  return { mount, path: `${project}/${config}` };
+function resolveSecretsEnv(env: TargetEnv): string {
+  return env === 'prod' ? 'prd' : 'dev';
 }
 
 function scrubPgUrl(text: string): string {
@@ -110,31 +100,50 @@ function scrubPgUrl(text: string): string {
 }
 
 function fetchDatabaseUrl(env: TargetEnv): string {
-  const { mount, path: vaultPath } = resolveVaultCoords(env);
-  log(`Fetching DATABASE_URL from Vault (mount=${mount}, path=${vaultPath})`);
+  const injected = process.env['DATABASE_URL']?.trim();
+  if (injected !== undefined && injected.length > 0) {
+    return injected;
+  }
+
+  const secretsEnv = resolveSecretsEnv(env);
+  const scope = resolveSecretsScope(REPO_ROOT, secretsEnv);
+  log(
+    `Fetching DATABASE_URL from Infisical (workspaceId=${scope.workspaceId}, env=${scope.env})`
+  );
 
   const result = spawnSync(
-    'vault',
-    ['kv', 'get', `-mount=${mount}`, '-field=DATABASE_URL', vaultPath],
+    'infisical',
+    [
+      'secrets',
+      'get',
+      'DATABASE_URL',
+      '--projectId',
+      scope.workspaceId,
+      '--env',
+      scope.env,
+      '--domain',
+      scope.domain,
+      '--plain',
+    ],
     { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }
   );
 
   if (result.error !== undefined) {
-    fail(`vault spawn failed: ${result.error.message}`);
+    fail(`infisical spawn failed: ${result.error.message}`);
   }
 
   if (result.status !== 0) {
     const detail = scrubPgUrl((result.stderr ?? '').trim());
     fail(
       detail.length > 0
-        ? `Vault fetch failed: ${detail}`
-        : 'Vault fetch failed — check authentication (vault login) and path'
+        ? `Infisical fetch failed: ${detail}`
+        : 'Infisical fetch failed — check authentication (`infisical login`) and project scope'
     );
   }
 
   const url = (result.stdout ?? '').trim();
   if (url.length === 0) {
-    fail('Vault returned an empty DATABASE_URL');
+    fail('Infisical returned an empty DATABASE_URL');
   }
 
   return url;
@@ -409,7 +418,7 @@ function verifyReloadableSettings(after: MonitorState): void {
 function main(): void {
   const { env } = parseArgs(process.argv.slice(2));
 
-  requireCmd('vault');
+  requireCmd('infisical');
   requireCmd('psql');
 
   log(`Target environment: ${env}`);

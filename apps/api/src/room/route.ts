@@ -78,7 +78,7 @@ async function tryResolveAccount(
   try {
     return await resolveAccountIdFromBearer({
       db: c.get('patchDb'),
-      auth: c.get('betterAuth'),
+      authServer: c.get('authServer'),
       bearerToken,
       deviceId,
     });

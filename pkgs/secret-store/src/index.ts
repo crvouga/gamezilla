@@ -18,11 +18,16 @@ export {
   RecordSecretStore,
   createRecordSecretStore,
 } from './record-secret-store';
+export { createEnvSecretStore } from './impl-env';
+export {
+  InfisicalSecretStore,
+  createInfisicalSecretStore,
+} from './impl-infisical';
+export { createToolingSecretStore } from './create-tooling-secret-store';
+export { createScriptSecretStore } from './create-script-secret-store';
 export type { CachingSecretStoreOptions } from './caching-secret-store';
-export { VaultSecretStore } from './vault-secret-store';
-export type { VaultSecretStoreOptions } from './vault-secret-store';
-export { VaultScriptSecretStore } from './vault-script-secret-store';
-export { createVaultSecretStoreForScripts } from './create-vault-secret-store-for-scripts';
+export type { InfisicalSecretStoreOptions } from './impl-infisical';
+export type { CreateToolingSecretStoreOptions } from './create-tooling-secret-store';
 export type {
   SecretStore,
   SecretStoreGetInit,

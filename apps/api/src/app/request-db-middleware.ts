@@ -1,10 +1,10 @@
-import { createBetterAuthRequestStack } from '@libs/auth/server/better-auth-create';
 import { createSessionAuth } from '@libs/auth/server/session-middleware';
 import type { AuthContext } from '@libs/auth/server/types';
 import {
-  assertDatabaseUrlAllowedForVaultConfig,
-  DEVELOPMENT_VAULT_CONFIG,
+  assertDatabaseUrlAllowedForSecretsEnv,
+  DEVELOPMENT_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
+import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import { assert } from '@pkgs/assert';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Observability } from '@pkgs/observability/port/observability';
@@ -21,7 +21,7 @@ import { apiRequestAsyncLocalStorage } from '../request-scope';
 import type { ApiHonoEnv } from './api-hono-types';
 
 /**
- * Per-request Postgres + Better Auth + session auth (AsyncLocalStorage for patch-db host).
+ * Per-request Postgres + session auth (AsyncLocalStorage for patch-db host).
  */
 async function resolveRequestDatabaseUrl(
   secretStore: SecretStore,
@@ -38,21 +38,21 @@ let devDatabasePolicyChecked = false;
 
 async function ensureDevDatabasePolicy(
   databaseUrl: string,
-  vaultConfig: string | null
+  secretsEnv: string
 ): Promise<void> {
-  if (vaultConfig !== DEVELOPMENT_VAULT_CONFIG) return;
+  if (secretsEnv !== DEVELOPMENT_SECRETS_ENV) return;
   if (devDatabasePolicyChecked) return;
-  await assertDatabaseUrlAllowedForVaultConfig(databaseUrl, vaultConfig, {
+  await assertDatabaseUrlAllowedForSecretsEnv(databaseUrl, secretsEnv, {
     surface: 'api-worker',
   });
   devDatabasePolicyChecked = true;
 }
 
 export type RequestDbMiddlewareOptions = {
+  readonly authServer: AuthServerPort;
   readonly apiUrlOverride?: string | null | undefined;
   readonly databaseUrlOverride?: string | null | undefined;
-  readonly devIdpPort?: number | undefined;
-  readonly vaultConfig?: string | null | undefined;
+  readonly secretsEnv: string;
   readonly observability: Observability;
 };
 
@@ -98,8 +98,8 @@ async function openObservedRequestDb(
 async function attachRequestDatabase(
   args: AttachRequestDatabaseArgs
 ): Promise<Response | void> {
-  const { c, next, secretStore, dbScope, dbUrl, options } = args;
-  const { apiUrlOverride = null, devIdpPort, observability } = options;
+  const { c, next, dbScope, dbUrl, options } = args;
+  const { authServer, observability } = options;
   const opened = await openObservedRequestDb(observability, dbUrl, dbScope);
   const sqlClient = wrapSqlClientForObservability(
     observability,
@@ -110,17 +110,7 @@ async function attachRequestDatabase(
   const kv = new KvImplPostgres(sqlClient);
   const matchmakingSqlClient =
     createMatchmakingSqlClientFromSqlClient(sqlClient);
-  const { auth: betterAuth, dispose } = await createBetterAuthRequestStack(
-    secretStore,
-    dbUrl,
-    {
-      dbScope,
-      pool,
-      apiUrlOverride,
-      ...(devIdpPort !== undefined ? { devIdpPort } : {}),
-    }
-  );
-  const sessionAuth = createSessionAuth({ auth: betterAuth });
+  const sessionAuth = createSessionAuth({ authServer });
   const store = {
     patchDb,
     sessionAuth,
@@ -131,14 +121,14 @@ async function attachRequestDatabase(
   return await apiRequestAsyncLocalStorage.run(store, async () => {
     c.set('patchDb', patchDb);
     c.set('sessionAuth', sessionAuth);
-    c.set('betterAuth', betterAuth);
+    c.set('authServer', authServer);
     try {
       return await next();
     } finally {
       c.executionCtx.waitUntil(
         (async () => {
-          await dispose().catch(() => {});
           await sqlClient.disconnect().catch(() => {});
+          await pool.end().catch(() => {});
         })()
       );
     }
@@ -150,7 +140,7 @@ export function createRequestDbMiddleware(
   dbScope: PostgresDbScope,
   options: RequestDbMiddlewareOptions
 ): MiddlewareHandler<ApiHonoEnv<AuthContext>> {
-  const { databaseUrlOverride = null, vaultConfig = null } = options;
+  const { databaseUrlOverride = null, secretsEnv } = options;
   return async (c, next) => {
     if (new URL(c.req.url).pathname === '/api/health') {
       return next();
@@ -160,7 +150,7 @@ export function createRequestDbMiddleware(
       databaseUrlOverride
     );
     assert.nonEmptyString(dbUrl, 'DATABASE_URL must be a non-empty string');
-    await ensureDevDatabasePolicy(dbUrl, vaultConfig);
+    await ensureDevDatabasePolicy(dbUrl, secretsEnv);
     return attachRequestDatabase({
       c,
       next,

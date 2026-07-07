@@ -2,7 +2,7 @@ import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/impl-postgres-tcp';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
-import { fetchVaultSecret } from '../secrets/secrets';
+import { fetchSecret } from '../secrets/secrets';
 import { ResourceBase, type InfraContext } from './types';
 
 export class PlanetScalePostgres extends ResourceBase {
@@ -38,7 +38,7 @@ export async function pingDatabase(): Promise<DatabasePingResult> {
         ok: false,
         durationMs: Date.now() - start,
         error:
-          'DATABASE_URL not set — run `bun run infra deploy` or ensure Vault exposes DATABASE_URL',
+          'DATABASE_URL not set — run `bun run infra deploy` or ensure secret store exposes DATABASE_URL',
       };
     }
     if (!url.startsWith('postgresql://') && !url.startsWith('postgres://')) {
@@ -76,7 +76,7 @@ type ProbeResult =
 /**
  * PlanetScale Postgres is reached over the wire protocol (same path as the
  * distributed lock and `db:migrate`), not Neon's HTTP `/sql` API — pooled
- * `DATABASE_URL` values from Vault work here but often fail the serverless driver.
+ * `DATABASE_URL` values from the secret store work here but often fail the serverless driver.
  */
 async function probeDatabase(url: string): Promise<ProbeResult> {
   const sql = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
@@ -155,14 +155,14 @@ function tryFetchCachedDbUrlFromEnv(): string | null {
     : null;
 }
 
-function readDbUrlFromVault(): string {
+function readDbUrlFromSecrets(): string {
   let raw = process.env['DATABASE_URL'];
   if (typeof raw !== 'string' || raw.trim().length === 0) {
     try {
-      const fromVault = fetchVaultSecret('DATABASE_URL').trim();
-      if (fromVault.length > 0) {
-        process.env['DATABASE_URL'] = fromVault;
-        raw = fromVault;
+      const fromSecrets = fetchSecret('DATABASE_URL').trim();
+      if (fromSecrets.length > 0) {
+        process.env['DATABASE_URL'] = fromSecrets;
+        raw = fromSecrets;
       }
     } catch {
       // handled below
@@ -170,7 +170,7 @@ function readDbUrlFromVault(): string {
   }
   if (typeof raw !== 'string' || raw.trim().length === 0) {
     throw new Error(
-      'DATABASE_URL is not set and could not be read from Vault. Add secret DATABASE_URL in your Vault config, ensure `vault setup` / `VAULT_TOKEN` targets that project, or export DATABASE_URL in the shell.'
+      'DATABASE_URL is not set and could not be read from the secret store. Add secret DATABASE_URL in Infisical, run under `secrets-run`, or export DATABASE_URL in the shell.'
     );
   }
   const url = raw.trim();
@@ -184,7 +184,7 @@ function readDbUrlFromVault(): string {
 
 /**
  * Sets `process.env.DATABASE_URL` from a valid cached Postgres URL, or loads `DATABASE_URL`
- * from Vault, after a connectivity check and best-effort ownership claim.
+ * from the secret store, after a connectivity check and best-effort ownership claim.
  *
  * After the first successful check in this process (during distributed-lock
  * setup), later calls return the cached URL without opening another TCP
@@ -197,7 +197,7 @@ export async function resolveDatabaseUrl(): Promise<string> {
     if (cached) {
       return cached;
     }
-    const url = readDbUrlFromVault();
+    const url = readDbUrlFromSecrets();
     process.env['DATABASE_URL'] = url;
     return url;
   }
@@ -212,12 +212,12 @@ export async function resolveDatabaseUrl(): Promise<string> {
     }
   }
 
-  const url = readDbUrlFromVault();
+  const url = readDbUrlFromSecrets();
   const probe = await verifyDatabaseAndClaimOwnership(url);
   if (!probe.ok) {
     const hint =
       cached !== null
-        ? ' (env DATABASE_URL also failed — check Vault `prd` `DATABASE_URL` matches a Postgres wire URL)'
+        ? ' (env DATABASE_URL also failed — check secrets env `prd` `DATABASE_URL` matches a Postgres wire URL)'
         : '';
     throw new Error(
       `DATABASE_URL connectivity check failed (SELECT 1)${hint}: ${probe.error}`

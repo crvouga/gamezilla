@@ -35,10 +35,7 @@ export type SignInModalProps = {
   resumePending: boolean;
   signInAvailable: boolean;
   signInUnavailableReason: string | null;
-  /** When true, show the dev-only "Continue with test account" button. */
-  devSignInAvailable: boolean;
   onSignInWithHosted: () => Promise<void>;
-  onSignInWithDev: () => Promise<void>;
   onError?: ((error: Error) => void) | undefined;
 };
 
@@ -60,10 +57,7 @@ export function SignInModal(props: SignInModalProps): ReactNode {
       wasVisibleRef.current = true;
       return;
     }
-    // Ignore the initial closed render before OAuth resume opens the surface.
     if (!wasVisibleRef.current) return;
-    // Reset for the next open once the modal is dismissed, but never drop a
-    // redirect that is still in flight.
     if (phaseRef.current === 'loading') return;
     if (phaseRef.current === 'success') return;
     reset();
@@ -101,12 +95,8 @@ export function SignInModal(props: SignInModalProps): ReactNode {
             <SignInModalBody
               signInAvailable={props.signInAvailable}
               signInUnavailableReason={props.signInUnavailableReason}
-              devSignInAvailable={props.devSignInAvailable}
               onPressGoogle={() => {
                 trigger(props.onSignInWithHosted);
-              }}
-              onPressDev={() => {
-                trigger(props.onSignInWithDev);
               }}
             />
           }

@@ -55,11 +55,11 @@ describe('assertDevVaultConfig', () => {
   });
 
   test('rejects prd', () => {
-    expect(() => assertDevVaultConfig('prd')).toThrow(/Vault config `dev`/);
+    expect(() => assertDevVaultConfig('prd')).toThrow(/secrets env `dev`/);
   });
 
   test('rejects empty', () => {
-    expect(() => assertDevVaultConfig('')).toThrow(/Vault config `dev`/);
+    expect(() => assertDevVaultConfig('')).toThrow(/secrets env `dev`/);
   });
 });
 
@@ -73,7 +73,7 @@ describe('assertNonProdDatabaseUrl', () => {
   test('blocks URL equal to prod reference', async () => {
     await expect(
       assertNonProdDatabaseUrl(PROD_URL, {}, { productionUrl: PROD_URL })
-    ).rejects.toThrow(/matches Vault `prd`/);
+    ).rejects.toThrow(/matches production/);
   });
 
   test('blocks loopback', async () => {

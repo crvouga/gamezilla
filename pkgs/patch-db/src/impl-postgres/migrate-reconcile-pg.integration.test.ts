@@ -1,5 +1,5 @@
 /**
- * End-to-end reconciliation test against the Vault `dev` hosted Postgres database.
+ * End-to-end reconciliation test against the secret store `dev` hosted Postgres database.
  * Uses an isolated schema so layout mutations do not touch the application schema.
  *
  * Locks in the contracts that {@link migratePatchDbPostgres} must uphold
@@ -101,7 +101,7 @@ describe.skipIf(!HAS_DB)(
     beforeAll(async () => {
       assert.ok(
         !isLoopbackPostgresUrl(DATABASE_URL),
-        'DATABASE_URL must be Vault dev hosted Postgres, not loopback'
+        'DATABASE_URL must be secret store dev hosted Postgres, not loopback'
       );
       const dbScope = createPostgresDbScope(TEST_SCHEMA);
       sqlClient = SqlClientImplBunPostgres.connect(DATABASE_URL, dbScope);

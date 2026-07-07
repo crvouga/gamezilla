@@ -111,7 +111,7 @@ export function verifyRun(bin: string, args: readonly string[]): void {
 /**
  * Requires stdout to contain a semver on some non-empty line. We prefer the
  * first matching line so routine `tool --version` output still wins; preamble
- * lines (e.g. pgweb's DATABASE_URL deprecation when Vault injects that var)
+ * lines (e.g. pgweb's DATABASE_URL deprecation when secret store injects that var)
  * are skipped until a semver appears.
  */
 function parseVersionFromStdout(s: string): string | null {

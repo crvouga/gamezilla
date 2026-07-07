@@ -1,5 +1,5 @@
 /**
- * Serializes async side-effects (Vault writes + webhook probe) in arrival order.
+ * Serializes async side-effects (secret store writes + webhook probe) in arrival order.
  * Always `await flush()` after the producer stops scheduling work.
  */
 export class WriteQueue {

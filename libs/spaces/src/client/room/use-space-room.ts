@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
-import { useSessionToken } from '@libs/auth/client/use-session-token';
+import { useFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import { useKv } from '@pkgs/kv/kv-context';
 import { useCurrentSpaceRole } from '../use-current-space-role';
 import {
@@ -55,7 +55,7 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const deviceId = useDeviceId();
   const configService = useConfigService();
   const kv = useKv();
-  const sessionToken = useSessionToken();
+  const sessionToken = useFreshAuthToken();
 
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
     if (spaceId.length === 0 || !isLive || !inThisSpace || myId.length === 0) {

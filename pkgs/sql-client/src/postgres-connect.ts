@@ -16,6 +16,7 @@ import {
   assertPgSessionSchema,
   pinAndVerifyPgSessionSchema,
   postgresRejectsStartupSearchPathOption,
+  withPostgresSearchPathOption,
 } from './postgres-session-schema';
 import { sanitizePostgresUrlForNodePg } from './sanitize-postgres-url-for-node-pg';
 
@@ -121,7 +122,7 @@ export async function openPgClient(
 }
 
 /**
- * Presents one pinned {@link Client} as a `pg.Pool` for Kysely / Better Auth
+ * Presents one pinned {@link Client} as a `pg.Pool` for Kysely / legacy auth
  * without opening a second TCP session. The adapter pins `search_path` on every
  * query via {@link pgRawQueryWithSearchPathPin} — real `pg.Pool` monkey-patches
  * deadlock on Neon pooler URLs when `max: 1`.
@@ -213,8 +214,15 @@ export function createPgPool(args: CreatePgPoolArgs): CreatePgPoolResult {
   const pinSearchPathEachQuery = postgresRejectsStartupSearchPathOption(
     args.connectionString
   );
+  let connectionString = sanitizePostgresUrlForNodePg(args.connectionString);
+  if (!pinSearchPathEachQuery) {
+    connectionString = withPostgresSearchPathOption(
+      connectionString,
+      args.dbScope
+    );
+  }
   const pool = new Pool({
-    connectionString: sanitizePostgresUrlForNodePg(args.connectionString),
+    connectionString,
     max: args.max ?? 1,
   });
   return {

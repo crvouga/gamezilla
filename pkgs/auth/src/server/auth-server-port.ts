@@ -1,0 +1,13 @@
+import type { AuthUserProfile } from '../shared/user-profile';
+import type { VerifiedSession } from '../shared/verified-session';
+
+/**
+ * Server-side auth port. Adapters verify bearer tokens and resolve profiles
+ * without importing a specific provider SDK at the port layer.
+ */
+export interface AuthServerPort {
+  /** Human-readable label for logs and diagnostics. */
+  readonly providerLabel: string;
+  verifySessionToken(token: string): Promise<VerifiedSession | null>;
+  getUserProfile(externalUserId: string): Promise<AuthUserProfile | null>;
+}

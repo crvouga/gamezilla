@@ -1,28 +1,28 @@
 import { describe, expect, it } from 'bun:test';
 import {
-  assertVaultTokenBinding,
+  assertSecretsEnvBinding,
   ConfigurationError,
   type ApiWorkerEnv,
 } from './env';
 
-const mockEnv = (token: string): ApiWorkerEnv => ({
-  VAULT_TOKEN: token,
+const mockEnv = (secretsEnv: string): ApiWorkerEnv => ({
+  SECRETS_ENV: secretsEnv,
 });
 
-describe('assertVaultTokenBinding', () => {
-  it('throws ConfigurationError when VAULT_TOKEN is unset or blank', () => {
-    expect(() => assertVaultTokenBinding(mockEnv(''))).toThrow(
+describe('assertSecretsEnvBinding', () => {
+  it('throws ConfigurationError when SECRETS_ENV is unset or blank', () => {
+    expect(() => assertSecretsEnvBinding(mockEnv(''))).toThrow(
       ConfigurationError
     );
-    expect(() => assertVaultTokenBinding(mockEnv('   '))).toThrow(
+    expect(() => assertSecretsEnvBinding(mockEnv('   '))).toThrow(
       ConfigurationError
     );
     expect(() =>
-      assertVaultTokenBinding(mockEnv(1 as unknown as string))
+      assertSecretsEnvBinding(mockEnv(1 as unknown as string))
     ).toThrow(ConfigurationError);
   });
 
-  it('returns trimmed token when valid', () => {
-    expect(assertVaultTokenBinding(mockEnv('  hvs.x  '))).toBe('hvs.x');
+  it('returns trimmed secrets env when valid', () => {
+    expect(assertSecretsEnvBinding(mockEnv('  dev  '))).toBe('dev');
   });
 });

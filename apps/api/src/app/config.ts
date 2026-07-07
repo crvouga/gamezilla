@@ -1,4 +1,5 @@
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
@@ -6,15 +7,14 @@ import type { PatchDbApiConfig } from '@pkgs/patch-db/api';
 
 export type ApiHandlerConfig = {
   readonly secretStore: SecretStore;
+  readonly authServer: AuthServerPort;
   readonly dbScope: PostgresDbScope;
-  /** When set, overrides Vault `API_URL` for Better Auth (preview / QA). */
+  /** When set, overrides secret store `API_URL` for preview / QA. */
   readonly apiUrlOverride?: string | null;
-  /** When set, overrides Vault `DATABASE_URL` for preview / QA. */
+  /** When set, overrides secret store `DATABASE_URL` for preview / QA. */
   readonly databaseUrlOverride?: string | null;
-  /** Dev IdP TCP port from Worker binding (preview / QA). */
-  readonly devIdpPort?: number;
-  /** Vault config binding (`dev` / `prd`) for database safety checks. */
-  readonly vaultConfig?: string | null;
+  /** Secrets env binding (`dev` / `prd`) for database safety checks. */
+  readonly secretsEnv: string;
   readonly pubSub: PatchDbApiConfig['pubSub'];
   readonly basePath?: string;
   readonly instrumentation?: PatchDbApiConfig['instrumentation'];

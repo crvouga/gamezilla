@@ -1,15 +1,15 @@
 /**
  * Local Stripe webhook forwarder: `stripe listen` → API `/stripe/webhook`,
- * then writes the CLI signing secret to Vault `dev` as STRIPE_WEBHOOK_SECRET.
+ * then writes the CLI signing secret to Infisical `dev` as STRIPE_WEBHOOK_SECRET.
  *
- * Run from monorepo root (`bun run dev` / turbo) so Vault project scope matches.
+ * Run from monorepo root (`bun run dev` / turbo) so secrets env scope matches.
  */
 import { resolveLocalPreviewApiOrigin } from '@libs/client-config/shared/resolve-local-preview-api-origin';
 import { StripeSecretKeys } from '@libs/stripe/secret-keys';
-import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
+import { createScriptSecretStore } from '@pkgs/secret-store';
 import { exitUnlessLocalApiUrl } from './api-url-guard';
 import { STRIPE_CLI_LOG_TAG } from './constants';
-import { exitUnlessDevVaultConfig, resolveVaultConfigName } from './vault-dev';
+import { exitUnlessDevSecretsEnv, resolveSecretsEnvName } from './secrets-env';
 import { resolveWorkspaceRoot } from './repo-root';
 import {
   runStripeListenUntilExit,
@@ -25,10 +25,10 @@ async function main(): Promise<void> {
   const repoRoot = resolveWorkspaceRoot(import.meta.dir);
   process.chdir(repoRoot);
 
-  const vaultConfig = resolveVaultConfigName();
-  exitUnlessDevVaultConfig(vaultConfig);
+  const secretsEnv = resolveSecretsEnvName();
+  exitUnlessDevSecretsEnv(secretsEnv);
 
-  const secretStore = createVaultSecretStoreForScripts();
+  const secretStore = createScriptSecretStore();
   const [stripeKeyRaw, apiUrl] = await Promise.all([
     secretStore.getRequired(StripeSecretKeys.secretKey),
     resolveLocalPreviewApiOrigin(),
@@ -43,7 +43,7 @@ async function main(): Promise<void> {
   const onTranscriptLine = createStripeListenTranscriptHandler({
     writeQueue,
     secretStore,
-    vaultConfig,
+    secretsEnv,
     apiUrl,
     stripeSecretKey: stripeKey,
   });

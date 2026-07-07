@@ -1,19 +1,19 @@
 # https://github.com/crvouga/gamezilla/actions/workflows/seed-chess-puzzles.yml
 #
 # Manual workflow that runs `libs/chess/scripts/seed-chess-puzzles.ts`
-# against the selected Vault config (`dev` or `prd` Postgres `DATABASE_URL`).
+# against the selected secrets env (`dev` or `prd` Postgres `DATABASE_URL`).
 # Idempotent: content-addressed patch IDs + `INSERT … ON CONFLICT DO NOTHING`
 # skip unchanged rows, and the script resumes from the saved cursor when the
 # source ETag is unchanged.
 #
 # The seed itself does not run schema migrations (that would couple
-# `@libs/chess` to `@libs/auth` / Better Auth and create a
+# `@libs/chess` to `@libs/auth` / legacy auth and create a
 # workspace-level dependency cycle). We run `@apps/api db:migrate`
 # as a separate step first so the `patches` / `snapshots` tables and the
 # `pdb_idx_chess_puzzle__*` declarative indexes exist before the seed
 # starts pumping rows in.
 #
-# Production (`environment: prod` → Vault `prd`) Postgres is Neon. The free
+# Production (`environment: prod` → secrets env `prd`) Postgres is Neon. The free
 # tier's 512 MB project cap cannot hold the full ~2.65M-row Lichess dataset
 # once patches, snapshots, and btree indexes land — upgrade Neon storage
 # before expecting a complete prod seed. The script is resumable: a failed
@@ -27,7 +27,7 @@
 # Connection budget: the seed opens **exactly one** TCP session (`pg.Client`,
 # not `pg.Pool`) so it never trips Neon's connection warnings.
 #
-# All credentials come from Vault via OIDC. `vault run -- …` injects
+# All credentials come from the secret store via OIDC. `secrets-run -- …` injects
 # `DATABASE_URL` (and any other secrets) into each step's process env.
 name: Seed chess puzzles
 
@@ -35,15 +35,15 @@ permissions:
   contents: read
   id-token: write
 
-# CI authenticates via GitHub Actions OIDC. Use `scripts/vault-run.ts`
-# (defaults from `.vault.yaml`) with `VAULT_CONFIG` set from the dispatch
+# CI authenticates via GitHub Actions OIDC. Use `scripts/secrets-run.ts`
+# (defaults from `.infisical.json`) with `SECRETS_ENV` set from the dispatch
 # `environment` input (`dev` or `prod` → `prd`).
 
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Target database (Vault config dev or prd)'
+        description: 'Target database (secrets env dev or prd)'
         required: true
         type: choice
         options:
@@ -74,7 +74,7 @@ jobs:
   seed:
     runs-on: ubuntu-latest
     env:
-      VAULT_CONFIG: ${{ inputs.environment == 'prod' && 'prd' || 'dev' }}
+      SECRETS_ENV: ${{ inputs.environment == 'prod' && 'prd' || 'dev' }}
     # Serialize seeds per environment. `cancel-in-progress: false` so a queued
     # manual run never preempts an in-flight seed mid-batch (the script is
     # resumable, but interrupting wastes the partially-streamed CSV).
@@ -89,7 +89,11 @@ jobs:
         uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup
-      - uses: ./.github/actions/vault-auth
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
+          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
+          env-slug: ${{ inputs.environment == 'prod' && 'prd' || 'dev' }}
 
       # Cache the downloaded `.csv.zst` archive between runs. The script
       # writes to `libs/chess/.cache/lichess/<name>` and stores an
@@ -105,13 +109,13 @@ jobs:
           restore-keys: |
             lichess-puzzles-${{ runner.os }}-
 
-      - name: Apply Postgres migrations → Vault `${{ env.VAULT_CONFIG }}`
+      - name: Apply Postgres migrations → Infisical `${{ env.SECRETS_ENV }}`
         run: |
           set -euo pipefail
-          bun run scripts/vault-run.ts -- \
+          bun run scripts/secrets-run.ts -- \
             bun run --filter '@apps/api' db:migrate
 
-      - name: Seed chess puzzles → Vault `${{ env.VAULT_CONFIG }}` Postgres
+      - name: Seed chess puzzles → Infisical `${{ env.SECRETS_ENV }}` Postgres
         env:
           SEED_LIMIT: ${{ inputs.limit }}
           SEED_DRY_RUN: ${{ inputs.dry_run }}
@@ -134,13 +138,13 @@ jobs:
           if [ "${SEED_NO_RESUME}" = "true" ]; then
             args+=(--no-resume)
           fi
-          bun run scripts/vault-run.ts -- \
+          bun run scripts/secrets-run.ts -- \
             bun run --filter '@libs/chess' seed:puzzles \
               "${args[@]}"
 
-      - name: Recreate chess puzzle indexes → Vault `${{ env.VAULT_CONFIG }}`
+      - name: Recreate chess puzzle indexes → Infisical `${{ env.SECRETS_ENV }}`
         if: ${{ inputs.defer_indexes && !inputs.dry_run }}
         run: |
           set -euo pipefail
-          bun run scripts/vault-run.ts -- \
+          bun run scripts/secrets-run.ts -- \
             bun run --filter '@apps/api' db:migrate

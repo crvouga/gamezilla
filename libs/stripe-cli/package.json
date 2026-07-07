@@ -15,7 +15,7 @@
     "@libs/client-config": "workspace:*",
     "@libs/stripe": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
-    "@pkgs/vault": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*",
     "stripe": "catalog:"
   },
   "devDependencies": {

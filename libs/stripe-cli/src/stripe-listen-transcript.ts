@@ -8,13 +8,13 @@ import type { WriteQueue } from './write-queue';
 export type StripeListenTranscriptDeps = {
   readonly writeQueue: WriteQueue;
   readonly secretStore: SecretStore;
-  readonly vaultConfig: string;
+  readonly secretsEnv: string;
   readonly apiUrl: string;
   readonly stripeSecretKey: string;
 };
 
 /**
- * Prefixes each `stripe listen` line and, on first `whsec_…`, writes Vault and
+ * Prefixes each `stripe listen` line and, on first `whsec_…`, writes secret store and
  * runs the signed webhook probe (serialized via {@link WriteQueue}).
  */
 export function createStripeListenTranscriptHandler(
@@ -22,8 +22,7 @@ export function createStripeListenTranscriptHandler(
 ): (line: string) => void {
   let lastWritten: string | null = null;
   let webhookProbeDone = false;
-  const { writeQueue, secretStore, vaultConfig, apiUrl, stripeSecretKey } =
-    deps;
+  const { writeQueue, secretStore, secretsEnv, apiUrl, stripeSecretKey } = deps;
 
   return (line: string): void => {
     console.log(`[${STRIPE_CLI_LOG_TAG}] ${line}`);
@@ -34,14 +33,14 @@ export function createStripeListenTranscriptHandler(
         await secretStore.setSecret(StripeSecretKeys.webhookSecret, whsec);
         lastWritten = whsec;
         console.log(
-          `[${STRIPE_CLI_LOG_TAG}] wrote ${StripeSecretKeys.webhookSecret} to Vault (${vaultConfig})`
+          `[${STRIPE_CLI_LOG_TAG}] wrote ${StripeSecretKeys.webhookSecret} to secret store (${secretsEnv})`
         );
       } catch (e) {
-        // If Vault is unreachable (e.g., not running), log a warning but continue.
+        // If the secret store is unreachable, log a warning but continue.
         // The webhook secret will still be functional for Stripe's purposes.
         const errorMsg = e instanceof Error ? e.message : String(e);
         console.warn(
-          `[${STRIPE_CLI_LOG_TAG}] Failed to write ${StripeSecretKeys.webhookSecret} to Vault: ${errorMsg}. Continuing without persisting the secret.`
+          `[${STRIPE_CLI_LOG_TAG}] Failed to write ${StripeSecretKeys.webhookSecret} to secret store: ${errorMsg}. Continuing without persisting the secret.`
         );
       }
       if (!webhookProbeDone) {

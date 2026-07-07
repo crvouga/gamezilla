@@ -707,8 +707,8 @@ PlanetScale         Serverless MySQL
                     Clients never write directly — local first
                     Read replicas for global low-latency reads
 
-Local dev           Hosted dev Postgres via Vault `personal/dev` `DATABASE_URL` (no local Postgres process)
-                    `bun run dev` starts api + client + dev-idp under `vault run`; `db:migrate`: `bun db:migrate`
+Local dev           Hosted dev Postgres via secrets env `dev` `DATABASE_URL` (no local Postgres process)
+                    `bun run dev` starts api + client under `secrets-run`; `db:migrate`: `bun db:migrate`
 ```
 
 ### Scale estimates
@@ -724,13 +724,13 @@ Chess.com          500k-1M       ~$2,000-5,000
 
 Cloudflare Workers: 10M requests/month free, then $0.50/M. Durable Objects: first 1M requests free, $0.15/M after. PlanetScale: hobby tier free, scaler from $39/month.
 
-### Dev database (Vault `dev` only)
+### Dev database (secrets env `dev` only)
 
-There is no local Postgres process. Development and CI use `DATABASE_URL` from Vault **`personal/dev`** (hosted dev Postgres). `bun run dev` and `bun db:migrate` run under `vault run` (`VAULT_CONFIG=dev` from `.vault.yaml`). `@apps/api` `setup` mirrors the Vault `dev` URL into `.dev.vars` for wrangler.
+There is no local Postgres process. Development and CI use `DATABASE_URL` from secrets env **`dev`** (hosted dev Postgres). `bun run dev` and `bun db:migrate` run under `secrets-run` (`SECRETS_ENV=dev` from the repo-root secrets scope config). `@apps/api` `setup` mirrors the secrets env `dev` URL into `.dev.vars` for wrangler.
 
-Production deploy (`bun run infra`, `VAULT_CONFIG=prd`) is the only path that uses Vault `prd` `DATABASE_URL`.
+Production deploy (`bun run infra`, `SECRETS_ENV=prd`) is the only path that uses secrets env `prd` `DATABASE_URL`.
 
-Tiger-style guards in `@libs/infra/shared/database-url-policy` block loopback URLs, `VAULT_CONFIG=prd` in dev scripts, and URLs matching Vault `prd` `DATABASE_URL`. Opt out with `ALLOW_PRODUCTION_DATABASE_URL=1`.
+Tiger-style guards in `@libs/infra/shared/database-url-policy` block loopback URLs, `SECRETS_ENV=prd` in dev scripts, and URLs matching secrets env `prd` `DATABASE_URL`. Opt out with `ALLOW_PRODUCTION_DATABASE_URL=1`.
 
 ```bash
 bun run dev

@@ -4,11 +4,11 @@ import { GitHubActionsPlatform } from '../cli/platform/github-actions';
 import { LocalPlatform } from '../cli/platform/local';
 
 /**
- * Infra CLI targets Vault config `prd` unless `VAULT_CONFIG` is set.
+ * Infra CLI targets secrets env `prd` unless `SECRETS_ENV` is set.
  */
-const vaultConfigRaw = process.env['VAULT_CONFIG'];
-if (typeof vaultConfigRaw !== 'string' || vaultConfigRaw.trim() === '') {
-  process.env['VAULT_CONFIG'] = 'prd';
+const secretsEnvRaw = process.env['SECRETS_ENV'];
+if (typeof secretsEnvRaw !== 'string' || secretsEnvRaw.trim() === '') {
+  process.env['SECRETS_ENV'] = 'prd';
 }
 
 const isGitHubActions = process.env['GITHUB_ACTIONS'] === 'true';

@@ -134,7 +134,7 @@ export function requireApiKey(explicit?: string): string {
   const key = (explicit ?? process.env.CURSOR_API_KEY ?? '').trim();
   if (key === '') {
     throw new Error(
-      'CURSOR_API_KEY is required. Run via `bun run check:heal` (Vault dev config) or pass --api-key.'
+      'CURSOR_API_KEY is required. Run via `bun run check:heal` (secret store dev config) or pass --api-key.'
     );
   }
   return key;
@@ -145,7 +145,7 @@ export function describeApiKeySource(explicit?: string): string {
     return '--api-key flag';
   }
   if ((process.env.CURSOR_API_KEY ?? '').trim() !== '') {
-    return 'CURSOR_API_KEY (Vault/env)';
+    return 'CURSOR_API_KEY (secret store/env)';
   }
   return 'missing';
 }

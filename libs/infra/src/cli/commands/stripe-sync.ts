@@ -6,13 +6,14 @@ import type { Command } from './types';
 /**
  * CI atomic step 4: runs `bun run --filter @libs/stripe sync` to
  * reconcile the Stripe catalog, backfill PatchDB, and refresh webhook
- * endpoints (writes `STRIPE_WEBHOOK_SECRET` back to Vault). Must run
+ * endpoints (writes `STRIPE_WEBHOOK_SECRET` back to the secret store). Must run
  * after the API worker is deployed so the webhook URL exists.
  */
 export class StripeSyncCommand implements Command {
   readonly id = 'stripe-sync';
   readonly group = 'phase' as const;
-  readonly summary = 'Sync Stripe catalog/webhooks + Vault webhook secret';
+  readonly summary =
+    'Sync Stripe catalog/webhooks + secret store webhook secret';
 
   constructor(private readonly platform: CiPlatform) {}
 

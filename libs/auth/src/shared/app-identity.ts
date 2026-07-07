@@ -2,7 +2,7 @@
  * Single source of truth for the product's identity strings.
  *
  * Co-located in `@libs/auth` because auth owns the deep-link `scheme` and the
- * Better Auth display name, and auth sits low in the dependency graph (every
+ * product display name, and auth sits low in the dependency graph (every
  * surface that needs identity already depends on it, with no cycle).
  *
  * `apps/client/app.json` (Expo `name` / `slug` / `scheme`) must be kept in
@@ -10,7 +10,7 @@
  * import this module at config-resolution time.
  */
 export const APP_IDENTITY = {
-  /** Human-facing product name (titles, Better Auth app name fallback). */
+  /** Human-facing product name (titles, auth app name fallback). */
   displayName: 'Gamezilla',
   /** Lowercase identifier (Expo slug, secure-storage prefix). */
   slug: 'gamezilla',

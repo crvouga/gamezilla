@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@pkgs/secret-string": "workspace:*",
-    "@pkgs/vault": "workspace:*"
+    "@pkgs/secrets-config": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

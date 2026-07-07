@@ -7,6 +7,9 @@ import {
   PATCHES_DB_SYSTEM_CONTEXT,
   type PatchDb,
 } from '@pkgs/patch-db/interface';
+import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import type { AuthUserProfile } from '@pkgs/auth/shared/user-profile';
+import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
 
 import {
   ACCOUNT_PROVIDER_ENTITY_TYPE,
@@ -19,32 +22,31 @@ import {
   ACCOUNT_ENTITY_TYPE,
 } from '@libs/auth/shared';
 
-import type { HostedBetterAuth } from './better-auth-create';
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';
 
-type LinkedAccount = {
-  providerId: string;
-  accountId: string;
-  createdAt?: string;
-};
-
-function makeFakeAuth(args: {
-  email?: string;
-  linked?: ReadonlyArray<LinkedAccount>;
-}): HostedBetterAuth {
-  const email = args.email;
-  const linked = args.linked ?? [];
+function makeFakeAuthServer(args: {
+  providerLabel?: string;
+  session?: VerifiedSession | null;
+  profile?: AuthUserProfile | null;
+  verifyThrows?: boolean;
+  profileThrows?: boolean;
+}): AuthServerPort {
+  const providerLabel = args.providerLabel ?? 'clerk';
+  const session = args.session ?? null;
+  const profile = args.profile ?? null;
   return {
-    handler: async () => new Response(),
-    api: {
-      getSession: async () =>
-        email !== undefined ? { user: { email } } : null,
-      listUserAccounts: async () =>
-        linked.map((entry) => ({
-          providerId: entry.providerId,
-          accountId: entry.accountId,
-          createdAt: entry.createdAt ?? new Date('2024-01-01').toISOString(),
-        })),
+    providerLabel,
+    verifySessionToken: async () => {
+      if (args.verifyThrows === true) {
+        throw new Error('boom');
+      }
+      return session;
+    },
+    getUserProfile: async () => {
+      if (args.profileThrows === true) {
+        throw new Error('boom');
+      }
+      return profile;
     },
   };
 }
@@ -139,6 +141,7 @@ async function seedAccount(db: PatchDb, accountId: string): Promise<void> {
 
 const ACCOUNT_ID = '11111111-1111-4111-8111-111111111111';
 const DEVICE_ID = '22222222-2222-4222-8222-222222222222';
+const EXTERNAL_USER_ID = 'user_external_1';
 
 async function assertProviders(
   db: PatchDb,
@@ -198,14 +201,18 @@ describe('refreshAuthSnapshot', () => {
   });
 
   test('inserts session, device, and provider rows on first run', async () => {
-    const auth = makeFakeAuth({
-      email: 'alice@example.com',
-      linked: [{ providerId: 'google', accountId: 'google-user-1' }],
+    const authServer = makeFakeAuthServer({
+      session: {
+        externalUserId: EXTERNAL_USER_ID,
+        accountId: null,
+        email: 'alice@example.com',
+        expiresAt: null,
+      },
     });
 
     await refreshAuthSnapshot({
       db,
-      auth,
+      authServer,
       bearerToken: 'token-1',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
@@ -215,8 +222,8 @@ describe('refreshAuthSnapshot', () => {
 
     await assertProviders(db, [
       {
-        provider: 'google',
-        providerUserId: 'google-user-1',
+        provider: 'clerk',
+        providerUserId: EXTERNAL_USER_ID,
         email: 'alice@example.com',
       },
     ]);
@@ -228,14 +235,18 @@ describe('refreshAuthSnapshot', () => {
   });
 
   test('idempotent: running twice yields a single session/device/provider row', async () => {
-    const auth = makeFakeAuth({
-      email: 'alice@example.com',
-      linked: [{ providerId: 'google', accountId: 'google-user-1' }],
+    const authServer = makeFakeAuthServer({
+      session: {
+        externalUserId: EXTERNAL_USER_ID,
+        accountId: null,
+        email: 'alice@example.com',
+        expiresAt: null,
+      },
     });
 
     const inputs = {
       db,
-      auth,
+      authServer,
       bearerToken: 'token-1',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
@@ -253,11 +264,18 @@ describe('refreshAuthSnapshot', () => {
   });
 
   test('rotates account/session.token on subsequent run with a new bearer', async () => {
-    const auth = makeFakeAuth({ linked: [] });
+    const authServer = makeFakeAuthServer({
+      session: {
+        externalUserId: EXTERNAL_USER_ID,
+        accountId: null,
+        email: null,
+        expiresAt: null,
+      },
+    });
 
     await refreshAuthSnapshot({
       db,
-      auth,
+      authServer,
       bearerToken: 'token-old',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
@@ -267,7 +285,7 @@ describe('refreshAuthSnapshot', () => {
 
     await refreshAuthSnapshot({
       db,
-      auth,
+      authServer,
       bearerToken: 'token-new',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
@@ -281,14 +299,25 @@ describe('refreshAuthSnapshot', () => {
     });
   });
 
-  test('newly linked provider is added without duplicating existing rows', async () => {
-    const authBefore = makeFakeAuth({
-      email: 'alice@example.com',
-      linked: [{ providerId: 'google', accountId: 'g-1' }],
+  test('updates provider email from getUserProfile when session email is null', async () => {
+    const authServer = makeFakeAuthServer({
+      session: {
+        externalUserId: EXTERNAL_USER_ID,
+        accountId: null,
+        email: null,
+        expiresAt: null,
+      },
+      profile: {
+        externalUserId: EXTERNAL_USER_ID,
+        email: 'alice@example.com',
+        displayName: 'Alice',
+        avatarUrl: null,
+      },
     });
+
     await refreshAuthSnapshot({
       db,
-      auth: authBefore,
+      authServer,
       bearerToken: 'token',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
@@ -296,45 +325,24 @@ describe('refreshAuthSnapshot', () => {
       accountSessionExpiresAt: '2026-01-01T00:00:00.000Z',
     });
 
-    const authAfter = makeFakeAuth({
-      email: 'alice@example.com',
-      linked: [
-        { providerId: 'google', accountId: 'g-1' },
-        { providerId: 'apple', accountId: 'a-1' },
-      ],
-    });
-    await refreshAuthSnapshot({
-      db,
-      auth: authAfter,
-      bearerToken: 'token',
-      accountId: ACCOUNT_ID,
-      deviceId: DEVICE_ID,
-      deviceAttributes: DEVICE_ATTRS,
-      accountSessionExpiresAt: '2026-01-01T00:00:00.000Z',
-    });
-
-    const providers = await readAllProviders(db, ACCOUNT_ID);
-    expect(providers).toHaveLength(2);
-    const providerIds = providers.map((p) => p.provider).sort();
-    expect(providerIds).toEqual(['apple', 'google']);
+    await assertProviders(db, [
+      {
+        provider: 'clerk',
+        providerUserId: EXTERNAL_USER_ID,
+        email: 'alice@example.com',
+      },
+    ]);
   });
 
-  test('survives Better Auth getSession / listUserAccounts failures', async () => {
-    const auth: HostedBetterAuth = {
-      handler: async () => new Response(),
-      api: {
-        getSession: async () => {
-          throw new Error('boom');
-        },
-        listUserAccounts: async () => {
-          throw new Error('boom');
-        },
-      },
-    };
+  test('survives verifySessionToken / getUserProfile failures', async () => {
+    const authServer = makeFakeAuthServer({
+      verifyThrows: true,
+      profileThrows: true,
+    });
 
     await refreshAuthSnapshot({
       db,
-      auth,
+      authServer,
       bearerToken: 'token',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,

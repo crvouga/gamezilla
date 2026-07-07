@@ -1,4 +1,4 @@
-import { DEVELOPMENT_VAULT_CONFIG } from '@libs/infra/shared/database-url-policy';
+import { DEVELOPMENT_SECRETS_ENV } from '@libs/infra/shared/database-url-policy';
 import { appObjectStoreRootPrefix } from '@libs/infra/namespace-bindings';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
@@ -21,7 +21,7 @@ const S3_SECRET_NAMES = [
 
 /**
  * S3-compatible object store for the API Worker. Credentials are loaded from
- * Vault at boot; every key is scoped under the configured root prefix inside
+ * Credentials are loaded from env bindings at boot; every key is scoped
  * {@link createS3ObjectStore}.
  *
  * Object storage only backs non-critical caches (e.g. TTS audio). When the S3
@@ -32,18 +32,18 @@ const S3_SECRET_NAMES = [
  * caught earlier by the deploy-time `s3-bucket` resource check.
  */
 export type CreateApiObjectStoreOptions = {
-  /** Vault config slug (`dev` / `prd`). Dev uses an in-memory store so local wrangler is not blocked by remote S3. */
-  readonly vaultConfig?: string | null;
+  /** Secrets env (`dev` / `prd`). Dev uses an in-memory store so local wrangler is not blocked by remote S3. */
+  readonly secretsEnv?: string | null;
 };
 
 export async function createApiObjectStore(
   secretStore: SecretStore,
   options: CreateApiObjectStoreOptions = {}
 ): Promise<ObjectStore> {
-  if (options.vaultConfig === DEVELOPMENT_VAULT_CONFIG) {
+  if (options.secretsEnv === DEVELOPMENT_SECRETS_ENV) {
     if (!devInMemoryObjectStoreNoticed) {
       devInMemoryObjectStoreNoticed = true;
-      log.debug('dev vault config — using in-memory object store');
+      log.debug('dev secrets env — using in-memory object store');
     }
     return new ObjectStoreImplInMemory();
   }

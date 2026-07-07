@@ -1,8 +1,9 @@
 import { assert } from '@pkgs/assert';
 import { COMMIT_HASH_HEX_REGEX, assertCommitDateIso } from '@pkgs/git';
-import { VaultCli } from '@pkgs/vault';
-import { rmSync } from 'node:fs';
+import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
+import { writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import {
   assertExpoTokenPresent,
   publishClientEasUpdate,
@@ -19,93 +20,76 @@ import { productionOrigin } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId } from '../secrets/cloudflare';
-import { runAsync, runCapture, runCaptureAsync } from '../subprocess';
+import { getSecretMap } from '../secrets/secrets';
+import { runAsync, runCapture } from '../subprocess';
 import { ResourceBase, type InfraContext } from './types';
 
 const WRANGLER_ENV = 'production';
 
-type VaultDeployConfig = {
-  token: string;
-  project: string;
-  config: string;
-  addr: string;
-};
+const WORKER_EXTRA_ENV_KEYS = [
+  'SECRETS_ENV',
+  'OBSERVABILITY_BACKEND',
+  'OBSERVABILITY_COLLECTOR_URL',
+  'SENTRY_DSN',
+] as const;
 
-function resolveVaultConfigForDeploy(): VaultDeployConfig {
-  const cli = new VaultCli({ cwd: REPO_ROOT });
-  let token: string;
+function buildWorkerSecretBulkPayload(): Record<string, string> {
+  const scope = resolveSecretsScope(REPO_ROOT);
+  const payload: Record<string, string> = {
+    SECRETS_ENV: scope.env,
+  };
 
-  const fromEnv = (process.env['VAULT_TOKEN'] ?? '').trim();
-  if (fromEnv.length > 0) {
-    token = fromEnv;
-  } else {
-    try {
-      token = cli.resolveToken().token;
-    } catch {
-      assert.fail(
-        'VAULT_TOKEN is required for API Worker deploy. Set VAULT_TOKEN in env (e.g. CI), or run `vault login` so ~/.vault-token is populated.'
-      );
+  for (const entry of getSecretMap()) {
+    const value = (process.env[entry.env] ?? '').trim();
+    if (value.length === 0) {
+      if (entry.optional === true) continue;
+      assert.fail(`Worker deploy: missing secret ${entry.secretKey}`);
+    }
+    payload[entry.env] = value;
+  }
+
+  for (const key of WORKER_EXTRA_ENV_KEYS) {
+    const value = (process.env[key] ?? '').trim();
+    if (value.length > 0) {
+      payload[key] = value;
     }
   }
 
-  const scope = cli.resolveScope();
-  const project = (process.env['VAULT_PROJECT'] ?? '').trim() || scope.project;
-  const config = (process.env['VAULT_CONFIG'] ?? '').trim() || scope.config;
-  const addr = (process.env['VAULT_ADDR'] ?? '').trim() || scope.addr;
-
-  if (!project || !config) {
-    assert.fail(
-      `VAULT_PROJECT and VAULT_CONFIG are required. ` +
-        `Resolved project=${project || '(missing)'}, config=${config || '(missing)'}. ` +
-        `Set them in env or run \`vault setup --project personal --config prd\`.`
-    );
-  }
-
-  return { token, project, config, addr };
+  return payload;
 }
 
-async function preflightVaultKvRead(cfg: VaultDeployConfig): Promise<void> {
-  const base = cfg.addr.replace(/\/$/, '');
-  const url = `${base}/v1/secret/data/${cfg.project}/${cfg.config}`;
-
-  let response: Response;
+async function pushWorkerSecrets(
+  platform: CiPlatform,
+  apiDir: string,
+  env: NodeJS.ProcessEnv
+): Promise<void> {
+  const payload = buildWorkerSecretBulkPayload();
+  const bulkPath = join(tmpdir(), `wrangler-secrets-${process.pid}.json`);
+  writeFileSync(bulkPath, JSON.stringify(payload), 'utf8');
   try {
-    response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'X-Vault-Token': cfg.token,
-        Accept: 'application/json',
-      },
-    });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    assert.fail(
-      `Vault preflight: network error reaching KV API — ${msg}. ` +
-        `The Worker would fail at boot with the same token. Fix connectivity or token before deploying.`
+    await runAsync(
+      platform,
+      'wrangler',
+      wranglerArgs('secret', 'bulk', bulkPath),
+      {
+        cwd: apiDir,
+        env,
+        label: 'api-worker: wrangler secret bulk',
+      }
     );
+  } finally {
+    rmSync(bulkPath, { force: true });
   }
+  ok(
+    'Worker secrets',
+    `pushed ${Object.keys(payload).length} bindings via wrangler secret bulk`
+  );
+}
 
-  if (!response.ok) {
-    let detail = `HTTP ${response.status}`;
-    try {
-      const body = await response.text();
-      if (body.length > 0) detail += `: ${body.slice(0, 500)}`;
-    } catch {
-      /* body read failed */
-    }
-
-    const hint =
-      response.status === 403 || response.status === 401
-        ? ' (token may be expired, revoked, or lack read access to the path)'
-        : response.status === 404
-          ? ' (secret path may not exist — run the Vault→Vault migration helper)'
-          : '';
-
-    assert.fail(
-      `Vault preflight failed: ${detail}.${hint} ` +
-        `Aborting deploy — the Worker would return "api misconfigured" at runtime with this token.`
-    );
-  }
+function validateSecretsForDeploy(): void {
+  const scope = resolveSecretsScope(REPO_ROOT);
+  buildWorkerSecretBulkPayload();
+  ok('Secrets preflight', `env=${scope.env} payload validated`);
 }
 
 function wranglerEnv(): NodeJS.ProcessEnv {
@@ -185,7 +169,7 @@ export class ApiWorkerResource extends ResourceBase {
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
 
   async dryRun(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
-    await this.validateVaultForDeploy();
+    validateSecretsForDeploy();
     const commitHash = resolveCommitHash();
     const commitDate = resolveCommitDate();
 
@@ -211,7 +195,7 @@ export class ApiWorkerResource extends ResourceBase {
       assertExpoTokenPresent();
       assert.nonEmptyString(
         process.env['EXPO_PUBLIC_API_URL'] ?? productionOrigin(),
-        'EXPO_PUBLIC_API_URL must be set for the EAS OTA update (Vault/env); ' +
+        'EXPO_PUBLIC_API_URL must be set for the EAS OTA update (secrets/env); ' +
           'a missing value blank-screens the published bundle on launch'
       );
       ok(
@@ -232,35 +216,11 @@ export class ApiWorkerResource extends ResourceBase {
     const commitHash = resolveCommitHash();
     const commitDate = resolveCommitDate();
 
-    const vaultCfg = await this.validateVaultForDeploy();
+    validateSecretsForDeploy();
 
     await buildClientForWorker(platform, commitHash, commitDate);
 
-    const secretArgs = wranglerArgs('secret', 'put');
-    await runCaptureAsync('wrangler', [...secretArgs, 'VAULT_TOKEN'], {
-      cwd: apiDir,
-      env,
-      input: vaultCfg.token,
-    });
-    await runCaptureAsync('wrangler', [...secretArgs, 'VAULT_PROJECT'], {
-      cwd: apiDir,
-      env,
-      input: vaultCfg.project,
-    });
-    await runCaptureAsync('wrangler', [...secretArgs, 'VAULT_CONFIG'], {
-      cwd: apiDir,
-      env,
-      input: vaultCfg.config,
-    });
-    await runCaptureAsync('wrangler', [...secretArgs, 'VAULT_ADDR'], {
-      cwd: apiDir,
-      env,
-      input: vaultCfg.addr,
-    });
-
-    platform.notice(
-      'VAULT_TOKEN + VAULT_PROJECT/CONFIG/ADDR secrets pushed to Workers.'
-    );
+    await pushWorkerSecrets(platform, apiDir, env);
 
     try {
       await deployProductionWorker(platform, apiDir, env);
@@ -284,16 +244,6 @@ export class ApiWorkerResource extends ResourceBase {
     const profile = resolveEasProfileWithNotice(platform);
     if (profile === null) return;
     await publishClientEasUpdate(platform, profile);
-  }
-
-  private async validateVaultForDeploy(): Promise<VaultDeployConfig> {
-    const vaultCfg = resolveVaultConfigForDeploy();
-    await preflightVaultKvRead(vaultCfg);
-    ok(
-      'Vault preflight',
-      `token + project=${vaultCfg.project} config=${vaultCfg.config} verified`
-    );
-    return vaultCfg;
   }
 
   destroy(): void {

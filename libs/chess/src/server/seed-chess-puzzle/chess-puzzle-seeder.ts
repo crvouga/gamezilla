@@ -25,7 +25,7 @@
  * standard migration step first (`bun run --filter @apps/api db:migrate`)
  * before invoking this script on a fresh database. Keeping migrations out
  * of the seed lets `@libs/chess` stay independent of `@apps/api`
- * (and Better Auth) and avoids a workspace-level dependency cycle.
+ * (and legacy auth) and avoids a workspace-level dependency cycle.
  *
  * Connection model: the seed opens **exactly one** TCP session to Postgres
  * via `pg.Client` (not `pg.Pool`). The seed loop is fully serial — one
@@ -36,11 +36,11 @@
  * long as they run in **session pooling** mode (transaction mode breaks
  * `SET …` statements that need to persist across the seed's batches).
  *
- * Dev (Vault `dev`, hosted dev Postgres):
- *   VAULT_CONFIG=dev vault run -- bun run --filter @libs/chess seed:puzzles
+ * Dev (secrets env `dev`, hosted dev Postgres):
+ *   SECRETS_ENV=dev bun run scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles
  *
- * Production (Vault `prd`, `DATABASE_URL` → Postgres):
- *   VAULT_CONFIG=prd vault run -- bun run --filter @libs/chess seed:puzzles
+ * Production (secrets env `prd`, `DATABASE_URL` → Postgres):
+ *   SECRETS_ENV=prd bun run scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles
  *
  * Options: `--profile auto|fast|managed` (default `auto`), `--source`,
  *   `--cache-dir`, `--batch-size`, `--limit`, `--no-resume`, `--dry-run`,
@@ -64,16 +64,17 @@ import {
   type PatchInput,
 } from '@pkgs/patch-db/interface';
 import { PatchDbCompactionPolicyRegistry } from '@pkgs/patch-db/policy/compaction-policy';
-import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
+import { createScriptSecretStore } from '@pkgs/secret-store';
+import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres-connect';
 import {
-  assertDatabaseUrlAllowedForVaultConfig,
-  assertDevVaultConfig,
-  PRODUCTION_VAULT_CONFIG,
+  assertDevSecretsEnv,
+  PRODUCTION_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
+import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
-import { VaultCli } from '@pkgs/vault/vault-cli';
+import { join } from 'node:path';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
 import {
@@ -100,6 +101,8 @@ import {
   type IteratePuzzleRowsOptions,
   type ResolvedSource,
 } from './streaming';
+
+const REPO_ROOT = join(import.meta.dirname, '../../../../..');
 
 type StreamContext = {
   cli: Cli;
@@ -525,19 +528,22 @@ export class ChessPuzzleSeeder {
     reporter.phase('Connect database (single TCP session)', {
       note: 'Schema (patches/snapshots + pdb_idx_chess_puzzle__*) must already exist; run `bun run --filter @apps/api db:migrate` first on a fresh database.',
     });
-    const store = createVaultSecretStoreForScripts();
-    const vaultConfig =
-      process.env['VAULT_CONFIG']?.trim() ||
-      new VaultCli().resolveScope().config;
-    if (vaultConfig !== PRODUCTION_VAULT_CONFIG) {
-      assertDevVaultConfig(vaultConfig);
+    const store = createScriptSecretStore();
+    const secretsEnv =
+      process.env['SECRETS_ENV']?.trim() || resolveSecretsScope(REPO_ROOT).env;
+    if (secretsEnv !== PRODUCTION_SECRETS_ENV) {
+      assertDevSecretsEnv(secretsEnv);
     }
     const databaseUrl = (
       await store.getRequired('DATABASE_URL')
     ).readSecretValue();
-    await assertDatabaseUrlAllowedForVaultConfig(databaseUrl, vaultConfig, {
-      surface: 'chess:seed-puzzles',
-    });
+    await assertDatabaseUrlAllowedForSecretsEnvForTooling(
+      databaseUrl,
+      secretsEnv,
+      {
+        surface: 'chess:seed-puzzles',
+      }
+    );
     const { sql: sqlClient } = await this.#createSqlClient(databaseUrl);
     try {
       const managed = await applySessionTuning(sqlClient, log);

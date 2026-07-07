@@ -8,14 +8,19 @@
     "POST_DEPLOY_*",
     "EXPO_PUBLIC_*",
     "PREVIEW_PORT",
-    "DEV_IDP_PORT",
     "POSTGRES_SCHEMA",
     "API_URL",
+    "LOCAL_PREVIEW_API_ORIGIN",
     "DATABASE_URL",
-    "VAULT_TOKEN",
-    "VAULT_CONFIG",
-    "VAULT_PROJECT",
-    "VAULT_ENVIRONMENT",
+    "AUTH_*",
+    "STRIPE_*",
+    "CLOUDFLARE_*",
+    "S3_*",
+    "EXPO_TOKEN",
+    "SECRETS_ENV",
+    "SECRETS_PROJECT_ID",
+    "SECRETS_ADDR",
+    "SECRETS_TOKEN",
     "TURBO_*",
     "TMPDIR"
   ],
@@ -167,7 +172,6 @@
         "apps/api/src/app/request-db-middleware.ts",
         "libs/stripe/src/script-runtime.ts",
         "libs/chess/src/server/seed-chess-puzzle/chess-puzzle-seeder.ts",
-        "pkgs/dev-idp/src/dev-server.ts",
         "libs/integration-test/src/preview-stack-env.ts",
         "scripts/check-database-url-policy.ts"
       ],
@@ -194,6 +198,11 @@
         "scripts/check-tier-imports.ts",
         "scripts/workspace-package-import-graph.ts"
       ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:no-provider-leaks": {
+      "inputs": ["scripts/check-no-provider-leaks.ts"],
       "outputs": [],
       "outputLogs": "new-only"
     },

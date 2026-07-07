@@ -1,4 +1,4 @@
-import { useAuthClient } from '@libs/auth/client/auth-client-provider';
+import { useAuthClientPort } from '@libs/auth/client/auth-client-provider';
 import { useAuthModals } from '@libs/auth/client/auth-modals-provider';
 import { SIGN_IN_PENDING_KEY } from '@libs/auth/client/auth-storage-keys';
 import {
@@ -6,45 +6,31 @@ import {
   markSignInPending,
   useSignInPending,
 } from '@libs/auth/client/sign-in-pending';
+import { isAuthSessionSignedIn } from '@libs/auth/client/session-snapshot';
+import { useLingui } from '@lingui/react/macro';
 import { assert } from '@pkgs/assert';
 import { useSecureStorage } from '@pkgs/secure-storage/interface';
 import { seedCachedSecureStorageValue } from '@pkgs/secure-storage/use-secure-storage-item';
 import { Box, LoadingState, SuccessState } from '@pkgs/ui';
-import { useLingui } from '@lingui/react/macro';
 import * as WebBrowser from 'expo-web-browser';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
-
-const SESSION_POLL_MS = 500;
-
-function isGetSessionSignedIn(data: unknown): boolean {
-  if (data === null || data === undefined || typeof data !== 'object') {
-    return false;
-  }
-  const record = data as { user?: unknown; session?: unknown };
-  const hasUser = record.user !== null && record.user !== undefined;
-  const hasSession = record.session !== null && record.session !== undefined;
-  return hasUser || hasSession;
-}
+import { useCallback, useEffect, useLayoutEffect } from 'react';
 
 /**
- * Web OAuth callback route. `WebBrowser.maybeCompleteAuthSession()` in
- * `polyfill-entry` completes the Better Auth handoff; we invoke it again here
- * so a cold load on this route cannot miss the handoff.
+ * Web OAuth callback route. `WebBrowser.maybeCompleteAuthSession()` completes
+ * the auth provider SSO handoff; this screen watches the auth port session and resumes
+ * the sign-in modal lifecycle when the session settles.
  */
 export default function SsoCallbackScreen() {
   const { t } = useLingui();
   const router = useRouter();
   const storage = useSecureStorage();
-  const authClient = useAuthClient();
+  const port = useAuthClientPort();
+  const authState = port.useAuthSession();
   const { pending, isHydrated } = useSignInPending();
   const { openSignInModal, closeSignInModal } = useAuthModals();
-  const [sessionResolved, setSessionResolved] = useState(false);
+  const sessionResolved = isAuthSessionSignedIn(authState);
 
-  assert.ok(
-    typeof authClient.getSession === 'function',
-    'auth client must expose getSession for OAuth callback refresh'
-  );
   assert.ok(
     typeof WebBrowser.maybeCompleteAuthSession === 'function',
     'expo-web-browser must expose maybeCompleteAuthSession'
@@ -52,30 +38,8 @@ export default function SsoCallbackScreen() {
 
   useEffect(() => {
     WebBrowser.maybeCompleteAuthSession();
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    const poll = async (): Promise<void> => {
-      try {
-        const res = await authClient.getSession();
-        if (cancelled) return;
-        if (isGetSessionSignedIn(res.data)) {
-          setSessionResolved(true);
-        }
-      } catch {
-        /* transient preview / cold-start noise — keep polling */
-      }
-    };
-    void poll();
-    const id = setInterval(() => {
-      void poll();
-    }, SESSION_POLL_MS);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, [authClient]);
+    void port.ensureSessionReady?.();
+  }, [port]);
 
   useEffect(() => {
     if (!isHydrated) return;

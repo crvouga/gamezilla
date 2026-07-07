@@ -16,37 +16,30 @@ type EntrypointRule = {
 const ENTRYPOINTS: readonly EntrypointRule[] = [
   {
     file: 'apps/api/scripts/setup-dev-vars.ts',
-    mustInclude: ['assertDevVaultConfig', 'assertNonProdDatabaseUrl'],
+    mustInclude: ['assertDevSecretsEnv', 'assertNonProdDatabaseUrlForTooling'],
   },
   {
     file: 'apps/api/scripts/migrate-db.ts',
-    mustInclude: [
-      'assertDevVaultConfig',
-      'assertDatabaseUrlAllowedForVaultConfig',
-    ],
+    mustInclude: ['assertDevSecretsEnv', 'assertNonProdDatabaseUrlForTooling'],
   },
   {
     file: 'apps/api/src/app/request-db-middleware.ts',
-    mustInclude: ['assertDatabaseUrlAllowedForVaultConfig'],
+    mustInclude: ['assertDatabaseUrlAllowedForSecretsEnv'],
   },
   {
     file: 'libs/stripe/src/script-runtime.ts',
     mustInclude: [
-      'assertDevVaultConfig',
-      'assertDatabaseUrlAllowedForVaultConfig',
+      'assertDevSecretsEnv',
+      'assertDatabaseUrlAllowedForSecretsEnvForTooling',
     ],
   },
   {
     file: 'libs/chess/src/server/seed-chess-puzzle/chess-puzzle-seeder.ts',
-    mustInclude: ['assertDatabaseUrlAllowedForVaultConfig'],
-  },
-  {
-    file: 'pkgs/dev-idp/src/dev-server.ts',
-    mustInclude: ['isLoopbackPostgresUrl'],
+    mustInclude: ['assertDatabaseUrlAllowedForSecretsEnvForTooling'],
   },
   {
     file: 'libs/integration-test/src/preview-stack-env.ts',
-    mustInclude: ['assertDevVaultConfig', 'isLoopbackPostgresUrl'],
+    mustInclude: ['assertDevSecretsEnv', 'isLoopbackPostgresUrl'],
   },
 ];
 

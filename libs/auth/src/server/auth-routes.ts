@@ -55,7 +55,7 @@ function readRefreshBody(raw: unknown): RefreshBody {
  * and returns just `{ accountId }`. Clients read everything else (linked
  * providers, sessions, device metadata) from PatchDB after the next sync.
  *
- * Requires `Authorization: Bearer <jwt>` (Better Auth session JWT) and
+ * Requires `Authorization: Bearer <jwt>` (auth provider session token) and
  * `x-anon-id: <deviceId>` (install UUID).
  */
 export function createAuthApiRoutes() {
@@ -63,7 +63,7 @@ export function createAuthApiRoutes() {
     '/auth/refresh',
     async (c) => {
       const db = c.get('patchDb');
-      const auth = c.get('betterAuth');
+      const authServer = c.get('authServer');
 
       const header = c.req.header('Authorization') ?? null;
       if (header === null || !header.startsWith('Bearer ')) {
@@ -80,7 +80,7 @@ export function createAuthApiRoutes() {
 
       const accountId = await resolveAccountIdFromBearer({
         db,
-        auth,
+        authServer,
         bearerToken,
         deviceId,
       });
@@ -93,7 +93,7 @@ export function createAuthApiRoutes() {
 
       await refreshAuthSnapshot({
         db,
-        auth,
+        authServer,
         bearerToken,
         accountId,
         deviceId,

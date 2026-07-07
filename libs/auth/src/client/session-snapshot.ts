@@ -1,25 +1,16 @@
 /**
- * Small read helpers over the Better Auth session snapshot returned by
- * `authClient.useSession()`. Shared by {@link AuthBridge} (session reconcile)
- * and the sign-in modal lifecycle (success / error resolution) so both read
- * "signed in" the same way.
+ * Small read helpers over {@link AuthSessionState} from {@link AuthClientPort}.
+ * Shared by {@link AuthBridge} and the sign-in modal lifecycle so both resolve
+ * signed-in / error the same way.
  */
 
-import type { SessionSnapshot } from './auth-client-provider';
+import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
 
-export function isSnapshotSignedIn(snapshot: SessionSnapshot): boolean {
-  return (
-    (snapshot.error === null || snapshot.error === undefined) &&
-    snapshot.data !== null &&
-    snapshot.data !== undefined
-  );
+export function isAuthSessionSignedIn(state: AuthSessionState): boolean {
+  return state.isHydrated && state.error === null && state.session !== null;
 }
 
-/** Coerce the snapshot's error field into an `Error`, or `null` when absent. */
-export function snapshotError(snapshot: SessionSnapshot): Error | null {
-  const err: unknown = snapshot.error;
-  if (err === null || err === undefined) return null;
-  if (err instanceof Error) return err;
-  const message = (err as { message?: unknown }).message;
-  return new Error(typeof message === 'string' ? message : String(err));
+/** Coerce the session state's error field into an `Error`, or `null` when absent. */
+export function authSessionError(state: AuthSessionState): Error | null {
+  return state.error;
 }

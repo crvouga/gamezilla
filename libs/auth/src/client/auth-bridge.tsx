@@ -1,3 +1,5 @@
+import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
+import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
 import { useLogger } from '@pkgs/logger/react';
 import { useSecureStorage } from '@pkgs/secure-storage/interface';
 import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
@@ -5,7 +7,7 @@ import type { PropsWithChildren } from 'react';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
-import { useAuthClient, type SessionSnapshot } from './auth-client-provider';
+import { useAuthClientPort } from './auth-client-provider';
 import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
@@ -14,10 +16,10 @@ import { flushPatchDbIdentityOnSignIn } from './patch-db-identity-flush';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { useConfigService } from './config-service-context';
 import { refreshAuth } from './refresh-auth-fetch';
-import { isSnapshotSignedIn } from './session-snapshot';
+import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
-import { getCachedSessionToken, useSessionToken } from './use-session-token';
+import { getCachedAuthToken, useFreshAuthToken } from './use-fresh-auth-token';
 
 type Storage = ReturnType<typeof useSecureStorage>;
 type Logger = ReturnType<typeof useLogger>;
@@ -34,111 +36,85 @@ type RefreshDeps = {
   inFlightRef: FlagRef;
 };
 
-function normalizeToken(raw: unknown): string | null {
-  return typeof raw === 'string' && raw.length > 0 ? raw : null;
-}
-
 function normalizeExpiresAt(raw: unknown): string | null {
   if (raw instanceof Date) return raw.toISOString();
   if (typeof raw === 'string' && raw.length > 0) return raw;
   return null;
 }
 
-function getSessionRecord(
-  snapshot: SessionSnapshot
-): { token?: unknown; expiresAt?: unknown } | null {
-  if (!isSnapshotSignedIn(snapshot)) return null;
-  const data = snapshot.data as {
-    session?: { token?: unknown; expiresAt?: unknown };
-  };
-  return data.session ?? null;
-}
-
-/**
- * Extracts the bearer token + expiresAt from the live Better Auth session
- * snapshot returned by `authClient.useSession()`. We deliberately avoid
- * `authClient.getSession()` (which fires a network request to `/get-session`)
- * because the same data is already in the snapshot.
- */
-function extractSessionFromSnapshot(snapshot: SessionSnapshot): {
-  token: string | null;
-  expiresAt: string | null;
-} {
-  const session = getSessionRecord(snapshot);
-  return {
-    token: normalizeToken(session?.token),
-    expiresAt: normalizeExpiresAt(session?.expiresAt),
-  };
-}
-
-function useReconcileBetterAuthSession(args: {
-  snapshot: SessionSnapshot;
-  token: string | null;
-  expiresAt: string | null;
+function useReconcileAuthSession(args: {
+  authState: AuthSessionState;
+  port: AuthClientPort;
   deps: RefreshDeps;
 }): void {
-  const { snapshot, token, expiresAt, deps } = args;
-  const isPending = snapshot.isPending;
-  const isSignedIn = isSnapshotSignedIn(snapshot);
+  const { authState, port, deps } = args;
+  const isHydrated = authState.isHydrated;
+  const isSignedIn = isAuthSessionSignedIn(authState);
+  const sessionError = authSessionError(authState);
+  const expiresAt = normalizeExpiresAt(authState.session?.expiresAt ?? null);
+
   useEffect(() => {
-    if (isPending) return;
+    if (!isHydrated) return;
     void (async () => {
-      if (!isSignedIn || token === null) {
-        // Better Auth can briefly report "signed out" between get-session
-        // polls while secure storage still holds a bearer. Clearing local
-        // account id there swaps replication identity to deviceId and drops
-        // hosted-space membership until the next refresh completes.
-        if (getCachedSessionToken() !== null) return;
+      if (sessionError !== null) {
+        deps.log.warn('auth session error', { error: sessionError.message });
+      }
+      if (!isSignedIn) {
+        if (getCachedAuthToken() !== null) return;
         await handleSignedOut(deps);
         return;
       }
-      await handleSignedIn({ deps, token, expiresAt });
+      await handleSignedIn({ deps, port, expiresAt });
     })();
-  }, [isPending, isSignedIn, token, expiresAt, deps]);
+  }, [isHydrated, isSignedIn, sessionError, expiresAt, port, deps]);
 }
 
 function useRefreshOnAppForeground(args: {
   enabled: boolean;
+  port: AuthClientPort;
   tokenRef: TokenRef;
   expiresAtRef: ExpiresAtRef;
   deps: RefreshDeps;
 }): void {
-  const { enabled, tokenRef, expiresAtRef, deps } = args;
+  const { enabled, port, tokenRef, expiresAtRef, deps } = args;
   useEffect(() => {
     if (!enabled) return;
     const onChange = (state: AppStateStatus): void => {
       if (state !== 'active') return;
-      const token = tokenRef.current;
-      if (token === null) return;
-      void runRefresh({
-        deps,
-        token,
-        expiresAt: expiresAtRef.current,
-        force: true,
-      });
+      void (async () => {
+        const token = await port.getFreshToken();
+        if (token === null) return;
+        tokenRef.current = token;
+        await runRefresh({
+          deps,
+          token,
+          expiresAt: expiresAtRef.current,
+          force: true,
+        });
+      })();
     };
     // eslint-disable-next-line lingui/no-unlocalized-strings -- React Native AppState event name.
     const sub = AppState.addEventListener('change', onChange);
     return () => sub.remove();
-  }, [enabled, tokenRef, expiresAtRef, deps]);
+  }, [enabled, port, tokenRef, expiresAtRef, deps]);
 }
 
 /**
- * Reconciles Better Auth's session snapshot with our local secure-storage
- * pointers (`sessionToken`, `lastLocalAccountId`) and triggers
- * `POST /auth/refresh` to populate PatchDB with the canonical account /
- * accountSession / accountProvider / device rows.
+ * Reconciles the auth port session with local secure-storage pointers
+ * (`sessionToken`, `lastLocalAccountId`) and triggers `POST /auth/refresh` to
+ * populate PatchDB with the canonical account / accountSession /
+ * accountProvider / device rows.
  *
- * Pure side-effect component — renders nothing visible. Mount somewhere
- * inside the patch-db provider tree but outside any per-route layout.
+ * Pure side-effect component — renders nothing visible. Mount somewhere inside
+ * the patch-db provider tree but outside any per-route layout.
  */
 export function AuthBridge(props: PropsWithChildren): ReactNode {
   const apiUrl = useConfigService().getApiUrl();
-  const authClient = useAuthClient();
-  const snapshot: SessionSnapshot = authClient.useSession();
+  const port = useAuthClientPort();
+  const authState = port.useAuthSession();
   const storage = useSecureStorage();
   const deviceId = useDeviceId();
-  const sessionToken = useSessionToken();
+  const authToken = useFreshAuthToken();
   const currentAccountId = useCurrentAccountId();
   const log = useLogger('auth-bridge');
   const lastSyncedTokenRef = useRef<string | null>(null);
@@ -146,9 +122,10 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
   const tokenRef = useRef<string | null>(null);
   const expiresAtRef = useRef<string | null>(null);
 
-  const { token, expiresAt } = extractSessionFromSnapshot(snapshot);
-  tokenRef.current = token;
-  expiresAtRef.current = expiresAt;
+  tokenRef.current = authToken;
+  expiresAtRef.current = normalizeExpiresAt(
+    authState.session?.expiresAt ?? null
+  );
 
   const deps = useMemo<RefreshDeps>(
     () => ({
@@ -162,14 +139,10 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
     [apiUrl, deviceId, storage, log]
   );
 
-  useReconcileBetterAuthSession({
-    snapshot,
-    token,
-    expiresAt,
-    deps,
-  });
+  useReconcileAuthSession({ authState, port, deps });
   useRefreshOnAppForeground({
-    enabled: sessionToken !== null && currentAccountId !== null,
+    enabled: authToken !== null && currentAccountId !== null,
+    port,
     tokenRef,
     expiresAtRef,
     deps,
@@ -180,10 +153,12 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
 
 async function handleSignedIn(args: {
   deps: RefreshDeps;
-  token: string;
+  port: AuthClientPort;
   expiresAt: string | null;
 }): Promise<void> {
-  const { deps, token, expiresAt } = args;
+  const { deps, port, expiresAt } = args;
+  const token = await port.getFreshToken();
+  if (token === null) return;
   await writeSecureStorageItem(deps.storage, SESSION_TOKEN_KEY, token);
   if (deps.lastSyncedTokenRef.current === token) return;
   await runRefresh({ deps, token, expiresAt, force: false });
@@ -215,23 +190,6 @@ async function runRefresh(args: {
       LAST_LOCAL_ACCOUNT_ID_KEY,
       accountId
     );
-    // #region agent log
-    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Debug-Session-Id': 'b580fa',
-      },
-      body: JSON.stringify({
-        sessionId: 'b580fa',
-        location: 'auth-bridge.tsx:runRefresh:beforeFlush',
-        message: 'auth refresh wrote accountId',
-        hypothesisId: 'H1',
-        data: { accountId },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
     await flushPatchDbIdentityOnSignIn(deps.deviceId);
     deps.lastSyncedTokenRef.current = token;
   } catch (e) {

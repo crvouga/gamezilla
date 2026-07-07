@@ -1,6 +1,4 @@
-import { execSync } from 'node:child_process';
-
-import { createVaultSecretStoreForScripts } from '@pkgs/secret-store';
+import { createScriptSecretStore } from '@pkgs/secret-store';
 
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from './local-preview-api-origin';
 
@@ -14,16 +12,16 @@ function trimStringOrNull(v: string | undefined): string | null {
 
 /**
  * Loopback API origin for local wrangler dev: `LOCAL_PREVIEW_API_ORIGIN` from
- * env or Vault when set; otherwise {@link DEFAULT_LOCAL_PREVIEW_API_ORIGIN}.
+ * env or the secret store when set; otherwise {@link DEFAULT_LOCAL_PREVIEW_API_ORIGIN}.
  */
 export async function resolveLocalPreviewApiOrigin(): Promise<string> {
   const fromEnv = trimStringOrNull(process.env['LOCAL_PREVIEW_API_ORIGIN']);
   if (fromEnv !== null) return fromEnv;
-  const store = createVaultSecretStoreForScripts();
-  const fromVault = (await store.getOptional(SECRET_NAME))?.readSecretValue();
+  const store = createScriptSecretStore();
+  const fromSecrets = (await store.getOptional(SECRET_NAME))?.readSecretValue();
   const trimmed =
-    typeof fromVault === 'string' && fromVault.trim().length > 0
-      ? fromVault.trim()
+    typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
+      ? fromSecrets.trim()
       : null;
   return trimmed ?? DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }
@@ -35,17 +33,7 @@ export async function resolveLocalPreviewApiOrigin(): Promise<string> {
 export function resolveLocalPreviewApiOriginSync(): string {
   const fromEnv = trimStringOrNull(process.env['LOCAL_PREVIEW_API_ORIGIN']);
   if (fromEnv !== null) return fromEnv;
-  try {
-    const out = execSync(
-      `vault kv get -mount=secret -field=${SECRET_NAME} personal/dev`,
-      {
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'pipe'],
-      }
-    ).trim();
-    if (out.length > 0) return out;
-  } catch {
-    // Vault CLI unavailable or secret unset — fall through to default.
-  }
+  const fromInjected = trimStringOrNull(process.env[SECRET_NAME]);
+  if (fromInjected !== null) return fromInjected;
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }

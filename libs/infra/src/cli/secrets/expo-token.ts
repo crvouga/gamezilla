@@ -9,7 +9,7 @@ const WHOAMI_QUERY = 'query { viewer { username } }';
  * Create at https://expo.dev/settings/access-tokens. Both EAS paths need it:
  * `infra deploy` publishes an OTA `eas update` (the `publish-client-eas-update`
  * phase) and the manual `infra build-client-native` command runs `eas build`
- * + store submission. Both read Vault config `prd`, so the token must live
+ * + store submission. Both read secrets env `prd`, so the token must live
  * there; it is mirrored to `dev` via `SHARED_MIRROR_TO_DEV_KEYS` for the
  * `dev`-config CI checks.
  */

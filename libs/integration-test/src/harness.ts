@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 import { resolveLocalPreviewApiOrigin } from './local-api-preview';
 
-/** Loopback API Worker origin from Vault — used by API integration tests. */
+/** Loopback API Worker origin from the secret store — used by API integration tests. */
 export async function resolveLocalApiOrigin(): Promise<string> {
   return resolveLocalPreviewApiOrigin();
 }

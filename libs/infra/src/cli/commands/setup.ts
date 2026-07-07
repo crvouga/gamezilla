@@ -9,7 +9,7 @@ import { runStep } from '../platform/platform';
 import {
   getSecretMap,
   loadSecretsIntoEnv,
-  setVaultSecret,
+  setSecret,
   validateSecret,
 } from '../secrets/secrets';
 import type { Command } from './types';
@@ -17,7 +17,7 @@ import type { Command } from './types';
 export class SetupCommand implements Command {
   readonly id = 'setup';
   readonly group = 'setup' as const;
-  readonly summary = 'CLI tools + Vault secrets';
+  readonly summary = 'CLI tools + Infisical secrets';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -35,7 +35,7 @@ export class SetupCommand implements Command {
       const secrets = loadSecretsIntoEnv();
       for (const s of secrets) {
         if (s.set) ok(s.env);
-        else fmtFail(s.env, 'not found in Vault');
+        else fmtFail(s.env, 'not found in secret store');
       }
       return new Set(secrets.filter((s) => !s.set).map((s) => s.env));
     });
@@ -99,9 +99,9 @@ export class SetupCommand implements Command {
           continue;
         }
 
-        setVaultSecret(s.secretKey, trimmed);
+        setSecret(s.secretKey, trimmed);
         process.env[s.env] = trimmed;
-        ok(s.secretKey, 'saved to Vault');
+        ok(s.secretKey, 'saved to secret store');
         set++;
       }
 

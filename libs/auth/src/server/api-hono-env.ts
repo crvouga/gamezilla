@@ -1,10 +1,8 @@
+import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { PatchDb } from '@pkgs/patch-db/interface';
 
 import type { ApiWorkerBindings } from './api-worker-bindings';
-import type { HostedBetterAuth } from './better-auth-create';
 import type { SessionAuth } from './session-middleware';
-
-export type { HostedBetterAuth } from './better-auth-create';
 
 /**
  * Hono `Bindings` + `Variables` for the API Worker (Neon-per-request DB + auth).
@@ -18,6 +16,6 @@ export type ApiHonoEnv<_TAuthContext = unknown> = {
   Variables: {
     patchDb: PatchDb;
     sessionAuth: SessionAuth;
-    betterAuth: HostedBetterAuth;
+    authServer: AuthServerPort;
   };
 };

@@ -178,7 +178,7 @@ function pinPgExecutorQuery(
 
 /**
  * Wraps checked-out `PoolClient`s so every query pins `search_path` on
- * Neon/PgBouncer pooler URLs. Kysely and Better Auth talk to the pool
+ * Neon/PgBouncer pooler URLs. Kysely and legacy auth talk to the pool
  * directly and bypass {@link SqlClientImplPg}'s per-query pin.
  *
  * Only {@link Pool.connect} is patched — never {@link Pool.query}. Wrapping

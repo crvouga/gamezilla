@@ -25,7 +25,7 @@ function killListenChild(child: Subprocess): void {
 
 /**
  * Pipe `stripe listen` stdout/stderr through `onTranscriptLine`, wait for the
- * process to exit, then flush queued writes (Vault + probe). Kills the child
+ * process to exit, then flush queued writes (secret store + probe). Kills the child
  * on failure so turbo does not leave a stray listener.
  */
 export async function runStripeListenUntilExit(

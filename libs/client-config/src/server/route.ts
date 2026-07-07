@@ -1,7 +1,6 @@
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import { isEqual } from '@pkgs/equal/is-equal';
 import type { Logger } from '@pkgs/logger';
-import type { SecretStore } from '@pkgs/secret-store';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import {
@@ -28,25 +27,14 @@ function snapshotAttributes(
   return { ...attrs };
 }
 
-/** Vault key — keep aligned with `apps/api/src/config/secret-names.ts`. */
-const VAULT_WEB_CLIENT_GOOGLE_CLIENT_ID = 'WEB_CLIENT_GOOGLE_CLIENT_ID';
-
-async function loadClientConfigAttributesFromVault(
-  secretStore: SecretStore
-): Promise<Record<string, unknown>> {
-  const googleWebClientId =
-    (
-      await secretStore.getOptional(VAULT_WEB_CLIENT_GOOGLE_CLIENT_ID)
-    )?.readSecretValue() ?? null;
-  return ClientConfigAttr.googleWebClientId(googleWebClientId);
+function loadClientConfigAttributes(): Record<string, unknown> {
+  return ClientConfigAttr.googleWebClientId(null);
 }
 
 /**
  * `POST /client-config/refresh` — writes the singleton clientConfig entity into patch-db
  * so clients receive it via the normal sync cycle. Invoked by the infra deploy pipeline
  * after smoke tests pass (not by clients).
- *
- * Resolves `WEB_CLIENT_GOOGLE_CLIENT_ID` from Vault via {@link SecretStore}.
  *
  * Response JSON includes `outcome`, `before`, and `after` attribute snapshots for debugging
  * and deploy logs.
@@ -55,15 +43,12 @@ async function loadClientConfigAttributesFromVault(
  */
 async function handleClientConfigRefresh(
   c: Context<ApiHonoEnv>,
-  deps: {
-    logger: Logger;
-    secretStore: SecretStore;
-  }
+  deps: { logger: Logger }
 ): Promise<Response> {
   const db = c.get('patchDb');
-  const { logger, secretStore } = deps;
+  const { logger } = deps;
   logger.info('POST /client-config/refresh: requested');
-  const configNew = await loadClientConfigAttributesFromVault(secretStore);
+  const configNew = loadClientConfigAttributes();
 
   const configPrevResult = await db.read([
     {
@@ -122,11 +107,8 @@ async function handleClientConfigRefresh(
   return c.json(body, 200);
 }
 
-export function createClientConfigApp(
-  logger: Logger,
-  secretStore: SecretStore
-) {
+export function createClientConfigApp(logger: Logger) {
   return new Hono<ApiHonoEnv>().post('/client-config/refresh', async (c) =>
-    handleClientConfigRefresh(c, { logger, secretStore })
+    handleClientConfigRefresh(c, { logger })
   );
 }
