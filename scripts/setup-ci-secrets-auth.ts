@@ -283,11 +283,16 @@ async function createIdentity(
   orgId: string,
   name: string
 ): Promise<string> {
-  const { status, json } = await infisicalRequest(ctx, 'POST', '/api/v1/identities', {
-    name,
-    organizationId: orgId,
-    role: 'no-access',
-  });
+  const { status, json } = await infisicalRequest(
+    ctx,
+    'POST',
+    '/api/v1/identities',
+    {
+      name,
+      organizationId: orgId,
+      role: 'no-access',
+    }
+  );
   if (status !== 200 || json === null || typeof json !== 'object') {
     fail(`Failed to create identity "${name}" (HTTP ${status}).`);
   }
@@ -310,7 +315,8 @@ async function ensureOidcAuth(
     oidcDiscoveryUrl: GITHUB_OIDC_ISSUER,
     boundIssuer: GITHUB_OIDC_ISSUER,
     boundSubject: `repo:${repo}:*`,
-    boundAudiences: trimEnv('INFISICAL_OIDC_AUDIENCE') || `https://github.com/${owner}`,
+    boundAudiences:
+      trimEnv('INFISICAL_OIDC_AUDIENCE') || `https://github.com/${owner}`,
     boundClaims: {},
     accessTokenTTL: 600,
     accessTokenMaxTTL: 600,
@@ -351,7 +357,10 @@ async function ensureProjectMembership(
       log('Added identity to project (role: viewer).');
       return;
     }
-    if (status === 409 || (status === 400 && membershipErrorMeansExists(json))) {
+    if (
+      status === 409 ||
+      (status === 400 && membershipErrorMeansExists(json))
+    ) {
       log('Identity already a project member — skipping.');
       return;
     }
@@ -384,7 +393,9 @@ async function ensureIdentity(
     return existing;
   }
   if (dryRun) {
-    log(`DRY RUN: would create identity "${identityName}" + OIDC + membership.`);
+    log(
+      `DRY RUN: would create identity "${identityName}" + OIDC + membership.`
+    );
     return '<new-identity-id>';
   }
   const id = await createIdentity(ctx, project.orgId, identityName);
@@ -401,7 +412,9 @@ function runGh(args: readonly string[]): { status: number; stdout: string } {
     encoding: 'utf8',
   });
   if (result.error !== undefined) {
-    fail(`failed to run gh: ${result.error.message} (is the GitHub CLI installed + authed?)`);
+    fail(
+      `failed to run gh: ${result.error.message} (is the GitHub CLI installed + authed?)`
+    );
   }
   return { status: result.status ?? 1, stdout: (result.stdout ?? '').trim() };
 }
@@ -489,7 +502,8 @@ async function main(): Promise<void> {
   if (token === null) {
     log('No Infisical admin token — GitHub-variables-only mode.');
     projectSlug = resolveProjectSlugFallback();
-    identityId = trimEnv(IDENTITY_ENV_VAR) || readGithubVariable(repo, IDENTITY_ENV_VAR);
+    identityId =
+      trimEnv(IDENTITY_ENV_VAR) || readGithubVariable(repo, IDENTITY_ENV_VAR);
     if (identityId.length === 0) {
       fail(
         'INFISICAL_IDENTITY_ID is unset and no admin token to create one. ' +
@@ -497,7 +511,11 @@ async function main(): Promise<void> {
       );
     }
   } else {
-    const ctx: InfisicalCtx = { domain, workspaceId: config.workspaceId, token };
+    const ctx: InfisicalCtx = {
+      domain,
+      workspaceId: config.workspaceId,
+      token,
+    };
     const project = await resolveProjectInfo(ctx);
     projectSlug = project.slug;
     identityId = await ensureIdentity(
