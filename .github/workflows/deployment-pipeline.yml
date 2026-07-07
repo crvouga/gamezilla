@@ -187,6 +187,9 @@ jobs:
     # job for no cache benefit. CI starts `turbo preview` in a prior step;
     # Playwright never spawns servers — it fails fast when the stack is down.
     runs-on: ubuntu-latest
+    env:
+      # Metro must SHA-1 Bun-store deps via Watchman (see apps/client/metro.config.js).
+      EXPO_USE_WATCHMAN: '1'
     concurrency:
       group: qa-browser-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
@@ -292,6 +295,8 @@ jobs:
   # before `eas update`.
   qa-native:
     runs-on: ubuntu-latest
+    env:
+      EXPO_USE_WATCHMAN: '1'
     concurrency:
       group: qa-native-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
@@ -310,6 +315,8 @@ jobs:
           identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
           project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
           env-slug: dev
+      - name: Setup client env (Watchman + secrets)
+        run: bun run scripts/secrets-run.ts -- bun run --filter @apps/client setup
       - name: Production client bundle API URL gate
         run: bun run qa:production-client
 
@@ -412,6 +419,8 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [turbo-ci, static, qa-api, qa-browser, qa-native]
     runs-on: ubuntu-latest
+    env:
+      EXPO_USE_WATCHMAN: '1'
     outputs:
       lock_id: ${{ steps.deploy.outputs.lock_id }}
       client_url: ${{ steps.deploy.outputs.client_url }}
