@@ -12,3 +12,4 @@ public/generated/
 
 playwright-report/
 test-results/
+.qa-dist-prodcheck
