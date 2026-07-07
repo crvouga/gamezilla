@@ -1,6 +1,14 @@
 name: Setup repo (Node + Bun + deps)
 description: Node 22, Bun, cache install store, bun install (run actions/checkout first)
 
+inputs:
+  watchman:
+    description: >-
+      Install Watchman so Metro can SHA-1 Bun-store deps resolved via
+      apps/client/node_modules symlinks (required for client bundle/export in CI).
+    required: false
+    default: 'false'
+
 runs:
   using: composite
   steps:
@@ -25,3 +33,12 @@ runs:
     - name: Install dependencies
       shell: bash
       run: bun install --frozen-lockfile
+
+    - name: Install Watchman
+      if: inputs.watchman == 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update
+        sudo apt-get install -y watchman
+        watchman version

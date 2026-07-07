@@ -195,6 +195,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
+        with:
+          watchman: true
 
       # Resolve the actually-installed @playwright/test version (not the
       # caret range from package.json) so the browser cache key only
@@ -298,6 +300,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
+        with:
+          watchman: true
 
       # Production client bundle gates (web export + native export): refuse to
       # ship when Metro inlined a loopback `EXPO_PUBLIC_API_URL`.
@@ -442,6 +446,7 @@ jobs:
           wrangler: 'true'
           stripe: 'true'
           eas: 'true'
+          watchman: 'true'
       - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config → publish-client-eas-update → ensure-destroyed)
         id: deploy
         working-directory: libs/infra

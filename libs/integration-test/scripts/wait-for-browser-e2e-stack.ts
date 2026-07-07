@@ -1,6 +1,6 @@
 import { requireLocalE2eStackSync } from '../src/local-e2e-stack';
 
-const timeoutMs = Number(process.env['BROWSER_E2E_STACK_WAIT_MS'] ?? '240_000');
+const timeoutMs = Number(process.env['BROWSER_E2E_STACK_WAIT_MS'] ?? '240000');
 const pollMs = 1_000;
 const deadline = Date.now() + timeoutMs;
 let lastError: string | undefined;

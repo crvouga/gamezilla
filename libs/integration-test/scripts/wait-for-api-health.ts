@@ -1,6 +1,6 @@
 import { resolveLocalApiOrigin, waitForHttpOk } from '../src/harness';
 
-const timeoutMs = Number(process.env['API_HEALTH_WAIT_MS'] ?? '120_000');
+const timeoutMs = Number(process.env['API_HEALTH_WAIT_MS'] ?? '120000');
 const origin = await resolveLocalApiOrigin();
 const healthUrl = `${origin}/api/health`;
 

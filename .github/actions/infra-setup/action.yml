@@ -14,11 +14,17 @@ inputs:
     description: Install the latest EAS CLI globally (npm install -g eas-cli)
     required: false
     default: 'false'
+  watchman:
+    description: Install Watchman for Metro client bundling (EAS OTA / web export)
+    required: false
+    default: 'false'
 
 runs:
   using: composite
   steps:
     - uses: ./.github/actions/setup
+      with:
+        watchman: ${{ inputs.watchman }}
 
     # Keep CLI tool versions in sync with `infra setup` (no pinned versions in YAML).
     # Requires Infisical OIDC auth (`secrets-auth` action) before this step so `infra setup`
