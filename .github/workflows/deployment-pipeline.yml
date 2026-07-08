@@ -336,6 +336,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       EXPO_USE_WATCHMAN: '1'
+      INFISICAL_IDENTITY_ID: ${{ vars.INFISICAL_IDENTITY_ID }}
+      INFISICAL_PROJECT_SLUG: ${{ vars.INFISICAL_PROJECT_SLUG }}
     outputs:
       lock_id: ${{ steps.deploy.outputs.lock_id }}
       client_url: ${{ steps.deploy.outputs.client_url }}

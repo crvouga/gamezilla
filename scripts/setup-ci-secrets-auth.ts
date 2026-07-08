@@ -350,11 +350,11 @@ async function ensureProjectMembership(
 ): Promise<void> {
   const path = `/api/v1/projects/${ctx.workspaceId}/memberships/identities/${identityId}`;
   // Older Infisical expects `{ role }`; newer expects `{ roles: [{ role }] }`.
-  const bodies = [{ role: 'viewer' }, { roles: [{ role: 'viewer' }] }];
+  const bodies = [{ role: 'admin' }, { roles: [{ role: 'admin' }] }];
   for (const body of bodies) {
     const { status, json } = await infisicalRequest(ctx, 'POST', path, body);
     if (status === 200 || status === 201) {
-      log('Added identity to project (role: viewer).');
+      log('Added identity to project (role: admin).');
       return;
     }
     if (

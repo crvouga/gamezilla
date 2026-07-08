@@ -36,7 +36,7 @@ function isPostgresDbUrl(u: string): boolean {
 export async function assertStripeSecretKey(
   scriptTag: string
 ): Promise<string> {
-  const store = createStripeScriptSecretStore();
+  const store = await createStripeScriptSecretStore();
   const raw = (
     await store.getOptional(StripeSecretKeys.secretKey)
   )?.readSecretValue();
@@ -65,7 +65,7 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
   if (secretsEnv !== PRODUCTION_SECRETS_ENV) {
     assertDevSecretsEnv(secretsEnv);
   }
-  const store = createStripeScriptSecretStore();
+  const store = await createStripeScriptSecretStore();
   const raw =
     (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';
   const u = raw.trim();
@@ -93,7 +93,7 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
  * running where no Postgres is reachable).
  */
 export async function resolveOptionalDbUrl(): Promise<string | undefined> {
-  const store = createStripeScriptSecretStore();
+  const store = await createStripeScriptSecretStore();
   const raw =
     (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';
   const u = raw.trim();

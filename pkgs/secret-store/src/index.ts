@@ -25,6 +25,9 @@ export {
 } from './impl-infisical';
 export { createToolingSecretStore } from './create-tooling-secret-store';
 export { createScriptSecretStore } from './create-script-secret-store';
+export { createWritableScriptSecretStore } from './create-writable-script-secret-store';
+export type { CreateWritableScriptSecretStoreOptions } from './create-writable-script-secret-store';
+export { resolveInfisicalAccessTokenForWrites } from './github-oidc-infisical-access-token';
 export type { CachingSecretStoreOptions } from './caching-secret-store';
 export type { InfisicalSecretStoreOptions } from './impl-infisical';
 export type { CreateToolingSecretStoreOptions } from './create-tooling-secret-store';

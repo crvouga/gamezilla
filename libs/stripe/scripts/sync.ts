@@ -18,12 +18,14 @@
  * Worker cron, tests) can compose the same orchestration without spawning bun.
  */
 import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
+import { pushWorkerSecretBinding } from '@libs/infra/cli/lib/push-worker-secret';
 import {
   assertDbUrl,
   assertStripeSecretKey,
   createSqlClientFromDbUrl,
   createStripeClientFromSecret,
 } from '../src/script-runtime';
+import { StripeSecretKeys } from '../src/secret-keys';
 import { createStripeScriptSecretStore } from '../src/script-secret-store';
 import { createStripeScriptPatchDb } from '../src/stripe-script-patch-db';
 import { runStripeFullSync } from '../src/sync';
@@ -47,7 +49,7 @@ async function main(): Promise<void> {
   await sql.connect();
   try {
     const patchDb = createStripeScriptPatchDb(sql);
-    const secretStore = createStripeScriptSecretStore();
+    const secretStore = await createStripeScriptSecretStore();
 
     const result = await runStripeFullSync({
       stripe,
@@ -56,6 +58,16 @@ async function main(): Promise<void> {
       apiUrlBase,
       dryRun,
     });
+
+    if (result.webhooks.kind === 'rebuilt') {
+      pushWorkerSecretBinding(
+        StripeSecretKeys.webhookSecret,
+        result.webhooks.webhookSecret
+      );
+      console.log(
+        `[${SCRIPT_TAG}] pushed ${StripeSecretKeys.webhookSecret} to Cloudflare Worker`
+      );
+    }
 
     console.log(
       `[${SCRIPT_TAG}] done`,
@@ -69,7 +81,15 @@ async function main(): Promise<void> {
           totalWritten: result.entities.totalWritten,
           perEntity: result.entities.perEntity,
         },
-        webhooks: result.webhooks,
+        webhooks:
+          result.webhooks.kind === 'rebuilt'
+            ? {
+                kind: result.webhooks.kind,
+                desiredUrl: result.webhooks.desiredUrl,
+                deletedCount: result.webhooks.deletedCount,
+                createdId: result.webhooks.createdId,
+              }
+            : result.webhooks,
       })
     );
   } finally {

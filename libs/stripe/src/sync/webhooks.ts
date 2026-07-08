@@ -38,6 +38,7 @@ export type WebhookSyncResult =
       readonly desiredUrl: string;
       readonly deletedCount: number;
       readonly createdId: string;
+      readonly webhookSecret: string;
     }
   | {
       readonly kind: 'dry-run';
@@ -106,6 +107,7 @@ async function rebuildWebhookEndpoint(
   }
 
   await secretStore.setSecret(StripeSecretKeys.webhookSecret, created.secret);
+  process.env[StripeSecretKeys.webhookSecret] = created.secret;
   console.log(
     `[${TAG}] wrote ${StripeSecretKeys.webhookSecret} via secret store`
   );
@@ -166,12 +168,18 @@ export async function runStripeWebhookSync(args: {
     };
   }
 
-  const { deletedCount, createdId } = await rebuildWebhookEndpoint(
+  const { deletedCount, createdId, secret } = await rebuildWebhookEndpoint(
     stripe,
     endpoints,
     desiredUrl,
     secretStore
   );
 
-  return { kind: 'rebuilt', desiredUrl, deletedCount, createdId };
+  return {
+    kind: 'rebuilt',
+    desiredUrl,
+    deletedCount,
+    createdId,
+    webhookSecret: secret,
+  };
 }

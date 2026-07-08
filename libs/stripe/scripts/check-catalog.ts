@@ -26,7 +26,7 @@ function isCi(): boolean {
 async function resolveStripeSecretOrSkip(): Promise<string | null> {
   let store;
   try {
-    store = createStripeScriptSecretStore();
+    store = await createStripeScriptSecretStore();
   } catch {
     if (isCi()) {
       console.error(
