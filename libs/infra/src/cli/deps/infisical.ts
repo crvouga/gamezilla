@@ -1,8 +1,45 @@
-import { captureVersion, which } from '@pkgs/os';
+import {
+  captureVersion,
+  FirstAvailableInstaller,
+  GithubReleaseTarballInstaller,
+  PackageManagerInstaller,
+  verifyRun,
+  which,
+} from '@pkgs/os';
+import { INFRA_CLI_USER_AGENT as UA } from '../constants';
 import type { Dep, DepStatus } from './types';
+
+const FETCH_TIMEOUT_MS = 15_000;
 
 const INSTALL_HINT =
   'Install Infisical CLI: brew install infisical/get-cli/infisical';
+
+const installer = new FirstAvailableInstaller(
+  [
+    new PackageManagerInstaller({
+      entries: [
+        {
+          packageManagerId: 'homebrew',
+          package: 'infisical/get-cli/infisical',
+          homebrewTap: 'infisical/get-cli',
+        },
+      ],
+    }),
+    new GithubReleaseTarballInstaller({
+      repo: 'Infisical/cli',
+      binName: 'infisical',
+      archive: (version, os) => {
+        const arch = os.releaseArchName() === 'arm64' ? 'arm64' : 'amd64';
+        const osName = os.platform === 'darwin' ? 'darwin' : 'linux';
+        return {
+          name: `cli_${version}_${osName}_${arch}.tar.gz`,
+          format: 'tar.gz',
+        };
+      },
+    }),
+  ],
+  INSTALL_HINT
+);
 
 export class InfisicalDep implements Dep {
   readonly name = 'infisical';
@@ -22,20 +59,36 @@ export class InfisicalDep implements Dep {
   }
 
   async fetchLatestVersion(): Promise<string | null> {
-    return this.version();
+    try {
+      const res = await fetch(
+        'https://api.github.com/repos/Infisical/cli/releases/latest',
+        {
+          headers: {
+            Accept: 'application/vnd.github+json',
+            'User-Agent': UA,
+          },
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        }
+      );
+      if (!res.ok) return null;
+      const j = (await res.json()) as { tag_name?: string };
+      const tag = j.tag_name?.trim() ?? '';
+      const m = /^v?([\d]+\.[\d]+[\w.+-]*)$/.exec(tag);
+      return m?.[1]?.trim() ?? null;
+    } catch {
+      return null;
+    }
   }
 
   install(): void {
-    throw new Error(INSTALL_HINT);
+    installer.install();
   }
 
   upgrade(): void {
-    throw new Error(INSTALL_HINT);
+    installer.upgrade();
   }
 
   verify(): void {
-    if (!which('infisical')) {
-      throw new Error(INSTALL_HINT);
-    }
+    verifyRun('infisical', ['--version']);
   }
 }
