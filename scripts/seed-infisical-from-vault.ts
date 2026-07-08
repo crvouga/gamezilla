@@ -60,7 +60,10 @@ const EXTERNALLY_MANAGED_SECRET_KEYS = [
 ] as const;
 
 /** Legacy Vault aliases kept for Clerk → auth rename. */
-const LEGACY_VAULT_KEYS = ['CLERK_PUBLISHABLE_KEY', 'CLERK_SECRET_KEY'] as const;
+const LEGACY_VAULT_KEYS = [
+  'CLERK_PUBLISHABLE_KEY',
+  'CLERK_SECRET_KEY',
+] as const;
 
 const TARGET_KEYS = [
   ...CORE_SECRET_KEYS,
@@ -234,7 +237,9 @@ function seedEnv(
   for (const key of TARGET_KEYS) {
     const value = resolveVaultValue(vault, key);
     if (value === undefined || value.length === 0) {
-      console.warn(`[seed-from-vault] skip ${vaultEnv}/${key} — absent in Vault`);
+      console.warn(
+        `[seed-from-vault] skip ${vaultEnv}/${key} — absent in Vault`
+      );
       skipped += 1;
       continue;
     }
@@ -274,7 +279,9 @@ function main(): void {
   const suffix = options.dryRun ? ' (dry-run)' : '';
   console.log(`[seed-from-vault] done${suffix}`);
   if (totalSet === 0 && !options.dryRun) {
-    console.log('[seed-from-vault] nothing new to write — Infisical already in sync');
+    console.log(
+      '[seed-from-vault] nothing new to write — Infisical already in sync'
+    );
   }
 }
 
