@@ -31,6 +31,7 @@
     "ci:no-direct-pg-imports": "bun run scripts/check-no-direct-pg-imports.ts",
     "ci:no-provider-leaks": "bun run scripts/check-no-provider-leaks.ts",
     "ci:setup-secrets-auth": "bun run scripts/setup-ci-secrets-auth.ts",
+    "secrets:seed-from-vault": "bun run scripts/seed-infisical-from-vault.ts",
     "ci:syncpack": "syncpack lint --dependency-types prod,dev && bun run scripts/check-catalog-deps.ts && bun run scripts/check-no-patches.ts",
     "ci:tier-imports": "bun run scripts/check-tier-imports.ts",
     "client:ios": "bun run scripts/secrets-run.ts -- bun run --filter @apps/client ios",

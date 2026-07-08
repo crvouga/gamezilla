@@ -104,8 +104,7 @@ export function setSecret(name: string, value: string): void {
   runCapture('infisical', [
     'secrets',
     'set',
-    name,
-    value,
+    `${name}=${value}`,
     ...infisicalBaseArgs(coords),
   ]);
 }
@@ -146,8 +145,7 @@ export function setSecretIn(env: string, name: string, value: string): void {
   runCapture('infisical', [
     'secrets',
     'set',
-    name,
-    value,
+    `${name}=${value}`,
     ...infisicalBaseArgs(coords),
   ]);
 }

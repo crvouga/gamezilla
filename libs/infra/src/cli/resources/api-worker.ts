@@ -4,6 +4,7 @@ import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
 import { writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { resolveAuthPublishableKeyForClientBuild } from '../lib/client-build-env';
 import {
   assertExpoTokenPresent,
   publishClientEasUpdate,
@@ -21,6 +22,7 @@ import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId } from '../secrets/cloudflare';
 import { getSecretMap } from '../secrets/secrets';
+import { API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS } from '../secrets/worker-api-secrets';
 import { runAsync, runCapture } from '../subprocess';
 import { ResourceBase, type InfraContext } from './types';
 
@@ -46,6 +48,16 @@ function buildWorkerSecretBulkPayload(): Record<string, string> {
       assert.fail(`Worker deploy: missing secret ${entry.secretKey}`);
     }
     payload[entry.env] = value;
+  }
+
+  for (const key of API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS) {
+    const value = (process.env[key] ?? '').trim();
+    if (value.length === 0) {
+      assert.fail(
+        `Worker deploy: missing secret ${key} (add to Infisical env \`${scope.env}\`)`
+      );
+    }
+    payload[key] = value;
   }
 
   for (const key of WORKER_EXTRA_ENV_KEYS) {
@@ -135,6 +147,7 @@ async function buildClientForWorker(
     EXPO_PUBLIC_API_URL: apiUrl,
     EXPO_PUBLIC_COMMIT_HASH: commitHash,
     EXPO_PUBLIC_COMMIT_DATE: commitDate,
+    EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY: resolveAuthPublishableKeyForClientBuild(),
   };
 
   await runAsync(platform, 'bun', ['run', 'check:production-env'], {

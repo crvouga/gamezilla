@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import type { CiPlatform } from '../platform/platform';
 import { REPO_ROOT } from '../paths';
 import { runAsync, runCapture } from '../subprocess';
+import { resolveAuthPublishableKeyForClientBuild } from './client-build-env';
 import { ok } from './fmt';
 import { productionOrigin } from './infra-outputs';
 
@@ -98,6 +99,7 @@ function easEnv(commitHash: string, commitDate: string): NodeJS.ProcessEnv {
     EXPO_PUBLIC_API_URL: productionOrigin(),
     EXPO_PUBLIC_COMMIT_HASH: commitHash,
     EXPO_PUBLIC_COMMIT_DATE: commitDate,
+    EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY: resolveAuthPublishableKeyForClientBuild(),
     EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL: '1',
   };
 }

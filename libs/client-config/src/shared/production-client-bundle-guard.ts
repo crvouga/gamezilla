@@ -71,6 +71,12 @@ export function assertProductionClientBuildEnv(
     'Production client build EXPO_PUBLIC_API_URL must match the deployed Worker origin',
     { expected, got: origin, raw }
   );
+  const authKey = env['EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY']?.trim();
+  assert.nonEmptyString(
+    authKey,
+    'EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY is required for a production client build — ' +
+      'without it the shipped bundle throws on launch before sign-in'
+  );
 }
 
 function listBundleFilesUnder(root: string): string[] {
