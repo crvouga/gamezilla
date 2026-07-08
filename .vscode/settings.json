@@ -172,6 +172,7 @@
     "podspec",
     "Postchecks",
     "postgres",
+    "powersync",
     "prebuild",
     "Prechecks",
     "preflights",

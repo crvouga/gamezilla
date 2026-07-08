@@ -2,6 +2,9 @@
   "mcpServers": {
     "Sentry": {
       "url": "https://mcp.sentry.dev/mcp/gamezilla/react-native"
+    },
+    "powersync": {
+      "url": "https://docs.powersync.com/mcp"
     }
   }
 }
