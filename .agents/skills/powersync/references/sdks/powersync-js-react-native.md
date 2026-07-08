@@ -13,11 +13,11 @@ React Native-specific integration for the PowerSync JavaScript SDK. Use this ref
 
 The React hooks API (`useQuery`, `useStatus`, `usePowerSync`, `useSuspenseQuery`) from `@powersync/react-native` is identical to `@powersync/react` — see `references/sdks/powersync-js.md` for full hook patterns and `references/sdks/powersync-js-react.md` for `useSuspenseQuery` and sync stream hooks.
 
-| Resource | Description |
-|----------|-------------|
-| [React Native & Expo SDK](https://docs.powersync.com/client-sdks/reference/react-native-and-expo.md) | Full SDK documentation for React Native, consult for details beyond the inline examples. |
-| [React Native SDK API Reference](https://powersync-ja.github.io/powersync-js/react-native-sdk) | Full API reference for `@powersync/react-native`, consult only when the inline examples don't cover your case. |
-| [Expo Go Support](https://docs.powersync.com/client-sdks/frameworks/expo-go-support.md) | Expo Go adapter guide, consult for details beyond the inline examples. |
+| Resource                                                                                             | Description                                                                                                    |
+| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| [React Native & Expo SDK](https://docs.powersync.com/client-sdks/reference/react-native-and-expo.md) | Full SDK documentation for React Native, consult for details beyond the inline examples.                       |
+| [React Native SDK API Reference](https://powersync-ja.github.io/powersync-js/react-native-sdk)       | Full API reference for `@powersync/react-native`, consult only when the inline examples don't cover your case. |
+| [Expo Go Support](https://docs.powersync.com/client-sdks/frameworks/expo-go-support.md)              | Expo Go adapter guide, consult for details beyond the inline examples.                                         |
 
 ## 1. Install
 
@@ -70,8 +70,8 @@ import { AppSchema } from './AppSchema';
 export const db = new PowerSyncDatabase({
   schema: AppSchema,
   database: {
-    dbFilename: 'app.db'
-  }
+    dbFilename: 'app.db',
+  },
 });
 ```
 

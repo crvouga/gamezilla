@@ -10,6 +10,7 @@ metadata:
 > **Load this when** using Supabase as the backend — covers database publication setup, JWT signing keys, fetchCredentials(), uploadData error handling, and Cloud/self-hosted auth config.
 
 ## Table of Contents
+
 - [Supabase Database Setup](#supabase-database-setup)
 - [JWT Signing Key Types](#jwt-signing-key-types)
 - [PowerSync Cloud Setup](#powersync-cloud-setup)
@@ -54,10 +55,10 @@ Grants control which Postgres roles can reach a table through the Data API. RLS 
 
 Supabase projects use one of two signing key types. **Check which your project uses** at [Project Settings → JWT](https://supabase.com/dashboard/project/_/settings/jwt) in the Supabase Dashboard before configuring PowerSync.
 
-| Type | Algorithm | Notes |
-|------|-----------|-------|
-| **New JWT signing keys** | RS256 (asymmetric) | Recommended. PowerSync auto-detects from the connection string. |
-| **Legacy JWT signing keys** | HS256 (symmetric) | Requires supplying the JWT secret to PowerSync. Consider migrating. |
+| Type                        | Algorithm          | Notes                                                               |
+| --------------------------- | ------------------ | ------------------------------------------------------------------- |
+| **New JWT signing keys**    | RS256 (asymmetric) | Recommended. PowerSync auto-detects from the connection string.     |
+| **Legacy JWT signing keys** | HS256 (symmetric)  | Requires supplying the JWT secret to PowerSync. Consider migrating. |
 
 ---
 
@@ -105,6 +106,7 @@ client_auth:
 ```
 
 PowerSync automatically sets:
+
 - JWKS URI: `https://<project-ref>.supabase.co/auth/v1/.well-known/jwks.json`
 - Audience: `authenticated`
 
@@ -127,9 +129,11 @@ Get the secret from Supabase → Project Settings → JWT. Use `!env` to avoid h
 - You **must** use manual JWKS pointing to the local Supabase JWKS endpoint.
 
 The error you'll see if misconfigured:
+
 ```
 PSYNC_S2101: Could not find an appropriate key in the keystore. The key is missing or no key matched the token KID
 ```
+
 With details showing: `Known keys: <kid: *, kty: oct, alg: HS256>` but the token has `alg: ES256` with a specific `kid`.
 
 **Correct config for local Supabase:**
@@ -146,6 +150,7 @@ client_auth:
 ```
 
 Key details:
+
 - Use `host.docker.internal` or the Supabase container name (not `localhost`) because this URI is resolved **from inside the PowerSync Docker container**.
 - `block_local_jwks: false` is required because `host.docker.internal` resolves to a local/private IP, which PowerSync blocks by default.
 - The well-known local Supabase JWT secret (`super-secret-jwt-token-with-at-least-32-characters-long`) is **not used** for token signing in newer Supabase versions — it's only used for the service role key and anon key.
@@ -163,6 +168,7 @@ replication:
 Without this you will see: `Replication error postgres does not support ssl`.
 
 You can verify your local Supabase is using ES256 by checking:
+
 ```bash
 curl -s http://127.0.0.1:54321/auth/v1/.well-known/jwks.json
 # Returns: {"keys":[{"alg":"ES256","crv":"P-256","kty":"EC",...}]}
@@ -199,13 +205,19 @@ Use this when users sign in explicitly (email, OAuth, magic link). Call `db.conn
 
 ```ts
 import { createClient } from '@supabase/supabase-js';
-import type { PowerSyncBackendConnector, PowerSyncCredentials } from '@powersync/web'; // or @powersync/react-native
+import type {
+  PowerSyncBackendConnector,
+  PowerSyncCredentials,
+} from '@powersync/web'; // or @powersync/react-native
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const connector: PowerSyncBackendConnector = {
   async fetchCredentials(): Promise<PowerSyncCredentials> {
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
     if (error || !session) throw error ?? new Error('No session');
     return {
       endpoint: POWERSYNC_URL,
@@ -247,19 +259,25 @@ For Supabase backends, `uploadData` writes client-side changes directly to Supab
 
 #### Error handling strategy
 
-| Error type | What to do | Why |
-|-----------|-----------|-----|
-| Network / 5xx (transient) | `throw error` — do not call `transaction.complete()` | PowerSync retries with backoff |
-| 4xx / RLS violation (permanent) | Call `transaction.complete()`, log the error | 4xx blocks the queue forever; better to skip and log than halt all future writes |
-| Validation error | Call `transaction.complete()`, surface via a synced error table | Data errors are permanent; retrying won't fix them |
+| Error type                      | What to do                                                      | Why                                                                              |
+| ------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Network / 5xx (transient)       | `throw error` — do not call `transaction.complete()`            | PowerSync retries with backoff                                                   |
+| 4xx / RLS violation (permanent) | Call `transaction.complete()`, log the error                    | 4xx blocks the queue forever; better to skip and log than halt all future writes |
+| Validation error                | Call `transaction.complete()`, surface via a synced error table | Data errors are permanent; retrying won't fix them                               |
 
 The Supabase JS client returns errors as `{ error: PostgrestError }` rather than throwing HTTP status codes — check `error.code` or `error.message` to distinguish permanent failures (constraint violations, RLS denials) from transient ones. Supabase RLS errors return `{ code: '42501' }` (PostgreSQL insufficient_privilege).
 
 ```ts
-import type { AbstractPowerSyncDatabase, PowerSyncBackendConnector, UpdateType } from '@powersync/web';
+import type {
+  AbstractPowerSyncDatabase,
+  PowerSyncBackendConnector,
+  UpdateType,
+} from '@powersync/web';
 
 export const connector: PowerSyncBackendConnector = {
-  async fetchCredentials() { /* ... see above ... */ },
+  async fetchCredentials() {
+    /* ... see above ... */
+  },
 
   async uploadData(database: AbstractPowerSyncDatabase): Promise<void> {
     const transaction = await database.getNextCrudTransaction();
@@ -291,7 +309,7 @@ export const connector: PowerSyncBackendConnector = {
       // Transient failures: throw so PowerSync retries with backoff.
       throw error;
     }
-  }
+  },
 };
 ```
 
@@ -345,14 +363,14 @@ val connector = SupabaseConnector(
 
 PowerSync cannot verify the JWT signature. Check the error logs for `Known keys` and `tokenDetails` to diagnose the mismatch.
 
-| Cause | Symptom | Solution |
-|-------|---------|----------|
-| **Local Supabase with `supabase_jwt_secret`** | Known keys show `HS256` but token uses `ES256` with a specific `kid` | Local Supabase uses ES256 asymmetric keys. Switch to manual JWKS config — see "Local Supabase" section above. |
-| Incomplete Supabase key migration | Token `alg` doesn't match keystore | Complete the "Rotate to asymmetric JWTs" step in the [Supabase migration guide](https://supabase.com/blog/jwt-signing-keys#start-using-asymmetric-jwts-today). |
-| Stale tokens after migration | Old tokens fail, new logins work | Have users sign out and back in to receive new tokens. |
-| Auto-detection failed | `supabase: true` but no keys registered | PowerSync couldn't detect your Supabase project from the connection string. Use manual JWKS config. |
-| Wrong JWT secret | HS256 verification fails | For legacy HS256 keys, verify the secret matches Supabase → Project Settings → JWT. |
-| `block_local_jwks` blocking JWKS fetch | JWKS URI resolves to private IP, keys never fetched | Set `block_local_jwks: false` for local development. |
+| Cause                                         | Symptom                                                              | Solution                                                                                                                                                       |
+| --------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Local Supabase with `supabase_jwt_secret`** | Known keys show `HS256` but token uses `ES256` with a specific `kid` | Local Supabase uses ES256 asymmetric keys. Switch to manual JWKS config — see "Local Supabase" section above.                                                  |
+| Incomplete Supabase key migration             | Token `alg` doesn't match keystore                                   | Complete the "Rotate to asymmetric JWTs" step in the [Supabase migration guide](https://supabase.com/blog/jwt-signing-keys#start-using-asymmetric-jwts-today). |
+| Stale tokens after migration                  | Old tokens fail, new logins work                                     | Have users sign out and back in to receive new tokens.                                                                                                         |
+| Auto-detection failed                         | `supabase: true` but no keys registered                              | PowerSync couldn't detect your Supabase project from the connection string. Use manual JWKS config.                                                            |
+| Wrong JWT secret                              | HS256 verification fails                                             | For legacy HS256 keys, verify the secret matches Supabase → Project Settings → JWT.                                                                            |
+| `block_local_jwks` blocking JWKS fetch        | JWKS URI resolves to private IP, keys never fetched                  | Set `block_local_jwks: false` for local development.                                                                                                           |
 
 After any `service.yaml` auth change, restart the service to pick it up: `powersync docker reset` (self-hosted) or `powersync deploy service-config` (Cloud).
 
@@ -363,6 +381,7 @@ Using manual JWKS config without specifying an audience. Add `authenticated` to 
 ### Auto-detection warning
 
 If you see:
+
 ```
 Supabase Auth is enabled, but no Supabase connection string found. Skipping Supabase JWKS URL configuration.
 ```

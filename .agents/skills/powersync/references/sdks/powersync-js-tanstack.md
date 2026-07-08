@@ -11,12 +11,12 @@ metadata:
 
 TanStack-specific integrations for the PowerSync JavaScript SDK. Use this reference alongside `references/sdks/powersync-js.md` when using TanStack Query (React) or TanStack DB (multi-framework) with PowerSync.
 
-| Resource | Description |
-|----------|-------------|
-| [TanStack Query & TanStack DB](https://docs.powersync.com/client-sdks/frameworks/tanstack.md) | Full TanStack integrations guide, consult for details beyond the inline examples. |
-| [TanStack React Query API Reference](https://powersync-ja.github.io/powersync-js/tanstack-react-query-sdk) | Full API reference for `@powersync/tanstack-react-query`, consult only when the inline examples don't cover your case. |
-| [PowerSync Collection — TanStack DB Docs](https://tanstack.com/db/latest/docs/collections/powersync-collection) | Full TanStack DB collection reference. |
-| [TanStack DB API Reference](https://tanstack.com/db/latest/docs/reference/powersync-db-collection/index) | TanStack DB collection API reference. |
+| Resource                                                                                                        | Description                                                                                                            |
+| --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| [TanStack Query & TanStack DB](https://docs.powersync.com/client-sdks/frameworks/tanstack.md)                   | Full TanStack integrations guide, consult for details beyond the inline examples.                                      |
+| [TanStack React Query API Reference](https://powersync-ja.github.io/powersync-js/tanstack-react-query-sdk)      | Full API reference for `@powersync/tanstack-react-query`, consult only when the inline examples don't cover your case. |
+| [PowerSync Collection — TanStack DB Docs](https://tanstack.com/db/latest/docs/collections/powersync-collection) | Full TanStack DB collection reference.                                                                                 |
+| [TanStack DB API Reference](https://tanstack.com/db/latest/docs/reference/powersync-db-collection/index)        | TanStack DB collection API reference.                                                                                  |
 
 ---
 
@@ -25,12 +25,14 @@ TanStack-specific integrations for the PowerSync JavaScript SDK. Use this refere
 `@powersync/tanstack-react-query` wraps TanStack Query's `useQuery` and `useSuspenseQuery` hooks, bringing TanStack's advanced async state management to PowerSync web and React Native applications.
 
 Use TanStack Query when you need:
+
 - Query caching by key — subsequent instances of the same query don't refire
 - Flicker mitigation on navigation — stale cached data shows instantly while fresh data loads
 - Pagination support via TanStack's built-in paginated query patterns
 - React Suspense with navigation blocking via `v7_startTransition`
 
 Use `@powersync/react` hooks (from `references/sdks/powersync-js-react.md`) when:
+
 - You don't need TanStack's query cache
 - You want a simpler API with fewer dependencies
 
@@ -53,23 +55,39 @@ import { useQuery, useSuspenseQuery } from '@powersync/tanstack-react-query';
 
 // Basic reactive query with TanStack loading/error states
 function ListsScreen() {
-  const { data: lists, isLoading, error } = useQuery({
+  const {
+    data: lists,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['lists'],
-    query: 'SELECT * FROM lists ORDER BY created_at DESC'
+    query: 'SELECT * FROM lists ORDER BY created_at DESC',
   });
 
   if (isLoading) return <Loading />;
   if (error) return <Error message={error.message} />;
-  return <ul>{lists.map(l => <li key={l.id}>{l.name}</li>)}</ul>;
+  return (
+    <ul>
+      {lists.map((l) => (
+        <li key={l.id}>{l.name}</li>
+      ))}
+    </ul>
+  );
 }
 
 // Suspense version — use with a <Suspense> boundary
 function ListsScreen() {
   const { data: lists } = useSuspenseQuery({
     queryKey: ['lists'],
-    query: 'SELECT * FROM lists ORDER BY created_at DESC'
+    query: 'SELECT * FROM lists ORDER BY created_at DESC',
   });
-  return <ul>{lists.map(l => <li key={l.id}>{l.name}</li>)}</ul>;
+  return (
+    <ul>
+      {lists.map((l) => (
+        <li key={l.id}>{l.name}</li>
+      ))}
+    </ul>
+  );
 }
 ```
 
@@ -94,12 +112,14 @@ When navigating to or refreshing a page, a brief UI flicker (10–50ms) can occu
 TanStack DB is different from TanStack Query: TanStack DB uses differential data flow for in-memory queries that update incrementally, rather than re-running full SQL queries. It's more suitable for complex, highly interactive UIs that need cross-collection joins and optimistic updates.
 
 Use TanStack DB when:
+
 - Mutations need to feel synchronous — TanStack DB applies optimistic state in-memory immediately; PowerSync's `execute()` is async, which is fast but not instantaneous
 - Your app renders many simultaneous live queries — PowerSync live queries each hold a SQLite connection from a bounded pool; if many views watch queries at once, that pool becomes a snappiness bottleneck; TanStack DB's in-memory queries bypass it entirely
 - You have complex dependent queries that benefit from differential invalidation — PowerSync re-runs the full SQL query and diffs results on every table change; TanStack DB invalidates only the queries whose specific inputs changed
 - You need to join a PowerSync (offline) collection with a non-PowerSync TanStack DB collection (e.g. an online store)
 
 Use plain PowerSync (`.watch()` / `usePowerSyncQuery`) when:
+
 - Async SQLite write latency is acceptable for your use case
 - Your app has a modest number of simultaneous live queries
 - Your queries are simple and don't benefit from differential invalidation
@@ -138,13 +158,13 @@ const APP_SCHEMA = new Schema({
     name: column.text,
     author: column.text,
     created_at: column.text,
-    archived: column.integer
-  })
+    archived: column.integer,
+  }),
 });
 
 const db = new PowerSyncDatabase({
   database: { dbFilename: 'app.sqlite' },
-  schema: APP_SCHEMA
+  schema: APP_SCHEMA,
 });
 
 // Optional: db.connect(connector) for backend sync
@@ -153,7 +173,7 @@ const db = new PowerSyncDatabase({
 const documentsCollection = createCollection(
   powerSyncCollectionOptions({
     database: db,
-    table: APP_SCHEMA.props.documents
+    table: APP_SCHEMA.props.documents,
   })
 );
 ```
@@ -171,6 +191,7 @@ const documentsCollection = createCollection(
 ### Configuration Options
 
 `powerSyncCollectionOptions` accepts:
+
 - `database` — the `PowerSyncDatabase` instance
 - `table` — a table from your `Schema.props`
 - `schema` — optional Zod (or compatible) schema for mutation validation

@@ -11,10 +11,10 @@ metadata:
 
 Node.js-specific integration for the PowerSync JavaScript SDK. Use this reference alongside `references/sdks/powersync-js.md` when building Node.js CLI tools, background sync processes, ETL pipelines, or Electron desktop apps.
 
-| Resource | Description |
-|----------|-------------|
-| [Node.js SDK Reference](https://docs.powersync.com/client-sdks/reference/node.md) | Full SDK documentation for Node.js, consult for details beyond the inline examples. |
-| [Node SDK API Reference](https://powersync-ja.github.io/powersync-js/node-sdk) | Full API reference for `@powersync/node`, consult only when the inline examples don't cover your case. |
+| Resource                                                                          | Description                                                                                            |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| [Node.js SDK Reference](https://docs.powersync.com/client-sdks/reference/node.md) | Full SDK documentation for Node.js, consult for details beyond the inline examples.                    |
+| [Node SDK API Reference](https://powersync-ja.github.io/powersync-js/node-sdk)    | Full API reference for `@powersync/node`, consult only when the inline examples don't cover your case. |
 
 ## Node.js
 
@@ -33,13 +33,13 @@ npm install --save-dev @types/better-sqlite3
 
 ### Key Differences from the Web SDK
 
-| Aspect | `@powersync/web` | `@powersync/node` |
-|--------|-----------------|-------------------|
-| SQLite runtime | WebAssembly (wa-sqlite) | Native (`better-sqlite3`) |
-| Web Workers | Yes — DB runs in a worker by default | No — runs synchronously in the main thread |
-| Multi-tab sync | Yes — shared sync worker across browser tabs | No |
-| UI framework hooks | `@powersync/react`, `@powersync/vue` | None — use imperative API |
-| Environment | Browser | Node.js 18+ |
+| Aspect             | `@powersync/web`                             | `@powersync/node`                          |
+| ------------------ | -------------------------------------------- | ------------------------------------------ |
+| SQLite runtime     | WebAssembly (wa-sqlite)                      | Native (`better-sqlite3`)                  |
+| Web Workers        | Yes — DB runs in a worker by default         | No — runs synchronously in the main thread |
+| Multi-tab sync     | Yes — shared sync worker across browser tabs | No                                         |
+| UI framework hooks | `@powersync/react`, `@powersync/vue`         | None — use imperative API                  |
+| Environment        | Browser                                      | Node.js 18+                                |
 
 ### 2. Setup
 
@@ -51,8 +51,8 @@ import { PowerSyncConnector } from './PowerSyncConnector';
 const db = new PowerSyncDatabase({
   schema: AppSchema,
   database: {
-    dbFilename: 'app.db'
-  }
+    dbFilename: 'app.db',
+  },
 });
 
 const connector = new PowerSyncConnector();
@@ -67,7 +67,9 @@ No UI hooks are available in Node.js. Use the imperative API from `references/sd
 
 ```ts
 // One-time queries
-const lists = await db.getAll('SELECT * FROM lists WHERE owner_id = ?', [userId]);
+const lists = await db.getAll('SELECT * FROM lists WHERE owner_id = ?', [
+  userId,
+]);
 const list = await db.getOptional('SELECT * FROM lists WHERE id = ?', [id]);
 
 // Watch for changes (async generator)
@@ -76,7 +78,9 @@ for await (const result of db.watchWithAsyncGenerator('SELECT * FROM lists')) {
 }
 
 // Writes
-await db.execute('INSERT INTO lists (id, name) VALUES (uuid(), ?)', ['My List']);
+await db.execute('INSERT INTO lists (id, name) VALUES (uuid(), ?)', [
+  'My List',
+]);
 await db.writeTransaction(async (tx) => {
   await tx.execute('DELETE FROM lists WHERE id = ?', [listId]);
   await tx.execute('DELETE FROM todos WHERE list_id = ?', [listId]);
@@ -96,8 +100,13 @@ The same `db.currentStatus` and `db.registerListener` API applies:
 ```ts
 db.registerListener({
   statusChanged: (status) => {
-    console.log('Connected:', status.connected, '| Last synced:', status.lastSyncedAt);
-  }
+    console.log(
+      'Connected:',
+      status.connected,
+      '| Last synced:',
+      status.lastSyncedAt
+    );
+  },
 });
 ```
 
@@ -146,7 +155,7 @@ import { PowerSyncConnector } from './PowerSyncConnector';
 
 export const db = new PowerSyncDatabase({
   schema: AppSchema,
-  database: { dbFilename: 'app.db' }
+  database: { dbFilename: 'app.db' },
 });
 
 export async function initDb() {
@@ -165,14 +174,21 @@ If you sync data in the main process and need to expose it to the renderer, use 
 import { ipcMain } from 'electron';
 import { db } from './db';
 
-ipcMain.handle('powersync:query', async (_event, sql: string, params: any[]) => {
-  return db.getAll(sql, params);
-});
+ipcMain.handle(
+  'powersync:query',
+  async (_event, sql: string, params: any[]) => {
+    return db.getAll(sql, params);
+  }
+);
 ```
 
 ```ts
 // renderer — via preload bridge
-const lists = await window.electron.invoke('powersync:query', 'SELECT * FROM lists', []);
+const lists = await window.electron.invoke(
+  'powersync:query',
+  'SELECT * FROM lists',
+  []
+);
 ```
 
 However, the more common pattern is to use `@powersync/web` in the renderer and maintain a separate sync connection there — this keeps the data layer entirely in the renderer process and avoids IPC overhead.

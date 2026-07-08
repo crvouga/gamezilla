@@ -10,6 +10,7 @@ metadata:
 > **Load this when** the app needs file uploads/downloads (images, documents, media) synced alongside PowerSync data.
 
 ## Table of Contents
+
 - [How It Works](#how-it-works)
 - [Package Setup](#package-setup)
 - [Schema Setup](#schema-setup)
@@ -20,8 +21,8 @@ metadata:
 
 PowerSync handles file attachments using a **metadata + storage provider** pattern: structured metadata syncs through PowerSync while actual files live in a purpose-built storage system (S3, Supabase Storage, Cloudflare R2, etc.). An offline-first queue manages uploads, downloads, and retries automatically in the background.
 
-| Resource | Description |
-|----------|-------------|
+| Resource                                                                           | Description                                                 |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | [Attachments docs](https://docs.powersync.com/client-sdks/advanced/attachments.md) | Full reference including migration notes and platform demos |
 
 > **Deprecated packages:** `@powersync/attachments` (JS/TS) and `powersync_attachments_helper` (Dart/Flutter) are deprecated. Attachment functionality is now built in to the platform SDK packages. Do not install the old packages for new projects.
@@ -58,22 +59,24 @@ sequenceDiagram
 
 ### Attachment States
 
-| State | Meaning |
-|-------|--------|
-| `QUEUED_UPLOAD` | Saved locally, waiting to upload |
-| `QUEUED_DOWNLOAD` | ID received from sync, file not yet downloaded |
-| `SYNCED` | File exists locally and in remote storage |
-| `QUEUED_DELETE` | Marked for deletion from both local and remote |
-| `ARCHIVED` | No longer referenced in data model; candidate for cleanup |
+| State             | Meaning                                                   |
+| ----------------- | --------------------------------------------------------- |
+| `QUEUED_UPLOAD`   | Saved locally, waiting to upload                          |
+| `QUEUED_DOWNLOAD` | ID received from sync, file not yet downloaded            |
+| `SYNCED`          | File exists locally and in remote storage                 |
+| `QUEUED_DELETE`   | Marked for deletion from both local and remote            |
+| `ARCHIVED`        | No longer referenced in data model; candidate for cleanup |
 
 ## Package Setup
 
 **Web / Node.js** — built in, no separate install:
+
 ```bash
 # Already included in @powersync/web and @powersync/node
 ```
 
 **React Native** — built in to `@powersync/react-native`, but local storage adapter requires a separate package:
+
 ```bash
 # Expo (requires Expo 54+)
 npx expo install @powersync/attachments-storage-react-native expo-file-system
@@ -89,6 +92,7 @@ npm install @powersync/attachments-storage-react-native @dr.pogodin/react-native
 Add `AttachmentTable` as a local-only table alongside your regular tables. It is not synced through PowerSync — it is managed entirely by the attachment queue on each device.
 
 **JavaScript / TypeScript:**
+
 ```ts
 import { Schema, Table, column, AttachmentTable } from '@powersync/web';
 // or from '@powersync/react-native' / '@powersync/node'
@@ -96,15 +100,16 @@ import { Schema, Table, column, AttachmentTable } from '@powersync/web';
 export const AppSchema = new Schema({
   users: new Table({
     name: column.text,
-    photo_id: column.text,  // FK referencing attachment ID
+    photo_id: column.text, // FK referencing attachment ID
   }),
-  attachments: new AttachmentTable(),  // local-only, managed by queue
+  attachments: new AttachmentTable(), // local-only, managed by queue
 });
 ```
 
 `AttachmentTable` accepts an optional `viewName` (default: `'attachments'`). Use a custom `viewName` when migrating from the old `@powersync/attachments` package to avoid a SQLite name conflict with the legacy table.
 
 **Dart:**
+
 ```dart
 import 'package:powersync/powersync.dart';
 import 'package:powersync_core/attachments/attachments.dart';
@@ -118,6 +123,7 @@ final schema = Schema([
 **Kotlin / Swift** — use `createAttachmentsTable("attachments")` / `createAttachmentTable(name: "attachments")` respectively. See [SDK demos](https://docs.powersync.com/client-sdks/advanced/attachments.md#sdk--demo-reference) for full examples.
 
 **.NET:**
+
 ```csharp
 using PowerSync.Common.Attachments;
 using PowerSync.Common.DB.Schema;
@@ -171,19 +177,26 @@ const remoteStorage = {
     const { uploadUrl } = await fetch('/api/attachments/upload-url', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ filename: attachment.filename, contentType: attachment.mediaType }),
-    }).then(r => r.json());
+      body: JSON.stringify({
+        filename: attachment.filename,
+        contentType: attachment.mediaType,
+      }),
+    }).then((r) => r.json());
 
     await fetch(uploadUrl, {
       method: 'PUT',
       body: fileData,
-      headers: { 'Content-Type': attachment.mediaType ?? 'application/octet-stream' },
+      headers: {
+        'Content-Type': attachment.mediaType ?? 'application/octet-stream',
+      },
     });
   },
 
   async downloadFile(attachment: AttachmentRecord): Promise<ArrayBuffer> {
-    const { downloadUrl } = await fetch(`/api/attachments/${attachment.id}/download-url`).then(r => r.json());
-    return fetch(downloadUrl).then(r => r.arrayBuffer());
+    const { downloadUrl } = await fetch(
+      `/api/attachments/${attachment.id}/download-url`
+    ).then((r) => r.json());
+    return fetch(downloadUrl).then((r) => r.arrayBuffer());
   },
 
   async deleteFile(attachment: AttachmentRecord) {
@@ -199,32 +212,29 @@ import { AttachmentQueue } from '@powersync/web';
 // or '@powersync/react-native' / '@powersync/node'
 
 const attachmentQueue = new AttachmentQueue({
-  db,           // PowerSyncDatabase instance
+  db, // PowerSyncDatabase instance
   localStorage,
   remoteStorage,
 
   // Tell the queue which attachments your data model references.
   // Called reactively whenever watched tables change.
   watchAttachments: (onUpdate) => {
-    db.watch(
-      `SELECT photo_id FROM users WHERE photo_id IS NOT NULL`,
-      [],
-      {
-        onResult: async (result) => {
-          const attachments = result.rows?._array.map(row => ({
+    db.watch(`SELECT photo_id FROM users WHERE photo_id IS NOT NULL`, [], {
+      onResult: async (result) => {
+        const attachments =
+          result.rows?._array.map((row) => ({
             id: row.photo_id,
-            fileExtension: 'jpg',    // names the local file (<id>.jpg); not a MIME type
+            fileExtension: 'jpg', // names the local file (<id>.jpg); not a MIME type
             mediaType: 'image/jpeg', // optional; preserved on download; never inferred from fileExtension (JS SDK only)
           })) ?? [];
-          await onUpdate(attachments);
-        },
-      }
-    );
+        await onUpdate(attachments);
+      },
+    });
   },
 
-  syncIntervalMs: 30_000,       // retry interval (default: 30s)
-  downloadAttachments: true,    // auto-download referenced files (default: true)
-  archivedCacheLimit: 100,      // archived files to keep before cleanup (default: 100)
+  syncIntervalMs: 30_000, // retry interval (default: 30s)
+  downloadAttachments: true, // auto-download referenced files (default: true)
+  archivedCacheLimit: 100, // archived files to keep before cleanup (default: 100)
 });
 
 await attachmentQueue.startSync();
@@ -246,7 +256,10 @@ async function uploadProfilePhoto(imageBlob: Blob, userId: string) {
     mediaType: 'image/jpeg',
     updateHook: async (tx, attachment) => {
       // Runs in the same transaction — atomic
-      await tx.execute('UPDATE users SET photo_id = ? WHERE id = ?', [attachment.id, userId]);
+      await tx.execute('UPDATE users SET photo_id = ? WHERE id = ?', [
+        attachment.id,
+        userId,
+      ]);
     },
   });
 }

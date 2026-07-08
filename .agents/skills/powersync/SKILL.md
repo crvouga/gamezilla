@@ -5,7 +5,7 @@ license: MIT
 compatibility: Works with any skills-compatible agent. Some references include CLI commands requiring the @powersync/cli package.
 metadata:
   author: powersync
-  version: "1.2.0"
+  version: '1.2.0'
   organization: PowerSync
   tags: powersync, offline-first, local-first, sync-streams, sqlite, replication, uploadData, fetchCredentials, service-config, sync-config, cloud, cli, debugging, supabase, postgres, mongodb, mysql
 ---
@@ -36,19 +36,19 @@ If a sentence is ambiguous, default to the operator interpretation. Full legend 
 
 ## What to Load for Your Task
 
-| Task | Start with | Load on demand |
-|------|-----------|----------------|
-| Supabase + PowerSync | `references/onboarding-supabase.md` | `references/supabase-auth.md`, `references/sync-config.md`, SDK files |
-| Custom backend (non-Supabase) | `references/onboarding-custom.md` | `references/custom-backend.md`, `references/sync-config.md`, SDK files |
-| New project setup | `references/powersync-cli.md` + `references/powersync-service.md` | `references/sync-config.md`, SDK files |
-| Self-hosting / service config | `references/powersync-service.md` + `references/powersync-cli.md` | `references/sync-config.md` |
-| Terraform / IaC provisioning | `references/terraform.md` | `references/sync-config.md`, `references/supabase-auth.md` (if Supabase source) |
-| Writing sync config | `references/sync-config.md` | — |
-| Debugging sync issues | `references/powersync-debug.md` | — |
-| Raw Tables (advanced) | `references/raw-tables.md` | — |
-| Attachments | `references/attachments.md` | — |
-| Architecture overview | `references/powersync-overview.md` | — |
-| SQLite extensions (vector search, FTS5, custom tokenizers) | `references/sqlite-extensions.md` | — |
+| Task                                                       | Start with                                                        | Load on demand                                                                  |
+| ---------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Supabase + PowerSync                                       | `references/onboarding-supabase.md`                               | `references/supabase-auth.md`, `references/sync-config.md`, SDK files           |
+| Custom backend (non-Supabase)                              | `references/onboarding-custom.md`                                 | `references/custom-backend.md`, `references/sync-config.md`, SDK files          |
+| New project setup                                          | `references/powersync-cli.md` + `references/powersync-service.md` | `references/sync-config.md`, SDK files                                          |
+| Self-hosting / service config                              | `references/powersync-service.md` + `references/powersync-cli.md` | `references/sync-config.md`                                                     |
+| Terraform / IaC provisioning                               | `references/terraform.md`                                         | `references/sync-config.md`, `references/supabase-auth.md` (if Supabase source) |
+| Writing sync config                                        | `references/sync-config.md`                                       | —                                                                               |
+| Debugging sync issues                                      | `references/powersync-debug.md`                                   | —                                                                               |
+| Raw Tables (advanced)                                      | `references/raw-tables.md`                                        | —                                                                               |
+| Attachments                                                | `references/attachments.md`                                       | —                                                                               |
+| Architecture overview                                      | `references/powersync-overview.md`                                | —                                                                               |
+| SQLite extensions (vector search, FTS5, custom tokenizers) | `references/sqlite-extensions.md`                                 | —                                                                               |
 
 ## SDK Reference Files
 
@@ -56,23 +56,23 @@ If a sentence is ambiguous, default to the operator interpretation. Full legend 
 
 Always load `references/sdks/powersync-js.md` for any JS/TS project, then load the applicable framework file.
 
-| Framework | File | Load early if… |
-|-----------|------|----------------|
-| React / Next.js | `references/sdks/powersync-js-react.md` | Vite + React project — contains the required `vite.config.ts` setup (`optimizeDeps.exclude`, `worker.format: 'es'`) needed before installing packages |
-| React Native / Expo | `references/sdks/powersync-js-react-native.md` | |
-| Vue / Nuxt | `references/sdks/powersync-js-vue.md` | |
-| Node.js / Electron | `references/sdks/powersync-js-node.md` | |
-| TanStack | `references/sdks/powersync-js-tanstack.md` | |
-| Drizzle / Kysely ORM | `references/sdks/powersync-js-orm.md` | Project uses Drizzle or Kysely |
+| Framework            | File                                           | Load early if…                                                                                                                                        |
+| -------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| React / Next.js      | `references/sdks/powersync-js-react.md`        | Vite + React project — contains the required `vite.config.ts` setup (`optimizeDeps.exclude`, `worker.format: 'es'`) needed before installing packages |
+| React Native / Expo  | `references/sdks/powersync-js-react-native.md` |                                                                                                                                                       |
+| Vue / Nuxt           | `references/sdks/powersync-js-vue.md`          |                                                                                                                                                       |
+| Node.js / Electron   | `references/sdks/powersync-js-node.md`         |                                                                                                                                                       |
+| TanStack             | `references/sdks/powersync-js-tanstack.md`     |                                                                                                                                                       |
+| Drizzle / Kysely ORM | `references/sdks/powersync-js-orm.md`          | Project uses Drizzle or Kysely                                                                                                                        |
 
 ### Other SDKs
 
-| Platform | File |
-|----------|
-| Dart / Flutter | `references/sdks/powersync-dart.md` |
-| .NET | `references/sdks/powersync-dotnet.md` |
-| Kotlin | `references/sdks/powersync-kotlin.md` |
-| Swift | `references/sdks/powersync-swift.md` |
+| Platform       | File                                  |
+| -------------- | ------------------------------------- |
+| Dart / Flutter | `references/sdks/powersync-dart.md`   |
+| .NET           | `references/sdks/powersync-dotnet.md` |
+| Kotlin         | `references/sdks/powersync-kotlin.md` |
+| Swift          | `references/sdks/powersync-swift.md`  |
 
 ## Key Rules to Apply Without Being Asked
 

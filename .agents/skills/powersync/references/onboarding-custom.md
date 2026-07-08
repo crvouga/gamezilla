@@ -39,6 +39,7 @@ Follow this sequence exactly. **Do not skip ahead to app code.**
 2. **Set up the source database.** Load `references/powersync-service.md` § "Source Database Setup" for the relevant quick start (Postgres, MongoDB, MySQL, or MSSQL). Present the exact SQL to the operator and ask them to confirm it is done.
 
 3. **Write credentials to `.env` immediately.** As soon as database details are available:
+
    ```
    POWERSYNC_URL=https://your-instance.powersync.journeyapps.com  # or http://localhost:8080 for self-hosted
    # Cloud service.yaml uses PS_DATABASE_URI; self-hosted Docker uses PS_DATA_SOURCE_URI
@@ -46,6 +47,7 @@ Follow this sequence exactly. **Do not skip ahead to app code.**
    # PS_DATA_SOURCE_URI=postgresql://user:pass@host:5432/db # Self-hosted (set in powersync/docker/.env)
    BACKEND_URL=http://localhost:3001
    ```
+
    Both `service.yaml` (via `!env` tags) and app code depend on these values.
 
 4. **Scaffold and configure PowerSync.**
@@ -97,9 +99,11 @@ Only after Phase 3 is complete.
 12. **Install SDK packages.** Load the SDK reference file for your platform — see the SDK table in `SKILL.md`.
 
 13. **Define the client schema.** Generate from deployed sync config:
+
     ```bash
     powersync generate schema --output=ts --output-path=./src/schema.ts
     ```
+
     Or write manually — but never define the `id` column (it is automatic).
 
 14. **Implement the backend connector.** See `references/custom-backend.md` § "Client-Side Connector" for `fetchCredentials()` and `uploadData()` code. Critical: `transaction.complete()` is mandatory — without it the queue stalls permanently.

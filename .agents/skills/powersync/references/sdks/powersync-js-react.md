@@ -10,6 +10,7 @@ metadata:
 > **Load this when** building a React web app, Next.js app, or any Vite + React project. Load **before** package install for Vite projects — contains the required `vite.config.ts` setup. Always load `powersync-js.md` first.
 
 ## Table of Contents
+
 - [Provider Setup](#provider-setup)
 - [useSuspenseQuery](#usesuspensequery)
 - [Sync Stream Hooks](#sync-stream-hooks)
@@ -19,11 +20,11 @@ metadata:
 
 React-specific integration for the PowerSync JavaScript SDK. Use this reference alongside `references/sdks/powersync-js.md` when building React web apps, Next.js apps, or when using the React hooks from `@powersync/react` or `@powersync/react-native`.
 
-| Resource | Description |
-|----------|-------------|
-| [React Integration Guide](https://docs.powersync.com/client-sdks/frameworks/react.md) | Full React setup guide, consult for details beyond the inline examples. |
-| [Next.js Integration Guide](https://docs.powersync.com/client-sdks/frameworks/next-js.md) | Full Next.js setup guide, consult for details beyond the inline examples. |
-| [React SDK API Reference](https://powersync-ja.github.io/powersync-js/react-sdk) | Full API reference for `@powersync/react`, consult only when the inline examples don't cover your case. |
+| Resource                                                                                  | Description                                                                                             |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| [React Integration Guide](https://docs.powersync.com/client-sdks/frameworks/react.md)     | Full React setup guide, consult for details beyond the inline examples.                                 |
+| [Next.js Integration Guide](https://docs.powersync.com/client-sdks/frameworks/next-js.md) | Full Next.js setup guide, consult for details beyond the inline examples.                               |
+| [React SDK API Reference](https://powersync-ja.github.io/powersync-js/react-sdk)          | Full API reference for `@powersync/react`, consult only when the inline examples don't cover your case. |
 
 ## Provider Setup
 
@@ -56,7 +57,7 @@ Must be used inside a `<Suspense>` boundary. Throws an error boundary-catchable 
 ```tsx
 <ErrorBoundary fallback={<ErrorUI />}>
   <Suspense fallback={<Loading />}>
-    <DataComponent />  {/* calls useSuspenseQuery */}
+    <DataComponent /> {/* calls useSuspenseQuery */}
   </Suspense>
 </ErrorBoundary>
 ```
@@ -81,11 +82,11 @@ function ListsScreen() {
   const streamStatus = useSyncStream({
     name: 'lists',
     parameters: { userId: currentUser.id },
-    priority: 1,  // optional, 0-3
-    ttl: 3600,    // optional, seconds to keep alive after unsubscribe
+    priority: 1, // optional, 0-3
+    ttl: 3600, // optional, seconds to keep alive after unsubscribe
   });
 
-  if (!streamStatus) return <Loading />;  // subscription not yet ready
+  if (!streamStatus) return <Loading />; // subscription not yet ready
   if (!streamStatus.subscription.hasSynced) return <Loading />;
 
   return <ListsComponent />;
@@ -111,15 +112,15 @@ interface SyncStreamStatus {
   subscription: {
     name: string;
     parameters: Record<string, any> | null;
-    active: boolean;         // currently receiving data
-    isDefault: boolean;      // was configured as a default stream on the server
+    active: boolean; // currently receiving data
+    isDefault: boolean; // was configured as a default stream on the server
     hasExplicitSubscription: boolean;
-    expiresAt: Date | null;  // when TTL expires
-    hasSynced: boolean;      // has completed at least one full sync
+    expiresAt: Date | null; // when TTL expires
+    hasSynced: boolean; // has completed at least one full sync
     lastSyncedAt: Date | null;
   };
   progress: {
-    downloadedFraction: number;  // 0.0-1.0
+    downloadedFraction: number; // 0.0-1.0
     downloadedOperations: number;
     totalOperations: number;
   } | null;
@@ -160,9 +161,9 @@ public/@powersync/*
 ```typescript
 module.exports = {
   images: {
-    disableStaticImages: true
+    disableStaticImages: true,
   },
-  turbopack: {}
+  turbopack: {},
 };
 ```
 
@@ -185,7 +186,7 @@ module.exports = {
     }
 
     return config;
-  }
+  },
 };
 ```
 
@@ -200,24 +201,29 @@ Create a client-only provider component. The `disableSSRWarning: true` flag supp
 import { AppSchema } from '@/lib/powersync/AppSchema';
 import { BackendConnector } from '@/lib/powersync/BackendConnector';
 import { PowerSyncContext } from '@powersync/react';
-import { PowerSyncDatabase, WASQLiteOpenFactory, createBaseLogger, LogLevel } from '@powersync/web';
+import {
+  PowerSyncDatabase,
+  WASQLiteOpenFactory,
+  createBaseLogger,
+  LogLevel,
+} from '@powersync/web';
 import React, { Suspense } from 'react';
 
 const factory = new WASQLiteOpenFactory({
   dbFilename: 'powersync.db',
   // Pre-bundled worker — required for Turbopack
-  worker: '/@powersync/worker/WASQLiteDB.umd.js'
+  worker: '/@powersync/worker/WASQLiteDB.umd.js',
 });
 
 export const db = new PowerSyncDatabase({
   database: factory,
   schema: AppSchema,
   flags: {
-    disableSSRWarning: true
+    disableSSRWarning: true,
   },
   sync: {
-    worker: '/@powersync/worker/SharedSyncImplementation.umd.js'
-  }
+    worker: '/@powersync/worker/SharedSyncImplementation.umd.js',
+  },
 });
 
 const connector = new BackendConnector();
@@ -226,7 +232,9 @@ db.connect(connector);
 export const SystemProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <Suspense>
-      <PowerSyncContext.Provider value={db}>{children}</PowerSyncContext.Provider>
+      <PowerSyncContext.Provider value={db}>
+        {children}
+      </PowerSyncContext.Provider>
     </Suspense>
   );
 };
@@ -240,7 +248,11 @@ export const SystemProvider = ({ children }: { children: React.ReactNode }) => {
 
 import { SystemProvider } from '@/app/components/providers/SystemProvider';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body>
@@ -266,7 +278,9 @@ export default function Page() {
 
   return (
     <ul>
-      {lists.map(list => <li key={list.id}>{list.name}</li>)}
+      {lists.map((list) => (
+        <li key={list.id}>{list.name}</li>
+      ))}
     </ul>
   );
 }
@@ -284,8 +298,8 @@ npm install -D vite-plugin-wasm vite-plugin-top-level-await
 
 ```ts
 // vite.config.ts
-import wasm from 'vite-plugin-wasm'
-import topLevelAwait from 'vite-plugin-top-level-await'
+import wasm from 'vite-plugin-wasm';
+import topLevelAwait from 'vite-plugin-top-level-await';
 
 export default defineConfig({
   plugins: [react(), wasm(), topLevelAwait()],
@@ -296,7 +310,7 @@ export default defineConfig({
     format: 'es',
     plugins: () => [wasm(), topLevelAwait()],
   },
-})
+});
 ```
 
 > **Do NOT** add `optimizeDeps: { include: ['@powersync/web > js-logger'] }` — this dependency path does not exist in current SDK versions and causes build warnings. The `exclude` configuration above is sufficient.
@@ -312,16 +326,24 @@ In development, React Strict Mode unmounts and remounts every component. If you 
 function App() {
   const [db, setDb] = useState<PowerSyncDatabase | null>(null);
   useEffect(() => {
-    const database = new PowerSyncDatabase({ schema, database: { dbFilename: 'app.db' } });
+    const database = new PowerSyncDatabase({
+      schema,
+      database: { dbFilename: 'app.db' },
+    });
     database.connect(connector);
     setDb(database);
-    return () => { database.close(); }; // Kills the DB on Strict Mode re-mount
+    return () => {
+      database.close();
+    }; // Kills the DB on Strict Mode re-mount
   }, []);
   // ...
 }
 
 // CORRECT — create once at module scope (or use a stable singleton)
-const db = new PowerSyncDatabase({ schema, database: { dbFilename: 'app.db' } });
+const db = new PowerSyncDatabase({
+  schema,
+  database: { dbFilename: 'app.db' },
+});
 db.connect(connector);
 
 function App() {

@@ -10,6 +10,7 @@ metadata:
 > **Load this when** building a PowerSync integration without Supabase — custom auth, custom backend API, or any non-Supabase database.
 
 ## Table of Contents
+
 - [Architecture Recap](#architecture-recap)
 - [1. Custom JWT Auth](#1-custom-jwt-auth)
 - [2. Backend API for uploadData](#2-backend-api-for-uploaddata)
@@ -22,13 +23,13 @@ For **source database setup** (Postgres replication, MongoDB replica set, MySQL 
 
 For **service.yaml configuration** (Cloud or self-hosted templates), see `references/powersync-service.md`.
 
-| Resource | Description |
-|----------|-------------|
-| [App Backend Setup](https://docs.powersync.com/configuration/app-backend/setup.md) | Overview of setting up the app backend for PowerSync. |
-| [Client-Side Integration](https://docs.powersync.com/configuration/app-backend/client-side-integration.md) | How to implement a backend connector. |
+| Resource                                                                                                       | Description                                                |
+| -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| [App Backend Setup](https://docs.powersync.com/configuration/app-backend/setup.md)                             | Overview of setting up the app backend for PowerSync.      |
+| [Client-Side Integration](https://docs.powersync.com/configuration/app-backend/client-side-integration.md)     | How to implement a backend connector.                      |
 | [Writing Client-Side Changes](https://docs.powersync.com/usage/writing-client-side-changes-to-your-backend.md) | Detailed guide on the upload queue and backend write flow. |
-| [Custom Auth](https://docs.powersync.com/configuration/auth/custom.md) | JWT auth setup for non-Supabase backends. |
-| [Development Tokens](https://docs.powersync.com/configuration/auth/development-tokens.md) | Generate tokens for local development and testing. |
+| [Custom Auth](https://docs.powersync.com/configuration/auth/custom.md)                                         | JWT auth setup for non-Supabase backends.                  |
+| [Development Tokens](https://docs.powersync.com/configuration/auth/development-tokens.md)                      | Generate tokens for local development and testing.         |
 
 ## Architecture Recap
 
@@ -53,22 +54,22 @@ PowerSync verifies JWTs from client apps. Without Supabase, you must generate an
 
 ### Supported Algorithms
 
-| Algorithm | Type | Recommendation |
-|-----------|------|----------------|
-| RS256, RS384, RS512 | Asymmetric (RSA) | Recommended for production |
-| ES256, ES384, ES512 | Asymmetric (ECDSA) | Recommended for production |
-| EdDSA (Ed25519, Ed448) | Asymmetric | Recommended for production |
-| HS256 | Symmetric | Development only |
+| Algorithm              | Type               | Recommendation             |
+| ---------------------- | ------------------ | -------------------------- |
+| RS256, RS384, RS512    | Asymmetric (RSA)   | Recommended for production |
+| ES256, ES384, ES512    | Asymmetric (ECDSA) | Recommended for production |
+| EdDSA (Ed25519, Ed448) | Asymmetric         | Recommended for production |
+| HS256                  | Symmetric          | Development only           |
 
 ### Required JWT Claims
 
-| Claim | Required | Description |
-|-------|----------|-------------|
-| `sub` | Yes | User ID — returned by `auth.user_id()` in sync config queries |
-| `aud` | Yes | Must match the `audience` configured in PowerSync service config |
-| `iat` | Yes | Issued-at timestamp (seconds since epoch) |
-| `exp` | Yes | Expiry timestamp — must be at most 86400 seconds (24h) after `iat` |
-| `kid` | Yes (for JWKS) | Key ID — must match a key in the JWKS |
+| Claim | Required       | Description                                                        |
+| ----- | -------------- | ------------------------------------------------------------------ |
+| `sub` | Yes            | User ID — returned by `auth.user_id()` in sync config queries      |
+| `aud` | Yes            | Must match the `audience` configured in PowerSync service config   |
+| `iat` | Yes            | Issued-at timestamp (seconds since epoch)                          |
+| `exp` | Yes            | Expiry timestamp — must be at most 86400 seconds (24h) after `iat` |
+| `kid` | Yes (for JWKS) | Key ID — must match a key in the JWKS                              |
 
 ### Generate RSA Key Pair
 
@@ -131,9 +132,9 @@ export async function generateToken(userId: string): Promise<string> {
     .setProtectedHeader({ alg: 'RS256', kid: KID })
     .setSubject(userId)
     .setIssuedAt()
-    .setIssuer('your-app')        // Must match issuer config if set
-    .setAudience(POWERSYNC_URL)   // Must match audience config
-    .setExpirationTime('5m')      // Short-lived; max 24h, PowerSync refreshes automatically
+    .setIssuer('your-app') // Must match issuer config if set
+    .setAudience(POWERSYNC_URL) // Must match audience config
+    .setExpirationTime('5m') // Short-lived; max 24h, PowerSync refreshes automatically
     .sign(privateKey);
 }
 ```
@@ -174,12 +175,12 @@ The client's `uploadData()` sends pending writes to your backend API. Your backe
 
 ### Request/Response Contract
 
-| Scenario | HTTP Status | Effect on Upload Queue |
-|----------|-------------|----------------------|
-| Success | 2xx | `transaction.complete()` advances the queue |
-| Validation error | 2xx (with error details in body) | Queue advances — surface errors via a synced table |
-| Transient error (DB down) | 5xx | PowerSync retries with backoff |
-| Auth error / permanent failure | 4xx | **Blocks the queue permanently** — never return 4xx for data errors |
+| Scenario                       | HTTP Status                      | Effect on Upload Queue                                              |
+| ------------------------------ | -------------------------------- | ------------------------------------------------------------------- |
+| Success                        | 2xx                              | `transaction.complete()` advances the queue                         |
+| Validation error               | 2xx (with error details in body) | Queue advances — surface errors via a synced table                  |
+| Transient error (DB down)      | 5xx                              | PowerSync retries with backoff                                      |
+| Auth error / permanent failure | 4xx                              | **Blocks the queue permanently** — never return 4xx for data errors |
 
 ### CrudEntry Format (What the Client Sends)
 
@@ -187,11 +188,11 @@ Each operation in the upload queue has this shape:
 
 ```ts
 interface CrudEntry {
-  id: string;              // Row ID (UUID)
+  id: string; // Row ID (UUID)
   op: 'PUT' | 'PATCH' | 'DELETE';
-  table: string;           // Table name
-  opData?: Record<string, any>;  // Column values (undefined for DELETE)
-  transactionId?: number;  // Groups ops from the same writeTransaction()
+  table: string; // Table name
+  opData?: Record<string, any>; // Column values (undefined for DELETE)
+  transactionId?: number; // Groups ops from the same writeTransaction()
 }
 ```
 
@@ -242,7 +243,9 @@ app.post('/api/powersync/upload', async (req, res) => {
           const columns = Object.keys(op.opData);
           const values = Object.values(op.opData);
           const placeholders = columns.map((_, i) => `$${i + 2}`).join(', ');
-          const updateSet = columns.map((col, i) => `${col} = $${i + 2}`).join(', ');
+          const updateSet = columns
+            .map((col, i) => `${col} = $${i + 2}`)
+            .join(', ');
           await client.query(
             `INSERT INTO ${op.table} (id, ${columns.join(', ')})
              VALUES ($1, ${placeholders})
@@ -254,7 +257,9 @@ app.post('/api/powersync/upload', async (req, res) => {
         case 'PATCH': {
           const columns = Object.keys(op.opData!);
           const values = Object.values(op.opData!);
-          const setClause = columns.map((col, i) => `${col} = $${i + 2}`).join(', ');
+          const setClause = columns
+            .map((col, i) => `${col} = $${i + 2}`)
+            .join(', ');
           await client.query(
             `UPDATE ${op.table} SET ${setClause} WHERE id = $1`,
             [op.id, ...values]
@@ -262,10 +267,7 @@ app.post('/api/powersync/upload', async (req, res) => {
           break;
         }
         case 'DELETE': {
-          await client.query(
-            `DELETE FROM ${op.table} WHERE id = $1`,
-            [op.id]
-          );
+          await client.query(`DELETE FROM ${op.table} WHERE id = $1`, [op.id]);
           break;
         }
       }

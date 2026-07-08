@@ -35,7 +35,7 @@ Follow this sequence exactly. **Do not skip ahead to app code.**
 
 1. **Confirm the path.** PowerSync Cloud + Supabase + your platform.
 
-2. **Write credentials to `.env` immediately.** As soon as Supabase project details are available, write `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `PS_DATABASE_URI`, and `POWERSYNC_URL` to `.env`. Both `service.yaml` (via `!env` tags) and app code depend on these values. For how to get `POWERSYNC_URL`, see `references/powersync-cli.md` § "Getting POWERSYNC_URL". New Supabase projects use publishable keys (prefixed `sb_publishable_…`) instead of the legacy anon key — use it as the value for `SUPABASE_ANON_KEY`.
+2. **Write credentials to `.env` immediately.** As soon as Supabase project details are available, write `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `PS_DATABASE_URI`, and `POWERSYNC_URL` to `.env`. Both `service.yaml` (via `!env` tags) and app code depend on these values. For how to get `POWERSYNC_URL`, see `references/powersync-cli.md` § "Getting POWERSYNC*URL". New Supabase projects use publishable keys (prefixed `sb_publishable*…`) instead of the legacy anon key — use it as the value for `SUPABASE_ANON_KEY`.
 
 3. **Run the Supabase publication SQL.** The publication must exist before PowerSync connects to the database. See `references/supabase-auth.md` § "Supabase Database Setup" for the exact SQL. Present it to the operator and ask them to confirm.
 
@@ -78,9 +78,11 @@ Only after Phase 2 is complete.
 9. **Install SDK packages.** Load the SDK reference file for your platform — see the SDK table in `SKILL.md`.
 
 10. **Define the client schema.** Generate from deployed sync config:
+
     ```bash
     powersync generate schema --output=ts --output-path=./src/schema.ts
     ```
+
     Or write manually — but never define the `id` column (it is automatic).
 
 11. **Implement the backend connector.** See `references/supabase-auth.md` § "fetchCredentials()" and § "uploadData()" for complete implementations including error handling strategy.

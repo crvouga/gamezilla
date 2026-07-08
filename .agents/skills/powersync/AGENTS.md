@@ -13,13 +13,13 @@ If a sentence is ambiguous, default to the operator interpretation.
 
 **Follow this file's playbook in order.** Do not skip ahead, assume defaults, or substitute your own architecture to "save time."
 
-| Do | Don't |
-|----|-----|
-| **Ask the operator** before doing anything: (1) **Cloud or self-hosted**, (2) **which database** (Supabase, Postgres, MongoDB, MySQL, MSSQL, or Convex), and (3) **only if not Supabase**, whether they have a backend API or need to build one. Use the **PowerSync CLI** by default for all operations. | Assume any answer, pick a default (e.g. Supabase, Postgres, self-hosted Docker), skip a question, or ask about a backend API when the operator already chose Supabase (Supabase *is* the backend). Do not hand-write config files or use the dashboard unless the operator explicitly says they cannot use the CLI. |
-| Use the **PowerSync CLI** to scaffold, link (if cloud hosted), and deploy (`references/powersync-cli.md`) | Hand-write `service.yaml` / `sync-config.yaml` from scratch or invent compose files **unless** the operator explicitly says they cannot use the CLI |
-| **Stop and ask** when a step needs credentials or interactive Cloud login you cannot perform | Silently build an alternate stack (e.g. manual Docker) without operator confirmation |
-| Complete **backend readiness** (deployed sync config, auth, publication) **before** app code | Start React/client integration while sync is still unconfigured |
-| Use **Sync Streams** (`config: edition: 3`) for new projects | Generate legacy Sync Rules YAML for new projects |
+| Do                                                                                                                                                                                                                                                                                                        | Don't                                                                                                                                                                                                                                                                                                               |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Ask the operator** before doing anything: (1) **Cloud or self-hosted**, (2) **which database** (Supabase, Postgres, MongoDB, MySQL, MSSQL, or Convex), and (3) **only if not Supabase**, whether they have a backend API or need to build one. Use the **PowerSync CLI** by default for all operations. | Assume any answer, pick a default (e.g. Supabase, Postgres, self-hosted Docker), skip a question, or ask about a backend API when the operator already chose Supabase (Supabase _is_ the backend). Do not hand-write config files or use the dashboard unless the operator explicitly says they cannot use the CLI. |
+| Use the **PowerSync CLI** to scaffold, link (if cloud hosted), and deploy (`references/powersync-cli.md`)                                                                                                                                                                                                 | Hand-write `service.yaml` / `sync-config.yaml` from scratch or invent compose files **unless** the operator explicitly says they cannot use the CLI                                                                                                                                                                 |
+| **Stop and ask** when a step needs credentials or interactive Cloud login you cannot perform                                                                                                                                                                                                              | Silently build an alternate stack (e.g. manual Docker) without operator confirmation                                                                                                                                                                                                                                |
+| Complete **backend readiness** (deployed sync config, auth, publication) **before** app code                                                                                                                                                                                                              | Start React/client integration while sync is still unconfigured                                                                                                                                                                                                                                                     |
+| Use **Sync Streams** (`config: edition: 3`) for new projects                                                                                                                                                                                                                                              | Generate legacy Sync Rules YAML for new projects                                                                                                                                                                                                                                                                    |
 
 Shortcut requested? Operator must say so explicitly (e.g. "no CLI, dashboard only").
 
@@ -49,17 +49,16 @@ Before running any of them:
 
 If your harness has a project memory or persistent notes file, record these once so the operator is not re-asked each session and you do not re-discover paths each turn:
 
-| What to save | Example | Why |
-|--------------|---------|-----|
-| CLI invocation | `powersync` on PATH, `npx powersync@<v>`, project-local install | Skip reinstall / binary hunt |
-| Config dir + sync-config path | `powersync/sync-config.yaml`, or non-default `--directory` | Skip re-globbing |
-| Authorized instances + env | `<id-A>=dev (safe)`, `<id-B>=prod (ask first)` | Cite this before mutating commands |
-| Allowed scope | `sync-config only` vs `sync-config + service-config authorized` | Default sync-config only until operator broadens |
+| What to save                  | Example                                                         | Why                                              |
+| ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------ |
+| CLI invocation                | `powersync` on PATH, `npx powersync@<v>`, project-local install | Skip reinstall / binary hunt                     |
+| Config dir + sync-config path | `powersync/sync-config.yaml`, or non-default `--directory`      | Skip re-globbing                                 |
+| Authorized instances + env    | `<id-A>=dev (safe)`, `<id-B>=prod (ask first)`                  | Cite this before mutating commands               |
+| Allowed scope                 | `sync-config only` vs `sync-config + service-config authorized` | Default sync-config only until operator broadens |
 
 Before acting on a saved entry naming a specific instance, file, or binary: verify it still matches reality. Stale → update the memory, do not act on it. Saved "prod = do not touch" + operator now asks for prod deploy → treat as scope expansion, confirm explicitly.
 
 No persistent memory in your harness? Ask the operator at session start and keep answers in the active conversation.
-
 
 ## Always Use the PowerSync CLI
 
@@ -79,7 +78,7 @@ When the task is to add PowerSync to an app, follow this sequence:
 3. **Supabase online or local?** If unclear from project/env, ask before choosing connection strings, auth config, or references.
 4. Collect required inputs before coding (see "Required Inputs Below").
 5. **Load `references/sync-config.md`** and generate sync config. Source DB setup (publication SQL, replication, CDC) → `references/powersync-service.md` § "Source Database Setup". Without sync config, nothing syncs.
-6. **Persist credentials to `.env` immediately.** When a CLI or dashboard returns DB credentials (host, port, db name, username, password, URI), write them to `.env` *before* deploying config or writing app code. `service.yaml` (`!env`) and app code (`fetchCredentials`) read from there. Minimum: `POWERSYNC_URL`, the Postgres URI (e.g. `PS_DATABASE_URI`), and any backend-specific keys.
+6. **Persist credentials to `.env` immediately.** When a CLI or dashboard returns DB credentials (host, port, db name, username, password, URI), write them to `.env` _before_ deploying config or writing app code. `service.yaml` (`!env`) and app code (`fetchCredentials`) read from there. Minimum: `POWERSYNC_URL`, the Postgres URI (e.g. `PS_DATABASE_URI`), and any backend-specific keys.
 7. **Create/link the instance and deploy config before app code.** CLI only — do not hand-create config files.
    - Cloud: `powersync init cloud` → edit config → `powersync link cloud --create` → `powersync deploy`
    - Self-hosted: `powersync init self-hosted` → `powersync docker configure` → `powersync docker start`
@@ -107,6 +106,7 @@ These apply to all paths. Domain-specific pitfalls are in their reference files 
 - `powersync pull instance` silently overwrites local `service.yaml` + `sync-config.yaml`. Back up before pulling.
 
 Additional footguns by area (do not load unless working there):
+
 - **Config/CLI:** `references/powersync-cli.md`, `references/powersync-service.md`, `references/sync-config.md`
 - **Terraform/IaC:** `references/terraform.md` (credential handling, `sync_config_content` wrapper, do not mix CLI deploys with Terraform-managed instances)
 - **JS/TS SDK:** `references/sdks/powersync-js.md` (type-only imports, `connect()` semantics, `transaction.complete()`)
@@ -153,7 +153,7 @@ Missing item? Finish service setup first. Use the CLI to verify and complete. Fo
 
 ## First Response for `Syncing...`
 
-Follow `references/powersync-debug.md` § "First Response When the UI Is Stuck on `Syncing...`" — verify backend readiness (endpoint URL, DB connection, sync config, client auth, replication/publication) *before* inspecting frontend code or requesting console logs.
+Follow `references/powersync-debug.md` § "First Response When the UI Is Stuck on `Syncing...`" — verify backend readiness (endpoint URL, DB connection, sync config, client auth, replication/publication) _before_ inspecting frontend code or requesting console logs.
 
 ## Setup Paths
 

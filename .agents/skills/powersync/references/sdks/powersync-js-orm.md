@@ -11,10 +11,10 @@ metadata:
 
 PowerSync provides official drivers for both Drizzle and Kysely. These let you write type-safe queries that work with PowerSync's reactive hooks (`useQuery`, `useSuspenseQuery`) via the `CompilableQuery` interface.
 
-| ORM | Package | Docs |
-|-----|---------|------|
+| ORM     | Package                     | Docs                                                                                   |
+| ------- | --------------------------- | -------------------------------------------------------------------------------------- |
 | Drizzle | `@powersync/drizzle-driver` | [Drizzle Setup](https://docs.powersync.com/client-sdks/orms/javascript-web/drizzle.md) |
-| Kysely | `@powersync/kysely-driver` | [Kysely Setup](https://docs.powersync.com/client-sdks/orms/javascript-web/kysely.md) |
+| Kysely  | `@powersync/kysely-driver`  | [Kysely Setup](https://docs.powersync.com/client-sdks/orms/javascript-web/kysely.md)   |
 
 ## Drizzle
 
@@ -32,7 +32,7 @@ export const todos = sqliteTable('todos', {
   id: text('id').primaryKey(),
   description: text('description').notNull(),
   completed: integer('completed').notNull().default(0),
-  listId: text('list_id')
+  listId: text('list_id'),
 });
 
 // Create Drizzle instance from the PowerSync database
@@ -65,7 +65,12 @@ import { wrapPowerSyncWithKysely } from '@powersync/kysely-driver';
 
 // Define types for Kysely
 interface Database {
-  todos: { id: string; description: string; completed: number; list_id: string };
+  todos: {
+    id: string;
+    description: string;
+    completed: number;
+    list_id: string;
+  };
   lists: { id: string; name: string; owner_id: string };
 }
 
@@ -83,7 +88,10 @@ const activeTodos = await kyselyDb
 ### Kysely with useQuery
 
 ```ts
-const query = kyselyDb.selectFrom('todos').selectAll().where('completed', '=', 0);
+const query = kyselyDb
+  .selectFrom('todos')
+  .selectAll()
+  .where('completed', '=', 0);
 const { data } = useQuery(query);
 ```
 

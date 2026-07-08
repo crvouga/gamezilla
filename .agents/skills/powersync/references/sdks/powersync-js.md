@@ -22,47 +22,48 @@ Core patterns and guidance shared across all PowerSync JavaScript/TypeScript tar
 - [Common Pitfalls](#common-pitfalls)
 
 **TypeScript-only exports:** `PowerSyncBackendConnector`, `PowerSyncCredentials`, and `AbstractPowerSyncDatabase` are **TypeScript interfaces only** — they exist at compile time for type checking but have no runtime presence. This means:
+
 - Always use `import type` for these (e.g. `import type { PowerSyncBackendConnector } from '@powersync/web'`)
 - Runtime checks like `require('@powersync/web').PowerSyncBackendConnector` will return `undefined` — this is expected, not a bug
 - Only `UpdateType` is a runtime value (enum) and uses a regular import
 - Bundlers like Vite will error if you import these without `type` since they try to resolve them as values
 
-| Resource | Description |
-|----------|-------------|
-| [JS/TS Reference](https://docs.powersync.com/client-sdks/reference/javascript-web.md) | Full SDK documentation for Web, consult for details beyond the inline examples. |
-| [Web SDK API Reference](https://powersync-ja.github.io/powersync-js/web-sdk) | Full API reference for `@powersync/web`, consult only when the inline examples don't cover your case. |
-| [React Native Reference](https://docs.powersync.com/client-sdks/reference/react-native.md) | Full SDK documentation for React Native, consult for details beyond the inline examples. |
-| [React Native SDK API Reference](https://powersync-ja.github.io/powersync-js/react-native-sdk) | Full API reference for `@powersync/react-native`, consult only when the inline examples don't cover your case. |
-| [Capacitor Reference](https://docs.powersync.com/client-sdks/reference/capacitor.md) | Full SDK documentation for Capacitor, consult for details beyond the inline examples. |
-| [Capacitor SDK API Reference](https://powersync-ja.github.io/powersync-js/capacitor-sdk) | Full API reference for `@powersync/capacitor`, consult only when the inline examples don't cover your case. |
-| [Node.js Reference](https://docs.powersync.com/client-sdks/reference/node.md) | Full SDK documentation for Node.js, consult for details beyond the inline examples. |
-| [Node.js SDK API Reference](https://powersync-ja.github.io/powersync-js/node-sdk) | Full API reference for `@powersync/node`, consult only when the inline examples don't cover your case. |
-| [Supported Platforms - JS SDK](https://docs.powersync.com/resources/supported-platform.md#javascript-web-sdk) | Supported platforms and features, consult for compatibility details. |
+| Resource                                                                                                      | Description                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| [JS/TS Reference](https://docs.powersync.com/client-sdks/reference/javascript-web.md)                         | Full SDK documentation for Web, consult for details beyond the inline examples.                                |
+| [Web SDK API Reference](https://powersync-ja.github.io/powersync-js/web-sdk)                                  | Full API reference for `@powersync/web`, consult only when the inline examples don't cover your case.          |
+| [React Native Reference](https://docs.powersync.com/client-sdks/reference/react-native.md)                    | Full SDK documentation for React Native, consult for details beyond the inline examples.                       |
+| [React Native SDK API Reference](https://powersync-ja.github.io/powersync-js/react-native-sdk)                | Full API reference for `@powersync/react-native`, consult only when the inline examples don't cover your case. |
+| [Capacitor Reference](https://docs.powersync.com/client-sdks/reference/capacitor.md)                          | Full SDK documentation for Capacitor, consult for details beyond the inline examples.                          |
+| [Capacitor SDK API Reference](https://powersync-ja.github.io/powersync-js/capacitor-sdk)                      | Full API reference for `@powersync/capacitor`, consult only when the inline examples don't cover your case.    |
+| [Node.js Reference](https://docs.powersync.com/client-sdks/reference/node.md)                                 | Full SDK documentation for Node.js, consult for details beyond the inline examples.                            |
+| [Node.js SDK API Reference](https://powersync-ja.github.io/powersync-js/node-sdk)                             | Full API reference for `@powersync/node`, consult only when the inline examples don't cover your case.         |
+| [Supported Platforms - JS SDK](https://docs.powersync.com/resources/supported-platform.md#javascript-web-sdk) | Supported platforms and features, consult for compatibility details.                                           |
 
 Framework-specific files (load alongside this file):
 
-| File | Use when... |
-|------|-------------|
-| `references/sdks/powersync-js-react.md` | React web app or Next.js |
-| `references/sdks/powersync-js-react-native.md` | React Native, Expo, or Expo Go |
-| `references/sdks/powersync-js-vue.md` | Vue or Nuxt |
-| `references/sdks/powersync-js-node.md` | Node.js CLI/server or Electron |
-| `references/sdks/powersync-js-tanstack.md` | TanStack Query or TanStack DB (any framework) |
+| File                                           | Use when...                                   |
+| ---------------------------------------------- | --------------------------------------------- |
+| `references/sdks/powersync-js-react.md`        | React web app or Next.js                      |
+| `references/sdks/powersync-js-react-native.md` | React Native, Expo, or Expo Go                |
+| `references/sdks/powersync-js-vue.md`          | Vue or Nuxt                                   |
+| `references/sdks/powersync-js-node.md`         | Node.js CLI/server or Electron                |
+| `references/sdks/powersync-js-tanstack.md`     | TanStack Query or TanStack DB (any framework) |
 
 ## Package Coverage
 
-| Need | Package |
-|------|---------|
-| Web browser | `@powersync/web` |
-| React Native | `@powersync/react-native` |
-| Node.js/CLI | `@powersync/node` |
-| Capacitor | `@powersync/capacitor` |
-| React hooks | `@powersync/react` |
-| Vue composables | `@powersync/vue` |
-| Nuxt module | `@powersync/nuxt` |
-| TanStack Query (React) | `@powersync/tanstack-react-query` |
-| TanStack DB (multi-framework) | `@tanstack/powersync-db-collection` |
-| ORM | `@powersync/drizzle-driver` or `@powersync/kysely-driver` |
+| Need                          | Package                                                   |
+| ----------------------------- | --------------------------------------------------------- |
+| Web browser                   | `@powersync/web`                                          |
+| React Native                  | `@powersync/react-native`                                 |
+| Node.js/CLI                   | `@powersync/node`                                         |
+| Capacitor                     | `@powersync/capacitor`                                    |
+| React hooks                   | `@powersync/react`                                        |
+| Vue composables               | `@powersync/vue`                                          |
+| Nuxt module                   | `@powersync/nuxt`                                         |
+| TanStack Query (React)        | `@powersync/tanstack-react-query`                         |
+| TanStack DB (multi-framework) | `@tanstack/powersync-db-collection`                       |
+| ORM                           | `@powersync/drizzle-driver` or `@powersync/kysely-driver` |
 
 ## Quick Setup
 
@@ -110,7 +111,7 @@ const todos = new Table(
   {
     // Do NOT define 'id' — PowerSync creates it automatically as TEXT PRIMARY KEY
     list_id: column.text,
-    created_at: column.text,   // Store dates as ISO strings — no date type
+    created_at: column.text, // Store dates as ISO strings — no date type
     description: column.text,
     completed: column.integer, // Store booleans as 0/1 — no boolean type
   },
@@ -152,7 +153,7 @@ const todos = new Table(
 // Track metadata attached to individual writes
 const tasks = new Table(
   { title: column.text },
-  { trackMetadata: true }  // Adds _metadata column, available as op.metadata in uploadData
+  { trackMetadata: true } // Adds _metadata column, available as op.metadata in uploadData
 );
 ```
 
@@ -228,14 +229,18 @@ Two ways to consume the upload queue:
 // getNextCrudTransaction — exactly one transaction's worth, all entries share transactionId
 const tx = await db.getNextCrudTransaction();
 if (tx) {
-  for (const op of tx.crud) { /* op.transactionId is the same for all */ }
+  for (const op of tx.crud) {
+    /* op.transactionId is the same for all */
+  }
   await tx.complete();
 }
 
 // getCrudBatch — up to N entries, may span multiple transactions
 const batch = await db.getCrudBatch(100);
 if (batch) {
-  for (const op of batch.crud) { /* may have different transactionIds */ }
+  for (const op of batch.crud) {
+    /* may have different transactionIds */
+  }
   await batch.complete();
   // batch.haveMore === true means there are more entries waiting
 }
@@ -247,18 +252,19 @@ if (batch) {
 
 ```ts
 interface CrudEntry {
-  clientId: number;                     // Auto-incrementing local ID
-  id: string;                           // Row ID
-  op: UpdateType;                       // PUT | PATCH | DELETE
-  opData?: Record<string, any>;         // Changed columns — undefined for DELETE
+  clientId: number; // Auto-incrementing local ID
+  id: string; // Row ID
+  op: UpdateType; // PUT | PATCH | DELETE
+  opData?: Record<string, any>; // Changed columns — undefined for DELETE
   previousValues?: Record<string, any>; // Previous values — requires trackPreviousValues on table
-  table: string;                        // Table name
-  transactionId?: number;               // Groups ops from the same writeTransaction()
-  metadata?: string;                    // Custom metadata — requires trackMetadata on table
+  table: string; // Table name
+  transactionId?: number; // Groups ops from the same writeTransaction()
+  metadata?: string; // Custom metadata — requires trackMetadata on table
 }
 ```
 
 Op types (`UpdateType` enum):
+
 - `PUT` — full insert or replace (new row, or complete overwrite)
 - `PATCH` — partial update (`opData` contains only the changed columns)
 - `DELETE` — deletion (`opData` is undefined)
@@ -271,7 +277,10 @@ See [Instantiate the PowerSync Database](https://docs.powersync.com/client-sdks/
 
 ```ts
 // 1. Instantiate — schema applied at construction, no migrations
-const db = new PowerSyncDatabase({ schema, database: { dbFilename: 'app.db' } });
+const db = new PowerSyncDatabase({
+  schema,
+  database: { dbFilename: 'app.db' },
+});
 
 // 2. Connect — starts sync stream and uploadData loop in background
 db.connect(connector);
@@ -293,12 +302,12 @@ const db = new PowerSyncDatabase({
   schema,
   database: {
     dbFilename: 'app.db',
-    debugMode: true        // Logs all SQL to Chrome DevTools Performance timeline
+    debugMode: true, // Logs all SQL to Chrome DevTools Performance timeline
   },
   flags: {
-    useWebWorker: true,    // Default true — runs DB in a web worker
-    enableMultiTabs: true  // Default true — shares sync worker across tabs
-  }
+    useWebWorker: true, // Default true — runs DB in a web worker
+    enableMultiTabs: true, // Default true — shares sync worker across tabs
+  },
 });
 ```
 
@@ -306,14 +315,14 @@ Multi-tab behavior: By default the web SDK uses a shared sync worker so all tabs
 
 #### VFS Options
 
-| VFS Option                | Description         | Reference URL                                                                                           |
-|---------------------------|---------------------|---------------------------------------------------------------------------------------------------------|
-| IDBBatchAtomicVFS         | Default             | [Link](https://docs.powersync.com/client-sdks/reference/javascript-web.md#1-idbbatchatomicvfs-default)     |
-| OPFSCoopSyncVFS           | Recommended         | [Link](https://docs.powersync.com/client-sdks/reference/javascript-web.md#2-opfs-based-alternatives)       |
+| VFS Option        | Description | Reference URL                                                                                          |
+| ----------------- | ----------- | ------------------------------------------------------------------------------------------------------ |
+| IDBBatchAtomicVFS | Default     | [Link](https://docs.powersync.com/client-sdks/reference/javascript-web.md#1-idbbatchatomicvfs-default) |
+| OPFSCoopSyncVFS   | Recommended | [Link](https://docs.powersync.com/client-sdks/reference/javascript-web.md#2-opfs-based-alternatives)   |
 
 ```ts
 // Recommended — more reliable across browsers including Safari
-import { WASQLiteOpenFactory, WASQLiteVFS } from '@powersync/web'
+import { WASQLiteOpenFactory, WASQLiteVFS } from '@powersync/web';
 
 const db = new PowerSyncDatabase({
   schema,
@@ -321,7 +330,7 @@ const db = new PowerSyncDatabase({
     dbFilename: 'app.db',
     vfs: WASQLiteVFS.OPFSCoopSyncVFS, // default: IDBBatchAtomicVFS
   }),
-})
+});
 ```
 
 Safari: Requires `OPFSCoopSyncVFS` for stable multi-tab, or set `useWebWorker: false`. See [Web SDK Reference](https://docs.powersync.com/client-sdks/reference/javascript-web.md) for full configuration options.
@@ -360,8 +369,8 @@ With `rowComparator`: uses differential watch internally. Only rows that actuall
 const { data: lists } = useQuery('SELECT * FROM lists', [], {
   rowComparator: {
     keyBy: (row) => row.id,
-    compareBy: (row) => JSON.stringify(row)
-  }
+    compareBy: (row) => JSON.stringify(row),
+  },
 });
 
 const ListItem = React.memo(({ list }) => <Text>{list.name}</Text>);
@@ -373,7 +382,9 @@ const ListItem = React.memo(({ list }) => <Text>{list.name}</Text>);
 Runs the query once after sync completes — no live watch. Useful for aggregations or reports.
 
 ```ts
-const { data } = useQuery('SELECT COUNT(*) as total FROM lists', [], { runQueryOnce: true });
+const { data } = useQuery('SELECT COUNT(*) as total FROM lists', [], {
+  runQueryOnce: true,
+});
 ```
 
 #### streams option
@@ -382,7 +393,7 @@ Gates the query on specific named sync streams having synced before executing.
 
 ```ts
 const { data } = useQuery('SELECT * FROM lists', [], {
-  streams: [{ name: 'lists', parameters: { userId }, waitForStream: true }]
+  streams: [{ name: 'lists', parameters: { userId }, waitForStream: true }],
 });
 // Returns isLoading: true until the 'lists' stream has synced
 ```
@@ -405,7 +416,9 @@ const { data } = useQuery(query);
 
 ```ts
 // Get all
-const todos = await db.getAll('SELECT * FROM todos WHERE list_id = ?', [listId]);
+const todos = await db.getAll('SELECT * FROM todos WHERE list_id = ?', [
+  listId,
+]);
 
 // Get one (throws if not found)
 const todo = await db.get('SELECT * FROM todos WHERE id = ?', [id]);
@@ -424,14 +437,16 @@ for await (const result of db.watchWithAsyncGenerator('SELECT * FROM lists')) {
 }
 
 // Or with a differential watch (only emits on actual changes)
-const watchedQuery = db.customQuery({
-  compile: () => ({ sql: 'SELECT * FROM lists', parameters: [] }),
-  execute: () => db.getAll('SELECT * FROM lists')
-}).watch({ reportFetching: true });
+const watchedQuery = db
+  .customQuery({
+    compile: () => ({ sql: 'SELECT * FROM lists', parameters: [] }),
+    execute: () => db.getAll('SELECT * FROM lists'),
+  })
+  .watch({ reportFetching: true });
 
 const dispose = watchedQuery.registerListener({
   onData: (data) => console.log(data),
-  onError: (err) => console.error(err)
+  onError: (err) => console.error(err),
 });
 
 // Later:
@@ -462,11 +477,13 @@ await db.writeTransaction(async (tx) => {
 ```
 
 When to use `writeTransaction`:
+
 - Multiple operations that must succeed or fail together
 - Cascading deletes, multi-table updates
 - Any situation where partial completion would leave data inconsistent
 
 When NOT to use:
+
 - Single operations — `db.execute()` is simpler and faster
 - Read-only queries — use `readTransaction` or `getAll`/`get`
 
@@ -486,11 +503,16 @@ PowerSync auto-creates an `id TEXT` column on every table — do not declare it 
 
 ```ts
 // SQLite uuid() function is available
-await db.execute('INSERT INTO todos (id, description) VALUES (uuid(), ?)', ['Buy milk']);
+await db.execute('INSERT INTO todos (id, description) VALUES (uuid(), ?)', [
+  'Buy milk',
+]);
 
 // Or generate in JS
 import { v4 as uuidv4 } from 'uuid';
-await db.execute('INSERT INTO todos (id, description) VALUES (?, ?)', [uuidv4(), 'Buy milk']);
+await db.execute('INSERT INTO todos (id, description) VALUES (?, ?)', [
+  uuidv4(),
+  'Buy milk',
+]);
 ```
 
 ### Lock Behavior
@@ -534,10 +556,16 @@ const status = useStatus();
 const status = useStatus();
 
 if (status.dataFlowStatus?.uploadError) {
-  return <Banner>Failed to save changes: {status.dataFlowStatus.uploadError.message}</Banner>;
+  return (
+    <Banner>
+      Failed to save changes: {status.dataFlowStatus.uploadError.message}
+    </Banner>
+  );
 }
 if (status.dataFlowStatus?.downloadError) {
-  return <Banner>Sync error: {status.dataFlowStatus.downloadError.message}</Banner>;
+  return (
+    <Banner>Sync error: {status.dataFlowStatus.downloadError.message}</Banner>
+  );
 }
 ```
 
@@ -560,7 +588,7 @@ db.registerListener({
         connected: status.connected,
       });
     }
-  }
+  },
 });
 ```
 
@@ -649,11 +677,11 @@ const { data: lists } = useQuery('SELECT * FROM lists', [], {
     {
       name: 'lists',
       parameters: { userId },
-      waitForStream: true,  // hold isLoading: true until this stream syncs
+      waitForStream: true, // hold isLoading: true until this stream syncs
       priority: 1,
       ttl: 3600,
-    }
-  ]
+    },
+  ],
 });
 ```
 
@@ -663,7 +691,7 @@ const { data: lists } = useQuery('SELECT * FROM lists', [], {
 // Subscribe directly
 const subscription = await db.syncStream('lists', { userId }).subscribe({
   priority: 1,
-  ttl: 3600
+  ttl: 3600,
 });
 
 // Wait for this specific stream to sync
@@ -688,10 +716,10 @@ subscription.unsubscribe();
 
 These advanced topics are in separate files — load only when needed:
 
-| Topic | File | Load when… |
-|-------|------|-----------|
-| Drizzle / Kysely ORM | `references/sdks/powersync-js-orm.md` | Using Drizzle or Kysely for type-safe queries |
-| Raw Tables | `references/raw-tables.md` | Need native SQLite tables (SDK-agnostic — JS, Dart, Kotlin, Swift, Rust) |
+| Topic                | File                                  | Load when…                                                               |
+| -------------------- | ------------------------------------- | ------------------------------------------------------------------------ |
+| Drizzle / Kysely ORM | `references/sdks/powersync-js-orm.md` | Using Drizzle or Kysely for type-safe queries                            |
+| Raw Tables           | `references/raw-tables.md`            | Need native SQLite tables (SDK-agnostic — JS, Dart, Kotlin, Swift, Rust) |
 
 ## JS Internals
 
@@ -753,7 +781,9 @@ logger.setHandler((messages, context) => {
 
   const messageArray = Array.from(messages);
   const mainMessage = String(messageArray[0] || '');
-  const extra = messageArray.slice(1).reduce((acc, curr) => ({ ...acc, ...curr }), {});
+  const extra = messageArray
+    .slice(1)
+    .reduce((acc, curr) => ({ ...acc, ...curr }), {});
   const level = context.level.name.toLowerCase();
 
   // Capture everything as breadcrumbs for pre-error context
@@ -761,7 +791,7 @@ logger.setHandler((messages, context) => {
     message: mainMessage,
     level: level as Sentry.SeverityLevel,
     data: extra,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 
   // Only send warn/error to the logging service
@@ -792,7 +822,7 @@ db.registerListener({
         sdkVersion: db.sdkVersion,
       });
     }
-  }
+  },
 });
 ```
 
@@ -803,7 +833,7 @@ Context to include in logs: user/session ID, SDK version (`db.sdkVersion`), `las
 ```ts
 const db = new PowerSyncDatabase({
   schema,
-  database: { dbFilename: 'app.db', debugMode: true }
+  database: { dbFilename: 'app.db', debugMode: true },
 });
 // All SQL appears in Chrome DevTools → Performance tab timeline
 ```
@@ -814,7 +844,6 @@ const db = new PowerSyncDatabase({
 console.log(db.currentStatus);
 // { connected, connecting, lastSyncedAt, hasSynced, isSyncing, downloadProgress }
 ```
-
 
 ## Common Pitfalls
 
