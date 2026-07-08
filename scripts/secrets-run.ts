@@ -123,7 +123,7 @@ if (isCi) {
       'secrets-run: CI expected Infisical OIDC secrets in the environment ' +
         `(secrets-auth action, env=${env}). Missing markers: ` +
         `${INJECTED_SECRET_MARKERS.join(', ')}. ` +
-        'If Infisical env `prd` is empty, run `bun run scripts/migrate-vault-prd-to-infisical.ts`.'
+        'Ensure the Infisical environment is populated (dashboard or `bun run infra provision`).'
     );
     process.exit(1);
   }

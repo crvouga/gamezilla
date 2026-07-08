@@ -24,6 +24,7 @@ const SKIP_DIRS = new Set([
   'coverage',
   '.expo',
   '.wrangler',
+  '.qa-dist-prodcheck',
   'playwright-report',
   'test-results',
 ]);
