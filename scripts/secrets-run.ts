@@ -100,14 +100,38 @@ if (env === 'prd' && !childArgs.some((a) => a.includes('infra'))) {
   );
 }
 
-const hasInjectedSecrets = Object.keys(process.env).some((key) => {
-  if (key.startsWith('SECRETS_')) return false;
-  if (key.startsWith('TURBO_')) return true;
-  if (key === 'DATABASE_URL') return true;
-  return false;
-});
+const isCi =
+  process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true';
 
-if (hasInjectedSecrets || !which('infisical')) {
+/** Env vars Infisical OIDC injects before this script runs in CI. */
+const INJECTED_SECRET_MARKERS = [
+  'DATABASE_URL',
+  'CLOUDFLARE_API_TOKEN',
+  'STRIPE_SECRET_KEY',
+  'EXPO_TOKEN',
+] as const;
+
+function hasInjectedSecrets(): boolean {
+  return INJECTED_SECRET_MARKERS.some((key) => {
+    const value = process.env[key];
+    return typeof value === 'string' && value.trim().length > 0;
+  });
+}
+
+if (isCi) {
+  if (!hasInjectedSecrets()) {
+    console.error(
+      'secrets-run: CI expected Infisical OIDC secrets in the environment ' +
+        `(secrets-auth action, env=${env}). Missing markers: ` +
+        `${INJECTED_SECRET_MARKERS.join(', ')}. ` +
+        'If Infisical env `prd` is empty, run `bun run scripts/migrate-vault-prd-to-infisical.ts`.'
+    );
+    process.exit(1);
+  }
+  process.exit(runWithInjectedEnv(childArgs));
+}
+
+if (hasInjectedSecrets() || !which('infisical')) {
   process.exit(runWithInjectedEnv(childArgs));
 }
 

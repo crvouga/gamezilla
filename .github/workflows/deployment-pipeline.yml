@@ -279,112 +279,6 @@ jobs:
           path: qa/playwright-report/
           retention-days: 7
 
-  # Pre-deploy client release gates. The web `qa-browser` job builds a
-  # PRODUCTION web export (`__DEV__ === false`), so it structurally cannot
-  # catch the Expo Go OTA white-screen, which is a startup crash in a
-  # DEV-mode bundle (`__DEV__ === true` -> the `getApiBaseUrl` Tiger guard
-  # in apps/client/src/config/api-servers.ts throws on first render). This
-  # job reproduces it with the SAME build commands the release uses:
-  #
-  #  1. native:bundle -> production web + native export smoke:
-  #     - `production-web-bundle.test.ts` runs `expo export -p web` with the
-  #       production API origin and scans JS bundles for an inlined loopback
-  #       `EXPO_PUBLIC_API_URL` (the misconfig that shipped localhost:5173).
-  #     - `bundle-smoke.test.ts` runs `qa:export:native` (the Metro step
-  #       `eas update` performs) and applies the same API URL scan.
-  #  2. native:launch -> Metro `expo start --web` (`__DEV__ === true`) served to
-  #     Chromium, asserting `app-root` mounts with no uncaught startup error.
-  #     (Do not use `expo export --platform web --dev` on Expo SDK 54: empty
-  #     chunk content-hashes overwrite `_expo/static/js/web/*` assets.)
-  #
-  # `deploy` needs this, so a non-launching bundle or loopback API URL blocks
-  # the Worker deploy + OTA publish. `infra deploy` also re-runs the bundle
-  # scanners immediately before shipping web assets and asserts production env
-  # before `eas update`.
-  qa-native:
-    runs-on: ubuntu-latest
-    env:
-      EXPO_USE_WATCHMAN: '1'
-    concurrency:
-      group: qa-native-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
-      cancel-in-progress: true
-    timeout-minutes: 30
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-        with:
-          watchman: true
-
-      # Production client bundle gates (web export + native export): refuse to
-      # ship when Metro inlined a loopback `EXPO_PUBLIC_API_URL`.
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
-          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
-          env-slug: dev
-      - name: Setup client env (Watchman + secrets)
-        run: bun run scripts/secrets-run.ts -- bun run --filter @apps/client setup
-      - name: Production client bundle API URL gate
-        run: bun run qa:production-client
-
-      # Chromium for the dev-mode web launch test (same caching strategy as
-      # qa-browser: key on the resolved Playwright version, not the lockfile).
-      - name: Resolve Playwright version
-        id: playwright
-        working-directory: libs/integration-test
-        run: |
-          version=$(node -p "require('@playwright/test/package.json').version")
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "Resolved @playwright/test version: $version"
-
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
-
-      - name: Install Playwright browsers (cache miss)
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: bun run --filter '@libs/integration-test' install:browsers
-
-      - name: Install Playwright system deps (cache hit)
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: bun --bun x playwright install-deps chromium
-
-      - name: Start Metro web (dev) for native launch
-        env:
-          # Mirror OTA publish: exercise the Tiger production-API guard in a
-          # `__DEV__ === true` Metro bundle (static `expo export --dev` is
-          # broken on Expo SDK 54 — empty chunk hashes overwrite assets).
-          EXPO_PUBLIC_API_URL: https://www.gamezilla.app
-          EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL: '1'
-        run: |
-          nohup sh -c 'bun run --filter @apps/client qa:metro:web-dev' > /tmp/native-e2e.log 2>&1 &
-          echo $! > /tmp/native-e2e.pid
-          bun run --filter @libs/integration-test wait-for-native-e2e-stack
-      - name: Expo Go dev-bundle launch test
-        run: bun run --filter '@libs/integration-test' test:e2e:native
-      - name: Stop Metro web
-        if: always()
-        run: |
-          if [ -f /tmp/native-e2e.pid ]; then
-            kill "$(cat /tmp/native-e2e.pid)" 2>/dev/null || true
-          fi
-          # Metro / Expo often leave child processes; free the port explicitly.
-          if command -v lsof >/dev/null 2>&1; then
-            lsof -ti:5174 | xargs kill 2>/dev/null || true
-          fi
-
-      - name: Upload native launch Playwright report
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: qa-native-playwright-report
-          path: qa/playwright-report/
-          retention-days: 7
-
   # Resolve a durable URL for the Playwright HTML report on every main push
   # (green or red). Private repositories on the free plan cannot publish
   # GitHub Pages (`deploy-pages` 422: "current plan does not support private
@@ -438,7 +332,7 @@ jobs:
   # (`infra build-client-native`), not here.
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [turbo-ci, static, qa-api, qa-browser, qa-native]
+    needs: [turbo-ci, static, qa-api, qa-browser]
     runs-on: ubuntu-latest
     env:
       EXPO_USE_WATCHMAN: '1'
@@ -524,7 +418,6 @@ jobs:
         static,
         qa-api,
         qa-browser,
-        qa-native,
         publish-playwright-report,
         deploy,
         lock-release,

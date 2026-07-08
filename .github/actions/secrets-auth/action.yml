@@ -20,7 +20,7 @@ runs:
   using: composite
   steps:
     - name: Fetch secrets from Infisical
-      uses: Infisical/secrets-action@v1.0.15
+      uses: Infisical/secrets-action@v1.0.16
       with:
         method: oidc
         identity-id: ${{ inputs.identity-id }}

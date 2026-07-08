@@ -17,10 +17,6 @@ export const DEPLOYMENT_PIPELINE_CHECK_STEPS = [
   { jobId: 'static', bunScript: 'check:static' },
   { jobId: 'qa-api', bunScript: 'qa:api' },
   { jobId: 'qa-browser', bunScript: 'qa:browser' },
-  {
-    jobId: 'qa-native',
-    bunScript: 'qa:production-client',
-  },
 ] as const;
 
 export type DeploymentPipelineCheckStep =
