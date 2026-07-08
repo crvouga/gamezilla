@@ -12,6 +12,7 @@ metadata:
 Raw tables let PowerSync sync data directly into native SQLite tables you define, instead of storing data as JSON in `ps_data__<table>` and exposing it via views. This gives full SQLite control and better query performance. See [Raw Tables](https://docs.powersync.com/client-sdks/advanced/raw-tables.md) for the full reference.
 
 ## Table of Contents
+
 - [When to Use](#when-to-use-raw-tables)
 - [SDK Availability](#sdk-availability)
 - [Defining Raw Tables](#defining-raw-tables) (Inferred vs Explicit)
@@ -24,16 +25,16 @@ Raw tables let PowerSync sync data directly into native SQLite tables you define
 
 ## SDK Availability
 
-| SDK | Min Version | Package |
-|-----|-------------|---------|
-| JavaScript (Web) | 1.35.0 | `@powersync/web` |
-| JavaScript (React Native) | 1.31.0 | `@powersync/react-native` |
-| JavaScript (Node) | 0.18.0 | `@powersync/node` |
-| Dart / Flutter | 1.18.0 | `package:powersync` |
-| Kotlin | 1.11.0 | `com.powersync:core` |
-| Swift | 1.12.0 | `PowerSync` |
-| Rust | 0.0.4 | `powersync` |
-| .NET | — | **Not yet available** |
+| SDK                       | Min Version | Package                   |
+| ------------------------- | ----------- | ------------------------- |
+| JavaScript (Web)          | 1.35.0      | `@powersync/web`          |
+| JavaScript (React Native) | 1.31.0      | `@powersync/react-native` |
+| JavaScript (Node)         | 0.18.0      | `@powersync/node`         |
+| Dart / Flutter            | 1.18.0      | `package:powersync`       |
+| Kotlin                    | 1.11.0      | `com.powersync:core`      |
+| Swift                     | 1.12.0      | `PowerSync`               |
+| Rust                      | 0.0.4       | `powersync`               |
+| .NET                      | —           | **Not yet available**     |
 
 ## When to Use Raw Tables
 
@@ -61,14 +62,16 @@ CREATE TABLE IF NOT EXISTS todo_lists (
 When the local table structure matches the synced table, the SDK can infer `put`/`delete` statements automatically:
 
 **JavaScript:**
+
 ```ts
 const mySchema = new Schema({});
 mySchema.withRawTables({
-  todo_lists: { schema: {} }
+  todo_lists: { schema: {} },
 });
 ```
 
 **Dart:**
+
 ```dart
 const schema = Schema([], rawTables: [
   RawTable.inferred(name: 'todo_lists', schema: RawTableSchema()),
@@ -76,6 +79,7 @@ const schema = Schema([], rawTables: [
 ```
 
 **Kotlin:**
+
 ```kotlin
 val schema = Schema(listOf(
   RawTable(name = "todo_lists", schema = RawTableSchema())
@@ -83,12 +87,14 @@ val schema = Schema(listOf(
 ```
 
 **Swift:**
+
 ```swift
 let lists = RawTable(name: "todo_lists", schema: RawTableSchema())
 let schema = Schema(lists)
 ```
 
 **Rust:**
+
 ```rust
 let table = RawTable::with_schema("todo_lists", RawTableSchema::default());
 schema.raw_tables.push(table);
@@ -101,22 +107,29 @@ Use inferred setup when the local table directly maps to the synced output table
 Provide `put` and `delete` SQL statements with positional parameters:
 
 **JavaScript:**
+
 ```ts
 mySchema.withRawTables({
   todo_lists: {
     put: {
       sql: 'INSERT OR REPLACE INTO todo_lists (id, created_by, title, content) VALUES (?, ?, ?, ?)',
-      params: ['Id', { Column: 'created_by' }, { Column: 'title' }, { Column: 'content' }]
+      params: [
+        'Id',
+        { Column: 'created_by' },
+        { Column: 'title' },
+        { Column: 'content' },
+      ],
     },
     delete: {
       sql: 'DELETE FROM todo_lists WHERE id = ?',
-      params: ['Id']
-    }
-  }
+      params: ['Id'],
+    },
+  },
 });
 ```
 
 **Dart:**
+
 ```dart
 RawTable(
   name: 'todo_lists',
@@ -129,6 +142,7 @@ RawTable(
 ```
 
 **Kotlin:**
+
 ```kotlin
 RawTable(
   name = "todo_lists",
@@ -142,6 +156,7 @@ RawTable(
 ```
 
 **Swift:**
+
 ```swift
 RawTable(
   name: "todo_lists",
@@ -164,14 +179,19 @@ Raw tables need triggers to capture local writes into PowerSync's upload queue (
 Use `powersync_create_raw_table_crud_trigger` — must be called **after** the `CREATE TABLE`:
 
 **JavaScript:**
+
 ```ts
-for (const write of ["INSERT", "UPDATE", "DELETE"]) {
-  await db.execute("SELECT powersync_create_raw_table_crud_trigger(?, ?, ?)",
-    [JSON.stringify(Schema.rawTableToJson(table)), `todo_lists_${write}`, write]);
+for (const write of ['INSERT', 'UPDATE', 'DELETE']) {
+  await db.execute('SELECT powersync_create_raw_table_crud_trigger(?, ?, ?)', [
+    JSON.stringify(Schema.rawTableToJson(table)),
+    `todo_lists_${write}`,
+    write,
+  ]);
 }
 ```
 
 **Dart:**
+
 ```dart
 for (final write in ["INSERT", "UPDATE", "DELETE"]) {
   await db.execute("SELECT powersync_create_raw_table_crud_trigger(?, ?, ?)",
@@ -180,6 +200,7 @@ for (final write in ["INSERT", "UPDATE", "DELETE"]) {
 ```
 
 **Kotlin:**
+
 ```kotlin
 for (write in listOf("INSERT", "UPDATE", "DELETE")) {
   database.execute("SELECT powersync_create_raw_table_crud_trigger(?, ?, ?)",
@@ -188,6 +209,7 @@ for (write in listOf("INSERT", "UPDATE", "DELETE")) {
 ```
 
 **Swift:**
+
 ```swift
 for write in ["INSERT", "UPDATE", "DELETE"] {
   try await database.execute(
@@ -231,16 +253,19 @@ Raw tables can include columns that exist only on the client — never synced or
 Add the column to the table and specify `syncedColumns` in the inferred setup so the SDK knows which columns come from the server:
 
 **JavaScript:**
+
 ```ts
 { name: 'todo_lists', schema: { syncedColumns: ['created_by', 'title', 'content'] } }
 ```
 
 **Dart:**
+
 ```dart
 RawTableSchema(syncedColumns: ['created_by', 'title', 'content'])
 ```
 
 **Kotlin:**
+
 ```kotlin
 RawTableSchema(syncedColumns = listOf("created_by", "title", "content"))
 ```

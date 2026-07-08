@@ -11,17 +11,17 @@ metadata:
 
 Best practices and guidance for building apps with the PowerSync Swift SDK.
 
-| Resource | Description |
-|----------|-------------|
+| Resource                                                                                       | Description                                                                      |
+| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | [Swift API reference](https://powersync-ja.github.io/powersync-swift/documentation/powersync/) | Full API reference, consult only when the inline examples don't cover your case. |
-| [Supported Platforms](https://docs.powersync.com/resources/supported-platform.md#swift-sdk) | Supported platforms and features, consult for compatibility details. |
+| [Supported Platforms](https://docs.powersync.com/resources/supported-platform.md#swift-sdk)    | Supported platforms and features, consult for compatibility details.             |
 
 ## Installation
 
-| Method | Instructions |
-|--------|-------------|
+| Method          | Instructions                                                                                            |
+| --------------- | ------------------------------------------------------------------------------------------------------- |
 | `Package.swift` | [Installation - Package.swift](https://docs.powersync.com/client-sdks/reference/swift.md#package-swift) |
-| Xcode | [Installation - Xcode](https://docs.powersync.com/client-sdks/reference/swift.md#xcode) |
+| Xcode           | [Installation - Xcode](https://docs.powersync.com/client-sdks/reference/swift.md#xcode)                 |
 
 ## Setup
 

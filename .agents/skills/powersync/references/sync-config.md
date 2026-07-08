@@ -10,10 +10,12 @@ metadata:
 > **Load this when** writing or modifying sync configuration — Sync Streams (new) or Sync Rules (legacy). Required for every PowerSync project.
 
 ## Table of Contents
+
 **Sync Streams (new):** [Requirements](#requirements) · [File Format](#sync-configyaml-file-format) · [Structure](#structure) · [Stream Options](#stream-options) · [Common Patterns](#common-patterns) · [Query Parameters](#query-parameters) · [CTEs](#common-table-expressions-ctes) · [Migration](#migration) · [Client Usage](#client-usage) · [Advanced Topics](#advanced-topics)
 **Sync Rules (legacy):** [Structure](#structure-1) · [Parameter Queries](#parameter-queries) · [Data Queries](#data-queries) · [Supported SQL](#supported-sql-features) · [Common Patterns](#common-patterns-1)
 
 Expert guidance on Sync Config. Sync config is divided into two sections:
+
 1. Sync Streams (new, default) - The latest implementation of Sync Config. New apps should use Sync Streams by default. Prioritize Sync Streams above Sync Rules.
 2. Sync Rules (legacy) - The first implementation of Sync Config. New apps should not use Sync Rules, prioritize Sync Streams over Sync Rules.
 
@@ -28,20 +30,24 @@ Sync Streams define exactly which data is synced to each client by using named, 
 
 For a full overview, see [Sync Streams Overview](https://docs.powersync.com/sync/streams/overview.md)
 
-## Requirements 
+## Requirements
 
 ### PowerSync Service
-- Self-hosted: v1.20.0+ 
+
+- Self-hosted: v1.20.0+
 - Cloud: Already met
 
 ### Sync Config
+
 Must use config edition 3 in their sync config:
+
 ```yaml
 config:
   edition: 3
 ```
 
 ### PowerSync SDKs
+
 There are minimum SDK requirements when using Sync Streams in an application. See [Minimum SDK Versions](https://docs.powersync.com/sync/streams/migration.md#minimum-sdk-versions) for a full list for each supported PowerSync SDK.
 
 IMPORTANT
@@ -54,7 +60,7 @@ Recent SDK versions ship only the Rust sync client, so no opt-in is needed. On o
 ```yaml
 # powersync/sync-config.yaml — required structure
 config:
-  edition: 3        # <-- REQUIRED top-level wrapper
+  edition: 3 # <-- REQUIRED top-level wrapper
 
 streams:
   my_data:
@@ -75,6 +81,7 @@ streams:
 ```
 
 ## Structure
+
 ```yaml
 config:
   edition: 3
@@ -86,13 +93,13 @@ streams:
       <cte_name>: SELECT ... FROM ...
 
     # Behavior options (place above query/queries)
-    auto_subscribe: true    # Auto-subscribe clients on connect (default: false)
-    priority: 1             # Sync priority (optional). Lower number -> higher priority
-    accept_potentially_dangerous_queries: true  # Silence security warnings (default: false)
+    auto_subscribe: true # Auto-subscribe clients on connect (default: false)
+    priority: 1 # Sync priority (optional). Lower number -> higher priority
+    accept_potentially_dangerous_queries: true # Silence security warnings (default: false)
 
     # Query options (use one)
-    query: SELECT * FROM <table> WHERE ...         # Single query
-    queries:                                       # Multiple queries
+    query: SELECT * FROM <table> WHERE ... # Single query
+    queries: # Multiple queries
       - SELECT * FROM <table_a> WHERE ...
       - SELECT * FROM <table_b> WHERE ...
 ```
@@ -108,6 +115,7 @@ Behavior options placed above `query`/`queries` in each stream definition.
 When `true`, clients automatically subscribe on connect — no client-side `syncStream()` call needed.
 
 Use for:
+
 - Reference/global data all users need (e.g. `categories`, `app_config`)
 - User-scoped data that should always be available offline
 
@@ -327,9 +335,10 @@ See [Connection Parameters](https://docs.powersync.com/sync/streams/parameters.m
 
 ## Common Table Expressions (CTEs)
 
-Reusable query patterns for your Sync Streams. You can create Global and Scoped CTEs. 
+Reusable query patterns for your Sync Streams. You can create Global and Scoped CTEs.
 
-Global 
+Global
+
 ```yaml
 with:
   user_orgs: SELECT org_id FROM org_members WHERE user_id = auth.user_id()
@@ -337,15 +346,16 @@ with:
 streams:
   org_projects:
     query: SELECT * FROM projects WHERE org_id IN user_orgs
-  
+
   org_repositories:
     query: SELECT * FROM repositories WHERE org_id IN user_orgs
-  
+
   org_settings:
     query: SELECT * FROM settings WHERE org_id IN user_orgs
 ```
 
-Scoped 
+Scoped
+
 ```yaml
 streams:
   project_data:
@@ -362,12 +372,12 @@ streams:
 ### CTE Limitations
 
 This won't work
+
 ```yaml
 # This won't work - cte2 cannot reference cte1
 with:
   cte1: SELECT org_id FROM org_members WHERE user_id = auth.user_id()
-  cte2: SELECT id FROM projects WHERE org_id IN cte1  # Error!
-
+  cte2: SELECT id FROM projects WHERE org_id IN cte1 # Error!
 ```
 
 For a full breakdown, see [Limitations](https://docs.powersync.com/sync/streams/ctes.md#limitations).
@@ -375,8 +385,9 @@ For a full breakdown, see [Limitations](https://docs.powersync.com/sync/streams/
 ## Migration
 
 There are big differences between Sync Rules and Sync Streams, consider the following when migrating from Sync Rules to Sync Streams. See [Sync Streams Migrations](https://docs.powersync.com/sync/streams/migration.md) for information such as:
+
 - How to migrate
-- The tools that can make it easier 
+- The tools that can make it easier
 - Understanding the difference between Sync Rules and Sync Streams
 - Migration examples for common scenarios
 
@@ -393,13 +404,19 @@ Each subscription has a TTL that keeps data cached after unsubscribing. Default 
 const sub = await db.syncStream('todos', { list_id: 'abc' }).subscribe();
 
 // Custom TTL in seconds
-const sub = await db.syncStream('todos', { list_id: 'abc' }).subscribe({ ttl: 3600 }); // 1 hour
+const sub = await db
+  .syncStream('todos', { list_id: 'abc' })
+  .subscribe({ ttl: 3600 }); // 1 hour
 
 // Remove data immediately on unsubscribe
-const sub = await db.syncStream('todos', { list_id: 'abc' }).subscribe({ ttl: 0 });
+const sub = await db
+  .syncStream('todos', { list_id: 'abc' })
+  .subscribe({ ttl: 0 });
 
 // Keep forever
-const sub = await db.syncStream('todos', { list_id: 'abc' }).subscribe({ ttl: Infinity });
+const sub = await db
+  .syncStream('todos', { list_id: 'abc' })
+  .subscribe({ ttl: Infinity });
 ```
 
 ### Priority Override
@@ -407,40 +424,42 @@ const sub = await db.syncStream('todos', { list_id: 'abc' }).subscribe({ ttl: In
 Override the stream's YAML-defined priority for a specific subscription:
 
 ```js
-const sub = await db.syncStream('todos', { list_id: 'abc' }).subscribe({ priority: 1 });
+const sub = await db
+  .syncStream('todos', { list_id: 'abc' })
+  .subscribe({ priority: 1 });
 ```
 
 When multiple components subscribe to the same stream+parameters with different priorities, PowerSync uses the highest priority until all those subscriptions end.
 
 There are examples available for each PowerSync Client SDK.
 
-| SDK                  | Client Usage Reference URL                                                                                         |
-|----------------------|-------------------------------------------------------------------------------------------------------------------|
-| TypeScript/JavaScript| [Client Usage](https://docs.powersync.com/sync/streams/client-usage.md#typescript%2Fjavascript)                           |
-| Dart                 | [Client Usage](https://docs.powersync.com/sync/streams/client-usage.md#dart)                                              |
-| Kotlin               | [Client Usage](https://docs.powersync.com/sync/streams/client-usage.md#kotlin)                                            |
-| Swift                | [Client Usage](https://docs.powersync.com/sync/streams/client-usage.md#swift)                                             |
-| .NET                 | [Client Usage](https://docs.powersync.com/sync/streams/client-usage.md#net)                                               |
+| SDK                   | Client Usage Reference URL                                                                      |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| TypeScript/JavaScript | [Client Usage](https://docs.powersync.com/sync/streams/client-usage.md#typescript%2Fjavascript) |
+| Dart                  | [Client Usage](https://docs.powersync.com/sync/streams/client-usage.md#dart)                    |
+| Kotlin                | [Client Usage](https://docs.powersync.com/sync/streams/client-usage.md#kotlin)                  |
+| Swift                 | [Client Usage](https://docs.powersync.com/sync/streams/client-usage.md#swift)                   |
+| .NET                  | [Client Usage](https://docs.powersync.com/sync/streams/client-usage.md#net)                     |
 
-### Frameworks 
+### Frameworks
 
-| Framework                 | Client Usage Reference URL                                                                                         |
-|---------------------------|-----------------------------------------------------------------------------------------------------------------|
-| React                     | [Client Usage](https://docs.powersync.com/sync/streams/client-usage.md#react-hooks)                                        |
+| Framework | Client Usage Reference URL                                                          |
+| --------- | ----------------------------------------------------------------------------------- |
+| React     | [Client Usage](https://docs.powersync.com/sync/streams/client-usage.md#react-hooks) |
 
 ## Advanced Topics
 
 Reference these when the standard patterns don't cover your use case:
 
-| Topic | When to use |
-|-------|-------------|
-| [Client ID](https://docs.powersync.com/sync/advanced/client-id.md) | Filter or scope data by which specific client device is syncing |
-| [Sync Data by Time](https://docs.powersync.com/sync/advanced/sync-data-by-time.md) | Limit sync to a rolling time window (e.g. last 30 days) |
-| [Schemas and Connections](https://docs.powersync.com/sync/advanced/schemas-and-connections.md) | Source data from multiple database schemas or connections |
-| [Multiple Client Versions](https://docs.powersync.com/sync/advanced/multiple-client-versions.md) | Support different schema versions across app releases |
-| [Partitioned Tables](https://docs.powersync.com/sync/advanced/partitioned-tables.md) | Sync from Postgres partitioned tables |
-| [Sharded Databases](https://docs.powersync.com/sync/advanced/sharded-databases.md) | Source data from multiple database shards |
-| [Compatibility Flags](https://docs.powersync.com/sync/advanced/compatibility) | Fix known SQL expression edge cases in Sync Streams; if `NOT NULL`, `substr()`, or `length()` behave unexpectedly, `unstable_sqlite_expression_engine` (Service ≥ 1.22.0, experimental — may be removed) routes evaluation through actual SQLite |
+| Topic                                                                                            | When to use                                                                                                                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [Client ID](https://docs.powersync.com/sync/advanced/client-id.md)                               | Filter or scope data by which specific client device is syncing                                                                                                                                                                                  |
+| [Sync Data by Time](https://docs.powersync.com/sync/advanced/sync-data-by-time.md)               | Limit sync to a rolling time window (e.g. last 30 days)                                                                                                                                                                                          |
+| [Schemas and Connections](https://docs.powersync.com/sync/advanced/schemas-and-connections.md)   | Source data from multiple database schemas or connections                                                                                                                                                                                        |
+| [Multiple Client Versions](https://docs.powersync.com/sync/advanced/multiple-client-versions.md) | Support different schema versions across app releases                                                                                                                                                                                            |
+| [Partitioned Tables](https://docs.powersync.com/sync/advanced/partitioned-tables.md)             | Sync from Postgres partitioned tables                                                                                                                                                                                                            |
+| [Sharded Databases](https://docs.powersync.com/sync/advanced/sharded-databases.md)               | Source data from multiple database shards                                                                                                                                                                                                        |
+| [Compatibility Flags](https://docs.powersync.com/sync/advanced/compatibility)                    | Fix known SQL expression edge cases in Sync Streams; if `NOT NULL`, `substr()`, or `length()` behave unexpectedly, `unstable_sqlite_expression_engine` (Service ≥ 1.22.0, experimental — may be removed) routes evaluation through actual SQLite |
 
 ## Convex-Specific Patterns
 
@@ -484,8 +503,8 @@ Sync rules define how data is partitioned into buckets and distributed to client
 ```yaml
 bucket_definitions:
   <bucket_name>:
-    parameters: SELECT ...   # Which buckets user can access
-    data:                    # What data goes in each bucket
+    parameters: SELECT ... # Which buckets user can access
+    data: # What data goes in each bucket
       - SELECT ... WHERE column = bucket.parameter
 ```
 
@@ -527,14 +546,14 @@ data:
 
 ### Functions
 
-| Category | Functions |
-|----------|-----------|
-| String | `upper()`, `lower()`, `substring()`, `length()`, `hex()`, `base64()` |
-| JSON | `json_extract()`, `->`, `->>`, `json_array_length()`, `json_valid()` |
-| Type | `typeof()`, `cast()` |
-| Utility | `ifnull()`, `iif()`, `uuid_blob()` |
-| Date/Time | `unixepoch()`, `datetime()` |
-| Geospatial | `st_asgeojson()`, `st_astext()`, `st_x()`, `st_y()` |
+| Category   | Functions                                                            |
+| ---------- | -------------------------------------------------------------------- |
+| String     | `upper()`, `lower()`, `substring()`, `length()`, `hex()`, `base64()` |
+| JSON       | `json_extract()`, `->`, `->>`, `json_array_length()`, `json_valid()` |
+| Type       | `typeof()`, `cast()`                                                 |
+| Utility    | `ifnull()`, `iif()`, `uuid_blob()`                                   |
+| Date/Time  | `unixepoch()`, `datetime()`                                          |
+| Geospatial | `st_asgeojson()`, `st_astext()`, `st_x()`, `st_y()`                  |
 
 ### Operators (non-parameter comparisons)
 
@@ -544,9 +563,10 @@ data:
 - String: `||` (concatenation)
 - Null: `IS NULL`, `IS NOT NULL`
 
-### Parameter Comparisons (bucket.* or token_parameters.*)
+### Parameter Comparisons (bucket._ or token_parameters._)
 
 Only `=` and `IN` supported:
+
 ```yaml
 # Allowed
 WHERE user_id = bucket.user_id

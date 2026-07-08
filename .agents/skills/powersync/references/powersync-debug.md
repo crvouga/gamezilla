@@ -43,15 +43,15 @@ How:
 
 Each of the PowerSync Client SDKs have the SyncStatus class that can be used to access the client sync status.
 
-| SDK             | Link                                                                                                                                                                                                |
-|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Flutter         | [SyncStatus Class](https://pub.dev/documentation/powersync/latest/powersync/SyncStatus-class.html)                                                                                                  |
-| Kotlin          | [SyncStatus Class](https://powersync-ja.github.io/powersync-kotlin/core/com.powersync.sync/-sync-status/index.html?query=data%20class%20SyncStatus%20:%20SyncStatusData)                            |
-| Swift           | [SyncStatusData](https://powersync-ja.github.io/powersync-swift/documentation/powersync/syncstatusdata)                                                                                            |
-| Web             | [SyncStatus Class](https://powersync-ja.github.io/powersync-js/web-sdk/classes/SyncStatus)                                                                                                          |
-| React Native    | [SyncStatus Class](https://powersync-ja.github.io/powersync-js/react-native-sdk/classes/SyncStatus)                                                                                                |
-| Node.js         | [SyncStatus Class](https://powersync-ja.github.io/powersync-js/node-sdk/classes/SyncStatus)                                                                                                         |
-| .NET (Alpha)    | [SyncStatus.cs](https://github.com/powersync-ja/powersync-dotnet/blob/2728eab0d13849686ff3f9a603040940744599e1/PowerSync/PowerSync.Common/DB/Crud/SyncStatus.cs)                                   |
+| SDK          | Link                                                                                                                                                                     |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Flutter      | [SyncStatus Class](https://pub.dev/documentation/powersync/latest/powersync/SyncStatus-class.html)                                                                       |
+| Kotlin       | [SyncStatus Class](https://powersync-ja.github.io/powersync-kotlin/core/com.powersync.sync/-sync-status/index.html?query=data%20class%20SyncStatus%20:%20SyncStatusData) |
+| Swift        | [SyncStatusData](https://powersync-ja.github.io/powersync-swift/documentation/powersync/syncstatusdata)                                                                  |
+| Web          | [SyncStatus Class](https://powersync-ja.github.io/powersync-js/web-sdk/classes/SyncStatus)                                                                               |
+| React Native | [SyncStatus Class](https://powersync-ja.github.io/powersync-js/react-native-sdk/classes/SyncStatus)                                                                      |
+| Node.js      | [SyncStatus Class](https://powersync-ja.github.io/powersync-js/node-sdk/classes/SyncStatus)                                                                              |
+| .NET (Alpha) | [SyncStatus.cs](https://github.com/powersync-ja/powersync-dotnet/blob/2728eab0d13849686ff3f9a603040940744599e1/PowerSync/PowerSync.Common/DB/Crud/SyncStatus.cs)         |
 
 Key fields to check: `connected`, `downloading`, `uploading`, `lastSyncedAt`, `hasSynced`, `downloadError`, `uploadError`.
 
@@ -62,6 +62,7 @@ What it identifies: The exact HTTP request being made to the PowerSync Service t
 Why: The Rust-based sync client doesn't log request details by default. Adding a `SyncRequestLoggerConfiguration` gives a full audit trail of every sync stream request — `endpoint` URL, JWT, response status, and error bodies (including `PSYNC_S2101` JWT key-id mismatches).
 
 How:
+
 ```swift
 try await db.connect(
     connector: connector,
@@ -86,13 +87,13 @@ What it identifies: Whether the PowerSync Service is processing your sync rules 
 Why: Most "data not showing up on the client" issues are actually server-side: wrong Sync Rules / Sync Streams, parameter query not matching etc. The Diagnostics Client lets you verify this without touching client code. It runs entirely in the browser against your real instance.
 
 How: Go to [diagnostics-app.powersync.com](https://diagnostics-app.powersync.com/), connect to your PowerSync instance, and:
+
 1. Check the Client Parameters page to configure client parameters to test buckets that use parameter queries.
 2. Run queries directly in the SQL Console to confirm row counts.
 3. Check bucket and Sync Streams subscriptions contents to see exactly what data will be synced to a given user.
 4. Use the SQLite File Inspector to drag-and-drop a local `.db` file and inspect its contents directly in the browser.
 
 The Sync Diagnostics Client is also self-hostable and the Docker image is available on [Docker hub](https://hub.docker.com/r/journeyapps/powersync-diagnostics-app).
-
 
 ## Inspect `ps_crud` Directly
 
@@ -101,6 +102,7 @@ What it identifies: Whether local writes are reaching the upload queue, how many
 Why: `ps_crud` is the raw upload queue table in the local SQLite database. It is the ground truth for "has this write been recorded by PowerSync?". This is distinct from whether it has been uploaded to the backend. If `ps_crud` is empty after a write, the write either didn't go through the PowerSync managed table, or `transaction.complete()` was called prematurely.
 
 How:
+
 ```sqlite
 SELECT * FROM ps_crud ORDER BY id
 ```
@@ -122,6 +124,7 @@ What it identifies: Full table scans, missing indexes, and inefficient joins in 
 Why: PowerSync's default JSON-based views extract column values on every row scan, which compounds in joins. Without indexes on join columns, SQLite performs a full scan of every row. `EXPLAIN QUERY PLAN` makes this visible. A `SCAN TABLE` without `USING INDEX` is a red flag.
 
 How:
+
 ```sqlite
 EXPLAIN QUERY PLAN SELECT ...
 ```
@@ -135,6 +138,7 @@ What it identifies: Version mismatches between PowerSync packages and their peer
 Why: TypeScript errors with `@tanstack/react-db` and `@powersync/drizzle-driver` are often caused by multiple versions of `@powersync/common` or `@tanstack/db` installed across direct and transitive dependencies. The packages reference internal types that clash when versions differ.
 
 How:
+
 ```bash
 # Check for multiple PowerSync common versions
 npm ls @powersync/common
@@ -157,6 +161,7 @@ Why: JWT issues are the most common connection failure cause. The PowerSync Serv
 How: Paste your JWT into [jwt.io](https://jwt.io) or decode it in your debugger.
 
 Check:
+
 - `sub` — user ID used in `request.user_id()`
 - `kid` — must match a key in PowerSync's keystore (Supabase: legacy vs. JWKS)
 - `exp` — must be ≤ `iat + 86400`
@@ -172,12 +177,13 @@ What it identifies: Whether stale data from a previous user is polluting the loc
 Why: `disconnect()` closes the sync connection but keeps all local data. If you call `disconnect()` on logout and then `connect()` with a new user, the new user's UI will initially display the old user's data until sync completes. `disconnectAndClear()` wipes the local database first, so the new user starts from a clean state.
 
 When to use each:
+
 - `disconnect()` — temporary offline, token refresh, app backgrounding. Safe to reconnect as the same user.
 - `disconnectAndClear()` — user logout, user account switch. Required to prevent data leakage between users.
 
 ## PSYNC Error Codes
 
-PowerSync has a documented list of error codes with corresponding descriptions. 
+PowerSync has a documented list of error codes with corresponding descriptions.
 
 These error codes are prefixed with `PSYNC_`, indicating a specific PowerSync related error.
 
@@ -185,11 +191,11 @@ Use them to help drill into specific errors to help debug an issue.
 
 Key codes to recognize at runtime:
 
-| Code | Condition | Action |
-|------|-----------|--------|
-| `PSYNC_S1005` | Storage version not supported | Caused by a service downgrade; upgrade the PowerSync Service to match the stored version |
+| Code          | Condition                                            | Action                                                                                                |
+| ------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `PSYNC_S1005` | Storage version not supported                        | Caused by a service downgrade; upgrade the PowerSync Service to match the stored version              |
 | `PSYNC_S1146` | Replication slot invalidated (`wal_status = 'lost'`) | Use the recovery steps in [Replication Lag Debugging (Postgres)](#replication-lag-debugging-postgres) |
-| `PSYNC_S1601` | MSSQL: CDC capture instance dropped during polling | Re-enable CDC for the affected table; replication resumes automatically once CDC is active |
+| `PSYNC_S1601` | MSSQL: CDC capture instance dropped during polling   | Re-enable CDC for the affected table; replication resumes automatically once CDC is active            |
 
 See [Error Codes Reference](https://docs.powersync.com/debugging/error-codes.md#error-codes-reference) for more information.
 
@@ -230,6 +236,7 @@ Both events share the same `rid`; to match a started/complete pair for a single 
 # Replication Lag Debugging (Postgres)
 
 What it identifies:
+
 - Sync rules deployment stuck in "processing" for many hours or days (e.g. 24–48+ hours)
 - PowerSync logs or dashboard surface error `PSYNC_S1146`: `Replication slot powersync_1_xxxx was invalidated (reason: wal_removed). Increase max_slot_wal_keep_size on the source database and delete the existing slot to recover.`
 - Slot version numbers keep increasing (e.g. _27_, _28_, _30_) as reprocessing restarts
@@ -238,6 +245,7 @@ What it identifies:
 - On self-hosted instances: `wal_status = 'lost'` in the Diagnostics API, or a WAL budget warning when `safe_wal_size` drops below 50% of `max_slot_wal_keep_size`
 
 Why:
+
 - `max_slot_wal_keep_size` limits how much WAL Postgres keeps for replication slots
 - During initial replication, WAL grows quickly because: (1) full snapshot of all tables in sync rules, (2) ongoing writes on the source DB
 - If replication lag exceeds `max_slot_wal_keep_size`, Postgres invalidates the slot (`wal_status = 'lost'`)
@@ -259,9 +267,11 @@ If `wal_status` is `'lost'` (error `PSYNC_S1146`), follow these steps to recover
 
 1. Increase `max_slot_wal_keep_size` on the source Postgres database. See [Managing and Monitoring Replication Lag](https://docs.powersync.com/maintenance-ops/production-readiness-guide#managing-and-monitoring-replication-lag) for sizing guidance.
 2. Drop the invalidated slot (replace `powersync_1_xxxx` with the actual slot name from the error message):
+
 ```sql
 SELECT pg_drop_replication_slot('powersync_1_xxxx');
 ```
+
 3. Restart the PowerSync Service. It creates a new slot and restarts replication from scratch.
 
 If the slot was invalidated before the initial snapshot completed, PowerSync will not auto-retry — drop the slot manually before the service can recover.
@@ -276,15 +286,16 @@ When a self-hosted operator reports replication or WAL issues, check these field
 
 Each entry in `active_sync_rules.connections[]` includes:
 
-| Field | What to look for |
-|-------|------------------|
-| `wal_status` | `'reserved'` or `'extended'` is healthy; `'lost'` means the slot is invalidated — use the recovery steps above |
-| `safe_wal_size` | Remaining WAL budget in bytes; if below 50% of `max_slot_wal_keep_size`, increase the limit proactively |
-| `max_slot_wal_keep_size` | Configured WAL cap on the source database |
-| `initial_replication_done` | If `false` during a long deployment, the initial snapshot is still in progress |
-| `replication_lag_bytes` | Current lag; sustained high lag increases invalidation risk |
+| Field                      | What to look for                                                                                               |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `wal_status`               | `'reserved'` or `'extended'` is healthy; `'lost'` means the slot is invalidated — use the recovery steps above |
+| `safe_wal_size`            | Remaining WAL budget in bytes; if below 50% of `max_slot_wal_keep_size`, increase the limit proactively        |
+| `max_slot_wal_keep_size`   | Configured WAL cap on the source database                                                                      |
+| `initial_replication_done` | If `false` during a long deployment, the initial snapshot is still in progress                                 |
+| `replication_lag_bytes`    | Current lag; sustained high lag increases invalidation risk                                                    |
 
 Warnings and errors appear in `active_sync_rules.errors[]`:
+
 - WAL budget warning when `safe_wal_size` < 50% of `max_slot_wal_keep_size`
 - Replication lag warning when no replicated commit received in > 5 minutes (warning) or > 15 minutes (fatal)
 - `PSYNC_S1146` when `wal_status = 'lost'`

@@ -11,10 +11,10 @@ metadata:
 
 PowerSync SDKs build on SQLite, so most SQLite extensions work with PowerSync. The setup is platform-specific. Use the section matching the target SDK.
 
-| Resource | Description |
-|----------|-------------|
+| Resource                                                                                    | Description                                                                                        |
+| ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | [SQLite Extensions docs](https://docs.powersync.com/client-sdks/advanced/sqlite-extensions) | Full per-SDK guidance with examples, consult when the inline examples below don't cover your case. |
-| [SQLite Run-Time Loadable Extensions](https://sqlite.org/loadext.html) | SQLite's official extension loading API reference. |
+| [SQLite Run-Time Loadable Extensions](https://sqlite.org/loadext.html)                      | SQLite's official extension loading API reference.                                                 |
 
 ## Dart / Flutter
 

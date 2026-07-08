@@ -11,10 +11,10 @@ metadata:
 
 Best practices and guidance for building Flutter apps with the PowerSync Dart SDK.
 
-| Resource | Description |
-|----------|-------------|
-| [Dart API reference](https://pub.dev/documentation/powersync/latest/powersync/) | Full API reference, consult only when the inline examples don't cover your case. |
-| [Supported Platforms](https://docs.powersync.com/resources/supported-platform.md#flutter-sdk) | Supported platforms and features, consult for compatibility details. |
+| Resource                                                                                      | Description                                                                      |
+| --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| [Dart API reference](https://pub.dev/documentation/powersync/latest/powersync/)               | Full API reference, consult only when the inline examples don't cover your case. |
+| [Supported Platforms](https://docs.powersync.com/resources/supported-platform.md#flutter-sdk) | Supported platforms and features, consult for compatibility details.             |
 
 ## Installation
 
@@ -203,10 +203,10 @@ See [Flutter Web Support](https://docs.powersync.com/client-sdks/frameworks/flut
 
 Two options are available for encrypting the local SQLite database at rest:
 
-| Option | Platforms |
-|--------|-----------|
+| Option                                                                    | Platforms    |
+| ------------------------------------------------------------------------- | ------------ |
 | [SQLite3MultipleCiphers](https://utelle.github.io/SQLite3MultipleCiphers) | Native + web |
-| [SQLCipher Community Edition](https://www.zetetic.net/sqlcipher/) | Native only |
+| [SQLCipher Community Edition](https://www.zetetic.net/sqlcipher/)         | Native only  |
 
 Configure the encryption library in `pubspec.yaml`:
 
@@ -214,7 +214,7 @@ Configure the encryption library in `pubspec.yaml`:
 hooks:
   user_defines:
     sqlite3:
-      source: sqlite3mc  # or: sqlcipher
+      source: sqlite3mc # or: sqlcipher
 ```
 
 When choosing between them:

@@ -10,6 +10,7 @@ metadata:
 > **Load this when** building a Kotlin app (Android, JVM, KMP) with PowerSync.
 
 ## Table of Contents
+
 - [Installation](#installation)
 - [Quick Setup](#quick-setup)
 - [Query Patterns](#query-patterns)

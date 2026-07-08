@@ -10,17 +10,18 @@ metadata:
 > **Load this when** building a Vue app or Nuxt app with PowerSync. Always load `powersync-js.md` first.
 
 ## Table of Contents
+
 - [Vue](#vue) (Plugin, Composables, Watchers)
 - [Nuxt](#nuxt) (Module, Auto-imports, SSR)
 
 Vue-specific integration for the PowerSync JavaScript SDK. Use this reference alongside `references/sdks/powersync-js.md` when building Vue apps or Nuxt apps.
 
-| Resource | Description |
-|----------|-------------|
-| [Vue Composables Reference](https://docs.powersync.com/client-sdks/frameworks/vue.md) | Full Vue composables guide, consult for details beyond the inline examples. |
-| [Vue SDK API Reference](https://powersync-ja.github.io/powersync-js/vue-sdk) | Full API reference for `@powersync/vue`, consult only when the inline examples don't cover your case. |
-| [Nuxt Integration Guide](https://docs.powersync.com/client-sdks/frameworks/nuxt.md) | Full Nuxt setup guide. |
-| [Nuxt Module API Reference](https://powersync-ja.github.io/powersync-js/nuxt-sdk) | API reference for `@powersync/nuxt`. |
+| Resource                                                                              | Description                                                                                           |
+| ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| [Vue Composables Reference](https://docs.powersync.com/client-sdks/frameworks/vue.md) | Full Vue composables guide, consult for details beyond the inline examples.                           |
+| [Vue SDK API Reference](https://powersync-ja.github.io/powersync-js/vue-sdk)          | Full API reference for `@powersync/vue`, consult only when the inline examples don't cover your case. |
+| [Nuxt Integration Guide](https://docs.powersync.com/client-sdks/frameworks/nuxt.md)   | Full Nuxt setup guide.                                                                                |
+| [Nuxt Module API Reference](https://powersync-ja.github.io/powersync-js/nuxt-sdk)     | API reference for `@powersync/nuxt`.                                                                  |
 
 ## Vue
 
@@ -46,7 +47,7 @@ import App from './App.vue';
 
 const db = new PowerSyncDatabase({
   database: { dbFilename: 'app.db' },
-  schema: AppSchema
+  schema: AppSchema,
 });
 
 const connector = new PowerSyncConnector();
@@ -68,18 +69,20 @@ Reactive query — re-renders the component automatically when underlying data c
 ```ts
 import { useQuery } from '@powersync/vue'; // omit import in Nuxt
 
-const { data: lists, isLoading, isFetching, error } = useQuery(
-  'SELECT * FROM lists ORDER BY created_at DESC'
-);
+const {
+  data: lists,
+  isLoading,
+  isFetching,
+  error,
+} = useQuery('SELECT * FROM lists ORDER BY created_at DESC');
 ```
 
 With parameters (parameters are reactive — can be a `ref` or `computed`):
 
 ```ts
-const { data: todos } = useQuery(
-  'SELECT * FROM todos WHERE list_id = ?',
-  [listId]
-);
+const { data: todos } = useQuery('SELECT * FROM todos WHERE list_id = ?', [
+  listId,
+]);
 ```
 
 Return shape: `{ data: Ref<RowType[]>, isLoading: Ref<boolean>, isFetching: Ref<boolean>, error: Ref<Error | undefined> }`.
@@ -148,7 +151,9 @@ Calling these composables outside of a setup context throws an error. If you nee
 import { usePowerSync, useQuery, useStatus } from '@powersync/vue';
 
 const powersync = usePowerSync();
-const { data: lists, isLoading } = useQuery('SELECT * FROM lists ORDER BY created_at DESC');
+const { data: lists, isLoading } = useQuery(
+  'SELECT * FROM lists ORDER BY created_at DESC'
+);
 const status = useStatus();
 </script>
 
@@ -192,12 +197,12 @@ export default defineNuxtConfig({
   modules: ['@powersync/nuxt'],
   vite: {
     optimizeDeps: {
-      exclude: ['@powersync/web']
+      exclude: ['@powersync/web'],
     },
     worker: {
-      format: 'es'
-    }
-  }
+      format: 'es',
+    },
+  },
 });
 ```
 
@@ -214,9 +219,9 @@ export default defineNuxtPlugin({
   async setup(nuxtApp) {
     const db = new NuxtPowerSyncDatabase({
       database: {
-        dbFilename: 'my-app.sqlite'
+        dbFilename: 'my-app.sqlite',
       },
-      schema: AppSchema
+      schema: AppSchema,
     });
 
     const connector = new PowerSyncConnector();
@@ -226,7 +231,7 @@ export default defineNuxtPlugin({
 
     const plugin = createPowerSyncPlugin({ database: db });
     nuxtApp.vueApp.use(plugin);
-  }
+  },
 });
 ```
 
@@ -239,7 +244,9 @@ All `@powersync/vue` composables (`usePowerSync`, `useQuery`, `useStatus`) are a
 // No imports needed — composables are auto-imported by @powersync/nuxt
 
 const powersync = usePowerSync();
-const { data: lists, isLoading } = useQuery('SELECT * FROM lists ORDER BY created_at DESC');
+const { data: lists, isLoading } = useQuery(
+  'SELECT * FROM lists ORDER BY created_at DESC'
+);
 const status = useStatus();
 </script>
 ```
@@ -262,16 +269,16 @@ Enable it in `nuxt.config.ts`:
 export default defineNuxtConfig({
   modules: ['@powersync/nuxt'],
   powersync: {
-    kysely: true
+    kysely: true,
   },
   vite: {
     optimizeDeps: {
-      exclude: ['@powersync/web']
+      exclude: ['@powersync/web'],
     },
     worker: {
-      format: 'es'
-    }
-  }
+      format: 'es',
+    },
+  },
 });
 ```
 
@@ -295,22 +302,23 @@ Enable in `nuxt.config.ts`:
 export default defineNuxtConfig({
   modules: ['@powersync/nuxt'],
   powersync: {
-    useDiagnostics: true
+    useDiagnostics: true,
   },
   vite: {
     optimizeDeps: {
-      exclude: ['@powersync/web']
+      exclude: ['@powersync/web'],
     },
     worker: {
-      format: 'es'
-    }
-  }
+      format: 'es',
+    },
+  },
 });
 ```
 
 When `useDiagnostics: true` is set, `NuxtPowerSyncDatabase` automatically extends the schema with the diagnostics schema, sets up recording and logging, and stores the connector internally. No changes to the plugin file are needed.
 
 Access the inspector:
+
 - Nuxt Devtools: open browser Devtools and look for the PowerSync tab
 - Direct URL: navigate to `http://localhost:3000/__powersync-inspector`
 
@@ -323,7 +331,7 @@ PowerSync Inspector uses `unocss` as a transitive dependency, which conflicts wi
 ```typescript
 export default defineNuxtConfig({
   unocss: {
-    autoImport: false
-  }
+    autoImport: false,
+  },
 });
 ```

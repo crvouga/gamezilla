@@ -10,6 +10,7 @@ metadata:
 > **Load this when** building a .NET app (MAUI, WPF, Console) with PowerSync.
 
 ## Table of Contents
+
 - [Installation](#installation)
 - [Quick Setup](#quick-setup)
 - [Query Patterns](#query-patterns)

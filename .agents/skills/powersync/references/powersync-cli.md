@@ -10,6 +10,7 @@ metadata:
 > **Load this when** setting up, deploying, or managing any PowerSync instance (Cloud or self-hosted). This is the primary tool for all PowerSync operations.
 
 ## Table of Contents
+
 - [Recommended Defaults for Agents](#recommended-defaults-for-agents)
 - [Installation](#installation)
 - [Instance Resolution](#how-the-cli-resolves-instance-information)
@@ -43,16 +44,16 @@ Use these defaults unless the operator explicitly wants something else:
 
 These commands change Cloud state or local config. On an existing project, do not run them without confirming the target instance and that the operator has authorized the change.
 
-| Command | Effect | Required check |
-|---------|--------|----------------|
-| `powersync deploy` | Pushes `service.yaml` + `sync-config.yaml` to the linked instance | Confirm instance id and that the operator authorized deploying both files. If only sync streams changed, prefer `powersync deploy sync-config`. |
-| `powersync deploy service-config` | Replaces service config (replication, storage, auth) on the linked instance | Service-config edits are out-of-scope by default — get explicit operator authorization in this conversation before running. |
-| `powersync deploy sync-config` | Replaces sync config on the linked instance | Confirm instance id + environment (dev/staging/prod) before running. Never deploy to a production instance the operator has not approved. |
-| `powersync destroy --confirm=yes` | Permanently destroys the linked Cloud instance | Always require explicit, in-conversation confirmation naming the instance. Treat as one-shot authorization. |
-| `powersync stop --confirm=yes` | Stops the linked Cloud instance (clients lose sync) | Same as `destroy` — confirm instance and that the operator accepts downtime. |
-| `powersync compact` | Triggers bucket compacting on the linked Cloud instance; polls until complete | Confirm Cloud instance id and environment before running. Default 30-min timeout; pass `--timeout=<minutes>` to override, or `--timeout=0` to wait indefinitely. |
-| `powersync link cloud --create` | Creates a new Cloud instance | Only during initial bootstrap. Do not run on a project that already has a linked instance unless the operator explicitly wants a second one. |
-| `powersync pull instance` | Overwrites local `service.yaml` and `sync-config.yaml` from the remote | Back up local files first. Do not run after local edits unless the operator accepts losing them. |
+| Command                           | Effect                                                                        | Required check                                                                                                                                                   |
+| --------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `powersync deploy`                | Pushes `service.yaml` + `sync-config.yaml` to the linked instance             | Confirm instance id and that the operator authorized deploying both files. If only sync streams changed, prefer `powersync deploy sync-config`.                  |
+| `powersync deploy service-config` | Replaces service config (replication, storage, auth) on the linked instance   | Service-config edits are out-of-scope by default — get explicit operator authorization in this conversation before running.                                      |
+| `powersync deploy sync-config`    | Replaces sync config on the linked instance                                   | Confirm instance id + environment (dev/staging/prod) before running. Never deploy to a production instance the operator has not approved.                        |
+| `powersync destroy --confirm=yes` | Permanently destroys the linked Cloud instance                                | Always require explicit, in-conversation confirmation naming the instance. Treat as one-shot authorization.                                                      |
+| `powersync stop --confirm=yes`    | Stops the linked Cloud instance (clients lose sync)                           | Same as `destroy` — confirm instance and that the operator accepts downtime.                                                                                     |
+| `powersync compact`               | Triggers bucket compacting on the linked Cloud instance; polls until complete | Confirm Cloud instance id and environment before running. Default 30-min timeout; pass `--timeout=<minutes>` to override, or `--timeout=0` to wait indefinitely. |
+| `powersync link cloud --create`   | Creates a new Cloud instance                                                  | Only during initial bootstrap. Do not run on a project that already has a linked instance unless the operator explicitly wants a second one.                     |
+| `powersync pull instance`         | Overwrites local `service.yaml` and `sync-config.yaml` from the remote        | Back up local files first. Do not run after local edits unless the operator accepts losing them.                                                                 |
 
 **How to confirm the target instance.** Before any command in the table:
 
@@ -75,6 +76,7 @@ For the common Cloud path, use this order:
 7. Verify status.
 
 ## Installation
+
 ```bash
 npm install -g powersync
 
@@ -86,11 +88,11 @@ npx powersync@0.9.0
 
 The CLI needs to know which instance to operate against. It uses the first available source in this order:
 
-| Priority | Method | How |
-|----------|--------|-----|
-| 1 (highest) | Flags | `--instance-id`, `--project-id`, `--api-url`, etc. |
-| 2 | Environment variables | `INSTANCE_ID`, `PROJECT_ID`, `API_URL`, etc. |
-| 3 (lowest) | Link file | `powersync/cli.yaml` written by `powersync link` |
+| Priority    | Method                | How                                                |
+| ----------- | --------------------- | -------------------------------------------------- |
+| 1 (highest) | Flags                 | `--instance-id`, `--project-id`, `--api-url`, etc. |
+| 2           | Environment variables | `INSTANCE_ID`, `PROJECT_ID`, `API_URL`, etc.       |
+| 3 (lowest)  | Link file             | `powersync/cli.yaml` written by `powersync link`   |
 
 For Cloud, `--project-id` / `PROJECT_ID` and `--org-id` / `ORG_ID` are optional for most commands — the CLI resolves them automatically from the instance ID. Exception: `powersync link cloud --create` requires `--project-id` because no instance ID exists yet.
 
@@ -100,10 +102,10 @@ For Cloud, `--project-id` / `PROJECT_ID` and `--org-id` / `ORG_ID` are optional 
 
 **`powersync login`** stores a **PowerSync Cloud** personal access token (PAT). It authenticates the CLI against the **hosted PowerSync API** (create/link Cloud instances, `powersync deploy` to Cloud, `powersync fetch instances`, etc.). It is **not** used to authenticate to a **self-hosted** PowerSync service running in Docker.
 
-| Hosting | How the CLI authenticates |
-|---------|---------------------------|
-| **PowerSync Cloud** | `PS_ADMIN_TOKEN` (PAT) or token from **`powersync login`** |
-| **Self-hosted** | No `powersync login` for the running service. Use **`powersync init self-hosted`**, **`powersync docker configure` / `powersync docker start`**, and **`PS_ADMIN_TOKEN`** matching the self-hosted service's admin API token (see self-hosted docs). |
+| Hosting             | How the CLI authenticates                                                                                                                                                                                                                            |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **PowerSync Cloud** | `PS_ADMIN_TOKEN` (PAT) or token from **`powersync login`**                                                                                                                                                                                           |
+| **Self-hosted**     | No `powersync login` for the running service. Use **`powersync init self-hosted`**, **`powersync docker configure` / `powersync docker start`**, and **`PS_ADMIN_TOKEN`** matching the self-hosted service's admin API token (see self-hosted docs). |
 
 Do not tell the operator to run `powersync login` when they are **only** using a local self-hosted stack unless they also need Cloud CLI commands.
 
@@ -141,17 +143,17 @@ Self-hosted instances use `PS_ADMIN_TOKEN` as the API key (not accepted via flag
 
 Define your instance and sync config in YAML files so you can version them in git, review changes before deploying, and run `powersync validate` before `powersync deploy`. The CLI uses a config directory (default `powersync/`) containing:
 
-| File | Purpose |
-|------|--------|
-| `service.yaml` | Instance configuration: name, region, replication DB connection, client auth |
-| `sync-config.yaml` | Sync Streams (or Sync Rules) configuration |
-| `cli.yaml` | Link file (written by `powersync link`); ties this directory to an instance |
+| File               | Purpose                                                                      |
+| ------------------ | ---------------------------------------------------------------------------- |
+| `service.yaml`     | Instance configuration: name, region, replication DB connection, client auth |
+| `sync-config.yaml` | Sync Streams (or Sync Rules) configuration                                   |
+| `cli.yaml`         | Link file (written by `powersync link`); ties this directory to an instance  |
 
 All YAML files support the `!env` custom tag for secrets and environment-specific values:
 
 ```yaml
-uri: !env PS_DATABASE_URI           # string (default)
-port: !env PS_PORT::number          # typed: number
+uri: !env PS_DATABASE_URI # string (default)
+port: !env PS_PORT::number # typed: number
 enabled: !env FEATURE_FLAG::boolean # typed: boolean
 ```
 
@@ -186,6 +188,7 @@ password: secret_ref: default_password
 ### New Cloud Instance
 
 **Information the agent must collect from the operator before proceeding:**
+
 - PowerSync account (if they don't have one, direct to https://dashboard.powersync.com to sign up)
 - A project on the dashboard (required before creating an instance — if they don't have one, they must create one at https://dashboard.powersync.com first)
 - Project ID (find on dashboard or via `powersync fetch instances` after login)
@@ -228,7 +231,7 @@ replication:
       database: !env PS_DATABASE_NAME
       username: !env PS_DATABASE_USER
       password:
-        secret: !env PS_DATABASE_PASSWORD   # stored as Cloud secret on first deploy
+        secret: !env PS_DATABASE_PASSWORD # stored as Cloud secret on first deploy
       sslmode: verify-full
 ```
 
@@ -256,6 +259,7 @@ For the full sync config reference, see `references/sync-config.md`.
 The client-side `POWERSYNC_URL` follows the pattern `https://<instance-id>.powersync.journeyapps.com`.
 
 **New instance** — the instance ID is printed when you create it. Construct and save the URL immediately:
+
 ```bash
 powersync link cloud --create --project-id=<project-id>
 # Output: "Created Cloud instance 69c3d035b5b902d469b2b47f and updated powersync/cli.yaml."
@@ -263,6 +267,7 @@ powersync link cloud --create --project-id=<project-id>
 ```
 
 **Existing instance** — retrieve the ID from `powersync fetch instances`:
+
 ```bash
 powersync fetch instances
 # Note the instance id, e.g. "69a961b47c4f8b306a18fb7e"
@@ -274,6 +279,7 @@ Write it to `.env` as `POWERSYNC_URL=https://<instance-id>.powersync.journeyapps
 ### Existing Cloud Instance
 
 **Information the agent must collect from the operator:**
+
 - Instance ID
 
 The operator can find this on the PowerSync Dashboard or by running `powersync fetch instances` after `powersync login`.
@@ -290,12 +296,14 @@ If the directory is already linked, `powersync pull instance` (no IDs needed) re
 **WARNING:** `powersync pull instance` **silently overwrites** your local `service.yaml` and `sync-config.yaml` with the remote version. Any hand-crafted or uncommitted local changes will be lost without warning or merge prompt. Always commit or back up local config files before running `pull instance`.
 
 After pulling, edit files as needed, then:
+
 ```bash
 powersync validate
 powersync deploy
 ```
 
 Prefer targeted deploys after edits:
+
 ```bash
 powersync deploy service-config
 powersync deploy sync-config
@@ -330,6 +338,7 @@ The CLI manages a full Docker Compose stack for local development and testing.
 **Prerequisites:** Docker and Docker Compose V2 (2.20.3+).
 
 **Information the agent may need from the operator:**
+
 - If using `--database external`: the source database URI (set as `PS_DATA_SOURCE_URI`)
 - If using `--storage external`: the storage database URI (set as `PS_STORAGE_SOURCE_URI`)
 - If using the default options: no operator input needed — the CLI provisions local Postgres for both
@@ -364,6 +373,7 @@ powersync generate token --subject=user-test-1
 For self-hosted instances already running (not managed by the CLI), the CLI can link to them for schema generation, token generation, and status checks.
 
 **Information the agent must collect from the operator:**
+
 - API URL of the running PowerSync instance
 - API token (must match a token configured in the instance's `api.tokens` setting)
 
@@ -430,6 +440,7 @@ Each directory has its own `cli.yaml` pointing at a different instance.
 Use one `powersync/` folder and vary instance info via environment variables. Both `cli.yaml` and config files support `!env`.
 
 `cli.yaml` (Cloud):
+
 ```yaml
 type: cloud
 instance_id: !env MY_INSTANCE_ID
@@ -438,6 +449,7 @@ org_id: !env MY_ORG_ID
 ```
 
 `cli.yaml` (self-hosted):
+
 ```yaml
 type: self-hosted
 api_url: !env API_URL
@@ -445,6 +457,7 @@ api_key: !env PS_ADMIN_TOKEN
 ```
 
 `service.yaml` (secrets and environment-specific values):
+
 ```yaml
 # uri: !env PS_DATA_SOURCE_URI
 # password: !env PS_DATABASE_PASSWORD
@@ -459,6 +472,7 @@ powersync deploy --directory=my-powersync
 ```
 
 Contents of `powersync/`:
+
 - `cli.yaml` — link file (instance identifiers, written by `powersync link`)
 - `service.yaml` — service configuration (name, region, replication connection, auth)
 - `sync-config.yaml` — sync rules / sync streams config
@@ -480,23 +494,23 @@ Use `--remove-volumes` when you need init scripts to re-run on the next start (e
 
 ### Docker Commands Reference
 
-| Command | Description |
-|---------|-------------|
+| Command                      | Description                                                                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `powersync docker configure` | Create `docker/` layout with chosen modules, merge config into `service.yaml`, write `cli.yaml`. Remove existing `docker/` first to re-run. |
-| `powersync docker start` | `docker compose up -d --wait`. Use after configure or after stop. |
-| `powersync docker reset` | `docker compose down` then `docker compose up -d --wait`. Use after config changes or to clear a bad state. |
-| `powersync docker stop` | Stop stack. Add `--remove` to remove containers, `--remove-volumes` to also remove volumes. |
+| `powersync docker start`     | `docker compose up -d --wait`. Use after configure or after stop.                                                                           |
+| `powersync docker reset`     | `docker compose down` then `docker compose up -d --wait`. Use after config changes or to clear a bad state.                                 |
+| `powersync docker stop`      | Stop stack. Add `--remove` to remove containers, `--remove-volumes` to also remove volumes.                                                 |
 
 ### Docker Flags
 
-| Flag | Applies to | Description |
-|------|-----------|-------------|
-| `--directory` | configure, start, reset | Config directory (default: `powersync/`). Compose dir is `<directory>/docker/`. |
-| `--database` | configure | `postgres` (default) or `external` |
-| `--storage` | configure | `postgres` (default) or `external` |
-| `--project-name` | stop | Docker Compose project name. If omitted, reads from `cli.yaml`. |
-| `--remove` | stop | Remove containers after stopping (`docker compose down`). |
-| `--remove-volumes` | stop | Remove containers and named volumes (`docker compose down -v`). Implies `--remove`. |
+| Flag               | Applies to              | Description                                                                         |
+| ------------------ | ----------------------- | ----------------------------------------------------------------------------------- |
+| `--directory`      | configure, start, reset | Config directory (default: `powersync/`). Compose dir is `<directory>/docker/`.     |
+| `--database`       | configure               | `postgres` (default) or `external`                                                  |
+| `--storage`        | configure               | `postgres` (default) or `external`                                                  |
+| `--project-name`   | stop                    | Docker Compose project name. If omitted, reads from `cli.yaml`.                     |
+| `--remove`         | stop                    | Remove containers after stopping (`docker compose down`).                           |
+| `--remove-volumes` | stop                    | Remove containers and named volumes (`docker compose down -v`). Implies `--remove`. |
 
 `--database external`: set `PS_DATA_SOURCE_URI` in `powersync/docker/.env`.
 `--storage external`: set `PS_STORAGE_SOURCE_URI` in `powersync/docker/.env`.
@@ -507,11 +521,11 @@ Keep `service.yaml` and `sync-config.yaml` in the repo (with secrets via `!env` 
 
 Required CI environment variables:
 
-| Variable | Purpose |
-|----------|--------|
-| `PS_ADMIN_TOKEN` | PowerSync personal access token |
-| `INSTANCE_ID` | Target instance (if not using a linked directory) |
-| `API_URL` | Self-hosted: PowerSync API base URL |
+| Variable         | Purpose                                           |
+| ---------------- | ------------------------------------------------- |
+| `PS_ADMIN_TOKEN` | PowerSync personal access token                   |
+| `INSTANCE_ID`    | Target instance (if not using a linked directory) |
+| `API_URL`        | Self-hosted: PowerSync API base URL               |
 
 ```bash
 # Example: deploy sync config on push
@@ -524,31 +538,31 @@ powersync deploy sync-config
 
 > **Mutating commands** (`deploy`, `destroy`, `stop`, `compact`, `link --create`, `pull instance`) require an instance + scope check before running — see "Mutating Commands — Confirm Before Running" above.
 
-| Command | Description |
-|---------|-------------|
-| `powersync login` | Store PAT for Cloud (interactive or paste token) |
-| `powersync logout` | Remove stored token |
-| `powersync init cloud` | Scaffold Cloud config directory |
-| `powersync init self-hosted` | Scaffold self-hosted config directory |
-| `powersync configure ide` | Configure IDE for YAML schema validation and `!env` support |
-| `powersync link cloud --instance-id=<id>` | Link to an existing Cloud instance |
-| `powersync link cloud --create --project-id=<id>` | Create a new Cloud instance and link |
-| `powersync link self-hosted --api-url=<url>` | Link to a self-hosted instance by API URL |
-| `powersync pull instance --instance-id=<id>` | Download Cloud config into local files |
-| `powersync deploy` | Deploy full config to linked Cloud instance |
-| `powersync deploy service-config` | Deploy only service config |
-| `powersync deploy sync-config` | Deploy only sync config (optional `--sync-config-file-path`) |
-| `powersync validate` | Validate config and sync rules/streams |
-| `powersync edit config` | Open Config Studio (Monaco editor for service.yaml and sync-config.yaml) |
-| `powersync migrate sync-rules` | Migrate Sync Rules to Sync Streams |
-| `powersync fetch instances` | List Cloud and linked instances (optionally by project/org) |
-| `powersync fetch config` | Print linked Cloud instance config (YAML/JSON) |
-| `powersync status` | Instance diagnostics (connections, replication); Cloud and self-hosted |
-| `powersync generate schema --output=ts --output-path=schema.ts` | Generate client-side schema |
-| `powersync generate token --subject=user-123` | Generate a development JWT (see Development Tokens below) |
-| `powersync destroy --confirm=yes` | [Cloud only] Permanently destroy the linked instance |
-| `powersync stop --confirm=yes` | [Cloud only] Stop the linked instance (restart with deploy) |
-| `powersync compact` | [Cloud only] Trigger bucket compacting on demand; polls until complete (default 30-min timeout). Pass `--timeout=<minutes>` to override, or `--timeout=0` to wait indefinitely. |
+| Command                                                         | Description                                                                                                                                                                     |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `powersync login`                                               | Store PAT for Cloud (interactive or paste token)                                                                                                                                |
+| `powersync logout`                                              | Remove stored token                                                                                                                                                             |
+| `powersync init cloud`                                          | Scaffold Cloud config directory                                                                                                                                                 |
+| `powersync init self-hosted`                                    | Scaffold self-hosted config directory                                                                                                                                           |
+| `powersync configure ide`                                       | Configure IDE for YAML schema validation and `!env` support                                                                                                                     |
+| `powersync link cloud --instance-id=<id>`                       | Link to an existing Cloud instance                                                                                                                                              |
+| `powersync link cloud --create --project-id=<id>`               | Create a new Cloud instance and link                                                                                                                                            |
+| `powersync link self-hosted --api-url=<url>`                    | Link to a self-hosted instance by API URL                                                                                                                                       |
+| `powersync pull instance --instance-id=<id>`                    | Download Cloud config into local files                                                                                                                                          |
+| `powersync deploy`                                              | Deploy full config to linked Cloud instance                                                                                                                                     |
+| `powersync deploy service-config`                               | Deploy only service config                                                                                                                                                      |
+| `powersync deploy sync-config`                                  | Deploy only sync config (optional `--sync-config-file-path`)                                                                                                                    |
+| `powersync validate`                                            | Validate config and sync rules/streams                                                                                                                                          |
+| `powersync edit config`                                         | Open Config Studio (Monaco editor for service.yaml and sync-config.yaml)                                                                                                        |
+| `powersync migrate sync-rules`                                  | Migrate Sync Rules to Sync Streams                                                                                                                                              |
+| `powersync fetch instances`                                     | List Cloud and linked instances (optionally by project/org)                                                                                                                     |
+| `powersync fetch config`                                        | Print linked Cloud instance config (YAML/JSON)                                                                                                                                  |
+| `powersync status`                                              | Instance diagnostics (connections, replication); Cloud and self-hosted                                                                                                          |
+| `powersync generate schema --output=ts --output-path=schema.ts` | Generate client-side schema                                                                                                                                                     |
+| `powersync generate token --subject=user-123`                   | Generate a development JWT (see Development Tokens below)                                                                                                                       |
+| `powersync destroy --confirm=yes`                               | [Cloud only] Permanently destroy the linked instance                                                                                                                            |
+| `powersync stop --confirm=yes`                                  | [Cloud only] Stop the linked instance (restart with deploy)                                                                                                                     |
+| `powersync compact`                                             | [Cloud only] Trigger bucket compacting on demand; polls until complete (default 30-min timeout). Pass `--timeout=<minutes>` to override, or `--timeout=0` to wait indefinitely. |
 
 For full usage and flags, run `powersync --help` or `powersync <command> --help`.
 
@@ -583,15 +597,15 @@ npm install -g @powersync/cli@0.8.0
 
 Otherwise, upgrade to the latest `powersync` package and follow this mapping:
 
-| Previous CLI | New CLI |
-|-------------|--------|
-| `npx powersync init` (enter token, org, project) | `powersync login` (token only). Then `powersync init cloud` to scaffold, or `powersync pull instance --instance-id=...` to pull an existing instance. |
-| `powersync instance set --instanceId=<id>` | `powersync link cloud --instance-id=<id>` (writes `cli.yaml`). Use `--directory` for a specific folder. |
-| `powersync instance deploy` (interactive or long flag list) | Edit `powersync/service.yaml` and `powersync/sync-config.yaml`, then `powersync deploy`. Config is in files, not command args. |
-| `powersync instance config` | `powersync fetch config` (output as YAML or JSON with `--output`). |
-| Deploy only sync rules | `powersync deploy sync-config` |
-| `powersync instance schema` | `powersync generate schema --output=... --output-path=...` |
-| Org/project stored by init | Not required separately. The CLI resolves the organization and project from the instance ID and caches their IDs in `cli.yaml`. For CI, set `PS_ADMIN_TOKEN` and `INSTANCE_ID`. |
+| Previous CLI                                                | New CLI                                                                                                                                                                         |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npx powersync init` (enter token, org, project)            | `powersync login` (token only). Then `powersync init cloud` to scaffold, or `powersync pull instance --instance-id=...` to pull an existing instance.                           |
+| `powersync instance set --instanceId=<id>`                  | `powersync link cloud --instance-id=<id>` (writes `cli.yaml`). Use `--directory` for a specific folder.                                                                         |
+| `powersync instance deploy` (interactive or long flag list) | Edit `powersync/service.yaml` and `powersync/sync-config.yaml`, then `powersync deploy`. Config is in files, not command args.                                                  |
+| `powersync instance config`                                 | `powersync fetch config` (output as YAML or JSON with `--output`).                                                                                                              |
+| Deploy only sync rules                                      | `powersync deploy sync-config`                                                                                                                                                  |
+| `powersync instance schema`                                 | `powersync generate schema --output=... --output-path=...`                                                                                                                      |
+| Org/project stored by init                                  | Not required separately. The CLI resolves the organization and project from the instance ID and caches their IDs in `cli.yaml`. For CI, set `PS_ADMIN_TOKEN` and `INSTANCE_ID`. |
 
 **Summary:** Authenticate with `powersync login` (or `PS_ADMIN_TOKEN` in CI). Use a config directory with `service.yaml` and `sync-config.yaml` as the source of truth. Link with `powersync link cloud` or `powersync pull instance`, then run `powersync deploy`. No more setting "current instance" separately from config — the directory and `cli.yaml` define the target.
 
