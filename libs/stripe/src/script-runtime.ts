@@ -10,7 +10,10 @@
 import type { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPgPool } from '@pkgs/sql-client/postgres-connect';
-import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
+import {
+  assertDevSecretsEnv,
+  PRODUCTION_SECRETS_ENV,
+} from '@libs/infra/shared/database-url-policy';
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
 import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
@@ -59,7 +62,9 @@ function resolveSecretsEnvName(): string {
  */
 export async function assertDbUrl(scriptTag: string): Promise<string> {
   const secretsEnv = resolveSecretsEnvName();
-  assertDevSecretsEnv(secretsEnv);
+  if (secretsEnv !== PRODUCTION_SECRETS_ENV) {
+    assertDevSecretsEnv(secretsEnv);
+  }
   const store = createStripeScriptSecretStore();
   const raw =
     (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';
