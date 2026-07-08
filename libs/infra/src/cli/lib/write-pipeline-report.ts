@@ -129,7 +129,7 @@ function readPrUrlFromEvent(): string {
   }
 }
 
-/** Any job that published `page_url` (Playwright report on Pages); job id is not hardcoded. */
+/** Any job that published `page_url` (Playwright report artifact / Pages); job id is not hardcoded. */
 function findPlaywrightPageUrl(
   needs: Readonly<Record<string, NeedState>>
 ): string {
@@ -224,7 +224,7 @@ export function buildPipelineReportMarkdown(
 
   const pageUrl = findPlaywrightPageUrl(needs);
   if (pageUrl !== '') {
-    lines.push('### Playwright report (GitHub Pages)');
+    lines.push('### Playwright report');
     lines.push('');
     lines.push(`[Open report](${pageUrl})`);
     lines.push('');

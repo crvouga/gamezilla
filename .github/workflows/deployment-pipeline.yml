@@ -267,12 +267,6 @@ jobs:
           path: qa/playwright-report/
           retention-days: 7
 
-      - name: Upload Playwright report as Pages artifact
-        if: ${{ always() && hashFiles('qa/playwright-report/index.html') != '' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: qa/playwright-report/
-
   # Pre-deploy client release gates. The web `qa-browser` job builds a
   # PRODUCTION web export (`__DEV__ === false`), so it structurally cannot
   # catch the Expo Go OTA white-screen, which is a startup crash in a
@@ -286,8 +280,10 @@ jobs:
   #       `EXPO_PUBLIC_API_URL` (the misconfig that shipped localhost:5173).
   #     - `bundle-smoke.test.ts` runs `qa:export:native` (the Metro step
   #       `eas update` performs) and applies the same API URL scan.
-  #  2. native:launch -> `expo export --platform web --dev` served to
+  #  2. native:launch -> Metro `expo start --web` (`__DEV__ === true`) served to
   #     Chromium, asserting `app-root` mounts with no uncaught startup error.
+  #     (Do not use `expo export --platform web --dev` on Expo SDK 54: empty
+  #     chunk content-hashes overwrite `_expo/static/js/web/*` assets.)
   #
   # `deploy` needs this, so a non-launching bundle or loopback API URL blocks
   # the Worker deploy + OTA publish. `infra deploy` also re-runs the bundle
@@ -345,18 +341,28 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: bun --bun x playwright install-deps chromium
 
-      - name: Start dev web bundle server
+      - name: Start Metro web (dev) for native launch
+        env:
+          # Mirror OTA publish: exercise the Tiger production-API guard in a
+          # `__DEV__ === true` Metro bundle (static `expo export --dev` is
+          # broken on Expo SDK 54 — empty chunk hashes overwrite assets).
+          EXPO_PUBLIC_API_URL: https://www.gamezilla.app
+          EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL: '1'
         run: |
-          nohup sh -c 'bun run --filter @apps/client qa:export:web-dev && bun --bun x serve -s apps/client/.qa-dist-dev -l 5174' > /tmp/native-e2e.log 2>&1 &
+          nohup sh -c 'bun run --filter @apps/client qa:metro:web-dev' > /tmp/native-e2e.log 2>&1 &
           echo $! > /tmp/native-e2e.pid
           bun run --filter @libs/integration-test wait-for-native-e2e-stack
       - name: Expo Go dev-bundle launch test
         run: bun run --filter '@libs/integration-test' test:e2e:native
-      - name: Stop dev web bundle server
+      - name: Stop Metro web
         if: always()
         run: |
           if [ -f /tmp/native-e2e.pid ]; then
             kill "$(cat /tmp/native-e2e.pid)" 2>/dev/null || true
+          fi
+          # Metro / Expo often leave child processes; free the port explicitly.
+          if command -v lsof >/dev/null 2>&1; then
+            lsof -ti:5174 | xargs kill 2>/dev/null || true
           fi
 
       - name: Upload native launch Playwright report
@@ -367,10 +373,11 @@ jobs:
           path: qa/playwright-report/
           retention-days: 7
 
-  # Deploy the HTML report to GitHub Pages on every main push — green or
-  # red — so the latest run is always one URL away. `always()` is required
-  # so this job is not skipped when `qa-browser` fails; the pages artifact
-  # step in that job already runs under `always()` too.
+  # Resolve a durable URL for the Playwright HTML report on every main push
+  # (green or red). Private repositories on the free plan cannot publish
+  # GitHub Pages (`deploy-pages` 422: "current plan does not support private
+  # GitHub Pages"), so we link the `playwright-report` Actions artifact that
+  # `qa-browser` already uploads instead of calling deploy-pages.
   publish-playwright-report:
     if: >-
       always() &&
@@ -379,26 +386,27 @@ jobs:
     needs: [qa-browser]
     runs-on: ubuntu-latest
     outputs:
-      page_url: ${{ steps.deployment.outputs.page_url }}
+      page_url: ${{ steps.report.outputs.page_url }}
     permissions:
       contents: read
-      pages: write
-      id-token: write
       actions: read
-    concurrency:
-      group: pages
-      cancel-in-progress: false
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     timeout-minutes: 10
     steps:
-      - name: Setup Pages
-        uses: actions/configure-pages@v6
-
-      - name: Deploy Playwright report to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+      - name: Resolve Playwright report artifact URL
+        id: report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          artifact_id="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" \
+            --jq '.artifacts[] | select(.name=="playwright-report") | .id' | head -n 1)"
+          if [ -z "${artifact_id}" ]; then
+            echo "::error::playwright-report artifact not found for run ${GITHUB_RUN_ID}"
+            exit 1
+          fi
+          page_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts/${artifact_id}"
+          echo "page_url=${page_url}" >> "$GITHUB_OUTPUT"
+          echo "Playwright report: ${page_url}"
 
   # ── Atomic production deploy ─────────────────────────────────────────
   # One job, one checkout, one `infra-setup`. `bun run infra deploy`

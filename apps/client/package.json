@@ -23,7 +23,7 @@
     "preview": "bun run scripts/preview-server.ts",
     "pwa:generate": "bun run scripts/generate-pwa-assets.ts",
     "qa:export:native": "bun run prebuild && expo export --platform android --platform ios --output-dir .qa-native --clear",
-    "qa:export:web-dev": "bun run prebuild && expo export --platform web --dev --output-dir .qa-dist-dev",
+    "qa:metro:web-dev": "bun run prebuild && bun run scripts/qa-metro-web-dev.ts",
     "setup": "bun run scripts/setup-env.ts",
     "setup:sentry-dsn": "bun run scripts/setup-sentry-dsn.ts",
     "prestart": "bun run bundle:skia-canvaskit-wasm",

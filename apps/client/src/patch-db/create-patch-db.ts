@@ -37,29 +37,6 @@ export type CreatePatchDbArgs = {
   observability?: Observability;
 };
 
-// #region agent log
-function logPatchDbBoot(
-  location: string,
-  extra: Record<string, unknown> = {}
-): void {
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Debug-Session-Id': 'b580fa',
-    },
-    body: JSON.stringify({
-      sessionId: 'b580fa',
-      location,
-      message: 'patch-db boot',
-      hypothesisId: 'H6',
-      data: extra,
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-}
-// #endregion
-
 function createPatchDbSyncOptions(args: {
   installId: string;
   store: InMemoryEntityStore;
@@ -98,7 +75,6 @@ async function wirePatchDbMirror(args: {
   decoratedDbHolder: { value: SubscribablePatchDbLike | undefined };
 }): Promise<SubscribablePatchDbLike> {
   await hydrateInMemoryStoreFromSqlite(args.local, args.store);
-  logPatchDbBoot('create-patch-db.ts:createPatchDb:hydrated');
 
   const decorated = new PatchDbWriteThroughMirror(args.stamper, args.store);
   const decoratedDb = decorated as SubscribablePatchDbLike;
@@ -118,7 +94,6 @@ async function wirePatchDbMirror(args: {
   await args.sync.markAllUnsyncedPatchesForEntityTypeAsAlreadyOnRemote(
     ACCOUNT_SESSION_ENTITY_TYPE
   );
-  logPatchDbBoot('create-patch-db.ts:createPatchDb:ready');
   return decoratedDb;
 }
 
@@ -133,9 +108,6 @@ async function wirePatchDbMirror(args: {
 export async function createPatchDb(
   args: CreatePatchDbArgs
 ): Promise<PatchDbValue> {
-  logPatchDbBoot('create-patch-db.ts:createPatchDb:start', {
-    deviceId: getCachedDeviceId(),
-  });
   const sql =
     args.observability !== undefined &&
     isObservabilityActive(args.observability)
@@ -143,7 +115,6 @@ export async function createPatchDb(
       : args.sql;
   const local = new PatchDbImplSqlite(sql);
   await local.migrate();
-  logPatchDbBoot('create-patch-db.ts:createPatchDb:migrated');
 
   const installId = getCachedDeviceId();
   assertDeviceId(installId);

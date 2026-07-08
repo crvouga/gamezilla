@@ -7,7 +7,7 @@ export const DEV_CLIENT_PORT = 5173;
 
 export const DEV_CLIENT_BASE_URL = `http://localhost:${String(DEV_CLIENT_PORT)}`;
 
-/** Dev-mode web bundle server for native launch E2E (`expo export --dev` + serve). */
+/** Dev Metro web for native launch E2E (`expo start --web` on :5174). */
 export const NATIVE_E2E_PORT = 5174;
 
 export const NATIVE_E2E_BASE_URL = `http://localhost:${String(NATIVE_E2E_PORT)}`;
@@ -115,12 +115,13 @@ export function assertNativeE2eStackRunningSync(
       '  Native launch E2E requires a running dev web bundle server',
       '══════════════════════════════════════════════════════════════════',
       '',
-      'Playwright does not export or serve the bundle. Expected:',
+      'Playwright does not start Metro. Expected:',
       `  • ${url} ✗`,
       '',
-      'Start the server, then re-run:',
-      '  bun run --filter @apps/client qa:export:web-dev',
-      `  bun --bun x serve -s apps/client/.qa-dist-dev -l ${String(NATIVE_E2E_PORT)}`,
+      'Start Metro, then re-run:',
+      '  EXPO_PUBLIC_API_URL=https://www.gamezilla.app \\',
+      '  EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1 \\',
+      '    bun run --filter @apps/client qa:metro:web-dev',
       '',
       'Then:',
       '  bun qa:native',

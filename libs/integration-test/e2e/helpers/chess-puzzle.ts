@@ -20,54 +20,6 @@ function hostChessGameButton(page: Page) {
   return page.getByRole('button', { name: /^Chess$/i });
 }
 
-// #region agent log
-async function logChessE2eState(
-  page: Page,
-  location: string,
-  hypothesisId: string,
-  extra: Record<string, unknown> = {}
-): Promise<void> {
-  const joinPrompt = await isSpaceJoinPromptVisible(page);
-  const hostGames = await isHostGamesPickerVisible(page);
-  const chessMenu = await page
-    .getByTestId('chess-menu-puzzle')
-    .isVisible()
-    .catch(() => false);
-  const playScreen = await page
-    .getByTestId('chess-puzzle-play-screen')
-    .isVisible()
-    .catch(() => false);
-  const pickStatus =
-    (await page
-      .getByTestId('chess-puzzle-pick-status')
-      .textContent()
-      .catch(() => null)) ?? null;
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Debug-Session-Id': 'b580fa',
-    },
-    body: JSON.stringify({
-      sessionId: 'b580fa',
-      location,
-      message: 'chess e2e state',
-      hypothesisId,
-      data: {
-        url: page.url(),
-        joinPrompt,
-        hostGames,
-        chessMenu,
-        playScreen,
-        pickStatus,
-        ...extra,
-      },
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-}
-// #endregion
-
 async function isHostGamesPickerVisible(page: Page): Promise<boolean> {
   return hostChessGameButton(page).isVisible();
 }
@@ -120,9 +72,6 @@ async function endActiveSpaceFromLobby(page: Page): Promise<void> {
 }
 
 async function reestablishHostSpace(page: Page): Promise<void> {
-  // #region agent log
-  await logChessE2eState(page, 'chess-puzzle.ts:reestablishHostSpace', 'H2');
-  // #endregion
   await goToSpacesHome(page);
   await ensureNoActiveSpaceBlockingCreate(page);
   const newSpace = page.getByRole('button', { name: /new space/i });
@@ -161,9 +110,6 @@ export async function createSpaceIfNeeded(page: Page): Promise<void> {
   await expect(newSpace).toBeEnabled({ timeout: SPACE_NAV_TIMEOUT_MS });
   await newSpace.click({ timeout: 15_000 });
   await page.waitForURL(/\/space\//, { timeout: SPACE_NAV_TIMEOUT_MS });
-  // #region agent log
-  await logChessE2eState(page, 'chess-puzzle.ts:createSpaceIfNeeded', 'H1');
-  // #endregion
   await expect(hostChessGameButton(page)).toBeVisible({
     timeout: SPACE_NAV_TIMEOUT_MS,
   });
@@ -225,13 +171,6 @@ export async function openChessPuzzle(page: Page): Promise<void> {
 
   await expect(async () => {
     if (await isSpaceJoinPromptVisible(page)) {
-      // #region agent log
-      await logChessE2eState(
-        page,
-        'chess-puzzle.ts:openChessPuzzle:join-prompt',
-        'H3'
-      );
-      // #endregion
       await reestablishHostSpace(page);
       await openChessFromGames(page);
       await page.getByTestId('chess-menu-puzzle').click();
