@@ -100,8 +100,7 @@ if (env === 'prd' && !childArgs.some((a) => a.includes('infra'))) {
   );
 }
 
-const isCi =
-  process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true';
+const isCi = process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true';
 
 /** Env vars Infisical OIDC injects before this script runs in CI. */
 const INJECTED_SECRET_MARKERS = [
