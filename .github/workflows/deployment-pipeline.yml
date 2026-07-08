@@ -240,11 +240,23 @@ jobs:
           identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
           project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
           env-slug: dev
+      # Preview depends on `setup`, workspace `^build`, and client `expo export`.
+      # Build first so the wait step only covers migrate + wrangler + static server
+      # startup — cold CI can exceed 240s when build + preview run together.
+      - name: Build preview stack artifacts
+        run: bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run setup build --filter=@apps/api --filter=@apps/client'
       - name: Start preview stack
+        env:
+          BROWSER_E2E_STACK_WAIT_MS: 480000
         run: |
           nohup bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client' > /tmp/preview-stack.log 2>&1 &
           echo $! > /tmp/preview-stack.pid
-          bun run scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-browser-e2e-stack
+          if ! bun run scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-browser-e2e-stack; then
+            echo "::group::preview-stack.log (last 200 lines)"
+            tail -n 200 /tmp/preview-stack.log || true
+            echo "::endgroup::"
+            exit 1
+          fi
       - name: QA Playwright
         run: bun run qa:browser
       - name: Stop preview stack
@@ -401,8 +413,9 @@ jobs:
           artifact_id="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" \
             --jq '.artifacts[] | select(.name=="playwright-report") | .id' | head -n 1)"
           if [ -z "${artifact_id}" ]; then
-            echo "::error::playwright-report artifact not found for run ${GITHUB_RUN_ID}"
-            exit 1
+            echo "::warning::playwright-report artifact not found for run ${GITHUB_RUN_ID} (qa-browser likely failed before Upload Playwright report)"
+            echo "page_url=" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           page_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts/${artifact_id}"
           echo "page_url=${page_url}" >> "$GITHUB_OUTPUT"
