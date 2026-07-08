@@ -55,7 +55,7 @@
     "qa:native": "turbo run test:integration --filter=@apps/client test:e2e:native --filter=@libs/integration-test",
     "qa:production-client": "turbo run test:integration --filter=@apps/client",
     "qa:report": "bun run --filter '@libs/integration-test' test:e2e:report",
-    "secrets:seed-from-vault": "bun run scripts/seed-infisical-from-vault.ts",
+    "secrets:seed-from-legacy-kv": "bun run scripts/seed-infisical-from-legacy-kv.ts",
     "stripe:check": "bun run --filter '@libs/stripe' check",
     "stripe:listen": "bun run --filter '@libs/stripe-cli' dev",
     "stripe:sync": "bun run --filter '@libs/stripe' sync",
