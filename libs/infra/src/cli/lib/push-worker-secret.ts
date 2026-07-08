@@ -32,17 +32,12 @@ export function pushWorkerSecretBinding(
     throw new Error(`pushWorkerSecretBinding: ${secretName} is blank`);
   }
   const bulkPath = join(tmpdir(), `wrangler-secret-${process.pid}.json`);
-  writeFileSync(
-    bulkPath,
-    JSON.stringify({ [secretName]: trimmed }),
-    'utf8'
-  );
+  writeFileSync(bulkPath, JSON.stringify({ [secretName]: trimmed }), 'utf8');
   try {
-    runCapture(
-      'wrangler',
-      wranglerArgs('secret', 'bulk', bulkPath),
-      { cwd: API_DIR, env: wranglerEnv() }
-    );
+    runCapture('wrangler', wranglerArgs('secret', 'bulk', bulkPath), {
+      cwd: API_DIR,
+      env: wranglerEnv(),
+    });
   } finally {
     rmSync(bulkPath, { force: true });
   }
