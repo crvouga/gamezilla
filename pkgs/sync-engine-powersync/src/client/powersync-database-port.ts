@@ -5,6 +5,7 @@ export type PowerSyncExecuteResult = {
 
 export type PowerSyncStreamSubscription = {
   readonly unsubscribe: () => void;
+  readonly waitForFirstSync: (abort?: AbortSignal) => Promise<void>;
 };
 
 export type PowerSyncStreamHandle = {

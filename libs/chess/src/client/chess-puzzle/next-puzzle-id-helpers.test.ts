@@ -10,7 +10,7 @@ describe('buildPuzzleCandidatesSql', () => {
     const { sql, params } = buildPuzzleCandidatesSql(1500, 200, '', null);
     expect(sql).toContain('rating >= ?');
     expect(sql).toContain('rating <= ?');
-    expect(params).toEqual([1300, 1700]);
+    expect(params).toEqual([1300, 1700, 50, 0]);
   });
 
   test('with ownerId, excludes interacted puzzles via subquery', () => {

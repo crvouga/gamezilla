@@ -16,7 +16,6 @@ import {
 } from '../shared/chess-main-menu';
 import { ChessBoardCanvasBootstrap } from '@pkgs/chess-board/chess-board-canvas-bootstrap';
 import { PuzzlePlayScreen } from './chess-puzzle/chess-puzzle-play-screen';
-import { useChessPuzzlesSyncStreams } from './chess-puzzle/use-chess-puzzles-sync-streams';
 import { ChessSettingsDeveloperScreen } from './chess-settings/chess-settings-developer-screen';
 import { ChessSettingsDeveloperUiComponentDetailScreen } from './chess-settings/chess-settings-developer-ui-component-detail-screen';
 import { ChessSettingsDeveloperUiComponentsScreen } from './chess-settings/chess-settings-developer-ui-components-screen';
@@ -68,7 +67,6 @@ function ChessScreenSwitch({ onBackToGames }: ChessMainMenuProps): ReactNode {
 export function ChessMainMenu({
   onBackToGames,
 }: ChessMainMenuProps): ReactNode {
-  useChessPuzzlesSyncStreams();
   return (
     <ChessBoardCanvasBootstrap>
       <ChessScreenSwitch onBackToGames={onBackToGames} />

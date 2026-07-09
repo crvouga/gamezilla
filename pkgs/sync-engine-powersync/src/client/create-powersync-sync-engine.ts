@@ -89,7 +89,10 @@ export function createPowerSyncSyncEngine(
         ): Promise<SyncStreamSubscription> => {
           const handle = db.syncStream!(streamName, parameters);
           const subscription = await handle.subscribe({ priority: 3 });
-          return { unsubscribe: () => subscription.unsubscribe() };
+          return {
+            unsubscribe: () => subscription.unsubscribe(),
+            waitForFirstSync: () => subscription.waitForFirstSync(),
+          };
         };
 
   return {

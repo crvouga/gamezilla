@@ -98,14 +98,23 @@ CREATE TABLE IF NOT EXISTS chess_puzzles (
   nb_plays INTEGER NOT NULL DEFAULT 0,
   themes JSONB NOT NULL DEFAULT '[]'::jsonb,
   game_url TEXT,
-  opening_tags JSONB NOT NULL DEFAULT '[]'::jsonb
+  opening_tags JSONB NOT NULL DEFAULT '[]'::jsonb,
+  sync_pool BOOLEAN NOT NULL DEFAULT false
 );
+
+ALTER TABLE chess_puzzles
+  ADD COLUMN IF NOT EXISTS sync_pool BOOLEAN NOT NULL DEFAULT false;
 
 CREATE INDEX IF NOT EXISTS chess_puzzles_rating_idx ON chess_puzzles (rating);
 CREATE INDEX IF NOT EXISTS chess_puzzles_popularity_idx
   ON chess_puzzles (popularity DESC);
 CREATE INDEX IF NOT EXISTS chess_puzzles_rating_popularity_idx
   ON chess_puzzles (rating, popularity DESC);
+CREATE INDEX IF NOT EXISTS chess_puzzles_sync_pool_popularity_idx
+  ON chess_puzzles (rating, popularity DESC)
+  WHERE sync_pool = true;
+
+DROP TABLE IF EXISTS chess_puzzle_sync_pool;
 
 CREATE TABLE IF NOT EXISTS chess_puzzle_load (
   id TEXT PRIMARY KEY,

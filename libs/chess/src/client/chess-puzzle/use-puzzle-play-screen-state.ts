@@ -79,11 +79,12 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     }
     if (attemptSeed === placedAttemptRef.current) return;
     if (roomPuzzleId !== null) return;
-    if (nextId !== null && nextId !== activePuzzleId) {
+    if (nextId === null) return;
+    if (nextId !== activePuzzleId) {
       setActivePuzzleId(nextId);
     }
-    // Whether we swapped ids or restart the same puzzle, the generation
-    // bump in `PuzzlePlayer` re-dispatches Start once the room is idle.
+    // The candidate is ready, so the generation bump can safely re-dispatch
+    // Start once the room is idle.
     commitAttempt(attemptSeed);
   }, [activePuzzleId, attemptSeed, commitAttempt, nextId, roomPuzzleId]);
 

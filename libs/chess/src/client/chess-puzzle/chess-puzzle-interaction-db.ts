@@ -62,6 +62,42 @@ export async function appendPuzzleInteractionRow(
   );
 }
 
+async function upsertPuzzleProfileRow(
+  sql: SqlClient,
+  args: {
+    ownerId: string;
+    rating: number;
+    ratingDeviation: number;
+    lastInteractionAt: string;
+  }
+): Promise<void> {
+  const { ownerId, rating, ratingDeviation, lastInteractionAt } = args;
+  const existing = await sql.query<{ readonly n: number }>(
+    `SELECT 1 AS n FROM ${CHESS_PUZZLE_PROFILES_TABLE.tableName}
+     WHERE ${ChessPuzzleProfileCol.id} = ? LIMIT 1`,
+    [ownerId]
+  );
+  if (existing.length > 0) {
+    await sql.run(
+      `UPDATE ${CHESS_PUZZLE_PROFILES_TABLE.tableName}
+       SET ${ChessPuzzleProfileCol.rating} = ?,
+           ${ChessPuzzleProfileCol.ratingDeviation} = ?,
+           ${ChessPuzzleProfileCol.lastInteractionAt} = ?
+       WHERE ${ChessPuzzleProfileCol.id} = ?`,
+      [rating, ratingDeviation, lastInteractionAt, ownerId]
+    );
+    return;
+  }
+  await sql.run(
+    `INSERT INTO ${CHESS_PUZZLE_PROFILES_TABLE.tableName}
+     (${ChessPuzzleProfileCol.id}, ${ChessPuzzleProfileCol.ownerId},
+      ${ChessPuzzleProfileCol.rating}, ${ChessPuzzleProfileCol.ratingDeviation},
+      ${ChessPuzzleProfileCol.lastInteractionAt})
+     VALUES (?, ?, ?, ?, ?)`,
+    [ownerId, ownerId, rating, ratingDeviation, lastInteractionAt]
+  );
+}
+
 export async function finalizePuzzlePlayWithProfile(
   sql: SqlClient,
   args: {
@@ -109,22 +145,10 @@ export async function finalizePuzzlePlayWithProfile(
     ratingBefore,
     ratingAfter: updated.rating,
   });
-  await sql.run(
-    `INSERT INTO ${CHESS_PUZZLE_PROFILES_TABLE.tableName}
-     (${ChessPuzzleProfileCol.id}, ${ChessPuzzleProfileCol.ownerId},
-      ${ChessPuzzleProfileCol.rating}, ${ChessPuzzleProfileCol.ratingDeviation},
-      ${ChessPuzzleProfileCol.lastInteractionAt})
-     VALUES (?, ?, ?, ?, ?)
-     ON CONFLICT (${ChessPuzzleProfileCol.id}) DO UPDATE SET
-       ${ChessPuzzleProfileCol.rating} = excluded.${ChessPuzzleProfileCol.rating},
-       ${ChessPuzzleProfileCol.ratingDeviation} = excluded.${ChessPuzzleProfileCol.ratingDeviation},
-       ${ChessPuzzleProfileCol.lastInteractionAt} = excluded.${ChessPuzzleProfileCol.lastInteractionAt}`,
-    [
-      args.ownerId,
-      args.ownerId,
-      updated.rating,
-      updated.ratingDeviation,
-      at,
-    ]
-  );
+  await upsertPuzzleProfileRow(sql, {
+    ownerId: args.ownerId,
+    rating: updated.rating,
+    ratingDeviation: updated.ratingDeviation,
+    lastInteractionAt: at,
+  });
 }

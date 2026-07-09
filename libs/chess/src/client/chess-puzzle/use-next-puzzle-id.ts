@@ -1,5 +1,7 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
+import {
+  useWatchValue,
+} from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import {
@@ -7,10 +9,13 @@ import {
   ChessPuzzleProfileCol,
 } from '../../shared/sync-tables';
 import {
+  hashSeed,
   pickPuzzleIdFromPool,
+  PUZZLE_CANDIDATE_MAX_OFFSET,
   PUZZLE_NEXT_MAX_BAND,
 } from './next-puzzle-id-helpers';
 import { usePuzzleCandidatesQuery } from './use-puzzle-candidates-query';
+import { CHESS_PUZZLES_TABLE } from '../../shared/sync-tables';
 
 const DEFAULT_RATING = 1200;
 const PREFERRED_BAND = 50;
@@ -57,23 +62,28 @@ export function useNextPuzzleId(args: {
       ? profileRatingRaw
       : DEFAULT_RATING;
 
+  const pickOffset = hashSeed(seed) % (PUZZLE_CANDIDATE_MAX_OFFSET + 1);
+
   const bandedResult = usePuzzleCandidatesQuery(
     rating,
     myId,
     currentPuzzleId,
-    PUZZLE_NEXT_MAX_BAND
+    PUZZLE_NEXT_MAX_BAND,
+    pickOffset
   );
   const fallbackResult = usePuzzleCandidatesQuery(
     rating,
     myId,
     currentPuzzleId,
-    null
+    null,
+    pickOffset
   );
   const replayResult = usePuzzleCandidatesQuery(
     rating,
     '',
     currentPuzzleId,
-    null
+    null,
+    pickOffset
   );
   const puzzleResult =
     bandedResult.rows.length > 0 ? bandedResult : fallbackResult.rows.length > 0 ? fallbackResult : replayResult;
@@ -96,10 +106,25 @@ export function useNextPuzzleId(args: {
     replay: replayResult,
   });
 
+  const { value: localPuzzleTotal } = useWatchValue<number>(
+    `SELECT count(*) AS value FROM ${CHESS_PUZZLES_TABLE.tableName}`,
+    []
+  );
+  const noCandidates =
+    bandedResult.rows.length === 0 &&
+    fallbackResult.rows.length === 0 &&
+    replayResult.rows.length === 0;
+
+  const waitingForLocalPuzzles =
+    myId.length > 0 &&
+    puzzleId === null &&
+    (localPuzzleTotal ?? 0) === 0 &&
+    noCandidates;
+
   return {
     puzzleId,
     rating,
-    loading,
+    loading: loading || waitingForLocalPuzzles,
     bandedCount: bandedResult.rows.length,
     fallbackCount: fallbackResult.rows.length,
     replayCount: replayResult.rows.length,

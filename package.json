@@ -21,6 +21,7 @@
     "check:static": "bun run check:actionlint && bun run check:gitleaks",
     "check:turbo-remote-cache": "bun run scripts/secrets-run.ts -- bun run scripts/check-turbo-remote-cache.ts",
     "chess:puzzles:seed": "bun run scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles",
+    "chess:puzzles:refresh-sync-pool": "bun run scripts/secrets-run.ts -- bun run --filter @libs/chess refresh:puzzle-sync-pool",
     "ci:audit": "bun run scripts/ci-audit.ts",
     "ci:circular-deps": "bun run scripts/check-circular-deps.ts",
     "ci:database-url-policy": "bun run scripts/check-database-url-policy.ts",

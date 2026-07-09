@@ -74,10 +74,22 @@ streams:
 
   chess_puzzles:
     priority: 3
+    auto_subscribe: true
     accept_potentially_dangerous_queries: true
     query: |
-      SELECT * FROM chess_puzzles
-      WHERE rating / 400 = CAST(subscription.parameter('rating_band') AS INTEGER)
+      SELECT
+        id,
+        fen,
+        moves,
+        rating,
+        rating_deviation,
+        popularity,
+        nb_plays,
+        themes,
+        game_url,
+        opening_tags
+      FROM chess_puzzles
+      WHERE sync_pool = true
 
   entity_store_catalog:
     priority: 2

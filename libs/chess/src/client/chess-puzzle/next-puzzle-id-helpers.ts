@@ -1,4 +1,13 @@
+import {
+  CHESS_PUZZLES_TABLE,
+  CHESS_PUZZLE_INTERACTIONS_TABLE,
+  ChessPuzzleInteractionCol,
+} from '../../shared/sync-tables';
+
 export const PUZZLE_NEXT_MAX_BAND = 400;
+export const PUZZLE_CANDIDATE_LIMIT = 50;
+/** Rotates candidate window so "Next" does not always hit the same top-N popular puzzles. */
+export const PUZZLE_CANDIDATE_MAX_OFFSET = 150;
 
 /** PowerSync `chess_puzzles` stream bands to cover puzzle picking for `rating`. */
 export function chessPuzzleSyncRatingBands(rating: number): readonly number[] {
@@ -28,24 +37,26 @@ export function buildPuzzleCandidatesSql(
   rating: number,
   halfWindow: number | null,
   ownerId: string,
-  currentPuzzleId: string | null
+  currentPuzzleId: string | null,
+  pickOffset = 0
 ): { readonly sql: string; readonly params: readonly unknown[] } {
   const params: unknown[] = [];
-  let sql = 'SELECT id, rating FROM chess_puzzles WHERE 1=1';
+  let sql = `SELECT id, rating FROM ${CHESS_PUZZLES_TABLE.tableName} WHERE 1=1`;
   if (halfWindow !== null) {
     sql += ' AND rating >= ? AND rating <= ?';
     params.push(Math.max(0, rating - halfWindow), rating + halfWindow);
   }
   if (ownerId.length > 0) {
     sql +=
-      ' AND id NOT IN (SELECT puzzle_id FROM chess_puzzle_interactions WHERE owner_id = ?)';
+      ` AND id NOT IN (SELECT ${ChessPuzzleInteractionCol.puzzleId} FROM ${CHESS_PUZZLE_INTERACTIONS_TABLE.tableName} WHERE ${ChessPuzzleInteractionCol.ownerId} = ?)`;
     params.push(ownerId);
   }
   if (currentPuzzleId !== null && currentPuzzleId.length > 0) {
     sql += ' AND id != ?';
     params.push(currentPuzzleId);
   }
-  sql += ' ORDER BY popularity DESC LIMIT 50';
+  sql += ' ORDER BY popularity DESC LIMIT ? OFFSET ?';
+  params.push(PUZZLE_CANDIDATE_LIMIT, pickOffset);
   return { sql, params };
 }
 

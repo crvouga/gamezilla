@@ -12,11 +12,19 @@ export function usePuzzleCandidatesQuery(
   rating: number,
   ownerId: string,
   currentPuzzleId: string | null,
-  halfWindow: number | null = PUZZLE_NEXT_MAX_BAND
+  halfWindow: number | null = PUZZLE_NEXT_MAX_BAND,
+  pickOffset = 0
 ) {
   const query = useMemo(
-    () => buildPuzzleCandidatesSql(rating, halfWindow, ownerId, currentPuzzleId),
-    [rating, ownerId, currentPuzzleId, halfWindow]
+    () =>
+      buildPuzzleCandidatesSql(
+        rating,
+        halfWindow,
+        ownerId,
+        currentPuzzleId,
+        pickOffset
+      ),
+    [rating, ownerId, currentPuzzleId, halfWindow, pickOffset]
   );
   const { rows, isLoading } = useWatchQuery<CandidateRow>(
     query.sql,
