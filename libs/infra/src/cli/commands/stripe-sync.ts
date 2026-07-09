@@ -5,7 +5,7 @@ import type { Command } from './types';
 
 /**
  * CI atomic step 4: runs `bun run --filter @libs/stripe sync` to
- * reconcile the Stripe catalog, backfill PatchDB, and refresh webhook
+ * reconcile the Stripe catalog, backfill sync tables, and refresh webhook
  * endpoints (writes `STRIPE_WEBHOOK_SECRET` back to the secret store). Must run
  * after the API worker is deployed so the webhook URL exists.
  */

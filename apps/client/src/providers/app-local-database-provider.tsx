@@ -1,27 +1,25 @@
 import { ProfileProvider } from '@libs/profile/client/profile-provider';
-import { AuthPatchDbBridge } from '@libs/auth/client/auth-patch-db-bridge';
+import { AuthSyncBridge } from '@libs/auth/client/auth-sync-bridge';
 import { ComposeProviders } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { DeviceEntityBootstrap } from './local-database/device-bootstrap';
-import { PatchDbLocalDataActions } from './local-database/local-data-actions';
-import { PatchDbBoot } from './local-database/patch-db';
-import { SqlClientBoot } from './local-database/sql-client';
+import { SyncLocalDataActions } from './local-database/local-data-actions';
+import { SyncEngineBoot } from './local-database/sync-engine-boot';
 import { SqliteRecoveryGate } from './local-database/sqlite-recovery-gate';
 
 const localDatabaseProviders = [
   SqliteRecoveryGate,
-  SqlClientBoot,
-  PatchDbBoot,
-  AuthPatchDbBridge,
-  PatchDbLocalDataActions,
+  SyncEngineBoot,
+  AuthSyncBridge,
+  SyncLocalDataActions,
   DeviceEntityBootstrap,
   ProfileProvider,
 ];
 
 /**
- * Single SQLite umbrella: recovery gate, SQL client boot, patch-db boot,
- * local-data actions, device entity bootstrap, and profile bootstrap.
+ * Local sync umbrella: recovery gate, PowerSync boot, auth identity bridge,
+ * wipe actions, device bootstrap, and profile bootstrap.
  */
 export function AppLocalDatabaseProvider({
   children,

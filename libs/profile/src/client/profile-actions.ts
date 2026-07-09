@@ -1,32 +1,29 @@
-import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
-import type { PatchDb } from '@pkgs/patch-db/interface';
+import { ProfileCol, PROFILES_TABLE } from '../shared/sync-tables';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
 /**
- * Updates display name and/or avatar on the profile row at `profileId`
- * (`deviceId` when guest, `userId` when signed in).
+ * Updates display name and/or avatar on the profile row at `profileId`.
  */
 export async function updateProfile(
-  db: PatchDb,
+  sql: SqlClient,
   profileId: string,
   args: {
     displayName?: string;
-    avatarConfig?: unknown;
+    avatarConfig?: string;
   }
 ): Promise<void> {
-  const attributes = {
-    ...(args.displayName !== undefined
-      ? ProfileAttr.displayName(args.displayName)
-      : {}),
-    ...(args.avatarConfig !== undefined
-      ? ProfileAttr.avatarConfig(args.avatarConfig)
-      : {}),
-  };
-  if (Object.keys(attributes).length === 0) return;
-  await db.write([
-    {
-      entityId: profileId,
-      entityType: PROFILE_ENTITY_TYPE,
-      attributes,
-    },
-  ]);
+  const updates: Record<string, string> = {};
+  if (args.displayName !== undefined) {
+    updates[ProfileCol.displayName] = args.displayName;
+  }
+  if (args.avatarConfig !== undefined) {
+    updates[ProfileCol.avatarConfig] = args.avatarConfig;
+  }
+  if (Object.keys(updates).length === 0) return;
+  const entries = Object.entries(updates);
+  const sets = entries.map(([col]) => `${col} = ?`).join(', ');
+  await sql.run(
+    `UPDATE ${PROFILES_TABLE.tableName} SET ${sets} WHERE ${ProfileCol.id} = ?`,
+    [...entries.map(([, v]) => v), profileId]
+  );
 }

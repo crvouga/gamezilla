@@ -1,20 +1,16 @@
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import type { PatchDb } from '@pkgs/patch-db/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { ApiWorkerBindings } from './api-worker-bindings';
 import type { SessionAuth } from './session-middleware';
 
 /**
  * Hono `Bindings` + `Variables` for the API Worker (Neon-per-request DB + auth).
- *
- * `TAuthContext` is unused now that `sessionAuth` resolves directly to the
- * concrete `AuthContext`, but kept as a phantom parameter so existing
- * `Hono<ApiHonoEnv<AuthContext>>` annotations stay valid during the cleanup.
  */
 export type ApiHonoEnv<_TAuthContext = unknown> = {
   Bindings: ApiWorkerBindings;
   Variables: {
-    patchDb: PatchDb;
+    sqlClient: SqlClient;
     sessionAuth: SessionAuth;
     authServer: AuthServerPort;
   };

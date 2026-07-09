@@ -1,24 +1,13 @@
-/**
- * `SpaceDebugModal` — developer-facing inspector for the space detail screen.
- *
- * Three tabs of raw, un-normalized state: the patch-db space entity, the
- * shared-room state for the same space, and the patch-db space-membership
- * entities scoped to this space.
- *
- * The surface is given a fixed `bodyHeight` so the modal does not jump in
- * size when the user switches tabs; long payloads scroll inside `JsonView`.
- */
-
 import { useSpaceRoomSelector } from '../room/use-space-room-selector';
-import {
-  SPACE_ENTITY_TYPE,
-  SPACE_MEMBERSHIP_ENTITY_TYPE,
-  SpaceMembershipAttr,
-} from '@libs/spaces/shared/space-entities';
 import { Box, JsonView, ResponsiveSurface, SegmentedControl } from '@pkgs/ui';
-import { useEntity, useQuery } from '@pkgs/patch-db/react';
+import { useWatchOne, useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { Trans } from '@lingui/react/macro';
 import { useState, type ReactNode } from 'react';
+
+import {
+  SPACE_DEBUG_MEMBERSHIPS_SQL,
+  SPACE_DEBUG_ROW_SQL,
+} from './space-debug-queries';
 
 export type SpaceDebugModalProps = {
   visible: boolean;
@@ -36,16 +25,15 @@ export function SpaceDebugModal({
   spaceId,
 }: SpaceDebugModalProps): ReactNode {
   const [tab, setTab] = useState<Tab>('space');
-  const space = useEntity(SPACE_ENTITY_TYPE, spaceId);
+  const { row: space } = useWatchOne<Record<string, unknown>>(
+    SPACE_DEBUG_ROW_SQL,
+    [spaceId]
+  );
   const room = useSpaceRoomSelector((state) => state);
-  const memberships = useQuery({
-    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    where: {
-      type: '=',
-      attribute: SpaceMembershipAttr.spaceId.key,
-      value: spaceId,
-    },
-  });
+  const { rows: memberships } = useWatchQuery<Record<string, unknown>>(
+    SPACE_DEBUG_MEMBERSHIPS_SQL,
+    [spaceId]
+  );
 
   return (
     <ResponsiveSurface

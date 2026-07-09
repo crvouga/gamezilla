@@ -35,7 +35,7 @@ export default function SuccessStateExample() {
         <SuccessState
           variant="compact"
           title="Server config updated"
-          body="Local view updates after the next PatchDB sync."
+          body="Local view updates after the next PowerSync sync."
         />
       </SchemePreview>
 

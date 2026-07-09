@@ -30,7 +30,7 @@ export function useDeviceId(): string {
     if (generatedRef.current === null) {
       generatedRef.current = globalThis.crypto.randomUUID();
       // Seed the module cache synchronously so non-React readers
-      // (`getCachedDeviceId` / patch-db transport) see the same id this
+      // (`getCachedDeviceId` / sync transport) see the same id this
       // render returned.
       seedCachedSecureStorageValue(DEVICE_ID_KEY, generatedRef.current);
     }
@@ -48,7 +48,7 @@ export function useDeviceId(): string {
 
 /**
  * Synchronous access to the cached device id for non-React code (e.g. the
- * patch-db transport's `getAnonId` callback). Returns `null` until the
+ * sync transport's `getAnonId` callback). Returns `null` until the
  * reactive hook has hydrated the value at least once.
  */
 export function getCachedDeviceId(): string | null {

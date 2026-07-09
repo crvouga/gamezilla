@@ -9,6 +9,7 @@ import { runDeployResourcesPhase } from '../lib/phases/deploy-resources';
 import { runEnsureDestroyedPhase } from '../lib/phases/ensure-destroyed';
 import { runWithGlobalLock } from '../lib/global-lock-session';
 import { runMigratePhase } from '../lib/phases/migrate';
+import { runPowerSyncDeployPhase } from '../lib/phases/powersync-deploy';
 import { runPublishClientEasUpdatePhase } from '../lib/phases/publish-client-eas-update';
 import { runDryRunPhase, runProvisionPhase } from '../lib/phases/provision';
 import { runRefreshConfigPhase } from '../lib/phases/refresh-config';
@@ -21,7 +22,7 @@ import type { Command } from './types';
 /**
  * Local + legacy CI entry point: runs the full deploy pipeline in a
  * single process. The global lock is acquired after `db:migrate` so
- * migrate does not compete with the lock connection for PlanetScale direct
+ * migrate does not compete with the lock connection for Neon direct
  * slots. CI also has
  * per-phase commands (`provision`, `migrate`, `deploy-resources`,
  * `stripe-sync`, `smoke`, `refresh-config`) that share these same phase
@@ -53,6 +54,8 @@ export class DeployCommand implements Command {
     const ctx: InfraContext = {};
     await runProvisionPhase(p, ctx);
     await runMigratePhase(p);
+
+    await runPowerSyncDeployPhase(p, ctx);
 
     await runWithGlobalLock(p, this.id, async () => {
       await runDryRunPhase(p, ctx);

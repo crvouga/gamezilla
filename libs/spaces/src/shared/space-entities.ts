@@ -15,7 +15,7 @@ function readTrimmedNullableString(v: unknown): string | null {
 }
 
 const spaceNs = createAttrNamespace('space');
-/** PatchDB entity type for a user-hosted space (room). */
+/** Sync entity type for a user-hosted space (room). */
 export const SPACE_ENTITY_TYPE = spaceNs.prefix;
 
 export const SpaceAttr = {

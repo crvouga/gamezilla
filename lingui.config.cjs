@@ -17,7 +17,6 @@ module.exports = {
         '<rootDir>/apps/client/src',
         '<rootDir>/pkgs/ui/src',
         '<rootDir>/pkgs/chess-board/src',
-        '<rootDir>/pkgs/patch-db-widgets/src',
         '<rootDir>/pkgs/room-widgets/src',
         '<rootDir>/libs/chess/src',
         '<rootDir>/libs/profile/src',

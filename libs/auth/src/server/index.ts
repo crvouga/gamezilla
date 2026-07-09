@@ -9,3 +9,8 @@ export {
   resolveAccountIdFromBearer,
   buildAppAuthContextFromBearer,
 } from './bearer-resolve';
+export {
+  AUTH_WRITE_POLICIES,
+  createAuthWritePolicyRegistry,
+  mapAppAuthToWriteContext,
+} from './write-policies';

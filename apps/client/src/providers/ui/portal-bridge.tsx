@@ -1,9 +1,9 @@
-import { PatchDbContextProvider, usePatchDbValue } from '@pkgs/patch-db/react';
+import { SyncEngineProvider, useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { PortalContentBridgeProvider } from '@pkgs/ui';
 import { useCallback, type ReactNode } from 'react';
 
 /**
- * Re-supplies patch-db context inside {@link ResponsiveSurface} portals
+ * Re-supplies sync-engine context inside {@link ResponsiveSurface} portals
  * (`@gorhom/bottom-sheet` / `@gorhom/portal`).
  */
 export function AppPortalContentBridge({
@@ -11,12 +11,12 @@ export function AppPortalContentBridge({
 }: {
   children: ReactNode;
 }): ReactNode {
-  const patchDb = usePatchDbValue();
+  const engine = useSyncEngine();
   const wrap = useCallback(
     (content: ReactNode) => (
-      <PatchDbContextProvider value={patchDb}>{content}</PatchDbContextProvider>
+      <SyncEngineProvider value={engine}>{content}</SyncEngineProvider>
     ),
-    [patchDb]
+    [engine]
   );
   return (
     <PortalContentBridgeProvider wrap={wrap}>

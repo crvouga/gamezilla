@@ -17,7 +17,7 @@ void preventSplashAutoHide();
  *
  * Ordering constraints:
  * - Infrastructure (config, secure storage) before auth and services.
- * - Local database (SQLite + patch-db) before UI (portal bridge reads patch-db).
+ * - Local database (PowerSync sync engine) before UI (portal bridge reads sync engine).
  * - UI (BottomSheetModalProvider) before modal hosts inside AppUiProvider.
  */
 const appProviders = [

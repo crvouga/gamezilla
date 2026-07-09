@@ -1,6 +1,6 @@
 /**
  * Pluggable auth for WebSocket upgrade (and optional per-command checks).
- * Implementations live in app code (e.g. PatchDb bearer lookup).
+ * Implementations live in app code (e.g. sync bearer lookup).
  */
 export type RoomAuthFailure = {
   ok: false;

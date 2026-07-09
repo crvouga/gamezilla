@@ -1,10 +1,10 @@
 /**
- * Space-scoped auth claims layered onto the patch-db caller context. Only the
+ * Space-scoped auth claims layered onto the sync caller context. Only the
  * spaces bounded context owns this namespace — auth has no business knowing
  * which spaces a caller is a member of.
  *
  * Stamped lazily by {@link createMemberOfSpaceIdsEnricher} (registered as a
- * patch-db `enrichContext` hook) so the lookup runs **at most once per read /
+ * sync `enrichContext` hook) so the lookup runs **at most once per read /
  * write batch**, only when ABAC is actually about to inspect the context.
  */
 import { type AttributeState, createAttrNamespace } from '@pkgs/attribute';

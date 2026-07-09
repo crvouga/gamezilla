@@ -10,7 +10,7 @@
  * ```tsx
  * <SuccessState
  *   title={t`Server config updated`}
- *   body={t`Clients sync on the next PatchDB tick.`}
+ *   body={t`Clients sync on the next PowerSync tick.`}
  * />
  * <SuccessState variant="compact" title={t`Saved`} />
  * ```

@@ -1,0 +1,25 @@
+import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+
+import { ProfileCol, PROFILES_TABLE } from '../shared/sync-tables';
+
+export type ProfileRow = {
+  readonly id: string;
+  readonly created_at: string | null;
+  readonly display_name: string | null;
+  readonly avatar_config: string | null;
+};
+
+/**
+ * Reads a single profile row by id. Used by editors that seed draft state
+ * from the persisted row (avatar editor, display-name editor).
+ */
+export function useProfileRow(profileId: string | null): ProfileRow | null {
+  const enabled = profileId !== null && profileId.length > 0;
+  const { row } = useWatchOne<ProfileRow>(
+    `SELECT ${ProfileCol.id}, ${ProfileCol.createdAt}, ${ProfileCol.displayName}, ${ProfileCol.avatarConfig}
+     FROM ${PROFILES_TABLE.tableName}
+     WHERE ${ProfileCol.id} = ?`,
+    enabled ? [profileId] : ['']
+  );
+  return enabled ? (row ?? null) : null;
+}

@@ -1,22 +1,25 @@
 import {
   CLIENT_CONFIG_ENTITY_ID,
-  CLIENT_CONFIG_ENTITY_TYPE,
   ClientConfigAttr,
 } from '../shared/client-config-entities';
 import { Box, Card, Text } from '@pkgs/ui';
-import { useQuery } from '@pkgs/patch-db/react';
+import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { Trans, useLingui } from '@lingui/react/macro';
+
+import { CLIENT_CONFIG_ROW_SQL } from './client-config-queries';
+
+type ClientConfigRow = {
+  readonly google_web_client_id: string | null;
+};
 
 export function ClientConfigEntityCard() {
   const { t } = useLingui();
-  const { entities } = useQuery({
-    entityType: CLIENT_CONFIG_ENTITY_TYPE,
-    entityId: CLIENT_CONFIG_ENTITY_ID,
-  });
-  const entity = entities[0] ?? null;
+  const { row } = useWatchOne<ClientConfigRow>(
+    CLIENT_CONFIG_ROW_SQL,
+    [CLIENT_CONFIG_ENTITY_ID]
+  );
 
-  const attrs = entity?.attributes ?? {};
-  const googleRaw = attrs[ClientConfigAttr.googleWebClientId.key];
+  const googleRaw = row?.google_web_client_id;
   const googleLine =
     typeof googleRaw === 'string' && googleRaw.length > 0
       ? googleRaw
@@ -24,16 +27,19 @@ export function ClientConfigEntityCard() {
         ? t`null`
         : '—';
 
+  const attrs = {
+    [ClientConfigAttr.googleWebClientId.key]: googleRaw ?? null,
+  };
   const jsonPreview = JSON.stringify(attrs, null, 2);
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
-      <Text variant="bodyBold" label={<Trans>Local PatchDB (synced)</Trans>} />
+      <Text variant="bodyBold" label={<Trans>Local sync (client_config)</Trans>} />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
         label={
-          <Trans>Entity type client-config, id client-config__singleton</Trans>
+          <Trans>Table client_config, id client-config__singleton</Trans>
         }
       />
       <Box sx={{ gap: 1 }}>

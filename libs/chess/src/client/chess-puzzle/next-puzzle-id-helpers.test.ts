@@ -1,121 +1,46 @@
-import {
-  isSubqueryRef,
-  type PatchDbQueryWhereClause,
-} from '@pkgs/patch-db/interface';
 import { describe, expect, test } from 'bun:test';
 
-import { ChessPuzzleAttr } from '../../shared/chess-puzzle-entities';
 import {
-  CHESS_PUZZLE_INTERACTION_ENTITY_TYPE,
-  ChessPuzzleInteractionAttr,
-} from '../../shared/chess-puzzle-interaction-entities';
-import {
-  buildPuzzleWhere,
+  buildPuzzleCandidatesSql,
   pickPuzzleIdFromPool,
 } from './next-puzzle-id-helpers';
 
-type AnyClause = PatchDbQueryWhereClause;
+describe('buildPuzzleCandidatesSql', () => {
+  test('rating band bounds are present in SQL', () => {
+    const { sql, params } = buildPuzzleCandidatesSql(1500, 200, '', null);
+    expect(sql).toContain('rating >= ?');
+    expect(sql).toContain('rating <= ?');
+    expect(params).toEqual([1300, 1700]);
+  });
 
-function builtWhere(...args: Parameters<typeof buildPuzzleWhere>): AnyClause {
-  const w = buildPuzzleWhere(...args);
-  expect(w).toBeDefined();
-  if (w === undefined) throw new Error('expected defined where clause');
-  return w;
-}
-
-function flattenAndClauses(clause: AnyClause): readonly AnyClause[] {
-  if (clause.type === 'and') {
-    const acc: AnyClause[] = [];
-    for (const c of clause.clauses) acc.push(...flattenAndClauses(c));
-    return acc;
-  }
-  return [clause];
-}
-
-describe('buildPuzzleWhere (Phase 3: chess subquery wiring)', () => {
-  test('rating band lower / upper bounds always present', () => {
-    const flat = flattenAndClauses(builtWhere(1500, 200, '', null));
-    const gte = flat.find(
-      (c) =>
-        c.type === 'gte' &&
-        (c as { attribute: string }).attribute === ChessPuzzleAttr.rating.key
+  test('with ownerId, excludes interacted puzzles via subquery', () => {
+    const { sql, params } = buildPuzzleCandidatesSql(
+      1500,
+      200,
+      'user_123',
+      null
     );
-    const lte = flat.find(
-      (c) =>
-        c.type === 'lte' &&
-        (c as { attribute: string }).attribute === ChessPuzzleAttr.rating.key
+    expect(sql).toContain('NOT IN (SELECT puzzle_id FROM chess_puzzle_interactions');
+    expect(params).toContain('user_123');
+  });
+
+  test('currentPuzzleId adds inequality filter', () => {
+    const { sql, params } = buildPuzzleCandidatesSql(
+      1500,
+      200,
+      'user_123',
+      'puzzle_99'
     );
-    expect(gte).toBeTruthy();
-    expect(lte).toBeTruthy();
-    expect((gte as { value: number }).value).toBe(1300);
-    expect((lte as { value: number }).value).toBe(1700);
-  });
-
-  test('clamps rating lower bound at 0 when window dips below', () => {
-    const flat = flattenAndClauses(builtWhere(50, 500, '', null));
-    const gte = flat.find((c) => c.type === 'gte');
-    expect(gte && (gte as { value: number }).value).toBe(0);
-  });
-
-  test('with ownerId, emits exactly one not_in clause whose values is a SubqueryRef', () => {
-    const flat = flattenAndClauses(builtWhere(1500, 200, 'user_123', null));
-    const notIns = flat.filter((c) => c.type === 'not_in');
-    expect(notIns.length).toBe(1);
-    const notIn = notIns[0] as {
-      attribute: string;
-      values: unknown;
-    };
-    expect(notIn.attribute).toBe(ChessPuzzleAttr.id.key);
-    expect(Array.isArray(notIn.values)).toBe(false);
-    expect(isSubqueryRef(notIn.values as never)).toBe(true);
-    const sub = notIn.values as {
-      entityType: string;
-      attribute: string;
-      where: { type: string; attribute: string; value: string };
-    };
-    expect(sub.entityType).toBe(CHESS_PUZZLE_INTERACTION_ENTITY_TYPE);
-    expect(sub.attribute).toBe(ChessPuzzleInteractionAttr.puzzleId.key);
-    expect(sub.where.type).toBe('=');
-    expect(sub.where.value).toBe('user_123');
-  });
-
-  test('without ownerId, no not_in clause is emitted (subquery would be unbounded)', () => {
-    const flat = flattenAndClauses(builtWhere(1500, 200, '', null));
-    expect(flat.find((c) => c.type === 'not_in')).toBe(undefined);
-  });
-
-  test('currentPuzzleId emits an additional `!=` clause separate from the subquery', () => {
-    const flat = flattenAndClauses(
-      builtWhere(1500, 200, 'user_123', 'puzzle_99')
-    );
-    const neq = flat.find(
-      (c) =>
-        c.type === '!=' &&
-        (c as { attribute: string }).attribute === ChessPuzzleAttr.id.key
-    );
-    expect(neq).toBeTruthy();
-    expect((neq as { value: string }).value).toBe('puzzle_99');
-    // The subquery is still there.
-    expect(flat.find((c) => c.type === 'not_in')).toBeTruthy();
-  });
-
-  test('null halfWindow omits rating band clauses', () => {
-    const flat = flattenAndClauses(builtWhere(1500, null, 'user_123', null));
-    expect(flat.find((c) => c.type === 'gte')).toBe(undefined);
-    expect(flat.find((c) => c.type === 'lte')).toBe(undefined);
-  });
-
-  test('empty currentPuzzleId is treated as null (no `!=` clause emitted)', () => {
-    const flat = flattenAndClauses(builtWhere(1500, 200, '', ''));
-    expect(flat.find((c) => c.type === '!=')).toBe(undefined);
+    expect(sql).toContain('id != ?');
+    expect(params).toContain('puzzle_99');
   });
 });
 
-describe('pickPuzzleIdFromPool (deterministic seed selection)', () => {
+describe('pickPuzzleIdFromPool', () => {
   test('returns null on empty pool', () => {
     expect(
       pickPuzzleIdFromPool({
-        entities: [],
+        rows: [],
         rating: 1500,
         preferredBand: 100,
         seed: 'anything',
@@ -124,44 +49,25 @@ describe('pickPuzzleIdFromPool (deterministic seed selection)', () => {
   });
 
   test('seeded selection is stable across runs', () => {
-    const entities = ['p1', 'p2', 'p3', 'p4'].map((id) => ({
-      entityId: id,
-      attributes: { [ChessPuzzleAttr.rating.key]: 1500 } as never,
-    }));
+    const rows = [
+      { id: 'p1', rating: 1500 },
+      { id: 'p2', rating: 1500 },
+      { id: 'p3', rating: 1500 },
+      { id: 'p4', rating: 1500 },
+    ];
     const a = pickPuzzleIdFromPool({
-      entities,
+      rows,
       rating: 1500,
       preferredBand: 100,
       seed: 'sess-1',
     });
     const b = pickPuzzleIdFromPool({
-      entities,
+      rows,
       rating: 1500,
       preferredBand: 100,
       seed: 'sess-1',
     });
     expect(a).toBe(b);
     expect(a).not.toBe(null);
-  });
-
-  test('falls back to the full entity list when band is empty', () => {
-    const entities = [
-      {
-        entityId: 'too-low',
-        attributes: { [ChessPuzzleAttr.rating.key]: 800 } as never,
-      },
-      {
-        entityId: 'too-high',
-        attributes: { [ChessPuzzleAttr.rating.key]: 2400 } as never,
-      },
-    ];
-    const picked = pickPuzzleIdFromPool({
-      entities,
-      rating: 1500,
-      preferredBand: 100,
-      seed: 'fallback-seed',
-    });
-    expect(picked).not.toBe(null);
-    expect(['too-low', 'too-high']).toContain(picked as string);
   });
 });

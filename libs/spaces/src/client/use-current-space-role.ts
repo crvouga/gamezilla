@@ -1,14 +1,9 @@
 import {
-  SPACE_ENTITY_TYPE,
-  SpaceAttr,
-} from '@libs/spaces/shared/space-entities';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
-
-import { useCurrentSpaceIds } from './use-current-space-ids';
-import {
+  useCurrentSpaceIds,
   isReplicationHost,
   useReplicationIdentityIds,
-} from './use-replication-identity-ids';
+} from './use-current-space-ids';
+import { useSpaceColumn, SpaceField } from './use-space-column';
 
 /**
  * Returns the current user's role on `spaceId` — `'host'`, `'guest'`, or
@@ -17,16 +12,8 @@ import {
 export function useCurrentSpaceRole(spaceId: string): 'host' | 'guest' | null {
   const identityIds = useReplicationIdentityIds();
   const { entries } = useCurrentSpaceIds();
-  const hostId = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.hostId,
-  });
-  const endedAt = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.endedAt,
-  });
+  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
+  const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
 
   const entry = entries.find((e) => e.spaceId === spaceId);
   if (entry !== undefined) return entry.role;

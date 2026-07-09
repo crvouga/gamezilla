@@ -8,32 +8,32 @@ import type { AvatarConfig } from '../shared/avatar-config';
 import {
   configsEqual,
   createDefaultAvatarConfig,
+  parseAvatarConfig,
   serializeAvatarConfig,
 } from '../shared/avatar-config';
-import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
+import { ProfileCol, PROFILES_TABLE } from '../shared/sync-tables';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
-import { usePatchDb } from '@pkgs/patch-db/react';
+import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useMyProfileId } from './use-my-profile-id';
-import { useProfileEntityById } from './use-profile-entity-by-id';
+import { useProfileRow } from './use-profile-row';
 
 function usePersistedConfig() {
   const profileId = useMyProfileId();
   const deviceId = useDeviceId();
-  const entity = useProfileEntityById(profileId);
+  const row = useProfileRow(profileId);
   const persisted = useMemo(() => {
-    const attrs = entity?.attributes as Record<string, unknown> | undefined;
-    const parsed = ProfileAttr.avatarConfig.from(attrs ?? {});
+    const parsed = parseAvatarConfig(row?.avatar_config ?? null);
     if (parsed !== null) {
       return parsed;
     }
     const id = profileId ?? deviceId;
-    return createDefaultAvatarConfig(id);
-  }, [entity?.attributes, profileId, deviceId]);
-  const seedFallback = profileId ?? deviceId;
+    return createDefaultAvatarConfig(id ?? '');
+  }, [row?.avatar_config, profileId, deviceId]);
+  const seedFallback = profileId ?? deviceId ?? '';
   return { seedFallback, profileId, persisted };
 }
 
@@ -160,17 +160,14 @@ function useSaveAction(args: {
   profileId: string | null;
 }) {
   const { draft, profileId } = args;
-  const db = usePatchDb();
+  const engine = useSyncEngine();
   return useCallback(async () => {
     if (profileId === null) return;
-    await db.write([
-      {
-        entityId: profileId,
-        entityType: PROFILE_ENTITY_TYPE,
-        attributes: ProfileAttr.avatarConfig(serializeAvatarConfig(draft)),
-      },
-    ]);
-  }, [db, draft, profileId]);
+    await engine.db.run(
+      `UPDATE ${PROFILES_TABLE.tableName} SET ${ProfileCol.avatarConfig} = ? WHERE ${ProfileCol.id} = ?`,
+      [serializeAvatarConfig(draft), profileId]
+    );
+  }, [engine, draft, profileId]);
 }
 
 function useEditorActions(args: {

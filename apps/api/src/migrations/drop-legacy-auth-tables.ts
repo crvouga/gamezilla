@@ -2,7 +2,7 @@ import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { quotePgIdent } from '@pkgs/sql-client/postgres-schema';
 
-/** Legacy auth Postgres tables superseded by the auth adapter + PatchDB account entities. */
+/** Legacy auth Postgres tables superseded by the auth adapter + sync account entities. */
 const LEGACY_AUTH_TABLES = [
   'verification',
   'account',

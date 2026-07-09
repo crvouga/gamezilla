@@ -1,10 +1,7 @@
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
-import {
-  SPACE_ENTITY_TYPE,
-  SpaceAttr,
-} from '@libs/spaces/shared/space-entities';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type { ReactNode } from 'react';
+
+import { useSpaceColumn, SpaceField } from '../use-space-column';
 
 export type SpaceHostAvatarProps = {
   spaceId: string;
@@ -12,17 +9,12 @@ export type SpaceHostAvatarProps = {
   vividBackdrop?: boolean;
 };
 
-/** Avatar of the host of a space, by space id. */
 export function SpaceHostAvatar({
   spaceId,
   size,
   vividBackdrop,
 }: SpaceHostAvatarProps): ReactNode {
-  const hostId = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.hostId,
-  });
+  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
   return (
     <UserProfileAvatar
       profileId={hostId}

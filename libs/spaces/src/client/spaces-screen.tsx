@@ -67,8 +67,7 @@ export function SpacesScreen({
   const { createSpace } = useSpaceActions();
   const { t } = useLingui();
 
-  const primaryAction = useMemo((): ScreenBasePrimaryAction | undefined => {
-    if (!canCreateSpace) return undefined;
+  const primaryAction = useMemo((): ScreenBasePrimaryAction => {
     return {
       labels: {
         idle: t`New space`,
@@ -83,6 +82,7 @@ export function SpacesScreen({
       },
       successHoldMs: 0,
       icon: 'plus',
+      disabled: !canCreateSpace,
     };
   }, [canCreateSpace, createSpace, router, t]);
 
@@ -93,7 +93,7 @@ export function SpacesScreen({
       centerTabs={centerTabs}
       headerEnd={headerEnd}
       leading={leading}
-      {...(primaryAction !== undefined ? { primaryAction } : {})}
+      primaryAction={primaryAction}
       content={({ sx }) => (
         <Box style={sx}>
           <SpacesList bottomInset={miniplayerInsets.bottom} />

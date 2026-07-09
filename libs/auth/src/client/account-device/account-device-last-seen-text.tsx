@@ -1,7 +1,6 @@
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { DEVICE_ENTITY_TYPE, DeviceAttr } from '../../shared';
+import { DeviceField, useDeviceColumn } from '../use-device-column';
 import { formatTimestamp } from '../device-parsers';
 
 export type AccountDeviceLastSeenTextProps = {
@@ -12,16 +11,8 @@ export type AccountDeviceLastSeenTextProps = {
 export function AccountDeviceLastSeenText({
   deviceId,
 }: AccountDeviceLastSeenTextProps): ReactNode {
-  const lastSeenAt = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.lastSeenAt,
-  });
+  const lastSeenAt = useDeviceColumn(deviceId, DeviceField.lastSeenAt);
   return (
-    <Text
-      variant="body"
-      numberOfLines={4}
-      label={formatTimestamp(lastSeenAt)}
-    />
+    <Text variant="body" numberOfLines={4} label={formatTimestamp(lastSeenAt)} />
   );
 }

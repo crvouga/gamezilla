@@ -28,7 +28,7 @@ const readRoomErrorOrNull = (v: unknown): RoomError | Error | null => {
  * Domain module state must not use the `room/` prefix.
  *
  * `last-error` carries a `RoomError | Error | null` shape. We declare it as
- * `jsonOrNull` because the snapshot is in-memory only — patch-db never
+ * `jsonOrNull` because the snapshot is in-memory only — the entity store never
  * serializes it. The parser is typed externally; the cast just satisfies the
  * `Record<string, unknown>` shape ceiling on `json` tags (Error instances
  * structurally fit `Record<string, unknown>` after the parser returns).

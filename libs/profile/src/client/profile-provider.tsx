@@ -1,6 +1,6 @@
 import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
-import { usePatchDb } from '@pkgs/patch-db/react';
+import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, type ReactNode } from 'react';
 
 import { ensureProfile } from './ensure-profile-entity';
@@ -11,7 +11,7 @@ import { ensureProfile } from './ensure-profile-entity';
  * whenever the in-memory account id changes (sign in / out).
  */
 function ProfileEntityBootstrap(): null {
-  const db = usePatchDb();
+  const engine = useSyncEngine();
   const deviceId = useDeviceId();
   const accountId = useCurrentAccountId();
 
@@ -20,7 +20,8 @@ function ProfileEntityBootstrap(): null {
     void (async () => {
       try {
         const myId = accountId !== null ? accountId : deviceId;
-        await ensureProfile(db, myId);
+        if (myId === null || myId.length === 0) return;
+        await ensureProfile(engine.db, myId);
         if (cancelled) return;
       } catch {
         // Best-effort: re-asserted on the next identity change.
@@ -29,7 +30,7 @@ function ProfileEntityBootstrap(): null {
     return () => {
       cancelled = true;
     };
-  }, [db, deviceId, accountId]);
+  }, [engine, deviceId, accountId]);
 
   return null;
 }

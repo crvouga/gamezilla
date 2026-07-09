@@ -1,11 +1,6 @@
-import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@libs/auth/shared';
-import {
-  type AppAuthContext,
-  buildAppAuthContext,
-} from '@libs/auth/shared/auth-context';
+import { AccountCol, ACCOUNTS_TABLE } from '@libs/auth/shared/auth-tables';
 import { createLogger } from '@pkgs/logger';
-import type { PatchDb } from '@pkgs/patch-db/interface';
-import { PatchMetaAttr } from '@pkgs/patch-db/metadata/patch-metadata';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
@@ -22,9 +17,8 @@ export type StripeAuthContext = {
   readonly deviceId: string;
 };
 
-/** Resolve session device + account from the API Worker auth layer. */
 export type StripeRequireAuth = (
-  db: PatchDb,
+  sql: SqlClient,
   request: Request
 ) => Promise<StripeAuthContext>;
 
@@ -41,48 +35,37 @@ const portalBodySchema = z.object({
 type CheckoutValidated = z.infer<typeof checkoutBodySchema>;
 type PortalValidated = z.infer<typeof portalBodySchema>;
 
-function stripePatchDbContext(auth: StripeAuthContext): AppAuthContext {
-  return buildAppAuthContext({
-    deviceId: auth.deviceId,
-    accountId: auth.accountId,
-    myId: auth.accountId,
-  });
+async function readStripeCustomerId(
+  sql: SqlClient,
+  accountId: string
+): Promise<string | null> {
+  const rows = await sql.query<Record<string, unknown>>(
+    `SELECT ${AccountCol.stripeCustomerId} FROM ${ACCOUNTS_TABLE.tableName}
+     WHERE ${AccountCol.id} = ? LIMIT 1`,
+    [accountId]
+  );
+  const raw = rows[0]?.[AccountCol.stripeCustomerId];
+  return typeof raw === 'string' && raw.length > 0 ? raw : null;
 }
 
 async function ensureStripeCustomerId(args: {
-  readonly db: PatchDb;
+  readonly sql: SqlClient;
   readonly stripe: Stripe;
   readonly auth: StripeAuthContext;
-  readonly patchCtx: AppAuthContext;
 }): Promise<string> {
-  const { db, stripe, auth, patchCtx } = args;
+  const { sql, stripe, auth } = args;
   const { accountId, deviceId } = auth;
-
-  const [accRes] = await db.read(
-    [{ entityType: ACCOUNT_ENTITY_TYPE, entityId: accountId, limit: 1 }],
-    patchCtx
-  );
-  const account = accRes?.entities[0];
-  const existingRaw = account?.attributes[AccountAttr.stripeCustomerId.key];
-  if (typeof existingRaw === 'string' && existingRaw.length > 0) {
-    return existingRaw;
-  }
+  const existing = await readStripeCustomerId(sql, accountId);
+  if (existing !== null) return existing;
 
   const customer = await stripe.customers.create({
     metadata: { account_id: accountId, device_id: deviceId },
   });
-  await db.write(
-    [
-      {
-        entityId: accountId,
-        entityType: ACCOUNT_ENTITY_TYPE,
-        attributes: {
-          ...AccountAttr.stripeCustomerId(customer.id),
-          ...PatchMetaAttr.createdById(deviceId),
-        },
-      },
-    ],
-    patchCtx
+  await sql.run(
+    `UPDATE ${ACCOUNTS_TABLE.tableName}
+     SET ${AccountCol.stripeCustomerId} = ?
+     WHERE ${AccountCol.id} = ?`,
+    [customer.id, accountId]
   );
   return customer.id;
 }
@@ -91,39 +74,29 @@ async function handleStripeCheckout(
   c: Context,
   body: CheckoutValidated,
   args: {
-    readonly db: PatchDb;
+    readonly sql: SqlClient;
     readonly stripe: Stripe;
     readonly requireAuth: StripeRequireAuth;
   }
 ): Promise<Response> {
-  const { db, stripe, requireAuth } = args;
-  const auth = await requireAuth(db, c.req.raw);
-  const patchCtx = stripePatchDbContext(auth);
+  const { sql, stripe, requireAuth } = args;
+  const auth = await requireAuth(sql, c.req.raw);
 
-  const priceId = await getStripeCatalogPriceStripeId(
-    db,
-    patchCtx,
-    body.priceKey
-  );
+  const priceId = await getStripeCatalogPriceStripeId(sql, body.priceKey);
   if (priceId === null || priceId.length === 0) {
     log.error(
-      'checkout: no catalog_price row for priceKey — run stripe catalog sync with DATABASE_URL so API payloads are dumped to patch-db'
+      'checkout: no catalog_price row for priceKey — run stripe catalog sync'
     );
     return c.json(
       {
         error:
-          'Stripe price is not available yet (missing catalog row in patch-db)',
+          'Stripe price is not available yet (missing catalog row in entity_store)',
       },
       503
     );
   }
 
-  const stripeCustomerId = await ensureStripeCustomerId({
-    db,
-    stripe,
-    auth,
-    patchCtx,
-  });
+  const stripeCustomerId = await ensureStripeCustomerId({ sql, stripe, auth });
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
@@ -149,27 +122,14 @@ async function handleStripePortal(
   c: Context,
   body: PortalValidated,
   args: {
-    readonly db: PatchDb;
+    readonly sql: SqlClient;
     readonly stripe: Stripe;
     readonly requireAuth: StripeRequireAuth;
   }
 ): Promise<Response> {
-  const { db, stripe, requireAuth } = args;
-  const auth = await requireAuth(db, c.req.raw);
-  const { accountId } = auth;
-  const patchCtx = stripePatchDbContext(auth);
-
-  const [accRes] = await db.read(
-    [{ entityType: ACCOUNT_ENTITY_TYPE, entityId: accountId, limit: 1 }],
-    patchCtx
-  );
-  const account = accRes?.entities[0];
-  const stripeCustomerIdRaw =
-    account?.attributes[AccountAttr.stripeCustomerId.key];
-  const stripeCustomerId =
-    typeof stripeCustomerIdRaw === 'string' && stripeCustomerIdRaw.length > 0
-      ? stripeCustomerIdRaw
-      : null;
+  const { sql, stripe, requireAuth } = args;
+  const auth = await requireAuth(sql, c.req.raw);
+  const stripeCustomerId = await readStripeCustomerId(sql, auth.accountId);
 
   if (stripeCustomerId === null) {
     throw new HTTPException(404, {
@@ -193,11 +153,11 @@ async function handleStripePortal(
 }
 
 export function createStripeCheckoutRoutes(args: {
-  readonly getPatchDb: () => PatchDb;
+  readonly getSqlClient: () => SqlClient;
   readonly stripe: Stripe | null;
   readonly requireAuth: StripeRequireAuth;
 }) {
-  const { getPatchDb, stripe, requireAuth } = args;
+  const { getSqlClient, stripe, requireAuth } = args;
 
   return new Hono()
     .post(
@@ -208,9 +168,9 @@ export function createStripeCheckoutRoutes(args: {
           return c.json({ error: 'Stripe is not configured' }, 503);
         }
         const body = c.req.valid('json');
-        const db = getPatchDb();
+        const sql = getSqlClient();
         return handleStripeCheckout(c, body, {
-          db,
+          sql,
           stripe,
           requireAuth,
         });
@@ -221,7 +181,7 @@ export function createStripeCheckoutRoutes(args: {
         return c.json({ error: 'Stripe is not configured' }, 503);
       }
       const body = c.req.valid('json');
-      const db = getPatchDb();
-      return handleStripePortal(c, body, { db, stripe, requireAuth });
+      const sql = getSqlClient();
+      return handleStripePortal(c, body, { sql, stripe, requireAuth });
     });
 }

@@ -1,0 +1,33 @@
+import { describe, expect, test } from 'bun:test';
+
+import { defineTable } from '../shared/table-definition';
+import { createTableRegistry } from '../shared/table-registry';
+import { createInMemorySyncEngine } from './in-memory-sync-engine';
+
+describe('createInMemorySyncEngine', () => {
+  test('watch query returns rows after connect', async () => {
+    const registry = createTableRegistry([
+      defineTable({
+        tableName: 'profiles',
+        columns: [
+          { name: 'id', type: 'text', primaryKey: true },
+          { name: 'display_name', type: 'text' },
+        ],
+      }),
+    ]);
+    const engine = createInMemorySyncEngine({ registry });
+    await engine.connect();
+    await engine.db.run(
+      'INSERT INTO profiles (id, display_name) VALUES (?, ?)',
+      ['p1', 'Ada']
+    );
+
+    const sub = engine.watch<{ id: string; display_name: string }>(
+      'SELECT id, display_name FROM profiles WHERE id = ?',
+      ['p1']
+    );
+    await new Promise((r) => setTimeout(r, 150));
+    expect(sub.getSnapshot()[0]?.display_name).toBe('Ada');
+    await engine.disconnect();
+  });
+});

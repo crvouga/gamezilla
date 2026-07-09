@@ -1,6 +1,6 @@
-import { useEntity } from '@pkgs/patch-db/react';
+import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '../shared';
+import { AccountCol, ACCOUNTS_TABLE } from '../shared/auth-tables';
 import { useAuthClientPort } from './auth-client-provider';
 import {
   useCurrentAccountId,
@@ -16,36 +16,41 @@ export type CurrentUser = {
   stripeCustomerId: string | null;
 };
 
+type AccountRow = {
+  readonly created_at: string | null;
+  readonly stripe_customer_id: string | null;
+};
+
 /**
  * Source of truth for "who is signed in" on the client. Reads:
  *   - `accountId` from secure storage (instant, survives cold start)
- *   - the `account/<id>` entity from PatchDB (populated by the most recent
- *     `POST /auth/refresh`, replicated and persisted in local SQLite)
+ *   - the `accounts` row from local sync (populated by the most recent
+ *     `POST /auth/refresh`, replicated via PowerSync)
  *
  * Returns `null` when signed out. Returns a stub `{ accountId, ... }` while
- * the PatchDB row is still syncing; consumers can render their UI off the
- * non-null `accountId` and let attribute reads fill in over time.
+ * the row is still syncing; consumers can render off the non-null `accountId`
+ * and let column reads fill in over time.
  */
 export function useCurrentUser(): CurrentUser | null {
   const accountId = useCurrentAccountId();
-  const entity = useEntity(ACCOUNT_ENTITY_TYPE, accountId ?? '');
+  const { row } = useWatchOne<AccountRow>(
+    `SELECT ${AccountCol.createdAt}, ${AccountCol.stripeCustomerId}
+     FROM ${ACCOUNTS_TABLE.tableName}
+     WHERE ${AccountCol.id} = ?`,
+    accountId === null ? [''] : [accountId]
+  );
   if (accountId === null) return null;
 
-  const attrs = entity?.attributes ?? {};
-  const createdAtRaw = attrs[AccountAttr.createdAt.key];
-  const stripeCustomerIdRaw = attrs[AccountAttr.stripeCustomerId.key];
   return {
     accountId,
-    createdAt: typeof createdAtRaw === 'string' ? createdAtRaw : null,
-    stripeCustomerId:
-      typeof stripeCustomerIdRaw === 'string' ? stripeCustomerIdRaw : null,
+    createdAt: row?.created_at ?? null,
+    stripeCustomerId: row?.stripe_customer_id ?? null,
   };
 }
 
 /**
  * Convenience: `true` iff a session token + account id are both present in
- * secure storage. The PatchDB account row is irrelevant — sign-in is effective
- * the moment `<AuthBridge>` writes both keys.
+ * secure storage.
  */
 export function useIsSignedIn(): boolean {
   const port = useAuthClientPort();
@@ -59,9 +64,7 @@ export function useIsSignedIn(): boolean {
 }
 
 /**
- * Replication identity for patch metadata: account id when signed in, else the
- * install device id. Returns the empty string only on first cold start before
- * the device id has been generated (vanishingly small window).
+ * Replication identity: account id when signed in, else the install device id.
  */
 export function useMyId(): string {
   const accountId = useCurrentAccountId();

@@ -1,17 +1,17 @@
 import { ensureDeviceEntity } from '@libs/auth/client/ensure-device-entity';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
-import { usePatchDb } from '@pkgs/patch-db/react';
+import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, type ReactNode } from 'react';
 
 /**
- * Idempotently writes / refreshes the local `device/<deviceId>` entity.
+ * Idempotently writes / refreshes the local `devices` row for this install.
  */
 export function DeviceEntityBootstrap({
   children,
 }: {
   children: ReactNode;
 }): ReactNode {
-  const db = usePatchDb();
+  const { db } = useSyncEngine();
   const deviceId = useDeviceId();
 
   useEffect(() => {

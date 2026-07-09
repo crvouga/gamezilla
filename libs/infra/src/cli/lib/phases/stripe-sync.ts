@@ -5,7 +5,7 @@ import { runStep } from '../../platform/platform';
 import { runAsync } from '../../subprocess';
 
 /**
- * Runs the `@libs/stripe sync` script: catalog + patch-db backfill +
+ * Runs the `@libs/stripe sync` script: catalog + entity_store backfill +
  * webhook endpoints, with `STRIPE_WEBHOOK_SECRET` written back to the secret store.
  * Must run after API worker is deployed so the webhook endpoint URL exists.
  */
@@ -20,7 +20,7 @@ export async function runStripeSyncPhase(platform: CiPlatform): Promise<void> {
           cwd: REPO_ROOT,
           env: process.env,
           label:
-            'stripe: catalog + patch-db backfill + webhook endpoints (+ secret store STRIPE_WEBHOOK_SECRET)',
+            'stripe: catalog + entity_store backfill + webhook endpoints (+ secret store STRIPE_WEBHOOK_SECRET)',
         }
       );
     });

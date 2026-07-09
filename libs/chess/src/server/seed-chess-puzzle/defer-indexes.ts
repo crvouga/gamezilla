@@ -1,17 +1,10 @@
 /**
- * Drop chess-puzzle snapshot secondary indexes before a bulk seed so inserts
- * do not maintain btrees (and any legacy GIN) on managed Postgres tiers with
- * tight storage caps. Re-run `db:migrate` after the seed to recreate indexes
- * from the entity schema registry.
+ * Drop chess_puzzles secondary indexes before a bulk seed so inserts do not
+ * maintain btrees on managed Postgres tiers with tight storage caps.
  */
-import { CHESS_PUZZLE_ENTITY_TYPE } from '@libs/chess/shared/chess-puzzle-entities';
+import { CHESS_PUZZLES_TABLE } from '@libs/chess/shared/sync-tables';
 import type { Logger } from '@pkgs/logger';
-import { partitionTableName } from '@pkgs/patch-db/impl-postgres/partitioning';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-
-const CHESS_PUZZLE_SNAPSHOTS_TABLE = partitionTableName(
-  CHESS_PUZZLE_ENTITY_TYPE
-);
 
 const DROP_INDEX_SQL = `
   SELECT indexname
@@ -27,25 +20,21 @@ export async function dropPuzzleSnapshotIndexes(args: {
   log: Logger;
 }): Promise<void> {
   const { sql, log } = args;
-  const rows = await sql.query<{ indexname: string }>(DROP_INDEX_SQL, [
-    CHESS_PUZZLE_SNAPSHOTS_TABLE,
-  ]);
+  const table = CHESS_PUZZLES_TABLE.tableName;
+  const rows = await sql.query<{ indexname: string }>(DROP_INDEX_SQL, [table]);
   if (rows.length === 0) {
     log.info('seed:puzzles: defer-indexes — no secondary indexes to drop');
     return;
   }
-  log.info(
-    'seed:puzzles: defer-indexes — dropping snapshot secondary indexes',
-    {
-      table: CHESS_PUZZLE_SNAPSHOTS_TABLE,
-      count: rows.length,
-    }
-  );
+  log.info('seed:puzzles: defer-indexes — dropping chess_puzzles secondary indexes', {
+    table,
+    count: rows.length,
+  });
   for (const { indexname } of rows) {
     try {
       await sql.run(`DROP INDEX IF EXISTS "${indexname}"`);
     } catch (err) {
-      log.warn('seed:puzzles: defer-indexes — DROP INDEX failed (continuing)', {
+      log.warn('seed:puzzles: defer-indexes — drop failed (continuing)', {
         indexname,
         error: err instanceof Error ? err.message : String(err),
       });
@@ -63,10 +52,7 @@ export function formatPostgresStorageLimitError(): string {
   return [
     'Postgres project storage limit exceeded (SQLSTATE 53100).',
     'The full Lichess puzzle dataset (~2.65M rows) needs several GB once',
-    'patches + snapshots + btree indexes land — Neon free tier (512 MB) cannot',
-    'hold it. Upgrade the production Neon project (Scale / storage add-on),',
+    'chess_puzzles + btree indexes land — upgrade hosted Postgres storage,',
     'then re-run this workflow: the seed resumes from the saved cursor.',
-    'Also run `db:migrate` after upgrading so chess.puzzle GIN opt-out and',
-    'deferred indexes converge.',
   ].join(' ');
 }

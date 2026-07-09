@@ -6,7 +6,7 @@ import { banner, fail, fmtMs, heading, kv, ok, warn } from '../lib/fmt';
 import { httpProbe } from '../lib/http-probe';
 import { infraOutputs, type InfraOutputs } from '../lib/infra-outputs';
 import type { CiPlatform } from '../platform/platform';
-import { pingDatabase } from '../resources/planetscale-postgres';
+import { pingDatabase } from '../resources/neon-postgres';
 import { cfAccountId } from '../secrets/cloudflare';
 import { loadSecretsIntoEnv } from '../secrets/secrets';
 import { runCaptureAsync } from '../subprocess';
@@ -99,17 +99,17 @@ export class StatusCommand implements Command {
       failed = true;
     }
 
-    // ── 4. Database (PlanetScale Postgres) ──────────────────────────────
+    // ── 4. Database (Neon Postgres) ───────────────────────────────────
     heading('Database');
     const db = await pingDatabase();
     if (db.ok) {
       const detail = db.host
         ? `SELECT 1 @ ${db.host} — ${fmtMs(db.durationMs)}`
         : `SELECT 1 — ${fmtMs(db.durationMs)}`;
-      ok('PlanetScale (postgres)', detail);
+      ok('Neon (postgres)', detail);
     } else {
       fail(
-        'PlanetScale (postgres)',
+        'Neon (postgres)',
         `${db.error ?? 'unreachable'} (${fmtMs(db.durationMs)})`
       );
       failed = true;

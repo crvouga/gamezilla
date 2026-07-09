@@ -8,11 +8,7 @@ import {
   isReplicationHost,
   useReplicationIdentityIds,
 } from '../use-replication-identity-ids';
-import {
-  SPACE_ENTITY_TYPE,
-  SpaceAttr,
-} from '@libs/spaces/shared/space-entities';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
+import { useSpaceColumn, SpaceField } from '../use-space-column';
 import type {
   Room,
   RoomCommandPayload,
@@ -37,18 +33,10 @@ export type SpaceRoomUiState = {
 export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const myId = useMyId();
   const identityIds = useReplicationIdentityIds();
-  const endedAt = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.endedAt,
-  });
+  const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
   const isLive = endedAt === null;
   const role = useCurrentSpaceRole(spaceId);
-  const hostId = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.hostId,
-  });
+  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
   const isHostByEntity =
     endedAt === null && isReplicationHost(hostId, identityIds);
   const inThisSpace = role !== null || isHostByEntity;

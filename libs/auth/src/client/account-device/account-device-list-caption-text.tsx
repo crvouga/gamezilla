@@ -1,37 +1,27 @@
-import { useQueryAttribute } from '@pkgs/patch-db/react';
-import { Text } from '@pkgs/ui';
+import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
+import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { ReactNode } from 'react';
-import { DEVICE_ENTITY_TYPE, DeviceAttr } from '../../shared';
+import { DeviceField, useDeviceColumn } from '../use-device-column';
 import { formatDeviceListCaption } from '../device-parsers';
 
 export type AccountDeviceListCaptionTextProps = {
   deviceId: string;
+  variant?: TextVariant;
+  numberOfLines?: number;
+  sx?: SxProps;
 };
 
-/** OS line + last seen, formatted. */
+/** Secondary line for device list rows (OS + last seen). */
 export function AccountDeviceListCaptionText({
   deviceId,
+  variant,
+  numberOfLines,
+  sx,
 }: AccountDeviceListCaptionTextProps): ReactNode {
-  const osName = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.osName,
-  });
-  const osVersion = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.osVersion,
-  });
-  const lastSeenAt = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.lastSeenAt,
-  });
-  const createdAt = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.createdAt,
-  });
+  const osName = useDeviceColumn(deviceId, DeviceField.osName);
+  const osVersion = useDeviceColumn(deviceId, DeviceField.osVersion);
+  const lastSeenAt = useDeviceColumn(deviceId, DeviceField.lastSeenAt);
+  const createdAt = useDeviceColumn(deviceId, DeviceField.createdAt);
   const label = formatDeviceListCaption({
     osName,
     osVersion,
@@ -39,6 +29,6 @@ export function AccountDeviceListCaptionText({
     createdAt,
   });
   return (
-    <Text variant="caption" sx={{ color: 'textSecondary' }} label={label} />
+    <Text {...optionalProps({ variant, numberOfLines, sx })} label={label} />
   );
 }

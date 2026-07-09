@@ -2,7 +2,7 @@
  * The only sanctioned way to open a Postgres connection in this codebase.
  *
  * Every factory pins the session to a {@link PostgresDbScope}, so unqualified
- * SQL always resolves to the application schema and never to `public`. Direct
+ * SQL always resolves to the application schema (`public` by default). Direct
  * `new Pool()` / `new Client()` outside `@pkgs/sql-client` is banned by CI
  * (`scripts/check-no-direct-pg-imports.ts`), which makes pointing at a
  * different schema impossible without going through here.
@@ -99,7 +99,7 @@ export async function openPgClient(
     ...args.clientOptions,
   });
   await client.connect();
-  if (args.ensureSchema === true) {
+  if (args.ensureSchema === true && args.dbScope.schema !== 'public') {
     await client.query(
       `CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(args.dbScope.schema)}`
     );
@@ -240,6 +240,10 @@ export async function ensurePostgresSchema(
   sqlClient: SqlClient,
   dbScope: PostgresDbScope
 ): Promise<void> {
+  if (dbScope.schema === 'public') {
+    await sqlClient.run('CREATE SCHEMA IF NOT EXISTS public');
+    return;
+  }
   await sqlClient.run(
     `CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(dbScope.schema)}`
   );

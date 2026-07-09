@@ -284,6 +284,33 @@ async function resolveExpoPublicObservabilityBackend(
   );
 }
 
+async function resolveExpoPublicPowerSyncUrl(
+  store: SecretStore | null
+): Promise<string | null> {
+  const fromEnv = trimStringOrNull(process.env['EXPO_PUBLIC_POWERSYNC_URL']);
+  if (fromEnv !== null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_POWERSYNC_URL from process env (e.g. secrets-run).\n'
+    );
+    return fromEnv;
+  }
+  if (store === null) return null;
+  const fromSecrets = (
+    await store.getOptional('POWERSYNC_URL')
+  )?.readSecretValue();
+  const trimmed =
+    typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
+      ? fromSecrets.trim()
+      : null;
+  if (trimmed !== null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_POWERSYNC_URL from secret store POWERSYNC_URL.\n'
+    );
+    return trimmed;
+  }
+  return null;
+}
+
 async function main(): Promise<void> {
   const raw = await resolveExpoPublicApiUrl();
   let origin = '';
@@ -318,6 +345,7 @@ async function main(): Promise<void> {
   const authPublishableKey = await resolveExpoPublicAuthPublishableKey(store);
   const observabilityBackend =
     await resolveExpoPublicObservabilityBackend(store);
+  const powersyncUrl = await resolveExpoPublicPowerSyncUrl(store);
   if (sentryDsn === null) {
     process.stdout.write(
       '[setup-env] EXPO_PUBLIC_SENTRY_DSN unset; Sentry error reporting disabled in dev.\n'
@@ -326,6 +354,11 @@ async function main(): Promise<void> {
   if (authPublishableKey === null) {
     process.stdout.write(
       '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY unset; sign-in disabled until AUTH_PUBLISHABLE_KEY is provisioned.\n'
+    );
+  }
+  if (powersyncUrl === null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_POWERSYNC_URL unset; PowerSync sync disabled until POWERSYNC_URL is provisioned.\n'
     );
   }
 
@@ -342,6 +375,9 @@ async function main(): Promise<void> {
   }
   if (observabilityBackend !== null) {
     body += `EXPO_PUBLIC_OBSERVABILITY_BACKEND=${JSON.stringify(observabilityBackend)}\n`;
+  }
+  if (powersyncUrl !== null) {
+    body += `EXPO_PUBLIC_POWERSYNC_URL=${JSON.stringify(powersyncUrl)}\n`;
   }
   if (e2eFlag !== null) {
     body += `EXPO_PUBLIC_E2E=${JSON.stringify(e2eFlag)}\n`;

@@ -17,7 +17,7 @@
  *     that EXTENDED does on every write.
  *
  * Values are `JSONB` objects whose top-level keys are {@link Keyword}s (same
- * contract as patch-db snapshot attributes). Writes use `?::text::jsonb` so
+ * contract as sync entity snapshot attributes). Writes use `?::text::jsonb` so
  * Bun's `bun:sql` driver does not double-encode JSON parameters.
  */
 import { assert, hotAssert } from '@pkgs/assert';
@@ -208,7 +208,7 @@ async function runKvPostgresMigrations(
  * - **`KvImplPostgres.open(...)`** — runs {@link KvImplPostgres.migrateUp} then
  *   returns an instance (scripts / one-off tools).
  *
- * Migration: `KvImplPostgres.migrateUp({ sqlClient, logger })` (static), same as patch-db.
+ * Migration: `KvImplPostgres.migrateUp({ sqlClient, logger })` (static), same as the sync entity store.
  */
 export class KvImplPostgres implements Kv {
   constructor(private readonly sqlClient: SqlClient) {}

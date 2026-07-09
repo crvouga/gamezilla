@@ -1,22 +1,11 @@
 /**
  * Top-level Stripe sync orchestrator.
  *
- * Composes catalog reconcile → patch-db backfills → webhook reconcile in a
- * stable order on a single shared Stripe client + PatchDb + secret store CLI.
- *
- * The order matters:
- *   1. Catalog: ensures Products/Prices exist + patch-db has the latest
- *      `stripe.catalog_*` entities so the Worker can resolve `priceKey` after webhooks
- *      start firing.
- *   2. Entities: snapshots existing Stripe state into patch-db so any objects
- *      created before this deploy (or before webhooks were configured) are
- *      visible to the API.
- *   3. Webhooks: only after catalog + patch-db are coherent do we wire up the
- *      live event stream — otherwise the first webhook events arrive against
- *      a DB that doesn't know about the existing customers/subs.
+ * Composes catalog reconcile → entity_store backfills → webhook reconcile in a
+ * stable order on a single shared Stripe client + SqlClient + secret store CLI.
  */
 import type { SecretStore } from '@pkgs/secret-store';
-import type { PatchDb } from '@pkgs/patch-db/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type Stripe from 'stripe';
 import { runStripeCatalogSync, type CatalogSyncResult } from './catalog';
 import { runStripeEntitiesSync, type EntitiesSyncResult } from './entities';
@@ -30,7 +19,7 @@ export type StripeFullSyncResult = {
 
 export async function runStripeFullSync(args: {
   readonly stripe: Stripe;
-  readonly patchDb: PatchDb;
+  readonly sql: SqlClient;
   /** Used by the webhook step to persist the freshly-issued `whsec_…`. */
   readonly secretStore: SecretStore;
   /** Absolute origin of the unified Worker, e.g. `https://www.gamezilla.app`. */
@@ -38,10 +27,10 @@ export async function runStripeFullSync(args: {
   /** When true, webhook reconcile logs the plan without mutating Stripe/secrets. */
   readonly dryRun?: boolean;
 }): Promise<StripeFullSyncResult> {
-  const { stripe, patchDb, secretStore, apiUrlBase } = args;
+  const { stripe, sql, secretStore, apiUrlBase } = args;
 
-  const catalog = await runStripeCatalogSync({ stripe, patchDb });
-  const entities = await runStripeEntitiesSync({ stripe, patchDb });
+  const catalog = await runStripeCatalogSync({ stripe, sql });
+  const entities = await runStripeEntitiesSync({ stripe, sql });
   const webhooks = await runStripeWebhookSync({
     stripe,
     secretStore,

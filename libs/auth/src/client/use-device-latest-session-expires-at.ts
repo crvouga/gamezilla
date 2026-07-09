@@ -1,10 +1,17 @@
-import { ACCOUNT_SESSION_ENTITY_TYPE, AccountSessionAttr } from '../shared';
-import type { Entity } from '@pkgs/patch-db/interface';
-import { useQuery } from '@pkgs/patch-db/react';
+import {
+  AccountSessionCol,
+  ACCOUNT_SESSIONS_TABLE,
+} from '../shared/auth-tables';
+import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
-function activeExpiryMs(entity: Entity, now: number): number | null {
-  const token = entity.attributes[AccountSessionAttr.token.key];
-  const expiresAt = entity.attributes[AccountSessionAttr.expiresAt.key];
+type SessionRow = {
+  readonly token: string | null;
+  readonly expires_at: string | null;
+};
+
+function activeExpiryMs(row: SessionRow, now: number): number | null {
+  const token = row.token;
+  const expiresAt = row.expires_at;
   if (typeof token !== 'string' || token.length === 0) return null;
   if (typeof expiresAt !== 'string') return null;
   const t = Date.parse(expiresAt);
@@ -13,12 +20,12 @@ function activeExpiryMs(entity: Entity, now: number): number | null {
 }
 
 function pickLatestActiveExpiryMs(
-  entities: readonly Entity[],
+  rows: readonly SessionRow[],
   now: number
 ): number | null {
   let max: number | null = null;
-  for (const e of entities) {
-    const t = activeExpiryMs(e, now);
+  for (const row of rows) {
+    const t = activeExpiryMs(row, now);
     if (t === null) continue;
     if (max === null || t > max) max = t;
   }
@@ -26,27 +33,24 @@ function pickLatestActiveExpiryMs(
 }
 
 /**
- * ISO `expiresAt` of the latest active session row for `deviceId`, or `null`
+ * ISO `expires_at` of the latest active session row for `deviceId`, or `null`
  * when none exist.
  */
 export function useDeviceLatestSessionExpiresAt(
   deviceId: string
 ): string | null {
   const enabled = deviceId.length > 0;
-  const result = useQuery(
+  const { rows } = useWatchQuery<SessionRow>(
     enabled
-      ? {
-          entityType: ACCOUNT_SESSION_ENTITY_TYPE,
-          where: {
-            type: '=' as const,
-            attribute: AccountSessionAttr.deviceId.key,
-            value: deviceId,
-          },
-          limit: 500,
-        }
-      : { entityType: ACCOUNT_SESSION_ENTITY_TYPE, limit: 0 }
+      ? `SELECT ${AccountSessionCol.token} AS token, ${AccountSessionCol.expiresAt} AS expires_at
+         FROM ${ACCOUNT_SESSIONS_TABLE.tableName}
+         WHERE ${AccountSessionCol.deviceId} = ?
+         LIMIT 500`
+      : `SELECT ${AccountSessionCol.token} AS token, ${AccountSessionCol.expiresAt} AS expires_at
+         FROM ${ACCOUNT_SESSIONS_TABLE.tableName} WHERE 0`,
+    enabled ? [deviceId] : []
   );
 
-  const max = pickLatestActiveExpiryMs(result.entities, Date.now());
+  const max = pickLatestActiveExpiryMs(rows, Date.now());
   return max === null ? null : new Date(max).toISOString();
 }

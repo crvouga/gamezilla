@@ -1,16 +1,19 @@
-import type { PatchDb } from '@pkgs/patch-db/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { describe, expect, it } from 'bun:test';
 import { createStripeCheckoutRoutes } from './stripe-checkout-route';
 
 describe('createStripeCheckoutRoutes', () => {
   it('returns 503 when Stripe is not configured', async () => {
-    const db = {
-      read: async () => [],
-      write: async () => [],
-    } as unknown as PatchDb;
+    const sql = {
+      query: async () => [],
+      run: async () => ({ changes: 0 }),
+      transaction: async (fn: (tx: SqlClient) => Promise<unknown>) =>
+        fn(sql as SqlClient),
+      disconnect: async () => {},
+    } as unknown as SqlClient;
 
     const app = createStripeCheckoutRoutes({
-      getPatchDb: () => db,
+      getSqlClient: () => sql,
       stripe: null,
       requireAuth: async () => {
         throw new Error('should not be called');

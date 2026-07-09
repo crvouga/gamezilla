@@ -11,11 +11,7 @@ import {
   isReplicationHost,
   useReplicationIdentityIds,
 } from './use-replication-identity-ids';
-import {
-  SPACE_ENTITY_TYPE,
-  SpaceAttr,
-} from '@libs/spaces/shared/space-entities';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
+import { useSpaceColumn, SpaceField } from './use-space-column';
 import { useState, type ReactNode } from 'react';
 import {
   useSpaceRouteId,
@@ -49,16 +45,8 @@ function SpaceDetailBody({ spaceId }: SpaceDetailBodyProps): ReactNode {
   const identityIds = useReplicationIdentityIds();
   const { isLoading } = useCurrentSpaceIds();
   const role = useCurrentSpaceRole(spaceId);
-  const hostId = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.hostId,
-  });
-  const endedAt = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.endedAt,
-  });
+  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
+  const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
   const isHostByEntity =
     endedAt === null && isReplicationHost(hostId, identityIds);
   const inThisSpace = role !== null || isHostByEntity;

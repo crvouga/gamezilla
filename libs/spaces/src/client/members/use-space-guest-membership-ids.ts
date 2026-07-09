@@ -1,37 +1,24 @@
 import {
-  SPACE_MEMBERSHIP_ENTITY_TYPE,
-  SpaceMembershipAttr,
-} from '@libs/spaces/shared/space-entities';
-import { useQueryEntityIds } from '@pkgs/patch-db/react';
+  SpaceMembershipCol,
+  SPACE_MEMBERSHIPS_TABLE,
+} from '@libs/spaces/shared/sync-tables';
+import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+
+type MembershipIdRow = { readonly id: string };
 
 /**
- * Membership entity ids for active guests of a space, ordered by `joinedAt`.
- * Returns an empty list when `spaceId` is empty (caller passes `''` to
- * disable, e.g. while the route param is missing).
- *
- * Atoms iterate these ids and render `<SpaceGuestMembershipAvatar
- * membershipId />` etc.; each atom resolves the guest profile id itself.
+ * Membership ids for active guests of a space, ordered by joined_at.
  */
 export function useSpaceGuestMembershipIds(spaceId: string): string[] {
   const enabled = spaceId.length > 0;
-  const args: Parameters<typeof useQueryEntityIds>[0] = enabled
-    ? {
-        entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-        where: {
-          type: 'and',
-          clauses: [
-            {
-              type: '=',
-              attribute: SpaceMembershipAttr.spaceId.key,
-              value: spaceId,
-            },
-            { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt.key },
-          ],
-        },
-        orderBy: [
-          { attribute: SpaceMembershipAttr.joinedAt.key, direction: 'asc' },
-        ],
-      }
-    : { entityType: SPACE_MEMBERSHIP_ENTITY_TYPE, limit: 0 };
-  return useQueryEntityIds(args);
+  const { rows } = useWatchQuery<MembershipIdRow>(
+    enabled
+      ? `SELECT ${SpaceMembershipCol.id} AS id
+         FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
+         WHERE ${SpaceMembershipCol.spaceId} = ? AND ${SpaceMembershipCol.leftAt} IS NULL
+         ORDER BY ${SpaceMembershipCol.joinedAt} ASC`
+      : `SELECT ${SpaceMembershipCol.id} AS id FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} WHERE 0`,
+    enabled ? [spaceId] : []
+  );
+  return rows.map((r) => r.id);
 }

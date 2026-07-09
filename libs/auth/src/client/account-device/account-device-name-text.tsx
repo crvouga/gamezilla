@@ -1,23 +1,16 @@
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { DEVICE_ENTITY_TYPE, DeviceAttr } from '../../shared';
+import { DeviceField, useDeviceColumn } from '../use-device-column';
 import { EM_DASH } from '../device-parsers';
 
 export type AccountDeviceNameTextProps = {
   deviceId: string;
 };
 
-/** `device/deviceName` value, with em-dash fallback. */
+/** Device display name. */
 export function AccountDeviceNameText({
   deviceId,
 }: AccountDeviceNameTextProps): ReactNode {
-  const deviceName = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.deviceName,
-  });
-  return (
-    <Text variant="body" numberOfLines={4} label={deviceName ?? EM_DASH} />
-  );
+  const name = useDeviceColumn(deviceId, DeviceField.deviceName);
+  return <Text variant="body" numberOfLines={4} label={name ?? EM_DASH} />;
 }

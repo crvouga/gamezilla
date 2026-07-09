@@ -1,7 +1,7 @@
 import type { AppAuthContext } from '@libs/auth/shared/auth-context';
 
 /**
- * Authenticated PatchDB context: signed-in account UUID (not anonymous).
+ * Authenticated sync context: signed-in account UUID (not anonymous).
  * Same shape as {@link AppAuthContext} (a claim bag); the brand here exists
  * purely so call sites can express "an `accountId` is present".
  */

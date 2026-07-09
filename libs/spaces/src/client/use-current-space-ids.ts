@@ -1,94 +1,35 @@
-import {
-  SPACE_ENTITY_TYPE,
-  SPACE_MEMBERSHIP_ENTITY_TYPE,
-  SpaceAttr,
-  SpaceMembershipAttr,
-} from '@libs/spaces/shared/space-entities';
-import type {
-  Entity,
-  PatchDbQuery,
-  PatchDbQueryWhereClause,
-} from '@pkgs/patch-db/interface';
-import { useQuery } from '@pkgs/patch-db/react';
+import { useMyId } from '@libs/auth/client/use-current-user';
 import { useMemo } from 'react';
 
 import {
-  guestIdMatchesIdentityWhere,
-  hostIdMatchesIdentityWhere,
-  useReplicationIdentityIds,
-} from './use-replication-identity-ids';
+  SpaceCol,
+  SpaceMembershipCol,
+  SPACES_TABLE,
+  SPACE_MEMBERSHIPS_TABLE,
+} from '@libs/spaces/shared/sync-tables';
+import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
 export type CurrentSpaceEntry = {
   spaceId: string;
   role: 'host' | 'guest';
 };
 
-function hostedSpacesQuery(
-  hostIdentityWhere: PatchDbQueryWhereClause | null
-): PatchDbQuery {
-  if (hostIdentityWhere === null) {
-    return { entityType: SPACE_ENTITY_TYPE, limit: 0 };
-  }
-  return {
-    entityType: SPACE_ENTITY_TYPE,
-    where: {
-      type: 'and',
-      clauses: [
-        hostIdentityWhere,
-        { type: 'not_exists', attribute: SpaceAttr.endedAt.key },
-      ],
-    },
-    orderBy: [{ attribute: SpaceAttr.createdAt.key, direction: 'desc' }],
-  };
-}
-
-function guestMembershipsQuery(
-  guestIdentityWhere: PatchDbQueryWhereClause | null
-): PatchDbQuery {
-  if (guestIdentityWhere === null) {
-    return { entityType: SPACE_MEMBERSHIP_ENTITY_TYPE, limit: 0 };
-  }
-  return {
-    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    where: {
-      type: 'and',
-      clauses: [
-        guestIdentityWhere,
-        { type: 'not_exists', attribute: SpaceMembershipAttr.leftAt.key },
-      ],
-    },
-  };
-}
-
-function guestSpacesQuery(guestSpaceIds: string[]): PatchDbQuery {
-  if (guestSpaceIds.length === 0) {
-    return { entityType: SPACE_ENTITY_TYPE, limit: 0 };
-  }
-  return { entityType: SPACE_ENTITY_TYPE, entityId: guestSpaceIds };
-}
-
-function guestSpaceIdsFromMemberships(memberships: Entity[]): string[] {
-  const ids: string[] = [];
-  for (const e of memberships) {
-    const sid = SpaceMembershipAttr.spaceId.from(e.attributes);
-    if (sid.length > 0) ids.push(sid);
-  }
-  return [...new Set(ids)].sort();
-}
+type HostedRow = { readonly id: string };
+type GuestMemRow = { readonly space_id: string };
+type GuestSpaceRow = { readonly id: string; readonly ended_at: string | null };
 
 function buildCurrentSpaceEntries(
-  hostedEntities: Entity[],
-  guestSpaceIds: string[],
-  guestSpaceEntities: Entity[]
+  hostedIds: readonly string[],
+  guestSpaceIds: readonly string[],
+  guestSpaceRows: readonly GuestSpaceRow[]
 ): CurrentSpaceEntry[] {
   const bySpace = new Map<string, CurrentSpaceEntry>();
-  for (const e of hostedEntities) {
-    bySpace.set(e.entityId, { spaceId: e.entityId, role: 'host' });
+  for (const spaceId of hostedIds) {
+    bySpace.set(spaceId, { spaceId, role: 'host' });
   }
   const liveById = new Map<string, boolean>();
-  for (const e of guestSpaceEntities) {
-    const ended = e.attributes[SpaceAttr.endedAt.key];
-    liveById.set(e.entityId, ended === undefined || ended === null);
+  for (const row of guestSpaceRows) {
+    liveById.set(row.id, row.ended_at === null);
   }
   for (const sid of guestSpaceIds) {
     if (bySpace.has(sid)) continue;
@@ -99,45 +40,90 @@ function buildCurrentSpaceEntries(
   return [...bySpace.values()];
 }
 
+function guestSpacesSql(ids: readonly string[]): { sql: string; params: string[] } {
+  if (ids.length === 0) {
+    return {
+      sql: `SELECT ${SpaceCol.id}, ${SpaceCol.endedAt} AS ended_at FROM ${SPACES_TABLE.tableName} WHERE 0`,
+      params: [],
+    };
+  }
+  const placeholders = ids.map(() => '?').join(', ');
+  return {
+    sql: `SELECT ${SpaceCol.id}, ${SpaceCol.endedAt} AS ended_at
+          FROM ${SPACES_TABLE.tableName}
+          WHERE ${SpaceCol.id} IN (${placeholders})`,
+    params: [...ids],
+  };
+}
+
 /**
  * The current user's live spaces — every space they host, plus every space
  * they have an active guest membership on (deduped, host wins).
- *
- * Genuinely multi-query: hosted spaces + guest memberships + follow-up lookup
- * for the live state of the guest-side spaces. Atoms downstream take only
- * `spaceId` / `role` from each entry.
  */
 export function useCurrentSpaceIds(): {
   entries: CurrentSpaceEntry[];
   isLoading: boolean;
 } {
-  const identityIds = useReplicationIdentityIds();
-  const hostIdentityWhere = hostIdMatchesIdentityWhere(identityIds);
-  const guestIdentityWhere = guestIdMatchesIdentityWhere(identityIds);
+  const myId = useMyId();
+  const enabled = myId.length > 0;
 
-  const hostedRes = useQuery(hostedSpacesQuery(hostIdentityWhere));
-  const guestMemRes = useQuery(guestMembershipsQuery(guestIdentityWhere));
-
-  const guestSpaceIds = useMemo(
-    () => guestSpaceIdsFromMemberships(guestMemRes.entities),
-    [guestMemRes.entities]
+  const { rows: hostedRows, isLoading: hostedLoading } = useWatchQuery<HostedRow>(
+    enabled
+      ? `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName}
+         WHERE ${SpaceCol.hostId} = ? AND ${SpaceCol.endedAt} IS NULL
+         ORDER BY ${SpaceCol.createdAt} DESC`
+      : `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName} WHERE 0`,
+    enabled ? [myId] : []
   );
 
-  const guestSpacesRes = useQuery(guestSpacesQuery(guestSpaceIds));
+  const { rows: guestMemRows, isLoading: guestMemLoading } =
+    useWatchQuery<GuestMemRow>(
+      enabled
+        ? `SELECT ${SpaceMembershipCol.spaceId} AS space_id
+           FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
+           WHERE ${SpaceMembershipCol.guestId} = ? AND ${SpaceMembershipCol.leftAt} IS NULL`
+        : `SELECT ${SpaceMembershipCol.spaceId} AS space_id FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} WHERE 0`,
+      enabled ? [myId] : []
+    );
+
+  const guestSpaceIds = useMemo(
+    () => [...new Set(guestMemRows.map((r) => r.space_id).filter((id) => id.length > 0))],
+    [guestMemRows]
+  );
+
+  const guestSpacesQuery = useMemo(
+    () => guestSpacesSql(guestSpaceIds),
+    [guestSpaceIds]
+  );
+  const { rows: guestSpaceRows, isLoading: guestSpacesLoading } =
+    useWatchQuery<GuestSpaceRow>(guestSpacesQuery.sql, guestSpacesQuery.params);
 
   const entries = useMemo(
     () =>
       buildCurrentSpaceEntries(
-        hostedRes.entities,
+        hostedRows.map((r) => r.id),
         guestSpaceIds,
-        guestSpacesRes.entities
+        guestSpaceRows
       ),
-    [hostedRes.entities, guestSpaceIds, guestSpacesRes.entities]
+    [hostedRows, guestSpaceIds, guestSpaceRows]
   );
 
   return {
     entries,
-    isLoading:
-      hostedRes.isLoading || guestMemRes.isLoading || guestSpacesRes.isLoading,
+    isLoading: hostedLoading || guestMemLoading || guestSpacesLoading,
   };
+}
+
+/** Replication ids for space host/guest queries (signed-in account or install id). */
+export function useReplicationIdentityIds(): readonly string[] {
+  const myId = useMyId();
+  return useMemo(() => (myId.length > 0 ? [myId] : []), [myId]);
+}
+
+export function isReplicationHost(
+  hostId: string | null,
+  identityIds: readonly string[]
+): boolean {
+  if (hostId === null || hostId.length === 0) return false;
+  return identityIds.includes(hostId);
 }

@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 
-import { DEVICE_ENTITY_TYPE } from '@libs/auth/shared';
+import { DEVICE_SNAPSHOT_COLUMNS } from '@libs/auth/shared/auth-tables';
 import { resolveAccountIdFromBearer } from './bearer-resolve';
 import { ANON_ID_HEADER } from './session-middleware';
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';
@@ -9,22 +9,20 @@ import type { ApiHonoEnv } from './api-hono-env';
 import type { AuthContext } from './types';
 
 type RefreshBody = {
-  device: Record<string, string>;
+  device: Record<string, string | null>;
   accountSessionExpiresAt: string;
 };
 
-const DEVICE_ATTR_PREFIX = `${DEVICE_ENTITY_TYPE}/`;
-
 /**
- * Keeps only `device/...` attribute keys with non-empty string values. We
- * filter so a hostile or buggy client cannot smuggle unrelated attribute keys
+ * Keeps only known device column keys with non-empty string values. We
+ * filter so a hostile or buggy client cannot smuggle unrelated columns
  * into the device row through this endpoint.
  */
-function parseDeviceAttributes(raw: unknown): Record<string, string> {
+function parseDeviceAttributes(raw: unknown): Record<string, string | null> {
   if (raw === null || typeof raw !== 'object') return {};
-  const out: Record<string, string> = {};
+  const out: Record<string, string | null> = {};
   for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
-    if (!key.startsWith(DEVICE_ATTR_PREFIX)) continue;
+    if (!DEVICE_SNAPSHOT_COLUMNS.has(key)) continue;
     if (typeof value !== 'string') continue;
     const trimmed = value.trim();
     if (trimmed.length === 0) continue;
@@ -51,9 +49,9 @@ function readRefreshBody(raw: unknown): RefreshBody {
 
 /**
  * Single client-facing auth endpoint. Validates the bearer + device pair,
- * upserts the canonical PatchDB snapshot for the current account / device,
- * and returns just `{ accountId }`. Clients read everything else (linked
- * providers, sessions, device metadata) from PatchDB after the next sync.
+ * upserts the canonical auth snapshot for the current account / device,
+ * and returns just `{ accountId }`. Clients read everything else from
+ * local sync after PowerSync replicates the rows.
  *
  * Requires `Authorization: Bearer <jwt>` (auth provider session token) and
  * `x-anon-id: <deviceId>` (install UUID).
@@ -62,7 +60,7 @@ export function createAuthApiRoutes() {
   return new Hono<ApiHonoEnv<AuthContext>>().post(
     '/auth/refresh',
     async (c) => {
-      const db = c.get('patchDb');
+      const sql = c.get('sqlClient');
       const authServer = c.get('authServer');
 
       const header = c.req.header('Authorization') ?? null;
@@ -79,7 +77,7 @@ export function createAuthApiRoutes() {
       }
 
       const accountId = await resolveAccountIdFromBearer({
-        db,
+        sql,
         authServer,
         bearerToken,
         deviceId,
@@ -92,7 +90,7 @@ export function createAuthApiRoutes() {
       const body = readRefreshBody(rawBody);
 
       await refreshAuthSnapshot({
-        db,
+        sql,
         authServer,
         bearerToken,
         accountId,

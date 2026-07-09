@@ -1,5 +1,5 @@
 import type { SecretStore } from '@pkgs/secret-store';
-import type { PatchDb } from '@pkgs/patch-db/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Hono } from 'hono';
 import type Stripe from 'stripe';
 import {
@@ -8,26 +8,21 @@ import {
 } from './stripe-checkout-route';
 import { createStripeWebhookRoutes } from './stripe-webhook-route';
 
-/**
- * Stripe HTTP surface for the API Worker: webhook + checkout + portal.
- * Mount at `/` on a parent app that already defines Worker `Bindings`.
- */
 export function createStripeApp(args: {
-  readonly getPatchDb: () => PatchDb;
+  readonly getSqlClient: () => SqlClient;
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
   readonly requireAuth: StripeRequireAuth;
-  /** Secret name for the webhook signing secret. */
   readonly webhookSecretKey: string;
 }) {
   const webhook = createStripeWebhookRoutes({
     secretStore: args.secretStore,
     stripe: args.stripe,
-    getPatchDb: args.getPatchDb,
+    getSqlClient: args.getSqlClient,
     webhookSecretKey: args.webhookSecretKey,
   });
   const checkout = createStripeCheckoutRoutes({
-    getPatchDb: args.getPatchDb,
+    getSqlClient: args.getSqlClient,
     stripe: args.stripe,
     requireAuth: args.requireAuth,
   });

@@ -3,7 +3,6 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/client/room/use-space-room-selector';
-import { useSync } from '@pkgs/patch-db/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   CHESS_SCREEN,
@@ -21,27 +20,6 @@ export type PuzzlePlayScreenModel = {
   onRequestNext: () => void;
   e2eLoadingStatus: ChessPuzzleE2ELoadingStatusProps;
 };
-
-function useKickPuzzleSyncWhileIdle(
-  activePuzzleId: string | null,
-  nextId: string | null
-): void {
-  const sync = useSync();
-  useEffect(() => {
-    if (activePuzzleId !== null || nextId !== null) return;
-    let cancelled = false;
-    const kick = (): void => {
-      if (cancelled) return;
-      void sync.runPollNow();
-    };
-    kick();
-    const timer = setInterval(kick, 3000);
-    return () => {
-      cancelled = true;
-      clearInterval(timer);
-    };
-  }, [activePuzzleId, nextId, sync]);
-}
 
 export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   const myId = useMyId();
@@ -74,8 +52,6 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     currentPuzzleId: activePuzzleId ?? roomPuzzleId,
     seed: `${myId}-${attemptSeed}`,
   });
-
-  useKickPuzzleSyncWhileIdle(activePuzzleId, nextId);
 
   // Atomic puzzle-id swap: never null `activePuzzleId` between puzzles,
   // so `PuzzlePlayer` stays mounted across the entire session.

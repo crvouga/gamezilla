@@ -1,33 +1,17 @@
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Text } from '@pkgs/ui';
-import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
-import {
-  ACCOUNT_PROVIDER_ENTITY_TYPE,
-  AccountProviderAttr,
-} from '../../shared';
+import { AccountProviderField, useAccountProviderColumn } from '../use-account-provider-column';
 import { formatTimestamp } from '../device-parsers';
 
 export type LinkedProviderConnectedAtTextProps = {
   accountProviderEntityId: string;
 };
 
-/** "Connected: <timestamp>" caption for a linked provider. */
+/** When the provider was linked. */
 export function LinkedProviderConnectedAtText({
   accountProviderEntityId,
 }: LinkedProviderConnectedAtTextProps): ReactNode {
-  const { t } = useLingui();
-  const linkedAt = useQueryAttribute({
-    entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
-    entityId: accountProviderEntityId,
-    attribute: AccountProviderAttr.linkedAt,
-  });
-  const connectedAt = formatTimestamp(linkedAt);
-  return (
-    <Text
-      variant="caption"
-      sx={{ color: 'textSecondary' }}
-      label={t`Connected: ${connectedAt}`}
-    />
-  );
+  const linkedAt = useAccountProviderColumn(accountProviderEntityId, AccountProviderField.linkedAt);
+  if (linkedAt === null) return null;
+  return <Text variant="caption" label={formatTimestamp(linkedAt)} />;
 }

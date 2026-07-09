@@ -7,7 +7,7 @@ import {
 } from '@libs/auth/shared/auth-context';
 import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import type { PatchDb } from '@pkgs/patch-db/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { buildAppAuthContextFromBearer } from './bearer-resolve';
 import type { AuthContext } from './types';
 import { UnauthorizedError } from './unauthorized-error';
@@ -33,11 +33,11 @@ function buildAnonAppAuthContext(anonId: string): AppAuthContext {
 }
 
 export type SessionAuth = {
-  resolvePatchDbContext(
-    db: PatchDb,
+  resolveAuthContext(
+    sql: SqlClient,
     request: Request
   ): Promise<Readonly<Record<string, unknown>>>;
-  requireAuthContext(db: PatchDb, request: Request): Promise<AuthContext>;
+  requireAuthContext(sql: SqlClient, request: Request): Promise<AuthContext>;
 };
 
 export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
@@ -48,14 +48,9 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
    * {@link ANON_ID_HEADER} (install UUID) for `deviceId`; or anonymous
    * {@link AppAuthContext} when only `x-anon-id` is set; or unauthenticated
    * marker when neither applies.
-   *
-   * Domain-scoped claims (e.g. `spaces/member-of-space-ids`) are **not**
-   * stamped here — they're attached lazily by their own packages via
-   * patch-db `enrichContext` hooks, so this resolver stays free of
-   * feature-package dependencies.
    */
-  async function resolvePatchDbContext(
-    db: PatchDb,
+  async function resolveAuthContext(
+    sql: SqlClient,
     request: Request
   ): Promise<Readonly<Record<string, unknown>>> {
     const header = request.headers.get('Authorization');
@@ -76,7 +71,7 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
     }
 
     const ctx = await buildAppAuthContextFromBearer({
-      db,
+      sql,
       authServer,
       bearerToken: token,
       deviceId: anonRaw,
@@ -85,11 +80,11 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
   }
 
   /**
-   * Same as {@link resolvePatchDbContext} but throws 401 when there is no
+   * Same as {@link resolveAuthContext} but throws 401 when there is no
    * valid session + device header.
    */
   async function requireAuthContext(
-    db: PatchDb,
+    sql: SqlClient,
     request: Request
   ): Promise<AuthContext> {
     const header = request.headers.get('Authorization');
@@ -100,7 +95,7 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
     if (anonRaw.length === 0) {
       throw new UnauthorizedError('Missing x-anon-id for device binding');
     }
-    const ctx = await resolvePatchDbContext(db, request);
+    const ctx = await resolveAuthContext(sql, request);
     const auth = appAuth(ctx);
     if (auth === null || auth.accountId === null) {
       throw new UnauthorizedError('Invalid or expired session');
@@ -108,5 +103,5 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
     return ctx as AuthContext;
   }
 
-  return { resolvePatchDbContext, requireAuthContext };
+  return { resolveAuthContext, requireAuthContext };
 }

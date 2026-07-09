@@ -1,4 +1,5 @@
 import { createAuthApiRoutes } from '@libs/auth/server/auth-routes';
+import { createSyncTokenRoute } from '@libs/auth/server/sync-token-route';
 import type { AuthContext } from '@libs/auth/server/types';
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
@@ -6,13 +7,8 @@ import { createClientConfigApp } from '@libs/client-config/server/route';
 import { assert, ValidationError } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
-import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
-import { wrapPatchDbSyncHostForObservability } from '@pkgs/patch-db/observability';
 import { createLlmAppFromBindings } from '@pkgs/llm/server';
-import { createMatchmakingSubApp } from '../matchmaking/route';
-import type { PatchDbApiConfig } from '@pkgs/patch-db/api';
-import { createPatchDbApiHandler } from '@pkgs/patch-db/api';
-import { ForbiddenError } from '@pkgs/patch-db/forbidden-error';
+import { ForbiddenError } from '@pkgs/assert';
 import { createStripeApp } from '@libs/stripe/stripe-app';
 import { createTtsAppFromBindings } from '@pkgs/tts/server';
 import { Hono } from 'hono';
@@ -20,8 +16,10 @@ import { HTTPException } from 'hono/http-exception';
 import Stripe from 'stripe';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
+import { createMatchmakingSubApp } from '../matchmaking/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { createRoomApp } from '../room/route';
+import { createSyncRoutes } from '../sync/sync-routes';
 import type { ApiHonoEnv } from './api-hono-types';
 import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
@@ -31,49 +29,16 @@ const log = createLogger({ name: 'api:app' });
 
 export type { ApiHandlerConfig } from './config';
 
-function isAssertionCrash(
-  value: unknown
-): value is { message: string; context?: Record<string, unknown> } {
+function isAssertionFailure(err: unknown): err is {
+  message: string;
+  context?: Record<string, unknown>;
+} {
   return (
-    value !== null &&
-    typeof value === 'object' &&
-    '__assertion_failure' in value &&
-    'message' in value
+    err !== null &&
+    typeof err === 'object' &&
+    '__assertion_failure' in err &&
+    'message' in err
   );
-}
-
-function toPatchDbApiConfig(
-  config: ApiHandlerConfig,
-  resolvePatchDbContext: (
-    req: Request
-  ) => Promise<Readonly<Record<string, unknown>>>
-): PatchDbApiConfig {
-  const { pubSub, basePath, instrumentation, observability } = config;
-  const patchDbConfig: PatchDbApiConfig = {
-    db: () => {
-      const s = apiRequestAsyncLocalStorage.getStore();
-      assert.defined(
-        s,
-        'patch-db host resolver: apiRequestAsyncLocalStorage store missing'
-      );
-      return s.patchDb;
-    },
-    pubSub,
-    patchDbHttpAuth: {
-      resolvePatchDbContext: (req) => resolvePatchDbContext(req),
-    },
-  };
-  if (basePath !== undefined) {
-    patchDbConfig.basePath = basePath;
-  }
-  if (instrumentation !== undefined) {
-    patchDbConfig.instrumentation = instrumentation;
-  }
-  if (isObservabilityActive(observability)) {
-    patchDbConfig.syncHostWrapper = (host) =>
-      wrapPatchDbSyncHostForObservability(observability, host);
-  }
-  return patchDbConfig;
 }
 
 function createApiErrorHandler() {
@@ -93,14 +58,10 @@ function createApiErrorHandler() {
     if (err instanceof HTTPException) {
       return c.json({ error: err.message }, err.status);
     }
-    if (isAssertionCrash(err as unknown)) {
-      const crash = err as unknown as {
-        message: string;
-        context?: Record<string, unknown>;
-      };
+    if (isAssertionFailure(err)) {
       log.error('assertion failure', {
-        error: crash.message,
-        context: crash.context,
+        error: err.message,
+        context: err.context,
       });
       return c.json({ error: 'Internal server error' }, 500);
     }
@@ -136,7 +97,7 @@ async function createTtsAppForApi(config: ApiHandlerConfig) {
     requireAuth: async (req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'tts auth: request store missing');
-      await s.sessionAuth.resolvePatchDbContext(s.patchDb, req);
+      await s.sessionAuth.resolveAuthContext(s.sqlClient, req);
     },
   });
 }
@@ -152,24 +113,24 @@ async function createLlmAppForApi(config: ApiHandlerConfig) {
     requireAuth: async (req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'llm auth: request store missing');
-      await s.sessionAuth.resolvePatchDbContext(s.patchDb, req);
+      await s.sessionAuth.resolveAuthContext(s.sqlClient, req);
     },
   });
 }
 
 function createStripeSubApp(config: ApiHandlerConfig, stripe: Stripe) {
   return createStripeApp({
-    getPatchDb: () => {
+    getSqlClient: () => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'stripe: request store missing');
-      return s.patchDb;
+      return s.sqlClient;
     },
     secretStore: config.secretStore,
     stripe,
-    requireAuth: async (d, req) => {
+    requireAuth: async (_sql, req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'stripe auth: request store missing');
-      const ctx = await s.sessionAuth.requireAuthContext(d, req);
+      const ctx = await s.sessionAuth.requireAuthContext(s.sqlClient, req);
       const auth = appAuth(ctx);
       if (auth === null || auth.accountId === null) {
         throw new UnauthorizedError(
@@ -195,20 +156,6 @@ export async function createApiApp(config: ApiHandlerConfig) {
     createLlmAppForApi(config),
   ]);
 
-  const { honoApp: patchDbApp, basePath: resolvedBase } =
-    createPatchDbApiHandler(
-      toPatchDbApiConfig(config, (req) => {
-        const s = apiRequestAsyncLocalStorage.getStore();
-        assert.defined(
-          s,
-          'resolvePatchDbContext: apiRequestAsyncLocalStorage store missing'
-        );
-        return s.sessionAuth.resolvePatchDbContext(s.patchDb, req);
-      })
-    );
-  /** RPC client keys use the literal mount path; wire URL stays `basePath`-driven. */
-  const patchMount = resolvedBase as '/patch-db';
-
   const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
     .use(
       '*',
@@ -230,12 +177,21 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/', healthApp)
     .route('/', createClientConfigApp(log))
     .route('/', createAuthApiRoutes())
+    .route(
+      '/',
+      createSyncTokenRoute({
+        secretStore,
+        jwtPrivateKeySecret: ApiSecretName.powersyncJwtPrivateKey,
+        jwtKeyId: 'powersync',
+        powersyncAudienceSecret: ApiSecretName.powersyncUrl,
+      })
+    )
+    .route('/', createSyncRoutes())
     .route('/', ttsApp)
     .route('/', llmApp)
     .route('/', createStripeSubApp(config, stripe))
     .route('/', createRoomApp())
-    .route('/matchmaking', createMatchmakingSubApp())
-    .route(patchMount, patchDbApp);
+    .route('/matchmaking', createMatchmakingSubApp());
 
   apiRouter.onError(createApiErrorHandler());
 

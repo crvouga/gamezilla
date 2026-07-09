@@ -99,6 +99,20 @@ export async function assertPgSessionSchema(
     'SELECT current_schema() AS current_schema'
   );
   const current = result.rows[0]?.current_schema ?? null;
+  if (current === dbScope.schema) {
+    return;
+  }
+  if (dbScope.schema === 'public') {
+    const paths = await queryable.query<{ includes_public: boolean }>(
+      `SELECT 'public' = ANY (current_schemas(true)) AS includes_public`
+    );
+    assert.ok(
+      paths.rows[0]?.includes_public === true,
+      'Postgres session search_path must include public',
+      { expected: dbScope.schema, current }
+    );
+    return;
+  }
   assert.equals(
     current,
     dbScope.schema,
@@ -128,6 +142,14 @@ export async function pinAndVerifyPgSessionSchema(
     lastCurrent = result.rows[0]?.current_schema ?? null;
     if (lastCurrent === dbScope.schema) {
       return;
+    }
+    if (dbScope.schema === 'public' && lastCurrent === null) {
+      const paths = await queryable.query<{ includes_public: boolean }>(
+        `SELECT 'public' = ANY (current_schemas(true)) AS includes_public`
+      );
+      if (paths.rows[0]?.includes_public === true) {
+        return;
+      }
     }
   }
   assert.equals(

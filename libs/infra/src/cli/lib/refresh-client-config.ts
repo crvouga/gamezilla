@@ -27,7 +27,7 @@ function isFetchException(_e: unknown): boolean {
 
 /**
  * POSTs to the API so the Worker writes the latest client runtime config into
- * PatchDB. Run only after smoke tests pass (deploy pipeline step).
+ * the sync entity store. Run only after smoke tests pass (deploy pipeline step).
  *
  * Retries transient connection errors (DNS propagation, cold-start) for up to
  * MAX_WAIT_MS before failing.
@@ -134,7 +134,7 @@ export async function refreshClientConfig(
     } else {
       ok(
         'Client config refresh',
-        `HTTP ${res.status} — ${elapsedStr} — PatchDB updated if needed`
+        `HTTP ${res.status} — ${elapsedStr} — sync store updated if needed`
       );
     }
     platform.notice(

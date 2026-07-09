@@ -1,29 +1,15 @@
-import { ACCOUNT_ENTITY_TYPE, AccountAttr } from '@libs/auth/shared';
-import type { PatchDb } from '@pkgs/patch-db/interface';
+import { AccountCol, ACCOUNTS_TABLE } from '@libs/auth/shared/auth-tables';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
-/**
- * Resolves `account/id` for the row whose `account/stripeCustomerId` matches Stripe `cus_…`.
- */
+/** Resolves account id for a Stripe customer id. */
 export async function resolveAccountIdByStripeCustomerId(
-  db: PatchDb,
-  stripeCustomerId: string,
-  ctx: Readonly<Record<string, unknown>>
+  sql: SqlClient,
+  stripeCustomerId: string
 ): Promise<string | null> {
-  const [row] = await db.read(
-    [
-      {
-        entityType: ACCOUNT_ENTITY_TYPE,
-        where: {
-          type: '=',
-          attribute: AccountAttr.stripeCustomerId.key,
-          value: stripeCustomerId,
-        },
-        limit: 1,
-      },
-    ],
-    ctx
+  const rows = await sql.query<{ readonly id: string }>(
+    `SELECT ${AccountCol.id} AS id FROM ${ACCOUNTS_TABLE.tableName}
+     WHERE ${AccountCol.stripeCustomerId} = ? LIMIT 1`,
+    [stripeCustomerId]
   );
-  const ent = row?.entities[0];
-  const id = ent?.attributes[AccountAttr.id.key];
-  return typeof id === 'string' ? id : null;
+  return rows[0]?.id ?? null;
 }

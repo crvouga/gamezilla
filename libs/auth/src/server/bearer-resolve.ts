@@ -4,7 +4,7 @@ import {
   buildAppAuthContext,
 } from '@libs/auth/shared/auth-context';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import type { PatchDb } from '@pkgs/patch-db/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
 
@@ -13,12 +13,12 @@ import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
  * account id, or `null` if verification fails.
  */
 export async function resolveAccountIdFromBearer(args: {
-  db: PatchDb;
+  sql: SqlClient;
   authServer: AuthServerPort;
   bearerToken: string;
   deviceId: string;
 }): Promise<string | null> {
-  const { db, authServer, bearerToken, deviceId } = args;
+  const { sql, authServer, bearerToken, deviceId } = args;
   assertUuid(deviceId, 'deviceId must be a valid UUID');
   const trimmed = bearerToken.trim();
   if (trimmed.length === 0) return null;
@@ -27,7 +27,7 @@ export async function resolveAccountIdFromBearer(args: {
   if (session === null) return null;
 
   return await ensureInternalAccountIdForExternalUser({
-    db,
+    sql,
     externalUserId: session.externalUserId,
     email: session.email,
     provider: authServer.providerLabel,
@@ -35,7 +35,7 @@ export async function resolveAccountIdFromBearer(args: {
 }
 
 export async function buildAppAuthContextFromBearer(args: {
-  db: PatchDb;
+  sql: SqlClient;
   authServer: AuthServerPort;
   bearerToken: string;
   deviceId: string;

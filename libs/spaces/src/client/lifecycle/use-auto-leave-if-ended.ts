@@ -1,46 +1,18 @@
 import { useSpaceActions } from './space-actions';
 import { useMyGuestMembershipId } from '../members/use-my-guest-membership-id';
-import {
-  SPACE_ENTITY_TYPE,
-  SPACE_MEMBERSHIP_ENTITY_TYPE,
-  SpaceAttr,
-  SpaceMembershipAttr,
-} from '@libs/spaces/shared/space-entities';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { useEffect } from 'react';
 
-/**
- * If a space has ended but the current user still has an active guest
- * membership row, fire a leave-space action to clean up.
- *
- * Reads only attributes (no aggregate types). Skips when:
- * - `spaceId` is empty;
- * - the user has no profile id (`useMyGuestMembershipId` returns null);
- * - the space is still live;
- * - the membership is already left.
- */
+import { useSpaceColumn, SpaceField } from '../use-space-column';
+import { useSpaceMembershipColumn, SpaceMembershipField } from '../use-space-membership-column';
+
 export function useAutoLeaveIfEnded(spaceId: string): void {
   const { leaveSpace } = useSpaceActions();
-
-  const endedAt = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.endedAt,
-  });
+  const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
   const spaceStillLive = endedAt === null;
-
   const membershipId = useMyGuestMembershipId(spaceId);
-  const guestId = useQueryAttribute({
-    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    entityId: membershipId ?? '',
-    attribute: SpaceMembershipAttr.guestId,
-  });
-  const leftAt = useQueryAttribute({
-    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    entityId: membershipId ?? '',
-    attribute: SpaceMembershipAttr.leftAt,
-  });
-  const membershipExists = guestId.length > 0;
+  const guestId = useSpaceMembershipColumn(membershipId ?? '', SpaceMembershipField.guestId);
+  const leftAt = useSpaceMembershipColumn(membershipId ?? '', SpaceMembershipField.leftAt);
+  const membershipExists = (guestId ?? '').length > 0;
   const membershipActive = leftAt === null;
 
   useEffect(() => {

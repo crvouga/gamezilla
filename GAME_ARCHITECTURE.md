@@ -681,7 +681,7 @@ new_sqlite_classes = ["Room"]
 ENVIRONMENT = "production"
 ```
 
-Backend routes live under `/api/*` (health, auth, patch-db, stripe, tts, llm, room WebSocket). All other paths serve the client SPA from the `ASSETS` binding on `gamezilla.app` / `www.gamezilla.app`.
+Backend routes live under `/api/*` (health, auth, sync, stripe, tts, llm, room WebSocket). All other paths serve the client SPA from the `ASSETS` binding on `gamezilla.app` / `www.gamezilla.app`.
 
 ---
 

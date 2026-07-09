@@ -5,7 +5,9 @@ import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/shared/local-api-
 import {
   getSecretMap,
   loadSecretsIntoEnv,
+  loadWorkerApiSecretsIntoEnv,
 } from '@libs/infra/cli/secrets/secrets';
+import { API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS } from '@libs/infra/cli/secrets/worker-api-secrets';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -33,6 +35,7 @@ async function main(): Promise<void> {
   const { env: secretsEnv } = resolveSecretsScope(repoRoot);
   assertDevSecretsEnv(secretsEnv);
   loadSecretsIntoEnv();
+  loadWorkerApiSecretsIntoEnv();
 
   const databaseUrl = (process.env['DATABASE_URL'] ?? '').trim();
   await assertNonProdDatabaseUrlForTooling(databaseUrl, {
@@ -50,6 +53,14 @@ async function main(): Promise<void> {
       throw new Error(`setup-dev-vars: missing secret ${entry.secretKey}`);
     }
     lines.push(`${entry.env}=${encodeDevVarValue(value)}`);
+  }
+
+  for (const key of API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS) {
+    const value = (process.env[key] ?? '').trim();
+    if (value.length === 0) {
+      throw new Error(`setup-dev-vars: missing secret ${key}`);
+    }
+    lines.push(`${key}=${encodeDevVarValue(value)}`);
   }
 
   const body = `${lines.join('\n')}\n`;

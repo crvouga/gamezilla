@@ -3,7 +3,6 @@ import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
-import type { PatchDbApiConfig } from '@pkgs/patch-db/api';
 
 export type ApiHandlerConfig = {
   readonly secretStore: SecretStore;
@@ -15,9 +14,6 @@ export type ApiHandlerConfig = {
   readonly databaseUrlOverride?: string | null;
   /** Secrets env binding (`dev` / `prd`) for database safety checks. */
   readonly secretsEnv: string;
-  readonly pubSub: PatchDbApiConfig['pubSub'];
-  readonly basePath?: string;
-  readonly instrumentation?: PatchDbApiConfig['instrumentation'];
   readonly objectStore: ObjectStore;
   readonly observability: Observability;
 };

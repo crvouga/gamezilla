@@ -1,24 +1,10 @@
-import {
-  SPACE_ENTITY_TYPE,
-  SpaceAttr,
-} from '@libs/spaces/shared/space-entities';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
+import { useSpaceColumn, SpaceField } from '../use-space-column';
 
-/**
- * `'host'` when `profileId` matches the space's host, `'guest'` otherwise.
- * Returns `null` while the host id has not been resolved (row not synced).
- *
- * Reads `space/hostId` inline; no per-attribute hook needed.
- */
 export function useMemberRole(
   spaceId: string,
   profileId: string
 ): 'host' | 'guest' | null {
-  const hostId = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.hostId,
-  });
+  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
   if (hostId === null) return null;
   return hostId === profileId ? 'host' : 'guest';
 }

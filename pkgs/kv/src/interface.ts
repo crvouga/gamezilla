@@ -3,7 +3,7 @@ import type { Keyword } from '@pkgs/keyword/keyword';
 
 /**
  * One KV row value: flat map keyed by namespaced keywords (same shape as
- * {@link AttributeState} / room state / patch-db attributes).
+ * {@link AttributeState} / room state / sync entity attributes).
  */
 export type KvRecord = AttributeState;
 

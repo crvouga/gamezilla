@@ -1,8 +1,5 @@
-import {
-  SPACE_ENTITY_TYPE,
-  SpaceAttr,
-} from '@libs/spaces/shared/space-entities';
-import { useQuery } from '@pkgs/patch-db/react';
+import { SpaceCol, SPACES_TABLE } from '@libs/spaces/shared/sync-tables';
+import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 export type SpaceJoinSnapshotStatus =
@@ -16,32 +13,39 @@ export type SpaceJoinSnapshot = {
   joinable: boolean;
 };
 
+type SpaceJoinRow = {
+  readonly host_id: string | null;
+  readonly ended_at: string | null;
+};
+
 export function useSpaceJoinSnapshot(spaceId: string): SpaceJoinSnapshot {
-  const { entities, isLoading } = useQuery({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    limit: 1,
-  });
+  const enabled = spaceId.length > 0;
+  const { row, isLoading } = useWatchOne<SpaceJoinRow>(
+    enabled
+      ? `SELECT ${SpaceCol.hostId} AS host_id, ${SpaceCol.endedAt} AS ended_at
+         FROM ${SPACES_TABLE.tableName}
+         WHERE ${SpaceCol.id} = ?`
+      : `SELECT ${SpaceCol.hostId} AS host_id, ${SpaceCol.endedAt} AS ended_at FROM ${SPACES_TABLE.tableName} WHERE 0`,
+    enabled ? [spaceId] : []
+  );
 
   return useMemo((): SpaceJoinSnapshot => {
-    if (spaceId.length === 0) {
+    if (!enabled) {
       return { status: 'unavailable', joinable: false };
     }
     if (isLoading) {
       return { status: 'loading', joinable: false };
     }
-    const entity = entities[0];
-    if (entity === undefined) {
+    if (row === null) {
       return { status: 'unavailable', joinable: false };
     }
-    const hostId = SpaceAttr.hostId.from(entity.attributes);
-    if (hostId === null) {
+    const hostId = row.host_id;
+    if (hostId === null || hostId.length === 0) {
       return { status: 'unavailable', joinable: false };
     }
-    const endedAt = SpaceAttr.endedAt.from(entity.attributes);
-    if (endedAt !== null) {
+    if (row.ended_at !== null) {
       return { status: 'ended', joinable: false };
     }
     return { status: 'live', joinable: true };
-  }, [spaceId, isLoading, entities]);
+  }, [enabled, isLoading, row]);
 }

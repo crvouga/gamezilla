@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 
-import { DeviceAttr } from '../shared/auth-entities';
+import { DeviceCol } from '../shared/auth-tables';
 
 function normString(v: unknown): string | null {
   if (v === null || v === undefined) return null;
@@ -47,25 +47,20 @@ function put(
 }
 
 /**
- * Best-effort device metadata for the current install, keyed directly by the
- * `device/...` PatchDB attribute names. Sent verbatim to `POST /auth/refresh`,
- * which merges the record into `device/<deviceId>` without any field-name
- * remapping. Null / empty values are omitted so the wire payload stays minimal.
+ * Best-effort device metadata for the current install, keyed by snake_case
+ * column names matching `devices`. Sent to `POST /auth/refresh`, which merges
+ * the record into the server row without field-name remapping.
  */
 export function collectDeviceSnapshot(): Record<string, string> {
   const attrs: Record<string, string> = {};
-  put(attrs, DeviceAttr.platform.key, Platform.OS);
-  put(attrs, DeviceAttr.osName.key, normString(Device.osName));
-  put(attrs, DeviceAttr.osVersion.key, normString(Device.osVersion));
-  put(attrs, DeviceAttr.deviceModelName.key, normString(Device.modelName));
-  put(attrs, DeviceAttr.deviceBrand.key, normString(Device.brand));
-  put(attrs, DeviceAttr.deviceName.key, normString(Constants.deviceName));
-  put(
-    attrs,
-    DeviceAttr.appVersion.key,
-    normString(Constants.expoConfig?.version)
-  );
-  put(attrs, DeviceAttr.appBuildNumber.key, resolveAppBuildNumber());
-  put(attrs, DeviceAttr.userAgent.key, readWebUserAgent());
+  put(attrs, DeviceCol.platform, Platform.OS);
+  put(attrs, DeviceCol.osName, normString(Device.osName));
+  put(attrs, DeviceCol.osVersion, normString(Device.osVersion));
+  put(attrs, DeviceCol.deviceModelName, normString(Device.modelName));
+  put(attrs, DeviceCol.deviceBrand, normString(Device.brand));
+  put(attrs, DeviceCol.deviceName, normString(Constants.deviceName));
+  put(attrs, DeviceCol.appVersion, normString(Constants.expoConfig?.version));
+  put(attrs, DeviceCol.appBuildNumber, resolveAppBuildNumber());
+  put(attrs, DeviceCol.userAgent, readWebUserAgent());
   return attrs;
 }

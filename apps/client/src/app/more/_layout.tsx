@@ -11,8 +11,7 @@ export default function MoreLayout() {
       <Stack.Screen name="server-status" />
       <Stack.Screen name="theme" />
       <Stack.Screen name="developer" />
-      <Stack.Screen name="patch-db" />
-      <Stack.Screen name="patch-db-client" />
+      <Stack.Screen name="sync" />
       <Stack.Screen name="room" />
       <Stack.Screen name="client-config" />
     </Stack>

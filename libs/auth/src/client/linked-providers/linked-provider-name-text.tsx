@@ -1,10 +1,6 @@
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import {
-  ACCOUNT_PROVIDER_ENTITY_TYPE,
-  AccountProviderAttr,
-} from '../../shared';
+import { AccountProviderField, useAccountProviderColumn } from '../use-account-provider-column';
 import { providerLabel } from '../provider-parsers';
 
 export type LinkedProviderNameTextProps = {
@@ -15,11 +11,7 @@ export type LinkedProviderNameTextProps = {
 export function LinkedProviderNameText({
   accountProviderEntityId,
 }: LinkedProviderNameTextProps): ReactNode {
-  const provider = useQueryAttribute({
-    entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
-    entityId: accountProviderEntityId,
-    attribute: AccountProviderAttr.provider,
-  });
+  const provider = useAccountProviderColumn(accountProviderEntityId, AccountProviderField.provider);
   if (provider === null) return null;
   return <Text variant="bodyBold" label={providerLabel(provider)} />;
 }

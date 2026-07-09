@@ -1,17 +1,12 @@
 import { UserDisplayName } from '@libs/profile/client/user-display-name';
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
-import {
-  SPACE_ENTITY_TYPE,
-  SPACE_MEMBERSHIP_ENTITY_TYPE,
-  SpaceAttr,
-  SpaceMembershipAttr,
-} from '@libs/spaces/shared/space-entities';
 import { Box, Text } from '@pkgs/ui';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
 import { useSpaceGuestMembershipIds } from '../members/use-space-guest-membership-ids';
+import { useSpaceColumn, SpaceField } from '../use-space-column';
+import { useSpaceMembershipColumn, SpaceMembershipField } from '../use-space-membership-column';
 
 const ROW_AVATAR_SIZE = 28;
 
@@ -28,11 +23,7 @@ export type SpaceMembersListProps = {
 export function SpaceMembersList({
   spaceId,
 }: SpaceMembersListProps): ReactNode {
-  const hostId = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.hostId,
-  });
+  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
   const membershipIds = useSpaceGuestMembershipIds(spaceId);
   return (
     <Box sx={{ gap: 0 }}>
@@ -73,11 +64,7 @@ function SpaceMembersGuestRow({
 }: {
   membershipId: string;
 }): ReactNode {
-  const guestId = useQueryAttribute({
-    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    entityId: membershipId,
-    attribute: SpaceMembershipAttr.guestId,
-  });
+  const guestId = useSpaceMembershipColumn(membershipId, SpaceMembershipField.guestId);
   if (guestId === null || guestId.length === 0) return null;
   return (
     <SpaceMembersRowShell

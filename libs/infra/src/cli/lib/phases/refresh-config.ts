@@ -5,7 +5,7 @@ import { refreshClientConfig } from '../refresh-client-config';
 
 /**
  * POSTs to the API so the Worker writes the latest client runtime config
- * into PatchDB. Must run after smoke tests confirm the API is reachable.
+ * into the sync entity store. Must run after smoke tests confirm the API is reachable.
  */
 export async function runRefreshConfigPhase(
   platform: CiPlatform,

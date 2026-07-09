@@ -128,10 +128,10 @@ async function runMigrateOnce(): Promise<void> {
       dbScope,
     });
     log.info(
-      'postgres migrations finished (patch-db + kv; legacy auth tables dropped if present; matchmaking self-migrates on first request)'
+      'postgres migrations finished (schema + kv; legacy auth tables dropped if present; matchmaking self-migrates on first request)'
     );
     process.stdout.write(
-      '[api:migrate] completed (patch-db + kv; legacy auth tables dropped if present; matchmaking self-migrates on first request)\n'
+      '[api:migrate] completed (schema + kv; legacy auth tables dropped if present; matchmaking self-migrates on first request)\n'
     );
   } finally {
     await pool.end();

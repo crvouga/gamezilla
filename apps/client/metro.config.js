@@ -70,6 +70,16 @@ config.resolver.nodeModulesPaths = [
 // @ts-ignore
 config.resolver.unstable_enablePackageExports = true;
 
+// PowerSync web on RN-web: resolve RN-specific export conditions and keep each
+// platform SDK out of the other's bundle (see powersync-js demo metro.config.js).
+config.resolver.unstable_conditionsByPlatform = {
+  ...config.resolver.unstable_conditionsByPlatform,
+  web: [
+    ...(config.resolver.unstable_conditionsByPlatform?.web ?? []),
+    'react-native-web',
+  ],
+};
+
 // 3a. Dedupe singletons-by-module-path to a single instance.
 //     Bun's content-addressed deduper produces distinct physical paths for the
 //     same version of a package across workspaces (e.g. `apps/client` vs
@@ -92,7 +102,6 @@ const dedupeAliasPrefixes = [
   '@gorhom/bottom-sheet',
   '@lingui/core',
   '@lingui/react',
-  '@pkgs/patch-db',
   'react',
   'react-dom',
 ];
@@ -259,6 +268,16 @@ function resolveWithNodeRequire(context, moduleName) {
 
 // @ts-ignore
 config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (platform === 'web' && moduleName === '@powersync/react-native') {
+    return { type: 'empty' };
+  }
+  if (
+    platform !== 'web' &&
+    (moduleName === '@powersync/web' || moduleName.startsWith('@powersync/web/'))
+  ) {
+    return { type: 'empty' };
+  }
+
   const matchesDedupeAlias = dedupeAliasPrefixes.some(
     (prefix) => moduleName === prefix || moduleName.startsWith(prefix + '/')
   );

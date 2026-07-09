@@ -1,5 +1,5 @@
 /**
- * {@link AttributeTag}s for Stripe patch-db rows (stable wire keys).
+ * {@link AttributeTag}s for Stripe entity_store rows (stable wire keys).
  */
 import { createAttrNamespace } from '@pkgs/attribute';
 

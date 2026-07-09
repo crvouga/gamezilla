@@ -8,7 +8,7 @@ import {
 } from './impl-pg-shared';
 import { createPostgresDbScope } from './postgres-schema';
 
-const testScope = createPostgresDbScope('gamezilla');
+const testScope = createPostgresDbScope('public');
 
 describe('readLastInsertRowid', () => {
   test('returns 0 when rows is undefined (multi-statement SET + DDL)', () => {

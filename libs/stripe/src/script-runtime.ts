@@ -2,12 +2,11 @@
  * Shared runtime for Stripe CLI sync scripts.
  *
  * Centralizes secret resolution (Stripe key, `DATABASE_URL`), Stripe client
- * construction, and PatchDb setup so per-entity scripts stay thin and
+ * construction, and SqlClient setup so per-entity scripts stay thin and
  * consistent (Tiger Style: small surface, fail fast).
  *
  * `DATABASE_URL` must be `postgres://` or `postgresql://` (TCP Postgres).
  */
-import type { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPgPool } from '@pkgs/sql-client/postgres-connect';
 import {
@@ -21,7 +20,6 @@ import { join } from 'node:path';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from './script-secret-store';
 import { StripeSecretKeys } from './secret-keys';
-import { createStripeScriptPatchDb } from './stripe-script-patch-db';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -89,7 +87,7 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
 
 /**
  * Optional `DATABASE_URL` resolver — preserves soft-skip semantics for callers that
- * want catalog reconcile without patch-db persistence (e.g. CI gate scripts
+ * want catalog reconcile without entity_store persistence (e.g. CI gate scripts
  * running where no Postgres is reachable).
  */
 export async function resolveOptionalDbUrl(): Promise<string | undefined> {
@@ -118,12 +116,11 @@ export function createStripeClientFromSecret(secretKey: string): Stripe {
 export type StripeScriptContext = {
   readonly stripe: Stripe;
   readonly sql: SqlClient;
-  readonly patchDb: PatchDbImplPostgres;
   readonly disconnect: () => Promise<void>;
 };
 
 /**
- * Build a fully-wired script context: Stripe client + PatchDb backed by
+ * Build a fully-wired script context: Stripe client + SqlClient backed by
  * Postgres. Caller MUST `await ctx.disconnect()` in a `finally` block.
  */
 export async function createStripeScriptContext(
@@ -136,11 +133,9 @@ export async function createStripeScriptContext(
   const stripe = createStripeClientFromSecret(secret);
   const sql = createSqlClientFromDbUrl(dbUrl);
   await sql.connect();
-  const patchDb = createStripeScriptPatchDb(sql);
   return {
     stripe,
     sql,
-    patchDb,
     disconnect: () => sql.disconnect(),
   };
 }

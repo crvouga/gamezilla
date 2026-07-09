@@ -27,7 +27,7 @@ const S3_SECRET_NAMES = [
  * Object storage only backs non-critical caches (e.g. TTS audio). When the S3
  * credentials are absent — local dev, preview, and CI `qa` runs that never
  * provision object storage — fall back to an ephemeral in-memory store so the
- * Worker still boots and serves auth / patch-db / rooms instead of latching
+ * Worker still boots and serves auth / sync / rooms instead of latching
  * fatal and answering every request with `503`. Production misconfiguration is
  * caught earlier by the deploy-time `s3-bucket` resource check.
  */

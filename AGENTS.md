@@ -111,7 +111,7 @@ Cross-package imports always use deep paths: `@<tier>/<name>/client/<file>`, `@<
 
 Do **not** add `index.ts` barrels that mix `client` / `server` / `shared` (Metro / Wrangler need per-runtime resolution to drop the wrong runtime from the bundle). A per-runtime `client/index.ts` / `server/index.ts` / `shared/index.ts` is fine when there's a real reason to expose a curated facade (see `libs/auth/src/server/index.ts`); add it as an explicit `"./server": "./src/server/index.ts"` entry alongside the wildcard.
 
-Flat (runtime-agnostic) packages — the per-utility micro-packages (`@pkgs/assert`, `@pkgs/keyword`, `@pkgs/kv`, …), `ui`, `api`, `patch-db`, `patch-db-widgets`, `room-widgets`, `stripe` — use a single pattern that also resolves bare folder imports via per-folder `index.ts`:
+Flat (runtime-agnostic) packages — the per-utility micro-packages (`@pkgs/assert`, `@pkgs/keyword`, `@pkgs/kv`, …), `ui`, `api`, `room-widgets`, `stripe` — use a single pattern that also resolves bare folder imports via per-folder `index.ts`:
 
 ```jsonc
 "exports": {
@@ -127,7 +127,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite (`account-db*`), auth port/adapters + Postgres migrations runner.
+- `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
 - `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`.
 - `@libs/client-config` — server-pushed runtime config (singleton `clientConfig` entity): shared entity defs, server `POST /client-config/refresh` route, client cards / screens, and `dev-refresh-client-config.ts`.
 - `@libs/profile` — public profile, dicebear avatar editor, display-name generator.
@@ -139,7 +139,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 Each game is its own package modelled after `@libs/chess`. To add `@libs/connect-four` (or numberlink, tic-tac-toe, battleship, etc.):
 
 1. Scaffold `libs/<game>/`:
-   - `package.json` with `"name": "@libs/<game>"`, per-file `exports`, deps mirroring what the implementation actually imports (typically a granular subset of the `@pkgs/<util>` micro-packages — `assert`, `keyword`, `attribute`, etc. — plus `@pkgs/patch-db`, `@lingui/*`, `react`, `react-native`).
+   - `package.json` with `"name": "@libs/<game>"`, per-file `exports`, deps mirroring what the implementation actually imports (typically a granular subset of the `@pkgs/<util>` micro-packages — `assert`, `keyword`, `attribute`, etc. — plus `@pkgs/sync-engine`, `@lingui/*`, `react`, `react-native`).
    - `tsconfig.json` extending root.
    - `eslint.config.js` copied from `libs/chess/eslint.config.js`.
    - Empty `src/{client,server,shared}/`.
@@ -148,10 +148,10 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 4. Implement the game:
    - `shared/<game>-main-menu.ts` — `RoomModule` + `MainMenu` reducer (state, command/event router).
    - `shared/<game>-play.ts` — game-play reducer (moves, win/loss state).
-   - `shared/<game>-entities.ts` — patch-db entity types if the game persists puzzles, sessions, leaderboards, etc.
+   - `shared/<game>-entities.ts` — sync table definitions if the game persists puzzles, sessions, leaderboards, etc.
    - `client/<game>-main-menu.tsx`, `client/<game>-board.tsx`, `client/<game>-settings-screen.tsx`, etc. — flat under `client/`.
 5. Register the game in `libs/spaces/src/shared/games.ts` (composed game module) and `libs/spaces/src/shared/space-module.ts` (top-level router).
-6. Register ABAC policies for any new entity types in `apps/api/src/patch-db/abac-policies-registry.ts`.
+6. Register write policies for any new sync tables in the feature package's `server/write-policies.ts` and compose them in `apps/api/src/sync/write-policies-registry.ts`.
 7. Wire the client entry in `libs/spaces/src/client/module/games-main-menu.tsx` so the new game shows up in the games list.
 
 `apps/api` and `apps/client` themselves do **not** need to be edited beyond the registries above — game packages compose into spaces, and spaces is already wired into the shells.

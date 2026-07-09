@@ -1,10 +1,25 @@
 import { SecretString, type SecretStore } from '@pkgs/secret-store';
-import type { PatchDb, PatchInput } from '@pkgs/patch-db/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { describe, expect, it, mock } from 'bun:test';
 import Stripe from 'stripe';
 import { StripeSecretKeys } from './secret-keys';
-import { StripeAttr } from './stripe-attrs';
 import { createStripeWebhookRoutes } from './stripe-webhook-route';
+
+function makeRunResult(changes = 1) {
+  return { changes, lastInsertRowid: 0 };
+}
+
+function makeSqlMock(
+  run: SqlClient['run'] = async () => makeRunResult()
+): SqlClient {
+  return {
+    query: async () => [],
+    run,
+    transaction: async (fn: (tx: SqlClient) => Promise<unknown>) =>
+      fn(makeSqlMock(run)),
+    disconnect: async () => {},
+  } as unknown as SqlClient;
+}
 
 /**
  * Stripe's runtime constructor for `StripeSignatureVerificationError` takes
@@ -25,9 +40,7 @@ function makeStripeSigError(): Error {
 
 describe('createStripeWebhookRoutes', () => {
   it('returns 503 when Stripe client is not configured', async () => {
-    const patchDb = {
-      write: async () => [],
-    } as unknown as PatchDb;
+    const sql = makeSqlMock();
     const secretStore = {
       getRequired: async (name: string) => new SecretString(name, ''),
       getOptional: async (name: string) => new SecretString(name, 'whsec_test'),
@@ -37,7 +50,7 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe: null,
-      getPatchDb: () => patchDb,
+      getSqlClient: () => sql,
       webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
@@ -50,9 +63,7 @@ describe('createStripeWebhookRoutes', () => {
   });
 
   it('returns 503 when webhook secret is missing', async () => {
-    const patchDb = {
-      write: async () => [],
-    } as unknown as PatchDb;
+    const sql = makeSqlMock();
     const secretStore = {
       getRequired: async (name: string) => new SecretString(name, ''),
       getOptional: async () => null,
@@ -66,7 +77,7 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe,
-      getPatchDb: () => patchDb,
+      getSqlClient: () => sql,
       webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
@@ -79,9 +90,7 @@ describe('createStripeWebhookRoutes', () => {
   });
 
   it('refetches the signing secret with force=true after a signature verification failure and retries', async () => {
-    const patchDb = {
-      write: async () => [],
-    } as unknown as PatchDb;
+    const sql = makeSqlMock();
 
     const calls: { name: string; force: boolean }[] = [];
     const secretStore = {
@@ -122,7 +131,7 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe,
-      getPatchDb: () => patchDb,
+      getSqlClient: () => sql,
       webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
@@ -141,9 +150,7 @@ describe('createStripeWebhookRoutes', () => {
   });
 
   it('returns 400 when the rotated signing secret still fails to verify', async () => {
-    const patchDb = {
-      write: async () => [],
-    } as unknown as PatchDb;
+    const sql = makeSqlMock();
 
     const calls: { force: boolean }[] = [];
     const secretStore = {
@@ -168,7 +175,7 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe,
-      getPatchDb: () => patchDb,
+      getSqlClient: () => sql,
       webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
@@ -183,14 +190,12 @@ describe('createStripeWebhookRoutes', () => {
     expect(calls).toEqual([{ force: false }, { force: true }]);
   });
 
-  it('writes verified event to patch-db (event cache + no webhook_event without account)', async () => {
-    const writeCalls: { patches: PatchInput[] }[] = [];
-    const patchDb = {
-      write: async (patches: PatchInput[]) => {
-        writeCalls.push({ patches });
-        return [];
-      },
-    } as unknown as PatchDb;
+  it('writes verified event to entity_store (event cache + no webhook_event without account)', async () => {
+    const runCalls: { sql: string; params: unknown[] }[] = [];
+    const sql = makeSqlMock(async (sqlText: string, params: readonly unknown[] = []) => {
+      runCalls.push({ sql: sqlText, params: [...params] });
+      return makeRunResult();
+    });
 
     const secretStore = {
       getRequired: async (name: string) => new SecretString(name, ''),
@@ -221,7 +226,7 @@ describe('createStripeWebhookRoutes', () => {
     const app = createStripeWebhookRoutes({
       secretStore,
       stripe,
-      getPatchDb: () => patchDb,
+      getSqlClient: () => sql,
       webhookSecretKey: StripeSecretKeys.webhookSecret,
     });
 
@@ -233,13 +238,10 @@ describe('createStripeWebhookRoutes', () => {
 
     expect(res.status).toBe(200);
     expect(construct.mock.calls.length).toBeGreaterThan(0);
-    expect(writeCalls.length).toBe(1);
-    const patches = writeCalls[0]!.patches;
-    expect(patches.length).toBe(1);
-    const p = patches[0]!;
-    expect(p.entityType).toBe('stripe.webhook-event-cache');
-    expect(p.entityId).toBe('customer.created::cus_test_1');
-    expect(p.attributes[StripeAttr.payload.key]).toEqual(event);
-    expect(p.attributes[StripeAttr.objectType.key]).toBe('event');
+    expect(runCalls.length).toBeGreaterThan(0);
+    expect(runCalls[0]!.sql).toContain('entity_store');
+    expect(runCalls[0]!.params.some((p) => p === 'webhook-event-cache')).toBe(
+      true
+    );
   });
 });

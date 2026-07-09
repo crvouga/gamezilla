@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { usePatchDb } from '@pkgs/patch-db/react';
+import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useCallback } from 'react';
 
 import type {
@@ -29,7 +29,7 @@ export function useChessPuzzleInteractionWrites(args: {
   finalizePlay: (terminalKind: 'solved' | 'abandoned') => Promise<void>;
 } {
   const { puzzleId, puzzleRating, solveIdx, interactions } = args;
-  const db = usePatchDb();
+  const engine = useSyncEngine();
   const myId = useMyId();
   const { profileRating, profileRd } = useChessPuzzleProfileRatings(myId);
 
@@ -43,7 +43,7 @@ export function useChessPuzzleInteractionWrites(args: {
       }
     ) => {
       if (myId.length === 0) return;
-      await appendPuzzleInteractionRow(db, {
+      await appendPuzzleInteractionRow(engine.db, {
         ownerId: myId,
         puzzleId,
         puzzleRating,
@@ -53,13 +53,13 @@ export function useChessPuzzleInteractionWrites(args: {
         correct: extra?.correct ?? null,
       });
     },
-    [db, myId, puzzleId, puzzleRating, solveIdx]
+    [engine, myId, puzzleId, puzzleRating, solveIdx]
   );
 
   const finalizePlay = useCallback(
     async (terminalKind: 'solved' | 'abandoned') => {
       if (myId.length === 0) return;
-      await finalizePuzzlePlayWithProfile(db, {
+      await finalizePuzzlePlayWithProfile(engine.db, {
         ownerId: myId,
         puzzleId,
         puzzleRating,
@@ -71,7 +71,7 @@ export function useChessPuzzleInteractionWrites(args: {
       });
     },
     [
-      db,
+      engine,
       interactions,
       myId,
       profileRating,

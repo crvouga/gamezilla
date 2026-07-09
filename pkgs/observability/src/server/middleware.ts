@@ -70,15 +70,23 @@ export function createObservabilityMiddleware(
         });
         throw err;
       } finally {
-        const headers = new Headers(c.res.headers);
+        const res = c.res;
+        // WebSocket upgrade (101) cannot be re-wrapped via `new Response(...)`.
+        const webSocket = (res as Response & { webSocket?: WebSocket })
+          .webSocket;
+        if (res.status === 101 || webSocket !== undefined) {
+          span.end();
+          return;
+        }
+        const headers = new Headers(res.headers);
         const carrier: Record<string, string> = {};
         observability.inject(span.spanContext, carrier);
         if (carrier[TRACEPARENT_HEADER] !== undefined) {
           headers.set(TRACEPARENT_HEADER, carrier[TRACEPARENT_HEADER]!);
         }
-        c.res = new Response(c.res.body, {
-          status: c.res.status,
-          statusText: c.res.statusText,
+        c.res = new Response(res.body, {
+          status: res.status,
+          statusText: res.statusText,
           headers,
         });
         span.end();

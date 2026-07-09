@@ -21,7 +21,6 @@ function AppStack() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="space" />
       <Stack.Screen name="more" />
-      <Stack.Screen name="todos" />
       <Stack.Screen name="ui" />
       <Stack.Screen
         name="modal"

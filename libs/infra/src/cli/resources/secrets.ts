@@ -28,6 +28,10 @@ const DERIVED_DEFAULTS: Record<string, () => string> = {
   TURBO_TELEMETRY_DISABLED: () => '1',
   TURBO_CACHE: () => 'remote:rw',
   EXPO_PUBLIC_API_URL: apiWorkerPublicOrigin,
+  EXPO_PUBLIC_POWERSYNC_URL: () => {
+    const url = (process.env['POWERSYNC_URL'] ?? '').trim();
+    return url.length > 0 ? url : '';
+  },
 };
 
 const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
@@ -45,6 +49,7 @@ const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
   'ELEVEN_LABS_API_KEY',
   'OPENAI_API_KEY',
   'OPENAI_BASE_URL',
+  'POWERSYNC_JWT_PRIVATE_KEY',
   'API_URL',
 ];
 

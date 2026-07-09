@@ -11,7 +11,7 @@
 /** Stable per-install device UUID. Populated on first cold start. */
 export const DEVICE_ID_KEY = 'deviceId';
 
-/** Bearer session token from the auth adapter. Sent on every PatchDB request. */
+/** Bearer session token from the auth adapter. Sent on every sync upload request. */
 export const SESSION_TOKEN_KEY = 'sessionToken';
 
 /**

@@ -17,7 +17,7 @@ export function useCurrentAccountId(): string | null {
   return null;
 }
 
-/** Synchronous variant for non-React code (patch-db `myId` resolution). */
+/** Synchronous variant for non-React code (`myId` resolution). */
 export function getCachedCurrentAccountId(): string | null {
   const raw = getCachedSecureStorageValue(LAST_LOCAL_ACCOUNT_ID_KEY);
   if (typeof raw === 'string' && isUuid(raw)) return raw;

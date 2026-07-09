@@ -1,7 +1,8 @@
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type { ReactNode } from 'react';
-import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
+
+import { parseAvatarConfig } from '../shared/avatar-config';
 import { DeviceAvatar } from './device-avatar';
+import { useProfileColumn, ProfileField } from './use-profile-column';
 
 export type UserProfileAvatarProps = {
   /** Profile entity id (account or install id). `null` renders nothing. */
@@ -11,8 +12,8 @@ export type UserProfileAvatarProps = {
 };
 
 /**
- * Avatar for any profile id. Reads `profile/avatarConfig` inline via
- * `useQueryAttribute`; falls back to a generic silhouette when no row exists.
+ * Avatar for any profile id. Reads avatar_config inline; falls back to a
+ * generic silhouette when no row exists.
  */
 export function UserProfileAvatar({
   profileId,
@@ -38,11 +39,8 @@ function UserProfileAvatarInner({
   size: number;
   vividBackdrop: boolean;
 }): ReactNode {
-  const avatarConfig = useQueryAttribute({
-    entityType: PROFILE_ENTITY_TYPE,
-    entityId: profileId,
-    attribute: ProfileAttr.avatarConfig,
-  });
+  const raw = useProfileColumn(profileId, ProfileField.avatarConfig);
+  const avatarConfig = parseAvatarConfig(raw);
   return (
     <DeviceAvatar
       avatarConfig={avatarConfig}

@@ -1,9 +1,9 @@
 /**
- * Tiger Style (see repo `LLM.md`): attribute tags for PatchDB — keys validated
+ * Tiger Style (see repo `LLM.md`): attribute tags for the sync entity store — keys validated
  * via {@link @pkgs/keyword}; never accept silently malformed attribute keys.
  *
  * Every attribute declares an explicit {@link DataType} so the SQL / wire
- * layer downstream (patch-db) can reason about the storage shape (index
+ * layer downstream (sync entity store) can reason about the storage shape (index
  * picking, CAST emission, validation, etc.) without re-deriving it from the
  * parser. The TypeScript value type produced by the parser is constrained to
  * match the declared data type, with paired `*OrNull` variants for the
@@ -123,7 +123,7 @@ export interface AttributeTag<
   readonly dataType: D;
   /**
    * `true` when the parser may produce `null` (in addition to {@link DataType}
-   * values). Patch-db / SQL emitters use this to decide whether a column
+   * values). Sync entity store / SQL emitters use this to decide whether a column
    * may take SQL `NULL`.
    */
   readonly nullable: Nullable;
@@ -140,7 +140,7 @@ export interface AttributeTag<
   readonly index: AttributeIndexSpec | null;
   readonly parse: AttributeParser<T>;
   /**
-   * Builds a single-key patch `{ [key]: parse(value) }` for PatchDB writes.
+   * Builds a single-key patch `{ [key]: parse(value) }` for entity store writes.
    * Use {@link AttributeTag.parse} to validate raw input without wrapping.
    */
   (value: unknown): { readonly [P in K & Keyword]: T };
@@ -148,7 +148,7 @@ export interface AttributeTag<
   from(state: AttributeState): T;
   /**
    * Returns a tag with the same identity / parser / data type, but marked
-   * with an {@link AttributeIndexSpec}. Engines downstream (patch-db Postgres)
+   * with an {@link AttributeIndexSpec}. Engines downstream (sync entity store Postgres)
    * use this to provision a typed generated column + native btree so range
    * / equality / ORDER BY queries hit the index instead of `::cast` on JSONB.
    *
@@ -163,7 +163,7 @@ export interface AttributeTag<
   }): AttributeTag<T, K, D, Nullable>;
 }
 
-/** Generic / unbranded view used by patch-db indexes, react hooks, etc. */
+/** Generic / unbranded view used by sync entity store indexes, react hooks, etc. */
 export type AnyAttributeTag<T = unknown> = AttributeTag<
   T,
   string,

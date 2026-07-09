@@ -11,7 +11,7 @@
  * level map is the only cache that reliably survives those retries.
  *
  * Intended use: app-singleton resources (SQL client, device service,
- * patch-db) that are constructed exactly once per process. The factory's
+ * sync engine) that are constructed exactly once per process. The factory's
  * `AbortSignal` is wired but never aborted — these resources live for the
  * app's lifetime.
  *

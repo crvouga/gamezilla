@@ -19,7 +19,7 @@ export function previewStackEnv(): Record<string, string> {
   }
   return {
     DATABASE_URL: databaseUrl,
-    POSTGRES_SCHEMA: process.env['POSTGRES_SCHEMA']?.trim() || 'gamezilla',
+    POSTGRES_SCHEMA: process.env['POSTGRES_SCHEMA']?.trim() || 'public',
     SECRETS_ENV: secretsEnv,
   };
 }

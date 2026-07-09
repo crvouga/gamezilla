@@ -179,7 +179,7 @@ function linguiRules() {
           'cancelAll',
           'AbortController',
           'clearLocalDatabaseAndReload',
-          'usePatchDbLocalDataActions',
+          'useSyncLocalDataActions',
           'createApiClient',
           'createSecureStorage',
           'useDependency',

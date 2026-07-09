@@ -1,8 +1,7 @@
 const DEFAULT_THRESHOLDS_MS: Readonly<Record<string, number>> = {
   'db.query': 100,
   'db.transaction': 250,
-  'patch-db.read': 200,
-  'patch-db.write': 200,
+  'sync.upload': 200,
   'http.server.request': 500,
   'http.client.request': 500,
 };

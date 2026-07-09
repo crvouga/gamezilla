@@ -1,9 +1,9 @@
 /**
- * Single Stripe sync entry point — catalog + patch-db backfills + webhook endpoints.
+ * Single Stripe sync entry point — catalog + entity_store backfills + webhook endpoints.
  *
  * Reads via secret store (`SECRETS_TOKEN` or secrets CLI login):
  *   - `STRIPE_SECRET_KEY` (required)
- *   - `DATABASE_URL`            (required; `postgres://…` or `http://…` for local PGlite)
+ *   - `DATABASE_URL`            (required; `postgres://…`)
  *
  * Production API origin is derived from project config (not secret store `API_URL`).
  *
@@ -12,10 +12,7 @@
  *
  * Flags:
  *   --dry-run   Webhook step logs plan without mutating Stripe / secret store.
- *               (Catalog + patch-db steps are idempotent and always run.)
- *
- * All real work lives in `../src/sync/*` so other entry points (CI gate, future
- * Worker cron, tests) can compose the same orchestration without spawning bun.
+ *               (Catalog + entity_store steps are idempotent and always run.)
  */
 import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 import { pushWorkerSecretBinding } from '@libs/infra/cli/lib/push-worker-secret';
@@ -27,7 +24,6 @@ import {
 } from '../src/script-runtime';
 import { StripeSecretKeys } from '../src/secret-keys';
 import { createStripeScriptSecretStore } from '../src/script-secret-store';
-import { createStripeScriptPatchDb } from '../src/stripe-script-patch-db';
 import { runStripeFullSync } from '../src/sync';
 
 const SCRIPT_TAG = 'stripe sync';
@@ -48,12 +44,11 @@ async function main(): Promise<void> {
   const sql = createSqlClientFromDbUrl(dbUrl);
   await sql.connect();
   try {
-    const patchDb = createStripeScriptPatchDb(sql);
     const secretStore = await createStripeScriptSecretStore();
 
     const result = await runStripeFullSync({
       stripe,
-      patchDb,
+      sql,
       secretStore,
       apiUrlBase,
       dryRun,
@@ -75,7 +70,7 @@ async function main(): Promise<void> {
         catalog: {
           products: result.catalog.products.length,
           prices: result.catalog.prices.length,
-          dumpedToPatchDb: result.catalog.catalogDumped,
+          dumpedToEntityStore: result.catalog.catalogDumped,
         },
         entities: {
           totalWritten: result.entities.totalWritten,

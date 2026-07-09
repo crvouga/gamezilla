@@ -67,10 +67,6 @@ Every piece of infrastructure is defined in code, versioned, and deployed automa
 
 ## Architecture
 
-### Patch DB
-
-All application data is modeled as an append-only log of **patches**. Each patch targets an entity and carries namespaced attributes. Entities are materialized by folding their patches. Queries target a single entity type — no joins. Attribute keys follow a namespaced convention: `entityType/attributeName`.
-
 ### Sync
 
 Clients write locally first (optimistic, instant), then sync in the background. The transport layer is interface-driven and swappable, so the same sync logic runs over real network or in-process for tests.

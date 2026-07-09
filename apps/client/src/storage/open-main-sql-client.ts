@@ -50,8 +50,8 @@ export function getMainSqliteDbName(): string {
 
 /**
  * Opens the local client SQLite database on every platform (expo-sqlite
- * native + OPFS on web). The patch-db schema migrations run later
- * inside `createPatchDb` via `PatchDbImplSqlite.migrate()`, so this function
+ * native + OPFS on web). PowerSync schema setup runs later
+ * inside `createPowerSyncDatabase` via PowerSync schema setup, so this function
  * only worries about establishing a connected `SqlClient`.
  */
 export async function openMainSqlClient(): Promise<SqlClient> {

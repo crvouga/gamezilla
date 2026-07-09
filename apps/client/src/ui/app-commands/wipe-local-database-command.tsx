@@ -1,11 +1,11 @@
-import { usePatchDbLocalDataActions } from '@libs/auth/client/patch-db-local-data-actions-context';
+import { useSyncLocalDataActions } from '@libs/auth/client/sync-local-data-actions-context';
 import { MutationModal, RegisterCommand } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useState } from 'react';
 
 export function WipeLocalDatabaseCommand() {
   const { t } = useLingui();
-  const { clearLocalDatabaseAndReload } = usePatchDbLocalDataActions();
+  const { clearLocalDatabaseAndReload } = useSyncLocalDataActions();
   const [visible, setVisible] = useState(false);
   const operation = useCallback(async () => {
     await clearLocalDatabaseAndReload();
@@ -15,7 +15,7 @@ export function WipeLocalDatabaseCommand() {
       <RegisterCommand
         id="data-wipe-local-database"
         title={t`Wipe local database`}
-        subtitle={t`Clear SQLite and reload (same as Clear data in Todos)`}
+        subtitle={t`Clear local sync data and reload`}
         category={t`Data`}
         icon="database.fill"
         keywords={[

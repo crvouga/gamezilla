@@ -6,3 +6,4 @@ export { DefaultCrashHandler } from './crash/default-crash-handler';
 export * from './hot-asserts';
 export * from './singleton';
 export * from './validation-error';
+export { ForbiddenError } from './forbidden-error';

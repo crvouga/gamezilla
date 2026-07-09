@@ -1,32 +1,16 @@
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { DEVICE_ENTITY_TYPE, DeviceAttr } from '../../shared';
-import { formatModelLine } from '../device-parsers';
+import { DeviceField, useDeviceColumn } from '../use-device-column';
+import { EM_DASH } from '../device-parsers';
 
 export type AccountDeviceModelTextProps = {
   deviceId: string;
 };
 
-/** Composed `brand modelName` value. */
+/** Device model name. */
 export function AccountDeviceModelText({
   deviceId,
 }: AccountDeviceModelTextProps): ReactNode {
-  const deviceBrand = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.deviceBrand,
-  });
-  const deviceModelName = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.deviceModelName,
-  });
-  return (
-    <Text
-      variant="body"
-      numberOfLines={4}
-      label={formatModelLine(deviceBrand, deviceModelName)}
-    />
-  );
+  const model = useDeviceColumn(deviceId, DeviceField.deviceModelName);
+  return <Text variant="body" numberOfLines={4} label={model ?? EM_DASH} />;
 }

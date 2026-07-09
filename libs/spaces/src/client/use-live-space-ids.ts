@@ -1,19 +1,16 @@
-import {
-  SPACE_ENTITY_TYPE,
-  SpaceAttr,
-} from '@libs/spaces/shared/space-entities';
-import { useQueryEntityIds } from '@pkgs/patch-db/react';
+import { SpaceCol, SPACES_TABLE } from '@libs/spaces/shared/sync-tables';
+import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+
+type SpaceIdRow = { readonly id: string };
 
 /**
  * Ids of every live (non-ended) space, ordered newest-first.
- *
- * Used by `<SpacesList>` and the debug modal. Atoms render their own
- * data from each id via `<SpaceCard spaceId />`.
  */
 export function useLiveSpaceIds(): string[] {
-  return useQueryEntityIds({
-    entityType: SPACE_ENTITY_TYPE,
-    where: { type: 'not_exists', attribute: SpaceAttr.endedAt.key },
-    orderBy: [{ attribute: SpaceAttr.createdAt.key, direction: 'desc' }],
-  });
+  const { rows } = useWatchQuery<SpaceIdRow>(
+    `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName}
+     WHERE ${SpaceCol.endedAt} IS NULL
+     ORDER BY ${SpaceCol.createdAt} DESC`
+  );
+  return rows.map((r) => r.id);
 }

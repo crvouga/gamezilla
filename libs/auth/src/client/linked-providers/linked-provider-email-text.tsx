@@ -1,10 +1,6 @@
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import {
-  ACCOUNT_PROVIDER_ENTITY_TYPE,
-  AccountProviderAttr,
-} from '../../shared';
+import { AccountProviderField, useAccountProviderColumn } from '../use-account-provider-column';
 
 export type LinkedProviderEmailTextProps = {
   accountProviderEntityId: string;
@@ -14,11 +10,7 @@ export type LinkedProviderEmailTextProps = {
 export function LinkedProviderEmailText({
   accountProviderEntityId,
 }: LinkedProviderEmailTextProps): ReactNode {
-  const email = useQueryAttribute({
-    entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
-    entityId: accountProviderEntityId,
-    attribute: AccountProviderAttr.email,
-  });
+  const email = useAccountProviderColumn(accountProviderEntityId, AccountProviderField.email);
   if (email === null) return null;
   return <Text variant="caption" selectable label={email} />;
 }

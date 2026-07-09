@@ -21,7 +21,7 @@ export function useFreshAuthToken(): string | null {
   return null;
 }
 
-/** Synchronous variant for patch-db transport `getAuthToken` callbacks. */
+/** Synchronous variant for sync transport `getAuthToken` callbacks. */
 export function getCachedAuthToken(): string | null {
   const raw = getCachedSecureStorageValue(SESSION_TOKEN_KEY);
   if (typeof raw === 'string' && raw.length > 0) return raw;

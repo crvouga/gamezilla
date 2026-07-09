@@ -1,16 +1,10 @@
 import { optionalProps } from '@pkgs/ui/components/optional-props';
-import {
-  PROFILE_ENTITY_TYPE,
-  ProfileAttr,
-} from '@libs/profile/shared/profile-entities';
-import {
-  SPACE_ENTITY_TYPE,
-  SpaceAttr,
-} from '@libs/spaces/shared/space-entities';
+import { useProfileColumn, ProfileField } from '@libs/profile/client/use-profile-column';
 import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
+
+import { useSpaceColumn, SpaceField } from '../use-space-column';
 
 export type SpaceHostFallbackTitleProps = {
   spaceId: string;
@@ -21,10 +15,7 @@ export type SpaceHostFallbackTitleProps = {
 
 /**
  * Localized fallback title `${hostName}'s space` for a space that hasn't been
- * explicitly named. Resolves the host id and host's display name inline.
- *
- * Renders an empty string when the host id is unknown (row not synced yet);
- * keeps the slot in place so layout doesn't shift when the title resolves.
+ * explicitly named.
  */
 export function SpaceHostFallbackTitle({
   spaceId,
@@ -32,12 +23,8 @@ export function SpaceHostFallbackTitle({
   sx,
   numberOfLines,
 }: SpaceHostFallbackTitleProps): ReactNode {
-  const hostId = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.hostId,
-  });
-  if (hostId === null) {
+  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
+  if (hostId === null || hostId.length === 0) {
     return (
       <Text
         {...optionalProps({ variant, sx, numberOfLines })}
@@ -67,15 +54,12 @@ function SpaceHostFallbackTitleResolved({
   numberOfLines?: number;
 }): ReactNode {
   const { t } = useLingui();
-  const hostDisplayName = useQueryAttribute({
-    entityType: PROFILE_ENTITY_TYPE,
-    entityId: hostId,
-    attribute: ProfileAttr.displayName,
-  });
+  const hostDisplayName = useProfileColumn(hostId, ProfileField.displayName);
+  const hostName = hostDisplayName ?? '';
   return (
     <Text
       {...optionalProps({ variant, sx, numberOfLines })}
-      label={t`${hostDisplayName}'s space`}
+      label={t`${hostName}'s space`}
     />
   );
 }

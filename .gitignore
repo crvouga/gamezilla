@@ -53,8 +53,6 @@ pkgs/postgres/.pglite/
 # typescript
 *.tsbuildinfo
 
-# PatchDB app build output (opt-in)
-.sim-recordings/
 
 app-example
 
@@ -80,3 +78,9 @@ apps/client/android/
 /actionlint
 # Turborepo
 .turbo
+
+# PowerSync CLI setup artifacts
+powersync/.pull-state.json
+powersync/*.backup-*
+powersync/service-fetched.yaml
+powersync/sync-fetched.yaml

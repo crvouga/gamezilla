@@ -1,0 +1,116 @@
+import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
+import { createTableRegistry } from '@pkgs/sync-engine/shared/table-registry';
+
+export const DeviceCol = {
+  id: 'id',
+  createdAt: 'created_at',
+  platform: 'platform',
+  osName: 'os_name',
+  osVersion: 'os_version',
+  deviceModelName: 'device_model_name',
+  deviceBrand: 'device_brand',
+  deviceName: 'device_name',
+  appVersion: 'app_version',
+  appBuildNumber: 'app_build_number',
+  userAgent: 'user_agent',
+  firstSeenAt: 'first_seen_at',
+  lastSeenAt: 'last_seen_at',
+} as const;
+
+export const AccountCol = {
+  id: 'id',
+  createdAt: 'created_at',
+  stripeCustomerId: 'stripe_customer_id',
+} as const;
+
+export const AccountProviderCol = {
+  id: 'id',
+  accountId: 'account_id',
+  provider: 'provider',
+  providerUserId: 'provider_user_id',
+  email: 'email',
+  linkedAt: 'linked_at',
+} as const;
+
+export const AccountSessionCol = {
+  id: 'id',
+  deviceId: 'device_id',
+  accountId: 'account_id',
+  token: 'token',
+  expiresAt: 'expires_at',
+  createdAt: 'created_at',
+} as const;
+
+export const DEVICES_TABLE = defineTable({
+  tableName: 'devices',
+  columns: [
+    { name: DeviceCol.id, type: 'text', primaryKey: true },
+    { name: DeviceCol.createdAt, type: 'text' },
+    { name: DeviceCol.platform, type: 'text' },
+    { name: DeviceCol.osName, type: 'text' },
+    { name: DeviceCol.osVersion, type: 'text' },
+    { name: DeviceCol.deviceModelName, type: 'text' },
+    { name: DeviceCol.deviceBrand, type: 'text' },
+    { name: DeviceCol.deviceName, type: 'text' },
+    { name: DeviceCol.appVersion, type: 'text' },
+    { name: DeviceCol.appBuildNumber, type: 'text' },
+    { name: DeviceCol.userAgent, type: 'text' },
+    { name: DeviceCol.firstSeenAt, type: 'text' },
+    { name: DeviceCol.lastSeenAt, type: 'text' },
+  ],
+});
+
+export const ACCOUNTS_TABLE = defineTable({
+  tableName: 'accounts',
+  columns: [
+    { name: AccountCol.id, type: 'text', primaryKey: true },
+    { name: AccountCol.createdAt, type: 'text' },
+    { name: AccountCol.stripeCustomerId, type: 'text' },
+  ],
+});
+
+export const ACCOUNT_PROVIDERS_TABLE = defineTable({
+  tableName: 'account_providers',
+  columns: [
+    { name: AccountProviderCol.id, type: 'text', primaryKey: true },
+    { name: AccountProviderCol.accountId, type: 'text' },
+    { name: AccountProviderCol.provider, type: 'text' },
+    { name: AccountProviderCol.providerUserId, type: 'text' },
+    { name: AccountProviderCol.email, type: 'text' },
+    { name: AccountProviderCol.linkedAt, type: 'text' },
+  ],
+});
+
+export const ACCOUNT_SESSIONS_TABLE = defineTable({
+  tableName: 'account_sessions',
+  columns: [
+    { name: AccountSessionCol.id, type: 'text', primaryKey: true },
+    { name: AccountSessionCol.deviceId, type: 'text' },
+    { name: AccountSessionCol.accountId, type: 'text' },
+    { name: AccountSessionCol.token, type: 'text' },
+    { name: AccountSessionCol.expiresAt, type: 'text' },
+    { name: AccountSessionCol.createdAt, type: 'text' },
+  ],
+});
+
+export const AUTH_TABLE_DEFINITIONS = [
+  DEVICES_TABLE,
+  ACCOUNTS_TABLE,
+  ACCOUNT_PROVIDERS_TABLE,
+  ACCOUNT_SESSIONS_TABLE,
+] as const;
+
+export const AUTH_TABLE_REGISTRY = createTableRegistry(AUTH_TABLE_DEFINITIONS);
+
+/** Writable device metadata columns accepted by `POST /auth/refresh`. */
+export const DEVICE_SNAPSHOT_COLUMNS = new Set<string>([
+  DeviceCol.platform,
+  DeviceCol.osName,
+  DeviceCol.osVersion,
+  DeviceCol.deviceModelName,
+  DeviceCol.deviceBrand,
+  DeviceCol.deviceName,
+  DeviceCol.appVersion,
+  DeviceCol.appBuildNumber,
+  DeviceCol.userAgent,
+]);

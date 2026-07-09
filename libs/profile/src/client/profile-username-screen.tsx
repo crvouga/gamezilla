@@ -1,7 +1,7 @@
 import { useMyProfileId } from './use-my-profile-id';
-import { useProfileEntityById } from './use-profile-entity-by-id';
+import { useProfileRow, type ProfileRow } from './use-profile-row';
+import { updateProfile } from './profile-actions';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
 import {
   Box,
   FormActionsFooter,
@@ -9,8 +9,7 @@ import {
   TextInput,
   type BodyContentProps,
 } from '@pkgs/ui';
-import type { Entity } from '@pkgs/patch-db/interface';
-import { usePatchDb } from '@pkgs/patch-db/react';
+import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import {
@@ -21,14 +20,13 @@ import {
   type ReactNode,
 } from 'react';
 
-function useSyncedDisplayName(entity: Entity | null) {
+function useSyncedDisplayName(row: ProfileRow | null) {
   const [value, setValue] = useState('');
   const lastPersistedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!entity) return;
-    const raw = entity.attributes[ProfileAttr.displayName.key];
-    const persisted = typeof raw === 'string' ? raw : '';
+    if (row === null) return;
+    const persisted = typeof row.display_name === 'string' ? row.display_name : '';
     const prev = lastPersistedRef.current;
     if (prev === null) {
       setValue((current) => (current === '' ? persisted : current));
@@ -39,7 +37,7 @@ function useSyncedDisplayName(entity: Entity | null) {
       setValue((current) => (current === prev ? persisted : current));
       lastPersistedRef.current = persisted;
     }
-  }, [entity]);
+  }, [row]);
 
   return [value, setValue] as const;
 }
@@ -70,22 +68,16 @@ function ProfileUsernameScreenBody({
 
 export function ProfileUsernameScreen() {
   const router = useRouter();
-  const db = usePatchDb();
+  const engine = useSyncEngine();
   const profileId = useMyProfileId();
-  const entity = useProfileEntityById(profileId);
-  const [value, setValue] = useSyncedDisplayName(entity);
+  const row = useProfileRow(profileId);
+  const [value, setValue] = useSyncedDisplayName(row);
   const nav = useBreadcrumbNav();
 
   const save = useCallback(async () => {
     if (profileId === null) return;
-    await db.write([
-      {
-        entityId: profileId,
-        entityType: PROFILE_ENTITY_TYPE,
-        attributes: ProfileAttr.displayName(value.trim()),
-      },
-    ]);
-  }, [db, profileId, value]);
+    await updateProfile(engine.db, profileId, { displayName: value.trim() });
+  }, [engine, profileId, value]);
 
   return (
     <ScreenBase

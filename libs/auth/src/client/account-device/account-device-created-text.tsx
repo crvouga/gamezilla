@@ -1,7 +1,6 @@
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { DEVICE_ENTITY_TYPE, DeviceAttr } from '../../shared';
+import { DeviceField, useDeviceColumn } from '../use-device-column';
 import { formatTimestamp } from '../device-parsers';
 
 export type AccountDeviceCreatedTextProps = {
@@ -12,11 +11,7 @@ export type AccountDeviceCreatedTextProps = {
 export function AccountDeviceCreatedText({
   deviceId,
 }: AccountDeviceCreatedTextProps): ReactNode {
-  const createdAt = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.createdAt,
-  });
+  const createdAt = useDeviceColumn(deviceId, DeviceField.createdAt);
   return (
     <Text variant="body" numberOfLines={4} label={formatTimestamp(createdAt)} />
   );

@@ -1,79 +1,61 @@
-import { assertUuid } from '@pkgs/uuid';
 import { serializeDefaultAvatarConfig } from '../shared/avatar-config';
 import { generateRandomDisplayName } from '../shared/display-name-generator';
-import { PROFILE_ENTITY_TYPE, ProfileAttr } from '../shared/profile-entities';
-import type { Entity, PatchDb } from '@pkgs/patch-db/interface';
+import { parseAvatarConfig } from '../shared/avatar-config';
+import { ProfileCol, PROFILES_TABLE } from '../shared/sync-tables';
+import { assertUuid } from '@pkgs/uuid';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
-function profileLooksPresent(
-  entity: Entity | undefined,
-  expectedId: string
-): boolean {
-  if (entity === undefined) return false;
-  const attrs = entity.attributes as Record<string, unknown>;
-  return (
-    attrs[ProfileAttr.id.key] === expectedId &&
-    typeof attrs[ProfileAttr.createdAt.key] === 'string'
-  );
+type ProfileRow = Record<string, unknown>;
+
+function profileLooksPresent(row: ProfileRow | undefined, expectedId: string): boolean {
+  if (row === undefined) return false;
+  return row[ProfileCol.id] === expectedId && typeof row[ProfileCol.createdAt] === 'string';
 }
 
-function hasDisplayName(entity: Entity | undefined): boolean {
-  if (entity === undefined) return false;
-  const attrs = entity.attributes as Record<string, unknown>;
-  const v = attrs[ProfileAttr.displayName.key];
+function hasDisplayName(row: ProfileRow | undefined): boolean {
+  if (row === undefined) return false;
+  const v = row[ProfileCol.displayName];
   return typeof v === 'string' && v.trim().length > 0;
 }
 
-function hasAvatarConfig(entity: Entity | undefined): boolean {
-  if (entity === undefined) return false;
-  const attrs = entity.attributes as Record<string, unknown>;
-  const parsed = ProfileAttr.avatarConfig.from(attrs);
-  return parsed !== null && parsed.seed.trim().length > 0;
+function hasAvatarConfig(row: ProfileRow | undefined): boolean {
+  if (row === undefined) return false;
+  return parseAvatarConfig(row[ProfileCol.avatarConfig]) !== null;
 }
 
 /**
- * Ensures a `profile` row at `entityId === myId` (install id when anonymous,
+ * Ensures a `profiles` row exists for `myId` (install id when anonymous,
  * account id when signed in).
  */
-export async function ensureProfile(db: PatchDb, myId: string): Promise<void> {
+export async function ensureProfile(sql: SqlClient, myId: string): Promise<void> {
   assertUuid(myId, 'ensureProfile myId');
-  const [res] = await db.read([
-    {
-      entityType: PROFILE_ENTITY_TYPE,
-      entityId: myId,
-      limit: 1,
-    },
-  ]);
-  const existing = res?.entities[0];
+  const rows = await sql.query<ProfileRow>(
+    `SELECT * FROM ${PROFILES_TABLE.tableName} WHERE ${ProfileCol.id} = ? LIMIT 1`,
+    [myId]
+  );
+  const existing = rows[0];
   if (profileLooksPresent(existing, myId)) {
-    const patch = {
-      ...(!hasDisplayName(existing)
-        ? ProfileAttr.displayName(generateRandomDisplayName())
-        : {}),
-      ...(!hasAvatarConfig(existing)
-        ? ProfileAttr.avatarConfig(serializeDefaultAvatarConfig(myId))
-        : {}),
-    };
-    if (Object.keys(patch).length === 0) return;
-    await db.write([
-      {
-        entityId: myId,
-        entityType: PROFILE_ENTITY_TYPE,
-        attributes: patch,
-      },
-    ]);
+    const updates: Record<string, string> = {};
+    if (!hasDisplayName(existing)) {
+      updates[ProfileCol.displayName] = generateRandomDisplayName();
+    }
+    if (!hasAvatarConfig(existing)) {
+      updates[ProfileCol.avatarConfig] = serializeDefaultAvatarConfig(myId);
+    }
+    if (Object.keys(updates).length === 0) return;
+    const entries = Object.entries(updates);
+    const sets = entries.map(([col]) => `${col} = ?`).join(', ');
+    await sql.run(
+      `UPDATE ${PROFILES_TABLE.tableName} SET ${sets} WHERE ${ProfileCol.id} = ?`,
+      [...entries.map(([, v]) => v), myId]
+    );
     return;
   }
   const now = new Date().toISOString();
-  await db.write([
-    {
-      entityId: myId,
-      entityType: PROFILE_ENTITY_TYPE,
-      attributes: {
-        ...ProfileAttr.id(myId),
-        ...ProfileAttr.createdAt(now),
-        ...ProfileAttr.displayName(generateRandomDisplayName()),
-        ...ProfileAttr.avatarConfig(serializeDefaultAvatarConfig(myId)),
-      },
-    },
-  ]);
+  await sql.run(
+    `INSERT INTO ${PROFILES_TABLE.tableName}
+     (${ProfileCol.id}, ${ProfileCol.createdAt}, ${ProfileCol.displayName}, ${ProfileCol.avatarConfig})
+     VALUES (?, ?, ?, ?)`,
+    [myId, now, generateRandomDisplayName(), serializeDefaultAvatarConfig(myId)]
+  );
 }

@@ -1,9 +1,5 @@
 import { MutationModal, TextInput } from '@pkgs/ui';
-import {
-  SPACE_ENTITY_TYPE,
-  SpaceAttr,
-} from '@libs/spaces/shared/space-entities';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
+import { useSpaceColumn, SpaceField } from '../use-space-column';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 
@@ -27,11 +23,7 @@ export function RenameSpaceModal({
   onClose,
 }: RenameSpaceModalProps): ReactNode {
   const { t } = useLingui();
-  const persistedTitle = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.title,
-  });
+  const persistedTitle = useSpaceColumn(spaceId, SpaceField.title);
   const { renameSpace } = useSpaceActions();
   const [value, setValue] = useState<string>('');
 

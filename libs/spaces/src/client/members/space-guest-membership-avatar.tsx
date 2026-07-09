@@ -1,10 +1,7 @@
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
-import {
-  SPACE_MEMBERSHIP_ENTITY_TYPE,
-  SpaceMembershipAttr,
-} from '@libs/spaces/shared/space-entities';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type { ReactNode } from 'react';
+
+import { useSpaceMembershipColumn, SpaceMembershipField } from '../use-space-membership-column';
 
 export type SpaceGuestMembershipAvatarProps = {
   membershipId: string;
@@ -12,17 +9,12 @@ export type SpaceGuestMembershipAvatarProps = {
   vividBackdrop?: boolean;
 };
 
-/** Avatar for the guest profile referenced by a space membership row. */
 export function SpaceGuestMembershipAvatar({
   membershipId,
   size,
   vividBackdrop,
 }: SpaceGuestMembershipAvatarProps): ReactNode {
-  const guestId = useQueryAttribute({
-    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    entityId: membershipId,
-    attribute: SpaceMembershipAttr.guestId,
-  });
+  const guestId = useSpaceMembershipColumn(membershipId, SpaceMembershipField.guestId);
   return (
     <UserProfileAvatar
       profileId={guestId}

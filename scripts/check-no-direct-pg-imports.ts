@@ -6,7 +6,7 @@
  * Every Postgres connection in this repo must go through the schema-aware
  * factories in `pkgs/sql-client/src/postgres-connect.ts` (`openPgClient`,
  * `createPgPool`, …), which pin the session `search_path` to the canonical
- * `gamezilla` schema. A raw `new Client()` / `new Pool()` anywhere else would
+ * `public` schema. A raw `new Client()` / `new Pool()` anywhere else would
  * silently fall back to whatever the server's default schema is — defeating
  * the guarantee that the app only ever touches its own schema.
  *
@@ -93,6 +93,6 @@ for (const v of violations) {
   console.error(`  - ${v.file}: ${v.statement}`);
 }
 console.error(
-  '\nOpen connections via @pkgs/sql-client (`openPgClient` / `createPgPool`), which pin the `gamezilla` schema. For pg types, import from `@pkgs/sql-client/pg-types`.'
+  '\nOpen connections via @pkgs/sql-client (`openPgClient` / `createPgPool`), which pin the `public` schema. For pg types, import from `@pkgs/sql-client/pg-types`.'
 );
 process.exit(1);

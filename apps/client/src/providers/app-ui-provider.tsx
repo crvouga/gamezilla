@@ -16,8 +16,8 @@ const uiProviders = [
 ];
 
 /**
- * Overlays, bottom sheets, portal patch-db bridge, app modals, and command palette.
- * Must render after {@link AppLocalDatabaseProvider} (patch-db + portal bridge).
+ * Overlays, bottom sheets, portal sync-engine bridge, app modals, and command palette.
+ * Must render after {@link AppLocalDatabaseProvider} (sync engine + portal bridge).
  */
 export function AppUiProvider({
   children,

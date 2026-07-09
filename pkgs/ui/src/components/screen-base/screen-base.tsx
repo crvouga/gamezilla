@@ -256,7 +256,9 @@ function renderScreenBody(args: {
     <Box sx={{ flex: 1, minHeight: 0 }} style={{ position: 'relative' }}>
       {body}
       {args.pinnedFooter ? <PinnedFooter>{args.footer}</PinnedFooter> : null}
-      {!args.isWide && args.primaryActionProps !== undefined ? (
+      {!args.isWide &&
+      args.primaryActionProps !== undefined &&
+      !args.primaryActionProps.buttonProps.disabled ? (
         <FloatingActionHost extraBottomInset={args.primaryActionBottomInset}>
           {renderPrimaryActionFab(args.primaryActionProps)}
         </FloatingActionHost>

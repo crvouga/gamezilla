@@ -14,6 +14,13 @@ import { AuthPublishableKey } from './auth-publishable-key';
 import { AuthSecretKey } from './auth-secret-key';
 import { DbUrl } from './db-url';
 import { ExpoToken } from './expo-token';
+import {
+  PowerSyncInstanceId,
+  PowerSyncJwtPublicJwk,
+  PowerSyncProjectId,
+  PowerSyncUrl,
+  PsAdminToken,
+} from './powersync-secrets';
 import { StripeSecretKey } from './stripe-secret-key';
 import { StripeWebhookSecret } from './stripe-webhook-secret';
 import {
@@ -24,6 +31,7 @@ import {
   TurboToken,
 } from './turbo-token';
 import type { SecretEntry } from './types';
+import { API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS } from './worker-api-secrets';
 
 export { validateSecret } from './types';
 export type { SecretEntry } from './types';
@@ -47,6 +55,11 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new S3Bucket(),
   new S3Endpoint(),
   new S3Region(),
+  new PowerSyncInstanceId(),
+  new PowerSyncProjectId(),
+  new PowerSyncUrl(),
+  new PsAdminToken(),
+  new PowerSyncJwtPublicJwk(),
 ];
 
 type SecretsCoords = {
@@ -197,6 +210,32 @@ export function loadSecretsIntoEnv(): Array<{
       results.push({ env, set: value.length > 0, optional });
     } catch {
       results.push({ env, set: false, optional });
+    }
+  }
+
+  return results;
+}
+
+/** Worker boot secrets managed in Infisical but outside {@link getSecretMap}. */
+export function loadWorkerApiSecretsIntoEnv(): Array<{
+  key: string;
+  set: boolean;
+}> {
+  const results: Array<{ key: string; set: boolean }> = [];
+
+  for (const key of API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS) {
+    const existing = process.env[key]?.trim();
+    if (existing !== undefined && existing.length > 0) {
+      results.push({ key, set: true });
+      continue;
+    }
+
+    try {
+      const value = fetchSecret(key).trim();
+      process.env[key] = value;
+      results.push({ key, set: value.length > 0 });
+    } catch {
+      results.push({ key, set: false });
     }
   }
 

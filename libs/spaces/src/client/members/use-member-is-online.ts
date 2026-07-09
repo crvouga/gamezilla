@@ -2,7 +2,7 @@ import { useSpacePresence } from '../room/use-space-presence';
 
 /**
  * Whether the given member has any active room connection in this space.
- * Combines patch-db identity with room presence (not a plain attribute).
+ * Combines sync identity with room presence (not a plain attribute).
  */
 export function useMemberIsOnline(
   _spaceId: string,

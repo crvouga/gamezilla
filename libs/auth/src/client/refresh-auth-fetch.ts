@@ -8,7 +8,7 @@ export type RefreshAuthArgs = {
   bearerToken: string;
   deviceId: string;
   /**
-   * Best-effort device metadata keyed directly by `device/...` PatchDB
+   * Best-effort device metadata keyed directly by `device/...` sync
    * attribute names (see {@link collectDeviceSnapshot}). The server merges
    * these into `device/<deviceId>` verbatim — no field-name remapping.
    */
@@ -26,10 +26,10 @@ export type RefreshAuthResult = {
 };
 
 /**
- * `POST /auth/refresh` — idempotent server upsert of the auth-related PatchDB
+ * `POST /auth/refresh` — idempotent server upsert of the auth-related sync
  * entities (`account`, `account/provider`, `account/session`, `device`) for the
  * current bearer + device. Returns just the internal `accountId`; everything
- * else flows back to the client through PatchDB sync.
+ * else flows back to the client through PowerSync sync.
  */
 export async function refreshAuth(
   args: RefreshAuthArgs

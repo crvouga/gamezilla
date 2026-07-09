@@ -63,7 +63,7 @@ const requireAuth: MiddlewareHandler = async (c, next) => {
   const s = apiRequestAsyncLocalStorage.getStore();
   assert.defined(s, 'matchmaking auth: request store missing');
   try {
-    const ctx = await s.sessionAuth.requireAuthContext(s.patchDb, c.req.raw);
+    const ctx = await s.sessionAuth.requireAuthContext(s.sqlClient, c.req.raw);
     const auth = appAuth(ctx);
     if (auth === null || auth.accountId === null) {
       throw new UnauthorizedError('Matchmaking requires a signed-in account');

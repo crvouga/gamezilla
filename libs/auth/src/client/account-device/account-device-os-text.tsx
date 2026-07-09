@@ -1,32 +1,21 @@
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { DEVICE_ENTITY_TYPE, DeviceAttr } from '../../shared';
-import { formatOsLine } from '../device-parsers';
+import { DeviceField, useDeviceColumn } from '../use-device-column';
+import { EM_DASH } from '../device-parsers';
 
 export type AccountDeviceOsTextProps = {
   deviceId: string;
 };
 
-/** Composed `osName osVersion` value. */
+/** OS name + version. */
 export function AccountDeviceOsText({
   deviceId,
 }: AccountDeviceOsTextProps): ReactNode {
-  const osName = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.osName,
-  });
-  const osVersion = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.osVersion,
-  });
-  return (
-    <Text
-      variant="body"
-      numberOfLines={4}
-      label={formatOsLine(osName, osVersion)}
-    />
-  );
+  const osName = useDeviceColumn(deviceId, DeviceField.osName);
+  const osVersion = useDeviceColumn(deviceId, DeviceField.osVersion);
+  const label =
+    osName === null && osVersion === null
+      ? EM_DASH
+      : [osName, osVersion].filter((v) => v !== null).join(' ');
+  return <Text variant="body" numberOfLines={4} label={label} />;
 }

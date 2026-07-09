@@ -8,7 +8,7 @@ import type { SecureStorage } from './interface';
  *
  * Per-key state lives in module-level maps so:
  *   1. Multiple components reading the same key share one underlying read.
- *   2. Non-React code (e.g. patch-db transport) can read the latest value
+ *   2. Non-React code (e.g. sync transport) can read the latest value
  *      synchronously via {@link getCachedSecureStorageValue}.
  *   3. Writes from one consumer are immediately visible to all others.
  */
@@ -63,7 +63,7 @@ async function hydrateOnce(
 /**
  * Returns the most recently observed value for `key`, or `null` if the value
  * has not been hydrated yet (or is genuinely absent). Safe to call from non-React
- * code (e.g. patch-db transport getter callbacks).
+ * code (e.g. sync transport getter callbacks).
  */
 export function getCachedSecureStorageValue(key: string): string | null {
   return cache.get(key) ?? null;
@@ -174,7 +174,7 @@ export async function writeSecureStorageItem(
 /**
  * Suspending variant: throws the hydration promise when the key has not been
  * read yet. Mount inside a `<Suspense>` boundary; consumers that need a value
- * synchronously at render time (e.g. patch-db boot) can call this without
+ * synchronously at render time (e.g. sync engine boot) can call this without
  * a fallback path.
  */
 export function useHydratedSecureStorageItem(

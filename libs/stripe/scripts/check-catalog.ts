@@ -1,12 +1,12 @@
 /**
- * CI gate: run catalog reconcile only — no patch-db dump, no webhook mutation.
+ * CI gate: run catalog reconcile only — no entity_store dump, no webhook mutation.
  *
  * - CI (`CI=true` / `GITHUB_ACTIONS=true`): require secret store-resolvable
  *   `STRIPE_SECRET_KEY`; fail loudly if missing.
  * - Local: silently skip when secret store / `STRIPE_SECRET_KEY` is unavailable so
  *   the dev workflow doesn't block on a dashboard-only secret.
  *
- * Catalog dump to patch-db is intentionally skipped here — the gate's job is
+ * Catalog dump to entity_store is intentionally skipped here — the gate's job is
  * to verify the SPEC reconciles cleanly, not to mutate any local DB.
  */
 import { StripeSecretKeys } from '../src/secret-keys';

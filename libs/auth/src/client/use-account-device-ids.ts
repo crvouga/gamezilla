@@ -1,22 +1,21 @@
 import { useMyDeviceId } from './use-current-user';
 import {
-  ACCOUNT_SESSION_ENTITY_TYPE,
-  AccountSessionAttr,
-  DEVICE_ENTITY_TYPE,
-  DeviceAttr,
-} from '../shared';
-import type { Entity } from '@pkgs/patch-db/interface';
-import { useQuery } from '@pkgs/patch-db/react';
+  AccountSessionCol,
+  ACCOUNT_SESSIONS_TABLE,
+  DeviceCol,
+  DEVICES_TABLE,
+} from '../shared/auth-tables';
+import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
-const EMPTY_DEVICE_QUERY = {
-  entityType: DEVICE_ENTITY_TYPE,
-  limit: 0 as const,
+type DeviceRow = {
+  readonly id: string;
+  readonly last_seen_at: string | null;
+  readonly created_at: string | null;
 };
 
-const EMPTY_SESSION_QUERY = {
-  entityType: ACCOUNT_SESSION_ENTITY_TYPE,
-  limit: 0 as const,
+type SessionRow = {
+  readonly device_id: string;
 };
 
 function readString(raw: unknown): string | null {
@@ -25,10 +24,8 @@ function readString(raw: unknown): string | null {
   return t.length > 0 ? t : null;
 }
 
-function lastSeenMsOf(entity: Entity): number {
-  const raw =
-    readString(entity.attributes[DeviceAttr.lastSeenAt.key]) ??
-    readString(entity.attributes[DeviceAttr.createdAt.key]);
+function lastSeenMsOf(row: DeviceRow): number {
+  const raw = readString(row.last_seen_at) ?? readString(row.created_at);
   if (raw === null) return 0;
   const t = Date.parse(raw);
   return Number.isNaN(t) ? 0 : t;
@@ -36,14 +33,14 @@ function lastSeenMsOf(entity: Entity): number {
 
 function buildLastSeenMap(args: {
   accountId: string | null;
-  remoteDevices: readonly Entity[];
-  localDevices: readonly Entity[];
+  remoteDevices: readonly DeviceRow[];
+  localDevices: readonly DeviceRow[];
 }): Map<string, number> {
   const byId = new Map<string, number>();
   if (args.accountId !== null) {
-    for (const e of args.remoteDevices) byId.set(e.entityId, lastSeenMsOf(e));
+    for (const row of args.remoteDevices) byId.set(row.id, lastSeenMsOf(row));
   }
-  for (const e of args.localDevices) byId.set(e.entityId, lastSeenMsOf(e));
+  for (const row of args.localDevices) byId.set(row.id, lastSeenMsOf(row));
   return byId;
 }
 
@@ -58,88 +55,70 @@ function sortDeviceIds(
   });
 }
 
-function uniqueDeviceIdsFromSessions(sessions: readonly Entity[]): string[] {
+function uniqueDeviceIdsFromSessions(sessions: readonly SessionRow[]): string[] {
   const s = new Set<string>();
-  for (const e of sessions) {
-    const did = e.attributes[AccountSessionAttr.deviceId.key];
+  for (const row of sessions) {
+    const did = row.device_id;
     if (typeof did === 'string' && did.length > 0) s.add(did);
   }
   return [...s].sort();
 }
 
 /**
- * Device entity ids for the given account, plus the current install row when
- * signed in (so the current device shows up before sync). Sorted with the
- * current device first, then by `lastSeenAt` descending (falling back to
- * `createdAt`).
- *
- * Genuinely multi-query: sessions for the account → device ids → device
- * entities → merge with local install. Returns ids only.
+ * Device ids for the given account, plus the current install row when
+ * signed in. Sorted with the current device first, then by `last_seen_at`
+ * descending (falling back to `created_at`).
  */
 export function useAccountDeviceIds(accountId: string | null): string[] {
   const currentDeviceId = useMyDeviceId();
 
-  const localQuery = useMemo(
-    () => ({
-      entityType: DEVICE_ENTITY_TYPE,
-      entityId: currentDeviceId,
-      limit: 1 as const,
-    }),
+  const { rows: localRows } = useWatchQuery<DeviceRow>(
+    `SELECT ${DeviceCol.id}, ${DeviceCol.lastSeenAt}, ${DeviceCol.createdAt}
+     FROM ${DEVICES_TABLE.tableName}
+     WHERE ${DeviceCol.id} = ?`,
     [currentDeviceId]
   );
 
-  const sessionsQuery = useMemo(
-    () =>
-      accountId === null
-        ? null
-        : {
-            entityType: ACCOUNT_SESSION_ENTITY_TYPE,
-            where: {
-              type: '=' as const,
-              attribute: AccountSessionAttr.accountId.key,
-              value: accountId,
-            },
-            limit: 500,
-          },
-    [accountId]
+  const { rows: sessionRows } = useWatchQuery<SessionRow>(
+    accountId === null
+      ? `SELECT ${AccountSessionCol.deviceId} AS device_id FROM ${ACCOUNT_SESSIONS_TABLE.tableName} WHERE 0`
+      : `SELECT ${AccountSessionCol.deviceId} AS device_id
+         FROM ${ACCOUNT_SESSIONS_TABLE.tableName}
+         WHERE ${AccountSessionCol.accountId} = ?
+         LIMIT 500`,
+    accountId === null ? [] : [accountId]
   );
-
-  const localResult = useQuery(localQuery);
-  const sessionsResult = useQuery(sessionsQuery ?? EMPTY_SESSION_QUERY);
 
   const deviceIdsFromSessions = useMemo(
-    () => uniqueDeviceIdsFromSessions(sessionsResult.entities),
-    [sessionsResult.entities]
+    () => uniqueDeviceIdsFromSessions(sessionRows),
+    [sessionRows]
   );
 
-  const remoteDevicesQuery = useMemo(
-    () =>
-      accountId === null || deviceIdsFromSessions.length === 0
-        ? EMPTY_DEVICE_QUERY
-        : {
-            entityType: DEVICE_ENTITY_TYPE,
-            entityId: deviceIdsFromSessions,
-          },
-    [accountId, deviceIdsFromSessions]
-  );
+  const remoteSql =
+    accountId === null || deviceIdsFromSessions.length === 0
+      ? `SELECT ${DeviceCol.id}, ${DeviceCol.lastSeenAt}, ${DeviceCol.createdAt}
+         FROM ${DEVICES_TABLE.tableName} WHERE 0`
+      : `SELECT ${DeviceCol.id}, ${DeviceCol.lastSeenAt}, ${DeviceCol.createdAt}
+         FROM ${DEVICES_TABLE.tableName}
+         WHERE ${DeviceCol.id} IN (${deviceIdsFromSessions.map(() => '?').join(', ')})`;
 
-  const remoteDevicesResult = useQuery(remoteDevicesQuery);
+  const { rows: remoteRows } = useWatchQuery<DeviceRow>(
+    remoteSql,
+    accountId === null || deviceIdsFromSessions.length === 0
+      ? []
+      : deviceIdsFromSessions
+  );
 
   return useMemo(
     () =>
       sortDeviceIds(
         buildLastSeenMap({
           accountId,
-          remoteDevices: remoteDevicesResult.entities,
-          localDevices: localResult.entities,
+          remoteDevices: remoteRows,
+          localDevices: localRows,
         }),
         currentDeviceId
       ),
-    [
-      accountId,
-      remoteDevicesResult.entities,
-      localResult.entities,
-      currentDeviceId,
-    ]
+    [accountId, remoteRows, localRows, currentDeviceId]
   );
 }

@@ -132,7 +132,7 @@ function isAsciiKeywordCharset(key: string): boolean {
 }
 
 /**
- * True when `key` is a valid namespaced keyword for wire / PatchDB / message types:
+ * True when `key` is a valid namespaced keyword for wire / sync entity store / message types:
  * exactly one `/`, ASCII subset, bounded lengths, strict kebab segments.
  */
 export function isNamespacedKeyword(key: unknown): key is Keyword {

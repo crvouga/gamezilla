@@ -1,44 +1,26 @@
 /**
- * Pure helpers for converting a parsed Lichess CSV row into the
- * `(patches, snapshots)` shapes the fast-path writer expects.
- *
- * No SQL, no I/O — exported so unit tests can pin the canonical-JSON /
- * content-addressed id behaviour without booting the seed runtime.
+ * Pure helpers for converting a parsed Lichess CSV row into chess_puzzles
+ * table rows for bulk INSERT.
  */
 import { ChessPuzzleAttr } from '@libs/chess/shared/chess-puzzle-entities';
-import {
-  PATCH_CREATED_BY_ID,
-  PATCH_SESSION_ID,
-  PATCH_SYNCED_AT,
-} from '@pkgs/patch-db/interface';
-import { createHash } from 'node:crypto';
+
+export type PuzzleTableRow = {
+  readonly id: string;
+  readonly fen: string;
+  readonly moves: string;
+  readonly rating: number;
+  readonly rating_deviation: number;
+  readonly popularity: number;
+  readonly nb_plays: number;
+  readonly themes: string;
+  readonly game_url: string | null;
+  readonly opening_tags: string;
+};
 
 export type PuzzleBatchEntry = {
   puzzleId: string;
-  /** User-facing attributes (snapshot shape — no patch metadata). */
-  snapshotAttrs: Record<string, unknown>;
-  /** Patch-shape attributes (snapshot attrs + patch metadata). */
-  patchAttrs: Record<string, unknown>;
-  patchId: string;
+  row: PuzzleTableRow;
 };
-
-export function canonicalJson(obj: Record<string, unknown>): string {
-  const keys = Object.keys(obj).sort();
-  const sorted: Record<string, unknown> = {};
-  for (const k of keys) {
-    sorted[k] = obj[k];
-  }
-  return JSON.stringify(sorted);
-}
-
-export function contentAddressedPatchId(
-  attrs: Record<string, unknown>
-): string {
-  return createHash('sha256')
-    .update(canonicalJson(attrs), 'utf8')
-    .digest('hex')
-    .slice(0, 32);
-}
 
 function splitSpaceSorted(raw: unknown): string[] {
   if (typeof raw !== 'string') return [];
@@ -72,78 +54,54 @@ function readRequiredFields(
   return { puzzleId, fen, moves };
 }
 
-/**
- * Build the user attributes for a single puzzle row, omitting fields whose
- * value would round-trip identically through the corresponding
- * {@link ChessPuzzleAttr} reader from a missing key:
- *
- * - `gameUrl: null`   — `readTrimmedNullableString` returns `null` for missing
- * - `themes: []`      — `readStringArray` returns `[]` for missing
- * - `openingTags: []` — `readStringArray` returns `[]` for missing
- *
- * Numeric zero values (`rating`, `popularity`, etc.) are kept verbatim
- * because the declarative `pdb_idx_chess_puzzle__puzzle_popularity`
- * snapshot index uses `(attributes->>'chess.puzzle/popularity')` which
- * yields SQL NULL for missing keys — we don't want zero-popularity puzzles
- * vanishing from the picker's `ORDER BY … DESC` index plan.
- */
+export function rowToPuzzleTableRow(
+  row: Record<string, unknown>
+): PuzzleTableRow | null {
+  const required = readRequiredFields(row);
+  if (required === null) return null;
+  const themes = splitSpaceSorted(row['Themes']);
+  const openingTags = splitSpaceSorted(row['OpeningTags']);
+  return {
+    id: required.puzzleId,
+    fen: required.fen,
+    moves: required.moves,
+    rating: readNonNegativeInt(row['Rating']),
+    rating_deviation: readNonNegativeInt(row['RatingDeviation']),
+    popularity: readNonNegativeInt(row['Popularity']),
+    nb_plays: readNonNegativeInt(row['NbPlays']),
+    themes: JSON.stringify(themes),
+    game_url: readNullableTrimmedString(row['GameUrl']),
+    opening_tags: JSON.stringify(openingTags),
+  };
+}
+
+/** @deprecated Use {@link rowToPuzzleTableRow} — kept for dry-run callers. */
 export function rowToPuzzleAttributes(
   row: Record<string, unknown>
 ): Record<string, unknown> | null {
-  const required = readRequiredFields(row);
-  if (required === null) return null;
-
+  const tableRow = rowToPuzzleTableRow(row);
+  if (tableRow === null) return null;
   const attrs: Record<string, unknown> = {
-    [ChessPuzzleAttr.id.key]: required.puzzleId,
-    [ChessPuzzleAttr.fen.key]: required.fen,
-    [ChessPuzzleAttr.moves.key]: required.moves,
-    [ChessPuzzleAttr.rating.key]: readNonNegativeInt(row['Rating']),
-    [ChessPuzzleAttr.ratingDeviation.key]: readNonNegativeInt(
-      row['RatingDeviation']
-    ),
-    [ChessPuzzleAttr.popularity.key]: readNonNegativeInt(row['Popularity']),
-    [ChessPuzzleAttr.nbPlays.key]: readNonNegativeInt(row['NbPlays']),
+    [ChessPuzzleAttr.id.key]: tableRow.id,
+    [ChessPuzzleAttr.fen.key]: tableRow.fen,
+    [ChessPuzzleAttr.moves.key]: tableRow.moves,
+    [ChessPuzzleAttr.rating.key]: tableRow.rating,
+    [ChessPuzzleAttr.ratingDeviation.key]: tableRow.rating_deviation,
+    [ChessPuzzleAttr.popularity.key]: tableRow.popularity,
+    [ChessPuzzleAttr.nbPlays.key]: tableRow.nb_plays,
   };
-  const themes = splitSpaceSorted(row['Themes']);
-  if (themes.length > 0) {
-    attrs[ChessPuzzleAttr.themes.key] = themes;
-  }
-  const gameUrl = readNullableTrimmedString(row['GameUrl']);
-  if (gameUrl !== null) {
-    attrs[ChessPuzzleAttr.gameUrl.key] = gameUrl;
-  }
-  const openingTags = splitSpaceSorted(row['OpeningTags']);
-  if (openingTags.length > 0) {
-    attrs[ChessPuzzleAttr.openingTags.key] = openingTags;
-  }
+  const themes = JSON.parse(tableRow.themes) as string[];
+  if (themes.length > 0) attrs[ChessPuzzleAttr.themes.key] = themes;
+  if (tableRow.game_url !== null) attrs[ChessPuzzleAttr.gameUrl.key] = tableRow.game_url;
+  const openingTags = JSON.parse(tableRow.opening_tags) as string[];
+  if (openingTags.length > 0) attrs[ChessPuzzleAttr.openingTags.key] = openingTags;
   return attrs;
-}
-
-/**
- * Mirrors {@link normalizePatchAttributesForStorage}'s output for a fresh
- * system-context patch with no createdBy / sessionId / syncedAt. Inlined
- * so the seed doesn't pay the per-batch parent-id resolution round-trip
- * that `accumulateWritePatchesPostgres` does for the (always-null,
- * root-only) puzzle case.
- */
-export function buildPatchAttrs(
-  snapshotAttrs: Record<string, unknown>
-): Record<string, unknown> {
-  return {
-    ...snapshotAttrs,
-    [PATCH_CREATED_BY_ID]: '',
-    [PATCH_SESSION_ID]: '',
-    [PATCH_SYNCED_AT]: null,
-  };
 }
 
 export function rowToPuzzleBatchEntry(
   row: Record<string, unknown>
 ): PuzzleBatchEntry | null {
-  const snapshotAttrs = rowToPuzzleAttributes(row);
-  if (snapshotAttrs === null) return null;
-  const puzzleId = String(snapshotAttrs[ChessPuzzleAttr.id.key]);
-  const patchAttrs = buildPatchAttrs(snapshotAttrs);
-  const patchId = contentAddressedPatchId(patchAttrs);
-  return { puzzleId, snapshotAttrs, patchAttrs, patchId };
+  const tableRow = rowToPuzzleTableRow(row);
+  if (tableRow === null) return null;
+  return { puzzleId: tableRow.id, row: tableRow };
 }

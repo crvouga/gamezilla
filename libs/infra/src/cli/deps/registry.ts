@@ -4,6 +4,7 @@ import { EasDep } from './eas';
 import { StripeDep } from './stripe';
 import type { Dep } from './types';
 import { TurboDep } from './turbo';
+import { PowerSyncDep } from './powersync';
 import { WranglerDep } from './wrangler';
 
 const wrangler = new WranglerDep();
@@ -12,6 +13,7 @@ const bun = new BunDep();
 const infisical = new InfisicalDep();
 const stripe = new StripeDep();
 const eas = new EasDep();
+const powerSync = new PowerSyncDep();
 
 /**
  * Every CLI dep the toolchain knows about. Used by `setup` (installs
@@ -29,6 +31,7 @@ export const ALL_DEPS: readonly Dep[] = [
   infisical,
   stripe,
   eas,
+  powerSync,
 ];
 
 /**
@@ -50,4 +53,5 @@ export const DEPLOY_DEPS: readonly Dep[] = [
   infisical,
   stripe,
   eas,
+  powerSync,
 ];

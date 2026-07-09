@@ -13,8 +13,8 @@ export const PROJECT_CONFIG = {
     legacyPagesProject: 'gamezilla-client',
   },
   postgres: {
-    /** Schema owned by this app inside the shared Postgres database. */
-    schema: 'gamezilla',
+    /** Application tables live in the standard Postgres `public` schema. */
+    schema: 'public',
     /**
      * Hostnames that must never appear when `SECRETS_ENV !== 'prd'`.
      * Primary prod detection is dual-fetch against secrets env `prd` `DATABASE_URL`.

@@ -1,6 +1,6 @@
 /**
- * Load Lichess puzzle CSV into PatchDB (`chess.puzzle` entities) via a
- * tightly-scoped fast-path that bypasses {@link PatchDb.write}'s
+ * Load Lichess puzzle CSV into Postgres (`chess.puzzle` entities) via a
+ * tightly-scoped fast-path that bypasses the generic entity store write
  * read-modify-write loop on `snapshots`. Idempotent: content-addressed
  * `patchId` per row; `INSERT … ON CONFLICT DO NOTHING` skips unchanged
  * rows on both `patches` *and* `snapshots`.
@@ -50,20 +50,12 @@
  * Profiles pick batch size / throttling; explicit flags override the preset.
  */
 
+import { CHESS_PUZZLE_LOAD_ENTITY_ID } from '@libs/chess/shared/chess-puzzle-entities';
 import {
-  CHESS_PUZZLE_ENTITY_TYPE,
-  CHESS_PUZZLE_LOAD_ENTITY_ID,
-  CHESS_PUZZLE_LOAD_ENTITY_TYPE,
-  ChessPuzzleLoadAttr,
-} from '@libs/chess/shared/chess-puzzle-entities';
+  CHESS_PUZZLE_LOAD_TABLE,
+  ChessPuzzleLoadCol,
+} from '@libs/chess/shared/sync-tables';
 import { createLogger, type Logger } from '@pkgs/logger';
-import { PatchDbImplPostgres } from '@pkgs/patch-db/impl-postgres/impl-postgres';
-import {
-  PATCHES_DB_SYSTEM_CONTEXT,
-  type PatchDb,
-  type PatchInput,
-} from '@pkgs/patch-db/interface';
-import { PatchDbCompactionPolicyRegistry } from '@pkgs/patch-db/policy/compaction-policy';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -94,7 +86,7 @@ import {
   type ResolvedSeedProfile,
 } from './profile';
 import { createPuzzleSeedReporter, type PuzzleSeedReporter } from './reporter';
-import { contentAddressedPatchId, rowToPuzzleBatchEntry } from './row';
+import { rowToPuzzleBatchEntry } from './row';
 import {
   ensureCachedArchive,
   iteratePuzzleRows,
@@ -176,21 +168,41 @@ export class ChessPuzzleSeeder {
     return { sql: sqlClient };
   }
 
-  #createSeedPatchDb(sql: SqlClient): PatchDb {
-    const compaction = new PatchDbCompactionPolicyRegistry();
-    compaction.registerAll({
-      [CHESS_PUZZLE_ENTITY_TYPE]: { keepLatest: 1 },
-      [CHESS_PUZZLE_LOAD_ENTITY_TYPE]: { keepLatest: 1 },
-    });
-    // `autoCompactOnWrite: false`: each puzzle's `patchId` is content-addressed
-    // and `INSERT … ON CONFLICT DO NOTHING` keeps it at exactly one patch per
-    // entity, so post-write compaction is always a no-op. This PatchDb is
-    // only used for the initial `chess.puzzle.load` read — bulk puzzle
-    // inserts and progress writes go through the fast path.
-    return new PatchDbImplPostgres(sql, {
-      autoCompactOnWrite: false,
-      compactionPolicy: compaction.resolve,
-    });
+  async #readLoadRow(sql: SqlClient): Promise<{
+    source_etag: string | null;
+    cursor: string | null;
+    finished_at: string | null;
+  } | null> {
+    const rows = await sql.query<{
+      source_etag: string | null;
+      cursor: string | null;
+      finished_at: string | null;
+    }>(
+      `SELECT ${ChessPuzzleLoadCol.sourceEtag} AS source_etag,
+              ${ChessPuzzleLoadCol.cursor} AS cursor,
+              ${ChessPuzzleLoadCol.finishedAt} AS finished_at
+       FROM ${CHESS_PUZZLE_LOAD_TABLE.tableName}
+       WHERE ${ChessPuzzleLoadCol.id} = ? LIMIT 1`,
+      [CHESS_PUZZLE_LOAD_ENTITY_ID]
+    );
+    return rows[0] ?? null;
+  }
+
+  #loadStateFromRow(
+    row: {
+      source_etag: string | null;
+      cursor: string | null;
+      finished_at: string | null;
+    } | null
+  ): PuzzleLoadPriorState {
+    if (row === null) {
+      return { sourceEtag: null, cursor: null, finishedAt: null };
+    }
+    return {
+      sourceEtag: row.source_etag,
+      cursor: row.cursor,
+      finishedAt: row.finished_at,
+    };
   }
 
   #iterateProgressOptions(
@@ -204,59 +216,6 @@ export class ChessPuzzleSeeder {
     };
   }
 
-  async #readLoadSnapshotAttrs(
-    db: PatchDb
-  ): Promise<Record<string, unknown> | null> {
-    const [row] = await db.read(
-      [
-        {
-          entityType: CHESS_PUZZLE_LOAD_ENTITY_TYPE,
-          entityId: CHESS_PUZZLE_LOAD_ENTITY_ID,
-          limit: 1,
-        },
-      ],
-      PATCHES_DB_SYSTEM_CONTEXT
-    );
-    const e = row?.entities[0];
-    return e !== undefined ? e.attributes : null;
-  }
-
-  #loadStateFromAttrs(
-    attrs: Record<string, unknown> | null
-  ): PuzzleLoadPriorState {
-    if (attrs === null) {
-      return { sourceEtag: null, cursor: null, finishedAt: null };
-    }
-    return {
-      sourceEtag: ChessPuzzleLoadAttr.sourceEtag.from(attrs),
-      cursor: ChessPuzzleLoadAttr.cursor.from(attrs),
-      finishedAt: ChessPuzzleLoadAttr.finishedAt.from(attrs),
-    };
-  }
-
-  #loadProgressPatchInput(args: {
-    sourceEtag: string;
-    cursor: string | null;
-    finishedAt: string | null;
-  }): PatchInput {
-    const attributes: Record<string, unknown> = {
-      [ChessPuzzleLoadAttr.sourceEtag.key]: args.sourceEtag,
-    };
-    if (args.cursor !== null && args.cursor.length > 0) {
-      attributes[ChessPuzzleLoadAttr.cursor.key] = args.cursor;
-    }
-    if (args.finishedAt !== null && args.finishedAt.length > 0) {
-      attributes[ChessPuzzleLoadAttr.finishedAt.key] = args.finishedAt;
-    }
-    return {
-      entityId: CHESS_PUZZLE_LOAD_ENTITY_ID,
-      entityType: CHESS_PUZZLE_LOAD_ENTITY_TYPE,
-      patchId: contentAddressedPatchId(attributes),
-      parentId: null,
-      attributes: attributes as PatchInput['attributes'],
-    };
-  }
-
   async #persistResumeCursor(args: {
     sql: SqlClient;
     state: SeedStats;
@@ -266,11 +225,10 @@ export class ChessPuzzleSeeder {
     if (state.lastPuzzleId === null) return;
     await writeLoadProgressFast({
       sql,
-      patch: this.#loadProgressPatchInput({
-        sourceEtag,
-        cursor: state.lastPuzzleId,
-        finishedAt: null,
-      }),
+      loadId: CHESS_PUZZLE_LOAD_ENTITY_ID,
+      sourceEtag,
+      cursor: state.lastPuzzleId,
+      finishedAt: null,
     });
   }
 
@@ -401,7 +359,7 @@ export class ChessPuzzleSeeder {
       state: createSeedStats(ctx.resumeCursor),
       lastProgressBatchIdx: 0,
     };
-    ctx.reporter.phase('Stream puzzles into PatchDB (fast path)', {
+    ctx.reporter.phase('Stream puzzles into chess_puzzles (fast path)', {
       profile: formatProfileLabel(this.#cli, ctx.profile),
       batchSize: ctx.profile.batchSize,
       paceMs: ctx.profile.paceMs,
@@ -473,7 +431,6 @@ export class ChessPuzzleSeeder {
     reporter: PuzzleSeedReporter;
     log: Logger;
     sql: SqlClient;
-    patchDb: PatchDb;
     prior: PuzzleLoadPriorState;
   }): Promise<void> {
     const { cli, profile, resolved, reporter, log, sql, prior } = args;
@@ -494,11 +451,10 @@ export class ChessPuzzleSeeder {
     });
     await writeLoadProgressFast({
       sql,
-      patch: this.#loadProgressPatchInput({
-        sourceEtag: resolved.etag,
-        cursor: stats.lastPuzzleId,
-        finishedAt: new Date().toISOString(),
-      }),
+      loadId: CHESS_PUZZLE_LOAD_ENTITY_ID,
+      sourceEtag: resolved.etag,
+      cursor: stats.lastPuzzleId,
+      finishedAt: new Date().toISOString(),
     });
     await runFinalMaintenance({
       sql,
@@ -508,8 +464,7 @@ export class ChessPuzzleSeeder {
     });
     reporter.phase('seed:puzzles: done', {
       processed: stats.processed,
-      patchesInserted: stats.patchesInserted,
-      snapshotsInserted: stats.snapshotsInserted,
+      rowsInserted: stats.rowsInserted,
       batchesFlushed: stats.batchesFlushed,
       totalMs: Math.round(performance.now() - stats.startedAt),
       etagPreview:
@@ -526,7 +481,7 @@ export class ChessPuzzleSeeder {
   ): Promise<void> {
     const cli = this.#cli;
     reporter.phase('Connect database (single TCP session)', {
-      note: 'Schema (patches/snapshots + pdb_idx_chess_puzzle__*) must already exist; run `bun run --filter @apps/api db:migrate` first on a fresh database.',
+      note: 'Schema (chess_puzzles + chess_puzzle_load) must already exist; run `bun run --filter @apps/api db:migrate` first on a fresh database.',
     });
     const store = createScriptSecretStore();
     const secretsEnv =
@@ -558,10 +513,7 @@ export class ChessPuzzleSeeder {
         deferIndexes: profile.deferIndexes,
         rebuildIndexes: profile.rebuildIndexes,
       });
-      const patchDb = this.#createSeedPatchDb(sqlClient);
-      const prior = this.#loadStateFromAttrs(
-        await this.#readLoadSnapshotAttrs(patchDb)
-      );
+      const prior = this.#loadStateFromRow(await this.#readLoadRow(sqlClient));
       if (
         this.#maybeReportAlreadyComplete({ cli, resolved, prior, reporter })
       ) {
@@ -577,7 +529,6 @@ export class ChessPuzzleSeeder {
         reporter,
         log,
         sql: sqlClient,
-        patchDb,
         prior,
       });
     } finally {

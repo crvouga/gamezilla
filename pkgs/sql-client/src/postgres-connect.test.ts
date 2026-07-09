@@ -71,6 +71,25 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
     expect(isLoopbackPostgresUrl(DATABASE_URL)).toBe(false);
   });
 
+  test('ensurePostgresSchema skips CREATE SCHEMA for public', async () => {
+    const publicScope = createPostgresDbScope('public');
+    const { pool, sqlClient } = createPgPool({
+      connectionString: DATABASE_URL,
+      dbScope: publicScope,
+      max: 1,
+    });
+    try {
+      await ensurePostgresSchema(sqlClient, publicScope);
+      const rows = await sqlClient.query<{ current_schema: string | null }>(
+        'SELECT current_schema() AS current_schema'
+      );
+      const current = rows[0]?.current_schema ?? null;
+      expect(current === 'public' || current === null).toBe(true);
+    } finally {
+      await pool.end();
+    }
+  });
+
   test('ensurePostgresSchema creates the schema and is idempotent', async () => {
     const { pool, sqlClient } = createPgPool({
       connectionString: DATABASE_URL,

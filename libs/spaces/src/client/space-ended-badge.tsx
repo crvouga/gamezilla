@@ -1,22 +1,15 @@
-import {
-  SPACE_ENTITY_TYPE,
-  SpaceAttr,
-} from '@libs/spaces/shared/space-entities';
 import { borderRadius, Box, StatusDot, Text } from '@pkgs/ui';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
+
+import { useSpaceColumn, SpaceField } from './use-space-column';
 
 export type SpaceEndedBadgeProps = {
   spaceId: string;
 };
 
 export function SpaceEndedBadge({ spaceId }: SpaceEndedBadgeProps): ReactNode {
-  const endedAt = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.endedAt,
-  });
+  const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
   if (endedAt === null) return null;
   return (
     <Box

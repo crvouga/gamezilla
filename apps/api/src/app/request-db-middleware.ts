@@ -14,15 +14,12 @@ import type { SecretStore } from '@pkgs/secret-store';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 import type { MiddlewareHandler } from 'hono';
 import { ApiSecretName } from '../config/secret-names';
+import { openRequestDb } from '../db/open-request-db';
 import { createMatchmakingSqlClientFromSqlClient } from '../matchmaking/sql-client-adapter';
-import { createRequestPatchDb } from '../patch-db/patch-db';
-import { openRequestDb } from '../patch-db/sql-client';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import type { ApiHonoEnv } from './api-hono-types';
 
-/**
- * Per-request Postgres + session auth (AsyncLocalStorage for patch-db host).
- */
+/** Per-request Postgres + session auth (AsyncLocalStorage). */
 async function resolveRequestDatabaseUrl(
   secretStore: SecretStore,
   databaseUrlOverride?: string | null
@@ -106,20 +103,19 @@ async function attachRequestDatabase(
     opened.sqlClient
   );
   const { pool } = opened;
-  const patchDb = createRequestPatchDb(sqlClient);
   const kv = new KvImplPostgres(sqlClient);
   const matchmakingSqlClient =
     createMatchmakingSqlClientFromSqlClient(sqlClient);
   const sessionAuth = createSessionAuth({ authServer });
   const store = {
-    patchDb,
+    sqlClient,
     sessionAuth,
     kv,
     matchmakingSqlClient,
     observability,
   };
   return await apiRequestAsyncLocalStorage.run(store, async () => {
-    c.set('patchDb', patchDb);
+    c.set('sqlClient', sqlClient);
     c.set('sessionAuth', sessionAuth);
     c.set('authServer', authServer);
     try {

@@ -2,7 +2,7 @@ import { createAttrNamespace } from '@pkgs/attribute';
 
 export const clientConfigNs = createAttrNamespace('client-config');
 
-/** PatchDB entity type for public client runtime configuration (singleton). */
+/** Sync entity type for public client runtime configuration (singleton). */
 export const CLIENT_CONFIG_ENTITY_TYPE = clientConfigNs.prefix;
 
 /** Stable singleton entity ID for client config — shared by server and all clients. */

@@ -3,7 +3,7 @@ import { assertTigerPolicyForResolvedApiOrigin } from '@apps/client/config/api-s
 
 /**
  * Typed Hono RPC client for the API Worker. Base URL must be the API
- * origin (no `/patch-db` suffix).
+ * API origin (no legacy path suffix).
  */
 export function createApiClient(apiUrl: string) {
   if (typeof apiUrl !== 'string' || apiUrl.length === 0) {

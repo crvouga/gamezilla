@@ -77,7 +77,7 @@ async function tryResolveAccount(
 ): Promise<string | null> {
   try {
     return await resolveAccountIdFromBearer({
-      db: c.get('patchDb'),
+      sql: c.get('sqlClient'),
       authServer: c.get('authServer'),
       bearerToken,
       deviceId,

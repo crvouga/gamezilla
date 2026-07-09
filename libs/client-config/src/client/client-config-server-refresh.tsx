@@ -55,7 +55,7 @@ export function ClientConfigServerRefreshCard() {
         sx={{ color: 'textSecondary' }}
         label={
           <Trans>
-            POST /client-config/refresh writes the Worker secret into PatchDB on
+            POST /client-config/refresh writes the Worker secret into Postgres on
             the server (deploy pipeline uses this too).
           </Trans>
         }
@@ -71,7 +71,7 @@ export function ClientConfigServerRefreshCard() {
         <SuccessState
           variant="compact"
           title={t`Server client config updated`}
-          body={t`Local view updates after the next PatchDB sync.`}
+          body={t`Local view updates after the next PowerSync sync.`}
         />
       ) : null}
       {refreshServer.error !== null ? (

@@ -1,9 +1,6 @@
 import { createLogger } from '@pkgs/logger';
 import type { SecretStore } from '@pkgs/secret-store';
-import type { PatchDb } from '@pkgs/patch-db/interface';
-import { patchDbSystemContext } from '@pkgs/patch-db/interface';
-import { PatchMetaAttr } from '@pkgs/patch-db/metadata/patch-metadata';
-import { PATCH_DB_SYSTEM_DEVICE_ID } from '@pkgs/patch-db/policy/system-device';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Hono } from 'hono';
 import Stripe from 'stripe';
 import {
@@ -11,15 +8,12 @@ import {
   stripeWebhookEventCacheEntityId,
 } from './event-object-id';
 import { resolveAccountIdByStripeCustomerId } from './resolve-account-by-stripe-customer';
+import { upsertStripeEntityStoreRow } from './server/entity-store-sql';
 import { StripeAttr, StripeEntityAttr } from './stripe-attrs';
 import {
   STRIPE_WEBHOOK_EVENT_CACHE_ENTITY_TYPE,
   STRIPE_WEBHOOK_EVENT_ENTITY_TYPE,
-} from './stripe-schema';
-
-/** Stripe webhook handler — bypasses ABAC like other system contexts. */
-const PATCHES_DB_STRIPE_WEBHOOK_CONTEXT =
-  patchDbSystemContext('stripe-webhook');
+} from './stripe-catalog-mirror';
 
 const log = createLogger({ name: 'stripe:webhook' });
 
@@ -44,55 +38,47 @@ function extractStripeCustomerId(event: Stripe.Event): string | null {
   return customerIdFromString(c) ?? customerIdFromObject(c);
 }
 
-async function recordVerifiedStripeWebhookInPatchDb(
-  patchDb: PatchDb,
+async function recordVerifiedStripeWebhookInEntityStore(
+  sql: SqlClient,
   event: Stripe.Event,
   objectId: string
 ): Promise<void> {
   const customerId = extractStripeCustomerId(event);
   let accountId: string | null = null;
   if (customerId !== null) {
-    accountId = await resolveAccountIdByStripeCustomerId(
-      patchDb,
-      customerId,
-      PATCHES_DB_STRIPE_WEBHOOK_CONTEXT
-    );
+    accountId = await resolveAccountIdByStripeCustomerId(sql, customerId);
   }
 
-  const eventCacheAttrs: Record<string, unknown> = {
+  const eventCacheData: Record<string, unknown> = {
     ...StripeAttr.payload(event as unknown),
     ...StripeAttr.objectType('event'),
     ...StripeAttr.source('stripe_webhook'),
     ...StripeAttr.webhookEventType(event.type),
     ...StripeAttr.stripeObjectId(objectId),
-    ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
   };
   if (accountId !== null) {
-    Object.assign(eventCacheAttrs, StripeEntityAttr.owner(accountId));
+    Object.assign(eventCacheData, StripeEntityAttr.owner(accountId));
   }
 
-  const patches: Parameters<PatchDb['write']>[0] = [
-    {
-      entityId: stripeWebhookEventCacheEntityId(event.type, objectId),
-      entityType: STRIPE_WEBHOOK_EVENT_CACHE_ENTITY_TYPE,
-      attributes: eventCacheAttrs,
-    },
-  ];
+  await upsertStripeEntityStoreRow(sql, {
+    patchEntityType: STRIPE_WEBHOOK_EVENT_CACHE_ENTITY_TYPE,
+    externalId: stripeWebhookEventCacheEntityId(event.type, objectId),
+    ownerId: accountId,
+    data: eventCacheData,
+  });
 
   if (accountId !== null) {
-    patches.push({
-      entityId: objectId,
-      entityType: STRIPE_WEBHOOK_EVENT_ENTITY_TYPE,
-      attributes: {
+    await upsertStripeEntityStoreRow(sql, {
+      patchEntityType: STRIPE_WEBHOOK_EVENT_ENTITY_TYPE,
+      externalId: objectId,
+      ownerId: accountId,
+      data: {
         ...StripeEntityAttr.owner(accountId),
         ...StripeAttr.webhookEventType(event.type),
         ...StripeAttr.stripeObjectId(objectId),
-        ...PatchMetaAttr.createdById(PATCH_DB_SYSTEM_DEVICE_ID),
       },
     });
   }
-
-  await patchDb.write(patches, PATCHES_DB_STRIPE_WEBHOOK_CONTEXT);
 }
 
 async function readWebhookSecret(
@@ -109,15 +95,6 @@ async function readWebhookSecret(
   return trimmed.length > 0 ? trimmed : null;
 }
 
-/**
- * Verifies a Stripe webhook payload. Re-fetches the signing secret under
- * `force: true` once on missing-secret or signature verification failure so a
- * rotated `whsec_…` (Stripe CLI dev sessions, prod rotation) self-heals
- * without restarting the Worker isolate that owns the cache. When the fresh
- * read matches the cached secret the second verification fails the same way
- * — its `StripeSignatureVerificationError` is what the outer handler turns
- * into a 400.
- */
 async function constructStripeEventSelfHealing(args: {
   readonly stripe: Stripe;
   readonly secretStore: SecretStore;
@@ -174,10 +151,10 @@ async function constructStripeEventSelfHealing(args: {
 export function createStripeWebhookRoutes(args: {
   readonly secretStore: SecretStore;
   readonly stripe: Stripe | null;
-  readonly getPatchDb: () => PatchDb;
+  readonly getSqlClient: () => SqlClient;
   readonly webhookSecretKey: string;
 }) {
-  const { secretStore, stripe, getPatchDb, webhookSecretKey } = args;
+  const { secretStore, stripe, getSqlClient, webhookSecretKey } = args;
 
   return new Hono().post('/stripe/webhook', async (c) => {
     try {
@@ -206,7 +183,11 @@ export function createStripeWebhookRoutes(args: {
       const event = result;
       const objectId = stripeEventObjectId(event);
 
-      await recordVerifiedStripeWebhookInPatchDb(getPatchDb(), event, objectId);
+      await recordVerifiedStripeWebhookInEntityStore(
+        getSqlClient(),
+        event,
+        objectId
+      );
 
       return c.json({ received: true as const }, 200);
     } catch (e: unknown) {

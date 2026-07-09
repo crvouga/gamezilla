@@ -12,7 +12,7 @@ import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
 } from './auth-storage-keys';
-import { flushPatchDbIdentityOnSignIn } from './patch-db-identity-flush';
+import { flushSyncIdentityOnSignIn } from './sync-identity-flush';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { useConfigService } from './config-service-context';
 import { refreshAuth } from './refresh-auth-fetch';
@@ -102,11 +102,11 @@ function useRefreshOnAppForeground(args: {
 /**
  * Reconciles the auth port session with local secure-storage pointers
  * (`sessionToken`, `lastLocalAccountId`) and triggers `POST /auth/refresh` to
- * populate PatchDB with the canonical account / accountSession /
+ * populate local sync with the canonical account / accountSession /
  * accountProvider / device rows.
  *
  * Pure side-effect component — renders nothing visible. Mount somewhere inside
- * the patch-db provider tree but outside any per-route layout.
+ * the sync-engine provider tree but outside any per-route layout.
  */
 export function AuthBridge(props: PropsWithChildren): ReactNode {
   const apiUrl = useConfigService().getApiUrl();
@@ -190,7 +190,7 @@ async function runRefresh(args: {
       LAST_LOCAL_ACCOUNT_ID_KEY,
       accountId
     );
-    await flushPatchDbIdentityOnSignIn(deps.deviceId);
+    await flushSyncIdentityOnSignIn();
     deps.lastSyncedTokenRef.current = token;
   } catch (e) {
     deps.log.error('auth/refresh failed', {

@@ -1,22 +1,24 @@
-import { ACCOUNT_PROVIDER_ENTITY_TYPE, AccountProviderAttr } from '../shared';
-import { useQueryEntityIds } from '@pkgs/patch-db/react';
+import {
+  AccountProviderCol,
+  ACCOUNT_PROVIDERS_TABLE,
+} from '../shared/auth-tables';
+import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+
+type ProviderIdRow = {
+  readonly id: string;
+};
 
 /**
- * Account-provider entity ids for the given account, or `[]` while signed
- * out. Atoms iterate these ids and read each provider's attributes via
- * `useQueryAttribute` inline.
+ * Linked provider row ids for the given account, or `[]` while signed out.
  */
 export function useLinkedProviderEntityIds(accountId: string | null): string[] {
-  const args: Parameters<typeof useQueryEntityIds>[0] =
+  const { rows } = useWatchQuery<ProviderIdRow>(
     accountId === null
-      ? { entityType: ACCOUNT_PROVIDER_ENTITY_TYPE, limit: 0 }
-      : {
-          entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
-          where: {
-            type: '=' as const,
-            attribute: AccountProviderAttr.accountId.key,
-            value: accountId,
-          },
-        };
-  return useQueryEntityIds(args);
+      ? `SELECT ${AccountProviderCol.id} AS id FROM ${ACCOUNT_PROVIDERS_TABLE.tableName} WHERE 0`
+      : `SELECT ${AccountProviderCol.id} AS id
+         FROM ${ACCOUNT_PROVIDERS_TABLE.tableName}
+         WHERE ${AccountProviderCol.accountId} = ?`,
+    accountId === null ? [] : [accountId]
+  );
+  return rows.map((row) => row.id);
 }

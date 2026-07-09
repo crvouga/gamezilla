@@ -10,4 +10,5 @@ export const API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS = [
   'ELEVEN_LABS_API_KEY',
   'OPENAI_API_KEY',
   'OPENAI_BASE_URL',
+  'POWERSYNC_JWT_PRIVATE_KEY',
 ] as const satisfies readonly string[];

@@ -1,102 +1,87 @@
-import {
-  ACCOUNT_ENTITY_TYPE,
-  ACCOUNT_PROVIDER_ENTITY_TYPE,
-  AccountAttr,
-  AccountProviderAttr,
-} from '@libs/auth/shared';
 import { assertUuid } from '@libs/auth/shared/device-id';
+import {
+  AccountCol,
+  AccountProviderCol,
+  ACCOUNTS_TABLE,
+  ACCOUNT_PROVIDERS_TABLE,
+} from '@libs/auth/shared/auth-tables';
 import { assert } from '@pkgs/assert';
-import type { Entity, PatchDb, PatchInput } from '@pkgs/patch-db/interface';
-import { PATCHES_DB_SYSTEM_CONTEXT } from '@pkgs/patch-db/interface';
-import { PatchMetaAttr } from '@pkgs/patch-db/metadata/patch-metadata';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+
+type ProviderRow = {
+  readonly id: string;
+  readonly account_id: string;
+};
 
 async function findAuthAccountProvider(
-  db: PatchDb,
+  sql: SqlClient,
   provider: string,
   externalUserId: string
-): Promise<Entity | undefined> {
-  const [providerResult] = await db.read(
-    [
-      {
-        entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
-        where: {
-          type: 'and',
-          clauses: [
-            {
-              type: '=',
-              attribute: AccountProviderAttr.provider.key,
-              value: provider,
-            },
-            {
-              type: '=',
-              attribute: AccountProviderAttr.providerUserId.key,
-              value: externalUserId,
-            },
-          ],
-        },
-        limit: 1,
-      },
-    ],
-    PATCHES_DB_SYSTEM_CONTEXT
+): Promise<ProviderRow | undefined> {
+  const rows = await sql.query<ProviderRow>(
+    `SELECT id, account_id FROM ${ACCOUNT_PROVIDERS_TABLE.tableName}
+     WHERE ${AccountProviderCol.provider} = ? AND ${AccountProviderCol.providerUserId} = ?
+     LIMIT 1`,
+    [provider, externalUserId]
   );
-  return providerResult?.entities[0];
+  return rows[0];
 }
 
-function patchesForNewAuthUserAccount(args: {
+async function insertAccountWithProvider(args: {
+  sql: SqlClient;
   externalUserId: string;
   email: string | null;
   accountId: string;
   provider: string;
-}): PatchInput[] {
-  const { externalUserId, email, accountId, provider } = args;
+}): Promise<void> {
+  const { sql, externalUserId, email, accountId, provider } = args;
   const now = new Date().toISOString();
-  const providerPatch: PatchInput = {
-    entityId: crypto.randomUUID(),
-    entityType: ACCOUNT_PROVIDER_ENTITY_TYPE,
-    attributes: {
-      ...AccountProviderAttr.accountId(accountId),
-      ...AccountProviderAttr.provider(provider),
-      ...AccountProviderAttr.providerUserId(externalUserId),
-      ...(email !== null ? AccountProviderAttr.email(email) : {}),
-      ...AccountProviderAttr.linkedAt(now),
-      ...PatchMetaAttr.createdById(accountId),
-    },
-  };
-  return [
-    {
-      entityId: accountId,
-      entityType: ACCOUNT_ENTITY_TYPE,
-      attributes: {
-        ...AccountAttr.id(accountId),
-        ...AccountAttr.createdAt(now),
-        ...PatchMetaAttr.createdById(accountId),
-      },
-    },
-    providerPatch,
-  ];
+  const providerId = crypto.randomUUID();
+  await sql.transaction(async (tx) => {
+    await tx.run(
+      `INSERT INTO ${ACCOUNTS_TABLE.tableName}
+       (${AccountCol.id}, ${AccountCol.createdAt})
+       VALUES (?, ?)`,
+      [accountId, now]
+    );
+    await tx.run(
+      `INSERT INTO ${ACCOUNT_PROVIDERS_TABLE.tableName}
+       (${AccountProviderCol.id}, ${AccountProviderCol.accountId}, ${AccountProviderCol.provider},
+        ${AccountProviderCol.providerUserId}, ${AccountProviderCol.email}, ${AccountProviderCol.linkedAt})
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        providerId,
+        accountId,
+        provider,
+        externalUserId,
+        email,
+        now,
+      ]
+    );
+  });
 }
 
 export async function ensureInternalAccountIdForExternalUser(args: {
-  db: PatchDb;
+  sql: SqlClient;
   externalUserId: string;
   email: string | null;
   provider: string;
 }): Promise<string> {
-  const { db, externalUserId, email, provider } = args;
-  const existing = await findAuthAccountProvider(db, provider, externalUserId);
+  const { sql, externalUserId, email, provider } = args;
+  const existing = await findAuthAccountProvider(sql, provider, externalUserId);
   if (existing !== undefined) {
-    const aid = existing.attributes[AccountProviderAttr.accountId.key];
-    assert.string(aid, 'accountProvider must have accountId');
+    const aid = existing.account_id;
+    assert.string(aid, 'accountProvider must have account_id');
     assertUuid(aid, 'accountId must be UUID');
     return aid;
   }
   const accountId = crypto.randomUUID();
-  const patches = patchesForNewAuthUserAccount({
+  await insertAccountWithProvider({
+    sql,
     externalUserId,
     email,
     accountId,
     provider,
   });
-  await db.write(patches, PATCHES_DB_SYSTEM_CONTEXT);
   return accountId;
 }

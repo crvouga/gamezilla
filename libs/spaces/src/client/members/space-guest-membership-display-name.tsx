@@ -1,12 +1,9 @@
 import { UserDisplayName } from '@libs/profile/client/user-display-name';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
-import {
-  SPACE_MEMBERSHIP_ENTITY_TYPE,
-  SpaceMembershipAttr,
-} from '@libs/spaces/shared/space-entities';
 import type { SxProps, TextVariant } from '@pkgs/ui';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type { ReactNode } from 'react';
+
+import { useSpaceMembershipColumn, SpaceMembershipField } from '../use-space-membership-column';
 
 export type SpaceGuestMembershipDisplayNameProps = {
   membershipId: string;
@@ -15,18 +12,13 @@ export type SpaceGuestMembershipDisplayNameProps = {
   numberOfLines?: number;
 };
 
-/** Display name for the guest profile referenced by a space membership row. */
 export function SpaceGuestMembershipDisplayName({
   membershipId,
   variant,
   sx,
   numberOfLines,
 }: SpaceGuestMembershipDisplayNameProps): ReactNode {
-  const guestId = useQueryAttribute({
-    entityType: SPACE_MEMBERSHIP_ENTITY_TYPE,
-    entityId: membershipId,
-    attribute: SpaceMembershipAttr.guestId,
-  });
+  const guestId = useSpaceMembershipColumn(membershipId, SpaceMembershipField.guestId);
   return (
     <UserDisplayName
       profileId={guestId}

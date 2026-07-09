@@ -2,7 +2,6 @@ import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import { composeRoomModules } from '@libs/spaces/shared/load-game-plugins';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
-import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
 import { isSecretStoreError } from '@pkgs/secret-store';
 import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
 import { createApiApp } from './app/create-app';
@@ -29,8 +28,6 @@ export const Room = createDurableObjectAdapter({
 });
 
 const log = createLogger({ name: 'api' });
-
-const pubSub = new InMemoryPubSub();
 
 type App = Awaited<ReturnType<typeof createApiApp>>;
 
@@ -111,7 +108,6 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   });
 
   return await createApiApp({
-    pubSub,
     secretStore,
     authServer,
     dbScope,

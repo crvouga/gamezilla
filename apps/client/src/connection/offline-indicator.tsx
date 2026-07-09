@@ -1,20 +1,18 @@
 import { borderRadius, Box, Text } from '@pkgs/ui';
-import { SYNC_ERROR_TOPIC } from '@pkgs/patch-db/impl-sync';
-import { usePubSub } from '@pkgs/patch-db/react';
+import { useSyncStatus } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Platform, Pressable } from 'react-native';
 
 /**
- * Shows when the browser is offline or patch-db sync has failed repeatedly.
+ * Shows when the browser is offline or PowerSync sync has failed.
  */
 export function OfflineIndicator(): ReactNode {
   const { t } = useLingui();
-  const pubSub = usePubSub();
+  const syncStatus = useSyncStatus();
   const [offline, setOffline] = useState(
     () => typeof navigator !== 'undefined' && navigator.onLine === false
   );
-  const [syncError, setSyncError] = useState(false);
 
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined') {
@@ -22,7 +20,6 @@ export function OfflineIndicator(): ReactNode {
     }
     const goOnline = (): void => {
       setOffline(false);
-      setSyncError(false);
     };
     const goOffline = (): void => {
       setOffline(true);
@@ -35,12 +32,8 @@ export function OfflineIndicator(): ReactNode {
     };
   }, []);
 
-  useEffect(() => {
-    return pubSub.subscribe(SYNC_ERROR_TOPIC, () => {
-      setSyncError(true);
-    });
-  }, [pubSub]);
-
+  const syncError =
+    syncStatus.lastError !== null && syncStatus.lastError.length > 0;
   const visible = offline || syncError;
   if (!visible) {
     return null;

@@ -2,13 +2,13 @@
  * Catalog reconcile: declarative {@link STRIPE_CATALOG_SPEC} → Stripe Products/Prices.
  *
  * Pure orchestration — no secret resolution, no SQL connection setup. Callers
- * pass a ready-to-use Stripe client and (optionally) a PatchDb to dump
+ * pass a ready-to-use Stripe client and (optionally) an entity store to dump
  * `products.retrieve` / `prices.retrieve` payloads into.
  *
  * Idempotent: identifies products by `metadata.catalog_product_id` and prices
  * by `lookup_key`; archives drifted prices and recreates with `transfer_lookup_key`.
  */
-import type { PatchDb } from '@pkgs/patch-db/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type Stripe from 'stripe';
 import { STRIPE_CATALOG_SPEC } from '../catalog-spec';
 import {
@@ -23,7 +23,6 @@ import {
   upsertCatalogPriceFromStripeApi,
   upsertCatalogProductFromStripeApi,
 } from '../stripe-catalog-mirror';
-import { STRIPE_PATCH_DB_SCRIPT_CONTEXT } from '../stripe-script-patch-db';
 
 const TAG = 'stripe sync catalog';
 
@@ -40,7 +39,7 @@ export type CatalogPriceSyncEntry = {
 export type CatalogSyncResult = {
   readonly products: ReadonlyArray<CatalogProductSyncEntry>;
   readonly prices: ReadonlyArray<CatalogPriceSyncEntry>;
-  /** True iff the optional patch-db catalog dump ran (i.e. `patchDb` was provided). */
+  /** True iff the optional entity_store catalog dump ran (i.e. `sql` was provided). */
   readonly catalogDumped: boolean;
 };
 
@@ -254,14 +253,13 @@ async function reconcileAllPrices(
   return { entries, stripeIdsByKey };
 }
 
-async function dumpCatalogToPatchDb(args: {
+async function dumpCatalogToEntityStore(args: {
   readonly stripe: Stripe;
-  readonly patchDb: PatchDb;
+  readonly sql: SqlClient;
   readonly productStripeIdsByKey: Readonly<Record<string, string>>;
   readonly priceStripeIdsByKey: Readonly<Record<string, string>>;
 }): Promise<void> {
-  const { stripe, patchDb, productStripeIdsByKey, priceStripeIdsByKey } = args;
-  const ctx = STRIPE_PATCH_DB_SCRIPT_CONTEXT;
+  const { stripe, sql, productStripeIdsByKey, priceStripeIdsByKey } = args;
 
   for (const [specKey, def] of Object.entries(STRIPE_CATALOG_SPEC.products)) {
     const stripeProductId = productStripeIdsByKey[specKey];
@@ -272,8 +270,7 @@ async function dumpCatalogToPatchDb(args: {
     }
     const product = await stripe.products.retrieve(stripeProductId);
     await upsertCatalogProductFromStripeApi(
-      patchDb,
-      ctx,
+      sql,
       def.catalogProductId,
       product
     );
@@ -283,39 +280,39 @@ async function dumpCatalogToPatchDb(args: {
     const price = await stripe.prices.retrieve(stripePriceId, {
       expand: ['currency_options'],
     });
-    await upsertCatalogPriceFromStripeApi(patchDb, ctx, priceKey, price);
+    await upsertCatalogPriceFromStripeApi(sql, priceKey, price);
   }
 
   console.log(
-    `[${TAG}] dumped Stripe API product/price payloads to patch-db (stripe.catalog_* entities)`
+    `[${TAG}] dumped Stripe API product/price payloads to entity_store (namespace stripe)`
   );
 }
 
 /**
  * Reconcile Stripe Products/Prices to match {@link STRIPE_CATALOG_SPEC}, then
- * (optionally) dump the resulting Stripe API payloads into `patchDb` so the
+ * (optionally) dump the resulting Stripe API payloads into entity_store so the
  * API Worker can resolve `priceKey` → Stripe price id without hitting Stripe.
  */
 export async function runStripeCatalogSync(args: {
   readonly stripe: Stripe;
-  /** When provided, dumps `products.retrieve` / `prices.retrieve` JSON into patch-db. */
-  readonly patchDb?: PatchDb;
+  /** When provided, dumps `products.retrieve` / `prices.retrieve` JSON into entity_store. */
+  readonly sql?: SqlClient;
 }): Promise<CatalogSyncResult> {
-  const { stripe, patchDb } = args;
+  const { stripe, sql } = args;
 
   const { entries: products, stripeIdsByKey: productIdsByKey } =
     await reconcileAllProducts(stripe);
   const { entries: prices, stripeIdsByKey: priceIdsByKey } =
     await reconcileAllPrices(stripe, productIdsByKey);
 
-  if (patchDb === undefined) {
-    console.log(`[${TAG}] skip patch-db catalog dump — no patch-db provided`);
+  if (sql === undefined) {
+    console.log(`[${TAG}] skip entity_store catalog dump — no sql client provided`);
     return { products, prices, catalogDumped: false };
   }
 
-  await dumpCatalogToPatchDb({
+  await dumpCatalogToEntityStore({
     stripe,
-    patchDb,
+    sql,
     productStripeIdsByKey: productIdsByKey,
     priceStripeIdsByKey: priceIdsByKey,
   });

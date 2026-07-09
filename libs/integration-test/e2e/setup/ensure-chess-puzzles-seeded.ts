@@ -9,7 +9,7 @@ const SEED_LIMIT = 500;
 
 async function countChessPuzzles(): Promise<number> {
   const databaseUrl = process.env['DATABASE_URL']?.trim() ?? '';
-  const schema = process.env['POSTGRES_SCHEMA']?.trim() || 'gamezilla';
+  const schema = process.env['POSTGRES_SCHEMA']?.trim() || 'public';
   const { client, sqlClient } = await openPgClient({
     connectionString: databaseUrl,
     dbScope: createPostgresDbScope(schema),

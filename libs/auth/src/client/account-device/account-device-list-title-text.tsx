@@ -1,8 +1,7 @@
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { ReactNode } from 'react';
-import { DEVICE_ENTITY_TYPE, DeviceAttr } from '../../shared';
+import { DeviceField, useDeviceColumn } from '../use-device-column';
 import { formatDeviceListTitle } from '../device-parsers';
 
 export type AccountDeviceListTitleTextProps = {
@@ -19,21 +18,9 @@ export function AccountDeviceListTitleText({
   numberOfLines,
   sx,
 }: AccountDeviceListTitleTextProps): ReactNode {
-  const deviceName = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.deviceName,
-  });
-  const deviceBrand = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.deviceBrand,
-  });
-  const deviceModelName = useQueryAttribute({
-    entityType: DEVICE_ENTITY_TYPE,
-    entityId: deviceId,
-    attribute: DeviceAttr.deviceModelName,
-  });
+  const deviceName = useDeviceColumn(deviceId, DeviceField.deviceName);
+  const deviceBrand = useDeviceColumn(deviceId, DeviceField.deviceBrand);
+  const deviceModelName = useDeviceColumn(deviceId, DeviceField.deviceModelName);
   const label = formatDeviceListTitle({
     deviceId,
     deviceName,

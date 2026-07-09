@@ -4,7 +4,7 @@ import type { KvRecord } from './interface';
 
 /**
  * Runtime guard: every own-enumerable key must be a wire-valid {@link Keyword}.
- * Same contract as patch-db attributes / room state.
+ * Same contract as sync entity attributes / room state.
  *
  * `a` controls cost: pass `assert` (always-on) for trust-boundary parsing of
  * persisted blobs; pass `hotAssert()` for per-`get`/`put` checks on hot paths.

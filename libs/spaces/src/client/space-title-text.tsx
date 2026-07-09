@@ -1,12 +1,9 @@
 import { SpaceHostFallbackTitle } from './members/space-host-fallback-title';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
-import {
-  SPACE_ENTITY_TYPE,
-  SpaceAttr,
-} from '@libs/spaces/shared/space-entities';
 import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
-import { useQueryAttribute } from '@pkgs/patch-db/react';
 import type { ReactNode } from 'react';
+
+import { useSpaceColumn, SpaceField } from './use-space-column';
 
 export type SpaceTitleTextProps = {
   spaceId: string;
@@ -18,9 +15,6 @@ export type SpaceTitleTextProps = {
 /**
  * Renders the user-set title for a space, falling back to the localized
  * `${hostName}'s space` template when no custom title is set.
- *
- * The fallback / non-fallback split is owned by this atom — hooks never
- * resolve the fallback themselves.
  */
 export function SpaceTitleText({
   spaceId,
@@ -28,12 +22,8 @@ export function SpaceTitleText({
   sx,
   numberOfLines,
 }: SpaceTitleTextProps): ReactNode {
-  const customTitle = useQueryAttribute({
-    entityType: SPACE_ENTITY_TYPE,
-    entityId: spaceId,
-    attribute: SpaceAttr.title,
-  });
-  if (customTitle !== null) {
+  const customTitle = useSpaceColumn(spaceId, SpaceField.title);
+  if (customTitle !== null && customTitle.length > 0) {
     return (
       <Text
         {...optionalProps({ variant, sx, numberOfLines })}

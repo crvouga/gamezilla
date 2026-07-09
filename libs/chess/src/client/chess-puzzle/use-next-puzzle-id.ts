@@ -1,11 +1,11 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useEntityAttribute } from '@pkgs/patch-db/react';
+import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import {
-  CHESS_PUZZLE_PROFILE_ENTITY_TYPE,
-  ChessPuzzleProfileAttr,
-} from '../../shared/chess-puzzle-profile-entities';
+  CHESS_PUZZLE_PROFILES_TABLE,
+  ChessPuzzleProfileCol,
+} from '../../shared/sync-tables';
 import {
   pickPuzzleIdFromPool,
   PUZZLE_NEXT_MAX_BAND,
@@ -15,13 +15,23 @@ import { usePuzzleCandidatesQuery } from './use-puzzle-candidates-query';
 const DEFAULT_RATING = 1200;
 const PREFERRED_BAND = 50;
 
-/**
- * Selects the next puzzle id by Elo band (+ widening fallback) excluding
- * puzzles the current user has already interacted with. The exclusion is
- * pushed into the SQL query as a `not_in` subquery against the
- * `chess.puzzle.interaction` partition — no client-side fetch of the
- * interaction list is needed.
- */
+function computeNextPuzzleLoading(args: {
+  myId: string;
+  banded: { rows: readonly unknown[]; isLoading: boolean };
+  fallback: { rows: readonly unknown[]; isLoading: boolean };
+  replay: { isLoading: boolean };
+}): boolean {
+  const { myId, banded, fallback, replay } = args;
+  if (myId.length === 0) return true;
+  if (banded.isLoading) return true;
+  if (banded.rows.length === 0 && fallback.isLoading) return true;
+  return (
+    banded.rows.length === 0 &&
+    fallback.rows.length === 0 &&
+    replay.isLoading
+  );
+}
+
 export function useNextPuzzleId(args: {
   currentPuzzleId: string | null;
   seed: string;
@@ -36,12 +46,16 @@ export function useNextPuzzleId(args: {
   const { currentPuzzleId, seed } = args;
   const myId = useMyId();
 
-  const profileRating = useEntityAttribute(
-    CHESS_PUZZLE_PROFILE_ENTITY_TYPE,
-    myId,
-    ChessPuzzleProfileAttr.rating
+  const { value: profileRatingRaw } = useWatchValue<number>(
+    `SELECT ${ChessPuzzleProfileCol.rating} AS value
+     FROM ${CHESS_PUZZLE_PROFILES_TABLE.tableName}
+     WHERE ${ChessPuzzleProfileCol.id} = ?`,
+    [myId]
   );
-  const rating = profileRating > 0 ? profileRating : DEFAULT_RATING;
+  const rating =
+    typeof profileRatingRaw === 'number' && profileRatingRaw > 0
+      ? profileRatingRaw
+      : DEFAULT_RATING;
 
   const bandedResult = usePuzzleCandidatesQuery(
     rating,
@@ -62,38 +76,33 @@ export function useNextPuzzleId(args: {
     null
   );
   const puzzleResult =
-    bandedResult.entities.length > 0
-      ? bandedResult
-      : fallbackResult.entities.length > 0
-        ? fallbackResult
-        : replayResult;
+    bandedResult.rows.length > 0 ? bandedResult : fallbackResult.rows.length > 0 ? fallbackResult : replayResult;
 
   const puzzleId = useMemo(
     () =>
       pickPuzzleIdFromPool({
-        entities: puzzleResult.entities,
+        rows: puzzleResult.rows,
         rating,
         preferredBand: PREFERRED_BAND,
         seed,
       }),
-    [puzzleResult.entities, rating, seed]
+    [puzzleResult.rows, rating, seed]
   );
 
-  const loading =
-    myId.length === 0 ||
-    bandedResult.isLoading ||
-    (bandedResult.entities.length === 0 && fallbackResult.isLoading) ||
-    (bandedResult.entities.length === 0 &&
-      fallbackResult.entities.length === 0 &&
-      replayResult.isLoading);
+  const loading = computeNextPuzzleLoading({
+    myId,
+    banded: bandedResult,
+    fallback: fallbackResult,
+    replay: replayResult,
+  });
 
   return {
     puzzleId,
     rating,
     loading,
-    bandedCount: bandedResult.entities.length,
-    fallbackCount: fallbackResult.entities.length,
-    replayCount: replayResult.entities.length,
+    bandedCount: bandedResult.rows.length,
+    fallbackCount: fallbackResult.rows.length,
+    replayCount: replayResult.rows.length,
   };
 }
 
