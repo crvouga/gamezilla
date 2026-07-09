@@ -185,9 +185,7 @@ export class PowerSyncResource extends ResourceBase {
   }
 }
 
-export async function ensurePowerSyncSourceDatabase(
-  platform: CiPlatform
-): Promise<void> {
+export async function ensurePowerSyncSourceDatabase(): Promise<void> {
   const url = await resolveDatabaseUrl();
   await runPowerSyncSourceDbSetup({ databaseUrl: url });
   ok('PowerSync source DB', 'publication powersync (all tables in public) + REPLICA IDENTITY FULL');

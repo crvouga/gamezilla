@@ -17,6 +17,12 @@ function toDatabasePort(
   database: ReturnType<typeof createPowerSyncDatabase>,
   connector: ReturnType<typeof createPowerSyncConnector>
 ): PowerSyncDatabasePort {
+  const syncStream =
+    typeof database.syncStream === 'function'
+      ? (streamName: string, parameters: Readonly<Record<string, string | number>>) =>
+          database.syncStream!(streamName, parameters)
+      : undefined;
+
   return {
     connect: () => database.connect(connector),
     disconnect: () => database.disconnect(),
@@ -32,6 +38,7 @@ function toDatabasePort(
     get currentStatus() {
       return database.currentStatus;
     },
+    ...(syncStream !== undefined ? { syncStream } : {}),
   };
 }
 

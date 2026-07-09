@@ -1,5 +1,6 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { SyncStatusSubscription } from './sync-status';
+import type { SyncStreamSubscription } from './sync-stream-subscription';
 
 /**
  * A subscription handle for observing changes in a watched query.
@@ -58,6 +59,13 @@ export type SyncEngine = {
    * @returns A promise resolved after the first sync.
    */
   waitForFirstSync(): Promise<void>;
+  /**
+   * Subscribes to a parameterized PowerSync sync stream when supported.
+   */
+  readonly subscribeSyncStream?: (
+    streamName: string,
+    parameters: Readonly<Record<string, string | number>>
+  ) => Promise<SyncStreamSubscription>;
   /**
    * Provides a subscription to sync status changes.
    */

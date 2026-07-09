@@ -3,6 +3,7 @@ import {
   type SyncEngineStatus,
 } from '@pkgs/sync-engine/client/sync-status';
 import type { SyncEngine, WatchSubscription } from '@pkgs/sync-engine/client/sync-engine-port';
+import type { SyncStreamSubscription } from '@pkgs/sync-engine/client/sync-stream-subscription';
 
 import type { PowerSyncDatabasePort } from './powersync-database-port';
 import { createSqlClientFromPowerSync } from './sql-client-facade';
@@ -79,6 +80,18 @@ export function createPowerSyncSyncEngine(
 
   db.registerListener({ statusChanged: publishStatus });
 
+  const subscribeSyncStream =
+    db.syncStream === undefined
+      ? undefined
+      : async (
+          streamName: string,
+          parameters: Readonly<Record<string, string | number>>
+        ): Promise<SyncStreamSubscription> => {
+          const handle = db.syncStream!(streamName, parameters);
+          const subscription = await handle.subscribe({ priority: 3 });
+          return { unsubscribe: () => subscription.unsubscribe() };
+        };
+
   return {
     db: sqlClient,
     watch: <T extends Record<string, unknown>>(
@@ -101,6 +114,7 @@ export function createPowerSyncSyncEngine(
       await db.waitForFirstSync();
       publishStatus();
     },
+    ...(subscribeSyncStream !== undefined ? { subscribeSyncStream } : {}),
     status: {
       getSnapshot: () => status,
       subscribe: (listener) => {

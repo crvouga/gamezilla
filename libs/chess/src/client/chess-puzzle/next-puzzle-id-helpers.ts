@@ -1,5 +1,16 @@
 export const PUZZLE_NEXT_MAX_BAND = 400;
 
+/** PowerSync `chess_puzzles` stream bands to cover puzzle picking for `rating`. */
+export function chessPuzzleSyncRatingBands(rating: number): readonly number[] {
+  const centerBand = Math.floor(rating / PUZZLE_NEXT_MAX_BAND);
+  const spread = 2;
+  const bands: number[] = [];
+  for (let band = centerBand - spread; band <= centerBand + spread; band += 1) {
+    if (band >= 0) bands.push(band);
+  }
+  return bands;
+}
+
 export function hashSeed(s: string): number {
   let h = 0;
   for (let i = 0; i < s.length; i += 1) {

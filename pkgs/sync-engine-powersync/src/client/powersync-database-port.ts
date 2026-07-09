@@ -3,6 +3,17 @@ export type PowerSyncExecuteResult = {
   readonly lastInsertRowid?: bigint | number | null;
 };
 
+export type PowerSyncStreamSubscription = {
+  readonly unsubscribe: () => void;
+};
+
+export type PowerSyncStreamHandle = {
+  subscribe(options?: {
+    readonly priority?: number;
+    readonly ttl?: number;
+  }): Promise<PowerSyncStreamSubscription>;
+};
+
 export type PowerSyncDatabasePort = {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
@@ -25,6 +36,10 @@ export type PowerSyncDatabasePort = {
       readonly uploading: boolean;
     };
   };
+  readonly syncStream?: (
+    streamName: string,
+    parameters: Readonly<Record<string, string | number>>
+  ) => PowerSyncStreamHandle;
 };
 
 export type PowerSyncCrudOp = {
