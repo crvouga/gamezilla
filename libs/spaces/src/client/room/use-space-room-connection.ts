@@ -7,7 +7,15 @@ import type {
   RoomState,
 } from '@pkgs/room';
 import type { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
-import { useEffect, useRef, useState, type MutableRefObject } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type MutableRefObject,
+  type SetStateAction,
+} from 'react';
 
 import { createSpaceRoom } from './create-space-room';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
@@ -21,39 +29,63 @@ function normalizeSessionToken(t: string | null): string | null {
   return trimmed.length === 0 ? null : trimmed;
 }
 
-type OpenArgs = {
+function destroyRoomPair(args: {
+  roomRef: MutableRefObject<SpaceRoom | null>;
+  transportRef: MutableRefObject<WebSocketRoomTransport | null>;
+  setRoom: Dispatch<SetStateAction<SpaceRoom | null>>;
+  setTransport: Dispatch<SetStateAction<WebSocketRoomTransport | null>>;
+}): void {
+  const room = args.roomRef.current;
+  const transport = args.transportRef.current;
+  args.roomRef.current = null;
+  args.transportRef.current = null;
+  args.setRoom(null);
+  args.setTransport(null);
+  room?.destroy();
+  transport?.destroy();
+}
+
+function openSpaceRoom(args: {
   bootstrap: SpaceRoomConnectionBootstrap;
-  token: string | null;
+  bootstrapKey: string;
   configService: ConfigService;
   kv: Kv;
   module: ReturnType<typeof useSpaceModule>;
-  setRoom: (r: SpaceRoom | null) => void;
-  setTransport: (t: WebSocketRoomTransport | null) => void;
+  sessionToken: string | null;
   roomRef: MutableRefObject<SpaceRoom | null>;
   transportRef: MutableRefObject<WebSocketRoomTransport | null>;
-};
-
-function openConnection(args: OpenArgs): () => void {
+  setRoom: Dispatch<SetStateAction<SpaceRoom | null>>;
+  setTransport: Dispatch<SetStateAction<WebSocketRoomTransport | null>>;
+  connectedKeyRef: MutableRefObject<string | null>;
+}): () => void {
   let cancelled = false;
   void (async (): Promise<void> => {
-    const { room, transport } = await createSpaceRoom({
-      spaceId: args.bootstrap.spaceId,
-      apiUrl: args.configService.getApiUrl(),
-      module: args.module,
-      kv: args.kv,
-      myId: args.bootstrap.myId,
-      installId: args.bootstrap.installId,
-      sessionToken: args.token,
-    });
+    const { room: nextRoom, transport: nextTransport } =
+      await createSpaceRoom({
+        spaceId: args.bootstrap.spaceId,
+        apiUrl: args.configService.getApiUrl(),
+        module: args.module,
+        kv: args.kv,
+        myId: args.bootstrap.myId,
+        installId: args.bootstrap.installId,
+        sessionToken: args.sessionToken,
+      });
     if (cancelled) {
-      room.destroy();
-      transport.destroy();
+      nextRoom.destroy();
+      nextTransport.destroy();
       return;
     }
-    args.transportRef.current = transport;
-    args.roomRef.current = room;
-    args.setRoom(room);
-    args.setTransport(transport);
+    const prevRoom = args.roomRef.current;
+    const prevTransport = args.transportRef.current;
+    args.roomRef.current = nextRoom;
+    args.transportRef.current = nextTransport;
+    args.connectedKeyRef.current = args.bootstrapKey;
+    args.setRoom(nextRoom);
+    args.setTransport(nextTransport);
+    if (prevRoom !== null && prevRoom !== nextRoom) prevRoom.destroy();
+    if (prevTransport !== null && prevTransport !== nextTransport) {
+      prevTransport.destroy();
+    }
   })();
   return () => {
     cancelled = true;
@@ -64,7 +96,7 @@ export function useSpaceRoomConnection(
   bootstrap: SpaceRoomConnectionBootstrap | null,
   configService: ConfigService,
   kv: Kv,
-  /** Bearer for `/room`; must be in sync with `sessionTokenAtom` (re-run when it changes). */
+  /** Bearer for `/room`; re-run when bearer availability changes, not on JWT rotation. */
   sessionToken: string | null
 ): {
   room: SpaceRoom | null;
@@ -78,47 +110,53 @@ export function useSpaceRoomConnection(
   const transportRef = useRef<WebSocketRoomTransport | null>(null);
   const roomRef = useRef<SpaceRoom | null>(null);
   const module = useSpaceModule();
-  const bootstrapRef = useRef(bootstrap);
-  bootstrapRef.current = bootstrap;
+  const sessionTokenRef = useRef(sessionToken);
+  sessionTokenRef.current = sessionToken;
+  const connectedKeyRef = useRef<string | null>(null);
+
   const bootstrapKey =
     bootstrap === null
       ? null
       : `${bootstrap.spaceId}:${bootstrap.myId}:${bootstrap.installId}`;
+  const hasBearer = normalizeSessionToken(sessionToken) !== null;
+
+  const tearDown = useCallback(() => {
+    connectedKeyRef.current = null;
+    destroyRoomPair({ roomRef, transportRef, setRoom, setTransport });
+  }, []);
 
   useEffect(() => {
-    const token = normalizeSessionToken(sessionToken);
-    const activeBootstrap = bootstrapRef.current;
-    if (activeBootstrap === null) {
-      return;
+    if (bootstrapKey !== null) return;
+    tearDown();
+  }, [bootstrapKey, tearDown]);
+
+  useEffect(() => {
+    if (bootstrap === null || bootstrapKey === null) return;
+    if (
+      connectedKeyRef.current !== null &&
+      connectedKeyRef.current !== bootstrapKey
+    ) {
+      tearDown();
     }
-    const hasBearer = token !== null;
-    const hasAnon = activeBootstrap.myId.length > 0;
-    if (!hasBearer && !hasAnon) {
-      return;
-    }
-    const cancel = openConnection({
-      bootstrap: activeBootstrap,
-      token,
+
+    const token = normalizeSessionToken(sessionTokenRef.current);
+    const hasAnon = bootstrap.myId.length > 0;
+    if (token === null && !hasAnon) return;
+
+    return openSpaceRoom({
+      bootstrap,
+      bootstrapKey,
       configService,
       kv,
       module,
-      setRoom,
-      setTransport,
+      sessionToken: token,
       roomRef,
       transportRef,
+      setRoom,
+      setTransport,
+      connectedKeyRef,
     });
-    return () => {
-      cancel();
-      const t = transportRef.current;
-      const r = roomRef.current;
-      roomRef.current = null;
-      transportRef.current = null;
-      setRoom(null);
-      setTransport(null);
-      r?.destroy();
-      t?.destroy();
-    };
-  }, [bootstrapKey, configService, kv, sessionToken, module]);
+  }, [bootstrap, bootstrapKey, hasBearer, configService, kv, module, tearDown]);
 
   return { room, roomRef, transport };
 }

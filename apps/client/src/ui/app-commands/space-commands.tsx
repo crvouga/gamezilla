@@ -28,7 +28,8 @@ function SpaceCreateCommand(): ReactNode {
   const { t } = useLingui();
   const router = useRouter();
   const { createSpace } = useSpaceActions();
-  const currentCount = useCurrentSpaceCount();
+  const { count: currentCount, isLoading: membershipLoading } =
+    useCurrentSpaceCount();
   return (
     <RegisterCommand
       id="space:new"
@@ -36,7 +37,7 @@ function SpaceCreateCommand(): ReactNode {
       category={t`Spaces`}
       icon="house.fill"
       keywords={[t`new`, t`create`, t`start`, t`space`, t`host`]}
-      enabled={currentCount === 0}
+      enabled={!membershipLoading && currentCount === 0}
       run={async () => {
         await createSpace((id) => {
           openSpaceDetail(router, id);
@@ -50,7 +51,7 @@ function SpaceJoinCurrentCommand(): ReactNode {
   const { t } = useLingui();
   const pathname = usePathname();
   const { joinSpace } = useSpaceActions();
-  const currentCount = useCurrentSpaceCount();
+  const { count: currentCount } = useCurrentSpaceCount();
   const spaceId = SPACE_ROUTE_RE.exec(pathname)?.[1] ?? '';
   const role = useCurrentSpaceRole(spaceId);
 
@@ -73,10 +74,10 @@ function SpaceJoinCurrentCommand(): ReactNode {
 }
 
 function LiveSpaceCommands(): ReactNode {
-  const liveSpaceIds = useLiveSpaceIds();
+  const { spaceIds } = useLiveSpaceIds();
   return (
     <>
-      {liveSpaceIds.map((spaceId) => (
+      {spaceIds.map((spaceId) => (
         <LiveSpaceCommand key={spaceId} spaceId={spaceId} />
       ))}
     </>
@@ -89,7 +90,7 @@ function LiveSpaceCommand({ spaceId }: { spaceId: string }): ReactNode {
   const { joinSpace } = useSpaceActions();
   const label = useSpaceCommandLabel(spaceId);
   const role = useCurrentSpaceRole(spaceId);
-  const currentCount = useCurrentSpaceCount();
+  const { count: currentCount } = useCurrentSpaceCount();
   const canJoin = role === null && currentCount === 0;
   return (
     <>

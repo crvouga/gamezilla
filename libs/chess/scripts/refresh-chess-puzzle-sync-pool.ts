@@ -44,13 +44,13 @@ async function main(): Promise<void> {
     const count = await sqlClient.query<{ n: number }>(
       'SELECT count(*)::int AS n FROM chess_puzzles WHERE sync_pool = true'
     );
-    console.log(
-      JSON.stringify({
+    process.stdout.write(
+      `${JSON.stringify({
         refreshed: true,
         rows: count[0]?.n ?? 0,
         perBand: POOL_PER_BAND,
         maxBand: MAX_BAND,
-      })
+      })}\n`
     );
   } finally {
     await pool.end();

@@ -13,9 +13,11 @@ export function SpaceJoinBlockedNote({
   spaceId,
 }: SpaceJoinBlockedNoteProps): ReactNode {
   const role = useCurrentSpaceRole(spaceId);
-  const currentCount = useCurrentSpaceCount();
+  const { count: currentCount, isLoading: membershipLoading } =
+    useCurrentSpaceCount();
   const inThisSpace = role !== null;
   if (inThisSpace) return null;
+  if (membershipLoading) return null;
   if (currentCount === 0) return null;
   return (
     <Text

@@ -6,6 +6,7 @@ import { useLiveSpaceIds } from './use-live-space-ids';
 import {
   Box,
   EmptyState,
+  LoadingState,
   ScreenBase,
   ScrollView,
   useBreakpoint,
@@ -18,7 +19,10 @@ import { useMemo, type ReactNode } from 'react';
 import { openSpaceDetail } from './space-routes';
 
 function SpacesList({ bottomInset }: { bottomInset: number }) {
-  const spaceIds = useLiveSpaceIds();
+  const { spaceIds, isLoading } = useLiveSpaceIds();
+  if (isLoading) {
+    return <LoadingState size="large" />;
+  }
   if (spaceIds.length === 0) {
     return (
       <EmptyState
@@ -61,7 +65,9 @@ export function SpacesScreen({
   leading,
 }: SpacesScreenProps) {
   const isMobile = useBreakpoint() === 'mobile';
-  const canCreateSpace = useCurrentSpaceCount() === 0;
+  const { count: currentSpaceCount, isLoading: membershipLoading } =
+    useCurrentSpaceCount();
+  const canCreateSpace = !membershipLoading && currentSpaceCount === 0;
   const miniplayerInsets = useSpaceMiniplayerLayoutInsets();
   const router = useRouter();
   const { createSpace } = useSpaceActions();

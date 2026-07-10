@@ -5,13 +5,7 @@ import { SpaceLoadingScreen } from './space-loading-screen';
 import { SpacesNavProvider } from './nav/spaces-nav-context';
 import { SpaceRoomProvider } from './room/space-room-context';
 import { useAutoLeaveIfEnded } from './lifecycle/use-auto-leave-if-ended';
-import { useCurrentSpaceIds } from './use-current-space-ids';
-import { useCurrentSpaceRole } from './use-current-space-role';
-import {
-  isReplicationHost,
-  useReplicationIdentityIds,
-} from './use-replication-identity-ids';
-import { useSpaceColumn, SpaceField } from './use-space-column';
+import { useSpacePresence } from './use-space-presence';
 import { useState, type ReactNode } from 'react';
 import {
   useSpaceRouteId,
@@ -42,14 +36,7 @@ type SpaceDetailBodyProps = {
 };
 
 function SpaceDetailBody({ spaceId }: SpaceDetailBodyProps): ReactNode {
-  const identityIds = useReplicationIdentityIds();
-  const { isLoading } = useCurrentSpaceIds();
-  const role = useCurrentSpaceRole(spaceId);
-  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
-  const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
-  const isHostByEntity =
-    endedAt === null && isReplicationHost(hostId, identityIds);
-  const inThisSpace = role !== null || isHostByEntity;
+  const presence = useSpacePresence(spaceId);
 
   useAutoLeaveIfEnded(spaceId);
 
@@ -57,13 +44,13 @@ function SpaceDetailBody({ spaceId }: SpaceDetailBodyProps): ReactNode {
   const openDebug = () => setDebugOpen(true);
   const closeDebug = () => setDebugOpen(false);
 
-  if (isLoading) {
+  if (presence.status === 'loading') {
     return <SpaceLoadingScreen />;
   }
 
   return (
     <>
-      {inThisSpace ? (
+      {presence.status === 'active' ? (
         <ActiveSpace spaceId={spaceId} onOpenDebug={openDebug} />
       ) : (
         <SpaceJoinPrompt spaceId={spaceId} onOpenDebug={openDebug} />

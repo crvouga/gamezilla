@@ -8,23 +8,27 @@ import {
 
 type CandidateRow = { readonly id: string; readonly rating: number };
 
-export function usePuzzleCandidatesQuery(
-  rating: number,
-  ownerId: string,
-  currentPuzzleId: string | null,
-  halfWindow: number | null = PUZZLE_NEXT_MAX_BAND,
-  pickOffset = 0
-) {
+export type PuzzleCandidatesQueryArgs = {
+  readonly rating: number;
+  readonly ownerId: string;
+  readonly currentPuzzleId: string | null;
+  readonly halfWindow?: number | null;
+  readonly pickOffset?: number;
+};
+
+export function usePuzzleCandidatesQuery(args: PuzzleCandidatesQueryArgs) {
+  const halfWindow = args.halfWindow ?? PUZZLE_NEXT_MAX_BAND;
+  const pickOffset = args.pickOffset ?? 0;
   const query = useMemo(
     () =>
-      buildPuzzleCandidatesSql(
-        rating,
+      buildPuzzleCandidatesSql({
+        rating: args.rating,
         halfWindow,
-        ownerId,
-        currentPuzzleId,
-        pickOffset
-      ),
-    [rating, ownerId, currentPuzzleId, halfWindow, pickOffset]
+        ownerId: args.ownerId,
+        currentPuzzleId: args.currentPuzzleId,
+        pickOffset,
+      }),
+    [args.rating, args.ownerId, args.currentPuzzleId, halfWindow, pickOffset]
   );
   const { rows, isLoading } = useWatchQuery<CandidateRow>(
     query.sql,

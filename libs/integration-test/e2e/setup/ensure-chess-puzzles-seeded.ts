@@ -3,7 +3,6 @@ import { execFileSync } from 'node:child_process';
 import { openPgClient } from '@pkgs/sql-client/postgres-connect';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
 
-const CHESS_PUZZLE_ENTITY_TYPE = 'chess.puzzle';
 const MIN_PUZZLES = 50;
 const SEED_LIMIT = 500;
 
@@ -16,8 +15,8 @@ async function countChessPuzzles(): Promise<number> {
   });
   try {
     const rows = await sqlClient.query<{ n: number }>(
-      'SELECT COUNT(*)::int AS n FROM snapshots WHERE entity_type = ?',
-      [CHESS_PUZZLE_ENTITY_TYPE]
+      'SELECT COUNT(*)::int AS n FROM chess_puzzles',
+      []
     );
     return rows[0]?.n ?? 0;
   } finally {
@@ -50,12 +49,12 @@ export async function ensureChessPuzzlesSeeded(
   const count = await countChessPuzzles();
   if (count >= MIN_PUZZLES) {
     process.stdout.write(
-      `[chess-e2e] chess.puzzle count ${count} (>= ${MIN_PUZZLES}); skip seed\n`
+      `[chess-e2e] chess_puzzles count ${count} (>= ${MIN_PUZZLES}); skip seed\n`
     );
     return;
   }
   process.stdout.write(
-    `[chess-e2e] chess.puzzle count ${count} < ${MIN_PUZZLES}; seeding up to ${SEED_LIMIT}…\n`
+    `[chess-e2e] chess_puzzles count ${count} < ${MIN_PUZZLES}; seeding up to ${SEED_LIMIT}…\n`
   );
   seedChessPuzzles(repoRoot);
 }

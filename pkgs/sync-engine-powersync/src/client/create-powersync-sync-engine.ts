@@ -32,15 +32,18 @@ function createWatch<T extends Record<string, unknown>>(
   params: readonly unknown[]
 ): WatchSubscription<readonly T[]> {
   let snapshot: readonly T[] = [];
+  let hydrated = false;
 
   const refresh = async (): Promise<void> => {
     snapshot = await db.getAll<T>(sql, [...params]);
+    hydrated = true;
   };
 
   void refresh();
 
   return {
     getSnapshot: () => snapshot,
+    getHydrated: () => hydrated,
     subscribe: (listener) => {
       void refresh().then(() => listener());
       const unregister = db.registerListener({

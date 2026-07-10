@@ -56,9 +56,11 @@ function createWatch<T extends Record<string, unknown>>(
   bump: () => void
 ): WatchSubscription<readonly T[]> {
   let snapshot: readonly T[] = [];
+  let hydrated = false;
 
   const refresh = async (): Promise<void> => {
     snapshot = await db.query<T>(sql, [...params]);
+    hydrated = true;
     bump();
   };
 
@@ -66,6 +68,7 @@ function createWatch<T extends Record<string, unknown>>(
 
   return {
     getSnapshot: () => snapshot,
+    getHydrated: () => hydrated,
     subscribe: (listener) => {
       void refresh().then(() => listener());
       const interval = setInterval(() => {

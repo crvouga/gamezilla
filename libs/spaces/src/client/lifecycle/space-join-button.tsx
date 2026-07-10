@@ -17,10 +17,14 @@ export function SpaceJoinButton({
   const { t } = useLingui();
   const { joinSpace } = useSpaceActions();
   const role = useCurrentSpaceRole(spaceId);
-  const currentCount = useCurrentSpaceCount();
+  const { count: currentCount, isLoading: membershipLoading } =
+    useCurrentSpaceCount();
   const inThisSpace = role !== null;
   const disabled =
-    !joinable || (!inThisSpace && currentCount > 0) || spaceId.length === 0;
+    membershipLoading ||
+    !joinable ||
+    (!inThisSpace && currentCount > 0) ||
+    spaceId.length === 0;
 
   const join = useMutationButton({
     operation: useCallback(() => joinSpace(spaceId), [joinSpace, spaceId]),

@@ -5,6 +5,24 @@ import { createTableRegistry } from '../shared/table-registry';
 import { createInMemorySyncEngine } from './in-memory-sync-engine';
 
 describe('createInMemorySyncEngine', () => {
+  test('watch query is not hydrated until first refresh completes', () => {
+    const registry = createTableRegistry([
+      defineTable({
+        tableName: 'profiles',
+        columns: [
+          { name: 'id', type: 'text', primaryKey: true },
+          { name: 'display_name', type: 'text' },
+        ],
+      }),
+    ]);
+    const engine = createInMemorySyncEngine({ registry });
+    const sub = engine.watch<{ id: string }>(
+      'SELECT id FROM profiles WHERE 0'
+    );
+    expect(sub.getSnapshot()).toEqual([]);
+    expect(sub.getHydrated()).toBe(false);
+  });
+
   test('watch query returns rows after connect', async () => {
     const registry = createTableRegistry([
       defineTable({
@@ -27,6 +45,7 @@ describe('createInMemorySyncEngine', () => {
       ['p1']
     );
     await new Promise((r) => setTimeout(r, 150));
+    expect(sub.getHydrated()).toBe(true);
     expect(sub.getSnapshot()[0]?.display_name).toBe('Ada');
     await engine.disconnect();
   });

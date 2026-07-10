@@ -7,30 +7,35 @@ import {
 
 describe('buildPuzzleCandidatesSql', () => {
   test('rating band bounds are present in SQL', () => {
-    const { sql, params } = buildPuzzleCandidatesSql(1500, 200, '', null);
+    const { sql, params } = buildPuzzleCandidatesSql({
+      rating: 1500,
+      halfWindow: 200,
+      ownerId: '',
+      currentPuzzleId: null,
+    });
     expect(sql).toContain('rating >= ?');
     expect(sql).toContain('rating <= ?');
     expect(params).toEqual([1300, 1700, 50, 0]);
   });
 
   test('with ownerId, excludes interacted puzzles via subquery', () => {
-    const { sql, params } = buildPuzzleCandidatesSql(
-      1500,
-      200,
-      'user_123',
-      null
-    );
+    const { sql, params } = buildPuzzleCandidatesSql({
+      rating: 1500,
+      halfWindow: 200,
+      ownerId: 'user_123',
+      currentPuzzleId: null,
+    });
     expect(sql).toContain('NOT IN (SELECT puzzle_id FROM chess_puzzle_interactions');
     expect(params).toContain('user_123');
   });
 
   test('currentPuzzleId adds inequality filter', () => {
-    const { sql, params } = buildPuzzleCandidatesSql(
-      1500,
-      200,
-      'user_123',
-      'puzzle_99'
-    );
+    const { sql, params } = buildPuzzleCandidatesSql({
+      rating: 1500,
+      halfWindow: 200,
+      ownerId: 'user_123',
+      currentPuzzleId: 'puzzle_99',
+    });
     expect(sql).toContain('id != ?');
     expect(params).toContain('puzzle_99');
   });

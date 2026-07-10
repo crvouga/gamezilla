@@ -1,24 +1,13 @@
-import {
-  useCurrentSpaceIds,
-  isReplicationHost,
-  useReplicationIdentityIds,
-} from './use-current-space-ids';
-import { useSpaceColumn, SpaceField } from './use-space-column';
+import { useSpacePresence } from './use-space-presence';
 
 /**
  * Returns the current user's role on `spaceId` — `'host'`, `'guest'`, or
- * `null` when they aren't in the space.
+ * `null` when they aren't in the space (or presence is still loading).
  */
 export function useCurrentSpaceRole(spaceId: string): 'host' | 'guest' | null {
-  const identityIds = useReplicationIdentityIds();
-  const { entries } = useCurrentSpaceIds();
-  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
-  const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
-
-  const entry = entries.find((e) => e.spaceId === spaceId);
-  if (entry !== undefined) return entry.role;
-  if (endedAt === null && isReplicationHost(hostId, identityIds)) {
-    return 'host';
+  const presence = useSpacePresence(spaceId);
+  if (presence.status === 'active') {
+    return presence.role;
   }
   return null;
 }

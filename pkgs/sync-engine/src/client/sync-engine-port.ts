@@ -13,6 +13,11 @@ export type WatchSubscription<T> = {
    */
   readonly getSnapshot: () => T;
   /**
+   * True after the first async read of the watched query completes.
+   * Before hydration, an empty snapshot may mean "unknown" rather than "empty".
+   */
+  readonly getHydrated: () => boolean;
+  /**
    * Subscribes to changes in the watched query.
    * @param listener A callback to invoke when changes occur.
    * @returns A function to unsubscribe.

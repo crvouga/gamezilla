@@ -63,8 +63,14 @@ export function useWatchQuery<T extends Record<string, unknown>>(
     [engine, sql, paramsKey]
   );
   const rows = useWatchSubscription<readonly T[]>(subscription);
+  const hydrated = useSyncExternalStore(
+    subscription.subscribe,
+    subscription.getHydrated,
+    subscription.getHydrated
+  );
   const status = useSyncStatus();
-  const isLoading = !status.hasSynced && rows.length === 0;
+  const isLoading =
+    rows.length === 0 && (!status.hasSynced || !hydrated);
   return { rows, isLoading };
 }
 

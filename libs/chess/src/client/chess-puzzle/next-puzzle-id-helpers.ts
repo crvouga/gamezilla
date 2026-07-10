@@ -33,27 +33,35 @@ export type PuzzleCandidateRow = {
   readonly rating: number;
 };
 
+export type BuildPuzzleCandidatesSqlArgs = {
+  readonly rating: number;
+  readonly halfWindow: number | null;
+  readonly ownerId: string;
+  readonly currentPuzzleId: string | null;
+  readonly pickOffset?: number;
+};
+
 export function buildPuzzleCandidatesSql(
-  rating: number,
-  halfWindow: number | null,
-  ownerId: string,
-  currentPuzzleId: string | null,
-  pickOffset = 0
+  args: BuildPuzzleCandidatesSqlArgs
 ): { readonly sql: string; readonly params: readonly unknown[] } {
+  const pickOffset = args.pickOffset ?? 0;
   const params: unknown[] = [];
   let sql = `SELECT id, rating FROM ${CHESS_PUZZLES_TABLE.tableName} WHERE 1=1`;
-  if (halfWindow !== null) {
+  if (args.halfWindow !== null) {
     sql += ' AND rating >= ? AND rating <= ?';
-    params.push(Math.max(0, rating - halfWindow), rating + halfWindow);
+    params.push(
+      Math.max(0, args.rating - args.halfWindow),
+      args.rating + args.halfWindow
+    );
   }
-  if (ownerId.length > 0) {
+  if (args.ownerId.length > 0) {
     sql +=
       ` AND id NOT IN (SELECT ${ChessPuzzleInteractionCol.puzzleId} FROM ${CHESS_PUZZLE_INTERACTIONS_TABLE.tableName} WHERE ${ChessPuzzleInteractionCol.ownerId} = ?)`;
-    params.push(ownerId);
+    params.push(args.ownerId);
   }
-  if (currentPuzzleId !== null && currentPuzzleId.length > 0) {
+  if (args.currentPuzzleId !== null && args.currentPuzzleId.length > 0) {
     sql += ' AND id != ?';
-    params.push(currentPuzzleId);
+    params.push(args.currentPuzzleId);
   }
   sql += ' ORDER BY popularity DESC LIMIT ? OFFSET ?';
   params.push(PUZZLE_CANDIDATE_LIMIT, pickOffset);

@@ -1,6 +1,10 @@
 import { useCurrentSpaceIds } from './use-current-space-ids';
 
 /** Total spaces the current user is currently in (host or guest). */
-export function useCurrentSpaceCount(): number {
-  return useCurrentSpaceIds().entries.length;
+export function useCurrentSpaceCount(): {
+  readonly count: number;
+  readonly isLoading: boolean;
+} {
+  const { entries, isLoading } = useCurrentSpaceIds();
+  return { count: entries.length, isLoading };
 }
