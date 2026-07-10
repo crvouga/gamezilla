@@ -1,10 +1,5 @@
+import { DeviceCol, DEVICES_TABLE } from '../shared/auth-tables';
 import { useMyDeviceId } from './use-current-user';
-import {
-  AccountSessionCol,
-  ACCOUNT_SESSIONS_TABLE,
-  DeviceCol,
-  DEVICES_TABLE,
-} from '../shared/auth-tables';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -12,10 +7,6 @@ type DeviceRow = {
   readonly id: string;
   readonly last_seen_at: string | null;
   readonly created_at: string | null;
-};
-
-type SessionRow = {
-  readonly device_id: string;
 };
 
 function readString(raw: unknown): string | null {
@@ -55,15 +46,6 @@ function sortDeviceIds(
   });
 }
 
-function uniqueDeviceIdsFromSessions(sessions: readonly SessionRow[]): string[] {
-  const s = new Set<string>();
-  for (const row of sessions) {
-    const did = row.device_id;
-    if (typeof did === 'string' && did.length > 0) s.add(did);
-  }
-  return [...s].sort();
-}
-
 /**
  * Device ids for the given account, plus the current install row when
  * signed in. Sorted with the current device first, then by `last_seen_at`
@@ -79,34 +61,15 @@ export function useAccountDeviceIds(accountId: string | null): string[] {
     [currentDeviceId]
   );
 
-  const { rows: sessionRows } = useWatchQuery<SessionRow>(
+  const { rows: remoteRows } = useWatchQuery<DeviceRow>(
     accountId === null
-      ? `SELECT ${AccountSessionCol.deviceId} AS device_id FROM ${ACCOUNT_SESSIONS_TABLE.tableName} WHERE 0`
-      : `SELECT ${AccountSessionCol.deviceId} AS device_id
-         FROM ${ACCOUNT_SESSIONS_TABLE.tableName}
-         WHERE ${AccountSessionCol.accountId} = ?
-         LIMIT 500`,
-    accountId === null ? [] : [accountId]
-  );
-
-  const deviceIdsFromSessions = useMemo(
-    () => uniqueDeviceIdsFromSessions(sessionRows),
-    [sessionRows]
-  );
-
-  const remoteSql =
-    accountId === null || deviceIdsFromSessions.length === 0
       ? `SELECT ${DeviceCol.id}, ${DeviceCol.lastSeenAt}, ${DeviceCol.createdAt}
          FROM ${DEVICES_TABLE.tableName} WHERE 0`
       : `SELECT ${DeviceCol.id}, ${DeviceCol.lastSeenAt}, ${DeviceCol.createdAt}
          FROM ${DEVICES_TABLE.tableName}
-         WHERE ${DeviceCol.id} IN (${deviceIdsFromSessions.map(() => '?').join(', ')})`;
-
-  const { rows: remoteRows } = useWatchQuery<DeviceRow>(
-    remoteSql,
-    accountId === null || deviceIdsFromSessions.length === 0
-      ? []
-      : deviceIdsFromSessions
+         WHERE ${DeviceCol.userId} = ?
+         LIMIT 500`,
+    accountId === null ? [] : [accountId]
   );
 
   return useMemo(

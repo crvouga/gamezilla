@@ -28,9 +28,8 @@ export async function resolveAccountIdFromBearer(args: {
 
   return await ensureInternalAccountIdForExternalUser({
     sql,
+    authServer,
     externalUserId: session.externalUserId,
-    email: session.email,
-    provider: authServer.providerLabel,
   });
 }
 

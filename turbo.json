@@ -210,24 +210,6 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#ci:expo-go": {
-      "inputs": [
-        "package.json",
-        "apps/*/package.json",
-        "libs/*/package.json",
-        "pkgs/*/package.json",
-        "bun.lock",
-        "scripts/check-expo-go-compat.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "ci:expo-go-deps": {
-      "dependsOn": ["setup"],
-      "inputs": ["package.json", "../../bun.lock"],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
     "//#ci:audit": {
       "cache": false
     },

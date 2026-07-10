@@ -15,7 +15,7 @@ import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations
 
 const apiRoot = join(import.meta.dirname, '..');
 const REPO_ROOT = join(apiRoot, '../..');
-const CONNECTION_LIMIT_DELAYS_MS = [0, 3_000, 8_000, 15_000, 30_000] as const;
+const MIGRATE_RETRY_DELAYS_MS = [0, 3_000, 8_000, 15_000, 30_000] as const;
 const WAIT_FOR_POSTGRES_MS = 60_000;
 const WAIT_FOR_POSTGRES_RETRY_MS = 1_000;
 const WAIT_FOR_POSTGRES = process.argv.includes('--wait');
@@ -41,6 +41,19 @@ function isPostgresConnectionLimitError(error: unknown): boolean {
   }
   const code = (error as { code?: string }).code;
   return code === '53300';
+}
+
+function isPostgresDeadlockError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const code = (error as { code?: string }).code;
+  if (code === '40P01') return true;
+  return error.message.toLowerCase().includes('deadlock detected');
+}
+
+function isPostgresTransientMigrateError(error: unknown): boolean {
+  return (
+    isPostgresConnectionLimitError(error) || isPostgresDeadlockError(error)
+  );
 }
 
 function sleep(ms: number): Promise<void> {
@@ -147,14 +160,13 @@ async function main(): Promise<void> {
   }
   let lastError: unknown;
 
-  for (
-    let attempt = 0;
-    attempt < CONNECTION_LIMIT_DELAYS_MS.length;
-    attempt++
-  ) {
-    const delayMs = CONNECTION_LIMIT_DELAYS_MS[attempt] ?? 0;
+  for (let attempt = 0; attempt < MIGRATE_RETRY_DELAYS_MS.length; attempt++) {
+    const delayMs = MIGRATE_RETRY_DELAYS_MS[attempt] ?? 0;
     if (delayMs > 0) {
-      log.warn('Postgres connection limit — retrying migrate', {
+      const reason = isPostgresDeadlockError(lastError)
+        ? 'deadlock'
+        : 'connection limit';
+      log.warn(`Postgres ${reason} — retrying migrate`, {
         attempt: attempt + 1,
         delayMs,
       });
@@ -165,13 +177,13 @@ async function main(): Promise<void> {
       return;
     } catch (error: unknown) {
       lastError = error;
-      if (!isPostgresConnectionLimitError(error)) {
+      if (!isPostgresTransientMigrateError(error)) {
         throw error;
       }
     }
   }
 
-  assert.fail('api:migrate failed after connection-limit retries', {
+  assert.fail('api:migrate failed after transient-error retries', {
     error: lastError,
   });
 }

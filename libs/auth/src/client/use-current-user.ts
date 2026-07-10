@@ -1,6 +1,12 @@
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import { AccountCol, ACCOUNTS_TABLE } from '../shared/auth-tables';
+import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '../shared/external-account-providers';
+import {
+  EXTERNAL_ACCOUNTS_TABLE,
+  ExternalAccountCol,
+  UserTableCol,
+  USERS_TABLE,
+} from '../shared/external-accounts-tables';
 import { useAuthClientPort } from './auth-client-provider';
 import {
   useCurrentAccountId,
@@ -16,35 +22,50 @@ export type CurrentUser = {
   stripeCustomerId: string | null;
 };
 
-type AccountRow = {
+type UserRow = {
   readonly created_at: string | null;
-  readonly stripe_customer_id: string | null;
+};
+
+type StripeLinkRow = {
+  readonly external_id: string | null;
 };
 
 /**
  * Source of truth for "who is signed in" on the client. Reads:
  *   - `accountId` from secure storage (instant, survives cold start)
- *   - the `accounts` row from local sync (populated by the most recent
- *     `POST /auth/refresh`, replicated via PowerSync)
+ *   - the `users` row + stripe link from local sync (populated by the most
+ *     recent `POST /auth/refresh`, replicated via PowerSync)
  *
  * Returns `null` when signed out. Returns a stub `{ accountId, ... }` while
- * the row is still syncing; consumers can render off the non-null `accountId`
+ * rows are still syncing; consumers can render off the non-null `accountId`
  * and let column reads fill in over time.
  */
 export function useCurrentUser(): CurrentUser | null {
   const accountId = useCurrentAccountId();
-  const { row } = useWatchOne<AccountRow>(
-    `SELECT ${AccountCol.createdAt}, ${AccountCol.stripeCustomerId}
-     FROM ${ACCOUNTS_TABLE.tableName}
-     WHERE ${AccountCol.id} = ?`,
+  const { row: userRow } = useWatchOne<UserRow>(
+    `SELECT ${UserTableCol.createdAt}
+     FROM ${USERS_TABLE}
+     WHERE ${UserTableCol.id} = ?`,
     accountId === null ? [''] : [accountId]
+  );
+  const { row: stripeRow } = useWatchOne<StripeLinkRow>(
+    accountId === null
+      ? `SELECT ${ExternalAccountCol.externalId} AS external_id
+         FROM ${EXTERNAL_ACCOUNTS_TABLE} WHERE 0`
+      : `SELECT ${ExternalAccountCol.externalId} AS external_id
+         FROM ${EXTERNAL_ACCOUNTS_TABLE}
+         WHERE ${ExternalAccountCol.userId} = ?
+           AND ${ExternalAccountCol.provider} = ?`,
+    accountId === null
+      ? []
+      : [accountId, EXTERNAL_ACCOUNT_PROVIDER_STRIPE]
   );
   if (accountId === null) return null;
 
   return {
     accountId,
-    createdAt: row?.created_at ?? null,
-    stripeCustomerId: row?.stripe_customer_id ?? null,
+    createdAt: userRow?.created_at ?? null,
+    stripeCustomerId: stripeRow?.external_id ?? null,
   };
 }
 

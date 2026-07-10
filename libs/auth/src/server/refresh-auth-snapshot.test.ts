@@ -3,32 +3,36 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import type { AuthUserProfile } from '@pkgs/auth/shared/user-profile';
 import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
+import {
+  ENTITY_STORE_NAMESPACE_AUTH,
+  ENTITY_STORE_TABLE,
+  ENTITY_STORE_TYPE_USER,
+} from '@pkgs/sync-engine/shared/entity-store';
 
 import {
-  AccountCol,
-  AccountProviderCol,
-  AccountSessionCol,
-  ACCOUNTS_TABLE,
-  ACCOUNT_PROVIDERS_TABLE,
-  ACCOUNT_SESSIONS_TABLE,
   DEVICES_TABLE,
   DeviceCol,
 } from '@libs/auth/shared/auth-tables';
+import {
+  EXTERNAL_ACCOUNTS_TABLE,
+  ExternalAccountCol,
+} from '@libs/auth/shared/external-accounts-tables';
+import { EXTERNAL_ACCOUNT_PROVIDER_CLERK } from '@libs/auth/shared/external-account-providers';
+import { buildLinkedProviders } from '@libs/auth/shared/linked-account-providers';
 
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';
 
 function makeFakeAuthServer(args: {
   providerLabel?: string;
   session?: VerifiedSession | null;
-  profile?: AuthUserProfile | null;
+  snapshot?: Record<string, unknown> | null;
   verifyThrows?: boolean;
-  profileThrows?: boolean;
+  snapshotThrows?: boolean;
 }): AuthServerPort {
   const providerLabel = args.providerLabel ?? 'clerk';
   const session = args.session ?? null;
-  const profile = args.profile ?? null;
+  const snapshot = args.snapshot ?? null;
   return {
     providerLabel,
     verifySessionToken: async () => {
@@ -37,11 +41,12 @@ function makeFakeAuthServer(args: {
       }
       return session;
     },
-    getUserProfile: async () => {
-      if (args.profileThrows === true) {
+    getUserProfile: async () => null,
+    getUserSnapshot: async () => {
+      if (args.snapshotThrows === true) {
         throw new Error('boom');
       }
-      return profile;
+      return snapshot;
     },
   };
 }
@@ -50,6 +55,7 @@ async function migrateAuthTables(sql: SqlClient): Promise<void> {
   await sql.run(
     `CREATE TABLE ${DEVICES_TABLE.tableName} (
       ${DeviceCol.id} TEXT PRIMARY KEY,
+      ${DeviceCol.userId} TEXT,
       ${DeviceCol.createdAt} TEXT,
       ${DeviceCol.platform} TEXT,
       ${DeviceCol.osName} TEXT,
@@ -65,35 +71,98 @@ async function migrateAuthTables(sql: SqlClient): Promise<void> {
     )`
   );
   await sql.run(
-    `CREATE TABLE ${ACCOUNTS_TABLE.tableName} (
-      ${AccountCol.id} TEXT PRIMARY KEY,
-      ${AccountCol.createdAt} TEXT NOT NULL,
-      ${AccountCol.stripeCustomerId} TEXT
+    `CREATE TABLE ${EXTERNAL_ACCOUNTS_TABLE} (
+      ${ExternalAccountCol.userId} TEXT NOT NULL,
+      ${ExternalAccountCol.provider} TEXT NOT NULL,
+      ${ExternalAccountCol.externalId} TEXT NOT NULL,
+      ${ExternalAccountCol.metadata} TEXT NOT NULL DEFAULT '{}',
+      ${ExternalAccountCol.createdAt} TEXT NOT NULL,
+      PRIMARY KEY (${ExternalAccountCol.provider}, ${ExternalAccountCol.externalId}),
+      UNIQUE (${ExternalAccountCol.userId}, ${ExternalAccountCol.provider})
     )`
   );
   await sql.run(
-    `CREATE TABLE ${ACCOUNT_PROVIDERS_TABLE.tableName} (
-      ${AccountProviderCol.id} TEXT PRIMARY KEY,
-      ${AccountProviderCol.accountId} TEXT NOT NULL,
-      ${AccountProviderCol.provider} TEXT,
-      ${AccountProviderCol.providerUserId} TEXT,
-      ${AccountProviderCol.email} TEXT,
-      ${AccountProviderCol.linkedAt} TEXT
-    )`
-  );
-  await sql.run(
-    `CREATE TABLE ${ACCOUNT_SESSIONS_TABLE.tableName} (
-      ${AccountSessionCol.id} TEXT PRIMARY KEY,
-      ${AccountSessionCol.deviceId} TEXT NOT NULL,
-      ${AccountSessionCol.accountId} TEXT NOT NULL,
-      ${AccountSessionCol.token} TEXT NOT NULL,
-      ${AccountSessionCol.expiresAt} TEXT,
-      ${AccountSessionCol.createdAt} TEXT
+    `CREATE TABLE ${ENTITY_STORE_TABLE} (
+      id TEXT PRIMARY KEY,
+      namespace TEXT NOT NULL,
+      type TEXT NOT NULL,
+      external_id TEXT NOT NULL,
+      owner_id TEXT,
+      data TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE (namespace, type, external_id)
     )`
   );
 }
 
-async function readAllProviders(
+async function readClerkExternalAccount(
+  sql: SqlClient,
+  accountId: string
+): Promise<{
+  external_id: string | null;
+  metadata: string | null;
+  created_at: string | null;
+} | undefined> {
+  const rows = await sql.query<{
+    external_id: string | null;
+    metadata: string | null;
+    created_at: string | null;
+  }>(
+    `SELECT ${ExternalAccountCol.externalId} AS external_id,
+            ${ExternalAccountCol.metadata} AS metadata,
+            ${ExternalAccountCol.createdAt} AS created_at
+     FROM ${EXTERNAL_ACCOUNTS_TABLE}
+     WHERE ${ExternalAccountCol.userId} = ?
+       AND ${ExternalAccountCol.provider} = ?
+     LIMIT 1`,
+    [accountId, EXTERNAL_ACCOUNT_PROVIDER_CLERK]
+  );
+  return rows[0];
+}
+
+async function readClerkEntityStore(
+  sql: SqlClient,
+  accountId: string
+): Promise<{ data: string; created_at: string } | undefined> {
+  const rows = await sql.query<{ data: string; created_at: string }>(
+    `SELECT data, created_at FROM ${ENTITY_STORE_TABLE}
+     WHERE namespace = ? AND type = ? AND owner_id = ?
+     LIMIT 1`,
+    [ENTITY_STORE_NAMESPACE_AUTH, ENTITY_STORE_TYPE_USER, accountId]
+  );
+  return rows[0];
+}
+
+function projectProviders(
+  accountId: string,
+  authExternalAccount: {
+    external_id: string;
+    metadata: string | null;
+    created_at: string | null;
+  },
+  entity: { data: string; created_at: string } | undefined
+) {
+  const snapshot = entity?.data
+    ? (JSON.parse(entity.data) as Record<string, unknown>)
+    : null;
+  return buildLinkedProviders({
+    accountId,
+    primaryAuthExternalAccount: {
+      externalId: authExternalAccount.external_id,
+      metadata: authExternalAccount.metadata,
+      createdAt: authExternalAccount.created_at ?? new Date(0).toISOString(),
+    },
+    authSnapshotData: snapshot,
+    entityCreatedAt: entity?.created_at ?? null,
+  }).map((row) => ({
+    provider: row.provider,
+    providerUserId: row.providerUserId,
+    email: row.email,
+  }));
+}
+
+async function readProviders(
   sql: SqlClient,
   accountId: string
 ): Promise<
@@ -103,114 +172,69 @@ async function readAllProviders(
     email: string | null;
   }>
 > {
-  const rows = await sql.query<{
-    provider: string | null;
-    provider_user_id: string | null;
-    email: string | null;
-  }>(
-    `SELECT provider, provider_user_id, email FROM ${ACCOUNT_PROVIDERS_TABLE.tableName}
-     WHERE ${AccountProviderCol.accountId} = ?`,
-    [accountId]
+  const clerk = await readClerkExternalAccount(sql, accountId);
+  const externalId = clerk?.external_id;
+  if (typeof externalId !== 'string' || externalId.length === 0) {
+    return [];
+  }
+  const entity = await readClerkEntityStore(sql, accountId);
+  return projectProviders(
+    accountId,
+    {
+      external_id: externalId,
+      metadata: clerk?.metadata ?? null,
+      created_at: clerk?.created_at ?? null,
+    },
+    entity
   );
-  return rows.map((row) => ({
-    provider: row.provider ?? '',
-    providerUserId: row.provider_user_id ?? '',
-    email: row.email,
-  }));
 }
 
-async function readSessions(sql: SqlClient): Promise<
-  ReadonlyArray<{
-    deviceId: string;
-    accountId: string;
-    token: string;
-    expiresAt: string | null;
-  }>
-> {
-  const rows = await sql.query<{
-    device_id: string;
-    account_id: string;
-    token: string;
-    expires_at: string | null;
-  }>(`SELECT device_id, account_id, token, expires_at FROM ${ACCOUNT_SESSIONS_TABLE.tableName}`);
-  return rows.map((row) => ({
-    deviceId: row.device_id,
-    accountId: row.account_id,
-    token: row.token,
-    expiresAt: row.expires_at,
-  }));
+async function readEntityStoreOwnerId(
+  sql: SqlClient,
+  externalUserId: string
+): Promise<string | null> {
+  const rows = await sql.query<{ owner_id: string | null }>(
+    `SELECT owner_id FROM ${ENTITY_STORE_TABLE}
+     WHERE namespace = ? AND type = ? AND external_id = ?`,
+    [ENTITY_STORE_NAMESPACE_AUTH, ENTITY_STORE_TYPE_USER, externalUserId]
+  );
+  return rows[0]?.owner_id ?? null;
+}
+
+async function readDeviceUserId(
+  sql: SqlClient,
+  deviceId: string
+): Promise<string | null> {
+  const rows = await sql.query<{ user_id: string | null }>(
+    `SELECT ${DeviceCol.userId} AS user_id FROM ${DEVICES_TABLE.tableName}
+     WHERE ${DeviceCol.id} = ?`,
+    [deviceId]
+  );
+  return rows[0]?.user_id ?? null;
 }
 
 async function readDevice(
   sql: SqlClient,
   deviceId: string
-): Promise<{
-  platform: string | null;
-  firstSeenAt: string | null;
-  lastSeenAt: string | null;
-} | null> {
-  const rows = await sql.query<{
-    platform: string | null;
-    first_seen_at: string | null;
-    last_seen_at: string | null;
-  }>(
-    `SELECT platform, first_seen_at, last_seen_at FROM ${DEVICES_TABLE.tableName}
-     WHERE ${DeviceCol.id} = ?`,
+): Promise<{ platform: string | null } | null> {
+  const rows = await sql.query<{ platform: string | null }>(
+    `SELECT platform FROM ${DEVICES_TABLE.tableName} WHERE ${DeviceCol.id} = ?`,
     [deviceId]
   );
-  const row = rows[0];
-  if (row === undefined) return null;
-  return {
-    platform: row.platform,
-    firstSeenAt: row.first_seen_at,
-    lastSeenAt: row.last_seen_at,
-  };
-}
-
-async function seedAccount(sql: SqlClient, accountId: string): Promise<void> {
-  await sql.run(
-    `INSERT INTO ${ACCOUNTS_TABLE.tableName} (${AccountCol.id}, ${AccountCol.createdAt})
-     VALUES (?, ?)`,
-    [accountId, new Date('2024-01-01').toISOString()]
-  );
+  return rows[0] ?? null;
 }
 
 const ACCOUNT_ID = '11111111-1111-4111-8111-111111111111';
 const DEVICE_ID = '22222222-2222-4222-8222-222222222222';
 const EXTERNAL_USER_ID = 'user_external_1';
 
-async function assertProviders(
-  sql: SqlClient,
-  expected: ReadonlyArray<{
-    provider: string;
-    providerUserId: string;
-    email: string | null;
-  }>
-): Promise<void> {
-  const providers = await readAllProviders(sql, ACCOUNT_ID);
-  expect(providers).toEqual([...expected]);
-}
-
-async function assertSession(
-  sql: SqlClient,
-  expected: { token: string; expiresAt: string }
-): Promise<void> {
-  const sessions = await readSessions(sql);
-  expect(sessions).toEqual([
-    {
-      deviceId: DEVICE_ID,
-      accountId: ACCOUNT_ID,
-      token: expected.token,
-      expiresAt: expected.expiresAt,
-    },
-  ]);
-}
-
-async function assertDevicePresent(sql: SqlClient): Promise<void> {
-  const device = await readDevice(sql, DEVICE_ID);
-  expect(device).not.toBeNull();
-  expect(device?.platform).toBe('web');
-}
+const CLERK_SNAPSHOT = {
+  id: EXTERNAL_USER_ID,
+  primary_email: 'alice@example.com',
+  email_addresses: [{ id: 'ea_1', email_address: 'alice@example.com' }],
+  primary_email_address_id: 'ea_1',
+  external_accounts: [],
+};
 
 const DEVICE_ATTRS: Record<string, string | null> = {
   [DeviceCol.platform]: 'web',
@@ -226,14 +250,13 @@ describe('refreshAuthSnapshot', () => {
     sql = SqlClientImplBunSqlite.open(':memory:');
     await sql.connect();
     await migrateAuthTables(sql);
-    await seedAccount(sql, ACCOUNT_ID);
   });
 
   afterEach(async () => {
     await sql.disconnect();
   });
 
-  test('inserts session, device, and provider rows on first run', async () => {
+  test('mirrors clerk snapshot and binds device on first run', async () => {
     const authServer = makeFakeAuthServer({
       session: {
         externalUserId: EXTERNAL_USER_ID,
@@ -241,6 +264,7 @@ describe('refreshAuthSnapshot', () => {
         email: 'alice@example.com',
         expiresAt: null,
       },
+      snapshot: CLERK_SNAPSHOT,
     });
 
     await refreshAuthSnapshot({
@@ -250,24 +274,21 @@ describe('refreshAuthSnapshot', () => {
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
-      accountSessionExpiresAt: '2026-01-01T00:00:00.000Z',
     });
 
-    await assertProviders(sql, [
+    expect(await readEntityStoreOwnerId(sql, EXTERNAL_USER_ID)).toBe(ACCOUNT_ID);
+    expect(await readDeviceUserId(sql, DEVICE_ID)).toBe(ACCOUNT_ID);
+    expect(await readProviders(sql, ACCOUNT_ID)).toEqual([
       {
-        provider: 'clerk',
+        provider: EXTERNAL_ACCOUNT_PROVIDER_CLERK,
         providerUserId: EXTERNAL_USER_ID,
         email: 'alice@example.com',
       },
     ]);
-    await assertSession(sql, {
-      token: 'token-1',
-      expiresAt: '2026-01-01T00:00:00.000Z',
-    });
-    await assertDevicePresent(sql);
+    expect((await readDevice(sql, DEVICE_ID))?.platform).toBe('web');
   });
 
-  test('idempotent: running twice yields a single session/device/provider row', async () => {
+  test('idempotent: running twice yields one entity row and one device row', async () => {
     const authServer = makeFakeAuthServer({
       session: {
         externalUserId: EXTERNAL_USER_ID,
@@ -275,6 +296,7 @@ describe('refreshAuthSnapshot', () => {
         email: 'alice@example.com',
         expiresAt: null,
       },
+      snapshot: CLERK_SNAPSHOT,
     });
 
     const inputs = {
@@ -284,19 +306,20 @@ describe('refreshAuthSnapshot', () => {
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
-      accountSessionExpiresAt: '2026-01-01T00:00:00.000Z',
     };
 
     await refreshAuthSnapshot(inputs);
     await refreshAuthSnapshot(inputs);
 
-    expect(await readAllProviders(sql, ACCOUNT_ID)).toHaveLength(1);
-    expect(await readSessions(sql)).toHaveLength(1);
-    const device = await readDevice(sql, DEVICE_ID);
-    expect(device).not.toBeNull();
+    const rows = await sql.query<{ id: string }>(
+      `SELECT id FROM ${ENTITY_STORE_TABLE} WHERE namespace = ? AND type = ?`,
+      [ENTITY_STORE_NAMESPACE_AUTH, ENTITY_STORE_TYPE_USER]
+    );
+    expect(rows).toHaveLength(1);
+    expect(await readDevice(sql, DEVICE_ID)).not.toBeNull();
   });
 
-  test('rotates account/session.token on subsequent run with a new bearer', async () => {
+  test('updates clerk metadata without removing other external_account rows', async () => {
     const authServer = makeFakeAuthServer({
       session: {
         externalUserId: EXTERNAL_USER_ID,
@@ -304,17 +327,33 @@ describe('refreshAuthSnapshot', () => {
         email: null,
         expiresAt: null,
       },
+      snapshot: CLERK_SNAPSHOT,
     });
 
-    await refreshAuthSnapshot({
-      sql,
-      authServer,
-      bearerToken: 'token-old',
-      accountId: ACCOUNT_ID,
-      deviceId: DEVICE_ID,
-      deviceAttributes: DEVICE_ATTRS,
-      accountSessionExpiresAt: '2026-01-01T00:00:00.000Z',
-    });
+    const now = new Date().toISOString();
+    await sql.run(
+      `INSERT INTO ${EXTERNAL_ACCOUNTS_TABLE}
+       (${ExternalAccountCol.userId}, ${ExternalAccountCol.provider},
+        ${ExternalAccountCol.externalId}, ${ExternalAccountCol.metadata},
+        ${ExternalAccountCol.createdAt})
+       VALUES (?, ?, ?, ?, ?)`,
+      [ACCOUNT_ID, 'stripe', 'cus_1', '{}', now]
+    );
+    await sql.run(
+      `INSERT INTO ${ENTITY_STORE_TABLE}
+       (id, namespace, type, external_id, owner_id, data, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        'auth/user/user_external_1',
+        ENTITY_STORE_NAMESPACE_AUTH,
+        ENTITY_STORE_TYPE_USER,
+        EXTERNAL_USER_ID,
+        ACCOUNT_ID,
+        JSON.stringify({ id: EXTERNAL_USER_ID }),
+        now,
+        now,
+      ]
+    );
 
     await refreshAuthSnapshot({
       sql,
@@ -323,54 +362,30 @@ describe('refreshAuthSnapshot', () => {
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
-      accountSessionExpiresAt: '2026-06-01T00:00:00.000Z',
     });
 
-    await assertSession(sql, {
-      token: 'token-new',
-      expiresAt: '2026-06-01T00:00:00.000Z',
-    });
+    const stripeRows = await sql.query<{ external_id: string | null }>(
+      `SELECT ${ExternalAccountCol.externalId} AS external_id
+       FROM ${EXTERNAL_ACCOUNTS_TABLE}
+       WHERE ${ExternalAccountCol.userId} = ? AND ${ExternalAccountCol.provider} = ?`,
+      [ACCOUNT_ID, 'stripe']
+    );
+    expect(stripeRows[0]?.external_id).toBe('cus_1');
+
+    const clerkRows = await sql.query<{ metadata: string }>(
+      `SELECT ${ExternalAccountCol.metadata} AS metadata
+       FROM ${EXTERNAL_ACCOUNTS_TABLE}
+       WHERE ${ExternalAccountCol.userId} = ? AND ${ExternalAccountCol.provider} = ?`,
+      [ACCOUNT_ID, EXTERNAL_ACCOUNT_PROVIDER_CLERK]
+    );
+    const metadata = JSON.parse(clerkRows[0]!.metadata) as Record<string, unknown>;
+    expect(metadata['email']).toBe('alice@example.com');
   });
 
-  test('updates provider email from getUserProfile when session email is null', async () => {
-    const authServer = makeFakeAuthServer({
-      session: {
-        externalUserId: EXTERNAL_USER_ID,
-        accountId: null,
-        email: null,
-        expiresAt: null,
-      },
-      profile: {
-        externalUserId: EXTERNAL_USER_ID,
-        email: 'alice@example.com',
-        displayName: 'Alice',
-        avatarUrl: null,
-      },
-    });
-
-    await refreshAuthSnapshot({
-      sql,
-      authServer,
-      bearerToken: 'token',
-      accountId: ACCOUNT_ID,
-      deviceId: DEVICE_ID,
-      deviceAttributes: DEVICE_ATTRS,
-      accountSessionExpiresAt: '2026-01-01T00:00:00.000Z',
-    });
-
-    await assertProviders(sql, [
-      {
-        provider: 'clerk',
-        providerUserId: EXTERNAL_USER_ID,
-        email: 'alice@example.com',
-      },
-    ]);
-  });
-
-  test('survives verifySessionToken / getUserProfile failures', async () => {
+  test('survives verifySessionToken / getUserSnapshot failures', async () => {
     const authServer = makeFakeAuthServer({
       verifyThrows: true,
-      profileThrows: true,
+      snapshotThrows: true,
     });
 
     await refreshAuthSnapshot({
@@ -380,11 +395,10 @@ describe('refreshAuthSnapshot', () => {
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
-      accountSessionExpiresAt: '2026-01-01T00:00:00.000Z',
     });
 
-    expect(await readAllProviders(sql, ACCOUNT_ID)).toHaveLength(0);
-    expect(await readSessions(sql)).toHaveLength(1);
+    expect(await readEntityStoreOwnerId(sql, EXTERNAL_USER_ID)).toBeNull();
+    expect(await readDeviceUserId(sql, DEVICE_ID)).toBe(ACCOUNT_ID);
     expect(await readDevice(sql, DEVICE_ID)).not.toBeNull();
   });
 });

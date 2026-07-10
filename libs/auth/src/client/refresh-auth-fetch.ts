@@ -13,12 +13,6 @@ export type RefreshAuthArgs = {
    * these into `device/<deviceId>` verbatim — no field-name remapping.
    */
   deviceSnapshot: Record<string, string>;
-  /**
-   * ISO timestamp the client expects this session to expire at. Stored on
-   * `account/session.expiresAt`; the server uses it to decide when a row is
-   * considered stale.
-   */
-  accountSessionExpiresAt: string;
 };
 
 export type RefreshAuthResult = {
@@ -27,20 +21,14 @@ export type RefreshAuthResult = {
 
 /**
  * `POST /auth/refresh` — idempotent server upsert of the auth-related sync
- * entities (`account`, `account/provider`, `account/session`, `device`) for the
- * current bearer + device. Returns just the internal `accountId`; everything
- * else flows back to the client through PowerSync sync.
+ * entities (auth user snapshot, device binding) for the current bearer +
+ * device. Returns just the internal `accountId`; everything else flows back
+ * to the client through PowerSync sync.
  */
 export async function refreshAuth(
   args: RefreshAuthArgs
 ): Promise<RefreshAuthResult> {
-  const {
-    apiUrl,
-    bearerToken,
-    deviceId,
-    deviceSnapshot,
-    accountSessionExpiresAt,
-  } = args;
+  const { apiUrl, bearerToken, deviceId, deviceSnapshot } = args;
   const base = apiUrl.replace(/\/$/, '');
   const res = await fetch(`${base}/api/auth/refresh`, {
     method: 'POST',
@@ -52,7 +40,6 @@ export async function refreshAuth(
     },
     body: JSON.stringify({
       device: deviceSnapshot,
-      accountSessionExpiresAt,
     }),
   });
   const text = await res.text();

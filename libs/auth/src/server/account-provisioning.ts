@@ -1,87 +1,41 @@
 import { assertUuid } from '@libs/auth/shared/device-id';
-import {
-  AccountCol,
-  AccountProviderCol,
-  ACCOUNTS_TABLE,
-  ACCOUNT_PROVIDERS_TABLE,
-} from '@libs/auth/shared/auth-tables';
-import { assert } from '@pkgs/assert';
+import { EXTERNAL_ACCOUNT_PROVIDER_CLERK } from '@libs/auth/shared/external-account-providers';
+import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-type ProviderRow = {
-  readonly id: string;
-  readonly account_id: string;
-};
-
-async function findAuthAccountProvider(
-  sql: SqlClient,
-  provider: string,
-  externalUserId: string
-): Promise<ProviderRow | undefined> {
-  const rows = await sql.query<ProviderRow>(
-    `SELECT id, account_id FROM ${ACCOUNT_PROVIDERS_TABLE.tableName}
-     WHERE ${AccountProviderCol.provider} = ? AND ${AccountProviderCol.providerUserId} = ?
-     LIMIT 1`,
-    [provider, externalUserId]
-  );
-  return rows[0];
-}
-
-async function insertAccountWithProvider(args: {
-  sql: SqlClient;
-  externalUserId: string;
-  email: string | null;
-  accountId: string;
-  provider: string;
-}): Promise<void> {
-  const { sql, externalUserId, email, accountId, provider } = args;
-  const now = new Date().toISOString();
-  const providerId = crypto.randomUUID();
-  await sql.transaction(async (tx) => {
-    await tx.run(
-      `INSERT INTO ${ACCOUNTS_TABLE.tableName}
-       (${AccountCol.id}, ${AccountCol.createdAt})
-       VALUES (?, ?)`,
-      [accountId, now]
-    );
-    await tx.run(
-      `INSERT INTO ${ACCOUNT_PROVIDERS_TABLE.tableName}
-       (${AccountProviderCol.id}, ${AccountProviderCol.accountId}, ${AccountProviderCol.provider},
-        ${AccountProviderCol.providerUserId}, ${AccountProviderCol.email}, ${AccountProviderCol.linkedAt})
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [
-        providerId,
-        accountId,
-        provider,
-        externalUserId,
-        email,
-        now,
-      ]
-    );
-  });
-}
+import { upsertAuthUserSnapshot } from './entity-store-sql';
+import {
+  findUserIdByClerkUserId,
+  insertUser,
+  upsertExternalAccount,
+} from './external-accounts-sql';
 
 export async function ensureInternalAccountIdForExternalUser(args: {
   sql: SqlClient;
+  authServer: AuthServerPort;
   externalUserId: string;
-  email: string | null;
-  provider: string;
 }): Promise<string> {
-  const { sql, externalUserId, email, provider } = args;
-  const existing = await findAuthAccountProvider(sql, provider, externalUserId);
-  if (existing !== undefined) {
-    const aid = existing.account_id;
-    assert.string(aid, 'accountProvider must have account_id');
-    assertUuid(aid, 'accountId must be UUID');
-    return aid;
+  const { sql, authServer, externalUserId } = args;
+  const existingUserId = await findUserIdByClerkUserId(sql, externalUserId);
+  if (existingUserId !== null) {
+    assertUuid(existingUserId, 'userId must be UUID');
+    return existingUserId;
   }
-  const accountId = crypto.randomUUID();
-  await insertAccountWithProvider({
-    sql,
-    externalUserId,
-    email,
-    accountId,
-    provider,
+
+  const snapshot = await authServer.getUserSnapshot(externalUserId);
+  const userId = crypto.randomUUID();
+  const now = new Date().toISOString();
+  await insertUser(sql, userId, now);
+  await upsertExternalAccount(sql, {
+    userId,
+    provider: EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+    externalId: externalUserId,
+    metadata: {},
   });
-  return accountId;
+  await upsertAuthUserSnapshot(sql, {
+    externalUserId,
+    ownerId: userId,
+    data: snapshot ?? { id: externalUserId },
+  });
+  return userId;
 }

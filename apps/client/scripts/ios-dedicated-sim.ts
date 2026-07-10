@@ -136,6 +136,11 @@ async function pingDevServer(url: URL, signal: AbortSignal): Promise<boolean> {
   }
 }
 
+/** True when Metro (or any HTTP server) responds on `url`. */
+export async function isDevServerRunning(url: URL): Promise<boolean> {
+  return pingDevServer(url, AbortSignal.timeout(1500));
+}
+
 export async function waitForDevServer(
   url: URL,
   timeoutMs: number,

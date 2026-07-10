@@ -3,7 +3,7 @@ import type {
   WritePolicyContext,
   WritePolicyDecision,
 } from '@pkgs/sync-engine/server/upload-handler';
-import { ENTITY_STORE_NAMESPACE_STRIPE } from '@pkgs/sync-engine/shared/entity-store';
+import { ENTITY_STORE_NAMESPACE_AUTH, ENTITY_STORE_NAMESPACE_STRIPE } from '@pkgs/sync-engine/shared/entity-store';
 
 import {
   allow,
@@ -148,6 +148,9 @@ export const entityStoreWritePolicy: WritePolicy = (ctx, row) => {
 
   if (namespace === ENTITY_STORE_NAMESPACE_STRIPE) {
     return deny('stripe entity_store is system-only');
+  }
+  if (namespace === ENTITY_STORE_NAMESPACE_AUTH) {
+    return deny('auth entity_store is server-only');
   }
   if (type !== undefined && STRIPE_ENTITY_TYPES.has(type)) {
     return deny(`stripe.${type} is system-only`);

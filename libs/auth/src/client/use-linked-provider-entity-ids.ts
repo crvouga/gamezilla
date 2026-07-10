@@ -1,24 +1,11 @@
-import {
-  AccountProviderCol,
-  ACCOUNT_PROVIDERS_TABLE,
-} from '../shared/auth-tables';
-import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useMemo } from 'react';
 
-type ProviderIdRow = {
-  readonly id: string;
-};
+import { useLinkedProviders } from './use-linked-provider-sources';
 
 /**
  * Linked provider row ids for the given account, or `[]` while signed out.
  */
 export function useLinkedProviderEntityIds(accountId: string | null): string[] {
-  const { rows } = useWatchQuery<ProviderIdRow>(
-    accountId === null
-      ? `SELECT ${AccountProviderCol.id} AS id FROM ${ACCOUNT_PROVIDERS_TABLE.tableName} WHERE 0`
-      : `SELECT ${AccountProviderCol.id} AS id
-         FROM ${ACCOUNT_PROVIDERS_TABLE.tableName}
-         WHERE ${AccountProviderCol.accountId} = ?`,
-    accountId === null ? [] : [accountId]
-  );
-  return rows.map((row) => row.id);
+  const providers = useLinkedProviders(accountId);
+  return useMemo(() => providers.map((row) => row.id), [providers]);
 }

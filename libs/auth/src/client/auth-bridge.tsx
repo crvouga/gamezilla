@@ -170,20 +170,17 @@ async function runRefresh(args: {
   expiresAt: string | null;
   force: boolean;
 }): Promise<void> {
-  const { deps, token, expiresAt, force } = args;
+  const { deps, token, force } = args;
   if (deps.inFlightRef.current) return;
   if (!force && deps.lastSyncedTokenRef.current === token) return;
   deps.inFlightRef.current = true;
   try {
     await writeSecureStorageItem(deps.storage, SESSION_TOKEN_KEY, token);
-    const resolvedExpiresAt =
-      expiresAt ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const { accountId } = await refreshAuth({
       apiUrl: deps.apiUrl,
       bearerToken: token,
       deviceId: deps.deviceId,
       deviceSnapshot: collectDeviceSnapshot(),
-      accountSessionExpiresAt: resolvedExpiresAt,
     });
     await writeSecureStorageItem(
       deps.storage,

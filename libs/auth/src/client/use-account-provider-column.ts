@@ -1,6 +1,10 @@
-import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useMemo } from 'react';
 
-import { AccountProviderCol, ACCOUNT_PROVIDERS_TABLE } from '../shared/auth-tables';
+import {
+  readLinkedProviderField,
+  type LinkedProviderField,
+} from '../shared/linked-account-providers';
+import { useLinkedProviderSources } from './use-linked-provider-sources';
 
 export const AccountProviderField = {
   id: 'id',
@@ -9,7 +13,7 @@ export const AccountProviderField = {
   providerUserId: 'providerUserId',
   email: 'email',
   linkedAt: 'linkedAt',
-} as const satisfies Record<string, keyof typeof AccountProviderCol>;
+} as const satisfies Record<string, LinkedProviderField>;
 
 export type AccountProviderFieldKey = keyof typeof AccountProviderField;
 
@@ -17,10 +21,17 @@ export function useAccountProviderColumn(
   providerId: string,
   field: AccountProviderFieldKey
 ): string | null {
-  const col = AccountProviderCol[field];
-  const { value } = useWatchValue<string>(
-    `SELECT ${col} AS value FROM ${ACCOUNT_PROVIDERS_TABLE.tableName} WHERE ${AccountProviderCol.id} = ?`,
-    [providerId]
-  );
-  return value;
+  const accountId = useMemo(() => {
+    const firstColon = providerId.indexOf(':');
+    return firstColon > 0 ? providerId.slice(0, firstColon) : null;
+  }, [providerId]);
+  const sources = useLinkedProviderSources(accountId);
+  return useMemo(() => {
+    if (sources === null) return null;
+    return readLinkedProviderField(
+      providerId,
+      AccountProviderField[field],
+      sources
+    );
+  }, [providerId, field, sources]);
 }

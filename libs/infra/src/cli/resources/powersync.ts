@@ -226,6 +226,16 @@ export async function deployPowerSyncSyncConfigOnly(
   platform: CiPlatform
 ): Promise<void> {
   assertPowerSyncCliSecrets();
+  await runAsync(
+    platform,
+    'bun',
+    ['run', join(REPO_ROOT, 'scripts/run-postgres-migrations-secrets.ts')],
+    {
+      cwd: REPO_ROOT,
+      env: process.env,
+      label: 'postgres migrate (secrets)',
+    }
+  );
   await runPowerSyncCli(
     platform,
     ['deploy', 'sync-config', '--directory', POWERSYNC_DIR],

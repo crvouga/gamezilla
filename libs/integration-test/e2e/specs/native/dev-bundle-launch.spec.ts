@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * Expo Go launch smoke. Loads a `__DEV__ === true` web bundle from Metro
+ * Dev bundle launch smoke. Loads a `__DEV__ === true` web bundle from Metro
  * (`playwright.native.config.ts` / `qa:metro:web-dev`) and asserts the app
  * mounts instead of white-screening.
  *
@@ -9,10 +9,10 @@ import { expect, test } from '@playwright/test';
  *  1. `app-root` (the outermost `GestureHandlerRootView`) becomes visible — a
  *     render throw in a child provider (e.g. `ConfigServiceProvider` calling
  *     `getApiBaseUrl()`) unwinds the tree, so the root never commits.
- *  2. No uncaught `pageerror` fires during startup — the Tiger-policy
- *     `assert` throw that blanks Expo Go surfaces here as a page error.
+ *  2. No uncaught `pageerror` fires during startup — Tiger-policy `assert`
+ *     throws during startup surface here as a page error.
  */
-test('expo-go dev bundle launches past splash without a startup crash', async ({
+test('dev bundle launches past splash without a startup crash', async ({
   page,
 }) => {
   const pageErrors: string[] = [];

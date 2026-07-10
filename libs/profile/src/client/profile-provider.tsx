@@ -1,5 +1,4 @@
-import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
-import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { useMyId } from '@libs/auth/client/use-current-user';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, type ReactNode } from 'react';
 
@@ -7,22 +6,22 @@ import { ensureProfile } from './ensure-profile-entity';
 
 /**
  * Profile bootstrap: ensures a profile row exists for the current replication
- * identity (install id when anonymous, account id when signed in). Re-runs
- * whenever the in-memory account id changes (sign in / out).
+ * identity (install id when anonymous, account id when signed in). Waits for
+ * the first sync download so a new web tab does not mint a fresh random
+ * profile before the server row arrives.
  */
 function ProfileEntityBootstrap(): null {
   const engine = useSyncEngine();
-  const deviceId = useDeviceId();
-  const accountId = useCurrentAccountId();
+  const myId = useMyId();
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
-        const myId = accountId !== null ? accountId : deviceId;
-        if (myId === null || myId.length === 0) return;
-        await ensureProfile(engine.db, myId);
+        if (myId.length === 0) return;
+        await engine.waitForFirstSync();
         if (cancelled) return;
+        await ensureProfile(engine.db, myId);
       } catch {
         // Best-effort: re-asserted on the next identity change.
       }
@@ -30,14 +29,14 @@ function ProfileEntityBootstrap(): null {
     return () => {
       cancelled = true;
     };
-  }, [engine, deviceId, accountId]);
+  }, [engine, myId]);
 
   return null;
 }
 
 /**
  * Mounts {@link ProfileEntityBootstrap}. The identity-change ensure effect
- * reacts to sign-in / sign-out via `useCurrentAccountId`.
+ * reacts to sign-in / sign-out via {@link useMyId}.
  */
 export function ProfileProvider({
   children,

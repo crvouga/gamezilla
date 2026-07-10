@@ -23,6 +23,8 @@ export type EntityStoreRow = {
 export const ENTITY_STORE_TABLE = 'entity_store' as const;
 
 export const ENTITY_STORE_NAMESPACE_STRIPE = 'stripe' as const;
+export const ENTITY_STORE_NAMESPACE_AUTH = 'auth' as const;
+export const ENTITY_STORE_TYPE_USER = 'user' as const;
 
 /** Generic JSONB mirror table for third-party and extension entity types. */
 export const ENTITY_STORE_TABLE_DEF = defineTable({

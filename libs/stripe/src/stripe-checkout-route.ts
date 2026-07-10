@@ -1,4 +1,8 @@
-import { AccountCol, ACCOUNTS_TABLE } from '@libs/auth/shared/auth-tables';
+import {
+  readExternalAccountId,
+  upsertExternalAccount,
+} from '@libs/auth/server/external-accounts-sql';
+import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '@libs/auth/shared/external-account-providers';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { zValidator } from '@hono/zod-validator';
@@ -39,13 +43,7 @@ async function readStripeCustomerId(
   sql: SqlClient,
   accountId: string
 ): Promise<string | null> {
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT ${AccountCol.stripeCustomerId} FROM ${ACCOUNTS_TABLE.tableName}
-     WHERE ${AccountCol.id} = ? LIMIT 1`,
-    [accountId]
-  );
-  const raw = rows[0]?.[AccountCol.stripeCustomerId];
-  return typeof raw === 'string' && raw.length > 0 ? raw : null;
+  return readExternalAccountId(sql, accountId, EXTERNAL_ACCOUNT_PROVIDER_STRIPE);
 }
 
 async function ensureStripeCustomerId(args: {
@@ -61,12 +59,11 @@ async function ensureStripeCustomerId(args: {
   const customer = await stripe.customers.create({
     metadata: { account_id: accountId, device_id: deviceId },
   });
-  await sql.run(
-    `UPDATE ${ACCOUNTS_TABLE.tableName}
-     SET ${AccountCol.stripeCustomerId} = ?
-     WHERE ${AccountCol.id} = ?`,
-    [customer.id, accountId]
-  );
+  await upsertExternalAccount(sql, {
+    userId: accountId,
+    provider: EXTERNAL_ACCOUNT_PROVIDER_STRIPE,
+    externalId: customer.id,
+  });
   return customer.id;
 }
 

@@ -8,28 +8,17 @@ streams:
     query: |
       SELECT * FROM devices
       WHERE id = auth.user_id()
-         OR id IN (
-           SELECT device_id FROM account_sessions
-           WHERE account_id = auth.user_id()
-         )
+         OR user_id = auth.user_id()
 
-  accounts:
+  users:
     priority: 1
     auto_subscribe: true
-    query: SELECT * FROM accounts WHERE id = auth.user_id()
+    query: SELECT * FROM users WHERE id = auth.user_id()
 
-  account_providers:
+  external_accounts:
     priority: 1
     auto_subscribe: true
-    query: SELECT * FROM account_providers WHERE account_id = auth.user_id()
-
-  account_sessions:
-    priority: 1
-    auto_subscribe: true
-    query: |
-      SELECT * FROM account_sessions
-      WHERE account_id = auth.user_id()
-         OR device_id = auth.user_id()
+    query: SELECT * FROM external_accounts WHERE user_id = auth.user_id()
 
   profiles:
     priority: 1

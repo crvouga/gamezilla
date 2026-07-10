@@ -10,7 +10,6 @@ import type { AuthContext } from './types';
 
 type RefreshBody = {
   device: Record<string, string | null>;
-  accountSessionExpiresAt: string;
 };
 
 /**
@@ -36,14 +35,8 @@ function readRefreshBody(raw: unknown): RefreshBody {
     raw === null || typeof raw !== 'object'
       ? {}
       : (raw as Record<string, unknown>);
-  const expiresAtRaw = obj['accountSessionExpiresAt'];
-  const expiresAt =
-    typeof expiresAtRaw === 'string' && expiresAtRaw.length > 0
-      ? expiresAtRaw
-      : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
   return {
     device: parseDeviceAttributes(obj['device']),
-    accountSessionExpiresAt: expiresAt,
   };
 }
 
@@ -96,7 +89,6 @@ export function createAuthApiRoutes() {
         accountId,
         deviceId,
         deviceAttributes: body.device,
-        accountSessionExpiresAt: body.accountSessionExpiresAt,
       });
 
       return c.json({ accountId }, 200);

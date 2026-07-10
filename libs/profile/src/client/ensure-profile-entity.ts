@@ -25,7 +25,8 @@ function hasAvatarConfig(row: ProfileRow | undefined): boolean {
 
 /**
  * Ensures a `profiles` row exists for `myId` (install id when anonymous,
- * account id when signed in).
+ * account id when signed in). Display names are seeded deterministically from
+ * `myId` so independent web tabs bootstrap the same profile for one identity.
  */
 export async function ensureProfile(sql: SqlClient, myId: string): Promise<void> {
   assertUuid(myId, 'ensureProfile myId');
@@ -37,7 +38,7 @@ export async function ensureProfile(sql: SqlClient, myId: string): Promise<void>
   if (profileLooksPresent(existing, myId)) {
     const updates: Record<string, string> = {};
     if (!hasDisplayName(existing)) {
-      updates[ProfileCol.displayName] = generateRandomDisplayName();
+      updates[ProfileCol.displayName] = generateRandomDisplayName(myId);
     }
     if (!hasAvatarConfig(existing)) {
       updates[ProfileCol.avatarConfig] = serializeDefaultAvatarConfig(myId);
@@ -56,6 +57,6 @@ export async function ensureProfile(sql: SqlClient, myId: string): Promise<void>
     `INSERT INTO ${PROFILES_TABLE.tableName}
      (${ProfileCol.id}, ${ProfileCol.createdAt}, ${ProfileCol.displayName}, ${ProfileCol.avatarConfig})
      VALUES (?, ?, ?, ?)`,
-    [myId, now, generateRandomDisplayName(), serializeDefaultAvatarConfig(myId)]
+    [myId, now, generateRandomDisplayName(myId), serializeDefaultAvatarConfig(myId)]
   );
 }

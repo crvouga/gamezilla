@@ -3,6 +3,11 @@ import { assert } from '@pkgs/assert';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 import { applySqliteConnectionPragmas } from './sqlite-connection-pragmas';
 
+/** Strip Postgres-only casts so the same SQL works in bun:sqlite tests. */
+function sqliteCompatSql(sql: string): string {
+  return sql.replace(/\?::jsonb/g, '?');
+}
+
 export class SqlClientImplBunSqlite implements SqlClient {
   constructor(private db: Database) {}
 
@@ -35,13 +40,13 @@ export class SqlClientImplBunSqlite implements SqlClient {
     params?: unknown[]
   ): Promise<T[]> {
     const bindings = (params ?? []) as SQLQueryBindings[];
-    const rows = this.db.query(sql).all(...bindings) as T[];
+    const rows = this.db.query(sqliteCompatSql(sql)).all(...bindings) as T[];
     return Promise.resolve(rows);
   }
 
   async run(sql: string, params?: unknown[]): Promise<RunResult> {
     const bindings = (params ?? []) as SQLQueryBindings[];
-    const result = this.db.query(sql).run(...bindings);
+    const result = this.db.query(sqliteCompatSql(sql)).run(...bindings);
     return {
       changes: result.changes,
       lastInsertRowid: Number(result.lastInsertRowid),
@@ -49,7 +54,7 @@ export class SqlClientImplBunSqlite implements SqlClient {
   }
 
   prepare(sql: string): PreparedStatement {
-    const stmt = this.db.query(sql);
+    const stmt = this.db.query(sqliteCompatSql(sql));
     return {
       query: <T = Record<string, unknown>>(params?: unknown[]) => {
         const bindings = (params ?? []) as SQLQueryBindings[];

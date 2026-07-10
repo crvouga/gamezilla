@@ -1,0 +1,95 @@
+import { describe, expect, test } from 'bun:test';
+
+import { EXTERNAL_ACCOUNT_PROVIDER_CLERK } from './external-account-providers';
+import {
+  buildLinkedProviders,
+  readLinkedProviderField,
+} from './linked-account-providers';
+
+const ACCOUNT_ID = '11111111-1111-4111-8111-111111111111';
+const AUTH_USER_ID = 'user_external_1';
+const CREATED_AT = '2026-01-01T00:00:00.000Z';
+
+describe('linked-account-providers', () => {
+  test('builds primary auth row from external_accounts', () => {
+    const rows = buildLinkedProviders({
+      accountId: ACCOUNT_ID,
+      primaryAuthExternalAccount: {
+        externalId: AUTH_USER_ID,
+        metadata: { email: 'alice@example.com' },
+        createdAt: CREATED_AT,
+      },
+      authSnapshotData: { id: AUTH_USER_ID, external_accounts: [] },
+      entityCreatedAt: CREATED_AT,
+    });
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toEqual({
+      id: `${ACCOUNT_ID}:${EXTERNAL_ACCOUNT_PROVIDER_CLERK}:${AUTH_USER_ID}`,
+      accountId: ACCOUNT_ID,
+      provider: EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+      providerUserId: AUTH_USER_ID,
+      email: 'alice@example.com',
+      linkedAt: CREATED_AT,
+    });
+  });
+
+  test('includes oauth rows from auth snapshot JSON', () => {
+    const rows = buildLinkedProviders({
+      accountId: ACCOUNT_ID,
+      primaryAuthExternalAccount: {
+        externalId: AUTH_USER_ID,
+        metadata: '{}',
+        createdAt: CREATED_AT,
+      },
+      authSnapshotData: {
+        id: AUTH_USER_ID,
+        external_accounts: [
+          {
+            id: 'ea_oauth_1',
+            provider: 'google',
+            provider_user_id: 'google-user-1',
+            email_address: 'alice@gmail.com',
+            approved_at: '1700000000000',
+          },
+        ],
+      },
+      entityCreatedAt: CREATED_AT,
+    });
+
+    expect(rows).toHaveLength(2);
+    expect(rows[1]?.provider).toBe('google');
+    expect(rows[1]?.providerUserId).toBe('google-user-1');
+    expect(rows[1]?.email).toBe('alice@gmail.com');
+  });
+
+  test('readLinkedProviderField resolves column by stable id', () => {
+    const sources = {
+      accountId: ACCOUNT_ID,
+      primaryAuthExternalAccount: {
+        externalId: AUTH_USER_ID,
+        metadata: { email: 'a@b.c' },
+        createdAt: CREATED_AT,
+      },
+      authSnapshotData: { id: AUTH_USER_ID, external_accounts: [] },
+      entityCreatedAt: CREATED_AT,
+    };
+
+    const id = `${ACCOUNT_ID}:${EXTERNAL_ACCOUNT_PROVIDER_CLERK}:${AUTH_USER_ID}`;
+    expect(readLinkedProviderField(id, 'email', sources)).toBe('a@b.c');
+    expect(readLinkedProviderField(id, 'provider', sources)).toBe(
+      EXTERNAL_ACCOUNT_PROVIDER_CLERK
+    );
+  });
+
+  test('returns empty list when primary auth external_account is missing', () => {
+    expect(
+      buildLinkedProviders({
+        accountId: ACCOUNT_ID,
+        primaryAuthExternalAccount: null,
+        authSnapshotData: null,
+        entityCreatedAt: null,
+      })
+    ).toEqual([]);
+  });
+});

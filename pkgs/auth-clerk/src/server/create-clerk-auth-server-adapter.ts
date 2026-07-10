@@ -37,6 +37,20 @@ async function loadClerkUserProfile(
   }
 }
 
+async function loadClerkUserSnapshot(
+  clerk: ReturnType<typeof createClerkClient>,
+  externalUserId: string
+): Promise<Record<string, unknown> | null> {
+  try {
+    const user = await clerk.users.getUser(externalUserId);
+    const raw = user.raw;
+    if (raw === null) return null;
+    return raw as unknown as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
 export function createClerkAuthServerAdapter(
   config: ClerkAuthServerAdapterConfig
 ): AuthServerPort {
@@ -50,5 +64,7 @@ export function createClerkAuthServerAdapter(
     verifySessionToken: (token) => verifyClerkSessionToken(token, config),
     getUserProfile: (externalUserId) =>
       loadClerkUserProfile(clerk, externalUserId),
+    getUserSnapshot: (externalUserId) =>
+      loadClerkUserSnapshot(clerk, externalUserId),
   };
 }

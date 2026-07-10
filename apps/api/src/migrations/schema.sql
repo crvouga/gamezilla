@@ -20,40 +20,6 @@ CREATE TABLE IF NOT EXISTS devices (
 
 CREATE INDEX IF NOT EXISTS devices_id_idx ON devices (id);
 
-CREATE TABLE IF NOT EXISTS accounts (
-  id TEXT PRIMARY KEY,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  stripe_customer_id TEXT
-);
-
-CREATE TABLE IF NOT EXISTS account_providers (
-  id TEXT PRIMARY KEY,
-  account_id TEXT NOT NULL,
-  provider TEXT,
-  provider_user_id TEXT,
-  email TEXT,
-  linked_at TIMESTAMPTZ
-);
-
-CREATE INDEX IF NOT EXISTS account_providers_account_id_idx
-  ON account_providers (account_id);
-CREATE INDEX IF NOT EXISTS account_providers_provider_lookup_idx
-  ON account_providers (provider, provider_user_id);
-
-CREATE TABLE IF NOT EXISTS account_sessions (
-  id TEXT PRIMARY KEY,
-  device_id TEXT NOT NULL,
-  account_id TEXT NOT NULL,
-  token TEXT NOT NULL,
-  expires_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ
-);
-
-CREATE INDEX IF NOT EXISTS account_sessions_device_id_idx
-  ON account_sessions (device_id);
-CREATE INDEX IF NOT EXISTS account_sessions_account_id_idx
-  ON account_sessions (account_id);
-
 CREATE TABLE IF NOT EXISTS profiles (
   id TEXT PRIMARY KEY,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -178,6 +144,47 @@ CREATE INDEX IF NOT EXISTS entity_store_namespace_owner_idx
   ON entity_store (namespace, owner_id);
 
 -- ============ Incremental changes ============
+
+ALTER TABLE devices ADD COLUMN IF NOT EXISTS account_id TEXT;
+ALTER TABLE devices ADD COLUMN IF NOT EXISTS user_id TEXT;
+UPDATE devices SET user_id = account_id
+WHERE user_id IS NULL AND account_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS devices_user_id_idx ON devices (user_id);
+
+DROP VIEW IF EXISTS account_providers CASCADE;
+DROP VIEW IF EXISTS accounts CASCADE;
+DROP TABLE IF EXISTS account_sessions CASCADE;
+DROP TABLE IF EXISTS account_providers CASCADE;
+DROP TABLE IF EXISTS accounts CASCADE;
+
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS external_accounts (
+  user_id TEXT NOT NULL,
+  provider TEXT NOT NULL,
+  external_id TEXT NOT NULL,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (provider, external_id),
+  UNIQUE (user_id, provider)
+);
+
+CREATE INDEX IF NOT EXISTS external_accounts_user_id_idx
+  ON external_accounts (user_id);
+
+-- Canonical Clerk slug is `clerk`; drop duplicate legacy `auth` mappings.
+DELETE FROM external_accounts ea_auth
+WHERE ea_auth.provider = 'auth'
+  AND EXISTS (
+    SELECT 1 FROM external_accounts ea_clerk
+    WHERE ea_clerk.provider = 'clerk'
+      AND ea_clerk.external_id = ea_auth.external_id
+  );
+
+UPDATE external_accounts SET provider = 'clerk' WHERE provider = 'auth';
 
 DROP TABLE IF EXISTS patches CASCADE;
 DROP VIEW IF EXISTS snapshots CASCADE;

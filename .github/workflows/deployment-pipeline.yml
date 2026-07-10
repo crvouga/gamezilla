@@ -4,7 +4,7 @@
 # CI/CD design guidelines (Turbo-first + atomic deploy):
 #
 # 1. Turbo-cacheable tasks (format, syncpack/catalog, knip, depcruise,
-#    circular-deps, audit, i18n, expo-go compat, tc, lint, test, build)
+#    circular-deps, audit, i18n, tc, lint, test, build)
 #    all run inside a
 #    single `turbo-ci` job that invokes `bun run check:ci`. Turbo's task
 #    graph + the self-hosted remote cache (driven by Infisical `dev`'s
@@ -53,9 +53,7 @@ on:
 jobs:
   # Single Turbo-orchestrated job for every cacheable repo gate: format,
   # syncpack + catalog + no-patches, knip, depcruise, circular-deps,
-  # audit, i18n, Expo Go compat (`ci:expo-go` native-module allowlist +
-  # `ci:expo-go-deps` = `expo install --check` version pin), plus
-  # per-package `tc` / `lint` / `test` / `build`. Turbo
+  # audit, i18n, plus per-package `tc` / `lint` / `test` / `build`. Turbo
   # parallelizes across the task graph and reuses the self-hosted remote
   # cache (via secrets-injected `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`)
   # for cross-PR hits. `check:ci` throttles cache HTTP (`--cache-workers=1`

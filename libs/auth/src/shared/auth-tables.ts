@@ -1,8 +1,16 @@
 import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
 import { createTableRegistry } from '@pkgs/sync-engine/shared/table-registry';
 
+import {
+  EXTERNAL_ACCOUNTS_TABLE,
+  ExternalAccountCol,
+  USERS_TABLE,
+  UserTableCol,
+} from './external-accounts-tables';
+
 export const DeviceCol = {
   id: 'id',
+  userId: 'user_id',
   createdAt: 'created_at',
   platform: 'platform',
   osName: 'os_name',
@@ -17,11 +25,7 @@ export const DeviceCol = {
   lastSeenAt: 'last_seen_at',
 } as const;
 
-export const AccountCol = {
-  id: 'id',
-  createdAt: 'created_at',
-  stripeCustomerId: 'stripe_customer_id',
-} as const;
+export const UserCol = UserTableCol;
 
 export const AccountProviderCol = {
   id: 'id',
@@ -32,19 +36,11 @@ export const AccountProviderCol = {
   linkedAt: 'linked_at',
 } as const;
 
-export const AccountSessionCol = {
-  id: 'id',
-  deviceId: 'device_id',
-  accountId: 'account_id',
-  token: 'token',
-  expiresAt: 'expires_at',
-  createdAt: 'created_at',
-} as const;
-
 export const DEVICES_TABLE = defineTable({
   tableName: 'devices',
   columns: [
     { name: DeviceCol.id, type: 'text', primaryKey: true },
+    { name: DeviceCol.userId, type: 'text' },
     { name: DeviceCol.createdAt, type: 'text' },
     { name: DeviceCol.platform, type: 'text' },
     { name: DeviceCol.osName, type: 'text' },
@@ -60,44 +56,29 @@ export const DEVICES_TABLE = defineTable({
   ],
 });
 
-export const ACCOUNTS_TABLE = defineTable({
-  tableName: 'accounts',
+export const USERS_TABLE_DEF = defineTable({
+  tableName: USERS_TABLE,
   columns: [
-    { name: AccountCol.id, type: 'text', primaryKey: true },
-    { name: AccountCol.createdAt, type: 'text' },
-    { name: AccountCol.stripeCustomerId, type: 'text' },
+    { name: UserCol.id, type: 'text', primaryKey: true },
+    { name: UserCol.createdAt, type: 'text' },
   ],
 });
 
-export const ACCOUNT_PROVIDERS_TABLE = defineTable({
-  tableName: 'account_providers',
+export const EXTERNAL_ACCOUNTS_TABLE_DEF = defineTable({
+  tableName: EXTERNAL_ACCOUNTS_TABLE,
   columns: [
-    { name: AccountProviderCol.id, type: 'text', primaryKey: true },
-    { name: AccountProviderCol.accountId, type: 'text' },
-    { name: AccountProviderCol.provider, type: 'text' },
-    { name: AccountProviderCol.providerUserId, type: 'text' },
-    { name: AccountProviderCol.email, type: 'text' },
-    { name: AccountProviderCol.linkedAt, type: 'text' },
-  ],
-});
-
-export const ACCOUNT_SESSIONS_TABLE = defineTable({
-  tableName: 'account_sessions',
-  columns: [
-    { name: AccountSessionCol.id, type: 'text', primaryKey: true },
-    { name: AccountSessionCol.deviceId, type: 'text' },
-    { name: AccountSessionCol.accountId, type: 'text' },
-    { name: AccountSessionCol.token, type: 'text' },
-    { name: AccountSessionCol.expiresAt, type: 'text' },
-    { name: AccountSessionCol.createdAt, type: 'text' },
+    { name: ExternalAccountCol.userId, type: 'text' },
+    { name: ExternalAccountCol.provider, type: 'text' },
+    { name: ExternalAccountCol.externalId, type: 'text' },
+    { name: ExternalAccountCol.metadata, type: 'text' },
+    { name: ExternalAccountCol.createdAt, type: 'text' },
   ],
 });
 
 export const AUTH_TABLE_DEFINITIONS = [
   DEVICES_TABLE,
-  ACCOUNTS_TABLE,
-  ACCOUNT_PROVIDERS_TABLE,
-  ACCOUNT_SESSIONS_TABLE,
+  USERS_TABLE_DEF,
+  EXTERNAL_ACCOUNTS_TABLE_DEF,
 ] as const;
 
 export const AUTH_TABLE_REGISTRY = createTableRegistry(AUTH_TABLE_DEFINITIONS);

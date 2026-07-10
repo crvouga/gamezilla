@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 import {
   autoOpenDedicatedSim,
   isAutoOpenIosEnabled,
+  isDevServerRunning,
   SIM_NAME,
 } from './ios-dedicated-sim';
 import { maybeClearMetroCache } from './metro-dev-cache';
@@ -31,13 +32,41 @@ const clientRoot = join(scriptDir, '..');
 maybeClearMetroCache(clientRoot);
 const expoBin = join(clientRoot, 'node_modules', '.bin', 'expo');
 
+function log(message: string): void {
+  process.stderr.write(`[ios-dev] ${message}\n`);
+}
+
 function spawnExpo(passthrough: string[]): ChildProcess {
   const args = ['start', '--port', String(EXPO_PORT), ...passthrough];
-  process.stderr.write(`[ios-dev] expo ${args.join(' ')}\n`);
+  log(`expo ${args.join(' ')}`);
   return spawn(expoBin, args, {
     stdio: 'inherit',
     env: process.env,
     cwd: clientRoot,
+  });
+}
+
+function waitForShutdown(signal: AbortSignal): Promise<void> {
+  if (signal.aborted) return Promise.resolve();
+  return new Promise((resolve) => {
+    const onAbort = (): void => {
+      cleanup();
+      resolve();
+    };
+    const onSig = (): void => {
+      cleanup();
+      resolve();
+    };
+    const cleanup = (): void => {
+      signal.removeEventListener('abort', onAbort);
+      for (const sig of ['SIGINT', 'SIGTERM'] as const) {
+        process.removeListener(sig, onSig);
+      }
+    };
+    signal.addEventListener('abort', onAbort);
+    for (const sig of ['SIGINT', 'SIGTERM'] as const) {
+      process.on(sig, onSig);
+    }
   });
 }
 
@@ -50,23 +79,36 @@ async function main(): Promise<void> {
   }
 
   const passthrough = process.argv.slice(2).filter((a) => a !== '--');
-  const child = spawnExpo(passthrough);
-
+  const metroUrl = `http://${EXPO_HOST}:${String(EXPO_PORT)}/`;
+  const metro = new URL(metroUrl);
   const abort = new AbortController();
-  for (const sig of ['SIGINT', 'SIGTERM'] as const) {
-    process.on(sig, () => {
+
+  const reuseMetro = await isDevServerRunning(metro);
+  let child: ChildProcess | null = null;
+
+  if (reuseMetro) {
+    log(
+      `Reusing Metro already running at ${metroUrl} (skip expo start — stop the other dev server or run \`bun run --filter @apps/client kill\` to restart).`
+    );
+  } else {
+    child = spawnExpo(passthrough);
+    for (const sig of ['SIGINT', 'SIGTERM'] as const) {
+      process.on(sig, () => {
+        abort.abort();
+        child?.kill(sig);
+      });
+    }
+    child.on('exit', (code) => {
       abort.abort();
-      child.kill(sig);
+      process.exit(code ?? 0);
     });
   }
-  child.on('exit', (code) => {
-    abort.abort();
-    process.exit(code ?? 0);
-  });
 
-  if (!isAutoOpenIosEnabled()) return;
+  if (!isAutoOpenIosEnabled()) {
+    if (reuseMetro) return;
+    return;
+  }
 
-  const metroUrl = `http://${EXPO_HOST}:${String(EXPO_PORT)}`;
   try {
     await autoOpenDedicatedSim({
       metroUrl,
@@ -75,10 +117,15 @@ async function main(): Promise<void> {
   } catch (err: unknown) {
     if (abort.signal.aborted) return;
     const msg = err instanceof Error ? err.message : String(err);
-    process.stderr.write(`[ios-dev] ${msg}\n`);
-    process.stderr.write(
-      `[ios-dev] Metro keeps running — install manually: bunx expo run:ios --device "${SIM_NAME}"\n`
+    log(msg);
+    log(
+      `Metro keeps running — install manually: bunx expo run:ios --device "${SIM_NAME}"`
     );
+  }
+
+  if (reuseMetro) {
+    log('Metro reused — press Ctrl+C to exit (Metro keeps running in the other window).');
+    await waitForShutdown(abort.signal);
   }
 }
 
