@@ -1,7 +1,7 @@
 import { serializeDefaultAvatarConfig } from '../shared/avatar-config';
 import { generateRandomDisplayName } from '../shared/display-name-generator';
 import { parseAvatarConfig } from '../shared/avatar-config';
-import { ProfileCol, PROFILES_TABLE } from '../shared/sync-tables';
+import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { assertUuid } from '@pkgs/uuid';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 

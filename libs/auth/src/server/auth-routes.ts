@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 
-import { DEVICE_SNAPSHOT_COLUMNS } from '@libs/auth/shared/auth-tables';
+import { DEVICE_SNAPSHOT_COLUMNS } from '@libs/db/shared/auth-tables';
 import { resolveAccountIdFromBearer } from './bearer-resolve';
 import { ANON_ID_HEADER } from './session-middleware';
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';

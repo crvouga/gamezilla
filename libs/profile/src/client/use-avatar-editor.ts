@@ -11,7 +11,7 @@ import {
   parseAvatarConfig,
   serializeAvatarConfig,
 } from '../shared/avatar-config';
-import { ProfileCol, PROFILES_TABLE } from '../shared/sync-tables';
+import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import * as Clipboard from 'expo-clipboard';

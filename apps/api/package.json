@@ -28,6 +28,7 @@
     "@libs/auth": "workspace:*",
     "@libs/chess": "workspace:*",
     "@libs/client-config": "workspace:*",
+    "@libs/db": "workspace:*",
     "@libs/games": "workspace:*",
     "@libs/infra": "workspace:*",
     "@libs/integration-test": "workspace:*",

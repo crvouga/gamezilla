@@ -54,7 +54,7 @@ import { CHESS_PUZZLE_LOAD_ENTITY_ID } from '@libs/chess/shared/chess-puzzle-ent
 import {
   CHESS_PUZZLE_LOAD_TABLE,
   ChessPuzzleLoadCol,
-} from '@libs/chess/shared/sync-tables';
+} from '@libs/db/shared/chess-tables';
 import { createLogger, type Logger } from '@pkgs/logger';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';

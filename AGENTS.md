@@ -127,6 +127,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
+- `@libs/db` — single source of truth for Postgres/PowerSync table definitions (`defineTable`, column constants), composed `SYNC_TABLE_REGISTRY`, and canonical `schema.sql`. Feature packages import table names/columns from here; write policies stay in each feature's `server/write-policies.ts`.
 - `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
 - `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`.
 - `@libs/client-config` — server-pushed runtime config (singleton `clientConfig` entity): shared entity defs, server `POST /client-config/refresh` route, client cards / screens, and `dev-refresh-client-config.ts`.
@@ -148,7 +149,8 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 4. Implement the game:
    - `shared/<game>-main-menu.ts` — `RoomModule` + `MainMenu` reducer (state, command/event router).
    - `shared/<game>-play.ts` — game-play reducer (moves, win/loss state).
-   - `shared/<game>-entities.ts` — sync table definitions if the game persists puzzles, sessions, leaderboards, etc.
+   - `shared/<game>-entities.ts` — attribute/entity type defs for domain constants.
+   - Add any new sync tables to `@libs/db` (`libs/db/src/shared/<game>-tables.ts`) and register them in `libs/db/src/shared/table-registry.ts`.
    - `client/<game>-main-menu.tsx`, `client/<game>-board.tsx`, `client/<game>-settings-screen.tsx`, etc. — flat under `client/`.
 5. Register the game in `libs/spaces/src/shared/games.ts` (composed game module) and `libs/spaces/src/shared/space-module.ts` (top-level router).
 6. Register write policies for any new sync tables in the feature package's `server/write-policies.ts` and compose them in `apps/api/src/sync/write-policies-registry.ts`.

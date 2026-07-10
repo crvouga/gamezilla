@@ -1,4 +1,4 @@
-import { ProfileCol, PROFILES_TABLE } from '../shared/sync-tables';
+import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 /**

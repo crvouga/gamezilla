@@ -1,6 +1,7 @@
 import { join } from 'node:path';
 
 import { assert } from '@pkgs/assert';
+import { which } from '@pkgs/os';
 
 import { ok } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';
@@ -10,7 +11,7 @@ import {
   secretExists,
   setSecret,
 } from '../secrets/secrets';
-import { runAsync, runCapture } from '../subprocess';
+import { runAsync } from '../subprocess';
 import { generatePowerSyncJwtKeypair } from './powersync-jwt';
 import { resolveDatabaseUrl, verifyWalLevelLogical } from './neon-postgres';
 import { ResourceBase, type InfraContext } from './types';
@@ -129,7 +130,7 @@ async function loadPrivateKeyFromSecretsIfMissing(): Promise<void> {
 }
 
 function powersyncCliArgs(): string[] {
-  if (runCapture('which', ['powersync']).length > 0) {
+  if (which('powersync')) {
     return ['powersync'];
   }
   return ['bunx', 'powersync@latest'];

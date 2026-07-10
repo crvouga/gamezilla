@@ -5,14 +5,14 @@ import {
   ENTITY_STORE_NAMESPACE_AUTH,
   ENTITY_STORE_TABLE,
   ENTITY_STORE_TYPE_USER,
-} from '@pkgs/sync-engine/shared/entity-store';
+} from '@libs/db/shared/entity-store-table';
 import { useMemo } from 'react';
 
 import { useAuthClientPort } from './auth-client-provider';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
-} from '../shared/external-accounts-tables';
+} from '@libs/db/shared/external-accounts-tables';
 import {
   buildLinkedProviders,
   parseEntityStoreData,

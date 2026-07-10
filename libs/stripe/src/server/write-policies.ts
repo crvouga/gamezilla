@@ -3,7 +3,7 @@ import type {
   WritePolicyRegistry,
 } from '@pkgs/sync-engine/server/upload-handler';
 import { createWritePolicyRegistry } from '@pkgs/sync-engine/server/upload-handler';
-import { ENTITY_STORE_TABLE } from '@pkgs/sync-engine/shared/entity-store';
+import { ENTITY_STORE_TABLE } from '@libs/db/shared/entity-store-table';
 
 /** Stripe rows live in entity_store with namespace `stripe` (system-only). */
 export const stripeEntityStoreWritePolicy: WritePolicy = () => ({

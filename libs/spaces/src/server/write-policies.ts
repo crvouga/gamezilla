@@ -7,7 +7,7 @@ import { createWritePolicyRegistry } from '@pkgs/sync-engine/server/upload-handl
 import {
   SPACES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
-} from '../shared/sync-tables';
+} from '@libs/db/shared/space-tables';
 
 function readRowString(
   row: { readonly values?: Readonly<Record<string, unknown>> },

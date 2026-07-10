@@ -1,4 +1,4 @@
-import { defineTable } from './table-definition';
+import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
 
 /** Composite id for rows in the generic third-party mirror table. */
 export function entityStoreId(

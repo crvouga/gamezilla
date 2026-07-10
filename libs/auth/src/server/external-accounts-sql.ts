@@ -6,7 +6,7 @@ import {
   ExternalAccountCol,
   USERS_TABLE,
   UserTableCol,
-} from '@libs/auth/shared/external-accounts-tables';
+} from '@libs/db/shared/external-accounts-tables';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 export { EXTERNAL_ACCOUNTS_TABLE, USERS_TABLE };

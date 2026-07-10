@@ -1,6 +1,6 @@
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import { ProfileCol, PROFILES_TABLE } from '../shared/sync-tables';
+import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 
 export type ProfileRow = {
   readonly id: string;

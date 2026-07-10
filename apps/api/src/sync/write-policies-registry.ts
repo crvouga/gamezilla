@@ -4,7 +4,7 @@ import { CLIENT_CONFIG_WRITE_POLICIES } from '@libs/client-config/server/write-p
 import { PROFILE_WRITE_POLICIES } from '@libs/profile/server/write-policies';
 import { SPACE_WRITE_POLICIES } from '@libs/spaces/server/write-policies';
 import { createWritePolicyRegistry } from '@pkgs/sync-engine/server/upload-handler';
-import { ENTITY_STORE_TABLE } from '@pkgs/sync-engine/shared/entity-store';
+import { ENTITY_STORE_TABLE } from '@libs/db/shared/entity-store-table';
 
 import { entityStoreWritePolicy } from './write-policies-entity-store';
 

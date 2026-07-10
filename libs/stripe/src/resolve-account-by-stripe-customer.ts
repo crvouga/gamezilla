@@ -2,7 +2,7 @@ import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '@libs/auth/shared/external-acc
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
-} from '@libs/auth/shared/external-accounts-tables';
+} from '@libs/db/shared/external-accounts-tables';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 /** Resolves application user id for a Stripe customer id. */

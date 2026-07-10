@@ -19,6 +19,7 @@
       "@libs/chess/*": ["../../libs/chess/src/*"],
       "@libs/integration-test/*": ["../../libs/integration-test/src/*"],
       "@libs/client-config/*": ["../../libs/client-config/src/*"],
+      "@libs/db/*": ["../../libs/db/src/*"],
       "@libs/infra/*": ["../../libs/infra/src/*"],
       "@pkgs/llm/*": ["../../pkgs/llm/src/*"],
       "@libs/profile/*": ["../../libs/profile/src/*"],

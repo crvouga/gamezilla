@@ -4,7 +4,7 @@ import {
   SpaceMembershipCol,
   SPACES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
-} from '@libs/spaces/shared/sync-tables';
+} from '@libs/db/shared/space-tables';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useCallback } from 'react';

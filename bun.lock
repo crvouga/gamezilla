@@ -36,6 +36,7 @@
         "@libs/auth": "workspace:*",
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
+        "@libs/db": "workspace:*",
         "@libs/games": "workspace:*",
         "@libs/infra": "workspace:*",
         "@libs/integration-test": "workspace:*",
@@ -86,6 +87,7 @@
         "@libs/auth": "workspace:*",
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
+        "@libs/db": "workspace:*",
         "@libs/games": "workspace:*",
         "@libs/integration-test": "workspace:*",
         "@libs/profile": "workspace:*",
@@ -179,6 +181,7 @@
       "name": "@libs/auth",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/db": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
@@ -213,6 +216,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
+        "@libs/db": "workspace:*",
         "@libs/infra": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
@@ -247,6 +251,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
+        "@libs/db": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
@@ -264,6 +269,18 @@
       },
       "devDependencies": {
         "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/db": {
+      "name": "@libs/db",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/sync-engine": "workspace:*",
+      },
+      "devDependencies": {
         "typescript": "catalog:",
       },
     },
@@ -326,6 +343,7 @@
         "@dicebear/collection": "catalog:",
         "@dicebear/core": "catalog:",
         "@libs/auth": "workspace:*",
+        "@libs/db": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
@@ -350,6 +368,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
+        "@libs/db": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/attribute": "workspace:*",
@@ -376,6 +395,7 @@
       "dependencies": {
         "@hono/zod-validator": "catalog:",
         "@libs/auth": "workspace:*",
+        "@libs/db": "workspace:*",
         "@libs/infra": "workspace:*",
         "@pkgs/attribute": "workspace:*",
         "@pkgs/logger": "workspace:*",
@@ -1772,6 +1792,8 @@
     "@libs/chess": ["@libs/chess@workspace:libs/chess"],
 
     "@libs/client-config": ["@libs/client-config@workspace:libs/client-config"],
+
+    "@libs/db": ["@libs/db@workspace:libs/db"],
 
     "@libs/games": ["@libs/games@workspace:libs/games"],
 

@@ -8,7 +8,7 @@ import {
   SpaceMembershipCol,
   SPACES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
-} from '../shared/sync-tables';
+} from '@libs/db/shared/space-tables';
 
 export type SpacePresence =
   | { readonly status: 'loading' }

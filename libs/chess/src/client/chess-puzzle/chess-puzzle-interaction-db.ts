@@ -9,7 +9,7 @@ import {
   CHESS_PUZZLE_PROFILES_TABLE,
   ChessPuzzleInteractionCol,
   ChessPuzzleProfileCol,
-} from '../../shared/sync-tables';
+} from '@libs/db/shared/chess-tables';
 import { isPlayClosed } from '../../shared/chess-puzzle-derive';
 import {
   deriveOutcomeScore,

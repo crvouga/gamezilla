@@ -1,7 +1,7 @@
 import {
   SpaceMembershipCol,
   SPACE_MEMBERSHIPS_TABLE,
-} from '@libs/spaces/shared/sync-tables';
+} from '@libs/db/shared/space-tables';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
 type MembershipIdRow = { readonly id: string };

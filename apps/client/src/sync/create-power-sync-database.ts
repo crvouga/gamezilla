@@ -1,4 +1,4 @@
-import { API_SYNC_TABLE_REGISTRY } from '@apps/api/sync/table-registry';
+import { SYNC_TABLE_REGISTRY } from '@libs/db/shared/table-registry';
 import { createPowerSyncSchema } from '@pkgs/sync-engine-powersync/client/schema-from-registry';
 import type { PowerSyncDatabasePort } from '@pkgs/sync-engine-powersync/client/powersync-database-port';
 import { Platform } from 'react-native';
@@ -7,7 +7,7 @@ import { getMainSqliteDbName } from '../storage/open-main-sql-client';
 
 const POWERSYNC_WEB_ASSET_PREFIX = '/generated/powersync/@powersync';
 
-const schema = createPowerSyncSchema(API_SYNC_TABLE_REGISTRY);
+const schema = createPowerSyncSchema(SYNC_TABLE_REGISTRY);
 
 type SdkDatabase = PowerSyncDatabasePort & {
   connect(connector: unknown): Promise<void>;

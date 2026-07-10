@@ -3,7 +3,7 @@ import type {
   WritePolicyContext,
   WritePolicyDecision,
 } from '@pkgs/sync-engine/server/upload-handler';
-import { ENTITY_STORE_NAMESPACE_AUTH, ENTITY_STORE_NAMESPACE_STRIPE } from '@pkgs/sync-engine/shared/entity-store';
+import { ENTITY_STORE_NAMESPACE_AUTH, ENTITY_STORE_NAMESPACE_STRIPE } from '@libs/db/shared/entity-store-table';
 
 import {
   allow,

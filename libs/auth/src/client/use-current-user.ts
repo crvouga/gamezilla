@@ -6,7 +6,7 @@ import {
   ExternalAccountCol,
   UserTableCol,
   USERS_TABLE,
-} from '../shared/external-accounts-tables';
+} from '@libs/db/shared/external-accounts-tables';
 import { useAuthClientPort } from './auth-client-provider';
 import {
   useCurrentAccountId,

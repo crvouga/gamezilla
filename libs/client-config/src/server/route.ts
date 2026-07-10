@@ -12,7 +12,7 @@ import {
 import {
   ClientConfigCol,
   CLIENT_CONFIG_TABLE,
-} from '../shared/sync-tables';
+} from '@libs/db/shared/client-config-tables';
 
 export type ClientConfigRefreshOutcome = 'unchanged' | 'updated';
 

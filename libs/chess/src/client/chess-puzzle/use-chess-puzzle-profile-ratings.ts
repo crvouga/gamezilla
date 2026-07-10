@@ -3,7 +3,7 @@ import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
 import {
   CHESS_PUZZLE_PROFILES_TABLE,
   ChessPuzzleProfileCol,
-} from '../../shared/sync-tables';
+} from '@libs/db/shared/chess-tables';
 
 export function useChessPuzzleProfileRatings(myId: string): {
   profileRating: number;

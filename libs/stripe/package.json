@@ -19,6 +19,7 @@
   "dependencies": {
     "@hono/zod-validator": "catalog:",
     "@libs/auth": "workspace:*",
+    "@libs/db": "workspace:*",
     "@libs/infra": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/logger": "workspace:*",

@@ -1,6 +1,6 @@
 import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import { SpaceCol, SPACES_TABLE } from '../shared/sync-tables';
+import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 
 export const SpaceField = {
   title: 'title',

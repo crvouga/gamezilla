@@ -24,6 +24,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@libs/db": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",

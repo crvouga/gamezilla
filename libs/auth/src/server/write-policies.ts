@@ -1,9 +1,9 @@
 import type { AppAuth } from '@libs/auth/shared/auth-context';
-import { DEVICES_TABLE } from '@libs/auth/shared/auth-tables';
+import { DEVICES_TABLE } from '@libs/db/shared/auth-tables';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   USERS_TABLE,
-} from '@libs/auth/shared/external-accounts-tables';
+} from '@libs/db/shared/external-accounts-tables';
 import type {
   WritePolicy,
   WritePolicyContext,

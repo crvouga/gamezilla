@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
+    "@libs/db": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",

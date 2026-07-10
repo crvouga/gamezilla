@@ -9,7 +9,7 @@ import {
   CHESS_PUZZLE_LOAD_TABLE,
   CHESS_PUZZLE_PROFILES_TABLE,
   CHESS_PUZZLES_TABLE,
-} from '../shared/sync-tables';
+} from '@libs/db/shared/chess-tables';
 
 function readRowString(
   row: { readonly values?: Readonly<Record<string, unknown>> },

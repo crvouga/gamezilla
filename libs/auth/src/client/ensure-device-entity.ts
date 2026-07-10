@@ -1,4 +1,5 @@
-import { assertDeviceId, DeviceCol, DEVICES_TABLE } from '../shared';
+import { assertDeviceId } from '../shared';
+import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
 import { assert } from '@pkgs/assert';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import Constants from 'expo-constants';

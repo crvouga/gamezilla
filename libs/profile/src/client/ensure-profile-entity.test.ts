@@ -4,7 +4,7 @@ import { Database } from 'bun:sqlite';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 
 import { ensureProfile } from './ensure-profile-entity';
-import { ProfileCol, PROFILES_TABLE } from '../shared/sync-tables';
+import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 
 const MY_ID = '550e8400-e29b-41d4-a716-446655440000';
 

@@ -4,7 +4,7 @@ import type {
 } from '@pkgs/sync-engine/server/upload-handler';
 import { createWritePolicyRegistry } from '@pkgs/sync-engine/server/upload-handler';
 
-import { CLIENT_CONFIG_TABLE } from '../shared/sync-tables';
+import { CLIENT_CONFIG_TABLE } from '@libs/db/shared/client-config-tables';
 
 export const clientConfigWritePolicy: WritePolicy = () => ({
   allowed: false,

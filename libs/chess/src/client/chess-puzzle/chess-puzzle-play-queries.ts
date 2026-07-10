@@ -7,7 +7,7 @@ import {
   CHESS_PUZZLES_TABLE,
   ChessPuzzleCol,
   ChessPuzzleInteractionCol,
-} from '../../shared/sync-tables';
+} from '@libs/db/shared/chess-tables';
 import type { ChessPuzzleInteractionRow } from '../../shared/chess-puzzle-interaction-entities';
 
 function readStringArray(raw: unknown): readonly string[] {

@@ -1,4 +1,4 @@
-import { DeviceCol, DEVICES_TABLE } from '../shared/auth-tables';
+import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
 import { useMyDeviceId } from './use-current-user';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';

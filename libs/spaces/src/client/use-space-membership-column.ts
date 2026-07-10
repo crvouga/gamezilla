@@ -1,6 +1,6 @@
 import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import { SpaceMembershipCol, SPACE_MEMBERSHIPS_TABLE } from '../shared/sync-tables';
+import { SpaceMembershipCol, SPACE_MEMBERSHIPS_TABLE } from '@libs/db/shared/space-tables';
 
 export const SpaceMembershipField = {
   guestId: 'guestId',

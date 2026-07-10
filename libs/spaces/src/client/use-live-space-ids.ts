@@ -1,4 +1,4 @@
-import { SpaceCol, SPACES_TABLE } from '@libs/spaces/shared/sync-tables';
+import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
 type SpaceIdRow = { readonly id: string };

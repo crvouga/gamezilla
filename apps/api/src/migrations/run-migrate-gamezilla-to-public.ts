@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import { splitSqlStatements } from './run-schema-sql';
+import { splitSqlStatements } from '@libs/db/server/run-schema-sql';
 
 const sqlPath = join(
   dirname(fileURLToPath(import.meta.url)),

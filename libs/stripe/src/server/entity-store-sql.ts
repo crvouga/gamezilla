@@ -2,7 +2,7 @@ import {
   ENTITY_STORE_NAMESPACE_STRIPE,
   ENTITY_STORE_TABLE,
   entityStoreId,
-} from '@pkgs/sync-engine/shared/entity-store';
+} from '@libs/db/shared/entity-store-table';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {

@@ -6,7 +6,7 @@ import {
   CHESS_PUZZLES_TABLE,
   ChessPuzzleLoadCol,
   ChessPuzzleCol,
-} from '@libs/chess/shared/sync-tables';
+} from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PuzzleBatchEntry } from './row';

@@ -7,14 +7,14 @@ import {
   ENTITY_STORE_NAMESPACE_AUTH,
   ENTITY_STORE_TABLE,
   ENTITY_STORE_TYPE_USER,
-} from '@pkgs/sync-engine/shared/entity-store';
+} from '@libs/db/shared/entity-store-table';
 
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
   USERS_TABLE,
   UserTableCol,
-} from '../shared/external-accounts-tables';
+} from '@libs/db/shared/external-accounts-tables';
 
 import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
 import {

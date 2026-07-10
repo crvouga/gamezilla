@@ -11,7 +11,7 @@ import {
   ExternalAccountCol,
   USERS_TABLE,
   UserTableCol,
-} from '../shared/external-accounts-tables';
+} from '@libs/db/shared/external-accounts-tables';
 
 import {
   findUserIdByPrimaryAuthExternalId,

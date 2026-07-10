@@ -11,7 +11,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { dropLegacyAuthTables } from './drop-legacy-auth-tables';
 import { runMigrateGamezillaToPublicSql } from './run-migrate-gamezilla-to-public';
 import { runPowerSyncSourceDbSql } from '@libs/infra/cli/resources/powersync-source-db';
-import { runSchemaSql } from './run-schema-sql';
+import { runSchemaSql } from '@libs/db/server/run-schema-sql';
 
 export type RunPostgresMigrationsArgs = {
   sqlClient: SqlClient;

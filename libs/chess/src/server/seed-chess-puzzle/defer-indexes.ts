@@ -2,7 +2,7 @@
  * Drop chess_puzzles secondary indexes before a bulk seed so inserts do not
  * maintain btrees on managed Postgres tiers with tight storage caps.
  */
-import { CHESS_PUZZLES_TABLE } from '@libs/chess/shared/sync-tables';
+import { CHESS_PUZZLES_TABLE } from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 

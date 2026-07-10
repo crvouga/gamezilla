@@ -8,16 +8,16 @@ import {
   ENTITY_STORE_NAMESPACE_AUTH,
   ENTITY_STORE_TABLE,
   ENTITY_STORE_TYPE_USER,
-} from '@pkgs/sync-engine/shared/entity-store';
+} from '@libs/db/shared/entity-store-table';
 
 import {
   DEVICES_TABLE,
   DeviceCol,
-} from '@libs/auth/shared/auth-tables';
+} from '@libs/db/shared/auth-tables';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
-} from '@libs/auth/shared/external-accounts-tables';
+} from '@libs/db/shared/external-accounts-tables';
 import { buildLinkedProviders } from '@libs/auth/shared/linked-account-providers';
 
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';

@@ -6,7 +6,7 @@ import {
   CHESS_PUZZLE_PROFILES_TABLE,
   CHESS_PUZZLES_TABLE,
   ChessPuzzleProfileCol,
-} from '../../shared/sync-tables';
+} from '@libs/db/shared/chess-tables';
 import {
   hashSeed,
   pickPuzzleIdFromPool,

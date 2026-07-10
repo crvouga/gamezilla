@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
+    "@libs/db": "workspace:*",
     "@libs/infra": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@lingui/core": "catalog:",

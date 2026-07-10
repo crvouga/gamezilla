@@ -1,0 +1,28 @@
+{
+  "name": "@libs/db",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./server/*": [
+      "./src/server/*.ts",
+      "./src/server/*.tsx"
+    ],
+    "./shared/*": [
+      "./src/shared/*.ts",
+      "./src/shared/*.tsx"
+    ]
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings 0",
+    "tc": "tsc --noEmit",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

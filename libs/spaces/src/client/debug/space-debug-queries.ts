@@ -3,7 +3,7 @@ import {
   SpaceMembershipCol,
   SPACES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
-} from '../../shared/sync-tables';
+} from '@libs/db/shared/space-tables';
 
 export const SPACE_DEBUG_ROW_SQL = `SELECT * FROM ${SPACES_TABLE.tableName} WHERE ${SpaceCol.id} = ?`;
 

@@ -2,7 +2,7 @@ import {
   CHESS_PUZZLES_TABLE,
   CHESS_PUZZLE_INTERACTIONS_TABLE,
   ChessPuzzleInteractionCol,
-} from '../../shared/sync-tables';
+} from '@libs/db/shared/chess-tables';
 
 export const PUZZLE_NEXT_MAX_BAND = 400;
 export const PUZZLE_CANDIDATE_LIMIT = 50;

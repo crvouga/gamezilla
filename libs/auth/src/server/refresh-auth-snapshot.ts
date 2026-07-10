@@ -2,7 +2,7 @@ import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
 import {
   DEVICES_TABLE,
   DeviceCol,
-} from '@libs/auth/shared/auth-tables';
+} from '@libs/db/shared/auth-tables';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 

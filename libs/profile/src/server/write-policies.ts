@@ -5,7 +5,7 @@ import type {
 import { createWritePolicyRegistry } from '@pkgs/sync-engine/server/upload-handler';
 import type { UploadRow } from '@pkgs/sync-engine/shared/upload-batch';
 
-import { PROFILES_TABLE } from '../shared/sync-tables';
+import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 
 function deny(reason: string): { readonly allowed: false; readonly reason: string } {
   return { allowed: false, reason };
