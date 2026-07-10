@@ -63,9 +63,7 @@
     "stripe:check": "bun run --filter '@libs/stripe' check",
     "stripe:listen": "bun run --filter '@libs/stripe-cli' dev",
     "stripe:sync": "bun run --filter '@libs/stripe' sync",
-    "wipe": "git clean -xfd",
-    "android": "expo run:android",
-    "ios": "expo run:ios"
+    "wipe": "git clean -xfd"
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
@@ -215,10 +213,5 @@
     "workbox-window": "^7.4.0",
     "wrangler": "^4.54.0",
     "zod": "^4.3.6"
-  },
-  "dependencies": {
-    "expo": "~54.0.35",
-    "react": "19.1.0",
-    "react-native": "0.81.5"
   }
 }
