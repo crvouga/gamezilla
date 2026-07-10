@@ -1,5 +1,3 @@
-import { EXTERNAL_ACCOUNT_PROVIDER_CLERK } from './external-account-providers';
-
 type OAuthAccountJson = Record<string, unknown>;
 
 export type LinkedProvider = {
@@ -27,6 +25,7 @@ export type PrimaryAuthExternalAccountSource = {
 
 export type LinkedProviderSources = {
   readonly accountId: string;
+  readonly primaryAuthProvider: string;
   readonly primaryAuthExternalAccount: PrimaryAuthExternalAccountSource | null;
   readonly authSnapshotData: Record<string, unknown> | null;
   readonly entityCreatedAt: string | null;
@@ -128,14 +127,15 @@ function readOAuthAccounts(data: Record<string, unknown>): OAuthAccountJson[] {
 
 function buildPrimaryAuthProviderRow(args: {
   readonly accountId: string;
+  readonly primaryAuthProvider: string;
   readonly externalUserId: string;
   readonly email: string | null;
   readonly linkedAt: string;
 }): LinkedProvider {
   return {
-    id: `${args.accountId}:${EXTERNAL_ACCOUNT_PROVIDER_CLERK}:${args.externalUserId}`,
+    id: `${args.accountId}:${args.primaryAuthProvider}:${args.externalUserId}`,
     accountId: args.accountId,
-    provider: EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+    provider: args.primaryAuthProvider,
     providerUserId: args.externalUserId,
     email: args.email,
     linkedAt: args.linkedAt,
@@ -182,6 +182,7 @@ export function buildLinkedProviders(
   return [
     buildPrimaryAuthProviderRow({
       accountId: sources.accountId,
+      primaryAuthProvider: sources.primaryAuthProvider,
       externalUserId: primaryAuth.externalId,
       email: primaryAuthEmail,
       linkedAt: primaryAuth.createdAt,

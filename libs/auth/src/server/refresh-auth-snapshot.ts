@@ -1,5 +1,4 @@
 import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
-import { EXTERNAL_ACCOUNT_PROVIDER_CLERK } from '@libs/auth/shared/external-account-providers';
 import {
   DEVICES_TABLE,
   DeviceCol,
@@ -64,7 +63,7 @@ async function upsertAuthUserFromBearer(args: {
 
   await upsertExternalAccount(sql, {
     userId: accountId,
-    provider: EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+    provider: authServer.providerLabel,
     externalId: session.externalUserId,
     metadata: email === undefined ? {} : { email },
   });

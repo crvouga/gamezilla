@@ -1,5 +1,4 @@
 import {
-  EXTERNAL_ACCOUNT_PROVIDER_CLERK,
   LEGACY_EXTERNAL_ACCOUNT_PROVIDER_AUTH,
 } from '@libs/auth/shared/external-account-providers';
 import {
@@ -104,30 +103,23 @@ export async function upsertExternalAccount(
   );
 }
 
-export async function findUserIdByClerkUserId(
+export async function findUserIdByPrimaryAuthExternalId(
   sql: SqlClient,
-  clerkUserId: string
+  primaryAuthProvider: string,
+  externalUserId: string
 ): Promise<string | null> {
   for (const provider of [
-    EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+    primaryAuthProvider,
     LEGACY_EXTERNAL_ACCOUNT_PROVIDER_AUTH,
   ] as const) {
     const userId = await findUserIdByProviderExternalId(
       sql,
       provider,
-      clerkUserId
+      externalUserId
     );
     if (userId !== null) return userId;
   }
   return null;
-}
-
-/** @deprecated Use {@link findUserIdByClerkUserId}. */
-export async function findUserIdByAuthExternalUserId(
-  sql: SqlClient,
-  authExternalUserId: string
-): Promise<string | null> {
-  return findUserIdByClerkUserId(sql, authExternalUserId);
 }
 
 export async function readMetadataEmail(

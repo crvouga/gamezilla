@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 
-import { EXTERNAL_ACCOUNT_PROVIDER_CLERK } from './external-account-providers';
 import {
   buildLinkedProviders,
   readLinkedProviderField,
@@ -9,11 +8,13 @@ import {
 const ACCOUNT_ID = '11111111-1111-4111-8111-111111111111';
 const AUTH_USER_ID = 'user_external_1';
 const CREATED_AT = '2026-01-01T00:00:00.000Z';
+const PRIMARY_AUTH_PROVIDER = 'primary';
 
 describe('linked-account-providers', () => {
   test('builds primary auth row from external_accounts', () => {
     const rows = buildLinkedProviders({
       accountId: ACCOUNT_ID,
+      primaryAuthProvider: PRIMARY_AUTH_PROVIDER,
       primaryAuthExternalAccount: {
         externalId: AUTH_USER_ID,
         metadata: { email: 'alice@example.com' },
@@ -25,9 +26,9 @@ describe('linked-account-providers', () => {
 
     expect(rows).toHaveLength(1);
     expect(rows[0]).toEqual({
-      id: `${ACCOUNT_ID}:${EXTERNAL_ACCOUNT_PROVIDER_CLERK}:${AUTH_USER_ID}`,
+      id: `${ACCOUNT_ID}:${PRIMARY_AUTH_PROVIDER}:${AUTH_USER_ID}`,
       accountId: ACCOUNT_ID,
-      provider: EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+      provider: PRIMARY_AUTH_PROVIDER,
       providerUserId: AUTH_USER_ID,
       email: 'alice@example.com',
       linkedAt: CREATED_AT,
@@ -37,6 +38,7 @@ describe('linked-account-providers', () => {
   test('includes oauth rows from auth snapshot JSON', () => {
     const rows = buildLinkedProviders({
       accountId: ACCOUNT_ID,
+      primaryAuthProvider: PRIMARY_AUTH_PROVIDER,
       primaryAuthExternalAccount: {
         externalId: AUTH_USER_ID,
         metadata: '{}',
@@ -66,6 +68,7 @@ describe('linked-account-providers', () => {
   test('readLinkedProviderField resolves column by stable id', () => {
     const sources = {
       accountId: ACCOUNT_ID,
+      primaryAuthProvider: PRIMARY_AUTH_PROVIDER,
       primaryAuthExternalAccount: {
         externalId: AUTH_USER_ID,
         metadata: { email: 'a@b.c' },
@@ -75,10 +78,10 @@ describe('linked-account-providers', () => {
       entityCreatedAt: CREATED_AT,
     };
 
-    const id = `${ACCOUNT_ID}:${EXTERNAL_ACCOUNT_PROVIDER_CLERK}:${AUTH_USER_ID}`;
+    const id = `${ACCOUNT_ID}:${PRIMARY_AUTH_PROVIDER}:${AUTH_USER_ID}`;
     expect(readLinkedProviderField(id, 'email', sources)).toBe('a@b.c');
     expect(readLinkedProviderField(id, 'provider', sources)).toBe(
-      EXTERNAL_ACCOUNT_PROVIDER_CLERK
+      PRIMARY_AUTH_PROVIDER
     );
   });
 
@@ -86,6 +89,7 @@ describe('linked-account-providers', () => {
     expect(
       buildLinkedProviders({
         accountId: ACCOUNT_ID,
+        primaryAuthProvider: PRIMARY_AUTH_PROVIDER,
         primaryAuthExternalAccount: null,
         authSnapshotData: null,
         entityCreatedAt: null,

@@ -6,7 +6,7 @@ import type { VerifiedSession } from '../shared/verified-session';
  * without importing a specific provider SDK at the port layer.
  */
 export interface AuthServerPort {
-  /** Human-readable label for logs and diagnostics. */
+  /** Slug stored in `external_accounts.provider` for this adapter. */
   readonly providerLabel: string;
   verifySessionToken(token: string): Promise<VerifiedSession | null>;
   getUserProfile(externalUserId: string): Promise<AuthUserProfile | null>;

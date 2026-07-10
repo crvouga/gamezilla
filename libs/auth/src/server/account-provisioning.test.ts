@@ -9,7 +9,6 @@ import {
   ENTITY_STORE_TYPE_USER,
 } from '@pkgs/sync-engine/shared/entity-store';
 
-import { EXTERNAL_ACCOUNT_PROVIDER_CLERK } from '../shared/external-account-providers';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
@@ -19,7 +18,7 @@ import {
 
 import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
 import {
-  findUserIdByAuthExternalUserId,
+  findUserIdByPrimaryAuthExternalId,
   readExternalAccountId,
 } from './external-accounts-sql';
 
@@ -27,7 +26,7 @@ function makeFakeAuthServer(
   snapshot: Record<string, unknown> | null
 ): AuthServerPort {
   return {
-    providerLabel: 'clerk',
+    providerLabel: PRIMARY_AUTH_PROVIDER,
     verifySessionToken: async () => null,
     getUserProfile: async () => null,
     getUserSnapshot: async () => snapshot,
@@ -68,6 +67,7 @@ async function migrateAuthTables(sql: SqlClient): Promise<void> {
 }
 
 const EXTERNAL_USER_ID = 'user_external_2';
+const PRIMARY_AUTH_PROVIDER = 'clerk';
 
 describe('ensureInternalAccountIdForExternalUser', () => {
   let sql: SqlClient;
@@ -96,7 +96,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
         ${ExternalAccountCol.externalId}, ${ExternalAccountCol.metadata},
         ${ExternalAccountCol.createdAt})
        VALUES (?, ?, ?, ?, ?)`,
-      [userId, EXTERNAL_ACCOUNT_PROVIDER_CLERK, EXTERNAL_USER_ID, '{}', now]
+      [userId, PRIMARY_AUTH_PROVIDER, EXTERNAL_USER_ID, '{}', now]
     );
 
     const resolved = await ensureInternalAccountIdForExternalUser({
@@ -115,12 +115,18 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       externalUserId: EXTERNAL_USER_ID,
     });
 
-    expect(await findUserIdByAuthExternalUserId(sql, EXTERNAL_USER_ID)).toBe(resolved);
+    expect(
+      await findUserIdByPrimaryAuthExternalId(
+        sql,
+        PRIMARY_AUTH_PROVIDER,
+        EXTERNAL_USER_ID
+      )
+    ).toBe(resolved);
     expect(
       await readExternalAccountId(
         sql,
         resolved,
-        EXTERNAL_ACCOUNT_PROVIDER_CLERK
+        PRIMARY_AUTH_PROVIDER
       )
     ).toBe(EXTERNAL_USER_ID);
 

@@ -8,7 +8,7 @@ import {
 } from '@pkgs/sync-engine/shared/entity-store';
 import { useMemo } from 'react';
 
-import { EXTERNAL_ACCOUNT_PROVIDER_CLERK } from '../shared/external-account-providers';
+import { useAuthClientPort } from './auth-client-provider';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
@@ -36,8 +36,9 @@ function readNonEmptyString(raw: unknown): string | null {
 
 function buildSourcesFromRows(args: {
   readonly accountId: string;
-  readonly authExternalAccountRow: PrimaryAuthExternalAccountRow | undefined;
-  readonly entityRow: AuthEntityStoreRow | undefined;
+  readonly primaryAuthProvider: string;
+  readonly authExternalAccountRow: PrimaryAuthExternalAccountRow | null | undefined;
+  readonly entityRow: AuthEntityStoreRow | null | undefined;
 }): LinkedProviderSources | null {
   const externalId = readNonEmptyString(args.authExternalAccountRow?.external_id);
   if (externalId === null) return null;
@@ -48,6 +49,7 @@ function buildSourcesFromRows(args: {
   const entityCreatedAt = readNonEmptyString(args.entityRow?.created_at);
   return {
     accountId: args.accountId,
+    primaryAuthProvider: args.primaryAuthProvider,
     primaryAuthExternalAccount: {
       externalId,
       metadata: args.authExternalAccountRow?.metadata ?? null,
@@ -61,6 +63,7 @@ function buildSourcesFromRows(args: {
 export function useLinkedProviderSources(
   accountId: string | null
 ): LinkedProviderSources | null {
+  const { providerLabel: primaryAuthProvider } = useAuthClientPort();
   const { row: authExternalAccountRow } =
     useWatchOne<PrimaryAuthExternalAccountRow>(
     accountId === null
@@ -77,7 +80,7 @@ export function useLinkedProviderSources(
          LIMIT 1`,
     accountId === null
       ? []
-      : [accountId, EXTERNAL_ACCOUNT_PROVIDER_CLERK]
+      : [accountId, primaryAuthProvider]
   );
 
   const { row: entityRow } = useWatchOne<AuthEntityStoreRow>(
@@ -93,8 +96,13 @@ export function useLinkedProviderSources(
 
   return useMemo((): LinkedProviderSources | null => {
     if (accountId === null) return null;
-    return buildSourcesFromRows({ accountId, authExternalAccountRow, entityRow });
-  }, [accountId, authExternalAccountRow, entityRow]);
+    return buildSourcesFromRows({
+      accountId,
+      primaryAuthProvider,
+      authExternalAccountRow,
+      entityRow,
+    });
+  }, [accountId, primaryAuthProvider, authExternalAccountRow, entityRow]);
 }
 
 export function useLinkedProviders(accountId: string | null) {

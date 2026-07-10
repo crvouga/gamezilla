@@ -6,6 +6,8 @@ import type { AuthSessionState } from './auth-session-state';
  * {@link AuthClientPortProviderProps}.
  */
 export interface AuthClientPort {
+  /** Slug stored in `external_accounts.provider` for this adapter. */
+  readonly providerLabel: string;
   useAuthSession(): AuthSessionState;
   signIn(strategy: SignInStrategy): Promise<void>;
   signOut(): Promise<void>;

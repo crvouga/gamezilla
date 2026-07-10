@@ -1,11 +1,10 @@
 import { assertUuid } from '@libs/auth/shared/device-id';
-import { EXTERNAL_ACCOUNT_PROVIDER_CLERK } from '@libs/auth/shared/external-account-providers';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { upsertAuthUserSnapshot } from './entity-store-sql';
 import {
-  findUserIdByClerkUserId,
+  findUserIdByPrimaryAuthExternalId,
   insertUser,
   upsertExternalAccount,
 } from './external-accounts-sql';
@@ -16,7 +15,11 @@ export async function ensureInternalAccountIdForExternalUser(args: {
   externalUserId: string;
 }): Promise<string> {
   const { sql, authServer, externalUserId } = args;
-  const existingUserId = await findUserIdByClerkUserId(sql, externalUserId);
+  const existingUserId = await findUserIdByPrimaryAuthExternalId(
+    sql,
+    authServer.providerLabel,
+    externalUserId
+  );
   if (existingUserId !== null) {
     assertUuid(existingUserId, 'userId must be UUID');
     return existingUserId;
@@ -28,7 +31,7 @@ export async function ensureInternalAccountIdForExternalUser(args: {
   await insertUser(sql, userId, now);
   await upsertExternalAccount(sql, {
     userId,
-    provider: EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+    provider: authServer.providerLabel,
     externalId: externalUserId,
     metadata: {},
   });

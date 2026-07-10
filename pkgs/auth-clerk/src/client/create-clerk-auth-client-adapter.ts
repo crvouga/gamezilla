@@ -72,6 +72,7 @@ export function createClerkAuthClientAdapter(
   _config: ClerkAuthClientAdapterConfig
 ): AuthClientPort {
   return {
+    providerLabel: 'clerk',
     useAuthSession: useClerkAuthSessionState,
     signIn: runClerkSignIn,
     signOut: runClerkSignOut,

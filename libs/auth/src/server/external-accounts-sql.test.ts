@@ -4,7 +4,6 @@ import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
-  EXTERNAL_ACCOUNT_PROVIDER_CLERK,
   LEGACY_EXTERNAL_ACCOUNT_PROVIDER_AUTH,
 } from '../shared/external-account-providers';
 import {
@@ -15,7 +14,7 @@ import {
 } from '../shared/external-accounts-tables';
 
 import {
-  findUserIdByClerkUserId,
+  findUserIdByPrimaryAuthExternalId,
   findUserIdByProviderExternalId,
   insertUser,
   readExternalAccountId,
@@ -45,6 +44,7 @@ async function migrateTables(sql: SqlClient): Promise<void> {
 describe('external-accounts-sql', () => {
   let sql: SqlClient;
   const userId = '11111111-1111-4111-8111-111111111111';
+  const primaryAuthProvider = 'clerk';
   const clerkUserId = 'user_clerk_1';
 
   beforeEach(async () => {
@@ -61,7 +61,7 @@ describe('external-accounts-sql', () => {
   test('upsertExternalAccount inserts and updates metadata', async () => {
     await upsertExternalAccount(sql, {
       userId,
-      provider: EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+      provider: primaryAuthProvider,
       externalId: clerkUserId,
       metadata: { email: 'a@example.com' },
     });
@@ -69,17 +69,17 @@ describe('external-accounts-sql', () => {
     expect(
       await findUserIdByProviderExternalId(
         sql,
-        EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+        primaryAuthProvider,
         clerkUserId
       )
     ).toBe(userId);
     expect(
-      await readExternalAccountId(sql, userId, EXTERNAL_ACCOUNT_PROVIDER_CLERK)
+      await readExternalAccountId(sql, userId, primaryAuthProvider)
     ).toBe(clerkUserId);
 
     await upsertExternalAccount(sql, {
       userId,
-      provider: EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+      provider: primaryAuthProvider,
       externalId: clerkUserId,
       metadata: { email: 'b@example.com' },
     });
@@ -88,13 +88,13 @@ describe('external-accounts-sql', () => {
       `SELECT ${ExternalAccountCol.metadata} AS metadata
        FROM ${EXTERNAL_ACCOUNTS_TABLE}
        WHERE ${ExternalAccountCol.provider} = ? AND ${ExternalAccountCol.externalId} = ?`,
-      [EXTERNAL_ACCOUNT_PROVIDER_CLERK, clerkUserId]
+      [primaryAuthProvider, clerkUserId]
     );
     const metadata = JSON.parse(rows[0]!.metadata) as Record<string, unknown>;
     expect(metadata['email']).toBe('b@example.com');
   });
 
-  test('findUserIdByClerkUserId resolves legacy auth slug rows', async () => {
+  test('findUserIdByPrimaryAuthExternalId resolves legacy auth slug rows', async () => {
     await sql.run(
       `INSERT INTO ${EXTERNAL_ACCOUNTS_TABLE}
        (${ExternalAccountCol.userId}, ${ExternalAccountCol.provider},
@@ -110,20 +110,26 @@ describe('external-accounts-sql', () => {
       ]
     );
 
-    expect(await findUserIdByClerkUserId(sql, clerkUserId)).toBe(userId);
+    expect(
+      await findUserIdByPrimaryAuthExternalId(
+        sql,
+        primaryAuthProvider,
+        clerkUserId
+      )
+    ).toBe(userId);
   });
 
   test('enforces one provider row per user', async () => {
     await upsertExternalAccount(sql, {
       userId,
-      provider: EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+      provider: primaryAuthProvider,
       externalId: clerkUserId,
     });
 
     await expect(
       upsertExternalAccount(sql, {
         userId,
-        provider: EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+        provider: primaryAuthProvider,
         externalId: 'user_clerk_2',
       })
     ).rejects.toThrow();

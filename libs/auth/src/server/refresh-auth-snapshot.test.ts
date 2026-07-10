@@ -18,10 +18,11 @@ import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
 } from '@libs/auth/shared/external-accounts-tables';
-import { EXTERNAL_ACCOUNT_PROVIDER_CLERK } from '@libs/auth/shared/external-account-providers';
 import { buildLinkedProviders } from '@libs/auth/shared/linked-account-providers';
 
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';
+
+const PRIMARY_AUTH_PROVIDER = 'clerk';
 
 function makeFakeAuthServer(args: {
   providerLabel?: string;
@@ -30,7 +31,7 @@ function makeFakeAuthServer(args: {
   verifyThrows?: boolean;
   snapshotThrows?: boolean;
 }): AuthServerPort {
-  const providerLabel = args.providerLabel ?? 'clerk';
+  const providerLabel = args.providerLabel ?? PRIMARY_AUTH_PROVIDER;
   const session = args.session ?? null;
   const snapshot = args.snapshot ?? null;
   return {
@@ -116,7 +117,7 @@ async function readClerkExternalAccount(
      WHERE ${ExternalAccountCol.userId} = ?
        AND ${ExternalAccountCol.provider} = ?
      LIMIT 1`,
-    [accountId, EXTERNAL_ACCOUNT_PROVIDER_CLERK]
+    [accountId, PRIMARY_AUTH_PROVIDER]
   );
   return rows[0];
 }
@@ -148,6 +149,7 @@ function projectProviders(
     : null;
   return buildLinkedProviders({
     accountId,
+    primaryAuthProvider: PRIMARY_AUTH_PROVIDER,
     primaryAuthExternalAccount: {
       externalId: authExternalAccount.external_id,
       metadata: authExternalAccount.metadata,
@@ -280,7 +282,7 @@ describe('refreshAuthSnapshot', () => {
     expect(await readDeviceUserId(sql, DEVICE_ID)).toBe(ACCOUNT_ID);
     expect(await readProviders(sql, ACCOUNT_ID)).toEqual([
       {
-        provider: EXTERNAL_ACCOUNT_PROVIDER_CLERK,
+        provider: PRIMARY_AUTH_PROVIDER,
         providerUserId: EXTERNAL_USER_ID,
         email: 'alice@example.com',
       },
@@ -376,7 +378,7 @@ describe('refreshAuthSnapshot', () => {
       `SELECT ${ExternalAccountCol.metadata} AS metadata
        FROM ${EXTERNAL_ACCOUNTS_TABLE}
        WHERE ${ExternalAccountCol.userId} = ? AND ${ExternalAccountCol.provider} = ?`,
-      [ACCOUNT_ID, EXTERNAL_ACCOUNT_PROVIDER_CLERK]
+      [ACCOUNT_ID, PRIMARY_AUTH_PROVIDER]
     );
     const metadata = JSON.parse(clerkRows[0]!.metadata) as Record<string, unknown>;
     expect(metadata['email']).toBe('alice@example.com');
