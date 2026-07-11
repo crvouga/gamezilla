@@ -90,8 +90,9 @@ export async function createAppPowerSyncSyncEngine(
         fetchFn: args.fetchFn,
         kv: args.kv,
       }),
-    uploadBatch: (batch) =>
-      uploadSyncBatch({ config: args.config, fetchFn: args.fetchFn, batch }),
+    uploadBatch: async (batch) => {
+      await uploadSyncBatch({ config: args.config, fetchFn: args.fetchFn, batch });
+    },
   });
   const engine = createPowerSyncSyncEngine({
     database: toDatabasePort(database, connector),

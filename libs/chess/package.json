@@ -41,6 +41,7 @@
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/write": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "chess.js": "catalog:",
     "csv-parse": "catalog:",

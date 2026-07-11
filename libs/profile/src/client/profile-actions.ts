@@ -1,11 +1,16 @@
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { createSqlWriteStore } from '@pkgs/write/client/create-sql-write-store';
+import { runClientWrite } from '@pkgs/write/client/run-client-write';
+import type { WriteContext } from '@pkgs/write/shared/write-context';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+
+import { profilePatchWrite } from '../shared/writes/profile-patch-write';
 
 /**
  * Updates display name, username, and/or avatar on the profile row at `profileId`.
  */
 export async function updateProfile(
   sql: SqlClient,
+  writeContext: WriteContext,
   profileId: string,
   args: {
     displayName?: string;
@@ -14,24 +19,10 @@ export async function updateProfile(
     avatarConfig?: string;
   }
 ): Promise<void> {
-  const updates: Record<string, string> = {};
-  if (args.displayName !== undefined) {
-    updates[ProfileCol.displayName] = args.displayName;
-  }
-  if (args.username !== undefined) {
-    updates[ProfileCol.username] = args.username;
-  }
-  if (args.usernameChangedAt !== undefined) {
-    updates[ProfileCol.usernameChangedAt] = args.usernameChangedAt;
-  }
-  if (args.avatarConfig !== undefined) {
-    updates[ProfileCol.avatarConfig] = args.avatarConfig;
-  }
-  if (Object.keys(updates).length === 0) return;
-  const entries = Object.entries(updates);
-  const sets = entries.map(([col]) => `${col} = ?`).join(', ');
-  await sql.run(
-    `UPDATE ${PROFILES_TABLE.tableName} SET ${sets} WHERE ${ProfileCol.id} = ?`,
-    [...entries.map(([, v]) => v), profileId]
+  await runClientWrite(
+    profilePatchWrite,
+    writeContext,
+    { profileId, ...args },
+    createSqlWriteStore(sql)
   );
 }

@@ -32,6 +32,7 @@
     "@pkgs/attribute": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/write": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "expo-clipboard": "catalog:",

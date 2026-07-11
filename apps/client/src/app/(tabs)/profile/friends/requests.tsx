@@ -1,3 +1,5 @@
-import { FriendsRequestsScreen } from '@libs/friends/client/friends-requests-screen-view';
+import { Redirect } from 'expo-router';
 
-export default FriendsRequestsScreen;
+export default function FriendRequestsRedirect() {
+  return <Redirect href="/inbox" />;
+}

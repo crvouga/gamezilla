@@ -17,6 +17,7 @@
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "@pkgs/write": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:"
   },

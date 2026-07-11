@@ -24,7 +24,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.click',
     category: 'navigation',
-    relativePath: 'navigation/click.wav',
+    relativePath: 'navigation/click.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/click_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -35,7 +35,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.clickPrimary',
     category: 'navigation',
-    relativePath: 'navigation/click-primary.wav',
+    relativePath: 'navigation/click-primary.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/click_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -46,7 +46,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.clickSecondary',
     category: 'navigation',
-    relativePath: 'navigation/click-secondary.wav',
+    relativePath: 'navigation/click-secondary.mp3',
     sourceFile: 'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/click3.wav',
     sourcePack: 'UI Audio',
     sourceUrl: `${KENNEY}/assets/ui-audio`,
@@ -57,7 +57,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.clickDestructive',
     category: 'navigation',
-    relativePath: 'navigation/click-destructive.wav',
+    relativePath: 'navigation/click-destructive.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/click_005.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -68,7 +68,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.release',
     category: 'navigation',
-    relativePath: 'navigation/release.wav',
+    relativePath: 'navigation/release.mp3',
     sourceFile:
       'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/mouserelease1.wav',
     sourcePack: 'UI Audio',
@@ -80,7 +80,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.hover',
     category: 'navigation',
-    relativePath: 'navigation/hover.wav',
+    relativePath: 'navigation/hover.mp3',
     sourceFile: 'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/rollover2.wav',
     sourcePack: 'UI Audio',
     sourceUrl: `${KENNEY}/assets/ui-audio`,
@@ -91,7 +91,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.focus',
     category: 'navigation',
-    relativePath: 'navigation/focus.wav',
+    relativePath: 'navigation/focus.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/tick_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -102,7 +102,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.tabSwitch',
     category: 'navigation',
-    relativePath: 'navigation/tab-switch.wav',
+    relativePath: 'navigation/tab-switch.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/switch_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -113,7 +113,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.pageForward',
     category: 'navigation',
-    relativePath: 'navigation/page-forward.wav',
+    relativePath: 'navigation/page-forward.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/select_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -124,7 +124,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.pageBack',
     category: 'navigation',
-    relativePath: 'navigation/page-back.wav',
+    relativePath: 'navigation/page-back.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/back_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -135,7 +135,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.drawerOpen',
     category: 'navigation',
-    relativePath: 'navigation/drawer-open.wav',
+    relativePath: 'navigation/drawer-open.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/open_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -146,7 +146,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.drawerClose',
     category: 'navigation',
-    relativePath: 'navigation/drawer-close.wav',
+    relativePath: 'navigation/drawer-close.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/close_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -157,7 +157,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.modalOpen',
     category: 'navigation',
-    relativePath: 'navigation/modal-open.wav',
+    relativePath: 'navigation/modal-open.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/maximize_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -168,7 +168,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.modalClose',
     category: 'navigation',
-    relativePath: 'navigation/modal-close.wav',
+    relativePath: 'navigation/modal-close.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/minimize_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -179,7 +179,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.back',
     category: 'navigation',
-    relativePath: 'navigation/back.wav',
+    relativePath: 'navigation/back.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/back_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -190,7 +190,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.forward',
     category: 'navigation',
-    relativePath: 'navigation/forward.wav',
+    relativePath: 'navigation/forward.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/select_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -201,7 +201,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.dropdownOpen',
     category: 'navigation',
-    relativePath: 'navigation/dropdown-open.wav',
+    relativePath: 'navigation/dropdown-open.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/drop_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -212,7 +212,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.dropdownSelect',
     category: 'navigation',
-    relativePath: 'navigation/dropdown-select.wav',
+    relativePath: 'navigation/dropdown-select.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/select_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -223,7 +223,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.accordionExpand',
     category: 'navigation',
-    relativePath: 'navigation/accordion-expand.wav',
+    relativePath: 'navigation/accordion-expand.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/open_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -234,7 +234,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'navigation.accordionCollapse',
     category: 'navigation',
-    relativePath: 'navigation/accordion-collapse.wav',
+    relativePath: 'navigation/accordion-collapse.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/close_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -247,7 +247,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'feedback.success',
     category: 'feedback',
-    relativePath: 'feedback/success.wav',
+    relativePath: 'feedback/success.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/confirmation_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -258,7 +258,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'feedback.successSubtle',
     category: 'feedback',
-    relativePath: 'feedback/success-subtle.wav',
+    relativePath: 'feedback/success-subtle.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/confirmation_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -269,7 +269,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'feedback.failure',
     category: 'feedback',
-    relativePath: 'feedback/failure.wav',
+    relativePath: 'feedback/failure.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/error_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -280,7 +280,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'feedback.failureSubtle',
     category: 'feedback',
-    relativePath: 'feedback/failure-subtle.wav',
+    relativePath: 'feedback/failure-subtle.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/error_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -291,7 +291,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'feedback.warning',
     category: 'feedback',
-    relativePath: 'feedback/warning.wav',
+    relativePath: 'feedback/warning.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/question_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -302,7 +302,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'feedback.error',
     category: 'feedback',
-    relativePath: 'feedback/error.wav',
+    relativePath: 'feedback/error.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/error_006.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -313,7 +313,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'feedback.info',
     category: 'feedback',
-    relativePath: 'feedback/info.wav',
+    relativePath: 'feedback/info.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/tick_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -324,7 +324,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'feedback.confirmation',
     category: 'feedback',
-    relativePath: 'feedback/confirmation.wav',
+    relativePath: 'feedback/confirmation.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/confirmation_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -335,7 +335,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'feedback.cancel',
     category: 'feedback',
-    relativePath: 'feedback/cancel.wav',
+    relativePath: 'feedback/cancel.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/back_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -346,7 +346,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'feedback.undo',
     category: 'feedback',
-    relativePath: 'feedback/undo.wav',
+    relativePath: 'feedback/undo.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/scratch_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -357,7 +357,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'feedback.retry',
     category: 'feedback',
-    relativePath: 'feedback/retry.wav',
+    relativePath: 'feedback/retry.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/glitch_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -370,7 +370,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'notifications.notification',
     category: 'notifications',
-    relativePath: 'notifications/notification.wav',
+    relativePath: 'notifications/notification.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/bong_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -381,7 +381,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'notifications.notificationUrgent',
     category: 'notifications',
-    relativePath: 'notifications/notification-urgent.wav',
+    relativePath: 'notifications/notification-urgent.mp3',
     sourceFile:
       'pingthings-kenney-packs/pingthings-main/packs/kenney-scifi/sounds/thruster-1.ogg',
     sourcePack: 'Sci-Fi Sounds',
@@ -393,7 +393,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'notifications.mention',
     category: 'notifications',
-    relativePath: 'notifications/mention.wav',
+    relativePath: 'notifications/mention.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/pluck_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -404,7 +404,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'notifications.reminder',
     category: 'notifications',
-    relativePath: 'notifications/reminder.wav',
+    relativePath: 'notifications/reminder.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/tick_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -415,7 +415,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'notifications.achievement',
     category: 'notifications',
-    relativePath: 'notifications/achievement.wav',
+    relativePath: 'notifications/achievement.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA04.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -426,7 +426,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'notifications.reward',
     category: 'notifications',
-    relativePath: 'notifications/reward.wav',
+    relativePath: 'notifications/reward.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA05.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -437,7 +437,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'notifications.badgeUnlocked',
     category: 'notifications',
-    relativePath: 'notifications/badge-unlocked.wav',
+    relativePath: 'notifications/badge-unlocked.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA06.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -448,7 +448,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'notifications.streak',
     category: 'notifications',
-    relativePath: 'notifications/streak.wav',
+    relativePath: 'notifications/streak.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA08.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -459,7 +459,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'notifications.milestone',
     category: 'notifications',
-    relativePath: 'notifications/milestone.wav',
+    relativePath: 'notifications/milestone.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA10.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -470,7 +470,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'notifications.levelUp',
     category: 'notifications',
-    relativePath: 'notifications/level-up.wav',
+    relativePath: 'notifications/level-up.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA12.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -483,7 +483,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.friendRequestReceived',
     category: 'social',
-    relativePath: 'social/friend-request-received.wav',
+    relativePath: 'social/friend-request-received.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/question_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -494,7 +494,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.friendRequestAccepted',
     category: 'social',
-    relativePath: 'social/friend-request-accepted.wav',
+    relativePath: 'social/friend-request-accepted.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA02.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -505,7 +505,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.friendRequestDeclined',
     category: 'social',
-    relativePath: 'social/friend-request-declined.wav',
+    relativePath: 'social/friend-request-declined.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/error_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -516,7 +516,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.friendOnline',
     category: 'social',
-    relativePath: 'social/friend-online.wav',
+    relativePath: 'social/friend-online.mp3',
     sourceFile: 'Digital_SFX_Set/powerUp1.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -527,7 +527,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.friendOffline',
     category: 'social',
-    relativePath: 'social/friend-offline.wav',
+    relativePath: 'social/friend-offline.mp3',
     sourceFile: 'Digital_SFX_Set/lowDown.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -538,7 +538,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.directMessage',
     category: 'social',
-    relativePath: 'social/direct-message.wav',
+    relativePath: 'social/direct-message.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/drop_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -549,7 +549,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.typingTick',
     category: 'social',
-    relativePath: 'social/typing-tick.wav',
+    relativePath: 'social/typing-tick.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/tick_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -560,7 +560,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.partyInvite',
     category: 'social',
-    relativePath: 'social/party-invite.wav',
+    relativePath: 'social/party-invite.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/question_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -571,7 +571,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.roomInvite',
     category: 'social',
-    relativePath: 'social/room-invite.wav',
+    relativePath: 'social/room-invite.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/bong_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -582,7 +582,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.roomJoined',
     category: 'social',
-    relativePath: 'social/room-joined.wav',
+    relativePath: 'social/room-joined.mp3',
     sourceFile: 'Digital_SFX_Set/powerUp2.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -593,7 +593,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.roomLeft',
     category: 'social',
-    relativePath: 'social/room-left.wav',
+    relativePath: 'social/room-left.mp3',
     sourceFile: 'Digital_SFX_Set/lowDown.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -604,7 +604,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.playerJoined',
     category: 'social',
-    relativePath: 'social/player-joined.wav',
+    relativePath: 'social/player-joined.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/select_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -615,7 +615,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.playerLeft',
     category: 'social',
-    relativePath: 'social/player-left.wav',
+    relativePath: 'social/player-left.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/back_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -626,7 +626,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'social.userBlocked',
     category: 'social',
-    relativePath: 'social/user-blocked.wav',
+    relativePath: 'social/user-blocked.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/error_005.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -639,7 +639,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'multiplayer.matchmakingFound',
     category: 'multiplayer',
-    relativePath: 'multiplayer/matchmaking-found.wav',
+    relativePath: 'multiplayer/matchmaking-found.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA01.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -650,7 +650,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'multiplayer.matchmakingCancelled',
     category: 'multiplayer',
-    relativePath: 'multiplayer/matchmaking-cancelled.wav',
+    relativePath: 'multiplayer/matchmaking-cancelled.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/back_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -661,7 +661,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'multiplayer.matchmakingFailed',
     category: 'multiplayer',
-    relativePath: 'multiplayer/matchmaking-failed.wav',
+    relativePath: 'multiplayer/matchmaking-failed.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/error_007.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -672,7 +672,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'multiplayer.countdownTick',
     category: 'multiplayer',
-    relativePath: 'multiplayer/countdown-tick.wav',
+    relativePath: 'multiplayer/countdown-tick.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/tick_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -683,7 +683,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'multiplayer.countdownFinal',
     category: 'multiplayer',
-    relativePath: 'multiplayer/countdown-final.wav',
+    relativePath: 'multiplayer/countdown-final.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/bong_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -694,7 +694,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'multiplayer.gameStarting',
     category: 'multiplayer',
-    relativePath: 'multiplayer/game-starting.wav',
+    relativePath: 'multiplayer/game-starting.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA03.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -705,7 +705,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'multiplayer.gameEnded',
     category: 'multiplayer',
-    relativePath: 'multiplayer/game-ended.wav',
+    relativePath: 'multiplayer/game-ended.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA14.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -716,7 +716,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'multiplayer.reconnecting',
     category: 'multiplayer',
-    relativePath: 'multiplayer/reconnecting.wav',
+    relativePath: 'multiplayer/reconnecting.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/glitch_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -727,7 +727,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'multiplayer.connectionRestored',
     category: 'multiplayer',
-    relativePath: 'multiplayer/connection-restored.wav',
+    relativePath: 'multiplayer/connection-restored.mp3',
     sourceFile: 'Digital_SFX_Set/powerUp3.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -738,7 +738,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'multiplayer.disconnected',
     category: 'multiplayer',
-    relativePath: 'multiplayer/disconnected.wav',
+    relativePath: 'multiplayer/disconnected.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/error_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -749,7 +749,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'multiplayer.spectatorJoined',
     category: 'multiplayer',
-    relativePath: 'multiplayer/spectator-joined.wav',
+    relativePath: 'multiplayer/spectator-joined.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/select_005.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -760,7 +760,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'multiplayer.hostChanged',
     category: 'multiplayer',
-    relativePath: 'multiplayer/host-changed.wav',
+    relativePath: 'multiplayer/host-changed.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/switch_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -773,7 +773,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'chat.send',
     category: 'chat',
-    relativePath: 'chat/send.wav',
+    relativePath: 'chat/send.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/click_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -784,7 +784,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'chat.receive',
     category: 'chat',
-    relativePath: 'chat/receive.wav',
+    relativePath: 'chat/receive.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/drop_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -795,7 +795,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'chat.reaction',
     category: 'chat',
-    relativePath: 'chat/reaction.wav',
+    relativePath: 'chat/reaction.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/pluck_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -806,7 +806,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'chat.mention',
     category: 'chat',
-    relativePath: 'chat/mention.wav',
+    relativePath: 'chat/mention.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/pluck_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -817,7 +817,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'chat.unread',
     category: 'chat',
-    relativePath: 'chat/unread.wav',
+    relativePath: 'chat/unread.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/tick_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -828,7 +828,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'chat.threadReply',
     category: 'chat',
-    relativePath: 'chat/thread-reply.wav',
+    relativePath: 'chat/thread-reply.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/select_006.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -839,7 +839,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'chat.messageDeleted',
     category: 'chat',
-    relativePath: 'chat/message-deleted.wav',
+    relativePath: 'chat/message-deleted.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/scratch_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -852,7 +852,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'lobby.ready',
     category: 'lobby',
-    relativePath: 'lobby/ready.wav',
+    relativePath: 'lobby/ready.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/toggle_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -863,7 +863,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'lobby.unready',
     category: 'lobby',
-    relativePath: 'lobby/unready.wav',
+    relativePath: 'lobby/unready.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/toggle_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -874,7 +874,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'lobby.hostChanged',
     category: 'lobby',
-    relativePath: 'lobby/host-changed.wav',
+    relativePath: 'lobby/host-changed.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/switch_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -885,7 +885,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'lobby.teamSwitched',
     category: 'lobby',
-    relativePath: 'lobby/team-switched.wav',
+    relativePath: 'lobby/team-switched.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/switch_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -896,7 +896,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'lobby.slotFilled',
     category: 'lobby',
-    relativePath: 'lobby/slot-filled.wav',
+    relativePath: 'lobby/slot-filled.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/drop_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -907,7 +907,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'lobby.slotEmptied',
     category: 'lobby',
-    relativePath: 'lobby/slot-emptied.wav',
+    relativePath: 'lobby/slot-emptied.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/scratch_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -918,7 +918,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'lobby.inviteAccepted',
     category: 'lobby',
-    relativePath: 'lobby/invite-accepted.wav',
+    relativePath: 'lobby/invite-accepted.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/confirmation_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -929,7 +929,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'lobby.settingsChanged',
     category: 'lobby',
-    relativePath: 'lobby/settings-changed.wav',
+    relativePath: 'lobby/settings-changed.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/switch_005.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -940,7 +940,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'lobby.lobbyCountdownStart',
     category: 'lobby',
-    relativePath: 'lobby/countdown-start.wav',
+    relativePath: 'lobby/countdown-start.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/bong_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -953,7 +953,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.turnStart',
     category: 'gameplay',
-    relativePath: 'gameplay/turn-start.wav',
+    relativePath: 'gameplay/turn-start.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/select_007.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -964,7 +964,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.turnEnd',
     category: 'gameplay',
-    relativePath: 'gameplay/turn-end.wav',
+    relativePath: 'gameplay/turn-end.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/back_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -975,7 +975,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.move',
     category: 'gameplay',
-    relativePath: 'gameplay/move.wav',
+    relativePath: 'gameplay/move.mp3',
     sourceFile: 'pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/soft-medium.ogg',
     sourcePack: 'Impact Sounds',
     sourceUrl: `${KENNEY}/assets/impact-sounds`,
@@ -986,7 +986,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.capture',
     category: 'gameplay',
-    relativePath: 'gameplay/capture.wav',
+    relativePath: 'gameplay/capture.mp3',
     sourceFile: 'pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/plate-medium.ogg',
     sourcePack: 'Impact Sounds',
     sourceUrl: `${KENNEY}/assets/impact-sounds`,
@@ -997,7 +997,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.place',
     category: 'gameplay',
-    relativePath: 'gameplay/place.wav',
+    relativePath: 'gameplay/place.mp3',
     sourceFile: 'pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/wood-light.ogg',
     sourcePack: 'Impact Sounds',
     sourceUrl: `${KENNEY}/assets/impact-sounds`,
@@ -1008,7 +1008,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.select',
     category: 'gameplay',
-    relativePath: 'gameplay/select.wav',
+    relativePath: 'gameplay/select.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/select_008.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1019,7 +1019,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.deselect',
     category: 'gameplay',
-    relativePath: 'gameplay/deselect.wav',
+    relativePath: 'gameplay/deselect.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/back_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1030,7 +1030,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.timerWarning',
     category: 'gameplay',
-    relativePath: 'gameplay/timer-warning.wav',
+    relativePath: 'gameplay/timer-warning.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/tick_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1041,7 +1041,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.timerExpired',
     category: 'gameplay',
-    relativePath: 'gameplay/timer-expired.wav',
+    relativePath: 'gameplay/timer-expired.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/error_006.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1052,7 +1052,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.victory',
     category: 'gameplay',
-    relativePath: 'gameplay/victory.wav',
+    relativePath: 'gameplay/victory.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA15.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -1063,7 +1063,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.defeat',
     category: 'gameplay',
-    relativePath: 'gameplay/defeat.wav',
+    relativePath: 'gameplay/defeat.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA16.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -1074,7 +1074,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.draw',
     category: 'gameplay',
-    relativePath: 'gameplay/draw.wav',
+    relativePath: 'gameplay/draw.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA09.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -1085,7 +1085,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.scoreIncrease',
     category: 'gameplay',
-    relativePath: 'gameplay/score-increase.wav',
+    relativePath: 'gameplay/score-increase.mp3',
     sourceFile: 'Digital_SFX_Set/pepSound1.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -1096,7 +1096,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.scoreDecrease',
     category: 'gameplay',
-    relativePath: 'gameplay/score-decrease.wav',
+    relativePath: 'gameplay/score-decrease.mp3',
     sourceFile: 'Digital_SFX_Set/lowDown.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -1107,7 +1107,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.combo',
     category: 'gameplay',
-    relativePath: 'gameplay/combo.wav',
+    relativePath: 'gameplay/combo.mp3',
     sourceFile: 'Digital_SFX_Set/highUp.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -1118,7 +1118,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.comboBreak',
     category: 'gameplay',
-    relativePath: 'gameplay/combo-break.wav',
+    relativePath: 'gameplay/combo-break.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/glitch_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1129,7 +1129,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.checkpoint',
     category: 'gameplay',
-    relativePath: 'gameplay/checkpoint.wav',
+    relativePath: 'gameplay/checkpoint.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA07.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -1140,7 +1140,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'gameplay.invalidMove',
     category: 'gameplay',
-    relativePath: 'gameplay/invalid-move.wav',
+    relativePath: 'gameplay/invalid-move.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/error_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1153,7 +1153,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.checkboxOn',
     category: 'forms',
-    relativePath: 'forms/checkbox-on.wav',
+    relativePath: 'forms/checkbox-on.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/toggle_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1164,7 +1164,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.checkboxOff',
     category: 'forms',
-    relativePath: 'forms/checkbox-off.wav',
+    relativePath: 'forms/checkbox-off.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/toggle_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1175,7 +1175,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.radioSelect',
     category: 'forms',
-    relativePath: 'forms/radio-select.wav',
+    relativePath: 'forms/radio-select.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/select_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1186,7 +1186,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.toggleOn',
     category: 'forms',
-    relativePath: 'forms/toggle-on.wav',
+    relativePath: 'forms/toggle-on.mp3',
     sourceFile: 'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/switch1.wav',
     sourcePack: 'UI Audio',
     sourceUrl: `${KENNEY}/assets/ui-audio`,
@@ -1197,7 +1197,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.toggleOff',
     category: 'forms',
-    relativePath: 'forms/toggle-off.wav',
+    relativePath: 'forms/toggle-off.mp3',
     sourceFile: 'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/switch2.wav',
     sourcePack: 'UI Audio',
     sourceUrl: `${KENNEY}/assets/ui-audio`,
@@ -1208,7 +1208,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.sliderTick',
     category: 'forms',
-    relativePath: 'forms/slider-tick.wav',
+    relativePath: 'forms/slider-tick.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/tick_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1219,7 +1219,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.sliderCommit',
     category: 'forms',
-    relativePath: 'forms/slider-commit.wav',
+    relativePath: 'forms/slider-commit.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/drop_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1230,7 +1230,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.textFieldFocus',
     category: 'forms',
-    relativePath: 'forms/text-field-focus.wav',
+    relativePath: 'forms/text-field-focus.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/tick_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1241,7 +1241,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.validationSuccess',
     category: 'forms',
-    relativePath: 'forms/validation-success.wav',
+    relativePath: 'forms/validation-success.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/confirmation_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1252,7 +1252,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.validationError',
     category: 'forms',
-    relativePath: 'forms/validation-error.wav',
+    relativePath: 'forms/validation-error.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/error_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1263,7 +1263,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.pickerOpen',
     category: 'forms',
-    relativePath: 'forms/picker-open.wav',
+    relativePath: 'forms/picker-open.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/open_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1274,7 +1274,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.pickerSelect',
     category: 'forms',
-    relativePath: 'forms/picker-select.wav',
+    relativePath: 'forms/picker-select.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/scroll_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1285,7 +1285,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.stepperUp',
     category: 'forms',
-    relativePath: 'forms/stepper-up.wav',
+    relativePath: 'forms/stepper-up.mp3',
     sourceFile: 'Digital_SFX_Set/highUp.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -1296,7 +1296,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'forms.stepperDown',
     category: 'forms',
-    relativePath: 'forms/stepper-down.wav',
+    relativePath: 'forms/stepper-down.mp3',
     sourceFile: 'Digital_SFX_Set/lowDown.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -1309,7 +1309,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'commerce.purchase',
     category: 'commerce',
-    relativePath: 'commerce/purchase.wav',
+    relativePath: 'commerce/purchase.mp3',
     sourceFile: 'jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA11.ogg',
     sourcePack: 'Music Jingles',
     sourceUrl: `${KENNEY}/assets/music-jingles`,
@@ -1320,7 +1320,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'commerce.refund',
     category: 'commerce',
-    relativePath: 'commerce/refund.wav',
+    relativePath: 'commerce/refund.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/back_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1331,7 +1331,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'commerce.coins',
     category: 'commerce',
-    relativePath: 'commerce/coins.wav',
+    relativePath: 'commerce/coins.mp3',
     sourceFile: 'kenney_casino-audio/Audio/chips-handle-1.ogg',
     sourcePack: 'Casino Audio',
     sourceUrl: `${KENNEY}/assets/casino-audio`,
@@ -1342,7 +1342,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'commerce.gems',
     category: 'commerce',
-    relativePath: 'commerce/gems.wav',
+    relativePath: 'commerce/gems.mp3',
     sourceFile: 'RPGsounds_Kenney/OGG/metalClick.ogg',
     sourcePack: 'RPG Audio',
     sourceUrl: `${KENNEY}/assets/rpg-audio`,
@@ -1353,7 +1353,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'commerce.unlock',
     category: 'commerce',
-    relativePath: 'commerce/unlock.wav',
+    relativePath: 'commerce/unlock.mp3',
     sourceFile: 'RPGsounds_Kenney/OGG/metalLatch.ogg',
     sourcePack: 'RPG Audio',
     sourceUrl: `${KENNEY}/assets/rpg-audio`,
@@ -1364,7 +1364,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'commerce.inventoryAdd',
     category: 'commerce',
-    relativePath: 'commerce/inventory-add.wav',
+    relativePath: 'commerce/inventory-add.mp3',
     sourceFile: 'RPGsounds_Kenney/OGG/bookPlace1.ogg',
     sourcePack: 'RPG Audio',
     sourceUrl: `${KENNEY}/assets/rpg-audio`,
@@ -1375,7 +1375,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'commerce.inventoryRemove',
     category: 'commerce',
-    relativePath: 'commerce/inventory-remove.wav',
+    relativePath: 'commerce/inventory-remove.mp3',
     sourceFile: 'RPGsounds_Kenney/OGG/dropLeather.ogg',
     sourcePack: 'RPG Audio',
     sourceUrl: `${KENNEY}/assets/rpg-audio`,
@@ -1388,7 +1388,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'voice.micEnabled',
     category: 'voice',
-    relativePath: 'voice/mic-enabled.wav',
+    relativePath: 'voice/mic-enabled.mp3',
     sourceFile: 'Digital_SFX_Set/powerUp1.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -1399,7 +1399,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'voice.micMuted',
     category: 'voice',
-    relativePath: 'voice/mic-muted.wav',
+    relativePath: 'voice/mic-muted.mp3',
     sourceFile: 'Digital_SFX_Set/lowDown.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -1410,7 +1410,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'voice.speakerEnabled',
     category: 'voice',
-    relativePath: 'voice/speaker-enabled.wav',
+    relativePath: 'voice/speaker-enabled.mp3',
     sourceFile: 'Digital_SFX_Set/powerUp2.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -1421,7 +1421,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'voice.speakerMuted',
     category: 'voice',
-    relativePath: 'voice/speaker-muted.wav',
+    relativePath: 'voice/speaker-muted.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/close_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1432,7 +1432,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'voice.voiceConnected',
     category: 'voice',
-    relativePath: 'voice/voice-connected.wav',
+    relativePath: 'voice/voice-connected.mp3',
     sourceFile: 'Digital_SFX_Set/powerUp3.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -1443,7 +1443,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'voice.voiceDisconnected',
     category: 'voice',
-    relativePath: 'voice/voice-disconnected.wav',
+    relativePath: 'voice/voice-disconnected.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/error_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1454,7 +1454,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'voice.pushToTalkOn',
     category: 'voice',
-    relativePath: 'voice/push-to-talk-on.wav',
+    relativePath: 'voice/push-to-talk-on.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/toggle_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1465,7 +1465,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'voice.pushToTalkOff',
     category: 'voice',
-    relativePath: 'voice/push-to-talk-off.wav',
+    relativePath: 'voice/push-to-talk-off.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/toggle_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1478,7 +1478,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.loadingComplete',
     category: 'misc',
-    relativePath: 'misc/loading-complete.wav',
+    relativePath: 'misc/loading-complete.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/confirmation_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1489,7 +1489,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.refresh',
     category: 'misc',
-    relativePath: 'misc/refresh.wav',
+    relativePath: 'misc/refresh.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/scroll_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1500,7 +1500,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.syncStarted',
     category: 'misc',
-    relativePath: 'misc/sync-started.wav',
+    relativePath: 'misc/sync-started.mp3',
     sourceFile: 'Digital_SFX_Set/phaseJump1.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -1511,7 +1511,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.syncCompleted',
     category: 'misc',
-    relativePath: 'misc/sync-completed.wav',
+    relativePath: 'misc/sync-completed.mp3',
     sourceFile: 'Digital_SFX_Set/powerUp4.mp3',
     sourcePack: 'Digital Audio',
     sourceUrl: `${KENNEY}/assets/digital-audio`,
@@ -1522,7 +1522,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.syncFailed',
     category: 'misc',
-    relativePath: 'misc/sync-failed.wav',
+    relativePath: 'misc/sync-failed.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/error_006.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1533,7 +1533,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.downloadComplete',
     category: 'misc',
-    relativePath: 'misc/download-complete.wav',
+    relativePath: 'misc/download-complete.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/drop_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1544,7 +1544,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.uploadComplete',
     category: 'misc',
-    relativePath: 'misc/upload-complete.wav',
+    relativePath: 'misc/upload-complete.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/confirmation_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1555,7 +1555,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.search',
     category: 'misc',
-    relativePath: 'misc/search.wav',
+    relativePath: 'misc/search.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/scroll_003.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1566,7 +1566,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.searchClear',
     category: 'misc',
-    relativePath: 'misc/search-clear.wav',
+    relativePath: 'misc/search-clear.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/scratch_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1577,7 +1577,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.favorite',
     category: 'misc',
-    relativePath: 'misc/favorite.wav',
+    relativePath: 'misc/favorite.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/pluck_002.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1588,7 +1588,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.unfavorite',
     category: 'misc',
-    relativePath: 'misc/unfavorite.wav',
+    relativePath: 'misc/unfavorite.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/scratch_005.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1599,7 +1599,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.bookmark',
     category: 'misc',
-    relativePath: 'misc/bookmark.wav',
+    relativePath: 'misc/bookmark.mp3',
     sourceFile: 'RPGsounds_Kenney/OGG/bookOpen.ogg',
     sourcePack: 'RPG Audio',
     sourceUrl: `${KENNEY}/assets/rpg-audio`,
@@ -1610,7 +1610,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.pin',
     category: 'misc',
-    relativePath: 'misc/pin.wav',
+    relativePath: 'misc/pin.mp3',
     sourceFile: 'pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/tin-medium.ogg',
     sourcePack: 'Impact Sounds',
     sourceUrl: `${KENNEY}/assets/impact-sounds`,
@@ -1621,7 +1621,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.archive',
     category: 'misc',
-    relativePath: 'misc/archive.wav',
+    relativePath: 'misc/archive.mp3',
     sourceFile: 'RPGsounds_Kenney/OGG/bookClose.ogg',
     sourcePack: 'RPG Audio',
     sourceUrl: `${KENNEY}/assets/rpg-audio`,
@@ -1632,7 +1632,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.delete',
     category: 'misc',
-    relativePath: 'misc/delete.wav',
+    relativePath: 'misc/delete.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/scratch_001.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
@@ -1643,7 +1643,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
   {
     id: 'misc.share',
     category: 'misc',
-    relativePath: 'misc/share.wav',
+    relativePath: 'misc/share.mp3',
     sourceFile: 'kenney_interfaceSounds/Audio/select_004.ogg',
     sourcePack: 'Interface Sounds',
     sourceUrl: `${KENNEY}/assets/interface-sounds`,

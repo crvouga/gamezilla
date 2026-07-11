@@ -58,6 +58,7 @@ function PickerCell({
   children,
 }: CellProps) {
   const theme = useTheme();
+  const ringSize = thumbSize + (selected ? 8 : 0);
   return (
     <Pressable
       onPress={onPress}
@@ -67,35 +68,47 @@ function PickerCell({
           height: cellHeight,
           alignItems: 'center',
           justifyContent: 'flex-start',
-          paddingTop: 2,
-          opacity: pressed ? 0.85 : 1,
+          paddingTop: selected ? 0 : 2,
+          opacity: pressed ? 0.85 : selected ? 1 : 0.72,
         },
       ]}
     >
       <View
         style={{
-          width: thumbSize,
-          height: thumbSize,
-          borderRadius: thumbSize / 2,
-          borderWidth: 2,
-          borderColor: selected ? theme.colors.tint : theme.colors.border,
-          overflow: 'hidden',
+          width: ringSize,
+          height: ringSize,
+          borderRadius: ringSize / 2,
           alignItems: 'center',
           justifyContent: 'center',
+          backgroundColor: selected ? theme.colors.tintSubtle : 'transparent',
         }}
       >
-        {children}
+        <View
+          style={{
+            width: thumbSize,
+            height: thumbSize,
+            borderRadius: thumbSize / 2,
+            borderWidth: selected ? 3 : 2,
+            borderColor: selected ? theme.colors.tint : theme.colors.border,
+            overflow: 'hidden',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {children}
+        </View>
       </View>
       <Text
         variant="caption"
         numberOfLines={1}
         style={{
           marginTop: 4,
-          fontSize: 9,
+          fontSize: selected ? 10 : 9,
           textAlign: 'center',
           width: itemWidth - 4,
-          opacity: selected ? 1 : 0.75,
-          fontWeight: selected ? '600' : '400',
+          opacity: selected ? 1 : 0.7,
+          fontWeight: selected ? '700' : '400',
+          color: selected ? theme.colors.tint : theme.colors.text,
         }}
         label={caption}
       />
@@ -250,7 +263,7 @@ export function HorizontalPicker<T>({
 }: HorizontalPickerProps<T>) {
   const listRef = useRef<FlatList<Row<T>>>(null);
   const thumbSize = Math.max(32, itemWidth - 12);
-  const cellHeight = cellHeightProp ?? thumbSize + 4 + 18;
+  const cellHeight = cellHeightProp ?? thumbSize + 12 + 18;
   const trailingInset = contentInsetTrailing ?? contentInsetLeading;
   const contentInsets = pickerContentInsets(contentInsetLeading, trailingInset);
   const data = useMemo(() => buildRows(items, randomItem), [items, randomItem]);

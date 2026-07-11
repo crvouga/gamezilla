@@ -35,8 +35,10 @@ async function convertSource(
       '44100',
       '-ac',
       '1',
-      '-sample_fmt',
-      's16',
+      '-codec:a',
+      'libmp3lame',
+      '-qscale:a',
+      '2',
       destPath,
     ],
     { stdout: 'pipe', stderr: 'pipe' }

@@ -2,7 +2,11 @@ import { getCachedDeviceId } from '@libs/auth/client/use-device-id';
 import { getCachedAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 import type { Kv } from '@pkgs/kv/interface';
-import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
+import type {
+  UploadBatch,
+  UploadBatchResult,
+} from '@pkgs/sync-engine/shared/upload-batch';
+import { fail, WriteError } from '@pkgs/write/shared/write-result';
 
 import {
   readCachedSyncToken,
@@ -97,11 +101,21 @@ export async function fetchSyncToken(args: {
   return credentials;
 }
 
+function assertUploadBatchAccepted(result: UploadBatchResult): void {
+  const rejected = result.results.find((row) => row.status === 'rejected');
+  if (rejected === undefined) {
+    return;
+  }
+  const code =
+    rejected.status === 'rejected' ? rejected.reason : 'UPLOAD_REJECTED';
+  throw new WriteError(fail(code, code));
+}
+
 export async function uploadSyncBatch(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly batch: UploadBatch;
-}): Promise<void> {
+}): Promise<UploadBatchResult> {
   const res = await args.fetchFn(`${args.config.getApiUrl()}/api/sync/upload`, {
     method: 'POST',
     headers: {
@@ -116,4 +130,7 @@ export async function uploadSyncBatch(args: {
       `sync upload failed (${res.status})${body.length > 0 ? `: ${body}` : ''}`
     );
   }
+  const result = (await res.json()) as UploadBatchResult;
+  assertUploadBatchAccepted(result);
+  return result;
 }

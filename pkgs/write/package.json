@@ -1,0 +1,29 @@
+{
+  "name": "@pkgs/write",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings 0",
+    "tc": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/async": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "hono": "catalog:",
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/react": "catalog:",
+    "typescript": "catalog:"
+  }
+}

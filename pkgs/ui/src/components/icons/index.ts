@@ -14,6 +14,7 @@ import {
   Ellipsis,
   Gamepad2,
   Heart,
+  Bell,
   House,
   Lightbulb,
   ListChecks,
@@ -25,6 +26,7 @@ import {
   Search,
   Send,
   Settings,
+  Share,
   Shuffle,
   User,
   Volume2,
@@ -62,5 +64,7 @@ export const XIcon = createIcon(X);
 export const Volume2Icon = createIcon(Volume2);
 export const VolumeXIcon = createIcon(VolumeX);
 export const SearchIcon = createIcon(Search);
+export const ShareIcon = createIcon(Share);
 export const ShuffleIcon = createIcon(Shuffle);
 export const HeartIcon = createIcon(Heart);
+export const BellIcon = createIcon(Bell);

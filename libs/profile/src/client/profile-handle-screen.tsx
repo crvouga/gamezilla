@@ -1,7 +1,7 @@
+import { useWriteContext } from '@libs/auth/client/use-write-context';
 import { useMyProfileId } from './use-my-profile-id';
 import { useProfileRow, type ProfileRow } from './use-profile-row';
-import { updateProfile } from './profile-actions';
-import { canChangeUsername, validateUsername } from '../shared/username';
+import { profilePatchWrite } from '../shared/writes/profile-patch-write';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import {
   Box,
@@ -10,6 +10,8 @@ import {
   TextInput,
   type BodyContentProps,
 } from '@pkgs/ui';
+import { createSqlWriteStore } from '@pkgs/write/client/create-sql-write-store';
+import { runClientWrite } from '@pkgs/write/client/run-client-write';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
@@ -71,25 +73,26 @@ export function ProfileHandleScreen() {
   const router = useRouter();
   const engine = useSyncEngine();
   const profileId = useMyProfileId();
-  const row = useProfileRow(profileId);
+  const writeContext = useWriteContext();
+  const { row } = useProfileRow(profileId);
   const [value, setValue] = useSyncedUsername(row);
   const nav = useBreadcrumbNav();
 
   const save = useCallback(async () => {
     if (profileId === null) return;
     const username = value.trim();
-    const validationError = validateUsername(username);
-    if (validationError !== null) {
-      throw new Error(validationError);
-    }
-    if (!canChangeUsername(row?.username_changed_at)) {
-      throw new Error('cooldown');
-    }
-    await updateProfile(engine.db, profileId, {
-      username,
-      usernameChangedAt: new Date().toISOString(),
-    });
-  }, [engine, profileId, row?.username_changed_at, value]);
+    const now = new Date().toISOString();
+    await runClientWrite(
+      profilePatchWrite,
+      writeContext,
+      {
+        profileId,
+        username,
+        usernameChangedAt: now,
+      },
+      createSqlWriteStore(engine.db)
+    );
+  }, [engine, profileId, value, writeContext]);
 
   return (
     <ScreenBase

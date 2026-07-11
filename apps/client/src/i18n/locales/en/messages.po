@@ -124,6 +124,10 @@ msgstr "Account ID"
 msgid "Accuracy"
 msgstr "Accuracy"
 
+#: pkgs/inbox/src/client/inbox-filter-bar.tsx
+msgid "Action required"
+msgstr "Action required"
+
 #: libs/spaces/src/client/active-room/active-room-bar.tsx
 #~ msgid "Active space"
 #~ msgstr "Active space"
@@ -139,6 +143,10 @@ msgstr "Add Friend"
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
+
+#: pkgs/inbox/src/client/inbox-filter-bar.tsx
+msgid "All"
+msgstr "All"
 
 #: libs/client-config/src/client/client-config-entity-card.tsx
 msgid "All attributes (JSON)"
@@ -172,6 +180,10 @@ msgstr "App version, build, commit hash, and commit date"
 #: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "Appearance"
 msgstr "Appearance"
+
+#: pkgs/inbox/src/client/inbox-filter-bar.tsx
+msgid "Archived"
+msgstr "Archived"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Arrows"
@@ -459,6 +471,10 @@ msgstr "Continue with dev IDP"
 msgid "Continue with Google"
 msgstr "Continue with Google"
 
+#: libs/profile/src/client/avatar-editor-seed-field.tsx
+msgid "Copied"
+msgstr "Copied"
+
 #: pkgs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
@@ -468,9 +484,9 @@ msgstr "Copied to clipboard"
 msgid "Copy invite link"
 msgstr "Copy invite link"
 
-#: libs/profile/src/client/avatar-editor-preview.tsx
-#~ msgid "Copy seed"
-#~ msgstr "Copy seed"
+#: libs/profile/src/client/avatar-editor-seed-field.tsx
+msgid "Copy seed"
+msgstr "Copy seed"
 
 #: pkgs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
 msgid "Copy to clipboard"
@@ -697,6 +713,7 @@ msgstr "Display name"
 
 #: apps/client/src/app/sso-callback.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
+#: pkgs/inbox/src/client/interaction-card-default.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
 msgid "Done"
 msgstr "Done"
@@ -799,6 +816,11 @@ msgstr "exit"
 #~ msgid "Expand space"
 #~ msgstr "Expand space"
 
+#: pkgs/inbox/src/client/inbox-screen.tsx
+#: pkgs/inbox/src/client/interaction-card-default.tsx
+msgid "Failed"
+msgstr "Failed"
+
 #: libs/profile/src/client/avatar-editor-features-block.tsx
 #~ msgid "Features"
 #~ msgstr "Features"
@@ -813,8 +835,8 @@ msgid "First seen"
 msgstr "First seen"
 
 #: libs/friends/src/client/friends-requests-screen-view.tsx
-msgid "Friend requests"
-msgstr "Friend requests"
+#~ msgid "Friend requests"
+#~ msgstr "Friend requests"
 
 #: libs/friends/src/client/friend-action-status-renderers.tsx
 #: libs/friends/src/client/friends-list-screen-view.tsx
@@ -915,6 +937,12 @@ msgstr "Host"
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "In-memory server; each client dispatches commands through loopback transport."
 msgstr "In-memory server; each client dispatches commands through loopback transport."
+
+#: apps/client/src/app/(tabs)/_layout.tsx
+#: pkgs/inbox/src/client/inbox-header-button.tsx
+#: pkgs/inbox/src/client/inbox-screen.tsx
+msgid "Inbox"
+msgstr "Inbox"
 
 #: libs/spaces/src/client/debug/space-counter-panel.tsx
 msgid "Increment"
@@ -1021,6 +1049,10 @@ msgstr "Live"
 msgid "Loading puzzle…"
 msgstr "Loading puzzle…"
 
+#: pkgs/inbox/src/client/inbox-list.tsx
+msgid "Loading…"
+msgstr "Loading…"
+
 #: apps/client/src/ui/app-commands/space-commands.tsx
 msgid "lobby"
 msgstr "lobby"
@@ -1056,6 +1088,18 @@ msgstr "login"
 #: libs/spaces/src/client/space-settings-screen.tsx
 msgid "Manage this space."
 msgstr "Manage this space."
+
+#: pkgs/inbox/src/client/inbox-screen.tsx
+msgid "Mark all read"
+msgstr "Mark all read"
+
+#: pkgs/inbox/src/client/inbox-screen.tsx
+msgid "Marked read"
+msgstr "Marked read"
+
+#: pkgs/inbox/src/client/inbox-screen.tsx
+msgid "Marking…"
+msgstr "Marking…"
 
 #: libs/chess/src/client/chess-main-menu.tsx
 msgid "Matchmaking"
@@ -1141,6 +1185,10 @@ msgstr "Network reachability and API server health"
 msgid "new"
 msgstr "new"
 
+#: pkgs/inbox/src/client/inbox-empty-state.tsx
+msgid "New interactions will show up here when someone reaches out."
+msgstr "New interactions will show up here when someone reaches out."
+
 #: libs/spaces/src/client/spaces-screen.tsx
 msgid "New space"
 msgstr "New space"
@@ -1191,8 +1239,8 @@ msgid "No host listed"
 msgstr "No host listed"
 
 #: libs/friends/src/client/friend-request-sections.tsx
-msgid "No incoming requests"
-msgstr "No incoming requests"
+#~ msgid "No incoming requests"
+#~ msgstr "No incoming requests"
 
 #: libs/spaces/src/client/spaces-screen.tsx
 msgid "No live spaces"
@@ -1207,8 +1255,8 @@ msgid "No puzzles played yet."
 msgstr "No puzzles played yet."
 
 #: libs/friends/src/client/friend-request-sections.tsx
-msgid "No sent requests"
-msgstr "No sent requests"
+#~ msgid "No sent requests"
+#~ msgstr "No sent requests"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/sync/sync-screen.tsx
@@ -1305,6 +1353,10 @@ msgstr "Overall"
 msgid "Pass `theme` to override any board color (squares, highlights, arrows, feedback)."
 msgstr "Pass `theme` to override any board color (squares, highlights, arrows, feedback)."
 
+#: libs/profile/src/client/avatar-editor-seed-field.tsx
+#~ msgid "Paste a seed to recreate this look, or share it with friends."
+#~ msgstr "Paste a seed to recreate this look, or share it with friends."
+
 #: libs/spaces/src/client/members/space-members-avatar-group.tsx
 #: libs/spaces/src/client/members/space-members-list-modal.tsx
 msgid "People in this space"
@@ -1373,7 +1425,6 @@ msgstr "production"
 #: apps/client/src/app/(tabs)/_layout.tsx
 #: libs/friends/src/client/friend-user-screen-view.tsx
 #: libs/friends/src/client/friends-list-screen-view.tsx
-#: libs/friends/src/client/friends-requests-screen-view.tsx
 #: libs/profile/src/client/avatar-editor-screen.tsx
 #: libs/profile/src/client/profile-edit-screen.tsx
 #: libs/profile/src/client/profile-handle-screen.tsx
@@ -1411,7 +1462,7 @@ msgstr "Puzzle stats"
 #~ msgid "Random"
 #~ msgstr "Random"
 
-#: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/avatar-editor-seed-field.tsx
 msgid "Randomize"
 msgstr "Randomize"
 
@@ -1476,8 +1527,8 @@ msgstr "Requested"
 
 #: libs/friends/src/client/friend-request-sections.tsx
 #: libs/friends/src/client/profile-friends-stats-view.tsx
-msgid "Requests"
-msgstr "Requests"
+#~ msgid "Requests"
+#~ msgstr "Requests"
 
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "reset"
@@ -1551,13 +1602,17 @@ msgstr "Search by username or name"
 msgid "Searching…"
 msgstr "Searching…"
 
+#: libs/profile/src/client/avatar-editor-seed-field.tsx
+msgid "Seed"
+msgstr "Seed"
+
 #: pkgs/ui/src/components/picker/picker.tsx
 msgid "Select…"
 msgstr "Select…"
 
 #: libs/friends/src/client/friend-request-sections.tsx
-msgid "Sent"
-msgstr "Sent"
+#~ msgid "Sent"
+#~ msgstr "Sent"
 
 #: libs/client-config/src/client/client-config-server-refresh.tsx
 #: pkgs/room-widgets/src/pages/playground-page.tsx
@@ -1595,6 +1650,10 @@ msgstr "Server-side account; tap to copy"
 msgid "Settings"
 msgstr "Settings"
 
+#: libs/profile/src/client/avatar-editor-seed-field.tsx
+#~ msgid "Share seed"
+#~ msgstr "Share seed"
+
 #: libs/spaces/src/client/debug/space-counter-panel.tsx
 msgid "Shared counter"
 msgstr "Shared counter"
@@ -1618,6 +1677,7 @@ msgstr "sign in"
 #: libs/auth/src/client/sign-in-modal.tsx
 #: libs/friends/src/client/friends-signed-in-gate.tsx
 #: libs/search/src/client/use-user-search.tsx
+#: pkgs/inbox/src/client/inbox-screen.tsx
 msgid "Sign in"
 msgstr "Sign in"
 
@@ -1632,6 +1692,10 @@ msgstr "Sign in to search for people"
 #: libs/friends/src/client/friends-signed-in-gate.tsx
 msgid "Sign in to use friends"
 msgstr "Sign in to use friends"
+
+#: pkgs/inbox/src/client/inbox-screen.tsx
+msgid "Sign in to view your inbox"
+msgstr "Sign in to view your inbox"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Sign in with dev IDP"
@@ -1861,6 +1925,10 @@ msgstr "system"
 msgid "Table client_config, id client-config__singleton"
 msgstr "Table client_config, id client-config__singleton"
 
+#: libs/profile/src/client/avatar-editor-seed-field.tsx
+#~ msgid "Tap copy or share"
+#~ msgstr "Tap copy or share"
+
 #: pkgs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "Tap the field or icon to copy"
 msgstr "Tap the field or icon to copy"
@@ -2075,6 +2143,7 @@ msgstr "Wipe local database?"
 msgid "Wiping local database…"
 msgstr "Wiping local database…"
 
+#: pkgs/inbox/src/client/interaction-card-default.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
 msgid "Working…"
 msgstr "Working…"
@@ -2117,6 +2186,10 @@ msgstr "You left the space"
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "You will need to sign in again to sync with your user."
 msgstr "You will need to sign in again to sync with your user."
+
+#: pkgs/inbox/src/client/inbox-empty-state.tsx
+msgid "You're all caught up"
+msgstr "You're all caught up"
 
 #: libs/spaces/src/client/lifecycle/space-join-blocked-note.tsx
 msgid "You’re already in a space"

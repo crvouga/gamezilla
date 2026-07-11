@@ -1,4 +1,9 @@
+import { useWriteContext } from '@libs/auth/client/use-write-context';
+import { joinSpaceWrite } from '@libs/spaces/shared/writes/row-bindings';
 import { spaceGuestMembershipEntityId } from '@libs/spaces/shared/membership-key';
+import { createSqlWriteStore } from '@pkgs/write/client/create-sql-write-store';
+import { runClientWrite } from '@pkgs/write/client/run-client-write';
+import type { WriteContext } from '@pkgs/write/shared/write-context';
 import {
   SpaceCol,
   SpaceMembershipCol,
@@ -51,29 +56,14 @@ async function writeCreateSpaceAction(
 
 async function joinSpaceAction(
   sql: SqlClient,
-  myId: string,
+  writeContext: WriteContext,
   spaceId: string
 ): Promise<void> {
-  const space = await readSpaceRow(sql, spaceId);
-  if (space === null) {
-    throw new Error('Space not found');
-  }
-  if (space.endedAt !== null) {
-    throw new Error('Space has ended');
-  }
-  if (space.hostId === myId) {
-    throw new Error('Host is already in this space');
-  }
-  const now = isoNow();
-  const membershipId = spaceGuestMembershipEntityId(myId, spaceId);
-  await sql.run(
-    `INSERT INTO ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     (${SpaceMembershipCol.id}, ${SpaceMembershipCol.guestId}, ${SpaceMembershipCol.spaceId}, ${SpaceMembershipCol.joinedAt}, ${SpaceMembershipCol.leftAt})
-     VALUES (?, ?, ?, ?, NULL)
-     ON CONFLICT (${SpaceMembershipCol.id}) DO UPDATE SET
-       ${SpaceMembershipCol.leftAt} = NULL,
-       ${SpaceMembershipCol.joinedAt} = excluded.${SpaceMembershipCol.joinedAt}`,
-    [membershipId, myId, spaceId, now]
+  await runClientWrite(
+    joinSpaceWrite,
+    writeContext,
+    { spaceId },
+    createSqlWriteStore(sql)
   );
 }
 
@@ -131,6 +121,7 @@ async function renameSpaceAction(
 export function useSpaceActions() {
   const engine = useSyncEngine();
   const myId = useMyId();
+  const writeContext = useWriteContext();
 
   const createSpace = useCallback(
     async (onCreated?: (spaceId: string) => void): Promise<string> => {
@@ -143,8 +134,9 @@ export function useSpaceActions() {
   );
 
   const joinSpace = useCallback(
-    async (spaceId: string) => joinSpaceAction(engine.db, myId, spaceId),
-    [engine, myId]
+    async (spaceId: string) =>
+      joinSpaceAction(engine.db, writeContext, spaceId),
+    [engine, writeContext]
   );
 
   const leaveSpace = useCallback(

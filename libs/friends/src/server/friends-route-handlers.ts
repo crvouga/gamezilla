@@ -1,3 +1,7 @@
+import { mapAppAuthToWriteContext } from '@libs/auth/shared/map-app-auth-to-write-context';
+import { createSqlWriteStore } from '@pkgs/write/server/create-sql-write-store';
+import { runWrite } from '@pkgs/write/shared/run-write';
+import { isWriteFailure, unwrap } from '@pkgs/write/shared/write-result';
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import type { Context } from 'hono';
 
@@ -5,6 +9,7 @@ import type { FriendRequest, FriendshipStatus } from '../shared/friends-types';
 import { FriendService } from './friend-service';
 import { readRequiredString } from './friends-route-utils';
 import { withFriendsAuth } from './friends-route-auth';
+import { sendFriendRequestWrite } from './writes/send-friend-request-write';
 
 type SearchBody = { readonly query?: string; readonly limit?: number };
 type SendRequestBody = {
@@ -49,12 +54,36 @@ export function handleSendFriendRequest(
     const message =
       typeof body.message === 'string' ? body.message.slice(0, 200) : null;
     const sql = c.get('sqlClient');
-    const request: FriendRequest = await FriendService.sendFriendRequest(
-      sql,
-      auth.myId,
-      toUserId,
-      message
-    );
+    const store = createSqlWriteStore(sql);
+    const writeContext = mapAppAuthToWriteContext(auth);
+    const result = await runWrite({
+      write: sendFriendRequestWrite,
+      ctx: writeContext,
+      rawInput: { toUserId, message },
+      store,
+      mode: 'full',
+    });
+    if (isWriteFailure(result)) {
+      const status =
+        result.code === 'FRIENDS_NOT_SIGNED_IN'
+          ? 401
+          : result.code === 'FRIENDS_BLOCKED' ||
+              result.code === 'FRIENDS_FORBIDDEN'
+            ? 403
+            : result.code === 'FRIENDS_NOT_FOUND'
+              ? 404
+              : result.code === 'FRIENDS_ALREADY_FRIENDS' ||
+                  result.code === 'FRIENDS_REQUEST_EXISTS'
+                ? 409
+                : result.code === 'FRIENDS_COOLDOWN'
+                  ? 429
+                  : 400;
+      return c.json(
+        { error: result.message, code: result.code },
+        status
+      );
+    }
+    const request: FriendRequest = unwrap(result);
     return c.json({ request });
   });
 }

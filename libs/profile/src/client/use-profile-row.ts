@@ -11,18 +11,23 @@ export type ProfileRow = {
   readonly avatar_config: string | null;
 };
 
+export type ProfileRowState = {
+  row: ProfileRow | null;
+  isLoading: boolean;
+};
+
 /**
  * Reads a single profile row by id. Used by editors that seed draft state
  * from the persisted row (avatar editor, display-name editor).
  */
-export function useProfileRow(profileId: string | null): ProfileRow | null {
+export function useProfileRow(profileId: string | null): ProfileRowState {
   const enabled = profileId !== null && profileId.length > 0;
-  const { row } = useWatchOne<ProfileRow>(
+  const { row, isLoading } = useWatchOne<ProfileRow>(
     `SELECT ${ProfileCol.id}, ${ProfileCol.createdAt}, ${ProfileCol.displayName},
             ${ProfileCol.username}, ${ProfileCol.usernameChangedAt}, ${ProfileCol.avatarConfig}
      FROM ${PROFILES_TABLE.tableName}
      WHERE ${ProfileCol.id} = ?`,
     enabled ? [profileId] : ['']
   );
-  return enabled ? (row ?? null) : null;
+  return { row: enabled ? (row ?? null) : null, isLoading: enabled && isLoading };
 }

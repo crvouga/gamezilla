@@ -1,4 +1,5 @@
 import { AppTabBarBridge } from '@apps/client/ui/app-header/app-tab-bar-bridge';
+import { InboxTabIcon } from '@pkgs/inbox/client';
 import { Gamepad2Icon, SearchIcon, UserIcon, useTabsProps } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { Tabs } from 'expo-router';
@@ -29,6 +30,15 @@ export default function TabsLayout() {
           title: t`Search`,
           tabBarIcon: ({ color, size }) => (
             <SearchIcon color={color} size={size ?? 24} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="inbox/index"
+        options={{
+          title: t`Inbox`,
+          tabBarIcon: ({ color, size }) => (
+            <InboxTabIcon color={color} size={size ?? 24} />
           ),
         }}
       />

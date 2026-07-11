@@ -1,3 +1,4 @@
+import { AvatarEditorSeedField } from './avatar-editor-seed-field';
 import { VariantSwatchStrip } from './avatar-editor-variant-swatch-strip';
 import { StylePickerStrip } from './avatar-editor-style-picker-strip';
 import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
@@ -12,9 +13,9 @@ import {
   MultiSelectSwatchGrid,
   PickerSection,
   ScreenBase,
-  ShuffleIcon,
+  Skeleton,
 } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
 type EnumField = Extract<SchemaField, { kind: 'enum' }>;
@@ -22,6 +23,7 @@ type ColorField = Extract<SchemaField, { kind: 'color' }>;
 
 /** ScreenBase body horizontal padding (spacing step 4). */
 const SCREEN_PADDING = 16;
+const HERO_SIZE = 160;
 
 function PickerBleed({ children }: { children: ReactNode }) {
   return <Box sx={{ mx: -4 }}>{children}</Box>;
@@ -94,42 +96,54 @@ function BackgroundColorPicker({
   );
 }
 
+function AvatarPreviewSlot({ editor }: { editor: UseAvatarEditor }) {
+  const { ready, previewConfig, seedFallback } = editor;
+  if (!ready) {
+    return (
+      <Skeleton width={HERO_SIZE} height={HERO_SIZE} borderRadius={HERO_SIZE / 2} />
+    );
+  }
+  return (
+    <ProfileDiceBearAvatar
+      config={previewConfig}
+      fallbackSeed={seedFallback}
+      size={HERO_SIZE}
+    />
+  );
+}
+
 function EditorContent({ editor }: { editor: UseAvatarEditor }) {
-  const { t } = useLingui();
   const {
     seedFallback,
-    initialized,
-    previewConfig,
+    ready,
     shuffleSeed,
     draft,
     setDraft,
     styleKey,
     featureEnums,
     colorFields,
+    effectiveSeed,
+    setSeed,
+    copySeed,
   } = editor;
 
   const seed = draft.seed.trim() || seedFallback;
 
   return (
     <Box sx={{ gap: 2, pb: 4 }}>
-      <AvatarHero
-        size={160}
-        action={{
-          accessibilityLabel: t`Randomize`,
-          onPress: shuffleSeed,
-          disabled: !initialized,
-          icon: <ShuffleIcon size={20} />,
-        }}
-      >
-        <ProfileDiceBearAvatar
-          config={previewConfig}
-          fallbackSeed={seedFallback}
-          size={160}
-        />
+      <AvatarHero size={HERO_SIZE}>
+        <AvatarPreviewSlot editor={editor} />
       </AvatarHero>
 
-      {initialized ? (
+      {ready ? (
         <Box sx={{ gap: 1 }}>
+          <AvatarEditorSeedField
+            seed={effectiveSeed}
+            onSeedChange={setSeed}
+            onRandomize={shuffleSeed}
+            onCopy={copySeed}
+          />
+
           <PickerSection label={<Trans>Style</Trans>}>
             <PickerBleed>
               <StylePickerStrip

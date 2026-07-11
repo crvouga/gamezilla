@@ -18,6 +18,7 @@ import Stripe from 'stripe';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
+import { createInboxSubApp } from '../inbox/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { createRoomApp } from '../room/route';
 import { createSyncRoutes } from '../sync/sync-routes';
@@ -193,7 +194,8 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/', llmApp)
     .route('/', createStripeSubApp(config, stripe))
     .route('/', createRoomApp())
-    .route('/matchmaking', createMatchmakingSubApp());
+    .route('/matchmaking', createMatchmakingSubApp())
+    .route('/inbox', createInboxSubApp());
 
   apiRouter.onError(createApiErrorHandler());
 

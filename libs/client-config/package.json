@@ -35,6 +35,7 @@
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/write": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:",

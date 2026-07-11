@@ -8,6 +8,7 @@ import {
   deleteFriendship,
   insertBlock,
 } from './friend-repository';
+import { deactivatePendingFriendRequestInteractionsBetween } from './friends-inbox-publish';
 import { clearFriendProfileCaches } from './profile-projection-service';
 
 function assertNotSelf(actorId: string, targetId: string): void {
@@ -23,6 +24,11 @@ export async function blockUser(
 ): Promise<void> {
   assertNotSelf(blockerId, blockedId);
   const now = new Date().toISOString();
+  await deactivatePendingFriendRequestInteractionsBetween(
+    sql,
+    blockerId,
+    blockedId
+  );
   await sql.transaction(async (tx) => {
     await deleteFriendship(tx, blockerId, blockedId);
     await cancelPendingRequestsBetween(tx, blockerId, blockedId, now);

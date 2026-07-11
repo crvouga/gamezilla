@@ -1,0 +1,173 @@
+import {
+  deactivateInteraction,
+  publishInteraction,
+  type PublishInteractionInput,
+} from '@pkgs/inbox/server/publish';
+import { readProfileCardById } from '@libs/profile/server/read-profile';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+
+import type { FriendRequest } from '../shared/friends-types';
+import { listPendingIncomingRequests } from './friend-request-read';
+import { findPendingRequestsBetweenPair } from './friend-repository';
+import { Sounds } from '@pkgs/sounds/sound-id';
+
+const FRIENDS_NAMESPACE = 'friends' as const;
+const FRIEND_REQUEST_TYPE = 'friend-request' as const;
+const FRIEND_ACCEPTED_TYPE = 'friend-request-accepted' as const;
+
+function friendRequestSource(requestId: string) {
+  return {
+    namespace: FRIENDS_NAMESPACE,
+    type: FRIEND_REQUEST_TYPE,
+    id: requestId,
+  };
+}
+
+function friendAcceptedSource(requestId: string) {
+  return {
+    namespace: FRIENDS_NAMESPACE,
+    type: FRIEND_ACCEPTED_TYPE,
+    id: requestId,
+  };
+}
+
+async function loadActorProfile(
+  sql: SqlClient,
+  userId: string
+): Promise<{
+  displayName: string;
+  username: string;
+  avatarConfig: string | null;
+}> {
+  const card = await readProfileCardById(sql, userId);
+  if (card === null) {
+    return { displayName: 'Someone', username: '', avatarConfig: null };
+  }
+  return {
+    displayName: card.displayName,
+    username: card.username,
+    avatarConfig: card.avatarConfig,
+  };
+}
+
+function profileSubtitle(username: string): { subtitle: string } | Record<string, never> {
+  return username.length > 0 ? { subtitle: `@${username}` } : {};
+}
+
+function profilePresentation(
+  profile: { displayName: string; username: string; avatarConfig: string | null },
+  title: string,
+  userId: string
+): PublishInteractionInput['presentation'] {
+  return {
+    title,
+    ...profileSubtitle(profile.username),
+    avatar: {
+      fallbackLabel: profile.displayName,
+      avatarConfig: profile.avatarConfig,
+    },
+    deepLink: {
+      path: '/profile/user/[userId]',
+      params: {
+        userId,
+        displayName: profile.displayName,
+        username: profile.username,
+        avatarConfig: profile.avatarConfig ?? '',
+      },
+    },
+  };
+}
+
+export async function publishIncomingFriendRequestInteraction(
+  sql: SqlClient,
+  request: FriendRequest
+): Promise<void> {
+  const fromProfile = await loadActorProfile(sql, request.fromUserId);
+  const input: PublishInteractionInput = {
+    userId: request.toUserId,
+    source: friendRequestSource(request.id),
+    category: 'action_required',
+    presentation: profilePresentation(
+      fromProfile,
+      `${fromProfile.displayName} sent you a friend request`,
+      request.fromUserId
+    ),
+    actions: [
+      {
+        id: 'accept',
+        label: 'Confirm',
+        variant: 'solid',
+        soundKey: Sounds.social.friendRequestAccepted,
+      },
+      {
+        id: 'decline',
+        label: 'Delete',
+        variant: 'outline',
+        destructive: true,
+      },
+    ],
+    payload: {
+      requestId: request.id,
+      fromUserId: request.fromUserId,
+    },
+    groupKey: 'friends:requests',
+    priority: 10,
+  };
+  await publishInteraction(sql, input);
+}
+
+export async function publishFriendRequestAcceptedInteraction(
+  sql: SqlClient,
+  request: FriendRequest
+): Promise<void> {
+  const accepterProfile = await loadActorProfile(sql, request.toUserId);
+  await publishInteraction(sql, {
+    userId: request.fromUserId,
+    source: friendAcceptedSource(request.id),
+    category: 'informational',
+    presentation: profilePresentation(
+      accepterProfile,
+      `${accepterProfile.displayName} accepted your friend request`,
+      request.toUserId
+    ),
+    actions: [],
+    payload: {
+      requestId: request.id,
+      toUserId: request.toUserId,
+    },
+    groupKey: 'friends:accepted',
+    priority: 5,
+  });
+}
+
+export async function deactivateFriendRequestInteraction(
+  sql: SqlClient,
+  request: Pick<FriendRequest, 'id' | 'toUserId'>
+): Promise<void> {
+  await deactivateInteraction(sql, {
+    userId: request.toUserId,
+    source: friendRequestSource(request.id),
+  });
+}
+
+export async function deactivatePendingFriendRequestInteractionsBetween(
+  sql: SqlClient,
+  userA: string,
+  userB: string
+): Promise<void> {
+  const pending = await findPendingRequestsBetweenPair(sql, userA, userB);
+  for (const request of pending) {
+    await deactivateFriendRequestInteraction(sql, request);
+  }
+}
+
+export async function backfillPendingFriendRequestInteractions(
+  sql: SqlClient,
+  viewerId: string
+): Promise<number> {
+  const incoming = await listPendingIncomingRequests(sql, viewerId);
+  for (const request of incoming) {
+    await publishIncomingFriendRequestInteraction(sql, request);
+  }
+  return incoming.length;
+}

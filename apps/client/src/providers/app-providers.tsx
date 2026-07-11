@@ -5,6 +5,7 @@ import { ReactScanDev } from '../dev/react-scan-dev';
 import { AppAuthProvider } from './app-auth-provider';
 import { AppGamesProvider } from './app-games-provider';
 import { AppInfrastructureProvider } from './app-infrastructure-provider';
+import { AppInboxProvider } from './app-inbox-provider';
 import { AppLocalDatabaseProvider } from './app-local-database-provider';
 import { AppServicesProvider } from './app-services-provider';
 import { AppShellProvider } from './app-shell-provider';
@@ -18,7 +19,8 @@ void preventSplashAutoHide();
  * Ordering constraints:
  * - Infrastructure (config, secure storage) before auth and services.
  * - Local database (PowerSync sync engine) before UI (portal bridge reads sync engine).
- * - UI (BottomSheetModalProvider) before modal hosts inside AppUiProvider.
+ * - UI (BottomSheetModalProvider, AuthModalsProvider) before inbox (opens sign-in modal).
+ * - UI before modal hosts inside AppUiProvider.
  */
 const appProviders = [
   AppShellProvider,
@@ -27,6 +29,7 @@ const appProviders = [
   AppServicesProvider,
   AppLocalDatabaseProvider,
   AppUiProvider,
+  AppInboxProvider,
   AppGamesProvider,
 ];
 

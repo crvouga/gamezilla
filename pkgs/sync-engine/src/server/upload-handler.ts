@@ -9,46 +9,20 @@ import type {
   UploadRowResult,
 } from '../shared/upload-batch';
 
-export type WritePolicyContext = {
-  /** PowerSync JWT `sub` — account id when signed in, else device id. */
-  readonly subjectId: string;
-  readonly isAnonymous: boolean;
-  readonly deviceId: string;
-  readonly accountId: string | null;
-  /** Author id for ownership checks: accountId ?? deviceId. */
-  readonly myId: string;
-  readonly memberOfSpaceIds: readonly string[];
-};
+export type UploadRowEvaluator<TCtx> = (
+  ctx: TCtx,
+  row: UploadRow,
+  sql: SqlClient
+) => Promise<UploadRowResult>;
 
-export type WritePolicyDecision =
-  | { readonly allowed: true }
-  | { readonly allowed: false; readonly reason: string };
-
-export type WritePolicy = (
-  ctx: WritePolicyContext,
-  row: UploadRow
-) => WritePolicyDecision | Promise<WritePolicyDecision>;
-
-export type WritePolicyRegistry = {
-  get(table: string): WritePolicy | undefined;
-};
-
-export function createWritePolicyRegistry(
-  policies: Readonly<Record<string, WritePolicy>>
-): WritePolicyRegistry {
-  return {
-    get: (table) => policies[table],
-  };
-}
-
-export type UploadHandlerOptions<TAuth> = {
+export type UploadHandlerOptions<TAuth, TCtx> = {
   readonly resolveAuth: (c: Context) => Promise<TAuth | null>;
-  readonly mapAuth: (auth: TAuth) => WritePolicyContext;
-  readonly policies: WritePolicyRegistry;
+  readonly mapAuth: (auth: TAuth) => TCtx;
+  readonly evaluateRow: UploadRowEvaluator<TCtx>;
   readonly openSql: () => Promise<SqlClient>;
 };
 
-async function applyPut(sql: SqlClient, row: UploadRow): Promise<void> {
+export async function applyPut(sql: SqlClient, row: UploadRow): Promise<void> {
   const values = row.values ?? {};
   const columns = Object.keys(values);
   assert.ok(columns.length > 0, 'upload put requires values', { row });
@@ -61,7 +35,7 @@ async function applyPut(sql: SqlClient, row: UploadRow): Promise<void> {
   );
 }
 
-async function applyPatch(sql: SqlClient, row: UploadRow): Promise<void> {
+export async function applyPatch(sql: SqlClient, row: UploadRow): Promise<void> {
   const values = row.values ?? {};
   const columns = Object.keys(values);
   assert.ok(columns.length > 0, 'upload patch requires values', { row });
@@ -72,11 +46,11 @@ async function applyPatch(sql: SqlClient, row: UploadRow): Promise<void> {
   ]);
 }
 
-async function applyDelete(sql: SqlClient, row: UploadRow): Promise<void> {
+export async function applyDelete(sql: SqlClient, row: UploadRow): Promise<void> {
   await sql.run(`DELETE FROM ${row.table} WHERE id = ?`, [row.id]);
 }
 
-async function applyRow(sql: SqlClient, row: UploadRow): Promise<void> {
+export async function applyRow(sql: SqlClient, row: UploadRow): Promise<void> {
   if (row.op === 'put') {
     await applyPut(sql, row);
     return;
@@ -86,22 +60,6 @@ async function applyRow(sql: SqlClient, row: UploadRow): Promise<void> {
     return;
   }
   await applyDelete(sql, row);
-}
-
-async function evaluateRow(
-  ctx: WritePolicyContext,
-  policies: WritePolicyRegistry,
-  row: UploadRow
-): Promise<UploadRowResult> {
-  const policy = policies.get(row.table);
-  if (policy === undefined) {
-    return { status: 'rejected', reason: `no write policy for ${row.table}` };
-  }
-  const decision = await policy(ctx, row);
-  if (!decision.allowed) {
-    return { status: 'rejected', reason: decision.reason };
-  }
-  return { status: 'accepted' };
 }
 
 function parseUploadRow(item: unknown): UploadRow {
@@ -124,7 +82,7 @@ function parseUploadRow(item: unknown): UploadRow {
   };
 }
 
-function parseUploadBody(bodyRaw: unknown): UploadBatch {
+export function parseUploadBody(bodyRaw: unknown): UploadBatch {
   assert.record(bodyRaw, 'upload body must be object');
   const rowsRaw = bodyRaw['rows'];
   assert.array(rowsRaw, 'upload rows required');
@@ -132,13 +90,13 @@ function parseUploadBody(bodyRaw: unknown): UploadBatch {
   return { rows: rowsRaw.map(parseUploadRow) };
 }
 
-async function applyUploadRow(
+async function applyUploadRow<TCtx>(
   sql: SqlClient,
-  ctx: WritePolicyContext,
-  policies: WritePolicyRegistry,
+  ctx: TCtx,
+  evaluateRow: UploadRowEvaluator<TCtx>,
   row: UploadRow
 ): Promise<UploadRowResult> {
-  const decision = await evaluateRow(ctx, policies, row);
+  const decision = await evaluateRow(ctx, row, sql);
   if (decision.status === 'rejected') {
     return decision;
   }
@@ -151,21 +109,21 @@ async function applyUploadRow(
   }
 }
 
-async function processUploadBatch(
+export async function processUploadBatch<TCtx>(
   sql: SqlClient,
-  ctx: WritePolicyContext,
-  policies: WritePolicyRegistry,
+  ctx: TCtx,
+  evaluateRow: UploadRowEvaluator<TCtx>,
   batch: UploadBatch
 ): Promise<UploadBatchResult> {
   const results: UploadRowResult[] = [];
   for (const row of batch.rows) {
-    results.push(await applyUploadRow(sql, ctx, policies, row));
+    results.push(await applyUploadRow(sql, ctx, evaluateRow, row));
   }
   return { results };
 }
 
-export function createUploadHandler<TAuth>(
-  options: UploadHandlerOptions<TAuth>
+export function createUploadHandler<TAuth, TCtx>(
+  options: UploadHandlerOptions<TAuth, TCtx>
 ) {
   return async (c: Context): Promise<Response> => {
     const auth = await options.resolveAuth(c);
@@ -178,7 +136,7 @@ export function createUploadHandler<TAuth>(
     const sql = await options.openSql();
     try {
       await sql.connect();
-      const out = await processUploadBatch(sql, ctx, options.policies, batch);
+      const out = await processUploadBatch(sql, ctx, options.evaluateRow, batch);
       return c.json(out, 200);
     } finally {
       await sql.disconnect();

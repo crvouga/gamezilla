@@ -1,0 +1,10 @@
+# @pkgs/inbox PowerSync sync stream fragment.
+# Merged into powersync/sync-config.yaml at deploy time.
+#
+# inbox_interactions:
+#   priority: 2
+#   auto_subscribe: true
+#   query: |
+#     SELECT * FROM inbox_interactions
+#     WHERE user_id = auth.user_id()
+#       AND active = true

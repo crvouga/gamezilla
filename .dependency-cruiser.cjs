@@ -85,6 +85,14 @@ module.exports = {
       to: { path: '^apps/' },
     },
     {
+      name: 'write-not-sync-engine',
+      severity: 'error',
+      comment:
+        '@pkgs/write must not import @pkgs/sync-engine (one-way coupling only). Upload mapping lives in sync-engine.',
+      from: { path: '^pkgs/write/' },
+      to: { path: '^pkgs/sync-engine/' },
+    },
+    {
       name: 'libs-not-apps',
       severity: 'error',
       comment:

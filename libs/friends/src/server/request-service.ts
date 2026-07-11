@@ -22,6 +22,12 @@ import {
   markFriendRequestStatus,
 } from './friend-repository';
 import {
+  backfillPendingFriendRequestInteractions,
+  deactivateFriendRequestInteraction,
+  publishFriendRequestAcceptedInteraction,
+  publishIncomingFriendRequestInteraction,
+} from './friends-inbox-publish';
+import {
   clearFriendProfileCaches,
   syncFriendProfileCaches,
 } from './profile-projection-service';
@@ -98,6 +104,7 @@ export async function sendFriendRequest(
     fromUserId,
     toUserId,
   });
+  await publishIncomingFriendRequestInteraction(sql, request);
   return request;
 }
 
@@ -165,6 +172,8 @@ export async function acceptFriendRequest(
   if (updated === null) {
     throw new FriendsError('FRIENDS_NOT_FOUND', 'Friend request not found');
   }
+  await deactivateFriendRequestInteraction(sql, updated);
+  await publishFriendRequestAcceptedInteraction(sql, updated);
   return updated;
 }
 
@@ -187,6 +196,7 @@ export async function declineFriendRequest(
   if (updated === null) {
     throw new FriendsError('FRIENDS_NOT_FOUND', 'Friend request not found');
   }
+  await deactivateFriendRequestInteraction(sql, updated);
   return updated;
 }
 
@@ -209,6 +219,7 @@ export async function cancelFriendRequest(
   if (updated === null) {
     throw new FriendsError('FRIENDS_NOT_FOUND', 'Friend request not found');
   }
+  await deactivateFriendRequestInteraction(sql, updated);
   return updated;
 }
 
@@ -247,3 +258,10 @@ export async function resolveFriendshipStatus(
 }
 
 export { cancelPendingRequestsBetween };
+
+export async function backfillFriendRequestInboxInteractions(
+  sql: SqlClient,
+  viewerId: string
+): Promise<number> {
+  return backfillPendingFriendRequestInteractions(sql, viewerId);
+}

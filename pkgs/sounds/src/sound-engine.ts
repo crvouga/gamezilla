@@ -1,4 +1,4 @@
-import { playAudioOrIgnoreAutoplayBlock } from '@pkgs/ui';
+import { playAudioOrIgnoreAutoplayBlock } from './safe-audio-play';
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { Platform } from 'react-native';
 

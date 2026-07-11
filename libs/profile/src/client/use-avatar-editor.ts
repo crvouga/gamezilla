@@ -7,22 +7,30 @@ import type { AvatarConfig } from '../shared/avatar-config';
 import {
   configsEqual,
   createDefaultAvatarConfig,
+  generateRandomAvatarSeed,
   parseAvatarConfig,
+  resolveAvatarSeed,
   serializeAvatarConfig,
 } from '../shared/avatar-config';
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { useWriteContext } from '@libs/auth/client/use-write-context';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { createSqlWriteStore } from '@pkgs/write/client/create-sql-write-store';
+import { runClientWrite } from '@pkgs/write/client/run-client-write';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useMyProfileId } from './use-my-profile-id';
 import { useProfileRow } from './use-profile-row';
+import { profilePatchWrite } from '../shared/writes/profile-patch-write';
 
 function usePersistedConfig() {
   const profileId = useMyProfileId();
   const deviceId = useDeviceId();
-  const row = useProfileRow(profileId);
+  const { row, isLoading } = useProfileRow(profileId);
+  const needsRow = profileId !== null && profileId.length > 0;
+  const ready = !needsRow || !isLoading;
   const persisted = useMemo(() => {
     const parsed = parseAvatarConfig(row?.avatar_config ?? null);
     if (parsed !== null) {
@@ -32,21 +40,22 @@ function usePersistedConfig() {
     return createDefaultAvatarConfig(id ?? '');
   }, [row?.avatar_config, profileId, deviceId]);
   const seedFallback = profileId ?? deviceId ?? '';
-  return { seedFallback, profileId, persisted };
+  return { seedFallback, profileId, persisted, ready };
 }
 
-function useDraftSync(args: { persisted: AvatarConfig }) {
-  const { persisted } = args;
+function useDraftSync(args: { persisted: AvatarConfig; ready: boolean }) {
+  const { persisted, ready } = args;
   const [draft, setDraft] = useState<AvatarConfig>(persisted);
-  const [initialized, setInitialized] = useState(false);
+  const bootstrappedRef = useRef(false);
   const lastPersistedRef = useRef<AvatarConfig | null>(null);
 
   useEffect(() => {
+    if (!ready) return;
     const prev = lastPersistedRef.current;
-    if (prev === null) {
+    if (!bootstrappedRef.current || prev === null) {
       setDraft(persisted);
       lastPersistedRef.current = persisted;
-      setInitialized(true);
+      bootstrappedRef.current = true;
       return;
     }
     if (!configsEqual(prev, persisted)) {
@@ -55,18 +64,18 @@ function useDraftSync(args: { persisted: AvatarConfig }) {
       );
       lastPersistedRef.current = persisted;
     }
-  }, [persisted]);
+  }, [persisted, ready]);
 
-  return { draft, setDraft, initialized };
+  return { draft, setDraft, ready };
 }
 
 export type UseAvatarEditor = {
-  /** Profile `entityId` (or install id before profile id is known) for empty-seed preview. */
   seedFallback: string;
   profileId: string | null;
   draft: AvatarConfig;
   setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
-  initialized: boolean;
+  ready: boolean;
+  effectiveSeed: string;
   showDiscard: boolean;
   setShowDiscard: (v: boolean) => void;
   dirty: boolean;
@@ -82,6 +91,8 @@ export type UseAvatarEditor = {
   confirmDiscard: () => void;
   save: () => Promise<void>;
   shuffleSeed: () => void;
+  setSeed: (seed: string) => void;
+  copySeed: () => Promise<void>;
 };
 
 function useDerivedFields(args: {
@@ -106,14 +117,15 @@ function useDerivedFields(args: {
       ),
     [byTab.colors]
   );
+  const effectiveSeed = resolveAvatarSeed(draft, seedFallback);
   const previewConfig = useMemo(
     () => ({
       ...draft,
-      seed: draft.seed.trim() || seedFallback,
+      seed: effectiveSeed,
     }),
-    [draft, seedFallback]
+    [draft, effectiveSeed]
   );
-  return { byTab, featureEnums, colorFields, previewConfig };
+  return { byTab, featureEnums, colorFields, effectiveSeed, previewConfig };
 }
 
 function useDiscardActions(args: {
@@ -138,8 +150,9 @@ function useDiscardActions(args: {
 
 function useDraftMutators(args: {
   setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
+  effectiveSeed: string;
 }) {
-  const { setDraft } = args;
+  const { setDraft, effectiveSeed } = args;
   const updateOptions = useCallback(
     (fn: (o: Record<string, unknown>) => Record<string, unknown>) => {
       setDraft((d) => ({ ...d, options: fn({ ...d.options }) }));
@@ -147,9 +160,18 @@ function useDraftMutators(args: {
     [setDraft]
   );
   const shuffleSeed = useCallback(() => {
-    setDraft((d) => ({ ...d, seed: globalThis.crypto.randomUUID() }));
+    setDraft((d) => ({ ...d, seed: generateRandomAvatarSeed() }));
   }, [setDraft]);
-  return { updateOptions, shuffleSeed };
+  const setSeed = useCallback(
+    (seed: string) => {
+      setDraft((d) => ({ ...d, seed }));
+    },
+    [setDraft]
+  );
+  const copySeed = useCallback(async () => {
+    await Clipboard.setStringAsync(effectiveSeed);
+  }, [effectiveSeed]);
+  return { updateOptions, shuffleSeed, setSeed, copySeed };
 }
 
 function useSaveAction(args: {
@@ -158,13 +180,16 @@ function useSaveAction(args: {
 }) {
   const { draft, profileId } = args;
   const engine = useSyncEngine();
+  const writeContext = useWriteContext();
   return useCallback(async () => {
     if (profileId === null) return;
-    await engine.db.run(
-      `UPDATE ${PROFILES_TABLE.tableName} SET ${ProfileCol.avatarConfig} = ? WHERE ${ProfileCol.id} = ?`,
-      [serializeAvatarConfig(draft), profileId]
+    await runClientWrite(
+      profilePatchWrite,
+      writeContext,
+      { profileId, avatarConfig: serializeAvatarConfig(draft) },
+      createSqlWriteStore(engine.db)
     );
-  }, [engine, draft, profileId]);
+  }, [engine, draft, profileId, writeContext]);
 }
 
 function useEditorActions(args: {
@@ -172,15 +197,18 @@ function useEditorActions(args: {
   setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
   dirty: boolean;
   profileId: string | null;
+  effectiveSeed: string;
   setShowDiscard: (v: boolean) => void;
 }) {
-  const { draft, setDraft, dirty, profileId, setShowDiscard } = args;
+  const { draft, setDraft, dirty, profileId, effectiveSeed, setShowDiscard } =
+    args;
 
   const { onBack, confirmDiscard } = useDiscardActions({
     dirty,
     setShowDiscard,
   });
-  const { updateOptions, shuffleSeed } = useDraftMutators({ setDraft });
+  const { updateOptions, shuffleSeed, setSeed, copySeed } =
+    useDraftMutators({ setDraft, effectiveSeed });
   const save = useSaveAction({ draft, profileId });
 
   return {
@@ -189,31 +217,33 @@ function useEditorActions(args: {
     confirmDiscard,
     save,
     shuffleSeed,
+    setSeed,
+    copySeed,
   };
 }
 
 export function useAvatarEditor(): UseAvatarEditor {
-  const { seedFallback, profileId, persisted } = usePersistedConfig();
-  const { draft, setDraft, initialized } = useDraftSync({
-    persisted,
-  });
+  const { seedFallback, profileId, persisted, ready } = usePersistedConfig();
+  const { draft, setDraft } = useDraftSync({ persisted, ready });
 
   const [showDiscard, setShowDiscard] = useState(false);
 
-  const dirty = initialized && !configsEqual(draft, persisted);
+  const dirty = ready && !configsEqual(draft, persisted);
   const styleKey: StyleKey = isStyleKey(draft.style) ? draft.style : 'funEmoji';
 
-  const { byTab, featureEnums, colorFields, previewConfig } = useDerivedFields({
-    draft,
-    seedFallback,
-    styleKey,
-  });
+  const { byTab, featureEnums, colorFields, effectiveSeed, previewConfig } =
+    useDerivedFields({
+      draft,
+      seedFallback,
+      styleKey,
+    });
 
   const actions = useEditorActions({
     draft,
     setDraft,
     dirty,
     profileId,
+    effectiveSeed,
     setShowDiscard,
   });
 
@@ -222,7 +252,8 @@ export function useAvatarEditor(): UseAvatarEditor {
     profileId,
     draft,
     setDraft,
-    initialized,
+    ready,
+    effectiveSeed,
     showDiscard,
     setShowDiscard,
     dirty,

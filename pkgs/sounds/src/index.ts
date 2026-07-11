@@ -5,6 +5,10 @@ export { createSoundEngine, type PlaySoundOptions, type SoundEngine } from './so
 export { Sounds, isSoundId, type SoundId } from './sound-id';
 export { soundAssetSources, type SoundAssetSourceId } from './sound-sources';
 export {
+  isAutoplayBlockedError,
+  playAudioOrIgnoreAutoplayBlock,
+} from './safe-audio-play';
+export {
   SoundEngineProvider,
   useOptionalSoundEngine,
   useSound,

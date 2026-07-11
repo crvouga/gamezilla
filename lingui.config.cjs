@@ -16,6 +16,7 @@ module.exports = {
       include: [
         '<rootDir>/apps/client/src',
         '<rootDir>/pkgs/ui/src',
+        '<rootDir>/pkgs/inbox/src',
         '<rootDir>/pkgs/chess-board/src',
         '<rootDir>/pkgs/room-widgets/src',
         '<rootDir>/libs/chess/src',

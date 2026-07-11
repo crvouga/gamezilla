@@ -1,3 +1,4 @@
+import { useWriteContext } from '@libs/auth/client/use-write-context';
 import { useMyProfileId } from './use-my-profile-id';
 import { useProfileRow, type ProfileRow } from './use-profile-row';
 import { updateProfile } from './profile-actions';
@@ -70,15 +71,18 @@ function ProfileUsernameScreenBody({
 export function ProfileUsernameScreen() {
   const router = useRouter();
   const engine = useSyncEngine();
+  const writeContext = useWriteContext();
   const profileId = useMyProfileId();
-  const row = useProfileRow(profileId);
+  const { row } = useProfileRow(profileId);
   const [value, setValue] = useSyncedDisplayName(row);
   const nav = useBreadcrumbNav();
 
   const save = useCallback(async () => {
     if (profileId === null) return;
-    await updateProfile(engine.db, profileId, { displayName: value.trim() });
-  }, [engine, profileId, value]);
+    await updateProfile(engine.db, writeContext, profileId, {
+      displayName: value.trim(),
+    });
+  }, [engine, profileId, value, writeContext]);
 
   return (
     <ScreenBase

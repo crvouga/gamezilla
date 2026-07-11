@@ -1,0 +1,37 @@
+{
+  "name": "@pkgs/inbox",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client/index.ts",
+    "./server/publish": "./src/server/publish.ts",
+    "./server/action-registry": "./src/server/action-registry.ts",
+    "./sync/table-defs": "./sync/table-defs.ts",
+    "./*": ["./src/*.ts", "./src/*.tsx", "./src/*/index.ts"]
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "tc": "tsc --noEmit -p ./tsconfig.json",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/write": "workspace:*",
+    "@pkgs/sounds": "workspace:*",
+    "@pkgs/ui": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/react": "catalog:",
+    "expo-router": "catalog:",
+    "hono": "catalog:",
+    "react": "catalog:",
+    "react-native": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,131 @@
+import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
+import { appAuth } from '@libs/auth/shared/auth-context';
+import {
+  acceptFriendRequest,
+  backfillFriendRequestInboxInteractions,
+  cancelFriendRequest,
+  declineFriendRequest,
+} from '@libs/friends/server/request-service';
+import { assert } from '@pkgs/assert';
+import { registerActionHandler } from '@pkgs/inbox/server/action-registry';
+import { Inbox } from '@pkgs/inbox';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { MiddlewareHandler } from 'hono';
+import { AsyncLocalStorage } from 'node:async_hooks';
+
+import { apiRequestAsyncLocalStorage } from '../request-scope';
+
+const inboxActorStorage = new AsyncLocalStorage<string>();
+
+let handlersRegistered = false;
+
+function ensureFriendsInboxHandlers(): void {
+  if (handlersRegistered) return;
+  handlersRegistered = true;
+
+  registerActionHandler('friends', async (ctx) => {
+    const payload = ctx.interaction.payload;
+    const requestId =
+      typeof payload['requestId'] === 'string' ? payload['requestId'] : null;
+    if (requestId === null) {
+      throw new Error('Missing requestId in interaction payload');
+    }
+    if (ctx.actionId === 'accept') {
+      await acceptFriendRequest(ctx.sql, ctx.actorId, requestId);
+      return;
+    }
+    if (ctx.actionId === 'decline') {
+      await declineFriendRequest(ctx.sql, ctx.actorId, requestId);
+      return;
+    }
+    if (ctx.actionId === 'cancel') {
+      await cancelFriendRequest(ctx.sql, ctx.actorId, requestId);
+      return;
+    }
+    throw new Error(`Unknown friends inbox action: ${ctx.actionId}`);
+  });
+}
+
+const requireAuth: MiddlewareHandler = async (c, next) => {
+  const store = apiRequestAsyncLocalStorage.getStore();
+  assert.defined(store, 'inbox auth: request store missing');
+  try {
+    const ctx = await store.sessionAuth.requireAuthContext(
+      store.sqlClient,
+      c.req.raw
+    );
+    const auth = appAuth(ctx);
+    if (auth === null || auth.accountId === null) {
+      throw new UnauthorizedError('Inbox requires a signed-in account');
+    }
+    return inboxActorStorage.run(auth.accountId, next);
+  } catch (err: unknown) {
+    if (err instanceof UnauthorizedError) {
+      return c.json({ error: err.message }, 401);
+    }
+    throw err;
+  }
+};
+
+function lazyRequestSqlClient(): SqlClient {
+  return {
+    connect: async () => {},
+    disconnect: async () => {},
+    query: (sql, params) => {
+      const store = apiRequestAsyncLocalStorage.getStore();
+      assert.defined(store, 'inbox sql: request store missing');
+      return store.sqlClient.query(sql, params);
+    },
+    run: (sql, params) => {
+      const store = apiRequestAsyncLocalStorage.getStore();
+      assert.defined(store, 'inbox sql: request store missing');
+      return store.sqlClient.run(sql, params);
+    },
+    transaction: (fn) => {
+      const store = apiRequestAsyncLocalStorage.getStore();
+      assert.defined(store, 'inbox sql: request store missing');
+      return store.sqlClient.transaction(fn);
+    },
+    prepare: (sql) => {
+      const store = apiRequestAsyncLocalStorage.getStore();
+      assert.defined(store, 'inbox sql: request store missing');
+      return store.sqlClient.prepare(sql);
+    },
+  };
+}
+
+function lazyRequestContext() {
+  const store = apiRequestAsyncLocalStorage.getStore();
+  const actorId = inboxActorStorage.getStore();
+  assert.defined(store, 'inbox: request store missing');
+  assert.defined(actorId, 'inbox: actor id missing');
+  return { sql: store.sqlClient, actorId };
+}
+
+let inboxInstance: Inbox | null = null;
+
+function getInbox(): Inbox {
+  if (inboxInstance === null) {
+    inboxInstance = new Inbox({ sqlClient: lazyRequestSqlClient() });
+  }
+  return inboxInstance;
+}
+
+export function createInboxSubApp() {
+  ensureFriendsInboxHandlers();
+  const inbox = getInbox();
+  const app = inbox.app({ requireAuth, requestContext: lazyRequestContext });
+
+  app.use('*', async (_c, next) => {
+    await inbox.ready();
+    await next();
+  });
+
+  app.post('/backfill', async (c) => {
+    const { sql, actorId } = lazyRequestContext();
+    const count = await backfillFriendRequestInboxInteractions(sql, actorId);
+    return c.json({ backfilled: count });
+  });
+
+  return app;
+}

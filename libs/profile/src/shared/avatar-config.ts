@@ -34,6 +34,19 @@ export function createDefaultAvatarConfig(
   };
 }
 
+const RANDOM_SEED_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
+/** Short alphanumeric seed for DiceBear randomize (not a UUID). */
+export function generateRandomAvatarSeed(length = 12): string {
+  const bytes = new Uint8Array(length);
+  globalThis.crypto.getRandomValues(bytes);
+  let out = '';
+  for (let i = 0; i < length; i++) {
+    out += RANDOM_SEED_CHARS[bytes[i]! % RANDOM_SEED_CHARS.length]!;
+  }
+  return out;
+}
+
 function tryParseJsonObject(raw: string): Record<string, unknown> | null {
   try {
     const parsed: unknown = JSON.parse(raw);

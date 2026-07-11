@@ -1,4 +1,5 @@
 import { createTableRegistry } from '@pkgs/sync-engine/shared/table-registry';
+import { ALL_INBOX_SYNC_TABLES } from '@pkgs/inbox/sync/table-defs';
 
 import { AUTH_TABLE_DEFINITIONS } from './auth-tables';
 import { ALL_CHESS_SYNC_TABLES } from './chess-tables';
@@ -16,5 +17,6 @@ export const SYNC_TABLE_REGISTRY = createTableRegistry([
   ...ALL_CHESS_SYNC_TABLES,
   ...ALL_CLIENT_CONFIG_SYNC_TABLES,
   ...ALL_FRIENDS_SYNC_TABLES,
+  ...ALL_INBOX_SYNC_TABLES,
   ENTITY_STORE_TABLE_DEF,
 ]);

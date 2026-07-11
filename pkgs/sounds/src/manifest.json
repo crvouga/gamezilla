@@ -2,7 +2,7 @@
   {
     "id": "navigation.click",
     "category": "navigation",
-    "filename": "navigation/click.wav",
+    "filename": "navigation/click.mp3",
     "durationMs": 97,
     "tags": [
       "tap",
@@ -19,7 +19,7 @@
   {
     "id": "navigation.clickPrimary",
     "category": "navigation",
-    "filename": "navigation/click-primary.wav",
+    "filename": "navigation/click-primary.mp3",
     "durationMs": 12,
     "tags": [
       "tap",
@@ -36,7 +36,7 @@
   {
     "id": "navigation.clickSecondary",
     "category": "navigation",
-    "filename": "navigation/click-secondary.wav",
+    "filename": "navigation/click-secondary.mp3",
     "durationMs": 89,
     "tags": [
       "tap",
@@ -53,7 +53,7 @@
   {
     "id": "navigation.clickDestructive",
     "category": "navigation",
-    "filename": "navigation/click-destructive.wav",
+    "filename": "navigation/click-destructive.mp3",
     "durationMs": 7,
     "tags": [
       "tap",
@@ -70,7 +70,7 @@
   {
     "id": "navigation.release",
     "category": "navigation",
-    "filename": "navigation/release.wav",
+    "filename": "navigation/release.mp3",
     "durationMs": 82,
     "tags": [
       "release"
@@ -86,7 +86,7 @@
   {
     "id": "navigation.hover",
     "category": "navigation",
-    "filename": "navigation/hover.wav",
+    "filename": "navigation/hover.mp3",
     "durationMs": 62,
     "tags": [
       "hover",
@@ -103,7 +103,7 @@
   {
     "id": "navigation.focus",
     "category": "navigation",
-    "filename": "navigation/focus.wav",
+    "filename": "navigation/focus.mp3",
     "durationMs": 45,
     "tags": [
       "focus",
@@ -120,7 +120,7 @@
   {
     "id": "navigation.tabSwitch",
     "category": "navigation",
-    "filename": "navigation/tab-switch.wav",
+    "filename": "navigation/tab-switch.mp3",
     "durationMs": 615,
     "tags": [
       "tab"
@@ -136,7 +136,7 @@
   {
     "id": "navigation.pageForward",
     "category": "navigation",
-    "filename": "navigation/page-forward.wav",
+    "filename": "navigation/page-forward.mp3",
     "durationMs": 40,
     "tags": [
       "page",
@@ -153,7 +153,7 @@
   {
     "id": "navigation.pageBack",
     "category": "navigation",
-    "filename": "navigation/page-back.wav",
+    "filename": "navigation/page-back.mp3",
     "durationMs": 61,
     "tags": [
       "page",
@@ -170,7 +170,7 @@
   {
     "id": "navigation.drawerOpen",
     "category": "navigation",
-    "filename": "navigation/drawer-open.wav",
+    "filename": "navigation/drawer-open.mp3",
     "durationMs": 148,
     "tags": [
       "drawer",
@@ -187,7 +187,7 @@
   {
     "id": "navigation.drawerClose",
     "category": "navigation",
-    "filename": "navigation/drawer-close.wav",
+    "filename": "navigation/drawer-close.mp3",
     "durationMs": 148,
     "tags": [
       "drawer",
@@ -204,7 +204,7 @@
   {
     "id": "navigation.modalOpen",
     "category": "navigation",
-    "filename": "navigation/modal-open.wav",
+    "filename": "navigation/modal-open.mp3",
     "durationMs": 258,
     "tags": [
       "modal",
@@ -221,7 +221,7 @@
   {
     "id": "navigation.modalClose",
     "category": "navigation",
-    "filename": "navigation/modal-close.wav",
+    "filename": "navigation/modal-close.mp3",
     "durationMs": 258,
     "tags": [
       "modal",
@@ -238,7 +238,7 @@
   {
     "id": "navigation.back",
     "category": "navigation",
-    "filename": "navigation/back.wav",
+    "filename": "navigation/back.mp3",
     "durationMs": 91,
     "tags": [
       "back"
@@ -254,7 +254,7 @@
   {
     "id": "navigation.forward",
     "category": "navigation",
-    "filename": "navigation/forward.wav",
+    "filename": "navigation/forward.mp3",
     "durationMs": 40,
     "tags": [
       "forward"
@@ -270,7 +270,7 @@
   {
     "id": "navigation.dropdownOpen",
     "category": "navigation",
-    "filename": "navigation/dropdown-open.wav",
+    "filename": "navigation/dropdown-open.mp3",
     "durationMs": 132,
     "tags": [
       "dropdown"
@@ -286,7 +286,7 @@
   {
     "id": "navigation.dropdownSelect",
     "category": "navigation",
-    "filename": "navigation/dropdown-select.wav",
+    "filename": "navigation/dropdown-select.mp3",
     "durationMs": 376,
     "tags": [
       "dropdown",
@@ -303,8 +303,8 @@
   {
     "id": "navigation.accordionExpand",
     "category": "navigation",
-    "filename": "navigation/accordion-expand.wav",
-    "durationMs": 314,
+    "filename": "navigation/accordion-expand.mp3",
+    "durationMs": 315,
     "tags": [
       "accordion"
     ],
@@ -319,8 +319,8 @@
   {
     "id": "navigation.accordionCollapse",
     "category": "navigation",
-    "filename": "navigation/accordion-collapse.wav",
-    "durationMs": 314,
+    "filename": "navigation/accordion-collapse.mp3",
+    "durationMs": 315,
     "tags": [
       "accordion"
     ],
@@ -335,7 +335,7 @@
   {
     "id": "feedback.success",
     "category": "feedback",
-    "filename": "feedback/success.wav",
+    "filename": "feedback/success.mp3",
     "durationMs": 539,
     "tags": [
       "success",
@@ -352,7 +352,7 @@
   {
     "id": "feedback.successSubtle",
     "category": "feedback",
-    "filename": "feedback/success-subtle.wav",
+    "filename": "feedback/success-subtle.mp3",
     "durationMs": 290,
     "tags": [
       "success",
@@ -369,8 +369,8 @@
   {
     "id": "feedback.failure",
     "category": "feedback",
-    "filename": "feedback/failure.wav",
-    "durationMs": 105,
+    "filename": "feedback/failure.mp3",
+    "durationMs": 106,
     "tags": [
       "failure",
       "mutation"
@@ -386,7 +386,7 @@
   {
     "id": "feedback.failureSubtle",
     "category": "feedback",
-    "filename": "feedback/failure-subtle.wav",
+    "filename": "feedback/failure-subtle.mp3",
     "durationMs": 165,
     "tags": [
       "failure",
@@ -403,7 +403,7 @@
   {
     "id": "feedback.warning",
     "category": "feedback",
-    "filename": "feedback/warning.wav",
+    "filename": "feedback/warning.mp3",
     "durationMs": 491,
     "tags": [
       "warning"
@@ -419,7 +419,7 @@
   {
     "id": "feedback.error",
     "category": "feedback",
-    "filename": "feedback/error.wav",
+    "filename": "feedback/error.mp3",
     "durationMs": 486,
     "tags": [
       "error"
@@ -435,7 +435,7 @@
   {
     "id": "feedback.info",
     "category": "feedback",
-    "filename": "feedback/info.wav",
+    "filename": "feedback/info.mp3",
     "durationMs": 20,
     "tags": [
       "info"
@@ -451,7 +451,7 @@
   {
     "id": "feedback.confirmation",
     "category": "feedback",
-    "filename": "feedback/confirmation.wav",
+    "filename": "feedback/confirmation.mp3",
     "durationMs": 322,
     "tags": [
       "confirm"
@@ -467,7 +467,7 @@
   {
     "id": "feedback.cancel",
     "category": "feedback",
-    "filename": "feedback/cancel.wav",
+    "filename": "feedback/cancel.mp3",
     "durationMs": 90,
     "tags": [
       "cancel"
@@ -483,7 +483,7 @@
   {
     "id": "feedback.undo",
     "category": "feedback",
-    "filename": "feedback/undo.wav",
+    "filename": "feedback/undo.mp3",
     "durationMs": 139,
     "tags": [
       "undo"
@@ -499,7 +499,7 @@
   {
     "id": "feedback.retry",
     "category": "feedback",
-    "filename": "feedback/retry.wav",
+    "filename": "feedback/retry.mp3",
     "durationMs": 17,
     "tags": [
       "retry"
@@ -515,7 +515,7 @@
   {
     "id": "notifications.notification",
     "category": "notifications",
-    "filename": "notifications/notification.wav",
+    "filename": "notifications/notification.mp3",
     "durationMs": 120,
     "tags": [
       "notification"
@@ -531,7 +531,7 @@
   {
     "id": "notifications.notificationUrgent",
     "category": "notifications",
-    "filename": "notifications/notification-urgent.wav",
+    "filename": "notifications/notification-urgent.mp3",
     "durationMs": 5000,
     "tags": [
       "notification",
@@ -548,7 +548,7 @@
   {
     "id": "notifications.mention",
     "category": "notifications",
-    "filename": "notifications/mention.wav",
+    "filename": "notifications/mention.mp3",
     "durationMs": 100,
     "tags": [
       "mention"
@@ -564,7 +564,7 @@
   {
     "id": "notifications.reminder",
     "category": "notifications",
-    "filename": "notifications/reminder.wav",
+    "filename": "notifications/reminder.mp3",
     "durationMs": 55,
     "tags": [
       "reminder"
@@ -580,7 +580,7 @@
   {
     "id": "notifications.achievement",
     "category": "notifications",
-    "filename": "notifications/achievement.wav",
+    "filename": "notifications/achievement.mp3",
     "durationMs": 563,
     "tags": [
       "achievement",
@@ -597,7 +597,7 @@
   {
     "id": "notifications.reward",
     "category": "notifications",
-    "filename": "notifications/reward.wav",
+    "filename": "notifications/reward.mp3",
     "durationMs": 536,
     "tags": [
       "reward",
@@ -614,7 +614,7 @@
   {
     "id": "notifications.badgeUnlocked",
     "category": "notifications",
-    "filename": "notifications/badge-unlocked.wav",
+    "filename": "notifications/badge-unlocked.mp3",
     "durationMs": 690,
     "tags": [
       "badge",
@@ -631,7 +631,7 @@
   {
     "id": "notifications.streak",
     "category": "notifications",
-    "filename": "notifications/streak.wav",
+    "filename": "notifications/streak.mp3",
     "durationMs": 569,
     "tags": [
       "streak",
@@ -648,7 +648,7 @@
   {
     "id": "notifications.milestone",
     "category": "notifications",
-    "filename": "notifications/milestone.wav",
+    "filename": "notifications/milestone.mp3",
     "durationMs": 797,
     "tags": [
       "milestone",
@@ -665,8 +665,8 @@
   {
     "id": "notifications.levelUp",
     "category": "notifications",
-    "filename": "notifications/level-up.wav",
-    "durationMs": 993,
+    "filename": "notifications/level-up.mp3",
+    "durationMs": 994,
     "tags": [
       "level-up",
       "stinger"
@@ -682,7 +682,7 @@
   {
     "id": "social.friendRequestReceived",
     "category": "social",
-    "filename": "social/friend-request-received.wav",
+    "filename": "social/friend-request-received.mp3",
     "durationMs": 333,
     "tags": [
       "friends"
@@ -698,7 +698,7 @@
   {
     "id": "social.friendRequestAccepted",
     "category": "social",
-    "filename": "social/friend-request-accepted.wav",
+    "filename": "social/friend-request-accepted.mp3",
     "durationMs": 955,
     "tags": [
       "friends",
@@ -715,7 +715,7 @@
   {
     "id": "social.friendRequestDeclined",
     "category": "social",
-    "filename": "social/friend-request-declined.wav",
+    "filename": "social/friend-request-declined.mp3",
     "durationMs": 532,
     "tags": [
       "friends"
@@ -731,7 +731,7 @@
   {
     "id": "social.friendOnline",
     "category": "social",
-    "filename": "social/friend-online.wav",
+    "filename": "social/friend-online.mp3",
     "durationMs": 1090,
     "tags": [
       "presence"
@@ -747,7 +747,7 @@
   {
     "id": "social.friendOffline",
     "category": "social",
-    "filename": "social/friend-offline.wav",
+    "filename": "social/friend-offline.mp3",
     "durationMs": 658,
     "tags": [
       "presence"
@@ -763,7 +763,7 @@
   {
     "id": "social.directMessage",
     "category": "social",
-    "filename": "social/direct-message.wav",
+    "filename": "social/direct-message.mp3",
     "durationMs": 188,
     "tags": [
       "dm"
@@ -779,7 +779,7 @@
   {
     "id": "social.typingTick",
     "category": "social",
-    "filename": "social/typing-tick.wav",
+    "filename": "social/typing-tick.mp3",
     "durationMs": 45,
     "tags": [
       "typing"
@@ -795,7 +795,7 @@
   {
     "id": "social.partyInvite",
     "category": "social",
-    "filename": "social/party-invite.wav",
+    "filename": "social/party-invite.mp3",
     "durationMs": 330,
     "tags": [
       "invite"
@@ -811,7 +811,7 @@
   {
     "id": "social.roomInvite",
     "category": "social",
-    "filename": "social/room-invite.wav",
+    "filename": "social/room-invite.mp3",
     "durationMs": 120,
     "tags": [
       "invite",
@@ -828,7 +828,7 @@
   {
     "id": "social.roomJoined",
     "category": "social",
-    "filename": "social/room-joined.wav",
+    "filename": "social/room-joined.mp3",
     "durationMs": 322,
     "tags": [
       "room"
@@ -844,7 +844,7 @@
   {
     "id": "social.roomLeft",
     "category": "social",
-    "filename": "social/room-left.wav",
+    "filename": "social/room-left.mp3",
     "durationMs": 658,
     "tags": [
       "room"
@@ -860,7 +860,7 @@
   {
     "id": "social.playerJoined",
     "category": "social",
-    "filename": "social/player-joined.wav",
+    "filename": "social/player-joined.mp3",
     "durationMs": 376,
     "tags": [
       "player"
@@ -876,7 +876,7 @@
   {
     "id": "social.playerLeft",
     "category": "social",
-    "filename": "social/player-left.wav",
+    "filename": "social/player-left.mp3",
     "durationMs": 94,
     "tags": [
       "player"
@@ -892,7 +892,7 @@
   {
     "id": "social.userBlocked",
     "category": "social",
-    "filename": "social/user-blocked.wav",
+    "filename": "social/user-blocked.mp3",
     "durationMs": 471,
     "tags": [
       "block"
@@ -908,7 +908,7 @@
   {
     "id": "multiplayer.matchmakingFound",
     "category": "multiplayer",
-    "filename": "multiplayer/matchmaking-found.wav",
+    "filename": "multiplayer/matchmaking-found.mp3",
     "durationMs": 996,
     "tags": [
       "matchmaking"
@@ -924,7 +924,7 @@
   {
     "id": "multiplayer.matchmakingCancelled",
     "category": "multiplayer",
-    "filename": "multiplayer/matchmaking-cancelled.wav",
+    "filename": "multiplayer/matchmaking-cancelled.mp3",
     "durationMs": 61,
     "tags": [
       "matchmaking"
@@ -940,7 +940,7 @@
   {
     "id": "multiplayer.matchmakingFailed",
     "category": "multiplayer",
-    "filename": "multiplayer/matchmaking-failed.wav",
+    "filename": "multiplayer/matchmaking-failed.mp3",
     "durationMs": 192,
     "tags": [
       "matchmaking"
@@ -956,7 +956,7 @@
   {
     "id": "multiplayer.countdownTick",
     "category": "multiplayer",
-    "filename": "multiplayer/countdown-tick.wav",
+    "filename": "multiplayer/countdown-tick.mp3",
     "durationMs": 45,
     "tags": [
       "countdown"
@@ -972,7 +972,7 @@
   {
     "id": "multiplayer.countdownFinal",
     "category": "multiplayer",
-    "filename": "multiplayer/countdown-final.wav",
+    "filename": "multiplayer/countdown-final.mp3",
     "durationMs": 120,
     "tags": [
       "countdown"
@@ -988,7 +988,7 @@
   {
     "id": "multiplayer.gameStarting",
     "category": "multiplayer",
-    "filename": "multiplayer/game-starting.wav",
+    "filename": "multiplayer/game-starting.mp3",
     "durationMs": 1147,
     "tags": [
       "game-start"
@@ -1004,7 +1004,7 @@
   {
     "id": "multiplayer.gameEnded",
     "category": "multiplayer",
-    "filename": "multiplayer/game-ended.wav",
+    "filename": "multiplayer/game-ended.mp3",
     "durationMs": 923,
     "tags": [
       "game-end"
@@ -1020,7 +1020,7 @@
   {
     "id": "multiplayer.reconnecting",
     "category": "multiplayer",
-    "filename": "multiplayer/reconnecting.wav",
+    "filename": "multiplayer/reconnecting.mp3",
     "durationMs": 27,
     "tags": [
       "connection"
@@ -1036,7 +1036,7 @@
   {
     "id": "multiplayer.connectionRestored",
     "category": "multiplayer",
-    "filename": "multiplayer/connection-restored.wav",
+    "filename": "multiplayer/connection-restored.mp3",
     "durationMs": 988,
     "tags": [
       "connection"
@@ -1052,7 +1052,7 @@
   {
     "id": "multiplayer.disconnected",
     "category": "multiplayer",
-    "filename": "multiplayer/disconnected.wav",
+    "filename": "multiplayer/disconnected.mp3",
     "durationMs": 162,
     "tags": [
       "connection"
@@ -1068,7 +1068,7 @@
   {
     "id": "multiplayer.spectatorJoined",
     "category": "multiplayer",
-    "filename": "multiplayer/spectator-joined.wav",
+    "filename": "multiplayer/spectator-joined.mp3",
     "durationMs": 376,
     "tags": [
       "spectator"
@@ -1084,7 +1084,7 @@
   {
     "id": "multiplayer.hostChanged",
     "category": "multiplayer",
-    "filename": "multiplayer/host-changed.wav",
+    "filename": "multiplayer/host-changed.mp3",
     "durationMs": 608,
     "tags": [
       "host"
@@ -1100,7 +1100,7 @@
   {
     "id": "chat.send",
     "category": "chat",
-    "filename": "chat/send.wav",
+    "filename": "chat/send.mp3",
     "durationMs": 7,
     "tags": [
       "chat"
@@ -1116,7 +1116,7 @@
   {
     "id": "chat.receive",
     "category": "chat",
-    "filename": "chat/receive.wav",
+    "filename": "chat/receive.mp3",
     "durationMs": 188,
     "tags": [
       "chat"
@@ -1132,7 +1132,7 @@
   {
     "id": "chat.reaction",
     "category": "chat",
-    "filename": "chat/reaction.wav",
+    "filename": "chat/reaction.mp3",
     "durationMs": 162,
     "tags": [
       "chat",
@@ -1149,7 +1149,7 @@
   {
     "id": "chat.mention",
     "category": "chat",
-    "filename": "chat/mention.wav",
+    "filename": "chat/mention.mp3",
     "durationMs": 100,
     "tags": [
       "chat",
@@ -1166,7 +1166,7 @@
   {
     "id": "chat.unread",
     "category": "chat",
-    "filename": "chat/unread.wav",
+    "filename": "chat/unread.mp3",
     "durationMs": 55,
     "tags": [
       "chat"
@@ -1182,7 +1182,7 @@
   {
     "id": "chat.threadReply",
     "category": "chat",
-    "filename": "chat/thread-reply.wav",
+    "filename": "chat/thread-reply.mp3",
     "durationMs": 1918,
     "tags": [
       "chat",
@@ -1199,7 +1199,7 @@
   {
     "id": "chat.messageDeleted",
     "category": "chat",
-    "filename": "chat/message-deleted.wav",
+    "filename": "chat/message-deleted.mp3",
     "durationMs": 139,
     "tags": [
       "chat"
@@ -1215,7 +1215,7 @@
   {
     "id": "lobby.ready",
     "category": "lobby",
-    "filename": "lobby/ready.wav",
+    "filename": "lobby/ready.mp3",
     "durationMs": 136,
     "tags": [
       "lobby"
@@ -1231,7 +1231,7 @@
   {
     "id": "lobby.unready",
     "category": "lobby",
-    "filename": "lobby/unready.wav",
+    "filename": "lobby/unready.mp3",
     "durationMs": 136,
     "tags": [
       "lobby"
@@ -1247,7 +1247,7 @@
   {
     "id": "lobby.hostChanged",
     "category": "lobby",
-    "filename": "lobby/host-changed.wav",
+    "filename": "lobby/host-changed.mp3",
     "durationMs": 500,
     "tags": [
       "lobby",
@@ -1264,7 +1264,7 @@
   {
     "id": "lobby.teamSwitched",
     "category": "lobby",
-    "filename": "lobby/team-switched.wav",
+    "filename": "lobby/team-switched.mp3",
     "durationMs": 497,
     "tags": [
       "lobby",
@@ -1281,7 +1281,7 @@
   {
     "id": "lobby.slotFilled",
     "category": "lobby",
-    "filename": "lobby/slot-filled.wav",
+    "filename": "lobby/slot-filled.mp3",
     "durationMs": 284,
     "tags": [
       "lobby"
@@ -1297,7 +1297,7 @@
   {
     "id": "lobby.slotEmptied",
     "category": "lobby",
-    "filename": "lobby/slot-emptied.wav",
+    "filename": "lobby/slot-emptied.mp3",
     "durationMs": 123,
     "tags": [
       "lobby"
@@ -1313,7 +1313,7 @@
   {
     "id": "lobby.inviteAccepted",
     "category": "lobby",
-    "filename": "lobby/invite-accepted.wav",
+    "filename": "lobby/invite-accepted.mp3",
     "durationMs": 490,
     "tags": [
       "lobby",
@@ -1330,7 +1330,7 @@
   {
     "id": "lobby.settingsChanged",
     "category": "lobby",
-    "filename": "lobby/settings-changed.wav",
+    "filename": "lobby/settings-changed.mp3",
     "durationMs": 609,
     "tags": [
       "lobby"
@@ -1346,7 +1346,7 @@
   {
     "id": "lobby.lobbyCountdownStart",
     "category": "lobby",
-    "filename": "lobby/countdown-start.wav",
+    "filename": "lobby/countdown-start.mp3",
     "durationMs": 120,
     "tags": [
       "lobby",
@@ -1363,7 +1363,7 @@
   {
     "id": "gameplay.turnStart",
     "category": "gameplay",
-    "filename": "gameplay/turn-start.wav",
+    "filename": "gameplay/turn-start.mp3",
     "durationMs": 60,
     "tags": [
       "turn"
@@ -1379,7 +1379,7 @@
   {
     "id": "gameplay.turnEnd",
     "category": "gameplay",
-    "filename": "gameplay/turn-end.wav",
+    "filename": "gameplay/turn-end.mp3",
     "durationMs": 91,
     "tags": [
       "turn"
@@ -1395,7 +1395,7 @@
   {
     "id": "gameplay.move",
     "category": "gameplay",
-    "filename": "gameplay/move.wav",
+    "filename": "gameplay/move.mp3",
     "durationMs": 118,
     "tags": [
       "move"
@@ -1411,7 +1411,7 @@
   {
     "id": "gameplay.capture",
     "category": "gameplay",
-    "filename": "gameplay/capture.wav",
+    "filename": "gameplay/capture.mp3",
     "durationMs": 609,
     "tags": [
       "capture"
@@ -1427,7 +1427,7 @@
   {
     "id": "gameplay.place",
     "category": "gameplay",
-    "filename": "gameplay/place.wav",
+    "filename": "gameplay/place.mp3",
     "durationMs": 266,
     "tags": [
       "place"
@@ -1443,7 +1443,7 @@
   {
     "id": "gameplay.select",
     "category": "gameplay",
-    "filename": "gameplay/select.wav",
+    "filename": "gameplay/select.mp3",
     "durationMs": 60,
     "tags": [
       "select"
@@ -1459,7 +1459,7 @@
   {
     "id": "gameplay.deselect",
     "category": "gameplay",
-    "filename": "gameplay/deselect.wav",
+    "filename": "gameplay/deselect.mp3",
     "durationMs": 90,
     "tags": [
       "select"
@@ -1475,7 +1475,7 @@
   {
     "id": "gameplay.timerWarning",
     "category": "gameplay",
-    "filename": "gameplay/timer-warning.wav",
+    "filename": "gameplay/timer-warning.mp3",
     "durationMs": 55,
     "tags": [
       "timer"
@@ -1491,7 +1491,7 @@
   {
     "id": "gameplay.timerExpired",
     "category": "gameplay",
-    "filename": "gameplay/timer-expired.wav",
+    "filename": "gameplay/timer-expired.mp3",
     "durationMs": 486,
     "tags": [
       "timer"
@@ -1507,7 +1507,7 @@
   {
     "id": "gameplay.victory",
     "category": "gameplay",
-    "filename": "gameplay/victory.wav",
+    "filename": "gameplay/victory.mp3",
     "durationMs": 806,
     "tags": [
       "victory",
@@ -1524,7 +1524,7 @@
   {
     "id": "gameplay.defeat",
     "category": "gameplay",
-    "filename": "gameplay/defeat.wav",
+    "filename": "gameplay/defeat.mp3",
     "durationMs": 462,
     "tags": [
       "defeat",
@@ -1541,7 +1541,7 @@
   {
     "id": "gameplay.draw",
     "category": "gameplay",
-    "filename": "gameplay/draw.wav",
+    "filename": "gameplay/draw.mp3",
     "durationMs": 568,
     "tags": [
       "draw",
@@ -1558,7 +1558,7 @@
   {
     "id": "gameplay.scoreIncrease",
     "category": "gameplay",
-    "filename": "gameplay/score-increase.wav",
+    "filename": "gameplay/score-increase.mp3",
     "durationMs": 409,
     "tags": [
       "score"
@@ -1574,7 +1574,7 @@
   {
     "id": "gameplay.scoreDecrease",
     "category": "gameplay",
-    "filename": "gameplay/score-decrease.wav",
+    "filename": "gameplay/score-decrease.mp3",
     "durationMs": 658,
     "tags": [
       "score"
@@ -1590,7 +1590,7 @@
   {
     "id": "gameplay.combo",
     "category": "gameplay",
-    "filename": "gameplay/combo.wav",
+    "filename": "gameplay/combo.mp3",
     "durationMs": 389,
     "tags": [
       "combo"
@@ -1606,7 +1606,7 @@
   {
     "id": "gameplay.comboBreak",
     "category": "gameplay",
-    "filename": "gameplay/combo-break.wav",
+    "filename": "gameplay/combo-break.mp3",
     "durationMs": 12,
     "tags": [
       "combo"
@@ -1622,7 +1622,7 @@
   {
     "id": "gameplay.checkpoint",
     "category": "gameplay",
-    "filename": "gameplay/checkpoint.wav",
+    "filename": "gameplay/checkpoint.mp3",
     "durationMs": 1324,
     "tags": [
       "checkpoint",
@@ -1639,7 +1639,7 @@
   {
     "id": "gameplay.invalidMove",
     "category": "gameplay",
-    "filename": "gameplay/invalid-move.wav",
+    "filename": "gameplay/invalid-move.mp3",
     "durationMs": 532,
     "tags": [
       "invalid"
@@ -1655,7 +1655,7 @@
   {
     "id": "forms.checkboxOn",
     "category": "forms",
-    "filename": "forms/checkbox-on.wav",
+    "filename": "forms/checkbox-on.mp3",
     "durationMs": 139,
     "tags": [
       "checkbox"
@@ -1671,7 +1671,7 @@
   {
     "id": "forms.checkboxOff",
     "category": "forms",
-    "filename": "forms/checkbox-off.wav",
+    "filename": "forms/checkbox-off.mp3",
     "durationMs": 63,
     "tags": [
       "checkbox"
@@ -1687,7 +1687,7 @@
   {
     "id": "forms.radioSelect",
     "category": "forms",
-    "filename": "forms/radio-select.wav",
+    "filename": "forms/radio-select.mp3",
     "durationMs": 40,
     "tags": [
       "radio"
@@ -1703,7 +1703,7 @@
   {
     "id": "forms.toggleOn",
     "category": "forms",
-    "filename": "forms/toggle-on.wav",
+    "filename": "forms/toggle-on.mp3",
     "durationMs": 260,
     "tags": [
       "toggle"
@@ -1719,7 +1719,7 @@
   {
     "id": "forms.toggleOff",
     "category": "forms",
-    "filename": "forms/toggle-off.wav",
+    "filename": "forms/toggle-off.mp3",
     "durationMs": 290,
     "tags": [
       "toggle"
@@ -1735,7 +1735,7 @@
   {
     "id": "forms.sliderTick",
     "category": "forms",
-    "filename": "forms/slider-tick.wav",
+    "filename": "forms/slider-tick.mp3",
     "durationMs": 45,
     "tags": [
       "slider"
@@ -1751,7 +1751,7 @@
   {
     "id": "forms.sliderCommit",
     "category": "forms",
-    "filename": "forms/slider-commit.wav",
+    "filename": "forms/slider-commit.mp3",
     "durationMs": 188,
     "tags": [
       "slider"
@@ -1767,7 +1767,7 @@
   {
     "id": "forms.textFieldFocus",
     "category": "forms",
-    "filename": "forms/text-field-focus.wav",
+    "filename": "forms/text-field-focus.mp3",
     "durationMs": 20,
     "tags": [
       "input"
@@ -1783,7 +1783,7 @@
   {
     "id": "forms.validationSuccess",
     "category": "forms",
-    "filename": "forms/validation-success.wav",
+    "filename": "forms/validation-success.mp3",
     "durationMs": 290,
     "tags": [
       "validation"
@@ -1799,7 +1799,7 @@
   {
     "id": "forms.validationError",
     "category": "forms",
-    "filename": "forms/validation-error.wav",
+    "filename": "forms/validation-error.mp3",
     "durationMs": 165,
     "tags": [
       "validation"
@@ -1815,8 +1815,8 @@
   {
     "id": "forms.pickerOpen",
     "category": "forms",
-    "filename": "forms/picker-open.wav",
-    "durationMs": 314,
+    "filename": "forms/picker-open.mp3",
+    "durationMs": 315,
     "tags": [
       "picker"
     ],
@@ -1831,7 +1831,7 @@
   {
     "id": "forms.pickerSelect",
     "category": "forms",
-    "filename": "forms/picker-select.wav",
+    "filename": "forms/picker-select.mp3",
     "durationMs": 1000,
     "tags": [
       "picker"
@@ -1847,7 +1847,7 @@
   {
     "id": "forms.stepperUp",
     "category": "forms",
-    "filename": "forms/stepper-up.wav",
+    "filename": "forms/stepper-up.mp3",
     "durationMs": 389,
     "tags": [
       "stepper"
@@ -1863,7 +1863,7 @@
   {
     "id": "forms.stepperDown",
     "category": "forms",
-    "filename": "forms/stepper-down.wav",
+    "filename": "forms/stepper-down.mp3",
     "durationMs": 658,
     "tags": [
       "stepper"
@@ -1879,7 +1879,7 @@
   {
     "id": "commerce.purchase",
     "category": "commerce",
-    "filename": "commerce/purchase.wav",
+    "filename": "commerce/purchase.mp3",
     "durationMs": 793,
     "tags": [
       "commerce",
@@ -1896,7 +1896,7 @@
   {
     "id": "commerce.refund",
     "category": "commerce",
-    "filename": "commerce/refund.wav",
+    "filename": "commerce/refund.mp3",
     "durationMs": 94,
     "tags": [
       "commerce"
@@ -1912,7 +1912,7 @@
   {
     "id": "commerce.coins",
     "category": "commerce",
-    "filename": "commerce/coins.wav",
+    "filename": "commerce/coins.mp3",
     "durationMs": 584,
     "tags": [
       "coins"
@@ -1928,7 +1928,7 @@
   {
     "id": "commerce.gems",
     "category": "commerce",
-    "filename": "commerce/gems.wav",
+    "filename": "commerce/gems.mp3",
     "durationMs": 446,
     "tags": [
       "gems"
@@ -1944,7 +1944,7 @@
   {
     "id": "commerce.unlock",
     "category": "commerce",
-    "filename": "commerce/unlock.wav",
+    "filename": "commerce/unlock.mp3",
     "durationMs": 258,
     "tags": [
       "unlock"
@@ -1960,7 +1960,7 @@
   {
     "id": "commerce.inventoryAdd",
     "category": "commerce",
-    "filename": "commerce/inventory-add.wav",
+    "filename": "commerce/inventory-add.mp3",
     "durationMs": 277,
     "tags": [
       "inventory"
@@ -1976,7 +1976,7 @@
   {
     "id": "commerce.inventoryRemove",
     "category": "commerce",
-    "filename": "commerce/inventory-remove.wav",
+    "filename": "commerce/inventory-remove.mp3",
     "durationMs": 415,
     "tags": [
       "inventory"
@@ -1992,7 +1992,7 @@
   {
     "id": "voice.micEnabled",
     "category": "voice",
-    "filename": "voice/mic-enabled.wav",
+    "filename": "voice/mic-enabled.mp3",
     "durationMs": 1090,
     "tags": [
       "voice",
@@ -2009,7 +2009,7 @@
   {
     "id": "voice.micMuted",
     "category": "voice",
-    "filename": "voice/mic-muted.wav",
+    "filename": "voice/mic-muted.mp3",
     "durationMs": 658,
     "tags": [
       "voice",
@@ -2026,7 +2026,7 @@
   {
     "id": "voice.speakerEnabled",
     "category": "voice",
-    "filename": "voice/speaker-enabled.wav",
+    "filename": "voice/speaker-enabled.mp3",
     "durationMs": 322,
     "tags": [
       "voice",
@@ -2043,8 +2043,8 @@
   {
     "id": "voice.speakerMuted",
     "category": "voice",
-    "filename": "voice/speaker-muted.wav",
-    "durationMs": 314,
+    "filename": "voice/speaker-muted.mp3",
+    "durationMs": 315,
     "tags": [
       "voice",
       "speaker"
@@ -2060,7 +2060,7 @@
   {
     "id": "voice.voiceConnected",
     "category": "voice",
-    "filename": "voice/voice-connected.wav",
+    "filename": "voice/voice-connected.mp3",
     "durationMs": 988,
     "tags": [
       "voice"
@@ -2076,7 +2076,7 @@
   {
     "id": "voice.voiceDisconnected",
     "category": "voice",
-    "filename": "voice/voice-disconnected.wav",
+    "filename": "voice/voice-disconnected.mp3",
     "durationMs": 162,
     "tags": [
       "voice"
@@ -2092,7 +2092,7 @@
   {
     "id": "voice.pushToTalkOn",
     "category": "voice",
-    "filename": "voice/push-to-talk-on.wav",
+    "filename": "voice/push-to-talk-on.mp3",
     "durationMs": 136,
     "tags": [
       "voice",
@@ -2109,7 +2109,7 @@
   {
     "id": "voice.pushToTalkOff",
     "category": "voice",
-    "filename": "voice/push-to-talk-off.wav",
+    "filename": "voice/push-to-talk-off.mp3",
     "durationMs": 136,
     "tags": [
       "voice",
@@ -2126,7 +2126,7 @@
   {
     "id": "misc.loadingComplete",
     "category": "misc",
-    "filename": "misc/loading-complete.wav",
+    "filename": "misc/loading-complete.mp3",
     "durationMs": 539,
     "tags": [
       "loading"
@@ -2142,7 +2142,7 @@
   {
     "id": "misc.refresh",
     "category": "misc",
-    "filename": "misc/refresh.wav",
+    "filename": "misc/refresh.mp3",
     "durationMs": 1000,
     "tags": [
       "refresh"
@@ -2158,7 +2158,7 @@
   {
     "id": "misc.syncStarted",
     "category": "misc",
-    "filename": "misc/sync-started.wav",
+    "filename": "misc/sync-started.mp3",
     "durationMs": 347,
     "tags": [
       "sync"
@@ -2174,7 +2174,7 @@
   {
     "id": "misc.syncCompleted",
     "category": "misc",
-    "filename": "misc/sync-completed.wav",
+    "filename": "misc/sync-completed.mp3",
     "durationMs": 388,
     "tags": [
       "sync"
@@ -2190,7 +2190,7 @@
   {
     "id": "misc.syncFailed",
     "category": "misc",
-    "filename": "misc/sync-failed.wav",
+    "filename": "misc/sync-failed.mp3",
     "durationMs": 486,
     "tags": [
       "sync"
@@ -2206,7 +2206,7 @@
   {
     "id": "misc.downloadComplete",
     "category": "misc",
-    "filename": "misc/download-complete.wav",
+    "filename": "misc/download-complete.mp3",
     "durationMs": 284,
     "tags": [
       "download"
@@ -2222,7 +2222,7 @@
   {
     "id": "misc.uploadComplete",
     "category": "misc",
-    "filename": "misc/upload-complete.wav",
+    "filename": "misc/upload-complete.mp3",
     "durationMs": 322,
     "tags": [
       "upload"
@@ -2238,7 +2238,7 @@
   {
     "id": "misc.search",
     "category": "misc",
-    "filename": "misc/search.wav",
+    "filename": "misc/search.mp3",
     "durationMs": 1000,
     "tags": [
       "search"
@@ -2254,7 +2254,7 @@
   {
     "id": "misc.searchClear",
     "category": "misc",
-    "filename": "misc/search-clear.wav",
+    "filename": "misc/search-clear.mp3",
     "durationMs": 325,
     "tags": [
       "search"
@@ -2270,7 +2270,7 @@
   {
     "id": "misc.favorite",
     "category": "misc",
-    "filename": "misc/favorite.wav",
+    "filename": "misc/favorite.mp3",
     "durationMs": 162,
     "tags": [
       "favorite"
@@ -2286,7 +2286,7 @@
   {
     "id": "misc.unfavorite",
     "category": "misc",
-    "filename": "misc/unfavorite.wav",
+    "filename": "misc/unfavorite.mp3",
     "durationMs": 325,
     "tags": [
       "favorite"
@@ -2302,7 +2302,7 @@
   {
     "id": "misc.bookmark",
     "category": "misc",
-    "filename": "misc/bookmark.wav",
+    "filename": "misc/bookmark.mp3",
     "durationMs": 143,
     "tags": [
       "bookmark"
@@ -2318,7 +2318,7 @@
   {
     "id": "misc.pin",
     "category": "misc",
-    "filename": "misc/pin.wav",
+    "filename": "misc/pin.mp3",
     "durationMs": 205,
     "tags": [
       "pin"
@@ -2334,7 +2334,7 @@
   {
     "id": "misc.archive",
     "category": "misc",
-    "filename": "misc/archive.wav",
+    "filename": "misc/archive.mp3",
     "durationMs": 218,
     "tags": [
       "archive"
@@ -2350,7 +2350,7 @@
   {
     "id": "misc.delete",
     "category": "misc",
-    "filename": "misc/delete.wav",
+    "filename": "misc/delete.mp3",
     "durationMs": 139,
     "tags": [
       "delete"
@@ -2366,7 +2366,7 @@
   {
     "id": "misc.share",
     "category": "misc",
-    "filename": "misc/share.wav",
+    "filename": "misc/share.mp3",
     "durationMs": 376,
     "tags": [
       "share"

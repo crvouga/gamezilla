@@ -1,21 +1,19 @@
-import { mapAppAuthToWriteContext } from '@libs/auth/server/write-policies';
+import { mapAppAuthToWriteContext } from '@libs/auth/shared/map-app-auth-to-write-context';
 import type { AuthContext } from '@libs/auth/server/types';
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { loadMemberOfSpaceIdsFromSql } from '@libs/spaces/server/load-member-of-space-ids-sql';
 import { assert } from '@pkgs/assert';
-import {
-  createUploadHandler,
-  type WritePolicyContext,
-} from '@pkgs/sync-engine/server/upload-handler';
+import { createWriteAuthorizedUploadHandler } from '@pkgs/sync-engine/server/create-write-authorized-upload-handler';
+import type { WriteContext } from '@pkgs/write/shared/write-context';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Hono } from 'hono';
 
 import type { ApiHonoEnv } from '../app/api-hono-types';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
-import { SYNC_WRITE_POLICY_REGISTRY } from './write-policies-registry';
+import { APP_ROW_WRITE_REGISTRY } from './row-write-registry';
 
 export type SyncUploadAuth = {
-  readonly writeContext: WritePolicyContext;
+  readonly writeContext: WriteContext;
 };
 
 async function resolveSyncUploadAuth(
@@ -50,10 +48,10 @@ function openRequestSqlClient(): Promise<SqlClient> {
   });
 }
 
-const uploadHandler = createUploadHandler<SyncUploadAuth>({
+const uploadHandler = createWriteAuthorizedUploadHandler({
   resolveAuth: async (c) => resolveSyncUploadAuth(c.req.raw),
   mapAuth: (auth) => auth.writeContext,
-  policies: SYNC_WRITE_POLICY_REGISTRY,
+  rowRegistry: APP_ROW_WRITE_REGISTRY,
   openSql: openRequestSqlClient,
 });
 
