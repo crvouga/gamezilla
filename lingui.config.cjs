@@ -20,6 +20,7 @@ module.exports = {
         '<rootDir>/pkgs/room-widgets/src',
         '<rootDir>/libs/chess/src',
         '<rootDir>/libs/profile/src',
+        '<rootDir>/libs/friends/src',
         '<rootDir>/libs/auth/src',
         '<rootDir>/libs/spaces/src',
         '<rootDir>/pkgs/llm/src',

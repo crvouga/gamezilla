@@ -1,9 +1,6 @@
 import { Text, useTheme } from '@pkgs/ui';
-import { USE_NATIVE_DRIVER } from '@pkgs/ui/animation/use-native-driver';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Animated } from 'react-native';
-
-const COUNT_UP_MS = 800;
 
 function formatSignedDelta(delta: number): string {
   if (delta > 0) return `+${delta}`;
@@ -14,35 +11,14 @@ export type ChessPuzzleEloDeltaProps = {
   ratingBefore: number;
   ratingAfter: number;
   delta: number;
+  displayRating: number;
 };
 
 export function ChessPuzzleEloDelta({
-  ratingBefore,
-  ratingAfter,
   delta,
+  displayRating,
 }: ChessPuzzleEloDeltaProps): ReactNode {
   const theme = useTheme();
-  const progress = useRef(new Animated.Value(0)).current;
-  const [displayRating, setDisplayRating] = useState(ratingBefore);
-
-  useEffect(() => {
-    progress.setValue(0);
-    setDisplayRating(ratingBefore);
-    const listenerId = progress.addListener(({ value }) => {
-      const next = Math.round(
-        ratingBefore + (ratingAfter - ratingBefore) * value
-      );
-      setDisplayRating(next);
-    });
-    Animated.timing(progress, {
-      toValue: 1,
-      duration: COUNT_UP_MS,
-      useNativeDriver: USE_NATIVE_DRIVER,
-    }).start();
-    return () => {
-      progress.removeListener(listenerId);
-    };
-  }, [progress, ratingAfter, ratingBefore]);
 
   const deltaColor =
     delta > 0
@@ -58,11 +34,13 @@ export function ChessPuzzleEloDelta({
         style={{ color: theme.colors.text, textAlign: 'center' }}
         label={String(displayRating)}
       />
-      <Text
-        variant="bodyBold"
-        style={{ color: deltaColor, textAlign: 'center' }}
-        label={formatSignedDelta(delta)}
-      />
+      <Animated.View>
+        <Text
+          variant="bodyBold"
+          style={{ color: deltaColor, textAlign: 'center' }}
+          label={formatSignedDelta(delta)}
+        />
+      </Animated.View>
     </>
   );
 }

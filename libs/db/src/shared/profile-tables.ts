@@ -4,6 +4,8 @@ export const ProfileCol = {
   id: 'id',
   createdAt: 'created_at',
   displayName: 'display_name',
+  username: 'username',
+  usernameChangedAt: 'username_changed_at',
   avatarConfig: 'avatar_config',
 } as const;
 
@@ -13,6 +15,8 @@ export const PROFILES_TABLE = defineTable({
     { name: 'id', type: 'text', primaryKey: true },
     { name: 'created_at', type: 'text' },
     { name: 'display_name', type: 'text' },
+    { name: 'username', type: 'text' },
+    { name: 'username_changed_at', type: 'text' },
     { name: 'avatar_config', type: 'text' },
   ],
 });

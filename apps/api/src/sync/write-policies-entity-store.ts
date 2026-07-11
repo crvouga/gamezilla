@@ -67,30 +67,6 @@ function chatMessagePolicy(
   return allow();
 }
 
-function isFriendshipParticipant(
-  data: Record<string, unknown> | null,
-  accountId: string
-): boolean {
-  const from = data?.['from_user_id'] ?? data?.['from-user-id'];
-  const to = data?.['to_user_id'] ?? data?.['to-user-id'];
-  return (
-    (typeof from === 'string' && from === accountId) ||
-    (typeof to === 'string' && to === accountId)
-  );
-}
-
-function friendshipPolicy(
-  ctx: WritePolicyContext,
-  data: Record<string, unknown> | null
-): WritePolicyDecision {
-  const signedIn = requireSignedIn(ctx.accountId, 'friendship');
-  if (signedIn !== null) return signedIn;
-  if (isFriendshipParticipant(data, ctx.accountId!)) {
-    return allow();
-  }
-  return deny('friendship endpoint mismatch');
-}
-
 type EntityStoreTypeHandler = (
   ctx: WritePolicyContext,
   ownerId: string | undefined,
@@ -102,11 +78,6 @@ const ENTITY_STORE_TYPE_HANDLERS: Readonly<
 > = {
   'profile.private': (ctx, ownerId) => profilePrivatePolicy(ctx, ownerId),
   'chat.message': (ctx, _ownerId, data) => chatMessagePolicy(ctx, data),
-  friendship: (ctx, _ownerId, data) => friendshipPolicy(ctx, data),
-  'friend.request': (ctx) => {
-    const signedIn = requireSignedIn(ctx.accountId, 'friend.request');
-    return signedIn ?? allow();
-  },
   match: (ctx) => requireSignedIn(ctx.accountId, 'match') ?? allow(),
   'inventory.item': (ctx) =>
     requireSignedIn(ctx.accountId, 'inventory.item') ?? allow(),

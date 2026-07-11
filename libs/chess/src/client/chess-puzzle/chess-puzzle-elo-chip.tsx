@@ -1,36 +1,62 @@
 import { Box, Text, useTheme } from '@pkgs/ui';
-import type { ReactNode } from 'react';
+import { USE_NATIVE_DRIVER } from '@pkgs/ui/animation/use-native-driver';
+import { motion } from '@pkgs/ui/theme/motion';
+import { useEffect, useRef, type ReactNode } from 'react';
+import { Animated } from 'react-native';
 
 export type ChessPuzzleEloChipProps = {
   elo: number;
   variant?: 'primary' | 'muted';
   testID?: string;
+  pulseNonce?: number;
 };
 
 export function ChessPuzzleEloChip({
   elo,
   variant = 'primary',
   testID,
+  pulseNonce = 0,
 }: ChessPuzzleEloChipProps): ReactNode {
   const theme = useTheme();
   const isPrimary = variant === 'primary';
+  const scale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (pulseNonce === 0) return;
+    scale.setValue(1);
+    Animated.sequence([
+      Animated.timing(scale, {
+        toValue: 1.14,
+        duration: motion.duration.fast,
+        useNativeDriver: USE_NATIVE_DRIVER,
+      }),
+      Animated.timing(scale, {
+        toValue: 1,
+        duration: motion.duration.fast,
+        useNativeDriver: USE_NATIVE_DRIVER,
+      }),
+    ]).start();
+  }, [pulseNonce, scale]);
+
   return (
-    <Box
-      testID={testID}
-      sx={{ px: 2, py: 1, borderRadius: 6 }}
-      style={{
-        backgroundColor: isPrimary
-          ? theme.colors.tintMuted
-          : theme.colors.surfaceMuted,
-      }}
-    >
-      <Text
-        variant={isPrimary ? 'bodyBold' : 'caption'}
+    <Animated.View style={{ transform: [{ scale }] }}>
+      <Box
+        testID={testID}
+        sx={{ px: 2, py: 1, borderRadius: 6 }}
         style={{
-          color: isPrimary ? theme.colors.tint : theme.colors.textSecondary,
+          backgroundColor: isPrimary
+            ? theme.colors.tintMuted
+            : theme.colors.surfaceMuted,
         }}
-        label={String(elo)}
-      />
-    </Box>
+      >
+        <Text
+          variant={isPrimary ? 'bodyBold' : 'caption'}
+          style={{
+            color: isPrimary ? theme.colors.tint : theme.colors.textSecondary,
+          }}
+          label={String(elo)}
+        />
+      </Box>
+    </Animated.View>
   );
 }

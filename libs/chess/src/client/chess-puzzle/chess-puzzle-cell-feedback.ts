@@ -7,6 +7,7 @@ export function deriveChessPuzzleCellFeedback(args: {
   wrongToSquare: string | null;
   expectedFromSquare: string | null;
   showSolvedCrownOn: Square | null;
+  lastCorrectToSquare: Square | null;
 }): Partial<Record<Square, CellFeedback>> {
   const {
     status,
@@ -14,6 +15,7 @@ export function deriveChessPuzzleCellFeedback(args: {
     wrongToSquare,
     expectedFromSquare,
     showSolvedCrownOn,
+    lastCorrectToSquare,
   } = args;
 
   const out: Partial<Record<Square, CellFeedback>> = {};
@@ -25,16 +27,16 @@ export function deriveChessPuzzleCellFeedback(args: {
     out[wrongToSquare as Square] = { kind: 'cross' };
   }
 
-  // Hint reveal: pulse a dot on the from-square once the server has
-  // returned an expected move. The local hint stage in `useHintStage`
-  // controls whether the corresponding solution arrow is also drawn
-  // (see `usePuzzlePlayerVisual`).
   if (status === 'solving' && expectedFromSquare !== null) {
     out[expectedFromSquare as Square] = {
       kind: 'dot',
       pulse: true,
       corner: 'center',
     };
+  }
+
+  if (lastCorrectToSquare !== null) {
+    out[lastCorrectToSquare] = { kind: 'star', pulse: true };
   }
 
   if (showSolvedCrownOn !== null) {

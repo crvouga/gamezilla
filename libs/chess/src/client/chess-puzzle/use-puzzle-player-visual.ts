@@ -1,7 +1,10 @@
 import { useMemo } from 'react';
 
 import type { ChessPuzzlePlayStatus } from '../../shared/chess-puzzle-play';
-import type { BoardArrow, Square } from '@pkgs/chess-board/chess-board-types';
+import type {
+  BoardArrow,
+  Square,
+} from '@pkgs/chess-board/chess-board-types';
 import type { HintStage } from './use-hint-stage';
 import { usePuzzlePlayerCellFeedback } from './use-puzzle-player-cell-feedback';
 import { usePuzzlePlayerPresentation } from './use-puzzle-player-presentation';
@@ -23,12 +26,16 @@ export function usePuzzlePlayerVisual(args: {
   expectedFromSquare: string | null;
   expectedToSquare: string | null;
   solvedCrownSquare: Square | null;
+  lastCorrectToSquare: Square | null;
   hintStage: HintStage;
   rating: number;
 }): {
   assistant: ReturnType<typeof usePuzzlePlayerPresentation>['assistant'];
   statusKind: ReturnType<typeof usePuzzlePlayerPresentation>['statusKind'];
-  cellFeedback: ReturnType<typeof usePuzzlePlayerCellFeedback>;
+  cellFeedback: ReturnType<typeof usePuzzlePlayerCellFeedback>['cellFeedback'];
+  cellHighlights: ReturnType<
+    typeof usePuzzlePlayerCellFeedback
+  >['cellHighlights'];
   arrows: readonly BoardArrow[];
 } {
   const { assistant, statusKind } = usePuzzlePlayerPresentation({
@@ -45,12 +52,14 @@ export function usePuzzlePlayerVisual(args: {
     wrongToSquare: args.wrongToSquare,
     rating: args.rating,
   });
-  const cellFeedback = usePuzzlePlayerCellFeedback({
+  const { cellFeedback, cellHighlights } = usePuzzlePlayerCellFeedback({
     status: args.status,
     wrongFromSquare: args.wrongFromSquare,
     wrongToSquare: args.wrongToSquare,
     expectedFromSquare: args.expectedFromSquare,
     solvedCrownSquare: args.solvedCrownSquare,
+    lastCorrectToSquare: args.lastCorrectToSquare,
+    displayFen: args.displayFen,
   });
   const { hintStage, expectedFromSquare, expectedToSquare } = args;
   const arrows = useMemo<readonly BoardArrow[]>(() => {
@@ -69,5 +78,5 @@ export function usePuzzlePlayerVisual(args: {
       },
     ];
   }, [hintStage, expectedFromSquare, expectedToSquare]);
-  return { assistant, statusKind, cellFeedback, arrows };
+  return { assistant, statusKind, cellFeedback, cellHighlights, arrows };
 }

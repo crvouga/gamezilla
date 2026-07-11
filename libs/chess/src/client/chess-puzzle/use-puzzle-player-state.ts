@@ -172,10 +172,6 @@ function frozenPlayerModel(args: {
     backToRoot: controls.backToRoot,
     assistant: visual.assistant,
     statusKind: visual.statusKind,
-    // `null` (not '') so the screen can gate the ChessBoard render
-    // until a real FEN is available; passing an empty string would let
-    // `useChessGame` initialise with the standard startpos, flashing
-    // the wrong board for a frame on puzzle transitions.
     displayFen: m.displayFen,
     layoutKey: m.layoutKey,
     orientation: m.orientation,
@@ -183,7 +179,9 @@ function frozenPlayerModel(args: {
     hintStage: controls.hintStage,
     onMove: controls.onMove,
     cellFeedback: visual.cellFeedback,
+    cellHighlights: visual.cellHighlights,
     arrows: visual.arrows,
+    boardShakeNonce: controls.boardShakeNonce,
     onHint: controls.onHint,
     onRetry: controls.onRetry,
     onNext: controls.onNext,
@@ -210,6 +208,7 @@ function usePuzzlePlayerUi(
     status: m.status,
     displayFen: m.displayFen,
     expectedFromSquare: m.expectedFromSquare,
+    expectedToSquare: m.expectedToSquare,
     onMoveRaw: m.onMoveRaw,
     setLastUci: m.setLastUci,
     appendUsedHint: m.appendUsedHint,
@@ -231,12 +230,10 @@ function usePuzzlePlayerUi(
     expectedFromSquare: m.expectedFromSquare,
     expectedToSquare: m.expectedToSquare,
     solvedCrownSquare: controls.solvedCrownSquare,
+    lastCorrectToSquare: controls.lastCorrectToSquare,
     hintStage: controls.hintStage,
     rating: m.rating,
   });
-  // Freeze the player's exposed shape every render so memoized children
-  // (`PuzzleBoardSlot`, eventually `ChessPuzzleActionBar`) skip identical
-  // prop bags. All callers go through this single object — no spread.
   return useMemo(
     () => frozenPlayerModel({ m, controls, visual, completion }),
     [m, controls, visual, completion]

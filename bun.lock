@@ -37,6 +37,7 @@
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
         "@libs/db": "workspace:*",
+        "@libs/friends": "workspace:*",
         "@libs/games": "workspace:*",
         "@libs/infra": "workspace:*",
         "@libs/integration-test": "workspace:*",
@@ -234,6 +235,7 @@
         "@pkgs/ui": "workspace:*",
         "chess.js": "catalog:",
         "csv-parse": "catalog:",
+        "expo-audio": "catalog:",
         "fzstd": "catalog:",
         "pg": "catalog:",
         "react": "catalog:",
@@ -281,6 +283,29 @@
         "@pkgs/sync-engine": "workspace:*",
       },
       "devDependencies": {
+        "typescript": "catalog:",
+      },
+    },
+    "libs/friends": {
+      "name": "@libs/friends",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/auth": "workspace:*",
+        "@libs/db": "workspace:*",
+        "@libs/profile": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/react": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/sync-engine": "workspace:*",
+        "@pkgs/ui": "workspace:*",
+        "expo-router": "catalog:",
+        "hono": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+      },
+      "devDependencies": {
+        "@types/react": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1796,6 +1821,8 @@
     "@libs/client-config": ["@libs/client-config@workspace:libs/client-config"],
 
     "@libs/db": ["@libs/db@workspace:libs/db"],
+
+    "@libs/friends": ["@libs/friends@workspace:libs/friends"],
 
     "@libs/games": ["@libs/games@workspace:libs/games"],
 

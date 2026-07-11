@@ -80,6 +80,36 @@ streams:
       FROM chess_puzzles
       WHERE sync_pool = true
 
+  friend_requests:
+    priority: 2
+    auto_subscribe: true
+    query: |
+      SELECT * FROM friend_requests
+      WHERE from_user_id = auth.user_id()
+         OR to_user_id = auth.user_id()
+
+  friendships:
+    priority: 2
+    auto_subscribe: true
+    query: |
+      SELECT * FROM friendships
+      WHERE user_low = auth.user_id()
+         OR user_high = auth.user_id()
+
+  user_blocks:
+    priority: 2
+    auto_subscribe: true
+    query: |
+      SELECT * FROM user_blocks
+      WHERE blocker_id = auth.user_id()
+
+  friend_profile_cache:
+    priority: 2
+    auto_subscribe: true
+    query: |
+      SELECT * FROM friend_profile_cache
+      WHERE owner_id = auth.user_id()
+
   entity_store_catalog:
     priority: 2
     auto_subscribe: true

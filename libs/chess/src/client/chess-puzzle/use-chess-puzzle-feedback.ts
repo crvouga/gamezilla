@@ -1,38 +1,64 @@
 import { useChessBoardSounds } from '@pkgs/chess-board/chess-board-sounds';
 import {
   hapticError,
+  hapticSelection,
   hapticSuccess,
 } from '@pkgs/chess-board/chess-board-haptics';
 import { useCallback, useMemo } from 'react';
+
+import { useChessPuzzleSounds } from './use-chess-puzzle-sounds';
 
 export function useChessPuzzleFeedback(): {
   onCorrectMove: () => void;
   onWrongMove: () => void;
   onSolved: () => void;
   onEloTick: () => void;
+  onEloComplete: (delta: number) => void;
 } {
-  const sounds = useChessBoardSounds();
+  const boardSounds = useChessBoardSounds();
+  const puzzleSounds = useChessPuzzleSounds();
 
   const onCorrectMove = useCallback(() => {
-    sounds.playMove();
-  }, [sounds]);
+    puzzleSounds.playCorrectMove();
+    hapticSelection();
+  }, [puzzleSounds]);
 
   const onWrongMove = useCallback(() => {
-    sounds.playIllegal();
+    boardSounds.playIllegal();
     hapticError();
-  }, [sounds]);
+  }, [boardSounds]);
 
   const onSolved = useCallback(() => {
-    sounds.playGameEnd();
+    puzzleSounds.playSolved();
     hapticSuccess();
-  }, [sounds]);
+  }, [puzzleSounds]);
 
   const onEloTick = useCallback(() => {
-    sounds.playPromote();
-  }, [sounds]);
+    puzzleSounds.playEloTick();
+  }, [puzzleSounds]);
+
+  const onEloComplete = useCallback(
+    (delta: number) => {
+      if (delta > 0) {
+        puzzleSounds.playEloCompleteGain();
+        hapticSuccess();
+        return;
+      }
+      if (delta < 0) {
+        puzzleSounds.playEloCompleteLoss();
+      }
+    },
+    [puzzleSounds]
+  );
 
   return useMemo(
-    () => ({ onCorrectMove, onWrongMove, onSolved, onEloTick }),
-    [onCorrectMove, onEloTick, onSolved, onWrongMove]
+    () => ({
+      onCorrectMove,
+      onWrongMove,
+      onSolved,
+      onEloTick,
+      onEloComplete,
+    }),
+    [onCorrectMove, onEloComplete, onEloTick, onSolved, onWrongMove]
   );
 }

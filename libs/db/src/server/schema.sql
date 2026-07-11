@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   id TEXT PRIMARY KEY,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   display_name TEXT NOT NULL DEFAULT '',
+  username TEXT NOT NULL DEFAULT '',
   avatar_config JSONB
 );
 
@@ -189,3 +190,101 @@ UPDATE external_accounts SET provider = 'clerk' WHERE provider = 'auth';
 DROP TABLE IF EXISTS patches CASCADE;
 DROP VIEW IF EXISTS snapshots CASCADE;
 DROP TABLE IF EXISTS snapshots CASCADE;
+
+-- ============ Profiles: username ============
+
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS username TEXT NOT NULL DEFAULT '';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS username_changed_at TIMESTAMPTZ;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = current_schema()
+      AND table_name = 'profiles'
+      AND column_name = 'username_norm'
+  ) THEN
+    ALTER TABLE profiles
+      ADD COLUMN username_norm TEXT GENERATED ALWAYS AS (lower(username)) STORED;
+  END IF;
+END $$;
+
+CREATE UNIQUE INDEX IF NOT EXISTS profiles_username_norm_uidx
+  ON profiles (username_norm)
+  WHERE username <> '';
+
+CREATE INDEX IF NOT EXISTS profiles_username_norm_prefix_idx
+  ON profiles (username_norm text_pattern_ops);
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE INDEX IF NOT EXISTS profiles_display_name_trgm_idx
+  ON profiles USING gin (lower(display_name) gin_trgm_ops);
+
+-- ============ Friends ============
+
+CREATE TABLE IF NOT EXISTS friend_requests (
+  id TEXT PRIMARY KEY,
+  from_user_id TEXT NOT NULL REFERENCES profiles (id),
+  to_user_id TEXT NOT NULL REFERENCES profiles (id),
+  status TEXT NOT NULL,
+  message TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  responded_at TIMESTAMPTZ,
+  CONSTRAINT friend_requests_no_self CHECK (from_user_id <> to_user_id),
+  CONSTRAINT friend_requests_status_check CHECK (
+    status IN ('pending', 'accepted', 'declined', 'cancelled')
+  )
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS friend_requests_pending_pair_uidx
+  ON friend_requests (from_user_id, to_user_id)
+  WHERE status = 'pending';
+
+CREATE INDEX IF NOT EXISTS friend_requests_to_pending_idx
+  ON friend_requests (to_user_id, created_at DESC)
+  WHERE status = 'pending';
+
+CREATE INDEX IF NOT EXISTS friend_requests_from_pending_idx
+  ON friend_requests (from_user_id, created_at DESC)
+  WHERE status = 'pending';
+
+CREATE INDEX IF NOT EXISTS friend_requests_history_idx
+  ON friend_requests (from_user_id, to_user_id, updated_at DESC);
+
+CREATE TABLE IF NOT EXISTS friendships (
+  user_low TEXT NOT NULL REFERENCES profiles (id),
+  user_high TEXT NOT NULL REFERENCES profiles (id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  source_request_id TEXT REFERENCES friend_requests (id),
+  PRIMARY KEY (user_low, user_high),
+  CONSTRAINT friendships_canonical CHECK (user_low < user_high)
+);
+
+CREATE INDEX IF NOT EXISTS friendships_user_low_idx ON friendships (user_low);
+CREATE INDEX IF NOT EXISTS friendships_user_high_idx ON friendships (user_high);
+
+CREATE TABLE IF NOT EXISTS user_blocks (
+  blocker_id TEXT NOT NULL REFERENCES profiles (id),
+  blocked_id TEXT NOT NULL REFERENCES profiles (id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (blocker_id, blocked_id),
+  CONSTRAINT user_blocks_no_self CHECK (blocker_id <> blocked_id)
+);
+
+CREATE INDEX IF NOT EXISTS user_blocks_blocked_idx ON user_blocks (blocked_id);
+
+CREATE TABLE IF NOT EXISTS friend_profile_cache (
+  owner_id TEXT NOT NULL REFERENCES profiles (id),
+  friend_id TEXT NOT NULL REFERENCES profiles (id),
+  display_name TEXT NOT NULL DEFAULT '',
+  username TEXT NOT NULL DEFAULT '',
+  avatar_config JSONB,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (owner_id, friend_id)
+);
+
+CREATE INDEX IF NOT EXISTS friend_profile_cache_owner_idx
+  ON friend_profile_cache (owner_id);

@@ -38,11 +38,13 @@ function EloChipSlot(args: {
   variant: 'primary' | 'muted';
   visible: boolean;
   testID?: string;
+  pulseNonce?: number;
 }): ReactNode {
   const chip = (
     <ChessPuzzleEloChip
       elo={args.elo}
       variant={args.variant}
+      {...(args.pulseNonce !== undefined ? { pulseNonce: args.pulseNonce } : {})}
       {...(args.testID !== undefined ? { testID: args.testID } : {})}
     />
   );
@@ -58,12 +60,14 @@ export type ChessPuzzleStatusHeaderProps = {
   kind: ChessPuzzleStatusKind;
   playerElo?: number;
   puzzleRating?: number;
+  playerEloPulseNonce?: number;
 };
 
 export function ChessPuzzleStatusHeader({
   kind,
   playerElo,
   puzzleRating,
+  playerEloPulseNonce,
 }: ChessPuzzleStatusHeaderProps): ReactNode {
   const theme = useTheme();
   const showPlayerChip =
@@ -93,6 +97,9 @@ export function ChessPuzzleStatusHeader({
           variant="primary"
           visible={showPlayerChip}
           testID="chess-puzzle-player-elo"
+          {...(playerEloPulseNonce !== undefined && playerEloPulseNonce > 0
+            ? { pulseNonce: playerEloPulseNonce }
+            : {})}
         />
         <EloChipSlot
           elo={puzzleRating ?? ELO_PLACEHOLDER}

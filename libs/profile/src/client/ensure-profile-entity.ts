@@ -55,8 +55,8 @@ export async function ensureProfile(sql: SqlClient, myId: string): Promise<void>
   const now = new Date().toISOString();
   await sql.run(
     `INSERT INTO ${PROFILES_TABLE.tableName}
-     (${ProfileCol.id}, ${ProfileCol.createdAt}, ${ProfileCol.displayName}, ${ProfileCol.avatarConfig})
-     VALUES (?, ?, ?, ?)`,
-    [myId, now, generateRandomDisplayName(myId), serializeDefaultAvatarConfig(myId)]
+     (${ProfileCol.id}, ${ProfileCol.createdAt}, ${ProfileCol.displayName}, ${ProfileCol.username}, ${ProfileCol.avatarConfig})
+     VALUES (?, ?, ?, ?, ?)`,
+    [myId, now, generateRandomDisplayName(myId), '', serializeDefaultAvatarConfig(myId)]
   );
 }

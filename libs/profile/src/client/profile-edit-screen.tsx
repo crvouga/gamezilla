@@ -17,9 +17,14 @@ export function ProfileEditScreen() {
       content={({ sx }) => (
         <Box style={sx}>
           <MenuRow
-            title={t`Username`}
-            caption={t`Display name shown in the app`}
+            title={t`Display name`}
+            caption={t`Name shown in the app`}
             onPress={() => router.push('/profile/username')}
+          />
+          <MenuRow
+            title={t`Username`}
+            caption={t`Unique handle for search and invites`}
+            onPress={() => router.push('/profile/handle')}
           />
           <MenuRow
             title={t`Avatar`}

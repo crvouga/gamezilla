@@ -10,11 +10,12 @@ const MY_ID = '550e8400-e29b-41d4-a716-446655440000';
 
 function openTestSql(): SqlClientImplBunSqlite {
   const db = new Database(':memory:');
-  db.run(
+    db.run(
     `CREATE TABLE ${PROFILES_TABLE.tableName} (
       ${ProfileCol.id} TEXT PRIMARY KEY,
       ${ProfileCol.createdAt} TEXT NOT NULL,
       ${ProfileCol.displayName} TEXT NOT NULL,
+      ${ProfileCol.username} TEXT NOT NULL DEFAULT '',
       ${ProfileCol.avatarConfig} TEXT NOT NULL
     )`
   );

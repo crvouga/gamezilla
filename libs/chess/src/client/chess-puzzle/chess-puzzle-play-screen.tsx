@@ -2,13 +2,15 @@ import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { Box, SpeakingAvatar } from '@pkgs/ui';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
-import { memo, type ReactNode } from 'react';
+import { memo, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Animated } from 'react-native';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
+import { ChessPuzzleCelebrationOverlay } from './chess-puzzle-celebration-overlay';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
 import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
-import { ChessPuzzleSummaryOverlay } from './chess-puzzle-summary-overlay';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
+import { useBoardShakeAnimation } from './use-board-shake-animation';
 import type { HintStage } from './use-hint-stage';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 import {
@@ -34,11 +36,14 @@ type PuzzlePlayLayoutProps = {
   onRetry: () => void;
   onNext: () => void;
   completion: PuzzlePlayerChromeModel['completion'];
+  onCelebrationEloChange: (rating: number) => void;
+  onCelebrationEloComplete: () => void;
   e2eHints?: ReactNode;
   e2eLoadingStatus?: ReactNode;
 };
 
 function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
+  const showCelebration = p.completion !== null;
   return (
     <Box sx={{ alignSelf: 'stretch' }}>
       <DefineBackButton onPress={p.backToRoot} />
@@ -53,22 +58,28 @@ function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
         }}
         style={{ width: '100%' }}
       >
-        {p.assistant}
-        {p.boardSlot}
-        <ChessPuzzleActionBar
-          status={p.status}
-          hintStage={p.hintStage}
-          onHint={p.onHint}
-          onRetry={p.onRetry}
-          onNext={p.onNext}
-        />
-        {p.completion !== null ? (
-          <ChessPuzzleSummaryOverlay
-            completion={p.completion}
-            onContinue={p.onNext}
-            onRetry={p.onRetry}
-          />
-        ) : null}
+        <Box style={{ position: 'relative' }}>
+          {p.assistant}
+          {p.boardSlot}
+          {!showCelebration ? (
+            <ChessPuzzleActionBar
+              status={p.status}
+              hintStage={p.hintStage}
+              onHint={p.onHint}
+              onRetry={p.onRetry}
+              onNext={p.onNext}
+            />
+          ) : null}
+          {showCelebration && p.completion !== null ? (
+            <ChessPuzzleCelebrationOverlay
+              completion={p.completion}
+              onContinue={p.onNext}
+              onRetry={p.onRetry}
+              onDisplayEloChange={p.onCelebrationEloChange}
+              onEloCompletePulse={p.onCelebrationEloComplete}
+            />
+          ) : null}
+        </Box>
         {p.e2eHints}
       </Box>
     </Box>
@@ -84,46 +95,71 @@ const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
     | 'status'
     | 'onMove'
     | 'cellFeedback'
+    | 'cellHighlights'
     | 'arrows'
+    | 'boardShakeNonce'
   >
 ): ReactNode {
+  const shakeX = useBoardShakeAnimation(p.boardShakeNonce);
   if (p.displayFen === null || p.displayFen.length === 0) {
     return <ChessPuzzleBoardLoadingState />;
   }
-  // `cellFeedback` / `arrows` are always defined (memoized in their hooks
-  // with frozen empty defaults), so we pass them unconditionally. A
-  // conditional prop-spread would change the prop-bag shape every render
-  // and defeat the memo on `ChessBoard`'s canvas props.
   return (
-    <ChessBoard
-      controlled
-      testID="chess-puzzle-board"
-      fen={p.displayFen}
-      fenSyncKey={p.layoutKey}
-      orientation={p.orientation}
-      interactive={p.status === 'solving'}
-      onMove={p.onMove}
-      showCoordinates
-      highlightLastMove
-      highlightLegalMoves
-      cellFeedback={p.cellFeedback}
-      arrows={p.arrows}
-    />
+    <Animated.View style={{ transform: [{ translateX: shakeX }] }}>
+      <ChessBoard
+        controlled
+        testID="chess-puzzle-board"
+        fen={p.displayFen}
+        fenSyncKey={p.layoutKey}
+        orientation={p.orientation}
+        interactive={p.status === 'solving'}
+        onMove={p.onMove}
+        showCoordinates
+        highlightLastMove
+        highlightLegalMoves
+        cellFeedback={p.cellFeedback}
+        cellHighlights={p.cellHighlights}
+        arrows={p.arrows}
+      />
+    </Animated.View>
   );
 });
 
 function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
+  const [celebrationElo, setCelebrationElo] = useState<number | null>(null);
+  const [eloPulseNonce, setEloPulseNonce] = useState(0);
+
+  useEffect(() => {
+    if (p.completion === null) {
+      setCelebrationElo(null);
+      setEloPulseNonce(0);
+    }
+  }, [p.completion]);
+
+  const onCelebrationEloChange = useCallback((rating: number) => {
+    setCelebrationElo(rating);
+  }, []);
+
+  const onCelebrationEloComplete = useCallback(() => {
+    setEloPulseNonce((n) => n + 1);
+  }, []);
+
+  const headerPlayerElo = celebrationElo ?? p.playerElo;
+
   return (
     <PuzzlePlayLayout
       backToRoot={p.backToRoot}
+      onCelebrationEloChange={onCelebrationEloChange}
+      onCelebrationEloComplete={onCelebrationEloComplete}
       assistant={
         <SpeakingAvatarAssistant
           assistant={p.assistant}
           header={
             <ChessPuzzleStatusHeader
               kind={p.statusKind}
-              playerElo={p.playerElo}
+              playerElo={headerPlayerElo}
               puzzleRating={p.rating}
+              playerEloPulseNonce={eloPulseNonce}
             />
           }
           numberOfLines={2}
@@ -137,7 +173,9 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
           status={p.status}
           onMove={p.onMove}
           cellFeedback={p.cellFeedback}
+          cellHighlights={p.cellHighlights}
           arrows={p.arrows}
+          boardShakeNonce={p.boardShakeNonce}
         />
       }
       status={p.status}
@@ -195,6 +233,8 @@ function PuzzlePlayLoadingShell(p: {
     <PuzzlePlayLayout
       backToRoot={p.backToChessRoot}
       e2eLoadingStatus={p.e2eLoadingStatus}
+      onCelebrationEloChange={noop}
+      onCelebrationEloComplete={noop}
       assistant={
         <SpeakingAvatar
           message=""
@@ -226,9 +266,6 @@ export function PuzzlePlayScreen(): ReactNode {
 
   const e2ePickStatus = <ChessPuzzleE2ELoadingStatus {...e2eLoadingStatus} />;
 
-  // Until we have a first puzzle id, render the same chrome footprint as
-  // the player — but DO NOT unmount the player once it has mounted;
-  // pressing Next never re-enters this branch.
   if (activePuzzleId === null) {
     return (
       <Box testID="chess-puzzle-play-screen" sx={{ alignSelf: 'stretch' }}>

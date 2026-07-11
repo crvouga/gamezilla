@@ -43,6 +43,7 @@
     "@pkgs/ui": "workspace:*",
     "chess.js": "catalog:",
     "csv-parse": "catalog:",
+    "expo-audio": "catalog:",
     "fzstd": "catalog:",
     "pg": "catalog:",
     "react": "catalog:",

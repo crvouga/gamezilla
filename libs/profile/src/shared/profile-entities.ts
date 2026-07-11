@@ -23,6 +23,8 @@ export const ProfileAttr = {
   id: profileNs.uuid('id', readString),
   createdAt: profileNs.timestamp('created-at', readString),
   displayName: profileNs.text('display-name', readDisplayName),
+  username: profileNs.text('username', readString),
+  usernameChangedAt: profileNs.timestamp('username-changed-at', readString),
   avatarConfig: profileNs.jsonOrNull<'avatar-config', AvatarConfig>(
     'avatar-config',
     parseAvatarConfig
