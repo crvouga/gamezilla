@@ -124,6 +124,10 @@ msgstr "Accuracy"
 msgid "Add"
 msgstr "Add"
 
+#: libs/friends/src/client/friend-action-status-renderers.tsx
+msgid "Add Friend"
+msgstr "Add Friend"
+
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
@@ -219,6 +223,15 @@ msgstr "Black"
 msgid "Black to move"
 msgstr "Black to move"
 
+#: libs/friends/src/client/friend-user-danger-modals.tsx
+#: libs/friends/src/client/use-friend-user-overflow-menu.ts
+msgid "Block"
+msgstr "Block"
+
+#: libs/friends/src/client/friend-user-danger-modals.tsx
+msgid "Block this user?"
+msgstr "Block this user?"
+
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Bluetooth"
 msgstr "Bluetooth"
@@ -244,6 +257,7 @@ msgid "Build mode: {buildMode}"
 msgstr "Build mode: {buildMode}"
 
 #: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-username-screen.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
@@ -254,6 +268,14 @@ msgstr "Cancel"
 #: pkgs/chess-board/src/chess-board-promotion.tsx
 msgid "Cancel promotion"
 msgstr "Cancel promotion"
+
+#: libs/friends/src/client/friend-request-row-actions.tsx
+msgid "Cancelled"
+msgstr "Cancelled"
+
+#: libs/friends/src/client/friend-request-row-actions.tsx
+msgid "Cancelling…"
+msgstr "Cancelling…"
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Cannot edit"
@@ -378,9 +400,21 @@ msgstr "Committed: {formattedCommitDate}"
 msgid "Component"
 msgstr "Component"
 
+#: libs/friends/src/client/friend-action-pill-buttons.tsx
+#: libs/friends/src/client/friend-request-row-actions.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
 msgid "Confirm"
 msgstr "Confirm"
+
+#: libs/friends/src/client/friend-action-pill-buttons.tsx
+#: libs/friends/src/client/friend-request-row-actions.tsx
+msgid "Confirmed"
+msgstr "Confirmed"
+
+#: libs/friends/src/client/friend-action-pill-buttons.tsx
+#: libs/friends/src/client/friend-request-row-actions.tsx
+msgid "Confirming…"
+msgstr "Confirming…"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/sync/sync-screen.tsx
@@ -446,9 +480,23 @@ msgstr "Could not start local database"
 msgid "Could not wipe database"
 msgstr "Could not wipe database"
 
+#: libs/friends/src/client/friend-request-row-actions.tsx
+msgid "Couldn't cancel"
+msgstr "Couldn't cancel"
+
+#: libs/friends/src/client/friend-action-pill-buttons.tsx
+#: libs/friends/src/client/friend-request-row-actions.tsx
+msgid "Couldn't confirm"
+msgstr "Couldn't confirm"
+
 #: libs/spaces/src/client/spaces-screen.tsx
 msgid "Couldn't create space"
 msgstr "Couldn't create space"
+
+#: libs/friends/src/client/friend-action-pill-buttons.tsx
+#: libs/friends/src/client/friend-request-row-actions.tsx
+msgid "Couldn't delete"
+msgstr "Couldn't delete"
 
 #: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 msgid "Couldn't end space"
@@ -467,6 +515,7 @@ msgid "Couldn't rename space"
 msgstr "Couldn't rename space"
 
 #: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-username-screen.tsx
 msgid "Couldn't save"
 msgstr "Couldn't save"
@@ -531,6 +580,21 @@ msgstr "Decrement"
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Default board, drag or tap-to-move, orientation toggle."
 msgstr "Default board, drag or tap-to-move, orientation toggle."
+
+#: libs/friends/src/client/friend-action-pill-buttons.tsx
+#: libs/friends/src/client/friend-request-row-actions.tsx
+msgid "Delete"
+msgstr "Delete"
+
+#: libs/friends/src/client/friend-action-pill-buttons.tsx
+#: libs/friends/src/client/friend-request-row-actions.tsx
+msgid "Deleted"
+msgstr "Deleted"
+
+#: libs/friends/src/client/friend-action-pill-buttons.tsx
+#: libs/friends/src/client/friend-request-row-actions.tsx
+msgid "Deleting…"
+msgstr "Deleting…"
 
 #: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
 msgid "developer"
@@ -610,13 +674,14 @@ msgstr "Disconnected"
 msgid "Dismiss"
 msgstr "Dismiss"
 
+#: libs/profile/src/client/profile-edit-screen.tsx
 #: libs/profile/src/client/profile-username-screen.tsx
 msgid "Display name"
 msgstr "Display name"
 
 #: libs/profile/src/client/profile-edit-screen.tsx
-msgid "Display name shown in the app"
-msgstr "Display name shown in the app"
+#~ msgid "Display name shown in the app"
+#~ msgstr "Display name shown in the app"
 
 #: apps/client/src/app/sso-callback.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
@@ -637,6 +702,7 @@ msgid "Each install has its own device id. Tap a row for full details."
 msgstr "Each install has its own device id. Tap a row for full details."
 
 #: libs/profile/src/client/profile-edit-screen.tsx
+#: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-screen.tsx
 #: libs/profile/src/client/profile-username-screen.tsx
 msgid "Edit profile"
@@ -689,6 +755,10 @@ msgstr "Ended"
 msgid "Ending space…"
 msgstr "Ending space…"
 
+#: libs/friends/src/client/friends-search-screen-view.tsx
+msgid "Enter at least {FRIEND_SEARCH_MIN_LENGTH} characters"
+msgstr "Enter at least {FRIEND_SEARCH_MIN_LENGTH} characters"
+
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Error state"
 msgstr "Error state"
@@ -713,9 +783,27 @@ msgstr "exit"
 msgid "Features"
 msgstr "Features"
 
+#: libs/friends/src/client/friends-list-screen-view.tsx
+#: libs/friends/src/client/friends-search-screen-view.tsx
+#: libs/friends/src/client/profile-friends-header-actions-view.tsx
+msgid "Find friends"
+msgstr "Find friends"
+
 #: libs/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "First seen"
 msgstr "First seen"
+
+#: libs/friends/src/client/friends-requests-screen-view.tsx
+#: libs/friends/src/client/profile-friends-header-actions-view.tsx
+msgid "Friend requests"
+msgstr "Friend requests"
+
+#: libs/friends/src/client/friend-action-status-renderers.tsx
+#: libs/friends/src/client/friends-list-screen-view.tsx
+#: libs/friends/src/client/friends-signed-in-gate.tsx
+#: libs/friends/src/client/profile-friends-stats-view.tsx
+msgid "Friends"
+msgstr "Friends"
 
 #: apps/client/src/settings/about-screen.tsx
 msgid "Full commit"
@@ -979,6 +1067,8 @@ msgstr "Modal above the board"
 msgid "Model"
 msgstr "Model"
 
+#: libs/friends/src/client/friend-user-screen-view.tsx
+#: libs/friends/src/client/friend-user-screen-view.tsx
 #: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
 #: pkgs/ui/src/components/screen-base/screen-base-header.tsx
 #: pkgs/ui/src/components/screen-base/screen-base-header.tsx
@@ -1008,6 +1098,10 @@ msgstr "multiplayer"
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Name"
 msgstr "Name"
+
+#: libs/profile/src/client/profile-edit-screen.tsx
+msgid "Name shown in the app"
+msgstr "Name shown in the app"
 
 #: apps/client/src/settings/about-screen.tsx
 msgid "Name: {appName}"
@@ -1061,6 +1155,10 @@ msgstr "No component selected"
 msgid "No device data yet."
 msgstr "No device data yet."
 
+#: libs/friends/src/client/friends-list-screen-view.tsx
+msgid "No friends yet"
+msgstr "No friends yet"
+
 #: libs/spaces/src/client/members/no-guests-text.tsx
 #: libs/spaces/src/client/members/space-members-guests-block.tsx
 msgid "No guests yet"
@@ -1069,6 +1167,10 @@ msgstr "No guests yet"
 #: libs/spaces/src/client/members/space-members-host-block.tsx
 msgid "No host listed"
 msgstr "No host listed"
+
+#: libs/friends/src/client/friend-request-sections.tsx
+msgid "No incoming requests"
+msgstr "No incoming requests"
 
 #: libs/spaces/src/client/spaces-screen.tsx
 msgid "No live spaces"
@@ -1081,6 +1183,10 @@ msgstr "No OAuth provider records on file for this user."
 #: libs/chess/src/client/chess-puzzle/chess-game-log.tsx
 msgid "No puzzles played yet."
 msgstr "No puzzles played yet."
+
+#: libs/friends/src/client/friend-request-sections.tsx
+msgid "No sent requests"
+msgstr "No sent requests"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/sync/sync-screen.tsx
@@ -1231,8 +1337,13 @@ msgid "production"
 msgstr "production"
 
 #: apps/client/src/app/(tabs)/_layout.tsx
+#: libs/friends/src/client/friend-user-screen-view.tsx
+#: libs/friends/src/client/friends-list-screen-view.tsx
+#: libs/friends/src/client/friends-requests-screen-view.tsx
+#: libs/friends/src/client/friends-search-screen-view.tsx
 #: libs/profile/src/client/avatar-editor-screen.tsx
 #: libs/profile/src/client/profile-edit-screen.tsx
+#: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-screen.tsx
 #: libs/profile/src/client/profile-username-screen.tsx
 msgid "Profile"
@@ -1295,6 +1406,18 @@ msgstr "reload"
 msgid "Reload"
 msgstr "Reload"
 
+#: libs/friends/src/client/friend-user-danger-modals.tsx
+msgid "Remove"
+msgstr "Remove"
+
+#: libs/friends/src/client/use-friend-user-overflow-menu.ts
+msgid "Remove friend"
+msgstr "Remove friend"
+
+#: libs/friends/src/client/friend-user-danger-modals.tsx
+msgid "Remove friend?"
+msgstr "Remove friend?"
+
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 #: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
 #: libs/spaces/src/client/space-settings-screen.tsx
@@ -1304,6 +1427,16 @@ msgstr "Rename space"
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Render dragged piece in app overlay portal"
 msgstr "Render dragged piece in app overlay portal"
+
+#: libs/friends/src/client/friend-action-status-renderers.tsx
+#: libs/friends/src/client/friend-request-row-actions.tsx
+msgid "Requested"
+msgstr "Requested"
+
+#: libs/friends/src/client/friend-request-sections.tsx
+#: libs/friends/src/client/profile-friends-stats-view.tsx
+msgid "Requests"
+msgstr "Requests"
 
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "reset"
@@ -1344,25 +1477,44 @@ msgid "SAN"
 msgstr "SAN"
 
 #: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-username-screen.tsx
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 msgid "Save"
 msgstr "Save"
 
 #: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-username-screen.tsx
 msgid "Saved"
 msgstr "Saved"
 
 #: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-username-screen.tsx
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 msgid "Saving…"
 msgstr "Saving…"
 
+#: libs/friends/src/client/friends-search-screen-view.tsx
+msgid "Search"
+msgstr "Search"
+
+#: libs/friends/src/client/friends-search-screen-view.tsx
+msgid "Search by username or name"
+msgstr "Search by username or name"
+
+#: libs/friends/src/client/friends-search-screen-view.tsx
+msgid "Searching…"
+msgstr "Searching…"
+
 #: pkgs/ui/src/components/picker/picker.tsx
 msgid "Select…"
 msgstr "Select…"
+
+#: libs/friends/src/client/friend-request-sections.tsx
+msgid "Sent"
+msgstr "Sent"
 
 #: libs/client-config/src/client/client-config-server-refresh.tsx
 #: pkgs/room-widgets/src/pages/playground-page.tsx
@@ -1421,12 +1573,17 @@ msgstr "sign in"
 #: apps/client/src/ui/use-account-actions.tsx
 #: libs/auth/src/client/account-actions-row.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
+#: libs/friends/src/client/friends-signed-in-gate.tsx
 msgid "Sign in"
 msgstr "Sign in"
 
 #: libs/auth/src/client/account-device/account-devices-card.tsx
 msgid "Sign in to link this device to a server account and see all devices for that account."
 msgstr "Sign in to link this device to a server account and see all devices for that account."
+
+#: libs/friends/src/client/friends-signed-in-gate.tsx
+msgid "Sign in to use friends"
+msgstr "Sign in to use friends"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Sign in with dev IDP"
@@ -1684,6 +1841,14 @@ msgstr "The OS reports the device as offline, but the server is reachable. This 
 msgid "Themed boards"
 msgstr "Themed boards"
 
+#: libs/friends/src/client/friend-user-danger-modals.tsx
+msgid "They will be removed from your friends list."
+msgstr "They will be removed from your friends list."
+
+#: libs/friends/src/client/friend-user-danger-modals.tsx
+msgid "They won't be able to send you friend requests."
+msgstr "They won't be able to send you friend requests."
+
 #: apps/client/src/ui/app-commands/space-commands.tsx
 msgid "this"
 msgstr "this"
@@ -1778,6 +1943,14 @@ msgstr "UI Components"
 msgid "UI explorer, debug tools."
 msgstr "UI explorer, debug tools."
 
+#: libs/friends/src/client/friend-action-status-renderers.tsx
+msgid "Unblock"
+msgstr "Unblock"
+
+#: libs/profile/src/client/profile-edit-screen.tsx
+msgid "Unique handle for search and invites"
+msgstr "Unique handle for search and invites"
+
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Unknown"
@@ -1816,6 +1989,8 @@ msgid "User-drawn arrows"
 msgstr "User-drawn arrows"
 
 #: libs/profile/src/client/profile-edit-screen.tsx
+#: libs/profile/src/client/profile-handle-screen.tsx
+#: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-username-screen.tsx
 msgid "Username"
 msgstr "Username"
@@ -1923,3 +2098,7 @@ msgstr "Your full name"
 #: libs/profile/src/client/profile-username-screen.tsx
 msgid "Your name"
 msgstr "Your name"
+
+#: libs/profile/src/client/profile-handle-screen.tsx
+msgid "your_handle"
+msgstr "your_handle"
