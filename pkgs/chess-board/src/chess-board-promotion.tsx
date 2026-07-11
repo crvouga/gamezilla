@@ -1,4 +1,4 @@
-import { IconSymbol, Pressable, useTheme } from '@pkgs/ui';
+import { Pressable, useTheme, XIcon } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import {
   Canvas,
@@ -291,11 +291,7 @@ function CancelChip({
         justifyContent: 'center',
       }}
     >
-      <IconSymbol
-        name="xmark"
-        size={Math.max(12, size * 0.5)}
-        color={appTheme.colors.text}
-      />
+      <XIcon size={Math.max(12, size * 0.5)} color={appTheme.colors.text} />
     </Pressable>
   );
 }

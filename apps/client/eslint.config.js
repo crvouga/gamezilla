@@ -45,7 +45,12 @@ module.exports = defineConfig([
             },
             {
               name: 'expo-symbols',
-              message: 'Use IconSymbol from @pkgs/ui.',
+              message: 'Import icons from @pkgs/ui (e.g. HouseIcon), not expo-symbols.',
+            },
+            {
+              name: 'lucide-react-native',
+              message:
+                'Import icons from @pkgs/ui (e.g. SearchIcon), not lucide-react-native directly.',
             },
           ],
         },

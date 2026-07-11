@@ -12,7 +12,7 @@ import { Pressable } from 'react-native';
 import type { ColorTokens } from '../../theme';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
-import { IconSymbol } from '../symbol-icon';
+import { ChevronRightIcon, CopyIcon } from '../icons';
 import { Text } from '../text';
 import {
   classifyValue,
@@ -214,7 +214,7 @@ function Chevron({
         transform: [{ rotate: expanded ? '90deg' : '0deg' }],
       }}
     >
-      <IconSymbol name="chevron.right" size={10} color={theme.colors.icon} />
+      <ChevronRightIcon size={10} color={theme.colors.icon} />
     </Box>
   );
 }
@@ -302,7 +302,7 @@ function CopyValueButton({ value }: { value: unknown }) {
         opacity: pressed ? 0.5 : 0.55,
       })}
     >
-      <IconSymbol name="copy" size={12} color={theme.colors.icon} />
+      <CopyIcon size={12} color={theme.colors.icon} />
     </Pressable>
   );
 }

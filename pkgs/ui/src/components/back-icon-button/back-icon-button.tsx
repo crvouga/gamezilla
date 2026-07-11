@@ -2,9 +2,7 @@
  * `BackIconButton` -- circular icon button rendering a mirrored chevron.
  *
  * Centralizes the "back" affordance so every screen uses the same icon,
- * size, hit slop, and accessibility label. Mirrors the registry's
- * `chevron.right` icon along the X axis since the design system does not
- * ship a dedicated `chevron.left` glyph.
+ * size, hit slop, and accessibility label.
  *
  * @example
  * ```tsx
@@ -18,7 +16,7 @@ import type { ReactNode } from 'react';
 import { useTheme } from '../../theme';
 import { useLingui } from '@lingui/react/macro';
 import { IconButton } from '../icon-button';
-import { IconSymbol } from '../symbol-icon';
+import { ChevronLeftIcon } from '../icons';
 
 export type BackIconButtonProps = {
   onPress: () => void;
@@ -51,12 +49,7 @@ export function BackIconButton({
       accessibilityLabel={accessibilityLabel ?? t`Back`}
       {...(testID !== undefined ? { testID } : {})}
     >
-      <IconSymbol
-        name="chevron.right"
-        size={iconSize}
-        color={theme.colors.text}
-        style={{ transform: [{ scaleX: -1 }] }}
-      />
+      <ChevronLeftIcon size={iconSize} color={theme.colors.text} />
     </IconButton>
   );
 }

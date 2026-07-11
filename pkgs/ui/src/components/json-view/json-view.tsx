@@ -20,7 +20,7 @@ import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { ScrollView } from '../scroll-view';
-import { IconSymbol } from '../symbol-icon';
+import { ChevronRightIcon, CopyIcon, type IconComponent } from '../icons';
 import { Text } from '../text';
 import {
   classifyValue,
@@ -283,14 +283,14 @@ function JsonViewToolbar({
     >
       <ToolbarButton
         label="Expand all"
-        icon="chevron.right"
+        icon={ChevronRightIcon}
         iconRotateDeg={90}
         onPress={onExpandAll}
         disabled={!rootIsContainer}
       />
       <ToolbarButton
         label="Collapse all"
-        icon="chevron.right"
+        icon={ChevronRightIcon}
         onPress={onCollapseAll}
         disabled={!rootIsContainer}
       />
@@ -300,7 +300,7 @@ function JsonViewToolbar({
         disabled={!rootIsContainer}
       />
       <Box style={{ flex: 1 }} />
-      <ToolbarButton label="Copy" icon="copy" onPress={onCopy} />
+      <ToolbarButton label="Copy" icon={CopyIcon} onPress={onCopy} />
     </Box>
   );
 }
@@ -313,12 +313,13 @@ function ToolbarButton({
   disabled = false,
 }: {
   label: string;
-  icon?: 'chevron.right' | 'copy';
+  icon?: IconComponent;
   iconRotateDeg?: number;
   onPress: () => void;
   disabled?: boolean;
 }) {
   const theme = useTheme();
+  const Icon = icon;
   return (
     <Pressable
       accessibilityRole="button"
@@ -334,7 +335,7 @@ function ToolbarButton({
         opacity: disabled ? 0.4 : pressed ? 0.6 : 1,
       })}
     >
-      {icon ? (
+      {Icon ? (
         <Box
           style={{
             transform:
@@ -343,7 +344,7 @@ function ToolbarButton({
                 : undefined,
           }}
         >
-          <IconSymbol name={icon} size={10} color={theme.colors.icon} />
+          <Icon size={10} color={theme.colors.icon} />
         </Box>
       ) : null}
       <Text variant="caption" sx={{ color: 'tint' }} label={label} />

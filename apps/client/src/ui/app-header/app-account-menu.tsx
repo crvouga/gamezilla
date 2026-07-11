@@ -15,7 +15,11 @@ import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import {
   Box,
   FloatingMenu,
+  LogInIcon,
+  LogOutIcon,
   Pressable,
+  SettingsIcon,
+  UserIcon,
   type FloatingMenuContent,
 } from '@pkgs/ui';
 import { t } from '@lingui/core/macro';
@@ -85,7 +89,7 @@ function buildAuthRow(isAuthenticated: boolean, onAuth: () => void): MenuRow {
     type: 'item',
     id: 'sign-in',
     label,
-    icon: isAuthenticated ? 'arrow.right.from.bracket' : 'right.to.bracket',
+    icon: isAuthenticated ? LogOutIcon : LogInIcon,
     onPress: onAuth,
     accessibilityLabel: label,
   };
@@ -105,7 +109,7 @@ function buildMenuContent(args: {
         type: 'item',
         id: 'account',
         label: t`Account`,
-        icon: 'person.fill',
+        icon: UserIcon,
         onPress: onAccount,
         accessibilityLabel: t`Account`,
       },
@@ -113,7 +117,7 @@ function buildMenuContent(args: {
         type: 'item',
         id: 'settings',
         label: t`Settings`,
-        icon: 'gearshape.fill',
+        icon: SettingsIcon,
         onPress: onSettings,
         accessibilityLabel: t`Settings`,
       },

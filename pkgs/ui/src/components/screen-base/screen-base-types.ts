@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 import type { MutationButtonLabels } from '../button/use-mutation-button';
-import type { IconSymbolName } from '../symbol-icon';
+import type { IconComponent } from '../icons';
 
 export type ScreenBaseBreadcrumb = {
   name: ReactNode;
@@ -21,7 +21,7 @@ export type ScreenBaseAction = {
   onPress: () => void;
   loading?: boolean;
   disabled?: boolean;
-  icon?: IconSymbolName;
+  icon?: IconComponent;
   endsGroup?: boolean;
   trailing?: ReactNode;
   overflow?: 'auto' | 'always' | 'never';
@@ -38,7 +38,7 @@ export type ScreenBasePrimaryAction = {
   onError?: (error: Error) => void;
   disabled?: boolean;
   successHoldMs?: number;
-  icon?: IconSymbolName;
+  icon?: IconComponent;
 };
 
 export type ScreenBaseProps = {

@@ -37,7 +37,7 @@ import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
-import { IconSymbol } from '../symbol-icon';
+import { XIcon } from '../icons';
 import { Text } from '../text';
 
 const ZERO_INSETS = { top: 0, right: 0, bottom: 0, left: 0 };
@@ -338,7 +338,7 @@ function DismissibleBannerFrame({
           ? { testID: dismissButtonTestID }
           : {})}
       >
-        <IconSymbol name="xmark" size={20} color={theme.colors.icon} />
+        <XIcon size={20} color={theme.colors.icon} />
       </IconButton>
     </Box>
   );

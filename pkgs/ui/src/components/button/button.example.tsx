@@ -3,7 +3,7 @@ import { Box } from '../box';
 import { Divider } from '../divider';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
-import { IconSymbol } from '../symbol-icon';
+import { ChevronRightIcon } from '../icons';
 import { Text } from '../text';
 import {
   Button,
@@ -44,7 +44,7 @@ function ButtonRow({
         intent={intent}
         variant={variant}
         endIcon={
-          <IconSymbol name="chevron.right" size={16} color={iconColor} />
+          <ChevronRightIcon size={16} color={iconColor} />
         }
         onPress={() => {}}
       />

@@ -1,4 +1,4 @@
-import { Box, IconSymbol, Text, useTheme } from '@pkgs/ui';
+import { Box, CircleCheckIcon, Text, useTheme, XIcon } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
@@ -49,11 +49,15 @@ export function ChessGameLogRow({ entry }: ChessGameLogRowProps): ReactNode {
       }}
       style={{ backgroundColor: theme.colors.surfaceMuted }}
     >
-      <IconSymbol
-        name={solved ? 'check.circle.fill' : 'xmark'}
-        size={18}
-        color={solved ? theme.colors.success : theme.colors.destructive}
-      />
+      {(() => {
+        const Icon = solved ? CircleCheckIcon : XIcon;
+        return (
+          <Icon
+            size={18}
+            color={solved ? theme.colors.success : theme.colors.destructive}
+          />
+        );
+      })()}
       <Box sx={{ flex: 1, gap: 1 }}>
         <Text
           variant="bodyBold"

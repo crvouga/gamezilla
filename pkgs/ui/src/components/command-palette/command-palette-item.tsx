@@ -2,7 +2,7 @@ import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
-import { IconSymbol, type IconSymbolName } from '../symbol-icon';
+import type { IconComponent } from '../icons';
 import { Text } from '../text';
 import { CommandPaletteKbd } from './command-palette-kbd';
 import { fuzzyMatch } from './fuzzy-match';
@@ -65,10 +65,11 @@ export function CommandPaletteItem({
   );
 }
 
-function ItemIcon({ icon }: { icon: IconSymbolName | undefined }) {
+function ItemIcon({ icon }: { icon: IconComponent | undefined }) {
   const theme = useTheme();
   if (icon === undefined) return <Box sx={{ width: 18 }} />;
-  return <IconSymbol name={icon} size={18} color={theme.colors.icon} />;
+  const Icon = icon;
+  return <Icon size={18} color={theme.colors.icon} />;
 }
 
 function ItemSubtitle({ subtitle }: { subtitle: string | undefined }) {

@@ -185,6 +185,7 @@
     "jose": "^6.0.11",
     "knip": "^6.11.0",
     "kysely": "^0.28.9",
+    "lucide-react-native": "^0.511.0",
     "make-plural": "^8.1.0",
     "pg": "^8.16.3",
     "picocolors": "^1.1.1",

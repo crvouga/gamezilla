@@ -3,6 +3,7 @@ import { Card } from '../card';
 import { Divider } from '../divider';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Text } from '../text';
+import { HouseIcon } from '../icons';
 import { EmptyState } from './empty-state';
 
 export default function EmptyStateExample() {
@@ -14,7 +15,7 @@ export default function EmptyStateExample() {
       <SchemePreview>
         <Box style={{ height: 280 }}>
           <EmptyState
-            icon="house.fill"
+            icon={HouseIcon}
             title="No live spaces"
             body="Tap + New space to start one."
             action={{ label: '+ New space', onPress: () => {} }}

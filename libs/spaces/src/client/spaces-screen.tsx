@@ -6,7 +6,9 @@ import { useLiveSpaceIds } from './use-live-space-ids';
 import {
   Box,
   EmptyState,
+  HouseIcon,
   LoadingState,
+  PlusIcon,
   ScreenBase,
   ScrollView,
   useBreakpoint,
@@ -26,7 +28,7 @@ function SpacesList({ bottomInset }: { bottomInset: number }) {
   if (spaceIds.length === 0) {
     return (
       <EmptyState
-        icon="house.fill"
+        icon={HouseIcon}
         title={<Trans>No live spaces</Trans>}
         body={<Trans>Use New space to start one.</Trans>}
       />
@@ -87,7 +89,7 @@ export function SpacesScreen({
         });
       },
       successHoldMs: 0,
-      icon: 'plus',
+      icon: PlusIcon,
       disabled: !canCreateSpace,
     };
   }, [canCreateSpace, createSpace, router, t]);

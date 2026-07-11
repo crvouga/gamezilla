@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react';
-import { Platform, Text as RNText, type TextStyle } from 'react-native';
+import { Platform, type TextStyle } from 'react-native';
 
 import { fontSize as fontSizeScale } from '../../theme/scale';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';
 import type { MutationButtonProps } from '../button/use-mutation-button';
-import { IconSymbol, type IconSymbolName } from '../symbol-icon';
+import type { IconComponent } from '../icons';
+import { Text } from '../text';
 
 const CONTENT_HEADER_TITLE_FONT_SIZE = fontSizeScale['2xl'];
 const CONTENT_HEADER_BUTTON_ICON_SIZE = 20;
@@ -55,7 +56,7 @@ export function ScreenBaseContentHeader({
 }: {
   title: ReactNode;
   buttonProps: MutationButtonProps;
-  icon?: IconSymbolName | undefined;
+  icon?: IconComponent | undefined;
 }): ReactNode {
   const theme = useTheme();
   return (
@@ -77,15 +78,14 @@ export function ScreenBaseContentHeader({
           alignItems: 'center',
         }}
       >
-        <RNText
+        <Text
           accessibilityRole="header"
           aria-level={1}
           numberOfLines={1}
           ellipsizeMode="tail"
           style={contentHeaderTitleStyle(theme)}
-        >
-          {title}
-        </RNText>
+          label={title}
+        />
       </Box>
       <Box sx={{ flexDirection: 'row', alignItems: 'center' }}>
         <Button
@@ -94,11 +94,15 @@ export function ScreenBaseContentHeader({
           size="md"
           startIcon={
             icon !== undefined ? (
-              <IconSymbol
-                name={icon}
-                size={CONTENT_HEADER_BUTTON_ICON_SIZE}
-                color={theme.colors.onPrimary}
-              />
+              (() => {
+                const Icon = icon;
+                return (
+                  <Icon
+                    size={CONTENT_HEADER_BUTTON_ICON_SIZE}
+                    color={theme.colors.onPrimary}
+                  />
+                );
+              })()
             ) : undefined
           }
         />

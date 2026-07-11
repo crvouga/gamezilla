@@ -13,7 +13,7 @@
  * @example
  * ```tsx
  * <Chip label="React Native" selected={sel} onPress={() => setSel(!sel)} />
- * <Chip label="With icon" startIcon={<IconSymbol name="star" />} />
+ * <Chip label="With icon" startIcon={<PlusIcon size={16} />} />
  * ```
  */
 

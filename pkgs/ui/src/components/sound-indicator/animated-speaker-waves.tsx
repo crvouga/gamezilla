@@ -20,7 +20,7 @@
  * (TTS already playing), instead of an initial static beat.
  *
  * Path data is sourced from `@fortawesome/fontawesome-free` 6.5.2,
- * `solid/volume-high.svg`. See `../symbol-icon/ATTRIBUTION.md`.
+ * `solid/volume-high.svg` (Font Awesome, vendored for the playing animation).
  */
 
 import { useEffect, useRef, type ReactNode } from 'react';

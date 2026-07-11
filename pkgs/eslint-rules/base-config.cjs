@@ -7,6 +7,7 @@ const noOnlyTests = require('eslint-plugin-no-only-tests');
 const eslintPluginNaming = require('eslint-plugin-naming');
 const sizeLimits = require('./size-limits.cjs');
 const a11yRestrictions = require('./a11y-restrictions.cjs');
+const { lucideRestrictedImportsBlock } = require('./lucide-restrictions.cjs');
 
 /** Bump hooks above Expo's default severities where needed. */
 const reactHooksStrictRules = {
@@ -161,6 +162,7 @@ function createSharedBlocks(tsconfigRootDir, options = {}) {
         rules,
       },
       sizeLimits.testOverrides(),
+      ...lucideRestrictedImportsBlock(),
     ];
   }
 
@@ -196,6 +198,7 @@ function createSharedBlocks(tsconfigRootDir, options = {}) {
       },
     },
     sizeLimits.testOverrides(),
+    ...lucideRestrictedImportsBlock(),
   ];
 }
 

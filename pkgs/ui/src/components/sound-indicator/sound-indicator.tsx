@@ -47,7 +47,7 @@
 import { type ReactNode } from 'react';
 import { View } from 'react-native';
 import { useTheme } from '../../theme';
-import { IconSymbol } from '../symbol-icon';
+import { Volume2Icon, VolumeXIcon } from '../icons';
 import { AnimatedSpeakerWaves } from './animated-speaker-waves';
 
 /** Padding around the icon, scaled to size for visual balance. */
@@ -83,6 +83,7 @@ export function SoundIndicator({
     ? (mutedColor ?? theme.colors.textSecondary)
     : (color ?? theme.colors.text);
   const padding = Math.round(size * PADDING_RATIO);
+  const StaticIcon = muted ? VolumeXIcon : Volume2Icon;
   return (
     <View
       style={{
@@ -96,11 +97,7 @@ export function SoundIndicator({
       {state === 'playing' ? (
         <AnimatedSpeakerWaves size={size} color={iconColor} />
       ) : (
-        <IconSymbol
-          name={muted ? 'speaker.slash.fill' : 'speaker.wave.fill'}
-          size={size}
-          color={iconColor}
-        />
+        <StaticIcon size={size} color={iconColor} />
       )}
     </View>
   );

@@ -4,7 +4,7 @@ import { OnColorProvider, useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
-import { IconSymbol, type IconSymbolName } from '../symbol-icon';
+import { PlusIcon, type IconComponent } from '../icons';
 import { Text } from '../text';
 import {
   MUTATION_FEEDBACK_ICONS,
@@ -27,7 +27,7 @@ export type FloatingActionButtonProps = {
   loading?: boolean;
   feedback?: ButtonFeedback;
   accessibilityLabel: LocalizedString;
-  icon?: IconSymbolName;
+  icon?: IconComponent;
   intent?: ButtonIntent;
   /** When set, renders an extended pill FAB with icon + label. */
   label?: ReactNode;
@@ -110,7 +110,7 @@ function FabContent({
   errorLabel,
 }: {
   phase: ButtonFeedback;
-  icon: IconSymbolName;
+  icon: IconComponent;
   foregroundColor: string;
   label?: ReactNode;
   loadingLabel?: ReactNode;
@@ -124,6 +124,7 @@ function FabContent({
     errorLabel,
   });
   const showText = label !== undefined && text !== undefined;
+  const Icon = icon;
 
   if (phase === 'loading') {
     return (
@@ -137,13 +138,10 @@ function FabContent({
   }
 
   if (phase === 'success' || phase === 'error') {
+    const FeedbackIcon = MUTATION_FEEDBACK_ICONS[phase];
     return (
       <>
-        <IconSymbol
-          name={MUTATION_FEEDBACK_ICONS[phase]}
-          size={FAB_ICON_SIZE}
-          color={foregroundColor}
-        />
+        <FeedbackIcon size={FAB_ICON_SIZE} color={foregroundColor} />
         {showText ? (
           <FabLabelText label={text} foregroundColor={foregroundColor} />
         ) : null}
@@ -153,7 +151,7 @@ function FabContent({
 
   return (
     <>
-      <IconSymbol name={icon} size={FAB_ICON_SIZE} color={foregroundColor} />
+      <Icon size={FAB_ICON_SIZE} color={foregroundColor} />
       {showText ? (
         <FabLabelText label={text} foregroundColor={foregroundColor} />
       ) : null}
@@ -190,7 +188,7 @@ function fabContainerStyle(args: {
 export function FloatingActionButton(props: FloatingActionButtonProps) {
   const {
     accessibilityLabel,
-    icon = 'plus',
+    icon = PlusIcon,
     label,
     loadingLabel,
     successLabel,

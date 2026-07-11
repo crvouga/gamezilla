@@ -1,7 +1,7 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 
-import type { IconSymbolName } from '../symbol-icon';
+import type { IconComponent } from '../icons';
 
 /** Header block above menu rows. */
 export type FloatingMenuHeaderSpec = {
@@ -14,7 +14,7 @@ export type FloatingMenuItemRow = {
   /** Stable React key and a11y id. */
   id: string;
   label: ReactNode;
-  icon: IconSymbolName;
+  icon: IconComponent;
   /** Right-aligned content (e.g. status + metrics). */
   trailing?: ReactNode;
   onPress?: () => void;

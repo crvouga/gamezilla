@@ -13,7 +13,6 @@ import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { ModalRoot } from '../modal/modal-root';
-import { IconSymbol } from '../symbol-icon';
 import type { FloatingMenuContent } from './floating-menu-content';
 import { FloatingMenuDivider } from './floating-menu-divider';
 import { estimateFloatingMenuHeight } from './floating-menu-estimate-height';
@@ -155,12 +154,11 @@ function FloatingMenuRowItem({
   row: Exclude<FloatingMenuContent['rows'][number], { type: 'divider' }>;
 }) {
   const theme = useTheme();
+  const RowIcon = row.icon;
   return (
     <FloatingMenuItem
       label={row.label}
-      leading={
-        <IconSymbol name={row.icon} size={18} color={theme.colors.icon} />
-      }
+      leading={<RowIcon size={18} color={theme.colors.icon} />}
       trailing={row.trailing}
       onPress={row.onPress}
       disabled={row.disabled}

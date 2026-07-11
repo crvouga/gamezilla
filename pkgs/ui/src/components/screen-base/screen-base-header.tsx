@@ -29,7 +29,7 @@ import {
   type FloatingMenuContent,
 } from '../floating-menu';
 import { IconButton } from '../icon-button';
-import { IconSymbol } from '../symbol-icon';
+import { EllipsisIcon } from '../icons';
 import { Text } from '../text';
 import { TopBar } from '../top-bar';
 import { partitionScreenActions } from './partition-screen-actions';
@@ -45,7 +45,7 @@ function useSafeAreaInsetsCompat() {
   return useContext(SafeAreaInsetsContext) ?? ZERO_SAFE_AREA;
 }
 
-const DEFAULT_MENU_ICON = 'ellipsis' as const;
+const DEFAULT_MENU_ICON = EllipsisIcon;
 
 function actionToButtonProps(action: ScreenBaseAction): {
   title: ReactNode;
@@ -190,7 +190,7 @@ function HeaderTrailing({
             testID="header-overflow-menu"
             accessibilityLabel={t`More`}
           >
-            <IconSymbol name="ellipsis" size={20} color={theme.colors.icon} />
+            <EllipsisIcon size={20} color={theme.colors.icon} />
           </IconButton>
         </Box>
       ) : null}

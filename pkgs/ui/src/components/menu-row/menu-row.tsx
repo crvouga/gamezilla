@@ -22,7 +22,7 @@ import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
-import { IconSymbol } from '../symbol-icon';
+import { ChevronRightIcon } from '../icons';
 import { Text } from '../text';
 
 export type MenuRowProps = {
@@ -89,8 +89,7 @@ export function MenuRow({
         </Box>
         {trailing ??
           (hideChevron ? null : (
-            <IconSymbol
-              name="chevron.right"
+            <ChevronRightIcon
               size={20}
               color={selected ? theme.colors.tint : theme.colors.icon}
             />

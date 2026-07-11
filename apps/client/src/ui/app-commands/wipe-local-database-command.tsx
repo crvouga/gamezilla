@@ -1,5 +1,5 @@
 import { useSyncLocalDataActions } from '@libs/auth/client/sync-local-data-actions-context';
-import { MutationModal, RegisterCommand } from '@pkgs/ui';
+import { DatabaseIcon, MutationModal, RegisterCommand } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useState } from 'react';
 
@@ -17,7 +17,7 @@ export function WipeLocalDatabaseCommand() {
         title={t`Wipe local database`}
         subtitle={t`Clear local sync data and reload`}
         category={t`Data`}
-        icon="database.fill"
+        icon={DatabaseIcon}
         keywords={[
           t`wipe`,
           t`clear`,

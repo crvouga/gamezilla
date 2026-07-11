@@ -52,6 +52,7 @@ export {
   resolveModalLayoutWidth,
   type ModalSize,
 } from './modal-size';
+export { MAX_CONTENT_WIDTH } from './layout';
 export {
   duration,
   easing,

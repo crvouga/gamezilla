@@ -9,7 +9,7 @@
  * @example
  * ```tsx
  * <EmptyState
- *   icon="house.fill"
+ *   icon={HouseIcon}
  *   title={<Trans>No live spaces</Trans>}
  *   body={<Trans>Tap + New space to start one.</Trans>}
  *   action={{ label: t`+ New space`, onPress: createSpace }}
@@ -23,7 +23,7 @@ import type { ReactNode } from 'react';
 import { useTheme } from '../../theme';
 import { Button } from '../button';
 import { StateBlock, type StateBlockVariant } from '../state-block';
-import { IconSymbol, type IconSymbolName } from '../symbol-icon';
+import { type IconComponent } from '../icons';
 import { Text } from '../text';
 
 export type EmptyStateAction = {
@@ -33,7 +33,7 @@ export type EmptyStateAction = {
 
 export type EmptyStateProps = {
   /** Optional icon rendered above the title. Tinted with `textSecondary`. */
-  icon?: IconSymbolName;
+  icon?: IconComponent;
   title: ReactNode;
   body?: ReactNode;
   /** Optional primary action below the body. */
@@ -52,14 +52,11 @@ export function EmptyState({
   variant = 'fill',
 }: EmptyStateProps): ReactNode {
   const theme = useTheme();
+  const Icon = icon;
   return (
     <StateBlock variant={variant}>
-      {icon !== undefined ? (
-        <IconSymbol
-          name={icon}
-          size={ICON_SIZE}
-          color={theme.colors.textSecondary}
-        />
+      {Icon !== undefined ? (
+        <Icon size={ICON_SIZE} color={theme.colors.textSecondary} />
       ) : null}
       <Text
         variant="bodyBold"

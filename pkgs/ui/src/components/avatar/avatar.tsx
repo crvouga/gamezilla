@@ -13,7 +13,7 @@
  * <Avatar uri="https://example.com/photo.jpg" size={48} />
  * <Avatar initials="JD" size={48} />
  * <Avatar svg={dicebearSvgString} size={64} />
- * <Avatar icon="person.fill" size={48} background="outline" foreground="tabIconDefault" />
+ * <Avatar icon={UserIcon} size={48} background="outline" foreground="tabIconDefault" />
  * <Avatar size={48} background="surface" /> // empty placeholder plate
  * ```
  */
@@ -22,7 +22,7 @@ import { Image, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import { bestOnColor, useTheme } from '../../theme';
-import { IconSymbol, type IconSymbolName } from '../symbol-icon';
+import { type IconComponent } from '../icons';
 import { Text } from '../text';
 
 export type AvatarProps = {
@@ -45,7 +45,7 @@ export type AvatarProps = {
   /** 1–2 character text fallback (truncated to 2 chars). */
   initials?: string;
   /** Icon glyph fallback (e.g. `'person.fill'`). */
-  icon?: IconSymbolName;
+  icon?: IconComponent;
 };
 
 function isNonEmpty(value: string | null | undefined): value is string {
@@ -115,7 +115,10 @@ export function Avatar({
     const iconSize = Math.max(12, Math.round(size * 0.48));
     return (
       <View style={containerStyle}>
-        <IconSymbol name={icon} size={iconSize} color={fg} />
+        {(() => {
+          const Icon = icon;
+          return <Icon size={iconSize} color={fg} />;
+        })()}
       </View>
     );
   }

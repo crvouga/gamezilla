@@ -11,8 +11,8 @@
  * ```tsx
  * <OverflowMenuButton
  *   actions={[
- *     { id: 'devtools', label: 'Developer tools', icon: 'chevron.left.forwardslash.chevron.right', onPress: openDebug, endsGroup: true },
- *     { id: 'leave', label: 'Leave space', icon: 'arrow.right.from.bracket', onPress: leave },
+ *     { id: 'devtools', label: 'Developer tools', icon: CodeIcon, onPress: openDebug, endsGroup: true },
+ *     { id: 'leave', label: 'Leave space', icon: LogOutIcon, onPress: leave },
  *   ]}
  *   header={{ title: 'More' }}
  * />
@@ -32,7 +32,8 @@ import {
   type FloatingMenuContentRow,
 } from '../floating-menu';
 import { IconButton } from '../icon-button';
-import { IconSymbol, type IconSymbolName } from '../symbol-icon';
+import type { IconComponent } from '../icons';
+import { EllipsisIcon } from '../icons';
 import { useAnchoredMenu } from './use-anchored-menu';
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
@@ -42,7 +43,7 @@ export type OverflowMenuAction = {
   id: string;
   label: ReactNode;
   /** Defaults to {@link DEFAULT_ACTION_ICON} when omitted. */
-  icon?: IconSymbolName;
+  icon?: IconComponent;
   onPress: () => void;
   trailing?: ReactNode;
   disabled?: boolean;
@@ -66,7 +67,7 @@ export type OverflowMenuButtonProps = {
   /** Trigger background token. Defaults to `'surface'`. */
   background?: string;
   /** Trigger icon. Defaults to `'ellipsis'`. */
-  icon?: IconSymbolName;
+  icon?: IconComponent;
   /** Trigger accessibility label. */
   accessibilityLabel: LocalizedString;
   /** Width of the dropdown panel in px. */
@@ -74,7 +75,7 @@ export type OverflowMenuButtonProps = {
   testID?: string;
 };
 
-const DEFAULT_ACTION_ICON: IconSymbolName = 'ellipsis';
+const DEFAULT_ACTION_ICON = EllipsisIcon;
 
 function buildContent(
   actions: readonly OverflowMenuAction[],
@@ -116,7 +117,7 @@ export function OverflowMenuButton({
   header,
   size = 40,
   background = 'surface',
-  icon = 'ellipsis',
+  icon = EllipsisIcon,
   accessibilityLabel,
   width = FLOATING_MENU_DEFAULT_WIDTH,
   testID,
@@ -125,6 +126,7 @@ export function OverflowMenuButton({
   const menu = useAnchoredMenu();
   const insets = useContext(SafeAreaInsetsContext) ?? ZERO_SAFE_AREA;
   const iconSize = Math.round(size * 0.5);
+  const TriggerIcon = icon;
 
   const content = useMemo(
     () => buildContent(actions, menu.close, header),
@@ -143,7 +145,7 @@ export function OverflowMenuButton({
           accessibilityLabel={accessibilityLabel}
           {...(testID !== undefined ? { testID } : {})}
         >
-          <IconSymbol name={icon} size={iconSize} color={theme.colors.icon} />
+          <TriggerIcon size={iconSize} color={theme.colors.icon} />
         </IconButton>
       </Box>
       <FloatingMenu

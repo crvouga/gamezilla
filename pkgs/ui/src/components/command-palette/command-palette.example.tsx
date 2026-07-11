@@ -5,6 +5,13 @@ import { Button } from '../button';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import {
+  EllipsisIcon,
+  HouseIcon,
+  ListChecksIcon,
+  PaintbrushIcon,
+  WifiIcon,
+} from '../icons';
+import {
   CommandPalette,
   CommandRegistryProvider,
   RegisterCommand,
@@ -27,7 +34,7 @@ function DemoCommands({ onIncrement }: { onIncrement: () => void }) {
         id="demo-increment"
         title="Increment counter"
         category="Demo"
-        icon="checklist"
+        icon={ListChecksIcon}
         keywords={['add', 'plus', 'count']}
         run={onIncrement}
       />
@@ -36,7 +43,7 @@ function DemoCommands({ onIncrement }: { onIncrement: () => void }) {
         title="Slow async command (1s)"
         subtitle="Shows loading state"
         category="Demo"
-        icon="wifi"
+        icon={WifiIcon}
         run={async () => {
           await sleep(1000);
         }}
@@ -46,7 +53,7 @@ function DemoCommands({ onIncrement }: { onIncrement: () => void }) {
         title="Failing command"
         subtitle="Throws after a short delay"
         category="Demo"
-        icon="ellipsis"
+        icon={EllipsisIcon}
         run={async () => {
           await sleep(200);
           throw new Error('simulated failure');
@@ -57,7 +64,7 @@ function DemoCommands({ onIncrement }: { onIncrement: () => void }) {
         title="Shortcut demo"
         subtitle="Bind mod+shift+d on web in the app shell"
         category="Demo"
-        icon="paintbrush.fill"
+        icon={PaintbrushIcon}
         shortcut="mod+shift+d"
         run={async () => {
           await sleep(300);
@@ -68,7 +75,7 @@ function DemoCommands({ onIncrement }: { onIncrement: () => void }) {
         title="Search me by keyword"
         subtitle="Rich metadata row"
         category="Spotlight"
-        icon="house.fill"
+        icon={HouseIcon}
         keywords={['fuzzy', 'metadata', 'group']}
         run={async () => {
           await sleep(150);

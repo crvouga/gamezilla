@@ -22,7 +22,7 @@ import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';
 import { borderRadius } from '../../theme/scale';
-import { IconSymbol, type IconSymbolName } from '../symbol-icon';
+import { CircleCheckIcon, type IconComponent } from '../icons';
 import { StateBlock, type StateBlockVariant } from '../state-block';
 import { Text } from '../text';
 
@@ -33,7 +33,7 @@ export type SuccessStateAction = {
 
 export type SuccessStateProps = {
   /** Defaults to the design-system check-in-circle icon. */
-  icon?: IconSymbolName;
+  icon?: IconComponent;
   title: ReactNode;
   body?: ReactNode;
   /** Optional CTA below the body. */
@@ -44,7 +44,7 @@ export type SuccessStateProps = {
 
 const ICON_SIZE_FILL = 32;
 const ICON_SIZE_COMPACT = 20;
-const DEFAULT_ICON: IconSymbolName = 'check.circle.fill';
+const DEFAULT_ICON = CircleCheckIcon;
 
 export function SuccessState({
   icon = DEFAULT_ICON,
@@ -74,19 +74,16 @@ function SuccessStateFill({
   body,
   action,
 }: {
-  icon: IconSymbolName;
+  icon: IconComponent;
   title: ReactNode;
   body: ReactNode;
   action: SuccessStateAction | undefined;
 }) {
   const theme = useTheme();
+  const Icon = icon;
   return (
     <StateBlock variant="fill">
-      <IconSymbol
-        name={icon}
-        size={ICON_SIZE_FILL}
-        color={theme.colors.success}
-      />
+      <Icon size={ICON_SIZE_FILL} color={theme.colors.success} />
       <Text
         variant="bodyBold"
         sx={{ color: 'success' }}
@@ -119,12 +116,13 @@ function SuccessStateCompact({
   body,
   action,
 }: {
-  icon: IconSymbolName;
+  icon: IconComponent;
   title: ReactNode;
   body: ReactNode;
   action: SuccessStateAction | undefined;
 }) {
   const theme = useTheme();
+  const Icon = icon;
   return (
     <Box
       sx={{
@@ -139,11 +137,7 @@ function SuccessStateCompact({
       }}
     >
       <Box sx={{ pt: 0.5 }}>
-        <IconSymbol
-          name={icon}
-          size={ICON_SIZE_COMPACT}
-          color={theme.colors.success}
-        />
+        <Icon size={ICON_SIZE_COMPACT} color={theme.colors.success} />
       </Box>
       <Box sx={{ flex: 1, gap: 1 }}>
         <Text variant="bodyBold" sx={{ color: 'success' }} label={title} />

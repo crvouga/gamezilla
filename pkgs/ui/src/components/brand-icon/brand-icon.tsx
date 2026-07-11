@@ -1,7 +1,7 @@
 /**
  * `BrandIcon` -- third-party brand logo primitive (Google, etc.).
  *
- * Companion to {@link import('../symbol-icon').IconSymbol IconSymbol}. The
+ * Companion to the design-system icon set. The
  * key difference: brand icons use the vendor's published colors and do not
  * accept a `color` prop, so they cannot be retinted by the theme.
  *

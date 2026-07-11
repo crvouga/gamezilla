@@ -20,7 +20,7 @@ import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import type { SxProps } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
-import { IconSymbol } from '../symbol-icon';
+import { CircleCheckIcon, CopyIcon } from '../icons';
 import { Text } from '../text';
 
 const DEFAULT_COPIED_RESET_MS = 2000;
@@ -206,11 +206,10 @@ function CopyRow({
             justifyContent: 'center',
           }}
         >
-          <IconSymbol
-            name={copied ? 'check.circle.fill' : 'copy'}
-            size={ICON_SIZE}
-            color={iconColor}
-          />
+          {(() => {
+            const Icon = copied ? CircleCheckIcon : CopyIcon;
+            return <Icon size={ICON_SIZE} color={iconColor} />;
+          })()}
         </Animated.View>
       </Pressable>
     </Animated.View>
@@ -228,15 +227,13 @@ function FeedbackLine({
   helperText: LocalizedString | undefined;
   opacity: Animated.Value;
 }) {
-  return (
-    <View style={{ minHeight: 18 }}>
-      {copied ? (
-        <Animated.View style={{ opacity }}>
-          <Text variant="caption" label={copiedLabel} />
-        </Animated.View>
-      ) : helperText !== undefined ? (
-        <Text variant="caption" label={helperText} />
-      ) : null}
-    </View>
+  return copied ? (
+    <Animated.View style={{ opacity }}>
+      <Text variant="caption" label={copiedLabel} />
+    </Animated.View>
+  ) : helperText !== undefined ? (
+    <Text variant="caption" label={helperText} />
+  ) : (
+    <Text variant="caption" label="" />
   );
 }

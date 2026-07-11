@@ -66,35 +66,73 @@ function guestSpacesSql(ids: readonly string[]): { sql: string; params: string[]
   };
 }
 
-/**
- * The current user's live spaces — every space they host, plus every space
- * they have an active guest membership on (deduped, host wins).
- */
-export function useCurrentSpaceIds(): {
+function hostedSpacesSql(
+  enabled: boolean,
+  myId: string
+): { sql: string; params: string[] } {
+  if (!enabled) {
+    return {
+      sql: `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName} WHERE 0`,
+      params: [],
+    };
+  }
+  return {
+    sql: `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName}
+         WHERE ${SpaceCol.hostId} = ? AND ${SpaceCol.endedAt} IS NULL
+         ORDER BY ${SpaceCol.createdAt} DESC`,
+    params: [myId],
+  };
+}
+
+function guestMembershipSql(
+  enabled: boolean,
+  myId: string
+): { sql: string; params: string[] } {
+  if (!enabled) {
+    return {
+      sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} WHERE 0`,
+      params: [],
+    };
+  }
+  return {
+    sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id
+           FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
+           WHERE ${SpaceMembershipCol.guestId} = ? AND ${SpaceMembershipCol.leftAt} IS NULL`,
+    params: [myId],
+  };
+}
+
+function resolveDisplayEntries(
+  entries: CurrentSpaceEntry[],
+  reconnecting: boolean,
+  prevEntries: CurrentSpaceEntry[]
+): CurrentSpaceEntry[] {
+  if (entries.length > 0) return entries;
+  if (reconnecting && prevEntries.length > 0) return prevEntries;
+  return entries;
+}
+
+function useCurrentSpaceWatchQueries(myId: string): {
   entries: CurrentSpaceEntry[];
-  isLoading: boolean;
+  queriesLoading: boolean;
 } {
-  const myId = useMyId();
   const enabled = myId.length > 0;
+  const hostedQuery = useMemo(
+    () => hostedSpacesSql(enabled, myId),
+    [enabled, myId]
+  );
+  const guestMemQuery = useMemo(
+    () => guestMembershipSql(enabled, myId),
+    [enabled, myId]
+  );
 
   const { rows: hostedRows, isLoading: hostedLoading } = useWatchQuery<HostedRow>(
-    enabled
-      ? `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName}
-         WHERE ${SpaceCol.hostId} = ? AND ${SpaceCol.endedAt} IS NULL
-         ORDER BY ${SpaceCol.createdAt} DESC`
-      : `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName} WHERE 0`,
-    enabled ? [myId] : []
+    hostedQuery.sql,
+    hostedQuery.params
   );
 
   const { rows: guestMemRows, isLoading: guestMemLoading } =
-    useWatchQuery<GuestMemRow>(
-      enabled
-        ? `SELECT ${SpaceMembershipCol.spaceId} AS space_id
-           FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-           WHERE ${SpaceMembershipCol.guestId} = ? AND ${SpaceMembershipCol.leftAt} IS NULL`
-        : `SELECT ${SpaceMembershipCol.spaceId} AS space_id FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} WHERE 0`,
-      enabled ? [myId] : []
-    );
+    useWatchQuery<GuestMemRow>(guestMemQuery.sql, guestMemQuery.params);
 
   const guestSpaceIds = useMemo(
     () => [...new Set(guestMemRows.map((r) => r.space_id).filter((id) => id.length > 0))],
@@ -118,21 +156,33 @@ export function useCurrentSpaceIds(): {
     [hostedRows, guestSpaceIds, guestSpaceRows]
   );
 
+  return {
+    entries,
+    queriesLoading: hostedLoading || guestMemLoading || guestSpacesLoading,
+  };
+}
+
+/**
+ * The current user's live spaces — every space they host, plus every space
+ * they have an active guest membership on (deduped, host wins).
+ */
+export function useCurrentSpaceIds(): {
+  entries: CurrentSpaceEntry[];
+  isLoading: boolean;
+} {
+  const myId = useMyId();
+  const { entries, queriesLoading } = useCurrentSpaceWatchQueries(myId);
   const status = useSyncStatus();
   const prevEntriesRef = useRef<CurrentSpaceEntry[]>([]);
   const reconnecting = isSyncReconnecting(status);
   if (entries.length > 0) {
     prevEntriesRef.current = entries;
   }
-  const displayEntries =
-    entries.length > 0
-      ? entries
-      : reconnecting && prevEntriesRef.current.length > 0
-        ? prevEntriesRef.current
-        : entries;
-
-  const queriesLoading =
-    hostedLoading || guestMemLoading || guestSpacesLoading;
+  const displayEntries = resolveDisplayEntries(
+    entries,
+    reconnecting,
+    prevEntriesRef.current
+  );
 
   return {
     entries: displayEntries,

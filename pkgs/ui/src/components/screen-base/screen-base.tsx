@@ -9,9 +9,10 @@ import { useContext, type ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
-import { useBreakpoint, useTheme } from '../../theme';
+import { MAX_CONTENT_WIDTH, useBreakpoint, useTheme } from '../../theme';
 import { Box } from '../box';
 import { FloatingActionButton } from '../floating-action-button/floating-action-button';
+import { PlusIcon } from '../icons';
 import { KeyboardAvoidingView } from '../keyboard-avoiding-view';
 import { ScrollView } from '../scroll-view';
 import { ScreenBaseContentHeader } from './screen-base-content-header';
@@ -26,7 +27,6 @@ import type {
 } from './screen-base-types';
 import { ScreenBaseHeader } from './screen-base-header';
 
-const MAX_CONTENT_WIDTH = 1120;
 /** Spacing-scale steps (1 = 4px): body padding 16px, body gap 12px. */
 const BODY_PADDING_STEP = 4;
 const BODY_GAP_STEP = 3;
@@ -123,7 +123,7 @@ function renderPrimaryActionFab(
   props: ScreenBasePrimaryActionRenderProps
 ): ReactNode {
   return (
-    <FloatingActionButton {...props.fabProps} icon={props.icon ?? 'plus'} />
+    <FloatingActionButton {...props.fabProps} icon={props.icon ?? PlusIcon} />
   );
 }
 

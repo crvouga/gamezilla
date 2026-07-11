@@ -1,6 +1,7 @@
 import { Box } from '../box';
 import { Stack } from '../stack';
 import { Text } from '../text';
+import { UserIcon } from '../icons';
 import { Avatar } from './avatar';
 
 const SAMPLE_SVG = `
@@ -47,19 +48,19 @@ export default function AvatarExample() {
       <Text variant="caption" label="Icon placeholder" />
       <Stack direction="horizontal" spacing={3} align="center">
         <Avatar
-          icon="person.fill"
+          icon={UserIcon}
           size={40}
           background="outline"
           foreground="tabIconDefault"
         />
         <Avatar
-          icon="person.fill"
+          icon={UserIcon}
           size={56}
           background="outline"
           foreground="tabIconDefault"
         />
         <Avatar
-          icon="person.fill"
+          icon={UserIcon}
           size={56}
           background="rgba(255,255,255,0.22)"
           foreground="rgba(255,255,255,0.92)"

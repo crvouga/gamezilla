@@ -13,7 +13,9 @@
  * The inner row height is locked to {@link TOP_BAR_CONTENT_HEIGHT} -- 56pt,
  * matching the iOS large-tap-target convention and the modal action button
  * size. Height is a load-bearing system constant, not a per-call-site choice,
- * so every screen's top chrome lines up to the same baseline.
+ * so every screen's top chrome lines up to the same baseline. On wide
+ * breakpoints the inner row is centered and capped at
+ * {@link MAX_CONTENT_WIDTH}, matching {@link ScreenBase} body content.
  *
  * @example
  * ```tsx
@@ -28,6 +30,7 @@
 import { useContext, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
+import { MAX_CONTENT_WIDTH, useBreakpoint } from '../../theme';
 import { Box } from '../box';
 
 /**
@@ -200,6 +203,7 @@ export function TopBar({
   safeAreaTop = true,
 }: TopBarProps): ReactNode {
   const paddingTop = useTopBarTopInset(safeAreaTop);
+  const wide = useBreakpoint() !== 'mobile';
 
   return (
     <Box
@@ -217,7 +221,11 @@ export function TopBar({
           gap: 2,
           px: 3,
           height: TOP_BAR_CONTENT_HEIGHT,
+          ...(wide
+            ? { alignSelf: 'center' as const, maxWidth: MAX_CONTENT_WIDTH }
+            : {}),
         }}
+        style={{ width: '100%' }}
       >
         <TopBarContentRow
           leading={leading}

@@ -4,7 +4,7 @@ import { Avatar } from '../avatar';
 import { Badge } from '../badge';
 import { Box } from '../box';
 import { Card } from '../card';
-import { IconSymbol } from '../symbol-icon';
+import { SettingsIcon, UserIcon } from '../icons';
 import { Text } from '../text';
 import { MenuRow } from './menu-row';
 
@@ -68,11 +68,7 @@ function LeadingIconSection() {
           title="Account"
           caption="Manage your profile"
           leading={
-            <IconSymbol
-              name="person.fill"
-              size={20}
-              color={theme.colors.icon}
-            />
+            <UserIcon size={20} color={theme.colors.icon} />
           }
           onPress={() => {}}
         />
@@ -80,11 +76,7 @@ function LeadingIconSection() {
           title="Settings"
           caption="App preferences and tools"
           leading={
-            <IconSymbol
-              name="gearshape.fill"
-              size={20}
-              color={theme.colors.icon}
-            />
+            <SettingsIcon size={20} color={theme.colors.icon} />
           }
           onPress={() => {}}
         />

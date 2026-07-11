@@ -1,5 +1,5 @@
 import type { AvatarConfig } from '../shared/avatar-config';
-import { Avatar } from '@pkgs/ui';
+import { Avatar, UserIcon } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
@@ -32,7 +32,7 @@ export function DeviceAvatar({
     return (
       <Avatar
         size={size}
-        icon="person.fill"
+        icon={UserIcon}
         background={vividBackdrop ? 'onTintScrim' : 'outline'}
         foreground={vividBackdrop ? 'onTint' : 'tabIconDefault'}
       />

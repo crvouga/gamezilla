@@ -11,7 +11,9 @@ import { SpaceSummaryHeader } from '../card/space-summary-header';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import {
   Box,
+  CodeIcon,
   EmptyState,
+  HouseIcon,
   LoadingState,
   ScreenBase,
   Text,
@@ -39,7 +41,7 @@ export function SpaceJoinPrompt({
       {
         type: 'default',
         label: t`Developer tools`,
-        icon: 'chevron.left.forwardslash.chevron.right',
+        icon: CodeIcon,
         onPress: onOpenDebug,
         overflow: 'always',
       },
@@ -80,7 +82,7 @@ function JoinPromptBody({
   if (snapshot.status === 'unavailable') {
     return (
       <EmptyState
-        icon="house.fill"
+        icon={HouseIcon}
         title={<Trans>This space is not available</Trans>}
         body={<Trans>It may have ended or the link might be invalid.</Trans>}
         action={{ label: t`Back to Spaces`, onPress: () => nav('/') }}

@@ -25,7 +25,7 @@ import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';
 import { borderRadius } from '../../theme/scale';
-import { IconSymbol, type IconSymbolName } from '../symbol-icon';
+import { XIcon, type IconComponent } from '../icons';
 import { StateBlock, type StateBlockVariant } from '../state-block';
 import { Text } from '../text';
 
@@ -36,7 +36,7 @@ export type ErrorStateRetry = {
 
 export type ErrorStateProps = {
   /** Defaults to the X mark from the design-system icon set. */
-  icon?: IconSymbolName;
+  icon?: IconComponent;
   title: ReactNode;
   /** Error detail (string, LocalizedString, or any node). */
   body?: ReactNode;
@@ -48,7 +48,7 @@ export type ErrorStateProps = {
 
 const ICON_SIZE_FILL = 32;
 const ICON_SIZE_COMPACT = 20;
-const DEFAULT_ICON: IconSymbolName = 'xmark';
+const DEFAULT_ICON = XIcon;
 
 export function ErrorState({
   icon = DEFAULT_ICON,
@@ -71,19 +71,16 @@ function ErrorStateFill({
   body,
   retry,
 }: {
-  icon: IconSymbolName;
+  icon: IconComponent;
   title: ReactNode;
   body: ReactNode;
   retry: ErrorStateRetry | undefined;
 }) {
   const theme = useTheme();
+  const Icon = icon;
   return (
     <StateBlock variant="fill">
-      <IconSymbol
-        name={icon}
-        size={ICON_SIZE_FILL}
-        color={theme.colors.destructive}
-      />
+      <Icon size={ICON_SIZE_FILL} color={theme.colors.destructive} />
       <Text
         variant="bodyBold"
         sx={{ color: 'destructive' }}
@@ -109,12 +106,13 @@ function ErrorStateCompact({
   body,
   retry,
 }: {
-  icon: IconSymbolName;
+  icon: IconComponent;
   title: ReactNode;
   body: ReactNode;
   retry: ErrorStateRetry | undefined;
 }) {
   const theme = useTheme();
+  const Icon = icon;
   return (
     <Box
       sx={{
@@ -129,11 +127,7 @@ function ErrorStateCompact({
       }}
     >
       <Box sx={{ pt: 0.5 }}>
-        <IconSymbol
-          name={icon}
-          size={ICON_SIZE_COMPACT}
-          color={theme.colors.destructive}
-        />
+        <Icon size={ICON_SIZE_COMPACT} color={theme.colors.destructive} />
       </Box>
       <Box sx={{ flex: 1, gap: 1 }}>
         <Text variant="bodyBold" sx={{ color: 'destructive' }} label={title} />

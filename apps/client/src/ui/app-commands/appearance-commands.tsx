@@ -1,4 +1,4 @@
-import { RegisterCommand, useThemePreference } from '@pkgs/ui';
+import { PaintbrushIcon, RegisterCommand, useThemePreference } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 
 export function AppearanceCommands() {
@@ -10,7 +10,7 @@ export function AppearanceCommands() {
         id="theme-light"
         title={t`Use light theme`}
         category={t`Appearance`}
-        icon="paintbrush.fill"
+        icon={PaintbrushIcon}
         keywords={[t`light`, t`day`, t`bright`]}
         run={async () => {
           setPreference('light');
@@ -20,7 +20,7 @@ export function AppearanceCommands() {
         id="theme-dark"
         title={t`Use dark theme`}
         category={t`Appearance`}
-        icon="paintbrush.fill"
+        icon={PaintbrushIcon}
         keywords={[t`dark`, t`night`]}
         run={async () => {
           setPreference('dark');
@@ -30,7 +30,7 @@ export function AppearanceCommands() {
         id="theme-system"
         title={t`Use system theme`}
         category={t`Appearance`}
-        icon="paintbrush.fill"
+        icon={PaintbrushIcon}
         keywords={[t`system`, t`auto`, t`os`]}
         run={async () => {
           setPreference('system');

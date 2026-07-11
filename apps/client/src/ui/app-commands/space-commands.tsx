@@ -6,7 +6,13 @@ import { useCurrentSpaceRole } from '@libs/spaces/client/use-current-space-role'
 import { useLiveSpaceIds } from '@libs/spaces/client/use-live-space-ids';
 import { openSpaceDetail } from '@libs/spaces/client/space-routes';
 import { useSpaceCommandLabel } from '@libs/spaces/client/use-space-command-label';
-import { RegisterCommand } from '@pkgs/ui';
+import {
+  HouseIcon,
+  LogInIcon,
+  LogOutIcon,
+  RegisterCommand,
+  XIcon,
+} from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { usePathname, useRouter } from 'expo-router';
 import { useCallback, type ReactNode } from 'react';
@@ -35,7 +41,7 @@ function SpaceCreateCommand(): ReactNode {
       id="space:new"
       title={t`Start new space`}
       category={t`Spaces`}
-      icon="house.fill"
+      icon={HouseIcon}
       keywords={[t`new`, t`create`, t`start`, t`space`, t`host`]}
       enabled={!membershipLoading && currentCount === 0}
       run={async () => {
@@ -64,7 +70,7 @@ function SpaceJoinCurrentCommand(): ReactNode {
       id="space:join-current"
       title={t`Join this space`}
       category={t`Spaces`}
-      icon="right.to.bracket"
+      icon={LogInIcon}
       keywords={[t`join`, t`this`, t`current`, t`space`]}
       run={async () => {
         await joinSpace(spaceId);
@@ -98,7 +104,7 @@ function LiveSpaceCommand({ spaceId }: { spaceId: string }): ReactNode {
         id={`space:open:${spaceId}`}
         title={t`Open ${label}`}
         category={t`Spaces`}
-        icon="house.fill"
+        icon={HouseIcon}
         keywords={[t`open`, t`go to`, t`space`]}
         run={async () => {
           openSpaceDetail(router, spaceId);
@@ -108,7 +114,7 @@ function LiveSpaceCommand({ spaceId }: { spaceId: string }): ReactNode {
         id={`space:join:${spaceId}`}
         title={t`Join ${label}`}
         category={t`Spaces`}
-        icon="right.to.bracket"
+        icon={LogInIcon}
         keywords={[t`join`, t`lobby`, t`space`, t`multiplayer`]}
         enabled={canJoin}
         run={async () => {
@@ -153,7 +159,7 @@ function CurrentSpaceCommand({
         id={`space:end:${spaceId}`}
         title={t`End ${label}`}
         category={t`Spaces`}
-        icon="xmark"
+        icon={XIcon}
         keywords={[t`end`, t`stop`, t`close`, t`host`, t`space`]}
         run={async () => {
           requestEndSpace(spaceId, { onSuccess });
@@ -166,7 +172,7 @@ function CurrentSpaceCommand({
       id={`space:leave:${spaceId}`}
       title={t`Leave ${label}`}
       category={t`Spaces`}
-      icon="arrow.right.from.bracket"
+      icon={LogOutIcon}
       keywords={[t`leave`, t`exit`, t`guest`, t`space`]}
       run={async () => {
         requestLeaveSpace(spaceId, { onSuccess });

@@ -1,7 +1,7 @@
 /**
  * Single registry: public `BrandIcon` names → fixed-color brand logo SVG components.
  *
- * Unlike {@link import('../symbol-icon').IconSymbol IconSymbol}, brand logos
+ * Unlike the design-system icon set, brand logos
  * never accept a `color` prop because their colors are dictated by each
  * vendor's branding guidelines.
  */

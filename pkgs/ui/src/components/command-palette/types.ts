@@ -1,4 +1,4 @@
-import type { IconSymbolName } from '../symbol-icon';
+import type { IconComponent } from '../icons';
 
 export type CommandId = string;
 
@@ -12,7 +12,7 @@ export type Command = {
   title: string;
   subtitle?: string;
   category?: string;
-  icon?: IconSymbolName;
+  icon?: IconComponent;
   keywords?: string[];
   shortcut?: string | CommandShortcut;
   enabled?: boolean | (() => boolean);

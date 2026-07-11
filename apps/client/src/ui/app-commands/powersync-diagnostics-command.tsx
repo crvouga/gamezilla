@@ -3,7 +3,7 @@ import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useKv } from '@pkgs/kv/kv-context';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
-import { RegisterCommand } from '@pkgs/ui';
+import { RegisterCommand, WifiIcon } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useMemo, type ReactNode } from 'react';
@@ -52,7 +52,7 @@ export function PowerSyncDiagnosticsCommand(): ReactNode {
           : t`Mint sync token and open diagnostics app`
       }
       category={t`Developer`}
-      icon="wifi"
+      icon={WifiIcon}
       keywords={[
         t`powersync`,
         t`diagnostics`,

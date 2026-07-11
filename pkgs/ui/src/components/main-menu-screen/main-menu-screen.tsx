@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useTheme, type Theme } from '../../theme';
 import { Box } from '../box';
 import { Card } from '../card';
-import { IconSymbol } from '../symbol-icon';
+import { CircleCheckIcon, ChevronRightIcon } from '../icons';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
 
@@ -44,17 +44,13 @@ function mainMenuDefaultTrailing(
   if (selected) {
     return (
       <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-        <IconSymbol
-          name="check.circle.fill"
-          size={20}
-          color={theme.colors.tint}
-        />
-        <IconSymbol name="chevron.right" size={20} color={theme.colors.icon} />
+        <CircleCheckIcon size={20} color={theme.colors.tint} />
+        <ChevronRightIcon size={20} color={theme.colors.icon} />
       </Box>
     );
   }
   return (
-    <IconSymbol name="chevron.right" size={20} color={theme.colors.icon} />
+    <ChevronRightIcon size={20} color={theme.colors.icon} />
   );
 }
 

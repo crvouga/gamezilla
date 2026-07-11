@@ -4,7 +4,8 @@ import {
   parseColor,
   type Theme,
 } from '../../theme';
-import type { IconSymbolName } from '../symbol-icon';
+import type { IconComponent } from '../icons';
+import { CircleCheckIcon, XIcon } from '../icons';
 
 const MIN_CONTRAST = 4.5;
 
@@ -38,9 +39,9 @@ export type MutationPressableRender = {
 };
 
 export const MUTATION_FEEDBACK_ICONS = {
-  success: 'check.circle.fill',
-  error: 'xmark',
-} as const satisfies Record<'success' | 'error', IconSymbolName>;
+  success: CircleCheckIcon,
+  error: XIcon,
+} as const satisfies Record<'success' | 'error', IconComponent>;
 
 function ensureContrast(fg: string, bg: string): string {
   const fgRgb = parseColor(fg);

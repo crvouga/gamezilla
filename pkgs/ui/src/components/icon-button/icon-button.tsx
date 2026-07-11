@@ -9,7 +9,7 @@
  * @example
  * ```tsx
  * <IconButton size={40} onPress={handleClose}>
- *   <IconSymbol name="xmark" size={18} />
+ *   <XIcon size={18} />
  * </IconButton>
  * ```
  */

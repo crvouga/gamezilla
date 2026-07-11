@@ -32,7 +32,7 @@ import { OnColorProvider, useTheme, type Theme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
-import { IconSymbol, type IconSymbolName } from '../symbol-icon';
+import { XIcon, type IconComponent } from '../icons';
 import { Text } from '../text';
 import {
   MUTATION_FEEDBACK_ICONS,
@@ -232,7 +232,7 @@ function ButtonStatusContent({
   label,
 }: {
   spinner?: boolean;
-  icon?: IconSymbolName;
+  icon?: IconComponent;
   size: SizeSpec;
   foregroundColor: string;
   label: ReactNode;
@@ -240,11 +240,12 @@ function ButtonStatusContent({
   const indicator = spinner ? (
     <Spinner color={foregroundColor} size={size.text.lineHeight} />
   ) : (
-    <IconSymbol
-      name={icon ?? 'xmark'}
-      size={size.text.lineHeight}
-      color={foregroundColor}
-    />
+    (() => {
+      const Icon = icon ?? XIcon;
+      return (
+        <Icon size={size.text.lineHeight} color={foregroundColor} />
+      );
+    })()
   );
   if (label === undefined || label === null) return indicator;
   return (

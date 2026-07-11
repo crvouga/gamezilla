@@ -2,7 +2,7 @@ import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListCaptionText } from './account-device-list-caption-text';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';
 import { AccountDeviceSessionCaptionText } from './account-device-session-caption-text';
-import { Box, IconSymbol, MenuRow } from '@pkgs/ui';
+import { Box, ChevronRightIcon, MenuRow } from '@pkgs/ui';
 import { useTheme } from '@pkgs/ui/theme';
 import type { ReactNode } from 'react';
 
@@ -29,11 +29,7 @@ export function AccountDeviceMenuRow({
       trailing={
         <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
           <AccountDeviceCurrentBadge deviceId={deviceId} />
-          <IconSymbol
-            name="chevron.right"
-            size={20}
-            color={theme.colors.icon}
-          />
+          <ChevronRightIcon size={20} color={theme.colors.icon} />
         </Box>
       }
       onPress={() => onOpenDevice(deviceId)}

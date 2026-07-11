@@ -3,7 +3,7 @@ import {
   useSignInModal,
   useSignOutModal,
 } from '@libs/auth/client/auth-modals-provider';
-import { RegisterCommand } from '@pkgs/ui';
+import { LogInIcon, LogOutIcon, RegisterCommand } from '@pkgs/ui';
 import { useAsync } from '@pkgs/async/use-async';
 import { useLingui } from '@lingui/react/macro';
 
@@ -26,7 +26,7 @@ export function AccountCommand() {
       id="auth-toggle"
       title={isAuthenticated ? t`Sign out` : t`Sign in`}
       category={t`Account`}
-      icon={isAuthenticated ? 'arrow.right.from.bracket' : 'right.to.bracket'}
+      icon={isAuthenticated ? LogOutIcon : LogInIcon}
       keywords={[t`sign in`, t`login`, t`google`, t`auth`]}
       run={async () => {
         try {

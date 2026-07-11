@@ -19,7 +19,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.gamezilla",
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "deploymentTarget": "17.0"
     },
     "android": {
       "package": "app.gamezilla",
@@ -64,6 +65,12 @@
       "expo-web-browser",
       "expo-audio",
       "expo-dev-client",
+      [
+        "@journeyapps/react-native-quick-sqlite",
+        {
+          "staticLibrary": true
+        }
+      ],
       [
         "@sentry/react-native/expo",
         {

@@ -1,4 +1,4 @@
-import { Box, useBreakpoint } from '@pkgs/ui';
+import { Box, MAX_CONTENT_WIDTH, useBreakpoint } from '@pkgs/ui';
 import { usePathname } from 'expo-router';
 import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,12 +27,33 @@ function SpaceMiniplayerCards({ spaceIds }: { spaceIds: string[] }): ReactNode {
   );
 }
 
+function MiniplayerDockContent({ children }: { children: ReactNode }): ReactNode {
+  const wide = useBreakpoint() !== 'mobile';
+
+  return (
+    <Box
+      sx={{
+        ...(wide
+          ? { alignSelf: 'center' as const, maxWidth: MAX_CONTENT_WIDTH }
+          : {}),
+      }}
+      style={{ width: '100%' }}
+    >
+      {children}
+    </Box>
+  );
+}
+
 function TabBarMiniplayerDock({
   children,
 }: {
   children: ReactNode;
 }): ReactNode {
-  return <Box sx={{ pt: 1, px: 1 }}>{children}</Box>;
+  return (
+    <Box sx={{ pt: 1, px: 1 }}>
+      <MiniplayerDockContent>{children}</MiniplayerDockContent>
+    </Box>
+  );
 }
 
 function RootMiniplayerDock({ children }: { children: ReactNode }): ReactNode {
@@ -49,7 +70,7 @@ function RootMiniplayerDock({ children }: { children: ReactNode }): ReactNode {
         zIndex: MINIPLAYER_Z_INDEX,
       }}
     >
-      {children}
+      <MiniplayerDockContent>{children}</MiniplayerDockContent>
     </Box>
   );
 }

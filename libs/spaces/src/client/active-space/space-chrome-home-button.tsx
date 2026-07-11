@@ -1,4 +1,4 @@
-import { IconButton, IconSymbol, useTheme } from '@pkgs/ui';
+import { HouseIcon, IconButton, useTheme } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
@@ -20,7 +20,7 @@ export function SpaceChromeHomeButton(): ReactNode {
       onPress={onPressHome}
       accessibilityLabel={t`Go to spaces`}
     >
-      <IconSymbol name="house.fill" size={18} color={theme.colors.icon} />
+      <HouseIcon size={18} color={theme.colors.icon} />
     </IconButton>
   );
 }

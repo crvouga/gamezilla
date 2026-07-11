@@ -33,10 +33,31 @@ export {
 
 // Icons
 export {
-  IconSymbol,
-  type IconSymbolProps,
-  type IconSymbolName,
-} from './symbol-icon';
+  CircleCheckIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CodeIcon,
+  CopyIcon,
+  DatabaseIcon,
+  EllipsisIcon,
+  HouseIcon,
+  LightbulbIcon,
+  ListChecksIcon,
+  LogInIcon,
+  LogOutIcon,
+  PaintbrushIcon,
+  PlusIcon,
+  SendIcon,
+  SettingsIcon,
+  UserIcon,
+  Volume2Icon,
+  VolumeXIcon,
+  WifiIcon,
+  XIcon,
+  createIcon,
+  type IconComponent,
+  type IconProps,
+} from './icons';
 export {
   BrandIcon,
   type BrandIconProps,

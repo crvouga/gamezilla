@@ -31,6 +31,11 @@ export default function TextExample() {
         sx={{ color: 'textSecondary' }}
         label="Custom sx color override"
       />
+      <Box sx={{ gap: 0.5 }}>
+        <Text variant="caption" label="Empty string (reserves line height)" />
+        <Text variant="body" label="" />
+        <Text variant="body" label="Filled after load" />
+      </Box>
     </Box>
   );
 }

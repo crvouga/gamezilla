@@ -4,6 +4,9 @@
  * Wraps React Native `Text` with `sx` prop support and pre-defined
  * typographic variants that map to the theme's font/color scales.
  *
+ * Empty and whitespace-only strings reserve one line of height (via a
+ * zero-width space) so layout stays stable while async data loads.
+ *
  * @example
  * ```tsx
  * <Text variant="heading" label="Page Title" />
@@ -13,6 +16,7 @@
 
 import { forwardRef, type ReactNode } from 'react';
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
+import { preserveEmptyTextLayout } from './preserve-empty-text-layout';
 import {
   textCasingToStyle,
   useOnColor,
@@ -150,7 +154,7 @@ export const Text = forwardRef<RNText, TextProps>(function Text(
   const colorStyle =
     defaultColor !== undefined ? { color: defaultColor } : undefined;
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
-  const content = label ?? children;
+  const content = preserveEmptyTextLayout(label ?? children);
   return (
     <RNText
       ref={ref}

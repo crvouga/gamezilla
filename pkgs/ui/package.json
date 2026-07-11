@@ -35,6 +35,7 @@
     "expo-router": "catalog:",
     "expo-splash-screen": "catalog:",
     "expo-status-bar": "catalog:",
+    "lucide-react-native": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",
     "react-native-svg": "catalog:"

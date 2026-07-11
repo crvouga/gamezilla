@@ -1,5 +1,5 @@
 import { AppTabBarBridge } from '@apps/client/ui/app-header/app-tab-bar-bridge';
-import { IconSymbol, useTabsProps } from '@pkgs/ui';
+import { HouseIcon, UserIcon, useTabsProps } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { Tabs } from 'expo-router';
 
@@ -19,7 +19,7 @@ export default function TabsLayout() {
         options={{
           title: t`Spaces`,
           tabBarIcon: ({ color, size }) => (
-            <IconSymbol name="house.fill" color={color} size={size ?? 24} />
+            <HouseIcon color={color} size={size ?? 24} />
           ),
         }}
       />
@@ -28,7 +28,7 @@ export default function TabsLayout() {
         options={{
           title: t`Profile`,
           tabBarIcon: ({ color, size }) => (
-            <IconSymbol name="person.fill" color={color} size={size ?? 24} />
+            <UserIcon color={color} size={size ?? 24} />
           ),
         }}
       />

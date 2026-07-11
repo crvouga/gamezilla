@@ -1,11 +1,13 @@
 import {
   Box,
   Button,
-  IconSymbol,
   buttonForegroundColor,
+  ChevronRightIcon,
+  LightbulbIcon,
+  LogOutIcon,
   useTheme,
   type ButtonIntent,
-  type IconSymbolName,
+  type IconComponent,
 } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
@@ -16,18 +18,18 @@ import type { SolveStatus } from './use-chess-puzzle-solver';
 const ICON_SIZE = 18;
 
 function ActionIcon({
-  name,
+  icon,
   intent,
   disabled,
 }: {
-  name: IconSymbolName;
+  icon: IconComponent;
   intent: ButtonIntent;
   disabled: boolean;
 }): ReactNode {
   const theme = useTheme();
+  const Icon = icon;
   return (
-    <IconSymbol
-      name={name}
+    <Icon
       size={ICON_SIZE}
       color={buttonForegroundColor(theme, intent, disabled)}
     />
@@ -35,7 +37,7 @@ function ActionIcon({
 }
 
 type HintButtonModel = {
-  icon: IconSymbolName;
+  icon: IconComponent;
   label: ReactNode;
   disabled: boolean;
 };
@@ -48,13 +50,13 @@ function hintButtonModel(args: {
   const baseDisabled = status !== 'solving';
   if (hintStage === 'highlight') {
     return {
-      icon: 'ellipsis',
+      icon: LightbulbIcon,
       label: <Trans>Solution</Trans>,
       disabled: baseDisabled,
     };
   }
   return {
-    icon: 'ellipsis',
+    icon: LightbulbIcon,
     label: <Trans>Hint</Trans>,
     disabled: baseDisabled || hintStage === 'solution',
   };
@@ -86,7 +88,7 @@ export function ChessPuzzleActionBar({
         title={hint.label}
         startIcon={
           <ActionIcon
-            name={hint.icon}
+            icon={hint.icon}
             intent="neutral"
             disabled={hint.disabled}
           />
@@ -100,7 +102,7 @@ export function ChessPuzzleActionBar({
         title={<Trans>Retry</Trans>}
         startIcon={
           <ActionIcon
-            name="arrow.right.from.bracket"
+            icon={LogOutIcon}
             intent="neutral"
             disabled={retryDisabled}
           />
@@ -114,7 +116,7 @@ export function ChessPuzzleActionBar({
         title={<Trans>Next</Trans>}
         endIcon={
           <ActionIcon
-            name="chevron.right"
+            icon={ChevronRightIcon}
             intent="primary"
             disabled={nextDisabled}
           />

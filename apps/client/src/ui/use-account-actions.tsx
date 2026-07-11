@@ -5,7 +5,7 @@ import {
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import { useLogger } from '@pkgs/logger/react';
 import { useAsync } from '@pkgs/async/use-async';
-import { type ScreenBaseAction } from '@pkgs/ui';
+import { type ScreenBaseAction, LogInIcon, LogOutIcon, SettingsIcon, UserIcon } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
@@ -65,7 +65,7 @@ function buildAuthAction(
   return {
     type: 'default',
     label: isAuthenticated ? labels.signOut : labels.signIn,
-    icon: isAuthenticated ? 'arrow.right.from.bracket' : 'right.to.bracket',
+    icon: isAuthenticated ? LogOutIcon : LogInIcon,
     overflow: 'always',
     onPress: () => {
       void onAuth();
@@ -87,14 +87,14 @@ function buildActions(args: {
       type: 'default',
       label: labels.account,
       onPress: onAccount,
-      icon: 'person.fill',
+      icon: UserIcon,
       overflow: 'always',
     },
     {
       type: 'default',
       label: labels.settings,
       onPress: onSettings,
-      icon: 'gearshape.fill',
+      icon: SettingsIcon,
       overflow: 'always',
     },
     buildAuthAction(labels, isAuthenticated, onAuth),

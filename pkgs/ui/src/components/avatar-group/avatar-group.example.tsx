@@ -1,6 +1,7 @@
 import { Box } from '../box';
 import { Stack } from '../stack';
 import { Text } from '../text';
+import { UserIcon } from '../icons';
 import { Avatar } from '../avatar';
 import { AvatarGroup } from './avatar-group';
 
@@ -36,7 +37,7 @@ export default function AvatarGroupExample() {
       <Text variant="caption" label="Tighter overlap (10px), size 48" />
       <Stack direction="horizontal" spacing={4} align="center">
         <AvatarGroup size={48} overlap={10}>
-          <Avatar icon="person.fill" size={48} background="outline" />
+          <Avatar icon={UserIcon} size={48} background="outline" />
           <Avatar initials="M" size={48} background="tint" />
           <Avatar initials="K" size={48} background="info" />
         </AvatarGroup>

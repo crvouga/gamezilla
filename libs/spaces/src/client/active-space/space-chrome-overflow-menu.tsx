@@ -1,4 +1,14 @@
-import { OverflowMenuButton, type OverflowMenuAction } from '@pkgs/ui';
+import {
+  CodeIcon,
+  CopyIcon,
+  HouseIcon,
+  LogOutIcon,
+  PaintbrushIcon,
+  SettingsIcon,
+  XIcon,
+  type OverflowMenuAction,
+  OverflowMenuButton,
+} from '@pkgs/ui';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useLingui } from '@lingui/react/macro';
@@ -122,20 +132,20 @@ function buildManagementActions(
     actions.push({
       id: 'rename',
       label: labels.rename,
-      icon: 'paintbrush.fill',
+      icon: PaintbrushIcon,
       onPress: callbacks.onPressRename,
     });
   }
   actions.push({
     id: 'invite',
     label: labels.invite,
-    icon: 'copy',
+    icon: CopyIcon,
     onPress: callbacks.onPressInvite,
   });
   actions.push({
     id: 'settings',
     label: labels.settings,
-    icon: 'gearshape.fill',
+    icon: SettingsIcon,
     onPress: callbacks.onPressSettings,
     endsGroup: true,
   });
@@ -150,13 +160,13 @@ function buildNavAndDevActions(
     {
       id: 'spaces-home',
       label: labels.home,
-      icon: 'house.fill',
+      icon: HouseIcon,
       onPress: callbacks.onPressHome,
     },
     {
       id: 'developer',
       label: labels.developer,
-      icon: 'chevron.left.forwardslash.chevron.right',
+      icon: CodeIcon,
       onPress: callbacks.onPressDebug,
       endsGroup: true,
     },
@@ -172,13 +182,13 @@ function buildDestructiveAction(
     ? {
         id: 'end-space',
         label: labels.end,
-        icon: 'xmark',
+        icon: XIcon,
         onPress: callbacks.onPressEnd,
       }
     : {
         id: 'leave-space',
         label: labels.leave,
-        icon: 'arrow.right.from.bracket',
+        icon: LogOutIcon,
         onPress: callbacks.onPressLeave,
       };
 }

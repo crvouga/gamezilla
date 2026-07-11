@@ -3,12 +3,12 @@ import { useLingui } from '@lingui/react/macro';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
-import { IconSymbol } from '../symbol-icon';
+import { ListChecksIcon, type IconComponent } from '../icons';
 import { useCommandPalette } from './use-command-palette';
 
 export type CommandPaletteTriggerProps = {
-  /** Icon name from the design-system registry. Defaults to checklist. */
-  icon?: 'checklist' | 'ellipsis' | 'gearshape.fill';
+  /** Icon component from the design-system registry. Defaults to ListChecksIcon. */
+  icon?: IconComponent;
   /** Pixel size of the tappable area. Defaults to 40. */
   size?: number;
   accessibilityLabel?: LocalizedString;
@@ -18,7 +18,7 @@ export type CommandPaletteTriggerProps = {
  * Opens the command palette — use on native or alongside keyboard shortcuts on web.
  */
 export function CommandPaletteTrigger({
-  icon = 'checklist',
+  icon = ListChecksIcon,
   size = 40,
   accessibilityLabel,
 }: CommandPaletteTriggerProps) {
@@ -26,6 +26,7 @@ export function CommandPaletteTrigger({
   const theme = useTheme();
   const { toggle } = useCommandPalette();
   const a11y = accessibilityLabel ?? t`Open command palette`;
+  const Icon = icon;
 
   return (
     <Pressable
@@ -42,7 +43,7 @@ export function CommandPaletteTrigger({
       }}
     >
       <Box sx={{ alignItems: 'center', justifyContent: 'center' }}>
-        <IconSymbol name={icon} size={22} color={theme.colors.icon} />
+        <Icon size={22} color={theme.colors.icon} />
       </Box>
     </Pressable>
   );
