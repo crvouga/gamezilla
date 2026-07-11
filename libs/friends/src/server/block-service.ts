@@ -40,5 +40,3 @@ export async function unblockUser(
   assertNotSelf(blockerId, blockedId);
   await deleteBlock(sql, blockerId, blockedId);
 }
-
-export { canonicalUserPair };

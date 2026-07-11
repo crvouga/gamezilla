@@ -94,11 +94,7 @@ describe('latchStaleSpacePresence', () => {
       presence: { status: 'active' as const, role: 'host' as const },
     };
     expect(
-      latchStaleSpacePresence(
-        'space-1',
-        { status: 'loading' },
-        latch
-      )
+      latchStaleSpacePresence('space-1', { status: 'loading' }, latch)
     ).toEqual({
       presence: { status: 'active', role: 'host' },
       latch,
@@ -111,11 +107,7 @@ describe('latchStaleSpacePresence', () => {
       presence: { status: 'active' as const, role: 'host' as const },
     };
     expect(
-      latchStaleSpacePresence(
-        'space-2',
-        { status: 'loading' },
-        latch
-      )
+      latchStaleSpacePresence('space-2', { status: 'loading' }, latch)
     ).toEqual({
       presence: { status: 'loading' },
       latch: null,

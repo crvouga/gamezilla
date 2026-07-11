@@ -23,7 +23,9 @@
  */
 
 import { asLocalized, type LocalizedString } from '@pkgs/i18n';
+import type { SoundId } from '@pkgs/sounds';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { useMutationPhaseSoundHandler } from '../../expo/mutation-sounds';
 import { useMutationLifecycle } from '../mutation-modal/use-mutation-lifecycle';
 import type { FloatingActionButtonProps } from '../floating-action-button/floating-action-button';
 import type { ButtonFeedback, ButtonProps } from './button';
@@ -51,6 +53,8 @@ export type UseMutationButtonParams = {
   successHoldMs?: number | undefined;
   /** Disable the button in the idle phase (e.g. failed validation). */
   disabled?: boolean | undefined;
+  /** Override default mutation success/error sounds. */
+  sounds?: { success?: SoundId; error?: SoundId } | undefined;
 };
 
 /** Props to spread onto a {@link Button}. */
@@ -122,10 +126,13 @@ export function useMutationButton({
   onError,
   successHoldMs = DEFAULT_SUCCESS_HOLD_MS,
   disabled = false,
+  sounds,
 }: UseMutationButtonParams): UseMutationButtonResult {
+  const onPhaseChange = useMutationPhaseSoundHandler(sounds);
   const { phase, error, run, reset } = useMutationLifecycle({
     operation,
     onError,
+    onPhaseChange,
   });
 
   const onSuccessRef = useRef(onSuccess);

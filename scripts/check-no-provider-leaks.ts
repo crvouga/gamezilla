@@ -27,6 +27,8 @@ const SKIP_DIRS = new Set([
   '.qa-dist-prodcheck',
   'playwright-report',
   'test-results',
+  'ios',
+  'android',
 ]);
 
 const SKIP_FILES = new Set(['bun.lock', 'package-lock.json', 'pnpm-lock.yaml']);

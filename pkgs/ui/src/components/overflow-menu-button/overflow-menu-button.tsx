@@ -33,7 +33,7 @@ import {
 } from '../floating-menu';
 import { IconButton } from '../icon-button';
 import type { IconComponent } from '../icons';
-import { EllipsisIcon } from '../icons';
+import { EllipsisIcon, MenuIcon } from '../icons';
 import { useAnchoredMenu } from './use-anchored-menu';
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
@@ -66,7 +66,7 @@ export type OverflowMenuButtonProps = {
   size?: number;
   /** Trigger background token. Defaults to `'surface'`. */
   background?: string;
-  /** Trigger icon. Defaults to `'ellipsis'`. */
+  /** Trigger icon. Defaults to {@link MenuIcon}. */
   icon?: IconComponent;
   /** Trigger accessibility label. */
   accessibilityLabel: LocalizedString;
@@ -117,7 +117,7 @@ export function OverflowMenuButton({
   header,
   size = 40,
   background = 'surface',
-  icon = EllipsisIcon,
+  icon = MenuIcon,
   accessibilityLabel,
   width = FLOATING_MENU_DEFAULT_WIDTH,
   testID,

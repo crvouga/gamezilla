@@ -1,5 +1,5 @@
 import { AppTabBarBridge } from '@apps/client/ui/app-header/app-tab-bar-bridge';
-import { HouseIcon, UserIcon, useTabsProps } from '@pkgs/ui';
+import { Gamepad2Icon, SearchIcon, UserIcon, useTabsProps } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { Tabs } from 'expo-router';
 
@@ -19,7 +19,16 @@ export default function TabsLayout() {
         options={{
           title: t`Spaces`,
           tabBarIcon: ({ color, size }) => (
-            <HouseIcon color={color} size={size ?? 24} />
+            <Gamepad2Icon color={color} size={size ?? 24} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="search/index"
+        options={{
+          title: t`Search`,
+          tabBarIcon: ({ color, size }) => (
+            <SearchIcon color={color} size={size ?? 24} />
           ),
         }}
       />

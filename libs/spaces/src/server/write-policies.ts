@@ -17,7 +17,10 @@ function readRowString(
   return typeof raw === 'string' ? raw : undefined;
 }
 
-function deny(reason: string): { readonly allowed: false; readonly reason: string } {
+function deny(reason: string): {
+  readonly allowed: false;
+  readonly reason: string;
+} {
   return { allowed: false, reason };
 }
 

@@ -52,12 +52,16 @@ export function usePuzzlePlayerCellFeedback(args: {
         status,
         lastCorrectToSquare,
         solvedKingSquare:
-          status === 'solved' && displayFen !== null
-            ? solvedCrownSquare
-            : null,
+          status === 'solved' && displayFen !== null ? solvedCrownSquare : null,
         successColor: theme.colors.success,
       }),
-    [displayFen, lastCorrectToSquare, solvedCrownSquare, status, theme.colors.success]
+    [
+      displayFen,
+      lastCorrectToSquare,
+      solvedCrownSquare,
+      status,
+      theme.colors.success,
+    ]
   );
 
   return { cellFeedback, cellHighlights };

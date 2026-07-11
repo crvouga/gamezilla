@@ -89,10 +89,7 @@ function readOAuthEmail(oauth: OAuthAccountJson): string | null {
   );
 }
 
-function readOAuthLinkedAt(
-  oauth: OAuthAccountJson,
-  fallback: string
-): string {
+function readOAuthLinkedAt(oauth: OAuthAccountJson, fallback: string): string {
   const verification = oauth['verification'];
   if (verification !== null && typeof verification === 'object') {
     const status = readString((verification as OAuthAccountJson)['status']);
@@ -200,7 +197,9 @@ export function readLinkedProviderField(
   field: LinkedProviderField,
   sources: LinkedProviderSources
 ): string | null {
-  const row = buildLinkedProviders(sources).find((entry) => entry.id === providerId);
+  const row = buildLinkedProviders(sources).find(
+    (entry) => entry.id === providerId
+  );
   if (row === undefined) return null;
   switch (field) {
     case 'id':

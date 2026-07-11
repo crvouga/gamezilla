@@ -25,7 +25,10 @@ export function mapAppAuthToWriteContext(
   };
 }
 
-function reject(reason: string): { readonly allowed: false; readonly reason: string } {
+function reject(reason: string): {
+  readonly allowed: false;
+  readonly reason: string;
+} {
   return { allowed: false, reason };
 }
 
@@ -39,8 +42,7 @@ const deviceWritePolicy: WritePolicy = (ctx, row) => {
   return { allowed: true };
 };
 
-const denyServerManaged: WritePolicy = () =>
-  reject('server-managed table');
+const denyServerManaged: WritePolicy = () => reject('server-managed table');
 
 export const AUTH_WRITE_POLICIES: Readonly<Record<string, WritePolicy>> = {
   [DEVICES_TABLE.tableName]: deviceWritePolicy,

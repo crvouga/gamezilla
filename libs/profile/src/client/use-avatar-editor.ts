@@ -1,5 +1,4 @@
 import {
-  getDefaultOptionsFromSchema,
   getFieldsByTab,
   type SchemaField,
 } from './dicebear-schema';
@@ -14,7 +13,6 @@ import {
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -71,12 +69,11 @@ export type UseAvatarEditor = {
   initialized: boolean;
   showDiscard: boolean;
   setShowDiscard: (v: boolean) => void;
-  surface: string | null;
-  setSurface: (k: string | null) => void;
   dirty: boolean;
   styleKey: StyleKey;
   byTab: ReturnType<typeof getFieldsByTab>;
   featureEnums: Extract<SchemaField, { kind: 'enum' }>[];
+  colorFields: Extract<SchemaField, { kind: 'color' }>[];
   previewConfig: AvatarConfig;
   updateOptions: (
     fn: (o: Record<string, unknown>) => Record<string, unknown>
@@ -84,10 +81,7 @@ export type UseAvatarEditor = {
   onBack: () => void;
   confirmDiscard: () => void;
   save: () => Promise<void>;
-  resetStyleDefaults: () => void;
   shuffleSeed: () => void;
-  copySeed: () => Promise<void>;
-  closeSurface: () => void;
 };
 
 function useDerivedFields(args: {
@@ -104,6 +98,14 @@ function useDerivedFields(args: {
       ),
     [byTab.features]
   );
+  const colorFields = useMemo(
+    () =>
+      byTab.colors.filter(
+        (f): f is Extract<SchemaField, { kind: 'color' }> =>
+          f.kind === 'color' && f.key === 'backgroundColor'
+      ),
+    [byTab.colors]
+  );
   const previewConfig = useMemo(
     () => ({
       ...draft,
@@ -111,7 +113,7 @@ function useDerivedFields(args: {
     }),
     [draft, seedFallback]
   );
-  return { byTab, featureEnums, previewConfig };
+  return { byTab, featureEnums, colorFields, previewConfig };
 }
 
 function useDiscardActions(args: {
@@ -136,23 +138,18 @@ function useDiscardActions(args: {
 
 function useDraftMutators(args: {
   setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
-  styleKey: StyleKey;
 }) {
-  const { setDraft, styleKey } = args;
+  const { setDraft } = args;
   const updateOptions = useCallback(
     (fn: (o: Record<string, unknown>) => Record<string, unknown>) => {
       setDraft((d) => ({ ...d, options: fn({ ...d.options }) }));
     },
     [setDraft]
   );
-  const resetStyleDefaults = useCallback(() => {
-    const defaults = getDefaultOptionsFromSchema(styleKey);
-    setDraft((d) => ({ ...d, options: { ...defaults } }));
-  }, [styleKey, setDraft]);
   const shuffleSeed = useCallback(() => {
     setDraft((d) => ({ ...d, seed: globalThis.crypto.randomUUID() }));
   }, [setDraft]);
-  return { updateOptions, resetStyleDefaults, shuffleSeed };
+  return { updateOptions, shuffleSeed };
 }
 
 function useSaveAction(args: {
@@ -174,36 +171,24 @@ function useEditorActions(args: {
   draft: AvatarConfig;
   setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
   dirty: boolean;
-  styleKey: StyleKey;
-  seedFallback: string;
   profileId: string | null;
   setShowDiscard: (v: boolean) => void;
 }) {
-  const { draft, setDraft, dirty, styleKey, seedFallback, profileId } = args;
-  const { setShowDiscard } = args;
+  const { draft, setDraft, dirty, profileId, setShowDiscard } = args;
 
   const { onBack, confirmDiscard } = useDiscardActions({
     dirty,
     setShowDiscard,
   });
-  const { updateOptions, resetStyleDefaults, shuffleSeed } = useDraftMutators({
-    setDraft,
-    styleKey,
-  });
+  const { updateOptions, shuffleSeed } = useDraftMutators({ setDraft });
   const save = useSaveAction({ draft, profileId });
-  const copySeed = useCallback(async () => {
-    const s = draft.seed.trim() || seedFallback;
-    await Clipboard.setStringAsync(s);
-  }, [draft.seed, seedFallback]);
 
   return {
     updateOptions,
     onBack,
     confirmDiscard,
     save,
-    resetStyleDefaults,
     shuffleSeed,
-    copySeed,
   };
 }
 
@@ -214,12 +199,11 @@ export function useAvatarEditor(): UseAvatarEditor {
   });
 
   const [showDiscard, setShowDiscard] = useState(false);
-  const [surface, setSurface] = useState<string | null>(null);
 
   const dirty = initialized && !configsEqual(draft, persisted);
-  const styleKey: StyleKey = isStyleKey(draft.style) ? draft.style : 'lorelei';
+  const styleKey: StyleKey = isStyleKey(draft.style) ? draft.style : 'funEmoji';
 
-  const { byTab, featureEnums, previewConfig } = useDerivedFields({
+  const { byTab, featureEnums, colorFields, previewConfig } = useDerivedFields({
     draft,
     seedFallback,
     styleKey,
@@ -229,13 +213,9 @@ export function useAvatarEditor(): UseAvatarEditor {
     draft,
     setDraft,
     dirty,
-    styleKey,
-    seedFallback,
     profileId,
     setShowDiscard,
   });
-
-  const closeSurface = useCallback(() => setSurface(null), []);
 
   return {
     seedFallback,
@@ -245,14 +225,12 @@ export function useAvatarEditor(): UseAvatarEditor {
     initialized,
     showDiscard,
     setShowDiscard,
-    surface,
-    setSurface,
     dirty,
     styleKey,
     byTab,
     featureEnums,
+    colorFields,
     previewConfig,
-    closeSurface,
     ...actions,
   };
 }

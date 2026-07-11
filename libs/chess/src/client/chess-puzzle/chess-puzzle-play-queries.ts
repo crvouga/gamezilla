@@ -1,5 +1,8 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useWatchQuery, useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
+import {
+  useWatchQuery,
+  useWatchValue,
+} from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import {
@@ -46,7 +49,9 @@ type InteractionSqlRow = {
   readonly at: string;
 };
 
-function interactionRowFromSql(row: InteractionSqlRow): ChessPuzzleInteractionRow {
+function interactionRowFromSql(
+  row: InteractionSqlRow
+): ChessPuzzleInteractionRow {
   return {
     puzzleId: row.puzzle_id,
     kind: row.kind as ChessPuzzleInteractionRow['kind'],

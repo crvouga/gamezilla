@@ -3,9 +3,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import {
-  LEGACY_EXTERNAL_ACCOUNT_PROVIDER_AUTH,
-} from '../shared/external-account-providers';
+import { LEGACY_EXTERNAL_ACCOUNT_PROVIDER_AUTH } from '../shared/external-account-providers';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
@@ -73,9 +71,9 @@ describe('external-accounts-sql', () => {
         clerkUserId
       )
     ).toBe(userId);
-    expect(
-      await readExternalAccountId(sql, userId, primaryAuthProvider)
-    ).toBe(clerkUserId);
+    expect(await readExternalAccountId(sql, userId, primaryAuthProvider)).toBe(
+      clerkUserId
+    );
 
     await upsertExternalAccount(sql, {
       userId,

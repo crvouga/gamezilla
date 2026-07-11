@@ -26,7 +26,8 @@ function useSyncedDisplayName(row: ProfileRow | null) {
 
   useEffect(() => {
     if (row === null) return;
-    const persisted = typeof row.display_name === 'string' ? row.display_name : '';
+    const persisted =
+      typeof row.display_name === 'string' ? row.display_name : '';
     const prev = lastPersistedRef.current;
     if (prev === null) {
       setValue((current) => (current === '' ? persisted : current));
@@ -99,7 +100,6 @@ export function ProfileUsernameScreen() {
             successLabel: <Trans>Saved</Trans>,
             errorLabel: <Trans>Couldn't save</Trans>,
             operation: save,
-            onSuccess: () => router.back(),
             disabled: profileId === null,
           }}
         />

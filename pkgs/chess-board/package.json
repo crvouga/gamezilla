@@ -18,6 +18,7 @@
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/sounds": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@shopify/react-native-skia": "catalog:",
     "chess.js": "catalog:",

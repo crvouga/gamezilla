@@ -13,7 +13,11 @@ export type FriendProfile = {
   readonly avatarConfig: string | null;
 };
 
-export type FriendRequestStatus = 'pending' | 'accepted' | 'declined' | 'cancelled';
+export type FriendRequestStatus =
+  | 'pending'
+  | 'accepted'
+  | 'declined'
+  | 'cancelled';
 
 export type FriendRequest = {
   readonly id: string;
@@ -31,6 +35,15 @@ export type Friend = FriendProfile & {
 };
 
 export type UserSearchResult = FriendProfile;
+
+export type EnrichedFriendRequest = FriendRequest & {
+  readonly otherUser: FriendProfile;
+};
+
+export type FriendRequestsSummary = {
+  readonly incoming: readonly EnrichedFriendRequest[];
+  readonly outgoing: readonly EnrichedFriendRequest[];
+};
 
 export const FRIEND_REQUEST_RESEND_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 export const FRIEND_SEARCH_MIN_LENGTH = 3;

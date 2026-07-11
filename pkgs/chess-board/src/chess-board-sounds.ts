@@ -1,14 +1,7 @@
 import { playAudioOrIgnoreAutoplayBlock } from '@pkgs/ui';
+import { chessSoundSources } from '@pkgs/sounds/chess-sound-sources';
 import { useAudioPlayer } from 'expo-audio';
 import { useCallback, useEffect, useMemo } from 'react';
-
-const moveSrc = require('../assets/sounds/chess/move-2.wav');
-const captureSrc = require('../assets/sounds/chess/capture-2.wav');
-const checkSrc = require('../assets/sounds/chess/check-2.wav');
-const castleSrc = require('../assets/sounds/chess/castling-2.wav');
-const promoteSrc = require('../assets/sounds/chess/ui_unlock.wav');
-const illegalSrc = require('../assets/sounds/chess/navigation-cancel.wav');
-const gameEndSrc = require('../assets/sounds/chess/game-over.wav');
 
 async function playFromStart(player: {
   seekTo: (s: number) => Promise<void>;
@@ -29,7 +22,6 @@ type WarmablePlayer = {
 
 async function warmPlayer(player: WarmablePlayer): Promise<void> {
   try {
-    // Force decode/seek work up front so first real playback is instant.
     await player.seekTo(0);
     player.pause?.();
   } catch {
@@ -38,13 +30,13 @@ async function warmPlayer(player: WarmablePlayer): Promise<void> {
 }
 
 export function useChessBoardSounds() {
-  const move = useAudioPlayer(moveSrc);
-  const capture = useAudioPlayer(captureSrc);
-  const check = useAudioPlayer(checkSrc);
-  const castle = useAudioPlayer(castleSrc);
-  const promote = useAudioPlayer(promoteSrc);
-  const illegal = useAudioPlayer(illegalSrc);
-  const gameEnd = useAudioPlayer(gameEndSrc);
+  const move = useAudioPlayer(chessSoundSources.move);
+  const capture = useAudioPlayer(chessSoundSources.capture);
+  const check = useAudioPlayer(chessSoundSources.check);
+  const castle = useAudioPlayer(chessSoundSources.castle);
+  const promote = useAudioPlayer(chessSoundSources.promote);
+  const illegal = useAudioPlayer(chessSoundSources.illegal);
+  const gameEnd = useAudioPlayer(chessSoundSources.gameEnd);
 
   useEffect(() => {
     let cancelled = false;

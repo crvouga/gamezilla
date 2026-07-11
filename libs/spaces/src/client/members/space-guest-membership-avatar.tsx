@@ -1,7 +1,10 @@
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
 import type { ReactNode } from 'react';
 
-import { useSpaceMembershipColumn, SpaceMembershipField } from '../use-space-membership-column';
+import {
+  useSpaceMembershipColumn,
+  SpaceMembershipField,
+} from '../use-space-membership-column';
 
 export type SpaceGuestMembershipAvatarProps = {
   membershipId: string;
@@ -14,7 +17,10 @@ export function SpaceGuestMembershipAvatar({
   size,
   vividBackdrop,
 }: SpaceGuestMembershipAvatarProps): ReactNode {
-  const guestId = useSpaceMembershipColumn(membershipId, SpaceMembershipField.guestId);
+  const guestId = useSpaceMembershipColumn(
+    membershipId,
+    SpaceMembershipField.guestId
+  );
   return (
     <UserProfileAvatar
       profileId={guestId}

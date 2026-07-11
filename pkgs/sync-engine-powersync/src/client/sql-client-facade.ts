@@ -1,4 +1,8 @@
-import type { PreparedStatement, RunResult, SqlClient } from '@pkgs/sql-client/interface';
+import type {
+  PreparedStatement,
+  RunResult,
+  SqlClient,
+} from '@pkgs/sql-client/interface';
 
 import type { PowerSyncDatabasePort } from './powersync-database-port';
 

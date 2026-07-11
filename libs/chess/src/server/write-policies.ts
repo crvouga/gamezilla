@@ -19,7 +19,10 @@ function readRowString(
   return typeof raw === 'string' ? raw : undefined;
 }
 
-function deny(reason: string): { readonly allowed: false; readonly reason: string } {
+function deny(reason: string): {
+  readonly allowed: false;
+  readonly reason: string;
+} {
   return { allowed: false, reason };
 }
 
@@ -52,7 +55,8 @@ export const CHESS_WRITE_POLICIES: Readonly<Record<string, WritePolicy>> = {
   [CHESS_PUZZLES_TABLE.tableName]: chessPuzzlesWritePolicy,
   [CHESS_PUZZLE_LOAD_TABLE.tableName]: chessPuzzleLoadWritePolicy,
   [CHESS_PUZZLE_PROFILES_TABLE.tableName]: chessPuzzleProfilesWritePolicy,
-  [CHESS_PUZZLE_INTERACTIONS_TABLE.tableName]: chessPuzzleInteractionsWritePolicy,
+  [CHESS_PUZZLE_INTERACTIONS_TABLE.tableName]:
+    chessPuzzleInteractionsWritePolicy,
 };
 
 export function createChessWritePolicyRegistry(): WritePolicyRegistry {

@@ -78,7 +78,10 @@ export function useIncomingFriendRequests(): {
 } {
   const myId = useMyId();
   const query = useMemo(() => pendingIncomingSql(myId), [myId]);
-  const { rows, isLoading } = useWatchQuery<FriendRequestRow>(query.sql, query.params);
+  const { rows, isLoading } = useWatchQuery<FriendRequestRow>(
+    query.sql,
+    query.params
+  );
   const requests = useMemo(() => rows.map(mapRequestRow), [rows]);
   return { requests, isLoading: myId.length === 0 ? false : isLoading };
 }
@@ -89,7 +92,10 @@ export function useOutgoingFriendRequests(): {
 } {
   const myId = useMyId();
   const query = useMemo(() => pendingOutgoingSql(myId), [myId]);
-  const { rows, isLoading } = useWatchQuery<FriendRequestRow>(query.sql, query.params);
+  const { rows, isLoading } = useWatchQuery<FriendRequestRow>(
+    query.sql,
+    query.params
+  );
   const requests = useMemo(() => rows.map(mapRequestRow), [rows]);
   return { requests, isLoading: myId.length === 0 ? false : isLoading };
 }

@@ -12,9 +12,15 @@ export type VariantSwatchStripProps = {
   draft: AvatarConfig;
   seedFallback: string;
   onSelect: (variant: string | null) => void;
+  contentInsetLeading?: number;
+  contentInsetTrailing?: number;
 };
 
-const ITEM = 64;
+/** Matches ScreenBase body horizontal padding (spacing step 4). */
+const PICKER_INSET = 16;
+
+const ITEM = 84;
+const THUMB = ITEM - 8;
 
 export function VariantSwatchStrip({
   field,
@@ -22,6 +28,8 @@ export function VariantSwatchStrip({
   draft,
   seedFallback,
   onSelect,
+  contentInsetLeading = PICKER_INSET,
+  contentInsetTrailing,
 }: VariantSwatchStripProps) {
   const current = draft.options[field.key];
   const randomSelected = isEnumRandom(field, current);
@@ -42,6 +50,8 @@ export function VariantSwatchStrip({
       onSelectItem={(v) => onSelect(v)}
       itemWidth={ITEM}
       captionFor={(v) => v.replace(/^variant/i, '')}
+      contentInsetLeading={contentInsetLeading}
+      {...(contentInsetTrailing !== undefined ? { contentInsetTrailing } : {})}
       randomItem={{
         selected: randomSelected,
         onSelect: () => onSelect(null),
@@ -62,7 +72,7 @@ export function VariantSwatchStrip({
           <ProfileDiceBearAvatar
             config={thumbConfig}
             fallbackSeed={seedFallback}
-            size={ITEM - 12}
+            size={THUMB}
           />
         );
       }}

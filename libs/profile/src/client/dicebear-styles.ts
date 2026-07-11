@@ -60,7 +60,7 @@ export function getStyleOrDefault(key: string): Style<Record<string, unknown>> {
   if (key in STYLES) {
     return STYLES[key as StyleKey] as Style<Record<string, unknown>>;
   }
-  return STYLES.lorelei as Style<Record<string, unknown>>;
+  return STYLES.funEmoji as Style<Record<string, unknown>>;
 }
 
 export function isStyleKey(key: string): key is StyleKey {

@@ -30,6 +30,10 @@ export type HorizontalPickerProps<T> = {
   /** Caption under each item preview (`numberOfLines={1}`). */
   captionFor?: (item: T) => string;
   randomItem?: HorizontalPickerRandomItem;
+  /** Extra leading inset inside the scroll content (px). */
+  contentInsetLeading?: number;
+  /** Extra trailing inset inside the scroll content (px). Defaults to `contentInsetLeading`. */
+  contentInsetTrailing?: number;
 };
 
 type Row<T> = { type: 'random' } | { type: 'item'; item: T };
@@ -208,6 +212,29 @@ function useRowRenderer<T>(deps: RenderItemDeps<T>): ListRenderItem<Row<T>> {
   );
 }
 
+function pickerContentInsets(
+  leading: number,
+  trailing: number
+): { gap: number; paddingVertical: number; paddingLeft: number; paddingRight: number } {
+  return {
+    gap: 0,
+    paddingVertical: 4,
+    paddingLeft: leading,
+    paddingRight: trailing,
+  };
+}
+
+function scrollToPickerIndex<T>(
+  listRef: React.RefObject<FlatList<Row<T>> | null>,
+  index: number,
+  itemWidth: number
+): void {
+  listRef.current?.scrollToOffset({
+    offset: Math.max(0, index * itemWidth - itemWidth),
+    animated: true,
+  });
+}
+
 export function HorizontalPicker<T>({
   items,
   keyFor,
@@ -218,10 +245,14 @@ export function HorizontalPicker<T>({
   cellHeight: cellHeightProp,
   captionFor,
   randomItem,
+  contentInsetLeading = 0,
+  contentInsetTrailing,
 }: HorizontalPickerProps<T>) {
   const listRef = useRef<FlatList<Row<T>>>(null);
   const thumbSize = Math.max(32, itemWidth - 12);
   const cellHeight = cellHeightProp ?? thumbSize + 4 + 18;
+  const trailingInset = contentInsetTrailing ?? contentInsetLeading;
+  const contentInsets = pickerContentInsets(contentInsetLeading, trailingInset);
   const data = useMemo(() => buildRows(items, randomItem), [items, randomItem]);
   const selectedIndex = useMemo(
     () => computeSelectedIndex(items, keyFor, selectedKey, randomItem),
@@ -266,13 +297,10 @@ export function HorizontalPicker<T>({
       renderItem={renderItem}
       getItemLayout={getItemLayout}
       showsHorizontalScrollIndicator
-      contentContainerStyle={{ gap: 0, paddingVertical: 4 }}
-      onScrollToIndexFailed={({ index }) => {
-        listRef.current?.scrollToOffset({
-          offset: Math.max(0, index * itemWidth - itemWidth),
-          animated: true,
-        });
-      }}
+      contentContainerStyle={contentInsets}
+      onScrollToIndexFailed={({ index }) =>
+        scrollToPickerIndex(listRef, index, itemWidth)
+      }
     />
   );
 }

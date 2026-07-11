@@ -6,7 +6,10 @@ import type { ReactNode } from 'react';
 
 import { useSpaceGuestMembershipIds } from '../members/use-space-guest-membership-ids';
 import { useSpaceColumn, SpaceField } from '../use-space-column';
-import { useSpaceMembershipColumn, SpaceMembershipField } from '../use-space-membership-column';
+import {
+  useSpaceMembershipColumn,
+  SpaceMembershipField,
+} from '../use-space-membership-column';
 
 const ROW_AVATAR_SIZE = 28;
 
@@ -64,7 +67,10 @@ function SpaceMembersGuestRow({
 }: {
   membershipId: string;
 }): ReactNode {
-  const guestId = useSpaceMembershipColumn(membershipId, SpaceMembershipField.guestId);
+  const guestId = useSpaceMembershipColumn(
+    membershipId,
+    SpaceMembershipField.guestId
+  );
   if (guestId === null || guestId.length === 0) return null;
   return (
     <SpaceMembersRowShell

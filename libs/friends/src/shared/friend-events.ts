@@ -26,7 +26,9 @@ export type FriendEventListener = (event: FriendEvent) => void;
 
 const listeners = new Set<FriendEventListener>();
 
-export function subscribeFriendEvents(listener: FriendEventListener): () => void {
+export function subscribeFriendEvents(
+  listener: FriendEventListener
+): () => void {
   listeners.add(listener);
   return () => {
     listeners.delete(listener);

@@ -11,5 +11,7 @@ export interface AuthServerPort {
   verifySessionToken(token: string): Promise<VerifiedSession | null>;
   getUserProfile(externalUserId: string): Promise<AuthUserProfile | null>;
   /** Serialized auth-provider user payload (e.g. provider `UserJSON`). */
-  getUserSnapshot(externalUserId: string): Promise<Record<string, unknown> | null>;
+  getUserSnapshot(
+    externalUserId: string
+  ): Promise<Record<string, unknown> | null>;
 }

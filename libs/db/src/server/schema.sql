@@ -255,35 +255,38 @@ CREATE INDEX IF NOT EXISTS friend_requests_history_idx
   ON friend_requests (from_user_id, to_user_id, updated_at DESC);
 
 CREATE TABLE IF NOT EXISTS friendships (
+  id TEXT PRIMARY KEY,
   user_low TEXT NOT NULL REFERENCES profiles (id),
   user_high TEXT NOT NULL REFERENCES profiles (id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   source_request_id TEXT REFERENCES friend_requests (id),
-  PRIMARY KEY (user_low, user_high),
-  CONSTRAINT friendships_canonical CHECK (user_low < user_high)
+  CONSTRAINT friendships_canonical CHECK (user_low < user_high),
+  UNIQUE (user_low, user_high)
 );
 
 CREATE INDEX IF NOT EXISTS friendships_user_low_idx ON friendships (user_low);
 CREATE INDEX IF NOT EXISTS friendships_user_high_idx ON friendships (user_high);
 
 CREATE TABLE IF NOT EXISTS user_blocks (
+  id TEXT PRIMARY KEY,
   blocker_id TEXT NOT NULL REFERENCES profiles (id),
   blocked_id TEXT NOT NULL REFERENCES profiles (id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY (blocker_id, blocked_id),
+  UNIQUE (blocker_id, blocked_id),
   CONSTRAINT user_blocks_no_self CHECK (blocker_id <> blocked_id)
 );
 
 CREATE INDEX IF NOT EXISTS user_blocks_blocked_idx ON user_blocks (blocked_id);
 
 CREATE TABLE IF NOT EXISTS friend_profile_cache (
+  id TEXT PRIMARY KEY,
   owner_id TEXT NOT NULL REFERENCES profiles (id),
   friend_id TEXT NOT NULL REFERENCES profiles (id),
   display_name TEXT NOT NULL DEFAULT '',
   username TEXT NOT NULL DEFAULT '',
   avatar_config JSONB,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY (owner_id, friend_id)
+  UNIQUE (owner_id, friend_id)
 );
 
 CREATE INDEX IF NOT EXISTS friend_profile_cache_owner_idx

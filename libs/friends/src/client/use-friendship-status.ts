@@ -66,8 +66,12 @@ export function useFriendshipStatus(targetUserId: string): FriendshipStatus {
     () => friendshipStatusSql(myId, targetUserId),
     [myId, targetUserId]
   );
-  const enabled = myId.length > 0 && targetUserId.length > 0 && myId !== targetUserId;
-  const { row } = useWatchOne<StatusRow>(query.sql, enabled ? query.params : ['']);
+  const enabled =
+    myId.length > 0 && targetUserId.length > 0 && myId !== targetUserId;
+  const { row } = useWatchOne<StatusRow>(
+    query.sql,
+    enabled ? query.params : ['']
+  );
   if (!enabled) return 'none';
   return row?.status ?? 'none';
 }

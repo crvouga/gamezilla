@@ -55,8 +55,8 @@ export function ClientConfigServerRefreshCard() {
         sx={{ color: 'textSecondary' }}
         label={
           <Trans>
-            POST /client-config/refresh writes the Worker secret into Postgres on
-            the server (deploy pipeline uses this too).
+            POST /client-config/refresh writes the Worker secret into Postgres
+            on the server (deploy pipeline uses this too).
           </Trans>
         }
       />

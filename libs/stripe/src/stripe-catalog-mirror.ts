@@ -1,7 +1,10 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type Stripe from 'stripe';
 import { StripeAttr } from './stripe-attrs';
-import { readStripeEntityStoreData, upsertStripeEntityStoreRow } from './server/entity-store-sql';
+import {
+  readStripeEntityStoreData,
+  upsertStripeEntityStoreRow,
+} from './server/entity-store-sql';
 
 /** Entity-store type for catalog prices (checkout `priceKey` = external_id). */
 export const STRIPE_PATCH_ENTITY_CATALOG_PRICE =

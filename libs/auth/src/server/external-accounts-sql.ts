@@ -1,6 +1,4 @@
-import {
-  LEGACY_EXTERNAL_ACCOUNT_PROVIDER_AUTH,
-} from '@libs/auth/shared/external-account-providers';
+import { LEGACY_EXTERNAL_ACCOUNT_PROVIDER_AUTH } from '@libs/auth/shared/external-account-providers';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,

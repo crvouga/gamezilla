@@ -56,7 +56,10 @@ function mapFriendRow(row: FriendRow): Friend {
   };
 }
 
-export function useFriends(): { friends: readonly Friend[]; isLoading: boolean } {
+export function useFriends(): {
+  friends: readonly Friend[];
+  isLoading: boolean;
+} {
   const myId = useMyId();
   const query = useMemo(() => friendsSql(myId), [myId]);
   const { rows, isLoading } = useWatchQuery<FriendRow>(query.sql, query.params);

@@ -328,7 +328,9 @@ async function main(): Promise<void> {
   assertCloudAuth();
   await injectPowerSyncDatabaseUri();
   injectPowerSyncJwtJwkFields();
-  process.stdout.write('[powersync-setup] applying db schema + publication (idempotent)\n');
+  process.stdout.write(
+    '[powersync-setup] applying db schema + publication (idempotent)\n'
+  );
   await runPostgresMigrationsFromSecrets();
   linkInstance(cli, instanceId);
 

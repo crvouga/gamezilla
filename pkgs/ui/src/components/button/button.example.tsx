@@ -43,9 +43,7 @@ function ButtonRow({
         title="With icon"
         intent={intent}
         variant={variant}
-        endIcon={
-          <ChevronRightIcon size={16} color={iconColor} />
-        }
+        endIcon={<ChevronRightIcon size={16} color={iconColor} />}
         onPress={() => {}}
       />
       <Button

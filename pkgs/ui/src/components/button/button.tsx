@@ -242,9 +242,7 @@ function ButtonStatusContent({
   ) : (
     (() => {
       const Icon = icon ?? XIcon;
-      return (
-        <Icon size={size.text.lineHeight} color={foregroundColor} />
-      );
+      return <Icon size={size.text.lineHeight} color={foregroundColor} />;
     })()
   );
   if (label === undefined || label === null) return indicator;

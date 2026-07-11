@@ -41,9 +41,10 @@ export type BuildPuzzleCandidatesSqlArgs = {
   readonly pickOffset?: number;
 };
 
-export function buildPuzzleCandidatesSql(
-  args: BuildPuzzleCandidatesSqlArgs
-): { readonly sql: string; readonly params: readonly unknown[] } {
+export function buildPuzzleCandidatesSql(args: BuildPuzzleCandidatesSqlArgs): {
+  readonly sql: string;
+  readonly params: readonly unknown[];
+} {
   const pickOffset = args.pickOffset ?? 0;
   const params: unknown[] = [];
   let sql = `SELECT id, rating FROM ${CHESS_PUZZLES_TABLE.tableName} WHERE 1=1`;
@@ -55,8 +56,7 @@ export function buildPuzzleCandidatesSql(
     );
   }
   if (args.ownerId.length > 0) {
-    sql +=
-      ` AND id NOT IN (SELECT ${ChessPuzzleInteractionCol.puzzleId} FROM ${CHESS_PUZZLE_INTERACTIONS_TABLE.tableName} WHERE ${ChessPuzzleInteractionCol.ownerId} = ?)`;
+    sql += ` AND id NOT IN (SELECT ${ChessPuzzleInteractionCol.puzzleId} FROM ${CHESS_PUZZLE_INTERACTIONS_TABLE.tableName} WHERE ${ChessPuzzleInteractionCol.ownerId} = ?)`;
     params.push(args.ownerId);
   }
   if (args.currentPuzzleId !== null && args.currentPuzzleId.length > 0) {
@@ -76,7 +76,9 @@ export function pickPuzzleIdFromPool(args: {
 }): string | null {
   const { rows, rating, preferredBand, seed } = args;
   if (rows.length === 0) return null;
-  const inBand = rows.filter((r) => Math.abs(r.rating - rating) <= preferredBand);
+  const inBand = rows.filter(
+    (r) => Math.abs(r.rating - rating) <= preferredBand
+  );
   const pool = inBand.length > 0 ? inBand : rows;
   const idx = hashSeed(seed) % pool.length;
   return pool[idx]?.id ?? null;

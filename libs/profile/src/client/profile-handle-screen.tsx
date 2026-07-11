@@ -111,7 +111,6 @@ export function ProfileHandleScreen() {
             successLabel: <Trans>Saved</Trans>,
             errorLabel: <Trans>Couldn't save</Trans>,
             operation: save,
-            onSuccess: () => router.back(),
             disabled: profileId === null,
           }}
         />

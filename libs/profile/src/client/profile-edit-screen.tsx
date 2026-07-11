@@ -28,7 +28,7 @@ export function ProfileEditScreen() {
           />
           <MenuRow
             title={t`Avatar`}
-            caption={t`DiceBear generated avatar`}
+            caption={t`Pick a fun emoji look`}
             onPress={() => router.push('/profile/avatar')}
           />
         </Box>

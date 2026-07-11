@@ -16,8 +16,6 @@ export function defineTable(args: TableDefinition): TableDefinition {
   return Object.freeze({ ...args, columns: Object.freeze([...args.columns]) });
 }
 
-export function tableColumnNames(
-  table: TableDefinition
-): readonly string[] {
+export function tableColumnNames(table: TableDefinition): readonly string[] {
   return table.columns.map((c) => c.name);
 }

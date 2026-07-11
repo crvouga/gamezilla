@@ -1,5 +1,8 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { USER_BLOCKS_TABLE, UserBlockCol } from '@libs/db/shared/friends-tables';
+import {
+  USER_BLOCKS_TABLE,
+  UserBlockCol,
+} from '@libs/db/shared/friends-tables';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -84,7 +87,15 @@ export async function searchUsers(
        lower(p.${ProfileCol.username}),
        lower(p.${ProfileCol.displayName})
      LIMIT ?`,
-    [viewerId, viewerId, viewerId, likeQuery, likeQuery, likeQuery, boundedLimit]
+    [
+      viewerId,
+      viewerId,
+      viewerId,
+      likeQuery,
+      likeQuery,
+      likeQuery,
+      boundedLimit,
+    ]
   );
   return rows.map(mapSearchHit);
 }

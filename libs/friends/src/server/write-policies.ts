@@ -11,7 +11,10 @@ import {
   USER_BLOCKS_TABLE,
 } from '@libs/db/shared/friends-tables';
 
-function deny(reason: string): { readonly allowed: false; readonly reason: string } {
+function deny(reason: string): {
+  readonly allowed: false;
+  readonly reason: string;
+} {
   return { allowed: false, reason };
 }
 

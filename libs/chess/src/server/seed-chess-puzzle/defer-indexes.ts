@@ -26,10 +26,13 @@ export async function dropPuzzleSnapshotIndexes(args: {
     log.info('seed:puzzles: defer-indexes — no secondary indexes to drop');
     return;
   }
-  log.info('seed:puzzles: defer-indexes — dropping chess_puzzles secondary indexes', {
-    table,
-    count: rows.length,
-  });
+  log.info(
+    'seed:puzzles: defer-indexes — dropping chess_puzzles secondary indexes',
+    {
+      table,
+      count: rows.length,
+    }
+  );
   for (const { indexname } of rows) {
     try {
       await sql.run(`DROP INDEX IF EXISTS "${indexname}"`);

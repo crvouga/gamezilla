@@ -38,7 +38,9 @@ export async function runPowerSyncSourceDbSetup(args: {
   });
   try {
     await runPowerSyncSourceDbSql({ sqlClient, logger });
-    process.stdout.write('[powersync:source-db] publication + replica identity OK\n');
+    process.stdout.write(
+      '[powersync:source-db] publication + replica identity OK\n'
+    );
   } finally {
     await pool.end();
   }

@@ -10,7 +10,7 @@ const MY_ID = '550e8400-e29b-41d4-a716-446655440000';
 
 function openTestSql(): SqlClientImplBunSqlite {
   const db = new Database(':memory:');
-    db.run(
+  db.run(
     `CREATE TABLE ${PROFILES_TABLE.tableName} (
       ${ProfileCol.id} TEXT PRIMARY KEY,
       ${ProfileCol.createdAt} TEXT NOT NULL,
@@ -43,7 +43,7 @@ describe('ensureProfile', () => {
     )[0];
 
     expect(rowA?.['display_name']).toBe(rowB?.['display_name']);
-    expect((rowA?.['display_name']?.length ?? 0)).toBeGreaterThan(0);
+    expect(rowA?.['display_name']?.length ?? 0).toBeGreaterThan(0);
   });
 
   test('does not insert a second row when profile already exists', async () => {

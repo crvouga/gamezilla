@@ -12,7 +12,7 @@ import { LeaveSpaceConfirmModal } from './leave-space-confirm-modal';
 import { useSpaceActions } from './space-actions';
 
 export type SpaceLifecycleRequestOptions = {
-  /** Runs after the user dismisses the success state (e.g. navigation). */
+  /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
   onSuccess?: () => void;
 };
 

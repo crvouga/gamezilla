@@ -1,5 +1,8 @@
 import { optionalProps } from '@pkgs/ui/components/optional-props';
-import { useProfileColumn, ProfileField } from '@libs/profile/client/use-profile-column';
+import {
+  useProfileColumn,
+  ProfileField,
+} from '@libs/profile/client/use-profile-column';
 import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';

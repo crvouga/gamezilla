@@ -21,7 +21,9 @@ export async function runPostgresMigrationsFromSecrets(): Promise<void> {
   });
   try {
     await runPostgresMigrations({ sqlClient, logger, dbScope });
-    process.stdout.write('[postgres:migrate-secrets] schema + powersync publication OK\n');
+    process.stdout.write(
+      '[postgres:migrate-secrets] schema + powersync publication OK\n'
+    );
   } finally {
     await pool.end();
   }

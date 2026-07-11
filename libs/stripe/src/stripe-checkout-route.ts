@@ -43,7 +43,11 @@ async function readStripeCustomerId(
   sql: SqlClient,
   accountId: string
 ): Promise<string | null> {
-  return readExternalAccountId(sql, accountId, EXTERNAL_ACCOUNT_PROVIDER_STRIPE);
+  return readExternalAccountId(
+    sql,
+    accountId,
+    EXTERNAL_ACCOUNT_PROVIDER_STRIPE
+  );
 }
 
 async function ensureStripeCustomerId(args: {

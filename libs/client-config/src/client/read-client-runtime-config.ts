@@ -1,8 +1,9 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { CLIENT_CONFIG_ENTITY_ID } from '../shared/client-config-entities';
 import {
-  CLIENT_CONFIG_ENTITY_ID,
-} from '../shared/client-config-entities';
-import { ClientConfigCol, CLIENT_CONFIG_TABLE } from '@libs/db/shared/client-config-tables';
+  ClientConfigCol,
+  CLIENT_CONFIG_TABLE,
+} from '@libs/db/shared/client-config-tables';
 
 export type ClientRuntimeConfig = {
   googleWebClientId: string | null;

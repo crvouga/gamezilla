@@ -12,17 +12,11 @@ type GuestMembershipRow = {
   readonly id: string;
 };
 
-export function isActiveHost(
-  spaceRow: SpaceRow | null,
-  myId: string
-): boolean {
+export function isActiveHost(spaceRow: SpaceRow | null, myId: string): boolean {
   const hostId = spaceRow?.host_id ?? null;
   const endedAt = spaceRow?.ended_at ?? null;
   return (
-    endedAt === null &&
-    hostId !== null &&
-    hostId.length > 0 &&
-    hostId === myId
+    endedAt === null && hostId !== null && hostId.length > 0 && hostId === myId
   );
 }
 
@@ -77,7 +71,10 @@ export function latchStaleSpacePresence(
   spaceId: string,
   resolved: SpacePresence,
   latch: { spaceId: string; presence: SpacePresence } | null
-): { presence: SpacePresence; latch: { spaceId: string; presence: SpacePresence } | null } {
+): {
+  presence: SpacePresence;
+  latch: { spaceId: string; presence: SpacePresence } | null;
+} {
   if (spaceId.length === 0) {
     return { presence: resolved, latch: null };
   }

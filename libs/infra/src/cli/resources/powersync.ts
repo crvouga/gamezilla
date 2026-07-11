@@ -6,11 +6,7 @@ import { which } from '@pkgs/os';
 import { ok } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
-import {
-  fetchSecret,
-  secretExists,
-  setSecret,
-} from '../secrets/secrets';
+import { fetchSecret, secretExists, setSecret } from '../secrets/secrets';
 import { runAsync } from '../subprocess';
 import { generatePowerSyncJwtKeypair } from './powersync-jwt';
 import { resolveDatabaseUrl, verifyWalLevelLogical } from './neon-postgres';
@@ -30,7 +26,9 @@ function readTrimmedEnv(name: string): string {
 }
 
 function assertPowerSyncCliSecrets(): void {
-  const missing = CLI_ENV_KEYS.filter((key) => readTrimmedEnv(key).length === 0);
+  const missing = CLI_ENV_KEYS.filter(
+    (key) => readTrimmedEnv(key).length === 0
+  );
   assert.ok(
     missing.length === 0,
     `PowerSync CLI secrets missing from env: ${missing.join(', ')} — add them in Infisical before deploying`
@@ -65,8 +63,14 @@ export function injectPowerSyncJwtJwkFields(): void {
   const jwk = parsed as Record<string, unknown>;
   const n = jwk['n'];
   const e = jwk['e'];
-  assert.ok(typeof n === 'string' && n.length > 0, 'POWERSYNC_JWT_PUBLIC_JWK missing n');
-  assert.ok(typeof e === 'string' && e.length > 0, 'POWERSYNC_JWT_PUBLIC_JWK missing e');
+  assert.ok(
+    typeof n === 'string' && n.length > 0,
+    'POWERSYNC_JWT_PUBLIC_JWK missing n'
+  );
+  assert.ok(
+    typeof e === 'string' && e.length > 0,
+    'POWERSYNC_JWT_PUBLIC_JWK missing e'
+  );
   process.env['POWERSYNC_JWT_N'] = n;
   process.env['POWERSYNC_JWT_E'] = e;
   ok('PowerSync JWT JWK', 'n/e fields derived for service.yaml');
@@ -74,9 +78,10 @@ export function injectPowerSyncJwtJwkFields(): void {
 
 /** PowerSync service.yaml DB fields — derived from `DATABASE_URL` at deploy time. */
 export async function injectPowerSyncDatabaseUri(): Promise<void> {
-  const url = readTrimmedEnv('PS_DATABASE_URI').length > 0
-    ? readTrimmedEnv('PS_DATABASE_URI')
-    : await resolveDatabaseUrl();
+  const url =
+    readTrimmedEnv('PS_DATABASE_URI').length > 0
+      ? readTrimmedEnv('PS_DATABASE_URI')
+      : await resolveDatabaseUrl();
 
   const parsed = new URL(url);
   assert.ok(
@@ -86,7 +91,8 @@ export async function injectPowerSyncDatabaseUri(): Promise<void> {
 
   process.env['PS_DATABASE_URI'] = url;
   process.env['PS_DATABASE_HOST'] = parsed.hostname;
-  process.env['PS_DATABASE_PORT'] = parsed.port.length > 0 ? parsed.port : '5432';
+  process.env['PS_DATABASE_PORT'] =
+    parsed.port.length > 0 ? parsed.port : '5432';
   process.env['PS_DATABASE_NAME'] = parsed.pathname.replace(/^\//, '');
   process.env['PS_DATABASE_USER'] = decodeURIComponent(parsed.username);
   process.env['PS_DATABASE_PASSWORD'] = decodeURIComponent(parsed.password);
@@ -143,7 +149,10 @@ async function runPowerSyncCli(
 ): Promise<void> {
   const cliArgs = powersyncCliArgs();
   const cmd = cliArgs[0];
-  assert.ok(typeof cmd === 'string' && cmd.length > 0, 'PowerSync CLI command missing');
+  assert.ok(
+    typeof cmd === 'string' && cmd.length > 0,
+    'PowerSync CLI command missing'
+  );
   const baseArgs = cliArgs.slice(1);
   await runAsync(platform, cmd, [...baseArgs, ...args], {
     cwd: REPO_ROOT,
@@ -189,7 +198,10 @@ export class PowerSyncResource extends ResourceBase {
 export async function ensurePowerSyncSourceDatabase(): Promise<void> {
   const url = await resolveDatabaseUrl();
   await runPowerSyncSourceDbSetup({ databaseUrl: url });
-  ok('PowerSync source DB', 'publication powersync (all tables in public) + REPLICA IDENTITY FULL');
+  ok(
+    'PowerSync source DB',
+    'publication powersync (all tables in public) + REPLICA IDENTITY FULL'
+  );
 }
 
 export async function deployPowerSyncConfig(

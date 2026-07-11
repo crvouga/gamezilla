@@ -4,8 +4,9 @@
  * Lives at the end of a form body (and is pinned to the bottom on mobile via
  * {@link ScreenBase}'s `footer` slot) instead of in the screen header. The
  * submit button runs the mutation through {@link useMutationButton}, so the
- * outcome reads in place: `Saving… -> Saved` then `onSuccess`, or a retryable
- * error face -- every form mutation surfaces its result the same way.
+ * outcome reads in place: `Saving… -> Saved`, or a retryable error face -- every
+ * form mutation surfaces its result the same way. Stay on the screen after save;
+ * use Cancel (or breadcrumbs) to navigate away.
  *
  * @example
  * ```tsx
@@ -17,7 +18,6 @@
  *     successLabel: t`Saved`,
  *     errorLabel: t`Couldn't save`,
  *     operation: save,
- *     onSuccess: () => router.back(),
  *     disabled: !dirty,
  *   }}
  * />
@@ -37,7 +37,7 @@ export type FormSubmitAction = {
   loadingLabel?: ReactNode | undefined;
   successLabel?: ReactNode | undefined;
   errorLabel?: ReactNode | undefined;
-  /** Runs after the success face has been shown (e.g. navigate back). */
+  /** Optional hook after the success face has been shown. Prefer staying on screen. */
   onSuccess?: (() => void) | undefined;
   onError?: ((error: Error) => void) | undefined;
   /** Success-face hold before `onSuccess`. Defaults to the hook default. */

@@ -1,4 +1,7 @@
-import type { UploadBatch, UploadRow } from '@pkgs/sync-engine/shared/upload-batch';
+import type {
+  UploadBatch,
+  UploadRow,
+} from '@pkgs/sync-engine/shared/upload-batch';
 
 import type {
   PowerSyncConnectorPort,

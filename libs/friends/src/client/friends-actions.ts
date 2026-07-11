@@ -1,12 +1,39 @@
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 
-import type { FriendRequest, FriendshipStatus, UserSearchResult } from '../shared/friends-types';
+import type {
+  FriendRequest,
+  FriendshipStatus,
+  FriendRequestsSummary,
+  UserSearchResult,
+} from '../shared/friends-types';
 import { friendsApiJson, type FriendsApiFetch } from './friends-api';
 
 export type FriendsClientDeps = {
   readonly config: ConfigService;
   readonly fetchFn: FriendsApiFetch;
 };
+
+export async function fetchFriendRequestsSummary(
+  deps: FriendsClientDeps
+): Promise<FriendRequestsSummary> {
+  return friendsApiJson<FriendRequestsSummary>({
+    ...deps,
+    path: '/friends/requests',
+    init: { method: 'GET' },
+  });
+}
+
+export async function fetchUserProfile(
+  deps: FriendsClientDeps,
+  userId: string
+): Promise<UserSearchResult> {
+  const body = await friendsApiJson<{ user: UserSearchResult }>({
+    ...deps,
+    path: `/friends/users/${encodeURIComponent(userId)}`,
+    init: { method: 'GET' },
+  });
+  return body.user;
+}
 
 export async function searchUsers(
   deps: FriendsClientDeps,

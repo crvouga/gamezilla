@@ -7,7 +7,7 @@ import { useLiveSpaceIds } from '@libs/spaces/client/use-live-space-ids';
 import { openSpaceDetail } from '@libs/spaces/client/space-routes';
 import { useSpaceCommandLabel } from '@libs/spaces/client/use-space-command-label';
 import {
-  HouseIcon,
+  Gamepad2Icon,
   LogInIcon,
   LogOutIcon,
   RegisterCommand,
@@ -15,7 +15,7 @@ import {
 } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { usePathname, useRouter } from 'expo-router';
-import { useCallback, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 const SPACE_ROUTE_RE = /^\/space\/([^/?#]+)/;
 
@@ -41,7 +41,7 @@ function SpaceCreateCommand(): ReactNode {
       id="space:new"
       title={t`Start new space`}
       category={t`Spaces`}
-      icon={HouseIcon}
+      icon={Gamepad2Icon}
       keywords={[t`new`, t`create`, t`start`, t`space`, t`host`]}
       enabled={!membershipLoading && currentCount === 0}
       run={async () => {
@@ -104,7 +104,7 @@ function LiveSpaceCommand({ spaceId }: { spaceId: string }): ReactNode {
         id={`space:open:${spaceId}`}
         title={t`Open ${label}`}
         category={t`Spaces`}
-        icon={HouseIcon}
+        icon={Gamepad2Icon}
         keywords={[t`open`, t`go to`, t`space`]}
         run={async () => {
           openSpaceDetail(router, spaceId);
@@ -148,10 +148,8 @@ function CurrentSpaceCommand({
   role: 'host' | 'guest';
 }): ReactNode {
   const { t } = useLingui();
-  const router = useRouter();
   const label = useSpaceCommandLabel(spaceId);
   const { requestEndSpace, requestLeaveSpace } = useSpaceLifecycleModals();
-  const onSuccess = useCallback(() => router.replace('/'), [router]);
 
   if (role === 'host') {
     return (
@@ -162,7 +160,7 @@ function CurrentSpaceCommand({
         icon={XIcon}
         keywords={[t`end`, t`stop`, t`close`, t`host`, t`space`]}
         run={async () => {
-          requestEndSpace(spaceId, { onSuccess });
+          requestEndSpace(spaceId);
         }}
       />
     );
@@ -175,7 +173,7 @@ function CurrentSpaceCommand({
       icon={LogOutIcon}
       keywords={[t`leave`, t`exit`, t`guest`, t`space`]}
       run={async () => {
-        requestLeaveSpace(spaceId, { onSuccess });
+        requestLeaveSpace(spaceId);
       }}
     />
   );

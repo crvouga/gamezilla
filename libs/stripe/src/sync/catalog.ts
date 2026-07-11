@@ -269,11 +269,7 @@ async function dumpCatalogToEntityStore(args: {
       );
     }
     const product = await stripe.products.retrieve(stripeProductId);
-    await upsertCatalogProductFromStripeApi(
-      sql,
-      def.catalogProductId,
-      product
-    );
+    await upsertCatalogProductFromStripeApi(sql, def.catalogProductId, product);
   }
 
   for (const [priceKey, stripePriceId] of Object.entries(priceStripeIdsByKey)) {
@@ -306,7 +302,9 @@ export async function runStripeCatalogSync(args: {
     await reconcileAllPrices(stripe, productIdsByKey);
 
   if (sql === undefined) {
-    console.log(`[${TAG}] skip entity_store catalog dump — no sql client provided`);
+    console.log(
+      `[${TAG}] skip entity_store catalog dump — no sql client provided`
+    );
     return { products, prices, catalogDumped: false };
   }
 

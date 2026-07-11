@@ -26,6 +26,7 @@ import { default as CheckboxExample } from '../checkbox/checkbox.example';
 
 import { default as CardExample } from '../card/card.example';
 import { default as AvatarExample } from '../avatar/avatar.example';
+import { default as AvatarHeroExample } from '../avatar-hero/avatar-hero.example';
 import { default as AvatarGroupExample } from '../avatar-group/avatar-group.example';
 import { default as BadgeExample } from '../badge/badge.example';
 import { default as ChipExample } from '../chip/chip.example';
@@ -57,6 +58,7 @@ import { default as CommandPaletteExample } from '../command-palette/command-pal
 import { default as ResponsiveSurfaceExample } from '../responsive-surface/responsive-surface.example';
 import { default as PickerExample } from '../picker/picker.example';
 import { default as HorizontalPickerExample } from '../horizontal-picker/horizontal-picker.example';
+import { default as PickerSectionExample } from '../picker-section/picker-section.example';
 import { default as ChipGroupExample } from '../chip-group/chip-group.example';
 import { default as NumberStepperExample } from '../number-stepper/number-stepper.example';
 import { default as MultiSelectSwatchGridExample } from '../multi-select-swatch/multi-select-swatch-grid.example';
@@ -124,6 +126,11 @@ const builtInEntries: ComponentEntry[] = [
   // Data Display
   { name: 'Card', category: 'Data Display', Example: CardExample },
   { name: 'Avatar', category: 'Data Display', Example: AvatarExample },
+  {
+    name: 'AvatarHero',
+    category: 'Data Display',
+    Example: AvatarHeroExample,
+  },
   {
     name: 'AvatarGroup',
     category: 'Data Display',
@@ -199,6 +206,11 @@ const builtInEntries: ComponentEntry[] = [
     name: 'HorizontalPicker',
     category: 'Inputs',
     Example: HorizontalPickerExample,
+  },
+  {
+    name: 'PickerSection',
+    category: 'Inputs',
+    Example: PickerSectionExample,
   },
   { name: 'ChipGroup', category: 'Inputs', Example: ChipGroupExample },
   { name: 'NumberStepper', category: 'Inputs', Example: NumberStepperExample },

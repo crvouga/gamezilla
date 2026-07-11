@@ -149,7 +149,9 @@ function seedEnv(
     }
 
     if (options.dryRun) {
-      console.log(`[seed-vercel-turbo-cache] [dry-run] would set ${env}/${key}`);
+      console.log(
+        `[seed-vercel-turbo-cache] [dry-run] would set ${env}/${key}`
+      );
       set += 1;
       continue;
     }

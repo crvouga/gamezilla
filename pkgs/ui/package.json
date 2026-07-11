@@ -27,6 +27,7 @@
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/object-store": "workspace:*",
+    "@pkgs/sounds": "workspace:*",
     "@pkgs/tts": "workspace:*",
     "@react-navigation/native": "catalog:",
     "@shopify/react-native-skia": "catalog:",

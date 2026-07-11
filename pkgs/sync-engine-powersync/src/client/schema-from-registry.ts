@@ -1,9 +1,14 @@
 import { Schema, Table, column, type BaseColumnType } from '@powersync/common';
 
-import type { TableColumnType, TableDefinition } from '@pkgs/sync-engine/shared/table-definition';
+import type {
+  TableColumnType,
+  TableDefinition,
+} from '@pkgs/sync-engine/shared/table-definition';
 import type { TableRegistry } from '@pkgs/sync-engine/shared/table-registry';
 
-function mapColumnType(type: TableColumnType): BaseColumnType<string | number | null> {
+function mapColumnType(
+  type: TableColumnType
+): BaseColumnType<string | number | null> {
   if (type === 'integer') return column.integer;
   if (type === 'real') return column.real;
   return column.text;

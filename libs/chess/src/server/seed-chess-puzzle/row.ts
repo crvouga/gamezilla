@@ -92,9 +92,11 @@ export function rowToPuzzleAttributes(
   };
   const themes = JSON.parse(tableRow.themes) as string[];
   if (themes.length > 0) attrs[ChessPuzzleAttr.themes.key] = themes;
-  if (tableRow.game_url !== null) attrs[ChessPuzzleAttr.gameUrl.key] = tableRow.game_url;
+  if (tableRow.game_url !== null)
+    attrs[ChessPuzzleAttr.gameUrl.key] = tableRow.game_url;
   const openingTags = JSON.parse(tableRow.opening_tags) as string[];
-  if (openingTags.length > 0) attrs[ChessPuzzleAttr.openingTags.key] = openingTags;
+  if (openingTags.length > 0)
+    attrs[ChessPuzzleAttr.openingTags.key] = openingTags;
   return attrs;
 }
 

@@ -16,9 +16,7 @@ describe('createInMemorySyncEngine', () => {
       }),
     ]);
     const engine = createInMemorySyncEngine({ registry });
-    const sub = engine.watch<{ id: string }>(
-      'SELECT id FROM profiles WHERE 0'
-    );
+    const sub = engine.watch<{ id: string }>('SELECT id FROM profiles WHERE 0');
     expect(sub.getSnapshot()).toEqual([]);
     expect(sub.getHydrated()).toBe(false);
   });

@@ -1,14 +1,7 @@
+import { chessSoundSources } from '@pkgs/sounds/chess-sound-sources';
 import { playAudioOrIgnoreAutoplayBlock } from '@pkgs/ui';
 import { useAudioPlayer } from 'expo-audio';
 import { useCallback, useEffect, useMemo } from 'react';
-
-const checkmateSrc = require('../../../assets/sounds/chess/game-over-checkmate.wav');
-const eloTickSrc = require('../../../assets/sounds/chess/navigation_forward-selection-minimal.wav');
-const correctMoveSrc = require('../../../assets/sounds/chess/move-1.wav');
-
-// Reuse chess-board unlock SFX for positive ELO lock-in.
-const eloCompleteGainSrc = require('../../../../../pkgs/chess-board/assets/sounds/chess/ui_unlock.wav');
-const eloCompleteLossSrc = require('../../../assets/sounds/chess/game-over-stalemate.wav');
 
 async function playFromStart(player: {
   seekTo: (s: number) => Promise<void>;
@@ -43,11 +36,11 @@ export function useChessPuzzleSounds(): {
   playEloCompleteLoss: () => void;
   playCorrectMove: () => void;
 } {
-  const checkmate = useAudioPlayer(checkmateSrc);
-  const eloTick = useAudioPlayer(eloTickSrc);
-  const correctMove = useAudioPlayer(correctMoveSrc);
-  const eloCompleteGain = useAudioPlayer(eloCompleteGainSrc);
-  const eloCompleteLoss = useAudioPlayer(eloCompleteLossSrc);
+  const checkmate = useAudioPlayer(chessSoundSources.puzzleCheckmate);
+  const eloTick = useAudioPlayer(chessSoundSources.puzzleEloTick);
+  const correctMove = useAudioPlayer(chessSoundSources.puzzleCorrectMove);
+  const eloCompleteGain = useAudioPlayer(chessSoundSources.promote);
+  const eloCompleteLoss = useAudioPlayer(chessSoundSources.puzzleEloCompleteLoss);
 
   useEffect(() => {
     let cancelled = false;

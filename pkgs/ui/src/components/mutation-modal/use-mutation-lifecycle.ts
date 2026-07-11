@@ -8,7 +8,7 @@
  * and `error` (retryable failure). Cancellation maps back to `idle`.
  */
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAsync, type AsyncStatus } from '@pkgs/async/use-async';
 
 export type MutationPhase = 'idle' | 'loading' | 'success' | 'error';
@@ -18,6 +18,8 @@ export type UseMutationLifecycleParams = {
   operation: () => Promise<void>;
   /** Side-effect notified on failure (e.g. structured logging). */
   onError?: ((error: Error) => void) | undefined;
+  /** Side-effect notified whenever the phase changes. */
+  onPhaseChange?: ((phase: MutationPhase) => void) | undefined;
 };
 
 export type UseMutationLifecycleResult = {
@@ -45,6 +47,7 @@ export function mutationPhaseFromStatus(status: AsyncStatus): MutationPhase {
 export function useMutationLifecycle({
   operation,
   onError,
+  onPhaseChange,
 }: UseMutationLifecycleParams): UseMutationLifecycleResult {
   const runOperation = useCallback(async (): Promise<void> => {
     await operation();
@@ -68,8 +71,14 @@ export function useMutationLifecycle({
       // Failure is captured in hook state; callers read `phase` / `error`.
     }
   }, [asyncRun]);
+  const phase = mutationPhaseFromStatus(status);
+  const onPhaseChangeRef = useRef(onPhaseChange);
+  onPhaseChangeRef.current = onPhaseChange;
+  useEffect(() => {
+    onPhaseChangeRef.current?.(phase);
+  }, [phase]);
   return useMemo(
-    () => ({ phase: mutationPhaseFromStatus(status), error, run, reset }),
-    [status, error, run, reset]
+    () => ({ phase, error, run, reset }),
+    [phase, error, run, reset]
   );
 }

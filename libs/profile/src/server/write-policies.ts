@@ -7,12 +7,12 @@ import type { UploadRow } from '@pkgs/sync-engine/shared/upload-batch';
 
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 
-import {
-  canChangeUsername,
-  validateUsername,
-} from '../shared/username';
+import { canChangeUsername, validateUsername } from '../shared/username';
 
-function deny(reason: string): { readonly allowed: false; readonly reason: string } {
+function deny(reason: string): {
+  readonly allowed: false;
+  readonly reason: string;
+} {
   return { allowed: false, reason };
 }
 

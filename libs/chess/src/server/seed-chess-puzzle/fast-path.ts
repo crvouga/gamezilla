@@ -124,7 +124,9 @@ export async function flushPuzzleBatchFast(args: {
   const insertRows = buildInsertRows(state);
   let rowChanges = 0;
   await sql.transaction(async (tx) => {
-    const res = await tx.run(INSERT_PUZZLES_BATCH, [JSON.stringify(insertRows)]);
+    const res = await tx.run(INSERT_PUZZLES_BATCH, [
+      JSON.stringify(insertRows),
+    ]);
     rowChanges = res.changes;
   });
   state.rowsInserted += rowChanges;

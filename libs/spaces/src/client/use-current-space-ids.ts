@@ -50,7 +50,10 @@ function buildCurrentSpaceEntries(
   return [...bySpace.values()];
 }
 
-function guestSpacesSql(ids: readonly string[]): { sql: string; params: string[] } {
+function guestSpacesSql(ids: readonly string[]): {
+  sql: string;
+  params: string[];
+} {
   if (ids.length === 0) {
     return {
       sql: `SELECT ${SpaceCol.id}, ${SpaceCol.endedAt} AS ended_at FROM ${SPACES_TABLE.tableName} WHERE 0`,
@@ -126,16 +129,18 @@ function useCurrentSpaceWatchQueries(myId: string): {
     [enabled, myId]
   );
 
-  const { rows: hostedRows, isLoading: hostedLoading } = useWatchQuery<HostedRow>(
-    hostedQuery.sql,
-    hostedQuery.params
-  );
+  const { rows: hostedRows, isLoading: hostedLoading } =
+    useWatchQuery<HostedRow>(hostedQuery.sql, hostedQuery.params);
 
   const { rows: guestMemRows, isLoading: guestMemLoading } =
     useWatchQuery<GuestMemRow>(guestMemQuery.sql, guestMemQuery.params);
 
   const guestSpaceIds = useMemo(
-    () => [...new Set(guestMemRows.map((r) => r.space_id).filter((id) => id.length > 0))],
+    () => [
+      ...new Set(
+        guestMemRows.map((r) => r.space_id).filter((id) => id.length > 0)
+      ),
+    ],
     [guestMemRows]
   );
 

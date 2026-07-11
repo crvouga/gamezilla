@@ -5,7 +5,13 @@ import {
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import { useLogger } from '@pkgs/logger/react';
 import { useAsync } from '@pkgs/async/use-async';
-import { type ScreenBaseAction, LogInIcon, LogOutIcon, SettingsIcon, UserIcon } from '@pkgs/ui';
+import {
+  type ScreenBaseAction,
+  LogInIcon,
+  LogOutIcon,
+  SettingsIcon,
+  UserIcon,
+} from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';

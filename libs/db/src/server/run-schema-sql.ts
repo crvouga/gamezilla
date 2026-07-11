@@ -5,10 +5,7 @@ import { fileURLToPath } from 'node:url';
 import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-const schemaPath = join(
-  dirname(fileURLToPath(import.meta.url)),
-  'schema.sql'
-);
+const schemaPath = join(dirname(fileURLToPath(import.meta.url)), 'schema.sql');
 
 function appendStatement(statements: string[], chunk: string): void {
   const trimmed = chunk.trim();
@@ -17,7 +14,11 @@ function appendStatement(statements: string[], chunk: string): void {
   }
 }
 
-function toggleDollarQuote(sql: string, index: number, inDollar: boolean): {
+function toggleDollarQuote(
+  sql: string,
+  index: number,
+  inDollar: boolean
+): {
   nextIndex: number;
   inDollar: boolean;
 } {

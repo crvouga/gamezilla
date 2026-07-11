@@ -50,12 +50,12 @@ export function SpaceSettingsScreen(): ReactNode {
   }, [spaceId]);
 
   const onEnd = useCallback(() => {
-    requestEndSpace(spaceId, { onSuccess: () => router.back() });
-  }, [requestEndSpace, spaceId, router]);
+    requestEndSpace(spaceId);
+  }, [requestEndSpace, spaceId]);
 
   const onLeave = useCallback(() => {
-    requestLeaveSpace(spaceId, { onSuccess: () => router.back() });
-  }, [requestLeaveSpace, spaceId, router]);
+    requestLeaveSpace(spaceId);
+  }, [requestLeaveSpace, spaceId]);
 
   const items = useMemo<MainMenuItem[]>(
     () =>

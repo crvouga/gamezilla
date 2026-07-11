@@ -27,7 +27,9 @@ describe('canChangeUsername', () => {
 
   test('enforces cooldown', () => {
     const now = Date.now();
-    const recent = new Date(now - USERNAME_CHANGE_COOLDOWN_MS + 1000).toISOString();
+    const recent = new Date(
+      now - USERNAME_CHANGE_COOLDOWN_MS + 1000
+    ).toISOString();
     expect(canChangeUsername(recent, now)).toBe(false);
   });
 });

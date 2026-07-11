@@ -28,7 +28,10 @@ import {
 
 function assertNotSelf(actorId: string, targetId: string): void {
   if (actorId === targetId) {
-    throw new FriendsError('FRIENDS_SELF', 'Cannot perform this action on yourself');
+    throw new FriendsError(
+      'FRIENDS_SELF',
+      'Cannot perform this action on yourself'
+    );
   }
 }
 
@@ -70,9 +73,16 @@ export async function sendFriendRequest(
       'This user already sent you a friend request'
     );
   }
-  const declined = await findLatestDeclinedRequestBetween(sql, fromUserId, toUserId);
+  const declined = await findLatestDeclinedRequestBetween(
+    sql,
+    fromUserId,
+    toUserId
+  );
   if (declined !== null && isResendCooldownActive(declined.respondedAt)) {
-    throw new FriendsError('FRIENDS_COOLDOWN', 'Please wait before sending another request');
+    throw new FriendsError(
+      'FRIENDS_COOLDOWN',
+      'Please wait before sending another request'
+    );
   }
   const now = new Date().toISOString();
   const request = await insertFriendRequest(sql, {
@@ -98,7 +108,11 @@ async function acceptRequestsAndCreateFriendship(
   primaryRequestId: string
 ): Promise<void> {
   const now = new Date().toISOString();
-  const pending = await findPendingRequestsBetweenPair(sql, actorId, otherUserId);
+  const pending = await findPendingRequestsBetweenPair(
+    sql,
+    actorId,
+    otherUserId
+  );
   for (const request of pending) {
     await markFriendRequestStatus(sql, request.id, 'accepted', now);
   }
@@ -129,7 +143,10 @@ export async function acceptFriendRequest(
   }
   if (request.status !== 'pending') {
     if (request.status === 'accepted') return request;
-    throw new FriendsError('FRIENDS_FORBIDDEN', 'Friend request is not pending');
+    throw new FriendsError(
+      'FRIENDS_FORBIDDEN',
+      'Friend request is not pending'
+    );
   }
   if (request.toUserId !== actorId) {
     throw new FriendsError('FRIENDS_FORBIDDEN', 'Cannot accept this request');
@@ -137,7 +154,12 @@ export async function acceptFriendRequest(
   const otherUserId = request.fromUserId;
   await assertNotBlocked(sql, actorId, otherUserId);
   await sql.transaction(async (tx) => {
-    await acceptRequestsAndCreateFriendship(tx, actorId, otherUserId, requestId);
+    await acceptRequestsAndCreateFriendship(
+      tx,
+      actorId,
+      otherUserId,
+      requestId
+    );
   });
   const updated = await findFriendRequestById(sql, requestId);
   if (updated === null) {

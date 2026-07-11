@@ -72,7 +72,11 @@ export class PowerSyncJwtPublicJwk implements SecretEntry {
     if (v.length === 0) return 'Must be non-empty';
     try {
       const parsed: unknown = JSON.parse(v);
-      if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      if (
+        parsed === null ||
+        typeof parsed !== 'object' ||
+        Array.isArray(parsed)
+      ) {
         return 'Must be a JSON object';
       }
       const kid = (parsed as Record<string, unknown>)['kid'];

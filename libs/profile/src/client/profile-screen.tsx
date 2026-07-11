@@ -1,9 +1,12 @@
 import { MyDisplayName } from './my-display-name';
 import { MyProfileAvatar } from './my-profile-avatar';
+import { useMyProfileId } from './use-my-profile-id';
+import { useProfileColumn, ProfileField } from './use-profile-column';
 import {
   Box,
   Button,
   ScreenBase,
+  Text,
   useBreakpoint,
   type ScreenBaseAction,
 } from '@pkgs/ui';
@@ -20,6 +23,10 @@ export type ProfileScreenProps = {
   readonly headerEnd?: ReactNode;
   /** Leading slot (typically the app logo on root tabs). */
   readonly leading?: ReactNode;
+  /** Centered friends stats row (signed-in counts; guests open sign-in on tap). */
+  readonly friendsStats?: ReactNode;
+  /** Second action pill beside Edit profile (e.g. Find friends). */
+  readonly friendsActions?: ReactNode;
   /** Bottom inset to add to content padding (e.g., for space miniplayer height).
    * Use {@link useSpaceMiniplayerLayoutInsets} from @libs/spaces when
    * rendering inside a space context, or pass 0 otherwise. */
@@ -31,10 +38,10 @@ export function ProfileScreen({
   centerTabs,
   headerEnd,
   leading,
+  friendsStats,
+  friendsActions,
   bottomInset = 0,
 }: ProfileScreenProps) {
-  const { t } = useLingui();
-  const router = useRouter();
   const isMobile = useBreakpoint() === 'mobile';
 
   return (
@@ -45,24 +52,67 @@ export function ProfileScreen({
       headerEnd={headerEnd}
       leading={leading}
       content={({ sx }) => (
-        <Box
-          style={{
-            ...sx,
-            ...(bottomInset > 0 ? { paddingBottom: bottomInset } : {}),
-          }}
-        >
-          <Box sx={{ alignItems: 'center', gap: 2 }}>
-            <MyProfileAvatar size={80} />
-            <MyDisplayName variant="title" />
-          </Box>
-          <Box sx={{ mt: 2, alignSelf: 'stretch' }}>
-            <Button
-              title={t`Edit profile`}
-              onPress={() => router.push('/profile/edit')}
-            />
-          </Box>
-        </Box>
+        <ProfileScreenContent
+          sx={sx}
+          bottomInset={bottomInset}
+          friendsStats={friendsStats}
+          friendsActions={friendsActions}
+        />
       )}
     />
+  );
+}
+
+function ProfileScreenContent({
+  sx,
+  bottomInset,
+  friendsStats,
+  friendsActions,
+}: {
+  sx: Record<string, unknown>;
+  bottomInset: number;
+  friendsStats?: ReactNode;
+  friendsActions?: ReactNode;
+}): ReactNode {
+  const { t } = useLingui();
+  const router = useRouter();
+  const profileId = useMyProfileId();
+  const username = useProfileColumn(profileId ?? '', ProfileField.username);
+
+  return (
+    <Box
+      style={{
+        ...sx,
+        ...(bottomInset > 0 ? { paddingBottom: bottomInset } : {}),
+        alignItems: 'center',
+        gap: 12,
+        paddingTop: 8,
+      }}
+    >
+      <MyProfileAvatar size={96} />
+      <Box sx={{ alignItems: 'center', gap: 1, alignSelf: 'stretch' }}>
+        <MyDisplayName variant="title" sx={{ textAlign: 'center' }} />
+        {profileId !== null && username !== null && username.length > 0 ? (
+          <Text
+            variant="body"
+            sx={{ color: 'textSecondary', textAlign: 'center' }}
+            label={`@${username}`}
+          />
+        ) : null}
+      </Box>
+      {friendsStats !== undefined && friendsStats !== null ? (
+        <Box sx={{ alignSelf: 'stretch', mt: 4 }}>{friendsStats}</Box>
+      ) : null}
+      <Box sx={{ flexDirection: 'row', gap: 2, alignSelf: 'stretch', mt: 4 }}>
+        <Button
+          title={t`Edit profile`}
+          intent="neutral"
+          variant="outline"
+          flex={1}
+          onPress={() => router.push('/profile/edit')}
+        />
+        {friendsActions}
+      </Box>
+    </Box>
   );
 }

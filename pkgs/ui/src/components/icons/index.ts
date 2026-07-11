@@ -10,16 +10,22 @@ import {
   Code,
   Copy,
   Database,
+  DoorOpen,
   Ellipsis,
+  Gamepad2,
+  Heart,
   House,
   Lightbulb,
   ListChecks,
   LogIn,
   LogOut,
+  Menu,
   Paintbrush,
   Plus,
+  Search,
   Send,
   Settings,
+  Shuffle,
   User,
   Volume2,
   VolumeX,
@@ -32,6 +38,7 @@ import { createIcon } from './create-icon';
 export { createIcon, type IconComponent, type IconProps } from './create-icon';
 
 export const HouseIcon = createIcon(House);
+export const Gamepad2Icon = createIcon(Gamepad2);
 export const UserIcon = createIcon(User);
 export const PlusIcon = createIcon(Plus);
 export const SendIcon = createIcon(Send);
@@ -46,9 +53,14 @@ export const SettingsIcon = createIcon(Settings);
 export const WifiIcon = createIcon(Wifi);
 export const LogInIcon = createIcon(LogIn);
 export const LogOutIcon = createIcon(LogOut);
+export const MenuIcon = createIcon(Menu);
 export const DatabaseIcon = createIcon(Database);
+export const DoorOpenIcon = createIcon(DoorOpen);
 export const CopyIcon = createIcon(Copy);
 export const CircleCheckIcon = createIcon(CircleCheck);
 export const XIcon = createIcon(X);
 export const Volume2Icon = createIcon(Volume2);
 export const VolumeXIcon = createIcon(VolumeX);
+export const SearchIcon = createIcon(Search);
+export const ShuffleIcon = createIcon(Shuffle);
+export const HeartIcon = createIcon(Heart);

@@ -123,11 +123,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       )
     ).toBe(resolved);
     expect(
-      await readExternalAccountId(
-        sql,
-        resolved,
-        PRIMARY_AUTH_PROVIDER
-      )
+      await readExternalAccountId(sql, resolved, PRIMARY_AUTH_PROVIDER)
     ).toBe(EXTERNAL_USER_ID);
 
     const entityRows = await sql.query<{ owner_id: string | null }>(

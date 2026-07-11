@@ -18,13 +18,14 @@
  *   variant="destructive"
  *   operation={() => endSpace(spaceId)}
  *   successTitle={<Trans>Space ended</Trans>}
- *   onSuccess={() => router.back()}
  * />
  * ```
  */
 
 import { useLingui } from '@lingui/react/macro';
+import type { SoundId } from '@pkgs/sounds';
 import { useEffect, type ReactNode } from 'react';
+import { useMutationPhaseSoundHandler } from '../../expo/mutation-sounds';
 import { Box } from '../box';
 import { ErrorState } from '../error-state';
 import { LoadingState } from '../loading-state';
@@ -68,8 +69,10 @@ export type MutationModalProps = {
   retryLabel?: ReactNode | undefined;
   /** Notified on failure (e.g. logging). */
   onError?: ((error: Error) => void) | undefined;
-  /** Runs after the user dismisses the success state (e.g. navigation). */
+  /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
   onSuccess?: (() => void) | undefined;
+  /** Override default mutation success/error sounds. */
+  sounds?: { success?: SoundId; error?: SoundId } | undefined;
   /** Centered modal width on tablet/desktop. Default `medium`. */
   size?: ModalSize;
 };
@@ -77,10 +80,13 @@ export type MutationModalProps = {
 const STATE_AREA_MIN_HEIGHT = 200;
 
 export function MutationModal(props: MutationModalProps): ReactNode {
-  const { visible, onClose, title, operation, onError, onSuccess } = props;
+  const { visible, onClose, title, operation, onError, onSuccess, sounds } =
+    props;
+  const onPhaseChange = useMutationPhaseSoundHandler(sounds);
   const { phase, error, run, reset } = useMutationLifecycle({
     operation,
     onError,
+    onPhaseChange,
   });
 
   useEffect(() => {

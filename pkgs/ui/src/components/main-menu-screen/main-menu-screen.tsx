@@ -49,9 +49,7 @@ function mainMenuDefaultTrailing(
       </Box>
     );
   }
-  return (
-    <ChevronRightIcon size={20} color={theme.colors.icon} />
-  );
+  return <ChevronRightIcon size={20} color={theme.colors.icon} />;
 }
 
 function MainMenuItemBody({

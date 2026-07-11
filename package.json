@@ -28,7 +28,7 @@
     "ci:database-url-policy": "bun run scripts/check-database-url-policy.ts",
     "ci:depcruise": "NODE_OPTIONS=--max-old-space-size=16384 dependency-cruise apps libs pkgs --validate .dependency-cruiser.cjs --output-type err",
     "ci:format": "bun run scripts/prettier-git-files.ts --check",
-    "ci:i18n": "lingui extract && bun run i18n:compile && git diff --exit-code -- apps/client/src/i18n",
+    "ci:i18n": "bun run scripts/check-i18n.ts",
     "ci:no-direct-pg-imports": "bun run scripts/check-no-direct-pg-imports.ts",
     "ci:no-provider-leaks": "bun run scripts/check-no-provider-leaks.ts",
     "ci:setup-secrets-auth": "bun run scripts/setup-ci-secrets-auth.ts",
@@ -51,6 +51,7 @@
     "powersync:setup:dev": "SECRETS_ENV=dev bun run scripts/secrets-run.ts -- bun run scripts/powersync-setup.ts",
     "powersync:setup:prd": "SECRETS_ENV=prd bun run scripts/secrets-run.ts -- bun run scripts/powersync-setup.ts",
     "preview": "bun run scripts/secrets-run.ts -- turbo run preview --filter=@apps/api --filter=@apps/client",
+    "ps:dev": "SECRETS_ENV=dev bun run scripts/secrets-run.ts -- bun run scripts/powersync-dev-diagnostics.ts",
     "pw": "bun run --filter '@libs/integration-test' test:e2e",
     "pw:headed": "bun run --filter '@libs/integration-test' test:e2e:headed",
     "pw:ui": "bun run --filter '@libs/integration-test' test:e2e:ui",
@@ -65,8 +66,7 @@
     "stripe:check": "bun run --filter '@libs/stripe' check",
     "stripe:listen": "bun run --filter '@libs/stripe-cli' dev",
     "stripe:sync": "bun run --filter '@libs/stripe' sync",
-    "wipe": "git clean -xfd",
-    "ps:dev": "SECRETS_ENV=dev bun run scripts/secrets-run.ts -- bun run scripts/powersync-dev-diagnostics.ts"
+    "wipe": "git clean -xfd"
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",

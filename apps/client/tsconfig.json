@@ -20,6 +20,7 @@
       "@libs/integration-test/*": ["../../libs/integration-test/src/*"],
       "@libs/client-config/*": ["../../libs/client-config/src/*"],
       "@libs/db/*": ["../../libs/db/src/*"],
+      "@libs/friends/*": ["../../libs/friends/src/*"],
       "@libs/infra/*": ["../../libs/infra/src/*"],
       "@pkgs/llm/*": ["../../pkgs/llm/src/*"],
       "@libs/profile/*": ["../../libs/profile/src/*"],
@@ -77,6 +78,8 @@
       "@pkgs/task-dag/*": ["../../pkgs/task-dag/src/*"],
       "@pkgs/ts-reset": ["../../pkgs/ts-reset/src/index.ts"],
       "@pkgs/chess-board/*": ["../../pkgs/chess-board/src/*"],
+      "@pkgs/sounds": ["../../pkgs/sounds/src/index.ts"],
+      "@pkgs/sounds/*": ["../../pkgs/sounds/src/*"],
       "@pkgs/ui/*": ["../../pkgs/ui/src/*"],
       "@pkgs/uuid": ["../../pkgs/uuid/src/index.ts"],
       "@pkgs/uuid/*": ["../../pkgs/uuid/src/*"]

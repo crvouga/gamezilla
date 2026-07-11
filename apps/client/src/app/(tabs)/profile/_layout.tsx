@@ -8,7 +8,11 @@ export default function ProfileStackLayout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="edit" />
       <Stack.Screen name="username" />
+      <Stack.Screen name="handle" />
       <Stack.Screen name="avatar" />
+      <Stack.Screen name="friends/index" />
+      <Stack.Screen name="friends/requests" />
+      <Stack.Screen name="user/[userId]" />
     </Stack>
   );
 }

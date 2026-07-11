@@ -1,4 +1,7 @@
-import { useProfileColumn, ProfileField } from '@libs/profile/client/use-profile-column';
+import {
+  useProfileColumn,
+  ProfileField,
+} from '@libs/profile/client/use-profile-column';
 import { Pressable, type PressableProps } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
@@ -24,7 +27,10 @@ export function SpaceCardOpenLink({
   const { t } = useLingui();
   const customTitle = useSpaceColumn(spaceId, SpaceField.title);
   const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
-  const hostDisplayName = useProfileColumn(hostId ?? '', ProfileField.displayName);
+  const hostDisplayName = useProfileColumn(
+    hostId ?? '',
+    ProfileField.displayName
+  );
   const hostName = hostDisplayName ?? '';
   const resolvedTitle =
     customTitle !== null && customTitle.length > 0

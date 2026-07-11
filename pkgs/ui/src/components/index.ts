@@ -39,16 +39,22 @@ export {
   CodeIcon,
   CopyIcon,
   DatabaseIcon,
+  DoorOpenIcon,
   EllipsisIcon,
+  Gamepad2Icon,
+  HeartIcon,
   HouseIcon,
   LightbulbIcon,
   ListChecksIcon,
   LogInIcon,
   LogOutIcon,
+  MenuIcon,
   PaintbrushIcon,
   PlusIcon,
+  SearchIcon,
   SendIcon,
   SettingsIcon,
+  ShuffleIcon,
   UserIcon,
   Volume2Icon,
   VolumeXIcon,
@@ -104,6 +110,11 @@ export { Checkbox, type CheckboxProps } from './checkbox';
 // Data Display
 export { Card, type CardProps } from './card';
 export { Avatar, type AvatarProps } from './avatar';
+export {
+  AvatarHero,
+  type AvatarHeroAction,
+  type AvatarHeroProps,
+} from './avatar-hero';
 export { AvatarGroup, type AvatarGroupProps } from './avatar-group';
 export {
   Badge,
@@ -306,6 +317,8 @@ export {
 } from './multi-select-swatch';
 
 export { SectionCard, type SectionCardProps } from './section-card';
+
+export { PickerSection, type PickerSectionProps } from './picker-section';
 
 export { MenuRow, type MenuRowProps } from './menu-row';
 

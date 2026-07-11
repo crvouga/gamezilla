@@ -11,12 +11,7 @@ export function deriveChessPuzzleCellHighlights(args: {
   solvedKingSquare: Square | null;
   successColor: string;
 }): Partial<Record<Square, CellHighlight>> {
-  const {
-    status,
-    lastCorrectToSquare,
-    solvedKingSquare,
-    successColor,
-  } = args;
+  const { status, lastCorrectToSquare, solvedKingSquare, successColor } = args;
   const out: Partial<Record<Square, CellHighlight>> = {};
 
   if (lastCorrectToSquare !== null) {

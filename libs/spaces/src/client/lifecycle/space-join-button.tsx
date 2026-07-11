@@ -2,6 +2,7 @@ import { useSpaceActions } from './space-actions';
 import { useCurrentSpaceCount } from '../use-current-space-count';
 import { useCurrentSpaceRole } from '../use-current-space-role';
 import { Button, useMutationButton } from '@pkgs/ui';
+import { Sounds } from '@pkgs/sounds';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 
@@ -35,6 +36,10 @@ export function SpaceJoinButton({
       error: t`Couldn't join`,
     },
     disabled,
+    sounds: {
+      success: Sounds.social.roomJoined,
+      error: Sounds.feedback.error,
+    },
   });
 
   return <Button {...join.buttonProps} />;

@@ -60,16 +60,15 @@ function openSpaceRoom(args: {
 }): () => void {
   let cancelled = false;
   void (async (): Promise<void> => {
-    const { room: nextRoom, transport: nextTransport } =
-      await createSpaceRoom({
-        spaceId: args.bootstrap.spaceId,
-        apiUrl: args.configService.getApiUrl(),
-        module: args.module,
-        kv: args.kv,
-        myId: args.bootstrap.myId,
-        installId: args.bootstrap.installId,
-        sessionToken: args.sessionToken,
-      });
+    const { room: nextRoom, transport: nextTransport } = await createSpaceRoom({
+      spaceId: args.bootstrap.spaceId,
+      apiUrl: args.configService.getApiUrl(),
+      module: args.module,
+      kv: args.kv,
+      myId: args.bootstrap.myId,
+      installId: args.bootstrap.installId,
+      sessionToken: args.sessionToken,
+    });
     if (cancelled) {
       nextRoom.destroy();
       nextTransport.destroy();

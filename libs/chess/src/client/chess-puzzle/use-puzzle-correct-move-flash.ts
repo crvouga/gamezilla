@@ -19,8 +19,14 @@ export function usePuzzleCorrectMoveFlash(args: {
   lastSubmittedToRef: MutableRefObject<Square | null>;
   prevSolveIdxRef: MutableRefObject<number>;
 }): { showCorrectFlash: boolean; lastCorrectToSquare: Square | null } {
-  const { puzzleId, solveIdx, status, feedback, lastSubmittedToRef, prevSolveIdxRef } =
-    args;
+  const {
+    puzzleId,
+    solveIdx,
+    status,
+    feedback,
+    lastSubmittedToRef,
+    prevSolveIdxRef,
+  } = args;
   const [showCorrectFlash, setShowCorrectFlash] = useState(false);
   const [lastCorrectToSquare, setLastCorrectToSquare] = useState<Square | null>(
     null

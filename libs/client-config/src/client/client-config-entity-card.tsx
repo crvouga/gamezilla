@@ -14,10 +14,9 @@ type ClientConfigRow = {
 
 export function ClientConfigEntityCard() {
   const { t } = useLingui();
-  const { row } = useWatchOne<ClientConfigRow>(
-    CLIENT_CONFIG_ROW_SQL,
-    [CLIENT_CONFIG_ENTITY_ID]
-  );
+  const { row } = useWatchOne<ClientConfigRow>(CLIENT_CONFIG_ROW_SQL, [
+    CLIENT_CONFIG_ENTITY_ID,
+  ]);
 
   const googleRaw = row?.google_web_client_id;
   const googleLine =
@@ -34,13 +33,14 @@ export function ClientConfigEntityCard() {
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
-      <Text variant="bodyBold" label={<Trans>Local sync (client_config)</Trans>} />
+      <Text
+        variant="bodyBold"
+        label={<Trans>Local sync (client_config)</Trans>}
+      />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
-        label={
-          <Trans>Table client_config, id client-config__singleton</Trans>
-        }
+        label={<Trans>Table client_config, id client-config__singleton</Trans>}
       />
       <Box sx={{ gap: 1 }}>
         <Text variant="label" label={<Trans>Google web client ID</Trans>} />

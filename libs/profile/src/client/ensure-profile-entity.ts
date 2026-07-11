@@ -7,9 +7,15 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 type ProfileRow = Record<string, unknown>;
 
-function profileLooksPresent(row: ProfileRow | undefined, expectedId: string): boolean {
+function profileLooksPresent(
+  row: ProfileRow | undefined,
+  expectedId: string
+): boolean {
   if (row === undefined) return false;
-  return row[ProfileCol.id] === expectedId && typeof row[ProfileCol.createdAt] === 'string';
+  return (
+    row[ProfileCol.id] === expectedId &&
+    typeof row[ProfileCol.createdAt] === 'string'
+  );
 }
 
 function hasDisplayName(row: ProfileRow | undefined): boolean {
@@ -28,7 +34,10 @@ function hasAvatarConfig(row: ProfileRow | undefined): boolean {
  * account id when signed in). Display names are seeded deterministically from
  * `myId` so independent web tabs bootstrap the same profile for one identity.
  */
-export async function ensureProfile(sql: SqlClient, myId: string): Promise<void> {
+export async function ensureProfile(
+  sql: SqlClient,
+  myId: string
+): Promise<void> {
   assertUuid(myId, 'ensureProfile myId');
   const rows = await sql.query<ProfileRow>(
     `SELECT * FROM ${PROFILES_TABLE.tableName} WHERE ${ProfileCol.id} = ? LIMIT 1`,
@@ -57,6 +66,12 @@ export async function ensureProfile(sql: SqlClient, myId: string): Promise<void>
     `INSERT INTO ${PROFILES_TABLE.tableName}
      (${ProfileCol.id}, ${ProfileCol.createdAt}, ${ProfileCol.displayName}, ${ProfileCol.username}, ${ProfileCol.avatarConfig})
      VALUES (?, ?, ?, ?, ?)`,
-    [myId, now, generateRandomDisplayName(myId), '', serializeDefaultAvatarConfig(myId)]
+    [
+      myId,
+      now,
+      generateRandomDisplayName(myId),
+      '',
+      serializeDefaultAvatarConfig(myId),
+    ]
   );
 }

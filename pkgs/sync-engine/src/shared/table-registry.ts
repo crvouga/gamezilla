@@ -12,9 +12,7 @@ export function createTableRegistry(
   const tables = new Map<string, TableDefinition>();
   for (const def of definitions) {
     if (tables.has(def.tableName)) {
-      throw new Error(
-        `createTableRegistry: duplicate table ${def.tableName}`
-      );
+      throw new Error(`createTableRegistry: duplicate table ${def.tableName}`);
     }
     tables.set(def.tableName, def);
   }

@@ -35,9 +35,7 @@ function computeNextPuzzleLoading(args: {
   if (banded.isLoading) return true;
   if (banded.rows.length === 0 && fallback.isLoading) return true;
   return (
-    banded.rows.length === 0 &&
-    fallback.rows.length === 0 &&
-    replay.isLoading
+    banded.rows.length === 0 && fallback.rows.length === 0 && replay.isLoading
   );
 }
 

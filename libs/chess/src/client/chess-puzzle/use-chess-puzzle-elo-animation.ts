@@ -63,9 +63,7 @@ export function useChessPuzzleEloAnimation(args: {
     };
 
     const listenerId = progress.addListener(({ value }) => {
-      report(
-        Math.round(ratingBefore + (ratingAfter - ratingBefore) * value)
-      );
+      report(Math.round(ratingBefore + (ratingAfter - ratingBefore) * value));
     });
 
     Animated.timing(progress, {

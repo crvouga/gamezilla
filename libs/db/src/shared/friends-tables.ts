@@ -12,6 +12,7 @@ export const FriendRequestCol = {
 } as const;
 
 export const FriendshipCol = {
+  id: 'id',
   userLow: 'user_low',
   userHigh: 'user_high',
   createdAt: 'created_at',
@@ -19,12 +20,14 @@ export const FriendshipCol = {
 } as const;
 
 export const UserBlockCol = {
+  id: 'id',
   blockerId: 'blocker_id',
   blockedId: 'blocked_id',
   createdAt: 'created_at',
 } as const;
 
 export const FriendProfileCacheCol = {
+  id: 'id',
   ownerId: 'owner_id',
   friendId: 'friend_id',
   displayName: 'display_name',
@@ -50,6 +53,7 @@ export const FRIEND_REQUESTS_TABLE = defineTable({
 export const FRIENDSHIPS_TABLE = defineTable({
   tableName: 'friendships',
   columns: [
+    { name: 'id', type: 'text', primaryKey: true },
     { name: 'user_low', type: 'text' },
     { name: 'user_high', type: 'text' },
     { name: 'created_at', type: 'text' },
@@ -60,6 +64,7 @@ export const FRIENDSHIPS_TABLE = defineTable({
 export const USER_BLOCKS_TABLE = defineTable({
   tableName: 'user_blocks',
   columns: [
+    { name: 'id', type: 'text', primaryKey: true },
     { name: 'blocker_id', type: 'text' },
     { name: 'blocked_id', type: 'text' },
     { name: 'created_at', type: 'text' },
@@ -69,6 +74,7 @@ export const USER_BLOCKS_TABLE = defineTable({
 export const FRIEND_PROFILE_CACHE_TABLE = defineTable({
   tableName: 'friend_profile_cache',
   columns: [
+    { name: 'id', type: 'text', primaryKey: true },
     { name: 'owner_id', type: 'text' },
     { name: 'friend_id', type: 'text' },
     { name: 'display_name', type: 'text' },

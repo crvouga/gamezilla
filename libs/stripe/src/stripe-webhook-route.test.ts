@@ -192,10 +192,12 @@ describe('createStripeWebhookRoutes', () => {
 
   it('writes verified event to entity_store (event cache + no webhook_event without account)', async () => {
     const runCalls: { sql: string; params: unknown[] }[] = [];
-    const sql = makeSqlMock(async (sqlText: string, params: readonly unknown[] = []) => {
-      runCalls.push({ sql: sqlText, params: [...params] });
-      return makeRunResult();
-    });
+    const sql = makeSqlMock(
+      async (sqlText: string, params: readonly unknown[] = []) => {
+        runCalls.push({ sql: sqlText, params: [...params] });
+        return makeRunResult();
+      }
+    );
 
     const secretStore = {
       getRequired: async (name: string) => new SecretString(name, ''),

@@ -1,8 +1,5 @@
 import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
-import {
-  DEVICES_TABLE,
-  DeviceCol,
-} from '@libs/db/shared/auth-tables';
+import { DEVICES_TABLE, DeviceCol } from '@libs/db/shared/auth-tables';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -26,13 +23,24 @@ export async function refreshAuthSnapshot(args: {
   deviceId: string;
   deviceAttributes: Record<string, string | null>;
 }): Promise<void> {
-  const { sql, authServer, bearerToken, accountId, deviceId, deviceAttributes } =
-    args;
+  const {
+    sql,
+    authServer,
+    bearerToken,
+    accountId,
+    deviceId,
+    deviceAttributes,
+  } = args;
   assertUuid(accountId, 'accountId must be UUID');
   assertDeviceId(deviceId);
 
   await upsertAuthUserFromBearer({ sql, authServer, bearerToken, accountId });
-  await upsertDeviceRow({ sql, deviceId, userId: accountId, attributes: deviceAttributes });
+  await upsertDeviceRow({
+    sql,
+    deviceId,
+    userId: accountId,
+    attributes: deviceAttributes,
+  });
 }
 
 async function upsertAuthUserFromBearer(args: {

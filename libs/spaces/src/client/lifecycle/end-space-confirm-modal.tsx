@@ -7,7 +7,7 @@ export type EndSpaceConfirmModalProps = {
   onClose: () => void;
   /** Runs the end-space write. Surfaces loading / success / error in place. */
   operation: () => Promise<void>;
-  /** Runs after the user dismisses the success state (e.g. navigation). */
+  /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
   onSuccess?: () => void;
 };
 

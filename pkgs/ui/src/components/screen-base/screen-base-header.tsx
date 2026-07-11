@@ -5,7 +5,7 @@
  * Slot mapping:
  *   - `leading`  -> caller-supplied leading content + auto back button (mobile).
  *   - `center`   -> centered tabs (desktop) or page title (from breadcrumbs).
- *   - `trailing` -> inline action buttons + overflow ellipsis + headerEnd.
+ *   - `trailing` -> inline action buttons + overflow menu + headerEnd.
  */
 
 import { useLingui } from '@lingui/react/macro';
@@ -29,7 +29,7 @@ import {
   type FloatingMenuContent,
 } from '../floating-menu';
 import { IconButton } from '../icon-button';
-import { EllipsisIcon } from '../icons';
+import { EllipsisIcon, MenuIcon } from '../icons';
 import { Text } from '../text';
 import { TopBar } from '../top-bar';
 import { partitionScreenActions } from './partition-screen-actions';
@@ -190,7 +190,7 @@ function HeaderTrailing({
             testID="header-overflow-menu"
             accessibilityLabel={t`More`}
           >
-            <EllipsisIcon size={20} color={theme.colors.icon} />
+            <MenuIcon size={20} color={theme.colors.icon} />
           </IconButton>
         </Box>
       ) : null}

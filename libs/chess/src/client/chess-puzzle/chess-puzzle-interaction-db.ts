@@ -54,7 +54,11 @@ export async function appendPuzzleInteractionRow(
       args.kind,
       args.solveIdx,
       args.uci ?? null,
-      args.correct === null || args.correct === undefined ? null : args.correct ? 1 : 0,
+      args.correct === null || args.correct === undefined
+        ? null
+        : args.correct
+          ? 1
+          : 0,
       args.ratingBefore ?? 0,
       args.ratingAfter ?? 0,
       at,

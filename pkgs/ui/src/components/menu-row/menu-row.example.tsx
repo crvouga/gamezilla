@@ -67,17 +67,13 @@ function LeadingIconSection() {
         <MenuRow
           title="Account"
           caption="Manage your profile"
-          leading={
-            <UserIcon size={20} color={theme.colors.icon} />
-          }
+          leading={<UserIcon size={20} color={theme.colors.icon} />}
           onPress={() => {}}
         />
         <MenuRow
           title="Settings"
           caption="App preferences and tools"
-          leading={
-            <SettingsIcon size={20} color={theme.colors.icon} />
-          }
+          leading={<SettingsIcon size={20} color={theme.colors.icon} />}
           onPress={() => {}}
         />
       </CardGroup>

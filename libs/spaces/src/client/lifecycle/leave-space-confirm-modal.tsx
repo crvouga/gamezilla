@@ -1,4 +1,5 @@
 import { MutationModal } from '@pkgs/ui';
+import { Sounds } from '@pkgs/sounds';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
@@ -7,7 +8,7 @@ export type LeaveSpaceConfirmModalProps = {
   onClose: () => void;
   /** Runs the leave-space write. Surfaces loading / success / error in place. */
   operation: () => Promise<void>;
-  /** Runs after the user dismisses the success state (e.g. navigation). */
+  /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
   onSuccess?: () => void;
 };
 
@@ -29,6 +30,10 @@ export function LeaveSpaceConfirmModal({
       submitLabel={<Trans>Leave</Trans>}
       operation={operation}
       onSuccess={onSuccess}
+      sounds={{
+        success: Sounds.social.roomLeft,
+        error: Sounds.feedback.error,
+      }}
       loadingLabel={<Trans>Leaving…</Trans>}
       successTitle={<Trans>You left the space</Trans>}
       successBody={

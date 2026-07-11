@@ -27,7 +27,8 @@ export function canChangeUsername(
   usernameChangedAt: string | null | undefined,
   nowMs: number = Date.now()
 ): boolean {
-  if (usernameChangedAt === null || usernameChangedAt === undefined) return true;
+  if (usernameChangedAt === null || usernameChangedAt === undefined)
+    return true;
   if (usernameChangedAt.length === 0) return true;
   const changedAtMs = Date.parse(usernameChangedAt);
   if (!Number.isFinite(changedAtMs)) return true;

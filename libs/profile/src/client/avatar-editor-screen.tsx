@@ -1,104 +1,164 @@
+import { VariantSwatchStrip } from './avatar-editor-variant-swatch-strip';
+import { StylePickerStrip } from './avatar-editor-style-picker-strip';
+import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
+import type { SchemaField } from './dicebear-schema';
+import { humanizeOptionKey } from './option-helpers';
+import { useAvatarEditor, type UseAvatarEditor } from './use-avatar-editor';
 import {
+  AvatarHero,
   Box,
   ConfirmationModal,
   FormActionsFooter,
+  MultiSelectSwatchGrid,
+  PickerSection,
   ScreenBase,
+  ShuffleIcon,
 } from '@pkgs/ui';
-import { Trans } from '@lingui/react/macro';
-import { useRouter } from 'expo-router';
+import { Trans, useLingui } from '@lingui/react/macro';
+import type { ReactNode } from 'react';
 
-import { BackgroundBlock } from './avatar-editor-background-block';
-import { ColorsBlock } from './avatar-editor-colors-block';
-import { EffectsBlock } from './avatar-editor-effects-block';
-import { FeaturesBlock } from './avatar-editor-features-block';
-import { AvatarPreview } from './avatar-editor-preview';
-import { StyleBlock } from './avatar-editor-style-block';
-import { TransformBlock } from './avatar-editor-transform-block';
-import { useAvatarEditor, type UseAvatarEditor } from './use-avatar-editor';
+type EnumField = Extract<SchemaField, { kind: 'enum' }>;
+type ColorField = Extract<SchemaField, { kind: 'color' }>;
 
-function EditorSections({ editor }: { editor: UseAvatarEditor }) {
-  const {
-    seedFallback,
-    draft,
-    setDraft,
-    surface,
-    setSurface,
-    closeSurface,
-    styleKey,
-    byTab,
-    featureEnums,
-    updateOptions,
-  } = editor;
+/** ScreenBase body horizontal padding (spacing step 4). */
+const SCREEN_PADDING = 16;
+
+function PickerBleed({ children }: { children: ReactNode }) {
+  return <Box sx={{ mx: -4 }}>{children}</Box>;
+}
+
+function TraitPicker({
+  field,
+  editor,
+}: {
+  field: EnumField;
+  editor: UseAvatarEditor;
+}) {
+  const { draft, styleKey, seedFallback, updateOptions } = editor;
   return (
-    <>
-      <StyleBlock
-        styleKey={styleKey}
-        draft={draft}
-        seedFallback={seedFallback}
-        setDraft={setDraft}
-        surface={surface}
-        setSurface={setSurface}
-        closeSurface={closeSurface}
-      />
-      <FeaturesBlock
-        featureEnums={featureEnums}
-        draft={draft}
-        styleKey={styleKey}
-        seedFallback={seedFallback}
-        updateOptions={updateOptions}
-        surface={surface}
-        setSurface={setSurface}
-        closeSurface={closeSurface}
-      />
-      <ColorsBlock
-        colorFields={byTab.colors}
-        draft={draft}
-        updateOptions={updateOptions}
-        surface={surface}
-        setSurface={setSurface}
-        closeSurface={closeSurface}
-      />
-      <EffectsBlock
-        effectFields={byTab.effects}
-        draft={draft}
-        updateOptions={updateOptions}
-      />
-      <BackgroundBlock
-        fields={byTab.background}
-        draft={draft}
-        updateOptions={updateOptions}
-        surface={surface}
-        setSurface={setSurface}
-        closeSurface={closeSurface}
-      />
-      <TransformBlock
-        fields={byTab.transform}
-        draft={draft}
-        updateOptions={updateOptions}
-      />
-    </>
+    <PickerSection label={humanizeOptionKey(field.key)}>
+      <PickerBleed>
+        <VariantSwatchStrip
+          field={field}
+          styleKey={styleKey}
+          draft={draft}
+          seedFallback={seedFallback}
+          contentInsetLeading={SCREEN_PADDING}
+          contentInsetTrailing={SCREEN_PADDING}
+          onSelect={(variant) => {
+            updateOptions((o) => {
+              const next = { ...o };
+              if (variant === null) {
+                delete next[field.key];
+              } else {
+                next[field.key] = [variant];
+              }
+              return next;
+            });
+          }}
+        />
+      </PickerBleed>
+    </PickerSection>
   );
 }
 
-function EditorBody({ editor }: { editor: UseAvatarEditor }) {
-  const { seedFallback, initialized, previewConfig, shuffleSeed, copySeed } =
-    editor;
+function BackgroundColorPicker({
+  field,
+  editor,
+}: {
+  field: ColorField;
+  editor: UseAvatarEditor;
+}) {
+  const { draft, updateOptions } = editor;
+  const current = Array.isArray(draft.options[field.key])
+    ? (draft.options[field.key] as string[])
+    : field.default;
+
   return (
-    <Box>
-      <AvatarPreview
-        previewConfig={previewConfig}
-        seedFallback={seedFallback}
-        initialized={initialized}
-        shuffleSeed={shuffleSeed}
-        copySeed={copySeed}
+    <PickerSection label={humanizeOptionKey(field.key)}>
+      <MultiSelectSwatchGrid
+        label={null}
+        palette={[...new Set([...field.default, ...current])]}
+        defaultPalette={field.default}
+        value={current}
+        allowTransparent
+        allowCustomEntry={false}
+        onChange={(next) => {
+          updateOptions((o) => ({
+            ...o,
+            [field.key]: next.length <= 1 ? next : [next[next.length - 1]!],
+          }));
+        }}
       />
-      {initialized ? <EditorSections editor={editor} /> : null}
+    </PickerSection>
+  );
+}
+
+function EditorContent({ editor }: { editor: UseAvatarEditor }) {
+  const { t } = useLingui();
+  const {
+    seedFallback,
+    initialized,
+    previewConfig,
+    shuffleSeed,
+    draft,
+    setDraft,
+    styleKey,
+    featureEnums,
+    colorFields,
+  } = editor;
+
+  const seed = draft.seed.trim() || seedFallback;
+
+  return (
+    <Box sx={{ gap: 2, pb: 4 }}>
+      <AvatarHero
+        size={160}
+        action={{
+          accessibilityLabel: t`Randomize`,
+          onPress: shuffleSeed,
+          disabled: !initialized,
+          icon: <ShuffleIcon size={20} />,
+        }}
+      >
+        <ProfileDiceBearAvatar
+          config={previewConfig}
+          fallbackSeed={seedFallback}
+          size={160}
+        />
+      </AvatarHero>
+
+      {initialized ? (
+        <Box sx={{ gap: 1 }}>
+          <PickerSection label={<Trans>Style</Trans>}>
+            <PickerBleed>
+              <StylePickerStrip
+                selected={styleKey}
+                seed={seed}
+                seedFallback={seedFallback}
+                contentInsetLeading={SCREEN_PADDING}
+                contentInsetTrailing={SCREEN_PADDING}
+                onSelect={(k) => {
+                  setDraft((d) => ({ ...d, style: k, options: {} }));
+                }}
+              />
+            </PickerBleed>
+          </PickerSection>
+
+          {featureEnums.map((field) => (
+            <TraitPicker key={field.key} field={field} editor={editor} />
+          ))}
+
+          {colorFields.map((field) => (
+            <BackgroundColorPicker key={field.key} field={field} editor={editor} />
+          ))}
+        </Box>
+      ) : null}
     </Box>
   );
 }
 
 export function AvatarEditorScreen() {
-  const router = useRouter();
   const editor = useAvatarEditor();
   const {
     profileId,
@@ -106,10 +166,8 @@ export function AvatarEditorScreen() {
     setShowDiscard,
     confirmDiscard,
     onBack,
-    initialized,
     dirty,
     save,
-    resetStyleDefaults,
   } = editor;
 
   return (
@@ -128,15 +186,6 @@ export function AvatarEditorScreen() {
           { name: <Trans>Profile</Trans>, onPress: onBack },
           { name: <Trans>Avatar</Trans> },
         ]}
-        actions={[
-          {
-            type: 'secondary',
-            label: <Trans>Reset</Trans>,
-            onPress: resetStyleDefaults,
-            disabled: !initialized,
-            overflow: 'never',
-          },
-        ]}
         scroll
         footer={
           <FormActionsFooter
@@ -147,14 +196,13 @@ export function AvatarEditorScreen() {
               successLabel: <Trans>Saved</Trans>,
               errorLabel: <Trans>Couldn't save</Trans>,
               operation: save,
-              onSuccess: () => router.back(),
               disabled: !dirty || profileId === null,
             }}
           />
         }
         content={({ sx }) => (
           <Box style={sx}>
-            <EditorBody editor={editor} />
+            <EditorContent editor={editor} />
           </Box>
         )}
       />

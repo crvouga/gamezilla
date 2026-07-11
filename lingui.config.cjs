@@ -5,7 +5,7 @@ module.exports = {
   locales: ['en'],
   compileNamespace: 'ts',
   // Keep file-path origins (useful for translators) but omit line numbers so
-  // unrelated refactors don't churn the .po catalog and break `ci:i18n`.
+  // unrelated refactors don't churn the .po catalog and break the i18n check.
   formatOptions: {
     origins: true,
     lineNumbers: false,
@@ -21,6 +21,7 @@ module.exports = {
         '<rootDir>/libs/chess/src',
         '<rootDir>/libs/profile/src',
         '<rootDir>/libs/friends/src',
+        '<rootDir>/libs/search/src',
         '<rootDir>/libs/auth/src',
         '<rootDir>/libs/spaces/src',
         '<rootDir>/pkgs/llm/src',

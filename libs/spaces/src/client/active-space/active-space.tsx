@@ -27,11 +27,11 @@ export function ActiveSpace({
     router.replace('/');
   }, [router]);
   const onRequestEnd = useCallback(() => {
-    requestEndSpace(spaceId, { onSuccess: () => router.back() });
-  }, [requestEndSpace, spaceId, router]);
+    requestEndSpace(spaceId);
+  }, [requestEndSpace, spaceId]);
   const onRequestLeave = useCallback(() => {
-    requestLeaveSpace(spaceId, { onSuccess: () => router.back() });
-  }, [requestLeaveSpace, spaceId, router]);
+    requestLeaveSpace(spaceId);
+  }, [requestLeaveSpace, spaceId]);
 
   return (
     <SafeAreaView sx={{ flex: 1, background: 'background' }}>

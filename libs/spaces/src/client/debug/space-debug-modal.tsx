@@ -1,6 +1,9 @@
 import { useSpaceRoomSelector } from '../room/use-space-room-selector';
 import { Box, JsonView, ResponsiveSurface, SegmentedControl } from '@pkgs/ui';
-import { useWatchOne, useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import {
+  useWatchOne,
+  useWatchQuery,
+} from '@pkgs/sync-engine/client/sync-engine-context';
 import { Trans } from '@lingui/react/macro';
 import { useState, type ReactNode } from 'react';
 

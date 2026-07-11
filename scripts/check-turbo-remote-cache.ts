@@ -68,9 +68,7 @@ function fail(message: string): never {
   console.error(
     'Seed with `bun run secrets:seed-vercel-turbo-cache -- --token … --team …`.'
   );
-  console.error(
-    'Without remote cache, `check:ci` takes ~10+ min.'
-  );
+  console.error('Without remote cache, `check:ci` takes ~10+ min.');
   console.error('See AGENTS.md § CI / Turbo Remote Cache.');
   console.error('');
   process.exit(1);
@@ -97,10 +95,7 @@ async function checkCacheReachable(api: string, token: string): Promise<void> {
   if (res.ok) {
     try {
       const body = (await res.json()) as { status?: string };
-      if (
-        typeof body.status === 'string' &&
-        !OK_STATUSES.has(body.status)
-      ) {
+      if (typeof body.status === 'string' && !OK_STATUSES.has(body.status)) {
         throw new Error(
           `unexpected status response from ${statusUrl}: ${JSON.stringify(body)}`
         );

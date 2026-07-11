@@ -44,7 +44,8 @@ async function readClientConfigRow(
   const row = rows[0];
   if (row === undefined) return null;
   return {
-    [ClientConfigAttr.googleWebClientId.key]: row[ClientConfigCol.googleWebClientId] ?? null,
+    [ClientConfigAttr.googleWebClientId.key]:
+      row[ClientConfigCol.googleWebClientId] ?? null,
   };
 }
 
@@ -92,7 +93,9 @@ async function handleClientConfigRefresh(
 
   logger.info('Updating client config', { config: configNew });
   await upsertClientConfigRow(sql, configNew);
-  const after = snapshotAttributes(await readClientConfigRow(sql) ?? undefined);
+  const after = snapshotAttributes(
+    (await readClientConfigRow(sql)) ?? undefined
+  );
 
   logger.info('Client config updated successfully.', {
     outcome: 'updated',

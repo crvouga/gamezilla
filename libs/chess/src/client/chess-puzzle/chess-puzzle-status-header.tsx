@@ -44,7 +44,9 @@ function EloChipSlot(args: {
     <ChessPuzzleEloChip
       elo={args.elo}
       variant={args.variant}
-      {...(args.pulseNonce !== undefined ? { pulseNonce: args.pulseNonce } : {})}
+      {...(args.pulseNonce !== undefined
+        ? { pulseNonce: args.pulseNonce }
+        : {})}
       {...(args.testID !== undefined ? { testID: args.testID } : {})}
     />
   );

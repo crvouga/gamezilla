@@ -91,7 +91,14 @@ function powersyncGenerateTokenArgs(subject: string): {
   }
   return {
     cmd,
-    args: ['generate', 'token', '--subject', subject, '--directory', POWERSYNC_DIR],
+    args: [
+      'generate',
+      'token',
+      '--subject',
+      subject,
+      '--directory',
+      POWERSYNC_DIR,
+    ],
   };
 }
 

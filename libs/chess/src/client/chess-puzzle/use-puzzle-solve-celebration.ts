@@ -26,7 +26,10 @@ export function usePuzzleSolveCelebration(args: {
     if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) return;
     const kingSq = solvedKingSquare(displayFen ?? '');
     setSolvedCrownSquare(kingSq);
-    const t = setTimeout(() => setSolvedCrownSquare(null), SOLVED_CELEBRATION_MS);
+    const t = setTimeout(
+      () => setSolvedCrownSquare(null),
+      SOLVED_CELEBRATION_MS
+    );
     return () => clearTimeout(t);
   }, [displayFen, solvedKingSquare, status]);
 

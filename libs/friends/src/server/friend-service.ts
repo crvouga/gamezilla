@@ -12,6 +12,10 @@ import {
   sendFriendRequest,
 } from './request-service';
 import { blockUser, unblockUser } from './block-service';
+import {
+  listFriendRequestsSummary,
+  readFriendUserProfile,
+} from './friend-read-service';
 import { searchUsers } from './search-service';
 
 function mapProfileCard(card: {
@@ -38,6 +42,8 @@ export const FriendService = {
   removeFriend,
   blockUser,
   unblockUser,
+  listFriendRequestsSummary,
+  readFriendUserProfile,
   async listMutualFriends(
     sql: SqlClient,
     viewerId: string,

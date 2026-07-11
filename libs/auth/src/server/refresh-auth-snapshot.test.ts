@@ -10,10 +10,7 @@ import {
   ENTITY_STORE_TYPE_USER,
 } from '@libs/db/shared/entity-store-table';
 
-import {
-  DEVICES_TABLE,
-  DeviceCol,
-} from '@libs/db/shared/auth-tables';
+import { DEVICES_TABLE, DeviceCol } from '@libs/db/shared/auth-tables';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
@@ -100,11 +97,14 @@ async function migrateAuthTables(sql: SqlClient): Promise<void> {
 async function readClerkExternalAccount(
   sql: SqlClient,
   accountId: string
-): Promise<{
-  external_id: string | null;
-  metadata: string | null;
-  created_at: string | null;
-} | undefined> {
+): Promise<
+  | {
+      external_id: string | null;
+      metadata: string | null;
+      created_at: string | null;
+    }
+  | undefined
+> {
   const rows = await sql.query<{
     external_id: string | null;
     metadata: string | null;
@@ -278,7 +278,9 @@ describe('refreshAuthSnapshot', () => {
       deviceAttributes: DEVICE_ATTRS,
     });
 
-    expect(await readEntityStoreOwnerId(sql, EXTERNAL_USER_ID)).toBe(ACCOUNT_ID);
+    expect(await readEntityStoreOwnerId(sql, EXTERNAL_USER_ID)).toBe(
+      ACCOUNT_ID
+    );
     expect(await readDeviceUserId(sql, DEVICE_ID)).toBe(ACCOUNT_ID);
     expect(await readProviders(sql, ACCOUNT_ID)).toEqual([
       {
@@ -380,7 +382,10 @@ describe('refreshAuthSnapshot', () => {
        WHERE ${ExternalAccountCol.userId} = ? AND ${ExternalAccountCol.provider} = ?`,
       [ACCOUNT_ID, PRIMARY_AUTH_PROVIDER]
     );
-    const metadata = JSON.parse(clerkRows[0]!.metadata) as Record<string, unknown>;
+    const metadata = JSON.parse(clerkRows[0]!.metadata) as Record<
+      string,
+      unknown
+    >;
     expect(metadata['email']).toBe('alice@example.com');
   });
 

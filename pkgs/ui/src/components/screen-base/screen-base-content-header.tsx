@@ -93,17 +93,17 @@ export function ScreenBaseContentHeader({
           intent="primary"
           size="md"
           startIcon={
-            icon !== undefined ? (
-              (() => {
-                const Icon = icon;
-                return (
-                  <Icon
-                    size={CONTENT_HEADER_BUTTON_ICON_SIZE}
-                    color={theme.colors.onPrimary}
-                  />
-                );
-              })()
-            ) : undefined
+            icon !== undefined
+              ? (() => {
+                  const Icon = icon;
+                  return (
+                    <Icon
+                      size={CONTENT_HEADER_BUTTON_ICON_SIZE}
+                      color={theme.colors.onPrimary}
+                    />
+                  );
+                })()
+              : undefined
           }
         />
       </Box>

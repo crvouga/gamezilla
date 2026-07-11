@@ -11,7 +11,11 @@ import {
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { canonicalUserPair } from '../shared/canonical-pair';
-import type { FriendRequest, FriendRequestStatus } from '../shared/friends-types';
+import { pairId } from '../shared/pair-id';
+import type {
+  FriendRequest,
+  FriendRequestStatus,
+} from '../shared/friends-types';
 
 function readString(row: Record<string, unknown>, key: string): string {
   const value = row[key];
@@ -158,14 +162,7 @@ export async function insertFriendRequest(
       ${FriendRequestCol.status}, ${FriendRequestCol.message},
       ${FriendRequestCol.createdAt}, ${FriendRequestCol.updatedAt})
      VALUES (?, ?, ?, 'pending', ?, ?, ?)`,
-    [
-      args.id,
-      args.fromUserId,
-      args.toUserId,
-      args.message,
-      args.now,
-      args.now,
-    ]
+    [args.id, args.fromUserId, args.toUserId, args.message, args.now, args.now]
   );
   const created = await findFriendRequestById(sql, args.id);
   if (created === null) {
@@ -222,11 +219,17 @@ export async function insertFriendship(
   const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
   await sql.run(
     `INSERT INTO ${FRIENDSHIPS_TABLE.tableName}
-     (${FriendshipCol.userLow}, ${FriendshipCol.userHigh},
+     (${FriendshipCol.id}, ${FriendshipCol.userLow}, ${FriendshipCol.userHigh},
       ${FriendshipCol.createdAt}, ${FriendshipCol.sourceRequestId})
-     VALUES (?, ?, ?, ?)
+     VALUES (?, ?, ?, ?, ?)
      ON CONFLICT (${FriendshipCol.userLow}, ${FriendshipCol.userHigh}) DO NOTHING`,
-    [userLow, userHigh, args.now, args.sourceRequestId]
+    [
+      pairId(userLow, userHigh),
+      userLow,
+      userHigh,
+      args.now,
+      args.sourceRequestId,
+    ]
   );
 }
 
@@ -251,10 +254,10 @@ export async function insertBlock(
 ): Promise<void> {
   await sql.run(
     `INSERT INTO ${USER_BLOCKS_TABLE.tableName}
-     (${UserBlockCol.blockerId}, ${UserBlockCol.blockedId}, ${UserBlockCol.createdAt})
-     VALUES (?, ?, ?)
+     (${UserBlockCol.id}, ${UserBlockCol.blockerId}, ${UserBlockCol.blockedId}, ${UserBlockCol.createdAt})
+     VALUES (?, ?, ?, ?)
      ON CONFLICT (${UserBlockCol.blockerId}, ${UserBlockCol.blockedId}) DO NOTHING`,
-    [blockerId, blockedId, now]
+    [pairId(blockerId, blockedId), blockerId, blockedId, now]
   );
 }
 
@@ -283,16 +286,17 @@ export async function upsertFriendProfileCache(
 ): Promise<void> {
   await sql.run(
     `INSERT INTO ${FRIEND_PROFILE_CACHE_TABLE.tableName}
-     (${FriendProfileCacheCol.ownerId}, ${FriendProfileCacheCol.friendId},
+     (${FriendProfileCacheCol.id}, ${FriendProfileCacheCol.ownerId}, ${FriendProfileCacheCol.friendId},
       ${FriendProfileCacheCol.displayName}, ${FriendProfileCacheCol.username},
       ${FriendProfileCacheCol.avatarConfig}, ${FriendProfileCacheCol.updatedAt})
-     VALUES (?, ?, ?, ?, ?, ?)
+     VALUES (?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT (${FriendProfileCacheCol.ownerId}, ${FriendProfileCacheCol.friendId}) DO UPDATE SET
        ${FriendProfileCacheCol.displayName} = excluded.${FriendProfileCacheCol.displayName},
        ${FriendProfileCacheCol.username} = excluded.${FriendProfileCacheCol.username},
        ${FriendProfileCacheCol.avatarConfig} = excluded.${FriendProfileCacheCol.avatarConfig},
        ${FriendProfileCacheCol.updatedAt} = excluded.${FriendProfileCacheCol.updatedAt}`,
     [
+      pairId(args.ownerId, args.friendId),
       args.ownerId,
       args.friendId,
       args.displayName,

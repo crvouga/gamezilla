@@ -4,7 +4,7 @@
  * `options` holds partial DiceBear style + core options (arrays for enums/colors, etc.).
  */
 
-export const DEFAULT_AVATAR_STYLE = 'lorelei';
+export const DEFAULT_AVATAR_STYLE = 'funEmoji';
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
   return v !== null && typeof v === 'object' && !Array.isArray(v);

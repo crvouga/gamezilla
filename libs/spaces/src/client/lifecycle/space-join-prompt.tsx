@@ -13,7 +13,7 @@ import {
   Box,
   CodeIcon,
   EmptyState,
-  HouseIcon,
+  Gamepad2Icon,
   LoadingState,
   ScreenBase,
   Text,
@@ -82,7 +82,7 @@ function JoinPromptBody({
   if (snapshot.status === 'unavailable') {
     return (
       <EmptyState
-        icon={HouseIcon}
+        icon={Gamepad2Icon}
         title={<Trans>This space is not available</Trans>}
         body={<Trans>It may have ended or the link might be invalid.</Trans>}
         action={{ label: t`Back to Spaces`, onPress: () => nav('/') }}

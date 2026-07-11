@@ -4,6 +4,7 @@ import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 
 export const ProfileField = {
   displayName: 'displayName',
+  username: 'username',
   avatarConfig: 'avatarConfig',
   createdAt: 'createdAt',
 } as const satisfies Record<string, keyof typeof ProfileCol>;

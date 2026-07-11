@@ -2,7 +2,10 @@ import {
   INITIAL_SYNC_STATUS,
   type SyncEngineStatus,
 } from '@pkgs/sync-engine/client/sync-status';
-import type { SyncEngine, WatchSubscription } from '@pkgs/sync-engine/client/sync-engine-port';
+import type {
+  SyncEngine,
+  WatchSubscription,
+} from '@pkgs/sync-engine/client/sync-engine-port';
 import type { SyncStreamSubscription } from '@pkgs/sync-engine/client/sync-stream-subscription';
 
 import type { PowerSyncDatabasePort } from './powersync-database-port';

@@ -1,0 +1,2382 @@
+[
+  {
+    "id": "navigation.click",
+    "category": "navigation",
+    "filename": "navigation/click.wav",
+    "durationMs": 97,
+    "tags": [
+      "tap",
+      "button"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/click_001.ogg",
+    "intendedUsage": "Default button press",
+    "status": "active"
+  },
+  {
+    "id": "navigation.clickPrimary",
+    "category": "navigation",
+    "filename": "navigation/click-primary.wav",
+    "durationMs": 12,
+    "tags": [
+      "tap",
+      "primary"
+    ],
+    "volume": 0.95,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/click_002.ogg",
+    "intendedUsage": "Primary CTA button",
+    "status": "active"
+  },
+  {
+    "id": "navigation.clickSecondary",
+    "category": "navigation",
+    "filename": "navigation/click-secondary.wav",
+    "durationMs": 89,
+    "tags": [
+      "tap",
+      "secondary"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/ui-audio",
+    "sourceFile": "kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/click3.wav",
+    "intendedUsage": "Secondary / ghost button",
+    "status": "active"
+  },
+  {
+    "id": "navigation.clickDestructive",
+    "category": "navigation",
+    "filename": "navigation/click-destructive.wav",
+    "durationMs": 7,
+    "tags": [
+      "tap",
+      "destructive"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/click_005.ogg",
+    "intendedUsage": "Destructive action button",
+    "status": "active"
+  },
+  {
+    "id": "navigation.release",
+    "category": "navigation",
+    "filename": "navigation/release.wav",
+    "durationMs": 82,
+    "tags": [
+      "release"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/ui-audio",
+    "sourceFile": "kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/mouserelease1.wav",
+    "intendedUsage": "Button release (desktop)",
+    "status": "active"
+  },
+  {
+    "id": "navigation.hover",
+    "category": "navigation",
+    "filename": "navigation/hover.wav",
+    "durationMs": 62,
+    "tags": [
+      "hover",
+      "desktop"
+    ],
+    "volume": 0.6,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/ui-audio",
+    "sourceFile": "kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/rollover2.wav",
+    "intendedUsage": "Pointer hover (desktop only)",
+    "status": "active"
+  },
+  {
+    "id": "navigation.focus",
+    "category": "navigation",
+    "filename": "navigation/focus.wav",
+    "durationMs": 45,
+    "tags": [
+      "focus",
+      "keyboard"
+    ],
+    "volume": 0.7,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/tick_001.ogg",
+    "intendedUsage": "Keyboard focus move",
+    "status": "active"
+  },
+  {
+    "id": "navigation.tabSwitch",
+    "category": "navigation",
+    "filename": "navigation/tab-switch.wav",
+    "durationMs": 615,
+    "tags": [
+      "tab"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/switch_001.ogg",
+    "intendedUsage": "Tab bar switch",
+    "status": "active"
+  },
+  {
+    "id": "navigation.pageForward",
+    "category": "navigation",
+    "filename": "navigation/page-forward.wav",
+    "durationMs": 40,
+    "tags": [
+      "page",
+      "forward"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/select_001.ogg",
+    "intendedUsage": "Forward navigation / push route",
+    "status": "active"
+  },
+  {
+    "id": "navigation.pageBack",
+    "category": "navigation",
+    "filename": "navigation/page-back.wav",
+    "durationMs": 61,
+    "tags": [
+      "page",
+      "back"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/back_001.ogg",
+    "intendedUsage": "Back navigation",
+    "status": "active"
+  },
+  {
+    "id": "navigation.drawerOpen",
+    "category": "navigation",
+    "filename": "navigation/drawer-open.wav",
+    "durationMs": 148,
+    "tags": [
+      "drawer",
+      "open"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/open_001.ogg",
+    "intendedUsage": "Drawer / side panel open",
+    "status": "active"
+  },
+  {
+    "id": "navigation.drawerClose",
+    "category": "navigation",
+    "filename": "navigation/drawer-close.wav",
+    "durationMs": 148,
+    "tags": [
+      "drawer",
+      "close"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/close_001.ogg",
+    "intendedUsage": "Drawer / side panel close",
+    "status": "active"
+  },
+  {
+    "id": "navigation.modalOpen",
+    "category": "navigation",
+    "filename": "navigation/modal-open.wav",
+    "durationMs": 258,
+    "tags": [
+      "modal",
+      "open"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/maximize_001.ogg",
+    "intendedUsage": "Modal / dialog open",
+    "status": "active"
+  },
+  {
+    "id": "navigation.modalClose",
+    "category": "navigation",
+    "filename": "navigation/modal-close.wav",
+    "durationMs": 258,
+    "tags": [
+      "modal",
+      "close"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/minimize_001.ogg",
+    "intendedUsage": "Modal / dialog close",
+    "status": "active"
+  },
+  {
+    "id": "navigation.back",
+    "category": "navigation",
+    "filename": "navigation/back.wav",
+    "durationMs": 91,
+    "tags": [
+      "back"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/back_002.ogg",
+    "intendedUsage": "Header back button",
+    "status": "active"
+  },
+  {
+    "id": "navigation.forward",
+    "category": "navigation",
+    "filename": "navigation/forward.wav",
+    "durationMs": 40,
+    "tags": [
+      "forward"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/select_002.ogg",
+    "intendedUsage": "Forward action",
+    "status": "active"
+  },
+  {
+    "id": "navigation.dropdownOpen",
+    "category": "navigation",
+    "filename": "navigation/dropdown-open.wav",
+    "durationMs": 132,
+    "tags": [
+      "dropdown"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/drop_001.ogg",
+    "intendedUsage": "Dropdown / menu open",
+    "status": "active"
+  },
+  {
+    "id": "navigation.dropdownSelect",
+    "category": "navigation",
+    "filename": "navigation/dropdown-select.wav",
+    "durationMs": 376,
+    "tags": [
+      "dropdown",
+      "select"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/select_003.ogg",
+    "intendedUsage": "Dropdown item select",
+    "status": "active"
+  },
+  {
+    "id": "navigation.accordionExpand",
+    "category": "navigation",
+    "filename": "navigation/accordion-expand.wav",
+    "durationMs": 314,
+    "tags": [
+      "accordion"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/open_002.ogg",
+    "intendedUsage": "Accordion expand",
+    "status": "active"
+  },
+  {
+    "id": "navigation.accordionCollapse",
+    "category": "navigation",
+    "filename": "navigation/accordion-collapse.wav",
+    "durationMs": 314,
+    "tags": [
+      "accordion"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/close_002.ogg",
+    "intendedUsage": "Accordion collapse",
+    "status": "active"
+  },
+  {
+    "id": "feedback.success",
+    "category": "feedback",
+    "filename": "feedback/success.wav",
+    "durationMs": 539,
+    "tags": [
+      "success",
+      "mutation"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/confirmation_002.ogg",
+    "intendedUsage": "Mutation success, save complete",
+    "status": "active"
+  },
+  {
+    "id": "feedback.successSubtle",
+    "category": "feedback",
+    "filename": "feedback/success-subtle.wav",
+    "durationMs": 290,
+    "tags": [
+      "success",
+      "subtle"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/confirmation_001.ogg",
+    "intendedUsage": "Lightweight positive ack",
+    "status": "active"
+  },
+  {
+    "id": "feedback.failure",
+    "category": "feedback",
+    "filename": "feedback/failure.wav",
+    "durationMs": 105,
+    "tags": [
+      "failure",
+      "mutation"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/error_004.ogg",
+    "intendedUsage": "Mutation error",
+    "status": "active"
+  },
+  {
+    "id": "feedback.failureSubtle",
+    "category": "feedback",
+    "filename": "feedback/failure-subtle.wav",
+    "durationMs": 165,
+    "tags": [
+      "failure",
+      "subtle"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/error_002.ogg",
+    "intendedUsage": "Soft error ack",
+    "status": "active"
+  },
+  {
+    "id": "feedback.warning",
+    "category": "feedback",
+    "filename": "feedback/warning.wav",
+    "durationMs": 491,
+    "tags": [
+      "warning"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/question_001.ogg",
+    "intendedUsage": "Warning / caution state",
+    "status": "active"
+  },
+  {
+    "id": "feedback.error",
+    "category": "feedback",
+    "filename": "feedback/error.wav",
+    "durationMs": 486,
+    "tags": [
+      "error"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/error_006.ogg",
+    "intendedUsage": "Hard error",
+    "status": "active"
+  },
+  {
+    "id": "feedback.info",
+    "category": "feedback",
+    "filename": "feedback/info.wav",
+    "durationMs": 20,
+    "tags": [
+      "info"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/tick_002.ogg",
+    "intendedUsage": "Informational toast",
+    "status": "active"
+  },
+  {
+    "id": "feedback.confirmation",
+    "category": "feedback",
+    "filename": "feedback/confirmation.wav",
+    "durationMs": 322,
+    "tags": [
+      "confirm"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/confirmation_003.ogg",
+    "intendedUsage": "Confirm dialog accept",
+    "status": "active"
+  },
+  {
+    "id": "feedback.cancel",
+    "category": "feedback",
+    "filename": "feedback/cancel.wav",
+    "durationMs": 90,
+    "tags": [
+      "cancel"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/back_003.ogg",
+    "intendedUsage": "Cancel / dismiss",
+    "status": "active"
+  },
+  {
+    "id": "feedback.undo",
+    "category": "feedback",
+    "filename": "feedback/undo.wav",
+    "durationMs": 139,
+    "tags": [
+      "undo"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/scratch_001.ogg",
+    "intendedUsage": "Undo action",
+    "status": "active"
+  },
+  {
+    "id": "feedback.retry",
+    "category": "feedback",
+    "filename": "feedback/retry.wav",
+    "durationMs": 17,
+    "tags": [
+      "retry"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/glitch_001.ogg",
+    "intendedUsage": "Retry after error",
+    "status": "active"
+  },
+  {
+    "id": "notifications.notification",
+    "category": "notifications",
+    "filename": "notifications/notification.wav",
+    "durationMs": 120,
+    "tags": [
+      "notification"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/bong_001.ogg",
+    "intendedUsage": "Generic notification",
+    "status": "active"
+  },
+  {
+    "id": "notifications.notificationUrgent",
+    "category": "notifications",
+    "filename": "notifications/notification-urgent.wav",
+    "durationMs": 5000,
+    "tags": [
+      "notification",
+      "urgent"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/sci-fi-sounds",
+    "sourceFile": "pingthings-kenney-packs/pingthings-main/packs/kenney-scifi/sounds/thruster-1.ogg",
+    "intendedUsage": "Urgent alert",
+    "status": "active"
+  },
+  {
+    "id": "notifications.mention",
+    "category": "notifications",
+    "filename": "notifications/mention.wav",
+    "durationMs": 100,
+    "tags": [
+      "mention"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/pluck_001.ogg",
+    "intendedUsage": "@mention ping",
+    "status": "active"
+  },
+  {
+    "id": "notifications.reminder",
+    "category": "notifications",
+    "filename": "notifications/reminder.wav",
+    "durationMs": 55,
+    "tags": [
+      "reminder"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/tick_004.ogg",
+    "intendedUsage": "Reminder nudge",
+    "status": "active"
+  },
+  {
+    "id": "notifications.achievement",
+    "category": "notifications",
+    "filename": "notifications/achievement.wav",
+    "durationMs": 563,
+    "tags": [
+      "achievement",
+      "stinger"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA04.ogg",
+    "intendedUsage": "Achievement unlocked",
+    "status": "active"
+  },
+  {
+    "id": "notifications.reward",
+    "category": "notifications",
+    "filename": "notifications/reward.wav",
+    "durationMs": 536,
+    "tags": [
+      "reward",
+      "stinger"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA05.ogg",
+    "intendedUsage": "Reward collected",
+    "status": "active"
+  },
+  {
+    "id": "notifications.badgeUnlocked",
+    "category": "notifications",
+    "filename": "notifications/badge-unlocked.wav",
+    "durationMs": 690,
+    "tags": [
+      "badge",
+      "stinger"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA06.ogg",
+    "intendedUsage": "Badge unlocked",
+    "status": "active"
+  },
+  {
+    "id": "notifications.streak",
+    "category": "notifications",
+    "filename": "notifications/streak.wav",
+    "durationMs": 569,
+    "tags": [
+      "streak",
+      "stinger"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA08.ogg",
+    "intendedUsage": "Streak milestone",
+    "status": "active"
+  },
+  {
+    "id": "notifications.milestone",
+    "category": "notifications",
+    "filename": "notifications/milestone.wav",
+    "durationMs": 797,
+    "tags": [
+      "milestone",
+      "stinger"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA10.ogg",
+    "intendedUsage": "Progress milestone",
+    "status": "active"
+  },
+  {
+    "id": "notifications.levelUp",
+    "category": "notifications",
+    "filename": "notifications/level-up.wav",
+    "durationMs": 993,
+    "tags": [
+      "level-up",
+      "stinger"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA12.ogg",
+    "intendedUsage": "Level up",
+    "status": "active"
+  },
+  {
+    "id": "social.friendRequestReceived",
+    "category": "social",
+    "filename": "social/friend-request-received.wav",
+    "durationMs": 333,
+    "tags": [
+      "friends"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/question_002.ogg",
+    "intendedUsage": "Incoming friend request",
+    "status": "active"
+  },
+  {
+    "id": "social.friendRequestAccepted",
+    "category": "social",
+    "filename": "social/friend-request-accepted.wav",
+    "durationMs": 955,
+    "tags": [
+      "friends",
+      "stinger"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA02.ogg",
+    "intendedUsage": "Friend request accepted",
+    "status": "active"
+  },
+  {
+    "id": "social.friendRequestDeclined",
+    "category": "social",
+    "filename": "social/friend-request-declined.wav",
+    "durationMs": 532,
+    "tags": [
+      "friends"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/error_003.ogg",
+    "intendedUsage": "Friend request declined",
+    "status": "active"
+  },
+  {
+    "id": "social.friendOnline",
+    "category": "social",
+    "filename": "social/friend-online.wav",
+    "durationMs": 1090,
+    "tags": [
+      "presence"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/powerUp1.mp3",
+    "intendedUsage": "Friend came online",
+    "status": "active"
+  },
+  {
+    "id": "social.friendOffline",
+    "category": "social",
+    "filename": "social/friend-offline.wav",
+    "durationMs": 658,
+    "tags": [
+      "presence"
+    ],
+    "volume": 0.7,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/lowDown.mp3",
+    "intendedUsage": "Friend went offline",
+    "status": "active"
+  },
+  {
+    "id": "social.directMessage",
+    "category": "social",
+    "filename": "social/direct-message.wav",
+    "durationMs": 188,
+    "tags": [
+      "dm"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/drop_002.ogg",
+    "intendedUsage": "Direct message received",
+    "status": "active"
+  },
+  {
+    "id": "social.typingTick",
+    "category": "social",
+    "filename": "social/typing-tick.wav",
+    "durationMs": 45,
+    "tags": [
+      "typing"
+    ],
+    "volume": 0.5,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/tick_001.ogg",
+    "intendedUsage": "Typing indicator tick",
+    "status": "active"
+  },
+  {
+    "id": "social.partyInvite",
+    "category": "social",
+    "filename": "social/party-invite.wav",
+    "durationMs": 330,
+    "tags": [
+      "invite"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/question_003.ogg",
+    "intendedUsage": "Party invite received",
+    "status": "active"
+  },
+  {
+    "id": "social.roomInvite",
+    "category": "social",
+    "filename": "social/room-invite.wav",
+    "durationMs": 120,
+    "tags": [
+      "invite",
+      "room"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/bong_001.ogg",
+    "intendedUsage": "Room invite received",
+    "status": "active"
+  },
+  {
+    "id": "social.roomJoined",
+    "category": "social",
+    "filename": "social/room-joined.wav",
+    "durationMs": 322,
+    "tags": [
+      "room"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/powerUp2.mp3",
+    "intendedUsage": "Joined a room / space",
+    "status": "active"
+  },
+  {
+    "id": "social.roomLeft",
+    "category": "social",
+    "filename": "social/room-left.wav",
+    "durationMs": 658,
+    "tags": [
+      "room"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/lowDown.mp3",
+    "intendedUsage": "Left a room / space",
+    "status": "active"
+  },
+  {
+    "id": "social.playerJoined",
+    "category": "social",
+    "filename": "social/player-joined.wav",
+    "durationMs": 376,
+    "tags": [
+      "player"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/select_004.ogg",
+    "intendedUsage": "Another player joined",
+    "status": "active"
+  },
+  {
+    "id": "social.playerLeft",
+    "category": "social",
+    "filename": "social/player-left.wav",
+    "durationMs": 94,
+    "tags": [
+      "player"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/back_004.ogg",
+    "intendedUsage": "Player left session",
+    "status": "active"
+  },
+  {
+    "id": "social.userBlocked",
+    "category": "social",
+    "filename": "social/user-blocked.wav",
+    "durationMs": 471,
+    "tags": [
+      "block"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/error_005.ogg",
+    "intendedUsage": "User blocked",
+    "status": "active"
+  },
+  {
+    "id": "multiplayer.matchmakingFound",
+    "category": "multiplayer",
+    "filename": "multiplayer/matchmaking-found.wav",
+    "durationMs": 996,
+    "tags": [
+      "matchmaking"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA01.ogg",
+    "intendedUsage": "Match found",
+    "status": "active"
+  },
+  {
+    "id": "multiplayer.matchmakingCancelled",
+    "category": "multiplayer",
+    "filename": "multiplayer/matchmaking-cancelled.wav",
+    "durationMs": 61,
+    "tags": [
+      "matchmaking"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/back_001.ogg",
+    "intendedUsage": "Matchmaking cancelled",
+    "status": "active"
+  },
+  {
+    "id": "multiplayer.matchmakingFailed",
+    "category": "multiplayer",
+    "filename": "multiplayer/matchmaking-failed.wav",
+    "durationMs": 192,
+    "tags": [
+      "matchmaking"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/error_007.ogg",
+    "intendedUsage": "Matchmaking failed",
+    "status": "active"
+  },
+  {
+    "id": "multiplayer.countdownTick",
+    "category": "multiplayer",
+    "filename": "multiplayer/countdown-tick.wav",
+    "durationMs": 45,
+    "tags": [
+      "countdown"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/tick_001.ogg",
+    "intendedUsage": "Countdown tick",
+    "status": "active"
+  },
+  {
+    "id": "multiplayer.countdownFinal",
+    "category": "multiplayer",
+    "filename": "multiplayer/countdown-final.wav",
+    "durationMs": 120,
+    "tags": [
+      "countdown"
+    ],
+    "volume": 1,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/bong_001.ogg",
+    "intendedUsage": "Final countdown beat",
+    "status": "active"
+  },
+  {
+    "id": "multiplayer.gameStarting",
+    "category": "multiplayer",
+    "filename": "multiplayer/game-starting.wav",
+    "durationMs": 1147,
+    "tags": [
+      "game-start"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA03.ogg",
+    "intendedUsage": "Game starting",
+    "status": "active"
+  },
+  {
+    "id": "multiplayer.gameEnded",
+    "category": "multiplayer",
+    "filename": "multiplayer/game-ended.wav",
+    "durationMs": 923,
+    "tags": [
+      "game-end"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA14.ogg",
+    "intendedUsage": "Game session ended",
+    "status": "active"
+  },
+  {
+    "id": "multiplayer.reconnecting",
+    "category": "multiplayer",
+    "filename": "multiplayer/reconnecting.wav",
+    "durationMs": 27,
+    "tags": [
+      "connection"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/glitch_002.ogg",
+    "intendedUsage": "Reconnecting",
+    "status": "active"
+  },
+  {
+    "id": "multiplayer.connectionRestored",
+    "category": "multiplayer",
+    "filename": "multiplayer/connection-restored.wav",
+    "durationMs": 988,
+    "tags": [
+      "connection"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/powerUp3.mp3",
+    "intendedUsage": "Connection restored",
+    "status": "active"
+  },
+  {
+    "id": "multiplayer.disconnected",
+    "category": "multiplayer",
+    "filename": "multiplayer/disconnected.wav",
+    "durationMs": 162,
+    "tags": [
+      "connection"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/error_001.ogg",
+    "intendedUsage": "Disconnected from session",
+    "status": "active"
+  },
+  {
+    "id": "multiplayer.spectatorJoined",
+    "category": "multiplayer",
+    "filename": "multiplayer/spectator-joined.wav",
+    "durationMs": 376,
+    "tags": [
+      "spectator"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/select_005.ogg",
+    "intendedUsage": "Spectator joined",
+    "status": "active"
+  },
+  {
+    "id": "multiplayer.hostChanged",
+    "category": "multiplayer",
+    "filename": "multiplayer/host-changed.wav",
+    "durationMs": 608,
+    "tags": [
+      "host"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/switch_002.ogg",
+    "intendedUsage": "Host changed",
+    "status": "active"
+  },
+  {
+    "id": "chat.send",
+    "category": "chat",
+    "filename": "chat/send.wav",
+    "durationMs": 7,
+    "tags": [
+      "chat"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/click_003.ogg",
+    "intendedUsage": "Message sent",
+    "status": "active"
+  },
+  {
+    "id": "chat.receive",
+    "category": "chat",
+    "filename": "chat/receive.wav",
+    "durationMs": 188,
+    "tags": [
+      "chat"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/drop_003.ogg",
+    "intendedUsage": "Message received",
+    "status": "active"
+  },
+  {
+    "id": "chat.reaction",
+    "category": "chat",
+    "filename": "chat/reaction.wav",
+    "durationMs": 162,
+    "tags": [
+      "chat",
+      "reaction"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/pluck_002.ogg",
+    "intendedUsage": "Reaction added",
+    "status": "active"
+  },
+  {
+    "id": "chat.mention",
+    "category": "chat",
+    "filename": "chat/mention.wav",
+    "durationMs": 100,
+    "tags": [
+      "chat",
+      "mention"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/pluck_001.ogg",
+    "intendedUsage": "Mention in chat",
+    "status": "active"
+  },
+  {
+    "id": "chat.unread",
+    "category": "chat",
+    "filename": "chat/unread.wav",
+    "durationMs": 55,
+    "tags": [
+      "chat"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/tick_004.ogg",
+    "intendedUsage": "Unread message indicator",
+    "status": "active"
+  },
+  {
+    "id": "chat.threadReply",
+    "category": "chat",
+    "filename": "chat/thread-reply.wav",
+    "durationMs": 1918,
+    "tags": [
+      "chat",
+      "thread"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/select_006.ogg",
+    "intendedUsage": "Thread reply",
+    "status": "active"
+  },
+  {
+    "id": "chat.messageDeleted",
+    "category": "chat",
+    "filename": "chat/message-deleted.wav",
+    "durationMs": 139,
+    "tags": [
+      "chat"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/scratch_002.ogg",
+    "intendedUsage": "Message deleted",
+    "status": "active"
+  },
+  {
+    "id": "lobby.ready",
+    "category": "lobby",
+    "filename": "lobby/ready.wav",
+    "durationMs": 136,
+    "tags": [
+      "lobby"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/toggle_001.ogg",
+    "intendedUsage": "Player ready",
+    "status": "active"
+  },
+  {
+    "id": "lobby.unready",
+    "category": "lobby",
+    "filename": "lobby/unready.wav",
+    "durationMs": 136,
+    "tags": [
+      "lobby"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/toggle_002.ogg",
+    "intendedUsage": "Player unready",
+    "status": "active"
+  },
+  {
+    "id": "lobby.hostChanged",
+    "category": "lobby",
+    "filename": "lobby/host-changed.wav",
+    "durationMs": 500,
+    "tags": [
+      "lobby",
+      "host"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/switch_003.ogg",
+    "intendedUsage": "Lobby host changed",
+    "status": "active"
+  },
+  {
+    "id": "lobby.teamSwitched",
+    "category": "lobby",
+    "filename": "lobby/team-switched.wav",
+    "durationMs": 497,
+    "tags": [
+      "lobby",
+      "team"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/switch_004.ogg",
+    "intendedUsage": "Team switch",
+    "status": "active"
+  },
+  {
+    "id": "lobby.slotFilled",
+    "category": "lobby",
+    "filename": "lobby/slot-filled.wav",
+    "durationMs": 284,
+    "tags": [
+      "lobby"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/drop_004.ogg",
+    "intendedUsage": "Lobby slot filled",
+    "status": "active"
+  },
+  {
+    "id": "lobby.slotEmptied",
+    "category": "lobby",
+    "filename": "lobby/slot-emptied.wav",
+    "durationMs": 123,
+    "tags": [
+      "lobby"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/scratch_003.ogg",
+    "intendedUsage": "Lobby slot emptied",
+    "status": "active"
+  },
+  {
+    "id": "lobby.inviteAccepted",
+    "category": "lobby",
+    "filename": "lobby/invite-accepted.wav",
+    "durationMs": 490,
+    "tags": [
+      "lobby",
+      "invite"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/confirmation_004.ogg",
+    "intendedUsage": "Lobby invite accepted",
+    "status": "active"
+  },
+  {
+    "id": "lobby.settingsChanged",
+    "category": "lobby",
+    "filename": "lobby/settings-changed.wav",
+    "durationMs": 609,
+    "tags": [
+      "lobby"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/switch_005.ogg",
+    "intendedUsage": "Lobby settings changed",
+    "status": "active"
+  },
+  {
+    "id": "lobby.lobbyCountdownStart",
+    "category": "lobby",
+    "filename": "lobby/countdown-start.wav",
+    "durationMs": 120,
+    "tags": [
+      "lobby",
+      "countdown"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/bong_001.ogg",
+    "intendedUsage": "Lobby countdown start",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.turnStart",
+    "category": "gameplay",
+    "filename": "gameplay/turn-start.wav",
+    "durationMs": 60,
+    "tags": [
+      "turn"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/select_007.ogg",
+    "intendedUsage": "Turn begins",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.turnEnd",
+    "category": "gameplay",
+    "filename": "gameplay/turn-end.wav",
+    "durationMs": 91,
+    "tags": [
+      "turn"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/back_002.ogg",
+    "intendedUsage": "Turn ends",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.move",
+    "category": "gameplay",
+    "filename": "gameplay/move.wav",
+    "durationMs": 118,
+    "tags": [
+      "move"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/impact-sounds",
+    "sourceFile": "pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/soft-medium.ogg",
+    "intendedUsage": "Generic piece move",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.capture",
+    "category": "gameplay",
+    "filename": "gameplay/capture.wav",
+    "durationMs": 609,
+    "tags": [
+      "capture"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/impact-sounds",
+    "sourceFile": "pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/plate-medium.ogg",
+    "intendedUsage": "Capture / take piece",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.place",
+    "category": "gameplay",
+    "filename": "gameplay/place.wav",
+    "durationMs": 266,
+    "tags": [
+      "place"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/impact-sounds",
+    "sourceFile": "pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/wood-light.ogg",
+    "intendedUsage": "Place token on board",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.select",
+    "category": "gameplay",
+    "filename": "gameplay/select.wav",
+    "durationMs": 60,
+    "tags": [
+      "select"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/select_008.ogg",
+    "intendedUsage": "Select piece / tile",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.deselect",
+    "category": "gameplay",
+    "filename": "gameplay/deselect.wav",
+    "durationMs": 90,
+    "tags": [
+      "select"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/back_003.ogg",
+    "intendedUsage": "Deselect",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.timerWarning",
+    "category": "gameplay",
+    "filename": "gameplay/timer-warning.wav",
+    "durationMs": 55,
+    "tags": [
+      "timer"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/tick_004.ogg",
+    "intendedUsage": "Timer running low",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.timerExpired",
+    "category": "gameplay",
+    "filename": "gameplay/timer-expired.wav",
+    "durationMs": 486,
+    "tags": [
+      "timer"
+    ],
+    "volume": 0.95,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/error_006.ogg",
+    "intendedUsage": "Timer expired",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.victory",
+    "category": "gameplay",
+    "filename": "gameplay/victory.wav",
+    "durationMs": 806,
+    "tags": [
+      "victory",
+      "stinger"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA15.ogg",
+    "intendedUsage": "Victory",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.defeat",
+    "category": "gameplay",
+    "filename": "gameplay/defeat.wav",
+    "durationMs": 462,
+    "tags": [
+      "defeat",
+      "stinger"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA16.ogg",
+    "intendedUsage": "Defeat",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.draw",
+    "category": "gameplay",
+    "filename": "gameplay/draw.wav",
+    "durationMs": 568,
+    "tags": [
+      "draw",
+      "stinger"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA09.ogg",
+    "intendedUsage": "Draw / tie",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.scoreIncrease",
+    "category": "gameplay",
+    "filename": "gameplay/score-increase.wav",
+    "durationMs": 409,
+    "tags": [
+      "score"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/pepSound1.mp3",
+    "intendedUsage": "Score went up",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.scoreDecrease",
+    "category": "gameplay",
+    "filename": "gameplay/score-decrease.wav",
+    "durationMs": 658,
+    "tags": [
+      "score"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/lowDown.mp3",
+    "intendedUsage": "Score went down",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.combo",
+    "category": "gameplay",
+    "filename": "gameplay/combo.wav",
+    "durationMs": 389,
+    "tags": [
+      "combo"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/highUp.mp3",
+    "intendedUsage": "Combo streak",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.comboBreak",
+    "category": "gameplay",
+    "filename": "gameplay/combo-break.wav",
+    "durationMs": 12,
+    "tags": [
+      "combo"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/glitch_003.ogg",
+    "intendedUsage": "Combo broken",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.checkpoint",
+    "category": "gameplay",
+    "filename": "gameplay/checkpoint.wav",
+    "durationMs": 1324,
+    "tags": [
+      "checkpoint",
+      "stinger"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA07.ogg",
+    "intendedUsage": "Checkpoint reached",
+    "status": "active"
+  },
+  {
+    "id": "gameplay.invalidMove",
+    "category": "gameplay",
+    "filename": "gameplay/invalid-move.wav",
+    "durationMs": 532,
+    "tags": [
+      "invalid"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/error_003.ogg",
+    "intendedUsage": "Illegal move / action",
+    "status": "active"
+  },
+  {
+    "id": "forms.checkboxOn",
+    "category": "forms",
+    "filename": "forms/checkbox-on.wav",
+    "durationMs": 139,
+    "tags": [
+      "checkbox"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/toggle_003.ogg",
+    "intendedUsage": "Checkbox checked",
+    "status": "active"
+  },
+  {
+    "id": "forms.checkboxOff",
+    "category": "forms",
+    "filename": "forms/checkbox-off.wav",
+    "durationMs": 63,
+    "tags": [
+      "checkbox"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/toggle_004.ogg",
+    "intendedUsage": "Checkbox unchecked",
+    "status": "active"
+  },
+  {
+    "id": "forms.radioSelect",
+    "category": "forms",
+    "filename": "forms/radio-select.wav",
+    "durationMs": 40,
+    "tags": [
+      "radio"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/select_001.ogg",
+    "intendedUsage": "Radio option selected",
+    "status": "active"
+  },
+  {
+    "id": "forms.toggleOn",
+    "category": "forms",
+    "filename": "forms/toggle-on.wav",
+    "durationMs": 260,
+    "tags": [
+      "toggle"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/ui-audio",
+    "sourceFile": "kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/switch1.wav",
+    "intendedUsage": "Toggle on",
+    "status": "active"
+  },
+  {
+    "id": "forms.toggleOff",
+    "category": "forms",
+    "filename": "forms/toggle-off.wav",
+    "durationMs": 290,
+    "tags": [
+      "toggle"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/ui-audio",
+    "sourceFile": "kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/switch2.wav",
+    "intendedUsage": "Toggle off",
+    "status": "active"
+  },
+  {
+    "id": "forms.sliderTick",
+    "category": "forms",
+    "filename": "forms/slider-tick.wav",
+    "durationMs": 45,
+    "tags": [
+      "slider"
+    ],
+    "volume": 0.6,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/tick_001.ogg",
+    "intendedUsage": "Slider step tick",
+    "status": "active"
+  },
+  {
+    "id": "forms.sliderCommit",
+    "category": "forms",
+    "filename": "forms/slider-commit.wav",
+    "durationMs": 188,
+    "tags": [
+      "slider"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/drop_002.ogg",
+    "intendedUsage": "Slider release / commit",
+    "status": "active"
+  },
+  {
+    "id": "forms.textFieldFocus",
+    "category": "forms",
+    "filename": "forms/text-field-focus.wav",
+    "durationMs": 20,
+    "tags": [
+      "input"
+    ],
+    "volume": 0.7,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/tick_002.ogg",
+    "intendedUsage": "Text field focus",
+    "status": "active"
+  },
+  {
+    "id": "forms.validationSuccess",
+    "category": "forms",
+    "filename": "forms/validation-success.wav",
+    "durationMs": 290,
+    "tags": [
+      "validation"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/confirmation_001.ogg",
+    "intendedUsage": "Field validation passed",
+    "status": "active"
+  },
+  {
+    "id": "forms.validationError",
+    "category": "forms",
+    "filename": "forms/validation-error.wav",
+    "durationMs": 165,
+    "tags": [
+      "validation"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/error_002.ogg",
+    "intendedUsage": "Field validation failed",
+    "status": "active"
+  },
+  {
+    "id": "forms.pickerOpen",
+    "category": "forms",
+    "filename": "forms/picker-open.wav",
+    "durationMs": 314,
+    "tags": [
+      "picker"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/open_003.ogg",
+    "intendedUsage": "Picker / date wheel open",
+    "status": "active"
+  },
+  {
+    "id": "forms.pickerSelect",
+    "category": "forms",
+    "filename": "forms/picker-select.wav",
+    "durationMs": 1000,
+    "tags": [
+      "picker"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/scroll_001.ogg",
+    "intendedUsage": "Picker value selected",
+    "status": "active"
+  },
+  {
+    "id": "forms.stepperUp",
+    "category": "forms",
+    "filename": "forms/stepper-up.wav",
+    "durationMs": 389,
+    "tags": [
+      "stepper"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/highUp.mp3",
+    "intendedUsage": "Stepper increment",
+    "status": "active"
+  },
+  {
+    "id": "forms.stepperDown",
+    "category": "forms",
+    "filename": "forms/stepper-down.wav",
+    "durationMs": 658,
+    "tags": [
+      "stepper"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/lowDown.mp3",
+    "intendedUsage": "Stepper decrement",
+    "status": "active"
+  },
+  {
+    "id": "commerce.purchase",
+    "category": "commerce",
+    "filename": "commerce/purchase.wav",
+    "durationMs": 793,
+    "tags": [
+      "commerce",
+      "stinger"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/music-jingles",
+    "sourceFile": "jingleSounds_Kenney/OGG/jingles_PIZZA/jingles_PIZZA11.ogg",
+    "intendedUsage": "Purchase complete",
+    "status": "active"
+  },
+  {
+    "id": "commerce.refund",
+    "category": "commerce",
+    "filename": "commerce/refund.wav",
+    "durationMs": 94,
+    "tags": [
+      "commerce"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/back_004.ogg",
+    "intendedUsage": "Refund processed",
+    "status": "active"
+  },
+  {
+    "id": "commerce.coins",
+    "category": "commerce",
+    "filename": "commerce/coins.wav",
+    "durationMs": 584,
+    "tags": [
+      "coins"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/casino-audio",
+    "sourceFile": "kenney_casino-audio/Audio/chips-handle-1.ogg",
+    "intendedUsage": "Coins collected",
+    "status": "active"
+  },
+  {
+    "id": "commerce.gems",
+    "category": "commerce",
+    "filename": "commerce/gems.wav",
+    "durationMs": 446,
+    "tags": [
+      "gems"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/rpg-audio",
+    "sourceFile": "RPGsounds_Kenney/OGG/metalClick.ogg",
+    "intendedUsage": "Gems / premium currency",
+    "status": "active"
+  },
+  {
+    "id": "commerce.unlock",
+    "category": "commerce",
+    "filename": "commerce/unlock.wav",
+    "durationMs": 258,
+    "tags": [
+      "unlock"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/rpg-audio",
+    "sourceFile": "RPGsounds_Kenney/OGG/metalLatch.ogg",
+    "intendedUsage": "Item unlocked",
+    "status": "active"
+  },
+  {
+    "id": "commerce.inventoryAdd",
+    "category": "commerce",
+    "filename": "commerce/inventory-add.wav",
+    "durationMs": 277,
+    "tags": [
+      "inventory"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/rpg-audio",
+    "sourceFile": "RPGsounds_Kenney/OGG/bookPlace1.ogg",
+    "intendedUsage": "Item added to inventory",
+    "status": "active"
+  },
+  {
+    "id": "commerce.inventoryRemove",
+    "category": "commerce",
+    "filename": "commerce/inventory-remove.wav",
+    "durationMs": 415,
+    "tags": [
+      "inventory"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/rpg-audio",
+    "sourceFile": "RPGsounds_Kenney/OGG/dropLeather.ogg",
+    "intendedUsage": "Item removed from inventory",
+    "status": "active"
+  },
+  {
+    "id": "voice.micEnabled",
+    "category": "voice",
+    "filename": "voice/mic-enabled.wav",
+    "durationMs": 1090,
+    "tags": [
+      "voice",
+      "mic"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/powerUp1.mp3",
+    "intendedUsage": "Microphone enabled",
+    "status": "active"
+  },
+  {
+    "id": "voice.micMuted",
+    "category": "voice",
+    "filename": "voice/mic-muted.wav",
+    "durationMs": 658,
+    "tags": [
+      "voice",
+      "mic"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/lowDown.mp3",
+    "intendedUsage": "Microphone muted",
+    "status": "active"
+  },
+  {
+    "id": "voice.speakerEnabled",
+    "category": "voice",
+    "filename": "voice/speaker-enabled.wav",
+    "durationMs": 322,
+    "tags": [
+      "voice",
+      "speaker"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/powerUp2.mp3",
+    "intendedUsage": "Speaker enabled",
+    "status": "active"
+  },
+  {
+    "id": "voice.speakerMuted",
+    "category": "voice",
+    "filename": "voice/speaker-muted.wav",
+    "durationMs": 314,
+    "tags": [
+      "voice",
+      "speaker"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/close_003.ogg",
+    "intendedUsage": "Speaker muted",
+    "status": "active"
+  },
+  {
+    "id": "voice.voiceConnected",
+    "category": "voice",
+    "filename": "voice/voice-connected.wav",
+    "durationMs": 988,
+    "tags": [
+      "voice"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/powerUp3.mp3",
+    "intendedUsage": "Voice channel connected",
+    "status": "active"
+  },
+  {
+    "id": "voice.voiceDisconnected",
+    "category": "voice",
+    "filename": "voice/voice-disconnected.wav",
+    "durationMs": 162,
+    "tags": [
+      "voice"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/error_001.ogg",
+    "intendedUsage": "Voice channel disconnected",
+    "status": "active"
+  },
+  {
+    "id": "voice.pushToTalkOn",
+    "category": "voice",
+    "filename": "voice/push-to-talk-on.wav",
+    "durationMs": 136,
+    "tags": [
+      "voice",
+      "ptt"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/toggle_001.ogg",
+    "intendedUsage": "Push-to-talk pressed",
+    "status": "active"
+  },
+  {
+    "id": "voice.pushToTalkOff",
+    "category": "voice",
+    "filename": "voice/push-to-talk-off.wav",
+    "durationMs": 136,
+    "tags": [
+      "voice",
+      "ptt"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/toggle_002.ogg",
+    "intendedUsage": "Push-to-talk released",
+    "status": "active"
+  },
+  {
+    "id": "misc.loadingComplete",
+    "category": "misc",
+    "filename": "misc/loading-complete.wav",
+    "durationMs": 539,
+    "tags": [
+      "loading"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/confirmation_002.ogg",
+    "intendedUsage": "Loading finished",
+    "status": "active"
+  },
+  {
+    "id": "misc.refresh",
+    "category": "misc",
+    "filename": "misc/refresh.wav",
+    "durationMs": 1000,
+    "tags": [
+      "refresh"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/scroll_002.ogg",
+    "intendedUsage": "Pull to refresh complete",
+    "status": "active"
+  },
+  {
+    "id": "misc.syncStarted",
+    "category": "misc",
+    "filename": "misc/sync-started.wav",
+    "durationMs": 347,
+    "tags": [
+      "sync"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/phaseJump1.mp3",
+    "intendedUsage": "Sync started",
+    "status": "active"
+  },
+  {
+    "id": "misc.syncCompleted",
+    "category": "misc",
+    "filename": "misc/sync-completed.wav",
+    "durationMs": 388,
+    "tags": [
+      "sync"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/digital-audio",
+    "sourceFile": "Digital_SFX_Set/powerUp4.mp3",
+    "intendedUsage": "Sync completed",
+    "status": "active"
+  },
+  {
+    "id": "misc.syncFailed",
+    "category": "misc",
+    "filename": "misc/sync-failed.wav",
+    "durationMs": 486,
+    "tags": [
+      "sync"
+    ],
+    "volume": 0.9,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/error_006.ogg",
+    "intendedUsage": "Sync failed",
+    "status": "active"
+  },
+  {
+    "id": "misc.downloadComplete",
+    "category": "misc",
+    "filename": "misc/download-complete.wav",
+    "durationMs": 284,
+    "tags": [
+      "download"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/drop_004.ogg",
+    "intendedUsage": "Download complete",
+    "status": "active"
+  },
+  {
+    "id": "misc.uploadComplete",
+    "category": "misc",
+    "filename": "misc/upload-complete.wav",
+    "durationMs": 322,
+    "tags": [
+      "upload"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/confirmation_003.ogg",
+    "intendedUsage": "Upload complete",
+    "status": "active"
+  },
+  {
+    "id": "misc.search",
+    "category": "misc",
+    "filename": "misc/search.wav",
+    "durationMs": 1000,
+    "tags": [
+      "search"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/scroll_003.ogg",
+    "intendedUsage": "Search submitted",
+    "status": "active"
+  },
+  {
+    "id": "misc.searchClear",
+    "category": "misc",
+    "filename": "misc/search-clear.wav",
+    "durationMs": 325,
+    "tags": [
+      "search"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/scratch_004.ogg",
+    "intendedUsage": "Search cleared",
+    "status": "active"
+  },
+  {
+    "id": "misc.favorite",
+    "category": "misc",
+    "filename": "misc/favorite.wav",
+    "durationMs": 162,
+    "tags": [
+      "favorite"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/pluck_002.ogg",
+    "intendedUsage": "Favorited",
+    "status": "active"
+  },
+  {
+    "id": "misc.unfavorite",
+    "category": "misc",
+    "filename": "misc/unfavorite.wav",
+    "durationMs": 325,
+    "tags": [
+      "favorite"
+    ],
+    "volume": 0.75,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/scratch_005.ogg",
+    "intendedUsage": "Unfavorited",
+    "status": "active"
+  },
+  {
+    "id": "misc.bookmark",
+    "category": "misc",
+    "filename": "misc/bookmark.wav",
+    "durationMs": 143,
+    "tags": [
+      "bookmark"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/rpg-audio",
+    "sourceFile": "RPGsounds_Kenney/OGG/bookOpen.ogg",
+    "intendedUsage": "Bookmarked",
+    "status": "active"
+  },
+  {
+    "id": "misc.pin",
+    "category": "misc",
+    "filename": "misc/pin.wav",
+    "durationMs": 205,
+    "tags": [
+      "pin"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/impact-sounds",
+    "sourceFile": "pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/tin-medium.ogg",
+    "intendedUsage": "Pinned item",
+    "status": "active"
+  },
+  {
+    "id": "misc.archive",
+    "category": "misc",
+    "filename": "misc/archive.wav",
+    "durationMs": 218,
+    "tags": [
+      "archive"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/rpg-audio",
+    "sourceFile": "RPGsounds_Kenney/OGG/bookClose.ogg",
+    "intendedUsage": "Archived item",
+    "status": "active"
+  },
+  {
+    "id": "misc.delete",
+    "category": "misc",
+    "filename": "misc/delete.wav",
+    "durationMs": 139,
+    "tags": [
+      "delete"
+    ],
+    "volume": 0.85,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/scratch_001.ogg",
+    "intendedUsage": "Deleted item",
+    "status": "active"
+  },
+  {
+    "id": "misc.share",
+    "category": "misc",
+    "filename": "misc/share.wav",
+    "durationMs": 376,
+    "tags": [
+      "share"
+    ],
+    "volume": 0.8,
+    "license": "CC0-1.0",
+    "attribution": "Kenney (kenney.nl) — optional credit",
+    "sourceUrl": "https://kenney.nl/assets/interface-sounds",
+    "sourceFile": "kenney_interfaceSounds/Audio/select_004.ogg",
+    "intendedUsage": "Shared content",
+    "status": "active"
+  }
+]

@@ -89,9 +89,11 @@
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
         "@libs/db": "workspace:*",
+        "@libs/friends": "workspace:*",
         "@libs/games": "workspace:*",
         "@libs/integration-test": "workspace:*",
         "@libs/profile": "workspace:*",
+        "@libs/search": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
@@ -230,6 +232,7 @@
         "@pkgs/message": "workspace:*",
         "@pkgs/room": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
+        "@pkgs/sounds": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/ui": "workspace:*",
@@ -296,6 +299,7 @@
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/sounds": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/ui": "workspace:*",
@@ -388,6 +392,26 @@
         "typescript": "catalog:",
       },
     },
+    "libs/search": {
+      "name": "@libs/search",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/auth": "workspace:*",
+        "@libs/friends": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/react": "catalog:",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/ui": "workspace:*",
+        "expo-router": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+      },
+      "devDependencies": {
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/spaces": {
       "name": "@libs/spaces",
       "version": "0.0.0",
@@ -400,6 +424,7 @@
         "@pkgs/kv": "workspace:*",
         "@pkgs/message": "workspace:*",
         "@pkgs/room": "workspace:*",
+        "@pkgs/sounds": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/ui": "workspace:*",
@@ -551,6 +576,7 @@
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/sounds": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "@shopify/react-native-skia": "catalog:",
         "chess.js": "catalog:",
@@ -860,6 +886,23 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/sounds": {
+      "name": "@pkgs/sounds",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/ui": "workspace:*",
+        "expo-audio": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/sql": {
       "name": "@pkgs/sql",
       "version": "0.0.0",
@@ -992,6 +1035,7 @@
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/object-store": "workspace:*",
+        "@pkgs/sounds": "workspace:*",
         "@pkgs/tts": "workspace:*",
         "@react-navigation/native": "catalog:",
         "@shopify/react-native-skia": "catalog:",
@@ -1832,6 +1876,8 @@
 
     "@libs/profile": ["@libs/profile@workspace:libs/profile"],
 
+    "@libs/search": ["@libs/search@workspace:libs/search"],
+
     "@libs/spaces": ["@libs/spaces@workspace:libs/spaces"],
 
     "@libs/stripe": ["@libs/stripe@workspace:libs/stripe"],
@@ -2071,6 +2117,8 @@
     "@pkgs/secrets-config": ["@pkgs/secrets-config@workspace:pkgs/secrets-config"],
 
     "@pkgs/secure-storage": ["@pkgs/secure-storage@workspace:pkgs/secure-storage"],
+
+    "@pkgs/sounds": ["@pkgs/sounds@workspace:pkgs/sounds"],
 
     "@pkgs/sql": ["@pkgs/sql@workspace:pkgs/sql"],
 

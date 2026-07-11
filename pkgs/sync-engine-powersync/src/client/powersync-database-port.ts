@@ -25,9 +25,7 @@ export type PowerSyncDatabasePort = {
   writeTransaction<T>(
     fn: (tx: PowerSyncDatabasePort) => Promise<T>
   ): Promise<T>;
-  registerListener(listener: {
-    statusChanged?: () => void;
-  }): () => void;
+  registerListener(listener: { statusChanged?: () => void }): () => void;
   readonly currentStatus: {
     readonly connected: boolean;
     readonly connecting: boolean;

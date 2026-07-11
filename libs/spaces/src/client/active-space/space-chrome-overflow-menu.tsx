@@ -1,7 +1,7 @@
 import {
   CodeIcon,
   CopyIcon,
-  HouseIcon,
+  Gamepad2Icon,
   LogOutIcon,
   PaintbrushIcon,
   SettingsIcon,
@@ -160,7 +160,7 @@ function buildNavAndDevActions(
     {
       id: 'spaces-home',
       label: labels.home,
-      icon: HouseIcon,
+      icon: Gamepad2Icon,
       onPress: callbacks.onPressHome,
     },
     {

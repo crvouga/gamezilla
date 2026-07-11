@@ -1,12 +1,8 @@
-import { SpaceCard } from './card/space-card';
-import { useSpaceActions } from './lifecycle/space-actions';
-import { useSpaceMiniplayerLayoutInsets } from './miniplayer/use-space-miniplayer-layout-insets';
-import { useCurrentSpaceCount } from './use-current-space-count';
-import { useLiveSpaceIds } from './use-live-space-ids';
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
   EmptyState,
-  HouseIcon,
+  Gamepad2Icon,
   LoadingState,
   PlusIcon,
   ScreenBase,
@@ -15,10 +11,14 @@ import {
   type ScreenBaseAction,
   type ScreenBasePrimaryAction,
 } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useMemo, type ReactNode } from 'react';
+import { SpaceCard } from './card/space-card';
+import { useSpaceActions } from './lifecycle/space-actions';
+import { useSpaceMiniplayerLayoutInsets } from './miniplayer/use-space-miniplayer-layout-insets';
 import { openSpaceDetail } from './space-routes';
+import { useCurrentSpaceCount } from './use-current-space-count';
+import { useLiveSpaceIds } from './use-live-space-ids';
 
 function SpacesList({ bottomInset }: { bottomInset: number }) {
   const { spaceIds, isLoading } = useLiveSpaceIds();
@@ -27,11 +27,7 @@ function SpacesList({ bottomInset }: { bottomInset: number }) {
   }
   if (spaceIds.length === 0) {
     return (
-      <EmptyState
-        icon={HouseIcon}
-        title={<Trans>No live spaces</Trans>}
-        body={<Trans>Use New space to start one.</Trans>}
-      />
+      <EmptyState icon={Gamepad2Icon} title={<Trans>No live spaces</Trans>} />
     );
   }
   return (

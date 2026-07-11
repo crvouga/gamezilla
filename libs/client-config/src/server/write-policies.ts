@@ -11,10 +11,11 @@ export const clientConfigWritePolicy: WritePolicy = () => ({
   reason: 'client_config is system-only',
 });
 
-export const CLIENT_CONFIG_WRITE_POLICIES: Readonly<Record<string, WritePolicy>> =
-  {
-    [CLIENT_CONFIG_TABLE.tableName]: clientConfigWritePolicy,
-  };
+export const CLIENT_CONFIG_WRITE_POLICIES: Readonly<
+  Record<string, WritePolicy>
+> = {
+  [CLIENT_CONFIG_TABLE.tableName]: clientConfigWritePolicy,
+};
 
 export function createClientConfigWritePolicyRegistry(): WritePolicyRegistry {
   return createWritePolicyRegistry(CLIENT_CONFIG_WRITE_POLICIES);
