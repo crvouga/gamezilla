@@ -7,8 +7,8 @@
 #    circular-deps, audit, i18n, tc, lint, test, build)
 #    all run inside a
 #    single `turbo-ci` job that invokes `bun run check:ci`. Turbo's task
-#    graph + the self-hosted remote cache (driven by Infisical `dev`'s
-#    `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`) give us maximum
+#    graph + Vercel Remote Cache (driven by Infisical `dev`'s
+#    `TURBO_TOKEN` + `TURBO_TEAM`) give us maximum
 #    parallelism and cross-PR cache reuse with zero extra GitHub Actions
 #    machinery.
 #
@@ -54,13 +54,13 @@ jobs:
   # Single Turbo-orchestrated job for every cacheable repo gate: format,
   # syncpack + catalog + no-patches, knip, depcruise, circular-deps,
   # audit, i18n, plus per-package `tc` / `lint` / `test` / `build`. Turbo
-  # parallelizes across the task graph and reuses the self-hosted remote
-  # cache (via secrets-injected `TURBO_API` + `TURBO_TOKEN` + `TURBO_TEAM`)
+  # parallelizes across the task graph and reuses Vercel Remote Cache
+  # (via secrets-injected `TURBO_TOKEN` + `TURBO_TEAM`)
   # for cross-PR hits. `check:ci` throttles cache HTTP (`--cache-workers=1`
-  # via `scripts/turbo-ci-run.ts`) and writes artifacts to the cache Worker
+  # via `scripts/turbo-ci-run.ts`) and writes artifacts to Vercel
   # (`--cache=local:rw,remote:rw` in CI). Per-task cache
   # status (`--output-logs=hash-only --summarize`) keeps logs readable.
-  # TURBO_API/TURBO_TOKEN/TURBO_TEAM come from secrets env `dev` via `secrets-run`.
+  # TURBO_TOKEN/TURBO_TEAM come from secrets env `dev` via `secrets-run`.
   turbo-ci:
     runs-on: ubuntu-latest
     concurrency:
@@ -76,7 +76,7 @@ jobs:
           identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
           project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
           env-slug: dev
-      - name: Verify self-hosted remote cache via secrets (fail fast)
+      - name: Verify Vercel remote cache via secrets (fail fast)
         env:
           CI: true
           GITHUB_ACTIONS: true

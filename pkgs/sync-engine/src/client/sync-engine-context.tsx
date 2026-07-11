@@ -60,6 +60,77 @@ function isStableSyncedEmpty(status: SyncEngineStatus): boolean {
   return status.connection === 'connected' && status.hasSynced;
 }
 
+function updateWatchQueryCacheForSnapshot<T extends Record<string, unknown>>({
+  cacheKey,
+  rows,
+  status,
+  prevRowsRef,
+  hadRowsRef,
+}: {
+  cacheKey: string;
+  rows: readonly T[];
+  status: SyncEngineStatus;
+  prevRowsRef: { current: readonly T[] };
+  hadRowsRef: { current: boolean };
+}): void {
+  if (rows.length > 0) {
+    hadRowsRef.current = true;
+    prevRowsRef.current = rows;
+    writeWatchQueryCache(cacheKey, { rows, confirmedEmpty: false });
+    return;
+  }
+  if (isStableSyncedEmpty(status)) {
+    writeWatchQueryCache(cacheKey, { rows: [], confirmedEmpty: true });
+  }
+}
+
+function resolveWatchQueryDisplayRows<T extends Record<string, unknown>>({
+  rows,
+  cachedRows,
+  reconnecting,
+  prevRows,
+}: {
+  rows: readonly T[];
+  cachedRows: readonly T[];
+  reconnecting: boolean;
+  prevRows: readonly T[];
+}): readonly T[] {
+  if (rows.length > 0) {
+    return rows;
+  }
+  if (cachedRows.length > 0) {
+    return cachedRows;
+  }
+  if (reconnecting && prevRows.length > 0) {
+    return prevRows;
+  }
+  return rows;
+}
+
+function computeWatchQueryIsLoading({
+  hydrated,
+  displayRows,
+  hadRows,
+  confirmedEmpty,
+  status,
+  reconnecting,
+}: {
+  hydrated: boolean;
+  displayRows: readonly unknown[];
+  hadRows: boolean;
+  confirmedEmpty: boolean;
+  status: SyncEngineStatus;
+  reconnecting: boolean;
+}): boolean {
+  if (!hydrated) {
+    return true;
+  }
+  if (displayRows.length > 0 || hadRows || confirmedEmpty) {
+    return false;
+  }
+  return !status.hasEverSynced || !status.hasSynced || reconnecting;
+}
+
 export function useWatchSubscription<T>(
   subscription: ReturnType<SyncEngine['watch']>
 ): T {
@@ -92,31 +163,30 @@ export function useWatchQuery<T extends Record<string, unknown>>(
   const cacheKey = watchQueryCacheKey(sql, paramsKey);
   const prevRowsRef = useRef<readonly T[]>([]);
   const hadRowsRef = useRef(false);
-  if (rows.length > 0) {
-    hadRowsRef.current = true;
-    prevRowsRef.current = rows;
-    writeWatchQueryCache(cacheKey, { rows, confirmedEmpty: false });
-  } else if (isStableSyncedEmpty(status)) {
-    writeWatchQueryCache(cacheKey, { rows: [], confirmedEmpty: true });
-  }
+  updateWatchQueryCacheForSnapshot({
+    cacheKey,
+    rows,
+    status,
+    prevRowsRef,
+    hadRowsRef,
+  });
   const cached = readWatchQueryCache(cacheKey);
   const reconnecting = isSyncReconnecting(status);
   const cachedRows = (cached?.rows ?? []) as readonly T[];
-  const displayRows =
-    rows.length > 0
-      ? rows
-      : cachedRows.length > 0
-        ? cachedRows
-        : reconnecting && prevRowsRef.current.length > 0
-          ? prevRowsRef.current
-          : rows;
-  const confirmedEmpty = cached?.confirmedEmpty ?? false;
-  const isLoading =
-    !hydrated ||
-    (displayRows.length === 0 &&
-      !hadRowsRef.current &&
-      !confirmedEmpty &&
-      (!status.hasEverSynced || !status.hasSynced || reconnecting));
+  const displayRows = resolveWatchQueryDisplayRows({
+    rows,
+    cachedRows,
+    reconnecting,
+    prevRows: prevRowsRef.current,
+  });
+  const isLoading = computeWatchQueryIsLoading({
+    hydrated,
+    displayRows,
+    hadRows: hadRowsRef.current,
+    confirmedEmpty: cached?.confirmedEmpty ?? false,
+    status,
+    reconnecting,
+  });
   return { rows: displayRows, isLoading };
 }
 

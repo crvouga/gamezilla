@@ -54,6 +54,7 @@ const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
 ];
 
 const STALE_KEYS_TO_DELETE: ReadonlyArray<string> = [
+  'TURBO_API',
   'BETTER_AUTH_SECRET',
   'BETTER_AUTH_APP_NAME',
   'BETTER_AUTH_TRUSTED_ORIGINS',
@@ -67,7 +68,6 @@ const STALE_KEYS_TO_DELETE: ReadonlyArray<string> = [
 ];
 
 const SHARED_MIRROR_TO_DEV_KEYS: ReadonlyArray<string> = [
-  'TURBO_API',
   'TURBO_TOKEN',
   'TURBO_TEAM',
   'TURBO_CACHE',

@@ -3,13 +3,10 @@
  * limit and avoids noisy 429 warnings on local runs.
  *
  * - CI always uses `local:rw,remote:rw`.
- * - Local runs under secret store (`TURBO_CACHE=remote:rw`) honor that env var so
- *   cache uploads work and Turbo does not warn about a read-only remote.
- * - Local runs without secret store fall back to `remote:r` (read hits only).
+ * - Local runs always use `local:rw,remote:r` (read hits only; no write
+ *   permission required). `TURBO_CACHE=remote:rw` in Infisical applies to CI.
  */
 import { spawnSync } from 'node:child_process';
-
-const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 
 function inCi(): boolean {
   return process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true';
@@ -17,19 +14,6 @@ function inCi(): boolean {
 
 function resolveCacheFlag(): string {
   if (inCi()) return 'local:rw,remote:rw';
-
-  const fromEnv = process.env.TURBO_CACHE?.trim();
-  if (
-    fromEnv !== undefined &&
-    fromEnv.length > 0 &&
-    TURBO_CACHE_RE.test(fromEnv)
-  ) {
-    if (fromEnv.includes(',')) return fromEnv;
-    if (fromEnv.startsWith('remote:')) return `local:rw,${fromEnv}`;
-    if (fromEnv.startsWith('local:')) return `${fromEnv},remote:rw`;
-    return fromEnv;
-  }
-
   return 'local:rw,remote:r';
 }
 

@@ -1,29 +1,34 @@
 /**
- * Verifies the self-hosted Turborepo Remote Cache configuration loaded from
- * secrets env `dev` (CI: `SECRETS_TOKEN` → `secrets-run` — not GitHub
- * `TURBO_*` secrets).
+ * Verifies Vercel Remote Cache configuration loaded from secrets env `dev`
+ * (CI: `SECRETS_TOKEN` → `secrets-run` — not GitHub `TURBO_*` secrets).
  *
- * The cache is the standalone `turborepo-remote-cache` Cloudflare Worker at
- * https://turborepo.chrisvouga.dev (Turborepo `/v8/artifacts/*` API backed by
- * Backblaze B2). Consumer monorepos point Turbo at it with three env vars:
+ * Vercel Remote Cache uses two env vars (Turbo defaults to
+ * `https://vercel.com` when `TURBO_API` is unset):
  *
- * - `TURBO_API`: cache origin (e.g. `https://turborepo.chrisvouga.dev`)
- * - `TURBO_TOKEN`: bearer token the Worker validates
- * - `TURBO_TEAM`: any team slug (we use `local`)
+ * - `TURBO_TOKEN`: Vercel scoped access token
+ * - `TURBO_TEAM`: Vercel team slug
  * - `TURBO_CACHE` (optional): e.g. `remote:rw`
  *
- * Fast precheck: `GET ${TURBO_API}/v8/artifacts/status` with the bearer token
- * must return 200 `{ status: 'enabled' }` (401 → bad/expired token).
+ * `TURBO_API` must NOT be set — it overrides the Vercel default and routes
+ * Turbo to a self-hosted cache origin instead.
+ *
+ * Fast precheck: `GET https://vercel.com/v8/artifacts/status` with the bearer
+ * token must return 200 `{ status: 'ok' }` (401 → bad/expired token).
  *
  * In CI, also runs a tiny `turbo run` probe and fails if Turbo prints
  * "Remote caching unavailable" (auth / team mismatch). `turbo --dry-run`
  * always reports `cache.remote: false` and must not be used here.
  */
 import { spawnSync } from 'node:child_process';
+import { assertVercelTurboToken } from './lib/vercel-turbo-token';
 
 const REMOTE_UNAVAILABLE = 'Remote caching unavailable';
+const REMOTE_AUTH_FAILED = 'Authentication failed';
+const REMOTE_WRITE_DENIED = 'Insufficient permissions to write to remote cache';
+const VERCEL_CACHE_API = 'https://vercel.com';
+const OK_STATUSES = new Set(['ok', 'enabled']);
 
-const REQUIRED = ['TURBO_API', 'TURBO_TOKEN', 'TURBO_TEAM'] as const;
+const REQUIRED = ['TURBO_TOKEN', 'TURBO_TEAM'] as const;
 
 /** Same shape as `TurboCache.validate` in libs/infra. */
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
@@ -50,25 +55,28 @@ function fail(message: string): never {
   console.error('CI loads TURBO_* from secrets env `dev` via `secrets-run`.');
   console.error('The only GitHub secret involved is SECRETS_TOKEN.');
   console.error('');
-  console.error('secrets env `dev` must define (self-hosted turborepo cache):');
+  console.error('secrets env `dev` must define (Vercel Remote Cache):');
   console.error(
-    '  • TURBO_API   — cache origin (https://turborepo.chrisvouga.dev)'
+    '  • TURBO_TOKEN — Vercel scoped access token (Settings → Tokens)'
   );
-  console.error('  • TURBO_TOKEN — bearer token the cache Worker validates');
-  console.error('  • TURBO_TEAM  — any team slug (we use `local`)');
+  console.error('  • TURBO_TEAM  — Vercel team slug (from team URL)');
   console.error('');
   console.error(
-    'Run `infra deploy` (or mirror manually) so `prd` turbo secrets'
+    'Do not set TURBO_API — it overrides Vercel and routes to self-hosted cache.'
+  );
+  console.error('');
+  console.error(
+    'Seed with `bun run secrets:seed-vercel-turbo-cache -- --token … --team …`.'
   );
   console.error(
-    'match `dev`. Without remote cache, `check:ci` takes ~10+ min.'
+    'Without remote cache, `check:ci` takes ~10+ min.'
   );
   console.error('See AGENTS.md § CI / Turbo Remote Cache.');
   console.error('');
   process.exit(1);
 }
 
-/** Hit the cache's authed status endpoint to fail fast on a bad URL / token. */
+/** Hit Vercel's authed status endpoint to fail fast on a bad token. */
 async function checkCacheReachable(api: string, token: string): Promise<void> {
   const statusUrl = `${api.replace(/\/+$/, '')}/v8/artifacts/status`;
   let res: Response;
@@ -77,8 +85,6 @@ async function checkCacheReachable(api: string, token: string): Promise<void> {
       headers: { Authorization: `Bearer ${token}` },
     });
   } catch (e) {
-    // Network blips shouldn't block local checks; the CI turbo probe is the
-    // authoritative end-to-end gate.
     throw new Error(
       `cache unreachable at ${statusUrl}: ${e instanceof Error ? e.message : String(e)}`
     );
@@ -87,6 +93,23 @@ async function checkCacheReachable(api: string, token: string): Promise<void> {
     throw new Error(
       `cache rejected TURBO_TOKEN — HTTP ${res.status} from ${statusUrl} (rotate in secret store and re-mirror)`
     );
+  }
+  if (res.ok) {
+    try {
+      const body = (await res.json()) as { status?: string };
+      if (
+        typeof body.status === 'string' &&
+        !OK_STATUSES.has(body.status)
+      ) {
+        throw new Error(
+          `unexpected status response from ${statusUrl}: ${JSON.stringify(body)}`
+        );
+      }
+    } catch (e) {
+      if (e instanceof Error && e.message.startsWith('unexpected status')) {
+        throw e;
+      }
+    }
   }
 }
 
@@ -110,13 +133,25 @@ function assertTurboRemoteCacheReachable(): void {
 
   const log = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
 
-  if (log.includes(REMOTE_UNAVAILABLE)) {
+  if (log.includes(REMOTE_UNAVAILABLE) || log.includes(REMOTE_AUTH_FAILED)) {
     const line =
-      log.split('\n').find((l) => l.includes(REMOTE_UNAVAILABLE)) ??
-      REMOTE_UNAVAILABLE;
+      log
+        .split('\n')
+        .find(
+          (l) =>
+            l.includes(REMOTE_UNAVAILABLE) || l.includes(REMOTE_AUTH_FAILED)
+        ) ?? REMOTE_UNAVAILABLE;
     fail(
       `${line.trim()}\n` +
-        'Fix TURBO_API / TURBO_TOKEN / TURBO_TEAM in secrets env `dev` (mirrored from `prd`).'
+        'Fix TURBO_TOKEN / TURBO_TEAM in secrets env `dev` (mirrored from `prd`).\n' +
+        'Seed a real token: `bun run secrets:seed-vercel-turbo-cache -- --from-local-auth --team <slug>`'
+    );
+  }
+
+  if (log.includes(REMOTE_WRITE_DENIED)) {
+    fail(
+      `${REMOTE_WRITE_DENIED}\n` +
+        'Use a Vercel scoped access token with Remote Cache write access (Settings → Tokens).'
     );
   }
 
@@ -132,12 +167,19 @@ function assertTurboRemoteCacheReachable(): void {
 async function main(): Promise<void> {
   const strict = inCi();
 
+  if (isSet(process.env.TURBO_API)) {
+    fail(
+      'TURBO_API is set — delete it from Infisical. It overrides Vercel Remote Cache.\n' +
+        'Run `bun run secrets:seed-vercel-turbo-cache` to remove stale TURBO_API.'
+    );
+  }
+
   const present = REQUIRED.filter((k) => isSet(process.env[k]));
 
   if (present.length === 0) {
     if (strict) {
       fail(
-        'TURBO_API / TURBO_TOKEN / TURBO_TEAM not in env after `secrets-run`. ' +
+        'TURBO_TOKEN / TURBO_TEAM not in env after `secrets-run`. ' +
           'Set them in secrets env `dev` (see libs/infra/src/cli/secrets/turbo-token.ts).'
       );
     }
@@ -152,20 +194,16 @@ async function main(): Promise<void> {
     fail(`incomplete secrets env. Missing: ${missing.join(', ')}`);
   }
 
-  const turboApi = process.env.TURBO_API!.trim();
   const turboToken = process.env.TURBO_TOKEN!.trim();
   const turboTeam = process.env.TURBO_TEAM!.trim();
   const turboCache = (process.env.TURBO_CACHE ?? '').trim();
   const secretsEnv = (process.env.SECRETS_ENV ?? '').trim() || '(unset)';
 
-  try {
-    const url = new URL(turboApi);
-    if (url.protocol !== 'https:') {
-      fail(`TURBO_API must be an https URL, got "${turboApi}"`);
-    }
-  } catch {
+  const tokenErr = assertVercelTurboToken(turboToken);
+  if (tokenErr !== null) {
     fail(
-      `invalid TURBO_API "${turboApi}" (expected e.g. https://turborepo.chrisvouga.dev)`
+      `${tokenErr}\n` +
+        'Seed a real token: `bun run secrets:seed-vercel-turbo-cache -- --from-local-auth --team <slug>`'
     );
   }
 
@@ -174,22 +212,20 @@ async function main(): Promise<void> {
   }
 
   console.log(
-    `Turbo env (secrets ${secretsEnv}): TURBO_API=${turboApi}, TURBO_TEAM=${turboTeam}, TURBO_TOKEN=<${String(turboToken.length)} chars>`
+    `Turbo env (secrets ${secretsEnv}): TURBO_TEAM=${turboTeam}, TURBO_TOKEN=<${String(turboToken.length)} chars>`
   );
 
   try {
-    await checkCacheReachable(turboApi, turboToken);
+    await checkCacheReachable(VERCEL_CACHE_API, turboToken);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     fail(`cache status check failed: ${msg}`);
   }
 
-  if (strict) {
-    assertTurboRemoteCacheReachable();
-  }
+  assertTurboRemoteCacheReachable();
 
   console.log(
-    `Turbo remote cache OK (self-hosted ${turboApi}, team ${turboTeam}${
+    `Turbo remote cache OK (Vercel, team ${turboTeam}${
       turboCache !== '' ? `, TURBO_CACHE=${turboCache}` : ''
     })`
   );

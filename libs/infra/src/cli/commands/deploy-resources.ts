@@ -10,7 +10,7 @@ import type { Command } from './types';
  * method (api-worker) in topological order. Hydrates `InfraContext` from
  * `INFRA_CONTEXT` env (set by the workflow from
  * `needs.provision.outputs.infra_context`). Resources with
- * `routineStatus: 'destroyed'` (currently the self-hosted Turbo cache)
+ * `routineStatus: 'destroyed'` (e.g. legacy Cloudflare stack)
  * are skipped; the deploy's `'destroyed'`-resource tail phase tears
  * them down via `destroy()`.
  */

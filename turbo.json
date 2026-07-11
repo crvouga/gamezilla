@@ -214,6 +214,34 @@
       "cache": false
     },
     "//#ci:i18n": {
+      "inputs": [
+        "lingui.config.cjs",
+        "apps/client/src/**/*.ts",
+        "apps/client/src/**/*.tsx",
+        "pkgs/ui/src/**/*.ts",
+        "pkgs/ui/src/**/*.tsx",
+        "pkgs/chess-board/src/**/*.ts",
+        "pkgs/chess-board/src/**/*.tsx",
+        "pkgs/room-widgets/src/**/*.ts",
+        "pkgs/room-widgets/src/**/*.tsx",
+        "libs/chess/src/**/*.ts",
+        "libs/chess/src/**/*.tsx",
+        "libs/profile/src/**/*.ts",
+        "libs/profile/src/**/*.tsx",
+        "libs/auth/src/**/*.ts",
+        "libs/auth/src/**/*.tsx",
+        "libs/spaces/src/**/*.ts",
+        "libs/spaces/src/**/*.tsx",
+        "pkgs/llm/src/**/*.ts",
+        "pkgs/llm/src/**/*.tsx",
+        "pkgs/tts/src/**/*.ts",
+        "pkgs/tts/src/**/*.tsx",
+        "libs/client-config/src/**/*.ts",
+        "libs/client-config/src/**/*.tsx",
+        "apps/client/src/i18n/**"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only",
       "cache": false
     }
   }

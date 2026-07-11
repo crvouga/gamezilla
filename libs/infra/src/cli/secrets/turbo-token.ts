@@ -3,62 +3,34 @@ import type { SecretEntry } from './types';
 const TEAM_SLUG_RE = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
 
 /**
- * Origin of the self-hosted Turborepo Remote Cache (the standalone
- * `turborepo-remote-cache` Cloudflare Worker). Turbo reads it from the
- * `TURBO_API` env var. Must be an `https` URL (e.g.
- * `https://turborepo.chrisvouga.dev`). The bearer token in
- * {@link TurboToken} authenticates against this origin.
- */
-export class TurboApi implements SecretEntry {
-  readonly secretKey = 'TURBO_API';
-  readonly env = 'TURBO_API';
-  readonly hint =
-    'Self-hosted cache origin (e.g. https://turborepo.chrisvouga.dev) — the TURBO_API env for the turbo CLI';
-
-  async validate(value: string): Promise<string | null> {
-    try {
-      const url = new URL(value);
-      if (url.protocol !== 'https:') {
-        return `TURBO_API must be an https URL, got "${value}"`;
-      }
-    } catch {
-      return `Invalid TURBO_API "${value}" — expected an https URL (e.g. https://turborepo.chrisvouga.dev)`;
-    }
-    return null;
-  }
-}
-
-/**
- * Bearer token Turbo clients send to the self-hosted cache Worker (matches the
- * Worker's own `TURBO_TOKEN`). Reachability + auth are verified end-to-end by
- * `scripts/check-turbo-remote-cache.ts` (which hits `${TURBO_API}/v8/artifacts/status`),
- * so validation here only enforces presence — a network probe would make
- * secret validation flaky.
+ * Vercel scoped access token for Remote Cache (Settings → Tokens).
+ * Reachability + auth are verified end-to-end by
+ * `scripts/check-turbo-remote-cache.ts`.
  */
 export class TurboToken implements SecretEntry {
   readonly secretKey = 'TURBO_TOKEN';
   readonly env = 'TURBO_TOKEN';
-  readonly hint =
-    'Bearer token the self-hosted turborepo-remote-cache Worker validates (matches its TURBO_TOKEN)';
+  readonly hint = 'Vercel scoped access token (Settings → Tokens)';
 
   async validate(token: string): Promise<string | null> {
     if (token.trim().length === 0) {
       return 'TURBO_TOKEN must not be empty';
     }
+    if (/^<[^>]+>$/.test(token.trim())) {
+      return 'TURBO_TOKEN looks like a placeholder — use a real Vercel access token';
+    }
+    if (token.trim().length < 20) {
+      return 'TURBO_TOKEN is too short — expected a Vercel access token';
+    }
     return null;
   }
 }
 
-/**
- * Turbo team slug. The self-hosted cache accepts any slug (we use `local`);
- * Turbo just requires the value to be present and well-formed for remote
- * cache requests.
- */
+/** Vercel team slug (from `https://vercel.com/<team-slug>/…`). */
 export class TurboTeam implements SecretEntry {
   readonly secretKey = 'TURBO_TEAM';
   readonly env = 'TURBO_TEAM';
-  readonly hint =
-    'Any team slug (we use `local`) — required by the turbo CLI for remote cache';
+  readonly hint = 'Vercel team slug (from team URL)';
 
   async validate(value: string): Promise<string | null> {
     if (!TEAM_SLUG_RE.test(value)) {
