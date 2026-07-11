@@ -18,8 +18,8 @@
   },
   "scripts": {
     "lint": "eslint src scripts --max-warnings 0",
-    "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "refresh:puzzle-sync-pool": "bun run scripts/refresh-chess-puzzle-sync-pool.ts",
+    "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit",
     "test": "bun test --pass-with-no-tests"
   },

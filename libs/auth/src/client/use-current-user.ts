@@ -56,9 +56,7 @@ export function useCurrentUser(): CurrentUser | null {
          FROM ${EXTERNAL_ACCOUNTS_TABLE}
          WHERE ${ExternalAccountCol.userId} = ?
            AND ${ExternalAccountCol.provider} = ?`,
-    accountId === null
-      ? []
-      : [accountId, EXTERNAL_ACCOUNT_PROVIDER_STRIPE]
+    accountId === null ? [] : [accountId, EXTERNAL_ACCOUNT_PROVIDER_STRIPE]
   );
   if (accountId === null) return null;
 

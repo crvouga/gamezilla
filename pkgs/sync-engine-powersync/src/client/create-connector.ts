@@ -6,9 +6,14 @@ import type {
   PowerSyncCrudTransaction,
 } from './powersync-database-port';
 
+export type SyncTokenCredentials = {
+  readonly token: string;
+  readonly expiresAt: number;
+};
+
 export type CreateConnectorOptions = {
   readonly powersyncUrl: string;
-  readonly fetchSyncToken: () => Promise<string>;
+  readonly fetchSyncToken: () => Promise<SyncTokenCredentials>;
   readonly uploadBatch: (batch: UploadBatch) => Promise<void>;
 };
 
@@ -44,10 +49,14 @@ export function createPowerSyncConnector(
   options: CreateConnectorOptions
 ): PowerSyncConnectorPort {
   return {
-    fetchCredentials: async () => ({
-      endpoint: options.powersyncUrl,
-      token: await options.fetchSyncToken(),
-    }),
+    fetchCredentials: async () => {
+      const credentials = await options.fetchSyncToken();
+      return {
+        endpoint: options.powersyncUrl,
+        token: credentials.token,
+        expiresAt: new Date(credentials.expiresAt * 1000),
+      };
+    },
     uploadData: async (database) => {
       const transaction = await database.getNextCrudTransaction();
       if (transaction === null) return;

@@ -40,13 +40,14 @@ export function SyncScreen() {
       content={({ sx }) => (
         <Box style={sx}>
           <StatusRow label={t`Connection`} value={connectionLabel} />
-          <StatusRow
-            label={t`Online`}
-            value={status.online ? t`Yes` : t`No`}
-          />
+          <StatusRow label={t`Online`} value={status.online ? t`Yes` : t`No`} />
           <StatusRow
             label={t`Has synced`}
             value={status.hasSynced ? t`Yes` : t`No`}
+          />
+          <StatusRow
+            label={t`Has ever synced`}
+            value={status.hasEverSynced ? t`Yes` : t`No`}
           />
           <StatusRow
             label={t`Last error`}

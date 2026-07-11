@@ -8,7 +8,15 @@ import type { SyncStreamSubscription } from '@pkgs/sync-engine/client/sync-strea
 import type { PowerSyncDatabasePort } from './powersync-database-port';
 import { createSqlClientFromPowerSync } from './sql-client-facade';
 
-function mapStatus(db: PowerSyncDatabasePort): SyncEngineStatus {
+export type EverSyncedLatch = {
+  readonly read: () => boolean;
+  readonly latch: () => void;
+  readonly reset: () => void;
+};
+
+function mapStatus(
+  db: PowerSyncDatabasePort
+): Omit<SyncEngineStatus, 'hasEverSynced'> {
   const s = db.currentStatus;
   let connection: SyncEngineStatus['connection'] = 'disconnected';
   if (s.connecting) connection = 'connecting';
@@ -64,18 +72,28 @@ function createWatch<T extends Record<string, unknown>>(
 
 export type CreatePowerSyncSyncEngineOptions = {
   readonly database: PowerSyncDatabasePort;
+  /** Persists hasEverSynced across sync-engine wrapper recreation (e.g. dev HMR). */
+  readonly everSyncedLatch?: EverSyncedLatch;
 };
 
 export function createPowerSyncSyncEngine(
   options: CreatePowerSyncSyncEngineOptions
 ): SyncEngine {
   const db = options.database;
+  const everSyncedLatch = options.everSyncedLatch;
   const sqlClient = createSqlClientFromPowerSync(db);
   let status: SyncEngineStatus = { ...INITIAL_SYNC_STATUS };
+  let hasEverSynced = everSyncedLatch?.read() ?? false;
   const listeners = new Set<(s: SyncEngineStatus) => void>();
 
   const publishStatus = (): void => {
-    status = mapStatus(db);
+    const mapped = mapStatus(db);
+    if (mapped.hasSynced) {
+      everSyncedLatch?.latch();
+    }
+    hasEverSynced =
+      hasEverSynced || mapped.hasSynced || (everSyncedLatch?.read() ?? false);
+    status = { ...mapped, hasEverSynced };
     for (const listener of listeners) {
       listener(status);
     }
@@ -114,6 +132,8 @@ export function createPowerSyncSyncEngine(
     },
     clearLocalData: async () => {
       await db.disconnectAndClear();
+      hasEverSynced = false;
+      everSyncedLatch?.reset();
       publishStatus();
     },
     waitForFirstSync: async () => {

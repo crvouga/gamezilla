@@ -1,4 +1,7 @@
-import { SyncEngineProvider, useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import {
+  SyncEngineProvider,
+  useSyncEngine,
+} from '@pkgs/sync-engine/client/sync-engine-context';
 import { PortalContentBridgeProvider } from '@pkgs/ui';
 import { useCallback, type ReactNode } from 'react';
 

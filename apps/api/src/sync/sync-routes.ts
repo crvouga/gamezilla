@@ -59,5 +59,8 @@ const uploadHandler = createUploadHandler<SyncUploadAuth>({
 
 /** PowerSync client upload endpoint (`POST /sync/upload`). */
 export function createSyncRoutes() {
-  return new Hono<ApiHonoEnv<AuthContext>>().post('/sync/upload', uploadHandler);
+  return new Hono<ApiHonoEnv<AuthContext>>().post(
+    '/sync/upload',
+    uploadHandler
+  );
 }

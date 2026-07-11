@@ -49,4 +49,40 @@ describe('createInMemorySyncEngine', () => {
     expect(sub.getSnapshot()[0]?.display_name).toBe('Ada');
     await engine.disconnect();
   });
+
+  test('hasEverSynced latches true and persists through reconnect', async () => {
+    const registry = createTableRegistry([
+      defineTable({
+        tableName: 'profiles',
+        columns: [{ name: 'id', type: 'text', primaryKey: true }],
+      }),
+    ]);
+    const engine = createInMemorySyncEngine({ registry });
+
+    expect(engine.status.getSnapshot().hasEverSynced).toBe(false);
+
+    await engine.connect();
+    expect(engine.status.getSnapshot().hasSynced).toBe(true);
+    expect(engine.status.getSnapshot().hasEverSynced).toBe(true);
+
+    await engine.disconnect();
+    expect(engine.status.getSnapshot().hasSynced).toBe(false);
+    expect(engine.status.getSnapshot().hasEverSynced).toBe(true);
+  });
+
+  test('clearLocalData resets hasEverSynced', async () => {
+    const registry = createTableRegistry([
+      defineTable({
+        tableName: 'profiles',
+        columns: [{ name: 'id', type: 'text', primaryKey: true }],
+      }),
+    ]);
+    const engine = createInMemorySyncEngine({ registry });
+    await engine.connect();
+    expect(engine.status.getSnapshot().hasEverSynced).toBe(true);
+
+    await engine.clearLocalData();
+    expect(engine.status.getSnapshot().hasEverSynced).toBe(false);
+    expect(engine.status.getSnapshot().hasSynced).toBe(false);
+  });
 });

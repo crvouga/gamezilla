@@ -12,5 +12,7 @@ export function AccountDeviceUserAgentBlock({
 }: AccountDeviceUserAgentBlockProps): ReactNode {
   const userAgent = useDeviceColumn(deviceId, DeviceField.userAgent);
   if (userAgent === null) return null;
-  return <Text variant="caption" selectable numberOfLines={6} label={userAgent} />;
+  return (
+    <Text variant="caption" selectable numberOfLines={6} label={userAgent} />
+  );
 }

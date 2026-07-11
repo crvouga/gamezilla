@@ -13,6 +13,10 @@ export function AccountDeviceLastSeenText({
 }: AccountDeviceLastSeenTextProps): ReactNode {
   const lastSeenAt = useDeviceColumn(deviceId, DeviceField.lastSeenAt);
   return (
-    <Text variant="body" numberOfLines={4} label={formatTimestamp(lastSeenAt)} />
+    <Text
+      variant="body"
+      numberOfLines={4}
+      label={formatTimestamp(lastSeenAt)}
+    />
   );
 }

@@ -13,10 +13,22 @@ import type { TableRegistry } from '../shared/table-registry';
 
 function createStatusStore(): {
   readonly status: SyncStatusSubscription;
-  setStatus: (next: SyncEngineStatus) => void;
+  setStatus: (next: Omit<SyncEngineStatus, 'hasEverSynced'>) => void;
+  resetEverSynced: () => void;
 } {
   let status: SyncEngineStatus = { ...INITIAL_SYNC_STATUS };
+  let hasEverSynced = false;
   const listeners = new Set<(s: SyncEngineStatus) => void>();
+
+  const publish = (next: Omit<SyncEngineStatus, 'hasEverSynced'>): void => {
+    if (next.hasSynced) {
+      hasEverSynced = true;
+    }
+    status = { ...next, hasEverSynced };
+    for (const listener of listeners) {
+      listener(status);
+    }
+  };
 
   return {
     status: {
@@ -26,11 +38,9 @@ function createStatusStore(): {
         return () => listeners.delete(listener);
       },
     },
-    setStatus: (next) => {
-      status = next;
-      for (const listener of listeners) {
-        listener(status);
-      }
+    setStatus: publish,
+    resetEverSynced: () => {
+      hasEverSynced = false;
     },
   };
 }
@@ -89,7 +99,7 @@ export function createInMemorySyncEngine(
   const sqlite = new Database(':memory:');
   migrateTables(sqlite, options.registry);
   const db = new SqlClientImplBunSqlite(sqlite);
-  const { status, setStatus } = createStatusStore();
+  const { status, setStatus, resetEverSynced } = createStatusStore();
 
   return {
     db,
@@ -117,10 +127,11 @@ export function createInMemorySyncEngine(
       for (const name of options.registry.tableNames()) {
         await db.run(`DELETE FROM ${name}`);
       }
+      resetEverSynced();
       setStatus({
         connection: 'connected',
         online: true,
-        hasSynced: true,
+        hasSynced: false,
         lastError: null,
       });
     },

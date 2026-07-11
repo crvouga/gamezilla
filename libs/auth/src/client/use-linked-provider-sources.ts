@@ -1,6 +1,4 @@
-import {
-  useWatchOne,
-} from '@pkgs/sync-engine/client/sync-engine-context';
+import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import {
   ENTITY_STORE_NAMESPACE_AUTH,
   ENTITY_STORE_TABLE,
@@ -37,10 +35,15 @@ function readNonEmptyString(raw: unknown): string | null {
 function buildSourcesFromRows(args: {
   readonly accountId: string;
   readonly primaryAuthProvider: string;
-  readonly authExternalAccountRow: PrimaryAuthExternalAccountRow | null | undefined;
+  readonly authExternalAccountRow:
+    | PrimaryAuthExternalAccountRow
+    | null
+    | undefined;
   readonly entityRow: AuthEntityStoreRow | null | undefined;
 }): LinkedProviderSources | null {
-  const externalId = readNonEmptyString(args.authExternalAccountRow?.external_id);
+  const externalId = readNonEmptyString(
+    args.authExternalAccountRow?.external_id
+  );
   if (externalId === null) return null;
 
   const authCreatedAt = readNonEmptyString(
@@ -66,22 +69,20 @@ export function useLinkedProviderSources(
   const { providerLabel: primaryAuthProvider } = useAuthClientPort();
   const { row: authExternalAccountRow } =
     useWatchOne<PrimaryAuthExternalAccountRow>(
-    accountId === null
-      ? `SELECT ${ExternalAccountCol.externalId} AS external_id,
+      accountId === null
+        ? `SELECT ${ExternalAccountCol.externalId} AS external_id,
                 ${ExternalAccountCol.metadata} AS metadata,
                 ${ExternalAccountCol.createdAt} AS created_at
          FROM ${EXTERNAL_ACCOUNTS_TABLE} WHERE 0`
-      : `SELECT ${ExternalAccountCol.externalId} AS external_id,
+        : `SELECT ${ExternalAccountCol.externalId} AS external_id,
                 ${ExternalAccountCol.metadata} AS metadata,
                 ${ExternalAccountCol.createdAt} AS created_at
          FROM ${EXTERNAL_ACCOUNTS_TABLE}
          WHERE ${ExternalAccountCol.userId} = ?
            AND ${ExternalAccountCol.provider} = ?
          LIMIT 1`,
-    accountId === null
-      ? []
-      : [accountId, primaryAuthProvider]
-  );
+      accountId === null ? [] : [accountId, primaryAuthProvider]
+    );
 
   const { row: entityRow } = useWatchOne<AuthEntityStoreRow>(
     accountId === null

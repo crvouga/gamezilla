@@ -1,3 +1,3 @@
-import { SyncScreen } from '@apps/client/developer/sync-screen';
+import { SyncScreen } from '@apps/client/sync/sync-screen';
 
 export default SyncScreen;

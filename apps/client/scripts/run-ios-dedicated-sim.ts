@@ -124,7 +124,9 @@ async function main(): Promise<void> {
   }
 
   if (reuseMetro) {
-    log('Metro reused — press Ctrl+C to exit (Metro keeps running in the other window).');
+    log(
+      'Metro reused — press Ctrl+C to exit (Metro keeps running in the other window).'
+    );
     await waitForShutdown(abort.signal);
   }
 }

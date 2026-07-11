@@ -1,3 +1,4 @@
+import { clearWatchQueryCache } from '@pkgs/sync-engine/client/watch-query-cache';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useLayoutEffect, type ReactNode } from 'react';
 
@@ -18,6 +19,7 @@ export function AuthSyncBridge({
   useLayoutEffect(() => {
     return registerSyncIdentityFlush(async () => {
       await engine.clearLocalData();
+      clearWatchQueryCache();
       await engine.connect();
       await engine.waitForFirstSync();
     });

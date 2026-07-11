@@ -1,7 +1,7 @@
-import { isClientSentryEnabled } from '@pkgs/observability/impl-sentry/init-client-sentry';
 import { AppProviders } from '@apps/client/providers/app-providers';
 import { RootErrorBoundary } from '@apps/client/providers/root-error-boundary';
 import { SpaceMiniplayer } from '@libs/spaces/client/miniplayer/space-miniplayer';
+import { isClientSentryEnabled } from '@pkgs/observability/impl-sentry/init-client-sentry';
 import { Box, useStackProps } from '@pkgs/ui';
 import * as Sentry from '@sentry/react-native';
 import { Stack } from 'expo-router';
@@ -22,12 +22,6 @@ function AppStack() {
       <Stack.Screen name="space" />
       <Stack.Screen name="more" />
       <Stack.Screen name="ui" />
-      <Stack.Screen
-        name="modal"
-        options={{
-          presentation: 'modal',
-        }}
-      />
       <Stack.Screen
         name="sso-callback"
         options={{

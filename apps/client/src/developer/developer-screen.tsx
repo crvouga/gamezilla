@@ -3,7 +3,7 @@ import { Box, MenuRow, ScreenBase } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
 
-type DevHref = '/ui' | '/more/sync' | '/more/room' | '/more/client-config';
+type DevHref = '/ui' | '/more/sync' | '/more/client-config';
 
 type DevItem = {
   key: string;
@@ -26,12 +26,6 @@ function useDevItems(): readonly DevItem[] {
       href: '/more/sync',
       label: t`Sync status`,
       description: t`PowerSync connection and sync state`,
-    },
-    {
-      key: 'room',
-      href: '/more/room',
-      label: t`Room Playground`,
-      description: t`Multi-peer tic-tac-toe simulator`,
     },
     {
       key: 'client-config',

@@ -29,7 +29,7 @@ function useMoreRows(): readonly MoreRow[] {
     },
     {
       title: t`Developer`,
-      caption: t`Todos, UI explorer, sync status, and Room playground`,
+      caption: t`Todos, UI explorer, and sync status`,
       href: '/more/developer',
     },
     {

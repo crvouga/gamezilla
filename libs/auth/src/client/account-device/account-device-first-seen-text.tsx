@@ -13,6 +13,10 @@ export function AccountDeviceFirstSeenText({
 }: AccountDeviceFirstSeenTextProps): ReactNode {
   const firstSeenAt = useDeviceColumn(deviceId, DeviceField.firstSeenAt);
   return (
-    <Text variant="body" numberOfLines={4} label={formatTimestamp(firstSeenAt)} />
+    <Text
+      variant="body"
+      numberOfLines={4}
+      label={formatTimestamp(firstSeenAt)}
+    />
   );
 }

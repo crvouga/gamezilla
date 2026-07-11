@@ -2,11 +2,21 @@ import {
   createContext,
   useContext,
   useMemo,
+  useRef,
   useSyncExternalStore,
   type ReactNode,
 } from 'react';
 
 import type { SyncEngine } from './sync-engine-port';
+import type { SyncEngineStatus } from './sync-status';
+import {
+  clearWatchQueryCache,
+  readWatchQueryCache,
+  watchQueryCacheKey,
+  writeWatchQueryCache,
+} from './watch-query-cache';
+
+export { clearWatchQueryCache };
 
 const Ctx = createContext<SyncEngine | null>(null);
 
@@ -40,6 +50,16 @@ export function useSyncStatus() {
   );
 }
 
+function isSyncReconnecting(status: SyncEngineStatus): boolean {
+  return (
+    status.connection === 'disconnected' || status.connection === 'connecting'
+  );
+}
+
+function isStableSyncedEmpty(status: SyncEngineStatus): boolean {
+  return status.connection === 'connected' && status.hasSynced;
+}
+
 export function useWatchSubscription<T>(
   subscription: ReturnType<SyncEngine['watch']>
 ): T {
@@ -69,9 +89,35 @@ export function useWatchQuery<T extends Record<string, unknown>>(
     subscription.getHydrated
   );
   const status = useSyncStatus();
+  const cacheKey = watchQueryCacheKey(sql, paramsKey);
+  const prevRowsRef = useRef<readonly T[]>([]);
+  const hadRowsRef = useRef(false);
+  if (rows.length > 0) {
+    hadRowsRef.current = true;
+    prevRowsRef.current = rows;
+    writeWatchQueryCache(cacheKey, { rows, confirmedEmpty: false });
+  } else if (isStableSyncedEmpty(status)) {
+    writeWatchQueryCache(cacheKey, { rows: [], confirmedEmpty: true });
+  }
+  const cached = readWatchQueryCache(cacheKey);
+  const reconnecting = isSyncReconnecting(status);
+  const cachedRows = (cached?.rows ?? []) as readonly T[];
+  const displayRows =
+    rows.length > 0
+      ? rows
+      : cachedRows.length > 0
+        ? cachedRows
+        : reconnecting && prevRowsRef.current.length > 0
+          ? prevRowsRef.current
+          : rows;
+  const confirmedEmpty = cached?.confirmedEmpty ?? false;
   const isLoading =
-    rows.length === 0 && (!status.hasSynced || !hydrated);
-  return { rows, isLoading };
+    !hydrated ||
+    (displayRows.length === 0 &&
+      !hadRowsRef.current &&
+      !confirmedEmpty &&
+      (!status.hasEverSynced || !status.hasSynced || reconnecting));
+  return { rows: displayRows, isLoading };
 }
 
 export function useWatchOne<T extends Record<string, unknown>>(

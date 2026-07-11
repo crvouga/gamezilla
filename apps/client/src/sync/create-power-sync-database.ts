@@ -42,7 +42,14 @@ function createNativeDatabase(): SdkDatabase {
   }) as unknown as SdkDatabase;
 }
 
+let cachedDatabase: SdkDatabase | undefined;
+
 /** Opens the platform PowerSync SQLite database (native RN or web wa-sqlite). */
 export function createPowerSyncDatabase(): SdkDatabase {
-  return Platform.OS === 'web' ? createWebDatabase() : createNativeDatabase();
+  if (cachedDatabase !== undefined) {
+    return cachedDatabase;
+  }
+  cachedDatabase =
+    Platform.OS === 'web' ? createWebDatabase() : createNativeDatabase();
+  return cachedDatabase;
 }

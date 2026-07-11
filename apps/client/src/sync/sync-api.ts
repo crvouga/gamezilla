@@ -1,7 +1,16 @@
 import { getCachedDeviceId } from '@libs/auth/client/use-device-id';
 import { getCachedAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import type { ConfigService } from '@libs/auth/client/config-service-types';
+import type { Kv } from '@pkgs/kv/interface';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
+
+import {
+  readCachedSyncToken,
+  writeCachedSyncToken,
+  type SyncTokenCredentials,
+} from './sync-token-cache';
+
+export type { SyncTokenCredentials };
 
 /** Must match {@link ANON_ID_HEADER} in apps/api session-middleware. */
 const X_ANON_ID = 'x-anon-id';
@@ -31,12 +40,31 @@ function authHeaders(): Record<string, string> {
 
 type SyncTokenResponse = {
   readonly token: string;
+  readonly expiresAt?: number;
 };
+
+function authHeadersKey(): string {
+  const token = getCachedAuthToken() ?? '';
+  const anon = getCachedDeviceId() ?? '';
+  return `${token}\0${anon}`;
+}
 
 export async function fetchSyncToken(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
-}): Promise<string> {
+  readonly kv: Kv;
+}): Promise<SyncTokenCredentials> {
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  const authKey = authHeadersKey();
+  const cached = await readCachedSyncToken({
+    kv: args.kv,
+    authKey,
+    nowSeconds,
+  });
+  if (cached !== null) {
+    return cached;
+  }
+
   const res = await args.fetchFn(`${args.config.getApiUrl()}/api/sync/token`, {
     method: 'POST',
     headers: {
@@ -54,7 +82,19 @@ export async function fetchSyncToken(args: {
   if (typeof json.token !== 'string' || json.token.length === 0) {
     throw new Error('sync token response missing token');
   }
-  return json.token;
+  const credentials: SyncTokenCredentials = {
+    token: json.token,
+    expiresAt:
+      typeof json.expiresAt === 'number' && Number.isFinite(json.expiresAt)
+        ? json.expiresAt
+        : nowSeconds + 300,
+  };
+  await writeCachedSyncToken({
+    kv: args.kv,
+    authKey,
+    credentials,
+  });
+  return credentials;
 }
 
 export async function uploadSyncBatch(args: {

@@ -273,7 +273,8 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   }
   if (
     platform !== 'web' &&
-    (moduleName === '@powersync/web' || moduleName.startsWith('@powersync/web/'))
+    (moduleName === '@powersync/web' ||
+      moduleName.startsWith('@powersync/web/'))
   ) {
     return { type: 'empty' };
   }

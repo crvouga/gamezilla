@@ -20,7 +20,10 @@ export function AccountDeviceListTitleText({
 }: AccountDeviceListTitleTextProps): ReactNode {
   const deviceName = useDeviceColumn(deviceId, DeviceField.deviceName);
   const deviceBrand = useDeviceColumn(deviceId, DeviceField.deviceBrand);
-  const deviceModelName = useDeviceColumn(deviceId, DeviceField.deviceModelName);
+  const deviceModelName = useDeviceColumn(
+    deviceId,
+    DeviceField.deviceModelName
+  );
   const label = formatDeviceListTitle({
     deviceId,
     deviceName,

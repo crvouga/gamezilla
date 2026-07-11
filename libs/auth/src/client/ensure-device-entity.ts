@@ -56,9 +56,15 @@ function collectDeviceSnapshot(): Record<string, string | null> {
 
 type DeviceRow = Record<string, unknown>;
 
-function isDeviceRowComplete(row: DeviceRow | undefined, deviceId: string): boolean {
+function isDeviceRowComplete(
+  row: DeviceRow | undefined,
+  deviceId: string
+): boolean {
   if (row === undefined) return false;
-  return row[DeviceCol.id] === deviceId && typeof row[DeviceCol.createdAt] === 'string';
+  return (
+    row[DeviceCol.id] === deviceId &&
+    typeof row[DeviceCol.createdAt] === 'string'
+  );
 }
 
 function snapshotDiffers(
@@ -78,7 +84,12 @@ function buildInsertDeviceArgs(
   now: string,
   snapshot: ReturnType<typeof collectDeviceSnapshot>
 ): { cols: string[]; vals: unknown[] } {
-  const cols: string[] = [DeviceCol.id, DeviceCol.createdAt, DeviceCol.firstSeenAt, DeviceCol.lastSeenAt];
+  const cols: string[] = [
+    DeviceCol.id,
+    DeviceCol.createdAt,
+    DeviceCol.firstSeenAt,
+    DeviceCol.lastSeenAt,
+  ];
   const vals: unknown[] = [deviceId, now, now, now];
   for (const [key, value] of Object.entries(snapshot)) {
     if (value === null) continue;
@@ -163,6 +174,9 @@ export async function ensureDeviceEntity(
     return;
   }
 
-  assert.ok(row !== undefined, 'device row must exist after completeness check');
+  assert.ok(
+    row !== undefined,
+    'device row must exist after completeness check'
+  );
   await updateDeviceRow(sql, deviceId, buildDeviceUpdates(row, snapshot, now));
 }

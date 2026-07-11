@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
-    "@pkgs/sync-engine": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*",
     "@powersync/common": "catalog:"
   },
   "devDependencies": {

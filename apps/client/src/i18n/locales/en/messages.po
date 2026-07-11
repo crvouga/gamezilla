@@ -187,8 +187,8 @@ msgid "Back"
 msgstr "Back"
 
 #: apps/client/src/developer/modal-screen.tsx
-msgid "Back to Dev"
-msgstr "Back to Dev"
+#~ msgid "Back to Dev"
+#~ msgstr "Back to Dev"
 
 #: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
 msgid "Back to Spaces"
@@ -383,17 +383,17 @@ msgid "Confirm"
 msgstr "Confirm"
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "Connected"
 msgstr "Connected"
 
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "Connecting"
 msgstr "Connecting"
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "Connection"
 msgstr "Connection"
 
@@ -525,9 +525,8 @@ msgid "Default board, drag or tap-to-move, orientation toggle."
 msgstr "Default board, drag or tap-to-move, orientation toggle."
 
 #: apps/client/src/developer/developer-screen.tsx
-#: apps/client/src/developer/room-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 #: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
 #: apps/client/src/ui/explorer/ui-explorer-screen.tsx
 #: libs/chess/src/client/chess-settings/chess-settings-developer-screen.tsx
@@ -586,7 +585,7 @@ msgid "Discard changes?"
 msgstr "Discard changes?"
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "Disconnected"
 msgstr "Disconnected"
 
@@ -767,7 +766,11 @@ msgstr "guest"
 msgid "Guests"
 msgstr "Guests"
 
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
+msgid "Has ever synced"
+msgstr "Has ever synced"
+
+#: apps/client/src/sync/sync-screen.tsx
 msgid "Has synced"
 msgstr "Has synced"
 
@@ -835,7 +838,7 @@ msgstr "Joined"
 msgid "Joining…"
 msgstr "Joining…"
 
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "Last error"
 msgstr "Last error"
 
@@ -974,8 +977,8 @@ msgid "Move the white pawn to a8 to trigger the inline canvas promotion picker."
 msgstr "Move the white pawn to a8 to trigger the inline canvas promotion picker."
 
 #: apps/client/src/developer/developer-screen.tsx
-msgid "Multi-peer tic-tac-toe simulator"
-msgstr "Multi-peer tic-tac-toe simulator"
+#~ msgid "Multi-peer tic-tac-toe simulator"
+#~ msgstr "Multi-peer tic-tac-toe simulator"
 
 #: apps/client/src/ui/app-commands/space-commands.tsx
 msgid "multiplayer"
@@ -1018,8 +1021,9 @@ msgid "night"
 msgstr "night"
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "No"
 msgstr "No"
 
@@ -1058,11 +1062,11 @@ msgid "No puzzles played yet."
 msgstr "No puzzles played yet."
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "None"
 msgstr "None"
 
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "Not configured"
 msgstr "Not configured"
 
@@ -1088,7 +1092,7 @@ msgid "Offline — changes will sync when reconnected"
 msgstr "Offline — changes will sync when reconnected"
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "Online"
 msgstr "Online"
 
@@ -1181,7 +1185,7 @@ msgstr "POST /client-config/refresh writes the Worker secret into Postgres on th
 msgid "PowerSync connection and sync state"
 msgstr "PowerSync connection and sync state"
 
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "PowerSync URL"
 msgstr "PowerSync URL"
 
@@ -1299,8 +1303,8 @@ msgstr "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cm
 
 #: apps/client/src/developer/developer-screen.tsx
 #: apps/client/src/developer/room-screen.tsx
-msgid "Room Playground"
-msgstr "Room Playground"
+#~ msgid "Room Playground"
+#~ msgstr "Room Playground"
 
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "Room simulation"
@@ -1350,11 +1354,10 @@ msgstr "Server-side account; tap to copy"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/developer/developer-screen.tsx
-#: apps/client/src/developer/room-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/settings/theme-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 #: apps/client/src/ui/app-header/app-account-menu.tsx
 #: apps/client/src/ui/app-header/app-account-menu.tsx
 #: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
@@ -1535,11 +1538,10 @@ msgstr "Space settings"
 #: apps/client/src/app/(tabs)/_layout.tsx
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/developer/developer-screen.tsx
-#: apps/client/src/developer/room-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/settings/theme-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 #: apps/client/src/ui/app-commands/space-commands.tsx
 #: apps/client/src/ui/app-commands/space-commands.tsx
 #: apps/client/src/ui/app-commands/space-commands.tsx
@@ -1606,11 +1608,11 @@ msgid "Sync issue"
 msgstr "Sync issue"
 
 #: apps/client/src/developer/developer-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "Sync status"
 msgstr "Sync status"
 
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "Syncing"
 msgstr "Syncing"
 
@@ -1667,8 +1669,8 @@ msgid "This field is required"
 msgstr "This field is required"
 
 #: apps/client/src/developer/modal-screen.tsx
-msgid "This is a modal screen."
-msgstr "This is a modal screen."
+#~ msgid "This is a modal screen."
+#~ msgstr "This is a modal screen."
 
 #: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
 msgid "This space has ended."
@@ -1683,8 +1685,12 @@ msgid "This tab"
 msgstr "This tab"
 
 #: apps/client/src/settings/settings-screen.tsx
-msgid "Todos, UI explorer, sync status, and Room playground"
-msgstr "Todos, UI explorer, sync status, and Room playground"
+msgid "Todos, UI explorer, and sync status"
+msgstr "Todos, UI explorer, and sync status"
+
+#: apps/client/src/settings/settings-screen.tsx
+#~ msgid "Todos, UI explorer, sync status, and Room playground"
+#~ msgstr "Todos, UI explorer, sync status, and Room playground"
 
 #: libs/chess/src/client/chess-settings/chess-settings-developer-screen.tsx
 msgid "Tools for debugging and exploring the UI."
@@ -1819,8 +1825,9 @@ msgid "Wrong"
 msgstr "Wrong"
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
-#: apps/client/src/developer/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
+#: apps/client/src/sync/sync-screen.tsx
 msgid "Yes"
 msgstr "Yes"
 

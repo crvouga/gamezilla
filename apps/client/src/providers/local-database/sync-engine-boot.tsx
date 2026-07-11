@@ -1,6 +1,7 @@
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
 import { useCachedPromise } from '@pkgs/async/use-cached-promise';
+import { useKv } from '@pkgs/kv/kv-context';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
 import { SyncEngineProvider } from '@pkgs/sync-engine/client/sync-engine-context';
@@ -25,8 +26,13 @@ type BootState =
  * Opens PowerSync once per app instance, connects to the sync service, and
  * exposes the {@link SyncEngine} port to the tree.
  */
-export function SyncEngineBoot({ children }: { children: ReactNode }): ReactNode {
+export function SyncEngineBoot({
+  children,
+}: {
+  children: ReactNode;
+}): ReactNode {
   const config = useConfigService();
+  const kv = useKv();
   const observability = useObservability();
   const fetchFn = useMemo(
     () => instrumentFetch(observability, fetch) as SyncApiFetch,
@@ -38,12 +44,11 @@ export function SyncEngineBoot({ children }: { children: ReactNode }): ReactNode
     // eslint-disable-next-line lingui/no-unlocalized-strings -- internal cache key
     `sync-engine:${getMainSqliteDbName()}`,
     () =>
-      Promise.resolve(
-        createAppPowerSyncSyncEngine({
-          config,
-          fetchFn,
-        })
-      )
+      createAppPowerSyncSyncEngine({
+        config,
+        fetchFn,
+        kv,
+      })
   );
 
   const [boot, setBoot] = useState<BootState>({ phase: 'loading' });
@@ -62,7 +67,8 @@ export function SyncEngineBoot({ children }: { children: ReactNode }): ReactNode
           },
           (error: unknown) => {
             if (cancelled) return;
-            const err = error instanceof Error ? error : new Error(String(error));
+            const err =
+              error instanceof Error ? error : new Error(String(error));
             // eslint-disable-next-line lingui/no-unlocalized-strings -- internal boot phase
             setBoot({ phase: 'error', error: err });
           }

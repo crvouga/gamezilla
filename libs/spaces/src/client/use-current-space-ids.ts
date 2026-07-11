@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 import {
   SpaceCol,
@@ -7,7 +7,17 @@ import {
   SPACES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
 } from '@libs/db/shared/space-tables';
-import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import {
+  useSyncStatus,
+  useWatchQuery,
+} from '@pkgs/sync-engine/client/sync-engine-context';
+import type { SyncEngineStatus } from '@pkgs/sync-engine/client/sync-status';
+
+function isSyncReconnecting(status: SyncEngineStatus): boolean {
+  return (
+    status.connection === 'disconnected' || status.connection === 'connecting'
+  );
+}
 
 export type CurrentSpaceEntry = {
   spaceId: string;
@@ -108,9 +118,25 @@ export function useCurrentSpaceIds(): {
     [hostedRows, guestSpaceIds, guestSpaceRows]
   );
 
+  const status = useSyncStatus();
+  const prevEntriesRef = useRef<CurrentSpaceEntry[]>([]);
+  const reconnecting = isSyncReconnecting(status);
+  if (entries.length > 0) {
+    prevEntriesRef.current = entries;
+  }
+  const displayEntries =
+    entries.length > 0
+      ? entries
+      : reconnecting && prevEntriesRef.current.length > 0
+        ? prevEntriesRef.current
+        : entries;
+
+  const queriesLoading =
+    hostedLoading || guestMemLoading || guestSpacesLoading;
+
   return {
-    entries,
-    isLoading: hostedLoading || guestMemLoading || guestSpacesLoading,
+    entries: displayEntries,
+    isLoading: displayEntries.length === 0 && queriesLoading,
   };
 }
 

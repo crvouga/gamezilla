@@ -3,7 +3,10 @@ import type {
   WritePolicyContext,
   WritePolicyDecision,
 } from '@pkgs/sync-engine/server/upload-handler';
-import { ENTITY_STORE_NAMESPACE_AUTH, ENTITY_STORE_NAMESPACE_STRIPE } from '@libs/db/shared/entity-store-table';
+import {
+  ENTITY_STORE_NAMESPACE_AUTH,
+  ENTITY_STORE_NAMESPACE_STRIPE,
+} from '@libs/db/shared/entity-store-table';
 
 import {
   allow,
@@ -30,9 +33,7 @@ const STRIPE_ENTITY_TYPES = new Set<string>([
   'webhook-event-cache',
 ]);
 
-function parseEntityStoreData(
-  raw: unknown
-): Record<string, unknown> | null {
+function parseEntityStoreData(raw: unknown): Record<string, unknown> | null {
   if (raw === null || typeof raw !== 'object') return null;
   return raw as Record<string, unknown>;
 }

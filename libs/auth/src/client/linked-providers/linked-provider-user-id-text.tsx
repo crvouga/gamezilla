@@ -1,6 +1,9 @@
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { AccountProviderField, useAccountProviderColumn } from '../use-account-provider-column';
+import {
+  AccountProviderField,
+  useAccountProviderColumn,
+} from '../use-account-provider-column';
 
 export type LinkedProviderUserIdTextProps = {
   accountProviderEntityId: string;
