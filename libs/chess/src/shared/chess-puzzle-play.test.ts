@@ -6,6 +6,7 @@ import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
   ClearChessPuzzlePlay,
+  ReclaimChessPuzzlePlay,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
   StartChessPuzzlePlay,
@@ -517,5 +518,36 @@ describe('chess puzzle play FSM — Clear', () => {
     state = reduceAll(state, c.events);
     state = startValid(state, GUEST);
     expect(ChessPuzzlePlayAttr.hostIdentity.from(state)).toBe(GUEST);
+  });
+
+  test('reclaim transfers host so a new actor can submit moves', () => {
+    let state = startValid(ChessModule.initialState());
+    const reclaim = ChessModule.handle(
+      state,
+      cmd(ReclaimChessPuzzlePlay({})),
+      GUEST
+    );
+    expect(reclaim.ok).toBe(true);
+    if (!reclaim.ok) return;
+    state = reduceAll(state, reclaim.events);
+    expect(ChessPuzzlePlayAttr.hostIdentity.from(state)).toBe(GUEST);
+    const move = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      GUEST
+    );
+    expect(move.ok).toBe(true);
+  });
+
+  test('reclaim is conflict when caller is already host', () => {
+    const state = startValid(ChessModule.initialState());
+    const res = ChessModule.handle(
+      state,
+      cmd(ReclaimChessPuzzlePlay({})),
+      HOST
+    );
+    expect(res.ok).toBe(false);
+    if (res.ok) return;
+    expect(res.error.type).toBe(ROOM_ERROR_TYPE.conflict);
   });
 });

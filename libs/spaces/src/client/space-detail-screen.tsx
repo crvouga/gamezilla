@@ -1,7 +1,7 @@
 import { ActiveSpace } from './active-space/active-space';
 import { SpaceDebugModal } from './debug/space-debug-modal';
 import { SpaceJoinPrompt } from './lifecycle/space-join-prompt';
-import { SpaceLoadingScreen } from './space-loading-screen';
+import { SpaceDetailInitialLoading } from './space-detail-initial-loading';
 import { SpacesNavProvider } from './nav/spaces-nav-context';
 import { SpaceRoomProvider } from './room/space-room-context';
 import { useAutoLeaveIfEnded } from './lifecycle/use-auto-leave-if-ended';
@@ -19,7 +19,11 @@ export function SpaceDetailScreen(): ReactNode {
   useStripRedundantSpaceRouteSearchParams(spaceId);
 
   if (spaceId.length === 0) {
-    return <SpaceLoadingScreen />;
+    return (
+      <SpacesNavProvider>
+        <SpaceDetailInitialLoading spaceId="" />
+      </SpacesNavProvider>
+    );
   }
 
   return (
@@ -45,7 +49,7 @@ function SpaceDetailBody({ spaceId }: SpaceDetailBodyProps): ReactNode {
   const closeDebug = () => setDebugOpen(false);
 
   if (presence.status === 'loading') {
-    return <SpaceLoadingScreen />;
+    return <SpaceDetailInitialLoading spaceId={spaceId} onOpenDebug={openDebug} />;
   }
 
   return (

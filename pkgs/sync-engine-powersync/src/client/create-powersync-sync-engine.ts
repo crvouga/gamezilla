@@ -70,6 +70,25 @@ function createWatch<T extends Record<string, unknown>>(
   };
 }
 
+function createSubscribeSyncStream(
+  db: PowerSyncDatabasePort
+): SyncEngine['subscribeSyncStream'] {
+  if (db.syncStream === undefined) {
+    return undefined;
+  }
+  return async (
+    streamName: string,
+    parameters: Readonly<Record<string, string | number>>
+  ): Promise<SyncStreamSubscription> => {
+    const handle = db.syncStream!(streamName, parameters);
+    const subscription = await handle.subscribe({ priority: 3 });
+    return {
+      unsubscribe: () => subscription.unsubscribe(),
+      waitForFirstSync: () => subscription.waitForFirstSync(),
+    };
+  };
+}
+
 export type CreatePowerSyncSyncEngineOptions = {
   readonly database: PowerSyncDatabasePort;
   /** Persists hasEverSynced across sync-engine wrapper recreation (e.g. dev HMR). */
@@ -101,20 +120,7 @@ export function createPowerSyncSyncEngine(
 
   db.registerListener({ statusChanged: publishStatus });
 
-  const subscribeSyncStream =
-    db.syncStream === undefined
-      ? undefined
-      : async (
-          streamName: string,
-          parameters: Readonly<Record<string, string | number>>
-        ): Promise<SyncStreamSubscription> => {
-          const handle = db.syncStream!(streamName, parameters);
-          const subscription = await handle.subscribe({ priority: 3 });
-          return {
-            unsubscribe: () => subscription.unsubscribe(),
-            waitForFirstSync: () => subscription.waitForFirstSync(),
-          };
-        };
+  const subscribeSyncStream = createSubscribeSyncStream(db);
 
   return {
     db: sqlClient,

@@ -496,6 +496,10 @@ msgstr "current"
 msgid "Current streak"
 msgstr "Current streak"
 
+#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
+msgid "Current user: {myId}"
+msgstr "Current user: {myId}"
+
 #: libs/chess/src/client/chess-main-menu.tsx
 msgid "Custom Games"
 msgstr "Custom Games"
@@ -516,6 +520,10 @@ msgstr "database"
 msgid "day"
 msgstr "day"
 
+#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
+msgid "debug"
+msgstr "debug"
+
 #: libs/spaces/src/client/debug/space-counter-panel.tsx
 msgid "Decrement"
 msgstr "Decrement"
@@ -524,9 +532,14 @@ msgstr "Decrement"
 msgid "Default board, drag or tap-to-move, orientation toggle."
 msgstr "Default board, drag or tap-to-move, orientation toggle."
 
+#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
+msgid "developer"
+msgstr "developer"
+
 #: apps/client/src/developer/developer-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/sync/sync-screen.tsx
+#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
 #: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
 #: apps/client/src/ui/explorer/ui-explorer-screen.tsx
 #: libs/chess/src/client/chess-settings/chess-settings-developer-screen.tsx
@@ -567,6 +580,10 @@ msgstr "Devices"
 #: apps/client/src/settings/settings-screen.tsx
 msgid "Devices and read-only sign-in provider info"
 msgstr "Devices and read-only sign-in provider info"
+
+#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
+msgid "diagnostics"
+msgstr "diagnostics"
 
 #: libs/profile/src/client/profile-edit-screen.tsx
 msgid "DiceBear generated avatar"
@@ -946,6 +963,10 @@ msgstr "Max rotation"
 msgid "Min rotation"
 msgstr "Min rotation"
 
+#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
+msgid "Mint sync token and open diagnostics app"
+msgstr "Mint sync token and open diagnostics app"
+
 #: libs/auth/src/client/account-device/account-device-detail-screen.tsx
 msgid "Missing device id."
 msgstr "Missing device id."
@@ -1120,6 +1141,10 @@ msgstr "Open a modal, then drag a piece — the dragged piece must stay above th
 msgid "Open command palette"
 msgstr "Open command palette"
 
+#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
+msgid "Open PowerSync diagnostics"
+msgstr "Open PowerSync diagnostics"
+
 #: libs/spaces/src/client/card/space-card-open-link.tsx
 msgid "Open space {resolvedTitle}"
 msgstr "Open space {resolvedTitle}"
@@ -1180,6 +1205,10 @@ msgstr "Plays a fresh game and prints SAN moves as they happen."
 #: libs/client-config/src/client/client-config-server-refresh.tsx
 msgid "POST /client-config/refresh writes the Worker secret into Postgres on the server (deploy pipeline uses this too)."
 msgstr "POST /client-config/refresh writes the Worker secret into Postgres on the server (deploy pipeline uses this too)."
+
+#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
+msgid "powersync"
+msgstr "powersync"
 
 #: apps/client/src/developer/developer-screen.tsx
 msgid "PowerSync connection and sync state"
@@ -1554,7 +1583,6 @@ msgstr "Space settings"
 #: libs/auth/src/client/account-screen.tsx
 #: libs/client-config/src/client/client-config-screen.tsx
 #: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
-#: libs/spaces/src/client/space-loading-screen.tsx
 #: libs/spaces/src/client/spaces-screen.tsx
 msgid "Spaces"
 msgstr "Spaces"
@@ -1602,6 +1630,10 @@ msgstr "Straight and knight L-shape arrows, dashed plan lines, and color overrid
 #: libs/profile/src/client/avatar-editor-style-block.tsx
 msgid "Style"
 msgstr "Style"
+
+#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
+msgid "sync"
+msgstr "sync"
 
 #: apps/client/src/connection/offline-indicator.tsx
 msgid "Sync issue"
@@ -1691,6 +1723,10 @@ msgstr "Todos, UI explorer, and sync status"
 #: apps/client/src/settings/settings-screen.tsx
 #~ msgid "Todos, UI explorer, sync status, and Room playground"
 #~ msgstr "Todos, UI explorer, sync status, and Room playground"
+
+#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
+msgid "token"
+msgstr "token"
 
 #: libs/chess/src/client/chess-settings/chess-settings-developer-screen.tsx
 msgid "Tools for debugging and exploring the UI."

@@ -162,6 +162,15 @@ export const RequestChessPuzzleHint = chessPuzzlePlayCmdNs(
   validateEmptyPayload
 );
 
+/**
+ * Take over an in-progress puzzle session when the recorded host identity is
+ * stale (e.g. after sign-in changes replication id from device to account).
+ */
+export const ReclaimChessPuzzlePlay = chessPuzzlePlayCmdNs(
+  'reclaim',
+  validateEmptyPayload
+);
+
 export const chessPuzzlePlayEvtNs = createMessageNamespace(
   'chess-puzzle-play-evt'
 );
@@ -194,4 +203,16 @@ export const ChessPuzzlePlayCleared = chessPuzzlePlayEvtNs(
 export const ChessPuzzleHintRevealed = chessPuzzlePlayEvtNs(
   'hint-revealed',
   validateHintRevealedPayload
+);
+
+function validateHostReclaimedPayload(
+  payload: unknown
+): payload is { hostIdentity: string } {
+  if (!isPlainRecord(payload)) return false;
+  return isNonEmptyString(payload['hostIdentity']);
+}
+
+export const ChessPuzzleHostReclaimed = chessPuzzlePlayEvtNs(
+  'host-reclaimed',
+  validateHostReclaimedPayload
 );

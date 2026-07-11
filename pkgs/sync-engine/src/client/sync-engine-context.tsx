@@ -15,6 +15,7 @@ import {
   watchQueryCacheKey,
   writeWatchQueryCache,
 } from './watch-query-cache';
+import { computeWatchQueryIsLoading } from './watch-query-loading';
 
 export { clearWatchQueryCache };
 
@@ -105,30 +106,6 @@ function resolveWatchQueryDisplayRows<T extends Record<string, unknown>>({
     return prevRows;
   }
   return rows;
-}
-
-function computeWatchQueryIsLoading({
-  hydrated,
-  displayRows,
-  hadRows,
-  confirmedEmpty,
-  status,
-  reconnecting,
-}: {
-  hydrated: boolean;
-  displayRows: readonly unknown[];
-  hadRows: boolean;
-  confirmedEmpty: boolean;
-  status: SyncEngineStatus;
-  reconnecting: boolean;
-}): boolean {
-  if (!hydrated) {
-    return true;
-  }
-  if (displayRows.length > 0 || hadRows || confirmedEmpty) {
-    return false;
-  }
-  return !status.hasEverSynced || !status.hasSynced || reconnecting;
 }
 
 export function useWatchSubscription<T>(

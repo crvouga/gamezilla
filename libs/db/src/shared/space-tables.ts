@@ -38,4 +38,7 @@ export const SPACE_MEMBERSHIPS_TABLE = defineTable({
   ],
 });
 
-export const ALL_SPACE_SYNC_TABLES = [SPACES_TABLE, SPACE_MEMBERSHIPS_TABLE] as const;
+export const ALL_SPACE_SYNC_TABLES = [
+  SPACES_TABLE,
+  SPACE_MEMBERSHIPS_TABLE,
+] as const;

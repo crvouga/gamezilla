@@ -10,6 +10,7 @@ import {
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
+  ReclaimChessPuzzlePlay,
   StartChessPuzzlePlay,
 } from '../../shared/chess-puzzle-play';
 import { useChessPuzzleInteractionRecorder } from './use-chess-puzzle-interaction-recorder';
@@ -29,6 +30,26 @@ function usePuzzleSessionIdentityReady(): boolean {
   const token = useFreshAuthToken();
   const accountId = useCurrentAccountId();
   return token === null || accountId !== null;
+}
+
+/**
+ * When puzzle play was resumed from persisted room state, the recorded
+ * `hostIdentity` may predate a sign-in (device id → account id). Reclaim
+ * transfers host to the current actor so moves and hints authorize again.
+ */
+function useReclaimStalePuzzleHost(): void {
+  const myId = useMyId();
+  const dispatch = useSpaceRoomDispatch();
+  const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
+  const hostIdentity = useSpaceRoomSelector(
+    ChessPuzzlePlayAttr.hostIdentity.from
+  );
+  useEffect(() => {
+    if (myId.length === 0) return;
+    if (roomStatus === CHESS_PUZZLE_PLAY_STATUS.idle) return;
+    if (hostIdentity === null || hostIdentity === myId) return;
+    dispatch(ReclaimChessPuzzlePlay({}));
+  }, [dispatch, hostIdentity, myId, roomStatus]);
 }
 
 /**
@@ -82,6 +103,7 @@ function usePuzzlePlayerModel(
   const playerElo = profileRating > 0 ? profileRating : DEFAULT_PLAYER_ELO;
   const { fen, movesStr, rating, themes, interactions } =
     usePuzzleEntityAndInteractions(puzzleId);
+  useReclaimStalePuzzleHost();
   useStartPuzzleSessionOnMount({
     puzzleId,
     fen,

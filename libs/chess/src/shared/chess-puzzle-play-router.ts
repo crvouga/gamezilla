@@ -22,12 +22,14 @@ import {
   chessPuzzlePlayCmdNs,
   chessPuzzlePlayEvtNs,
   ChessPuzzleHintRevealed,
+  ChessPuzzleHostReclaimed,
   ChessPuzzlePlayCleared,
   ChessPuzzlePlayMoveAccepted,
   ChessPuzzlePlayMoveRejected,
   ChessPuzzlePlayResetEvt,
   ChessPuzzlePlayStarted,
   ClearChessPuzzlePlay,
+  ReclaimChessPuzzlePlay,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
   StartChessPuzzlePlay,
@@ -346,6 +348,21 @@ function handleClear(state: RoomState, identity: string): HandleResult {
   return { ok: true, events: [ChessPuzzlePlayCleared({})] };
 }
 
+function handleReclaim(state: RoomState, identity: string): HandleResult {
+  const status = ChessPuzzlePlayAttr.status.from(state);
+  if (status === CHESS_PUZZLE_PLAY_STATUS.idle) {
+    return conflict('no puzzle in play to reclaim');
+  }
+  const host = ChessPuzzlePlayAttr.hostIdentity.from(state);
+  if (host === identity) {
+    return conflict('caller is already the puzzle host');
+  }
+  return {
+    ok: true,
+    events: [ChessPuzzleHostReclaimed({ hostIdentity: identity })],
+  };
+}
+
 export const chessPuzzlePlayCommandRouter = createMessageRouter<
   RoomState,
   string,
@@ -361,6 +378,9 @@ export const chessPuzzlePlayCommandRouter = createMessageRouter<
   .on(ClearChessPuzzlePlay, (state, identity) => handleClear(state, identity))
   .on(RequestChessPuzzleHint, (state, identity) =>
     handleRequestHint(state, identity)
+  )
+  .on(ReclaimChessPuzzlePlay, (state, identity) =>
+    handleReclaim(state, identity)
   );
 
 export const chessPuzzlePlayEventReducer = createMessageRouter<
@@ -427,6 +447,10 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
     ...ChessPuzzlePlayAttr.expectedFromSquare(ev.payload.fromSquare),
     ...ChessPuzzlePlayAttr.expectedToSquare(ev.payload.toSquare),
+  }))
+  .on(ChessPuzzleHostReclaimed, (state, _ctx, ev) => ({
+    ...state,
+    ...ChessPuzzlePlayAttr.hostIdentity(ev.payload.hostIdentity),
   }))
   .on(ChessPuzzlePlayCleared, (state) => ({
     ...state,

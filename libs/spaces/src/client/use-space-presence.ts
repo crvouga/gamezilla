@@ -1,6 +1,6 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
-import { useMemo } from 'react';
+import { useRef } from 'react';
 
 import { spaceGuestMembershipEntityId } from '../shared/membership-key';
 import {
@@ -9,11 +9,13 @@ import {
   SPACES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
 } from '@libs/db/shared/space-tables';
+import {
+  latchStaleSpacePresence,
+  resolveSpacePresence,
+  type SpacePresence,
+} from '../shared/resolve-space-presence';
 
-export type SpacePresence =
-  | { readonly status: 'loading' }
-  | { readonly status: 'active'; readonly role: 'host' | 'guest' }
-  | { readonly status: 'join'; readonly ended: boolean };
+export type { SpacePresence };
 
 type SpaceRow = {
   readonly host_id: string | null;
@@ -23,56 +25,6 @@ type SpaceRow = {
 type GuestMembershipRow = {
   readonly id: string;
 };
-
-function isActiveHost(
-  spaceRow: SpaceRow | null,
-  myId: string
-): boolean {
-  const hostId = spaceRow?.host_id ?? null;
-  const endedAt = spaceRow?.ended_at ?? null;
-  return (
-    endedAt === null &&
-    hostId !== null &&
-    hostId.length > 0 &&
-    hostId === myId
-  );
-}
-
-function loadingPresence(args: {
-  spaceEnabled: boolean;
-  spaceLoading: boolean;
-  memberEnabled: boolean;
-  guestLoading: boolean;
-}): SpacePresence | null {
-  if (!args.spaceEnabled || args.spaceLoading) {
-    return { status: 'loading' };
-  }
-  if (args.memberEnabled && args.guestLoading) {
-    return { status: 'loading' };
-  }
-  return null;
-}
-
-function resolveSpacePresence(args: {
-  readonly spaceEnabled: boolean;
-  readonly spaceLoading: boolean;
-  readonly memberEnabled: boolean;
-  readonly guestLoading: boolean;
-  readonly guestRow: GuestMembershipRow | null;
-  readonly spaceRow: SpaceRow | null;
-  readonly myId: string;
-}): SpacePresence {
-  const loading = loadingPresence(args);
-  if (loading !== null) return loading;
-  if (args.memberEnabled && args.guestRow !== null) {
-    return { status: 'active', role: 'guest' };
-  }
-  if (args.memberEnabled && isActiveHost(args.spaceRow, args.myId)) {
-    return { status: 'active', role: 'host' };
-  }
-  const endedAt = args.spaceRow?.ended_at ?? null;
-  return { status: 'join', ended: endedAt !== null };
-}
 
 /**
  * Resolves whether the current user is in `spaceId` using targeted sync
@@ -106,25 +58,22 @@ export function useSpacePresence(spaceId: string): SpacePresence {
       memberEnabled ? [membershipId] : []
     );
 
-  return useMemo(
-    () =>
-      resolveSpacePresence({
-        spaceEnabled,
-        spaceLoading,
-        memberEnabled,
-        guestLoading,
-        guestRow,
-        spaceRow,
-        myId,
-      }),
-    [
-      spaceEnabled,
-      spaceLoading,
-      memberEnabled,
-      guestLoading,
-      guestRow,
-      spaceRow,
-      myId,
-    ]
-  );
+  const latchRef = useRef<{
+    spaceId: string;
+    presence: SpacePresence;
+  } | null>(null);
+
+  const resolved = resolveSpacePresence({
+    spaceEnabled,
+    spaceLoading,
+    spaceRow,
+    memberEnabled,
+    guestLoading,
+    guestRow,
+    myId,
+  });
+
+  const latched = latchStaleSpacePresence(spaceId, resolved, latchRef.current);
+  latchRef.current = latched.latch;
+  return latched.presence;
 }
