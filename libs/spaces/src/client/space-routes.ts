@@ -7,11 +7,6 @@ export function spaceDetailHref(spaceId: string): Href {
   return `/space/${spaceId}` as Href;
 }
 
-/** Expo Router href for `/space/:id/settings`. */
-export function spaceSettingsHref(spaceId: string): Href {
-  return `/space/${spaceId}/settings` as Href;
-}
-
 /** Normalize a dynamic `[id]` route param (Expo may yield `string[]` when path + `?id=` duplicate). */
 export function normalizeSpaceRouteParam(
   id: string | string[] | undefined
@@ -55,9 +50,14 @@ export function openSpaceDetail(router: Router, spaceId: string): void {
   router.push(spaceDetailHref(spaceId));
 }
 
-export function openSpaceSettings(router: Router, spaceId: string): void {
+/** Leave `/space/:id` — pop the modal stack on iOS, fall back to lobby on deep links. */
+export function closeSpaceDetail(router: Router): void {
   releaseWebFocusBeforeNavigation();
-  router.push(spaceSettingsHref(spaceId));
+  if (router.canGoBack()) {
+    router.back();
+    return;
+  }
+  router.replace('/');
 }
 
 /** Paths already cleaned this session (Strict Mode may invoke the stripper twice). */

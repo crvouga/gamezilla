@@ -16,7 +16,10 @@ const DIVIDER_ROW_HEIGHT = 10;
 export function estimateFloatingMenuHeight(
   content: FloatingMenuContent
 ): number {
-  let h = PANEL_VERTICAL_INSET + HEADER_BLOCK_HEIGHT;
+  let h = PANEL_VERTICAL_INSET;
+  if (content.header !== undefined) {
+    h += HEADER_BLOCK_HEIGHT;
+  }
   for (const row of content.rows) {
     h += row.type === 'divider' ? DIVIDER_ROW_HEIGHT : ITEM_ROW_HEIGHT;
   }

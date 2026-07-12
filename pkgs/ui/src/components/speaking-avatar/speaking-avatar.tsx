@@ -27,11 +27,14 @@
  * toggles a `muted` flag persisted via {@link useKvState} (so the choice
  * survives reloads when an ambient `<KvProvider>` is mounted; falls back
  * to in-memory state otherwise). The audio kickoff in `useSpeak` is
- * gated on `!muted`. A tiny `SoundIndicator` sits in the bottom-right
- * of the head and visualises three states: `'idle'` (audio enabled,
- * nothing playing), `'playing'` (pulsing while TTS audio is actively
- * playing back), and `'muted'`. Caller-side `speak={false}` overrides
- * everything (no toggle, no indicator -- audio is permanently off).
+ * gated on `!muted` and on {@link useScreenAudible} (route focused + app
+ * foreground). Navigating away or backgrounding flips `enabled` off so
+ * `useSpeak` aborts synthesis and stops in-progress playback. A tiny
+ * `SoundIndicator` sits in the bottom-right of the head and visualises
+ * three states: `'idle'` (audio enabled, nothing playing), `'playing'`
+ * (pulsing while TTS audio is actively playing back), and `'muted'`.
+ * Caller-side `speak={false}` overrides everything (no toggle, no
+ * indicator -- audio is permanently off).
  *
  * @example
  * ```tsx
@@ -55,6 +58,7 @@ import { Pressable } from '../pressable';
 import { SoundIndicator, type SoundIndicatorState } from '../sound-indicator';
 import { SPEAKING_AVATAR_SVG } from './speaking-avatar-svg';
 import { SpeechBubble } from './speech-bubble';
+import { useScreenAudible } from './use-screen-audible';
 
 const MUTED_ROW_KEY = asKeyword('ui/speaking-avatar-muted');
 const MUTED_VALUE_ATTR = asKeyword('ui/value');
@@ -120,7 +124,12 @@ export function SpeakingAvatar({
     setMuted((m) => !m);
   }, [setMuted]);
 
-  const ttsEnabled = !muted && !bubbleResolving && message.trim().length > 0;
+  const screenAudible = useScreenAudible();
+  const ttsEnabled =
+    screenAudible &&
+    !muted &&
+    !bubbleResolving &&
+    message.trim().length > 0;
 
   const { isLoading, isSpeaking } = useSpeak({
     text: message,

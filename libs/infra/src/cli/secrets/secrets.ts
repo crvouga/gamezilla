@@ -23,7 +23,13 @@ import {
 } from './powersync-secrets';
 import { StripeSecretKey } from './stripe-secret-key';
 import { StripeWebhookSecret } from './stripe-webhook-secret';
-import { TurboLogOrder } from './turbo-token';
+import {
+  TurboApi,
+  TurboCache,
+  TurboLogOrder,
+  TurboTeam,
+  TurboToken,
+} from './turbo-token';
 import type { SecretEntry } from './types';
 import { API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS } from './worker-api-secrets';
 
@@ -38,6 +44,10 @@ const SECRET_MAP: ReadonlyArray<SecretEntry> = [
   new AuthSecretKey(),
   new StripeSecretKey(),
   new StripeWebhookSecret(),
+  new TurboApi(),
+  new TurboToken(),
+  new TurboTeam(),
+  new TurboCache(),
   new TurboLogOrder(),
   new ExpoToken(),
   new S3AccessKeyId(),

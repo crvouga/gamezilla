@@ -1,6 +1,12 @@
 import { asKeyword } from '@pkgs/keyword';
 import { describe, expect, it } from 'bun:test';
 
+import { InMemoryClientStorage } from '../adapters/storage/memory';
+import { Room } from './room';
+import type {
+  ClientTransport,
+  ClientTransportHandlers,
+} from './transport';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import { openLoopbackRoom } from '../../testkit/simulator';
 import {
@@ -8,6 +14,54 @@ import {
   Increment,
   TestCounterModule,
 } from '../../testkit/counter-module';
+
+/**
+ * Records outbound frames; delivers only what the test injects (no auto welcome).
+ */
+class ManualClientTransport implements ClientTransport {
+  readonly sent: unknown[] = [];
+  private readonly handlers = new Set<(raw: unknown) => void>();
+  private readonly handlerSets: ClientTransportHandlers[] = [];
+  opened = false;
+
+  get isConnected(): boolean {
+    return this.opened;
+  }
+
+  async connect(): Promise<void> {
+    this.opened = true;
+    for (const h of this.handlerSets) h.onOpen?.();
+  }
+
+  sendJson(payload: unknown): void {
+    this.sent.push(payload);
+  }
+
+  deliver(payload: unknown): void {
+    for (const h of [...this.handlers]) h(payload);
+  }
+
+  subscribe(handler: (raw: unknown) => void): () => void {
+    this.handlers.add(handler);
+    return () => {
+      this.handlers.delete(handler);
+    };
+  }
+
+  onHandlers(h: ClientTransportHandlers): () => void {
+    this.handlerSets.push(h);
+    return () => {
+      const i = this.handlerSets.indexOf(h);
+      if (i >= 0) this.handlerSets.splice(i, 1);
+    };
+  }
+
+  destroy(): void {
+    this.handlers.clear();
+    this.handlerSets.length = 0;
+    this.opened = false;
+  }
+}
 
 /**
  * Server-wins recovery: when the authoritative server log has diverged from
@@ -71,6 +125,49 @@ describe('Room server-reset recovery', () => {
 
     await new Promise<void>((r) => setTimeout(r, 30));
     expect(room.getSnapshot()[k]).toBe(1);
+    room.destroy();
+  });
+
+  it('recovers from a stale empty tip-welcome while local lastSeq is 0', async () => {
+    const transport = new ManualClientTransport();
+    const room = await Room.open({
+      topic: 't-reset-stale-tip-welcome',
+      module: TestCounterModule,
+      storage: new InMemoryClientStorage(),
+      transport,
+      identity: 'test-user',
+    });
+
+    // onOpen already sent sync(fromSeq=0). Deliver a tip-sync welcome that
+    // claims seq 11 with no entries — the iOS reconnect race after a local
+    // wipe. Must re-request sync(0) instead of asserting 0 === 11.
+    transport.deliver({
+      v: WIRE_VERSION,
+      kind: ROOM_WIRE_KIND.welcome,
+      fromSeq: 11,
+      lastSeq: 11,
+      entries: [],
+    });
+    await new Promise<void>((r) => setTimeout(r, 10));
+
+    const syncs = transport.sent.filter(
+      (m): m is { kind: string; fromSeq?: number } =>
+        typeof m === 'object' &&
+        m !== null &&
+        (m as { kind?: string }).kind === ROOM_WIRE_KIND.sync
+    );
+    expect(syncs.length).toBeGreaterThanOrEqual(2);
+    expect(syncs[syncs.length - 1]!.fromSeq).toBe(0);
+
+    transport.deliver({
+      v: WIRE_VERSION,
+      kind: ROOM_WIRE_KIND.welcome,
+      fromSeq: 0,
+      lastSeq: 1,
+      entries: [{ seq: 1, event: CounterIncremented({}) }],
+    });
+    await room.untilSynced();
+    expect(room.getSnapshot()[asKeyword('counter/count')]).toBe(1);
     room.destroy();
   });
 

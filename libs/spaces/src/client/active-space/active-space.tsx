@@ -4,6 +4,7 @@ import { useCallback, useContext, useState, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { useSpaceLifecycleModals } from '../lifecycle/space-lifecycle-modal-provider';
+import { closeSpaceDetail } from '../space-routes';
 import { ActiveSpaceBody } from './active-space-body';
 import { RenameSpaceModal } from './rename-space-modal';
 
@@ -37,7 +38,7 @@ export function ActiveSpace({
   const { requestEndSpace, requestLeaveSpace } = useSpaceLifecycleModals();
   const [renameOpen, setRenameOpen] = useState(false);
   const onPressHome = useCallback(() => {
-    router.replace('/');
+    closeSpaceDetail(router);
   }, [router]);
   const onRequestEnd = useCallback(() => {
     requestEndSpace(spaceId);

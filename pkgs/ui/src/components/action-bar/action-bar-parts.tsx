@@ -15,8 +15,7 @@ import type { ActionBarTextAction } from './action-bar-types';
 import { isActionBarAvatarItem, type ActionBarItem } from './partition-action-bar-items';
 
 export function buildOverflowMenuContent(
-  actions: readonly OverflowMenuAction[],
-  title: ReactNode
+  actions: readonly OverflowMenuAction[]
 ): FloatingMenuContent {
   const rows: FloatingMenuContentRow[] = [];
   actions.forEach((action, idx) => {
@@ -36,7 +35,7 @@ export function buildOverflowMenuContent(
       rows.push({ type: 'divider', id: `${action.id}-end-group` });
     }
   });
-  return { header: { title }, rows };
+  return { rows };
 }
 
 export function ActionBarOverflowTrigger(p: {

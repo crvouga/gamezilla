@@ -18,7 +18,12 @@ function AppStack() {
   return (
     <Stack {...props}>
       <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="space" />
+      <Stack.Screen
+        name="space"
+        options={{
+          presentation: 'fullScreenModal' as const,
+        }}
+      />
       <Stack.Screen name="profile" />
       <Stack.Screen name="more" />
       <Stack.Screen name="ui" />

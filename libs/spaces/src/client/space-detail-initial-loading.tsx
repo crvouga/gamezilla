@@ -4,6 +4,7 @@ import { useCallback, useContext, useMemo, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { DefineBackButton } from './nav/spaces-nav-context';
+import { closeSpaceDetail } from './space-routes';
 import { SpaceActiveLayout } from './active-space/space-active-layout';
 import {
   SpaceSessionUiProvider,
@@ -32,7 +33,10 @@ export function SpaceDetailInitialLoading({
   const router = useRouter();
   const bottomInset = useSafeAreaBottom();
   const onPressHome = useCallback(() => {
-    router.replace('/');
+    closeSpaceDetail(router);
+  }, [router]);
+  const onPressBack = useCallback(() => {
+    closeSpaceDetail(router);
   }, [router]);
   const onPressDebug = useCallback(() => {
     onOpenDebug?.();
@@ -58,7 +62,7 @@ export function SpaceDetailInitialLoading({
     >
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <SpaceSessionUiProvider value={sessionUi}>
-          <DefineBackButton onPress={() => router.back()} />
+          <DefineBackButton onPress={onPressBack} />
           <SpaceActiveLayout>
             <LoadingState size="large" />
           </SpaceActiveLayout>

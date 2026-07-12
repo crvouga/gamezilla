@@ -2,6 +2,7 @@ import {
   MainMenuScreen,
   type MainMenuItem,
 } from '@pkgs/ui/components/main-menu-screen';
+import { FadeSwitch } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -78,6 +79,29 @@ function GameListMenu({
   );
 }
 
+/** FadeSwitch key when no game is selected (not user-facing copy). */
+// eslint-disable-next-line lingui/no-unlocalized-strings -- animation key, not copy
+const GAMES_LIST_FADE_KEY = 'games-list';
+
+function GamesMainMenuContent({
+  games,
+  selectedGame,
+  onBackToGames,
+}: {
+  games: readonly GameClientDefinition[];
+  selectedGame: SelectedGameId;
+  onBackToGames: () => void;
+}): ReactNode {
+  if (selectedGame !== null) {
+    const game = games.find((g) => g.id === selectedGame);
+    if (game !== undefined) {
+      const SelectedMenu = game.MainMenu;
+      return <SelectedMenu onBackToGames={onBackToGames} />;
+    }
+  }
+  return <GameListMenu games={games} />;
+}
+
 /**
  * Top-level games menu for a space. Routes to the selected game's main menu
  * (via {@link GameClientDefinition.MainMenu}) or shows the game list when no
@@ -91,13 +115,15 @@ export function GamesMainMenu(): ReactNode {
   const onBackToGames = useCallback(() => {
     dispatch(SelectGame({ game: null }));
   }, [dispatch]);
+  const fadeKey = selectedGame ?? GAMES_LIST_FADE_KEY;
 
-  if (selectedGame !== null) {
-    const game = games.find((g) => g.id === selectedGame);
-    if (game !== undefined) {
-      const SelectedMenu = game.MainMenu;
-      return <SelectedMenu onBackToGames={onBackToGames} />;
-    }
-  }
-  return <GameListMenu games={games} />;
+  return (
+    <FadeSwitch stateKey={fadeKey}>
+      <GamesMainMenuContent
+        games={games}
+        selectedGame={selectedGame}
+        onBackToGames={onBackToGames}
+      />
+    </FadeSwitch>
+  );
 }

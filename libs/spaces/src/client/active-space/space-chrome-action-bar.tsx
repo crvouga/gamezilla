@@ -6,13 +6,11 @@ import {
   DoorOpenIcon,
   LogOutIcon,
   PaintbrushIcon,
-  SettingsIcon,
   XIcon,
   iconButtonAvatarContentSize,
   type ActionBarItem,
 } from '@pkgs/ui';
 import * as Clipboard from 'expo-clipboard';
-import { useRouter } from 'expo-router';
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 
@@ -20,7 +18,6 @@ import { SpaceMembersAvatarGroup } from '../members/space-members-avatar-group';
 import { SpaceMembersListModal } from '../members/space-members-list-modal';
 import { useSpacesNavBack } from '../nav/spaces-nav-context';
 import { useCurrentSpaceRole } from '../use-current-space-role';
-import { openSpaceSettings } from '../space-routes';
 import { useSpaceSessionUi } from './space-session-ui-context';
 
 const BUTTON_SIZE = 36;
@@ -41,7 +38,6 @@ type SpaceChromeLabels = {
   members: string;
   rename: string;
   invite: string;
-  settings: string;
   developer: string;
   end: string;
   leave: string;
@@ -57,7 +53,6 @@ type SpaceChromeTrailingCallbacks = SpaceChromeNavCallbacks & {
   onPressMembers: () => void;
   onPressRename: () => void;
   onPressInvite: () => void;
-  onPressSettings: () => void;
   onPressDebug: () => void;
   onPressEnd: () => void;
   onPressLeave: () => void;
@@ -109,7 +104,6 @@ function buildTrailingItems(args: {
       onPress: callbacks.onPressMembers,
       overflow: 'never',
       priority: 90,
-      endsGroup: true,
       children: <SpaceMembersAvatarGroup spaceId={spaceId} size={avatarSize} />,
     },
   ];
@@ -131,14 +125,6 @@ function buildTrailingItems(args: {
       icon: CopyIcon,
       onPress: callbacks.onPressInvite,
       priority: 70,
-    },
-    {
-      id: 'settings',
-      label: labels.settings,
-      icon: SettingsIcon,
-      onPress: callbacks.onPressSettings,
-      priority: 60,
-      endsGroup: true,
     },
     {
       id: 'developer',
@@ -176,7 +162,6 @@ function useSpaceChromeLabels(): SpaceChromeLabels {
       members: t`People in this space`,
       rename: t`Rename space`,
       invite: t`Copy invite link`,
-      settings: t`Space settings`,
       developer: t`Developer tools`,
       end: t`End space`,
       leave: t`Leave space`,
@@ -197,7 +182,6 @@ function useSpaceChromeNavCallbacks(): SpaceChromeNavCallbacks {
 function useSpaceChromeTrailingCallbacks(
   onPressMembers: () => void
 ): SpaceChromeTrailingCallbacks {
-  const router = useRouter();
   const {
     spaceId,
     onPressHome,
@@ -212,10 +196,6 @@ function useSpaceChromeTrailingCallbacks(
     void Clipboard.setStringAsync(buildInviteLinkForSpace(spaceId));
   }, [spaceId]);
 
-  const onOpenSettings = useCallback(() => {
-    openSpaceSettings(router, spaceId);
-  }, [router, spaceId]);
-
   return useMemo(
     () => ({
       onPressHome,
@@ -223,7 +203,6 @@ function useSpaceChromeTrailingCallbacks(
       onPressMembers,
       onPressRename: onRequestRename,
       onPressInvite: onCopyInviteLink,
-      onPressSettings: onOpenSettings,
       onPressDebug,
       onPressEnd: onRequestEnd,
       onPressLeave: onRequestLeave,
@@ -234,7 +213,6 @@ function useSpaceChromeTrailingCallbacks(
       onPressMembers,
       onRequestRename,
       onCopyInviteLink,
-      onOpenSettings,
       onPressDebug,
       onRequestEnd,
       onRequestLeave,

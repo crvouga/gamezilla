@@ -2,7 +2,6 @@
  * `ActionBar` -- responsive row of icon actions with overflow menu.
  */
 
-import { useLingui } from '@lingui/react/macro';
 import { useContext, useMemo, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
@@ -192,7 +191,6 @@ export function ActionBar({
   gap = DEFAULT_GAP,
   overflowTestID,
 }: ActionBarProps): ReactNode {
-  const { t } = useLingui();
   const menu = useAnchoredMenu();
   const layout = useActionBarLayout({
     items,
@@ -221,8 +219,8 @@ export function ActionBar({
   );
 
   const menuContent = useMemo(
-    (): FloatingMenuContent => buildOverflowMenuContent(overflowActions, t`More`),
-    [overflowActions, t]
+    (): FloatingMenuContent => buildOverflowMenuContent(overflowActions),
+    [overflowActions]
   );
 
   if (

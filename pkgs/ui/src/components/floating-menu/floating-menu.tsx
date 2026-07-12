@@ -31,7 +31,7 @@ export type FloatingMenuProps = {
   anchor: LayoutRectangle | null;
   insets: FloatingMenuInsets;
   width?: number;
-  /** Panel body: header + rows (items and dividers). */
+  /** Panel body: optional header + rows (items and dividers). */
   content: FloatingMenuContent;
 };
 
@@ -131,12 +131,14 @@ function FloatingMenuPanel({
             : {}),
         }}
       >
-        <FloatingMenuHeader
-          title={content.header.title}
-          {...(content.header.subtitle !== undefined
-            ? { subtitle: content.header.subtitle }
-            : {})}
-        />
+        {content.header !== undefined ? (
+          <FloatingMenuHeader
+            title={content.header.title}
+            {...(content.header.subtitle !== undefined
+              ? { subtitle: content.header.subtitle }
+              : {})}
+          />
+        ) : null}
         {content.rows.map(renderFloatingMenuRow)}
       </Box>
     </View>

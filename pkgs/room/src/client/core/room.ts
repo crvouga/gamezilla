@@ -324,6 +324,12 @@ export class Room<
     const suffixContiguous =
       suffix.length === 0 || suffix[0]!.seq === this.lastSeq + 1;
     const serverBehind = msg.lastSeq < this.lastSeq;
+    // Empty frame that still claims a tip ahead of us — typically a stale
+    // tip-sync welcome (fromSeq near the server tip) that arrives after we
+    // wiped local state, or a racy reconnect. Not a successful catch-up.
+    const behindWithoutEntries =
+      suffix.length === 0 && msg.lastSeq > this.lastSeq;
+
     if (serverBehind || !suffixContiguous) {
       // Server log diverged from our local cache (e.g. server storage was
       // reset to a shorter log). Server is the source of truth: wipe local
@@ -332,12 +338,31 @@ export class Room<
       this.sendSync();
       return;
     }
+
+    if (behindWithoutEntries) {
+      // Re-request a full sync. If this welcome was already fromSeq=0 and we
+      // hold nothing, the server claimed a tip with no events — unrecoverable.
+      if (msg.fromSeq === 0 && this.lastSeq === 0) {
+        assert.ok(
+          false,
+          'welcome lastSeq must match last applied entry seq',
+          { lastSeq: this.lastSeq, msgLastSeq: msg.lastSeq }
+        );
+      }
+      if (this.lastSeq !== 0) {
+        await this.resetCommittedToEmpty();
+      }
+      this.sendSync();
+      return;
+    }
+
     this.appendCommittedEntries(suffix);
-    assert.ok(
-      msg.lastSeq === this.lastSeq,
-      'welcome lastSeq must match last applied entry seq',
-      { lastSeq: this.lastSeq, msgLastSeq: msg.lastSeq }
-    );
+    if (msg.lastSeq !== this.lastSeq) {
+      // Entries did not land us on the claimed tip (gap / truncated frame).
+      await this.resetCommittedToEmpty();
+      this.sendSync();
+      return;
+    }
     await this.storage.saveCommitted(this.lastSeq, this.committedEntries);
     this.rebuildOptimisticSync();
     this.synced = true;

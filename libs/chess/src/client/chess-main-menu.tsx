@@ -7,13 +7,14 @@ import {
   MainMenuScreen,
   type MainMenuItem,
 } from '@pkgs/ui/components/main-menu-screen';
-import { Box } from '@pkgs/ui';
+import { Box, FadeSwitch } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import { useMemo, type ReactNode } from 'react';
 import {
   CHESS_SCREEN,
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
+  type ChessMainMenuScreen,
 } from '../shared/chess-main-menu';
 import { ChessBoardCanvasBootstrap } from '@pkgs/chess-board/chess-board-canvas-bootstrap';
 import { PuzzlePlayScreen } from './chess-puzzle/chess-puzzle-play-screen';
@@ -30,9 +31,13 @@ export type ChessMainMenuProps = {
   onBackToGames: () => void;
 };
 
-function ChessScreenSwitch({ onBackToGames }: ChessMainMenuProps): ReactNode {
-  const screen = useSpaceRoomSelector(ChessMainMenuScreenAttr.screen.from);
-
+function ChessScreenContent({
+  screen,
+  onBackToGames,
+}: {
+  screen: ChessMainMenuScreen;
+  onBackToGames: () => void;
+}): ReactNode {
   switch (screen) {
     case CHESS_SCREEN.puzzle:
       return <PuzzlePlayScreen />;
@@ -51,6 +56,16 @@ function ChessScreenSwitch({ onBackToGames }: ChessMainMenuProps): ReactNode {
     default:
       return <RootMainMenu onBackToGames={onBackToGames} />;
   }
+}
+
+function ChessScreenSwitch({ onBackToGames }: ChessMainMenuProps): ReactNode {
+  const screen = useSpaceRoomSelector(ChessMainMenuScreenAttr.screen.from);
+
+  return (
+    <FadeSwitch stateKey={screen}>
+      <ChessScreenContent screen={screen} onBackToGames={onBackToGames} />
+    </FadeSwitch>
+  );
 }
 
 /**

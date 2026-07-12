@@ -33,6 +33,7 @@ export type FloatingMenuContentRow =
 
 /** Declarative body for {@link FloatingMenu}. */
 export type FloatingMenuContent = {
-  header: FloatingMenuHeaderSpec;
+  /** Optional panel header (title + optional subtitle). Omit for a flat action list. */
+  header?: FloatingMenuHeaderSpec;
   rows: FloatingMenuContentRow[];
 };

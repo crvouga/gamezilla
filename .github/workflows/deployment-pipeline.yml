@@ -7,9 +7,10 @@
 #    circular-deps, audit, i18n, tc, lint, test, build)
 #    all run inside a
 #    single `turbo-ci` job that invokes `bun run check:ci`. Turbo's task
-#    graph + GitHub Actions cache of `.turbo` (local cache only — no
-#    Vercel Remote Cache) give us parallelism and cross-PR reuse without
-#    third-party rate limits.
+#    graph uses L1 GitHub Actions cache of `.turbo` plus L2 self-hosted
+#    remote cache (`TURBO_API` / `TURBO_TOKEN` / `TURBO_TEAM` from secrets
+#    env `dev` → https://turborepo.chrisvouga.dev). Vercel remote cache
+#    is intentionally not used (rate limits).
 #
 # 2. Non-Turbo tasks live in their own jobs only when they need a runner
 #    shape Turbo can't share: `static` (actionlint + gitleaks both want
@@ -54,9 +55,9 @@ jobs:
   # syncpack + catalog + no-patches, knip, depcruise, circular-deps,
   # audit, i18n, plus per-package `tc` / `lint` / `test` / `build`. Turbo
   # parallelizes across the task graph; `actions/cache` persists `.turbo`
-  # for cross-PR local-cache hits (`--cache=local:rw`
-  # via `scripts/turbo-ci-run.ts`). Per-task status
-  # (`--output-logs=hash-only --summarize`) keeps logs readable.
+  # as L1; `scripts/turbo-ci-run.ts` uses `--cache=local:rw,remote:rw`
+  # + `--cache-workers=1` against the self-hosted remote cache. Per-task
+  # status (`--output-logs=hash-only --summarize`) keeps logs readable.
   turbo-ci:
     runs-on: ubuntu-latest
     concurrency:
@@ -80,6 +81,8 @@ jobs:
           identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
           project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
           env-slug: dev
+      - name: Verify Turbo remote cache
+        run: bun run scripts/secrets-run.ts -- bun run check:turbo-remote-cache
       - name: Turbo CI (cacheable gates + tc/lint/test/build)
         env:
           # GHA runners can expose a pseudo-TTY; Turbo's interactive TUI then
@@ -175,7 +178,7 @@ jobs:
       # health-wait timeout. Then start wrangler only (`preview:serve`) — avoids
       # a second migrate racing qa-browser on the shared hosted dev Postgres.
       - name: Setup and migrate API
-        run: bun run scripts/secrets-run.ts -- bun turbo run setup migrate --filter=@apps/api --cache=local:rw
+        run: bun run scripts/secrets-run.ts -- bun turbo run setup migrate --filter=@apps/api --cache=local:rw,remote:rw --cache-workers=1
       - name: Start API preview
         env:
           # Wrangler-only boot is usually seconds; keep headroom for cold starts.
@@ -275,12 +278,12 @@ jobs:
       # Build first so the wait step only covers migrate + wrangler + static server
       # startup — cold CI can exceed 240s when build + preview run together.
       - name: Build preview stack artifacts
-        run: bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run setup build --filter=@apps/api --filter=@apps/client --cache=local:rw'
+        run: bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run setup build --filter=@apps/api --filter=@apps/client --cache=local:rw,remote:rw --cache-workers=1'
       - name: Start preview stack
         env:
           BROWSER_E2E_STACK_WAIT_MS: 480000
         run: |
-          nohup bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client --cache=local:rw' > /tmp/preview-stack.log 2>&1 &
+          nohup bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client --cache=local:rw,remote:rw --cache-workers=1' > /tmp/preview-stack.log 2>&1 &
           echo $! > /tmp/preview-stack.pid
           if ! bun run scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-browser-e2e-stack; then
             echo "::group::preview-stack.log (last 200 lines)"

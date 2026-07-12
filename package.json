@@ -20,6 +20,7 @@
     "check:no-direct-pg-imports": "bun run scripts/check-no-direct-pg-imports.ts",
     "check:no-patches": "bun run scripts/check-no-patches.ts",
     "check:static": "bun run check:actionlint && bun run check:gitleaks",
+    "check:turbo-remote-cache": "bun run scripts/check-turbo-remote-cache.ts",
     "chess:puzzles:refresh-sync-pool": "bun run scripts/secrets-run.ts -- bun run --filter @libs/chess refresh:puzzle-sync-pool",
     "chess:puzzles:seed": "bun run scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles",
     "ci:audit": "bun run scripts/ci-audit.ts",

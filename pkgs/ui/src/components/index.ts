@@ -323,6 +323,8 @@ export {
   type UseMutationLifecycleResult,
 } from './mutation-modal';
 
+export { FadeSwitch, type FadeSwitchProps } from './fade-switch';
+
 export { Picker, type PickerProps, type PickerOption } from './picker';
 
 export {

@@ -14,10 +14,25 @@ import { join } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '..');
 
-/** Drop legacy Vercel Remote Cache creds so Turbo never contacts vercel.com. */
+/**
+ * Drop Vercel Remote Cache creds only when TURBO_API points at vercel.com.
+ * Self-hosted TURBO_* (e.g. turborepo.chrisvouga.dev) must pass through.
+ */
 function stripVercelTurboRemoteCacheEnv(
   env: Record<string, string | undefined>
 ): void {
+  const api = env.TURBO_API?.trim() ?? '';
+  let isVercel = false;
+  if (api.length > 0) {
+    try {
+      const url = new URL(api);
+      isVercel =
+        url.hostname === 'vercel.com' || url.hostname.endsWith('.vercel.com');
+    } catch {
+      isVercel = false;
+    }
+  }
+  if (!isVercel) return;
   delete env.TURBO_TOKEN;
   delete env.TURBO_TEAM;
   delete env.TURBO_API;
