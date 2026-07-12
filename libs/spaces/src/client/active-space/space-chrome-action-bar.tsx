@@ -49,6 +49,7 @@ type SpaceChromeLabels = {
 
 type SpaceChromeNavCallbacks = {
   onPressHome: () => void;
+  /** Nested-screen back handler, or `null` on the space root. */
   onPressBack: (() => void) | null;
 };
 
@@ -67,7 +68,12 @@ function buildLeadingItems(args: {
   callbacks: SpaceChromeNavCallbacks;
 }): ActionBarItem[] {
   const { labels, callbacks } = args;
-  const items: ActionBarItem[] = [
+  const onPressBack =
+    callbacks.onPressBack !== null
+      ? callbacks.onPressBack
+      : callbacks.onPressHome;
+
+  return [
     {
       id: 'home',
       label: labels.home,
@@ -76,20 +82,15 @@ function buildLeadingItems(args: {
       overflow: 'never',
       priority: 100,
     },
-  ];
-
-  if (callbacks.onPressBack !== null) {
-    items.push({
+    {
       id: 'back',
       label: labels.back,
       icon: ChevronLeftIcon,
-      onPress: callbacks.onPressBack,
+      onPress: onPressBack,
       overflow: 'never',
       priority: 95,
-    });
-  }
-
-  return items;
+    },
+  ];
 }
 
 function buildTrailingItems(args: {
@@ -242,7 +243,8 @@ function useSpaceChromeTrailingCallbacks(
 }
 
 /**
- * Leading active-space chrome: exit to spaces home + optional back.
+ * Leading active-space chrome: exit to spaces home + always-visible back
+ * (nested handler when registered, otherwise same as exit / space list).
  */
 export function SpaceChromeLeadingActionBar(): ReactNode {
   const labels = useSpaceChromeLabels();

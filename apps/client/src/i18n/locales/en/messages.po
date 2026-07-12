@@ -212,6 +212,7 @@ msgstr "Avatar"
 #~ msgid "Avatar style"
 #~ msgstr "Avatar style"
 
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: pkgs/ui/src/components/back-icon-button/back-icon-button.tsx
 msgid "Back"
 msgstr "Back"
@@ -904,7 +905,7 @@ msgstr "go to"
 msgid "Go to {target}"
 msgstr "Go to {target}"
 
-#: libs/spaces/src/client/active-space/space-chrome-home-button.tsx
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 msgid "Go to spaces"
 msgstr "Go to spaces"
 
@@ -1380,7 +1381,7 @@ msgstr "Pass `theme` to override any board color (squares, highlights, arrows, f
 #~ msgid "Paste a seed to recreate this look, or share it with friends."
 #~ msgstr "Paste a seed to recreate this look, or share it with friends."
 
-#: libs/spaces/src/client/members/space-members-avatar-group.tsx
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/members/space-members-list-modal.tsx
 msgid "People in this space"
 msgstr "People in this space"
