@@ -52,6 +52,7 @@ export function AvatarHero({ size, children, action }: AvatarHeroProps) {
               background="surface"
               onPress={action.onPress}
               disabled={action.disabled === true}
+              label={action.accessibilityLabel}
               accessibilityLabel={action.accessibilityLabel}
             >
               {action.icon}

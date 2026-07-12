@@ -2,8 +2,8 @@
  * `StateBlock` -- internal layout primitive shared by `LoadingState`,
  * `EmptyState`, `ErrorState`, and `SuccessState`.
  *
- * Renders a vertically-stacked column with consistent gap, max-width, and
- * centering behavior. Two density variants:
+ * Renders a vertically-stacked column with consistent gap and centering
+ * behavior. Two density variants:
  *   - `'fill'`    -> `flex: 1`, vertically centered on the parent. Used for
  *                    full-screen states (Suspense fallback, empty list page).
  *   - `'compact'` -> intrinsic height with generous padding. Used inline as
@@ -25,8 +25,6 @@ export type StateBlockProps = {
   children: ReactNode;
 };
 
-const MAX_CONTENT_WIDTH = 360;
-
 export function StateBlock({
   variant = 'fill',
   children,
@@ -43,15 +41,7 @@ export function StateBlock({
         py: isFill ? 8 : 6,
       }}
     >
-      <Box
-        sx={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 2,
-          maxWidth: MAX_CONTENT_WIDTH,
-        }}
-        style={{ width: '100%' }}
-      >
+      <Box sx={{ alignItems: 'center', justifyContent: 'center', gap: 2 }}>
         {children}
       </Box>
     </Box>

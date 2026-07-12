@@ -115,8 +115,5 @@ export default defineConfig({
     trace: 'on-first-retry',
     video: 'on',
   },
-  projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile', use: { ...devices['Pixel 5'] } },
-  ],
+  projects: [{ name: 'mobile', use: { ...devices['Pixel 5'] } }],
 });

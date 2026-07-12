@@ -27,8 +27,6 @@ export type SpaceJoinPromptProps = {
   onOpenDebug: () => void;
 };
 
-const JOIN_MAX_WIDTH = 480;
-
 export function SpaceJoinPrompt({
   spaceId,
   onOpenDebug,
@@ -53,7 +51,11 @@ export function SpaceJoinPrompt({
     <ScreenBase
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
-        { name: <SpaceTitleText spaceId={spaceId} variant="bodyBold" /> },
+        {
+          name: (
+            <SpaceTitleText spaceId={spaceId} variant="navigationTitle" />
+          ),
+        },
       ]}
       actions={actions}
       content={({ sx }) => (
@@ -85,20 +87,13 @@ function JoinPromptBody({
         icon={Gamepad2Icon}
         title={<Trans>This space is not available</Trans>}
         body={<Trans>It may have ended or the link might be invalid.</Trans>}
-        action={{ label: t`Back to Spaces`, onPress: () => nav('/') }}
+        action={{ label: t`Back to Spaces`, onPress: nav('/') }}
       />
     );
   }
 
   return (
-    <Box
-      sx={{
-        alignSelf: 'center',
-        maxWidth: JOIN_MAX_WIDTH,
-        gap: 4,
-      }}
-      style={{ width: '100%' }}
-    >
+    <Box sx={{ gap: 4 }}>
       <SpaceCardGradientBox
         sx={{
           borderRadius: SPACE_CARD_BORDER_RADIUS,

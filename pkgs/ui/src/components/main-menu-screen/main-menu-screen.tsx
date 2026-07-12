@@ -30,7 +30,6 @@ export type MainMenuScreenProps = {
   footer?: ReactNode;
 };
 
-const MENU_MAX_WIDTH = 640;
 const MENU_ITEM_MIN_HEIGHT = 84;
 
 function mainMenuDefaultTrailing(
@@ -147,17 +146,7 @@ export function MainMenuScreen({
 }: MainMenuScreenProps): ReactNode {
   const hasHeader = title !== undefined || subtitle !== undefined;
   return (
-    <Box
-      sx={{
-        alignSelf: 'center',
-        maxWidth: MENU_MAX_WIDTH,
-        px: 4,
-        pb: 8,
-        pt: 4,
-        gap: 4,
-      }}
-      style={{ width: '100%' }}
-    >
+    <Box sx={{ px: 4, pb: 8, pt: 4, gap: 4 }}>
       {hasHeader ? (
         <Box sx={{ gap: 2, alignItems: 'center', minHeight: 112 }}>
           {title ? (

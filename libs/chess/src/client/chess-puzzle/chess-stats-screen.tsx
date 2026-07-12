@@ -14,8 +14,6 @@ import { ChessPuzzleEloChip } from './chess-puzzle-elo-chip';
 import { ChessPuzzleStatsCards } from './chess-puzzle-stats-cards';
 import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 
-const CONTENT_MAX_WIDTH = 720;
-
 export function ChessStatsScreen(): ReactNode {
   const theme = useTheme();
   const dispatch = useSpaceRoomDispatch();
@@ -29,16 +27,7 @@ export function ChessStatsScreen(): ReactNode {
     <>
       <DefineBackButton onPress={backToRoot} />
       <ScrollView sx={{ flex: 1, alignSelf: 'stretch' }}>
-        <Box
-          sx={{
-            alignSelf: 'center',
-            maxWidth: CONTENT_MAX_WIDTH,
-            gap: 4,
-            p: 4,
-            pb: 8,
-          }}
-          style={{ width: '100%' }}
-        >
+        <Box sx={{ gap: 4, p: 4, pb: 8 }}>
           <Text
             variant="title"
             style={{ color: theme.colors.text }}

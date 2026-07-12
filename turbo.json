@@ -98,11 +98,6 @@
       "cache": false,
       "outputs": ["../../qa/playwright-report/**", "../../qa/test-results/**"]
     },
-    "test:e2e:native": {
-      "dependsOn": ["^tc"],
-      "cache": false,
-      "outputs": ["../../qa/playwright-report/**", "../../qa/test-results/**"]
-    },
     "//#ci:format": {
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": [],

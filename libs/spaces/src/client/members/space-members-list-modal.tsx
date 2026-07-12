@@ -11,9 +11,8 @@ export type SpaceMembersListModalProps = {
 };
 
 /**
- * Modal listing space members. Uses {@link ResponsiveSurface}, which adds
- * a visible close icon to the header on both mobile and desktop and keeps
- * backdrop / sheet dismissal working.
+ * Modal listing space members. Uses {@link ResponsiveSurface} (bottom sheet on
+ * mobile, centered modal on wider viewports).
  */
 export function SpaceMembersListModal({
   spaceId,

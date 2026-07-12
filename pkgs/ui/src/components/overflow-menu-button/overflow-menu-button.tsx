@@ -142,6 +142,7 @@ export function OverflowMenuButton({
           size={size}
           background={background}
           onPress={menu.openMenu}
+          label={accessibilityLabel}
           accessibilityLabel={accessibilityLabel}
           {...(testID !== undefined ? { testID } : {})}
         >

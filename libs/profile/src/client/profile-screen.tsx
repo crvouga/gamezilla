@@ -7,20 +7,14 @@ import {
   Button,
   ScreenBase,
   Text,
-  useBreakpoint,
-  type ScreenBaseAction,
 } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 
 export type ProfileScreenProps = {
-  /** Header overflow actions for user / connection / settings on mobile. */
-  readonly accountActions: readonly ScreenBaseAction[];
-  /** Desktop centered tab strip (top-level tab navigation). */
-  readonly centerTabs?: ReactNode;
-  /** Desktop trailing slot (account avatar trigger). */
-  readonly headerEnd?: ReactNode;
+  /** Always-visible account avatar menu in the header trailing slot. */
+  readonly accountMenu?: ReactNode;
   /** Leading slot (typically the app logo on root tabs). */
   readonly leading?: ReactNode;
   /** Centered friends stats row (signed-in counts; guests open sign-in on tap). */
@@ -34,22 +28,16 @@ export type ProfileScreenProps = {
 };
 
 export function ProfileScreen({
-  accountActions,
-  centerTabs,
-  headerEnd,
+  accountMenu,
   leading,
   friendsStats,
   friendsActions,
   bottomInset = 0,
 }: ProfileScreenProps) {
-  const isMobile = useBreakpoint() === 'mobile';
-
   return (
     <ScreenBase
       breadcrumbs={[{ name: <Trans>Profile</Trans> }]}
-      actions={isMobile ? [...accountActions] : []}
-      centerTabs={centerTabs}
-      headerEnd={headerEnd}
+      accountMenu={accountMenu}
       leading={leading}
       content={({ sx }) => (
         <ProfileScreenContent

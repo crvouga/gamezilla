@@ -1,25 +1,13 @@
 import type { Page } from '@playwright/test';
 
-/** Matches {@link @pkgs/ui} `BREAKPOINT_MIN_TABLET` — mobile chrome uses overflow, not headerEnd. */
-const MOBILE_MAX_WIDTH_PX = 767;
-
 export type UserMenuItem = 'Sign in' | 'Sign out';
 
-function isMobileViewport(page: Page): boolean {
-  const viewport = page.viewportSize();
-  return viewport !== null && viewport.width <= MOBILE_MAX_WIDTH_PX;
-}
-
-/** Opens account actions — header avatar menu (desktop) or overflow (mobile). */
+/** Opens account actions via the header avatar menu. */
 export async function openUserMenu(page: Page): Promise<void> {
-  if (isMobileViewport(page)) {
-    await page
-      .getByTestId('header-overflow-menu')
-      .locator('visible=true')
-      .click();
-    return;
-  }
-  await page.getByRole('button', { name: 'User menu' }).click();
+  await page
+    .getByTestId('account-menu-trigger')
+    .locator('visible=true')
+    .click();
 }
 
 /** Clicks a row in the open user menu (menu must already be open). */

@@ -5,6 +5,7 @@ import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { memo, useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Animated } from 'react-native';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
+import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleCelebrationOverlay } from './chess-puzzle-celebration-overlay';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
@@ -19,8 +20,6 @@ import {
 } from './use-puzzle-player-state';
 import { usePuzzlePlayScreenState } from './use-puzzle-play-screen-state';
 
-const BOARD_MAX_WIDTH = 720;
-
 const LOADING_SHELL_STATUS = 'loading' as const satisfies SolveStatus;
 const LOADING_SHELL_HINT_STAGE = 'none' as const satisfies HintStage;
 
@@ -29,7 +28,7 @@ const noop = (): void => {};
 type PuzzlePlayLayoutProps = {
   backToRoot: () => void;
   assistant: ReactNode;
-  boardSlot: ReactNode;
+  boardSlot: (size: number) => ReactNode;
   status: SolveStatus;
   hintStage: HintStage;
   onHint: () => void;
@@ -45,41 +44,35 @@ type PuzzlePlayLayoutProps = {
 function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
   const showCelebration = p.completion !== null;
   return (
-    <Box sx={{ alignSelf: 'stretch' }}>
+    <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}>
       <DefineBackButton onPress={p.backToRoot} />
       {p.e2eLoadingStatus}
-      <Box
-        sx={{
-          alignSelf: 'center',
-          maxWidth: BOARD_MAX_WIDTH,
-          gap: 4,
-          pb: 8,
-          pt: 4,
-        }}
-        style={{ width: '100%' }}
-      >
-        <Box style={{ position: 'relative' }}>
-          {p.assistant}
-          {p.boardSlot}
-          {!showCelebration ? (
-            <ChessPuzzleActionBar
-              status={p.status}
-              hintStage={p.hintStage}
-              onHint={p.onHint}
-              onRetry={p.onRetry}
-              onNext={p.onNext}
-            />
-          ) : null}
-          {showCelebration && p.completion !== null ? (
-            <ChessPuzzleCelebrationOverlay
-              completion={p.completion}
-              onContinue={p.onNext}
-              onRetry={p.onRetry}
-              onDisplayEloChange={p.onCelebrationEloChange}
-              onEloCompletePulse={p.onCelebrationEloComplete}
-            />
-          ) : null}
-        </Box>
+      <Box sx={{ flex: 1, minHeight: 0, gap: 4, pb: 8, pt: 4 }}>
+        {p.assistant}
+        <ChessPuzzleBoardFrame
+          overlay={
+            showCelebration && p.completion !== null ? (
+              <ChessPuzzleCelebrationOverlay
+                completion={p.completion}
+                onContinue={p.onNext}
+                onRetry={p.onRetry}
+                onDisplayEloChange={p.onCelebrationEloChange}
+                onEloCompletePulse={p.onCelebrationEloComplete}
+              />
+            ) : null
+          }
+        >
+          {(size) => p.boardSlot(size)}
+        </ChessPuzzleBoardFrame>
+        {!showCelebration ? (
+          <ChessPuzzleActionBar
+            status={p.status}
+            hintStage={p.hintStage}
+            onHint={p.onHint}
+            onRetry={p.onRetry}
+            onNext={p.onNext}
+          />
+        ) : null}
         {p.e2eHints}
       </Box>
     </Box>
@@ -98,17 +91,18 @@ const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
     | 'cellHighlights'
     | 'arrows'
     | 'boardShakeNonce'
-  >
+  > & { size: number }
 ): ReactNode {
   const shakeX = useBoardShakeAnimation(p.boardShakeNonce);
   if (p.displayFen === null || p.displayFen.length === 0) {
-    return <ChessPuzzleBoardLoadingState />;
+    return <ChessPuzzleBoardLoadingState size={p.size} />;
   }
   return (
     <Animated.View style={{ transform: [{ translateX: shakeX }] }}>
       <ChessBoard
         controlled
         testID="chess-puzzle-board"
+        size={p.size}
         fen={p.displayFen}
         fenSyncKey={p.layoutKey}
         orientation={p.orientation}
@@ -165,8 +159,9 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
           numberOfLines={2}
         />
       }
-      boardSlot={
+      boardSlot={(size) => (
         <PuzzleBoardSlot
+          size={size}
           displayFen={p.displayFen}
           layoutKey={p.layoutKey}
           orientation={p.orientation}
@@ -177,7 +172,7 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
           arrows={p.arrows}
           boardShakeNonce={p.boardShakeNonce}
         />
-      }
+      )}
       status={p.status}
       hintStage={p.hintStage}
       onHint={p.onHint}
@@ -243,7 +238,7 @@ function PuzzlePlayLoadingShell(p: {
           numberOfLines={2}
         />
       }
-      boardSlot={<ChessPuzzleBoardLoadingState />}
+      boardSlot={(size) => <ChessPuzzleBoardLoadingState size={size} />}
       status={LOADING_SHELL_STATUS}
       hintStage={LOADING_SHELL_HINT_STAGE}
       onHint={noop}
@@ -268,7 +263,10 @@ export function PuzzlePlayScreen(): ReactNode {
 
   if (activePuzzleId === null) {
     return (
-      <Box testID="chess-puzzle-play-screen" sx={{ alignSelf: 'stretch' }}>
+      <Box
+        testID="chess-puzzle-play-screen"
+        sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}
+      >
         <PuzzlePlayLoadingShell
           backToChessRoot={backToChessRoot}
           e2eLoadingStatus={e2ePickStatus}
@@ -278,7 +276,10 @@ export function PuzzlePlayScreen(): ReactNode {
   }
 
   return (
-    <Box testID="chess-puzzle-play-screen" sx={{ alignSelf: 'stretch' }}>
+    <Box
+      testID="chess-puzzle-play-screen"
+      sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}
+    >
       {e2ePickStatus}
       <PuzzlePlayer
         puzzleId={activePuzzleId}

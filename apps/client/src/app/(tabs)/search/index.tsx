@@ -1,17 +1,12 @@
-import { AppHeaderInboxAndAccount } from '@apps/client/ui/app-header/app-header-inbox-and-account';
 import { AppHeaderLogo } from '@apps/client/ui/app-header/app-header-logo';
-import { AppHeaderTabs } from '@apps/client/ui/app-header/app-header-tabs';
-import { useAccountActions } from '@apps/client/ui/use-account-actions';
+import { AppAccountMenu } from '@apps/client/ui/app-header/app-account-menu';
 import { SearchScreen } from '@libs/search/client/search-screen';
 
 export default function SearchTab() {
-  const accountActions = useAccountActions();
   return (
     <SearchScreen
-      accountActions={accountActions}
+      accountMenu={<AppAccountMenu />}
       leading={<AppHeaderLogo />}
-      centerTabs={<AppHeaderTabs />}
-      headerEnd={<AppHeaderInboxAndAccount />}
     />
   );
 }

@@ -6,7 +6,17 @@ import type { ReactNode } from 'react';
  * puzzle's FEN is being fetched. Centers a spinner so loading reads clearly
  * without changing the board slot footprint.
  */
-export function ChessPuzzleBoardLoadingState(): ReactNode {
+export type ChessPuzzleBoardLoadingStateProps = {
+  size?: number;
+};
+
+export function ChessPuzzleBoardLoadingState({
+  size,
+}: ChessPuzzleBoardLoadingStateProps = {}): ReactNode {
+  const dimensionStyle =
+    size !== undefined
+      ? { width: size, height: size }
+      : { width: '100%' as const, aspectRatio: 1 };
   return (
     <Box
       sx={{
@@ -15,7 +25,7 @@ export function ChessPuzzleBoardLoadingState(): ReactNode {
         alignItems: 'center',
         justifyContent: 'center',
       }}
-      style={{ width: '100%', aspectRatio: 1 }}
+      style={dimensionStyle}
     >
       <Spinner size="large" />
     </Box>

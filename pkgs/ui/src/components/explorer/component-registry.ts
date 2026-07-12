@@ -18,6 +18,8 @@ import { default as BrandIconExample } from '../brand-icon/brand-icon.example';
 import { default as ButtonExample } from '../button/button.example';
 import { default as FloatingActionButtonExample } from '../floating-action-button/floating-action-button.example';
 import { default as IconButtonExample } from '../icon-button/icon-button.example';
+import { default as ActionBarExample } from '../action-bar/action-bar.example';
+import { default as TooltipExample } from '../tooltip/tooltip.example';
 import { default as SocialSignInButtonExample } from '../social-sign-in-button/social-sign-in-button.example';
 import { default as TextInputExample } from '../text-input/text-input.example';
 import { default as CopyToClipboardFieldExample } from '../copy-to-clipboard-field/copy-to-clipboard-field.example';
@@ -109,6 +111,8 @@ const builtInEntries: ComponentEntry[] = [
     Example: FloatingActionButtonExample,
   },
   { name: 'IconButton', category: 'Inputs', Example: IconButtonExample },
+  { name: 'ActionBar', category: 'Inputs', Example: ActionBarExample },
+  { name: 'Tooltip', category: 'Inputs', Example: TooltipExample },
   {
     name: 'SocialSignInButton',
     category: 'Inputs',

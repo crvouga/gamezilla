@@ -333,6 +333,7 @@ function DismissibleBannerFrame({
       <IconButton
         size={40}
         onPress={dismiss}
+        label={t`Dismiss`}
         accessibilityLabel={t`Dismiss`}
         {...(dismissButtonTestID !== undefined
           ? { testID: dismissButtonTestID }

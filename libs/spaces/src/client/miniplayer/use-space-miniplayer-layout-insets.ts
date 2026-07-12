@@ -1,4 +1,3 @@
-import { useBreakpoint } from '@pkgs/ui';
 import { usePathname } from 'expo-router';
 import { useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,7 +15,6 @@ export type SpaceMiniplayerLayoutInsets = {
 
 export function useSpaceMiniplayerLayoutInsets(): SpaceMiniplayerLayoutInsets {
   const spaceIds = useSpaceMiniplayerVisibleSpaceIds();
-  const isMobile = useBreakpoint() === 'mobile';
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
   const rawPath = pathname.split('?')[0] ?? '';
@@ -27,12 +25,12 @@ export function useSpaceMiniplayerLayoutInsets(): SpaceMiniplayerLayoutInsets {
       return { top: 0, bottom: 0 };
     }
 
-    if (isMobile && onTabRoute) {
+    if (onTabRoute) {
       return { top: 0, bottom: 0 };
     }
 
     const height = estimateSpaceMiniplayerHeight(spaceIds.length);
     const bottomInset = getSpaceMiniplayerBottomInset(insets.bottom);
     return { top: 0, bottom: height + bottomInset };
-  }, [spaceIds.length, isMobile, onTabRoute, insets.bottom]);
+  }, [spaceIds.length, onTabRoute, insets.bottom]);
 }

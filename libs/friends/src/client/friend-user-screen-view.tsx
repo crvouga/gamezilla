@@ -1,8 +1,8 @@
-import { OverflowMenuButton, ScreenBase } from '@pkgs/ui';
+import { ScreenBase, type ScreenBaseAction } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 
 import { useFriendMutations } from './friend-action-context';
 import { createFriendUserDangerHandlers } from './friend-user-danger-modals';
@@ -21,7 +21,6 @@ import {
 function FriendUserScreenBody({ userId }: { userId: string }): ReactNode {
   const router = useRouter();
   const nav = useBreadcrumbNav();
-  const { t } = useLingui();
   const deps = useFriendsClientDeps();
   const status = useFriendshipStatus(userId);
   const requestIds = useFriendRequestIdsForUser(userId);
@@ -46,6 +45,15 @@ function FriendUserScreenBody({ userId }: { userId: string }): ReactNode {
     () => setRemoveOpen(true),
     () => setBlockOpen(true)
   );
+  const headerActions = useMemo((): ScreenBaseAction[] => {
+    return menuActions.map((action) => ({
+      type: 'default' as const,
+      label: action.label,
+      onPress: action.onPress,
+      overflow: 'always' as const,
+      ...(action.endsGroup === true ? { endsGroup: true } : {}),
+    }));
+  }, [menuActions]);
 
   return (
     <ScreenBase
@@ -53,15 +61,7 @@ function FriendUserScreenBody({ userId }: { userId: string }): ReactNode {
         { name: <Trans>Profile</Trans>, onPress: nav('/profile') },
         { name: friendUserBreadcrumbName(profile, userId) },
       ]}
-      headerEnd={
-        menuActions.length > 0 ? (
-          <OverflowMenuButton
-            actions={menuActions}
-            header={{ title: t`More` }}
-            accessibilityLabel={t`More`}
-          />
-        ) : undefined
-      }
+      actions={headerActions}
       content={({ sx }) => (
         <FriendUserScreenContent
           sx={sx}

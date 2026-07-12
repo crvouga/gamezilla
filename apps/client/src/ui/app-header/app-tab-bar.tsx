@@ -1,7 +1,6 @@
 /**
  * Standalone tab bar driven by live {@link BottomTabBarProps} from the
- * expo-router `Tabs` navigator. Used in the mobile bottom slot and the
- * desktop header center slot so both surfaces share one implementation.
+ * expo-router `Tabs` navigator.
  */
 
 import type {
@@ -11,12 +10,7 @@ import type {
 import { Box, TOP_BAR_CONTENT_HEIGHT, useTheme } from '@pkgs/ui';
 import { useMemo, type ReactNode } from 'react';
 
-import {
-  APP_TAB_ICON_SIZE,
-  AppTabButton,
-  HEADER_TAB_WIDTH,
-  type AppTabButtonLayout,
-} from './app-tab-button';
+import { APP_TAB_ICON_SIZE, AppTabButton } from './app-tab-button';
 
 type TabRoute = BottomTabBarProps['state']['routes'][number];
 
@@ -83,12 +77,7 @@ function renderTabIcon(
   });
 }
 
-type TabBarRowProps = {
-  props: BottomTabBarProps;
-  layout: AppTabButtonLayout;
-};
-
-function AppTabBarRow({ props, layout }: TabBarRowProps): ReactNode {
+function AppTabBarRow({ props }: { props: BottomTabBarProps }): ReactNode {
   const theme = useTheme();
   const { active, inactive } = tabTintColors(props, theme);
   const { state, descriptors } = props;
@@ -109,7 +98,6 @@ function AppTabBarRow({ props, layout }: TabBarRowProps): ReactNode {
         return (
           <AppTabButton
             key={route.key}
-            layout={layout}
             label={resolveTabLabel(options, route.name)}
             icon={renderTabIcon(options, focused, color)}
             focused={focused}
@@ -122,32 +110,8 @@ function AppTabBarRow({ props, layout }: TabBarRowProps): ReactNode {
   );
 }
 
-export type AppTabBarProps = BottomTabBarProps & {
-  layout: AppTabButtonLayout;
-};
-
-export function AppTabBar({ layout, ...props }: AppTabBarProps): ReactNode {
-  const tabCount = props.state.routes.length;
-  const headerWidth = tabCount * HEADER_TAB_WIDTH;
-
-  const row = useMemo(
-    () => <AppTabBarRow props={props} layout={layout} />,
-    [props, layout]
-  );
-
-  if (layout === 'header') {
-    return (
-      <Box
-        sx={{
-          flexDirection: 'row',
-          width: headerWidth,
-          height: TOP_BAR_CONTENT_HEIGHT,
-        }}
-      >
-        {row}
-      </Box>
-    );
-  }
+export function AppTabBar(props: BottomTabBarProps): ReactNode {
+  const row = useMemo(() => <AppTabBarRow props={props} />, [props]);
 
   return (
     <Box

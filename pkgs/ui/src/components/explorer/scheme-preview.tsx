@@ -8,8 +8,7 @@
  * Uses `ThemeProvider` directly (not `AppThemeRoot`) so we don't double up
  * on the global side-effects (status bar, navigation theme, scrollbar).
  *
- * Stacks vertically below the `stackBelow` breakpoint to keep narrow
- * (mobile) previews readable.
+ * Panes stack vertically for mobile-first readability.
  */
 
 import type { ReactNode } from 'react';
@@ -22,43 +21,17 @@ import { Text } from '../text';
 
 export type SchemePreviewProps = {
   children: ReactNode;
-  /** Layout breakpoint below which the panes stack vertically. Defaults to 720. */
-  stackBelow?: number;
 };
 
-export function SchemePreview({
-  children,
-  stackBelow = 720,
-}: SchemePreviewProps): ReactNode {
+export function SchemePreview({ children }: SchemePreviewProps): ReactNode {
   return (
-    <SchemePreviewLayout stackBelow={stackBelow}>
+    <View style={{ flexDirection: 'column', gap: 16 }}>
       <SchemePane label="Light" scheme="light">
         {children}
       </SchemePane>
       <SchemePane label="Dark" scheme="dark">
         {children}
       </SchemePane>
-    </SchemePreviewLayout>
-  );
-}
-
-function SchemePreviewLayout({
-  children,
-  stackBelow,
-}: {
-  children: ReactNode;
-  stackBelow: number;
-}): ReactNode {
-  const theme = useTheme();
-  const isNarrow = theme.layout.width < stackBelow;
-  return (
-    <View
-      style={{
-        flexDirection: isNarrow ? 'column' : 'row',
-        gap: 16,
-      }}
-    >
-      {children}
     </View>
   );
 }

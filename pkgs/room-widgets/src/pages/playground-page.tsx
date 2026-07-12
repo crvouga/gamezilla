@@ -26,7 +26,7 @@ function SimPanel(props: {
 }) {
   const theme = useTheme();
   return (
-    <Card elevation={2} style={{ maxWidth: 420 }}>
+    <Card elevation={2}>
       <Box sx={{ px: 4, py: 3 }}>
         <Stack direction="horizontal" spacing={2} align="center">
           <Text variant="bodyBold" label={props.title} />
@@ -97,7 +97,7 @@ export function PlaygroundPage() {
 
   return (
     <ScrollView sx={{ flex: 1, px: 4, py: 3 }}>
-      <Stack spacing={3} sx={{ pb: 8, maxWidth: 480 }}>
+      <Stack spacing={3} sx={{ pb: 8 }}>
         <Text variant="title" label={t`Room simulation`} />
         {error !== null ? (
           <Text

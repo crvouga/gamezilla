@@ -7,6 +7,7 @@ import {
   MainMenuScreen,
   type MainMenuItem,
 } from '@pkgs/ui/components/main-menu-screen';
+import { Box } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import { useMemo, type ReactNode } from 'react';
 import {
@@ -69,7 +70,9 @@ export function ChessMainMenu({
 }: ChessMainMenuProps): ReactNode {
   return (
     <ChessBoardCanvasBootstrap>
-      <ChessScreenSwitch onBackToGames={onBackToGames} />
+      <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}>
+        <ChessScreenSwitch onBackToGames={onBackToGames} />
+      </Box>
     </ChessBoardCanvasBootstrap>
   );
 }

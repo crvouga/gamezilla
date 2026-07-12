@@ -6,9 +6,6 @@ import { Tabs } from 'expo-router';
 
 /**
  * Top-level tab layout.
- *
- * One bar definition (`Tabs.Screen` options) drives both surfaces via
- * {@link AppTabBar}: mobile bottom bar and desktop header center strip.
  */
 export default function TabsLayout() {
   const { t } = useLingui();

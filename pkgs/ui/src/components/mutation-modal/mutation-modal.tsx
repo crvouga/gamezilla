@@ -32,7 +32,6 @@ import { LoadingState } from '../loading-state';
 import { ModalBody } from '../modal/modal-body';
 import { ModalButton } from '../modal/modal-button';
 import { ModalFooter } from '../modal/modal-footer';
-import type { ModalSize } from '../../theme/modal-size';
 import { ResponsiveSurface } from '../responsive-surface';
 import { SuccessState } from '../success-state';
 import { MutationStateTransition } from './mutation-modal-transition';
@@ -73,8 +72,6 @@ export type MutationModalProps = {
   onSuccess?: (() => void) | undefined;
   /** Override default mutation success/error sounds. */
   sounds?: { success?: SoundId; error?: SoundId } | undefined;
-  /** Centered modal width on tablet/desktop. Default `medium`. */
-  size?: ModalSize;
 };
 
 const STATE_AREA_MIN_HEIGHT = 200;
@@ -108,7 +105,6 @@ export function MutationModal(props: MutationModalProps): ReactNode {
       visible={visible}
       onClose={surfaceClose}
       title={title}
-      {...(props.size !== undefined ? { size: props.size } : {})}
     >
       <MutationStateTransition stateKey={phase} active={visible}>
         <MutationModalBody

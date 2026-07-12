@@ -409,7 +409,6 @@ function PaletteOverlay({
         <Animated.View
           style={{
             width: '100%',
-            maxWidth: 560,
             opacity,
             transform: [{ translateY }],
           }}

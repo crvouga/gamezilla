@@ -37,7 +37,6 @@ export const SpaceAttr = {
 } as const;
 
 /**
- * Guest membership only. Host is {@link SpaceAttr.hostId}. Entity id
  * `${guestId}:${spaceId}`.
  */
 export const spaceMembershipNs = createAttrNamespace('space', 'membership');

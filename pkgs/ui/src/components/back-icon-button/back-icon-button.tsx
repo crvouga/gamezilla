@@ -24,8 +24,8 @@ export type BackIconButtonProps = {
   size?: number;
   /** Background color token or raw color. Defaults to `'surface'`. */
   background?: string;
-  /** Accessibility label override. Defaults to localized "Back". */
-  accessibilityLabel?: LocalizedString;
+  /** Label override. Defaults to localized "Back". */
+  label?: LocalizedString;
   testID?: string;
 };
 
@@ -35,18 +35,20 @@ export function BackIconButton({
   onPress,
   size = 40,
   background = 'surface',
-  accessibilityLabel,
+  label,
   testID,
 }: BackIconButtonProps): ReactNode {
   const { t } = useLingui();
   const theme = useTheme();
   const iconSize = Math.round(size * ICON_SIZE_RATIO);
+  const resolvedLabel = label ?? t`Back`;
   return (
     <IconButton
       size={size}
       background={background}
       onPress={onPress}
-      accessibilityLabel={accessibilityLabel ?? t`Back`}
+      label={resolvedLabel}
+      accessibilityLabel={resolvedLabel}
       {...(testID !== undefined ? { testID } : {})}
     >
       <ChevronLeftIcon size={iconSize} color={theme.colors.text} />

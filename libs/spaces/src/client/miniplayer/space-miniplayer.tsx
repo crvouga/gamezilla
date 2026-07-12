@@ -1,4 +1,4 @@
-import { Box, MAX_CONTENT_WIDTH, useBreakpoint } from '@pkgs/ui';
+import { Box } from '@pkgs/ui';
 import { usePathname } from 'expo-router';
 import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,20 +28,7 @@ function SpaceMiniplayerCards({ spaceIds }: { spaceIds: string[] }): ReactNode {
 }
 
 function MiniplayerDockContent({ children }: { children: ReactNode }): ReactNode {
-  const wide = useBreakpoint() !== 'mobile';
-
-  return (
-    <Box
-      sx={{
-        ...(wide
-          ? { alignSelf: 'center' as const, maxWidth: MAX_CONTENT_WIDTH }
-          : {}),
-      }}
-      style={{ width: '100%' }}
-    >
-      {children}
-    </Box>
-  );
+  return <Box style={{ width: '100%' }}>{children}</Box>;
 }
 
 function TabBarMiniplayerDock({
@@ -77,28 +64,23 @@ function RootMiniplayerDock({ children }: { children: ReactNode }): ReactNode {
 
 function shouldRenderInSlot(
   slot: SpaceMiniplayerSlot,
-  isMobile: boolean,
   onTabRoute: boolean
 ): boolean {
   if (slot === 'tabBar') {
-    return isMobile && onTabRoute;
+    return onTabRoute;
   }
-  if (isMobile && onTabRoute) {
-    return false;
-  }
-  return true;
+  return !onTabRoute;
 }
 
 export function SpaceMiniplayer({ slot }: SpaceMiniplayerProps): ReactNode {
   const spaceIds = useSpaceMiniplayerVisibleSpaceIds();
-  const isMobile = useBreakpoint() === 'mobile';
   const pathname = usePathname();
   const rawPath = pathname.split('?')[0] ?? '';
   const onTabRoute = isTabRootRoute(rawPath);
 
   if (
     spaceIds.length === 0 ||
-    !shouldRenderInSlot(slot, isMobile, onTabRoute)
+    !shouldRenderInSlot(slot, onTabRoute)
   ) {
     return null;
   }

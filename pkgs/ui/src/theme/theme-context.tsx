@@ -35,7 +35,7 @@ export type Theme = {
   /** Global casing for {@link Text} (overridable per node via `sx` / `style`). */
   textCasing: TextCasing;
   layout: ThemeLayout;
-  /** Derived from `layout.width` via {@link getBreakpoint}. */
+  /** Current layout bucket from window width. */
   breakpoint: BreakpointName;
   /** Motion design tokens (durations, easings). */
   motion: Motion;

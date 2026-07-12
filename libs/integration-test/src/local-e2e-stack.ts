@@ -7,11 +7,6 @@ export const DEV_CLIENT_PORT = 5173;
 
 export const DEV_CLIENT_BASE_URL = `http://localhost:${String(DEV_CLIENT_PORT)}`;
 
-/** Dev Metro web for native launch E2E (`expo start --web` on :5174). */
-export const NATIVE_E2E_PORT = 5174;
-
-export const NATIVE_E2E_BASE_URL = `http://localhost:${String(NATIVE_E2E_PORT)}`;
-
 export type LocalE2eStack = {
   readonly baseURL: string;
   readonly readyURL: string;
@@ -100,32 +95,4 @@ export function detectLocalE2eStackSync(
   apiOrigin: string = DEFAULT_LOCAL_PREVIEW_API_ORIGIN
 ): LocalE2eStack {
   return requireLocalE2eStackSync(apiOrigin);
-}
-
-export function assertNativeE2eStackRunningSync(
-  baseURL: string = NATIVE_E2E_BASE_URL
-): void {
-  const url = `${baseURL}/`;
-  if (probeHttpOkSync(url)) return;
-
-  throw new Error(
-    [
-      '',
-      '══════════════════════════════════════════════════════════════════',
-      '  Native launch E2E requires a running dev web bundle server',
-      '══════════════════════════════════════════════════════════════════',
-      '',
-      'Playwright does not start Metro. Expected:',
-      `  • ${url} ✗`,
-      '',
-      'Start Metro, then re-run:',
-      '  EXPO_PUBLIC_API_URL=https://www.gamezilla.app \\',
-      '  EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1 \\',
-      '    bun run --filter @apps/client qa:metro:web-dev',
-      '',
-      'Then:',
-      '  bun qa:native',
-      '',
-    ].join('\n')
-  );
 }

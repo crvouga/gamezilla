@@ -9,6 +9,7 @@ const variants = [
   'title',
   'subtitle',
   'heading',
+  'navigationTitle',
   'link',
   'mono',
 ] as const;

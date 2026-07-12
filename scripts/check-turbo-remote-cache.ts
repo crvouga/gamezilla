@@ -19,14 +19,14 @@
  * "Remote caching unavailable" (auth / team mismatch). `turbo --dry-run`
  * always reports `cache.remote: false` and must not be used here.
  */
-import { spawnSync } from 'node:child_process';
+import {
+  REMOTE_WRITE_DENIED,
+  VERCEL_CACHE_API,
+  checkVercelCacheStatus,
+  isShortLivedTurboOAuthToken,
+  probeTurboRemoteCacheWrite,
+} from './lib/vercel-turbo-remote-cache';
 import { assertVercelTurboToken } from './lib/vercel-turbo-token';
-
-const REMOTE_UNAVAILABLE = 'Remote caching unavailable';
-const REMOTE_AUTH_FAILED = 'Authentication failed';
-const REMOTE_WRITE_DENIED = 'Insufficient permissions to write to remote cache';
-const VERCEL_CACHE_API = 'https://vercel.com';
-const OK_STATUSES = new Set(['ok', 'enabled']);
 
 const REQUIRED = ['TURBO_TOKEN', 'TURBO_TEAM'] as const;
 
@@ -57,16 +57,16 @@ function fail(message: string): never {
   console.error('');
   console.error('secrets env `dev` must define (Vercel Remote Cache):');
   console.error(
-    '  • TURBO_TOKEN — Vercel scoped access token (Settings → Tokens)'
+    '  • TURBO_TOKEN — never-expiring Vercel team token (Remote Cache write)'
   );
-  console.error('  • TURBO_TEAM  — Vercel team slug (from team URL)');
+  console.error('  • TURBO_TEAM  — Vercel team slug');
   console.error('');
   console.error(
     'Do not set TURBO_API — it overrides Vercel and routes to self-hosted cache.'
   );
   console.error('');
   console.error(
-    'Seed with `bun run secrets:seed-vercel-turbo-cache -- --token … --team …`.'
+    'Update TURBO_TOKEN in Infisical (secrets env `dev`, mirrored to `prd`).'
   );
   console.error('Without remote cache, `check:ci` takes ~10+ min.');
   console.error('See AGENTS.md § CI / Turbo Remote Cache.');
@@ -74,89 +74,24 @@ function fail(message: string): never {
   process.exit(1);
 }
 
-/** Hit Vercel's authed status endpoint to fail fast on a bad token. */
-async function checkCacheReachable(api: string, token: string): Promise<void> {
-  const statusUrl = `${api.replace(/\/+$/, '')}/v8/artifacts/status`;
-  let res: Response;
-  try {
-    res = await fetch(statusUrl, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  } catch (e) {
-    throw new Error(
-      `cache unreachable at ${statusUrl}: ${e instanceof Error ? e.message : String(e)}`
-    );
-  }
-  if (res.status === 401 || res.status === 403) {
-    throw new Error(
-      `cache rejected TURBO_TOKEN — HTTP ${res.status} from ${statusUrl} (rotate in secret store and re-mirror)`
-    );
-  }
-  if (res.ok) {
-    try {
-      const body = (await res.json()) as { status?: string };
-      if (typeof body.status === 'string' && !OK_STATUSES.has(body.status)) {
-        throw new Error(
-          `unexpected status response from ${statusUrl}: ${JSON.stringify(body)}`
-        );
-      }
-    } catch (e) {
-      if (e instanceof Error && e.message.startsWith('unexpected status')) {
-        throw e;
-      }
-    }
-  }
-}
-
 function assertTurboRemoteCacheReachable(): void {
-  const result = spawnSync(
-    'bunx',
-    [
-      'turbo',
-      'run',
-      'tc',
-      '--filter=@pkgs/assert',
-      '--cache=local:rw,remote:rw',
-      '--output-logs=none',
-    ],
-    {
-      encoding: 'utf8',
-      env: process.env,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    }
-  );
-
-  const log = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
-
-  if (log.includes(REMOTE_UNAVAILABLE) || log.includes(REMOTE_AUTH_FAILED)) {
-    const line =
-      log
-        .split('\n')
-        .find(
-          (l) =>
-            l.includes(REMOTE_UNAVAILABLE) || l.includes(REMOTE_AUTH_FAILED)
-        ) ?? REMOTE_UNAVAILABLE;
-    fail(
-      `${line.trim()}\n` +
-        'Fix TURBO_TOKEN / TURBO_TEAM in secrets env `dev` (mirrored from `prd`).\n' +
-        'Seed a real token: `bun run secrets:seed-vercel-turbo-cache -- --from-local-auth --team <slug>`'
-    );
+  const probeFailure = probeTurboRemoteCacheWrite();
+  if (probeFailure === null) {
+    console.log('Turbo remote cache reachable (probe run; no auth warning)');
+    return;
   }
 
-  if (log.includes(REMOTE_WRITE_DENIED)) {
+  if (probeFailure.message.includes(REMOTE_WRITE_DENIED)) {
     fail(
       `${REMOTE_WRITE_DENIED}\n` +
-        'Use a Vercel scoped access token with Remote Cache write access (Settings → Tokens).'
+        'Set a Vercel token with remote-cache write access in Infisical TURBO_TOKEN.'
     );
   }
 
-  if (result.status !== 0) {
-    fail(
-      `turbo probe exited ${String(result.status)}.\n${log.trim().slice(0, 600) || '(no output)'}`
-    );
-  }
-
-  console.log('Turbo remote cache reachable (probe run; no auth warning)');
+  fail(
+    `${probeFailure.message}\n` +
+      'Fix TURBO_TOKEN / TURBO_TEAM in Infisical (secrets env `dev`, mirrored from `prd`).'
+  );
 }
 
 async function main(): Promise<void> {
@@ -164,8 +99,7 @@ async function main(): Promise<void> {
 
   if (isSet(process.env.TURBO_API)) {
     fail(
-      'TURBO_API is set — delete it from Infisical. It overrides Vercel Remote Cache.\n' +
-        'Run `bun run secrets:seed-vercel-turbo-cache` to remove stale TURBO_API.'
+      'TURBO_API is set — delete it from Infisical. It overrides Vercel Remote Cache.'
     );
   }
 
@@ -196,9 +130,13 @@ async function main(): Promise<void> {
 
   const tokenErr = assertVercelTurboToken(turboToken);
   if (tokenErr !== null) {
+    fail(`${tokenErr}\nUpdate TURBO_TOKEN in Infisical.`);
+  }
+
+  if (isShortLivedTurboOAuthToken(turboToken)) {
     fail(
-      `${tokenErr}\n` +
-        'Seed a real token: `bun run secrets:seed-vercel-turbo-cache -- --from-local-auth --team <slug>`'
+      'TURBO_TOKEN is a short-lived turbo login OAuth token (vca_…).\n' +
+        'Set a never-expiring Vercel token in Infisical TURBO_TOKEN.'
     );
   }
 
@@ -211,7 +149,7 @@ async function main(): Promise<void> {
   );
 
   try {
-    await checkCacheReachable(VERCEL_CACHE_API, turboToken);
+    await checkVercelCacheStatus(turboToken, VERCEL_CACHE_API);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     fail(`cache status check failed: ${msg}`);

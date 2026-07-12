@@ -21,7 +21,7 @@ export type SpaceMembersListProps = {
  * Compact, Google Docs-style list of members for a space. One row per
  * member (small avatar + display name), with the host always first and a
  * subtle `Host` caption on the host row. No section headers or extra
- * metadata; shared by the desktop rail body and the mobile members modal.
+ * metadata; shared by the members modal and other compact member surfaces.
  */
 export function SpaceMembersList({
   spaceId,

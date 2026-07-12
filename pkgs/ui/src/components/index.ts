@@ -99,8 +99,32 @@ export {
   type SocialSignInButtonShape,
   type SocialSignInButtonAction,
 } from './social-sign-in-button';
-export { IconButton, type IconButtonProps } from './icon-button';
+export {
+  ICON_BUTTON_AVATAR_BORDER_WIDTH,
+  IconButton,
+  iconButtonAvatarContentSize,
+  type IconButtonProps,
+  type IconButtonVariant,
+} from './icon-button';
 export { BackIconButton, type BackIconButtonProps } from './back-icon-button';
+export {
+  ActionBar,
+  actionBarBudgetWidth,
+  isActionBarAvatarItem,
+  partitionActionBarItems,
+  screenBaseActionToActionBarItem,
+  type ActionBarAvatarItem,
+  type ActionBarIconItem,
+  type ActionBarItem,
+  type ActionBarProps,
+  type ActionBarTextAction,
+} from './action-bar';
+export {
+  Tooltip,
+  useTooltipTrigger,
+  type TooltipPlacement,
+  type TooltipProps,
+} from './tooltip';
 export { TextInput, type TextInputProps } from './text-input';
 export {
   CopyToClipboardField,
@@ -333,7 +357,6 @@ export {
 export {
   ScreenBase,
   ScreenBaseHeader,
-  partitionScreenActions,
   type BodyContentProps,
   type ScreenBaseAction,
   type ScreenBaseActionType,
@@ -352,9 +375,11 @@ export {
 // Navigation chrome
 export {
   TopBar,
+  TopBarTitle,
   TOP_BAR_CONTENT_HEIGHT,
   type TopBarProps,
   type TopBarCenterAlign,
+  type TopBarTitleProps,
 } from './top-bar';
 
 export { NavRail, NAV_RAIL_DEFAULT_WIDTH, type NavRailProps } from './nav-rail';

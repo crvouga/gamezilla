@@ -3,8 +3,6 @@ import {
   ScreenBase,
   Text,
   TextInput,
-  useBreakpoint,
-  type ScreenBaseAction,
 } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useState, type ReactNode } from 'react';
@@ -71,27 +69,20 @@ function SearchScreenBody(): ReactNode {
 }
 
 export type SearchScreenProps = {
-  readonly accountActions: readonly ScreenBaseAction[];
-  readonly centerTabs?: ReactNode;
-  readonly headerEnd?: ReactNode;
+  readonly accountMenu?: ReactNode;
   readonly leading?: ReactNode;
 };
 
 export function SearchScreen({
-  accountActions,
-  centerTabs,
-  headerEnd,
+  accountMenu,
   leading,
 }: SearchScreenProps): ReactNode {
   const { t } = useLingui();
-  const isMobile = useBreakpoint() === 'mobile';
 
   return (
     <ScreenBase
       breadcrumbs={[{ name: t`Search` }]}
-      actions={isMobile ? [...accountActions] : []}
-      centerTabs={centerTabs}
-      headerEnd={headerEnd}
+      accountMenu={accountMenu}
       leading={leading}
       content={({ sx }) => (
         <Box style={sx}>

@@ -45,7 +45,6 @@ export function ModalContent({
         p: 5,
         borderRadius: borderRadius.xl,
         width: widthPx,
-        maxWidth: widthPx,
         alignSelf: 'center',
       }}
       style={{

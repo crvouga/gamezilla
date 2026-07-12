@@ -9,22 +9,16 @@ import { useContext, type ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
-import { MAX_CONTENT_WIDTH, useBreakpoint, useTheme } from '../../theme';
 import { Box } from '../box';
 import { FloatingActionButton } from '../floating-action-button/floating-action-button';
 import { PlusIcon } from '../icons';
 import { KeyboardAvoidingView } from '../keyboard-avoiding-view';
 import { ScrollView } from '../scroll-view';
-import { ScreenBaseContentHeader } from './screen-base-content-header';
 import {
   ScreenBasePrimaryActionMutation,
   type ScreenBasePrimaryActionRenderProps,
 } from './screen-base-primary-action';
-import type {
-  BodyContentProps,
-  ScreenBaseBreadcrumb,
-  ScreenBaseProps,
-} from './screen-base-types';
+import type { BodyContentProps, ScreenBaseProps } from './screen-base-types';
 import { ScreenBaseHeader } from './screen-base-header';
 
 /** Spacing-scale steps (1 = 4px): body padding 16px, body gap 12px. */
@@ -34,26 +28,9 @@ const SCROLL_BOTTOM_PADDING = 24;
 const FLOATING_ACTION_MARGIN = 16;
 const FLOATING_ACTION_Z_INDEX = 10;
 
-/**
- * Centers content up to {@link MAX_CONTENT_WIDTH} while always letting the
- * parent (ScrollView / full-bleed container) span the full viewport.
- */
-function ConstrainedInner({ children }: { children: ReactNode }) {
-  const theme = useTheme();
-  const wide = theme.breakpoint !== 'mobile';
-
+function BodyInner({ children }: { children: ReactNode }) {
   return (
-    <Box
-      sx={{
-        flex: 1,
-        p: BODY_PADDING_STEP,
-        gap: BODY_GAP_STEP,
-        ...(wide
-          ? { alignSelf: 'center' as const, maxWidth: MAX_CONTENT_WIDTH }
-          : {}),
-      }}
-      style={{ width: '100%' }}
-    >
+    <Box sx={{ flex: 1, p: BODY_PADDING_STEP, gap: BODY_GAP_STEP }}>
       {children}
     </Box>
   );
@@ -66,7 +43,7 @@ function useSafeAreaBottom(): number {
   return (useContext(SafeAreaInsetsContext) ?? ZERO_SAFE_AREA).bottom;
 }
 
-/** Bottom-pinned footer (mobile): full-bleed surface with a top divider. */
+/** Bottom-pinned footer: full-bleed surface with a top divider. */
 function PinnedFooter({ children }: { children: ReactNode }) {
   const bottomInset = useSafeAreaBottom();
   return (
@@ -94,11 +71,7 @@ function FloatingActionHost({
   children: ReactNode;
   extraBottomInset?: number;
 }) {
-  const isMobile = useBreakpoint() === 'mobile';
-  const bottomInset = useSafeAreaBottom();
-  const bottom = isMobile
-    ? FLOATING_ACTION_MARGIN + extraBottomInset
-    : bottomInset + FLOATING_ACTION_MARGIN + extraBottomInset;
+  const bottom = FLOATING_ACTION_MARGIN + extraBottomInset;
   return (
     <Box
       style={{
@@ -111,12 +84,6 @@ function FloatingActionHost({
       {children}
     </Box>
   );
-}
-
-function pageTitleFromBreadcrumbs(
-  breadcrumbs: ScreenBaseBreadcrumb[]
-): ReactNode | undefined {
-  return breadcrumbs[breadcrumbs.length - 1]?.name;
 }
 
 function renderPrimaryActionFab(
@@ -133,28 +100,18 @@ export function ScreenBase({
   content,
   scroll = false,
   keyboardAvoiding = false,
-  centerTabs,
-  headerEnd,
   leading,
   footer,
   primaryAction,
   primaryActionBottomInset = 0,
+  accountMenu,
 }: ScreenBaseProps) {
-  const isWide = useBreakpoint() !== 'mobile';
-  const inlineFooter = footer !== undefined && isWide;
-  const pinnedFooter = footer !== undefined && !isWide;
-  const pageTitle = pageTitleFromBreadcrumbs(breadcrumbs);
-
   const body = (primaryActionProps?: ScreenBasePrimaryActionRenderProps) =>
     renderScreenBody({
       scroll,
       keyboardAvoiding,
       content,
-      inlineFooter,
-      pinnedFooter,
       footer,
-      isWide,
-      pageTitle,
       primaryActionProps,
       primaryActionBottomInset,
     });
@@ -164,9 +121,8 @@ export function ScreenBase({
       <ScreenBaseHeader
         breadcrumbs={breadcrumbs}
         actions={actions ?? []}
-        centerTabs={centerTabs}
-        headerEnd={headerEnd}
         leading={leading}
+        accountMenu={accountMenu}
       />
       {primaryAction !== undefined ? (
         <ScreenBasePrimaryActionMutation config={primaryAction}>
@@ -179,44 +135,13 @@ export function ScreenBase({
   );
 }
 
-function renderWideContentHeader(
-  pageTitle: ReactNode | undefined,
-  primaryActionProps: ScreenBasePrimaryActionRenderProps | undefined
-): ReactNode {
-  if (
-    primaryActionProps === undefined ||
-    pageTitle === undefined ||
-    pageTitle === null
-  ) {
-    return null;
-  }
-  return (
-    <ScreenBaseContentHeader
-      title={pageTitle}
-      buttonProps={primaryActionProps.buttonProps}
-      icon={primaryActionProps.icon}
-    />
-  );
-}
-
 function renderConstrainedBody(args: {
   content: ScreenBaseProps['content'];
-  inlineFooter: boolean;
-  footer: ScreenBaseProps['footer'];
-  isWide: boolean;
-  pageTitle: ReactNode | undefined;
-  primaryActionProps: ScreenBasePrimaryActionRenderProps | undefined;
 }): ReactNode {
   return (
-    <ConstrainedInner>
-      {args.isWide
-        ? renderWideContentHeader(args.pageTitle, args.primaryActionProps)
-        : null}
+    <BodyInner>
       {args.content({ sx: { flex: 1 } } satisfies BodyContentProps)}
-      {args.inlineFooter ? (
-        <Box sx={{ pt: BODY_GAP_STEP }}>{args.footer}</Box>
-      ) : null}
-    </ConstrainedInner>
+    </BodyInner>
   );
 }
 
@@ -241,11 +166,7 @@ function renderScreenBody(args: {
   scroll: boolean;
   keyboardAvoiding: boolean;
   content: ScreenBaseProps['content'];
-  inlineFooter: boolean;
-  pinnedFooter: boolean;
   footer: ScreenBaseProps['footer'];
-  isWide: boolean;
-  pageTitle: ReactNode | undefined;
   primaryActionProps: ScreenBasePrimaryActionRenderProps | undefined;
   primaryActionBottomInset: number;
 }): ReactNode {
@@ -255,9 +176,10 @@ function renderScreenBody(args: {
   const bodyWithFooter = (
     <Box sx={{ flex: 1, minHeight: 0 }} style={{ position: 'relative' }}>
       {body}
-      {args.pinnedFooter ? <PinnedFooter>{args.footer}</PinnedFooter> : null}
-      {!args.isWide &&
-      args.primaryActionProps !== undefined &&
+      {args.footer !== undefined ? (
+        <PinnedFooter>{args.footer}</PinnedFooter>
+      ) : null}
+      {args.primaryActionProps !== undefined &&
       !args.primaryActionProps.buttonProps.disabled ? (
         <FloatingActionHost extraBottomInset={args.primaryActionBottomInset}>
           {renderPrimaryActionFab(args.primaryActionProps)}

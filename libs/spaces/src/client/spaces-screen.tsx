@@ -7,8 +7,6 @@ import {
   PlusIcon,
   ScreenBase,
   ScrollView,
-  useBreakpoint,
-  type ScreenBaseAction,
   type ScreenBasePrimaryAction,
 } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
@@ -46,23 +44,16 @@ function SpacesList({ bottomInset }: { bottomInset: number }) {
 }
 
 export type SpacesScreenProps = {
-  /** Header overflow actions for user / connection / settings on mobile. */
-  readonly accountActions: readonly ScreenBaseAction[];
-  /** Desktop centered tab strip (top-level tab navigation). */
-  readonly centerTabs?: ReactNode;
-  /** Desktop trailing slot (account avatar trigger). */
-  readonly headerEnd?: ReactNode;
+  /** Always-visible account avatar menu in the header trailing slot. */
+  readonly accountMenu?: ReactNode;
   /** Leading slot (typically the app logo on root tabs). */
   readonly leading?: ReactNode;
 };
 
 export function SpacesScreen({
-  accountActions,
-  centerTabs,
-  headerEnd,
+  accountMenu,
   leading,
 }: SpacesScreenProps) {
-  const isMobile = useBreakpoint() === 'mobile';
   const { count: currentSpaceCount, isLoading: membershipLoading } =
     useCurrentSpaceCount();
   const canCreateSpace = !membershipLoading && currentSpaceCount === 0;
@@ -93,9 +84,7 @@ export function SpacesScreen({
   return (
     <ScreenBase
       breadcrumbs={[{ name: t`Spaces` }]}
-      actions={isMobile ? [...accountActions] : []}
-      centerTabs={centerTabs}
-      headerEnd={headerEnd}
+      accountMenu={accountMenu}
       leading={leading}
       primaryAction={primaryAction}
       content={({ sx }) => (

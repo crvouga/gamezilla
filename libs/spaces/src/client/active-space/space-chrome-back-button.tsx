@@ -6,8 +6,8 @@ import { useSpacesNavBack } from '../nav/spaces-nav-context';
 /**
  * Chrome-rendered back button. Reads the registered handler from
  * {@link useSpacesNavBack}; renders nothing when no screen has registered
- * one. The "exit space" affordance lives on {@link SpaceChromeHomeButton},
- * which is always visible in the chrome.
+ * one. The "exit space" affordance lives on {@link SpaceChromeActionBar},
+ * which keeps home visible and collapses the rest when space is tight.
  */
 export function SpaceChromeBackButton(): ReactNode {
   const registered = useSpacesNavBack();

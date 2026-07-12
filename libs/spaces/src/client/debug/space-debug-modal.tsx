@@ -43,7 +43,6 @@ export function SpaceDebugModal({
       visible={visible}
       onClose={onClose}
       title={<Trans>Space debug</Trans>}
-      size="large"
       bodyHeight={TAB_BODY_HEIGHT}
     >
       <Box sx={{ gap: 3 }}>

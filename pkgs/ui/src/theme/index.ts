@@ -52,7 +52,6 @@ export {
   resolveModalLayoutWidth,
   type ModalSize,
 } from './modal-size';
-export { MAX_CONTENT_WIDTH } from './layout';
 export {
   duration,
   easing,
@@ -75,11 +74,11 @@ export {
 } from './text-casing';
 export { ThemeProvider, useTheme } from './theme-context';
 export type { Theme, ThemeLayout, ThemeProviderProps } from './theme-context';
+export { useBreakpoint } from './use-breakpoint';
 export {
   ThemePreferenceProvider,
   useThemePreference,
   type ThemePreference,
   type ThemePreferenceProviderProps,
 } from './theme-preference';
-export { useBreakpoint } from './use-breakpoint';
 export { WebScrollbarTheme } from './web-scrollbar-theme';

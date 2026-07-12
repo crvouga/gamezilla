@@ -3,9 +3,7 @@ import {
   Button,
   ScreenBase,
   Text,
-  useBreakpoint,
   useMutationButton,
-  type ScreenBaseAction,
 } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
@@ -19,9 +17,7 @@ import { useInboxActions } from './use-inbox-actions';
 import { useInboxBackfill } from './use-inbox-backfill';
 
 export type InboxScreenProps = {
-  readonly accountActions: readonly ScreenBaseAction[];
-  readonly centerTabs?: ReactNode;
-  readonly headerEnd?: ReactNode;
+  readonly accountMenu?: ReactNode;
   readonly leading?: ReactNode;
   readonly initialFilter?: InteractionFilter;
 };
@@ -85,21 +81,16 @@ function InboxScreenBody({
 }
 
 export function InboxScreen({
-  accountActions,
-  centerTabs,
-  headerEnd,
+  accountMenu,
   leading,
   initialFilter,
 }: InboxScreenProps): ReactNode {
   const { t } = useLingui();
-  const isMobile = useBreakpoint() === 'mobile';
 
   return (
     <ScreenBase
       breadcrumbs={[{ name: t`Inbox` }]}
-      actions={isMobile ? [...accountActions] : []}
-      centerTabs={centerTabs}
-      headerEnd={headerEnd}
+      accountMenu={accountMenu}
       leading={leading}
       content={({ sx }) => (
         <Box style={sx}>

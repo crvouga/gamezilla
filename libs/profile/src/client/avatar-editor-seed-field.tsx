@@ -53,6 +53,7 @@ export function AvatarEditorSeedField({
           background="surface"
           onPress={onRandomize}
           disabled={disabled === true}
+          label={t`Randomize`}
           accessibilityLabel={t`Randomize`}
         >
           <ShuffleIcon size={20} />
@@ -62,6 +63,7 @@ export function AvatarEditorSeedField({
           background="surface"
           onPress={handleCopy}
           disabled={disabled === true}
+          label={copied ? t`Copied` : t`Copy seed`}
           accessibilityLabel={copied ? t`Copied` : t`Copy seed`}
         >
           {copied ? <CircleCheckIcon size={20} /> : <CopyIcon size={20} />}

@@ -33,7 +33,7 @@ export function SearchUserResultRow({
         })
       }
       trailing={
-        <Box sx={{ maxWidth: 140 }}>
+        <Box sx={{ flexShrink: 1, minWidth: 0 }}>
           <FriendActionPills
             deps={deps}
             userId={user.userId}
