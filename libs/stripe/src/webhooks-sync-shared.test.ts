@@ -11,7 +11,12 @@ const desired = 'https://api.gamezilla.app/api/stripe/webhook';
 describe('webhookEndpointsInSync', () => {
   it('is true for single enabled * endpoint at desired URL', () => {
     const eps: WebhookEndpointSummary[] = [
-      { url: desired, enabled_events: ['*'], status: 'enabled' },
+      {
+        url: desired,
+        enabled_events: ['*'],
+        status: 'enabled',
+        description: null,
+      },
     ];
     expect(webhookEndpointsInSync(eps, desired)).toBe(true);
   });
@@ -19,11 +24,17 @@ describe('webhookEndpointsInSync', () => {
   it('is false when count !== 1', () => {
     expect(webhookEndpointsInSync([], desired)).toBe(false);
     const two: WebhookEndpointSummary[] = [
-      { url: desired, enabled_events: ['*'], status: 'enabled' },
+      {
+        url: desired,
+        enabled_events: ['*'],
+        status: 'enabled',
+        description: null,
+      },
       {
         url: 'https://other.example/hook',
         enabled_events: ['*'],
         status: 'enabled',
+        description: null,
       },
     ];
     expect(webhookEndpointsInSync(two, desired)).toBe(false);
@@ -35,6 +46,7 @@ describe('webhookEndpointsInSync', () => {
         url: 'https://wrong.example/api/stripe/webhook',
         enabled_events: ['*'],
         status: 'enabled',
+        description: null,
       },
     ];
     expect(webhookEndpointsInSync(eps, desired)).toBe(false);
@@ -46,16 +58,54 @@ describe('webhookEndpointsInSync', () => {
         url: desired,
         enabled_events: ['customer.created'],
         status: 'enabled',
+        description: null,
       },
     ];
     expect(webhookEndpointsInSync(eps, desired)).toBe(false);
+  });
+
+  it('is false when desiredDescription does not match', () => {
+    const eps: WebhookEndpointSummary[] = [
+      {
+        url: desired,
+        enabled_events: ['*'],
+        status: 'enabled',
+        description: 'old description',
+      },
+    ];
+    expect(
+      webhookEndpointsInSync(eps, desired, {
+        desiredDescription: 'new description',
+      })
+    ).toBe(false);
+  });
+
+  it('is true when desiredDescription matches', () => {
+    const eps: WebhookEndpointSummary[] = [
+      {
+        url: desired,
+        enabled_events: ['*'],
+        status: 'enabled',
+        description: 'managed',
+      },
+    ];
+    expect(
+      webhookEndpointsInSync(eps, desired, {
+        desiredDescription: 'managed',
+      })
+    ).toBe(true);
   });
 });
 
 describe('decideWebhookSyncPlan', () => {
   it('returns noop when in sync', () => {
     const eps: WebhookEndpointSummary[] = [
-      { url: desired, enabled_events: ['*'], status: 'enabled' },
+      {
+        url: desired,
+        enabled_events: ['*'],
+        status: 'enabled',
+        description: null,
+      },
     ];
     expect(decideWebhookSyncPlan(eps, desired)).toBe('noop');
   });

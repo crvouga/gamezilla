@@ -200,7 +200,7 @@ export async function ensurePowerSyncSourceDatabase(): Promise<void> {
   await runPowerSyncSourceDbSetup({ databaseUrl: url });
   ok(
     'PowerSync source DB',
-    'publication powersync (all tables in public) + REPLICA IDENTITY FULL'
+    'publication powersync (all tables in public) + REPLICA IDENTITY FULL (DEFAULT when generated cols)'
   );
 }
 

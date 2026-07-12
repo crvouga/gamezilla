@@ -105,6 +105,48 @@ function buildInfisicalListUrl(
   return url;
 }
 
+function buildRawSecretUrl(domain: string, name: string): URL {
+  return new URL(`${domain}/api/v3/secrets/raw/${encodeURIComponent(name)}`);
+}
+
+function buildWriteBody(
+  workspaceId: string,
+  env: string,
+  secretPath: string,
+  secretValue: string
+): Record<string, string> {
+  return {
+    workspaceId,
+    environment: env,
+    secretPath,
+    secretValue,
+    type: 'shared',
+  };
+}
+
+function buildWriteHeaders(token: string): Record<string, string> {
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+}
+
+/** Infisical returns 409 or 400 `"Secret already exist"` when POST hits an existing key. */
+function isSecretAlreadyExists(status: number, bodyText: string): boolean {
+  if (status === 409) return true;
+  if (status !== 400) return false;
+  return /already exist/i.test(bodyText);
+}
+
+function formatSetSecretError(status: number, bodyText: string): string {
+  const detail = bodyText.trim().slice(0, 200);
+  if (detail.length === 0) {
+    return `Infisical setSecret failed: HTTP ${status}`;
+  }
+  return `Infisical setSecret failed: HTTP ${status}: ${detail}`;
+}
+
 export class InfisicalSecretStore implements SecretStore {
   private readonly domain: string;
   private readonly workspaceId: string;
@@ -189,36 +231,52 @@ export class InfisicalSecretStore implements SecretStore {
     if (trimmed.length === 0) {
       throw new SecretBlankError(name);
     }
-    const url = new URL(
-      `${this.domain}/api/v3/secrets/raw/${encodeURIComponent(name)}`
-    );
-    const body = {
-      workspaceId: this.workspaceId,
-      environment: this.env,
-      secretPath: this.secretPath,
-      secretValue: trimmed,
-      type: 'shared',
-    };
+    const created = await this.writeRawSecret(name, trimmed, 'POST', init);
+    if (created.ok) {
+      this.cache = null;
+      return;
+    }
+    const createBody = await created.text();
+    if (!isSecretAlreadyExists(created.status, createBody)) {
+      throw new SecretStoreRequestError(
+        formatSetSecretError(created.status, createBody),
+        created.status
+      );
+    }
+    // Secret exists — PATCH to overwrite (POST-only would leave stale values).
+    const updated = await this.writeRawSecret(name, trimmed, 'PATCH', init);
+    if (!updated.ok) {
+      const updateBody = await updated.text();
+      throw new SecretStoreRequestError(
+        formatSetSecretError(updated.status, updateBody),
+        updated.status
+      );
+    }
+    this.cache = null;
+  }
+
+  private async writeRawSecret(
+    name: string,
+    secretValue: string,
+    method: 'POST' | 'PATCH',
+    init?: SecretStoreSetInit
+  ): Promise<Response> {
     const requestInit: RequestInit = {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(body),
+      method,
+      headers: buildWriteHeaders(this.token),
+      body: JSON.stringify(
+        buildWriteBody(
+          this.workspaceId,
+          this.env,
+          this.secretPath,
+          secretValue
+        )
+      ),
     };
     if (init?.signal !== undefined) {
       requestInit.signal = init.signal;
     }
-    const response = await this.fetchFn(url, requestInit);
-    if (!response.ok && response.status !== 409) {
-      throw new SecretStoreRequestError(
-        `Infisical setSecret failed: HTTP ${response.status}`,
-        response.status
-      );
-    }
-    this.cache = null;
+    return this.fetchFn(buildRawSecretUrl(this.domain, name), requestInit);
   }
 
   private async loadRow(init?: SecretStoreGetInit): Promise<SecretRow> {

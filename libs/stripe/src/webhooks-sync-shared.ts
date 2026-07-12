@@ -6,22 +6,41 @@ export type WebhookEndpointSummary = {
   readonly url: string;
   readonly enabled_events: readonly string[];
   readonly status: string;
+  /** Stripe webhook endpoint description; compared when `desiredDescription` is set. */
+  readonly description: string | null;
 };
 
 export function normalizeEnabledEvents(events: readonly string[]): string[] {
   return [...events].map((e) => e.trim()).sort();
 }
 
+export type WebhookInSyncOptions = {
+  /**
+   * When set, the single endpoint's description must match exactly.
+   * Used to detect managed-endpoint drift (and to force a one-time rebuild
+   * after rotating the managed description string).
+   */
+  readonly desiredDescription?: string;
+};
+
 /** True when exactly one enabled endpoint matches URL and subscribes to all events (`*`). */
 export function webhookEndpointsInSync(
   endpoints: ReadonlyArray<WebhookEndpointSummary>,
-  desiredUrl: string
+  desiredUrl: string,
+  options?: WebhookInSyncOptions
 ): boolean {
   if (endpoints.length !== 1) return false;
   const e = endpoints[0];
   if (e === undefined) return false;
   if (e.url !== desiredUrl) return false;
   if (e.status !== 'enabled') return false;
+  const desiredDescription = options?.desiredDescription;
+  if (
+    desiredDescription !== undefined &&
+    (e.description ?? '') !== desiredDescription
+  ) {
+    return false;
+  }
   const ev = normalizeEnabledEvents(e.enabled_events);
   return ev.length === 1 && ev[0] === '*';
 }
@@ -30,9 +49,12 @@ export type WebhookSyncPlan = 'noop' | 'rebuild';
 
 export function decideWebhookSyncPlan(
   endpoints: ReadonlyArray<WebhookEndpointSummary>,
-  desiredUrl: string
+  desiredUrl: string,
+  options?: WebhookInSyncOptions
 ): WebhookSyncPlan {
-  return webhookEndpointsInSync(endpoints, desiredUrl) ? 'noop' : 'rebuild';
+  return webhookEndpointsInSync(endpoints, desiredUrl, options)
+    ? 'noop'
+    : 'rebuild';
 }
 
 function classifyPrivateIpv4Octets(a: number, b: number): boolean {

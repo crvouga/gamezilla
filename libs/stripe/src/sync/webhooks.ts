@@ -21,7 +21,13 @@ import {
 
 const TAG = 'stripe sync webhooks';
 
-const WEBHOOK_DESCRIPTION = 'API worker — managed by @libs/stripe sync';
+/**
+ * Managed Stripe webhook description. Changing this string forces a rebuild
+ * on the next sync (description is part of the in-sync check) so a freshly
+ * issued `whsec_…` can be written to the secret store.
+ */
+const WEBHOOK_DESCRIPTION =
+  'API worker — managed by @libs/stripe sync (api.gamezilla.app)';
 // Deployed Stripe endpoint metadata value. Do not change without migrating
 // the `managed_by` metadata on existing live webhook endpoints.
 const WEBHOOK_MANAGED_BY_TAG = 'gamezilla_stripe_sync';
@@ -68,6 +74,7 @@ function toSummary(
     url: e.url,
     enabled_events: e.enabled_events ?? [],
     status: e.status,
+    description: e.description ?? null,
   }));
 }
 
@@ -147,7 +154,9 @@ export async function runStripeWebhookSync(args: {
 
   const endpoints = await listAllWebhookEndpoints(stripe);
   const summary = toSummary(endpoints);
-  const plan = decideWebhookSyncPlan(summary, desiredUrl);
+  const plan = decideWebhookSyncPlan(summary, desiredUrl, {
+    desiredDescription: WEBHOOK_DESCRIPTION,
+  });
 
   console.log(
     `[${TAG}] desiredUrl=${desiredUrl} existing=${endpoints.length} plan=${plan}${dryRun ? ' (dry-run)' : ''}`
