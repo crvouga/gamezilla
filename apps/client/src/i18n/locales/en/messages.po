@@ -884,7 +884,7 @@ msgstr "go to"
 msgid "Go to {target}"
 msgstr "Go to {target}"
 
-#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
+#: libs/spaces/src/client/active-space/space-chrome-home-button.tsx
 msgid "Go to spaces"
 msgstr "Go to spaces"
 

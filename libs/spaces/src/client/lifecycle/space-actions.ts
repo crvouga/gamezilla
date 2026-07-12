@@ -52,6 +52,15 @@ async function writeCreateSpaceAction(
      VALUES (?, ?, ?)`,
     [spaceId, myId, now]
   );
+  const membershipId = spaceGuestMembershipEntityId(myId, spaceId);
+  await sql.run(
+    `INSERT INTO ${SPACE_MEMBERSHIPS_TABLE.tableName}
+     (${SpaceMembershipCol.id}, ${SpaceMembershipCol.guestId},
+      ${SpaceMembershipCol.spaceId}, ${SpaceMembershipCol.joinedAt},
+      ${SpaceMembershipCol.leftAt})
+     VALUES (?, ?, ?, ?, NULL)`,
+    [membershipId, myId, spaceId, now]
+  );
 }
 
 async function joinSpaceAction(

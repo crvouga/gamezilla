@@ -42,7 +42,7 @@ describe('loadingPresence', () => {
     ).toEqual({ status: 'loading' });
   });
 
-  test('skips guest loading when user is already resolved as host', () => {
+  test('loads while membership query is pending', () => {
     expect(
       loadingPresence({
         spaceEnabled: true,
@@ -53,12 +53,12 @@ describe('loadingPresence', () => {
         guestRow: null,
         myId: 'user-1',
       })
-    ).toBeNull();
+    ).toEqual({ status: 'loading' });
   });
 });
 
 describe('resolveSpacePresence', () => {
-  test('resolves active host while space query reports loading', () => {
+  test('resolves active host from membership + host_id', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
@@ -66,13 +66,13 @@ describe('resolveSpacePresence', () => {
         spaceRow: hostSpaceRow,
         memberEnabled: true,
         guestLoading: false,
-        guestRow: null,
+        guestRow,
         myId: 'user-1',
       })
     ).toEqual({ status: 'active', role: 'host' });
   });
 
-  test('resolves active guest while guest query reports loading', () => {
+  test('resolves active guest while membership row is present', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
@@ -84,6 +84,20 @@ describe('resolveSpacePresence', () => {
         myId: 'user-2',
       })
     ).toEqual({ status: 'active', role: 'guest' });
+  });
+
+  test('resolves join when membership is missing even for host_id match', () => {
+    expect(
+      resolveSpacePresence({
+        spaceEnabled: true,
+        spaceLoading: false,
+        spaceRow: hostSpaceRow,
+        memberEnabled: true,
+        guestLoading: false,
+        guestRow: null,
+        myId: 'user-1',
+      })
+    ).toEqual({ status: 'join', ended: false });
   });
 });
 

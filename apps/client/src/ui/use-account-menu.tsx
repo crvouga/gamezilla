@@ -6,6 +6,7 @@ import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import { MyDisplayName } from '@libs/profile/client/my-display-name';
 import { useAsync } from '@pkgs/async/use-async';
 import { useLogger } from '@pkgs/logger/react';
+import type { LocalizedString } from '@pkgs/i18n';
 import {
   LogInIcon,
   LogOutIcon,
@@ -18,11 +19,11 @@ import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 
 type AccountMenuLabels = {
-  account: string;
-  settings: string;
-  signIn: string;
-  signOut: string;
-  userMenu: string;
+  account: LocalizedString;
+  settings: LocalizedString;
+  signIn: LocalizedString;
+  signOut: LocalizedString;
+  userMenu: LocalizedString;
 };
 
 function useAccountMenuLabels(): AccountMenuLabels {
@@ -119,7 +120,7 @@ export function useAccountMenuContent(close: () => void): FloatingMenuContent {
   );
 }
 
-export function useAccountMenuTriggerLabel(): string {
+export function useAccountMenuTriggerLabel(): LocalizedString {
   const { t } = useLingui();
   return t`User menu`;
 }

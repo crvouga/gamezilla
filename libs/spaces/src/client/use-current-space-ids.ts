@@ -24,70 +24,37 @@ export type CurrentSpaceEntry = {
   role: 'host' | 'guest';
 };
 
-type HostedRow = { readonly id: string };
-type GuestMemRow = { readonly space_id: string };
-type GuestSpaceRow = { readonly id: string; readonly ended_at: string | null };
+type MembershipRow = { readonly space_id: string };
+type SpaceRow = {
+  readonly id: string;
+  readonly host_id: string | null;
+  readonly ended_at: string | null;
+};
 
 function buildCurrentSpaceEntries(
-  hostedIds: readonly string[],
-  guestSpaceIds: readonly string[],
-  guestSpaceRows: readonly GuestSpaceRow[]
-): CurrentSpaceEntry[] {
-  const bySpace = new Map<string, CurrentSpaceEntry>();
-  for (const spaceId of hostedIds) {
-    bySpace.set(spaceId, { spaceId, role: 'host' });
-  }
-  const liveById = new Map<string, boolean>();
-  for (const row of guestSpaceRows) {
-    liveById.set(row.id, row.ended_at === null);
-  }
-  for (const sid of guestSpaceIds) {
-    if (bySpace.has(sid)) continue;
-    const live = liveById.get(sid);
-    if (live === false) continue;
-    bySpace.set(sid, { spaceId: sid, role: 'guest' });
-  }
-  return [...bySpace.values()];
-}
-
-function guestSpacesSql(ids: readonly string[]): {
-  sql: string;
-  params: string[];
-} {
-  if (ids.length === 0) {
-    return {
-      sql: `SELECT ${SpaceCol.id}, ${SpaceCol.endedAt} AS ended_at FROM ${SPACES_TABLE.tableName} WHERE 0`,
-      params: [],
-    };
-  }
-  const placeholders = ids.map(() => '?').join(', ');
-  return {
-    sql: `SELECT ${SpaceCol.id}, ${SpaceCol.endedAt} AS ended_at
-          FROM ${SPACES_TABLE.tableName}
-          WHERE ${SpaceCol.id} IN (${placeholders})`,
-    params: [...ids],
-  };
-}
-
-function hostedSpacesSql(
-  enabled: boolean,
+  memberSpaceIds: readonly string[],
+  spaceRows: readonly SpaceRow[],
   myId: string
-): { sql: string; params: string[] } {
-  if (!enabled) {
-    return {
-      sql: `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName} WHERE 0`,
-      params: [],
-    };
+): CurrentSpaceEntry[] {
+  const byId = new Map<string, SpaceRow>();
+  for (const row of spaceRows) {
+    byId.set(row.id, row);
   }
-  return {
-    sql: `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName}
-         WHERE ${SpaceCol.hostId} = ? AND ${SpaceCol.endedAt} IS NULL
-         ORDER BY ${SpaceCol.createdAt} DESC`,
-    params: [myId],
-  };
+  const entries: CurrentSpaceEntry[] = [];
+  for (const spaceId of memberSpaceIds) {
+    const space = byId.get(spaceId);
+    if (space === undefined || space.ended_at !== null) continue;
+    const hostId = space.host_id;
+    const role =
+      hostId !== null && hostId.length > 0 && hostId === myId
+        ? 'host'
+        : 'guest';
+    entries.push({ spaceId, role });
+  }
+  return entries;
 }
 
-function guestMembershipSql(
+function membershipSql(
   enabled: boolean,
   myId: string
 ): { sql: string; params: string[] } {
@@ -105,6 +72,25 @@ function guestMembershipSql(
   };
 }
 
+function spacesSql(ids: readonly string[]): {
+  sql: string;
+  params: string[];
+} {
+  if (ids.length === 0) {
+    return {
+      sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostId} AS host_id, ${SpaceCol.endedAt} AS ended_at FROM ${SPACES_TABLE.tableName} WHERE 0`,
+      params: [],
+    };
+  }
+  const placeholders = ids.map(() => '?').join(', ');
+  return {
+    sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostId} AS host_id, ${SpaceCol.endedAt} AS ended_at
+          FROM ${SPACES_TABLE.tableName}
+          WHERE ${SpaceCol.id} IN (${placeholders})`,
+    params: [...ids],
+  };
+}
+
 function resolveDisplayEntries(
   entries: CurrentSpaceEntry[],
   reconnecting: boolean,
@@ -115,61 +101,50 @@ function resolveDisplayEntries(
   return entries;
 }
 
-function useCurrentSpaceWatchQueries(myId: string): {
+function useCurrentSpaceWatchQueries(
+  myId: string
+): {
   entries: CurrentSpaceEntry[];
   queriesLoading: boolean;
 } {
   const enabled = myId.length > 0;
-  const hostedQuery = useMemo(
-    () => hostedSpacesSql(enabled, myId),
-    [enabled, myId]
-  );
-  const guestMemQuery = useMemo(
-    () => guestMembershipSql(enabled, myId),
-    [enabled, myId]
+  const memQuery = useMemo(() => membershipSql(enabled, myId), [enabled, myId]);
+
+  const { rows: memRows, isLoading: memLoading } = useWatchQuery<MembershipRow>(
+    memQuery.sql,
+    memQuery.params
   );
 
-  const { rows: hostedRows, isLoading: hostedLoading } =
-    useWatchQuery<HostedRow>(hostedQuery.sql, hostedQuery.params);
-
-  const { rows: guestMemRows, isLoading: guestMemLoading } =
-    useWatchQuery<GuestMemRow>(guestMemQuery.sql, guestMemQuery.params);
-
-  const guestSpaceIds = useMemo(
+  const memberSpaceIds = useMemo(
     () => [
       ...new Set(
-        guestMemRows.map((r) => r.space_id).filter((id) => id.length > 0)
+        memRows.map((r) => r.space_id).filter((id) => id.length > 0)
       ),
     ],
-    [guestMemRows]
+    [memRows]
   );
 
-  const guestSpacesQuery = useMemo(
-    () => guestSpacesSql(guestSpaceIds),
-    [guestSpaceIds]
+  const spacesQuery = useMemo(() => spacesSql(memberSpaceIds), [memberSpaceIds]);
+  const { rows: spaceRows, isLoading: spacesLoading } = useWatchQuery<SpaceRow>(
+    spacesQuery.sql,
+    spacesQuery.params
   );
-  const { rows: guestSpaceRows, isLoading: guestSpacesLoading } =
-    useWatchQuery<GuestSpaceRow>(guestSpacesQuery.sql, guestSpacesQuery.params);
 
   const entries = useMemo(
-    () =>
-      buildCurrentSpaceEntries(
-        hostedRows.map((r) => r.id),
-        guestSpaceIds,
-        guestSpaceRows
-      ),
-    [hostedRows, guestSpaceIds, guestSpaceRows]
+    () => buildCurrentSpaceEntries(memberSpaceIds, spaceRows, myId),
+    [memberSpaceIds, spaceRows, myId]
   );
 
   return {
     entries,
-    queriesLoading: hostedLoading || guestMemLoading || guestSpacesLoading,
+    queriesLoading: memLoading || spacesLoading,
   };
 }
 
 /**
- * The current user's live spaces — every space they host, plus every space
- * they have an active guest membership on (deduped, host wins).
+ * The current user's live spaces — every space with an active membership
+ * that has not ended. Role comes from spaces.host_id, not from a separate
+ * host query.
  */
 export function useCurrentSpaceIds(): {
   entries: CurrentSpaceEntry[];

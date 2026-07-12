@@ -12,12 +12,12 @@ type GuestMembershipRow = {
   readonly id: string;
 };
 
-export function isActiveHost(spaceRow: SpaceRow | null, myId: string): boolean {
+function roleForMember(spaceRow: SpaceRow | null, myId: string): 'host' | 'guest' {
   const hostId = spaceRow?.host_id ?? null;
-  const endedAt = spaceRow?.ended_at ?? null;
-  return (
-    endedAt === null && hostId !== null && hostId.length > 0 && hostId === myId
-  );
+  if (hostId !== null && hostId.length > 0 && hostId === myId) {
+    return 'host';
+  }
+  return 'guest';
 }
 
 export function loadingPresence(args: {
@@ -35,12 +35,7 @@ export function loadingPresence(args: {
   if (args.spaceLoading && args.spaceRow === null) {
     return { status: 'loading' };
   }
-  if (
-    args.memberEnabled &&
-    args.guestLoading &&
-    args.guestRow === null &&
-    !isActiveHost(args.spaceRow, args.myId)
-  ) {
+  if (args.memberEnabled && args.guestLoading && args.guestRow === null) {
     return { status: 'loading' };
   }
   return null;
@@ -58,10 +53,10 @@ export function resolveSpacePresence(args: {
   const loading = loadingPresence(args);
   if (loading !== null) return loading;
   if (args.memberEnabled && args.guestRow !== null) {
-    return { status: 'active', role: 'guest' };
-  }
-  if (args.memberEnabled && isActiveHost(args.spaceRow, args.myId)) {
-    return { status: 'active', role: 'host' };
+    return {
+      status: 'active',
+      role: roleForMember(args.spaceRow, args.myId),
+    };
   }
   const endedAt = args.spaceRow?.ended_at ?? null;
   return { status: 'join', ended: endedAt !== null };
