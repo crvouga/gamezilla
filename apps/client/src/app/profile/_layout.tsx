@@ -1,11 +1,11 @@
 import { useStackProps } from '@pkgs/ui';
 import { Stack } from 'expo-router';
 
+/** Nested stack for `/profile/*`; sits outside tabs so the tab bar hides. */
 export default function ProfileStackLayout() {
   const props = useStackProps();
   return (
     <Stack {...props}>
-      <Stack.Screen name="index" />
       <Stack.Screen name="edit" />
       <Stack.Screen name="username" />
       <Stack.Screen name="handle" />

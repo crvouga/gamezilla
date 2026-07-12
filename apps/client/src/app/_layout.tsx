@@ -19,6 +19,7 @@ function AppStack() {
     <Stack {...props}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="space" />
+      <Stack.Screen name="profile" />
       <Stack.Screen name="more" />
       <Stack.Screen name="ui" />
       <Stack.Screen
