@@ -74,6 +74,7 @@ export {
 export { ThemeProvider, useTheme } from './theme-context';
 export type { Theme, ThemeLayout, ThemeProviderProps } from './theme-context';
 export { useBreakpoint } from './use-breakpoint';
+export { useHoverCapable } from './use-hover-capable';
 export {
   ThemePreferenceProvider,
   useThemePreference,

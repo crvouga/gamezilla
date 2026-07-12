@@ -1,9 +1,10 @@
 /**
  * `Tooltip` -- lightweight label popup for icon affordances.
  *
- * Web: shows on hover. Native: long-press the child control (via
- * {@link useTooltipTrigger}) to show; release to dismiss.
- * Renders through {@link useOverlayPortal} so it stacks above modals.
+ * Desktop web: shows on hover when {@link useHoverCapable} is true.
+ * Touch / native: long-press the child control (via {@link useTooltipTrigger})
+ * to show; release to dismiss. Renders through {@link useOverlayPortal} so it
+ * stacks above modals.
  */
 
 import {
@@ -14,8 +15,9 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
-import { Platform, View } from 'react-native';
+import { View } from 'react-native';
 
+import { useHoverCapable } from '../../theme';
 import { useOverlayPortalSlot } from '../overlay-portal/overlay-portal';
 import { TooltipBubble } from './tooltip-bubble';
 import type { TooltipPlacement } from './tooltip-layout';
@@ -45,8 +47,12 @@ type WebHoverProps = {
   onMouseLeave?: () => void;
 };
 
-function webHoverProps(show: () => void, hide: () => void): WebHoverProps {
-  if (Platform.OS !== 'web') return {};
+function webHoverProps(
+  hoverCapable: boolean,
+  show: () => void,
+  hide: () => void
+): WebHoverProps {
+  if (!hoverCapable) return {};
   return {
     onMouseEnter: show,
     onMouseLeave: hide,
@@ -60,6 +66,7 @@ export function Tooltip({
 }: TooltipProps): ReactNode {
   const anchorRef = useRef<View>(null);
   const portalId = useId();
+  const hoverCapable = useHoverCapable();
   const { visible, enterKey, anchor, show, hide } = useTooltipState(anchorRef);
 
   const tooltipNode =
@@ -85,7 +92,7 @@ export function Tooltip({
         ref={anchorRef}
         collapsable={false}
         style={{ alignSelf: 'center' }}
-        {...webHoverProps(show, hide)}
+        {...webHoverProps(hoverCapable, show, hide)}
       >
         {children}
       </View>

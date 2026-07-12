@@ -1,28 +1,28 @@
-import {
-  useSignInModal,
-  useSignOutModal,
-} from '@libs/auth/client/auth-modals-provider';
+import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import { MyDisplayName } from '@libs/profile/client/my-display-name';
+import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import { useAsync } from '@pkgs/async/use-async';
 import { useLogger } from '@pkgs/logger/react';
 import type { LocalizedString } from '@pkgs/i18n';
 import {
   LogInIcon,
-  LogOutIcon,
   SettingsIcon,
   UserIcon,
-  type FloatingMenuContent,
+  iconButtonAvatarContentSize,
+  type ActionBarItem,
+  type FloatingMenuHeaderSpec,
 } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 
+const TRIGGER_SIZE = 36;
+
 type AccountMenuLabels = {
   account: LocalizedString;
   settings: LocalizedString;
   signIn: LocalizedString;
-  signOut: LocalizedString;
   userMenu: LocalizedString;
 };
 
@@ -33,90 +33,89 @@ function useAccountMenuLabels(): AccountMenuLabels {
       account: t`Account`,
       settings: t`Settings`,
       signIn: t`Sign in`,
-      signOut: t`Sign out`,
       userMenu: t`User menu`,
     }),
     [t]
   );
 }
 
-function useAccountMenuHandlers(close: () => void) {
+function useAccountMenuHandlers() {
   const isAuthenticated = useIsSignedIn();
   const { open: openSignInModal } = useSignInModal();
-  const { open: openSignOutConfirm } = useSignOutModal();
   const router = useRouter();
   const log = useLogger('account-menu');
 
   const onAccount = useCallback(() => {
-    close();
     router.push('/more/account');
-  }, [close, router]);
+  }, [router]);
 
   const onSettings = useCallback(() => {
-    close();
     router.push('/more');
-  }, [close, router]);
+  }, [router]);
 
-  const { run: runAuth } = useAsync({
+  const { run: runSignIn } = useAsync({
     operation: async () => {
-      if (isAuthenticated) {
-        openSignOutConfirm();
-      } else {
-        openSignInModal();
-      }
+      openSignInModal();
     },
     options: {
       onError: (err) => {
-        log.error('auth action failed', { error: err.message });
+        log.error('sign in action failed', { error: err.message });
       },
     },
   });
 
-  const onAuth = useCallback(() => {
-    close();
-    void runAuth().catch(() => {});
-  }, [close, runAuth]);
+  const onSignIn = useCallback(() => {
+    void runSignIn().catch(() => {});
+  }, [runSignIn]);
 
-  return { isAuthenticated, onAccount, onSettings, onAuth };
+  return { isAuthenticated, onAccount, onSettings, onSignIn };
 }
 
-export function useAccountMenuContent(close: () => void): FloatingMenuContent {
+export function useAccountMenuItems(): ActionBarItem[] {
   const labels = useAccountMenuLabels();
-  const { isAuthenticated, onAccount, onSettings, onAuth } =
-    useAccountMenuHandlers(close);
+  const { isAuthenticated, onAccount, onSettings, onSignIn } =
+    useAccountMenuHandlers();
 
+  return useMemo((): ActionBarItem[] => {
+    const items: ActionBarItem[] = [
+      {
+        id: 'account',
+        label: labels.account,
+        icon: UserIcon,
+        onPress: onAccount,
+        overflow: 'always',
+      },
+      {
+        id: 'settings',
+        label: labels.settings,
+        icon: SettingsIcon,
+        onPress: onSettings,
+        overflow: 'always',
+      },
+    ];
+
+    if (!isAuthenticated) {
+      items.push({
+        id: 'sign-in',
+        label: labels.signIn,
+        icon: LogInIcon,
+        onPress: onSignIn,
+        overflow: 'always',
+      });
+    }
+
+    return items;
+  }, [isAuthenticated, labels, onAccount, onSettings, onSignIn]);
+}
+
+export function useAccountMenuHeader(): FloatingMenuHeaderSpec {
+  const avatarSize = iconButtonAvatarContentSize(TRIGGER_SIZE);
   return useMemo(
-    (): FloatingMenuContent => ({
-      header: { title: <MyDisplayName variant="bodyBold" /> },
-      rows: [
-        {
-          type: 'item',
-          id: 'account',
-          label: labels.account,
-          icon: UserIcon,
-          onPress: onAccount,
-          accessibilityLabel: labels.account,
-        },
-        {
-          type: 'item',
-          id: 'settings',
-          label: labels.settings,
-          icon: SettingsIcon,
-          onPress: onSettings,
-          accessibilityLabel: labels.settings,
-        },
-        { type: 'divider', id: 'before-auth' },
-        {
-          type: 'item',
-          id: 'sign-in',
-          label: isAuthenticated ? labels.signOut : labels.signIn,
-          icon: isAuthenticated ? LogOutIcon : LogInIcon,
-          onPress: onAuth,
-          accessibilityLabel: isAuthenticated ? labels.signOut : labels.signIn,
-        },
-      ],
+    (): FloatingMenuHeaderSpec => ({
+      avatar: <MyProfileAvatar size={avatarSize} />,
+      title: <MyDisplayName variant="bodyBold" />,
     }),
-    [isAuthenticated, labels, onAccount, onAuth, onSettings]
+    [avatarSize]
   );
 }
 
@@ -124,3 +123,5 @@ export function useAccountMenuTriggerLabel(): LocalizedString {
   const { t } = useLingui();
   return t`User menu`;
 }
+
+export { TRIGGER_SIZE as ACCOUNT_MENU_TRIGGER_SIZE };

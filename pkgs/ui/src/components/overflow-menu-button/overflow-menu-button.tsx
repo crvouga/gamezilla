@@ -55,6 +55,7 @@ export type OverflowMenuAction = {
 export type OverflowMenuHeader = {
   title: ReactNode;
   subtitle?: ReactNode;
+  avatar?: ReactNode;
 };
 
 export type OverflowMenuButtonProps = {
@@ -107,6 +108,7 @@ function buildContent(
     header: {
       title: header.title,
       ...(header.subtitle !== undefined ? { subtitle: header.subtitle } : {}),
+      ...(header.avatar !== undefined ? { avatar: header.avatar } : {}),
     },
     rows,
   };

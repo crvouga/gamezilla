@@ -11,6 +11,7 @@ import { Text } from '../text';
 export type FloatingMenuHeaderProps = {
   title: ReactNode;
   subtitle?: ReactNode;
+  avatar?: ReactNode;
   /** Extra rows below title (e.g. metadata). */
   children?: ReactNode;
 };
@@ -18,9 +19,11 @@ export type FloatingMenuHeaderProps = {
 export function FloatingMenuHeader({
   title,
   subtitle,
+  avatar,
   children,
 }: FloatingMenuHeaderProps) {
   const hasSubtitle = subtitle !== undefined;
+  const hasAvatar = avatar !== undefined;
 
   return (
     <Box
@@ -32,14 +35,19 @@ export function FloatingMenuHeader({
         gap: 0.5,
       }}
     >
-      <Text variant="bodyBold" numberOfLines={1} label={title} />
-      {hasSubtitle ? (
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label={subtitle}
-        />
-      ) : null}
+      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+        {hasAvatar ? avatar : null}
+        <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
+          <Text variant="bodyBold" numberOfLines={1} label={title} />
+          {hasSubtitle ? (
+            <Text
+              variant="caption"
+              sx={{ color: 'textSecondary' }}
+              label={subtitle}
+            />
+          ) : null}
+        </Box>
+      </Box>
       {children}
     </Box>
   );

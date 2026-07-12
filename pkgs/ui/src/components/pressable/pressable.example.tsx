@@ -14,7 +14,7 @@ export default function PressableExample() {
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
-        label="Hover (web) + press apply a token-driven tint overlay by default."
+        label="Hover (desktop pointer) + press apply a token-driven tint overlay by default."
       />
 
       <SchemePreview>

@@ -28,7 +28,8 @@ export type ScreenBaseAction = {
 };
 
 export type BodyContentProps = {
-  sx: { flex: 1 };
+  /** `flex: 1` fills non-scroll bodies; omitted when `scroll` is enabled. */
+  sx: { flex?: 1 };
 };
 
 export type ScreenBasePrimaryAction = {

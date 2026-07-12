@@ -7,6 +7,8 @@ import type { IconComponent } from '../icons';
 export type FloatingMenuHeaderSpec = {
   title: ReactNode;
   subtitle?: ReactNode;
+  /** Optional avatar beside title/subtitle. */
+  avatar?: ReactNode;
 };
 
 export type FloatingMenuItemRow = {

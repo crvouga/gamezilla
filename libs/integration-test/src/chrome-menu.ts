@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 
-export type UserMenuItem = 'Sign in' | 'Sign out';
+export type UserMenuItem = 'Sign in';
 
 /** Opens account actions via the header avatar menu. */
 export async function openUserMenu(page: Page): Promise<void> {

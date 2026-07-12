@@ -149,6 +149,15 @@ function partitionByVisibleCount(
   };
 }
 
+/** Before the first layout pass, budget is unknown — keep inline items visible. */
+function partitionBeforeMeasure(items: readonly ActionBarItem[]): ActionBarPartition {
+  const { always } = itemSets(items);
+  return {
+    visible: items.filter((item) => !always.has(item.id)),
+    overflow: items.filter((item) => always.has(item.id)),
+  };
+}
+
 export function maxIconSlots(
   availableWidth: number,
   buttonSize: number,
@@ -171,13 +180,18 @@ export function partitionActionBarItems(
   items: readonly ActionBarItem[],
   layout: PartitionActionBarLayout
 ): ActionBarPartition {
-  const gap = layout.gap ?? DEFAULT_GAP;
-  const reservedWidth = layout.reservedWidth ?? 0;
-  const budget = actionBarBudgetWidth(layout.containerWidth, reservedWidth);
-  const slots = maxIconSlots(budget, layout.buttonSize, gap);
   if (items.length === 0) {
     return { visible: [], overflow: [] };
   }
+
+  const gap = layout.gap ?? DEFAULT_GAP;
+  const reservedWidth = layout.reservedWidth ?? 0;
+  if (layout.containerWidth <= 0) {
+    return partitionBeforeMeasure(items);
+  }
+
+  const budget = actionBarBudgetWidth(layout.containerWidth, reservedWidth);
+  const slots = maxIconSlots(budget, layout.buttonSize, gap);
 
   let partition = partitionByVisibleCount(items, slots);
   if (partition.overflow.length > 0 && slots > 0) {

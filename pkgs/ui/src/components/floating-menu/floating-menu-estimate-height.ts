@@ -4,6 +4,8 @@ import type { FloatingMenuContent } from './floating-menu-content';
 const PANEL_VERTICAL_INSET = 16;
 /** Header: title, optional subtitle, padding, bottom border. */
 const HEADER_BLOCK_HEIGHT = 64;
+/** Header with avatar row is taller. */
+const HEADER_WITH_AVATAR_BLOCK_HEIGHT = 72;
 /** `FloatingMenuItem` row (`py-3` + one line). */
 const ITEM_ROW_HEIGHT = 48;
 /** `FloatingMenuDivider` + vertical margin. */
@@ -18,7 +20,10 @@ export function estimateFloatingMenuHeight(
 ): number {
   let h = PANEL_VERTICAL_INSET;
   if (content.header !== undefined) {
-    h += HEADER_BLOCK_HEIGHT;
+    h +=
+      content.header.avatar !== undefined
+        ? HEADER_WITH_AVATAR_BLOCK_HEIGHT
+        : HEADER_BLOCK_HEIGHT;
   }
   for (const row of content.rows) {
     h += row.type === 'divider' ? DIVIDER_ROW_HEIGHT : ITEM_ROW_HEIGHT;

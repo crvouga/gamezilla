@@ -72,8 +72,19 @@ describe('partitionActionBarItems', () => {
     expect(result.overflow).toHaveLength(0);
   });
 
-  test('overflows everything at zero width', () => {
-    const items = [item('a'), item('b')];
+  test('keeps inline items visible before first layout pass', () => {
+    const items = [
+      item('a'),
+      item('b'),
+      item('menu', 0, 'always'),
+    ];
+    const result = partition(items, 0);
+    expect(result.visible.map((i) => i.id)).toEqual(['a', 'b']);
+    expect(result.overflow.map((i) => i.id)).toEqual(['menu']);
+  });
+
+  test('overflows everything at zero width when every item is always-overflow', () => {
+    const items = [item('a', 0, 'always'), item('b', 0, 'always')];
     const result = partition(items, 0);
     expect(result.visible).toHaveLength(0);
     expect(result.overflow.map((i) => i.id)).toEqual(['a', 'b']);

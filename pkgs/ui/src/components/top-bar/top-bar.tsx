@@ -111,7 +111,14 @@ function TopBarFlexLayout({
   return (
     <>
       {leading !== undefined ? (
-        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+        <Box
+          sx={{
+            flexShrink: 0,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 2,
+          }}
+        >
           {leading}
         </Box>
       ) : null}
@@ -133,10 +140,9 @@ function TopBarFlexLayout({
           sx={{
             // Absorb remaining width when there is no center slot so trailing
             // ActionBars can measure overflow against the real budget.
-            ...(hasCenter ? {} : { flex: 1, minWidth: 0 }),
+            ...(hasCenter ? {} : { flex: 1, minWidth: 0, alignSelf: 'stretch' }),
             flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'flex-end',
             gap: 2,
           }}
         >

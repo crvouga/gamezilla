@@ -10,12 +10,14 @@ import {
   FLOATING_MENU_DEFAULT_WIDTH,
   FloatingMenu,
   type FloatingMenuContent,
+  type FloatingMenuHeaderSpec,
 } from '../floating-menu';
 import { useAnchoredMenu } from '../overflow-menu-button/use-anchored-menu';
 import type { OverflowMenuAction } from '../overflow-menu-button/overflow-menu-button';
 import {
   ActionBarIconItems,
   ActionBarOverflowTrigger,
+  type ActionBarOverflowTriggerSpec,
   ActionBarTextItems,
   actionBarHasContent,
   buildOverflowMenuContent,
@@ -54,6 +56,10 @@ export type ActionBarProps = {
    * tight. `'never'` always renders every item as an inline icon button.
    */
   overflow?: ActionBarOverflowMode;
+  /** Custom overflow trigger (e.g. avatar). Defaults to menu icon. */
+  overflowTrigger?: ActionBarOverflowTriggerSpec;
+  /** Optional header for the overflow dropdown panel. */
+  overflowMenuHeader?: FloatingMenuHeaderSpec;
   buttonSize?: number;
   gap?: number;
   overflowTestID?: string;
@@ -69,19 +75,26 @@ function ActionBarRow(p: {
   onOpenMenu: () => void;
   triggerRef: React.RefObject<React.ElementRef<typeof Box> | null>;
   overflowTestID?: string;
+  overflowTrigger?: ActionBarOverflowTriggerSpec;
+  measuresWidth: boolean;
 }): ReactNode {
   return (
     <Box
+      collapsable={false}
       sx={{
-        flex: 1,
-        minWidth: 0,
+        ...(p.measuresWidth
+          ? { flex: 1, minWidth: 0, alignSelf: 'stretch' as const }
+          : {}),
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: p.align === 'start' ? 'flex-start' : 'flex-end',
         gap: 2,
       }}
-      style={{ gap: p.gap }}
-      onLayout={p.layout.onContainerLayout}
+      style={{
+        gap: p.gap,
+        ...(p.measuresWidth ? { width: '100%' } : {}),
+      }}
+      onLayout={p.measuresWidth ? p.layout.onContainerLayout : undefined}
     >
       <Box
         sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, minWidth: 0 }}
@@ -97,6 +110,7 @@ function ActionBarRow(p: {
             buttonSize={p.buttonSize}
             onOpen={p.onOpenMenu}
             triggerRef={p.triggerRef}
+            overflowTrigger={p.overflowTrigger}
             {...(p.overflowTestID !== undefined ? { testID: p.overflowTestID } : {})}
           />
         ) : null}
@@ -150,10 +164,12 @@ function ActionBarBody(p: {
   endSlot: ReactNode | undefined;
   overflow: ActionBarOverflowMode;
   overflowActions: OverflowMenuAction[];
+  overflowTrigger?: ActionBarOverflowTriggerSpec;
   menu: ReturnType<typeof useAnchoredMenu>;
   menuContent: FloatingMenuContent;
   overflowTestID?: string;
 }): ReactNode {
+  const measuresWidth = p.overflow !== 'never';
   return (
     <>
       <ActionBarRow
@@ -165,6 +181,8 @@ function ActionBarBody(p: {
         overflowActions={p.overflowActions}
         onOpenMenu={p.menu.openMenu}
         triggerRef={p.menu.triggerRef}
+        overflowTrigger={p.overflowTrigger}
+        measuresWidth={measuresWidth}
         {...(p.overflowTestID !== undefined
           ? { overflowTestID: p.overflowTestID }
           : {})}
@@ -187,6 +205,8 @@ export function ActionBar({
   endSlot,
   align = 'end',
   overflow = 'auto',
+  overflowTrigger,
+  overflowMenuHeader,
   buttonSize = DEFAULT_BUTTON_SIZE,
   gap = DEFAULT_GAP,
   overflowTestID,
@@ -219,8 +239,9 @@ export function ActionBar({
   );
 
   const menuContent = useMemo(
-    (): FloatingMenuContent => buildOverflowMenuContent(overflowActions),
-    [overflowActions]
+    (): FloatingMenuContent =>
+      buildOverflowMenuContent(overflowActions, overflowMenuHeader),
+    [overflowActions, overflowMenuHeader]
   );
 
   if (
@@ -243,6 +264,7 @@ export function ActionBar({
       endSlot={endSlot}
       overflow={overflow}
       overflowActions={overflowActions}
+      overflowTrigger={overflowTrigger}
       menu={menu}
       menuContent={menuContent}
       {...(overflowTestID !== undefined ? { overflowTestID } : {})}

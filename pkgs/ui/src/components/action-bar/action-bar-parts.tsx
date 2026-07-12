@@ -1,4 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
+import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 
 import { useTheme } from '../../theme';
@@ -7,6 +8,7 @@ import { Button } from '../button';
 import {
   type FloatingMenuContent,
   type FloatingMenuContentRow,
+  type FloatingMenuHeaderSpec,
 } from '../floating-menu';
 import { IconButton } from '../icon-button';
 import { EllipsisIcon, MenuIcon } from '../icons';
@@ -15,7 +17,8 @@ import type { ActionBarTextAction } from './action-bar-types';
 import { isActionBarAvatarItem, type ActionBarItem } from './partition-action-bar-items';
 
 export function buildOverflowMenuContent(
-  actions: readonly OverflowMenuAction[]
+  actions: readonly OverflowMenuAction[],
+  header?: FloatingMenuHeaderSpec
 ): FloatingMenuContent {
   const rows: FloatingMenuContentRow[] = [];
   actions.forEach((action, idx) => {
@@ -35,17 +38,49 @@ export function buildOverflowMenuContent(
       rows.push({ type: 'divider', id: `${action.id}-end-group` });
     }
   });
-  return { rows };
+  return {
+    ...(header !== undefined ? { header } : {}),
+    rows,
+  };
 }
+
+export type ActionBarOverflowTriggerSpec =
+  | {
+      variant: 'avatar';
+      children: ReactNode;
+      label: LocalizedString;
+      testID?: string;
+    }
+  | undefined;
 
 export function ActionBarOverflowTrigger(p: {
   buttonSize: number;
   onOpen: () => void;
   triggerRef: React.RefObject<React.ElementRef<typeof Box> | null>;
   testID?: string;
+  overflowTrigger?: ActionBarOverflowTriggerSpec;
 }): ReactNode {
   const theme = useTheme();
   const { t } = useLingui();
+
+  if (p.overflowTrigger?.variant === 'avatar') {
+    const trigger = p.overflowTrigger;
+    return (
+      <Box ref={p.triggerRef} collapsable={false}>
+        <IconButton
+          variant="avatar"
+          size={p.buttonSize}
+          onPress={p.onOpen}
+          label={trigger.label}
+          accessibilityLabel={trigger.label}
+          {...(trigger.testID !== undefined ? { testID: trigger.testID } : {})}
+        >
+          {trigger.children}
+        </IconButton>
+      </Box>
+    );
+  }
+
   return (
     <Box ref={p.triggerRef} collapsable={false}>
       <IconButton

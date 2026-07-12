@@ -3,9 +3,10 @@
  *
  * The default `feedback="tint"` mode layers a translucent overlay (using the
  * theme's `interactiveHover` / `interactivePress` tokens) on top of the
- * children when the user hovers (web) or presses. This reads as a real
- * interactive surface lift -- the same idiom Discord / Linear / Notion use --
- * instead of the old flat `opacity: 0.7` drop.
+ * children when the user hovers (desktop web only) or presses. Hover is gated
+ * behind {@link useHoverCapable} so touch devices never keep a sticky tint
+ * after tap. This reads as a real interactive surface lift -- the same idiom
+ * Discord / Linear / Notion use -- instead of the old flat `opacity: 0.7` drop.
  *
  * Pass `feedback="opacity"` to fall back to the legacy opacity press, or
  * `feedback="none"` for a Pressable that ships no built-in visual feedback
@@ -19,7 +20,7 @@
  * ```
  */
 
-import { forwardRef, useState, type ReactNode } from 'react';
+import { forwardRef, useEffect, useState, type ReactNode } from 'react';
 import {
   Pressable as RNPressable,
   View,
@@ -28,7 +29,7 @@ import {
   type View as RNView,
 } from 'react-native';
 import type { SxProps } from '../../theme';
-import { useTheme } from '../../theme';
+import { useHoverCapable, useTheme } from '../../theme';
 
 export type PressableFeedback = 'tint' | 'opacity' | 'none';
 
@@ -68,16 +69,21 @@ export const Pressable = forwardRef<RNView, PressableProps>(function Pressable(
   ref
 ) {
   const theme = useTheme();
+  const hoverCapable = useHoverCapable();
   const [hovered, setHovered] = useState(false);
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const overlayRadius =
     typeof sxProp?.borderRadius === 'number' ? sxProp.borderRadius : undefined;
 
+  useEffect(() => {
+    if (!hoverCapable) setHovered(false);
+  }, [hoverCapable]);
+
   return (
     <RNPressable
       ref={ref}
       onHoverIn={(e) => {
-        setHovered(true);
+        if (hoverCapable) setHovered(true);
         onHoverIn?.(e);
       }}
       onHoverOut={(e) => {

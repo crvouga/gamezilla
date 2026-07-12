@@ -137,6 +137,9 @@ function FloatingMenuPanel({
             {...(content.header.subtitle !== undefined
               ? { subtitle: content.header.subtitle }
               : {})}
+            {...(content.header.avatar !== undefined
+              ? { avatar: content.header.avatar }
+              : {})}
           />
         ) : null}
         {content.rows.map(renderFloatingMenuRow)}

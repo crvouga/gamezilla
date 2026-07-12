@@ -107,6 +107,7 @@ msgstr "Abandoned · {puzzleRating}"
 msgid "About"
 msgstr "About"
 
+#: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
 #: apps/client/src/ui/use-account-menu.tsx
 #: libs/auth/src/client/account-device/account-device-detail-screen.tsx
@@ -404,8 +405,8 @@ msgid "Close"
 msgstr "Close"
 
 #: libs/spaces/src/client/space-settings-screen.tsx
-msgid "Closes the space for everyone."
-msgstr "Closes the space for everyone."
+#~ msgid "Closes the space for everyone."
+#~ msgstr "Closes the space for everyone."
 
 #: libs/profile/src/client/avatar-editor-colors-block.tsx
 #~ msgid "Colors"
@@ -493,7 +494,6 @@ msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
-#: libs/spaces/src/client/space-settings-screen.tsx
 msgid "Copy invite link"
 msgstr "Copy invite link"
 
@@ -791,7 +791,6 @@ msgstr "End {label}"
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 #: libs/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
-#: libs/spaces/src/client/space-settings-screen.tsx
 msgid "End space"
 msgstr "End space"
 
@@ -1039,7 +1038,6 @@ msgstr "Leave {label}"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
-#: libs/spaces/src/client/space-settings-screen.tsx
 msgid "Leave space"
 msgstr "Leave space"
 
@@ -1109,8 +1107,8 @@ msgid "login"
 msgstr "login"
 
 #: libs/spaces/src/client/space-settings-screen.tsx
-msgid "Manage this space."
-msgstr "Manage this space."
+#~ msgid "Manage this space."
+#~ msgstr "Manage this space."
 
 #: pkgs/inbox/src/client/inbox-screen.tsx
 msgid "Mark all read"
@@ -1157,7 +1155,6 @@ msgid "Model"
 msgstr "Model"
 
 #: pkgs/ui/src/components/action-bar/action-bar-parts.tsx
-#: pkgs/ui/src/components/action-bar/action-bar.tsx
 msgid "More"
 msgstr "More"
 
@@ -1546,7 +1543,6 @@ msgstr "Remove friend?"
 
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
-#: libs/spaces/src/client/space-settings-screen.tsx
 msgid "Rename space"
 msgstr "Rename space"
 
@@ -1737,7 +1733,6 @@ msgid "Sign in with Google"
 msgstr "Sign in with Google"
 
 #: apps/client/src/ui/app-commands/account-command.tsx
-#: apps/client/src/ui/use-account-menu.tsx
 #: libs/auth/src/client/account-actions-row.tsx
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "Sign out"
@@ -1860,8 +1855,8 @@ msgstr "Space renamed"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/space-settings-screen.tsx
-msgid "Space settings"
-msgstr "Space settings"
+#~ msgid "Space settings"
+#~ msgstr "Space settings"
 
 #: apps/client/src/app/(tabs)/_layout.tsx
 #: apps/client/src/connection/server-status-screen.tsx
@@ -2127,8 +2122,8 @@ msgid "Use system theme"
 msgstr "Use system theme"
 
 #: apps/client/src/settings/settings-screen.tsx
-msgid "User"
-msgstr "User"
+#~ msgid "User"
+#~ msgstr "User"
 
 #: apps/client/src/ui/app-header/app-account-menu.tsx
 #: apps/client/src/ui/use-account-menu.tsx
@@ -2204,8 +2199,8 @@ msgid "You can join again later if the space is still live."
 msgstr "You can join again later if the space is still live."
 
 #: libs/spaces/src/client/space-settings-screen.tsx
-msgid "You can rejoin from the host's invite link."
-msgstr "You can rejoin from the host's invite link."
+#~ msgid "You can rejoin from the host's invite link."
+#~ msgstr "You can rejoin from the host's invite link."
 
 #: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
 msgid "You can rejoin from the invite link if the space is still live."

@@ -5,7 +5,7 @@
  * the same baseline.
  */
 
-import { useContext, type ReactNode } from 'react';
+import { useContext, useMemo, type ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
@@ -28,9 +28,21 @@ const SCROLL_BOTTOM_PADDING = 24;
 const FLOATING_ACTION_MARGIN = 16;
 const FLOATING_ACTION_Z_INDEX = 10;
 
-function BodyInner({ children }: { children: ReactNode }) {
+function BodyInner({
+  children,
+  scroll,
+}: {
+  children: ReactNode;
+  scroll: boolean;
+}) {
   return (
-    <Box sx={{ flex: 1, p: BODY_PADDING_STEP, gap: BODY_GAP_STEP }}>
+    <Box
+      sx={{
+        ...(scroll ? {} : { flex: 1 }),
+        p: BODY_PADDING_STEP,
+        gap: BODY_GAP_STEP,
+      }}
+    >
       {children}
     </Box>
   );
@@ -41,6 +53,17 @@ const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
 /** See note in `screen-base-header.tsx`: prefer context over the hook so Metro cannot bundle two copies. */
 function useSafeAreaBottom(): number {
   return (useContext(SafeAreaInsetsContext) ?? ZERO_SAFE_AREA).bottom;
+}
+
+/** Scroll inset below body content; footer screens only need breathing room. */
+function scrollContentPaddingBottom(
+  bottomInset: number,
+  hasFooter: boolean
+): number {
+  if (hasFooter) {
+    return SCROLL_BOTTOM_PADDING;
+  }
+  return SCROLL_BOTTOM_PADDING + bottomInset;
 }
 
 /** Bottom-pinned footer: full-bleed surface with a top divider. */
@@ -106,15 +129,16 @@ export function ScreenBase({
   primaryActionBottomInset = 0,
   accountMenu,
 }: ScreenBaseProps) {
-  const body = (primaryActionProps?: ScreenBasePrimaryActionRenderProps) =>
-    renderScreenBody({
-      scroll,
-      keyboardAvoiding,
-      content,
-      footer,
-      primaryActionProps,
-      primaryActionBottomInset,
-    });
+  const body = (primaryActionProps?: ScreenBasePrimaryActionRenderProps) => (
+    <ScreenBody
+      scroll={scroll}
+      keyboardAvoiding={keyboardAvoiding}
+      content={content}
+      footer={footer}
+      primaryActionProps={primaryActionProps}
+      primaryActionBottomInset={primaryActionBottomInset}
+    />
+  );
 
   return (
     <Box sx={{ flex: 1 }}>
@@ -136,23 +160,30 @@ export function ScreenBase({
 }
 
 function renderConstrainedBody(args: {
+  scroll: boolean;
   content: ScreenBaseProps['content'];
 }): ReactNode {
   return (
-    <BodyInner>
-      {args.content({ sx: { flex: 1 } } satisfies BodyContentProps)}
+    <BodyInner scroll={args.scroll}>
+      {args.content({
+        sx: args.scroll ? {} : { flex: 1 },
+      } satisfies BodyContentProps)}
     </BodyInner>
   );
 }
 
-function renderScrollableBody(scroll: boolean, inner: ReactNode): ReactNode {
+function renderScrollableBody(
+  scroll: boolean,
+  inner: ReactNode,
+  paddingBottom: number
+): ReactNode {
   if (scroll) {
     return (
       <ScrollView
-        sx={{ flex: 1 }}
+        style={{ flex: 1 }}
         contentContainerStyle={{
           flexGrow: 1,
-          paddingBottom: SCROLL_BOTTOM_PADDING,
+          paddingBottom,
         }}
       >
         {inner}
@@ -162,7 +193,14 @@ function renderScrollableBody(scroll: boolean, inner: ReactNode): ReactNode {
   return <Box sx={{ flex: 1 }}>{inner}</Box>;
 }
 
-function renderScreenBody(args: {
+function ScreenBody({
+  scroll,
+  keyboardAvoiding,
+  content,
+  footer,
+  primaryActionProps,
+  primaryActionBottomInset,
+}: {
   scroll: boolean;
   keyboardAvoiding: boolean;
   content: ScreenBaseProps['content'];
@@ -170,25 +208,35 @@ function renderScreenBody(args: {
   primaryActionProps: ScreenBasePrimaryActionRenderProps | undefined;
   primaryActionBottomInset: number;
 }): ReactNode {
-  const inner = renderConstrainedBody(args);
-  const body = renderScrollableBody(args.scroll, inner);
+  const bottomInset = useSafeAreaBottom();
+  const hasFooter = footer !== undefined;
+  const scrollPaddingBottom = useMemo(
+    () => scrollContentPaddingBottom(bottomInset, hasFooter),
+    [bottomInset, hasFooter]
+  );
+  const inner = renderConstrainedBody({ scroll, content });
+  const body = renderScrollableBody(scroll, inner, scrollPaddingBottom);
 
   const bodyWithFooter = (
-    <Box sx={{ flex: 1, minHeight: 0 }} style={{ position: 'relative' }}>
+    <Box
+      sx={{ flex: 1, minHeight: 0 }}
+      style={{
+        position: 'relative',
+        ...(hasFooter || scroll ? {} : { paddingBottom: bottomInset }),
+      }}
+    >
       {body}
-      {args.footer !== undefined ? (
-        <PinnedFooter>{args.footer}</PinnedFooter>
-      ) : null}
-      {args.primaryActionProps !== undefined &&
-      !args.primaryActionProps.buttonProps.disabled ? (
-        <FloatingActionHost extraBottomInset={args.primaryActionBottomInset}>
-          {renderPrimaryActionFab(args.primaryActionProps)}
+      {footer !== undefined ? <PinnedFooter>{footer}</PinnedFooter> : null}
+      {primaryActionProps !== undefined &&
+      !primaryActionProps.buttonProps.disabled ? (
+        <FloatingActionHost extraBottomInset={primaryActionBottomInset}>
+          {renderPrimaryActionFab(primaryActionProps)}
         </FloatingActionHost>
       ) : null}
     </Box>
   );
 
-  if (args.keyboardAvoiding) {
+  if (keyboardAvoiding) {
     return (
       <KeyboardAvoidingView sx={{ flex: 1 }}>
         {bodyWithFooter}

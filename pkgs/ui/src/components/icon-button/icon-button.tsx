@@ -1,8 +1,9 @@
 /**
  * `IconButton` -- a circular button that renders a single child icon or avatar.
  *
- * Uses the themed {@link Pressable} so hover (web) and press feedback come
- * from the `interactiveHover` / `interactivePress` overlay tokens.
+ * Uses the themed {@link Pressable} so hover (desktop pointer) and press
+ * feedback come from the `interactiveHover` / `interactivePress` overlay
+ * tokens.
  * Every button shows a {@link Tooltip} with its `label`.
  *
  * `variant="avatar"` draws a border ring via inset padding (so the outer
