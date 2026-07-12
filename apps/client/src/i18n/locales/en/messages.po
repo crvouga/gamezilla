@@ -479,7 +479,7 @@ msgstr "Copied"
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
 
-#: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/space-settings-screen.tsx
 msgid "Copy invite link"
 msgstr "Copy invite link"
@@ -641,7 +641,7 @@ msgstr "developer"
 msgid "Developer"
 msgstr "Developer"
 
-#: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
 msgid "Developer tools"
 msgstr "Developer tools"
@@ -767,7 +767,7 @@ msgstr "End"
 msgid "End {label}"
 msgstr "End {label}"
 
-#: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 #: libs/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
 #: libs/spaces/src/client/space-settings-screen.tsx
@@ -884,9 +884,7 @@ msgstr "go to"
 msgid "Go to {target}"
 msgstr "Go to {target}"
 
-#: libs/spaces/src/client/active-space/space-chrome-home-button.tsx
-#: libs/spaces/src/client/active-space/space-chrome-home-button.tsx
-#: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 msgid "Go to spaces"
 msgstr "Go to spaces"
 
@@ -1018,7 +1016,7 @@ msgstr "Leave"
 msgid "Leave {label}"
 msgstr "Leave {label}"
 
-#: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
 #: libs/spaces/src/client/space-settings-screen.tsx
 msgid "Leave space"
@@ -1133,15 +1131,14 @@ msgstr "Modal above the board"
 msgid "Model"
 msgstr "Model"
 
-#: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
-#: pkgs/ui/src/components/action-bar/action-bar.tsx
+#: pkgs/ui/src/components/action-bar/action-bar-parts.tsx
 #: pkgs/ui/src/components/action-bar/action-bar.tsx
 msgid "More"
 msgstr "More"
 
 #: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
-msgid "More options"
-msgstr "More options"
+#~ msgid "More options"
+#~ msgstr "More options"
 
 #: libs/profile/src/client/avatar-editor-screen.tsx
 #~ msgid "More styles"
@@ -1514,7 +1511,7 @@ msgid "Remove friend?"
 msgstr "Remove friend?"
 
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
-#: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/space-settings-screen.tsx
 msgid "Rename space"
 msgstr "Rename space"
@@ -1827,7 +1824,7 @@ msgstr "Space name"
 msgid "Space renamed"
 msgstr "Space renamed"
 
-#: libs/spaces/src/client/active-space/space-chrome-overflow-menu.tsx
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/space-settings-screen.tsx
 msgid "Space settings"
 msgstr "Space settings"
