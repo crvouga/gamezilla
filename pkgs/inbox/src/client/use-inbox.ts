@@ -1,7 +1,7 @@
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, useMemo, useState } from 'react';
 
-import { clientRowToInteraction } from '../server/row-mapper';
+import { clientRowToInteraction } from '../shared/row-mapper';
 import type { Interaction, InteractionFilter } from '../shared/interaction';
 import { buildInteractionSections } from './inbox-sections';
 import { inboxListSql } from './inbox-queries';

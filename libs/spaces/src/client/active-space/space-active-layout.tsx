@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { SpaceMembersAvatarGroup } from '../members/space-members-avatar-group';
 import { SpaceChromeActionBar } from './space-chrome-action-bar';
 import { SpaceChromeBackButton } from './space-chrome-back-button';
+import { SpaceChromeHomeButton } from './space-chrome-home-button';
 import { useSpaceSessionUi } from './space-session-ui-context';
 
 export type SpaceActiveLayoutProps = {
@@ -23,7 +24,12 @@ export function SpaceActiveLayout({
     <Box sx={{ flex: 1, minHeight: 0 }}>
       <TopBar
         safeAreaTop={false}
-        leading={<SpaceChromeBackButton />}
+        leading={
+          <>
+            <SpaceChromeHomeButton />
+            <SpaceChromeBackButton />
+          </>
+        }
         centerAlign="end"
         center={<SpaceMembersAvatarGroup spaceId={spaceId} />}
         trailing={<SpaceChromeActionBar />}

@@ -2,7 +2,7 @@ export {
   ActionBar,
   type ActionBarProps,
 } from './action-bar';
-export { type ActionBarTextAction } from './use-action-bar-layout';
+export { type ActionBarTextAction } from './action-bar-types';
 export {
   actionBarBudgetWidth,
   isActionBarAvatarItem,

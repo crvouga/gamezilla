@@ -23,10 +23,8 @@ import {
   textActionsToOverflow,
 } from './action-bar-parts';
 import type { ActionBarItem } from './partition-action-bar-items';
-import {
-  useActionBarLayout,
-  type ActionBarTextAction,
-} from './use-action-bar-layout';
+import type { ActionBarTextAction } from './action-bar-types';
+import { useActionBarLayout } from './use-action-bar-layout';
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_BUTTON_SIZE = 36;

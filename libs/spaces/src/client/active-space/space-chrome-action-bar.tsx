@@ -2,7 +2,6 @@ import {
   ActionBar,
   CodeIcon,
   CopyIcon,
-  DoorOpenIcon,
   LogOutIcon,
   PaintbrushIcon,
   SettingsIcon,
@@ -32,7 +31,6 @@ type SpaceChromeLabels = {
   rename: string;
   invite: string;
   settings: string;
-  home: string;
   developer: string;
   end: string;
   leave: string;
@@ -42,7 +40,6 @@ type SpaceChromeCallbacks = {
   onPressRename: () => void;
   onPressInvite: () => void;
   onPressSettings: () => void;
-  onPressHome: () => void;
   onPressDebug: () => void;
   onPressEnd: () => void;
   onPressLeave: () => void;
@@ -54,16 +51,7 @@ function buildSpaceChromeActionBarItems(args: {
   callbacks: SpaceChromeCallbacks;
 }): ActionBarItem[] {
   const { isHost, labels, callbacks } = args;
-  const items: ActionBarItem[] = [
-    {
-      id: 'spaces-home',
-      label: labels.home,
-      icon: DoorOpenIcon,
-      onPress: callbacks.onPressHome,
-      overflow: 'never',
-      priority: 100,
-    },
-  ];
+  const items: ActionBarItem[] = [];
 
   if (isHost) {
     items.push({
@@ -126,7 +114,6 @@ export function useSpaceChromeActionBarItems(): ActionBarItem[] {
   const router = useRouter();
   const {
     spaceId,
-    onPressHome,
     onPressDebug,
     onRequestEnd,
     onRequestLeave,
@@ -151,7 +138,6 @@ export function useSpaceChromeActionBarItems(): ActionBarItem[] {
           rename: t`Rename space`,
           invite: t`Copy invite link`,
           settings: t`Space settings`,
-          home: t`Go to spaces`,
           developer: t`Developer tools`,
           end: t`End space`,
           leave: t`Leave space`,
@@ -160,7 +146,6 @@ export function useSpaceChromeActionBarItems(): ActionBarItem[] {
           onPressRename: onRequestRename,
           onPressInvite: onCopyInviteLink,
           onPressSettings: onOpenSettings,
-          onPressHome,
           onPressDebug,
           onPressEnd: onRequestEnd,
           onPressLeave: onRequestLeave,
@@ -172,7 +157,6 @@ export function useSpaceChromeActionBarItems(): ActionBarItem[] {
       onRequestRename,
       onCopyInviteLink,
       onOpenSettings,
-      onPressHome,
       onPressDebug,
       onRequestEnd,
       onRequestLeave,
@@ -181,8 +165,9 @@ export function useSpaceChromeActionBarItems(): ActionBarItem[] {
 }
 
 /**
- * Responsive active-space trailing actions: home stays visible; management
- * actions collapse into the overflow menu when horizontal space is tight.
+ * Responsive active-space trailing actions. Management actions collapse into
+ * the overflow menu when horizontal space is tight; exit lives in leading
+ * chrome via {@link SpaceChromeHomeButton}.
  */
 export function SpaceChromeActionBar(): ReactNode {
   const items = useSpaceChromeActionBarItems();

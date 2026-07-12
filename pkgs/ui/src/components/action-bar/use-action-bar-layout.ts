@@ -1,22 +1,13 @@
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 
+import { actionBarItemsToOverflowActions } from './action-bar-overflow';
+import type { ActionBarTextAction } from './action-bar-types';
 import {
   partitionActionBarItems,
   type ActionBarItem,
   type ActionBarPartition,
 } from './partition-action-bar-items';
-import { actionBarItemsToOverflowActions } from './action-bar-parts';
-
-export type ActionBarTextAction = {
-  id: string;
-  label: ReactNode;
-  onPress: () => void;
-  intent?: 'primary' | 'danger' | 'neutral';
-  loading?: boolean;
-  disabled?: boolean;
-  overflow?: 'auto' | 'always' | 'never';
-};
 
 function partitionTextActions(actions: readonly ActionBarTextAction[]): {
   inline: ActionBarTextAction[];
