@@ -1,10 +1,9 @@
 import { ApiWorkerResource } from './api-worker';
 import { ClientWorkerResource } from './client-worker';
-import { LegacyCloudflareStackResource } from './legacy-cloudflare-stack';
 import { S3BucketResource } from './s3-bucket';
 import { ClientRedirectRuleResource } from './client-redirect-rule';
 import { DnsRecordsResource } from './dns-records';
-import { NeonPostgres } from './neon-postgres';
+import { PostgresResource } from './postgres';
 import { PowerSyncResource } from './powersync';
 import { SecretsResource } from './secrets';
 import type { Resource } from './types';
@@ -13,36 +12,34 @@ import { ZoneResource } from './zone';
 export function createRegistry(): readonly Resource[] {
   const secrets = new SecretsResource();
   const zone = new ZoneResource();
-  const neonPostgres = new NeonPostgres();
+  const postgres = new PostgresResource();
   const powerSync = new PowerSyncResource();
   const s3Bucket = new S3BucketResource();
   const dnsRecords = new DnsRecordsResource();
   const clientRedirectRule = new ClientRedirectRuleResource();
   const apiWorker = new ApiWorkerResource();
   const clientWorker = new ClientWorkerResource();
-  const legacyCloudflareStack = new LegacyCloudflareStackResource();
 
   zone.needs(secrets);
-  neonPostgres.needs(secrets);
-  powerSync.needs(secrets, neonPostgres);
+  postgres.needs(secrets);
+  powerSync.needs(secrets, postgres);
   s3Bucket.needs(secrets);
   dnsRecords.needs(zone);
   clientRedirectRule.needs(zone);
   // API first so www/apex custom domains detach before the assets-only Worker
   // claims them.
-  apiWorker.needs(neonPostgres, dnsRecords, s3Bucket);
+  apiWorker.needs(postgres, dnsRecords, s3Bucket);
   clientWorker.needs(apiWorker);
 
   return [
     secrets,
     zone,
-    neonPostgres,
+    postgres,
     powerSync,
     s3Bucket,
     dnsRecords,
     clientRedirectRule,
     apiWorker,
     clientWorker,
-    legacyCloudflareStack,
   ];
 }

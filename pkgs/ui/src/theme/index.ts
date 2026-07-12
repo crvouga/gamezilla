@@ -37,7 +37,6 @@ export {
 export { NavigationThemeProvider } from './navigation-theme-provider';
 export {
   borderRadius,
-  elevation,
   fontSize,
   lineHeight,
   makeElevation,

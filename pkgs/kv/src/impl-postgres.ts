@@ -55,51 +55,6 @@ ALTER TABLE ${TABLE} ALTER COLUMN value SET STORAGE MAIN;
 const ADVISORY_LOCK_SQL =
   'SELECT pg_advisory_xact_lock(hashtext(CAST(? AS TEXT))::bigint)';
 
-/** Renames legacy `updated_at` → `last_modified_at` when present (idempotent). */
-async function migrateKvLegacyUpdatedAtColumn(
-  sqlClient: SqlClient,
-  log: Logger
-): Promise<void> {
-  const legacy = await sqlClient.query<{ column_name: string }>(
-    `SELECT column_name FROM information_schema.columns
-     WHERE table_schema = current_schema() AND table_name = ? AND column_name = 'updated_at'`,
-    [TABLE]
-  );
-  assert.array(legacy, 'kv migrate: legacy column query must return array');
-  if (legacy.length === 0) return;
-  log.info('kv postgres migrate: renaming updated_at → last_modified_at', {
-    table: TABLE,
-  });
-  await sqlClient.run(
-    `ALTER TABLE ${TABLE} RENAME COLUMN updated_at TO ${LAST_MODIFIED_AT}`
-  );
-}
-
-/**
- * Legacy installs stored `value` as `TEXT`. Convert to `JSONB` and wipe rows
- * so every row satisfies the keyword-record contract going forward.
- */
-async function migrateKvValueColumnToJsonbIfNeeded(
-  sqlClient: SqlClient,
-  log: Logger
-): Promise<void> {
-  const rows = await sqlClient.query<{ data_type: string }>(
-    `SELECT data_type FROM information_schema.columns
-     WHERE table_schema = current_schema() AND table_name = ? AND column_name = 'value'`,
-    [TABLE]
-  );
-  assert.array(rows, 'kv migrate: value column type query must return array');
-  const dt = rows[0]?.data_type;
-  if (dt !== 'text') return;
-  log.info('kv postgres migrate: converting value TEXT → JSONB + TRUNCATE', {
-    table: TABLE,
-  });
-  await sqlClient.run(
-    `ALTER TABLE ${TABLE} ALTER COLUMN value TYPE jsonb USING value::jsonb`
-  );
-  await sqlClient.run(`TRUNCATE ${TABLE}`);
-}
-
 /**
  * Legacy installs created `kv` without a `key` primary key (or with only NOT
  * NULL). `ON CONFLICT (key)` requires a unique/PK target — add one idempotently.
@@ -191,8 +146,6 @@ async function runKvPostgresMigrations(
       table: TABLE,
     });
   }
-  await migrateKvLegacyUpdatedAtColumn(sqlClient, log);
-  await migrateKvValueColumnToJsonbIfNeeded(sqlClient, log);
   if (existing.length > 0) {
     await ensureKvPrimaryKeyOnKeyColumn(sqlClient, log);
   }

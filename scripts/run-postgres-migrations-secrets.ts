@@ -5,7 +5,7 @@
 import { createLogger } from '@pkgs/logger';
 import { createPgPool } from '@pkgs/sql-client/postgres-connect';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
-import { resolveDatabaseUrl } from '../libs/infra/src/cli/resources/neon-postgres';
+import { resolveDatabaseUrl } from '../libs/infra/src/cli/resources/postgres';
 import { loadSecretsIntoEnv } from '../libs/infra/src/cli/secrets/secrets';
 import { runPostgresMigrations } from '../apps/api/src/migrations/run-postgres-migrations';
 

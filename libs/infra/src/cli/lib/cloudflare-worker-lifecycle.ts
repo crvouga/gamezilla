@@ -66,7 +66,7 @@ export function isWorkerNotFound(r: SpawnResult): boolean {
   return NOT_FOUND_CODES.some((code) => r.stderr.includes(`[code: ${code}]`));
 }
 
-/** Delete a Worker by explicit script name (legacy stacks, no `--env`). */
+/** Delete a Worker by explicit script name (no `--env`). */
 export function deleteWorkerByName(workerName: string): void {
   const r = runSafe('wrangler', ['delete', workerName, '--force'], {
     cwd: apiDir(),

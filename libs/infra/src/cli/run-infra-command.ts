@@ -7,7 +7,7 @@ import { SecretsResource } from './resources/secrets';
  * Runs a command; acquires the global lock when {@link Command.requiresLock} is set.
  *
  * {@link DeployCommand} defers lock acquisition until after `db:migrate` so
- * PlanetScale direct connection limits are not exhausted (lock + migrate).
+ * Postgres connection limits are not exhausted (lock + migrate).
  */
 export async function runInfraCommand(
   command: Command,

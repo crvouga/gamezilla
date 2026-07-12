@@ -11,7 +11,7 @@
  *   3. UPSERT into snapshots (DO UPDATE → dead-tuple churn even for fresh rows)
  *   4. extra round-trip per batch to persist the resume cursor
  * For 2.65M Lichess puzzles that's ~530 batches × every step → multi-GB WAL
- * surge that PlanetScale's PITR pins as billable storage even after VACUUM.
+ * surge that managed Postgres PITR pins as billable storage even after VACUUM.
  *
  * For a fresh seed every puzzle is its own root patch (`parent_id = null`),
  * the snapshot value equals that patch's user attributes, and the patch id
@@ -25,13 +25,13 @@
  * standard migration step first (`bun run --filter @apps/api db:migrate`)
  * before invoking this script on a fresh database. Keeping migrations out
  * of the seed lets `@libs/chess` stay independent of `@apps/api`
- * (and legacy auth) and avoids a workspace-level dependency cycle.
+ * and avoids a workspace-level dependency cycle.
  *
  * Connection model: the seed opens **exactly one** TCP session to Postgres
  * via `pg.Client` (not `pg.Pool`). The seed loop is fully serial — one
  * batch transaction at a time with awaited `CHECKPOINT` / `VACUUM` /
  * progress-write statements between batches — so a pool only adds idle
- * connections that count against PlanetScale's `max_connections` budget
+ * connections that count against the host's `max_connections` budget
  * without speeding anything up. PgBouncer-fronted endpoints work too as
  * long as they run in **session pooling** mode (transaction mode breaks
  * `SET …` statements that need to persist across the seed's batches).
@@ -149,7 +149,7 @@ export class ChessPuzzleSeeder {
    *   (e.g. parsing a chunk of CSV between batches) from being silently
    *   killed by load-balancers / NAT timers in front of managed Postgres.
    * - `application_name=seed:puzzles` makes this session easy to spot in
-   *   `pg_stat_activity` and PlanetScale's connection dashboard.
+   *   `pg_stat_activity` and the provider's connection dashboard.
    *
    * Pools (`pg.Pool`) are intentionally not used: the seed loop is fully
    * serial, so a pool only adds idle connections that count against the

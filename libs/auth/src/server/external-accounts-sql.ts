@@ -1,4 +1,3 @@
-import { LEGACY_EXTERNAL_ACCOUNT_PROVIDER_AUTH } from '@libs/auth/shared/external-account-providers';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
@@ -106,18 +105,11 @@ export async function findUserIdByPrimaryAuthExternalId(
   primaryAuthProvider: string,
   externalUserId: string
 ): Promise<string | null> {
-  for (const provider of [
+  return findUserIdByProviderExternalId(
+    sql,
     primaryAuthProvider,
-    LEGACY_EXTERNAL_ACCOUNT_PROVIDER_AUTH,
-  ] as const) {
-    const userId = await findUserIdByProviderExternalId(
-      sql,
-      provider,
-      externalUserId
-    );
-    if (userId !== null) return userId;
-  }
-  return null;
+    externalUserId
+  );
 }
 
 export async function readMetadataEmail(

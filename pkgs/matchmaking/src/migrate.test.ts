@@ -170,23 +170,6 @@ describe('migrate v3 - schema bootstrap', () => {
       await db.close();
     }
   });
-
-  test('drops legacy v2 matchmaking_queue + matchmaking_pass_runs tables', async () => {
-    const { db, sqlClient } = await boot();
-    try {
-      // Simulate a v2 install: create the legacy tables before migrate.
-      await sqlClient.query(`CREATE TABLE matchmaking_queue (id INT)`);
-      await sqlClient.query(`CREATE TABLE matchmaking_pass_runs (id INT)`);
-      await migrate({ sqlClient });
-      const remaining = await sqlClient.query<{ relname: string }>(
-        `SELECT relname FROM pg_class
-         WHERE relname IN ('matchmaking_queue', 'matchmaking_pass_runs')`
-      );
-      expect(remaining.rows.length).toBe(0);
-    } finally {
-      await db.close();
-    }
-  });
 });
 
 describe('migrate v3 - idempotency', () => {

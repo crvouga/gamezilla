@@ -16,7 +16,7 @@ const EXIT_SIGNALS = [
 ] as const;
 
 /**
- * Acquires the PlanetScale-backed global lock, runs `fn`, then releases.
+ * Acquires the Postgres-backed global lock, runs `fn`, then releases.
  * Registers lock DB suspend hooks for subprocess phases (stripe-sync, etc.).
  */
 export async function runWithGlobalLock<T>(

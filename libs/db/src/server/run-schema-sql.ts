@@ -117,28 +117,11 @@ export function splitSqlStatements(sql: string): string[] {
   return statements;
 }
 
-async function dropLegacySyncTables(
-  sqlClient: SqlClient,
-  logger: Logger
-): Promise<void> {
-  const rows = await sqlClient.query<{ tablename: string }>(
-    `SELECT tablename FROM pg_tables
-     WHERE schemaname = current_schema()
-       AND (tablename = 'patches' OR tablename LIKE 'snapshots%')`
-  );
-  for (const row of rows) {
-    logger.info('drop legacy sync table', { table: row.tablename });
-    await sqlClient.run(`DROP TABLE IF EXISTS ${row.tablename} CASCADE`);
-  }
-  await sqlClient.run('DROP VIEW IF EXISTS snapshots CASCADE');
-}
-
 export async function runSchemaSql(args: {
   sqlClient: SqlClient;
   logger: Logger;
 }): Promise<void> {
   const { sqlClient, logger } = args;
-  await dropLegacySyncTables(sqlClient, logger);
 
   const raw = readFileSync(schemaPath, 'utf8');
   const statements = splitSqlStatements(raw);

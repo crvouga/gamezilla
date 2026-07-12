@@ -9,7 +9,5 @@ export {
 } from './consume-stream';
 export {
   acceptsEventStream,
-  acceptsNdjson,
   eventStreamAcceptHeader,
-  ndjsonAcceptHeader,
 } from './accept-header';

@@ -9,7 +9,7 @@ import type { Command } from './types';
  * `lock_id` for the matching `lock-release` job to fence the delete on.
  *
  * Critically, this command does **not** release the lock on process exit.
- * The lock row stays in PlanetScale until `lock-release` (or the panic
+ * The lock row stays in Postgres until `lock-release` (or the panic
  * `unlock` command) removes it. We disconnect the SQL session cleanly so
  * Bun doesn't keep the process alive past the lock acquisition.
  *

@@ -3,7 +3,6 @@ import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import {
-  deleteSecret,
   fetchSecret,
   fetchSecretFrom,
   getSecretMap,
@@ -45,34 +44,12 @@ const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
   'EXPO_PUBLIC_COMMIT_DATE',
   'EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY',
   'LOCAL_PREVIEW_API_ORIGIN',
-  'PLANETSCALE_DATABASE',
-  'PLANETSCALE_SERVICE_TOKEN_ID',
-  'PLANETSCALE_SERVICE_TOKEN',
   'STRIPE_WEBHOOK_SECRET',
-  'PLANETSCALE_ORG',
-  'PLANETSCALE_DATABASE_URL',
   'STRIPE_PUBLISHABLE_KEY',
   'ELEVEN_LABS_API_KEY',
   'OPENAI_API_KEY',
   'OPENAI_BASE_URL',
   'POWERSYNC_JWT_PRIVATE_KEY',
-];
-
-const STALE_KEYS_TO_DELETE: ReadonlyArray<string> = [
-  'TURBO_API',
-  'TURBO_TOKEN',
-  'TURBO_TEAM',
-  'TURBO_CACHE',
-  'BETTER_AUTH_SECRET',
-  'BETTER_AUTH_APP_NAME',
-  'BETTER_AUTH_TRUSTED_ORIGINS',
-  'WEB_CLIENT_GOOGLE_CLIENT_ID',
-  'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
-  'VAULT_TOKEN',
-  'VAULT_PROJECT',
-  'VAULT_CONFIG',
-  'VAULT_ADDR',
-  'VAULT_MOUNT',
 ];
 
 const SHARED_MIRROR_TO_DEV_KEYS: ReadonlyArray<string> = [
@@ -89,7 +66,6 @@ export class SecretsResource extends ResourceBase {
     await this.validateSecrets(platform);
     this.ensureDefaults();
     this.mirrorSharedToDev(platform);
-    this.cleanupStaleSecrets();
     this.warnOnOrphans(platform);
   }
 
@@ -223,30 +199,6 @@ export class SecretsResource extends ResourceBase {
       ok('Secrets dev mirror', `mirrored ${active} → dev (${mirrored})`);
     } else if (skipped > 0) {
       ok('Secrets dev mirror', `already in sync with dev (${skipped})`);
-    }
-  }
-
-  private cleanupStaleSecrets(): void {
-    if (STALE_KEYS_TO_DELETE.length === 0) return;
-    let present: ReadonlyArray<string>;
-    try {
-      present = listSecretNames();
-    } catch (e) {
-      warn('Stale-key cleanup', e instanceof Error ? e.message : String(e));
-      return;
-    }
-    const presentSet = new Set(present);
-    for (const key of STALE_KEYS_TO_DELETE) {
-      if (!presentSet.has(key)) continue;
-      try {
-        deleteSecret(key);
-        ok(key, 'deleted (stale — removed integration)');
-      } catch (e) {
-        warn(
-          key,
-          `delete failed: ${e instanceof Error ? e.message : String(e)}`
-        );
-      }
     }
   }
 

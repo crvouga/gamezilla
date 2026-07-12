@@ -23,9 +23,3 @@ export function eventStreamAcceptHeader(
 ): string {
   return `${EVENT_STREAM_CONTENT_TYPE}, ${fallback}`;
 }
-
-/** @deprecated Use {@link acceptsEventStream}. */
-export const acceptsNdjson = acceptsEventStream;
-
-/** @deprecated Use {@link eventStreamAcceptHeader}. */
-export const ndjsonAcceptHeader = eventStreamAcceptHeader;

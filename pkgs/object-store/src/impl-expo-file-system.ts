@@ -207,10 +207,6 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
     this.ensureNativeDir();
     const dir = this.nativeDir();
     const ext = extensionForContentType(contentType);
-    // Clean up any prior body written under a different extension so
-    // the directory doesn't accumulate orphans when `contentType` changes.
-    const legacyBin = new File(dir, `${key}${BIN_SUFFIX}`);
-    if (ext !== BIN_SUFFIX && legacyBin.exists) legacyBin.delete();
     const bodyFile = new File(dir, `${key}${ext}`);
     if (bodyFile.exists) bodyFile.delete();
     bodyFile.create();
@@ -259,10 +255,6 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
       const body = new File(dir, `${key}${ext}`);
       if (body.exists) body.delete();
     }
-    // Always clean up the legacy `.bin` body in case a record was written
-    // before the extension fix landed.
-    const legacyBin = new File(dir, `${key}${BIN_SUFFIX}`);
-    if (legacyBin.exists) legacyBin.delete();
     const metaFile = new File(dir, `${key}${META_SUFFIX}`);
     if (metaFile.exists) metaFile.delete();
   }

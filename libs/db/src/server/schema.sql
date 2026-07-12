@@ -152,12 +152,6 @@ UPDATE devices SET user_id = account_id
 WHERE user_id IS NULL AND account_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS devices_user_id_idx ON devices (user_id);
 
-DROP VIEW IF EXISTS account_providers CASCADE;
-DROP VIEW IF EXISTS accounts CASCADE;
-DROP TABLE IF EXISTS account_sessions CASCADE;
-DROP TABLE IF EXISTS account_providers CASCADE;
-DROP TABLE IF EXISTS accounts CASCADE;
-
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -175,21 +169,6 @@ CREATE TABLE IF NOT EXISTS external_accounts (
 
 CREATE INDEX IF NOT EXISTS external_accounts_user_id_idx
   ON external_accounts (user_id);
-
--- Canonical Clerk slug is `clerk`; drop duplicate legacy `auth` mappings.
-DELETE FROM external_accounts ea_auth
-WHERE ea_auth.provider = 'auth'
-  AND EXISTS (
-    SELECT 1 FROM external_accounts ea_clerk
-    WHERE ea_clerk.provider = 'clerk'
-      AND ea_clerk.external_id = ea_auth.external_id
-  );
-
-UPDATE external_accounts SET provider = 'clerk' WHERE provider = 'auth';
-
-DROP TABLE IF EXISTS patches CASCADE;
-DROP VIEW IF EXISTS snapshots CASCADE;
-DROP TABLE IF EXISTS snapshots CASCADE;
 
 -- ============ Profiles: username ============
 

@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import { PALETTE } from './colors/color-palette';
 import {
   borderRadius,
-  elevation,
   makeElevation,
   type ElevationLevel,
 } from './scale';
@@ -102,17 +101,5 @@ describe('makeElevation', () => {
     // At least two distinct surface tiers should be in play (surface ->
     // surfaceElevated -> surfaceOverlay).
     expect(tiers.size).toBeGreaterThanOrEqual(2);
-  });
-});
-
-describe('legacy elevation()', () => {
-  test('level 0 returns empty, other levels return shadow', () => {
-    expect(elevation(0)).toEqual({});
-    for (const level of LEVELS) {
-      if (level === 0) continue;
-      const style = elevation(level);
-      expect(typeof style.boxShadow).toBe('string');
-      expect(typeof style.elevation).toBe('number');
-    }
   });
 });

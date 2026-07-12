@@ -89,10 +89,3 @@ export function requireLocalE2eStackSync(
     readyURL: `${DEV_CLIENT_BASE_URL}/`,
   };
 }
-
-/** @deprecated Use {@link requireLocalE2eStackSync}. */
-export function detectLocalE2eStackSync(
-  apiOrigin: string = DEFAULT_LOCAL_PREVIEW_API_ORIGIN
-): LocalE2eStack {
-  return requireLocalE2eStackSync(apiOrigin);
-}

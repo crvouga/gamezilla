@@ -1,6 +1,6 @@
 /**
  * Optional suspend/resume around heavy DB subprocess phases (migrate, etc.)
- * so the parent infra process does not hold a PlanetScale direct slot while
+ * so the parent infra process does not hold a Postgres connection slot while
  * the child opens its own `pg` pool.
  */
 type LockDbSessionHooks = {

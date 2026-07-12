@@ -14,12 +14,9 @@
  *     UPSERTs its signature so `discoverActivePartitions` can read a
  *     tiny index scan instead of `SELECT DISTINCT` over the hot table.
  *
- * Throttle plumbing (`matchmaking_pass_runs`, `FOR UPDATE SKIP LOCKED`
- * dance, `minPassIntervalMs` / `sweepIntervalMs` parameters) is GONE.
- * The host-owned scheduler (Durable Object alarm) is the sole caller of
- * `runMatchPass` / `sweep_*`, and is self-throttled by its alarm
- * cadence. Removing the throttle row removes a hot single-row write
- * contention point and several index-only writes per pass kick.
+ * Throttle plumbing is gone. The host-owned scheduler (Durable Object
+ * alarm) is the sole caller of `runMatchPass` / `sweep_*`, and is
+ * self-throttled by its alarm cadence.
  *
  * Nothing here knows about the caller-declared `MatchmakingSchema` —
  * schema-dependent DDL (generated column expressions) is built in
@@ -27,17 +24,6 @@
  */
 
 export const NUM_WAITING_PARTITIONS = 16;
-
-// Schema v3 drops the legacy `matchmaking_queue` table and the
-// `matchmaking_pass_runs` throttle table. We unconditionally drop both
-// in the upfront DDL so v2-or-earlier installs migrate cleanly.
-export const DROP_LEGACY_QUEUE_SQL = `
-DROP TABLE IF EXISTS matchmaking_queue CASCADE
-`.trim();
-
-export const DROP_LEGACY_PASS_RUNS_SQL = `
-DROP TABLE IF EXISTS matchmaking_pass_runs CASCADE
-`.trim();
 
 // Caller-shape state tracking — lets `migrate()` decide whether the
 // generated columns + indexes need to be rebuilt without touching
@@ -52,11 +38,10 @@ CREATE TABLE IF NOT EXISTS matchmaking_schema_state (
 )
 `.trim();
 
-// v4 drops the v3 single-PK active partitions table — the PK now
-// includes group_size so different group sizes within the same
-// partition are tracked separately for the per-(sig, group_size) fan
-// out the tick loop performs.
-export const DROP_LEGACY_ACTIVE_PARTITIONS_SQL = `
+// Drop active partitions ahead of a waiting-table rebuild when the PK
+// shape changes (v4 added `group_size`). CREATE below picks up the new
+// PK rather than colliding with an older single-column PK.
+export const DROP_ACTIVE_PARTITIONS_SQL = `
 DROP TABLE IF EXISTS matchmaking_active_partitions CASCADE
 `.trim();
 
@@ -112,21 +97,6 @@ export const CREATE_MATCHED_MATCHED_AT_INDEX_SQL = `
 CREATE INDEX IF NOT EXISTS matchmaking_matched_matched_at_idx
   ON matchmaking_matched (matched_at)
 `.trim();
-
-// Cleanup of any v2 generated columns / indexes that linger after the
-// `matchmaking_queue` DROP above. `matchmaking_queue` is gone by the
-// time we reach here; these DROPs are belt-and-braces for partial-
-// migration scenarios. Split into individual statements because PGlite
-// and the standard PG protocol both reject multi-statement prepared
-// queries; `migrate.ts` iterates over the array.
-export const DROP_LEGACY_INDEXES = [
-  `DROP INDEX IF EXISTS matchmaking_queue_waiting_partition_bucket_idx`,
-  `DROP INDEX IF EXISTS matchmaking_queue_matched_joined_at_idx`,
-  `DROP INDEX IF EXISTS matchmaking_queue_match_id_idx`,
-  `DROP INDEX IF EXISTS matchmaking_queue_status_joined_at_idx`,
-  `DROP INDEX IF EXISTS matchmaking_queue_status_rating_idx`,
-  `DROP INDEX IF EXISTS matchmaking_queue_status_bucket_idx`,
-];
 
 // Builds the `CREATE TABLE matchmaking_waiting` DDL.
 //
@@ -383,43 +353,6 @@ BEGIN
 END;
 $matchmaking_pair_match$;
 `.trim();
-
-// Drop every prior signature so a fresh CREATE leaves exactly one
-// version installed regardless of which schema generation last ran.
-// v5 keeps the same outer signature (TEXT, NUMERIC, NUMERIC, NUMERIC,
-// INT, NUMERIC, INT, TIMESTAMPTZ) — the body changes, not the args.
-// `CREATE OR REPLACE` handles that case cleanly, but we still DROP
-// legacy variants to keep the install path identical regardless of
-// what was there before.
-export const DROP_RUN_MATCH_PASS_LEGACY_SIGNATURES = [
-  `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(INT, NUMERIC, NUMERIC, NUMERIC, JSONB, JSONB, TIMESTAMPTZ)`,
-  `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(INT, NUMERIC, NUMERIC, NUMERIC, JSONB, JSONB, JSONB, TIMESTAMPTZ)`,
-  `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(NUMERIC, NUMERIC, NUMERIC, TIMESTAMPTZ)`,
-  `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(NUMERIC, NUMERIC, NUMERIC, INT, TIMESTAMPTZ)`,
-  `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(NUMERIC, NUMERIC, NUMERIC, INT, INT, TIMESTAMPTZ)`,
-  `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(NUMERIC, NUMERIC, NUMERIC, INT, INT, NUMERIC, TIMESTAMPTZ)`,
-  `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(TEXT, NUMERIC, NUMERIC, NUMERIC, INT, INT, NUMERIC, TIMESTAMPTZ)`,
-  `DROP FUNCTION IF EXISTS matchmaking_run_match_pass(TEXT, NUMERIC, NUMERIC, NUMERIC, INT, NUMERIC, TIMESTAMPTZ)`,
-];
-
-// Same idempotency story for the v4 8-arg pair_match (replaced by v5
-// 8-arg w/ wait_sec). Drop the old 6-arg signature too for safety.
-export const DROP_PAIR_MATCH_LEGACY_SIGNATURES = [
-  `DROP FUNCTION IF EXISTS matchmaking_pair_match(JSONB, JSONB, NUMERIC, JSONB, JSONB, NUMERIC)`,
-];
-
-export const DROP_SWEEP_EXPIRED_LEGACY_SIGNATURES = [
-  `DROP FUNCTION IF EXISTS matchmaking_sweep_expired(INT)`,
-  `DROP FUNCTION IF EXISTS matchmaking_sweep_expired(INT, TIMESTAMPTZ)`,
-  `DROP FUNCTION IF EXISTS matchmaking_sweep_expired(INT, INT, TIMESTAMPTZ)`,
-  `DROP FUNCTION IF EXISTS matchmaking_sweep_expired(TEXT, INT, INT, TIMESTAMPTZ)`,
-];
-
-export const DROP_SWEEP_MATCHED_LEGACY_SIGNATURES = [
-  `DROP FUNCTION IF EXISTS matchmaking_sweep_matched(INT)`,
-  `DROP FUNCTION IF EXISTS matchmaking_sweep_matched(INT, INT)`,
-  `DROP FUNCTION IF EXISTS matchmaking_sweep_matched(INT, INT, TIMESTAMPTZ)`,
-];
 
 /**
  * One full match pass for one (partition, group_size) pair. v5

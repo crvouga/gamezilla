@@ -24,11 +24,6 @@ export function assertDevSecretsEnv(config: string): void {
   );
 }
 
-/** @deprecated Use {@link assertDevSecretsEnv}. */
-export function assertDevVaultConfig(config: string): void {
-  assertDevSecretsEnv(config);
-}
-
 /** Strip credentials so two URLs can be compared without leaking secrets. */
 export function normalizeDatabaseUrlForCompare(url: string): string {
   const parsed = new URL(url);
@@ -142,13 +137,4 @@ export async function assertDatabaseUrlAllowedForSecretsEnv(
 ): Promise<void> {
   if (secretsEnv === PRODUCTION_SECRETS_ENV) return;
   await assertNonProdDatabaseUrl(url, { ...context, secretsEnv });
-}
-
-/** @deprecated Use {@link assertDatabaseUrlAllowedForSecretsEnv}. */
-export async function assertDatabaseUrlAllowedForVaultConfig(
-  url: string,
-  vaultConfig: string,
-  context: Record<string, unknown> = {}
-): Promise<void> {
-  return assertDatabaseUrlAllowedForSecretsEnv(url, vaultConfig, context);
 }

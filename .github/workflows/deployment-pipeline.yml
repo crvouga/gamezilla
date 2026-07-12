@@ -23,7 +23,7 @@
 #    deploy-resources → stripe-sync → smoke → refresh-config →
 #    ensure-destroyed) in one process so `InfraContext` flows
 #    in-memory between phases. A tiny always-run `lock-release` job is
-#    the safety net for the PlanetScale-backed global lock when `deploy`
+#    the safety net for the Postgres-backed global lock when `deploy`
 #    is cancelled / crashed.
 name: Deployment Pipeline
 
@@ -348,7 +348,7 @@ jobs:
 
   # ── Atomic production deploy ─────────────────────────────────────────
   # One job, one checkout, one `infra-setup`. `bun run infra deploy`
-  # acquires the global PlanetScale lock, runs every phase in-process
+  # acquires the global Postgres lock, runs every phase in-process
   # (provision → migrate → deploy-resources → stripe-sync → smoke →
   # refresh-config → publish-client-eas-update → ensure-destroyed), and
   # emits `lock_id` / deploy URLs / nameservers as step outputs for the
@@ -378,7 +378,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    # GitHub-level mutex (belt-and-suspenders alongside the PlanetScale
+    # GitHub-level mutex (belt-and-suspenders alongside the Postgres
     # lock acquired inside `infra deploy`). `cancel-in-progress: false`
     # so a queued push to main never preempts an in-flight deploy mid
     # phase.

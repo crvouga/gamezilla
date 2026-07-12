@@ -194,22 +194,3 @@ function shadowColorWithAlpha(base: string, mul: number): string {
   }
   return base;
 }
-
-/**
- * Legacy no-scheme elevation helper. Kept so consumers that didn't migrate
- * to `theme.elevation()` keep rendering a (light-mode) shadow. New code
- * should prefer `theme.elevation()`.
- */
-export const elevation = (level: ElevationLevel): ElevationStyle => {
-  if (level === 0) return {};
-  const layers = ELEVATION_LAYERS[level]
-    .map(
-      (l) =>
-        `0px ${l.y}px ${l.blur}px rgba(0, 0, 0, ${(0.12 * l.alphaMul).toFixed(3)})`
-    )
-    .join(', ');
-  return {
-    boxShadow: layers,
-    elevation: ANDROID_ELEVATION[level],
-  };
-};

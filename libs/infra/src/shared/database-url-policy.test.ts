@@ -2,7 +2,7 @@ import { assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 
 import {
-  assertDevVaultConfig,
+  assertDevSecretsEnv,
   assertNonProdDatabaseUrl,
   normalizeDatabaseUrlForCompare,
   productionDatabaseUrlTigerExceptionEnabled,
@@ -49,17 +49,17 @@ describe('normalizeDatabaseUrlForCompare', () => {
   });
 });
 
-describe('assertDevVaultConfig', () => {
+describe('assertDevSecretsEnv', () => {
   test('accepts dev', () => {
-    expect(() => assertDevVaultConfig('dev')).not.toThrow();
+    expect(() => assertDevSecretsEnv('dev')).not.toThrow();
   });
 
   test('rejects prd', () => {
-    expect(() => assertDevVaultConfig('prd')).toThrow(/secrets env `dev`/);
+    expect(() => assertDevSecretsEnv('prd')).toThrow(/secrets env `dev`/);
   });
 
   test('rejects empty', () => {
-    expect(() => assertDevVaultConfig('')).toThrow(/secrets env `dev`/);
+    expect(() => assertDevSecretsEnv('')).toThrow(/secrets env `dev`/);
   });
 });
 

@@ -9,7 +9,7 @@ import type { CiPlatform } from '../platform/platform';
 import { fetchSecret, secretExists, setSecret } from '../secrets/secrets';
 import { runAsync } from '../subprocess';
 import { generatePowerSyncJwtKeypair } from './powersync-jwt';
-import { resolveDatabaseUrl, verifyWalLevelLogical } from './neon-postgres';
+import { resolveDatabaseUrl, verifyWalLevelLogical } from './postgres';
 import { ResourceBase, type InfraContext } from './types';
 import { runPowerSyncSourceDbSetup } from './powersync-source-db';
 

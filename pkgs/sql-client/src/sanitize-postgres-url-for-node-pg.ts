@@ -6,15 +6,15 @@
  * crashes with `ENOENT: no such file or directory, open 'system'` while
  * parsing the connection string.
  *
- * Managed providers (PlanetScale Postgres in our case) emit
+ * Managed providers often emit
  * `?sslmode=verify-full&sslrootcert=system` on the `DATABASE_URL` they hand
  * out, so any script that opens `new Pool({ connectionString })` blows
  * up before sending a single byte.
  *
  * Strip those sentinel values before constructing `pg.Pool` / `pg.Client`.
  * With `sslrootcert` removed, `pg` falls back to Node's bundled CA list,
- * which already covers the public CAs that sign Planetscale / Neon /
- * Supabase server certificates — so `sslmode=verify-full` still works.
+ * which already covers the public CAs that sign managed Postgres server
+ * certificates — so `sslmode=verify-full` still works.
  *
  * Real file paths (e.g. `sslrootcert=/etc/ssl/ca.pem`) are left intact —
  * those work in `pg` and we should not silently drop them.

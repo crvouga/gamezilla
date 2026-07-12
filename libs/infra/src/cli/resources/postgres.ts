@@ -5,8 +5,8 @@ import type { CiPlatform } from '../platform/platform';
 import { fetchSecret } from '../secrets/secrets';
 import { ResourceBase, type InfraContext } from './types';
 
-export class NeonPostgres extends ResourceBase {
-  readonly id = 'neon-postgres';
+export class PostgresResource extends ResourceBase {
+  readonly id = 'postgres';
 
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const url = await resolveDatabaseUrl();
@@ -14,7 +14,7 @@ export class NeonPostgres extends ResourceBase {
   }
 
   async destroy(): Promise<void> {
-    ok('Database (Neon)', 'manually managed — skipping');
+    ok('Database (Postgres)', 'manually managed — skipping');
   }
 }
 
@@ -73,7 +73,7 @@ type ProbeResult =
   | { readonly ok: true }
   | { readonly ok: false; readonly error: string };
 
-/** Neon Postgres over the wire protocol (same path as migrate and the distributed lock). */
+/** Postgres over the wire protocol (same path as migrate and the distributed lock). */
 async function probeDatabase(url: string): Promise<ProbeResult> {
   const sql = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
   try {
@@ -166,7 +166,7 @@ function readDbUrlFromSecrets(): string {
   const url = raw.trim();
   if (!url.startsWith('postgresql://') && !url.startsWith('postgres://')) {
     throw new Error(
-      'DATABASE_URL for Neon must start with postgres:// or postgresql://'
+      'DATABASE_URL must start with postgres:// or postgresql://'
     );
   }
   return url;
@@ -223,7 +223,7 @@ export async function verifyWalLevelLogical(url: string): Promise<void> {
     const level = rows[0]?.wal_level?.trim().toLowerCase() ?? '';
     if (level !== 'logical') {
       throw new Error(
-        `Neon wal_level is "${level}" — enable logical replication on the Neon project (expected wal_level=logical for PowerSync)`
+        `Postgres wal_level is "${level}" — enable logical replication (expected wal_level=logical for PowerSync)`
       );
     }
   } finally {

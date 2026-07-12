@@ -5,7 +5,7 @@ import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { createLogger } from '@pkgs/logger';
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/impl-postgres-tcp';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
-import { resolveDatabaseUrl } from '../resources/neon-postgres';
+import { resolveDatabaseUrl } from '../resources/postgres';
 
 export interface DistributedLockConnection {
   readonly lock: DistributedLock;

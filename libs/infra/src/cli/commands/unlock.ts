@@ -13,7 +13,7 @@ export class UnlockCommand implements Command {
 
   async execute(): Promise<void> {
     banner('Unlock');
-    this.platform.notice('Removing global lock row in PlanetScale (if held)…');
+    this.platform.notice('Removing global lock row in Postgres (if held)…');
 
     let conn;
     try {

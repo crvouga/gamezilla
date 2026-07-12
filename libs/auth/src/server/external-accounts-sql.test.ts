@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import { LEGACY_EXTERNAL_ACCOUNT_PROVIDER_AUTH } from '../shared/external-account-providers';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
@@ -92,7 +91,7 @@ describe('external-accounts-sql', () => {
     expect(metadata['email']).toBe('b@example.com');
   });
 
-  test('findUserIdByPrimaryAuthExternalId resolves legacy auth slug rows', async () => {
+  test('findUserIdByPrimaryAuthExternalId resolves primary provider rows', async () => {
     await sql.run(
       `INSERT INTO ${EXTERNAL_ACCOUNTS_TABLE}
        (${ExternalAccountCol.userId}, ${ExternalAccountCol.provider},
@@ -101,7 +100,7 @@ describe('external-accounts-sql', () => {
        VALUES (?, ?, ?, ?, ?)`,
       [
         userId,
-        LEGACY_EXTERNAL_ACCOUNT_PROVIDER_AUTH,
+        primaryAuthProvider,
         clerkUserId,
         '{}',
         new Date().toISOString(),

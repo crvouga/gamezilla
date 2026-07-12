@@ -26,8 +26,3 @@ export function useAuthClientPort(): AuthClientPort {
   }
   return port;
 }
-
-/** @deprecated Prefer {@link useAuthClientPort}. */
-export function useAuthClient(): AuthClientPort {
-  return useAuthClientPort();
-}

@@ -3,7 +3,7 @@ import type { CiPlatform } from '../platform/platform';
 import { ResourceBase, type InfraContext } from './types';
 
 /**
- * S3-compatible object storage bucket. Externally managed (like PlanetScale
+ * S3-compatible object storage bucket. Externally managed (like Postgres
  * Postgres) — operators create the bucket and credentials in their provider
  * console, then store secrets in the secret store. Provision only verifies the secrets
  * are present after {@link VaultResource} loads them.

@@ -7,102 +7,6 @@ import { ResourceBase, type InfraContext } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
-/** Legacy custom-domain CNAMEs for the previous hosted-auth vendor — deleted on deploy if still present. */
-function legacyVendorAuthCnameHostnames(domain: string): readonly string[] {
-  return [
-    `accounts.${domain}`,
-    `clerk.${domain}`,
-    `clk._domainkey.${domain}`,
-    `clk2._domainkey.${domain}`,
-    `clkmail.${domain}`,
-  ];
-}
-
-/** One-shot cleanup after migrating hosted auth DNS. */
-async function deleteLegacyVendorAuthCnameRecords(
-  zoneId: string,
-  headers: Record<string, string>,
-  domain: string
-): Promise<void> {
-  const res = await fetch(
-    `${CF_API}/zones/${zoneId}/dns_records?per_page=100&type=CNAME`,
-    { headers }
-  );
-  if (!res.ok) return;
-
-  const body = (await res.json()) as {
-    result?: Array<{
-      id: string;
-      name: string;
-      content: string;
-      type: string;
-    }>;
-  };
-  const existing = body.result ?? [];
-  const legacy = new Set(legacyVendorAuthCnameHostnames(domain));
-  for (const e of existing) {
-    if (e.type !== 'CNAME') continue;
-    const normalized = e.name.replace(/\.$/, '');
-    if (!legacy.has(normalized)) continue;
-    if (!e.content.includes('clerk.services')) continue;
-
-    const del = await fetch(`${CF_API}/zones/${zoneId}/dns_records/${e.id}`, {
-      method: 'DELETE',
-      headers,
-    });
-    if (del.ok || del.status === 404) {
-      ok('DNS CNAME (legacy vendor auth removed)', normalized);
-    } else {
-      warn(
-        'DNS legacy vendor auth delete',
-        `${normalized} — HTTP ${del.status}`
-      );
-    }
-  }
-}
-
-function isPagesDevCname(content: string): boolean {
-  return content.endsWith('.pages.dev') || content.includes('.pages.dev');
-}
-
-/**
- * Removes apex/www CNAMEs that pointed at the retired Cloudflare Pages project
- * so `wrangler deploy --env production` can attach Worker custom domains.
- */
-async function deleteLegacyPagesCnameRecords(
-  zoneId: string,
-  headers: Record<string, string>,
-  domain: string
-): Promise<void> {
-  const targets = new Set([domain, `www.${domain}`]);
-  const res = await fetch(
-    `${CF_API}/zones/${zoneId}/dns_records?per_page=100&type=CNAME`,
-    { headers }
-  );
-  if (!res.ok) return;
-
-  const body = (await res.json()) as {
-    result?: Array<{ id: string; name: string; content: string; type: string }>;
-  };
-
-  for (const rec of body.result ?? []) {
-    if (rec.type !== 'CNAME') continue;
-    const normalized = rec.name.replace(/\.$/, '');
-    if (!targets.has(normalized)) continue;
-    if (!isPagesDevCname(rec.content)) continue;
-
-    const del = await fetch(`${CF_API}/zones/${zoneId}/dns_records/${rec.id}`, {
-      method: 'DELETE',
-      headers,
-    });
-    if (del.ok || del.status === 404) {
-      ok('DNS CNAME (legacy Pages removed)', `${normalized} → ${rec.content}`);
-    } else {
-      warn('DNS legacy Pages delete', `${normalized} — HTTP ${del.status}`);
-    }
-  }
-}
-
 export class DnsRecordsResource extends ResourceBase {
   readonly id = 'dns-records';
 
@@ -112,16 +16,9 @@ export class DnsRecordsResource extends ResourceBase {
       'dns-records: ctx.zoneId must be set by ZoneResource'
     );
 
-    const headers = cfHeaders();
-    const zoneId = ctx.zoneId;
-    const domain = PROJECT_CONFIG.domain;
-
-    await deleteLegacyPagesCnameRecords(zoneId, headers, domain);
-    await deleteLegacyVendorAuthCnameRecords(zoneId, headers, domain);
-
     ok(
       'DNS',
-      `legacy Pages CNAME cleanup complete (Worker custom domains for www/api managed by wrangler)`
+      'Worker custom domains for www/api managed by wrangler'
     );
   }
 

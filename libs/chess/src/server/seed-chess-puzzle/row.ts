@@ -2,7 +2,6 @@
  * Pure helpers for converting a parsed Lichess CSV row into chess_puzzles
  * table rows for bulk INSERT.
  */
-import { ChessPuzzleAttr } from '@libs/chess/shared/chess-puzzle-entities';
 
 export type PuzzleTableRow = {
   readonly id: string;
@@ -73,31 +72,6 @@ export function rowToPuzzleTableRow(
     game_url: readNullableTrimmedString(row['GameUrl']),
     opening_tags: JSON.stringify(openingTags),
   };
-}
-
-/** @deprecated Use {@link rowToPuzzleTableRow} — kept for dry-run callers. */
-export function rowToPuzzleAttributes(
-  row: Record<string, unknown>
-): Record<string, unknown> | null {
-  const tableRow = rowToPuzzleTableRow(row);
-  if (tableRow === null) return null;
-  const attrs: Record<string, unknown> = {
-    [ChessPuzzleAttr.id.key]: tableRow.id,
-    [ChessPuzzleAttr.fen.key]: tableRow.fen,
-    [ChessPuzzleAttr.moves.key]: tableRow.moves,
-    [ChessPuzzleAttr.rating.key]: tableRow.rating,
-    [ChessPuzzleAttr.ratingDeviation.key]: tableRow.rating_deviation,
-    [ChessPuzzleAttr.popularity.key]: tableRow.popularity,
-    [ChessPuzzleAttr.nbPlays.key]: tableRow.nb_plays,
-  };
-  const themes = JSON.parse(tableRow.themes) as string[];
-  if (themes.length > 0) attrs[ChessPuzzleAttr.themes.key] = themes;
-  if (tableRow.game_url !== null)
-    attrs[ChessPuzzleAttr.gameUrl.key] = tableRow.game_url;
-  const openingTags = JSON.parse(tableRow.opening_tags) as string[];
-  if (openingTags.length > 0)
-    attrs[ChessPuzzleAttr.openingTags.key] = openingTags;
-  return attrs;
 }
 
 export function rowToPuzzleBatchEntry(

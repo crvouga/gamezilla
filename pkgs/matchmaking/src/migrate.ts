@@ -18,13 +18,6 @@
  *   - `matchmaking_schema_state`  fingerprint state for idempotent
  *     rebuilds across schema bumps.
  *
- * The old `matchmaking_queue` and `matchmaking_pass_runs` tables (v2)
- * are dropped unconditionally on migrate; any prior install is rebuilt.
- *
- * No throttle plumbing: the host-owned scheduler (Durable Object alarm)
- * is the sole caller of `runMatchPass` / `sweep_*` and self-throttles
- * via its cadence.
- *
  * Schema invariants:
  *   - No domain-specific columns. Everything caller-shaped lives in JSONB:
  *     `data` (the participant's attributes, branded `AttributeState` in JS)
@@ -73,14 +66,7 @@ import {
   CREATE_SWEEP_EXPIRED_SQL,
   CREATE_SWEEP_MATCHED_SQL,
   CREATE_WAITING_INDEX_SQL,
-  DROP_LEGACY_ACTIVE_PARTITIONS_SQL,
-  DROP_LEGACY_INDEXES,
-  DROP_LEGACY_PASS_RUNS_SQL,
-  DROP_LEGACY_QUEUE_SQL,
-  DROP_PAIR_MATCH_LEGACY_SIGNATURES,
-  DROP_RUN_MATCH_PASS_LEGACY_SIGNATURES,
-  DROP_SWEEP_EXPIRED_LEGACY_SIGNATURES,
-  DROP_SWEEP_MATCHED_LEGACY_SIGNATURES,
+  DROP_ACTIVE_PARTITIONS_SQL,
   DROP_TICK_FUNCTION_SQL,
   DROP_WAITING_TABLE_SQL,
   NUM_WAITING_PARTITIONS,
@@ -276,7 +262,7 @@ async function rebuildWaitingTable(
   // old single-column PK. Active partitions get re-derived on the
   // next join.
   await sqlClient.query(DROP_WAITING_TABLE_SQL);
-  await sqlClient.query(DROP_LEGACY_ACTIVE_PARTITIONS_SQL);
+  await sqlClient.query(DROP_ACTIVE_PARTITIONS_SQL);
   await sqlClient.query(CREATE_ACTIVE_PARTITIONS_TABLE_SQL);
   await sqlClient.query(
     buildCreateWaitingTableSql({
@@ -383,17 +369,14 @@ export async function migrate(args: MigrateArgs): Promise<void> {
   const radius = args.radius ?? DEFAULT_RADIUS_OPTIONS;
   const tuning = args.tuning ?? {};
 
-  // Upfront: drop any v2 artefacts and create the always-on tables
-  // (matched, active_partitions, schema_state). Idempotent.
+  // Upfront: create the always-on tables (matched, active_partitions,
+  // schema_state). Idempotent.
   //
   // `ADD_METADATA_COLUMN_TO_MATCHED_SQL` is the v4→v5 in-place upgrade
   // for `matchmaking_matched.metadata`. We can't just rebuild matched
   // (it's LOGGED and holds live, durable match state); ALTER TABLE …
   // ADD COLUMN IF NOT EXISTS is the safe upgrade path.
   const upfront = [
-    DROP_LEGACY_QUEUE_SQL,
-    DROP_LEGACY_PASS_RUNS_SQL,
-    ...DROP_LEGACY_INDEXES,
     CREATE_SCHEMA_STATE_TABLE_SQL,
     CREATE_MATCHED_TABLE_SQL,
     ADD_METADATA_COLUMN_TO_MATCHED_SQL,
@@ -419,11 +402,7 @@ export async function migrate(args: MigrateArgs): Promise<void> {
   const functions = [
     CREATE_PAIR_DISTANCE_SQL,
     CREATE_PAIR_COMPATIBLE_SQL,
-    ...DROP_PAIR_MATCH_LEGACY_SIGNATURES,
     CREATE_PAIR_MATCH_SQL,
-    ...DROP_RUN_MATCH_PASS_LEGACY_SIGNATURES,
-    ...DROP_SWEEP_EXPIRED_LEGACY_SIGNATURES,
-    ...DROP_SWEEP_MATCHED_LEGACY_SIGNATURES,
     CREATE_RUN_MATCH_PASS_SQL,
     CREATE_SWEEP_EXPIRED_SQL,
     CREATE_SWEEP_MATCHED_SQL,

@@ -8,20 +8,15 @@ import { PROJECT_CONFIG } from '../../project-config';
  */
 export function buildVendorDashboardMarkdown(): string[] {
   const lines: string[] = [];
-  const { domain, github, cloudflare, planetscale } = PROJECT_CONFIG;
+  const { domain, github, cloudflare } = PROJECT_CONFIG;
   const owner = github.owner;
   const repo = github.repo;
   const accountId = (process.env['CLOUDFLARE_ACCOUNT_ID'] ?? '').trim();
-  const psOrg = planetscale.org;
-  const psDb = planetscale.database;
 
   lines.push('### Cloud & vendor dashboards');
   lines.push('');
   lines.push(
     `- **GitHub:** [${owner}/${repo}](https://github.com/${owner}/${repo}) · [Actions](https://github.com/${owner}/${repo}/actions)`
-  );
-  lines.push(
-    `- **PlanetScale:** [Organization \`${psOrg}\`](https://app.planetscale.com/${psOrg}) · [Database \`${psDb}\`](https://app.planetscale.com/${psOrg}/${psDb})`
   );
   lines.push(`- **Infisical:** [Dashboard](${SECRETS_DEFAULTS.domain})`);
   lines.push(

@@ -1,4 +1,4 @@
-import { elevation } from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { SpaceGuestSection } from '../members/space-guest-section';
 import {
@@ -13,6 +13,7 @@ export type SpaceCardProps = {
 };
 
 export function SpaceCard({ spaceId }: SpaceCardProps): ReactNode {
+  const theme = useTheme();
   return (
     <SpaceCardOpenLink spaceId={spaceId}>
       <SpaceCardGradientBox
@@ -22,7 +23,7 @@ export function SpaceCard({ spaceId }: SpaceCardProps): ReactNode {
           minHeight: 112,
           justifyContent: 'space-between',
         }}
-        style={elevation(1)}
+        style={theme.elevation(1)}
       >
         <SpaceSummaryHeader spaceId={spaceId} />
         <SpaceGuestSection spaceId={spaceId} />

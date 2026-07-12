@@ -2,9 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { EVENT_STREAM_CONTENT_TYPE } from '../shared/content-type';
 import {
   acceptsEventStream,
-  acceptsNdjson,
   eventStreamAcceptHeader,
-  ndjsonAcceptHeader,
 } from './accept-header';
 
 describe('acceptsEventStream', () => {
@@ -38,15 +36,5 @@ describe('eventStreamAcceptHeader', () => {
     expect(eventStreamAcceptHeader('text/plain')).toBe(
       `${EVENT_STREAM_CONTENT_TYPE}, text/plain`
     );
-  });
-});
-
-describe('deprecated aliases', () => {
-  test('acceptsNdjson delegates to acceptsEventStream', () => {
-    expect(acceptsNdjson(EVENT_STREAM_CONTENT_TYPE)).toBe(true);
-  });
-
-  test('ndjsonAcceptHeader delegates to eventStreamAcceptHeader', () => {
-    expect(ndjsonAcceptHeader()).toBe(eventStreamAcceptHeader());
   });
 });

@@ -3,7 +3,6 @@ import type { CiPlatform } from '../platform/platform';
 import type { Command, CommandGroup } from './types';
 
 import { BuildClientNativeCommand } from './build-client-native';
-import { CleanupLegacyPagesCommand } from './cleanup-legacy-pages';
 import { DeployCommand } from './deploy';
 import { DeployResourcesCommand } from './deploy-resources';
 import { DestroyCommand } from './destroy';
@@ -41,7 +40,6 @@ export function createCommandRegistry(platform: CiPlatform): Command[] {
     new StatusCommand(platform),
     new DeployCommand(platform),
     new DestroyCommand(platform),
-    new CleanupLegacyPagesCommand(platform),
     new UnlockCommand(platform),
     new LockAcquireCommand(platform),
     new LockReleaseCommand(platform),
