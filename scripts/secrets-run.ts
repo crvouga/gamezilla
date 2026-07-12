@@ -14,6 +14,16 @@ import { join } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '..');
 
+/** Drop legacy Vercel Remote Cache creds so Turbo never contacts vercel.com. */
+function stripVercelTurboRemoteCacheEnv(
+  env: Record<string, string | undefined>
+): void {
+  delete env.TURBO_TOKEN;
+  delete env.TURBO_TEAM;
+  delete env.TURBO_API;
+  delete env.TURBO_CACHE;
+}
+
 function runWithInfisicalCli(
   workspaceId: string,
   env: string,
@@ -23,6 +33,7 @@ function runWithInfisicalCli(
   const childEnv = { ...process.env };
   delete childEnv.CURSOR_AGENT;
   delete childEnv.CURSOR_TRACE_ID;
+  stripVercelTurboRemoteCacheEnv(childEnv);
 
   const result = spawnSync(
     'infisical',
@@ -57,6 +68,7 @@ function runWithInjectedEnv(childArgs: string[]): number {
   const childEnv = { ...process.env };
   delete childEnv.CURSOR_AGENT;
   delete childEnv.CURSOR_TRACE_ID;
+  stripVercelTurboRemoteCacheEnv(childEnv);
 
   const [cmd, ...args] = childArgs;
   if (cmd === undefined) {

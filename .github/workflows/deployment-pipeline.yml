@@ -7,10 +7,9 @@
 #    circular-deps, audit, i18n, tc, lint, test, build)
 #    all run inside a
 #    single `turbo-ci` job that invokes `bun run check:ci`. Turbo's task
-#    graph + Vercel Remote Cache (driven by Infisical `dev`'s
-#    `TURBO_TOKEN` + `TURBO_TEAM`) give us maximum
-#    parallelism and cross-PR cache reuse with zero extra GitHub Actions
-#    machinery.
+#    graph + GitHub Actions cache of `.turbo` (local cache only — no
+#    Vercel Remote Cache) give us parallelism and cross-PR reuse without
+#    third-party rate limits.
 #
 # 2. Non-Turbo tasks live in their own jobs only when they need a runner
 #    shape Turbo can't share: `static` (actionlint + gitleaks both want
@@ -54,13 +53,10 @@ jobs:
   # Single Turbo-orchestrated job for every cacheable repo gate: format,
   # syncpack + catalog + no-patches, knip, depcruise, circular-deps,
   # audit, i18n, plus per-package `tc` / `lint` / `test` / `build`. Turbo
-  # parallelizes across the task graph and reuses Vercel Remote Cache
-  # (via secrets-injected `TURBO_TOKEN` + `TURBO_TEAM`)
-  # for cross-PR hits. `check:ci` throttles cache HTTP (`--cache-workers=1`
-  # via `scripts/turbo-ci-run.ts`) and writes artifacts to Vercel
-  # (`--cache=local:rw,remote:rw` in CI). Per-task cache
-  # status (`--output-logs=hash-only --summarize`) keeps logs readable.
-  # TURBO_TOKEN/TURBO_TEAM come from secrets env `dev` via `secrets-run`.
+  # parallelizes across the task graph; `actions/cache` persists `.turbo`
+  # for cross-PR local-cache hits (`--cache=local:rw`
+  # via `scripts/turbo-ci-run.ts`). Per-task status
+  # (`--output-logs=hash-only --summarize`) keeps logs readable.
   turbo-ci:
     runs-on: ubuntu-latest
     concurrency:
@@ -71,16 +67,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
+      - name: Cache Turbo local artifacts
+        uses: actions/cache@v5
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
+            turbo-${{ runner.os }}-
       - uses: ./.github/actions/secrets-auth
         with:
           identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
           project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
           env-slug: dev
-      - name: Verify Vercel remote cache via secrets (fail fast)
-        env:
-          CI: true
-          GITHUB_ACTIONS: true
-        run: bun run scripts/secrets-run.ts -- bun run scripts/check-turbo-remote-cache.ts
       - name: Turbo CI (cacheable gates + tc/lint/test/build)
         env:
           # GHA runners can expose a pseudo-TTY; Turbo's interactive TUI then
@@ -158,6 +157,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
+      - name: Cache Turbo local artifacts
+        uses: actions/cache@v5
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
+            turbo-${{ runner.os }}-
       - uses: ./.github/actions/secrets-auth
         with:
           identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
@@ -168,7 +175,7 @@ jobs:
       # health-wait timeout. Then start wrangler only (`preview:serve`) — avoids
       # a second migrate racing qa-browser on the shared hosted dev Postgres.
       - name: Setup and migrate API
-        run: bun run scripts/secrets-run.ts -- bun turbo run setup migrate --filter=@apps/api
+        run: bun run scripts/secrets-run.ts -- bun turbo run setup migrate --filter=@apps/api --cache=local:rw
       - name: Start API preview
         env:
           # Wrangler-only boot is usually seconds; keep headroom for cold starts.
@@ -216,6 +223,15 @@ jobs:
         with:
           watchman: true
 
+      - name: Cache Turbo local artifacts
+        uses: actions/cache@v5
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
+            turbo-${{ runner.os }}-
+
       # Resolve the actually-installed @playwright/test version (not the
       # caret range from package.json) so the browser cache key only
       # invalidates when Playwright itself bumps -- not on every unrelated
@@ -259,12 +275,12 @@ jobs:
       # Build first so the wait step only covers migrate + wrangler + static server
       # startup — cold CI can exceed 240s when build + preview run together.
       - name: Build preview stack artifacts
-        run: bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run setup build --filter=@apps/api --filter=@apps/client'
+        run: bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run setup build --filter=@apps/api --filter=@apps/client --cache=local:rw'
       - name: Start preview stack
         env:
           BROWSER_E2E_STACK_WAIT_MS: 480000
         run: |
-          nohup bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client' > /tmp/preview-stack.log 2>&1 &
+          nohup bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client --cache=local:rw' > /tmp/preview-stack.log 2>&1 &
           echo $! > /tmp/preview-stack.pid
           if ! bun run scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-browser-e2e-stack; then
             echo "::group::preview-stack.log (last 200 lines)"

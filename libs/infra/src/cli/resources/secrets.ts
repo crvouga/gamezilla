@@ -32,7 +32,6 @@ const API_ORIGIN_DERIVED_KEYS = new Set(['API_URL', 'EXPO_PUBLIC_API_URL']);
 const DERIVED_DEFAULTS: Record<string, () => string> = {
   TURBO_LOG_ORDER: () => 'auto',
   TURBO_TELEMETRY_DISABLED: () => '1',
-  TURBO_CACHE: () => 'remote:rw',
   EXPO_PUBLIC_API_URL: productionApiPublicOrigin,
   API_URL: productionApiPublicOrigin,
   EXPO_PUBLIC_POWERSYNC_URL: () => {
@@ -61,6 +60,9 @@ const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
 
 const STALE_KEYS_TO_DELETE: ReadonlyArray<string> = [
   'TURBO_API',
+  'TURBO_TOKEN',
+  'TURBO_TEAM',
+  'TURBO_CACHE',
   'BETTER_AUTH_SECRET',
   'BETTER_AUTH_APP_NAME',
   'BETTER_AUTH_TRUSTED_ORIGINS',
@@ -74,9 +76,6 @@ const STALE_KEYS_TO_DELETE: ReadonlyArray<string> = [
 ];
 
 const SHARED_MIRROR_TO_DEV_KEYS: ReadonlyArray<string> = [
-  'TURBO_TOKEN',
-  'TURBO_TEAM',
-  'TURBO_CACHE',
   'TURBO_LOG_ORDER',
   'TURBO_TELEMETRY_DISABLED',
   'EXPO_TOKEN',

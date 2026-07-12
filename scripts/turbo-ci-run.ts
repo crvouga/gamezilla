@@ -1,10 +1,9 @@
 /**
- * Shared Turbo flags for `check:ci` — keeps cache HTTP under Vercel's rate
- * limit and avoids noisy 429 warnings on local runs.
+ * Shared Turbo flags for `check:ci`.
  *
- * - CI always uses `local:rw,remote:rw`.
- * - Local runs always use `local:rw,remote:r` (read hits only; no write
- *   permission required). `TURBO_CACHE=remote:rw` in Infisical applies to CI.
+ * Cache is local-only. In GitHub Actions, `actions/cache` restores/saves
+ * `.turbo` across runs so we get cross-PR hits without Vercel Remote Cache
+ * (and without its rate limits).
  */
 import { spawnSync } from 'node:child_process';
 
@@ -12,20 +11,12 @@ function inCi(): boolean {
   return process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true';
 }
 
-function resolveCacheFlag(): string {
-  if (inCi()) return 'local:rw,remote:rw';
-  return 'local:rw,remote:r';
-}
-
-const cache = resolveCacheFlag();
-
 const TURBO_OUTPUT_LOGS =
   process.env.TURBO_OUTPUT_LOGS?.trim() || (inCi() ? 'hash-only' : 'new-only');
 
 const TURBO_CI_FLAGS = [
   '--concurrency=6',
-  '--cache-workers=1',
-  `--cache=${cache}`,
+  '--cache=local:rw',
   '--summarize',
   `--output-logs=${TURBO_OUTPUT_LOGS}`,
   '--log-order=grouped',
@@ -37,9 +28,15 @@ if (taskArgs.length === 0) {
   process.exit(1);
 }
 
+const env = { ...process.env };
+delete env.TURBO_TOKEN;
+delete env.TURBO_TEAM;
+delete env.TURBO_API;
+delete env.TURBO_CACHE;
+
 const result = spawnSync('turbo', ['run', ...taskArgs, ...TURBO_CI_FLAGS], {
   stdio: 'inherit',
-  env: process.env,
+  env,
 });
 
 process.exit(result.status ?? 1);

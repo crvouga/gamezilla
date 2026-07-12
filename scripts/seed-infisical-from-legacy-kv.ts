@@ -39,10 +39,7 @@ const CORE_SECRET_KEYS = [
   'S3_SECRET_ACCESS_KEY',
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
-  'TURBO_CACHE',
   'TURBO_LOG_ORDER',
-  'TURBO_TEAM',
-  'TURBO_TOKEN',
 ] as const;
 
 /** Keys in {@link EXTERNALLY_MANAGED_KEYS} / worker boot that legacy KV still holds. */
