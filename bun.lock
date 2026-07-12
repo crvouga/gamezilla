@@ -118,6 +118,7 @@
         "@pkgs/secure-storage": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-cli": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/sync-engine-powersync": "workspace:*",
@@ -945,6 +946,19 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/assert": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/sql-cli": {
+      "name": "@pkgs/sql-cli",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -2177,6 +2191,8 @@
     "@pkgs/sounds": ["@pkgs/sounds@workspace:pkgs/sounds"],
 
     "@pkgs/sql": ["@pkgs/sql@workspace:pkgs/sql"],
+
+    "@pkgs/sql-cli": ["@pkgs/sql-cli@workspace:pkgs/sql-cli"],
 
     "@pkgs/sql-client": ["@pkgs/sql-client@workspace:pkgs/sql-client"],
 

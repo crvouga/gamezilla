@@ -40,14 +40,20 @@ export function useActionBarLayout(args: {
   endSlot: unknown;
   buttonSize: number;
   gap: number;
+  /** When `'never'`, every item stays inline — no overflow menu. */
+  overflow?: 'auto' | 'never';
   onMenuClose: () => void;
 }): ActionBarLayoutState {
   const [containerWidth, setContainerWidth] = useState(0);
   const [endSlotWidth, setEndSlotWidth] = useState(0);
+  const overflowMode = args.overflow ?? 'auto';
 
   const { inline: inlineTextActions, overflow: overflowTextActions } = useMemo(
-    () => partitionTextActions(args.textActions),
-    [args.textActions]
+    () =>
+      overflowMode === 'never'
+        ? { inline: [...args.textActions], overflow: [] as ActionBarTextAction[] }
+        : partitionTextActions(args.textActions),
+    [args.textActions, overflowMode]
   );
 
   const onContainerLayout = useCallback((event: LayoutChangeEvent) => {
@@ -65,16 +71,24 @@ export function useActionBarLayout(args: {
     return endSlotWidth > 0 ? endSlotWidth + args.gap : 0;
   }, [args.endSlot, endSlotWidth, args.gap]);
 
-  const partition = useMemo(
-    () =>
-      partitionActionBarItems(args.items, {
-        containerWidth,
-        buttonSize: args.buttonSize,
-        gap: args.gap,
-        reservedWidth,
-      }),
-    [args.items, containerWidth, args.buttonSize, args.gap, reservedWidth]
-  );
+  const partition = useMemo((): ActionBarPartition => {
+    if (overflowMode === 'never') {
+      return { visible: [...args.items], overflow: [] };
+    }
+    return partitionActionBarItems(args.items, {
+      containerWidth,
+      buttonSize: args.buttonSize,
+      gap: args.gap,
+      reservedWidth,
+    });
+  }, [
+    overflowMode,
+    args.items,
+    containerWidth,
+    args.buttonSize,
+    args.gap,
+    reservedWidth,
+  ]);
 
   const overflowItemActions = useMemo(
     () => actionBarItemsToOverflowActions(partition.overflow, args.onMenuClose),

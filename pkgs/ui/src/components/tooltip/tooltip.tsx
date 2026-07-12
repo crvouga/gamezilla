@@ -84,7 +84,7 @@ export function Tooltip({
       <View
         ref={anchorRef}
         collapsable={false}
-        style={{ alignSelf: 'flex-start' }}
+        style={{ alignSelf: 'center' }}
         {...webHoverProps(show, hide)}
       >
         {children}

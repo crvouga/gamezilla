@@ -5,6 +5,12 @@
  * from the `interactiveHover` / `interactivePress` overlay tokens.
  * Every button shows a {@link Tooltip} with its `label`.
  *
+ * `variant="avatar"` draws a border ring via inset padding (so the outer
+ * box stays exactly `size` tall) and keeps a square hit target via
+ * `minWidth`/`height` = `size`. A single face should be sized with
+ * {@link iconButtonAvatarContentSize}; wider children (e.g. `AvatarGroup`)
+ * expand the button into a pill.
+ *
  * @example
  * ```tsx
  * <IconButton label="Close" size={40} onPress={handleClose}>
@@ -56,6 +62,50 @@ function resolveAccessibilityLabel(
   return undefined;
 }
 
+function resolveBackgroundColor(
+  background: string | undefined,
+  colors: Record<string, string>
+): string {
+  if (background === undefined) return 'transparent';
+  return colors[background] ?? background;
+}
+
+function iconButtonFaceStyle(args: {
+  size: number;
+  bg: string;
+  isAvatar: boolean;
+  disabled: boolean | undefined;
+  borderColor: string;
+}): Record<string, unknown> {
+  const { size, bg, isAvatar, disabled, borderColor } = args;
+  const radius = size / 2;
+  // Avatar ring uses padding (not borderWidth) so the outer box stays exactly
+  // `size` tall on web and native — borderWidth was inflating the box and
+  // making avatar buttons look shifted down next to icon siblings.
+  if (isAvatar) {
+    return {
+      height: size,
+      minWidth: size,
+      padding: ICON_BUTTON_AVATAR_BORDER_WIDTH,
+      borderRadius: radius,
+      backgroundColor: borderColor,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+      opacity: disabled === true ? 0.5 : 1,
+      overflow: 'hidden' as const,
+    };
+  }
+  return {
+    height: size,
+    width: size,
+    borderRadius: radius,
+    backgroundColor: bg,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    opacity: disabled === true ? 0.5 : 1,
+  };
+}
+
 function IconButtonFace({
   children,
   onPress,
@@ -70,11 +120,12 @@ function IconButtonFace({
   const theme = useTheme();
   const tooltip = useTooltipTrigger();
   const hasBackground = background !== undefined;
-  const bg = hasBackground
-    ? (theme.colors[background as keyof typeof theme.colors] ?? background)
-    : 'transparent';
-  const radius = size! / 2;
+  const bg = resolveBackgroundColor(
+    background,
+    theme.colors as Record<string, string>
+  );
   const isAvatar = variant === 'avatar';
+  const radius = size! / 2;
 
   return (
     <Pressable
@@ -90,22 +141,13 @@ function IconButtonFace({
         tooltip?.hide();
       }}
       sx={{ borderRadius: radius }}
-      style={{
-        width: size,
-        height: size,
-        borderRadius: radius,
-        backgroundColor: isAvatar ? 'transparent' : bg,
-        alignItems: 'center' as const,
-        justifyContent: 'center' as const,
-        opacity: disabled ? 0.5 : 1,
-        overflow: isAvatar ? ('hidden' as const) : undefined,
-        ...(isAvatar
-          ? {
-              borderWidth: ICON_BUTTON_AVATAR_BORDER_WIDTH,
-              borderColor: theme.colors.surface,
-            }
-          : {}),
-      }}
+      style={iconButtonFaceStyle({
+        size: size!,
+        bg,
+        isAvatar,
+        disabled,
+        borderColor: theme.colors.border,
+      })}
     >
       {hasBackground && !isAvatar ? (
         <OnColorProvider background={bg}>{children}</OnColorProvider>

@@ -72,6 +72,7 @@
     "@pkgs/secure-storage": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-cli": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/write": "workspace:*",

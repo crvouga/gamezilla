@@ -1,37 +1,27 @@
 import { Box, TopBar } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import { SpaceMembersAvatarGroup } from '../members/space-members-avatar-group';
-import { SpaceChromeActionBar } from './space-chrome-action-bar';
-import { SpaceChromeBackButton } from './space-chrome-back-button';
-import { SpaceChromeHomeButton } from './space-chrome-home-button';
-import { useSpaceSessionUi } from './space-session-ui-context';
+import {
+  SpaceChromeLeadingActionBar,
+  SpaceChromeTrailingActionBar,
+} from './space-chrome-action-bar';
 
 export type SpaceActiveLayoutProps = {
   children: ReactNode;
 };
 
 /**
- * Unified active-space chrome. A single top bar (back + members pill +
- * responsive actions) sits above the full-width body. The compact members
- * list is reachable through the avatar pill's modal.
+ * Unified active-space chrome. Leading ActionBar owns exit + back; trailing
+ * ActionBar owns members + management actions above the full-width body.
  */
 export function SpaceActiveLayout({
   children,
 }: SpaceActiveLayoutProps): ReactNode {
-  const { spaceId } = useSpaceSessionUi();
   return (
     <Box sx={{ flex: 1, minHeight: 0 }}>
       <TopBar
-        leading={
-          <>
-            <SpaceChromeHomeButton />
-            <SpaceChromeBackButton />
-          </>
-        }
-        centerAlign="end"
-        center={<SpaceMembersAvatarGroup spaceId={spaceId} />}
-        trailing={<SpaceChromeActionBar />}
+        leading={<SpaceChromeLeadingActionBar />}
+        trailing={<SpaceChromeTrailingActionBar />}
       />
       <Box
         sx={{

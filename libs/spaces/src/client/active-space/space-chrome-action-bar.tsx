@@ -1,21 +1,29 @@
 import {
   ActionBar,
+  ChevronLeftIcon,
   CodeIcon,
   CopyIcon,
+  DoorOpenIcon,
   LogOutIcon,
   PaintbrushIcon,
   SettingsIcon,
   XIcon,
+  iconButtonAvatarContentSize,
   type ActionBarItem,
 } from '@pkgs/ui';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useLingui } from '@lingui/react/macro';
-import { useCallback, useMemo, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 
+import { SpaceMembersAvatarGroup } from '../members/space-members-avatar-group';
+import { SpaceMembersListModal } from '../members/space-members-list-modal';
+import { useSpacesNavBack } from '../nav/spaces-nav-context';
 import { useCurrentSpaceRole } from '../use-current-space-role';
 import { openSpaceSettings } from '../space-routes';
 import { useSpaceSessionUi } from './space-session-ui-context';
+
+const BUTTON_SIZE = 36;
 
 function buildInviteLinkForSpace(spaceId: string): string {
   const origin =
@@ -28,6 +36,9 @@ function buildInviteLinkForSpace(spaceId: string): string {
 }
 
 type SpaceChromeLabels = {
+  home: string;
+  back: string;
+  members: string;
   rename: string;
   invite: string;
   settings: string;
@@ -36,7 +47,13 @@ type SpaceChromeLabels = {
   leave: string;
 };
 
-type SpaceChromeCallbacks = {
+type SpaceChromeNavCallbacks = {
+  onPressHome: () => void;
+  onPressBack: (() => void) | null;
+};
+
+type SpaceChromeTrailingCallbacks = SpaceChromeNavCallbacks & {
+  onPressMembers: () => void;
   onPressRename: () => void;
   onPressInvite: () => void;
   onPressSettings: () => void;
@@ -45,13 +62,56 @@ type SpaceChromeCallbacks = {
   onPressLeave: () => void;
 };
 
-function buildSpaceChromeActionBarItems(args: {
-  isHost: boolean;
-  labels: SpaceChromeLabels;
-  callbacks: SpaceChromeCallbacks;
+function buildLeadingItems(args: {
+  labels: Pick<SpaceChromeLabels, 'home' | 'back'>;
+  callbacks: SpaceChromeNavCallbacks;
 }): ActionBarItem[] {
-  const { isHost, labels, callbacks } = args;
-  const items: ActionBarItem[] = [];
+  const { labels, callbacks } = args;
+  const items: ActionBarItem[] = [
+    {
+      id: 'home',
+      label: labels.home,
+      icon: DoorOpenIcon,
+      onPress: callbacks.onPressHome,
+      overflow: 'never',
+      priority: 100,
+    },
+  ];
+
+  if (callbacks.onPressBack !== null) {
+    items.push({
+      id: 'back',
+      label: labels.back,
+      icon: ChevronLeftIcon,
+      onPress: callbacks.onPressBack,
+      overflow: 'never',
+      priority: 95,
+    });
+  }
+
+  return items;
+}
+
+function buildTrailingItems(args: {
+  isHost: boolean;
+  spaceId: string;
+  avatarSize: number;
+  labels: SpaceChromeLabels;
+  callbacks: SpaceChromeTrailingCallbacks;
+}): ActionBarItem[] {
+  const { isHost, spaceId, avatarSize, labels, callbacks } = args;
+  const items: ActionBarItem[] = [
+    {
+      id: 'members',
+      variant: 'avatar',
+      label: labels.members,
+      onPress: callbacks.onPressMembers,
+      overflow: 'never',
+      priority: 90,
+      endsGroup: true,
+      children: <SpaceMembersAvatarGroup spaceId={spaceId} size={avatarSize} />,
+    },
+  ];
 
   if (isHost) {
     items.push({
@@ -85,10 +145,7 @@ function buildSpaceChromeActionBarItems(args: {
       icon: CodeIcon,
       onPress: callbacks.onPressDebug,
       priority: 30,
-    }
-  );
-
-  items.push(
+    },
     isHost
       ? {
           id: 'end-space',
@@ -109,18 +166,46 @@ function buildSpaceChromeActionBarItems(args: {
   return items;
 }
 
-export function useSpaceChromeActionBarItems(): ActionBarItem[] {
+function useSpaceChromeLabels(): SpaceChromeLabels {
   const { t } = useLingui();
+  return useMemo(
+    () => ({
+      home: t`Go to spaces`,
+      back: t`Back`,
+      members: t`People in this space`,
+      rename: t`Rename space`,
+      invite: t`Copy invite link`,
+      settings: t`Space settings`,
+      developer: t`Developer tools`,
+      end: t`End space`,
+      leave: t`Leave space`,
+    }),
+    [t]
+  );
+}
+
+function useSpaceChromeNavCallbacks(): SpaceChromeNavCallbacks {
+  const { onPressHome } = useSpaceSessionUi();
+  const onPressBack = useSpacesNavBack();
+  return useMemo(
+    () => ({ onPressHome, onPressBack }),
+    [onPressHome, onPressBack]
+  );
+}
+
+function useSpaceChromeTrailingCallbacks(
+  onPressMembers: () => void
+): SpaceChromeTrailingCallbacks {
   const router = useRouter();
   const {
     spaceId,
+    onPressHome,
     onPressDebug,
     onRequestEnd,
     onRequestLeave,
     onRequestRename,
   } = useSpaceSessionUi();
-  const role = useCurrentSpaceRole(spaceId);
-  const isHost = role === 'host';
+  const onPressBack = useSpacesNavBack();
 
   const onCopyInviteLink = useCallback(() => {
     void Clipboard.setStringAsync(buildInviteLinkForSpace(spaceId));
@@ -131,29 +216,21 @@ export function useSpaceChromeActionBarItems(): ActionBarItem[] {
   }, [router, spaceId]);
 
   return useMemo(
-    () =>
-      buildSpaceChromeActionBarItems({
-        isHost,
-        labels: {
-          rename: t`Rename space`,
-          invite: t`Copy invite link`,
-          settings: t`Space settings`,
-          developer: t`Developer tools`,
-          end: t`End space`,
-          leave: t`Leave space`,
-        },
-        callbacks: {
-          onPressRename: onRequestRename,
-          onPressInvite: onCopyInviteLink,
-          onPressSettings: onOpenSettings,
-          onPressDebug,
-          onPressEnd: onRequestEnd,
-          onPressLeave: onRequestLeave,
-        },
-      }),
+    () => ({
+      onPressHome,
+      onPressBack,
+      onPressMembers,
+      onPressRename: onRequestRename,
+      onPressInvite: onCopyInviteLink,
+      onPressSettings: onOpenSettings,
+      onPressDebug,
+      onPressEnd: onRequestEnd,
+      onPressLeave: onRequestLeave,
+    }),
     [
-      isHost,
-      t,
+      onPressHome,
+      onPressBack,
+      onPressMembers,
       onRequestRename,
       onCopyInviteLink,
       onOpenSettings,
@@ -165,17 +242,66 @@ export function useSpaceChromeActionBarItems(): ActionBarItem[] {
 }
 
 /**
- * Responsive active-space trailing actions. Management actions collapse into
- * the overflow menu when horizontal space is tight; exit lives in leading
- * chrome via {@link SpaceChromeHomeButton}.
+ * Leading active-space chrome: exit to spaces home + optional back.
  */
-export function SpaceChromeActionBar(): ReactNode {
-  const items = useSpaceChromeActionBarItems();
+export function SpaceChromeLeadingActionBar(): ReactNode {
+  const labels = useSpaceChromeLabels();
+  const callbacks = useSpaceChromeNavCallbacks();
+  const items = useMemo(
+    () => buildLeadingItems({ labels, callbacks }),
+    [labels, callbacks]
+  );
+
   return (
     <ActionBar
       items={items}
-      buttonSize={36}
-      overflowTestID="space-chrome-overflow-menu"
+      align="start"
+      overflow="never"
+      buttonSize={BUTTON_SIZE}
     />
+  );
+}
+
+/**
+ * Trailing active-space chrome: members avatar + management actions that
+ * collapse into overflow when horizontal space is tight.
+ */
+export function SpaceChromeTrailingActionBar(): ReactNode {
+  const { spaceId } = useSpaceSessionUi();
+  const [membersOpen, setMembersOpen] = useState(false);
+  const onPressMembers = useCallback(() => {
+    setMembersOpen(true);
+  }, []);
+  const labels = useSpaceChromeLabels();
+  const callbacks = useSpaceChromeTrailingCallbacks(onPressMembers);
+  const role = useCurrentSpaceRole(spaceId);
+  const isHost = role === 'host';
+  const avatarSize = iconButtonAvatarContentSize(BUTTON_SIZE);
+
+  const items = useMemo(
+    () =>
+      buildTrailingItems({
+        isHost,
+        spaceId,
+        avatarSize,
+        labels,
+        callbacks,
+      }),
+    [isHost, spaceId, avatarSize, labels, callbacks]
+  );
+
+  return (
+    <>
+      <ActionBar
+        items={items}
+        buttonSize={BUTTON_SIZE}
+        overflowTestID="space-chrome-overflow-menu"
+      />
+      <SpaceMembersListModal
+        spaceId={spaceId}
+        visible={membersOpen}
+        onClose={() => setMembersOpen(false)}
+      />
+    </>
   );
 }

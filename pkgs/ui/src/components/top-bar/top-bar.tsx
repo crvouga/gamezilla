@@ -106,6 +106,8 @@ function TopBarFlexLayout({
   trailing,
   centerAlign,
 }: TopBarSlotsProps): ReactNode {
+  const hasCenter = center !== undefined && center !== null;
+  const hasTrailing = trailing !== undefined && trailing !== null;
   return (
     <>
       {leading !== undefined ? (
@@ -113,19 +115,31 @@ function TopBarFlexLayout({
           {leading}
         </Box>
       ) : null}
-      <Box
-        sx={{
-          flex: 1,
-          minWidth: 0,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: ALIGN_MAP[centerAlign ?? 'start'],
-        }}
-      >
-        {center}
-      </Box>
-      {trailing !== undefined ? (
-        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+      {hasCenter ? (
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: ALIGN_MAP[centerAlign ?? 'start'],
+          }}
+        >
+          {center}
+        </Box>
+      ) : null}
+      {hasTrailing ? (
+        <Box
+          sx={{
+            // Absorb remaining width when there is no center slot so trailing
+            // ActionBars can measure overflow against the real budget.
+            ...(hasCenter ? {} : { flex: 1, minWidth: 0 }),
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            gap: 2,
+          }}
+        >
           {trailing}
         </Box>
       ) : null}

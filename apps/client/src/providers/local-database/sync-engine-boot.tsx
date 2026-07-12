@@ -9,6 +9,7 @@ import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 import { SqlClientProvider } from '@pkgs/sql-client/react-context';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { attachSqlCli } from '../../dev/attach-sql-cli';
 import { createAppPowerSyncSyncEngine } from '../../sync/create-powersync-sync-engine';
 import type { SyncApiFetch } from '../../sync/sync-api';
 import { getMainSqliteDbName } from '../../storage/open-main-sql-client';
@@ -61,6 +62,7 @@ export function SyncEngineBoot({
         void engine.connect().then(
           () => {
             if (!cancelled) {
+              attachSqlCli(engine.db);
               // eslint-disable-next-line lingui/no-unlocalized-strings -- internal boot phase
               setBoot({ phase: 'ready', engine });
             }

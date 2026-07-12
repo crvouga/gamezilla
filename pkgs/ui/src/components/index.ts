@@ -113,9 +113,11 @@ export {
   isActionBarAvatarItem,
   partitionActionBarItems,
   screenBaseActionToActionBarItem,
+  type ActionBarAlign,
   type ActionBarAvatarItem,
   type ActionBarIconItem,
   type ActionBarItem,
+  type ActionBarOverflowMode,
   type ActionBarProps,
   type ActionBarTextAction,
 } from './action-bar';
