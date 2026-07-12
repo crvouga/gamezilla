@@ -1,6 +1,7 @@
-import { Box, LoadingState, SafeAreaView } from '@pkgs/ui';
+import { Box, LoadingState } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo, type ReactNode } from 'react';
+import { useCallback, useContext, useMemo, type ReactNode } from 'react';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { DefineBackButton } from './nav/spaces-nav-context';
 import { SpaceActiveLayout } from './active-space/space-active-layout';
@@ -8,6 +9,12 @@ import {
   SpaceSessionUiProvider,
   type SpaceSessionUiValue,
 } from './active-space/space-session-ui-context';
+
+const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
+
+function useSafeAreaBottom(): number {
+  return (useContext(SafeAreaInsetsContext) ?? ZERO_SAFE_AREA).bottom;
+}
 
 export type SpaceDetailInitialLoadingProps = {
   spaceId: string;
@@ -23,6 +30,7 @@ export function SpaceDetailInitialLoading({
   onOpenDebug,
 }: SpaceDetailInitialLoadingProps): ReactNode {
   const router = useRouter();
+  const bottomInset = useSafeAreaBottom();
   const onPressHome = useCallback(() => {
     router.replace('/');
   }, [router]);
@@ -44,7 +52,10 @@ export function SpaceDetailInitialLoading({
   );
 
   return (
-    <SafeAreaView sx={{ flex: 1, background: 'background' }}>
+    <Box
+      sx={{ flex: 1, background: 'background' }}
+      style={{ paddingBottom: bottomInset }}
+    >
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <SpaceSessionUiProvider value={sessionUi}>
           <DefineBackButton onPress={() => router.back()} />
@@ -53,6 +64,6 @@ export function SpaceDetailInitialLoading({
           </SpaceActiveLayout>
         </SpaceSessionUiProvider>
       </Box>
-    </SafeAreaView>
+    </Box>
   );
 }

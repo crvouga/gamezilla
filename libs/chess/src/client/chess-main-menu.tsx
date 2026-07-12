@@ -20,7 +20,9 @@ import { PuzzlePlayScreen } from './chess-puzzle/chess-puzzle-play-screen';
 import { ChessSettingsDeveloperScreen } from './chess-settings/chess-settings-developer-screen';
 import { ChessSettingsDeveloperUiComponentDetailScreen } from './chess-settings/chess-settings-developer-ui-component-detail-screen';
 import { ChessSettingsDeveloperUiComponentsScreen } from './chess-settings/chess-settings-developer-ui-components-screen';
+import { ChessSettingsPuzzleFeedScreen } from './chess-settings/chess-settings-puzzle-feed-screen';
 import { ChessSettingsScreen } from './chess-settings/chess-settings-screen';
+import { useChessPuzzleFeedSubscription } from './chess-puzzle/use-chess-puzzle-feed-subscription';
 import { ChessStatsScreen } from './chess-puzzle/chess-stats-screen';
 
 export type ChessMainMenuProps = {
@@ -38,6 +40,8 @@ function ChessScreenSwitch({ onBackToGames }: ChessMainMenuProps): ReactNode {
       return <ChessStatsScreen />;
     case CHESS_SCREEN.settings:
       return <ChessSettingsScreen />;
+    case CHESS_SCREEN.settingsPuzzleFeed:
+      return <ChessSettingsPuzzleFeedScreen />;
     case CHESS_SCREEN.settingsDeveloper:
       return <ChessSettingsDeveloperScreen />;
     case CHESS_SCREEN.settingsDeveloperUi:
@@ -68,6 +72,7 @@ function ChessScreenSwitch({ onBackToGames }: ChessMainMenuProps): ReactNode {
 export function ChessMainMenu({
   onBackToGames,
 }: ChessMainMenuProps): ReactNode {
+  useChessPuzzleFeedSubscription();
   return (
     <ChessBoardCanvasBootstrap>
       <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}>

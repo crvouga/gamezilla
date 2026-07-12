@@ -1,6 +1,5 @@
 import {
   MainMenuScreen,
-  SafeAreaView,
   TopBar,
   BackIconButton,
   Box,
@@ -9,7 +8,8 @@ import {
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { RenameSpaceModal } from './active-space/rename-space-modal';
 import { useSpaceLifecycleModals } from './lifecycle/space-lifecycle-modal-provider';
@@ -18,6 +18,12 @@ import {
   useStripRedundantSpaceRouteSearchParams,
 } from './space-routes';
 import { useCurrentSpaceRole } from './use-current-space-role';
+
+const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
+
+function useSafeAreaBottom(): number {
+  return (useContext(SafeAreaInsetsContext) ?? ZERO_SAFE_AREA).bottom;
+}
 
 function buildInviteLinkForSpace(spaceId: string): string {
   const origin =
@@ -37,6 +43,7 @@ function buildInviteLinkForSpace(spaceId: string): string {
 export function SpaceSettingsScreen(): ReactNode {
   const { t } = useLingui();
   const router = useRouter();
+  const bottomInset = useSafeAreaBottom();
   const spaceId = useSpaceRouteId();
   useStripRedundantSpaceRouteSearchParams(spaceId);
   const role = useCurrentSpaceRole(spaceId);
@@ -78,12 +85,12 @@ export function SpaceSettingsScreen(): ReactNode {
   );
 
   return (
-    <SafeAreaView sx={{ flex: 1, background: 'background' }}>
+    <Box
+      sx={{ flex: 1, background: 'background' }}
+      style={{ paddingBottom: bottomInset }}
+    >
       <Box sx={{ flex: 1, minHeight: 0 }}>
-        <TopBar
-          safeAreaTop={false}
-          leading={<BackIconButton onPress={() => router.back()} />}
-        />
+        <TopBar leading={<BackIconButton size={36} onPress={() => router.back()} />} />
         <Box sx={{ flex: 1, minHeight: 0 }}>
           <MainMenuScreen
             title={<Trans>Space settings</Trans>}
@@ -97,7 +104,7 @@ export function SpaceSettingsScreen(): ReactNode {
           onClose={() => setRenameOpen(false)}
         />
       </Box>
-    </SafeAreaView>
+    </Box>
   );
 }
 

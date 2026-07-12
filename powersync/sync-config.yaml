@@ -63,7 +63,6 @@ streams:
 
   chess_puzzles:
     priority: 3
-    auto_subscribe: true
     accept_potentially_dangerous_queries: true
     query: |
       SELECT
@@ -79,6 +78,7 @@ streams:
         opening_tags
       FROM chess_puzzles
       WHERE sync_pool = true
+        AND (rating / 400) = subscription.parameter('band')
 
   friend_requests:
     priority: 2

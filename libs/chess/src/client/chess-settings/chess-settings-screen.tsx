@@ -16,6 +16,11 @@ export function ChessSettingsScreen(): ReactNode {
   const backToRoot = useCallback(() => {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
   }, [dispatch]);
+  const openPuzzleFeed = useCallback(() => {
+    dispatch(
+      SetChessMainMenuScreen({ screen: CHESS_SCREEN.settingsPuzzleFeed })
+    );
+  }, [dispatch]);
   const openDeveloper = useCallback(() => {
     dispatch(
       SetChessMainMenuScreen({ screen: CHESS_SCREEN.settingsDeveloper })
@@ -25,13 +30,19 @@ export function ChessSettingsScreen(): ReactNode {
   const items = useMemo(
     (): readonly MainMenuItem[] => [
       {
+        key: 'puzzle-feed',
+        title: <Trans>Puzzle feed</Trans>,
+        caption: <Trans>Auto match rating or pick a custom target.</Trans>,
+        onPress: openPuzzleFeed,
+      },
+      {
         key: 'developer',
         title: <Trans>Developer</Trans>,
         caption: <Trans>UI explorer, debug tools.</Trans>,
         onPress: openDeveloper,
       },
     ],
-    [openDeveloper]
+    [openDeveloper, openPuzzleFeed]
   );
 
   return (

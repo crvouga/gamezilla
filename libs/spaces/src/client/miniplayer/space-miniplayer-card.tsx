@@ -1,16 +1,13 @@
+import { Box, Text } from '@pkgs/ui';
+import type { ReactNode } from 'react';
+import { SpaceCardGradientBox } from '../card/space-card-gradient';
+import { SpaceEndOrLeaveButton } from '../lifecycle/space-end-or-leave-button';
+import { SpaceHostAvatar } from '../members/space-host-avatar';
 import { MiniplayerHostNameLine } from './miniplayer-host-name-line';
 import { MiniplayerLiveBadge } from './miniplayer-live-badge';
 import { MiniplayerMemberCountText } from './miniplayer-member-count-text';
 import { MiniplayerOpenSpacePressable } from './miniplayer-open-space-pressable';
 import { MiniplayerSpaceTitle } from './miniplayer-space-title';
-import { SpaceEndOrLeaveButton } from '../lifecycle/space-end-or-leave-button';
-import { SpaceHostAvatar } from '../members/space-host-avatar';
-import {
-  SPACE_CARD_BORDER_RADIUS,
-  SpaceCardGradientBox,
-} from '../card/space-card-gradient';
-import { Box, elevation, Text } from '@pkgs/ui';
-import type { ReactNode } from 'react';
 
 export type SpaceMiniplayerCardProps = {
   spaceId: string;
@@ -23,18 +20,18 @@ export function SpaceMiniplayerCard({
   return (
     <SpaceCardGradientBox
       sx={{
-        borderRadius: SPACE_CARD_BORDER_RADIUS,
+        borderRadius: 0,
         flexDirection: 'row',
         alignItems: 'center',
-        p: 3,
         gap: 2,
         minHeight: 72,
+        elevation: 2,
       }}
-      style={elevation(2)}
     >
       <MiniplayerOpenSpacePressable spaceId={spaceId}>
         <Box
           sx={{
+            p: 3,
             flexDirection: 'row',
             alignItems: 'center',
             gap: 3,
@@ -65,7 +62,9 @@ export function SpaceMiniplayerCard({
         </Box>
         <MiniplayerLiveBadge />
       </MiniplayerOpenSpacePressable>
-      <SpaceEndOrLeaveButton spaceId={spaceId} />
+      <Box sx={{ pr: 3 }}>
+        <SpaceEndOrLeaveButton spaceId={spaceId} />
+      </Box>
     </SpaceCardGradientBox>
   );
 }

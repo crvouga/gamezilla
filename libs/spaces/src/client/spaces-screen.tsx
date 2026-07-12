@@ -13,12 +13,11 @@ import { useRouter } from 'expo-router';
 import { useMemo, type ReactNode } from 'react';
 import { SpaceCard } from './card/space-card';
 import { useSpaceActions } from './lifecycle/space-actions';
-import { useSpaceMiniplayerLayoutInsets } from './miniplayer/use-space-miniplayer-layout-insets';
 import { openSpaceDetail } from './space-routes';
 import { useCurrentSpaceCount } from './use-current-space-count';
 import { useLiveSpaceIds } from './use-live-space-ids';
 
-function SpacesList({ bottomInset }: { bottomInset: number }) {
+function SpacesList() {
   const { spaceIds, isLoading } = useLiveSpaceIds();
   if (isLoading) {
     return <LoadingState size="large" />;
@@ -32,7 +31,7 @@ function SpacesList({ bottomInset }: { bottomInset: number }) {
     <ScrollView
       style={{ flex: 1 }}
       contentContainerStyle={{
-        paddingBottom: 24 + bottomInset,
+        paddingBottom: 24,
         gap: 12,
       }}
     >
@@ -57,7 +56,6 @@ export function SpacesScreen({
   const { count: currentSpaceCount, isLoading: membershipLoading } =
     useCurrentSpaceCount();
   const canCreateSpace = !membershipLoading && currentSpaceCount === 0;
-  const miniplayerInsets = useSpaceMiniplayerLayoutInsets();
   const router = useRouter();
   const { createSpace } = useSpaceActions();
   const { t } = useLingui();
@@ -89,7 +87,7 @@ export function SpacesScreen({
       primaryAction={primaryAction}
       content={({ sx }) => (
         <Box style={sx}>
-          <SpacesList bottomInset={miniplayerInsets.bottom} />
+          <SpacesList />
         </Box>
       )}
     />

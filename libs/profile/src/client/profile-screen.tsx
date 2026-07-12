@@ -21,9 +21,7 @@ export type ProfileScreenProps = {
   readonly friendsStats?: ReactNode;
   /** Second action pill beside Edit profile (e.g. Find friends). */
   readonly friendsActions?: ReactNode;
-  /** Bottom inset to add to content padding (e.g., for space miniplayer height).
-   * Use {@link useSpaceMiniplayerLayoutInsets} from @libs/spaces when
-   * rendering inside a space context, or pass 0 otherwise. */
+  /** Extra bottom inset for content padding. */
   readonly bottomInset?: number;
 };
 

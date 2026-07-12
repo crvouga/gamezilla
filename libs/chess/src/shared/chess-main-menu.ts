@@ -11,6 +11,7 @@ export const CHESS_SCREEN = {
   puzzle: 'puzzle',
   stats: 'stats',
   settings: 'settings',
+  settingsPuzzleFeed: 'settings-puzzle-feed',
   settingsDeveloper: 'settings-developer',
   settingsDeveloperUi: 'settings-developer-ui',
   settingsDeveloperUiDetail: 'settings-developer-ui-detail',

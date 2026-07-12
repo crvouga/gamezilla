@@ -12,8 +12,7 @@ import { AppTabBar } from './app-tab-bar';
 export function AppTabBarBridge(props: BottomTabBarProps): ReactNode {
   return (
     <Box>
-      {/* eslint-disable-next-line lingui/no-unlocalized-strings -- internal slot id, not user-facing */}
-      <SpaceMiniplayer slot="tabBar" />
+      <SpaceMiniplayer />
       <AppTabBar {...props} />
     </Box>
   );

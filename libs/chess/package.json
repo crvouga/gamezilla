@@ -34,6 +34,8 @@
     "@pkgs/assistant": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/chess-board": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/room": "workspace:*",

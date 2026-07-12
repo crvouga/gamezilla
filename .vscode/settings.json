@@ -178,6 +178,7 @@
     "prebuild",
     "Prechecks",
     "preflights",
+    "prefs",
     "Prereqs",
     "Pressable",
     "prodcheck",

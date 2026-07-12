@@ -1,11 +1,11 @@
 #!/usr/bin/env bun
 /**
- * Verify the Lingui catalog matches current source strings.
+ * Keep the Lingui catalog in sync with current source strings.
  *
- * Runs extract + compile and fails only when those steps mutate catalog files.
- * Unlike `git diff --exit-code`, this passes with uncommitted-but-current i18n
- * artifacts while developing locally. CI still fails when committed catalogs are
- * stale because extract rewrites them on a clean checkout.
+ * Always runs extract + compile. Locally that regenerates catalogs and
+ * succeeds so `bun check` does not fail on i18n drift. In CI
+ * (`CI` / `GITHUB_ACTIONS`) the same regen runs, then fails if any catalog
+ * files changed — committed catalogs must already be current.
  */
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -14,6 +14,8 @@ import { join, relative } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '..');
 const I18N_DIR = join(REPO_ROOT, 'apps/client/src/i18n');
+const isCi =
+  process.env['CI'] === 'true' || process.env['GITHUB_ACTIONS'] === 'true';
 
 function listI18nFiles(dir: string): string[] {
   const files: string[] = [];
@@ -52,6 +54,13 @@ runOrExit('bun', ['run', 'i18n:compile']);
 const after = fingerprintI18nDir();
 
 if (before === after) {
+  process.exit(0);
+}
+
+if (!isCi) {
+  process.stderr.write(
+    'i18n catalog regenerated from source strings (commit when ready).\n'
+  );
   process.exit(0);
 }
 

@@ -3,22 +3,14 @@ import {
   CHESS_PUZZLE_INTERACTIONS_TABLE,
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
+import { PUZZLE_RATING_BAND_SIZE } from '../../shared/chess-puzzle-feed-config';
 
-export const PUZZLE_NEXT_MAX_BAND = 400;
+export { chessPuzzleSyncRatingBands } from '../../shared/chess-puzzle-feed-config';
+
+export const PUZZLE_NEXT_MAX_BAND = PUZZLE_RATING_BAND_SIZE;
 export const PUZZLE_CANDIDATE_LIMIT = 50;
 /** Rotates candidate window so "Next" does not always hit the same top-N popular puzzles. */
 export const PUZZLE_CANDIDATE_MAX_OFFSET = 150;
-
-/** PowerSync `chess_puzzles` stream bands to cover puzzle picking for `rating`. */
-export function chessPuzzleSyncRatingBands(rating: number): readonly number[] {
-  const centerBand = Math.floor(rating / PUZZLE_NEXT_MAX_BAND);
-  const spread = 2;
-  const bands: number[] = [];
-  for (let band = centerBand - spread; band <= centerBand + spread; band += 1) {
-    if (band >= 0) bands.push(band);
-  }
-  return bands;
-}
 
 export function hashSeed(s: string): number {
   let h = 0;

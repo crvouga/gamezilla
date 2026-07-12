@@ -7,6 +7,7 @@ import {
   CHESS_PUZZLES_TABLE,
   ChessPuzzleProfileCol,
 } from '@libs/db/shared/chess-tables';
+import { resolveEffectivePuzzleRating } from '../../shared/chess-puzzle-feed-config';
 import {
   hashSeed,
   pickPuzzleIdFromPool,
@@ -14,6 +15,7 @@ import {
   PUZZLE_NEXT_MAX_BAND,
   type PuzzleCandidateRow,
 } from './next-puzzle-id-helpers';
+import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { usePuzzleCandidatesQuery } from './use-puzzle-candidates-query';
 
 const DEFAULT_RATING = 1200;
@@ -61,6 +63,15 @@ function usePuzzleProfileRating(): number {
     return profileRatingRaw;
   }
   return DEFAULT_RATING;
+}
+
+function useEffectivePuzzleRating(): number {
+  const [config] = useChessPuzzleFeedConfig();
+  const profileRating = usePuzzleProfileRating();
+  return useMemo(
+    () => resolveEffectivePuzzleRating({ config, profileRating }),
+    [config, profileRating]
+  );
 }
 
 function usePuzzleCandidateQueries(args: {
@@ -127,7 +138,7 @@ export function useNextPuzzleId(args: {
 } {
   const { currentPuzzleId, seed } = args;
   const myId = useMyId();
-  const rating = usePuzzleProfileRating();
+  const rating = useEffectivePuzzleRating();
   const pickOffset = hashSeed(seed) % (PUZZLE_CANDIDATE_MAX_OFFSET + 1);
   const { banded, fallback, replay } = usePuzzleCandidateQueries({
     rating,

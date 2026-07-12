@@ -1,8 +1,7 @@
 import { AppProviders } from '@apps/client/providers/app-providers';
 import { RootErrorBoundary } from '@apps/client/providers/root-error-boundary';
-import { SpaceMiniplayer } from '@libs/spaces/client/miniplayer/space-miniplayer';
 import { isClientSentryEnabled } from '@pkgs/observability/impl-sentry/init-client-sentry';
-import { Box, useStackProps } from '@pkgs/ui';
+import { useStackProps } from '@pkgs/ui';
 import * as Sentry from '@sentry/react-native';
 import { Stack } from 'expo-router';
 import 'react-native-reanimated';
@@ -37,12 +36,7 @@ function RootLayout() {
   return (
     <RootErrorBoundary>
       <AppProviders>
-        <Box sx={{ flex: 1, minHeight: 0 }} style={{ position: 'relative' }}>
-          <Box sx={{ flex: 1, minHeight: 0 }}>
-            <AppStack />
-          </Box>
-          <SpaceMiniplayer slot={'root' as const} />
-        </Box>
+        <AppStack />
       </AppProviders>
     </RootErrorBoundary>
   );

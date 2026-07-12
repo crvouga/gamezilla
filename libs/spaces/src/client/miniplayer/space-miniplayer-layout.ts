@@ -1,27 +1,6 @@
-const DOCK_PADDING_TOP = 4;
-const CARD_MIN_HEIGHT = 72;
-const CARD_GAP = 8;
-
 export function isSpaceMiniplayerHidden(args: {
   rawPath: string;
   activeSpaceCount: number;
 }): boolean {
   return args.rawPath.startsWith('/space/') || args.activeSpaceCount === 0;
-}
-
-export function isTabRootRoute(rawPath: string): boolean {
-  if (rawPath === '/' || rawPath === '/profile') return true;
-  if (rawPath === '/(tabs)' || rawPath.startsWith('/(tabs)/')) return true;
-  return false;
-}
-
-export function getSpaceMiniplayerBottomInset(safeAreaBottom: number): number {
-  return safeAreaBottom > 0 ? safeAreaBottom : 12;
-}
-
-export function estimateSpaceMiniplayerHeight(cardCount: number): number {
-  if (cardCount <= 0) return 0;
-  return (
-    DOCK_PADDING_TOP + cardCount * CARD_MIN_HEIGHT + (cardCount - 1) * CARD_GAP
-  );
 }

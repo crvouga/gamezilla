@@ -12,5 +12,5 @@ import { useSpacesNavBack } from '../nav/spaces-nav-context';
 export function SpaceChromeBackButton(): ReactNode {
   const registered = useSpacesNavBack();
   if (registered === null) return null;
-  return <BackIconButton onPress={registered} />;
+  return <BackIconButton size={36} onPress={registered} />;
 }
