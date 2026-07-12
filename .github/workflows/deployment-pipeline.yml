@@ -324,7 +324,7 @@ jobs:
   # `publish-client-eas-update` publishes an OTA `eas update` (JS bundle
   # only — no native build) after the API + web client are live and
   # smoke-tested, so the mobile client (which targets
-  # https://www.gamezilla.app) never ships a bundle ahead of the matching
+  # https://api.gamezilla.app) never ships a bundle ahead of the matching
   # server / DB migrations / Stripe sync / client-config. Native binaries
   # are built rarely + manually via the `eas-build-release.yml` workflow
   # (`infra build-client-native`), not here.

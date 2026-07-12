@@ -7,8 +7,8 @@ import type { Command } from './types';
 
 /**
  * CI atomic step 3: deploys every active resource that has a `deploy()`
- * method (api-worker) in topological order. Hydrates `InfraContext` from
- * `INFRA_CONTEXT` env (set by the workflow from
+ * method (api-worker, then client-worker) in topological order. Hydrates
+ * `InfraContext` from `INFRA_CONTEXT` env (set by the workflow from
  * `needs.provision.outputs.infra_context`). Resources with
  * `routineStatus: 'destroyed'` (e.g. legacy Cloudflare stack)
  * are skipped; the deploy's `'destroyed'`-resource tail phase tears
@@ -17,7 +17,8 @@ import type { Command } from './types';
 export class DeployResourcesCommand implements Command {
   readonly id = 'deploy-resources';
   readonly group = 'phase' as const;
-  readonly summary = 'Deploy unified api-worker (API + static web client)';
+  readonly summary =
+    'Deploy api-worker (api.) then client-worker (www assets-only)';
 
   constructor(private readonly platform: CiPlatform) {}
 

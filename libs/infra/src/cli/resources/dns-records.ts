@@ -103,37 +103,6 @@ async function deleteLegacyPagesCnameRecords(
   }
 }
 
-/** Drops the retired `api.` subdomain CNAME so it cannot shadow the Worker. */
-async function deleteLegacyApiSubdomainCname(
-  zoneId: string,
-  headers: Record<string, string>,
-  domain: string
-): Promise<void> {
-  const apiHost = `api.${domain}`;
-  const res = await fetch(
-    `${CF_API}/zones/${zoneId}/dns_records?per_page=100&type=CNAME&name=${apiHost}`,
-    { headers }
-  );
-  if (!res.ok) return;
-
-  const body = (await res.json()) as {
-    result?: Array<{ id: string; name: string; type: string }>;
-  };
-
-  for (const rec of body.result ?? []) {
-    if (rec.type !== 'CNAME') continue;
-    const del = await fetch(`${CF_API}/zones/${zoneId}/dns_records/${rec.id}`, {
-      method: 'DELETE',
-      headers,
-    });
-    if (del.ok || del.status === 404) {
-      ok('DNS CNAME (legacy api subdomain removed)', apiHost);
-    } else {
-      warn('DNS legacy api delete', `${apiHost} — HTTP ${del.status}`);
-    }
-  }
-}
-
 export class DnsRecordsResource extends ResourceBase {
   readonly id = 'dns-records';
 
@@ -148,12 +117,11 @@ export class DnsRecordsResource extends ResourceBase {
     const domain = PROJECT_CONFIG.domain;
 
     await deleteLegacyPagesCnameRecords(zoneId, headers, domain);
-    await deleteLegacyApiSubdomainCname(zoneId, headers, domain);
     await deleteLegacyVendorAuthCnameRecords(zoneId, headers, domain);
 
     ok(
       'DNS',
-      `legacy Pages + api.${domain} CNAME cleanup complete (Worker custom domains managed by wrangler)`
+      `legacy Pages CNAME cleanup complete (Worker custom domains for www/api managed by wrangler)`
     );
   }
 

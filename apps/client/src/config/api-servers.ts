@@ -6,13 +6,11 @@ import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/loc
 export { DEFAULT_LOCAL_PREVIEW_API_ORIGIN };
 
 /**
- * Production Worker hostname(s). Development must not target these unless
+ * Production API Worker hostname(s). Development must not target these unless
  * {@link productionApiUrlTigerExceptionEnabled} (Tiger Style: fail loud, never silent drift to prod).
  */
 export const PRODUCTION_API_HTTP_HOSTNAMES = [
   APP_IDENTITY.apiHost,
-  /** Legacy dedicated API subdomain (replaced by www Worker routing). */
-  `api.${APP_IDENTITY.domain}`,
 ] as const;
 
 function isProductionApiHttpHostname(hostname: string): boolean {
@@ -72,32 +70,6 @@ export function assertTigerPolicyForResolvedApiOrigin(
   );
 }
 
-function isProductionWebHostname(hostname: string): boolean {
-  return (
-    isProductionApiHttpHostname(hostname) || hostname === APP_IDENTITY.domain
-  );
-}
-
-/**
- * Production web: the Worker serves static assets and `/api/*` on the same origin.
- */
-function readProductionWebSameOriginApi(): string | null {
-  if (typeof window === 'undefined' || window.location === undefined) {
-    return null;
-  }
-  const origin = window.location.origin;
-  let hostname = '';
-  assert.notThrows(
-    () => {
-      hostname = new URL(origin).hostname;
-    },
-    'web origin must parse as URL',
-    { origin }
-  );
-  if (!isProductionWebHostname(hostname)) return null;
-  return origin;
-}
-
 function coerceDevBundleApiOrigin(origin: string): string {
   if (!isExpoOrMetroDevelopmentBundle()) return origin;
   if (productionApiUrlTigerExceptionEnabled()) return origin;
@@ -117,7 +89,7 @@ function readExpoPublicApiUrlOrigin(): string {
   // Direct read — Expo inlines `EXPO_PUBLIC_*` at bundle time (see
   // `app-metadata.ts`). Do not nullish-coalesce to a production default in
   // this expression or Metro constant-folds past the env read when `__DEV__`
-  // is false (qa preview / `expo export -p web` then bakes www.gamezilla.app
+  // is false (qa preview / `expo export -p web` then bakes api.gamezilla.app
   // even when `EXPO_PUBLIC_API_URL` is set for the Playwright webServer).
   // eslint-disable-next-line expo/no-dynamic-env-var -- `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
   const raw = process.env['EXPO_PUBLIC_API_URL'];
@@ -142,15 +114,11 @@ function readExpoPublicApiUrlOrigin(): string {
   return origin;
 }
 
+/**
+ * Resolves the API base URL. Production web and native both use the inlined
+ * `EXPO_PUBLIC_API_URL` (`https://api.gamezilla.app`) — the SPA is on a
+ * separate origin from the API Worker.
+ */
 export function getApiBaseUrl(): string {
-  const productionWebApi = readProductionWebSameOriginApi();
-  if (productionWebApi !== null) {
-    assertTigerPolicyForResolvedApiOrigin(
-      productionWebApi,
-      'forbid-prod-in-expo-dev-bundle'
-    );
-    return productionWebApi;
-  }
-
   return readExpoPublicApiUrlOrigin();
 }

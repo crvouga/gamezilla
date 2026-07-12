@@ -1,4 +1,4 @@
-name = "gamezilla"
+name = "gamezilla-api"
 main = "src/api.ts"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat", "no_handle_cross_request_promise_resolution"]
@@ -52,19 +52,17 @@ deleted_classes = ["MatchmakingTicker"]
 enabled = true
 invocation_logs = true
 
-# Production deploy (`wrangler deploy --env production`) serves the Expo web
-# export from `apps/client/dist` and binds custom domains on the apex + www
-# hostnames. `run_worker_first` invokes this Worker only for API paths; all
-# other requests are served from the assets binding (SPA fallback).
+# Production deploy (`wrangler deploy --env production`) binds only the API
+# custom domain. The Expo web SPA is a separate assets-only Worker
+# (`gamezilla-client` on www / apex) — see `apps/client/wrangler.toml`.
 #
-# Without `name` here wrangler would publish as `gamezilla-production`.
+# Without `name` here wrangler would publish as `gamezilla-api-production`.
 # `durable_objects` / `migrations` are not inherited by named environments —
 # duplicate them here so production deploy keeps ROOM bindings + DO migrations.
 [env.production]
-name = "gamezilla"
+name = "gamezilla-api"
 routes = [
-  { pattern = "gamezilla.app", custom_domain = true },
-  { pattern = "www.gamezilla.app", custom_domain = true },
+  { pattern = "api.gamezilla.app", custom_domain = true },
 ]
 
 [[env.production.durable_objects.bindings]]
@@ -77,9 +75,3 @@ class_name = "Room"
 [[env.production.migrations]]
 tag = "v1-unified-worker-room"
 new_sqlite_classes = ["Room"]
-
-[env.production.assets]
-directory = "../client/dist"
-binding = "ASSETS"
-not_found_handling = "single-page-application"
-run_worker_first = ["/api/*"]

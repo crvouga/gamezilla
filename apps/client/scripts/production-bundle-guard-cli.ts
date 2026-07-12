@@ -11,7 +11,7 @@ const clientRoot = join(fileURLToPath(import.meta.url), '..', '..');
 
 const USAGE = `usage: production-bundle-guard-cli.ts <check-env|check-dist|check-native-dir>
 
-  check-env          Assert EXPO_PUBLIC_API_URL is the production Worker origin.
+  check-env          Assert EXPO_PUBLIC_API_URL is the production API origin.
   check-dist         Scan apps/client/dist for a loopback inlined API URL.
   check-native-dir   Scan apps/client/.qa-native for a loopback inlined API URL.
 `;

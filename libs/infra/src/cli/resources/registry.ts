@@ -1,4 +1,5 @@
 import { ApiWorkerResource } from './api-worker';
+import { ClientWorkerResource } from './client-worker';
 import { LegacyCloudflareStackResource } from './legacy-cloudflare-stack';
 import { S3BucketResource } from './s3-bucket';
 import { ClientRedirectRuleResource } from './client-redirect-rule';
@@ -18,6 +19,7 @@ export function createRegistry(): readonly Resource[] {
   const dnsRecords = new DnsRecordsResource();
   const clientRedirectRule = new ClientRedirectRuleResource();
   const apiWorker = new ApiWorkerResource();
+  const clientWorker = new ClientWorkerResource();
   const legacyCloudflareStack = new LegacyCloudflareStackResource();
 
   zone.needs(secrets);
@@ -26,7 +28,10 @@ export function createRegistry(): readonly Resource[] {
   s3Bucket.needs(secrets);
   dnsRecords.needs(zone);
   clientRedirectRule.needs(zone);
+  // API first so www/apex custom domains detach before the assets-only Worker
+  // claims them.
   apiWorker.needs(neonPostgres, dnsRecords, s3Bucket);
+  clientWorker.needs(apiWorker);
 
   return [
     secrets,
@@ -37,6 +42,7 @@ export function createRegistry(): readonly Resource[] {
     dnsRecords,
     clientRedirectRule,
     apiWorker,
+    clientWorker,
     legacyCloudflareStack,
   ];
 }

@@ -128,7 +128,7 @@ export async function runStripeWebhookSync(args: {
    * read-only HTTP impls will throw on `setSecret`.
    */
   readonly secretStore: SecretStore;
-  /** Absolute origin of the unified Worker (no path), e.g. `https://www.gamezilla.app`. */
+  /** Absolute origin of the API Worker (no path), e.g. `https://api.gamezilla.app`. */
   readonly apiUrlBase: string;
   readonly dryRun?: boolean;
 }): Promise<WebhookSyncResult> {

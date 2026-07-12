@@ -18,8 +18,8 @@ export const APP_IDENTITY = {
   urlScheme: 'gamezilla',
   /** Root domain for deployed surfaces. */
   domain: 'gamezilla.app',
-  /** Production API origin hostname (same host as the web client). */
-  apiHost: 'www.gamezilla.app',
+  /** Production API Worker hostname (`https://api.…`). */
+  apiHost: 'api.gamezilla.app',
 } as const;
 
 /** Mobile deep-link origin, e.g. `gamezilla://`. */

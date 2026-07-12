@@ -152,7 +152,10 @@ export class StatusCommand implements Command {
     // ── 7. Endpoints ────────────────────────────────────────────────────
     heading('Endpoints');
     const { domain } = PROJECT_CONFIG;
-    const urls = [`https://www.${domain}`, `https://www.${domain}/api/health`];
+    const urls = [
+      `https://www.${domain}`,
+      `https://api.${domain}/api/health`,
+    ];
 
     for (const url of urls) {
       const result = await httpProbe(url, 10_000);

@@ -39,7 +39,10 @@ export function buildVendorDashboardMarkdown(): string[] {
       `- **Cloudflare DNS / zone:** [\`${domain}\`](https://dash.cloudflare.com/${accountId}/${domain})`
     );
     lines.push(
-      `- **Cloudflare Worker (API + web):** [\`${cloudflare.apiWorker}\`](https://dash.cloudflare.com/${accountId}/workers/services/view/${cloudflare.apiWorker}/production)`
+      `- **Cloudflare Worker (API):** [\`${cloudflare.apiWorker}\`](https://dash.cloudflare.com/${accountId}/workers/services/view/${cloudflare.apiWorker}/production)`
+    );
+    lines.push(
+      `- **Cloudflare Worker (client):** [\`${cloudflare.clientWorker}\`](https://dash.cloudflare.com/${accountId}/workers/services/view/${cloudflare.clientWorker}/production)`
     );
   } else {
     lines.push(

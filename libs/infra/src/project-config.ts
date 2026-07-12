@@ -6,10 +6,20 @@ export const PROJECT_CONFIG = {
   },
   cloudflare: {
     /** Worker name — must match `[env.production].name` in `apps/api/wrangler.toml`. */
-    apiWorker: 'gamezilla',
-    /** Retired Workers removed on every deploy by `ensure-destroyed`. */
-    legacyWorkers: ['gamezilla-api', 'gamezilla-production'] as const,
-    /** Retired Cloudflare Pages project (web client was split out pre-unified Worker). */
+    apiWorker: 'gamezilla-api',
+    /** Assets-only Worker — must match `[env.production].name` in `apps/client/wrangler.toml`. */
+    clientWorker: 'gamezilla-client',
+    /**
+     * Retired Workers removed on every deploy by `ensure-destroyed`.
+     * Includes the pre-split unified Worker (`gamezilla`) and the brief
+     * `gamezilla-www` assets-only name before `gamezilla-client`.
+     */
+    legacyWorkers: [
+      'gamezilla',
+      'gamezilla-www',
+      'gamezilla-production',
+    ] as const,
+    /** Retired Cloudflare Pages project name (distinct from the Worker `clientWorker`). */
     legacyPagesProject: 'gamezilla-client',
   },
   postgres: {

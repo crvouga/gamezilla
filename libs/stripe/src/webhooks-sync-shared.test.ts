@@ -6,7 +6,7 @@ import {
   type WebhookEndpointSummary,
 } from './webhooks-sync-shared';
 
-const desired = 'https://www.gamezilla.app/api/stripe/webhook';
+const desired = 'https://api.gamezilla.app/api/stripe/webhook';
 
 describe('webhookEndpointsInSync', () => {
   it('is true for single enabled * endpoint at desired URL', () => {
@@ -83,7 +83,7 @@ describe('isLocalApiUrl', () => {
   });
 
   it('treats public origins as non-local', () => {
-    expect(isLocalApiUrl('https://www.gamezilla.app')).toBe(false);
+    expect(isLocalApiUrl('https://api.gamezilla.app')).toBe(false);
     expect(isLocalApiUrl('https://example.com')).toBe(false);
     expect(isLocalApiUrl('http://172.32.0.1')).toBe(false);
     expect(isLocalApiUrl('http://8.8.8.8')).toBe(false);

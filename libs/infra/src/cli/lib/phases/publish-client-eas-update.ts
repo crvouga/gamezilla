@@ -5,8 +5,8 @@ import type { InfraContext } from '../../resources/types';
 
 /**
  * OTA update phase: publishes an `eas update` via
- * {@link ApiWorkerResource.publishEasUpdate}. Runs after the unified Worker
- * are live and the API has been smoke-tested / config-refreshed, so a
+ * {@link ApiWorkerResource.publishEasUpdate}. Runs after the API + www
+ * Workers are live and the API has been smoke-tested / config-refreshed, so a
  * freshly-shipped mobile bundle never reaches a stale server.
  *
  * No-ops (with a skip notice) when no EAS profile resolves — see

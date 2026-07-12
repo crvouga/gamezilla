@@ -1,10 +1,8 @@
 import { assert } from '@pkgs/assert';
-import { COMMIT_HASH_HEX_REGEX, assertCommitDateIso } from '@pkgs/git';
 import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
 import { writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { resolveAuthPublishableKeyForClientBuild } from '../lib/client-build-env';
 import {
   assertExpoTokenPresent,
   publishClientEasUpdate,
@@ -17,13 +15,13 @@ import {
   readLatestWranglerLogTail,
 } from '../lib/cloudflare-worker-lifecycle';
 import { ok, warn } from '../lib/fmt';
-import { productionOrigin } from '../lib/infra-outputs';
+import { productionApiOrigin } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId } from '../secrets/cloudflare';
 import { getSecretMap } from '../secrets/secrets';
 import { API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS } from '../secrets/worker-api-secrets';
-import { runAsync, runCapture } from '../subprocess';
+import { runAsync } from '../subprocess';
 import { ResourceBase, type InfraContext } from './types';
 
 const WRANGLER_ENV = 'production';
@@ -115,67 +113,6 @@ function wranglerArgs(...args: string[]): string[] {
   return ['--env', WRANGLER_ENV, ...args];
 }
 
-function resolveCommitHash(): string {
-  const rawSha = runCapture('git', ['rev-parse', 'HEAD'], { cwd: REPO_ROOT });
-  const commitHash = rawSha.trim().toLowerCase();
-  assert.ok(
-    COMMIT_HASH_HEX_REGEX.test(commitHash),
-    'api-worker: git HEAD must be a valid lowercase hex commit SHA',
-    { rawSha }
-  );
-  return commitHash;
-}
-
-function resolveCommitDate(): string {
-  const rawDate = runCapture('git', ['log', '-1', '--format=%cI', 'HEAD'], {
-    cwd: REPO_ROOT,
-  });
-  const commitDate = rawDate.trim();
-  assertCommitDateIso(commitDate);
-  return commitDate;
-}
-
-async function buildClientForWorker(
-  platform: CiPlatform,
-  commitHash: string,
-  commitDate: string
-): Promise<void> {
-  const clientDir = join(REPO_ROOT, 'apps/client');
-  const apiUrl = productionOrigin();
-  const buildEnv: NodeJS.ProcessEnv = {
-    ...process.env,
-    EXPO_PUBLIC_API_URL: apiUrl,
-    EXPO_PUBLIC_COMMIT_HASH: commitHash,
-    EXPO_PUBLIC_COMMIT_DATE: commitDate,
-    EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY: resolveAuthPublishableKeyForClientBuild(),
-  };
-
-  await runAsync(platform, 'bun', ['run', 'check:production-env'], {
-    cwd: clientDir,
-    label: 'api-worker: production client build env gate',
-    env: buildEnv,
-  });
-
-  await runAsync(platform, 'bun', ['run', 'build'], {
-    cwd: clientDir,
-    label: 'api-worker: expo export (client static assets)',
-    env: buildEnv,
-  });
-
-  await runAsync(platform, 'bun', ['run', 'check:production-dist'], {
-    cwd: clientDir,
-    label: 'api-worker: production web dist API URL gate',
-    env: buildEnv,
-  });
-}
-
-function cleanupClientDist(): void {
-  rmSync(join(REPO_ROOT, 'apps/client/dist'), {
-    recursive: true,
-    force: true,
-  });
-}
-
 export class ApiWorkerResource extends ResourceBase {
   readonly id = 'api-worker';
 
@@ -183,31 +120,18 @@ export class ApiWorkerResource extends ResourceBase {
 
   async dryRun(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     validateSecretsForDeploy();
-    const commitHash = resolveCommitHash();
-    const commitDate = resolveCommitDate();
-
-    await buildClientForWorker(platform, commitHash, commitDate);
 
     const apiDir = join(REPO_ROOT, 'apps/api');
-    try {
-      await runAsync(
-        platform,
-        'wrangler',
-        wranglerArgs('deploy', '--dry-run'),
-        {
-          cwd: apiDir,
-          env: wranglerEnv(),
-          label: 'api-worker: Cloudflare Workers deploy (dry-run)',
-        }
-      );
-    } finally {
-      cleanupClientDist();
-    }
+    await runAsync(platform, 'wrangler', wranglerArgs('deploy', '--dry-run'), {
+      cwd: apiDir,
+      env: wranglerEnv(),
+      label: 'api-worker: Cloudflare Workers deploy (dry-run)',
+    });
 
     if (resolveEasProfile() !== null) {
       assertExpoTokenPresent();
       assert.nonEmptyString(
-        process.env['EXPO_PUBLIC_API_URL'] ?? productionOrigin(),
+        process.env['EXPO_PUBLIC_API_URL'] ?? productionApiOrigin(),
         'EXPO_PUBLIC_API_URL must be set for the EAS OTA update (secrets/env); ' +
           'a missing value blank-screens the published bundle on launch'
       );
@@ -217,38 +141,25 @@ export class ApiWorkerResource extends ResourceBase {
       );
     }
 
-    ok(
-      'api-worker dry-run',
-      'client bundle + worker bindings validated locally'
-    );
+    ok('api-worker dry-run', 'worker bindings validated locally');
   }
 
   async deploy(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     const apiDir = join(REPO_ROOT, 'apps/api');
     const env = wranglerEnv();
-    const commitHash = resolveCommitHash();
-    const commitDate = resolveCommitDate();
 
     validateSecretsForDeploy();
-
-    await buildClientForWorker(platform, commitHash, commitDate);
-
     await pushWorkerSecrets(platform, apiDir, env);
-
-    try {
-      await deployProductionWorker(platform, apiDir, env);
-    } finally {
-      cleanupClientDist();
-    }
+    await deployProductionWorker(platform, apiDir, env);
 
     platform.notice(
-      'Worker deployed with API routes + client static assets on gamezilla.app / www.gamezilla.app.'
+      'API Worker deployed on api.gamezilla.app (Hono + Durable Objects).'
     );
   }
 
   /**
    * Mobile half of the client deploy: publish an OTA `eas update`. Runs after
-   * the unified Worker (API + web) is live and smoke-tested.
+   * the API + www Workers are live and smoke-tested.
    */
   async publishEasUpdate(
     platform: CiPlatform,
@@ -265,10 +176,10 @@ export class ApiWorkerResource extends ResourceBase {
 }
 
 /**
- * Deploy the production Worker. If Cloudflare rejects the DO migration because
- * an earlier deploy recorded migration tags without exporting the class (the
- * pre-fix `[env.production]` gap), delete the script and retry once so
- * migrations apply against a clean slate.
+ * Deploy the production API Worker. If Cloudflare rejects the DO migration
+ * because an earlier deploy recorded migration tags without exporting the
+ * class (the pre-fix `[env.production]` gap), delete the script and retry
+ * once so migrations apply against a clean slate.
  */
 async function deployProductionWorker(
   platform: CiPlatform,
@@ -276,7 +187,7 @@ async function deployProductionWorker(
   env: NodeJS.ProcessEnv
 ): Promise<void> {
   const deployArgs = wranglerArgs('deploy');
-  const label = 'api-worker: Cloudflare Workers deploy (API + static assets)';
+  const label = 'api-worker: Cloudflare Workers deploy';
 
   let deployFailed = false;
   try {

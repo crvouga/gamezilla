@@ -17,7 +17,7 @@ import { runPackageScriptOnce } from '@libs/integration-test/harness';
  */
 
 const PRODUCTION_CLIENT_ENV = {
-  EXPO_PUBLIC_API_URL: 'https://www.gamezilla.app',
+  EXPO_PUBLIC_API_URL: 'https://api.gamezilla.app',
   EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL: '1',
 } as const;
 

@@ -6,7 +6,7 @@ import type { InfraContext } from '../../resources/types';
 
 /**
  * Walks every `'created'` resource in topo order and calls `deploy()` on
- * the ones that have one (api-worker, client). Resources marked
+ * the ones that have one (api-worker, then client-worker). Resources marked
  * `routineStatus: 'destroyed'` are excluded so a torn-down stack neither
  * re-deploys nor re-creates its supporting infra. Assumes the
  * provision/dry-run phases have already run.

@@ -84,7 +84,7 @@ export function deleteWorkerByName(workerName: string): void {
   );
 }
 
-/** Delete the unified production Worker (`wrangler.toml` `[env.production]`). */
+/** Delete the production API Worker (`wrangler.toml` `[env.production]`). */
 export function deleteProductionWorker(): void {
   const r = runSafe('wrangler', ['--env', WRANGLER_ENV, 'delete', '--force'], {
     cwd: apiDir(),

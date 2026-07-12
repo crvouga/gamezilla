@@ -20,14 +20,21 @@ assert.notThrows(
   'crypto.randomUUID must be available'
 );
 
-const apiWorkerPublicOrigin = (): string =>
+const productionApiPublicOrigin = (): string =>
+  `https://api.${PROJECT_CONFIG.domain}`;
+
+const legacyWwwApiOrigin = (): string =>
   `https://www.${PROJECT_CONFIG.domain}`;
+
+/** Identity-derived origins — always converge to api. (rewrites legacy www). */
+const API_ORIGIN_DERIVED_KEYS = new Set(['API_URL', 'EXPO_PUBLIC_API_URL']);
 
 const DERIVED_DEFAULTS: Record<string, () => string> = {
   TURBO_LOG_ORDER: () => 'auto',
   TURBO_TELEMETRY_DISABLED: () => '1',
   TURBO_CACHE: () => 'remote:rw',
-  EXPO_PUBLIC_API_URL: apiWorkerPublicOrigin,
+  EXPO_PUBLIC_API_URL: productionApiPublicOrigin,
+  API_URL: productionApiPublicOrigin,
   EXPO_PUBLIC_POWERSYNC_URL: () => {
     const url = (process.env['POWERSYNC_URL'] ?? '').trim();
     return url.length > 0 ? url : '';
@@ -50,7 +57,6 @@ const EXTERNALLY_MANAGED_KEYS: ReadonlyArray<string> = [
   'OPENAI_API_KEY',
   'OPENAI_BASE_URL',
   'POWERSYNC_JWT_PRIVATE_KEY',
-  'API_URL',
 ];
 
 const STALE_KEYS_TO_DELETE: ReadonlyArray<string> = [
@@ -154,14 +160,26 @@ export class SecretsResource extends ResourceBase {
 
   private ensureDefaults(): void {
     for (const [key, generate] of Object.entries(DERIVED_DEFAULTS)) {
-      if (process.env[key]) continue;
-
       const value = generate();
+      if (value.length === 0) continue;
+
+      const current = (process.env[key] ?? '').trim();
+      const shouldRewriteLegacyWww =
+        API_ORIGIN_DERIVED_KEYS.has(key) && current === legacyWwwApiOrigin();
+
+      if (current.length > 0 && current === value) continue;
+      if (current.length > 0 && !shouldRewriteLegacyWww) continue;
+
       process.env[key] = value;
 
       try {
         setSecret(key, value);
-        ok(key, 'populated in secret store');
+        ok(
+          key,
+          shouldRewriteLegacyWww
+            ? 'rewrote legacy www origin → api. in secret store'
+            : 'populated in secret store'
+        );
       } catch {
         ok(key, 'set in env (secret store save skipped)');
       }

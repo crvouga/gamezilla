@@ -283,7 +283,7 @@ const gameId = 'game-abc123';
 const playerId = 'player-1';
 
 const ws = new WebSocket(
-  `https://www.gamezilla.app/api/room?spaceId=${spaceId}`
+  `https://api.gamezilla.app/api/room?spaceId=${spaceId}`
 );
 ```
 
@@ -654,34 +654,43 @@ setTimeout(() => {
 
 ## Wrangler Configuration
 
+API Worker (`apps/api/wrangler.toml`) — compute only on `api.gamezilla.app`:
+
 ```toml
-name = "gamezilla"
+name = "gamezilla-api"
 main = "src/api.ts"
-compatibility_date = "2024-12-01"
+compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
 
-[assets]
-directory = "../client/dist"
-binding = "ASSETS"
-run_worker_first = ["/api/*"]
+[env.production]
+name = "gamezilla-api"
+routes = [
+  { pattern = "api.gamezilla.app", custom_domain = true },
+]
 
-[[routes]]
-pattern = "gamezilla.app/*"
-zone_name = "gamezilla.app"
-
-[[durable_objects.bindings]]
+[[env.production.durable_objects.bindings]]
 name = "ROOM"
 class_name = "Room"
-
-[[migrations]]
-tag = "v1"
-new_sqlite_classes = ["Room"]
-
-[vars]
-ENVIRONMENT = "production"
 ```
 
-Backend routes live under `/api/*` (health, auth, sync, stripe, tts, llm, room WebSocket). All other paths serve the client SPA from the `ASSETS` binding on `gamezilla.app` / `www.gamezilla.app`.
+Client Worker (`apps/client/wrangler.toml`) — assets-only (no `main`) on www / apex:
+
+```toml
+name = "gamezilla-client"
+
+[env.production]
+name = "gamezilla-client"
+routes = [
+  { pattern = "gamezilla.app", custom_domain = true },
+  { pattern = "www.gamezilla.app", custom_domain = true },
+]
+
+[env.production.assets]
+directory = "./dist"
+not_found_handling = "single-page-application"
+```
+
+Backend routes live under `/api/*` on `api.gamezilla.app` (health, auth, sync, stripe, tts, llm, room WebSocket). The Expo SPA is served from the assets-only Worker on `www.gamezilla.app` (and apex redirects to www).
 
 ---
 

@@ -7,15 +7,20 @@ export interface InfraOutputs {
   readonly cloudflare_nameservers: string;
 }
 
-export function productionOrigin(): string {
+/** Canonical production web origin (static SPA on www). */
+export function productionClientOrigin(): string {
   return `https://www.${PROJECT_CONFIG.domain}`;
 }
 
+/** Canonical production API origin (Hono Worker on api.). */
+export function productionApiOrigin(): string {
+  return `https://api.${PROJECT_CONFIG.domain}`;
+}
+
 export function infraOutputs(ctx: InfraContext): InfraOutputs {
-  const origin = productionOrigin();
   return {
-    client_url: origin,
-    api_url: origin,
+    client_url: productionClientOrigin(),
+    api_url: productionApiOrigin(),
     cloudflare_nameservers: (ctx.nameservers ?? []).join(', '),
   };
 }

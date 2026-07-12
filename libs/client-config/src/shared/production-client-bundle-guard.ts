@@ -4,9 +4,9 @@ import { assert } from '@pkgs/assert';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-/** Production Worker origin — must match `productionOrigin()` in `@libs/infra`. */
+/** Production API origin — must match `productionApiOrigin()` in `@libs/infra`. */
 export function productionClientApiOrigin(): string {
-  return `https://www.${APP_IDENTITY.domain}`;
+  return `https://${APP_IDENTITY.apiHost}`;
 }
 
 /** Marker Metro leaves in the `getApiBaseUrl()` chunk when env is inlined. */
@@ -32,14 +32,8 @@ export function extractInlinedApiUrlFromBundleSource(
  * JS pattern above does not survive bytecode compilation.
  */
 function extractInlinedApiUrlFromHermesBundle(source: string): string | null {
-  const candidates = [
-    productionClientApiOrigin(),
-    `https://${APP_IDENTITY.apiHost}`,
-    `https://api.${APP_IDENTITY.domain}`,
-  ];
-  for (const url of candidates) {
-    if (source.includes(url)) return url;
-  }
+  const expected = productionClientApiOrigin();
+  if (source.includes(expected)) return expected;
   return null;
 }
 
@@ -68,7 +62,7 @@ export function assertProductionClientBuildEnv(
   assert.equals(
     origin,
     expected,
-    'Production client build EXPO_PUBLIC_API_URL must match the deployed Worker origin',
+    'Production client build EXPO_PUBLIC_API_URL must match the deployed API origin',
     { expected, got: origin, raw }
   );
   const authKey = env['EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY']?.trim();
