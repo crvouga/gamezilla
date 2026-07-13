@@ -83,9 +83,16 @@ async function pgQueryOnPinnedSession(
         : await executor.query(text);
     await executor.query('COMMIT');
     return result;
-  } catch (err) {
-    await executor.query('ROLLBACK').catch(() => {});
-    throw err;
+  } catch (error: unknown) {
+    try {
+      await executor.query('ROLLBACK');
+    } catch (rollbackError: unknown) {
+      throw new AggregateError(
+        [error, rollbackError],
+        'Postgres query failed and transaction rollback also failed'
+      );
+    }
+    throw error;
   }
 }
 

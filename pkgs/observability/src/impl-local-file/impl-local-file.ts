@@ -1,8 +1,11 @@
+import { createLogger } from '@pkgs/logger/logger';
 import { BaseObservability } from '../port/base-observability';
 import { InMemorySpanContextStorage } from '../port/in-memory-context-storage';
 import type { Observability, SpanContextStorage } from '../port/observability';
 import { DEFAULT_COLLECTOR_URL } from '../shared/backend';
 import type { ExportedSpanRecord, HttpFetchFn } from '../shared/types';
+
+const log = createLogger({ name: 'observability-local-file' });
 
 export type LocalFileObservabilityOptions = {
   readonly serviceName: string;
@@ -21,7 +24,11 @@ function exportSpanViaHttp(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(record),
-  }).catch(() => {});
+  }).catch((error: unknown) => {
+    log.error('span export failed', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+  });
 }
 
 export function createLocalFileObservability(

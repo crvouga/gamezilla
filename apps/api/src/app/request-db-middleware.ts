@@ -122,10 +122,14 @@ async function attachRequestDatabase(
       return await next();
     } finally {
       c.executionCtx.waitUntil(
-        (async () => {
-          await sqlClient.disconnect().catch(() => {});
-          await pool.end().catch(() => {});
-        })()
+        Promise.all([sqlClient.disconnect(), pool.end()])
+          .then(() => undefined)
+          .catch((error: unknown) => {
+            observability.recordException(error, {
+              operation: 'request-db-cleanup',
+            });
+            throw error;
+          })
       );
     }
   });

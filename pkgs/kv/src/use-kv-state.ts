@@ -21,10 +21,13 @@ import {
 } from 'react';
 
 import type { Keyword } from '@pkgs/keyword/keyword';
+import { createLogger } from '@pkgs/logger/logger';
 
 import type { Kv, KvRecord } from './interface';
 import { useKvOptional } from './kv-context';
 import type { KvStateCodec } from './kv-state-codec';
+
+const log = createLogger({ name: 'kv-state' });
 
 export type UseKvStateOptions<T> = {
   /** Namespaced row key, e.g. `asKeyword('ui.prefs/speaking-avatar-muted')`. */
@@ -62,9 +65,12 @@ function persistValue<T>(
   codec: KvStateCodec<T>,
   value: T
 ): void {
-  // Fire-and-forget — same policy as `history-store.ts`: persistence
-  // failures must never crash the React tree.
-  void kv.put(key, codec.encode(value)).catch(() => {});
+  void kv.put(key, codec.encode(value)).catch((error: unknown) => {
+    log.error('persist failed', {
+      key,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  });
 }
 
 export function useKvState<T>(
@@ -93,7 +99,12 @@ export function useKvState<T>(
         valueRef.current = decoded;
         setValueRaw(decoded);
       })
-      .catch(() => {});
+      .catch((error: unknown) => {
+        log.error('hydrate failed', {
+          key,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      });
     return () => {
       cancelled = true;
     };

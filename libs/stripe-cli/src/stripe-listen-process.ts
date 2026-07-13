@@ -18,8 +18,11 @@ function killListenChild(child: Subprocess): void {
   if (child.exitCode !== null) return;
   try {
     child.kill('SIGKILL');
-  } catch {
-    // ignore
+  } catch (error: unknown) {
+    console.error(
+      `[${STRIPE_CLI_LOG_TAG}] failed to kill stripe listener`,
+      error
+    );
   }
 }
 
@@ -58,7 +61,14 @@ export async function runStripeListenUntilExit(
   } catch (e: unknown) {
     if (abort.signal.aborted) return SHUTDOWN_EXIT;
     killListenChild(child);
-    await child.exited.catch(() => {});
+    try {
+      await child.exited;
+    } catch (exitError: unknown) {
+      console.error(
+        `[${STRIPE_CLI_LOG_TAG}] failed while waiting for stripe listener exit`,
+        exitError
+      );
+    }
     throw e;
   } finally {
     process.off('SIGINT', onShutdownSignal);
