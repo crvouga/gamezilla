@@ -115,4 +115,77 @@ describe('processUploadBatch', () => {
     expect(out.results[0]).toEqual({ status: 'accepted' });
     expect(ran).toBe(true);
   });
+
+  test('rejects rows with a SQL-injecting column name', async () => {
+    let ran = false;
+    const sql: SqlClient = {
+      connect: async () => {},
+      disconnect: async () => {},
+      query: async () => [],
+      run: async () => {
+        ran = true;
+        return { changes: 1, lastInsertRowid: 0 };
+      },
+      transaction: async (fn) => fn(sql),
+      prepare: () => ({
+        query: async () => [],
+        run: async () => ({ changes: 0, lastInsertRowid: 0 }),
+      }),
+    };
+
+    const batch = parseUploadBody({
+      rows: [
+        {
+          op: 'patch',
+          table: 'widgets',
+          id: '1',
+          values: { 'x = 1; DROP TABLE widgets; --': 'boom' },
+        },
+      ],
+    });
+
+    const out = await processUploadBatch(
+      sql,
+      ctx,
+      async () => ({ status: 'accepted' as const }),
+      batch
+    );
+
+    expect(out.results[0]?.status).toBe('rejected');
+    expect(ran).toBe(false);
+  });
+
+  test('rejects rows with a SQL-injecting table name', async () => {
+    let ran = false;
+    const sql: SqlClient = {
+      connect: async () => {},
+      disconnect: async () => {},
+      query: async () => [],
+      run: async () => {
+        ran = true;
+        return { changes: 1, lastInsertRowid: 0 };
+      },
+      transaction: async (fn) => fn(sql),
+      prepare: () => ({
+        query: async () => [],
+        run: async () => ({ changes: 0, lastInsertRowid: 0 }),
+      }),
+    };
+
+    const batch = parseUploadBody({
+      rows: [
+        { op: 'delete', table: 'widgets; DROP TABLE widgets; --', id: '1' },
+      ],
+    });
+
+    const out = await processUploadBatch(
+      sql,
+      ctx,
+      async () => ({ status: 'accepted' as const }),
+      batch
+    );
+
+    expect(out.results[0]?.status).toBe('rejected');
+    expect(ran).toBe(false);
+  });
 });
