@@ -64,7 +64,7 @@ async function maybeHandleResetDbQueryParam(
   }
   clearExpoSqliteWebRecoverySessionFlag();
   await clearExpoSqliteWebOpfsBestEffort();
-  await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+  await SQLite.deleteDatabaseAsync(databaseName);
   url.searchParams.delete(RESET_DB_QUERY_PARAM);
   window.history.replaceState(null, '', url.toString());
   console.warn(
@@ -370,9 +370,9 @@ async function deleteDbFile(
   directory?: string
 ): Promise<void> {
   if (directory !== undefined && directory.length > 0) {
-    await SQLite.deleteDatabaseAsync(databaseName, directory).catch(() => {});
+    await SQLite.deleteDatabaseAsync(databaseName, directory);
   } else {
-    await SQLite.deleteDatabaseAsync(databaseName).catch(() => {});
+    await SQLite.deleteDatabaseAsync(databaseName);
   }
 }
 
