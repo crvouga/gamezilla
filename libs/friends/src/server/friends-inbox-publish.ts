@@ -31,46 +31,45 @@ function friendAcceptedSource(requestId: string) {
   };
 }
 
+function formatUsernameLabel(username: string): string {
+  if (username.length === 0) return 'Someone';
+  return `@${username}`;
+}
+
 async function loadActorProfile(
   sql: SqlClient,
   userId: string
 ): Promise<{
-  displayName: string;
   username: string;
   avatarConfig: string | null;
 }> {
   const card = await readProfileCardById(sql, userId);
   if (card === null) {
-    return { displayName: 'Someone', username: '', avatarConfig: null };
+    return { username: '', avatarConfig: null };
   }
   return {
-    displayName: card.displayName,
     username: card.username,
     avatarConfig: card.avatarConfig,
   };
 }
 
-function profileSubtitle(username: string): { subtitle: string } | Record<string, never> {
-  return username.length > 0 ? { subtitle: `@${username}` } : {};
-}
-
 function profilePresentation(
-  profile: { displayName: string; username: string; avatarConfig: string | null },
+  profile: { username: string; avatarConfig: string | null },
   title: string,
   userId: string
 ): PublishInteractionInput['presentation'] {
+  const label = formatUsernameLabel(profile.username);
   return {
     title,
-    ...profileSubtitle(profile.username),
+    ...(profile.username.length > 0 ? { subtitle: label } : {}),
     avatar: {
-      fallbackLabel: profile.displayName,
+      fallbackLabel: label,
       avatarConfig: profile.avatarConfig,
     },
     deepLink: {
       path: '/profile/user/[userId]',
       params: {
         userId,
-        displayName: profile.displayName,
         username: profile.username,
         avatarConfig: profile.avatarConfig ?? '',
       },
@@ -89,7 +88,7 @@ export async function publishIncomingFriendRequestInteraction(
     category: 'action_required',
     presentation: profilePresentation(
       fromProfile,
-      `${fromProfile.displayName} sent you a friend request`,
+      `${formatUsernameLabel(fromProfile.username)} sent you a friend request`,
       request.fromUserId
     ),
     actions: [
@@ -127,7 +126,7 @@ export async function publishFriendRequestAcceptedInteraction(
     category: 'informational',
     presentation: profilePresentation(
       accepterProfile,
-      `${accepterProfile.displayName} accepted your friend request`,
+      `${formatUsernameLabel(accepterProfile.username)} accepted your friend request`,
       request.toUserId
     ),
     actions: [],

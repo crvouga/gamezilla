@@ -129,7 +129,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 - `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
 - `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`.
 - `@libs/client-config` — server-pushed runtime config (singleton `clientConfig` entity): shared entity defs, server `POST /client-config/refresh` route, client cards / screens, and `dev-refresh-client-config.ts`.
-- `@libs/profile` — public profile, dicebear avatar editor, display-name generator.
+- `@libs/profile` — public profile, dicebear avatar editor, username generator.
 - `@libs/spaces` — spaces / lobby / multiplayer plumbing, game dispatch via `space-module.ts`.
 - `@libs/stripe` — Stripe routes, catalog mirror, webhook handler, ABAC policies for stripe entities (`abac-policies.ts`).
 

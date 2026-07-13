@@ -13,13 +13,13 @@ export function useSpaceCommandLabel(spaceId: string): string {
   const { t } = useLingui();
   const customTitle = useSpaceColumn(spaceId, SpaceField.title);
   const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
-  const hostDisplayName = useProfileColumn(
+  const hostUsername = useProfileColumn(
     hostId ?? '',
-    ProfileField.displayName
+    ProfileField.username
   );
   if (customTitle !== null && customTitle.length > 0) return customTitle;
-  if ((hostDisplayName ?? '').length > 0) {
-    return t`${hostDisplayName}'s space`;
+  if ((hostUsername ?? '').length > 0) {
+    return t`${hostUsername}'s space`;
   }
   const suffix = spaceId.slice(-ID_SUFFIX_LENGTH);
   return t`Space ${suffix}`;

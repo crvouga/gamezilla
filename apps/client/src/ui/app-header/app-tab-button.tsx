@@ -3,7 +3,7 @@
  * (icon over label, 13pt label, brand tint when selected).
  */
 
-import { Pressable, Text, TOP_BAR_CONTENT_HEIGHT } from '@pkgs/ui';
+import { getTopBarContentHeight, Pressable, Text, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 const TAB_ICON_SIZE = 24;
@@ -27,6 +27,9 @@ export function AppTabButton({
   onLongPress,
   accessibilityLabel,
 }: AppTabButtonProps): ReactNode {
+  const { breakpoint } = useTheme();
+  const tabBarHeight = getTopBarContentHeight(breakpoint);
+
   return (
     <Pressable
       onPress={onPress}
@@ -37,7 +40,8 @@ export function AppTabButton({
       sx={{
         flex: 1,
         minWidth: 0,
-        height: TOP_BAR_CONTENT_HEIGHT,
+        height: tabBarHeight,
+        minHeight: tabBarHeight,
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: TAB_VERTICAL_PADDING,

@@ -1,4 +1,4 @@
-import { UserDisplayName } from '@libs/profile/client/user-display-name';
+import { UserUsername } from '@libs/profile/client/user-username';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { SxProps, TextVariant } from '@pkgs/ui';
 import type { ReactNode } from 'react';
@@ -8,26 +8,27 @@ import {
   SpaceMembershipField,
 } from '../use-space-membership-column';
 
-export type SpaceGuestMembershipDisplayNameProps = {
+export type SpaceGuestMembershipUsernameProps = {
   membershipId: string;
   variant?: TextVariant;
   sx?: SxProps;
   numberOfLines?: number;
 };
 
-export function SpaceGuestMembershipDisplayName({
+export function SpaceGuestMembershipUsername({
   membershipId,
   variant,
   sx,
   numberOfLines,
-}: SpaceGuestMembershipDisplayNameProps): ReactNode {
+}: SpaceGuestMembershipUsernameProps): ReactNode {
   const guestId = useSpaceMembershipColumn(
     membershipId,
     SpaceMembershipField.guestId
   );
   return (
-    <UserDisplayName
+    <UserUsername
       profileId={guestId}
+      withAt={false}
       {...optionalProps({ variant, sx, numberOfLines })}
     />
   );

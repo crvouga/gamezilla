@@ -57,8 +57,8 @@ function SpaceHostFallbackTitleResolved({
   numberOfLines?: number;
 }): ReactNode {
   const { t } = useLingui();
-  const hostDisplayName = useProfileColumn(hostId, ProfileField.displayName);
-  const hostName = hostDisplayName ?? '';
+  const hostUsername = useProfileColumn(hostId, ProfileField.username);
+  const hostName = hostUsername ?? '';
   return (
     <Text
       {...optionalProps({ variant, sx, numberOfLines })}

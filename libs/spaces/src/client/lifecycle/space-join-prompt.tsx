@@ -11,41 +11,22 @@ import { SpaceSummaryHeader } from '../card/space-summary-header';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import {
   Box,
-  CodeIcon,
   EmptyState,
   Gamepad2Icon,
   LoadingState,
   ScreenBase,
   Text,
-  type ScreenBaseAction,
 } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useMemo, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export type SpaceJoinPromptProps = {
   spaceId: string;
-  onOpenDebug: () => void;
 };
 
-export function SpaceJoinPrompt({
-  spaceId,
-  onOpenDebug,
-}: SpaceJoinPromptProps): ReactNode {
-  const { t } = useLingui();
+export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
   const nav = useBreadcrumbNav();
   const snapshot = useSpaceJoinSnapshot(spaceId);
-  const actions = useMemo<ScreenBaseAction[]>(
-    () => [
-      {
-        type: 'default',
-        label: t`Developer tools`,
-        icon: CodeIcon,
-        onPress: onOpenDebug,
-        overflow: 'always',
-      },
-    ],
-    [onOpenDebug, t]
-  );
 
   return (
     <ScreenBase
@@ -57,7 +38,6 @@ export function SpaceJoinPrompt({
           ),
         },
       ]}
-      actions={actions}
       content={({ sx }) => (
         <Box style={sx}>
           <JoinPromptBody spaceId={spaceId} snapshot={snapshot} />

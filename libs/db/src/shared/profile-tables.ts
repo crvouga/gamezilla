@@ -3,7 +3,6 @@ import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
 export const ProfileCol = {
   id: 'id',
   createdAt: 'created_at',
-  displayName: 'display_name',
   username: 'username',
   usernameChangedAt: 'username_changed_at',
   avatarConfig: 'avatar_config',
@@ -14,7 +13,6 @@ export const PROFILES_TABLE = defineTable({
   columns: [
     { name: 'id', type: 'text', primaryKey: true },
     { name: 'created_at', type: 'text' },
-    { name: 'display_name', type: 'text' },
     { name: 'username', type: 'text' },
     { name: 'username_changed_at', type: 'text' },
     { name: 'avatar_config', type: 'text' },

@@ -2,9 +2,17 @@ import type { ReactNode } from 'react';
 
 import type { IconComponent } from '../icons';
 
+export type ActionBarPressFeedback = {
+  successLabel: ReactNode;
+  successIcon?: IconComponent;
+  resetMs?: number;
+};
+
 type ActionBarItemBase = {
   id: string;
   label: ReactNode;
+  /** Compact caption when inline labels are shown; defaults to `label`. */
+  shortLabel?: ReactNode;
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
@@ -12,6 +20,7 @@ type ActionBarItemBase = {
   /** Higher values stay visible longer when space is tight. */
   priority?: number;
   overflow?: 'auto' | 'always' | 'never';
+  pressFeedback?: ActionBarPressFeedback;
 };
 
 export type ActionBarIconItem = ActionBarItemBase & {
@@ -34,6 +43,8 @@ export type ActionBarPartition = {
 export type PartitionActionBarLayout = {
   containerWidth: number;
   buttonSize: number;
+  /** Horizontal budget per inline slot; defaults to `buttonSize`. */
+  slotWidth?: number;
   gap?: number;
   reservedWidth?: number;
 };
@@ -160,12 +171,12 @@ function partitionBeforeMeasure(items: readonly ActionBarItem[]): ActionBarParti
 
 export function maxIconSlots(
   availableWidth: number,
-  buttonSize: number,
+  slotWidth: number,
   gap: number = DEFAULT_GAP
 ): number {
-  const slotWidth = buttonSize + gap;
-  if (slotWidth <= 0) return 0;
-  return Math.floor(availableWidth / slotWidth);
+  const slotStride = slotWidth + gap;
+  if (slotStride <= 0) return 0;
+  return Math.floor(availableWidth / slotStride);
 }
 
 /** Width left for icon slots after reserving fixed trailing chrome. */
@@ -186,12 +197,13 @@ export function partitionActionBarItems(
 
   const gap = layout.gap ?? DEFAULT_GAP;
   const reservedWidth = layout.reservedWidth ?? 0;
+  const slotWidth = layout.slotWidth ?? layout.buttonSize;
   if (layout.containerWidth <= 0) {
     return partitionBeforeMeasure(items);
   }
 
   const budget = actionBarBudgetWidth(layout.containerWidth, reservedWidth);
-  const slots = maxIconSlots(budget, layout.buttonSize, gap);
+  const slots = maxIconSlots(budget, slotWidth, gap);
 
   let partition = partitionByVisibleCount(items, slots);
   if (partition.overflow.length > 0 && slots > 0) {

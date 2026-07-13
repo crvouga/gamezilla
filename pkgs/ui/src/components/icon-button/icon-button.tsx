@@ -42,6 +42,8 @@ export type IconButtonProps = {
   label: ReactNode;
   children: ReactNode;
   onPress?: () => void;
+  /** When true, shows the tooltip briefly after `onPress` (touch feedback). */
+  flashTooltipOnPress?: boolean;
   /** Diameter in pixels. Defaults to 40. */
   size?: number;
   /** Color token or raw color for the background. */
@@ -110,6 +112,7 @@ function iconButtonFaceStyle(args: {
 function IconButtonFace({
   children,
   onPress,
+  flashTooltipOnPress,
   size,
   background,
   variant,
@@ -128,9 +131,18 @@ function IconButtonFace({
   const isAvatar = variant === 'avatar';
   const radius = size! / 2;
 
+  const handlePress = onPress
+    ? () => {
+        onPress();
+        if (flashTooltipOnPress === true) {
+          setTimeout(() => tooltip?.show(), 0);
+        }
+      }
+    : undefined;
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled}
       testID={testID}
       accessibilityLabel={accessibilityLabel}
@@ -164,6 +176,7 @@ export function IconButton(props: IconButtonProps): ReactNode {
     label,
     children,
     onPress,
+    flashTooltipOnPress,
     size = 40,
     background,
     variant = 'icon',
@@ -187,6 +200,7 @@ export function IconButton(props: IconButtonProps): ReactNode {
         accessibilityRole={accessibilityRole}
         {...(background !== undefined ? { background } : {})}
         {...(onPress !== undefined ? { onPress } : {})}
+        {...(flashTooltipOnPress === true ? { flashTooltipOnPress } : {})}
         {...(testID !== undefined ? { testID } : {})}
         {...(resolvedAccessibilityLabel !== undefined
           ? { accessibilityLabel: resolvedAccessibilityLabel }

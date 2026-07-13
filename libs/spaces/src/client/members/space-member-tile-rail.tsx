@@ -1,4 +1,4 @@
-import { UserDisplayName } from '@libs/profile/client/user-display-name';
+import { UserUsername } from '@libs/profile/client/user-username';
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
 import { MemberPresenceBadgesRow } from './member-presence-badges-row';
 import { MemberPresenceDot } from './member-presence-dot';
@@ -44,8 +44,9 @@ export function SpaceMemberTileRail({
           <UserProfileAvatar profileId={profileId} size={AVATAR_SIZE} />
         </Box>
         <Box sx={{ flex: 1, minWidth: 0, gap: 1 }}>
-          <UserDisplayName
+          <UserUsername
             profileId={profileId}
+            withAt={false}
             variant="body"
             numberOfLines={1}
           />

@@ -17,7 +17,6 @@ import { FriendsError } from '../shared/friends-errors';
 type SearchHitRow = {
   readonly id: string;
   readonly username: string;
-  readonly display_name: string;
   readonly avatar_config: unknown;
 };
 
@@ -40,7 +39,6 @@ function mapSearchHit(row: SearchHitRow): UserSearchResult {
   return {
     userId: row.id,
     username: row.username,
-    displayName: row.display_name,
     avatarConfig:
       typeof avatarRaw === 'string'
         ? avatarRaw
@@ -69,7 +67,6 @@ export async function searchUsers(
   const rows = await sql.query<SearchHitRow>(
     `SELECT p.${ProfileCol.id} AS id,
             p.${ProfileCol.username} AS username,
-            p.${ProfileCol.displayName} AS display_name,
             p.${ProfileCol.avatarConfig} AS avatar_config
      FROM ${PROFILES_TABLE.tableName} p
      WHERE p.${ProfileCol.id} <> ?
@@ -78,24 +75,11 @@ export async function searchUsers(
          WHERE (b.${UserBlockCol.blockerId} = ? AND b.${UserBlockCol.blockedId} = p.${ProfileCol.id})
             OR (b.${UserBlockCol.blockerId} = p.${ProfileCol.id} AND b.${UserBlockCol.blockedId} = ?)
        )
-       AND (
-         (p.${ProfileCol.username} <> '' AND lower(p.${ProfileCol.username}) LIKE ? || '%')
-         OR lower(p.${ProfileCol.displayName}) LIKE '%' || ? || '%'
-       )
-     ORDER BY
-       CASE WHEN lower(p.${ProfileCol.username}) LIKE ? || '%' THEN 0 ELSE 1 END,
-       lower(p.${ProfileCol.username}),
-       lower(p.${ProfileCol.displayName})
+       AND p.${ProfileCol.username} <> ''
+       AND lower(p.${ProfileCol.username}) LIKE ? || '%'
+     ORDER BY lower(p.${ProfileCol.username})
      LIMIT ?`,
-    [
-      viewerId,
-      viewerId,
-      viewerId,
-      likeQuery,
-      likeQuery,
-      likeQuery,
-      boundedLimit,
-    ]
+    [viewerId, viewerId, viewerId, likeQuery, boundedLimit]
   );
   return rows.map(mapSearchHit);
 }

@@ -3,6 +3,7 @@ import type { LayoutChangeEvent } from 'react-native';
 
 import { Box } from '../box';
 import { CodeIcon, SettingsIcon, UserIcon } from '../icons';
+import { useActionBarChrome } from '../../theme';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { ActionBar, type ActionBarItem } from './action-bar';
@@ -11,6 +12,7 @@ const BASE_ITEMS: ActionBarItem[] = [
   {
     id: 'account',
     label: 'Account',
+    shortLabel: 'Account',
     icon: UserIcon,
     onPress: () => {},
     priority: 3,
@@ -18,6 +20,7 @@ const BASE_ITEMS: ActionBarItem[] = [
   {
     id: 'settings',
     label: 'Settings',
+    shortLabel: 'Settings',
     icon: SettingsIcon,
     onPress: () => {},
     priority: 2,
@@ -27,13 +30,14 @@ const BASE_ITEMS: ActionBarItem[] = [
     label: 'Developer tools',
     icon: CodeIcon,
     onPress: () => {},
-    priority: 1,
     overflow: 'always',
+    endsGroup: true,
   },
 ];
 
 export default function ActionBarExample(): ReactNode {
   const [width, setWidth] = useState(280);
+  const chrome = useActionBarChrome();
 
   const items = useMemo(() => BASE_ITEMS, []);
 
@@ -47,7 +51,7 @@ export default function ActionBarExample(): ReactNode {
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
-        label="Drag the handle to shrink the bar and watch actions overflow."
+        label="Drag the handle to shrink the bar and watch actions overflow. Dev tools stay in the menu."
       />
       <Box
         onLayout={onLayout}
@@ -59,7 +63,13 @@ export default function ActionBarExample(): ReactNode {
         }}
         style={{ borderWidth: 1, width }}
       >
-        <ActionBar items={items} />
+        <ActionBar
+          items={items}
+          buttonSize={chrome.buttonSize}
+          gap={chrome.gap}
+          slotWidth={chrome.slotWidth}
+          showInlineLabels={chrome.showInlineLabels}
+        />
       </Box>
       <Stack direction="horizontal" spacing={2} align="center">
         <Text variant="caption" label={`Width: ${width}px`} />

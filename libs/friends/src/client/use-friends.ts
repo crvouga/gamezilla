@@ -13,7 +13,6 @@ import type { Friend } from '../shared/friends-types';
 
 type FriendRow = {
   readonly friend_id: string;
-  readonly display_name: string;
   readonly username: string;
   readonly avatar_config: string | null;
   readonly friends_since: string;
@@ -22,7 +21,7 @@ type FriendRow = {
 function friendsSql(myId: string): { sql: string; params: string[] } {
   if (myId.length === 0) {
     return {
-      sql: `SELECT '' AS friend_id, '' AS display_name, '' AS username,
+      sql: `SELECT '' AS friend_id, '' AS username,
                    NULL AS avatar_config, '' AS friends_since
             FROM ${FRIEND_PROFILE_CACHE_TABLE.tableName} WHERE 0`,
       params: [],
@@ -30,7 +29,6 @@ function friendsSql(myId: string): { sql: string; params: string[] } {
   }
   return {
     sql: `SELECT c.${FriendProfileCacheCol.friendId} AS friend_id,
-                 c.${FriendProfileCacheCol.displayName} AS display_name,
                  c.${FriendProfileCacheCol.username} AS username,
                  c.${FriendProfileCacheCol.avatarConfig} AS avatar_config,
                  f.${FriendshipCol.createdAt} AS friends_since
@@ -41,7 +39,7 @@ function friendsSql(myId: string): { sql: string; params: string[] } {
               OR (f.${FriendshipCol.userHigh} = ? AND f.${FriendshipCol.userLow} = c.${FriendProfileCacheCol.friendId})
             )
           WHERE c.${FriendProfileCacheCol.ownerId} = ?
-          ORDER BY c.${FriendProfileCacheCol.displayName} COLLATE NOCASE`,
+          ORDER BY c.${FriendProfileCacheCol.username} COLLATE NOCASE`,
     params: [myId, myId, myId],
   };
 }
@@ -49,7 +47,6 @@ function friendsSql(myId: string): { sql: string; params: string[] } {
 function mapFriendRow(row: FriendRow): Friend {
   return {
     userId: row.friend_id,
-    displayName: row.display_name,
     username: row.username,
     avatarConfig: row.avatar_config,
     friendsSince: row.friends_since,

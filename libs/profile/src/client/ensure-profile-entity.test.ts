@@ -14,7 +14,6 @@ function openTestSql(): SqlClientImplBunSqlite {
     `CREATE TABLE ${PROFILES_TABLE.tableName} (
       ${ProfileCol.id} TEXT PRIMARY KEY,
       ${ProfileCol.createdAt} TEXT NOT NULL,
-      ${ProfileCol.displayName} TEXT NOT NULL,
       ${ProfileCol.username} TEXT NOT NULL DEFAULT '',
       ${ProfileCol.avatarConfig} TEXT NOT NULL
     )`
@@ -23,27 +22,22 @@ function openTestSql(): SqlClientImplBunSqlite {
 }
 
 describe('ensureProfile', () => {
-  test('creates a deterministic display name for the same myId', async () => {
-    const sqlA = openTestSql();
-    const sqlB = openTestSql();
-    await ensureProfile(sqlA, MY_ID);
-    await ensureProfile(sqlB, MY_ID);
+  test('creates a row with empty username and avatar', async () => {
+    const sql = openTestSql();
+    await ensureProfile(sql, MY_ID);
 
-    const rowA = (
-      await sqlA.query<Record<string, string>>(
-        `SELECT ${ProfileCol.displayName} AS display_name FROM ${PROFILES_TABLE.tableName} WHERE ${ProfileCol.id} = ?`,
-        [MY_ID]
-      )
-    )[0];
-    const rowB = (
-      await sqlB.query<Record<string, string>>(
-        `SELECT ${ProfileCol.displayName} AS display_name FROM ${PROFILES_TABLE.tableName} WHERE ${ProfileCol.id} = ?`,
+    const row = (
+      await sql.query<Record<string, string>>(
+        `SELECT ${ProfileCol.username} AS username,
+                ${ProfileCol.avatarConfig} AS avatar_config
+         FROM ${PROFILES_TABLE.tableName}
+         WHERE ${ProfileCol.id} = ?`,
         [MY_ID]
       )
     )[0];
 
-    expect(rowA?.['display_name']).toBe(rowB?.['display_name']);
-    expect(rowA?.['display_name']?.length ?? 0).toBeGreaterThan(0);
+    expect(row?.['username']).toBe('');
+    expect(row?.['avatar_config']?.length ?? 0).toBeGreaterThan(0);
   });
 
   test('does not insert a second row when profile already exists', async () => {

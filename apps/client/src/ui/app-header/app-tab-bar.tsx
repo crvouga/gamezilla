@@ -7,7 +7,7 @@ import type {
   BottomTabBarProps,
   BottomTabNavigationOptions,
 } from '@react-navigation/bottom-tabs';
-import { Box, TOP_BAR_CONTENT_HEIGHT, useTheme } from '@pkgs/ui';
+import { Box, getTopBarContentHeight, useTheme } from '@pkgs/ui';
 import { useMemo, type ReactNode } from 'react';
 
 import { APP_TAB_ICON_SIZE, AppTabButton } from './app-tab-button';
@@ -111,6 +111,8 @@ function AppTabBarRow({ props }: { props: BottomTabBarProps }): ReactNode {
 }
 
 export function AppTabBar(props: BottomTabBarProps): ReactNode {
+  const { breakpoint } = useTheme();
+  const tabBarHeight = getTopBarContentHeight(breakpoint);
   const row = useMemo(() => <AppTabBarRow props={props} />, [props]);
 
   return (
@@ -125,7 +127,8 @@ export function AppTabBar(props: BottomTabBarProps): ReactNode {
       <Box
         sx={{
           flexDirection: 'row',
-          height: TOP_BAR_CONTENT_HEIGHT,
+          height: tabBarHeight,
+          minHeight: tabBarHeight,
         }}
       >
         {row}

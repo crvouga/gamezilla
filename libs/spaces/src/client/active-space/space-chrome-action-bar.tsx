@@ -1,13 +1,13 @@
 import {
   ActionBar,
   ChevronLeftIcon,
-  CodeIcon,
   CopyIcon,
   DoorOpenIcon,
   LogOutIcon,
-  PaintbrushIcon,
+  SquarePenIcon,
   XIcon,
   iconButtonAvatarContentSize,
+  useActionBarChrome,
   type ActionBarItem,
 } from '@pkgs/ui';
 import * as Clipboard from 'expo-clipboard';
@@ -19,8 +19,6 @@ import { SpaceMembersListModal } from '../members/space-members-list-modal';
 import { useSpacesNavBack } from '../nav/spaces-nav-context';
 import { useCurrentSpaceRole } from '../use-current-space-role';
 import { useSpaceSessionUi } from './space-session-ui-context';
-
-const BUTTON_SIZE = 36;
 
 function buildInviteLinkForSpace(spaceId: string): string {
   const origin =
@@ -37,8 +35,10 @@ type SpaceChromeLabels = {
   back: string;
   members: string;
   rename: string;
+  renameShort: string;
   invite: string;
-  developer: string;
+  inviteShort: string;
+  copiedToClipboard: string;
   end: string;
   leave: string;
 };
@@ -53,7 +53,6 @@ type SpaceChromeTrailingCallbacks = SpaceChromeNavCallbacks & {
   onPressMembers: () => void;
   onPressRename: () => void;
   onPressInvite: () => void;
-  onPressDebug: () => void;
   onPressEnd: () => void;
   onPressLeave: () => void;
 };
@@ -72,6 +71,7 @@ function buildLeadingItems(args: {
     {
       id: 'home',
       label: labels.home,
+      shortLabel: labels.home,
       icon: DoorOpenIcon,
       onPress: callbacks.onPressHome,
       overflow: 'never',
@@ -80,6 +80,7 @@ function buildLeadingItems(args: {
     {
       id: 'back',
       label: labels.back,
+      shortLabel: labels.back,
       icon: ChevronLeftIcon,
       onPress: onPressBack,
       overflow: 'never',
@@ -112,7 +113,8 @@ function buildTrailingItems(args: {
     items.push({
       id: 'rename',
       label: labels.rename,
-      icon: PaintbrushIcon,
+      shortLabel: labels.renameShort,
+      icon: SquarePenIcon,
       onPress: callbacks.onPressRename,
       priority: 80,
     });
@@ -122,21 +124,17 @@ function buildTrailingItems(args: {
     {
       id: 'invite',
       label: labels.invite,
+      shortLabel: labels.inviteShort,
       icon: CopyIcon,
       onPress: callbacks.onPressInvite,
       priority: 70,
-    },
-    {
-      id: 'developer',
-      label: labels.developer,
-      icon: CodeIcon,
-      onPress: callbacks.onPressDebug,
-      priority: 30,
+      pressFeedback: { successLabel: labels.copiedToClipboard },
     },
     isHost
       ? {
           id: 'end-space',
           label: labels.end,
+          shortLabel: labels.end,
           icon: XIcon,
           onPress: callbacks.onPressEnd,
           overflow: 'always',
@@ -144,6 +142,7 @@ function buildTrailingItems(args: {
       : {
           id: 'leave-space',
           label: labels.leave,
+          shortLabel: labels.leave,
           icon: LogOutIcon,
           onPress: callbacks.onPressLeave,
           overflow: 'always',
@@ -161,8 +160,10 @@ function useSpaceChromeLabels(): SpaceChromeLabels {
       back: t`Back`,
       members: t`People in this space`,
       rename: t`Rename space`,
+      renameShort: t`Rename`,
       invite: t`Copy invite link`,
-      developer: t`Developer tools`,
+      inviteShort: t`Copy link`,
+      copiedToClipboard: t`Copied to clipboard`,
       end: t`End space`,
       leave: t`Leave space`,
     }),
@@ -185,7 +186,6 @@ function useSpaceChromeTrailingCallbacks(
   const {
     spaceId,
     onPressHome,
-    onPressDebug,
     onRequestEnd,
     onRequestLeave,
     onRequestRename,
@@ -203,7 +203,6 @@ function useSpaceChromeTrailingCallbacks(
       onPressMembers,
       onPressRename: onRequestRename,
       onPressInvite: onCopyInviteLink,
-      onPressDebug,
       onPressEnd: onRequestEnd,
       onPressLeave: onRequestLeave,
     }),
@@ -213,10 +212,22 @@ function useSpaceChromeTrailingCallbacks(
       onPressMembers,
       onRequestRename,
       onCopyInviteLink,
-      onPressDebug,
       onRequestEnd,
       onRequestLeave,
     ]
+  );
+}
+
+function useSpaceChromeActionBarProps() {
+  const chrome = useActionBarChrome();
+  return useMemo(
+    () => ({
+      buttonSize: chrome.buttonSize,
+      gap: chrome.gap,
+      slotWidth: chrome.slotWidth,
+      showInlineLabels: chrome.showInlineLabels,
+    }),
+    [chrome]
   );
 }
 
@@ -227,6 +238,7 @@ function useSpaceChromeTrailingCallbacks(
 export function SpaceChromeLeadingActionBar(): ReactNode {
   const labels = useSpaceChromeLabels();
   const callbacks = useSpaceChromeNavCallbacks();
+  const actionBarProps = useSpaceChromeActionBarProps();
   const items = useMemo(
     () => buildLeadingItems({ labels, callbacks }),
     [labels, callbacks]
@@ -237,7 +249,7 @@ export function SpaceChromeLeadingActionBar(): ReactNode {
       items={items}
       align="start"
       overflow="never"
-      buttonSize={BUTTON_SIZE}
+      {...actionBarProps}
     />
   );
 }
@@ -254,9 +266,10 @@ export function SpaceChromeTrailingActionBar(): ReactNode {
   }, []);
   const labels = useSpaceChromeLabels();
   const callbacks = useSpaceChromeTrailingCallbacks(onPressMembers);
+  const actionBarProps = useSpaceChromeActionBarProps();
   const role = useCurrentSpaceRole(spaceId);
   const isHost = role === 'host';
-  const avatarSize = iconButtonAvatarContentSize(BUTTON_SIZE);
+  const avatarSize = iconButtonAvatarContentSize(actionBarProps.buttonSize);
 
   const items = useMemo(
     () =>
@@ -274,7 +287,7 @@ export function SpaceChromeTrailingActionBar(): ReactNode {
     <>
       <ActionBar
         items={items}
-        buttonSize={BUTTON_SIZE}
+        {...actionBarProps}
         overflowTestID="space-chrome-overflow-menu"
       />
       <SpaceMembersListModal

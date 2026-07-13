@@ -26,7 +26,6 @@ export function SearchUserResultRow({
           pathname: '/profile/user/[userId]',
           params: {
             userId: user.userId,
-            displayName: user.displayName,
             username: user.username,
             avatarConfig: user.avatarConfig ?? '',
           },

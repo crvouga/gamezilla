@@ -1,5 +1,5 @@
 import { NoGuestsText } from './no-guests-text';
-import { SpaceGuestMembershipDisplayNamesJoined } from './space-guest-membership-display-names-joined';
+import { SpaceGuestMembershipUsernamesJoined } from './space-guest-membership-usernames-joined';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { SxProps, TextVariant } from '@pkgs/ui';
@@ -27,7 +27,7 @@ export function SpaceGuestNamesLine({
     return <NoGuestsText {...optionalProps({ variant, sx, numberOfLines })} />;
   }
   return (
-    <SpaceGuestMembershipDisplayNamesJoined
+    <SpaceGuestMembershipUsernamesJoined
       spaceId={spaceId}
       {...optionalProps({ variant, sx, numberOfLines })}
     />

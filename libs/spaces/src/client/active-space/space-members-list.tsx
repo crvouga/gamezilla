@@ -1,4 +1,4 @@
-import { UserDisplayName } from '@libs/profile/client/user-display-name';
+import { UserUsername } from '@libs/profile/client/user-username';
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
 import { Box, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
@@ -19,7 +19,7 @@ export type SpaceMembersListProps = {
 
 /**
  * Compact, Google Docs-style list of members for a space. One row per
- * member (small avatar + display name), with the host always first and a
+ * member (small avatar + username), with the host always first and a
  * subtle `Host` caption on the host row. No section headers or extra
  * metadata; shared by the members modal and other compact member surfaces.
  */
@@ -45,8 +45,9 @@ function SpaceMembersHostRow({ profileId }: { profileId: string }): ReactNode {
         <UserProfileAvatar profileId={profileId} size={ROW_AVATAR_SIZE} />
       }
       name={
-        <UserDisplayName
+        <UserUsername
           profileId={profileId}
+          withAt={false}
           variant="body"
           numberOfLines={1}
         />
@@ -76,7 +77,12 @@ function SpaceMembersGuestRow({
     <SpaceMembersRowShell
       avatar={<UserProfileAvatar profileId={guestId} size={ROW_AVATAR_SIZE} />}
       name={
-        <UserDisplayName profileId={guestId} variant="body" numberOfLines={1} />
+        <UserUsername
+          profileId={guestId}
+          withAt={false}
+          variant="body"
+          numberOfLines={1}
+        />
       }
     />
   );

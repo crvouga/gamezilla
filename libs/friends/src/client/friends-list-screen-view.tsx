@@ -21,7 +21,6 @@ function FriendsListBody(): ReactNode {
         pathname: '/profile/user/[userId]',
         params: {
           userId: friend.userId,
-          displayName: friend.displayName,
           username: friend.username,
           avatarConfig: friend.avatarConfig ?? '',
         },

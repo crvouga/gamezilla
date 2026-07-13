@@ -14,7 +14,8 @@ const CodeIcon = (() => null) as ActionBarIconItem['icon'];
 
 const BUTTON_SIZE = 36;
 const GAP = 8;
-const SLOT = BUTTON_SIZE + GAP;
+const SLOT_WIDTH = BUTTON_SIZE;
+const SLOT = SLOT_WIDTH + GAP;
 
 function item(
   id: string,
@@ -34,11 +35,13 @@ function item(
 function partition(
   items: ActionBarItem[],
   containerWidth: number,
-  reservedWidth = 0
+  reservedWidth = 0,
+  slotWidth = SLOT_WIDTH
 ) {
   return partitionActionBarItems(items, {
     containerWidth,
     buttonSize: BUTTON_SIZE,
+    slotWidth,
     gap: GAP,
     reservedWidth,
   });
@@ -46,11 +49,16 @@ function partition(
 
 describe('maxIconSlots', () => {
   test('returns zero for non-positive width', () => {
-    expect(maxIconSlots(0, BUTTON_SIZE, GAP)).toBe(0);
+    expect(maxIconSlots(0, SLOT_WIDTH, GAP)).toBe(0);
   });
 
   test('floors partial slots', () => {
-    expect(maxIconSlots(SLOT * 2 + 10, BUTTON_SIZE, GAP)).toBe(2);
+    expect(maxIconSlots(SLOT * 2 + 10, SLOT_WIDTH, GAP)).toBe(2);
+  });
+
+  test('uses slot width instead of button size for budget', () => {
+    expect(maxIconSlots(120, 60, GAP)).toBe(1);
+    expect(maxIconSlots(120, BUTTON_SIZE, GAP)).toBe(2);
   });
 });
 
@@ -140,5 +148,18 @@ describe('partitionActionBarItems', () => {
     const result = partition(items, SLOT * 2);
     expect(result.visible.map((i) => i.id)).toEqual(['settings']);
     expect(result.overflow.map((i) => i.id)).toEqual(['devtools']);
+  });
+
+  test('wider slot width reduces visible inline items', () => {
+    const items = [
+      item('a', 10),
+      item('b', 9),
+      item('c', 8),
+      item('d', 7),
+    ];
+    const containerWidth = 176;
+    const narrow = partition(items, containerWidth);
+    const wide = partition(items, containerWidth, 0, 60);
+    expect(narrow.visible.length).toBeGreaterThan(wide.visible.length);
   });
 });

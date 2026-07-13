@@ -19,7 +19,6 @@ function useSafeAreaBottom(): number {
 
 export type SpaceDetailInitialLoadingProps = {
   spaceId: string;
-  onOpenDebug?: () => void;
 };
 
 /**
@@ -28,7 +27,6 @@ export type SpaceDetailInitialLoadingProps = {
  */
 export function SpaceDetailInitialLoading({
   spaceId,
-  onOpenDebug,
 }: SpaceDetailInitialLoadingProps): ReactNode {
   const router = useRouter();
   const bottomInset = useSafeAreaBottom();
@@ -38,9 +36,6 @@ export function SpaceDetailInitialLoading({
   const onPressBack = useCallback(() => {
     closeSpaceDetail(router);
   }, [router]);
-  const onPressDebug = useCallback(() => {
-    onOpenDebug?.();
-  }, [onOpenDebug]);
   const noop = useCallback(() => {}, []);
 
   const sessionUi = useMemo(
@@ -50,9 +45,8 @@ export function SpaceDetailInitialLoading({
       onRequestLeave: noop,
       onRequestRename: noop,
       onPressHome,
-      onPressDebug,
     }),
-    [spaceId, noop, onPressHome, onPressDebug]
+    [spaceId, noop, onPressHome]
   );
 
   return (

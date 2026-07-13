@@ -5,7 +5,6 @@ import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 export type ProfileRow = {
   readonly id: string;
   readonly created_at: string | null;
-  readonly display_name: string | null;
   readonly username: string | null;
   readonly username_changed_at: string | null;
   readonly avatar_config: string | null;
@@ -18,12 +17,12 @@ export type ProfileRowState = {
 
 /**
  * Reads a single profile row by id. Used by editors that seed draft state
- * from the persisted row (avatar editor, display-name editor).
+ * from the persisted row (avatar editor, username editor).
  */
 export function useProfileRow(profileId: string | null): ProfileRowState {
   const enabled = profileId !== null && profileId.length > 0;
   const { row, isLoading } = useWatchOne<ProfileRow>(
-    `SELECT ${ProfileCol.id}, ${ProfileCol.createdAt}, ${ProfileCol.displayName},
+    `SELECT ${ProfileCol.id}, ${ProfileCol.createdAt},
             ${ProfileCol.username}, ${ProfileCol.usernameChangedAt}, ${ProfileCol.avatarConfig}
      FROM ${PROFILES_TABLE.tableName}
      WHERE ${ProfileCol.id} = ?`,

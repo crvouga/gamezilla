@@ -13,6 +13,7 @@ import {
 import { IconButton } from '../icon-button';
 import { EllipsisIcon, MenuIcon } from '../icons';
 import type { OverflowMenuAction } from '../overflow-menu-button/overflow-menu-button';
+import { ActionBarIconButton } from './action-bar-icon-button';
 import type { ActionBarTextAction } from './action-bar-types';
 import { isActionBarAvatarItem, type ActionBarItem } from './partition-action-bar-items';
 
@@ -98,8 +99,11 @@ export function ActionBarOverflowTrigger(p: {
 export function ActionBarIconItems(p: {
   items: readonly ActionBarItem[];
   buttonSize: number;
+  showInlineLabels?: boolean;
+  slotWidth?: number;
 }): ReactNode {
-  const theme = useTheme();
+  const showInlineLabels = p.showInlineLabels === true;
+  const slotWidth = p.slotWidth ?? p.buttonSize;
   return (
     <>
       {p.items.map((item) => {
@@ -117,17 +121,14 @@ export function ActionBarIconItems(p: {
             </IconButton>
           );
         }
-        const Icon = item.icon;
         return (
-          <IconButton
+          <ActionBarIconButton
             key={item.id}
-            size={p.buttonSize}
-            label={item.label}
-            onPress={item.onPress}
-            disabled={item.disabled === true || item.loading === true}
-          >
-            <Icon size={Math.round(p.buttonSize * 0.55)} color={theme.colors.icon} />
-          </IconButton>
+            item={item}
+            buttonSize={p.buttonSize}
+            showInlineLabel={showInlineLabels}
+            slotWidth={slotWidth}
+          />
         );
       })}
     </>

@@ -5,7 +5,7 @@ export type MiniplayerHostNameLineProps = {
   spaceId: string;
 };
 
-/** Host display-name line inside a miniplayer card. */
+/** Host username line inside a miniplayer card. */
 export function MiniplayerHostNameLine({
   spaceId,
 }: MiniplayerHostNameLineProps): ReactNode {

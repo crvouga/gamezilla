@@ -3,7 +3,6 @@ import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 
 export const ProfileField = {
-  displayName: 'displayName',
   username: 'username',
   avatarConfig: 'avatarConfig',
   createdAt: 'createdAt',

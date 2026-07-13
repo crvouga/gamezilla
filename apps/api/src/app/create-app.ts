@@ -5,6 +5,7 @@ import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { createClientConfigApp } from '@libs/client-config/server/route';
 import { createFriendsApp } from '@libs/friends/server/friends-routes';
+import { createProfileApp } from '@libs/profile/server/profile-routes';
 import { assert, ValidationError } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
@@ -179,6 +180,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/', healthApp)
     .route('/', createClientConfigApp(log))
     .route('/', createFriendsApp())
+    .route('/', createProfileApp())
     .route('/', createAuthApiRoutes())
     .route(
       '/',

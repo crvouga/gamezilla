@@ -10,23 +10,17 @@ export type FriendUserRowProps = {
   readonly trailing?: ReactNode;
 };
 
+function usernameLabel(profile: FriendProfile): string {
+  if (profile.username.length > 0) return `@${profile.username}`;
+  return profile.userId.slice(0, 8);
+}
+
 export function FriendUserRow({
   profile,
   onPress,
   trailing,
 }: FriendUserRowProps): ReactNode {
-  const subtitle =
-    profile.username.length > 0
-      ? `@${profile.username}`
-      : profile.displayName.length > 0
-        ? profile.displayName
-        : profile.userId.slice(0, 8);
-  const title =
-    profile.displayName.length > 0
-      ? profile.displayName
-      : profile.username.length > 0
-        ? `@${profile.username}`
-        : profile.userId.slice(0, 8);
+  const title = usernameLabel(profile);
 
   const body = (
     <Box
@@ -40,9 +34,6 @@ export function FriendUserRow({
       <FriendProfileAvatar profile={profile} size={44} />
       <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
         <Text variant="bodyBold" label={title} numberOfLines={1} />
-        {subtitle !== title ? (
-          <Text variant="caption" label={subtitle} numberOfLines={1} />
-        ) : null}
       </Box>
       {trailing}
     </Box>

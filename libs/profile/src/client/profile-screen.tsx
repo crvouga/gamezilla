@@ -1,12 +1,9 @@
-import { MyDisplayName } from './my-display-name';
+import { MyUsername } from './my-username';
 import { MyProfileAvatar } from './my-profile-avatar';
-import { useMyProfileId } from './use-my-profile-id';
-import { useProfileColumn, ProfileField } from './use-profile-column';
 import {
   Box,
   Button,
   ScreenBase,
-  Text,
 } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
@@ -62,8 +59,6 @@ function ProfileScreenContent({
 }): ReactNode {
   const { t } = useLingui();
   const router = useRouter();
-  const profileId = useMyProfileId();
-  const username = useProfileColumn(profileId ?? '', ProfileField.username);
 
   return (
     <Box
@@ -77,14 +72,7 @@ function ProfileScreenContent({
     >
       <MyProfileAvatar size={96} />
       <Box sx={{ alignItems: 'center', gap: 1, alignSelf: 'stretch' }}>
-        <MyDisplayName variant="title" sx={{ textAlign: 'center' }} />
-        {profileId !== null && username !== null && username.length > 0 ? (
-          <Text
-            variant="body"
-            sx={{ color: 'textSecondary', textAlign: 'center' }}
-            label={`@${username}`}
-          />
-        ) : null}
+        <MyUsername variant="title" sx={{ textAlign: 'center' }} />
       </Box>
       {friendsStats !== undefined && friendsStats !== null ? (
         <Box sx={{ alignSelf: 'stretch', mt: 4 }}>{friendsStats}</Box>

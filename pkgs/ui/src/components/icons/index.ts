@@ -28,6 +28,7 @@ import {
   Settings,
   Share,
   Shuffle,
+  SquarePen,
   User,
   Volume2,
   VolumeX,
@@ -66,5 +67,6 @@ export const VolumeXIcon = createIcon(VolumeX);
 export const SearchIcon = createIcon(Search);
 export const ShareIcon = createIcon(Share);
 export const ShuffleIcon = createIcon(Shuffle);
+export const SquarePenIcon = createIcon(SquarePen);
 export const HeartIcon = createIcon(Heart);
 export const BellIcon = createIcon(Bell);

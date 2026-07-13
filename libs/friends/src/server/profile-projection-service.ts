@@ -11,12 +11,10 @@ import {
 } from './friend-repository';
 
 function profileCardToCache(card: ProfileCard): {
-  readonly displayName: string;
   readonly username: string;
   readonly avatarConfig: string | null;
 } {
   return {
-    displayName: card.displayName,
     username: card.username,
     avatarConfig: card.avatarConfig,
   };

@@ -1,6 +1,6 @@
 import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
-import { MyDisplayName } from '@libs/profile/client/my-display-name';
+import { MyUsername } from '@libs/profile/client/my-username';
 import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import { useAsync } from '@pkgs/async/use-async';
 import { useLogger } from '@pkgs/logger/react';
@@ -113,7 +113,7 @@ export function useAccountMenuHeader(): FloatingMenuHeaderSpec {
   return useMemo(
     (): FloatingMenuHeaderSpec => ({
       avatar: <MyProfileAvatar size={avatarSize} />,
-      title: <MyDisplayName variant="bodyBold" />,
+      title: <MyUsername variant="bodyBold" />,
     }),
     [avatarSize]
   );

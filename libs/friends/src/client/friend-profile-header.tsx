@@ -24,17 +24,9 @@ export function FriendProfileHeader({
     <Box sx={{ alignItems: 'center', gap: 2, alignSelf: 'stretch' }}>
       <FriendProfileAvatar profile={profile} size={avatarSize} />
       <Box sx={{ alignItems: 'center', gap: 1, alignSelf: 'stretch' }}>
-        {profile.displayName.length > 0 ? (
-          <Text
-            variant="title"
-            sx={{ textAlign: 'center' }}
-            label={profile.displayName}
-            numberOfLines={2}
-          />
-        ) : null}
         <Text
-          variant="body"
-          sx={{ color: 'textSecondary', textAlign: 'center' }}
+          variant="title"
+          sx={{ textAlign: 'center' }}
           label={handle}
           numberOfLines={1}
         />

@@ -1,7 +1,11 @@
-import { useWriteContext } from '@libs/auth/client/use-write-context';
 import { useMyProfileId } from './use-my-profile-id';
 import { useProfileRow, type ProfileRow } from './use-profile-row';
-import { profilePatchWrite } from '../shared/writes/profile-patch-write';
+import {
+  ProfileError,
+  isProfileError,
+} from '../shared/profile-errors';
+import { setUsernameOnline } from './profile-online-actions';
+import { useProfileClientDeps } from './use-profile-client-deps';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import {
   Box,
@@ -10,9 +14,6 @@ import {
   TextInput,
   type BodyContentProps,
 } from '@pkgs/ui';
-import { createSqlWriteStore } from '@pkgs/write/client/create-sql-write-store';
-import { runClientWrite } from '@pkgs/write/client/run-client-write';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import {
@@ -69,30 +70,49 @@ function ProfileHandleScreenBody({
   );
 }
 
+function usernameErrorLabel(error: unknown): ReactNode {
+  if (!isProfileError(error)) {
+    return <Trans>Couldn't save</Trans>;
+  }
+  switch (error.code) {
+    case 'PROFILE_USERNAME_TAKEN':
+      return <Trans>Username is taken</Trans>;
+    case 'PROFILE_USERNAME_COOLDOWN':
+      return <Trans>Username was changed recently</Trans>;
+    case 'PROFILE_USERNAME_TOO_SHORT':
+      return <Trans>Username is too short</Trans>;
+    case 'PROFILE_USERNAME_TOO_LONG':
+      return <Trans>Username is too long</Trans>;
+    case 'PROFILE_USERNAME_INVALID_FORMAT':
+      return <Trans>Username can only use letters, numbers, and _</Trans>;
+    case 'PROFILE_USERNAME_EMPTY':
+      return <Trans>Username is required</Trans>;
+    default:
+      return <Trans>Couldn't save</Trans>;
+  }
+}
+
 export function ProfileHandleScreen() {
   const router = useRouter();
-  const engine = useSyncEngine();
   const profileId = useMyProfileId();
-  const writeContext = useWriteContext();
   const { row } = useProfileRow(profileId);
   const [value, setValue] = useSyncedUsername(row);
   const nav = useBreadcrumbNav();
+  const deps = useProfileClientDeps();
+  const [lastError, setLastError] = useState<unknown>(null);
 
   const save = useCallback(async () => {
     if (profileId === null) return;
-    const username = value.trim();
-    const now = new Date().toISOString();
-    await runClientWrite(
-      profilePatchWrite,
-      writeContext,
-      {
-        profileId,
-        username,
-        usernameChangedAt: now,
-      },
-      createSqlWriteStore(engine.db)
-    );
-  }, [engine, profileId, value, writeContext]);
+    setLastError(null);
+    try {
+      await setUsernameOnline(deps, value.trim());
+    } catch (error) {
+      setLastError(error);
+      throw error instanceof ProfileError
+        ? error
+        : new Error("Couldn't save");
+    }
+  }, [deps, profileId, value]);
 
   return (
     <ScreenBase
@@ -112,7 +132,7 @@ export function ProfileHandleScreen() {
             label: <Trans>Save</Trans>,
             loadingLabel: <Trans>Saving…</Trans>,
             successLabel: <Trans>Saved</Trans>,
-            errorLabel: <Trans>Couldn't save</Trans>,
+            errorLabel: usernameErrorLabel(lastError),
             operation: save,
             disabled: profileId === null,
           }}

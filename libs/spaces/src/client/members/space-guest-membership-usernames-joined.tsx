@@ -1,10 +1,10 @@
-import { SpaceGuestMembershipDisplayName } from './space-guest-membership-display-name';
+import { SpaceGuestMembershipUsername } from './space-guest-membership-username';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
 import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
 import { Fragment, type ReactNode } from 'react';
 
-export type SpaceGuestMembershipDisplayNamesJoinedProps = {
+export type SpaceGuestMembershipUsernamesJoinedProps = {
   spaceId: string;
   variant?: TextVariant;
   sx?: SxProps;
@@ -14,15 +14,15 @@ export type SpaceGuestMembershipDisplayNamesJoinedProps = {
 const SEPARATOR = ', ';
 
 /**
- * Comma-separated guest display names for a space. Each name is its own atom;
+ * Comma-separated guest usernames for a space. Each name is its own atom;
  * the separator is purely typographic glue between atoms.
  */
-export function SpaceGuestMembershipDisplayNamesJoined({
+export function SpaceGuestMembershipUsernamesJoined({
   spaceId,
   variant,
   sx,
   numberOfLines,
-}: SpaceGuestMembershipDisplayNamesJoinedProps): ReactNode {
+}: SpaceGuestMembershipUsernamesJoinedProps): ReactNode {
   const membershipIds = useSpaceGuestMembershipIds(spaceId);
   if (membershipIds.length === 0) return null;
   return (
@@ -31,7 +31,7 @@ export function SpaceGuestMembershipDisplayNamesJoined({
       {membershipIds.map((mid, idx) => (
         <Fragment key={mid}>
           {idx > 0 ? SEPARATOR : null}
-          <SpaceGuestMembershipDisplayName
+          <SpaceGuestMembershipUsername
             membershipId={mid}
             {...optionalProps({ variant })}
           />

@@ -17,6 +17,7 @@ import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { ActionBar, screenBaseActionToActionBarItem } from '../action-bar';
 import type { ActionBarItem, ActionBarTextAction } from '../action-bar';
+import { useActionBarChrome } from '../../theme';
 import { BackIconButton } from '../back-icon-button';
 import { Box } from '../box';
 import { TopBar, TopBarTitle } from '../top-bar';
@@ -110,6 +111,7 @@ export function ScreenBaseHeader({
   accountMenu,
 }: ScreenBaseHeaderProps) {
   const insets = useSafeAreaInsetsCompat();
+  const chrome = useActionBarChrome();
   const { iconItems, textActions } = useMemo(
     () => partitionScreenBaseActions(actionsProp ?? []),
     [actionsProp]
@@ -123,7 +125,7 @@ export function ScreenBaseHeader({
   const leadingSlot = (
     <>
       {leadingProp}
-      {showBack ? <BackIconButton size={36} onPress={onBack} /> : null}
+      {showBack ? <BackIconButton size={chrome.buttonSize} onPress={onBack} /> : null}
     </>
   );
 
@@ -135,7 +137,10 @@ export function ScreenBaseHeader({
         items={iconItems}
         textActions={textActions}
         endSlot={accountMenu}
-        buttonSize={36}
+        buttonSize={chrome.buttonSize}
+        gap={chrome.gap}
+        slotWidth={chrome.slotWidth}
+        showInlineLabels={chrome.showInlineLabels}
         overflowTestID="header-overflow-menu"
       />
     ) : null;

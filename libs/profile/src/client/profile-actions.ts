@@ -5,17 +5,12 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { profilePatchWrite } from '../shared/writes/profile-patch-write';
 
-/**
- * Updates display name, username, and/or avatar on the profile row at `profileId`.
- */
+/** Updates avatar on the local profile row at `profileId` (sync path). */
 export async function updateProfile(
   sql: SqlClient,
   writeContext: WriteContext,
   profileId: string,
   args: {
-    displayName?: string;
-    username?: string;
-    usernameChangedAt?: string;
     avatarConfig?: string;
   }
 ): Promise<void> {

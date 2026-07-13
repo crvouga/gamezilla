@@ -57,6 +57,7 @@ export {
   SettingsIcon,
   ShareIcon,
   ShuffleIcon,
+  SquarePenIcon,
   UserIcon,
   Volume2Icon,
   VolumeXIcon,

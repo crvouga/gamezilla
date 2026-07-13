@@ -1,18 +1,21 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
+import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, type ReactNode } from 'react';
 
 import { ensureProfile } from './ensure-profile-entity';
+import { ensureProfileOnline } from './profile-online-actions';
 
 /**
- * Profile bootstrap: ensures a profile row exists for the current replication
- * identity (install id when anonymous, account id when signed in). Waits for
- * the first sync download so a new web tab does not mint a fresh random
- * profile before the server row arrives.
+ * Profile bootstrap: ensures a local profile row exists, then asks the API to
+ * assign a globally unique username if needed. Waits for the first sync
+ * download so a new web tab does not mint a fresh profile before the server
+ * row arrives.
  */
 function ProfileEntityBootstrap(): null {
   const engine = useSyncEngine();
   const myId = useMyId();
+  const config = useConfigService();
 
   useEffect(() => {
     let cancelled = false;
@@ -22,6 +25,8 @@ function ProfileEntityBootstrap(): null {
         await engine.waitForFirstSync();
         if (cancelled) return;
         await ensureProfile(engine.db, myId);
+        if (cancelled) return;
+        await ensureProfileOnline({ config, fetchFn: fetch });
       } catch {
         // Best-effort: re-asserted on the next identity change.
       }
@@ -29,7 +34,7 @@ function ProfileEntityBootstrap(): null {
     return () => {
       cancelled = true;
     };
-  }, [engine, myId]);
+  }, [config, engine, myId]);
 
   return null;
 }

@@ -6,7 +6,6 @@ export type SpaceSessionUiValue = {
   onRequestLeave: () => void;
   onRequestRename: () => void;
   onPressHome: () => void;
-  onPressDebug: () => void;
 };
 
 const SpaceSessionUiContext = createContext<SpaceSessionUiValue | null>(null);

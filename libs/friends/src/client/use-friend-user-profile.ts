@@ -22,18 +22,16 @@ export function useFriendUserProfile(userId: string, deps: FriendsClientDeps) {
     [friends, userId]
   );
   const params = useLocalSearchParams<{
-    displayName?: string;
     username?: string;
     avatarConfig?: string;
   }>();
   const seedProfile = useMemo<FriendProfile>(
     () => ({
       userId,
-      displayName: readRouteParam(params.displayName),
       username: readRouteParam(params.username),
       avatarConfig: readRouteParam(params.avatarConfig) || null,
     }),
-    [params.avatarConfig, params.displayName, params.username, userId]
+    [params.avatarConfig, params.username, userId]
   );
   const [profile, setProfile] = useState<FriendProfile>(
     cachedFriend ?? seedProfile
@@ -69,7 +67,6 @@ export function friendUserBreadcrumbName(
   profile: FriendProfile,
   userId: string
 ): string {
-  if (profile.displayName.length > 0) return profile.displayName;
   if (profile.username.length > 0) return `@${profile.username}`;
   return userId.slice(0, 8);
 }

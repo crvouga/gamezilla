@@ -9,7 +9,6 @@ export type FriendshipStatus =
 export type FriendProfile = {
   readonly userId: string;
   readonly username: string;
-  readonly displayName: string;
   readonly avatarConfig: string | null;
 };
 

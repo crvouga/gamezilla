@@ -28,14 +28,15 @@
 import { useContext, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
+import { getTopBarContentHeight, TOP_BAR_CONTENT_HEIGHT_MOBILE, useTheme } from '../../theme';
 import { Box } from '../box';
 
 /**
- * Inner content height of the top bar (excluding the safe-area inset).
+ * Inner content height of the top bar on mobile (excluding the safe-area inset).
  * Exposed so screens can reserve matching space (sticky headers,
  * keyboard-aware insets, etc.) without re-encoding the magic number.
  */
-export const TOP_BAR_CONTENT_HEIGHT = 56;
+export const TOP_BAR_CONTENT_HEIGHT = TOP_BAR_CONTENT_HEIGHT_MOBILE;
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
 
@@ -216,6 +217,8 @@ export function TopBar({
   centerPosition = 'absolute',
   safeAreaTop = true,
 }: TopBarProps): ReactNode {
+  const { breakpoint } = useTheme();
+  const contentHeight = getTopBarContentHeight(breakpoint);
   const paddingTop = useTopBarTopInset(safeAreaTop);
 
   return (
@@ -233,7 +236,8 @@ export function TopBar({
           alignItems: 'center',
           gap: 2,
           px: 3,
-          height: TOP_BAR_CONTENT_HEIGHT,
+          height: contentHeight,
+          minHeight: contentHeight,
         }}
         style={{ width: '100%' }}
       >

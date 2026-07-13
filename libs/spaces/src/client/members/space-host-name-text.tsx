@@ -1,4 +1,4 @@
-import { UserDisplayName } from '@libs/profile/client/user-display-name';
+import { UserUsername } from '@libs/profile/client/user-username';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { SxProps, TextVariant } from '@pkgs/ui';
 import type { ReactNode } from 'react';
@@ -20,8 +20,9 @@ export function SpaceHostNameText({
 }: SpaceHostNameTextProps): ReactNode {
   const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
   return (
-    <UserDisplayName
+    <UserUsername
       profileId={hostId}
+      withAt={false}
       {...optionalProps({ variant, sx, numberOfLines })}
     />
   );

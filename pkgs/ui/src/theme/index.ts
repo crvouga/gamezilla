@@ -76,6 +76,13 @@ export type { Theme, ThemeLayout, ThemeProviderProps } from './theme-context';
 export { useBreakpoint } from './use-breakpoint';
 export { useHoverCapable } from './use-hover-capable';
 export {
+  getActionBarChrome,
+  getTopBarContentHeight,
+  TOP_BAR_CONTENT_HEIGHT_MOBILE,
+  useActionBarChrome,
+  type ActionBarChromeSpec,
+} from './use-action-bar-chrome';
+export {
   ThemePreferenceProvider,
   useThemePreference,
   type ThemePreference,

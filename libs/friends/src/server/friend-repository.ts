@@ -278,7 +278,6 @@ export async function upsertFriendProfileCache(
   args: {
     readonly ownerId: string;
     readonly friendId: string;
-    readonly displayName: string;
     readonly username: string;
     readonly avatarConfig: string | null;
     readonly now: string;
@@ -287,11 +286,10 @@ export async function upsertFriendProfileCache(
   await sql.run(
     `INSERT INTO ${FRIEND_PROFILE_CACHE_TABLE.tableName}
      (${FriendProfileCacheCol.id}, ${FriendProfileCacheCol.ownerId}, ${FriendProfileCacheCol.friendId},
-      ${FriendProfileCacheCol.displayName}, ${FriendProfileCacheCol.username},
+      ${FriendProfileCacheCol.username},
       ${FriendProfileCacheCol.avatarConfig}, ${FriendProfileCacheCol.updatedAt})
-     VALUES (?, ?, ?, ?, ?, ?, ?)
+     VALUES (?, ?, ?, ?, ?, ?)
      ON CONFLICT (${FriendProfileCacheCol.ownerId}, ${FriendProfileCacheCol.friendId}) DO UPDATE SET
-       ${FriendProfileCacheCol.displayName} = excluded.${FriendProfileCacheCol.displayName},
        ${FriendProfileCacheCol.username} = excluded.${FriendProfileCacheCol.username},
        ${FriendProfileCacheCol.avatarConfig} = excluded.${FriendProfileCacheCol.avatarConfig},
        ${FriendProfileCacheCol.updatedAt} = excluded.${FriendProfileCacheCol.updatedAt}`,
@@ -299,7 +297,6 @@ export async function upsertFriendProfileCache(
       pairId(args.ownerId, args.friendId),
       args.ownerId,
       args.friendId,
-      args.displayName,
       args.username,
       args.avatarConfig,
       args.now,

@@ -14,7 +14,6 @@ export type ActiveSpaceBodyProps = {
   onRequestLeave: () => void;
   onRequestRename: () => void;
   onPressHome: () => void;
-  onPressDebug: () => void;
 };
 
 /**
@@ -28,7 +27,6 @@ export function ActiveSpaceBody({
   onRequestLeave,
   onRequestRename,
   onPressHome,
-  onPressDebug,
 }: ActiveSpaceBodyProps): ReactNode {
   const sessionUi = useMemo(
     (): SpaceSessionUiValue => ({
@@ -37,16 +35,8 @@ export function ActiveSpaceBody({
       onRequestLeave,
       onRequestRename,
       onPressHome,
-      onPressDebug,
     }),
-    [
-      spaceId,
-      onRequestEnd,
-      onRequestLeave,
-      onRequestRename,
-      onPressHome,
-      onPressDebug,
-    ]
+    [spaceId, onRequestEnd, onRequestLeave, onRequestRename, onPressHome]
   );
 
   return (

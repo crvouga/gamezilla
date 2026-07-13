@@ -17,7 +17,6 @@ function useSafeAreaBottom(): number {
 
 export type ActiveSpaceProps = {
   spaceId: string;
-  onOpenDebug: () => void;
 };
 
 /**
@@ -29,10 +28,7 @@ export type ActiveSpaceProps = {
  * bottom inset is applied here so content clears the home indicator on all
  * platforms — RN `SafeAreaView` only pads on iOS and left web flush.
  */
-export function ActiveSpace({
-  spaceId,
-  onOpenDebug,
-}: ActiveSpaceProps): ReactNode {
+export function ActiveSpace({ spaceId }: ActiveSpaceProps): ReactNode {
   const router = useRouter();
   const bottomInset = useSafeAreaBottom();
   const { requestEndSpace, requestLeaveSpace } = useSpaceLifecycleModals();
@@ -59,7 +55,6 @@ export function ActiveSpace({
           onRequestLeave={onRequestLeave}
           onRequestRename={() => setRenameOpen(true)}
           onPressHome={onPressHome}
-          onPressDebug={onOpenDebug}
         />
         <RenameSpaceModal
           spaceId={spaceId}

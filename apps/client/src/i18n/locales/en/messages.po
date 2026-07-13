@@ -47,13 +47,17 @@ msgid "{count} user arrow(s) drawn"
 msgstr "{count} user arrow(s) drawn"
 
 #: libs/spaces/src/client/use-space-command-label.ts
-msgid "{hostDisplayName}'s space"
-msgstr "{hostDisplayName}'s space"
+#~ msgid "{hostDisplayName}'s space"
+#~ msgstr "{hostDisplayName}'s space"
 
 #: libs/spaces/src/client/card/space-card-open-link.tsx
 #: libs/spaces/src/client/members/space-host-fallback-title.tsx
 msgid "{hostName}'s space"
 msgstr "{hostName}'s space"
+
+#: libs/spaces/src/client/use-space-command-label.ts
+msgid "{hostUsername}'s space"
+msgstr "{hostUsername}'s space"
 
 #: libs/spaces/src/client/active-room/active-room-bar.tsx
 #~ msgid "{memberCount} here"
@@ -286,7 +290,6 @@ msgstr "Build mode: {buildMode}"
 
 #: libs/profile/src/client/avatar-editor-screen.tsx
 #: libs/profile/src/client/profile-handle-screen.tsx
-#: libs/profile/src/client/profile-username-screen.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
@@ -489,6 +492,7 @@ msgstr "Continue with Google"
 msgid "Copied"
 msgstr "Copied"
 
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: pkgs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
@@ -496,6 +500,10 @@ msgstr "Copied to clipboard"
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 msgid "Copy invite link"
 msgstr "Copy invite link"
+
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
+msgid "Copy link"
+msgstr "Copy link"
 
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
@@ -558,13 +566,13 @@ msgstr "Couldn't rename space"
 
 #: libs/profile/src/client/avatar-editor-screen.tsx
 #: libs/profile/src/client/profile-handle-screen.tsx
-#: libs/profile/src/client/profile-username-screen.tsx
+#: libs/profile/src/client/profile-handle-screen.tsx
 msgid "Couldn't save"
 msgstr "Couldn't save"
 
 #: libs/spaces/src/client/debug/space-counter-panel.tsx
-msgid "Counter unavailable — sign in and open this space on the device where you created it to host, or wait for the host to come online."
-msgstr "Counter unavailable — sign in and open this space on the device where you created it to host, or wait for the host to come online."
+#~ msgid "Counter unavailable — sign in and open this space on the device where you created it to host, or wait for the host to come online."
+#~ msgstr "Counter unavailable — sign in and open this space on the device where you created it to host, or wait for the host to come online."
 
 #: apps/client/src/ui/app-commands/space-commands.tsx
 msgid "create"
@@ -620,8 +628,8 @@ msgid "debug"
 msgstr "debug"
 
 #: libs/spaces/src/client/debug/space-counter-panel.tsx
-msgid "Decrement"
-msgstr "Decrement"
+#~ msgid "Decrement"
+#~ msgstr "Decrement"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Default board, drag or tap-to-move, orientation toggle."
@@ -660,8 +668,8 @@ msgstr "Developer"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
-msgid "Developer tools"
-msgstr "Developer tools"
+#~ msgid "Developer tools"
+#~ msgstr "Developer tools"
 
 #: apps/client/src/settings/about-screen.tsx
 msgid "development"
@@ -727,8 +735,8 @@ msgstr "Dismiss"
 
 #: libs/profile/src/client/profile-edit-screen.tsx
 #: libs/profile/src/client/profile-username-screen.tsx
-msgid "Display name"
-msgstr "Display name"
+#~ msgid "Display name"
+#~ msgstr "Display name"
 
 #: libs/profile/src/client/profile-edit-screen.tsx
 #~ msgid "Display name shown in the app"
@@ -756,7 +764,6 @@ msgstr "Each install has its own device id. Tap a row for full details."
 #: libs/profile/src/client/profile-edit-screen.tsx
 #: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-screen.tsx
-#: libs/profile/src/client/profile-username-screen.tsx
 msgid "Edit profile"
 msgstr "Edit profile"
 
@@ -967,8 +974,8 @@ msgid "Inbox"
 msgstr "Inbox"
 
 #: libs/spaces/src/client/debug/space-counter-panel.tsx
-msgid "Increment"
-msgstr "Increment"
+#~ msgid "Increment"
+#~ msgstr "Increment"
 
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Internet reachable: {reachable}"
@@ -1187,8 +1194,8 @@ msgid "Name"
 msgstr "Name"
 
 #: libs/profile/src/client/profile-edit-screen.tsx
-msgid "Name shown in the app"
-msgstr "Name shown in the app"
+#~ msgid "Name shown in the app"
+#~ msgstr "Name shown in the app"
 
 #: apps/client/src/settings/about-screen.tsx
 msgid "Name: {appName}"
@@ -1306,8 +1313,8 @@ msgid "Offline"
 msgstr "Offline"
 
 #: libs/spaces/src/client/debug/space-counter-panel.tsx
-msgid "Offline — changes will sync when reconnected"
-msgstr "Offline — changes will sync when reconnected"
+#~ msgid "Offline — changes will sync when reconnected"
+#~ msgstr "Offline — changes will sync when reconnected"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/sync/sync-screen.tsx
@@ -1454,7 +1461,6 @@ msgstr "production"
 #: libs/profile/src/client/profile-edit-screen.tsx
 #: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-screen.tsx
-#: libs/profile/src/client/profile-username-screen.tsx
 msgid "Profile"
 msgstr "Profile"
 
@@ -1541,6 +1547,10 @@ msgstr "Remove friend"
 msgid "Remove friend?"
 msgstr "Remove friend?"
 
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
+msgid "Rename"
+msgstr "Rename"
+
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 msgid "Rename space"
@@ -1600,20 +1610,17 @@ msgstr "SAN"
 
 #: libs/profile/src/client/avatar-editor-screen.tsx
 #: libs/profile/src/client/profile-handle-screen.tsx
-#: libs/profile/src/client/profile-username-screen.tsx
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 msgid "Save"
 msgstr "Save"
 
 #: libs/profile/src/client/avatar-editor-screen.tsx
 #: libs/profile/src/client/profile-handle-screen.tsx
-#: libs/profile/src/client/profile-username-screen.tsx
 msgid "Saved"
 msgstr "Saved"
 
 #: libs/profile/src/client/avatar-editor-screen.tsx
 #: libs/profile/src/client/profile-handle-screen.tsx
-#: libs/profile/src/client/profile-username-screen.tsx
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 msgid "Saving…"
 msgstr "Saving…"
@@ -1683,8 +1690,8 @@ msgstr "Settings"
 #~ msgstr "Share seed"
 
 #: libs/spaces/src/client/debug/space-counter-panel.tsx
-msgid "Shared counter"
-msgstr "Shared counter"
+#~ msgid "Shared counter"
+#~ msgstr "Shared counter"
 
 #: apps/client/src/developer/developer-screen.tsx
 msgid "Shared UI explorer"
@@ -1837,8 +1844,8 @@ msgid "Space {suffix}"
 msgstr "Space {suffix}"
 
 #: libs/spaces/src/client/debug/space-debug-modal.tsx
-msgid "Space debug"
-msgstr "Space debug"
+#~ msgid "Space debug"
+#~ msgstr "Space debug"
 
 #: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
 msgid "Space ended"
@@ -2138,9 +2145,32 @@ msgstr "User-drawn arrows"
 #: libs/profile/src/client/profile-edit-screen.tsx
 #: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-handle-screen.tsx
-#: libs/profile/src/client/profile-username-screen.tsx
 msgid "Username"
 msgstr "Username"
+
+#: libs/profile/src/client/profile-handle-screen.tsx
+msgid "Username can only use letters, numbers, and _"
+msgstr "Username can only use letters, numbers, and _"
+
+#: libs/profile/src/client/profile-handle-screen.tsx
+msgid "Username is required"
+msgstr "Username is required"
+
+#: libs/profile/src/client/profile-handle-screen.tsx
+msgid "Username is taken"
+msgstr "Username is taken"
+
+#: libs/profile/src/client/profile-handle-screen.tsx
+msgid "Username is too long"
+msgstr "Username is too long"
+
+#: libs/profile/src/client/profile-handle-screen.tsx
+msgid "Username is too short"
+msgstr "Username is too short"
+
+#: libs/profile/src/client/profile-handle-screen.tsx
+msgid "Username was changed recently"
+msgstr "Username was changed recently"
 
 #: apps/client/src/settings/about-screen.tsx
 msgid "Version: {appVersion}"
@@ -2248,8 +2278,8 @@ msgid "Your full name"
 msgstr "Your full name"
 
 #: libs/profile/src/client/profile-username-screen.tsx
-msgid "Your name"
-msgstr "Your name"
+#~ msgid "Your name"
+#~ msgstr "Your name"
 
 #: libs/spaces/src/client/active-room/active-room-sheet.tsx
 #~ msgid "Your space"

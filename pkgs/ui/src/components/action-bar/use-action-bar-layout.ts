@@ -39,6 +39,7 @@ export function useActionBarLayout(args: {
   textActions: readonly ActionBarTextAction[];
   endSlot: unknown;
   buttonSize: number;
+  slotWidth: number;
   gap: number;
   /** When `'never'`, every item stays inline — no overflow menu. */
   overflow?: 'auto' | 'never';
@@ -78,6 +79,7 @@ export function useActionBarLayout(args: {
     return partitionActionBarItems(args.items, {
       containerWidth,
       buttonSize: args.buttonSize,
+      slotWidth: args.slotWidth,
       gap: args.gap,
       reservedWidth,
     });
@@ -86,6 +88,7 @@ export function useActionBarLayout(args: {
     args.items,
     containerWidth,
     args.buttonSize,
+    args.slotWidth,
     args.gap,
     reservedWidth,
   ]);

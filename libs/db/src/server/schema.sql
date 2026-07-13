@@ -23,7 +23,6 @@ CREATE INDEX IF NOT EXISTS devices_id_idx ON devices (id);
 CREATE TABLE IF NOT EXISTS profiles (
   id TEXT PRIMARY KEY,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  display_name TEXT NOT NULL DEFAULT '',
   username TEXT NOT NULL DEFAULT '',
   avatar_config JSONB
 );
@@ -196,10 +195,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS profiles_username_norm_uidx
 CREATE INDEX IF NOT EXISTS profiles_username_norm_prefix_idx
   ON profiles (username_norm text_pattern_ops);
 
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
+DROP INDEX IF EXISTS profiles_display_name_trgm_idx;
 
-CREATE INDEX IF NOT EXISTS profiles_display_name_trgm_idx
-  ON profiles USING gin (lower(display_name) gin_trgm_ops);
+ALTER TABLE profiles DROP COLUMN IF EXISTS display_name;
 
 -- ============ Friends ============
 
@@ -261,12 +259,13 @@ CREATE TABLE IF NOT EXISTS friend_profile_cache (
   id TEXT PRIMARY KEY,
   owner_id TEXT NOT NULL REFERENCES profiles (id),
   friend_id TEXT NOT NULL REFERENCES profiles (id),
-  display_name TEXT NOT NULL DEFAULT '',
   username TEXT NOT NULL DEFAULT '',
   avatar_config JSONB,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (owner_id, friend_id)
 );
+
+ALTER TABLE friend_profile_cache DROP COLUMN IF EXISTS display_name;
 
 CREATE INDEX IF NOT EXISTS friend_profile_cache_owner_idx
   ON friend_profile_cache (owner_id);

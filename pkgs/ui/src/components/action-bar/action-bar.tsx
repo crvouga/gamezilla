@@ -2,7 +2,7 @@
  * `ActionBar` -- responsive row of icon actions with overflow menu.
  */
 
-import { useContext, useMemo, type ReactNode } from 'react';
+import { useContext, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { Box } from '../box';
@@ -12,7 +12,7 @@ import {
   type FloatingMenuContent,
   type FloatingMenuHeaderSpec,
 } from '../floating-menu';
-import { useAnchoredMenu } from '../overflow-menu-button/use-anchored-menu';
+import type { useAnchoredMenu } from '../overflow-menu-button/use-anchored-menu';
 import type { OverflowMenuAction } from '../overflow-menu-button/overflow-menu-button';
 import {
   ActionBarIconItems,
@@ -20,16 +20,18 @@ import {
   type ActionBarOverflowTriggerSpec,
   ActionBarTextItems,
   actionBarHasContent,
-  buildOverflowMenuContent,
-  textActionsToOverflow,
 } from './action-bar-parts';
 import type { ActionBarItem } from './partition-action-bar-items';
-import type { ActionBarTextAction } from './action-bar-types';
-import { useActionBarLayout } from './use-action-bar-layout';
+import type {
+  ActionBarAlign,
+  ActionBarOverflowMode,
+  ActionBarTextAction,
+} from './action-bar-types';
+import { useActionBarController } from './use-action-bar-controller';
+import type { ActionBarLayoutState } from './use-action-bar-layout';
+import { resolveActionBarProps } from './resolve-action-bar-props';
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
-const DEFAULT_BUTTON_SIZE = 36;
-const DEFAULT_GAP = 8;
 
 export type { ActionBarItem } from './partition-action-bar-items';
 export {
@@ -38,10 +40,7 @@ export {
   partitionActionBarItems,
   screenBaseActionToActionBarItem,
 } from './partition-action-bar-items';
-
-export type ActionBarAlign = 'start' | 'end';
-
-export type ActionBarOverflowMode = 'auto' | 'never';
+export type { ActionBarAlign, ActionBarOverflowMode } from './action-bar-types';
 
 export type ActionBarProps = {
   items: readonly ActionBarItem[];
@@ -62,13 +61,19 @@ export type ActionBarProps = {
   overflowMenuHeader?: FloatingMenuHeaderSpec;
   buttonSize?: number;
   gap?: number;
+  /** Horizontal budget per inline slot; defaults to `buttonSize`. */
+  slotWidth?: number;
+  /** When true, shows a caption under each icon action (not avatars). */
+  showInlineLabels?: boolean;
   overflowTestID?: string;
 };
 
 function ActionBarRow(p: {
-  layout: ReturnType<typeof useActionBarLayout>;
+  layout: ActionBarLayoutState;
   buttonSize: number;
   gap: number;
+  slotWidth: number;
+  showInlineLabels: boolean;
   align: ActionBarAlign;
   endSlot: ReactNode | undefined;
   overflowActions: OverflowMenuAction[];
@@ -104,6 +109,8 @@ function ActionBarRow(p: {
         <ActionBarIconItems
           items={p.layout.partition.visible}
           buttonSize={p.buttonSize}
+          showInlineLabels={p.showInlineLabels}
+          slotWidth={p.slotWidth}
         />
         {p.overflowActions.length > 0 ? (
           <ActionBarOverflowTrigger
@@ -122,19 +129,6 @@ function ActionBarRow(p: {
       ) : null}
     </Box>
   );
-}
-
-function collectOverflowActions(args: {
-  overflow: ActionBarOverflowMode;
-  overflowItemActions: ReturnType<typeof useActionBarLayout>['overflowItemActions'];
-  overflowTextActions: readonly ActionBarTextAction[];
-  onClose: () => void;
-}): OverflowMenuAction[] {
-  if (args.overflow === 'never') return [];
-  return [
-    ...args.overflowItemActions,
-    ...textActionsToOverflow(args.overflowTextActions, args.onClose),
-  ];
 }
 
 function ActionBarOverflowMenu(p: {
@@ -157,9 +151,11 @@ function ActionBarOverflowMenu(p: {
 }
 
 function ActionBarBody(p: {
-  layout: ReturnType<typeof useActionBarLayout>;
+  layout: ActionBarLayoutState;
   buttonSize: number;
   gap: number;
+  slotWidth: number;
+  showInlineLabels: boolean;
   align: ActionBarAlign;
   endSlot: ReactNode | undefined;
   overflow: ActionBarOverflowMode;
@@ -176,6 +172,8 @@ function ActionBarBody(p: {
         layout={p.layout}
         buttonSize={p.buttonSize}
         gap={p.gap}
+        slotWidth={p.slotWidth}
+        showInlineLabels={p.showInlineLabels}
         align={p.align}
         endSlot={p.endSlot}
         overflowActions={p.overflowActions}
@@ -199,57 +197,27 @@ function ActionBarBody(p: {
   );
 }
 
-export function ActionBar({
-  items,
-  textActions = [],
-  endSlot,
-  align = 'end',
-  overflow = 'auto',
-  overflowTrigger,
-  overflowMenuHeader,
-  buttonSize = DEFAULT_BUTTON_SIZE,
-  gap = DEFAULT_GAP,
-  overflowTestID,
-}: ActionBarProps): ReactNode {
-  const menu = useAnchoredMenu();
-  const layout = useActionBarLayout({
-    items,
-    textActions,
-    endSlot,
-    buttonSize,
-    gap,
-    overflow,
-    onMenuClose: menu.close,
+export function ActionBar(props: ActionBarProps): ReactNode {
+  const resolved = resolveActionBarProps(props);
+  const { menu, layout, overflowActions, menuContent } = useActionBarController({
+    items: resolved.items,
+    textActions: resolved.textActions,
+    endSlot: resolved.endSlot,
+    buttonSize: resolved.buttonSize,
+    slotWidth: resolved.slotWidth,
+    gap: resolved.gap,
+    overflow: resolved.overflow,
+    ...(resolved.overflowMenuHeader !== undefined
+      ? { overflowMenuHeader: resolved.overflowMenuHeader }
+      : {}),
   });
-
-  const overflowActions = useMemo(
-    () =>
-      collectOverflowActions({
-        overflow,
-        overflowItemActions: layout.overflowItemActions,
-        overflowTextActions: layout.overflowTextActions,
-        onClose: menu.close,
-      }),
-    [
-      overflow,
-      layout.overflowItemActions,
-      layout.overflowTextActions,
-      menu.close,
-    ]
-  );
-
-  const menuContent = useMemo(
-    (): FloatingMenuContent =>
-      buildOverflowMenuContent(overflowActions, overflowMenuHeader),
-    [overflowActions, overflowMenuHeader]
-  );
 
   if (
     !actionBarHasContent({
-      itemCount: items.length,
+      itemCount: resolved.items.length,
       inlineTextCount: layout.inlineTextActions.length,
       overflowCount: overflowActions.length,
-      hasEndSlot: endSlot !== undefined && endSlot !== null,
+      hasEndSlot: resolved.endSlot !== undefined && resolved.endSlot !== null,
     })
   ) {
     return null;
@@ -258,16 +226,20 @@ export function ActionBar({
   return (
     <ActionBarBody
       layout={layout}
-      buttonSize={buttonSize}
-      gap={gap}
-      align={align}
-      endSlot={endSlot}
-      overflow={overflow}
+      buttonSize={resolved.buttonSize}
+      gap={resolved.gap}
+      slotWidth={resolved.slotWidth}
+      showInlineLabels={resolved.showInlineLabels}
+      align={resolved.align}
+      endSlot={resolved.endSlot as ReactNode | undefined}
+      overflow={resolved.overflow}
       overflowActions={overflowActions}
-      overflowTrigger={overflowTrigger}
+      overflowTrigger={resolved.overflowTrigger}
       menu={menu}
       menuContent={menuContent}
-      {...(overflowTestID !== undefined ? { overflowTestID } : {})}
+      {...(resolved.overflowTestID !== undefined
+        ? { overflowTestID: resolved.overflowTestID }
+        : {})}
     />
   );
 }

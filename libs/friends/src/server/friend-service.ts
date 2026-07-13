@@ -21,13 +21,11 @@ import { searchUsers } from './search-service';
 function mapProfileCard(card: {
   readonly userId: string;
   readonly username: string;
-  readonly displayName: string;
   readonly avatarConfig: string | null;
 }): FriendProfile {
   return {
     userId: card.userId,
     username: card.username,
-    displayName: card.displayName,
     avatarConfig: card.avatarConfig,
   };
 }

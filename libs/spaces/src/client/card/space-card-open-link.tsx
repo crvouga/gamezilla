@@ -27,11 +27,11 @@ export function SpaceCardOpenLink({
   const { t } = useLingui();
   const customTitle = useSpaceColumn(spaceId, SpaceField.title);
   const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
-  const hostDisplayName = useProfileColumn(
+  const hostUsername = useProfileColumn(
     hostId ?? '',
-    ProfileField.displayName
+    ProfileField.username
   );
-  const hostName = hostDisplayName ?? '';
+  const hostName = hostUsername ?? '';
   const resolvedTitle =
     customTitle !== null && customTitle.length > 0
       ? customTitle
