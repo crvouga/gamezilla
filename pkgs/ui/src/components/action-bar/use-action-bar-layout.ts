@@ -22,6 +22,18 @@ function partitionTextActions(actions: readonly ActionBarTextAction[]): {
   return { inline, overflow };
 }
 
+function useFloorLayoutWidth(): {
+  width: number;
+  onLayout: (event: LayoutChangeEvent) => void;
+} {
+  const [width, setWidth] = useState(0);
+  const onLayout = useCallback((event: LayoutChangeEvent) => {
+    const next = Math.floor(event.nativeEvent.layout.width);
+    setWidth((prev) => (prev === next ? prev : next));
+  }, []);
+  return { width, onLayout };
+}
+
 export type ActionBarLayoutState = {
   containerWidth: number;
   endSlotWidth: number;
@@ -45,8 +57,8 @@ export function useActionBarLayout(args: {
   overflow?: 'auto' | 'never';
   onMenuClose: () => void;
 }): ActionBarLayoutState {
-  const [containerWidth, setContainerWidth] = useState(0);
-  const [endSlotWidth, setEndSlotWidth] = useState(0);
+  const container = useFloorLayoutWidth();
+  const endSlot = useFloorLayoutWidth();
   const overflowMode = args.overflow ?? 'auto';
 
   const { inline: inlineTextActions, overflow: overflowTextActions } = useMemo(
@@ -60,27 +72,17 @@ export function useActionBarLayout(args: {
     [args.textActions, overflowMode]
   );
 
-  const onContainerLayout = useCallback((event: LayoutChangeEvent) => {
-    const next = Math.floor(event.nativeEvent.layout.width);
-    setContainerWidth((prev) => (prev === next ? prev : next));
-  }, []);
-
-  const onEndSlotLayout = useCallback((event: LayoutChangeEvent) => {
-    const next = Math.floor(event.nativeEvent.layout.width);
-    setEndSlotWidth((prev) => (prev === next ? prev : next));
-  }, []);
-
   const reservedWidth = useMemo(() => {
     if (args.endSlot === undefined || args.endSlot === null) return 0;
-    return endSlotWidth > 0 ? endSlotWidth + args.gap : 0;
-  }, [args.endSlot, endSlotWidth, args.gap]);
+    return endSlot.width > 0 ? endSlot.width + args.gap : 0;
+  }, [args.endSlot, endSlot.width, args.gap]);
 
   const partition = useMemo((): ActionBarPartition => {
     if (overflowMode === 'never') {
       return { visible: [...args.items], overflow: [] };
     }
     return partitionActionBarItems(args.items, {
-      containerWidth,
+      containerWidth: container.width,
       buttonSize: args.buttonSize,
       slotWidth: args.slotWidth,
       gap: args.gap,
@@ -89,7 +91,7 @@ export function useActionBarLayout(args: {
   }, [
     overflowMode,
     args.items,
-    containerWidth,
+    container.width,
     args.buttonSize,
     args.slotWidth,
     args.gap,
@@ -102,10 +104,10 @@ export function useActionBarLayout(args: {
   );
 
   return {
-    containerWidth,
-    endSlotWidth,
-    onContainerLayout,
-    onEndSlotLayout,
+    containerWidth: container.width,
+    endSlotWidth: endSlot.width,
+    onContainerLayout: container.onLayout,
+    onEndSlotLayout: endSlot.onLayout,
     reservedWidth,
     partition,
     inlineTextActions,
