@@ -835,7 +835,7 @@ msgstr "Enable user arrows"
 msgid "end"
 msgstr "end"
 
-#: libs/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
+#: libs/spaces/src/client/miniplayer/space-end-or-leave-button.tsx
 msgid "End"
 msgstr "End"
 
@@ -845,7 +845,7 @@ msgstr "End {label}"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
-#: libs/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
+#: libs/spaces/src/client/miniplayer/space-end-or-leave-button.tsx
 msgid "End space"
 msgstr "End space"
 
@@ -1142,7 +1142,7 @@ msgid "leave"
 msgstr "leave"
 
 #: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
-#: libs/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
+#: libs/spaces/src/client/miniplayer/space-end-or-leave-button.tsx
 msgid "Leave"
 msgstr "Leave"
 
@@ -1151,7 +1151,7 @@ msgid "Leave {label}"
 msgstr "Leave {label}"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
-#: libs/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
+#: libs/spaces/src/client/miniplayer/space-end-or-leave-button.tsx
 msgid "Leave space"
 msgstr "Leave space"
 
