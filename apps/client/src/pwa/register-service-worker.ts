@@ -42,8 +42,8 @@ export function registerServiceWorker(
 
   wb.addEventListener('waiting', onWaiting);
 
-  void wb.register().catch(() => {
-    // registration can fail on unsupported browsers; ignore
+  void wb.register().catch((error: unknown) => {
+    console.warn('Service worker registration failed', error);
   });
 
   return () => {

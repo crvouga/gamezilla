@@ -113,22 +113,55 @@ async function bumpActiveMemberCount(
   );
 }
 
-async function bumpInviteUseIfPresent(
+/**
+ * Atomically consume one invite use. The `use_count < max_uses` guard makes
+ * this the single source of truth for the quota, so concurrent accepts of a
+ * single-use invite cannot both succeed. Returns `false` when exhausted.
+ */
+async function consumeInviteUse(
   sql: SqlClient,
-  spaceId: string,
-  inviteToken: string | null
-): Promise<void> {
-  if (inviteToken === null || inviteToken.length === 0) return;
-  const invite = await findValidInviteInStore(sql, inviteToken, spaceId);
-  if (invite === null) return;
+  inviteId: string
+): Promise<boolean> {
   const now = isoNow();
-  await sql.run(
+  const result = await sql.run(
     `UPDATE ${SPACE_INVITES_TABLE.tableName}
      SET ${SpaceInviteCol.useCount} = ${SpaceInviteCol.useCount} + 1,
          ${SpaceInviteCol.acceptedAt} = COALESCE(${SpaceInviteCol.acceptedAt}, ?)
-     WHERE ${SpaceInviteCol.id} = ?`,
-    [now, invite.inviteId]
+     WHERE ${SpaceInviteCol.id} = ?
+       AND ${SpaceInviteCol.useCount} < ${SpaceInviteCol.maxUses}`,
+    [now, inviteId]
   );
+  return result.changes > 0;
+}
+
+/**
+ * Consume a use only when the join relies on the invite and creates/reactivates
+ * a seat — idempotent re-joins by an existing member must not burn quota.
+ * Consume before writing membership so an exhausted invite blocks the join.
+ */
+async function consumeInviteForJoinIfNeeded(args: {
+  readonly sql: SqlClient;
+  readonly spaceId: string;
+  readonly inviteToken: string | null;
+  readonly reactivating: boolean;
+}): Promise<WriteResult<void>> {
+  if (!args.reactivating) return ok(undefined);
+  if (args.inviteToken === null || args.inviteToken.length === 0) {
+    return ok(undefined);
+  }
+  const invite = await findValidInviteInStore(
+    args.sql,
+    args.inviteToken,
+    args.spaceId
+  );
+  if (invite === null) {
+    return fail('SPACE_INVITE_EXHAUSTED', 'Invite has already been used up');
+  }
+  const consumed = await consumeInviteUse(args.sql, invite.inviteId);
+  if (!consumed) {
+    return fail('SPACE_INVITE_EXHAUSTED', 'Invite has already been used up');
+  }
+  return ok(undefined);
 }
 
 export async function authorizeJoinSpace(
@@ -144,11 +177,22 @@ export async function executeJoinSpace(
   input: JoinSpaceInput,
   sql: SqlClient
 ): Promise<WriteResult<void>> {
+  const membershipId = spaceDeviceMembershipEntityId(
+    ctx.deviceId,
+    input.spaceId
+  );
+  const reactivating = await wasMembershipInactive(sql, membershipId);
+  const inviteResult = await consumeInviteForJoinIfNeeded({
+    sql,
+    spaceId: input.spaceId,
+    inviteToken: input.inviteToken,
+    reactivating,
+  });
+  if (!inviteResult.ok) return inviteResult;
   const { reactivated } = await upsertJoinMembership(ctx, input, sql);
   if (reactivated) {
     await bumpActiveMemberCount(sql, input.spaceId);
   }
-  await bumpInviteUseIfPresent(sql, input.spaceId, input.inviteToken);
   return ok(undefined);
 }
 

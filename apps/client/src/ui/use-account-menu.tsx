@@ -2,8 +2,6 @@ import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import { MyUsername } from '@libs/profile/client/my-username';
 import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
-import { useAsync } from '@pkgs/async/use-async';
-import { useLogger } from '@pkgs/logger/react';
 import type { LocalizedString } from '@pkgs/i18n';
 import {
   LogInIcon,
@@ -43,7 +41,6 @@ function useAccountMenuHandlers() {
   const isAuthenticated = useIsSignedIn();
   const { open: openSignInModal } = useSignInModal();
   const router = useRouter();
-  const log = useLogger('account-menu');
 
   const onAccount = useCallback(() => {
     router.push('/more/account');
@@ -53,20 +50,9 @@ function useAccountMenuHandlers() {
     router.push('/more');
   }, [router]);
 
-  const { run: runSignIn } = useAsync({
-    operation: async () => {
-      openSignInModal();
-    },
-    options: {
-      onError: (err) => {
-        log.error('sign in action failed', { error: err.message });
-      },
-    },
-  });
-
   const onSignIn = useCallback(() => {
-    void runSignIn().catch(() => {});
-  }, [runSignIn]);
+    openSignInModal();
+  }, [openSignInModal]);
 
   return { isAuthenticated, onAccount, onSettings, onSignIn };
 }

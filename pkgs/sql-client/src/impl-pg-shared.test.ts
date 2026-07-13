@@ -92,6 +92,34 @@ describe('pgQueryWithOptionalSearchPathPin', () => {
     expect(calls[2]?.vals).toEqual(['test-app']);
     expect(calls[3]?.text).toBe('COMMIT');
   });
+
+  test('preserves query and rollback failures', async () => {
+    const queryError = new Error('query failed');
+    const rollbackError = new Error('rollback failed');
+    const queryable = {
+      query: async (text: string) => {
+        if (text === 'SELECT broken') throw queryError;
+        if (text === 'ROLLBACK') throw rollbackError;
+        return { rows: [], rowCount: 0 };
+      },
+    } as unknown as PgExecutor;
+
+    try {
+      await pgQueryWithOptionalSearchPathPin({
+        queryable,
+        dbScope: testScope,
+        pinSearchPathEachQuery: true,
+        sql: 'SELECT broken',
+      });
+      throw new Error('expected query to fail');
+    } catch (error: unknown) {
+      expect(error).toBeInstanceOf(AggregateError);
+      expect((error as AggregateError).errors).toEqual([
+        queryError,
+        rollbackError,
+      ]);
+    }
+  });
 });
 
 describe('pgRawQueryWithSearchPathPin', () => {

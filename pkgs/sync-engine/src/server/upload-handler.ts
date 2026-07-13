@@ -22,13 +22,38 @@ export type UploadHandlerOptions<TAuth, TCtx> = {
   readonly openSql: () => Promise<SqlClient>;
 };
 
+/**
+ * Table and column names arrive from the (authenticated) client and are
+ * interpolated into SQL text — bind parameters cannot stand in for
+ * identifiers. Values are always parameterized, but a hostile column key such
+ * as `x = 1; DROP TABLE profiles; --` would be a stacked-query injection if
+ * spliced in raw. Restrict identifiers to a conservative snake/camel-case
+ * shape (which every real sync table + column already satisfies) and quote
+ * them so the interpolation is unambiguous on both Postgres and SQLite.
+ */
+const SQL_IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+/**
+ * Throws a plain `Error` (not an `assert` crash) so a hostile identifier is
+ * turned into a per-row rejection by {@link applyUploadRow} rather than
+ * exiting the worker process.
+ */
+function quoteSqlIdentifier(name: string): string {
+  if (!SQL_IDENTIFIER.test(name)) {
+    throw new Error(`invalid SQL identifier in upload row: ${name}`);
+  }
+  return `"${name}"`;
+}
+
 export async function applyPut(sql: SqlClient, row: UploadRow): Promise<void> {
   const values = row.values ?? {};
   const columns = Object.keys(values);
   assert.ok(columns.length > 0, 'upload put requires values', { row });
+  const table = quoteSqlIdentifier(row.table);
+  const quotedColumns = columns.map(quoteSqlIdentifier);
   const placeholders = columns.map(() => '?').join(', ');
-  const sqlText = `INSERT INTO ${row.table} (${columns.join(', ')}) VALUES (${placeholders})
-    ON CONFLICT (id) DO UPDATE SET ${columns.map((c) => `${c} = excluded.${c}`).join(', ')}`;
+  const sqlText = `INSERT INTO ${table} (${quotedColumns.join(', ')}) VALUES (${placeholders})
+    ON CONFLICT (id) DO UPDATE SET ${quotedColumns.map((c) => `${c} = excluded.${c}`).join(', ')}`;
   await sql.run(
     sqlText,
     columns.map((c) => values[c])
@@ -42,8 +67,9 @@ export async function applyPatch(
   const values = row.values ?? {};
   const columns = Object.keys(values);
   assert.ok(columns.length > 0, 'upload patch requires values', { row });
-  const sets = columns.map((c) => `${c} = ?`).join(', ');
-  await sql.run(`UPDATE ${row.table} SET ${sets} WHERE id = ?`, [
+  const table = quoteSqlIdentifier(row.table);
+  const sets = columns.map((c) => `${quoteSqlIdentifier(c)} = ?`).join(', ');
+  await sql.run(`UPDATE ${table} SET ${sets} WHERE id = ?`, [
     ...columns.map((c) => values[c]),
     row.id,
   ]);
@@ -53,7 +79,9 @@ export async function applyDelete(
   sql: SqlClient,
   row: UploadRow
 ): Promise<void> {
-  await sql.run(`DELETE FROM ${row.table} WHERE id = ?`, [row.id]);
+  await sql.run(`DELETE FROM ${quoteSqlIdentifier(row.table)} WHERE id = ?`, [
+    row.id,
+  ]);
 }
 
 export async function applyRow(sql: SqlClient, row: UploadRow): Promise<void> {
