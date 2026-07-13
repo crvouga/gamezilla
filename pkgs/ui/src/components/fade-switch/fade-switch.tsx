@@ -21,26 +21,16 @@ export type FadeSwitchProps = {
   children: ReactNode;
 };
 
-export function FadeSwitch({
-  stateKey,
-  children,
-}: FadeSwitchProps): ReactNode {
+export function FadeSwitch({ stateKey, children }: FadeSwitchProps): ReactNode {
   if (Platform.OS === 'web') {
     return children;
   }
-  return (
-    <NativeFadeSwitch stateKey={stateKey}>{children}</NativeFadeSwitch>
-  );
+  return <NativeFadeSwitch stateKey={stateKey}>{children}</NativeFadeSwitch>;
 }
 
-function NativeFadeSwitch({
-  stateKey,
-  children,
-}: FadeSwitchProps): ReactNode {
+function NativeFadeSwitch({ stateKey, children }: FadeSwitchProps): ReactNode {
   const { content, opacity } = useFadeMachine(stateKey, children);
   const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
-  return (
-    <Animated.View style={[styles.root, style]}>{content}</Animated.View>
-  );
+  return <Animated.View style={[styles.root, style]}>{content}</Animated.View>;
 }

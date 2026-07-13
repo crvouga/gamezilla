@@ -25,14 +25,14 @@ export function SpaceMembersAvatarGroup({
   const membershipIds = useSpaceGuestMembershipIds(spaceId);
 
   return (
-    <AvatarGroup size={size} maxVisible={MAX_VISIBLE} ringColor={AVATAR_GROUP_RING}>
+    <AvatarGroup
+      size={size}
+      maxVisible={MAX_VISIBLE}
+      ringColor={AVATAR_GROUP_RING}
+    >
       <SpaceHostAvatar spaceId={spaceId} size={size} />
       {membershipIds.map((mid) => (
-        <SpaceGuestMembershipAvatar
-          key={mid}
-          membershipId={mid}
-          size={size}
-        />
+        <SpaceGuestMembershipAvatar key={mid} membershipId={mid} size={size} />
       ))}
     </AvatarGroup>
   );

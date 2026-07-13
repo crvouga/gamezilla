@@ -44,4 +44,3 @@ export type InteractionListQuery = {
   readonly cursor?: string;
   readonly limit?: number;
 };
-

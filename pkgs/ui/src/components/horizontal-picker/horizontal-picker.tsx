@@ -108,7 +108,9 @@ function useRenderListItem<T>(deps: RenderDeps<T>): ListRenderItem<T> {
  * `onSelect` fires when the nearest index changes (including mid-swipe).
  * Optional `onSettle` fires once when scroll rests.
  */
-export function HorizontalPicker<T>(props: HorizontalPickerProps<T>): ReactNode {
+export function HorizontalPicker<T>(
+  props: HorizontalPickerProps<T>
+): ReactNode {
   const {
     items,
     selectedIndex,

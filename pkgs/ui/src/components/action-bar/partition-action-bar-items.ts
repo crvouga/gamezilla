@@ -106,7 +106,8 @@ function assignAutoItems(
     (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
   );
   for (const item of autoByPriority) {
-    if (state.visibleIds.has(item.id) || state.overflowIds.has(item.id)) continue;
+    if (state.visibleIds.has(item.id) || state.overflowIds.has(item.id))
+      continue;
     placeItem(item.id, state);
   }
 }
@@ -116,7 +117,8 @@ function assignRemainingItems(
   state: AssignmentState
 ): void {
   for (const item of items) {
-    if (state.visibleIds.has(item.id) || state.overflowIds.has(item.id)) continue;
+    if (state.visibleIds.has(item.id) || state.overflowIds.has(item.id))
+      continue;
     placeItem(item.id, state);
   }
 }
@@ -161,7 +163,9 @@ function partitionByVisibleCount(
 }
 
 /** Before the first layout pass, budget is unknown — keep inline items visible. */
-function partitionBeforeMeasure(items: readonly ActionBarItem[]): ActionBarPartition {
+function partitionBeforeMeasure(
+  items: readonly ActionBarItem[]
+): ActionBarPartition {
   const { always } = itemSets(items);
   return {
     visible: items.filter((item) => !always.has(item.id)),

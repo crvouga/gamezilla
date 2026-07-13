@@ -2,10 +2,8 @@ import {
   INITIAL_SYNC_STATUS,
   type SyncEngineStatus,
 } from '@pkgs/sync-engine/client/sync-status';
-import type {
-  SyncEngine,
-  WatchSubscription,
-} from '@pkgs/sync-engine/client/sync-engine-port';
+import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
+import { createSharedWatchRegistry } from '@pkgs/sync-engine/client/shared-watch-registry';
 import type { SyncStreamSubscription } from '@pkgs/sync-engine/client/sync-stream-subscription';
 
 import type { PowerSyncDatabasePort } from './powersync-database-port';
@@ -34,42 +32,6 @@ function mapStatus(
     online: s.connected,
     hasSynced: s.hasSynced,
     lastError: null,
-  };
-}
-
-function createWatch<T extends Record<string, unknown>>(
-  db: PowerSyncDatabasePort,
-  sql: string,
-  params: readonly unknown[]
-): WatchSubscription<readonly T[]> {
-  let snapshot: readonly T[] = [];
-  let hydrated = false;
-
-  const refresh = async (): Promise<void> => {
-    snapshot = await db.getAll<T>(sql, [...params]);
-    hydrated = true;
-  };
-
-  void refresh();
-
-  return {
-    getSnapshot: () => snapshot,
-    getHydrated: () => hydrated,
-    subscribe: (listener) => {
-      void refresh().then(() => listener());
-      const unregister = db.registerListener({
-        statusChanged: () => {
-          void refresh().then(() => listener());
-        },
-      });
-      const interval = setInterval(() => {
-        void refresh().then(() => listener());
-      }, 500);
-      return () => {
-        unregister();
-        clearInterval(interval);
-      };
-    },
   };
 }
 
@@ -124,13 +86,16 @@ export function createPowerSyncSyncEngine(
   db.registerListener({ statusChanged: publishStatus });
 
   const subscribeSyncStream = createSubscribeSyncStream(db);
+  const watchRegistry = createSharedWatchRegistry((sql, params) =>
+    db.watchSql(sql, params)
+  );
 
   return {
     db: sqlClient,
     watch: <T extends Record<string, unknown>>(
       sql: string,
       params: readonly unknown[] = []
-    ) => createWatch<T>(db, sql, params),
+    ) => watchRegistry.watch<T>(sql, params),
     connect: async () => {
       await db.connect();
       publishStatus();

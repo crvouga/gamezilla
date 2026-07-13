@@ -2,12 +2,7 @@
  * Native fade machine for {@link FadeSwitch}: sequential out → swap → in.
  */
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   Easing,
   runOnJS,

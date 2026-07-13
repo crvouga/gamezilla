@@ -297,11 +297,10 @@ export class Room<
   /**
    * Server is authoritative: drop the local committed cache (state, entries,
    * persisted blob, synced flag) so the next welcome can rebuild from
-   * scratch. Used when we detect the server's log has diverged from ours
-   * (e.g. server storage was reset to a shorter log, or a broadcast carries
-   * a seq at or below our local tail). The outbound command queue is
-   * preserved so any user intent in flight gets re-submitted against the
-   * fresh server log.
+   * scratch. Used when welcome handling detects the server's log has
+   * diverged from ours (e.g. server storage was reset to a shorter log).
+   * The outbound command queue is preserved so any user intent in flight
+   * gets re-submitted against the fresh server log.
    */
   private async resetCommittedToEmpty(): Promise<void> {
     this.committedState = this.module.initialState();
@@ -343,11 +342,10 @@ export class Room<
       // Re-request a full sync. If this welcome was already fromSeq=0 and we
       // hold nothing, the server claimed a tip with no events — unrecoverable.
       if (msg.fromSeq === 0 && this.lastSeq === 0) {
-        assert.ok(
-          false,
-          'welcome lastSeq must match last applied entry seq',
-          { lastSeq: this.lastSeq, msgLastSeq: msg.lastSeq }
-        );
+        assert.ok(false, 'welcome lastSeq must match last applied entry seq', {
+          lastSeq: this.lastSeq,
+          msgLastSeq: msg.lastSeq,
+        });
       }
       if (this.lastSeq !== 0) {
         await this.resetCommittedToEmpty();
@@ -376,12 +374,18 @@ export class Room<
     const first = msg.entries[0];
     if (first !== undefined) {
       if (first.seq <= this.lastSeq) {
-        // Server log diverged: a broadcast seq at or below our tail means
-        // the server reset / replayed under a shorter log while our local
-        // cache still holds the older, higher-seq entries. Server wins:
-        // wipe and re-sync from scratch.
-        await this.resetCommittedToEmpty();
-        this.sendSync();
+        // Duplicate / replay of an already-applied commit (common when the
+        // outbound queue re-flushes commands that landed before a reconnect).
+        // True server log resets are recovered via welcome `serverBehind`.
+        // Wiping here caused an infinite reset↔flush loop on iOS.
+        if (typeof msg.commandId === 'string' && msg.commandId.length > 0) {
+          this.optimistic.delete(msg.commandId);
+          this.pendingQueue = this.pendingQueue.filter(
+            (c) => c.id !== msg.commandId
+          );
+          await this.storage.removeQueued(msg.commandId);
+          this.notify();
+        }
         return;
       }
       if (first.seq !== this.lastSeq + 1) {

@@ -76,7 +76,11 @@ export async function ensureProfileWithUsername(
   const now = new Date().toISOString();
   const existing = await readProfileCardById(sql, profileId);
   if (existing === null) {
-    for (let attempt = 0; attempt < MAX_USERNAME_ASSIGN_ATTEMPTS; attempt += 1) {
+    for (
+      let attempt = 0;
+      attempt < MAX_USERNAME_ASSIGN_ATTEMPTS;
+      attempt += 1
+    ) {
       const username = generateRandomUsername(`${profileId}:${attempt}`);
       try {
         await insertProfileRow(sql, profileId, username, now);
@@ -96,7 +100,10 @@ export async function ensureProfileWithUsername(
     await assignUniqueUsername(sql, profileId);
     card = await readProfileCardById(sql, profileId);
     if (card === null) {
-      throw new ProfileError('PROFILE_NOT_FOUND', 'profile missing after ensure');
+      throw new ProfileError(
+        'PROFILE_NOT_FOUND',
+        'profile missing after ensure'
+      );
     }
   }
   return card;

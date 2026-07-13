@@ -78,10 +78,7 @@ export function handleSendFriendRequest(
                 : result.code === 'FRIENDS_COOLDOWN'
                   ? 429
                   : 400;
-      return c.json(
-        { error: result.message, code: result.code },
-        status
-      );
+      return c.json({ error: result.message, code: result.code }, status);
     }
     const request: FriendRequest = unwrap(result);
     return c.json({ request });

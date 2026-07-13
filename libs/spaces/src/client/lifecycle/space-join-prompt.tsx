@@ -49,9 +49,7 @@ export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         {
-          name: (
-            <SpaceTitleText spaceId={spaceId} variant="navigationTitle" />
-          ),
+          name: <SpaceTitleText spaceId={spaceId} variant="navigationTitle" />,
         },
       ]}
       content={({ sx }) => (

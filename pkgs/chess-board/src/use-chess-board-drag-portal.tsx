@@ -1,6 +1,8 @@
-import { useEffect, useMemo } from 'react';
+import { Platform } from 'react-native';
+import { useEffect, useMemo, type ReactNode } from 'react';
 import type { View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
+import { DragPieceNativeOverlay } from './chess-board-drag-piece-native-overlay';
 import { DragPieceOverlay } from './chess-board-drag-piece-overlay';
 import type { PieceCode } from './chess-board-types';
 import type { PieceImageCache } from './chess-pieces-cache';
@@ -19,10 +21,76 @@ export type DragPortalArgs = {
   pieceDraw: number;
 };
 
+type OverlayMotion = {
+  dragX: SharedValue<number>;
+  dragY: SharedValue<number>;
+  isDragging: SharedValue<boolean>;
+  dragPickupOpacity: SharedValue<number>;
+  dragPickupScale: SharedValue<number>;
+  pieceDraw: number;
+  originX: SharedValue<number>;
+  originY: SharedValue<number>;
+};
+
+function buildWebDragNode(
+  code: PieceCode,
+  images: PieceImageCache,
+  motion: OverlayMotion
+): ReactNode {
+  return (
+    <DragPieceOverlay
+      pieceImages={images}
+      draggedPieceCode={code}
+      dragX={motion.dragX}
+      dragY={motion.dragY}
+      isDragging={motion.isDragging}
+      dragPickupOpacity={motion.dragPickupOpacity}
+      dragPickupScale={motion.dragPickupScale}
+      pieceDraw={motion.pieceDraw}
+      originX={motion.originX}
+      originY={motion.originY}
+    />
+  );
+}
+
+function buildNativeDragNode(
+  code: PieceCode,
+  motion: OverlayMotion
+): ReactNode {
+  return (
+    <DragPieceNativeOverlay
+      pieceCode={code}
+      dragX={motion.dragX}
+      dragY={motion.dragY}
+      isDragging={motion.isDragging}
+      dragPickupOpacity={motion.dragPickupOpacity}
+      dragPickupScale={motion.dragPickupScale}
+      pieceDraw={motion.pieceDraw}
+      originX={motion.originX}
+      originY={motion.originY}
+    />
+  );
+}
+
+function buildDragOverlayNode(p: {
+  enabled: boolean;
+  code: PieceCode | null;
+  images: PieceImageCache | null;
+  motion: OverlayMotion;
+}): ReactNode | null {
+  if (!p.enabled || p.code === null) return null;
+  if (Platform.OS === 'web') {
+    if (p.images === null) return null;
+    return buildWebDragNode(p.code, p.images, p.motion);
+  }
+  return buildNativeDragNode(p.code, p.motion);
+}
+
 /**
  * Mounts the dragged piece into the app overlay portal so it sits above any
- * z-index. Pulls the `setOverlayNode` function out of `dragOverlay` and depends
- * on it directly so the effect doesn't re-run on every parent render.
+ * z-index. Origin is SharedValue-driven so measure updates do not remount.
+ * Web uses Skia; native uses SvgXml (second Skia canvas crashes iOS; RN Image
+ * data-URIs often fail to decode on iOS).
  */
 export function useChessBoardDragPortal(args: DragPortalArgs): void {
   const {
@@ -38,35 +106,32 @@ export function useChessBoardDragPortal(args: DragPortalArgs): void {
     pieceDraw,
   } = args;
   const setOverlayNode = dragOverlay.setOverlayNode;
-  const overlayOrigin = dragOverlay.origin;
+  const originX = dragOverlay.originX;
+  const originY = dragOverlay.originY;
 
   useEffect(() => {
-    if (!enabled) {
-      setOverlayNode(null);
-      return;
-    }
-    if (draggedPieceCode === null || pieceImages === null) {
-      setOverlayNode(null);
-      return;
-    }
     setOverlayNode(
-      <DragPieceOverlay
-        key="chess-drag-overlay"
-        pieceImages={pieceImages}
-        draggedPieceCode={draggedPieceCode}
-        dragX={dragX}
-        dragY={dragY}
-        isDragging={isDragging}
-        dragPickupOpacity={dragPickupOpacity}
-        dragPickupScale={dragPickupScale}
-        pieceDraw={pieceDraw}
-        origin={overlayOrigin}
-      />
+      buildDragOverlayNode({
+        enabled,
+        code: draggedPieceCode,
+        images: pieceImages,
+        motion: {
+          dragX,
+          dragY,
+          isDragging,
+          dragPickupOpacity,
+          dragPickupScale,
+          pieceDraw,
+          originX,
+          originY,
+        },
+      })
     );
   }, [
     enabled,
     setOverlayNode,
-    overlayOrigin,
+    originX,
+    originY,
     draggedPieceCode,
     pieceImages,
     dragX,

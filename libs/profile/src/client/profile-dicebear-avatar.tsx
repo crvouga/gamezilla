@@ -26,7 +26,11 @@ export const ProfileDiceBearAvatar = memo(function ProfileDiceBearAvatar({
   const optionsJson = JSON.stringify(config.options);
   const svg = useMemo(() => {
     return profileAvatarSvg(
-      { style, seed, options: JSON.parse(optionsJson) as AvatarConfig['options'] },
+      {
+        style,
+        seed,
+        options: JSON.parse(optionsJson) as AvatarConfig['options'],
+      },
       size
     );
   }, [style, seed, optionsJson, size]);

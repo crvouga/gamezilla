@@ -15,7 +15,7 @@ import type {
 import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content';
 import { ChessBoardView } from './chess-board-view';
 import { isDragOverlayPortalActive } from './chess-board-drag-platform';
-import { usePieceSkiaImages } from './chess-pieces-cache';
+import { usePieceCaches, type PieceImageCache } from './chess-pieces-cache';
 import { pieceCode } from './chess-pieces-svg';
 import { useChessBoardApplyMoveSound } from './use-chess-board-apply-move-sound';
 import { useChessBoardDragOverlay } from './use-chess-board-drag-overlay';
@@ -101,7 +101,7 @@ type GameStateBundle = {
   game: ReturnType<typeof useChessGame>;
   interaction: ChessBoardInteractionState;
   drag: ReturnType<typeof useChessBoardDragSharedValues>;
-  pieceImages: ReturnType<typeof usePieceSkiaImages>;
+  pieceImages: PieceImageCache | null;
   legalTargets: readonly Square[];
   rulesFen: string | undefined;
   sounds: ReturnType<typeof useChessBoardSounds>;
@@ -115,7 +115,8 @@ function useGameStateBundle(props: ChessBoardCanvasProps): GameStateBundle {
   const game = useChessGame({ ...(fen ? { initialFen: fen } : {}) });
   const interaction = useChessBoardInteractionState();
   const drag = useChessBoardDragSharedValues();
-  const pieceImages = usePieceSkiaImages();
+  const pieceCaches = usePieceCaches();
+  const pieceImages = pieceCaches?.images ?? null;
   const sounds = useChessBoardSounds();
   const applySuccessfulMove = useChessBoardApplyMoveSound(sounds);
   const legalTargets = useMemo(() => {
@@ -186,14 +187,12 @@ function useGestureWiring(
     dragX: drag.dragX,
     dragY: drag.dragY,
     isDragging: drag.isDragging,
+    hoverSquareIndex: drag.hoverSquareIndex,
     dragPickupScale: drag.dragPickupScale,
     dragPickupOpacity: drag.dragPickupOpacity,
     snapPickup: Platform.OS !== 'web',
     setSelected: handlers.setSelected,
     onPanPickupStart: handlers.onPanPickupStart,
-    onDragStart: handlers.onDragStart,
-    onDragEnd: handlers.onDragEnd,
-    onHoverSquare: handlers.onHoverSquare,
     onDrop: handlers.onDrop,
     commitDrop: handlers.commitDrop,
   });
@@ -262,6 +261,7 @@ function useContentProps(
   pieceDraw: number
 ): ChessBoardCanvasContentProps {
   const portalDragActive = isDragOverlayPortalActive(props.dragOverlayPortal);
+  const { selected, dragFrom } = bundle.interaction;
   return useMemo(
     () => ({
       size: props.size,
@@ -273,7 +273,9 @@ function useContentProps(
       cellFeedback: props.cellFeedback,
       pieceImages: bundle.pieceImages,
       pieceDraw,
-      interaction: bundle.interaction,
+      selected,
+      dragFrom,
+      hoverSquareIndex: bundle.drag.hoverSquareIndex,
       game: bundle.game,
       legalTargets: bundle.legalTargets,
       checkKingSquare: wiring.checkKingSquare,
@@ -299,7 +301,9 @@ function useContentProps(
       portalDragActive,
       bundle.pieceImages,
       pieceDraw,
-      bundle.interaction,
+      selected,
+      dragFrom,
+      bundle.drag.hoverSquareIndex,
       bundle.game,
       bundle.legalTargets,
       bundle.drag.dragX,

@@ -5,9 +5,7 @@ import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
  * Returns the live space id hosted by `hostAccountId` when that space is
  * friends-visible or public (already synced to this client).
  */
-export function useFriendLiveSpaceId(
-  hostAccountId: string
-): string | null {
+export function useFriendLiveSpaceId(hostAccountId: string): string | null {
   const enabled = hostAccountId.length > 0;
   const { row } = useWatchOne<{ readonly id: string }>(
     enabled

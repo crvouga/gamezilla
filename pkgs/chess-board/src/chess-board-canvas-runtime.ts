@@ -62,6 +62,9 @@ export function preloadChessBoardCanvas(): Promise<void> {
       await preloadSkiaWeb();
       const m = await import('./chess-board-canvas');
       setChessBoardCanvas(m.ChessBoardCanvas);
+      // Piece rasters load on first board mount via `usePieceCaches` — do not
+      // kick them here. Preloading mid-CanvasKit init produced corrupt SkImages
+      // on web (pieces drew oversized / mis-centered).
     })();
   }
   return canvasPreloadPromise;

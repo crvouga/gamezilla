@@ -12,7 +12,12 @@ type GuestMembershipRow = {
   readonly id: string;
 };
 
-function roleForMember(spaceRow: SpaceRow | null, myId: string): 'host' | 'guest' {
+type PresenceLatch = { spaceId: string; presence: SpacePresence };
+
+function roleForMember(
+  spaceRow: SpaceRow | null,
+  myId: string
+): 'host' | 'guest' {
   const hostId = spaceRow?.host_id ?? null;
   if (hostId !== null && hostId.length > 0 && hostId === myId) {
     return 'host';
@@ -52,38 +57,63 @@ export function resolveSpacePresence(args: {
 }): SpacePresence {
   const loading = loadingPresence(args);
   if (loading !== null) return loading;
+  const endedAt = args.spaceRow?.ended_at ?? null;
+  // Ended wins over a lingering membership row so chrome/miniplayer tear down
+  // even if auto-leave has not yet written left_at.
+  if (endedAt !== null) {
+    return { status: 'join', ended: true };
+  }
   if (args.memberEnabled && args.guestRow !== null) {
     return {
       status: 'active',
       role: roleForMember(args.spaceRow, args.myId),
     };
   }
-  const endedAt = args.spaceRow?.ended_at ?? null;
-  return { status: 'join', ended: endedAt !== null };
+  return { status: 'join', ended: false };
 }
 
+function latchForSpace(
+  spaceId: string,
+  latch: PresenceLatch | null
+): PresenceLatch | null {
+  if (latch === null || latch.spaceId !== spaceId) return null;
+  return latch;
+}
+
+function holdActiveAcrossTransientJoin(
+  spaceId: string,
+  resolved: SpacePresence,
+  latch: PresenceLatch | null
+): PresenceLatch | null {
+  if (resolved.status !== 'join' || resolved.ended) return null;
+  if (latch === null || latch.presence.status !== 'active') return null;
+  return latchForSpace(spaceId, latch);
+}
+
+/**
+ * Hold the last non-loading presence while queries report `loading`, and hold
+ * `active` across transient `join` snapshots (sync/watch gaps where membership
+ * briefly disappears with `isLoading: false`). Ended spaces always accept
+ * `join`. Intentional leave/end must clear the shared latch store.
+ */
 export function latchStaleSpacePresence(
   spaceId: string,
   resolved: SpacePresence,
-  latch: { spaceId: string; presence: SpacePresence } | null
-): {
-  presence: SpacePresence;
-  latch: { spaceId: string; presence: SpacePresence } | null;
-} {
+  latch: PresenceLatch | null
+): { presence: SpacePresence; latch: PresenceLatch | null } {
   if (spaceId.length === 0) {
     return { presence: resolved, latch: null };
   }
-  if (latch !== null && latch.spaceId !== spaceId) {
-    latch = null;
+  const scoped = latchForSpace(spaceId, latch);
+  const heldActive = holdActiveAcrossTransientJoin(spaceId, resolved, scoped);
+  if (heldActive !== null) {
+    return { presence: heldActive.presence, latch: heldActive };
   }
   if (resolved.status !== 'loading') {
-    return {
-      presence: resolved,
-      latch: { spaceId, presence: resolved },
-    };
+    return { presence: resolved, latch: { spaceId, presence: resolved } };
   }
-  if (latch !== null && latch.spaceId === spaceId) {
-    return { presence: latch.presence, latch };
+  if (scoped !== null) {
+    return { presence: scoped.presence, latch: scoped };
   }
-  return { presence: resolved, latch };
+  return { presence: resolved, latch: null };
 }

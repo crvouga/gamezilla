@@ -20,19 +20,14 @@ function AppStack() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen
         name="space"
-        options={{
-          presentation: 'fullScreenModal' as const,
-        }}
+        options={{ presentation: 'fullScreenModal' as const }}
       />
       <Stack.Screen name="profile" />
       <Stack.Screen name="more" />
       <Stack.Screen name="ui" />
       <Stack.Screen
         name="sso-callback"
-        options={{
-          headerShown: false,
-          animation: 'fade' as const,
-        }}
+        options={{ headerShown: false, animation: 'fade' as const }}
       />
     </Stack>
   );

@@ -4,11 +4,7 @@ import type { Interaction } from '../shared/interaction';
 import { buildInteractionId } from '../shared/interaction-id';
 import { InboxError } from '../shared/inbox-errors';
 import { rowToInteraction } from './row-mapper';
-import {
-  buildUpsertParams,
-  findById,
-  findBySource,
-} from './publish-helpers';
+import { buildUpsertParams, findById, findBySource } from './publish-helpers';
 import type {
   DeactivateInteractionInput,
   PublishInteractionInput,
@@ -55,7 +51,10 @@ export async function publishInteraction(
     params
   );
 
-  const row = await findById(sql, buildInteractionId(input.source, input.userId));
+  const row = await findById(
+    sql,
+    buildInteractionId(input.source, input.userId)
+  );
   if (row === null) {
     throw new InboxError('INBOX_NOT_FOUND', 'Interaction publish failed');
   }
@@ -103,7 +102,10 @@ export async function findInteractionById(
 
 export async function findInteractionBySource(
   sql: SqlClient,
-  lookup: { readonly userId: string; readonly source: PublishInteractionInput['source'] }
+  lookup: {
+    readonly userId: string;
+    readonly source: PublishInteractionInput['source'];
+  }
 ): Promise<Interaction | null> {
   const row = await findBySource(sql, {
     userId: lookup.userId,

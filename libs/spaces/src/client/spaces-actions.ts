@@ -38,9 +38,7 @@ export async function peekSpace(
   inviteToken?: string | null
 ): Promise<SpacePeekDto> {
   const qs =
-    inviteToken !== null &&
-    inviteToken !== undefined &&
-    inviteToken.length > 0
+    inviteToken !== null && inviteToken !== undefined && inviteToken.length > 0
       ? `?invite=${encodeURIComponent(inviteToken)}`
       : '';
   const body = await spacesApiJson<{ peek: SpacePeekDto }>({

@@ -1,5 +1,5 @@
 import type { Href, Router } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocalSearchParams, usePathname } from 'expo-router';
 
 /** Expo Router href for `/space/:id` — use instead of `{ pathname, params }`. */
@@ -36,13 +36,21 @@ export function spaceIdFromPathname(pathname: string): string {
 /**
  * Stable space id for `/space/[id]` screens. Prefer the normalized route param;
  * fall back to the path segment so redundant `?id=` mirrors cannot blank the id.
+ * Hold the last non-empty id so brief Expo Router param gaps do not unmount the
+ * space session (which tears down the room and flashes join/loading).
  */
 export function useSpaceRouteId(): string {
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const pathname = usePathname();
   const fromParams = normalizeSpaceRouteParam(id);
-  if (fromParams.length > 0) return fromParams;
-  return spaceIdFromPathname(pathname);
+  const fromPath = spaceIdFromPathname(pathname);
+  const resolved = fromParams.length > 0 ? fromParams : fromPath;
+  const lastRef = useRef(resolved);
+  if (resolved.length > 0) {
+    lastRef.current = resolved;
+    return resolved;
+  }
+  return lastRef.current;
 }
 
 /** Drop focus on web so the previous screen can be aria-hidden without a11y warnings. */

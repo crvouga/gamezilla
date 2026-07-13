@@ -42,7 +42,11 @@ const deadline = Date.now() + timeoutMs;
 let lastErr: string | undefined;
 
 while (Date.now() < deadline) {
-  if (Number.isFinite(previewPid) && previewPid > 0 && !isPidAlive(previewPid)) {
+  if (
+    Number.isFinite(previewPid) &&
+    previewPid > 0 &&
+    !isPidAlive(previewPid)
+  ) {
     throw new Error(
       `API /api/health: preview process (pid ${String(previewPid)}) exited before becoming healthy.${formatPreviewLog()}`
     );

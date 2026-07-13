@@ -28,17 +28,17 @@ describe('isChessPuzzleFeedConfig', () => {
     expect(isChessPuzzleFeedConfig(DEFAULT_CHESS_PUZZLE_FEED_CONFIG)).toBe(
       true
     );
-    expect(
-      isChessPuzzleFeedConfig({ mode: 'custom', customRating: 800 })
-    ).toBe(true);
+    expect(isChessPuzzleFeedConfig({ mode: 'custom', customRating: 800 })).toBe(
+      true
+    );
   });
 
   test('rejects invalid shapes', () => {
     expect(isChessPuzzleFeedConfig(null)).toBe(false);
     expect(isChessPuzzleFeedConfig({ mode: 'auto' })).toBe(false);
-    expect(
-      isChessPuzzleFeedConfig({ mode: 'other', customRating: 1200 })
-    ).toBe(false);
+    expect(isChessPuzzleFeedConfig({ mode: 'other', customRating: 1200 })).toBe(
+      false
+    );
   });
 });
 

@@ -1,24 +1,44 @@
 import { playAudioOrIgnoreAutoplayBlock } from '@pkgs/ui';
 import { chessSoundSources } from '@pkgs/sounds/chess-sound-sources';
 import { useAudioPlayer } from 'expo-audio';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
-async function playFromStart(player: {
+type PlayablePlayer = {
   seekTo: (s: number) => Promise<void>;
   play: () => void;
-}) {
-  try {
-    await player.seekTo(0);
-  } catch {
-    // seek can fail before load; still try play
-  }
-  playAudioOrIgnoreAutoplayBlock(() => player.play());
-}
+  pause?: () => void;
+};
 
 type WarmablePlayer = {
   seekTo: (s: number) => Promise<void>;
   pause?: () => void;
 };
+
+/**
+ * Pause → seek → play. Per-player generation so rapid replays of the *same*
+ * sound cancel stale seeks, while a later different sound (check after capture)
+ * does not abort the primary player's pending play.
+ */
+function createPlayFromStart(player: PlayablePlayer): () => void {
+  let generation = 0;
+  return () => {
+    const myGen = ++generation;
+    void (async () => {
+      try {
+        player.pause?.();
+      } catch {
+        // ignore
+      }
+      try {
+        await player.seekTo(0);
+      } catch {
+        // seek can fail before load; still try play
+      }
+      if (myGen !== generation) return;
+      playAudioOrIgnoreAutoplayBlock(() => player.play());
+    })();
+  };
+}
 
 async function warmPlayer(player: WarmablePlayer): Promise<void> {
   try {
@@ -61,13 +81,14 @@ export function useChessBoardSounds() {
     };
   }, [castle, capture, check, gameEnd, illegal, move, promote]);
 
-  const playMove = useCallback(() => void playFromStart(move), [move]);
-  const playCapture = useCallback(() => void playFromStart(capture), [capture]);
-  const playCheck = useCallback(() => void playFromStart(check), [check]);
-  const playCastle = useCallback(() => void playFromStart(castle), [castle]);
-  const playPromote = useCallback(() => void playFromStart(promote), [promote]);
-  const playIllegal = useCallback(() => void playFromStart(illegal), [illegal]);
-  const playGameEnd = useCallback(() => void playFromStart(gameEnd), [gameEnd]);
+  // Stable play fns tied to current player instances (rebuilt when players change).
+  const playMove = useMemo(() => createPlayFromStart(move), [move]);
+  const playCapture = useMemo(() => createPlayFromStart(capture), [capture]);
+  const playCheck = useMemo(() => createPlayFromStart(check), [check]);
+  const playCastle = useMemo(() => createPlayFromStart(castle), [castle]);
+  const playPromote = useMemo(() => createPlayFromStart(promote), [promote]);
+  const playIllegal = useMemo(() => createPlayFromStart(illegal), [illegal]);
+  const playGameEnd = useMemo(() => createPlayFromStart(gameEnd), [gameEnd]);
 
   return useMemo(
     () => ({

@@ -153,9 +153,12 @@ function useProgrammaticScrollSync(args: {
     programmaticRef.current = true;
     requestAnimationFrame(() => {
       list.scrollToOffset({ offset: target, animated: !itemsChanged });
-      setTimeout(() => {
-        programmaticRef.current = false;
-      }, itemsChanged ? 0 : 320);
+      setTimeout(
+        () => {
+          programmaticRef.current = false;
+        },
+        itemsChanged ? 0 : 320
+      );
     });
   }, [
     listRef,

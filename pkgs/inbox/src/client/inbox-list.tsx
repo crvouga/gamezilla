@@ -26,7 +26,11 @@ export function InboxList({
     <Box sx={{ gap: 3 }}>
       {sections.map((section) => (
         <Box key={section.key} sx={{ gap: 2 }}>
-          <Text variant="caption" label={section.title} sx={{ color: 'textSecondary' }} />
+          <Text
+            variant="caption"
+            label={section.title}
+            sx={{ color: 'textSecondary' }}
+          />
           {section.items.map((interaction) => (
             <InteractionCard
               key={interaction.id}
@@ -37,7 +41,11 @@ export function InboxList({
         </Box>
       ))}
       {isLoading ? (
-        <Text variant="body" label={<Trans>Loading…</Trans>} sx={{ color: 'textSecondary' }} />
+        <Text
+          variant="body"
+          label={<Trans>Loading…</Trans>}
+          sx={{ color: 'textSecondary' }}
+        />
       ) : null}
     </Box>
   );

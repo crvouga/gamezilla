@@ -1,10 +1,6 @@
 import { MyUsername } from './my-username';
 import { MyProfileAvatar } from './my-profile-avatar';
-import {
-  Box,
-  Button,
-  ScreenBase,
-} from '@pkgs/ui';
+import { Box, Button, ScreenBase } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';

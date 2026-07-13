@@ -2,7 +2,10 @@ import type { SpaceVisibility } from './space-visibility';
 import type { SpacesError } from './spaces-errors';
 
 export type SpaceAccessDecision =
-  | { readonly allowed: true; readonly reason: 'open' | 'invite' | 'friend' | 'host' }
+  | {
+      readonly allowed: true;
+      readonly reason: 'open' | 'invite' | 'friend' | 'host';
+    }
   | { readonly allowed: false; readonly code: SpacesError['code'] };
 
 export type SpaceAccessInput = {

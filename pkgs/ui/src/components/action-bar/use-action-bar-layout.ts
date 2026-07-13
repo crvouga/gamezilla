@@ -52,7 +52,10 @@ export function useActionBarLayout(args: {
   const { inline: inlineTextActions, overflow: overflowTextActions } = useMemo(
     () =>
       overflowMode === 'never'
-        ? { inline: [...args.textActions], overflow: [] as ActionBarTextAction[] }
+        ? {
+            inline: [...args.textActions],
+            overflow: [] as ActionBarTextAction[],
+          }
         : partitionTextActions(args.textActions),
     [args.textActions, overflowMode]
   );

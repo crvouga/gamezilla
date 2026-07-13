@@ -15,6 +15,19 @@ export type PowerSyncStreamHandle = {
   }): Promise<PowerSyncStreamSubscription>;
 };
 
+/**
+ * Event-driven watched SQL handle. Required on every port implementation —
+ * the sync engine never polls.
+ */
+export type PowerSyncWatchSqlHandle<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> = {
+  getSnapshot(): readonly T[];
+  getHydrated(): boolean;
+  subscribe(listener: () => void): () => void;
+  close(): void;
+};
+
 export type PowerSyncDatabasePort = {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
@@ -26,6 +39,13 @@ export type PowerSyncDatabasePort = {
     fn: (tx: PowerSyncDatabasePort) => Promise<T>
   ): Promise<T>;
   registerListener(listener: { statusChanged?: () => void }): () => void;
+  /**
+   * Watch a SQL query for local table changes. Must be event-driven (no polling).
+   */
+  watchSql<T extends Record<string, unknown>>(
+    sql: string,
+    params?: readonly unknown[]
+  ): PowerSyncWatchSqlHandle<T>;
   readonly currentStatus: {
     readonly connected: boolean;
     readonly connecting: boolean;

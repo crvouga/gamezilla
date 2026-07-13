@@ -6,9 +6,7 @@ import {
 } from '@libs/db/shared/space-tables';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import {
-  generateInviteToken,
-} from '../shared/generate-invite-secrets';
+import { generateInviteToken } from '../shared/generate-invite-secrets';
 import {
   SPACE_INVITE_DEFAULT_TTL_MS,
   type SpaceInviteKind,
@@ -44,7 +42,10 @@ async function assertHostCanInvite(
   const isHostAccount =
     row.host_account_id !== null && row.host_account_id === accountId;
   if (!isHostDevice && !isHostAccount) {
-    throw new SpacesError('SPACE_FORBIDDEN', 'Only the host can create invites');
+    throw new SpacesError(
+      'SPACE_FORBIDDEN',
+      'Only the host can create invites'
+    );
   }
 }
 

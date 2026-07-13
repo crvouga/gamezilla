@@ -24,7 +24,10 @@ import { useViewportSize } from './tooltip-viewport';
 const ENTER_DURATION_MS = duration.fast;
 const ENTER_OFFSET = 4;
 
-function useTooltipEnterAnim(active: boolean, enterKey: number): Animated.Value {
+function useTooltipEnterAnim(
+  active: boolean,
+  enterKey: number
+): Animated.Value {
   const progress = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (!active) {

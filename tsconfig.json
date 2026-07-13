@@ -48,7 +48,9 @@
       "@pkgs/inbox": ["./pkgs/inbox/src/index.ts"],
       "@pkgs/inbox/client": ["./pkgs/inbox/src/client/index.ts"],
       "@pkgs/inbox/server/publish": ["./pkgs/inbox/src/server/publish.ts"],
-      "@pkgs/inbox/server/action-registry": ["./pkgs/inbox/src/server/action-registry.ts"],
+      "@pkgs/inbox/server/action-registry": [
+        "./pkgs/inbox/src/server/action-registry.ts"
+      ],
       "@pkgs/inbox/sync/table-defs": ["./pkgs/inbox/sync/table-defs.ts"],
       "@libs/games/*": ["./libs/games/src/*"],
       "@libs/infra/namespace-bindings": [

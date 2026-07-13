@@ -40,7 +40,11 @@ export function InboxHeaderButton(): ReactNode {
 
   return (
     <Box sx={{ position: 'relative' }}>
-      <IconButton accessibilityLabel={t`Inbox`} label={t`Inbox`} onPress={onPress}>
+      <IconButton
+        accessibilityLabel={t`Inbox`}
+        label={t`Inbox`}
+        onPress={onPress}
+      >
         <BellIcon size={20} />
       </IconButton>
       {unreadCount > 0 ? (

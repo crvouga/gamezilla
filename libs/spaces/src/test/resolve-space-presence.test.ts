@@ -99,6 +99,20 @@ describe('resolveSpacePresence', () => {
       })
     ).toEqual({ status: 'join', ended: false });
   });
+
+  test('resolves ended join even when membership row is still present', () => {
+    expect(
+      resolveSpacePresence({
+        spaceEnabled: true,
+        spaceLoading: false,
+        spaceRow: { host_id: 'user-1', ended_at: '2026-07-13T00:00:00.000Z' },
+        memberEnabled: true,
+        guestLoading: false,
+        guestRow,
+        myId: 'user-1',
+      })
+    ).toEqual({ status: 'join', ended: true });
+  });
 });
 
 describe('latchStaleSpacePresence', () => {
@@ -125,6 +139,39 @@ describe('latchStaleSpacePresence', () => {
     ).toEqual({
       presence: { status: 'loading' },
       latch: null,
+    });
+  });
+
+  test('holds active across transient join after membership blip', () => {
+    const latch = {
+      spaceId: 'space-1',
+      presence: { status: 'active' as const, role: 'host' as const },
+    };
+    expect(
+      latchStaleSpacePresence(
+        'space-1',
+        { status: 'join', ended: false },
+        latch
+      )
+    ).toEqual({
+      presence: { status: 'active', role: 'host' },
+      latch,
+    });
+  });
+
+  test('accepts ended join even when previously active', () => {
+    const latch = {
+      spaceId: 'space-1',
+      presence: { status: 'active' as const, role: 'host' as const },
+    };
+    expect(
+      latchStaleSpacePresence('space-1', { status: 'join', ended: true }, latch)
+    ).toEqual({
+      presence: { status: 'join', ended: true },
+      latch: {
+        spaceId: 'space-1',
+        presence: { status: 'join', ended: true },
+      },
     });
   });
 });

@@ -34,6 +34,7 @@ export {
 // Icons
 export {
   CircleCheckIcon,
+  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   CodeIcon,

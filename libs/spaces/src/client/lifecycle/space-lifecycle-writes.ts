@@ -1,5 +1,6 @@
 import { spaceDeviceMembershipEntityId } from '@libs/spaces/shared/membership-key';
 import type { SpaceVisibility } from '@libs/spaces/shared/space-visibility';
+import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
 import {
   SpaceCol,
   SpaceMembershipCol,
@@ -104,6 +105,7 @@ export async function leaveSpaceAction(
   );
   const prev = rows[0];
   if (prev === undefined || prev.left_at !== null) return;
+  clearSpacePresenceLatch(spaceId);
   await sql.run(
     `UPDATE ${SPACE_MEMBERSHIPS_TABLE.tableName}
      SET ${SpaceMembershipCol.leftAt} = ?
@@ -130,12 +132,16 @@ export async function endSpaceAction(
   if (space === null || space.hostId !== deviceId) {
     throw new Error('Only the host can end this space');
   }
+  clearSpacePresenceLatch(spaceId);
   await sql.run(
     `UPDATE ${SPACES_TABLE.tableName}
      SET ${SpaceCol.endedAt} = ?, ${SpaceCol.hostId} = ?
      WHERE ${SpaceCol.id} = ?`,
     [isoNow(), deviceId, spaceId]
   );
+  // Drop this install's seat immediately so miniplayer / presence do not wait
+  // on auto-leave watching ended_at.
+  await leaveSpaceAction(sql, deviceId, spaceId);
 }
 
 export async function renameSpaceAction(

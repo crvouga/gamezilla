@@ -1,8 +1,5 @@
 import path from 'node:path';
-import {
-  CURATED_SOUNDS,
-  KENNEY_ATTRIBUTION,
-} from './curate-mapping';
+import { CURATED_SOUNDS, KENNEY_ATTRIBUTION } from './curate-mapping';
 
 const ROOT = path.join(import.meta.dir, '..');
 const ASSETS = path.join(ROOT, 'assets');
@@ -61,7 +58,9 @@ function buildSoundsTree(): Record<string, Record<string, string>> {
   return tree;
 }
 
-function formatSoundsTree(tree: Record<string, Record<string, string>>): string {
+function formatSoundsTree(
+  tree: Record<string, Record<string, string>>
+): string {
   const lines: string[] = ['export const Sounds = {'];
   for (const category of Object.keys(tree).sort()) {
     lines.push(`  ${category}: {`);
@@ -87,7 +86,9 @@ function formatSoundSources(): string {
   }
   lines.push('} as const;');
   lines.push('');
-  lines.push('export type SoundAssetSourceId = keyof typeof soundAssetSources;');
+  lines.push(
+    'export type SoundAssetSourceId = keyof typeof soundAssetSources;'
+  );
   return lines.join('\n');
 }
 

@@ -101,11 +101,7 @@ export function MutationModal(props: MutationModalProps): ReactNode {
   });
 
   return (
-    <ResponsiveSurface
-      visible={visible}
-      onClose={surfaceClose}
-      title={title}
-    >
+    <ResponsiveSurface visible={visible} onClose={surfaceClose} title={title}>
       <MutationStateTransition stateKey={phase} active={visible}>
         <MutationModalBody
           props={props}

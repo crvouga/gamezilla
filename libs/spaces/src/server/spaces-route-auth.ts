@@ -40,9 +40,7 @@ const BAD_REQUEST_CODES = new Set<SpacesErrorCode>([
   'SPACE_INVALID_INPUT',
 ]);
 
-function spacesHttpStatus(
-  code: SpacesErrorCode
-): 400 | 401 | 403 | 404 {
+function spacesHttpStatus(code: SpacesErrorCode): 400 | 401 | 403 | 404 {
   if (code === 'SPACE_NOT_SIGNED_IN') return 401;
   if (FORBIDDEN_CODES.has(code)) return 403;
   if (code === 'SPACE_NOT_FOUND') return 404;

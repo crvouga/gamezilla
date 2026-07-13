@@ -22,7 +22,9 @@ async function inboxApiJson<T>(opts: {
     },
   });
   if (!response.ok) {
-    throw new Error(`Inbox API ${opts.path} failed: ${String(response.status)}`);
+    throw new Error(
+      `Inbox API ${opts.path} failed: ${String(response.status)}`
+    );
   }
   return (await response.json()) as T;
 }
@@ -82,7 +84,9 @@ export async function performInteractionActionRemote(
   });
 }
 
-export async function backfillInboxRemote(deps: InboxClientDeps): Promise<void> {
+export async function backfillInboxRemote(
+  deps: InboxClientDeps
+): Promise<void> {
   await inboxApiJson({
     deps,
     path: '/backfill',

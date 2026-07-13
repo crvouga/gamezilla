@@ -6,38 +6,63 @@ export type PostMoveAudio = {
   isGameOver: boolean;
 };
 
+/** Gap between capture and promote when both apply — never same tick. */
+export const PROMOTE_AFTER_CAPTURE_MS = 120;
+/** Delay before check/game-end so they never stack with the primary SFX. */
+export const CHECK_AFTER_PRIMARY_MS = 160;
+export const GAME_END_AFTER_CHECK_MS = 220;
+
+export type DelayedSoundRegistrar = (
+  timer: ReturnType<typeof setTimeout>
+) => void;
+
+/**
+ * Schedules the primary move sound (move / capture / castle / promote).
+ * Capture is optionally deferred to align with the piece slide animation.
+ * Promo+capture never fire in the same tick.
+ */
 export function schedulePrimaryMoveSound(
   sounds: ChessBoardSounds,
   move: Move,
   captureDelayMs: number,
-  registerDelayed: (t: ReturnType<typeof setTimeout>) => void
-): void {
-  const defer = (fn: () => void) => {
-    if (captureDelayMs > 0) {
+  registerDelayed: DelayedSoundRegistrar
+): number {
+  const defer = (fn: () => void, ms: number) => {
+    if (ms > 0) {
       registerDelayed(
         setTimeout(() => {
           fn();
-        }, captureDelayMs)
+        }, ms)
       );
-    } else {
-      fn();
+      return ms;
     }
+    fn();
+    return 0;
   };
 
   if (move.promotion) {
     if (move.captured) {
       defer(() => {
         sounds.playCapture();
-        sounds.playPromote();
-      });
-    } else {
-      sounds.playPromote();
+        registerDelayed(
+          setTimeout(() => {
+            sounds.playPromote();
+          }, PROMOTE_AFTER_CAPTURE_MS)
+        );
+      }, captureDelayMs);
+      // Follow-ups wait until the last primary (promote) would start.
+      return captureDelayMs + PROMOTE_AFTER_CAPTURE_MS;
     }
-  } else if (move.castle) {
-    sounds.playCastle();
-  } else if (move.captured) {
-    defer(() => sounds.playCapture());
-  } else {
-    sounds.playMove();
+    sounds.playPromote();
+    return 0;
   }
+  if (move.castle) {
+    sounds.playCastle();
+    return 0;
+  }
+  if (move.captured) {
+    return defer(() => sounds.playCapture(), captureDelayMs);
+  }
+  sounds.playMove();
+  return 0;
 }

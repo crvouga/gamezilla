@@ -21,7 +21,9 @@ export function defineRowAuthorizeWrite(args: {
   });
 }
 
-export function defineDenyRowWrite(code: string): WriteDefinition<RowChange, void> {
+export function defineDenyRowWrite(
+  code: string
+): WriteDefinition<RowChange, void> {
   return defineRowAuthorizeWrite({
     name: `deny.${code}`,
     authorize: async () => fail(code, 'write denied'),
@@ -64,7 +66,9 @@ export type RowEvaluation =
   | { readonly status: 'accepted' }
   | { readonly status: 'rejected'; readonly code: string };
 
-export function createRowEvaluator(registry: RowWriteRegistry): (
+export function createRowEvaluator(
+  registry: RowWriteRegistry
+): (
   ctx: WriteContext,
   row: RowChange,
   store: WriteStore
@@ -78,7 +82,11 @@ export function createRowEvaluator(registry: RowWriteRegistry): (
     if (!inputResult.ok) {
       return { status: 'rejected', code: inputResult.code };
     }
-    const authResult = await binding.write.authorize(ctx, inputResult.value, store);
+    const authResult = await binding.write.authorize(
+      ctx,
+      inputResult.value,
+      store
+    );
     if (!authResult.ok) {
       return { status: 'rejected', code: authResult.code };
     }

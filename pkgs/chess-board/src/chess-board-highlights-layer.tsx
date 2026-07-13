@@ -1,6 +1,12 @@
 import { Circle, Group, Rect } from '@shopify/react-native-skia';
 import { memo, type ReactNode } from 'react';
-import { indexFromSquare, squareToXY } from './chess-board-geometry';
+import { useDerivedValue, type SharedValue } from 'react-native-reanimated';
+import {
+  HOVER_NONE,
+  indexFromSquare,
+  squareFromIndex,
+  squareToXY,
+} from './chess-board-geometry';
 import type {
   BoardOrientation,
   BoardTheme,
@@ -211,7 +217,8 @@ function renderLegalMarker(args: LegalMarkerArgs): ReactNode {
 }
 
 type HoverLayerProps = {
-  hoveredSquare: Square | null;
+  /** UI-thread hover index (-1 = none). Updates never hop to React. */
+  hoverSquareIndex: SharedValue<number>;
   size: number;
   orientation: BoardOrientation;
   color: string;
@@ -220,22 +227,36 @@ type HoverLayerProps = {
 export const ChessBoardHoverLayer = memo(function ChessBoardHoverLayer(
   props: HoverLayerProps
 ): ReactNode {
-  const { hoveredSquare, size, orientation, color } = props;
-  if (hoveredSquare === null) return null;
+  const { hoverSquareIndex, size, orientation, color } = props;
   const cell = size / 8;
-  const { x, y } = squareToXY(hoveredSquare, size, orientation);
   const stroke = Math.max(2, cell * 0.08);
   const inset = stroke / 2;
+  const dim = cell - stroke;
+
+  const x = useDerivedValue(() => {
+    const idx = hoverSquareIndex.value;
+    if (idx === HOVER_NONE) return 0;
+    return squareToXY(squareFromIndex(idx), size, orientation).x + inset;
+  });
+  const y = useDerivedValue(() => {
+    const idx = hoverSquareIndex.value;
+    if (idx === HOVER_NONE) return 0;
+    return squareToXY(squareFromIndex(idx), size, orientation).y + inset;
+  });
+  const opacity = useDerivedValue(() =>
+    hoverSquareIndex.value === HOVER_NONE ? 0 : 0.85
+  );
+
   return (
     <Rect
-      x={x + inset}
-      y={y + inset}
-      width={cell - stroke}
-      height={cell - stroke}
+      x={x}
+      y={y}
+      width={dim}
+      height={dim}
       color={color}
       style="stroke"
       strokeWidth={stroke}
-      opacity={0.85}
+      opacity={opacity}
     />
   );
 });

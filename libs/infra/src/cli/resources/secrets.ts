@@ -22,8 +22,7 @@ assert.notThrows(
 const productionApiPublicOrigin = (): string =>
   `https://api.${PROJECT_CONFIG.domain}`;
 
-const legacyWwwApiOrigin = (): string =>
-  `https://www.${PROJECT_CONFIG.domain}`;
+const legacyWwwApiOrigin = (): string => `https://www.${PROJECT_CONFIG.domain}`;
 
 /** Identity-derived origins — always converge to api. (rewrites legacy www). */
 const API_ORIGIN_DERIVED_KEYS = new Set(['API_URL', 'EXPO_PUBLIC_API_URL']);

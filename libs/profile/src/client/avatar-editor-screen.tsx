@@ -125,7 +125,11 @@ function AvatarPreviewSlot({
   );
 }
 
-function useLiveStylePreview(styleKey: StyleKey, effectiveSeed: string, options: Record<string, unknown>) {
+function useLiveStylePreview(
+  styleKey: StyleKey,
+  effectiveSeed: string,
+  options: Record<string, unknown>
+) {
   const [liveStyle, setLiveStyle] = useState<StyleKey>(styleKey);
   useEffect(() => {
     setLiveStyle(styleKey);

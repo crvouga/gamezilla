@@ -175,15 +175,50 @@ export function useWatchOne<T extends Record<string, unknown>>(
   return { row: rows[0] ?? null, isLoading };
 }
 
+function readRowField<T>(
+  rows: readonly Record<string, unknown>[],
+  column: string
+): T | null {
+  const row = rows[0];
+  if (row === undefined) return null;
+  const raw = row[column];
+  return (raw as T | null) ?? null;
+}
+
+/**
+ * Subscribe to a multi-column SQL watch but only re-render when `column`
+ * changes (`Object.is` on the field value). Shares the underlying watch via
+ * the engine registry when the same `(sql, params)` is used elsewhere.
+ */
+export function useWatchField<T>(
+  sql: string,
+  params: readonly unknown[] = [],
+  column = 'value'
+): { readonly value: T | null; readonly isLoading: boolean } {
+  const engine = useSyncEngine();
+  const paramsKey = useMemo(() => JSON.stringify(params), [params]);
+  const subscription = useMemo(
+    () => engine.watch<Record<string, unknown>>(sql, params),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces params
+    [engine, sql, paramsKey]
+  );
+  const value = useSyncExternalStore(
+    subscription.subscribe,
+    () => readRowField<T>(subscription.getSnapshot(), column),
+    () => readRowField<T>(subscription.getSnapshot(), column)
+  );
+  const hydrated = useSyncExternalStore(
+    subscription.subscribe,
+    subscription.getHydrated,
+    subscription.getHydrated
+  );
+  return { value, isLoading: !hydrated && value === null };
+}
+
 export function useWatchValue<T>(
   sql: string,
   params: readonly unknown[] = [],
   column = 'value'
 ): { readonly value: T | null; readonly isLoading: boolean } {
-  const { row, isLoading } = useWatchOne<Record<string, unknown>>(sql, params);
-  if (row === null) {
-    return { value: null, isLoading };
-  }
-  const raw = row[column];
-  return { value: (raw as T | null) ?? null, isLoading };
+  return useWatchField<T>(sql, params, column);
 }

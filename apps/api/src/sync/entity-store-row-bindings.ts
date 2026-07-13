@@ -43,11 +43,16 @@ function readDataSpaceId(data: Record<string, unknown>): string | undefined {
   return typeof sid === 'string' ? sid : undefined;
 }
 
-function profilePrivateAuthorize(ctx: WriteContext, ownerId: string | undefined) {
+function profilePrivateAuthorize(
+  ctx: WriteContext,
+  ownerId: string | undefined
+) {
   const signedIn = requireSignedIn(ctx, 'PROFILE_PRIVATE_SIGN_IN_REQUIRED');
   if (signedIn !== null) return signedIn;
-  return ownerMatches(ownerId, ctx.accountId!, 'PROFILE_PRIVATE_OWNER_MISMATCH') ??
-    ok(undefined);
+  return (
+    ownerMatches(ownerId, ctx.accountId!, 'PROFILE_PRIVATE_OWNER_MISMATCH') ??
+    ok(undefined)
+  );
 }
 
 function chatMessageAuthorize(
@@ -58,7 +63,10 @@ function chatMessageAuthorize(
   if (signedIn !== null) return signedIn;
   const sid = readDataSpaceId(data ?? {});
   if (sid === undefined || !ctx.memberOfSpaceIds.includes(sid)) {
-    return fail('CHAT_MESSAGE_SPACE_MEMBERSHIP', 'chat.message space membership required');
+    return fail(
+      'CHAT_MESSAGE_SPACE_MEMBERSHIP',
+      'chat.message space membership required'
+    );
   }
   return ok(undefined);
 }
@@ -69,19 +77,22 @@ type EntityStoreTypeHandler = (
   data: Record<string, unknown> | null
 ) => ReturnType<typeof ok<void>> | ReturnType<typeof fail>;
 
-const ENTITY_STORE_TYPE_HANDLERS: Readonly<Record<string, EntityStoreTypeHandler>> =
-  {
-    'profile.private': (ctx, ownerId) => profilePrivateAuthorize(ctx, ownerId),
-    'chat.message': (ctx, _ownerId, data) => chatMessageAuthorize(ctx, data),
-    match: (ctx) =>
-      requireSignedIn(ctx, 'MATCH_SIGN_IN_REQUIRED') ?? ok(undefined),
-    'inventory.item': (ctx) =>
-      requireSignedIn(ctx, 'INVENTORY_ITEM_SIGN_IN_REQUIRED') ?? ok(undefined),
-    'match.score': () => fail('MATCH_SCORE_SYSTEM_ONLY', 'match.score is system-only'),
-    'admin.metric': () => fail('ADMIN_METRIC_SYSTEM_ONLY', 'admin.metric is system-only'),
-    'todo-list': () => ok(undefined),
-    'todo-list-item': () => ok(undefined),
-  };
+const ENTITY_STORE_TYPE_HANDLERS: Readonly<
+  Record<string, EntityStoreTypeHandler>
+> = {
+  'profile.private': (ctx, ownerId) => profilePrivateAuthorize(ctx, ownerId),
+  'chat.message': (ctx, _ownerId, data) => chatMessageAuthorize(ctx, data),
+  match: (ctx) =>
+    requireSignedIn(ctx, 'MATCH_SIGN_IN_REQUIRED') ?? ok(undefined),
+  'inventory.item': (ctx) =>
+    requireSignedIn(ctx, 'INVENTORY_ITEM_SIGN_IN_REQUIRED') ?? ok(undefined),
+  'match.score': () =>
+    fail('MATCH_SCORE_SYSTEM_ONLY', 'match.score is system-only'),
+  'admin.metric': () =>
+    fail('ADMIN_METRIC_SYSTEM_ONLY', 'admin.metric is system-only'),
+  'todo-list': () => ok(undefined),
+  'todo-list-item': () => ok(undefined),
+};
 
 function parseEntityStoreRowData(
   dataRaw: unknown
@@ -104,26 +115,44 @@ const entityStoreRowWrite = defineRowAuthorizeWrite({
     const type = readRowString(row, 'type');
 
     if (namespace === ENTITY_STORE_NAMESPACE_STRIPE) {
-      return fail('STRIPE_ENTITY_STORE_SYSTEM_ONLY', 'stripe entity_store is system-only');
+      return fail(
+        'STRIPE_ENTITY_STORE_SYSTEM_ONLY',
+        'stripe entity_store is system-only'
+      );
     }
     if (namespace === ENTITY_STORE_NAMESPACE_AUTH) {
-      return fail('AUTH_ENTITY_STORE_SERVER_ONLY', 'auth entity_store is server-only');
+      return fail(
+        'AUTH_ENTITY_STORE_SERVER_ONLY',
+        'auth entity_store is server-only'
+      );
     }
     if (type !== undefined && STRIPE_ENTITY_TYPES.has(type)) {
-      return fail('STRIPE_ENTITY_TYPE_SYSTEM_ONLY', `stripe.${type} is system-only`);
+      return fail(
+        'STRIPE_ENTITY_TYPE_SYSTEM_ONLY',
+        `stripe.${type} is system-only`
+      );
     }
     if (type === undefined || type.length === 0) {
-      return fail('ENTITY_STORE_TYPE_REQUIRED', 'entity_store row requires type');
+      return fail(
+        'ENTITY_STORE_TYPE_REQUIRED',
+        'entity_store row requires type'
+      );
     }
 
     const parsed = parseEntityStoreRowData(row.values?.['data']);
     if (parsed === 'invalid') {
-      return fail('ENTITY_STORE_INVALID_DATA', 'entity_store data must be valid JSON');
+      return fail(
+        'ENTITY_STORE_INVALID_DATA',
+        'entity_store data must be valid JSON'
+      );
     }
 
     const handler = ENTITY_STORE_TYPE_HANDLERS[type];
     if (handler === undefined) {
-      return fail('ENTITY_STORE_TYPE_NOT_WRITABLE', `entity_store type ${type} is not writable`);
+      return fail(
+        'ENTITY_STORE_TYPE_NOT_WRITABLE',
+        `entity_store type ${type} is not writable`
+      );
     }
     return handler(ctx, readRowString(row, 'owner_id'), parsed);
   },

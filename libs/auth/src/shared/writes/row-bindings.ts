@@ -19,11 +19,16 @@ const deviceRowWrite = defineRowAuthorizeWrite({
     if (ctx.deviceId.length === 0) {
       return fail('AUTH_DEVICE_REQUIRED', 'device writes require x-anon-id');
     }
-    return idMatches(row.id, ctx.deviceId, 'AUTH_DEVICE_ID_MISMATCH') ?? ok(undefined);
+    return (
+      idMatches(row.id, ctx.deviceId, 'AUTH_DEVICE_ID_MISMATCH') ??
+      ok(undefined)
+    );
   },
 });
 
-export const AUTH_ROW_BINDINGS: Readonly<Record<string, RowWriteBinding<RowChange>>> = {
+export const AUTH_ROW_BINDINGS: Readonly<
+  Record<string, RowWriteBinding<RowChange>>
+> = {
   [DEVICES_TABLE.tableName]: createRowWriteBinding(deviceRowWrite),
   [USERS_TABLE]: denyAllRowBinding('AUTH_SERVER_MANAGED'),
   [EXTERNAL_ACCOUNTS_TABLE]: denyAllRowBinding('AUTH_SERVER_MANAGED'),

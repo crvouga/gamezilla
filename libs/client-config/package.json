@@ -35,8 +35,8 @@
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
-    "@pkgs/write": "workspace:*",
     "@pkgs/ui": "workspace:*",
+    "@pkgs/write": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:"

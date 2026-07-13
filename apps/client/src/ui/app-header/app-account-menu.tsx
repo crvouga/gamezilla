@@ -4,10 +4,7 @@
  */
 
 import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
-import {
-  ActionBar,
-  iconButtonAvatarContentSize,
-} from '@pkgs/ui';
+import { ActionBar, iconButtonAvatarContentSize } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo, type ReactNode } from 'react';
 

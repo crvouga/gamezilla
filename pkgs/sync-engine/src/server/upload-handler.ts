@@ -35,7 +35,10 @@ export async function applyPut(sql: SqlClient, row: UploadRow): Promise<void> {
   );
 }
 
-export async function applyPatch(sql: SqlClient, row: UploadRow): Promise<void> {
+export async function applyPatch(
+  sql: SqlClient,
+  row: UploadRow
+): Promise<void> {
   const values = row.values ?? {};
   const columns = Object.keys(values);
   assert.ok(columns.length > 0, 'upload patch requires values', { row });
@@ -46,7 +49,10 @@ export async function applyPatch(sql: SqlClient, row: UploadRow): Promise<void> 
   ]);
 }
 
-export async function applyDelete(sql: SqlClient, row: UploadRow): Promise<void> {
+export async function applyDelete(
+  sql: SqlClient,
+  row: UploadRow
+): Promise<void> {
   await sql.run(`DELETE FROM ${row.table} WHERE id = ?`, [row.id]);
 }
 
@@ -136,7 +142,12 @@ export function createUploadHandler<TAuth, TCtx>(
     const sql = await options.openSql();
     try {
       await sql.connect();
-      const out = await processUploadBatch(sql, ctx, options.evaluateRow, batch);
+      const out = await processUploadBatch(
+        sql,
+        ctx,
+        options.evaluateRow,
+        batch
+      );
       return c.json(out, 200);
     } finally {
       await sql.disconnect();

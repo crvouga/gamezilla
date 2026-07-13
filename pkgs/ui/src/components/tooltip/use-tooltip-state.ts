@@ -12,9 +12,7 @@ import {
   releaseActiveTooltip,
 } from './tooltip-coordinator';
 
-export function useTooltipState(
-  anchorRef: RefObject<View | null>
-): {
+export function useTooltipState(anchorRef: RefObject<View | null>): {
   visible: boolean;
   enterKey: number;
   anchor: LayoutRectangle | null;

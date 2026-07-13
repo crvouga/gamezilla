@@ -18,8 +18,8 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/logger": "workspace:*",
     "@pkgs/inbox": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*"
   },

@@ -3,7 +3,11 @@ import { Database } from 'bun:sqlite';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { SyncEngine, WatchSubscription } from '../client/sync-engine-port';
+import type { SyncEngine } from '../client/sync-engine-port';
+import {
+  createSharedWatchRegistry,
+  type WatchSqlHandle,
+} from '../client/shared-watch-registry';
 import {
   INITIAL_SYNC_STATUS,
   type SyncEngineStatus,
@@ -59,32 +63,70 @@ function migrateTables(db: Database, registry: TableRegistry): void {
   }
 }
 
-function createWatch<T extends Record<string, unknown>>(
+/**
+ * Event-driven watchSql for the in-memory engine: refreshes on write
+ * notifications, never polls.
+ */
+function createEventDrivenWatchSql(
   db: SqlClient,
   sql: string,
   params: readonly unknown[],
-  bump: () => void
-): WatchSubscription<readonly T[]> {
-  let snapshot: readonly T[] = [];
+  onWrite: (refresh: () => void) => () => void
+): WatchSqlHandle {
+  let snapshot: readonly Record<string, unknown>[] = [];
   let hydrated = false;
+  const listeners = new Set<() => void>();
 
-  const refresh = async (): Promise<void> => {
-    snapshot = await db.query<T>(sql, [...params]);
-    hydrated = true;
-    bump();
+  const refresh = (): void => {
+    void db.query<Record<string, unknown>>(sql, [...params]).then((rows) => {
+      snapshot = rows;
+      hydrated = true;
+      for (const listener of listeners) {
+        listener();
+      }
+    });
   };
 
-  void refresh();
+  refresh();
+  const disposeWrite = onWrite(refresh);
 
   return {
     getSnapshot: () => snapshot,
     getHydrated: () => hydrated,
     subscribe: (listener) => {
-      void refresh().then(() => listener());
-      const interval = setInterval(() => {
-        void refresh();
-      }, 100);
-      return () => clearInterval(interval);
+      listeners.add(listener);
+      if (hydrated) {
+        listener();
+      }
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    close: () => {
+      disposeWrite();
+      listeners.clear();
+    },
+  };
+}
+
+function wrapSqlClientWithWriteNotify(
+  db: SqlClient,
+  notify: () => void
+): SqlClient {
+  return {
+    connect: () => db.connect(),
+    disconnect: () => db.disconnect(),
+    query: (sql, params) => db.query(sql, params),
+    prepare: (sql) => db.prepare(sql),
+    run: async (sql, params) => {
+      const result = await db.run(sql, params);
+      notify();
+      return result;
+    },
+    transaction: async (fn) => {
+      const result = await db.transaction(async (tx) => fn(tx));
+      notify();
+      return result;
     },
   };
 }
@@ -98,15 +140,32 @@ export function createInMemorySyncEngine(
 ): SyncEngine {
   const sqlite = new Database(':memory:');
   migrateTables(sqlite, options.registry);
-  const db = new SqlClientImplBunSqlite(sqlite);
+  const rawDb = new SqlClientImplBunSqlite(sqlite);
   const { status, setStatus, resetEverSynced } = createStatusStore();
+
+  const writeListeners = new Set<() => void>();
+  const notifyWrites = (): void => {
+    for (const listener of writeListeners) {
+      listener();
+    }
+  };
+  const db = wrapSqlClientWithWriteNotify(rawDb, notifyWrites);
+
+  const watchRegistry = createSharedWatchRegistry((sql, params) =>
+    createEventDrivenWatchSql(db, sql, params, (refresh) => {
+      writeListeners.add(refresh);
+      return () => {
+        writeListeners.delete(refresh);
+      };
+    })
+  );
 
   return {
     db,
     watch: <T extends Record<string, unknown>>(
       sql: string,
       params: readonly unknown[] = []
-    ) => createWatch<T>(db, sql, params, () => undefined),
+    ) => watchRegistry.watch<T>(sql, params),
     connect: async () => {
       await db.connect();
       setStatus({

@@ -98,13 +98,7 @@ describe('external-accounts-sql', () => {
         ${ExternalAccountCol.externalId}, ${ExternalAccountCol.metadata},
         ${ExternalAccountCol.createdAt})
        VALUES (?, ?, ?, ?, ?)`,
-      [
-        userId,
-        primaryAuthProvider,
-        clerkUserId,
-        '{}',
-        new Date().toISOString(),
-      ]
+      [userId, primaryAuthProvider, clerkUserId, '{}', new Date().toISOString()]
     );
 
     expect(

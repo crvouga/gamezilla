@@ -81,11 +81,7 @@ describe('partitionActionBarItems', () => {
   });
 
   test('keeps inline items visible before first layout pass', () => {
-    const items = [
-      item('a'),
-      item('b'),
-      item('menu', 0, 'always'),
-    ];
+    const items = [item('a'), item('b'), item('menu', 0, 'always')];
     const result = partition(items, 0);
     expect(result.visible.map((i) => i.id)).toEqual(['a', 'b']);
     expect(result.overflow.map((i) => i.id)).toEqual(['menu']);
@@ -106,10 +102,7 @@ describe('partitionActionBarItems', () => {
   });
 
   test('overflow never keeps always items visible', () => {
-    const items = [
-      item('visible', 10, 'never'),
-      item('menu', 0, 'always'),
-    ];
+    const items = [item('visible', 10, 'never'), item('menu', 0, 'always')];
     const result = partition(items, SLOT * 3);
     expect(result.visible.map((i) => i.id)).toEqual(['visible']);
     expect(result.overflow.map((i) => i.id)).toEqual(['menu']);
@@ -151,12 +144,7 @@ describe('partitionActionBarItems', () => {
   });
 
   test('wider slot width reduces visible inline items', () => {
-    const items = [
-      item('a', 10),
-      item('b', 9),
-      item('c', 8),
-      item('d', 7),
-    ];
+    const items = [item('a', 10), item('b', 9), item('c', 8), item('d', 7)];
     const containerWidth = 176;
     const narrow = partition(items, containerWidth);
     const wide = partition(items, containerWidth, 0, 60);

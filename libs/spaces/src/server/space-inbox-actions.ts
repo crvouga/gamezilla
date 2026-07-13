@@ -48,11 +48,7 @@ export async function acceptSpaceInviteFromInbox(args: {
     deviceLabel: args.deviceLabel,
     inviteToken: row.token,
   });
-  await deactivateSpaceInviteInteraction(
-    args.sql,
-    args.inviteId,
-    args.actorId
-  );
+  await deactivateSpaceInviteInteraction(args.sql, args.inviteId, args.actorId);
 }
 
 export async function declineSpaceInviteFromInbox(args: {
@@ -68,9 +64,5 @@ export async function declineSpaceInviteFromInbox(args: {
        AND ${SpaceInviteCol.inviteeAccountId} = ?`,
     [now, args.inviteId, args.actorId]
   );
-  await deactivateSpaceInviteInteraction(
-    args.sql,
-    args.inviteId,
-    args.actorId
-  );
+  await deactivateSpaceInviteInteraction(args.sql, args.inviteId, args.actorId);
 }

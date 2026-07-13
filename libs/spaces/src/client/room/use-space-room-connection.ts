@@ -45,7 +45,7 @@ function destroyRoomPair(args: {
   transport?.destroy();
 }
 
-function openSpaceRoom(args: {
+type OpenSpaceRoomArgs = {
   bootstrap: SpaceRoomConnectionBootstrap;
   bootstrapKey: string;
   configService: ConfigService;
@@ -57,7 +57,29 @@ function openSpaceRoom(args: {
   setRoom: Dispatch<SetStateAction<SpaceRoom | null>>;
   setTransport: Dispatch<SetStateAction<WebSocketRoomTransport | null>>;
   connectedKeyRef: MutableRefObject<string | null>;
-}): () => void {
+  openingKeyRef: MutableRefObject<string | null>;
+};
+
+function commitOpenedRoom(
+  args: OpenSpaceRoomArgs,
+  nextRoom: SpaceRoom,
+  nextTransport: WebSocketRoomTransport
+): void {
+  const prevRoom = args.roomRef.current;
+  const prevTransport = args.transportRef.current;
+  args.roomRef.current = nextRoom;
+  args.transportRef.current = nextTransport;
+  args.connectedKeyRef.current = args.bootstrapKey;
+  args.openingKeyRef.current = null;
+  args.setRoom(nextRoom);
+  args.setTransport(nextTransport);
+  if (prevRoom !== null && prevRoom !== nextRoom) prevRoom.destroy();
+  if (prevTransport !== null && prevTransport !== nextTransport) {
+    prevTransport.destroy();
+  }
+}
+
+function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
   let cancelled = false;
   void (async (): Promise<void> => {
     const { room: nextRoom, transport: nextTransport } = await createSpaceRoom({
@@ -70,24 +92,63 @@ function openSpaceRoom(args: {
       sessionToken: args.sessionToken,
     });
     if (cancelled) {
+      if (args.openingKeyRef.current === args.bootstrapKey) {
+        args.openingKeyRef.current = null;
+      }
       nextRoom.destroy();
       nextTransport.destroy();
       return;
     }
-    const prevRoom = args.roomRef.current;
-    const prevTransport = args.transportRef.current;
-    args.roomRef.current = nextRoom;
-    args.transportRef.current = nextTransport;
-    args.connectedKeyRef.current = args.bootstrapKey;
-    args.setRoom(nextRoom);
-    args.setTransport(nextTransport);
-    if (prevRoom !== null && prevRoom !== nextRoom) prevRoom.destroy();
-    if (prevTransport !== null && prevTransport !== nextTransport) {
-      prevTransport.destroy();
-    }
+    commitOpenedRoom(args, nextRoom, nextTransport);
   })();
   return () => {
     cancelled = true;
+  };
+}
+
+function shouldSkipOpen(args: {
+  bootstrap: SpaceRoomConnectionBootstrap;
+  bootstrapKey: string;
+  sessionToken: string | null;
+  connectedKey: string | null;
+  currentRoom: SpaceRoom | null;
+}): boolean {
+  const token = normalizeSessionToken(args.sessionToken);
+  const hasAnon = args.bootstrap.myId.length > 0;
+  if (token === null && !hasAnon) return true;
+  return args.connectedKey === args.bootstrapKey && args.currentRoom !== null;
+}
+
+function beginOpenSpaceRoom(
+  args: OpenSpaceRoomArgs & { tearDown: () => void }
+): (() => void) | undefined {
+  if (
+    shouldSkipOpen({
+      bootstrap: args.bootstrap,
+      bootstrapKey: args.bootstrapKey,
+      sessionToken: args.sessionToken,
+      connectedKey: args.connectedKeyRef.current,
+      currentRoom: args.roomRef.current,
+    })
+  ) {
+    return undefined;
+  }
+  if (
+    args.connectedKeyRef.current !== null &&
+    args.connectedKeyRef.current !== args.bootstrapKey
+  ) {
+    args.tearDown();
+  }
+  args.openingKeyRef.current = args.bootstrapKey;
+  const stop = openSpaceRoom(args);
+  return () => {
+    if (
+      args.openingKeyRef.current === args.bootstrapKey &&
+      args.connectedKeyRef.current !== args.bootstrapKey
+    ) {
+      args.openingKeyRef.current = null;
+    }
+    stop();
   };
 }
 
@@ -112,6 +173,7 @@ export function useSpaceRoomConnection(
   const sessionTokenRef = useRef(sessionToken);
   sessionTokenRef.current = sessionToken;
   const connectedKeyRef = useRef<string | null>(null);
+  const openingKeyRef = useRef<string | null>(null);
 
   const bootstrapKey =
     bootstrap === null
@@ -121,6 +183,7 @@ export function useSpaceRoomConnection(
 
   const tearDown = useCallback(() => {
     connectedKeyRef.current = null;
+    openingKeyRef.current = null;
     destroyRoomPair({ roomRef, transportRef, setRoom, setTransport });
   }, []);
 
@@ -131,29 +194,20 @@ export function useSpaceRoomConnection(
 
   useEffect(() => {
     if (bootstrap === null || bootstrapKey === null) return;
-    if (
-      connectedKeyRef.current !== null &&
-      connectedKeyRef.current !== bootstrapKey
-    ) {
-      tearDown();
-    }
-
-    const token = normalizeSessionToken(sessionTokenRef.current);
-    const hasAnon = bootstrap.myId.length > 0;
-    if (token === null && !hasAnon) return;
-
-    return openSpaceRoom({
+    return beginOpenSpaceRoom({
       bootstrap,
       bootstrapKey,
       configService,
       kv,
       module,
-      sessionToken: token,
+      sessionToken: normalizeSessionToken(sessionTokenRef.current),
       roomRef,
       transportRef,
       setRoom,
       setTransport,
       connectedKeyRef,
+      openingKeyRef,
+      tearDown,
     });
   }, [bootstrap, bootstrapKey, hasBearer, configService, kv, module, tearDown]);
 

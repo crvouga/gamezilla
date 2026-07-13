@@ -3,10 +3,7 @@ import { describe, expect, it } from 'bun:test';
 
 import { InMemoryClientStorage } from '../adapters/storage/memory';
 import { Room } from './room';
-import type {
-  ClientTransport,
-  ClientTransportHandlers,
-} from './transport';
+import type { ClientTransport, ClientTransportHandlers } from './transport';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import { openLoopbackRoom } from '../../testkit/simulator';
 import {
@@ -65,13 +62,14 @@ class ManualClientTransport implements ClientTransport {
 
 /**
  * Server-wins recovery: when the authoritative server log has diverged from
- * the client's local committed cache (e.g. server storage was reset, so
- * incoming entries carry a seq at or below our local tail), the client must
- * wipe local committed state and re-sync from the server instead of crashing
- * on the contiguity assertion.
+ * the client's local committed cache (welcome `lastSeq` behind our tail),
+ * the client must wipe local committed state and re-sync from the server.
+ * Duplicate committed broadcasts at or below our tail are ignored — wiping
+ * on those caused an infinite reset loop when the outbound queue re-flushed
+ * already-applied commands.
  */
 describe('Room server-reset recovery', () => {
-  it('recovers from a backward committed broadcast without crashing', async () => {
+  it('ignores a duplicate committed broadcast at or below the local tip', async () => {
     const { room, transport } = await openLoopbackRoom({
       topic: 't-reset-broadcast',
       module: TestCounterModule,
@@ -84,17 +82,14 @@ describe('Room server-reset recovery', () => {
     const k = asKeyword('counter/count');
     expect(room.getSnapshot()[k]).toBe(2);
 
-    // Simulate a stale broadcast whose seq sits below our committed tail
-    // (as if the server log were reset and re-emitted a lower seq while we
-    // still hold the older, higher-seq entries locally).
+    // Stale / duplicate broadcast whose seq sits at or below our tip must
+    // not wipe local state (re-flush loops used to thrash the UI).
     transport.deliverToClient({
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.committed,
       entries: [{ seq: 1, event: CounterIncremented({}) }],
     });
 
-    // Allow client to wipe and re-sync from the (still-authoritative)
-    // loopback server, which has 2 real entries.
     await new Promise<void>((r) => setTimeout(r, 30));
     expect(room.getSnapshot()[k]).toBe(2);
     room.destroy();

@@ -21,7 +21,9 @@ export function HorizontalPickerShell({
   children,
 }: HorizontalPickerShellProps): ReactNode {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing[1] }}>
+    <View
+      style={{ flexDirection: 'row', alignItems: 'center', gap: spacing[1] }}
+    >
       {showArrows ? (
         <HorizontalPickerArrow
           direction="prev"

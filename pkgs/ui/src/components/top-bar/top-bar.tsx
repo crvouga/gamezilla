@@ -28,7 +28,11 @@
 import { useContext, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
-import { getTopBarContentHeight, TOP_BAR_CONTENT_HEIGHT_MOBILE, useTheme } from '../../theme';
+import {
+  getTopBarContentHeight,
+  TOP_BAR_CONTENT_HEIGHT_MOBILE,
+  useTheme,
+} from '../../theme';
 import { Box } from '../box';
 
 /**
@@ -141,7 +145,9 @@ function TopBarFlexLayout({
           sx={{
             // Absorb remaining width when there is no center slot so trailing
             // ActionBars can measure overflow against the real budget.
-            ...(hasCenter ? {} : { flex: 1, minWidth: 0, alignSelf: 'stretch' }),
+            ...(hasCenter
+              ? {}
+              : { flex: 1, minWidth: 0, alignSelf: 'stretch' }),
             flexDirection: 'row',
             alignItems: 'center',
             gap: 2,
@@ -189,9 +195,7 @@ function TopBarAbsoluteCenterLayout({
           zIndex: 2,
         }}
       >
-        <Box sx={{ pointerEvents: 'auto', minWidth: 0 }}>
-          {center}
-        </Box>
+        <Box sx={{ pointerEvents: 'auto', minWidth: 0 }}>{center}</Box>
       </Box>
     </Box>
   );

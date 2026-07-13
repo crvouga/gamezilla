@@ -6,7 +6,11 @@ import {
   type ReactNode,
 } from 'react';
 
-import { createSoundEngine, type PlaySoundOptions, type SoundEngine } from './sound-engine';
+import {
+  createSoundEngine,
+  type PlaySoundOptions,
+  type SoundEngine,
+} from './sound-engine';
 import { Sounds, type SoundId } from './sound-id';
 import { useSoundsPreference } from './use-sounds-preference';
 
@@ -16,7 +20,9 @@ export type SoundEngineProviderProps = {
   readonly children: ReactNode;
 };
 
-export function SoundEngineProvider({ children }: SoundEngineProviderProps): ReactNode {
+export function SoundEngineProvider({
+  children,
+}: SoundEngineProviderProps): ReactNode {
   const { muted, masterVolume } = useSoundsPreference();
   const engine = useMemo(
     () => createSoundEngine({ muted, masterVolume }),

@@ -21,7 +21,11 @@ export async function runWrite<TInput, TOutput>(
   if (isWriteFailure(parsed)) {
     return parsed;
   }
-  const authorized = await input.write.authorize(input.ctx, parsed.value, input.store);
+  const authorized = await input.write.authorize(
+    input.ctx,
+    parsed.value,
+    input.store
+  );
   if (isWriteFailure(authorized)) {
     return authorized;
   }

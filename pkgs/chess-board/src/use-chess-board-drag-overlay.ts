@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { LayoutChangeEvent, View } from 'react-native';
+import { useSharedValue, type SharedValue } from 'react-native-reanimated';
 
 export type BoardOrigin = { x: number; y: number };
 
@@ -16,8 +17,9 @@ export type UseChessBoardDragOverlayResult = {
   containerRef: (node: View | null) => void;
   /** Pass to the same View's `onLayout`. */
   onContainerLayout: (e: LayoutChangeEvent) => void;
-  /** Latest screen-relative origin of the board. */
-  origin: BoardOrigin;
+  /** UI-thread board origin (updated without remounting the portal node). */
+  originX: SharedValue<number>;
+  originY: SharedValue<number>;
   /** Render the overlay node into the app overlay portal. Pass `null` to clear. */
   setOverlayNode: (node: ReactNode | null) => void;
 };
@@ -26,7 +28,7 @@ export type UseChessBoardDragOverlayResult = {
  * Bridges the in-board drag visuals to {@link OverlayPortalProvider}: tracks
  * the board's screen origin via `View.measureInWindow`, and registers an
  * arbitrary React node into the portal under a stable id. Callers translate
- * board-local pointer coords into screen coords via `origin`.
+ * board-local pointer coords into screen coords via `originX` / `originY`.
  */
 export function useChessBoardDragOverlay(
   enabled: boolean
@@ -38,21 +40,18 @@ export function useChessBoardDragOverlay(
   );
 
   const viewRef = useRef<View | null>(null);
-  const [origin, setOrigin] = useState<BoardOrigin>({ x: 0, y: 0 });
+  const originX = useSharedValue(0);
+  const originY = useSharedValue(0);
   const [node, setNode] = useState<ReactNode | null>(null);
 
   const measure = useCallback(() => {
     const v = viewRef.current;
     if (v === null) return;
     v.measureInWindow((x, y) => {
-      setOrigin((prev) => {
-        if (Math.abs(prev.x - x) < 0.5 && Math.abs(prev.y - y) < 0.5) {
-          return prev;
-        }
-        return { x, y };
-      });
+      originX.value = x;
+      originY.value = y;
     });
-  }, []);
+  }, [originX, originY]);
 
   const containerRef = useCallback(
     (n: View | null) => {
@@ -74,7 +73,8 @@ export function useChessBoardDragOverlay(
   return {
     containerRef,
     onContainerLayout,
-    origin,
+    originX,
+    originY,
     setOverlayNode: setNode,
   };
 }

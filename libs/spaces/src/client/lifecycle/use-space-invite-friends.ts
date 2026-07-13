@@ -15,7 +15,10 @@ type FriendRow = {
 
 /** Friends available to invite into a space (local sync read). */
 export function useSpaceInviteFriends(): {
-  readonly friends: readonly { readonly userId: string; readonly username: string }[];
+  readonly friends: readonly {
+    readonly userId: string;
+    readonly username: string;
+  }[];
   readonly isLoading: boolean;
 } {
   const myId = useMyId();

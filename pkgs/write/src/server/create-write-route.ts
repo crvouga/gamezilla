@@ -49,7 +49,10 @@ export function createWriteRouteHandler<TAuth>(
   return async (c) => {
     const auth = await options.resolveAuth(c);
     if (auth === null) {
-      return c.json({ ok: false, code: 'UNAUTHORIZED', message: 'unauthorized' }, 401);
+      return c.json(
+        { ok: false, code: 'UNAUTHORIZED', message: 'unauthorized' },
+        401
+      );
     }
     const writeName = c.req.param('name');
     if (writeName === undefined || writeName.length === 0) {
@@ -61,7 +64,11 @@ export function createWriteRouteHandler<TAuth>(
     const write = registry.get(writeName);
     if (write === undefined) {
       return c.json(
-        { ok: false, code: 'WRITE_NOT_FOUND', message: `unknown write ${writeName}` },
+        {
+          ok: false,
+          code: 'WRITE_NOT_FOUND',
+          message: `unknown write ${writeName}`,
+        },
         404
       );
     }

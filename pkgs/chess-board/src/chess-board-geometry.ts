@@ -3,6 +3,9 @@ import type { BoardOrientation, Square } from './chess-board-types';
 const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'] as const;
 
+/** Encode `Square | null` as a SharedValue number (worklets need primitives). */
+export const HOVER_NONE = -1;
+
 export function isSquare(v: string): v is Square {
   if (v.length !== 2) return false;
   const f = v[0] as (typeof files)[number];

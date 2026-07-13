@@ -3,7 +3,8 @@ import { router, type Href } from 'expo-router';
 export type InboxRouteFilter = 'all' | 'action_required' | 'archived';
 
 export function inboxPath(filter?: InboxRouteFilter): Href {
-  if (filter === 'action_required') return '/inbox?filter=action_required' as Href;
+  if (filter === 'action_required')
+    return '/inbox?filter=action_required' as Href;
   return '/inbox' as Href;
 }
 

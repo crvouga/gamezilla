@@ -57,9 +57,6 @@ function UserUsernameInner({
         ? `@${username}`
         : username;
   return (
-    <Text
-      {...optionalProps({ variant, sx, numberOfLines })}
-      label={label}
-    />
+    <Text {...optionalProps({ variant, sx, numberOfLines })} label={label} />
   );
 }

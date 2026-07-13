@@ -1,9 +1,4 @@
-import {
-  Box,
-  ScreenBase,
-  Text,
-  TextInput,
-} from '@pkgs/ui';
+import { Box, ScreenBase, Text, TextInput } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useState, type ReactNode } from 'react';
 

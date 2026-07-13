@@ -1,10 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { PALETTE } from './colors/color-palette';
-import {
-  borderRadius,
-  makeElevation,
-  type ElevationLevel,
-} from './scale';
+import { borderRadius, makeElevation, type ElevationLevel } from './scale';
 
 const LEVELS: ReadonlyArray<ElevationLevel> = [0, 1, 2, 3, 4, 5];
 

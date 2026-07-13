@@ -154,11 +154,11 @@ export type ChessBoardDragPieceSkiaProps = {
   pickupScale: SharedValue<number>;
   pickupOpacity: SharedValue<number>;
   /** Screen-space offset when the drag layer renders in an overlay portal. */
-  originX?: number;
-  originY?: number;
+  originX?: SharedValue<number>;
+  originY?: SharedValue<number>;
 };
 
-export function ChessBoardDragPieceSkia(
+function ChessBoardDragPieceSkiaImpl(
   props: ChessBoardDragPieceSkiaProps
 ): ReactNode {
   const {
@@ -169,15 +169,17 @@ export function ChessBoardDragPieceSkia(
     isDragging,
     pickupScale,
     pickupOpacity,
-    originX = 0,
-    originY = 0,
+    originX,
+    originY,
   } = props;
 
   const transform = useDerivedValue(() => {
     const cx = pieceSize / 2;
     const cy = pieceSize / 2;
-    const topLeftX = originX + dragX.value - pieceSize / 2;
-    const topLeftY = originY + dragY.value - pieceSize / 2;
+    const ox = originX !== undefined ? originX.value : 0;
+    const oy = originY !== undefined ? originY.value : 0;
+    const topLeftX = ox + dragX.value - pieceSize / 2;
+    const topLeftY = oy + dragY.value - pieceSize / 2;
     const s = pickupScale.value;
     return [
       { translateX: topLeftX + cx },
@@ -208,3 +210,5 @@ export function ChessBoardDragPieceSkia(
     </Group>
   );
 }
+
+export const ChessBoardDragPieceSkia = memo(ChessBoardDragPieceSkiaImpl);

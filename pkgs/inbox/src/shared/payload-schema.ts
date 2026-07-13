@@ -18,7 +18,11 @@ export function parseJsonObject(raw: unknown): Record<string, unknown> {
   if (typeof raw === 'string') {
     try {
       const parsed: unknown = JSON.parse(raw);
-      if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      if (
+        parsed !== null &&
+        typeof parsed === 'object' &&
+        !Array.isArray(parsed)
+      ) {
         return parsed as Record<string, unknown>;
       }
     } catch {

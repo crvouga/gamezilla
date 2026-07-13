@@ -12,16 +12,17 @@ const SOUNDS_VOLUME_VALUE_ATTR = asKeyword('ui.prefs/value');
 const SOUNDS_VOLUME_CODEC = jsonKvCodec<number>(
   SOUNDS_VOLUME_VALUE_ATTR,
   (value): value is number =>
-    typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1
+    typeof value === 'number' &&
+    Number.isFinite(value) &&
+    value >= 0 &&
+    value <= 1
 );
 
 export type SoundsPreference = {
   readonly muted: boolean;
   readonly masterVolume: number;
   readonly setMuted: (next: boolean | ((prev: boolean) => boolean)) => void;
-  readonly setMasterVolume: (
-    next: number | ((prev: number) => number)
-  ) => void;
+  readonly setMasterVolume: (next: number | ((prev: number) => number)) => void;
 };
 
 const SoundsPreferenceContext = createContext<SoundsPreference | null>(null);

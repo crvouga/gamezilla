@@ -1,7 +1,4 @@
-import {
-  getFieldsByTab,
-  type SchemaField,
-} from './dicebear-schema';
+import { getFieldsByTab, type SchemaField } from './dicebear-schema';
 import { isStyleKey, type StyleKey } from './dicebear-styles';
 import type { AvatarConfig } from '../shared/avatar-config';
 import {
@@ -207,8 +204,10 @@ function useEditorActions(args: {
     dirty,
     setShowDiscard,
   });
-  const { updateOptions, shuffleSeed, setSeed, copySeed } =
-    useDraftMutators({ setDraft, effectiveSeed });
+  const { updateOptions, shuffleSeed, setSeed, copySeed } = useDraftMutators({
+    setDraft,
+    effectiveSeed,
+  });
   const save = useSaveAction({ draft, profileId });
 
   return {

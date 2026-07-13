@@ -10,7 +10,9 @@ export function InboxEmptyState(): ReactNode {
         variant="body"
         sx={{ color: 'textSecondary', textAlign: 'center' }}
         label={
-          <Trans>New interactions will show up here when someone reaches out.</Trans>
+          <Trans>
+            New interactions will show up here when someone reaches out.
+          </Trans>
         }
       />
     </Box>

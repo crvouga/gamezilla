@@ -53,10 +53,7 @@ export const SpaceAttr = {
   hostAccountId: spaceNs
     .textOrNull('host-account-id', readNonEmptyStringOrNull)
     .indexed(),
-  hostUsername: spaceNs.textOrNull(
-    'host-username',
-    readNonEmptyStringOrNull
-  ),
+  hostUsername: spaceNs.textOrNull('host-username', readNonEmptyStringOrNull),
   hostAvatarConfig: spaceNs.textOrNull(
     'host-avatar-config',
     readNonEmptyStringOrNull

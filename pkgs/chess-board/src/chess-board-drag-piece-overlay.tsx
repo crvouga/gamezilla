@@ -7,21 +7,21 @@ import type { PieceCode } from './chess-board-types';
 import type { PieceImageCache } from './chess-pieces-cache';
 
 export type DragPieceOverlayProps = {
-  pieceImages: PieceImageCache | null;
-  draggedPieceCode: PieceCode | null;
+  pieceImages: PieceImageCache;
+  draggedPieceCode: PieceCode;
   dragX: SharedValue<number>;
   dragY: SharedValue<number>;
   isDragging: SharedValue<boolean>;
   dragPickupOpacity: SharedValue<number>;
   dragPickupScale: SharedValue<number>;
   pieceDraw: number;
-  /** When provided, the layer renders at `screen` coords (origin + drag). */
-  origin?: { x: number; y: number };
+  originX: SharedValue<number>;
+  originY: SharedValue<number>;
 };
 
 /**
- * Dragged piece rendered above the board (or in a portal). Motion runs on the
- * UI thread via Skia `Group` transforms — never wrap Skia `Canvas` in Reanimated
+ * Web drag piece in the overlay portal. Motion runs on the UI thread via
+ * Skia `Group` transforms — never wrap Skia `Canvas` in Reanimated
  * `Animated.View` (crashes iOS when pickup opacity/scale animates).
  */
 export const DragPieceOverlay = memo(
@@ -36,14 +36,11 @@ export const DragPieceOverlay = memo(
         dragPickupOpacity,
         dragPickupScale,
         pieceDraw,
-        origin,
+        originX,
+        originY,
       } = props;
 
-      if (!pieceImages || draggedPieceCode === null) return null;
-
       const image = pieceImages[draggedPieceCode];
-      const originX = origin?.x ?? 0;
-      const originY = origin?.y ?? 0;
 
       return (
         <View ref={ref} pointerEvents="none" style={StyleSheet.absoluteFill}>

@@ -69,11 +69,7 @@ function SpacesList() {
 
   return (
     <Box sx={{ flex: 1, gap: 2 }}>
-      <ChipGroup
-        options={options}
-        selected={section}
-        onSelect={setSection}
-      />
+      <ChipGroup options={options} selected={section} onSelect={setSection} />
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{
@@ -95,10 +91,7 @@ export type SpacesScreenProps = {
   readonly leading?: ReactNode;
 };
 
-export function SpacesScreen({
-  accountMenu,
-  leading,
-}: SpacesScreenProps) {
+export function SpacesScreen({ accountMenu, leading }: SpacesScreenProps) {
   const { count: currentSpaceCount, isLoading: membershipLoading } =
     useCurrentSpaceCount();
   const canCreateSpace = !membershipLoading && currentSpaceCount === 0;

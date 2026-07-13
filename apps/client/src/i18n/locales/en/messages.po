@@ -423,6 +423,7 @@ msgstr "close"
 
 #: libs/auth/src/client/sign-in-modal.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: pkgs/chess-board/src/chess-board.example.tsx
 #: pkgs/ui/src/components/responsive-surface/responsive-surface-header.tsx
 #: pkgs/ui/src/components/responsive-surface/responsive-surface-header.tsx
@@ -984,8 +985,8 @@ msgid "Go to {target}"
 msgstr "Go to {target}"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
-msgid "Go to spaces"
-msgstr "Go to spaces"
+#~ msgid "Go to spaces"
+#~ msgstr "Go to spaces"
 
 #: apps/client/src/ui/app-commands/account-command.tsx
 msgid "google"

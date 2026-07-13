@@ -1,10 +1,4 @@
-import {
-  Box,
-  Button,
-  ScreenBase,
-  Text,
-  useMutationButton,
-} from '@pkgs/ui';
+import { Box, Button, ScreenBase, Text, useMutationButton } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 
@@ -22,14 +16,22 @@ export type InboxScreenProps = {
   readonly initialFilter?: InteractionFilter;
 };
 
-function InboxSignedInGate({ children }: { readonly children: ReactNode }): ReactNode {
+function InboxSignedInGate({
+  children,
+}: {
+  readonly children: ReactNode;
+}): ReactNode {
   const { isSignedIn, onSignIn } = useInboxShell();
   if (isSignedIn) return children;
   return (
     <Box sx={{ gap: 2, py: 4, alignItems: 'center' }}>
       <Text variant="body" label={<Trans>Sign in to view your inbox</Trans>} />
       {onSignIn !== undefined ? (
-        <Button variant="solid" onPress={onSignIn} title={<Trans>Sign in</Trans>} />
+        <Button
+          variant="solid"
+          onPress={onSignIn}
+          title={<Trans>Sign in</Trans>}
+        />
       ) : null}
     </Box>
   );
@@ -75,7 +77,11 @@ function InboxScreenBody({
           <Button variant="ghost" {...markAllRead.buttonProps} />
         ) : null}
       </Box>
-      <InboxList sections={sections} isLoading={isLoading} actions={inboxActions} />
+      <InboxList
+        sections={sections}
+        isLoading={isLoading}
+        actions={inboxActions}
+      />
     </Box>
   );
 }

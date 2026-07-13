@@ -118,7 +118,9 @@ function ActionBarRow(p: {
             onOpen={p.onOpenMenu}
             triggerRef={p.triggerRef}
             overflowTrigger={p.overflowTrigger}
-            {...(p.overflowTestID !== undefined ? { testID: p.overflowTestID } : {})}
+            {...(p.overflowTestID !== undefined
+              ? { testID: p.overflowTestID }
+              : {})}
           />
         ) : null}
       </Box>
@@ -199,18 +201,20 @@ function ActionBarBody(p: {
 
 export function ActionBar(props: ActionBarProps): ReactNode {
   const resolved = resolveActionBarProps(props);
-  const { menu, layout, overflowActions, menuContent } = useActionBarController({
-    items: resolved.items,
-    textActions: resolved.textActions,
-    endSlot: resolved.endSlot,
-    buttonSize: resolved.buttonSize,
-    slotWidth: resolved.slotWidth,
-    gap: resolved.gap,
-    overflow: resolved.overflow,
-    ...(resolved.overflowMenuHeader !== undefined
-      ? { overflowMenuHeader: resolved.overflowMenuHeader }
-      : {}),
-  });
+  const { menu, layout, overflowActions, menuContent } = useActionBarController(
+    {
+      items: resolved.items,
+      textActions: resolved.textActions,
+      endSlot: resolved.endSlot,
+      buttonSize: resolved.buttonSize,
+      slotWidth: resolved.slotWidth,
+      gap: resolved.gap,
+      overflow: resolved.overflow,
+      ...(resolved.overflowMenuHeader !== undefined
+        ? { overflowMenuHeader: resolved.overflowMenuHeader }
+        : {}),
+    }
+  );
 
   if (
     !actionBarHasContent({

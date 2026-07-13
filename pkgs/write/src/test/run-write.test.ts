@@ -30,7 +30,9 @@ describe('runWrite', () => {
     const write = defineWrite({
       name: 'test.echo',
       parseInput: (raw) =>
-        typeof raw === 'string' ? ok(raw) : fail('BAD_INPUT', 'expected string'),
+        typeof raw === 'string'
+          ? ok(raw)
+          : fail('BAD_INPUT', 'expected string'),
       authorize: async () => ok(undefined),
       execute: async (_ctx, input) => ok(`done:${input}`),
     });
@@ -69,7 +71,11 @@ describe('createRowEvaluator', () => {
         defineRowAuthorizeWrite({
           name: 'widgets.patch',
           authorize: async (writeCtx, row) => {
-            const mismatch = idMatches(row.id, writeCtx.myId, 'WIDGET_ID_MISMATCH');
+            const mismatch = idMatches(
+              row.id,
+              writeCtx.myId,
+              'WIDGET_ID_MISMATCH'
+            );
             return mismatch ?? ok(undefined);
           },
         })

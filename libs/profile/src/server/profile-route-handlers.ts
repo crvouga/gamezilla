@@ -11,9 +11,7 @@ import type { ProfileCard } from '../shared/profile-card';
 import { withProfileAuth } from './profile-route-auth';
 import type { ProfileErrorCode } from '../shared/profile-errors';
 
-function writeFailureStatus(
-  code: string
-): 400 | 401 | 404 | 409 | 429 {
+function writeFailureStatus(code: string): 400 | 401 | 404 | 409 | 429 {
   switch (code as ProfileErrorCode) {
     case 'PROFILE_NOT_AUTHENTICATED':
       return 401;
@@ -28,9 +26,7 @@ function writeFailureStatus(
   }
 }
 
-export function handleEnsureProfile(
-  c: Context<ApiHonoEnv>
-): Promise<Response> {
+export function handleEnsureProfile(c: Context<ApiHonoEnv>): Promise<Response> {
   return withProfileAuth(c, async (auth) => {
     const sql = c.get('sqlClient');
     const store = createSqlWriteStore(sql);

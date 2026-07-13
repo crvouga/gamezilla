@@ -16,7 +16,14 @@ const KENNEY = 'https://kenney.nl';
 
 /** Resolve a source file relative to `.cache/kenney/staging/`. */
 export function resolveStagingSource(relativePath: string): string {
-  return path.join(import.meta.dir, '..', '.cache', 'kenney', 'staging', relativePath);
+  return path.join(
+    import.meta.dir,
+    '..',
+    '.cache',
+    'kenney',
+    'staging',
+    relativePath
+  );
 }
 
 export const CURATED_SOUNDS: readonly CuratedSound[] = [
@@ -47,7 +54,8 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
     id: 'navigation.clickSecondary',
     category: 'navigation',
     relativePath: 'navigation/click-secondary.mp3',
-    sourceFile: 'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/click3.wav',
+    sourceFile:
+      'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/click3.wav',
     sourcePack: 'UI Audio',
     sourceUrl: `${KENNEY}/assets/ui-audio`,
     volume: 0.85,
@@ -81,7 +89,8 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
     id: 'navigation.hover',
     category: 'navigation',
     relativePath: 'navigation/hover.mp3',
-    sourceFile: 'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/rollover2.wav',
+    sourceFile:
+      'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/rollover2.wav',
     sourcePack: 'UI Audio',
     sourceUrl: `${KENNEY}/assets/ui-audio`,
     volume: 0.6,
@@ -976,7 +985,8 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
     id: 'gameplay.move',
     category: 'gameplay',
     relativePath: 'gameplay/move.mp3',
-    sourceFile: 'pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/soft-medium.ogg',
+    sourceFile:
+      'pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/soft-medium.ogg',
     sourcePack: 'Impact Sounds',
     sourceUrl: `${KENNEY}/assets/impact-sounds`,
     volume: 0.85,
@@ -987,7 +997,8 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
     id: 'gameplay.capture',
     category: 'gameplay',
     relativePath: 'gameplay/capture.mp3',
-    sourceFile: 'pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/plate-medium.ogg',
+    sourceFile:
+      'pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/plate-medium.ogg',
     sourcePack: 'Impact Sounds',
     sourceUrl: `${KENNEY}/assets/impact-sounds`,
     volume: 0.9,
@@ -998,7 +1009,8 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
     id: 'gameplay.place',
     category: 'gameplay',
     relativePath: 'gameplay/place.mp3',
-    sourceFile: 'pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/wood-light.ogg',
+    sourceFile:
+      'pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/wood-light.ogg',
     sourcePack: 'Impact Sounds',
     sourceUrl: `${KENNEY}/assets/impact-sounds`,
     volume: 0.85,
@@ -1187,7 +1199,8 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
     id: 'forms.toggleOn',
     category: 'forms',
     relativePath: 'forms/toggle-on.mp3',
-    sourceFile: 'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/switch1.wav',
+    sourceFile:
+      'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/switch1.wav',
     sourcePack: 'UI Audio',
     sourceUrl: `${KENNEY}/assets/ui-audio`,
     volume: 0.85,
@@ -1198,7 +1211,8 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
     id: 'forms.toggleOff',
     category: 'forms',
     relativePath: 'forms/toggle-off.mp3',
-    sourceFile: 'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/switch2.wav',
+    sourceFile:
+      'kenney-ui-audio/kenney-ui-audio-master/addons/kenney_ui_audio/switch2.wav',
     sourcePack: 'UI Audio',
     sourceUrl: `${KENNEY}/assets/ui-audio`,
     volume: 0.85,
@@ -1611,7 +1625,8 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
     id: 'misc.pin',
     category: 'misc',
     relativePath: 'misc/pin.mp3',
-    sourceFile: 'pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/tin-medium.ogg',
+    sourceFile:
+      'pingthings-kenney-packs/pingthings-main/packs/kenney-impacts/sounds/tin-medium.ogg',
     sourcePack: 'Impact Sounds',
     sourceUrl: `${KENNEY}/assets/impact-sounds`,
     volume: 0.85,

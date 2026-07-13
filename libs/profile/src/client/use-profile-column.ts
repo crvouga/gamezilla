@@ -1,6 +1,8 @@
-import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { ProfileCol } from '@libs/db/shared/profile-tables';
+
+import { PROFILE_ROW_BY_ID_SQL } from './profile-row-sql';
 
 export const ProfileField = {
   username: 'username',
@@ -15,9 +17,10 @@ export function useProfileColumn(
   field: ProfileFieldKey
 ): string | null {
   const col = ProfileCol[field];
-  const { value } = useWatchValue<string>(
-    `SELECT ${col} AS value FROM ${PROFILES_TABLE.tableName} WHERE ${ProfileCol.id} = ?`,
-    [profileId]
+  const { value } = useWatchField<string>(
+    PROFILE_ROW_BY_ID_SQL,
+    [profileId],
+    col
   );
   return value;
 }

@@ -12,10 +12,7 @@ export function createFriendsInteractionProvider(
 ): InteractionProvider {
   return {
     id: 'friends',
-    renderCard: (
-      interaction: Interaction,
-      actions: InteractionCardActions
-    ) => {
+    renderCard: (interaction: Interaction, actions: InteractionCardActions) => {
       if (interaction.sourceType === 'friend-request') {
         return (
           <FriendRequestInteractionCard

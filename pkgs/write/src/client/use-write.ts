@@ -50,10 +50,7 @@ export function useWrite<TInput, TOutput>(
     },
   });
 
-  const run = useCallback(
-    (input: TInput) => async.run(input),
-    [async]
-  );
+  const run = useCallback((input: TInput) => async.run(input), [async]);
 
   const error: WriteError | null =
     async.error !== null && async.error.name === 'WriteError'

@@ -8,11 +8,7 @@
  *   - `trailing` -> responsive action bar (actions + account menu end slot).
  */
 
-import {
-  useContext,
-  useMemo,
-  type ReactNode,
-} from 'react';
+import { useContext, useMemo, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { ActionBar, screenBaseActionToActionBarItem } from '../action-bar';
@@ -125,7 +121,9 @@ export function ScreenBaseHeader({
   const leadingSlot = (
     <>
       {leadingProp}
-      {showBack ? <BackIconButton size={chrome.buttonSize} onPress={onBack} /> : null}
+      {showBack ? (
+        <BackIconButton size={chrome.buttonSize} onPress={onBack} />
+      ) : null}
     </>
   );
 

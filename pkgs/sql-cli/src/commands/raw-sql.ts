@@ -2,8 +2,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { SqlCliCommand, SqlCliResult } from '../types';
 
-const RESULT_RETURNING =
-  /^\s*(SELECT|WITH|PRAGMA|EXPLAIN|VALUES)\b/i;
+const RESULT_RETURNING = /^\s*(SELECT|WITH|PRAGMA|EXPLAIN|VALUES)\b/i;
 
 function isResultReturning(sql: string): boolean {
   return RESULT_RETURNING.test(sql);

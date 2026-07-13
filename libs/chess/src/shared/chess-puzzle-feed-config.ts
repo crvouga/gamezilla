@@ -57,9 +57,7 @@ export function resolveEffectivePuzzleRating(args: {
 }
 
 /** PowerSync `chess_puzzles` stream bands covering puzzle picking for `rating`. */
-export function chessPuzzleSyncRatingBands(
-  rating: number
-): readonly number[] {
+export function chessPuzzleSyncRatingBands(rating: number): readonly number[] {
   const centerBand = Math.floor(Math.max(0, rating) / PUZZLE_RATING_BAND_SIZE);
   const bands: number[] = [];
   for (

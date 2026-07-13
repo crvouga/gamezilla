@@ -1,4 +1,4 @@
-import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import {
   SpaceMembershipCol,
@@ -16,14 +16,23 @@ export const SpaceMembershipField = {
 
 export type SpaceMembershipFieldKey = keyof typeof SpaceMembershipField;
 
+/** Canonical membership row SELECT — shared by all column field selectors. */
+export const SPACE_MEMBERSHIP_ROW_BY_ID_SQL = `SELECT ${SpaceMembershipCol.id},
+            ${SpaceMembershipCol.guestId}, ${SpaceMembershipCol.spaceId},
+            ${SpaceMembershipCol.joinedAt}, ${SpaceMembershipCol.leftAt},
+            ${SpaceMembershipCol.profileId}, ${SpaceMembershipCol.deviceLabel}
+     FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
+     WHERE ${SpaceMembershipCol.id} = ?`;
+
 export function useSpaceMembershipColumn(
   membershipId: string,
   field: SpaceMembershipFieldKey
 ): string | null {
   const col = SpaceMembershipCol[field];
-  const { value } = useWatchValue<string>(
-    `SELECT ${col} AS value FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} WHERE ${SpaceMembershipCol.id} = ?`,
-    [membershipId]
+  const { value } = useWatchField<string>(
+    SPACE_MEMBERSHIP_ROW_BY_ID_SQL,
+    [membershipId],
+    col
   );
   return value;
 }

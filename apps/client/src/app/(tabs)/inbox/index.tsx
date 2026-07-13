@@ -4,9 +4,6 @@ import { InboxScreen } from '@pkgs/inbox/client';
 
 export default function InboxTab() {
   return (
-    <InboxScreen
-      accountMenu={<AppAccountMenu />}
-      leading={<AppHeaderLogo />}
-    />
+    <InboxScreen accountMenu={<AppAccountMenu />} leading={<AppHeaderLogo />} />
   );
 }

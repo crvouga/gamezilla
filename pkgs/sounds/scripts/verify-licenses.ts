@@ -4,7 +4,11 @@ import { ALLOWED_LICENSES } from './curate-mapping';
 let failed = false;
 
 for (const entry of manifest) {
-  if (!ALLOWED_LICENSES.includes(entry.license as (typeof ALLOWED_LICENSES)[number])) {
+  if (
+    !ALLOWED_LICENSES.includes(
+      entry.license as (typeof ALLOWED_LICENSES)[number]
+    )
+  ) {
     console.error(`Invalid license for ${entry.id}: ${entry.license}`);
     failed = true;
   }

@@ -1,9 +1,6 @@
 import { useMyProfileId } from './use-my-profile-id';
 import { useProfileRow, type ProfileRow } from './use-profile-row';
-import {
-  ProfileError,
-  isProfileError,
-} from '../shared/profile-errors';
+import { ProfileError, isProfileError } from '../shared/profile-errors';
 import { setUsernameOnline } from './profile-online-actions';
 import { useProfileClientDeps } from './use-profile-client-deps';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
@@ -108,9 +105,7 @@ export function ProfileHandleScreen() {
       await setUsernameOnline(deps, value.trim());
     } catch (error) {
       setLastError(error);
-      throw error instanceof ProfileError
-        ? error
-        : new Error("Couldn't save");
+      throw error instanceof ProfileError ? error : new Error("Couldn't save");
     }
   }, [deps, profileId, value]);
 

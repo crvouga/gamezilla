@@ -16,14 +16,26 @@ function mapInboxError(error: unknown): { status: number; body: unknown } {
   if (error instanceof InboxError) {
     switch (error.code) {
       case 'INBOX_NOT_FOUND':
-        return { status: 404, body: { error: error.message, code: error.code } };
+        return {
+          status: 404,
+          body: { error: error.message, code: error.code },
+        };
       case 'INBOX_FORBIDDEN':
-        return { status: 403, body: { error: error.message, code: error.code } };
+        return {
+          status: 403,
+          body: { error: error.message, code: error.code },
+        };
       case 'INBOX_HANDLER_MISSING':
       case 'INBOX_UNKNOWN_ACTION':
-        return { status: 400, body: { error: error.message, code: error.code } };
+        return {
+          status: 400,
+          body: { error: error.message, code: error.code },
+        };
       default:
-        return { status: 400, body: { error: error.message, code: error.code } };
+        return {
+          status: 400,
+          body: { error: error.message, code: error.code },
+        };
     }
   }
   return { status: 500, body: { error: 'internal' } };

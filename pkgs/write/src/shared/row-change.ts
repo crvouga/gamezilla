@@ -13,22 +13,24 @@ export type RowChange = {
 
 function parseRowChangeOp(raw: unknown): WriteResult<RowChangeOp> {
   if (raw !== 'put' && raw !== 'patch' && raw !== 'delete') {
-    return fail('INVALID_ROW_CHANGE', 'row change op must be put, patch, or delete');
+    return fail(
+      'INVALID_ROW_CHANGE',
+      'row change op must be put, patch, or delete'
+    );
   }
   return ok(raw);
 }
 
-function parseNonEmptyString(
-  raw: unknown,
-  field: string
-): WriteResult<string> {
+function parseNonEmptyString(raw: unknown, field: string): WriteResult<string> {
   if (typeof raw !== 'string' || raw.length === 0) {
     return fail('INVALID_ROW_CHANGE', `row change ${field} is required`);
   }
   return ok(raw);
 }
 
-function parseRowValues(raw: unknown): WriteResult<Readonly<Record<string, unknown>> | undefined> {
+function parseRowValues(
+  raw: unknown
+): WriteResult<Readonly<Record<string, unknown>> | undefined> {
   if (raw === undefined) {
     return ok(undefined);
   }
@@ -53,9 +55,20 @@ export function parseRowChange(raw: unknown): WriteResult<RowChange> {
   if (!valuesResult.ok) return valuesResult;
   const values = valuesResult.value;
   if (values !== undefined) {
-    return { ok: true, value: { op: opResult.value, table: tableResult.value, id: idResult.value, values } };
+    return {
+      ok: true,
+      value: {
+        op: opResult.value,
+        table: tableResult.value,
+        id: idResult.value,
+        values,
+      },
+    };
   }
-  return { ok: true, value: { op: opResult.value, table: tableResult.value, id: idResult.value } };
+  return {
+    ok: true,
+    value: { op: opResult.value, table: tableResult.value, id: idResult.value },
+  };
 }
 
 export function rowChangeToInput(row: RowChange): WriteResult<RowChange> {

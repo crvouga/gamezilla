@@ -143,7 +143,7 @@ function useSpaceChromeLabels(): SpaceChromeLabels {
   const { t } = useLingui();
   return useMemo(
     () => ({
-      home: t`Go to spaces`,
+      home: t`Close`,
       back: t`Back`,
       members: t`People in this space`,
       rename: t`Rename space`,

@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import {
+  useWatchOne,
   useWatchQuery,
-  useWatchValue,
 } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -65,35 +65,32 @@ function interactionRowFromSql(
   };
 }
 
+type PuzzleEntityRow = {
+  readonly fen: string | null;
+  readonly moves: string | null;
+  readonly rating: number | null;
+  readonly themes: unknown;
+};
+
 export function usePuzzleEntity(puzzleId: string): {
   fen: string;
   movesStr: string;
   rating: number;
   themes: readonly string[];
 } {
-  const { value: fen } = useWatchValue<string>(
-    `SELECT ${ChessPuzzleCol.fen} AS value FROM ${CHESS_PUZZLES_TABLE.tableName} WHERE ${ChessPuzzleCol.id} = ?`,
+  const { row } = useWatchOne<PuzzleEntityRow>(
+    `SELECT ${ChessPuzzleCol.fen} AS fen, ${ChessPuzzleCol.moves} AS moves,
+            ${ChessPuzzleCol.rating} AS rating, ${ChessPuzzleCol.themes} AS themes
+     FROM ${CHESS_PUZZLES_TABLE.tableName}
+     WHERE ${ChessPuzzleCol.id} = ?`,
     [puzzleId]
   );
-  const { value: movesStr } = useWatchValue<string>(
-    `SELECT ${ChessPuzzleCol.moves} AS value FROM ${CHESS_PUZZLES_TABLE.tableName} WHERE ${ChessPuzzleCol.id} = ?`,
-    [puzzleId]
-  );
-  const { value: rating } = useWatchValue<number>(
-    `SELECT ${ChessPuzzleCol.rating} AS value FROM ${CHESS_PUZZLES_TABLE.tableName} WHERE ${ChessPuzzleCol.id} = ?`,
-    [puzzleId]
-  );
-  const { value: themesRaw } = useWatchValue<unknown>(
-    `SELECT ${ChessPuzzleCol.themes} AS value FROM ${CHESS_PUZZLES_TABLE.tableName} WHERE ${ChessPuzzleCol.id} = ?`,
-    [puzzleId]
-  );
-  const themes = readStringArray(themesRaw);
 
   return {
-    fen: fen ?? '',
-    movesStr: movesStr ?? '',
-    rating: rating ?? 0,
-    themes,
+    fen: row?.fen ?? '',
+    movesStr: row?.moves ?? '',
+    rating: row?.rating ?? 0,
+    themes: readStringArray(row?.themes),
   };
 }
 

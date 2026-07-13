@@ -27,9 +27,10 @@ type InfisicalFetch = (
   init?: RequestInit
 ) => Promise<Response>;
 
-function createRecordingFetch(
-  handler: (call: RecordedCall) => Response
-): { fetchFn: InfisicalFetch; calls: RecordedCall[] } {
+function createRecordingFetch(handler: (call: RecordedCall) => Response): {
+  fetchFn: InfisicalFetch;
+  calls: RecordedCall[];
+} {
   const calls: RecordedCall[] = [];
   const fetchFn: InfisicalFetch = async (input, init) => {
     const method = init?.method ?? 'GET';
@@ -69,7 +70,9 @@ describe('InfisicalSecretStore.setSecret', () => {
 
     expect(calls).toHaveLength(1);
     expect(calls[0]?.method).toBe('POST');
-    expect(calls[0]?.url).toContain('/api/v3/secrets/raw/STRIPE_WEBHOOK_SECRET');
+    expect(calls[0]?.url).toContain(
+      '/api/v3/secrets/raw/STRIPE_WEBHOOK_SECRET'
+    );
     expect(JSON.parse(calls[0]?.body ?? '{}')).toMatchObject({
       workspaceId: 'ws-1',
       environment: 'prd',
@@ -91,7 +94,9 @@ describe('InfisicalSecretStore.setSecret', () => {
           })
         );
       }
-      return jsonResponse(200, { secret: { secretKey: 'STRIPE_WEBHOOK_SECRET' } });
+      return jsonResponse(200, {
+        secret: { secretKey: 'STRIPE_WEBHOOK_SECRET' },
+      });
     });
     const store = createStore(fetchFn);
 

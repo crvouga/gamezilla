@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { EVENT_STREAM_CONTENT_TYPE } from '../shared/content-type';
-import {
-  acceptsEventStream,
-  eventStreamAcceptHeader,
-} from './accept-header';
+import { acceptsEventStream, eventStreamAcceptHeader } from './accept-header';
 
 describe('acceptsEventStream', () => {
   test('matches the canonical content type', () => {

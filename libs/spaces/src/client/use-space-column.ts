@@ -1,4 +1,4 @@
-import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 
@@ -16,14 +16,19 @@ export const SpaceField = {
 
 export type SpaceFieldKey = keyof typeof SpaceField;
 
+/** Canonical space row SELECT — shared by all {@link useSpaceColumn} fields. */
+export const SPACE_ROW_BY_ID_SQL = `SELECT ${SpaceCol.id}, ${SpaceCol.title},
+            ${SpaceCol.hostId}, ${SpaceCol.createdAt}, ${SpaceCol.endedAt},
+            ${SpaceCol.visibility}, ${SpaceCol.hostAccountId}, ${SpaceCol.hostUsername},
+            ${SpaceCol.hostAvatarConfig}, ${SpaceCol.activeMemberCount}
+     FROM ${SPACES_TABLE.tableName}
+     WHERE ${SpaceCol.id} = ?`;
+
 export function useSpaceColumn(
   spaceId: string,
   field: SpaceFieldKey
 ): string | null {
   const col = SpaceCol[field];
-  const { value } = useWatchValue<string>(
-    `SELECT ${col} AS value FROM ${SPACES_TABLE.tableName} WHERE ${SpaceCol.id} = ?`,
-    [spaceId]
-  );
+  const { value } = useWatchField<string>(SPACE_ROW_BY_ID_SQL, [spaceId], col);
   return value;
 }

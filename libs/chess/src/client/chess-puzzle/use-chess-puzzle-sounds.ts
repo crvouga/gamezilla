@@ -40,7 +40,9 @@ export function useChessPuzzleSounds(): {
   const eloTick = useAudioPlayer(chessSoundSources.puzzleEloTick);
   const correctMove = useAudioPlayer(chessSoundSources.puzzleCorrectMove);
   const eloCompleteGain = useAudioPlayer(chessSoundSources.promote);
-  const eloCompleteLoss = useAudioPlayer(chessSoundSources.puzzleEloCompleteLoss);
+  const eloCompleteLoss = useAudioPlayer(
+    chessSoundSources.puzzleEloCompleteLoss
+  );
 
   useEffect(() => {
     let cancelled = false;

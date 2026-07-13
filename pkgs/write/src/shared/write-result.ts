@@ -36,7 +36,9 @@ export function fail(
   return { ok: false, code, message, meta };
 }
 
-export function isWriteFailure(result: WriteResult<unknown>): result is WriteFailure {
+export function isWriteFailure(
+  result: WriteResult<unknown>
+): result is WriteFailure {
   return !result.ok;
 }
 

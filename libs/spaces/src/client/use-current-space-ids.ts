@@ -123,7 +123,10 @@ function useCurrentSpaceWatchQueries(deviceId: string): {
     [memRows]
   );
 
-  const spacesQuery = useMemo(() => spacesSql(memberSpaceIds), [memberSpaceIds]);
+  const spacesQuery = useMemo(
+    () => spacesSql(memberSpaceIds),
+    [memberSpaceIds]
+  );
   const { rows: spaceRows, isLoading: spacesLoading } = useWatchQuery<SpaceRow>(
     spacesQuery.sql,
     spacesQuery.params
@@ -155,6 +158,10 @@ export function useCurrentSpaceIds(): {
   const reconnecting = isSyncReconnecting(status);
   if (entries.length > 0) {
     prevEntriesRef.current = entries;
+  } else if (!reconnecting) {
+    // Drop the reconnect latch once we have a stable empty snapshot so ended
+    // spaces are not resurrected into the miniplayer on the next disconnect.
+    prevEntriesRef.current = [];
   }
   const displayEntries = resolveDisplayEntries(
     entries,

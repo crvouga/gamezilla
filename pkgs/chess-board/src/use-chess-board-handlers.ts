@@ -23,9 +23,6 @@ export type ChessBoardHandlers = {
   setSelected: (sq: Square | null) => void;
   /** Batched pickup: sets dragFrom + selected before isDragging flips on UI thread. */
   onPanPickupStart: (from: Square) => void;
-  onDragStart: (from: Square) => void;
-  onDragEnd: () => void;
-  onHoverSquare: (sq: Square | null) => void;
   onDrop: (from: Square, to: Square) => void;
   /**
    * Atomic finger-up handler. The gesture worklet packs the start /
@@ -45,11 +42,7 @@ export type ChessBoardHandlers = {
 
 type InteractionHandlers = Pick<
   ChessBoardHandlers,
-  | 'setSelected'
-  | 'onPanPickupStart'
-  | 'onDragStart'
-  | 'onDragEnd'
-  | 'onHoverSquare'
+  'setSelected' | 'onPanPickupStart'
 >;
 
 function useInteractionHandlers(
@@ -62,22 +55,9 @@ function useInteractionHandlers(
     interaction.setDragFrom(from);
     interaction.setSelected(from);
   });
-  const onDragStart = useStableHandler((from: Square) => {
-    interaction.setDragFrom(from);
-  });
-  const onDragEnd = useStableHandler(() => {
-    interaction.setDragFrom(null);
-    interaction.setHoveredSquare(null);
-  });
-  const onHoverSquare = useStableHandler((sq: Square | null) => {
-    interaction.setHoveredSquare(sq);
-  });
   return {
     setSelected,
     onPanPickupStart,
-    onDragStart,
-    onDragEnd,
-    onHoverSquare,
   };
 }
 
@@ -111,10 +91,7 @@ function useDropHandlers(args: ChessBoardHandlersArgs): DropHandlers {
       if (startSq !== null && toSq !== null && startSq !== toSq) {
         dispatchDrop(startSq, toSq);
       }
-      // React's `Object.is` bail-out short-circuits set-to-same setState
-      // calls already; explicit guards would only save the scheduler hop.
       interaction.setDragFrom(null);
-      interaction.setHoveredSquare(null);
       interaction.setSelected(null);
     }
   );
@@ -156,7 +133,7 @@ function usePromotionHandlers(args: ChessBoardHandlersArgs): PromotionHandlers {
  * Stable callbacks for every gesture / promotion handler the canvas needs.
  * Each returned function keeps a fixed identity across renders so consumers
  * (gesture recognizer, promotion overlay) don't recreate their memos every
- * time the parent re-renders (e.g. on a hover state change).
+ * time the parent re-renders.
  */
 export function useChessBoardHandlers(
   args: ChessBoardHandlersArgs

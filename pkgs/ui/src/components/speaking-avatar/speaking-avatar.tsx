@@ -126,10 +126,7 @@ export function SpeakingAvatar({
 
   const screenAudible = useScreenAudible();
   const ttsEnabled =
-    screenAudible &&
-    !muted &&
-    !bubbleResolving &&
-    message.trim().length > 0;
+    screenAudible && !muted && !bubbleResolving && message.trim().length > 0;
 
   const { isLoading, isSpeaking } = useSpeak({
     text: message,

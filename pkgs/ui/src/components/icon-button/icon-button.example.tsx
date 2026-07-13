@@ -2,10 +2,7 @@ import { UserIcon } from '../icons';
 import { Box } from '../box';
 import { Stack } from '../stack';
 import { Text } from '../text';
-import {
-  IconButton,
-  iconButtonAvatarContentSize,
-} from './icon-button';
+import { IconButton, iconButtonAvatarContentSize } from './icon-button';
 
 const AVATAR_BUTTON_SIZE = 40;
 
@@ -28,11 +25,21 @@ export default function IconButtonExample() {
           <Text variant="bodyBold" label="+" />
         </IconButton>
 
-        <IconButton label="Delete" onPress={() => {}} size={32} background="destructive">
+        <IconButton
+          label="Delete"
+          onPress={() => {}}
+          size={32}
+          background="destructive"
+        >
           <Text sx={{ fontSize: 'xs' }} label="🗑" />
         </IconButton>
 
-        <IconButton label="Settings" disabled onPress={() => {}} background="surface">
+        <IconButton
+          label="Settings"
+          disabled
+          onPress={() => {}}
+          background="surface"
+        >
           <Text variant="body" label="⚙" />
         </IconButton>
 

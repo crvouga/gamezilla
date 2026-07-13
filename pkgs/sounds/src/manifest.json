@@ -4,10 +4,7 @@
     "category": "navigation",
     "filename": "navigation/click.mp3",
     "durationMs": 97,
-    "tags": [
-      "tap",
-      "button"
-    ],
+    "tags": ["tap", "button"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -21,10 +18,7 @@
     "category": "navigation",
     "filename": "navigation/click-primary.mp3",
     "durationMs": 12,
-    "tags": [
-      "tap",
-      "primary"
-    ],
+    "tags": ["tap", "primary"],
     "volume": 0.95,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -38,10 +32,7 @@
     "category": "navigation",
     "filename": "navigation/click-secondary.mp3",
     "durationMs": 89,
-    "tags": [
-      "tap",
-      "secondary"
-    ],
+    "tags": ["tap", "secondary"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -55,10 +46,7 @@
     "category": "navigation",
     "filename": "navigation/click-destructive.mp3",
     "durationMs": 7,
-    "tags": [
-      "tap",
-      "destructive"
-    ],
+    "tags": ["tap", "destructive"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -72,9 +60,7 @@
     "category": "navigation",
     "filename": "navigation/release.mp3",
     "durationMs": 82,
-    "tags": [
-      "release"
-    ],
+    "tags": ["release"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -88,10 +74,7 @@
     "category": "navigation",
     "filename": "navigation/hover.mp3",
     "durationMs": 62,
-    "tags": [
-      "hover",
-      "desktop"
-    ],
+    "tags": ["hover", "desktop"],
     "volume": 0.6,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -105,10 +88,7 @@
     "category": "navigation",
     "filename": "navigation/focus.mp3",
     "durationMs": 45,
-    "tags": [
-      "focus",
-      "keyboard"
-    ],
+    "tags": ["focus", "keyboard"],
     "volume": 0.7,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -122,9 +102,7 @@
     "category": "navigation",
     "filename": "navigation/tab-switch.mp3",
     "durationMs": 615,
-    "tags": [
-      "tab"
-    ],
+    "tags": ["tab"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -138,10 +116,7 @@
     "category": "navigation",
     "filename": "navigation/page-forward.mp3",
     "durationMs": 40,
-    "tags": [
-      "page",
-      "forward"
-    ],
+    "tags": ["page", "forward"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -155,10 +130,7 @@
     "category": "navigation",
     "filename": "navigation/page-back.mp3",
     "durationMs": 61,
-    "tags": [
-      "page",
-      "back"
-    ],
+    "tags": ["page", "back"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -172,10 +144,7 @@
     "category": "navigation",
     "filename": "navigation/drawer-open.mp3",
     "durationMs": 148,
-    "tags": [
-      "drawer",
-      "open"
-    ],
+    "tags": ["drawer", "open"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -189,10 +158,7 @@
     "category": "navigation",
     "filename": "navigation/drawer-close.mp3",
     "durationMs": 148,
-    "tags": [
-      "drawer",
-      "close"
-    ],
+    "tags": ["drawer", "close"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -206,10 +172,7 @@
     "category": "navigation",
     "filename": "navigation/modal-open.mp3",
     "durationMs": 258,
-    "tags": [
-      "modal",
-      "open"
-    ],
+    "tags": ["modal", "open"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -223,10 +186,7 @@
     "category": "navigation",
     "filename": "navigation/modal-close.mp3",
     "durationMs": 258,
-    "tags": [
-      "modal",
-      "close"
-    ],
+    "tags": ["modal", "close"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -240,9 +200,7 @@
     "category": "navigation",
     "filename": "navigation/back.mp3",
     "durationMs": 91,
-    "tags": [
-      "back"
-    ],
+    "tags": ["back"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -256,9 +214,7 @@
     "category": "navigation",
     "filename": "navigation/forward.mp3",
     "durationMs": 40,
-    "tags": [
-      "forward"
-    ],
+    "tags": ["forward"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -272,9 +228,7 @@
     "category": "navigation",
     "filename": "navigation/dropdown-open.mp3",
     "durationMs": 132,
-    "tags": [
-      "dropdown"
-    ],
+    "tags": ["dropdown"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -288,10 +242,7 @@
     "category": "navigation",
     "filename": "navigation/dropdown-select.mp3",
     "durationMs": 376,
-    "tags": [
-      "dropdown",
-      "select"
-    ],
+    "tags": ["dropdown", "select"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -305,9 +256,7 @@
     "category": "navigation",
     "filename": "navigation/accordion-expand.mp3",
     "durationMs": 315,
-    "tags": [
-      "accordion"
-    ],
+    "tags": ["accordion"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -321,9 +270,7 @@
     "category": "navigation",
     "filename": "navigation/accordion-collapse.mp3",
     "durationMs": 315,
-    "tags": [
-      "accordion"
-    ],
+    "tags": ["accordion"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -337,10 +284,7 @@
     "category": "feedback",
     "filename": "feedback/success.mp3",
     "durationMs": 539,
-    "tags": [
-      "success",
-      "mutation"
-    ],
+    "tags": ["success", "mutation"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -354,10 +298,7 @@
     "category": "feedback",
     "filename": "feedback/success-subtle.mp3",
     "durationMs": 290,
-    "tags": [
-      "success",
-      "subtle"
-    ],
+    "tags": ["success", "subtle"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -371,10 +312,7 @@
     "category": "feedback",
     "filename": "feedback/failure.mp3",
     "durationMs": 106,
-    "tags": [
-      "failure",
-      "mutation"
-    ],
+    "tags": ["failure", "mutation"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -388,10 +326,7 @@
     "category": "feedback",
     "filename": "feedback/failure-subtle.mp3",
     "durationMs": 165,
-    "tags": [
-      "failure",
-      "subtle"
-    ],
+    "tags": ["failure", "subtle"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -405,9 +340,7 @@
     "category": "feedback",
     "filename": "feedback/warning.mp3",
     "durationMs": 491,
-    "tags": [
-      "warning"
-    ],
+    "tags": ["warning"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -421,9 +354,7 @@
     "category": "feedback",
     "filename": "feedback/error.mp3",
     "durationMs": 486,
-    "tags": [
-      "error"
-    ],
+    "tags": ["error"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -437,9 +368,7 @@
     "category": "feedback",
     "filename": "feedback/info.mp3",
     "durationMs": 20,
-    "tags": [
-      "info"
-    ],
+    "tags": ["info"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -453,9 +382,7 @@
     "category": "feedback",
     "filename": "feedback/confirmation.mp3",
     "durationMs": 322,
-    "tags": [
-      "confirm"
-    ],
+    "tags": ["confirm"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -469,9 +396,7 @@
     "category": "feedback",
     "filename": "feedback/cancel.mp3",
     "durationMs": 90,
-    "tags": [
-      "cancel"
-    ],
+    "tags": ["cancel"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -485,9 +410,7 @@
     "category": "feedback",
     "filename": "feedback/undo.mp3",
     "durationMs": 139,
-    "tags": [
-      "undo"
-    ],
+    "tags": ["undo"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -501,9 +424,7 @@
     "category": "feedback",
     "filename": "feedback/retry.mp3",
     "durationMs": 17,
-    "tags": [
-      "retry"
-    ],
+    "tags": ["retry"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -517,9 +438,7 @@
     "category": "notifications",
     "filename": "notifications/notification.mp3",
     "durationMs": 120,
-    "tags": [
-      "notification"
-    ],
+    "tags": ["notification"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -533,10 +452,7 @@
     "category": "notifications",
     "filename": "notifications/notification-urgent.mp3",
     "durationMs": 5000,
-    "tags": [
-      "notification",
-      "urgent"
-    ],
+    "tags": ["notification", "urgent"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -550,9 +466,7 @@
     "category": "notifications",
     "filename": "notifications/mention.mp3",
     "durationMs": 100,
-    "tags": [
-      "mention"
-    ],
+    "tags": ["mention"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -566,9 +480,7 @@
     "category": "notifications",
     "filename": "notifications/reminder.mp3",
     "durationMs": 55,
-    "tags": [
-      "reminder"
-    ],
+    "tags": ["reminder"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -582,10 +494,7 @@
     "category": "notifications",
     "filename": "notifications/achievement.mp3",
     "durationMs": 563,
-    "tags": [
-      "achievement",
-      "stinger"
-    ],
+    "tags": ["achievement", "stinger"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -599,10 +508,7 @@
     "category": "notifications",
     "filename": "notifications/reward.mp3",
     "durationMs": 536,
-    "tags": [
-      "reward",
-      "stinger"
-    ],
+    "tags": ["reward", "stinger"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -616,10 +522,7 @@
     "category": "notifications",
     "filename": "notifications/badge-unlocked.mp3",
     "durationMs": 690,
-    "tags": [
-      "badge",
-      "stinger"
-    ],
+    "tags": ["badge", "stinger"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -633,10 +536,7 @@
     "category": "notifications",
     "filename": "notifications/streak.mp3",
     "durationMs": 569,
-    "tags": [
-      "streak",
-      "stinger"
-    ],
+    "tags": ["streak", "stinger"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -650,10 +550,7 @@
     "category": "notifications",
     "filename": "notifications/milestone.mp3",
     "durationMs": 797,
-    "tags": [
-      "milestone",
-      "stinger"
-    ],
+    "tags": ["milestone", "stinger"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -667,10 +564,7 @@
     "category": "notifications",
     "filename": "notifications/level-up.mp3",
     "durationMs": 994,
-    "tags": [
-      "level-up",
-      "stinger"
-    ],
+    "tags": ["level-up", "stinger"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -684,9 +578,7 @@
     "category": "social",
     "filename": "social/friend-request-received.mp3",
     "durationMs": 333,
-    "tags": [
-      "friends"
-    ],
+    "tags": ["friends"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -700,10 +592,7 @@
     "category": "social",
     "filename": "social/friend-request-accepted.mp3",
     "durationMs": 955,
-    "tags": [
-      "friends",
-      "stinger"
-    ],
+    "tags": ["friends", "stinger"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -717,9 +606,7 @@
     "category": "social",
     "filename": "social/friend-request-declined.mp3",
     "durationMs": 532,
-    "tags": [
-      "friends"
-    ],
+    "tags": ["friends"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -733,9 +620,7 @@
     "category": "social",
     "filename": "social/friend-online.mp3",
     "durationMs": 1090,
-    "tags": [
-      "presence"
-    ],
+    "tags": ["presence"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -749,9 +634,7 @@
     "category": "social",
     "filename": "social/friend-offline.mp3",
     "durationMs": 658,
-    "tags": [
-      "presence"
-    ],
+    "tags": ["presence"],
     "volume": 0.7,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -765,9 +648,7 @@
     "category": "social",
     "filename": "social/direct-message.mp3",
     "durationMs": 188,
-    "tags": [
-      "dm"
-    ],
+    "tags": ["dm"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -781,9 +662,7 @@
     "category": "social",
     "filename": "social/typing-tick.mp3",
     "durationMs": 45,
-    "tags": [
-      "typing"
-    ],
+    "tags": ["typing"],
     "volume": 0.5,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -797,9 +676,7 @@
     "category": "social",
     "filename": "social/party-invite.mp3",
     "durationMs": 330,
-    "tags": [
-      "invite"
-    ],
+    "tags": ["invite"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -813,10 +690,7 @@
     "category": "social",
     "filename": "social/room-invite.mp3",
     "durationMs": 120,
-    "tags": [
-      "invite",
-      "room"
-    ],
+    "tags": ["invite", "room"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -830,9 +704,7 @@
     "category": "social",
     "filename": "social/room-joined.mp3",
     "durationMs": 322,
-    "tags": [
-      "room"
-    ],
+    "tags": ["room"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -846,9 +718,7 @@
     "category": "social",
     "filename": "social/room-left.mp3",
     "durationMs": 658,
-    "tags": [
-      "room"
-    ],
+    "tags": ["room"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -862,9 +732,7 @@
     "category": "social",
     "filename": "social/player-joined.mp3",
     "durationMs": 376,
-    "tags": [
-      "player"
-    ],
+    "tags": ["player"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -878,9 +746,7 @@
     "category": "social",
     "filename": "social/player-left.mp3",
     "durationMs": 94,
-    "tags": [
-      "player"
-    ],
+    "tags": ["player"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -894,9 +760,7 @@
     "category": "social",
     "filename": "social/user-blocked.mp3",
     "durationMs": 471,
-    "tags": [
-      "block"
-    ],
+    "tags": ["block"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -910,9 +774,7 @@
     "category": "multiplayer",
     "filename": "multiplayer/matchmaking-found.mp3",
     "durationMs": 996,
-    "tags": [
-      "matchmaking"
-    ],
+    "tags": ["matchmaking"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -926,9 +788,7 @@
     "category": "multiplayer",
     "filename": "multiplayer/matchmaking-cancelled.mp3",
     "durationMs": 61,
-    "tags": [
-      "matchmaking"
-    ],
+    "tags": ["matchmaking"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -942,9 +802,7 @@
     "category": "multiplayer",
     "filename": "multiplayer/matchmaking-failed.mp3",
     "durationMs": 192,
-    "tags": [
-      "matchmaking"
-    ],
+    "tags": ["matchmaking"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -958,9 +816,7 @@
     "category": "multiplayer",
     "filename": "multiplayer/countdown-tick.mp3",
     "durationMs": 45,
-    "tags": [
-      "countdown"
-    ],
+    "tags": ["countdown"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -974,9 +830,7 @@
     "category": "multiplayer",
     "filename": "multiplayer/countdown-final.mp3",
     "durationMs": 120,
-    "tags": [
-      "countdown"
-    ],
+    "tags": ["countdown"],
     "volume": 1,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -990,9 +844,7 @@
     "category": "multiplayer",
     "filename": "multiplayer/game-starting.mp3",
     "durationMs": 1147,
-    "tags": [
-      "game-start"
-    ],
+    "tags": ["game-start"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1006,9 +858,7 @@
     "category": "multiplayer",
     "filename": "multiplayer/game-ended.mp3",
     "durationMs": 923,
-    "tags": [
-      "game-end"
-    ],
+    "tags": ["game-end"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1022,9 +872,7 @@
     "category": "multiplayer",
     "filename": "multiplayer/reconnecting.mp3",
     "durationMs": 27,
-    "tags": [
-      "connection"
-    ],
+    "tags": ["connection"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1038,9 +886,7 @@
     "category": "multiplayer",
     "filename": "multiplayer/connection-restored.mp3",
     "durationMs": 988,
-    "tags": [
-      "connection"
-    ],
+    "tags": ["connection"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1054,9 +900,7 @@
     "category": "multiplayer",
     "filename": "multiplayer/disconnected.mp3",
     "durationMs": 162,
-    "tags": [
-      "connection"
-    ],
+    "tags": ["connection"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1070,9 +914,7 @@
     "category": "multiplayer",
     "filename": "multiplayer/spectator-joined.mp3",
     "durationMs": 376,
-    "tags": [
-      "spectator"
-    ],
+    "tags": ["spectator"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1086,9 +928,7 @@
     "category": "multiplayer",
     "filename": "multiplayer/host-changed.mp3",
     "durationMs": 608,
-    "tags": [
-      "host"
-    ],
+    "tags": ["host"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1102,9 +942,7 @@
     "category": "chat",
     "filename": "chat/send.mp3",
     "durationMs": 7,
-    "tags": [
-      "chat"
-    ],
+    "tags": ["chat"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1118,9 +956,7 @@
     "category": "chat",
     "filename": "chat/receive.mp3",
     "durationMs": 188,
-    "tags": [
-      "chat"
-    ],
+    "tags": ["chat"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1134,10 +970,7 @@
     "category": "chat",
     "filename": "chat/reaction.mp3",
     "durationMs": 162,
-    "tags": [
-      "chat",
-      "reaction"
-    ],
+    "tags": ["chat", "reaction"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1151,10 +984,7 @@
     "category": "chat",
     "filename": "chat/mention.mp3",
     "durationMs": 100,
-    "tags": [
-      "chat",
-      "mention"
-    ],
+    "tags": ["chat", "mention"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1168,9 +998,7 @@
     "category": "chat",
     "filename": "chat/unread.mp3",
     "durationMs": 55,
-    "tags": [
-      "chat"
-    ],
+    "tags": ["chat"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1184,10 +1012,7 @@
     "category": "chat",
     "filename": "chat/thread-reply.mp3",
     "durationMs": 1918,
-    "tags": [
-      "chat",
-      "thread"
-    ],
+    "tags": ["chat", "thread"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1201,9 +1026,7 @@
     "category": "chat",
     "filename": "chat/message-deleted.mp3",
     "durationMs": 139,
-    "tags": [
-      "chat"
-    ],
+    "tags": ["chat"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1217,9 +1040,7 @@
     "category": "lobby",
     "filename": "lobby/ready.mp3",
     "durationMs": 136,
-    "tags": [
-      "lobby"
-    ],
+    "tags": ["lobby"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1233,9 +1054,7 @@
     "category": "lobby",
     "filename": "lobby/unready.mp3",
     "durationMs": 136,
-    "tags": [
-      "lobby"
-    ],
+    "tags": ["lobby"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1249,10 +1068,7 @@
     "category": "lobby",
     "filename": "lobby/host-changed.mp3",
     "durationMs": 500,
-    "tags": [
-      "lobby",
-      "host"
-    ],
+    "tags": ["lobby", "host"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1266,10 +1082,7 @@
     "category": "lobby",
     "filename": "lobby/team-switched.mp3",
     "durationMs": 497,
-    "tags": [
-      "lobby",
-      "team"
-    ],
+    "tags": ["lobby", "team"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1283,9 +1096,7 @@
     "category": "lobby",
     "filename": "lobby/slot-filled.mp3",
     "durationMs": 284,
-    "tags": [
-      "lobby"
-    ],
+    "tags": ["lobby"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1299,9 +1110,7 @@
     "category": "lobby",
     "filename": "lobby/slot-emptied.mp3",
     "durationMs": 123,
-    "tags": [
-      "lobby"
-    ],
+    "tags": ["lobby"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1315,10 +1124,7 @@
     "category": "lobby",
     "filename": "lobby/invite-accepted.mp3",
     "durationMs": 490,
-    "tags": [
-      "lobby",
-      "invite"
-    ],
+    "tags": ["lobby", "invite"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1332,9 +1138,7 @@
     "category": "lobby",
     "filename": "lobby/settings-changed.mp3",
     "durationMs": 609,
-    "tags": [
-      "lobby"
-    ],
+    "tags": ["lobby"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1348,10 +1152,7 @@
     "category": "lobby",
     "filename": "lobby/countdown-start.mp3",
     "durationMs": 120,
-    "tags": [
-      "lobby",
-      "countdown"
-    ],
+    "tags": ["lobby", "countdown"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1365,9 +1166,7 @@
     "category": "gameplay",
     "filename": "gameplay/turn-start.mp3",
     "durationMs": 60,
-    "tags": [
-      "turn"
-    ],
+    "tags": ["turn"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1381,9 +1180,7 @@
     "category": "gameplay",
     "filename": "gameplay/turn-end.mp3",
     "durationMs": 91,
-    "tags": [
-      "turn"
-    ],
+    "tags": ["turn"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1397,9 +1194,7 @@
     "category": "gameplay",
     "filename": "gameplay/move.mp3",
     "durationMs": 118,
-    "tags": [
-      "move"
-    ],
+    "tags": ["move"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1413,9 +1208,7 @@
     "category": "gameplay",
     "filename": "gameplay/capture.mp3",
     "durationMs": 609,
-    "tags": [
-      "capture"
-    ],
+    "tags": ["capture"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1429,9 +1222,7 @@
     "category": "gameplay",
     "filename": "gameplay/place.mp3",
     "durationMs": 266,
-    "tags": [
-      "place"
-    ],
+    "tags": ["place"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1445,9 +1236,7 @@
     "category": "gameplay",
     "filename": "gameplay/select.mp3",
     "durationMs": 60,
-    "tags": [
-      "select"
-    ],
+    "tags": ["select"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1461,9 +1250,7 @@
     "category": "gameplay",
     "filename": "gameplay/deselect.mp3",
     "durationMs": 90,
-    "tags": [
-      "select"
-    ],
+    "tags": ["select"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1477,9 +1264,7 @@
     "category": "gameplay",
     "filename": "gameplay/timer-warning.mp3",
     "durationMs": 55,
-    "tags": [
-      "timer"
-    ],
+    "tags": ["timer"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1493,9 +1278,7 @@
     "category": "gameplay",
     "filename": "gameplay/timer-expired.mp3",
     "durationMs": 486,
-    "tags": [
-      "timer"
-    ],
+    "tags": ["timer"],
     "volume": 0.95,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1509,10 +1292,7 @@
     "category": "gameplay",
     "filename": "gameplay/victory.mp3",
     "durationMs": 806,
-    "tags": [
-      "victory",
-      "stinger"
-    ],
+    "tags": ["victory", "stinger"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1526,10 +1306,7 @@
     "category": "gameplay",
     "filename": "gameplay/defeat.mp3",
     "durationMs": 462,
-    "tags": [
-      "defeat",
-      "stinger"
-    ],
+    "tags": ["defeat", "stinger"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1543,10 +1320,7 @@
     "category": "gameplay",
     "filename": "gameplay/draw.mp3",
     "durationMs": 568,
-    "tags": [
-      "draw",
-      "stinger"
-    ],
+    "tags": ["draw", "stinger"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1560,9 +1334,7 @@
     "category": "gameplay",
     "filename": "gameplay/score-increase.mp3",
     "durationMs": 409,
-    "tags": [
-      "score"
-    ],
+    "tags": ["score"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1576,9 +1348,7 @@
     "category": "gameplay",
     "filename": "gameplay/score-decrease.mp3",
     "durationMs": 658,
-    "tags": [
-      "score"
-    ],
+    "tags": ["score"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1592,9 +1362,7 @@
     "category": "gameplay",
     "filename": "gameplay/combo.mp3",
     "durationMs": 389,
-    "tags": [
-      "combo"
-    ],
+    "tags": ["combo"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1608,9 +1376,7 @@
     "category": "gameplay",
     "filename": "gameplay/combo-break.mp3",
     "durationMs": 12,
-    "tags": [
-      "combo"
-    ],
+    "tags": ["combo"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1624,10 +1390,7 @@
     "category": "gameplay",
     "filename": "gameplay/checkpoint.mp3",
     "durationMs": 1324,
-    "tags": [
-      "checkpoint",
-      "stinger"
-    ],
+    "tags": ["checkpoint", "stinger"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1641,9 +1404,7 @@
     "category": "gameplay",
     "filename": "gameplay/invalid-move.mp3",
     "durationMs": 532,
-    "tags": [
-      "invalid"
-    ],
+    "tags": ["invalid"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1657,9 +1418,7 @@
     "category": "forms",
     "filename": "forms/checkbox-on.mp3",
     "durationMs": 139,
-    "tags": [
-      "checkbox"
-    ],
+    "tags": ["checkbox"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1673,9 +1432,7 @@
     "category": "forms",
     "filename": "forms/checkbox-off.mp3",
     "durationMs": 63,
-    "tags": [
-      "checkbox"
-    ],
+    "tags": ["checkbox"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1689,9 +1446,7 @@
     "category": "forms",
     "filename": "forms/radio-select.mp3",
     "durationMs": 40,
-    "tags": [
-      "radio"
-    ],
+    "tags": ["radio"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1705,9 +1460,7 @@
     "category": "forms",
     "filename": "forms/toggle-on.mp3",
     "durationMs": 260,
-    "tags": [
-      "toggle"
-    ],
+    "tags": ["toggle"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1721,9 +1474,7 @@
     "category": "forms",
     "filename": "forms/toggle-off.mp3",
     "durationMs": 290,
-    "tags": [
-      "toggle"
-    ],
+    "tags": ["toggle"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1737,9 +1488,7 @@
     "category": "forms",
     "filename": "forms/slider-tick.mp3",
     "durationMs": 45,
-    "tags": [
-      "slider"
-    ],
+    "tags": ["slider"],
     "volume": 0.6,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1753,9 +1502,7 @@
     "category": "forms",
     "filename": "forms/slider-commit.mp3",
     "durationMs": 188,
-    "tags": [
-      "slider"
-    ],
+    "tags": ["slider"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1769,9 +1516,7 @@
     "category": "forms",
     "filename": "forms/text-field-focus.mp3",
     "durationMs": 20,
-    "tags": [
-      "input"
-    ],
+    "tags": ["input"],
     "volume": 0.7,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1785,9 +1530,7 @@
     "category": "forms",
     "filename": "forms/validation-success.mp3",
     "durationMs": 290,
-    "tags": [
-      "validation"
-    ],
+    "tags": ["validation"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1801,9 +1544,7 @@
     "category": "forms",
     "filename": "forms/validation-error.mp3",
     "durationMs": 165,
-    "tags": [
-      "validation"
-    ],
+    "tags": ["validation"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1817,9 +1558,7 @@
     "category": "forms",
     "filename": "forms/picker-open.mp3",
     "durationMs": 315,
-    "tags": [
-      "picker"
-    ],
+    "tags": ["picker"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1833,9 +1572,7 @@
     "category": "forms",
     "filename": "forms/picker-select.mp3",
     "durationMs": 1000,
-    "tags": [
-      "picker"
-    ],
+    "tags": ["picker"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1849,9 +1586,7 @@
     "category": "forms",
     "filename": "forms/stepper-up.mp3",
     "durationMs": 389,
-    "tags": [
-      "stepper"
-    ],
+    "tags": ["stepper"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1865,9 +1600,7 @@
     "category": "forms",
     "filename": "forms/stepper-down.mp3",
     "durationMs": 658,
-    "tags": [
-      "stepper"
-    ],
+    "tags": ["stepper"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1881,10 +1614,7 @@
     "category": "commerce",
     "filename": "commerce/purchase.mp3",
     "durationMs": 793,
-    "tags": [
-      "commerce",
-      "stinger"
-    ],
+    "tags": ["commerce", "stinger"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1898,9 +1628,7 @@
     "category": "commerce",
     "filename": "commerce/refund.mp3",
     "durationMs": 94,
-    "tags": [
-      "commerce"
-    ],
+    "tags": ["commerce"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1914,9 +1642,7 @@
     "category": "commerce",
     "filename": "commerce/coins.mp3",
     "durationMs": 584,
-    "tags": [
-      "coins"
-    ],
+    "tags": ["coins"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1930,9 +1656,7 @@
     "category": "commerce",
     "filename": "commerce/gems.mp3",
     "durationMs": 446,
-    "tags": [
-      "gems"
-    ],
+    "tags": ["gems"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1946,9 +1670,7 @@
     "category": "commerce",
     "filename": "commerce/unlock.mp3",
     "durationMs": 258,
-    "tags": [
-      "unlock"
-    ],
+    "tags": ["unlock"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1962,9 +1684,7 @@
     "category": "commerce",
     "filename": "commerce/inventory-add.mp3",
     "durationMs": 277,
-    "tags": [
-      "inventory"
-    ],
+    "tags": ["inventory"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1978,9 +1698,7 @@
     "category": "commerce",
     "filename": "commerce/inventory-remove.mp3",
     "durationMs": 415,
-    "tags": [
-      "inventory"
-    ],
+    "tags": ["inventory"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -1994,10 +1712,7 @@
     "category": "voice",
     "filename": "voice/mic-enabled.mp3",
     "durationMs": 1090,
-    "tags": [
-      "voice",
-      "mic"
-    ],
+    "tags": ["voice", "mic"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2011,10 +1726,7 @@
     "category": "voice",
     "filename": "voice/mic-muted.mp3",
     "durationMs": 658,
-    "tags": [
-      "voice",
-      "mic"
-    ],
+    "tags": ["voice", "mic"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2028,10 +1740,7 @@
     "category": "voice",
     "filename": "voice/speaker-enabled.mp3",
     "durationMs": 322,
-    "tags": [
-      "voice",
-      "speaker"
-    ],
+    "tags": ["voice", "speaker"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2045,10 +1754,7 @@
     "category": "voice",
     "filename": "voice/speaker-muted.mp3",
     "durationMs": 315,
-    "tags": [
-      "voice",
-      "speaker"
-    ],
+    "tags": ["voice", "speaker"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2062,9 +1768,7 @@
     "category": "voice",
     "filename": "voice/voice-connected.mp3",
     "durationMs": 988,
-    "tags": [
-      "voice"
-    ],
+    "tags": ["voice"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2078,9 +1782,7 @@
     "category": "voice",
     "filename": "voice/voice-disconnected.mp3",
     "durationMs": 162,
-    "tags": [
-      "voice"
-    ],
+    "tags": ["voice"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2094,10 +1796,7 @@
     "category": "voice",
     "filename": "voice/push-to-talk-on.mp3",
     "durationMs": 136,
-    "tags": [
-      "voice",
-      "ptt"
-    ],
+    "tags": ["voice", "ptt"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2111,10 +1810,7 @@
     "category": "voice",
     "filename": "voice/push-to-talk-off.mp3",
     "durationMs": 136,
-    "tags": [
-      "voice",
-      "ptt"
-    ],
+    "tags": ["voice", "ptt"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2128,9 +1824,7 @@
     "category": "misc",
     "filename": "misc/loading-complete.mp3",
     "durationMs": 539,
-    "tags": [
-      "loading"
-    ],
+    "tags": ["loading"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2144,9 +1838,7 @@
     "category": "misc",
     "filename": "misc/refresh.mp3",
     "durationMs": 1000,
-    "tags": [
-      "refresh"
-    ],
+    "tags": ["refresh"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2160,9 +1852,7 @@
     "category": "misc",
     "filename": "misc/sync-started.mp3",
     "durationMs": 347,
-    "tags": [
-      "sync"
-    ],
+    "tags": ["sync"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2176,9 +1866,7 @@
     "category": "misc",
     "filename": "misc/sync-completed.mp3",
     "durationMs": 388,
-    "tags": [
-      "sync"
-    ],
+    "tags": ["sync"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2192,9 +1880,7 @@
     "category": "misc",
     "filename": "misc/sync-failed.mp3",
     "durationMs": 486,
-    "tags": [
-      "sync"
-    ],
+    "tags": ["sync"],
     "volume": 0.9,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2208,9 +1894,7 @@
     "category": "misc",
     "filename": "misc/download-complete.mp3",
     "durationMs": 284,
-    "tags": [
-      "download"
-    ],
+    "tags": ["download"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2224,9 +1908,7 @@
     "category": "misc",
     "filename": "misc/upload-complete.mp3",
     "durationMs": 322,
-    "tags": [
-      "upload"
-    ],
+    "tags": ["upload"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2240,9 +1922,7 @@
     "category": "misc",
     "filename": "misc/search.mp3",
     "durationMs": 1000,
-    "tags": [
-      "search"
-    ],
+    "tags": ["search"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2256,9 +1936,7 @@
     "category": "misc",
     "filename": "misc/search-clear.mp3",
     "durationMs": 325,
-    "tags": [
-      "search"
-    ],
+    "tags": ["search"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2272,9 +1950,7 @@
     "category": "misc",
     "filename": "misc/favorite.mp3",
     "durationMs": 162,
-    "tags": [
-      "favorite"
-    ],
+    "tags": ["favorite"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2288,9 +1964,7 @@
     "category": "misc",
     "filename": "misc/unfavorite.mp3",
     "durationMs": 325,
-    "tags": [
-      "favorite"
-    ],
+    "tags": ["favorite"],
     "volume": 0.75,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2304,9 +1978,7 @@
     "category": "misc",
     "filename": "misc/bookmark.mp3",
     "durationMs": 143,
-    "tags": [
-      "bookmark"
-    ],
+    "tags": ["bookmark"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2320,9 +1992,7 @@
     "category": "misc",
     "filename": "misc/pin.mp3",
     "durationMs": 205,
-    "tags": [
-      "pin"
-    ],
+    "tags": ["pin"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2336,9 +2006,7 @@
     "category": "misc",
     "filename": "misc/archive.mp3",
     "durationMs": 218,
-    "tags": [
-      "archive"
-    ],
+    "tags": ["archive"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2352,9 +2020,7 @@
     "category": "misc",
     "filename": "misc/delete.mp3",
     "durationMs": 139,
-    "tags": [
-      "delete"
-    ],
+    "tags": ["delete"],
     "volume": 0.85,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",
@@ -2368,9 +2034,7 @@
     "category": "misc",
     "filename": "misc/share.mp3",
     "durationMs": 376,
-    "tags": [
-      "share"
-    ],
+    "tags": ["share"],
     "volume": 0.8,
     "license": "CC0-1.0",
     "attribution": "Kenney (kenney.nl) — optional credit",

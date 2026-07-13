@@ -1,4 +1,7 @@
-import { useMyAccountId, useMyDeviceId } from '@libs/auth/client/use-current-user';
+import {
+  useMyAccountId,
+  useMyDeviceId,
+} from '@libs/auth/client/use-current-user';
 import {
   SpaceCol,
   SpaceMembershipCol,

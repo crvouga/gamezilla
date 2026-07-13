@@ -1,9 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
-import {
-  CURATED_SOUNDS,
-  type CuratedSound,
-} from './curate-mapping';
+import { CURATED_SOUNDS, type CuratedSound } from './curate-mapping';
 
 const ROOT = path.join(import.meta.dir, '..');
 const ASSETS = path.join(ROOT, 'assets');

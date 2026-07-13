@@ -4,6 +4,7 @@
  */
 
 import {
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   CircleCheck,
@@ -48,6 +49,7 @@ export const SendIcon = createIcon(Send);
 export const CodeIcon = createIcon(Code);
 export const ChevronRightIcon = createIcon(ChevronRight);
 export const ChevronLeftIcon = createIcon(ChevronLeft);
+export const ChevronDownIcon = createIcon(ChevronDown);
 export const LightbulbIcon = createIcon(Lightbulb);
 export const ListChecksIcon = createIcon(ListChecks);
 export const PaintbrushIcon = createIcon(Paintbrush);

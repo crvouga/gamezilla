@@ -61,7 +61,9 @@ export type SoundEngine = {
   readonly dispose: () => void;
 };
 
-export function createSoundEngine(options: SoundEngineOptions = {}): SoundEngine {
+export function createSoundEngine(
+  options: SoundEngineOptions = {}
+): SoundEngine {
   const muted = options.muted ?? false;
   const masterVolume = options.masterVolume ?? 1;
   const respectReducedMotion = options.respectReducedMotion ?? true;

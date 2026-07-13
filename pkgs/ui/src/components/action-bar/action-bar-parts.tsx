@@ -15,7 +15,10 @@ import { EllipsisIcon, MenuIcon } from '../icons';
 import type { OverflowMenuAction } from '../overflow-menu-button/overflow-menu-button';
 import { ActionBarIconButton } from './action-bar-icon-button';
 import type { ActionBarTextAction } from './action-bar-types';
-import { isActionBarAvatarItem, type ActionBarItem } from './partition-action-bar-items';
+import {
+  isActionBarAvatarItem,
+  type ActionBarItem,
+} from './partition-action-bar-items';
 
 export function buildOverflowMenuContent(
   actions: readonly OverflowMenuAction[],
@@ -90,7 +93,10 @@ export function ActionBarOverflowTrigger(p: {
         label={t`More`}
         {...(p.testID !== undefined ? { testID: p.testID } : {})}
       >
-        <MenuIcon size={Math.round(p.buttonSize * 0.55)} color={theme.colors.icon} />
+        <MenuIcon
+          size={Math.round(p.buttonSize * 0.55)}
+          color={theme.colors.icon}
+        />
       </IconButton>
     </Box>
   );

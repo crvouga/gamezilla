@@ -1,6 +1,6 @@
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { PROFILE_ROW_BY_ID_SQL } from './profile-row-sql';
 
 export type ProfileRow = {
   readonly id: string;
@@ -22,11 +22,11 @@ export type ProfileRowState = {
 export function useProfileRow(profileId: string | null): ProfileRowState {
   const enabled = profileId !== null && profileId.length > 0;
   const { row, isLoading } = useWatchOne<ProfileRow>(
-    `SELECT ${ProfileCol.id}, ${ProfileCol.createdAt},
-            ${ProfileCol.username}, ${ProfileCol.usernameChangedAt}, ${ProfileCol.avatarConfig}
-     FROM ${PROFILES_TABLE.tableName}
-     WHERE ${ProfileCol.id} = ?`,
+    PROFILE_ROW_BY_ID_SQL,
     enabled ? [profileId] : ['']
   );
-  return { row: enabled ? (row ?? null) : null, isLoading: enabled && isLoading };
+  return {
+    row: enabled ? (row ?? null) : null,
+    isLoading: enabled && isLoading,
+  };
 }

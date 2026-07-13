@@ -265,12 +265,7 @@ export class InfisicalSecretStore implements SecretStore {
       method,
       headers: buildWriteHeaders(this.token),
       body: JSON.stringify(
-        buildWriteBody(
-          this.workspaceId,
-          this.env,
-          this.secretPath,
-          secretValue
-        )
+        buildWriteBody(this.workspaceId, this.env, this.secretPath, secretValue)
       ),
     };
     if (init?.signal !== undefined) {

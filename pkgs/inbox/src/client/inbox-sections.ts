@@ -27,8 +27,7 @@ const SECTION_TITLES: Record<string, string> = {
 
 export function buildInteractionSections(
   items: readonly Interaction[],
-  titleForKey: (key: string) => string = (key) =>
-    SECTION_TITLES[key] ?? key
+  titleForKey: (key: string) => string = (key) => SECTION_TITLES[key] ?? key
 ): readonly InteractionSection[] {
   const buckets = new Map<string, Interaction[]>();
   for (const item of items) {

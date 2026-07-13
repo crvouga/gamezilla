@@ -5,6 +5,10 @@ import { PIECE_SVGS, PIECE_SVGS_CBURNETT } from './chess-pieces-svg';
 
 export type PieceImageCache = Record<PieceCode, SkImage>;
 
+export type PieceCaches = {
+  images: PieceImageCache;
+};
+
 const PIECE_RASTER_SIZE = 512;
 
 async function waitForSvgReady(svg: SkSVG): Promise<void> {
@@ -65,7 +69,7 @@ async function resolveSvgXml(code: PieceCode, source: string): Promise<string> {
   }
 }
 
-async function loadPieceImages(): Promise<PieceImageCache> {
+async function loadPieceCaches(): Promise<PieceCaches> {
   const entries = Object.entries(PIECE_SVGS) as [PieceCode, string][];
   const svgs: SkSVG[] = [];
   try {
@@ -81,11 +85,11 @@ async function loadPieceImages(): Promise<PieceImageCache> {
         return [code, rasterizePiece(svg)] as const;
       })
     );
-    const out = {} as PieceImageCache;
+    const images = {} as PieceImageCache;
     for (const [code, image] of results) {
-      out[code] = image;
+      images[code] = image;
     }
-    return out;
+    return { images };
   } finally {
     for (const svg of svgs) svg.dispose();
   }
@@ -94,24 +98,29 @@ async function loadPieceImages(): Promise<PieceImageCache> {
 /**
  * Module-level singleton holding the rasterized piece images.
  *
- * Promotes the previously per-mount `useState` cache (which forced every
- * `ChessBoard` mount to re-fetch and re-rasterize the 12 SVGs) into a
- * process-wide cache that loads once and is shared across every board.
+ * Native drag uses SvgXml (not PNG data-URIs) — encoding was removed after
+ * iOS Image failed to decode large base64 ghosts and web encode corrupted
+ * board rasters.
  *
- * The first `usePieceSkiaImages` call kicks off the async load; every
- * subsequent caller gets the cached value synchronously and skips the
- * load. The cache is never released — 12 × 512×512 raster images is a
- * fixed, bounded cost and chess UIs commonly mount/unmount boards.
+ * Bump {@link PIECE_CACHE_GEN} when the raster pipeline changes so hot reload
+ * cannot keep serving a corrupt in-memory cache from a prior module revision.
  */
+const PIECE_CACHE_GEN = 5;
 const pieceCacheSubscribers = new Set<() => void>();
-let pieceCacheValue: PieceImageCache | null = null;
+let pieceCacheValue: PieceCaches | null = null;
+let pieceCacheGenLoaded = -1;
 let pieceCacheLoadingPromise: Promise<void> | null = null;
 
 function ensurePieceCacheLoad(): void {
-  if (pieceCacheValue !== null || pieceCacheLoadingPromise !== null) return;
+  if (pieceCacheValue !== null && pieceCacheGenLoaded === PIECE_CACHE_GEN) {
+    return;
+  }
+  if (pieceCacheLoadingPromise !== null) return;
+  pieceCacheValue = null;
   pieceCacheLoadingPromise = (async () => {
     try {
-      pieceCacheValue = await loadPieceImages();
+      pieceCacheValue = await loadPieceCaches();
+      pieceCacheGenLoaded = PIECE_CACHE_GEN;
     } finally {
       pieceCacheLoadingPromise = null;
       for (const notify of pieceCacheSubscribers) notify();
@@ -126,13 +135,11 @@ function subscribePieceCache(notify: () => void): () => void {
   };
 }
 
-function getPieceCacheSnapshot(): PieceImageCache | null {
+function getPieceCacheSnapshot(): PieceCaches | null {
   return pieceCacheValue;
 }
 
-export function usePieceSkiaImages(): PieceImageCache | null {
-  // SSR / non-DOM contexts can't run the snapshot synchronously safely;
-  // fall back to a local fetch in those (extremely rare) cases.
+export function usePieceCaches(): PieceCaches | null {
   const cache = useSyncExternalStore(
     subscribePieceCache,
     getPieceCacheSnapshot,
@@ -142,6 +149,11 @@ export function usePieceSkiaImages(): PieceImageCache | null {
     ensurePieceCacheLoad();
   }, []);
   return cache;
+}
+
+/** Skia images only — most board layers do not need the URI map. */
+export function usePieceSkiaImages(): PieceImageCache | null {
+  return usePieceCaches()?.images ?? null;
 }
 
 /**

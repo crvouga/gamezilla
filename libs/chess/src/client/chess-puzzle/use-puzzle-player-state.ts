@@ -1,9 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
-import {
-  useMyDeviceId,
-  useMyId,
-} from '@libs/auth/client/use-current-user';
+import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
 import { useFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import {
   useSpaceRoomDispatch,

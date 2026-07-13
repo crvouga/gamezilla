@@ -4,6 +4,23 @@ import { defineTable } from '../shared/table-definition';
 import { createTableRegistry } from '../shared/table-registry';
 import { createInMemorySyncEngine } from './in-memory-sync-engine';
 
+function waitForHydrated(sub: {
+  getHydrated: () => boolean;
+  subscribe: (listener: () => void) => () => void;
+}): Promise<void> {
+  if (sub.getHydrated()) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    const unsub = sub.subscribe(() => {
+      if (sub.getHydrated()) {
+        unsub();
+        resolve();
+      }
+    });
+  });
+}
+
 describe('createInMemorySyncEngine', () => {
   test('watch query is not hydrated until first refresh completes', () => {
     const registry = createTableRegistry([
@@ -21,7 +38,7 @@ describe('createInMemorySyncEngine', () => {
     expect(sub.getHydrated()).toBe(false);
   });
 
-  test('watch query returns rows after connect', async () => {
+  test('watch query returns rows after connect without polling', async () => {
     const registry = createTableRegistry([
       defineTable({
         tableName: 'profiles',
@@ -42,10 +59,50 @@ describe('createInMemorySyncEngine', () => {
       'SELECT id, display_name FROM profiles WHERE id = ?',
       ['p1']
     );
-    await new Promise((r) => setTimeout(r, 150));
+    await waitForHydrated(sub);
     expect(sub.getHydrated()).toBe(true);
     expect(sub.getSnapshot()[0]?.display_name).toBe('Ada');
     await engine.disconnect();
+  });
+
+  test('watch refreshes on write without timers', async () => {
+    const registry = createTableRegistry([
+      defineTable({
+        tableName: 'profiles',
+        columns: [
+          { name: 'id', type: 'text', primaryKey: true },
+          { name: 'display_name', type: 'text' },
+        ],
+      }),
+    ]);
+    const engine = createInMemorySyncEngine({ registry });
+    await engine.connect();
+    await engine.db.run(
+      'INSERT INTO profiles (id, display_name) VALUES (?, ?)',
+      ['p1', 'Ada']
+    );
+
+    const sub = engine.watch<{ display_name: string }>(
+      'SELECT display_name FROM profiles WHERE id = ?',
+      ['p1']
+    );
+    await waitForHydrated(sub);
+
+    const next = new Promise<string>((resolve) => {
+      const unsub = sub.subscribe(() => {
+        const name = sub.getSnapshot()[0]?.display_name;
+        if (name === 'Grace') {
+          unsub();
+          resolve(name);
+        }
+      });
+    });
+
+    await engine.db.run('UPDATE profiles SET display_name = ? WHERE id = ?', [
+      'Grace',
+      'p1',
+    ]);
+    expect(await next).toBe('Grace');
   });
 
   test('hasEverSynced latches true and persists through reconnect', async () => {

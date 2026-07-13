@@ -9,9 +9,7 @@ export { DEFAULT_LOCAL_PREVIEW_API_ORIGIN };
  * Production API Worker hostname(s). Development must not target these unless
  * {@link productionApiUrlTigerExceptionEnabled} (Tiger Style: fail loud, never silent drift to prod).
  */
-export const PRODUCTION_API_HTTP_HOSTNAMES = [
-  APP_IDENTITY.apiHost,
-] as const;
+export const PRODUCTION_API_HTTP_HOSTNAMES = [APP_IDENTITY.apiHost] as const;
 
 function isProductionApiHttpHostname(hostname: string): boolean {
   return (PRODUCTION_API_HTTP_HOSTNAMES as readonly string[]).includes(

@@ -36,7 +36,6 @@ import type {
 import type { PieceImageCache } from './chess-pieces-cache';
 import { pieceCode } from './chess-pieces-svg';
 import { useChessBoardCaptureGhost } from './use-chess-board-capture-ghost';
-import type { ChessBoardInteractionState } from './use-chess-board-interaction-state';
 import type { useChessGame } from './use-chess-game';
 
 export type ChessBoardCanvasContentProps = {
@@ -49,12 +48,14 @@ export type ChessBoardCanvasContentProps = {
   cellFeedback: ChessBoardProps['cellFeedback'];
   pieceImages: PieceImageCache | null;
   pieceDraw: number;
-  interaction: ChessBoardInteractionState;
+  selected: Square | null;
+  dragFrom: Square | null;
+  hoverSquareIndex: SharedValue<number>;
   game: ReturnType<typeof useChessGame>;
   legalTargets: readonly Square[];
   checkKingSquare: Square | null;
   mergedArrows: readonly BoardArrow[];
-  /** Inline drag layer (when `dragOverlayPortal` is false). */
+  /** Inline drag layer (when portal overlay is off). */
   inlineDrag?: {
     dragX: SharedValue<number>;
     dragY: SharedValue<number>;
@@ -103,7 +104,6 @@ type MarkerLayersProps = {
   highlightLastMove: boolean;
   selected: Square | null;
   legalTargets: readonly Square[];
-  hoveredSquare: Square | null;
   checkKingSquare: Square | null;
   position: ReturnType<typeof useChessGame>['position'];
   turn: 'w' | 'b';
@@ -134,12 +134,6 @@ function MarkerLayers(p: MarkerLayersProps): ReactNode {
         size={p.size}
         orientation={p.orientation}
         theme={p.theme}
-      />
-      <ChessBoardHoverLayer
-        hoveredSquare={p.hoveredSquare}
-        size={p.size}
-        orientation={p.orientation}
-        color={p.theme.selected}
       />
       <ChessBoardCheckLayer
         checkKingSquare={p.checkKingSquare}
@@ -258,12 +252,13 @@ function OverlayLayers(p: OverlayLayersProps): ReactNode {
 function ChessBoardCanvasContentImpl(
   props: ChessBoardCanvasContentProps
 ): ReactNode {
-  const { size, game, interaction } = props;
+  const { size, game } = props;
   const { position, lastMove } = game;
   const { active: pieceRows } = useChessPieceRows(position, lastMove);
   const { captureGhost } = useChessBoardCaptureGhost(position, lastMove);
+  const canvasStyle = useMemo(() => ({ width: size, height: size }), [size]);
   return (
-    <Canvas style={{ width: size, height: size }}>
+    <Canvas style={canvasStyle}>
       <StaticLayers
         size={size}
         orientation={props.orientation}
@@ -277,9 +272,8 @@ function ChessBoardCanvasContentImpl(
         theme={props.theme}
         lastMove={lastMove}
         highlightLastMove={props.highlightLastMove}
-        selected={interaction.selected}
+        selected={props.selected}
         legalTargets={props.legalTargets}
-        hoveredSquare={interaction.hoveredSquare}
         checkKingSquare={props.checkKingSquare}
         position={position}
         turn={game.turn}
@@ -287,16 +281,24 @@ function ChessBoardCanvasContentImpl(
       <PieceLayers
         ghost={captureGhost}
         pieceRows={pieceRows}
-        dragFrom={interaction.dragFrom}
+        dragFrom={props.dragFrom}
         pieceImages={props.pieceImages}
         size={size}
         orientation={props.orientation}
         pieceDraw={props.pieceDraw}
       />
+      {/* Hover after pieces so the always-on Reanimated rect cannot paint
+          under/over the piece layer incorrectly during drag. */}
+      <ChessBoardHoverLayer
+        hoverSquareIndex={props.hoverSquareIndex}
+        size={size}
+        orientation={props.orientation}
+        color={props.theme.selected}
+      />
       {props.inlineDrag !== undefined && props.inlineDrag !== null ? (
         <InlineDragLayer
           inlineDrag={props.inlineDrag}
-          dragFrom={interaction.dragFrom}
+          dragFrom={props.dragFrom}
           position={position}
           pieceImages={props.pieceImages}
           pieceDraw={props.pieceDraw}

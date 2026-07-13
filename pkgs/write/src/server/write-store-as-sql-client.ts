@@ -12,7 +12,8 @@ export function writeStoreAsSqlClient(store: WriteStore): SqlClient {
       const result = await store.run(sql, params);
       return { changes: result.changes, lastInsertRowid: 0 };
     },
-    transaction: (fn) => store.transaction((tx) => fn(writeStoreAsSqlClient(tx))),
+    transaction: (fn) =>
+      store.transaction((tx) => fn(writeStoreAsSqlClient(tx))),
     prepare: (sql) => ({
       query: (params) => store.query(sql, params),
       run: async (params) => {

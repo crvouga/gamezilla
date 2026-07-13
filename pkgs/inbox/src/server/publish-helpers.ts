@@ -55,7 +55,10 @@ function presentationTextColumns(input: PublishInteractionInput): unknown[] {
   ];
 }
 
-function buildUpsertParams(input: PublishInteractionInput, now: string): unknown[] {
+function buildUpsertParams(
+  input: PublishInteractionInput,
+  now: string
+): unknown[] {
   const id = buildInteractionId(input.source, input.userId);
   const payload = assertBoundedPayload(input.payload);
   return [

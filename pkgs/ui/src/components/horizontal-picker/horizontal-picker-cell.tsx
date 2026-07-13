@@ -56,7 +56,9 @@ export function HorizontalPickerCell({
 
   return (
     <Pressable onPress={onPress} style={cellStyle}>
-      <Animated.View style={[cellStyle, animatedStyle]}>{children}</Animated.View>
+      <Animated.View style={[cellStyle, animatedStyle]}>
+        {children}
+      </Animated.View>
     </Pressable>
   );
 }

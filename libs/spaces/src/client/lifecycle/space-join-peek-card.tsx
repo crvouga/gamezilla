@@ -9,9 +9,7 @@ export type SpaceJoinPeekCardProps = {
   readonly peek: SpacePeekDto;
 };
 
-export function SpaceJoinPeekCard({
-  peek,
-}: SpaceJoinPeekCardProps): ReactNode {
+export function SpaceJoinPeekCard({ peek }: SpaceJoinPeekCardProps): ReactNode {
   const { t } = useLingui();
   const hostUsername = peek.hostUsername ?? '';
   const memberCount = peek.activeMemberCount;

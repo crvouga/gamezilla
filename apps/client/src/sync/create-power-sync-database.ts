@@ -1,19 +1,17 @@
 import { SYNC_TABLE_REGISTRY } from '@libs/db/shared/table-registry';
 import { createPowerSyncSchema } from '@pkgs/sync-engine-powersync/client/schema-from-registry';
-import type { PowerSyncDatabasePort } from '@pkgs/sync-engine-powersync/client/powersync-database-port';
 import { Platform } from 'react-native';
 
 import { getMainSqliteDbName } from '../storage/open-main-sql-client';
+import type { PowerSyncSdkDatabase } from './powersync-sdk-database';
+
+export type { PowerSyncSdkDatabase } from './powersync-sdk-database';
 
 const POWERSYNC_WEB_ASSET_PREFIX = '/generated/powersync/@powersync';
 
 const schema = createPowerSyncSchema(SYNC_TABLE_REGISTRY);
 
-type SdkDatabase = PowerSyncDatabasePort & {
-  connect(connector: unknown): Promise<void>;
-};
-
-function createWebDatabase(): SdkDatabase {
+function createWebDatabase(): PowerSyncSdkDatabase {
   // eslint-disable-next-line @typescript-eslint/no-require-imports -- platform split
   const web = require('@powersync/web/umd');
   const enableMultiTabs = typeof SharedWorker !== 'undefined';
@@ -30,22 +28,22 @@ function createWebDatabase(): SdkDatabase {
       worker: `${POWERSYNC_WEB_ASSET_PREFIX}/worker/SharedSyncImplementation.umd.js`,
     },
     flags: { enableMultiTabs },
-  }) as unknown as SdkDatabase;
+  }) as unknown as PowerSyncSdkDatabase;
 }
 
-function createNativeDatabase(): SdkDatabase {
+function createNativeDatabase(): PowerSyncSdkDatabase {
   // eslint-disable-next-line @typescript-eslint/no-require-imports -- platform split
   const native = require('@powersync/react-native');
   return new native.PowerSyncDatabase({
     schema,
     database: { dbFilename: `${getMainSqliteDbName()}.db` },
-  }) as unknown as SdkDatabase;
+  }) as unknown as PowerSyncSdkDatabase;
 }
 
-let cachedDatabase: SdkDatabase | undefined;
+let cachedDatabase: PowerSyncSdkDatabase | undefined;
 
 /** Opens the platform PowerSync SQLite database (native RN or web wa-sqlite). */
-export function createPowerSyncDatabase(): SdkDatabase {
+export function createPowerSyncDatabase(): PowerSyncSdkDatabase {
   if (cachedDatabase !== undefined) {
     return cachedDatabase;
   }

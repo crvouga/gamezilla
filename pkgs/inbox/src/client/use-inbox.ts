@@ -7,9 +7,7 @@ import { buildInteractionSections } from './inbox-sections';
 import { inboxListSql } from './inbox-queries';
 import { useInboxShell } from './inbox-provider-registry';
 
-export function useInbox(options?: {
-  readonly filter?: InteractionFilter;
-}): {
+export function useInbox(options?: { readonly filter?: InteractionFilter }): {
   readonly interactions: readonly Interaction[];
   readonly sections: ReturnType<typeof buildInteractionSections>;
   readonly isLoading: boolean;

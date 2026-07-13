@@ -36,7 +36,12 @@ export function ResponsiveSurfaceHeader({
         numberOfLines={1}
         style={{ flex: 1, marginRight: 8 }}
       />
-      <IconButton size={36} onPress={onClose} label={t`Close`} accessibilityLabel={t`Close`}>
+      <IconButton
+        size={36}
+        onPress={onClose}
+        label={t`Close`}
+        accessibilityLabel={t`Close`}
+      >
         <Text style={{ fontSize: 18, color: theme.colors.text }} label="✕" />
       </IconButton>
     </Box>

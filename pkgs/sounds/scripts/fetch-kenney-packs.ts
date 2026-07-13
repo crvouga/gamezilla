@@ -40,7 +40,9 @@ async function download(name: string, url: string): Promise<void> {
   const dest = path.join(CACHE, name);
   const res = await fetch(url);
   if (!res.ok) {
-    throw new Error(`Failed to download ${name}: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `Failed to download ${name}: ${res.status} ${res.statusText}`
+    );
   }
   const buf = await res.arrayBuffer();
   await Bun.write(dest, buf);

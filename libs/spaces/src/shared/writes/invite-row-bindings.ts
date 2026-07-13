@@ -1,6 +1,4 @@
-import {
-  SPACE_INVITES_TABLE,
-} from '@libs/db/shared/space-tables';
+import { SPACE_INVITES_TABLE } from '@libs/db/shared/space-tables';
 import {
   denyAllRowBinding,
   type RowWriteBinding,

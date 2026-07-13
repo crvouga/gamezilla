@@ -16,10 +16,7 @@ export class DnsRecordsResource extends ResourceBase {
       'dns-records: ctx.zoneId must be set by ZoneResource'
     );
 
-    ok(
-      'DNS',
-      'Worker custom domains for www/api managed by wrangler'
-    );
+    ok('DNS', 'Worker custom domains for www/api managed by wrangler');
   }
 
   async destroy(_platform: CiPlatform): Promise<void> {

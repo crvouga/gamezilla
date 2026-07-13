@@ -37,7 +37,10 @@ function useHostProfileSnapshot(profileId: string) {
   };
 }
 
-function useSpaceLifecycleMutations(deviceId: string, accountId: string | null) {
+function useSpaceLifecycleMutations(
+  deviceId: string,
+  accountId: string | null
+) {
   const engine = useSyncEngine();
   const leaveSpace = useCallback(
     (spaceId: string) => leaveSpaceAction(engine.db, deviceId, spaceId),

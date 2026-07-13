@@ -36,7 +36,9 @@ const CHROME_BY_BREAKPOINT: Record<BreakpointName, ActionBarChromeSpec> = {
   },
 };
 
-export function getActionBarChrome(breakpoint: BreakpointName): ActionBarChromeSpec {
+export function getActionBarChrome(
+  breakpoint: BreakpointName
+): ActionBarChromeSpec {
   return CHROME_BY_BREAKPOINT[breakpoint];
 }
 
