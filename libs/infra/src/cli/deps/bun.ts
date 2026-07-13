@@ -5,10 +5,8 @@ import {
   verifyRun,
   which,
 } from '@pkgs/os';
-import { INFRA_CLI_USER_AGENT as UA } from '../constants';
 import type { Dep, DepStatus } from './types';
-
-const FETCH_TIMEOUT_MS = 15_000;
+import { fetchLatestGithubReleaseVersion } from './version-fetch';
 
 export class BunDep implements Dep {
   readonly name = 'bun';
@@ -30,25 +28,10 @@ export class BunDep implements Dep {
   }
 
   async fetchLatestVersion(): Promise<string | null> {
-    try {
-      const res = await fetch(
-        'https://api.github.com/repos/oven-sh/bun/releases/latest',
-        {
-          headers: {
-            Accept: 'application/vnd.github+json',
-            'User-Agent': UA,
-          },
-          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-        }
-      );
-      if (!res.ok) return null;
-      const j = (await res.json()) as { tag_name?: string };
-      const tag = j.tag_name?.trim() ?? '';
+    return fetchLatestGithubReleaseVersion('oven-sh/bun', (tag) => {
       const m = /^bun-v(.+)$/i.exec(tag) ?? /^v?([\d.]+)/.exec(tag);
       return m?.[1]?.trim() ?? null;
-    } catch {
-      return null;
-    }
+    });
   }
 
   install(): void {

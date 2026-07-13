@@ -1,25 +1,15 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { capture, captureVersionDiagnostic, run, verifyRun } from '@pkgs/os';
-import { INFRA_CLI_USER_AGENT as UA } from '../constants';
 import { REPO_ROOT } from '../paths';
+import { summarize } from './summarize';
 import type { Dep, DepStatus } from './types';
+import { fetchLatestNpmVersion } from './version-fetch';
 
-const FETCH_TIMEOUT_MS = 15_000;
 const TURBO_PKG_JSON = join(REPO_ROOT, 'node_modules/turbo/package.json');
 const TURBO_BIN = join(REPO_ROOT, 'node_modules/.bin/turbo');
 const ROOT_PACKAGE_JSON = join(REPO_ROOT, 'package.json');
 const CATALOG_TURBO_RE = /("turbo":\s*"\^)[^"]+(")/;
-
-function summarize(stream: string): string {
-  const trimmed = stream.trim();
-  if (trimmed.length === 0) return '<empty>';
-  const lines = trimmed.split('\n');
-  const head = lines.slice(0, 3).join(' / ');
-  return lines.length > 3
-    ? `${head} … (+${String(lines.length - 3)} more lines)`
-    : head;
-}
 
 function readWorkspaceTurboVersion(): string | null {
   if (!existsSync(TURBO_PKG_JSON)) return null;
@@ -100,17 +90,7 @@ export class TurboDep implements Dep {
   }
 
   async fetchLatestVersion(): Promise<string | null> {
-    try {
-      const res = await fetch('https://registry.npmjs.org/turbo/latest', {
-        headers: { Accept: 'application/json', 'User-Agent': UA },
-        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      });
-      if (!res.ok) return null;
-      const j = (await res.json()) as { version?: string };
-      return typeof j.version === 'string' ? j.version.trim() : null;
-    } catch {
-      return null;
-    }
+    return fetchLatestNpmVersion('turbo');
   }
 
   install(): void {
