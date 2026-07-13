@@ -69,7 +69,6 @@ function ensureInboxHandlers(): void {
         actorId: ctx.actorId,
         deviceId: actor.deviceId,
         inviteId,
-        deviceLabel: 'Device',
       });
       return;
     }
