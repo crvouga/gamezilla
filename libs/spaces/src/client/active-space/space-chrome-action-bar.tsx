@@ -17,7 +17,7 @@ import { SpaceMembersAvatarGroup } from '../members/space-members-avatar-group';
 import { SpaceMembersListModal } from '../members/space-members-list-modal';
 import { useSpacesNavBack } from '../nav/spaces-nav-context';
 import { useCurrentSpaceRole } from '../use-current-space-role';
-import { SpaceInviteSheet } from '../lifecycle/space-invite-sheet';
+import { SpaceInviteSheet } from '../space-invite/space-invite-sheet';
 import { useSpaceSessionUi } from './space-session-ui-context';
 
 type SpaceChromeLabels = {

@@ -84,3 +84,9 @@ powersync/.pull-state.json
 powersync/*.backup-*
 powersync/service-fetched.yaml
 powersync/sync-fetched.yaml
+
+# Playwright QA artifacts (reports, traces, videos)
+/qa/
+**/playwright-report/
+**/test-results/
+**/blob-report/

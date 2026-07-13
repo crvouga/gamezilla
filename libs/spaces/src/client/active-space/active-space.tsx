@@ -3,10 +3,11 @@ import { useRouter } from 'expo-router';
 import { useCallback, useContext, useState, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
-import { useSpaceLifecycleModals } from '../lifecycle/space-lifecycle-modal-provider';
+import { useRequestEndSpace } from '../end-space/end-space-modal-provider';
+import { useRequestLeaveSpace } from '../leave-space/leave-space-modal-provider';
 import { closeSpaceDetail } from '../space-routes';
 import { ActiveSpaceBody } from './active-space-body';
-import { RenameSpaceModal } from './rename-space-modal';
+import { RenameSpaceModal } from '../rename-space/rename-space-modal';
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
 
@@ -21,8 +22,8 @@ export type ActiveSpaceProps = {
 
 /**
  * Wrapper around an active space session — body + rename confirmation modal.
- * End/leave confirms live in {@link SpaceLifecycleModalProvider} so they stay
- * mounted through loading → success when membership changes.
+ * End/leave confirms live in their slice modal providers so they stay mounted
+ * through loading → success when membership changes.
  *
  * Top inset comes from {@link TopBar}'s `safeAreaTop` (same as ScreenBase);
  * bottom inset is applied here so content clears the home indicator on all
@@ -31,7 +32,8 @@ export type ActiveSpaceProps = {
 export function ActiveSpace({ spaceId }: ActiveSpaceProps): ReactNode {
   const router = useRouter();
   const bottomInset = useSafeAreaBottom();
-  const { requestEndSpace, requestLeaveSpace } = useSpaceLifecycleModals();
+  const requestEndSpace = useRequestEndSpace();
+  const requestLeaveSpace = useRequestLeaveSpace();
   const [renameOpen, setRenameOpen] = useState(false);
   const onPressHome = useCallback(() => {
     closeSpaceDetail(router);

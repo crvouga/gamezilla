@@ -5,7 +5,7 @@ import {
   SPACE_INVITES_TABLE,
 } from '@libs/db/shared/space-tables';
 import { SpacesError } from '../shared/spaces-errors';
-import { joinSpaceServer } from './space-join-service';
+import { joinSpaceServer } from './join-space/join-space-service';
 import { deactivateSpaceInviteInteraction } from './spaces-inbox-publish';
 
 export async function acceptSpaceInviteFromInbox(args: {

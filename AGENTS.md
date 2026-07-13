@@ -6,6 +6,19 @@
 
 - **Never disable structural size limits for app code.** The Tiger-Style caps in `pkgs/eslint-rules/size-limits.cjs` (`max-lines`, `max-lines-per-function`, `max-statements`, `max-depth`, `max-params`, `max-nested-callbacks`, `complexity`, `max-classes-per-file`, `max-statements-per-line`) are load-bearing. Do **not** add per-file `'off'` overrides in any `{apps,libs,pkgs}/*/eslint.config.js`, and do **not** add `/* eslint-disable max-lines-per-function */` (or sibling) comments in source files. If a function tripped the cap, refactor it: extract sub-components, helper hooks, or pure helpers. The cap is the constraint, not a suggestion. The only legitimate exemption is `testOverrides()` (already wired in via the shared base config). Run `bun run scripts/check-no-size-limit-overrides.ts` to scan for offenders.
 
+- **PowerSync is the default for client reads and writes.** Client UI reads local SQLite via `useWatch*` / sync streams. Client mutations use `runClientWrite` / `useWrite` on a shared `defineWrite`, which execute locally then upload through `POST /api/sync/upload`. Do **not** add feature REST GET/POST for data that is (or can be) in the user’s sync scope. Absolute REST exceptions only: username uniqueness / ensure (`PUT /profile/username`, `POST /profile/ensure`), cross-user search (`POST /friends/search`), system config refresh (`POST /client-config/refresh`), Stripe/webhooks/external APIs, and invite token minting when server RNG is required. Prefer shrinking that list, never growing it casually.
+
+- **Every mutation is an isomorphic `@pkgs/write` `defineWrite` in a vertical slice.** Organize by mutation/feature with mirrored folders across runtimes — not horizontal hubs (`*-actions.ts`, `*-lifecycle-writes.ts`, flat `shared/writes/` dumping grounds):
+
+  ```
+  libs/<feature>/src/
+    client/<slice>/     # hooks + UI (use-join-space, join-space-button, …)
+    shared/<slice>/     # defineWrite + pure authorize/helpers (join-space-write, …)
+    server/<slice>/     # REST/inbox only when absolute exception needs it
+  ```
+
+  Client and server import the same `shared/<slice>/*-write` module. Sync-native path: client slice hook calls `runClientWrite` (`mode: 'full'`) → upload reuses the **same** `authorize` via `createRowWriteBinding`. REST-exception path: `server/<slice>/` runs `runWrite({ mode: 'full' })` with the same write. Ban bare `sql.run` mutations outside `defineWrite.execute`. Ban god-hooks that re-export every mutation (`useSpaceActions`); each UI calls its slice hook. Package-level `shared/row-bindings.ts` (or equivalent) only composes slice authorizes into upload auth; wired in `apps/api/src/sync/row-write-registry.ts`. Never revive obsolete `server/write-policies.ts` names.
+
 ## `@pkgs/ui` design system
 
 `@pkgs/ui` is the only design-system surface in the repo. Every component, prop type, hook, and theme helper is implemented in-house under `pkgs/ui/src/components/**` and re-exported from `pkgs/ui/src/index.ts`. There is no adapter indirection, no swappable backend, and no third-party UI library — consumers always do `import { Button, Text, useTheme } from '@pkgs/ui';` and the import resolves to the in-house implementation directly.
@@ -84,7 +97,7 @@ Workspace packages live under three top-level tier directories with matching npm
 | Libs | `libs/` | `@libs/` | Product-flavored reusable code (`chess`, `auth`, `spaces`, …).     |
 | Pkgs | `pkgs/` | `@pkgs/` | Agnostic utilities, framework, CLIs, dev infra, runnable examples. |
 
-Inside each one, runtimes are isolated by three flat sibling folders — no deeper nesting:
+Inside each one, runtimes are isolated by three sibling folders. Under each runtime, organize by **vertical slice** (one folder per mutation/feature) with mirrored names across `client/` / `shared/` / `server/` — do not add horizontal hubs that force jumping across many directories to follow one request:
 
 ```
 <tier>/<name>/
@@ -92,11 +105,12 @@ Inside each one, runtimes are isolated by three flat sibling folders — no deep
   tsconfig.json         # extends ../../tsconfig.json
   eslint.config.js      # createSharedBlocks + linguiRules
   src/
-    client/             # React Native / Expo
-    server/             # Cloudflare Worker / Hono
-    shared/             # isomorphic — entities, ports, pure logic
+    client/<slice>/     # React Native / Expo — hooks + UI for that slice
+    server/<slice>/     # Cloudflare Worker / Hono — only when the slice needs REST/inbox
+    shared/<slice>/     # isomorphic defineWrite + pure helpers for that slice
 ```
 
+Example (`join-space`): `client/join-space/use-join-space.ts` + `join-space-button.tsx`, `shared/join-space/join-space-write.ts`, optional `server/join-space/join-space-service.ts`. Nested paths resolve via exports wildcards (`@libs/spaces/client/join-space/use-join-space`).
 Cross-package imports always use deep paths: `@<tier>/<name>/client/<file>`, `@<tier>/<name>/server/<file>`, `@<tier>/<name>/shared/<file>`. The `exports` field uses one Node subpath pattern per runtime folder (with `.ts` / `.tsx` array fallback) so adding/removing/renaming a file requires zero `package.json` change while bundlers still see one module per import site:
 
 ```jsonc
@@ -125,14 +139,14 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@libs/db` — single source of truth for Postgres/PowerSync table definitions (`defineTable`, column constants), composed `SYNC_TABLE_REGISTRY`, and canonical `schema.sql`. Feature packages import table names/columns from here; write policies stay in each feature's `server/write-policies.ts`.
+- `@libs/db` — single source of truth for Postgres/PowerSync table definitions (`defineTable`, column constants), composed `SYNC_TABLE_REGISTRY`, and canonical `schema.sql`. Feature packages import table names/columns from here; upload authorization is composed from each feature’s slice writes into a package-level `shared/row-bindings.ts` (or equivalent), then into `apps/api/src/sync/row-write-registry.ts`.
 - `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
 - `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`.
 - `@libs/client-config` — server-pushed runtime config (singleton `clientConfig` entity): shared entity defs, server `POST /client-config/refresh` route, client cards / screens, and `dev-refresh-client-config.ts`.
-- `@libs/profile` — public profile, dicebear avatar editor, username generator.
-- `@libs/spaces` — spaces / lobby / multiplayer plumbing, game dispatch via `space-module.ts`.
+- `@libs/profile` — public profile, dicebear avatar editor, username generator (vertical slices: ensure-local, patch-avatar, ensure-online, set-username).
+- `@libs/spaces` — spaces / lobby / multiplayer plumbing, game dispatch via `space-module.ts` (lifecycle mutations as vertical slices: create/join/leave/end/rename/set-visibility).
 - `@libs/stripe` — Stripe routes, catalog mirror, webhook handler, ABAC policies for stripe entities (`abac-policies.ts`).
-
+- `@libs/friends` — friendship graph (vertical slices per mutation: send/accept/decline/cancel/remove/block/unblock).
 ### Adding a new game
 
 Each game is its own package modelled after `@libs/chess`. To add `@libs/connect-four` (or numberlink, tic-tac-toe, battleship, etc.):
@@ -151,9 +165,8 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
    - Add any new sync tables to `@libs/db` (`libs/db/src/shared/<game>-tables.ts`) and register them in `libs/db/src/shared/table-registry.ts`.
    - `client/<game>-main-menu.tsx`, `client/<game>-board.tsx`, `client/<game>-settings-screen.tsx`, etc. — flat under `client/`.
 5. Register the game in `libs/spaces/src/shared/games.ts` (composed game module) and `libs/spaces/src/shared/space-module.ts` (top-level router).
-6. Register write policies for any new sync tables in the feature package's `server/write-policies.ts` and compose them in `apps/api/src/sync/write-policies-registry.ts`.
+6. Add `defineWrite` mutations under `libs/<game>/src/shared/<slice>/`, expose table upload auth via a package-level `shared/row-bindings.ts` composed from slices, and register them in `apps/api/src/sync/row-write-registry.ts`. Prefer PowerSync client writes over new REST. Put client hooks/UI in `client/<slice>/`.
 7. Wire the client entry in `libs/spaces/src/client/module/games-main-menu.tsx` so the new game shows up in the games list.
-
 `apps/api` and `apps/client` themselves do **not** need to be edited beyond the registries above — game packages compose into spaces, and spaces is already wired into the shells.
 
 ### Layering rules (enforced by depcruise + ci:tier-imports)

@@ -1,15 +1,25 @@
-import { mapAppAuthToWriteContext } from '@libs/auth/shared/map-app-auth-to-write-context';
-import { createSqlWriteStore } from '@pkgs/write/server/create-sql-write-store';
-import { runWrite } from '@pkgs/write/shared/run-write';
-import { isWriteFailure, unwrap } from '@pkgs/write/shared/write-result';
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import type { Context } from 'hono';
 
-import type { FriendRequest, FriendshipStatus } from '../shared/friends-types';
+import { acceptFriendRequestWrite } from '../shared/accept-friend-request/accept-friend-request-write';
+import { blockUserWrite } from '../shared/block-user/block-user-write';
+import { cancelFriendRequestWrite } from '../shared/cancel-friend-request/cancel-friend-request-write';
+import { declineFriendRequestWrite } from '../shared/decline-friend-request/decline-friend-request-write';
+import { syncPeerFriendProfileCache } from '../shared/friends-sql/friend-profile-cache-sql';
+import type { FriendRequest } from '../shared/friends-types';
+import { removeFriendWrite } from '../shared/remove-friend/remove-friend-write';
+import { sendFriendRequestWrite } from '../shared/send-friend-request/send-friend-request-write';
+import { unblockUserWrite } from '../shared/unblock-user/unblock-user-write';
 import { FriendService } from './friend-service';
 import { readRequiredString } from './friends-route-utils';
 import { withFriendsAuth } from './friends-route-auth';
-import { sendFriendRequestWrite } from './writes/send-friend-request-write';
+import {
+  deactivateFriendRequestInteraction,
+  deactivatePendingFriendRequestInteractionsBetween,
+  publishFriendRequestAcceptedInteraction,
+  publishIncomingFriendRequestInteraction,
+} from './friends-inbox-publish';
+import { jsonWriteFailure, runFriendsWrite } from './run-friends-write';
 
 type SearchBody = { readonly query?: string; readonly limit?: number };
 type SendRequestBody = {
@@ -33,18 +43,6 @@ export function handleSearchUsers(c: Context<ApiHonoEnv>): Promise<Response> {
   });
 }
 
-export function handleFriendshipStatus(
-  c: Context<ApiHonoEnv>
-): Promise<Response> {
-  return withFriendsAuth(c, async (auth) => {
-    const targetUserId = readRequiredString(c.req.param('userId'), 'userId');
-    const sql = c.get('sqlClient');
-    const status: FriendshipStatus =
-      await FriendService.resolveFriendshipStatus(sql, auth.myId, targetUserId);
-    return c.json({ status });
-  });
-}
-
 export function handleSendFriendRequest(
   c: Context<ApiHonoEnv>
 ): Promise<Response> {
@@ -54,33 +52,13 @@ export function handleSendFriendRequest(
     const message =
       typeof body.message === 'string' ? body.message.slice(0, 200) : null;
     const sql = c.get('sqlClient');
-    const store = createSqlWriteStore(sql);
-    const writeContext = mapAppAuthToWriteContext(auth);
-    const result = await runWrite({
-      write: sendFriendRequestWrite,
-      ctx: writeContext,
-      rawInput: { toUserId, message },
-      store,
-      mode: 'full',
+    const outcome = await runFriendsWrite(auth, sql, sendFriendRequestWrite, {
+      toUserId,
+      message,
     });
-    if (isWriteFailure(result)) {
-      const status =
-        result.code === 'FRIENDS_NOT_SIGNED_IN'
-          ? 401
-          : result.code === 'FRIENDS_BLOCKED' ||
-              result.code === 'FRIENDS_FORBIDDEN'
-            ? 403
-            : result.code === 'FRIENDS_NOT_FOUND'
-              ? 404
-              : result.code === 'FRIENDS_ALREADY_FRIENDS' ||
-                  result.code === 'FRIENDS_REQUEST_EXISTS'
-                ? 409
-                : result.code === 'FRIENDS_COOLDOWN'
-                  ? 429
-                  : 400;
-      return c.json({ error: result.message, code: result.code }, status);
-    }
-    const request: FriendRequest = unwrap(result);
+    if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
+    const request: FriendRequest = outcome.value;
+    await publishIncomingFriendRequestInteraction(sql, request);
     return c.json({ request });
   });
 }
@@ -91,11 +69,22 @@ export function handleAcceptFriendRequest(
   return withFriendsAuth(c, async (auth) => {
     const requestId = readRequiredString(c.req.param('id'), 'id');
     const sql = c.get('sqlClient');
-    const request = await FriendService.acceptFriendRequest(
+    const outcome = await runFriendsWrite(
+      auth,
       sql,
-      auth.myId,
-      requestId
+      acceptFriendRequestWrite,
+      { requestId }
     );
+    if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
+    const request = outcome.value;
+    await syncPeerFriendProfileCache(
+      outcome.sql,
+      auth.myId,
+      request.fromUserId,
+      new Date().toISOString()
+    );
+    await deactivateFriendRequestInteraction(sql, request);
+    await publishFriendRequestAcceptedInteraction(sql, request);
     return c.json({ request });
   });
 }
@@ -106,12 +95,15 @@ export function handleDeclineFriendRequest(
   return withFriendsAuth(c, async (auth) => {
     const requestId = readRequiredString(c.req.param('id'), 'id');
     const sql = c.get('sqlClient');
-    const request = await FriendService.declineFriendRequest(
+    const outcome = await runFriendsWrite(
+      auth,
       sql,
-      auth.myId,
-      requestId
+      declineFriendRequestWrite,
+      { requestId }
     );
-    return c.json({ request });
+    if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
+    await deactivateFriendRequestInteraction(sql, outcome.value);
+    return c.json({ request: outcome.value });
   });
 }
 
@@ -121,12 +113,15 @@ export function handleCancelFriendRequest(
   return withFriendsAuth(c, async (auth) => {
     const requestId = readRequiredString(c.req.param('id'), 'id');
     const sql = c.get('sqlClient');
-    const request = await FriendService.cancelFriendRequest(
+    const outcome = await runFriendsWrite(
+      auth,
       sql,
-      auth.myId,
-      requestId
+      cancelFriendRequestWrite,
+      { requestId }
     );
-    return c.json({ request });
+    if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
+    await deactivateFriendRequestInteraction(sql, outcome.value);
+    return c.json({ request: outcome.value });
   });
 }
 
@@ -134,7 +129,10 @@ export function handleRemoveFriend(c: Context<ApiHonoEnv>): Promise<Response> {
   return withFriendsAuth(c, async (auth) => {
     const friendUserId = readRequiredString(c.req.param('userId'), 'userId');
     const sql = c.get('sqlClient');
-    await FriendService.removeFriend(sql, auth.myId, friendUserId);
+    const outcome = await runFriendsWrite(auth, sql, removeFriendWrite, {
+      userId: friendUserId,
+    });
+    if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
     return c.json({ ok: true });
   });
 }
@@ -144,7 +142,15 @@ export function handleBlockUser(c: Context<ApiHonoEnv>): Promise<Response> {
     const body = (await c.req.json()) as BlockBody;
     const userId = readRequiredString(body.userId, 'userId');
     const sql = c.get('sqlClient');
-    await FriendService.blockUser(sql, auth.myId, userId);
+    const outcome = await runFriendsWrite(auth, sql, blockUserWrite, {
+      userId,
+    });
+    if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
+    await deactivatePendingFriendRequestInteractionsBetween(
+      sql,
+      auth.myId,
+      userId
+    );
     return c.json({ ok: true });
   });
 }
@@ -153,20 +159,10 @@ export function handleUnblockUser(c: Context<ApiHonoEnv>): Promise<Response> {
   return withFriendsAuth(c, async (auth) => {
     const userId = readRequiredString(c.req.param('userId'), 'userId');
     const sql = c.get('sqlClient');
-    await FriendService.unblockUser(sql, auth.myId, userId);
+    const outcome = await runFriendsWrite(auth, sql, unblockUserWrite, {
+      userId,
+    });
+    if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
     return c.json({ ok: true });
-  });
-}
-
-export function handleMutualFriends(c: Context<ApiHonoEnv>): Promise<Response> {
-  return withFriendsAuth(c, async (auth) => {
-    const targetUserId = readRequiredString(c.req.param('userId'), 'userId');
-    const sql = c.get('sqlClient');
-    const friends = await FriendService.listMutualFriends(
-      sql,
-      auth.myId,
-      targetUserId
-    );
-    return c.json({ friends });
   });
 }

@@ -19,10 +19,10 @@ async function requireProfileAuth(c: Context<ApiHonoEnv>): Promise<AppAuth> {
   return auth;
 }
 
-function profileHttpStatus(
-  code: ProfileErrorCode
+export function writeFailureStatus(
+  code: string
 ): 400 | 401 | 404 | 409 | 429 {
-  switch (code) {
+  switch (code as ProfileErrorCode) {
     case 'PROFILE_NOT_AUTHENTICATED':
       return 401;
     case 'PROFILE_NOT_FOUND':
@@ -49,7 +49,7 @@ function mapProfileError(
   if (isProfileError(error)) {
     return c.json(
       { error: error.message, code: error.code },
-      profileHttpStatus(error.code)
+      writeFailureStatus(error.code)
     );
   }
   return null;

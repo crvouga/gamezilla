@@ -13,7 +13,6 @@ import type {
   UploadRowResult,
 } from '@pkgs/sync-engine/shared/upload-batch';
 import { createRowEvaluator } from '@pkgs/write/server/row-write-registry';
-import { createSqlWriteStore } from '@pkgs/write/server/create-sql-write-store';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
@@ -30,25 +29,25 @@ export type SyncUploadAuth = {
 async function resolveSyncUploadAuth(
   request: Request
 ): Promise<SyncUploadAuth | null> {
-  const store = apiRequestAsyncLocalStorage.getStore();
-  assert.defined(store, 'sync upload: request store missing');
-  const ctx = await store.sessionAuth.resolveAuthContext(
-    store.sqlClient,
+  const requestStore = apiRequestAsyncLocalStorage.getStore();
+  assert.defined(requestStore, 'sync upload: request store missing');
+  const ctx = await requestStore.sessionAuth.resolveAuthContext(
+    requestStore.sqlClient,
     request
   );
   const auth = appAuth(ctx);
   if (auth === null || auth.deviceId === '') return null;
   const memberOfSpaceIds = await loadMemberOfSpaceIdsFromSql(
-    store.sqlClient,
+    requestStore.sqlClient,
     auth.deviceId
   );
   return { writeContext: mapAppAuthToWriteContext(auth, memberOfSpaceIds) };
 }
 
 function openRequestSqlClient(): Promise<SqlClient> {
-  const store = apiRequestAsyncLocalStorage.getStore();
-  assert.defined(store, 'sync upload sql: request store missing');
-  const inner = store.sqlClient;
+  const requestStore = apiRequestAsyncLocalStorage.getStore();
+  assert.defined(requestStore, 'sync upload sql: request store missing');
+  const inner = requestStore.sqlClient;
   return Promise.resolve({
     connect: () => inner.connect(),
     disconnect: () => Promise.resolve(),
@@ -77,8 +76,7 @@ function createProfileAwareUploadRowEvaluator(): (
 ) => Promise<UploadRowResult> {
   const evaluateRow = createRowEvaluator(APP_ROW_WRITE_REGISTRY);
   return async (ctx, row, sql) => {
-    const store = createSqlWriteStore(sql);
-    const result = await evaluateRow(ctx, row, store);
+    const result = await evaluateRow(ctx, row, sql);
     if (result.status === 'rejected') {
       return { status: 'rejected', reason: result.code };
     }

@@ -4,7 +4,7 @@ import { defineWrite } from '../shared/define-write';
 import { ok, fail } from '../shared/write-result';
 import { runWrite } from '../shared/run-write';
 import type { WriteContext } from '../shared/write-context';
-import { createInMemoryWriteStore } from './in-memory-write-store';
+import { createInMemorySqlClient } from '@pkgs/sql-client/impl-in-memory';
 import {
   createRowEvaluator,
   createRowWriteBinding,
@@ -40,7 +40,7 @@ describe('runWrite', () => {
       write,
       ctx,
       rawInput: 'hello',
-      store: createInMemoryWriteStore(),
+      sql: createInMemorySqlClient(),
       mode: 'full',
     });
     expect(result).toEqual({ ok: true, value: 'done:hello' });
@@ -57,7 +57,7 @@ describe('runWrite', () => {
       write,
       ctx,
       rawInput: 'x',
-      store: createInMemoryWriteStore(),
+      sql: createInMemorySqlClient(),
       mode: 'full',
     });
     expect(result).toEqual({ ok: false, code: 'DENIED', message: 'nope' });
@@ -85,7 +85,7 @@ describe('createRowEvaluator', () => {
     const result = await evaluate(
       ctx,
       { op: 'patch', table: 'widgets', id: 'user-1', values: { color: 'red' } },
-      createInMemoryWriteStore()
+      createInMemorySqlClient()
     );
     expect(result).toEqual({ status: 'accepted' });
   });
@@ -95,7 +95,7 @@ describe('createRowEvaluator', () => {
     const result = await evaluate(
       ctx,
       { op: 'patch', table: 'missing', id: '1' },
-      createInMemoryWriteStore()
+      createInMemorySqlClient()
     );
     expect(result).toEqual({ status: 'rejected', code: 'NO_WRITE_FOR_TABLE' });
   });
@@ -108,7 +108,7 @@ describe('createRowEvaluator', () => {
     const result = await evaluate(
       ctx,
       { op: 'put', table: 'secrets', id: '1' },
-      createInMemoryWriteStore()
+      createInMemorySqlClient()
     );
     expect(result).toEqual({ status: 'rejected', code: 'SERVER_MANAGED' });
   });

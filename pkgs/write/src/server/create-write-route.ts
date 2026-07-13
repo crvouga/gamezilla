@@ -1,10 +1,10 @@
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
 
 import { runWrite } from '../shared/run-write';
 import type { WriteRegistry } from '../shared/write-registry';
 import { isWriteFailure } from '../shared/write-result';
 import type { WriteContext } from '../shared/write-context';
-import type { WriteStore } from '../shared/write-store';
 
 const DEFAULT_STATUS_BY_CODE: Readonly<Record<string, number>> = {
   UNAUTHORIZED: 401,
@@ -17,7 +17,7 @@ const DEFAULT_STATUS_BY_CODE: Readonly<Record<string, number>> = {
 export type CreateWriteRouteOptions<TAuth> = {
   readonly resolveAuth: (c: Context) => Promise<TAuth | null>;
   readonly mapAuth: (auth: TAuth) => WriteContext;
-  readonly openStore: () => Promise<WriteStore>;
+  readonly openSql: () => Promise<SqlClient>;
   readonly statusByCode?: Readonly<Record<string, number>>;
 };
 
@@ -73,12 +73,12 @@ export function createWriteRouteHandler<TAuth>(
       );
     }
     const body = await c.req.json().catch(() => null);
-    const store = await options.openStore();
+    const sql = await options.openSql();
     const result = await runWrite({
       write,
       ctx: options.mapAuth(auth),
       rawInput: body,
-      store,
+      sql,
       mode: 'full',
     });
     if (isWriteFailure(result)) {

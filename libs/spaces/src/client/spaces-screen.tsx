@@ -15,7 +15,7 @@ import { useRouter } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
 
 import { SpaceCard } from './card/space-card';
-import { useSpaceActions } from './lifecycle/space-actions';
+import { useCreateSpace } from './create-space/use-create-space';
 import { LIVE_SPACE_SECTION } from './live-space-section';
 import { openSpaceDetail } from './space-routes';
 import { useCurrentSpaceCount } from './use-current-space-count';
@@ -96,7 +96,7 @@ export function SpacesScreen({ accountMenu, leading }: SpacesScreenProps) {
     useCurrentSpaceCount();
   const canCreateSpace = !membershipLoading && currentSpaceCount === 0;
   const router = useRouter();
-  const { createSpace } = useSpaceActions();
+  const createSpace = useCreateSpace();
   const { t } = useLingui();
 
   const primaryAction = useMemo((): ScreenBasePrimaryAction => {

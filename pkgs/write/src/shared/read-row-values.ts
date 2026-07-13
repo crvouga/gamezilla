@@ -1,7 +1,8 @@
+import type { SqlClient } from '@pkgs/sql-client/interface';
+
 import type { RowChange } from './row-change';
 import { fail, ok, type WriteResult } from './write-result';
 import type { WriteContext } from './write-context';
-import type { WriteStore } from './write-store';
 
 export function readRowString(
   row: RowChange,
@@ -53,12 +54,12 @@ export function idMatches(
 }
 
 export async function readOne<T>(
-  store: WriteStore,
-  sql: string,
+  sql: SqlClient,
+  query: string,
   params: readonly unknown[],
   code: string
 ): Promise<WriteResult<T>> {
-  const rows = await store.query<T>(sql, params);
+  const rows = await sql.query<T>(query, [...params]);
   const row = rows[0];
   if (row === undefined) {
     return fail(code, 'row not found');

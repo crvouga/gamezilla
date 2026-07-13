@@ -1,11 +1,7 @@
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
-import {
-  acceptFriendRequest,
-  backfillFriendRequestInboxInteractions,
-  cancelFriendRequest,
-  declineFriendRequest,
-} from '@libs/friends/server/request-service';
+import { handleFriendsInboxAction } from '@libs/friends/server/friends-inbox-actions';
+import { backfillFriendRequestInboxInteractions } from '@libs/friends/server/request-service';
 import {
   acceptSpaceInviteFromInbox,
   declineSpaceInviteFromInbox,
@@ -39,19 +35,15 @@ function ensureInboxHandlers(): void {
     if (requestId === null) {
       throw new Error('Missing requestId in interaction payload');
     }
-    if (ctx.actionId === 'accept') {
-      await acceptFriendRequest(ctx.sql, ctx.actorId, requestId);
-      return;
-    }
-    if (ctx.actionId === 'decline') {
-      await declineFriendRequest(ctx.sql, ctx.actorId, requestId);
-      return;
-    }
-    if (ctx.actionId === 'cancel') {
-      await cancelFriendRequest(ctx.sql, ctx.actorId, requestId);
-      return;
-    }
-    throw new Error(`Unknown friends inbox action: ${ctx.actionId}`);
+    const actor = inboxActorStorage.getStore();
+    assert.defined(actor, 'friends inbox: actor missing');
+    await handleFriendsInboxAction({
+      sql: ctx.sql,
+      actorId: ctx.actorId,
+      deviceId: actor.deviceId,
+      actionId: ctx.actionId,
+      requestId,
+    });
   });
 
   registerActionHandler('spaces', async (ctx) => {

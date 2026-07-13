@@ -1,5 +1,7 @@
-import { useSpaceLifecycleModals } from '@libs/spaces/client/lifecycle/space-lifecycle-modal-provider';
-import { useSpaceActions } from '@libs/spaces/client/lifecycle/space-actions';
+import { useCreateSpace } from '@libs/spaces/client/create-space/use-create-space';
+import { useRequestEndSpace } from '@libs/spaces/client/end-space/end-space-modal-provider';
+import { useJoinSpace } from '@libs/spaces/client/join-space/use-join-space';
+import { useRequestLeaveSpace } from '@libs/spaces/client/leave-space/leave-space-modal-provider';
 import { useCurrentSpaceCount } from '@libs/spaces/client/use-current-space-count';
 import { useCurrentSpaceIds } from '@libs/spaces/client/use-current-space-ids';
 import { useCurrentSpaceRole } from '@libs/spaces/client/use-current-space-role';
@@ -33,7 +35,7 @@ export function SpaceCommands(): ReactNode {
 function SpaceCreateCommand(): ReactNode {
   const { t } = useLingui();
   const router = useRouter();
-  const { createSpace } = useSpaceActions();
+  const createSpace = useCreateSpace();
   const { count: currentCount, isLoading: membershipLoading } =
     useCurrentSpaceCount();
   return (
@@ -56,7 +58,7 @@ function SpaceCreateCommand(): ReactNode {
 function SpaceJoinCurrentCommand(): ReactNode {
   const { t } = useLingui();
   const pathname = usePathname();
-  const { joinSpace } = useSpaceActions();
+  const joinSpace = useJoinSpace();
   const { count: currentCount } = useCurrentSpaceCount();
   const spaceId = SPACE_ROUTE_RE.exec(pathname)?.[1] ?? '';
   const role = useCurrentSpaceRole(spaceId);
@@ -93,7 +95,7 @@ function LiveSpaceCommands(): ReactNode {
 function LiveSpaceCommand({ spaceId }: { spaceId: string }): ReactNode {
   const { t } = useLingui();
   const router = useRouter();
-  const { joinSpace } = useSpaceActions();
+  const joinSpace = useJoinSpace();
   const label = useSpaceCommandLabel(spaceId);
   const role = useCurrentSpaceRole(spaceId);
   const { count: currentCount } = useCurrentSpaceCount();
@@ -149,7 +151,8 @@ function CurrentSpaceCommand({
 }): ReactNode {
   const { t } = useLingui();
   const label = useSpaceCommandLabel(spaceId);
-  const { requestEndSpace, requestLeaveSpace } = useSpaceLifecycleModals();
+  const requestEndSpace = useRequestEndSpace();
+  const requestLeaveSpace = useRequestLeaveSpace();
 
   if (role === 'host') {
     return (

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { decideSpaceJoinAccess } from '../shared/decide-space-join-access';
+import { decideSpaceJoinAccess } from '../shared/join-space/decide-space-join-access';
 
 describe('decideSpaceJoinAccess', () => {
   test('private requires invite', () => {

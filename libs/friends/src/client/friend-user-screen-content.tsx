@@ -1,18 +1,16 @@
 import { Box } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import { FriendActionPills } from './friend-action-pills';
+import { FriendActionPills } from './friend-action-pills/friend-action-pills';
 import { FriendProfileHeader } from './friend-profile-header';
 import { FriendUserDangerModals } from './friend-user-danger-modals';
 import type { FriendProfile, FriendshipStatus } from '../shared/friends-types';
-import type { FriendsClientDeps } from './friends-actions';
 
 export function FriendUserScreenContent({
   sx,
   profile,
   userId,
   status,
-  deps,
   incomingRequestId,
   outgoingRequestId,
   onChanged,
@@ -27,7 +25,6 @@ export function FriendUserScreenContent({
   profile: FriendProfile;
   userId: string;
   status: FriendshipStatus;
-  deps: FriendsClientDeps;
   incomingRequestId: string | null;
   outgoingRequestId: string | null;
   onChanged: () => void;
@@ -43,7 +40,6 @@ export function FriendUserScreenContent({
       <FriendProfileHeader profile={profile} />
       <Box sx={{ alignSelf: 'stretch' }}>
         <FriendActionPills
-          deps={deps}
           userId={userId}
           status={status}
           incomingRequestId={incomingRequestId}

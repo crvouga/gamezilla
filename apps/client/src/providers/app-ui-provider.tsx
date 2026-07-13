@@ -1,5 +1,6 @@
 import { AuthModalsProvider } from '@libs/auth/client/auth-modals-provider';
-import { SpaceLifecycleModalProvider } from '@libs/spaces/client/lifecycle/space-lifecycle-modal-provider';
+import { EndSpaceModalProvider } from '@libs/spaces/client/end-space/end-space-modal-provider';
+import { LeaveSpaceModalProvider } from '@libs/spaces/client/leave-space/leave-space-modal-provider';
 import { ComposeProviders } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
@@ -10,7 +11,8 @@ import { AppUiPortals } from './ui/portals';
 const uiProviders = [
   AppUiPortals,
   AppPortalContentBridge,
-  SpaceLifecycleModalProvider,
+  EndSpaceModalProvider,
+  LeaveSpaceModalProvider,
   AuthModalsProvider,
   AppCommandRegistry,
 ];

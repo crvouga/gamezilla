@@ -2,10 +2,8 @@ import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { fetchUserProfile } from './friends-actions';
 import type { FriendProfile } from '../shared/friends-types';
 import { useFriends } from './use-friends';
-import type { FriendsClientDeps } from './friends-actions';
 
 export function readRouteParam(value: string | string[] | undefined): string {
   if (typeof value === 'string') return value;
@@ -13,7 +11,12 @@ export function readRouteParam(value: string | string[] | undefined): string {
   return '';
 }
 
-export function useFriendUserProfile(userId: string, deps: FriendsClientDeps) {
+/**
+ * Resolves another user's display profile from PowerSync only:
+ * `friend_profile_cache` when friends, else route search-param seed.
+ * Does not call REST — use search payload / cache instead of GET /friends/users.
+ */
+export function useFriendUserProfile(userId: string) {
   const router = useRouter();
   const myProfileId = useMyProfileId();
   const { friends } = useFriends();
@@ -38,15 +41,12 @@ export function useFriendUserProfile(userId: string, deps: FriendsClientDeps) {
   );
 
   useEffect(() => {
-    if (cachedFriend !== null) setProfile(cachedFriend);
-  }, [cachedFriend]);
-
-  useEffect(() => {
-    if (userId.length === 0) return;
-    void fetchUserProfile(deps, userId)
-      .then(setProfile)
-      .catch(() => undefined);
-  }, [deps, userId]);
+    if (cachedFriend !== null) {
+      setProfile(cachedFriend);
+      return;
+    }
+    setProfile(seedProfile);
+  }, [cachedFriend, seedProfile]);
 
   useEffect(() => {
     if (myProfileId !== null && userId === myProfileId) {
@@ -55,10 +55,9 @@ export function useFriendUserProfile(userId: string, deps: FriendsClientDeps) {
   }, [myProfileId, router, userId]);
 
   const refreshProfile = useCallback(() => {
-    void fetchUserProfile(deps, userId)
-      .then(setProfile)
-      .catch(() => undefined);
-  }, [deps, userId]);
+    if (cachedFriend !== null) setProfile(cachedFriend);
+    else setProfile(seedProfile);
+  }, [cachedFriend, seedProfile]);
 
   return { profile, refreshProfile };
 }

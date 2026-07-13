@@ -15,6 +15,11 @@ export type ProfileApiFetch = (
   init?: RequestInit
 ) => Promise<Response>;
 
+export type ProfileClientDeps = {
+  readonly config: ConfigService;
+  readonly fetchFn: ProfileApiFetch;
+};
+
 function authHeaders(): Record<string, string> {
   const token = getCachedAuthToken();
   const anon = getCachedDeviceId();

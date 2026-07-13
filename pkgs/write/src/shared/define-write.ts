@@ -1,6 +1,7 @@
+import type { SqlClient } from '@pkgs/sql-client/interface';
+
 import type { WriteContext } from './write-context';
 import type { WriteResult } from './write-result';
-import type { WriteStore } from './write-store';
 
 export type WriteDefinition<TInput, TOutput> = {
   readonly name: string;
@@ -8,12 +9,12 @@ export type WriteDefinition<TInput, TOutput> = {
   readonly authorize: (
     ctx: WriteContext,
     input: TInput,
-    store: WriteStore
+    sql: SqlClient
   ) => Promise<WriteResult<void>>;
   readonly execute: (
     ctx: WriteContext,
     input: TInput,
-    store: WriteStore
+    sql: SqlClient
   ) => Promise<WriteResult<TOutput>>;
 };
 

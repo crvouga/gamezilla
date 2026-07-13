@@ -2,8 +2,6 @@ import { ConfirmationModal } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
-import type { FriendMutations } from './friend-action-context';
-
 export function FriendUserDangerModals({
   removeOpen,
   blockOpen,
@@ -43,27 +41,27 @@ export function FriendUserDangerModals({
   );
 }
 
-export type FriendUserDangerHandlers = {
-  mutations: FriendMutations;
-  setRemoveOpen: (open: boolean) => void;
-  setBlockOpen: (open: boolean) => void;
-  routerBack: () => void;
-};
-
 export function createFriendUserDangerHandlers({
-  mutations,
+  removeFriend,
+  blockUser,
   setRemoveOpen,
   setBlockOpen,
   routerBack,
-}: FriendUserDangerHandlers) {
+}: {
+  removeFriend: () => Promise<void>;
+  blockUser: () => Promise<void>;
+  setRemoveOpen: (open: boolean) => void;
+  setBlockOpen: (open: boolean) => void;
+  routerBack: () => void;
+}) {
   return {
     onRemove: async () => {
-      await mutations.remove();
+      await removeFriend();
       setRemoveOpen(false);
       routerBack();
     },
     onBlock: async () => {
-      await mutations.block();
+      await blockUser();
       setBlockOpen(false);
       routerBack();
     },

@@ -63,7 +63,7 @@ msgstr "{hostUsername}'s space"
 #~ msgid "{memberCount} here"
 #~ msgstr "{memberCount} here"
 
-#: libs/spaces/src/client/lifecycle/space-join-peek-card.tsx
+#: libs/spaces/src/client/join-space/space-join-peek-card.tsx
 msgid "{memberCount} live"
 msgstr "{memberCount} live"
 
@@ -71,11 +71,11 @@ msgstr "{memberCount} live"
 msgid "{streak} puzzle streak"
 msgstr "{streak} puzzle streak"
 
-#: libs/spaces/src/client/lifecycle/space-join-peek-card.tsx
+#: libs/spaces/src/client/join-space/space-join-peek-card.tsx
 msgid "@{hostUsername}"
 msgstr "@{hostUsername}"
 
-#: libs/spaces/src/client/lifecycle/space-join-peek-card.tsx
+#: libs/spaces/src/client/join-space/space-join-peek-card.tsx
 msgid "@{hostUsername}'s space"
 msgstr "@{hostUsername}'s space"
 
@@ -161,7 +161,7 @@ msgstr "Action required"
 msgid "Add"
 msgstr "Add"
 
-#: libs/friends/src/client/friend-action-status-renderers.tsx
+#: libs/friends/src/client/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Add Friend"
 msgstr "Add Friend"
 
@@ -230,7 +230,7 @@ msgstr "Auto"
 msgid "Auto match rating or pick a custom target."
 msgstr "Auto match rating or pick a custom target."
 
-#: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
 #: libs/profile/src/client/profile-edit-screen.tsx
 msgid "Avatar"
 msgstr "Avatar"
@@ -248,7 +248,7 @@ msgstr "Back"
 #~ msgid "Back to Dev"
 #~ msgstr "Back to Dev"
 
-#: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
+#: libs/spaces/src/client/join-space/space-join-prompt.tsx
 msgid "Back to Spaces"
 msgstr "Back to Spaces"
 
@@ -310,8 +310,8 @@ msgstr "Build"
 msgid "Build mode: {buildMode}"
 msgstr "Build mode: {buildMode}"
 
-#: libs/profile/src/client/avatar-editor-screen.tsx
-#: libs/profile/src/client/profile-handle-screen.tsx
+#: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
@@ -323,12 +323,12 @@ msgid "Cancel promotion"
 msgstr "Cancel promotion"
 
 #: libs/friends/src/client/friend-request-row-actions.tsx
-msgid "Cancelled"
-msgstr "Cancelled"
+#~ msgid "Cancelled"
+#~ msgstr "Cancelled"
 
 #: libs/friends/src/client/friend-request-row-actions.tsx
-msgid "Cancelling…"
-msgstr "Cancelling…"
+#~ msgid "Cancelling…"
+#~ msgstr "Cancelling…"
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Cannot edit"
@@ -471,19 +471,16 @@ msgstr "Committed: {formattedCommitDate}"
 msgid "Component"
 msgstr "Component"
 
-#: libs/friends/src/client/friend-action-pill-buttons.tsx
-#: libs/friends/src/client/friend-request-row-actions.tsx
+#: libs/friends/src/client/friend-action-pills/friend-action-pill-buttons.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
 msgid "Confirm"
 msgstr "Confirm"
 
-#: libs/friends/src/client/friend-action-pill-buttons.tsx
-#: libs/friends/src/client/friend-request-row-actions.tsx
+#: libs/friends/src/client/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Confirmed"
 msgstr "Confirmed"
 
-#: libs/friends/src/client/friend-action-pill-buttons.tsx
-#: libs/friends/src/client/friend-request-row-actions.tsx
+#: libs/friends/src/client/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Confirming…"
 msgstr "Confirming…"
 
@@ -520,7 +517,7 @@ msgstr "Continue with Google"
 
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
-#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
 msgid "Copied"
 msgstr "Copied"
 
@@ -528,7 +525,7 @@ msgstr "Copied"
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
 
-#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
 msgid "Copy invite link"
 msgstr "Copy invite link"
 
@@ -562,15 +559,14 @@ msgid "Could not wipe database"
 msgstr "Could not wipe database"
 
 #: libs/friends/src/client/friend-request-row-actions.tsx
-msgid "Couldn't cancel"
-msgstr "Couldn't cancel"
+#~ msgid "Couldn't cancel"
+#~ msgstr "Couldn't cancel"
 
-#: libs/friends/src/client/friend-action-pill-buttons.tsx
-#: libs/friends/src/client/friend-request-row-actions.tsx
+#: libs/friends/src/client/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Couldn't confirm"
 msgstr "Couldn't confirm"
 
-#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
 msgid "Couldn't copy link"
 msgstr "Couldn't copy link"
 
@@ -582,24 +578,23 @@ msgstr "Couldn't copy link"
 #~ msgid "Couldn't create space"
 #~ msgstr "Couldn't create space"
 
-#: libs/friends/src/client/friend-action-pill-buttons.tsx
-#: libs/friends/src/client/friend-request-row-actions.tsx
+#: libs/friends/src/client/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Couldn't delete"
 msgstr "Couldn't delete"
 
-#: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
 msgid "Couldn't end space"
 msgstr "Couldn't end space"
 
-#: libs/spaces/src/client/lifecycle/space-invite-friend-rows.tsx
+#: libs/spaces/src/client/space-invite/space-invite-friend-rows.tsx
 msgid "Couldn't invite"
 msgstr "Couldn't invite"
 
-#: libs/spaces/src/client/lifecycle/space-join-button.tsx
+#: libs/spaces/src/client/join-space/space-join-button.tsx
 msgid "Couldn't join"
 msgstr "Couldn't join"
 
-#: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "Couldn't leave space"
 msgstr "Couldn't leave space"
 
@@ -607,13 +602,13 @@ msgstr "Couldn't leave space"
 msgid "Couldn't open"
 msgstr "Couldn't open"
 
-#: libs/spaces/src/client/active-space/rename-space-modal.tsx
+#: libs/spaces/src/client/rename-space/rename-space-modal.tsx
 msgid "Couldn't rename space"
 msgstr "Couldn't rename space"
 
-#: libs/profile/src/client/avatar-editor-screen.tsx
-#: libs/profile/src/client/profile-handle-screen.tsx
-#: libs/profile/src/client/profile-handle-screen.tsx
+#: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "Couldn't save"
 msgstr "Couldn't save"
 
@@ -685,18 +680,15 @@ msgstr "debug"
 msgid "Default board, drag or tap-to-move, orientation toggle."
 msgstr "Default board, drag or tap-to-move, orientation toggle."
 
-#: libs/friends/src/client/friend-action-pill-buttons.tsx
-#: libs/friends/src/client/friend-request-row-actions.tsx
+#: libs/friends/src/client/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Delete"
 msgstr "Delete"
 
-#: libs/friends/src/client/friend-action-pill-buttons.tsx
-#: libs/friends/src/client/friend-request-row-actions.tsx
+#: libs/friends/src/client/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Deleted"
 msgstr "Deleted"
 
-#: libs/friends/src/client/friend-action-pill-buttons.tsx
-#: libs/friends/src/client/friend-request-row-actions.tsx
+#: libs/friends/src/client/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Deleting…"
 msgstr "Deleting…"
 
@@ -771,11 +763,11 @@ msgstr "Difficulty mode"
 msgid "Disabled"
 msgstr "Disabled"
 
-#: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
 msgid "Discard"
 msgstr "Discard"
 
-#: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
 msgid "Discard changes?"
 msgstr "Discard changes?"
 
@@ -818,8 +810,8 @@ msgstr "e.g. ff5733"
 #~ msgstr "Each install has its own device id. Tap a row for full details."
 
 #: libs/profile/src/client/profile-edit-screen.tsx
-#: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "Edit profile"
 msgstr "Edit profile"
 
@@ -852,12 +844,12 @@ msgid "End {label}"
 msgstr "End {label}"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
-#: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
 #: libs/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
 msgid "End space"
 msgstr "End space"
 
-#: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
 msgid "End space?"
 msgstr "End space?"
 
@@ -865,7 +857,7 @@ msgstr "End space?"
 msgid "Ended"
 msgstr "Ended"
 
-#: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
 msgid "Ending space…"
 msgstr "Ending space…"
 
@@ -897,11 +889,11 @@ msgstr "Error state"
 msgid "Ethernet"
 msgstr "Ethernet"
 
-#: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
 msgid "Everyone has been returned to the lobby."
 msgstr "Everyone has been returned to the lobby."
 
-#: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
 msgid "Everyone will leave this space. This cannot be undone."
 msgstr "Everyone will leave this space. This cannot be undone."
 
@@ -939,7 +931,7 @@ msgstr "First seen"
 #~ msgid "Friend requests"
 #~ msgstr "Friend requests"
 
-#: libs/friends/src/client/friend-action-status-renderers.tsx
+#: libs/friends/src/client/friend-action-pills/friend-action-status-renderers.tsx
 #: libs/friends/src/client/friends-list-screen-view.tsx
 #: libs/friends/src/client/friends-signed-in-gate.tsx
 #: libs/friends/src/client/profile-friends-stats-view.tsx
@@ -971,7 +963,7 @@ msgstr "Gamezilla is open in another tab"
 msgid "Gamezilla stores offline data in one browser tab at a time. Close every other tab of this site, then reload. If you want to use this tab instead, reset local data below (your account on the server is unchanged)."
 msgstr "Gamezilla stores offline data in one browser tab at a time. Close every other tab of this site, then reload. If you want to use this tab instead, reset local data below (your account on the server is unchanged)."
 
-#: libs/spaces/src/client/active-space/rename-space-modal.tsx
+#: libs/spaces/src/client/rename-space/rename-space-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.example.tsx
 msgid "Give your space a name"
 msgstr "Give your space a name"
@@ -1068,11 +1060,11 @@ msgstr "Internet reachable: {reachable}"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
-#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
 msgid "Invite"
 msgstr "Invite"
 
-#: libs/spaces/src/client/lifecycle/space-invite-friend-rows.tsx
+#: libs/spaces/src/client/space-invite/space-invite-friend-rows.tsx
 msgid "Invite @{username}"
 msgstr "Invite @{username}"
 
@@ -1080,19 +1072,19 @@ msgstr "Invite @{username}"
 #~ msgid "Invite code"
 #~ msgstr "Invite code"
 
-#: libs/spaces/src/client/lifecycle/space-invite-friend-rows.tsx
+#: libs/spaces/src/client/space-invite/space-invite-friend-rows.tsx
 msgid "Invite friend"
 msgstr "Invite friend"
 
-#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
 msgid "Invite friends"
 msgstr "Invite friends"
 
-#: libs/spaces/src/client/lifecycle/space-invite-friend-rows.tsx
+#: libs/spaces/src/client/space-invite/space-invite-friend-rows.tsx
 msgid "Invited"
 msgstr "Invited"
 
-#: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
+#: libs/spaces/src/client/join-space/space-join-prompt.tsx
 msgid "It may have ended or the link might be invalid."
 msgstr "It may have ended or the link might be invalid."
 
@@ -1109,7 +1101,7 @@ msgstr "join"
 msgid "Join {label}"
 msgstr "Join {label}"
 
-#: libs/spaces/src/client/lifecycle/space-join-button.tsx
+#: libs/spaces/src/client/join-space/space-join-button.tsx
 msgid "Join space"
 msgstr "Join space"
 
@@ -1117,7 +1109,7 @@ msgstr "Join space"
 msgid "Join this space"
 msgstr "Join this space"
 
-#: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
+#: libs/spaces/src/client/join-space/space-join-prompt.tsx
 msgid "Join to see who is here and hang out."
 msgstr "Join to see who is here and hang out."
 
@@ -1125,11 +1117,11 @@ msgstr "Join to see who is here and hang out."
 #~ msgid "Join with code"
 #~ msgstr "Join with code"
 
-#: libs/spaces/src/client/lifecycle/space-join-button.tsx
+#: libs/spaces/src/client/join-space/space-join-button.tsx
 msgid "Joined"
 msgstr "Joined"
 
-#: libs/spaces/src/client/lifecycle/space-join-button.tsx
+#: libs/spaces/src/client/join-space/space-join-button.tsx
 msgid "Joining…"
 msgstr "Joining…"
 
@@ -1149,7 +1141,7 @@ msgstr "Latency: {latencyMs} ms"
 msgid "leave"
 msgstr "leave"
 
-#: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 #: libs/spaces/src/client/lifecycle/space-end-or-leave-button.tsx
 msgid "Leave"
 msgstr "Leave"
@@ -1163,11 +1155,11 @@ msgstr "Leave {label}"
 msgid "Leave space"
 msgstr "Leave space"
 
-#: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "Leave space?"
 msgstr "Leave space?"
 
-#: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "Leaving…"
 msgstr "Leaving…"
 
@@ -1183,7 +1175,7 @@ msgstr "Light, dark, or system theme"
 msgid "Limited or checking"
 msgstr "Limited or checking"
 
-#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
 msgid "Link copied to clipboard"
 msgstr "Link copied to clipboard"
 
@@ -1385,7 +1377,7 @@ msgstr "No devices yet."
 #~ msgid "No friends live right now"
 #~ msgstr "No friends live right now"
 
-#: libs/spaces/src/client/lifecycle/space-invite-friend-rows.tsx
+#: libs/spaces/src/client/space-invite/space-invite-friend-rows.tsx
 msgid "No friends to invite yet."
 msgstr "No friends to invite yet."
 
@@ -1598,11 +1590,11 @@ msgstr "PowerSync URL"
 msgid "Preferences and developer tools."
 msgstr "Preferences and developer tools."
 
-#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
 msgid "Preparing…"
 msgstr "Preparing…"
 
-#: libs/spaces/src/client/lifecycle/space-join-peek-card.tsx
+#: libs/spaces/src/client/join-space/space-join-peek-card.tsx
 msgid "Preview from invite"
 msgstr "Preview from invite"
 
@@ -1621,10 +1613,10 @@ msgstr "production"
 #: apps/client/src/app/(tabs)/_layout.tsx
 #: libs/friends/src/client/friend-user-screen-view.tsx
 #: libs/friends/src/client/friends-list-screen-view.tsx
-#: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
 #: libs/profile/src/client/profile-edit-screen.tsx
-#: libs/profile/src/client/profile-handle-screen.tsx
 #: libs/profile/src/client/profile-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "Profile"
 msgstr "Profile"
 
@@ -1722,8 +1714,8 @@ msgstr "Remove friend?"
 msgid "Rename"
 msgstr "Rename"
 
-#: libs/spaces/src/client/active-space/rename-space-modal.tsx
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
+#: libs/spaces/src/client/rename-space/rename-space-modal.tsx
 msgid "Rename space"
 msgstr "Rename space"
 
@@ -1731,8 +1723,7 @@ msgstr "Rename space"
 msgid "Render dragged piece in app overlay portal"
 msgstr "Render dragged piece in app overlay portal"
 
-#: libs/friends/src/client/friend-action-status-renderers.tsx
-#: libs/friends/src/client/friend-request-row-actions.tsx
+#: libs/friends/src/client/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Requested"
 msgstr "Requested"
 
@@ -1779,20 +1770,20 @@ msgstr "Room simulation"
 msgid "SAN"
 msgstr "SAN"
 
-#: libs/profile/src/client/avatar-editor-screen.tsx
-#: libs/profile/src/client/profile-handle-screen.tsx
-#: libs/spaces/src/client/active-space/rename-space-modal.tsx
+#: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
+#: libs/spaces/src/client/rename-space/rename-space-modal.tsx
 msgid "Save"
 msgstr "Save"
 
-#: libs/profile/src/client/avatar-editor-screen.tsx
-#: libs/profile/src/client/profile-handle-screen.tsx
+#: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "Saved"
 msgstr "Saved"
 
-#: libs/profile/src/client/avatar-editor-screen.tsx
-#: libs/profile/src/client/profile-handle-screen.tsx
-#: libs/spaces/src/client/active-space/rename-space-modal.tsx
+#: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
+#: libs/spaces/src/client/rename-space/rename-space-modal.tsx
 msgid "Saving…"
 msgstr "Saving…"
 
@@ -1818,7 +1809,7 @@ msgstr "Seed"
 msgid "Select…"
 msgstr "Select…"
 
-#: libs/spaces/src/client/lifecycle/space-invite-friend-rows.tsx
+#: libs/spaces/src/client/space-invite/space-invite-friend-rows.tsx
 msgid "Sending…"
 msgstr "Sending…"
 
@@ -2030,7 +2021,7 @@ msgstr "Something went wrong"
 msgid "space"
 msgstr "space"
 
-#: libs/spaces/src/client/lifecycle/space-join-peek-card.tsx
+#: libs/spaces/src/client/join-space/space-join-peek-card.tsx
 msgid "Space"
 msgstr "Space"
 
@@ -2042,16 +2033,16 @@ msgstr "Space {suffix}"
 #~ msgid "Space debug"
 #~ msgstr "Space debug"
 
-#: libs/spaces/src/client/lifecycle/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
 msgid "Space ended"
 msgstr "Space ended"
 
-#: libs/spaces/src/client/active-space/rename-space-modal.tsx
+#: libs/spaces/src/client/rename-space/rename-space-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.example.tsx
 msgid "Space name"
 msgstr "Space name"
 
-#: libs/spaces/src/client/active-space/rename-space-modal.tsx
+#: libs/spaces/src/client/rename-space/rename-space-modal.tsx
 msgid "Space renamed"
 msgstr "Space renamed"
 
@@ -2080,7 +2071,7 @@ msgstr "Space renamed"
 #: libs/auth/src/client/account-screen.tsx
 #: libs/auth/src/client/linked-providers/account-providers-screen.tsx
 #: libs/client-config/src/client/client-config-screen.tsx
-#: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
+#: libs/spaces/src/client/join-space/space-join-prompt.tsx
 #: libs/spaces/src/client/spaces-screen.tsx
 msgid "Spaces"
 msgstr "Spaces"
@@ -2125,7 +2116,7 @@ msgstr "stop"
 msgid "Straight and knight L-shape arrows, dashed plan lines, and color overrides."
 msgstr "Straight and knight L-shape arrows, dashed plan lines, and color overrides."
 
-#: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
 msgid "Style"
 msgstr "Style"
 
@@ -2223,11 +2214,11 @@ msgstr "This field is required"
 #~ msgid "This is a modal screen."
 #~ msgstr "This is a modal screen."
 
-#: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
+#: libs/spaces/src/client/join-space/space-join-prompt.tsx
 msgid "This space has ended."
 msgstr "This space has ended."
 
-#: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
+#: libs/spaces/src/client/join-space/space-join-prompt.tsx
 msgid "This space is not available"
 msgstr "This space is not available"
 
@@ -2297,7 +2288,7 @@ msgstr "UI Components"
 msgid "UI explorer, debug tools."
 msgstr "UI explorer, debug tools."
 
-#: libs/friends/src/client/friend-action-status-renderers.tsx
+#: libs/friends/src/client/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Unblock"
 msgstr "Unblock"
 
@@ -2345,32 +2336,32 @@ msgid "User-drawn arrows"
 msgstr "User-drawn arrows"
 
 #: libs/profile/src/client/profile-edit-screen.tsx
-#: libs/profile/src/client/profile-handle-screen.tsx
-#: libs/profile/src/client/profile-handle-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "Username"
 msgstr "Username"
 
-#: libs/profile/src/client/profile-handle-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "Username can only use letters, numbers, and _"
 msgstr "Username can only use letters, numbers, and _"
 
-#: libs/profile/src/client/profile-handle-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "Username is required"
 msgstr "Username is required"
 
-#: libs/profile/src/client/profile-handle-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "Username is taken"
 msgstr "Username is taken"
 
-#: libs/profile/src/client/profile-handle-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "Username is too long"
 msgstr "Username is too long"
 
-#: libs/profile/src/client/profile-handle-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "Username is too short"
 msgstr "Username is too short"
 
-#: libs/profile/src/client/profile-handle-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "Username was changed recently"
 msgstr "Username was changed recently"
 
@@ -2378,7 +2369,7 @@ msgstr "Username was changed recently"
 msgid "Version: {appVersion}"
 msgstr "Version: {appVersion}"
 
-#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
 msgid "Visibility"
 msgstr "Visibility"
 
@@ -2435,7 +2426,7 @@ msgstr "Yes"
 msgid "You"
 msgstr "You"
 
-#: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "You can join again later if the space is still live."
 msgstr "You can join again later if the space is still live."
 
@@ -2443,15 +2434,15 @@ msgstr "You can join again later if the space is still live."
 #~ msgid "You can rejoin from the host's invite link."
 #~ msgstr "You can rejoin from the host's invite link."
 
-#: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "You can rejoin from the invite link if the space is still live."
 msgstr "You can rejoin from the invite link if the space is still live."
 
-#: libs/profile/src/client/avatar-editor-screen.tsx
+#: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
 msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
 
-#: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "You left the space"
 msgstr "You left the space"
 
@@ -2463,7 +2454,7 @@ msgstr "You will need to sign in again to sync with your user."
 msgid "You're all caught up"
 msgstr "You're all caught up"
 
-#: libs/spaces/src/client/lifecycle/space-join-blocked-note.tsx
+#: libs/spaces/src/client/join-space/space-join-blocked-note.tsx
 msgid "You’re already in a space"
 msgstr "You’re already in a space"
 
@@ -2496,7 +2487,7 @@ msgstr "Your full name"
 #~ msgid "Your space"
 #~ msgstr "Your space"
 
-#: libs/profile/src/client/profile-handle-screen.tsx
+#: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "your_handle"
 msgstr "your_handle"
 

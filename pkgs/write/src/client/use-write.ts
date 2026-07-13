@@ -1,5 +1,6 @@
 import type { AsyncStatus } from '@pkgs/async/use-async';
 import { useAsync } from '@pkgs/async/use-async';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { useCallback, useRef } from 'react';
 
 import type { WriteDefinition } from '../shared/define-write';
@@ -10,14 +11,13 @@ import {
   type WriteError,
   type WriteFailure,
 } from '../shared/write-result';
-import type { WriteStore } from '../shared/write-store';
 import { runWrite } from '../shared/run-write';
 
 export type MutationPhase = 'idle' | 'loading' | 'success' | 'error';
 
 export type UseWriteOptions = {
   readonly getContext: () => WriteContext;
-  readonly getStore: () => WriteStore;
+  readonly getSql: () => SqlClient;
   readonly mapError?: (failure: WriteFailure) => string;
 };
 
@@ -33,9 +33,9 @@ export function useWrite<TInput, TOutput>(
   options: UseWriteOptions
 ) {
   const getContextRef = useRef(options.getContext);
-  const getStoreRef = useRef(options.getStore);
+  const getSqlRef = useRef(options.getSql);
   getContextRef.current = options.getContext;
-  getStoreRef.current = options.getStore;
+  getSqlRef.current = options.getSql;
 
   const async = useAsync<TOutput, [TInput]>({
     operation: async (_ctx, input) => {
@@ -43,7 +43,7 @@ export function useWrite<TInput, TOutput>(
         write,
         ctx: getContextRef.current(),
         rawInput: input,
-        store: getStoreRef.current(),
+        sql: getSqlRef.current(),
         mode: 'full',
       });
       return unwrap(result);

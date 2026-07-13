@@ -1,16 +1,17 @@
+import type { SqlClient } from '@pkgs/sql-client/interface';
+
 import { defineWrite, type WriteDefinition } from '../shared/define-write';
 import type { RowChange } from '../shared/row-change';
 import { parseRowChange, rowChangeToInput } from '../shared/row-change';
 import { fail, ok, type WriteResult } from '../shared/write-result';
 import type { WriteContext } from '../shared/write-context';
-import type { WriteStore } from '../shared/write-store';
 
 export function defineRowAuthorizeWrite(args: {
   readonly name: string;
   readonly authorize: (
     ctx: WriteContext,
     row: RowChange,
-    store: WriteStore
+    sql: SqlClient
   ) => Promise<WriteResult<void>>;
 }): WriteDefinition<RowChange, void> {
   return defineWrite({
@@ -39,6 +40,12 @@ export type RowWriteRegistry = {
   get(table: string): RowWriteBinding<RowChange> | undefined;
 };
 
+/**
+ * Bind a shared {@link WriteDefinition} to a sync-upload table so
+ * `createRowEvaluator` reuses `write.authorize` (client full execute + server
+ * authorize-only correctness). Prefer this over a duplicate
+ * `defineRowAuthorizeWrite` that only mirrors ownership checks.
+ */
 export function createRowWriteBinding<TInput>(
   write: WriteDefinition<TInput, unknown>,
   rowToInput: (row: RowChange) => WriteResult<TInput> = rowChangeToInput as (
@@ -71,9 +78,9 @@ export function createRowEvaluator(
 ): (
   ctx: WriteContext,
   row: RowChange,
-  store: WriteStore
+  sql: SqlClient
 ) => Promise<RowEvaluation> {
-  return async (ctx, row, store) => {
+  return async (ctx, row, sql) => {
     const binding = registry.get(row.table);
     if (binding === undefined) {
       return { status: 'rejected', code: 'NO_WRITE_FOR_TABLE' };
@@ -85,7 +92,7 @@ export function createRowEvaluator(
     const authResult = await binding.write.authorize(
       ctx,
       inputResult.value,
-      store
+      sql
     );
     if (!authResult.ok) {
       return { status: 'rejected', code: authResult.code };

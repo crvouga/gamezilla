@@ -12,7 +12,7 @@ import {
   type SpaceInviteKind,
 } from '../shared/space-invite-types';
 import { SpacesError } from '../shared/spaces-errors';
-import { loadSpacePeekRow } from './space-peek';
+import { loadSpacePeekRow } from './join-space/space-peek';
 import { publishSpaceInviteInteraction } from './spaces-inbox-publish';
 
 export type SpaceInviteRecord = {

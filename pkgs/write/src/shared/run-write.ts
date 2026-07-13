@@ -1,7 +1,8 @@
+import type { SqlClient } from '@pkgs/sql-client/interface';
+
 import type { WriteDefinition } from './define-write';
 import type { WriteContext } from './write-context';
 import { isWriteFailure, type WriteResult } from './write-result';
-import type { WriteStore } from './write-store';
 
 export type RunWriteMode = 'full' | 'authorize-only';
 
@@ -9,7 +10,7 @@ export type RunWriteInput<TInput, TOutput> = {
   readonly write: WriteDefinition<TInput, TOutput>;
   readonly ctx: WriteContext;
   readonly rawInput: unknown;
-  readonly store: WriteStore;
+  readonly sql: SqlClient;
   readonly mode?: RunWriteMode;
 };
 
@@ -24,7 +25,7 @@ export async function runWrite<TInput, TOutput>(
   const authorized = await input.write.authorize(
     input.ctx,
     parsed.value,
-    input.store
+    input.sql
   );
   if (isWriteFailure(authorized)) {
     return authorized;
@@ -32,5 +33,5 @@ export async function runWrite<TInput, TOutput>(
   if (mode === 'authorize-only') {
     return { ok: true, value: undefined as TOutput };
   }
-  return input.write.execute(input.ctx, parsed.value, input.store);
+  return input.write.execute(input.ctx, parsed.value, input.sql);
 }

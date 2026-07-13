@@ -1,10 +1,11 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { useConfigService } from '@libs/auth/client/config-service-context';
+import { useWriteContext } from '@libs/auth/client/use-write-context';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, type ReactNode } from 'react';
 
-import { ensureProfile } from './ensure-profile-entity';
-import { ensureProfileOnline } from './profile-online-actions';
+import { ensureProfile } from './ensure-profile-local/ensure-profile';
+import { ensureProfileOnline } from './ensure-profile-online/ensure-profile-online';
 
 /**
  * Profile bootstrap: ensures a local profile row exists, then asks the API to
@@ -15,6 +16,7 @@ import { ensureProfileOnline } from './profile-online-actions';
 function ProfileEntityBootstrap(): null {
   const engine = useSyncEngine();
   const myId = useMyId();
+  const writeContext = useWriteContext();
   const config = useConfigService();
 
   useEffect(() => {
@@ -24,7 +26,7 @@ function ProfileEntityBootstrap(): null {
         if (myId.length === 0) return;
         await engine.waitForFirstSync();
         if (cancelled) return;
-        await ensureProfile(engine.db, myId);
+        await ensureProfile(engine.db, writeContext, myId);
         if (cancelled) return;
         await ensureProfileOnline({ config, fetchFn: fetch });
       } catch {
@@ -34,7 +36,7 @@ function ProfileEntityBootstrap(): null {
     return () => {
       cancelled = true;
     };
-  }, [config, engine, myId]);
+  }, [config, engine, myId, writeContext]);
 
   return null;
 }

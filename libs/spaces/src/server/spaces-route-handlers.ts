@@ -2,13 +2,12 @@ import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import type { Context } from 'hono';
 
 import { SpacesError } from '../shared/spaces-errors';
-import { joinSpaceServer } from './space-join-service';
+import { joinSpaceServer } from './join-space/join-space-service';
 import {
   createFriendInvite,
   ensureLinkInvite,
-  revokeSpaceInvite,
 } from './space-invite-service';
-import { buildSpacePeek } from './space-peek';
+import { buildSpacePeek } from './join-space/space-peek';
 import {
   mapSpacesError,
   withSpacesDeviceAuth,
@@ -40,6 +39,7 @@ export function handlePeekSpace(c: Context<ApiHonoEnv>): Promise<Response> {
   });
 }
 
+/** REST join: same joinSpaceWrite as client; keep for invite/private fallback. */
 export function handleJoinSpace(c: Context<ApiHonoEnv>): Promise<Response> {
   return withSpacesDeviceAuth(c, async (auth) => {
     const body = (await c.req.json()) as Record<string, unknown>;
@@ -120,23 +120,6 @@ export function handleCreateInvite(c: Context<ApiHonoEnv>): Promise<Response> {
       return c.json({ invite });
     }
     throw new SpacesError('SPACE_INVALID_INPUT', 'Invalid invite kind');
-  });
-}
-
-export function handleRevokeInvite(c: Context<ApiHonoEnv>): Promise<Response> {
-  return withSpacesSignedInAuth(c, async (auth) => {
-    const inviteId = c.req.param('id');
-    if (typeof inviteId !== 'string' || inviteId.length === 0) {
-      throw new SpacesError('SPACE_INVALID_INPUT', 'invite id is required');
-    }
-    const sql = c.get('sqlClient');
-    await revokeSpaceInvite({
-      sql,
-      inviteId,
-      accountId: auth.accountId,
-      deviceId: auth.deviceId,
-    });
-    return c.json({ ok: true });
   });
 }
 

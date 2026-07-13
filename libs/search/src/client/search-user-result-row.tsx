@@ -1,8 +1,7 @@
-import { FriendActionPills } from '@libs/friends/client/friend-action-pills';
+import { FriendActionPills } from '@libs/friends/client/friend-action-pills/friend-action-pills';
 import { FriendUserRow } from '@libs/friends/client/friend-user-row';
 import { useFriendRequestIdsForUser } from '@libs/friends/client/use-friend-request-ids';
 import { useFriendshipStatus } from '@libs/friends/client/use-friendship-status';
-import { useFriendsClientDeps } from '@libs/friends/client/use-friends-client-deps';
 import type { UserSearchResult } from '@libs/friends/shared/friends-types';
 import { Box } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
@@ -14,7 +13,6 @@ export function SearchUserResultRow({
   user: UserSearchResult;
 }): ReactNode {
   const router = useRouter();
-  const deps = useFriendsClientDeps();
   const status = useFriendshipStatus(user.userId);
   const requestIds = useFriendRequestIdsForUser(user.userId);
 
@@ -34,7 +32,6 @@ export function SearchUserResultRow({
       trailing={
         <Box sx={{ flexShrink: 1, minWidth: 0 }}>
           <FriendActionPills
-            deps={deps}
             userId={user.userId}
             status={status}
             incomingRequestId={requestIds.incomingRequestId}

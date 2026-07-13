@@ -1,21 +1,22 @@
+import { runClientWrite } from '@pkgs/write/client/run-client-write';
+import type { WriteContext } from '@pkgs/write/shared/write-context';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type {
-  ChessPuzzleInteractionKind,
-  ChessPuzzleInteractionRow,
-} from '../../shared/chess-puzzle-interaction-entities';
-import {
-  CHESS_PUZZLE_INTERACTIONS_TABLE,
-  CHESS_PUZZLE_PROFILES_TABLE,
-  ChessPuzzleInteractionCol,
-  ChessPuzzleProfileCol,
-} from '@libs/db/shared/chess-tables';
-import { isPlayClosed } from '../../shared/chess-puzzle-derive';
+import type { ChessPuzzleInteractionRow } from '../../shared/chess-puzzle-interaction-entities';
 import {
   deriveOutcomeScore,
+  isPlayClosed,
   sliceCurrentPlay,
 } from '../../shared/chess-puzzle-derive';
 import { updatePuzzleRating } from '../../shared/chess-puzzle-rating';
+import {
+  appendPuzzleInteractionWrite,
+  type AppendPuzzleInteractionInput,
+} from '../../shared/writes/append-puzzle-interaction-write';
+import {
+  upsertPuzzleProfileWrite,
+  type UpsertPuzzleProfileInput,
+} from '../../shared/writes/upsert-puzzle-profile-write';
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -23,87 +24,80 @@ function nowIso(): string {
 
 export async function appendPuzzleInteractionRow(
   sql: SqlClient,
-  args: {
-    ownerId: string;
-    puzzleId: string;
-    puzzleRating: number;
-    kind: ChessPuzzleInteractionKind;
-    solveIdx: number;
-    uci?: string | null;
-    correct?: boolean | null;
-    ratingBefore?: number;
-    ratingAfter?: number;
-  }
+  writeContext: WriteContext,
+  args: AppendPuzzleInteractionInput
 ): Promise<void> {
-  const id = crypto.randomUUID();
-  const at = nowIso();
-  await sql.run(
-    `INSERT INTO ${CHESS_PUZZLE_INTERACTIONS_TABLE.tableName}
-     (${ChessPuzzleInteractionCol.id}, ${ChessPuzzleInteractionCol.ownerId},
-      ${ChessPuzzleInteractionCol.puzzleId}, ${ChessPuzzleInteractionCol.puzzleRating},
-      ${ChessPuzzleInteractionCol.kind}, ${ChessPuzzleInteractionCol.solveIdx},
-      ${ChessPuzzleInteractionCol.uci}, ${ChessPuzzleInteractionCol.correct},
-      ${ChessPuzzleInteractionCol.ratingBefore}, ${ChessPuzzleInteractionCol.ratingAfter},
-      ${ChessPuzzleInteractionCol.at})
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      id,
-      args.ownerId,
-      args.puzzleId,
-      args.puzzleRating,
-      args.kind,
-      args.solveIdx,
-      args.uci ?? null,
-      args.correct === null || args.correct === undefined
-        ? null
-        : args.correct
-          ? 1
-          : 0,
-      args.ratingBefore ?? 0,
-      args.ratingAfter ?? 0,
-      at,
-    ]
+  await runClientWrite(
+    appendPuzzleInteractionWrite,
+    writeContext,
+    args,
+    sql
   );
 }
 
 async function upsertPuzzleProfileRow(
   sql: SqlClient,
-  args: {
-    ownerId: string;
-    rating: number;
-    ratingDeviation: number;
-    lastInteractionAt: string;
-  }
+  writeContext: WriteContext,
+  args: UpsertPuzzleProfileInput
 ): Promise<void> {
-  const { ownerId, rating, ratingDeviation, lastInteractionAt } = args;
-  const existing = await sql.query<{ readonly n: number }>(
-    `SELECT 1 AS n FROM ${CHESS_PUZZLE_PROFILES_TABLE.tableName}
-     WHERE ${ChessPuzzleProfileCol.id} = ? LIMIT 1`,
-    [ownerId]
-  );
-  if (existing.length > 0) {
-    await sql.run(
-      `UPDATE ${CHESS_PUZZLE_PROFILES_TABLE.tableName}
-       SET ${ChessPuzzleProfileCol.rating} = ?,
-           ${ChessPuzzleProfileCol.ratingDeviation} = ?,
-           ${ChessPuzzleProfileCol.lastInteractionAt} = ?
-       WHERE ${ChessPuzzleProfileCol.id} = ?`,
-      [rating, ratingDeviation, lastInteractionAt, ownerId]
-    );
-    return;
-  }
-  await sql.run(
-    `INSERT INTO ${CHESS_PUZZLE_PROFILES_TABLE.tableName}
-     (${ChessPuzzleProfileCol.id}, ${ChessPuzzleProfileCol.ownerId},
-      ${ChessPuzzleProfileCol.rating}, ${ChessPuzzleProfileCol.ratingDeviation},
-      ${ChessPuzzleProfileCol.lastInteractionAt})
-     VALUES (?, ?, ?, ?, ?)`,
-    [ownerId, ownerId, rating, ratingDeviation, lastInteractionAt]
+  await runClientWrite(
+    upsertPuzzleProfileWrite,
+    writeContext,
+    args,
+    sql
   );
 }
 
+function computeFinalizeRatings(args: {
+  puzzleId: string;
+  puzzleRating: number;
+  solveIdx: number;
+  interactions: readonly ChessPuzzleInteractionRow[];
+  terminalKind: 'solved' | 'abandoned';
+  profileRating: number;
+  profileRd: number;
+}): {
+  ratingBefore: number;
+  ratingAfter: number;
+  ratingDeviation: number;
+  at: string;
+} {
+  const play = sliceCurrentPlay(args.interactions, args.puzzleId);
+  const at = nowIso();
+  const closed = [
+    ...play,
+    {
+      puzzleId: args.puzzleId,
+      kind: args.terminalKind,
+      solveIdx: args.solveIdx,
+      uci: null,
+      correct: null,
+      puzzleRating: args.puzzleRating,
+      ratingBefore: 0,
+      ratingAfter: 0,
+      at,
+    },
+  ];
+  const ratingBefore = args.profileRating > 0 ? args.profileRating : 1200;
+  const rdBefore = args.profileRd > 0 ? args.profileRd : 350;
+  const updated = updatePuzzleRating({
+    playerRating: ratingBefore,
+    playerRd: rdBefore,
+    puzzleRating: args.puzzleRating,
+    score: deriveOutcomeScore(closed),
+  });
+  return {
+    ratingBefore,
+    ratingAfter: updated.rating,
+    ratingDeviation: updated.ratingDeviation,
+    at,
+  };
+}
+
+/** Client orchestration: append terminal interaction, then upsert profile. */
 export async function finalizePuzzlePlayWithProfile(
   sql: SqlClient,
+  writeContext: WriteContext,
   args: {
     ownerId: string;
     puzzleId: string;
@@ -116,43 +110,20 @@ export async function finalizePuzzlePlayWithProfile(
   }
 ): Promise<void> {
   if (isPlayClosed(args.interactions, args.puzzleId)) return;
-  const play = sliceCurrentPlay(args.interactions, args.puzzleId);
-  const closed = [
-    ...play,
-    {
-      puzzleId: args.puzzleId,
-      kind: args.terminalKind,
-      solveIdx: args.solveIdx,
-      uci: null,
-      correct: null,
-      puzzleRating: args.puzzleRating,
-      ratingBefore: 0,
-      ratingAfter: 0,
-      at: nowIso(),
-    },
-  ];
-  const ratingBefore = args.profileRating > 0 ? args.profileRating : 1200;
-  const rdBefore = args.profileRd > 0 ? args.profileRd : 350;
-  const updated = updatePuzzleRating({
-    playerRating: ratingBefore,
-    playerRd: rdBefore,
-    puzzleRating: args.puzzleRating,
-    score: deriveOutcomeScore(closed),
-  });
-  const at = nowIso();
-  await appendPuzzleInteractionRow(sql, {
+  const ratings = computeFinalizeRatings(args);
+  await appendPuzzleInteractionRow(sql, writeContext, {
     ownerId: args.ownerId,
     puzzleId: args.puzzleId,
     puzzleRating: args.puzzleRating,
     kind: args.terminalKind,
     solveIdx: args.solveIdx,
-    ratingBefore,
-    ratingAfter: updated.rating,
+    ratingBefore: ratings.ratingBefore,
+    ratingAfter: ratings.ratingAfter,
   });
-  await upsertPuzzleProfileRow(sql, {
+  await upsertPuzzleProfileRow(sql, writeContext, {
     ownerId: args.ownerId,
-    rating: updated.rating,
-    ratingDeviation: updated.ratingDeviation,
-    lastInteractionAt: at,
+    rating: ratings.ratingAfter,
+    ratingDeviation: ratings.ratingDeviation,
+    lastInteractionAt: ratings.at,
   });
 }

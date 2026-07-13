@@ -2,15 +2,15 @@ import { ScreenBase, type ScreenBaseAction } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { Trans } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 
-import { useFriendMutations } from './friend-action-context';
+import { useBlockUser } from './block-user/use-block-user';
 import { createFriendUserDangerHandlers } from './friend-user-danger-modals';
 import { FriendUserScreenContent } from './friend-user-screen-content';
 import { FriendsSignedInGate } from './friends-signed-in-gate';
+import { useRemoveFriend } from './remove-friend/use-remove-friend';
 import { useFriendRequestIdsForUser } from './use-friend-request-ids';
 import { useFriendshipStatus } from './use-friendship-status';
-import { useFriendsClientDeps } from './use-friends-client-deps';
 import { useFriendUserOverflowMenu } from './use-friend-user-overflow-menu';
 import {
   friendUserBreadcrumbName,
@@ -21,21 +21,22 @@ import {
 function FriendUserScreenBody({ userId }: { userId: string }): ReactNode {
   const router = useRouter();
   const nav = useBreadcrumbNav();
-  const deps = useFriendsClientDeps();
   const status = useFriendshipStatus(userId);
   const requestIds = useFriendRequestIdsForUser(userId);
-  const { profile, refreshProfile } = useFriendUserProfile(userId, deps);
+  const { profile, refreshProfile } = useFriendUserProfile(userId);
   const [removeOpen, setRemoveOpen] = useState(false);
   const [blockOpen, setBlockOpen] = useState(false);
-  const mutations = useFriendMutations({
-    deps,
-    userId,
-    status,
-    incomingRequestId: requestIds.incomingRequestId,
-    outgoingRequestId: requestIds.outgoingRequestId,
-  });
+  const removeFriend = useRemoveFriend();
+  const blockUser = useBlockUser();
+  const removeFriendForUser = useCallback(async () => {
+    await removeFriend(userId);
+  }, [removeFriend, userId]);
+  const blockUserForUser = useCallback(async () => {
+    await blockUser(userId);
+  }, [blockUser, userId]);
   const dangerHandlers = createFriendUserDangerHandlers({
-    mutations,
+    removeFriend: removeFriendForUser,
+    blockUser: blockUserForUser,
     setRemoveOpen,
     setBlockOpen,
     routerBack: () => router.back(),
@@ -68,7 +69,6 @@ function FriendUserScreenBody({ userId }: { userId: string }): ReactNode {
           profile={profile}
           userId={userId}
           status={status}
-          deps={deps}
           incomingRequestId={requestIds.incomingRequestId}
           outgoingRequestId={requestIds.outgoingRequestId}
           onChanged={refreshProfile}

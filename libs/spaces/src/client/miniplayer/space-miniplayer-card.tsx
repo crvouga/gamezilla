@@ -1,7 +1,7 @@
 import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { SpaceCardGradientBox } from '../card/space-card-gradient';
-import { SpaceEndOrLeaveButton } from '../lifecycle/space-end-or-leave-button';
+import { SpaceEndOrLeaveButton } from './space-end-or-leave-button';
 import { SpaceHostAvatar } from '../members/space-host-avatar';
 import { MiniplayerHostNameLine } from './miniplayer-host-name-line';
 import { MiniplayerLiveBadge } from './miniplayer-live-badge';

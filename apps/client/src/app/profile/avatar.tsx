@@ -1,1 +1,1 @@
-export { AvatarEditorScreen as default } from '@libs/profile/client/avatar-editor-screen';
+export { AvatarEditorScreen as default } from '@libs/profile/client/patch-avatar/avatar-editor-screen';

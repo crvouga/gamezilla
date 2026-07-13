@@ -1,7 +1,7 @@
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useMemo } from 'react';
 
-import type { FriendsClientDeps } from './friends-actions';
+import type { FriendsClientDeps } from './search-users/search-users';
 
 export function useFriendsClientDeps(): FriendsClientDeps {
   const config = useConfigService();
