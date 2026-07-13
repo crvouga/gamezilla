@@ -85,6 +85,35 @@ function resolveCommitDate(): string {
 }
 
 /**
+ * Peak Metro RAM for `eas update` (`expo export --platform=all`, with
+ * sourcemaps) exceeds Node's default ~2GB heap on GitHub-hosted runners.
+ * Match the depcruise CI bump so the OTA publish does not OOM mid-bundle.
+ */
+const EAS_UPDATE_MAX_OLD_SPACE_MB = 8192;
+
+/**
+ * Ensure `NODE_OPTIONS` includes `--max-old-space-size=<mb>`, replacing any
+ * existing max-old-space-size flag and preserving other options.
+ */
+export function withNodeMaxOldSpaceSize(
+  env: NodeJS.ProcessEnv,
+  mb: number
+): NodeJS.ProcessEnv {
+  const flag = `--max-old-space-size=${String(mb)}`;
+  const existing = env['NODE_OPTIONS']?.trim();
+  if (existing === undefined || existing.length === 0) {
+    return { ...env, NODE_OPTIONS: flag };
+  }
+  if (/(?:^|\s)--max-old-space-size=\d+(?=\s|$)/.test(existing)) {
+    return {
+      ...env,
+      NODE_OPTIONS: existing.replace(/--max-old-space-size=\d+/g, flag),
+    };
+  }
+  return { ...env, NODE_OPTIONS: `${existing} ${flag}` };
+}
+
+/**
  * Subprocess env for `eas`. `EXPO_TOKEN` authenticates the CLI; the
  * `EXPO_PUBLIC_*` vars are inlined into the OTA bundle by Metro during
  * `eas update` (which bundles on this runner, unlike `eas build` which
@@ -94,14 +123,17 @@ function resolveCommitDate(): string {
  * (see `apps/client/src/config/api-servers.ts`).
  */
 function easEnv(commitHash: string, commitDate: string): NodeJS.ProcessEnv {
-  return {
-    ...process.env,
-    EXPO_PUBLIC_API_URL: productionApiOrigin(),
-    EXPO_PUBLIC_COMMIT_HASH: commitHash,
-    EXPO_PUBLIC_COMMIT_DATE: commitDate,
-    EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY: resolveAuthPublishableKeyForClientBuild(),
-    EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL: '1',
-  };
+  return withNodeMaxOldSpaceSize(
+    {
+      ...process.env,
+      EXPO_PUBLIC_API_URL: productionApiOrigin(),
+      EXPO_PUBLIC_COMMIT_HASH: commitHash,
+      EXPO_PUBLIC_COMMIT_DATE: commitDate,
+      EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY: resolveAuthPublishableKeyForClientBuild(),
+      EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL: '1',
+    },
+    EAS_UPDATE_MAX_OLD_SPACE_MB
+  );
 }
 
 function clientDir(): string {

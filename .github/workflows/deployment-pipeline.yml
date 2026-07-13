@@ -370,6 +370,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       EXPO_USE_WATCHMAN: '1'
+      # Metro `expo export --platform=all` during `eas update` OOMs on the
+      # default ~2GB Node heap; keep in sync with EAS_UPDATE_MAX_OLD_SPACE_MB
+      # in libs/infra/src/cli/lib/eas-mobile.ts.
+      NODE_OPTIONS: --max-old-space-size=8192
       INFISICAL_IDENTITY_ID: ${{ vars.INFISICAL_IDENTITY_ID }}
       INFISICAL_PROJECT_SLUG: ${{ vars.INFISICAL_PROJECT_SLUG }}
     outputs:
