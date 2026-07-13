@@ -30,7 +30,7 @@ export type CreateSpaceRoomParams = {
    * once a handful of entries accumulate.
    */
   kv: Kv;
-  /** Actor id (signed-in account or install id); space DO auth + local room handle. */
+  /** Device-seat actor id (install UUID); space DO auth + local room handle. */
   myId: string;
   /** Install UUID — required with bearer JWT for `/room` device binding. */
   installId: string;

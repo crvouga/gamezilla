@@ -17,13 +17,19 @@ export function SpaceGuestMembershipAvatar({
   size,
   vividBackdrop,
 }: SpaceGuestMembershipAvatarProps): ReactNode {
+  const profileId = useSpaceMembershipColumn(
+    membershipId,
+    SpaceMembershipField.profileId
+  );
   const guestId = useSpaceMembershipColumn(
     membershipId,
     SpaceMembershipField.guestId
   );
+  const resolved =
+    profileId !== null && profileId.length > 0 ? profileId : guestId;
   return (
     <UserProfileAvatar
-      profileId={guestId}
+      profileId={resolved}
       size={size}
       vividBackdrop={vividBackdrop ?? false}
     />

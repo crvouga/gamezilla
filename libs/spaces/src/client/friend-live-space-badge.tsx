@@ -1,0 +1,26 @@
+import { SpaceLiveBadge } from './space-live-badge';
+import { useFriendLiveSpaceId } from './use-friend-live-space-id';
+import { openSpaceDetail } from './space-routes';
+import { Pressable, Box } from '@pkgs/ui';
+import { useRouter } from 'expo-router';
+import type { ReactNode } from 'react';
+
+export type FriendLiveSpaceBadgeProps = {
+  readonly hostAccountId: string;
+};
+
+/** Shows a live badge when this friend hosts a discoverable live space. */
+export function FriendLiveSpaceBadge({
+  hostAccountId,
+}: FriendLiveSpaceBadgeProps): ReactNode {
+  const spaceId = useFriendLiveSpaceId(hostAccountId);
+  const router = useRouter();
+  if (spaceId === null) return null;
+  return (
+    <Pressable onPress={() => openSpaceDetail(router, spaceId)}>
+      <Box sx={{ px: 1 }}>
+        <SpaceLiveBadge spaceId={spaceId} />
+      </Box>
+    </Pressable>
+  );
+}

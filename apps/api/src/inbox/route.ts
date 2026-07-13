@@ -6,6 +6,10 @@ import {
   cancelFriendRequest,
   declineFriendRequest,
 } from '@libs/friends/server/request-service';
+import {
+  acceptSpaceInviteFromInbox,
+  declineSpaceInviteFromInbox,
+} from '@libs/spaces/server/space-inbox-actions';
 import { assert } from '@pkgs/assert';
 import { registerActionHandler } from '@pkgs/inbox/server/action-registry';
 import { Inbox } from '@pkgs/inbox';
@@ -15,11 +19,16 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 
-const inboxActorStorage = new AsyncLocalStorage<string>();
+type InboxActor = {
+  readonly accountId: string;
+  readonly deviceId: string;
+};
+
+const inboxActorStorage = new AsyncLocalStorage<InboxActor>();
 
 let handlersRegistered = false;
 
-function ensureFriendsInboxHandlers(): void {
+function ensureInboxHandlers(): void {
   if (handlersRegistered) return;
   handlersRegistered = true;
 
@@ -44,6 +53,36 @@ function ensureFriendsInboxHandlers(): void {
     }
     throw new Error(`Unknown friends inbox action: ${ctx.actionId}`);
   });
+
+  registerActionHandler('spaces', async (ctx) => {
+    const payload = ctx.interaction.payload;
+    const inviteId =
+      typeof payload['inviteId'] === 'string' ? payload['inviteId'] : null;
+    if (inviteId === null) {
+      throw new Error('Missing inviteId in interaction payload');
+    }
+    const actor = inboxActorStorage.getStore();
+    assert.defined(actor, 'spaces inbox: actor missing');
+    if (ctx.actionId === 'accept') {
+      await acceptSpaceInviteFromInbox({
+        sql: ctx.sql,
+        actorId: ctx.actorId,
+        deviceId: actor.deviceId,
+        inviteId,
+        deviceLabel: 'Device',
+      });
+      return;
+    }
+    if (ctx.actionId === 'decline') {
+      await declineSpaceInviteFromInbox({
+        sql: ctx.sql,
+        actorId: ctx.actorId,
+        inviteId,
+      });
+      return;
+    }
+    throw new Error(`Unknown spaces inbox action: ${ctx.actionId}`);
+  });
 }
 
 const requireAuth: MiddlewareHandler = async (c, next) => {
@@ -58,7 +97,10 @@ const requireAuth: MiddlewareHandler = async (c, next) => {
     if (auth === null || auth.accountId === null) {
       throw new UnauthorizedError('Inbox requires a signed-in account');
     }
-    return inboxActorStorage.run(auth.accountId, next);
+    return inboxActorStorage.run(
+      { accountId: auth.accountId, deviceId: auth.deviceId },
+      next
+    );
   } catch (err: unknown) {
     if (err instanceof UnauthorizedError) {
       return c.json({ error: err.message }, 401);
@@ -96,10 +138,10 @@ function lazyRequestSqlClient(): SqlClient {
 
 function lazyRequestContext() {
   const store = apiRequestAsyncLocalStorage.getStore();
-  const actorId = inboxActorStorage.getStore();
+  const actor = inboxActorStorage.getStore();
   assert.defined(store, 'inbox: request store missing');
-  assert.defined(actorId, 'inbox: actor id missing');
-  return { sql: store.sqlClient, actorId };
+  assert.defined(actor, 'inbox: actor id missing');
+  return { sql: store.sqlClient, actorId: actor.accountId };
 }
 
 let inboxInstance: Inbox | null = null;
@@ -112,7 +154,7 @@ function getInbox(): Inbox {
 }
 
 export function createInboxSubApp() {
-  ensureFriendsInboxHandlers();
+  ensureInboxHandlers();
   const inbox = getInbox();
   const app = inbox.app({ requireAuth, requestContext: lazyRequestContext });
 

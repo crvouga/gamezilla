@@ -1,4 +1,4 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyDeviceId } from '@libs/auth/client/use-current-user';
 import { useMemo, useRef } from 'react';
 
 import {
@@ -34,7 +34,7 @@ type SpaceRow = {
 function buildCurrentSpaceEntries(
   memberSpaceIds: readonly string[],
   spaceRows: readonly SpaceRow[],
-  myId: string
+  deviceId: string
 ): CurrentSpaceEntry[] {
   const byId = new Map<string, SpaceRow>();
   for (const row of spaceRows) {
@@ -46,7 +46,7 @@ function buildCurrentSpaceEntries(
     if (space === undefined || space.ended_at !== null) continue;
     const hostId = space.host_id;
     const role =
-      hostId !== null && hostId.length > 0 && hostId === myId
+      hostId !== null && hostId.length > 0 && hostId === deviceId
         ? 'host'
         : 'guest';
     entries.push({ spaceId, role });
@@ -56,7 +56,7 @@ function buildCurrentSpaceEntries(
 
 function membershipSql(
   enabled: boolean,
-  myId: string
+  deviceId: string
 ): { sql: string; params: string[] } {
   if (!enabled) {
     return {
@@ -68,7 +68,7 @@ function membershipSql(
     sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id
            FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
            WHERE ${SpaceMembershipCol.guestId} = ? AND ${SpaceMembershipCol.leftAt} IS NULL`,
-    params: [myId],
+    params: [deviceId],
   };
 }
 
@@ -101,14 +101,15 @@ function resolveDisplayEntries(
   return entries;
 }
 
-function useCurrentSpaceWatchQueries(
-  myId: string
-): {
+function useCurrentSpaceWatchQueries(deviceId: string): {
   entries: CurrentSpaceEntry[];
   queriesLoading: boolean;
 } {
-  const enabled = myId.length > 0;
-  const memQuery = useMemo(() => membershipSql(enabled, myId), [enabled, myId]);
+  const enabled = deviceId.length > 0;
+  const memQuery = useMemo(
+    () => membershipSql(enabled, deviceId),
+    [enabled, deviceId]
+  );
 
   const { rows: memRows, isLoading: memLoading } = useWatchQuery<MembershipRow>(
     memQuery.sql,
@@ -117,9 +118,7 @@ function useCurrentSpaceWatchQueries(
 
   const memberSpaceIds = useMemo(
     () => [
-      ...new Set(
-        memRows.map((r) => r.space_id).filter((id) => id.length > 0)
-      ),
+      ...new Set(memRows.map((r) => r.space_id).filter((id) => id.length > 0)),
     ],
     [memRows]
   );
@@ -131,8 +130,8 @@ function useCurrentSpaceWatchQueries(
   );
 
   const entries = useMemo(
-    () => buildCurrentSpaceEntries(memberSpaceIds, spaceRows, myId),
-    [memberSpaceIds, spaceRows, myId]
+    () => buildCurrentSpaceEntries(memberSpaceIds, spaceRows, deviceId),
+    [memberSpaceIds, spaceRows, deviceId]
   );
 
   return {
@@ -142,16 +141,15 @@ function useCurrentSpaceWatchQueries(
 }
 
 /**
- * The current user's live spaces — every space with an active membership
- * that has not ended. Role comes from spaces.host_id, not from a separate
- * host query.
+ * This install's live spaces — every space with an active device-seat
+ * membership that has not ended. Role comes from spaces.host_id.
  */
 export function useCurrentSpaceIds(): {
   entries: CurrentSpaceEntry[];
   isLoading: boolean;
 } {
-  const myId = useMyId();
-  const { entries, queriesLoading } = useCurrentSpaceWatchQueries(myId);
+  const deviceId = useMyDeviceId();
+  const { entries, queriesLoading } = useCurrentSpaceWatchQueries(deviceId);
   const status = useSyncStatus();
   const prevEntriesRef = useRef<CurrentSpaceEntry[]>([]);
   const reconnecting = isSyncReconnecting(status);
@@ -170,10 +168,10 @@ export function useCurrentSpaceIds(): {
   };
 }
 
-/** Replication ids for space host/guest queries (signed-in account or install id). */
+/** Install device ids used for space host/guest seat checks. */
 export function useReplicationIdentityIds(): readonly string[] {
-  const myId = useMyId();
-  return useMemo(() => (myId.length > 0 ? [myId] : []), [myId]);
+  const deviceId = useMyDeviceId();
+  return useMemo(() => (deviceId.length > 0 ? [deviceId] : []), [deviceId]);
 }
 
 export function isReplicationHost(

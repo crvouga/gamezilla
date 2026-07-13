@@ -1,6 +1,5 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyDeviceId } from '@libs/auth/client/use-current-user';
 import { useConfigService } from '@libs/auth/client/config-service-context';
-import { useDeviceId } from '@libs/auth/client/use-device-id';
 import { useFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import { useKv } from '@pkgs/kv/kv-context';
 import type {
@@ -26,15 +25,14 @@ export type SpaceRoomUiState = {
 };
 
 export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
-  const myId = useMyId();
+  const deviceId = useMyDeviceId();
   const presence = useSpacePresence(spaceId);
-  const deviceId = useDeviceId();
   const configService = useConfigService();
   const kv = useKv();
   const sessionToken = useFreshAuthToken();
 
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
-    if (spaceId.length === 0 || myId.length === 0) {
+    if (spaceId.length === 0 || deviceId.length === 0) {
       return null;
     }
     if (presence.status !== 'active') {
@@ -42,10 +40,10 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
     }
     return {
       spaceId,
-      myId,
+      myId: deviceId,
       installId: deviceId,
     };
-  }, [spaceId, myId, deviceId, presence.status]);
+  }, [spaceId, deviceId, presence.status]);
 
   const { room } = useSpaceRoomConnection(
     bootstrap,

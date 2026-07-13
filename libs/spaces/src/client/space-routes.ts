@@ -3,7 +3,14 @@ import { useEffect } from 'react';
 import { useLocalSearchParams, usePathname } from 'expo-router';
 
 /** Expo Router href for `/space/:id` — use instead of `{ pathname, params }`. */
-export function spaceDetailHref(spaceId: string): Href {
+export function spaceDetailHref(
+  spaceId: string,
+  options?: { readonly invite?: string | null }
+): Href {
+  const invite = options?.invite;
+  if (invite !== null && invite !== undefined && invite.length > 0) {
+    return `/space/${spaceId}?invite=${encodeURIComponent(invite)}` as Href;
+  }
   return `/space/${spaceId}` as Href;
 }
 
@@ -45,9 +52,13 @@ function releaseWebFocusBeforeNavigation(): void {
   if (active instanceof HTMLElement) active.blur();
 }
 
-export function openSpaceDetail(router: Router, spaceId: string): void {
+export function openSpaceDetail(
+  router: Router,
+  spaceId: string,
+  options?: { readonly invite?: string | null }
+): void {
   releaseWebFocusBeforeNavigation();
-  router.push(spaceDetailHref(spaceId));
+  router.push(spaceDetailHref(spaceId, options));
 }
 
 /** Leave `/space/:id` — pop the modal stack on iOS, fall back to lobby on deep links. */
@@ -77,7 +88,13 @@ export function stripRedundantSpaceRouteSearchParams(spaceId: string): void {
   const params = new URLSearchParams(search);
   if (params.get('id') !== spaceId) return;
   strippedSearchPaths.add(pathKey);
-  window.history.replaceState(window.history.state, '', pathname);
+  params.delete('id');
+  const next = params.toString();
+  window.history.replaceState(
+    window.history.state,
+    '',
+    next.length > 0 ? `${pathname}?${next}` : pathname
+  );
 }
 
 /**

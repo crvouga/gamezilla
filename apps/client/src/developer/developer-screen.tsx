@@ -1,5 +1,5 @@
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
-import { Box, MenuRow, ScreenBase } from '@pkgs/ui';
+import { MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
 
@@ -49,7 +49,7 @@ export function DeveloperScreen() {
         { name: <Trans>Developer</Trans> },
       ]}
       content={({ sx }) => (
-        <Box style={sx}>
+        <MenuList style={sx}>
           {items.map((item) => (
             <MenuRow
               key={item.key}
@@ -58,7 +58,7 @@ export function DeveloperScreen() {
               onPress={() => router.push(item.href as Href)}
             />
           ))}
-        </Box>
+        </MenuList>
       )}
     />
   );

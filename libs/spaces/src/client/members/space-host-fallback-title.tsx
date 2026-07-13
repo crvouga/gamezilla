@@ -7,7 +7,7 @@ import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
-import { useSpaceColumn, SpaceField } from '../use-space-column';
+import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 
 export type SpaceHostFallbackTitleProps = {
   spaceId: string;
@@ -26,8 +26,8 @@ export function SpaceHostFallbackTitle({
   sx,
   numberOfLines,
 }: SpaceHostFallbackTitleProps): ReactNode {
-  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
-  if (hostId === null || hostId.length === 0) {
+  const host = useSpaceHostMembershipDisplay(spaceId);
+  if (host === null) {
     return (
       <Text
         {...optionalProps({ variant, sx, numberOfLines })}
@@ -37,7 +37,7 @@ export function SpaceHostFallbackTitle({
   }
   return (
     <SpaceHostFallbackTitleResolved
-      hostId={hostId}
+      profileId={host.profileId}
       {...optionalProps({ variant, sx, numberOfLines })}
     />
   );
@@ -46,18 +46,18 @@ export function SpaceHostFallbackTitle({
 const EMPTY_LABEL = '';
 
 function SpaceHostFallbackTitleResolved({
-  hostId,
+  profileId,
   variant,
   sx,
   numberOfLines,
 }: {
-  hostId: string;
+  profileId: string;
   variant?: TextVariant;
   sx?: SxProps;
   numberOfLines?: number;
 }): ReactNode {
   const { t } = useLingui();
-  const hostUsername = useProfileColumn(hostId, ProfileField.username);
+  const hostUsername = useProfileColumn(profileId, ProfileField.username);
   const hostName = hostUsername ?? '';
   return (
     <Text

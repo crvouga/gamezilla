@@ -8,7 +8,7 @@ export type LinkedProvidersCardProps = {
 };
 
 /**
- * Sign-in providers card. When signed-out, shows a caption hint instead of
+ * Sign-in providers body. When signed-out, shows a caption hint instead of
  * the list.
  */
 export function LinkedProvidersCard({
@@ -21,13 +21,13 @@ export function LinkedProvidersCard({
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
-        label={t`Read-only: OAuth identities stored for your account.`}
+        label={t`Accounts you use to sign in.`}
       />
       {accountId === null ? (
         <Text
           variant="caption"
           sx={{ color: 'textSecondary' }}
-          label={t`OAuth provider details are listed here once you are signed in.`}
+          label={t`Sign in to see your sign-in providers.`}
         />
       ) : (
         <LinkedProvidersList accountId={accountId} />

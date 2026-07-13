@@ -6,6 +6,7 @@ import { Box } from '../box';
 import { Card } from '../card';
 import { SettingsIcon, UserIcon } from '../icons';
 import { Text } from '../text';
+import { MenuList } from './menu-list';
 import { MenuRow } from './menu-row';
 
 function CardGroup({ children }: { children: React.ReactNode }) {
@@ -13,6 +14,45 @@ function CardGroup({ children }: { children: React.ReactNode }) {
     <Card elevation={0} sx={{ overflow: 'hidden', px: 3 }}>
       {children}
     </Card>
+  );
+}
+
+/** Simulates ScreenBase body padding so MenuList's mx: -4 bleed is visible. */
+function ScreenBodySim({ children }: { children: React.ReactNode }) {
+  return <Box sx={{ p: 4, background: 'surface' }}>{children}</Box>;
+}
+
+function FullBleedListSection() {
+  const [tapped, setTapped] = useState<string | null>(null);
+  return (
+    <>
+      <Text
+        variant="label"
+        label="MenuList — full-bleed ScreenBase menu screen"
+      />
+      <ScreenBodySim>
+        <MenuList>
+          <MenuRow
+            title="Appearance"
+            caption="Light, dark, or system theme"
+            onPress={() => setTapped('Appearance')}
+          />
+          <MenuRow
+            title="Connection"
+            caption="Network reachability and API server health"
+            onPress={() => setTapped('Connection')}
+          />
+          <MenuRow
+            title="About"
+            caption="App version, build, and commit hash"
+            onPress={() => setTapped('About')}
+          />
+        </MenuList>
+      </ScreenBodySim>
+      {tapped ? (
+        <Text variant="caption" label={`Last tapped: ${tapped}`} />
+      ) : null}
+    </>
   );
 }
 
@@ -143,6 +183,7 @@ export default function MenuRowExample() {
   return (
     <Box sx={{ p: 4, gap: 4 }}>
       <Text variant="heading" label="MenuRow" />
+      <FullBleedListSection />
       <DefaultRowsSection />
       <TitleOnlySection />
       <LeadingIconSection />

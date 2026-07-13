@@ -138,7 +138,7 @@ export { Checkbox, type CheckboxProps } from './checkbox';
 
 // Data Display
 export { Card, type CardProps } from './card';
-export { Avatar, type AvatarProps } from './avatar';
+export { Avatar, AVATAR_BORDER_WIDTH, type AvatarProps } from './avatar';
 export {
   AvatarHero,
   type AvatarHeroAction,
@@ -331,7 +331,6 @@ export { Picker, type PickerProps, type PickerOption } from './picker';
 export {
   HorizontalPicker,
   type HorizontalPickerProps,
-  type HorizontalPickerRandomItem,
 } from './horizontal-picker';
 
 export {
@@ -351,7 +350,12 @@ export { SectionCard, type SectionCardProps } from './section-card';
 
 export { PickerSection, type PickerSectionProps } from './picker-section';
 
-export { MenuRow, type MenuRowProps } from './menu-row';
+export {
+  MenuList,
+  MenuRow,
+  type MenuListProps,
+  type MenuRowProps,
+} from './menu-row';
 
 export {
   MainMenuScreen,

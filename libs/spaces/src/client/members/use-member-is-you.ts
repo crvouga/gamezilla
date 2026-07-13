@@ -1,6 +1,6 @@
-import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
+import { useMyDeviceId } from '@libs/auth/client/use-current-user';
 
-/** Whether `profileId` is the current user's profile id. */
-export function useMemberIsYou(profileId: string): boolean {
-  return useMyProfileId() === profileId;
+/** Whether `deviceId` is this install's device seat. */
+export function useMemberIsYou(deviceId: string): boolean {
+  return useMyDeviceId() === deviceId;
 }

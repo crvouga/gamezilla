@@ -1,11 +1,12 @@
 import { UserUsername } from '@libs/profile/client/user-username';
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
+import { useMyDeviceId } from '@libs/auth/client/use-current-user';
 import { Box, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
 import { useSpaceGuestMembershipIds } from '../members/use-space-guest-membership-ids';
-import { useSpaceColumn, SpaceField } from '../use-space-column';
+import { useSpaceHostMembershipDisplay } from '../members/use-space-host-membership-display';
 import {
   useSpaceMembershipColumn,
   SpaceMembershipField,
@@ -18,48 +19,34 @@ export type SpaceMembersListProps = {
 };
 
 /**
- * Compact, Google Docs-style list of members for a space. One row per
- * member (small avatar + username), with the host always first and a
- * subtle `Host` caption on the host row. No section headers or extra
- * metadata; shared by the members modal and other compact member surfaces.
+ * Compact member list: shared profile avatar/username plus device label.
+ * Host first; "You" when the seat is this install.
  */
 export function SpaceMembersList({
   spaceId,
 }: SpaceMembersListProps): ReactNode {
-  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
+  const host = useSpaceHostMembershipDisplay(spaceId);
   const membershipIds = useSpaceGuestMembershipIds(spaceId);
   return (
     <Box sx={{ gap: 0 }}>
-      {hostId !== null ? <SpaceMembersHostRow profileId={hostId} /> : null}
+      {host !== null ? (
+        <SpaceMembersSeatRow
+          profileId={host.profileId}
+          deviceId={host.deviceId}
+          deviceLabel={host.deviceLabel}
+          trailing={
+            <Text
+              variant="caption"
+              sx={{ color: 'textSecondary' }}
+              label={<Trans>Host</Trans>}
+            />
+          }
+        />
+      ) : null}
       {membershipIds.map((membershipId) => (
         <SpaceMembersGuestRow key={membershipId} membershipId={membershipId} />
       ))}
     </Box>
-  );
-}
-
-function SpaceMembersHostRow({ profileId }: { profileId: string }): ReactNode {
-  return (
-    <SpaceMembersRowShell
-      avatar={
-        <UserProfileAvatar profileId={profileId} size={ROW_AVATAR_SIZE} />
-      }
-      name={
-        <UserUsername
-          profileId={profileId}
-          withAt={false}
-          variant="body"
-          numberOfLines={1}
-        />
-      }
-      trailing={
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label={<Trans>Host</Trans>}
-        />
-      }
-    />
   );
 }
 
@@ -68,35 +55,41 @@ function SpaceMembersGuestRow({
 }: {
   membershipId: string;
 }): ReactNode {
-  const guestId = useSpaceMembershipColumn(
+  const deviceId = useSpaceMembershipColumn(
     membershipId,
     SpaceMembershipField.guestId
   );
-  if (guestId === null || guestId.length === 0) return null;
+  const profileId =
+    useSpaceMembershipColumn(membershipId, SpaceMembershipField.profileId) ??
+    deviceId;
+  const deviceLabel = useSpaceMembershipColumn(
+    membershipId,
+    SpaceMembershipField.deviceLabel
+  );
+  if (deviceId === null || deviceId.length === 0) return null;
+  if (profileId === null || profileId.length === 0) return null;
   return (
-    <SpaceMembersRowShell
-      avatar={<UserProfileAvatar profileId={guestId} size={ROW_AVATAR_SIZE} />}
-      name={
-        <UserUsername
-          profileId={guestId}
-          withAt={false}
-          variant="body"
-          numberOfLines={1}
-        />
-      }
+    <SpaceMembersSeatRow
+      profileId={profileId}
+      deviceId={deviceId}
+      deviceLabel={deviceLabel}
     />
   );
 }
 
-function SpaceMembersRowShell({
-  avatar,
-  name,
+function SpaceMembersSeatRow({
+  profileId,
+  deviceId,
+  deviceLabel,
   trailing,
 }: {
-  avatar: ReactNode;
-  name: ReactNode;
+  profileId: string;
+  deviceId: string;
+  deviceLabel: string | null;
   trailing?: ReactNode;
 }): ReactNode {
+  const myDeviceId = useMyDeviceId();
+  const isYou = deviceId === myDeviceId;
   return (
     <Box
       sx={{
@@ -107,8 +100,30 @@ function SpaceMembersRowShell({
         px: 3,
       }}
     >
-      {avatar}
-      <Box sx={{ flex: 1, minWidth: 0 }}>{name}</Box>
+      <UserProfileAvatar profileId={profileId} size={ROW_AVATAR_SIZE} />
+      <Box sx={{ flex: 1, minWidth: 0, gap: 0 }}>
+        <UserUsername
+          profileId={profileId}
+          withAt={false}
+          variant="body"
+          numberOfLines={1}
+        />
+        {deviceLabel !== null && deviceLabel.length > 0 ? (
+          <Text
+            variant="caption"
+            sx={{ color: 'textSecondary' }}
+            numberOfLines={1}
+            label={deviceLabel}
+          />
+        ) : null}
+      </Box>
+      {isYou ? (
+        <Text
+          variant="caption"
+          sx={{ color: 'textSecondary' }}
+          label={<Trans>You</Trans>}
+        />
+      ) : null}
       {trailing}
     </Box>
   );

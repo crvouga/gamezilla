@@ -25,6 +25,7 @@
     "@libs/auth": "workspace:*",
     "@libs/db": "workspace:*",
     "@libs/profile": "workspace:*",
+    "@libs/spaces": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",

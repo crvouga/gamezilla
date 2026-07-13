@@ -7,6 +7,7 @@ import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 
+import { useSpaceHostMembershipDisplay } from '../members/use-space-host-membership-display';
 import { openSpaceDetail } from '../space-routes';
 import { useSpaceColumn, SpaceField } from '../use-space-column';
 
@@ -26,9 +27,9 @@ export function SpaceCardOpenLink({
   const router = useRouter();
   const { t } = useLingui();
   const customTitle = useSpaceColumn(spaceId, SpaceField.title);
-  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
+  const host = useSpaceHostMembershipDisplay(spaceId);
   const hostUsername = useProfileColumn(
-    hostId ?? '',
+    host?.profileId ?? '',
     ProfileField.username
   );
   const hostName = hostUsername ?? '';

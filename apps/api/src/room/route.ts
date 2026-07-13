@@ -18,11 +18,12 @@ export const ROOM_ACTOR_ID_HEADER = 'x-actor-id';
  * the upgrade to the `ROOM` DO; the DO validates `module` and runs game
  * logic from there.
  *
- * Actor id precedence (best → fallback):
- *   1. Account id, when a valid bearer token + UUID `anonId` resolves a session.
- *   2. The raw `anonId` query / `x-anon-id` header (anonymous device id).
- *   3. A fresh per-connection UUID (last resort; no presence stability across
- *      reconnects).
+ * Actor id is always the install device id when present (device-seat identity).
+ * When signed in, a valid bearer + UUID anonId must resolve to an account so
+ * the device binding is verified — but the actor id remains the device id,
+ * not the account id.
+ *
+ * Fallback: a fresh per-connection UUID when no anonId is available.
  *
  * - Path: `/room` (always WebSocket).
  * - Query `topic`: non-empty string keying the DO instance via `idFromName`.
@@ -64,7 +65,7 @@ async function resolveRoomActorId(c: Context<ApiHonoEnv>): Promise<string> {
 
   if (bearer !== null && anonId !== null && isUuid(anonId)) {
     const accountId = await tryResolveAccount(c, bearer, anonId);
-    if (accountId !== null) return accountId;
+    if (accountId !== null) return anonId;
   }
   if (anonId !== null) return anonId;
   return crypto.randomUUID();

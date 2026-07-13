@@ -1,8 +1,8 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyDeviceId } from '@libs/auth/client/use-current-user';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useRef } from 'react';
 
-import { spaceGuestMembershipEntityId } from '../shared/membership-key';
+import { spaceDeviceMembershipEntityId } from '../shared/membership-key';
 import {
   SpaceCol,
   SpaceMembershipCol,
@@ -27,13 +27,13 @@ type GuestMembershipRow = {
 };
 
 /**
- * Resolves whether the current user is in `spaceId` using targeted sync
+ * Resolves whether this install is in `spaceId` using targeted sync
  * queries for that space only (not the global membership list).
  */
 export function useSpacePresence(spaceId: string): SpacePresence {
-  const myId = useMyId();
+  const deviceId = useMyDeviceId();
   const spaceEnabled = spaceId.length > 0;
-  const memberEnabled = spaceEnabled && myId.length > 0;
+  const memberEnabled = spaceEnabled && deviceId.length > 0;
 
   const { row: spaceRow, isLoading: spaceLoading } = useWatchOne<SpaceRow>(
     spaceEnabled
@@ -45,7 +45,7 @@ export function useSpacePresence(spaceId: string): SpacePresence {
   );
 
   const membershipId = memberEnabled
-    ? spaceGuestMembershipEntityId(myId, spaceId)
+    ? spaceDeviceMembershipEntityId(deviceId, spaceId)
     : '';
 
   const { row: guestRow, isLoading: guestLoading } =
@@ -70,7 +70,7 @@ export function useSpacePresence(spaceId: string): SpacePresence {
     memberEnabled,
     guestLoading,
     guestRow,
-    myId,
+    myId: deviceId,
   });
 
   const latched = latchStaleSpacePresence(spaceId, resolved, latchRef.current);

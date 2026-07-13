@@ -1,23 +1,13 @@
-import { Box, ScreenBase } from '@pkgs/ui';
+import { Box, MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
-import { useCallback } from 'react';
 import { AccountActionsRow } from './account-actions-row';
-import { AccountDevicesCard } from './account-device/account-devices-card';
-import { useMyAccountId } from './use-current-user';
-import { LinkedProvidersCard } from './linked-providers/linked-providers-card';
 
 export function AccountScreen() {
+  const { t } = useLingui();
   const nav = useBreadcrumbNav();
   const router = useRouter();
-  const accountId = useMyAccountId();
-  const onOpenDevice = useCallback(
-    (deviceId: string) => {
-      router.push(`/more/account/device/${deviceId}` as Href);
-    },
-    [router]
-  );
 
   return (
     <ScreenBase
@@ -29,11 +19,18 @@ export function AccountScreen() {
       scroll
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 3 }}>
-          <AccountDevicesCard
-            accountId={accountId}
-            onOpenDevice={onOpenDevice}
-          />
-          <LinkedProvidersCard accountId={accountId} />
+          <MenuList>
+            <MenuRow
+              title={t`Devices`}
+              caption={t`Installs signed into this account`}
+              onPress={() => router.push('/more/account/devices' as Href)}
+            />
+            <MenuRow
+              title={t`Sign-in providers`}
+              caption={t`How you sign in`}
+              onPress={() => router.push('/more/account/providers' as Href)}
+            />
+          </MenuList>
           <AccountActionsRow />
         </Box>
       )}

@@ -4,6 +4,10 @@
  * Renders the first content source provided, in priority order:
  *   `svg` > `uri` > `initials` > `icon` > (empty plate).
  *
+ * Always draws a 1px theme `border` ring so faces stay enclosed on any
+ * surface (list rows, chrome, empty plates). Outer diameter stays `size`
+ * (RN border-box); content is clipped under the ring.
+ *
  * Color props (`background`, `foreground`) accept either a theme color
  * token name (e.g. `'tint'`, `'surface'`, `'outline'`) or a raw color
  * string (e.g. `'#fff'`, `'rgba(255,255,255,0.2)'`).
@@ -24,6 +28,9 @@ import { SvgXml } from 'react-native-svg';
 import { bestOnColor, useTheme } from '../../theme';
 import { type IconComponent } from '../icons';
 import { Text } from '../text';
+
+/** Minimal enclosing ring on every avatar face. */
+export const AVATAR_BORDER_WIDTH = 1;
 
 export type AvatarProps = {
   /** Diameter in pixels. Defaults to `40`. */
@@ -73,6 +80,8 @@ export function Avatar({
     width: size,
     height: size,
     borderRadius: size / 2,
+    borderWidth: AVATAR_BORDER_WIDTH,
+    borderColor: theme.colors.border,
     overflow: 'hidden' as const,
     backgroundColor: bg,
     alignItems: 'center' as const,

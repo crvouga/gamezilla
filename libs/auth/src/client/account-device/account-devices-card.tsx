@@ -15,7 +15,7 @@ export type AccountDevicesCardProps = {
   onOpenDevice: (deviceId: string) => void;
 };
 
-/** Devices section for the account screen — pure layout + atoms. */
+/** Devices list body for the account devices screen. */
 export function AccountDevicesCard({
   accountId,
   onOpenDevice,
@@ -26,31 +26,20 @@ export function AccountDevicesCard({
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
       <Text variant="bodyBold" label={<Trans>Devices</Trans>} />
-      <CaptionLine
-        label={
-          <Trans>
-            Each install has its own device id. Tap a row for full details.
-          </Trans>
-        }
-      />
+      <CaptionLine label={<Trans>Tap a device for details.</Trans>} />
       {accountId !== null ? (
         <CopyToClipboardField
           label={<Trans>Account ID</Trans>}
-          helperText={t`Server-side account; tap to copy`}
+          helperText={t`Tap to copy`}
           value={accountId}
         />
       ) : (
         <CaptionLine
-          label={
-            <Trans>
-              Sign in to link this device to a server account and see all
-              devices for that account.
-            </Trans>
-          }
+          label={<Trans>Sign in to see devices linked to your account.</Trans>}
         />
       )}
       {deviceIds.length === 0 ? (
-        <CaptionLine label={<Trans>No device data yet.</Trans>} />
+        <CaptionLine label={<Trans>No devices yet.</Trans>} />
       ) : (
         <Box sx={{ gap: 0, pt: 2 }}>
           {deviceIds.map((deviceId) => (

@@ -3,7 +3,7 @@ import { Box, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
-import { useSpaceColumn, SpaceField } from '../use-space-column';
+import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 
 export type SpaceMembersHostBlockProps = {
   spaceId: string;
@@ -12,7 +12,7 @@ export type SpaceMembersHostBlockProps = {
 export function SpaceMembersHostBlock({
   spaceId,
 }: SpaceMembersHostBlockProps): ReactNode {
-  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
+  const host = useSpaceHostMembershipDisplay(spaceId);
   return (
     <Box sx={{ gap: 1 }}>
       <Text
@@ -21,8 +21,13 @@ export function SpaceMembersHostBlock({
         label={<Trans>Host</Trans>}
       />
       <Box sx={{ gap: 0 }}>
-        {hostId !== null ? (
-          <SpaceMemberTileRail spaceId={spaceId} profileId={hostId} />
+        {host !== null ? (
+          <SpaceMemberTileRail
+            spaceId={spaceId}
+            deviceId={host.deviceId}
+            profileId={host.profileId}
+            deviceLabel={host.deviceLabel}
+          />
         ) : (
           <Text
             variant="caption"

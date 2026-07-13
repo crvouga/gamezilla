@@ -43,10 +43,11 @@ async function mintPowerSyncJwt(args: {
   readonly privateKeyPem: string;
   readonly keyId: string;
   readonly subject: string;
+  readonly deviceId: string;
   readonly audience?: string | undefined;
 }): Promise<string> {
   const key = await importPKCS8(args.privateKeyPem, JWT_ALG);
-  const builder = new SignJWT({})
+  const builder = new SignJWT({ device_id: args.deviceId })
     .setProtectedHeader({ alg: JWT_ALG, kid: args.keyId })
     .setSubject(args.subject)
     .setIssuedAt()
@@ -92,6 +93,7 @@ export function createSyncTokenRoute(deps: SyncTokenRouteDeps) {
       privateKeyPem,
       keyId: jwtKeyId,
       subject,
+      deviceId: auth.deviceId,
       audience,
     });
     const expiresAt = Math.floor(Date.now() / 1000) + TOKEN_TTL_SECONDS;

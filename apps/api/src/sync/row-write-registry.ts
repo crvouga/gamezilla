@@ -4,6 +4,7 @@ import { CLIENT_CONFIG_ROW_BINDINGS } from '@libs/client-config/shared/writes/ro
 import { FRIENDS_ROW_BINDINGS } from '@libs/friends/shared/writes/row-bindings';
 import { PROFILE_ROW_BINDINGS } from '@libs/profile/shared/writes/row-bindings';
 import { SPACE_ROW_BINDINGS } from '@libs/spaces/shared/writes/row-bindings';
+import { SPACE_INVITE_ROW_BINDINGS } from '@libs/spaces/shared/writes/invite-row-bindings';
 import { INBOX_ROW_BINDINGS } from '@pkgs/inbox/shared/writes/row-bindings';
 import { createRowWriteRegistry } from '@pkgs/write/server/row-write-registry';
 import { ENTITY_STORE_TABLE } from '@libs/db/shared/entity-store-table';
@@ -14,6 +15,7 @@ export const APP_ROW_WRITE_REGISTRY = createRowWriteRegistry({
   ...AUTH_ROW_BINDINGS,
   ...PROFILE_ROW_BINDINGS,
   ...SPACE_ROW_BINDINGS,
+  ...SPACE_INVITE_ROW_BINDINGS,
   ...CHESS_ROW_BINDINGS,
   ...CLIENT_CONFIG_ROW_BINDINGS,
   ...FRIENDS_ROW_BINDINGS,

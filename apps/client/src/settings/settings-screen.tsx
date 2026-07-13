@@ -1,5 +1,5 @@
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
-import { Box, MenuRow, ScreenBase } from '@pkgs/ui';
+import { MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
 
@@ -14,7 +14,7 @@ function useMoreRows(): readonly MoreRow[] {
   return [
     {
       title: t`Account`,
-      caption: t`Devices and read-only sign-in provider info`,
+      caption: t`Devices, sign-in methods, and sign out`,
       href: '/more/account' as Href,
     },
     {
@@ -52,7 +52,7 @@ export function SettingsScreen() {
         { name: <Trans>Settings</Trans> },
       ]}
       content={({ sx }) => (
-        <Box style={sx}>
+        <MenuList style={sx}>
           {rows.map((row) => (
             <MenuRow
               key={row.title}
@@ -61,7 +61,7 @@ export function SettingsScreen() {
               onPress={() => router.push(row.href)}
             />
           ))}
-        </Box>
+        </MenuList>
       )}
     />
   );

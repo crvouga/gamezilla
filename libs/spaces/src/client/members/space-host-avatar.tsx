@@ -1,7 +1,7 @@
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
 import type { ReactNode } from 'react';
 
-import { useSpaceColumn, SpaceField } from '../use-space-column';
+import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 
 export type SpaceHostAvatarProps = {
   spaceId: string;
@@ -14,10 +14,10 @@ export function SpaceHostAvatar({
   size,
   vividBackdrop,
 }: SpaceHostAvatarProps): ReactNode {
-  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
+  const host = useSpaceHostMembershipDisplay(spaceId);
   return (
     <UserProfileAvatar
-      profileId={hostId}
+      profileId={host?.profileId ?? null}
       size={size}
       vividBackdrop={vividBackdrop ?? false}
     />

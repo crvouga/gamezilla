@@ -1,5 +1,5 @@
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { Box, MenuRow, ScreenBase } from '@pkgs/ui';
+import { MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 
@@ -15,7 +15,7 @@ export function ProfileEditScreen() {
         { name: <Trans>Edit profile</Trans> },
       ]}
       content={({ sx }) => (
-        <Box style={sx}>
+        <MenuList style={sx}>
           <MenuRow
             title={t`Username`}
             caption={t`Unique handle for search and invites`}
@@ -26,7 +26,7 @@ export function ProfileEditScreen() {
             caption={t`Pick a fun emoji look`}
             onPress={() => router.push('/profile/avatar')}
           />
-        </Box>
+        </MenuList>
       )}
     />
   );

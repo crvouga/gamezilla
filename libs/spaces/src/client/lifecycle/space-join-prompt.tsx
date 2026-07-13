@@ -18,15 +18,31 @@ import {
   Text,
 } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useLocalSearchParams } from 'expo-router';
 import type { ReactNode } from 'react';
+
+import { SpaceJoinPeekCard } from './space-join-peek-card';
 
 export type SpaceJoinPromptProps = {
   spaceId: string;
 };
 
+function useInviteTokenParam(): string | null {
+  const params = useLocalSearchParams<{ invite?: string | string[] }>();
+  const raw = params.invite;
+  if (typeof raw === 'string' && raw.length > 0) return raw;
+  if (Array.isArray(raw)) {
+    for (const entry of raw) {
+      if (typeof entry === 'string' && entry.length > 0) return entry;
+    }
+  }
+  return null;
+}
+
 export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
   const nav = useBreadcrumbNav();
-  const snapshot = useSpaceJoinSnapshot(spaceId);
+  const inviteToken = useInviteTokenParam();
+  const snapshot = useSpaceJoinSnapshot(spaceId, inviteToken);
 
   return (
     <ScreenBase
@@ -40,7 +56,11 @@ export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
       ]}
       content={({ sx }) => (
         <Box style={sx}>
-          <JoinPromptBody spaceId={spaceId} snapshot={snapshot} />
+          <JoinPromptBody
+            spaceId={spaceId}
+            snapshot={snapshot}
+            inviteToken={inviteToken}
+          />
         </Box>
       )}
     />
@@ -50,9 +70,11 @@ export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
 function JoinPromptBody({
   spaceId,
   snapshot,
+  inviteToken,
 }: {
   spaceId: string;
   snapshot: ReturnType<typeof useSpaceJoinSnapshot>;
+  inviteToken: string | null;
 }): ReactNode {
   const nav = useBreadcrumbNav();
   const { t } = useLingui();
@@ -74,18 +96,22 @@ function JoinPromptBody({
 
   return (
     <Box sx={{ gap: 4 }}>
-      <SpaceCardGradientBox
-        sx={{
-          borderRadius: SPACE_CARD_BORDER_RADIUS,
-          p: 4,
-          minHeight: 112,
-          justifyContent: 'space-between',
-          gap: 0,
-        }}
-      >
-        <SpaceSummaryHeader spaceId={spaceId} />
-        <SpaceGuestSection spaceId={spaceId} />
-      </SpaceCardGradientBox>
+      {snapshot.peek !== null ? (
+        <SpaceJoinPeekCard peek={snapshot.peek} />
+      ) : (
+        <SpaceCardGradientBox
+          sx={{
+            borderRadius: SPACE_CARD_BORDER_RADIUS,
+            p: 4,
+            minHeight: 112,
+            justifyContent: 'space-between',
+            gap: 0,
+          }}
+        >
+          <SpaceSummaryHeader spaceId={spaceId} />
+          <SpaceGuestSection spaceId={spaceId} />
+        </SpaceCardGradientBox>
+      )}
       <Text
         variant="body"
         sx={{ color: 'textSecondary' }}
@@ -100,7 +126,11 @@ function JoinPromptBody({
       {snapshot.status === 'live' ? (
         <>
           <SpaceJoinBlockedNote spaceId={spaceId} />
-          <SpaceJoinButton spaceId={spaceId} joinable={snapshot.joinable} />
+          <SpaceJoinButton
+            spaceId={spaceId}
+            joinable={snapshot.joinable}
+            inviteToken={inviteToken}
+          />
         </>
       ) : null}
     </Box>

@@ -3,7 +3,7 @@ import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { SxProps, TextVariant } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import { useSpaceColumn, SpaceField } from '../use-space-column';
+import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 
 export type SpaceHostNameTextProps = {
   spaceId: string;
@@ -18,10 +18,10 @@ export function SpaceHostNameText({
   sx,
   numberOfLines,
 }: SpaceHostNameTextProps): ReactNode {
-  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
+  const host = useSpaceHostMembershipDisplay(spaceId);
   return (
     <UserUsername
-      profileId={hostId}
+      profileId={host?.profileId ?? null}
       withAt={false}
       {...optionalProps({ variant, sx, numberOfLines })}
     />

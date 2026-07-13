@@ -1,167 +1,114 @@
-import { useWriteContext } from '@libs/auth/client/use-write-context';
-import { joinSpaceWrite } from '@libs/spaces/shared/writes/row-bindings';
-import { spaceGuestMembershipEntityId } from '@libs/spaces/shared/membership-key';
-import { createSqlWriteStore } from '@pkgs/write/client/create-sql-write-store';
-import { runClientWrite } from '@pkgs/write/client/run-client-write';
-import type { WriteContext } from '@pkgs/write/shared/write-context';
 import {
-  SpaceCol,
-  SpaceMembershipCol,
-  SPACES_TABLE,
-  SPACE_MEMBERSHIPS_TABLE,
-} from '@libs/db/shared/space-tables';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+  useMyAccountId,
+  useMyDeviceId,
+  useMyId,
+} from '@libs/auth/client/use-current-user';
+import {
+  useProfileColumn,
+  ProfileField,
+} from '@libs/profile/client/use-profile-column';
+import type { SpaceVisibility } from '@libs/spaces/shared/space-visibility';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useCallback } from 'react';
 
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { resolveCurrentDeviceLabel } from './resolve-device-label';
+import { joinSpaceRemote } from '../spaces-actions';
+import { useSpacesClientDeps } from '../use-spaces-client-deps';
+import {
+  endSpaceAction,
+  leaveSpaceAction,
+  renameSpaceAction,
+  setVisibilityAction,
+  writeCreateSpaceAction,
+} from './space-lifecycle-writes';
 
-function isoNow(): string {
-  return new Date().toISOString();
+export type CreateSpaceOptions = {
+  readonly visibility?: SpaceVisibility;
+};
+
+function useHostProfileSnapshot(profileId: string) {
+  const hostUsername = useProfileColumn(profileId, ProfileField.username);
+  const hostAvatar = useProfileColumn(profileId, ProfileField.avatarConfig);
+  return {
+    hostUsername:
+      hostUsername !== null && hostUsername.length > 0 ? hostUsername : null,
+    hostAvatarConfig:
+      hostAvatar !== null && hostAvatar.length > 0 ? hostAvatar : null,
+  };
 }
 
-async function readSpaceRow(
-  sql: SqlClient,
-  spaceId: string
-): Promise<{ hostId: string; endedAt: string | null } | null> {
-  const rows = await sql.query<{
-    readonly host_id: string | null;
-    readonly ended_at: string | null;
-  }>(
-    `SELECT ${SpaceCol.hostId}, ${SpaceCol.endedAt}
-     FROM ${SPACES_TABLE.tableName}
-     WHERE ${SpaceCol.id} = ? LIMIT 1`,
-    [spaceId]
+function useSpaceLifecycleMutations(deviceId: string, accountId: string | null) {
+  const engine = useSyncEngine();
+  const leaveSpace = useCallback(
+    (spaceId: string) => leaveSpaceAction(engine.db, deviceId, spaceId),
+    [engine, deviceId]
   );
-  const row = rows[0];
-  if (row === undefined) return null;
-  const hostId = row.host_id;
-  if (hostId === null || hostId.length === 0) return null;
-  return { hostId, endedAt: row.ended_at };
-}
-
-async function writeCreateSpaceAction(
-  sql: SqlClient,
-  myId: string,
-  spaceId: string
-): Promise<void> {
-  const now = isoNow();
-  await sql.run(
-    `INSERT INTO ${SPACES_TABLE.tableName}
-     (${SpaceCol.id}, ${SpaceCol.hostId}, ${SpaceCol.createdAt})
-     VALUES (?, ?, ?)`,
-    [spaceId, myId, now]
+  const endSpace = useCallback(
+    (spaceId: string) => endSpaceAction(engine.db, deviceId, spaceId),
+    [engine, deviceId]
   );
-  const membershipId = spaceGuestMembershipEntityId(myId, spaceId);
-  await sql.run(
-    `INSERT INTO ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     (${SpaceMembershipCol.id}, ${SpaceMembershipCol.guestId},
-      ${SpaceMembershipCol.spaceId}, ${SpaceMembershipCol.joinedAt},
-      ${SpaceMembershipCol.leftAt})
-     VALUES (?, ?, ?, ?, NULL)`,
-    [membershipId, myId, spaceId, now]
+  const renameSpace = useCallback(
+    (spaceId: string, title: string) =>
+      renameSpaceAction(engine.db, deviceId, spaceId, title),
+    [engine, deviceId]
   );
-}
-
-async function joinSpaceAction(
-  sql: SqlClient,
-  writeContext: WriteContext,
-  spaceId: string
-): Promise<void> {
-  await runClientWrite(
-    joinSpaceWrite,
-    writeContext,
-    { spaceId },
-    createSqlWriteStore(sql)
+  const setVisibility = useCallback(
+    (spaceId: string, visibility: SpaceVisibility) =>
+      setVisibilityAction(engine.db, {
+        deviceId,
+        accountId,
+        spaceId,
+        visibility,
+      }),
+    [engine, deviceId, accountId]
   );
-}
-
-async function leaveSpaceAction(
-  sql: SqlClient,
-  myId: string,
-  spaceId: string
-): Promise<void> {
-  const membershipId = spaceGuestMembershipEntityId(myId, spaceId);
-  await sql.run(
-    `UPDATE ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     SET ${SpaceMembershipCol.leftAt} = ?
-     WHERE ${SpaceMembershipCol.id} = ?`,
-    [isoNow(), membershipId]
-  );
-}
-
-async function endSpaceAction(
-  sql: SqlClient,
-  myId: string,
-  spaceId: string
-): Promise<void> {
-  const space = await readSpaceRow(sql, spaceId);
-  if (space === null || space.hostId !== myId) {
-    throw new Error('Only the host can end this space');
-  }
-  const now = isoNow();
-  await sql.run(
-    `UPDATE ${SPACES_TABLE.tableName}
-     SET ${SpaceCol.endedAt} = ?, ${SpaceCol.hostId} = ?
-     WHERE ${SpaceCol.id} = ?`,
-    [now, myId, spaceId]
-  );
-}
-
-async function renameSpaceAction(
-  sql: SqlClient,
-  myId: string,
-  spaceId: string,
-  title: string
-): Promise<void> {
-  const space = await readSpaceRow(sql, spaceId);
-  if (space === null || space.hostId !== myId) {
-    throw new Error('Only the host can rename this space');
-  }
-  const trimmed = title.trim();
-  await sql.run(
-    `UPDATE ${SPACES_TABLE.tableName}
-     SET ${SpaceCol.title} = ?, ${SpaceCol.hostId} = ?
-     WHERE ${SpaceCol.id} = ?`,
-    [trimmed.length > 0 ? trimmed : null, myId, spaceId]
-  );
+  return { leaveSpace, endSpace, renameSpace, setVisibility, engine };
 }
 
 export function useSpaceActions() {
-  const engine = useSyncEngine();
-  const myId = useMyId();
-  const writeContext = useWriteContext();
+  const deviceId = useMyDeviceId();
+  const profileId = useMyId();
+  const accountId = useMyAccountId();
+  const spacesDeps = useSpacesClientDeps();
+  const host = useHostProfileSnapshot(profileId);
+  const { leaveSpace, endSpace, renameSpace, setVisibility, engine } =
+    useSpaceLifecycleMutations(deviceId, accountId);
 
   const createSpace = useCallback(
-    async (onCreated?: (spaceId: string) => void): Promise<string> => {
+    async (
+      onCreated?: (spaceId: string) => void,
+      options?: CreateSpaceOptions
+    ): Promise<string> => {
       const spaceId = crypto.randomUUID();
-      await writeCreateSpaceAction(engine.db, myId, spaceId);
+      await writeCreateSpaceAction(engine.db, {
+        deviceId,
+        profileId,
+        deviceLabel: resolveCurrentDeviceLabel(deviceId),
+        spaceId,
+        visibility: options?.visibility ?? 'private',
+        hostAccountId: accountId,
+        ...host,
+      });
       onCreated?.(spaceId);
       return spaceId;
     },
-    [engine, myId]
+    [engine, deviceId, profileId, accountId, host]
   );
 
   const joinSpace = useCallback(
-    async (spaceId: string) =>
-      joinSpaceAction(engine.db, writeContext, spaceId),
-    [engine, writeContext]
-  );
-
-  const leaveSpace = useCallback(
-    async (spaceId: string) => leaveSpaceAction(engine.db, myId, spaceId),
-    [engine, myId]
-  );
-
-  const endSpace = useCallback(
-    async (spaceId: string) => endSpaceAction(engine.db, myId, spaceId),
-    [engine, myId]
-  );
-
-  const renameSpace = useCallback(
-    async (spaceId: string, title: string) =>
-      renameSpaceAction(engine.db, myId, spaceId, title),
-    [engine, myId]
+    async (
+      spaceId: string,
+      options?: {
+        readonly inviteToken?: string | null;
+      }
+    ) => {
+      await joinSpaceRemote(spacesDeps, {
+        spaceId,
+        deviceLabel: resolveCurrentDeviceLabel(deviceId),
+        inviteToken: options?.inviteToken ?? null,
+      });
+    },
+    [spacesDeps, deviceId]
   );
 
   return {
@@ -170,5 +117,6 @@ export function useSpaceActions() {
     leaveSpace,
     endSpace,
     renameSpace,
+    setVisibility,
   };
 }

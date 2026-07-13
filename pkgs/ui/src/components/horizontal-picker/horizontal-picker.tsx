@@ -1,319 +1,183 @@
-/**
- * `HorizontalPicker` — horizontal scrollable row of selectable cells with
- * fixed width/height and optional leading “random” tile.
- */
-
 import type { ReactNode } from 'react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { FlatList, Pressable, View, type ListRenderItem } from 'react-native';
-import { useTheme } from '../../theme';
-import { Text } from '../text';
+import { useCallback, useRef, useState } from 'react';
+import type { LayoutChangeEvent, ListRenderItem } from 'react-native';
+import type Animated from 'react-native-reanimated';
+import {
+  runOnJS,
+  useAnimatedScrollHandler,
+  useSharedValue,
+  type SharedValue,
+} from 'react-native-reanimated';
+import { HorizontalPickerCell } from './horizontal-picker-cell';
+import {
+  clampIndex,
+  indexFromOffset,
+  offsetForIndex,
+  useHorizontalPickerSelection,
+} from './use-horizontal-picker-selection';
+import { HorizontalPickerList } from './horizontal-picker-list';
+import { HorizontalPickerShell } from './horizontal-picker-shell';
 
-const RANDOM_KEY = '__random__';
-
-export type HorizontalPickerRandomItem = {
-  selected: boolean;
-  onSelect: () => void;
-  render: () => ReactNode;
-};
+const DEFAULT_ITEM_WIDTH = 120;
 
 export type HorizontalPickerProps<T> = {
   items: readonly T[];
-  keyFor: (item: T) => string;
-  selectedKey: string | null;
-  onSelectItem: (item: T) => void;
-  renderPreview: (item: T, selected: boolean) => ReactNode;
-  /** Cell width in px (includes padding). */
-  itemWidth: number;
-  /** Total row height in px (preview + one-line label). */
-  cellHeight?: number;
-  /** Caption under each item preview (`numberOfLines={1}`). */
-  captionFor?: (item: T) => string;
-  randomItem?: HorizontalPickerRandomItem;
-  /** Extra leading inset inside the scroll content (px). */
-  contentInsetLeading?: number;
-  /** Extra trailing inset inside the scroll content (px). Defaults to `contentInsetLeading`. */
-  contentInsetTrailing?: number;
+  selectedIndex: number;
+  onSelect: (item: T, index: number) => void;
+  onSettle?: (item: T, index: number) => void;
+  renderItem: (item: T, index: number) => ReactNode;
+  itemWidth?: number;
+  showArrows?: boolean;
+  keyExtractor?: (item: T, index: number) => string;
+  /**
+   * FlatList re-render marker. Pass anything `renderItem` reads outside
+   * `items` (e.g. avatar seed / draft options) so recycled cells refresh.
+   */
+  extraData?: unknown;
 };
 
-type Row<T> = { type: 'random' } | { type: 'item'; item: T };
-
-type CellProps = {
-  itemWidth: number;
-  cellHeight: number;
-  thumbSize: number;
-  selected: boolean;
-  caption: string;
-  onPress: () => void;
-  children: ReactNode;
+type ScrollSetup = {
+  scrollX: SharedValue<number>;
+  listWidth: number;
+  onListLayout: (e: LayoutChangeEvent) => void;
+  scrollHandler: ReturnType<typeof useAnimatedScrollHandler>;
 };
 
-function PickerCell({
-  itemWidth,
-  cellHeight,
-  thumbSize,
-  selected,
-  caption,
-  onPress,
-  children,
-}: CellProps) {
-  const theme = useTheme();
-  const ringSize = thumbSize + (selected ? 8 : 0);
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        {
-          width: itemWidth,
-          height: cellHeight,
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          paddingTop: selected ? 0 : 2,
-          opacity: pressed ? 0.85 : selected ? 1 : 0.72,
-        },
-      ]}
-    >
-      <View
-        style={{
-          width: ringSize,
-          height: ringSize,
-          borderRadius: ringSize / 2,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: selected ? theme.colors.tintSubtle : 'transparent',
-        }}
-      >
-        <View
-          style={{
-            width: thumbSize,
-            height: thumbSize,
-            borderRadius: thumbSize / 2,
-            borderWidth: selected ? 3 : 2,
-            borderColor: selected ? theme.colors.tint : theme.colors.border,
-            overflow: 'hidden',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {children}
-        </View>
-      </View>
-      <Text
-        variant="caption"
-        numberOfLines={1}
-        style={{
-          marginTop: 4,
-          fontSize: selected ? 10 : 9,
-          textAlign: 'center',
-          width: itemWidth - 4,
-          opacity: selected ? 1 : 0.7,
-          fontWeight: selected ? '700' : '400',
-          color: selected ? theme.colors.tint : theme.colors.text,
-        }}
-        label={caption}
-      />
-    </Pressable>
-  );
+function usePickerScroll(
+  clamped: number,
+  itemWidth: number,
+  emitSelect: (offsetX: number) => void
+): ScrollSetup {
+  const scrollX = useSharedValue(offsetForIndex(clamped, itemWidth));
+  const lastIndexSv = useSharedValue(clamped);
+  const [listWidth, setListWidth] = useState(0);
+  const emitRef = useRef(emitSelect);
+  emitRef.current = emitSelect;
+
+  const onListLayout = useCallback((e: LayoutChangeEvent) => {
+    const w = e.nativeEvent.layout.width;
+    setListWidth((prev) => (prev > 0 ? prev : w));
+  }, []);
+
+  const onIndexCrossed = useCallback((offsetX: number) => {
+    emitRef.current(offsetX);
+  }, []);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (e) => {
+      const x = e.contentOffset.x;
+      scrollX.value = x;
+      const next = Math.round(x / itemWidth);
+      if (next !== lastIndexSv.value) {
+        lastIndexSv.value = next;
+        runOnJS(onIndexCrossed)(x);
+      }
+    },
+  });
+
+  return { scrollX, listWidth, onListLayout, scrollHandler };
 }
 
-function buildRows<T>(
-  items: readonly T[],
-  randomItem: HorizontalPickerRandomItem | undefined
-): Row<T>[] {
-  const rows: Row<T>[] = [];
-  if (randomItem !== undefined) rows.push({ type: 'random' });
-  for (const item of items) rows.push({ type: 'item', item });
-  return rows;
-}
-
-function computeSelectedIndex<T>(
-  items: readonly T[],
-  keyFor: (item: T) => string,
-  selectedKey: string | null,
-  randomItem: HorizontalPickerRandomItem | undefined
-): number {
-  if (randomItem?.selected === true) return 0;
-  const offset = randomItem !== undefined ? 1 : 0;
-  const i = items.findIndex((it) => keyFor(it) === selectedKey);
-  return i >= 0 ? i + offset : 0;
-}
-
-function useScrollToSelected<T>(
-  listRef: React.RefObject<FlatList<Row<T>> | null>,
-  selectedIndex: number,
-  dataLength: number
-) {
-  useEffect(() => {
-    const list = listRef.current;
-    if (list === null || dataLength === 0) return;
-    const index = Math.min(selectedIndex, dataLength - 1);
-    requestAnimationFrame(() => {
-      list.scrollToIndex({ index, viewPosition: 0.5, animated: true });
-    });
-  }, [listRef, selectedIndex, dataLength]);
-}
-
-type RenderItemDeps<T> = {
+type RenderDeps<T> = {
   itemWidth: number;
-  cellHeight: number;
-  thumbSize: number;
-  randomItem: HorizontalPickerRandomItem | undefined;
-  keyFor: (item: T) => string;
-  selectedKey: string | null;
-  captionFor: ((item: T) => string) | undefined;
-  onSelectItem: (item: T) => void;
-  renderPreview: (item: T, selected: boolean) => ReactNode;
+  scrollX: SharedValue<number>;
+  selectByIndex: (index: number) => void;
+  renderItem: (item: T, index: number) => ReactNode;
 };
 
-function useRowRenderer<T>(deps: RenderItemDeps<T>): ListRenderItem<Row<T>> {
-  const {
-    itemWidth,
-    cellHeight,
-    thumbSize,
-    randomItem,
-    keyFor,
-    selectedKey,
-    captionFor,
-    onSelectItem,
-    renderPreview,
-  } = deps;
+function useRenderListItem<T>(deps: RenderDeps<T>): ListRenderItem<T> {
+  const { itemWidth, scrollX, selectByIndex, renderItem } = deps;
   return useCallback(
-    ({ item }) => {
-      if (item.type === 'random') {
-        const ri = randomItem;
-        if (ri === undefined) return null;
-        return (
-          <PickerCell
-            itemWidth={itemWidth}
-            cellHeight={cellHeight}
-            thumbSize={thumbSize}
-            selected={ri.selected}
-            caption="Random"
-            onPress={ri.onSelect}
-          >
-            {ri.render()}
-          </PickerCell>
-        );
-      }
-      const k = keyFor(item.item);
-      const sel = k === selectedKey;
-      const cap = captionFor?.(item.item) ?? k;
-      return (
-        <PickerCell
-          itemWidth={itemWidth}
-          cellHeight={cellHeight}
-          thumbSize={thumbSize}
-          selected={sel}
-          caption={cap}
-          onPress={() => onSelectItem(item.item)}
-        >
-          {renderPreview(item.item, sel)}
-        </PickerCell>
-      );
-    },
-    [
-      randomItem,
-      itemWidth,
-      cellHeight,
-      thumbSize,
-      keyFor,
-      selectedKey,
-      captionFor,
-      onSelectItem,
-      renderPreview,
-    ]
+    ({ item, index }) => (
+      <HorizontalPickerCell
+        index={index}
+        itemWidth={itemWidth}
+        scrollX={scrollX}
+        onPress={() => selectByIndex(index)}
+      >
+        {renderItem(item, index)}
+      </HorizontalPickerCell>
+    ),
+    [itemWidth, scrollX, selectByIndex, renderItem]
   );
 }
 
-function pickerContentInsets(
-  leading: number,
-  trailing: number
-): { gap: number; paddingVertical: number; paddingLeft: number; paddingRight: number } {
-  return {
-    gap: 0,
-    paddingVertical: 4,
-    paddingLeft: leading,
-    paddingRight: trailing,
-  };
-}
+/**
+ * `HorizontalPicker` — flat Cover Flow–style centered carousel.
+ *
+ * `onSelect` fires when the nearest index changes (including mid-swipe).
+ * Optional `onSettle` fires once when scroll rests.
+ */
+export function HorizontalPicker<T>(props: HorizontalPickerProps<T>): ReactNode {
+  const {
+    items,
+    selectedIndex,
+    onSelect,
+    renderItem,
+    itemWidth = DEFAULT_ITEM_WIDTH,
+    showArrows = true,
+    keyExtractor: keyExtractorProp,
+    extraData,
+  } = props;
+  const clamped = clampIndex(selectedIndex, items.length);
+  const listRef = useRef<Animated.FlatList<T>>(null);
 
-function scrollToPickerIndex<T>(
-  listRef: React.RefObject<FlatList<Row<T>> | null>,
-  index: number,
-  itemWidth: number
-): void {
-  listRef.current?.scrollToOffset({
-    offset: Math.max(0, index * itemWidth - itemWidth),
-    animated: true,
-  });
-}
-
-export function HorizontalPicker<T>({
-  items,
-  keyFor,
-  selectedKey,
-  onSelectItem,
-  renderPreview,
-  itemWidth,
-  cellHeight: cellHeightProp,
-  captionFor,
-  randomItem,
-  contentInsetLeading = 0,
-  contentInsetTrailing,
-}: HorizontalPickerProps<T>) {
-  const listRef = useRef<FlatList<Row<T>>>(null);
-  const thumbSize = Math.max(32, itemWidth - 12);
-  const cellHeight = cellHeightProp ?? thumbSize + 12 + 18;
-  const trailingInset = contentInsetTrailing ?? contentInsetLeading;
-  const contentInsets = pickerContentInsets(contentInsetLeading, trailingInset);
-  const data = useMemo(() => buildRows(items, randomItem), [items, randomItem]);
-  const selectedIndex = useMemo(
-    () => computeSelectedIndex(items, keyFor, selectedKey, randomItem),
-    [items, keyFor, selectedKey, randomItem]
-  );
-
-  useScrollToSelected(listRef, selectedIndex, data.length);
-
-  const getItemLayout = useCallback(
-    (_: unknown, index: number) => ({
-      length: itemWidth,
-      offset: itemWidth * index,
-      index,
-    }),
-    [itemWidth]
-  );
-  const renderItem = useRowRenderer({
+  const selection = useHorizontalPickerSelection({
+    listRef: listRef as React.RefObject<Animated.FlatList<unknown> | null>,
+    items,
+    selectedIndex,
     itemWidth,
-    cellHeight,
-    thumbSize,
-    randomItem,
-    keyFor,
-    selectedKey,
-    captionFor,
-    onSelectItem,
-    renderPreview,
+    onSelect,
+    ...(props.onSettle !== undefined ? { onSettle: props.onSettle } : {}),
   });
-  const keyExtractor = useCallback(
-    (row: Row<T>, index: number) => {
-      if (row.type === 'random') return RANDOM_KEY;
-      return keyFor(row.item) + String(index);
-    },
-    [keyFor]
+
+  const { scrollX, listWidth, onListLayout, scrollHandler } = usePickerScroll(
+    clamped,
+    itemWidth,
+    selection.emitSelect
   );
+
+  const keyExtractor = useCallback(
+    (item: T, index: number) =>
+      keyExtractorProp !== undefined
+        ? keyExtractorProp(item, index)
+        : String(index),
+    [keyExtractorProp]
+  );
+
+  const renderListItem = useRenderListItem({
+    itemWidth,
+    scrollX,
+    selectByIndex: selection.selectByIndex,
+    renderItem,
+  });
+
+  if (items.length === 0) return null;
 
   return (
-    <FlatList
-      ref={listRef}
-      horizontal
-      data={data}
-      keyExtractor={keyExtractor}
-      renderItem={renderItem}
-      getItemLayout={getItemLayout}
-      showsHorizontalScrollIndicator
-      contentContainerStyle={contentInsets}
-      onScrollToIndexFailed={({ index }) =>
-        scrollToPickerIndex(listRef, index, itemWidth)
-      }
-    />
+    <HorizontalPickerShell
+      showArrows={showArrows}
+      clamped={clamped}
+      itemCount={items.length}
+      onPrev={() => selection.selectByIndex(clamped - 1)}
+      onNext={() => selection.selectByIndex(clamped + 1)}
+    >
+      <HorizontalPickerList
+        listRef={listRef}
+        items={items}
+        itemWidth={itemWidth}
+        clampedIndex={clamped}
+        listWidth={listWidth}
+        renderListItem={renderListItem}
+        keyExtractor={keyExtractor}
+        onListLayout={onListLayout}
+        scrollHandler={scrollHandler}
+        onScrollEnd={selection.onScrollEnd}
+        onScrollEndDrag={selection.onScrollEndDrag}
+        {...(extraData !== undefined ? { extraData } : {})}
+      />
+    </HorizontalPickerShell>
   );
 }
+
+export { clampIndex, indexFromOffset, offsetForIndex };

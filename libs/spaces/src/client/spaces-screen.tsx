@@ -1,51 +1,97 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
+  ChipGroup,
   EmptyState,
   Gamepad2Icon,
   LoadingState,
   PlusIcon,
   ScreenBase,
   ScrollView,
+  type ChipGroupOption,
   type ScreenBasePrimaryAction,
 } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
+
 import { SpaceCard } from './card/space-card';
 import { useSpaceActions } from './lifecycle/space-actions';
+import { LIVE_SPACE_SECTION } from './live-space-section';
 import { openSpaceDetail } from './space-routes';
 import { useCurrentSpaceCount } from './use-current-space-count';
-import { useLiveSpaceIds } from './use-live-space-ids';
+import {
+  useLiveSpaceIdsBySection,
+  type LiveSpaceSection,
+} from './use-live-space-ids-by-section';
 
-function SpacesList() {
-  const { spaceIds, isLoading } = useLiveSpaceIds();
+function SpaceSectionList({
+  section,
+  emptyTitle,
+}: {
+  readonly section: LiveSpaceSection;
+  readonly emptyTitle: ReactNode;
+}) {
+  const { spaceIds, isLoading } = useLiveSpaceIdsBySection(section);
   if (isLoading) {
     return <LoadingState size="large" />;
   }
   if (spaceIds.length === 0) {
-    return (
-      <EmptyState icon={Gamepad2Icon} title={<Trans>No live spaces</Trans>} />
-    );
+    return <EmptyState icon={Gamepad2Icon} title={emptyTitle} />;
   }
   return (
-    <ScrollView
-      style={{ flex: 1 }}
-      contentContainerStyle={{
-        paddingBottom: 24,
-        gap: 12,
-      }}
-    >
+    <Box sx={{ gap: 3 }}>
       {spaceIds.map((spaceId) => (
         <SpaceCard key={spaceId} spaceId={spaceId} />
       ))}
-    </ScrollView>
+    </Box>
+  );
+}
+
+function emptyTitleForSection(section: LiveSpaceSection): ReactNode {
+  if (section === LIVE_SPACE_SECTION.public) {
+    return <Trans>No public spaces</Trans>;
+  }
+  return <Trans>No live spaces</Trans>;
+}
+
+function SpacesList() {
+  const { t } = useLingui();
+  const [section, setSection] = useState<LiveSpaceSection>(
+    LIVE_SPACE_SECTION.friends
+  );
+
+  const options = useMemo((): readonly ChipGroupOption<LiveSpaceSection>[] => {
+    return [
+      { key: LIVE_SPACE_SECTION.friends, label: t`Friends` },
+      { key: LIVE_SPACE_SECTION.public, label: t`Public` },
+    ];
+  }, [t]);
+
+  return (
+    <Box sx={{ flex: 1, gap: 2 }}>
+      <ChipGroup
+        options={options}
+        selected={section}
+        onSelect={setSection}
+      />
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingBottom: 24,
+          gap: 8,
+        }}
+      >
+        <SpaceSectionList
+          section={section}
+          emptyTitle={emptyTitleForSection(section)}
+        />
+      </ScrollView>
+    </Box>
   );
 }
 
 export type SpacesScreenProps = {
-  /** Always-visible account avatar menu in the header trailing slot. */
   readonly accountMenu?: ReactNode;
-  /** Leading slot (typically the app logo on root tabs). */
   readonly leading?: ReactNode;
 };
 
@@ -64,9 +110,9 @@ export function SpacesScreen({
     return {
       labels: {
         idle: t`New space`,
-        loading: t`Creating…`,
-        success: t`Created`,
-        error: t`Couldn't create space`,
+        loading: t`Opening…`,
+        success: t`Ready`,
+        error: t`Couldn't open`,
       },
       operation: async () => {
         await createSpace((id) => {

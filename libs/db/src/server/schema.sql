@@ -269,3 +269,66 @@ ALTER TABLE friend_profile_cache DROP COLUMN IF EXISTS display_name;
 
 CREATE INDEX IF NOT EXISTS friend_profile_cache_owner_idx
   ON friend_profile_cache (owner_id);
+
+-- ============ Spaces: device-seat membership ============
+
+ALTER TABLE space_memberships ADD COLUMN IF NOT EXISTS profile_id TEXT;
+ALTER TABLE space_memberships ADD COLUMN IF NOT EXISTS device_label TEXT;
+CREATE INDEX IF NOT EXISTS space_memberships_profile_id_idx
+  ON space_memberships (profile_id);
+
+-- Soft-leave / end rows still keyed by account id (users.id). New seats use
+-- devices.id. Idempotent: account-keyed active rows become inactive once.
+UPDATE space_memberships AS sm
+SET left_at = COALESCE(sm.left_at, now())
+WHERE sm.left_at IS NULL
+  AND EXISTS (SELECT 1 FROM users u WHERE u.id = sm.guest_id);
+
+UPDATE spaces AS s
+SET ended_at = COALESCE(s.ended_at, now())
+WHERE s.ended_at IS NULL
+  AND EXISTS (SELECT 1 FROM users u WHERE u.id = s.host_id);
+
+-- ============ Spaces: visibility + discovery + invites ============
+
+ALTER TABLE spaces ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
+ALTER TABLE spaces ADD COLUMN IF NOT EXISTS host_account_id TEXT;
+ALTER TABLE spaces ADD COLUMN IF NOT EXISTS host_username TEXT;
+ALTER TABLE spaces ADD COLUMN IF NOT EXISTS host_avatar_config TEXT;
+ALTER TABLE spaces ADD COLUMN IF NOT EXISTS active_member_count INTEGER NOT NULL DEFAULT 1;
+
+CREATE INDEX IF NOT EXISTS spaces_visibility_live_idx
+  ON spaces (visibility, created_at DESC)
+  WHERE ended_at IS NULL;
+CREATE INDEX IF NOT EXISTS spaces_host_account_id_idx
+  ON spaces (host_account_id)
+  WHERE ended_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS space_invites (
+  id TEXT PRIMARY KEY,
+  space_id TEXT NOT NULL REFERENCES spaces (id),
+  kind TEXT NOT NULL,
+  token TEXT NOT NULL,
+  code TEXT,
+  created_by_account_id TEXT NOT NULL,
+  invitee_account_id TEXT,
+  expires_at TIMESTAMPTZ,
+  revoked_at TIMESTAMPTZ,
+  accepted_at TIMESTAMPTZ,
+  max_uses INTEGER NOT NULL DEFAULT 1,
+  use_count INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS space_invites_token_uidx
+  ON space_invites (token);
+CREATE UNIQUE INDEX IF NOT EXISTS space_invites_active_code_uidx
+  ON space_invites (code)
+  WHERE code IS NOT NULL AND revoked_at IS NULL;
+CREATE INDEX IF NOT EXISTS space_invites_space_id_idx
+  ON space_invites (space_id);
+CREATE INDEX IF NOT EXISTS space_invites_invitee_idx
+  ON space_invites (invitee_account_id)
+  WHERE invitee_account_id IS NOT NULL AND revoked_at IS NULL;
+CREATE INDEX IF NOT EXISTS space_invites_created_by_idx
+  ON space_invites (created_by_account_id);

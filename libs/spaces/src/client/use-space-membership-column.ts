@@ -10,6 +10,8 @@ export const SpaceMembershipField = {
   spaceId: 'spaceId',
   joinedAt: 'joinedAt',
   leftAt: 'leftAt',
+  profileId: 'profileId',
+  deviceLabel: 'deviceLabel',
 } as const satisfies Record<string, keyof typeof SpaceMembershipCol>;
 
 export type SpaceMembershipFieldKey = keyof typeof SpaceMembershipField;

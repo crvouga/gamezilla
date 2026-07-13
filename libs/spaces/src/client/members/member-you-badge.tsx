@@ -7,7 +7,7 @@ export type MemberYouBadgeProps = {
   profileId: string;
 };
 
-/** "You" caption; renders nothing unless `profileId` is the current user. */
+/** "You" caption; renders nothing unless the seat is this install. */
 export function MemberYouBadge({ profileId }: MemberYouBadgeProps): ReactNode {
   const isYou = useMemberIsYou(profileId);
   if (!isYou) return null;

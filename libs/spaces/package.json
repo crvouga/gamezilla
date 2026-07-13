@@ -24,9 +24,12 @@
   "dependencies": {
     "@libs/auth": "workspace:*",
     "@libs/db": "workspace:*",
+    "@libs/profile": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
+    "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
+    "@pkgs/inbox": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/room": "workspace:*",
@@ -37,6 +40,7 @@
     "@pkgs/ui": "workspace:*",
     "expo-clipboard": "catalog:",
     "expo-router": "catalog:",
+    "hono": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",
     "react-native-safe-area-context": "catalog:"

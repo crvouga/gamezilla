@@ -1,5 +1,6 @@
 import { Box, Button, FlatList, ScreenBase, Text } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+import { FriendLiveSpaceBadge } from '@libs/spaces/client/friend-live-space-badge';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useCallback, type ReactNode } from 'react';
@@ -50,7 +51,13 @@ function FriendsListBody(): ReactNode {
               data={friends}
               keyExtractor={(item) => item.userId}
               renderItem={({ item }) => (
-                <FriendUserRow profile={item} onPress={() => openUser(item)} />
+                <FriendUserRow
+                  profile={item}
+                  onPress={() => openUser(item)}
+                  trailing={
+                    <FriendLiveSpaceBadge hostAccountId={item.userId} />
+                  }
+                />
               )}
             />
           )}

@@ -1,5 +1,5 @@
 export {
   HorizontalPicker,
   type HorizontalPickerProps,
-  type HorizontalPickerRandomItem,
 } from './horizontal-picker';
+export { default as HorizontalPickerExample } from './horizontal-picker.example';

@@ -63,9 +63,21 @@ msgstr "{hostUsername}'s space"
 #~ msgid "{memberCount} here"
 #~ msgstr "{memberCount} here"
 
+#: libs/spaces/src/client/lifecycle/space-join-peek-card.tsx
+msgid "{memberCount} live"
+msgstr "{memberCount} live"
+
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-summary-card.tsx
 msgid "{streak} puzzle streak"
 msgstr "{streak} puzzle streak"
+
+#: libs/spaces/src/client/lifecycle/space-join-peek-card.tsx
+msgid "@{hostUsername}"
+msgstr "@{hostUsername}"
+
+#: libs/spaces/src/client/lifecycle/space-join-peek-card.tsx
+msgid "@{hostUsername}'s space"
+msgstr "@{hostUsername}'s space"
 
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "+1"
@@ -106,6 +118,10 @@ msgstr "1 guest"
 msgid "Abandoned · {puzzleRating}"
 msgstr "Abandoned · {puzzleRating}"
 
+#: libs/spaces/src/client/lifecycle/redeem-space-code-sheet.tsx
+#~ msgid "ABC123"
+#~ msgstr "ABC123"
+
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
 msgid "About"
@@ -115,13 +131,19 @@ msgstr "About"
 #: apps/client/src/ui/app-commands/account-command.tsx
 #: apps/client/src/ui/use-account-menu.tsx
 #: libs/auth/src/client/account-device/account-device-detail-screen.tsx
+#: libs/auth/src/client/account-device/account-devices-screen.tsx
 #: libs/auth/src/client/account-screen.tsx
+#: libs/auth/src/client/linked-providers/account-providers-screen.tsx
 msgid "Account"
 msgstr "Account"
 
 #: libs/auth/src/client/account-device/account-devices-card.tsx
 msgid "Account ID"
 msgstr "Account ID"
+
+#: libs/auth/src/client/linked-providers/linked-providers-card.tsx
+msgid "Accounts you use to sign in."
+msgstr "Accounts you use to sign in."
 
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-stats-cards.tsx
 msgid "Accuracy"
@@ -411,6 +433,14 @@ msgstr "Close"
 #~ msgid "Closes the space for everyone."
 #~ msgstr "Closes the space for everyone."
 
+#: libs/spaces/src/client/lifecycle/redeem-space-code-sheet.tsx
+#~ msgid "Code"
+#~ msgstr "Code"
+
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#~ msgid "Code ready"
+#~ msgstr "Code ready"
+
 #: libs/profile/src/client/avatar-editor-colors-block.tsx
 #~ msgid "Colors"
 #~ msgstr "Colors"
@@ -489,21 +519,21 @@ msgstr "Continue with Google"
 
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
 msgid "Copied"
 msgstr "Copied"
 
-#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: pkgs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
 
-#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
 msgid "Copy invite link"
 msgstr "Copy invite link"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
-msgid "Copy link"
-msgstr "Copy link"
+#~ msgid "Copy link"
+#~ msgstr "Copy link"
 
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
@@ -539,9 +569,17 @@ msgstr "Couldn't cancel"
 msgid "Couldn't confirm"
 msgstr "Couldn't confirm"
 
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+msgid "Couldn't copy link"
+msgstr "Couldn't copy link"
+
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#~ msgid "Couldn't create code"
+#~ msgstr "Couldn't create code"
+
 #: libs/spaces/src/client/spaces-screen.tsx
-msgid "Couldn't create space"
-msgstr "Couldn't create space"
+#~ msgid "Couldn't create space"
+#~ msgstr "Couldn't create space"
 
 #: libs/friends/src/client/friend-action-pill-buttons.tsx
 #: libs/friends/src/client/friend-request-row-actions.tsx
@@ -552,6 +590,10 @@ msgstr "Couldn't delete"
 msgid "Couldn't end space"
 msgstr "Couldn't end space"
 
+#: libs/spaces/src/client/lifecycle/space-invite-friend-rows.tsx
+msgid "Couldn't invite"
+msgstr "Couldn't invite"
+
 #: libs/spaces/src/client/lifecycle/space-join-button.tsx
 msgid "Couldn't join"
 msgstr "Couldn't join"
@@ -559,6 +601,10 @@ msgstr "Couldn't join"
 #: libs/spaces/src/client/lifecycle/leave-space-confirm-modal.tsx
 msgid "Couldn't leave space"
 msgstr "Couldn't leave space"
+
+#: libs/spaces/src/client/spaces-screen.tsx
+msgid "Couldn't open"
+msgstr "Couldn't open"
 
 #: libs/spaces/src/client/active-space/rename-space-modal.tsx
 msgid "Couldn't rename space"
@@ -578,14 +624,17 @@ msgstr "Couldn't save"
 msgid "create"
 msgstr "create"
 
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#~ msgid "Create invite code"
+#~ msgstr "Create invite code"
+
 #: libs/auth/src/client/account-device/account-device-meta-grid.tsx
-#: libs/spaces/src/client/spaces-screen.tsx
 msgid "Created"
 msgstr "Created"
 
-#: libs/spaces/src/client/spaces-screen.tsx
-msgid "Creating…"
-msgstr "Creating…"
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#~ msgid "Creating…"
+#~ msgstr "Creating…"
 
 #: apps/client/src/ui/app-commands/space-commands.tsx
 msgid "current"
@@ -692,12 +741,18 @@ msgid "Device network"
 msgstr "Device network"
 
 #: libs/auth/src/client/account-device/account-devices-card.tsx
+#: libs/auth/src/client/account-device/account-devices-screen.tsx
+#: libs/auth/src/client/account-screen.tsx
 msgid "Devices"
 msgstr "Devices"
 
 #: apps/client/src/settings/settings-screen.tsx
-msgid "Devices and read-only sign-in provider info"
-msgstr "Devices and read-only sign-in provider info"
+#~ msgid "Devices and read-only sign-in provider info"
+#~ msgstr "Devices and read-only sign-in provider info"
+
+#: apps/client/src/settings/settings-screen.tsx
+msgid "Devices, sign-in methods, and sign out"
+msgstr "Devices, sign-in methods, and sign out"
 
 #: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
 msgid "diagnostics"
@@ -758,8 +813,8 @@ msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
 #: libs/auth/src/client/account-device/account-devices-card.tsx
-msgid "Each install has its own device id. Tap a row for full details."
-msgstr "Each install has its own device id. Tap a row for full details."
+#~ msgid "Each install has its own device id. Tap a row for full details."
+#~ msgstr "Each install has its own device id. Tap a row for full details."
 
 #: libs/profile/src/client/profile-edit-screen.tsx
 #: libs/profile/src/client/profile-handle-screen.tsx
@@ -821,6 +876,18 @@ msgstr "Ending space…"
 msgid "Enter at least {SEARCH_MIN_LENGTH} characters"
 msgstr "Enter at least {SEARCH_MIN_LENGTH} characters"
 
+#: libs/spaces/src/client/spaces-screen.tsx
+#~ msgid "Enter code"
+#~ msgstr "Enter code"
+
+#: libs/spaces/src/client/lifecycle/redeem-space-code-sheet.tsx
+#~ msgid "Enter invite code"
+#~ msgstr "Enter invite code"
+
+#: libs/spaces/src/client/lifecycle/redeem-space-code-sheet.tsx
+#~ msgid "Enter the 6-character code from a host."
+#~ msgstr "Enter the 6-character code from a host."
+
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Error state"
 msgstr "Error state"
@@ -863,6 +930,10 @@ msgstr "Find friends"
 msgid "First seen"
 msgstr "First seen"
 
+#: libs/spaces/src/client/lifecycle/redeem-space-code-sheet.tsx
+#~ msgid "Found"
+#~ msgstr "Found"
+
 #: libs/friends/src/client/friends-requests-screen-view.tsx
 #~ msgid "Friend requests"
 #~ msgstr "Friend requests"
@@ -871,6 +942,7 @@ msgstr "First seen"
 #: libs/friends/src/client/friends-list-screen-view.tsx
 #: libs/friends/src/client/friends-signed-in-gate.tsx
 #: libs/friends/src/client/profile-friends-stats-view.tsx
+#: libs/spaces/src/client/spaces-screen.tsx
 msgid "Friends"
 msgstr "Friends"
 
@@ -962,6 +1034,10 @@ msgstr "host"
 msgid "Host"
 msgstr "Host"
 
+#: libs/auth/src/client/account-screen.tsx
+msgid "How you sign in"
+msgstr "How you sign in"
+
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "In-memory server; each client dispatches commands through loopback transport."
 msgstr "In-memory server; each client dispatches commands through loopback transport."
@@ -977,9 +1053,43 @@ msgstr "Inbox"
 #~ msgid "Increment"
 #~ msgstr "Increment"
 
+#: libs/auth/src/client/account-screen.tsx
+msgid "Installs signed into this account"
+msgstr "Installs signed into this account"
+
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Internet reachable: {reachable}"
 msgstr "Internet reachable: {reachable}"
+
+#: libs/spaces/src/client/lifecycle/redeem-space-code-sheet.tsx
+#~ msgid "Invalid code"
+#~ msgstr "Invalid code"
+
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+msgid "Invite"
+msgstr "Invite"
+
+#: libs/spaces/src/client/lifecycle/space-invite-friend-rows.tsx
+msgid "Invite @{username}"
+msgstr "Invite @{username}"
+
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+#~ msgid "Invite code"
+#~ msgstr "Invite code"
+
+#: libs/spaces/src/client/lifecycle/space-invite-friend-rows.tsx
+msgid "Invite friend"
+msgstr "Invite friend"
+
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+msgid "Invite friends"
+msgstr "Invite friends"
+
+#: libs/spaces/src/client/lifecycle/space-invite-friend-rows.tsx
+msgid "Invited"
+msgstr "Invited"
 
 #: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
 msgid "It may have ended or the link might be invalid."
@@ -1009,6 +1119,10 @@ msgstr "Join this space"
 #: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
 msgid "Join to see who is here and hang out."
 msgstr "Join to see who is here and hang out."
+
+#: libs/spaces/src/client/lifecycle/redeem-space-code-sheet.tsx
+#~ msgid "Join with code"
+#~ msgstr "Join with code"
 
 #: libs/spaces/src/client/lifecycle/space-join-button.tsx
 msgid "Joined"
@@ -1068,6 +1182,10 @@ msgstr "Light, dark, or system theme"
 msgid "Limited or checking"
 msgstr "Limited or checking"
 
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+msgid "Link copied to clipboard"
+msgstr "Link copied to clipboard"
+
 #: libs/spaces/src/client/miniplayer/miniplayer-live-badge.tsx
 #: libs/spaces/src/client/space-live-badge.tsx
 msgid "Live"
@@ -1112,6 +1230,10 @@ msgstr "Local view updates after the next PowerSync sync."
 #: apps/client/src/ui/app-commands/account-command.tsx
 msgid "login"
 msgstr "login"
+
+#: libs/spaces/src/client/lifecycle/redeem-space-code-sheet.tsx
+#~ msgid "Looking up…"
+#~ msgstr "Looking up…"
 
 #: libs/spaces/src/client/space-settings-screen.tsx
 #~ msgid "Manage this space."
@@ -1226,6 +1348,7 @@ msgid "New version available — reload to update"
 msgstr "New version available — reload to update"
 
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar.tsx
+#: pkgs/ui/src/components/horizontal-picker/horizontal-picker-arrows.tsx
 msgid "Next"
 msgstr "Next"
 
@@ -1250,8 +1373,20 @@ msgid "No component selected"
 msgstr "No component selected"
 
 #: libs/auth/src/client/account-device/account-devices-card.tsx
-msgid "No device data yet."
-msgstr "No device data yet."
+#~ msgid "No device data yet."
+#~ msgstr "No device data yet."
+
+#: libs/auth/src/client/account-device/account-devices-card.tsx
+msgid "No devices yet."
+msgstr "No devices yet."
+
+#: libs/spaces/src/client/spaces-screen.tsx
+#~ msgid "No friends live right now"
+#~ msgstr "No friends live right now"
+
+#: libs/spaces/src/client/lifecycle/space-invite-friend-rows.tsx
+msgid "No friends to invite yet."
+msgstr "No friends to invite yet."
 
 #: libs/friends/src/client/friends-list-screen-view.tsx
 msgid "No friends yet"
@@ -1275,8 +1410,12 @@ msgid "No live spaces"
 msgstr "No live spaces"
 
 #: libs/auth/src/client/linked-providers/linked-providers-list.tsx
-msgid "No OAuth provider records on file for this user."
-msgstr "No OAuth provider records on file for this user."
+#~ msgid "No OAuth provider records on file for this user."
+#~ msgstr "No OAuth provider records on file for this user."
+
+#: libs/spaces/src/client/spaces-screen.tsx
+msgid "No public spaces"
+msgstr "No public spaces"
 
 #: libs/chess/src/client/chess-puzzle/chess-game-log.tsx
 msgid "No puzzles played yet."
@@ -1285,6 +1424,14 @@ msgstr "No puzzles played yet."
 #: libs/friends/src/client/friend-request-sections.tsx
 #~ msgid "No sent requests"
 #~ msgstr "No sent requests"
+
+#: libs/auth/src/client/linked-providers/linked-providers-list.tsx
+msgid "No sign-in providers yet."
+msgstr "No sign-in providers yet."
+
+#: libs/spaces/src/client/spaces-screen.tsx
+#~ msgid "No spaces on your account"
+#~ msgstr "No spaces on your account"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/sync/sync-screen.tsx
@@ -1300,8 +1447,8 @@ msgid "null"
 msgstr "null"
 
 #: libs/auth/src/client/linked-providers/linked-providers-card.tsx
-msgid "OAuth provider details are listed here once you are signed in."
-msgstr "OAuth provider details are listed here once you are signed in."
+#~ msgid "OAuth provider details are listed here once you are signed in."
+#~ msgstr "OAuth provider details are listed here once you are signed in."
 
 #: libs/profile/src/client/avatar-editor-effects-block.tsx
 #~ msgid "Off"
@@ -1360,6 +1507,10 @@ msgstr "Open PowerSync diagnostics"
 #: libs/spaces/src/client/card/space-card-open-link.tsx
 msgid "Open space {resolvedTitle}"
 msgstr "Open space {resolvedTitle}"
+
+#: libs/spaces/src/client/spaces-screen.tsx
+msgid "Opening…"
+msgstr "Opening…"
 
 #: apps/client/src/ui/app-commands/appearance-commands.tsx
 msgid "os"
@@ -1446,9 +1597,21 @@ msgstr "PowerSync URL"
 msgid "Preferences and developer tools."
 msgstr "Preferences and developer tools."
 
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+msgid "Preparing…"
+msgstr "Preparing…"
+
+#: libs/spaces/src/client/lifecycle/space-join-peek-card.tsx
+msgid "Preview from invite"
+msgstr "Preview from invite"
+
 #: libs/profile/src/client/avatar-editor-preview.tsx
 #~ msgid "Preview updates as you edit. Save to keep changes."
 #~ msgstr "Preview updates as you edit. Save to keep changes."
+
+#: pkgs/ui/src/components/horizontal-picker/horizontal-picker-arrows.tsx
+msgid "Previous"
+msgstr "Previous"
 
 #: apps/client/src/settings/about-screen.tsx
 msgid "production"
@@ -1467,6 +1630,10 @@ msgstr "Profile"
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Promotion"
 msgstr "Promotion"
+
+#: libs/spaces/src/client/spaces-screen.tsx
+msgid "Public"
+msgstr "Public"
 
 #: libs/chess/src/client/chess-main-menu.tsx
 msgid "Puzzle"
@@ -1493,10 +1660,9 @@ msgstr "Puzzle solved!"
 msgid "Puzzle stats"
 msgstr "Puzzle stats"
 
-#: libs/profile/src/client/avatar-editor-effects-block.tsx
-#: libs/profile/src/client/avatar-editor-features-block.tsx
-#~ msgid "Random"
-#~ msgstr "Random"
+#: libs/profile/src/client/avatar-editor-variant-swatch-strip.tsx
+msgid "Random"
+msgstr "Random"
 
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
@@ -1508,8 +1674,12 @@ msgid "Reachable"
 msgstr "Reachable"
 
 #: libs/auth/src/client/linked-providers/linked-providers-card.tsx
-msgid "Read-only: OAuth identities stored for your account."
-msgstr "Read-only: OAuth identities stored for your account."
+#~ msgid "Read-only: OAuth identities stored for your account."
+#~ msgstr "Read-only: OAuth identities stored for your account."
+
+#: libs/spaces/src/client/spaces-screen.tsx
+msgid "Ready"
+msgstr "Ready"
 
 #: libs/search/src/client/search-recent-queries.tsx
 msgid "Recent searches"
@@ -1647,6 +1817,10 @@ msgstr "Seed"
 msgid "Select…"
 msgstr "Select…"
 
+#: libs/spaces/src/client/lifecycle/space-invite-friend-rows.tsx
+msgid "Sending…"
+msgstr "Sending…"
+
 #: libs/friends/src/client/friend-request-sections.tsx
 #~ msgid "Sent"
 #~ msgstr "Sent"
@@ -1665,8 +1839,8 @@ msgid "Server health"
 msgstr "Server health"
 
 #: libs/auth/src/client/account-device/account-devices-card.tsx
-msgid "Server-side account; tap to copy"
-msgstr "Server-side account; tap to copy"
+#~ msgid "Server-side account; tap to copy"
+#~ msgstr "Server-side account; tap to copy"
 
 #: apps/client/src/connection/server-status-screen.tsx
 #: apps/client/src/developer/developer-screen.tsx
@@ -1678,7 +1852,9 @@ msgstr "Server-side account; tap to copy"
 #: apps/client/src/ui/explorer/ui-explorer-screen.tsx
 #: apps/client/src/ui/use-account-menu.tsx
 #: libs/auth/src/client/account-device/account-device-detail-screen.tsx
+#: libs/auth/src/client/account-device/account-devices-screen.tsx
 #: libs/auth/src/client/account-screen.tsx
+#: libs/auth/src/client/linked-providers/account-providers-screen.tsx
 #: libs/chess/src/client/chess-main-menu.tsx
 #: libs/chess/src/client/chess-settings/chess-settings-screen.tsx
 #: libs/client-config/src/client/client-config-screen.tsx
@@ -1715,13 +1891,25 @@ msgstr "sign in"
 msgid "Sign in"
 msgstr "Sign in"
 
+#: libs/spaces/src/client/lifecycle/create-space-visibility-sheet.tsx
+#~ msgid "Sign in to host friends or public spaces."
+#~ msgstr "Sign in to host friends or public spaces."
+
 #: libs/auth/src/client/account-device/account-devices-card.tsx
-msgid "Sign in to link this device to a server account and see all devices for that account."
-msgstr "Sign in to link this device to a server account and see all devices for that account."
+#~ msgid "Sign in to link this device to a server account and see all devices for that account."
+#~ msgstr "Sign in to link this device to a server account and see all devices for that account."
 
 #: libs/search/src/client/use-user-search.tsx
 msgid "Sign in to search for people"
 msgstr "Sign in to search for people"
+
+#: libs/auth/src/client/account-device/account-devices-card.tsx
+msgid "Sign in to see devices linked to your account."
+msgstr "Sign in to see devices linked to your account."
+
+#: libs/auth/src/client/linked-providers/linked-providers-card.tsx
+msgid "Sign in to see your sign-in providers."
+msgstr "Sign in to see your sign-in providers."
 
 #: libs/friends/src/client/friends-signed-in-gate.tsx
 msgid "Sign in to use friends"
@@ -1765,6 +1953,8 @@ msgstr "Sign-in failed"
 msgid "Sign-in is not available."
 msgstr "Sign-in is not available."
 
+#: libs/auth/src/client/account-screen.tsx
+#: libs/auth/src/client/linked-providers/account-providers-screen.tsx
 #: libs/auth/src/client/linked-providers/linked-providers-card.tsx
 msgid "Sign-in providers"
 msgstr "Sign-in providers"
@@ -1839,6 +2029,10 @@ msgstr "Something went wrong"
 msgid "space"
 msgstr "space"
 
+#: libs/spaces/src/client/lifecycle/space-join-peek-card.tsx
+msgid "Space"
+msgstr "Space"
+
 #: libs/spaces/src/client/use-space-command-label.ts
 msgid "Space {suffix}"
 msgstr "Space {suffix}"
@@ -1881,7 +2075,9 @@ msgstr "Space renamed"
 #: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
 #: apps/client/src/ui/explorer/ui-explorer-screen.tsx
 #: libs/auth/src/client/account-device/account-device-detail-screen.tsx
+#: libs/auth/src/client/account-device/account-devices-screen.tsx
 #: libs/auth/src/client/account-screen.tsx
+#: libs/auth/src/client/linked-providers/account-providers-screen.tsx
 #: libs/client-config/src/client/client-config-screen.tsx
 #: libs/spaces/src/client/lifecycle/space-join-prompt.tsx
 #: libs/spaces/src/client/spaces-screen.tsx
@@ -1957,6 +2153,10 @@ msgstr "system"
 msgid "Table client_config, id client-config__singleton"
 msgstr "Table client_config, id client-config__singleton"
 
+#: libs/auth/src/client/account-device/account-devices-card.tsx
+msgid "Tap a device for details."
+msgstr "Tap a device for details."
+
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
 #~ msgid "Tap copy or share"
 #~ msgstr "Tap copy or share"
@@ -1966,6 +2166,7 @@ msgid "Tap the field or icon to copy"
 msgstr "Tap the field or icon to copy"
 
 #: apps/client/src/settings/about-screen.tsx
+#: libs/auth/src/client/account-device/account-devices-card.tsx
 msgid "Tap to copy"
 msgstr "Tap to copy"
 
@@ -2176,6 +2377,10 @@ msgstr "Username was changed recently"
 msgid "Version: {appVersion}"
 msgstr "Version: {appVersion}"
 
+#: libs/spaces/src/client/lifecycle/space-invite-sheet.tsx
+msgid "Visibility"
+msgstr "Visibility"
+
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "White"
 msgstr "White"
@@ -2183,6 +2388,10 @@ msgstr "White"
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-status-header.tsx
 msgid "White to move"
 msgstr "White to move"
+
+#: libs/spaces/src/client/lifecycle/create-space-visibility-sheet.tsx
+#~ msgid "Who can find and join this space?"
+#~ msgstr "Who can find and join this space?"
 
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "wipe"
@@ -2220,6 +2429,7 @@ msgstr "Wrong"
 msgid "Yes"
 msgstr "Yes"
 
+#: libs/spaces/src/client/active-space/space-members-list.tsx
 #: libs/spaces/src/client/members/member-you-badge.tsx
 msgid "You"
 msgstr "You"
@@ -2288,3 +2498,7 @@ msgstr "Your full name"
 #: libs/profile/src/client/profile-handle-screen.tsx
 msgid "your_handle"
 msgstr "your_handle"
+
+#: libs/spaces/src/client/spaces-screen.tsx
+#~ msgid "Yours"
+#~ msgstr "Yours"

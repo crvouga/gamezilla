@@ -9,11 +9,13 @@ import { useCallback, type ReactNode } from 'react';
 export type SpaceJoinButtonProps = {
   spaceId: string;
   joinable: boolean;
+  inviteToken?: string | null;
 };
 
 export function SpaceJoinButton({
   spaceId,
   joinable,
+  inviteToken,
 }: SpaceJoinButtonProps): ReactNode {
   const { t } = useLingui();
   const { joinSpace } = useSpaceActions();
@@ -28,7 +30,13 @@ export function SpaceJoinButton({
     spaceId.length === 0;
 
   const join = useMutationButton({
-    operation: useCallback(() => joinSpace(spaceId), [joinSpace, spaceId]),
+    operation: useCallback(
+      () =>
+        joinSpace(spaceId, {
+          inviteToken: inviteToken ?? null,
+        }),
+      [joinSpace, spaceId, inviteToken]
+    ),
     labels: {
       idle: t`Join space`,
       loading: t`Joining…`,

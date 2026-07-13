@@ -7,6 +7,11 @@ export const SpaceField = {
   hostId: 'hostId',
   createdAt: 'createdAt',
   endedAt: 'endedAt',
+  visibility: 'visibility',
+  hostAccountId: 'hostAccountId',
+  hostUsername: 'hostUsername',
+  hostAvatarConfig: 'hostAvatarConfig',
+  activeMemberCount: 'activeMemberCount',
 } as const satisfies Record<string, keyof typeof SpaceCol>;
 
 export type SpaceFieldKey = keyof typeof SpaceField;

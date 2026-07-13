@@ -21,13 +21,19 @@ export function SpaceGuestMembershipUsername({
   sx,
   numberOfLines,
 }: SpaceGuestMembershipUsernameProps): ReactNode {
+  const profileId = useSpaceMembershipColumn(
+    membershipId,
+    SpaceMembershipField.profileId
+  );
   const guestId = useSpaceMembershipColumn(
     membershipId,
     SpaceMembershipField.guestId
   );
+  const resolved =
+    profileId !== null && profileId.length > 0 ? profileId : guestId;
   return (
     <UserUsername
-      profileId={guestId}
+      profileId={resolved}
       withAt={false}
       {...optionalProps({ variant, sx, numberOfLines })}
     />

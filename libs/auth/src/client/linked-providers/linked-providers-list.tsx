@@ -19,7 +19,7 @@ export function LinkedProvidersList({
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
-        label={t`No OAuth provider records on file for this user.`}
+        label={t`No sign-in providers yet.`}
       />
     );
   }
