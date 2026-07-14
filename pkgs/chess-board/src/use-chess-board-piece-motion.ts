@@ -1,27 +1,23 @@
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import {
   Easing,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withTiming,
   type SharedValue,
 } from 'react-native-reanimated';
 import { CHESS_PIECE_MOVE_MS } from './chess-board-piece';
 
-const DRAG_SCALE = 1.22;
 const REST_Z = 2;
-const DRAG_Z = 1000;
-const DRAG_ELEVATION = 24;
 
 const MOVE_EASING = Easing.out(Easing.cubic);
 
 function seedOrAnimate(
   sv: SharedValue<number>,
   next: number,
-  isFirst: boolean
+  instant: boolean
 ): void {
-  if (isFirst) {
+  if (instant) {
     sv.value = next;
     return;
   }
@@ -31,51 +27,64 @@ function seedOrAnimate(
   });
 }
 
-type MotionStyles = {
-  layoutStyle: ReturnType<typeof useAnimatedStyle>;
-  /** Scale only the glyph — must NOT wrap Draggable translate (causes drift). */
+export type ChessBoardPieceMotion = {
+  leftSV: SharedValue<number>;
+  topSV: SharedValue<number>;
+  tx: SharedValue<number>;
+  ty: SharedValue<number>;
+  scaleSV: SharedValue<number>;
+  zSV: SharedValue<number>;
+  elevSV: SharedValue<number>;
+  wrapStyle: ReturnType<typeof useAnimatedStyle>;
+  /** Scale only the glyph — must NOT wrap pan translate (causes drift). */
   liftStyle: ReturnType<typeof useAnimatedStyle>;
-  onDragStartMotion: () => void;
-  onDragEndMotion: () => void;
+  /** Call from JS after a successful user drop so left/top seed instantly. */
+  markSnapAfterDrag: () => void;
 };
 
-/** Animates resting cell layout; lift scale is separate from drag translate. */
+/** Resting left/top slide + pan translate; lift scale is glyph-only. */
 export function useChessBoardPieceMotion(args: {
   left: number;
   top: number;
-}): MotionStyles {
+}): ChessBoardPieceMotion {
   const { left, top } = args;
   const leftSV = useSharedValue(left);
   const topSV = useSharedValue(top);
+  const tx = useSharedValue(0);
+  const ty = useSharedValue(0);
   const scaleSV = useSharedValue(1);
   const zSV = useSharedValue(REST_Z);
   const elevSV = useSharedValue(0);
   const firstRef = useRef(true);
+  const snapAfterDragRef = useRef(false);
 
-  useEffect(() => {
-    const isFirst = firstRef.current;
+  useLayoutEffect(() => {
+    const snap = firstRef.current || snapAfterDragRef.current;
     firstRef.current = false;
-    seedOrAnimate(leftSV, left, isFirst);
-    seedOrAnimate(topSV, top, isFirst);
-  }, [left, top, leftSV, topSV]);
+    snapAfterDragRef.current = false;
+    if (snap) {
+      // Atomic: destination layout + clear drag offset before paint.
+      leftSV.value = left;
+      topSV.value = top;
+      tx.value = 0;
+      ty.value = 0;
+      return;
+    }
+    seedOrAnimate(leftSV, left, false);
+    seedOrAnimate(topSV, top, false);
+  }, [left, top, leftSV, topSV, tx, ty]);
 
-  const onDragStartMotion = (): void => {
-    zSV.value = DRAG_Z;
-    elevSV.value = DRAG_ELEVATION;
-    scaleSV.value = withSpring(DRAG_SCALE, { damping: 16, stiffness: 220 });
-  };
-  const onDragEndMotion = (): void => {
-    zSV.value = REST_Z;
-    elevSV.value = 0;
-    scaleSV.value = withSpring(1, { damping: 16, stiffness: 220 });
+  const markSnapAfterDrag = (): void => {
+    snapAfterDragRef.current = true;
   };
 
-  const layoutStyle = useAnimatedStyle(() => ({
+  const wrapStyle = useAnimatedStyle(() => ({
     position: 'absolute' as const,
     left: leftSV.value,
     top: topSV.value,
     zIndex: zSV.value,
     elevation: elevSV.value,
+    transform: [{ translateX: tx.value }, { translateY: ty.value }],
   }));
 
   const liftStyle = useAnimatedStyle(() => ({
@@ -84,5 +93,16 @@ export function useChessBoardPieceMotion(args: {
     transform: [{ scale: scaleSV.value }],
   }));
 
-  return { layoutStyle, liftStyle, onDragStartMotion, onDragEndMotion };
+  return {
+    leftSV,
+    topSV,
+    tx,
+    ty,
+    scaleSV,
+    zSV,
+    elevSV,
+    wrapStyle,
+    liftStyle,
+    markSnapAfterDrag,
+  };
 }

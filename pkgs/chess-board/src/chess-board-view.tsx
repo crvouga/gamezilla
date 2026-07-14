@@ -2,8 +2,8 @@ import { memo, type ReactNode } from 'react';
 import { View } from 'react-native';
 import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content';
 import { ChessBoardCanvasContent } from './chess-board-canvas-content';
-import { ChessBoardDndLayer } from './chess-board-dnd-layer';
-import type { ChessBoardDndLayerProps } from './chess-board-dnd-layer';
+import { ChessBoardInteractionLayer } from './chess-board-interaction-layer';
+import type { ChessBoardInteractionLayerProps } from './chess-board-interaction-layer';
 import { ChessBoardPromotionInline } from './chess-board-promotion';
 import type { BoardOrientation, BoardTheme, Move } from './chess-board-types';
 import type { PieceImageCache } from './chess-pieces-cache';
@@ -21,7 +21,7 @@ export type ChessBoardViewProps = {
   onPromotionCancel: () => void;
   onPromotionPick: (p: NonNullable<Move['promotion']>) => void;
   contentProps: ChessBoardCanvasContentProps;
-  dndProps: ChessBoardDndLayerProps;
+  interactionProps: ChessBoardInteractionLayerProps;
 };
 
 type PromotionInlineProps = {
@@ -50,7 +50,7 @@ function inlinePromotion(p: PromotionInlineProps): ReactNode {
   );
 }
 
-/** Board surface: Skia chrome underlay + DnD piece overlay + promotion. */
+/** Board surface: Skia chrome underlay + piece interaction overlay + promotion. */
 function ChessBoardViewImpl(p: ChessBoardViewProps): ReactNode {
   const { size } = p;
   const sqStyle = { width: size, height: size, overflow: 'visible' as const };
@@ -58,7 +58,7 @@ function ChessBoardViewImpl(p: ChessBoardViewProps): ReactNode {
     <View ref={p.containerRef} style={sqStyle} {...p.userArrowsWebHandlers}>
       <View style={sqStyle}>
         <ChessBoardCanvasContent {...p.contentProps} />
-        <ChessBoardDndLayer {...p.dndProps} />
+        <ChessBoardInteractionLayer {...p.interactionProps} />
         {inlinePromotion({
           pending: p.pendingPromotion,
           size: p.size,

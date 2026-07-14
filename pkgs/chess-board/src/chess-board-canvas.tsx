@@ -1,6 +1,6 @@
 import { memo, useMemo, type ReactNode } from 'react';
 import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content';
-import type { ChessBoardDndLayerProps } from './chess-board-dnd-layer';
+import type { ChessBoardInteractionLayerProps } from './chess-board-interaction-layer';
 import { squareFromIndex } from './chess-board-geometry';
 import { PIECE_DRAW_SCALE } from './chess-board-piece';
 import {
@@ -18,9 +18,9 @@ import type {
 import { ChessBoardView } from './chess-board-view';
 import { usePieceCaches, type PieceImageCache } from './chess-pieces-cache';
 import { useChessBoardApplyMoveSound } from './use-chess-board-apply-move-sound';
-import { useChessBoardDnd } from './use-chess-board-dnd';
 import { useExternalFenSync } from './use-chess-board-external-fen-sync';
 import { useChessBoardHandlers } from './use-chess-board-handlers';
+import { useChessBoardInteraction } from './use-chess-board-interaction';
 import {
   useChessBoardInteractionState,
   type ChessBoardInteractionState,
@@ -145,7 +145,9 @@ type ContentPropsArgs = {
   checkKingSquare: Square | null;
   mergedArrows: readonly BoardArrow[];
   pieceDraw: number;
-  hoverSquareIndex: ReturnType<typeof useChessBoardDnd>['hoverSquareIndex'];
+  hoverSquareIndex: ReturnType<
+    typeof useChessBoardInteraction
+  >['hoverSquareIndex'];
 };
 
 function useContentProps(args: ContentPropsArgs): ChessBoardCanvasContentProps {
@@ -195,16 +197,18 @@ function useContentProps(args: ContentPropsArgs): ChessBoardCanvasContentProps {
   );
 }
 
-function useDndLayerProps(
+function useInteractionLayerProps(
   props: ChessBoardCanvasProps,
   bundle: GameStateBundle,
   handlers: ReturnType<typeof useChessBoardHandlers>,
   pieceDraw: number
 ): {
-  dndProps: ChessBoardDndLayerProps;
-  hoverSquareIndex: ReturnType<typeof useChessBoardDnd>['hoverSquareIndex'];
+  interactionProps: ChessBoardInteractionLayerProps;
+  hoverSquareIndex: ReturnType<
+    typeof useChessBoardInteraction
+  >['hoverSquareIndex'];
 } {
-  const dnd = useChessBoardDnd({
+  const ix = useChessBoardInteraction({
     interactive: props.interactive,
     turn: bundle.game.turn,
     position: bundle.game.position,
@@ -215,19 +219,17 @@ function useDndLayerProps(
     tryApplyDrop: handlers.tryApplyDrop,
   });
   return {
-    hoverSquareIndex: dnd.hoverSquareIndex,
-    dndProps: {
+    hoverSquareIndex: ix.hoverSquareIndex,
+    interactionProps: {
       size: props.size,
       orientation: props.orientation,
       pieceDraw,
-      dragData: dnd.dragData,
-      remountKeys: dnd.remountKeys,
-      canDragFrom: dnd.canDragFrom,
-      onDragStart: dnd.onDragStart,
-      onDragEnd: dnd.onDragEnd,
-      onDropToSquare: dnd.onDropToSquare,
-      onSquareTap: dnd.onSquareTap,
-      onHoverChange: dnd.onHoverChange,
+      pieceRows: ix.pieceRows,
+      hoverSquareIndex: ix.hoverSquareIndex,
+      canDragFrom: ix.canDragFrom,
+      onDragStart: ix.onDragStart,
+      onPanEnd: ix.onPanEnd,
+      onSquareTap: ix.onSquareTap,
     },
   };
 }
@@ -250,7 +252,7 @@ function ChessBoardCanvasImpl(props: ChessBoardCanvasProps): ReactNode {
   const userArrows = useUserArrowsForBoard(props);
   const mergedArrows = useMergedArrows(props.arrows, userArrows.arrows);
   const pieceDraw = (props.size / 8) * PIECE_DRAW_SCALE;
-  const { dndProps, hoverSquareIndex } = useDndLayerProps(
+  const { interactionProps, hoverSquareIndex } = useInteractionLayerProps(
     props,
     bundle,
     handlers,
@@ -277,7 +279,7 @@ function ChessBoardCanvasImpl(props: ChessBoardCanvasProps): ReactNode {
       onPromotionCancel={handlers.onPromotionCancel}
       onPromotionPick={handlers.onPromotionPick}
       contentProps={contentProps}
-      dndProps={dndProps}
+      interactionProps={interactionProps}
     />
   );
 }

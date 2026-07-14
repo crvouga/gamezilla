@@ -486,10 +486,10 @@ export function rematchRows(
 }
 
 /**
- * Stable piece ids keyed to board position. Computed synchronously so DnD
- * overlay layout (`left`/`top`) updates in the same React commit as the move —
- * lagging behind via `useEffect` left Draggables with stale origins while the
- * library kept drop `tx`/`ty`, so pieces vanished from the landing square.
+ * Stable piece ids keyed to board position. Computed synchronously so the
+ * interaction overlay layout (`left`/`top`) updates in the same React commit
+ * as the move — keeping piece identity across slides (opponent/reset) and
+ * user drops without remounting.
  */
 export function useChessPieceRows(
   position: Position,

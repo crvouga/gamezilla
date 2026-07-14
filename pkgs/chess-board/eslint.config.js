@@ -8,6 +8,15 @@ const { linguiRules } = require('../../pkgs/eslint-rules/lingui-rules.cjs');
 module.exports = [
   ...createSharedBlocks(__dirname),
   {
+    files: ['**/*.{ts,tsx}'],
+    rules: {
+      // react-native-reanimated worklets mutate SharedValue.value by design.
+      'react-hooks/immutability': 'off',
+      // React Compiler optimizer hints; existing manual memoization is intentional.
+      'react-hooks/preserve-manual-memoization': 'off',
+    },
+  },
+  {
     files: ['**/*.tsx'],
     plugins: {
       workspaceI18n: eslintPluginWorkspaceI18n,
@@ -18,10 +27,6 @@ module.exports = [
       ...linguiRules(),
       // Design-system internals: product copy is enforced in apps/client.
       'lingui/no-unlocalized-strings': 'off',
-      // react-native-reanimated worklets mutate SharedValue.value by design.
-      'react-hooks/immutability': 'off',
-      // React Compiler optimizer hints; existing manual memoization is intentional.
-      'react-hooks/preserve-manual-memoization': 'off',
     },
   },
   {

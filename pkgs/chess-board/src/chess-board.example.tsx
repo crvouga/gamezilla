@@ -385,7 +385,7 @@ export default function ChessBoardExample(): ReactNode {
         label={
           <Trans>
             Skia-rendered chess board with annotation primitives, inline
-            promotion, react-native-reanimated-dnd piece interaction, and theming.
+            promotion, RNGH piece interaction, and theming.
           </Trans>
         }
       />
