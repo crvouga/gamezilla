@@ -2,6 +2,7 @@ import { Canvas } from '@shopify/react-native-skia';
 import { memo, useMemo, type ReactNode } from 'react';
 import type { SharedValue } from 'react-native-reanimated';
 import { ChessBoardArrows } from './chess-board-arrows';
+import type { ChessBoardDragMotion } from './chess-board-drag-motion';
 import { ChessBoardFeedback } from './chess-board-feedback';
 import {
   ChessBoardCellHighlightsLayer,
@@ -11,7 +12,11 @@ import {
   ChessBoardLegalMovesLayer,
   ChessBoardSelectionLayer,
 } from './chess-board-highlights-layer';
-import { ChessBoardCaptureGhostLayer } from './chess-board-pieces-layer';
+import type { ChessPieceRow } from './chess-board-piece-identities';
+import {
+  ChessBoardCaptureGhostLayer,
+  ChessBoardPiecesLayer,
+} from './chess-board-pieces-layer';
 import {
   ChessBoardCoordinatesLayer,
   ChessBoardSquaresLayer,
@@ -38,6 +43,11 @@ export type ChessBoardCanvasContentProps = {
   cellFeedback: ChessBoardProps['cellFeedback'];
   pieceImages: PieceImageCache | null;
   pieceDraw: number;
+  pieceRows: readonly ChessPieceRow[];
+  dragFrom: Square | null;
+  drag: ChessBoardDragMotion;
+  snapKeys: ReadonlySet<number>;
+  onSnapConsumed: (pieceKey: number) => void;
   selected: Square | null;
   hoverSquareIndex: SharedValue<number>;
   game: ReturnType<typeof useChessGame>;
@@ -181,6 +191,12 @@ function ChessBoardCanvasContentImpl(
         position={position}
         turn={game.turn}
       />
+      <ChessBoardHoverLayer
+        hoverSquareIndex={props.hoverSquareIndex}
+        size={size}
+        orientation={props.orientation}
+        color={props.theme.selected}
+      />
       <ChessBoardCaptureGhostLayer
         ghost={captureGhost}
         pieceImages={props.pieceImages}
@@ -188,11 +204,16 @@ function ChessBoardCanvasContentImpl(
         orientation={props.orientation}
         pieceDraw={props.pieceDraw}
       />
-      <ChessBoardHoverLayer
-        hoverSquareIndex={props.hoverSquareIndex}
+      <ChessBoardPiecesLayer
+        pieceRows={props.pieceRows}
+        pieceImages={props.pieceImages}
         size={size}
         orientation={props.orientation}
-        color={props.theme.selected}
+        pieceDraw={props.pieceDraw}
+        dragFrom={props.dragFrom}
+        drag={props.drag}
+        snapKeys={props.snapKeys}
+        onSnapConsumed={props.onSnapConsumed}
       />
       <OverlayLayers
         arrows={props.mergedArrows}

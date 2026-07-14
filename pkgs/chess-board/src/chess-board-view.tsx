@@ -50,7 +50,7 @@ function inlinePromotion(p: PromotionInlineProps): ReactNode {
   );
 }
 
-/** Board surface: Skia chrome underlay + piece interaction overlay + promotion. */
+/** Board surface: Skia chrome + pieces underlay + thin gesture surface + promotion. */
 function ChessBoardViewImpl(p: ChessBoardViewProps): ReactNode {
   const { size } = p;
   const sqStyle = { width: size, height: size, overflow: 'visible' as const };

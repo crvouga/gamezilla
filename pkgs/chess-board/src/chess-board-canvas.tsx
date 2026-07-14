@@ -145,20 +145,11 @@ type ContentPropsArgs = {
   checkKingSquare: Square | null;
   mergedArrows: readonly BoardArrow[];
   pieceDraw: number;
-  hoverSquareIndex: ReturnType<
-    typeof useChessBoardInteraction
-  >['hoverSquareIndex'];
+  ix: ReturnType<typeof useChessBoardInteraction>;
 };
 
 function useContentProps(args: ContentPropsArgs): ChessBoardCanvasContentProps {
-  const {
-    props,
-    bundle,
-    checkKingSquare,
-    mergedArrows,
-    pieceDraw,
-    hoverSquareIndex,
-  } = args;
+  const { props, bundle, checkKingSquare, mergedArrows, pieceDraw, ix } = args;
   return useMemo(
     () => ({
       size: props.size,
@@ -170,8 +161,13 @@ function useContentProps(args: ContentPropsArgs): ChessBoardCanvasContentProps {
       cellFeedback: props.cellFeedback,
       pieceImages: bundle.pieceImages,
       pieceDraw,
+      pieceRows: bundle.pieceRows,
+      dragFrom: bundle.interaction.dragFrom,
+      drag: ix.drag,
+      snapKeys: ix.snapKeys,
+      onSnapConsumed: ix.onSnapConsumed,
       selected: bundle.interaction.selected,
-      hoverSquareIndex,
+      hoverSquareIndex: ix.hoverSquareIndex,
       game: bundle.game,
       legalTargets: bundle.legalTargets,
       checkKingSquare,
@@ -187,8 +183,13 @@ function useContentProps(args: ContentPropsArgs): ChessBoardCanvasContentProps {
       props.cellFeedback,
       bundle.pieceImages,
       pieceDraw,
+      bundle.pieceRows,
+      bundle.interaction.dragFrom,
+      ix.drag,
+      ix.snapKeys,
+      ix.onSnapConsumed,
       bundle.interaction.selected,
-      hoverSquareIndex,
+      ix.hoverSquareIndex,
       bundle.game,
       bundle.legalTargets,
       checkKingSquare,
@@ -200,13 +201,10 @@ function useContentProps(args: ContentPropsArgs): ChessBoardCanvasContentProps {
 function useInteractionLayerProps(
   props: ChessBoardCanvasProps,
   bundle: GameStateBundle,
-  handlers: ReturnType<typeof useChessBoardHandlers>,
-  pieceDraw: number
+  handlers: ReturnType<typeof useChessBoardHandlers>
 ): {
   interactionProps: ChessBoardInteractionLayerProps;
-  hoverSquareIndex: ReturnType<
-    typeof useChessBoardInteraction
-  >['hoverSquareIndex'];
+  ix: ReturnType<typeof useChessBoardInteraction>;
 } {
   const ix = useChessBoardInteraction({
     interactive: props.interactive,
@@ -219,17 +217,17 @@ function useInteractionLayerProps(
     tryApplyDrop: handlers.tryApplyDrop,
   });
   return {
-    hoverSquareIndex: ix.hoverSquareIndex,
+    ix,
     interactionProps: {
       size: props.size,
       orientation: props.orientation,
-      pieceDraw,
-      pieceRows: ix.pieceRows,
       hoverSquareIndex: ix.hoverSquareIndex,
-      canDragFrom: ix.canDragFrom,
+      drag: ix.drag,
+      dragKeyTable: ix.dragKeyTable,
       onDragStart: ix.onDragStart,
       onPanEnd: ix.onPanEnd,
       onSquareTap: ix.onSquareTap,
+      onDragCancel: ix.onDragCancel,
     },
   };
 }
@@ -252,11 +250,10 @@ function ChessBoardCanvasImpl(props: ChessBoardCanvasProps): ReactNode {
   const userArrows = useUserArrowsForBoard(props);
   const mergedArrows = useMergedArrows(props.arrows, userArrows.arrows);
   const pieceDraw = (props.size / 8) * PIECE_DRAW_SCALE;
-  const { interactionProps, hoverSquareIndex } = useInteractionLayerProps(
+  const { interactionProps, ix } = useInteractionLayerProps(
     props,
     bundle,
-    handlers,
-    pieceDraw
+    handlers
   );
   const contentProps = useContentProps({
     props,
@@ -264,7 +261,7 @@ function ChessBoardCanvasImpl(props: ChessBoardCanvasProps): ReactNode {
     checkKingSquare,
     mergedArrows,
     pieceDraw,
-    hoverSquareIndex,
+    ix,
   });
   return (
     <ChessBoardView
