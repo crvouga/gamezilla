@@ -125,7 +125,11 @@ function fetchDatabaseUrl(env: TargetEnv): string {
       scope.domain,
       '--plain',
     ],
-    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }
+    {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: { ...process.env, INFISICAL_DISABLE_MIGRATION_NOTICE: '1' },
+    }
   );
 
   if (result.error !== undefined) {

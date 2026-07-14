@@ -88,13 +88,22 @@ function infisicalBaseArgs(coords: SecretsCoords): string[] {
   ];
 }
 
+/** Quiet Cloudsmith migration banner (Homebrew installs are unaffected). */
+function infisicalEnv(): NodeJS.ProcessEnv {
+  return { ...process.env, INFISICAL_DISABLE_MIGRATION_NOTICE: '1' };
+}
+
+function runInfisical(args: string[]): string {
+  return runCapture('infisical', args, { env: infisicalEnv() });
+}
+
 export function getSecretMap(): ReadonlyArray<SecretEntry> {
   return SECRET_MAP;
 }
 
 export function fetchSecret(name: string): string {
   const coords = resolveSecretsCoords();
-  return runCapture('infisical', [
+  return runInfisical([
     'secrets',
     'get',
     name,
@@ -114,7 +123,7 @@ export function secretExists(name: string): boolean {
 
 export function setSecret(name: string, value: string): void {
   const coords = resolveSecretsCoords();
-  runCapture('infisical', [
+  runInfisical([
     'secrets',
     'set',
     `${name}=${value}`,
@@ -124,7 +133,7 @@ export function setSecret(name: string, value: string): void {
 
 export function deleteSecret(name: string): void {
   const coords = resolveSecretsCoords();
-  runCapture('infisical', [
+  runInfisical([
     'secrets',
     'delete',
     name,
@@ -136,7 +145,7 @@ export function deleteSecret(name: string): void {
 
 export function deleteSecretIn(env: string, name: string): void {
   const coords = resolveSecretsCoords(env);
-  runCapture('infisical', [
+  runInfisical([
     'secrets',
     'delete',
     name,
@@ -148,7 +157,7 @@ export function deleteSecretIn(env: string, name: string): void {
 
 export function fetchSecretFrom(env: string, name: string): string {
   const coords = resolveSecretsCoords(env);
-  return runCapture('infisical', [
+  return runInfisical([
     'secrets',
     'get',
     name,
@@ -159,7 +168,7 @@ export function fetchSecretFrom(env: string, name: string): string {
 
 export function setSecretIn(env: string, name: string, value: string): void {
   const coords = resolveSecretsCoords(env);
-  runCapture('infisical', [
+  runInfisical([
     'secrets',
     'set',
     `${name}=${value}`,
@@ -169,7 +178,7 @@ export function setSecretIn(env: string, name: string, value: string): void {
 
 export function listSecretNames(envOverride?: string): ReadonlyArray<string> {
   const coords = resolveSecretsCoords(envOverride);
-  const raw = runCapture('infisical', [
+  const raw = runInfisical([
     'export',
     ...infisicalBaseArgs(coords),
     '--format=json',

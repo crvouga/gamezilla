@@ -49,6 +49,8 @@ function runWithInfisicalCli(
   delete childEnv.CURSOR_AGENT;
   delete childEnv.CURSOR_TRACE_ID;
   stripVercelTurboRemoteCacheEnv(childEnv);
+  // Homebrew/macOS installs are unaffected; silent Cloudsmith migration banner.
+  childEnv.INFISICAL_DISABLE_MIGRATION_NOTICE = '1';
 
   const result = spawnSync(
     'infisical',
