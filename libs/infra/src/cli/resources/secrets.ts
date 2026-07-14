@@ -1,6 +1,8 @@
 import { assert } from '@pkgs/assert';
+import { resolveInfisicalAccessTokenForWrites } from '@pkgs/secret-store';
 import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
+import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import {
   fetchSecret,
@@ -66,11 +68,39 @@ export class SecretsResource extends ResourceBase {
   readonly id = 'secrets';
 
   async provision(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
+    await this.ensureInfisicalCliWriteToken(platform);
     this.loadSecrets(platform);
     await this.validateSecrets(platform);
     this.ensureDefaults();
     this.mirrorSharedToDev(platform);
     this.warnOnOrphans(platform);
+  }
+
+  /**
+   * Infisical/secrets-action injects secret *values* into the job env but
+   * does not authenticate the Infisical CLI. Writes (`secrets set`, including
+   * prd→dev mirroring) need `INFISICAL_TOKEN` — resolve one via GitHub OIDC
+   * when missing so CI does not fall into an interactive login flow.
+   */
+  private async ensureInfisicalCliWriteToken(
+    platform: CiPlatform
+  ): Promise<void> {
+    const existing = (process.env['INFISICAL_TOKEN'] ?? '').trim();
+    if (existing.length > 0) return;
+
+    const token = await resolveInfisicalAccessTokenForWrites({
+      repoRoot: REPO_ROOT,
+    });
+    if (token === null) {
+      if (process.env['GITHUB_ACTIONS'] === 'true') {
+        platform.warning(
+          'No Infisical write token (OIDC) — secret store writes and prd→dev mirrors may fail'
+        );
+      }
+      return;
+    }
+    process.env['INFISICAL_TOKEN'] = token;
+    ok('Infisical CLI', 'write token ready (OIDC)');
   }
 
   async destroy(): Promise<void> {

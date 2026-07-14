@@ -1,5 +1,6 @@
 import { buildDistributedLock } from '../lib/build-distributed-lock';
 import { banner, fail, ok, warn } from '../lib/fmt';
+import { decodeGithubJobOutputValue } from '../lib/github-job-output-codec';
 import type { CiPlatform } from '../platform/platform';
 import type { Command } from './types';
 
@@ -25,7 +26,9 @@ export class LockReleaseCommand implements Command {
   async execute(): Promise<void> {
     banner('Lock release');
 
-    const lockId = (process.env['INFRA_LOCK_ID'] ?? '').trim();
+    const lockId = decodeGithubJobOutputValue(
+      process.env['INFRA_LOCK_ID'] ?? ''
+    );
     if (lockId === '') {
       warn(
         'Global lock',

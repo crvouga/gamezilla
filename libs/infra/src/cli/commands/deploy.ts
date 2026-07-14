@@ -73,7 +73,8 @@ export class DeployCommand implements Command {
       ok('api_url', outputs.api_url);
 
       p.setOutput('client_url', outputs.client_url);
-      p.setOutput('api_url', outputs.api_url);
+      // Do not emit api_url: Infisical masks API_URL, and GHA drops job
+      // outputs that contain masked secrets. Report derives it from domain.
       p.setOutput('cloudflare_nameservers', outputs.cloudflare_nameservers);
     });
   }

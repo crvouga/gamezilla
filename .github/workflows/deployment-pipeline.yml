@@ -379,7 +379,7 @@ jobs:
     outputs:
       lock_id: ${{ steps.deploy.outputs.lock_id }}
       client_url: ${{ steps.deploy.outputs.client_url }}
-      api_url: ${{ steps.deploy.outputs.api_url }}
+      # api_url is derived in the report (Infisical masks API_URL → GHA drops it)
       cloudflare_nameservers: ${{ steps.deploy.outputs.cloudflare_nameservers }}
       zone_id: ${{ steps.deploy.outputs.zone_id }}
     permissions:

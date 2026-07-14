@@ -1,6 +1,7 @@
 import { appendFileSync, readFileSync } from 'node:fs';
 import { buildLlmFixPromptMarkdown } from './build-llm-fix-prompt';
 import { buildVendorDashboardMarkdown } from './dashboard-links';
+import { productionApiOrigin } from './infra-outputs';
 import type { NeedState } from './pipeline-needs';
 
 /** Stable display order for known jobs; unknown ids sort after, alphabetically. */
@@ -190,6 +191,13 @@ export function buildPipelineReportMarkdown(
   lines.push('');
 
   const deployOutputs = collectDeployOutputs(needs);
+  if (
+    deployOutputs['api_url'] === undefined &&
+    Object.keys(deployOutputs).length > 0
+  ) {
+    // Deploy no longer emits api_url (Infisical masks API_URL → GHA drops it).
+    deployOutputs['api_url'] = productionApiOrigin();
+  }
   if (Object.keys(deployOutputs).length > 0) {
     lines.push('### Deploy outputs');
     lines.push('');

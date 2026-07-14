@@ -1,6 +1,7 @@
 import { LockHeldError } from '@pkgs/distributed-lock/interface';
 import { buildDistributedLock } from '../lib/build-distributed-lock';
 import { banner, fail, fmtMs, info, kv, ok } from '../lib/fmt';
+import { encodeGithubJobOutputValue } from '../lib/github-job-output-codec';
 import type { CiPlatform } from '../platform/platform';
 import type { Command } from './types';
 
@@ -40,7 +41,10 @@ export class LockAcquireCommand implements Command {
     try {
       const handle = await lock.acquire('deploy');
       ok('Global lock', `acquired (id ${handle.id})`);
-      this.platform.setOutput('lock_id', handle.id);
+      this.platform.setOutput(
+        'lock_id',
+        encodeGithubJobOutputValue(handle.id)
+      );
     } catch (e) {
       if (e instanceof LockHeldError) {
         printLockHeld(e);

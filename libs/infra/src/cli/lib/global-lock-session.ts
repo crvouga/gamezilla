@@ -2,6 +2,7 @@ import type { LockHandle } from '@pkgs/distributed-lock/interface';
 import { LockHeldError } from '@pkgs/distributed-lock/interface';
 import { buildDistributedLock } from './build-distributed-lock';
 import { fail, fmtMs, info, kv, ok, warn } from './fmt';
+import { encodeGithubJobOutputValue } from './github-job-output-codec';
 import { registerLockDbSessionHooks } from './lock-db-session';
 import type { CiPlatform } from '../platform/platform';
 
@@ -135,7 +136,9 @@ export async function runWithGlobalLock<T>(
       throw e;
     }
 
-    platform.setOutput('lock_id', handle.id);
+    // Hex-encode so Infisical-masked secret substrings (e.g. CF account id
+    // hex overlapping a UUID) do not cause GHA to drop the job output.
+    platform.setOutput('lock_id', encodeGithubJobOutputValue(handle.id));
 
     return await fn();
   } finally {
