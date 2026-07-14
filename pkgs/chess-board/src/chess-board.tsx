@@ -129,7 +129,6 @@ function useChessBoardCanvasProps(
     cellFeedback,
     cellHighlights,
     arrows,
-    dragOverlayPortal = true,
     enableUserArrows = false,
     onUserArrowsChange,
   } = props;
@@ -150,7 +149,6 @@ function useChessBoardCanvasProps(
       showCoordinates,
       highlightLastMove,
       highlightLegalMoves,
-      dragOverlayPortal,
       enableUserArrows,
       theme,
     }),
@@ -168,7 +166,6 @@ function useChessBoardCanvasProps(
       cellFeedback,
       cellHighlights,
       arrows,
-      dragOverlayPortal,
       enableUserArrows,
       onUserArrowsChange,
       theme,

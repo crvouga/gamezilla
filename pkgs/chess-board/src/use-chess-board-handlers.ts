@@ -21,53 +21,32 @@ export type ChessBoardHandlersArgs = {
 
 export type ChessBoardHandlers = {
   setSelected: (sq: Square | null) => void;
-  /** Batched pickup: sets dragFrom + selected before isDragging flips on UI thread. */
-  onPanPickupStart: (from: Square) => void;
-  onDrop: (from: Square, to: Square) => void;
-  /**
-   * Atomic finger-up handler. The gesture worklet packs the start /
-   * destination squares into a single object and hops to JS once;
-   * `commitDrop` applies the drop FIRST (so the move lands and the piece
-   * lives at the destination after the next render) and then clears the
-   * transient interaction state in the same JS task. React 18 batches
-   * the resulting setState calls into a single commit, which means the
-   * piece never appears on its source square between "finger-up" and
-   * "drop applied" — the visible "snap-back, then slide" flash on mobile
-   * web is gone.
-   */
-  commitDrop: (p: { startSq: Square | null; toSq: Square | null }) => void;
+  setDragFrom: (sq: Square | null) => void;
+  /** Apply drop; true when ply applied or promotion opened. */
+  tryApplyDrop: (from: Square, to: Square) => boolean;
   onPromotionPick: (p: NonNullable<Move['promotion']>) => void;
   onPromotionCancel: () => void;
 };
 
-type InteractionHandlers = Pick<
-  ChessBoardHandlers,
-  'setSelected' | 'onPanPickupStart'
->;
-
-function useInteractionHandlers(
+function useSelectionHandlers(
   interaction: ChessBoardInteractionState
-): InteractionHandlers {
+): Pick<ChessBoardHandlers, 'setSelected' | 'setDragFrom'> {
   const setSelected = useStableHandler((sq: Square | null) => {
     interaction.setSelected(sq);
   });
-  const onPanPickupStart = useStableHandler((from: Square) => {
-    interaction.setDragFrom(from);
-    interaction.setSelected(from);
+  const setDragFrom = useStableHandler((sq: Square | null) => {
+    interaction.setDragFrom(sq);
   });
-  return {
-    setSelected,
-    onPanPickupStart,
-  };
+  return { setSelected, setDragFrom };
 }
 
-type DropHandlers = Pick<ChessBoardHandlers, 'onDrop' | 'commitDrop'>;
-
-function useDropHandlers(args: ChessBoardHandlersArgs): DropHandlers {
+function useDropApply(args: ChessBoardHandlersArgs): {
+  tryApplyDrop: (from: Square, to: Square) => boolean;
+} {
   const { interaction, game, rulesFen, sounds, applySuccessfulMove, onMove } =
     args;
-  const dispatchDrop = useStableHandler((fromSq: Square, toSq: Square) => {
-    handleDropAttempt({
+  const tryApplyDrop = useStableHandler((fromSq: Square, toSq: Square) => {
+    return handleDropAttempt({
       fromSq,
       toSq,
       rulesFen,
@@ -80,30 +59,13 @@ function useDropHandlers(args: ChessBoardHandlersArgs): DropHandlers {
       setPendingPromotion: interaction.setPendingPromotion,
     });
   });
-  const commitDrop = useStableHandler(
-    (p: { startSq: Square | null; toSq: Square | null }) => {
-      const { startSq, toSq } = p;
-      // Apply the move FIRST. `tryMove` mutates `lastMove` + `fen` via
-      // setState, and React 18 batches both with the cleanup setStates
-      // below into a single commit — so by the time the next render
-      // runs, the piece already lives at `toSq` and clearing `dragFrom`
-      // never reveals the original source square.
-      if (startSq !== null && toSq !== null && startSq !== toSq) {
-        dispatchDrop(startSq, toSq);
-      }
-      interaction.setDragFrom(null);
-      interaction.setSelected(null);
-    }
-  );
-  return { onDrop: dispatchDrop, commitDrop };
+  return { tryApplyDrop };
 }
 
-type PromotionHandlers = Pick<
+function usePromotionHandlers(args: ChessBoardHandlersArgs): Pick<
   ChessBoardHandlers,
   'onPromotionPick' | 'onPromotionCancel'
->;
-
-function usePromotionHandlers(args: ChessBoardHandlersArgs): PromotionHandlers {
+> {
   const { interaction, game, rulesFen, sounds, applySuccessfulMove, onMove } =
     args;
   const onPromotionPick = useStableHandler(
@@ -129,17 +91,12 @@ function usePromotionHandlers(args: ChessBoardHandlersArgs): PromotionHandlers {
   return { onPromotionPick, onPromotionCancel };
 }
 
-/**
- * Stable callbacks for every gesture / promotion handler the canvas needs.
- * Each returned function keeps a fixed identity across renders so consumers
- * (gesture recognizer, promotion overlay) don't recreate their memos every
- * time the parent re-renders.
- */
+/** Stable callbacks for board DnD / promotion handlers. */
 export function useChessBoardHandlers(
   args: ChessBoardHandlersArgs
 ): ChessBoardHandlers {
-  const interaction = useInteractionHandlers(args.interaction);
-  const drop = useDropHandlers(args);
+  const selection = useSelectionHandlers(args.interaction);
+  const drop = useDropApply(args);
   const promotion = usePromotionHandlers(args);
-  return { ...interaction, ...drop, ...promotion };
+  return { ...selection, ...drop, ...promotion };
 }

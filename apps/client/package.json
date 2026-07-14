@@ -93,6 +93,7 @@
     "expo": "catalog:",
     "expo-audio": "catalog:",
     "expo-constants": "catalog:",
+    "expo-crypto": "catalog:",
     "expo-dev-client": "catalog:",
     "expo-font": "catalog:",
     "expo-image": "catalog:",

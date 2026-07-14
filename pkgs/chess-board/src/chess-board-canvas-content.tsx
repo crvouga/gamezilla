@@ -1,7 +1,6 @@
-import { Canvas, type SkImage } from '@shopify/react-native-skia';
+import { Canvas } from '@shopify/react-native-skia';
 import { memo, useMemo, type ReactNode } from 'react';
 import type { SharedValue } from 'react-native-reanimated';
-import { indexFromSquare } from './chess-board-geometry';
 import { ChessBoardArrows } from './chess-board-arrows';
 import { ChessBoardFeedback } from './chess-board-feedback';
 import {
@@ -12,15 +11,7 @@ import {
   ChessBoardLegalMovesLayer,
   ChessBoardSelectionLayer,
 } from './chess-board-highlights-layer';
-import {
-  useChessPieceRows,
-  type ChessPieceRow,
-} from './chess-board-piece-identities';
-import { ChessBoardDragPieceSkia } from './chess-board-piece';
-import {
-  ChessBoardCaptureGhostLayer,
-  ChessBoardPiecesLayer,
-} from './chess-board-pieces-layer';
+import { ChessBoardCaptureGhostLayer } from './chess-board-pieces-layer';
 import {
   ChessBoardCoordinatesLayer,
   ChessBoardSquaresLayer,
@@ -34,7 +25,6 @@ import type {
   Square,
 } from './chess-board-types';
 import type { PieceImageCache } from './chess-pieces-cache';
-import { pieceCode } from './chess-pieces-svg';
 import { useChessBoardCaptureGhost } from './use-chess-board-capture-ghost';
 import type { useChessGame } from './use-chess-game';
 
@@ -49,20 +39,11 @@ export type ChessBoardCanvasContentProps = {
   pieceImages: PieceImageCache | null;
   pieceDraw: number;
   selected: Square | null;
-  dragFrom: Square | null;
   hoverSquareIndex: SharedValue<number>;
   game: ReturnType<typeof useChessGame>;
   legalTargets: readonly Square[];
   checkKingSquare: Square | null;
   mergedArrows: readonly BoardArrow[];
-  /** Inline drag layer (when portal overlay is off). */
-  inlineDrag?: {
-    dragX: SharedValue<number>;
-    dragY: SharedValue<number>;
-    isDragging: SharedValue<boolean>;
-    dragPickupScale: SharedValue<number>;
-    dragPickupOpacity: SharedValue<number>;
-  } | null;
 };
 
 type StaticLayersProps = {
@@ -145,38 +126,6 @@ function MarkerLayers(p: MarkerLayersProps): ReactNode {
   );
 }
 
-type PieceLayersProps = {
-  ghost: ReturnType<typeof useChessBoardCaptureGhost>['captureGhost'];
-  pieceRows: readonly ChessPieceRow[];
-  dragFrom: Square | null;
-  pieceImages: PieceImageCache | null;
-  size: number;
-  orientation: BoardOrientation;
-  pieceDraw: number;
-};
-
-function PieceLayers(p: PieceLayersProps): ReactNode {
-  return (
-    <>
-      <ChessBoardCaptureGhostLayer
-        ghost={p.ghost}
-        pieceImages={p.pieceImages}
-        size={p.size}
-        orientation={p.orientation}
-        pieceDraw={p.pieceDraw}
-      />
-      <ChessBoardPiecesLayer
-        pieceRows={p.pieceRows}
-        dragFrom={p.dragFrom}
-        pieceImages={p.pieceImages}
-        size={p.size}
-        orientation={p.orientation}
-        pieceDraw={p.pieceDraw}
-      />
-    </>
-  );
-}
-
 type OverlayLayersProps = {
   arrows: readonly BoardArrow[];
   cellFeedback: ChessBoardProps['cellFeedback'];
@@ -184,51 +133,6 @@ type OverlayLayersProps = {
   orientation: BoardOrientation;
   theme: BoardTheme;
 };
-
-function useInlineDragImage(args: {
-  dragFrom: Square | null;
-  position: ReturnType<typeof useChessGame>['position'];
-  pieceImages: PieceImageCache | null;
-}): SkImage | null {
-  const { dragFrom, position, pieceImages } = args;
-  return useMemo(() => {
-    if (pieceImages === null) return null;
-    if (dragFrom !== null) {
-      const piece = position[indexFromSquare(dragFrom)] ?? null;
-      if (piece) {
-        const code = pieceCode(piece.color, piece.type);
-        if (code !== null) return pieceImages[code];
-      }
-    }
-    return pieceImages.wp;
-  }, [dragFrom, position, pieceImages]);
-}
-
-function InlineDragLayer(p: {
-  inlineDrag: NonNullable<ChessBoardCanvasContentProps['inlineDrag']>;
-  dragFrom: Square | null;
-  position: ReturnType<typeof useChessGame>['position'];
-  pieceImages: PieceImageCache | null;
-  pieceDraw: number;
-}): ReactNode {
-  const image = useInlineDragImage({
-    dragFrom: p.dragFrom,
-    position: p.position,
-    pieceImages: p.pieceImages,
-  });
-  if (image === null) return null;
-  return (
-    <ChessBoardDragPieceSkia
-      image={image}
-      pieceSize={p.pieceDraw}
-      dragX={p.inlineDrag.dragX}
-      dragY={p.inlineDrag.dragY}
-      isDragging={p.inlineDrag.isDragging}
-      pickupScale={p.inlineDrag.dragPickupScale}
-      pickupOpacity={p.inlineDrag.dragPickupOpacity}
-    />
-  );
-}
 
 function OverlayLayers(p: OverlayLayersProps): ReactNode {
   return (
@@ -254,7 +158,6 @@ function ChessBoardCanvasContentImpl(
 ): ReactNode {
   const { size, game } = props;
   const { position, lastMove } = game;
-  const { active: pieceRows } = useChessPieceRows(position, lastMove);
   const { captureGhost } = useChessBoardCaptureGhost(position, lastMove);
   const canvasStyle = useMemo(() => ({ width: size, height: size }), [size]);
   return (
@@ -278,32 +181,19 @@ function ChessBoardCanvasContentImpl(
         position={position}
         turn={game.turn}
       />
-      <PieceLayers
+      <ChessBoardCaptureGhostLayer
         ghost={captureGhost}
-        pieceRows={pieceRows}
-        dragFrom={props.dragFrom}
         pieceImages={props.pieceImages}
         size={size}
         orientation={props.orientation}
         pieceDraw={props.pieceDraw}
       />
-      {/* Hover after pieces so the always-on Reanimated rect cannot paint
-          under/over the piece layer incorrectly during drag. */}
       <ChessBoardHoverLayer
         hoverSquareIndex={props.hoverSquareIndex}
         size={size}
         orientation={props.orientation}
         color={props.theme.selected}
       />
-      {props.inlineDrag !== undefined && props.inlineDrag !== null ? (
-        <InlineDragLayer
-          inlineDrag={props.inlineDrag}
-          dragFrom={props.dragFrom}
-          position={position}
-          pieceImages={props.pieceImages}
-          pieceDraw={props.pieceDraw}
-        />
-      ) : null}
       <OverlayLayers
         arrows={props.mergedArrows}
         cellFeedback={props.cellFeedback}

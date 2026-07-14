@@ -3,11 +3,6 @@ import {
   Button,
   Card,
   Divider,
-  ModalBackdrop,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  ModalRoot,
   SegmentedControl,
   Stack,
   Switch,
@@ -255,68 +250,6 @@ function PromotionSection(): ReactNode {
   );
 }
 
-function DragOverlaySection(): ReactNode {
-  const [showModal, setShowModal] = useState(false);
-  const [usePortal, setUsePortal] = useState(true);
-  const { t } = useLingui();
-
-  return (
-    <ExampleSection
-      title={<Trans>Drag overlay</Trans>}
-      description={
-        <Trans>
-          Open a modal, then drag a piece — the dragged piece must stay above
-          the modal when the overlay portal is enabled.
-        </Trans>
-      }
-    >
-      <Stack spacing={3}>
-        <Switch
-          label={t`Render dragged piece in app overlay portal`}
-          value={usePortal}
-          onValueChange={setUsePortal}
-        />
-        <Button
-          title={<Trans>Open a modal above the board</Trans>}
-          onPress={() => setShowModal(true)}
-        />
-        <ChessBoard
-          dragOverlayPortal={usePortal}
-          showCoordinates
-          highlightLegalMoves
-        />
-      </Stack>
-
-      <ModalRoot visible={showModal} onRequestClose={() => setShowModal(false)}>
-        <ModalBackdrop onPress={() => setShowModal(false)}>
-          <ModalContent size="medium">
-            <ModalHeader title={t`Modal above the board`} />
-            <ModalBody>
-              <Box sx={{ gap: 3 }}>
-                <Text
-                  variant="body"
-                  label={
-                    <Trans>
-                      Try dragging a piece on the board with this modal open.
-                      With the overlay portal enabled, the dragged piece floats
-                      above this modal.
-                    </Trans>
-                  }
-                />
-                <Button
-                  intent="neutral"
-                  title={<Trans>Close</Trans>}
-                  onPress={() => setShowModal(false)}
-                />
-              </Box>
-            </ModalBody>
-          </ModalContent>
-        </ModalBackdrop>
-      </ModalRoot>
-    </ExampleSection>
-  );
-}
-
 function UserArrowsSection(): ReactNode {
   const [enabled, setEnabled] = useState(true);
   const [arrows, setArrows] = useState<readonly BoardArrow[]>([]);
@@ -452,7 +385,7 @@ export default function ChessBoardExample(): ReactNode {
         label={
           <Trans>
             Skia-rendered chess board with annotation primitives, inline
-            promotion, an app-level drag overlay, and theming.
+            promotion, react-native-reanimated-dnd piece interaction, and theming.
           </Trans>
         }
       />
@@ -466,8 +399,6 @@ export default function ChessBoardExample(): ReactNode {
       <HighlightsSection />
       <Divider />
       <PromotionSection />
-      <Divider />
-      <DragOverlaySection />
       <Divider />
       <UserArrowsSection />
       <Divider />

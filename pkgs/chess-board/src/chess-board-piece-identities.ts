@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { indexFromSquare, squareFromIndex } from './chess-board-geometry';
 import type {
   Move,
@@ -382,44 +382,132 @@ function inferCastleChange(
   return null;
 }
 
+type PieceRowsCache = {
+  position: Position;
+  rows: ChessPieceRow[];
+};
+
+function nextRowsForPositionChange(
+  prev: Position,
+  position: Position,
+  active: readonly ChessPieceRow[],
+  lastMove: Move | null
+): ChessPieceRow[] {
+  if (!lastMove) {
+    const inferred = inferLastMoveFromPositionDiff(prev, position);
+    return inferred
+      ? buildNextRows(position, [...active], inferred)
+      : rematchRows(active, position);
+  }
+  return buildNextRows(position, [...active], lastMove);
+}
+
+function indexPrevRows(prevRows: readonly ChessPieceRow[]): {
+  bySquareCode: Map<string, ChessPieceRow>;
+  byCode: Map<PieceCode, ChessPieceRow[]>;
+} {
+  const bySquareCode = new Map<string, ChessPieceRow>();
+  const byCode = new Map<PieceCode, ChessPieceRow[]>();
+  for (const r of prevRows) {
+    bySquareCode.set(`${r.square}:${r.code}`, r);
+    const list = byCode.get(r.code) ?? [];
+    list.push(r);
+    byCode.set(r.code, list);
+  }
+  return { bySquareCode, byCode };
+}
+
+function claimSquareMatches(
+  position: Position,
+  bySquareCode: Map<string, ChessPieceRow>,
+  usedIds: Set<string>
+): {
+  matched: ChessPieceRow[];
+  unmatched: { square: Square; code: PieceCode }[];
+} {
+  const matched: ChessPieceRow[] = [];
+  const unmatched: { square: Square; code: PieceCode }[] = [];
+  for (let i = 0; i < 64; i++) {
+    const p = position[i];
+    if (!p) continue;
+    const code = pieceCode(p.color, p.type);
+    if (!code) continue;
+    const square = squareFromIndex(i);
+    const hit = bySquareCode.get(`${square}:${code}`);
+    if (hit && !usedIds.has(hit.id)) {
+      usedIds.add(hit.id);
+      matched.push({ id: hit.id, square, code });
+    } else {
+      unmatched.push({ square, code });
+    }
+  }
+  return { matched, unmatched };
+}
+
+function claimCodeFallback(
+  unmatched: readonly { square: Square; code: PieceCode }[],
+  byCode: Map<PieceCode, ChessPieceRow[]>,
+  usedIds: Set<string>
+): ChessPieceRow[] {
+  const out: ChessPieceRow[] = [];
+  for (const row of unmatched) {
+    const hit = byCode.get(row.code)?.find((r) => !usedIds.has(r.id));
+    if (hit) {
+      usedIds.add(hit.id);
+      out.push({ id: hit.id, square: row.square, code: row.code });
+    } else {
+      out.push({
+        id: allocPieceId(),
+        square: row.square,
+        code: row.code,
+        fadeIn: true,
+      });
+    }
+  }
+  return out;
+}
+
+/**
+ * Rematch piece ids across a non-ply position swap (puzzle reset / fen jump)
+ * so resting pieces keep React identity and can slide instead of remounting.
+ */
+export function rematchRows(
+  prevRows: readonly ChessPieceRow[],
+  position: Position
+): ChessPieceRow[] {
+  const { bySquareCode, byCode } = indexPrevRows(prevRows);
+  const usedIds = new Set<string>();
+  const { matched, unmatched } = claimSquareMatches(
+    position,
+    bySquareCode,
+    usedIds
+  );
+  return [...matched, ...claimCodeFallback(unmatched, byCode, usedIds)];
+}
+
+/**
+ * Stable piece ids keyed to board position. Computed synchronously so DnD
+ * overlay layout (`left`/`top`) updates in the same React commit as the move —
+ * lagging behind via `useEffect` left Draggables with stale origins while the
+ * library kept drop `tx`/`ty`, so pieces vanished from the landing square.
+ */
 export function useChessPieceRows(
   position: Position,
   lastMove: Move | null
 ): { active: ChessPieceRow[] } {
-  const [active, setActive] = useState<ChessPieceRow[]>(() =>
-    scanRows(position)
-  );
-  const prevPositionRef = useRef<Position | null>(null);
-  const activeRef = useRef(active);
-  activeRef.current = active;
-
-  useEffect(() => {
-    const prev = prevPositionRef.current;
-    if (prev === null) {
-      prevPositionRef.current = position;
-      return;
-    }
-
-    if (positionsEqual(prev, position)) {
-      prevPositionRef.current = position;
-      return;
-    }
-
-    if (!lastMove) {
-      const inferred = inferLastMoveFromPositionDiff(prev, position);
-      if (inferred) {
-        setActive(buildNextRows(position, activeRef.current, inferred));
-      } else {
-        setActive(scanRows(position));
-      }
-      prevPositionRef.current = position;
-      return;
-    }
-
-    const next = buildNextRows(position, activeRef.current, lastMove);
-    setActive(next);
-    prevPositionRef.current = position;
-  }, [position, lastMove]);
-
-  return { active };
+  const cacheRef = useRef<PieceRowsCache | null>(null);
+  if (cacheRef.current === null) {
+    cacheRef.current = { position, rows: scanRows(position) };
+  } else if (!positionsEqual(cacheRef.current.position, position)) {
+    cacheRef.current = {
+      position,
+      rows: nextRowsForPositionChange(
+        cacheRef.current.position,
+        position,
+        cacheRef.current.rows,
+        lastMove
+      ),
+    };
+  }
+  return { active: cacheRef.current.rows };
 }

@@ -6,7 +6,6 @@ import {
   type SkImage,
 } from '@shopify/react-native-skia';
 import { memo, useEffect, useRef, type ReactNode } from 'react';
-import type { SharedValue } from 'react-native-reanimated';
 import {
   Easing,
   runOnJS,
@@ -145,70 +144,3 @@ function ChessBoardPieceSkiaImpl(props: ChessBoardPieceSkiaProps): ReactNode {
 
 export const ChessBoardPieceSkia = memo(ChessBoardPieceSkiaImpl);
 
-export type ChessBoardDragPieceSkiaProps = {
-  image: SkImage;
-  pieceSize: number;
-  dragX: SharedValue<number>;
-  dragY: SharedValue<number>;
-  isDragging: SharedValue<boolean>;
-  pickupScale: SharedValue<number>;
-  pickupOpacity: SharedValue<number>;
-  /** Screen-space offset when the drag layer renders in an overlay portal. */
-  originX?: SharedValue<number>;
-  originY?: SharedValue<number>;
-};
-
-function ChessBoardDragPieceSkiaImpl(
-  props: ChessBoardDragPieceSkiaProps
-): ReactNode {
-  const {
-    image,
-    pieceSize,
-    dragX,
-    dragY,
-    isDragging,
-    pickupScale,
-    pickupOpacity,
-    originX,
-    originY,
-  } = props;
-
-  const transform = useDerivedValue(() => {
-    const cx = pieceSize / 2;
-    const cy = pieceSize / 2;
-    const ox = originX !== undefined ? originX.value : 0;
-    const oy = originY !== undefined ? originY.value : 0;
-    const topLeftX = ox + dragX.value - pieceSize / 2;
-    const topLeftY = oy + dragY.value - pieceSize / 2;
-    const s = pickupScale.value;
-    return [
-      { translateX: topLeftX + cx },
-      { translateY: topLeftY + cy },
-      { scale: s },
-      { translateX: -cx },
-      { translateY: -cy },
-    ];
-  });
-
-  const opacity = useDerivedValue(() =>
-    isDragging.value ? pickupOpacity.value : 0
-  );
-
-  return (
-    <Group transform={transform} opacity={opacity}>
-      <Image
-        image={image}
-        x={0}
-        y={0}
-        width={pieceSize}
-        height={pieceSize}
-        sampling={{
-          filter: FilterMode.Linear,
-          mipmap: MipmapMode.Linear,
-        }}
-      />
-    </Group>
-  );
-}
-
-export const ChessBoardDragPieceSkia = memo(ChessBoardDragPieceSkiaImpl);

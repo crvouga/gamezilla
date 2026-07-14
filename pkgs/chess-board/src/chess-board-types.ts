@@ -151,8 +151,6 @@ export type ChessBoardProps = {
   cellHighlights?: Partial<Record<Square, CellHighlight>>;
   /** Externally-driven arrows (engine hints, puzzle solution lines, etc.). */
   arrows?: readonly BoardArrow[];
-  /** Render the dragged piece in an app-level overlay portal so it sits above any z-index. Default true. */
-  dragOverlayPortal?: boolean;
   /** Right-click / two-finger draw arrows on board (lichess-style). Default false. */
   enableUserArrows?: boolean;
   /** Notified when user-drawn arrows change. */

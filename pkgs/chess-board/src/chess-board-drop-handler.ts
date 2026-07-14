@@ -51,8 +51,9 @@ export type DropAttemptArgs = {
   setPendingPromotion: (p: PendingPromotion | null) => void;
 };
 
-/** Routes a piece drop: promotion → open picker; otherwise apply + audio + haptic. */
-export function handleDropAttempt(args: DropAttemptArgs): void {
+/** Routes a piece drop: promotion → open picker; otherwise apply + audio + haptic.
+ * Returns true when the ply applied or a promotion picker was opened. */
+export function handleDropAttempt(args: DropAttemptArgs): boolean {
   const {
     fromSq,
     toSq,
@@ -72,7 +73,7 @@ export function handleDropAttempt(args: DropAttemptArgs): void {
   if (game.moveRequiresPromotion(fromSq, toSq)) {
     const moverColor = position[indexFromSquare(fromSq)]?.color ?? turn;
     setPendingPromotion({ from: fromSq, to: toSq, color: moverColor });
-    return;
+    return true;
   }
   const res = applyPlyForBoardUi(rulesFen, game.tryMove, {
     from: fromSq,
@@ -81,7 +82,7 @@ export function handleDropAttempt(args: DropAttemptArgs): void {
   if (!res.ok) {
     sounds.playIllegal();
     hapticError();
-    return;
+    return false;
   }
   hapticForMove(res.move, res.inCheck);
   applySuccessfulMove(res.move, {
@@ -89,6 +90,7 @@ export function handleDropAttempt(args: DropAttemptArgs): void {
     isGameOver: res.isGameOver,
   });
   onMove?.(res.move);
+  return true;
 }
 
 export type HandlePromotionPickArgs = {

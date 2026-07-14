@@ -1,6 +1,4 @@
 import { useMemo, useState } from 'react';
-import { useSharedValue, type SharedValue } from 'react-native-reanimated';
-import { HOVER_NONE } from './chess-board-geometry';
 import type { PieceColor, Square } from './chess-board-types';
 import { useStableHandler } from './use-stable-handler';
 
@@ -34,8 +32,6 @@ export function useChessBoardInteractionState(): ChessBoardInteractionState {
     setPendingPromotion(null);
   });
 
-  // Stable object identity across renders when values are unchanged — keeps
-  // downstream contentProps memo from thrashing on every parent render.
   return useMemo(
     () => ({
       selected,
@@ -48,32 +44,4 @@ export function useChessBoardInteractionState(): ChessBoardInteractionState {
     }),
     [selected, dragFrom, pendingPromotion, clearAll]
   );
-}
-
-export type ChessBoardDragSharedValues = {
-  dragX: SharedValue<number>;
-  dragY: SharedValue<number>;
-  isDragging: SharedValue<boolean>;
-  dragPickupScale: SharedValue<number>;
-  dragPickupOpacity: SharedValue<number>;
-  /** UI-thread hover square index (-1 = none). */
-  hoverSquareIndex: SharedValue<number>;
-};
-
-/** All UI-thread drag motion values for the chess board (compositor-friendly). */
-export function useChessBoardDragSharedValues(): ChessBoardDragSharedValues {
-  const dragX = useSharedValue(0);
-  const dragY = useSharedValue(0);
-  const isDragging = useSharedValue(false);
-  const dragPickupScale = useSharedValue(1);
-  const dragPickupOpacity = useSharedValue(1);
-  const hoverSquareIndex = useSharedValue(HOVER_NONE);
-  return {
-    dragX,
-    dragY,
-    isDragging,
-    dragPickupScale,
-    dragPickupOpacity,
-    hoverSquareIndex,
-  };
 }
