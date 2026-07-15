@@ -6,14 +6,7 @@ import {
   Text as SkiaText,
   type SkFont,
 } from '@shopify/react-native-skia';
-import { useEffect, useMemo, type ReactNode } from 'react';
-import {
-  Easing,
-  useDerivedValue,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
+import { useMemo, type ReactNode } from 'react';
 import { squareToXY } from './chess-board-geometry';
 import { createChessBoardSkiaFont } from './chess-board-skia-font';
 import type {
@@ -79,27 +72,6 @@ function strokeStyleForKind(kind: CellFeedbackKind): 'stroke' | 'fill' {
   )
     return 'stroke';
   return 'fill';
-}
-
-/**
- * Pulsing animated opacity multiplier for a feedback badge. Each rendered
- * badge owns one pulser at the top of render so we never call hooks
- * conditionally per cell.
- */
-function useFeedbackPulse(active: boolean) {
-  const t = useSharedValue(1);
-  useEffect(() => {
-    if (active) {
-      t.value = withRepeat(
-        withTiming(0.55, { duration: 700, easing: Easing.inOut(Easing.cubic) }),
-        -1,
-        true
-      );
-    } else {
-      t.value = withTiming(1, { duration: 200 });
-    }
-  }, [active, t]);
-  return useDerivedValue(() => t.value);
 }
 
 type SingleBadgeProps = {
@@ -191,9 +163,7 @@ function SingleBadge({
   const radius = Math.max(8, cellPx * 0.16);
   const ringWidth = Math.max(1.5, cellPx * 0.025);
   const color = fb.color ?? theme.feedback[fb.kind];
-  const baseOpacity = fb.opacity ?? 1;
-  const pulseT = useFeedbackPulse(fb.pulse === true);
-  const opacity = useDerivedValue(() => baseOpacity * pulseT.value);
+  const opacity = fb.opacity ?? 1;
 
   return (
     <Group opacity={opacity}>

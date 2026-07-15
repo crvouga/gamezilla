@@ -8,14 +8,8 @@ import {
   Rect,
   type SkImage,
 } from '@shopify/react-native-skia';
-import { useEffect, useMemo, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { View } from 'react-native';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 import { squareToXY } from './chess-board-geometry';
 import type {
   BoardOrientation,
@@ -202,14 +196,6 @@ export function ChessBoardPromotionInline(
   const cell = size / 8;
   const { x: destX, y: destY } = squareToXY(to, size, orientation);
 
-  const enter = useSharedValue(0);
-  useEffect(() => {
-    enter.value = withTiming(1, {
-      duration: 140,
-      easing: Easing.out(Easing.cubic),
-    });
-  }, [enter]);
-
   const stackTopY = useMemo(
     () => computeStackTopY(destY, cell, color, orientation),
     [cell, color, destY, orientation]
@@ -220,23 +206,16 @@ export function ChessBoardPromotionInline(
     [cell, color, orientation, stackTopY]
   );
 
-  const containerStyle = useAnimatedStyle(() => ({
-    opacity: enter.value,
-  }));
-
   return (
-    <Animated.View
+    <View
       pointerEvents="box-none"
-      style={[
-        {
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          width: size,
-          height: size,
-        },
-        containerStyle,
-      ]}
+      style={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        width: size,
+        height: size,
+      }}
     >
       <PromotionBackdrop size={size} theme={theme} onCancel={onCancel} />
       <PromotionStack
@@ -256,7 +235,7 @@ export function ChessBoardPromotionInline(
         theme={theme}
         onPress={onCancel}
       />
-    </Animated.View>
+    </View>
   );
 }
 

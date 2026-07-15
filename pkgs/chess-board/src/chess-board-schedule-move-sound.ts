@@ -18,7 +18,7 @@ export type DelayedSoundRegistrar = (
 
 /**
  * Schedules the primary move sound (move / capture / castle / promote).
- * Capture is optionally deferred to align with the piece slide animation.
+ * Capture delay is optional (0 when animations are off / instant snap).
  * Promo+capture never fire in the same tick.
  */
 export function schedulePrimaryMoveSound(

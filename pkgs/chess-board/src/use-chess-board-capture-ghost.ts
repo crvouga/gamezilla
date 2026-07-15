@@ -45,9 +45,15 @@ function buildCaptureGhostPayload(
   return { square: victimSq, code };
 }
 
+/**
+ * Holds the captured piece under the sliding attacker for MOVE_MS so the
+ * victim does not vanish before the mover arrives. Disabled when animations
+ * are off (instant snap — no slide to cover).
+ */
 export function useChessBoardCaptureGhost(
   position: Position,
-  lastMove: Move | null
+  lastMove: Move | null,
+  animations: boolean
 ): { captureGhost: { square: Square; code: PieceCode } | null } {
   const prevPositionRef = useRef<Position | null>(null);
   const [captureGhost, setCaptureGhost] = useState<{
@@ -79,6 +85,13 @@ export function useChessBoardCaptureGhost(
   }, []);
 
   useEffect(() => {
+    if (!animations) {
+      clearGhostTimer();
+      setCaptureGhost(null);
+      prevPositionRef.current = position;
+      return;
+    }
+
     const prev = prevPositionRef.current;
     if (prev === null) {
       prevPositionRef.current = position;
@@ -108,7 +121,7 @@ export function useChessBoardCaptureGhost(
       ghostTimerRef.current = null;
       setCaptureGhost(null);
     }, CHESS_PIECE_MOVE_MS);
-  }, [position, lastMove]);
+  }, [position, lastMove, animations]);
 
   return { captureGhost };
 }

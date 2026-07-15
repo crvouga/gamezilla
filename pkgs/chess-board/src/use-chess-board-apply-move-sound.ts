@@ -12,8 +12,12 @@ import type { Move } from './chess-board-types';
 /**
  * Applies move audio without stacking: clears all pending timers, plays one
  * primary sound, then optionally schedules check and game-end after gaps.
+ * Capture SFX is deferred to match the piece slide when animations are on.
  */
-export function useChessBoardApplyMoveSound(sounds: ChessBoardSounds) {
+export function useChessBoardApplyMoveSound(
+  sounds: ChessBoardSounds,
+  animations: boolean
+) {
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const clearAllTimers = useCallback(() => {
@@ -33,7 +37,8 @@ export function useChessBoardApplyMoveSound(sounds: ChessBoardSounds) {
   return useCallback(
     (move: Move, post: PostMoveAudio) => {
       clearAllTimers();
-      const captureDelayMs = move.captured ? CHESS_PIECE_MOVE_MS : 0;
+      const captureDelayMs =
+        animations && move.captured ? CHESS_PIECE_MOVE_MS : 0;
       const primaryOffsetMs = schedulePrimaryMoveSound(
         sounds,
         move,
@@ -60,6 +65,6 @@ export function useChessBoardApplyMoveSound(sounds: ChessBoardSounds) {
         );
       }
     },
-    [sounds, clearAllTimers, registerDelayed]
+    [sounds, clearAllTimers, registerDelayed, animations]
   );
 }

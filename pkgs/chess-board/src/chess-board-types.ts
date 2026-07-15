@@ -155,6 +155,12 @@ export type ChessBoardProps = {
   enableUserArrows?: boolean;
   /** Notified when user-drawn arrows change. */
   onUserArrowsChange?: (arrows: readonly BoardArrow[]) => void;
+  /**
+   * Piece slide between squares (plus capture ghost / capture SFX timing).
+   * Default true — the essential board animation. Set false to snap instantly
+   * when chasing performance on low-end devices.
+   */
+  animations?: boolean;
 };
 
 export type Position = readonly (Piece | null)[];

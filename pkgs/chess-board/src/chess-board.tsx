@@ -126,6 +126,7 @@ function useChessBoardCanvasProps(
     showCoordinates = true,
     highlightLastMove = true,
     highlightLegalMoves = true,
+    animations = true,
     cellFeedback,
     cellHighlights,
     arrows,
@@ -150,6 +151,7 @@ function useChessBoardCanvasProps(
       highlightLastMove,
       highlightLegalMoves,
       enableUserArrows,
+      animations,
       theme,
     }),
     [
@@ -163,6 +165,7 @@ function useChessBoardCanvasProps(
       showCoordinates,
       highlightLastMove,
       highlightLegalMoves,
+      animations,
       cellFeedback,
       cellHighlights,
       arrows,
@@ -239,17 +242,15 @@ function ChessBoardImpl(props: ChessBoardProps): ReactNode {
   assert.defined(ChessBoardCanvas, 'ChessBoardCanvas must be defined');
 
   // Gate the canvas until we have a real measured size. Skipping this
-  // mount-step is the single most important fix for the "pieces slide
-  // from top-left" mount animation: `ChessBoardPieceSkia` seeds its
+  // mount-step is the single most important fix for the "pieces jump
+  // from top-left" mount flash: `ChessBoardPieceSkia` seeds its
   // `useSharedValue` with `targetCenterX/Y - pieceSize/2`. If we render
   // it once with `size=0` those shared values lock onto `(0,0)`, and the
-  // next render's `useEffect` `withTiming` animates from `(0,0)` to the
-  // real target. By only mounting the canvas after `onLayout` has
-  // produced a non-zero width, the shared values are seeded at the
-  // correct target on the very first frame and the animation effect
-  // becomes a no-op (timing from x → x). Total cost: at most one extra
-  // frame on first mount (`<Box aspectRatio=1>` measures synchronously
-  // after first commit).
+  // next render snaps them to the real target. By only mounting the
+  // canvas after `onLayout` has produced a non-zero width, the shared
+  // values are seeded at the correct target on the very first frame.
+  // Total cost: at most one extra frame on first mount
+  // (`<Box aspectRatio=1>` measures synchronously after first commit).
   const canvasReady = boardSize > 0;
 
   return (

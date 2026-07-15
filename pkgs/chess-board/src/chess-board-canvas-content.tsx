@@ -55,6 +55,7 @@ export type ChessBoardCanvasContentProps = {
   legalTargets: readonly Square[];
   checkKingSquare: Square | null;
   mergedArrows: readonly BoardArrow[];
+  animations: boolean;
 };
 
 type StaticLayersProps = {
@@ -169,9 +170,13 @@ function OverlayLayers(p: OverlayLayersProps): ReactNode {
 function ChessBoardCanvasContentImpl(
   props: ChessBoardCanvasContentProps
 ): ReactNode {
-  const { size, game } = props;
+  const { size, game, animations } = props;
   const { position, lastMove } = game;
-  const { captureGhost } = useChessBoardCaptureGhost(position, lastMove);
+  const { captureGhost } = useChessBoardCaptureGhost(
+    position,
+    lastMove,
+    animations
+  );
   const canvasStyle = useMemo(() => ({ width: size, height: size }), [size]);
   return (
     <Canvas style={canvasStyle}>
@@ -218,6 +223,7 @@ function ChessBoardCanvasContentImpl(
         drag={props.drag}
         snapKeys={props.snapKeys}
         onSnapConsumed={props.onSnapConsumed}
+        animations={animations}
       />
       <OverlayLayers
         arrows={props.mergedArrows}

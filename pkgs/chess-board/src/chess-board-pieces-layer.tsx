@@ -15,7 +15,7 @@ type CaptureGhostLayerProps = {
   pieceDraw: number;
 };
 
-/** Captured piece held in place for one slide duration. */
+/** Captured piece held under the sliding attacker for MOVE_MS. */
 export const ChessBoardCaptureGhostLayer = memo(
   function ChessBoardCaptureGhostLayer(
     props: CaptureGhostLayerProps
@@ -52,6 +52,7 @@ export type ChessBoardPiecesLayerProps = {
   drag: ChessBoardDragMotion;
   snapKeys: ReadonlySet<number>;
   onSnapConsumed: (pieceKey: number) => void;
+  animations: boolean;
 };
 
 function orderRowsForDrag(
@@ -81,6 +82,7 @@ function ChessBoardPiecesLayerImpl(
     drag,
     snapKeys,
     onSnapConsumed,
+    animations,
   } = props;
   const ordered = useMemo(
     () => orderRowsForDrag(pieceRows, dragFrom),
@@ -105,11 +107,11 @@ function ChessBoardPiecesLayerImpl(
             pieceSize={pieceDraw}
             targetCenterX={cx}
             targetCenterY={cy}
-            fadeInOnMount={row.fadeIn === true}
             pieceKey={key}
             drag={drag}
             snapLayout={snapKeys.has(key)}
             onSnapConsumed={onSnapConsumed}
+            animations={animations}
           />
         );
       })}

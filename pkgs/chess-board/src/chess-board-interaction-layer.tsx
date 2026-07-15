@@ -4,13 +4,10 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
   runOnJS,
   useSharedValue,
-  withTiming,
   type SharedValue,
 } from 'react-native-reanimated';
 import {
   clearDragMotion,
-  DRAG_LIFT_MS,
-  DRAG_LIFT_SCALE,
   DRAG_PIECE_NONE,
   type ChessBoardDragMotion,
 } from './chess-board-drag-motion';
@@ -80,9 +77,6 @@ function beginDragAt(
   drag.fromIndex.value = hit.idx;
   drag.tx.value = x;
   drag.ty.value = y;
-  drag.scale.value = withTiming(DRAG_LIFT_SCALE, {
-    duration: DRAG_LIFT_MS,
-  });
   a.legalMarkersOpacity.value = 1;
   runOnJS(a.startDrag)(hit.from, hit.key);
   runOnJS(markChessPerf)('chess-drag-start-ui');

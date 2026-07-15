@@ -5,13 +5,6 @@ import { HOVER_NONE } from './chess-board-geometry';
 /** Sentinel: no piece is being dragged. */
 export const DRAG_PIECE_NONE = -1;
 
-/** Scale lift applied while a piece is dragged (~much larger than rest). */
-export const DRAG_LIFT_SCALE = 1.52;
-/** Opacity while dragging (restores to 1 when drag clears). */
-export const DRAG_LIFT_OPACITY = 0.8;
-/** Lift / fade animation duration for drag start. */
-export const DRAG_LIFT_MS = 100;
-
 export type ChessBoardDragMotion = {
   /** Hashed piece id currently dragging, or {@link DRAG_PIECE_NONE}. */
   pieceKey: SharedValue<number>;
@@ -27,7 +20,6 @@ export type ChessBoardDragMotion = {
    * while dragging; unused when {@link pieceKey} is {@link DRAG_PIECE_NONE}.
    */
   ty: SharedValue<number>;
-  scale: SharedValue<number>;
 };
 
 export function hashPieceId(id: string): number {
@@ -44,8 +36,7 @@ export function useChessBoardDragMotion(): ChessBoardDragMotion {
   const fromIndex = useSharedValue(HOVER_NONE);
   const tx = useSharedValue(0);
   const ty = useSharedValue(0);
-  const scale = useSharedValue(1);
-  return { pieceKey, fromIndex, tx, ty, scale };
+  return { pieceKey, fromIndex, tx, ty };
 }
 
 export function clearDragMotion(drag: ChessBoardDragMotion): void {
@@ -54,7 +45,6 @@ export function clearDragMotion(drag: ChessBoardDragMotion): void {
   drag.fromIndex.value = HOVER_NONE;
   drag.tx.value = 0;
   drag.ty.value = 0;
-  drag.scale.value = 1;
 }
 
 export function clearHover(hoverSquareIndex: SharedValue<number>): void {

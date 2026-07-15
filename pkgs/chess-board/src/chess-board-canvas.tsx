@@ -39,6 +39,7 @@ export type ChessBoardCanvasProps = Required<
     | 'highlightLastMove'
     | 'highlightLegalMoves'
     | 'enableUserArrows'
+    | 'animations'
   >
 > & {
   fen?: string;
@@ -91,7 +92,7 @@ type GameStateBundle = {
 };
 
 function useGameStateBundle(props: ChessBoardCanvasProps): GameStateBundle {
-  const { fen, controlled = false, highlightLegalMoves } = props;
+  const { fen, controlled = false, highlightLegalMoves, animations } = props;
   const rulesFen =
     controlled && fen !== undefined && fen.length > 0 ? fen : undefined;
   const game = useChessGame({ ...(fen ? { initialFen: fen } : {}) });
@@ -99,7 +100,7 @@ function useGameStateBundle(props: ChessBoardCanvasProps): GameStateBundle {
   const pieceCaches = usePieceCaches();
   const pieceImages = pieceCaches?.images ?? null;
   const sounds = useChessBoardSounds();
-  const applySuccessfulMove = useChessBoardApplyMoveSound(sounds);
+  const applySuccessfulMove = useChessBoardApplyMoveSound(sounds, animations);
   const { active: pieceRows } = useChessPieceRows(
     game.position,
     game.lastMove
@@ -173,6 +174,7 @@ function useContentProps(args: ContentPropsArgs): ChessBoardCanvasContentProps {
       legalTargets: bundle.legalTargets,
       checkKingSquare,
       mergedArrows,
+      animations: props.animations,
     }),
     [
       props.size,
@@ -182,6 +184,7 @@ function useContentProps(args: ContentPropsArgs): ChessBoardCanvasContentProps {
       props.highlightLastMove,
       props.cellHighlights,
       props.cellFeedback,
+      props.animations,
       bundle.pieceImages,
       pieceDraw,
       bundle.pieceRows,
