@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSharedValue, type SharedValue } from 'react-native-reanimated';
-import {
-  HOVER_NONE,
-  indexFromSquare,
-} from './chess-board-geometry';
+import { HOVER_NONE, indexFromSquare } from './chess-board-geometry';
 import {
   clearDragMotion,
   DRAG_PIECE_NONE,
@@ -12,9 +9,16 @@ import {
   useChessBoardDragMotion,
   type ChessBoardDragMotion,
 } from './chess-board-drag-motion';
+import type { DropOutcome } from './chess-board-drop-handler';
 import type { ChessPieceRow } from './chess-board-piece-identities';
 import { markChessPerf } from './chess-board-perf';
-import type { Position, Square } from './chess-board-types';
+import { runPanEnd, type PanEndDeps } from './chess-board-pan-end';
+import type {
+  BoardOrientation,
+  Position,
+  Square,
+} from './chess-board-types';
+import type { TryMoveOk } from './use-chess-game';
 import { useStableHandler } from './use-stable-handler';
 
 export type UseChessBoardInteractionArgs = {
@@ -26,10 +30,16 @@ export type UseChessBoardInteractionArgs = {
   setSelected: (sq: Square | null) => void;
   setDragFrom: (sq: Square | null) => void;
   tryApplyDrop: (from: Square, to: Square) => boolean;
+  applyDropRules: (from: Square, to: Square) => DropOutcome;
+  commitDropUi: (result: TryMoveOk) => void;
+  size: number;
+  orientation: BoardOrientation;
 };
 
 export type UseChessBoardInteractionResult = {
   hoverSquareIndex: SharedValue<number>;
+  /** 1 while showing legal dots; 0 hid on pointer-up before React clears. */
+  legalMarkersOpacity: SharedValue<number>;
   drag: ChessBoardDragMotion;
   /** Square-index → pieceKey for UI-thread pan hit-test (-1 = empty/blocked). */
   dragKeyTable: SharedValue<number[]>;
@@ -131,41 +141,11 @@ function useTapHandler(args: {
   });
 }
 
-function usePanEndHandler(args: {
-  setDragFrom: (sq: Square | null) => void;
-  setSelected: (sq: Square | null) => void;
-  tryApplyDrop: (from: Square, to: Square) => boolean;
-  clearHover: () => void;
-  markSnap: (pieceKey: number) => void;
-  clearDragVisual: () => void;
-}): (from: Square, to: Square | null, pieceKey: number) => boolean {
-  const {
-    setDragFrom,
-    setSelected,
-    tryApplyDrop,
-    clearHover,
-    markSnap,
-    clearDragVisual,
-  } = args;
-  return useStableHandler(
-    (from: Square, to: Square | null, pieceKey: number) => {
-      clearHover();
-      markChessPerf('chess-drop');
-      if (to === null || to === from) {
-        setDragFrom(null);
-        clearDragVisual();
-        return false;
-      }
-      const applied = tryApplyDrop(from, to);
-      setDragFrom(null);
-      setSelected(null);
-      if (applied) {
-        markSnap(pieceKey);
-        return true;
-      }
-      clearDragVisual();
-      return false;
-    }
+function usePanEndHandler(
+  deps: PanEndDeps
+): (from: Square, to: Square | null, pieceKey: number) => boolean {
+  return useStableHandler((from, to, pieceKey) =>
+    runPanEnd(deps, from, to, pieceKey)
   );
 }
 
@@ -190,34 +170,60 @@ function useDragKeyTable(
   return dragKeyTable;
 }
 
+function useDragLifecycle(args: {
+  setDragFrom: (sq: Square | null) => void;
+  setSelected: (sq: Square | null) => void;
+  clearDragVisual: () => void;
+  legalMarkersOpacity: SharedValue<number>;
+}): {
+  onDragStart: (from: Square, pieceKey: number) => void;
+  onDragCancel: () => void;
+} {
+  const { setDragFrom, setSelected, clearDragVisual, legalMarkersOpacity } =
+    args;
+  const onDragStart = useStableHandler((from: Square, _pieceKey: number) => {
+    markChessPerf('chess-drag-start');
+    legalMarkersOpacity.value = 1;
+    setDragFrom(from);
+    setSelected(from);
+  });
+  const onDragCancel = useStableHandler(() => {
+    legalMarkersOpacity.value = 0;
+    clearDragVisual();
+    setDragFrom(null);
+  });
+  return { onDragStart, onDragCancel };
+}
+
 /** Chess interaction: selection, SharedValue hover + board drag motion. */
 export function useChessBoardInteraction(
   args: UseChessBoardInteractionArgs
 ): UseChessBoardInteractionResult {
   const { hoverSquareIndex, clearHover } = useHoverRing();
+  const legalMarkersOpacity = useSharedValue(0);
   const drag = useChessBoardDragMotion();
   const dragKeyTable = useDragKeyTable(args);
   const { snapKeys, markSnap, onSnapConsumed } = useSnapKeys();
   const clearDragVisual = useCallback(() => {
     clearDragMotion(drag);
   }, [drag]);
-
-  const onDragStart = useStableHandler((from: Square, _pieceKey: number) => {
-    markChessPerf('chess-drag-start');
-    args.setDragFrom(from);
-    args.setSelected(from);
-  });
-  const onDragCancel = useStableHandler(() => {
-    clearDragVisual();
-    args.setDragFrom(null);
+  const { onDragStart, onDragCancel } = useDragLifecycle({
+    setDragFrom: args.setDragFrom,
+    setSelected: args.setSelected,
+    clearDragVisual,
+    legalMarkersOpacity,
   });
   const onPanEnd = usePanEndHandler({
     setDragFrom: args.setDragFrom,
     setSelected: args.setSelected,
-    tryApplyDrop: args.tryApplyDrop,
+    applyDropRules: args.applyDropRules,
+    commitDropUi: args.commitDropUi,
     clearHover,
     markSnap,
     clearDragVisual,
+    size: args.size,
+    orientation: args.orientation,
+    legalMarkersOpacity,
   });
   const onSquareTap = useTapHandler({
     interactive: args.interactive,
@@ -231,6 +237,7 @@ export function useChessBoardInteraction(
   return useMemo(
     () => ({
       hoverSquareIndex,
+      legalMarkersOpacity,
       drag,
       dragKeyTable,
       pieceRows: args.pieceRows,
@@ -243,6 +250,7 @@ export function useChessBoardInteraction(
     }),
     [
       hoverSquareIndex,
+      legalMarkersOpacity,
       drag,
       dragKeyTable,
       args.pieceRows,

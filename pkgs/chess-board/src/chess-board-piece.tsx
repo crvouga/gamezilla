@@ -20,6 +20,7 @@ import {
   DRAG_LIFT_SCALE,
   type ChessBoardDragMotion,
 } from './chess-board-drag-motion';
+import { registerPieceLayout } from './chess-board-piece-layout-registry';
 
 export const PIECE_DRAW_SCALE = 1.06;
 /** Piece slide duration; keep capture ghost + capture SFX aligned with this. */
@@ -35,6 +36,12 @@ const FADE_IN_MS = 160;
 const FADE_OUT_MS = 140;
 const MOVE_EASING = Easing.out(Easing.cubic);
 
+/** Stable sampling identity — avoids per-render object churn into CanvasKit. */
+const PIECE_SAMPLING = {
+  filter: FilterMode.Linear,
+  mipmap: MipmapMode.Linear,
+} as const;
+
 export type ChessBoardPieceSkiaProps = {
   image: SkImage;
   pieceSize: number;
@@ -49,7 +56,8 @@ export type ChessBoardPieceSkiaProps = {
   drag?: ChessBoardDragMotion;
   /** When true on next layout, seed position + clear board drag atomically. */
   snapLayout?: boolean;
-  onSnapConsumed?: () => void;
+  /** Stable board handler — must not be an inline lambda (breaks memo). */
+  onSnapConsumed?: (pieceKey: number) => void;
 };
 
 type LayoutArgs = {
@@ -61,8 +69,41 @@ type LayoutArgs = {
   snapLayout: boolean;
   drag: ChessBoardDragMotion | undefined;
   pieceKey: number | undefined;
-  onSnapConsumed: (() => void) | undefined;
+  onSnapConsumed: ((pieceKey: number) => void) | undefined;
 };
+
+function applySnapOrSeed(args: {
+  nextX: number;
+  nextY: number;
+  snapLayout: boolean;
+  drag: ChessBoardDragMotion | undefined;
+  pieceKey: number | undefined;
+  onSnapConsumed: ((pieceKey: number) => void) | undefined;
+  topLeftX: SharedValue<number>;
+  topLeftY: SharedValue<number>;
+}): void {
+  const {
+    nextX,
+    nextY,
+    snapLayout,
+    drag,
+    pieceKey,
+    onSnapConsumed,
+    topLeftX,
+    topLeftY,
+  } = args;
+  topLeftX.value = nextX;
+  topLeftY.value = nextY;
+  if (
+    snapLayout &&
+    drag &&
+    pieceKey !== undefined &&
+    drag.pieceKey.value === pieceKey
+  ) {
+    clearDragMotion(drag);
+  }
+  if (snapLayout && pieceKey !== undefined) onSnapConsumed?.(pieceKey);
+}
 
 function usePieceLayoutMotion(args: LayoutArgs): void {
   const {
@@ -84,19 +125,20 @@ function usePieceLayoutMotion(args: LayoutArgs): void {
     const isFirst = firstRef.current;
     firstRef.current = false;
     if (isFirst || snapLayout) {
-      topLeftX.value = nextX;
-      topLeftY.value = nextY;
-      if (
-        snapLayout &&
-        drag &&
-        pieceKey !== undefined &&
-        drag.pieceKey.value === pieceKey
-      ) {
-        clearDragMotion(drag);
-      }
-      if (snapLayout) onSnapConsumed?.();
+      applySnapOrSeed({
+        nextX,
+        nextY,
+        snapLayout,
+        drag,
+        pieceKey,
+        onSnapConsumed,
+        topLeftX,
+        topLeftY,
+      });
       return;
     }
+    // Already snapped via layout registry on drop — skip redundant withTiming.
+    if (topLeftX.value === nextX && topLeftY.value === nextY) return;
     topLeftX.value = withTiming(nextX, {
       duration: MOVE_MS,
       easing: MOVE_EASING,
@@ -252,6 +294,15 @@ function ChessBoardPieceSkiaImpl(props: ChessBoardPieceSkiaProps): ReactNode {
   const opacity = useSharedValue(fadeInOnMount ? 0 : 1);
   const scaleSV = useSharedValue(restScale);
 
+  useLayoutEffect(() => {
+    if (pieceKey === undefined) return;
+    return registerPieceLayout(pieceKey, {
+      topLeftX,
+      topLeftY,
+      pieceSize,
+    });
+  }, [pieceKey, pieceSize, topLeftX, topLeftY]);
+
   usePieceLayoutMotion({
     pieceSize,
     targetCenterX,
@@ -290,10 +341,7 @@ function ChessBoardPieceSkiaImpl(props: ChessBoardPieceSkiaProps): ReactNode {
         y={0}
         width={pieceSize}
         height={pieceSize}
-        sampling={{
-          filter: FilterMode.Linear,
-          mipmap: MipmapMode.Linear,
-        }}
+        sampling={PIECE_SAMPLING}
       />
     </Group>
   );

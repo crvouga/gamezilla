@@ -50,6 +50,7 @@ export type ChessBoardCanvasContentProps = {
   onSnapConsumed: (pieceKey: number) => void;
   selected: Square | null;
   hoverSquareIndex: SharedValue<number>;
+  legalMarkersOpacity: SharedValue<number>;
   game: ReturnType<typeof useChessGame>;
   legalTargets: readonly Square[];
   checkKingSquare: Square | null;
@@ -95,6 +96,7 @@ type MarkerLayersProps = {
   highlightLastMove: boolean;
   selected: Square | null;
   legalTargets: readonly Square[];
+  legalMarkersOpacity: SharedValue<number>;
   checkKingSquare: Square | null;
   position: ReturnType<typeof useChessGame>['position'];
   turn: 'w' | 'b';
@@ -125,6 +127,7 @@ function MarkerLayers(p: MarkerLayersProps): ReactNode {
         size={p.size}
         orientation={p.orientation}
         theme={p.theme}
+        opacity={p.legalMarkersOpacity}
       />
       <ChessBoardCheckLayer
         checkKingSquare={p.checkKingSquare}
@@ -187,6 +190,7 @@ function ChessBoardCanvasContentImpl(
         highlightLastMove={props.highlightLastMove}
         selected={props.selected}
         legalTargets={props.legalTargets}
+        legalMarkersOpacity={props.legalMarkersOpacity}
         checkKingSquare={props.checkKingSquare}
         position={position}
         turn={game.turn}

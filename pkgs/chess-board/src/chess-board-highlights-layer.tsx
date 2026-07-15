@@ -148,15 +148,18 @@ type LegalMovesLayerProps = {
   size: number;
   orientation: BoardOrientation;
   theme: BoardTheme;
+  /** UI-thread hide on pointer-up — avoids waiting for React unmount. */
+  opacity: SharedValue<number>;
 };
 
 export const ChessBoardLegalMovesLayer = memo(
   function ChessBoardLegalMovesLayer(props: LegalMovesLayerProps): ReactNode {
-    const { targets, position, turn, size, orientation, theme } = props;
+    const { targets, position, turn, size, orientation, theme, opacity } =
+      props;
     if (targets.length === 0) return null;
     const cell = size / 8;
     return (
-      <Group>
+      <Group opacity={opacity}>
         {targets.map((sq) =>
           renderLegalMarker({
             sq,

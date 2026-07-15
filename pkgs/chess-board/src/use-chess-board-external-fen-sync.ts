@@ -9,6 +9,10 @@ import { useLayoutEffect } from 'react';
  * Uses `useLayoutEffect` so the local rules state is mutated BEFORE the browser
  * paints — eliminates a one-frame stale board between `fen` prop change and the
  * canvas reconcile (visible as a flash during puzzle transitions on mobile).
+ *
+ * `reset` itself no-ops when the live instance already holds `fen` (optimistic
+ * drop path), so we only clear interaction chrome when the position actually
+ * changes or `fenSyncKey` forces a remount.
  */
 export function useExternalFenSync(
   fen: string | undefined,

@@ -7,7 +7,7 @@ import {
 import type { ChessBoardSounds } from './chess-board-sounds';
 import type { Move, PieceColor, Position, Square } from './chess-board-types';
 import type { useChessBoardApplyMoveSound } from './use-chess-board-apply-move-sound';
-import type { useChessGame, TryMoveResult } from './use-chess-game';
+import type { useChessGame, TryMoveOk, TryMoveResult } from './use-chess-game';
 import type { PendingPromotion } from './use-chess-board-interaction-state';
 
 type GameLike = ReturnType<typeof useChessGame>;
@@ -51,45 +51,65 @@ export type DropAttemptArgs = {
   setPendingPromotion: (p: PendingPromotion | null) => void;
 };
 
-/** Routes a piece drop: promotion → open picker; otherwise apply + audio + haptic.
- * Returns true when the ply applied or a promotion picker was opened. */
-export function handleDropAttempt(args: DropAttemptArgs): boolean {
+export type DropApplied = {
+  kind: 'applied';
+  result: TryMoveOk;
+};
+
+export type DropOutcome =
+  | { kind: 'promotion' }
+  | { kind: 'illegal' }
+  | DropApplied;
+
+/**
+ * Mutates chess rules + returns outcome WITHOUT committing React UI state.
+ * Caller snaps SharedValues immediately, then schedules `commitDropUi`.
+ */
+export function applyDropRules(args: DropAttemptArgs): DropOutcome {
   const {
     fromSq,
     toSq,
-    rulesFen,
     position,
     turn,
     game,
     sounds,
-    applySuccessfulMove,
-    onMove,
     setPendingPromotion,
   } = args;
-  // Live `game` instance reflects the controlled `rulesFen` via
-  // `useExternalFenSync` (layout-effect sync), so the live
-  // `moveRequiresPromotion` is authoritative — no need to spin up a
-  // throwaway `new Chess(rulesFen)` here.
   if (game.moveRequiresPromotion(fromSq, toSq)) {
     const moverColor = position[indexFromSquare(fromSq)]?.color ?? turn;
     setPendingPromotion({ from: fromSq, to: toSq, color: moverColor });
-    return true;
+    return { kind: 'promotion' };
   }
-  const res = applyPlyForBoardUi(rulesFen, game.tryMove, {
-    from: fromSq,
-    to: toSq,
-  });
+  const res = game.tryMoveSilent({ from: fromSq, to: toSq });
   if (!res.ok) {
     sounds.playIllegal();
     hapticError();
-    return false;
+    return { kind: 'illegal' };
   }
-  hapticForMove(res.move, res.inCheck);
-  applySuccessfulMove(res.move, {
-    inCheck: res.inCheck,
-    isGameOver: res.isGameOver,
+  return { kind: 'applied', result: res };
+}
+
+/** React + audio + parent notify — schedule AFTER pointer-up returns. */
+export function commitDropUi(
+  args: DropAttemptArgs,
+  result: TryMoveOk
+): void {
+  args.game.commitMoveUi(result.move);
+  hapticForMove(result.move, result.inCheck);
+  args.applySuccessfulMove(result.move, {
+    inCheck: result.inCheck,
+    isGameOver: result.isGameOver,
   });
-  onMove?.(res.move);
+  args.onMove?.(result.move);
+}
+
+/** Routes a piece drop: promotion → open picker; otherwise apply + audio + haptic.
+ * Returns true when the ply applied or a promotion picker was opened. */
+export function handleDropAttempt(args: DropAttemptArgs): boolean {
+  const outcome = applyDropRules(args);
+  if (outcome.kind === 'promotion') return true;
+  if (outcome.kind === 'illegal') return false;
+  commitDropUi(args, outcome.result);
   return true;
 }
 

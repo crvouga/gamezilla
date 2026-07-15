@@ -128,14 +128,18 @@ function tryMoveOnMutableChess(
       ...(m.promotion ? { promotion: m.promotion } : {}),
     });
     const mapped = mapMove(result);
+    // Drop path only needs check + game-over. Avoid fan-out of
+    // isCheckmate/isStalemate/isDraw/isGameOver (each re-scans moves).
+    const inCheck = chess.inCheck();
+    const isGameOver = chess.isGameOver();
     return {
       ok: true,
       move: mapped,
-      inCheck: chess.inCheck(),
-      isCheckmate: chess.isCheckmate(),
-      isStalemate: chess.isStalemate(),
-      isDraw: chess.isDraw(),
-      isGameOver: chess.isGameOver(),
+      inCheck,
+      isCheckmate: isGameOver && inCheck,
+      isStalemate: false,
+      isDraw: isGameOver && !inCheck,
+      isGameOver,
     };
   } catch {
     return { ok: false };
@@ -158,12 +162,31 @@ export function useChessGame(options: UseChessGameOptions = {}) {
   // chess is stable (useRef), but exhaustive-deps can't see that.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const position = useMemo(() => positionFromChess(chess), [fen]);
-  const turn = chess.turn();
-  const inCheck = chess.inCheck();
-  const isGameOver = chess.isGameOver();
-  const isCheckmate = chess.isCheckmate();
-  const isStalemate = chess.isStalemate();
-  const isDraw = chess.isDraw();
+  // Status flags are fen-derived; cache them with the position so every
+  // hover/selection re-render does not re-enter chess.js move generation.
+  const status = useMemo(() => {
+    // Once per fen — not every hover/selection re-render.
+    const inCheck = chess.inCheck();
+    const isCheckmate = chess.isCheckmate();
+    const isDraw = chess.isDraw();
+    return {
+      turn: chess.turn() as 'w' | 'b',
+      inCheck,
+      isCheckmate,
+      isDraw,
+      isStalemate: chess.isStalemate(),
+      isGameOver: isCheckmate || isDraw,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fen]);
+  const {
+    turn,
+    inCheck,
+    isGameOver,
+    isCheckmate,
+    isStalemate,
+    isDraw,
+  } = status;
 
   const legalMovesFrom = useCallback(
     (from: Square): readonly Square[] => {
@@ -180,6 +203,11 @@ export function useChessGame(options: UseChessGameOptions = {}) {
 
   const moveRequiresPromotion = useCallback(
     (from: Square, to: Square) => {
+      // Fast reject: only pawns arriving on the last rank can promote.
+      const piece = chess.get(from as unknown as ChessSquare);
+      if (!piece || piece.type !== 'p') return false;
+      const toRank = to[1];
+      if (piece.color === 'w' ? toRank !== '8' : toRank !== '1') return false;
       const moves = chess.moves({
         square: from,
         verbose: true,
@@ -192,19 +220,38 @@ export function useChessGame(options: UseChessGameOptions = {}) {
     [chess]
   );
 
+  const tryMoveSilent = useCallback(
+    (m: { from: Square; to: Square; promotion?: Move['promotion'] }) => {
+      return tryMoveOnMutableChess(chess, m);
+    },
+    [chess]
+  );
+
+  const commitMoveUi = useCallback(
+    (move: Move) => {
+      setLastMove(move);
+      sync();
+    },
+    [sync]
+  );
+
   const tryMove = useCallback(
     (m: { from: Square; to: Square; promotion?: Move['promotion'] }) => {
-      const r = tryMoveOnMutableChess(chess, m);
+      const r = tryMoveSilent(m);
       if (!r.ok) return r;
-      setLastMove(r.move);
-      sync();
+      commitMoveUi(r.move);
       return r;
     },
-    [chess, sync]
+    [tryMoveSilent, commitMoveUi]
   );
 
   const reset = useCallback(
     (nextFen?: string) => {
+      if (nextFen !== undefined && nextFen === chess.fen()) {
+        // Controlled boards often echo the fen we already applied in
+        // tryMove; skip load + lastMove wipe (extra Skia js→wasm).
+        return;
+      }
       setLastMove(null);
       try {
         if (nextFen) chess.load(nextFen);
@@ -253,6 +300,8 @@ export function useChessGame(options: UseChessGameOptions = {}) {
     legalMovesFrom,
     moveRequiresPromotion,
     tryMove,
+    tryMoveSilent,
+    commitMoveUi,
     reset,
     undo,
     pgn,

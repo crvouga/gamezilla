@@ -28,6 +28,7 @@ export type ChessBoardInteractionLayerProps = {
   size: number;
   orientation: BoardOrientation;
   hoverSquareIndex: SharedValue<number>;
+  legalMarkersOpacity: SharedValue<number>;
   drag: ChessBoardDragMotion;
   dragKeyTable: SharedValue<number[]>;
   onDragStart: (from: Square, pieceKey: number) => void;
@@ -40,6 +41,7 @@ type PanFactoryArgs = {
   size: number;
   orientation: BoardOrientation;
   hoverSquareIndex: SharedValue<number>;
+  legalMarkersOpacity: SharedValue<number>;
   drag: ChessBoardDragMotion;
   dragKeyTable: SharedValue<number[]>;
   panSettled: SharedValue<number>;
@@ -81,6 +83,7 @@ function beginDragAt(
   drag.scale.value = withTiming(DRAG_LIFT_SCALE, {
     duration: DRAG_LIFT_MS,
   });
+  a.legalMarkersOpacity.value = 1;
   runOnJS(a.startDrag)(hit.from, hit.key);
   runOnJS(markChessPerf)('chess-drag-start-ui');
   return true;
@@ -101,7 +104,7 @@ function trackDragPointer(
 }
 
 function createBoardPanGesture(a: PanFactoryArgs) {
-  const { drag, hoverSquareIndex } = a;
+  const { drag, hoverSquareIndex, legalMarkersOpacity } = a;
   return Gesture.Pan()
     .manualActivation(true)
     .onTouchesDown((e, state) => {
@@ -128,6 +131,7 @@ function createBoardPanGesture(a: PanFactoryArgs) {
       const from = squareFromIndex(fromIdx);
       const to = xyToSquare(e.x, e.y, a.size, a.orientation);
       hoverSquareIndex.value = HOVER_NONE;
+      legalMarkersOpacity.value = 0;
       runOnJS(a.endDrag)(from, to, key);
     })
     .onFinalize(() => {
@@ -137,6 +141,7 @@ function createBoardPanGesture(a: PanFactoryArgs) {
       ) {
         clearDragMotion(drag);
         hoverSquareIndex.value = HOVER_NONE;
+        legalMarkersOpacity.value = 0;
         runOnJS(a.cancelDrag)();
       }
     });
@@ -160,13 +165,21 @@ function useBoardGestures(args: ChessBoardInteractionLayerProps) {
     args.onDragCancel();
   });
   const panSettled = useSharedValue(0);
-  const { size, orientation, hoverSquareIndex, drag, dragKeyTable } = args;
+  const {
+    size,
+    orientation,
+    hoverSquareIndex,
+    legalMarkersOpacity,
+    drag,
+    dragKeyTable,
+  } = args;
 
   return useMemo(() => {
     const pan = createBoardPanGesture({
       size,
       orientation,
       hoverSquareIndex,
+      legalMarkersOpacity,
       drag,
       dragKeyTable,
       panSettled,
@@ -186,6 +199,7 @@ function useBoardGestures(args: ChessBoardInteractionLayerProps) {
     dragKeyTable,
     endDrag,
     hoverSquareIndex,
+    legalMarkersOpacity,
     orientation,
     panSettled,
     size,

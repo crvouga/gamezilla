@@ -87,3 +87,16 @@ export function squareToXY(
   }
   return { x: col * cell, y: row * cell, cell };
 }
+
+/** Painted piece center inside a square (matches pieces-layer draw offsets). */
+export function squarePieceCenter(
+  square: Square,
+  boardPx: number,
+  orientation: BoardOrientation
+): { x: number; y: number } {
+  const { x, y, cell } = squareToXY(square, boardPx, orientation);
+  return {
+    x: x + cell / 2 + cell * 0.042,
+    y: y + cell / 2 + cell * 0.012,
+  };
+}

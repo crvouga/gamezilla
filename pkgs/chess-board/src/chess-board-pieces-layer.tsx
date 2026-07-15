@@ -1,5 +1,5 @@
 import { memo, useMemo, type ReactNode } from 'react';
-import { squareToXY } from './chess-board-geometry';
+import { squarePieceCenter } from './chess-board-geometry';
 import type { ChessBoardDragMotion } from './chess-board-drag-motion';
 import { hashPieceId } from './chess-board-drag-motion';
 import { ChessBoardPieceSkia } from './chess-board-piece';
@@ -24,10 +24,11 @@ export const ChessBoardCaptureGhostLayer = memo(
     if (pieceImages === null || ghost === null) return null;
     const image = pieceImages[ghost.code];
     if (!image) return null;
-    const cell = size / 8;
-    const { x, y } = squareToXY(ghost.square, size, orientation);
-    const cx = x + cell / 2 + cell * 0.042;
-    const cy = y + cell / 2 + cell * 0.012;
+    const { x: cx, y: cy } = squarePieceCenter(
+      ghost.square,
+      size,
+      orientation
+    );
     return (
       <ChessBoardPieceSkia
         key="capture-ghost"
@@ -86,26 +87,29 @@ function ChessBoardPiecesLayerImpl(
     [pieceRows, dragFrom]
   );
   if (pieceImages === null) return null;
-  const cell = size / 8;
   return (
     <>
       {ordered.map((row) => {
         const image = pieceImages[row.code];
         if (!image) return null;
-        const { x, y } = squareToXY(row.square, size, orientation);
+        const { x: cx, y: cy } = squarePieceCenter(
+          row.square,
+          size,
+          orientation
+        );
         const key = hashPieceId(row.id);
         return (
           <ChessBoardPieceSkia
             key={row.id}
             image={image}
             pieceSize={pieceDraw}
-            targetCenterX={x + cell / 2 + cell * 0.042}
-            targetCenterY={y + cell / 2 + cell * 0.012}
+            targetCenterX={cx}
+            targetCenterY={cy}
             fadeInOnMount={row.fadeIn === true}
             pieceKey={key}
             drag={drag}
             snapLayout={snapKeys.has(key)}
-            onSnapConsumed={() => onSnapConsumed(key)}
+            onSnapConsumed={onSnapConsumed}
           />
         );
       })}
