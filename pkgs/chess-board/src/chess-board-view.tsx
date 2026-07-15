@@ -1,11 +1,22 @@
-import { memo, type ReactNode } from 'react';
-import { View } from 'react-native';
+import { memo, useCallback, useEffect, useRef, type ReactNode } from 'react';
+import { View, type LayoutChangeEvent } from 'react-native';
+import { useSharedValue } from 'react-native-reanimated';
 import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content';
 import { ChessBoardCanvasContent } from './chess-board-canvas-content';
+import {
+  ChessBoardDragPreview,
+  useChessBoardPortalDragAvailable,
+} from './chess-board-drag-preview';
 import { ChessBoardInteractionLayer } from './chess-board-interaction-layer';
 import type { ChessBoardInteractionLayerProps } from './chess-board-interaction-layer';
 import { ChessBoardPromotionInline } from './chess-board-promotion';
-import type { BoardOrientation, BoardTheme, Move } from './chess-board-types';
+import type {
+  BoardOrientation,
+  BoardTheme,
+  Move,
+  PieceCode,
+  Square,
+} from './chess-board-types';
 import type { PieceImageCache } from './chess-pieces-cache';
 import type { PendingPromotion } from './use-chess-board-interaction-state';
 
@@ -50,14 +61,86 @@ function inlinePromotion(p: PromotionInlineProps): ReactNode {
   );
 }
 
+function pieceCodeAtSquare(
+  rows: ChessBoardCanvasContentProps['pieceRows'],
+  sq: Square | null
+): PieceCode | null {
+  if (sq === null) return null;
+  for (const row of rows) {
+    if (row.square === sq) return row.code;
+  }
+  return null;
+}
+
+function useBoardWindowOrigin(): {
+  originX: ReturnType<typeof useSharedValue<number>>;
+  originY: ReturnType<typeof useSharedValue<number>>;
+  onLayout: (e: LayoutChangeEvent) => void;
+  setNode: (n: View | null) => void;
+  remountMeasure: () => void;
+} {
+  const nodeRef = useRef<View | null>(null);
+  const originX = useSharedValue(0);
+  const originY = useSharedValue(0);
+
+  const remountMeasure = useCallback(() => {
+    nodeRef.current?.measureInWindow((x, y) => {
+      originX.value = x;
+      originY.value = y;
+    });
+  }, [originX, originY]);
+
+  const setNode = useCallback(
+    (n: View | null) => {
+      nodeRef.current = n;
+      if (n !== null) remountMeasure();
+    },
+    [remountMeasure]
+  );
+
+  const onLayout = useCallback(() => {
+    remountMeasure();
+  }, [remountMeasure]);
+
+  return { originX, originY, onLayout, setNode, remountMeasure };
+}
+
 /** Board surface: Skia chrome + pieces underlay + thin gesture surface + promotion. */
 function ChessBoardViewImpl(p: ChessBoardViewProps): ReactNode {
-  const { size } = p;
+  const { size, containerRef } = p;
+  const hideDraggingPiece = useChessBoardPortalDragAvailable();
+  const { originX, originY, onLayout, setNode, remountMeasure } =
+    useBoardWindowOrigin();
+  const dragFrom = p.contentProps.dragFrom;
+  const dragCode = pieceCodeAtSquare(p.contentProps.pieceRows, dragFrom);
+
+  useEffect(() => {
+    if (dragFrom !== null) remountMeasure();
+  }, [dragFrom, remountMeasure]);
+
+  const setContainerRef = useCallback(
+    (n: View | null) => {
+      setNode(n);
+      containerRef(n);
+    },
+    [containerRef, setNode]
+  );
+
+  const contentProps: ChessBoardCanvasContentProps = {
+    ...p.contentProps,
+    hideDraggingPiece,
+  };
+
   const sqStyle = { width: size, height: size, overflow: 'visible' as const };
   return (
-    <View ref={p.containerRef} style={sqStyle} {...p.userArrowsWebHandlers}>
+    <View
+      ref={setContainerRef}
+      style={sqStyle}
+      onLayout={onLayout}
+      {...p.userArrowsWebHandlers}
+    >
       <View style={sqStyle}>
-        <ChessBoardCanvasContent {...p.contentProps} />
+        <ChessBoardCanvasContent {...contentProps} />
         <ChessBoardInteractionLayer {...p.interactionProps} />
         {inlinePromotion({
           pending: p.pendingPromotion,
@@ -69,6 +152,14 @@ function ChessBoardViewImpl(p: ChessBoardViewProps): ReactNode {
           onPick: p.onPromotionPick,
         })}
       </View>
+      <ChessBoardDragPreview
+        drag={p.contentProps.drag}
+        boardOriginX={originX}
+        boardOriginY={originY}
+        pieceCode={dragCode}
+        pieceSize={p.pieceDraw}
+        enabled={hideDraggingPiece}
+      />
     </View>
   );
 }

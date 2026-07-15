@@ -26,8 +26,9 @@ export const CHESS_PIECE_MOVE_MS = 200;
  * Local Y (fraction of pieceSize from top) pinned to the pointer tip while
  * dragging. Lower → piece sits lower on the tip. Cburnett feet sit well above
  * the image bottom; 0.72 puts painted base on the tip (0.88 left a gap).
+ * Shared with the portal drag preview so feet stay on the pointer.
  */
-const DRAG_FEET_FROM_TOP = 0.72;
+export const DRAG_FEET_FROM_TOP = 0.72;
 const MOVE_MS = CHESS_PIECE_MOVE_MS;
 const MOVE_EASING = Easing.out(Easing.cubic);
 
@@ -44,6 +45,11 @@ export type ChessBoardPieceSkiaProps = {
   targetCenterY: number;
   /** When false, layout snaps instantly (performance). Default true. */
   animations?: boolean;
+  /**
+   * When true, the dragging piece is painted by the overlay portal — hide the
+   * in-canvas copy so Skia's board-size clip does not cut it off.
+   */
+  hideWhileDragging?: boolean;
   /** Stable hash of piece row id — matches board drag.pieceKey while dragging. */
   pieceKey?: number;
   drag?: ChessBoardDragMotion;
@@ -202,6 +208,18 @@ function usePieceTransform(args: {
   });
 }
 
+function usePieceDragOpacity(args: {
+  hideWhileDragging: boolean;
+  drag: ChessBoardDragMotion | undefined;
+  pieceKey: number | undefined;
+}) {
+  const { hideWhileDragging, drag, pieceKey } = args;
+  return useDerivedValue(() => {
+    if (!hideWhileDragging) return 1 as number;
+    return (isPieceDragging(drag, pieceKey) ? 0 : 1) as number;
+  });
+}
+
 function ChessBoardPieceSkiaImpl(props: ChessBoardPieceSkiaProps): ReactNode {
   const {
     image,
@@ -209,6 +227,7 @@ function ChessBoardPieceSkiaImpl(props: ChessBoardPieceSkiaProps): ReactNode {
     targetCenterX,
     targetCenterY,
     animations = true,
+    hideWhileDragging = false,
     pieceKey,
     drag,
     snapLayout = false,
@@ -247,9 +266,14 @@ function ChessBoardPieceSkiaImpl(props: ChessBoardPieceSkiaProps): ReactNode {
     topLeftX,
     topLeftY,
   });
+  const opacity = usePieceDragOpacity({
+    hideWhileDragging,
+    drag,
+    pieceKey,
+  });
 
   return (
-    <Group transform={transform}>
+    <Group transform={transform} opacity={opacity}>
       <Image
         image={image}
         x={0}

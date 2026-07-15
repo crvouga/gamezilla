@@ -56,6 +56,7 @@ export type ChessBoardCanvasContentProps = {
   checkKingSquare: Square | null;
   mergedArrows: readonly BoardArrow[];
   animations: boolean;
+  hideDraggingPiece: boolean;
 };
 
 type StaticLayersProps = {
@@ -224,6 +225,7 @@ function ChessBoardCanvasContentImpl(
         snapKeys={props.snapKeys}
         onSnapConsumed={props.onSnapConsumed}
         animations={animations}
+        hideDraggingPiece={props.hideDraggingPiece}
       />
       <OverlayLayers
         arrows={props.mergedArrows}

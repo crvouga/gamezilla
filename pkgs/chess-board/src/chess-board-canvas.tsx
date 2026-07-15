@@ -175,6 +175,7 @@ function useContentProps(args: ContentPropsArgs): ChessBoardCanvasContentProps {
       checkKingSquare,
       mergedArrows,
       animations: props.animations,
+      hideDraggingPiece: false,
     }),
     [
       props.size,

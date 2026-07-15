@@ -53,6 +53,8 @@ export type ChessBoardPiecesLayerProps = {
   snapKeys: ReadonlySet<number>;
   onSnapConsumed: (pieceKey: number) => void;
   animations: boolean;
+  /** Prefer portal drag preview — hide the in-canvas dragging piece. */
+  hideDraggingPiece: boolean;
 };
 
 function orderRowsForDrag(
@@ -83,6 +85,7 @@ function ChessBoardPiecesLayerImpl(
     snapKeys,
     onSnapConsumed,
     animations,
+    hideDraggingPiece,
   } = props;
   const ordered = useMemo(
     () => orderRowsForDrag(pieceRows, dragFrom),
@@ -112,6 +115,7 @@ function ChessBoardPiecesLayerImpl(
             snapLayout={snapKeys.has(key)}
             onSnapConsumed={onSnapConsumed}
             animations={animations}
+            hideWhileDragging={hideDraggingPiece && dragFrom !== null}
           />
         );
       })}

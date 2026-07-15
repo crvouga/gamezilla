@@ -608,6 +608,7 @@
         "react-native": "catalog:",
         "react-native-gesture-handler": "catalog:",
         "react-native-reanimated": "catalog:",
+        "react-native-screens": "catalog:",
         "react-native-svg": "catalog:",
       },
       "devDependencies": {
