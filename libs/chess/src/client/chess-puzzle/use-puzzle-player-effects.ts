@@ -17,7 +17,6 @@ export function usePuzzlePlayerEffects(args: {
   showCorrectFlash: boolean;
   solvedCrownSquare: Square | null;
   lastCorrectToSquare: Square | null;
-  boardShakeNonce: number;
 } {
   const { puzzleId, solveIdx, status, displayFen, lastSubmittedToRef } = args;
   const feedback = useChessPuzzleFeedback();
@@ -28,7 +27,7 @@ export function usePuzzlePlayerEffects(args: {
     lastSubmittedToRef.current = null;
   }, [lastSubmittedToRef, puzzleId]);
 
-  const boardShakeNonce = usePuzzleStatusFeedback({
+  usePuzzleStatusFeedback({
     puzzleId,
     status,
     feedback,
@@ -52,6 +51,5 @@ export function usePuzzlePlayerEffects(args: {
     showCorrectFlash,
     solvedCrownSquare,
     lastCorrectToSquare,
-    boardShakeNonce,
   };
 }

@@ -38,7 +38,6 @@ export function usePuzzlePlayerControls(args: {
   lastCorrectToSquare: ReturnType<
     typeof usePuzzlePlayerEffects
   >['lastCorrectToSquare'];
-  boardShakeNonce: number;
   hintStage: HintStage;
   onMove: (m: Move) => void;
   onHint: () => void;

@@ -3,7 +3,6 @@ import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { Box, SpeakingAvatar } from '@pkgs/ui';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { memo, useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Animated } from 'react-native';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
@@ -11,7 +10,6 @@ import { ChessPuzzleCelebrationOverlay } from './chess-puzzle-celebration-overla
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
 import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
-import { useBoardShakeAnimation } from './use-board-shake-animation';
 import type { HintStage } from './use-hint-stage';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 import {
@@ -90,32 +88,28 @@ const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
     | 'cellFeedback'
     | 'cellHighlights'
     | 'arrows'
-    | 'boardShakeNonce'
   > & { size: number }
 ): ReactNode {
-  const shakeX = useBoardShakeAnimation(p.boardShakeNonce);
   if (p.displayFen === null || p.displayFen.length === 0) {
     return <ChessPuzzleBoardLoadingState size={p.size} />;
   }
   return (
-    <Animated.View style={{ transform: [{ translateX: shakeX }] }}>
-      <ChessBoard
-        controlled
-        testID="chess-puzzle-board"
-        size={p.size}
-        fen={p.displayFen}
-        fenSyncKey={p.layoutKey}
-        orientation={p.orientation}
-        interactive={p.status === 'solving'}
-        onMove={p.onMove}
-        showCoordinates
-        highlightLastMove
-        highlightLegalMoves
-        cellFeedback={p.cellFeedback}
-        cellHighlights={p.cellHighlights}
-        arrows={p.arrows}
-      />
-    </Animated.View>
+    <ChessBoard
+      controlled
+      testID="chess-puzzle-board"
+      size={p.size}
+      fen={p.displayFen}
+      fenSyncKey={p.layoutKey}
+      orientation={p.orientation}
+      interactive={p.status === 'solving'}
+      onMove={p.onMove}
+      showCoordinates
+      highlightLastMove
+      highlightLegalMoves
+      cellFeedback={p.cellFeedback}
+      cellHighlights={p.cellHighlights}
+      arrows={p.arrows}
+    />
   );
 });
 
@@ -170,7 +164,6 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
           cellFeedback={p.cellFeedback}
           cellHighlights={p.cellHighlights}
           arrows={p.arrows}
-          boardShakeNonce={p.boardShakeNonce}
         />
       )}
       status={p.status}

@@ -181,7 +181,6 @@ function frozenPlayerModel(args: {
     cellFeedback: visual.cellFeedback,
     cellHighlights: visual.cellHighlights,
     arrows: visual.arrows,
-    boardShakeNonce: controls.boardShakeNonce,
     onHint: controls.onHint,
     onRetry: controls.onRetry,
     onNext: controls.onNext,
