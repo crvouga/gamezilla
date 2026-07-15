@@ -16,12 +16,20 @@ import {
 } from 'react-native-reanimated';
 import {
   clearDragMotion,
+  DRAG_LIFT_OPACITY,
+  DRAG_LIFT_SCALE,
   type ChessBoardDragMotion,
 } from './chess-board-drag-motion';
 
 export const PIECE_DRAW_SCALE = 1.06;
 /** Piece slide duration; keep capture ghost + capture SFX aligned with this. */
 export const CHESS_PIECE_MOVE_MS = 200;
+/**
+ * Local Y (fraction of pieceSize from top) pinned to the pointer tip while
+ * dragging. Lower → piece sits lower on the tip. Cburnett feet sit well above
+ * the image bottom; 0.72 puts painted base on the tip (0.88 left a gap).
+ */
+const DRAG_FEET_FROM_TOP = 0.72;
 const MOVE_MS = CHESS_PIECE_MOVE_MS;
 const FADE_IN_MS = 160;
 const FADE_OUT_MS = 140;
@@ -161,6 +169,23 @@ function usePieceFadeMotion(args: FadeArgs): void {
   }, [fadeOut, onFadeOutComplete, opacity, scaleSV]);
 }
 
+function isPieceDragging(
+  drag: ChessBoardDragMotion | undefined,
+  pieceKey: number | undefined
+): boolean {
+  'worklet';
+  return (
+    drag !== undefined &&
+    pieceKey !== undefined &&
+    drag.pieceKey.value === pieceKey
+  );
+}
+
+/**
+ * Skia Group transforms apply right-to-left (last entry first on the point).
+ * Drag: scale about visual feet, then place that pivot on (tx, ty).
+ * Rest: scale about center at rest mid.
+ */
 function usePieceTransform(args: {
   pieceSize: number;
   pieceKey: number | undefined;
@@ -173,21 +198,36 @@ function usePieceTransform(args: {
   return useDerivedValue(() => {
     const cx = pieceSize / 2;
     const cy = pieceSize / 2;
-    const dragging =
-      drag !== undefined &&
-      pieceKey !== undefined &&
-      drag.pieceKey.value === pieceKey;
-    const tx = dragging ? drag.tx.value : 0;
-    const ty = dragging ? drag.ty.value : 0;
-    const lift = dragging ? drag.scale.value : 1;
+    const dragging = isPieceDragging(drag, pieceKey);
+    const lift = dragging && drag ? drag.scale.value : 1;
     const s = scaleSV.value * lift;
+    const feetY = pieceSize * DRAG_FEET_FROM_TOP;
+    const pivotY = dragging ? feetY : cy;
+    const midX = dragging && drag ? drag.tx.value : topLeftX.value + cx;
+    const midY = dragging && drag ? drag.ty.value : topLeftY.value + cy;
     return [
-      { translateX: topLeftX.value + cx + tx },
-      { translateY: topLeftY.value + cy + ty },
+      { translateX: midX },
+      { translateY: midY },
       { scale: s },
       { translateX: -cx },
-      { translateY: -cy },
+      { translateY: -pivotY },
     ];
+  });
+}
+
+function usePieceOpacity(
+  opacity: SharedValue<number>,
+  drag: ChessBoardDragMotion | undefined,
+  pieceKey: number | undefined
+): SharedValue<number> {
+  return useDerivedValue(() => {
+    if (!isPieceDragging(drag, pieceKey) || !drag) return opacity.value;
+    const span = DRAG_LIFT_SCALE - 1;
+    const t =
+      span > 0
+        ? Math.min(1, Math.max(0, (drag.scale.value - 1) / span))
+        : 1;
+    return opacity.value * (1 - t * (1 - DRAG_LIFT_OPACITY));
   });
 }
 
@@ -240,9 +280,10 @@ function ChessBoardPieceSkiaImpl(props: ChessBoardPieceSkiaProps): ReactNode {
     topLeftY,
     scaleSV,
   });
+  const displayOpacity = usePieceOpacity(opacity, drag, pieceKey);
 
   return (
-    <Group transform={transform} opacity={opacity}>
+    <Group transform={transform} opacity={displayOpacity}>
       <Image
         image={image}
         x={0}

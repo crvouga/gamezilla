@@ -5,12 +5,27 @@ import { HOVER_NONE } from './chess-board-geometry';
 /** Sentinel: no piece is being dragged. */
 export const DRAG_PIECE_NONE = -1;
 
+/** Scale lift applied while a piece is dragged (~much larger than rest). */
+export const DRAG_LIFT_SCALE = 1.52;
+/** Opacity while dragging (restores to 1 when drag clears). */
+export const DRAG_LIFT_OPACITY = 0.8;
+/** Lift / fade animation duration for drag start. */
+export const DRAG_LIFT_MS = 100;
+
 export type ChessBoardDragMotion = {
   /** Hashed piece id currently dragging, or {@link DRAG_PIECE_NONE}. */
   pieceKey: SharedValue<number>;
   /** Square index (0–63) of the drag origin, or {@link HOVER_NONE}. */
   fromIndex: SharedValue<number>;
+  /**
+   * Absolute board X of the drag anchor (piece base / bottom-center)
+   * while dragging; unused when {@link pieceKey} is {@link DRAG_PIECE_NONE}.
+   */
   tx: SharedValue<number>;
+  /**
+   * Absolute board Y of the drag anchor (piece base / bottom-center)
+   * while dragging; unused when {@link pieceKey} is {@link DRAG_PIECE_NONE}.
+   */
   ty: SharedValue<number>;
   scale: SharedValue<number>;
 };

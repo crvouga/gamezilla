@@ -9,6 +9,8 @@ import {
 } from 'react-native-reanimated';
 import {
   clearDragMotion,
+  DRAG_LIFT_MS,
+  DRAG_LIFT_SCALE,
   DRAG_PIECE_NONE,
   type ChessBoardDragMotion,
 } from './chess-board-drag-motion';
@@ -21,9 +23,6 @@ import {
 import { markChessPerf } from './chess-board-perf';
 import type { BoardOrientation, Square } from './chess-board-types';
 import { useStableHandler } from './use-stable-handler';
-
-const DRAG_SCALE = 1.18;
-const DRAG_SCALE_MS = 100;
 
 export type ChessBoardInteractionLayerProps = {
   size: number;
@@ -49,30 +48,77 @@ type PanFactoryArgs = {
   cancelDrag: () => void;
 };
 
+type DragKeyHit = { from: Square; idx: number; key: number };
+
+function dragKeyAt(
+  x: number,
+  y: number,
+  a: Pick<PanFactoryArgs, 'size' | 'orientation' | 'dragKeyTable'>
+): DragKeyHit | null {
+  'worklet';
+  const from = xyToSquare(x, y, a.size, a.orientation);
+  if (!from) return null;
+  const idx = indexFromSquare(from);
+  const key = a.dragKeyTable.value[idx] ?? DRAG_PIECE_NONE;
+  if (key === DRAG_PIECE_NONE) return null;
+  return { from, idx, key };
+}
+
+function beginDragAt(
+  x: number,
+  y: number,
+  a: PanFactoryArgs
+): boolean {
+  'worklet';
+  const hit = dragKeyAt(x, y, a);
+  if (!hit) return false;
+  const { drag } = a;
+  a.panSettled.value = 0;
+  drag.pieceKey.value = hit.key;
+  drag.fromIndex.value = hit.idx;
+  drag.tx.value = x;
+  drag.ty.value = y;
+  drag.scale.value = withTiming(DRAG_LIFT_SCALE, {
+    duration: DRAG_LIFT_MS,
+  });
+  runOnJS(a.startDrag)(hit.from, hit.key);
+  runOnJS(markChessPerf)('chess-drag-start-ui');
+  return true;
+}
+
+function trackDragPointer(
+  x: number,
+  y: number,
+  a: PanFactoryArgs
+): void {
+  'worklet';
+  const { drag, size, orientation, hoverSquareIndex } = a;
+  if (drag.pieceKey.value === DRAG_PIECE_NONE) return;
+  drag.tx.value = x;
+  drag.ty.value = y;
+  const hover = xyToSquare(x, y, size, orientation);
+  hoverSquareIndex.value = hover ? indexFromSquare(hover) : HOVER_NONE;
+}
+
 function createBoardPanGesture(a: PanFactoryArgs) {
-  const { size, orientation, hoverSquareIndex, drag, dragKeyTable } = a;
+  const { drag, hoverSquareIndex } = a;
   return Gesture.Pan()
-    .onStart((e) => {
-      const from = xyToSquare(e.x, e.y, size, orientation);
-      if (!from) return;
-      const idx = indexFromSquare(from);
-      const key = dragKeyTable.value[idx] ?? DRAG_PIECE_NONE;
-      if (key === DRAG_PIECE_NONE) return;
-      a.panSettled.value = 0;
-      drag.pieceKey.value = key;
-      drag.fromIndex.value = idx;
-      drag.tx.value = 0;
-      drag.ty.value = 0;
-      drag.scale.value = withTiming(DRAG_SCALE, { duration: DRAG_SCALE_MS });
-      runOnJS(a.startDrag)(from, key);
-      runOnJS(markChessPerf)('chess-drag-start-ui');
+    .manualActivation(true)
+    .onTouchesDown((e, state) => {
+      const t = e.allTouches[0];
+      if (!t || !beginDragAt(t.x, t.y, a)) {
+        state.fail();
+        return;
+      }
+      // Activate immediately so drag state is not deferred until movement.
+      state.activate();
+    })
+    .onTouchesMove((e) => {
+      const t = e.allTouches[0];
+      if (t) trackDragPointer(t.x, t.y, a);
     })
     .onUpdate((e) => {
-      if (drag.pieceKey.value === DRAG_PIECE_NONE) return;
-      drag.tx.value = e.translationX;
-      drag.ty.value = e.translationY;
-      const hover = xyToSquare(e.x, e.y, size, orientation);
-      hoverSquareIndex.value = hover ? indexFromSquare(hover) : HOVER_NONE;
+      trackDragPointer(e.x, e.y, a);
     })
     .onEnd((e) => {
       const key = drag.pieceKey.value;
@@ -80,7 +126,7 @@ function createBoardPanGesture(a: PanFactoryArgs) {
       if (key === DRAG_PIECE_NONE || fromIdx === HOVER_NONE) return;
       a.panSettled.value = 1;
       const from = squareFromIndex(fromIdx);
-      const to = xyToSquare(e.x, e.y, size, orientation);
+      const to = xyToSquare(e.x, e.y, a.size, a.orientation);
       hoverSquareIndex.value = HOVER_NONE;
       runOnJS(a.endDrag)(from, to, key);
     })
