@@ -16,7 +16,6 @@ module.exports = [
   {
     files: ['**/*.test.{ts,tsx}'],
     rules: {
-      'lingui/no-unlocalized-strings': 'off',
       'lingui/t-call-in-function': 'off',
       'lingui/no-trans-inside-trans': 'off',
       'lingui/no-expression-in-message': 'off',

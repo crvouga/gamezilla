@@ -16,7 +16,6 @@ module.exports = [
     rules: {
       'workspaceI18n/text-must-be-trans': 'off',
       ...linguiRules(),
-      'lingui/no-unlocalized-strings': 'off',
     },
   },
 ];

@@ -7,7 +7,6 @@ export const SPACE_CARD_BORDER_RADIUS = 16;
 export const SPACE_CARD_GRADIENT_START = { x: 0, y: 0 } as const;
 export const SPACE_CARD_GRADIENT_END = { x: 1, y: 1 } as const;
 
-/* eslint-disable lingui/no-unlocalized-strings -- HSLA design tokens, not user-facing copy */
 const SPACE_CARD_GRADIENT_DARK_START = 'hsla(221, 72%, 52%, 1)';
 const SPACE_CARD_GRADIENT_DARK_END = 'hsla(226, 68%, 42%, 1)';
 

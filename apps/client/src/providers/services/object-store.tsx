@@ -2,7 +2,6 @@ import { ObjectStoreImplExpoFileSystem } from '@pkgs/object-store/impl-expo-file
 import { ObjectStoreProvider } from '@pkgs/object-store/react-context';
 import { useMemo, type ReactNode } from 'react';
 
-// eslint-disable-next-line lingui/no-unlocalized-strings -- Internal directory name, not user-facing.
 const BASE_DIR = 'object-store';
 
 export function AppObjectStore({

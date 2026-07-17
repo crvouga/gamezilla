@@ -84,13 +84,11 @@ module.exports = defineConfig([
     rules: {
       'max-lines': 'off',
       'max-lines-per-function': 'off',
-      'lingui/no-unlocalized-strings': 'off',
     },
   },
   {
     files: ['**/*.test.{ts,tsx}', 'src/**/*.test.*'],
     rules: {
-      'lingui/no-unlocalized-strings': 'off',
       'lingui/t-call-in-function': 'off',
       'lingui/no-trans-inside-trans': 'off',
       'lingui/no-expression-in-message': 'off',

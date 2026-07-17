@@ -11,12 +11,10 @@ import { Platform } from 'react-native';
 
 import { fetchSyncToken, type SyncApiFetch } from '../../sync/sync-api';
 
-// eslint-disable-next-line lingui/no-unlocalized-strings -- external diagnostics URL, not user-facing copy
 const DIAGNOSTICS_APP_URL = 'https://diagnostics-app.powersync.com/';
 
 function openDiagnosticsTab(url: string): void {
   if (Platform.OS === 'web') {
-    // eslint-disable-next-line lingui/no-unlocalized-strings -- browser API args, not user-facing copy
     window.open(url, '_blank', 'noopener,noreferrer');
     return;
   }
@@ -37,7 +35,6 @@ export function PowerSyncDiagnosticsCommand(): ReactNode {
   const run = useCallback(async () => {
     const { token } = await fetchSyncToken({ config, fetchFn, kv });
     const url = new URL(DIAGNOSTICS_APP_URL);
-    // eslint-disable-next-line lingui/no-unlocalized-strings -- query param name required by diagnostics app
     url.searchParams.set('token', token);
     openDiagnosticsTab(url.toString());
   }, [config, fetchFn, kv]);

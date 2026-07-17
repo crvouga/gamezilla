@@ -4,7 +4,6 @@ import { ScrollView, Text, View } from 'react-native';
 type Props = { children: ReactNode };
 type State = { error: Error | null };
 
-// eslint-disable-next-line lingui/no-unlocalized-strings -- last-resort crash screen, must not depend on the (possibly-crashed) i18n provider
 const CRASH_TITLE = 'App failed to start';
 
 /**

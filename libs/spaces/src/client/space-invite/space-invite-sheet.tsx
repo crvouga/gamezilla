@@ -27,10 +27,8 @@ function buildInviteLink(spaceId: string, token: string): string {
     typeof window !== 'undefined' && window.location !== undefined
       ? window.location.origin
       : '';
-  // URL paths are not user-facing copy.
-  // eslint-disable-next-line lingui/no-unlocalized-strings
   return `${origin}/space/${spaceId}?invite=${encodeURIComponent(token)}`;
-}
+}}
 
 function visibilityLabel(
   visibility: SpaceVisibility,

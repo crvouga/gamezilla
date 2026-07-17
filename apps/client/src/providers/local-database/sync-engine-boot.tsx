@@ -42,7 +42,6 @@ export function SyncEngineBoot({
   useDeviceId();
 
   const enginePromise = useCachedPromise(
-    // eslint-disable-next-line lingui/no-unlocalized-strings -- internal cache key
     `sync-engine:${getMainSqliteDbName()}`,
     () =>
       createAppPowerSyncSyncEngine({
@@ -63,7 +62,6 @@ export function SyncEngineBoot({
           () => {
             if (!cancelled) {
               attachSqlCli(engine.db);
-              // eslint-disable-next-line lingui/no-unlocalized-strings -- internal boot phase
               setBoot({ phase: 'ready', engine });
             }
           },
@@ -71,7 +69,6 @@ export function SyncEngineBoot({
             if (cancelled) return;
             const err =
               error instanceof Error ? error : new Error(String(error));
-            // eslint-disable-next-line lingui/no-unlocalized-strings -- internal boot phase
             setBoot({ phase: 'error', error: err });
           }
         );
@@ -79,7 +76,6 @@ export function SyncEngineBoot({
       (error: unknown) => {
         if (cancelled) return;
         const err = error instanceof Error ? error : new Error(String(error));
-        // eslint-disable-next-line lingui/no-unlocalized-strings -- internal boot phase
         setBoot({ phase: 'error', error: err });
       }
     );

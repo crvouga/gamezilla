@@ -4,7 +4,6 @@ import { CommandPalette, CommandRegistryProvider } from '@pkgs/ui';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { ReactNode } from 'react';
 
-// eslint-disable-next-line lingui/no-unlocalized-strings -- AsyncStorage key, not user-facing.
 const COMMAND_HISTORY_STORAGE_KEY = '@app/command-history';
 
 export function AppCommandRegistry({

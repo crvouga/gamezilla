@@ -13,7 +13,6 @@ module.exports = [
     },
     rules: {
       ...linguiRules(),
-      'lingui/no-unlocalized-strings': 'off',
     },
   },
 ];

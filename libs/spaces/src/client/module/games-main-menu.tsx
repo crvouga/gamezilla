@@ -80,7 +80,6 @@ function GameListMenu({
 }
 
 /** FadeSwitch key when no game is selected (not user-facing copy). */
-// eslint-disable-next-line lingui/no-unlocalized-strings -- animation key, not copy
 const GAMES_LIST_FADE_KEY = 'games-list';
 
 function GamesMainMenuContent({

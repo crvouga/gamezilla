@@ -93,7 +93,6 @@ function useRefreshOnAppForeground(args: {
         });
       })();
     };
-    // eslint-disable-next-line lingui/no-unlocalized-strings -- React Native AppState event name.
     const sub = AppState.addEventListener('change', onChange);
     return () => sub.remove();
   }, [enabled, port, tokenRef, expiresAtRef, deps]);

@@ -23,16 +23,14 @@ module.exports = [
       lingui: eslintPluginLingui,
     },
     rules: {
+      // Design-system internals: product copy is enforced in apps/client.
       'workspaceI18n/text-must-be-trans': 'off',
       ...linguiRules(),
-      // Design-system internals: product copy is enforced in apps/client.
-      'lingui/no-unlocalized-strings': 'off',
     },
   },
   {
     files: ['**/*.test.{ts,tsx}'],
     rules: {
-      'lingui/no-unlocalized-strings': 'off',
       'lingui/t-call-in-function': 'off',
       'lingui/no-trans-inside-trans': 'off',
       'lingui/no-expression-in-message': 'off',
