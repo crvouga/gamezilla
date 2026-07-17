@@ -83,8 +83,9 @@ describe('partitionActionBarItems', () => {
   test('keeps inline items visible before first layout pass', () => {
     const items = [item('a'), item('b'), item('menu', 0, 'always')];
     const result = partition(items, 0);
-    expect(result.visible.map((i) => i.id)).toEqual(['a', 'b']);
-    expect(result.overflow.map((i) => i.id)).toEqual(['menu']);
+    // Lone always item expands — More must never hold a single action.
+    expect(result.visible.map((i) => i.id)).toEqual(['a', 'b', 'menu']);
+    expect(result.overflow).toHaveLength(0);
   });
 
   test('overflows everything at zero width when every item is always-overflow', () => {
@@ -101,11 +102,22 @@ describe('partitionActionBarItems', () => {
     expect(result.overflow.map((i) => i.id)).toEqual(['low', 'extra']);
   });
 
-  test('overflow never keeps always items visible', () => {
+  test('expands a lone always-overflow item instead of a one-item More menu', () => {
     const items = [item('visible', 10, 'never'), item('menu', 0, 'always')];
     const result = partition(items, SLOT * 3);
-    expect(result.visible.map((i) => i.id)).toEqual(['visible']);
-    expect(result.overflow.map((i) => i.id)).toEqual(['menu']);
+    expect(result.visible.map((i) => i.id)).toEqual(['visible', 'menu']);
+    expect(result.overflow).toHaveLength(0);
+  });
+
+  test('keeps overflow when two always items need the menu', () => {
+    const items = [
+      item('keep', 10, 'never'),
+      item('a', 0, 'always'),
+      item('b', 0, 'always'),
+    ];
+    const result = partition(items, SLOT * 4);
+    expect(result.visible.map((i) => i.id)).toEqual(['keep']);
+    expect(result.overflow.map((i) => i.id)).toEqual(['a', 'b']);
   });
 
   test('reserves one slot for the overflow trigger', () => {
@@ -113,6 +125,14 @@ describe('partitionActionBarItems', () => {
     const result = partition(items, SLOT * 2);
     expect(result.visible).toHaveLength(1);
     expect(result.overflow).toHaveLength(2);
+  });
+
+  test('expands when width would leave exactly one auto-overflowed item', () => {
+    // 2 slots fit both without a More button; do not collapse one into overflow.
+    const items = [item('a', 3), item('b', 2)];
+    const result = partition(items, SLOT * 2);
+    expect(result.visible.map((i) => i.id)).toEqual(['a', 'b']);
+    expect(result.overflow).toHaveLength(0);
   });
 
   test('subtracts endSlot reserved width from budget', () => {
@@ -139,8 +159,8 @@ describe('partitionActionBarItems', () => {
       },
     ];
     const result = partition(items, SLOT * 2);
-    expect(result.visible.map((i) => i.id)).toEqual(['settings']);
-    expect(result.overflow.map((i) => i.id)).toEqual(['devtools']);
+    expect(result.visible.map((i) => i.id)).toEqual(['settings', 'devtools']);
+    expect(result.overflow).toHaveLength(0);
   });
 
   test('wider slot width reduces visible inline items', () => {

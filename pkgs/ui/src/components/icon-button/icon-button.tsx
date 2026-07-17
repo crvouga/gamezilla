@@ -4,7 +4,9 @@
  * Uses the themed {@link Pressable} so hover (desktop pointer) and press
  * feedback come from the `interactiveHover` / `interactivePress` overlay
  * tokens.
- * Every button shows a {@link Tooltip} with its `label`.
+ * By default every button shows a {@link Tooltip} with its `label`. Pass
+ * `tooltip="hover"` for pointer-hover only (no long-press), or
+ * `tooltip="none"` when a visible caption already labels the control.
  *
  * `variant="avatar"` draws a border ring via inset padding (so the outer
  * box stays exactly `size` tall) and keeps a square hit target via
@@ -29,6 +31,9 @@ import { Tooltip, useTooltipTrigger } from '../tooltip';
 
 export type IconButtonVariant = 'icon' | 'avatar';
 
+/** How the button exposes its `label` as a tooltip. */
+export type IconButtonTooltipMode = 'default' | 'hover' | 'none';
+
 /** Border width on each side for `variant="avatar"`. */
 export const ICON_BUTTON_AVATAR_BORDER_WIDTH = 2;
 
@@ -44,6 +49,11 @@ export type IconButtonProps = {
   onPress?: () => void;
   /** When true, shows the tooltip briefly after `onPress` (touch feedback). */
   flashTooltipOnPress?: boolean;
+  /**
+   * Tooltip behavior. `'default'` = hover + long-press; `'hover'` = pointer
+   * hover only; `'none'` = no tooltip (label still used for a11y).
+   */
+  tooltip?: IconButtonTooltipMode;
   /** Diameter in pixels. Defaults to 40. */
   size?: number;
   /** Color token or raw color for the background. */
@@ -109,10 +119,19 @@ function iconButtonFaceStyle(args: {
   };
 }
 
+type IconButtonFaceProps = Omit<
+  IconButtonProps,
+  'label' | 'tooltip' | 'children'
+> & {
+  tooltipMode: IconButtonTooltipMode;
+  children: ReactNode;
+};
+
 function IconButtonFace({
   children,
   onPress,
   flashTooltipOnPress,
+  tooltipMode,
   size,
   background,
   variant,
@@ -120,7 +139,7 @@ function IconButtonFace({
   testID,
   accessibilityLabel,
   accessibilityRole,
-}: Omit<IconButtonProps, 'label'>): ReactNode {
+}: IconButtonFaceProps): ReactNode {
   const theme = useTheme();
   const tooltip = useTooltipTrigger();
   const hasBackground = background !== undefined;
@@ -130,11 +149,12 @@ function IconButtonFace({
   );
   const isAvatar = variant === 'avatar';
   const radius = size! / 2;
+  const longPressTooltip = tooltipMode === 'default';
 
   const handlePress = onPress
     ? () => {
         onPress();
-        if (flashTooltipOnPress === true) {
+        if (flashTooltipOnPress === true && tooltipMode !== 'none') {
           setTimeout(() => tooltip?.show(), 0);
         }
       }
@@ -147,12 +167,16 @@ function IconButtonFace({
       testID={testID}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole={accessibilityRole ?? 'button'}
-      onLongPress={() => {
-        tooltip?.show();
-      }}
-      onPressOut={() => {
-        tooltip?.hide();
-      }}
+      {...(longPressTooltip
+        ? {
+            onLongPress: () => {
+              tooltip?.show();
+            },
+            onPressOut: () => {
+              tooltip?.hide();
+            },
+          }
+        : {})}
       sx={{ borderRadius: radius }}
       style={iconButtonFaceStyle({
         size: size!,
@@ -171,43 +195,46 @@ function IconButtonFace({
   );
 }
 
-export function IconButton(props: IconButtonProps): ReactNode {
+type IconButtonFaceBaseProps = Omit<IconButtonFaceProps, 'children'>;
+
+function buildIconButtonFaceProps(
+  props: IconButtonProps,
+  tooltipMode: IconButtonTooltipMode
+): IconButtonFaceBaseProps {
   const {
     label,
-    children,
+    accessibilityLabel,
     onPress,
     flashTooltipOnPress,
-    size = 40,
     background,
+    testID,
+    size = 40,
     variant = 'icon',
     disabled = false,
-    testID,
-    accessibilityLabel,
     accessibilityRole = 'button',
   } = props;
+  const resolvedA11y = resolveAccessibilityLabel(label, accessibilityLabel);
+  return {
+    size,
+    variant,
+    disabled,
+    accessibilityRole,
+    tooltipMode,
+    ...(background !== undefined ? { background } : {}),
+    ...(onPress !== undefined ? { onPress } : {}),
+    ...(flashTooltipOnPress === true ? { flashTooltipOnPress } : {}),
+    ...(testID !== undefined ? { testID } : {}),
+    ...(resolvedA11y !== undefined ? { accessibilityLabel: resolvedA11y } : {}),
+  };
+}
 
-  const resolvedAccessibilityLabel = resolveAccessibilityLabel(
-    label,
-    accessibilityLabel
+export function IconButton(props: IconButtonProps): ReactNode {
+  const tooltipMode = props.tooltip ?? 'default';
+  const face = (
+    <IconButtonFace {...buildIconButtonFaceProps(props, tooltipMode)}>
+      {props.children}
+    </IconButtonFace>
   );
-
-  return (
-    <Tooltip label={label}>
-      <IconButtonFace
-        size={size}
-        variant={variant}
-        disabled={disabled}
-        accessibilityRole={accessibilityRole}
-        {...(background !== undefined ? { background } : {})}
-        {...(onPress !== undefined ? { onPress } : {})}
-        {...(flashTooltipOnPress === true ? { flashTooltipOnPress } : {})}
-        {...(testID !== undefined ? { testID } : {})}
-        {...(resolvedAccessibilityLabel !== undefined
-          ? { accessibilityLabel: resolvedAccessibilityLabel }
-          : {})}
-      >
-        {children}
-      </IconButtonFace>
-    </Tooltip>
-  );
+  if (tooltipMode === 'none') return face;
+  return <Tooltip label={props.label}>{face}</Tooltip>;
 }

@@ -9,10 +9,13 @@ import {
   type ActionBarPartition,
 } from './partition-action-bar-items';
 
-function partitionTextActions(actions: readonly ActionBarTextAction[]): {
-  inline: ActionBarTextAction[];
-  overflow: ActionBarTextAction[];
-} {
+function partitionTextActions(
+  actions: readonly ActionBarTextAction[],
+  overflowMode: 'auto' | 'never'
+): { inline: ActionBarTextAction[]; overflow: ActionBarTextAction[] } {
+  if (overflowMode === 'never') {
+    return { inline: [...actions], overflow: [] };
+  }
   const inline: ActionBarTextAction[] = [];
   const overflow: ActionBarTextAction[] = [];
   for (const action of actions) {
@@ -20,6 +23,45 @@ function partitionTextActions(actions: readonly ActionBarTextAction[]): {
     else inline.push(action);
   }
   return { inline, overflow };
+}
+
+/** Expand a combined one-item overflow so More never holds a single action. */
+function resolveCombinedOverflow(args: {
+  iconPartition: ActionBarPartition;
+  inlineText: readonly ActionBarTextAction[];
+  overflowText: readonly ActionBarTextAction[];
+}): {
+  partition: ActionBarPartition;
+  inlineText: ActionBarTextAction[];
+  overflowText: ActionBarTextAction[];
+} {
+  const total =
+    args.iconPartition.overflow.length + args.overflowText.length;
+  if (total !== 1) {
+    return {
+      partition: args.iconPartition,
+      inlineText: [...args.inlineText],
+      overflowText: [...args.overflowText],
+    };
+  }
+  if (args.iconPartition.overflow.length === 1) {
+    return {
+      partition: {
+        visible: [
+          ...args.iconPartition.visible,
+          ...args.iconPartition.overflow,
+        ],
+        overflow: [],
+      },
+      inlineText: [...args.inlineText],
+      overflowText: [],
+    };
+  }
+  return {
+    partition: args.iconPartition,
+    inlineText: [...args.inlineText, ...args.overflowText],
+    overflowText: [],
+  };
 }
 
 function useFloorLayoutWidth(): {
@@ -32,6 +74,83 @@ function useFloorLayoutWidth(): {
     setWidth((prev) => (prev === next ? prev : next));
   }, []);
   return { width, onLayout };
+}
+
+function resolveIconPartition(args: {
+  overflowMode: 'auto' | 'never';
+  items: readonly ActionBarItem[];
+  containerWidth: number;
+  buttonSize: number;
+  slotWidth: number;
+  gap: number;
+  reservedWidth: number;
+}): ActionBarPartition {
+  if (args.overflowMode === 'never') {
+    return { visible: [...args.items], overflow: [] };
+  }
+  return partitionActionBarItems(args.items, {
+    containerWidth: args.containerWidth,
+    buttonSize: args.buttonSize,
+    slotWidth: args.slotWidth,
+    gap: args.gap,
+    reservedWidth: args.reservedWidth,
+  });
+}
+
+function useActionBarPartitions(args: {
+  items: readonly ActionBarItem[];
+  textActions: readonly ActionBarTextAction[];
+  overflowMode: 'auto' | 'never';
+  containerWidth: number;
+  buttonSize: number;
+  slotWidth: number;
+  gap: number;
+  reservedWidth: number;
+  onMenuClose: () => void;
+}) {
+  const textPartition = useMemo(
+    () => partitionTextActions(args.textActions, args.overflowMode),
+    [args.textActions, args.overflowMode]
+  );
+  const iconPartition = useMemo(
+    () =>
+      resolveIconPartition({
+        overflowMode: args.overflowMode,
+        items: args.items,
+        containerWidth: args.containerWidth,
+        buttonSize: args.buttonSize,
+        slotWidth: args.slotWidth,
+        gap: args.gap,
+        reservedWidth: args.reservedWidth,
+      }),
+    [
+      args.overflowMode,
+      args.items,
+      args.containerWidth,
+      args.buttonSize,
+      args.slotWidth,
+      args.gap,
+      args.reservedWidth,
+    ]
+  );
+  const combined = useMemo(
+    () =>
+      resolveCombinedOverflow({
+        iconPartition,
+        inlineText: textPartition.inline,
+        overflowText: textPartition.overflow,
+      }),
+    [iconPartition, textPartition]
+  );
+  const overflowItemActions = useMemo(
+    () =>
+      actionBarItemsToOverflowActions(
+        combined.partition.overflow,
+        args.onMenuClose
+      ),
+    [combined.partition.overflow, args.onMenuClose]
+  );
+  return { combined, overflowItemActions };
 }
 
 export type ActionBarLayoutState = {
@@ -60,58 +179,30 @@ export function useActionBarLayout(args: {
   const container = useFloorLayoutWidth();
   const endSlot = useFloorLayoutWidth();
   const overflowMode = args.overflow ?? 'auto';
-
-  const { inline: inlineTextActions, overflow: overflowTextActions } = useMemo(
-    () =>
-      overflowMode === 'never'
-        ? {
-            inline: [...args.textActions],
-            overflow: [] as ActionBarTextAction[],
-          }
-        : partitionTextActions(args.textActions),
-    [args.textActions, overflowMode]
-  );
-
   const reservedWidth = useMemo(() => {
     if (args.endSlot === undefined || args.endSlot === null) return 0;
     return endSlot.width > 0 ? endSlot.width + args.gap : 0;
   }, [args.endSlot, endSlot.width, args.gap]);
-
-  const partition = useMemo((): ActionBarPartition => {
-    if (overflowMode === 'never') {
-      return { visible: [...args.items], overflow: [] };
-    }
-    return partitionActionBarItems(args.items, {
-      containerWidth: container.width,
-      buttonSize: args.buttonSize,
-      slotWidth: args.slotWidth,
-      gap: args.gap,
-      reservedWidth,
-    });
-  }, [
+  const { combined, overflowItemActions } = useActionBarPartitions({
+    items: args.items,
+    textActions: args.textActions,
     overflowMode,
-    args.items,
-    container.width,
-    args.buttonSize,
-    args.slotWidth,
-    args.gap,
+    containerWidth: container.width,
+    buttonSize: args.buttonSize,
+    slotWidth: args.slotWidth,
+    gap: args.gap,
     reservedWidth,
-  ]);
-
-  const overflowItemActions = useMemo(
-    () => actionBarItemsToOverflowActions(partition.overflow, args.onMenuClose),
-    [partition.overflow, args.onMenuClose]
-  );
-
+    onMenuClose: args.onMenuClose,
+  });
   return {
     containerWidth: container.width,
     endSlotWidth: endSlot.width,
     onContainerLayout: container.onLayout,
     onEndSlotLayout: endSlot.onLayout,
     reservedWidth,
-    partition,
-    inlineTextActions,
-    overflowTextActions,
+    partition: combined.partition,
+    inlineTextActions: combined.inlineText,
+    overflowTextActions: combined.overflowText,
     overflowItemActions,
   };
 }

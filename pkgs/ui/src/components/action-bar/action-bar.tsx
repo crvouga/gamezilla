@@ -63,7 +63,7 @@ export type ActionBarProps = {
   gap?: number;
   /** Horizontal budget per inline slot; defaults to `buttonSize`. */
   slotWidth?: number;
-  /** When true, shows a caption under each icon action (not avatars). */
+  /** When true, shows a caption under each inline action (icons, avatars, More). */
   showInlineLabels?: boolean;
   overflowTestID?: string;
 };
@@ -118,6 +118,8 @@ function ActionBarRow(p: {
             onOpen={p.onOpenMenu}
             triggerRef={p.triggerRef}
             overflowTrigger={p.overflowTrigger}
+            showInlineLabels={p.showInlineLabels}
+            slotWidth={p.slotWidth}
             {...(p.overflowTestID !== undefined
               ? { testID: p.overflowTestID }
               : {})}

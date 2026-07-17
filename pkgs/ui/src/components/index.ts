@@ -106,6 +106,7 @@ export {
   IconButton,
   iconButtonAvatarContentSize,
   type IconButtonProps,
+  type IconButtonTooltipMode,
   type IconButtonVariant,
 } from './icon-button';
 export { BackIconButton, type BackIconButtonProps } from './back-icon-button';

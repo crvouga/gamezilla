@@ -14,9 +14,11 @@ import { IconButton } from '../icon-button';
 import { EllipsisIcon, MenuIcon } from '../icons';
 import type { OverflowMenuAction } from '../overflow-menu-button/overflow-menu-button';
 import { ActionBarIconButton } from './action-bar-icon-button';
+import { ActionBarLabeledControl } from './action-bar-labeled-control';
 import type { ActionBarTextAction } from './action-bar-types';
 import {
   isActionBarAvatarItem,
+  type ActionBarAvatarItem,
   type ActionBarItem,
 } from './partition-action-bar-items';
 
@@ -57,15 +59,58 @@ export type ActionBarOverflowTriggerSpec =
     }
   | undefined;
 
+function ActionBarAvatarItemButton(p: {
+  item: ActionBarAvatarItem;
+  buttonSize: number;
+  showInlineLabel: boolean;
+  slotWidth: number;
+}): ReactNode {
+  const disabled = p.item.disabled === true || p.item.loading === true;
+  const caption = p.item.shortLabel ?? p.item.label;
+
+  if (p.showInlineLabel) {
+    return (
+      <ActionBarLabeledControl
+        caption={caption}
+        label={p.item.label}
+        slotWidth={p.slotWidth}
+        disabled={disabled}
+        onPress={p.item.onPress}
+      >
+        {p.item.children}
+      </ActionBarLabeledControl>
+    );
+  }
+
+  return (
+    <IconButton
+      variant="avatar"
+      size={p.buttonSize}
+      label={p.item.label}
+      onPress={p.item.onPress}
+      tooltip="hover"
+      disabled={disabled}
+    >
+      {p.item.children}
+    </IconButton>
+  );
+}
+
 export function ActionBarOverflowTrigger(p: {
   buttonSize: number;
   onOpen: () => void;
   triggerRef: React.RefObject<React.ElementRef<typeof Box> | null>;
   testID?: string;
   overflowTrigger?: ActionBarOverflowTriggerSpec;
+  showInlineLabels?: boolean;
+  slotWidth?: number;
 }): ReactNode {
   const theme = useTheme();
   const { t } = useLingui();
+  const moreLabel = t`More`;
+  const showInlineLabels = p.showInlineLabels === true;
+  const slotWidth = p.slotWidth ?? p.buttonSize;
+  const iconSize = Math.round(p.buttonSize * 0.55);
 
   if (p.overflowTrigger?.variant === 'avatar') {
     const trigger = p.overflowTrigger;
@@ -77,10 +122,31 @@ export function ActionBarOverflowTrigger(p: {
           onPress={p.onOpen}
           label={trigger.label}
           accessibilityLabel={trigger.label}
+          tooltip="hover"
           {...(trigger.testID !== undefined ? { testID: trigger.testID } : {})}
         >
           {trigger.children}
         </IconButton>
+      </Box>
+    );
+  }
+
+  const menuIcon = (
+    <MenuIcon size={iconSize} color={theme.colors.icon} />
+  );
+
+  if (showInlineLabels) {
+    return (
+      <Box ref={p.triggerRef} collapsable={false}>
+        <ActionBarLabeledControl
+          caption={moreLabel}
+          label={moreLabel}
+          slotWidth={slotWidth}
+          onPress={p.onOpen}
+          {...(p.testID !== undefined ? { testID: p.testID } : {})}
+        >
+          {menuIcon}
+        </ActionBarLabeledControl>
       </Box>
     );
   }
@@ -90,13 +156,11 @@ export function ActionBarOverflowTrigger(p: {
       <IconButton
         size={p.buttonSize}
         onPress={p.onOpen}
-        label={t`More`}
+        label={moreLabel}
+        tooltip="hover"
         {...(p.testID !== undefined ? { testID: p.testID } : {})}
       >
-        <MenuIcon
-          size={Math.round(p.buttonSize * 0.55)}
-          color={theme.colors.icon}
-        />
+        {menuIcon}
       </IconButton>
     </Box>
   );
@@ -115,16 +179,13 @@ export function ActionBarIconItems(p: {
       {p.items.map((item) => {
         if (isActionBarAvatarItem(item)) {
           return (
-            <IconButton
+            <ActionBarAvatarItemButton
               key={item.id}
-              variant="avatar"
-              size={p.buttonSize}
-              label={item.label}
-              onPress={item.onPress}
-              disabled={item.disabled === true || item.loading === true}
-            >
-              {item.children}
-            </IconButton>
+              item={item}
+              buttonSize={p.buttonSize}
+              showInlineLabel={showInlineLabels}
+              slotWidth={slotWidth}
+            />
           );
         }
         return (

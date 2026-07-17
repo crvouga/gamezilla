@@ -162,15 +162,28 @@ function partitionByVisibleCount(
   };
 }
 
+/** Prefer no More menu when overflow would hold fewer than two actions. */
+function expandSingletonOverflow(
+  partition: ActionBarPartition
+): ActionBarPartition {
+  if (partition.overflow.length === 0 || partition.overflow.length >= 2) {
+    return partition;
+  }
+  return {
+    visible: [...partition.visible, ...partition.overflow],
+    overflow: [],
+  };
+}
+
 /** Before the first layout pass, budget is unknown — keep inline items visible. */
 function partitionBeforeMeasure(
   items: readonly ActionBarItem[]
 ): ActionBarPartition {
   const { always } = itemSets(items);
-  return {
-    visible: items.filter((item) => !always.has(item.id)),
-    overflow: items.filter((item) => always.has(item.id)),
-  };
+  const overflow = items.filter((item) => always.has(item.id));
+  const visible = items.filter((item) => !always.has(item.id));
+  // Avoid flashing a one-item More menu before width is measured.
+  return expandSingletonOverflow({ visible, overflow });
 }
 
 export function maxIconSlots(
@@ -209,11 +222,20 @@ export function partitionActionBarItems(
   const budget = actionBarBudgetWidth(layout.containerWidth, reservedWidth);
   const slots = maxIconSlots(budget, slotWidth, gap);
 
-  let partition = partitionByVisibleCount(items, slots);
-  if (partition.overflow.length > 0 && slots > 0) {
-    partition = partitionByVisibleCount(items, slots - 1);
+  const fitted = partitionByVisibleCount(items, slots);
+  if (fitted.overflow.length === 0) {
+    return fitted;
   }
-  return partition;
+
+  // Reserve a More slot only when at least two actions would overflow.
+  if (slots > 0) {
+    const withTrigger = partitionByVisibleCount(items, slots - 1);
+    if (withTrigger.overflow.length >= 2) {
+      return withTrigger;
+    }
+  }
+
+  return expandSingletonOverflow(fitted);
 }
 
 export type ScreenBaseActionLike = {

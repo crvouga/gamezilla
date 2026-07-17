@@ -28,7 +28,7 @@ function buildInviteLink(spaceId: string, token: string): string {
       ? window.location.origin
       : '';
   return `${origin}/space/${spaceId}?invite=${encodeURIComponent(token)}`;
-}}
+}
 
 function visibilityLabel(
   visibility: SpaceVisibility,

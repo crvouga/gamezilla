@@ -3,6 +3,7 @@ export {
   IconButton,
   iconButtonAvatarContentSize,
   type IconButtonProps,
+  type IconButtonTooltipMode,
   type IconButtonVariant,
 } from './icon-button';
 export { default as IconButtonExample } from './icon-button.example';

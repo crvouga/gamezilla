@@ -24,6 +24,7 @@ type SpaceChromeLabels = {
   home: string;
   back: string;
   members: string;
+  membersShort: string;
   rename: string;
   renameShort: string;
   invite: string;
@@ -90,6 +91,7 @@ function buildTrailingItems(args: {
       id: 'members',
       variant: 'avatar',
       label: labels.members,
+      shortLabel: labels.membersShort,
       onPress: callbacks.onPressMembers,
       overflow: 'never',
       priority: 90,
@@ -146,6 +148,7 @@ function useSpaceChromeLabels(): SpaceChromeLabels {
       home: t`Close`,
       back: t`Back`,
       members: t`People in this space`,
+      membersShort: t`People`,
       rename: t`Rename space`,
       renameShort: t`Rename`,
       invite: t`Invite`,
