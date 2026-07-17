@@ -194,9 +194,10 @@ export function useChessGame(options: UseChessGameOptions = {}) {
         square: from as unknown as ChessSquare,
         verbose: true,
       }) as ChessJsMove[];
-      return moves
-        .map((m) => String(m.to))
-        .filter(isSquare) as readonly Square[];
+      // Promotions yield one move per piece choice (q/r/b/n) with the same
+      // `to` square — dedupe so render keys stay unique.
+      const targets = new Set(moves.map((m) => String(m.to)));
+      return [...targets].filter(isSquare) as readonly Square[];
     },
     [chess]
   );
