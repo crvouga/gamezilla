@@ -19,9 +19,18 @@ export const PROJECT_CONFIG = {
      */
     productionHostnames: [] as const,
   },
-  /** S3-compatible object storage — bucket and credentials are externally managed. */
+  /**
+   * S3-compatible object storage. Runtime uses `S3_*` secrets only;
+   * buckets are provisioned on Cloudflare R2 by the infra `s3-bucket` resource.
+   */
   objectStore: {
     /** Key prefix enforced on every remote object-store write. */
     namespace: 'gamezilla',
+    buckets: {
+      /** Infisical secrets env `dev`. */
+      development: 'gamezilla-development',
+      /** Infisical secrets env `prd`. */
+      production: 'gamezilla-production',
+    },
   },
 } as const;

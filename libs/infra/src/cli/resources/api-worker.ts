@@ -19,8 +19,7 @@ import { productionApiOrigin } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId } from '../secrets/cloudflare';
-import { getSecretMap } from '../secrets/secrets';
-import { API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS } from '../secrets/worker-api-secrets';
+import { getApiWorkerSecrets } from '../secrets/secrets';
 import { runAsync } from '../subprocess';
 import { ResourceBase, type InfraContext } from './types';
 
@@ -39,23 +38,15 @@ function buildWorkerSecretBulkPayload(): Record<string, string> {
     SECRETS_ENV: scope.env,
   };
 
-  for (const entry of getSecretMap()) {
-    const value = (process.env[entry.env] ?? '').trim();
+  for (const entry of getApiWorkerSecrets()) {
+    const value = (process.env[entry.name] ?? '').trim();
     if (value.length === 0) {
-      if (entry.optional === true) continue;
-      assert.fail(`Worker deploy: missing secret ${entry.secretKey}`);
-    }
-    payload[entry.env] = value;
-  }
-
-  for (const key of API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS) {
-    const value = (process.env[key] ?? '').trim();
-    if (value.length === 0) {
+      if (entry.optional) continue;
       assert.fail(
-        `Worker deploy: missing secret ${key} (add to Infisical env \`${scope.env}\`)`
+        `Worker deploy: missing secret ${entry.name} (add to Infisical env \`${scope.env}\`)`
       );
     }
-    payload[key] = value;
+    payload[entry.name] = value;
   }
 
   for (const key of WORKER_EXTRA_ENV_KEYS) {

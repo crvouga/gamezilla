@@ -346,6 +346,7 @@
     "libs/infra": {
       "name": "@libs/infra",
       "dependencies": {
+        "@aws-sdk/client-s3": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
         "@pkgs/distributed-lock": "workspace:*",

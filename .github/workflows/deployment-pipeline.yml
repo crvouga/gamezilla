@@ -4,13 +4,14 @@
 # CI/CD design guidelines (Turbo-first + atomic deploy):
 #
 # 1. Turbo-cacheable tasks (format, syncpack/catalog, knip, depcruise,
-#    circular-deps, audit, i18n, tc, lint, test, build)
-#    all run inside a
-#    single `turbo-ci` job that invokes `bun run check:ci`. Turbo's task
-#    graph uses L1 GitHub Actions cache of `.turbo` plus L2 self-hosted
-#    remote cache (`TURBO_API` / `TURBO_TOKEN` / `TURBO_TEAM` from secrets
-#    env `dev` → https://turborepo.chrisvouga.dev). Vercel remote cache
-#    is intentionally not used (rate limits).
+#    circular-deps, audit, i18n, tc, lint, test, build) plus the
+#    non-cacheable `check:secrets` gate (live Infisical validate for
+#    both `dev` and `prd`) all run inside a single `turbo-ci` job that
+#    invokes `bun run check:ci`. Turbo's task graph uses L1 GitHub
+#    Actions cache of `.turbo` plus L2 self-hosted remote cache
+#    (`TURBO_API` / `TURBO_TOKEN` / `TURBO_TEAM` from secrets env `dev`
+#    → https://turborepo.chrisvouga.dev). Vercel remote cache is
+#    intentionally not used (rate limits).
 #
 # 2. Non-Turbo tasks live in their own jobs only when they need a runner
 #    shape Turbo can't share: `static` (actionlint + gitleaks both want

@@ -1,0 +1,130 @@
+import {
+  API_URL,
+  EXPO_PUBLIC_API_URL,
+  EXPO_PUBLIC_COMMIT_DATE,
+  EXPO_PUBLIC_COMMIT_HASH,
+  LOCAL_PREVIEW_API_ORIGIN,
+} from './api-url';
+import {
+  AUTH_PUBLISHABLE_KEY,
+  AUTH_SECRET_KEY,
+  EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY,
+} from './auth-secrets';
+import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
+import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
+import {
+  CLERK_PUBLISHABLE_KEY,
+  CLERK_SECRET_KEY,
+} from './clerk-alias-secrets';
+import { DATABASE_URL } from './db-url';
+import { EXPO_TOKEN } from './expo-token';
+import {
+  ELEVEN_LABS_API_KEY,
+  OPENAI_API_KEY,
+  OPENAI_BASE_URL,
+} from './llm-tts-secrets';
+import {
+  EXPO_PUBLIC_OBSERVABILITY_BACKEND,
+  EXPO_PUBLIC_SENTRY_DSN,
+  OBSERVABILITY_BACKEND,
+  SENTRY_DSN,
+} from './observability-secrets';
+import {
+  EXPO_PUBLIC_POWERSYNC_URL,
+  POWERSYNC_INSTANCE_ID,
+  POWERSYNC_JWT_PRIVATE_KEY,
+  POWERSYNC_JWT_PUBLIC_JWK,
+  POWERSYNC_PROJECT_ID,
+  POWERSYNC_URL,
+  PS_ADMIN_TOKEN,
+} from './powersync-secrets';
+import {
+  S3_ACCESS_KEY_ID,
+  S3_BUCKET,
+  S3_ENDPOINT,
+  S3_REGION,
+  S3_SECRET_ACCESS_KEY,
+} from './s3-credentials';
+import type { Secret } from './secret';
+import {
+  STRIPE_PUBLISHABLE_KEY,
+  STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET,
+} from './stripe-secrets';
+import {
+  TURBO_API,
+  TURBO_CACHE,
+  TURBO_LOG_ORDER,
+  TURBO_TEAM,
+  TURBO_TELEMETRY_DISABLED,
+  TURBO_TOKEN,
+} from './turbo-token';
+
+/**
+ * Exhaustive registry of every Infisical secret. Orphans (stored keys not in
+ * this list) are purged on provision and fail `check:secrets`.
+ */
+export const SECRETS: readonly Secret[] = [
+  CLOUDFLARE_API_TOKEN,
+  CLOUDFLARE_ACCOUNT_ID,
+  DATABASE_URL,
+  AUTH_PUBLISHABLE_KEY,
+  AUTH_SECRET_KEY,
+  EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY,
+  CLERK_PUBLISHABLE_KEY,
+  CLERK_SECRET_KEY,
+  STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET,
+  STRIPE_PUBLISHABLE_KEY,
+  TURBO_API,
+  TURBO_TOKEN,
+  TURBO_TEAM,
+  TURBO_CACHE,
+  TURBO_LOG_ORDER,
+  TURBO_TELEMETRY_DISABLED,
+  EXPO_TOKEN,
+  S3_ACCESS_KEY_ID,
+  S3_SECRET_ACCESS_KEY,
+  S3_BUCKET,
+  S3_ENDPOINT,
+  S3_REGION,
+  POWERSYNC_INSTANCE_ID,
+  POWERSYNC_PROJECT_ID,
+  POWERSYNC_URL,
+  PS_ADMIN_TOKEN,
+  POWERSYNC_JWT_PUBLIC_JWK,
+  POWERSYNC_JWT_PRIVATE_KEY,
+  EXPO_PUBLIC_POWERSYNC_URL,
+  ELEVEN_LABS_API_KEY,
+  OPENAI_API_KEY,
+  OPENAI_BASE_URL,
+  API_URL,
+  EXPO_PUBLIC_API_URL,
+  LOCAL_PREVIEW_API_ORIGIN,
+  EXPO_PUBLIC_COMMIT_HASH,
+  EXPO_PUBLIC_COMMIT_DATE,
+  OBSERVABILITY_BACKEND,
+  SENTRY_DSN,
+  EXPO_PUBLIC_OBSERVABILITY_BACKEND,
+  EXPO_PUBLIC_SENTRY_DSN,
+];
+
+export function getSecretMap(): readonly Secret[] {
+  return SECRETS;
+}
+
+export function getRegistrySecretNames(): ReadonlySet<string> {
+  return new Set(SECRETS.map((s) => s.name));
+}
+
+export function getApiWorkerSecrets(): readonly Secret[] {
+  return SECRETS.filter((s) => s.pushToApiWorker);
+}
+
+export function getMirrorToDevSecrets(): readonly Secret[] {
+  return SECRETS.filter((s) => s.mirrorToDev);
+}
+
+export function getSeedableSecrets(): readonly Secret[] {
+  return SECRETS.filter((s) => s.seed !== undefined);
+}

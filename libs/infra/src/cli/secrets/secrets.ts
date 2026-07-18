@@ -1,203 +1,68 @@
-import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
-import { REPO_ROOT } from '../paths';
-import { runCapture } from '../subprocess';
-import { CfAccountId } from './cf-account-id';
-import { CfApiToken } from './cf-api-token';
 import {
-  S3AccessKeyId,
-  S3Bucket,
-  S3Endpoint,
-  S3Region,
-  S3SecretAccessKey,
-} from './s3-credentials';
-import { AuthPublishableKey } from './auth-publishable-key';
-import { AuthSecretKey } from './auth-secret-key';
-import { DbUrl } from './db-url';
-import { ExpoToken } from './expo-token';
+  getApiWorkerSecrets,
+  getSecretMap,
+  SECRETS,
+} from './registry';
 import {
-  PowerSyncInstanceId,
-  PowerSyncJwtPublicJwk,
-  PowerSyncProjectId,
-  PowerSyncUrl,
-  PsAdminToken,
-} from './powersync-secrets';
-import { StripeSecretKey } from './stripe-secret-key';
-import { StripeWebhookSecret } from './stripe-webhook-secret';
+  activeSecretsEnv,
+  validateSecretOrError,
+  type Secret,
+  type SecretInput,
+  type SecretsEnv,
+} from './secret';
 import {
-  TurboApi,
-  TurboCache,
-  TurboLogOrder,
-  TurboTeam,
-  TurboToken,
-} from './turbo-token';
-import type { SecretEntry } from './types';
-import { API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS } from './worker-api-secrets';
+  deleteSecret,
+  deleteSecretIn,
+  exportSecretsMap,
+  fetchSecret,
+  fetchSecretFrom,
+  listSecretNames,
+  secretExists,
+  setSecret,
+  setSecretIn,
+} from './secrets-io';
 
-export { validateSecret } from './types';
-export type { SecretEntry } from './types';
-
-const SECRET_MAP: ReadonlyArray<SecretEntry> = [
-  new CfApiToken(),
-  new CfAccountId(),
-  new DbUrl(),
-  new AuthPublishableKey(),
-  new AuthSecretKey(),
-  new StripeSecretKey(),
-  new StripeWebhookSecret(),
-  new TurboApi(),
-  new TurboToken(),
-  new TurboTeam(),
-  new TurboCache(),
-  new TurboLogOrder(),
-  new ExpoToken(),
-  new S3AccessKeyId(),
-  new S3SecretAccessKey(),
-  new S3Bucket(),
-  new S3Endpoint(),
-  new S3Region(),
-  new PowerSyncInstanceId(),
-  new PowerSyncProjectId(),
-  new PowerSyncUrl(),
-  new PsAdminToken(),
-  new PowerSyncJwtPublicJwk(),
-];
-
-type SecretsCoords = {
-  readonly workspaceId: string;
-  readonly env: string;
-  readonly domain: string;
+export {
+  deleteSecret,
+  deleteSecretIn,
+  exportSecretsMap,
+  fetchSecret,
+  fetchSecretFrom,
+  getApiWorkerSecrets,
+  getSecretMap,
+  listSecretNames,
+  SECRETS,
+  secretExists,
+  setSecret,
+  setSecretIn,
+  validateSecretOrError,
 };
+export type { Secret, SecretInput, SecretsEnv };
+export { activeSecretsEnv } from './secret';
 
-function resolveSecretsCoords(envOverride?: string): SecretsCoords {
-  const scope = resolveSecretsScope(REPO_ROOT, envOverride);
-  return {
-    workspaceId: scope.workspaceId,
-    env: scope.env,
-    domain: scope.domain,
-  };
+/** @deprecated Use {@link validateSecretOrError} with a full SecretInput. */
+export async function validateSecret(
+  entry: Secret,
+  value: string,
+  env: SecretsEnv = activeSecretsEnv(),
+  secrets: ReadonlyMap<string, string> = envMapFromProcess()
+): Promise<string | null> {
+  return validateSecretOrError(entry, {
+    env,
+    secretValue: value,
+    secrets,
+  });
 }
 
-function infisicalBaseArgs(coords: SecretsCoords): string[] {
-  return [
-    '--projectId',
-    coords.workspaceId,
-    '--env',
-    coords.env,
-    '--domain',
-    coords.domain,
-  ];
-}
-
-/** Quiet Cloudsmith migration banner (Homebrew installs are unaffected). */
-function infisicalEnv(): NodeJS.ProcessEnv {
-  return { ...process.env, INFISICAL_DISABLE_MIGRATION_NOTICE: '1' };
-}
-
-function runInfisical(args: string[]): string {
-  return runCapture('infisical', args, { env: infisicalEnv() });
-}
-
-export function getSecretMap(): ReadonlyArray<SecretEntry> {
-  return SECRET_MAP;
-}
-
-export function fetchSecret(name: string): string {
-  const coords = resolveSecretsCoords();
-  return runInfisical([
-    'secrets',
-    'get',
-    name,
-    ...infisicalBaseArgs(coords),
-    '--plain',
-  ]);
-}
-
-export function secretExists(name: string): boolean {
-  try {
-    const value = fetchSecret(name);
-    return value !== '';
-  } catch {
-    return false;
-  }
-}
-
-export function setSecret(name: string, value: string): void {
-  const coords = resolveSecretsCoords();
-  runInfisical([
-    'secrets',
-    'set',
-    `${name}=${value}`,
-    ...infisicalBaseArgs(coords),
-  ]);
-}
-
-export function deleteSecret(name: string): void {
-  const coords = resolveSecretsCoords();
-  runInfisical([
-    'secrets',
-    'delete',
-    name,
-    ...infisicalBaseArgs(coords),
-    '--type',
-    'shared',
-  ]);
-}
-
-export function deleteSecretIn(env: string, name: string): void {
-  const coords = resolveSecretsCoords(env);
-  runInfisical([
-    'secrets',
-    'delete',
-    name,
-    ...infisicalBaseArgs(coords),
-    '--type',
-    'shared',
-  ]);
-}
-
-export function fetchSecretFrom(env: string, name: string): string {
-  const coords = resolveSecretsCoords(env);
-  return runInfisical([
-    'secrets',
-    'get',
-    name,
-    ...infisicalBaseArgs(coords),
-    '--plain',
-  ]);
-}
-
-export function setSecretIn(env: string, name: string, value: string): void {
-  const coords = resolveSecretsCoords(env);
-  runInfisical([
-    'secrets',
-    'set',
-    `${name}=${value}`,
-    ...infisicalBaseArgs(coords),
-  ]);
-}
-
-export function listSecretNames(envOverride?: string): ReadonlyArray<string> {
-  const coords = resolveSecretsCoords(envOverride);
-  const raw = runInfisical([
-    'export',
-    ...infisicalBaseArgs(coords),
-    '--format=json',
-  ]);
-  const parsed: unknown = JSON.parse(raw);
-  if (!Array.isArray(parsed)) {
-    return [];
-  }
-  const names: string[] = [];
-  for (const item of parsed) {
-    if (item === null || typeof item !== 'object' || Array.isArray(item)) {
-      continue;
-    }
-    const key = (item as Record<string, unknown>)['key'];
-    if (typeof key === 'string' && key.length > 0) {
-      names.push(key);
+function envMapFromProcess(): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const entry of SECRETS) {
+    const value = process.env[entry.name];
+    if (typeof value === 'string' && value.length > 0) {
+      map.set(entry.name, value);
     }
   }
-  return names;
+  return map;
 }
 
 export function loadSecretsIntoEnv(): Array<{
@@ -207,50 +72,48 @@ export function loadSecretsIntoEnv(): Array<{
 }> {
   const results: Array<{ env: string; set: boolean; optional: boolean }> = [];
 
-  for (const entry of SECRET_MAP) {
-    const { secretKey, env } = entry;
-    const optional = entry.optional === true;
+  for (const entry of SECRETS) {
+    const { name, optional } = entry;
 
-    const existing = process.env[env];
+    const existing = process.env[name];
     if (typeof existing === 'string' && existing.trim().length > 0) {
-      results.push({ env, set: true, optional });
+      results.push({ env: name, set: true, optional });
       continue;
     }
 
     try {
-      const value = fetchSecret(secretKey).trim();
-      process.env[env] = value;
-      results.push({ env, set: value.length > 0, optional });
+      const value = fetchSecret(name).trim();
+      process.env[name] = value;
+      results.push({ env: name, set: value.length > 0, optional });
     } catch {
-      results.push({ env, set: false, optional });
+      results.push({ env: name, set: false, optional });
     }
   }
 
   return results;
 }
 
-/** Worker boot secrets managed in Infisical but outside {@link getSecretMap}. */
+/**
+ * @deprecated All secrets are in {@link SECRETS}; use {@link loadSecretsIntoEnv}.
+ */
 export function loadWorkerApiSecretsIntoEnv(): Array<{
   key: string;
   set: boolean;
 }> {
   const results: Array<{ key: string; set: boolean }> = [];
-
-  for (const key of API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS) {
-    const existing = process.env[key]?.trim();
+  for (const entry of getApiWorkerSecrets()) {
+    const existing = process.env[entry.name]?.trim();
     if (existing !== undefined && existing.length > 0) {
-      results.push({ key, set: true });
+      results.push({ key: entry.name, set: true });
       continue;
     }
-
     try {
-      const value = fetchSecret(key).trim();
-      process.env[key] = value;
-      results.push({ key, set: value.length > 0 });
+      const value = fetchSecret(entry.name).trim();
+      process.env[entry.name] = value;
+      results.push({ key: entry.name, set: value.length > 0 });
     } catch {
-      results.push({ key, set: false });
+      results.push({ key: entry.name, set: false });
     }
   }
-
   return results;
 }

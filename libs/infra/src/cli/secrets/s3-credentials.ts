@@ -1,67 +1,109 @@
-import type { SecretEntry } from './types';
+import {
+  HeadBucketCommand,
+  ListObjectsV2Command,
+  S3Client,
+} from '@aws-sdk/client-s3';
+import { seedObjectStoreS3ForEnv } from '../lib/s3-secret-seed';
+import {
+  Secret,
+  requireHttpsUrl,
+  requireNonEmpty,
+  type SecretInput,
+  type SecretSeedInput,
+} from './secret';
 
-function requireNonEmpty(value: string): string | null {
-  return value.trim().length === 0 ? 'Must be non-empty when set' : null;
-}
+async function probeS3Access(input: SecretInput): Promise<void> {
+  const accessKeyId = input.secrets.get('S3_ACCESS_KEY_ID')?.trim() ?? '';
+  const secretAccessKey =
+    input.secrets.get('S3_SECRET_ACCESS_KEY')?.trim() ?? '';
+  const bucket = input.secrets.get('S3_BUCKET')?.trim() ?? '';
+  const endpoint = input.secrets.get('S3_ENDPOINT')?.trim() ?? '';
+  const region = input.secrets.get('S3_REGION')?.trim() || 'auto';
 
-export class S3AccessKeyId implements SecretEntry {
-  readonly secretKey = 'S3_ACCESS_KEY_ID';
-  readonly env = 'S3_ACCESS_KEY_ID';
-  readonly hint = 'S3-compatible object storage access key ID';
+  requireNonEmpty(accessKeyId, 'S3_ACCESS_KEY_ID');
+  requireNonEmpty(secretAccessKey, 'S3_SECRET_ACCESS_KEY');
+  requireNonEmpty(bucket, 'S3_BUCKET');
+  requireHttpsUrl(endpoint, 'S3_ENDPOINT');
 
-  async validate(value: string): Promise<string | null> {
-    return requireNonEmpty(value);
-  }
-}
-
-export class S3SecretAccessKey implements SecretEntry {
-  readonly secretKey = 'S3_SECRET_ACCESS_KEY';
-  readonly env = 'S3_SECRET_ACCESS_KEY';
-  readonly hint = 'S3-compatible object storage secret access key';
-
-  async validate(value: string): Promise<string | null> {
-    return requireNonEmpty(value);
-  }
-}
-
-export class S3Bucket implements SecretEntry {
-  readonly secretKey = 'S3_BUCKET';
-  readonly env = 'S3_BUCKET';
-  readonly hint = 'S3-compatible object storage bucket name';
-
-  async validate(value: string): Promise<string | null> {
-    return requireNonEmpty(value);
-  }
-}
-
-export class S3Endpoint implements SecretEntry {
-  readonly secretKey = 'S3_ENDPOINT';
-  readonly env = 'S3_ENDPOINT';
-  readonly hint =
-    'S3-compatible API endpoint, e.g. https://s3.us-west-004.backblazeb2.com';
-
-  async validate(value: string): Promise<string | null> {
-    const v = value.trim();
-    if (v.length === 0) return 'Must be non-empty when set';
+  const client = new S3Client({
+    region,
+    endpoint,
+    credentials: { accessKeyId, secretAccessKey },
+    forcePathStyle: true,
+  });
+  try {
     try {
-      const url = new URL(v);
-      if (url.protocol !== 'https:') {
-        return 'Must use https://';
-      }
+      await client.send(new HeadBucketCommand({ Bucket: bucket }));
+      return;
     } catch {
-      return 'Must be a valid URL';
+      // Some S3-compatible providers (B2) return opaque HeadBucket errors;
+      // fall back to a cheap list probe.
     }
-    return null;
+    await client.send(
+      new ListObjectsV2Command({ Bucket: bucket, MaxKeys: 1 })
+    );
+  } catch (e) {
+    throw new Error(
+      `S3 probe failed for bucket ${bucket} at ${endpoint}: ${e instanceof Error ? e.message : String(e)}`
+    );
+  } finally {
+    client.destroy();
   }
 }
 
-export class S3Region implements SecretEntry {
-  readonly secretKey = 'S3_REGION';
-  readonly env = 'S3_REGION';
-  readonly hint =
-    'S3-compatible region slug, e.g. us-west-004 (matches the endpoint region)';
-
-  async validate(value: string): Promise<string | null> {
-    return requireNonEmpty(value);
-  }
+async function validateS3NonEmpty(
+  input: SecretInput,
+  label: string
+): Promise<void> {
+  requireNonEmpty(input.secretValue, label);
 }
+
+async function seedS3Field(
+  input: SecretSeedInput,
+  field: keyof Awaited<ReturnType<typeof seedObjectStoreS3ForEnv>>
+): Promise<string> {
+  const seeded = await seedObjectStoreS3ForEnv(input.env, input.secrets);
+  return seeded[field];
+}
+
+export const S3_ACCESS_KEY_ID = new Secret({
+  name: 'S3_ACCESS_KEY_ID',
+  hint: 'S3-compatible object storage access key ID',
+  pushToApiWorker: true,
+  validate: probeS3Access,
+  seed: (input) => seedS3Field(input, 'accessKeyId'),
+});
+
+export const S3_SECRET_ACCESS_KEY = new Secret({
+  name: 'S3_SECRET_ACCESS_KEY',
+  hint: 'S3-compatible object storage secret access key',
+  pushToApiWorker: true,
+  validate: (input) => validateS3NonEmpty(input, 'S3_SECRET_ACCESS_KEY'),
+  seed: (input) => seedS3Field(input, 'secretAccessKey'),
+});
+
+export const S3_BUCKET = new Secret({
+  name: 'S3_BUCKET',
+  hint: 'S3-compatible object storage bucket name',
+  pushToApiWorker: true,
+  validate: (input) => validateS3NonEmpty(input, 'S3_BUCKET'),
+  seed: (input) => seedS3Field(input, 'bucket'),
+});
+
+export const S3_ENDPOINT = new Secret({
+  name: 'S3_ENDPOINT',
+  hint: 'S3-compatible API endpoint, e.g. https://<ACCOUNT_ID>.r2.cloudflarestorage.com',
+  pushToApiWorker: true,
+  validate: async (input) => {
+    requireHttpsUrl(input.secretValue, 'S3_ENDPOINT');
+  },
+  seed: (input) => seedS3Field(input, 'endpoint'),
+});
+
+export const S3_REGION = new Secret({
+  name: 'S3_REGION',
+  hint: 'S3-compatible region slug — use `auto` for Cloudflare R2',
+  pushToApiWorker: true,
+  validate: (input) => validateS3NonEmpty(input, 'S3_REGION'),
+  seed: (input) => seedS3Field(input, 'region'),
+});

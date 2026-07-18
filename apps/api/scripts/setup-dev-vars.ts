@@ -5,9 +5,7 @@ import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/shared/local-api-
 import {
   getSecretMap,
   loadSecretsIntoEnv,
-  loadWorkerApiSecretsIntoEnv,
 } from '@libs/infra/cli/secrets/secrets';
-import { API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS } from '@libs/infra/cli/secrets/worker-api-secrets';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -35,7 +33,6 @@ async function main(): Promise<void> {
   const { env: secretsEnv } = resolveSecretsScope(repoRoot);
   assertDevSecretsEnv(secretsEnv);
   loadSecretsIntoEnv();
-  loadWorkerApiSecretsIntoEnv();
 
   const databaseUrl = (process.env['DATABASE_URL'] ?? '').trim();
   await assertNonProdDatabaseUrlForTooling(databaseUrl, {
@@ -45,22 +42,17 @@ async function main(): Promise<void> {
 
   const lines: string[] = [`SECRETS_ENV=${encodeDevVarValue(secretsEnv)}`];
   lines.push(`API_URL=${encodeDevVarValue(readApiUrlForDevVars())}`);
+  const written = new Set<string>(['SECRETS_ENV', 'API_URL']);
 
   for (const entry of getSecretMap()) {
-    const value = (process.env[entry.env] ?? '').trim();
+    if (written.has(entry.name)) continue;
+    const value = (process.env[entry.name] ?? '').trim();
     if (value.length === 0) {
-      if (entry.optional === true) continue;
-      throw new Error(`setup-dev-vars: missing secret ${entry.secretKey}`);
+      if (entry.optional) continue;
+      throw new Error(`setup-dev-vars: missing secret ${entry.name}`);
     }
-    lines.push(`${entry.env}=${encodeDevVarValue(value)}`);
-  }
-
-  for (const key of API_WORKER_EXTERNALLY_MANAGED_SECRET_KEYS) {
-    const value = (process.env[key] ?? '').trim();
-    if (value.length === 0) {
-      throw new Error(`setup-dev-vars: missing secret ${key}`);
-    }
-    lines.push(`${key}=${encodeDevVarValue(value)}`);
+    lines.push(`${entry.name}=${encodeDevVarValue(value)}`);
+    written.add(entry.name);
   }
 
   const body = `${lines.join('\n')}\n`;

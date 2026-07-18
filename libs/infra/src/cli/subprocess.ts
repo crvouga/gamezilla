@@ -266,6 +266,66 @@ export async function runAsync(
   }
 }
 
+/**
+ * Run a command, streaming stdout/stderr live (like {@link runAsync}) while
+ * also capturing the combined output for post-hoc inspection. Throws on
+ * non-zero exit / signal; returns the combined output on success so callers
+ * can crash on soft failures the tool only reports as log lines.
+ */
+export async function runTeeAsync(
+  cmd: string,
+  args: string[],
+  opts?: RunOpts
+): Promise<string> {
+  assert.ok(
+    typeof cmd === 'string' && cmd.length > 0,
+    'runTeeAsync: cmd must be non-empty'
+  );
+  assert.array(args, 'runTeeAsync: args must be an array');
+
+  const fullCmd = `${cmd} ${args.join(' ')}`;
+  const label = opts?.label ?? fullCmd;
+  const t0 = performance.now();
+
+  return new Promise<string>((resolve, reject) => {
+    const child = spawn(cmd, args, {
+      env: opts?.env ?? process.env,
+      cwd: opts?.cwd,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    let combined = '';
+    child.stdout?.setEncoding('utf8');
+    child.stderr?.setEncoding('utf8');
+    child.stdout?.on('data', (c: string | Buffer) => {
+      const s = typeof c === 'string' ? c : c.toString('utf8');
+      combined += s;
+      process.stdout.write(s);
+    });
+    child.stderr?.on('data', (c: string | Buffer) => {
+      const s = typeof c === 'string' ? c : c.toString('utf8');
+      combined += s;
+      process.stderr.write(s);
+    });
+
+    child.on('error', (err) => {
+      reject(new Error(`${label} — ${err.message}`));
+    });
+    child.on('close', (code, signal) => {
+      const elapsed = fmtMs(performance.now() - t0);
+      if (signal) {
+        reject(new Error(`${label} killed by signal ${signal} (${elapsed})`));
+        return;
+      }
+      if (code !== 0) {
+        reject(new Error(`${label} failed (exit ${code}, ${elapsed})`));
+        return;
+      }
+      resolve(combined);
+    });
+  });
+}
+
 export async function runCaptureAsync(
   cmd: string,
   args: string[],

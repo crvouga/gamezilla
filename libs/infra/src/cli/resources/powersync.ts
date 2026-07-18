@@ -7,7 +7,7 @@ import { ok } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { fetchSecret, secretExists, setSecret } from '../secrets/secrets';
-import { runAsync } from '../subprocess';
+import { runAsync, runTeeAsync } from '../subprocess';
 import { generatePowerSyncJwtKeypair } from './powersync-jwt';
 import { resolveDatabaseUrl, verifyWalLevelLogical } from './postgres';
 import { ResourceBase, type InfraContext } from './types';
@@ -142,8 +142,28 @@ function powersyncCliArgs(): string[] {
   return ['bunx', 'powersync@latest'];
 }
 
+/**
+ * The PowerSync CLI exits 0 even when sync-config validation emits
+ * `[warning]` lines (e.g. a streamed table missing from the source schema —
+ * nothing will sync for it). Tiger policy: treat those as hard failures.
+ */
+function assertNoPowerSyncValidationWarnings(
+  output: string,
+  label: string
+): void {
+  const warningLines = output
+    .split('\n')
+    .filter((line) => line.includes('[warning]'));
+  assert.ok(
+    warningLines.length === 0,
+    `${label}: PowerSync validation emitted ${warningLines.length} warning(s) — ` +
+      'fix the sync config / source schema before deploying:\n' +
+      warningLines.map((l) => `  ${l.trim()}`).join('\n')
+  );
+}
+
 async function runPowerSyncCli(
-  platform: CiPlatform,
+  _platform: CiPlatform,
   args: string[],
   label: string
 ): Promise<void> {
@@ -154,11 +174,12 @@ async function runPowerSyncCli(
     'PowerSync CLI command missing'
   );
   const baseArgs = cliArgs.slice(1);
-  await runAsync(platform, cmd, [...baseArgs, ...args], {
+  const output = await runTeeAsync(cmd, [...baseArgs, ...args], {
     cwd: REPO_ROOT,
     env: process.env,
     label,
   });
+  assertNoPowerSyncValidationWarnings(output, label);
 }
 
 /** PowerSync Cloud instance — validates secrets and deploys service + sync config. */
