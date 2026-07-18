@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
-import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/client/use-current-user';
 import { useFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import {
   useSpaceRoomDispatch,
@@ -34,22 +34,23 @@ function usePuzzleSessionIdentityReady(): boolean {
 
 /**
  * When puzzle play was resumed from persisted room state, the recorded
- * `hostIdentity` may not match this install's device seat. Reclaim transfers
- * host to the current actor so moves and hints authorize again.
+ * `hostIdentity` may not match this member id. Reclaim transfers host to the
+ * current actor so moves and hints authorize again. Same user on another
+ * device does not reclaim (member ids match).
  */
 function useReclaimStalePuzzleHost(): void {
-  const deviceId = useMyDeviceId();
+  const memberId = useMyId();
   const dispatch = useSpaceRoomDispatch();
   const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
   const hostIdentity = useSpaceRoomSelector(
     ChessPuzzlePlayAttr.hostIdentity.from
   );
   useEffect(() => {
-    if (deviceId.length === 0) return;
+    if (memberId.length === 0) return;
     if (roomStatus === CHESS_PUZZLE_PLAY_STATUS.idle) return;
-    if (hostIdentity === null || hostIdentity === deviceId) return;
+    if (hostIdentity === null || hostIdentity === memberId) return;
     dispatch(ReclaimChessPuzzlePlay({}));
-  }, [dispatch, hostIdentity, deviceId, roomStatus]);
+  }, [dispatch, hostIdentity, memberId, roomStatus]);
 }
 
 /**

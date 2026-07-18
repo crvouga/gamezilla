@@ -1,12 +1,22 @@
 import {
   SPACE_INVITES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
+  SPACE_PARTICIPATIONS_TABLE,
   SpaceCol,
   SpaceInviteCol,
   SpaceMembershipCol,
+  SpaceParticipationCol,
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
-import { spaceDeviceMembershipEntityId } from '@libs/spaces/shared/membership-key';
+import {
+  resolveSpaceMemberId,
+  spaceMembershipEntityId,
+  spaceParticipationEntityId,
+} from '@libs/spaces/shared/participation/participation-ids';
+import {
+  shouldBumpMemberCountOnJoin,
+  shouldConsumeInviteOnJoin,
+} from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
@@ -20,6 +30,8 @@ import {
   asObjectRecord,
   isoNow,
   requireNonEmptyString,
+  wasMembershipInactive,
+  wasParticipationInactive,
 } from '../space-write-helpers';
 
 export type JoinSpaceInput = {
@@ -51,54 +63,62 @@ function parseJoinSpaceInput(raw: unknown): WriteResult<JoinSpaceInput> {
   });
 }
 
-async function wasMembershipInactive(
-  sql: SqlClient,
-  membershipId: string
-): Promise<boolean> {
-  const rows = await sql.query<{ readonly left_at: string | null }>(
-    `SELECT ${SpaceMembershipCol.leftAt} AS left_at
-     FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     WHERE ${SpaceMembershipCol.id} = ?
-     LIMIT 1`,
-    [membershipId]
-  );
-  const prev = rows[0];
-  return prev === undefined || prev.left_at !== null;
-}
-
 async function upsertJoinMembership(
-  ctx: WriteContext,
   input: JoinSpaceInput,
-  sql: SqlClient
+  sql: SqlClient,
+  memberId: string
 ): Promise<{ readonly reactivated: boolean }> {
-  const membershipId = spaceDeviceMembershipEntityId(
-    ctx.deviceId,
-    input.spaceId
-  );
+  const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
   const reactivated = await wasMembershipInactive(sql, membershipId);
   const now = isoNow();
   await sql.run(
     `INSERT INTO ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     (${SpaceMembershipCol.id}, ${SpaceMembershipCol.guestId},
+     (${SpaceMembershipCol.id}, ${SpaceMembershipCol.memberId},
       ${SpaceMembershipCol.spaceId}, ${SpaceMembershipCol.joinedAt},
-      ${SpaceMembershipCol.leftAt}, ${SpaceMembershipCol.profileId},
-      ${SpaceMembershipCol.deviceLabel})
-     VALUES (?, ?, ?, ?, NULL, ?, ?)
+      ${SpaceMembershipCol.leftAt}, ${SpaceMembershipCol.profileId})
+     VALUES (?, ?, ?, ?, NULL, ?)
      ON CONFLICT (id) DO UPDATE SET
        left_at = NULL,
        joined_at = excluded.joined_at,
        profile_id = excluded.profile_id,
-       device_label = excluded.device_label`,
-    [
-      membershipId,
-      ctx.deviceId,
-      input.spaceId,
-      now,
-      ctx.myId,
-      input.deviceLabel,
-    ]
+       member_id = excluded.member_id`,
+    [membershipId, memberId, input.spaceId, now, memberId]
   );
   return { reactivated };
+}
+
+async function upsertJoinParticipation(
+  ctx: WriteContext,
+  input: JoinSpaceInput,
+  sql: SqlClient,
+  memberId: string
+): Promise<void> {
+  const participationId = spaceParticipationEntityId(
+    ctx.deviceId,
+    input.spaceId
+  );
+  const now = isoNow();
+  await sql.run(
+    `INSERT INTO ${SPACE_PARTICIPATIONS_TABLE.tableName}
+     (${SpaceParticipationCol.id}, ${SpaceParticipationCol.spaceId},
+      ${SpaceParticipationCol.memberId}, ${SpaceParticipationCol.deviceId},
+      ${SpaceParticipationCol.deviceLabel}, ${SpaceParticipationCol.joinedAt},
+      ${SpaceParticipationCol.leftAt})
+     VALUES (?, ?, ?, ?, ?, ?, NULL)
+     ON CONFLICT (id) DO UPDATE SET
+       left_at = NULL,
+       joined_at = excluded.joined_at,
+       member_id = excluded.member_id,
+       device_label = excluded.device_label`,
+    [
+      participationId,
+      input.spaceId,
+      memberId,
+      ctx.deviceId,
+      input.deviceLabel,
+      now,
+    ]
+  );
 }
 
 async function bumpActiveMemberCount(
@@ -113,11 +133,6 @@ async function bumpActiveMemberCount(
   );
 }
 
-/**
- * Atomically consume one invite use. The `use_count < max_uses` guard makes
- * this the single source of truth for the quota, so concurrent accepts of a
- * single-use invite cannot both succeed. Returns `false` when exhausted.
- */
 async function consumeInviteUse(
   sql: SqlClient,
   inviteId: string
@@ -134,24 +149,24 @@ async function consumeInviteUse(
   return result.changes > 0;
 }
 
-/**
- * Consume a use only when the join relies on the invite and creates/reactivates
- * a seat — idempotent re-joins by an existing member must not burn quota.
- * Consume before writing membership so an exhausted invite blocks the join.
- */
 async function consumeInviteForJoinIfNeeded(args: {
   readonly sql: SqlClient;
   readonly spaceId: string;
   readonly inviteToken: string | null;
-  readonly reactivating: boolean;
+  readonly membershipWasInactive: boolean;
 }): Promise<WriteResult<void>> {
-  if (!args.reactivating) return ok(undefined);
-  if (args.inviteToken === null || args.inviteToken.length === 0) {
+  if (
+    !shouldConsumeInviteOnJoin({
+      membershipWasInactive: args.membershipWasInactive,
+      hasInviteToken:
+        args.inviteToken !== null && args.inviteToken.length > 0,
+    })
+  ) {
     return ok(undefined);
   }
   const invite = await findValidInviteInStore(
     args.sql,
-    args.inviteToken,
+    args.inviteToken!,
     args.spaceId
   );
   if (invite === null) {
@@ -177,20 +192,27 @@ export async function executeJoinSpace(
   input: JoinSpaceInput,
   sql: SqlClient
 ): Promise<WriteResult<void>> {
-  const membershipId = spaceDeviceMembershipEntityId(
+  const memberId = resolveSpaceMemberId({
+    accountId: ctx.accountId,
+    deviceId: ctx.deviceId,
+  });
+  const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
+  const participationId = spaceParticipationEntityId(
     ctx.deviceId,
     input.spaceId
   );
-  const reactivating = await wasMembershipInactive(sql, membershipId);
+  const membershipWasInactive = await wasMembershipInactive(sql, membershipId);
+  await wasParticipationInactive(sql, participationId);
   const inviteResult = await consumeInviteForJoinIfNeeded({
     sql,
     spaceId: input.spaceId,
     inviteToken: input.inviteToken,
-    reactivating,
+    membershipWasInactive,
   });
   if (!inviteResult.ok) return inviteResult;
-  const { reactivated } = await upsertJoinMembership(ctx, input, sql);
-  if (reactivated) {
+  const { reactivated } = await upsertJoinMembership(input, sql, memberId);
+  await upsertJoinParticipation(ctx, input, sql, memberId);
+  if (shouldBumpMemberCountOnJoin({ membershipWasInactive: reactivated })) {
     await bumpActiveMemberCount(sql, input.spaceId);
   }
   return ok(undefined);

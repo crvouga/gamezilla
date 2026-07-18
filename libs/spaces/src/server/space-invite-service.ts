@@ -38,10 +38,11 @@ async function assertHostCanInvite(
   if (row.ended_at !== null) {
     throw new SpacesError('SPACE_ENDED', 'Space has ended');
   }
-  const isHostDevice = row.host_id === deviceId;
-  const isHostAccount =
-    row.host_account_id !== null && row.host_account_id === accountId;
-  if (!isHostDevice && !isHostAccount) {
+  const isHostMember =
+    (row.host_member_id !== null && row.host_member_id === accountId) ||
+    (row.host_account_id !== null && row.host_account_id === accountId) ||
+    row.host_id === deviceId;
+  if (!isHostMember) {
     throw new SpacesError(
       'SPACE_FORBIDDEN',
       'Only the host can create invites'

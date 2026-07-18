@@ -17,6 +17,8 @@ export type FloatingMenuItemRow = {
   id: string;
   label: ReactNode;
   icon: IconComponent;
+  /** When set, replaces the default icon glyph (e.g. account avatar). */
+  leading?: ReactNode;
   /** Right-aligned content (e.g. status + metrics). */
   trailing?: ReactNode;
   onPress?: () => void;

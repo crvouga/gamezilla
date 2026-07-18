@@ -1,6 +1,6 @@
 /**
  * Hosted sign-in surface. Shown from the user menu / commands when the user
- * chooses Sign in.
+ * chooses Sign in or Add account.
  *
  * Drives the same `loading -> success / error` lifecycle as
  * {@link MutationModal}, but its idle body is a provider picker rather than a
@@ -23,6 +23,7 @@ import {
 } from '@pkgs/ui';
 import { useCallback, useEffect, useRef, type ReactNode } from 'react';
 import { SignInModalBody } from './sign-in-modal-body';
+import type { SignInIntent } from './sign-in-pending';
 import {
   useSignInModalLifecycle,
   type SignInPhase,
@@ -33,6 +34,8 @@ export type SignInModalProps = {
   onClose: () => void;
   /** True when resuming a sign-in that began before an OAuth redirect. */
   resumePending: boolean;
+  intent: SignInIntent;
+  resumeBaselineSessionIds?: readonly string[];
   signInAvailable: boolean;
   signInUnavailableReason: string | null;
   onSignInWithHosted: () => Promise<void>;
@@ -43,10 +46,22 @@ const STATE_AREA_MIN_HEIGHT = 200;
 
 export function SignInModal(props: SignInModalProps): ReactNode {
   const { t } = useLingui();
-  const { visible, onClose, resumePending, signInAvailable, onError } = props;
+  const {
+    visible,
+    onClose,
+    resumePending,
+    intent,
+    resumeBaselineSessionIds,
+    signInAvailable,
+    onError,
+  } = props;
   const { phase, error, start, reset, dismiss } = useSignInModalLifecycle({
     resumePending,
-    onError,
+    intent,
+    ...(resumeBaselineSessionIds !== undefined
+      ? { resumeBaselineSessionIds }
+      : {}),
+    ...(onError !== undefined ? { onError } : {}),
   });
 
   const phaseRef = useRef<SignInPhase>(phase);
@@ -77,16 +92,18 @@ export function SignInModal(props: SignInModalProps): ReactNode {
   }, [dismiss, onClose]);
 
   const surfaceClose = phase === 'loading' ? () => undefined : dismissModal;
+  const title = intent === 'addAccount' ? t`Add account` : t`Sign in`;
 
   return (
     <ResponsiveSurface
       visible={visible}
       onClose={surfaceClose}
-      title={t`Sign in`}
+      title={title}
     >
       <MutationStateTransition stateKey={phase} active={visible}>
         <SignInPhaseContent
           phase={phase}
+          intent={intent}
           error={error}
           onClose={onClose}
           onDismiss={dismissModal}
@@ -108,6 +125,7 @@ export function SignInModal(props: SignInModalProps): ReactNode {
 
 function SignInPhaseContent({
   phase,
+  intent,
   error,
   onClose,
   onDismiss,
@@ -115,6 +133,7 @@ function SignInPhaseContent({
   idleBody,
 }: {
   phase: SignInPhase;
+  intent: SignInIntent;
   error: Error | null;
   onClose: () => void;
   onDismiss: () => void;
@@ -126,22 +145,35 @@ function SignInPhaseContent({
     case 'loading':
       return (
         <StateArea>
-          <LoadingState caption={t`Signing in…`} />
+          <LoadingState
+            caption={
+              intent === 'addAccount' ? t`Adding account…` : t`Signing in…`
+            }
+          />
         </StateArea>
       );
     case 'success':
       return (
         <StateArea>
           <SuccessState
-            title={t`Signed in`}
-            body={t`You're signed in on this device.`}
+            title={intent === 'addAccount' ? t`Account added` : t`Signed in`}
+            body={
+              intent === 'addAccount'
+                ? t`You can switch accounts from the avatar menu.`
+                : t`You're signed in on this device.`
+            }
             action={{ label: t`Done`, onPress: onDismiss }}
           />
         </StateArea>
       );
     case 'error':
       return (
-        <SignInErrorContent error={error} onClose={onClose} onRetry={onRetry} />
+        <SignInErrorContent
+          intent={intent}
+          error={error}
+          onClose={onClose}
+          onRetry={onRetry}
+        />
       );
     default:
       return (
@@ -156,10 +188,12 @@ function SignInPhaseContent({
 }
 
 function SignInErrorContent({
+  intent,
   error,
   onClose,
   onRetry,
 }: {
+  intent: SignInIntent;
   error: Error | null;
   onClose: () => void;
   onRetry: () => void;
@@ -169,7 +203,9 @@ function SignInErrorContent({
     <>
       <StateArea>
         <ErrorState
-          title={t`Sign-in failed`}
+          title={
+            intent === 'addAccount' ? t`Couldn't add account` : t`Sign-in failed`
+          }
           body={error?.message ?? t`Sign-in was cancelled or didn't finish.`}
           retry={{ label: t`Try again`, onPress: onRetry }}
         />

@@ -160,10 +160,16 @@ function FloatingMenuRowItem({
 }) {
   const theme = useTheme();
   const RowIcon = row.icon;
+  const leading =
+    row.leading !== undefined ? (
+      row.leading
+    ) : (
+      <RowIcon size={18} color={theme.colors.icon} />
+    );
   return (
     <FloatingMenuItem
       label={row.label}
-      leading={<RowIcon size={18} color={theme.colors.icon} />}
+      leading={leading}
       trailing={row.trailing}
       onPress={row.onPress}
       disabled={row.disabled}

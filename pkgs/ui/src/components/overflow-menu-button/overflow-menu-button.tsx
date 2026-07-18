@@ -44,6 +44,8 @@ export type OverflowMenuAction = {
   label: ReactNode;
   /** Defaults to {@link DEFAULT_ACTION_ICON} when omitted. */
   icon?: IconComponent;
+  /** When set, replaces the icon glyph in the menu row (e.g. avatar). */
+  leading?: ReactNode;
   onPress: () => void;
   trailing?: ReactNode;
   disabled?: boolean;
@@ -94,6 +96,7 @@ function buildContent(
         onClose();
         a.onPress();
       },
+      ...(a.leading !== undefined ? { leading: a.leading } : {}),
       ...(a.trailing !== undefined ? { trailing: a.trailing } : {}),
       ...(a.disabled !== undefined ? { disabled: a.disabled } : {}),
       ...(a.accessibilityLabel !== undefined

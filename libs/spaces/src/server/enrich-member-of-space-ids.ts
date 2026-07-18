@@ -16,7 +16,7 @@ export function createMemberOfSpaceIdsEnricher(
     const auth = appAuth(ctx);
     if (auth === null || auth.deviceId === '') return ctx;
     if (memberOfSpaceIdsFromContext(ctx).length > 0) return ctx;
-    const ids = await loadMemberOfSpaceIdsFromSql(sql, auth.deviceId);
+    const ids = await loadMemberOfSpaceIdsFromSql(sql, auth.myId);
     if (ids.length === 0) return ctx;
     return { ...ctx, ...SpaceAuthClaimAttr.memberOfSpaceIds(ids) };
   };

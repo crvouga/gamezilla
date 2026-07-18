@@ -8,19 +8,23 @@ import {
   SpaceCol,
   SpaceInviteCol,
   SpaceMembershipCol,
+  SpaceParticipationCol,
   SPACES_TABLE,
   SPACE_INVITES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
+  SPACE_PARTICIPATIONS_TABLE,
 } from '@libs/db/shared/space-tables';
 
 import { resolveDeviceLabelFromDb } from './resolve-device-label-from-db';
 import { joinSpaceServer } from './join-space/join-space-service';
-import { spaceDeviceMembershipEntityId } from '../shared/membership-key';
+import {
+  spaceMembershipEntityId,
+  spaceParticipationEntityId,
+} from '../shared/membership-key';
 
 const SPACE_ID = 'space-1';
 const DEVICE_A = 'device-aaaaaaaa-0000';
 const DEVICE_B = 'device-bbbbbbbb-1111';
-const PROFILE_A = 'profile-a';
 const TOKEN = 'invite-token-123';
 
 function openSql(): SqlClientImplBunSqlite {
@@ -38,6 +42,7 @@ async function migrate(sql: SqlClient): Promise<void> {
       ${SpaceCol.endedAt} TEXT,
       ${SpaceCol.visibility} TEXT,
       ${SpaceCol.hostAccountId} TEXT,
+      ${SpaceCol.hostMemberId} TEXT,
       ${SpaceCol.hostUsername} TEXT,
       ${SpaceCol.hostAvatarConfig} TEXT,
       ${SpaceCol.activeMemberCount} INTEGER NOT NULL DEFAULT 0
@@ -46,12 +51,22 @@ async function migrate(sql: SqlClient): Promise<void> {
   await sql.run(
     `CREATE TABLE ${SPACE_MEMBERSHIPS_TABLE.tableName} (
       ${SpaceMembershipCol.id} TEXT PRIMARY KEY,
-      ${SpaceMembershipCol.guestId} TEXT,
+      ${SpaceMembershipCol.memberId} TEXT,
       ${SpaceMembershipCol.spaceId} TEXT,
       ${SpaceMembershipCol.joinedAt} TEXT,
       ${SpaceMembershipCol.leftAt} TEXT,
-      ${SpaceMembershipCol.profileId} TEXT,
-      ${SpaceMembershipCol.deviceLabel} TEXT
+      ${SpaceMembershipCol.profileId} TEXT
+    )`
+  );
+  await sql.run(
+    `CREATE TABLE ${SPACE_PARTICIPATIONS_TABLE.tableName} (
+      ${SpaceParticipationCol.id} TEXT PRIMARY KEY,
+      ${SpaceParticipationCol.spaceId} TEXT,
+      ${SpaceParticipationCol.memberId} TEXT,
+      ${SpaceParticipationCol.deviceId} TEXT,
+      ${SpaceParticipationCol.deviceLabel} TEXT,
+      ${SpaceParticipationCol.joinedAt} TEXT,
+      ${SpaceParticipationCol.leftAt} TEXT
     )`
   );
   await sql.run(
@@ -82,13 +97,12 @@ async function migrate(sql: SqlClient): Promise<void> {
 }
 
 async function seedPrivateSpace(sql: SqlClient): Promise<void> {
-  // host_account_id left null so join access is decided purely by the invite.
   await sql.run(
     `INSERT INTO ${SPACES_TABLE.tableName}
-     (${SpaceCol.id}, ${SpaceCol.hostId}, ${SpaceCol.visibility},
-      ${SpaceCol.activeMemberCount})
-     VALUES (?, ?, 'private', 0)`,
-    [SPACE_ID, 'host-device']
+     (${SpaceCol.id}, ${SpaceCol.hostId}, ${SpaceCol.hostMemberId},
+      ${SpaceCol.visibility}, ${SpaceCol.activeMemberCount})
+     VALUES (?, ?, ?, 'private', 0)`,
+    [SPACE_ID, 'host-device', 'host-device']
   );
 }
 
@@ -126,7 +140,7 @@ function joinInput(deviceId: string) {
     spaceId: SPACE_ID,
     deviceId,
     accountId: null,
-    profileId: PROFILE_A,
+    profileId: deviceId,
     deviceLabel: 'My Phone',
     inviteToken: TOKEN,
   };
@@ -148,7 +162,6 @@ describe('joinSpaceServer invite consumption', () => {
     expect(await readInviteUseCount(sql)).toBe(1);
     expect(await readActiveMemberCount(sql)).toBe(1);
 
-    // Same device joins again while already active — must be a no-op for quota.
     await joinSpaceServer(sql, joinInput(DEVICE_A));
     expect(await readInviteUseCount(sql)).toBe(1);
     expect(await readActiveMemberCount(sql)).toBe(1);
@@ -158,12 +171,20 @@ describe('joinSpaceServer invite consumption', () => {
     await seedLinkInvite(sql, 10);
 
     await joinSpaceServer(sql, joinInput(DEVICE_A));
-    const membershipId = spaceDeviceMembershipEntityId(DEVICE_A, SPACE_ID);
+    const membershipId = spaceMembershipEntityId(DEVICE_A, SPACE_ID);
+    const participationId = spaceParticipationEntityId(DEVICE_A, SPACE_ID);
+    const now = new Date().toISOString();
+    await sql.run(
+      `UPDATE ${SPACE_PARTICIPATIONS_TABLE.tableName}
+       SET ${SpaceParticipationCol.leftAt} = ?
+       WHERE ${SpaceParticipationCol.id} = ?`,
+      [now, participationId]
+    );
     await sql.run(
       `UPDATE ${SPACE_MEMBERSHIPS_TABLE.tableName}
        SET ${SpaceMembershipCol.leftAt} = ?
        WHERE ${SpaceMembershipCol.id} = ?`,
-      [new Date().toISOString(), membershipId]
+      [now, membershipId]
     );
 
     await joinSpaceServer(sql, joinInput(DEVICE_A));
@@ -177,7 +198,6 @@ describe('joinSpaceServer invite consumption', () => {
     expect(await readInviteUseCount(sql)).toBe(1);
 
     await expect(joinSpaceServer(sql, joinInput(DEVICE_B))).rejects.toThrow();
-    // Never incremented past the cap by the second attempt.
     expect(await readInviteUseCount(sql)).toBe(1);
   });
 });
@@ -211,7 +231,12 @@ describe('resolveDeviceLabelFromDb', () => {
   });
 
   test('falls back to brand + model when name is blank', async () => {
-    await insertDevice({ id: DEVICE_A, name: '  ', brand: 'Google', model: 'Pixel 8' });
+    await insertDevice({
+      id: DEVICE_A,
+      name: '  ',
+      brand: 'Google',
+      model: 'Pixel 8',
+    });
     expect(await resolveDeviceLabelFromDb(sql, DEVICE_A)).toBe('Google Pixel 8');
   });
 

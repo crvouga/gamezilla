@@ -1,10 +1,17 @@
 import {
   SPACE_MEMBERSHIPS_TABLE,
+  SPACE_PARTICIPATIONS_TABLE,
   SpaceCol,
   SpaceMembershipCol,
+  SpaceParticipationCol,
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
-import { spaceDeviceMembershipEntityId } from '@libs/spaces/shared/membership-key';
+import {
+  resolveSpaceMemberId,
+  spaceMembershipEntityId,
+  spaceParticipationEntityId,
+} from '@libs/spaces/shared/participation/participation-ids';
+import { decideLeaveDevice } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
 import { fail, ok } from '@pkgs/write/shared/write-result';
@@ -13,8 +20,9 @@ import type { WriteContext } from '@pkgs/write/shared/write-context';
 
 import {
   asObjectRecord,
+  countOtherActiveParticipations,
   isoNow,
-  readMembershipForLeave,
+  readParticipationForLeave,
   requireNonEmptyString,
 } from '../space-write-helpers';
 
@@ -37,14 +45,28 @@ export async function authorizeLeaveSpace(
   input: LeaveSpaceInput,
   sql: SqlClient
 ): Promise<ReturnType<typeof ok<void>> | ReturnType<typeof fail>> {
-  const row = await readMembershipForLeave(sql, ctx.deviceId, input.spaceId);
+  const row = await readParticipationForLeave(
+    sql,
+    ctx.deviceId,
+    input.spaceId
+  );
   if (row === null || row.leftAt !== null) {
     return ok(undefined);
   }
-  if (row.guestId !== ctx.deviceId) {
+  if (row.deviceId !== ctx.deviceId) {
     return fail(
       'SPACE_MEMBERSHIP_GUEST_MISMATCH',
-      'Only this device can leave its membership'
+      'Only this device can leave its participation'
+    );
+  }
+  const memberId = resolveSpaceMemberId({
+    accountId: ctx.accountId,
+    deviceId: ctx.deviceId,
+  });
+  if (row.memberId !== memberId) {
+    return fail(
+      'SPACE_MEMBERSHIP_GUEST_MISMATCH',
+      'Only this member can leave its participation'
     );
   }
   return ok(undefined);
@@ -70,22 +92,52 @@ export async function executeLeaveSpace(
   input: LeaveSpaceInput,
   sql: SqlClient
 ): Promise<ReturnType<typeof ok<void>>> {
-  const row = await readMembershipForLeave(sql, ctx.deviceId, input.spaceId);
-  if (row === null || row.leftAt !== null) {
-    return ok(undefined);
-  }
-  clearSpacePresenceLatch(input.spaceId);
-  const membershipId = spaceDeviceMembershipEntityId(
+  const row = await readParticipationForLeave(
+    sql,
     ctx.deviceId,
     input.spaceId
   );
-  await sql.run(
-    `UPDATE ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     SET ${SpaceMembershipCol.leftAt} = ?
-     WHERE ${SpaceMembershipCol.id} = ?`,
-    [isoNow(), membershipId]
+  if (row === null || row.leftAt !== null) {
+    return ok(undefined);
+  }
+  const memberId = resolveSpaceMemberId({
+    accountId: ctx.accountId,
+    deviceId: ctx.deviceId,
+  });
+  const otherCount = await countOtherActiveParticipations(
+    sql,
+    memberId,
+    input.spaceId,
+    ctx.deviceId
   );
-  await decrementActiveMemberCount(sql, input.spaceId);
+  const decision = decideLeaveDevice({
+    hasOtherActiveParticipations: otherCount > 0,
+  });
+  clearSpacePresenceLatch(input.spaceId);
+  const now = isoNow();
+  const participationId = spaceParticipationEntityId(
+    ctx.deviceId,
+    input.spaceId
+  );
+  if (decision.leaveParticipation) {
+    await sql.run(
+      `UPDATE ${SPACE_PARTICIPATIONS_TABLE.tableName}
+       SET ${SpaceParticipationCol.leftAt} = ?
+       WHERE ${SpaceParticipationCol.id} = ?`,
+      [now, participationId]
+    );
+  }
+  if (decision.leaveMembership) {
+    const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
+    await sql.run(
+      `UPDATE ${SPACE_MEMBERSHIPS_TABLE.tableName}
+       SET ${SpaceMembershipCol.leftAt} = ?
+       WHERE ${SpaceMembershipCol.id} = ?
+         AND ${SpaceMembershipCol.leftAt} IS NULL`,
+      [now, membershipId]
+    );
+    await decrementActiveMemberCount(sql, input.spaceId);
+  }
   return ok(undefined);
 }
 

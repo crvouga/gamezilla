@@ -1,4 +1,4 @@
-import { spaceDeviceMembershipEntityId } from '@libs/spaces/shared/membership-key';
+import { spaceMembershipEntityId } from '@libs/spaces/shared/membership-key';
 
 import { useSpaceColumn, SpaceField } from '../use-space-column';
 import {
@@ -13,30 +13,32 @@ export type SpaceHostMembershipDisplay = {
   readonly deviceLabel: string | null;
 };
 
-/** Host seat display fields from the host's membership row. */
+/** Host member display fields from the host's user membership row. */
 export function useSpaceHostMembershipDisplay(
   spaceId: string
 ): SpaceHostMembershipDisplay | null {
-  const hostDeviceId = useSpaceColumn(spaceId, SpaceField.hostId);
+  const hostMemberId = useSpaceColumn(spaceId, SpaceField.hostMemberId);
   const membershipId =
-    hostDeviceId !== null && hostDeviceId.length > 0
-      ? spaceDeviceMembershipEntityId(hostDeviceId, spaceId)
+    hostMemberId !== null && hostMemberId.length > 0
+      ? spaceMembershipEntityId(hostMemberId, spaceId)
       : '';
   const profileRaw = useSpaceMembershipColumn(
     membershipId,
     SpaceMembershipField.profileId
   );
-  const deviceLabel = useSpaceMembershipColumn(
+  const memberId = useSpaceMembershipColumn(
     membershipId,
-    SpaceMembershipField.deviceLabel
+    SpaceMembershipField.memberId
   );
-  if (hostDeviceId === null || hostDeviceId.length === 0) return null;
+  if (hostMemberId === null || hostMemberId.length === 0) return null;
   const profileId =
-    profileRaw !== null && profileRaw.length > 0 ? profileRaw : hostDeviceId;
+    profileRaw !== null && profileRaw.length > 0
+      ? profileRaw
+      : (memberId ?? hostMemberId);
   return {
-    deviceId: hostDeviceId,
+    deviceId: hostMemberId,
     membershipId,
     profileId,
-    deviceLabel,
+    deviceLabel: null,
   };
 }

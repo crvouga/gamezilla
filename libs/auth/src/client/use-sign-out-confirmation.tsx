@@ -46,14 +46,17 @@ export function useSignOutConfirmationModal(args: {
         onClose={closeSignOutConfirmBase}
         title={<Trans>Sign out?</Trans>}
         message={
-          <Trans>You will need to sign in again to sync with your user.</Trans>
+          <Trans>
+            This account will be signed out on this device. Other accounts stay
+            signed in.
+          </Trans>
         }
         submitLabel={<Trans>Sign out</Trans>}
         variant="destructive"
         operation={operation}
         loadingLabel={<Trans>Signing out…</Trans>}
         successTitle={<Trans>Signed out</Trans>}
-        successBody={<Trans>You're signed out on this device.</Trans>}
+        successBody={<Trans>You're signed out of this account.</Trans>}
         errorTitle={<Trans>Sign-out failed</Trans>}
         onError={onError}
       />

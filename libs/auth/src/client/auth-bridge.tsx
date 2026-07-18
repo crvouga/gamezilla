@@ -15,17 +15,23 @@ import {
 import { flushSyncIdentityOnSignIn } from './sync-identity-flush';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { useConfigService } from './config-service-context';
+import { touchRosterAccount } from './local-account-roster';
 import { refreshAuth } from './refresh-auth-fetch';
 import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
 import { getCachedAuthToken, useFreshAuthToken } from './use-fresh-auth-token';
+import { useLocalAccountRoster } from './use-local-account-roster';
+import type { LocalAccountRoster } from './local-account-roster-types';
 
 type Storage = ReturnType<typeof useSecureStorage>;
 type Logger = ReturnType<typeof useLogger>;
 type TokenRef = { current: string | null };
 type FlagRef = { current: boolean };
 type ExpiresAtRef = { current: string | null };
+type RosterSetter = (
+  next: LocalAccountRoster | ((prev: LocalAccountRoster) => LocalAccountRoster)
+) => void;
 
 type RefreshDeps = {
   apiUrl: string;
@@ -34,6 +40,8 @@ type RefreshDeps = {
   log: Logger;
   lastSyncedTokenRef: TokenRef;
   inFlightRef: FlagRef;
+  setRoster: RosterSetter;
+  activeSessionId: string | null;
 };
 
 function normalizeExpiresAt(raw: unknown): string | null {
@@ -52,6 +60,7 @@ function useReconcileAuthSession(args: {
   const isSignedIn = isAuthSessionSignedIn(authState);
   const sessionError = authSessionError(authState);
   const expiresAt = normalizeExpiresAt(authState.session?.expiresAt ?? null);
+  const externalUserId = authState.session?.externalUserId ?? null;
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -66,7 +75,15 @@ function useReconcileAuthSession(args: {
       }
       await handleSignedIn({ deps, port, expiresAt });
     })();
-  }, [isHydrated, isSignedIn, sessionError, expiresAt, port, deps]);
+  }, [
+    isHydrated,
+    isSignedIn,
+    sessionError,
+    expiresAt,
+    externalUserId,
+    port,
+    deps,
+  ]);
 }
 
 function useRefreshOnAppForeground(args: {
@@ -100,21 +117,19 @@ function useRefreshOnAppForeground(args: {
 
 /**
  * Reconciles the auth port session with local secure-storage pointers
- * (`sessionToken`, `lastLocalAccountId`) and triggers `POST /auth/refresh` to
- * populate local sync with the canonical account / accountSession /
- * accountProvider / device rows.
- *
- * Pure side-effect component — renders nothing visible. Mount somewhere inside
- * the sync-engine provider tree but outside any per-route layout.
+ * (`sessionToken`, `lastLocalAccountId`) and triggers `POST /auth/refresh`.
+ * Account switches remount per-account SQLite via `lastLocalAccountId` changes.
  */
 export function AuthBridge(props: PropsWithChildren): ReactNode {
   const apiUrl = useConfigService().getApiUrl();
   const port = useAuthClientPort();
   const authState = port.useAuthSession();
+  const sessions = port.useAccountSessions();
   const storage = useSecureStorage();
   const deviceId = useDeviceId();
   const authToken = useFreshAuthToken();
   const currentAccountId = useCurrentAccountId();
+  const [, setRoster] = useLocalAccountRoster();
   const log = useLogger('auth-bridge');
   const lastSyncedTokenRef = useRef<string | null>(null);
   const inFlightRef = useRef(false);
@@ -126,6 +141,9 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
     authState.session?.expiresAt ?? null
   );
 
+  const activeSessionId =
+    sessions.find((session) => session.isActive)?.sessionId ?? null;
+
   const deps = useMemo<RefreshDeps>(
     () => ({
       apiUrl,
@@ -134,8 +152,10 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
       log,
       lastSyncedTokenRef,
       inFlightRef,
+      setRoster,
+      activeSessionId,
     }),
-    [apiUrl, deviceId, storage, log]
+    [apiUrl, deviceId, storage, log, setRoster, activeSessionId]
   );
 
   useReconcileAuthSession({ authState, port, deps });
@@ -186,6 +206,16 @@ async function runRefresh(args: {
       LAST_LOCAL_ACCOUNT_ID_KEY,
       accountId
     );
+    if (deps.activeSessionId !== null) {
+      const sessionId = deps.activeSessionId;
+      deps.setRoster((prev) =>
+        touchRosterAccount({
+          roster: prev,
+          accountId,
+          sessionId,
+        })
+      );
+    }
     await flushSyncIdentityOnSignIn();
     deps.lastSyncedTokenRef.current = token;
   } catch (e) {

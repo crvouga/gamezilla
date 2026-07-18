@@ -1,29 +1,20 @@
+import { resolvePresenceRole } from './participation/space-participation-policy';
+
 export type SpacePresence =
   | { readonly status: 'loading' }
   | { readonly status: 'active'; readonly role: 'host' | 'guest' }
   | { readonly status: 'join'; readonly ended: boolean };
 
 type SpaceRow = {
-  readonly host_id: string | null;
+  readonly host_member_id: string | null;
   readonly ended_at: string | null;
 };
 
-type GuestMembershipRow = {
+type ParticipationRow = {
   readonly id: string;
 };
 
 type PresenceLatch = { spaceId: string; presence: SpacePresence };
-
-function roleForMember(
-  spaceRow: SpaceRow | null,
-  myId: string
-): 'host' | 'guest' {
-  const hostId = spaceRow?.host_id ?? null;
-  if (hostId !== null && hostId.length > 0 && hostId === myId) {
-    return 'host';
-  }
-  return 'guest';
-}
 
 export function loadingPresence(args: {
   spaceEnabled: boolean;
@@ -31,7 +22,7 @@ export function loadingPresence(args: {
   spaceRow: SpaceRow | null;
   memberEnabled: boolean;
   guestLoading: boolean;
-  guestRow: GuestMembershipRow | null;
+  guestRow: ParticipationRow | null;
   myId: string;
 }): SpacePresence | null {
   if (!args.spaceEnabled) {
@@ -52,21 +43,23 @@ export function resolveSpacePresence(args: {
   readonly spaceRow: SpaceRow | null;
   readonly memberEnabled: boolean;
   readonly guestLoading: boolean;
-  readonly guestRow: GuestMembershipRow | null;
+  readonly guestRow: ParticipationRow | null;
   readonly myId: string;
 }): SpacePresence {
   const loading = loadingPresence(args);
   if (loading !== null) return loading;
   const endedAt = args.spaceRow?.ended_at ?? null;
-  // Ended wins over a lingering membership row so chrome/miniplayer tear down
-  // even if auto-leave has not yet written left_at.
   if (endedAt !== null) {
     return { status: 'join', ended: true };
   }
   if (args.memberEnabled && args.guestRow !== null) {
+    const hostMemberId = args.spaceRow?.host_member_id ?? '';
     return {
       status: 'active',
-      role: roleForMember(args.spaceRow, args.myId),
+      role: resolvePresenceRole({
+        hostMemberId,
+        memberId: args.myId,
+      }),
     };
   }
   return { status: 'join', ended: false };
@@ -92,7 +85,7 @@ function holdActiveAcrossTransientJoin(
 
 /**
  * Hold the last non-loading presence while queries report `loading`, and hold
- * `active` across transient `join` snapshots (sync/watch gaps where membership
+ * `active` across transient `join` snapshots (sync/watch gaps where participation
  * briefly disappears with `isLoading: false`). Ended spaces always accept
  * `join`. Intentional leave/end must clear the shared latch store.
  */

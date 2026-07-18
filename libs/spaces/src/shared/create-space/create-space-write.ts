@@ -1,10 +1,16 @@
 import {
   SPACE_MEMBERSHIPS_TABLE,
+  SPACE_PARTICIPATIONS_TABLE,
   SpaceCol,
   SpaceMembershipCol,
+  SpaceParticipationCol,
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
-import { spaceDeviceMembershipEntityId } from '@libs/spaces/shared/membership-key';
+import {
+  resolveSpaceMemberId,
+  spaceMembershipEntityId,
+  spaceParticipationEntityId,
+} from '@libs/spaces/shared/participation/participation-ids';
 import {
   isSpaceVisibility,
   type SpaceVisibility,
@@ -73,41 +79,55 @@ export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
   execute: async (ctx, input, sql) => {
     const now = isoNow();
     const visibility = resolveCreateVisibility(ctx.accountId, input.visibility);
+    const memberId = resolveSpaceMemberId({
+      accountId: ctx.accountId,
+      deviceId: ctx.deviceId,
+    });
     await sql.run(
       `INSERT INTO ${SPACES_TABLE.tableName}
        (${SpaceCol.id}, ${SpaceCol.hostId}, ${SpaceCol.createdAt},
         ${SpaceCol.visibility}, ${SpaceCol.hostAccountId},
-        ${SpaceCol.hostUsername}, ${SpaceCol.hostAvatarConfig},
-        ${SpaceCol.activeMemberCount})
-       VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
+        ${SpaceCol.hostMemberId}, ${SpaceCol.hostUsername},
+        ${SpaceCol.hostAvatarConfig}, ${SpaceCol.activeMemberCount})
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
       [
         input.spaceId,
         ctx.deviceId,
         now,
         visibility,
         ctx.accountId,
+        memberId,
         input.hostUsername,
         input.hostAvatarConfig,
       ]
     );
-    const membershipId = spaceDeviceMembershipEntityId(
+    const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
+    await sql.run(
+      `INSERT INTO ${SPACE_MEMBERSHIPS_TABLE.tableName}
+       (${SpaceMembershipCol.id}, ${SpaceMembershipCol.memberId},
+        ${SpaceMembershipCol.spaceId}, ${SpaceMembershipCol.joinedAt},
+        ${SpaceMembershipCol.leftAt}, ${SpaceMembershipCol.profileId})
+       VALUES (?, ?, ?, ?, NULL, ?)`,
+      [membershipId, memberId, input.spaceId, now, memberId]
+    );
+    const participationId = spaceParticipationEntityId(
       ctx.deviceId,
       input.spaceId
     );
     await sql.run(
-      `INSERT INTO ${SPACE_MEMBERSHIPS_TABLE.tableName}
-       (${SpaceMembershipCol.id}, ${SpaceMembershipCol.guestId},
-        ${SpaceMembershipCol.spaceId}, ${SpaceMembershipCol.joinedAt},
-        ${SpaceMembershipCol.leftAt}, ${SpaceMembershipCol.profileId},
-        ${SpaceMembershipCol.deviceLabel})
-       VALUES (?, ?, ?, ?, NULL, ?, ?)`,
+      `INSERT INTO ${SPACE_PARTICIPATIONS_TABLE.tableName}
+       (${SpaceParticipationCol.id}, ${SpaceParticipationCol.spaceId},
+        ${SpaceParticipationCol.memberId}, ${SpaceParticipationCol.deviceId},
+        ${SpaceParticipationCol.deviceLabel}, ${SpaceParticipationCol.joinedAt},
+        ${SpaceParticipationCol.leftAt})
+       VALUES (?, ?, ?, ?, ?, ?, NULL)`,
       [
-        membershipId,
-        ctx.deviceId,
+        participationId,
         input.spaceId,
-        now,
-        ctx.myId,
+        memberId,
+        ctx.deviceId,
         input.deviceLabel,
+        now,
       ]
     );
     return ok(undefined);

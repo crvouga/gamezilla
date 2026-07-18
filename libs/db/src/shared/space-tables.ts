@@ -8,6 +8,7 @@ export const SpaceCol = {
   endedAt: 'ended_at',
   visibility: 'visibility',
   hostAccountId: 'host_account_id',
+  hostMemberId: 'host_member_id',
   hostUsername: 'host_username',
   hostAvatarConfig: 'host_avatar_config',
   activeMemberCount: 'active_member_count',
@@ -15,12 +16,21 @@ export const SpaceCol = {
 
 export const SpaceMembershipCol = {
   id: 'id',
-  guestId: 'guest_id',
+  memberId: 'member_id',
   spaceId: 'space_id',
   joinedAt: 'joined_at',
   leftAt: 'left_at',
   profileId: 'profile_id',
+} as const;
+
+export const SpaceParticipationCol = {
+  id: 'id',
+  spaceId: 'space_id',
+  memberId: 'member_id',
+  deviceId: 'device_id',
   deviceLabel: 'device_label',
+  joinedAt: 'joined_at',
+  leftAt: 'left_at',
 } as const;
 
 export const SpaceInviteCol = {
@@ -49,6 +59,7 @@ export const SPACES_TABLE = defineTable({
     { name: 'ended_at', type: 'text' },
     { name: 'visibility', type: 'text' },
     { name: 'host_account_id', type: 'text' },
+    { name: 'host_member_id', type: 'text' },
     { name: 'host_username', type: 'text' },
     { name: 'host_avatar_config', type: 'text' },
     { name: 'active_member_count', type: 'integer' },
@@ -59,12 +70,24 @@ export const SPACE_MEMBERSHIPS_TABLE = defineTable({
   tableName: 'space_memberships',
   columns: [
     { name: 'id', type: 'text', primaryKey: true },
-    { name: 'guest_id', type: 'text' },
+    { name: 'member_id', type: 'text' },
     { name: 'space_id', type: 'text' },
     { name: 'joined_at', type: 'text' },
     { name: 'left_at', type: 'text' },
     { name: 'profile_id', type: 'text' },
+  ],
+});
+
+export const SPACE_PARTICIPATIONS_TABLE = defineTable({
+  tableName: 'space_participations',
+  columns: [
+    { name: 'id', type: 'text', primaryKey: true },
+    { name: 'space_id', type: 'text' },
+    { name: 'member_id', type: 'text' },
+    { name: 'device_id', type: 'text' },
     { name: 'device_label', type: 'text' },
+    { name: 'joined_at', type: 'text' },
+    { name: 'left_at', type: 'text' },
   ],
 });
 
@@ -90,5 +113,6 @@ export const SPACE_INVITES_TABLE = defineTable({
 export const ALL_SPACE_SYNC_TABLES = [
   SPACES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
+  SPACE_PARTICIPATIONS_TABLE,
   SPACE_INVITES_TABLE,
 ] as const;

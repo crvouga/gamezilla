@@ -39,7 +39,7 @@ async function resolveSyncUploadAuth(
   if (auth === null || auth.deviceId === '') return null;
   const memberOfSpaceIds = await loadMemberOfSpaceIdsFromSql(
     requestStore.sqlClient,
-    auth.deviceId
+    auth.myId
   );
   return { writeContext: mapAppAuthToWriteContext(auth, memberOfSpaceIds) };
 }

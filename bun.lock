@@ -197,6 +197,8 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/attribute": "workspace:*",
         "@pkgs/auth": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/kv": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/secret-store": "workspace:*",

@@ -18,10 +18,9 @@ export const ROOM_ACTOR_ID_HEADER = 'x-actor-id';
  * the upgrade to the `ROOM` DO; the DO validates `module` and runs game
  * logic from there.
  *
- * Actor id is always the install device id when present (device-seat identity).
- * When signed in, a valid bearer + UUID anonId must resolve to an account so
- * the device binding is verified — but the actor id remains the device id,
- * not the account id.
+ * Actor id is the Meet-style member id: signed-in account when the bearer +
+ * device binding resolve, otherwise the install device id (anon device *is*
+ * the user). Device binding is still verified when signed in.
  *
  * Fallback: a fresh per-connection UUID when no anonId is available.
  *
@@ -65,7 +64,7 @@ async function resolveRoomActorId(c: Context<ApiHonoEnv>): Promise<string> {
 
   if (bearer !== null && anonId !== null && isUuid(anonId)) {
     const accountId = await tryResolveAccount(c, bearer, anonId);
-    if (accountId !== null) return anonId;
+    if (accountId !== null) return accountId;
   }
   if (anonId !== null) return anonId;
   return crypto.randomUUID();

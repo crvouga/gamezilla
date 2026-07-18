@@ -7,11 +7,11 @@ import {
 } from '../shared/resolve-space-presence';
 
 const hostSpaceRow = {
-  host_id: 'user-1',
+  host_member_id: 'user-1',
   ended_at: null,
 };
 
-const guestRow = { id: 'membership-1' };
+const guestRow = { id: 'participation-1' };
 
 describe('loadingPresence', () => {
   test('does not load when space query is loading but row exists', () => {
@@ -58,7 +58,7 @@ describe('loadingPresence', () => {
 });
 
 describe('resolveSpacePresence', () => {
-  test('resolves active host from membership + host_id', () => {
+  test('resolves active host from participation + host_member_id', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
@@ -72,12 +72,12 @@ describe('resolveSpacePresence', () => {
     ).toEqual({ status: 'active', role: 'host' });
   });
 
-  test('resolves active guest while membership row is present', () => {
+  test('resolves active guest while participation row is present', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
         spaceLoading: false,
-        spaceRow: { host_id: 'other', ended_at: null },
+        spaceRow: { host_member_id: 'other', ended_at: null },
         memberEnabled: true,
         guestLoading: true,
         guestRow,
@@ -86,7 +86,7 @@ describe('resolveSpacePresence', () => {
     ).toEqual({ status: 'active', role: 'guest' });
   });
 
-  test('resolves join when membership is missing even for host_id match', () => {
+  test('resolves join when participation is missing even for host match', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
@@ -100,12 +100,15 @@ describe('resolveSpacePresence', () => {
     ).toEqual({ status: 'join', ended: false });
   });
 
-  test('resolves ended join even when membership row is still present', () => {
+  test('resolves ended join even when participation row is still present', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
         spaceLoading: false,
-        spaceRow: { host_id: 'user-1', ended_at: '2026-07-13T00:00:00.000Z' },
+        spaceRow: {
+          host_member_id: 'user-1',
+          ended_at: '2026-07-13T00:00:00.000Z',
+        },
         memberEnabled: true,
         guestLoading: false,
         guestRow,

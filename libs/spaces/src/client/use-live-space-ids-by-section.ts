@@ -46,14 +46,14 @@ function useFriendsLiveSpaceIds(): {
          WHERE ${SpaceCol.endedAt} IS NULL
            AND (
              ${SpaceCol.visibility} = 'friends'
-             OR ${SpaceCol.hostId} = ?
+             OR ${SpaceCol.hostMemberId} = ?
              OR ${SpaceCol.hostAccountId} = ?
              OR ${SpaceCol.id} IN (
                SELECT ${SpaceMembershipCol.spaceId}
                FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
                WHERE ${SpaceMembershipCol.leftAt} IS NULL
                  AND (
-                   ${SpaceMembershipCol.guestId} = ?
+                   ${SpaceMembershipCol.memberId} = ?
                    OR ${SpaceMembershipCol.profileId} = ?
                  )
              )
@@ -63,17 +63,17 @@ function useFriendsLiveSpaceIds(): {
          WHERE ${SpaceCol.endedAt} IS NULL
            AND (
              ${SpaceCol.visibility} = 'friends'
-             OR ${SpaceCol.hostId} = ?
+             OR ${SpaceCol.hostMemberId} = ?
              OR ${SpaceCol.id} IN (
                SELECT ${SpaceMembershipCol.spaceId}
                FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
                WHERE ${SpaceMembershipCol.leftAt} IS NULL
-                 AND ${SpaceMembershipCol.guestId} = ?
+                 AND ${SpaceMembershipCol.memberId} = ?
              )
            )
          ORDER BY ${SpaceCol.createdAt} DESC`,
     hasAccount && accountId !== null
-      ? [deviceId, accountId, deviceId, accountId]
+      ? [accountId, accountId, accountId, accountId]
       : [deviceId, deviceId]
   );
   return { spaceIds: rows.map((r) => r.id), isLoading };

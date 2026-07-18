@@ -33,17 +33,16 @@ function readMemberCount(v: unknown): number {
 
 export const SpaceAttr = {
   title: spaceNs.textOrNull('title', readNonEmptyStringOrNull),
-  /** Hosting install device id. Indexed so the `WHERE host-id = ?` lookup
-   * during reconnect is a single btree probe. */
+  /**
+   * Creating install device id (legacy / reconnect hint). Host *authority* is
+   * {@link SpaceAttr.hostMemberId}.
+   */
   hostId: spaceNs.textOrNull('host-id', readNonEmptyStringOrNull).indexed(),
-  /** Indexed + sortable: the lobby lists live spaces newest-first
-   * (`ORDER BY created-at DESC`); without a btree this sorts the entire
-   * space table on every list refresh. */
+  /** Indexed + sortable: the lobby lists live spaces newest-first. */
   createdAt: spaceNs
     .timestampOrNull('created-at', readTrimmedNullableString)
     .indexed({ sortable: true }),
-  /** `null` when the space is still live; ISO timestamp string when ended.
-   * Indexed so "list live spaces" (`WHERE ended-at IS NULL`) is fast. */
+  /** `null` when the space is still live; ISO timestamp string when ended. */
   endedAt: spaceNs
     .timestampOrNull('ended-at', readTrimmedNullableString)
     .indexed(),
@@ -52,6 +51,12 @@ export const SpaceAttr = {
   /** Host account id when signed in; null for anonymous hosts. */
   hostAccountId: spaceNs
     .textOrNull('host-account-id', readNonEmptyStringOrNull)
+    .indexed(),
+  /**
+   * Host member id (`accountId ?? deviceId`). Authoritative for host checks.
+   */
+  hostMemberId: spaceNs
+    .textOrNull('host-member-id', readNonEmptyStringOrNull)
     .indexed(),
   hostUsername: spaceNs.textOrNull('host-username', readNonEmptyStringOrNull),
   hostAvatarConfig: spaceNs.textOrNull(
@@ -62,35 +67,50 @@ export const SpaceAttr = {
 } as const;
 
 /**
- * `${deviceId}:${spaceId}`. `guest_id` is the install device seat.
+ * User-scoped membership: `${memberId}:${spaceId}`.
  */
 export const spaceMembershipNs = createAttrNamespace('space', 'membership');
 
 export const SPACE_MEMBERSHIP_ENTITY_TYPE = spaceMembershipNs.prefix;
 
 export const SpaceMembershipAttr = {
-  /** Install device seat id. Indexed for "what spaces is this device in". */
-  guestId: spaceMembershipNs.text('guest-id', readString).indexed(),
-  /** Indexed: "who's in this space" is read on every member join/leave. */
+  /** Member id (account when signed in, else device). */
+  memberId: spaceMembershipNs.text('member-id', readString).indexed(),
   spaceId: spaceMembershipNs.text('space-id', readString).indexed(),
-  /** Display identity: account id when signed in, else device id. */
+  /** Display identity (same as member id for current model). */
   profileId: spaceMembershipNs
     .textOrNull('profile-id', readNonEmptyStringOrNull)
     .indexed(),
-  /** Denormalized device label snapshot at join/create. */
-  deviceLabel: spaceMembershipNs.textOrNull(
-    'device-label',
-    readNonEmptyStringOrNull
-  ),
-  /** Indexed + sortable: the membership UI sorts members by join order
-   * (`ORDER BY joined-at ASC`) so this needs a btree to avoid a per-space
-   * sort over the full member set. */
   joinedAt: spaceMembershipNs
     .timestampOrNull('joined-at', readTrimmedNullableString)
     .indexed({ sortable: true }),
-  /** `null` while membership is active; ISO timestamp when the member left.
-   * Indexed so "active members of space X" (`WHERE left-at IS NULL`) is fast. */
   leftAt: spaceMembershipNs
+    .timestampOrNull('left-at', readTrimmedNullableString)
+    .indexed(),
+} as const;
+
+/**
+ * Device participation under a membership: `${deviceId}:${spaceId}`.
+ */
+export const spaceParticipationNs = createAttrNamespace(
+  'space',
+  'participation'
+);
+
+export const SPACE_PARTICIPATION_ENTITY_TYPE = spaceParticipationNs.prefix;
+
+export const SpaceParticipationAttr = {
+  spaceId: spaceParticipationNs.text('space-id', readString).indexed(),
+  memberId: spaceParticipationNs.text('member-id', readString).indexed(),
+  deviceId: spaceParticipationNs.text('device-id', readString).indexed(),
+  deviceLabel: spaceParticipationNs.textOrNull(
+    'device-label',
+    readNonEmptyStringOrNull
+  ),
+  joinedAt: spaceParticipationNs
+    .timestampOrNull('joined-at', readTrimmedNullableString)
+    .indexed({ sortable: true }),
+  leftAt: spaceParticipationNs
     .timestampOrNull('left-at', readTrimmedNullableString)
     .indexed(),
 } as const;

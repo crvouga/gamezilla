@@ -1,6 +1,6 @@
 import { UserUsername } from '@libs/profile/client/user-username';
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
-import { useMyDeviceId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/client/use-current-user';
 import { Box, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
@@ -19,8 +19,8 @@ export type SpaceMembersListProps = {
 };
 
 /**
- * Compact member list: shared profile avatar/username plus device label.
- * Host first; "You" when the seat is this install.
+ * Compact member list: one row per user membership. Host first; "You" when
+ * the member is this account (or anon device).
  */
 export function SpaceMembersList({
   spaceId,
@@ -32,7 +32,7 @@ export function SpaceMembersList({
       {host !== null ? (
         <SpaceMembersSeatRow
           profileId={host.profileId}
-          deviceId={host.deviceId}
+          memberId={host.deviceId}
           deviceLabel={host.deviceLabel}
           trailing={
             <Text
@@ -55,41 +55,37 @@ function SpaceMembersGuestRow({
 }: {
   membershipId: string;
 }): ReactNode {
-  const deviceId = useSpaceMembershipColumn(
+  const memberId = useSpaceMembershipColumn(
     membershipId,
-    SpaceMembershipField.guestId
+    SpaceMembershipField.memberId
   );
   const profileId =
     useSpaceMembershipColumn(membershipId, SpaceMembershipField.profileId) ??
-    deviceId;
-  const deviceLabel = useSpaceMembershipColumn(
-    membershipId,
-    SpaceMembershipField.deviceLabel
-  );
-  if (deviceId === null || deviceId.length === 0) return null;
+    memberId;
+  if (memberId === null || memberId.length === 0) return null;
   if (profileId === null || profileId.length === 0) return null;
   return (
     <SpaceMembersSeatRow
       profileId={profileId}
-      deviceId={deviceId}
-      deviceLabel={deviceLabel}
+      memberId={memberId}
+      deviceLabel={null}
     />
   );
 }
 
 function SpaceMembersSeatRow({
   profileId,
-  deviceId,
+  memberId,
   deviceLabel,
   trailing,
 }: {
   profileId: string;
-  deviceId: string;
+  memberId: string;
   deviceLabel: string | null;
   trailing?: ReactNode;
 }): ReactNode {
-  const myDeviceId = useMyDeviceId();
-  const isYou = deviceId === myDeviceId;
+  const myId = useMyId();
+  const isYou = memberId === myId;
   return (
     <Box
       sx={{

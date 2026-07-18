@@ -9,6 +9,7 @@ export const SpaceField = {
   endedAt: 'endedAt',
   visibility: 'visibility',
   hostAccountId: 'hostAccountId',
+  hostMemberId: 'hostMemberId',
   hostUsername: 'hostUsername',
   hostAvatarConfig: 'hostAvatarConfig',
   activeMemberCount: 'activeMemberCount',
@@ -19,7 +20,8 @@ export type SpaceFieldKey = keyof typeof SpaceField;
 /** Canonical space row SELECT — shared by all {@link useSpaceColumn} fields. */
 export const SPACE_ROW_BY_ID_SQL = `SELECT ${SpaceCol.id}, ${SpaceCol.title},
             ${SpaceCol.hostId}, ${SpaceCol.createdAt}, ${SpaceCol.endedAt},
-            ${SpaceCol.visibility}, ${SpaceCol.hostAccountId}, ${SpaceCol.hostUsername},
+            ${SpaceCol.visibility}, ${SpaceCol.hostAccountId},
+            ${SpaceCol.hostMemberId}, ${SpaceCol.hostUsername},
             ${SpaceCol.hostAvatarConfig}, ${SpaceCol.activeMemberCount}
      FROM ${SPACES_TABLE.tableName}
      WHERE ${SpaceCol.id} = ?`;

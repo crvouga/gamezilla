@@ -1,22 +1,13 @@
-/** Registered by {@link AuthSyncBridge} once sync-engine is available. */
-type IdentityFlushFn = () => Promise<void>;
-
-let identityFlush: IdentityFlushFn | null = null;
-
-export function registerSyncIdentityFlush(fn: IdentityFlushFn): () => void {
-  identityFlush = fn;
-  return () => {
-    if (identityFlush === fn) {
-      identityFlush = null;
-    }
-  };
-}
+import { clearWatchQueryCache } from '@pkgs/sync-engine/client/watch-query-cache';
 
 /**
- * Clears anonymous local sync data after sign-in before the user writes again.
- * No-op until sync boot registers a flush handler.
+ * Called after `/auth/refresh` writes a new `lastLocalAccountId`. Per-account
+ * SQLite remounts via {@link SyncEngineBoot}; this only drops stale watch
+ * snapshots so UI does not briefly read the previous identity's rows.
+ *
+ * Does **not** call `disconnectAndClear` — that would wipe a warm account DB
+ * still open during the remount race.
  */
 export async function flushSyncIdentityOnSignIn(): Promise<void> {
-  if (identityFlush === null) return;
-  await identityFlush();
+  clearWatchQueryCache();
 }

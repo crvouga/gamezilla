@@ -1,7 +1,7 @@
 /**
  * Durable "sign-in in flight" marker. The OAuth redirect unloads the web page
  * (and may background the native app), so in-memory modal state is lost mid
- * flow. We persist an ISO start timestamp in secure storage when sign-in begins
+ * flow. We persist a small JSON payload in secure storage when sign-in begins
  * and read it back on the next mount to resume the modal's loading state.
  *
  * Entries older than {@link SIGN_IN_PENDING_TTL_MS} are treated as stale (the
@@ -20,11 +20,89 @@ import { SIGN_IN_PENDING_KEY } from './auth-storage-keys';
 /** A sign-in marker older than this is considered abandoned. */
 export const SIGN_IN_PENDING_TTL_MS = 30 * 60 * 1000;
 
-export async function markSignInPending(storage: SecureStorage): Promise<void> {
+export type SignInIntent = 'signIn' | 'addAccount';
+
+export type SignInPending = {
+  readonly startedAt: Date;
+  readonly intent: SignInIntent;
+  /** Session ids present when add-account began (empty for first sign-in). */
+  readonly baselineSessionIds: readonly string[];
+};
+
+export type MarkSignInPendingOptions = {
+  readonly intent?: SignInIntent;
+  readonly baselineSessionIds?: readonly string[];
+};
+
+type SignInPendingWire = {
+  readonly startedAt: string;
+  readonly intent: SignInIntent;
+  readonly baselineSessionIds: readonly string[];
+};
+
+function isSignInIntent(value: unknown): value is SignInIntent {
+  return value === 'signIn' || value === 'addAccount';
+}
+
+function readBaselineSessionIds(value: unknown): readonly string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (id): id is string => typeof id === 'string' && id.length > 0
+  );
+}
+
+function isFreshStartedAt(startedAt: Date): boolean {
+  const ms = startedAt.getTime();
+  if (Number.isNaN(ms)) return false;
+  return Date.now() - ms <= SIGN_IN_PENDING_TTL_MS;
+}
+
+/**
+ * Returns a non-stale pending payload, or `null` when there is no marker or it
+ * has expired. Accepts legacy bare ISO timestamps (treated as `signIn`).
+ */
+export function parseSignInPending(value: string | null): SignInPending | null {
+  if (value === null || value.length === 0) return null;
+
+  if (!value.startsWith('{')) {
+    const startedAt = new Date(value);
+    if (!isFreshStartedAt(startedAt)) return null;
+    return { startedAt, intent: 'signIn', baselineSessionIds: [] };
+  }
+
+  let wire: unknown;
+  try {
+    wire = JSON.parse(value) as unknown;
+  } catch {
+    return null;
+  }
+  if (typeof wire !== 'object' || wire === null) return null;
+
+  const record = wire as Partial<SignInPendingWire>;
+  if (typeof record.startedAt !== 'string') return null;
+  const startedAt = new Date(record.startedAt);
+  if (!isFreshStartedAt(startedAt)) return null;
+
+  return {
+    startedAt,
+    intent: isSignInIntent(record.intent) ? record.intent : 'signIn',
+    baselineSessionIds: readBaselineSessionIds(record.baselineSessionIds),
+  };
+}
+
+export async function markSignInPending(
+  storage: SecureStorage,
+  options?: MarkSignInPendingOptions
+): Promise<void> {
+  const wire: SignInPendingWire = {
+    startedAt: new Date().toISOString(),
+    intent: options?.intent ?? 'signIn',
+    baselineSessionIds: options?.baselineSessionIds ?? [],
+  };
   await writeSecureStorageItem(
     storage,
     SIGN_IN_PENDING_KEY,
-    new Date().toISOString()
+    JSON.stringify(wire)
   );
 }
 
@@ -35,25 +113,12 @@ export async function clearSignInPending(
 }
 
 /**
- * Returns the start time of a non-stale pending sign-in, or `null` when there
- * is no marker or it has expired.
- */
-export function parseSignInPending(value: string | null): Date | null {
-  if (value === null || value.length === 0) return null;
-  const startedAt = new Date(value);
-  const ms = startedAt.getTime();
-  if (Number.isNaN(ms)) return null;
-  if (Date.now() - ms > SIGN_IN_PENDING_TTL_MS) return null;
-  return startedAt;
-}
-
-/**
  * Reactive view of the pending marker for the modal provider. `pending` is the
- * parsed (non-stale) start time; `isHydrated` is `true` once the initial async
+ * parsed (non-stale) payload; `isHydrated` is `true` once the initial async
  * read completes so callers can avoid acting on an unknown value.
  */
 export function useSignInPending(): {
-  pending: Date | null;
+  pending: SignInPending | null;
   isHydrated: boolean;
 } {
   const { value, isHydrated } = useSecureStorageItem(SIGN_IN_PENDING_KEY);

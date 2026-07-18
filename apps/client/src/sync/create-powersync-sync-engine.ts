@@ -9,9 +9,8 @@ import type {
 import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 
 import { getPowerSyncUrl } from '../config/powersync-url';
-import { getMainSqliteDbName } from '../storage/open-main-sql-client';
 import {
-  createPowerSyncDatabase,
+  openPowerSyncDatabase,
   type PowerSyncSdkDatabase,
 } from './create-power-sync-database';
 import {
@@ -25,6 +24,8 @@ export type CreateAppPowerSyncSyncEngineArgs = {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly kv: Kv;
+  /** Identity-scoped SQLite name; must match the boot cache key. */
+  readonly databaseName: string;
 };
 
 /**
@@ -139,36 +140,24 @@ function toDatabasePort(
   };
 }
 
-type GlobalSyncEngineCache = Map<string, SyncEngine>;
-
-function getSyncEngineCache(): GlobalSyncEngineCache {
-  const g = globalThis as typeof globalThis & {
-    __gamezillaSyncEngines?: GlobalSyncEngineCache;
-  };
-  if (g.__gamezillaSyncEngines === undefined) {
-    g.__gamezillaSyncEngines = new Map();
-  }
-  return g.__gamezillaSyncEngines;
-}
-
 /**
  * App-level PowerSync shell: opens the local DB, wires upload/token API calls,
  * and exposes the {@link SyncEngine} port used by auth hooks and UI.
+ *
+ * Not cached on `globalThis` — Metro HMR would otherwise reuse SyncEngines that
+ * wrap dead OPFS workers. {@link useCachedPromise} already memoizes per boot key
+ * for the module lifetime; {@link openPowerSyncDatabase} serializes the live DB.
  */
 export async function createAppPowerSyncSyncEngine(
   args: CreateAppPowerSyncSyncEngineArgs
 ): Promise<SyncEngine> {
-  const sessionKey = getMainSqliteDbName();
-  const cached = getSyncEngineCache().get(sessionKey);
-  if (cached !== undefined) {
-    return cached;
-  }
+  const sessionKey = args.databaseName;
+  const database = await openPowerSyncDatabase(sessionKey);
   const initialEverSynced =
     (await readEverSyncedFromKv({
       kv: args.kv,
       sessionKey,
     })) || readMemoryEverSynced(sessionKey);
-  const database = createPowerSyncDatabase();
   const connector = createPowerSyncConnector({
     powersyncUrl: getPowerSyncUrl(),
     fetchSyncToken: () =>
@@ -185,7 +174,7 @@ export async function createAppPowerSyncSyncEngine(
       });
     },
   });
-  const engine = createPowerSyncSyncEngine({
+  return createPowerSyncSyncEngine({
     database: toDatabasePort(database, connector),
     everSyncedLatch: createKvEverSyncedLatch({
       kv: args.kv,
@@ -193,6 +182,4 @@ export async function createAppPowerSyncSyncEngine(
       initial: initialEverSynced,
     }),
   });
-  getSyncEngineCache().set(sessionKey, engine);
-  return engine;
 }

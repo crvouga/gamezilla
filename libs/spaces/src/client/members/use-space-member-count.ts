@@ -2,7 +2,7 @@ import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 import { useSpaceColumn, SpaceField } from '../use-space-column';
 
 export function useSpaceMemberCount(spaceId: string): number {
-  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
+  const hostMemberId = useSpaceColumn(spaceId, SpaceField.hostMemberId);
   const guests = useSpaceGuestMembershipIds(spaceId);
-  return (hostId !== null ? 1 : 0) + guests.length;
+  return (hostMemberId !== null && hostMemberId.length > 0 ? 1 : 0) + guests.length;
 }

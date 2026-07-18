@@ -25,12 +25,12 @@ export function SpaceGuestMembershipUsername({
     membershipId,
     SpaceMembershipField.profileId
   );
-  const guestId = useSpaceMembershipColumn(
+  const memberId = useSpaceMembershipColumn(
     membershipId,
-    SpaceMembershipField.guestId
+    SpaceMembershipField.memberId
   );
   const resolved =
-    profileId !== null && profileId.length > 0 ? profileId : guestId;
+    profileId !== null && profileId.length > 0 ? profileId : memberId;
   return (
     <UserUsername
       profileId={resolved}

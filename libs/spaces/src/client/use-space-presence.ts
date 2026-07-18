@@ -1,12 +1,15 @@
-import { useMyDeviceId } from '@libs/auth/client/use-current-user';
+import {
+  useMyDeviceId,
+  useMyId,
+} from '@libs/auth/client/use-current-user';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import { spaceDeviceMembershipEntityId } from '../shared/membership-key';
+import { spaceParticipationEntityId } from '../shared/membership-key';
 import {
   SpaceCol,
-  SpaceMembershipCol,
+  SpaceParticipationCol,
   SPACES_TABLE,
-  SPACE_MEMBERSHIPS_TABLE,
+  SPACE_PARTICIPATIONS_TABLE,
 } from '@libs/db/shared/space-tables';
 import {
   latchStaleSpacePresence,
@@ -21,19 +24,20 @@ import {
 export type { SpacePresence };
 
 type SpaceRow = {
-  readonly host_id: string | null;
+  readonly host_member_id: string | null;
   readonly ended_at: string | null;
 };
 
-type GuestMembershipRow = {
+type ParticipationRow = {
   readonly id: string;
 };
 
-const SPACE_SELECT = `SELECT ${SpaceCol.hostId} AS host_id, ${SpaceCol.endedAt} AS ended_at
+const SPACE_SELECT = `SELECT ${SpaceCol.hostMemberId} AS host_member_id,
+         ${SpaceCol.endedAt} AS ended_at
          FROM ${SPACES_TABLE.tableName}`;
 
-const GUEST_SELECT = `SELECT ${SpaceMembershipCol.id} AS id
-           FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}`;
+const PARTICIPATION_SELECT = `SELECT ${SpaceParticipationCol.id} AS id
+           FROM ${SPACE_PARTICIPATIONS_TABLE.tableName}`;
 
 function applyPresenceLatch(
   spaceId: string,
@@ -49,15 +53,16 @@ function applyPresenceLatch(
 }
 
 /**
- * Resolves whether this install is in `spaceId` using targeted sync
- * queries for that space only (not the global membership list).
+ * Resolves whether this install is in `spaceId` via local device participation.
+ * Role uses member id (`accountId ?? deviceId`) vs `host_member_id`.
  */
 export function useSpacePresence(spaceId: string): SpacePresence {
   const deviceId = useMyDeviceId();
+  const memberId = useMyId();
   const spaceEnabled = spaceId.length > 0;
   const memberEnabled = spaceEnabled && deviceId.length > 0;
-  const membershipId = memberEnabled
-    ? spaceDeviceMembershipEntityId(deviceId, spaceId)
+  const participationId = memberEnabled
+    ? spaceParticipationEntityId(deviceId, spaceId)
     : '';
 
   const { row: spaceRow, isLoading: spaceLoading } = useWatchOne<SpaceRow>(
@@ -68,11 +73,11 @@ export function useSpacePresence(spaceId: string): SpacePresence {
   );
 
   const { row: guestRow, isLoading: guestLoading } =
-    useWatchOne<GuestMembershipRow>(
+    useWatchOne<ParticipationRow>(
       memberEnabled
-        ? `${GUEST_SELECT} WHERE ${SpaceMembershipCol.id} = ? AND ${SpaceMembershipCol.leftAt} IS NULL`
-        : `${GUEST_SELECT} WHERE 0`,
-      memberEnabled ? [membershipId] : []
+        ? `${PARTICIPATION_SELECT} WHERE ${SpaceParticipationCol.id} = ? AND ${SpaceParticipationCol.leftAt} IS NULL`
+        : `${PARTICIPATION_SELECT} WHERE 0`,
+      memberEnabled ? [participationId] : []
     );
 
   return applyPresenceLatch(
@@ -84,7 +89,7 @@ export function useSpacePresence(spaceId: string): SpacePresence {
       memberEnabled,
       guestLoading,
       guestRow,
-      myId: deviceId,
+      myId: memberId,
     })
   );
 }

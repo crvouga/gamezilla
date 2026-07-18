@@ -7,6 +7,7 @@ import {
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { decideSpaceJoinAccess } from '../../shared/join-space/decide-space-join-access';
+import { resolveSpaceMemberId } from '../../shared/participation/participation-ids';
 import { parseSpaceVisibility } from '../../shared/space-visibility';
 import { SpacesError } from '../../shared/spaces-errors';
 import { areAccountsFriends } from './are-accounts-friends';
@@ -15,6 +16,7 @@ export type SpacePeekRow = {
   readonly id: string;
   readonly title: string | null;
   readonly host_id: string;
+  readonly host_member_id: string | null;
   readonly ended_at: string | null;
   readonly visibility: string;
   readonly host_account_id: string | null;
@@ -61,6 +63,7 @@ export async function loadSpacePeekRow(
     `SELECT ${SpaceCol.id} AS id,
             ${SpaceCol.title} AS title,
             ${SpaceCol.hostId} AS host_id,
+            ${SpaceCol.hostMemberId} AS host_member_id,
             ${SpaceCol.endedAt} AS ended_at,
             ${SpaceCol.visibility} AS visibility,
             ${SpaceCol.hostAccountId} AS host_account_id,
@@ -181,9 +184,13 @@ export async function buildSpacePeek(args: {
     : decideSpaceJoinAccess({
         visibility,
         hostAccountId: row.host_account_id,
+        hostMemberId:
+          row.host_member_id ?? row.host_account_id ?? row.host_id,
         viewerAccountId: args.viewerAccountId,
-        viewerIsHostDevice:
-          args.viewerDeviceId !== null && args.viewerDeviceId === row.host_id,
+        viewerMemberId: resolveSpaceMemberId({
+          accountId: args.viewerAccountId,
+          deviceId: args.viewerDeviceId ?? '',
+        }),
         isFriendOfHost: isFriend,
         hasValidInvite: invite !== null,
       });

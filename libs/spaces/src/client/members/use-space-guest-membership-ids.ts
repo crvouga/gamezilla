@@ -9,8 +9,8 @@ import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 type MembershipIdRow = { readonly id: string };
 
 /**
- * Membership ids for active guests of a space (excludes the host), ordered
- * by joined_at.
+ * Membership ids for active guests of a space (excludes the host member),
+ * ordered by joined_at.
  */
 export function useSpaceGuestMembershipIds(spaceId: string): string[] {
   const enabled = spaceId.length > 0;
@@ -20,8 +20,8 @@ export function useSpaceGuestMembershipIds(spaceId: string): string[] {
          FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
          WHERE ${SpaceMembershipCol.spaceId} = ?
            AND ${SpaceMembershipCol.leftAt} IS NULL
-           AND ${SpaceMembershipCol.guestId} != (
-             SELECT ${SpaceCol.hostId} FROM ${SPACES_TABLE.tableName}
+           AND ${SpaceMembershipCol.memberId} != (
+             SELECT ${SpaceCol.hostMemberId} FROM ${SPACES_TABLE.tableName}
              WHERE ${SpaceCol.id} = ?
            )
          ORDER BY ${SpaceMembershipCol.joinedAt} ASC`

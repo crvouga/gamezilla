@@ -1,17 +1,21 @@
-import { useMyDeviceId } from '@libs/auth/client/use-current-user';
+import {
+  useMyDeviceId,
+  useMyId,
+} from '@libs/auth/client/use-current-user';
 import { useMemo, useRef } from 'react';
 
 import {
   SpaceCol,
-  SpaceMembershipCol,
+  SpaceParticipationCol,
   SPACES_TABLE,
-  SPACE_MEMBERSHIPS_TABLE,
+  SPACE_PARTICIPATIONS_TABLE,
 } from '@libs/db/shared/space-tables';
 import {
   useSyncStatus,
   useWatchQuery,
 } from '@pkgs/sync-engine/client/sync-engine-context';
 import type { SyncEngineStatus } from '@pkgs/sync-engine/client/sync-status';
+import { resolvePresenceRole } from '../shared/participation/space-participation-policy';
 
 function isSyncReconnecting(status: SyncEngineStatus): boolean {
   return (
@@ -24,17 +28,17 @@ export type CurrentSpaceEntry = {
   role: 'host' | 'guest';
 };
 
-type MembershipRow = { readonly space_id: string };
+type ParticipationRow = { readonly space_id: string };
 type SpaceRow = {
   readonly id: string;
-  readonly host_id: string | null;
+  readonly host_member_id: string | null;
   readonly ended_at: string | null;
 };
 
 function buildCurrentSpaceEntries(
   memberSpaceIds: readonly string[],
   spaceRows: readonly SpaceRow[],
-  deviceId: string
+  memberId: string
 ): CurrentSpaceEntry[] {
   const byId = new Map<string, SpaceRow>();
   for (const row of spaceRows) {
@@ -44,30 +48,30 @@ function buildCurrentSpaceEntries(
   for (const spaceId of memberSpaceIds) {
     const space = byId.get(spaceId);
     if (space === undefined || space.ended_at !== null) continue;
-    const hostId = space.host_id;
-    const role =
-      hostId !== null && hostId.length > 0 && hostId === deviceId
-        ? 'host'
-        : 'guest';
+    const role = resolvePresenceRole({
+      hostMemberId: space.host_member_id ?? '',
+      memberId,
+    });
     entries.push({ spaceId, role });
   }
   return entries;
 }
 
-function membershipSql(
+function participationSql(
   enabled: boolean,
   deviceId: string
 ): { sql: string; params: string[] } {
   if (!enabled) {
     return {
-      sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} WHERE 0`,
+      sql: `SELECT ${SpaceParticipationCol.spaceId} AS space_id FROM ${SPACE_PARTICIPATIONS_TABLE.tableName} WHERE 0`,
       params: [],
     };
   }
   return {
-    sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id
-           FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-           WHERE ${SpaceMembershipCol.guestId} = ? AND ${SpaceMembershipCol.leftAt} IS NULL`,
+    sql: `SELECT ${SpaceParticipationCol.spaceId} AS space_id
+           FROM ${SPACE_PARTICIPATIONS_TABLE.tableName}
+           WHERE ${SpaceParticipationCol.deviceId} = ?
+             AND ${SpaceParticipationCol.leftAt} IS NULL`,
     params: [deviceId],
   };
 }
@@ -78,13 +82,15 @@ function spacesSql(ids: readonly string[]): {
 } {
   if (ids.length === 0) {
     return {
-      sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostId} AS host_id, ${SpaceCol.endedAt} AS ended_at FROM ${SPACES_TABLE.tableName} WHERE 0`,
+      sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostMemberId} AS host_member_id,
+            ${SpaceCol.endedAt} AS ended_at FROM ${SPACES_TABLE.tableName} WHERE 0`,
       params: [],
     };
   }
   const placeholders = ids.map(() => '?').join(', ');
   return {
-    sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostId} AS host_id, ${SpaceCol.endedAt} AS ended_at
+    sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostMemberId} AS host_member_id,
+          ${SpaceCol.endedAt} AS ended_at
           FROM ${SPACES_TABLE.tableName}
           WHERE ${SpaceCol.id} IN (${placeholders})`,
     params: [...ids],
@@ -101,26 +107,27 @@ function resolveDisplayEntries(
   return entries;
 }
 
-function useCurrentSpaceWatchQueries(deviceId: string): {
+function useCurrentSpaceWatchQueries(
+  deviceId: string,
+  memberId: string
+): {
   entries: CurrentSpaceEntry[];
   queriesLoading: boolean;
 } {
   const enabled = deviceId.length > 0;
-  const memQuery = useMemo(
-    () => membershipSql(enabled, deviceId),
+  const partQuery = useMemo(
+    () => participationSql(enabled, deviceId),
     [enabled, deviceId]
   );
 
-  const { rows: memRows, isLoading: memLoading } = useWatchQuery<MembershipRow>(
-    memQuery.sql,
-    memQuery.params
-  );
+  const { rows: partRows, isLoading: partLoading } =
+    useWatchQuery<ParticipationRow>(partQuery.sql, partQuery.params);
 
   const memberSpaceIds = useMemo(
     () => [
-      ...new Set(memRows.map((r) => r.space_id).filter((id) => id.length > 0)),
+      ...new Set(partRows.map((r) => r.space_id).filter((id) => id.length > 0)),
     ],
-    [memRows]
+    [partRows]
   );
 
   const spacesQuery = useMemo(
@@ -133,34 +140,36 @@ function useCurrentSpaceWatchQueries(deviceId: string): {
   );
 
   const entries = useMemo(
-    () => buildCurrentSpaceEntries(memberSpaceIds, spaceRows, deviceId),
-    [memberSpaceIds, spaceRows, deviceId]
+    () => buildCurrentSpaceEntries(memberSpaceIds, spaceRows, memberId),
+    [memberSpaceIds, spaceRows, memberId]
   );
 
   return {
     entries,
-    queriesLoading: memLoading || spacesLoading,
+    queriesLoading: partLoading || spacesLoading,
   };
 }
 
 /**
- * This install's live spaces — every space with an active device-seat
- * membership that has not ended. Role comes from spaces.host_id.
+ * This install's live spaces — every space with an active device participation
+ * that has not ended. Role comes from spaces.host_member_id vs member id.
  */
 export function useCurrentSpaceIds(): {
   entries: CurrentSpaceEntry[];
   isLoading: boolean;
 } {
   const deviceId = useMyDeviceId();
-  const { entries, queriesLoading } = useCurrentSpaceWatchQueries(deviceId);
+  const memberId = useMyId();
+  const { entries, queriesLoading } = useCurrentSpaceWatchQueries(
+    deviceId,
+    memberId
+  );
   const status = useSyncStatus();
   const prevEntriesRef = useRef<CurrentSpaceEntry[]>([]);
   const reconnecting = isSyncReconnecting(status);
   if (entries.length > 0) {
     prevEntriesRef.current = entries;
   } else if (!reconnecting) {
-    // Drop the reconnect latch once we have a stable empty snapshot so ended
-    // spaces are not resurrected into the miniplayer on the next disconnect.
     prevEntriesRef.current = [];
   }
   const displayEntries = resolveDisplayEntries(
@@ -175,10 +184,10 @@ export function useCurrentSpaceIds(): {
   };
 }
 
-/** Install device ids used for space host/guest seat checks. */
+/** Member ids used for space host/guest checks. */
 export function useReplicationIdentityIds(): readonly string[] {
-  const deviceId = useMyDeviceId();
-  return useMemo(() => (deviceId.length > 0 ? [deviceId] : []), [deviceId]);
+  const memberId = useMyId();
+  return useMemo(() => (memberId.length > 0 ? [memberId] : []), [memberId]);
 }
 
 export function isReplicationHost(

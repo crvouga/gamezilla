@@ -332,3 +332,96 @@ CREATE INDEX IF NOT EXISTS space_invites_invitee_idx
   WHERE invitee_account_id IS NOT NULL AND revoked_at IS NULL;
 CREATE INDEX IF NOT EXISTS space_invites_created_by_idx
   ON space_invites (created_by_account_id);
+
+-- ============ Spaces: user membership + device participation ============
+
+ALTER TABLE spaces ADD COLUMN IF NOT EXISTS host_member_id TEXT;
+UPDATE spaces
+SET host_member_id = COALESCE(host_account_id, host_id)
+WHERE host_member_id IS NULL;
+CREATE INDEX IF NOT EXISTS spaces_host_member_id_idx
+  ON spaces (host_member_id)
+  WHERE ended_at IS NULL;
+
+ALTER TABLE space_memberships ADD COLUMN IF NOT EXISTS member_id TEXT;
+
+CREATE TABLE IF NOT EXISTS space_participations (
+  id TEXT PRIMARY KEY,
+  space_id TEXT NOT NULL,
+  member_id TEXT NOT NULL,
+  device_id TEXT NOT NULL,
+  device_label TEXT,
+  joined_at TIMESTAMPTZ,
+  left_at TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS space_participations_space_id_idx
+  ON space_participations (space_id);
+CREATE INDEX IF NOT EXISTS space_participations_member_id_idx
+  ON space_participations (member_id);
+CREATE INDEX IF NOT EXISTS space_participations_device_id_idx
+  ON space_participations (device_id);
+CREATE INDEX IF NOT EXISTS space_participations_left_at_idx
+  ON space_participations (left_at);
+
+-- Snapshot active device seats into participations (member = profile or device).
+INSERT INTO space_participations (
+  id, space_id, member_id, device_id, device_label, joined_at, left_at
+)
+SELECT
+  sm.id,
+  sm.space_id,
+  COALESCE(NULLIF(sm.profile_id, ''), sm.guest_id),
+  sm.guest_id,
+  sm.device_label,
+  sm.joined_at,
+  NULL
+FROM space_memberships sm
+WHERE sm.left_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM space_participations sp WHERE sp.id = sm.id
+  );
+
+-- Soft-leave legacy device-seat memberships so we can recreate user rows.
+UPDATE space_memberships
+SET left_at = COALESCE(left_at, now())
+WHERE left_at IS NULL
+  AND id LIKE guest_id || ':%';
+
+-- Recreate one active user membership per (member, space) from participations.
+INSERT INTO space_memberships (
+  id, guest_id, space_id, joined_at, left_at, profile_id, member_id, device_label
+)
+SELECT
+  p.member_id || ':' || p.space_id,
+  p.member_id,
+  p.space_id,
+  MIN(p.joined_at),
+  NULL,
+  p.member_id,
+  p.member_id,
+  NULL
+FROM space_participations p
+WHERE p.left_at IS NULL
+GROUP BY p.member_id, p.space_id
+ON CONFLICT (id) DO UPDATE SET
+  left_at = NULL,
+  member_id = EXCLUDED.member_id,
+  profile_id = EXCLUDED.profile_id,
+  guest_id = EXCLUDED.guest_id,
+  joined_at = COALESCE(space_memberships.joined_at, EXCLUDED.joined_at);
+
+UPDATE space_memberships
+SET member_id = COALESCE(NULLIF(member_id, ''), NULLIF(profile_id, ''), guest_id)
+WHERE member_id IS NULL OR member_id = '';
+
+CREATE INDEX IF NOT EXISTS space_memberships_member_id_idx
+  ON space_memberships (member_id);
+
+-- Recount active user memberships per live space.
+UPDATE spaces AS s
+SET active_member_count = (
+  SELECT COUNT(*)::integer
+  FROM space_memberships sm
+  WHERE sm.space_id = s.id
+    AND sm.left_at IS NULL
+);

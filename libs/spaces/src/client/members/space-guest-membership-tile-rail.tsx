@@ -15,27 +15,23 @@ export function SpaceGuestMembershipTileRail({
   spaceId,
   membershipId,
 }: SpaceGuestMembershipTileRailProps): ReactNode {
-  const deviceId = useSpaceMembershipColumn(
+  const memberId = useSpaceMembershipColumn(
     membershipId,
-    SpaceMembershipField.guestId
+    SpaceMembershipField.memberId
   );
   const profileId = useSpaceMembershipColumn(
     membershipId,
     SpaceMembershipField.profileId
   );
-  const deviceLabel = useSpaceMembershipColumn(
-    membershipId,
-    SpaceMembershipField.deviceLabel
-  );
-  if (deviceId === null || deviceId.length === 0) return null;
+  if (memberId === null || memberId.length === 0) return null;
   const resolvedProfile =
-    profileId !== null && profileId.length > 0 ? profileId : deviceId;
+    profileId !== null && profileId.length > 0 ? profileId : memberId;
   return (
     <SpaceMemberTileRail
       spaceId={spaceId}
-      deviceId={deviceId}
+      deviceId={memberId}
       profileId={resolvedProfile}
-      deviceLabel={deviceLabel}
+      deviceLabel={null}
     />
   );
 }

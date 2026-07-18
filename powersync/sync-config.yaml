@@ -30,21 +30,20 @@ streams:
     auto_subscribe: true
     query: |
       SELECT * FROM spaces
-      WHERE host_id = auth.parameter('device_id')
-         OR id IN (
-           SELECT space_id FROM space_memberships
-           WHERE guest_id = auth.parameter('device_id')
-             AND left_at IS NULL
-         )
-         OR host_id IN (
-           SELECT id FROM devices WHERE user_id = auth.user_id()
-         )
+      WHERE host_member_id = auth.user_id()
+         OR host_member_id = auth.parameter('device_id')
          OR id IN (
            SELECT space_id FROM space_memberships
            WHERE left_at IS NULL
-             AND guest_id IN (
-               SELECT id FROM devices WHERE user_id = auth.user_id()
+             AND (
+               member_id = auth.user_id()
+               OR member_id = auth.parameter('device_id')
              )
+         )
+         OR id IN (
+           SELECT space_id FROM space_participations
+           WHERE left_at IS NULL
+             AND device_id = auth.parameter('device_id')
          )
          OR (
            visibility = 'public'
@@ -85,26 +84,47 @@ streams:
     auto_subscribe: true
     query: |
       SELECT * FROM space_memberships
-      WHERE guest_id = auth.parameter('device_id')
-         OR guest_id IN (
-           SELECT id FROM devices WHERE user_id = auth.user_id()
-         )
+      WHERE member_id = auth.user_id()
+         OR member_id = auth.parameter('device_id')
          OR space_id IN (
            SELECT id FROM spaces
-           WHERE host_id = auth.parameter('device_id')
-              OR host_id IN (
-                SELECT id FROM devices WHERE user_id = auth.user_id()
-              )
+           WHERE host_member_id = auth.user_id()
+              OR host_member_id = auth.parameter('device_id')
               OR id IN (
                 SELECT space_id FROM space_memberships
                 WHERE left_at IS NULL
                   AND (
-                    guest_id = auth.parameter('device_id')
-                    OR guest_id IN (
-                      SELECT id FROM devices WHERE user_id = auth.user_id()
-                    )
+                    member_id = auth.user_id()
+                    OR member_id = auth.parameter('device_id')
                   )
               )
+              OR id IN (
+                SELECT space_id FROM space_participations
+                WHERE left_at IS NULL
+                  AND device_id = auth.parameter('device_id')
+              )
+         )
+
+  space_participations:
+    priority: 2
+    auto_subscribe: true
+    query: |
+      SELECT * FROM space_participations
+      WHERE device_id = auth.parameter('device_id')
+         OR member_id = auth.user_id()
+         OR member_id = auth.parameter('device_id')
+         OR space_id IN (
+           SELECT space_id FROM space_memberships
+           WHERE left_at IS NULL
+             AND (
+               member_id = auth.user_id()
+               OR member_id = auth.parameter('device_id')
+             )
+         )
+         OR space_id IN (
+           SELECT id FROM spaces
+           WHERE host_member_id = auth.user_id()
+              OR host_member_id = auth.parameter('device_id')
          )
 
   client_config:

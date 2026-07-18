@@ -1,31 +1,54 @@
 import { useConfigService } from '@libs/auth/client/config-service-context';
+import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
 import { useCachedPromise } from '@pkgs/async/use-cached-promise';
 import { useKv } from '@pkgs/kv/kv-context';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
 import { SyncEngineProvider } from '@pkgs/sync-engine/client/sync-engine-context';
-import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 import { SqlClientProvider } from '@pkgs/sql-client/react-context';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
+import { Platform } from 'react-native';
 
-import { attachSqlCli } from '../../dev/attach-sql-cli';
 import { createAppPowerSyncSyncEngine } from '../../sync/create-powersync-sync-engine';
 import type { SyncApiFetch } from '../../sync/sync-api';
-import { getMainSqliteDbName } from '../../storage/open-main-sql-client';
+import { resolveSqliteDbName } from '../../storage/resolve-sqlite-db-name';
 import {
   LocalDatabaseBootErrorScreen,
   LocalDatabaseBootLoadingScreen,
 } from './boot-screens';
+import { useSyncEngineBootState } from './use-sync-engine-boot-state';
 
-type BootState =
-  | { phase: 'loading' }
-  | { phase: 'ready'; engine: SyncEngine }
-  | { phase: 'error'; error: Error };
+const WEB_TAB_DB_ID_KEY = 'main-sqlite-tab-id';
+
+function readOrCreateWebTabDbId(): string {
+  const existing = sessionStorage.getItem(WEB_TAB_DB_ID_KEY);
+  if (existing !== null && existing.length > 0) return existing;
+  const id = crypto.randomUUID().replace(/-/g, '');
+  sessionStorage.setItem(WEB_TAB_DB_ID_KEY, id);
+  return id;
+}
+
+function useIdentitySqliteDbName(
+  accountId: string | null,
+  deviceId: string
+): string {
+  return useMemo(() => {
+    const webTabSuffix =
+      Platform.OS === 'web' && typeof sessionStorage !== 'undefined'
+        ? readOrCreateWebTabDbId()
+        : undefined;
+    return resolveSqliteDbName({
+      accountId,
+      deviceId,
+      ...(webTabSuffix !== undefined ? { webTabSuffix } : {}),
+    });
+  }, [accountId, deviceId]);
+}
 
 /**
- * Opens PowerSync once per app instance, connects to the sync service, and
- * exposes the {@link SyncEngine} port to the tree.
+ * Opens PowerSync for the active auth identity, connects, and exposes the
+ * sync engine. Remounts when the account (or anon) identity changes.
  */
 export function SyncEngineBoot({
   children,
@@ -35,54 +58,22 @@ export function SyncEngineBoot({
   const config = useConfigService();
   const kv = useKv();
   const observability = useObservability();
+  const accountId = useCurrentAccountId();
+  const deviceId = useDeviceId();
   const fetchFn = useMemo(
     () => instrumentFetch(observability, fetch) as SyncApiFetch,
     [observability]
   );
-  useDeviceId();
-
-  const enginePromise = useCachedPromise(
-    `sync-engine:${getMainSqliteDbName()}`,
-    () =>
-      createAppPowerSyncSyncEngine({
-        config,
-        fetchFn,
-        kv,
-      })
+  const dbName = useIdentitySqliteDbName(accountId, deviceId);
+  const enginePromise = useCachedPromise(`sync-engine:${dbName}`, () =>
+    createAppPowerSyncSyncEngine({
+      config,
+      fetchFn,
+      kv,
+      databaseName: dbName,
+    })
   );
-
-  const [boot, setBoot] = useState<BootState>({ phase: 'loading' });
-
-  useEffect(() => {
-    let cancelled = false;
-    void enginePromise.then(
-      (engine) => {
-        if (cancelled) return;
-        void engine.connect().then(
-          () => {
-            if (!cancelled) {
-              attachSqlCli(engine.db);
-              setBoot({ phase: 'ready', engine });
-            }
-          },
-          (error: unknown) => {
-            if (cancelled) return;
-            const err =
-              error instanceof Error ? error : new Error(String(error));
-            setBoot({ phase: 'error', error: err });
-          }
-        );
-      },
-      (error: unknown) => {
-        if (cancelled) return;
-        const err = error instanceof Error ? error : new Error(String(error));
-        setBoot({ phase: 'error', error: err });
-      }
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [enginePromise]);
+  const boot = useSyncEngineBootState(enginePromise);
 
   if (boot.phase === 'loading') {
     return <LocalDatabaseBootLoadingScreen />;

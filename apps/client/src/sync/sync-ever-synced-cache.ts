@@ -5,20 +5,20 @@ import type { Kv } from '@pkgs/kv/interface';
 const EVER_SYNCED_ROW_KEY = asKeyword('sync.cache/ever-synced');
 const EVER_SYNCED_VALUE_ATTR = asKeyword('sync.cache/value');
 
-type CachedEverSynced = {
-  readonly sessionKey: string;
-  readonly value: true;
-};
+type EverSyncedMap = Readonly<Record<string, true>>;
 
-function isCachedEverSynced(v: unknown): v is CachedEverSynced {
-  if (typeof v !== 'object' || v === null) return false;
-  const row = v as CachedEverSynced;
-  return row.value === true && typeof row.sessionKey === 'string';
+function isEverSyncedMap(v: unknown): v is EverSyncedMap {
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) return false;
+  for (const [key, value] of Object.entries(v)) {
+    if (typeof key !== 'string' || key.length === 0) return false;
+    if (value !== true) return false;
+  }
+  return true;
 }
 
-const everSyncedCodec = jsonKvCodec<CachedEverSynced>(
+const everSyncedCodec = jsonKvCodec<EverSyncedMap>(
   EVER_SYNCED_VALUE_ATTR,
-  isCachedEverSynced
+  isEverSyncedMap
 );
 
 export async function readEverSyncedFromKv(args: {
@@ -29,24 +29,43 @@ export async function readEverSyncedFromKv(args: {
   if (row === null) return false;
   const cached = everSyncedCodec.decode(row);
   if (cached === undefined) return false;
-  return cached.sessionKey === args.sessionKey && cached.value === true;
+  return cached[args.sessionKey] === true;
 }
 
 export async function writeEverSyncedToKv(args: {
   readonly kv: Kv;
   readonly sessionKey: string;
 }): Promise<void> {
+  const row = await args.kv.get(EVER_SYNCED_ROW_KEY);
+  const prev = row !== null ? (everSyncedCodec.decode(row) ?? {}) : {};
   await args.kv.put(
     EVER_SYNCED_ROW_KEY,
     everSyncedCodec.encode({
-      sessionKey: args.sessionKey,
-      value: true,
+      ...prev,
+      [args.sessionKey]: true,
     })
   );
 }
 
-export async function clearEverSyncedFromKv(kv: Kv): Promise<void> {
-  await kv.zap(EVER_SYNCED_ROW_KEY);
+export async function clearEverSyncedFromKv(
+  kv: Kv,
+  sessionKey?: string
+): Promise<void> {
+  if (sessionKey === undefined) {
+    await kv.zap(EVER_SYNCED_ROW_KEY);
+    return;
+  }
+  const row = await kv.get(EVER_SYNCED_ROW_KEY);
+  if (row === null) return;
+  const prev = everSyncedCodec.decode(row);
+  if (prev === undefined) return;
+  const next: Record<string, true> = { ...prev };
+  delete next[sessionKey];
+  if (Object.keys(next).length === 0) {
+    await kv.zap(EVER_SYNCED_ROW_KEY);
+    return;
+  }
+  await kv.put(EVER_SYNCED_ROW_KEY, everSyncedCodec.encode(next));
 }
 
 /** Tab-lifetime memory latch — survives sync-engine wrapper recreation (e.g. dev HMR). */
@@ -84,7 +103,7 @@ export function createKvEverSyncedLatch(args: {
     reset: () => {
       value = false;
       memoryEverSyncedBySession.delete(args.sessionKey);
-      void clearEverSyncedFromKv(args.kv);
+      void clearEverSyncedFromKv(args.kv, args.sessionKey);
     },
   };
 }

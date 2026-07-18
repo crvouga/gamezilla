@@ -44,9 +44,13 @@ export default function SsoCallbackScreen() {
   useEffect(() => {
     if (!isHydrated) return;
     if (pending !== null) return;
-    const started = new Date().toISOString();
-    seedCachedSecureStorageValue(SIGN_IN_PENDING_KEY, started);
-    void markSignInPending(storage);
+    const wire = JSON.stringify({
+      startedAt: new Date().toISOString(),
+      intent: 'signIn',
+      baselineSessionIds: [],
+    });
+    seedCachedSecureStorageValue(SIGN_IN_PENDING_KEY, wire);
+    void markSignInPending(storage, { intent: 'signIn' });
   }, [isHydrated, pending, storage]);
 
   useLayoutEffect(() => {

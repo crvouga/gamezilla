@@ -1,4 +1,5 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
+import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 
@@ -32,17 +33,29 @@ export const renameSpaceWrite = defineWrite<RenameSpaceInput, void>({
   parseInput: parseRenameSpaceInput,
   authorize: async (ctx, input, sql) =>
     authorizeSpaceHost(
-      ctx, sql,
+      ctx,
+      sql,
       input.spaceId,
       'Only the host can rename this space'
     ),
   execute: async (ctx, input, sql) => {
     const trimmed = input.title.trim();
+    const memberId = resolveSpaceMemberId({
+      accountId: ctx.accountId,
+      deviceId: ctx.deviceId,
+    });
     await sql.run(
       `UPDATE ${SPACES_TABLE.tableName}
-       SET ${SpaceCol.title} = ?, ${SpaceCol.hostId} = ?
+       SET ${SpaceCol.title} = ?,
+           ${SpaceCol.hostId} = ?,
+           ${SpaceCol.hostMemberId} = ?
        WHERE ${SpaceCol.id} = ?`,
-      [trimmed.length > 0 ? trimmed : null, ctx.deviceId, input.spaceId]
+      [
+        trimmed.length > 0 ? trimmed : null,
+        ctx.deviceId,
+        memberId,
+        input.spaceId,
+      ]
     );
     return ok(undefined);
   },

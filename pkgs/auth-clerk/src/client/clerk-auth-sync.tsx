@@ -4,6 +4,8 @@ import { useCallback, useEffect } from 'react';
 import { ensureClerkActiveSession } from './clerk-ensure-active-session';
 import type { ClerkSetActive } from './clerk-ensure-active-session';
 import { setClerkAuthRuntime } from './clerk-auth-runtime';
+import { mapClerkSessions } from './clerk-map-sessions';
+import { startClerkAddAccountSsoFlow } from './clerk-start-add-account-sso';
 
 function useClerkSetActive(): ClerkSetActive {
   const clerk = useClerk();
@@ -17,6 +19,7 @@ function useClerkSetActive(): ClerkSetActive {
 }
 
 export function ClerkAuthSync(): null {
+  const clerk = useClerk();
   const { startSSOFlow } = useSSO();
   const { signOut, getToken, isLoaded, isSignedIn, sessionId } = useAuth();
   const setActive = useClerkSetActive();
@@ -42,22 +45,50 @@ export function ClerkAuthSync(): null {
     setActive,
   ]);
 
+  const startAddAccountSSOFlow = useCallback(
+    async (params: {
+      readonly strategy: string;
+      readonly redirectUrl: string;
+    }) =>
+      startClerkAddAccountSsoFlow({
+        clerk,
+        strategy: params.strategy,
+        redirectUrl: params.redirectUrl,
+      }),
+    [clerk]
+  );
+
   useEffect(() => {
     void ensureActiveSession();
   }, [ensureActiveSession]);
 
   useEffect(() => {
+    const activeSessionId =
+      typeof sessionId === 'string' && sessionId.length > 0 ? sessionId : null;
     setClerkAuthRuntime({
       startSSOFlow,
+      startAddAccountSSOFlow,
       signOut,
       getToken,
       setActive,
       ensureActiveSession,
+      getActiveSessionId: () => activeSessionId,
+      listSessions: () => mapClerkSessions(clerk.client?.sessions ?? null),
     });
     return () => {
       setClerkAuthRuntime(null);
     };
-  }, [startSSOFlow, signOut, getToken, setActive, ensureActiveSession]);
+  }, [
+    clerk,
+    startSSOFlow,
+    startAddAccountSSOFlow,
+    signOut,
+    getToken,
+    setActive,
+    ensureActiveSession,
+    sessionId,
+    sessions,
+  ]);
 
   return null;
 }

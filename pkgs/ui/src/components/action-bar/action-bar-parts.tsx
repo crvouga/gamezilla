@@ -34,6 +34,7 @@ export function buildOverflowMenuContent(
       label: action.label,
       icon: action.icon ?? EllipsisIcon,
       onPress: action.onPress,
+      ...(action.leading !== undefined ? { leading: action.leading } : {}),
       ...(action.trailing !== undefined ? { trailing: action.trailing } : {}),
       ...(action.disabled !== undefined ? { disabled: action.disabled } : {}),
       ...(action.accessibilityLabel !== undefined

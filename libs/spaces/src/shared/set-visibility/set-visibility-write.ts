@@ -1,4 +1,5 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
+import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import {
   isSpaceVisibility,
   type SpaceVisibility,
@@ -39,7 +40,8 @@ export const setSpaceVisibilityWrite = defineWrite<
   parseInput: parseSetSpaceVisibilityInput,
   authorize: async (ctx, input, sql) => {
     const host = await authorizeSpaceHost(
-      ctx, sql,
+      ctx,
+      sql,
       input.spaceId,
       'Only the host can change visibility'
     );
@@ -53,11 +55,17 @@ export const setSpaceVisibilityWrite = defineWrite<
     return ok(undefined);
   },
   execute: async (ctx, input, sql) => {
+    const memberId = resolveSpaceMemberId({
+      accountId: ctx.accountId,
+      deviceId: ctx.deviceId,
+    });
     await sql.run(
       `UPDATE ${SPACES_TABLE.tableName}
-       SET ${SpaceCol.visibility} = ?, ${SpaceCol.hostId} = ?
+       SET ${SpaceCol.visibility} = ?,
+           ${SpaceCol.hostId} = ?,
+           ${SpaceCol.hostMemberId} = ?
        WHERE ${SpaceCol.id} = ?`,
-      [input.visibility, ctx.deviceId, input.spaceId]
+      [input.visibility, ctx.deviceId, memberId, input.spaceId]
     );
     return ok(undefined);
   },

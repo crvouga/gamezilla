@@ -1,29 +1,15 @@
-import { clearWatchQueryCache } from '@pkgs/sync-engine/client/watch-query-cache';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { useLayoutEffect, type ReactNode } from 'react';
-
-import { registerSyncIdentityFlush } from './sync-identity-flush';
+import type { ReactNode } from 'react';
 
 /**
- * Registers the sign-in identity flush handler (invoked from {@link AuthBridge}
- * after a successful `/auth/refresh`). Wipes anonymous local rows, reconnects,
- * and waits for the account-scoped first sync — never on cold start.
+ * Marker provider kept for composition stability. Identity transitions remount
+ * {@link SyncEngineBoot}; watch-cache clearing lives in
+ * {@link flushSyncIdentityOnSignIn} / boot effects. No longer registers a
+ * clearLocalData flush (per-account SQLite files isolate data).
  */
 export function AuthSyncBridge({
   children,
 }: {
   children: ReactNode;
 }): ReactNode {
-  const engine = useSyncEngine();
-
-  useLayoutEffect(() => {
-    return registerSyncIdentityFlush(async () => {
-      await engine.clearLocalData();
-      clearWatchQueryCache();
-      await engine.connect();
-      await engine.waitForFirstSync();
-    });
-  }, [engine]);
-
   return children;
 }

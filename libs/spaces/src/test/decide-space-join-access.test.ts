@@ -7,8 +7,9 @@ describe('decideSpaceJoinAccess', () => {
     const denied = decideSpaceJoinAccess({
       visibility: 'private',
       hostAccountId: 'host',
+      hostMemberId: 'host',
       viewerAccountId: 'guest',
-      viewerIsHostDevice: false,
+      viewerMemberId: 'guest',
       isFriendOfHost: true,
       hasValidInvite: false,
     });
@@ -20,8 +21,9 @@ describe('decideSpaceJoinAccess', () => {
     const allowed = decideSpaceJoinAccess({
       visibility: 'private',
       hostAccountId: 'host',
+      hostMemberId: 'host',
       viewerAccountId: 'guest',
-      viewerIsHostDevice: false,
+      viewerMemberId: 'guest',
       isFriendOfHost: false,
       hasValidInvite: true,
     });
@@ -32,8 +34,9 @@ describe('decideSpaceJoinAccess', () => {
     const allowed = decideSpaceJoinAccess({
       visibility: 'public',
       hostAccountId: 'host',
+      hostMemberId: 'host',
       viewerAccountId: 'guest',
-      viewerIsHostDevice: false,
+      viewerMemberId: 'guest',
       isFriendOfHost: false,
       hasValidInvite: false,
     });
@@ -42,8 +45,9 @@ describe('decideSpaceJoinAccess', () => {
     const denied = decideSpaceJoinAccess({
       visibility: 'public',
       hostAccountId: 'host',
+      hostMemberId: 'host',
       viewerAccountId: null,
-      viewerIsHostDevice: false,
+      viewerMemberId: 'dev',
       isFriendOfHost: false,
       hasValidInvite: false,
     });
@@ -54,8 +58,9 @@ describe('decideSpaceJoinAccess', () => {
     const friendOk = decideSpaceJoinAccess({
       visibility: 'friends',
       hostAccountId: 'host',
+      hostMemberId: 'host',
       viewerAccountId: 'guest',
-      viewerIsHostDevice: false,
+      viewerMemberId: 'guest',
       isFriendOfHost: true,
       hasValidInvite: false,
     });
@@ -64,8 +69,9 @@ describe('decideSpaceJoinAccess', () => {
     const stranger = decideSpaceJoinAccess({
       visibility: 'friends',
       hostAccountId: 'host',
+      hostMemberId: 'host',
       viewerAccountId: 'guest',
-      viewerIsHostDevice: false,
+      viewerMemberId: 'guest',
       isFriendOfHost: false,
       hasValidInvite: false,
     });
@@ -75,18 +81,18 @@ describe('decideSpaceJoinAccess', () => {
     });
   });
 
-  test('host device cannot join', () => {
+  test('host member may join from another device', () => {
     const result = decideSpaceJoinAccess({
       visibility: 'public',
       hostAccountId: 'host',
+      hostMemberId: 'host',
       viewerAccountId: 'host',
-      viewerIsHostDevice: true,
+      viewerMemberId: 'host',
       isFriendOfHost: true,
       hasValidInvite: false,
+      alreadyMember: true,
+      alreadyParticipating: false,
     });
-    expect(result).toEqual({
-      allowed: false,
-      code: 'SPACE_HOST_ALREADY_MEMBER',
-    });
+    expect(result).toEqual({ allowed: true, reason: 'host' });
   });
 });

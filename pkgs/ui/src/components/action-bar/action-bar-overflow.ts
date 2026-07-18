@@ -22,6 +22,8 @@ export function actionBarItemToOverflowAction(
     },
     ...(item.disabled !== undefined ? { disabled: item.disabled } : {}),
     ...(item.endsGroup === true ? { endsGroup: true } : {}),
+    ...(item.trailing !== undefined ? { trailing: item.trailing } : {}),
+    ...(isActionBarAvatarItem(item) ? { leading: item.children } : {}),
   };
   if (typeof item.label === 'string') {
     action.accessibilityLabel = item.label as LocalizedString;

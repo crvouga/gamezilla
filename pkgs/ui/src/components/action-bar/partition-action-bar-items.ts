@@ -21,6 +21,8 @@ type ActionBarItemBase = {
   priority?: number;
   overflow?: 'auto' | 'always' | 'never';
   pressFeedback?: ActionBarPressFeedback;
+  /** Optional trailing affordance in the overflow menu (e.g. checkmark). */
+  trailing?: ReactNode;
 };
 
 export type ActionBarIconItem = ActionBarItemBase & {

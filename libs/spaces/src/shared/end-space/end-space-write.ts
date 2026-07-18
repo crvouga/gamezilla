@@ -1,10 +1,11 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
+import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
 import { ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import type { WriteResult } from '@pkgs/write/shared/write-result';
 
-import { executeLeaveSpace } from '../leave-space/leave-space-write';
+import { executeLeaveSpaceEverywhere } from '../leave-space/leave-space-everywhere-write';
 import {
   asObjectRecord,
   authorizeSpaceHost,
@@ -29,20 +30,27 @@ export const endSpaceWrite = defineWrite<EndSpaceInput, void>({
   parseInput: parseEndSpaceInput,
   authorize: async (ctx, input, sql) =>
     authorizeSpaceHost(
-      ctx, sql,
+      ctx,
+      sql,
       input.spaceId,
       'Only the host can end this space'
     ),
   execute: async (ctx, input, sql) => {
     clearSpacePresenceLatch(input.spaceId);
+    const memberId = resolveSpaceMemberId({
+      accountId: ctx.accountId,
+      deviceId: ctx.deviceId,
+    });
     await sql.run(
       `UPDATE ${SPACES_TABLE.tableName}
-       SET ${SpaceCol.endedAt} = ?, ${SpaceCol.hostId} = ?
+       SET ${SpaceCol.endedAt} = ?,
+           ${SpaceCol.hostId} = ?,
+           ${SpaceCol.hostMemberId} = ?
        WHERE ${SpaceCol.id} = ?`,
-      [isoNow(), ctx.deviceId, input.spaceId]
+      [isoNow(), ctx.deviceId, memberId, input.spaceId]
     );
-    // Drop this install's seat immediately so miniplayer / presence do not wait
-    // on auto-leave watching ended_at.
-    return executeLeaveSpace(ctx, input, sql);
+    // Drop this member everywhere so miniplayer / presence do not wait on
+    // auto-leave watching ended_at.
+    return executeLeaveSpaceEverywhere(ctx, input, sql);
   },
 });
