@@ -28,7 +28,10 @@ const friendRequestsRowWrite = defineRowAuthorizeWrite({
     if (fromUserId === ctx.myId || toUserId === ctx.myId) {
       return ok(undefined);
     }
-    return fail('FRIENDS_REQUEST_PARTY_REQUIRED', 'not a party to this request');
+    return fail(
+      'FRIENDS_REQUEST_PARTY_REQUIRED',
+      'not a party to this request'
+    );
   },
 });
 

@@ -18,7 +18,6 @@
     "S3_*",
     "ELEVEN_LABS_*",
     "OPENAI_*",
-    "POWERSYNC_*",
     "PS_*",
     "EXPO_TOKEN",
     "SECRETS_ENV",

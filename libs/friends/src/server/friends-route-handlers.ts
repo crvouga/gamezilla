@@ -69,12 +69,9 @@ export function handleAcceptFriendRequest(
   return withFriendsAuth(c, async (auth) => {
     const requestId = readRequiredString(c.req.param('id'), 'id');
     const sql = c.get('sqlClient');
-    const outcome = await runFriendsWrite(
-      auth,
-      sql,
-      acceptFriendRequestWrite,
-      { requestId }
-    );
+    const outcome = await runFriendsWrite(auth, sql, acceptFriendRequestWrite, {
+      requestId,
+    });
     if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
     const request = outcome.value;
     await syncPeerFriendProfileCache(
@@ -113,12 +110,9 @@ export function handleCancelFriendRequest(
   return withFriendsAuth(c, async (auth) => {
     const requestId = readRequiredString(c.req.param('id'), 'id');
     const sql = c.get('sqlClient');
-    const outcome = await runFriendsWrite(
-      auth,
-      sql,
-      cancelFriendRequestWrite,
-      { requestId }
-    );
+    const outcome = await runFriendsWrite(auth, sql, cancelFriendRequestWrite, {
+      requestId,
+    });
     if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
     await deactivateFriendRequestInteraction(sql, outcome.value);
     return c.json({ request: outcome.value });

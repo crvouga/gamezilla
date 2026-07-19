@@ -13,10 +13,7 @@ describe('resolveAccountIdByStripeCustomerId', () => {
     const query = mock(async () => [{ user_id: 'user-123' }]);
     const sql = { query } as unknown as SqlClient;
 
-    const accountId = await resolveAccountIdByStripeCustomerId(
-      sql,
-      'cus_123'
-    );
+    const accountId = await resolveAccountIdByStripeCustomerId(sql, 'cus_123');
 
     expect(accountId).toBe('user-123');
     expect(query).toHaveBeenCalledTimes(1);

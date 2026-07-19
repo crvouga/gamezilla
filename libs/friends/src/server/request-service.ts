@@ -18,17 +18,9 @@ export async function resolveFriendshipStatus(
   if (block === 'by_a') return 'blocked_by_me';
   if (block === 'by_b') return 'blocked_by_them';
   if (await friendshipExists(sql, viewerId, targetUserId)) return 'friends';
-  const outgoing = await findPendingRequestBetween(
-    sql,
-    viewerId,
-    targetUserId
-  );
+  const outgoing = await findPendingRequestBetween(sql, viewerId, targetUserId);
   if (outgoing !== null) return 'pending_outgoing';
-  const incoming = await findPendingRequestBetween(
-    sql,
-    targetUserId,
-    viewerId
-  );
+  const incoming = await findPendingRequestBetween(sql, targetUserId, viewerId);
   if (incoming !== null) return 'pending_incoming';
   return 'none';
 }

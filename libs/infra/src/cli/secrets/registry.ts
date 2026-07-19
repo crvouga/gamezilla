@@ -12,10 +12,7 @@ import {
 } from './auth-secrets';
 import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
-import {
-  CLERK_PUBLISHABLE_KEY,
-  CLERK_SECRET_KEY,
-} from './clerk-alias-secrets';
+import { CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY } from './clerk-alias-secrets';
 import { DATABASE_URL } from './db-url';
 import { EXPO_TOKEN } from './expo-token';
 import {
@@ -30,13 +27,13 @@ import {
   SENTRY_DSN,
 } from './observability-secrets';
 import {
-  EXPO_PUBLIC_POWERSYNC_URL,
-  POWERSYNC_INSTANCE_ID,
-  POWERSYNC_JWT_PRIVATE_KEY,
-  POWERSYNC_JWT_PUBLIC_JWK,
-  POWERSYNC_PROJECT_ID,
-  POWERSYNC_URL,
+  EXPO_PUBLIC_PS_URL,
   PS_ADMIN_TOKEN,
+  PS_INSTANCE_ID,
+  PS_JWT_PRIVATE_KEY,
+  PS_JWT_PUBLIC_JWK,
+  PS_PROJECT_ID,
+  PS_URL,
 } from './powersync-secrets';
 import {
   S3_ACCESS_KEY_ID,
@@ -88,13 +85,13 @@ export const SECRETS: readonly Secret[] = [
   S3_BUCKET,
   S3_ENDPOINT,
   S3_REGION,
-  POWERSYNC_INSTANCE_ID,
-  POWERSYNC_PROJECT_ID,
-  POWERSYNC_URL,
+  PS_INSTANCE_ID,
+  PS_PROJECT_ID,
+  PS_URL,
   PS_ADMIN_TOKEN,
-  POWERSYNC_JWT_PUBLIC_JWK,
-  POWERSYNC_JWT_PRIVATE_KEY,
-  EXPO_PUBLIC_POWERSYNC_URL,
+  PS_JWT_PUBLIC_JWK,
+  PS_JWT_PRIVATE_KEY,
+  EXPO_PUBLIC_PS_URL,
   ELEVEN_LABS_API_KEY,
   OPENAI_API_KEY,
   OPENAI_BASE_URL,

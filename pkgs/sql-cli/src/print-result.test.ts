@@ -24,9 +24,7 @@ describe('printSqlCliResult', () => {
       result: { changes: 2, lastInsertRowid: 7 },
     });
 
-    expect(table).toHaveBeenCalledWith([
-      { changes: 2, lastInsertRowid: 7 },
-    ]);
+    expect(table).toHaveBeenCalledWith([{ changes: 2, lastInsertRowid: 7 }]);
   });
 
   it('prints messages directly', () => {

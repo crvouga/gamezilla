@@ -46,11 +46,7 @@ export const profileSetUsernameWrite = defineWrite<
   },
   execute: async (ctx, input, sql) => {
     try {
-      const card = await setProfileUsername(
-        sql,
-        ctx.myId,
-        input.username
-      );
+      const card = await setProfileUsername(sql, ctx.myId, input.username);
       return ok(card);
     } catch (error) {
       if (isProfileError(error)) {

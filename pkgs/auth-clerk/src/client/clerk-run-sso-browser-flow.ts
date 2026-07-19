@@ -51,7 +51,8 @@ export async function runClerkSsoBrowserFlow(
     await signIn.create({ strategy, redirectUrl });
   }
 
-  const externalUrl = signIn.firstFactorVerification.externalVerificationRedirectURL;
+  const externalUrl =
+    signIn.firstFactorVerification.externalVerificationRedirectURL;
   if (externalUrl === null || externalUrl === undefined) {
     throw new Error('Missing external verification redirect URL for SSO flow');
   }
@@ -79,7 +80,8 @@ export async function runClerkSsoBrowserFlow(
   }
 
   return {
-    createdSessionId: signUp.createdSessionId ?? signIn.createdSessionId ?? null,
+    createdSessionId:
+      signUp.createdSessionId ?? signIn.createdSessionId ?? null,
     setActive,
     signIn,
     signUp,

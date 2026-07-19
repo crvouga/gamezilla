@@ -123,7 +123,7 @@ import { readFileSync } from 'fs';
 
 const privateKeyPem = readFileSync('./private.pem', 'utf-8');
 const KID = 'powersync-key-1';
-const POWERSYNC_URL = process.env.POWERSYNC_URL || 'http://localhost:8080';
+const PS_URL = process.env.PS_URL || 'http://localhost:8080';
 
 export async function generateToken(userId: string): Promise<string> {
   const privateKey = await importPKCS8(privateKeyPem, 'RS256');
@@ -133,7 +133,7 @@ export async function generateToken(userId: string): Promise<string> {
     .setSubject(userId)
     .setIssuedAt()
     .setIssuer('your-app') // Must match issuer config if set
-    .setAudience(POWERSYNC_URL) // Must match audience config
+    .setAudience(PS_URL) // Must match audience config
     .setExpirationTime('5m') // Short-lived; max 24h, PowerSync refreshes automatically
     .sign(privateKey);
 }
@@ -219,7 +219,7 @@ app.get('/api/auth/token', async (req, res) => {
   const token = await generateToken(userId);
   res.json({
     token,
-    powersync_url: process.env.POWERSYNC_URL,
+    powersync_url: process.env.PS_URL,
   });
 });
 
@@ -315,7 +315,7 @@ if (op.table === 'posts' && op.opData?.is_published !== undefined) {
 import type { PowerSyncBackendConnector, PowerSyncCredentials } from '@powersync/web';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;     // e.g. http://localhost:3001
-const POWERSYNC_URL = import.meta.env.VITE_POWERSYNC_URL;  // e.g. http://localhost:8080
+const PS_URL = import.meta.env.VITE_PS_URL;  // e.g. http://localhost:8080
 
 export class CustomConnector implements PowerSyncBackendConnector {
   private userId: string;
@@ -335,7 +335,7 @@ export class CustomConnector implements PowerSyncBackendConnector {
     this.token = token;
 
     return {
-      endpoint: powersync_url || POWERSYNC_URL,
+      endpoint: powersync_url || PS_URL,
       token,
     };
   }

@@ -1,7 +1,4 @@
-import {
-  useMyDeviceId,
-  useMyId,
-} from '@libs/auth/client/use-current-user';
+import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { spaceParticipationEntityId } from '../shared/membership-key';

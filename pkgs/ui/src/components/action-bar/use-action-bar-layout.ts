@@ -35,8 +35,7 @@ function resolveCombinedOverflow(args: {
   inlineText: ActionBarTextAction[];
   overflowText: ActionBarTextAction[];
 } {
-  const total =
-    args.iconPartition.overflow.length + args.overflowText.length;
+  const total = args.iconPartition.overflow.length + args.overflowText.length;
   if (total !== 1) {
     return {
       partition: args.iconPartition,

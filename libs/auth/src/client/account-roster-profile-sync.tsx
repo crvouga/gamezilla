@@ -1,10 +1,7 @@
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, type ReactNode } from 'react';
 
-import {
-  ProfileCol,
-  PROFILES_TABLE,
-} from '@libs/db/shared/profile-tables';
+import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { useAuthClientPort } from './auth-client-provider';
 import { touchRosterAccount } from './local-account-roster';
 import { useCurrentAccountId } from './use-current-account-id';
@@ -53,13 +50,7 @@ export function AccountRosterProfileSync({
         avatarConfigJson: row?.avatar_config ?? null,
       })
     );
-  }, [
-    accountId,
-    activeSession,
-    row?.username,
-    row?.avatar_config,
-    setRoster,
-  ]);
+  }, [accountId, activeSession, row?.username, row?.avatar_config, setRoster]);
 
   return children;
 }

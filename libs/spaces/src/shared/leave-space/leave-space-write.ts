@@ -45,11 +45,7 @@ export async function authorizeLeaveSpace(
   input: LeaveSpaceInput,
   sql: SqlClient
 ): Promise<ReturnType<typeof ok<void>> | ReturnType<typeof fail>> {
-  const row = await readParticipationForLeave(
-    sql,
-    ctx.deviceId,
-    input.spaceId
-  );
+  const row = await readParticipationForLeave(sql, ctx.deviceId, input.spaceId);
   if (row === null || row.leftAt !== null) {
     return ok(undefined);
   }
@@ -92,11 +88,7 @@ export async function executeLeaveSpace(
   input: LeaveSpaceInput,
   sql: SqlClient
 ): Promise<ReturnType<typeof ok<void>>> {
-  const row = await readParticipationForLeave(
-    sql,
-    ctx.deviceId,
-    input.spaceId
-  );
+  const row = await readParticipationForLeave(sql, ctx.deviceId, input.spaceId);
   if (row === null || row.leftAt !== null) {
     return ok(undefined);
   }

@@ -62,8 +62,7 @@ export async function readSpaceRowForJoin(
   if (row === undefined || row.host_id === null || row.host_id.length === 0) {
     return fail('SPACE_NOT_FOUND', 'Space not found');
   }
-  const hostMemberId =
-    row.host_member_id ?? row.host_account_id ?? row.host_id;
+  const hostMemberId = row.host_member_id ?? row.host_account_id ?? row.host_id;
   return ok({
     hostId: row.host_id,
     hostMemberId,
@@ -214,11 +213,7 @@ export async function authorizeJoinSpaceAccess(
     accountId: ctx.accountId,
     deviceId: ctx.deviceId,
   });
-  const alreadyMember = await isActiveMembership(
-    sql,
-    viewerMemberId,
-    spaceId
-  );
+  const alreadyMember = await isActiveMembership(sql, viewerMemberId, spaceId);
   const alreadyParticipating = await isActiveParticipation(
     sql,
     ctx.deviceId,

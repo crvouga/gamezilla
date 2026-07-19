@@ -71,17 +71,9 @@ export const sendFriendRequestWrite = defineWrite<
     if (await friendshipExists(sql, fromUserId, toUserId)) {
       return fail('FRIENDS_ALREADY_FRIENDS', 'Already friends');
     }
-    const outgoing = await findPendingRequestBetween(
-      sql,
-      fromUserId,
-      toUserId
-    );
+    const outgoing = await findPendingRequestBetween(sql, fromUserId, toUserId);
     if (outgoing !== null) return ok(outgoing);
-    const incoming = await findPendingRequestBetween(
-      sql,
-      toUserId,
-      fromUserId
-    );
+    const incoming = await findPendingRequestBetween(sql, toUserId, fromUserId);
     if (incoming !== null) {
       return fail(
         'FRIENDS_REQUEST_EXISTS',

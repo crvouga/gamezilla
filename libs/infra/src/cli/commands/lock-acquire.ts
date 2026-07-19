@@ -41,10 +41,7 @@ export class LockAcquireCommand implements Command {
     try {
       const handle = await lock.acquire('deploy');
       ok('Global lock', `acquired (id ${handle.id})`);
-      this.platform.setOutput(
-        'lock_id',
-        encodeGithubJobOutputValue(handle.id)
-      );
+      this.platform.setOutput('lock_id', encodeGithubJobOutputValue(handle.id));
     } catch (e) {
       if (e instanceof LockHeldError) {
         printLockHeld(e);

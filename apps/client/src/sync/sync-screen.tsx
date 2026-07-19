@@ -17,8 +17,7 @@ export function SyncScreen() {
   const nav = useBreadcrumbNav();
   const { t } = useLingui();
   const status = useSyncStatus();
-  const powersyncUrl =
-    process.env['EXPO_PUBLIC_POWERSYNC_URL'] ?? t`Not configured`;
+  const powersyncUrl = process.env['EXPO_PUBLIC_PS_URL'] ?? t`Not configured`;
 
   const connectionLabel =
     status.connection === 'disconnected'

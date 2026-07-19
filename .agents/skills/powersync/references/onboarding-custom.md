@@ -41,7 +41,7 @@ Follow this sequence exactly. **Do not skip ahead to app code.**
 3. **Write credentials to `.env` immediately.** As soon as database details are available:
 
    ```
-   POWERSYNC_URL=https://your-instance.powersync.journeyapps.com  # or http://localhost:8080 for self-hosted
+   PS_URL=https://your-instance.powersync.journeyapps.com  # or http://localhost:8080 for self-hosted
    # Cloud service.yaml uses PS_DATABASE_URI; self-hosted Docker uses PS_DATA_SOURCE_URI
    PS_DATABASE_URI=postgresql://user:pass@host:5432/db      # Cloud
    # PS_DATA_SOURCE_URI=postgresql://user:pass@host:5432/db # Self-hosted (set in powersync/docker/.env)

@@ -22,7 +22,5 @@ test('withNodeMaxOldSpaceSize replaces an existing max-old-space-size', () => {
     { NODE_OPTIONS: '--max-old-space-size=2048 --no-warnings' },
     8192
   );
-  expect(env['NODE_OPTIONS']).toBe(
-    '--max-old-space-size=8192 --no-warnings'
-  );
+  expect(env['NODE_OPTIONS']).toBe('--max-old-space-size=8192 --no-warnings');
 });

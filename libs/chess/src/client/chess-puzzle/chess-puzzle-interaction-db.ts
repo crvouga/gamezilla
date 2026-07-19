@@ -27,12 +27,7 @@ export async function appendPuzzleInteractionRow(
   writeContext: WriteContext,
   args: AppendPuzzleInteractionInput
 ): Promise<void> {
-  await runClientWrite(
-    appendPuzzleInteractionWrite,
-    writeContext,
-    args,
-    sql
-  );
+  await runClientWrite(appendPuzzleInteractionWrite, writeContext, args, sql);
 }
 
 async function upsertPuzzleProfileRow(
@@ -40,12 +35,7 @@ async function upsertPuzzleProfileRow(
   writeContext: WriteContext,
   args: UpsertPuzzleProfileInput
 ): Promise<void> {
-  await runClientWrite(
-    upsertPuzzleProfileWrite,
-    writeContext,
-    args,
-    sql
-  );
+  await runClientWrite(upsertPuzzleProfileWrite, writeContext, args, sql);
 }
 
 function computeFinalizeRatings(args: {

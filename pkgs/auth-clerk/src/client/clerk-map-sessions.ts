@@ -16,7 +16,8 @@ function readSessionUserId(session: ClerkSessionLike): string | null {
   const fromUser = session.user?.id;
   if (typeof fromUser === 'string' && fromUser.length > 0) return fromUser;
   const fromPublic = session.publicUserData?.userId;
-  if (typeof fromPublic === 'string' && fromPublic.length > 0) return fromPublic;
+  if (typeof fromPublic === 'string' && fromPublic.length > 0)
+    return fromPublic;
   return null;
 }
 

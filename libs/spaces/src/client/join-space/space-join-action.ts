@@ -5,10 +5,7 @@ import type { WriteContext } from '@pkgs/write/shared/write-context';
 import { WriteError } from '@pkgs/write/shared/write-result';
 
 import { joinSpaceWrite } from '../../shared/join-space/join-space-write';
-import {
-  joinSpaceRemote,
-  type SpacesClientDeps,
-} from '../spaces-actions';
+import { joinSpaceRemote, type SpacesClientDeps } from '../spaces-actions';
 
 /**
  * Local join may lack invite/friendship rows; REST validates invite/private
@@ -51,12 +48,7 @@ export async function joinSpaceAction(
     return;
   }
   try {
-    await runClientWrite(
-      joinSpaceWrite,
-      writeContext,
-      args,
-      sql
-    );
+    await runClientWrite(joinSpaceWrite, writeContext, args, sql);
   } catch (error: unknown) {
     if (
       error instanceof WriteError &&

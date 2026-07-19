@@ -24,11 +24,7 @@ export const ChessBoardCaptureGhostLayer = memo(
     if (pieceImages === null || ghost === null) return null;
     const image = pieceImages[ghost.code];
     if (!image) return null;
-    const { x: cx, y: cy } = squarePieceCenter(
-      ghost.square,
-      size,
-      orientation
-    );
+    const { x: cx, y: cy } = squarePieceCenter(ghost.square, size, orientation);
     return (
       <ChessBoardPieceSkia
         key="capture-ghost"

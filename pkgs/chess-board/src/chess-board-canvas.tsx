@@ -101,10 +101,7 @@ function useGameStateBundle(props: ChessBoardCanvasProps): GameStateBundle {
   const pieceImages = pieceCaches?.images ?? null;
   const sounds = useChessBoardSounds();
   const applySuccessfulMove = useChessBoardApplyMoveSound(sounds, animations);
-  const { active: pieceRows } = useChessPieceRows(
-    game.position,
-    game.lastMove
-  );
+  const { active: pieceRows } = useChessPieceRows(game.position, game.lastMove);
   const legalTargets = useMemo(() => {
     if (!highlightLegalMoves || interaction.dragFrom === null) {
       return EMPTY_TARGETS;

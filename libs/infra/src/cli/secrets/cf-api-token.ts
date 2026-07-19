@@ -33,7 +33,8 @@ async function probeAccountPermissions(
       ),
     },
     {
-      label: 'Workers KV Storage Edit (Account permission — wrangler deploy/delete)',
+      label:
+        'Workers KV Storage Edit (Account permission — wrangler deploy/delete)',
       probe: probeCfPermission(
         headers,
         'GET',
@@ -41,7 +42,8 @@ async function probeAccountPermissions(
       ),
     },
     {
-      label: 'Workers R2 Storage Edit (Account permission — object-store buckets)',
+      label:
+        'Workers R2 Storage Edit (Account permission — object-store buckets)',
       probe: probeCfPermission(
         headers,
         'GET',

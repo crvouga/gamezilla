@@ -1,8 +1,5 @@
 import type { ProfileCard } from '../../shared/profile-card';
-import {
-  profileApiJson,
-  type ProfileClientDeps,
-} from '../profile-api';
+import { profileApiJson, type ProfileClientDeps } from '../profile-api';
 
 export async function ensureProfileOnline(
   deps: ProfileClientDeps

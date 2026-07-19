@@ -24,10 +24,7 @@ export const profileEnsureWrite = defineWrite<ProfileEnsureInput, ProfileCard>({
   },
   execute: async (ctx, _input, sql) => {
     try {
-      const card = await ensureProfileWithUsername(
-        sql,
-        ctx.myId
-      );
+      const card = await ensureProfileWithUsername(sql, ctx.myId);
       return ok(card);
     } catch (error) {
       if (isProfileError(error)) {

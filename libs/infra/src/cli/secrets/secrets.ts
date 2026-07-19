@@ -1,8 +1,4 @@
-import {
-  getApiWorkerSecrets,
-  getSecretMap,
-  SECRETS,
-} from './registry';
+import { getApiWorkerSecrets, getSecretMap, SECRETS } from './registry';
 import {
   activeSecretsEnv,
   validateSecretOrError,

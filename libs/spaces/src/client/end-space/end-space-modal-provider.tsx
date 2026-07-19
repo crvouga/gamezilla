@@ -21,10 +21,7 @@ type PendingEnd = {
 };
 
 export type EndSpaceModals = {
-  requestEndSpace: (
-    spaceId: string,
-    options?: RequestEndSpaceOptions
-  ) => void;
+  requestEndSpace: (spaceId: string, options?: RequestEndSpaceOptions) => void;
 };
 
 const Ctx = createContext<EndSpaceModals | null>(null);

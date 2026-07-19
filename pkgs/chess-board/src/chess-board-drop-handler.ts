@@ -66,15 +66,8 @@ export type DropOutcome =
  * Caller snaps SharedValues immediately, then schedules `commitDropUi`.
  */
 export function applyDropRules(args: DropAttemptArgs): DropOutcome {
-  const {
-    fromSq,
-    toSq,
-    position,
-    turn,
-    game,
-    sounds,
-    setPendingPromotion,
-  } = args;
+  const { fromSq, toSq, position, turn, game, sounds, setPendingPromotion } =
+    args;
   if (game.moveRequiresPromotion(fromSq, toSq)) {
     const moverColor = position[indexFromSquare(fromSq)]?.color ?? turn;
     setPendingPromotion({ from: fromSq, to: toSq, color: moverColor });
@@ -90,10 +83,7 @@ export function applyDropRules(args: DropAttemptArgs): DropOutcome {
 }
 
 /** React + audio + parent notify — schedule AFTER pointer-up returns. */
-export function commitDropUi(
-  args: DropAttemptArgs,
-  result: TryMoveOk
-): void {
+export function commitDropUi(args: DropAttemptArgs, result: TryMoveOk): void {
   args.game.commitMoveUi(result.move);
   hapticForMove(result.move, result.inCheck);
   args.applySuccessfulMove(result.move, {

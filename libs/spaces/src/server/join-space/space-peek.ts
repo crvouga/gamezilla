@@ -184,8 +184,7 @@ export async function buildSpacePeek(args: {
     : decideSpaceJoinAccess({
         visibility,
         hostAccountId: row.host_account_id,
-        hostMemberId:
-          row.host_member_id ?? row.host_account_id ?? row.host_id,
+        hostMemberId: row.host_member_id ?? row.host_account_id ?? row.host_id,
         viewerAccountId: args.viewerAccountId,
         viewerMemberId: resolveSpaceMemberId({
           accountId: args.viewerAccountId,

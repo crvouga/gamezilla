@@ -12,7 +12,7 @@ import { assert } from '@pkgs/assert';
 import { assertDevSecretsEnv } from '../libs/infra/src/shared/database-url-policy';
 
 const REPO_ROOT = join(import.meta.dirname, '..');
-const POWERSYNC_DIR = 'powersync';
+const PS_CONFIG_DIR = 'powersync';
 const DIAGNOSTICS_APP_URL = 'https://diagnostics-app.powersync.com/';
 const DEFAULT_SUBJECT = 'diagnostics-dev';
 
@@ -85,7 +85,7 @@ function powersyncGenerateTokenArgs(subject: string): {
         '--subject',
         subject,
         '--directory',
-        POWERSYNC_DIR,
+        PS_CONFIG_DIR,
       ],
     };
   }
@@ -97,7 +97,7 @@ function powersyncGenerateTokenArgs(subject: string): {
       '--subject',
       subject,
       '--directory',
-      POWERSYNC_DIR,
+      PS_CONFIG_DIR,
     ],
   };
 }
@@ -113,8 +113,8 @@ function extractJwt(stdout: string): string {
 
 function assertPowerSyncDevSecrets(): void {
   assert.ok(
-    trimEnv('POWERSYNC_INSTANCE_ID').length > 0,
-    'POWERSYNC_INSTANCE_ID missing in secrets env dev'
+    trimEnv('PS_INSTANCE_ID').length > 0,
+    'PS_INSTANCE_ID missing in secrets env dev'
   );
   const hasAdminToken = trimEnv('PS_ADMIN_TOKEN').length > 0;
   if (!hasAdminToken) {

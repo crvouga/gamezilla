@@ -1,4 +1,9 @@
-import { Secret, requireHttpsUrl, requireNonEmpty, type SecretInput } from './secret';
+import {
+  Secret,
+  requireHttpsUrl,
+  requireNonEmpty,
+  type SecretInput,
+} from './secret';
 
 async function validateElevenLabsApiKey(input: SecretInput): Promise<void> {
   const v = input.secretValue.trim();

@@ -135,7 +135,11 @@ export function exportSecretsMap(
     const rec = item as Record<string, unknown>;
     const key = rec['key'];
     const value = rec['value'];
-    if (typeof key === 'string' && key.length > 0 && typeof value === 'string') {
+    if (
+      typeof key === 'string' &&
+      key.length > 0 &&
+      typeof value === 'string'
+    ) {
       map.set(key, value);
     }
   }

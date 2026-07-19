@@ -5,7 +5,10 @@ function productionApiPublicOrigin(): string {
   return `https://api.${PROJECT_CONFIG.domain}`;
 }
 
-async function validateApiOrigin(input: SecretInput, label: string): Promise<void> {
+async function validateApiOrigin(
+  input: SecretInput,
+  label: string
+): Promise<void> {
   const v = input.secretValue.trim();
   requireNonEmpty(v, label);
   try {

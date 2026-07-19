@@ -9,8 +9,7 @@ const CF_API = 'https://api.cloudflare.com/client/v4';
  * Cloudflare permission group id for "Workers R2 Storage Bucket Item Write"
  * (documented in https://developers.cloudflare.com/r2/api/tokens/).
  */
-const R2_BUCKET_ITEM_WRITE_PERMISSION_ID =
-  '2efd5506f9c8494dacb1fa10a3e7d5b6';
+const R2_BUCKET_ITEM_WRITE_PERMISSION_ID = '2efd5506f9c8494dacb1fa10a3e7d5b6';
 
 export type R2S3Credentials = {
   readonly accessKeyId: string;
@@ -45,25 +44,22 @@ export async function mintR2S3Credentials(options: {
   assert.ok(accountId.length > 0, 'accountId required');
   assert.ok(bucketName.length > 0, 'bucketName required');
 
-  const res = await fetchWithRetry(
-    `${CF_API}/accounts/${accountId}/tokens`,
-    {
-      method: 'POST',
-      headers: options.headers,
-      body: JSON.stringify({
-        name: options.tokenName,
-        policies: [
-          {
-            effect: 'allow',
-            resources: {
-              [bucketResourceKey(accountId, bucketName)]: '*',
-            },
-            permission_groups: [{ id: R2_BUCKET_ITEM_WRITE_PERMISSION_ID }],
+  const res = await fetchWithRetry(`${CF_API}/accounts/${accountId}/tokens`, {
+    method: 'POST',
+    headers: options.headers,
+    body: JSON.stringify({
+      name: options.tokenName,
+      policies: [
+        {
+          effect: 'allow',
+          resources: {
+            [bucketResourceKey(accountId, bucketName)]: '*',
           },
-        ],
-      }),
-    }
-  );
+          permission_groups: [{ id: R2_BUCKET_ITEM_WRITE_PERMISSION_ID }],
+        },
+      ],
+    }),
+  });
 
   if (!res.ok) {
     const body = await res.text();

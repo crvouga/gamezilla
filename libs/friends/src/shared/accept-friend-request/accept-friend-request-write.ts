@@ -86,12 +86,7 @@ async function applyAccept(
     args.otherUserId
   );
   for (const pendingRequest of pending) {
-    await markFriendRequestStatus(
-      sql,
-      pendingRequest.id,
-      'accepted',
-      args.now
-    );
+    await markFriendRequestStatus(sql, pendingRequest.id, 'accepted', args.now);
   }
   await insertFriendship(sql, {
     userA: args.actorId,

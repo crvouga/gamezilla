@@ -5,10 +5,7 @@ import {
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { defineWrite } from '@pkgs/write/shared/define-write';
-import {
-  idMatches,
-  ownerMatches,
-} from '@pkgs/write/shared/read-row-values';
+import { idMatches, ownerMatches } from '@pkgs/write/shared/read-row-values';
 import type { RowChange } from '@pkgs/write/shared/row-change';
 
 export type UpsertPuzzleProfileInput = {

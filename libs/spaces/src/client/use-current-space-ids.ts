@@ -1,7 +1,4 @@
-import {
-  useMyDeviceId,
-  useMyId,
-} from '@libs/auth/client/use-current-user';
+import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
 import { useMemo, useRef } from 'react';
 
 import {

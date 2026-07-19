@@ -63,11 +63,7 @@ function dragKeyAt(
   return { from, idx, key };
 }
 
-function beginDragAt(
-  x: number,
-  y: number,
-  a: PanFactoryArgs
-): boolean {
+function beginDragAt(x: number, y: number, a: PanFactoryArgs): boolean {
   'worklet';
   const hit = dragKeyAt(x, y, a);
   if (!hit) return false;
@@ -83,11 +79,7 @@ function beginDragAt(
   return true;
 }
 
-function trackDragPointer(
-  x: number,
-  y: number,
-  a: PanFactoryArgs
-): void {
+function trackDragPointer(x: number, y: number, a: PanFactoryArgs): void {
   'worklet';
   const { drag, size, orientation, hoverSquareIndex } = a;
   if (drag.pieceKey.value === DRAG_PIECE_NONE) return;
@@ -129,10 +121,7 @@ function createBoardPanGesture(a: PanFactoryArgs) {
       runOnJS(a.endDrag)(from, to, key);
     })
     .onFinalize(() => {
-      if (
-        a.panSettled.value === 0 &&
-        drag.pieceKey.value !== DRAG_PIECE_NONE
-      ) {
+      if (a.panSettled.value === 0 && drag.pieceKey.value !== DRAG_PIECE_NONE) {
         clearDragMotion(drag);
         hoverSquareIndex.value = HOVER_NONE;
         legalMarkersOpacity.value = 0;
@@ -142,11 +131,9 @@ function createBoardPanGesture(a: PanFactoryArgs) {
 }
 
 function useBoardGestures(args: ChessBoardInteractionLayerProps) {
-  const startDrag = useStableHandler(
-    (from: Square, pieceKey: number) => {
-      args.onDragStart(from, pieceKey);
-    }
-  );
+  const startDrag = useStableHandler((from: Square, pieceKey: number) => {
+    args.onDragStart(from, pieceKey);
+  });
   const endDrag = useStableHandler(
     (from: Square, to: Square | null, pieceKey: number) => {
       args.onPanEnd(from, to, pieceKey);
@@ -230,6 +217,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export const ChessBoardInteractionLayer = memo(
-  ChessBoardInteractionLayerImpl
-);
+export const ChessBoardInteractionLayer = memo(ChessBoardInteractionLayerImpl);

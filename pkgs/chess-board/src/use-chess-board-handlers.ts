@@ -67,7 +67,9 @@ function useSelectionHandlers(
   return { setSelected, setDragFrom };
 }
 
-function useDropApply(args: ChessBoardHandlersArgs): Pick<
+function useDropApply(
+  args: ChessBoardHandlersArgs
+): Pick<
   ChessBoardHandlers,
   'tryApplyDrop' | 'applyDropRules' | 'commitDropUi'
 > {
@@ -91,10 +93,9 @@ function useDropApply(args: ChessBoardHandlersArgs): Pick<
   };
 }
 
-function usePromotionHandlers(args: ChessBoardHandlersArgs): Pick<
-  ChessBoardHandlers,
-  'onPromotionPick' | 'onPromotionCancel'
-> {
+function usePromotionHandlers(
+  args: ChessBoardHandlersArgs
+): Pick<ChessBoardHandlers, 'onPromotionPick' | 'onPromotionCancel'> {
   const { interaction, game, rulesFen, sounds, applySuccessfulMove, onMove } =
     args;
   const onPromotionPick = useStableHandler(

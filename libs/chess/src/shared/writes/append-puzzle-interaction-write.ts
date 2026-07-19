@@ -57,7 +57,9 @@ function parseKind(value: unknown): ChessPuzzleInteractionKind | null {
 
 export function parseAppendPuzzleInteractionInput(
   raw: unknown
-): ReturnType<typeof ok<AppendPuzzleInteractionInput>> | ReturnType<typeof fail> {
+):
+  | ReturnType<typeof ok<AppendPuzzleInteractionInput>>
+  | ReturnType<typeof fail> {
   if (raw === null || typeof raw !== 'object') {
     return fail('INVALID_INPUT', 'append puzzle interaction must be an object');
   }
@@ -87,7 +89,9 @@ export function parseAppendPuzzleInteractionInput(
 
 export function rowToAppendPuzzleInteractionInput(
   row: RowChange
-): ReturnType<typeof ok<AppendPuzzleInteractionInput>> | ReturnType<typeof fail> {
+):
+  | ReturnType<typeof ok<AppendPuzzleInteractionInput>>
+  | ReturnType<typeof fail> {
   if (row.op === 'delete') {
     return fail(
       'CHESS_INTERACTION_DELETE_DENIED',

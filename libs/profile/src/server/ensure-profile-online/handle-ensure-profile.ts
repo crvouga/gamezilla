@@ -5,10 +5,7 @@ import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import type { Context } from 'hono';
 
 import type { ProfileCard } from '../../shared/profile-card';
-import {
-  withProfileAuth,
-  writeFailureStatus,
-} from '../profile-route-auth';
+import { withProfileAuth, writeFailureStatus } from '../profile-route-auth';
 import { profileEnsureWrite } from './profile-ensure-write';
 
 export function handleEnsureProfile(c: Context<ApiHonoEnv>): Promise<Response> {

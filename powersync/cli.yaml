@@ -1,2 +1,2 @@
 type: cloud
-instance_id: !env POWERSYNC_INSTANCE_ID
+instance_id: !env PS_INSTANCE_ID

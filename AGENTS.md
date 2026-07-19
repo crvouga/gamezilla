@@ -147,6 +147,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 - `@libs/spaces` — spaces / lobby / multiplayer plumbing, game dispatch via `space-module.ts` (lifecycle mutations as vertical slices: create/join/leave/end/rename/set-visibility).
 - `@libs/stripe` — Stripe routes, catalog mirror, webhook handler, ABAC policies for stripe entities (`abac-policies.ts`).
 - `@libs/friends` — friendship graph (vertical slices per mutation: send/accept/decline/cancel/remove/block/unblock).
+
 ### Adding a new game
 
 Each game is its own package modelled after `@libs/chess`. To add `@libs/connect-four` (or numberlink, tic-tac-toe, battleship, etc.):
@@ -167,7 +168,7 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 5. Register the game in `libs/spaces/src/shared/games.ts` (composed game module) and `libs/spaces/src/shared/space-module.ts` (top-level router).
 6. Add `defineWrite` mutations under `libs/<game>/src/shared/<slice>/`, expose table upload auth via a package-level `shared/row-bindings.ts` composed from slices, and register them in `apps/api/src/sync/row-write-registry.ts`. Prefer PowerSync client writes over new REST. Put client hooks/UI in `client/<slice>/`.
 7. Wire the client entry in `libs/spaces/src/client/module/games-main-menu.tsx` so the new game shows up in the games list.
-`apps/api` and `apps/client` themselves do **not** need to be edited beyond the registries above — game packages compose into spaces, and spaces is already wired into the shells.
+   `apps/api` and `apps/client` themselves do **not** need to be edited beyond the registries above — game packages compose into spaces, and spaces is already wired into the shells.
 
 ### Layering rules (enforced by depcruise + ci:tier-imports)
 

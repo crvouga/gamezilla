@@ -1,7 +1,4 @@
-import {
-  useMyDeviceId,
-  useMyId,
-} from '@libs/auth/client/use-current-user';
+import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import { useKv } from '@pkgs/kv/kv-context';
@@ -36,7 +33,11 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const sessionToken = useFreshAuthToken();
 
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
-    if (spaceId.length === 0 || deviceId.length === 0 || memberId.length === 0) {
+    if (
+      spaceId.length === 0 ||
+      deviceId.length === 0 ||
+      memberId.length === 0
+    ) {
       return null;
     }
     if (presence.status !== 'active') {

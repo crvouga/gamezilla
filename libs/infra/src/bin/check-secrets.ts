@@ -5,14 +5,8 @@
  * Never seeds, writes, or deletes — purge runs during `infra provision`.
  */
 import { ok, fail as fmtFail, banner } from '../cli/lib/fmt';
-import {
-  getRegistrySecretNames,
-  SECRETS,
-} from '../cli/secrets/registry';
-import {
-  SECRETS_ENVS,
-  type SecretsEnv,
-} from '../cli/secrets/secret';
+import { getRegistrySecretNames, SECRETS } from '../cli/secrets/registry';
+import { SECRETS_ENVS, type SecretsEnv } from '../cli/secrets/secret';
 import {
   exportSecretsMap,
   validateSecretOrError,

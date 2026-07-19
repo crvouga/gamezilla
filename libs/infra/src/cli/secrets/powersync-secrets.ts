@@ -1,30 +1,30 @@
 import { Secret, requireHttpsUrl, requireNonEmpty } from './secret';
 
-export const POWERSYNC_INSTANCE_ID = new Secret({
-  name: 'POWERSYNC_INSTANCE_ID',
+export const PS_INSTANCE_ID = new Secret({
+  name: 'PS_INSTANCE_ID',
   hint: 'PowerSync Cloud instance id (written to powersync/cli.yaml via !env)',
   optional: true,
   validate: async (input) => {
-    requireNonEmpty(input.secretValue, 'POWERSYNC_INSTANCE_ID');
+    requireNonEmpty(input.secretValue, 'PS_INSTANCE_ID');
   },
 });
 
-export const POWERSYNC_PROJECT_ID = new Secret({
-  name: 'POWERSYNC_PROJECT_ID',
+export const PS_PROJECT_ID = new Secret({
+  name: 'PS_PROJECT_ID',
   hint: 'PowerSync Cloud project id (CLI pull/link)',
   optional: true,
   validate: async (input) => {
-    requireNonEmpty(input.secretValue, 'POWERSYNC_PROJECT_ID');
+    requireNonEmpty(input.secretValue, 'PS_PROJECT_ID');
   },
 });
 
-export const POWERSYNC_URL = new Secret({
-  name: 'POWERSYNC_URL',
+export const PS_URL = new Secret({
+  name: 'PS_URL',
   hint: 'PowerSync instance URL, e.g. https://<instance-id>.powersync.journeyapps.com',
   optional: true,
   pushToApiWorker: true,
   validate: async (input) => {
-    requireHttpsUrl(input.secretValue, 'POWERSYNC_URL');
+    requireHttpsUrl(input.secretValue, 'PS_URL');
   },
 });
 
@@ -37,7 +37,10 @@ export const PS_ADMIN_TOKEN = new Secret({
   },
 });
 
-function assertJwkObject(value: string, label: string): Record<string, unknown> {
+function assertJwkObject(
+  value: string,
+  label: string
+): Record<string, unknown> {
   let parsed: unknown;
   try {
     parsed = JSON.parse(value);
@@ -50,14 +53,14 @@ function assertJwkObject(value: string, label: string): Record<string, unknown> 
   return parsed as Record<string, unknown>;
 }
 
-export const POWERSYNC_JWT_PUBLIC_JWK = new Secret({
-  name: 'POWERSYNC_JWT_PUBLIC_JWK',
+export const PS_JWT_PUBLIC_JWK = new Secret({
+  name: 'PS_JWT_PUBLIC_JWK',
   hint: 'Inline RS256 public JWK JSON for PowerSync client_auth',
   optional: true,
   validate: async (input) => {
     const v = input.secretValue.trim();
-    requireNonEmpty(v, 'POWERSYNC_JWT_PUBLIC_JWK');
-    const obj = assertJwkObject(v, 'POWERSYNC_JWT_PUBLIC_JWK');
+    requireNonEmpty(v, 'PS_JWT_PUBLIC_JWK');
+    const obj = assertJwkObject(v, 'PS_JWT_PUBLIC_JWK');
     const kid = obj['kid'];
     if (typeof kid !== 'string' || kid.length === 0) {
       throw new Error('Must include a non-empty kid');
@@ -65,35 +68,33 @@ export const POWERSYNC_JWT_PUBLIC_JWK = new Secret({
   },
 });
 
-export const POWERSYNC_JWT_PRIVATE_KEY = new Secret({
-  name: 'POWERSYNC_JWT_PRIVATE_KEY',
+export const PS_JWT_PRIVATE_KEY = new Secret({
+  name: 'PS_JWT_PRIVATE_KEY',
   hint: 'PKCS8 PEM private key used by the API to mint PowerSync JWTs',
   pushToApiWorker: true,
   validate: async (input) => {
     const v = input.secretValue.trim();
-    requireNonEmpty(v, 'POWERSYNC_JWT_PRIVATE_KEY');
+    requireNonEmpty(v, 'PS_JWT_PRIVATE_KEY');
     if (
       !v.includes('BEGIN PRIVATE KEY') &&
       !v.includes('BEGIN RSA PRIVATE KEY')
     ) {
-      throw new Error(
-        'POWERSYNC_JWT_PRIVATE_KEY must be a PKCS8 PEM private key'
-      );
+      throw new Error('PS_JWT_PRIVATE_KEY must be a PKCS8 PEM private key');
     }
   },
 });
 
-export const EXPO_PUBLIC_POWERSYNC_URL = new Secret({
-  name: 'EXPO_PUBLIC_POWERSYNC_URL',
-  hint: 'Client-facing PowerSync URL (mirrors POWERSYNC_URL)',
+export const EXPO_PUBLIC_PS_URL = new Secret({
+  name: 'EXPO_PUBLIC_PS_URL',
+  hint: 'Client-facing PowerSync URL (mirrors PS_URL)',
   optional: true,
   validate: async (input) => {
-    requireHttpsUrl(input.secretValue, 'EXPO_PUBLIC_POWERSYNC_URL');
+    requireHttpsUrl(input.secretValue, 'EXPO_PUBLIC_PS_URL');
   },
   seed: async (input) => {
-    const url = input.secrets.get('POWERSYNC_URL')?.trim() ?? '';
+    const url = input.secrets.get('PS_URL')?.trim() ?? '';
     if (url.length === 0) {
-      throw new Error('POWERSYNC_URL must be set before seeding EXPO_PUBLIC_POWERSYNC_URL');
+      throw new Error('PS_URL must be set before seeding EXPO_PUBLIC_PS_URL');
     }
     return url;
   },

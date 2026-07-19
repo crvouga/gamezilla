@@ -6,7 +6,7 @@ import type { PowerSyncSdkDatabase } from './powersync-sdk-database';
 
 export type { PowerSyncSdkDatabase } from './powersync-sdk-database';
 
-const POWERSYNC_WEB_ASSET_PREFIX = '/generated/powersync/@powersync';
+const PS_WEB_ASSET_PREFIX = '/generated/powersync/@powersync';
 
 const schema = createPowerSyncSchema(SYNC_TABLE_REGISTRY);
 
@@ -45,14 +45,14 @@ function createWebDatabase(dbName: string): PowerSyncSdkDatabase {
   const factory = new web.WASQLiteOpenFactory({
     dbFilename: `${dbName}.db`,
     vfs: web.WASQLiteVFS.OPFSCoopSyncVFS,
-    worker: `${POWERSYNC_WEB_ASSET_PREFIX}/worker/WASQLiteDB.umd.js`,
+    worker: `${PS_WEB_ASSET_PREFIX}/worker/WASQLiteDB.umd.js`,
     flags: { enableMultiTabs },
   });
   return new web.PowerSyncDatabase({
     schema,
     database: factory,
     sync: {
-      worker: `${POWERSYNC_WEB_ASSET_PREFIX}/worker/SharedSyncImplementation.umd.js`,
+      worker: `${PS_WEB_ASSET_PREFIX}/worker/SharedSyncImplementation.umd.js`,
     },
     flags: { enableMultiTabs },
   }) as unknown as PowerSyncSdkDatabase;

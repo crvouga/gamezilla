@@ -22,18 +22,20 @@ import { join } from 'node:path';
 import { assert } from '@pkgs/assert';
 import {
   injectPowerSyncDatabaseUri,
+  injectPowerSyncInstanceName,
   injectPowerSyncJwtJwkFields,
 } from '../libs/infra/src/cli/resources/powersync';
+import { activeSecretsEnv } from '../libs/infra/src/cli/secrets/secret';
 import { runPostgresMigrationsFromSecrets } from './run-postgres-migrations-secrets';
 import { loadSecretsIntoEnv } from '../libs/infra/src/cli/secrets/secrets';
 
 const REPO_ROOT = join(import.meta.dirname, '..');
-const POWERSYNC_DIR = 'powersync';
-const POWERSYNC_DIR_ABS = join(REPO_ROOT, POWERSYNC_DIR);
-const PULL_STATE_PATH = join(POWERSYNC_DIR_ABS, '.pull-state.json');
-const SERVICE_PATH = join(POWERSYNC_DIR_ABS, 'service.yaml');
-const SYNC_CONFIG_PATH = join(POWERSYNC_DIR_ABS, 'sync-config.yaml');
-const CLI_PATH = join(POWERSYNC_DIR_ABS, 'cli.yaml');
+const PS_CONFIG_DIR = 'powersync';
+const PS_CONFIG_DIR_ABS = join(REPO_ROOT, PS_CONFIG_DIR);
+const PULL_STATE_PATH = join(PS_CONFIG_DIR_ABS, '.pull-state.json');
+const SERVICE_PATH = join(PS_CONFIG_DIR_ABS, 'service.yaml');
+const SYNC_CONFIG_PATH = join(PS_CONFIG_DIR_ABS, 'sync-config.yaml');
+const CLI_PATH = join(PS_CONFIG_DIR_ABS, 'cli.yaml');
 
 type PullState = {
   readonly instanceId: string;
@@ -106,7 +108,7 @@ function readPullState(): PullState | null {
 }
 
 function writePullState(state: PullState): void {
-  mkdirSync(POWERSYNC_DIR_ABS, { recursive: true });
+  mkdirSync(PS_CONFIG_DIR_ABS, { recursive: true });
   writeFileSync(PULL_STATE_PATH, `${JSON.stringify(state, null, 2)}\n`, 'utf8');
 }
 
@@ -121,14 +123,14 @@ function backupConfigFiles(): void {
 }
 
 function assertRequiredSecrets(): { instanceId: string; url: string } {
-  const instanceId = trimEnv('POWERSYNC_INSTANCE_ID');
-  const url = trimEnv('POWERSYNC_URL');
+  const instanceId = trimEnv('PS_INSTANCE_ID');
+  const url = trimEnv('PS_URL');
   assert.ok(
     instanceId.length > 0,
-    'POWERSYNC_INSTANCE_ID missing in secrets env'
+    'PS_INSTANCE_ID missing in secrets env'
   );
-  assert.ok(url.length > 0, 'POWERSYNC_URL missing in secrets env');
-  const projectId = trimEnv('POWERSYNC_PROJECT_ID');
+  assert.ok(url.length > 0, 'PS_URL missing in secrets env');
+  const projectId = trimEnv('PS_PROJECT_ID');
   if (projectId.length > 0) {
     process.stdout.write(
       `[powersync-setup] project id ${projectId} (informational; CLI resolves from instance)\n`
@@ -182,7 +184,7 @@ function linkInstance(cli: string, instanceId: string): void {
   if (existsSync(CLI_PATH)) {
     const current = readFileSync(CLI_PATH, 'utf8');
     if (
-      current.includes('POWERSYNC_INSTANCE_ID') ||
+      current.includes('PS_INSTANCE_ID') ||
       current.includes(instanceId)
     ) {
       process.stdout.write('[powersync-setup] cli.yaml already linked\n');
@@ -196,7 +198,7 @@ function linkInstance(cli: string, instanceId: string): void {
       'cloud',
       `--instance-id=${instanceId}`,
       '--directory',
-      POWERSYNC_DIR,
+      PS_CONFIG_DIR,
     ],
     'powersync link cloud'
   );
@@ -223,17 +225,21 @@ function shouldPull(instanceId: string): boolean {
   return state.instanceId !== instanceId;
 }
 
+function expectedInstanceName(): string {
+  return activeSecretsEnv() === 'prd' ? 'production' : 'development';
+}
+
 function ensureCloudServiceYaml(instanceId: string): void {
   if (!existsSync(SERVICE_PATH)) return;
   let content = readFileSync(SERVICE_PATH, 'utf8');
   if (!content.includes('_type: cloud')) {
-    content = `_type: cloud\nname: development\nregion: us\n\n${content}`;
+    content = `_type: cloud\nname: !env PS_INSTANCE_NAME\nregion: us\n\n${content}`;
   }
   if (!content.includes('replication:')) {
     content = `${content.trim()}\n\nreplication:\n  connections:\n    - type: postgresql\n      hostname: !env PS_DATABASE_HOST\n      port: !env PS_DATABASE_PORT::number\n      database: !env PS_DATABASE_NAME\n      username: !env PS_DATABASE_USER\n      password:\n        secret: !env PS_DATABASE_PASSWORD\n      sslmode: verify-full\n`;
   }
   if (!content.includes('client_auth:')) {
-    content = `${content.trim()}\n\nclient_auth:\n  jwks:\n    keys:\n      - kty: RSA\n        kid: powersync\n        alg: RS256\n        use: sig\n        n: !env POWERSYNC_JWT_N\n        e: !env POWERSYNC_JWT_E\n  additional_audiences:\n    - !env POWERSYNC_URL\n`;
+    content = `${content.trim()}\n\nclient_auth:\n  jwks:\n    keys:\n      - kty: RSA\n        kid: powersync\n        alg: RS256\n        use: sig\n        n: !env PS_JWT_N\n        e: !env PS_JWT_E\n  additional_audiences:\n    - !env PS_URL\n`;
   }
   writeFileSync(SERVICE_PATH, `${content.trim()}\n`, 'utf8');
   process.stdout.write(
@@ -248,7 +254,7 @@ function pullInstance(cli: string, instanceId: string): void {
     'instance',
     `--instance-id=${instanceId}`,
     '--directory',
-    POWERSYNC_DIR,
+    PS_CONFIG_DIR,
   ];
   if (hasFlag('--force-pull') || existsSync(SERVICE_PATH)) {
     args.push('--overwrite');
@@ -285,22 +291,22 @@ function confirmPull(instanceId: string, url: string, cli: string): void {
   );
 
   const hasJwk =
-    trimEnv('POWERSYNC_JWT_N').length > 0 &&
-    trimEnv('POWERSYNC_JWT_E').length > 0;
+    trimEnv('PS_JWT_N').length > 0 &&
+    trimEnv('PS_JWT_E').length > 0;
   if (hasJwk) {
     runOrThrow(
       cli,
       [
         'validate',
         '--directory',
-        POWERSYNC_DIR,
+        PS_CONFIG_DIR,
         '--validate-only=configuration',
       ],
       'powersync validate (configuration)'
     );
   } else {
     process.stdout.write(
-      '[powersync-setup] skipped config validate — set POWERSYNC_JWT_PUBLIC_JWK in dev (run infra provision) before deploy\n'
+      '[powersync-setup] skipped config validate — set PS_JWT_PUBLIC_JWK in dev (run infra provision) before deploy\n'
     );
   }
 
@@ -308,16 +314,17 @@ function confirmPull(instanceId: string, url: string, cli: string): void {
     'fetch',
     'config',
     '--directory',
-    POWERSYNC_DIR,
+    PS_CONFIG_DIR,
     '--output=json',
   ]);
+  const expectedName = expectedInstanceName();
   assert.ok(
-    fetched.includes('"name": "development"'),
-    'fetch config should return cloud instance metadata'
+    fetched.includes(`"name": "${expectedName}"`),
+    `fetch config should return cloud instance name "${expectedName}"`
   );
 
   process.stdout.write(
-    `[powersync-setup] OK — linked ${url} (${instanceId}), service + sync config present\n`
+    `[powersync-setup] OK — linked ${url} (${instanceId}), name=${expectedName}, service + sync config present\n`
   );
 }
 
@@ -326,6 +333,7 @@ async function main(): Promise<void> {
   const { instanceId, url } = assertRequiredSecrets();
   const cli = powersyncCmd();
   assertCloudAuth();
+  injectPowerSyncInstanceName();
   await injectPowerSyncDatabaseUri();
   injectPowerSyncJwtJwkFields();
   process.stdout.write(

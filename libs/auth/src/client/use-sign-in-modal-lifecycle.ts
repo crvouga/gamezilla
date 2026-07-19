@@ -74,9 +74,9 @@ export function useSignInModalLifecycle({
   const [phase, setPhase] = useState<SignInPhase>('idle');
   const [error, setError] = useState<Error | null>(null);
   const [awaitingCallback, setAwaitingCallback] = useState(false);
-  const [baselineSessionIds, setBaselineSessionIds] = useState<readonly string[]>(
-    () => resumeBaselineSessionIds
-  );
+  const [baselineSessionIds, setBaselineSessionIds] = useState<
+    readonly string[]
+  >(() => resumeBaselineSessionIds);
   const baselineRef = useRef(baselineSessionIds);
   baselineRef.current = baselineSessionIds;
   const accountSessionsRef = useRef(accountSessions);
@@ -102,8 +102,7 @@ export function useSignInModalLifecycle({
     }
 
     if (intent === 'addAccount') {
-      const ids =
-        sessionIdsKey.length === 0 ? [] : sessionIdsKey.split('\0');
+      const ids = sessionIdsKey.length === 0 ? [] : sessionIdsKey.split('\0');
       const baseline = new Set(baselineRef.current);
       if (hasNewSession(ids, baseline)) {
         setAwaitingCallback(false);

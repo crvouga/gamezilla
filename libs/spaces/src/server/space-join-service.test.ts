@@ -226,8 +226,14 @@ describe('resolveDeviceLabelFromDb', () => {
   }
 
   test('prefers the device name', async () => {
-    await insertDevice({ id: DEVICE_A, name: "Chris's iPhone", brand: 'Apple' });
-    expect(await resolveDeviceLabelFromDb(sql, DEVICE_A)).toBe("Chris's iPhone");
+    await insertDevice({
+      id: DEVICE_A,
+      name: "Chris's iPhone",
+      brand: 'Apple',
+    });
+    expect(await resolveDeviceLabelFromDb(sql, DEVICE_A)).toBe(
+      "Chris's iPhone"
+    );
   });
 
   test('falls back to brand + model when name is blank', async () => {
@@ -237,7 +243,9 @@ describe('resolveDeviceLabelFromDb', () => {
       brand: 'Google',
       model: 'Pixel 8',
     });
-    expect(await resolveDeviceLabelFromDb(sql, DEVICE_A)).toBe('Google Pixel 8');
+    expect(await resolveDeviceLabelFromDb(sql, DEVICE_A)).toBe(
+      'Google Pixel 8'
+    );
   });
 
   test('falls back to a short id when the device row is missing', async () => {

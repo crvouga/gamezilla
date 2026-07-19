@@ -39,9 +39,7 @@ async function probeS3Access(input: SecretInput): Promise<void> {
       // Some S3-compatible providers (B2) return opaque HeadBucket errors;
       // fall back to a cheap list probe.
     }
-    await client.send(
-      new ListObjectsV2Command({ Bucket: bucket, MaxKeys: 1 })
-    );
+    await client.send(new ListObjectsV2Command({ Bucket: bucket, MaxKeys: 1 }));
   } catch (e) {
     throw new Error(
       `S3 probe failed for bucket ${bucket} at ${endpoint}: ${e instanceof Error ? e.message : String(e)}`

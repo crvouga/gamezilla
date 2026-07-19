@@ -50,7 +50,10 @@ function parseCreateSpaceInput(
     return fail('INVALID_INPUT', 'visibility is required');
   }
   const deviceLabelRaw = record.value['deviceLabel'];
-  if (typeof deviceLabelRaw !== 'string' || deviceLabelRaw.trim().length === 0) {
+  if (
+    typeof deviceLabelRaw !== 'string' ||
+    deviceLabelRaw.trim().length === 0
+  ) {
     return fail('INVALID_INPUT', 'deviceLabel is required');
   }
   return ok({

@@ -117,8 +117,7 @@ function useSignInModalConnection(args: {
   const signInLog = useLogger('auth-sign-in');
   const { pending, isHydrated } = useSignInPending();
   const resumePending = isHydrated && pending !== null;
-  const intent =
-    pending?.intent ?? (isSignedIn ? 'addAccount' : 'signIn');
+  const intent = pending?.intent ?? (isSignedIn ? 'addAccount' : 'signIn');
 
   useLayoutEffect(() => {
     if (resumePending) openSignInModal();
@@ -138,8 +137,7 @@ function useSignInModalConnection(args: {
     onClose: closeSignInModal,
     resumePending,
     intent,
-    resumeBaselineSessionIds:
-      pending?.baselineSessionIds ?? EMPTY_SESSION_IDS,
+    resumeBaselineSessionIds: pending?.baselineSessionIds ?? EMPTY_SESSION_IDS,
     signInAvailable,
     signInUnavailableReason: signInAvailable
       ? null

@@ -3,10 +3,7 @@ import type { Context } from 'hono';
 
 import { SpacesError } from '../shared/spaces-errors';
 import { joinSpaceServer } from './join-space/join-space-service';
-import {
-  createFriendInvite,
-  ensureLinkInvite,
-} from './space-invite-service';
+import { createFriendInvite, ensureLinkInvite } from './space-invite-service';
 import { buildSpacePeek } from './join-space/space-peek';
 import {
   mapSpacesError,

@@ -30,6 +30,6 @@ export const ApiSecretName = {
   s3Bucket: 'S3_BUCKET',
   s3Endpoint: 'S3_ENDPOINT',
   s3Region: 'S3_REGION',
-  powersyncJwtPrivateKey: 'POWERSYNC_JWT_PRIVATE_KEY',
-  powersyncUrl: 'POWERSYNC_URL',
+  powersyncJwtPrivateKey: 'PS_JWT_PRIVATE_KEY',
+  powersyncUrl: 'PS_URL',
 } as const;

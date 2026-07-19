@@ -287,24 +287,22 @@ async function resolveExpoPublicObservabilityBackend(
 async function resolveExpoPublicPowerSyncUrl(
   store: SecretStore | null
 ): Promise<string | null> {
-  const fromEnv = trimStringOrNull(process.env['EXPO_PUBLIC_POWERSYNC_URL']);
+  const fromEnv = trimStringOrNull(process.env['EXPO_PUBLIC_PS_URL']);
   if (fromEnv !== null) {
     process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_POWERSYNC_URL from process env (e.g. secrets-run).\n'
+      '[setup-env] EXPO_PUBLIC_PS_URL from process env (e.g. secrets-run).\n'
     );
     return fromEnv;
   }
   if (store === null) return null;
-  const fromSecrets = (
-    await store.getOptional('POWERSYNC_URL')
-  )?.readSecretValue();
+  const fromSecrets = (await store.getOptional('PS_URL'))?.readSecretValue();
   const trimmed =
     typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
       ? fromSecrets.trim()
       : null;
   if (trimmed !== null) {
     process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_POWERSYNC_URL from secret store POWERSYNC_URL.\n'
+      '[setup-env] EXPO_PUBLIC_PS_URL from secret store PS_URL.\n'
     );
     return trimmed;
   }
@@ -358,7 +356,7 @@ async function main(): Promise<void> {
   }
   if (powersyncUrl === null) {
     process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_POWERSYNC_URL unset; PowerSync sync disabled until POWERSYNC_URL is provisioned.\n'
+      '[setup-env] EXPO_PUBLIC_PS_URL unset; PowerSync sync disabled until PS_URL is provisioned.\n'
     );
   }
 
@@ -377,7 +375,7 @@ async function main(): Promise<void> {
     body += `EXPO_PUBLIC_OBSERVABILITY_BACKEND=${JSON.stringify(observabilityBackend)}\n`;
   }
   if (powersyncUrl !== null) {
-    body += `EXPO_PUBLIC_POWERSYNC_URL=${JSON.stringify(powersyncUrl)}\n`;
+    body += `EXPO_PUBLIC_PS_URL=${JSON.stringify(powersyncUrl)}\n`;
   }
   if (e2eFlag !== null) {
     body += `EXPO_PUBLIC_E2E=${JSON.stringify(e2eFlag)}\n`;

@@ -10,12 +10,7 @@ export function useRemoveFriend() {
   const writeContext = useWriteContext();
   return useCallback(
     (userId: string) =>
-      runClientWrite(
-        removeFriendWrite,
-        writeContext,
-        { userId },
-        engine.db
-      ),
+      runClientWrite(removeFriendWrite, writeContext, { userId }, engine.db),
     [engine, writeContext]
   );
 }

@@ -80,7 +80,7 @@ When the task is to add PowerSync to an app, follow this sequence:
 3. **Supabase online or local?** If unclear from project/env, ask before choosing connection strings, auth config, or references.
 4. Collect required inputs before coding (see "Required Inputs Below").
 5. **Load `references/sync-config.md`** and generate sync config. Source DB setup (publication SQL, replication, CDC) → `references/powersync-service.md` § "Source Database Setup". Without sync config, nothing syncs.
-6. **Persist credentials to `.env` immediately.** When a CLI or dashboard returns DB credentials (host, port, db name, username, password, URI), write them to `.env` _before_ deploying config or writing app code. `service.yaml` (`!env`) and app code (`fetchCredentials`) read from there. Minimum: `POWERSYNC_URL`, the Postgres URI (e.g. `PS_DATABASE_URI`), and any backend-specific keys.
+6. **Persist credentials to `.env` immediately.** When a CLI or dashboard returns DB credentials (host, port, db name, username, password, URI), write them to `.env` _before_ deploying config or writing app code. `service.yaml` (`!env`) and app code (`fetchCredentials`) read from there. Minimum: `PS_URL`, the Postgres URI (e.g. `PS_DATABASE_URI`), and any backend-specific keys.
 7. **Create/link the instance and deploy config before app code.** CLI only — do not hand-create config files.
    - Cloud: `powersync init cloud` → edit config → `powersync link cloud --create` → `powersync deploy`
    - Self-hosted: `powersync init self-hosted` → `powersync docker configure` → `powersync docker start`
@@ -149,7 +149,7 @@ Do not proceed to app-side code until **all** items below are verified:
 - Client auth is configured
 - Instance URL is available for `fetchCredentials()`
 - Source database replication/publication setup is complete
-- All credentials and URLs are in `.env` (e.g. `POWERSYNC_URL`, `PS_DATABASE_URI`, plus any backend-specific keys)
+- All credentials and URLs are in `.env` (e.g. `PS_URL`, `PS_DATABASE_URI`, plus any backend-specific keys)
 
 Missing item? Finish service setup first. Use the CLI to verify and complete. For steps the agent cannot perform (e.g. running SQL in the source DB), present the exact commands and ask the operator to confirm completion before writing app code.
 

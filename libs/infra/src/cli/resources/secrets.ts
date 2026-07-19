@@ -38,8 +38,7 @@ assert.notThrows(
   'crypto.randomUUID must be available'
 );
 
-const legacyWwwApiOrigin = (): string =>
-  `https://www.${PROJECT_CONFIG.domain}`;
+const legacyWwwApiOrigin = (): string => `https://www.${PROJECT_CONFIG.domain}`;
 
 export class SecretsResource extends ResourceBase {
   readonly id = 'secrets';
@@ -251,10 +250,7 @@ export class SecretsResource extends ResourceBase {
     try {
       actual = listSecretNames(env);
     } catch (e) {
-      warn(
-        `Orphan purge (${env})`,
-        e instanceof Error ? e.message : String(e)
-      );
+      warn(`Orphan purge (${env})`, e instanceof Error ? e.message : String(e));
       return;
     }
 

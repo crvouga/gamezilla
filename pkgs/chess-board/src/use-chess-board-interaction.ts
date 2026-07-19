@@ -13,11 +13,7 @@ import type { DropOutcome } from './chess-board-drop-handler';
 import type { ChessPieceRow } from './chess-board-piece-identities';
 import { markChessPerf } from './chess-board-perf';
 import { runPanEnd, type PanEndDeps } from './chess-board-pan-end';
-import type {
-  BoardOrientation,
-  Position,
-  Square,
-} from './chess-board-types';
+import type { BoardOrientation, Position, Square } from './chess-board-types';
 import type { TryMoveOk } from './use-chess-game';
 import { useStableHandler } from './use-stable-handler';
 
@@ -118,14 +114,8 @@ function useTapHandler(args: {
   setSelected: (sq: Square | null) => void;
   tryApplyDrop: (from: Square, to: Square) => boolean;
 }): (sq: Square) => void {
-  const {
-    interactive,
-    turn,
-    position,
-    selected,
-    setSelected,
-    tryApplyDrop,
-  } = args;
+  const { interactive, turn, position, selected, setSelected, tryApplyDrop } =
+    args;
   return useStableHandler((sq: Square) => {
     if (!interactive) return;
     if (selected === null) {

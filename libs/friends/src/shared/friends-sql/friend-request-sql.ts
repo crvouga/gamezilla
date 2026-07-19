@@ -4,10 +4,7 @@ import {
 } from '@libs/db/shared/friends-tables';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type {
-  FriendRequest,
-  FriendRequestStatus,
-} from '../friends-types';
+import type { FriendRequest, FriendRequestStatus } from '../friends-types';
 
 function readString(row: Record<string, unknown>, key: string): string {
   const value = row[key];

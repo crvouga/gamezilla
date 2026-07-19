@@ -12,10 +12,7 @@ import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import type { SecretsEnv } from '../secrets/secret';
 import { setSecretIn } from '../secrets/secrets-io';
 import { ensureR2Bucket, r2S3Endpoint } from './r2-buckets';
-import {
-  mintR2S3Credentials,
-  type R2S3Credentials,
-} from './r2-s3-credentials';
+import { mintR2S3Credentials, type R2S3Credentials } from './r2-s3-credentials';
 
 const S3_REGION = 'auto';
 
@@ -103,7 +100,10 @@ export function seedObjectStoreS3ForEnv(
     const token =
       secrets.get('CLOUDFLARE_API_TOKEN')?.trim() ||
       (process.env['CLOUDFLARE_API_TOKEN'] ?? '').trim();
-    assert.ok(accountId.length > 0, 'CLOUDFLARE_ACCOUNT_ID required to seed S3');
+    assert.ok(
+      accountId.length > 0,
+      'CLOUDFLARE_ACCOUNT_ID required to seed S3'
+    );
     assert.ok(token.length > 0, 'CLOUDFLARE_API_TOKEN required to seed S3');
     const headers = cfHeaders(token);
 

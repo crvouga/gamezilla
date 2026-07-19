@@ -9,7 +9,11 @@ import type { LocalAccountRoster } from './local-account-roster-types';
 /** Reactive local multi-account roster (Kv-backed). */
 export function useLocalAccountRoster(): [
   LocalAccountRoster,
-  (next: LocalAccountRoster | ((prev: LocalAccountRoster) => LocalAccountRoster)) => void,
+  (
+    next:
+      | LocalAccountRoster
+      | ((prev: LocalAccountRoster) => LocalAccountRoster)
+  ) => void,
 ] {
   return useKvState<LocalAccountRoster>({
     key: LOCAL_ACCOUNT_ROSTER_KEY,

@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
 
 _type: cloud
-name: development
+name: !env PS_INSTANCE_NAME
 region: us
 
 replication:
@@ -22,7 +22,7 @@ client_auth:
         kid: powersync
         alg: RS256
         use: sig
-        n: !env POWERSYNC_JWT_N
-        e: !env POWERSYNC_JWT_E
+        n: !env PS_JWT_N
+        e: !env PS_JWT_E
   additional_audiences:
-    - !env POWERSYNC_URL
+    - !env PS_URL

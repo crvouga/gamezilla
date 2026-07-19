@@ -95,11 +95,7 @@ export function SignInModal(props: SignInModalProps): ReactNode {
   const title = intent === 'addAccount' ? t`Add account` : t`Sign in`;
 
   return (
-    <ResponsiveSurface
-      visible={visible}
-      onClose={surfaceClose}
-      title={title}
-    >
+    <ResponsiveSurface visible={visible} onClose={surfaceClose} title={title}>
       <MutationStateTransition stateKey={phase} active={visible}>
         <SignInPhaseContent
           phase={phase}
@@ -204,7 +200,9 @@ function SignInErrorContent({
       <StateArea>
         <ErrorState
           title={
-            intent === 'addAccount' ? t`Couldn't add account` : t`Sign-in failed`
+            intent === 'addAccount'
+              ? t`Couldn't add account`
+              : t`Sign-in failed`
           }
           body={error?.message ?? t`Sign-in was cancelled or didn't finish.`}
           retry={{ label: t`Try again`, onPress: onRetry }}

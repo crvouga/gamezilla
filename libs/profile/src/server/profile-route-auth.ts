@@ -19,9 +19,7 @@ async function requireProfileAuth(c: Context<ApiHonoEnv>): Promise<AppAuth> {
   return auth;
 }
 
-export function writeFailureStatus(
-  code: string
-): 400 | 401 | 404 | 409 | 429 {
+export function writeFailureStatus(code: string): 400 | 401 | 404 | 409 | 429 {
   switch (code as ProfileErrorCode) {
     case 'PROFILE_NOT_AUTHENTICATED':
       return 401;

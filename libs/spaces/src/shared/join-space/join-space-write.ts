@@ -53,7 +53,10 @@ function parseJoinSpaceInput(raw: unknown): WriteResult<JoinSpaceInput> {
   const spaceId = requireNonEmptyString(record.value['spaceId'], 'spaceId');
   if (!spaceId.ok) return spaceId;
   const deviceLabelRaw = record.value['deviceLabel'];
-  if (typeof deviceLabelRaw !== 'string' || deviceLabelRaw.trim().length === 0) {
+  if (
+    typeof deviceLabelRaw !== 'string' ||
+    deviceLabelRaw.trim().length === 0
+  ) {
     return fail('INVALID_INPUT', 'deviceLabel is required');
   }
   return ok({
@@ -158,8 +161,7 @@ async function consumeInviteForJoinIfNeeded(args: {
   if (
     !shouldConsumeInviteOnJoin({
       membershipWasInactive: args.membershipWasInactive,
-      hasInviteToken:
-        args.inviteToken !== null && args.inviteToken.length > 0,
+      hasInviteToken: args.inviteToken !== null && args.inviteToken.length > 0,
     })
   ) {
     return ok(undefined);

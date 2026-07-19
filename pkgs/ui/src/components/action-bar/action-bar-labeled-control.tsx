@@ -9,9 +9,7 @@ import { borderRadius } from '../../theme';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
 
-export function ActionBarInlineCaption(p: {
-  caption: ReactNode;
-}): ReactNode {
+export function ActionBarInlineCaption(p: { caption: ReactNode }): ReactNode {
   return (
     <Text
       variant="caption"

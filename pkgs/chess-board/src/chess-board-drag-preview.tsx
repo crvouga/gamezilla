@@ -129,14 +129,8 @@ function useWebAndroidPortalGhost(args: {
 function ChessBoardDragPreviewImpl(
   props: ChessBoardDragPreviewProps
 ): ReactNode {
-  const {
-    drag,
-    boardOriginX,
-    boardOriginY,
-    pieceCode,
-    pieceSize,
-    enabled,
-  } = props;
+  const { drag, boardOriginX, boardOriginY, pieceCode, pieceSize, enabled } =
+    props;
   const style = useGhostStyle({
     drag,
     boardOriginX,
@@ -152,11 +146,7 @@ function ChessBoardDragPreviewImpl(
     style,
   });
 
-  if (
-    Platform.OS === 'ios' &&
-    enabled &&
-    pieceCode !== null
-  ) {
+  if (Platform.OS === 'ios' && enabled && pieceCode !== null) {
     return (
       <IosDragPreview
         pieceCode={pieceCode}

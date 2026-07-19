@@ -61,9 +61,7 @@ export async function readSpaceHostEnded(
     return fail('SPACE_NOT_FOUND', 'Space not found');
   }
   const hostMemberId =
-    result.value.host_member_id ??
-    result.value.host_account_id ??
-    hostId;
+    result.value.host_member_id ?? result.value.host_account_id ?? hostId;
   if (hostMemberId.length === 0) {
     return fail('SPACE_NOT_FOUND', 'Space not found');
   }

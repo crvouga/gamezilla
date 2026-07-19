@@ -72,9 +72,7 @@ export function touchRosterAccount(args: {
   readonly nowIso?: string;
 }): LocalAccountRoster {
   const nowIso = args.nowIso ?? new Date().toISOString();
-  const existing = args.roster.find(
-    (row) => row.accountId === args.accountId
-  );
+  const existing = args.roster.find((row) => row.accountId === args.accountId);
   return upsertRosterEntry(args.roster, {
     accountId: args.accountId,
     sessionId: args.sessionId,

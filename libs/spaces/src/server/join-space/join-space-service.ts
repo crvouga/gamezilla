@@ -7,10 +7,7 @@ import type { WriteContext } from '@pkgs/write/shared/write-context';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { joinSpaceWrite } from '../../shared/join-space/join-space-write';
-import {
-  SpacesError,
-  type SpacesErrorCode,
-} from '../../shared/spaces-errors';
+import { SpacesError, type SpacesErrorCode } from '../../shared/spaces-errors';
 
 export type JoinSpaceServerInput = {
   readonly spaceId: string;

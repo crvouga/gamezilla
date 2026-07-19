@@ -7,9 +7,5 @@ export async function areAccountsFriends(
   accountA: string,
   accountB: string
 ): Promise<boolean> {
-  return areAccountsFriendsInStore(
-    sql,
-    accountA,
-    accountB
-  );
+  return areAccountsFriendsInStore(sql, accountA, accountB);
 }

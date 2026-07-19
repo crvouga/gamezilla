@@ -179,14 +179,8 @@ export function useChessGame(options: UseChessGameOptions = {}) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fen]);
-  const {
-    turn,
-    inCheck,
-    isGameOver,
-    isCheckmate,
-    isStalemate,
-    isDraw,
-  } = status;
+  const { turn, inCheck, isGameOver, isCheckmate, isStalemate, isDraw } =
+    status;
 
   const legalMovesFrom = useCallback(
     (from: Square): readonly Square[] => {

@@ -129,7 +129,8 @@ function easEnv(commitHash: string, commitDate: string): NodeJS.ProcessEnv {
       EXPO_PUBLIC_API_URL: productionApiOrigin(),
       EXPO_PUBLIC_COMMIT_HASH: commitHash,
       EXPO_PUBLIC_COMMIT_DATE: commitDate,
-      EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY: resolveAuthPublishableKeyForClientBuild(),
+      EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY:
+        resolveAuthPublishableKeyForClientBuild(),
       EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL: '1',
     },
     EAS_UPDATE_MAX_OLD_SPACE_MB

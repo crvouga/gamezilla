@@ -15,10 +15,7 @@ import { useMemo, type ReactNode } from 'react';
 /** Must match {@link ANON_ID_HEADER} in libs/auth session-middleware. */
 const X_ANON_ID = 'x-anon-id';
 
-function authedInboxFetch(
-  path: string,
-  init?: RequestInit
-): Promise<Response> {
+function authedInboxFetch(path: string, init?: RequestInit): Promise<Response> {
   const headers = new Headers(init?.headers);
   const token = getCachedAuthToken();
   if (token !== null && token.length > 0) {

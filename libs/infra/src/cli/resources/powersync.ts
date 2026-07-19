@@ -6,6 +6,7 @@ import { which } from '@pkgs/os';
 import { ok } from '../lib/fmt';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
+import { activeSecretsEnv } from '../secrets/secret';
 import { fetchSecret, secretExists, setSecret } from '../secrets/secrets';
 import { runAsync, runTeeAsync } from '../subprocess';
 import { generatePowerSyncJwtKeypair } from './powersync-jwt';
@@ -13,13 +14,9 @@ import { resolveDatabaseUrl, verifyWalLevelLogical } from './postgres';
 import { ResourceBase, type InfraContext } from './types';
 import { runPowerSyncSourceDbSetup } from './powersync-source-db';
 
-const POWERSYNC_DIR = 'powersync';
+const PS_CONFIG_DIR = 'powersync';
 
-const CLI_ENV_KEYS = [
-  'POWERSYNC_INSTANCE_ID',
-  'POWERSYNC_URL',
-  'PS_ADMIN_TOKEN',
-] as const;
+const CLI_ENV_KEYS = ['PS_INSTANCE_ID', 'PS_URL', 'PS_ADMIN_TOKEN'] as const;
 
 function readTrimmedEnv(name: string): string {
   return (process.env[name] ?? '').trim();
@@ -38,8 +35,8 @@ function assertPowerSyncCliSecrets(): void {
 function assertPowerSyncServiceSecrets(): void {
   assertPowerSyncCliSecrets();
   assert.ok(
-    readTrimmedEnv('POWERSYNC_JWT_PUBLIC_JWK').length > 0,
-    'POWERSYNC_JWT_PUBLIC_JWK missing — run `bun run infra provision` or deploy with service-config to auto-generate'
+    readTrimmedEnv('PS_JWT_PUBLIC_JWK').length > 0,
+    'PS_JWT_PUBLIC_JWK missing — run `bun run infra provision` or deploy with service-config to auto-generate'
   );
   assert.ok(
     readTrimmedEnv('PS_DATABASE_PASSWORD').length > 0,
@@ -50,30 +47,41 @@ function assertPowerSyncServiceSecrets(): void {
 
 /** Expand inline JWKS fields for service.yaml (!env per scalar — not whole JSON). */
 export function injectPowerSyncJwtJwkFields(): void {
-  const raw = readTrimmedEnv('POWERSYNC_JWT_PUBLIC_JWK');
+  const raw = readTrimmedEnv('PS_JWT_PUBLIC_JWK');
   if (raw.length === 0) {
-    ok('PowerSync JWT JWK', 'skipped (POWERSYNC_JWT_PUBLIC_JWK not set)');
+    ok('PowerSync JWT JWK', 'skipped (PS_JWT_PUBLIC_JWK not set)');
     return;
   }
   const parsed: unknown = JSON.parse(raw);
   assert.ok(
     parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed),
-    'POWERSYNC_JWT_PUBLIC_JWK must be a JSON object'
+    'PS_JWT_PUBLIC_JWK must be a JSON object'
   );
   const jwk = parsed as Record<string, unknown>;
   const n = jwk['n'];
   const e = jwk['e'];
   assert.ok(
     typeof n === 'string' && n.length > 0,
-    'POWERSYNC_JWT_PUBLIC_JWK missing n'
+    'PS_JWT_PUBLIC_JWK missing n'
   );
   assert.ok(
     typeof e === 'string' && e.length > 0,
-    'POWERSYNC_JWT_PUBLIC_JWK missing e'
+    'PS_JWT_PUBLIC_JWK missing e'
   );
-  process.env['POWERSYNC_JWT_N'] = n;
-  process.env['POWERSYNC_JWT_E'] = e;
+  process.env['PS_JWT_N'] = n;
+  process.env['PS_JWT_E'] = e;
   ok('PowerSync JWT JWK', 'n/e fields derived for service.yaml');
+}
+
+/**
+ * Cloud dashboard display name for `service.yaml` (`name: !env PS_INSTANCE_NAME`).
+ * `dev` → `development`, `prd` → `production`.
+ */
+export function injectPowerSyncInstanceName(): void {
+  const env = activeSecretsEnv();
+  const name = env === 'prd' ? 'production' : 'development';
+  process.env['PS_INSTANCE_NAME'] = name;
+  ok('PowerSync instance name', `${name} (SECRETS_ENV=${env})`);
 }
 
 /** PowerSync service.yaml DB fields — derived from `DATABASE_URL` at deploy time. */
@@ -101,11 +109,11 @@ export async function injectPowerSyncDatabaseUri(): Promise<void> {
 
 async function ensurePowerSyncJwtKeypair(platform: CiPlatform): Promise<void> {
   const hasPrivate =
-    secretExists('POWERSYNC_JWT_PRIVATE_KEY') ||
-    readTrimmedEnv('POWERSYNC_JWT_PRIVATE_KEY').length > 0;
+    secretExists('PS_JWT_PRIVATE_KEY') ||
+    readTrimmedEnv('PS_JWT_PRIVATE_KEY').length > 0;
   const hasPublic =
-    readTrimmedEnv('POWERSYNC_JWT_PUBLIC_JWK').length > 0 ||
-    secretExists('POWERSYNC_JWT_PUBLIC_JWK');
+    readTrimmedEnv('PS_JWT_PUBLIC_JWK').length > 0 ||
+    secretExists('PS_JWT_PUBLIC_JWK');
 
   if (hasPrivate && hasPublic) {
     ok('PowerSync JWT', 'keypair present');
@@ -113,22 +121,22 @@ async function ensurePowerSyncJwtKeypair(platform: CiPlatform): Promise<void> {
   }
 
   const keypair = generatePowerSyncJwtKeypair();
-  setSecret('POWERSYNC_JWT_PRIVATE_KEY', keypair.privateKeyPem);
-  setSecret('POWERSYNC_JWT_PUBLIC_JWK', keypair.publicJwkJson);
-  process.env['POWERSYNC_JWT_PRIVATE_KEY'] = keypair.privateKeyPem;
-  process.env['POWERSYNC_JWT_PUBLIC_JWK'] = keypair.publicJwkJson;
+  setSecret('PS_JWT_PRIVATE_KEY', keypair.privateKeyPem);
+  setSecret('PS_JWT_PUBLIC_JWK', keypair.publicJwkJson);
+  process.env['PS_JWT_PRIVATE_KEY'] = keypair.privateKeyPem;
+  process.env['PS_JWT_PUBLIC_JWK'] = keypair.publicJwkJson;
   ok('PowerSync JWT', 'generated RS256 keypair in secret store');
   platform.notice(
-    'Generated POWERSYNC_JWT_* keypair — re-run worker deploy so the API can mint sync tokens'
+    'Generated PS_JWT_* keypair — re-run worker deploy so the API can mint sync tokens'
   );
 }
 
 async function loadPrivateKeyFromSecretsIfMissing(): Promise<void> {
-  if (readTrimmedEnv('POWERSYNC_JWT_PRIVATE_KEY').length > 0) return;
+  if (readTrimmedEnv('PS_JWT_PRIVATE_KEY').length > 0) return;
   try {
-    const value = fetchSecret('POWERSYNC_JWT_PRIVATE_KEY').trim();
+    const value = fetchSecret('PS_JWT_PRIVATE_KEY').trim();
     if (value.length > 0) {
-      process.env['POWERSYNC_JWT_PRIVATE_KEY'] = value;
+      process.env['PS_JWT_PRIVATE_KEY'] = value;
     }
   } catch {
     // optional until worker deploy
@@ -190,22 +198,24 @@ export class PowerSyncResource extends ResourceBase {
     await ensurePowerSyncJwtKeypair(platform);
     await loadPrivateKeyFromSecretsIfMissing();
     assertPowerSyncCliSecrets();
+    injectPowerSyncInstanceName();
     await injectPowerSyncDatabaseUri();
     assertPowerSyncServiceSecrets();
 
     const url = await resolveDatabaseUrl();
     await verifyWalLevelLogical(url);
-    ok('PowerSync', `instance ${readTrimmedEnv('POWERSYNC_INSTANCE_ID')}`);
+    ok('PowerSync', `instance ${readTrimmedEnv('PS_INSTANCE_ID')}`);
   }
 
   async dryRun(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
     await ensurePowerSyncJwtKeypair(platform);
     assertPowerSyncCliSecrets();
+    injectPowerSyncInstanceName();
     await injectPowerSyncDatabaseUri();
     assertPowerSyncServiceSecrets();
     await runPowerSyncCli(
       platform,
-      ['validate', '--directory', POWERSYNC_DIR],
+      ['validate', '--directory', PS_CONFIG_DIR],
       'powersync validate'
     );
     ok('PowerSync validate', 'config OK');
@@ -231,6 +241,7 @@ export async function deployPowerSyncConfig(
   await ensurePowerSyncJwtKeypair(platform);
   await loadPrivateKeyFromSecretsIfMissing();
   assertPowerSyncCliSecrets();
+  injectPowerSyncInstanceName();
   await injectPowerSyncDatabaseUri();
   assertPowerSyncServiceSecrets();
   await runAsync(
@@ -245,15 +256,15 @@ export async function deployPowerSyncConfig(
   );
   await runPowerSyncCli(
     platform,
-    ['deploy', 'service-config', '--directory', POWERSYNC_DIR],
+    ['deploy', 'service-config', '--directory', PS_CONFIG_DIR],
     'powersync deploy service-config'
   );
   await runPowerSyncCli(
     platform,
-    ['deploy', 'sync-config', '--directory', POWERSYNC_DIR],
+    ['deploy', 'sync-config', '--directory', PS_CONFIG_DIR],
     'powersync deploy sync-config'
   );
-  ok('PowerSync deploy', readTrimmedEnv('POWERSYNC_URL'));
+  ok('PowerSync deploy', readTrimmedEnv('PS_URL'));
 }
 
 export async function deployPowerSyncSyncConfigOnly(
@@ -272,7 +283,7 @@ export async function deployPowerSyncSyncConfigOnly(
   );
   await runPowerSyncCli(
     platform,
-    ['deploy', 'sync-config', '--directory', POWERSYNC_DIR],
+    ['deploy', 'sync-config', '--directory', PS_CONFIG_DIR],
     'powersync deploy sync-config (dev)'
   );
   ok('PowerSync sync-config', 'deployed to dev instance');

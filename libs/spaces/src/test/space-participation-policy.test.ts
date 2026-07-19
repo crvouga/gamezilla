@@ -20,9 +20,9 @@ import {
 
 describe('resolveMemberId', () => {
   test('prefers account when signed in', () => {
-    expect(
-      resolveMemberId({ accountId: 'acct-1', deviceId: 'dev-1' })
-    ).toBe('acct-1');
+    expect(resolveMemberId({ accountId: 'acct-1', deviceId: 'dev-1' })).toBe(
+      'acct-1'
+    );
   });
 
   test('falls back to device for anon', () => {
@@ -34,9 +34,7 @@ describe('resolveMemberId', () => {
 
 describe('ids', () => {
   test('membership and participation keys', () => {
-    expect(spaceMembershipEntityId('acct-1', 'space-1')).toBe(
-      'acct-1:space-1'
-    );
+    expect(spaceMembershipEntityId('acct-1', 'space-1')).toBe('acct-1:space-1');
     expect(spaceParticipationEntityId('dev-1', 'space-1')).toBe(
       'dev-1:space-1'
     );
@@ -45,30 +43,30 @@ describe('ids', () => {
 
 describe('isHostMember / presence / room actor', () => {
   test('host member equality', () => {
-    expect(
-      isHostMember({ hostMemberId: 'acct-1', memberId: 'acct-1' })
-    ).toBe(true);
-    expect(
-      isHostMember({ hostMemberId: 'acct-1', memberId: 'acct-2' })
-    ).toBe(false);
+    expect(isHostMember({ hostMemberId: 'acct-1', memberId: 'acct-1' })).toBe(
+      true
+    );
+    expect(isHostMember({ hostMemberId: 'acct-1', memberId: 'acct-2' })).toBe(
+      false
+    );
   });
 
   test('presence role', () => {
-    expect(
-      resolvePresenceRole({ hostMemberId: 'h', memberId: 'h' })
-    ).toBe('host');
-    expect(
-      resolvePresenceRole({ hostMemberId: 'h', memberId: 'g' })
-    ).toBe('guest');
+    expect(resolvePresenceRole({ hostMemberId: 'h', memberId: 'h' })).toBe(
+      'host'
+    );
+    expect(resolvePresenceRole({ hostMemberId: 'h', memberId: 'g' })).toBe(
+      'guest'
+    );
   });
 
   test('room actor is member id', () => {
-    expect(
-      resolveRoomActorId({ accountId: 'acct-1', deviceId: 'dev-1' })
-    ).toBe('acct-1');
-    expect(
-      resolveRoomActorId({ accountId: null, deviceId: 'dev-1' })
-    ).toBe('dev-1');
+    expect(resolveRoomActorId({ accountId: 'acct-1', deviceId: 'dev-1' })).toBe(
+      'acct-1'
+    );
+    expect(resolveRoomActorId({ accountId: null, deviceId: 'dev-1' })).toBe(
+      'dev-1'
+    );
   });
 });
 
@@ -112,9 +110,10 @@ describe('decideJoin', () => {
   });
 
   test('idempotent when already participating', () => {
-    expect(
-      decideJoin({ ...base, alreadyParticipating: true })
-    ).toEqual({ allowed: true, reason: 'already' });
+    expect(decideJoin({ ...base, alreadyParticipating: true })).toEqual({
+      allowed: true,
+      reason: 'already',
+    });
   });
 
   test('member adding another device without re-checking visibility', () => {
@@ -165,15 +164,17 @@ describe('decideJoin', () => {
 
 describe('decideLeaveDevice / decideLeaveEverywhere', () => {
   test('last device also leaves membership', () => {
-    expect(
-      decideLeaveDevice({ hasOtherActiveParticipations: false })
-    ).toEqual({ leaveParticipation: true, leaveMembership: true });
+    expect(decideLeaveDevice({ hasOtherActiveParticipations: false })).toEqual({
+      leaveParticipation: true,
+      leaveMembership: true,
+    });
   });
 
   test('other devices keep membership', () => {
-    expect(
-      decideLeaveDevice({ hasOtherActiveParticipations: true })
-    ).toEqual({ leaveParticipation: true, leaveMembership: false });
+    expect(decideLeaveDevice({ hasOtherActiveParticipations: true })).toEqual({
+      leaveParticipation: true,
+      leaveMembership: false,
+    });
   });
 
   test('leave everywhere clears all', () => {
@@ -227,11 +228,11 @@ describe('invite / count helpers', () => {
   });
 
   test('bump count only on membership reactivation', () => {
-    expect(
-      shouldBumpMemberCountOnJoin({ membershipWasInactive: true })
-    ).toBe(true);
-    expect(
-      shouldBumpMemberCountOnJoin({ membershipWasInactive: false })
-    ).toBe(false);
+    expect(shouldBumpMemberCountOnJoin({ membershipWasInactive: true })).toBe(
+      true
+    );
+    expect(shouldBumpMemberCountOnJoin({ membershipWasInactive: false })).toBe(
+      false
+    );
   });
 });

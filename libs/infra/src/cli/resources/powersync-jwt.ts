@@ -1,6 +1,6 @@
 import { createPublicKey, generateKeyPairSync } from 'node:crypto';
 
-export const POWERSYNC_JWT_KID = 'powersync' as const;
+export const PS_JWT_KID = 'powersync' as const;
 
 export type PowerSyncJwtKeypair = {
   readonly privateKeyPem: string;
@@ -20,7 +20,7 @@ export function generatePowerSyncJwtKeypair(): PowerSyncJwtKeypair {
     n: jwk.n,
     e: jwk.e,
     alg: 'RS256',
-    kid: POWERSYNC_JWT_KID,
+    kid: PS_JWT_KID,
     use: 'sig',
   };
   return {

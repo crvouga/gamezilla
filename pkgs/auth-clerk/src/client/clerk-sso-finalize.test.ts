@@ -33,8 +33,8 @@ describe('clerk-sso-finalize', () => {
       createdSessionId: 'sess_b',
       signIn: { status: 'complete', createdSessionId: 'sess_b' },
     };
-    expect(
-      readNewSessionIdFromSsoResult(result, new Set(['sess_a']))
-    ).toBe('sess_b');
+    expect(readNewSessionIdFromSsoResult(result, new Set(['sess_a']))).toBe(
+      'sess_b'
+    );
   });
 });

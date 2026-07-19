@@ -158,7 +158,7 @@ replication:
 client_auth:
   jwks_uri: !env PS_JWKS_URI
   audience:
-    - !env POWERSYNC_URL
+    - !env PS_URL
 ```
 
 Choose the example that matches your auth provider. See `references/supabase-auth.md` for Supabase details or `references/custom-backend.md` for custom JWT setup.

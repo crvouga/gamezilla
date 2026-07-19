@@ -91,7 +91,9 @@ export function requireHttpsUrl(value: string, label?: string): void {
     url = new URL(v);
   } catch {
     throw new Error(
-      label !== undefined ? `${label} must be a valid URL` : 'Must be a valid URL'
+      label !== undefined
+        ? `${label} must be a valid URL`
+        : 'Must be a valid URL'
     );
   }
   if (url.protocol !== 'https:') {
@@ -110,5 +112,7 @@ export function isSecretsEnv(value: string): value is SecretsEnv {
 export function activeSecretsEnv(): SecretsEnv {
   const raw = (process.env['SECRETS_ENV'] ?? 'dev').trim();
   if (isSecretsEnv(raw)) return raw;
-  throw new Error(`SECRETS_ENV must be "dev" or "prd", got ${JSON.stringify(raw)}`);
+  throw new Error(
+    `SECRETS_ENV must be "dev" or "prd", got ${JSON.stringify(raw)}`
+  );
 }

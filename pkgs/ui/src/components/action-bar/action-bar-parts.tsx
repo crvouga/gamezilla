@@ -132,9 +132,7 @@ export function ActionBarOverflowTrigger(p: {
     );
   }
 
-  const menuIcon = (
-    <MenuIcon size={iconSize} color={theme.colors.icon} />
-  );
+  const menuIcon = <MenuIcon size={iconSize} color={theme.colors.icon} />;
 
   if (showInlineLabels) {
     return (

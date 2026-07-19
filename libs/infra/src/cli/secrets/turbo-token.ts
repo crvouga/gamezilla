@@ -9,10 +9,7 @@ async function validateTurboApi(input: SecretInput): Promise<void> {
     if (url.protocol !== 'https:') {
       throw new Error(`TURBO_API must be an https URL, got "${value}"`);
     }
-    if (
-      url.hostname === 'vercel.com' ||
-      url.hostname.endsWith('.vercel.com')
-    ) {
+    if (url.hostname === 'vercel.com' || url.hostname.endsWith('.vercel.com')) {
       throw new Error(
         `TURBO_API must not point at Vercel (got "${value}") — use the self-hosted cache`
       );

@@ -5,10 +5,7 @@ import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import type { Context } from 'hono';
 
 import type { ProfileCard } from '../../shared/profile-card';
-import {
-  withProfileAuth,
-  writeFailureStatus,
-} from '../profile-route-auth';
+import { withProfileAuth, writeFailureStatus } from '../profile-route-auth';
 import { profileSetUsernameWrite } from './profile-set-username-write';
 
 export function handleSetUsername(c: Context<ApiHonoEnv>): Promise<Response> {

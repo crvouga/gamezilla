@@ -71,8 +71,7 @@ function accountLabel(
 }
 
 function AccountMenuAvatar({ account }: { account: LocalAccount }): ReactNode {
-  const seed =
-    account.accountId ?? account.externalUserId ?? account.sessionId;
+  const seed = account.accountId ?? account.externalUserId ?? account.sessionId;
   return (
     <DeviceAvatar
       avatarConfig={parseAvatarConfig(account.avatarConfigJson)}
@@ -82,9 +81,7 @@ function AccountMenuAvatar({ account }: { account: LocalAccount }): ReactNode {
   );
 }
 
-function useAccountSwitchItems(
-  labels: AccountMenuLabels
-): ActionBarItem[] {
+function useAccountSwitchItems(labels: AccountMenuLabels): ActionBarItem[] {
   const accounts = useLocalAccounts();
   const switchAccount = useSwitchAccount();
   const router = useRouter();
