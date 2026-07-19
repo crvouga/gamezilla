@@ -36,7 +36,7 @@ function mergeSessionWithRoster(
 }
 
 /**
- * Local accounts available for switching: Clerk sessions joined with Kv roster
+ * Local accounts available for switching: auth sessions joined with Kv roster
  * display metadata (username / avatar).
  */
 export function useLocalAccounts(): readonly LocalAccount[] {

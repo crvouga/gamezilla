@@ -57,37 +57,37 @@ function isFreshStartedAt(startedAt: Date): boolean {
   return Date.now() - ms <= SIGN_IN_PENDING_TTL_MS;
 }
 
+function parseLegacySignInPending(value: string): SignInPending | null {
+  const startedAt = new Date(value);
+  if (!isFreshStartedAt(startedAt)) return null;
+  return { startedAt, intent: 'signIn', baselineSessionIds: [] };
+}
+
+function parseSignInPendingWire(wire: unknown): SignInPending | null {
+  if (typeof wire !== 'object' || wire === null) return null;
+  const record = wire as Partial<SignInPendingWire>;
+  if (typeof record.startedAt !== 'string') return null;
+  const startedAt = new Date(record.startedAt);
+  if (!isFreshStartedAt(startedAt)) return null;
+  return {
+    startedAt,
+    intent: isSignInIntent(record.intent) ? record.intent : 'signIn',
+    baselineSessionIds: readBaselineSessionIds(record.baselineSessionIds),
+  };
+}
+
 /**
  * Returns a non-stale pending payload, or `null` when there is no marker or it
  * has expired. Accepts legacy bare ISO timestamps (treated as `signIn`).
  */
 export function parseSignInPending(value: string | null): SignInPending | null {
   if (value === null || value.length === 0) return null;
-
-  if (!value.startsWith('{')) {
-    const startedAt = new Date(value);
-    if (!isFreshStartedAt(startedAt)) return null;
-    return { startedAt, intent: 'signIn', baselineSessionIds: [] };
-  }
-
-  let wire: unknown;
+  if (!value.startsWith('{')) return parseLegacySignInPending(value);
   try {
-    wire = JSON.parse(value) as unknown;
+    return parseSignInPendingWire(JSON.parse(value) as unknown);
   } catch {
     return null;
   }
-  if (typeof wire !== 'object' || wire === null) return null;
-
-  const record = wire as Partial<SignInPendingWire>;
-  if (typeof record.startedAt !== 'string') return null;
-  const startedAt = new Date(record.startedAt);
-  if (!isFreshStartedAt(startedAt)) return null;
-
-  return {
-    startedAt,
-    intent: isSignInIntent(record.intent) ? record.intent : 'signIn',
-    baselineSessionIds: readBaselineSessionIds(record.baselineSessionIds),
-  };
 }
 
 export async function markSignInPending(

@@ -69,6 +69,10 @@ export async function fetchSyncToken(args: {
     return cached;
   }
 
+  // #region agent log
+  const debugToken = getCachedAuthToken();
+  const debugAnon = getCachedDeviceId();
+  // #endregion
   const res = await args.fetchFn(`${args.config.getApiUrl()}/api/sync/token`, {
     method: 'POST',
     headers: {
@@ -76,6 +80,29 @@ export async function fetchSyncToken(args: {
       ...authHeaders(),
     },
   });
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Debug-Session-Id': '11af44',
+    },
+    body: JSON.stringify({
+      sessionId: '11af44',
+      hypothesisId: 'F',
+      location: 'sync-api.ts:fetchSyncToken',
+      message: 'sync token request completed',
+      data: {
+        status: res.status,
+        hadBearer: debugToken !== null && debugToken.length > 0,
+        bearerLen: debugToken?.length ?? 0,
+        hadAnonId: debugAnon !== null && debugAnon.length > 0,
+        anonId: debugAnon,
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     throw new Error(

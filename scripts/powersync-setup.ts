@@ -125,10 +125,7 @@ function backupConfigFiles(): void {
 function assertRequiredSecrets(): { instanceId: string; url: string } {
   const instanceId = trimEnv('PS_INSTANCE_ID');
   const url = trimEnv('PS_URL');
-  assert.ok(
-    instanceId.length > 0,
-    'PS_INSTANCE_ID missing in secrets env'
-  );
+  assert.ok(instanceId.length > 0, 'PS_INSTANCE_ID missing in secrets env');
   assert.ok(url.length > 0, 'PS_URL missing in secrets env');
   const projectId = trimEnv('PS_PROJECT_ID');
   if (projectId.length > 0) {
@@ -183,10 +180,7 @@ function assertCloudAuth(): void {
 function linkInstance(cli: string, instanceId: string): void {
   if (existsSync(CLI_PATH)) {
     const current = readFileSync(CLI_PATH, 'utf8');
-    if (
-      current.includes('PS_INSTANCE_ID') ||
-      current.includes(instanceId)
-    ) {
+    if (current.includes('PS_INSTANCE_ID') || current.includes(instanceId)) {
       process.stdout.write('[powersync-setup] cli.yaml already linked\n');
       return;
     }
@@ -291,8 +285,7 @@ function confirmPull(instanceId: string, url: string, cli: string): void {
   );
 
   const hasJwk =
-    trimEnv('PS_JWT_N').length > 0 &&
-    trimEnv('PS_JWT_E').length > 0;
+    trimEnv('PS_JWT_N').length > 0 && trimEnv('PS_JWT_E').length > 0;
   if (hasJwk) {
     runOrThrow(
       cli,

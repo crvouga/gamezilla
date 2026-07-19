@@ -130,12 +130,17 @@ msgstr "About"
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
 #: apps/client/src/ui/use-account-menu.tsx
+#: apps/client/src/ui/use-account-menu.tsx
 #: libs/auth/src/client/account-device/account-device-detail-screen.tsx
 #: libs/auth/src/client/account-device/account-devices-screen.tsx
 #: libs/auth/src/client/account-screen.tsx
 #: libs/auth/src/client/linked-providers/account-providers-screen.tsx
 msgid "Account"
 msgstr "Account"
+
+#: libs/auth/src/client/sign-in-modal.tsx
+msgid "Account added"
+msgstr "Account added"
 
 #: libs/auth/src/client/account-device/account-devices-card.tsx
 msgid "Account ID"
@@ -161,6 +166,11 @@ msgstr "Action required"
 msgid "Add"
 msgstr "Add"
 
+#: apps/client/src/ui/use-account-menu.tsx
+#: libs/auth/src/client/sign-in-modal.tsx
+msgid "Add account"
+msgstr "Add account"
+
 #: libs/friends/src/client/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Add Friend"
 msgstr "Add Friend"
@@ -169,9 +179,17 @@ msgstr "Add Friend"
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
 
+#: libs/auth/src/client/sign-in-modal.tsx
+msgid "Adding account…"
+msgstr "Adding account…"
+
 #: pkgs/inbox/src/client/inbox-filter-bar.tsx
 msgid "All"
 msgstr "All"
+
+#: libs/auth/src/client/use-sign-out-all-confirmation.tsx
+msgid "All accounts are signed out on this device."
+msgstr "All accounts are signed out on this device."
 
 #: libs/client-config/src/client/client-config-entity-card.tsx
 msgid "All attributes (JSON)"
@@ -424,7 +442,6 @@ msgstr "close"
 #: libs/auth/src/client/sign-in-modal.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
-#: pkgs/chess-board/src/chess-board.example.tsx
 #: pkgs/ui/src/components/responsive-surface/responsive-surface-header.tsx
 #: pkgs/ui/src/components/responsive-surface/responsive-surface-header.tsx
 msgid "Close"
@@ -558,6 +575,10 @@ msgstr "Could not start local database"
 msgid "Could not wipe database"
 msgstr "Could not wipe database"
 
+#: libs/auth/src/client/sign-in-modal.tsx
+msgid "Couldn't add account"
+msgstr "Couldn't add account"
+
 #: libs/friends/src/client/friend-request-row-actions.tsx
 #~ msgid "Couldn't cancel"
 #~ msgstr "Couldn't cancel"
@@ -595,6 +616,7 @@ msgid "Couldn't join"
 msgstr "Couldn't join"
 
 #: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-everywhere-confirm-modal.tsx
 msgid "Couldn't leave space"
 msgstr "Couldn't leave space"
 
@@ -798,8 +820,8 @@ msgid "Done"
 msgstr "Done"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
-msgid "Drag overlay"
-msgstr "Drag overlay"
+#~ msgid "Drag overlay"
+#~ msgstr "Drag overlay"
 
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "e.g. ff5733"
@@ -888,6 +910,10 @@ msgstr "Error state"
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Ethernet"
 msgstr "Ethernet"
+
+#: libs/auth/src/client/use-sign-out-all-confirmation.tsx
+msgid "Every account on this device will be signed out. You will need to sign in again to sync."
+msgstr "Every account on this device will be signed out. You will need to sign in again to sync."
 
 #: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
 msgid "Everyone has been returned to the lobby."
@@ -1150,6 +1176,18 @@ msgstr "Leave"
 msgid "Leave {label}"
 msgstr "Leave {label}"
 
+#: libs/spaces/src/client/leave-space/leave-space-everywhere-confirm-modal.tsx
+msgid "Leave everywhere"
+msgstr "Leave everywhere"
+
+#: libs/spaces/src/client/leave-space/leave-space-everywhere-confirm-modal.tsx
+msgid "Leave on all devices?"
+msgstr "Leave on all devices?"
+
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
+msgid "Leave on this device only. Other devices stay in the space until you leave there too. You can join again later if the space is still live."
+msgstr "Leave on this device only. Other devices stay in the space until you leave there too. You can join again later if the space is still live."
+
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/miniplayer/space-end-or-leave-button.tsx
 msgid "Leave space"
@@ -1160,6 +1198,7 @@ msgid "Leave space?"
 msgstr "Leave space?"
 
 #: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-everywhere-confirm-modal.tsx
 msgid "Leaving…"
 msgstr "Leaving…"
 
@@ -1269,8 +1308,8 @@ msgid "Missing device id."
 msgstr "Missing device id."
 
 #: pkgs/chess-board/src/chess-board.example.tsx
-msgid "Modal above the board"
-msgstr "Modal above the board"
+#~ msgid "Modal above the board"
+#~ msgstr "Modal above the board"
 
 #: libs/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "Model"
@@ -1478,12 +1517,12 @@ msgid "Open {label}"
 msgstr "Open {label}"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
-msgid "Open a modal above the board"
-msgstr "Open a modal above the board"
+#~ msgid "Open a modal above the board"
+#~ msgstr "Open a modal above the board"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
-msgid "Open a modal, then drag a piece — the dragged piece must stay above the modal when the overlay portal is enabled."
-msgstr "Open a modal, then drag a piece — the dragged piece must stay above the modal when the overlay portal is enabled."
+#~ msgid "Open a modal, then drag a piece — the dragged piece must stay above the modal when the overlay portal is enabled."
+#~ msgstr "Open a modal, then drag a piece — the dragged piece must stay above the modal when the overlay portal is enabled."
 
 #: pkgs/ui/src/components/command-palette/command-palette-trigger.tsx
 msgid "Open command palette"
@@ -1528,6 +1567,10 @@ msgstr "Pass `theme` to override any board color (squares, highlights, arrows, f
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
 #~ msgid "Paste a seed to recreate this look, or share it with friends."
 #~ msgstr "Paste a seed to recreate this look, or share it with friends."
+
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
+msgid "People"
+msgstr "People"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/members/space-members-list-modal.tsx
@@ -1720,8 +1763,8 @@ msgid "Rename space"
 msgstr "Rename space"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
-msgid "Render dragged piece in app overlay portal"
-msgstr "Render dragged piece in app overlay portal"
+#~ msgid "Render dragged piece in app overlay portal"
+#~ msgstr "Render dragged piece in app overlay portal"
 
 #: libs/friends/src/client/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Requested"
@@ -1920,10 +1963,23 @@ msgid "Sign in with Google"
 msgstr "Sign in with Google"
 
 #: apps/client/src/ui/app-commands/account-command.tsx
+#: apps/client/src/ui/use-account-menu.tsx
 #: libs/auth/src/client/account-actions-row.tsx
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "Sign out"
 msgstr "Sign out"
+
+#: libs/auth/src/client/use-sign-out-all-confirmation.tsx
+msgid "Sign out all"
+msgstr "Sign out all"
+
+#: libs/auth/src/client/account-actions-row.tsx
+msgid "Sign out of all accounts"
+msgstr "Sign out of all accounts"
+
+#: libs/auth/src/client/use-sign-out-all-confirmation.tsx
+msgid "Sign out of all accounts?"
+msgstr "Sign out of all accounts?"
 
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "Sign out?"
@@ -1955,6 +2011,7 @@ msgstr "Sign-in providers"
 msgid "Sign-in was cancelled or didn't finish."
 msgstr "Sign-in was cancelled or didn't finish."
 
+#: libs/auth/src/client/use-sign-out-all-confirmation.tsx
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "Sign-out failed"
 msgstr "Sign-out failed"
@@ -1964,6 +2021,7 @@ msgstr "Sign-out failed"
 msgid "Signed in"
 msgstr "Signed in"
 
+#: libs/auth/src/client/use-sign-out-all-confirmation.tsx
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "Signed out"
 msgstr "Signed out"
@@ -1975,6 +2033,7 @@ msgstr "Signed out"
 msgid "Signing in…"
 msgstr "Signing in…"
 
+#: libs/auth/src/client/use-sign-out-all-confirmation.tsx
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "Signing out…"
 msgstr "Signing out…"
@@ -1984,8 +2043,12 @@ msgid "Singleton clientConfig entity and server refresh"
 msgstr "Singleton clientConfig entity and server refresh"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
-msgid "Skia-rendered chess board with annotation primitives, inline promotion, an app-level drag overlay, and theming."
-msgstr "Skia-rendered chess board with annotation primitives, inline promotion, an app-level drag overlay, and theming."
+#~ msgid "Skia-rendered chess board with annotation primitives, inline promotion, an app-level drag overlay, and theming."
+#~ msgstr "Skia-rendered chess board with annotation primitives, inline promotion, an app-level drag overlay, and theming."
+
+#: pkgs/chess-board/src/chess-board.example.tsx
+msgid "Skia-rendered chess board with annotation primitives, inline promotion, RNGH piece interaction, and theming."
+msgstr "Skia-rendered chess board with annotation primitives, inline promotion, RNGH piece interaction, and theming."
 
 #: libs/profile/src/client/avatar-editor-background-block.tsx
 #~ msgid "Solid"
@@ -2198,6 +2261,10 @@ msgstr "They won't be able to send you friend requests."
 msgid "this"
 msgstr "this"
 
+#: libs/auth/src/client/use-sign-out-confirmation.tsx
+msgid "This account will be signed out on this device. Other accounts stay signed in."
+msgstr "This account will be signed out on this device. Other accounts stay signed in."
+
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "This deletes all local SQLite data and reloads the app. You cannot undo this."
 msgstr "This deletes all local SQLite data and reloads the app. You cannot undo this."
@@ -2257,8 +2324,8 @@ msgid "Try again"
 msgstr "Try again"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
-msgid "Try dragging a piece on the board with this modal open. With the overlay portal enabled, the dragged piece floats above this modal."
-msgstr "Try dragging a piece on the board with this modal open. With the overlay portal enabled, the dragged piece floats above this modal."
+#~ msgid "Try dragging a piece on the board with this modal open. With the overlay portal enabled, the dragged piece floats above this modal."
+#~ msgstr "Try dragging a piece on the board with this modal open. With the overlay portal enabled, the dragged piece floats above this modal."
 
 #: libs/profile/src/client/avatar-editor-background-block.tsx
 #~ msgid "Type"
@@ -2427,28 +2494,41 @@ msgid "You"
 msgstr "You"
 
 #: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
-msgid "You can join again later if the space is still live."
-msgstr "You can join again later if the space is still live."
+#~ msgid "You can join again later if the space is still live."
+#~ msgstr "You can join again later if the space is still live."
 
 #: libs/spaces/src/client/space-settings-screen.tsx
 #~ msgid "You can rejoin from the host's invite link."
 #~ msgstr "You can rejoin from the host's invite link."
 
 #: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-everywhere-confirm-modal.tsx
 msgid "You can rejoin from the invite link if the space is still live."
 msgstr "You can rejoin from the invite link if the space is still live."
+
+#: libs/auth/src/client/sign-in-modal.tsx
+msgid "You can switch accounts from the avatar menu."
+msgstr "You can switch accounts from the avatar menu."
 
 #: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
 msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
 
+#: libs/spaces/src/client/leave-space/leave-space-everywhere-confirm-modal.tsx
+msgid "You left everywhere"
+msgstr "You left everywhere"
+
 #: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "You left the space"
 msgstr "You left the space"
 
+#: libs/spaces/src/client/leave-space/leave-space-everywhere-confirm-modal.tsx
+msgid "You will leave this space on every device signed into this account."
+msgstr "You will leave this space on every device signed into this account."
+
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
-msgid "You will need to sign in again to sync with your user."
-msgstr "You will need to sign in again to sync with your user."
+#~ msgid "You will need to sign in again to sync with your user."
+#~ msgstr "You will need to sign in again to sync with your user."
 
 #: pkgs/inbox/src/client/inbox-empty-state.tsx
 msgid "You're all caught up"
@@ -2464,8 +2544,12 @@ msgid "You're signed in on this device."
 msgstr "You're signed in on this device."
 
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
-msgid "You're signed out on this device."
-msgstr "You're signed out on this device."
+msgid "You're signed out of this account."
+msgstr "You're signed out of this account."
+
+#: libs/auth/src/client/use-sign-out-confirmation.tsx
+#~ msgid "You're signed out on this device."
+#~ msgstr "You're signed out on this device."
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "you@example.com"

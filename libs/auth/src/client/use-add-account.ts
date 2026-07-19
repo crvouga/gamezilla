@@ -5,7 +5,7 @@ import type { SignInTriggerResult } from './sign-in-trigger';
 
 /**
  * Adds another signed-in account via SSO without clearing existing sessions.
- * Requires Clerk multi-session handling in the Dashboard.
+ * Requires auth-provider multi-session support.
  */
 export function useAddAccount(): () => Promise<SignInTriggerResult> {
   const port = useAuthClientPort();

@@ -1,6 +1,6 @@
 /**
  * Local multi-account roster persisted in Kv (not SecureStore — 2048-byte cap).
- * Display metadata for the avatar switcher; Clerk owns live session tokens.
+ * Display metadata for the avatar switcher; the auth provider owns live session tokens.
  */
 
 export type LocalAccountRosterEntry = {

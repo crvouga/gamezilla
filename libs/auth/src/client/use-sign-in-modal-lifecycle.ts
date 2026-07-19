@@ -18,7 +18,11 @@
  */
 
 import { useSecureStorage } from '@pkgs/secure-storage/interface';
+import type { SecureStorage } from '@pkgs/secure-storage/interface';
+import type { AccountSession } from '@pkgs/auth/client/account-session';
+import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { RefObject } from 'react';
 
 import { useAuthClientPort } from './auth-client-provider';
 import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
@@ -61,6 +65,203 @@ function hasNewSession(
   return sessionIds.some((id) => !baseline.has(id));
 }
 
+function useResumePendingEffect(args: {
+  resumePending: boolean;
+  resumeBaselineKey: string;
+  setPhase: (phase: SignInPhase) => void;
+  setBaselineSessionIds: (ids: readonly string[]) => void;
+  setAwaitingCallback: (value: boolean) => void;
+}): void {
+  const {
+    resumePending,
+    resumeBaselineKey,
+    setPhase,
+    setBaselineSessionIds,
+    setAwaitingCallback,
+  } = args;
+  useEffect(() => {
+    if (!resumePending) return;
+    setPhase('loading');
+    setBaselineSessionIds(
+      resumeBaselineKey.length === 0 ? [] : resumeBaselineKey.split('\0')
+    );
+    setAwaitingCallback(true);
+  }, [
+    resumePending,
+    resumeBaselineKey,
+    setPhase,
+    setBaselineSessionIds,
+    setAwaitingCallback,
+  ]);
+}
+
+function resolveAddAccountOutcome(
+  sessionIdsKey: string,
+  baseline: ReadonlySet<string>,
+  setAwaitingCallback: (value: boolean) => void,
+  setPhase: (phase: SignInPhase) => void
+): void {
+  const ids = sessionIdsKey.length === 0 ? [] : sessionIdsKey.split('\0');
+  if (!hasNewSession(ids, baseline)) return;
+  setAwaitingCallback(false);
+  setPhase('success');
+}
+
+function resolveSignInOutcome(args: {
+  authState: AuthSessionState;
+  storage: SecureStorage;
+  onError: ((error: Error) => void) | undefined;
+  setAwaitingCallback: (value: boolean) => void;
+  setError: (error: Error | null) => void;
+  setPhase: (phase: SignInPhase) => void;
+}): void {
+  const {
+    authState,
+    storage,
+    onError,
+    setAwaitingCallback,
+    setError,
+    setPhase,
+  } = args;
+  if (isAuthSessionSignedIn(authState)) {
+    setAwaitingCallback(false);
+    setPhase('success');
+    return;
+  }
+  const err = authSessionError(authState);
+  if (err === null) return;
+  setAwaitingCallback(false);
+  void clearSignInPending(storage);
+  onError?.(err);
+  setError(err);
+  setPhase('error');
+}
+
+function useSignInOutcomeEffect(args: {
+  phase: SignInPhase;
+  awaitingCallback: boolean;
+  authState: AuthSessionState;
+  intent: SignInIntent;
+  sessionIdsKey: string;
+  baselineRef: RefObject<readonly string[]>;
+  storage: SecureStorage;
+  onError: ((error: Error) => void) | undefined;
+  setAwaitingCallback: (value: boolean) => void;
+  setError: (error: Error | null) => void;
+  setPhase: (phase: SignInPhase) => void;
+}): void {
+  const {
+    phase,
+    awaitingCallback,
+    authState,
+    intent,
+    sessionIdsKey,
+    baselineRef,
+    storage,
+    onError,
+    setAwaitingCallback,
+    setError,
+    setPhase,
+  } = args;
+  useEffect(() => {
+    if (phase !== 'loading' || !awaitingCallback || !authState.isHydrated) {
+      return;
+    }
+    if (intent === 'addAccount') {
+      resolveAddAccountOutcome(
+        sessionIdsKey,
+        new Set(baselineRef.current),
+        setAwaitingCallback,
+        setPhase
+      );
+      return;
+    }
+    resolveSignInOutcome({
+      authState,
+      storage,
+      onError,
+      setAwaitingCallback,
+      setError,
+      setPhase,
+    });
+  }, [
+    phase,
+    awaitingCallback,
+    authState,
+    intent,
+    sessionIdsKey,
+    baselineRef,
+    storage,
+    onError,
+    setAwaitingCallback,
+    setError,
+    setPhase,
+  ]);
+}
+
+function useSignInStart(args: {
+  storage: SecureStorage;
+  intent: SignInIntent;
+  onError: ((error: Error) => void) | undefined;
+  accountSessionsRef: RefObject<readonly AccountSession[]>;
+  setBaselineSessionIds: (ids: readonly string[]) => void;
+  setAwaitingCallback: (value: boolean) => void;
+  setError: (error: Error | null) => void;
+  setPhase: (phase: SignInPhase) => void;
+}): (runner: () => Promise<void>) => Promise<void> {
+  const {
+    storage,
+    intent,
+    onError,
+    accountSessionsRef,
+    setBaselineSessionIds,
+    setAwaitingCallback,
+    setError,
+    setPhase,
+  } = args;
+  return useCallback(
+    async (runner: () => Promise<void>): Promise<void> => {
+      setError(null);
+      setPhase('loading');
+      const baseline = accountSessionsRef.current.map(
+        (session) => session.sessionId
+      );
+      setBaselineSessionIds(baseline);
+      await markSignInPending(storage, {
+        intent,
+        baselineSessionIds: intent === 'addAccount' ? baseline : [],
+      });
+      try {
+        await runner();
+      } catch (e) {
+        await clearSignInPending(storage);
+        const err = e instanceof Error ? e : new Error(String(e));
+        onError?.(err);
+        setError(err);
+        setPhase('error');
+        return;
+      }
+      if (intent === 'addAccount') {
+        // Adapter only resolves after a new auth session exists.
+        setAwaitingCallback(false);
+        setPhase('success');
+        return;
+      }
+      setAwaitingCallback(true);
+    },
+    [
+      storage,
+      onError,
+      intent,
+      accountSessionsRef,
+      setBaselineSessionIds,
+      setAwaitingCallback,
+      setError,
+      setPhase,
+    ]
+  );
+}
+
 export function useSignInModalLifecycle({
   resumePending,
   intent,
@@ -87,84 +288,37 @@ export function useSignInModalLifecycle({
     .join('\0');
   const resumeBaselineKey = resumeBaselineSessionIds.join('\0');
 
-  useEffect(() => {
-    if (!resumePending) return;
-    setPhase('loading');
-    setBaselineSessionIds(
-      resumeBaselineKey.length === 0 ? [] : resumeBaselineKey.split('\0')
-    );
-    setAwaitingCallback(true);
-  }, [resumePending, resumeBaselineKey]);
-
-  useEffect(() => {
-    if (phase !== 'loading' || !awaitingCallback || !authState.isHydrated) {
-      return;
-    }
-
-    if (intent === 'addAccount') {
-      const ids = sessionIdsKey.length === 0 ? [] : sessionIdsKey.split('\0');
-      const baseline = new Set(baselineRef.current);
-      if (hasNewSession(ids, baseline)) {
-        setAwaitingCallback(false);
-        setPhase('success');
-      }
-      return;
-    }
-
-    if (isAuthSessionSignedIn(authState)) {
-      setAwaitingCallback(false);
-      setPhase('success');
-      return;
-    }
-    const err = authSessionError(authState);
-    if (err === null) return;
-    setAwaitingCallback(false);
-    void clearSignInPending(storage);
-    onError?.(err);
-    setError(err);
-    setPhase('error');
-  }, [
+  useResumePendingEffect({
+    resumePending,
+    resumeBaselineKey,
+    setPhase,
+    setBaselineSessionIds,
+    setAwaitingCallback,
+  });
+  useSignInOutcomeEffect({
     phase,
     awaitingCallback,
     authState,
     intent,
     sessionIdsKey,
+    baselineRef,
     storage,
     onError,
-  ]);
+    setAwaitingCallback,
+    setError,
+    setPhase,
+  });
 
-  const start = useCallback(
-    async (runner: () => Promise<void>): Promise<void> => {
-      setError(null);
-      setPhase('loading');
-      const baseline = accountSessionsRef.current.map(
-        (session) => session.sessionId
-      );
-      setBaselineSessionIds(baseline);
-      await markSignInPending(storage, {
-        intent,
-        baselineSessionIds: intent === 'addAccount' ? baseline : [],
-      });
-      try {
-        await runner();
-      } catch (e) {
-        await clearSignInPending(storage);
-        const err = e instanceof Error ? e : new Error(String(e));
-        onError?.(err);
-        setError(err);
-        setPhase('error');
-        return;
-      }
-      if (intent === 'addAccount') {
-        // Adapter only resolves after a new Clerk session exists.
-        setAwaitingCallback(false);
-        setPhase('success');
-        return;
-      }
-      setAwaitingCallback(true);
-    },
-    [storage, onError, intent]
-  );
+  const start = useSignInStart({
+    storage,
+    intent,
+    onError,
+    accountSessionsRef,
+    setBaselineSessionIds,
+    setAwaitingCallback,
+    setError,
+    setPhase,
+  });
 
   const reset = useCallback(() => {
     setPhase('idle');
