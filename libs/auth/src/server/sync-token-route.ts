@@ -74,63 +74,15 @@ export function createSyncTokenRoute(deps: SyncTokenRouteDeps) {
     const sqlClient = c.get('sqlClient');
     const sessionAuth = c.get('sessionAuth');
     const deviceHeader = c.req.header(ANON_ID_HEADER)?.trim() ?? '';
-    // #region agent log
-    const debugAuthHeader = c.req.header('Authorization') ?? '';
-    const debugLog = async (
-      message: string,
-      data: Record<string, unknown>
-    ): Promise<void> => {
-      await fetch(
-        'http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Debug-Session-Id': '11af44',
-          },
-          body: JSON.stringify({
-            sessionId: '11af44',
-            hypothesisId: 'F,G,H',
-            location: 'sync-token-route.ts:/sync/token',
-            message,
-            data,
-            timestamp: Date.now(),
-          }),
-        }
-      ).catch(() => {});
-    };
-    // #endregion
     if (deviceHeader.length === 0) {
-      // #region agent log
-      await debugLog('401: missing x-anon-id', {
-        hasBearer: debugAuthHeader.startsWith('Bearer '),
-        bearerLen: debugAuthHeader.length,
-      });
-      // #endregion
       throw new UnauthorizedError('Missing x-anon-id for sync token');
     }
 
     const ctx = await sessionAuth.resolveAuthContext(sqlClient, c.req.raw);
     const auth = appAuth(ctx);
     if (auth === null || auth.deviceId !== deviceHeader) {
-      // #region agent log
-      await debugLog('401: invalid session for sync token', {
-        hasBearer: debugAuthHeader.startsWith('Bearer '),
-        bearerLen: debugAuthHeader.length,
-        authNull: auth === null,
-        authDeviceId: auth?.deviceId ?? null,
-        authAccountId: auth?.accountId ?? null,
-        deviceHeader,
-      });
-      // #endregion
       throw new UnauthorizedError('Invalid session for sync token');
     }
-    // #region agent log
-    await debugLog('token minted OK', {
-      subject: auth.accountId ?? auth.deviceId,
-      deviceHeader,
-    });
-    // #endregion
 
     const subject = auth.accountId ?? auth.deviceId;
     const [privateKeyPem, audience] = await Promise.all([

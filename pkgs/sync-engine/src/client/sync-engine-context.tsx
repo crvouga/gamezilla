@@ -156,65 +156,6 @@ export function useWatchQuery<T extends Record<string, unknown>>(
     reconnecting,
     prevRows: prevRowsRef.current,
   });
-  // #region agent log
-  const debugLastLogRef = useRef('');
-  if (sql.includes('FROM spaces')) {
-    const source =
-      rows.length > 0
-        ? 'live'
-        : cachedRows.length > 0
-          ? 'cache'
-          : reconnecting && prevRowsRef.current.length > 0
-            ? 'prevRows'
-            : 'live-empty';
-    const logKey = JSON.stringify({
-      sql: sql.slice(0, 60),
-      liveN: rows.length,
-      cacheN: cachedRows.length,
-      prevN: prevRowsRef.current.length,
-      source,
-      conn: status.connection,
-      hasSynced: status.hasSynced,
-      hydrated,
-      confirmedEmpty: cached?.confirmedEmpty ?? false,
-    });
-    if (debugLastLogRef.current !== logKey) {
-      debugLastLogRef.current = logKey;
-      fetch(
-        'http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Debug-Session-Id': '11af44',
-          },
-          body: JSON.stringify({
-            sessionId: '11af44',
-            hypothesisId: 'A,B',
-            location: 'sync-engine-context.tsx:useWatchQuery',
-            message: 'spaces watch displayRows source',
-            data: {
-              sqlPrefix: sql.slice(0, 80),
-              paramsKey,
-              liveRowIds: rows.map((r) => (r as { id?: unknown }).id),
-              cachedRowIds: cachedRows.map((r) => (r as { id?: unknown }).id),
-              prevRowIds: prevRowsRef.current.map(
-                (r) => (r as { id?: unknown }).id
-              ),
-              source,
-              connection: status.connection,
-              hasSynced: status.hasSynced,
-              hasEverSynced: status.hasEverSynced,
-              hydrated,
-              confirmedEmpty: cached?.confirmedEmpty ?? false,
-            },
-            timestamp: Date.now(),
-          }),
-        }
-      ).catch(() => {});
-    }
-  }
-  // #endregion
   const isLoading = computeWatchQueryIsLoading({
     hydrated,
     displayRows,

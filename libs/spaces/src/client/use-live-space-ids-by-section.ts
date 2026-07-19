@@ -9,9 +9,6 @@ import {
   SPACE_MEMBERSHIPS_TABLE,
 } from '@libs/db/shared/space-tables';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
-// #region agent log
-import { useEffect } from 'react';
-// #endregion
 
 import type { LiveSpaceSection } from './live-space-section';
 
@@ -82,46 +79,6 @@ function useFriendsLiveSpaceIds(): {
   return { spaceIds: rows.map((r) => r.id), isLoading };
 }
 
-// #region agent log
-function useDebugPhantomSpaces(
-  section: LiveSpaceSection,
-  spaceIds: readonly string[],
-  isLoading: boolean
-): void {
-  const { rows: allSpaceRows } = useWatchQuery<Record<string, unknown>>(
-    `SELECT * FROM ${SPACES_TABLE.tableName} ORDER BY ${SpaceCol.createdAt} DESC LIMIT 20`
-  );
-  const idsKey = JSON.stringify(spaceIds);
-  const allRowsKey = JSON.stringify(allSpaceRows);
-  useEffect(() => {
-    fetch(
-      'http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Debug-Session-Id': '11af44',
-        },
-        body: JSON.stringify({
-          sessionId: '11af44',
-          hypothesisId: 'C,D',
-          location: 'use-live-space-ids-by-section.ts:useDebugPhantomSpaces',
-          message: 'section ids + all local space rows',
-          data: {
-            section,
-            renderedSpaceIds: spaceIds,
-            isLoading,
-            allLocalSpaceRows: allSpaceRows,
-          },
-          timestamp: Date.now(),
-        }),
-      }
-    ).catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- debug instrumentation keyed by serialized values
-  }, [section, idsKey, allRowsKey, isLoading]);
-}
-// #endregion
-
 /**
  * Live spaces for one lobby section, newest-first.
  */
@@ -131,9 +88,6 @@ export function useLiveSpaceIdsBySection(section: LiveSpaceSection): {
 } {
   const publicIds = usePublicLiveSpaceIds();
   const friendsIds = useFriendsLiveSpaceIds();
-  const active = section === 'public' ? publicIds : friendsIds;
-  // #region agent log
-  useDebugPhantomSpaces(section, active.spaceIds, active.isLoading);
-  // #endregion
-  return active;
+  if (section === 'public') return publicIds;
+  return friendsIds;
 }
