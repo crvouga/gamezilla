@@ -62,7 +62,10 @@ function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
         >
           {(size) => p.boardSlot(size)}
         </ChessPuzzleBoardFrame>
-        {!showCelebration ? (
+        <Box
+          sx={{ opacity: showCelebration ? 0 : 1, alignSelf: 'stretch' }}
+          pointerEvents={showCelebration ? 'none' : 'auto'}
+        >
           <ChessPuzzleActionBar
             status={p.status}
             hintStage={p.hintStage}
@@ -70,7 +73,7 @@ function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
             onRetry={p.onRetry}
             onNext={p.onNext}
           />
-        ) : null}
+        </Box>
         {p.e2eHints}
       </Box>
     </Box>

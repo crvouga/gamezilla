@@ -68,9 +68,6 @@ async function authorizeSpacesUpload(
     return fail('SPACE_DELETE_DENIED', 'spaces cannot be deleted via sync');
   }
   const space = await readSpaceHostEnded(sql, row.id);
-  // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',runId:'post-fix',hypothesisId:'H-S1',location:'row-bindings.ts:spacesRowWrite',message:'spaces upload authorize',data:{op:row.op,spaceId:row.id,spaceFound:space.ok,failCode:space.ok?null:space.code,createPath:!space.ok&&row.op==='put',hasValues:row.values!==undefined,valueKeys:row.values?Object.keys(row.values):[],deviceIdLen:ctx.deviceId.length,accountIdNull:ctx.accountId===null},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   if (!space.ok) {
     if (row.op === 'put') {
       return authorizeSpaceCreateFromRow(ctx, row);
@@ -184,9 +181,6 @@ async function authorizeSpaceMembershipUpload(
     );
   }
   const space = await readSpaceHostEnded(sql, spaceIdResult.value);
-  // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',runId:'space-upload',hypothesisId:'H-S2',location:'row-bindings.ts:membershipUpload',message:'membership upload authorize',data:{op:row.op,rowId:row.id,spaceId:spaceIdResult.value,spaceFound:space.ok,failCode:space.ok?null:space.code},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   if (!space.ok) return space;
   if (space.value.endedAt !== null) {
     return fail('SPACE_ENDED', 'Space has ended');

@@ -65,9 +65,6 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   //      swap `activePuzzleId` in a single state update. The old id is
   //      replaced directly, never via an intermediate `null`.
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',hypothesisId:'H-A',location:'use-puzzle-play-screen-state.ts:swap-effect',message:'puzzle swap effect',data:{activePuzzleId,attemptSeed,placedAttempt:placedAttemptRef.current,roomPuzzleId,nextId,nextLoading,bandedCount,fallbackCount,replayCount,myId},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     if (activePuzzleId === null) {
       if (attemptSeed === 0 && roomPuzzleId !== null) {
         setActivePuzzleId(roomPuzzleId);

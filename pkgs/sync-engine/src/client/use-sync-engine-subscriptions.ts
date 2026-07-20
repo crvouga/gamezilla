@@ -48,18 +48,11 @@ async function subscribeOne(
   subscribe: NonNullable<SyncEngine['subscribeSyncStream']>,
   spec: SyncEngineStreamSubscriptionSpec
 ): Promise<SyncStreamSubscription> {
-  // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',runId:'post-fix',hypothesisId:'H-H',location:'use-sync-engine-subscriptions.ts:subscribe-start',message:'subscribing to stream',data:{stream:spec.stream,params:spec.params,priority:spec.priority??null},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
-  const sub = await subscribe(
+  return subscribe(
     spec.stream,
     spec.params,
     spec.priority === undefined ? undefined : { priority: spec.priority }
   );
-  // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',runId:'post-fix',hypothesisId:'H-H',location:'use-sync-engine-subscriptions.ts:subscribed',message:'stream subscribe resolved',data:{stream:spec.stream,params:spec.params},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
-  return sub;
 }
 
 /**
@@ -87,14 +80,8 @@ export async function subscribeAll(args: SubscribeAllArgs): Promise<{
     return { ready: false };
   }
   await Promise.all(
-    subs.map(async (sub, index) => {
-      const spec = specs[index];
+    subs.map(async (sub) => {
       await waitForSubscriptionReady(sub, abort);
-      // #region agent log
-      if (spec !== undefined) {
-        fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',runId:'post-fix',hypothesisId:'H-H',location:'use-sync-engine-subscriptions.ts:first-sync',message:'stream first sync reached',data:{stream:spec.stream,params:spec.params,cancelled:isCancelled(),aborted:abort.aborted},timestamp:Date.now()})}).catch(()=>{});
-      }
-      // #endregion
     })
   );
   return { ready: !isCancelled() && !abort.aborted };
@@ -114,9 +101,6 @@ export function useSyncEngineSubscriptions(
 
   useEffect(() => {
     const subscribe = engine.subscribeSyncStream;
-    // #region agent log
-    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',runId:'post-fix',hypothesisId:'H-G',location:'use-sync-engine-subscriptions.ts:effect',message:'subscriptions effect',data:{subscribeSupported:subscribe!==undefined,specCount:specs.length,key},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     if (subscribe === undefined || specs.length === 0) {
       setReady(true);
       return;
@@ -135,10 +119,8 @@ export function useSyncEngineSubscriptions(
       });
       if (cancelled || abort.signal.aborted) return;
       if (next.ready) setReady(true);
-    })().catch((error: unknown) => {
-      // #region agent log
-      fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',runId:'post-fix',hypothesisId:'H-H',location:'use-sync-engine-subscriptions.ts:error',message:'subscribeAll failed',data:{error:String(error),key},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
+    })().catch(() => {
+      // Subscribe failures leave ready=false; cleanup aborts in-flight waits.
     });
     return () => {
       cancelled = true;

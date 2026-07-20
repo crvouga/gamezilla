@@ -75,9 +75,6 @@ function useStartPuzzleSessionOnMount(args: {
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
   const identityReady = usePuzzleSessionIdentityReady();
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',hypothesisId:'H-D',location:'use-puzzle-player-state.ts:start-effect',message:'start puzzle session gate',data:{identityReady,playGeneration,readyGeneration,roomStatus,roomPuzzleId,puzzleId,fenLen:fen.length,movesLen:movesStr.length},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     if (!identityReady) return;
     if (playGeneration !== readyGeneration) return;
     if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) return;
@@ -128,11 +125,6 @@ function usePuzzlePlayerModel(
     expectedFromSquare,
     expectedToSquare,
   } = usePuzzleSolver({ puzzleId });
-  // #region agent log
-  useEffect(() => {
-    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',hypothesisId:'H-E',location:'use-puzzle-player-state.ts:solver',message:'puzzle solver output',data:{puzzleId,status,displayFenNull:displayFen===null||displayFen==='',fenLen:fen.length,movesLen:movesStr.length,rating},timestamp:Date.now()})}).catch(()=>{});
-  }, [puzzleId, status, displayFen, fen, movesStr, rating]);
-  // #endregion
   const { appendUsedHint, appendAbandoned, setLastUci } =
     useChessPuzzleInteractionRecorder({
       puzzleId,

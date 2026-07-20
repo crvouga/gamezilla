@@ -6,7 +6,6 @@ import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 import { createSharedWatchRegistry } from '@pkgs/sync-engine/client/shared-watch-registry';
 import type { SyncStreamSubscription } from '@pkgs/sync-engine/client/sync-stream-subscription';
 
-import { attachStreamWaitDebugLogs } from './debug-stream-subscribe-log';
 import type { PowerSyncDatabasePort } from './powersync-database-port';
 import { createSqlClientFromPowerSync } from './sql-client-facade';
 
@@ -53,14 +52,7 @@ function createSubscribeSyncStream(
     );
     return {
       unsubscribe: () => subscription.unsubscribe(),
-      // #region agent log
-      waitForFirstSync: attachStreamWaitDebugLogs({
-        db,
-        streamName,
-        parameters,
-        waitForFirstSync: (abort) => subscription.waitForFirstSync(abort),
-      }),
-      // #endregion
+      waitForFirstSync: (abort) => subscription.waitForFirstSync(abort),
     };
   };
 }
