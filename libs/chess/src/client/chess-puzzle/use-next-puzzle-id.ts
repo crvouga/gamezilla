@@ -3,8 +3,8 @@ import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import {
-  CHESS_PUZZLE_FEED_TABLE,
   CHESS_PUZZLE_PROFILES_TABLE,
+  CHESS_PUZZLES_TABLE,
   ChessPuzzleProfileCol,
 } from '@libs/db/shared/chess-tables';
 import { resolveEffectivePuzzleRating } from '../../shared/chess-puzzle-feed-config';
@@ -114,7 +114,7 @@ function useWaitingForLocalPuzzles(args: {
   noCandidates: boolean;
 }): boolean {
   const { value: localPuzzleTotal } = useWatchValue<number>(
-    `SELECT count(*) AS value FROM ${CHESS_PUZZLE_FEED_TABLE.tableName}`,
+    `SELECT count(*) AS value FROM ${CHESS_PUZZLES_TABLE.tableName}`,
     []
   );
   return (

@@ -80,24 +80,7 @@ CREATE INDEX IF NOT EXISTS chess_puzzles_sync_pool_popularity_idx
   ON chess_puzzles (rating, popularity DESC)
   WHERE sync_pool = true;
 
--- Small mirror of pooled puzzles for PowerSync. The full `chess_puzzles`
--- table (~6M rows) must NOT appear in sync streams — PowerSync replicates
--- entire source tables, and `WHERE sync_pool` only filters buckets.
-CREATE TABLE IF NOT EXISTS chess_puzzle_sync_pool (
-  id TEXT PRIMARY KEY,
-  fen TEXT NOT NULL,
-  moves TEXT NOT NULL,
-  rating INTEGER NOT NULL DEFAULT 0,
-  rating_deviation INTEGER NOT NULL DEFAULT 0,
-  popularity INTEGER NOT NULL DEFAULT 0,
-  nb_plays INTEGER NOT NULL DEFAULT 0,
-  themes JSONB NOT NULL DEFAULT '[]'::jsonb,
-  game_url TEXT,
-  opening_tags JSONB NOT NULL DEFAULT '[]'::jsonb
-);
-
-CREATE INDEX IF NOT EXISTS chess_puzzle_sync_pool_rating_idx
-  ON chess_puzzle_sync_pool (rating);
+DROP TABLE IF EXISTS chess_puzzle_sync_pool;
 
 CREATE TABLE IF NOT EXISTS chess_puzzle_load (
   id TEXT PRIMARY KEY,

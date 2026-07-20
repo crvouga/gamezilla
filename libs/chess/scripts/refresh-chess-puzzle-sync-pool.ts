@@ -1,10 +1,6 @@
 /**
- * Rebuilds `chess_puzzle_sync_pool` (and the `chess_puzzles.sync_pool` flag)
- * with the top puzzles per rating band for PowerSync client sync.
- *
- * PowerSync replicates every table referenced by sync streams in full.
- * Streaming from `chess_puzzles` (~6M rows) freezes client downloads; the
- * pool table stays ~4k rows so replication and bucket serving stay cheap.
+ * Rebuilds the `chess_puzzles.sync_pool` flag with the top puzzles per rating
+ * band for PowerSync client sync (`WHERE sync_pool = true`).
  */
 import { createPgPool } from '@pkgs/sql-client/postgres-connect';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
@@ -25,7 +21,7 @@ async function main(): Promise<void> {
 
   try {
     // Avoid `UPDATE chess_puzzles SET sync_pool = false` (rewrites ~6M rows).
-    // Rebuild the small mirror first, then flip flags only for the pick set.
+    // Flip flags only for the pick set.
     await sqlClient.run('BEGIN');
     await sqlClient.run(
       `CREATE TEMP TABLE puzzle_pool_pick ON COMMIT DROP AS
@@ -43,18 +39,6 @@ async function main(): Promise<void> {
        WHERE rn <= ?`,
       [MAX_BAND, POOL_PER_BAND]
     );
-    await sqlClient.run('DELETE FROM chess_puzzle_sync_pool');
-    await sqlClient.run(
-      `INSERT INTO chess_puzzle_sync_pool (
-         id, fen, moves, rating, rating_deviation, popularity, nb_plays,
-         themes, game_url, opening_tags
-       )
-       SELECT
-         p.id, p.fen, p.moves, p.rating, p.rating_deviation, p.popularity,
-         p.nb_plays, p.themes, p.game_url, p.opening_tags
-       FROM chess_puzzles p
-       INNER JOIN puzzle_pool_pick pick ON pick.id = p.id`
-    );
     await sqlClient.run(
       `UPDATE chess_puzzles
        SET sync_pool = false
@@ -69,7 +53,7 @@ async function main(): Promise<void> {
     );
     await sqlClient.run('COMMIT');
     const count = await sqlClient.query<{ n: number }>(
-      'SELECT count(*)::int AS n FROM chess_puzzle_sync_pool'
+      'SELECT count(*)::int AS n FROM chess_puzzles WHERE sync_pool = true'
     );
     process.stdout.write(
       `${JSON.stringify({

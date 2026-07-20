@@ -1,5 +1,4 @@
 import {
-  CHESS_PUZZLE_FEED_TABLE,
   CHESS_PUZZLE_INTERACTIONS_TABLE,
   CHESS_PUZZLE_LOAD_TABLE,
   CHESS_PUZZLE_PROFILES_TABLE,
@@ -26,9 +25,6 @@ export const CHESS_ROW_BINDINGS: Readonly<
 > = {
   [CHESS_PUZZLES_TABLE.tableName]: createRowWriteBinding(
     defineDenyRowWrite('CHESS_PUZZLES_SYSTEM_ONLY')
-  ),
-  [CHESS_PUZZLE_FEED_TABLE.tableName]: createRowWriteBinding(
-    defineDenyRowWrite('CHESS_PUZZLE_FEED_SYSTEM_ONLY')
   ),
   [CHESS_PUZZLE_LOAD_TABLE.tableName]: createRowWriteBinding(
     defineDenyRowWrite('CHESS_PUZZLE_LOAD_SYSTEM_ONLY')

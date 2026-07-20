@@ -214,9 +214,9 @@ streams:
     auto_subscribe: true
     query: SELECT * FROM chess_puzzle_interactions WHERE owner_id = auth.user_id()
 
-  # Entire small pool (~4k rows) auto-subscribes. Band filtering for *picking*
-  # stays client-side; parameterized band streams downloaded ops but never
-  # applied (hasSynced stuck false, local row count 0).
+  # Pooled puzzles (`sync_pool = true`, ~4k rows) auto-subscribe. Band
+  # filtering for *picking* stays client-side; parameterized band streams
+  # downloaded ops but never applied (hasSynced stuck false, local row count 0).
   chess_puzzles:
     priority: 1
     auto_subscribe: true
@@ -233,7 +233,8 @@ streams:
         themes,
         game_url,
         opening_tags
-      FROM chess_puzzle_sync_pool
+      FROM chess_puzzles
+      WHERE sync_pool = true
 
   friend_requests:
     priority: 2

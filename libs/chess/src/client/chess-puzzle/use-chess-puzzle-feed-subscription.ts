@@ -3,8 +3,8 @@ import { useMemo } from 'react';
 
 /**
  * Explicitly subscribe to the global `chess_puzzles` stream (source:
- * `chess_puzzle_sync_pool`). Relying on auto_subscribe alone left local feed
- * counts at 0 while other streams set hasSynced=true.
+ * `chess_puzzles` WHERE sync_pool). Relying on auto_subscribe alone left
+ * local feed counts at 0 while other streams set hasSynced=true.
  */
 export function useChessPuzzleFeedSubscription(): void {
   const specs = useMemo(
