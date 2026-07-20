@@ -46,8 +46,12 @@ describe('sync stream subscription readiness', () => {
   test('registers live unsubs before wait so cancel can tear down', async () => {
     let unsubscribed = false;
     let releaseWait: (() => void) | undefined;
+    let notifyWaitStarted: (() => void) | undefined;
     const waitGate = new Promise<void>((resolve) => {
       releaseWait = resolve;
+    });
+    const waitStarted = new Promise<void>((resolve) => {
+      notifyWaitStarted = resolve;
     });
     const liveUnsubs: Array<() => void> = [];
     const abort = new AbortController();
@@ -59,6 +63,8 @@ describe('sync stream subscription readiness', () => {
             unsubscribed = true;
           },
           waitForFirstSync: async (signal?: AbortSignal) => {
+            // waitForFirstSync runs only after liveUnsubs.push in subscribeAll.
+            notifyWaitStarted?.();
             if (signal?.aborted) return;
             await new Promise<void>((resolve) => {
               const onAbort = (): void => resolve();
@@ -77,9 +83,7 @@ describe('sync stream subscription readiness', () => {
       liveUnsubs,
       abort: abort.signal,
     });
-    // Subscribe has resolved and registered liveUnsubs before wait finishes.
-    await Promise.resolve();
-    await Promise.resolve();
+    await waitStarted;
     expect(liveUnsubs).toHaveLength(1);
     cancelled = true;
     abort.abort();
