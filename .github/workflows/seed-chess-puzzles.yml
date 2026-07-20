@@ -36,7 +36,7 @@ permissions:
   id-token: write
 
 # CI authenticates via GitHub Actions OIDC. Use `scripts/secrets-run.ts`
-# (defaults from `.infisical.json`) with `SECRETS_ENV` set from the dispatch
+# (defaults from `.secrets.json`) with `SECRETS_ENV` set from the dispatch
 # `environment` input (`dev` or `prod` → `prd`).
 
 on:
@@ -91,9 +91,9 @@ jobs:
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
-          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
-          env-slug: ${{ inputs.environment == 'prod' && 'prd' || 'dev' }}
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: ${{ inputs.environment == 'prod' && 'prd' || 'dev' }}
 
       # Cache the downloaded `.csv.zst` archive between runs. The script
       # writes to `libs/chess/.cache/lichess/<name>` and stores an
@@ -109,13 +109,13 @@ jobs:
           restore-keys: |
             lichess-puzzles-${{ runner.os }}-
 
-      - name: Apply Postgres migrations → Infisical `${{ env.SECRETS_ENV }}`
+      - name: Apply Postgres migrations → secrets env `${{ env.SECRETS_ENV }}`
         run: |
           set -euo pipefail
           bun run scripts/secrets-run.ts -- \
             bun run --filter '@apps/api' db:migrate
 
-      - name: Seed chess puzzles → Infisical `${{ env.SECRETS_ENV }}` Postgres
+      - name: Seed chess puzzles → secrets env `${{ env.SECRETS_ENV }}` Postgres
         env:
           SEED_LIMIT: ${{ inputs.limit }}
           SEED_DRY_RUN: ${{ inputs.dry_run }}
@@ -142,7 +142,7 @@ jobs:
             bun run --filter '@libs/chess' seed:puzzles \
               "${args[@]}"
 
-      - name: Recreate chess puzzle indexes → Infisical `${{ env.SECRETS_ENV }}`
+      - name: Recreate chess puzzle indexes → secrets env `${{ env.SECRETS_ENV }}`
         if: ${{ inputs.defer_indexes && !inputs.dry_run }}
         run: |
           set -euo pipefail

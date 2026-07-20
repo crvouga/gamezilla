@@ -1,6 +1,6 @@
 /**
- * Ensures provider names (clerk, infisical) appear only in allowlisted paths,
- * and legacy auth/secret backend terms appear nowhere.
+ * Ensures provider names (clerk, infisical) appear only in allowlisted adapter
+ * paths, and legacy auth/secret backend terms appear nowhere.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -14,7 +14,8 @@ const LEGACY_TERMS = [
   /\bdev-idp\b/i,
 ];
 
-const PROVIDER_TERMS = [/\bclerk\b/i, /\binfisical\b/i];
+const CLERK_TERM = /\bclerk\b/i;
+const INFISICAL_TERM = /\binfisical\b/i;
 
 const SKIP_DIRS = new Set([
   'node_modules',
@@ -29,30 +30,37 @@ const SKIP_DIRS = new Set([
   'test-results',
   'ios',
   'android',
+  '.cursor',
 ]);
 
 const SKIP_FILES = new Set(['bun.lock', 'package-lock.json', 'pnpm-lock.yaml']);
 
-function isAllowlisted(relativePath: string): boolean {
+function isClerkAllowlisted(relativePath: string): boolean {
   if (relativePath.startsWith('pkgs/auth-clerk/')) return true;
-  if (relativePath.startsWith('pkgs/secret-store/')) return true;
-  if (relativePath.startsWith('pkgs/secrets-config/')) return true;
-  if (relativePath.startsWith('scripts/')) return true;
   if (relativePath.startsWith('libs/integration-test/')) return true;
-  if (relativePath.startsWith('libs/stripe-cli/')) return true;
-  if (relativePath.startsWith('libs/stripe/src/script-')) return true;
-  if (relativePath.startsWith('.cursor/')) return true;
-  if (relativePath.startsWith('.github/')) return true;
-  if (relativePath.startsWith('libs/infra/')) return true;
-  if (relativePath === '.infisical.json') return true;
-  if (relativePath.startsWith('apps/api/src/api.ts')) return true;
+  if (relativePath.startsWith('libs/infra/src/cli/secrets/')) return true;
   if (
     relativePath.startsWith('apps/client/src/providers/app-auth-provider.tsx')
   )
     return true;
+  if (relativePath.startsWith('apps/api/src/api.ts')) return true;
   if (/^libs\/auth\/src\/server\/.*\.test\.ts$/.test(relativePath)) return true;
+  if (relativePath === 'scripts/check-no-provider-leaks.ts') return true;
   if (relativePath.endsWith('package.json')) return true;
-  if (relativePath.endsWith('bun.lock')) return true;
+  if (relativePath === 'tsconfig.json') return true;
+  return false;
+}
+
+function isInfisicalAllowlisted(relativePath: string): boolean {
+  // Secrets provider package (neutral facade + private adapter) and CI action.
+  if (relativePath.startsWith('pkgs/secret-provider/')) return true;
+  if (relativePath.startsWith('.github/actions/secrets-auth/')) return true;
+  // CLI-native config kept in sync by the adapter for local CLI use.
+  if (relativePath === '.infisical.json') return true;
+  // This enforcement script names the forbidden terms.
+  if (relativePath === 'scripts/check-no-provider-leaks.ts') return true;
+  if (relativePath === 'knip.jsonc') return true;
+  if (relativePath.endsWith('package.json')) return true;
   if (relativePath === 'tsconfig.json') return true;
   return false;
 }
@@ -79,25 +87,20 @@ function collectFiles(): string[] {
   return out;
 }
 
-function findMatches(content: string, patterns: RegExp[]): RegExp[] {
-  return patterns.filter((p) => p.test(content));
-}
-
 const files = collectFiles();
 const violations: string[] = [];
 
 for (const file of files) {
   const content = readFileSync(join(REPO_ROOT, file), 'utf8');
-  const legacy = findMatches(content, LEGACY_TERMS);
+  const legacy = LEGACY_TERMS.filter((p) => p.test(content));
   if (legacy.length > 0) {
     violations.push(`${file}: legacy term (${legacy.map(String).join(', ')})`);
   }
-  if (isAllowlisted(file)) continue;
-  const providers = findMatches(content, PROVIDER_TERMS);
-  if (providers.length > 0) {
-    violations.push(
-      `${file}: provider leak (${providers.map(String).join(', ')})`
-    );
+  if (CLERK_TERM.test(content) && !isClerkAllowlisted(file)) {
+    violations.push(`${file}: provider leak (${String(CLERK_TERM)})`);
+  }
+  if (INFISICAL_TERM.test(content) && !isInfisicalAllowlisted(file)) {
+    violations.push(`${file}: provider leak (${String(INFISICAL_TERM)})`);
   }
 }
 

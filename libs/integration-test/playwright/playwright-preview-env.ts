@@ -7,7 +7,7 @@ import { previewStackEnv } from '../src/preview-stack-env';
 import { applyClerkPlaywrightEnv } from './playwright-clerk-env';
 
 /**
- * Applies Infisical-backed preview env when `DATABASE_URL` is already injected
+ * Applies secret-store-backed preview env when `DATABASE_URL` is already injected
  * (e.g. `bun run qa:browser` under `secrets-run`). Returns `false` when the
  * config is loaded without secrets — Playwright's IDE test server only needs
  * to list files and must not assert-crash on missing secrets env.
@@ -31,7 +31,7 @@ export function applyPlaywrightPreviewEnv(args: {
   assertDevSecretsEnv(process.env['SECRETS_ENV'] ?? '');
   assert.ok(
     !isLoopbackPostgresUrl(process.env['DATABASE_URL'] ?? ''),
-    'DATABASE_URL must be Infisical dev hosted Postgres, not loopback',
+    'DATABASE_URL must be secrets env `dev` hosted Postgres, not loopback',
     { databaseUrlHost: new URL(process.env['DATABASE_URL']!).hostname }
   );
 
@@ -55,7 +55,7 @@ export function applyPlaywrightPreviewEnv(args: {
   );
   assert.nonEmptyString(
     process.env['DATABASE_URL'],
-    'DATABASE_URL must be set from Infisical dev for preview migrations'
+    'DATABASE_URL must be set from secrets env `dev` for preview migrations'
   );
   applyClerkPlaywrightEnv();
   return true;
@@ -65,7 +65,7 @@ export function applyPlaywrightPreviewEnv(args: {
 export function assertPlaywrightPreviewEnvReady(): void {
   assert.nonEmptyString(
     process.env['DATABASE_URL'],
-    'Playwright browser tests require Infisical dev secrets — run `bun run qa:browser` from the repo root (wraps `secrets-run`)'
+    'Playwright browser tests require secrets env `dev` — run `bun run qa:browser` from the repo root (wraps `secrets-run`)'
   );
   assert.nonEmptyString(
     process.env['EXPO_PUBLIC_API_URL'],

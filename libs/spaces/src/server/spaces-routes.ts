@@ -4,20 +4,17 @@ import { Hono } from 'hono';
 import {
   handleCreateInvite,
   handleEnsureLinkInvite,
-  handleJoinSpace,
-  handlePeekSpace,
 } from './spaces-route-handlers';
 
 /**
- * Remaining REST (temporary for invite / cross-scope cases):
- * - peek: when local space row is missing or invite token must be validated
- * - join: fallback when local authorize lacks invite/friendship rows
+ * Remaining REST (absolute exceptions):
  * - invites: mint/ensure tokens (server RNG + denyAll upload)
+ *
+ * Join and peek are local-first via PowerSync (`space_join` stream +
+ * `joinSpaceWrite` upload). Inbox accept still uses server join orchestration.
  */
 export function createSpacesApp(): Hono<ApiHonoEnv> {
   return new Hono<ApiHonoEnv>()
-    .get('/spaces/:id/peek', handlePeekSpace)
-    .post('/spaces/join', handleJoinSpace)
     .post('/spaces/invites', handleCreateInvite)
     .post('/spaces/invites/link', handleEnsureLinkInvite);
 }

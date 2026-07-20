@@ -77,6 +77,16 @@ function createProfileAwareUploadRowEvaluator(): (
   const evaluateRow = createRowEvaluator(APP_ROW_WRITE_REGISTRY);
   return async (ctx, row, sql) => {
     const result = await evaluateRow(ctx, row, sql);
+    // #region agent log
+    if (
+      result.status === 'rejected' ||
+      row.table === 'spaces' ||
+      row.table === 'space_memberships' ||
+      row.table === 'space_participations'
+    ) {
+      fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',runId:'post-fix',hypothesisId:'H-S3',location:'sync-routes.ts:evaluateRow',message:'sync upload row decision',data:{table:row.table,op:row.op,id:row.id,status:result.status,reason:result.status==='rejected'?result.code:null,valueKeys:row.values?Object.keys(row.values):[]},timestamp:Date.now()})}).catch(()=>{});
+    }
+    // #endregion
     if (result.status === 'rejected') {
       return { status: 'rejected', reason: result.code };
     }
@@ -105,6 +115,23 @@ async function handleSyncUpload(
       evaluateRow,
       strippedBatch
     );
+    // #region agent log
+    for (let i = 0; i < strippedBatch.rows.length; i++) {
+      const row = strippedBatch.rows[i];
+      const result = out.results[i];
+      if (
+        row === undefined ||
+        result === undefined ||
+        (row.table !== 'spaces' &&
+          row.table !== 'space_memberships' &&
+          row.table !== 'space_participations' &&
+          result.status !== 'rejected')
+      ) {
+        continue;
+      }
+      fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',runId:'post-fix',hypothesisId:'H-S6',location:'sync-routes.ts:applyResult',message:'sync upload apply result',data:{table:row.table,op:row.op,id:row.id,status:result.status,reason:result.status==='rejected'?result.reason:null,valueKeys:row.values?Object.keys(row.values):[]},timestamp:Date.now()})}).catch(()=>{});
+    }
+    // #endregion
     return c.json(out, 200);
   } finally {
     await sql.disconnect();

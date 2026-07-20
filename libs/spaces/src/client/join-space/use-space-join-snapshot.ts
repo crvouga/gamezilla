@@ -1,43 +1,50 @@
+import { useMyAccountId, useMyDeviceId } from '@libs/auth/client/use-current-user';
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
-import { useEffect, useMemo, useState } from 'react';
+import { useSyncEngineSubscriptions } from '@pkgs/sync-engine/client/use-sync-engine-subscriptions';
+import { useMemo } from 'react';
 
-import { peekSpace, type SpacePeekDto } from '../spaces-actions';
-import { useSpacesClientDeps } from '../use-spaces-client-deps';
+import {
+  resolveSpaceJoinSnapshot,
+  type SpaceJoinLocalRow,
+  type SpaceJoinSnapshot,
+} from '../../shared/join-space/resolve-space-join-snapshot';
+import {
+  SPACE_JOIN_STREAM,
+  spaceJoinStreamParams,
+} from '../../shared/join-space/space-join-stream';
+import {
+  useAreAccountsFriendsLocal,
+  useHasValidLocalInvite,
+} from './use-space-join-access-flags';
 
-export type SpaceJoinSnapshotStatus =
-  | 'loading'
-  | 'live'
-  | 'ended'
-  | 'unavailable';
+export type {
+  SpaceJoinSnapshot,
+  SpaceJoinSnapshotStatus,
+} from '../../shared/join-space/resolve-space-join-snapshot';
 
-export type SpaceJoinSnapshot = {
-  status: SpaceJoinSnapshotStatus;
-  joinable: boolean;
-  peek: SpacePeekDto | null;
-};
-
-type SpaceJoinRow = {
-  readonly host_id: string | null;
-  readonly ended_at: string | null;
-};
-
-function snapshotFromLocalRow(row: SpaceJoinRow): SpaceJoinSnapshot {
-  const hostId = row.host_id;
-  if (hostId === null || hostId.length === 0) {
-    return { status: 'unavailable', joinable: false, peek: null };
-  }
-  if (row.ended_at !== null) {
-    return { status: 'ended', joinable: false, peek: null };
-  }
-  return { status: 'live', joinable: true, peek: null };
-}
-
-function snapshotFromPeek(peek: SpacePeekDto): SpaceJoinSnapshot {
-  if (peek.ended) {
-    return { status: 'ended', joinable: false, peek };
-  }
-  return { status: 'live', joinable: peek.joinable, peek };
+function useSpaceJoinStreamReady(
+  spaceId: string,
+  inviteToken: string | null
+): boolean {
+  const enabled = spaceId.length > 0;
+  const specs = useMemo(
+    () =>
+      enabled
+        ? [
+            {
+              stream: SPACE_JOIN_STREAM,
+              params: spaceJoinStreamParams({
+                spaceId,
+                inviteToken,
+              }),
+            },
+          ]
+        : [],
+    [enabled, spaceId, inviteToken]
+  );
+  const { ready } = useSyncEngineSubscriptions(specs);
+  return ready;
 }
 
 export function useSpaceJoinSnapshot(
@@ -45,62 +52,54 @@ export function useSpaceJoinSnapshot(
   inviteToken?: string | null
 ): SpaceJoinSnapshot {
   const enabled = spaceId.length > 0;
-  const deps = useSpacesClientDeps();
-  const { row, isLoading } = useWatchOne<SpaceJoinRow>(
+  const token = inviteToken ?? null;
+  const streamReady = useSpaceJoinStreamReady(spaceId, token);
+  const viewerAccountId = useMyAccountId();
+  const viewerDeviceId = useMyDeviceId();
+  const { row, isLoading } = useWatchOne<SpaceJoinLocalRow>(
     enabled
-      ? `SELECT ${SpaceCol.hostId} AS host_id, ${SpaceCol.endedAt} AS ended_at
+      ? `SELECT ${SpaceCol.hostId} AS host_id,
+                ${SpaceCol.hostMemberId} AS host_member_id,
+                ${SpaceCol.hostAccountId} AS host_account_id,
+                ${SpaceCol.endedAt} AS ended_at,
+                ${SpaceCol.visibility} AS visibility
          FROM ${SPACES_TABLE.tableName}
          WHERE ${SpaceCol.id} = ?`
-      : `SELECT ${SpaceCol.hostId} AS host_id, ${SpaceCol.endedAt} AS ended_at FROM ${SPACES_TABLE.tableName} WHERE 0`,
+      : `SELECT ${SpaceCol.hostId} AS host_id,
+                ${SpaceCol.hostMemberId} AS host_member_id,
+                ${SpaceCol.hostAccountId} AS host_account_id,
+                ${SpaceCol.endedAt} AS ended_at,
+                ${SpaceCol.visibility} AS visibility
+         FROM ${SPACES_TABLE.tableName} WHERE 0`,
     enabled ? [spaceId] : []
   );
-  const [peek, setPeek] = useState<SpacePeekDto | null>(null);
-  const [peekLoading, setPeekLoading] = useState(false);
-  const [peekFailed, setPeekFailed] = useState(false);
-  // REST peek only when the space row is not in sync scope (invite / private deep link).
-  const localMissing = enabled && !isLoading && row === null;
+  const hasValidInvite = useHasValidLocalInvite(spaceId, token);
+  const isFriendOfHost = useAreAccountsFriendsLocal(
+    viewerAccountId,
+    row?.host_account_id ?? null
+  );
 
-  useEffect(() => {
-    if (!localMissing) {
-      setPeek(null);
-      setPeekFailed(false);
-      return;
-    }
-    let cancelled = false;
-    setPeekLoading(true);
-    void peekSpace(deps, spaceId, inviteToken)
-      .then((result) => {
-        if (!cancelled) {
-          setPeek(result);
-          setPeekFailed(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setPeek(null);
-          setPeekFailed(true);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setPeekLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [localMissing, deps, spaceId, inviteToken]);
-
-  return useMemo((): SpaceJoinSnapshot => {
-    if (!enabled) {
-      return { status: 'unavailable', joinable: false, peek: null };
-    }
-    if (isLoading || (localMissing && peekLoading)) {
-      return { status: 'loading', joinable: false, peek: null };
-    }
-    if (row !== null) return snapshotFromLocalRow(row);
-    if (peek !== null) return snapshotFromPeek(peek);
-    if (peekFailed) {
-      return { status: 'unavailable', joinable: false, peek: null };
-    }
-    return { status: 'unavailable', joinable: false, peek: null };
-  }, [enabled, isLoading, localMissing, peekLoading, row, peek, peekFailed]);
+  return useMemo(
+    () =>
+      resolveSpaceJoinSnapshot({
+        enabled,
+        streamReady,
+        rowLoading: isLoading,
+        row,
+        hasValidInvite,
+        isFriendOfHost,
+        viewerAccountId,
+        viewerDeviceId,
+      }),
+    [
+      enabled,
+      streamReady,
+      isLoading,
+      row,
+      hasValidInvite,
+      isFriendOfHost,
+      viewerAccountId,
+      viewerDeviceId,
+    ]
+  );
 }

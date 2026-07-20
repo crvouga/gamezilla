@@ -1,5 +1,5 @@
 /**
- * Postgres migrations using Infisical `DATABASE_URL` (ignores stale `.dev.vars`).
+ * Postgres migrations using secret-store `DATABASE_URL` (ignores stale `.dev.vars`).
  * Used by PowerSync setup/deploy so schema + publication target the same DB.
  */
 import { createLogger } from '@pkgs/logger';
@@ -10,7 +10,7 @@ import { loadSecretsIntoEnv } from '../libs/infra/src/cli/secrets/secrets';
 import { runPostgresMigrations } from '../apps/api/src/migrations/run-postgres-migrations';
 
 export async function runPostgresMigrationsFromSecrets(): Promise<void> {
-  loadSecretsIntoEnv();
+  await loadSecretsIntoEnv();
   const databaseUrl = await resolveDatabaseUrl();
   const dbScope = appPostgresDbScope();
   const logger = createLogger({ name: 'postgres:migrate-secrets' });

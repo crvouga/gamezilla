@@ -4,4 +4,4 @@ export {
   readSecretsConfig,
   resolveSecretsConfigPath,
   resolveSecretsScope,
-} from './infisical-json';
+} from './secrets-scope';

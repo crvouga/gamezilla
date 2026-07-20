@@ -3,14 +3,15 @@
  * Enable slow-query monitoring on a PostgreSQL database:
  * pg_stat_statements, log_min_duration_statement, auto_explain.
  *
- * Infisical: same DATABASE_URL as the main app — `dev` or `prd`
- * (scope from repo-root `.infisical.json`, overridable via SECRETS_ENV).
+ * Secret store: same DATABASE_URL as the main app — `dev` or `prd`
+ * (scope from repo-root `.secrets.json`, overridable via SECRETS_ENV).
  * Prod CLI arg maps to secrets env `prd`.
  */
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
+import { createSecretAdminStore } from '@pkgs/secret-provider';
 import { which } from '@pkgs/os/command';
-import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
+import { resolveSecretsScope } from '@pkgs/secrets-config';
 
 const REPO_ROOT = join(import.meta.dirname, '..');
 
@@ -99,7 +100,7 @@ function scrubPgUrl(text: string): string {
   return text.replace(/postgres(?:ql)?:\/\/[^@\s]+@/gi, 'postgres://***:***@');
 }
 
-function fetchDatabaseUrl(env: TargetEnv): string {
+async function fetchDatabaseUrl(env: TargetEnv): Promise<string> {
   const injected = process.env['DATABASE_URL']?.trim();
   if (injected !== undefined && injected.length > 0) {
     return injected;
@@ -108,49 +109,24 @@ function fetchDatabaseUrl(env: TargetEnv): string {
   const secretsEnv = resolveSecretsEnv(env);
   const scope = resolveSecretsScope(REPO_ROOT, secretsEnv);
   log(
-    `Fetching DATABASE_URL from Infisical (workspaceId=${scope.workspaceId}, env=${scope.env})`
+    `Fetching DATABASE_URL from secret store (projectId=${scope.projectId}, env=${scope.env})`
   );
 
-  const result = spawnSync(
-    'infisical',
-    [
-      'secrets',
-      'get',
-      'DATABASE_URL',
-      '--projectId',
-      scope.workspaceId,
-      '--env',
-      scope.env,
-      '--domain',
-      scope.domain,
-      '--plain',
-    ],
-    {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, INFISICAL_DISABLE_MIGRATION_NOTICE: '1' },
+  try {
+    const admin = await createSecretAdminStore({ repoRoot: REPO_ROOT });
+    const url = (await admin.fetchSecret('DATABASE_URL', secretsEnv)).trim();
+    if (url.length === 0) {
+      fail('Secret store returned an empty DATABASE_URL');
     }
-  );
-
-  if (result.error !== undefined) {
-    fail(`infisical spawn failed: ${result.error.message}`);
-  }
-
-  if (result.status !== 0) {
-    const detail = scrubPgUrl((result.stderr ?? '').trim());
+    return url;
+  } catch (e) {
+    const detail = scrubPgUrl(e instanceof Error ? e.message : String(e));
     fail(
       detail.length > 0
-        ? `Infisical fetch failed: ${detail}`
-        : 'Infisical fetch failed — check authentication (`infisical login`) and project scope'
+        ? `Secret fetch failed: ${detail}`
+        : 'Secret fetch failed — check authentication and project scope'
     );
   }
-
-  const url = (result.stdout ?? '').trim();
-  if (url.length === 0) {
-    fail('Infisical returned an empty DATABASE_URL');
-  }
-
-  return url;
 }
 
 function psqlSpawn(
@@ -419,15 +395,14 @@ function verifyReloadableSettings(after: MonitorState): void {
   }
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const { env } = parseArgs(process.argv.slice(2));
 
-  requireCmd('infisical');
   requireCmd('psql');
 
   log(`Target environment: ${env}`);
 
-  const databaseUrl = fetchDatabaseUrl(env);
+  const databaseUrl = await fetchDatabaseUrl(env);
   verifyConnectivity(databaseUrl);
 
   const before = captureState(databaseUrl);
@@ -452,4 +427,4 @@ function main(): void {
   log('Done');
 }
 
-main();
+await main();

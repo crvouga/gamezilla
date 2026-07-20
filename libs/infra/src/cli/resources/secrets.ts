@@ -1,5 +1,4 @@
 import { assert } from '@pkgs/assert';
-import { resolveInfisicalAccessTokenForWrites } from '@pkgs/secret-store';
 import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import {
@@ -7,7 +6,6 @@ import {
   clearS3SecretSeedCache,
   seedObjectStoreS3ForEnv,
 } from '../lib/s3-secret-seed';
-import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import {
   getMirrorToDevSecrets,
@@ -44,45 +42,23 @@ export class SecretsResource extends ResourceBase {
   readonly id = 'secrets';
 
   async provision(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
-    await this.ensureInfisicalCliWriteToken(platform);
-    this.loadSecrets(platform);
+    await this.loadSecrets(platform);
     await this.seedSecrets(platform);
     await this.validateSecrets(platform);
-    this.mirrorSharedToDev(platform);
-    this.purgeOrphans(platform);
-  }
-
-  private async ensureInfisicalCliWriteToken(
-    platform: CiPlatform
-  ): Promise<void> {
-    const existing = (process.env['INFISICAL_TOKEN'] ?? '').trim();
-    if (existing.length > 0) return;
-
-    const token = await resolveInfisicalAccessTokenForWrites({
-      repoRoot: REPO_ROOT,
-    });
-    if (token === null) {
-      if (process.env['GITHUB_ACTIONS'] === 'true') {
-        platform.warning(
-          'No Infisical write token (OIDC) — secret store writes and prd→dev mirrors may fail'
-        );
-      }
-      return;
-    }
-    process.env['INFISICAL_TOKEN'] = token;
-    ok('Infisical CLI', 'write token ready (OIDC)');
+    await this.mirrorSharedToDev(platform);
+    await this.purgeOrphans(platform);
   }
 
   async destroy(): Promise<void> {
     ok('Secrets', 'nothing to tear down');
   }
 
-  loadSecretsQuick(): void {
+  async loadSecretsQuick(): Promise<void> {
     for (const entry of SECRETS) {
       const existing = process.env[entry.name];
       if (typeof existing === 'string' && existing.trim().length > 0) continue;
       try {
-        process.env[entry.name] = fetchSecret(entry.name);
+        process.env[entry.name] = await fetchSecret(entry.name);
       } catch (e) {
         if (entry.optional) continue;
         warn(
@@ -93,8 +69,8 @@ export class SecretsResource extends ResourceBase {
     }
   }
 
-  private loadSecrets(platform: CiPlatform): void {
-    const results = loadSecretsIntoEnv();
+  private async loadSecrets(platform: CiPlatform): Promise<void> {
+    const results = await loadSecretsIntoEnv();
     let loaded = 0;
     let failed = 0;
 
@@ -119,7 +95,7 @@ export class SecretsResource extends ResourceBase {
     const active = activeSecretsEnv();
 
     for (const env of SECRETS_ENVS) {
-      const stored = exportSecretsMap(env);
+      const stored = await exportSecretsMap(env);
       try {
         const seeded = await seedObjectStoreS3ForEnv(env, stored);
         if (env === active) applySeededS3ToEnv(seeded);
@@ -131,7 +107,7 @@ export class SecretsResource extends ResourceBase {
       }
     }
 
-    const storedActive = new Map(exportSecretsMap(active));
+    const storedActive = new Map(await exportSecretsMap(active));
     for (const entry of getSeedableSecrets()) {
       if (entry.name.startsWith('S3_')) continue;
       const current = (storedActive.get(entry.name) ?? '').trim();
@@ -145,7 +121,7 @@ export class SecretsResource extends ResourceBase {
       try {
         const value = await entry.seed({ env: active, secrets: storedActive });
         if (value.trim().length === 0) continue;
-        setSecret(entry.name, value);
+        await setSecret(entry.name, value);
         process.env[entry.name] = value;
         storedActive.set(entry.name, value);
         ok(
@@ -164,7 +140,7 @@ export class SecretsResource extends ResourceBase {
 
   private async validateSecrets(platform: CiPlatform): Promise<void> {
     const active = activeSecretsEnv();
-    const secrets = exportSecretsMap(active);
+    const secrets = await exportSecretsMap(active);
     let validationFailed = false;
 
     for (const entry of SECRETS) {
@@ -195,7 +171,7 @@ export class SecretsResource extends ResourceBase {
     );
   }
 
-  private mirrorSharedToDev(platform: CiPlatform): void {
+  private async mirrorSharedToDev(platform: CiPlatform): Promise<void> {
     const active = (process.env['SECRETS_ENV'] ?? '').trim();
     if (active === '' || active === 'dev') return;
 
@@ -207,7 +183,7 @@ export class SecretsResource extends ResourceBase {
 
       let current: string | null = null;
       try {
-        current = fetchSecretFrom('dev', entry.name);
+        current = await fetchSecretFrom('dev', entry.name);
       } catch {
         current = null;
       }
@@ -218,7 +194,7 @@ export class SecretsResource extends ResourceBase {
       }
 
       try {
-        setSecretIn('dev', entry.name, source);
+        await setSecretIn('dev', entry.name, source);
         mirrored++;
       } catch (e) {
         platform.warning(
@@ -234,21 +210,21 @@ export class SecretsResource extends ResourceBase {
     }
   }
 
-  private purgeOrphans(platform: CiPlatform): void {
+  private async purgeOrphans(platform: CiPlatform): Promise<void> {
     const managed = getRegistrySecretNames();
     for (const env of SECRETS_ENVS) {
-      this.purgeOrphansInEnv(platform, env, managed);
+      await this.purgeOrphansInEnv(platform, env, managed);
     }
   }
 
-  private purgeOrphansInEnv(
+  private async purgeOrphansInEnv(
     platform: CiPlatform,
     env: SecretsEnv,
     managed: ReadonlySet<string>
-  ): void {
+  ): Promise<void> {
     let actual: ReadonlyArray<string>;
     try {
-      actual = listSecretNames(env);
+      actual = await listSecretNames(env);
     } catch (e) {
       warn(`Orphan purge (${env})`, e instanceof Error ? e.message : String(e));
       return;
@@ -265,7 +241,7 @@ export class SecretsResource extends ResourceBase {
     );
     for (const name of orphans) {
       try {
-        deleteSecretIn(env, name);
+        await deleteSecretIn(env, name);
         ok('Purged orphan', `${env}/${name}`);
       } catch (e) {
         platform.warning(

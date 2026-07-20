@@ -62,7 +62,7 @@ export class StatusCommand implements Command {
 
     // ── 2. Secrets ────────────────────────────────────────────
     heading('Secrets');
-    const secretResults = loadSecretsIntoEnv();
+    const secretResults = await loadSecretsIntoEnv();
     const missingSecrets: string[] = [];
     for (const s of secretResults) {
       if (s.set) {

@@ -77,6 +77,11 @@
     "undici": "7.28.0",
     "ws": "^8.21.0"
   },
+  "dependencies": {
+    "@pkgs/os": "workspace:*",
+    "@pkgs/secret-provider": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*"
+  },
   "devDependencies": {
     "@lingui/cli": "catalog:",
     "@lingui/conf": "catalog:",
@@ -134,7 +139,7 @@
     "@sentry/cloudflare": "10.64.0",
     "@sentry/core": "10.64.0",
     "@sentry/react-native": "8.18.0",
-    "@shopify/react-native-skia": "2.4.18",
+    "@shopify/react-native-skia": "2.4.21",
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/bun": "^1.3.9",
     "@types/node": "^20.17.0",

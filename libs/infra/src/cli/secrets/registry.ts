@@ -58,7 +58,7 @@ import {
 } from './turbo-token';
 
 /**
- * Exhaustive registry of every Infisical secret. Orphans (stored keys not in
+ * Exhaustive registry of every managed secret. Orphans (stored keys not in
  * this list) are purged on provision and fail `check:secrets`.
  */
 export const SECRETS: readonly Secret[] = [

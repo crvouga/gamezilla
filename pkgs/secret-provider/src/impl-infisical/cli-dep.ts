@@ -6,8 +6,8 @@ import {
   verifyRun,
   which,
 } from '@pkgs/os';
-import type { Dep, DepStatus } from './types';
-import { fetchLatestGithubReleaseVersion } from './version-fetch';
+import { fetchLatestGithubReleaseVersion } from './cli-version-fetch';
+import { INFISICAL_CLI_BIN } from './defaults';
 
 const INSTALL_HINT =
   'Install Infisical CLI: brew install infisical/get-cli/infisical';
@@ -25,7 +25,7 @@ const installer = new FirstAvailableInstaller(
     }),
     new GithubReleaseTarballInstaller({
       repo: 'Infisical/cli',
-      binName: 'infisical',
+      binName: INFISICAL_CLI_BIN,
       archive: (version, os) => {
         const arch = os.releaseArchName() === 'arm64' ? 'arm64' : 'amd64';
         const osName = os.platform === 'darwin' ? 'darwin' : 'linux';
@@ -39,16 +39,24 @@ const installer = new FirstAvailableInstaller(
   INSTALL_HINT
 );
 
-export class InfisicalDep implements Dep {
-  readonly name = 'infisical';
-  readonly bin = 'infisical';
+export type SecretBackendCliStatus =
+  | { readonly ok: true; readonly version: string }
+  | { readonly ok: false; readonly reason: string };
+
+/**
+ * Infisical CLI install/check surface — implements the tooling dep shape used
+ * by infra without exposing Infisical names outside this adapter.
+ */
+export class InfisicalCliDep {
+  readonly name = 'secrets-backend-cli';
+  readonly bin = INFISICAL_CLI_BIN;
 
   version(): string | null {
-    return captureVersion('infisical', ['--version']);
+    return captureVersion(INFISICAL_CLI_BIN, ['--version']);
   }
 
-  check(): DepStatus {
-    if (!which('infisical')) {
+  check(): SecretBackendCliStatus {
+    if (!which(INFISICAL_CLI_BIN)) {
       return { ok: false, reason: `not found on PATH — ${INSTALL_HINT}` };
     }
     const v = this.version();
@@ -72,6 +80,6 @@ export class InfisicalDep implements Dep {
   }
 
   verify(): void {
-    verifyRun('infisical', ['--version']);
+    verifyRun(INFISICAL_CLI_BIN, ['--version']);
   }
 }

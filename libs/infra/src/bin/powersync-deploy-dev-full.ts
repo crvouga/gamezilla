@@ -4,5 +4,5 @@ import { loadSecretsIntoEnv } from '../cli/secrets/secrets';
 
 const platform = new LocalPlatform();
 
-loadSecretsIntoEnv();
+await loadSecretsIntoEnv();
 await deployPowerSyncConfig(platform);

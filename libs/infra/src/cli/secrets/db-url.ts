@@ -23,7 +23,7 @@ async function validateDatabaseUrl(input: SecretInput): Promise<void> {
   if (input.env === DEVELOPMENT_SECRETS_ENV && POSTGRES_URL_PREFIX.test(v)) {
     let productionUrl: string | null = null;
     try {
-      productionUrl = fetchSecretFrom('prd', 'DATABASE_URL').trim();
+      productionUrl = (await fetchSecretFrom('prd', 'DATABASE_URL')).trim();
     } catch {
       productionUrl = null;
     }

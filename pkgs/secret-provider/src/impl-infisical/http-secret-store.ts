@@ -4,13 +4,11 @@ import {
   SecretMissingError,
   SecretStoreParseError,
   SecretStoreRequestError,
-} from '../errors';
-import type {
-  SecretStore,
-  SecretStoreGetInit,
-  SecretStoreSetInit,
-} from '../interface';
-import { wrapSecret, wrapSecretOptional } from '../wrap-secret';
+  type SecretStore,
+  type SecretStoreGetInit,
+  type SecretStoreSetInit,
+} from '@pkgs/secret-store';
+import { wrapSecret, wrapSecretOptional } from '@pkgs/secret-store/wrap-secret';
 
 export type InfisicalSecretStoreOptions = {
   readonly domain: string;
@@ -243,7 +241,6 @@ export class InfisicalSecretStore implements SecretStore {
         created.status
       );
     }
-    // Secret exists — PATCH to overwrite (POST-only would leave stale values).
     const updated = await this.writeRawSecret(name, trimmed, 'PATCH', init);
     if (!updated.ok) {
       const updateBody = await updated.text();

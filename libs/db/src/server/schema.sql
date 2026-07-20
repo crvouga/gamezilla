@@ -41,7 +41,7 @@ CREATE INDEX IF NOT EXISTS spaces_ended_at_idx ON spaces (ended_at);
 
 CREATE TABLE IF NOT EXISTS space_memberships (
   id TEXT PRIMARY KEY,
-  guest_id TEXT NOT NULL,
+  guest_id TEXT,
   space_id TEXT NOT NULL,
   joined_at TIMESTAMPTZ,
   left_at TIMESTAMPTZ
@@ -80,7 +80,24 @@ CREATE INDEX IF NOT EXISTS chess_puzzles_sync_pool_popularity_idx
   ON chess_puzzles (rating, popularity DESC)
   WHERE sync_pool = true;
 
-DROP TABLE IF EXISTS chess_puzzle_sync_pool;
+-- Small mirror of pooled puzzles for PowerSync. The full `chess_puzzles`
+-- table (~6M rows) must NOT appear in sync streams — PowerSync replicates
+-- entire source tables, and `WHERE sync_pool` only filters buckets.
+CREATE TABLE IF NOT EXISTS chess_puzzle_sync_pool (
+  id TEXT PRIMARY KEY,
+  fen TEXT NOT NULL,
+  moves TEXT NOT NULL,
+  rating INTEGER NOT NULL DEFAULT 0,
+  rating_deviation INTEGER NOT NULL DEFAULT 0,
+  popularity INTEGER NOT NULL DEFAULT 0,
+  nb_plays INTEGER NOT NULL DEFAULT 0,
+  themes JSONB NOT NULL DEFAULT '[]'::jsonb,
+  game_url TEXT,
+  opening_tags JSONB NOT NULL DEFAULT '[]'::jsonb
+);
+
+CREATE INDEX IF NOT EXISTS chess_puzzle_sync_pool_rating_idx
+  ON chess_puzzle_sync_pool (rating);
 
 CREATE TABLE IF NOT EXISTS chess_puzzle_load (
   id TEXT PRIMARY KEY,
@@ -416,6 +433,30 @@ WHERE member_id IS NULL OR member_id = '';
 
 CREATE INDEX IF NOT EXISTS space_memberships_member_id_idx
   ON space_memberships (member_id);
+
+-- Client sync writes member_id only (guest_id is legacy). Keep guest_id filled
+-- for older SQL, but do not require it on INSERT.
+ALTER TABLE space_memberships ALTER COLUMN guest_id DROP NOT NULL;
+UPDATE space_memberships
+SET guest_id = COALESCE(NULLIF(guest_id, ''), NULLIF(member_id, ''), NULLIF(profile_id, ''))
+WHERE guest_id IS NULL OR guest_id = '';
+
+CREATE OR REPLACE FUNCTION space_memberships_fill_legacy_guest_id()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.guest_id IS NULL OR NEW.guest_id = '' THEN
+    NEW.guest_id := COALESCE(NULLIF(NEW.member_id, ''), NULLIF(NEW.profile_id, ''));
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS space_memberships_fill_legacy_guest_id_trg
+  ON space_memberships;
+CREATE TRIGGER space_memberships_fill_legacy_guest_id_trg
+  BEFORE INSERT OR UPDATE ON space_memberships
+  FOR EACH ROW
+  EXECUTE FUNCTION space_memberships_fill_legacy_guest_id();
 
 -- Recount active user memberships per live space.
 UPDATE spaces AS s

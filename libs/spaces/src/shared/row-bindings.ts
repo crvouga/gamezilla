@@ -2,6 +2,7 @@ import {
   SPACES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
   SPACE_PARTICIPATIONS_TABLE,
+  SpaceCol,
   SpaceMembershipCol,
   SpaceParticipationCol,
 } from '@libs/db/shared/space-tables';
@@ -26,25 +27,74 @@ import { authorizeLeaveSpace } from './leave-space/leave-space-write';
 import { authorizeLeaveSpaceEverywhere } from './leave-space/leave-space-everywhere-write';
 import { readSpaceHostEnded } from './space-write-helpers';
 
-const spacesRowWrite = defineRowAuthorizeWrite({
-  name: 'spaces.patch',
-  authorize: async (ctx, row, sql) => {
-    const space = await readSpaceHostEnded(sql, row.id);
-    if (!space.ok) return space;
-    const memberId = resolveSpaceMemberId({
-      accountId: ctx.accountId,
-      deviceId: ctx.deviceId,
-    });
-    if (
-      !isHostMember({
-        hostMemberId: space.value.hostMemberId,
-        memberId,
-      })
-    ) {
-      return fail('SPACE_WRITE_DENIED', 'Only the host can patch this space');
+/**
+ * Create-space uploads as PUT before the row exists on Postgres. Authorize from
+ * claimed host fields (must match the uploader), not a DB lookup.
+ */
+function authorizeSpaceCreateFromRow(
+  ctx: WriteContext,
+  row: RowChange
+): WriteResult<void> {
+  const hostId = readRowString(row, SpaceCol.hostId);
+  if (hostId !== ctx.deviceId) {
+    return fail('SPACE_WRITE_DENIED', 'Only the host device can create a space');
+  }
+  const memberId = resolveSpaceMemberId({
+    accountId: ctx.accountId,
+    deviceId: ctx.deviceId,
+  });
+  const hostMemberId =
+    readRowString(row, SpaceCol.hostMemberId) ??
+    readRowString(row, SpaceCol.hostAccountId);
+  if (hostMemberId !== memberId) {
+    return fail('SPACE_WRITE_DENIED', 'Only the host member can create a space');
+  }
+  const hostAccountId = readRowString(row, SpaceCol.hostAccountId);
+  if (hostAccountId !== undefined && hostAccountId !== ctx.accountId) {
+    return fail(
+      'SPACE_WRITE_DENIED',
+      'host_account_id must match the uploader'
+    );
+  }
+  return ok(undefined);
+}
+
+async function authorizeSpacesUpload(
+  ctx: WriteContext,
+  row: RowChange,
+  sql: SqlClient
+): Promise<WriteResult<void>> {
+  if (row.op === 'delete') {
+    return fail('SPACE_DELETE_DENIED', 'spaces cannot be deleted via sync');
+  }
+  const space = await readSpaceHostEnded(sql, row.id);
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',runId:'post-fix',hypothesisId:'H-S1',location:'row-bindings.ts:spacesRowWrite',message:'spaces upload authorize',data:{op:row.op,spaceId:row.id,spaceFound:space.ok,failCode:space.ok?null:space.code,createPath:!space.ok&&row.op==='put',hasValues:row.values!==undefined,valueKeys:row.values?Object.keys(row.values):[],deviceIdLen:ctx.deviceId.length,accountIdNull:ctx.accountId===null},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
+  if (!space.ok) {
+    if (row.op === 'put') {
+      return authorizeSpaceCreateFromRow(ctx, row);
     }
-    return ok(undefined);
-  },
+    return space;
+  }
+  const memberId = resolveSpaceMemberId({
+    accountId: ctx.accountId,
+    deviceId: ctx.deviceId,
+  });
+  if (
+    !isHostMember({
+      hostMemberId: space.value.hostMemberId,
+      memberId,
+    })
+  ) {
+    return fail('SPACE_WRITE_DENIED', 'Only the host can patch this space');
+  }
+  return ok(undefined);
+}
+
+const spacesRowWrite = defineRowAuthorizeWrite({
+  name: 'spaces.upload',
+  authorize: authorizeSpacesUpload,
 });
 
 async function resolveMembershipSpaceId(
@@ -134,6 +184,9 @@ async function authorizeSpaceMembershipUpload(
     );
   }
   const space = await readSpaceHostEnded(sql, spaceIdResult.value);
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',runId:'space-upload',hypothesisId:'H-S2',location:'row-bindings.ts:membershipUpload',message:'membership upload authorize',data:{op:row.op,rowId:row.id,spaceId:spaceIdResult.value,spaceFound:space.ok,failCode:space.ok?null:space.code},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   if (!space.ok) return space;
   if (space.value.endedAt !== null) {
     return fail('SPACE_ENDED', 'Space has ended');

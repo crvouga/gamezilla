@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
+import { resolveSecretsScope } from '@pkgs/secrets-config';
 import { writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -43,7 +43,7 @@ function buildWorkerSecretBulkPayload(): Record<string, string> {
     if (value.length === 0) {
       if (entry.optional) continue;
       assert.fail(
-        `Worker deploy: missing secret ${entry.name} (add to Infisical env \`${scope.env}\`)`
+        `Worker deploy: missing secret ${entry.name} (add to secrets env \`${scope.env}\`)`
       );
     }
     payload[entry.name] = value;

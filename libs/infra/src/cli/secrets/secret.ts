@@ -1,5 +1,5 @@
 /**
- * Single source of truth for every Infisical secret the app needs.
+ * Single source of truth for every managed secret the app needs.
  * Registry lives in {@link ./registry}; anything not listed there is an orphan
  * and will be purged on provision / fail `check:secrets`.
  */
@@ -44,7 +44,7 @@ export class Secret {
     return this.name;
   }
 
-  /** @deprecated Prefer {@link name} — Infisical key == process.env key. */
+  /** @deprecated Prefer {@link name} — secret key == process.env key. */
   get env(): string {
     return this.name;
   }

@@ -12,7 +12,6 @@ import {
   type SpaceInviteKind,
 } from '../shared/space-invite-types';
 import { SpacesError } from '../shared/spaces-errors';
-import { loadSpacePeekRow } from './join-space/space-peek';
 import { publishSpaceInviteInteraction } from './spaces-inbox-publish';
 
 export type SpaceInviteRecord = {
@@ -25,13 +24,41 @@ export type SpaceInviteRecord = {
   readonly inviteeAccountId: string | null;
 };
 
+type SpaceInviteHostRow = {
+  readonly id: string;
+  readonly title: string | null;
+  readonly host_id: string;
+  readonly host_member_id: string | null;
+  readonly ended_at: string | null;
+  readonly host_account_id: string | null;
+};
+
+async function loadSpaceRowForInvite(
+  sql: SqlClient,
+  spaceId: string
+): Promise<SpaceInviteHostRow | null> {
+  const rows = await sql.query<SpaceInviteHostRow>(
+    `SELECT ${SpaceCol.id} AS id,
+            ${SpaceCol.title} AS title,
+            ${SpaceCol.hostId} AS host_id,
+            ${SpaceCol.hostMemberId} AS host_member_id,
+            ${SpaceCol.endedAt} AS ended_at,
+            ${SpaceCol.hostAccountId} AS host_account_id
+     FROM ${SPACES_TABLE.tableName}
+     WHERE ${SpaceCol.id} = ?
+     LIMIT 1`,
+    [spaceId]
+  );
+  return rows[0] ?? null;
+}
+
 async function assertHostCanInvite(
   sql: SqlClient,
   spaceId: string,
   accountId: string,
   deviceId: string
 ): Promise<void> {
-  const row = await loadSpacePeekRow(sql, spaceId);
+  const row = await loadSpaceRowForInvite(sql, spaceId);
   if (row === null) {
     throw new SpacesError('SPACE_NOT_FOUND', 'Space not found');
   }
@@ -183,7 +210,7 @@ export async function createFriendInvite(args: {
     maxUses: 1,
     expiresAt: defaultExpiryIso(),
   });
-  const space = await loadSpacePeekRow(args.sql, args.spaceId);
+  const space = await loadSpaceRowForInvite(args.sql, args.spaceId);
   await publishSpaceInviteInteraction(args.sql, {
     inviteId: invite.id,
     spaceId: args.spaceId,

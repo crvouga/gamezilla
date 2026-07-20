@@ -27,7 +27,7 @@ runs:
         watchman: ${{ inputs.watchman }}
 
     # Keep CLI tool versions in sync with `infra setup` (no pinned versions in YAML).
-    # Requires Infisical OIDC auth (`secrets-auth` action) before this step so `infra setup`
+    # Requires secrets OIDC auth (`secrets-auth` action) before this step so `infra setup`
     # can load secrets before running auth-gated verifications.
     - name: infra setup (wrangler/stripe/eas)
       if: inputs.wrangler == 'true' || inputs.stripe == 'true' || inputs.eas == 'true'

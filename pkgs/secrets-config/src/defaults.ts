@@ -1,16 +1,16 @@
 export const SECRETS_DEFAULTS = {
-  domain: 'https://app.infisical.com',
   env: 'dev',
 } as const;
 
 export type SecretsConfigFile = {
-  readonly workspaceId: string;
-  readonly defaultEnvironment?: string;
-  readonly domain?: string;
+  readonly projectId: string;
+  readonly environment?: string;
+  readonly endpoint?: string;
 };
 
 export type ResolvedSecretsScope = {
-  readonly workspaceId: string;
+  readonly projectId: string;
   readonly env: string;
-  readonly domain: string;
+  /** Secrets API base URL when set via config or `SECRETS_ADDR`; otherwise null. */
+  readonly endpoint: string | null;
 };

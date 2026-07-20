@@ -5,7 +5,7 @@
 #
 # 1. Turbo-cacheable tasks (format, syncpack/catalog, knip, depcruise,
 #    circular-deps, audit, i18n, tc, lint, test, build) plus the
-#    non-cacheable `check:secrets` gate (live Infisical validate for
+#    non-cacheable `check:secrets` gate (live secret-store validate for
 #    both `dev` and `prd`) all run inside a single `turbo-ci` job that
 #    invokes `bun run check:ci`. Turbo's task graph uses L1 GitHub
 #    Actions cache of `.turbo` plus L2 self-hosted remote cache
@@ -34,8 +34,8 @@ permissions:
   actions: write
   id-token: write
 
-# CI authenticates to Infisical via GitHub Actions OIDC (no stored token).
-# Repo scripts use `scripts/secrets-run.ts`, which reads scope from `.infisical.json`.
+# CI authenticates to the secrets backend via GitHub Actions OIDC (no stored token).
+# Repo scripts use `scripts/secrets-run.ts`, which reads scope from `.secrets.json`.
 
 on:
   push:
@@ -79,9 +79,9 @@ jobs:
             turbo-${{ runner.os }}-
       - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
-          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
-          env-slug: dev
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
       - name: Verify Turbo remote cache
         run: bun run scripts/secrets-run.ts -- bun run check:turbo-remote-cache
       - name: Turbo CI (cacheable gates + tc/lint/test/build)
@@ -171,9 +171,9 @@ jobs:
             turbo-${{ runner.os }}-
       - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
-          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
-          env-slug: dev
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
       # Run setup + migrate in the foreground so DB failures surface in the job
       # log instead of a silent background death that only shows up as a
       # health-wait timeout. Then start wrangler only (`preview:serve`) — avoids
@@ -272,9 +272,9 @@ jobs:
 
       - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
-          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
-          env-slug: dev
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
       # Preview depends on `setup`, workspace `^build`, and client `expo export`.
       # Build first so the wait step only covers migrate + wrangler + static server
       # startup — cold CI can exceed 240s when build + preview run together.
@@ -375,12 +375,12 @@ jobs:
       # default ~2GB Node heap; keep in sync with EAS_UPDATE_MAX_OLD_SPACE_MB
       # in libs/infra/src/cli/lib/eas-mobile.ts.
       NODE_OPTIONS: --max-old-space-size=8192
-      INFISICAL_IDENTITY_ID: ${{ vars.INFISICAL_IDENTITY_ID }}
-      INFISICAL_PROJECT_SLUG: ${{ vars.INFISICAL_PROJECT_SLUG }}
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      SECRETS_PROJECT_ID: ${{ vars.SECRETS_PROJECT_ID }}
     outputs:
       lock_id: ${{ steps.deploy.outputs.lock_id }}
       client_url: ${{ steps.deploy.outputs.client_url }}
-      # api_url is derived in the report (Infisical masks API_URL → GHA drops it)
+      # api_url is derived in the report (the secrets action masks API_URL → GHA drops it)
       cloudflare_nameservers: ${{ steps.deploy.outputs.cloudflare_nameservers }}
       zone_id: ${{ steps.deploy.outputs.zone_id }}
     permissions:
@@ -403,9 +403,9 @@ jobs:
         uses: actions/checkout@v6
       - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
-          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
-          env-slug: prd
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: prd
       - uses: ./.github/actions/infra-setup
         with:
           wrangler: 'true'
@@ -440,9 +440,9 @@ jobs:
         uses: actions/checkout@v6
       - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
-          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
-          env-slug: prd
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: prd
       - uses: ./.github/actions/infra-setup
       - name: Release global deploy lock
         working-directory: libs/infra
@@ -476,9 +476,9 @@ jobs:
       # workflow-level `actions: write` permission (which includes read).
       - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.INFISICAL_IDENTITY_ID }}
-          project-slug: ${{ vars.INFISICAL_PROJECT_SLUG }}
-          env-slug: prd
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: prd
       - name: Write pipeline report
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}

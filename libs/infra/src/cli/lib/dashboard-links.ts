@@ -1,4 +1,4 @@
-import { SECRETS_DEFAULTS } from '@pkgs/secrets-config/defaults';
+import { getSecretsDashboardUrl } from '@pkgs/secret-provider';
 import { PROJECT_CONFIG } from '../../project-config';
 
 /**
@@ -18,7 +18,7 @@ export function buildVendorDashboardMarkdown(): string[] {
   lines.push(
     `- **GitHub:** [${owner}/${repo}](https://github.com/${owner}/${repo}) · [Actions](https://github.com/${owner}/${repo}/actions)`
   );
-  lines.push(`- **Infisical:** [Dashboard](${SECRETS_DEFAULTS.domain})`);
+  lines.push(`- **Secrets:** [Dashboard](${getSecretsDashboardUrl()})`);
   lines.push(
     `- **Turbo remote cache:** [turborepo.chrisvouga.dev](https://turborepo.chrisvouga.dev) (self-hosted; secrets \`TURBO_API\` / \`TURBO_TOKEN\` / \`TURBO_TEAM\`)`
   );
@@ -41,7 +41,7 @@ export function buildVendorDashboardMarkdown(): string[] {
     );
   } else {
     lines.push(
-      `- **Cloudflare:** [Dashboard](https://dash.cloudflare.com/) — add \`CLOUDFLARE_ACCOUNT_ID\` to Infisical for direct links to zone and Workers`
+      `- **Cloudflare:** [Dashboard](https://dash.cloudflare.com/) — add \`CLOUDFLARE_ACCOUNT_ID\` to the secret store for direct links to zone and Workers`
     );
   }
 

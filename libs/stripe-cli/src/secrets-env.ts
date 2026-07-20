@@ -1,4 +1,4 @@
-import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
+import { resolveSecretsScope } from '@pkgs/secrets-config';
 import { join } from 'node:path';
 import { STRIPE_CLI_LOG_TAG } from './constants';
 

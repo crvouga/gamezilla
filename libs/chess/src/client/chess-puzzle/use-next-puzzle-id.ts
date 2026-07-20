@@ -1,10 +1,10 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import {
+  CHESS_PUZZLE_FEED_TABLE,
   CHESS_PUZZLE_PROFILES_TABLE,
-  CHESS_PUZZLES_TABLE,
   ChessPuzzleProfileCol,
 } from '@libs/db/shared/chess-tables';
 import { resolveEffectivePuzzleRating } from '../../shared/chess-puzzle-feed-config';
@@ -114,9 +114,14 @@ function useWaitingForLocalPuzzles(args: {
   noCandidates: boolean;
 }): boolean {
   const { value: localPuzzleTotal } = useWatchValue<number>(
-    `SELECT count(*) AS value FROM ${CHESS_PUZZLES_TABLE.tableName}`,
+    `SELECT count(*) AS value FROM ${CHESS_PUZZLE_FEED_TABLE.tableName}`,
     []
   );
+  // #region agent log
+  useEffect(() => {
+    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',runId:'post-fix',hypothesisId:'H-Y',location:'use-next-puzzle-id.ts:localPuzzleTotal',message:'local puzzle feed table count',data:{table:CHESS_PUZZLE_FEED_TABLE.tableName,localPuzzleTotal:localPuzzleTotal ?? null,myId:args.myId,noCandidates:args.noCandidates},timestamp:Date.now()})}).catch(()=>{});
+  }, [localPuzzleTotal, args.myId, args.noCandidates]);
+  // #endregion
   return (
     args.myId.length > 0 &&
     args.puzzleId === null &&
@@ -169,6 +174,12 @@ export function useNextPuzzleId(args: {
   const loading =
     computeNextPuzzleLoading({ myId, banded, fallback, replay }) ||
     waitingForLocalPuzzles;
+
+  // #region agent log
+  useEffect(() => {
+    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c605ca'},body:JSON.stringify({sessionId:'c605ca',hypothesisId:'H-B/H-C',location:'use-next-puzzle-id.ts:loading',message:'next puzzle id state',data:{myId,rating,puzzleId,loading,waitingForLocalPuzzles,bandedLoading:banded.isLoading,bandedRows:banded.rows.length,fallbackLoading:fallback.isLoading,fallbackRows:fallback.rows.length,replayLoading:replay.isLoading,replayRows:replay.rows.length,currentPuzzleId},timestamp:Date.now()})}).catch(()=>{});
+  }, [myId, rating, puzzleId, loading, waitingForLocalPuzzles, banded, fallback, replay, currentPuzzleId]);
+  // #endregion
 
   return {
     puzzleId,

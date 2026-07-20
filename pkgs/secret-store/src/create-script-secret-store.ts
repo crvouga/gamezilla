@@ -3,7 +3,7 @@ import { createEnvSecretStore } from '@pkgs/secret-store/impl-env';
 
 /**
  * Script-side store: reads secrets already injected into `process.env`
- * by `secrets-run` / CI / `infisical run`.
+ * by `secrets-run` / CI / local secret injection.
  */
 export function createScriptSecretStore(
   env: NodeJS.ProcessEnv = process.env

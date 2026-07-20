@@ -2,7 +2,7 @@
  * Idempotent PowerSync Cloud CLI bootstrap:
  * - ensures `powersync` CLI is on PATH
  * - verifies Cloud auth (PS_ADMIN_TOKEN or prior `powersync login`)
- * - links `powersync/cli.yaml` to the Infisical instance id
+ * - links `powersync/cli.yaml` to the PowerSync instance id
  * - pulls remote service + sync config once (or with --force-pull)
  *
  * Usage:
@@ -173,7 +173,7 @@ function assertCloudAuth(): void {
     return;
   }
   assert.fail(
-    'PowerSync Cloud auth missing — run `powersync login` in an interactive terminal, or add PS_ADMIN_TOKEN to Infisical'
+    'PowerSync Cloud auth missing — run `powersync login` in an interactive terminal, or add PS_ADMIN_TOKEN to the secret store'
   );
 }
 
@@ -322,7 +322,7 @@ function confirmPull(instanceId: string, url: string, cli: string): void {
 }
 
 async function main(): Promise<void> {
-  loadSecretsIntoEnv();
+  await loadSecretsIntoEnv();
   const { instanceId, url } = assertRequiredSecrets();
   const cli = powersyncCmd();
   assertCloudAuth();

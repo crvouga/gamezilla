@@ -34,7 +34,7 @@ async function trySeedSecret(
   if (useSeed.trim().toLowerCase() === 'n') return false;
   try {
     const value = await secret.seed({ env, secrets });
-    setSecret(secret.name, value);
+    await setSecret(secret.name, value);
     process.env[secret.name] = value;
     secrets.set(secret.name, value);
     ok(secret.name, 'seeded to secret store');
@@ -77,7 +77,7 @@ async function promptOneSecret(
     return false;
   }
 
-  setSecret(secret.name, trimmed);
+  await setSecret(secret.name, trimmed);
   process.env[secret.name] = trimmed;
   secrets.set(secret.name, trimmed);
   ok(secret.name, 'saved to secret store');
@@ -87,7 +87,7 @@ async function promptOneSecret(
 export class SetupCommand implements Command {
   readonly id = 'setup';
   readonly group = 'setup' as const;
-  readonly summary = 'CLI tools + Infisical secrets';
+  readonly summary = 'CLI tools + secret store';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -101,8 +101,8 @@ export class SetupCommand implements Command {
       this.ensureDepsAsync(deps)
     );
 
-    const missingEnvs = await runStep(this.platform, 'Load secrets', () => {
-      const secrets = loadSecretsIntoEnv();
+    const missingEnvs = await runStep(this.platform, 'Load secrets', async () => {
+      const secrets = await loadSecretsIntoEnv();
       for (const s of secrets) {
         if (s.set) ok(s.env);
         else if (s.optional) ok(s.env, 'optional / absent');

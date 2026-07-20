@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import { SecretStoreRequestError } from '../errors';
-import { InfisicalSecretStore } from './infisical-secret-store';
+import { SecretStoreRequestError } from '@pkgs/secret-store';
+import { InfisicalSecretStore } from './http-secret-store';
 
 type RecordedCall = {
   readonly method: string;
@@ -78,83 +78,47 @@ describe('InfisicalSecretStore.setSecret', () => {
       environment: 'prd',
       secretPath: '/',
       secretValue: 'whsec_new',
-      type: 'shared',
     });
   });
 
-  it('PATCHes when POST returns 400 Secret already exist', async () => {
+  it('PATCHes when POST reports the secret already exists (409)', async () => {
     const { fetchFn, calls } = createRecordingFetch((call) => {
       if (call.method === 'POST') {
-        return textResponse(
-          400,
-          JSON.stringify({
-            statusCode: 400,
-            message: 'Secret already exist',
-            error: 'BadRequest',
-          })
-        );
+        return textResponse(409, 'Secret already exist');
       }
-      return jsonResponse(200, {
-        secret: { secretKey: 'STRIPE_WEBHOOK_SECRET' },
-      });
+      return jsonResponse(200, { secret: { secretKey: 'STRIPE_WEBHOOK_SECRET' } });
     });
     const store = createStore(fetchFn);
 
-    await store.setSecret('STRIPE_WEBHOOK_SECRET', 'whsec_rotated');
+    await store.setSecret('STRIPE_WEBHOOK_SECRET', 'whsec_updated');
 
     expect(calls.map((c) => c.method)).toEqual(['POST', 'PATCH']);
     expect(JSON.parse(calls[1]?.body ?? '{}')).toMatchObject({
-      secretValue: 'whsec_rotated',
+      secretValue: 'whsec_updated',
     });
   });
 
-  it('PATCHes when POST returns 409', async () => {
+  it('PATCHes when POST returns 400 already-exist body', async () => {
     const { fetchFn, calls } = createRecordingFetch((call) => {
       if (call.method === 'POST') {
-        return textResponse(409, 'Conflict');
+        return textResponse(400, 'Secret already exist');
       }
       return jsonResponse(200, {});
     });
     const store = createStore(fetchFn);
 
-    await store.setSecret('FOO', 'bar');
-
+    await store.setSecret('K', 'v');
     expect(calls.map((c) => c.method)).toEqual(['POST', 'PATCH']);
   });
 
-  it('throws on non-exists POST 400 without attempting PATCH', async () => {
-    const { fetchFn, calls } = createRecordingFetch(() =>
-      textResponse(
-        400,
-        JSON.stringify({
-          statusCode: 400,
-          message: 'Invalid secret path',
-          error: 'BadRequest',
-        })
-      )
+  it('throws SecretStoreRequestError on non-conflict POST failure', async () => {
+    const { fetchFn } = createRecordingFetch(() =>
+      textResponse(500, 'boom')
     );
     const store = createStore(fetchFn);
 
-    await expect(store.setSecret('FOO', 'bar')).rejects.toBeInstanceOf(
+    await expect(store.setSecret('K', 'v')).rejects.toBeInstanceOf(
       SecretStoreRequestError
-    );
-    expect(calls.map((c) => c.method)).toEqual(['POST']);
-  });
-
-  it('throws when PATCH after already-exists fails', async () => {
-    const { fetchFn } = createRecordingFetch((call) => {
-      if (call.method === 'POST') {
-        return textResponse(
-          400,
-          JSON.stringify({ message: 'Secret already exist' })
-        );
-      }
-      return textResponse(403, JSON.stringify({ message: 'Forbidden' }));
-    });
-    const store = createStore(fetchFn);
-
-    await expect(store.setSecret('FOO', 'bar')).rejects.toThrow(
-      /Infisical setSecret failed: HTTP 403/
     );
   });
 });

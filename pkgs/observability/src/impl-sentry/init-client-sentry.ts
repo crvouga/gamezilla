@@ -35,10 +35,6 @@ export function initClientSentry(): boolean {
       trimEnv('EXPO_PUBLIC_SENTRY_ENV') ??
       (isDevBuild() ? 'development' : 'production'),
     tracesSampleRate: isDevBuild() ? 1.0 : 0.2,
-    // React DevTools + Skia/RN-web reconciler reports an empty renderer
-    // version; DevTools throws on resize/re-init. Harmless — already
-    // suppressed in console via apps/client suppress-third-party-warnings.
-    ignoreErrors: [/Invalid argument not valid semver/],
     integrations(integrations) {
       integrations.push(Sentry.expoRouterIntegration());
       return integrations;

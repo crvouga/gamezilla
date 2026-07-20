@@ -41,7 +41,7 @@ async function checkEnv(env: SecretsEnv): Promise<number> {
   const issues: string[] = [];
   let secrets: ReadonlyMap<string, string>;
   try {
-    secrets = exportSecretsMap(env);
+    secrets = await exportSecretsMap(env);
   } catch (e) {
     fmtFail(
       env,

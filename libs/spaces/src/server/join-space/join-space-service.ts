@@ -55,8 +55,7 @@ function writeFailureToSpacesError(failure: WriteFailure): SpacesError {
 
 /**
  * Server join entry — same {@link joinSpaceWrite} as client `runClientWrite`.
- * Prefer PowerSync local join when the space row is synced; keep REST for
- * invite/private when local invite rows are missing (temporary).
+ * Used by inbox accept; the client join path is local-first via PowerSync.
  */
 export async function joinSpaceServer(
   sql: SqlClient,

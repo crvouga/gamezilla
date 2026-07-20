@@ -64,20 +64,20 @@ msgstr "{hostUsername}'s space"
 #~ msgstr "{memberCount} here"
 
 #: libs/spaces/src/client/join-space/space-join-peek-card.tsx
-msgid "{memberCount} live"
-msgstr "{memberCount} live"
+#~ msgid "{memberCount} live"
+#~ msgstr "{memberCount} live"
 
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-summary-card.tsx
 msgid "{streak} puzzle streak"
 msgstr "{streak} puzzle streak"
 
 #: libs/spaces/src/client/join-space/space-join-peek-card.tsx
-msgid "@{hostUsername}"
-msgstr "@{hostUsername}"
+#~ msgid "@{hostUsername}"
+#~ msgstr "@{hostUsername}"
 
 #: libs/spaces/src/client/join-space/space-join-peek-card.tsx
-msgid "@{hostUsername}'s space"
-msgstr "@{hostUsername}'s space"
+#~ msgid "@{hostUsername}'s space"
+#~ msgstr "@{hostUsername}'s space"
 
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "+1"
@@ -1638,8 +1638,8 @@ msgid "Preparing…"
 msgstr "Preparing…"
 
 #: libs/spaces/src/client/join-space/space-join-peek-card.tsx
-msgid "Preview from invite"
-msgstr "Preview from invite"
+#~ msgid "Preview from invite"
+#~ msgstr "Preview from invite"
 
 #: libs/profile/src/client/avatar-editor-preview.tsx
 #~ msgid "Preview updates as you edit. Save to keep changes."
@@ -2085,8 +2085,8 @@ msgid "space"
 msgstr "space"
 
 #: libs/spaces/src/client/join-space/space-join-peek-card.tsx
-msgid "Space"
-msgstr "Space"
+#~ msgid "Space"
+#~ msgstr "Space"
 
 #: libs/spaces/src/client/use-space-command-label.ts
 msgid "Space {suffix}"

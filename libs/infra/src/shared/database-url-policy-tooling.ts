@@ -1,5 +1,4 @@
-import { createInfisicalSecretStore } from '@pkgs/secret-store/impl-infisical';
-import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
+import { createToolingSecretStore } from '@pkgs/secret-provider';
 import { REPO_ROOT } from '../cli/paths';
 import {
   PRODUCTION_SECRETS_ENV,
@@ -7,17 +6,15 @@ import {
 } from './database-url-policy';
 
 /** Tooling-only: fetch secrets env `prd` `DATABASE_URL` for Tiger dual-compare guards. */
-export async function resolveProductionDatabaseUrlFromInfisical(): Promise<
+export async function resolveProductionDatabaseUrlFromSecretStore(): Promise<
   string | null
 > {
   const token = (process.env['SECRETS_TOKEN'] ?? '').trim();
   if (token.length === 0) return null;
   try {
-    const scope = resolveSecretsScope(REPO_ROOT, PRODUCTION_SECRETS_ENV);
-    const store = createInfisicalSecretStore({
-      domain: scope.domain,
-      workspaceId: scope.workspaceId,
-      env: PRODUCTION_SECRETS_ENV,
+    const store = createToolingSecretStore({
+      repoRoot: REPO_ROOT,
+      envOverride: PRODUCTION_SECRETS_ENV,
       token,
     });
     const raw =
@@ -34,11 +31,11 @@ export async function assertNonProdDatabaseUrlForTooling(
   url: string,
   context: Record<string, unknown> = {}
 ): Promise<void> {
-  const productionUrl = await resolveProductionDatabaseUrlFromInfisical();
+  const productionUrl = await resolveProductionDatabaseUrlFromSecretStore();
   await assertNonProdDatabaseUrl(url, context, { productionUrl });
 }
 
-/** Like {@link assertDatabaseUrlAllowedForSecretsEnv} with Infisical prod dual-fetch. */
+/** Like {@link assertDatabaseUrlAllowedForSecretsEnv} with secret-store prod dual-fetch. */
 export async function assertDatabaseUrlAllowedForSecretsEnvForTooling(
   url: string,
   secretsEnv: string,

@@ -1,6 +1,6 @@
 /**
  * Local Stripe webhook forwarder: `stripe listen` → API `/stripe/webhook`,
- * then writes the CLI signing secret to Infisical `dev` as STRIPE_WEBHOOK_SECRET.
+ * then writes the CLI signing secret to secrets env `dev` as STRIPE_WEBHOOK_SECRET.
  *
  * Run from monorepo root (`bun run dev` / turbo) so secrets env scope matches.
  */

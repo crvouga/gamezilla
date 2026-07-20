@@ -145,11 +145,11 @@ function tryFetchCachedDbUrlFromEnv(): string | null {
     : null;
 }
 
-function readDbUrlFromSecrets(): string {
+async function readDbUrlFromSecrets(): Promise<string> {
   let raw = process.env['DATABASE_URL'];
   if (typeof raw !== 'string' || raw.trim().length === 0) {
     try {
-      const fromSecrets = fetchSecret('DATABASE_URL').trim();
+      const fromSecrets = (await fetchSecret('DATABASE_URL')).trim();
       if (fromSecrets.length > 0) {
         process.env['DATABASE_URL'] = fromSecrets;
         raw = fromSecrets;
@@ -160,7 +160,7 @@ function readDbUrlFromSecrets(): string {
   }
   if (typeof raw !== 'string' || raw.trim().length === 0) {
     throw new Error(
-      'DATABASE_URL is not set and could not be read from the secret store. Add secret DATABASE_URL in Infisical, run under `secrets-run`, or export DATABASE_URL in the shell.'
+      'DATABASE_URL is not set and could not be read from the secret store. Add secret DATABASE_URL, run under `secrets-run`, or export DATABASE_URL in the shell.'
     );
   }
   const url = raw.trim();
@@ -183,7 +183,7 @@ export async function resolveDatabaseUrl(): Promise<string> {
     if (cached) {
       return cached;
     }
-    const url = readDbUrlFromSecrets();
+    const url = await readDbUrlFromSecrets();
     process.env['DATABASE_URL'] = url;
     return url;
   }
@@ -198,7 +198,7 @@ export async function resolveDatabaseUrl(): Promise<string> {
     }
   }
 
-  const url = readDbUrlFromSecrets();
+  const url = await readDbUrlFromSecrets();
   const probe = await verifyDatabaseAndClaimOwnership(url);
   if (!probe.ok) {
     const hint =

@@ -71,7 +71,7 @@ export async function mintR2S3Credentials(options: {
         '',
         'Fix one of:',
         `  1. Create an R2 Object Read & Write API token (scoped to this bucket), then set`,
-        '     S3_ACCESS_KEY_ID / S3_SECRET_ACCESS_KEY in Infisical (`bun run infra setup`):',
+        '     S3_ACCESS_KEY_ID / S3_SECRET_ACCESS_KEY in the secret store (`bun run infra setup`):',
         `     ${r2TokensUrl}`,
         `  2. Or grant CLOUDFLARE_API_TOKEN "Create Additional Tokens" so provision can mint keys:`,
         `     ${profileTokensUrl}`,

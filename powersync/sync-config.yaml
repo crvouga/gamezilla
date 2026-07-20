@@ -79,6 +79,78 @@ streams:
       WHERE invitee_account_id = auth.user_id()
          OR created_by_account_id = auth.user_id()
 
+  # On-demand join target: hydrate one space (+ matching invite) when the
+  # viewer opens a join/deep-link that is outside the auto-subscribe scope
+  # (private link invites). Client must pass space_id and invite_token
+  # (empty string when no invite).
+  space_join:
+    priority: 2
+    accept_potentially_dangerous_queries: true
+    with:
+      joinable_space: |
+        SELECT id FROM spaces
+        WHERE id = subscription.parameter('space_id')
+          AND (
+            host_member_id = auth.user_id()
+            OR host_member_id = auth.parameter('device_id')
+            OR id IN (
+              SELECT space_id FROM space_memberships
+              WHERE left_at IS NULL
+                AND (
+                  member_id = auth.user_id()
+                  OR member_id = auth.parameter('device_id')
+                )
+            )
+            OR id IN (
+              SELECT space_id FROM space_participations
+              WHERE left_at IS NULL
+                AND device_id = auth.parameter('device_id')
+            )
+            OR (
+              visibility = 'public'
+              AND ended_at IS NULL
+            )
+            OR (
+              visibility = 'friends'
+              AND ended_at IS NULL
+              AND host_account_id IS NOT NULL
+              AND (
+                host_account_id IN (
+                  SELECT user_high FROM friendships
+                  WHERE user_low = auth.user_id()
+                )
+                OR host_account_id IN (
+                  SELECT user_low FROM friendships
+                  WHERE user_high = auth.user_id()
+                )
+              )
+            )
+            OR id IN (
+              SELECT space_id FROM space_invites
+              WHERE token = subscription.parameter('invite_token')
+                AND revoked_at IS NULL
+                AND (expires_at IS NULL OR expires_at > datetime('now'))
+                AND use_count < max_uses
+                AND (
+                  invitee_account_id IS NULL
+                  OR invitee_account_id = auth.user_id()
+                )
+            )
+          )
+    queries:
+      - SELECT * FROM spaces WHERE id IN joinable_space
+      - |
+        SELECT * FROM space_invites
+        WHERE space_id IN joinable_space
+          AND token = subscription.parameter('invite_token')
+          AND revoked_at IS NULL
+          AND (expires_at IS NULL OR expires_at > datetime('now'))
+          AND use_count < max_uses
+          AND (
+            invitee_account_id IS NULL
+            OR invitee_account_id = auth.user_id()
+          )
+
   space_memberships:
     priority: 2
     auto_subscribe: true
@@ -142,8 +214,12 @@ streams:
     auto_subscribe: true
     query: SELECT * FROM chess_puzzle_interactions WHERE owner_id = auth.user_id()
 
+  # Entire small pool (~4k rows) auto-subscribes. Band filtering for *picking*
+  # stays client-side; parameterized band streams downloaded ops but never
+  # applied (hasSynced stuck false, local row count 0).
   chess_puzzles:
-    priority: 3
+    priority: 1
+    auto_subscribe: true
     accept_potentially_dangerous_queries: true
     query: |
       SELECT
@@ -157,9 +233,7 @@ streams:
         themes,
         game_url,
         opening_tags
-      FROM chess_puzzles
-      WHERE sync_pool = true
-        AND (rating / 400) = subscription.parameter('band')
+      FROM chess_puzzle_sync_pool
 
   friend_requests:
     priority: 2

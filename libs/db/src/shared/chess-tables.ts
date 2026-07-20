@@ -58,6 +58,27 @@ export const CHESS_PUZZLES_TABLE = defineTable({
   ],
 });
 
+/**
+ * PowerSync client feed table. Mirrors the small Postgres
+ * `chess_puzzle_sync_pool` (~4k rows). Must match the sync-stream source
+ * table name exactly — `AS` aliases do not remap apply targets here.
+ */
+export const CHESS_PUZZLE_FEED_TABLE = defineTable({
+  tableName: 'chess_puzzle_sync_pool',
+  columns: [
+    { name: 'id', type: 'text', primaryKey: true },
+    { name: 'fen', type: 'text' },
+    { name: 'moves', type: 'text' },
+    { name: 'rating', type: 'integer' },
+    { name: 'rating_deviation', type: 'integer' },
+    { name: 'popularity', type: 'integer' },
+    { name: 'nb_plays', type: 'integer' },
+    { name: 'themes', type: 'text' },
+    { name: 'game_url', type: 'text' },
+    { name: 'opening_tags', type: 'text' },
+  ],
+});
+
 export const CHESS_PUZZLE_LOAD_TABLE = defineTable({
   tableName: 'chess_puzzle_load',
   columns: [
@@ -97,7 +118,7 @@ export const CHESS_PUZZLE_INTERACTIONS_TABLE = defineTable({
 });
 
 export const ALL_CHESS_SYNC_TABLES = [
-  CHESS_PUZZLES_TABLE,
+  CHESS_PUZZLE_FEED_TABLE,
   CHESS_PUZZLE_LOAD_TABLE,
   CHESS_PUZZLE_PROFILES_TABLE,
   CHESS_PUZZLE_INTERACTIONS_TABLE,

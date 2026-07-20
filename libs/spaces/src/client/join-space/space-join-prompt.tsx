@@ -21,8 +21,6 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocalSearchParams } from 'expo-router';
 import type { ReactNode } from 'react';
 
-import { SpaceJoinPeekCard } from './space-join-peek-card';
-
 export type SpaceJoinPromptProps = {
   spaceId: string;
 };
@@ -94,22 +92,18 @@ function JoinPromptBody({
 
   return (
     <Box sx={{ gap: 4 }}>
-      {snapshot.peek !== null ? (
-        <SpaceJoinPeekCard peek={snapshot.peek} />
-      ) : (
-        <SpaceCardGradientBox
-          sx={{
-            borderRadius: SPACE_CARD_BORDER_RADIUS,
-            p: 4,
-            minHeight: 112,
-            justifyContent: 'space-between',
-            gap: 0,
-          }}
-        >
-          <SpaceSummaryHeader spaceId={spaceId} />
-          <SpaceGuestSection spaceId={spaceId} />
-        </SpaceCardGradientBox>
-      )}
+      <SpaceCardGradientBox
+        sx={{
+          borderRadius: SPACE_CARD_BORDER_RADIUS,
+          p: 4,
+          minHeight: 112,
+          justifyContent: 'space-between',
+          gap: 0,
+        }}
+      >
+        <SpaceSummaryHeader spaceId={spaceId} />
+        <SpaceGuestSection spaceId={spaceId} />
+      </SpaceCardGradientBox>
       <Text
         variant="body"
         sx={{ color: 'textSecondary' }}

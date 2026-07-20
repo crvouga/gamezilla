@@ -32,7 +32,7 @@ function readApiUrlForDevVars(): string {
 async function main(): Promise<void> {
   const { env: secretsEnv } = resolveSecretsScope(repoRoot);
   assertDevSecretsEnv(secretsEnv);
-  loadSecretsIntoEnv();
+  await loadSecretsIntoEnv();
 
   const databaseUrl = (process.env['DATABASE_URL'] ?? '').trim();
   await assertNonProdDatabaseUrlForTooling(databaseUrl, {

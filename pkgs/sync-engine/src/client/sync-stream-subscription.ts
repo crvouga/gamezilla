@@ -1,4 +1,4 @@
 export type SyncStreamSubscription = {
   readonly unsubscribe: () => void;
-  readonly waitForFirstSync?: () => Promise<void>;
+  readonly waitForFirstSync?: (abort?: AbortSignal) => Promise<void>;
 };

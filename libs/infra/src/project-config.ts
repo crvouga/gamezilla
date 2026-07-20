@@ -27,9 +27,9 @@ export const PROJECT_CONFIG = {
     /** Key prefix enforced on every remote object-store write. */
     namespace: 'gamezilla',
     buckets: {
-      /** Infisical secrets env `dev`. */
+      /** Secrets env `dev`. */
       development: 'gamezilla-development',
-      /** Infisical secrets env `prd`. */
+      /** Secrets env `prd`. */
       production: 'gamezilla-production',
     },
   },

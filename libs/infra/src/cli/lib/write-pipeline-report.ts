@@ -195,7 +195,7 @@ export function buildPipelineReportMarkdown(
     deployOutputs['api_url'] === undefined &&
     Object.keys(deployOutputs).length > 0
   ) {
-    // Deploy no longer emits api_url (Infisical masks API_URL → GHA drops it).
+    // Deploy no longer emits api_url (the secrets action masks API_URL → GHA drops it).
     deployOutputs['api_url'] = productionApiOrigin();
   }
   if (Object.keys(deployOutputs).length > 0) {

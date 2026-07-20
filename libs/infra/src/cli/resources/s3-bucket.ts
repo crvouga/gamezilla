@@ -4,7 +4,7 @@ import type { CiPlatform } from '../platform/platform';
 import { ResourceBase, type InfraContext } from './types';
 
 /**
- * Ensures Cloudflare R2 buckets exist. S3_* Infisical credentials are seeded
+ * Ensures Cloudflare R2 buckets exist. S3_* secret-store credentials are seeded
  * by {@link SecretsResource} via each S3 secret's `seed()`.
  */
 export class S3BucketResource extends ResourceBase {

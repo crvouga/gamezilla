@@ -12,10 +12,6 @@ const SUPPRESSED_WARNING_PATTERNS: readonly RegExp[] = [
   /props\.pointerEvents is deprecated/,
   // Expo Router warns when `pathname` includes `[param]` and `params` repeats it.
   /Route '.*' with param .* was specified both in the path and as a param/,
-  // React DevTools + @shopify/react-native-skia reconciler on web (harmless).
-  /React instrumentation encountered an error: Error: Invalid argument not valid semver/,
-  // LogBox often logs the semver failure as `console.error('…%s', err)`.
-  /Invalid argument not valid semver/,
   // react-native-svg still reads `element.ref` on web under React 19.
   /Accessing element\.ref was removed in React 19/,
   // Chrome a11y intervention when stack screens hide focused elements.

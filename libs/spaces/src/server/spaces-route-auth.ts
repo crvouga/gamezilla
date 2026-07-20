@@ -64,20 +64,6 @@ export function mapSpacesError(
   return null;
 }
 
-export async function withSpacesDeviceAuth(
-  c: Context<ApiHonoEnv>,
-  handler: (auth: AppAuth) => Promise<Response>
-): Promise<Response> {
-  try {
-    const auth = await requireDeviceAuth(c);
-    return await handler(auth);
-  } catch (error: unknown) {
-    const mapped = mapSpacesError(c, error);
-    if (mapped !== null) return mapped;
-    throw error;
-  }
-}
-
 export async function withSpacesSignedInAuth(
   c: Context<ApiHonoEnv>,
   handler: (auth: AppAuth & { readonly accountId: string }) => Promise<Response>

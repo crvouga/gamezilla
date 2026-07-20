@@ -6,8 +6,8 @@ import {
 import { useMemo } from 'react';
 
 import {
+  CHESS_PUZZLE_FEED_TABLE,
   CHESS_PUZZLE_INTERACTIONS_TABLE,
-  CHESS_PUZZLES_TABLE,
   ChessPuzzleCol,
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
@@ -81,7 +81,7 @@ export function usePuzzleEntity(puzzleId: string): {
   const { row } = useWatchOne<PuzzleEntityRow>(
     `SELECT ${ChessPuzzleCol.fen} AS fen, ${ChessPuzzleCol.moves} AS moves,
             ${ChessPuzzleCol.rating} AS rating, ${ChessPuzzleCol.themes} AS themes
-     FROM ${CHESS_PUZZLES_TABLE.tableName}
+     FROM ${CHESS_PUZZLE_FEED_TABLE.tableName}
      WHERE ${ChessPuzzleCol.id} = ?`,
     [puzzleId]
   );

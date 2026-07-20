@@ -28,7 +28,7 @@ function assertPowerSyncCliSecrets(): void {
   );
   assert.ok(
     missing.length === 0,
-    `PowerSync CLI secrets missing from env: ${missing.join(', ')} — add them in Infisical before deploying`
+    `PowerSync CLI secrets missing from env: ${missing.join(', ')} — add them to the secret store before deploying`
   );
 }
 
@@ -40,7 +40,7 @@ function assertPowerSyncServiceSecrets(): void {
   );
   assert.ok(
     readTrimmedEnv('PS_DATABASE_PASSWORD').length > 0,
-    'PS_DATABASE_PASSWORD missing — DATABASE_URL must be set (derived at deploy time from Infisical DATABASE_URL)'
+    'PS_DATABASE_PASSWORD missing — DATABASE_URL must be set (derived at deploy time from secret-store DATABASE_URL)'
   );
   injectPowerSyncJwtJwkFields();
 }
@@ -109,11 +109,11 @@ export async function injectPowerSyncDatabaseUri(): Promise<void> {
 
 async function ensurePowerSyncJwtKeypair(platform: CiPlatform): Promise<void> {
   const hasPrivate =
-    secretExists('PS_JWT_PRIVATE_KEY') ||
+    (await secretExists('PS_JWT_PRIVATE_KEY')) ||
     readTrimmedEnv('PS_JWT_PRIVATE_KEY').length > 0;
   const hasPublic =
     readTrimmedEnv('PS_JWT_PUBLIC_JWK').length > 0 ||
-    secretExists('PS_JWT_PUBLIC_JWK');
+    (await secretExists('PS_JWT_PUBLIC_JWK'));
 
   if (hasPrivate && hasPublic) {
     ok('PowerSync JWT', 'keypair present');
@@ -121,8 +121,8 @@ async function ensurePowerSyncJwtKeypair(platform: CiPlatform): Promise<void> {
   }
 
   const keypair = generatePowerSyncJwtKeypair();
-  setSecret('PS_JWT_PRIVATE_KEY', keypair.privateKeyPem);
-  setSecret('PS_JWT_PUBLIC_JWK', keypair.publicJwkJson);
+  await setSecret('PS_JWT_PRIVATE_KEY', keypair.privateKeyPem);
+  await setSecret('PS_JWT_PUBLIC_JWK', keypair.publicJwkJson);
   process.env['PS_JWT_PRIVATE_KEY'] = keypair.privateKeyPem;
   process.env['PS_JWT_PUBLIC_JWK'] = keypair.publicJwkJson;
   ok('PowerSync JWT', 'generated RS256 keypair in secret store');
@@ -134,7 +134,7 @@ async function ensurePowerSyncJwtKeypair(platform: CiPlatform): Promise<void> {
 async function loadPrivateKeyFromSecretsIfMissing(): Promise<void> {
   if (readTrimmedEnv('PS_JWT_PRIVATE_KEY').length > 0) return;
   try {
-    const value = fetchSecret('PS_JWT_PRIVATE_KEY').trim();
+    const value = (await fetchSecret('PS_JWT_PRIVATE_KEY')).trim();
     if (value.length > 0) {
       process.env['PS_JWT_PRIVATE_KEY'] = value;
     }

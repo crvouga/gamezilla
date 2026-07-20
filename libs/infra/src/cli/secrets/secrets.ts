@@ -61,11 +61,13 @@ function envMapFromProcess(): Map<string, string> {
   return map;
 }
 
-export function loadSecretsIntoEnv(): Array<{
-  env: string;
-  set: boolean;
-  optional: boolean;
-}> {
+export async function loadSecretsIntoEnv(): Promise<
+  Array<{
+    env: string;
+    set: boolean;
+    optional: boolean;
+  }>
+> {
   const results: Array<{ env: string; set: boolean; optional: boolean }> = [];
 
   for (const entry of SECRETS) {
@@ -78,7 +80,7 @@ export function loadSecretsIntoEnv(): Array<{
     }
 
     try {
-      const value = fetchSecret(name).trim();
+      const value = (await fetchSecret(name)).trim();
       process.env[name] = value;
       results.push({ env: name, set: value.length > 0, optional });
     } catch {
@@ -92,10 +94,12 @@ export function loadSecretsIntoEnv(): Array<{
 /**
  * @deprecated All secrets are in {@link SECRETS}; use {@link loadSecretsIntoEnv}.
  */
-export function loadWorkerApiSecretsIntoEnv(): Array<{
-  key: string;
-  set: boolean;
-}> {
+export async function loadWorkerApiSecretsIntoEnv(): Promise<
+  Array<{
+    key: string;
+    set: boolean;
+  }>
+> {
   const results: Array<{ key: string; set: boolean }> = [];
   for (const entry of getApiWorkerSecrets()) {
     const existing = process.env[entry.name]?.trim();
@@ -104,7 +108,7 @@ export function loadWorkerApiSecretsIntoEnv(): Array<{
       continue;
     }
     try {
-      const value = fetchSecret(entry.name).trim();
+      const value = (await fetchSecret(entry.name)).trim();
       process.env[entry.name] = value;
       results.push({ key: entry.name, set: value.length > 0 });
     } catch {

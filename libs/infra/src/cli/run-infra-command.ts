@@ -14,7 +14,7 @@ export async function runInfraCommand(
   platform: CiPlatform
 ): Promise<void> {
   if (command.id !== 'setup' && command.id !== 'pipeline-report') {
-    new SecretsResource().loadSecretsQuick();
+    await new SecretsResource().loadSecretsQuick();
   }
 
   if (command.requiresLock !== true) {

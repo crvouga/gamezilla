@@ -1,5 +1,5 @@
 import { BunDep } from './bun';
-import { InfisicalDep } from './infisical';
+import { SecretBackendDep } from './secret-backend';
 import { EasDep } from './eas';
 import { StripeDep } from './stripe';
 import type { Dep } from './types';
@@ -10,7 +10,7 @@ import { WranglerDep } from './wrangler';
 const wrangler = new WranglerDep();
 const turbo = new TurboDep();
 const bun = new BunDep();
-const infisical = new InfisicalDep();
+const secretBackend = new SecretBackendDep();
 const stripe = new StripeDep();
 const eas = new EasDep();
 const powerSync = new PowerSyncDep();
@@ -28,7 +28,7 @@ export const ALL_DEPS: readonly Dep[] = [
   wrangler,
   turbo,
   bun,
-  infisical,
+  secretBackend,
   stripe,
   eas,
   powerSync,
@@ -39,7 +39,7 @@ export const ALL_DEPS: readonly Dep[] = [
  * Cloudflare API, and Bun + secret store power the CLI runtime + secrets. The
  * Stripe CLI is unused here (no catalog sync in this phase).
  */
-export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, infisical];
+export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, secretBackend];
 
 /**
  * Deps required by the legacy single-process `deploy` lifecycle: the
@@ -50,7 +50,7 @@ export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, infisical];
 export const DEPLOY_DEPS: readonly Dep[] = [
   wrangler,
   bun,
-  infisical,
+  secretBackend,
   stripe,
   eas,
   powerSync,

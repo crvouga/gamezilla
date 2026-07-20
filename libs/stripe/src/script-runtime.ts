@@ -14,7 +14,7 @@ import {
   PRODUCTION_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
-import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
+import { resolveSecretsScope } from '@pkgs/secrets-config';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { join } from 'node:path';
 import Stripe from 'stripe';

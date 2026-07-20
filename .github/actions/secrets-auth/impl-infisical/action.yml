@@ -1,0 +1,29 @@
+name: Inject secrets via Infisical OIDC
+description: Provider adapter — Infisical machine identity OIDC → GITHUB_ENV
+
+inputs:
+  identity-id:
+    description: Infisical machine identity ID for OIDC
+    required: true
+  project-id:
+    description: Infisical project slug / id
+    required: true
+  environment:
+    description: Infisical environment slug (dev or prd)
+    required: true
+  endpoint:
+    description: Infisical API domain (empty → Infisical Cloud default)
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Fetch secrets from Infisical
+      uses: Infisical/secrets-action@v1.0.16
+      with:
+        method: oidc
+        identity-id: ${{ inputs.identity-id }}
+        project-slug: ${{ inputs.project-id }}
+        env-slug: ${{ inputs.environment }}
+        domain: ${{ inputs.endpoint != '' && inputs.endpoint || 'https://app.infisical.com' }}

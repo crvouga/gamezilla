@@ -1,7 +1,7 @@
 /**
  * Encode/decode values written to GitHub Actions job outputs.
  *
- * Infisical/secrets-action registers every fetched secret via `core.setSecret`.
+ * The secrets-auth action registers every fetched secret via `core.setSecret`.
  * GHA then skips any job output whose value contains a registered secret as a
  * substring (`Skip output '…' since it may contain secret`). Public URLs
  * (`API_URL`) and random UUIDs (`lock_id` overlapping hex account ids) both

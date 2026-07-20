@@ -3,7 +3,7 @@
  * Agentic loop: run `bun check` gates, invoke Cursor CLI agent to fix failures,
  * repeat until green or `--max-iterations` is hit.
  *
- * Requires CURSOR_API_KEY from Infisical (`bun run check:heal` uses secrets-run).
+ * Requires CURSOR_API_KEY from the secret store (`bun run check:heal` uses secrets-run).
  */
 import { join } from 'node:path';
 import { buildCheckHealPromptBody } from '../libs/infra/src/cli/lib/build-llm-fix-prompt';

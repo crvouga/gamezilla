@@ -136,7 +136,7 @@ export async function runWithGlobalLock<T>(
       throw e;
     }
 
-    // Hex-encode so Infisical-masked secret substrings (e.g. CF account id
+    // Hex-encode so secret-masked secret substrings (e.g. CF account id
     // hex overlapping a UUID) do not cause GHA to drop the job output.
     platform.setOutput('lock_id', encodeGithubJobOutputValue(handle.id));
 

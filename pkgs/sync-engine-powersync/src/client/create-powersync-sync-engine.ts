@@ -6,6 +6,7 @@ import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 import { createSharedWatchRegistry } from '@pkgs/sync-engine/client/shared-watch-registry';
 import type { SyncStreamSubscription } from '@pkgs/sync-engine/client/sync-stream-subscription';
 
+import { attachStreamWaitDebugLogs } from './debug-stream-subscribe-log';
 import type { PowerSyncDatabasePort } from './powersync-database-port';
 import { createSqlClientFromPowerSync } from './sql-client-facade';
 
@@ -43,13 +44,23 @@ function createSubscribeSyncStream(
   }
   return async (
     streamName: string,
-    parameters: Readonly<Record<string, string | number>>
+    parameters: Readonly<Record<string, string | number>>,
+    options?: { readonly priority?: number }
   ): Promise<SyncStreamSubscription> => {
     const handle = db.syncStream!(streamName, parameters);
-    const subscription = await handle.subscribe({ priority: 3 });
+    const subscription = await handle.subscribe(
+      options?.priority === undefined ? undefined : { priority: options.priority }
+    );
     return {
       unsubscribe: () => subscription.unsubscribe(),
-      waitForFirstSync: () => subscription.waitForFirstSync(),
+      // #region agent log
+      waitForFirstSync: attachStreamWaitDebugLogs({
+        db,
+        streamName,
+        parameters,
+        waitForFirstSync: (abort) => subscription.waitForFirstSync(abort),
+      }),
+      // #endregion
     };
   };
 }

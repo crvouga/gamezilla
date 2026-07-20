@@ -8,7 +8,7 @@ import {
   readSecretsConfig,
   resolveSecretsConfigPath,
   resolveSecretsScope,
-} from './infisical-json';
+} from './secrets-scope';
 
 const ENV_NAMES = [
   'SECRETS_ADDR',
@@ -16,7 +16,7 @@ const ENV_NAMES = [
   'SECRETS_PROJECT_ID',
 ] as const;
 
-describe('infisical config', () => {
+describe('secrets scope config', () => {
   let repoRoot: string;
   let previousEnv: Record<string, string | undefined>;
 
@@ -42,70 +42,70 @@ describe('infisical config', () => {
 
   it('resolves and reads a trimmed config file', () => {
     writeConfig({
-      workspaceId: ' workspace-id ',
-      defaultEnvironment: ' staging ',
-      domain: ' https://secrets.example.com ',
+      projectId: ' project-id ',
+      environment: ' staging ',
+      endpoint: ' https://secrets.example.com ',
     });
 
     expect(resolveSecretsConfigPath(repoRoot)).toBe(
-      join(repoRoot, '.infisical.json')
+      join(repoRoot, '.secrets.json')
     );
     expect(readSecretsConfig(repoRoot)).toEqual({
-      workspaceId: 'workspace-id',
-      defaultEnvironment: 'staging',
-      domain: 'https://secrets.example.com',
+      projectId: 'project-id',
+      environment: 'staging',
+      endpoint: 'https://secrets.example.com',
     });
   });
 
   it('applies argument and environment overrides before file defaults', () => {
     writeConfig({
-      workspaceId: 'file-project',
-      defaultEnvironment: 'file-env',
-      domain: 'https://file.example.com',
+      projectId: 'file-project',
+      environment: 'file-env',
+      endpoint: 'https://file.example.com',
     });
     process.env['SECRETS_PROJECT_ID'] = ' env-project ';
     process.env['SECRETS_ENV'] = ' env-name ';
     process.env['SECRETS_ADDR'] = ' https://env.example.com ';
 
     expect(resolveSecretsScope(repoRoot, ' argument-env ')).toEqual({
-      workspaceId: 'env-project',
+      projectId: 'env-project',
       env: 'argument-env',
-      domain: 'https://env.example.com',
+      endpoint: 'https://env.example.com',
     });
   });
 
-  it('falls back to built-in environment and domain defaults', () => {
-    writeConfig({ workspaceId: 'project-id' });
+  it('falls back to built-in environment default and null endpoint', () => {
+    writeConfig({ projectId: 'project-id' });
 
     expect(resolveSecretsScope(repoRoot)).toEqual({
-      workspaceId: 'project-id',
+      projectId: 'project-id',
       env: SECRETS_DEFAULTS.env,
-      domain: SECRETS_DEFAULTS.domain,
+      endpoint: null,
     });
   });
 
-  it('rejects non-object config and missing workspace ids', () => {
+  it('rejects non-object config and missing project ids', () => {
     writeFileSync(resolveSecretsConfigPath(repoRoot), '[]');
     expect(() => readSecretsConfig(repoRoot)).toThrow(
-      '.infisical.json must be a JSON object'
+      '.secrets.json must be a JSON object'
     );
 
-    writeConfig({ workspaceId: ' ' });
+    writeConfig({ projectId: ' ' });
     expect(() => readSecretsConfig(repoRoot)).toThrow(
-      '.infisical.json: workspaceId is required'
+      '.secrets.json: projectId is required'
     );
   });
 
   it('rejects placeholder project ids from the file or environment', () => {
-    writeConfig({ workspaceId: 'replace_me' });
+    writeConfig({ projectId: 'replace_me' });
     expect(() => resolveSecretsScope(repoRoot)).toThrow(
-      '.infisical.json workspaceId is still "replace_me"'
+      '.secrets.json projectId is still "replace_me"'
     );
 
-    writeConfig({ workspaceId: 'valid-project' });
+    writeConfig({ projectId: 'valid-project' });
     process.env['SECRETS_PROJECT_ID'] = 'TODO';
     expect(() => resolveSecretsScope(repoRoot)).toThrow(
-      '.infisical.json workspaceId is still "TODO"'
+      '.secrets.json projectId is still "TODO"'
     );
   });
 

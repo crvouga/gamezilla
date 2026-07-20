@@ -7,7 +7,7 @@ function requireE2eClerkUserEmail(): string {
   const email = process.env['E2E_CLERK_USER_EMAIL']?.trim() ?? '';
   if (email.length === 0) {
     throw new Error(
-      'E2E_CLERK_USER_EMAIL must be set for Clerk browser E2E (Infisical dev / CI secrets).'
+      'E2E_CLERK_USER_EMAIL must be set for Clerk browser E2E (secrets env `dev` / CI secrets).'
     );
   }
   return email;

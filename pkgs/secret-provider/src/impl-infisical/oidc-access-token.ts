@@ -1,5 +1,9 @@
-import { SecretStoreParseError, SecretStoreRequestError } from './errors';
-import { resolveSecretsScope } from '@pkgs/secrets-config/infisical-json';
+import {
+  SecretStoreParseError,
+  SecretStoreRequestError,
+} from '@pkgs/secret-store';
+import { resolveSecretsScope } from '@pkgs/secrets-config';
+import { resolveInfisicalEndpoint } from './resolve-endpoint';
 
 function trimEnv(name: string): string {
   return (process.env[name] ?? '').trim();
@@ -17,6 +21,8 @@ function resolveOidcAudience(): string {
     const owner = repo.split('/')[0] ?? '';
     if (owner.length > 0) return `https://github.com/${owner}`;
   }
+  const identityAudience = trimEnv('SECRETS_OIDC_AUDIENCE');
+  if (identityAudience.length > 0) return identityAudience;
   return 'https://github.com/crvouga';
 }
 
@@ -97,7 +103,7 @@ export type ResolveInfisicalAccessTokenOptions = {
 };
 
 /**
- * Resolves a bearer token for Infisical write API calls during scripts/CI.
+ * Resolves a bearer token for Infisical write API / CLI calls during scripts/CI.
  * Prefers explicit tokens, then GitHub Actions OIDC (deploy pipeline).
  */
 export async function resolveInfisicalAccessTokenForWrites(
@@ -111,7 +117,8 @@ export async function resolveInfisicalAccessTokenForWrites(
 
   if (process.env['GITHUB_ACTIONS'] !== 'true') return null;
 
-  const identityId = trimEnv('INFISICAL_IDENTITY_ID');
+  const identityId =
+    trimEnv('SECRETS_IDENTITY_ID') || trimEnv('INFISICAL_IDENTITY_ID');
   if (identityId.length === 0) return null;
 
   const audience = resolveOidcAudience();
@@ -123,7 +130,7 @@ export async function resolveInfisicalAccessTokenForWrites(
     options.secretsEnv ?? (trimEnv('SECRETS_ENV') || undefined)
   );
   return exchangeOidcJwtForInfisicalAccessToken({
-    domain: scope.domain,
+    domain: resolveInfisicalEndpoint(scope),
     identityId,
     jwt,
   });

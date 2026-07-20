@@ -69,7 +69,8 @@ export type SyncEngine = {
    */
   readonly subscribeSyncStream?: (
     streamName: string,
-    parameters: Readonly<Record<string, string | number>>
+    parameters: Readonly<Record<string, string | number>>,
+    options?: { readonly priority?: number }
   ) => Promise<SyncStreamSubscription>;
   /**
    * Provides a subscription to sync status changes.

@@ -1,5 +1,5 @@
 import {
-  CHESS_PUZZLES_TABLE,
+  CHESS_PUZZLE_FEED_TABLE,
   CHESS_PUZZLE_INTERACTIONS_TABLE,
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
@@ -39,7 +39,7 @@ export function buildPuzzleCandidatesSql(args: BuildPuzzleCandidatesSqlArgs): {
 } {
   const pickOffset = args.pickOffset ?? 0;
   const params: unknown[] = [];
-  let sql = `SELECT id, rating FROM ${CHESS_PUZZLES_TABLE.tableName} WHERE 1=1`;
+  let sql = `SELECT id, rating FROM ${CHESS_PUZZLE_FEED_TABLE.tableName} WHERE 1=1`;
   if (args.halfWindow !== null) {
     sql += ' AND rating >= ? AND rating <= ?';
     params.push(

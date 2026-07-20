@@ -27,6 +27,7 @@
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/os": "workspace:*",
+    "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

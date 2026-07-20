@@ -16,8 +16,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/secret-string": "workspace:*",
-    "@pkgs/secrets-config": "workspace:*"
+    "@pkgs/secret-string": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

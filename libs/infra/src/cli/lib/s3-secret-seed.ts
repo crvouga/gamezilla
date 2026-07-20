@@ -65,11 +65,11 @@ async function mintAndWrite(
     endpoint: r2S3Endpoint(accountId),
     region: S3_REGION,
   };
-  setSecretIn(env, 'S3_BUCKET', seeded.bucket);
-  setSecretIn(env, 'S3_ENDPOINT', seeded.endpoint);
-  setSecretIn(env, 'S3_REGION', seeded.region);
-  setSecretIn(env, 'S3_ACCESS_KEY_ID', seeded.accessKeyId);
-  setSecretIn(env, 'S3_SECRET_ACCESS_KEY', seeded.secretAccessKey);
+  await setSecretIn(env, 'S3_BUCKET', seeded.bucket);
+  await setSecretIn(env, 'S3_ENDPOINT', seeded.endpoint);
+  await setSecretIn(env, 'S3_REGION', seeded.region);
+  await setSecretIn(env, 'S3_ACCESS_KEY_ID', seeded.accessKeyId);
+  await setSecretIn(env, 'S3_SECRET_ACCESS_KEY', seeded.secretAccessKey);
   return seeded;
 }
 
