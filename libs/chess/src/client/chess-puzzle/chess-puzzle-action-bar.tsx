@@ -1,12 +1,9 @@
 import {
-  Box,
-  Button,
-  buttonForegroundColor,
+  BottomActionBar,
   ChevronRightIcon,
   LightbulbIcon,
   LogOutIcon,
-  useTheme,
-  type ButtonIntent,
+  type BottomActionBarItem,
   type IconComponent,
 } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
@@ -14,27 +11,6 @@ import type { ReactNode } from 'react';
 
 import type { HintStage } from './use-hint-stage';
 import type { SolveStatus } from './use-chess-puzzle-solver';
-
-const ICON_SIZE = 18;
-
-function ActionIcon({
-  icon,
-  intent,
-  disabled,
-}: {
-  icon: IconComponent;
-  intent: ButtonIntent;
-  disabled: boolean;
-}): ReactNode {
-  const theme = useTheme();
-  const Icon = icon;
-  return (
-    <Icon
-      size={ICON_SIZE}
-      color={buttonForegroundColor(theme, intent, disabled)}
-    />
-  );
-}
 
 type HintButtonModel = {
   icon: IconComponent;
@@ -70,60 +46,43 @@ export type ChessPuzzleActionBarProps = {
   onNext: () => void;
 };
 
-export function ChessPuzzleActionBar({
-  status,
-  hintStage,
-  onHint,
-  onRetry,
-  onNext,
-}: ChessPuzzleActionBarProps): ReactNode {
-  const hint = hintButtonModel({ status, hintStage });
-  const retryDisabled = status !== 'wrong' && status !== 'solved';
-  const nextDisabled = status === 'loading';
-  return (
-    <Box sx={{ flexDirection: 'row', gap: 2, px: 3, alignSelf: 'stretch' }}>
-      <Button
-        flex={1}
-        intent="neutral"
-        title={hint.label}
-        startIcon={
-          <ActionIcon
-            icon={hint.icon}
-            intent="neutral"
-            disabled={hint.disabled}
-          />
-        }
-        disabled={hint.disabled}
-        onPress={onHint}
-      />
-      <Button
-        flex={1}
-        intent="neutral"
-        title={<Trans>Retry</Trans>}
-        startIcon={
-          <ActionIcon
-            icon={LogOutIcon}
-            intent="neutral"
-            disabled={retryDisabled}
-          />
-        }
-        disabled={retryDisabled}
-        onPress={onRetry}
-      />
-      <Button
-        flex={1}
-        intent="primary"
-        title={<Trans>Next</Trans>}
-        endIcon={
-          <ActionIcon
-            icon={ChevronRightIcon}
-            intent="primary"
-            disabled={nextDisabled}
-          />
-        }
-        disabled={nextDisabled}
-        onPress={onNext}
-      />
-    </Box>
-  );
+function buildItems(p: ChessPuzzleActionBarProps): BottomActionBarItem[] {
+  const hint = hintButtonModel({
+    status: p.status,
+    hintStage: p.hintStage,
+  });
+  const retryDisabled = p.status !== 'wrong' && p.status !== 'solved';
+  const nextDisabled = p.status === 'loading';
+  return [
+    {
+      type: 'action',
+      id: 'hint',
+      label: hint.label,
+      icon: hint.icon,
+      disabled: hint.disabled,
+      onPress: p.onHint,
+    },
+    {
+      type: 'action',
+      id: 'retry',
+      label: <Trans>Retry</Trans>,
+      icon: LogOutIcon,
+      disabled: retryDisabled,
+      onPress: p.onRetry,
+    },
+    {
+      type: 'button',
+      id: 'next',
+      title: <Trans>Next</Trans>,
+      endIcon: <ChevronRightIcon size={18} />,
+      disabled: nextDisabled,
+      onPress: p.onNext,
+    },
+  ];
+}
+
+export function ChessPuzzleActionBar(
+  props: ChessPuzzleActionBarProps
+): ReactNode {
+  return <BottomActionBar items={buildItems(props)} />;
 }
