@@ -20,6 +20,7 @@ export class EasDep implements Dep {
 
   private readonly installer = new NpmGlobalInstaller({
     pkg: 'eas-cli',
+    bin: 'eas',
     tag: 'latest',
   });
 

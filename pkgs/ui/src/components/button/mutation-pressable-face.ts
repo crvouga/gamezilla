@@ -6,6 +6,7 @@ import {
 } from '../../theme';
 import type { IconComponent } from '../icons';
 import { CircleCheckIcon, XIcon } from '../icons';
+import { deriveSolidButtonSurface } from './derive-solid-button-surface';
 
 const MIN_CONTRAST = 4.5;
 
@@ -19,6 +20,10 @@ export type MutationPressableFace = {
   borderWidth: number;
   foregroundColor: string;
   withElevation: boolean;
+  /** Chess.com-style vertical fill; omit for flat faces. */
+  gradient?: { top: string; bottom: string };
+  /** Bevel + drop shadow stack; replaces generic elevation when set. */
+  surfaceShadow?: string;
 };
 
 export type MutationPressableInput = {
@@ -84,6 +89,24 @@ function resolveIntentTokens(theme: Theme, intent: ButtonIntent): IntentTokens {
   };
 }
 
+function withSolidSurface(
+  base: Omit<MutationPressableFace, 'gradient' | 'surfaceShadow'>,
+  sourceCss: string,
+  kind: 'accent' | 'neutral'
+): MutationPressableFace {
+  const surface = deriveSolidButtonSurface(sourceCss, kind);
+  return {
+    ...base,
+    backgroundColor: surface.backgroundColor,
+    gradient: {
+      top: surface.gradientTop,
+      bottom: surface.gradientBottom,
+    },
+    surfaceShadow: surface.boxShadow,
+    withElevation: false,
+  };
+}
+
 export function resolveFaceStyle(
   theme: Theme,
   intent: ButtonIntent,
@@ -120,21 +143,29 @@ export function resolveFaceStyle(
     };
   }
   if (intent === 'neutral') {
-    return {
-      backgroundColor: tokens.solidBg,
-      borderColor: c.outline,
-      borderWidth: 1,
-      foregroundColor: ensureContrast(tokens.solidFg, tokens.solidBg),
-      withElevation: theme.colorScheme === 'light',
-    };
+    return withSolidSurface(
+      {
+        backgroundColor: tokens.solidBg,
+        borderColor: 'transparent',
+        borderWidth: 0,
+        foregroundColor: ensureContrast(tokens.solidFg, tokens.solidBg),
+        withElevation: false,
+      },
+      tokens.solidBg,
+      'neutral'
+    );
   }
-  return {
-    backgroundColor: tokens.solidBg,
-    borderColor: 'transparent',
-    borderWidth: 0,
-    foregroundColor: ensureContrast(tokens.solidFg, tokens.solidBg),
-    withElevation: theme.colorScheme === 'light',
-  };
+  return withSolidSurface(
+    {
+      backgroundColor: tokens.solidBg,
+      borderColor: 'transparent',
+      borderWidth: 0,
+      foregroundColor: ensureContrast(tokens.solidFg, tokens.solidBg),
+      withElevation: false,
+    },
+    tokens.solidBg,
+    'accent'
+  );
 }
 
 export function resolveFeedbackFace(
@@ -142,24 +173,31 @@ export function resolveFeedbackFace(
   feedback: ButtonFeedback
 ): MutationPressableFace | null {
   const c = theme.colors;
-  const withElevation = theme.colorScheme === 'light';
   if (feedback === 'success') {
-    return {
-      backgroundColor: c.success,
-      borderColor: 'transparent',
-      borderWidth: 0,
-      foregroundColor: ensureContrast(c.onSuccess, c.success),
-      withElevation,
-    };
+    return withSolidSurface(
+      {
+        backgroundColor: c.success,
+        borderColor: 'transparent',
+        borderWidth: 0,
+        foregroundColor: ensureContrast(c.onSuccess, c.success),
+        withElevation: false,
+      },
+      c.success,
+      'accent'
+    );
   }
   if (feedback === 'error') {
-    return {
-      backgroundColor: c.destructiveActive,
-      borderColor: 'transparent',
-      borderWidth: 0,
-      foregroundColor: ensureContrast(c.onDestructive, c.destructiveActive),
-      withElevation,
-    };
+    return withSolidSurface(
+      {
+        backgroundColor: c.destructiveActive,
+        borderColor: 'transparent',
+        borderWidth: 0,
+        foregroundColor: ensureContrast(c.onDestructive, c.destructiveActive),
+        withElevation: false,
+      },
+      c.destructiveActive,
+      'accent'
+    );
   }
   return null;
 }

@@ -19,6 +19,11 @@ export interface PackageManagerInstallEntry {
   readonly package: string;
   readonly homebrewTap?: string;
   readonly homebrewLinkOverwrite?: string;
+  /**
+   * Homebrew formulas to uninstall before install/upgrade (same short name from
+   * another tap, e.g. `homebrew/core` `infisical` vs `infisical/get-cli/infisical`).
+   */
+  readonly homebrewUninstallConflicts?: readonly string[];
 }
 
 export interface PackageManagerInstallerOptions {
@@ -65,7 +70,14 @@ export class PackageManagerInstaller implements Installer {
   }
 
   private prepare(pm: PackageManager, entry: PackageManagerInstallEntry): void {
-    if (entry.homebrewTap !== undefined && pm instanceof Homebrew) {
+    if (!(pm instanceof Homebrew)) return;
+    const conflicts = entry.homebrewUninstallConflicts;
+    if (conflicts !== undefined && !pm.isInstalled(entry.package)) {
+      for (const pkg of conflicts) {
+        pm.uninstall(pkg);
+      }
+    }
+    if (entry.homebrewTap !== undefined) {
       pm.tap(entry.homebrewTap);
     }
   }

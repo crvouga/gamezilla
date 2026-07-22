@@ -42,6 +42,8 @@
       "@pkgs/i18n/*": ["../../pkgs/i18n/src/*"],
       "@pkgs/keyword": ["../../pkgs/keyword/src/index.ts"],
       "@pkgs/keyword/*": ["../../pkgs/keyword/src/*"],
+      "@pkgs/colors": ["../../pkgs/colors/src/index.ts"],
+      "@pkgs/colors/*": ["../../pkgs/colors/src/*"],
       "@pkgs/kv/*": ["../../pkgs/kv/src/*"],
       "@pkgs/logger": ["../../pkgs/logger/src/index.ts"],
       "@pkgs/logger/*": ["../../pkgs/logger/src/*"],

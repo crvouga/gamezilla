@@ -5,6 +5,7 @@ import {
   PackageManagerInstaller,
   verifyRun,
   which,
+  whichPath,
 } from '@pkgs/os';
 import { fetchLatestGithubReleaseVersion } from './cli-version-fetch';
 import { INFISICAL_CLI_BIN } from './defaults';
@@ -12,36 +13,43 @@ import { INFISICAL_CLI_BIN } from './defaults';
 const INSTALL_HINT =
   'Install Infisical CLI: brew install infisical/get-cli/infisical';
 
-const installer = new FirstAvailableInstaller(
-  [
-    new PackageManagerInstaller({
-      entries: [
-        {
-          packageManagerId: 'homebrew',
-          package: 'infisical/get-cli/infisical',
-          homebrewTap: 'infisical/get-cli',
-        },
-      ],
-    }),
-    new GithubReleaseTarballInstaller({
-      repo: 'Infisical/cli',
-      binName: INFISICAL_CLI_BIN,
-      archive: (version, os) => {
-        const arch = os.releaseArchName() === 'arm64' ? 'arm64' : 'amd64';
-        const osName = os.platform === 'darwin' ? 'darwin' : 'linux';
-        return {
-          name: `cli_${version}_${osName}_${arch}.tar.gz`,
-          format: 'tar.gz',
-        };
-      },
-    }),
+const homebrewInstaller = new PackageManagerInstaller({
+  entries: [
+    {
+      packageManagerId: 'homebrew',
+      package: 'infisical/get-cli/infisical',
+      homebrewTap: 'infisical/get-cli',
+      // Core formula shares the short name and blocks the tap install.
+      homebrewUninstallConflicts: ['infisical'],
+    },
   ],
+});
+
+const githubInstaller = new GithubReleaseTarballInstaller({
+  repo: 'Infisical/cli',
+  binName: INFISICAL_CLI_BIN,
+  archive: (version, os) => {
+    const arch = os.releaseArchName() === 'arm64' ? 'arm64' : 'amd64';
+    const osName = os.platform === 'darwin' ? 'darwin' : 'linux';
+    return {
+      name: `cli_${version}_${osName}_${arch}.tar.gz`,
+      format: 'tar.gz',
+    };
+  },
+});
+
+const installer = new FirstAvailableInstaller(
+  [homebrewInstaller, githubInstaller],
   INSTALL_HINT
 );
 
 export type SecretBackendCliStatus =
   | { readonly ok: true; readonly version: string }
   | { readonly ok: false; readonly reason: string };
+
+function isUserLocalBin(binPath: string): boolean {
+  return /(^|[\\/])\.local[\\/]bin([\\/]|$)/.test(binPath);
+}
 
 /**
  * Infisical CLI install/check surface — implements the tooling dep shape used
@@ -72,14 +80,24 @@ export class InfisicalCliDep {
   }
 
   install(): void {
-    installer.install();
+    this.installOrUpgrade('install');
   }
 
   upgrade(): void {
-    installer.upgrade();
+    this.installOrUpgrade('upgrade');
   }
 
   verify(): void {
     verifyRun(INFISICAL_CLI_BIN, ['--version']);
+  }
+
+  private installOrUpgrade(method: 'install' | 'upgrade'): void {
+    const path = whichPath(INFISICAL_CLI_BIN);
+    // PATH owns a user-local binary — update that (Homebrew would leave it stale).
+    if (path !== null && isUserLocalBin(path)) {
+      githubInstaller[method]();
+      return;
+    }
+    installer[method]();
   }
 }

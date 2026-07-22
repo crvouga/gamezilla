@@ -1,13 +1,13 @@
 /**
  * `Button` -- themed pressable with three intents, three sizes, three variants.
  *
- * Flat, modern surface (Linear / shadcn / Radix lineage) -- no gradient,
- * no gloss. Solid fills paired with dedicated `on*` foreground tokens so
- * the label keeps high contrast in both schemes.
+ * Solid fills use a chess.com-style top→bottom candy gradient and inset bevel
+ * derived from the intent source color. Labels use dedicated `on*` foreground
+ * tokens so contrast stays high in both schemes.
  *
  * `intent` chooses the color role (primary / danger / neutral); `variant`
  * chooses how much visual weight that color carries:
- *   - `solid` (default) -- saturated fill + `on*` label, looks like the
+ *   - `solid` (default) -- gradient fill + `on*` label, looks like the
  *     primary action.
  *   - `outline` -- transparent bg + colored border + intent-colored label.
  *   - `ghost` -- transparent bg, no border, intent-colored label, gets a
@@ -34,6 +34,7 @@ import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
 import { XIcon, type IconComponent } from '../icons';
 import { Text } from '../text';
+import { ButtonSurfaceFill } from './button-surface-fill';
 import {
   MUTATION_FEEDBACK_ICONS,
   mutationPressableForegroundColor,
@@ -41,6 +42,7 @@ import {
   type ButtonFeedback,
   type ButtonIntent,
   type ButtonVariant,
+  type MutationPressableFace,
 } from './mutation-pressable-face';
 
 export type { ButtonFeedback, ButtonIntent, ButtonVariant };
@@ -94,6 +96,25 @@ const sizeMap = {
 
 type SizeSpec = (typeof sizeMap)[ButtonSize];
 
+const SURFACE_ANDROID_ELEVATION = 2;
+
+function resolveButtonShadow(face: MutationPressableFace, theme: Theme) {
+  if (face.surfaceShadow !== undefined) {
+    return {
+      boxShadow: face.surfaceShadow,
+      ...(Platform.OS === 'android'
+        ? { elevation: SURFACE_ANDROID_ELEVATION }
+        : {}),
+    };
+  }
+  if (!face.withElevation) return {};
+  const shadow = theme.elevation(1);
+  return {
+    ...(shadow.boxShadow ? { boxShadow: shadow.boxShadow } : {}),
+    ...(shadow.elevation !== undefined ? { elevation: shadow.elevation } : {}),
+  };
+}
+
 export function buttonForegroundColor(
   theme: Theme,
   intent: ButtonIntent,
@@ -109,18 +130,19 @@ export function Button(props: ButtonProps) {
   const s = sizeMap[size];
   const { phase, face, nonInteractive, handlePress } =
     resolveMutationPressableRender(theme, props);
-  const shadow = face.withElevation ? theme.elevation(1) : undefined;
+  const shadow = resolveButtonShadow(face, theme);
+  const hasGradient = face.gradient !== undefined;
 
   return (
     <Pressable
       accessibilityRole="button"
       onPress={handlePress}
       disabled={nonInteractive}
-      sx={{ borderRadius: s.borderRadius }}
+      sx={{ borderRadius: s.borderRadius, overflow: 'hidden' }}
       style={() => ({
         userSelect: 'none',
         ...(flex !== undefined ? { flex } : {}),
-        backgroundColor: face.backgroundColor,
+        backgroundColor: hasGradient ? 'transparent' : face.backgroundColor,
         borderColor: face.borderColor,
         borderWidth: face.borderWidth,
         borderRadius: s.borderRadius,
@@ -131,12 +153,17 @@ export function Button(props: ButtonProps) {
         alignItems: 'center',
         justifyContent: 'center',
         gap: s.iconGap * 4,
-        ...(shadow?.boxShadow ? { boxShadow: shadow.boxShadow } : {}),
-        ...(shadow?.elevation !== undefined
-          ? { elevation: shadow.elevation }
-          : {}),
+        overflow: 'hidden',
+        ...shadow,
       })}
     >
+      {face.gradient !== undefined ? (
+        <ButtonSurfaceFill
+          top={face.gradient.top}
+          bottom={face.gradient.bottom}
+          borderRadius={s.borderRadius}
+        />
+      ) : null}
       <OnColorProvider
         value={{
           fg: face.foregroundColor,

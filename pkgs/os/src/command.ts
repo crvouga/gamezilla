@@ -23,13 +23,27 @@ const SEMVER_REGEX = /[\d]+\.[\d]+[\w.+-]*/;
 
 /** True if `bin` exists on PATH (`where` on Windows, `which` elsewhere). */
 export function which(bin: string): boolean {
+  return whichPath(bin) !== null;
+}
+
+/**
+ * Absolute path to the first `bin` on PATH, or null if missing.
+ * Uses `where` on Windows (first line) and `which` elsewhere.
+ */
+export function whichPath(bin: string): string | null {
   const cmd = currentPlatform() === 'win32' ? 'where' : 'which';
   const r = spawnSync(cmd, [bin], {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     env: process.env,
   });
-  return r.status === 0 && !r.error;
+  if (r.status !== 0 || r.error) return null;
+  const first = (r.stdout ?? '')
+    .toString()
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find((line) => line.length > 0);
+  return first ?? null;
 }
 
 /**

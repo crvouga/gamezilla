@@ -14,6 +14,7 @@ export class WranglerDep implements Dep {
 
   private readonly installer = new NpmGlobalInstaller({
     pkg: 'wrangler',
+    bin: 'wrangler',
     tag: 'latest',
   });
 

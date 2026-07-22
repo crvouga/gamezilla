@@ -628,6 +628,14 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/colors": {
+      "name": "@pkgs/colors",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/distributed-lock": {
       "name": "@pkgs/distributed-lock",
       "version": "0.0.0",
@@ -1115,6 +1123,7 @@
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
+        "@pkgs/colors": "workspace:*",
         "@pkgs/i18n": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
@@ -2181,6 +2190,8 @@
     "@pkgs/browser": ["@pkgs/browser@workspace:pkgs/browser"],
 
     "@pkgs/chess-board": ["@pkgs/chess-board@workspace:pkgs/chess-board"],
+
+    "@pkgs/colors": ["@pkgs/colors@workspace:pkgs/colors"],
 
     "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
 

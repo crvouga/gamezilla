@@ -43,6 +43,11 @@ export class Homebrew implements PackageManager {
     run('brew', ['install', pkg]);
   }
 
+  uninstall(pkg: string): void {
+    if (!this.isInstalled(pkg)) return;
+    run('brew', ['uninstall', '--formula', pkg]);
+  }
+
   tap(name: string): void {
     run('brew', ['tap', name]);
   }

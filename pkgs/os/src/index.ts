@@ -11,6 +11,7 @@ export {
   runOk,
   verifyRun,
   which,
+  whichPath,
 } from './command';
 export { CurlScriptInstaller } from './curl-script-installer';
 export type { CurlScriptInstallerOptions } from './curl-script-installer';

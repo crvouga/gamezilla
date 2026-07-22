@@ -1,33 +1,41 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { capture, run } from './command';
+import { capture, run, whichPath } from './command';
 import type { Installer } from './installer';
 
 export interface NpmGlobalInstallerOptions {
   readonly pkg: string;
   /** npm dist-tag or version (default `latest`). */
   readonly tag?: string;
+  /**
+   * Binary name on PATH. When set, install/upgrade targets the package manager
+   * that owns that binary (bun global vs npm global) so PATH stays in sync.
+   */
+  readonly bin?: string;
 }
 
 type NpmListGlobalJson = {
   dependencies?: Record<string, { version?: string }>;
 };
 
+function isBunGlobalPath(binPath: string): boolean {
+  return /(^|[\\/])\.bun([\\/]|$)/.test(binPath);
+}
+
 /**
- * `npm install -g <pkg>@<tag>`. Works on every OS Node ships on, so this
- * doubles as a cross-platform install for any tool published to npm
- * (wrangler, prettier, …). Upgrade is the same operation: npm reinstalls
- * over an existing global.
+ * Global install for npm-published CLIs (`wrangler`, `eas-cli`, …).
+ * Prefers `npm install -g` for fresh installs; when {@link NpmGlobalInstallerOptions.bin}
+ * resolves to a bun-managed binary, uses `bun add -g` so upgrade updates PATH.
  */
 export class NpmGlobalInstaller implements Installer {
   constructor(private readonly opts: NpmGlobalInstallerOptions) {}
 
   install(): void {
-    this.runNpm();
+    this.installViaPreferredManager();
   }
 
   upgrade(): void {
-    this.runNpm();
+    this.installViaPreferredManager();
   }
 
   /** Installed semver from `npm list -g <pkg> --json` (not the binary `--version`). */
@@ -57,6 +65,21 @@ export class NpmGlobalInstaller implements Installer {
     return existsSync(bin) ? bin : null;
   }
 
+  private installViaPreferredManager(): void {
+    if (this.shouldUseBun()) {
+      this.runBun();
+      return;
+    }
+    this.runNpm();
+  }
+
+  private shouldUseBun(): boolean {
+    const bin = this.opts.bin;
+    if (bin === undefined) return false;
+    const path = whichPath(bin);
+    return path !== null && isBunGlobalPath(path);
+  }
+
   private globalPrefix(): string | null {
     const r = capture('npm', ['prefix', '-g']);
     if (r.status !== 0) return null;
@@ -64,8 +87,16 @@ export class NpmGlobalInstaller implements Installer {
     return prefix.length > 0 ? prefix : null;
   }
 
-  private runNpm(): void {
+  private packageSpec(): string {
     const tag = this.opts.tag ?? 'latest';
-    run('npm', ['install', '-g', `${this.opts.pkg}@${tag}`]);
+    return `${this.opts.pkg}@${tag}`;
+  }
+
+  private runNpm(): void {
+    run('npm', ['install', '-g', this.packageSpec()]);
+  }
+
+  private runBun(): void {
+    run('bun', ['add', '-g', this.packageSpec()]);
   }
 }
