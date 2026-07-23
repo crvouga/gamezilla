@@ -32,6 +32,7 @@ import {
   ReclaimChessPuzzlePlay,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
+  SeekChessPuzzlePlay,
   StartChessPuzzlePlay,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
@@ -42,6 +43,7 @@ import {
   nextForwardSolveIdx,
   prevHumanSolveIdx,
   puzzleTokensLength,
+  resolveSeekSolveIdx,
   statusAtSolveIdx,
 } from './chess-puzzle-step';
 
@@ -322,11 +324,10 @@ function handleReset(state: RoomState, identity: string): HandleResult {
   };
 }
 
-function handleStepSeek(
+function assertCanSeekLine(
   state: RoomState,
-  identity: string,
-  direction: 'back' | 'forward'
-): HandleResult {
+  identity: string
+): HandleResult | null {
   if (!isHostOf(state, identity)) {
     return unauthorized('only the puzzle host may step the puzzle line');
   }
@@ -337,12 +338,44 @@ function handleStepSeek(
   ) {
     return conflict(`cannot step while status is ${status}`);
   }
-  const solveIdx = ChessPuzzlePlayAttr.solveIdx.from(state);
-  const furthest = ChessPuzzlePlayAttr.furthestSolveIdx.from(state);
+  return null;
+}
+
+function emitSeekToSolveIdx(
+  state: RoomState,
+  nextIdx: number
+): HandleResult {
   const fen = ChessPuzzlePlayAttr.fen.from(state);
   const moves = ChessPuzzlePlayAttr.moves.from(state);
-  const tokensLength = puzzleTokensLength(moves);
+  const displayFen = fenAtSolveIdx({ fen, moves, solveIdx: nextIdx });
+  if (displayFen === null) {
+    return internal('could not rebuild fen for stepped solve index');
+  }
+  return {
+    ok: true,
+    events: [
+      ChessPuzzlePlayStepped({
+        displayFen,
+        solveIdx: nextIdx,
+        status: statusAtSolveIdx(nextIdx, puzzleTokensLength(moves)),
+        layoutKey: ChessPuzzlePlayAttr.layoutKey.from(state) + 1,
+      }),
+    ],
+  };
+}
 
+function handleStepSeek(
+  state: RoomState,
+  identity: string,
+  direction: 'back' | 'forward'
+): HandleResult {
+  const denied = assertCanSeekLine(state, identity);
+  if (denied !== null) return denied;
+  const solveIdx = ChessPuzzlePlayAttr.solveIdx.from(state);
+  const furthest = ChessPuzzlePlayAttr.furthestSolveIdx.from(state);
+  const tokensLength = puzzleTokensLength(
+    ChessPuzzlePlayAttr.moves.from(state)
+  );
   const nextIdx =
     direction === 'back'
       ? prevHumanSolveIdx(solveIdx)
@@ -356,23 +389,25 @@ function handleStepSeek(
       direction === 'back' ? 'already at puzzle start' : 'already at furthest'
     );
   }
+  return emitSeekToSolveIdx(state, nextIdx);
+}
 
-  const displayFen = fenAtSolveIdx({ fen, moves, solveIdx: nextIdx });
-  if (displayFen === null) {
-    return internal('could not rebuild fen for stepped solve index');
+function handleSeek(
+  state: RoomState,
+  identity: string,
+  targetSolveIdx: number
+): HandleResult {
+  const denied = assertCanSeekLine(state, identity);
+  if (denied !== null) return denied;
+  const nextIdx = resolveSeekSolveIdx({
+    solveIdx: ChessPuzzlePlayAttr.solveIdx.from(state),
+    furthestSolveIdx: ChessPuzzlePlayAttr.furthestSolveIdx.from(state),
+    targetSolveIdx,
+  });
+  if (nextIdx === null) {
+    return conflict('seek target is out of range or already current');
   }
-
-  return {
-    ok: true,
-    events: [
-      ChessPuzzlePlayStepped({
-        displayFen,
-        solveIdx: nextIdx,
-        status: statusAtSolveIdx(nextIdx, tokensLength),
-        layoutKey: ChessPuzzlePlayAttr.layoutKey.from(state) + 1,
-      }),
-    ],
-  };
+  return emitSeekToSolveIdx(state, nextIdx);
 }
 
 function handleRequestHint(state: RoomState, identity: string): HandleResult {
@@ -446,6 +481,9 @@ export const chessPuzzlePlayCommandRouter = createMessageRouter<
   )
   .on(StepForwardChessPuzzlePlay, (state, identity) =>
     handleStepSeek(state, identity, 'forward')
+  )
+  .on(SeekChessPuzzlePlay, (state, identity, c) =>
+    handleSeek(state, identity, c.payload.solveIdx)
   )
   .on(ClearChessPuzzlePlay, (state, identity) => handleClear(state, identity))
   .on(RequestChessPuzzleHint, (state, identity) =>

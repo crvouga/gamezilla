@@ -1,102 +1,65 @@
-import { assert } from '@pkgs/assert';
-import { assertKeywordRecord, asKeyword, type Keyword } from '@pkgs/keyword';
 import type { LogEntry, RoomModuleName } from '../../../types';
 import type { CommandDedupOutcome, RoomStorage } from '../../core/storage';
+import {
+  dedupKey,
+  eventKey,
+  roomDoKeyNs,
+  type RoomDoKeyNs,
+} from './storage-keys';
+import {
+  migrateLegacyBlobToV3,
+  putEntriesBatched,
+  type RoomDoMeta,
+} from './storage-migrate';
 import type { DurableObjectKvStorage } from './types';
 
 /**
- * Persisted DO blob key: kebab-namespaced keyword so the storage key follows
- * the same convention as room state / message types. Bump the local segment
- * (e.g. `state-v3`) when the {@link Persisted} shape evolves.
- */
-const STATE_KEY: Keyword = asKeyword('room.do/state-v2');
-
-/** Per-module KV blob so one DO can host multiple {@link RoomServer}s safely. */
-function stateBlobKey(moduleName: RoomModuleName): Keyword {
-  return asKeyword(`room.do/state-v2-${String(moduleName)}`);
-}
-
-type Persisted = {
-  events: LogEntry[];
-  dedup: Record<string, CommandDedupOutcome>;
-};
-
-function emptyPersisted(): Persisted {
-  return { events: [], dedup: {} };
-}
-
-function parseDedup(raw: Persisted): Record<string, CommandDedupOutcome> {
-  if (
-    raw.dedup !== undefined &&
-    raw.dedup !== null &&
-    typeof raw.dedup === 'object'
-  ) {
-    return raw.dedup as Record<string, CommandDedupOutcome>;
-  }
-  return {};
-}
-
-function assertOptionalPersistedState(raw: Persisted): void {
-  const maybeState = (raw as Record<string, unknown>)['state'];
-  if (
-    maybeState !== undefined &&
-    maybeState !== null &&
-    typeof maybeState === 'object' &&
-    !Array.isArray(maybeState)
-  ) {
-    assertKeywordRecord(
-      assert,
-      maybeState as Record<string, unknown>,
-      'room.do persisted state'
-    );
-  }
-}
-
-/** Normalize KV blob into {@link Persisted}; invalid shapes yield an empty log. */
-function parsePersistedBlob(raw: unknown): Persisted {
-  if (raw === undefined || raw === null || typeof raw !== 'object') {
-    return emptyPersisted();
-  }
-  const typed = raw as Persisted;
-  const events = Array.isArray(typed.events) ? typed.events : [];
-  assertOptionalPersistedState(typed);
-  return { events, dedup: parseDedup(typed) };
-}
-
-/**
- * Single-topic room log persisted in a Durable Object's KV `storage` binding.
- * Pass {@link RoomModuleName} to isolate blobs when one DO hosts several modules;
- * omit it to use the legacy single-blob key (`room.do/state-v2`).
+ * Room log persisted in a Durable Object's KV `storage` binding.
+ *
+ * v3 stores one key per event and per dedup outcome (plus a tiny meta key).
+ * SQLite-backed DOs cap each string/BLOB/row at 2 MB — the old monolithic
+ * `room.do/state-v2*` blob hit that limit on long-lived rooms. On first
+ * access, any legacy blob is split into v3 keys and deleted.
+ *
+ * Pass {@link RoomModuleName} to isolate keys when one DO hosts several
+ * modules; omit it to use the unscoped namespace.
  */
 export class DurableObjectRoomStorage implements RoomStorage {
-  private readonly blobKey: Keyword;
+  private readonly ns: RoomDoKeyNs;
+  private migratePromise: Promise<void> | null = null;
 
   constructor(
     private readonly kv: DurableObjectKvStorage,
     moduleName?: RoomModuleName
   ) {
-    this.blobKey =
-      moduleName !== undefined ? stateBlobKey(moduleName) : STATE_KEY;
+    this.ns = roomDoKeyNs(moduleName);
   }
 
-  private async load(): Promise<Persisted> {
-    const raw = await this.kv.get<Persisted>(this.blobKey);
-    return parsePersistedBlob(raw);
+  private async ensureV3(): Promise<void> {
+    if (this.migratePromise === null) {
+      this.migratePromise = this.runMigrateIfNeeded();
+    }
+    await this.migratePromise;
   }
 
-  private async save(p: Persisted): Promise<void> {
-    await this.kv.put(this.blobKey, p);
+  private async runMigrateIfNeeded(): Promise<void> {
+    const meta = await this.kv.get<RoomDoMeta>(this.ns.meta);
+    if (meta !== undefined) return;
+    await migrateLegacyBlobToV3(this.kv, this.ns);
   }
 
   async loadEventsAfter(_topic: string, afterSeq: number): Promise<LogEntry[]> {
-    const p = await this.load();
-    return p.events.filter((e) => e.seq > afterSeq);
+    await this.ensureV3();
+    const listed = await this.kv.list<LogEntry>({
+      prefix: this.ns.eventPrefix,
+      startAfter: eventKey(this.ns, afterSeq),
+    });
+    return [...listed.values()];
   }
 
   async getLastSeq(_topic: string): Promise<number> {
-    const p = await this.load();
-    const last = p.events[p.events.length - 1];
-    return last !== undefined ? last.seq : 0;
+    await this.ensureV3();
+    return this.readLastSeq();
   }
 
   async appendCommittedEntries(
@@ -104,27 +67,33 @@ export class DurableObjectRoomStorage implements RoomStorage {
     newEntries: LogEntry[]
   ): Promise<void> {
     if (newEntries.length === 0) return;
-    const p = await this.load();
-    const prevLast = p.events[p.events.length - 1]?.seq ?? 0;
+    await this.ensureV3();
+    const prevLast = await this.readLastSeq();
     let expect = prevLast + 1;
+    const batch: Record<string, unknown> = {};
     for (const e of newEntries) {
       if (e.seq !== expect) {
         throw new Error(
           `DurableObjectRoomStorage.appendCommittedEntries: expected seq ${String(expect)}, got ${String(e.seq)}`
         );
       }
+      batch[eventKey(this.ns, e.seq)] = e;
       expect++;
     }
-    p.events.push(...newEntries);
-    await this.save(p);
+    const lastSeq = newEntries[newEntries.length - 1]!.seq;
+    batch[this.ns.meta] = { lastSeq } satisfies RoomDoMeta;
+    await putEntriesBatched(this.kv, batch);
   }
 
   async getDedupOutcome(
     _topic: string,
     commandId: string
   ): Promise<CommandDedupOutcome | null> {
-    const p = await this.load();
-    return p.dedup[commandId] ?? null;
+    await this.ensureV3();
+    const outcome = await this.kv.get<CommandDedupOutcome>(
+      dedupKey(this.ns, commandId)
+    );
+    return outcome ?? null;
   }
 
   async putDedupOutcome(
@@ -132,8 +101,12 @@ export class DurableObjectRoomStorage implements RoomStorage {
     commandId: string,
     outcome: CommandDedupOutcome
   ): Promise<void> {
-    const p = await this.load();
-    p.dedup[commandId] = outcome;
-    await this.save(p);
+    await this.ensureV3();
+    await this.kv.put(dedupKey(this.ns, commandId), outcome);
+  }
+
+  private async readLastSeq(): Promise<number> {
+    const meta = await this.kv.get<RoomDoMeta>(this.ns.meta);
+    return meta?.lastSeq ?? 0;
   }
 }

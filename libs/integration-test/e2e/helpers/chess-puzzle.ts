@@ -162,7 +162,7 @@ export async function openChessPuzzle(page: Page): Promise<void> {
   const board = page.getByTestId('chess-puzzle-board');
   const expectedUci = page.getByTestId('chess-puzzle-expected-uci');
   const playScreen = page.getByTestId('chess-puzzle-play-screen');
-  const playerElo = page.getByTestId('chess-puzzle-player-elo');
+  const puzzleElo = page.getByTestId('chess-puzzle-board-elo');
 
   await expect(page.getByTestId('chess-menu-puzzle')).toBeVisible({
     timeout: SPACE_NAV_TIMEOUT_MS,
@@ -179,7 +179,7 @@ export async function openChessPuzzle(page: Page): Promise<void> {
     const puzzleReady =
       (await board.isVisible().catch(() => false)) ||
       (await expectedUci.isVisible().catch(() => false)) ||
-      (await playerElo.isVisible().catch(() => false));
+      (await puzzleElo.isVisible().catch(() => false));
     if (!puzzleReady) {
       if (!(await playScreen.isVisible().catch(() => false))) {
         if (

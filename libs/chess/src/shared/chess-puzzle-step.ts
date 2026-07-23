@@ -57,3 +57,19 @@ export function statusAtSolveIdx(
 export function puzzleTokensLength(moves: string): number {
   return tokenize(moves).length;
 }
+
+/**
+ * Absolute seek target for move-list taps. Allowed range is
+ * `[1, furthestSolveIdx]` (post-opening through furthest attempted).
+ * Returns `null` when the target is out of range or already current.
+ */
+export function resolveSeekSolveIdx(args: {
+  solveIdx: number;
+  furthestSolveIdx: number;
+  targetSolveIdx: number;
+}): number | null {
+  const { solveIdx, furthestSolveIdx, targetSolveIdx } = args;
+  if (targetSolveIdx < 1 || targetSolveIdx > furthestSolveIdx) return null;
+  if (targetSolveIdx === solveIdx) return null;
+  return targetSolveIdx;
+}

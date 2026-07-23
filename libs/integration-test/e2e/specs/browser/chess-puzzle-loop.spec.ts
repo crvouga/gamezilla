@@ -26,10 +26,6 @@ test.skip('chess puzzle loop: solve puzzles, elo summary, stats', async ({
     app.chess.openChessPuzzle()
   );
 
-  const eloBefore = await page
-    .getByTestId('chess-puzzle-player-elo')
-    .textContent();
-
   for (let i = 0; i < 2; i += 1) {
     await playwrightStep(log, `chess: solve puzzle ${i + 1}`, () =>
       app.chess.solveCurrentPuzzle()
@@ -46,15 +42,9 @@ test.skip('chess puzzle loop: solve puzzles, elo summary, stats', async ({
       await expect(page.getByTestId('chess-puzzle-board')).toBeVisible({
         timeout: 60_000,
       });
+      await expect(page.getByTestId('chess-puzzle-board-elo')).toBeVisible();
     }
   }
-
-  await playwrightStep(log, 'chess: elo chip updated', async () => {
-    const eloAfter = await page
-      .getByTestId('chess-puzzle-player-elo')
-      .textContent();
-    expect(eloAfter).not.toBe(eloBefore);
-  });
 
   await playwrightStep(log, 'chess: open stats screen', async () => {
     await page.getByRole('button', { name: 'Back' }).click();

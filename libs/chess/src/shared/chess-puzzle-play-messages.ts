@@ -182,6 +182,22 @@ export const StepForwardChessPuzzlePlay = chessPuzzlePlayCmdNs(
   validateEmptyPayload
 );
 
+function validateSeekPayload(
+  payload: unknown
+): payload is { solveIdx: number } {
+  if (!isPlainRecord(payload)) return false;
+  return isNonNegativeInteger(payload['solveIdx']);
+}
+
+/**
+ * Host jumps to an already-reached solve index (move-list scrub). Clamped to
+ * `[1, furthestSolveIdx]` by the router.
+ */
+export const SeekChessPuzzlePlay = chessPuzzlePlayCmdNs(
+  'seek',
+  validateSeekPayload
+);
+
 /** Tear down the session entirely (returns all attrs to defaults). */
 export const ClearChessPuzzlePlay = chessPuzzlePlayCmdNs(
   'clear',

@@ -57,12 +57,12 @@ function parsePromotion(uci: string): ChessPuzzlePromotion | undefined {
 }
 
 /**
- * Apply a UCI move to the given Chess instance in place. Returns `true` when
- * the move was legal and applied; `false` for malformed UCI or illegal moves.
+ * Apply a UCI move to the given Chess instance in place. Returns the SAN when
+ * the move was legal and applied; `null` for malformed UCI or illegal moves.
  */
-export function applyUciToChess(chess: Chess, uci: string): boolean {
+export function applyUciToChessSan(chess: Chess, uci: string): string | null {
   const t = uci.trim().toLowerCase();
-  if (t.length < 4) return false;
+  if (t.length < 4) return null;
   const from = t.slice(0, 2);
   const to = t.slice(2, 4);
   const promotion = parsePromotion(t);
@@ -72,10 +72,18 @@ export function applyUciToChess(chess: Chess, uci: string): boolean {
       to,
       ...(promotion !== undefined ? { promotion } : {}),
     });
-    return res !== null;
+    return res?.san ?? null;
   } catch {
-    return false;
+    return null;
   }
+}
+
+/**
+ * Apply a UCI move to the given Chess instance in place. Returns `true` when
+ * the move was legal and applied; `false` for malformed UCI or illegal moves.
+ */
+export function applyUciToChess(chess: Chess, uci: string): boolean {
+  return applyUciToChessSan(chess, uci) !== null;
 }
 
 /**

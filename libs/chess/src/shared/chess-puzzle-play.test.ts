@@ -12,6 +12,7 @@ import {
   StartChessPuzzlePlay,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
+  SeekChessPuzzlePlay,
   SubmitChessPuzzleMove,
 } from './chess-puzzle-play';
 
@@ -635,5 +636,39 @@ describe('chess puzzle play FSM — StepBack / StepForward', () => {
     expect(res.ok).toBe(false);
     if (res.ok) return;
     expect(res.error.type).toBe(ROOM_ERROR_TYPE.conflict);
+  });
+
+  test('seek jumps to any reached ply', () => {
+    let state = startValid(ChessModule.initialState());
+    const r1 = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      HOST
+    );
+    if (!r1.ok) throw new Error('first move failed');
+    state = reduceAll(state, r1.events);
+    const afterFirst = ChessPuzzlePlayAttr.displayFen.from(state);
+
+    const seek = ChessModule.handle(
+      state,
+      cmd(SeekChessPuzzlePlay({ solveIdx: 1 })),
+      HOST
+    );
+    expect(seek.ok).toBe(true);
+    if (!seek.ok) return;
+    state = reduceAll(state, seek.events);
+    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
+    expect(ChessPuzzlePlayAttr.furthestSolveIdx.from(state)).toBe(3);
+
+    const seekBack = ChessModule.handle(
+      state,
+      cmd(SeekChessPuzzlePlay({ solveIdx: 3 })),
+      HOST
+    );
+    expect(seekBack.ok).toBe(true);
+    if (!seekBack.ok) return;
+    state = reduceAll(state, seekBack.events);
+    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(afterFirst);
   });
 });

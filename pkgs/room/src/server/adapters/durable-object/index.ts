@@ -3,7 +3,7 @@
  * Workers. Subpath import: `@pkgs/room/server/adapters/durable-object`.
  *
  * The factory returns a DO class wired to the {@link RoomServer} engine
- * with a KV-backed {@link DurableObjectRoomStorage}. Bind it via
+ * with a KV-backed {@link DurableObjectRoomStorage} (per-key log). Bind it via
  * `class_name` in `wrangler.toml` and re-export it from the Worker entry
  * module so the runtime can instantiate it.
  */

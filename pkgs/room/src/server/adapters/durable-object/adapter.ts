@@ -50,7 +50,7 @@ export type CreateDurableObjectAdapterOptions<
   /**
    * Override storage construction (mainly for tests / alternative
    * persistence). Defaults to {@link DurableObjectRoomStorage} backed by
-   * the DO's KV `storage` binding (one persisted blob per `moduleName`).
+   * the DO's KV `storage` binding (per-event / per-dedup keys per module).
    */
   createStorage?: (
     state: DurableObjectInstanceState,

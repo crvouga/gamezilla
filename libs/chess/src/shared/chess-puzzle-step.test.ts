@@ -4,6 +4,7 @@ import {
   fenAtSolveIdx,
   nextForwardSolveIdx,
   prevHumanSolveIdx,
+  resolveSeekSolveIdx,
   statusAtSolveIdx,
 } from './chess-puzzle-step';
 import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
@@ -44,13 +45,44 @@ describe('chess-puzzle-step', () => {
     ).toBeNull();
   });
 
+  test('resolveSeekSolveIdx clamps to furthest and skips current', () => {
+    expect(
+      resolveSeekSolveIdx({
+        solveIdx: 3,
+        furthestSolveIdx: 4,
+        targetSolveIdx: 1,
+      })
+    ).toBe(1);
+    expect(
+      resolveSeekSolveIdx({
+        solveIdx: 3,
+        furthestSolveIdx: 4,
+        targetSolveIdx: 3,
+      })
+    ).toBeNull();
+    expect(
+      resolveSeekSolveIdx({
+        solveIdx: 3,
+        furthestSolveIdx: 4,
+        targetSolveIdx: 0,
+      })
+    ).toBeNull();
+    expect(
+      resolveSeekSolveIdx({
+        solveIdx: 3,
+        furthestSolveIdx: 4,
+        targetSolveIdx: 5,
+      })
+    ).toBeNull();
+  });
+
   test('fenAtSolveIdx matches setup opening fen at idx 1', () => {
     const setup = setupPuzzleStart(VALID_FEN, VALID_MOVES);
     expect(setup.kind).toBe('ready');
     if (setup.kind !== 'ready') return;
-    expect(fenAtSolveIdx({ fen: VALID_FEN, moves: VALID_MOVES, solveIdx: 1 })).toBe(
-      setup.displayFen
-    );
+    expect(
+      fenAtSolveIdx({ fen: VALID_FEN, moves: VALID_MOVES, solveIdx: 1 })
+    ).toBe(setup.displayFen);
   });
 
   test('statusAtSolveIdx', () => {

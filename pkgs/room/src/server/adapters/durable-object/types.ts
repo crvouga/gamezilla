@@ -8,10 +8,28 @@
  * host worker uses (e.g. `cloudflare.d.ts`).
  */
 
-/** KV-style persistence available on every Durable Object instance. */
+/** Options for {@link DurableObjectKvStorage.list}. */
+export type DurableObjectKvListOptions = {
+  start?: string;
+  startAfter?: string;
+  end?: string;
+  prefix?: string;
+  reverse?: boolean;
+  limit?: number;
+};
+
+/**
+ * KV-style persistence available on every Durable Object instance.
+ * Mirrors the async `ctx.storage` surface used by {@link DurableObjectRoomStorage}.
+ */
 export interface DurableObjectKvStorage {
   get<T = unknown>(key: string): Promise<T | undefined>;
-  put<T>(key: string, value: T): Promise<void>;
+  put(key: string, value: unknown): Promise<void>;
+  put(entries: Record<string, unknown>): Promise<void>;
+  delete(key: string): Promise<boolean>;
+  list<T = unknown>(
+    options?: DurableObjectKvListOptions
+  ): Promise<Map<string, T>>;
 }
 
 /**

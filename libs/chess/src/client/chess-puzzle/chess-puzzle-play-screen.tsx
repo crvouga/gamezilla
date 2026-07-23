@@ -2,13 +2,18 @@ import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { Box, SpeakingAvatar } from '@pkgs/ui';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
-import { memo, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
+import {
+  BOARD_ELO_BAR_HEIGHT,
+  ChessPuzzleBoardEloBar,
+} from './chess-puzzle-board-elo-bar';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleCelebrationOverlay } from './chess-puzzle-celebration-overlay';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
 import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
+import { ChessPuzzleMoveHistoryBar } from './chess-puzzle-move-history-bar';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import type { HintStage } from './use-hint-stage';
 import type { SolveStatus } from './use-chess-puzzle-solver';
@@ -22,11 +27,13 @@ const LOADING_SHELL_STATUS = 'loading' as const satisfies SolveStatus;
 const LOADING_SHELL_HINT_STAGE = 'none' as const satisfies HintStage;
 
 const noop = (): void => {};
+const noopElo = (_rating: number): void => {};
 
 type PuzzlePlayLayoutProps = {
   backToRoot: () => void;
   assistant: ReactNode;
   boardSlot: (size: number) => ReactNode;
+  puzzleRating?: number;
   status: SolveStatus;
   hintStage: HintStage;
   canGoBack: boolean;
@@ -38,14 +45,16 @@ type PuzzlePlayLayoutProps = {
   onRetry: () => void;
   onNext: () => void;
   completion: PuzzlePlayerChromeModel['completion'];
-  onCelebrationEloChange: (rating: number) => void;
-  onCelebrationEloComplete: () => void;
   e2eHints?: ReactNode;
   e2eLoadingStatus?: ReactNode;
 };
 
 function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
   const showCelebration = p.completion !== null;
+  const puzzleRating =
+    p.puzzleRating !== undefined && p.puzzleRating > 0
+      ? p.puzzleRating
+      : undefined;
   return (
     <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}>
       <DefineBackButton onPress={p.backToRoot} />
@@ -53,19 +62,27 @@ function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
       <Box sx={{ flex: 1, minHeight: 0, gap: 4, pt: 4 }}>
         {p.assistant}
         <ChessPuzzleBoardFrame
+          topAccessory={
+            puzzleRating !== undefined ? (
+              <ChessPuzzleBoardEloBar rating={puzzleRating} />
+            ) : undefined
+          }
+          topAccessoryHeight={
+            puzzleRating !== undefined ? BOARD_ELO_BAR_HEIGHT : 0
+          }
           overlay={
             showCelebration && p.completion !== null ? (
               <ChessPuzzleCelebrationOverlay
                 completion={p.completion}
-                onDisplayEloChange={p.onCelebrationEloChange}
-                onEloCompletePulse={p.onCelebrationEloComplete}
+                onDisplayEloChange={noopElo}
               />
             ) : null
           }
         >
           {(size) => p.boardSlot(size)}
         </ChessPuzzleBoardFrame>
-        <Box sx={{ alignSelf: 'stretch' }}>
+        <Box sx={{ alignSelf: 'stretch', gap: 2 }}>
+          <ChessPuzzleMoveHistoryBar />
           <ChessPuzzleActionBar
             status={p.status}
             hintStage={p.hintStage}
@@ -123,42 +140,14 @@ const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
 });
 
 function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
-  const [celebrationElo, setCelebrationElo] = useState<number | null>(null);
-  const [eloPulseNonce, setEloPulseNonce] = useState(0);
-
-  useEffect(() => {
-    if (p.completion === null) {
-      setCelebrationElo(null);
-      setEloPulseNonce(0);
-    }
-  }, [p.completion]);
-
-  const onCelebrationEloChange = useCallback((rating: number) => {
-    setCelebrationElo(rating);
-  }, []);
-
-  const onCelebrationEloComplete = useCallback(() => {
-    setEloPulseNonce((n) => n + 1);
-  }, []);
-
-  const headerPlayerElo = celebrationElo ?? p.playerElo;
-
   return (
     <PuzzlePlayLayout
       backToRoot={p.backToRoot}
-      onCelebrationEloChange={onCelebrationEloChange}
-      onCelebrationEloComplete={onCelebrationEloComplete}
+      puzzleRating={p.rating}
       assistant={
         <SpeakingAvatarAssistant
           assistant={p.assistant}
-          header={
-            <ChessPuzzleStatusHeader
-              kind={p.statusKind}
-              playerElo={headerPlayerElo}
-              puzzleRating={p.rating}
-              playerEloPulseNonce={eloPulseNonce}
-            />
-          }
+          header={<ChessPuzzleStatusHeader kind={p.statusKind} />}
           numberOfLines={2}
         />
       }
@@ -236,8 +225,6 @@ function PuzzlePlayLoadingShell(p: {
     <PuzzlePlayLayout
       backToRoot={p.backToChessRoot}
       e2eLoadingStatus={p.e2eLoadingStatus}
-      onCelebrationEloChange={noop}
-      onCelebrationEloComplete={noop}
       assistant={
         <SpeakingAvatar
           message=""
