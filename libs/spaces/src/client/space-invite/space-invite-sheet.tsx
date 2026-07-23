@@ -2,6 +2,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
   Button,
+  PickerSection,
   ResponsiveSurface,
   ScrollView,
   Text,
@@ -10,15 +11,12 @@ import {
 import * as Clipboard from 'expo-clipboard';
 import { useCallback, useState, type ReactNode } from 'react';
 
-import {
-  SPACE_VISIBILITIES,
-  parseSpaceVisibility,
-  type SpaceVisibility,
-} from '../../shared/space-visibility';
-import { useSetVisibility } from '../set-visibility/use-set-visibility';
+import { parseSpaceVisibility } from '../../shared/space-visibility';
+import { SpaceVisibilityChips } from '../set-visibility/space-visibility-chips';
 import { ensureSpaceLinkInvite } from '../spaces-actions';
-import { useSpacesClientDeps } from '../use-spaces-client-deps';
+import { useCurrentSpaceRole } from '../use-current-space-role';
 import { useSpaceColumn, SpaceField } from '../use-space-column';
+import { useSpacesClientDeps } from '../use-spaces-client-deps';
 import { SpaceInviteFriendRows } from './space-invite-friend-rows';
 import { useSpaceInviteFriends } from './use-space-invite-friends';
 
@@ -28,39 +26,6 @@ function buildInviteLink(spaceId: string, token: string): string {
       ? window.location.origin
       : '';
   return `${origin}/space/${spaceId}?invite=${encodeURIComponent(token)}`;
-}
-
-function visibilityLabel(
-  visibility: SpaceVisibility,
-  t: ReturnType<typeof useLingui>['t']
-): string {
-  if (visibility === 'private') return t`Invite only`;
-  if (visibility === 'friends') return t`Friends`;
-  return t`Public`;
-}
-
-function VisibilityButtons({
-  spaceId,
-  visibility,
-}: {
-  readonly spaceId: string;
-  readonly visibility: SpaceVisibility;
-}): ReactNode {
-  const { t } = useLingui();
-  const setVisibility = useSetVisibility();
-  return (
-    <Box sx={{ gap: 2, flexDirection: 'row', flexWrap: 'wrap' }}>
-      {SPACE_VISIBILITIES.map((v) => (
-        <Button
-          key={v}
-          size="sm"
-          variant={visibility === v ? 'solid' : 'outline'}
-          title={visibilityLabel(v, t)}
-          onPress={() => void setVisibility(spaceId, v)}
-        />
-      ))}
-    </Box>
-  );
 }
 
 function useCopyInviteLink(spaceId: string) {
@@ -89,16 +54,18 @@ export type SpaceInviteSheetProps = {
   readonly onOpenChange: (open: boolean) => void;
 };
 
+/** Invite surface: copy link, friend invites, and host visibility. */
 export function SpaceInviteSheet({
   spaceId,
   open,
   onOpenChange,
 }: SpaceInviteSheetProps): ReactNode {
   const { friends } = useSpaceInviteFriends();
+  const { copyLink, copied } = useCopyInviteLink(spaceId);
+  const isHost = useCurrentSpaceRole(spaceId) === 'host';
   const visibility = parseSpaceVisibility(
     useSpaceColumn(spaceId, SpaceField.visibility)
   );
-  const { copyLink, copied } = useCopyInviteLink(spaceId);
 
   return (
     <ResponsiveSurface
@@ -109,8 +76,11 @@ export function SpaceInviteSheet({
     >
       <ScrollView style={{ maxHeight: 480 }}>
         <Box sx={{ gap: 3, p: 2 }}>
-          <Text label={<Trans>Visibility</Trans>} />
-          <VisibilityButtons spaceId={spaceId} visibility={visibility} />
+          {isHost ? (
+            <PickerSection label={<Trans>Who can join</Trans>}>
+              <SpaceVisibilityChips spaceId={spaceId} visibility={visibility} />
+            </PickerSection>
+          ) : null}
           <Button {...copyLink.buttonProps} />
           {copied ? (
             <Text

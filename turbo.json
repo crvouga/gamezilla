@@ -20,6 +20,7 @@
     "OPENAI_*",
     "PS_*",
     "EXPO_TOKEN",
+    "EXPO_USE_WATCHMAN",
     "SECRETS_ENV",
     "SECRETS_PROJECT_ID",
     "SECRETS_ADDR",

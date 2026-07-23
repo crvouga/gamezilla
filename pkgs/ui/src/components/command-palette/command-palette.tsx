@@ -396,6 +396,7 @@ function PaletteOverlay({
         style={{ flex: 1, backgroundColor: theme.colors.scrim }}
       />
       <View
+        pointerEvents="box-none"
         style={{
           position: 'absolute',
           top: TOP_INSET + 48,
@@ -403,7 +404,6 @@ function PaletteOverlay({
           right: 0,
           alignItems: 'center',
           paddingHorizontal: 16,
-          pointerEvents: 'box-none',
         }}
       >
         <Animated.View

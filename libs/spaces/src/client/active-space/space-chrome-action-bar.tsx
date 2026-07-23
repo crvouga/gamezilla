@@ -1,9 +1,9 @@
 import {
   ActionBar,
   ChevronLeftIcon,
-  CopyIcon,
   DoorOpenIcon,
   LogOutIcon,
+  ShareIcon,
   SquarePenIcon,
   XIcon,
   iconButtonAvatarContentSize,
@@ -16,8 +16,8 @@ import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { SpaceMembersAvatarGroup } from '../members/space-members-avatar-group';
 import { SpaceMembersListModal } from '../members/space-members-list-modal';
 import { useSpacesNavBack } from '../nav/spaces-nav-context';
-import { useCurrentSpaceRole } from '../use-current-space-role';
 import { SpaceInviteSheet } from '../space-invite/space-invite-sheet';
+import { useCurrentSpaceRole } from '../use-current-space-role';
 import { useSpaceSessionUi } from './space-session-ui-context';
 
 type SpaceChromeLabels = {
@@ -25,10 +25,8 @@ type SpaceChromeLabels = {
   back: string;
   members: string;
   membersShort: string;
-  rename: string;
-  renameShort: string;
   invite: string;
-  inviteShort: string;
+  rename: string;
   end: string;
   leave: string;
 };
@@ -40,8 +38,8 @@ type SpaceChromeNavCallbacks = {
 
 type SpaceChromeTrailingCallbacks = SpaceChromeNavCallbacks & {
   onPressMembers: () => void;
-  onPressRename: () => void;
   onPressInvite: () => void;
+  onPressRename: () => void;
   onPressEnd: () => void;
   onPressLeave: () => void;
 };
@@ -97,28 +95,30 @@ function buildTrailingItems(args: {
       priority: 90,
       children: <SpaceMembersAvatarGroup spaceId={spaceId} size={avatarSize} />,
     },
+    {
+      id: 'invite',
+      label: labels.invite,
+      shortLabel: labels.invite,
+      icon: ShareIcon,
+      onPress: callbacks.onPressInvite,
+      overflow: 'always',
+      priority: 70,
+    },
   ];
 
   if (isHost) {
     items.push({
       id: 'rename',
       label: labels.rename,
-      shortLabel: labels.renameShort,
+      shortLabel: labels.rename,
       icon: SquarePenIcon,
       onPress: callbacks.onPressRename,
-      priority: 80,
+      overflow: 'always',
+      priority: 60,
     });
   }
 
   items.push(
-    {
-      id: 'invite',
-      label: labels.invite,
-      shortLabel: labels.inviteShort,
-      icon: CopyIcon,
-      onPress: callbacks.onPressInvite,
-      priority: 70,
-    },
     isHost
       ? {
           id: 'end-space',
@@ -149,10 +149,8 @@ function useSpaceChromeLabels(): SpaceChromeLabels {
       back: t`Back`,
       members: t`People in this space`,
       membersShort: t`People`,
-      rename: t`Rename space`,
-      renameShort: t`Rename`,
       invite: t`Invite`,
-      inviteShort: t`Invite`,
+      rename: t`Rename`,
       end: t`End space`,
       leave: t`Leave space`,
     }),
@@ -169,30 +167,30 @@ function useSpaceChromeNavCallbacks(): SpaceChromeNavCallbacks {
   );
 }
 
-function useSpaceChromeTrailingCallbacks(
-  onPressMembers: () => void,
-  onPressInvite: () => void
-): SpaceChromeTrailingCallbacks {
-  const { onPressHome, onRequestEnd, onRequestLeave, onRequestRename } =
-    useSpaceSessionUi();
+function useSpaceChromeTrailingCallbacks(args: {
+  onPressMembers: () => void;
+  onPressInvite: () => void;
+  onPressRename: () => void;
+}): SpaceChromeTrailingCallbacks {
+  const { onPressHome, onRequestEnd, onRequestLeave } = useSpaceSessionUi();
   const onPressBack = useSpacesNavBack();
 
   return useMemo(
     () => ({
       onPressHome,
       onPressBack,
-      onPressMembers,
-      onPressRename: onRequestRename,
-      onPressInvite,
+      onPressMembers: args.onPressMembers,
+      onPressInvite: args.onPressInvite,
+      onPressRename: args.onPressRename,
       onPressEnd: onRequestEnd,
       onPressLeave: onRequestLeave,
     }),
     [
       onPressHome,
       onPressBack,
-      onPressMembers,
-      onRequestRename,
-      onPressInvite,
+      args.onPressMembers,
+      args.onPressInvite,
+      args.onPressRename,
       onRequestEnd,
       onRequestLeave,
     ]
@@ -232,7 +230,7 @@ export function SpaceChromeLeadingActionBar(): ReactNode {
 }
 
 export function SpaceChromeTrailingActionBar(): ReactNode {
-  const { spaceId } = useSpaceSessionUi();
+  const { spaceId, onRequestRename } = useSpaceSessionUi();
   const [membersOpen, setMembersOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   const onPressMembers = useCallback(() => {
@@ -242,10 +240,11 @@ export function SpaceChromeTrailingActionBar(): ReactNode {
     setInviteOpen(true);
   }, []);
   const labels = useSpaceChromeLabels();
-  const callbacks = useSpaceChromeTrailingCallbacks(
+  const callbacks = useSpaceChromeTrailingCallbacks({
     onPressMembers,
-    onPressInvite
-  );
+    onPressInvite,
+    onPressRename: onRequestRename,
+  });
   const actionBarProps = useSpaceChromeActionBarProps();
   const role = useCurrentSpaceRole(spaceId);
   const isHost = role === 'host';

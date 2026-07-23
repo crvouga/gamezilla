@@ -14,8 +14,6 @@ import {
   parseAvatarConfig,
 } from '@libs/profile/shared/avatar-config';
 import { DeviceAvatar } from '@libs/profile/client/device-avatar';
-import { MyUsername } from '@libs/profile/client/my-username';
-import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import type { LocalizedString } from '@pkgs/i18n';
 import {
   CircleCheckIcon,
@@ -75,17 +73,25 @@ function accountAccessibilityLabel(
   return `${title}, ${subtitle}` as LocalizedString;
 }
 
-function AccountMenuAvatar({ account }: { account: LocalAccount }): ReactNode {
-  if (account.isActive) {
-    return <MyProfileAvatar size={MENU_AVATAR_SIZE} />;
-  }
-  const seed = account.accountId ?? account.externalUserId ?? account.sessionId;
+function accountAvatarSeed(account: LocalAccount): string {
+  return account.accountId ?? account.externalUserId ?? account.sessionId;
+}
+
+/** Roster/session-backed avatar — same source for header + switcher rows. */
+function AccountMenuAvatar({
+  account,
+  size,
+}: {
+  account: LocalAccount;
+  size: number;
+}): ReactNode {
+  const seed = accountAvatarSeed(account);
   const parsed = parseAvatarConfig(account.avatarConfigJson);
   return (
     <DeviceAvatar
       avatarConfig={parsed ?? createDefaultAvatarConfig(seed)}
       seedFallback={seed}
-      size={MENU_AVATAR_SIZE}
+      size={size}
     />
   );
 }
@@ -131,7 +137,7 @@ function useAccountSwitchItems(): ActionBarItem[] {
         label: title,
         ...(subtitle !== undefined ? { subtitle } : {}),
         accessibilityLabel: accountAccessibilityLabel(title, subtitle),
-        children: <AccountMenuAvatar account={account} />,
+        children: <AccountMenuAvatar account={account} size={MENU_AVATAR_SIZE} />,
         onPress: () => onSwitch(account),
         overflow: 'always' as const,
         endsGroup: isLast,
@@ -259,22 +265,28 @@ export function useAccountMenuItems(): ActionBarItem[] {
 }
 
 export function useAccountMenuHeader(): FloatingMenuHeaderSpec {
+  const { t } = useLingui();
   const accounts = useLocalAccounts();
   const avatarSize = iconButtonAvatarContentSize(TRIGGER_SIZE);
-  const activeEmail = useMemo(() => {
-    const active = accounts.find((account) => account.isActive);
-    if (active === undefined) return undefined;
-    return accountSubtitle(active);
-  }, [accounts]);
-
-  return useMemo(
-    (): FloatingMenuHeaderSpec => ({
-      avatar: <MyProfileAvatar size={avatarSize} />,
-      title: <MyUsername variant="bodyBold" />,
-      ...(activeEmail !== undefined ? { subtitle: activeEmail } : {}),
-    }),
-    [avatarSize, activeEmail]
+  const active = useMemo(
+    () => accounts.find((account) => account.isActive),
+    [accounts]
   );
+
+  return useMemo((): FloatingMenuHeaderSpec => {
+    if (active === undefined) {
+      return {
+        title: t`Not signed in`,
+      };
+    }
+    const title = accountDisplayTitle(active);
+    const subtitle = accountSubtitle(active);
+    return {
+      avatar: <AccountMenuAvatar account={active} size={avatarSize} />,
+      title,
+      ...(subtitle !== undefined ? { subtitle } : {}),
+    };
+  }, [active, avatarSize, t]);
 }
 
 export function useAccountMenuTriggerLabel(): LocalizedString {

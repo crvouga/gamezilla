@@ -12,7 +12,7 @@ type ProfileDisplayRow = {
   readonly avatar_config: string | null;
 };
 
-function nonEmptyUsername(value: string | null | undefined): string | undefined {
+function nonEmptyString(value: string | null | undefined): string | undefined {
   if (value === null || value === undefined || value.length === 0) {
     return undefined;
   }
@@ -55,8 +55,8 @@ export function AccountRosterProfileSync({
     ) {
       return;
     }
-    const username = nonEmptyUsername(row?.username);
-    const avatarConfigJson = nonEmptyUsername(row?.avatar_config);
+    const username = nonEmptyString(row?.username);
+    const avatarConfigJson = nonEmptyString(row?.avatar_config);
     setRoster((prev) =>
       touchRosterAccount({
         roster: prev,

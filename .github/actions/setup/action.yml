@@ -34,6 +34,27 @@ runs:
       shell: bash
       run: bun install --frozen-lockfile
 
+    # check:secrets (and other admin secret I/O) shells out to the secrets
+    # backend CLI. secrets-auth / secrets-run inject env for child processes,
+    # but export of both `dev` and `prd` still needs the CLI on PATH.
+    - name: Install secrets backend CLI
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p "$HOME/.local/bin"
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        export PATH="$HOME/.local/bin:$PATH"
+        bun -e '
+          import { createSecretBackendCli } from "@pkgs/secret-provider";
+          const cli = createSecretBackendCli();
+          const status = cli.check();
+          if (!status.ok) {
+            cli.install();
+          }
+          cli.verify();
+          console.log(`secrets-backend-cli: ${cli.version() ?? "unknown"}`);
+        '
+
     - name: Install Watchman
       if: inputs.watchman == 'true'
       shell: bash

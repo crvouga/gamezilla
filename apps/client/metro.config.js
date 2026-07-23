@@ -207,13 +207,15 @@ function normalizeResolvedPath(resolved) {
   if (resolved.filePath.includes(`${path.sep}canvaskit-wasm${path.sep}`)) {
     return resolved;
   }
-  const mapped = resolveViaClientNodeModules(
-    moduleNameFromBunStorePath(resolved.filePath) ?? ''
-  );
-  if (mapped !== null) {
-    return { ...resolved, filePath: metroResolvedPath(mapped) };
-  }
-  return resolved;
+  // Bun may resolve to either the client `node_modules` symlink or the
+  // content-addressed `.bun` store path. Prefer the client symlink for
+  // dedupe, then realpath back into `.bun` so Watchman (which indexes the
+  // store, not the symlink path) can SHA-1 the file.
+  const fromBun = moduleNameFromBunStorePath(resolved.filePath);
+  const mapped =
+    fromBun !== null ? resolveViaClientNodeModules(fromBun) : null;
+  const candidate = mapped ?? resolved.filePath;
+  return { ...resolved, filePath: metroResolvedPath(candidate) };
 }
 
 /** Bun store symlinks are invisible to Watchman crawls; Node resolution still works. */

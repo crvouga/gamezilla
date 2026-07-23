@@ -33,17 +33,19 @@ export function ModalBackdrop({ onPress, children }: ModalBackdropProps) {
           { backgroundColor: theme.colors.scrim },
         ]}
       />
+      {/*
+        pointerEvents must be a View prop — style.pointerEvents is ignored on
+        RN Web, so the flex:1 centering layer would eat backdrop presses.
+      */}
       <View
-        style={[
-          theme.sx({
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }),
-          { pointerEvents: 'box-none' },
-        ]}
+        pointerEvents="box-none"
+        style={theme.sx({
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        })}
       >
-        <View style={{ pointerEvents: 'auto' }}>{children}</View>
+        <View pointerEvents="auto">{children}</View>
       </View>
     </View>
   );

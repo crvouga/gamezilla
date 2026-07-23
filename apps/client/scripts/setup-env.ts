@@ -384,7 +384,7 @@ async function main(): Promise<void> {
   renameSync(tmpPath, outPath);
 
   process.stdout.write(
-    `[setup-env] wrote .env.local with EXPO_PUBLIC_API_URL=${origin} EXPO_PUBLIC_COMMIT_HASH=${commitHash.slice(0, 7)}… EXPO_PUBLIC_COMMIT_DATE=${commitDate}\n`
+    `[setup-env] wrote .env.local with EXPO_PUBLIC_API_URL=${origin} EXPO_PUBLIC_COMMIT_HASH=${commitHash.slice(0, 7)}… EXPO_PUBLIC_COMMIT_DATE=${commitDate} EXPO_USE_WATCHMAN=${expoUseWatchman}\n`
   );
 }
 

@@ -23,6 +23,12 @@ function primeWatchmanRoots(clientRoot: string, monorepoRoot: string): boolean {
   return true;
 }
 
+function isCi(): boolean {
+  return (
+    process.env['CI'] === 'true' || process.env['GITHUB_ACTIONS'] === 'true'
+  );
+}
+
 /** Value written to `.env.local` as `EXPO_USE_WATCHMAN` for Metro. */
 export function resolveExpoUseWatchmanForSetup(args: {
   readonly clientRoot: string;
@@ -31,8 +37,18 @@ export function resolveExpoUseWatchmanForSetup(args: {
   if (process.env['EXPO_USE_WATCHMAN'] === '0') {
     return '0';
   }
-  if (process.env['EXPO_USE_WATCHMAN'] === '1') {
-    return primeWatchmanRoots(args.clientRoot, args.monorepoRoot) ? '1' : '0';
+  const required = process.env['EXPO_USE_WATCHMAN'] === '1';
+  const primed = primeWatchmanRoots(args.clientRoot, args.monorepoRoot);
+  if (primed) {
+    return '1';
   }
-  return primeWatchmanRoots(args.clientRoot, args.monorepoRoot) ? '1' : '0';
+  // CI jobs that set EXPO_USE_WATCHMAN=1 need Watchman for Bun-store SHA-1.
+  // Silently writing 0 leaves Metro unable to hash `node_modules` symlinks.
+  if (required && isCi()) {
+    throw new Error(
+      '[setup-env] EXPO_USE_WATCHMAN=1 but Watchman watch-project failed for apps/client. ' +
+        'Install Watchman (CI setup action watchman: true) and ensure watchman watch-project works.'
+    );
+  }
+  return '0';
 }

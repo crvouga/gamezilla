@@ -107,13 +107,13 @@ function FloatingMenuPanel({
   const bg = lift.backgroundColor ?? theme.colors.surfaceOverlay;
   return (
     <View
+      pointerEvents="box-none"
       style={{
         position: 'absolute',
         top,
         left,
         width,
         zIndex: 10,
-        pointerEvents: 'box-none',
       }}
     >
       <Box
