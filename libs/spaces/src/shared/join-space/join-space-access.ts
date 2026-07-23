@@ -229,9 +229,11 @@ export async function authorizeJoinSpaceAccess(
       : false;
   const decision = decideSpaceJoinAccess({
     visibility: parseSpaceVisibility(space.value.visibility),
+    hostId: space.value.hostId,
     hostAccountId: space.value.hostAccountId,
     hostMemberId: space.value.hostMemberId,
     viewerAccountId: ctx.accountId,
+    viewerDeviceId: ctx.deviceId,
     viewerMemberId,
     isFriendOfHost: isFriend,
     hasValidInvite: inviteResult.value !== null,

@@ -1,6 +1,7 @@
 import { useJoinSpace } from './use-join-space';
 import { useCurrentSpaceCount } from '../use-current-space-count';
 import { useCurrentSpaceRole } from '../use-current-space-role';
+import { optionalProps } from '@pkgs/ui/components/optional-props';
 import { Button, useMutationButton } from '@pkgs/ui';
 import { Sounds } from '@pkgs/sounds';
 import { useLingui } from '@lingui/react/macro';
@@ -10,12 +11,15 @@ export type SpaceJoinButtonProps = {
   spaceId: string;
   joinable: boolean;
   inviteToken?: string | null;
+  /** Stretch within a footer row (matches FormActionsFooter submit). */
+  flex?: number;
 };
 
 export function SpaceJoinButton({
   spaceId,
   joinable,
   inviteToken,
+  flex,
 }: SpaceJoinButtonProps): ReactNode {
   const { t } = useLingui();
   const joinSpace = useJoinSpace();
@@ -50,5 +54,5 @@ export function SpaceJoinButton({
     },
   });
 
-  return <Button {...join.buttonProps} />;
+  return <Button {...join.buttonProps} {...optionalProps({ flex })} />;
 }

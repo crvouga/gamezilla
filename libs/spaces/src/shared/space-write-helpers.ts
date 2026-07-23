@@ -13,7 +13,7 @@ import {
 } from '@libs/spaces/shared/participation/participation-ids';
 import {
   decideEndSpace,
-  isHostMember,
+  isSpaceHostActor,
 } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
@@ -34,6 +34,7 @@ export function memberIdFromContext(ctx: WriteContext): string {
 export type SpaceHostEnded = {
   readonly hostId: string;
   readonly hostMemberId: string;
+  readonly hostAccountId: string | null;
   readonly endedAt: string | null;
 };
 
@@ -68,6 +69,7 @@ export async function readSpaceHostEnded(
   return ok({
     hostId,
     hostMemberId,
+    hostAccountId: result.value.host_account_id,
     endedAt: result.value.ended_at,
   });
 }
@@ -82,9 +84,13 @@ export async function authorizeSpaceHost(
   if (!space.ok) return space;
   const memberId = memberIdFromContext(ctx);
   const decision = decideEndSpace({
-    isHostMember: isHostMember({
+    isHostActor: isSpaceHostActor({
+      hostId: space.value.hostId,
       hostMemberId: space.value.hostMemberId,
+      hostAccountId: space.value.hostAccountId,
       memberId,
+      accountId: ctx.accountId,
+      deviceId: ctx.deviceId,
     }),
   });
   // decideEndSpace encodes host check; reuse for all host mutations.
@@ -176,6 +182,41 @@ export async function countOtherActiveParticipations(
   return Number(rows[0]?.c ?? 0);
 }
 
+/**
+ * Prefer the stamped seat member when this device still holds an active
+ * participation (covers identity drift). Else fall back to current auth.
+ */
+export async function resolveLeaveEverywhereMemberId(
+  ctx: WriteContext,
+  sql: SqlClient,
+  spaceId: string
+): Promise<string> {
+  const participation = await readParticipationForLeave(
+    sql,
+    ctx.deviceId,
+    spaceId
+  );
+  if (participation !== null && participation.leftAt === null) {
+    return participation.memberId;
+  }
+  return memberIdFromContext(ctx);
+}
+
+/** True when this device holds (or held) a seat stamped with `memberId`. */
+export async function deviceHeldMemberSeat(args: {
+  readonly sql: SqlClient;
+  readonly deviceId: string;
+  readonly spaceId: string;
+  readonly memberId: string;
+}): Promise<boolean> {
+  const row = await readParticipationForLeave(
+    args.sql,
+    args.deviceId,
+    args.spaceId
+  );
+  return row !== null && row.memberId === args.memberId;
+}
+
 export async function wasMembershipInactive(
   sql: SqlClient,
   membershipId: string
@@ -204,6 +245,96 @@ export async function wasParticipationInactive(
   );
   const prev = rows[0];
   return prev === undefined || prev.left_at !== null;
+}
+
+/**
+ * Realign `host_member_id` / `host_account_id` to the current owner identity.
+ * Creating device (`host_id = deviceId`) always updates both; account owners
+ * on another device only realign `host_member_id`.
+ */
+export async function migrateHostIdentity(args: {
+  readonly sql: SqlClient;
+  readonly spaceId: string;
+  readonly deviceId: string;
+  readonly newMemberId: string;
+  readonly accountId: string | null;
+}): Promise<void> {
+  await args.sql.run(
+    `UPDATE ${SPACES_TABLE.tableName}
+     SET ${SpaceCol.hostMemberId} = ?,
+         ${SpaceCol.hostAccountId} = ?
+     WHERE ${SpaceCol.id} = ?
+       AND ${SpaceCol.hostId} = ?`,
+    [args.newMemberId, args.accountId, args.spaceId, args.deviceId]
+  );
+  if (args.accountId !== null && args.accountId.length > 0) {
+    await args.sql.run(
+      `UPDATE ${SPACES_TABLE.tableName}
+       SET ${SpaceCol.hostMemberId} = ?
+       WHERE ${SpaceCol.id} = ?
+         AND ${SpaceCol.hostAccountId} = ?
+         AND ${SpaceCol.hostId} != ?`,
+      [args.newMemberId, args.spaceId, args.accountId, args.deviceId]
+    );
+  }
+}
+
+export async function countActiveParticipationsInSpace(
+  sql: SqlClient,
+  spaceId: string
+): Promise<number> {
+  const rows = await sql.query<{ readonly c: number | string }>(
+    `SELECT COUNT(*) AS c
+     FROM ${SPACE_PARTICIPATIONS_TABLE.tableName}
+     WHERE ${SpaceParticipationCol.spaceId} = ?
+       AND ${SpaceParticipationCol.leftAt} IS NULL`,
+    [spaceId]
+  );
+  return Number(rows[0]?.c ?? 0);
+}
+
+/**
+ * When no seats remain, stamp `ended_at` so orphan Live cards cannot linger
+ * without a miniplayer seat (host left earlier, or last guest left).
+ */
+export async function maybeAutoEndEmptyHostSpace(
+  ctx: WriteContext,
+  sql: SqlClient,
+  spaceId: string
+): Promise<void> {
+  const space = await readSpaceHostEnded(sql, spaceId);
+  if (!space.ok || space.value.endedAt !== null) return;
+  const remaining = await countActiveParticipationsInSpace(sql, spaceId);
+  if (remaining > 0) return;
+  const memberId = memberIdFromContext(ctx);
+  const hostLeaving = isSpaceHostActor({
+    hostId: space.value.hostId,
+    hostMemberId: space.value.hostMemberId,
+    hostAccountId: space.value.hostAccountId,
+    memberId,
+    accountId: ctx.accountId,
+    deviceId: ctx.deviceId,
+  });
+  if (hostLeaving) {
+    await sql.run(
+      `UPDATE ${SPACES_TABLE.tableName}
+       SET ${SpaceCol.endedAt} = ?,
+           ${SpaceCol.hostId} = ?,
+           ${SpaceCol.hostMemberId} = ?,
+           ${SpaceCol.hostAccountId} = ?
+       WHERE ${SpaceCol.id} = ?
+         AND ${SpaceCol.endedAt} IS NULL`,
+      [isoNow(), ctx.deviceId, memberId, ctx.accountId, spaceId]
+    );
+    return;
+  }
+  await sql.run(
+    `UPDATE ${SPACES_TABLE.tableName}
+     SET ${SpaceCol.endedAt} = ?
+     WHERE ${SpaceCol.id} = ?
+       AND ${SpaceCol.endedAt} IS NULL`,
+    [isoNow(), spaceId]
+  );
 }
 
 export function requireNonEmptyString(

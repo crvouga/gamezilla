@@ -1,3 +1,4 @@
+import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 
 import type { IconComponent } from '../icons';
@@ -11,6 +12,8 @@ export type ActionBarPressFeedback = {
 type ActionBarItemBase = {
   id: string;
   label: ReactNode;
+  /** Secondary line under the label in the overflow menu (e.g. email). */
+  subtitle?: ReactNode;
   /** Compact caption when inline labels are shown; defaults to `label`. */
   shortLabel?: ReactNode;
   onPress: () => void;
@@ -23,6 +26,8 @@ type ActionBarItemBase = {
   pressFeedback?: ActionBarPressFeedback;
   /** Optional trailing affordance in the overflow menu (e.g. checkmark). */
   trailing?: ReactNode;
+  /** Overflow-menu a11y label; defaults to string `label` when omitted. */
+  accessibilityLabel?: LocalizedString;
 };
 
 export type ActionBarIconItem = ActionBarItemBase & {

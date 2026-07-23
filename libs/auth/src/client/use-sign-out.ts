@@ -71,17 +71,17 @@ export function useSignOut(): (options?: SignOutOptions) => Promise<void> {
             .filter((session) => session.sessionId !== activeSession?.sessionId)
             .map((session) => session.sessionId)
         );
-        if (activeSession !== undefined) {
-          setRoster((prev) =>
-            trimRosterToSessions(
-              removeRosterSession(prev, activeSession.sessionId),
-              remainingIds
-            )
-          );
-        } else if (accountId !== null) {
+        if (accountId !== null) {
           setRoster((prev) =>
             trimRosterToSessions(
               removeRosterAccount(prev, accountId),
+              remainingIds
+            )
+          );
+        } else if (activeSession !== undefined) {
+          setRoster((prev) =>
+            trimRosterToSessions(
+              removeRosterSession(prev, activeSession.sessionId),
               remainingIds
             )
           );

@@ -86,7 +86,6 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     // The candidate is ready, so the generation bump can safely re-dispatch
     // Start once the room is idle.
     commitAttempt(attemptSeed);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- agent log reads extra debug values
   }, [activePuzzleId, attemptSeed, commitAttempt, nextId, roomPuzzleId]);
 
   const onRequestNext = useCallback(() => {

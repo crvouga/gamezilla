@@ -7,6 +7,7 @@ import {
   decideLeaveDevice,
   decideLeaveEverywhere,
   isHostMember,
+  isSpaceHostActor,
   resolveMemberId,
   resolvePresenceRole,
   resolveRoomActorId,
@@ -51,6 +52,49 @@ describe('isHostMember / presence / room actor', () => {
     );
   });
 
+  test('isSpaceHostActor covers device and account ownership', () => {
+    expect(
+      isSpaceHostActor({
+        hostId: 'dev-1',
+        hostMemberId: 'acct-1',
+        hostAccountId: 'acct-1',
+        memberId: 'acct-1',
+        accountId: 'acct-1',
+        deviceId: 'dev-2',
+      })
+    ).toBe(true);
+    expect(
+      isSpaceHostActor({
+        hostId: 'dev-1',
+        hostMemberId: 'dev-1',
+        hostAccountId: null,
+        memberId: 'acct-1',
+        accountId: 'acct-1',
+        deviceId: 'dev-1',
+      })
+    ).toBe(true);
+    expect(
+      isSpaceHostActor({
+        hostId: 'dev-1',
+        hostMemberId: 'dev-1',
+        hostAccountId: 'acct-1',
+        memberId: 'acct-1',
+        accountId: 'acct-1',
+        deviceId: 'dev-2',
+      })
+    ).toBe(true);
+    expect(
+      isSpaceHostActor({
+        hostId: 'dev-1',
+        hostMemberId: 'dev-1',
+        hostAccountId: null,
+        memberId: 'acct-2',
+        accountId: 'acct-2',
+        deviceId: 'dev-2',
+      })
+    ).toBe(false);
+  });
+
   test('presence role', () => {
     expect(resolvePresenceRole({ hostMemberId: 'h', memberId: 'h' })).toBe(
       'host'
@@ -73,9 +117,11 @@ describe('isHostMember / presence / room actor', () => {
 describe('decideJoin', () => {
   const base = {
     visibility: 'public' as const,
+    hostId: 'host-device',
     hostAccountId: 'host-acct',
     hostMemberId: 'host-acct',
     viewerAccountId: 'guest-acct',
+    viewerDeviceId: 'guest-device',
     viewerMemberId: 'guest-acct',
     isFriendOfHost: false,
     hasValidInvite: false,
@@ -93,6 +139,7 @@ describe('decideJoin', () => {
         ...base,
         viewerAccountId: null,
         viewerMemberId: 'dev-anon',
+        viewerDeviceId: 'dev-anon',
       })
     ).toEqual({ allowed: false, code: 'SPACE_NOT_SIGNED_IN' });
   });
@@ -103,8 +150,39 @@ describe('decideJoin', () => {
         ...base,
         viewerAccountId: 'host-acct',
         viewerMemberId: 'host-acct',
+        viewerDeviceId: 'host-device-2',
         alreadyMember: true,
         alreadyParticipating: false,
+      })
+    ).toEqual({ allowed: true, reason: 'host' });
+  });
+
+  test('creating device may join private space when member id drifted', () => {
+    expect(
+      decideJoin({
+        ...base,
+        visibility: 'private',
+        hostId: 'dev-anon',
+        hostMemberId: 'dev-anon',
+        hostAccountId: null,
+        viewerAccountId: 'host-acct',
+        viewerMemberId: 'host-acct',
+        viewerDeviceId: 'dev-anon',
+      })
+    ).toEqual({ allowed: true, reason: 'host' });
+  });
+
+  test('host account may join private space when member id drifted', () => {
+    expect(
+      decideJoin({
+        ...base,
+        visibility: 'private',
+        hostId: 'other-device',
+        hostMemberId: 'dev-anon',
+        hostAccountId: 'host-acct',
+        viewerAccountId: 'host-acct',
+        viewerMemberId: 'host-acct',
+        viewerDeviceId: 'host-device-2',
       })
     ).toEqual({ allowed: true, reason: 'host' });
   });
@@ -187,8 +265,8 @@ describe('decideLeaveDevice / decideLeaveEverywhere', () => {
 
 describe('decideEndSpace', () => {
   test('only host may end', () => {
-    expect(decideEndSpace({ isHostMember: true })).toEqual({ allowed: true });
-    expect(decideEndSpace({ isHostMember: false })).toEqual({
+    expect(decideEndSpace({ isHostActor: true })).toEqual({ allowed: true });
+    expect(decideEndSpace({ isHostActor: false })).toEqual({
       allowed: false,
       code: 'SPACE_HOST_REQUIRED',
     });

@@ -24,6 +24,7 @@ import {
   Menu,
   Paintbrush,
   Plus,
+  RotateCcw,
   Search,
   Send,
   Settings,
@@ -45,6 +46,7 @@ export const HouseIcon = createIcon(House);
 export const Gamepad2Icon = createIcon(Gamepad2);
 export const UserIcon = createIcon(User);
 export const PlusIcon = createIcon(Plus);
+export const RotateCcwIcon = createIcon(RotateCcw);
 export const SendIcon = createIcon(Send);
 export const CodeIcon = createIcon(Code);
 export const ChevronRightIcon = createIcon(ChevronRight);

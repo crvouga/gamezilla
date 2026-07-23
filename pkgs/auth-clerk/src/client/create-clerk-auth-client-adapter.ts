@@ -13,6 +13,7 @@ import {
   readNewSessionIdFromSsoResult,
   type SsoFlowResult,
 } from './clerk-sso-finalize';
+import { isWebAuthEnvironment } from './is-web-auth-environment';
 import { useClerkAccountSessions } from './use-clerk-account-sessions';
 import { useClerkAuthSessionState } from './use-clerk-auth-session-state';
 
@@ -27,6 +28,9 @@ export const CLERK_ADD_ACCOUNT_MULTI_SESSION_ERROR =
 /** SSO finished on a session that was already present on this client. */
 export const CLERK_ADD_ACCOUNT_ALREADY_PRESENT_ERROR =
   'That account is already signed in on this device. Choose a different Google account.';
+
+export const CLERK_SSO_CANCELLED_ERROR =
+  "Sign-in was cancelled or didn't finish.";
 
 function assertClerkRuntimeReady(): NonNullable<
   ReturnType<typeof getClerkAuthRuntime>
@@ -45,10 +49,20 @@ function isClerkAlreadySignedInError(error: unknown): boolean {
   return message.includes('already signed in');
 }
 
+function ssoCallbackRedirectUrl(): string {
+  return AuthSession.makeRedirectUri({ path: 'sso-callback' });
+}
+
 async function runClerkEnsureSessionReady(): Promise<void> {
   const runtime = getClerkAuthRuntime();
   if (runtime === null) return;
   await runtime.ensureActiveSession();
+}
+
+async function runClerkCompleteHostedAuthRedirect(): Promise<void> {
+  const runtime = getClerkAuthRuntime();
+  if (runtime === null) return;
+  await runtime.completeHostedAuthRedirect();
 }
 
 async function startClerkSsoFlow(
@@ -56,13 +70,20 @@ async function startClerkSsoFlow(
 ): Promise<SsoFlowResult> {
   const runtime = assertClerkRuntimeReady();
   const clerkStrategy = mapSignInStrategyToClerk(strategy);
+  const redirectUrl = ssoCallbackRedirectUrl();
 
   WebBrowser.maybeCompleteAuthSession();
   await runtime.ensureActiveSession();
 
+  // Web: same-tab redirect via shared browser flow (avoids popup opener issues).
+  // Native: Clerk useSSO + AuthSession.
+  if (isWebAuthEnvironment()) {
+    return runtime.startBrowserSSOFlow({ redirectUrl });
+  }
+
   return runtime.startSSOFlow({
     strategy: clerkStrategy,
-    redirectUrl: AuthSession.makeRedirectUri({ path: 'sso-callback' }),
+    redirectUrl,
   });
 }
 
@@ -71,6 +92,9 @@ async function runClerkSsoFlow(strategy: SignInStrategy): Promise<void> {
 
   try {
     const result = await startClerkSsoFlow(strategy);
+    if (readCompletedSessionId(result) === null) {
+      throw new Error(CLERK_SSO_CANCELLED_ERROR);
+    }
     await finalizeClerkSsoFlowResult(result);
   } catch (error) {
     if (!isClerkAlreadySignedInError(error)) throw error;
@@ -104,7 +128,7 @@ async function runClerkAddAccount(strategy: SignInStrategy): Promise<void> {
   try {
     result = await runtime.startAddAccountSSOFlow({
       strategy: clerkStrategy,
-      redirectUrl: AuthSession.makeRedirectUri({ path: 'sso-callback' }),
+      redirectUrl: ssoCallbackRedirectUrl(),
     });
   } catch (error) {
     if (isClerkAlreadySignedInError(error)) {
@@ -117,7 +141,7 @@ async function runClerkAddAccount(strategy: SignInStrategy): Promise<void> {
   if (newSessionId === null) {
     const completedId = readCompletedSessionId(result);
     if (completedId === null) {
-      throw new Error("Sign-in was cancelled or didn't finish.");
+      throw new Error(CLERK_SSO_CANCELLED_ERROR);
     }
     throw new Error(CLERK_ADD_ACCOUNT_ALREADY_PRESENT_ERROR);
   }
@@ -184,5 +208,6 @@ export function createClerkAuthClientAdapter(
     signOut: runClerkSignOut,
     getFreshToken: readClerkFreshToken,
     ensureSessionReady: runClerkEnsureSessionReady,
+    completeHostedAuthRedirect: runClerkCompleteHostedAuthRedirect,
   };
 }

@@ -12,6 +12,13 @@ type ProfileDisplayRow = {
   readonly avatar_config: string | null;
 };
 
+function nonEmptyUsername(value: string | null | undefined): string | undefined {
+  if (value === null || value === undefined || value.length === 0) {
+    return undefined;
+  }
+  return value;
+}
+
 /**
  * Keeps the Kv account roster's username / avatar in sync with the active
  * account's local profile row (runs inside the sync-engine tree).
@@ -41,13 +48,23 @@ export function AccountRosterProfileSync({
 
   useEffect(() => {
     if (accountId === null || activeSession === undefined) return;
+    // Never bind this account's profile onto a session owned by another Clerk user.
+    if (
+      activeSession.externalUserId.length === 0 ||
+      accountId.length === 0
+    ) {
+      return;
+    }
+    const username = nonEmptyUsername(row?.username);
+    const avatarConfigJson = nonEmptyUsername(row?.avatar_config);
     setRoster((prev) =>
       touchRosterAccount({
         roster: prev,
         accountId,
         sessionId: activeSession.sessionId,
-        username: row?.username ?? null,
-        avatarConfigJson: row?.avatar_config ?? null,
+        externalUserId: activeSession.externalUserId,
+        ...(username !== undefined ? { username } : {}),
+        ...(avatarConfigJson !== undefined ? { avatarConfigJson } : {}),
       })
     );
   }, [accountId, activeSession, row?.username, row?.avatar_config, setRoster]);

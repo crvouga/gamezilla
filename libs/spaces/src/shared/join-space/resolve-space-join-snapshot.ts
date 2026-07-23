@@ -40,9 +40,11 @@ function snapshotFromLiveRow(
   const hostMemberId = row.host_member_id ?? row.host_account_id ?? hostId;
   const decision = decideSpaceJoinAccess({
     visibility: parseSpaceVisibility(row.visibility ?? 'private'),
+    hostId,
     hostAccountId: row.host_account_id,
     hostMemberId,
     viewerAccountId: input.viewerAccountId,
+    viewerDeviceId: input.viewerDeviceId,
     viewerMemberId: resolveSpaceMemberId({
       accountId: input.viewerAccountId,
       deviceId: input.viewerDeviceId,

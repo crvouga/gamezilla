@@ -4,6 +4,7 @@ import { useCallback, useRef } from 'react';
 import { useHintStage, type HintStage } from './use-hint-stage';
 import { usePuzzlePlayerEffects } from './use-puzzle-player-effects';
 import { usePuzzlePlayerHandlers } from './use-puzzle-player-handlers';
+import { puzzleNavFromState } from './use-puzzle-nav';
 
 function useTrackedOnMove(
   onMove: (m: Move) => void,
@@ -18,9 +19,11 @@ function useTrackedOnMove(
   );
 }
 
-export function usePuzzlePlayerControls(args: {
+type ControlsArgs = {
   puzzleId: string;
+  moves: string;
   solveIdx: number;
+  furthestSolveIdx: number;
   status: ChessPuzzlePlayStatus | 'loading';
   displayFen: string | null;
   expectedFromSquare: string | null;
@@ -30,7 +33,9 @@ export function usePuzzlePlayerControls(args: {
   appendUsedHint: () => Promise<void>;
   appendAbandoned: () => Promise<void>;
   onRequestNext: () => void;
-}): {
+};
+
+export function usePuzzlePlayerControls(args: ControlsArgs): {
   showCorrectFlash: boolean;
   solvedCrownSquare: ReturnType<
     typeof usePuzzlePlayerEffects
@@ -39,8 +44,14 @@ export function usePuzzlePlayerControls(args: {
     typeof usePuzzlePlayerEffects
   >['lastCorrectToSquare'];
   hintStage: HintStage;
+  atFrontier: boolean;
+  canGoBack: boolean;
+  canGoForward: boolean;
+  onBack: () => void;
+  onForward: () => void;
   onMove: (m: Move) => void;
   onHint: () => void;
+  onSolution: () => void;
   onRetry: () => void;
   onNext: () => void;
   backToRoot: () => void;
@@ -53,20 +64,38 @@ export function usePuzzlePlayerControls(args: {
     displayFen: args.displayFen,
     lastSubmittedToRef,
   });
-  const { hintStage, showSolution } = useHintStage({
+  const hint = useHintStage({
     expectedFromSquare: args.expectedFromSquare,
+  });
+  const nav = puzzleNavFromState({
+    status: args.status,
+    solveIdx: args.solveIdx,
+    furthestSolveIdx: args.furthestSolveIdx,
+    moves: args.moves,
   });
   const handlers = usePuzzlePlayerHandlers({
     status: args.status,
-    hintStage,
-    showSolution,
+    hintStage: hint.hintStage,
+    showSolution: hint.showSolution,
+    requestSolution: hint.requestSolution,
     onMoveRaw: args.onMoveRaw,
     setLastUci: args.setLastUci,
     appendUsedHint: args.appendUsedHint,
     appendAbandoned: args.appendAbandoned,
     onRequestNext: args.onRequestNext,
   });
-  const { onMove: handlerOnMove, ...handlerRest } = handlers;
-  const onMove = useTrackedOnMove(handlerOnMove, lastSubmittedToRef);
-  return { ...effects, hintStage, onMove, ...handlerRest };
+  const onMove = useTrackedOnMove(handlers.onMove, lastSubmittedToRef);
+  return {
+    ...effects,
+    hintStage: hint.hintStage,
+    ...nav,
+    onMove,
+    onHint: handlers.onHint,
+    onSolution: handlers.onSolution,
+    onRetry: handlers.onRetry,
+    onNext: handlers.onNext,
+    onBack: handlers.onBack,
+    onForward: handlers.onForward,
+    backToRoot: handlers.backToRoot,
+  };
 }

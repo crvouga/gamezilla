@@ -64,7 +64,7 @@ const MIXED: BottomActionBarItem[] = [
     type: 'button',
     id: 'next',
     title: 'Next',
-    endIcon: <ChevronRightIcon size={18} />,
+    endIcon: <ChevronRightIcon />,
     onPress: () => {},
   },
 ];

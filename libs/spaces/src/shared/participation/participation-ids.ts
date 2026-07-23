@@ -4,6 +4,11 @@
  * - Member = signed-in account, else install device (anon device *is* the user).
  * - Membership = one durable row per member × space.
  * - Participation = one durable seat per install device × space under that member.
+ *
+ * Invariant: an active participation for this device must have
+ * `member_id === resolveSpaceMemberId(current auth)`. Identity transitions
+ * rebind via `spaces.claimParticipations`. Leave is device-owned and cleans
+ * stamped-member orphans when a mismatch still exists.
  */
 
 export function resolveSpaceMemberId(args: {

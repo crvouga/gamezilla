@@ -112,12 +112,29 @@ function validateHintRevealedPayload(payload: unknown): payload is {
 function validateResetEvtPayload(payload: unknown): payload is {
   displayFen: string | null;
   solveIdx: number;
+  furthestSolveIdx: number;
   status: ChessPuzzlePlayStatus;
   layoutKey: number;
 } {
   if (!isPlainRecord(payload)) return false;
   return (
     isNullOrNonEmptyString(payload['displayFen']) &&
+    isNonNegativeInteger(payload['solveIdx']) &&
+    isNonNegativeInteger(payload['furthestSolveIdx']) &&
+    isStatus(payload['status']) &&
+    isNonNegativeInteger(payload['layoutKey'])
+  );
+}
+
+function validateSteppedPayload(payload: unknown): payload is {
+  displayFen: string;
+  solveIdx: number;
+  status: ChessPuzzlePlayStatus;
+  layoutKey: number;
+} {
+  if (!isPlainRecord(payload)) return false;
+  return (
+    isNonEmptyString(payload['displayFen']) &&
     isNonNegativeInteger(payload['solveIdx']) &&
     isStatus(payload['status']) &&
     isNonNegativeInteger(payload['layoutKey'])
@@ -147,6 +164,21 @@ export const SubmitChessPuzzleMove = chessPuzzlePlayCmdNs(
 /** Host rewinds to the post-opening position and clears `wrong` / `solved` status. */
 export const ResetChessPuzzlePlay = chessPuzzlePlayCmdNs(
   'reset',
+  validateEmptyPayload
+);
+
+/** Host steps back one solved host-turn (rewinds room state into `solving`). */
+export const StepBackChessPuzzlePlay = chessPuzzlePlayCmdNs(
+  'step-back',
+  validateEmptyPayload
+);
+
+/**
+ * Host steps forward along already-attempted solution plies (up to
+ * `furthestSolveIdx`).
+ */
+export const StepForwardChessPuzzlePlay = chessPuzzlePlayCmdNs(
+  'step-forward',
   validateEmptyPayload
 );
 
@@ -193,6 +225,11 @@ export const ChessPuzzlePlayMoveRejected = chessPuzzlePlayEvtNs(
 export const ChessPuzzlePlayResetEvt = chessPuzzlePlayEvtNs(
   'reset',
   validateResetEvtPayload
+);
+
+export const ChessPuzzlePlayStepped = chessPuzzlePlayEvtNs(
+  'stepped',
+  validateSteppedPayload
 );
 
 export const ChessPuzzlePlayCleared = chessPuzzlePlayEvtNs(

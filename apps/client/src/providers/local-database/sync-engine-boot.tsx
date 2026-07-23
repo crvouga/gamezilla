@@ -7,6 +7,7 @@ import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
 import { SyncEngineProvider } from '@pkgs/sync-engine/client/sync-engine-context';
 import { SqlClientProvider } from '@pkgs/sql-client/react-context';
+import { useLingui } from '@lingui/react/macro';
 import { useMemo, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 
@@ -47,14 +48,16 @@ function useIdentitySqliteDbName(
 }
 
 /**
- * Opens PowerSync for the active auth identity, connects, and exposes the
- * sync engine. Remounts when the account (or anon) identity changes.
+ * Opens PowerSync for the active auth identity and exposes the sync engine.
+ * Remounts when the account (or anon) identity changes. Local UI is ready as
+ * soon as the identity DB opens; sync connects in the background.
  */
 export function SyncEngineBoot({
   children,
 }: {
   children: ReactNode;
 }): ReactNode {
+  const { t } = useLingui();
   const config = useConfigService();
   const kv = useKv();
   const observability = useObservability();
@@ -76,7 +79,11 @@ export function SyncEngineBoot({
   const boot = useSyncEngineBootState(enginePromise);
 
   if (boot.phase === 'loading') {
-    return <LocalDatabaseBootLoadingScreen />;
+    return (
+      <LocalDatabaseBootLoadingScreen
+        {...(accountId !== null ? { caption: t`Switching account…` } : {})}
+      />
+    );
   }
   if (boot.phase === 'error') {
     return <LocalDatabaseBootErrorScreen error={boot.error} />;

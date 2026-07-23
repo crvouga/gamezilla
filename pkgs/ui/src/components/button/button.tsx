@@ -26,13 +26,18 @@
  * ```
  */
 
-import { type ReactNode } from 'react';
+import {
+  cloneElement,
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 import { Platform, View } from 'react-native';
 import { OnColorProvider, useTheme, type Theme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
-import { XIcon, type IconComponent } from '../icons';
+import { XIcon, type IconComponent, type IconProps } from '../icons';
 import { Text } from '../text';
 import { ButtonSurfaceFill } from './button-surface-fill';
 import {
@@ -73,7 +78,9 @@ const sizeMap = {
     px: 3,
     borderRadius: borderRadius.md,
     minHeight: 32,
-    text: { fontSize: 13, lineHeight: 18, fontWeight: '600' },
+    text: { fontSize: 15, lineHeight: 20, fontWeight: '800' },
+    iconSize: 18,
+    iconStrokeWidth: 2.75,
     iconGap: 1.5,
   },
   md: {
@@ -81,7 +88,9 @@ const sizeMap = {
     px: 4,
     borderRadius: borderRadius.md,
     minHeight: 40,
-    text: { fontSize: 14, lineHeight: 20, fontWeight: '600' },
+    text: { fontSize: 17, lineHeight: 22, fontWeight: '800' },
+    iconSize: 22,
+    iconStrokeWidth: 2.75,
     iconGap: 2,
   },
   lg: {
@@ -89,12 +98,23 @@ const sizeMap = {
     px: 5,
     borderRadius: borderRadius.md,
     minHeight: 48,
-    text: { fontSize: 16, lineHeight: 22, fontWeight: '600' },
+    text: { fontSize: 19, lineHeight: 26, fontWeight: '800' },
+    iconSize: 24,
+    iconStrokeWidth: 3,
     iconGap: 2,
   },
 } as const;
 
 type SizeSpec = (typeof sizeMap)[ButtonSize];
+
+/** Applies Button size-token size/weight to icon elements (or leaves non-icons alone). */
+function scaleButtonIcon(node: ReactNode, size: SizeSpec): ReactNode {
+  if (!isValidElement(node)) return node;
+  return cloneElement(node as ReactElement<IconProps>, {
+    size: size.iconSize,
+    strokeWidth: size.iconStrokeWidth,
+  });
+}
 
 const SURFACE_ANDROID_ELEVATION = 2;
 
@@ -265,11 +285,17 @@ function ButtonStatusContent({
   label: ReactNode;
 }) {
   const indicator = spinner ? (
-    <Spinner color={foregroundColor} size={size.text.lineHeight} />
+    <Spinner color={foregroundColor} size={size.iconSize} />
   ) : (
     (() => {
       const Icon = icon ?? XIcon;
-      return <Icon size={size.text.lineHeight} color={foregroundColor} />;
+      return (
+        <Icon
+          size={size.iconSize}
+          strokeWidth={size.iconStrokeWidth}
+          color={foregroundColor}
+        />
+      );
     })()
   );
   if (label === undefined || label === null) return indicator;
@@ -301,12 +327,12 @@ function ButtonIdleContent({
   const iconBoxStyle = {
     alignItems: 'center',
     justifyContent: 'center',
-    height: size.text.lineHeight,
+    height: size.iconSize,
   } as const;
   return (
     <>
       {startIcon !== undefined ? (
-        <View style={iconBoxStyle}>{startIcon}</View>
+        <View style={iconBoxStyle}>{scaleButtonIcon(startIcon, size)}</View>
       ) : null}
       <ButtonLabelText
         label={title}
@@ -314,7 +340,7 @@ function ButtonIdleContent({
         foregroundColor={foregroundColor}
       />
       {endIcon !== undefined ? (
-        <View style={iconBoxStyle}>{endIcon}</View>
+        <View style={iconBoxStyle}>{scaleButtonIcon(endIcon, size)}</View>
       ) : null}
     </>
   );

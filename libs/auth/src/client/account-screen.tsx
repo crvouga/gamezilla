@@ -2,9 +2,16 @@ import { Box, MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
+import type { ReactNode } from 'react';
+
 import { AccountActionsRow } from './account-actions-row';
 
-export function AccountScreen() {
+export type AccountScreenProps = {
+  /** Profile identity block (avatar + username + email). */
+  readonly identity?: ReactNode;
+};
+
+export function AccountScreen({ identity }: AccountScreenProps) {
   const { t } = useLingui();
   const nav = useBreadcrumbNav();
   const router = useRouter();
@@ -19,6 +26,7 @@ export function AccountScreen() {
       scroll
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 3 }}>
+          {identity}
           <MenuList>
             <MenuRow
               title={t`Devices`}

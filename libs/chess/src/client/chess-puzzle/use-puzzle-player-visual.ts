@@ -8,6 +8,30 @@ import { usePuzzlePlayerPresentation } from './use-puzzle-player-presentation';
 
 const EMPTY_ARROWS: readonly BoardArrow[] = Object.freeze([]);
 
+function solutionArrows(args: {
+  atFrontier: boolean;
+  hintStage: HintStage;
+  expectedFromSquare: string | null;
+  expectedToSquare: string | null;
+}): readonly BoardArrow[] {
+  const { atFrontier, hintStage, expectedFromSquare, expectedToSquare } = args;
+  if (
+    !atFrontier ||
+    hintStage !== 'solution' ||
+    expectedFromSquare === null ||
+    expectedToSquare === null
+  ) {
+    return EMPTY_ARROWS;
+  }
+  return [
+    {
+      from: expectedFromSquare as Square,
+      to: expectedToSquare as Square,
+      id: 'puzzle-solution',
+    },
+  ];
+}
+
 export function usePuzzlePlayerVisual(args: {
   puzzleId: string;
   status: ChessPuzzlePlayStatus | 'loading';
@@ -25,6 +49,7 @@ export function usePuzzlePlayerVisual(args: {
   solvedCrownSquare: Square | null;
   lastCorrectToSquare: Square | null;
   hintStage: HintStage;
+  atFrontier: boolean;
   rating: number;
 }): {
   assistant: ReturnType<typeof usePuzzlePlayerPresentation>['assistant'];
@@ -58,22 +83,20 @@ export function usePuzzlePlayerVisual(args: {
     lastCorrectToSquare: args.lastCorrectToSquare,
     displayFen: args.displayFen,
   });
-  const { hintStage, expectedFromSquare, expectedToSquare } = args;
-  const arrows = useMemo<readonly BoardArrow[]>(() => {
-    if (
-      hintStage !== 'solution' ||
-      expectedFromSquare === null ||
-      expectedToSquare === null
-    ) {
-      return EMPTY_ARROWS;
-    }
-    return [
-      {
-        from: expectedFromSquare as Square,
-        to: expectedToSquare as Square,
-        id: 'puzzle-solution',
-      },
-    ];
-  }, [hintStage, expectedFromSquare, expectedToSquare]);
+  const arrows = useMemo(
+    () =>
+      solutionArrows({
+        atFrontier: args.atFrontier,
+        hintStage: args.hintStage,
+        expectedFromSquare: args.expectedFromSquare,
+        expectedToSquare: args.expectedToSquare,
+      }),
+    [
+      args.atFrontier,
+      args.hintStage,
+      args.expectedFromSquare,
+      args.expectedToSquare,
+    ]
+  );
   return { assistant, statusKind, cellFeedback, cellHighlights, arrows };
 }

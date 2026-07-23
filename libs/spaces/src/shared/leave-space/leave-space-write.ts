@@ -7,7 +7,6 @@ import {
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
 import {
-  resolveSpaceMemberId,
   spaceMembershipEntityId,
   spaceParticipationEntityId,
 } from '@libs/spaces/shared/participation/participation-ids';
@@ -22,6 +21,7 @@ import {
   asObjectRecord,
   countOtherActiveParticipations,
   isoNow,
+  maybeAutoEndEmptyHostSpace,
   readParticipationForLeave,
   requireNonEmptyString,
 } from '../space-write-helpers';
@@ -40,6 +40,10 @@ function parseLeaveSpaceInput(
   return ok({ spaceId: spaceId.value });
 }
 
+/**
+ * Device-owned leave: this install may always soft-leave its own seat, even
+ * when `member_id` drifted after anon↔signed-in identity changes.
+ */
 export async function authorizeLeaveSpace(
   ctx: WriteContext,
   input: LeaveSpaceInput,
@@ -53,16 +57,6 @@ export async function authorizeLeaveSpace(
     return fail(
       'SPACE_MEMBERSHIP_GUEST_MISMATCH',
       'Only this device can leave its participation'
-    );
-  }
-  const memberId = resolveSpaceMemberId({
-    accountId: ctx.accountId,
-    deviceId: ctx.deviceId,
-  });
-  if (row.memberId !== memberId) {
-    return fail(
-      'SPACE_MEMBERSHIP_GUEST_MISMATCH',
-      'Only this member can leave its participation'
     );
   }
   return ok(undefined);
@@ -92,13 +86,11 @@ export async function executeLeaveSpace(
   if (row === null || row.leftAt !== null) {
     return ok(undefined);
   }
-  const memberId = resolveSpaceMemberId({
-    accountId: ctx.accountId,
-    deviceId: ctx.deviceId,
-  });
+  // Stamped seat member — not current auth — so identity-drift orphans clean up.
+  const stampedMemberId = row.memberId;
   const otherCount = await countOtherActiveParticipations(
     sql,
-    memberId,
+    stampedMemberId,
     input.spaceId,
     ctx.deviceId
   );
@@ -120,7 +112,10 @@ export async function executeLeaveSpace(
     );
   }
   if (decision.leaveMembership) {
-    const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
+    const membershipId = spaceMembershipEntityId(
+      stampedMemberId,
+      input.spaceId
+    );
     await sql.run(
       `UPDATE ${SPACE_MEMBERSHIPS_TABLE.tableName}
        SET ${SpaceMembershipCol.leftAt} = ?
@@ -130,6 +125,7 @@ export async function executeLeaveSpace(
     );
     await decrementActiveMemberCount(sql, input.spaceId);
   }
+  await maybeAutoEndEmptyHostSpace(ctx, sql, input.spaceId);
   return ok(undefined);
 }
 

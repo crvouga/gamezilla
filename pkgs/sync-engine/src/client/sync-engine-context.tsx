@@ -15,6 +15,11 @@ import {
   watchQueryCacheKey,
   writeWatchQueryCache,
 } from './watch-query-cache';
+import {
+  isSyncReconnecting,
+  resolveWatchQueryDisplayRows,
+  shouldConfirmWatchQueryEmpty,
+} from './watch-query-display';
 import { computeWatchQueryIsLoading } from './watch-query-loading';
 
 export { clearWatchQueryCache };
@@ -51,26 +56,20 @@ export function useSyncStatus() {
   );
 }
 
-function isSyncReconnecting(status: SyncEngineStatus): boolean {
-  return (
-    status.connection === 'disconnected' || status.connection === 'connecting'
-  );
-}
-
-function isStableSyncedEmpty(status: SyncEngineStatus): boolean {
-  return status.connection === 'connected' && status.hasSynced;
-}
-
 function updateWatchQueryCacheForSnapshot<T extends Record<string, unknown>>({
   cacheKey,
   rows,
   status,
+  reconnecting,
+  hydrated,
   prevRowsRef,
   hadRowsRef,
 }: {
   cacheKey: string;
   rows: readonly T[];
   status: SyncEngineStatus;
+  reconnecting: boolean;
+  hydrated: boolean;
   prevRowsRef: { current: readonly T[] };
   hadRowsRef: { current: boolean };
 }): void {
@@ -80,32 +79,9 @@ function updateWatchQueryCacheForSnapshot<T extends Record<string, unknown>>({
     writeWatchQueryCache(cacheKey, { rows, confirmedEmpty: false });
     return;
   }
-  if (isStableSyncedEmpty(status)) {
+  if (shouldConfirmWatchQueryEmpty({ reconnecting, status, hydrated })) {
     writeWatchQueryCache(cacheKey, { rows: [], confirmedEmpty: true });
   }
-}
-
-function resolveWatchQueryDisplayRows<T extends Record<string, unknown>>({
-  rows,
-  cachedRows,
-  reconnecting,
-  prevRows,
-}: {
-  rows: readonly T[];
-  cachedRows: readonly T[];
-  reconnecting: boolean;
-  prevRows: readonly T[];
-}): readonly T[] {
-  if (rows.length > 0) {
-    return rows;
-  }
-  if (cachedRows.length > 0) {
-    return cachedRows;
-  }
-  if (reconnecting && prevRows.length > 0) {
-    return prevRows;
-  }
-  return rows;
 }
 
 export function useWatchSubscription<T>(
@@ -140,21 +116,24 @@ export function useWatchQuery<T extends Record<string, unknown>>(
   const cacheKey = watchQueryCacheKey(sql, paramsKey);
   const prevRowsRef = useRef<readonly T[]>([]);
   const hadRowsRef = useRef(false);
+  const reconnecting = isSyncReconnecting(status);
   updateWatchQueryCacheForSnapshot({
     cacheKey,
     rows,
     status,
+    reconnecting,
+    hydrated,
     prevRowsRef,
     hadRowsRef,
   });
   const cached = readWatchQueryCache(cacheKey);
-  const reconnecting = isSyncReconnecting(status);
   const cachedRows = (cached?.rows ?? []) as readonly T[];
   const displayRows = resolveWatchQueryDisplayRows({
     rows,
     cachedRows,
     reconnecting,
     prevRows: prevRowsRef.current,
+    hydrated,
   });
   const isLoading = computeWatchQueryIsLoading({
     hydrated,

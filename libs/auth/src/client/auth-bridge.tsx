@@ -42,6 +42,7 @@ type RefreshDeps = {
   inFlightRef: FlagRef;
   setRoster: RosterSetter;
   activeSessionId: string | null;
+  activeExternalUserId: string | null;
 };
 
 function normalizeExpiresAt(raw: unknown): string | null {
@@ -141,8 +142,9 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
     authState.session?.expiresAt ?? null
   );
 
-  const activeSessionId =
-    sessions.find((session) => session.isActive)?.sessionId ?? null;
+  const activeSession = sessions.find((session) => session.isActive);
+  const activeSessionId = activeSession?.sessionId ?? null;
+  const activeExternalUserId = activeSession?.externalUserId ?? null;
 
   const deps = useMemo<RefreshDeps>(
     () => ({
@@ -154,8 +156,17 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
       inFlightRef,
       setRoster,
       activeSessionId,
+      activeExternalUserId,
     }),
-    [apiUrl, deviceId, storage, log, setRoster, activeSessionId]
+    [
+      apiUrl,
+      deviceId,
+      storage,
+      log,
+      setRoster,
+      activeSessionId,
+      activeExternalUserId,
+    ]
   );
 
   useReconcileAuthSession({ authState, port, deps });
@@ -213,6 +224,9 @@ async function runRefresh(args: {
           roster: prev,
           accountId,
           sessionId,
+          ...(deps.activeExternalUserId !== null
+            ? { externalUserId: deps.activeExternalUserId }
+            : {}),
         })
       );
     }

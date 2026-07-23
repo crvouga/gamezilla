@@ -19,6 +19,7 @@ export function useClerkAccountSessions(): readonly AccountSession[] {
         sessionId: session.id,
         externalUserId: session.userId,
         email: session.email,
+        username: session.username,
         isActive: session.id === sessionId,
       } satisfies AccountSession,
     ];

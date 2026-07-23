@@ -11,7 +11,7 @@ import {
   spaceMembershipEntityId,
   spaceParticipationEntityId,
 } from '@libs/spaces/shared/participation/participation-ids';
-import { isHostMember } from '@libs/spaces/shared/participation/space-participation-policy';
+import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import {
@@ -25,7 +25,10 @@ import type { WriteContext } from '@pkgs/write/shared/write-context';
 
 import { authorizeLeaveSpace } from './leave-space/leave-space-write';
 import { authorizeLeaveSpaceEverywhere } from './leave-space/leave-space-everywhere-write';
-import { readSpaceHostEnded } from './space-write-helpers';
+import {
+  deviceHeldMemberSeat,
+  readSpaceHostEnded,
+} from './space-write-helpers';
 
 /**
  * Create-space uploads as PUT before the row exists on Postgres. Authorize from
@@ -78,12 +81,15 @@ async function authorizeSpacesUpload(
     accountId: ctx.accountId,
     deviceId: ctx.deviceId,
   });
-  if (
-    !isHostMember({
-      hostMemberId: space.value.hostMemberId,
-      memberId,
-    })
-  ) {
+  const isHost = isSpaceHostActor({
+    hostId: space.value.hostId,
+    hostMemberId: space.value.hostMemberId,
+    hostAccountId: space.value.hostAccountId,
+    memberId,
+    accountId: ctx.accountId,
+    deviceId: ctx.deviceId,
+  });
+  if (!isHost) {
     return fail('SPACE_WRITE_DENIED', 'Only the host can patch this space');
   }
   return ok(undefined);
@@ -141,6 +147,27 @@ function isLeaveShape(row: RowChange, leftAtCol: string): boolean {
   return typeof leftAt === 'string' && leftAt.length > 0;
 }
 
+async function mayUploadMembership(args: {
+  readonly ctx: WriteContext;
+  readonly sql: SqlClient;
+  readonly spaceId: string;
+  readonly seatMemberId: string;
+  readonly isLeave: boolean;
+}): Promise<boolean> {
+  const currentMemberId = resolveSpaceMemberId({
+    accountId: args.ctx.accountId,
+    deviceId: args.ctx.deviceId,
+  });
+  if (args.seatMemberId === currentMemberId) return true;
+  if (!args.isLeave) return false;
+  return deviceHeldMemberSeat({
+    sql: args.sql,
+    deviceId: args.ctx.deviceId,
+    spaceId: args.spaceId,
+    memberId: args.seatMemberId,
+  });
+}
+
 async function authorizeSpaceMembershipUpload(
   ctx: WriteContext,
   row: RowChange,
@@ -156,24 +183,32 @@ async function authorizeSpaceMembershipUpload(
   if (!spaceIdResult.ok) return spaceIdResult;
   const memberIdResult = await resolveMembershipMemberId(row, sql);
   if (!memberIdResult.ok) return memberIdResult;
-  const memberId = resolveSpaceMemberId({
-    accountId: ctx.accountId,
-    deviceId: ctx.deviceId,
+  const seatMemberId = memberIdResult.value;
+  const isLeave = isLeaveShape(row, SpaceMembershipCol.leftAt);
+  const allowed = await mayUploadMembership({
+    ctx,
+    sql,
+    spaceId: spaceIdResult.value,
+    seatMemberId,
+    isLeave,
   });
-  if (memberIdResult.value !== memberId) {
+  if (!allowed) {
     return fail(
       'SPACE_MEMBERSHIP_GUEST_MISMATCH',
       'Only this member can upload its membership'
     );
   }
-  const expectedId = spaceMembershipEntityId(memberId, spaceIdResult.value);
+  const expectedId = spaceMembershipEntityId(
+    seatMemberId,
+    spaceIdResult.value
+  );
   if (row.id !== expectedId) {
     return fail(
       'SPACE_MEMBERSHIP_ID_MISMATCH',
       'Membership id must match space + member'
     );
   }
-  if (isLeaveShape(row, SpaceMembershipCol.leftAt)) {
+  if (isLeave) {
     return authorizeLeaveSpaceEverywhere(
       ctx,
       { spaceId: spaceIdResult.value },

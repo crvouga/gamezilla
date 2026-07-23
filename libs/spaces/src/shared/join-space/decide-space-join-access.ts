@@ -15,9 +15,11 @@ export type { SpaceAccessDecision };
 
 export type SpaceAccessInput = {
   readonly visibility: SpaceVisibility;
+  readonly hostId: string;
   readonly hostAccountId: string | null;
   readonly hostMemberId: string;
   readonly viewerAccountId: string | null;
+  readonly viewerDeviceId: string;
   readonly viewerMemberId: string;
   readonly isFriendOfHost: boolean;
   readonly hasValidInvite: boolean;
@@ -28,16 +30,18 @@ export type SpaceAccessInput = {
 /**
  * Decides whether a viewer may join a live space.
  * Public/friends require a signed-in account; private requires a valid invite.
- * Host member on another device is allowed.
+ * Space owners (member / creating device / host account) may always rejoin.
  */
 export function decideSpaceJoinAccess(
   input: SpaceAccessInput
 ): SpaceAccessDecision {
   return decideJoin({
     visibility: input.visibility,
+    hostId: input.hostId,
     hostAccountId: input.hostAccountId,
     hostMemberId: input.hostMemberId,
     viewerAccountId: input.viewerAccountId,
+    viewerDeviceId: input.viewerDeviceId,
     viewerMemberId: input.viewerMemberId,
     isFriendOfHost: input.isFriendOfHost,
     hasValidInvite: input.hasValidInvite,

@@ -23,6 +23,8 @@ type SyncCtx = {
   solveIdx: number;
   prevSolveIdx: number | null;
   lastUci: string | null;
+  /** Current play already wrote a solved terminal (skip re-finalize). */
+  playAlreadySolved: boolean;
   appendInteraction: AppendInteraction;
   finalizePlay: (k: 'solved') => void;
 };
@@ -54,6 +56,7 @@ function appendCorrectMoveIfNeeded(ctx: SyncCtx): boolean {
     ctx;
   if (prev !== CHESS_PUZZLE_PLAY_STATUS.solving) return false;
   if (status !== CHESS_PUZZLE_PLAY_STATUS.solving) return false;
+  if (lastUci === null) return false;
   if (prevSolveIdx === null || solveIdx <= prevSolveIdx) return false;
   appendInteraction(CHESS_PUZZLE_INTERACTION_KIND.moved, {
     uci: lastUci,
@@ -64,9 +67,11 @@ function appendCorrectMoveIfNeeded(ctx: SyncCtx): boolean {
 }
 
 function finalizeSolvedIfNeeded(ctx: SyncCtx): void {
-  const { prev, status, finalizePlay } = ctx;
+  const { prev, status, finalizePlay, playAlreadySolved } = ctx;
   if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) return;
   if (prev === 'solved') return;
+  // Step-back from solved then step-forward / re-solve must not re-rate.
+  if (playAlreadySolved) return;
   finalizePlay('solved');
 }
 

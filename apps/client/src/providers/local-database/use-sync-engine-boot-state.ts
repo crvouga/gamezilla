@@ -14,9 +14,10 @@ function toError(error: unknown): Error {
 }
 
 /**
- * Connects the identity-scoped sync engine. OPFS open serialization lives in
- * {@link openPowerSyncDatabase}; this hook only connects and ignores Strict
- * Mode cleanups that cancel an in-flight boot of the same identity.
+ * Opens the identity-scoped sync engine for local reads as soon as the DB is
+ * ready. PowerSync `connect()` runs in the background so account switches are
+ * not blocked on network sync. Ignores Strict Mode cleanups that cancel an
+ * in-flight boot of the same identity.
  */
 export function useSyncEngineBootState(
   enginePromise: Promise<SyncEngine>
@@ -34,15 +35,16 @@ export function useSyncEngineBootState(
     void enginePromise.then(
       (engine) => {
         if (cancelled || generation !== generationRef.current) return;
+        attachSqlCli(engine.db);
+        setBoot({ phase: 'ready', engine });
         void engine.connect().then(
-          () => {
-            if (cancelled || generation !== generationRef.current) return;
-            attachSqlCli(engine.db);
-            setBoot({ phase: 'ready', engine });
-          },
+          () => undefined,
           (error: unknown) => {
             if (cancelled || generation !== generationRef.current) return;
-            setBoot({ phase: 'error', error: toError(error) });
+            console.warn(
+              'sync-engine connect failed',
+              toError(error).message
+            );
           }
         );
       },

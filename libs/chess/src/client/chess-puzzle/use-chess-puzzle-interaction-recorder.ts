@@ -1,6 +1,7 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { useCallback, useEffect, useRef } from 'react';
 
+import { sliceCurrentPlay } from '../../shared/chess-puzzle-derive';
 import {
   CHESS_PUZZLE_INTERACTION_KIND,
   type ChessPuzzleInteractionRow,
@@ -40,10 +41,6 @@ export function useChessPuzzleInteractionRecorder(
   const prevSolveIdxRef = useRef<number | null>(null);
   const lastUciRef = useRef<string | null>(null);
 
-  // The player component now persists across puzzles, so refs from the
-  // previous puzzle would otherwise leak into the next attempt's status
-  // sync (e.g. a stale `prevStatus === 'solving'` plus a fresh `solveIdx`
-  // would fire spurious correct/wrong rows). Reset on every id swap.
   useEffect(() => {
     prevStatusRef.current = null;
     prevSolveIdxRef.current = null;
@@ -53,6 +50,10 @@ export function useChessPuzzleInteractionRecorder(
   useEffect(() => {
     const prev = prevStatusRef.current;
     prevStatusRef.current = status;
+    const play = sliceCurrentPlay(interactions, puzzleId);
+    const playAlreadySolved = play.some(
+      (r) => r.kind === CHESS_PUZZLE_INTERACTION_KIND.solved
+    );
     syncInteractionForRoomStatus({
       prev,
       status,
@@ -60,6 +61,7 @@ export function useChessPuzzleInteractionRecorder(
       solveIdx,
       prevSolveIdx: prevSolveIdxRef.current,
       lastUci: lastUciRef.current,
+      playAlreadySolved,
       appendInteraction: (kind, extra) => {
         void appendInteraction(kind, extra);
       },
@@ -67,7 +69,16 @@ export function useChessPuzzleInteractionRecorder(
         void finalizePlay(k);
       },
     });
-  }, [appendInteraction, finalizePlay, myId, solveIdx, status]);
+    lastUciRef.current = null;
+  }, [
+    appendInteraction,
+    finalizePlay,
+    interactions,
+    myId,
+    puzzleId,
+    solveIdx,
+    status,
+  ]);
 
   useEffect(() => {
     prevSolveIdxRef.current = solveIdx;

@@ -227,11 +227,11 @@ function useSignInStart(args: {
         (session) => session.sessionId
       );
       setBaselineSessionIds(baseline);
-      await markSignInPending(storage, {
-        intent,
-        baselineSessionIds: intent === 'addAccount' ? baseline : [],
-      });
       try {
+        await markSignInPending(storage, {
+          intent,
+          baselineSessionIds: intent === 'addAccount' ? baseline : [],
+        });
         await runner();
       } catch (e) {
         await clearSignInPending(storage);

@@ -21,7 +21,7 @@ export interface PackageManagerInstallEntry {
   readonly homebrewLinkOverwrite?: string;
   /**
    * Homebrew formulas to uninstall before install/upgrade (same short name from
-   * another tap, e.g. `homebrew/core` `infisical` vs `infisical/get-cli/infisical`).
+   * another tap, e.g. `homebrew/core` `foo` vs `vendor/tap/foo`).
    */
   readonly homebrewUninstallConflicts?: readonly string[];
 }

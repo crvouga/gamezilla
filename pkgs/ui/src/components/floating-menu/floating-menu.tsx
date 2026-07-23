@@ -173,6 +173,7 @@ function FloatingMenuRowItem({
       trailing={row.trailing}
       onPress={row.onPress}
       disabled={row.disabled}
+      {...(row.subtitle !== undefined ? { subtitle: row.subtitle } : {})}
       {...(row.accessibilityLabel !== undefined
         ? { accessibilityLabel: row.accessibilityLabel }
         : {})}

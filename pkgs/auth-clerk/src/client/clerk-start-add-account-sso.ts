@@ -9,12 +9,21 @@ import type { SsoFlowResult } from './clerk-sso-finalize';
 
 type ClerkInstance = ReturnType<typeof useClerk>;
 
-export async function startClerkAddAccountSsoFlow(args: {
+export type StartClerkBrowserSsoFlowArgs = {
   readonly clerk: ClerkInstance;
-  readonly strategy: string;
   readonly redirectUrl: string;
-}): Promise<SsoFlowResult> {
-  const { clerk, redirectUrl } = args;
+  /** Forces Google/OIDC account picker when set to `select_account`. */
+  readonly oidcPrompt?: string;
+};
+
+/**
+ * Starts Google OAuth via shared browser SSO (same-tab redirect on web,
+ * AuthSession on native). Used for first sign-in and add-account.
+ */
+export async function startClerkBrowserSsoFlow(
+  args: StartClerkBrowserSsoFlowArgs
+): Promise<SsoFlowResult> {
+  const { clerk, redirectUrl, oidcPrompt } = args;
   const signIn = clerk.client.signIn;
   const signUp = clerk.client.signUp;
   if (signIn === null || signUp === null) {
@@ -23,11 +32,24 @@ export async function startClerkAddAccountSsoFlow(args: {
   return runClerkSsoBrowserFlow({
     strategy: 'oauth_google',
     redirectUrl,
-    oidcPrompt: 'select_account',
+    ...(oidcPrompt !== undefined ? { oidcPrompt } : {}),
     signIn: signIn as unknown as ClerkSsoSignInHandle,
     signUp: signUp as unknown as ClerkSsoSignUpHandle,
     setActive: async (activeParams) => {
       await clerk.setActive(activeParams);
     },
+  });
+}
+
+/** Add-account SSO — same as browser flow with Google account picker. */
+export async function startClerkAddAccountSsoFlow(args: {
+  readonly clerk: ClerkInstance;
+  readonly strategy: string;
+  readonly redirectUrl: string;
+}): Promise<SsoFlowResult> {
+  return startClerkBrowserSsoFlow({
+    clerk: args.clerk,
+    redirectUrl: args.redirectUrl,
+    oidcPrompt: 'select_account',
   });
 }

@@ -10,6 +10,8 @@ import {
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
   StartChessPuzzlePlay,
+  StepBackChessPuzzlePlay,
+  StepForwardChessPuzzlePlay,
   SubmitChessPuzzleMove,
 } from './chess-puzzle-play';
 
@@ -544,6 +546,90 @@ describe('chess puzzle play FSM — Clear', () => {
     const res = ChessModule.handle(
       state,
       cmd(ReclaimChessPuzzlePlay({})),
+      HOST
+    );
+    expect(res.ok).toBe(false);
+    if (res.ok) return;
+    expect(res.error.type).toBe(ROOM_ERROR_TYPE.conflict);
+  });
+});
+
+describe('chess puzzle play FSM — StepBack / StepForward', () => {
+  test('step back from solved returns to solving at prior host-to-move', () => {
+    let state = startValid(ChessModule.initialState());
+    const r1 = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      HOST
+    );
+    if (!r1.ok) throw new Error('first move failed');
+    state = reduceAll(state, r1.events);
+    const midFen = ChessPuzzlePlayAttr.displayFen.from(state);
+    const r2 = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'f2e3' })),
+      HOST
+    );
+    if (!r2.ok) throw new Error('second move failed');
+    state = reduceAll(state, r2.events);
+    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
+      CHESS_PUZZLE_PLAY_STATUS.solved
+    );
+    expect(ChessPuzzlePlayAttr.furthestSolveIdx.from(state)).toBe(4);
+
+    const back = ChessModule.handle(
+      state,
+      cmd(StepBackChessPuzzlePlay({})),
+      HOST
+    );
+    expect(back.ok).toBe(true);
+    if (!back.ok) return;
+    state = reduceAll(state, back.events);
+    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
+      CHESS_PUZZLE_PLAY_STATUS.solving
+    );
+    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(midFen);
+    expect(ChessPuzzlePlayAttr.furthestSolveIdx.from(state)).toBe(4);
+  });
+
+  test('step forward restores furthest without past unattempted', () => {
+    let state = startValid(ChessModule.initialState());
+    const r1 = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      HOST
+    );
+    if (!r1.ok) throw new Error('first move failed');
+    state = reduceAll(state, r1.events);
+    const afterFirst = ChessPuzzlePlayAttr.displayFen.from(state);
+
+    const back = ChessModule.handle(
+      state,
+      cmd(StepBackChessPuzzlePlay({})),
+      HOST
+    );
+    if (!back.ok) throw new Error('step back failed');
+    state = reduceAll(state, back.events);
+    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
+
+    const forward = ChessModule.handle(
+      state,
+      cmd(StepForwardChessPuzzlePlay({})),
+      HOST
+    );
+    expect(forward.ok).toBe(true);
+    if (!forward.ok) return;
+    state = reduceAll(state, forward.events);
+    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(afterFirst);
+  });
+
+  test('step back at start is conflict', () => {
+    const state = startValid(ChessModule.initialState());
+    const res = ChessModule.handle(
+      state,
+      cmd(StepBackChessPuzzlePlay({})),
       HOST
     );
     expect(res.ok).toBe(false);

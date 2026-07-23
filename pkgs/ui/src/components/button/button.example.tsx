@@ -43,7 +43,7 @@ function ButtonRow({
         title="With icon"
         intent={intent}
         variant={variant}
-        endIcon={<ChevronRightIcon size={16} color={iconColor} />}
+        endIcon={<ChevronRightIcon color={iconColor} />}
         onPress={() => {}}
       />
       <Button
@@ -177,6 +177,13 @@ export default function ButtonExample() {
         intent="danger"
         variant="outline"
         label="Danger · outline"
+      />
+      <Divider />
+      <VariantBlock intent="success" label="Success" />
+      <VariantBlock
+        intent="success"
+        variant="outline"
+        label="Success · outline"
       />
       <Divider />
       <VariantBlock intent="neutral" label="Neutral" />

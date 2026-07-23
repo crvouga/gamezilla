@@ -34,6 +34,7 @@ export function buildOverflowMenuContent(
       label: action.label,
       icon: action.icon ?? EllipsisIcon,
       onPress: action.onPress,
+      ...(action.subtitle !== undefined ? { subtitle: action.subtitle } : {}),
       ...(action.leading !== undefined ? { leading: action.leading } : {}),
       ...(action.trailing !== undefined ? { trailing: action.trailing } : {}),
       ...(action.disabled !== undefined ? { disabled: action.disabled } : {}),
@@ -74,6 +75,7 @@ function ActionBarAvatarItemButton(p: {
       <ActionBarLabeledControl
         caption={caption}
         label={p.item.label}
+        buttonSize={p.buttonSize}
         slotWidth={p.slotWidth}
         disabled={disabled}
         onPress={p.item.onPress}
@@ -140,6 +142,7 @@ export function ActionBarOverflowTrigger(p: {
         <ActionBarLabeledControl
           caption={moreLabel}
           label={moreLabel}
+          buttonSize={p.buttonSize}
           slotWidth={slotWidth}
           onPress={p.onOpen}
           {...(p.testID !== undefined ? { testID: p.testID } : {})}

@@ -9,17 +9,26 @@ import type {
 export const LOCAL_ACCOUNT_ROSTER_KEY = asKeyword('auth.roster/accounts');
 const LOCAL_ACCOUNT_ROSTER_VALUE_ATTR = asKeyword('auth.roster/value');
 
+function isNullableString(value: unknown): boolean {
+  return value === null || typeof value === 'string';
+}
+
 function isRosterEntry(value: unknown): value is LocalAccountRosterEntry {
-  if (typeof value !== 'object' || value === null) return false;
-  const row = value as LocalAccountRosterEntry;
-  return (
-    typeof row.accountId === 'string' &&
-    typeof row.sessionId === 'string' &&
-    (row.username === null || typeof row.username === 'string') &&
-    (row.avatarConfigJson === null ||
-      typeof row.avatarConfigJson === 'string') &&
-    typeof row.lastActiveAt === 'string'
-  );
+  if (typeof value === 'object' && value !== null) {
+    const row = value as Record<string, unknown>;
+    const externalOk =
+      row['externalUserId'] === undefined ||
+      isNullableString(row['externalUserId']);
+    return (
+      typeof row['accountId'] === 'string' &&
+      typeof row['sessionId'] === 'string' &&
+      externalOk &&
+      isNullableString(row['username']) &&
+      isNullableString(row['avatarConfigJson']) &&
+      typeof row['lastActiveAt'] === 'string'
+    );
+  }
+  return false;
 }
 
 function isRoster(value: unknown): value is LocalAccountRoster {
@@ -31,15 +40,35 @@ export const localAccountRosterCodec = jsonKvCodec(
   isRoster
 );
 
+/** Session id placeholder so a detached row stays findable by externalUserId. */
+export function detachedRosterSessionId(accountId: string): string {
+  return `detached:${accountId}`;
+}
+
+/**
+ * Upsert by account id. If another account still holds this session id (stale
+ * binding after a switch/refresh race), detach that row instead of deleting it
+ * — deleting collapsed two switcher rows onto one username/avatar.
+ */
 export function upsertRosterEntry(
   roster: LocalAccountRoster,
   entry: LocalAccountRosterEntry
 ): LocalAccountRoster {
-  const without = roster.filter(
-    (row) =>
-      row.accountId !== entry.accountId && row.sessionId !== entry.sessionId
-  );
-  return [entry, ...without];
+  const next: LocalAccountRosterEntry[] = [];
+  for (const row of roster) {
+    if (row.accountId === entry.accountId) {
+      continue;
+    }
+    if (row.sessionId === entry.sessionId) {
+      next.push({
+        ...row,
+        sessionId: detachedRosterSessionId(row.accountId),
+      });
+      continue;
+    }
+    next.push(row);
+  }
+  return [entry, ...next];
 }
 
 export function removeRosterAccount(
@@ -63,10 +92,44 @@ export function trimRosterToSessions(
   return roster.filter((row) => sessionIds.has(row.sessionId));
 }
 
+function sessionBindingMatchesExternalUser(
+  entry: LocalAccountRosterEntry,
+  externalUserId: string
+): boolean {
+  return (
+    entry.externalUserId === null || entry.externalUserId === externalUserId
+  );
+}
+
+export function findRosterEntryForSession(
+  roster: LocalAccountRoster,
+  args: {
+    readonly sessionId: string;
+    readonly externalUserId: string;
+  }
+): LocalAccountRosterEntry | undefined {
+  const bySession = roster.find((row) => row.sessionId === args.sessionId);
+  if (
+    bySession !== undefined &&
+    sessionBindingMatchesExternalUser(bySession, args.externalUserId)
+  ) {
+    return bySession;
+  }
+  return roster.find((row) => row.externalUserId === args.externalUserId);
+}
+
+function coalesceRosterField(
+  next: string | null | undefined,
+  existing: string | null | undefined
+): string | null {
+  return next ?? existing ?? null;
+}
+
 export function touchRosterAccount(args: {
   readonly roster: LocalAccountRoster;
   readonly accountId: string;
   readonly sessionId: string;
+  readonly externalUserId?: string | null;
   readonly username?: string | null;
   readonly avatarConfigJson?: string | null;
   readonly nowIso?: string;
@@ -76,9 +139,15 @@ export function touchRosterAccount(args: {
   return upsertRosterEntry(args.roster, {
     accountId: args.accountId,
     sessionId: args.sessionId,
-    username: args.username ?? existing?.username ?? null,
-    avatarConfigJson:
-      args.avatarConfigJson ?? existing?.avatarConfigJson ?? null,
+    externalUserId: coalesceRosterField(
+      args.externalUserId,
+      existing?.externalUserId
+    ),
+    username: coalesceRosterField(args.username, existing?.username),
+    avatarConfigJson: coalesceRosterField(
+      args.avatarConfigJson,
+      existing?.avatarConfigJson
+    ),
     lastActiveAt: nowIso,
   });
 }

@@ -24,4 +24,9 @@ export interface AuthClientPort {
   getFreshToken(): Promise<string | null>;
   /** Activates a provider session after OAuth redirect (no-op when unsupported). */
   ensureSessionReady?(): Promise<void>;
+  /**
+   * Completes same-tab OAuth return on `/sso-callback` via `rotating_token_nonce`
+   * (web). No-op when unsupported or when no nonce is present.
+   */
+  completeHostedAuthRedirect?(): Promise<void>;
 }

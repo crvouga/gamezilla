@@ -1,11 +1,7 @@
 import {
   SPACE_INVITES_TABLE,
-  SPACE_MEMBERSHIPS_TABLE,
-  SPACE_PARTICIPATIONS_TABLE,
   SpaceCol,
   SpaceInviteCol,
-  SpaceMembershipCol,
-  SpaceParticipationCol,
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
 import {
@@ -14,6 +10,7 @@ import {
   spaceParticipationEntityId,
 } from '@libs/spaces/shared/participation/participation-ids';
 import {
+  isSpaceHostActor,
   shouldBumpMemberCountOnJoin,
   shouldConsumeInviteOnJoin,
 } from '@libs/spaces/shared/participation/space-participation-policy';
@@ -25,13 +22,18 @@ import type { WriteContext } from '@pkgs/write/shared/write-context';
 import {
   authorizeJoinSpaceAccess,
   findValidInviteInStore,
+  readSpaceRowForJoin,
 } from './join-space-access';
+import {
+  upsertSpaceMembershipRow,
+  upsertSpaceParticipationRow,
+} from '../space-row-upsert';
 import {
   asObjectRecord,
   isoNow,
+  migrateHostIdentity,
   requireNonEmptyString,
   wasMembershipInactive,
-  wasParticipationInactive,
 } from '../space-write-helpers';
 
 export type JoinSpaceInput = {
@@ -71,23 +73,13 @@ async function upsertJoinMembership(
   sql: SqlClient,
   memberId: string
 ): Promise<{ readonly reactivated: boolean }> {
-  const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
-  const reactivated = await wasMembershipInactive(sql, membershipId);
-  const now = isoNow();
-  await sql.run(
-    `INSERT INTO ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     (${SpaceMembershipCol.id}, ${SpaceMembershipCol.memberId},
-      ${SpaceMembershipCol.spaceId}, ${SpaceMembershipCol.joinedAt},
-      ${SpaceMembershipCol.leftAt}, ${SpaceMembershipCol.profileId})
-     VALUES (?, ?, ?, ?, NULL, ?)
-     ON CONFLICT (id) DO UPDATE SET
-       left_at = NULL,
-       joined_at = excluded.joined_at,
-       profile_id = excluded.profile_id,
-       member_id = excluded.member_id`,
-    [membershipId, memberId, input.spaceId, now, memberId]
-  );
-  return { reactivated };
+  return upsertSpaceMembershipRow({
+    sql,
+    membershipId: spaceMembershipEntityId(memberId, input.spaceId),
+    memberId,
+    spaceId: input.spaceId,
+    now: isoNow(),
+  });
 }
 
 async function upsertJoinParticipation(
@@ -96,32 +88,15 @@ async function upsertJoinParticipation(
   sql: SqlClient,
   memberId: string
 ): Promise<void> {
-  const participationId = spaceParticipationEntityId(
-    ctx.deviceId,
-    input.spaceId
-  );
-  const now = isoNow();
-  await sql.run(
-    `INSERT INTO ${SPACE_PARTICIPATIONS_TABLE.tableName}
-     (${SpaceParticipationCol.id}, ${SpaceParticipationCol.spaceId},
-      ${SpaceParticipationCol.memberId}, ${SpaceParticipationCol.deviceId},
-      ${SpaceParticipationCol.deviceLabel}, ${SpaceParticipationCol.joinedAt},
-      ${SpaceParticipationCol.leftAt})
-     VALUES (?, ?, ?, ?, ?, ?, NULL)
-     ON CONFLICT (id) DO UPDATE SET
-       left_at = NULL,
-       joined_at = excluded.joined_at,
-       member_id = excluded.member_id,
-       device_label = excluded.device_label`,
-    [
-      participationId,
-      input.spaceId,
-      memberId,
-      ctx.deviceId,
-      input.deviceLabel,
-      now,
-    ]
-  );
+  await upsertSpaceParticipationRow({
+    sql,
+    participationId: spaceParticipationEntityId(ctx.deviceId, input.spaceId),
+    spaceId: input.spaceId,
+    memberId,
+    deviceId: ctx.deviceId,
+    deviceLabel: input.deviceLabel,
+    now: isoNow(),
+  });
 }
 
 async function bumpActiveMemberCount(
@@ -199,12 +174,7 @@ export async function executeJoinSpace(
     deviceId: ctx.deviceId,
   });
   const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
-  const participationId = spaceParticipationEntityId(
-    ctx.deviceId,
-    input.spaceId
-  );
   const membershipWasInactive = await wasMembershipInactive(sql, membershipId);
-  await wasParticipationInactive(sql, participationId);
   const inviteResult = await consumeInviteForJoinIfNeeded({
     sql,
     spaceId: input.spaceId,
@@ -216,6 +186,26 @@ export async function executeJoinSpace(
   await upsertJoinParticipation(ctx, input, sql, memberId);
   if (shouldBumpMemberCountOnJoin({ membershipWasInactive: reactivated })) {
     await bumpActiveMemberCount(sql, input.spaceId);
+  }
+  const space = await readSpaceRowForJoin(sql, input.spaceId);
+  if (
+    space.ok &&
+    isSpaceHostActor({
+      hostId: space.value.hostId,
+      hostMemberId: space.value.hostMemberId,
+      hostAccountId: space.value.hostAccountId,
+      memberId,
+      accountId: ctx.accountId,
+      deviceId: ctx.deviceId,
+    })
+  ) {
+    await migrateHostIdentity({
+      sql,
+      spaceId: input.spaceId,
+      deviceId: ctx.deviceId,
+      newMemberId: memberId,
+      accountId: ctx.accountId,
+    });
   }
   return ok(undefined);
 }

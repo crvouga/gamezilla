@@ -27,6 +27,9 @@ function useChessPuzzlePlayRoomSelectors() {
     ChessPuzzlePlayAttr.orientation.from
   );
   const solveIdx = useSpaceRoomSelector(ChessPuzzlePlayAttr.solveIdx.from);
+  const furthestSolveIdx = useSpaceRoomSelector(
+    ChessPuzzlePlayAttr.furthestSolveIdx.from
+  );
   const roomMoves = useSpaceRoomSelector(ChessPuzzlePlayAttr.moves.from);
   const wrongFromSquare = useSpaceRoomSelector(
     ChessPuzzlePlayAttr.wrongFromSquare.from
@@ -47,6 +50,7 @@ function useChessPuzzlePlayRoomSelectors() {
     layoutKey,
     orientation,
     solveIdx,
+    furthestSolveIdx,
     roomMoves,
     wrongFromSquare,
     wrongToSquare,
@@ -73,6 +77,7 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
   orientation: 'white' | 'black';
   onMove: (m: Move) => void;
   solveIdx: number;
+  furthestSolveIdx: number;
   totalTokens: number;
   wrongFromSquare: string | null;
   wrongToSquare: string | null;
@@ -88,6 +93,7 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
     layoutKey,
     orientation,
     solveIdx,
+    furthestSolveIdx,
     roomMoves,
     wrongFromSquare,
     wrongToSquare,
@@ -117,6 +123,7 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
     orientation,
     onMove,
     solveIdx,
+    furthestSolveIdx,
     totalTokens,
     wrongFromSquare,
     wrongToSquare,

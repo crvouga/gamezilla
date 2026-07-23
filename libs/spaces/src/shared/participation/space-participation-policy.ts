@@ -11,9 +11,11 @@ export type SpaceAccessDecision =
 
 export type SpaceAccessInput = {
   readonly visibility: SpaceVisibility;
+  readonly hostId: string;
   readonly hostAccountId: string | null;
   readonly hostMemberId: string;
   readonly viewerAccountId: string | null;
+  readonly viewerDeviceId: string;
   readonly viewerMemberId: string;
   readonly isFriendOfHost: boolean;
   readonly hasValidInvite: boolean;
@@ -70,6 +72,37 @@ export function isHostMember(args: {
   return host.length > 0 && member.length > 0 && host === member;
 }
 
+function nonEmptyEqual(a: string, b: string): boolean {
+  return a.length > 0 && b.length > 0 && a === b;
+}
+
+/**
+ * Whether the actor may act as space owner (join/end/rename), including
+ * identity-drift cases where only `host_id` or `host_account_id` still match.
+ * Distinct from {@link isHostMember}, which is for roster/presence role.
+ */
+export function isSpaceHostActor(args: {
+  readonly hostId: string;
+  readonly hostMemberId: string;
+  readonly hostAccountId: string | null;
+  readonly memberId: string;
+  readonly accountId: string | null;
+  readonly deviceId: string;
+}): boolean {
+  if (
+    isHostMember({
+      hostMemberId: args.hostMemberId,
+      memberId: args.memberId,
+    })
+  ) {
+    return true;
+  }
+  if (nonEmptyEqual(args.hostId ?? '', args.deviceId ?? '')) {
+    return true;
+  }
+  return nonEmptyEqual(args.hostAccountId ?? '', args.accountId ?? '');
+}
+
 function decideJoinVisibility(input: SpaceAccessInput): SpaceAccessDecision {
   if (input.hasValidInvite) {
     return { allowed: true, reason: 'invite' };
@@ -95,17 +128,21 @@ function decideJoinVisibility(input: SpaceAccessInput): SpaceAccessDecision {
 /**
  * Whether the viewer may join (or add a device participation to) a live space.
  *
- * Host user on a second device is allowed when not already participating on
- * this install. Idempotent re-join of an existing participation is allowed.
+ * Space owners (member / creating device / host account) may always rejoin.
+ * Idempotent re-join of an existing participation is allowed.
  */
 export function decideJoin(input: SpaceAccessInput): SpaceAccessDecision {
   if (input.alreadyParticipating) {
     return { allowed: true, reason: 'already' };
   }
   if (
-    isHostMember({
+    isSpaceHostActor({
+      hostId: input.hostId,
       hostMemberId: input.hostMemberId,
+      hostAccountId: input.hostAccountId,
       memberId: input.viewerMemberId,
+      accountId: input.viewerAccountId,
+      deviceId: input.viewerDeviceId,
     })
   ) {
     return { allowed: true, reason: 'host' };
@@ -135,9 +172,9 @@ export function decideLeaveEverywhere(): LeaveEverywhereDecision {
 }
 
 export function decideEndSpace(args: {
-  readonly isHostMember: boolean;
+  readonly isHostActor: boolean;
 }): EndSpaceDecision {
-  if (!args.isHostMember) {
+  if (!args.isHostActor) {
     return { allowed: false, code: 'SPACE_HOST_REQUIRED' };
   }
   return { allowed: true };

@@ -20,12 +20,17 @@ export function actionBarItemToOverflowAction(
       onClose();
       item.onPress();
     },
-    ...(item.disabled !== undefined ? { disabled: item.disabled } : {}),
+    ...(item.subtitle !== undefined ? { subtitle: item.subtitle } : {}),
+    ...(item.disabled === true || item.loading === true
+      ? { disabled: true }
+      : {}),
     ...(item.endsGroup === true ? { endsGroup: true } : {}),
     ...(item.trailing !== undefined ? { trailing: item.trailing } : {}),
     ...(isActionBarAvatarItem(item) ? { leading: item.children } : {}),
   };
-  if (typeof item.label === 'string') {
+  if (item.accessibilityLabel !== undefined) {
+    action.accessibilityLabel = item.accessibilityLabel;
+  } else if (typeof item.label === 'string') {
     action.accessibilityLabel = item.label as LocalizedString;
   }
   return action;

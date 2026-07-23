@@ -108,8 +108,6 @@ function useCelebrationEloFeedback(args: {
 
 export type ChessPuzzleCelebrationOverlayProps = {
   completion: PuzzleCompletion;
-  onContinue: () => void;
-  onRetry: () => void;
   onDisplayEloChange: (rating: number) => void;
   onEloCompletePulse?: () => void;
 };
@@ -159,8 +157,6 @@ export function ChessPuzzleCelebrationOverlay(
           completion={p.completion}
           displayRating={eloAnim.displayRating}
           deltaPulse={eloAnim.completePulse}
-          onContinue={p.onContinue}
-          onRetry={p.onRetry}
         />
       </Animated.View>
     </Animated.View>

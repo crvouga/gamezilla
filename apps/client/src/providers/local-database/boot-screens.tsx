@@ -31,8 +31,15 @@ function errorMessage(error: Error): string {
   return error.message;
 }
 
-export function LocalDatabaseBootLoadingScreen(): ReactNode {
-  return <LoadingState size="large" />;
+export function LocalDatabaseBootLoadingScreen(props: {
+  caption?: ReactNode;
+}): ReactNode {
+  return (
+    <LoadingState
+      size="large"
+      {...(props.caption !== undefined ? { caption: props.caption } : {})}
+    />
+  );
 }
 
 export function LocalDatabaseBootErrorScreen({

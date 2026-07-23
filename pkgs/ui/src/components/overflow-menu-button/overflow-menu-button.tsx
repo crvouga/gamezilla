@@ -42,6 +42,8 @@ export type OverflowMenuAction = {
   /** Stable id used for the row key + a11y. */
   id: string;
   label: ReactNode;
+  /** Secondary line under the label (e.g. email). */
+  subtitle?: ReactNode;
   /** Defaults to {@link DEFAULT_ACTION_ICON} when omitted. */
   icon?: IconComponent;
   /** When set, replaces the icon glyph in the menu row (e.g. avatar). */
@@ -96,6 +98,7 @@ function buildContent(
         onClose();
         a.onPress();
       },
+      ...(a.subtitle !== undefined ? { subtitle: a.subtitle } : {}),
       ...(a.leading !== undefined ? { leading: a.leading } : {}),
       ...(a.trailing !== undefined ? { trailing: a.trailing } : {}),
       ...(a.disabled !== undefined ? { disabled: a.disabled } : {}),

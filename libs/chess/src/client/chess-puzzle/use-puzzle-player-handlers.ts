@@ -9,39 +9,84 @@ import {
   ClearChessPuzzlePlay,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
+  StepBackChessPuzzlePlay,
+  StepForwardChessPuzzlePlay,
   type ChessPuzzlePlayStatus,
 } from '../../shared/chess-puzzle-play';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 import type { HintStage } from './use-hint-stage';
 
-export function usePuzzlePlayerHandlers(args: {
+type HandlersArgs = {
   status: ChessPuzzlePlayStatus | 'loading';
   hintStage: HintStage;
   showSolution: () => void;
+  requestSolution: () => void;
   onMoveRaw: (m: Move) => void;
   setLastUci: (uci: string) => void;
   appendUsedHint: () => Promise<void>;
   appendAbandoned: () => Promise<void>;
   onRequestNext: () => void;
-}): {
+};
+
+function useHintSolutionHandlers(
+  args: Pick<
+    HandlersArgs,
+    'hintStage' | 'showSolution' | 'requestSolution' | 'appendUsedHint'
+  >
+): { onHint: () => void; onSolution: () => void } {
+  const dispatch = useSpaceRoomDispatch();
+  const { hintStage, showSolution, requestSolution, appendUsedHint } = args;
+
+  const onHint = useCallback(() => {
+    if (hintStage === 'none') {
+      dispatch(RequestChessPuzzleHint({}));
+      void appendUsedHint();
+      return;
+    }
+    if (hintStage === 'highlight') showSolution();
+  }, [appendUsedHint, dispatch, hintStage, showSolution]);
+
+  const onSolution = useCallback(() => {
+    if (hintStage === 'solution') return;
+    if (hintStage === 'none') {
+      dispatch(RequestChessPuzzleHint({}));
+      void appendUsedHint();
+    }
+    requestSolution();
+  }, [appendUsedHint, dispatch, hintStage, requestSolution]);
+
+  return { onHint, onSolution };
+}
+
+export function usePuzzlePlayerHandlers(args: HandlersArgs): {
   onMove: (m: Move) => void;
   onHint: () => void;
+  onSolution: () => void;
   onRetry: () => void;
   onNext: () => void;
+  onBack: () => void;
+  onForward: () => void;
   backToRoot: () => void;
 } {
   const {
     status,
-    hintStage,
-    showSolution,
     onMoveRaw,
     setLastUci,
-    appendUsedHint,
     appendAbandoned,
     onRequestNext,
+    hintStage,
+    showSolution,
+    requestSolution,
+    appendUsedHint,
   } = args;
   const dispatch = useSpaceRoomDispatch();
+  const { onHint, onSolution } = useHintSolutionHandlers({
+    hintStage,
+    showSolution,
+    requestSolution,
+    appendUsedHint,
+  });
 
   const onMove = useCallback(
     (m: Move) => {
@@ -56,19 +101,6 @@ export function usePuzzlePlayerHandlers(args: {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
   }, [dispatch]);
 
-  // Two-step reveal: first press fetches the hint and records it; second
-  // press promotes the local stage to `'solution'` (handled in the hook).
-  const onHint = useCallback(() => {
-    if (hintStage === 'none') {
-      dispatch(RequestChessPuzzleHint({}));
-      void appendUsedHint();
-      return;
-    }
-    if (hintStage === 'highlight') {
-      showSolution();
-    }
-  }, [appendUsedHint, dispatch, hintStage, showSolution]);
-
   const onRetry = useCallback(() => {
     if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) {
       void appendAbandoned();
@@ -76,11 +108,6 @@ export function usePuzzlePlayerHandlers(args: {
     dispatch(ResetChessPuzzlePlay({}));
   }, [appendAbandoned, dispatch, status]);
 
-  // Fire-and-forget so the ActionBar can take `onNext: () => void` and
-  // every render reuses the same stable callback identity. We dispatch
-  // `Clear` immediately and request the next puzzle before the optional
-  // `appendAbandoned` write resolves — losing that write on a tab close
-  // is acceptable; blocking the UI transition is not.
   const onNext = useCallback((): void => {
     if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) {
       void appendAbandoned();
@@ -89,5 +116,22 @@ export function usePuzzlePlayerHandlers(args: {
     onRequestNext();
   }, [appendAbandoned, dispatch, onRequestNext, status]);
 
-  return { onMove, onHint, onRetry, onNext, backToRoot };
+  const onBack = useCallback(() => {
+    dispatch(StepBackChessPuzzlePlay({}));
+  }, [dispatch]);
+
+  const onForward = useCallback(() => {
+    dispatch(StepForwardChessPuzzlePlay({}));
+  }, [dispatch]);
+
+  return {
+    onMove,
+    onHint,
+    onSolution,
+    onRetry,
+    onNext,
+    onBack,
+    onForward,
+    backToRoot,
+  };
 }

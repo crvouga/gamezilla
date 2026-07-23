@@ -16,6 +16,8 @@ export type FloatingMenuItemProps = Omit<
 > & {
   /** Primary label. */
   label: ReactNode;
+  /** Secondary line under the label (e.g. email). */
+  subtitle?: ReactNode;
   accessibilityLabel?: LocalizedString;
   /** Icon or node before the label. */
   leading?: ReactNode;
@@ -25,6 +27,7 @@ export type FloatingMenuItemProps = Omit<
 
 export function FloatingMenuItem({
   label,
+  subtitle,
   leading,
   trailing,
   sx: sxProp,
@@ -32,6 +35,7 @@ export function FloatingMenuItem({
   accessibilityLabel,
   ...rest
 }: FloatingMenuItemProps) {
+  const hasSubtitle = subtitle !== undefined;
   return (
     <Pressable
       accessibilityRole="button"
@@ -49,13 +53,22 @@ export function FloatingMenuItem({
       {...rest}
     >
       {leading}
-      <Box sx={{ flex: 1, minWidth: 0 }}>
+      <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
         <Text
           variant="body"
           label={label}
           numberOfLines={1}
           ellipsizeMode="tail"
         />
+        {hasSubtitle ? (
+          <Text
+            variant="caption"
+            sx={{ color: 'textSecondary' }}
+            label={subtitle}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          />
+        ) : null}
       </Box>
       {trailing}
     </Pressable>

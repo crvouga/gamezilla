@@ -20,7 +20,6 @@ import {
 } from './chess-puzzle-play-attr';
 import {
   chessPuzzlePlayCmdNs,
-  chessPuzzlePlayEvtNs,
   ChessPuzzleHintRevealed,
   ChessPuzzleHostReclaimed,
   ChessPuzzlePlayCleared,
@@ -28,13 +27,23 @@ import {
   ChessPuzzlePlayMoveRejected,
   ChessPuzzlePlayResetEvt,
   ChessPuzzlePlayStarted,
+  ChessPuzzlePlayStepped,
   ClearChessPuzzlePlay,
   ReclaimChessPuzzlePlay,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
   StartChessPuzzlePlay,
+  StepBackChessPuzzlePlay,
+  StepForwardChessPuzzlePlay,
   SubmitChessPuzzleMove,
 } from './chess-puzzle-play-messages';
+import {
+  fenAtSolveIdx,
+  nextForwardSolveIdx,
+  prevHumanSolveIdx,
+  puzzleTokensLength,
+  statusAtSolveIdx,
+} from './chess-puzzle-step';
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
@@ -266,12 +275,14 @@ function handleReset(state: RoomState, identity: string): HandleResult {
   if (status === CHESS_PUZZLE_PLAY_STATUS.wrong) {
     const previous = ChessPuzzlePlayAttr.previousDisplayFen.from(state);
     if (previous !== null) {
+      const solveIdx = ChessPuzzlePlayAttr.solveIdx.from(state);
       return {
         ok: true,
         events: [
           ChessPuzzlePlayResetEvt({
             displayFen: previous,
-            solveIdx: ChessPuzzlePlayAttr.solveIdx.from(state),
+            solveIdx,
+            furthestSolveIdx: ChessPuzzlePlayAttr.furthestSolveIdx.from(state),
             status: CHESS_PUZZLE_PLAY_STATUS.solving,
             layoutKey,
           }),
@@ -290,6 +301,7 @@ function handleReset(state: RoomState, identity: string): HandleResult {
         ChessPuzzlePlayResetEvt({
           displayFen: null,
           solveIdx: 0,
+          furthestSolveIdx: 0,
           status: CHESS_PUZZLE_PLAY_STATUS.invalid,
           layoutKey,
         }),
@@ -302,8 +314,62 @@ function handleReset(state: RoomState, identity: string): HandleResult {
       ChessPuzzlePlayResetEvt({
         displayFen: setup.displayFen,
         solveIdx: 1,
+        furthestSolveIdx: 1,
         status: setup.status,
         layoutKey,
+      }),
+    ],
+  };
+}
+
+function handleStepSeek(
+  state: RoomState,
+  identity: string,
+  direction: 'back' | 'forward'
+): HandleResult {
+  if (!isHostOf(state, identity)) {
+    return unauthorized('only the puzzle host may step the puzzle line');
+  }
+  const status = ChessPuzzlePlayAttr.status.from(state);
+  if (
+    status !== CHESS_PUZZLE_PLAY_STATUS.solving &&
+    status !== CHESS_PUZZLE_PLAY_STATUS.solved
+  ) {
+    return conflict(`cannot step while status is ${status}`);
+  }
+  const solveIdx = ChessPuzzlePlayAttr.solveIdx.from(state);
+  const furthest = ChessPuzzlePlayAttr.furthestSolveIdx.from(state);
+  const fen = ChessPuzzlePlayAttr.fen.from(state);
+  const moves = ChessPuzzlePlayAttr.moves.from(state);
+  const tokensLength = puzzleTokensLength(moves);
+
+  const nextIdx =
+    direction === 'back'
+      ? prevHumanSolveIdx(solveIdx)
+      : nextForwardSolveIdx({
+          solveIdx,
+          furthestSolveIdx: furthest,
+          tokensLength,
+        });
+  if (nextIdx === null) {
+    return conflict(
+      direction === 'back' ? 'already at puzzle start' : 'already at furthest'
+    );
+  }
+
+  const displayFen = fenAtSolveIdx({ fen, moves, solveIdx: nextIdx });
+  if (displayFen === null) {
+    return internal('could not rebuild fen for stepped solve index');
+  }
+
+  return {
+    ok: true,
+    events: [
+      ChessPuzzlePlayStepped({
+        displayFen,
+        solveIdx: nextIdx,
+        status: statusAtSolveIdx(nextIdx, tokensLength),
+        layoutKey: ChessPuzzlePlayAttr.layoutKey.from(state) + 1,
       }),
     ],
   };
@@ -375,6 +441,12 @@ export const chessPuzzlePlayCommandRouter = createMessageRouter<
     handleSubmitMove(state, identity, c.payload.uci)
   )
   .on(ResetChessPuzzlePlay, (state, identity) => handleReset(state, identity))
+  .on(StepBackChessPuzzlePlay, (state, identity) =>
+    handleStepSeek(state, identity, 'back')
+  )
+  .on(StepForwardChessPuzzlePlay, (state, identity) =>
+    handleStepSeek(state, identity, 'forward')
+  )
   .on(ClearChessPuzzlePlay, (state, identity) => handleClear(state, identity))
   .on(RequestChessPuzzleHint, (state, identity) =>
     handleRequestHint(state, identity)
@@ -383,109 +455,7 @@ export const chessPuzzlePlayCommandRouter = createMessageRouter<
     handleReclaim(state, identity)
   );
 
-export const chessPuzzlePlayEventReducer = createMessageRouter<
-  RoomState,
-  void,
-  RoomState
->(chessPuzzlePlayEvtNs)
-  .on(ChessPuzzlePlayStarted, (state, _ctx, ev) => {
-    const p = ev.payload;
-    return {
-      ...state,
-      ...ChessPuzzlePlayAttr.puzzleId(p.puzzleId),
-      ...ChessPuzzlePlayAttr.fen(p.fen),
-      ...ChessPuzzlePlayAttr.moves(p.moves),
-      ...ChessPuzzlePlayAttr.hostIdentity(p.hostIdentity),
-      ...ChessPuzzlePlayAttr.displayFen(p.displayFen),
-      ...ChessPuzzlePlayAttr.previousDisplayFen(null),
-      ...ChessPuzzlePlayAttr.orientation(p.orientation),
-      ...ChessPuzzlePlayAttr.status(p.status),
-      ...ChessPuzzlePlayAttr.solveIdx(p.solveIdx),
-      ...ChessPuzzlePlayAttr.layoutKey(0),
-      ...ChessPuzzlePlayAttr.wrongFromSquare(null),
-      ...ChessPuzzlePlayAttr.wrongToSquare(null),
-      ...ChessPuzzlePlayAttr.expectedFromSquare(null),
-      ...ChessPuzzlePlayAttr.expectedToSquare(null),
-    };
-  })
-  .on(ChessPuzzlePlayMoveAccepted, (state, _ctx, ev) => ({
-    ...state,
-    ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
-    ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
-    ...ChessPuzzlePlayAttr.status(ev.payload.status),
-    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
-    ...ChessPuzzlePlayAttr.wrongToSquare(null),
-    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
-    ...ChessPuzzlePlayAttr.expectedToSquare(null),
-  }))
-  .on(ChessPuzzlePlayMoveRejected, (state, _ctx, ev) => ({
-    ...state,
-    ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(ev.payload.previousDisplayFen),
-    ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
-    ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.wrong),
-    ...ChessPuzzlePlayAttr.wrongFromSquare(ev.payload.wrongFromSquare),
-    ...ChessPuzzlePlayAttr.wrongToSquare(ev.payload.wrongToSquare),
-    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
-    ...ChessPuzzlePlayAttr.expectedToSquare(null),
-  }))
-  .on(ChessPuzzlePlayResetEvt, (state, _ctx, ev) => ({
-    ...state,
-    ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
-    ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
-    ...ChessPuzzlePlayAttr.status(ev.payload.status),
-    ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
-    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
-    ...ChessPuzzlePlayAttr.wrongToSquare(null),
-    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
-    ...ChessPuzzlePlayAttr.expectedToSquare(null),
-  }))
-  .on(ChessPuzzleHintRevealed, (state, _ctx, ev) => ({
-    ...state,
-    ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
-    ...ChessPuzzlePlayAttr.expectedFromSquare(ev.payload.fromSquare),
-    ...ChessPuzzlePlayAttr.expectedToSquare(ev.payload.toSquare),
-  }))
-  .on(ChessPuzzleHostReclaimed, (state, _ctx, ev) => ({
-    ...state,
-    ...ChessPuzzlePlayAttr.hostIdentity(ev.payload.hostIdentity),
-  }))
-  .on(ChessPuzzlePlayCleared, (state) => ({
-    ...state,
-    ...ChessPuzzlePlayAttr.puzzleId(null),
-    ...ChessPuzzlePlayAttr.fen(''),
-    ...ChessPuzzlePlayAttr.moves(''),
-    ...ChessPuzzlePlayAttr.hostIdentity(null),
-    ...ChessPuzzlePlayAttr.displayFen(null),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
-    ...ChessPuzzlePlayAttr.orientation('white'),
-    ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.idle),
-    ...ChessPuzzlePlayAttr.solveIdx(0),
-    ...ChessPuzzlePlayAttr.layoutKey(0),
-    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
-    ...ChessPuzzlePlayAttr.wrongToSquare(null),
-    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
-    ...ChessPuzzlePlayAttr.expectedToSquare(null),
-  }));
-
-/** Default values to seed in `SpaceModule.initialState()`. */
-export function chessPuzzlePlayInitialAttrs(): RoomState {
-  return {
-    ...ChessPuzzlePlayAttr.puzzleId(null),
-    ...ChessPuzzlePlayAttr.fen(''),
-    ...ChessPuzzlePlayAttr.moves(''),
-    ...ChessPuzzlePlayAttr.hostIdentity(null),
-    ...ChessPuzzlePlayAttr.displayFen(null),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
-    ...ChessPuzzlePlayAttr.orientation('white'),
-    ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.idle),
-    ...ChessPuzzlePlayAttr.solveIdx(0),
-    ...ChessPuzzlePlayAttr.layoutKey(0),
-    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
-    ...ChessPuzzlePlayAttr.wrongToSquare(null),
-    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
-    ...ChessPuzzlePlayAttr.expectedToSquare(null),
-  };
-}
+export {
+  chessPuzzlePlayEventReducer,
+  chessPuzzlePlayInitialAttrs,
+} from './chess-puzzle-play-reducer';

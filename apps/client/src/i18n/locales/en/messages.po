@@ -67,6 +67,10 @@ msgstr "{hostUsername}'s space"
 #~ msgid "{memberCount} live"
 #~ msgstr "{memberCount} live"
 
+#: libs/spaces/src/client/join-space/space-join-ended-state.tsx
+msgid "{spaceLabel} · hosted by {hostUsername}"
+msgstr "{spaceLabel} · hosted by {hostUsername}"
+
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-summary-card.tsx
 msgid "{streak} puzzle streak"
 msgstr "{streak} puzzle streak"
@@ -129,7 +133,6 @@ msgstr "About"
 
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
-#: apps/client/src/ui/use-account-menu.tsx
 #: apps/client/src/ui/use-account-menu.tsx
 #: libs/auth/src/client/account-device/account-device-detail-screen.tsx
 #: libs/auth/src/client/account-device/account-devices-screen.tsx
@@ -257,6 +260,7 @@ msgstr "Avatar"
 #~ msgid "Avatar style"
 #~ msgstr "Avatar style"
 
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar-items.tsx
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: pkgs/ui/src/components/back-icon-button/back-icon-button.tsx
 msgid "Back"
@@ -266,6 +270,7 @@ msgstr "Back"
 #~ msgid "Back to Dev"
 #~ msgstr "Back to Dev"
 
+#: libs/spaces/src/client/join-space/space-join-ended-state.tsx
 #: libs/spaces/src/client/join-space/space-join-prompt.tsx
 msgid "Back to Spaces"
 msgstr "Back to Spaces"
@@ -521,8 +526,8 @@ msgid "Connection {id}"
 msgstr "Connection {id}"
 
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-summary-card.tsx
-msgid "Continue"
-msgstr "Continue"
+#~ msgid "Continue"
+#~ msgstr "Continue"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Continue with dev IDP"
@@ -876,8 +881,8 @@ msgid "End space?"
 msgstr "End space?"
 
 #: libs/spaces/src/client/space-ended-badge.tsx
-msgid "Ended"
-msgstr "Ended"
+#~ msgid "Ended"
+#~ msgstr "Ended"
 
 #: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
 msgid "Ending space…"
@@ -948,6 +953,10 @@ msgstr "Find friends"
 #: libs/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "First seen"
 msgstr "First seen"
+
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar-items.tsx
+msgid "Forward"
+msgstr "Forward"
 
 #: libs/spaces/src/client/lifecycle/redeem-space-code-sheet.tsx
 #~ msgid "Found"
@@ -1038,7 +1047,7 @@ msgstr "Has ever synced"
 msgid "Has synced"
 msgstr "Has synced"
 
-#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar.tsx
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar-items.tsx
 msgid "Hint"
 msgstr "Hint"
 
@@ -1135,7 +1144,7 @@ msgstr "Join space"
 msgid "Join this space"
 msgstr "Join this space"
 
-#: libs/spaces/src/client/join-space/space-join-prompt.tsx
+#: libs/spaces/src/client/join-space/space-join-live-body.tsx
 msgid "Join to see who is here and hang out."
 msgstr "Join to see who is here and hang out."
 
@@ -1379,7 +1388,8 @@ msgstr "New space"
 msgid "New version available — reload to update"
 msgstr "New version available — reload to update"
 
-#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar.tsx
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar-items.tsx
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar-items.tsx
 #: pkgs/ui/src/components/horizontal-picker/horizontal-picker-arrows.tsx
 msgid "Next"
 msgstr "Next"
@@ -1791,8 +1801,8 @@ msgstr "Reset local data and reload"
 msgid "Reset position"
 msgstr "Reset position"
 
-#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar.tsx
-#: libs/chess/src/client/chess-puzzle/chess-puzzle-summary-card.tsx
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar-items.tsx
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar-items.tsx
 msgid "Retry"
 msgstr "Retry"
 
@@ -2058,7 +2068,8 @@ msgstr "Skia-rendered chess board with annotation primitives, inline promotion, 
 msgid "Solid fills and ring borders — for color-coded threats, defended squares, etc."
 msgstr "Solid fills and ring borders — for color-coded threats, defended squares, etc."
 
-#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar.tsx
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar-items.tsx
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-action-bar-items.tsx
 msgid "Solution"
 msgstr "Solution"
 
@@ -2183,6 +2194,10 @@ msgstr "Straight and knight L-shape arrows, dashed plan lines, and color overrid
 msgid "Style"
 msgstr "Style"
 
+#: apps/client/src/providers/local-database/sync-engine-boot.tsx
+msgid "Switching account…"
+msgstr "Switching account…"
+
 #: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
 msgid "sync"
 msgstr "sync"
@@ -2281,9 +2296,13 @@ msgstr "This field is required"
 #~ msgid "This is a modal screen."
 #~ msgstr "This is a modal screen."
 
+#: libs/spaces/src/client/join-space/space-join-ended-state.tsx
+msgid "This space has ended"
+msgstr "This space has ended"
+
 #: libs/spaces/src/client/join-space/space-join-prompt.tsx
-msgid "This space has ended."
-msgstr "This space has ended."
+#~ msgid "This space has ended."
+#~ msgstr "This space has ended."
 
 #: libs/spaces/src/client/join-space/space-join-prompt.tsx
 msgid "This space is not available"

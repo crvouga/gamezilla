@@ -2,7 +2,6 @@ import { Box } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { SpaceHostAvatar } from '../members/space-host-avatar';
 import { SpaceHostNameText } from '../members/space-host-name-text';
-import { SpaceEndedBadge } from '../space-ended-badge';
 import { SpaceLiveBadge } from '../space-live-badge';
 import { SpaceTitleText } from '../space-title-text';
 
@@ -41,10 +40,7 @@ export function SpaceSummaryHeader({
           <SpaceHostNameText spaceId={spaceId} variant="caption" />
         </Box>
       </Box>
-      <Box sx={{ gap: 1, alignItems: 'flex-end' }}>
-        <SpaceLiveBadge spaceId={spaceId} />
-        <SpaceEndedBadge spaceId={spaceId} />
-      </Box>
+      <SpaceLiveBadge spaceId={spaceId} />
     </Box>
   );
 }

@@ -16,6 +16,8 @@ export type FloatingMenuItemRow = {
   /** Stable React key and a11y id. */
   id: string;
   label: ReactNode;
+  /** Secondary line under the label (e.g. email). */
+  subtitle?: ReactNode;
   icon: IconComponent;
   /** When set, replaces the default icon glyph (e.g. account avatar). */
   leading?: ReactNode;

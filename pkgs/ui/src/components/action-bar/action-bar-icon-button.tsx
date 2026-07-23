@@ -109,6 +109,7 @@ function ActionBarIconFace(p: {
       <ActionBarLabeledControl
         caption={caption}
         label={p.item.label}
+        buttonSize={p.buttonSize}
         slotWidth={p.slotWidth}
         disabled={disabled}
         onPress={onPress}

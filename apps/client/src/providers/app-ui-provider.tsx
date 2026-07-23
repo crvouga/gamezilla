@@ -1,4 +1,5 @@
 import { AuthModalsProvider } from '@libs/auth/client/auth-modals-provider';
+import { ClaimSpaceParticipationsBootstrap } from '@libs/spaces/client/claim-space-participations/claim-space-participations-bootstrap';
 import { EndSpaceModalProvider } from '@libs/spaces/client/end-space/end-space-modal-provider';
 import { LeaveSpaceModalProvider } from '@libs/spaces/client/leave-space/leave-space-modal-provider';
 import { ComposeProviders } from '@pkgs/ui';
@@ -11,6 +12,7 @@ import { AppUiPortals } from './ui/portals';
 const uiProviders = [
   AppUiPortals,
   AppPortalContentBridge,
+  ClaimSpaceParticipationsBootstrap,
   EndSpaceModalProvider,
   LeaveSpaceModalProvider,
   AuthModalsProvider,

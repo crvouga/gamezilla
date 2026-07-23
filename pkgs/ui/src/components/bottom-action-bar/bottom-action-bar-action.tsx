@@ -11,7 +11,8 @@ import { Pressable } from '../pressable';
 import { Text } from '../text';
 import type { BottomActionBarActionItem } from './bottom-action-bar-types';
 
-const ICON_SIZE = 22;
+const ICON_SIZE = 24;
+const ICON_STROKE_WIDTH = 2.75;
 
 function resolveA11yLabel(
   label: ReactNode,
@@ -51,13 +52,17 @@ export function BottomActionBarAction(
       }}
       style={{ paddingVertical: 4, gap: 2 }}
     >
-      <Icon size={ICON_SIZE} color={color} />
+      <Icon
+        size={ICON_SIZE}
+        strokeWidth={ICON_STROKE_WIDTH}
+        color={color}
+      />
       <Text
         variant="caption"
         numberOfLines={1}
         ellipsizeMode="tail"
-        sx={{ color: captionToken, textAlign: 'center' }}
-        style={{ width: '100%' }}
+        sx={{ color: captionToken, textAlign: 'center', fontWeight: '700' }}
+        style={{ width: '100%', fontSize: 13, lineHeight: 18 }}
         label={item.label}
       />
     </Pressable>

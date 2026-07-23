@@ -6,6 +6,8 @@ export type AccountSession = {
   readonly sessionId: string;
   readonly externalUserId: string;
   readonly email: string | null;
+  /** Provider display username when available (e.g. Clerk publicUserData). */
+  readonly username: string | null;
   readonly isActive: boolean;
 };
 

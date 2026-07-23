@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react';
+import { adjustLightness } from '@pkgs/colors';
 import { useTheme, type Theme } from '../../theme';
+import { formatCssHsla, parseCssColor } from '../../theme/colors/css-color';
+import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
-import { Card } from '../card';
+import { ButtonSurfaceFill } from '../button/button-surface-fill';
 import { CircleCheckIcon, ChevronRightIcon } from '../icons';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
@@ -31,6 +34,24 @@ export type MainMenuScreenProps = {
 };
 
 const MENU_ITEM_MIN_HEIGHT = 84;
+/** Shared max content width for every {@link MainMenuScreen}. */
+export const MAIN_MENU_SCREEN_MAX_WIDTH = 480;
+/** Lightness delta for the neutral top→bottom sheen (very subtle). */
+const MENU_ITEM_GRADIENT_DELTA = 0.015;
+
+function resolveNeutralGradient(surfaceCss: string): {
+  top: string;
+  bottom: string;
+} {
+  const source = parseCssColor(surfaceCss);
+  if (source === null) {
+    return { top: surfaceCss, bottom: surfaceCss };
+  }
+  return {
+    top: formatCssHsla(adjustLightness(source, MENU_ITEM_GRADIENT_DELTA)),
+    bottom: formatCssHsla(adjustLightness(source, -MENU_ITEM_GRADIENT_DELTA)),
+  };
+}
 
 function mainMenuDefaultTrailing(
   theme: Theme,
@@ -58,11 +79,12 @@ function MainMenuItemBody({
   item: MainMenuItem;
   resolvedTrailing: ReactNode | undefined;
 }) {
+  const theme = useTheme();
   const { title, caption, disabled = false } = item;
   const captionInTrailing = disabled && caption !== undefined;
+  const gradient = resolveNeutralGradient(theme.colors.surfaceElevated);
   return (
-    <Card
-      elevation={0}
+    <Box
       sx={{
         py: 4,
         px: 4,
@@ -70,7 +92,19 @@ function MainMenuItemBody({
         justifyContent: 'center',
         opacity: disabled ? 0.5 : 1,
       }}
+      style={{
+        borderRadius: borderRadius.lg,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        backgroundColor: theme.colors.surfaceElevated,
+        overflow: 'hidden',
+      }}
     >
+      <ButtonSurfaceFill
+        top={gradient.top}
+        bottom={gradient.bottom}
+        borderRadius={borderRadius.lg}
+      />
       <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
         <Box sx={{ flex: 1, gap: 1 }}>
           <Text variant="bodyBold" label={title} />
@@ -92,7 +126,7 @@ function MainMenuItemBody({
           resolvedTrailing
         )}
       </Box>
-    </Card>
+    </Box>
   );
 }
 
@@ -132,10 +166,11 @@ function MainMenuItemRow(item: MainMenuItem) {
 
 /**
  * Centered, card-based main menu: optional title/subtitle/helper, a vertical
- * stack of card rows, and an optional footer. Width is constrained for
- * visual consistency across all space menus. Presentational; parents own
- * selection and navigation state. Back navigation belongs in the host's
- * nav chrome (e.g. via `DefineBackButton` in spaces), not inside the menu.
+ * stack of card rows, and an optional footer. Content is capped at
+ * {@link MAIN_MENU_SCREEN_MAX_WIDTH} for visual consistency across all space
+ * menus. Presentational; parents own selection and navigation state. Back
+ * navigation belongs in the host's nav chrome (e.g. via `DefineBackButton` in
+ * spaces), not inside the menu.
  */
 export function MainMenuScreen({
   title,
@@ -146,11 +181,18 @@ export function MainMenuScreen({
 }: MainMenuScreenProps): ReactNode {
   const hasHeader = title !== undefined || subtitle !== undefined;
   return (
-    <Box sx={{ px: 4, pb: 8, pt: 4, gap: 4 }}>
+    <Box
+      sx={{ px: 4, pb: 8, pt: 4, gap: 4, alignSelf: 'center' }}
+      style={{ width: '100%', maxWidth: MAIN_MENU_SCREEN_MAX_WIDTH }}
+    >
       {hasHeader ? (
-        <Box sx={{ gap: 2, alignItems: 'center', minHeight: 112 }}>
+        <Box sx={{ gap: 1, alignItems: 'center', py: 2 }}>
           {title ? (
-            <Text variant="title" sx={{ textAlign: 'center' }} label={title} />
+            <Text
+              variant="heading"
+              sx={{ textAlign: 'center' }}
+              label={title}
+            />
           ) : null}
           {subtitle ? (
             <Text

@@ -1,4 +1,4 @@
-import { Box, Button, Text, useTheme } from '@pkgs/ui';
+import { Box, Text, useTheme } from '@pkgs/ui';
 import { USE_NATIVE_DRIVER } from '@pkgs/ui/animation/use-native-driver';
 import { Trans } from '@lingui/react/macro';
 import { useEffect, useRef, type ReactNode } from 'react';
@@ -90,16 +90,12 @@ export type ChessPuzzleSummaryCardProps = {
   completion: PuzzleCompletion;
   displayRating: number;
   deltaPulse?: Animated.Value;
-  onContinue: () => void;
-  onRetry: () => void;
 };
 
 export function ChessPuzzleSummaryCard({
   completion,
   displayRating,
   deltaPulse,
-  onContinue,
-  onRetry,
 }: ChessPuzzleSummaryCardProps): ReactNode {
   const theme = useTheme();
   const isSolved = completion.outcome === 'solved';
@@ -136,20 +132,6 @@ export function ChessPuzzleSummaryCard({
         />
       </Animated.View>
       <SummaryMeta completion={completion} />
-      <Box sx={{ flexDirection: 'row', gap: 2 }}>
-        <Button
-          flex={1}
-          intent="neutral"
-          title={<Trans>Retry</Trans>}
-          onPress={onRetry}
-        />
-        <Button
-          flex={1}
-          intent="primary"
-          title={<Trans>Continue</Trans>}
-          onPress={onContinue}
-        />
-      </Box>
     </Box>
   );
 }

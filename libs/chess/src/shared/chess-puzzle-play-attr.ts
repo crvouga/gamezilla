@@ -77,6 +77,15 @@ export const ChessPuzzlePlayAttr = {
   ),
   /** Index of the next expected token in `moves`. */
   solveIdx: playNs.integer('solve-idx', readNonNegativeInteger),
+  /**
+   * Furthest `solveIdx` reached this attempt (high-water mark). Step-back
+   * rewinds `solveIdx` without lowering this; step-forward may advance back
+   * up to it — never past unattempted moves.
+   */
+  furthestSolveIdx: playNs.integer(
+    'furthest-solve-idx',
+    readNonNegativeInteger
+  ),
   /** FEN currently rendered on the board (after applied moves). */
   displayFen: playNs.textOrNull('display-fen', readNullableNonEmptyString),
   /**

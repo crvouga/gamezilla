@@ -1,13 +1,8 @@
-import { SpaceJoinBlockedNote } from './space-join-blocked-note';
 import { SpaceJoinButton } from './space-join-button';
+import { SpaceJoinEndedState } from './space-join-ended-state';
+import { SpaceJoinLiveBody } from './space-join-live-body';
 import { useSpaceJoinSnapshot } from './use-space-join-snapshot';
-import { SpaceGuestSection } from '../members/space-guest-section';
 import { SpaceTitleText } from '../space-title-text';
-import {
-  SPACE_CARD_BORDER_RADIUS,
-  SpaceCardGradientBox,
-} from '../card/space-card-gradient';
-import { SpaceSummaryHeader } from '../card/space-summary-header';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import {
   Box,
@@ -15,7 +10,6 @@ import {
   Gamepad2Icon,
   LoadingState,
   ScreenBase,
-  Text,
 } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocalSearchParams } from 'expo-router';
@@ -50,13 +44,21 @@ export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
           name: <SpaceTitleText spaceId={spaceId} variant="navigationTitle" />,
         },
       ]}
+      footer={
+        snapshot.status === 'live' ? (
+          <Box sx={{ flexDirection: 'row' }}>
+            <SpaceJoinButton
+              spaceId={spaceId}
+              joinable={snapshot.joinable}
+              inviteToken={inviteToken}
+              flex={1}
+            />
+          </Box>
+        ) : undefined
+      }
       content={({ sx }) => (
         <Box style={sx}>
-          <JoinPromptBody
-            spaceId={spaceId}
-            snapshot={snapshot}
-            inviteToken={inviteToken}
-          />
+          <JoinPromptBody spaceId={spaceId} snapshot={snapshot} />
         </Box>
       )}
     />
@@ -66,11 +68,9 @@ export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
 function JoinPromptBody({
   spaceId,
   snapshot,
-  inviteToken,
 }: {
   spaceId: string;
   snapshot: ReturnType<typeof useSpaceJoinSnapshot>;
-  inviteToken: string | null;
 }): ReactNode {
   const nav = useBreadcrumbNav();
   const { t } = useLingui();
@@ -90,41 +90,9 @@ function JoinPromptBody({
     );
   }
 
-  return (
-    <Box sx={{ gap: 4 }}>
-      <SpaceCardGradientBox
-        sx={{
-          borderRadius: SPACE_CARD_BORDER_RADIUS,
-          p: 4,
-          minHeight: 112,
-          justifyContent: 'space-between',
-          gap: 0,
-        }}
-      >
-        <SpaceSummaryHeader spaceId={spaceId} />
-        <SpaceGuestSection spaceId={spaceId} />
-      </SpaceCardGradientBox>
-      <Text
-        variant="body"
-        sx={{ color: 'textSecondary' }}
-        label={
-          snapshot.status === 'ended' ? (
-            <Trans>This space has ended.</Trans>
-          ) : (
-            <Trans>Join to see who is here and hang out.</Trans>
-          )
-        }
-      />
-      {snapshot.status === 'live' ? (
-        <>
-          <SpaceJoinBlockedNote spaceId={spaceId} />
-          <SpaceJoinButton
-            spaceId={spaceId}
-            joinable={snapshot.joinable}
-            inviteToken={inviteToken}
-          />
-        </>
-      ) : null}
-    </Box>
-  );
+  if (snapshot.status === 'ended') {
+    return <SpaceJoinEndedState spaceId={spaceId} />;
+  }
+
+  return <SpaceJoinLiveBody spaceId={spaceId} />;
 }

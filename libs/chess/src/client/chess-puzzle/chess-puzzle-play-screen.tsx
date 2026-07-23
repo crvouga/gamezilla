@@ -29,7 +29,12 @@ type PuzzlePlayLayoutProps = {
   boardSlot: (size: number) => ReactNode;
   status: SolveStatus;
   hintStage: HintStage;
+  canGoBack: boolean;
+  canGoForward: boolean;
   onHint: () => void;
+  onSolution: () => void;
+  onBack: () => void;
+  onForward: () => void;
   onRetry: () => void;
   onNext: () => void;
   completion: PuzzlePlayerChromeModel['completion'];
@@ -45,15 +50,13 @@ function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
     <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}>
       <DefineBackButton onPress={p.backToRoot} />
       {p.e2eLoadingStatus}
-      <Box sx={{ flex: 1, minHeight: 0, gap: 4, pb: 8, pt: 4 }}>
+      <Box sx={{ flex: 1, minHeight: 0, gap: 4, pt: 4 }}>
         {p.assistant}
         <ChessPuzzleBoardFrame
           overlay={
             showCelebration && p.completion !== null ? (
               <ChessPuzzleCelebrationOverlay
                 completion={p.completion}
-                onContinue={p.onNext}
-                onRetry={p.onRetry}
                 onDisplayEloChange={p.onCelebrationEloChange}
                 onEloCompletePulse={p.onCelebrationEloComplete}
               />
@@ -62,14 +65,16 @@ function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
         >
           {(size) => p.boardSlot(size)}
         </ChessPuzzleBoardFrame>
-        <Box
-          sx={{ opacity: showCelebration ? 0 : 1, alignSelf: 'stretch' }}
-          pointerEvents={showCelebration ? 'none' : 'auto'}
-        >
+        <Box sx={{ alignSelf: 'stretch' }}>
           <ChessPuzzleActionBar
             status={p.status}
             hintStage={p.hintStage}
+            canGoBack={p.canGoBack}
+            canGoForward={p.canGoForward}
             onHint={p.onHint}
+            onSolution={p.onSolution}
+            onBack={p.onBack}
+            onForward={p.onForward}
             onRetry={p.onRetry}
             onNext={p.onNext}
           />
@@ -87,6 +92,7 @@ const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
     | 'layoutKey'
     | 'orientation'
     | 'status'
+    | 'atFrontier'
     | 'onMove'
     | 'cellFeedback'
     | 'cellHighlights'
@@ -104,7 +110,7 @@ const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
       fen={p.displayFen}
       fenSyncKey={p.layoutKey}
       orientation={p.orientation}
-      interactive={p.status === 'solving'}
+      interactive={p.status === 'solving' && p.atFrontier}
       onMove={p.onMove}
       showCoordinates
       highlightLastMove
@@ -163,6 +169,7 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
           layoutKey={p.layoutKey}
           orientation={p.orientation}
           status={p.status}
+          atFrontier={p.atFrontier}
           onMove={p.onMove}
           cellFeedback={p.cellFeedback}
           cellHighlights={p.cellHighlights}
@@ -171,7 +178,12 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
       )}
       status={p.status}
       hintStage={p.hintStage}
+      canGoBack={p.canGoBack}
+      canGoForward={p.canGoForward}
       onHint={p.onHint}
+      onSolution={p.onSolution}
+      onBack={p.onBack}
+      onForward={p.onForward}
       onRetry={p.onRetry}
       onNext={p.onNext}
       completion={p.completion}
@@ -237,7 +249,12 @@ function PuzzlePlayLoadingShell(p: {
       boardSlot={(size) => <ChessPuzzleBoardLoadingState size={size} />}
       status={LOADING_SHELL_STATUS}
       hintStage={LOADING_SHELL_HINT_STAGE}
+      canGoBack={false}
+      canGoForward={false}
       onHint={noop}
+      onSolution={noop}
+      onBack={noop}
+      onForward={noop}
       onRetry={noop}
       onNext={noop}
       completion={null}

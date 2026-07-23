@@ -1,11 +1,15 @@
 /**
  * Rectangular ActionBar control: icon/avatar + under-caption as one press target.
+ *
+ * The media slot is always `buttonSize` tall so icon and avatar items share the
+ * same footprint and under-captions line up in a row.
  */
 
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 
 import { borderRadius } from '../../theme';
+import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
 
@@ -37,6 +41,8 @@ export type ActionBarLabeledControlProps = {
   /** Full label for screen readers (defaults to caption when string). */
   label: ReactNode;
   accessibilityLabel?: LocalizedString;
+  /** Fixed media-slot height; matches ActionBar `buttonSize`. */
+  buttonSize: number;
   slotWidth: number;
   disabled?: boolean;
   onPress: () => void;
@@ -69,7 +75,16 @@ export function ActionBarLabeledControl(
         gap: 2,
       }}
     >
-      {p.children}
+      <Box
+        style={{
+          height: p.buttonSize,
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {p.children}
+      </Box>
       <ActionBarInlineCaption caption={p.caption} />
     </Pressable>
   );

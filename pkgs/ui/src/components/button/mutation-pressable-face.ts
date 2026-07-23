@@ -10,7 +10,7 @@ import { deriveSolidButtonSurface } from './derive-solid-button-surface';
 
 const MIN_CONTRAST = 4.5;
 
-export type ButtonIntent = 'primary' | 'danger' | 'neutral';
+export type ButtonIntent = 'primary' | 'danger' | 'success' | 'neutral';
 export type ButtonVariant = 'solid' | 'outline' | 'ghost';
 export type ButtonFeedback = 'idle' | 'loading' | 'success' | 'error';
 
@@ -79,6 +79,14 @@ function resolveIntentTokens(theme: Theme, intent: ButtonIntent): IntentTokens {
       solidFg: c.onDestructive,
       accent: c.destructive,
       outlineBorder: c.destructive,
+    };
+  }
+  if (intent === 'success') {
+    return {
+      solidBg: c.success,
+      solidFg: c.onSuccess,
+      accent: c.success,
+      outlineBorder: c.success,
     };
   }
   return {
