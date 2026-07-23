@@ -110,6 +110,7 @@ const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
     | 'orientation'
     | 'status'
     | 'atFrontier'
+    | 'opponentAnimating'
     | 'onMove'
     | 'cellFeedback'
     | 'cellHighlights'
@@ -127,7 +128,9 @@ const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
       fen={p.displayFen}
       fenSyncKey={p.layoutKey}
       orientation={p.orientation}
-      interactive={p.status === 'solving' && p.atFrontier}
+      interactive={
+        p.status === 'solving' && p.atFrontier && !p.opponentAnimating
+      }
       onMove={p.onMove}
       showCoordinates
       highlightLastMove
@@ -159,6 +162,7 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
           orientation={p.orientation}
           status={p.status}
           atFrontier={p.atFrontier}
+          opponentAnimating={p.opponentAnimating}
           onMove={p.onMove}
           cellFeedback={p.cellFeedback}
           cellHighlights={p.cellHighlights}

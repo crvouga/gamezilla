@@ -125,6 +125,7 @@ function usePuzzlePlayerModel(
     wrongToSquare,
     expectedFromSquare,
     expectedToSquare,
+    opponentAnimating,
   } = usePuzzleSolver({ puzzleId });
   const { appendUsedHint, appendAbandoned, setLastUci } =
     useChessPuzzleInteractionRecorder({
@@ -156,6 +157,7 @@ function usePuzzlePlayerModel(
     appendUsedHint,
     appendAbandoned,
     setLastUci,
+    opponentAnimating,
   };
 }
 
@@ -181,6 +183,7 @@ function frozenPlayerModel(args: {
     orientation: m.orientation,
     status: m.status,
     atFrontier: controls.atFrontier,
+    opponentAnimating: m.opponentAnimating,
     hintStage: controls.hintStage,
     canGoBack: controls.canGoBack,
     canGoForward: controls.canGoForward,

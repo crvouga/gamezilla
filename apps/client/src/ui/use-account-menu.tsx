@@ -1,3 +1,4 @@
+import { useAccountSwitch } from '@libs/auth/client/account-switch/account-switch-context';
 import {
   useSignInModal,
   useSignOutModal,
@@ -8,7 +9,6 @@ import {
   accountDisplayTitle,
   type LocalAccount,
 } from '@libs/auth/client/use-local-accounts';
-import { useSwitchAccount } from '@libs/auth/client/use-switch-account';
 import {
   createDefaultAvatarConfig,
   parseAvatarConfig,
@@ -21,7 +21,6 @@ import {
   LogOutIcon,
   PlusIcon,
   SettingsIcon,
-  Spinner,
   UserIcon,
   iconButtonAvatarContentSize,
   type ActionBarItem,
@@ -29,7 +28,7 @@ import {
 } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useMemo, type ReactNode } from 'react';
 
 const TRIGGER_SIZE = 36;
 const MENU_AVATAR_SIZE = 28;
@@ -98,39 +97,29 @@ function AccountMenuAvatar({
 
 function useAccountSwitchItems(): ActionBarItem[] {
   const accounts = useLocalAccounts();
-  const switchAccount = useSwitchAccount();
+  const { switchToAccount, isPending } = useAccountSwitch();
   const router = useRouter();
-  const [switchingSessionId, setSwitchingSessionId] = useState<string | null>(
-    null
-  );
 
   const onSwitch = useCallback(
     (account: LocalAccount) => {
-      if (account.isActive || switchingSessionId !== null) return;
-      setSwitchingSessionId(account.sessionId);
-      void (async () => {
-        try {
-          await switchAccount({
-            sessionId: account.sessionId,
-            accountId: account.accountId,
-          });
+      if (account.isActive || isPending) return;
+      void switchToAccount({
+        sessionId: account.sessionId,
+        accountId: account.accountId,
+        onComplete: () => {
           router.replace('/');
-        } catch {
-          setSwitchingSessionId(null);
-        }
-      })();
+        },
+      }).catch(() => undefined);
     },
-    [switchAccount, router, switchingSessionId]
+    [switchToAccount, isPending, router]
   );
 
   return useMemo(() => {
     if (accounts.length === 0) return [];
-    const isSwitching = switchingSessionId !== null;
     return accounts.map((account, index) => {
       const isLast = index === accounts.length - 1;
       const title = accountDisplayTitle(account);
       const subtitle = accountSubtitle(account);
-      const isTarget = switchingSessionId === account.sessionId;
       return {
         id: `switch-${account.sessionId}`,
         variant: 'avatar' as const,
@@ -141,16 +130,13 @@ function useAccountSwitchItems(): ActionBarItem[] {
         onPress: () => onSwitch(account),
         overflow: 'always' as const,
         endsGroup: isLast,
-        disabled: isSwitching && !isTarget,
-        loading: isTarget,
-        ...(isTarget
-          ? { trailing: <Spinner size="small" /> }
-          : account.isActive
-            ? { trailing: <CircleCheckIcon size={18} /> }
-            : {}),
+        disabled: isPending,
+        ...(account.isActive
+          ? { trailing: <CircleCheckIcon size={18} /> }
+          : {}),
       };
     });
-  }, [accounts, onSwitch, switchingSessionId]);
+  }, [accounts, onSwitch, isPending]);
 }
 
 function useAccountMenuHandlers() {

@@ -3,7 +3,7 @@ import { useEffect, type ReactNode } from 'react';
 
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { useAuthClientPort } from './auth-client-provider';
-import { touchRosterAccount } from './local-account-roster';
+import { patchRosterProfileDisplay } from './local-account-roster';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useLocalAccountRoster } from './use-local-account-roster';
 
@@ -22,6 +22,8 @@ function nonEmptyString(value: string | null | undefined): string | undefined {
 /**
  * Keeps the Kv account roster's username / avatar in sync with the active
  * account's local profile row (runs inside the sync-engine tree).
+ *
+ * Display-only: does not rebind sessionId. Auth refresh owns session↔account.
  */
 export function AccountRosterProfileSync({
   children,
@@ -34,7 +36,7 @@ export function AccountRosterProfileSync({
   const [, setRoster] = useLocalAccountRoster();
   const activeSession = sessions.find((session) => session.isActive);
 
-  const { row } = useWatchOne<ProfileDisplayRow>(
+  const { row, isLoading: profileLoading } = useWatchOne<ProfileDisplayRow>(
     accountId === null
       ? `SELECT ${ProfileCol.username} AS username,
                 ${ProfileCol.avatarConfig} AS avatar_config
@@ -48,26 +50,29 @@ export function AccountRosterProfileSync({
 
   useEffect(() => {
     if (accountId === null || activeSession === undefined) return;
-    // Never bind this account's profile onto a session owned by another Clerk user.
-    if (
-      activeSession.externalUserId.length === 0 ||
-      accountId.length === 0
-    ) {
-      return;
-    }
+    if (activeSession.externalUserId.length === 0) return;
+    if (profileLoading) return;
     const username = nonEmptyString(row?.username);
     const avatarConfigJson = nonEmptyString(row?.avatar_config);
+    if (username === undefined && avatarConfigJson === undefined) return;
+    const externalUserId = activeSession.externalUserId;
     setRoster((prev) =>
-      touchRosterAccount({
+      patchRosterProfileDisplay({
         roster: prev,
         accountId,
-        sessionId: activeSession.sessionId,
-        externalUserId: activeSession.externalUserId,
+        expectedExternalUserId: externalUserId,
         ...(username !== undefined ? { username } : {}),
         ...(avatarConfigJson !== undefined ? { avatarConfigJson } : {}),
       })
     );
-  }, [accountId, activeSession, row?.username, row?.avatar_config, setRoster]);
+  }, [
+    accountId,
+    activeSession,
+    profileLoading,
+    row?.username,
+    row?.avatar_config,
+    setRoster,
+  ]);
 
   return children;
 }

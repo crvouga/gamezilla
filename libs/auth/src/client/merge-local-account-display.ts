@@ -1,0 +1,84 @@
+import type { AccountSession } from '@pkgs/auth/client/account-session';
+
+import type { LocalAccountRosterEntry } from './local-account-roster-types';
+
+export type LocalAccountDisplay = {
+  readonly username: string | null;
+  readonly avatarConfigJson: string | null;
+};
+
+export type ActiveProfileDisplayRow = {
+  readonly username: string | null;
+  readonly avatar_config: string | null;
+};
+
+function nonEmpty(value: string | null | undefined): string | null {
+  if (value === null || value === undefined || value.length === 0) return null;
+  return value;
+}
+
+function resolveUsername(
+  rosterUsername: string | null,
+  sessionUsername: string | null,
+  useActiveProfile: boolean,
+  activeProfileUsername: string | null
+): string | null {
+  const fromRoster = nonEmpty(rosterUsername);
+  if (fromRoster !== null) return fromRoster;
+  if (useActiveProfile) {
+    const fromProfile = nonEmpty(activeProfileUsername);
+    if (fromProfile !== null) return fromProfile;
+  }
+  return nonEmpty(sessionUsername);
+}
+
+function resolveAvatarConfigJson(
+  rosterAvatarConfigJson: string | null,
+  useActiveProfile: boolean,
+  activeProfileAvatarConfigJson: string | null
+): string | null {
+  const fromRoster = nonEmpty(rosterAvatarConfigJson);
+  if (fromRoster !== null) return fromRoster;
+  if (!useActiveProfile) return null;
+  return nonEmpty(activeProfileAvatarConfigJson);
+}
+
+/**
+ * Live profile is keyed by lastLocalAccountId. Only paint it onto a session
+ * whose roster row already points at that account — otherwise a mid-switch
+ * Clerk flip shows the previous account's username/avatar on the new session.
+ */
+export function shouldUseActiveProfile(
+  entry: LocalAccountRosterEntry | undefined,
+  isActive: boolean,
+  activeAccountId: string | null
+): boolean {
+  if (!isActive || activeAccountId === null) return false;
+  return entry?.accountId === activeAccountId;
+}
+
+export function mergeLocalAccountDisplay(args: {
+  readonly session: AccountSession;
+  readonly entry: LocalAccountRosterEntry | undefined;
+  readonly activeAccountId: string | null;
+  readonly activeProfile: ActiveProfileDisplayRow | null;
+}): LocalAccountDisplay {
+  const useProfile = shouldUseActiveProfile(
+    args.entry,
+    args.session.isActive,
+    args.activeAccountId
+  );
+  return {
+    username: resolveUsername(
+      args.entry?.username ?? null,
+      args.session.username,
+      useProfile,
+      args.activeProfile?.username ?? null
+    ),
+    avatarConfigJson: resolveAvatarConfigJson(
+      args.entry?.avatarConfigJson ?? null,
+      useProfile,
+      args.activeProfile?.avatar_config ?? null
+    ),
+  };
+}

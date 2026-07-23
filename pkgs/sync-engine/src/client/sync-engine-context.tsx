@@ -116,6 +116,14 @@ export function useWatchQuery<T extends Record<string, unknown>>(
   const cacheKey = watchQueryCacheKey(sql, paramsKey);
   const prevRowsRef = useRef<readonly T[]>([]);
   const hadRowsRef = useRef(false);
+  const prevCacheKeyRef = useRef(cacheKey);
+  // Drop held rows when the watch identity changes — otherwise an empty
+  // next query briefly resurrects the previous account's profile/username.
+  if (prevCacheKeyRef.current !== cacheKey) {
+    prevCacheKeyRef.current = cacheKey;
+    prevRowsRef.current = [];
+    hadRowsRef.current = false;
+  }
   const reconnecting = isSyncReconnecting(status);
   updateWatchQueryCacheForSnapshot({
     cacheKey,

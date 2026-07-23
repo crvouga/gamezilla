@@ -18,12 +18,26 @@ function toError(error: unknown): Error {
  * ready. PowerSync `connect()` runs in the background so account switches are
  * not blocked on network sync. Ignores Strict Mode cleanups that cancel an
  * in-flight boot of the same identity.
+ *
+ * When `enginePromise` changes (account switch), loading is applied during
+ * render — not only in useEffect — so children never read the new accountId
+ * against the previous identity's SQLite for a frame.
  */
 export function useSyncEngineBootState(
   enginePromise: Promise<SyncEngine>
 ): SyncEngineBootState {
   const [boot, setBoot] = useState<SyncEngineBootState>({ phase: 'loading' });
+  const [resolvedPromise, setResolvedPromise] = useState(enginePromise);
   const generationRef = useRef(0);
+
+  // Adjust state during render when the identity promise changes (React
+  // "store reset on prop change"). Waiting for useEffect left one frame
+  // where accountId was new but the old SyncEngine was still mounted —
+  // profile sync then wrote the previous account's username into the roster.
+  if (enginePromise !== resolvedPromise) {
+    setResolvedPromise(enginePromise);
+    setBoot({ phase: 'loading' });
+  }
 
   useEffect(() => {
     const generation = generationRef.current + 1;

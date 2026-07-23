@@ -11,6 +11,7 @@ import {
 } from '../../shared/chess-puzzle-play';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
+import { usePuzzleOpponentMoveStage } from './use-puzzle-opponent-move-stage';
 
 /**
  * UI-facing status. `'loading'` is a client-side projection of the room's
@@ -21,6 +22,7 @@ export type SolveStatus = 'loading' | ChessPuzzlePlayStatus;
 function useChessPuzzlePlayRoomSelectors() {
   const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
+  const startFen = useSpaceRoomSelector(ChessPuzzlePlayAttr.fen.from);
   const displayFen = useSpaceRoomSelector(ChessPuzzlePlayAttr.displayFen.from);
   const layoutKey = useSpaceRoomSelector(ChessPuzzlePlayAttr.layoutKey.from);
   const orientation = useSpaceRoomSelector(
@@ -46,6 +48,7 @@ function useChessPuzzlePlayRoomSelectors() {
   return {
     roomStatus,
     roomPuzzleId,
+    startFen,
     displayFen,
     layoutKey,
     orientation,
@@ -83,12 +86,15 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
   wrongToSquare: string | null;
   expectedFromSquare: string | null;
   expectedToSquare: string | null;
+  /** True while opponent opening/reply is staged on the board. */
+  opponentAnimating: boolean;
 } {
   const { puzzleId } = args;
   const dispatch = useSpaceRoomDispatch();
   const {
     roomStatus,
     roomPuzzleId,
+    startFen,
     displayFen,
     layoutKey,
     orientation,
@@ -116,8 +122,17 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
   const totalTokens =
     roomMoves.trim().length === 0 ? 0 : roomMoves.trim().split(/\s+/).length;
 
-  return {
+  const { boardFen, opponentAnimating } = usePuzzleOpponentMoveStage({
+    startFen,
+    moves: roomMoves,
     displayFen,
+    solveIdx,
+    furthestSolveIdx,
+    status,
+  });
+
+  return {
+    displayFen: boardFen,
     layoutKey,
     status,
     orientation,
@@ -129,5 +144,6 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
     wrongToSquare,
     expectedFromSquare,
     expectedToSquare,
+    opponentAnimating,
   };
 }

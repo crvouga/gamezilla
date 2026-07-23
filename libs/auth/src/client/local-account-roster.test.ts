@@ -3,6 +3,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   detachedRosterSessionId,
   findRosterEntryForSession,
+  patchRosterProfileDisplay,
   removeRosterAccount,
   removeRosterSession,
   touchRosterAccount,
@@ -127,6 +128,43 @@ describe('local-account-roster', () => {
     expect(next[0]?.externalUserId).toBe('user_1');
     expect(next[0]?.sessionId).toBe('s9');
     expect(next[0]?.lastActiveAt).toBe('2026-07-01T00:00:00.000Z');
+  });
+
+  test('patchRosterProfileDisplay does not rebind sessionId', () => {
+    const prev = [
+      entry({
+        accountId: 'a1',
+        sessionId: 's1',
+        externalUserId: 'user_1',
+        username: 'alice',
+        avatarConfigJson: '{"seed":"a"}',
+      }),
+      entry({
+        accountId: 'a2',
+        sessionId: 's2',
+        externalUserId: 'user_2',
+        username: 'bob',
+        avatarConfigJson: '{"seed":"b"}',
+      }),
+    ];
+    // Mid-switch: Clerk already on s2, but lastLocalAccountId still a1.
+    const next = patchRosterProfileDisplay({
+      roster: prev,
+      accountId: 'a1',
+      expectedExternalUserId: 'user_2',
+      username: 'alice-updated',
+    });
+    expect(next).toEqual(prev);
+    const patched = patchRosterProfileDisplay({
+      roster: prev,
+      accountId: 'a1',
+      expectedExternalUserId: 'user_1',
+      username: 'alice-updated',
+    });
+    expect(patched[0]?.sessionId).toBe('s1');
+    expect(patched[0]?.username).toBe('alice-updated');
+    expect(patched[1]?.username).toBe('bob');
+    expect(patched[1]?.sessionId).toBe('s2');
   });
 
   test('findRosterEntryForSession matches by externalUserId after session rotation', () => {

@@ -108,6 +108,8 @@ function useRefreshOnAppForeground(args: {
           token,
           expiresAt: expiresAtRef.current,
           force: true,
+          sessionId: deps.activeSessionId,
+          externalUserId: deps.activeExternalUserId,
         });
       })();
     };
@@ -189,9 +191,35 @@ async function handleSignedIn(args: {
   const { deps, port, expiresAt } = args;
   const token = await port.getFreshToken();
   if (token === null) return;
+  const sessionId = deps.activeSessionId;
+  const externalUserId = deps.activeExternalUserId;
   await writeSecureStorageItem(deps.storage, SESSION_TOKEN_KEY, token);
   if (deps.lastSyncedTokenRef.current === token) return;
-  await runRefresh({ deps, token, expiresAt, force: false });
+  await runRefresh({
+    deps,
+    token,
+    expiresAt,
+    force: false,
+    sessionId,
+    externalUserId,
+  });
+}
+
+function bindRosterAfterRefresh(args: {
+  readonly deps: RefreshDeps;
+  readonly accountId: string;
+  readonly sessionId: string;
+  readonly externalUserId: string | null;
+}): void {
+  const { deps, accountId, sessionId, externalUserId } = args;
+  deps.setRoster((prev) =>
+    touchRosterAccount({
+      roster: prev,
+      accountId,
+      sessionId,
+      ...(externalUserId !== null ? { externalUserId } : {}),
+    })
+  );
 }
 
 async function runRefresh(args: {
@@ -199,8 +227,10 @@ async function runRefresh(args: {
   token: string;
   expiresAt: string | null;
   force: boolean;
+  sessionId: string | null;
+  externalUserId: string | null;
 }): Promise<void> {
-  const { deps, token, force } = args;
+  const { deps, token, force, sessionId, externalUserId } = args;
   if (deps.inFlightRef.current) return;
   if (!force && deps.lastSyncedTokenRef.current === token) return;
   deps.inFlightRef.current = true;
@@ -217,18 +247,13 @@ async function runRefresh(args: {
       LAST_LOCAL_ACCOUNT_ID_KEY,
       accountId
     );
-    if (deps.activeSessionId !== null) {
-      const sessionId = deps.activeSessionId;
-      deps.setRoster((prev) =>
-        touchRosterAccount({
-          roster: prev,
-          accountId,
-          sessionId,
-          ...(deps.activeExternalUserId !== null
-            ? { externalUserId: deps.activeExternalUserId }
-            : {}),
-        })
-      );
+    if (sessionId !== null) {
+      bindRosterAfterRefresh({
+        deps,
+        accountId,
+        sessionId,
+        externalUserId,
+      });
     }
     await flushSyncIdentityOnSignIn();
     deps.lastSyncedTokenRef.current = token;

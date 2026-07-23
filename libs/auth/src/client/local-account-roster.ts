@@ -151,3 +151,33 @@ export function touchRosterAccount(args: {
     lastActiveAt: nowIso,
   });
 }
+
+/**
+ * Updates username / avatar only. Never rebinds sessionId — auth refresh owns
+ * that link. Mid-switch Clerk session flips must not attach this account's
+ * profile onto another session (or stamp the wrong externalUserId).
+ */
+export function patchRosterProfileDisplay(args: {
+  readonly roster: LocalAccountRoster;
+  readonly accountId: string;
+  readonly expectedExternalUserId: string;
+  readonly username?: string | null;
+  readonly avatarConfigJson?: string | null;
+}): LocalAccountRoster {
+  const existing = args.roster.find((row) => row.accountId === args.accountId);
+  if (existing === undefined) return args.roster;
+  if (
+    existing.externalUserId !== null &&
+    existing.externalUserId !== args.expectedExternalUserId
+  ) {
+    return args.roster;
+  }
+  return upsertRosterEntry(args.roster, {
+    ...existing,
+    username: coalesceRosterField(args.username, existing.username),
+    avatarConfigJson: coalesceRosterField(
+      args.avatarConfigJson,
+      existing.avatarConfigJson
+    ),
+  });
+}

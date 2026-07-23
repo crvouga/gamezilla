@@ -7,6 +7,10 @@ import type { AccountSession } from '@pkgs/auth/client/account-session';
 import { useAuthClientPort } from './auth-client-provider';
 import { findRosterEntryForSession } from './local-account-roster';
 import type { LocalAccountRosterEntry } from './local-account-roster-types';
+import {
+  mergeLocalAccountDisplay,
+  type ActiveProfileDisplayRow,
+} from './merge-local-account-display';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useLocalAccountRoster } from './use-local-account-roster';
 
@@ -19,11 +23,6 @@ export type LocalAccount = {
   readonly avatarConfigJson: string | null;
   readonly isActive: boolean;
   readonly lastActiveAt: string | null;
-};
-
-type ActiveProfileDisplayRow = {
-  readonly username: string | null;
-  readonly avatar_config: string | null;
 };
 
 function nonEmpty(value: string | null | undefined): string | null {
@@ -48,32 +47,6 @@ export function accountDisplayTitle(account: {
   return account.externalUserId;
 }
 
-function resolveUsername(
-  rosterUsername: string | null,
-  sessionUsername: string | null,
-  isActive: boolean,
-  activeProfileUsername: string | null
-): string | null {
-  const fromRoster = nonEmpty(rosterUsername);
-  if (fromRoster !== null) return fromRoster;
-  if (isActive) {
-    const fromProfile = nonEmpty(activeProfileUsername);
-    if (fromProfile !== null) return fromProfile;
-  }
-  return nonEmpty(sessionUsername);
-}
-
-function resolveAvatarConfigJson(
-  rosterAvatarConfigJson: string | null,
-  isActive: boolean,
-  activeProfileAvatarConfigJson: string | null
-): string | null {
-  const fromRoster = nonEmpty(rosterAvatarConfigJson);
-  if (fromRoster !== null) return fromRoster;
-  if (!isActive) return null;
-  return nonEmpty(activeProfileAvatarConfigJson);
-}
-
 function resolveAccountId(
   entry: LocalAccountRosterEntry | undefined,
   isActive: boolean,
@@ -82,27 +55,6 @@ function resolveAccountId(
   if (entry?.accountId !== undefined) return entry.accountId;
   if (isActive) return activeAccountId;
   return null;
-}
-
-function mergeDisplayFields(
-  session: AccountSession,
-  entry: LocalAccountRosterEntry | undefined,
-  activeProfile: ActiveProfileDisplayRow | null
-): Pick<LocalAccount, 'username' | 'avatarConfigJson'> {
-  const isActive = session.isActive;
-  return {
-    username: resolveUsername(
-      entry?.username ?? null,
-      session.username,
-      isActive,
-      activeProfile?.username ?? null
-    ),
-    avatarConfigJson: resolveAvatarConfigJson(
-      entry?.avatarConfigJson ?? null,
-      isActive,
-      activeProfile?.avatar_config ?? null
-    ),
-  };
 }
 
 function mergeSessionWithRoster(
@@ -117,7 +69,12 @@ function mergeSessionWithRoster(
     sessionId: session.sessionId,
     externalUserId: session.externalUserId,
     email: session.email,
-    ...mergeDisplayFields(session, entry, activeProfile),
+    ...mergeLocalAccountDisplay({
+      session,
+      entry,
+      activeAccountId,
+      activeProfile,
+    }),
     isActive,
     lastActiveAt: entry?.lastActiveAt ?? null,
   };
@@ -126,8 +83,8 @@ function mergeSessionWithRoster(
 /**
  * Local accounts available for switching: auth sessions joined with Kv roster
  * display metadata (username / avatar). Active account falls back to the live
- * profile when the roster has not caught up yet; otherwise provider username
- * (Clerk) is used for the title.
+ * profile only when the roster already binds that session to the active
+ * accountId; otherwise provider username (Clerk) is used for the title.
  */
 export function useLocalAccounts(): readonly LocalAccount[] {
   const port = useAuthClientPort();
@@ -135,17 +92,21 @@ export function useLocalAccounts(): readonly LocalAccount[] {
   const [roster] = useLocalAccountRoster();
   const activeAccountId = useCurrentAccountId();
 
-  const { row: activeProfile } = useWatchOne<ActiveProfileDisplayRow>(
-    activeAccountId === null
-      ? `SELECT ${ProfileCol.username} AS username,
+  const { row: activeProfile, isLoading: activeProfileLoading } =
+    useWatchOne<ActiveProfileDisplayRow>(
+      activeAccountId === null
+        ? `SELECT ${ProfileCol.username} AS username,
                 ${ProfileCol.avatarConfig} AS avatar_config
          FROM ${PROFILES_TABLE.tableName} WHERE 0`
-      : `SELECT ${ProfileCol.username} AS username,
+        : `SELECT ${ProfileCol.username} AS username,
                 ${ProfileCol.avatarConfig} AS avatar_config
          FROM ${PROFILES_TABLE.tableName}
          WHERE ${ProfileCol.id} = ?`,
-    activeAccountId === null ? [] : [activeAccountId]
-  );
+      activeAccountId === null ? [] : [activeAccountId]
+    );
+  // Ignore held/stale rows while the watch for this accountId is still hydrating.
+  const trustedProfile =
+    activeProfileLoading ? null : (activeProfile ?? null);
 
   return useMemo(() => {
     return sessions.map((session) => {
@@ -157,8 +118,8 @@ export function useLocalAccounts(): readonly LocalAccount[] {
         session,
         entry,
         activeAccountId,
-        activeProfile ?? null
+        trustedProfile
       );
     });
-  }, [sessions, roster, activeAccountId, activeProfile]);
+  }, [sessions, roster, activeAccountId, trustedProfile]);
 }

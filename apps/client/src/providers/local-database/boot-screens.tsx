@@ -1,9 +1,10 @@
 import { RESET_DB_QUERY_PARAM } from '@pkgs/sql-client/impl-expo-sqlite';
 import { isExpoSqliteWebSessionLockError } from '@pkgs/sql-client/expo-sqlite-web-session-lock';
 import { isRecoverableExpoSqliteWebRuntimeError } from '@pkgs/sql-client/expo-sqlite-web-recovery';
-import { ErrorState, LoadingState } from '@pkgs/ui';
+import { ErrorState, LoadingState, useTheme } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
+import { View } from 'react-native';
 
 function bootErrorBody(error: Error): ReactNode {
   if (isExpoSqliteWebSessionLockError(error)) {
@@ -31,14 +32,38 @@ function errorMessage(error: Error): string {
   return error.message;
 }
 
+/** Full-bleed themed shell so boot screens never flash the default canvas. */
+function ThemedBootShell({ children }: { children: ReactNode }): ReactNode {
+  const theme = useTheme();
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: theme.colors.background,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      {children}
+    </View>
+  );
+}
+
+/** Opaque themed hold while the account-switch overlay owns chrome. */
+export function LocalDatabaseBootSwitchHold(): ReactNode {
+  return <ThemedBootShell>{null}</ThemedBootShell>;
+}
+
 export function LocalDatabaseBootLoadingScreen(props: {
   caption?: ReactNode;
 }): ReactNode {
   return (
-    <LoadingState
-      size="large"
-      {...(props.caption !== undefined ? { caption: props.caption } : {})}
-    />
+    <ThemedBootShell>
+      <LoadingState
+        size="large"
+        {...(props.caption !== undefined ? { caption: props.caption } : {})}
+      />
+    </ThemedBootShell>
   );
 }
 
@@ -53,33 +78,35 @@ export function LocalDatabaseBootErrorScreen({
     isLockError || isRecoverableExpoSqliteWebRuntimeError(error);
 
   return (
-    <ErrorState
-      title={
-        isLockError ? (
-          <Trans>Gamezilla is open in another tab</Trans>
-        ) : canResetLocalData ? (
-          <Trans>Local database needs a reset</Trans>
-        ) : (
-          <Trans>Could not start local database</Trans>
-        )
-      }
-      body={bootErrorBody(error)}
-      retry={{
-        label: canResetLocalData
-          ? t`Reset local data and reload`
-          : t`Try again`,
-        onPress: () => {
-          if (typeof window === 'undefined') return;
-          if (canResetLocalData) {
-            const url = new URL(window.location.href);
-            url.searchParams.set(RESET_DB_QUERY_PARAM, '1');
-            window.location.replace(url.toString());
-            return;
-          }
-          window.location.reload();
-        },
-      }}
-    />
+    <ThemedBootShell>
+      <ErrorState
+        title={
+          isLockError ? (
+            <Trans>Gamezilla is open in another tab</Trans>
+          ) : canResetLocalData ? (
+            <Trans>Local database needs a reset</Trans>
+          ) : (
+            <Trans>Could not start local database</Trans>
+          )
+        }
+        body={bootErrorBody(error)}
+        retry={{
+          label: canResetLocalData
+            ? t`Reset local data and reload`
+            : t`Try again`,
+          onPress: () => {
+            if (typeof window === 'undefined') return;
+            if (canResetLocalData) {
+              const url = new URL(window.location.href);
+              url.searchParams.set(RESET_DB_QUERY_PARAM, '1');
+              window.location.replace(url.toString());
+              return;
+            }
+            window.location.reload();
+          },
+        }}
+      />
+    </ThemedBootShell>
   );
 }
 

@@ -145,8 +145,8 @@ function toDatabasePort(
  * and exposes the {@link SyncEngine} port used by auth hooks and UI.
  *
  * Not cached on `globalThis` — Metro HMR would otherwise reuse SyncEngines that
- * wrap dead OPFS workers. {@link useCachedPromise} already memoizes per boot key
- * for the module lifetime; {@link openPowerSyncDatabase} serializes the live DB.
+ * wrap dead OPFS workers. Callers recreate the promise when the identity
+ * `databaseName` changes; {@link openPowerSyncDatabase} serializes the live DB.
  */
 export async function createAppPowerSyncSyncEngine(
   args: CreateAppPowerSyncSyncEngineArgs
