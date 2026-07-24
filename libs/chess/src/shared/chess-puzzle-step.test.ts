@@ -3,7 +3,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   fenAtSolveIdx,
   nextForwardSolveIdx,
-  prevHumanSolveIdx,
+  prevSolveIdx,
   resolveSeekSolveIdx,
   statusAtSolveIdx,
 } from './chess-puzzle-step';
@@ -14,11 +14,12 @@ const VALID_FEN = '4k3/8/8/8/8/8/4P3/4K2R b - - 0 1';
 const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
 
 describe('chess-puzzle-step', () => {
-  test('prevHumanSolveIdx rewinds host turns', () => {
-    expect(prevHumanSolveIdx(1)).toBeNull();
-    expect(prevHumanSolveIdx(3)).toBe(1);
-    expect(prevHumanSolveIdx(4)).toBe(3);
-    expect(prevHumanSolveIdx(5)).toBe(3);
+  test('prevSolveIdx rewinds one ply at a time', () => {
+    expect(prevSolveIdx(1)).toBeNull();
+    expect(prevSolveIdx(2)).toBe(1);
+    expect(prevSolveIdx(3)).toBe(2);
+    expect(prevSolveIdx(4)).toBe(3);
+    expect(prevSolveIdx(5)).toBe(4);
   });
 
   test('nextForwardSolveIdx never past furthest', () => {
@@ -28,7 +29,7 @@ describe('chess-puzzle-step', () => {
         furthestSolveIdx: 5,
         tokensLength: 4,
       })
-    ).toBe(3);
+    ).toBe(2);
     expect(
       nextForwardSolveIdx({
         solveIdx: 3,

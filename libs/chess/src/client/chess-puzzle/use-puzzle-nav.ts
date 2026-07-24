@@ -4,7 +4,7 @@ import {
 } from '../../shared/chess-puzzle-play';
 import {
   nextForwardSolveIdx,
-  prevHumanSolveIdx,
+  prevSolveIdx,
   puzzleTokensLength,
 } from '../../shared/chess-puzzle-step';
 
@@ -14,7 +14,7 @@ export type PuzzleNavModel = {
   canGoForward: boolean;
 };
 
-/** Pure nav affordances from room attrs (authoritative step back/forward). */
+/** Pure nav affordances from room attrs (ply-by-ply step back/forward). */
 export function puzzleNavFromState(args: {
   status: ChessPuzzlePlayStatus | 'loading';
   solveIdx: number;
@@ -29,7 +29,7 @@ export function puzzleNavFromState(args: {
     return { atFrontier: true, canGoBack: false, canGoForward: false };
   }
   const tokensLength = puzzleTokensLength(moves);
-  const canGoBack = prevHumanSolveIdx(solveIdx) !== null;
+  const canGoBack = prevSolveIdx(solveIdx) !== null;
   const canGoForward =
     nextForwardSolveIdx({
       solveIdx,

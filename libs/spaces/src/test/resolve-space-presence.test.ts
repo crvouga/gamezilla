@@ -116,6 +116,23 @@ describe('resolveSpacePresence', () => {
       })
     ).toEqual({ status: 'join', ended: true });
   });
+
+  test('resolves ended join without waiting on participation loading', () => {
+    expect(
+      resolveSpacePresence({
+        spaceEnabled: true,
+        spaceLoading: false,
+        spaceRow: {
+          host_member_id: 'user-1',
+          ended_at: '2026-07-13T00:00:00.000Z',
+        },
+        memberEnabled: true,
+        guestLoading: true,
+        guestRow: null,
+        myId: 'user-1',
+      })
+    ).toEqual({ status: 'join', ended: true });
+  });
 });
 
 describe('latchStaleSpacePresence', () => {

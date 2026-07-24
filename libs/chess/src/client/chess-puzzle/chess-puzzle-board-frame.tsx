@@ -32,7 +32,7 @@ export function ChessPuzzleBoardFrame({
   topAccessoryHeight = 0,
 }: ChessPuzzleBoardFrameProps): ReactNode {
   const [size, setSize] = useState(0);
-  const reserveTop = topAccessory !== undefined ? topAccessoryHeight : 0;
+  const reserveTop = Math.max(0, topAccessoryHeight);
 
   const onLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -58,7 +58,11 @@ export function ChessPuzzleBoardFrame({
     >
       {size > 0 ? (
         <Box style={{ width: size }}>
-          {topAccessory}
+          {reserveTop > 0 ? (
+            <Box style={{ height: reserveTop }}>{topAccessory}</Box>
+          ) : (
+            topAccessory
+          )}
           <Box style={{ width: size, height: size, position: 'relative' }}>
             {children(size)}
             {overlay}

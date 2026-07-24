@@ -41,7 +41,7 @@ import {
 import {
   fenAtSolveIdx,
   nextForwardSolveIdx,
-  prevHumanSolveIdx,
+  prevSolveIdx,
   puzzleTokensLength,
   resolveSeekSolveIdx,
   statusAtSolveIdx,
@@ -378,7 +378,7 @@ function handleStepSeek(
   );
   const nextIdx =
     direction === 'back'
-      ? prevHumanSolveIdx(solveIdx)
+      ? prevSolveIdx(solveIdx)
       : nextForwardSolveIdx({
           solveIdx,
           furthestSolveIdx: furthest,

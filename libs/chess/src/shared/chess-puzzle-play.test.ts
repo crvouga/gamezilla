@@ -556,7 +556,7 @@ describe('chess puzzle play FSM — Clear', () => {
 });
 
 describe('chess puzzle play FSM — StepBack / StepForward', () => {
-  test('step back from solved returns to solving at prior host-to-move', () => {
+  test('step back from solved rewinds one ply into solving', () => {
     let state = startValid(ChessModule.initialState());
     const r1 = ChessModule.handle(
       state,
@@ -594,7 +594,7 @@ describe('chess puzzle play FSM — StepBack / StepForward', () => {
     expect(ChessPuzzlePlayAttr.furthestSolveIdx.from(state)).toBe(4);
   });
 
-  test('step forward restores furthest without past unattempted', () => {
+  test('step back/forward walks every ply including opponent replies', () => {
     let state = startValid(ChessModule.initialState());
     const r1 = ChessModule.handle(
       state,
@@ -604,24 +604,44 @@ describe('chess puzzle play FSM — StepBack / StepForward', () => {
     if (!r1.ok) throw new Error('first move failed');
     state = reduceAll(state, r1.events);
     const afterFirst = ChessPuzzlePlayAttr.displayFen.from(state);
+    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
 
-    const back = ChessModule.handle(
+    const backToPlayer = ChessModule.handle(
       state,
       cmd(StepBackChessPuzzlePlay({})),
       HOST
     );
-    if (!back.ok) throw new Error('step back failed');
-    state = reduceAll(state, back.events);
+    if (!backToPlayer.ok) throw new Error('step back to player ply failed');
+    state = reduceAll(state, backToPlayer.events);
+    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(2);
+
+    const backToOpening = ChessModule.handle(
+      state,
+      cmd(StepBackChessPuzzlePlay({})),
+      HOST
+    );
+    if (!backToOpening.ok) throw new Error('step back to opening failed');
+    state = reduceAll(state, backToOpening.events);
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
 
-    const forward = ChessModule.handle(
+    const forwardToPlayer = ChessModule.handle(
       state,
       cmd(StepForwardChessPuzzlePlay({})),
       HOST
     );
-    expect(forward.ok).toBe(true);
-    if (!forward.ok) return;
-    state = reduceAll(state, forward.events);
+    expect(forwardToPlayer.ok).toBe(true);
+    if (!forwardToPlayer.ok) return;
+    state = reduceAll(state, forwardToPlayer.events);
+    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(2);
+
+    const forwardToReply = ChessModule.handle(
+      state,
+      cmd(StepForwardChessPuzzlePlay({})),
+      HOST
+    );
+    expect(forwardToReply.ok).toBe(true);
+    if (!forwardToReply.ok) return;
+    state = reduceAll(state, forwardToReply.events);
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
     expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(afterFirst);
   });

@@ -1,5 +1,5 @@
 import { SpaceJoinButton } from './space-join-button';
-import { SpaceJoinEndedState } from './space-join-ended-state';
+import { SpaceEndedScreen } from './space-ended-screen';
 import { SpaceJoinLiveBody } from './space-join-live-body';
 import { useSpaceJoinSnapshot } from './use-space-join-snapshot';
 import { SpaceTitleText } from '../space-title-text';
@@ -35,6 +35,10 @@ export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
   const nav = useBreadcrumbNav();
   const inviteToken = useInviteTokenParam();
   const snapshot = useSpaceJoinSnapshot(spaceId, inviteToken);
+
+  if (snapshot.status === 'ended') {
+    return <SpaceEndedScreen spaceId={spaceId} />;
+  }
 
   return (
     <ScreenBase
@@ -88,10 +92,6 @@ function JoinPromptBody({
         action={{ label: t`Back to Spaces`, onPress: nav('/') }}
       />
     );
-  }
-
-  if (snapshot.status === 'ended') {
-    return <SpaceJoinEndedState spaceId={spaceId} />;
   }
 
   return <SpaceJoinLiveBody spaceId={spaceId} />;

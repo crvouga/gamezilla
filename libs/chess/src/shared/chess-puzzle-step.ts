@@ -3,19 +3,16 @@ import { tokenize } from './chess-puzzle-fsm';
 import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 
 /**
- * Rewind to the previous host-to-move position.
- * Odd `solveIdx` undoes human+opponent reply (−2); even undoes a terminal
- * human-only ply (−1). Returns `null` at the post-opening start (`solveIdx <= 1`).
+ * Rewind one ply along the solution line (player or opponent).
+ * Returns `null` at the post-opening start (`solveIdx <= 1`).
  */
-export function prevHumanSolveIdx(solveIdx: number): number | null {
+export function prevSolveIdx(solveIdx: number): number | null {
   if (solveIdx <= 1) return null;
-  if (solveIdx % 2 === 0) return solveIdx - 1;
-  return solveIdx - 2;
+  return solveIdx - 1;
 }
 
 /**
- * Advance one host turn toward `furthestSolveIdx` (human ply, plus opponent
- * reply when that reply was already reached before).
+ * Advance one ply toward `furthestSolveIdx` (never past unattempted moves).
  */
 export function nextForwardSolveIdx(args: {
   solveIdx: number;
@@ -24,10 +21,8 @@ export function nextForwardSolveIdx(args: {
 }): number | null {
   const { solveIdx, furthestSolveIdx, tokensLength } = args;
   if (solveIdx >= furthestSolveIdx) return null;
-  let next = solveIdx + 1;
-  if (next < tokensLength && furthestSolveIdx > next) {
-    next += 1;
-  }
+  const next = solveIdx + 1;
+  if (next > tokensLength) return null;
   return Math.min(next, furthestSolveIdx);
 }
 

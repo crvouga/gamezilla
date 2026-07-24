@@ -1,4 +1,5 @@
 import { ActiveSpace } from './active-space/active-space';
+import { SpaceEndedScreen } from './join-space/space-ended-screen';
 import { SpaceJoinPrompt } from './join-space/space-join-prompt';
 import { SpaceDetailInitialLoading } from './space-detail-initial-loading';
 import { SpacesNavProvider } from './nav/spaces-nav-context';
@@ -49,6 +50,12 @@ function SpaceDetailBody({ spaceId }: SpaceDetailBodyProps): ReactNode {
 
   if (presence.status === 'active') {
     return <ActiveSpace spaceId={spaceId} />;
+  }
+
+  // Presence already knows the space ended — skip join-stream hydration so we
+  // never flash / stick on a spinner waiting for space_join after end/leave.
+  if (presence.ended) {
+    return <SpaceEndedScreen spaceId={spaceId} />;
   }
 
   return <SpaceJoinPrompt spaceId={spaceId} />;

@@ -46,12 +46,15 @@ export function resolveSpacePresence(args: {
   readonly guestRow: ParticipationRow | null;
   readonly myId: string;
 }): SpacePresence {
-  const loading = loadingPresence(args);
-  if (loading !== null) return loading;
+  // Ended is terminal. Do not wait on participation loading — after end/leave the
+  // active-participation watch returns null and may stay isLoading, which would
+  // otherwise pin the detail screen on a spinner forever (latch already cleared).
   const endedAt = args.spaceRow?.ended_at ?? null;
   if (endedAt !== null) {
     return { status: 'join', ended: true };
   }
+  const loading = loadingPresence(args);
+  if (loading !== null) return loading;
   if (args.memberEnabled && args.guestRow !== null) {
     const hostMemberId = args.spaceRow?.host_member_id ?? '';
     return {

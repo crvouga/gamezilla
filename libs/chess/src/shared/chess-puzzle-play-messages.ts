@@ -167,15 +167,15 @@ export const ResetChessPuzzlePlay = chessPuzzlePlayCmdNs(
   validateEmptyPayload
 );
 
-/** Host steps back one solved host-turn (rewinds room state into `solving`). */
+/** Host steps back one ply (player or opponent) along the reached line. */
 export const StepBackChessPuzzlePlay = chessPuzzlePlayCmdNs(
   'step-back',
   validateEmptyPayload
 );
 
 /**
- * Host steps forward along already-attempted solution plies (up to
- * `furthestSolveIdx`).
+ * Host steps forward one ply along already-attempted solution plies (up to
+ * `furthestSolveIdx`), including opponent replies.
  */
 export const StepForwardChessPuzzlePlay = chessPuzzlePlayCmdNs(
   'step-forward',

@@ -12,7 +12,7 @@ const livePublicRow = {
 } as const;
 
 describe('resolveSpaceJoinSnapshot', () => {
-  test('loading until stream ready and row hydrated', () => {
+  test('loading until stream ready when row is missing', () => {
     expect(
       resolveSpaceJoinSnapshot({
         enabled: true,
@@ -38,6 +38,34 @@ describe('resolveSpaceJoinSnapshot', () => {
         viewerDeviceId: 'dev',
       })
     ).toEqual({ status: 'loading', joinable: false });
+  });
+
+  test('hydrated local row resolves without waiting for stream', () => {
+    expect(
+      resolveSpaceJoinSnapshot({
+        enabled: true,
+        streamReady: false,
+        rowLoading: false,
+        row: livePublicRow,
+        hasValidInvite: false,
+        isFriendOfHost: false,
+        viewerAccountId: 'guest',
+        viewerDeviceId: 'dev',
+      })
+    ).toEqual({ status: 'live', joinable: true });
+
+    expect(
+      resolveSpaceJoinSnapshot({
+        enabled: true,
+        streamReady: false,
+        rowLoading: false,
+        row: { ...livePublicRow, ended_at: '2020-01-01T00:00:00.000Z' },
+        hasValidInvite: false,
+        isFriendOfHost: false,
+        viewerAccountId: 'guest',
+        viewerDeviceId: 'dev',
+      })
+    ).toEqual({ status: 'ended', joinable: false });
   });
 
   test('missing row after checkpoint is unavailable', () => {

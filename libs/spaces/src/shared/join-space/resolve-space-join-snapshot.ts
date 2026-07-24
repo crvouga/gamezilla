@@ -55,9 +55,25 @@ function snapshotFromLiveRow(
   return { status: 'live', joinable: decision.allowed };
 }
 
+function snapshotFromResolvedRow(
+  row: SpaceJoinLocalRow,
+  input: ResolveSpaceJoinSnapshotInput
+): SpaceJoinSnapshot {
+  if (row.host_id === null || row.host_id.length === 0) {
+    return { status: 'unavailable', joinable: false };
+  }
+  if (row.ended_at !== null) {
+    return { status: 'ended', joinable: false };
+  }
+  return snapshotFromLiveRow(row, input);
+}
+
 /**
  * Derives join-screen status from local SQLite + stream readiness.
- * Stream must finish its first checkpoint before a missing row means unavailable.
+ * A hydrated local row resolves immediately (including ended) — do not block on
+ * the on-demand join stream, which can hang/fail after leave/end and leave the
+ * UI stuck on a spinner. Stream readiness only gates a *missing* row so we do
+ * not flash unavailable before the first checkpoint.
  */
 export function resolveSpaceJoinSnapshot(
   input: ResolveSpaceJoinSnapshotInput
@@ -65,15 +81,14 @@ export function resolveSpaceJoinSnapshot(
   if (!input.enabled) {
     return { status: 'unavailable', joinable: false };
   }
-  if (!input.streamReady || input.rowLoading) {
+  if (input.rowLoading) {
     return { status: 'loading', joinable: false };
   }
-  const row = input.row;
-  if (row === null || row.host_id === null || row.host_id.length === 0) {
-    return { status: 'unavailable', joinable: false };
+  if (input.row !== null) {
+    return snapshotFromResolvedRow(input.row, input);
   }
-  if (row.ended_at !== null) {
-    return { status: 'ended', joinable: false };
+  if (!input.streamReady) {
+    return { status: 'loading', joinable: false };
   }
-  return snapshotFromLiveRow(row, input);
+  return { status: 'unavailable', joinable: false };
 }

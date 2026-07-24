@@ -67,9 +67,7 @@ function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
               <ChessPuzzleBoardEloBar rating={puzzleRating} />
             ) : undefined
           }
-          topAccessoryHeight={
-            puzzleRating !== undefined ? BOARD_ELO_BAR_HEIGHT : 0
-          }
+          topAccessoryHeight={BOARD_ELO_BAR_HEIGHT}
           overlay={
             showCelebration && p.completion !== null ? (
               <ChessPuzzleCelebrationOverlay
