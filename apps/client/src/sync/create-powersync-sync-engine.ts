@@ -144,9 +144,8 @@ function toDatabasePort(
  * App-level PowerSync shell: opens the local DB, wires upload/token API calls,
  * and exposes the {@link SyncEngine} port used by auth hooks and UI.
  *
- * Not cached on `globalThis` — Metro HMR would otherwise reuse SyncEngines that
- * wrap dead OPFS workers. Callers recreate the promise when the identity
- * `databaseName` changes; {@link openPowerSyncDatabase} serializes the live DB.
+ * Prefer {@link getOrCreateAppPowerSyncSyncEngine} so warm identities reuse the
+ * same wrapper after {@link openPowerSyncDatabase} reactivates the pooled file.
  */
 export async function createAppPowerSyncSyncEngine(
   args: CreateAppPowerSyncSyncEngineArgs

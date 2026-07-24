@@ -61,29 +61,29 @@ function defaultArrowPalette(scheme: 'light' | 'dark'): BoardArrowPalette {
   };
 }
 
-function defaultPromotionPalette(
-  scheme: 'light' | 'dark'
-): BoardPromotionPalette {
-  if (scheme === 'dark') {
-    return {
-      backdrop: 'rgba(8,10,14,0.55)',
-      surface: '#1f2128',
-      surfaceActive: '#2c2f39',
-      cancel: '#3a3d4a',
-    };
-  }
+/**
+ * Promotion chrome sits on the board, so it follows square colors — never the
+ * app color scheme (dark app + dark surface makes black pieces unreadable).
+ */
+function defaultPromotionPalette(squares: {
+  lightSquare: string;
+  darkSquare: string;
+}): BoardPromotionPalette {
   return {
     backdrop: 'rgba(20,20,26,0.45)',
-    surface: '#ffffff',
-    surfaceActive: '#f1efe7',
-    cancel: '#dad6ca',
+    surface: squares.lightSquare,
+    surfaceActive: squares.lightSquare,
+    cancel: squares.darkSquare,
+    ink: squares.lightSquare,
   };
 }
 
 function defaultBoardTheme(theme: ReturnType<typeof useTheme>): BoardTheme {
+  const lightSquare = '#f0d9b5';
+  const darkSquare = '#b58863';
   return {
-    lightSquare: '#f0d9b5',
-    darkSquare: '#b58863',
+    lightSquare,
+    darkSquare,
     border: '#8a6a3d',
     lastMove: '#cdd26a',
     selected: '#f7ec74',
@@ -93,7 +93,7 @@ function defaultBoardTheme(theme: ReturnType<typeof useTheme>): BoardTheme {
     coordinates: theme.colorScheme === 'dark' ? '#e8d6b4' : '#5a3b1c',
     feedback: defaultFeedbackPalette(theme.colorScheme),
     arrows: defaultArrowPalette(theme.colorScheme),
-    promotion: defaultPromotionPalette(theme.colorScheme),
+    promotion: defaultPromotionPalette({ lightSquare, darkSquare }),
   };
 }
 
@@ -102,12 +102,17 @@ function mergeBoardTheme(
   override: Partial<BoardTheme> | undefined
 ): BoardTheme {
   if (!override) return base;
+  const lightSquare = override.lightSquare ?? base.lightSquare;
+  const darkSquare = override.darkSquare ?? base.darkSquare;
+  const derivedPromotion = defaultPromotionPalette({ lightSquare, darkSquare });
   return {
     ...base,
     ...override,
+    lightSquare,
+    darkSquare,
     feedback: { ...base.feedback, ...(override.feedback ?? {}) },
     arrows: { ...base.arrows, ...(override.arrows ?? {}) },
-    promotion: { ...base.promotion, ...(override.promotion ?? {}) },
+    promotion: { ...derivedPromotion, ...(override.promotion ?? {}) },
   };
 }
 

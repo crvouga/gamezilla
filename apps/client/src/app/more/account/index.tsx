@@ -21,8 +21,7 @@ function AccountIdentityBlock(): ReactNode {
     const email = active.email;
     return {
       title: accountDisplayTitle(active),
-      caption:
-        email !== null && email.length > 0 ? email : undefined,
+      caption: email !== null && email.length > 0 ? email : undefined,
     };
   }, [accounts]);
 

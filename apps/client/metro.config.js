@@ -212,8 +212,7 @@ function normalizeResolvedPath(resolved) {
   // dedupe, then realpath back into `.bun` so Watchman (which indexes the
   // store, not the symlink path) can SHA-1 the file.
   const fromBun = moduleNameFromBunStorePath(resolved.filePath);
-  const mapped =
-    fromBun !== null ? resolveViaClientNodeModules(fromBun) : null;
+  const mapped = fromBun !== null ? resolveViaClientNodeModules(fromBun) : null;
   const candidate = mapped ?? resolved.filePath;
   return { ...resolved, filePath: metroResolvedPath(candidate) };
 }

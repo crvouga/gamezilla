@@ -1,4 +1,20 @@
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useRef } from 'react';
+
+import type { ApplyExternalFenResult } from './chess-board-apply-external-fen';
+import type { PostMoveAudio } from './chess-board-schedule-move-sound';
+import type { Move } from './chess-board-types';
+
+type ExternalFenSyncArgs = {
+  fen: string | undefined;
+  fenSyncKey: number | undefined;
+  /** Live board FEN before this sync (detects optimistic desync / wrong-move revert). */
+  localFen: string;
+  applyExternalFen: (nextFen: string) => ApplyExternalFenResult | null;
+  commitMoveUi: (move: Move) => void;
+  clearLastMove: () => void;
+  onAfterReset: () => void;
+  applySuccessfulMove: (move: Move, post: PostMoveAudio) => void;
+};
 
 /**
  * When FEN is owned by the parent (puzzles, replays), re-apply it to the local
@@ -10,19 +26,54 @@ import { useLayoutEffect } from 'react';
  * paints — eliminates a one-frame stale board between `fen` prop change and the
  * canvas reconcile (visible as a flash during puzzle transitions on mobile).
  *
- * `reset` itself no-ops when the live instance already holds `fen` (optimistic
- * drop path), so we only clear interaction chrome when the position actually
- * changes or `fenSyncKey` forces a remount.
+ * Same-FEN no-ops inside `applyExternalFen`. Single-ply external changes that
+ * happen while the board is still in sync with the last props FEN set lastMove
+ * and play move SFX (opponent opening / canned reply). Optimistic desync
+ * repairs (wrong-move revert) stay silent.
+ *
+ * `localFen` is read via ref on purpose — it must not be an effect dependency
+ * or optimistic drops would immediately re-sync back to the stale props FEN.
  */
-export function useExternalFenSync(
-  fen: string | undefined,
-  fenSyncKey: number | undefined,
-  reset: (nextFen: string) => void,
-  onAfterReset: () => void
-): void {
+export function useExternalFenSync(args: ExternalFenSyncArgs): void {
+  const {
+    fen,
+    fenSyncKey,
+    localFen,
+    applyExternalFen,
+    commitMoveUi,
+    clearLastMove,
+    onAfterReset,
+    applySuccessfulMove,
+  } = args;
+  const prevFenPropRef = useRef<string | undefined>(undefined);
+  const localFenRef = useRef(localFen);
+  localFenRef.current = localFen;
+
   useLayoutEffect(() => {
     if (fen === undefined || fen.length === 0) return;
-    reset(fen);
+    const prevProp = prevFenPropRef.current;
+    const wasInSync =
+      prevProp === undefined || localFenRef.current === prevProp;
+    const result = applyExternalFen(fen);
+    prevFenPropRef.current = fen;
     onAfterReset();
-  }, [fen, fenSyncKey, reset, onAfterReset]);
+    if (result === null) return;
+    if (result.moved !== null && wasInSync) {
+      commitMoveUi(result.moved);
+      applySuccessfulMove(result.moved, {
+        inCheck: result.inCheck,
+        isGameOver: result.isGameOver,
+      });
+      return;
+    }
+    clearLastMove();
+  }, [
+    fen,
+    fenSyncKey,
+    applyExternalFen,
+    commitMoveUi,
+    clearLastMove,
+    onAfterReset,
+    applySuccessfulMove,
+  ]);
 }

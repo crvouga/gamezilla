@@ -23,3 +23,22 @@ export async function ensureProfile(
     sql
   );
 }
+
+/**
+ * Writes a server-assigned username into the local row when still empty so the
+ * profile UI does not wait on PowerSync download after `POST /profile/ensure`.
+ */
+export async function applyEnsuredUsername(
+  sql: SqlClient,
+  writeContext: WriteContext,
+  args: { readonly profileId: string; readonly username: string }
+): Promise<void> {
+  assertUuid(args.profileId, 'applyEnsuredUsername profileId');
+  if (args.username.length === 0) return;
+  await runClientWrite(
+    ensureProfileLocalWrite,
+    writeContext,
+    { profileId: args.profileId, username: args.username },
+    sql
+  );
+}

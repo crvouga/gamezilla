@@ -4,14 +4,16 @@ import { useWriteContext } from '@libs/auth/client/use-write-context';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, type ReactNode } from 'react';
 
-import { ensureProfile } from './ensure-profile-local/ensure-profile';
+import {
+  applyEnsuredUsername,
+  ensureProfile,
+} from './ensure-profile-local/ensure-profile';
 import { ensureProfileOnline } from './ensure-profile-online/ensure-profile-online';
 
 /**
  * Profile bootstrap: ensures a local profile row exists, then asks the API to
- * assign a globally unique username if needed. Waits for the first sync
- * download so a new web tab does not mint a fresh profile before the server
- * row arrives.
+ * assign a globally unique username if needed. Applies the ensure response
+ * username locally when the card matches the active account.
  */
 function ProfileEntityBootstrap(): null {
   const engine = useSyncEngine();
@@ -24,11 +26,23 @@ function ProfileEntityBootstrap(): null {
     void (async () => {
       try {
         if (myId.length === 0) return;
-        await engine.waitForFirstSync();
-        if (cancelled) return;
+        // Seed local row immediately. Do not block on waitForFirstSync — a hung
+        // connect() left us with empty usernames forever. Online ensure is the
+        // uniqueness authority; apply only when card.userId matches myId.
         await ensureProfile(engine.db, writeContext, myId);
         if (cancelled) return;
-        await ensureProfileOnline({ config, fetchFn: fetch });
+        const card = await ensureProfileOnline({ config, fetchFn: fetch });
+        if (cancelled) return;
+        // Token/myId can skew mid-switch — never write another account's card.
+        if (card.userId !== myId) {
+          return;
+        }
+        if (card.username.length > 0) {
+          await applyEnsuredUsername(engine.db, writeContext, {
+            profileId: myId,
+            username: card.username,
+          });
+        }
       } catch {
         // Best-effort: re-asserted on the next identity change.
       }

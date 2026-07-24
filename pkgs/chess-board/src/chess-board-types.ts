@@ -107,6 +107,8 @@ export type BoardPromotionPalette = {
   surface: string;
   surfaceActive: string;
   cancel: string;
+  /** Cancel-chip icon / ink — must contrast with {@link cancel}. */
+  ink: string;
 };
 
 export type BoardTheme = {

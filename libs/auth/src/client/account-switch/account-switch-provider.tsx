@@ -5,8 +5,9 @@ import { AccountSwitchModal } from './account-switch-modal';
 import { useAccountSwitchController } from './use-account-switch-controller';
 
 /**
- * Shell-level account-switch overlay. Mounted above SyncEngineBoot so it
- * survives identity remounts and owns all loading/success chrome.
+ * Account-switch controller mounted above SyncEngineBoot. No loading/success
+ * chrome — warm pooled engines make switches near-instant; only failures show
+ * a retryable error modal.
  */
 export function AccountSwitchProvider({
   children,
@@ -18,11 +19,10 @@ export function AccountSwitchProvider({
     <AccountSwitchContext.Provider value={value}>
       {children}
       <AccountSwitchModal
-        visible={value.phase !== 'idle'}
-        phase={value.phase}
+        visible={value.phase === 'error'}
         error={value.error}
         onRetry={value.retry}
-        onDismissError={value.dismissError}
+        onDismiss={value.dismissError}
       />
     </AccountSwitchContext.Provider>
   );

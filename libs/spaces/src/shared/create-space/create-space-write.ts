@@ -28,15 +28,7 @@ export type CreateSpaceInput = {
   readonly spaceId: string;
   readonly visibility: SpaceVisibility;
   readonly deviceLabel: string;
-  readonly hostUsername: string | null;
-  readonly hostAvatarConfig: string | null;
 };
-
-function parseNullableString(value: unknown): string | null {
-  if (value === null || value === undefined) return null;
-  if (typeof value !== 'string') return null;
-  return value;
-}
 
 function parseCreateSpaceInput(
   raw: unknown
@@ -60,8 +52,6 @@ function parseCreateSpaceInput(
     spaceId: spaceId.value,
     visibility: visibilityRaw,
     deviceLabel: deviceLabelRaw.trim(),
-    hostUsername: parseNullableString(record.value['hostUsername']),
-    hostAvatarConfig: parseNullableString(record.value['hostAvatarConfig']),
   });
 }
 
@@ -90,9 +80,8 @@ export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
       `INSERT INTO ${SPACES_TABLE.tableName}
        (${SpaceCol.id}, ${SpaceCol.hostId}, ${SpaceCol.createdAt},
         ${SpaceCol.visibility}, ${SpaceCol.hostAccountId},
-        ${SpaceCol.hostMemberId}, ${SpaceCol.hostUsername},
-        ${SpaceCol.hostAvatarConfig}, ${SpaceCol.activeMemberCount})
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+        ${SpaceCol.hostMemberId}, ${SpaceCol.activeMemberCount})
+       VALUES (?, ?, ?, ?, ?, ?, 1)`,
       [
         input.spaceId,
         ctx.deviceId,
@@ -100,8 +89,6 @@ export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
         visibility,
         ctx.accountId,
         memberId,
-        input.hostUsername,
-        input.hostAvatarConfig,
       ]
     );
     const membershipId = spaceMembershipEntityId(memberId, input.spaceId);

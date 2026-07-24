@@ -24,13 +24,15 @@ function ids(
 }
 
 describe('buildChessPuzzleActionBarPlan', () => {
-  test('solving at frontier: hint + back only', () => {
+  test('solving at frontier: hint + back + disabled forward', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'solving', canGoBack: true, canGoForward: false })
     );
-    expect(ids(slots)).toEqual(['hint', 'back']);
+    expect(ids(slots)).toEqual(['hint', 'back', 'forward']);
     const back = slots.find((s) => s.id === 'back');
+    const forward = slots.find((s) => s.id === 'forward');
     expect(back?.type === 'action' && back.disabled).toBe(false);
+    expect(forward?.type === 'action' && forward.disabled).toBe(true);
   });
 
   test('solving after back: hint + back + forward', () => {
@@ -42,15 +44,17 @@ describe('buildChessPuzzleActionBarPlan', () => {
     expect(forward?.type === 'action' && forward.disabled).toBe(false);
   });
 
-  test('loading: hint + back (forward omitted)', () => {
+  test('loading: hint + back + forward all disabled', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'loading', canGoBack: true, canGoForward: true })
     );
-    expect(ids(slots)).toEqual(['hint', 'back']);
+    expect(ids(slots)).toEqual(['hint', 'back', 'forward']);
     const hint = slots[0];
     const back = slots[1];
+    const forward = slots[2];
     expect(hint?.id === 'hint' && hint.disabled).toBe(true);
     expect(back?.id === 'back' && back.disabled).toBe(true);
+    expect(forward?.id === 'forward' && forward.disabled).toBe(true);
   });
 
   test('wrong: solution + next action + danger retry button', () => {

@@ -5,7 +5,7 @@ import { SpacesNavProvider } from './nav/spaces-nav-context';
 import { SpaceRoomProvider } from './room/space-room-context';
 import { useAutoLeaveIfEnded } from './leave-space/use-auto-leave-if-ended';
 import { useSpacePresence } from './use-space-presence';
-import type { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import {
   useSpaceRouteId,
   useStripRedundantSpaceRouteSearchParams,

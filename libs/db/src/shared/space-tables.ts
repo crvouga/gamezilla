@@ -9,8 +9,6 @@ export const SpaceCol = {
   visibility: 'visibility',
   hostAccountId: 'host_account_id',
   hostMemberId: 'host_member_id',
-  hostUsername: 'host_username',
-  hostAvatarConfig: 'host_avatar_config',
   activeMemberCount: 'active_member_count',
 } as const;
 
@@ -60,8 +58,6 @@ export const SPACES_TABLE = defineTable({
     { name: 'visibility', type: 'text' },
     { name: 'host_account_id', type: 'text' },
     { name: 'host_member_id', type: 'text' },
-    { name: 'host_username', type: 'text' },
-    { name: 'host_avatar_config', type: 'text' },
     { name: 'active_member_count', type: 'integer' },
   ],
 });

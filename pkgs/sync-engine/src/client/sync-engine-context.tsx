@@ -2,24 +2,12 @@ import {
   createContext,
   useContext,
   useMemo,
-  useRef,
   useSyncExternalStore,
   type ReactNode,
 } from 'react';
 
 import type { SyncEngine } from './sync-engine-port';
-import type { SyncEngineStatus } from './sync-status';
-import {
-  clearWatchQueryCache,
-  readWatchQueryCache,
-  watchQueryCacheKey,
-  writeWatchQueryCache,
-} from './watch-query-cache';
-import {
-  isSyncReconnecting,
-  resolveWatchQueryDisplayRows,
-  shouldConfirmWatchQueryEmpty,
-} from './watch-query-display';
+import { clearWatchQueryCache } from './watch-query-cache';
 import { computeWatchQueryIsLoading } from './watch-query-loading';
 
 export { clearWatchQueryCache };
@@ -56,34 +44,6 @@ export function useSyncStatus() {
   );
 }
 
-function updateWatchQueryCacheForSnapshot<T extends Record<string, unknown>>({
-  cacheKey,
-  rows,
-  status,
-  reconnecting,
-  hydrated,
-  prevRowsRef,
-  hadRowsRef,
-}: {
-  cacheKey: string;
-  rows: readonly T[];
-  status: SyncEngineStatus;
-  reconnecting: boolean;
-  hydrated: boolean;
-  prevRowsRef: { current: readonly T[] };
-  hadRowsRef: { current: boolean };
-}): void {
-  if (rows.length > 0) {
-    hadRowsRef.current = true;
-    prevRowsRef.current = rows;
-    writeWatchQueryCache(cacheKey, { rows, confirmedEmpty: false });
-    return;
-  }
-  if (shouldConfirmWatchQueryEmpty({ reconnecting, status, hydrated })) {
-    writeWatchQueryCache(cacheKey, { rows: [], confirmedEmpty: true });
-  }
-}
-
 export function useWatchSubscription<T>(
   subscription: ReturnType<SyncEngine['watch']>
 ): T {
@@ -94,6 +54,10 @@ export function useWatchSubscription<T>(
   );
 }
 
+/**
+ * Live SQL watch — always returns the current SQLite snapshot (no process
+ * row cache). `isLoading` is true until the watch hydrates.
+ */
 export function useWatchQuery<T extends Record<string, unknown>>(
   sql: string,
   params: readonly unknown[] = []
@@ -102,7 +66,6 @@ export function useWatchQuery<T extends Record<string, unknown>>(
   const paramsKey = useMemo(() => JSON.stringify(params), [params]);
   const subscription = useMemo(
     () => engine.watch<T>(sql, params),
-    // paramsKey stabilizes array identity for watch subscription identity
     // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces params
     [engine, sql, paramsKey]
   );
@@ -113,45 +76,15 @@ export function useWatchQuery<T extends Record<string, unknown>>(
     subscription.getHydrated
   );
   const status = useSyncStatus();
-  const cacheKey = watchQueryCacheKey(sql, paramsKey);
-  const prevRowsRef = useRef<readonly T[]>([]);
-  const hadRowsRef = useRef(false);
-  const prevCacheKeyRef = useRef(cacheKey);
-  // Drop held rows when the watch identity changes — otherwise an empty
-  // next query briefly resurrects the previous account's profile/username.
-  if (prevCacheKeyRef.current !== cacheKey) {
-    prevCacheKeyRef.current = cacheKey;
-    prevRowsRef.current = [];
-    hadRowsRef.current = false;
-  }
-  const reconnecting = isSyncReconnecting(status);
-  updateWatchQueryCacheForSnapshot({
-    cacheKey,
-    rows,
-    status,
-    reconnecting,
-    hydrated,
-    prevRowsRef,
-    hadRowsRef,
-  });
-  const cached = readWatchQueryCache(cacheKey);
-  const cachedRows = (cached?.rows ?? []) as readonly T[];
-  const displayRows = resolveWatchQueryDisplayRows({
-    rows,
-    cachedRows,
-    reconnecting,
-    prevRows: prevRowsRef.current,
-    hydrated,
-  });
+  const reconnecting =
+    status.connection === 'disconnected' || status.connection === 'connecting';
   const isLoading = computeWatchQueryIsLoading({
     hydrated,
-    displayRows,
-    hadRows: hadRowsRef.current,
-    confirmedEmpty: cached?.confirmedEmpty ?? false,
+    rows,
     status,
     reconnecting,
   });
-  return { rows: displayRows, isLoading };
+  return { rows, isLoading };
 }
 
 export function useWatchOne<T extends Record<string, unknown>>(

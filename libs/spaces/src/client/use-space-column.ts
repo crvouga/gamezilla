@@ -10,8 +10,6 @@ export const SpaceField = {
   visibility: 'visibility',
   hostAccountId: 'hostAccountId',
   hostMemberId: 'hostMemberId',
-  hostUsername: 'hostUsername',
-  hostAvatarConfig: 'hostAvatarConfig',
   activeMemberCount: 'activeMemberCount',
 } as const satisfies Record<string, keyof typeof SpaceCol>;
 
@@ -21,8 +19,7 @@ export type SpaceFieldKey = keyof typeof SpaceField;
 export const SPACE_ROW_BY_ID_SQL = `SELECT ${SpaceCol.id}, ${SpaceCol.title},
             ${SpaceCol.hostId}, ${SpaceCol.createdAt}, ${SpaceCol.endedAt},
             ${SpaceCol.visibility}, ${SpaceCol.hostAccountId},
-            ${SpaceCol.hostMemberId}, ${SpaceCol.hostUsername},
-            ${SpaceCol.hostAvatarConfig}, ${SpaceCol.activeMemberCount}
+            ${SpaceCol.hostMemberId}, ${SpaceCol.activeMemberCount}
      FROM ${SPACES_TABLE.tableName}
      WHERE ${SpaceCol.id} = ?`;
 

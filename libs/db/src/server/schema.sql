@@ -293,9 +293,11 @@ WHERE s.ended_at IS NULL
 
 ALTER TABLE spaces ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
 ALTER TABLE spaces ADD COLUMN IF NOT EXISTS host_account_id TEXT;
-ALTER TABLE spaces ADD COLUMN IF NOT EXISTS host_username TEXT;
-ALTER TABLE spaces ADD COLUMN IF NOT EXISTS host_avatar_config TEXT;
 ALTER TABLE spaces ADD COLUMN IF NOT EXISTS active_member_count INTEGER NOT NULL DEFAULT 1;
+-- Profile display is always read from `profiles` via host_member_id — never
+-- duplicate username/avatar onto the space row.
+ALTER TABLE spaces DROP COLUMN IF EXISTS host_username;
+ALTER TABLE spaces DROP COLUMN IF EXISTS host_avatar_config;
 
 CREATE INDEX IF NOT EXISTS spaces_visibility_live_idx
   ON spaces (visibility, created_at DESC)

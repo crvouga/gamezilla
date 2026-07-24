@@ -1,4 +1,4 @@
-import { Pressable, useTheme, XIcon } from '@pkgs/ui';
+import { Pressable, XIcon } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
 import {
   Canvas,
@@ -253,7 +253,6 @@ function CancelChip({
   onPress: () => void;
 }): ReactNode {
   const { t } = useLingui();
-  const appTheme = useTheme();
   return (
     <Pressable
       onPress={onPress}
@@ -270,7 +269,7 @@ function CancelChip({
         justifyContent: 'center',
       }}
     >
-      <XIcon size={Math.max(12, size * 0.5)} color={appTheme.colors.text} />
+      <XIcon size={Math.max(12, size * 0.5)} color={theme.promotion.ink} />
     </Pressable>
   );
 }

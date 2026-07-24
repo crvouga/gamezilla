@@ -1,7 +1,4 @@
-import {
-  useIsAccountSwitchPending,
-  useReportSyncBootPhase,
-} from '@libs/auth/client/account-switch/account-switch-context';
+import { useReportSyncBootPhase } from '@libs/auth/client/account-switch/account-switch-context';
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
@@ -9,17 +6,20 @@ import { useKv } from '@pkgs/kv/kv-context';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
 import { SyncEngineProvider } from '@pkgs/sync-engine/client/sync-engine-context';
+import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 import { SqlClientProvider } from '@pkgs/sql-client/react-context';
-import { useEffect, useMemo, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 
-import { createAppPowerSyncSyncEngine } from '../../sync/create-powersync-sync-engine';
-import type { SyncApiFetch } from '../../sync/sync-api';
 import { resolveSqliteDbName } from '../../storage/resolve-sqlite-db-name';
+import type { SyncApiFetch } from '../../sync/sync-api';
+import {
+  getOrCreateAppPowerSyncSyncEngine,
+  peekReadyAppSyncEngine,
+} from '../../sync/sync-engine-pool';
 import {
   LocalDatabaseBootErrorScreen,
   LocalDatabaseBootLoadingScreen,
-  LocalDatabaseBootSwitchHold,
 } from './boot-screens';
 import { useSyncEngineBootState } from './use-sync-engine-boot-state';
 
@@ -62,12 +62,10 @@ function useReportBootPhaseUp(
 
 /**
  * Opens PowerSync for the active auth identity and exposes the sync engine.
- * Remounts when the account (or anon) identity changes. Local UI is ready as
- * soon as the identity DB opens; sync connects in the background.
  *
- * Engine promises are recreated per identity activation — a process-lifetime
- * cache would reuse SyncEngines whose OPFS DB was disconnected when another
- * account became active (only one live PowerSync DB is allowed).
+ * After the first successful open, keep the navigation tree mounted across
+ * identity changes (sticky prior engine until the next one is ready). Replacing
+ * children with a loading screen unmounts Expo Router and resets to `/`.
  */
 export function SyncEngineBoot({
   children,
@@ -79,36 +77,62 @@ export function SyncEngineBoot({
   const observability = useObservability();
   const accountId = useCurrentAccountId();
   const deviceId = useDeviceId();
-  const switchPending = useIsAccountSwitchPending();
   const fetchFn = useMemo(
     () => instrumentFetch(observability, fetch) as SyncApiFetch,
     [observability]
   );
   const dbName = useIdentitySqliteDbName(accountId, deviceId);
+  const warmEngine = peekReadyAppSyncEngine(dbName);
+  const configRef = useRef(config);
+  const fetchFnRef = useRef(fetchFn);
+  const kvRef = useRef(kv);
+  const lastReadyEngineRef = useRef<SyncEngine | null>(warmEngine);
+  configRef.current = config;
+  fetchFnRef.current = fetchFn;
+  kvRef.current = kv;
+  // Only recreate when the identity-scoped DB name changes. config/fetch/kv are
+  // read via refs so unstable identities cannot thrash getOrCreate every render.
   const enginePromise = useMemo(
     () =>
-      createAppPowerSyncSyncEngine({
-        config,
-        fetchFn,
-        kv,
+      getOrCreateAppPowerSyncSyncEngine({
+        get config() {
+          return configRef.current;
+        },
+        get fetchFn() {
+          return fetchFnRef.current;
+        },
+        get kv() {
+          return kvRef.current;
+        },
         databaseName: dbName,
       }),
-    [dbName, config, fetchFn, kv]
+    [dbName]
   );
-  const boot = useSyncEngineBootState(enginePromise);
+  const boot = useSyncEngineBootState(enginePromise, warmEngine);
   useReportBootPhaseUp(boot.phase, accountId);
 
-  if (boot.phase === 'loading') {
-    if (switchPending) return <LocalDatabaseBootSwitchHold />;
+  if (boot.phase === 'ready') {
+    lastReadyEngineRef.current = boot.engine;
+  }
+
+  const engine =
+    boot.phase === 'ready' ? boot.engine : lastReadyEngineRef.current;
+
+  // First open only — nothing sticky to keep the router alive yet.
+  if (engine === null) {
+    if (boot.phase === 'error') {
+      return <LocalDatabaseBootErrorScreen error={boot.error} />;
+    }
     return <LocalDatabaseBootLoadingScreen />;
   }
+
   if (boot.phase === 'error') {
     return <LocalDatabaseBootErrorScreen error={boot.error} />;
   }
 
   return (
-    <SyncEngineProvider value={boot.engine}>
-      <SqlClientProvider value={boot.engine.db}>{children}</SqlClientProvider>
+    <SyncEngineProvider value={engine}>
+      <SqlClientProvider value={engine.db}>{children}</SqlClientProvider>
     </SyncEngineProvider>
   );
 }

@@ -9,11 +9,8 @@ import {
   accountDisplayTitle,
   type LocalAccount,
 } from '@libs/auth/client/use-local-accounts';
-import {
-  createDefaultAvatarConfig,
-  parseAvatarConfig,
-} from '@libs/profile/shared/avatar-config';
 import { DeviceAvatar } from '@libs/profile/client/device-avatar';
+import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import type { LocalizedString } from '@pkgs/i18n';
 import {
   CircleCheckIcon,
@@ -27,7 +24,7 @@ import {
   type FloatingMenuHeaderSpec,
 } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
-import { useRouter } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import { useCallback, useMemo, type ReactNode } from 'react';
 
 const TRIGGER_SIZE = 36;
@@ -76,22 +73,35 @@ function accountAvatarSeed(account: LocalAccount): string {
   return account.accountId ?? account.externalUserId ?? account.sessionId;
 }
 
-/** Roster/session-backed avatar — same source for header + switcher rows. */
-function AccountMenuAvatar({
+/**
+ * Active account: live SQLite profile avatar. Inactive: silhouette (no roster
+ * avatar cache — only one identity DB is live at a time).
+ */
+export function AccountMenuAvatar({
   account,
   size,
 }: {
   account: LocalAccount;
   size: number;
 }): ReactNode {
-  const seed = accountAvatarSeed(account);
-  const parsed = parseAvatarConfig(account.avatarConfigJson);
+  if (account.isActive) {
+    return <MyProfileAvatar size={size} />;
+  }
   return (
     <DeviceAvatar
-      avatarConfig={parsed ?? createDefaultAvatarConfig(seed)}
-      seedFallback={seed}
+      avatarConfig={null}
+      seedFallback={accountAvatarSeed(account)}
       size={size}
     />
+  );
+}
+
+/** Active account from the same merge path as menu header / switcher rows. */
+export function useActiveLocalAccount(): LocalAccount | undefined {
+  const accounts = useLocalAccounts();
+  return useMemo(
+    () => accounts.find((account) => account.isActive),
+    [accounts]
   );
 }
 
@@ -99,19 +109,42 @@ function useAccountSwitchItems(): ActionBarItem[] {
   const accounts = useLocalAccounts();
   const { switchToAccount, isPending } = useAccountSwitch();
   const router = useRouter();
+  const pathname = usePathname();
+  const activeAccountId = useMemo(
+    () => accounts.find((account) => account.isActive)?.accountId ?? null,
+    [accounts]
+  );
 
   const onSwitch = useCallback(
     (account: LocalAccount) => {
       if (account.isActive || isPending) return;
+      // Duplicate Clerk sessions for the same account must not start a switch
+      // that leaves isPending stuck (null accountId warm-boot wait).
+      if (
+        account.accountId !== null &&
+        account.accountId === activeAccountId
+      ) {
+        return;
+      }
       void switchToAccount({
         sessionId: account.sessionId,
         accountId: account.accountId,
         onComplete: () => {
-          router.replace('/');
+          const windowPath =
+            typeof window !== 'undefined' ? window.location.pathname : null;
+          const canDismiss = router.canDismiss();
+          const onSpace =
+            pathname.startsWith('/space/') ||
+            (windowPath?.startsWith('/space/') ?? false);
+          // Only leave a space modal. Do not replace('/') from /profile etc. —
+          // that dumps onto the Spaces tab + miniplayer ("redirected to space").
+          if (onSpace || canDismiss) {
+            router.dismissTo('/');
+          }
         },
       }).catch(() => undefined);
     },
-    [switchToAccount, isPending, router]
+    [switchToAccount, isPending, router, activeAccountId, pathname]
   );
 
   return useMemo(() => {
@@ -126,7 +159,9 @@ function useAccountSwitchItems(): ActionBarItem[] {
         label: title,
         ...(subtitle !== undefined ? { subtitle } : {}),
         accessibilityLabel: accountAccessibilityLabel(title, subtitle),
-        children: <AccountMenuAvatar account={account} size={MENU_AVATAR_SIZE} />,
+        children: (
+          <AccountMenuAvatar account={account} size={MENU_AVATAR_SIZE} />
+        ),
         onPress: () => onSwitch(account),
         overflow: 'always' as const,
         endsGroup: isLast,
@@ -252,12 +287,8 @@ export function useAccountMenuItems(): ActionBarItem[] {
 
 export function useAccountMenuHeader(): FloatingMenuHeaderSpec {
   const { t } = useLingui();
-  const accounts = useLocalAccounts();
+  const active = useActiveLocalAccount();
   const avatarSize = iconButtonAvatarContentSize(TRIGGER_SIZE);
-  const active = useMemo(
-    () => accounts.find((account) => account.isActive),
-    [accounts]
-  );
 
   return useMemo((): FloatingMenuHeaderSpec => {
     if (active === undefined) {
@@ -268,7 +299,7 @@ export function useAccountMenuHeader(): FloatingMenuHeaderSpec {
     const title = accountDisplayTitle(active);
     const subtitle = accountSubtitle(active);
     return {
-      avatar: <AccountMenuAvatar account={active} size={avatarSize} />,
+      avatar: <MyProfileAvatar size={avatarSize} />,
       title,
       ...(subtitle !== undefined ? { subtitle } : {}),
     };

@@ -15,7 +15,7 @@ export type UserUsernameProps = {
 };
 
 /**
- * Renders the persisted username for a profile id.
+ * Renders the persisted username for a profile id from SQLite.
  * Returns `null` when no profile id is supplied; renders an empty `Text` when
  * the row hasn't synced (so layout positioning stays stable).
  */

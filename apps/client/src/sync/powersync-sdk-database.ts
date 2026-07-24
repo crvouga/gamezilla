@@ -21,6 +21,7 @@ export type PowerSyncSdkWatchedQuery = {
 };
 
 export type PowerSyncSdkDatabase = {
+  init(): Promise<void>;
   connect(connector: unknown): Promise<void>;
   disconnect(): Promise<void>;
   disconnectAndClear(): Promise<void>;

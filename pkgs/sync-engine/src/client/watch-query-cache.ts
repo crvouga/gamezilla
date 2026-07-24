@@ -1,28 +1,12 @@
-type WatchQueryCacheEntry = {
-  readonly rows: readonly Record<string, unknown>[];
-  readonly confirmedEmpty: boolean;
-};
-
-const cache = new Map<string, WatchQueryCacheEntry>();
-
+/** Stable key for a watched SQL query (registry / identity). */
 export function watchQueryCacheKey(sql: string, paramsKey: string): string {
   return `${sql}\0${paramsKey}`;
 }
 
-export function readWatchQueryCache(
-  key: string
-): WatchQueryCacheEntry | undefined {
-  return cache.get(key);
-}
-
-export function writeWatchQueryCache(
-  key: string,
-  entry: WatchQueryCacheEntry
-): void {
-  cache.set(key, entry);
-}
-
-/** Cleared on sign-out / local DB wipe so stale rows never bleed across identities. */
+/**
+ * @deprecated No-op. Watch queries no longer cache row snapshots — callers kept
+ * for identity-flush / wipe sites that previously cleared the map.
+ */
 export function clearWatchQueryCache(): void {
-  cache.clear();
+  // Intentionally empty: live watches are the only source of truth.
 }

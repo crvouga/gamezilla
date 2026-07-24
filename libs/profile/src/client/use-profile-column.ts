@@ -1,4 +1,4 @@
-import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { ProfileCol } from '@libs/db/shared/profile-tables';
 
@@ -12,15 +12,21 @@ export const ProfileField = {
 
 export type ProfileFieldKey = keyof typeof ProfileField;
 
+type ProfileRow = Readonly<Record<string, unknown>>;
+
+/**
+ * Profile column for `profileId`. Uses {@link useWatchOne} (same display/cache
+ * path as other account UI) so account switches do not leave the Profile tab
+ * username stuck on an empty `useWatchField` snapshot.
+ */
 export function useProfileColumn(
   profileId: string,
   field: ProfileFieldKey
 ): string | null {
   const col = ProfileCol[field];
-  const { value } = useWatchField<string>(
-    PROFILE_ROW_BY_ID_SQL,
-    [profileId],
-    col
-  );
-  return value;
+  const { row } = useWatchOne<ProfileRow>(PROFILE_ROW_BY_ID_SQL, [profileId]);
+  if (row === null) return null;
+  const raw = row[col];
+  if (typeof raw !== 'string') return null;
+  return raw;
 }

@@ -5,11 +5,11 @@ import type { SyncBootPhase } from './account-switch-boot-gate';
 export type AccountSwitchTarget = {
   readonly sessionId: string;
   readonly accountId: string | null;
-  /** Called after success hold, just before the overlay dismisses. */
+  /** Called after the target identity boot is ready. */
   readonly onComplete?: (() => void) | undefined;
 };
 
-export type AccountSwitchPhase = 'idle' | 'loading' | 'success' | 'error';
+export type AccountSwitchPhase = 'idle' | 'error';
 
 export type AccountSwitchContextValue = {
   readonly phase: AccountSwitchPhase;
@@ -46,12 +46,7 @@ export function useAccountSwitch(): Pick<
   return { switchToAccount, isPending, phase };
 }
 
-/** True while the switch overlay owns loading/success (boot should blank). */
-export function useIsAccountSwitchPending(): boolean {
-  return useAccountSwitchContext().isPending;
-}
-
-/** SyncEngineBoot reports readiness upward so the overlay can finish. */
+/** SyncEngineBoot reports readiness upward so switchToAccount can finish. */
 export function useReportSyncBootPhase(): AccountSwitchContextValue['reportSyncBootPhase'] {
   return useAccountSwitchContext().reportSyncBootPhase;
 }

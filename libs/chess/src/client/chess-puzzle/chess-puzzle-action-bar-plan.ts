@@ -67,24 +67,19 @@ function solvingSlots(
   p: ChessPuzzleActionBarPlanInput
 ): ChessPuzzleActionBarSlot[] {
   const navDisabled = p.status === 'loading';
-  const slots: ChessPuzzleActionBarSlot[] = [
+  return [
     hintSlot(p.status, p.hintStage),
     {
       id: 'back',
       type: 'action',
       disabled: navDisabled || !p.canGoBack,
     },
-  ];
-  // Only mount Forward once the player has stepped back (stable Hint+Back
-  // otherwise; Forward never appears ahead of attempted frontier).
-  if (!navDisabled && p.canGoForward) {
-    slots.push({
+    {
       id: 'forward',
       type: 'action',
-      disabled: false,
-    });
-  }
-  return slots;
+      disabled: navDisabled || !p.canGoForward,
+    },
+  ];
 }
 
 function wrongSlots(

@@ -19,22 +19,76 @@ type StagePhase = {
   locked: boolean;
 };
 
+type PrevSolveCursor = {
+  solveIdx: number;
+  furthestSolveIdx: number;
+};
+
+type AnimatePlan = Extract<OpponentStagePlan, { kind: 'animate' }>;
+
+function isBusyStatus(status: SolveStatus): boolean {
+  return status === 'loading' || status === 'idle' || status === 'invalid';
+}
+
+function pendingAnimatePlan(args: {
+  startFen: string;
+  moves: string;
+  displayFen: string;
+  solveIdx: number;
+  furthestSolveIdx: number;
+  prev: PrevSolveCursor;
+}): AnimatePlan | null {
+  const plan = planOpponentStage({
+    startFen: args.startFen,
+    moves: args.moves,
+    displayFen: args.displayFen,
+    solveIdx: args.solveIdx,
+    furthestSolveIdx: args.furthestSolveIdx,
+    prevSolveIdx: args.prev.solveIdx,
+    prevFurthestSolveIdx: args.prev.furthestSolveIdx,
+  });
+  return plan.kind === 'animate' ? plan : null;
+}
+
+/**
+ * Hold `fromFen` until after the first paint, then slide to `toFen`.
+ * Double-rAF waits for layout/Skia mount so the opening ply is not mid-lag.
+ */
 function applyPlanTimers(
-  plan: Extract<OpponentStagePlan, { kind: 'animate' }>,
+  plan: AnimatePlan,
   setPhase: (phase: StagePhase | null) => void
 ): () => void {
   setPhase({ fen: plan.fromFen, locked: true });
   const moveMs = PUZZLE_PIECE_MOVE_MS + PUZZLE_OPPONENT_UNLOCK_BUFFER_MS;
-  const t1 = setTimeout(() => {
-    setPhase({ fen: plan.toFen, locked: true });
-  }, plan.holdMs);
-  const t2 = setTimeout(() => {
-    setPhase(null);
-  }, plan.holdMs + moveMs);
+  let t1: ReturnType<typeof setTimeout> | undefined;
+  let t2: ReturnType<typeof setTimeout> | undefined;
+  let raf2 = 0;
+  const raf1 = requestAnimationFrame(() => {
+    raf2 = requestAnimationFrame(() => {
+      t1 = setTimeout(() => {
+        setPhase({ fen: plan.toFen, locked: true });
+      }, plan.holdMs);
+      t2 = setTimeout(() => {
+        setPhase(null);
+      }, plan.holdMs + moveMs);
+    });
+  });
   return () => {
-    clearTimeout(t1);
-    clearTimeout(t2);
+    cancelAnimationFrame(raf1);
+    cancelAnimationFrame(raf2);
+    if (t1 !== undefined) clearTimeout(t1);
+    if (t2 !== undefined) clearTimeout(t2);
   };
+}
+
+function resolveBoardFen(
+  phase: StagePhase | null,
+  displayFen: string | null,
+  pending: AnimatePlan | null
+): string | null {
+  if (phase !== null) return phase.fen;
+  if (pending !== null) return pending.fromFen;
+  return displayFen;
 }
 
 /**
@@ -62,16 +116,27 @@ export function usePuzzleOpponentMoveStage(args: {
     furthestSolveIdx,
     status,
   } = args;
-  const prevRef = useRef({ solveIdx: -1, furthestSolveIdx: -1 });
+  const prevRef = useRef<PrevSolveCursor>({
+    solveIdx: -1,
+    furthestSolveIdx: -1,
+  });
   const [phase, setPhase] = useState<StagePhase | null>(null);
 
+  const canStage =
+    displayFen !== null && displayFen.length > 0 && !isBusyStatus(status);
+  const pendingAnimate = canStage
+    ? pendingAnimatePlan({
+        startFen,
+        moves,
+        displayFen,
+        solveIdx,
+        furthestSolveIdx,
+        prev: prevRef.current,
+      })
+    : null;
+
   useLayoutEffect(() => {
-    if (displayFen === null || displayFen.length === 0) {
-      prevRef.current = { solveIdx, furthestSolveIdx };
-      setPhase(null);
-      return;
-    }
-    if (status === 'loading' || status === 'idle' || status === 'invalid') {
+    if (!canStage || displayFen === null) {
       prevRef.current = { solveIdx, furthestSolveIdx };
       setPhase(null);
       return;
@@ -94,10 +159,18 @@ export function usePuzzleOpponentMoveStage(args: {
       return;
     }
     return applyPlanTimers(plan, setPhase);
-  }, [displayFen, furthestSolveIdx, moves, solveIdx, startFen, status]);
+  }, [
+    canStage,
+    displayFen,
+    furthestSolveIdx,
+    moves,
+    solveIdx,
+    startFen,
+    status,
+  ]);
 
   return {
-    boardFen: phase?.fen ?? displayFen,
-    opponentAnimating: phase?.locked === true,
+    boardFen: resolveBoardFen(phase, displayFen, pendingAnimate),
+    opponentAnimating: phase?.locked === true || pendingAnimate !== null,
   };
 }

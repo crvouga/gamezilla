@@ -1,25 +1,26 @@
 import type { SyncEngineStatus } from './sync-status';
 
+/**
+ * Loading until the watch has hydrated; after that, empty results stay empty
+ * (no process cache of prior rows). While reconnecting before first sync of
+ * this session, keep showing loading for empty queries.
+ */
 export function computeWatchQueryIsLoading({
   hydrated,
-  displayRows,
-  hadRows,
-  confirmedEmpty,
+  rows,
   status,
   reconnecting,
 }: {
   hydrated: boolean;
-  displayRows: readonly unknown[];
-  hadRows: boolean;
-  confirmedEmpty: boolean;
+  rows: readonly unknown[];
   status: SyncEngineStatus;
   reconnecting: boolean;
 }): boolean {
-  if (displayRows.length > 0 || hadRows || confirmedEmpty) {
-    return false;
-  }
   if (!hydrated) {
     return true;
+  }
+  if (rows.length > 0) {
+    return false;
   }
   return !status.hasEverSynced || !status.hasSynced || reconnecting;
 }

@@ -43,8 +43,6 @@ async function migrate(sql: SqlClient): Promise<void> {
       ${SpaceCol.visibility} TEXT,
       ${SpaceCol.hostAccountId} TEXT,
       ${SpaceCol.hostMemberId} TEXT,
-      ${SpaceCol.hostUsername} TEXT,
-      ${SpaceCol.hostAvatarConfig} TEXT,
       ${SpaceCol.activeMemberCount} INTEGER NOT NULL DEFAULT 0
     )`
   );

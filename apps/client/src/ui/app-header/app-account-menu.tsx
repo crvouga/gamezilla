@@ -3,6 +3,7 @@
  * (Account / Settings / Sign in when signed out) anchored on the profile avatar.
  */
 
+import { DeviceAvatar } from '@libs/profile/client/device-avatar';
 import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import { ActionBar, iconButtonAvatarContentSize } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
@@ -13,7 +14,18 @@ import {
   useAccountMenuHeader,
   useAccountMenuItems,
   useAccountMenuTriggerLabel,
+  useActiveLocalAccount,
 } from '../use-account-menu';
+
+function AccountMenuTriggerAvatar({ size }: { size: number }): ReactNode {
+  const active = useActiveLocalAccount();
+  if (active === undefined) {
+    return (
+      <DeviceAvatar avatarConfig={null} seedFallback="signed-out" size={size} />
+    );
+  }
+  return <MyProfileAvatar size={size} />;
+}
 
 export function AppAccountMenu(): ReactNode {
   const { t } = useLingui();
@@ -34,7 +46,7 @@ export function AppAccountMenu(): ReactNode {
       overflow="auto"
       overflowTrigger={{
         variant: 'avatar',
-        children: <MyProfileAvatar size={avatarSize} />,
+        children: <AccountMenuTriggerAvatar size={avatarSize} />,
         label: accessibilityLabel,
         testID: 'account-menu-trigger',
       }}

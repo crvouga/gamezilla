@@ -1,6 +1,6 @@
 import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import type { FriendProfile } from '../shared/friends-types';
 import { useFriends } from './use-friends';
@@ -12,9 +12,9 @@ export function readRouteParam(value: string | string[] | undefined): string {
 }
 
 /**
- * Resolves another user's display profile from PowerSync only:
- * `friend_profile_cache` when friends, else route search-param seed.
- * Does not call REST — use search payload / cache instead of GET /friends/users.
+ * Resolves another user's display profile from PowerSync
+ * (`friend_profile_cache` via friends list) or route search-param seed for
+ * non-friends. No React state mirror — always derived live.
  */
 export function useFriendUserProfile(userId: string) {
   const router = useRouter();
@@ -36,17 +36,7 @@ export function useFriendUserProfile(userId: string) {
     }),
     [params.avatarConfig, params.username, userId]
   );
-  const [profile, setProfile] = useState<FriendProfile>(
-    cachedFriend ?? seedProfile
-  );
-
-  useEffect(() => {
-    if (cachedFriend !== null) {
-      setProfile(cachedFriend);
-      return;
-    }
-    setProfile(seedProfile);
-  }, [cachedFriend, seedProfile]);
+  const profile = cachedFriend ?? seedProfile;
 
   useEffect(() => {
     if (myProfileId !== null && userId === myProfileId) {
@@ -55,9 +45,8 @@ export function useFriendUserProfile(userId: string) {
   }, [myProfileId, router, userId]);
 
   const refreshProfile = useCallback(() => {
-    if (cachedFriend !== null) setProfile(cachedFriend);
-    else setProfile(seedProfile);
-  }, [cachedFriend, seedProfile]);
+    // Friends list / route params are already live; no-op for API compat.
+  }, []);
 
   return { profile, refreshProfile };
 }

@@ -10,32 +10,26 @@ const PS_WEB_ASSET_PREFIX = '/generated/powersync/@powersync';
 
 const schema = createPowerSyncSchema(SYNC_TABLE_REGISTRY);
 
-type ActiveDatabase = {
-  readonly name: string;
-  readonly database: PowerSyncSdkDatabase;
-};
-
-type ActiveSlot = {
-  current: ActiveDatabase | null;
-  replaceChain: Promise<void>;
+type DatabasePool = {
+  readonly byName: Map<string, PowerSyncSdkDatabase>;
+  activeName: string | null;
 };
 
 /**
- * Survives Metro/HMR so a remounted module can disconnect the previous
- * PowerSync worker before opening a new identity file (avoids OPFS
- * `sqlite3_open_v2` failures from zombie workers).
+ * Survives Metro/HMR. Keeps per-identity PowerSync DBs warm; only one has
+ * sync connected at a time (inactive entries stay open for instant switch).
  */
-function getActiveSlot(): ActiveSlot {
+function getDatabasePool(): DatabasePool {
   const g = globalThis as typeof globalThis & {
-    __gamezillaActivePowerSyncDb?: ActiveSlot;
+    __gamezillaPowerSyncDbPoolV4?: DatabasePool;
   };
-  if (g.__gamezillaActivePowerSyncDb === undefined) {
-    g.__gamezillaActivePowerSyncDb = {
-      current: null,
-      replaceChain: Promise.resolve(),
+  if (g.__gamezillaPowerSyncDbPoolV4 === undefined) {
+    g.__gamezillaPowerSyncDbPoolV4 = {
+      byName: new Map(),
+      activeName: null,
     };
   }
-  return g.__gamezillaActivePowerSyncDb;
+  return g.__gamezillaPowerSyncDbPoolV4;
 }
 
 function createWebDatabase(dbName: string): PowerSyncSdkDatabase {
@@ -67,42 +61,55 @@ function createNativeDatabase(dbName: string): PowerSyncSdkDatabase {
   }) as unknown as PowerSyncSdkDatabase;
 }
 
-async function disconnectQuietly(
-  database: PowerSyncSdkDatabase
-): Promise<void> {
+function disconnectQuietly(database: PowerSyncSdkDatabase): void {
   try {
-    await database.disconnect();
+    void database.disconnect().catch(() => {
+      // Best-effort: stop sync on the previous identity before activating another.
+    });
   } catch {
-    // Best-effort teardown before opening the next identity file.
+    // Best-effort: stop sync on the previous identity before activating another.
   }
 }
 
+function createDatabase(databaseName: string): PowerSyncSdkDatabase {
+  return Platform.OS === 'web'
+    ? createWebDatabase(databaseName)
+    : createNativeDatabase(databaseName);
+}
+
+/** True when this identity's DB is already the active pooled instance. */
+export function isActivePowerSyncDatabase(databaseName: string): boolean {
+  return getDatabasePool().activeName === databaseName;
+}
+
 /**
- * Opens the PowerSync DB for `databaseName`. Disconnects any previous active
- * DB first — only one OPFS-backed PowerSync instance may be live at a time.
+ * Activates the PowerSync DB for `databaseName`. Reuses a warm pooled instance
+ * when present; disconnects sync on the previously active identity (keeps it
+ * pooled). Waits for SDK `init()` so callers never query a not-ready DB.
  */
 export async function openPowerSyncDatabase(
   databaseName: string
 ): Promise<PowerSyncSdkDatabase> {
-  const slot = getActiveSlot();
-  const run = slot.replaceChain.then(async () => {
-    if (slot.current !== null && slot.current.name === databaseName) {
-      return slot.current.database;
+  const pool = getDatabasePool();
+  if (pool.activeName === databaseName) {
+    const current = pool.byName.get(databaseName);
+    if (current !== undefined) {
+      await current.init();
+      return current;
     }
-    if (slot.current !== null) {
-      await disconnectQuietly(slot.current.database);
-      slot.current = null;
+  }
+  if (pool.activeName !== null && pool.activeName !== databaseName) {
+    const previous = pool.byName.get(pool.activeName);
+    if (previous !== undefined) {
+      disconnectQuietly(previous);
     }
-    const database =
-      Platform.OS === 'web'
-        ? createWebDatabase(databaseName)
-        : createNativeDatabase(databaseName);
-    slot.current = { name: databaseName, database };
-    return database;
-  });
-  slot.replaceChain = run.then(
-    () => undefined,
-    () => undefined
-  );
-  return run;
+  }
+  let database = pool.byName.get(databaseName);
+  if (database === undefined) {
+    database = createDatabase(databaseName);
+    pool.byName.set(databaseName, database);
+  }
+  pool.activeName = databaseName;
+  await database.init();
+  return database;
 }

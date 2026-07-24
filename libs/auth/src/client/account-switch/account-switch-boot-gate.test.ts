@@ -5,41 +5,28 @@ import {
   isBootReadyForTarget,
   type SyncBootReport,
 } from './account-switch-boot-gate';
-import { remainingMs } from './account-switch-timing';
 import { waitForTargetBootReady } from './account-switch-wait';
 
 describe('account-switch-boot-gate', () => {
   test('ready matches target account id', () => {
-    expect(
-      isBootReadyForTarget({ phase: 'ready', accountId: 'a' }, 'a')
-    ).toBe(true);
-    expect(
-      isBootReadyForTarget({ phase: 'ready', accountId: 'a' }, 'b')
-    ).toBe(false);
+    expect(isBootReadyForTarget({ phase: 'ready', accountId: 'a' }, 'a')).toBe(
+      true
+    );
+    expect(isBootReadyForTarget({ phase: 'ready', accountId: 'a' }, 'b')).toBe(
+      false
+    );
     expect(
       isBootReadyForTarget({ phase: 'loading', accountId: 'a' }, 'a')
     ).toBe(false);
   });
 
   test('error matches target account id', () => {
-    expect(
-      isBootErrorForTarget({ phase: 'error', accountId: 'a' }, 'a')
-    ).toBe(true);
-    expect(
-      isBootErrorForTarget({ phase: 'error', accountId: 'a' }, 'b')
-    ).toBe(false);
-  });
-});
-
-describe('remainingMs', () => {
-  test('returns leftover until min', () => {
-    const startedAt = Date.now() - 200;
-    expect(remainingMs(startedAt, 700)).toBeGreaterThanOrEqual(400);
-    expect(remainingMs(startedAt, 700)).toBeLessThanOrEqual(500);
-  });
-
-  test('returns 0 when past min', () => {
-    expect(remainingMs(Date.now() - 1000, 700)).toBe(0);
+    expect(isBootErrorForTarget({ phase: 'error', accountId: 'a' }, 'a')).toBe(
+      true
+    );
+    expect(isBootErrorForTarget({ phase: 'error', accountId: 'a' }, 'b')).toBe(
+      false
+    );
   });
 });
 
@@ -85,5 +72,23 @@ describe('waitForTargetBootReady', () => {
     for (const listener of listeners) listener();
     await pending;
     expect(resolved).toBe(true);
+  });
+
+  test('null target resolves on warm ready→ready accountId change', async () => {
+    let report: SyncBootReport = { phase: 'ready', accountId: 'a' };
+    const listeners = new Set<() => void>();
+    const pending = waitForTargetBootReady(
+      null,
+      () => report,
+      (onChange) => {
+        listeners.add(onChange);
+        return () => {
+          listeners.delete(onChange);
+        };
+      }
+    );
+    report = { phase: 'ready', accountId: 'b' };
+    for (const listener of listeners) listener();
+    await pending;
   });
 });

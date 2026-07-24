@@ -49,11 +49,6 @@ function ThemedBootShell({ children }: { children: ReactNode }): ReactNode {
   );
 }
 
-/** Opaque themed hold while the account-switch overlay owns chrome. */
-export function LocalDatabaseBootSwitchHold(): ReactNode {
-  return <ThemedBootShell>{null}</ThemedBootShell>;
-}
-
 export function LocalDatabaseBootLoadingScreen(props: {
   caption?: ReactNode;
 }): ReactNode {

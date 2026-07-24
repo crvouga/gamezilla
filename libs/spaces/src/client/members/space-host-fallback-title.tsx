@@ -5,7 +5,7 @@ import {
 } from '@libs/profile/client/use-profile-column';
 import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
-import type { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 
@@ -18,7 +18,7 @@ export type SpaceHostFallbackTitleProps = {
 
 /**
  * Localized fallback title `${hostName}'s space` for a space that hasn't been
- * explicitly named.
+ * explicitly named. Host name always comes from the live `profiles` row.
  */
 export function SpaceHostFallbackTitle({
   spaceId,

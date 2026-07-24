@@ -26,8 +26,6 @@ function entry(
 ): LocalAccountRosterEntry {
   return {
     externalUserId: 'user_1',
-    username: null,
-    avatarConfigJson: null,
     lastActiveAt: '2026-01-01T00:00:00.000Z',
     ...partial,
   };
@@ -50,13 +48,6 @@ describe('mergeLocalAccountDisplay', () => {
         'acc-1'
       )
     ).toBe(true);
-    expect(
-      shouldUseActiveProfile(
-        entry({ accountId: 'acc-1', sessionId: 's1' }),
-        false,
-        'acc-1'
-      )
-    ).toBe(false);
   });
 
   test('mid-switch does not paint previous profile onto new active session', () => {
@@ -67,13 +58,10 @@ describe('mergeLocalAccountDisplay', () => {
         username: 'clerk-bob',
         isActive: true,
       }),
-      // Roster still bound to previous account while lastLocalAccountId lags,
-      // or lookup missed — either way, do not use activeProfile for acc-1.
       entry: entry({
         accountId: 'acc-2',
         sessionId: 's2',
         externalUserId: 'user_2',
-        username: null,
       }),
       activeAccountId: 'acc-1',
       activeProfile: {
@@ -85,7 +73,7 @@ describe('mergeLocalAccountDisplay', () => {
     expect(display.avatarConfigJson).toBeNull();
   });
 
-  test('uses live profile when roster account matches', () => {
+  test('active bound account uses SQLite profile only', () => {
     const display = mergeLocalAccountDisplay({
       session: session({
         sessionId: 's1',
@@ -95,7 +83,6 @@ describe('mergeLocalAccountDisplay', () => {
       entry: entry({
         accountId: 'acc-1',
         sessionId: 's1',
-        username: null,
       }),
       activeAccountId: 'acc-1',
       activeProfile: {
@@ -107,22 +94,32 @@ describe('mergeLocalAccountDisplay', () => {
     expect(display.avatarConfigJson).toBe('{"seed":"a"}');
   });
 
-  test('roster username wins over live profile', () => {
+  test('active bound with empty SQLite profile falls back to Clerk username', () => {
     const display = mergeLocalAccountDisplay({
       session: session({ sessionId: 's1', isActive: true }),
-      entry: entry({
-        accountId: 'acc-1',
-        sessionId: 's1',
-        username: 'roster-name',
-        avatarConfigJson: '{"seed":"roster"}',
+      entry: entry({ accountId: 'acc-1', sessionId: 's1' }),
+      activeAccountId: 'acc-1',
+      activeProfile: { username: null, avatar_config: null },
+    });
+    expect(display.username).toBe('clerk-name');
+    expect(display.avatarConfigJson).toBeNull();
+  });
+
+  test('inactive row uses session username and no avatar', () => {
+    const display = mergeLocalAccountDisplay({
+      session: session({
+        sessionId: 's2',
+        isActive: false,
+        username: 'other-clerk',
       }),
+      entry: entry({ accountId: 'acc-2', sessionId: 's2' }),
       activeAccountId: 'acc-1',
       activeProfile: {
-        username: 'profile-name',
+        username: 'AliveMackerel790',
         avatar_config: '{"seed":"profile"}',
       },
     });
-    expect(display.username).toBe('roster-name');
-    expect(display.avatarConfigJson).toBe('{"seed":"roster"}');
+    expect(display.username).toBe('other-clerk');
+    expect(display.avatarConfigJson).toBeNull();
   });
 });

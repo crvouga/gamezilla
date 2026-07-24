@@ -57,6 +57,40 @@ function resolveAccountId(
   return null;
 }
 
+function accountDedupeKey(account: LocalAccount): string {
+  if (account.accountId !== null) return `acct:${account.accountId}`;
+  return `ext:${account.externalUserId}`;
+}
+
+/** Prefer active, then most recently touched — one row per account/user. */
+function preferLocalAccount(
+  current: LocalAccount,
+  candidate: LocalAccount
+): LocalAccount {
+  if (candidate.isActive && !current.isActive) return candidate;
+  if (!candidate.isActive && current.isActive) return current;
+  const currentTouched = current.lastActiveAt ?? '';
+  const candidateTouched = candidate.lastActiveAt ?? '';
+  return candidateTouched > currentTouched ? candidate : current;
+}
+
+function dedupeLocalAccounts(
+  accounts: readonly LocalAccount[]
+): readonly LocalAccount[] {
+  const byKey = new Map<string, LocalAccount>();
+  for (const account of accounts) {
+    const key = accountDedupeKey(account);
+    const existing = byKey.get(key);
+    byKey.set(
+      key,
+      existing === undefined
+        ? account
+        : preferLocalAccount(existing, account)
+    );
+  }
+  return [...byKey.values()];
+}
+
 function mergeSessionWithRoster(
   session: AccountSession,
   entry: LocalAccountRosterEntry | undefined,
@@ -82,9 +116,8 @@ function mergeSessionWithRoster(
 
 /**
  * Local accounts available for switching: auth sessions joined with Kv roster
- * display metadata (username / avatar). Active account falls back to the live
- * profile only when the roster already binds that session to the active
- * accountId; otherwise provider username (Clerk) is used for the title.
+ * bindings (accountId). Active-account username/avatar come only from the live
+ * SQLite profile row — never from a roster display cache.
  */
 export function useLocalAccounts(): readonly LocalAccount[] {
   const port = useAuthClientPort();
@@ -92,24 +125,23 @@ export function useLocalAccounts(): readonly LocalAccount[] {
   const [roster] = useLocalAccountRoster();
   const activeAccountId = useCurrentAccountId();
 
-  const { row: activeProfile, isLoading: activeProfileLoading } =
-    useWatchOne<ActiveProfileDisplayRow>(
-      activeAccountId === null
-        ? `SELECT ${ProfileCol.username} AS username,
+  const { row: activeProfile } = useWatchOne<ActiveProfileDisplayRow>(
+    activeAccountId === null
+      ? `SELECT ${ProfileCol.username} AS username,
                 ${ProfileCol.avatarConfig} AS avatar_config
          FROM ${PROFILES_TABLE.tableName} WHERE 0`
-        : `SELECT ${ProfileCol.username} AS username,
+      : `SELECT ${ProfileCol.username} AS username,
                 ${ProfileCol.avatarConfig} AS avatar_config
          FROM ${PROFILES_TABLE.tableName}
          WHERE ${ProfileCol.id} = ?`,
-      activeAccountId === null ? [] : [activeAccountId]
-    );
-  // Ignore held/stale rows while the watch for this accountId is still hydrating.
-  const trustedProfile =
-    activeProfileLoading ? null : (activeProfile ?? null);
+    activeAccountId === null ? [] : [activeAccountId]
+  );
+  // Prefer live row when present. Do not blank username while reconnecting —
+  // merge falls back to Clerk session username when SQLite is still empty.
+  const trustedProfile = activeProfile ?? null;
 
   return useMemo(() => {
-    return sessions.map((session) => {
+    const merged = sessions.map((session) => {
       const entry = findRosterEntryForSession(roster, {
         sessionId: session.sessionId,
         externalUserId: session.externalUserId,
@@ -121,5 +153,6 @@ export function useLocalAccounts(): readonly LocalAccount[] {
         trustedProfile
       );
     });
+    return dedupeLocalAccounts(merged);
   }, [sessions, roster, activeAccountId, trustedProfile]);
 }

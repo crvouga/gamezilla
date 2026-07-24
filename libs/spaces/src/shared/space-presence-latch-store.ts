@@ -33,3 +33,8 @@ export function clearSpacePresenceLatch(spaceId: string): void {
   if (spaceId.length === 0) return;
   latchBySpaceId.delete(spaceId);
 }
+
+/** Drop every latch — call on account / sync-identity change. */
+export function clearAllSpacePresenceLatches(): void {
+  latchBySpaceId.clear();
+}

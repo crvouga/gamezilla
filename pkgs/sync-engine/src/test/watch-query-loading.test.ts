@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import { computeWatchQueryIsLoading } from '../client/watch-query-loading';
 import type { SyncEngineStatus } from '../client/sync-status';
+import { computeWatchQueryIsLoading } from '../client/watch-query-loading';
 
-const baseStatus: SyncEngineStatus = {
+const connectedSynced: SyncEngineStatus = {
   connection: 'connected',
   online: true,
   hasSynced: true,
@@ -11,56 +11,56 @@ const baseStatus: SyncEngineStatus = {
   lastError: null,
 };
 
+const reconnecting: SyncEngineStatus = {
+  connection: 'connecting',
+  online: false,
+  hasSynced: false,
+  hasEverSynced: true,
+  lastError: null,
+};
+
 describe('computeWatchQueryIsLoading', () => {
-  test('returns false before hydration when display rows exist', () => {
+  test('loading until hydrated', () => {
     expect(
       computeWatchQueryIsLoading({
         hydrated: false,
-        displayRows: [{ id: 's1' }],
-        hadRows: false,
-        confirmedEmpty: false,
-        status: baseStatus,
-        reconnecting: false,
-      })
-    ).toBe(false);
-  });
-
-  test('returns false before hydration when hadRows is true', () => {
-    expect(
-      computeWatchQueryIsLoading({
-        hydrated: false,
-        displayRows: [],
-        hadRows: true,
-        confirmedEmpty: false,
-        status: baseStatus,
-        reconnecting: false,
-      })
-    ).toBe(false);
-  });
-
-  test('returns true before hydration with no rows or cache signals', () => {
-    expect(
-      computeWatchQueryIsLoading({
-        hydrated: false,
-        displayRows: [],
-        hadRows: false,
-        confirmedEmpty: false,
-        status: baseStatus,
+        rows: [],
+        status: connectedSynced,
         reconnecting: false,
       })
     ).toBe(true);
   });
 
-  test('returns false when confirmed empty after hydration', () => {
+  test('not loading when rows present', () => {
     expect(
       computeWatchQueryIsLoading({
         hydrated: true,
-        displayRows: [],
-        hadRows: false,
-        confirmedEmpty: true,
-        status: baseStatus,
+        rows: [{ id: 'a' }],
+        status: connectedSynced,
         reconnecting: false,
       })
     ).toBe(false);
+  });
+
+  test('not loading when hydrated empty and synced', () => {
+    expect(
+      computeWatchQueryIsLoading({
+        hydrated: true,
+        rows: [],
+        status: connectedSynced,
+        reconnecting: false,
+      })
+    ).toBe(false);
+  });
+
+  test('loading when empty and reconnecting', () => {
+    expect(
+      computeWatchQueryIsLoading({
+        hydrated: true,
+        rows: [],
+        status: reconnecting,
+        reconnecting: true,
+      })
+    ).toBe(true);
   });
 });

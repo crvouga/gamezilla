@@ -108,7 +108,16 @@ function useGameStateBundle(props: ChessBoardCanvasProps): GameStateBundle {
     }
     return game.legalMovesFrom(interaction.dragFrom);
   }, [game, highlightLegalMoves, interaction.dragFrom]);
-  useExternalFenSync(fen, props.fenSyncKey, game.reset, interaction.clearAll);
+  useExternalFenSync({
+    fen,
+    fenSyncKey: props.fenSyncKey,
+    localFen: game.fen,
+    applyExternalFen: game.applyExternalFen,
+    commitMoveUi: game.commitMoveUi,
+    clearLastMove: game.clearLastMove,
+    onAfterReset: interaction.clearAll,
+    applySuccessfulMove,
+  });
   return {
     game,
     interaction,

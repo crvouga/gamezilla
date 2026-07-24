@@ -5,7 +5,7 @@ import { UserUsername, type UserUsernameProps } from './user-username';
 
 export type MyUsernameProps = Omit<UserUsernameProps, 'profileId'>;
 
-/** Sugar: `<UserUsername profileId={useMyProfileId()} … />`. */
+/** Sugar: `<UserUsername profileId={useMyProfileId()} … />` (SQLite only). */
 export function MyUsername({
   variant,
   sx,

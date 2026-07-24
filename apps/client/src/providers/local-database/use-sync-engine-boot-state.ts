@@ -1,3 +1,6 @@
+import { getCachedCurrentAccountId } from '@libs/auth/client/use-current-account-id';
+import { useFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
+import { clearAllSpacePresenceLatches } from '@libs/spaces/shared/space-presence-latch-store';
 import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 import { clearWatchQueryCache } from '@pkgs/sync-engine/client/watch-query-cache';
 import { useEffect, useRef, useState } from 'react';
@@ -13,54 +16,65 @@ function toError(error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error));
 }
 
+function initialBootState(warmEngine: SyncEngine | null): SyncEngineBootState {
+  if (warmEngine !== null) {
+    return { phase: 'ready', engine: warmEngine };
+  }
+  return { phase: 'loading' };
+}
+
+function connectEngine(engine: SyncEngine): void {
+  void engine.connect().then(
+    () => undefined,
+    (error: unknown) => {
+      console.warn('sync-engine connect failed', toError(error).message);
+    }
+  );
+}
+
 /**
  * Opens the identity-scoped sync engine for local reads as soon as the DB is
  * ready. PowerSync `connect()` runs in the background so account switches are
- * not blocked on network sync. Ignores Strict Mode cleanups that cancel an
- * in-flight boot of the same identity.
+ * not blocked on network sync.
  *
- * When `enginePromise` changes (account switch), loading is applied during
- * render — not only in useEffect — so children never read the new accountId
- * against the previous identity's SQLite for a frame.
+ * When `enginePromise` changes, loading is applied during render unless a warm
+ * pooled engine is already available for the new identity (near-instant switch).
  */
 export function useSyncEngineBootState(
-  enginePromise: Promise<SyncEngine>
+  enginePromise: Promise<SyncEngine>,
+  warmEngine: SyncEngine | null
 ): SyncEngineBootState {
-  const [boot, setBoot] = useState<SyncEngineBootState>({ phase: 'loading' });
+  const authToken = useFreshAuthToken();
+  const [boot, setBoot] = useState<SyncEngineBootState>(() =>
+    initialBootState(warmEngine)
+  );
   const [resolvedPromise, setResolvedPromise] = useState(enginePromise);
   const generationRef = useRef(0);
+  const connectedKeyRef = useRef<string | null>(null);
+  const readyEngine =
+    boot.phase === 'ready' ? boot.engine : (warmEngine ?? null);
 
-  // Adjust state during render when the identity promise changes (React
-  // "store reset on prop change"). Waiting for useEffect left one frame
-  // where accountId was new but the old SyncEngine was still mounted —
-  // profile sync then wrote the previous account's username into the roster.
   if (enginePromise !== resolvedPromise) {
     setResolvedPromise(enginePromise);
-    setBoot({ phase: 'loading' });
+    setBoot(initialBootState(warmEngine));
   }
 
   useEffect(() => {
     const generation = generationRef.current + 1;
     generationRef.current = generation;
     let cancelled = false;
-    setBoot({ phase: 'loading' });
     clearWatchQueryCache();
+    clearAllSpacePresenceLatches();
+    connectedKeyRef.current = null;
+    if (warmEngine === null) {
+      setBoot({ phase: 'loading' });
+    }
 
     void enginePromise.then(
       (engine) => {
         if (cancelled || generation !== generationRef.current) return;
         attachSqlCli(engine.db);
         setBoot({ phase: 'ready', engine });
-        void engine.connect().then(
-          () => undefined,
-          (error: unknown) => {
-            if (cancelled || generation !== generationRef.current) return;
-            console.warn(
-              'sync-engine connect failed',
-              toError(error).message
-            );
-          }
-        );
       },
       (error: unknown) => {
         if (cancelled || generation !== generationRef.current) return;
@@ -71,7 +85,19 @@ export function useSyncEngineBootState(
     return () => {
       cancelled = true;
     };
-  }, [enginePromise]);
+  }, [enginePromise, warmEngine]);
+
+  useEffect(() => {
+    if (readyEngine === null) return;
+    const accountId = getCachedCurrentAccountId();
+    if (accountId !== null && authToken === null) {
+      return;
+    }
+    const connectKey = `${accountId ?? 'anon'}:${authToken ?? 'none'}`;
+    if (connectedKeyRef.current === connectKey) return;
+    connectedKeyRef.current = connectKey;
+    connectEngine(readyEngine);
+  }, [readyEngine, authToken]);
 
   return boot;
 }

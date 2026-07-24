@@ -1,4 +1,3 @@
-import { AccountRosterProfileSync } from '@libs/auth/client/account-roster-profile-sync';
 import { AuthSyncBridge } from '@libs/auth/client/auth-sync-bridge';
 import { ProfileProvider } from '@libs/profile/client/profile-provider';
 import { ComposeProviders } from '@pkgs/ui';
@@ -13,7 +12,6 @@ const localDatabaseProviders = [
   SqliteRecoveryGate,
   SyncEngineBoot,
   AuthSyncBridge,
-  AccountRosterProfileSync,
   SyncLocalDataActions,
   DeviceEntityBootstrap,
   ProfileProvider,

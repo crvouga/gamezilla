@@ -17,32 +17,6 @@ function nonEmpty(value: string | null | undefined): string | null {
   return value;
 }
 
-function resolveUsername(
-  rosterUsername: string | null,
-  sessionUsername: string | null,
-  useActiveProfile: boolean,
-  activeProfileUsername: string | null
-): string | null {
-  const fromRoster = nonEmpty(rosterUsername);
-  if (fromRoster !== null) return fromRoster;
-  if (useActiveProfile) {
-    const fromProfile = nonEmpty(activeProfileUsername);
-    if (fromProfile !== null) return fromProfile;
-  }
-  return nonEmpty(sessionUsername);
-}
-
-function resolveAvatarConfigJson(
-  rosterAvatarConfigJson: string | null,
-  useActiveProfile: boolean,
-  activeProfileAvatarConfigJson: string | null
-): string | null {
-  const fromRoster = nonEmpty(rosterAvatarConfigJson);
-  if (fromRoster !== null) return fromRoster;
-  if (!useActiveProfile) return null;
-  return nonEmpty(activeProfileAvatarConfigJson);
-}
-
 /**
  * Live profile is keyed by lastLocalAccountId. Only paint it onto a session
  * whose roster row already points at that account — otherwise a mid-switch
@@ -57,6 +31,11 @@ export function shouldUseActiveProfile(
   return entry?.accountId === activeAccountId;
 }
 
+/**
+ * Active + bound: prefer SQLite profile; fall back to Clerk username when the
+ * local row is missing/empty (warm switch hydrate). Inactive: Clerk username
+ * only; avatar always null (no roster display cache).
+ */
 export function mergeLocalAccountDisplay(args: {
   readonly session: AccountSession;
   readonly entry: LocalAccountRosterEntry | undefined;
@@ -68,17 +47,16 @@ export function mergeLocalAccountDisplay(args: {
     args.session.isActive,
     args.activeAccountId
   );
+  if (useProfile) {
+    return {
+      username:
+        nonEmpty(args.activeProfile?.username) ??
+        nonEmpty(args.session.username),
+      avatarConfigJson: nonEmpty(args.activeProfile?.avatar_config),
+    };
+  }
   return {
-    username: resolveUsername(
-      args.entry?.username ?? null,
-      args.session.username,
-      useProfile,
-      args.activeProfile?.username ?? null
-    ),
-    avatarConfigJson: resolveAvatarConfigJson(
-      args.entry?.avatarConfigJson ?? null,
-      useProfile,
-      args.activeProfile?.avatar_config ?? null
-    ),
+    username: nonEmpty(args.session.username),
+    avatarConfigJson: null,
   };
 }

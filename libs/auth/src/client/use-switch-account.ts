@@ -8,7 +8,7 @@ import { LAST_LOCAL_ACCOUNT_ID_KEY } from './auth-storage-keys';
 
 export type SwitchAccountArgs = {
   readonly sessionId: string;
-  /** Roster account id when known — written immediately after setActive. */
+  /** Roster account id when known — written before setActive. */
   readonly accountId?: string | null;
 };
 
@@ -21,8 +21,9 @@ export function useSwitchAccount(): (
 
   return useCallback(
     async (args: SwitchAccountArgs) => {
-      await port.switchAccount(args.sessionId);
       const accountId = args.accountId ?? null;
+      // Point SyncEngineBoot / profile watches at the target before Clerk flips
+      // isActive, so menu + avatar don't paint the previous identity mid-switch.
       if (accountId !== null && isUuid(accountId)) {
         await writeSecureStorageItem(
           storage,
@@ -30,6 +31,7 @@ export function useSwitchAccount(): (
           accountId
         );
       }
+      await port.switchAccount(args.sessionId);
     },
     [port, storage]
   );

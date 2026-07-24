@@ -40,6 +40,7 @@ type RefreshDeps = {
   log: Logger;
   lastSyncedTokenRef: TokenRef;
   inFlightRef: FlagRef;
+  pendingTokenRef: TokenRef;
   setRoster: RosterSetter;
   activeSessionId: string | null;
   activeExternalUserId: string | null;
@@ -136,6 +137,7 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
   const log = useLogger('auth-bridge');
   const lastSyncedTokenRef = useRef<string | null>(null);
   const inFlightRef = useRef(false);
+  const pendingTokenRef = useRef<string | null>(null);
   const tokenRef = useRef<string | null>(null);
   const expiresAtRef = useRef<string | null>(null);
 
@@ -156,6 +158,7 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
       log,
       lastSyncedTokenRef,
       inFlightRef,
+      pendingTokenRef,
       setRoster,
       activeSessionId,
       activeExternalUserId,
@@ -222,6 +225,63 @@ function bindRosterAfterRefresh(args: {
   );
 }
 
+async function applyRefreshSuccess(args: {
+  readonly deps: RefreshDeps;
+  readonly token: string;
+  readonly accountId: string;
+  readonly sessionId: string | null;
+  readonly externalUserId: string | null;
+}): Promise<void> {
+  const { deps, token, accountId, sessionId, externalUserId } = args;
+  await writeSecureStorageItem(
+    deps.storage,
+    LAST_LOCAL_ACCOUNT_ID_KEY,
+    accountId
+  );
+  if (sessionId !== null) {
+    bindRosterAfterRefresh({
+      deps,
+      accountId,
+      sessionId,
+      externalUserId,
+    });
+  }
+  await flushSyncIdentityOnSignIn();
+  deps.lastSyncedTokenRef.current = token;
+}
+
+function discardStaleRefresh(args: {
+  readonly deps: RefreshDeps;
+  readonly token: string;
+  readonly currentToken: string | null;
+  readonly accountId: string;
+}): void {
+  const { deps, currentToken } = args;
+  deps.log.info('auth/refresh discarded; session token changed during request');
+  if (currentToken !== null) {
+    deps.pendingTokenRef.current = currentToken;
+  }
+}
+
+async function retryPendingRefresh(
+  deps: RefreshDeps,
+  expiresAt: string | null
+): Promise<void> {
+  const pending = deps.pendingTokenRef.current;
+  deps.pendingTokenRef.current = null;
+  if (pending === null || pending === deps.lastSyncedTokenRef.current) {
+    return;
+  }
+  await runRefresh({
+    deps,
+    token: pending,
+    expiresAt,
+    force: true,
+    sessionId: deps.activeSessionId,
+    externalUserId: deps.activeExternalUserId,
+  });
+}
+
 async function runRefresh(args: {
   deps: RefreshDeps;
   token: string;
@@ -231,9 +291,13 @@ async function runRefresh(args: {
   externalUserId: string | null;
 }): Promise<void> {
   const { deps, token, force, sessionId, externalUserId } = args;
-  if (deps.inFlightRef.current) return;
   if (!force && deps.lastSyncedTokenRef.current === token) return;
+  if (deps.inFlightRef.current) {
+    deps.pendingTokenRef.current = token;
+    return;
+  }
   deps.inFlightRef.current = true;
+  deps.pendingTokenRef.current = null;
   try {
     await writeSecureStorageItem(deps.storage, SESSION_TOKEN_KEY, token);
     const { accountId } = await refreshAuth({
@@ -242,27 +306,25 @@ async function runRefresh(args: {
       deviceId: deps.deviceId,
       deviceSnapshot: collectDeviceSnapshot(),
     });
-    await writeSecureStorageItem(
-      deps.storage,
-      LAST_LOCAL_ACCOUNT_ID_KEY,
-      accountId
-    );
-    if (sessionId !== null) {
-      bindRosterAfterRefresh({
-        deps,
-        accountId,
-        sessionId,
-        externalUserId,
-      });
+    const currentToken = getCachedAuthToken();
+    if (currentToken !== token) {
+      discardStaleRefresh({ deps, token, currentToken, accountId });
+      return;
     }
-    await flushSyncIdentityOnSignIn();
-    deps.lastSyncedTokenRef.current = token;
+    await applyRefreshSuccess({
+      deps,
+      token,
+      accountId,
+      sessionId,
+      externalUserId,
+    });
   } catch (e) {
     deps.log.error('auth/refresh failed', {
       error: e instanceof Error ? e.message : String(e),
     });
   } finally {
     deps.inFlightRef.current = false;
+    await retryPendingRefresh(deps, args.expiresAt);
   }
 }
 

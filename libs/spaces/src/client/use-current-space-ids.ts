@@ -163,6 +163,11 @@ export function useCurrentSpaceIds(): {
   );
   const status = useSyncStatus();
   const prevEntriesRef = useRef<CurrentSpaceEntry[]>([]);
+  const identityRef = useRef(memberId);
+  if (identityRef.current !== memberId) {
+    identityRef.current = memberId;
+    prevEntriesRef.current = [];
+  }
   const reconnecting = isSyncReconnecting(status);
   if (entries.length > 0) {
     prevEntriesRef.current = entries;

@@ -58,11 +58,6 @@ export const SpaceAttr = {
   hostMemberId: spaceNs
     .textOrNull('host-member-id', readNonEmptyStringOrNull)
     .indexed(),
-  hostUsername: spaceNs.textOrNull('host-username', readNonEmptyStringOrNull),
-  hostAvatarConfig: spaceNs.textOrNull(
-    'host-avatar-config',
-    readNonEmptyStringOrNull
-  ),
   activeMemberCount: spaceNs.integer('active-member-count', readMemberCount),
 } as const;
 

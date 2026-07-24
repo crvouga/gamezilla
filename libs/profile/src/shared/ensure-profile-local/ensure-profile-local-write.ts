@@ -11,6 +11,8 @@ import {
 
 export type EnsureProfileLocalInput = {
   readonly profileId: string;
+  /** When set, fill an empty local username (from POST /profile/ensure). */
+  readonly username?: string;
 };
 
 type ProfileRow = Record<string, unknown>;
@@ -21,11 +23,18 @@ function parseEnsureProfileLocalInput(
   if (raw === null || typeof raw !== 'object') {
     return fail('INVALID_INPUT', 'ensure profile input must be an object');
   }
-  const profileId = (raw as Record<string, unknown>)['profileId'];
+  const record = raw as Record<string, unknown>;
+  const profileId = record['profileId'];
   if (typeof profileId !== 'string' || profileId.length === 0) {
     return fail('INVALID_INPUT', 'profileId is required');
   }
-  return ok({ profileId });
+  const username = record['username'];
+  return ok({
+    profileId,
+    ...(typeof username === 'string' && username.length > 0
+      ? { username }
+      : {}),
+  });
 }
 
 function profileLooksPresent(
@@ -69,9 +78,35 @@ async function insertProfileSeed(
   );
 }
 
+async function fillEmptyUsername(
+  sql: SqlClient,
+  profileId: string,
+  username: string
+): Promise<void> {
+  // Fill empty, or replace an auto-assigned name that does not match ensure
+  // (e.g. a raced apply from another account's token). Never overwrite a
+  // user-chosen username (`username_changed_at` set).
+  await sql.run(
+    `UPDATE ${PROFILES_TABLE.tableName}
+     SET ${ProfileCol.username} = ?
+     WHERE ${ProfileCol.id} = ?
+       AND (
+         ${ProfileCol.username} = ''
+         OR ${ProfileCol.username} IS NULL
+         OR (
+           (${ProfileCol.usernameChangedAt} IS NULL
+             OR ${ProfileCol.usernameChangedAt} = '')
+           AND ${ProfileCol.username} != ?
+         )
+       )`,
+    [username, profileId, username]
+  );
+}
+
 /**
  * Seeds / backfills the local `profiles` row for `myId`. Username assignment
- * stays online via `POST /profile/ensure`.
+ * stays online via `POST /profile/ensure`; pass `username` to apply that
+ * result locally when the row is still empty (avoids waiting on sync).
  */
 export const ensureProfileLocalWrite = defineWrite<
   EnsureProfileLocalInput,
@@ -94,9 +129,15 @@ export const ensureProfileLocalWrite = defineWrite<
       if (!hasAvatarConfig(existing)) {
         await backfillAvatar(sql, input.profileId);
       }
+      if (input.username !== undefined) {
+        await fillEmptyUsername(sql, input.profileId, input.username);
+      }
       return ok(undefined);
     }
     await insertProfileSeed(sql, input.profileId);
+    if (input.username !== undefined) {
+      await fillEmptyUsername(sql, input.profileId, input.username);
+    }
     return ok(undefined);
   },
 });

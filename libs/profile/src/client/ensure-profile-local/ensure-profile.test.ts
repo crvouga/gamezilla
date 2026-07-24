@@ -4,7 +4,7 @@ import { Database } from 'bun:sqlite';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
-import { ensureProfile } from './ensure-profile';
+import { applyEnsuredUsername, ensureProfile } from './ensure-profile';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 
 const MY_ID = '550e8400-e29b-41d4-a716-446655440000';
@@ -27,6 +27,7 @@ function openTestSql(): SqlClientImplBunSqlite {
       ${ProfileCol.id} TEXT PRIMARY KEY,
       ${ProfileCol.createdAt} TEXT NOT NULL,
       ${ProfileCol.username} TEXT NOT NULL DEFAULT '',
+      ${ProfileCol.usernameChangedAt} TEXT,
       ${ProfileCol.avatarConfig} TEXT NOT NULL
     )`
   );
@@ -63,5 +64,69 @@ describe('ensureProfile', () => {
       [MY_ID]
     );
     expect(rows[0]?.n).toBe(1);
+  });
+
+  test('applyEnsuredUsername fills an empty local username', async () => {
+    const sql = openTestSql();
+    const ctx = writeContextFor(MY_ID);
+    await ensureProfile(sql, ctx, MY_ID);
+    await applyEnsuredUsername(sql, ctx, {
+      profileId: MY_ID,
+      username: 'AssignedName',
+    });
+    const row = (
+      await sql.query<Record<string, string>>(
+        `SELECT ${ProfileCol.username} AS username FROM ${PROFILES_TABLE.tableName}
+         WHERE ${ProfileCol.id} = ?`,
+        [MY_ID]
+      )
+    )[0];
+    expect(row?.['username']).toBe('AssignedName');
+  });
+
+  test('applyEnsuredUsername corrects wrong auto username', async () => {
+    const sql = openTestSql();
+    const ctx = writeContextFor(MY_ID);
+    await ensureProfile(sql, ctx, MY_ID);
+    await applyEnsuredUsername(sql, ctx, {
+      profileId: MY_ID,
+      username: 'WrongOtherAccount',
+    });
+    await applyEnsuredUsername(sql, ctx, {
+      profileId: MY_ID,
+      username: 'CorrectName',
+    });
+    const row = (
+      await sql.query<Record<string, string>>(
+        `SELECT ${ProfileCol.username} AS username FROM ${PROFILES_TABLE.tableName}
+         WHERE ${ProfileCol.id} = ?`,
+        [MY_ID]
+      )
+    )[0];
+    expect(row?.['username']).toBe('CorrectName');
+  });
+
+  test('applyEnsuredUsername does not overwrite user-chosen username', async () => {
+    const sql = openTestSql();
+    const ctx = writeContextFor(MY_ID);
+    await ensureProfile(sql, ctx, MY_ID);
+    await sql.run(
+      `UPDATE ${PROFILES_TABLE.tableName}
+       SET ${ProfileCol.username} = ?, ${ProfileCol.usernameChangedAt} = ?
+       WHERE ${ProfileCol.id} = ?`,
+      ['MyHandle', new Date().toISOString(), MY_ID]
+    );
+    await applyEnsuredUsername(sql, ctx, {
+      profileId: MY_ID,
+      username: 'ServerName',
+    });
+    const row = (
+      await sql.query<Record<string, string>>(
+        `SELECT ${ProfileCol.username} AS username FROM ${PROFILES_TABLE.tableName}
+         WHERE ${ProfileCol.id} = ?`,
+        [MY_ID]
+      )
+    )[0];
+    expect(row?.['username']).toBe('MyHandle');
   });
 });

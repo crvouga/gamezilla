@@ -8,46 +8,17 @@ import {
   type Square as ChessSquare,
 } from 'chess.js';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { indexFromSquare, isSquare } from './chess-board-geometry';
-import type { Move, Piece, Position, Square } from './chess-board-types';
+import {
+  applyExternalFenToChess,
+  type ApplyExternalFenResult,
+} from './chess-board-apply-external-fen';
+import { isSquare } from './chess-board-geometry';
+import { positionFromChess } from './chess-board-position-from-chess';
+import type { Move, Square } from './chess-board-types';
 
 export type UseChessGameOptions = {
   initialFen?: string;
 };
-
-function pieceFromChessJs(
-  p: { type: ChessPieceSymbol; color: ChessColor } | null
-): Piece | null {
-  if (p === null) return null;
-  const color = p.color === 'w' ? 'w' : 'b';
-  const type = p.type;
-  if (
-    type !== 'p' &&
-    type !== 'n' &&
-    type !== 'b' &&
-    type !== 'r' &&
-    type !== 'q' &&
-    type !== 'k'
-  ) {
-    return null;
-  }
-  return { color, type };
-}
-
-function positionFromChess(chess: Chess): Position {
-  const board = chess.board(); // 8x8, rank 8..1
-  const out: (Piece | null)[] = Array.from({ length: 64 }, () => null);
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      const piece = board[row]?.[col] ?? null;
-      const file = String.fromCharCode('a'.charCodeAt(0) + col);
-      const rank = String(8 - row);
-      const square = `${file}${rank}` as Square;
-      out[indexFromSquare(square)] = pieceFromChessJs(piece);
-    }
-  }
-  return out;
-}
 
 function rookCastleFromSan(
   color: ChessColor,
@@ -258,6 +229,24 @@ export function useChessGame(options: UseChessGameOptions = {}) {
     [chess]
   );
 
+  /**
+   * Controlled / external FEN path: load the position and report whether it
+   * was a single ply (caller sets lastMove + SFX when still in sync).
+   */
+  const applyExternalFen = useCallback(
+    (nextFen: string): ApplyExternalFenResult | null => {
+      const result = applyExternalFenToChess(chess, nextFen);
+      if (result === null) return null;
+      setFen(chess.fen());
+      return result;
+    },
+    [chess]
+  );
+
+  const clearLastMove = useCallback(() => {
+    setLastMove(null);
+  }, []);
+
   const undo = useCallback(() => {
     const res = chess.undo();
     if (res) {
@@ -298,6 +287,8 @@ export function useChessGame(options: UseChessGameOptions = {}) {
     tryMoveSilent,
     commitMoveUi,
     reset,
+    applyExternalFen,
+    clearLastMove,
     undo,
     pgn,
     loadPgn,
