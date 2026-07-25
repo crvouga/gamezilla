@@ -69,11 +69,12 @@
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
-    "brace-expansion": "^2.1.2",
+    "brace-expansion": "5.0.8",
     "esbuild": "^0.28.1",
     "fast-uri": "^3.1.4",
     "js-cookie": "^3.0.7",
     "js-yaml": "^4.3.0",
+    "minimatch": "10.2.5",
     "serialize-javascript": "7.0.5",
     "sharp": "^0.35.0",
     "shell-quote": "^1.10.0",
