@@ -22,8 +22,8 @@ export function useSwitchAccount(): (
   return useCallback(
     async (args: SwitchAccountArgs) => {
       const accountId = args.accountId ?? null;
-      // Point SyncEngineBoot / profile watches at the target before Clerk flips
-      // isActive, so menu + avatar don't paint the previous identity mid-switch.
+      // Point SyncEngineBoot / profile watches at the target before the provider
+      // flips isActive, so menu + avatar don't paint the previous identity mid-switch.
       if (accountId !== null && isUuid(accountId)) {
         await writeSecureStorageItem(
           storage,

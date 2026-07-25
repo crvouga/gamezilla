@@ -14,7 +14,7 @@ function session(
   return {
     externalUserId: 'user_1',
     email: 'a@example.com',
-    username: 'clerk-name',
+    username: 'provider-name',
     isActive: false,
     ...partial,
   };
@@ -55,7 +55,7 @@ describe('mergeLocalAccountDisplay', () => {
       session: session({
         sessionId: 's2',
         externalUserId: 'user_2',
-        username: 'clerk-bob',
+        username: 'provider-bob',
         isActive: true,
       }),
       entry: entry({
@@ -69,7 +69,7 @@ describe('mergeLocalAccountDisplay', () => {
         avatar_config: '{"seed":"wrong"}',
       },
     });
-    expect(display.username).toBe('clerk-bob');
+    expect(display.username).toBe('provider-bob');
     expect(display.avatarConfigJson).toBeNull();
   });
 
@@ -78,7 +78,7 @@ describe('mergeLocalAccountDisplay', () => {
       session: session({
         sessionId: 's1',
         isActive: true,
-        username: 'clerk-name',
+        username: 'provider-name',
       }),
       entry: entry({
         accountId: 'acc-1',
@@ -94,14 +94,14 @@ describe('mergeLocalAccountDisplay', () => {
     expect(display.avatarConfigJson).toBe('{"seed":"a"}');
   });
 
-  test('active bound with empty SQLite profile falls back to Clerk username', () => {
+  test('active bound with empty SQLite profile falls back to session username', () => {
     const display = mergeLocalAccountDisplay({
       session: session({ sessionId: 's1', isActive: true }),
       entry: entry({ accountId: 'acc-1', sessionId: 's1' }),
       activeAccountId: 'acc-1',
       activeProfile: { username: null, avatar_config: null },
     });
-    expect(display.username).toBe('clerk-name');
+    expect(display.username).toBe('provider-name');
     expect(display.avatarConfigJson).toBeNull();
   });
 
@@ -110,7 +110,7 @@ describe('mergeLocalAccountDisplay', () => {
       session: session({
         sessionId: 's2',
         isActive: false,
-        username: 'other-clerk',
+        username: 'other-provider',
       }),
       entry: entry({ accountId: 'acc-2', sessionId: 's2' }),
       activeAccountId: 'acc-1',
@@ -119,7 +119,7 @@ describe('mergeLocalAccountDisplay', () => {
         avatar_config: '{"seed":"profile"}',
       },
     });
-    expect(display.username).toBe('other-clerk');
+    expect(display.username).toBe('other-provider');
     expect(display.avatarConfigJson).toBeNull();
   });
 });

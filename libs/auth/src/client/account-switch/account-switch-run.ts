@@ -14,7 +14,7 @@ export type AccountSwitchRunDeps = {
 };
 
 /**
- * Runs Clerk switch and waits until sync boot is ready for the target.
+ * Runs account switch and waits until sync boot is ready for the target.
  * Warm pooled engines usually resolve immediately.
  */
 export async function runAccountSwitch(

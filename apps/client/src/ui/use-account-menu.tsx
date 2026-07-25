@@ -118,7 +118,7 @@ function useAccountSwitchItems(): ActionBarItem[] {
   const onSwitch = useCallback(
     (account: LocalAccount) => {
       if (account.isActive || isPending) return;
-      // Duplicate Clerk sessions for the same account must not start a switch
+      // Duplicate provider sessions for the same account must not start a switch
       // that leaves isPending stuck (null accountId warm-boot wait).
       if (
         account.accountId !== null &&

@@ -20,7 +20,7 @@ function nonEmpty(value: string | null | undefined): string | null {
 /**
  * Live profile is keyed by lastLocalAccountId. Only paint it onto a session
  * whose roster row already points at that account — otherwise a mid-switch
- * Clerk flip shows the previous account's username/avatar on the new session.
+ * provider flip shows the previous account's username/avatar on the new session.
  */
 export function shouldUseActiveProfile(
   entry: LocalAccountRosterEntry | undefined,
@@ -32,8 +32,8 @@ export function shouldUseActiveProfile(
 }
 
 /**
- * Active + bound: prefer SQLite profile; fall back to Clerk username when the
- * local row is missing/empty (warm switch hydrate). Inactive: Clerk username
+ * Active + bound: prefer SQLite profile; fall back to session username when the
+ * local row is missing/empty (warm switch hydrate). Inactive: session username
  * only; avatar always null (no roster display cache).
  */
 export function mergeLocalAccountDisplay(args: {

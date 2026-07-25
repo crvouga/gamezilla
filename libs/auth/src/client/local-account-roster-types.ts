@@ -6,7 +6,7 @@
 export type LocalAccountRosterEntry = {
   readonly accountId: string;
   readonly sessionId: string;
-  /** Clerk (or other provider) user id — survives session id rotation. */
+  /** Auth-provider user id — survives session id rotation. */
   readonly externalUserId: string | null;
   /** ISO timestamp of last activation / refresh on this device. */
   readonly lastActiveAt: string;

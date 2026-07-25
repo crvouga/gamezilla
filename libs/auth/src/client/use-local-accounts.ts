@@ -137,7 +137,7 @@ export function useLocalAccounts(): readonly LocalAccount[] {
     activeAccountId === null ? [] : [activeAccountId]
   );
   // Prefer live row when present. Do not blank username while reconnecting —
-  // merge falls back to Clerk session username when SQLite is still empty.
+  // merge falls back to session username when SQLite is still empty.
   const trustedProfile = activeProfile ?? null;
 
   return useMemo(() => {
