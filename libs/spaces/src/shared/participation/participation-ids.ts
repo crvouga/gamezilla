@@ -1,24 +1,13 @@
 /**
- * Meet-style space identity helpers.
+ * Account-scoped space identity helpers.
  *
- * - Member = signed-in account, else install device (anon device *is* the user).
- * - Membership = one durable row per member × space.
- * - Participation = one durable seat per install device × space under that member.
- *
- * Invariant: an active participation for this device must have
- * `member_id === resolveSpaceMemberId(current auth)`. Identity transitions
- * rebind via `spaces.claimParticipations`. Leave is device-owned and cleans
- * stamped-member orphans when a mismatch still exists.
+ * - Member = signed-in account only.
+ * - Membership = one durable row per account × space (`${accountId}:${spaceId}`).
  */
 
-export function resolveSpaceMemberId(args: {
-  readonly accountId: string | null;
-  readonly deviceId: string;
-}): string {
-  if (args.accountId !== null && args.accountId.length > 0) {
-    return args.accountId;
-  }
-  return args.deviceId;
+/** Canonical member id for writes / room / presence — account required. */
+export function resolveSpaceMemberId(accountId: string): string {
+  return accountId;
 }
 
 /** User-scoped membership row id: `${memberId}:${spaceId}`. */
@@ -28,17 +17,3 @@ export function spaceMembershipEntityId(
 ): string {
   return `${memberId}:${spaceId}`;
 }
-
-/** Device participation row id: `${deviceId}:${spaceId}`. */
-export function spaceParticipationEntityId(
-  deviceId: string,
-  spaceId: string
-): string {
-  return `${deviceId}:${spaceId}`;
-}
-
-/** @deprecated Use {@link spaceParticipationEntityId}. */
-export const spaceDeviceMembershipEntityId = spaceParticipationEntityId;
-
-/** @deprecated Use {@link spaceParticipationEntityId}. */
-export const spaceGuestMembershipEntityId = spaceParticipationEntityId;

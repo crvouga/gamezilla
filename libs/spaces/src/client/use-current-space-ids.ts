@@ -1,18 +1,18 @@
-import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
-import { useMemo, useRef } from 'react';
-
 import {
+  SPACE_MEMBERSHIPS_TABLE,
   SpaceCol,
-  SpaceParticipationCol,
+  SpaceMembershipCol,
   SPACES_TABLE,
-  SPACE_PARTICIPATIONS_TABLE,
 } from '@libs/db/shared/space-tables';
+import { useMyAccountId } from '@libs/auth/client/use-current-user';
+import { useMemo, useRef } from 'react';
 import {
   useSyncStatus,
   useWatchQuery,
 } from '@pkgs/sync-engine/client/sync-engine-context';
 import type { SyncEngineStatus } from '@pkgs/sync-engine/client/sync-status';
 import { resolvePresenceRole } from '../shared/participation/space-participation-policy';
+import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 
 function isSyncReconnecting(status: SyncEngineStatus): boolean {
   return (
@@ -25,7 +25,7 @@ export type CurrentSpaceEntry = {
   role: 'host' | 'guest';
 };
 
-type ParticipationRow = { readonly space_id: string };
+type MembershipRow = { readonly space_id: string };
 type SpaceRow = {
   readonly id: string;
   readonly host_member_id: string | null;
@@ -54,22 +54,22 @@ function buildCurrentSpaceEntries(
   return entries;
 }
 
-function participationSql(
+function membershipSql(
   enabled: boolean,
-  deviceId: string
+  accountId: string
 ): { sql: string; params: string[] } {
   if (!enabled) {
     return {
-      sql: `SELECT ${SpaceParticipationCol.spaceId} AS space_id FROM ${SPACE_PARTICIPATIONS_TABLE.tableName} WHERE 0`,
+      sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} WHERE 0`,
       params: [],
     };
   }
   return {
-    sql: `SELECT ${SpaceParticipationCol.spaceId} AS space_id
-           FROM ${SPACE_PARTICIPATIONS_TABLE.tableName}
-           WHERE ${SpaceParticipationCol.deviceId} = ?
-             AND ${SpaceParticipationCol.leftAt} IS NULL`,
-    params: [deviceId],
+    sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id
+           FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
+           WHERE ${SpaceMembershipCol.memberId} = ?
+             AND ${SpaceMembershipCol.leftAt} IS NULL`,
+    params: [accountId],
   };
 }
 
@@ -105,26 +105,27 @@ function resolveDisplayEntries(
 }
 
 function useCurrentSpaceWatchQueries(
-  deviceId: string,
-  memberId: string
+  accountId: string | null
 ): {
   entries: CurrentSpaceEntry[];
   queriesLoading: boolean;
 } {
-  const enabled = deviceId.length > 0;
-  const partQuery = useMemo(
-    () => participationSql(enabled, deviceId),
-    [enabled, deviceId]
+  const enabled = accountId !== null && accountId.length > 0;
+  const memberQuery = useMemo(
+    () => membershipSql(enabled, accountId ?? ''),
+    [enabled, accountId]
   );
 
-  const { rows: partRows, isLoading: partLoading } =
-    useWatchQuery<ParticipationRow>(partQuery.sql, partQuery.params);
+  const { rows: memberRows, isLoading: memberLoading } =
+    useWatchQuery<MembershipRow>(memberQuery.sql, memberQuery.params);
 
   const memberSpaceIds = useMemo(
     () => [
-      ...new Set(partRows.map((r) => r.space_id).filter((id) => id.length > 0)),
+      ...new Set(
+        memberRows.map((r) => r.space_id).filter((id) => id.length > 0)
+      ),
     ],
-    [partRows]
+    [memberRows]
   );
 
   const spacesQuery = useMemo(
@@ -137,36 +138,40 @@ function useCurrentSpaceWatchQueries(
   );
 
   const entries = useMemo(
-    () => buildCurrentSpaceEntries(memberSpaceIds, spaceRows, memberId),
-    [memberSpaceIds, spaceRows, memberId]
+    () =>
+      buildCurrentSpaceEntries(memberSpaceIds, spaceRows, accountId ?? ''),
+    [memberSpaceIds, spaceRows, accountId]
   );
 
   return {
     entries,
-    queriesLoading: partLoading || spacesLoading,
+    queriesLoading: memberLoading || spacesLoading,
   };
 }
 
 /**
- * This install's live spaces — every space with an active device participation
- * that has not ended. Role comes from spaces.host_member_id vs member id.
+ * This account's live spaces — every space with an active membership that has
+ * not ended. Role comes from spaces.host_member_id vs account id.
  */
 export function useCurrentSpaceIds(): {
   entries: CurrentSpaceEntry[];
   isLoading: boolean;
 } {
-  const deviceId = useMyDeviceId();
-  const memberId = useMyId();
+  const accountId = useMyAccountId();
+  const paintReady = useSyncEnginePaintReady();
   const { entries, queriesLoading } = useCurrentSpaceWatchQueries(
-    deviceId,
-    memberId
+    paintReady ? accountId : null
   );
   const status = useSyncStatus();
   const prevEntriesRef = useRef<CurrentSpaceEntry[]>([]);
-  const identityRef = useRef(memberId);
-  if (identityRef.current !== memberId) {
-    identityRef.current = memberId;
+  const identityRef = useRef(accountId);
+  if (identityRef.current !== accountId) {
+    identityRef.current = accountId;
     prevEntriesRef.current = [];
+  }
+  if (!paintReady) {
+    prevEntriesRef.current = [];
+    return { entries: [], isLoading: true };
   }
   const reconnecting = isSyncReconnecting(status);
   if (entries.length > 0) {
@@ -186,10 +191,13 @@ export function useCurrentSpaceIds(): {
   };
 }
 
-/** Member ids used for space host/guest checks. */
+/** Account ids used for space host/guest checks. */
 export function useReplicationIdentityIds(): readonly string[] {
-  const memberId = useMyId();
-  return useMemo(() => (memberId.length > 0 ? [memberId] : []), [memberId]);
+  const accountId = useMyAccountId();
+  return useMemo(
+    () => (accountId !== null && accountId.length > 0 ? [accountId] : []),
+    [accountId]
+  );
 }
 
 export function isReplicationHost(

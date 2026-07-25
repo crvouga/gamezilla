@@ -1,3 +1,4 @@
+import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
@@ -18,7 +19,6 @@ import { SpaceCard } from './card/space-card';
 import { useCreateSpace } from './create-space/use-create-space';
 import { LIVE_SPACE_SECTION } from './live-space-section';
 import { openSpaceDetail } from './space-routes';
-import { useCurrentSpaceCount } from './use-current-space-count';
 import {
   useLiveSpaceIdsBySection,
   type LiveSpaceSection,
@@ -92,9 +92,8 @@ export type SpacesScreenProps = {
 };
 
 export function SpacesScreen({ accountMenu, leading }: SpacesScreenProps) {
-  const { count: currentSpaceCount, isLoading: membershipLoading } =
-    useCurrentSpaceCount();
-  const canCreateSpace = !membershipLoading && currentSpaceCount === 0;
+  const accountId = useMyAccountId();
+  const canCreateSpace = accountId !== null && accountId.length > 0;
   const router = useRouter();
   const createSpace = useCreateSpace();
   const { t } = useLingui();

@@ -6,7 +6,6 @@ import {
 } from '@libs/db/shared/space-tables';
 import { SpacesError } from '../shared/spaces-errors';
 import { joinSpaceServer } from './join-space/join-space-service';
-import { resolveDeviceLabelFromDb } from './resolve-device-label-from-db';
 import { deactivateSpaceInviteInteraction } from './spaces-inbox-publish';
 
 export async function acceptSpaceInviteFromInbox(args: {
@@ -40,13 +39,11 @@ export async function acceptSpaceInviteFromInbox(args: {
   ) {
     throw new SpacesError('SPACE_FORBIDDEN', 'Invite is not for this account');
   }
-  const deviceLabel = await resolveDeviceLabelFromDb(args.sql, args.deviceId);
   await joinSpaceServer(args.sql, {
     spaceId: row.space_id,
     deviceId: args.deviceId,
     accountId: args.actorId,
     profileId: args.actorId,
-    deviceLabel,
     inviteToken: row.token,
   });
   await deactivateSpaceInviteInteraction(args.sql, args.inviteId, args.actorId);

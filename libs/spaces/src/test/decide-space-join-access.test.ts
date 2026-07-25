@@ -93,7 +93,6 @@ describe('decideSpaceJoinAccess', () => {
       isFriendOfHost: true,
       hasValidInvite: false,
       alreadyMember: true,
-      alreadyParticipating: false,
     });
     expect(result).toEqual({ allowed: true, reason: 'host' });
   });

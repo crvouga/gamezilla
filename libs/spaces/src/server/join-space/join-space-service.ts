@@ -14,7 +14,6 @@ export type JoinSpaceServerInput = {
   readonly deviceId: string;
   readonly accountId: string | null;
   readonly profileId: string;
-  readonly deviceLabel: string;
   readonly inviteToken: string | null;
 };
 
@@ -66,7 +65,6 @@ export async function joinSpaceServer(
     ctx: writeContextFromJoinInput(input),
     rawInput: {
       spaceId: input.spaceId,
-      deviceLabel: input.deviceLabel,
       inviteToken: input.inviteToken,
     },
     sql,

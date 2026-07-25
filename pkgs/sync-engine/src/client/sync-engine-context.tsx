@@ -76,13 +76,10 @@ export function useWatchQuery<T extends Record<string, unknown>>(
     subscription.getHydrated
   );
   const status = useSyncStatus();
-  const reconnecting =
-    status.connection === 'disconnected' || status.connection === 'connecting';
   const isLoading = computeWatchQueryIsLoading({
     hydrated,
     rows,
     status,
-    reconnecting,
   });
   return { rows, isLoading };
 }

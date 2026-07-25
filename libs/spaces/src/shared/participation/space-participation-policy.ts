@@ -14,25 +14,13 @@ export type SpaceAccessInput = {
   readonly hostId: string;
   readonly hostAccountId: string | null;
   readonly hostMemberId: string;
-  readonly viewerAccountId: string | null;
+  readonly viewerAccountId: string;
   readonly viewerDeviceId: string;
   readonly viewerMemberId: string;
   readonly isFriendOfHost: boolean;
   readonly hasValidInvite: boolean;
   /** Viewer already has an active user membership. */
   readonly alreadyMember: boolean;
-  /** This install already has an active participation. */
-  readonly alreadyParticipating: boolean;
-};
-
-export type LeaveDeviceDecision = {
-  readonly leaveParticipation: boolean;
-  readonly leaveMembership: boolean;
-};
-
-export type LeaveEverywhereDecision = {
-  readonly leaveAllParticipations: true;
-  readonly leaveMembership: true;
 };
 
 export type EndSpaceDecision =
@@ -41,26 +29,12 @@ export type EndSpaceDecision =
 
 export type PresenceRole = 'host' | 'guest';
 
-export type RosterParticipation = {
-  readonly memberId: string;
-  readonly deviceId: string;
-  readonly leftAt: string | null;
-};
-
-export type RosterMember = {
-  readonly memberId: string;
-  readonly deviceIds: readonly string[];
-};
-
 /**
  * Canonical member id for writes / room / game identity.
  * Same as {@link resolveSpaceMemberId}.
  */
-export function resolveMemberId(args: {
-  readonly accountId: string | null;
-  readonly deviceId: string;
-}): string {
-  return resolveSpaceMemberId(args);
+export function resolveMemberId(accountId: string): string {
+  return resolveSpaceMemberId(accountId);
 }
 
 export function isHostMember(args: {
@@ -110,9 +84,6 @@ function decideJoinVisibility(input: SpaceAccessInput): SpaceAccessDecision {
   if (input.visibility === 'private') {
     return { allowed: false, code: 'SPACE_VISIBILITY_DENIED' };
   }
-  if (input.viewerAccountId === null) {
-    return { allowed: false, code: 'SPACE_NOT_SIGNED_IN' };
-  }
   if (input.visibility === 'public') {
     return { allowed: true, reason: 'open' };
   }
@@ -126,15 +97,12 @@ function decideJoinVisibility(input: SpaceAccessInput): SpaceAccessDecision {
 }
 
 /**
- * Whether the viewer may join (or add a device participation to) a live space.
+ * Whether the viewer may join a live space.
  *
  * Space owners (member / creating device / host account) may always rejoin.
- * Idempotent re-join of an existing participation is allowed.
+ * Idempotent re-join of an existing membership is allowed.
  */
 export function decideJoin(input: SpaceAccessInput): SpaceAccessDecision {
-  if (input.alreadyParticipating) {
-    return { allowed: true, reason: 'already' };
-  }
   if (
     isSpaceHostActor({
       hostId: input.hostId,
@@ -153,24 +121,6 @@ export function decideJoin(input: SpaceAccessInput): SpaceAccessDecision {
   return decideJoinVisibility(input);
 }
 
-/**
- * Leave this device's participation. Soft-leave membership only when this
- * was the member's last active participation.
- */
-export function decideLeaveDevice(args: {
-  readonly hasOtherActiveParticipations: boolean;
-}): LeaveDeviceDecision {
-  return {
-    leaveParticipation: true,
-    leaveMembership: !args.hasOtherActiveParticipations,
-  };
-}
-
-/** Leave every device participation and the user membership. */
-export function decideLeaveEverywhere(): LeaveEverywhereDecision {
-  return { leaveAllParticipations: true, leaveMembership: true };
-}
-
 export function decideEndSpace(args: {
   readonly isHostActor: boolean;
 }): EndSpaceDecision {
@@ -187,41 +137,14 @@ export function resolvePresenceRole(args: {
   return isHostMember(args) ? 'host' : 'guest';
 }
 
-/** Room / game actor id is the member id (account or anon device). */
-export function resolveRoomActorId(args: {
-  readonly accountId: string | null;
-  readonly deviceId: string;
-}): string {
-  return resolveMemberId(args);
-}
-
-/**
- * Collapse device participations into unique members for roster / game seating.
- * Inactive (`leftAt` set) rows are ignored.
- */
-export function collapseRoster(
-  participations: readonly RosterParticipation[]
-): readonly RosterMember[] {
-  const byMember = new Map<string, string[]>();
-  for (const row of participations) {
-    if (row.leftAt !== null) continue;
-    if (row.memberId.length === 0 || row.deviceId.length === 0) continue;
-    const devices = byMember.get(row.memberId);
-    if (devices === undefined) {
-      byMember.set(row.memberId, [row.deviceId]);
-    } else if (!devices.includes(row.deviceId)) {
-      devices.push(row.deviceId);
-    }
-  }
-  return Array.from(byMember.entries()).map(([memberId, deviceIds]) => ({
-    memberId,
-    deviceIds,
-  }));
+/** Room / game actor id is the member (account) id. */
+export function resolveRoomActorId(accountId: string): string {
+  return resolveMemberId(accountId);
 }
 
 /**
  * Whether joining should consume an invite use.
- * Only when creating/reactivating a *user* membership (not adding another device).
+ * Only when creating/reactivating a user membership.
  */
 export function shouldConsumeInviteOnJoin(args: {
   readonly membershipWasInactive: boolean;

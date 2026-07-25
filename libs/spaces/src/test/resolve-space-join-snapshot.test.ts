@@ -113,6 +113,21 @@ describe('resolveSpaceJoinSnapshot', () => {
     ).toEqual({ status: 'live', joinable: true });
   });
 
+  test('public live row is not joinable when signed out', () => {
+    expect(
+      resolveSpaceJoinSnapshot({
+        enabled: true,
+        streamReady: true,
+        rowLoading: false,
+        row: livePublicRow,
+        hasValidInvite: false,
+        isFriendOfHost: false,
+        viewerAccountId: null,
+        viewerDeviceId: 'dev',
+      })
+    ).toEqual({ status: 'live', joinable: false });
+  });
+
   test('private live row requires valid invite', () => {
     const privateRow = { ...livePublicRow, visibility: 'private' };
     expect(

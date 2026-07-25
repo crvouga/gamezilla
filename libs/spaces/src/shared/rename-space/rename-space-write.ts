@@ -6,6 +6,7 @@ import { defineWrite } from '@pkgs/write/shared/define-write';
 import {
   asObjectRecord,
   authorizeSpaceHost,
+  requireAccountId,
   requireNonEmptyString,
 } from '../space-write-helpers';
 
@@ -39,11 +40,10 @@ export const renameSpaceWrite = defineWrite<RenameSpaceInput, void>({
       'Only the host can rename this space'
     ),
   execute: async (ctx, input, sql) => {
+    const accountId = requireAccountId(ctx);
+    if (!accountId.ok) return accountId;
     const trimmed = input.title.trim();
-    const memberId = resolveSpaceMemberId({
-      accountId: ctx.accountId,
-      deviceId: ctx.deviceId,
-    });
+    const memberId = resolveSpaceMemberId(accountId.value);
     await sql.run(
       `UPDATE ${SPACES_TABLE.tableName}
        SET ${SpaceCol.title} = ?,

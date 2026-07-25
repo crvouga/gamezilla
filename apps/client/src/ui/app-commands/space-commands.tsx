@@ -1,8 +1,8 @@
+import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import { useCreateSpace } from '@libs/spaces/client/create-space/use-create-space';
 import { useRequestEndSpace } from '@libs/spaces/client/end-space/end-space-modal-provider';
 import { useJoinSpace } from '@libs/spaces/client/join-space/use-join-space';
 import { useRequestLeaveSpace } from '@libs/spaces/client/leave-space/leave-space-modal-provider';
-import { useCurrentSpaceCount } from '@libs/spaces/client/use-current-space-count';
 import { useCurrentSpaceIds } from '@libs/spaces/client/use-current-space-ids';
 import { useCurrentSpaceRole } from '@libs/spaces/client/use-current-space-role';
 import { useLiveSpaceIds } from '@libs/spaces/client/use-live-space-ids';
@@ -36,8 +36,8 @@ function SpaceCreateCommand(): ReactNode {
   const { t } = useLingui();
   const router = useRouter();
   const createSpace = useCreateSpace();
-  const { count: currentCount, isLoading: membershipLoading } =
-    useCurrentSpaceCount();
+  const accountId = useMyAccountId();
+  const signedIn = accountId !== null && accountId.length > 0;
   return (
     <RegisterCommand
       id="space:new"
@@ -45,7 +45,7 @@ function SpaceCreateCommand(): ReactNode {
       category={t`Spaces`}
       icon={Gamepad2Icon}
       keywords={[t`new`, t`create`, t`start`, t`space`, t`host`]}
-      enabled={!membershipLoading && currentCount === 0}
+      enabled={signedIn}
       run={async () => {
         await createSpace((id) => {
           openSpaceDetail(router, id);
@@ -59,13 +59,14 @@ function SpaceJoinCurrentCommand(): ReactNode {
   const { t } = useLingui();
   const pathname = usePathname();
   const joinSpace = useJoinSpace();
-  const { count: currentCount } = useCurrentSpaceCount();
+  const accountId = useMyAccountId();
   const spaceId = SPACE_ROUTE_RE.exec(pathname)?.[1] ?? '';
   const role = useCurrentSpaceRole(spaceId);
+  const signedIn = accountId !== null && accountId.length > 0;
 
   if (spaceId.length === 0) return null;
   if (role !== null) return null;
-  if (currentCount > 0) return null;
+  if (!signedIn) return null;
 
   return (
     <RegisterCommand
@@ -98,8 +99,9 @@ function LiveSpaceCommand({ spaceId }: { spaceId: string }): ReactNode {
   const joinSpace = useJoinSpace();
   const label = useSpaceCommandLabel(spaceId);
   const role = useCurrentSpaceRole(spaceId);
-  const { count: currentCount } = useCurrentSpaceCount();
-  const canJoin = role === null && currentCount === 0;
+  const accountId = useMyAccountId();
+  const signedIn = accountId !== null && accountId.length > 0;
+  const canJoin = role === null && signedIn;
   return (
     <>
       <RegisterCommand

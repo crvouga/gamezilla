@@ -1,15 +1,12 @@
 import {
   SPACES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
-  SPACE_PARTICIPATIONS_TABLE,
   SpaceCol,
   SpaceMembershipCol,
-  SpaceParticipationCol,
 } from '@libs/db/shared/space-tables';
 import {
   resolveSpaceMemberId,
   spaceMembershipEntityId,
-  spaceParticipationEntityId,
 } from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -24,10 +21,9 @@ import type { RowChange } from '@pkgs/write/shared/row-change';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
 import { authorizeLeaveSpace } from './leave-space/leave-space-write';
-import { authorizeLeaveSpaceEverywhere } from './leave-space/leave-space-everywhere-write';
 import {
-  deviceHeldMemberSeat,
   readSpaceHostEnded,
+  requireAccountId,
 } from './space-write-helpers';
 
 /**
@@ -38,14 +34,13 @@ function authorizeSpaceCreateFromRow(
   ctx: WriteContext,
   row: RowChange
 ): WriteResult<void> {
+  const accountId = requireAccountId(ctx);
+  if (!accountId.ok) return accountId;
   const hostId = readRowString(row, SpaceCol.hostId);
   if (hostId !== ctx.deviceId) {
     return fail('SPACE_WRITE_DENIED', 'Only the host device can create a space');
   }
-  const memberId = resolveSpaceMemberId({
-    accountId: ctx.accountId,
-    deviceId: ctx.deviceId,
-  });
+  const memberId = resolveSpaceMemberId(accountId.value);
   const hostMemberId =
     readRowString(row, SpaceCol.hostMemberId) ??
     readRowString(row, SpaceCol.hostAccountId);
@@ -53,7 +48,7 @@ function authorizeSpaceCreateFromRow(
     return fail('SPACE_WRITE_DENIED', 'Only the host member can create a space');
   }
   const hostAccountId = readRowString(row, SpaceCol.hostAccountId);
-  if (hostAccountId !== undefined && hostAccountId !== ctx.accountId) {
+  if (hostAccountId !== undefined && hostAccountId !== accountId.value) {
     return fail(
       'SPACE_WRITE_DENIED',
       'host_account_id must match the uploader'
@@ -77,16 +72,15 @@ async function authorizeSpacesUpload(
     }
     return space;
   }
-  const memberId = resolveSpaceMemberId({
-    accountId: ctx.accountId,
-    deviceId: ctx.deviceId,
-  });
+  const accountId = requireAccountId(ctx);
+  if (!accountId.ok) return accountId;
+  const memberId = resolveSpaceMemberId(accountId.value);
   const isHost = isSpaceHostActor({
     hostId: space.value.hostId,
     hostMemberId: space.value.hostMemberId,
     hostAccountId: space.value.hostAccountId,
     memberId,
-    accountId: ctx.accountId,
+    accountId: accountId.value,
     deviceId: ctx.deviceId,
   });
   if (!isHost) {
@@ -147,27 +141,6 @@ function isLeaveShape(row: RowChange, leftAtCol: string): boolean {
   return typeof leftAt === 'string' && leftAt.length > 0;
 }
 
-async function mayUploadMembership(args: {
-  readonly ctx: WriteContext;
-  readonly sql: SqlClient;
-  readonly spaceId: string;
-  readonly seatMemberId: string;
-  readonly isLeave: boolean;
-}): Promise<boolean> {
-  const currentMemberId = resolveSpaceMemberId({
-    accountId: args.ctx.accountId,
-    deviceId: args.ctx.deviceId,
-  });
-  if (args.seatMemberId === currentMemberId) return true;
-  if (!args.isLeave) return false;
-  return deviceHeldMemberSeat({
-    sql: args.sql,
-    deviceId: args.ctx.deviceId,
-    spaceId: args.spaceId,
-    memberId: args.seatMemberId,
-  });
-}
-
 async function authorizeSpaceMembershipUpload(
   ctx: WriteContext,
   row: RowChange,
@@ -179,20 +152,15 @@ async function authorizeSpaceMembershipUpload(
       'space memberships cannot be deleted via sync'
     );
   }
+  const accountId = requireAccountId(ctx);
+  if (!accountId.ok) return accountId;
   const spaceIdResult = await resolveMembershipSpaceId(row, sql);
   if (!spaceIdResult.ok) return spaceIdResult;
   const memberIdResult = await resolveMembershipMemberId(row, sql);
   if (!memberIdResult.ok) return memberIdResult;
   const seatMemberId = memberIdResult.value;
-  const isLeave = isLeaveShape(row, SpaceMembershipCol.leftAt);
-  const allowed = await mayUploadMembership({
-    ctx,
-    sql,
-    spaceId: spaceIdResult.value,
-    seatMemberId,
-    isLeave,
-  });
-  if (!allowed) {
+  const currentMemberId = resolveSpaceMemberId(accountId.value);
+  if (seatMemberId !== currentMemberId) {
     return fail(
       'SPACE_MEMBERSHIP_GUEST_MISMATCH',
       'Only this member can upload its membership'
@@ -208,75 +176,12 @@ async function authorizeSpaceMembershipUpload(
       'Membership id must match space + member'
     );
   }
-  if (isLeave) {
-    return authorizeLeaveSpaceEverywhere(
+  if (isLeaveShape(row, SpaceMembershipCol.leftAt)) {
+    return authorizeLeaveSpace(
       ctx,
       { spaceId: spaceIdResult.value },
       sql
     );
-  }
-  const space = await readSpaceHostEnded(sql, spaceIdResult.value);
-  if (!space.ok) return space;
-  if (space.value.endedAt !== null) {
-    return fail('SPACE_ENDED', 'Space has ended');
-  }
-  return ok(undefined);
-}
-
-async function resolveParticipationSpaceId(
-  row: RowChange,
-  sql: SqlClient
-): Promise<WriteResult<string>> {
-  const fromValues = readRowString(row, SpaceParticipationCol.spaceId);
-  if (fromValues !== undefined && fromValues.length > 0) {
-    return ok(fromValues);
-  }
-  const result = await readOne<{ readonly space_id: string }>(
-    sql,
-    `SELECT ${SpaceParticipationCol.spaceId} AS space_id
-     FROM ${SPACE_PARTICIPATIONS_TABLE.tableName}
-     WHERE ${SpaceParticipationCol.id} = ?
-     LIMIT 1`,
-    [row.id],
-    'SPACE_MEMBERSHIP_NOT_FOUND'
-  );
-  if (!result.ok) return result;
-  return ok(result.value.space_id);
-}
-
-async function authorizeSpaceParticipationUpload(
-  ctx: WriteContext,
-  row: RowChange,
-  sql: SqlClient
-): Promise<WriteResult<void>> {
-  if (row.op === 'delete') {
-    return fail(
-      'SPACE_MEMBERSHIP_DELETE_DENIED',
-      'space participations cannot be deleted via sync'
-    );
-  }
-  const spaceIdResult = await resolveParticipationSpaceId(row, sql);
-  if (!spaceIdResult.ok) return spaceIdResult;
-  const deviceFromRow = readRowString(row, SpaceParticipationCol.deviceId);
-  const deviceId = deviceFromRow ?? ctx.deviceId;
-  if (deviceId !== ctx.deviceId) {
-    return fail(
-      'SPACE_MEMBERSHIP_GUEST_MISMATCH',
-      'Only this device can upload its participation'
-    );
-  }
-  const expectedId = spaceParticipationEntityId(
-    ctx.deviceId,
-    spaceIdResult.value
-  );
-  if (row.id !== expectedId) {
-    return fail(
-      'SPACE_MEMBERSHIP_ID_MISMATCH',
-      'Participation id must match space + device'
-    );
-  }
-  if (isLeaveShape(row, SpaceParticipationCol.leftAt)) {
-    return authorizeLeaveSpace(ctx, { spaceId: spaceIdResult.value }, sql);
   }
   const space = await readSpaceHostEnded(sql, spaceIdResult.value);
   if (!space.ok) return space;
@@ -291,19 +196,11 @@ const spaceMembershipsRowWrite = defineRowAuthorizeWrite({
   authorize: authorizeSpaceMembershipUpload,
 });
 
-const spaceParticipationsRowWrite = defineRowAuthorizeWrite({
-  name: 'space_participations.upload',
-  authorize: authorizeSpaceParticipationUpload,
-});
-
 export const SPACE_ROW_BINDINGS: Readonly<
   Record<string, RowWriteBinding<RowChange>>
 > = {
   [SPACES_TABLE.tableName]: createRowWriteBinding(spacesRowWrite),
   [SPACE_MEMBERSHIPS_TABLE.tableName]: createRowWriteBinding(
     spaceMembershipsRowWrite
-  ),
-  [SPACE_PARTICIPATIONS_TABLE.tableName]: createRowWriteBinding(
-    spaceParticipationsRowWrite
   ),
 };

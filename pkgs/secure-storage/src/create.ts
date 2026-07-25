@@ -7,7 +7,8 @@ import type { SecureStorage } from './interface';
 /**
  * Platform-specific `SecureStorage` for small encrypted-at-rest secrets:
  * - native: `expo-secure-store` (Keychain / Keystore)
- * - web: `localStorage` (no at-rest encryption — see `impl-web.ts`)
+ * - web: `localStorage`, except tab-scoped keys (e.g. `lastLocalAccountId`)
+ *   which use `sessionStorage` — see `impl-web.ts`
  *
  * For bulk async `Kv` storage (cache blobs, command queues) use
  * `KvPlatform` from `@pkgs/kv/kv-platform` instead — that path skips

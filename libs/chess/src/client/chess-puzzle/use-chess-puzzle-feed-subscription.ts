@@ -13,7 +13,7 @@ export function useChessPuzzleFeedSubscription(): void {
         {
           stream: 'chess_puzzles',
           params: {},
-          priority: 1,
+          priority: 2,
         },
       ] as const,
     []

@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 export type LeaveSpaceConfirmModalProps = {
   visible: boolean;
   onClose: () => void;
-  /** Runs the leave-this-device write. Surfaces loading / success / error in place. */
+  /** Runs the leave-membership write. Surfaces loading / success / error in place. */
   operation: () => Promise<void>;
   /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
   onSuccess?: () => void;
@@ -26,8 +26,8 @@ export function LeaveSpaceConfirmModal({
       title={<Trans>Leave space?</Trans>}
       message={
         <Trans>
-          Leave on this device only. Other devices stay in the space until you
-          leave there too. You can join again later if the space is still live.
+          Leave this space on your account. You will leave on every device. You
+          can join again later if the space is still live.
         </Trans>
       }
       submitLabel={<Trans>Leave</Trans>}

@@ -6,6 +6,7 @@ import { useKv } from '@pkgs/kv/kv-context';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
 import { SyncEngineProvider } from '@pkgs/sync-engine/client/sync-engine-context';
+import { SyncEnginePaintGateContext } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 import { SqlClientProvider } from '@pkgs/sql-client/react-context';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
@@ -60,39 +61,21 @@ function useReportBootPhaseUp(
   }, [report, phase, accountId]);
 }
 
-/**
- * Opens PowerSync for the active auth identity and exposes the sync engine.
- *
- * After the first successful open, keep the navigation tree mounted across
- * identity changes (sticky prior engine until the next one is ready). Replacing
- * children with a loading screen unmounts Expo Router and resets to `/`.
- */
-export function SyncEngineBoot({
-  children,
-}: {
-  children: ReactNode;
-}): ReactNode {
+function useSyncEnginePromise(dbName: string): Promise<SyncEngine> {
   const config = useConfigService();
   const kv = useKv();
   const observability = useObservability();
-  const accountId = useCurrentAccountId();
-  const deviceId = useDeviceId();
   const fetchFn = useMemo(
     () => instrumentFetch(observability, fetch) as SyncApiFetch,
     [observability]
   );
-  const dbName = useIdentitySqliteDbName(accountId, deviceId);
-  const warmEngine = peekReadyAppSyncEngine(dbName);
   const configRef = useRef(config);
   const fetchFnRef = useRef(fetchFn);
   const kvRef = useRef(kv);
-  const lastReadyEngineRef = useRef<SyncEngine | null>(warmEngine);
   configRef.current = config;
   fetchFnRef.current = fetchFn;
   kvRef.current = kv;
-  // Only recreate when the identity-scoped DB name changes. config/fetch/kv are
-  // read via refs so unstable identities cannot thrash getOrCreate every render.
-  const enginePromise = useMemo(
+  return useMemo(
     () =>
       getOrCreateAppPowerSyncSyncEngine({
         get config() {
@@ -108,6 +91,44 @@ export function SyncEngineBoot({
       }),
     [dbName]
   );
+}
+
+function renderSyncEngineTree(args: {
+  readonly paintReady: boolean;
+  readonly engine: SyncEngine;
+  readonly children: ReactNode;
+}): ReactNode {
+  return (
+    <SyncEnginePaintGateContext.Provider value={args.paintReady}>
+      <SyncEngineProvider value={args.engine}>
+        <SqlClientProvider value={args.engine.db}>
+          {args.children}
+        </SqlClientProvider>
+      </SyncEngineProvider>
+    </SyncEnginePaintGateContext.Provider>
+  );
+}
+
+/**
+ * Opens PowerSync for the active auth identity and exposes the sync engine.
+ *
+ * After the first successful open, keep the navigation tree mounted across
+ * identity changes (sticky prior engine until the next one is ready). Replacing
+ * children with a loading screen unmounts Expo Router and resets to `/`.
+ * Space chrome (miniplayer / current spaces) must not paint from a sticky
+ * prior-account engine — see {@link SyncEnginePaintGateContext}.
+ */
+export function SyncEngineBoot({
+  children,
+}: {
+  children: ReactNode;
+}): ReactNode {
+  const accountId = useCurrentAccountId();
+  const deviceId = useDeviceId();
+  const dbName = useIdentitySqliteDbName(accountId, deviceId);
+  const warmEngine = peekReadyAppSyncEngine(dbName);
+  const lastReadyEngineRef = useRef<SyncEngine | null>(warmEngine);
+  const enginePromise = useSyncEnginePromise(dbName);
   const boot = useSyncEngineBootState(enginePromise, warmEngine);
   useReportBootPhaseUp(boot.phase, accountId);
 
@@ -115,10 +136,10 @@ export function SyncEngineBoot({
     lastReadyEngineRef.current = boot.engine;
   }
 
+  const paintReady = boot.phase === 'ready';
   const engine =
     boot.phase === 'ready' ? boot.engine : lastReadyEngineRef.current;
 
-  // First open only — nothing sticky to keep the router alive yet.
   if (engine === null) {
     if (boot.phase === 'error') {
       return <LocalDatabaseBootErrorScreen error={boot.error} />;
@@ -130,9 +151,5 @@ export function SyncEngineBoot({
     return <LocalDatabaseBootErrorScreen error={boot.error} />;
   }
 
-  return (
-    <SyncEngineProvider value={engine}>
-      <SqlClientProvider value={engine.db}>{children}</SqlClientProvider>
-    </SyncEngineProvider>
-  );
+  return renderSyncEngineTree({ paintReady, engine, children });
 }

@@ -36,21 +36,23 @@ function snapshotFromLiveRow(
   row: SpaceJoinLocalRow,
   input: ResolveSpaceJoinSnapshotInput
 ): SpaceJoinSnapshot {
+  if (input.viewerAccountId === null || input.viewerAccountId.length === 0) {
+    return { status: 'live', joinable: false };
+  }
   const hostId = row.host_id ?? '';
   const hostMemberId = row.host_member_id ?? row.host_account_id ?? hostId;
+  const viewerAccountId = input.viewerAccountId;
   const decision = decideSpaceJoinAccess({
     visibility: parseSpaceVisibility(row.visibility ?? 'private'),
     hostId,
     hostAccountId: row.host_account_id,
     hostMemberId,
-    viewerAccountId: input.viewerAccountId,
+    viewerAccountId,
     viewerDeviceId: input.viewerDeviceId,
-    viewerMemberId: resolveSpaceMemberId({
-      accountId: input.viewerAccountId,
-      deviceId: input.viewerDeviceId,
-    }),
+    viewerMemberId: resolveSpaceMemberId(viewerAccountId),
     isFriendOfHost: input.isFriendOfHost,
     hasValidInvite: input.hasValidInvite,
+    alreadyMember: false,
   });
   return { status: 'live', joinable: decision.allowed };
 }

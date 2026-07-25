@@ -451,3 +451,6 @@ SET active_member_count = (
   WHERE sm.space_id = s.id
     AND sm.left_at IS NULL
 );
+
+-- Account-only memberships: drop device participation seats.
+DROP TABLE IF EXISTS space_participations;

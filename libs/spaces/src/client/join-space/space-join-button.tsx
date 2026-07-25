@@ -1,6 +1,5 @@
+import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import { useJoinSpace } from './use-join-space';
-import { useCurrentSpaceCount } from '../use-current-space-count';
-import { useCurrentSpaceRole } from '../use-current-space-role';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
 import { Button, useMutationButton } from '@pkgs/ui';
 import { Sounds } from '@pkgs/sounds';
@@ -23,15 +22,9 @@ export function SpaceJoinButton({
 }: SpaceJoinButtonProps): ReactNode {
   const { t } = useLingui();
   const joinSpace = useJoinSpace();
-  const role = useCurrentSpaceRole(spaceId);
-  const { count: currentCount, isLoading: membershipLoading } =
-    useCurrentSpaceCount();
-  const inThisSpace = role !== null;
-  const disabled =
-    membershipLoading ||
-    !joinable ||
-    (!inThisSpace && currentCount > 0) ||
-    spaceId.length === 0;
+  const accountId = useMyAccountId();
+  const signedIn = accountId !== null && accountId.length > 0;
+  const disabled = !signedIn || !joinable || spaceId.length === 0;
 
   const join = useMutationButton({
     operation: useCallback(

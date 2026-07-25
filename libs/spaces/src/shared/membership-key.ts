@@ -1,11 +1,8 @@
 /**
- * Re-exports Meet-style identity helpers.
+ * Re-exports account-scoped space identity helpers.
  * Prefer importing from `participation/participation-ids` for new code.
  */
 export {
   resolveSpaceMemberId,
   spaceMembershipEntityId,
-  spaceParticipationEntityId,
-  spaceDeviceMembershipEntityId,
-  spaceGuestMembershipEntityId,
 } from './participation/participation-ids';

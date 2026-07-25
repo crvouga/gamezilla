@@ -11,7 +11,7 @@ const hostSpaceRow = {
   ended_at: null,
 };
 
-const guestRow = { id: 'participation-1' };
+const guestRow = { id: 'membership-1' };
 
 describe('loadingPresence', () => {
   test('does not load when space query is loading but row exists', () => {
@@ -58,7 +58,7 @@ describe('loadingPresence', () => {
 });
 
 describe('resolveSpacePresence', () => {
-  test('resolves active host from participation + host_member_id', () => {
+  test('resolves active host from membership + host_member_id', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
@@ -72,7 +72,7 @@ describe('resolveSpacePresence', () => {
     ).toEqual({ status: 'active', role: 'host' });
   });
 
-  test('resolves active guest while participation row is present', () => {
+  test('resolves active guest while membership row is present', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
@@ -86,7 +86,7 @@ describe('resolveSpacePresence', () => {
     ).toEqual({ status: 'active', role: 'guest' });
   });
 
-  test('resolves join when participation is missing even for host match', () => {
+  test('resolves join when membership is missing even for host match', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
@@ -100,7 +100,7 @@ describe('resolveSpacePresence', () => {
     ).toEqual({ status: 'join', ended: false });
   });
 
-  test('resolves ended join even when participation row is still present', () => {
+  test('resolves ended join even when membership row is still present', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
@@ -117,7 +117,7 @@ describe('resolveSpacePresence', () => {
     ).toEqual({ status: 'join', ended: true });
   });
 
-  test('resolves ended join without waiting on participation loading', () => {
+  test('resolves ended join without waiting on membership loading', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,

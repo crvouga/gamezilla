@@ -1,12 +1,13 @@
-import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
+import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 
-import { spaceParticipationEntityId } from '../shared/membership-key';
+import { spaceMembershipEntityId } from '../shared/membership-key';
 import {
   SpaceCol,
-  SpaceParticipationCol,
+  SpaceMembershipCol,
   SPACES_TABLE,
-  SPACE_PARTICIPATIONS_TABLE,
+  SPACE_MEMBERSHIPS_TABLE,
 } from '@libs/db/shared/space-tables';
 import {
   latchStaleSpacePresence,
@@ -25,7 +26,7 @@ type SpaceRow = {
   readonly ended_at: string | null;
 };
 
-type ParticipationRow = {
+type MembershipRow = {
   readonly id: string;
 };
 
@@ -33,8 +34,8 @@ const SPACE_SELECT = `SELECT ${SpaceCol.hostMemberId} AS host_member_id,
          ${SpaceCol.endedAt} AS ended_at
          FROM ${SPACES_TABLE.tableName}`;
 
-const PARTICIPATION_SELECT = `SELECT ${SpaceParticipationCol.id} AS id
-           FROM ${SPACE_PARTICIPATIONS_TABLE.tableName}`;
+const MEMBERSHIP_SELECT = `SELECT ${SpaceMembershipCol.id} AS id
+           FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}`;
 
 function applyPresenceLatch(
   spaceId: string,
@@ -49,44 +50,66 @@ function applyPresenceLatch(
   return latched.presence;
 }
 
-/**
- * Resolves whether this install is in `spaceId` via local device participation.
- * Role uses member id (`accountId ?? deviceId`) vs `host_member_id`.
- */
-export function useSpacePresence(spaceId: string): SpacePresence {
-  const deviceId = useMyDeviceId();
-  const memberId = useMyId();
-  const spaceEnabled = spaceId.length > 0;
-  const memberEnabled = spaceEnabled && deviceId.length > 0;
-  const participationId = memberEnabled
-    ? spaceParticipationEntityId(deviceId, spaceId)
-    : '';
-
+function useSpacePresenceQueries(args: {
+  readonly spaceId: string;
+  readonly membershipId: string;
+  readonly spaceEnabled: boolean;
+  readonly memberEnabled: boolean;
+}): {
+  readonly spaceRow: SpaceRow | null;
+  readonly spaceLoading: boolean;
+  readonly guestRow: MembershipRow | null;
+  readonly guestLoading: boolean;
+} {
+  const { spaceId, membershipId, spaceEnabled, memberEnabled } = args;
   const { row: spaceRow, isLoading: spaceLoading } = useWatchOne<SpaceRow>(
     spaceEnabled
       ? `${SPACE_SELECT} WHERE ${SpaceCol.id} = ?`
       : `${SPACE_SELECT} WHERE 0`,
     spaceEnabled ? [spaceId] : []
   );
-
   const { row: guestRow, isLoading: guestLoading } =
-    useWatchOne<ParticipationRow>(
+    useWatchOne<MembershipRow>(
       memberEnabled
-        ? `${PARTICIPATION_SELECT} WHERE ${SpaceParticipationCol.id} = ? AND ${SpaceParticipationCol.leftAt} IS NULL`
-        : `${PARTICIPATION_SELECT} WHERE 0`,
-      memberEnabled ? [participationId] : []
+        ? `${MEMBERSHIP_SELECT} WHERE ${SpaceMembershipCol.id} = ? AND ${SpaceMembershipCol.leftAt} IS NULL`
+        : `${MEMBERSHIP_SELECT} WHERE 0`,
+      memberEnabled ? [membershipId] : []
     );
+  return { spaceRow, spaceLoading, guestRow, guestLoading };
+}
 
+/**
+ * Resolves whether this account is in `spaceId` via local membership.
+ * Role uses account id vs `host_member_id`.
+ */
+export function useSpacePresence(spaceId: string): SpacePresence {
+  const accountId = useMyAccountId();
+  const paintReady = useSyncEnginePaintReady();
+  const spaceEnabled = spaceId.length > 0;
+  const memberEnabled =
+    paintReady && spaceEnabled && accountId !== null && accountId.length > 0;
+  const membershipId = memberEnabled
+    ? spaceMembershipEntityId(accountId, spaceId)
+    : '';
+  const queries = useSpacePresenceQueries({
+    spaceId,
+    membershipId,
+    spaceEnabled,
+    memberEnabled,
+  });
+  if (!paintReady) {
+    return { status: 'loading' };
+  }
   return applyPresenceLatch(
     spaceId,
     resolveSpacePresence({
       spaceEnabled,
-      spaceLoading,
-      spaceRow,
+      spaceLoading: queries.spaceLoading,
+      spaceRow: queries.spaceRow,
       memberEnabled,
-      guestLoading,
-      guestRow,
-      myId: memberId,
+      guestLoading: queries.guestLoading,
+      guestRow: queries.guestRow,
+      myId: accountId ?? '',
     })
   );
 }

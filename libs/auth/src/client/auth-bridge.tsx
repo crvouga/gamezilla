@@ -23,6 +23,7 @@ import { useDeviceId } from './use-device-id';
 import { getCachedAuthToken, useFreshAuthToken } from './use-fresh-auth-token';
 import { useLocalAccountRoster } from './use-local-account-roster';
 import type { LocalAccountRoster } from './local-account-roster-types';
+import { useTabAccountFocusReconcile } from './use-tab-account-focus-reconcile';
 
 type Storage = ReturnType<typeof useSecureStorage>;
 type Logger = ReturnType<typeof useLogger>;
@@ -133,7 +134,7 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
   const deviceId = useDeviceId();
   const authToken = useFreshAuthToken();
   const currentAccountId = useCurrentAccountId();
-  const [, setRoster] = useLocalAccountRoster();
+  const [roster, setRoster] = useLocalAccountRoster();
   const log = useLogger('auth-bridge');
   const lastSyncedTokenRef = useRef<string | null>(null);
   const inFlightRef = useRef(false);
@@ -181,6 +182,13 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
     tokenRef,
     expiresAtRef,
     deps,
+  });
+  useTabAccountFocusReconcile({
+    enabled: authState.isHydrated && currentAccountId !== null,
+    tabAccountId: currentAccountId,
+    sessions,
+    roster,
+    port,
   });
 
   return props.children;

@@ -21,16 +21,6 @@ export const SpaceMembershipCol = {
   profileId: 'profile_id',
 } as const;
 
-export const SpaceParticipationCol = {
-  id: 'id',
-  spaceId: 'space_id',
-  memberId: 'member_id',
-  deviceId: 'device_id',
-  deviceLabel: 'device_label',
-  joinedAt: 'joined_at',
-  leftAt: 'left_at',
-} as const;
-
 export const SpaceInviteCol = {
   id: 'id',
   spaceId: 'space_id',
@@ -74,19 +64,6 @@ export const SPACE_MEMBERSHIPS_TABLE = defineTable({
   ],
 });
 
-export const SPACE_PARTICIPATIONS_TABLE = defineTable({
-  tableName: 'space_participations',
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'space_id', type: 'text' },
-    { name: 'member_id', type: 'text' },
-    { name: 'device_id', type: 'text' },
-    { name: 'device_label', type: 'text' },
-    { name: 'joined_at', type: 'text' },
-    { name: 'left_at', type: 'text' },
-  ],
-});
-
 export const SPACE_INVITES_TABLE = defineTable({
   tableName: 'space_invites',
   columns: [
@@ -109,6 +86,5 @@ export const SPACE_INVITES_TABLE = defineTable({
 export const ALL_SPACE_SYNC_TABLES = [
   SPACES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
-  SPACE_PARTICIPATIONS_TABLE,
   SPACE_INVITES_TABLE,
 ] as const;

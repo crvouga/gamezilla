@@ -7,7 +7,6 @@ import {
 import {
   resolveSpaceMemberId,
   spaceMembershipEntityId,
-  spaceParticipationEntityId,
 } from '@libs/spaces/shared/participation/participation-ids';
 import {
   isSpaceHostActor,
@@ -24,21 +23,18 @@ import {
   findValidInviteInStore,
   readSpaceRowForJoin,
 } from './join-space-access';
-import {
-  upsertSpaceMembershipRow,
-  upsertSpaceParticipationRow,
-} from '../space-row-upsert';
+import { upsertSpaceMembershipRow } from '../space-row-upsert';
 import {
   asObjectRecord,
   isoNow,
   migrateHostIdentity,
+  requireAccountId,
   requireNonEmptyString,
   wasMembershipInactive,
 } from '../space-write-helpers';
 
 export type JoinSpaceInput = {
   readonly spaceId: string;
-  readonly deviceLabel: string;
   readonly inviteToken: string | null;
 };
 
@@ -54,16 +50,8 @@ function parseJoinSpaceInput(raw: unknown): WriteResult<JoinSpaceInput> {
   if (!record.ok) return record;
   const spaceId = requireNonEmptyString(record.value['spaceId'], 'spaceId');
   if (!spaceId.ok) return spaceId;
-  const deviceLabelRaw = record.value['deviceLabel'];
-  if (
-    typeof deviceLabelRaw !== 'string' ||
-    deviceLabelRaw.trim().length === 0
-  ) {
-    return fail('INVALID_INPUT', 'deviceLabel is required');
-  }
   return ok({
     spaceId: spaceId.value,
-    deviceLabel: deviceLabelRaw.trim(),
     inviteToken: parseOptionalInviteToken(record.value['inviteToken']),
   });
 }
@@ -78,23 +66,6 @@ async function upsertJoinMembership(
     membershipId: spaceMembershipEntityId(memberId, input.spaceId),
     memberId,
     spaceId: input.spaceId,
-    now: isoNow(),
-  });
-}
-
-async function upsertJoinParticipation(
-  ctx: WriteContext,
-  input: JoinSpaceInput,
-  sql: SqlClient,
-  memberId: string
-): Promise<void> {
-  await upsertSpaceParticipationRow({
-    sql,
-    participationId: spaceParticipationEntityId(ctx.deviceId, input.spaceId),
-    spaceId: input.spaceId,
-    memberId,
-    deviceId: ctx.deviceId,
-    deviceLabel: input.deviceLabel,
     now: isoNow(),
   });
 }
@@ -169,10 +140,9 @@ export async function executeJoinSpace(
   input: JoinSpaceInput,
   sql: SqlClient
 ): Promise<WriteResult<void>> {
-  const memberId = resolveSpaceMemberId({
-    accountId: ctx.accountId,
-    deviceId: ctx.deviceId,
-  });
+  const accountId = requireAccountId(ctx);
+  if (!accountId.ok) return accountId;
+  const memberId = resolveSpaceMemberId(accountId.value);
   const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
   const membershipWasInactive = await wasMembershipInactive(sql, membershipId);
   const inviteResult = await consumeInviteForJoinIfNeeded({
@@ -183,7 +153,6 @@ export async function executeJoinSpace(
   });
   if (!inviteResult.ok) return inviteResult;
   const { reactivated } = await upsertJoinMembership(input, sql, memberId);
-  await upsertJoinParticipation(ctx, input, sql, memberId);
   if (shouldBumpMemberCountOnJoin({ membershipWasInactive: reactivated })) {
     await bumpActiveMemberCount(sql, input.spaceId);
   }
@@ -195,7 +164,7 @@ export async function executeJoinSpace(
       hostMemberId: space.value.hostMemberId,
       hostAccountId: space.value.hostAccountId,
       memberId,
-      accountId: ctx.accountId,
+      accountId: accountId.value,
       deviceId: ctx.deviceId,
     })
   ) {
@@ -204,7 +173,7 @@ export async function executeJoinSpace(
       spaceId: input.spaceId,
       deviceId: ctx.deviceId,
       newMemberId: memberId,
-      accountId: ctx.accountId,
+      accountId: accountId.value,
     });
   }
   return ok(undefined);

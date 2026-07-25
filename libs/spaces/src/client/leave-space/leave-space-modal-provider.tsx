@@ -8,9 +8,7 @@ import {
 } from 'react';
 
 import { LeaveSpaceConfirmModal } from './leave-space-confirm-modal';
-import { LeaveSpaceEverywhereConfirmModal } from './leave-space-everywhere-confirm-modal';
 import { useLeaveSpace } from './use-leave-space';
-import { useLeaveSpaceEverywhere } from './use-leave-space-everywhere';
 
 export type RequestLeaveSpaceOptions = {
   /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
@@ -24,10 +22,6 @@ type PendingLeave = {
 
 export type LeaveSpaceModals = {
   requestLeaveSpace: (
-    spaceId: string,
-    options?: RequestLeaveSpaceOptions
-  ) => void;
-  requestLeaveSpaceEverywhere: (
     spaceId: string,
     options?: RequestLeaveSpaceOptions
   ) => void;
@@ -45,10 +39,7 @@ export function LeaveSpaceModalProvider({
   children: ReactNode;
 }): ReactNode {
   const [pending, setPending] = useState<PendingLeave | null>(null);
-  const [pendingEverywhere, setPendingEverywhere] =
-    useState<PendingLeave | null>(null);
   const leaveSpace = useLeaveSpace();
-  const leaveEverywhere = useLeaveSpaceEverywhere();
 
   const requestLeaveSpace = useCallback(
     (spaceId: string, options?: RequestLeaveSpaceOptions) => {
@@ -60,32 +51,13 @@ export function LeaveSpaceModalProvider({
     []
   );
 
-  const requestLeaveSpaceEverywhere = useCallback(
-    (spaceId: string, options?: RequestLeaveSpaceOptions) => {
-      const onSuccess = options?.onSuccess;
-      setPendingEverywhere(
-        onSuccess === undefined ? { spaceId } : { spaceId, onSuccess }
-      );
-    },
-    []
-  );
-
   const onClose = useCallback(() => setPending(null), []);
-  const onCloseEverywhere = useCallback(() => setPendingEverywhere(null), []);
   const spaceId = pending?.spaceId ?? '';
-  const everywhereSpaceId = pendingEverywhere?.spaceId ?? '';
   const operation = useCallback(
     () => leaveSpace(spaceId),
     [leaveSpace, spaceId]
   );
-  const everywhereOperation = useCallback(
-    () => leaveEverywhere(everywhereSpaceId),
-    [leaveEverywhere, everywhereSpaceId]
-  );
-  const value = useMemo(
-    () => ({ requestLeaveSpace, requestLeaveSpaceEverywhere }),
-    [requestLeaveSpace, requestLeaveSpaceEverywhere]
-  );
+  const value = useMemo(() => ({ requestLeaveSpace }), [requestLeaveSpace]);
 
   return (
     <Ctx.Provider value={value}>
@@ -96,14 +68,6 @@ export function LeaveSpaceModalProvider({
         operation={operation}
         {...(pending?.onSuccess !== undefined
           ? { onSuccess: pending.onSuccess }
-          : {})}
-      />
-      <LeaveSpaceEverywhereConfirmModal
-        visible={pendingEverywhere !== null}
-        onClose={onCloseEverywhere}
-        operation={everywhereOperation}
-        {...(pendingEverywhere?.onSuccess !== undefined
-          ? { onSuccess: pendingEverywhere.onSuccess }
           : {})}
       />
     </Ctx.Provider>
@@ -118,14 +82,4 @@ export function useRequestLeaveSpace(): LeaveSpaceModals['requestLeaveSpace'] {
     );
   }
   return v.requestLeaveSpace;
-}
-
-export function useRequestLeaveSpaceEverywhere(): LeaveSpaceModals['requestLeaveSpaceEverywhere'] {
-  const v = useContext(Ctx);
-  if (v === null) {
-    throw new Error(
-      'useRequestLeaveSpaceEverywhere: LeaveSpaceModalProvider missing — wrap with AppProviders'
-    );
-  }
-  return v.requestLeaveSpaceEverywhere;
 }

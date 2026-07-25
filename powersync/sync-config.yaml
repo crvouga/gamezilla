@@ -25,25 +25,75 @@ streams:
     auto_subscribe: true
     query: SELECT * FROM profiles WHERE id = auth.user_id()
 
+  # Host + live-member profiles for spaces in the viewer's browse/active scope
+  # so cards/miniplayer/member tiles resolve via local `profiles` (self-only
+  # `profiles` stream is not enough for other hosts). Uses `with` + `queries`
+  # (same shape as space_join) so PowerSync can bucket each root SELECT.
+  space_visible_profiles:
+    priority: 2
+    auto_subscribe: true
+    accept_potentially_dangerous_queries: true
+    with:
+      visible_spaces: |
+        SELECT id FROM spaces
+        WHERE host_member_id = auth.user_id()
+           OR id IN (
+             SELECT space_id FROM space_memberships
+             WHERE left_at IS NULL
+               AND member_id = auth.user_id()
+           )
+           OR (
+             visibility = 'public'
+             AND ended_at IS NULL
+           )
+           OR (
+             visibility = 'friends'
+             AND ended_at IS NULL
+             AND host_account_id IS NOT NULL
+             AND (
+               host_account_id IN (
+                 SELECT user_high FROM friendships
+                 WHERE user_low = auth.user_id()
+               )
+               OR host_account_id IN (
+                 SELECT user_low FROM friendships
+                 WHERE user_high = auth.user_id()
+               )
+             )
+           )
+           OR id IN (
+             SELECT space_id FROM space_invites
+             WHERE invitee_account_id = auth.user_id()
+               AND revoked_at IS NULL
+               AND (expires_at IS NULL OR expires_at > datetime('now'))
+           )
+    queries:
+      - |
+        SELECT * FROM profiles
+        WHERE id IN (
+          SELECT host_account_id FROM spaces
+          WHERE id IN visible_spaces
+            AND host_account_id IS NOT NULL
+        )
+      - |
+        SELECT * FROM profiles
+        WHERE id IN (
+          SELECT profile_id FROM space_memberships
+          WHERE left_at IS NULL
+            AND profile_id IS NOT NULL
+            AND space_id IN visible_spaces
+        )
+
   spaces:
     priority: 2
     auto_subscribe: true
     query: |
       SELECT * FROM spaces
       WHERE host_member_id = auth.user_id()
-         OR host_member_id = auth.parameter('device_id')
          OR id IN (
            SELECT space_id FROM space_memberships
            WHERE left_at IS NULL
-             AND (
-               member_id = auth.user_id()
-               OR member_id = auth.parameter('device_id')
-             )
-         )
-         OR id IN (
-           SELECT space_id FROM space_participations
-           WHERE left_at IS NULL
-             AND device_id = auth.parameter('device_id')
+             AND member_id = auth.user_id()
          )
          OR (
            visibility = 'public'
@@ -92,19 +142,10 @@ streams:
         WHERE id = subscription.parameter('space_id')
           AND (
             host_member_id = auth.user_id()
-            OR host_member_id = auth.parameter('device_id')
             OR id IN (
               SELECT space_id FROM space_memberships
               WHERE left_at IS NULL
-                AND (
-                  member_id = auth.user_id()
-                  OR member_id = auth.parameter('device_id')
-                )
-            )
-            OR id IN (
-              SELECT space_id FROM space_participations
-              WHERE left_at IS NULL
-                AND device_id = auth.parameter('device_id')
+                AND member_id = auth.user_id()
             )
             OR (
               visibility = 'public'
@@ -157,47 +198,16 @@ streams:
     query: |
       SELECT * FROM space_memberships
       WHERE member_id = auth.user_id()
-         OR member_id = auth.parameter('device_id')
          OR space_id IN (
            SELECT id FROM spaces
            WHERE host_member_id = auth.user_id()
-              OR host_member_id = auth.parameter('device_id')
               OR id IN (
                 SELECT space_id FROM space_memberships
                 WHERE left_at IS NULL
-                  AND (
-                    member_id = auth.user_id()
-                    OR member_id = auth.parameter('device_id')
-                  )
-              )
-              OR id IN (
-                SELECT space_id FROM space_participations
-                WHERE left_at IS NULL
-                  AND device_id = auth.parameter('device_id')
+                  AND member_id = auth.user_id()
               )
          )
 
-  space_participations:
-    priority: 2
-    auto_subscribe: true
-    query: |
-      SELECT * FROM space_participations
-      WHERE device_id = auth.parameter('device_id')
-         OR member_id = auth.user_id()
-         OR member_id = auth.parameter('device_id')
-         OR space_id IN (
-           SELECT space_id FROM space_memberships
-           WHERE left_at IS NULL
-             AND (
-               member_id = auth.user_id()
-               OR member_id = auth.parameter('device_id')
-             )
-         )
-         OR space_id IN (
-           SELECT id FROM spaces
-           WHERE host_member_id = auth.user_id()
-              OR host_member_id = auth.parameter('device_id')
-         )
 
   client_config:
     priority: 1
@@ -214,11 +224,13 @@ streams:
     auto_subscribe: true
     query: SELECT * FROM chess_puzzle_interactions WHERE owner_id = auth.user_id()
 
-  # Pooled puzzles (`sync_pool = true`, ~4k rows) auto-subscribe. Band
-  # filtering for *picking* stays client-side; parameterized band streams
-  # downloaded ops but never applied (hasSynced stuck false, local row count 0).
+  # Pooled puzzles (`sync_pool = true`, ~4k rows) auto-subscribe at priority 2
+  # so identity streams (priority 1) can finish first sync without waiting on
+  # the puzzle download. Band filtering for *picking* stays client-side;
+  # parameterized band streams downloaded ops but never applied
+  # (hasSynced stuck false, local row count 0).
   chess_puzzles:
-    priority: 1
+    priority: 2
     auto_subscribe: true
     accept_potentially_dangerous_queries: true
     query: |

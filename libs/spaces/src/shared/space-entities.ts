@@ -52,9 +52,7 @@ export const SpaceAttr = {
   hostAccountId: spaceNs
     .textOrNull('host-account-id', readNonEmptyStringOrNull)
     .indexed(),
-  /**
-   * Host member id (`accountId ?? deviceId`). Authoritative for host checks.
-   */
+  /** Host member id (account id). Authoritative for host checks. */
   hostMemberId: spaceNs
     .textOrNull('host-member-id', readNonEmptyStringOrNull)
     .indexed(),
@@ -62,14 +60,14 @@ export const SpaceAttr = {
 } as const;
 
 /**
- * User-scoped membership: `${memberId}:${spaceId}`.
+ * Account-scoped membership: `${memberId}:${spaceId}`.
  */
 export const spaceMembershipNs = createAttrNamespace('space', 'membership');
 
 export const SPACE_MEMBERSHIP_ENTITY_TYPE = spaceMembershipNs.prefix;
 
 export const SpaceMembershipAttr = {
-  /** Member id (account when signed in, else device). */
+  /** Member id (signed-in account). */
   memberId: spaceMembershipNs.text('member-id', readString).indexed(),
   spaceId: spaceMembershipNs.text('space-id', readString).indexed(),
   /** Display identity (same as member id for current model). */
@@ -80,32 +78,6 @@ export const SpaceMembershipAttr = {
     .timestampOrNull('joined-at', readTrimmedNullableString)
     .indexed({ sortable: true }),
   leftAt: spaceMembershipNs
-    .timestampOrNull('left-at', readTrimmedNullableString)
-    .indexed(),
-} as const;
-
-/**
- * Device participation under a membership: `${deviceId}:${spaceId}`.
- */
-export const spaceParticipationNs = createAttrNamespace(
-  'space',
-  'participation'
-);
-
-export const SPACE_PARTICIPATION_ENTITY_TYPE = spaceParticipationNs.prefix;
-
-export const SpaceParticipationAttr = {
-  spaceId: spaceParticipationNs.text('space-id', readString).indexed(),
-  memberId: spaceParticipationNs.text('member-id', readString).indexed(),
-  deviceId: spaceParticipationNs.text('device-id', readString).indexed(),
-  deviceLabel: spaceParticipationNs.textOrNull(
-    'device-label',
-    readNonEmptyStringOrNull
-  ),
-  joinedAt: spaceParticipationNs
-    .timestampOrNull('joined-at', readTrimmedNullableString)
-    .indexed({ sortable: true }),
-  leftAt: spaceParticipationNs
     .timestampOrNull('left-at', readTrimmedNullableString)
     .indexed(),
 } as const;

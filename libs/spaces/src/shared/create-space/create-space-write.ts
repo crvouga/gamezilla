@@ -1,15 +1,12 @@
 import {
   SPACE_MEMBERSHIPS_TABLE,
-  SPACE_PARTICIPATIONS_TABLE,
   SpaceCol,
   SpaceMembershipCol,
-  SpaceParticipationCol,
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
 import {
   resolveSpaceMemberId,
   spaceMembershipEntityId,
-  spaceParticipationEntityId,
 } from '@libs/spaces/shared/participation/participation-ids';
 import {
   isSpaceVisibility,
@@ -21,13 +18,13 @@ import { defineWrite } from '@pkgs/write/shared/define-write';
 import {
   asObjectRecord,
   isoNow,
+  requireAccountId,
   requireNonEmptyString,
 } from '../space-write-helpers';
 
 export type CreateSpaceInput = {
   readonly spaceId: string;
   readonly visibility: SpaceVisibility;
-  readonly deviceLabel: string;
 };
 
 function parseCreateSpaceInput(
@@ -41,41 +38,25 @@ function parseCreateSpaceInput(
   if (!isSpaceVisibility(visibilityRaw)) {
     return fail('INVALID_INPUT', 'visibility is required');
   }
-  const deviceLabelRaw = record.value['deviceLabel'];
-  if (
-    typeof deviceLabelRaw !== 'string' ||
-    deviceLabelRaw.trim().length === 0
-  ) {
-    return fail('INVALID_INPUT', 'deviceLabel is required');
-  }
   return ok({
     spaceId: spaceId.value,
     visibility: visibilityRaw,
-    deviceLabel: deviceLabelRaw.trim(),
   });
-}
-
-function resolveCreateVisibility(
-  accountId: string | null,
-  visibility: SpaceVisibility
-): SpaceVisibility {
-  if (accountId === null && visibility !== 'private') {
-    return 'private';
-  }
-  return visibility;
 }
 
 export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
   name: 'spaces.create',
   parseInput: parseCreateSpaceInput,
-  authorize: async () => ok(undefined),
+  authorize: async (ctx) => {
+    const accountId = requireAccountId(ctx);
+    if (!accountId.ok) return accountId;
+    return ok(undefined);
+  },
   execute: async (ctx, input, sql) => {
+    const accountId = requireAccountId(ctx);
+    if (!accountId.ok) return accountId;
     const now = isoNow();
-    const visibility = resolveCreateVisibility(ctx.accountId, input.visibility);
-    const memberId = resolveSpaceMemberId({
-      accountId: ctx.accountId,
-      deviceId: ctx.deviceId,
-    });
+    const memberId = resolveSpaceMemberId(accountId.value);
     await sql.run(
       `INSERT INTO ${SPACES_TABLE.tableName}
        (${SpaceCol.id}, ${SpaceCol.hostId}, ${SpaceCol.createdAt},
@@ -86,8 +67,8 @@ export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
         input.spaceId,
         ctx.deviceId,
         now,
-        visibility,
-        ctx.accountId,
+        input.visibility,
+        accountId.value,
         memberId,
       ]
     );
@@ -99,26 +80,6 @@ export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
         ${SpaceMembershipCol.leftAt}, ${SpaceMembershipCol.profileId})
        VALUES (?, ?, ?, ?, NULL, ?)`,
       [membershipId, memberId, input.spaceId, now, memberId]
-    );
-    const participationId = spaceParticipationEntityId(
-      ctx.deviceId,
-      input.spaceId
-    );
-    await sql.run(
-      `INSERT INTO ${SPACE_PARTICIPATIONS_TABLE.tableName}
-       (${SpaceParticipationCol.id}, ${SpaceParticipationCol.spaceId},
-        ${SpaceParticipationCol.memberId}, ${SpaceParticipationCol.deviceId},
-        ${SpaceParticipationCol.deviceLabel}, ${SpaceParticipationCol.joinedAt},
-        ${SpaceParticipationCol.leftAt})
-       VALUES (?, ?, ?, ?, ?, ?, NULL)`,
-      [
-        participationId,
-        input.spaceId,
-        memberId,
-        ctx.deviceId,
-        input.deviceLabel,
-        now,
-      ]
     );
     return ok(undefined);
   },

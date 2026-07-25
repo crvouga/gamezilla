@@ -1,8 +1,6 @@
 /**
- * @deprecated Prefer {@link decideJoin} from
- * `participation/space-participation-policy`. Kept as a thin adapter for
- * call sites that only need visibility / invite ABAC without participation
- * state.
+ * Prefer {@link decideJoin} from `participation/space-participation-policy`.
+ * Thin adapter for call sites that only need visibility / invite ABAC.
  */
 import type { SpaceVisibility } from '../space-visibility';
 import type { SpacesError } from '../spaces-errors';
@@ -24,7 +22,6 @@ export type SpaceAccessInput = {
   readonly isFriendOfHost: boolean;
   readonly hasValidInvite: boolean;
   readonly alreadyMember?: boolean;
-  readonly alreadyParticipating?: boolean;
 };
 
 /**
@@ -35,6 +32,9 @@ export type SpaceAccessInput = {
 export function decideSpaceJoinAccess(
   input: SpaceAccessInput
 ): SpaceAccessDecision {
+  if (input.viewerAccountId === null || input.viewerAccountId.length === 0) {
+    return { allowed: false, code: 'SPACE_NOT_SIGNED_IN' };
+  }
   return decideJoin({
     visibility: input.visibility,
     hostId: input.hostId,
@@ -46,7 +46,6 @@ export function decideSpaceJoinAccess(
     isFriendOfHost: input.isFriendOfHost,
     hasValidInvite: input.hasValidInvite,
     alreadyMember: input.alreadyMember ?? false,
-    alreadyParticipating: input.alreadyParticipating ?? false,
   });
 }
 

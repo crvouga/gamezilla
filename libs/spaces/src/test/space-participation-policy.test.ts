@@ -1,11 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
-  collapseRoster,
   decideEndSpace,
   decideJoin,
-  decideLeaveDevice,
-  decideLeaveEverywhere,
   isHostMember,
   isSpaceHostActor,
   resolveMemberId,
@@ -14,31 +11,17 @@ import {
   shouldBumpMemberCountOnJoin,
   shouldConsumeInviteOnJoin,
 } from '../shared/participation/space-participation-policy';
-import {
-  spaceMembershipEntityId,
-  spaceParticipationEntityId,
-} from '../shared/participation/participation-ids';
+import { spaceMembershipEntityId } from '../shared/participation/participation-ids';
 
 describe('resolveMemberId', () => {
-  test('prefers account when signed in', () => {
-    expect(resolveMemberId({ accountId: 'acct-1', deviceId: 'dev-1' })).toBe(
-      'acct-1'
-    );
-  });
-
-  test('falls back to device for anon', () => {
-    expect(resolveMemberId({ accountId: null, deviceId: 'dev-1' })).toBe(
-      'dev-1'
-    );
+  test('returns account id', () => {
+    expect(resolveMemberId('acct-1')).toBe('acct-1');
   });
 });
 
 describe('ids', () => {
-  test('membership and participation keys', () => {
+  test('membership key by member and space', () => {
     expect(spaceMembershipEntityId('acct-1', 'space-1')).toBe('acct-1:space-1');
-    expect(spaceParticipationEntityId('dev-1', 'space-1')).toBe(
-      'dev-1:space-1'
-    );
   });
 });
 
@@ -105,12 +88,7 @@ describe('isHostMember / presence / room actor', () => {
   });
 
   test('room actor is member id', () => {
-    expect(resolveRoomActorId({ accountId: 'acct-1', deviceId: 'dev-1' })).toBe(
-      'acct-1'
-    );
-    expect(resolveRoomActorId({ accountId: null, deviceId: 'dev-1' })).toBe(
-      'dev-1'
-    );
+    expect(resolveRoomActorId('acct-1')).toBe('acct-1');
   });
 });
 
@@ -126,22 +104,10 @@ describe('decideJoin', () => {
     isFriendOfHost: false,
     hasValidInvite: false,
     alreadyMember: false,
-    alreadyParticipating: false,
   };
 
   test('allows public signed-in join', () => {
     expect(decideJoin(base)).toEqual({ allowed: true, reason: 'open' });
-  });
-
-  test('denies public anon without invite', () => {
-    expect(
-      decideJoin({
-        ...base,
-        viewerAccountId: null,
-        viewerMemberId: 'dev-anon',
-        viewerDeviceId: 'dev-anon',
-      })
-    ).toEqual({ allowed: false, code: 'SPACE_NOT_SIGNED_IN' });
   });
 
   test('host second device is allowed', () => {
@@ -152,7 +118,6 @@ describe('decideJoin', () => {
         viewerMemberId: 'host-acct',
         viewerDeviceId: 'host-device-2',
         alreadyMember: true,
-        alreadyParticipating: false,
       })
     ).toEqual({ allowed: true, reason: 'host' });
   });
@@ -187,14 +152,14 @@ describe('decideJoin', () => {
     ).toEqual({ allowed: true, reason: 'host' });
   });
 
-  test('idempotent when already participating', () => {
-    expect(decideJoin({ ...base, alreadyParticipating: true })).toEqual({
+  test('idempotent when already a member', () => {
+    expect(decideJoin({ ...base, alreadyMember: true })).toEqual({
       allowed: true,
       reason: 'already',
     });
   });
 
-  test('member adding another device without re-checking visibility', () => {
+  test('member rejoin without re-checking visibility', () => {
     expect(
       decideJoin({
         ...base,
@@ -240,29 +205,6 @@ describe('decideJoin', () => {
   });
 });
 
-describe('decideLeaveDevice / decideLeaveEverywhere', () => {
-  test('last device also leaves membership', () => {
-    expect(decideLeaveDevice({ hasOtherActiveParticipations: false })).toEqual({
-      leaveParticipation: true,
-      leaveMembership: true,
-    });
-  });
-
-  test('other devices keep membership', () => {
-    expect(decideLeaveDevice({ hasOtherActiveParticipations: true })).toEqual({
-      leaveParticipation: true,
-      leaveMembership: false,
-    });
-  });
-
-  test('leave everywhere clears all', () => {
-    expect(decideLeaveEverywhere()).toEqual({
-      leaveAllParticipations: true,
-      leaveMembership: true,
-    });
-  });
-});
-
 describe('decideEndSpace', () => {
   test('only host may end', () => {
     expect(decideEndSpace({ isHostActor: true })).toEqual({ allowed: true });
@@ -270,22 +212,6 @@ describe('decideEndSpace', () => {
       allowed: false,
       code: 'SPACE_HOST_REQUIRED',
     });
-  });
-});
-
-describe('collapseRoster', () => {
-  test('unique members with device lists', () => {
-    expect(
-      collapseRoster([
-        { memberId: 'a', deviceId: 'd1', leftAt: null },
-        { memberId: 'a', deviceId: 'd2', leftAt: null },
-        { memberId: 'b', deviceId: 'd3', leftAt: null },
-        { memberId: 'c', deviceId: 'd4', leftAt: '2020-01-01' },
-      ])
-    ).toEqual([
-      { memberId: 'a', deviceIds: ['d1', 'd2'] },
-      { memberId: 'b', deviceIds: ['d3'] },
-    ]);
   });
 });
 

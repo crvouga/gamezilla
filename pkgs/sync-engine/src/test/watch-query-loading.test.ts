@@ -11,11 +11,19 @@ const connectedSynced: SyncEngineStatus = {
   lastError: null,
 };
 
-const reconnecting: SyncEngineStatus = {
+const reconnectingEverSynced: SyncEngineStatus = {
   connection: 'connecting',
   online: false,
   hasSynced: false,
   hasEverSynced: true,
+  lastError: null,
+};
+
+const neverSynced: SyncEngineStatus = {
+  connection: 'syncing',
+  online: true,
+  hasSynced: false,
+  hasEverSynced: false,
   lastError: null,
 };
 
@@ -26,7 +34,6 @@ describe('computeWatchQueryIsLoading', () => {
         hydrated: false,
         rows: [],
         status: connectedSynced,
-        reconnecting: false,
       })
     ).toBe(true);
   });
@@ -37,30 +44,47 @@ describe('computeWatchQueryIsLoading', () => {
         hydrated: true,
         rows: [{ id: 'a' }],
         status: connectedSynced,
-        reconnecting: false,
       })
     ).toBe(false);
   });
 
-  test('not loading when hydrated empty and synced', () => {
+  test('not loading when hydrated empty and ever synced', () => {
     expect(
       computeWatchQueryIsLoading({
         hydrated: true,
         rows: [],
         status: connectedSynced,
-        reconnecting: false,
       })
     ).toBe(false);
   });
 
-  test('loading when empty and reconnecting', () => {
+  test('not loading when empty after ever synced even while reconnecting', () => {
     expect(
       computeWatchQueryIsLoading({
         hydrated: true,
         rows: [],
-        status: reconnecting,
-        reconnecting: true,
+        status: reconnectingEverSynced,
+      })
+    ).toBe(false);
+  });
+
+  test('loading when empty and never synced', () => {
+    expect(
+      computeWatchQueryIsLoading({
+        hydrated: true,
+        rows: [],
+        status: neverSynced,
       })
     ).toBe(true);
+  });
+
+  test('not loading when rows present even if never synced', () => {
+    expect(
+      computeWatchQueryIsLoading({
+        hydrated: true,
+        rows: [{ id: 'a' }],
+        status: neverSynced,
+      })
+    ).toBe(false);
   });
 });

@@ -1,8 +1,6 @@
 import {
   SPACE_MEMBERSHIPS_TABLE,
-  SPACE_PARTICIPATIONS_TABLE,
   SpaceMembershipCol,
-  SpaceParticipationCol,
 } from '@libs/db/shared/space-tables';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -57,50 +55,4 @@ export async function upsertSpaceMembershipRow(args: {
     );
   }
   return { reactivated };
-}
-
-export async function upsertSpaceParticipationRow(args: {
-  readonly sql: SqlClient;
-  readonly participationId: string;
-  readonly spaceId: string;
-  readonly memberId: string;
-  readonly deviceId: string;
-  readonly deviceLabel: string;
-  readonly now: string;
-}): Promise<void> {
-  const existing = await args.sql.query<{ readonly id: string }>(
-    `SELECT ${SpaceParticipationCol.id} AS id
-     FROM ${SPACE_PARTICIPATIONS_TABLE.tableName}
-     WHERE ${SpaceParticipationCol.id} = ?
-     LIMIT 1`,
-    [args.participationId]
-  );
-  if (existing[0] === undefined) {
-    await args.sql.run(
-      `INSERT INTO ${SPACE_PARTICIPATIONS_TABLE.tableName}
-       (${SpaceParticipationCol.id}, ${SpaceParticipationCol.spaceId},
-        ${SpaceParticipationCol.memberId}, ${SpaceParticipationCol.deviceId},
-        ${SpaceParticipationCol.deviceLabel}, ${SpaceParticipationCol.joinedAt},
-        ${SpaceParticipationCol.leftAt})
-       VALUES (?, ?, ?, ?, ?, ?, NULL)`,
-      [
-        args.participationId,
-        args.spaceId,
-        args.memberId,
-        args.deviceId,
-        args.deviceLabel,
-        args.now,
-      ]
-    );
-    return;
-  }
-  await args.sql.run(
-    `UPDATE ${SPACE_PARTICIPATIONS_TABLE.tableName}
-     SET ${SpaceParticipationCol.leftAt} = NULL,
-         ${SpaceParticipationCol.joinedAt} = ?,
-         ${SpaceParticipationCol.memberId} = ?,
-         ${SpaceParticipationCol.deviceLabel} = ?
-     WHERE ${SpaceParticipationCol.id} = ?`,
-    [args.now, args.memberId, args.deviceLabel, args.participationId]
-  );
 }

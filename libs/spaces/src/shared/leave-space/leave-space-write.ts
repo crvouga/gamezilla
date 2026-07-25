@@ -1,16 +1,13 @@
 import {
   SPACE_MEMBERSHIPS_TABLE,
-  SPACE_PARTICIPATIONS_TABLE,
   SpaceCol,
   SpaceMembershipCol,
-  SpaceParticipationCol,
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
 import {
+  resolveSpaceMemberId,
   spaceMembershipEntityId,
-  spaceParticipationEntityId,
 } from '@libs/spaces/shared/participation/participation-ids';
-import { decideLeaveDevice } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
 import { fail, ok } from '@pkgs/write/shared/write-result';
@@ -19,10 +16,10 @@ import type { WriteContext } from '@pkgs/write/shared/write-context';
 
 import {
   asObjectRecord,
-  countOtherActiveParticipations,
   isoNow,
   maybeAutoEndEmptyHostSpace,
-  readParticipationForLeave,
+  readMembershipForLeave,
+  requireAccountId,
   requireNonEmptyString,
 } from '../space-write-helpers';
 
@@ -41,22 +38,24 @@ function parseLeaveSpaceInput(
 }
 
 /**
- * Device-owned leave: this install may always soft-leave its own seat, even
- * when `member_id` drifted after anon↔signed-in identity changes.
+ * Soft-leave this account's membership in the space.
  */
 export async function authorizeLeaveSpace(
   ctx: WriteContext,
   input: LeaveSpaceInput,
   sql: SqlClient
 ): Promise<ReturnType<typeof ok<void>> | ReturnType<typeof fail>> {
-  const row = await readParticipationForLeave(sql, ctx.deviceId, input.spaceId);
+  const accountId = requireAccountId(ctx);
+  if (!accountId.ok) return accountId;
+  const memberId = resolveSpaceMemberId(accountId.value);
+  const row = await readMembershipForLeave(sql, memberId, input.spaceId);
   if (row === null || row.leftAt !== null) {
     return ok(undefined);
   }
-  if (row.deviceId !== ctx.deviceId) {
+  if (row.memberId !== memberId) {
     return fail(
       'SPACE_MEMBERSHIP_GUEST_MISMATCH',
-      'Only this device can leave its participation'
+      'Only this member can leave its membership'
     );
   }
   return ok(undefined);
@@ -81,50 +80,25 @@ export async function executeLeaveSpace(
   ctx: WriteContext,
   input: LeaveSpaceInput,
   sql: SqlClient
-): Promise<ReturnType<typeof ok<void>>> {
-  const row = await readParticipationForLeave(sql, ctx.deviceId, input.spaceId);
+): Promise<ReturnType<typeof ok<void>> | ReturnType<typeof fail>> {
+  const accountId = requireAccountId(ctx);
+  if (!accountId.ok) return accountId;
+  const memberId = resolveSpaceMemberId(accountId.value);
+  const row = await readMembershipForLeave(sql, memberId, input.spaceId);
   if (row === null || row.leftAt !== null) {
     return ok(undefined);
   }
-  // Stamped seat member — not current auth — so identity-drift orphans clean up.
-  const stampedMemberId = row.memberId;
-  const otherCount = await countOtherActiveParticipations(
-    sql,
-    stampedMemberId,
-    input.spaceId,
-    ctx.deviceId
-  );
-  const decision = decideLeaveDevice({
-    hasOtherActiveParticipations: otherCount > 0,
-  });
   clearSpacePresenceLatch(input.spaceId);
   const now = isoNow();
-  const participationId = spaceParticipationEntityId(
-    ctx.deviceId,
-    input.spaceId
+  const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
+  await sql.run(
+    `UPDATE ${SPACE_MEMBERSHIPS_TABLE.tableName}
+     SET ${SpaceMembershipCol.leftAt} = ?
+     WHERE ${SpaceMembershipCol.id} = ?
+       AND ${SpaceMembershipCol.leftAt} IS NULL`,
+    [now, membershipId]
   );
-  if (decision.leaveParticipation) {
-    await sql.run(
-      `UPDATE ${SPACE_PARTICIPATIONS_TABLE.tableName}
-       SET ${SpaceParticipationCol.leftAt} = ?
-       WHERE ${SpaceParticipationCol.id} = ?`,
-      [now, participationId]
-    );
-  }
-  if (decision.leaveMembership) {
-    const membershipId = spaceMembershipEntityId(
-      stampedMemberId,
-      input.spaceId
-    );
-    await sql.run(
-      `UPDATE ${SPACE_MEMBERSHIPS_TABLE.tableName}
-       SET ${SpaceMembershipCol.leftAt} = ?
-       WHERE ${SpaceMembershipCol.id} = ?
-         AND ${SpaceMembershipCol.leftAt} IS NULL`,
-      [now, membershipId]
-    );
-    await decrementActiveMemberCount(sql, input.spaceId);
-  }
+  await decrementActiveMemberCount(sql, input.spaceId);
   await maybeAutoEndEmptyHostSpace(ctx, sql, input.spaceId);
   return ok(undefined);
 }

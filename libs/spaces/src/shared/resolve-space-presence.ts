@@ -46,8 +46,8 @@ export function resolveSpacePresence(args: {
   readonly guestRow: ParticipationRow | null;
   readonly myId: string;
 }): SpacePresence {
-  // Ended is terminal. Do not wait on participation loading — after end/leave the
-  // active-participation watch returns null and may stay isLoading, which would
+  // Ended is terminal. Do not wait on membership loading — after end/leave the
+  // active-membership watch returns null and may stay isLoading, which would
   // otherwise pin the detail screen on a spinner forever (latch already cleared).
   const endedAt = args.spaceRow?.ended_at ?? null;
   if (endedAt !== null) {
@@ -88,7 +88,7 @@ function holdActiveAcrossTransientJoin(
 
 /**
  * Hold the last non-loading presence while queries report `loading`, and hold
- * `active` across transient `join` snapshots (sync/watch gaps where participation
+ * `active` across transient `join` snapshots (sync/watch gaps where membership
  * briefly disappears with `isLoading: false`). Ended spaces always accept
  * `join`. Intentional leave/end must clear the shared latch store.
  */

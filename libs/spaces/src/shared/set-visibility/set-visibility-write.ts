@@ -10,6 +10,7 @@ import { defineWrite } from '@pkgs/write/shared/define-write';
 import {
   asObjectRecord,
   authorizeSpaceHost,
+  requireAccountId,
   requireNonEmptyString,
 } from '../space-write-helpers';
 
@@ -55,10 +56,9 @@ export const setSpaceVisibilityWrite = defineWrite<
     return ok(undefined);
   },
   execute: async (ctx, input, sql) => {
-    const memberId = resolveSpaceMemberId({
-      accountId: ctx.accountId,
-      deviceId: ctx.deviceId,
-    });
+    const accountId = requireAccountId(ctx);
+    if (!accountId.ok) return accountId;
+    const memberId = resolveSpaceMemberId(accountId.value);
     await sql.run(
       `UPDATE ${SPACES_TABLE.tableName}
        SET ${SpaceCol.visibility} = ?,

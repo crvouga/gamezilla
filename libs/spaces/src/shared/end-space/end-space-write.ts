@@ -5,11 +5,12 @@ import { ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import type { WriteResult } from '@pkgs/write/shared/write-result';
 
-import { executeLeaveSpaceEverywhere } from '../leave-space/leave-space-everywhere-write';
+import { executeLeaveSpace } from '../leave-space/leave-space-write';
 import {
   asObjectRecord,
   authorizeSpaceHost,
   isoNow,
+  requireAccountId,
   requireNonEmptyString,
 } from '../space-write-helpers';
 
@@ -37,10 +38,9 @@ export const endSpaceWrite = defineWrite<EndSpaceInput, void>({
     ),
   execute: async (ctx, input, sql) => {
     clearSpacePresenceLatch(input.spaceId);
-    const memberId = resolveSpaceMemberId({
-      accountId: ctx.accountId,
-      deviceId: ctx.deviceId,
-    });
+    const accountId = requireAccountId(ctx);
+    if (!accountId.ok) return accountId;
+    const memberId = resolveSpaceMemberId(accountId.value);
     await sql.run(
       `UPDATE ${SPACES_TABLE.tableName}
        SET ${SpaceCol.endedAt} = ?,
@@ -49,8 +49,6 @@ export const endSpaceWrite = defineWrite<EndSpaceInput, void>({
        WHERE ${SpaceCol.id} = ?`,
       [isoNow(), ctx.deviceId, memberId, input.spaceId]
     );
-    // Drop this member everywhere so miniplayer / presence do not wait on
-    // auto-leave watching ended_at.
-    return executeLeaveSpaceEverywhere(ctx, input, sql);
+    return executeLeaveSpace(ctx, input, sql);
   },
 });

@@ -1,50 +1,50 @@
 import { useLeaveSpace } from './use-leave-space';
-import { useMyGuestMembershipId } from '../members/use-my-guest-membership-id';
+import { useMyMembershipId } from '../members/use-my-guest-membership-id';
 import { useEffect } from 'react';
 
 import { useSpaceColumn, SpaceField } from '../use-space-column';
 import {
-  SpaceParticipationCol,
-  SPACE_PARTICIPATIONS_TABLE,
+  SpaceMembershipCol,
+  SPACE_MEMBERSHIPS_TABLE,
 } from '@libs/db/shared/space-tables';
 import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
 
-const PARTICIPATION_BY_ID_SQL = `SELECT ${SpaceParticipationCol.id},
-            ${SpaceParticipationCol.deviceId}, ${SpaceParticipationCol.leftAt}
-     FROM ${SPACE_PARTICIPATIONS_TABLE.tableName}
-     WHERE ${SpaceParticipationCol.id} = ?`;
+const MEMBERSHIP_BY_ID_SQL = `SELECT ${SpaceMembershipCol.id},
+            ${SpaceMembershipCol.memberId}, ${SpaceMembershipCol.leftAt}
+     FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
+     WHERE ${SpaceMembershipCol.id} = ?`;
 
 export function useAutoLeaveIfEnded(spaceId: string): void {
   const leaveSpace = useLeaveSpace();
   const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
   const spaceStillLive = endedAt === null;
-  const participationId = useMyGuestMembershipId(spaceId);
-  const { value: deviceId } = useWatchField<string>(
-    PARTICIPATION_BY_ID_SQL,
-    [participationId ?? ''],
-    SpaceParticipationCol.deviceId
+  const membershipId = useMyMembershipId(spaceId);
+  const { value: memberId } = useWatchField<string>(
+    MEMBERSHIP_BY_ID_SQL,
+    [membershipId ?? ''],
+    SpaceMembershipCol.memberId
   );
   const { value: leftAt } = useWatchField<string>(
-    PARTICIPATION_BY_ID_SQL,
-    [participationId ?? ''],
-    SpaceParticipationCol.leftAt
+    MEMBERSHIP_BY_ID_SQL,
+    [membershipId ?? ''],
+    SpaceMembershipCol.leftAt
   );
-  const participationExists = (deviceId ?? '').length > 0;
-  const participationActive = leftAt === null;
+  const membershipExists = (memberId ?? '').length > 0;
+  const membershipActive = leftAt === null;
 
   useEffect(() => {
     if (spaceId.length === 0) return;
-    if (participationId === null) return;
+    if (membershipId === null) return;
     if (spaceStillLive) return;
-    if (!participationExists) return;
-    if (!participationActive) return;
+    if (!membershipExists) return;
+    if (!membershipActive) return;
     void leaveSpace(spaceId);
   }, [
     spaceId,
-    participationId,
+    membershipId,
     spaceStillLive,
-    participationExists,
-    participationActive,
+    membershipExists,
+    membershipActive,
     leaveSpace,
   ]);
 }

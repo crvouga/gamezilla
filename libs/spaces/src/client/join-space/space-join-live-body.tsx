@@ -1,4 +1,3 @@
-import { SpaceJoinBlockedNote } from './space-join-blocked-note';
 import { SpaceGuestSection } from '../members/space-guest-section';
 import {
   SPACE_CARD_BORDER_RADIUS,
@@ -13,7 +12,7 @@ export type SpaceJoinLiveBodyProps = {
   spaceId: string;
 };
 
-/** Live (not joined) preview: summary card, helper copy, and join-blocked note. */
+/** Live (not joined) preview: summary card and helper copy. */
 export function SpaceJoinLiveBody({
   spaceId,
 }: SpaceJoinLiveBodyProps): ReactNode {
@@ -36,7 +35,6 @@ export function SpaceJoinLiveBody({
         sx={{ color: 'textSecondary' }}
         label={<Trans>Join to see who is here and hang out.</Trans>}
       />
-      <SpaceJoinBlockedNote spaceId={spaceId} />
     </Box>
   );
 }
