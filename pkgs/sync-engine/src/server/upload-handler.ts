@@ -48,7 +48,10 @@ function quoteSqlIdentifier(name: string): string {
 export async function applyPut(sql: SqlClient, row: UploadRow): Promise<void> {
   const values = row.values ?? {};
   const columns = Object.keys(values);
-  assert.ok(columns.length > 0, 'upload put requires values', { row });
+  // Empty put/patch is a no-op (client may upload username-only profile
+  // patches that the API strips to {}). Do not assert — that crashes the
+  // worker and leaves the PowerSync CRUD queue stuck retrying.
+  if (columns.length === 0) return;
   const table = quoteSqlIdentifier(row.table);
   const quotedColumns = columns.map(quoteSqlIdentifier);
   const placeholders = columns.map(() => '?').join(', ');
@@ -66,7 +69,7 @@ export async function applyPatch(
 ): Promise<void> {
   const values = row.values ?? {};
   const columns = Object.keys(values);
-  assert.ok(columns.length > 0, 'upload patch requires values', { row });
+  if (columns.length === 0) return;
   const table = quoteSqlIdentifier(row.table);
   const sets = columns.map((c) => `${quoteSqlIdentifier(c)} = ?`).join(', ');
   await sql.run(`UPDATE ${table} SET ${sets} WHERE id = ?`, [

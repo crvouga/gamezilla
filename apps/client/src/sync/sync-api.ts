@@ -1,10 +1,12 @@
 import { getCachedDeviceId } from '@libs/auth/client/use-device-id';
 import { getCachedAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import type { ConfigService } from '@libs/auth/client/config-service-types';
+import { stripServerOwnedProfileUploadColumns } from '@libs/profile/shared/strip-server-owned-profile-upload-columns';
 import type { Kv } from '@pkgs/kv/interface';
-import type {
-  UploadBatch,
-  UploadBatchResult,
+import {
+  uploadRowNeedsApply,
+  type UploadBatch,
+  type UploadBatchResult,
 } from '@pkgs/sync-engine/shared/upload-batch';
 import { fail, WriteError } from '@pkgs/write/shared/write-result';
 
@@ -111,18 +113,38 @@ function assertUploadBatchAccepted(result: UploadBatchResult): void {
   throw new WriteError(fail(code, code));
 }
 
+/**
+ * Drop server-owned profile columns and skip put/patch rows that become
+ * empty (e.g. local `applyEnsuredUsername` → username-only PATCH). Completing
+ * those as accepted no-ops clears the PowerSync CRUD queue without a round
+ * trip that would otherwise assert on the API.
+ */
+export function prepareSyncUploadBatch(batch: UploadBatch): UploadBatch {
+  return {
+    rows: batch.rows
+      .map(stripServerOwnedProfileUploadColumns)
+      .filter(uploadRowNeedsApply),
+  };
+}
+
 export async function uploadSyncBatch(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly batch: UploadBatch;
 }): Promise<UploadBatchResult> {
+  const prepared = prepareSyncUploadBatch(args.batch);
+  if (prepared.rows.length === 0) {
+    return {
+      results: args.batch.rows.map(() => ({ status: 'accepted' as const })),
+    };
+  }
   const res = await args.fetchFn(`${args.config.getApiUrl()}/api/sync/upload`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       ...authHeaders(),
     },
-    body: JSON.stringify(args.batch),
+    body: JSON.stringify(prepared),
   });
   if (!res.ok) {
     const body = await res.text().catch(() => '');

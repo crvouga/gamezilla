@@ -91,8 +91,16 @@ function wrongSlots(
       type: 'action',
       disabled: p.hintStage === 'solution',
     },
-    { id: 'next', type: 'action', disabled: false },
-    { id: 'retry', type: 'button', intent: 'danger' },
+    {
+      id: 'next',
+      type: 'action',
+      disabled: false,
+    },
+    {
+      id: 'retry',
+      type: 'button',
+      intent: 'danger',
+    },
   ];
 }
 

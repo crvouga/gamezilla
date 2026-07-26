@@ -1,8 +1,8 @@
 import { mapAppAuthToWriteContext } from '@libs/auth/shared/map-app-auth-to-write-context';
 import type { AuthContext } from '@libs/auth/server/types';
 import { appAuth } from '@libs/auth/shared/auth-context';
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { loadMemberOfSpaceIdsFromSql } from '@libs/spaces/server/load-member-of-space-ids-sql';
+import { stripServerOwnedProfileUploadColumns } from '@libs/profile/shared/strip-server-owned-profile-upload-columns';
 import { assert } from '@pkgs/assert';
 import {
   parseUploadBody,
@@ -58,17 +58,6 @@ function openRequestSqlClient(): Promise<SqlClient> {
   });
 }
 
-/** Username is server-owned; strip it from client sync uploads. */
-function stripServerOwnedProfileColumns(row: UploadRow): UploadRow {
-  if (row.table !== PROFILES_TABLE.tableName || row.values === undefined) {
-    return row;
-  }
-  const values = { ...row.values };
-  delete values[ProfileCol.username];
-  delete values[ProfileCol.usernameChangedAt];
-  return { ...row, values };
-}
-
 function createProfileAwareUploadRowEvaluator(): (
   ctx: WriteContext,
   row: UploadRow,
@@ -93,7 +82,7 @@ async function handleSyncUpload(
   }
   const batch = parseUploadBody(await c.req.json());
   const strippedBatch = {
-    rows: batch.rows.map(stripServerOwnedProfileColumns),
+    rows: batch.rows.map(stripServerOwnedProfileUploadColumns),
   };
   const evaluateRow = createProfileAwareUploadRowEvaluator();
   const sql = await openRequestSqlClient();

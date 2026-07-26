@@ -1,6 +1,7 @@
-import type {
-  UploadBatch,
-  UploadRow,
+import {
+  uploadRowNeedsApply,
+  type UploadBatch,
+  type UploadRow,
 } from '@pkgs/sync-engine/shared/upload-batch';
 
 import type {
@@ -20,7 +21,7 @@ export type CreateConnectorOptions = {
   readonly uploadBatch: (batch: UploadBatch) => Promise<void>;
 };
 
-function mapCrudOp(op: PowerSyncCrudOp): UploadRow {
+export function mapCrudOp(op: PowerSyncCrudOp): UploadRow {
   const base = { table: op.table, id: op.id };
   if (op.op === 'DELETE') {
     return { op: 'delete', ...base };
@@ -43,8 +44,10 @@ async function uploadTransaction(
   transaction: PowerSyncCrudTransaction,
   uploadBatch: (batch: UploadBatch) => Promise<void>
 ): Promise<void> {
-  const rows = transaction.crud.map(mapCrudOp);
-  await uploadBatch({ rows });
+  const rows = transaction.crud.map(mapCrudOp).filter(uploadRowNeedsApply);
+  if (rows.length > 0) {
+    await uploadBatch({ rows });
+  }
   await transaction.complete();
 }
 

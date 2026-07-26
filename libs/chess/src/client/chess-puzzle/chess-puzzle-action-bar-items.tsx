@@ -107,6 +107,7 @@ function mapSlot(
       id: 'retry',
       title: <Trans>Retry</Trans>,
       intent: 'danger',
+      startIcon: <RotateCcwIcon />,
       onPress: p.onRetry,
     };
   }

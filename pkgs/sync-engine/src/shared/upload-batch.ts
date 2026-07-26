@@ -22,3 +22,12 @@ export type UploadBatchResult = {
 export function createUploadBatch(rows: readonly UploadRow[]): UploadBatch {
   return { rows };
 }
+
+/**
+ * Whether {@link applyRow} would run SQL for this upload row. Put/patch with
+ * no columns are no-ops (e.g. after stripping server-owned profile fields).
+ */
+export function uploadRowNeedsApply(row: UploadRow): boolean {
+  if (row.op === 'delete') return true;
+  return Object.keys(row.values ?? {}).length > 0;
+}
