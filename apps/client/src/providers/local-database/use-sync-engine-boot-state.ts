@@ -25,15 +25,8 @@ function initialBootState(warmEngine: SyncEngine | null): SyncEngineBootState {
 
 function connectEngine(engine: SyncEngine): void {
   void engine.connect().then(
-    () => {
-      // #region agent log
-      fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'post-fix',hypothesisId:'C',location:'use-sync-engine-boot-state.ts:connectEngine',message:'connect resolved',data:{accountPrefix:(getCachedCurrentAccountId()??'').slice(0,8),status:engine.status.getSnapshot()},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
-    },
+    () => undefined,
     (error: unknown) => {
-      // #region agent log
-      fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'pre-fix',hypothesisId:'C',location:'use-sync-engine-boot-state.ts:connectEngine',message:'connect failed',data:{err:toError(error).message,accountPrefix:(getCachedCurrentAccountId()??'').slice(0,8)},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       console.warn('sync-engine connect failed', toError(error).message);
     }
   );
@@ -108,9 +101,6 @@ export function useSyncEngineBootState(
     const connectKey = `${accountId ?? 'anon'}:${authPresence}`;
     if (connectedKeyRef.current === connectKey) return;
     connectedKeyRef.current = connectKey;
-    // #region agent log
-    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'post-fix',hypothesisId:'G',location:'use-sync-engine-boot-state.ts:connectEffect',message:'connect keyed',data:{connectKey,accountPrefix:(accountId??'').slice(0,8),hasToken:authToken!==null},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     connectEngine(readyEngine);
   }, [readyEngine, authToken]);
 

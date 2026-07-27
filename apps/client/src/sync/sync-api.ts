@@ -1,12 +1,15 @@
+import { getCachedCurrentAccountId } from '@libs/auth/client/use-current-account-id';
 import { getCachedDeviceId } from '@libs/auth/client/use-device-id';
 import { getCachedAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import type { ConfigService } from '@libs/auth/client/config-service-types';
+import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { stripServerOwnedProfileUploadColumns } from '@libs/profile/shared/strip-server-owned-profile-upload-columns';
 import type { Kv } from '@pkgs/kv/interface';
 import {
   uploadRowNeedsApply,
   type UploadBatch,
   type UploadBatchResult,
+  type UploadRow,
 } from '@pkgs/sync-engine/shared/upload-batch';
 import { fail, WriteError } from '@pkgs/write/shared/write-result';
 
@@ -55,30 +58,6 @@ function authHeadersKey(): string {
   return `${token}\0${anon}`;
 }
 
-function debugJwtSubject(token: string): {
-  readonly subPrefix: string;
-  readonly subLen: number;
-  readonly hasDeviceClaim: boolean;
-} {
-  try {
-    const payload = token.split('.')[1];
-    if (payload === undefined) {
-      return { subPrefix: '', subLen: 0, hasDeviceClaim: false };
-    }
-    const json = JSON.parse(
-      globalThis.atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
-    ) as Record<string, unknown>;
-    const sub = typeof json['sub'] === 'string' ? json['sub'] : '';
-    return {
-      subPrefix: sub.slice(0, 8),
-      subLen: sub.length,
-      hasDeviceClaim: typeof json['device_id'] === 'string',
-    };
-  } catch {
-    return { subPrefix: '', subLen: 0, hasDeviceClaim: false };
-  }
-}
-
 export async function fetchSyncToken(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
@@ -92,9 +71,6 @@ export async function fetchSyncToken(args: {
     nowSeconds,
   });
   if (cached !== null) {
-    // #region agent log
-    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'pre-fix',hypothesisId:'B',location:'sync-api.ts:fetchSyncToken',message:'sync token cache hit',data:{...debugJwtSubject(cached.token),apiHost:(()=>{try{return new URL(args.config.getApiUrl()).host}catch{return 'bad'}})()},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     return cached;
   }
 
@@ -107,9 +83,6 @@ export async function fetchSyncToken(args: {
   });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
-    // #region agent log
-    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'pre-fix',hypothesisId:'B',location:'sync-api.ts:fetchSyncToken',message:'sync token failed',data:{status:res.status,bodyLen:body.length},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     throw new Error(
       `sync token failed (${res.status})${body.length > 0 ? `: ${body}` : ''}`
     );
@@ -125,9 +98,6 @@ export async function fetchSyncToken(args: {
         ? json.expiresAt
         : nowSeconds + 300,
   };
-  // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'pre-fix',hypothesisId:'B',location:'sync-api.ts:fetchSyncToken',message:'sync token minted',data:{...debugJwtSubject(credentials.token),responseSubject:typeof (json as {subject?:unknown}).subject==='string'?(json as {subject:string}).subject.slice(0,8):null},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   await writeCachedSyncToken({
     kv: args.kv,
     authKey,
@@ -136,6 +106,16 @@ export async function fetchSyncToken(args: {
   return credentials;
 }
 
+/**
+ * Auth / ownership failures that will not succeed on retry with the same
+ * CRUD payload. Throwing leaves `transaction.complete()` uncalled and stalls
+ * every later upload (including spaces) forever — discard instead.
+ */
+const PERMANENT_UPLOAD_REJECT_CODES = new Set([
+  'PROFILE_ID_MISMATCH',
+  'PROFILE_DELETE_DENIED',
+]);
+
 function assertUploadBatchAccepted(result: UploadBatchResult): void {
   const rejected = result.results.find((row) => row.status === 'rejected');
   if (rejected === undefined) {
@@ -143,7 +123,30 @@ function assertUploadBatchAccepted(result: UploadBatchResult): void {
   }
   const code =
     rejected.status === 'rejected' ? rejected.reason : 'UPLOAD_REJECTED';
+  if (PERMANENT_UPLOAD_REJECT_CODES.has(code)) {
+    return;
+  }
   throw new WriteError(fail(code, code));
+}
+
+/** Account id when signed in, else install device id (matches server `myId`). */
+function resolveClientMyId(): string | null {
+  const accountId = getCachedCurrentAccountId();
+  if (accountId !== null && accountId.length > 0) return accountId;
+  const deviceId = getCachedDeviceId();
+  if (deviceId !== null && deviceId.length > 0) return deviceId;
+  return null;
+}
+
+/**
+ * Synced-down profiles for other users must not re-enter the upload queue.
+ * Ownership mismatches permanently reject and used to stall all CRUD.
+ */
+function keepUploadableProfileRow(row: UploadRow): boolean {
+  if (row.table !== PROFILES_TABLE.tableName) return true;
+  const myId = resolveClientMyId();
+  if (myId === null) return true;
+  return row.id === myId;
 }
 
 /**
@@ -156,6 +159,7 @@ export function prepareSyncUploadBatch(batch: UploadBatch): UploadBatch {
   return {
     rows: batch.rows
       .map(stripServerOwnedProfileUploadColumns)
+      .filter(keepUploadableProfileRow)
       .filter(uploadRowNeedsApply),
   };
 }
@@ -181,17 +185,11 @@ export async function uploadSyncBatch(args: {
   });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
-    // #region agent log
-    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'pre-fix',hypothesisId:'A',location:'sync-api.ts:uploadSyncBatch',message:'sync upload http failed',data:{status:res.status,tables:prepared.rows.map((r)=>r.table),ops:prepared.rows.map((r)=>r.op)},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     throw new Error(
       `sync upload failed (${res.status})${body.length > 0 ? `: ${body}` : ''}`
     );
   }
   const result = (await res.json()) as UploadBatchResult;
-  // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'pre-fix',hypothesisId:'A',location:'sync-api.ts:uploadSyncBatch',message:'sync upload response',data:{tables:prepared.rows.map((r)=>r.table),statuses:result.results.map((r)=>r.status),reasons:result.results.map((r)=>r.status==='rejected'?r.reason:null)},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   assertUploadBatchAccepted(result);
   return result;
 }

@@ -2,13 +2,20 @@ import { mapAppAuthToWriteContext } from '@libs/auth/shared/map-app-auth-to-writ
 import type { AuthContext } from '@libs/auth/server/types';
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { loadMemberOfSpaceIdsFromSql } from '@libs/spaces/server/load-member-of-space-ids-sql';
+import {
+  SPACE_MEMBERSHIPS_TABLE,
+  SpaceMembershipCol,
+} from '@libs/db/shared/space-tables';
+import { maybeAutoEndEmptyHostSpace } from '@libs/spaces/shared/space-write-helpers';
 import { stripServerOwnedProfileUploadColumns } from '@libs/profile/shared/strip-server-owned-profile-upload-columns';
 import { assert } from '@pkgs/assert';
 import {
+  applyRow,
   parseUploadBody,
-  processUploadBatch,
 } from '@pkgs/sync-engine/server/upload-handler';
 import type {
+  UploadBatch,
+  UploadBatchResult,
   UploadRow,
   UploadRowResult,
 } from '@pkgs/sync-engine/shared/upload-batch';
@@ -58,19 +65,56 @@ function openRequestSqlClient(): Promise<SqlClient> {
   });
 }
 
-function createProfileAwareUploadRowEvaluator(): (
+function isMembershipLeaveUpload(row: UploadRow): boolean {
+  if (row.table !== SPACE_MEMBERSHIPS_TABLE.tableName) return false;
+  if (row.op === 'delete') return false;
+  const leftAt = row.values?.[SpaceMembershipCol.leftAt];
+  return typeof leftAt === 'string' && leftAt.length > 0;
+}
+
+function spaceIdFromMembershipUpload(row: UploadRow): string | null {
+  const fromValues = row.values?.[SpaceMembershipCol.spaceId];
+  if (typeof fromValues === 'string' && fromValues.length > 0) {
+    return fromValues;
+  }
+  const sep = row.id.indexOf(':');
+  if (sep <= 0 || sep >= row.id.length - 1) return null;
+  return row.id.slice(sep + 1);
+}
+
+/**
+ * Authorize + apply each row. Membership leaves also run
+ * {@link maybeAutoEndEmptyHostSpace} — raw CRUD patches only set `left_at`,
+ * which otherwise left host spaces live forever and inflated miniplayer counts.
+ */
+async function processSyncUploadBatch(
+  sql: SqlClient,
   ctx: WriteContext,
-  row: UploadRow,
-  sql: SqlClient
-) => Promise<UploadRowResult> {
+  batch: UploadBatch
+): Promise<UploadBatchResult> {
   const evaluateRow = createRowEvaluator(APP_ROW_WRITE_REGISTRY);
-  return async (ctx, row, sql) => {
-    const result = await evaluateRow(ctx, row, sql);
-    if (result.status === 'rejected') {
-      return { status: 'rejected', reason: result.code };
+  const results: UploadRowResult[] = [];
+  for (const row of batch.rows) {
+    const decision = await evaluateRow(ctx, row, sql);
+    if (decision.status === 'rejected') {
+      results.push({ status: 'rejected', reason: decision.code });
+      continue;
     }
-    return { status: 'accepted' };
-  };
+    try {
+      await applyRow(sql, row);
+      if (isMembershipLeaveUpload(row)) {
+        const spaceId = spaceIdFromMembershipUpload(row);
+        if (spaceId !== null) {
+          await maybeAutoEndEmptyHostSpace(ctx, sql, spaceId);
+        }
+      }
+      results.push({ status: 'accepted' });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      results.push({ status: 'rejected', reason: message });
+    }
+  }
+  return { results };
 }
 
 async function handleSyncUpload(
@@ -84,14 +128,12 @@ async function handleSyncUpload(
   const strippedBatch = {
     rows: batch.rows.map(stripServerOwnedProfileUploadColumns),
   };
-  const evaluateRow = createProfileAwareUploadRowEvaluator();
   const sql = await openRequestSqlClient();
   try {
     await sql.connect();
-    const out = await processUploadBatch(
+    const out = await processSyncUploadBatch(
       sql,
       auth.writeContext,
-      evaluateRow,
       strippedBatch
     );
     return c.json(out, 200);

@@ -155,6 +155,10 @@ function hostedSpacesSql(
       params: [],
     };
   }
+  // Hosted rows fill the create→membership sync gap, but must not keep a
+  // space in the miniplayer after this account has explicitly left (left_at
+  // set) while ended_at is still null — that orphan pattern was inflating
+  // the live count on other devices after leave uploads.
   return {
     sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostMemberId} AS host_member_id,
           ${SpaceCol.hostAccountId} AS host_account_id,
@@ -165,8 +169,14 @@ function hostedSpacesSql(
               ${SpaceCol.hostMemberId} = ?
               OR ${SpaceCol.hostAccountId} = ?
             )
+            AND NOT EXISTS (
+              SELECT 1 FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} AS m
+              WHERE m.${SpaceMembershipCol.spaceId} = ${SPACES_TABLE.tableName}.${SpaceCol.id}
+                AND m.${SpaceMembershipCol.memberId} = ?
+                AND m.${SpaceMembershipCol.leftAt} IS NOT NULL
+            )
           ORDER BY ${SpaceCol.createdAt} DESC`,
-    params: [accountId, accountId],
+    params: [accountId, accountId, accountId],
   };
 }
 
@@ -271,7 +281,6 @@ export function useCurrentSpaceIds(): {
   );
   const status = useSyncStatus();
   const prevEntriesRef = useRef<CurrentSpaceEntry[]>([]);
-  const spaceDebugKeyRef = useRef<string>('');
   const identityRef = useRef(accountId);
   if (identityRef.current !== accountId) {
     identityRef.current = accountId;
@@ -292,14 +301,6 @@ export function useCurrentSpaceIds(): {
     reconnecting,
     prevEntriesRef.current
   );
-
-  // #region agent log
-  const debugKey = `${accountId ?? ''}:${displayEntries.length}:${status.connection}:${status.hasSynced}:${queriesLoading}`;
-  if (spaceDebugKeyRef.current !== debugKey) {
-    spaceDebugKeyRef.current = debugKey;
-    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'post-fix',hypothesisId:'D',location:'use-current-space-ids.ts:useCurrentSpaceIds',message:'current spaces snapshot',data:{accountPrefix:(accountId??'').slice(0,8),rawCount:entries.length,displayCount:displayEntries.length,queriesLoading,connection:status.connection,hasSynced:status.hasSynced,hasEverSynced:status.hasEverSynced,reconnecting},timestamp:Date.now()})}).catch(()=>{});
-  }
-  // #endregion
 
   return {
     entries: displayEntries,

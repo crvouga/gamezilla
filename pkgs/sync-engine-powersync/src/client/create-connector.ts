@@ -57,9 +57,6 @@ export function createPowerSyncConnector(
   return {
     fetchCredentials: async () => {
       const credentials = await options.fetchSyncToken();
-      // #region agent log
-      fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'pre-fix',hypothesisId:'C',location:'create-connector.ts:fetchCredentials',message:'fetchCredentials',data:{endpointHost:(()=>{try{return new URL(options.powersyncUrl).host}catch{return 'bad'}})(),expiresAt:credentials.expiresAt},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       return {
         endpoint: options.powersyncUrl,
         token: credentials.token,
