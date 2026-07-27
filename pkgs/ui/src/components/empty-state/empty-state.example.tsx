@@ -1,6 +1,7 @@
 import { Box } from '../box';
 import { Card } from '../card';
 import { Divider } from '../divider';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Text } from '../text';
 import { HouseIcon } from '../icons';
@@ -8,7 +9,7 @@ import { EmptyState } from './empty-state';
 
 export default function EmptyStateExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="EmptyState" />
 
       <Text variant="label" sx={{ color: 'textSecondary' }} label="Fill" />
@@ -52,6 +53,6 @@ export default function EmptyStateExample() {
           <EmptyState variant="compact" title="No rows match filter." />
         </Card>
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

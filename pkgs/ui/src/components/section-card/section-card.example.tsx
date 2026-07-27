@@ -1,10 +1,10 @@
-import { Box } from '../box';
 import { Text } from '../text';
 import { SectionCard } from './section-card';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function SectionCardExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="SectionCard" />
       <SectionCard title="Details" defaultOpen={false}>
         <Text
@@ -12,6 +12,6 @@ export default function SectionCardExample() {
           label="Hidden until expanded — same Collapsible behavior as before."
         />
       </SectionCard>
-    </Box>
+    </ExampleRoot>
   );
 }

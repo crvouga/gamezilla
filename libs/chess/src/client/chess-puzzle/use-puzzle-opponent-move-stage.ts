@@ -108,14 +108,8 @@ export function usePuzzleOpponentMoveStage(args: {
   furthestSolveIdx: number;
   status: SolveStatus;
 }): PuzzleOpponentMoveStage {
-  const {
-    startFen,
-    moves,
-    displayFen,
-    solveIdx,
-    furthestSolveIdx,
-    status,
-  } = args;
+  const { startFen, moves, displayFen, solveIdx, furthestSolveIdx, status } =
+    args;
   const prevRef = useRef<PrevSolveCursor>({
     solveIdx: -1,
     furthestSolveIdx: -1,

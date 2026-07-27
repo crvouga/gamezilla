@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Box } from '../box';
 import { Text } from '../text';
 import { MultiSelectSwatchGrid } from './multi-select-swatch-grid';
+import { ExampleRoot } from '../explorer/example-root';
 
 const PALETTE = ['ff0000', '00ff00', '0000ff', 'ffff00', 'ff00ff'];
 
@@ -10,7 +10,7 @@ export default function MultiSelectSwatchGridExample() {
   const [value, setValue] = useState<string[]>(() => [...PALETTE]);
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="MultiSelectSwatchGrid" />
       <MultiSelectSwatchGrid
         label="Colors"
@@ -25,6 +25,6 @@ export default function MultiSelectSwatchGridExample() {
         sx={{ opacity: 0.75 }}
         label={`Selected (${value.length}): ${value.join(', ')}`}
       />
-    </Box>
+    </ExampleRoot>
   );
 }

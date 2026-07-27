@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Box } from '../box';
 import { Text } from '../text';
 import { ChipGroup } from './chip-group';
+import { ExampleRoot } from '../explorer/example-root';
 
 const OPTIONS = [
   { key: 'off' as const, label: 'Off' },
@@ -13,7 +13,7 @@ export default function ChipGroupExample() {
   const [v, setV] = useState<'off' | 'mid' | 'high'>('mid');
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="ChipGroup" />
       <ChipGroup
         label="Intensity"
@@ -22,6 +22,6 @@ export default function ChipGroupExample() {
         onSelect={setV}
       />
       <Text variant="caption" sx={{ opacity: 0.75 }} label={`Selected: ${v}`} />
-    </Box>
+    </ExampleRoot>
   );
 }

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Box } from '../box';
 import { ChipGroup } from '../chip-group';
 import { Text } from '../text';
 import { PickerSection } from './picker-section';
+import { ExampleRoot } from '../explorer/example-root';
 
 const OPTIONS = [
   { key: 'a' as const, label: 'Alpha' },
@@ -13,7 +13,7 @@ export default function PickerSectionExample() {
   const [v, setV] = useState<'a' | 'b'>('a');
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="PickerSection" />
       <PickerSection
         label="Mood"
@@ -21,6 +21,6 @@ export default function PickerSectionExample() {
       >
         <ChipGroup options={OPTIONS} selected={v} onSelect={setV} />
       </PickerSection>
-    </Box>
+    </ExampleRoot>
   );
 }

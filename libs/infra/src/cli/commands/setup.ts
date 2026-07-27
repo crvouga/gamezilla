@@ -101,17 +101,21 @@ export class SetupCommand implements Command {
       this.ensureDepsAsync(deps)
     );
 
-    const missingEnvs = await runStep(this.platform, 'Load secrets', async () => {
-      const secrets = await loadSecretsIntoEnv();
-      for (const s of secrets) {
-        if (s.set) ok(s.env);
-        else if (s.optional) ok(s.env, 'optional / absent');
-        else fmtFail(s.env, 'not found in secret store');
+    const missingEnvs = await runStep(
+      this.platform,
+      'Load secrets',
+      async () => {
+        const secrets = await loadSecretsIntoEnv();
+        for (const s of secrets) {
+          if (s.set) ok(s.env);
+          else if (s.optional) ok(s.env, 'optional / absent');
+          else fmtFail(s.env, 'not found in secret store');
+        }
+        return new Set(
+          secrets.filter((s) => !s.set && !s.optional).map((s) => s.env)
+        );
       }
-      return new Set(
-        secrets.filter((s) => !s.set && !s.optional).map((s) => s.env)
-      );
-    });
+    );
 
     if (missingEnvs.size > 0) {
       await this.promptForMissingSecrets(missingEnvs);

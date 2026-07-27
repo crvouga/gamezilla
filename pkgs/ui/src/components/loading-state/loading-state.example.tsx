@@ -1,13 +1,14 @@
 import { Box } from '../box';
 import { Card } from '../card';
 import { Divider } from '../divider';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Text } from '../text';
 import { LoadingState } from './loading-state';
 
 export default function LoadingStateExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="LoadingState" />
 
       <Text
@@ -49,6 +50,6 @@ export default function LoadingStateExample() {
           />
         </Card>
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

@@ -2,10 +2,11 @@ import { Box } from '../box';
 import { Text } from '../text';
 import { Stack } from '../stack';
 import { Divider } from './divider';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function DividerExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Divider" />
 
       <Box sx={{ gap: 1 }}>
@@ -30,6 +31,6 @@ export default function DividerExample() {
           <Text variant="body" label="Right" />
         </Stack>
       </Box>
-    </Box>
+    </ExampleRoot>
   );
 }

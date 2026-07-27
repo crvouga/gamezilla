@@ -1,6 +1,6 @@
 import { Text as RNText } from 'react-native';
 import { useTheme } from '../../theme';
-import { Box } from '../box/box';
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text/text';
 import { GradientBox } from './gradient-box';
 
@@ -8,7 +8,7 @@ export default function GradientBoxExample() {
   const theme = useTheme();
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <RNText
         style={theme.sx({ color: 'text', fontSize: 'lg', fontWeight: 'bold' })}
       >
@@ -40,6 +40,6 @@ export default function GradientBoxExample() {
       >
         <Text variant="bodyBold" label="Custom stops (diagonal)" />
       </GradientBox>
-    </Box>
+    </ExampleRoot>
   );
 }

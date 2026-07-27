@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { Box } from '../box';
 import { Button } from '../button';
+import { ExampleRoot } from '../explorer/example-root';
 import { SegmentedControl } from '../segmented-control';
 import { Text } from '../text';
 import {
@@ -14,23 +14,21 @@ export default function DismissibleBannerExample() {
   const [position, setPosition] = useState<DismissibleBannerPosition>('top');
 
   return (
-    <Box sx={{ flex: 1, minHeight: 360 }}>
-      <Box sx={{ flex: 1, p: 4, gap: 4 }}>
-        <Text variant="heading" label="DismissibleBanner" />
-        <Text
-          variant="caption"
-          label="Banner UI portals to DismissibleBannerPortalProvider (mount once at app root, inside AppThemeRoot). The client app already does this. Turning visible on without that provider hits assert (fatal crash path). Position is a prop — like a toaster region."
-        />
-        <SegmentedControl<DismissibleBannerPosition>
-          segments={[
-            { key: 'top', label: 'Top' },
-            { key: 'bottom', label: 'Bottom' },
-          ]}
-          selected={position}
-          onSelect={setPosition}
-        />
-        <Button title="Show banner" onPress={() => setVisible(true)} />
-      </Box>
+    <ExampleRoot sx={{ flex: 1, minHeight: 360 }}>
+      <Text variant="heading" label="DismissibleBanner" />
+      <Text
+        variant="caption"
+        label="Banner UI portals to DismissibleBannerPortalProvider (mount once at app root, inside AppThemeRoot). The client app already does this. Turning visible on without that provider hits assert (fatal crash path). Position is a prop — like a toaster region."
+      />
+      <SegmentedControl<DismissibleBannerPosition>
+        segments={[
+          { key: 'top', label: 'Top' },
+          { key: 'bottom', label: 'Bottom' },
+        ]}
+        selected={position}
+        onSelect={setPosition}
+      />
+      <Button title="Show banner" onPress={() => setVisible(true)} />
       <DismissibleBanner
         visible={visible}
         position={position}
@@ -40,6 +38,6 @@ export default function DismissibleBannerExample() {
         actionLabel="Primary action"
         onActionPress={() => {}}
       />
-    </Box>
+    </ExampleRoot>
   );
 }

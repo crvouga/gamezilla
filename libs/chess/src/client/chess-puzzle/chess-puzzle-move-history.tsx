@@ -6,7 +6,10 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { LayoutChangeEvent, ScrollView as RNScrollView } from 'react-native';
+import type {
+  LayoutChangeEvent,
+  ScrollView as RNScrollView,
+} from 'react-native';
 
 import type { PuzzleHistoryPly } from '../../shared/chess-puzzle-move-history';
 import { HistoryPlyCluster } from './chess-puzzle-move-history-ply';

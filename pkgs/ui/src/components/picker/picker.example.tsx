@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { View } from 'react-native';
-import { Box } from '../box';
 import { Text } from '../text';
 import { Picker, type PickerOption } from './picker';
+import { ExampleRoot } from '../explorer/example-root';
 
 const OPTIONS: PickerOption<string>[] = [
   {
@@ -53,7 +53,7 @@ export default function PickerExample() {
   const [v, setV] = useState<string>('a');
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Picker" />
       <Picker
         label="With preview thumbs"
@@ -62,6 +62,6 @@ export default function PickerExample() {
         onValueChange={setV}
       />
       <Text variant="caption" sx={{ opacity: 0.75 }} label={`Selected: ${v}`} />
-    </Box>
+    </ExampleRoot>
   );
 }

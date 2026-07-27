@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { View } from 'react-native';
-import { Box } from '../box';
 import { Text } from '../text';
 import { HorizontalPicker } from './horizontal-picker';
+import { ExampleRoot } from '../explorer/example-root';
 
 type ColorCard = { id: string; label: string; color: string };
 
@@ -25,7 +25,7 @@ export default function HorizontalPickerExample() {
   const selected = CARDS[index];
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="HorizontalPicker" />
       <Text
         variant="body"
@@ -66,6 +66,6 @@ export default function HorizontalPickerExample() {
             : 'No selection'
         }
       />
-    </Box>
+    </ExampleRoot>
   );
 }

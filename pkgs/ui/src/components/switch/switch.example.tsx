@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
 import { Text } from '../text';
@@ -11,7 +11,7 @@ export default function SwitchExample() {
   const [c, setC] = useState(false);
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Switch" />
 
       <SchemePreview>
@@ -21,6 +21,6 @@ export default function SwitchExample() {
           <Switch label="Disabled" value={c} onValueChange={setC} disabled />
         </Stack>
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

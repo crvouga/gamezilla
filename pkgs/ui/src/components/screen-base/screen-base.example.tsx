@@ -1,10 +1,11 @@
 import { Box } from '../box';
 import { Text } from '../text';
 import { ScreenBase } from './screen-base';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function ScreenBaseExample() {
   return (
-    <Box sx={{ flex: 1, minHeight: 400 }}>
+    <ExampleRoot sx={{ flex: 1, minHeight: 400 }}>
       <ScreenBase
         screenId="screen-base-example"
         breadcrumbs={[
@@ -25,6 +26,6 @@ export default function ScreenBaseExample() {
           </Box>
         )}
       />
-    </Box>
+    </ExampleRoot>
   );
 }

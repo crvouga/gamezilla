@@ -3,9 +3,9 @@ import { ObjectStoreProvider } from '@pkgs/object-store/react-context';
 import { TtsProvider } from '@pkgs/tts/client/tts-context';
 import { Voices } from '@pkgs/tts/shared/tts-voice';
 import { useEffect, useMemo, useState } from 'react';
-import { Box } from '../box';
 import { Text } from '../text';
 import { SpeakingAvatar } from './speaking-avatar';
+import { ExampleRoot } from '../explorer/example-root';
 
 const ROTATING_LINES = [
   'Your move.',
@@ -44,7 +44,7 @@ export default function SpeakingAvatarExample() {
   return (
     <ObjectStoreProvider value={objectStore}>
       <TtsProvider apiUrl="http://localhost">
-        <Box sx={{ p: 4, gap: 6 }}>
+        <ExampleRoot sx={{ gap: 6 }}>
           <Text variant="heading" label="SpeakingAvatar" />
 
           <Text variant="caption" label="Static message" />
@@ -75,7 +75,7 @@ export default function SpeakingAvatarExample() {
             avatarSize={40}
             speak={false}
           />
-        </Box>
+        </ExampleRoot>
       </TtsProvider>
     </ObjectStoreProvider>
   );

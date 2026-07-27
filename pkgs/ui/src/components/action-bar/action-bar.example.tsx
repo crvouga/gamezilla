@@ -7,6 +7,7 @@ import { useActionBarChrome } from '../../theme';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { ActionBar, type ActionBarItem } from './action-bar';
+import { ExampleRoot } from '../explorer/example-root';
 
 const BASE_ITEMS: ActionBarItem[] = [
   {
@@ -46,7 +47,7 @@ export default function ActionBarExample(): ReactNode {
   };
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="ActionBar" />
       <Text
         variant="caption"
@@ -74,6 +75,6 @@ export default function ActionBarExample(): ReactNode {
       <Stack direction="horizontal" spacing={2} align="center">
         <Text variant="caption" label={`Width: ${width}px`} />
       </Stack>
-    </Box>
+    </ExampleRoot>
   );
 }

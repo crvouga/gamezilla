@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
 import { Text } from '../text';
@@ -9,7 +9,7 @@ export default function PressableExample() {
   const [count, setCount] = useState(0);
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Pressable" />
       <Text
         variant="caption"
@@ -74,6 +74,6 @@ export default function PressableExample() {
           </Pressable>
         </Stack>
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

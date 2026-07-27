@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { Box } from '../box';
 import { Button } from '../button';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { ConfirmationModal } from './confirmation-modal';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function ModalExample() {
   const [defaultOpen, setDefaultOpen] = useState(false);
   const [destructiveOpen, setDestructiveOpen] = useState(false);
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Modal" />
 
       <Stack spacing={2}>
@@ -42,6 +42,6 @@ export default function ModalExample() {
         onConfirm={() => setDestructiveOpen(false)}
         onCancel={() => setDestructiveOpen(false)}
       />
-    </Box>
+    </ExampleRoot>
   );
 }

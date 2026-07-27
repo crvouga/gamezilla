@@ -1,10 +1,10 @@
-import { Box } from '../box';
 import { Text } from '../text';
 import { Center } from './center';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function CenterExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Center" />
 
       <Center sx={{ height: 120, background: 'surface', borderRadius: 8 }}>
@@ -24,6 +24,6 @@ export default function CenterExample() {
           label="Centered on tint"
         />
       </Center>
-    </Box>
+    </ExampleRoot>
   );
 }

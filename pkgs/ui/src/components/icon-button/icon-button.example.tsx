@@ -1,14 +1,14 @@
 import { UserIcon } from '../icons';
-import { Box } from '../box';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { IconButton, iconButtonAvatarContentSize } from './icon-button';
+import { ExampleRoot } from '../explorer/example-root';
 
 const AVATAR_BUTTON_SIZE = 40;
 
 export default function IconButtonExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="IconButton" />
       <Text
         variant="caption"
@@ -52,6 +52,6 @@ export default function IconButtonExample() {
           <UserIcon size={iconButtonAvatarContentSize(AVATAR_BUTTON_SIZE)} />
         </IconButton>
       </Stack>
-    </Box>
+    </ExampleRoot>
   );
 }

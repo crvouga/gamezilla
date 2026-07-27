@@ -1,6 +1,12 @@
 /**
  * `ResponsiveSurface` — overlay that uses a bottom sheet on mobile and a
  * centered modal on tablet/desktop, based on `theme.breakpoint`.
+ *
+ * Content uses {@link CONTENT_EDGE_PADDING_STEP} horizontal inset and
+ * {@link SURFACE_BOTTOM_PADDING_STEP} bottom inset, via
+ * {@link ContentEdgePaddingProvider}, so nested {@link ScrollView} /
+ * {@link FlatList} scrollbars sit flush with the surface edges (padding lives
+ * inside the scrollable area).
  */
 
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
@@ -18,9 +24,17 @@ import {
 } from '../../component-id';
 import { useTheme, OnColorReset } from '../../theme';
 import type { ModalSize } from '../../theme/modal-size';
+import { spacing } from '../../theme/scale';
+import { Box } from '../box';
+import {
+  CONTENT_EDGE_PADDING_STEP,
+  ContentEdgePaddingProvider,
+  SURFACE_BOTTOM_PADDING_STEP,
+} from '../content-edge-padding';
 import { ModalBackdrop } from '../modal/modal-backdrop';
 import { ModalContent } from '../modal/modal-content';
 import { ModalRoot } from '../modal/modal-root';
+import { FocusTrap } from '../focus-trap';
 import { usePortalContentWrap } from '../portal-content-bridge';
 import { ResponsiveSurfaceHeader } from './responsive-surface-header';
 
@@ -78,27 +92,71 @@ function SurfaceBody({
   return <View style={style}>{children}</View>;
 }
 
-function MobileSheetBody({
+function SurfaceChrome({
   title,
   bodyHeight,
+  fillParent,
   onClose,
   children,
 }: {
   title: ReactNode | undefined;
   bodyHeight: number | undefined;
+  fillParent: boolean;
   onClose: () => void;
   children: ReactNode;
 }) {
   return (
-    <OnColorReset>
-      {title !== undefined ? (
-        <ResponsiveSurfaceHeader title={title} onClose={onClose} />
-      ) : null}
-      <SurfaceBody bodyHeight={bodyHeight} fillParent>
-        {children}
-      </SurfaceBody>
-    </OnColorReset>
+    <ContentEdgePaddingProvider
+      step={CONTENT_EDGE_PADDING_STEP}
+      bottomStep={SURFACE_BOTTOM_PADDING_STEP}
+    >
+      <OnColorReset>
+        {title !== undefined ? (
+          <ResponsiveSurfaceHeader title={title} onClose={onClose} />
+        ) : null}
+        <SurfaceBody bodyHeight={bodyHeight} fillParent={fillParent}>
+          {children}
+        </SurfaceBody>
+      </OnColorReset>
+    </ContentEdgePaddingProvider>
   );
+}
+
+function useBottomSheetModalVisibility(
+  visible: boolean,
+  onClose: () => void
+): {
+  sheetRef: React.RefObject<React.ElementRef<typeof BottomSheetModal> | null>;
+  onDismiss: () => void;
+  onChange: (index: number) => void;
+} {
+  const sheetRef = useRef<React.ElementRef<typeof BottomSheetModal>>(null);
+  const hasPresentedRef = useRef(false);
+
+  useEffect(() => {
+    const sheet = sheetRef.current;
+    if (sheet === null) return;
+    if (visible) {
+      hasPresentedRef.current = true;
+      sheet.present();
+      return;
+    }
+    if (hasPresentedRef.current) sheet.dismiss();
+  }, [visible]);
+
+  const onDismiss = useCallback(() => {
+    hasPresentedRef.current = false;
+  }, []);
+
+  const onChange = useCallback(
+    (index: number) => {
+      if (index === -1) hasPresentedRef.current = false;
+      if (index === -1 && visible) onClose();
+    },
+    [onClose, visible]
+  );
+
+  return { sheetRef, onDismiss, onChange };
 }
 
 function MobileSheet({
@@ -111,23 +169,15 @@ function MobileSheet({
   dataSet,
 }: ResponsiveSurfaceProps) {
   const theme = useTheme();
-  const sheetRef = useRef<React.ElementRef<typeof BottomSheetModal>>(null);
-  const hasPresentedRef = useRef(false);
+  const { sheetRef, onDismiss, onChange } = useBottomSheetModalVisibility(
+    visible,
+    onClose
+  );
   const snapPoints = useMemo(() => snapPointsProp ?? ['80%'], [snapPointsProp]);
-
-  useEffect(() => {
-    const sheet = sheetRef.current;
-    if (sheet === null) return;
-    if (visible) {
-      hasPresentedRef.current = true;
-      sheet.present();
-      return;
-    }
-    if (hasPresentedRef.current) {
-      sheet.dismiss();
-      return;
-    }
-  }, [visible]);
+  const edgePadPx = spacing[CONTENT_EDGE_PADDING_STEP];
+  const dismissSheet = useCallback(() => {
+    sheetRef.current?.dismiss();
+  }, [sheetRef]);
 
   const renderBackdrop = useCallback(
     (backdropProps: BottomSheetBackdropProps) => (
@@ -147,28 +197,30 @@ function MobileSheet({
       ref={sheetRef}
       snapPoints={snapPoints}
       enablePanDownToClose
-      onDismiss={() => {
-        hasPresentedRef.current = false;
-      }}
-      onChange={(index) => {
-        if (index === -1) hasPresentedRef.current = false;
-        if (index === -1 && visible) onClose();
-      }}
+      onDismiss={onDismiss}
+      onChange={onChange}
       backdropComponent={renderBackdrop}
       handleIndicatorStyle={{ backgroundColor: theme.colors.border }}
       backgroundStyle={{ backgroundColor: theme.colors.surface }}
     >
       <BottomSheetView
         {...componentDataSet('ResponsiveSurface', dataSet)}
-        style={{ paddingHorizontal: 16, paddingBottom: 24, flexGrow: 1 }}
+        style={{
+          paddingHorizontal: edgePadPx,
+          paddingBottom: spacing[SURFACE_BOTTOM_PADDING_STEP],
+          flexGrow: 1,
+        }}
       >
-        <MobileSheetBody
-          title={title}
-          bodyHeight={bodyHeight}
-          onClose={() => sheetRef.current?.dismiss()}
-        >
-          {children}
-        </MobileSheetBody>
+        <FocusTrap active={visible} onEscape={dismissSheet}>
+          <SurfaceChrome
+            title={title}
+            bodyHeight={bodyHeight}
+            fillParent
+            onClose={dismissSheet}
+          >
+            {children}
+          </SurfaceChrome>
+        </FocusTrap>
       </BottomSheetView>
     </BottomSheetModal>
   );
@@ -192,14 +244,25 @@ function DesktopModal({
       >
         <ModalContent
           size={size}
+          padded={false}
           {...(maxHeight !== undefined ? { maxHeight } : {})}
         >
-          {title !== undefined ? (
-            <ResponsiveSurfaceHeader title={title} onClose={onClose} />
-          ) : null}
-          <SurfaceBody bodyHeight={bodyHeight} fillParent={false}>
-            {children}
-          </SurfaceBody>
+          <Box
+            sx={{
+              px: CONTENT_EDGE_PADDING_STEP,
+              pb: SURFACE_BOTTOM_PADDING_STEP,
+              ...(title === undefined ? { pt: 5 } : {}),
+            }}
+          >
+            <SurfaceChrome
+              title={title}
+              bodyHeight={bodyHeight}
+              fillParent={false}
+              onClose={onClose}
+            >
+              {children}
+            </SurfaceChrome>
+          </Box>
         </ModalContent>
       </ModalBackdrop>
     </ModalRoot>

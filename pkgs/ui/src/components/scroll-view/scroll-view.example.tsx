@@ -1,10 +1,11 @@
 import { Box } from '../box';
 import { Text } from '../text';
 import { ScrollView } from './scroll-view';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function ScrollViewExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="ScrollView" />
 
       <Box
@@ -23,6 +24,6 @@ export default function ScrollViewExample() {
           ))}
         </ScrollView>
       </Box>
-    </Box>
+    </ExampleRoot>
   );
 }

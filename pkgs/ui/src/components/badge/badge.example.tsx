@@ -1,4 +1,4 @@
-import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
 import { Text } from '../text';
@@ -6,7 +6,7 @@ import { Badge } from './badge';
 
 export default function BadgeExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Badge" />
 
       <SchemePreview>
@@ -34,6 +34,6 @@ export default function BadgeExample() {
           </Stack>
         </Stack>
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

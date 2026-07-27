@@ -341,10 +341,7 @@ function assertCanSeekLine(
   return null;
 }
 
-function emitSeekToSolveIdx(
-  state: RoomState,
-  nextIdx: number
-): HandleResult {
+function emitSeekToSolveIdx(state: RoomState, nextIdx: number): HandleResult {
   const fen = ChessPuzzlePlayAttr.fen.from(state);
   const moves = ChessPuzzlePlayAttr.moves.from(state);
   const displayFen = fenAtSolveIdx({ fen, moves, solveIdx: nextIdx });

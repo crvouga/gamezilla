@@ -29,8 +29,11 @@ export type ScreenBaseAction = {
 };
 
 export type BodyContentProps = {
-  /** `flex: 1` fills non-scroll bodies; omitted when `scroll` is enabled. */
-  sx: { flex?: 1 };
+  /**
+   * Non-scroll bodies get `flex: 1` + `minHeight: 0` so nested
+   * {@link ScreenBodyScrollView} can shrink and scroll. Empty when `scroll`.
+   */
+  sx: { flex?: 1; minHeight?: 0 };
 };
 
 export type ScreenBasePrimaryAction = {

@@ -1,11 +1,11 @@
-import { Box } from '../box';
 import { Text } from '../text';
 import { Stack } from '../stack';
 import { Spinner } from './spinner';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function SpinnerExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Spinner" />
 
       <Stack direction="horizontal" spacing={4} align="center">
@@ -14,6 +14,6 @@ export default function SpinnerExample() {
         <Spinner color="success" size="large" />
         <Spinner color="destructive" size="large" />
       </Stack>
-    </Box>
+    </ExampleRoot>
   );
 }

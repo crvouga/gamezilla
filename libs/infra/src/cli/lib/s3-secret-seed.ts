@@ -1,6 +1,6 @@
 /**
- * Memoized per-env S3 secret seed: ensure R2 bucket + mint credentials once,
- * then each S3_* Secret.seed() picks its field.
+ * Memoized per-env object-store secret seed: ensure B2 bucket + mint app key
+ * once, then each Secret.seed() picks its field.
  */
 import { assert } from '@pkgs/assert';
 import { PROJECT_CONFIG } from '../../project-config';
@@ -8,13 +8,17 @@ import {
   DEVELOPMENT_SECRETS_ENV,
   PRODUCTION_SECRETS_ENV,
 } from '../../shared/database-url-policy';
-import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
 import type { SecretsEnv } from '../secrets/secret';
 import { setSecretIn } from '../secrets/secrets-io';
-import { ensureR2Bucket, r2S3Endpoint } from './r2-buckets';
-import { mintR2S3Credentials, type R2S3Credentials } from './r2-s3-credentials';
-
-const S3_REGION = 'auto';
+import {
+  authorizeB2FromEnv,
+  b2S3Region,
+  clearB2AuthCache,
+  ensureB2Bucket,
+  mintB2S3Credentials,
+  type B2Auth,
+  type B2S3Credentials,
+} from './b2-api';
 
 export type SeededObjectStoreS3 = {
   readonly accessKeyId: string;
@@ -40,50 +44,54 @@ function matchesTarget(
     (stored.get('S3_BUCKET') ?? '').trim() === target.bucket &&
     (stored.get('S3_ENDPOINT') ?? '').trim() === target.endpoint &&
     (stored.get('S3_REGION') ?? '').trim() === target.region &&
-    (stored.get('S3_ACCESS_KEY_ID') ?? '').trim().length > 0 &&
-    (stored.get('S3_SECRET_ACCESS_KEY') ?? '').trim().length > 0
+    (stored.get('B2_APP_KEY_ID') ?? '').trim().length > 0 &&
+    (stored.get('B2_APP_KEY') ?? '').trim().length > 0
   );
+}
+
+async function writeSeeded(
+  env: SecretsEnv,
+  seeded: SeededObjectStoreS3
+): Promise<void> {
+  await setSecretIn(env, 'S3_BUCKET', seeded.bucket);
+  await setSecretIn(env, 'S3_ENDPOINT', seeded.endpoint);
+  await setSecretIn(env, 'S3_REGION', seeded.region);
+  await setSecretIn(env, 'B2_APP_KEY_ID', seeded.accessKeyId);
+  await setSecretIn(env, 'B2_APP_KEY', seeded.secretAccessKey);
 }
 
 async function mintAndWrite(
   env: SecretsEnv,
-  accountId: string,
-  headers: Record<string, string>
+  auth: B2Auth
 ): Promise<SeededObjectStoreS3> {
   const bucket = bucketForEnv(env);
-  await ensureR2Bucket(accountId, bucket, headers);
-  const credentials: R2S3Credentials = await mintR2S3Credentials({
-    accountId,
-    bucketName: bucket,
-    tokenName: `gamezilla-s3-${env}`,
-    headers,
+  const bucketId = await ensureB2Bucket(auth, bucket);
+  const credentials: B2S3Credentials = await mintB2S3Credentials({
+    auth,
+    bucketId,
+    keyName: `gamezilla-s3-${env}`,
   });
   const seeded: SeededObjectStoreS3 = {
     accessKeyId: credentials.accessKeyId,
     secretAccessKey: credentials.secretAccessKey,
     bucket,
-    endpoint: r2S3Endpoint(accountId),
-    region: S3_REGION,
+    endpoint: auth.s3ApiUrl,
+    region: b2S3Region(auth.s3ApiUrl),
   };
-  await setSecretIn(env, 'S3_BUCKET', seeded.bucket);
-  await setSecretIn(env, 'S3_ENDPOINT', seeded.endpoint);
-  await setSecretIn(env, 'S3_REGION', seeded.region);
-  await setSecretIn(env, 'S3_ACCESS_KEY_ID', seeded.accessKeyId);
-  await setSecretIn(env, 'S3_SECRET_ACCESS_KEY', seeded.secretAccessKey);
+  await writeSeeded(env, seeded);
   return seeded;
 }
 
 /**
- * Ensure both R2 buckets exist (dev + prd). Called from S3BucketResource
+ * Ensure both B2 buckets exist (dev + prd). Called from S3BucketResource
  * and as a side effect of seeding.
  */
 export async function ensureObjectStoreBuckets(): Promise<void> {
-  const accountId = cfAccountId();
-  const headers = cfHeaders();
-  assert.ok(accountId.length > 0, 'CLOUDFLARE_ACCOUNT_ID required for R2');
+  const auth = await authorizeB2FromEnv();
+  assert.ok(auth.accountId.length > 0, 'B2 account ID required');
   const buckets = PROJECT_CONFIG.objectStore.buckets;
   for (const name of [buckets.development, buckets.production]) {
-    await ensureR2Bucket(accountId, name, headers);
+    await ensureB2Bucket(auth, name);
   }
 }
 
@@ -95,30 +103,19 @@ export function seedObjectStoreS3ForEnv(
   if (existing !== undefined) return existing;
 
   const promise = (async (): Promise<SeededObjectStoreS3> => {
-    const accountId =
-      secrets.get('CLOUDFLARE_ACCOUNT_ID')?.trim() || cfAccountId();
-    const token =
-      secrets.get('CLOUDFLARE_API_TOKEN')?.trim() ||
-      (process.env['CLOUDFLARE_API_TOKEN'] ?? '').trim();
-    assert.ok(
-      accountId.length > 0,
-      'CLOUDFLARE_ACCOUNT_ID required to seed S3'
-    );
-    assert.ok(token.length > 0, 'CLOUDFLARE_API_TOKEN required to seed S3');
-    const headers = cfHeaders(token);
-
+    const auth = await authorizeB2FromEnv(secrets);
     const targetBase: SeededObjectStoreS3 = {
-      accessKeyId: (secrets.get('S3_ACCESS_KEY_ID') ?? '').trim(),
-      secretAccessKey: (secrets.get('S3_SECRET_ACCESS_KEY') ?? '').trim(),
+      accessKeyId: (secrets.get('B2_APP_KEY_ID') ?? '').trim(),
+      secretAccessKey: (secrets.get('B2_APP_KEY') ?? '').trim(),
       bucket: bucketForEnv(env),
-      endpoint: r2S3Endpoint(accountId),
-      region: S3_REGION,
+      endpoint: auth.s3ApiUrl,
+      region: b2S3Region(auth.s3ApiUrl),
     };
 
     if (matchesTarget(secrets, targetBase)) {
       return targetBase;
     }
-    return mintAndWrite(env, accountId, headers);
+    return mintAndWrite(env, auth);
   })();
 
   cache.set(env, promise);
@@ -127,14 +124,15 @@ export function seedObjectStoreS3ForEnv(
 
 export function clearS3SecretSeedCache(): void {
   cache.clear();
+  clearB2AuthCache();
 }
 
 export function applySeededS3ToEnv(seeded: SeededObjectStoreS3): void {
   process.env['S3_BUCKET'] = seeded.bucket;
   process.env['S3_ENDPOINT'] = seeded.endpoint;
   process.env['S3_REGION'] = seeded.region;
-  process.env['S3_ACCESS_KEY_ID'] = seeded.accessKeyId;
-  process.env['S3_SECRET_ACCESS_KEY'] = seeded.secretAccessKey;
+  process.env['B2_APP_KEY_ID'] = seeded.accessKeyId;
+  process.env['B2_APP_KEY'] = seeded.secretAccessKey;
 }
 
 export { PRODUCTION_SECRETS_ENV, DEVELOPMENT_SECRETS_ENV };

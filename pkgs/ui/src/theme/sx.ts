@@ -66,6 +66,8 @@ export type SxProps = {
   height?: number;
   minWidth?: number;
   maxWidth?: number;
+  minHeight?: number;
+  maxHeight?: number;
   transform?: ViewStyle['transform'];
   animationName?: unknown;
   animationIterationCount?: number;
@@ -126,6 +128,8 @@ const SHORTHAND_KEYS = new Set([
   'height',
   'minWidth',
   'maxWidth',
+  'minHeight',
+  'maxHeight',
   'transform',
 ]);
 
@@ -198,6 +202,8 @@ const PASSTHROUGH_KEYS: ReadonlyArray<keyof SxProps> = [
   'height',
   'minWidth',
   'maxWidth',
+  'minHeight',
+  'maxHeight',
   'transform',
 ];
 

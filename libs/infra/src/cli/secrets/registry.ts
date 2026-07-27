@@ -10,6 +10,7 @@ import {
   AUTH_SECRET_KEY,
   EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY,
 } from './auth-secrets';
+import { B2_MASTER_KEY, B2_MASTER_KEY_ID } from './b2-credentials';
 import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
 import { CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY } from './clerk-alias-secrets';
@@ -36,11 +37,11 @@ import {
   PS_URL,
 } from './powersync-secrets';
 import {
-  S3_ACCESS_KEY_ID,
+  B2_APP_KEY,
+  B2_APP_KEY_ID,
   S3_BUCKET,
   S3_ENDPOINT,
   S3_REGION,
-  S3_SECRET_ACCESS_KEY,
 } from './s3-credentials';
 import type { Secret } from './secret';
 import {
@@ -78,8 +79,10 @@ export const SECRETS: readonly Secret[] = [
   TURBO_LOG_ORDER,
   TURBO_TELEMETRY_DISABLED,
   EXPO_TOKEN,
-  S3_ACCESS_KEY_ID,
-  S3_SECRET_ACCESS_KEY,
+  B2_MASTER_KEY_ID,
+  B2_MASTER_KEY,
+  B2_APP_KEY_ID,
+  B2_APP_KEY,
   S3_BUCKET,
   S3_ENDPOINT,
   S3_REGION,

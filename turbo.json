@@ -15,6 +15,7 @@
     "AUTH_*",
     "STRIPE_*",
     "CLOUDFLARE_*",
+    "B2_*",
     "S3_*",
     "ELEVEN_LABS_*",
     "OPENAI_*",

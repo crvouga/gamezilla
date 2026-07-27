@@ -1,13 +1,13 @@
 import { Avatar } from '../avatar';
 import { Badge } from '../badge';
-import { Box } from '../box';
 import { Card } from '../card';
 import { Text } from '../text';
 import { List, ListItem } from './list';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function ListExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="List" />
 
       <Card elevation={0} sx={{ overflow: 'hidden' }}>
@@ -51,6 +51,6 @@ export default function ListExample() {
           <ListItem title="Item C" />
         </List>
       </Card>
-    </Box>
+    </ExampleRoot>
   );
 }

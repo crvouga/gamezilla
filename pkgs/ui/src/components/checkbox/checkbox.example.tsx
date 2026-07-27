@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
 import { Text } from '../text';
@@ -11,7 +11,7 @@ export default function CheckboxExample() {
   const [c, setC] = useState(false);
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Checkbox" />
 
       <SchemePreview>
@@ -25,6 +25,6 @@ export default function CheckboxExample() {
           <Checkbox label="Disabled" checked={c} onToggle={setC} disabled />
         </Stack>
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

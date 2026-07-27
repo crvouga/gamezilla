@@ -1,4 +1,4 @@
-import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
 import { Text } from '../text';
@@ -6,7 +6,7 @@ import { Card } from './card';
 
 export default function CardExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Card" />
 
       <SchemePreview>
@@ -23,6 +23,6 @@ export default function CardExample() {
           ))}
         </Stack>
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

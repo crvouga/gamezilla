@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   Divider,
+  ExampleRoot,
   SegmentedControl,
   Stack,
   Switch,
@@ -377,7 +378,7 @@ function MovesPlayedSection(): ReactNode {
 
 export default function ChessBoardExample(): ReactNode {
   return (
-    <Box sx={{ p: 4, gap: 6 }}>
+    <ExampleRoot sx={{ gap: 6 }}>
       <Text variant="heading" label={<Trans>ChessBoard</Trans>} />
       <Text
         variant="body"
@@ -405,6 +406,6 @@ export default function ChessBoardExample(): ReactNode {
       <ThemedSection />
       <Divider />
       <MovesPlayedSection />
-    </Box>
+    </ExampleRoot>
   );
 }

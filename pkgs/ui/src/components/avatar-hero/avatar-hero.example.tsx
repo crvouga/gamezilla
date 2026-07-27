@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { asLocalized } from '@pkgs/i18n';
-import { Box } from '../box';
 import { Avatar } from '../avatar';
 import { ShuffleIcon } from '../icons';
 import { Text } from '../text';
 import { AvatarHero } from './avatar-hero';
+import { ExampleRoot } from '../explorer/example-root';
 
 const SAMPLE_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -19,7 +19,7 @@ export default function AvatarHeroExample() {
   const [n, setN] = useState(0);
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="AvatarHero" />
       <AvatarHero
         size={160}
@@ -32,6 +32,6 @@ export default function AvatarHeroExample() {
         <Avatar svg={SAMPLE_SVG} size={160} />
       </AvatarHero>
       <Text variant="caption" sx={{ opacity: 0.75 }} label={`Shuffles: ${n}`} />
-    </Box>
+    </ExampleRoot>
   );
 }

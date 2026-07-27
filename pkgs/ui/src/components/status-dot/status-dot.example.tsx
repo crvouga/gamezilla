@@ -1,11 +1,11 @@
-import { Box } from '../box';
 import { Text } from '../text';
 import { Stack } from '../stack';
 import { StatusDot } from './status-dot';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function StatusDotExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="StatusDot" />
 
       <Stack spacing={3}>
@@ -29,6 +29,6 @@ export default function StatusDotExample() {
           <Text variant="label" label="Large (16px)" />
         </Stack>
       </Stack>
-    </Box>
+    </ExampleRoot>
   );
 }

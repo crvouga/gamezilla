@@ -27,9 +27,21 @@ export { ScrollView, type ScrollViewProps } from './scroll-view';
 export { SafeAreaView, type SafeAreaViewProps } from './safe-area-view';
 export { FlatList, type FlatListProps } from './flat-list';
 export {
+  CONTENT_EDGE_PADDING_STEP,
+  SURFACE_BOTTOM_PADDING_STEP,
+  ContentEdgePaddingProvider,
+  resolveFlushEdgeStyles,
+  useContentEdgePadding,
+  useContentEdgePaddingStep,
+  type ContentEdgePadding,
+  type ContentEdgePaddingProviderProps,
+  type FlushEdgeStyles,
+} from './content-edge-padding';
+export {
   KeyboardAvoidingView,
   type KeyboardAvoidingViewProps,
 } from './keyboard-avoiding-view';
+export { FocusTrap, type FocusTrapProps } from './focus-trap';
 
 // Icons
 export {

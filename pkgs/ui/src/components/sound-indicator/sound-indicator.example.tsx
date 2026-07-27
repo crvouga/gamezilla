@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { SegmentedControl } from '../segmented-control';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { SoundIndicator, type SoundIndicatorState } from './sound-indicator';
+import { ExampleRoot } from '../explorer/example-root';
 
 const STATE_SEGMENTS: { key: SoundIndicatorState; label: string }[] = [
   { key: 'idle', label: 'Idle' },
@@ -16,7 +16,7 @@ export default function SoundIndicatorExample() {
   const [state, setState] = useState<SoundIndicatorState>('playing');
   const [tappedMuted, setTappedMuted] = useState(false);
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="SoundIndicator" />
 
       <Text
@@ -80,6 +80,6 @@ export default function SoundIndicatorExample() {
       >
         <SoundIndicator state={tappedMuted ? 'muted' : 'playing'} size={20} />
       </Pressable>
-    </Box>
+    </ExampleRoot>
   );
 }

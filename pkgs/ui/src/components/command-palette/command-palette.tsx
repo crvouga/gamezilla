@@ -196,13 +196,14 @@ function useKeyNavigation(deps: KeyHandlerDeps) {
   return useCallback(
     (e: KeyboardEvent) => {
       if (!isOpen || runningId !== null) return;
-      const n = itemRows.length;
-      if (n === 0) return;
       if (e.key === 'Escape') {
         e.preventDefault();
+        e.stopPropagation();
         close();
         return;
       }
+      const n = itemRows.length;
+      if (n === 0) return;
       if (e.key === 'Enter') {
         e.preventDefault();
         const cmd = itemRows[selectedIndex]?.command;

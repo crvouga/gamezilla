@@ -39,6 +39,7 @@
     "expo-status-bar": "catalog:",
     "lucide-react-native": "catalog:",
     "react": "catalog:",
+    "react-focus-lock": "catalog:",
     "react-native": "catalog:",
     "react-native-svg": "catalog:"
   },

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
-import { Box } from '../box';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { SocialSignInButton } from './social-sign-in-button';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function SocialSignInButtonExample() {
   const [loading, setLoading] = useState(false);
@@ -14,11 +14,11 @@ export default function SocialSignInButtonExample() {
   }
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="SocialSignInButton" />
       <GoogleExamples onPress={handlePress} loading={loading} />
       <DevExamples onPress={handlePress} />
-    </Box>
+    </ExampleRoot>
   );
 }
 

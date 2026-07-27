@@ -1,9 +1,9 @@
-import { Box } from '../box';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { UserIcon } from '../icons';
 import { Avatar } from '../avatar';
 import { AvatarGroup } from './avatar-group';
+import { ExampleRoot } from '../explorer/example-root';
 
 const SAMPLE_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -14,7 +14,7 @@ const SAMPLE_SVG = `
 
 export default function AvatarGroupExample() {
   return (
-    <Box sx={{ p: 4, gap: 6 }}>
+    <ExampleRoot sx={{ gap: 6 }}>
       <Text variant="heading" label="AvatarGroup" />
 
       <Text variant="caption" label="Default overlap (40% of size), size 36" />
@@ -54,6 +54,6 @@ export default function AvatarGroupExample() {
         <Avatar initials="4" size={32} background="destructive" />
         <Avatar initials="5" size={32} />
       </AvatarGroup>
-    </Box>
+    </ExampleRoot>
   );
 }

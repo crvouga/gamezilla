@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Text } from '../text';
 import { FormActionsFooter } from './form-actions-footer';
@@ -15,7 +15,7 @@ export default function FormActionsFooterExample() {
     throw new Error('Network unreachable');
   }, []);
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="FormActionsFooter" />
       <Text
         variant="caption"
@@ -48,6 +48,6 @@ export default function FormActionsFooterExample() {
           }}
         />
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

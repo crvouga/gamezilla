@@ -38,7 +38,7 @@ export function ActiveSpacesSheet({
       onClose={onClose}
       title={<Trans>Your live spaces</Trans>}
     >
-      <ScrollView style={{ maxHeight: 420 }}>
+      <ScrollView style={{ maxHeight: 420 }} sx={{ px: 0 }}>
         {spaceIds.map((spaceId) => (
           <ActiveSpaceSheetRow
             key={spaceId}

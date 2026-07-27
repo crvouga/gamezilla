@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import { Box } from '../box';
 import { Button } from '../button';
 import { Stack } from '../stack';
 import { Text } from '../text';
@@ -17,6 +16,7 @@ import {
   RegisterCommand,
 } from './index';
 import { useCommandPalette } from './use-command-palette';
+import { ExampleRoot } from '../explorer/example-root';
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -103,7 +103,7 @@ export default function CommandPaletteExample() {
   return (
     <CommandRegistryProvider enableDefaultShortcuts={false}>
       <DemoCommands onIncrement={() => setCount((c) => c + 1)} />
-      <Box sx={{ p: 4, gap: 4 }}>
+      <ExampleRoot>
         <Text variant="heading" label="Command palette" />
         <Text
           variant="caption"
@@ -119,7 +119,7 @@ export default function CommandPaletteExample() {
           sx={{ color: 'textSecondary' }}
           label="↑ ↓ navigate · Enter run · Esc close · Tab next"
         />
-      </Box>
+      </ExampleRoot>
       <CommandPalette />
     </CommandRegistryProvider>
   );

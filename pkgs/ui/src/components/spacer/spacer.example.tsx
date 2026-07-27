@@ -2,10 +2,11 @@ import { Box } from '../box';
 import { Text } from '../text';
 import { Stack } from '../stack';
 import { Spacer } from './spacer';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function SpacerExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Spacer" />
 
       <Box sx={{ gap: 1 }}>
@@ -36,6 +37,6 @@ export default function SpacerExample() {
           </Box>
         </Stack>
       </Box>
-    </Box>
+    </ExampleRoot>
   );
 }

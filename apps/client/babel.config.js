@@ -30,10 +30,7 @@ module.exports = function (api) {
     ],
     plugins: [
       '@lingui/babel-plugin-lingui-macro',
-      path.resolve(
-        __dirname,
-        '../../pkgs/babel-plugins/jsx-source-attr.cjs'
-      ),
+      path.resolve(__dirname, '../../pkgs/babel-plugins/jsx-source-attr.cjs'),
     ],
   };
 };

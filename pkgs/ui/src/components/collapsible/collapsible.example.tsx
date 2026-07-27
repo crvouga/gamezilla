@@ -1,10 +1,11 @@
 import { Box } from '../box';
 import { Text } from '../text';
 import { Collapsible } from './collapsible';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function CollapsibleExample() {
   return (
-    <Box sx={{ p: 4, gap: 2 }}>
+    <ExampleRoot sx={{ gap: 2 }}>
       <Text variant="heading" label="Collapsible" />
 
       <Collapsible title="Default (closed)">
@@ -40,6 +41,6 @@ export default function CollapsibleExample() {
           label="Custom chevron icons via renderIcon prop."
         />
       </Collapsible>
-    </Box>
+    </ExampleRoot>
   );
 }

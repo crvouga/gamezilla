@@ -1,5 +1,6 @@
 import { Box } from '../box';
 import { Text } from './text';
+import { ExampleRoot } from '../explorer/example-root';
 
 const variants = [
   'body',
@@ -16,7 +17,7 @@ const variants = [
 
 export default function TextExample() {
   return (
-    <Box sx={{ p: 4, gap: 3 }}>
+    <ExampleRoot sx={{ gap: 3 }}>
       <Text variant="heading" label="Text" />
       {variants.map((v) => (
         <Box key={v} sx={{ gap: 0.5 }}>
@@ -37,6 +38,6 @@ export default function TextExample() {
         <Text variant="body" label="" />
         <Text variant="body" label="Filled after load" />
       </Box>
-    </Box>
+    </ExampleRoot>
   );
 }

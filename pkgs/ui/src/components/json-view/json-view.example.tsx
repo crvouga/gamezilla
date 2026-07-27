@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { Box } from '../box';
 import { Text } from '../text';
 import { JsonView } from './json-view';
+import { ExampleRoot } from '../explorer/example-root';
 
 const SAMPLE_PAYLOAD = {
   user: {
@@ -77,7 +78,7 @@ function buildCircularPayload(): unknown {
 export default function JsonViewExample() {
   const circular = useMemo(() => buildCircularPayload(), []);
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="JsonView" />
       <Text
         variant="caption"
@@ -132,6 +133,6 @@ export default function JsonViewExample() {
           maxHeight={220}
         />
       </Box>
-    </Box>
+    </ExampleRoot>
   );
 }

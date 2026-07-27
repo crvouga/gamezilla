@@ -120,10 +120,7 @@ function useAccountSwitchItems(): ActionBarItem[] {
       if (account.isActive || isPending) return;
       // Duplicate provider sessions for the same account must not start a switch
       // that leaves isPending stuck (null accountId warm-boot wait).
-      if (
-        account.accountId !== null &&
-        account.accountId === activeAccountId
-      ) {
+      if (account.accountId !== null && account.accountId === activeAccountId) {
         return;
       }
       void switchToAccount({

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { Box } from '../box';
 import { Divider } from '../divider';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
 import { ChevronRightIcon } from '../icons';
@@ -153,7 +153,7 @@ export default function ButtonExample() {
   const [primaryLoading, setPrimaryLoading] = useState(false);
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Button" />
       <SizesBlock />
       <Divider />
@@ -188,6 +188,6 @@ export default function ButtonExample() {
       <Divider />
       <VariantBlock intent="neutral" label="Neutral" />
       <VariantBlock intent="neutral" variant="ghost" label="Neutral · ghost" />
-    </Box>
+    </ExampleRoot>
   );
 }

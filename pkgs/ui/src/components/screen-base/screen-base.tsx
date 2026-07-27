@@ -7,8 +7,9 @@
  * Body scrollbars must sit flush with the screen edge:
  * - Whole-body scroll → pass `scroll` (padding lives inside the scroller).
  * - Sticky chrome + nested list → use {@link ScreenBodyScrollView} /
- *   {@link ScreenBodyFlatList} so the nested scroller bleeds under body
- *   horizontal padding.
+ *   {@link ScreenBodyFlatList}; the body provides
+ *   {@link ContentEdgePaddingProvider} so nested scrollers bleed under
+ *   horizontal padding automatically.
  */
 
 import { useContext, useMemo, type ReactNode } from 'react';
@@ -19,6 +20,9 @@ import { Box } from '../box';
 import {
   componentDataSet,
 } from '../../component-id';
+import {
+  ContentEdgePaddingProvider,
+} from '../content-edge-padding';
 import { FloatingActionButton } from '../floating-action-button/floating-action-button';
 import { PlusIcon } from '../icons';
 import { KeyboardAvoidingView } from '../keyboard-avoiding-view';
@@ -45,15 +49,20 @@ function BodyInner({
   scroll: boolean;
 }) {
   return (
-    <Box
-      sx={{
-        ...(scroll ? {} : { flex: 1 }),
-        p: SCREEN_BODY_PADDING_STEP,
-        gap: BODY_GAP_STEP,
-      }}
+    <ContentEdgePaddingProvider
+      step={SCREEN_BODY_PADDING_STEP}
+      bottomStep={SCREEN_BODY_PADDING_STEP}
     >
-      {children}
-    </Box>
+      <Box
+        sx={{
+          ...(scroll ? {} : { flex: 1, minHeight: 0 }),
+          p: SCREEN_BODY_PADDING_STEP,
+          gap: BODY_GAP_STEP,
+        }}
+      >
+        {children}
+      </Box>
+    </ContentEdgePaddingProvider>
   );
 }
 
@@ -180,7 +189,7 @@ function renderConstrainedBody(args: {
   return (
     <BodyInner scroll={args.scroll}>
       {args.content({
-        sx: args.scroll ? {} : { flex: 1 },
+        sx: args.scroll ? {} : { flex: 1, minHeight: 0 },
       } satisfies BodyContentProps)}
     </BodyInner>
   );
@@ -204,7 +213,7 @@ function renderScrollableBody(
       </ScrollView>
     );
   }
-  return <Box sx={{ flex: 1 }}>{inner}</Box>;
+  return <Box sx={{ flex: 1, minHeight: 0 }}>{inner}</Box>;
 }
 
 function ScreenBody({

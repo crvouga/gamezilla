@@ -1,7 +1,7 @@
 import { UserUsername } from '@libs/profile/client/user-username';
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { Box, Text } from '@pkgs/ui';
+import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
@@ -93,7 +93,7 @@ function SpaceMembersSeatRow({
         alignItems: 'center',
         gap: 2,
         py: 2,
-        px: 3,
+        px: CONTENT_EDGE_PADDING_STEP,
       }}
     >
       <UserProfileAvatar profileId={profileId} size={ROW_AVATAR_SIZE} />

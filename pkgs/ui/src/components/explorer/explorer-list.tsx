@@ -79,5 +79,9 @@ export function ExplorerList({
     );
   }
 
-  return <ScrollView sx={{ p: 4, gap: 6, pb: 16 }}>{list}</ScrollView>;
+  return (
+    <ScrollView style={{ flex: 1 }} sx={{ p: 4, gap: 6, pb: 16 }}>
+      {list}
+    </ScrollView>
+  );
 }

@@ -13,9 +13,7 @@ export type SwitchAccountArgs = {
 };
 
 /** Activates another local auth session (multi-account switch). */
-export function useSwitchAccount(): (
-  args: SwitchAccountArgs
-) => Promise<void> {
+export function useSwitchAccount(): (args: SwitchAccountArgs) => Promise<void> {
   const port = useAuthClientPort();
   const storage = useSecureStorage();
 

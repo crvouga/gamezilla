@@ -7,7 +7,7 @@ import type { LocalizedString } from '@pkgs/i18n';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
-import { FlatList, View } from 'react-native';
+import { View } from 'react-native';
 import {
   componentDataSet,
   type ComponentDataSet,
@@ -15,6 +15,7 @@ import {
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { borderRadius } from '../../theme/scale';
+import { FlatList } from '../flat-list';
 import { List, ListItem } from '../list';
 import { Pressable } from '../pressable';
 import { ResponsiveSurface } from '../responsive-surface';

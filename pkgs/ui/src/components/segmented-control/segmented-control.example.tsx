@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { Box } from '../box';
 import { Text } from '../text';
 import { Stack } from '../stack';
 import { SegmentedControl } from './segmented-control';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function SegmentedControlExample() {
   const [mode, setMode] = useState('playground');
   const [size, setSize] = useState('md');
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="SegmentedControl" />
 
       <Stack spacing={4}>
@@ -37,6 +37,6 @@ export default function SegmentedControlExample() {
 
         <Text variant="caption" label={`Selected: ${size}`} />
       </Stack>
-    </Box>
+    </ExampleRoot>
   );
 }

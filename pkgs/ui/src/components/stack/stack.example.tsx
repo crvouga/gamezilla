@@ -1,6 +1,7 @@
 import { Box } from '../box';
 import { Text } from '../text';
 import { Stack } from './stack';
+import { ExampleRoot } from '../explorer/example-root';
 
 function ColorBox({ label, color }: { label: string; color: string }) {
   return (
@@ -12,7 +13,7 @@ function ColorBox({ label, color }: { label: string; color: string }) {
 
 export default function StackExample() {
   return (
-    <Box sx={{ p: 4, gap: 6 }}>
+    <ExampleRoot sx={{ gap: 6 }}>
       <Text variant="heading" label="Stack" />
 
       <Box sx={{ gap: 1 }}>
@@ -54,6 +55,6 @@ export default function StackExample() {
           ))}
         </Stack>
       </Box>
-    </Box>
+    </ExampleRoot>
   );
 }

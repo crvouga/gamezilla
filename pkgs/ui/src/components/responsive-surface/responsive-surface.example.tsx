@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import type { ModalSize } from '../../theme/modal-size';
-import { Box } from '../box';
 import { Button } from '../button';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { ResponsiveSurface } from './responsive-surface';
+import { ExampleRoot } from '../explorer/example-root';
 
 const SIZES: ModalSize[] = ['small', 'medium', 'large', 'fullWidth'];
 
@@ -12,7 +12,7 @@ export default function ResponsiveSurfaceExample() {
   const [openSize, setOpenSize] = useState<ModalSize | null>(null);
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="ResponsiveSurface" />
       <Text
         variant="caption"
@@ -42,6 +42,6 @@ export default function ResponsiveSurfaceExample() {
           />
         </ResponsiveSurface>
       ))}
-    </Box>
+    </ExampleRoot>
   );
 }

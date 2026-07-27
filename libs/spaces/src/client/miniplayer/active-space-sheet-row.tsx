@@ -1,6 +1,6 @@
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
-import { Box, Text } from '@pkgs/ui';
+import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { SpaceHostAvatar } from '../members/space-host-avatar';
@@ -50,7 +50,7 @@ export function ActiveSpaceSheetRow({
             gap: 3,
             flex: 1,
             minWidth: 0,
-            px: 3,
+            pl: CONTENT_EDGE_PADDING_STEP,
             py: 2,
             alignSelf: 'stretch',
           }}
@@ -78,7 +78,7 @@ export function ActiveSpaceSheetRow({
         </Box>
         <MiniplayerLiveBadge />
       </MiniplayerOpenSpacePressable>
-      <Box sx={{ pr: 3 }}>
+      <Box sx={{ pr: CONTENT_EDGE_PADDING_STEP }}>
         <SpaceEndOrLeaveButton
           spaceId={spaceId}
           requestEndSpace={requestEndSpace}

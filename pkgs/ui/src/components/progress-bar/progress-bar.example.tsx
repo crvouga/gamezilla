@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Box } from '../box';
 import { Text } from '../text';
 import { Stack } from '../stack';
 import { ProgressBar } from './progress-bar';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function ProgressBarExample() {
   const [progress, setProgress] = useState(0);
@@ -15,7 +15,7 @@ export default function ProgressBarExample() {
   }, []);
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="ProgressBar" />
 
       <Stack spacing={3}>
@@ -33,6 +33,6 @@ export default function ProgressBarExample() {
         <ProgressBar progress={0.3} color="warning" height={8} />
         <ProgressBar progress={0.9} color="destructive" height={8} />
       </Stack>
-    </Box>
+    </ExampleRoot>
   );
 }

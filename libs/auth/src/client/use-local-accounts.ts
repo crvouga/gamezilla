@@ -83,9 +83,7 @@ function dedupeLocalAccounts(
     const existing = byKey.get(key);
     byKey.set(
       key,
-      existing === undefined
-        ? account
-        : preferLocalAccount(existing, account)
+      existing === undefined ? account : preferLocalAccount(existing, account)
     );
   }
   return [...byKey.values()];

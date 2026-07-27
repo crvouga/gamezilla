@@ -15,7 +15,9 @@ const COMPONENTS_DIR = join(REPO_ROOT, 'pkgs/ui/src/components');
 /** Folders that intentionally do not render a DOM host with component ids. */
 const SKIP_FOLDERS = new Set([
   'compose-providers',
+  'content-edge-padding',
   'explorer',
+  'focus-trap',
   'icons',
   'optional-props',
   'overlay-portal',

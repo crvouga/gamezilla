@@ -25,7 +25,7 @@ export function SpaceMembersListModal({
       onClose={onClose}
       title={<Trans>People in this space</Trans>}
     >
-      <ScrollView style={{ maxHeight: 420 }}>
+      <ScrollView style={{ maxHeight: 420 }} sx={{ px: 0 }}>
         <SpaceMembersList spaceId={spaceId} />
       </ScrollView>
     </ResponsiveSurface>

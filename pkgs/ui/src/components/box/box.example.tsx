@@ -1,12 +1,13 @@
 import { Text } from 'react-native';
 import { useTheme } from '../../theme';
 import { Box } from './box';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function BoxExample() {
   const theme = useTheme();
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text
         style={theme.sx({ color: 'text', fontSize: 'lg', fontWeight: 'bold' })}
       >
@@ -53,6 +54,6 @@ export default function BoxExample() {
           </Text>
         </Box>
       </Box>
-    </Box>
+    </ExampleRoot>
   );
 }

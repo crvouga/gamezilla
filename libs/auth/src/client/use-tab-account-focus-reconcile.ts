@@ -3,9 +3,7 @@ import type { AccountSession } from '@pkgs/auth/client/account-session';
 import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 
-import {
-  findRosterEntryForSession,
-} from './local-account-roster';
+import { findRosterEntryForSession } from './local-account-roster';
 import type { LocalAccountRoster } from './local-account-roster-types';
 
 function resolveAccountIdForSession(
@@ -67,7 +65,10 @@ export function useTabAccountFocusReconcile(args: {
     if (Platform.OS !== 'web' || !enabled) return;
 
     const reconcile = (): void => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+      if (
+        typeof document !== 'undefined' &&
+        document.visibilityState === 'hidden'
+      ) {
         return;
       }
       const tabId = tabAccountIdRef.current;

@@ -16,8 +16,8 @@ import {
   type ElevationLevel,
 } from '../../theme/scale';
 import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { ScrollView } from '../scroll-view';
 import { Text } from '../text';
 
 const COLOR_GROUPS: readonly {
@@ -96,7 +96,7 @@ const ELEVATION_LEVELS: readonly ElevationLevel[] = [0, 1, 2, 3, 4, 5];
 
 export default function ThemeTokensExample() {
   return (
-    <ScrollView sx={{ p: 4, gap: 5 }}>
+    <ExampleRoot sx={{ gap: 5 }}>
       <SectionTitle title="Colors" />
       <SchemePreview>
         <ColorGroups />
@@ -121,7 +121,7 @@ export default function ThemeTokensExample() {
       <SchemePreview>
         <MotionRow />
       </SchemePreview>
-    </ScrollView>
+    </ExampleRoot>
   );
 }
 

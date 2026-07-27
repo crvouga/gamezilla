@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
 import { Text } from '../text';
@@ -19,7 +19,7 @@ export default function ChipExample() {
     });
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Chip" />
 
       <SchemePreview>
@@ -42,6 +42,6 @@ export default function ChipExample() {
           </Stack>
         </Stack>
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

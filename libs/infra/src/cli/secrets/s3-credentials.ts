@@ -12,16 +12,15 @@ import {
   type SecretSeedInput,
 } from './secret';
 
-async function probeS3Access(input: SecretInput): Promise<void> {
-  const accessKeyId = input.secrets.get('S3_ACCESS_KEY_ID')?.trim() ?? '';
-  const secretAccessKey =
-    input.secrets.get('S3_SECRET_ACCESS_KEY')?.trim() ?? '';
+async function probeAppKeyAccess(input: SecretInput): Promise<void> {
+  const accessKeyId = input.secrets.get('B2_APP_KEY_ID')?.trim() ?? '';
+  const secretAccessKey = input.secrets.get('B2_APP_KEY')?.trim() ?? '';
   const bucket = input.secrets.get('S3_BUCKET')?.trim() ?? '';
   const endpoint = input.secrets.get('S3_ENDPOINT')?.trim() ?? '';
   const region = input.secrets.get('S3_REGION')?.trim() || 'auto';
 
-  requireNonEmpty(accessKeyId, 'S3_ACCESS_KEY_ID');
-  requireNonEmpty(secretAccessKey, 'S3_SECRET_ACCESS_KEY');
+  requireNonEmpty(accessKeyId, 'B2_APP_KEY_ID');
+  requireNonEmpty(secretAccessKey, 'B2_APP_KEY');
   requireNonEmpty(bucket, 'S3_BUCKET');
   requireHttpsUrl(endpoint, 'S3_ENDPOINT');
 
@@ -64,19 +63,19 @@ async function seedS3Field(
   return seeded[field];
 }
 
-export const S3_ACCESS_KEY_ID = new Secret({
-  name: 'S3_ACCESS_KEY_ID',
-  hint: 'S3-compatible object storage access key ID',
+export const B2_APP_KEY_ID = new Secret({
+  name: 'B2_APP_KEY_ID',
+  hint: 'B2 application key ID minted per env for the API Worker object store',
   pushToApiWorker: true,
-  validate: probeS3Access,
+  validate: probeAppKeyAccess,
   seed: (input) => seedS3Field(input, 'accessKeyId'),
 });
 
-export const S3_SECRET_ACCESS_KEY = new Secret({
-  name: 'S3_SECRET_ACCESS_KEY',
-  hint: 'S3-compatible object storage secret access key',
+export const B2_APP_KEY = new Secret({
+  name: 'B2_APP_KEY',
+  hint: 'B2 application key minted per env for the API Worker object store',
   pushToApiWorker: true,
-  validate: (input) => validateS3NonEmpty(input, 'S3_SECRET_ACCESS_KEY'),
+  validate: (input) => validateS3NonEmpty(input, 'B2_APP_KEY'),
   seed: (input) => seedS3Field(input, 'secretAccessKey'),
 });
 
@@ -90,7 +89,7 @@ export const S3_BUCKET = new Secret({
 
 export const S3_ENDPOINT = new Secret({
   name: 'S3_ENDPOINT',
-  hint: 'S3-compatible API endpoint, e.g. https://<ACCOUNT_ID>.r2.cloudflarestorage.com',
+  hint: 'S3-compatible API endpoint, e.g. https://s3.<region>.backblazeb2.com',
   pushToApiWorker: true,
   validate: async (input) => {
     requireHttpsUrl(input.secretValue, 'S3_ENDPOINT');
@@ -100,7 +99,7 @@ export const S3_ENDPOINT = new Secret({
 
 export const S3_REGION = new Secret({
   name: 'S3_REGION',
-  hint: 'S3-compatible region slug — use `auto` for Cloudflare R2',
+  hint: 'S3-compatible region slug — e.g. us-west-004 for Backblaze B2',
   pushToApiWorker: true,
   validate: (input) => validateS3NonEmpty(input, 'S3_REGION'),
   seed: (input) => seedS3Field(input, 'region'),

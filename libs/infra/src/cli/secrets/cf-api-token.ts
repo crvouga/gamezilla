@@ -41,15 +41,6 @@ async function probeAccountPermissions(
         `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces`
       ),
     },
-    {
-      label:
-        'Workers R2 Storage Edit (Account permission — object-store buckets)',
-      probe: probeCfPermission(
-        headers,
-        'GET',
-        `https://api.cloudflare.com/client/v4/accounts/${accountId}/r2/buckets`
-      ),
-    },
   ];
 
   const zonesRes = await fetchWithRetry(
@@ -165,8 +156,7 @@ async function validateCfApiToken(input: SecretInput): Promise<void> {
           'Tip: start with the "Edit Zone DNS" template, then add:',
           '  Zone: Zone WAF Write, Workers Routes Edit',
           '  Account: Cloudflare Pages Edit, Workers Scripts Edit,',
-          '           Workers KV Storage Edit, Account Settings Read,',
-          '           Workers R2 Storage Edit, Create Additional Tokens',
+          '           Workers KV Storage Edit, Account Settings Read',
           'Zone Resources → All zones  |  Account Resources → All accounts',
         ].join('\n')
       );
@@ -188,8 +178,7 @@ export const CLOUDFLARE_API_TOKEN = new Secret({
     '  Zone permissions:    DNS Edit, Zone Settings Write, Zone WAF Write,',
     '                       Workers Routes Edit',
     '  Account permissions: Cloudflare Pages Edit, Workers Scripts Edit,',
-    '                       Workers KV Storage Edit, Account Settings Read,',
-    '                       Workers R2 Storage Edit, Create Additional Tokens',
+    '                       Workers KV Storage Edit, Account Settings Read',
     'Zone Resources: All zones  |  Account Resources: All accounts',
   ].join('\n'),
   validate: validateCfApiToken,

@@ -1,12 +1,12 @@
-import { Box } from '../box';
 import { IconButton } from '../icon-button';
 import { SettingsIcon } from '../icons';
 import { Stack } from '../stack';
 import { Text } from '../text';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function TooltipExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Tooltip" />
       <Text
         variant="caption"
@@ -18,6 +18,6 @@ export default function TooltipExample() {
           <SettingsIcon size={18} />
         </IconButton>
       </Stack>
-    </Box>
+    </ExampleRoot>
   );
 }

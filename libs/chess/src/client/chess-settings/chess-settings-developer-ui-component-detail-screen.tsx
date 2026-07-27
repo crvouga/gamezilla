@@ -40,7 +40,7 @@ export function ChessSettingsDeveloperUiComponentDetailScreen(): ReactNode {
   }, [dispatch]);
 
   return (
-    <Box sx={{ alignSelf: 'stretch' }} style={{ flex: 1 }}>
+    <Box sx={{ alignSelf: 'stretch', flex: 1, minHeight: 0 }}>
       <DefineBackButton onPress={back} />
       {selectedName === null ? (
         <EmptyState

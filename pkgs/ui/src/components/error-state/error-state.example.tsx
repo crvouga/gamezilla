@@ -1,12 +1,13 @@
 import { Box } from '../box';
 import { Divider } from '../divider';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Text } from '../text';
 import { ErrorState } from './error-state';
 
 export default function ErrorStateExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="ErrorState" />
 
       <Text
@@ -54,6 +55,6 @@ export default function ErrorStateExample() {
           retry={{ onPress: () => {} }}
         />
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

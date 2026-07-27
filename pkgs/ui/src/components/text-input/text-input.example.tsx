@@ -1,7 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
-import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
 import { Text } from '../text';
@@ -12,7 +12,7 @@ export default function TextInputExample() {
   const [email, setEmail] = useState('');
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label={<Trans>TextInput</Trans>} />
 
       <SchemePreview>
@@ -49,6 +49,6 @@ export default function TextInputExample() {
           />
         </Stack>
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import {
   ChevronRightIcon,
@@ -88,7 +88,7 @@ const BUTTONS_ONLY: BottomActionBarItem[] = [
 
 export default function BottomActionBarExample(): ReactNode {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="BottomActionBar" />
       <Text
         variant="caption"
@@ -119,6 +119,6 @@ export default function BottomActionBarExample(): ReactNode {
       <SchemePreview>
         <BottomActionBar items={MIXED} elevated={false} />
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

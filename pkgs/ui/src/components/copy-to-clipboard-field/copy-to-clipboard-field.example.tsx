@@ -1,12 +1,12 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { Box } from '../box';
 import { Text } from '../text';
 import { CopyToClipboardField } from './copy-to-clipboard-field';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function CopyToClipboardFieldExample() {
   return (
-    <Box sx={{ p: 4, gap: 6 }}>
+    <ExampleRoot sx={{ gap: 6 }}>
       <Text variant="heading" label={<Trans>CopyToClipboardField</Trans>} />
 
       <CopyToClipboardField
@@ -21,6 +21,6 @@ export default function CopyToClipboardFieldExample() {
         value="https://api.example.com"
         selectable
       />
-    </Box>
+    </ExampleRoot>
   );
 }

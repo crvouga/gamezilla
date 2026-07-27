@@ -1,12 +1,13 @@
 import { Box } from '../box';
 import { Divider } from '../divider';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Text } from '../text';
 import { SuccessState } from './success-state';
 
 export default function SuccessStateExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="SuccessState" />
 
       <Text
@@ -49,6 +50,6 @@ export default function SuccessStateExample() {
       <SchemePreview>
         <SuccessState variant="compact" title="Saved" />
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

@@ -24,12 +24,21 @@ import {
 } from '../../theme/modal-size';
 import { borderRadius, spacing } from '../../theme/scale';
 import { Box } from '../box';
+import { ContentEdgePaddingProvider } from '../content-edge-padding';
+
+/** Spacing-scale step for default {@link ModalContent} padding (`p: 5` → 20px). */
+const MODAL_CONTENT_PADDING_STEP = 5;
 
 export type ModalContentProps = PropsWithChildren<{
   /** Default `medium`. Clamped to the viewport; cannot be overridden via style. */
   size?: ModalSize;
   /** Optional max height in px (e.g. tall inspector modals). */
   maxHeight?: number;
+  /**
+   * When `false`, omit the default inset so a parent can own content padding
+   * (e.g. {@link ResponsiveSurface} flush-scroll shells). Default `true`.
+   */
+  padded?: boolean;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 }>;
@@ -38,19 +47,30 @@ export function ModalContent({
   children,
   size = 'medium',
   maxHeight,
+  padded = true,
   dataSet,
 }: ModalContentProps) {
   const theme = useTheme();
   const lift = theme.elevation(4);
   const marginPx = spacing[MODAL_CONTENT_MARGIN_STEP];
   const widthPx = resolveModalLayoutWidth(size, theme.layout.width, marginPx);
+  const body = padded ? (
+    <ContentEdgePaddingProvider
+      step={MODAL_CONTENT_PADDING_STEP}
+      bottomStep={MODAL_CONTENT_PADDING_STEP}
+    >
+      {children}
+    </ContentEdgePaddingProvider>
+  ) : (
+    children
+  );
 
   return (
     <Box
       {...componentDataSet('ModalContent', dataSet)}
       sx={{
         m: MODAL_CONTENT_MARGIN_STEP,
-        p: 5,
+        ...(padded ? { p: MODAL_CONTENT_PADDING_STEP } : {}),
         borderRadius: borderRadius.xl,
         width: widthPx,
         alignSelf: 'center',
@@ -64,7 +84,7 @@ export function ModalContent({
         ...(lift.elevation !== undefined ? { elevation: lift.elevation } : {}),
       }}
     >
-      {children}
+      {body}
     </Box>
   );
 }

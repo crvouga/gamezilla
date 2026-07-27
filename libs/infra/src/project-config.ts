@@ -20,8 +20,9 @@ export const PROJECT_CONFIG = {
     productionHostnames: [] as const,
   },
   /**
-   * S3-compatible object storage. Runtime uses `S3_*` secrets only;
-   * buckets are provisioned on Cloudflare R2 by the infra `s3-bucket` resource.
+   * S3-compatible object storage. Runtime uses `B2_APP_*` + `S3_BUCKET` /
+   * `S3_ENDPOINT` / `S3_REGION`; buckets are provisioned on Backblaze B2 by
+   * the infra `s3-bucket` resource using `B2_MASTER_*`.
    */
   objectStore: {
     /** Key prefix enforced on every remote object-store write. */

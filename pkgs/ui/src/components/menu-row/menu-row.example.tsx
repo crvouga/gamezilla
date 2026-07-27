@@ -8,6 +8,7 @@ import { SettingsIcon, UserIcon } from '../icons';
 import { Text } from '../text';
 import { MenuList } from './menu-list';
 import { MenuRow } from './menu-row';
+import { ExampleRoot } from '../explorer/example-root';
 
 function CardGroup({ children }: { children: React.ReactNode }) {
   return (
@@ -181,13 +182,13 @@ function VariantsSection() {
 
 export default function MenuRowExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="MenuRow" />
       <FullBleedListSection />
       <DefaultRowsSection />
       <TitleOnlySection />
       <LeadingIconSection />
       <VariantsSection />
-    </Box>
+    </ExampleRoot>
   );
 }

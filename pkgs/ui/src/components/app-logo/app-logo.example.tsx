@@ -1,5 +1,5 @@
-import { Box } from '../box';
 import { Divider } from '../divider';
+import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
 import { Text } from '../text';
@@ -7,7 +7,7 @@ import { AppLogo } from './app-logo';
 
 export default function AppLogoExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="AppLogo" />
 
       <Text
@@ -48,6 +48,6 @@ export default function AppLogoExample() {
           <AppLogo color="success" />
         </Stack>
       </SchemePreview>
-    </Box>
+    </ExampleRoot>
   );
 }

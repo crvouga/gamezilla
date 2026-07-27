@@ -25,8 +25,8 @@ export const ApiSecretName = {
   openAiApiKey: 'OPENAI_API_KEY',
   /** OpenAI API base URL, e.g. `https://api.openai.com`. Required. */
   openAiBaseUrl: 'OPENAI_BASE_URL',
-  s3AccessKeyId: 'S3_ACCESS_KEY_ID',
-  s3SecretAccessKey: 'S3_SECRET_ACCESS_KEY',
+  s3AccessKeyId: 'B2_APP_KEY_ID',
+  s3SecretAccessKey: 'B2_APP_KEY',
   s3Bucket: 'S3_BUCKET',
   s3Endpoint: 'S3_ENDPOINT',
   s3Region: 'S3_REGION',

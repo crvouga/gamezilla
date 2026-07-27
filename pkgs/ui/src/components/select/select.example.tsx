@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Box } from '../box';
 import { Text } from '../text';
 import { Stack } from '../stack';
 import { Select } from './select';
+import { ExampleRoot } from '../explorer/example-root';
 
 const FRUITS = [
   { label: 'Apple', value: 'apple' },
@@ -23,7 +23,7 @@ export default function SelectExample() {
   const [delay, setDelay] = useState(50);
 
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Select" />
 
       <Stack spacing={3}>
@@ -49,6 +49,6 @@ export default function SelectExample() {
           disabled
         />
       </Stack>
-    </Box>
+    </ExampleRoot>
   );
 }

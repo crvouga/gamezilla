@@ -109,7 +109,9 @@ export class SecretsResource extends ResourceBase {
 
     const storedActive = new Map(await exportSecretsMap(active));
     for (const entry of getSeedableSecrets()) {
-      if (entry.name.startsWith('S3_')) continue;
+      if (entry.name.startsWith('S3_') || entry.name.startsWith('B2_APP_')) {
+        continue;
+      }
       const current = (storedActive.get(entry.name) ?? '').trim();
       const shouldRewriteLegacyWww =
         (entry.name === 'API_URL' || entry.name === 'EXPO_PUBLIC_API_URL') &&

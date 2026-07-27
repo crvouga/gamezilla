@@ -1,12 +1,12 @@
-import { Box } from '../box';
 import { Text } from '../text';
 import { Stack } from '../stack';
 import { Card } from '../card';
 import { Skeleton } from './skeleton';
+import { ExampleRoot } from '../explorer/example-root';
 
 export default function SkeletonExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Skeleton" />
 
       <Stack spacing={2}>
@@ -26,6 +26,6 @@ export default function SkeletonExample() {
           </Stack>
         </Stack>
       </Card>
-    </Box>
+    </ExampleRoot>
   );
 }

@@ -1,12 +1,12 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
-import { Box } from '../box';
 import { Button } from '../button';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { TextInput } from '../text-input';
 import { MutationModal } from './mutation-modal';
+import { ExampleRoot } from '../explorer/example-root';
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -93,7 +93,7 @@ function FormExample() {
 
 export default function MutationModalExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="MutationModal" />
       <Text
         variant="caption"
@@ -105,6 +105,6 @@ export default function MutationModalExample() {
         <ErrorExample />
         <FormExample />
       </Stack>
-    </Box>
+    </ExampleRoot>
   );
 }

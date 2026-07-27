@@ -1,8 +1,8 @@
-import { Box } from '../box';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { UserIcon } from '../icons';
 import { Avatar } from './avatar';
+import { ExampleRoot } from '../explorer/example-root';
 
 const SAMPLE_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -20,7 +20,7 @@ const SAMPLE_SVG = `
 
 export default function AvatarExample() {
   return (
-    <Box sx={{ p: 4, gap: 4 }}>
+    <ExampleRoot>
       <Text variant="heading" label="Avatar" />
 
       <Text variant="caption" label="Initials" />
@@ -73,6 +73,6 @@ export default function AvatarExample() {
         <Avatar size={56} background="surface" />
         <Avatar size={72} background="surface" />
       </Stack>
-    </Box>
+    </ExampleRoot>
   );
 }
