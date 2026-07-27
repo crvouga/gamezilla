@@ -20,7 +20,7 @@ export function buildVendorDashboardMarkdown(): string[] {
   );
   lines.push(`- **Secrets:** [Dashboard](${getSecretsDashboardUrl()})`);
   lines.push(
-    `- **Turbo remote cache:** [turborepo.chrisvouga.dev](https://turborepo.chrisvouga.dev) (self-hosted; secrets \`TURBO_API\` / \`TURBO_TOKEN\` / \`TURBO_TEAM\`)`
+    `- **Turbo remote cache:** [Vercel Remote Cache](https://vercel.com/docs/monorepos/remote-caching) · [Access tokens](https://vercel.com/account/settings/tokens) (secrets \`TURBO_TOKEN\` / \`TURBO_TEAM\`)`
   );
   lines.push(
     `- **Squarespace Domains:** [domains.squarespace.com](https://domains.squarespace.com)`

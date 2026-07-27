@@ -8,10 +8,8 @@
 #    non-cacheable `check:secrets` gate (live secret-store validate for
 #    both `dev` and `prd`) all run inside a single `turbo-ci` job that
 #    invokes `bun run check:ci`. Turbo's task graph uses L1 GitHub
-#    Actions cache of `.turbo` plus L2 self-hosted remote cache
-#    (`TURBO_API` / `TURBO_TOKEN` / `TURBO_TEAM` from secrets env `dev`
-#    → https://turborepo.chrisvouga.dev). Vercel remote cache is
-#    intentionally not used (rate limits).
+#    Actions cache of `.turbo` plus L2 Vercel Remote Cache
+#    (`TURBO_TOKEN` / `TURBO_TEAM` from secrets env `dev`).
 #
 # 2. Non-Turbo tasks live in their own jobs only when they need a runner
 #    shape Turbo can't share: `static` (actionlint + gitleaks both want
@@ -57,7 +55,7 @@ jobs:
   # audit, i18n, plus per-package `tc` / `lint` / `test` / `build`. Turbo
   # parallelizes across the task graph; `actions/cache` persists `.turbo`
   # as L1; `scripts/turbo-ci-run.ts` uses `--cache=local:rw,remote:rw`
-  # + `--cache-workers=1` against the self-hosted remote cache. Per-task
+  # + `--cache-workers=1` against the Vercel Remote Cache. Per-task
   # status (`--output-logs=hash-only --summarize`) keeps logs readable.
   turbo-ci:
     runs-on: ubuntu-latest

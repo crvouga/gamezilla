@@ -1,10 +1,10 @@
 /**
  * Shared Turbo flags for `check:ci`.
  *
- * - CI: `local:rw,remote:rw` — L1 disk + self-hosted remote cache.
+ * - CI: `local:rw,remote:rw` — L1 disk + Vercel Remote Cache.
  * - Local: honor `TURBO_CACHE` when set; otherwise `local:rw,remote:r`.
- * - `--cache-workers=1` serializes remote HTTP (avoids stampedes).
- * - Refuses Vercel as `TURBO_API` so rate-limited vendor cache cannot return.
+ * - `--cache-workers=1` serializes remote HTTP (avoids stampedes and keeps
+ *   us clear of Vercel's rate limits).
  *
  * GitHub Actions also restores `.turbo` via `actions/cache` as an L1 layer.
  */
@@ -14,24 +14,6 @@ const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 
 function inCi(): boolean {
   return process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true';
-}
-
-function assertNotVercelApi(): void {
-  const api = process.env.TURBO_API?.trim();
-  if (api === undefined || api.length === 0) return;
-  try {
-    const url = new URL(api);
-    if (url.hostname === 'vercel.com' || url.hostname.endsWith('.vercel.com')) {
-      console.error(
-        `turbo-ci-run: TURBO_API must not point at Vercel (got "${api}"). ` +
-          'Use the self-hosted cache (e.g. https://turborepo.chrisvouga.dev).'
-      );
-      process.exit(1);
-    }
-  } catch {
-    console.error(`turbo-ci-run: invalid TURBO_API "${api}"`);
-    process.exit(1);
-  }
 }
 
 function resolveCacheFlag(): string {
@@ -51,8 +33,6 @@ function resolveCacheFlag(): string {
 
   return 'local:rw,remote:r';
 }
-
-assertNotVercelApi();
 
 const cache = resolveCacheFlag();
 

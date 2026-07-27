@@ -49,7 +49,6 @@ import {
   STRIPE_WEBHOOK_SECRET,
 } from './stripe-secrets';
 import {
-  TURBO_API,
   TURBO_CACHE,
   TURBO_LOG_ORDER,
   TURBO_TEAM,
@@ -73,7 +72,6 @@ export const SECRETS: readonly Secret[] = [
   STRIPE_SECRET_KEY,
   STRIPE_WEBHOOK_SECRET,
   STRIPE_PUBLISHABLE_KEY,
-  TURBO_API,
   TURBO_TOKEN,
   TURBO_TEAM,
   TURBO_CACHE,
