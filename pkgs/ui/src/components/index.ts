@@ -377,6 +377,9 @@ export {
 export {
   ScreenBase,
   ScreenBaseHeader,
+  SCREEN_BODY_PADDING_STEP,
+  ScreenBodyFlatList,
+  ScreenBodyScrollView,
   type BodyContentProps,
   type ScreenBaseAction,
   type ScreenBaseActionType,
@@ -384,6 +387,8 @@ export {
   type ScreenBaseHeaderProps,
   type ScreenBasePrimaryAction,
   type ScreenBaseProps,
+  type ScreenBodyFlatListProps,
+  type ScreenBodyScrollViewProps,
 } from './screen-base';
 export {
   FormActionsFooter,

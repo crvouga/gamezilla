@@ -5,9 +5,13 @@
  * to runtime registrations via {@link useComponentRegistry} when no
  * `entries` override is supplied. Pass `entries` to scope the lookup to a
  * caller-owned list (e.g. chess-only entries from chess settings).
+ *
+ * Pass `screenBodyBleed` when nested under a non-scrolling {@link ScreenBase}
+ * body so the scrollbar stays flush with the screen edge.
  */
 
 import { EmptyState } from '../empty-state';
+import { ScreenBodyScrollView } from '../screen-base/screen-body-scroll-view';
 import { ScrollView } from '../scroll-view';
 import {
   useComponentRegistry,
@@ -17,11 +21,17 @@ import {
 export type ExplorerDetailProps = {
   componentName: string;
   entries?: readonly ComponentEntry[];
+  /**
+   * When true, bleeds under ScreenBase body horizontal padding so the
+   * scrollbar is flush. Omit outside ScreenBase (e.g. chess settings embeds).
+   */
+  screenBodyBleed?: boolean;
 };
 
 export function ExplorerDetail({
   componentName,
   entries,
+  screenBodyBleed = false,
 }: ExplorerDetailProps) {
   const globalRegistry = useComponentRegistry();
   const registry = entries ?? globalRegistry;
@@ -37,10 +47,13 @@ export function ExplorerDetail({
   }
 
   const { Example } = entry;
+  const body = <Example />;
 
-  return (
-    <ScrollView sx={{ pb: 16 }}>
-      <Example />
-    </ScrollView>
-  );
+  if (screenBodyBleed) {
+    return (
+      <ScreenBodyScrollView sx={{ pb: 16 }}>{body}</ScreenBodyScrollView>
+    );
+  }
+
+  return <ScrollView sx={{ pb: 16 }}>{body}</ScrollView>;
 }

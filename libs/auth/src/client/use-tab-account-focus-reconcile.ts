@@ -43,9 +43,9 @@ function findSessionIdForTabAccount(args: {
 }
 
 /**
- * Web: Clerk's active session is shared across tabs, but each tab keeps its
- * own `lastLocalAccountId` in sessionStorage. On focus, switch Clerk back to
- * the session that matches this tab's selected account.
+ * Web: the auth provider's active session is shared across tabs, but each tab
+ * keeps its own `lastLocalAccountId` in sessionStorage. On focus, switch the
+ * active session back to the one that matches this tab's selected account.
  */
 export function useTabAccountFocusReconcile(args: {
   readonly enabled: boolean;

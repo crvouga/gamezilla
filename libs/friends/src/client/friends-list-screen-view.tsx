@@ -1,4 +1,4 @@
-import { Box, Button, FlatList, ScreenBase, Text } from '@pkgs/ui';
+import { Box, Button, ScreenBase, ScreenBodyFlatList, Text } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { FriendLiveSpaceBadge } from '@libs/spaces/client/friend-live-space-badge';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -47,7 +47,7 @@ function FriendsListBody(): ReactNode {
               />
             </Box>
           ) : (
-            <FlatList
+            <ScreenBodyFlatList
               data={friends}
               keyExtractor={(item) => item.userId}
               renderItem={({ item }) => (

@@ -19,6 +19,7 @@ export function UiExplorerScreen() {
       content={({ sx }) => (
         <Box style={sx}>
           <ExplorerList
+            screenBodyBleed
             onSelect={(name) => router.push(`/ui/${encodeURIComponent(name)}`)}
           />
         </Box>

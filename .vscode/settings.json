@@ -206,6 +206,7 @@
     "SAVEPOINT",
     "sched",
     "schemaname",
+    "scrollers",
     "Segoe",
     "segs",
     "semconv",

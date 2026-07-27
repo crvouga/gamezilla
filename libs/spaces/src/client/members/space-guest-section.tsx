@@ -1,4 +1,3 @@
-import { NoGuestsText } from './no-guests-text';
 import { SpaceGuestAvatarGroup } from './space-guest-avatar-group';
 import { SpaceGuestCountText } from './space-guest-count-text';
 import { SpaceGuestNamesLine } from './space-guest-names-line';
@@ -15,19 +14,15 @@ const AVATAR_GROUP_RING = 'surface' as const;
 const AVATAR_MAX_VISIBLE = 6;
 
 /**
- * Pure layout: count line, avatar stack, and joined name list for the guests
- * of a space card. Empty spaces show a single muted placeholder.
+ * Count line, avatar stack, and joined names for space-card guests.
+ * Renders nothing when the space has no guests — no placeholder, no spacer.
  */
 export function SpaceGuestSection({
   spaceId,
 }: SpaceGuestSectionProps): ReactNode {
   const membershipIds = useSpaceGuestMembershipIds(spaceId);
   if (membershipIds.length === 0) {
-    return (
-      <Box sx={{ mt: 3 }}>
-        <NoGuestsText variant="caption" sx={{ color: 'textSecondary' }} />
-      </Box>
-    );
+    return null;
   }
   return (
     <Box sx={{ mt: 3, gap: 1.5 }}>

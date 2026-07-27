@@ -26,8 +26,6 @@ export function SpaceCard({ spaceId }: SpaceCardProps): ReactNode {
         sx={{
           borderRadius: SPACE_CARD_BORDER_RADIUS,
           p: 4,
-          minHeight: 112,
-          justifyContent: 'space-between',
         }}
         style={theme.elevation(1)}
       >

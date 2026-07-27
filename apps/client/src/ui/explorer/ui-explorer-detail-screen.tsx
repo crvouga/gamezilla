@@ -21,7 +21,7 @@ export function UiExplorerDetailScreen() {
       ]}
       content={({ sx }) => (
         <Box style={sx}>
-          <ExplorerDetail componentName={name} />
+          <ExplorerDetail screenBodyBleed componentName={name} />
         </Box>
       )}
     />

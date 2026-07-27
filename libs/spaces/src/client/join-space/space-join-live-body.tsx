@@ -22,9 +22,6 @@ export function SpaceJoinLiveBody({
         sx={{
           borderRadius: SPACE_CARD_BORDER_RADIUS,
           p: 4,
-          minHeight: 112,
-          justifyContent: 'space-between',
-          gap: 0,
         }}
       >
         <SpaceSummaryHeader spaceId={spaceId} />

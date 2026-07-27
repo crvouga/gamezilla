@@ -8,7 +8,7 @@ import {
   LoadingState,
   PlusIcon,
   ScreenBase,
-  ScrollView,
+  ScreenBodyScrollView,
   type ChipGroupOption,
   type ScreenBasePrimaryAction,
 } from '@pkgs/ui';
@@ -70,8 +70,7 @@ function SpacesList() {
   return (
     <Box sx={{ flex: 1, gap: 2 }}>
       <ChipGroup options={options} selected={section} onSelect={setSection} />
-      <ScrollView
-        style={{ flex: 1 }}
+      <ScreenBodyScrollView
         contentContainerStyle={{
           paddingBottom: 24,
           gap: 8,
@@ -81,7 +80,7 @@ function SpacesList() {
           section={section}
           emptyTitle={emptyTitleForSection(section)}
         />
-      </ScrollView>
+      </ScreenBodyScrollView>
     </Box>
   );
 }

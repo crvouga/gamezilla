@@ -51,6 +51,13 @@ export type ScreenBaseProps = {
   breadcrumbs: ScreenBaseBreadcrumb[];
   actions?: ScreenBaseAction[];
   content: (p: BodyContentProps) => ReactNode;
+  /**
+   * When true, the body scrolls as a whole with padding inside the scroller
+   * (scrollbar flush with the screen edge). When false (default), the body
+   * is a padded flex column — nested lists must use
+   * {@link ScreenBodyScrollView} / {@link ScreenBodyFlatList} to keep
+   * scrollbars flush.
+   */
   scroll?: boolean;
   keyboardAvoiding?: boolean;
   /**

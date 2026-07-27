@@ -3,6 +3,12 @@
  * avoiding. The header bar always renders at the locked
  * {@link TOP_BAR_CONTENT_HEIGHT}, so every screen's top chrome lines up to
  * the same baseline.
+ *
+ * Body scrollbars must sit flush with the screen edge:
+ * - Whole-body scroll → pass `scroll` (padding lives inside the scroller).
+ * - Sticky chrome + nested list → use {@link ScreenBodyScrollView} /
+ *   {@link ScreenBodyFlatList} so the nested scroller bleeds under body
+ *   horizontal padding.
  */
 
 import { useContext, useMemo, type ReactNode } from 'react';
@@ -18,11 +24,11 @@ import {
   ScreenBasePrimaryActionMutation,
   type ScreenBasePrimaryActionRenderProps,
 } from './screen-base-primary-action';
+import { SCREEN_BODY_PADDING_STEP } from './screen-body-padding';
 import type { BodyContentProps, ScreenBaseProps } from './screen-base-types';
 import { ScreenBaseHeader } from './screen-base-header';
 
-/** Spacing-scale steps (1 = 4px): body padding 16px, body gap 12px. */
-const BODY_PADDING_STEP = 4;
+/** Spacing-scale steps (1 = 4px): body gap 12px. */
 const BODY_GAP_STEP = 3;
 const SCROLL_BOTTOM_PADDING = 24;
 const FLOATING_ACTION_MARGIN = 16;
@@ -39,7 +45,7 @@ function BodyInner({
     <Box
       sx={{
         ...(scroll ? {} : { flex: 1 }),
-        p: BODY_PADDING_STEP,
+        p: SCREEN_BODY_PADDING_STEP,
         gap: BODY_GAP_STEP,
       }}
     >
@@ -74,7 +80,7 @@ function PinnedFooter({ children }: { children: ReactNode }) {
       sx={{
         background: 'surface',
         borderColor: 'border',
-        px: BODY_PADDING_STEP,
+        px: SCREEN_BODY_PADDING_STEP,
         pt: BODY_GAP_STEP,
       }}
       style={{
