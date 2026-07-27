@@ -227,5 +227,8 @@
     "workbox-window": "^7.4.0",
     "wrangler": "^4.54.0",
     "zod": "^4.3.6"
-  }
+  },
+  "trustedDependencies": [
+    "@shopify/react-native-skia"
+  ]
 }

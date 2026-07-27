@@ -7,6 +7,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
+import { ensurePodsMatchNodeModules } from './ios-pods';
 
 /** Must match `expo.ios.bundleIdentifier` in `apps/client/app.json`. */
 export const DEV_CLIENT_BUNDLE_ID = 'app.gamezilla';
@@ -136,9 +137,21 @@ async function pingDevServer(url: URL, signal: AbortSignal): Promise<boolean> {
   }
 }
 
-/** True when Metro (or any HTTP server) responds on `url`. */
+/**
+ * True when Metro (or any HTTP server) responds on `url`.
+ *
+ * Retried, because a live-but-busy Metro (mid-bundle) can miss a single short
+ * probe. A false negative is expensive: the caller then starts its own
+ * `expo start`, which finds the port already bound and — being non-interactive —
+ * exits rather than prompting for a different port, taking the whole run down.
+ */
 export async function isDevServerRunning(url: URL): Promise<boolean> {
-  return pingDevServer(url, AbortSignal.timeout(1500));
+  const attempts = 3;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    if (await pingDevServer(url, AbortSignal.timeout(3000))) return true;
+    if (attempt < attempts - 1) await sleep(500);
+  }
+  return false;
 }
 
 export async function waitForDevServer(
@@ -172,6 +185,7 @@ export function isDevClientInstalled(udid: string): boolean {
 }
 
 export function installDevClientOnSim(simName: string): void {
+  ensurePodsMatchNodeModules(clientRoot);
   log(
     `Installing development build (${DEV_CLIENT_BUNDLE_ID}) on "${simName}" — first run may take several minutes…`
   );
