@@ -5,6 +5,8 @@
  * - Local: honor `TURBO_CACHE` when set; otherwise `local:rw,remote:r`.
  * - `--cache-workers=1` serializes remote HTTP (avoids stampedes and keeps
  *   us clear of Vercel's rate limits).
+ * - Unsets orphan `TURBO_API` so a leftover self-hosted origin cannot override
+ *   Vercel's default cache endpoint.
  *
  * GitHub Actions also restores `.turbo` via `actions/cache` as an L1 layer.
  */
@@ -34,6 +36,18 @@ function resolveCacheFlag(): string {
   return 'local:rw,remote:r';
 }
 
+function turboChildEnv(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = { ...process.env };
+  const orphan = env['TURBO_API'];
+  if (typeof orphan === 'string' && orphan.trim().length > 0) {
+    console.warn(
+      'turbo-ci-run: ignoring orphan TURBO_API (Vercel Remote Cache is the default)'
+    );
+  }
+  delete env['TURBO_API'];
+  return env;
+}
+
 const cache = resolveCacheFlag();
 
 const TURBO_OUTPUT_LOGS =
@@ -56,7 +70,7 @@ if (taskArgs.length === 0) {
 
 const result = spawnSync('turbo', ['run', ...taskArgs, ...TURBO_CI_FLAGS], {
   stdio: 'inherit',
-  env: process.env,
+  env: turboChildEnv(),
 });
 
 process.exit(result.status ?? 1);

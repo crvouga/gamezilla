@@ -34,6 +34,10 @@ msgstr "{active} active session(s) — latest expires {latestExpires}"
 msgid "{count} guests"
 msgstr "{count} guests"
 
+#: libs/spaces/src/client/miniplayer/miniplayer-stacked-bar.tsx
+msgid "{count} live spaces"
+msgstr "{count} live spaces"
+
 #: libs/spaces/src/client/miniplayer/miniplayer-member-count-text.tsx
 msgid "{count} people here"
 msgstr "{count} people here"
@@ -1556,6 +1560,14 @@ msgstr "Settings"
 msgid "Shared UI explorer"
 msgstr "Shared UI explorer"
 
+#: libs/spaces/src/client/miniplayer/miniplayer-overflow-pill.tsx
+#~ msgid "Show {count} more live spaces"
+#~ msgstr "Show {count} more live spaces"
+
+#: libs/spaces/src/client/miniplayer/miniplayer-stacked-bar.tsx
+msgid "Show your live spaces"
+msgstr "Show your live spaces"
+
 #: apps/client/src/ui/app-commands/account-command.tsx
 msgid "sign in"
 msgstr "sign in"
@@ -2116,6 +2128,10 @@ msgstr "Your changes are saved locally and will sync when you are back online."
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Your full name"
 msgstr "Your full name"
+
+#: libs/spaces/src/client/miniplayer/active-spaces-sheet.tsx
+msgid "Your live spaces"
+msgstr "Your live spaces"
 
 #: libs/profile/src/client/set-username/profile-handle-screen.tsx
 msgid "your_handle"

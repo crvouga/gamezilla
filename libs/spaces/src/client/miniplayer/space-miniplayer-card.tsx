@@ -1,3 +1,5 @@
+import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
+import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
 import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { SpaceCardGradientBox } from '../card/space-card-gradient';
@@ -11,11 +13,21 @@ import { MiniplayerSpaceTitle } from './miniplayer-space-title';
 
 export type SpaceMiniplayerCardProps = {
   spaceId: string;
+  requestEndSpace: (
+    spaceId: string,
+    options?: RequestEndSpaceOptions
+  ) => void;
+  requestLeaveSpace: (
+    spaceId: string,
+    options?: RequestLeaveSpaceOptions
+  ) => void;
 };
 
 /** A single miniplayer entry — gradient + atoms. No `useQuery` here. */
 export function SpaceMiniplayerCard({
   spaceId,
+  requestEndSpace,
+  requestLeaveSpace,
 }: SpaceMiniplayerCardProps): ReactNode {
   return (
     <SpaceCardGradientBox
@@ -63,7 +75,11 @@ export function SpaceMiniplayerCard({
         <MiniplayerLiveBadge />
       </MiniplayerOpenSpacePressable>
       <Box sx={{ pr: 3 }}>
-        <SpaceEndOrLeaveButton spaceId={spaceId} />
+        <SpaceEndOrLeaveButton
+          spaceId={spaceId}
+          requestEndSpace={requestEndSpace}
+          requestLeaveSpace={requestLeaveSpace}
+        />
       </Box>
     </SpaceCardGradientBox>
   );

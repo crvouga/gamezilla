@@ -42,7 +42,21 @@ describe('loadingPresence', () => {
     ).toEqual({ status: 'loading' });
   });
 
-  test('loads while membership query is pending', () => {
+  test('loads while membership query is pending for non-host', () => {
+    expect(
+      loadingPresence({
+        spaceEnabled: true,
+        spaceLoading: false,
+        spaceRow: hostSpaceRow,
+        memberEnabled: true,
+        guestLoading: true,
+        guestRow: null,
+        myId: 'user-2',
+      })
+    ).toEqual({ status: 'loading' });
+  });
+
+  test('does not block on membership loading when viewer is host', () => {
     expect(
       loadingPresence({
         spaceEnabled: true,
@@ -53,7 +67,7 @@ describe('loadingPresence', () => {
         guestRow: null,
         myId: 'user-1',
       })
-    ).toEqual({ status: 'loading' });
+    ).toBeNull();
   });
 });
 
@@ -86,7 +100,7 @@ describe('resolveSpacePresence', () => {
     ).toEqual({ status: 'active', role: 'guest' });
   });
 
-  test('resolves join when membership is missing even for host match', () => {
+  test('resolves active host when membership is missing but host fields match', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
@@ -96,6 +110,38 @@ describe('resolveSpacePresence', () => {
         guestLoading: false,
         guestRow: null,
         myId: 'user-1',
+      })
+    ).toEqual({ status: 'active', role: 'host' });
+  });
+
+  test('resolves active host via host_account_id when member id drifted', () => {
+    expect(
+      resolveSpacePresence({
+        spaceEnabled: true,
+        spaceLoading: false,
+        spaceRow: {
+          host_member_id: 'device-old',
+          host_account_id: 'user-1',
+          ended_at: null,
+        },
+        memberEnabled: true,
+        guestLoading: false,
+        guestRow: null,
+        myId: 'user-1',
+      })
+    ).toEqual({ status: 'active', role: 'host' });
+  });
+
+  test('resolves join when membership is missing for non-host', () => {
+    expect(
+      resolveSpacePresence({
+        spaceEnabled: true,
+        spaceLoading: false,
+        spaceRow: hostSpaceRow,
+        memberEnabled: true,
+        guestLoading: false,
+        guestRow: null,
+        myId: 'user-2',
       })
     ).toEqual({ status: 'join', ended: false });
   });

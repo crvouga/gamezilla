@@ -7,6 +7,7 @@ export type SpacePresence =
 
 type SpaceRow = {
   readonly host_member_id: string | null;
+  readonly host_account_id?: string | null;
   readonly ended_at: string | null;
 };
 
@@ -15,6 +16,23 @@ type ParticipationRow = {
 };
 
 type PresenceLatch = { spaceId: string; presence: SpacePresence };
+
+function nonEmptyEqual(a: string, b: string): boolean {
+  return a.length > 0 && b.length > 0 && a === b;
+}
+
+/** Live host seat via host_member_id or host_account_id (membership optional). */
+export function isViewerSpaceHost(
+  spaceRow: SpaceRow | null | undefined,
+  myId: string
+): boolean {
+  if (spaceRow === null || spaceRow === undefined) return false;
+  if (spaceRow.ended_at !== null) return false;
+  return (
+    nonEmptyEqual(spaceRow.host_member_id ?? '', myId) ||
+    nonEmptyEqual(spaceRow.host_account_id ?? '', myId)
+  );
+}
 
 export function loadingPresence(args: {
   spaceEnabled: boolean;
@@ -30,6 +48,10 @@ export function loadingPresence(args: {
   }
   if (args.spaceLoading && args.spaceRow === null) {
     return { status: 'loading' };
+  }
+  // Hosts do not need a membership row — do not block on membership loading.
+  if (isViewerSpaceHost(args.spaceRow, args.myId)) {
+    return null;
   }
   if (args.memberEnabled && args.guestLoading && args.guestRow === null) {
     return { status: 'loading' };
@@ -55,6 +77,9 @@ export function resolveSpacePresence(args: {
   }
   const loading = loadingPresence(args);
   if (loading !== null) return loading;
+  if (isViewerSpaceHost(args.spaceRow, args.myId)) {
+    return { status: 'active', role: 'host' };
+  }
   if (args.memberEnabled && args.guestRow !== null) {
     const hostMemberId = args.spaceRow?.host_member_id ?? '';
     return {

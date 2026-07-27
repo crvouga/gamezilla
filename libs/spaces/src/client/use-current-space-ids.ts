@@ -25,32 +25,98 @@ export type CurrentSpaceEntry = {
   role: 'host' | 'guest';
 };
 
-type MembershipRow = { readonly space_id: string };
+type MembershipRow = {
+  readonly space_id: string;
+  readonly joined_at: string | null;
+};
 type SpaceRow = {
   readonly id: string;
   readonly host_member_id: string | null;
+  readonly host_account_id: string | null;
   readonly ended_at: string | null;
 };
 
-function buildCurrentSpaceEntries(
+function isHostOfSpace(space: SpaceRow, memberId: string): boolean {
+  if (memberId.length === 0) return false;
+  return (
+    space.host_member_id === memberId || space.host_account_id === memberId
+  );
+}
+
+function roleForMemberSpace(
+  space: SpaceRow,
+  memberId: string
+): 'host' | 'guest' {
+  if (isHostOfSpace(space, memberId)) return 'host';
+  return resolvePresenceRole({
+    hostMemberId: space.host_member_id ?? '',
+    memberId,
+  });
+}
+
+function appendMemberEntries(args: {
+  entries: CurrentSpaceEntry[];
+  seen: Set<string>;
+  memberSpaceIds: readonly string[];
+  byId: Map<string, SpaceRow>;
+  memberId: string;
+}): void {
+  for (const spaceId of args.memberSpaceIds) {
+    const space = args.byId.get(spaceId);
+    if (space === undefined || space.ended_at !== null) continue;
+    args.seen.add(spaceId);
+    args.entries.push({
+      spaceId,
+      role: roleForMemberSpace(space, args.memberId),
+    });
+  }
+}
+
+function appendHostedOnlyEntries(args: {
+  entries: CurrentSpaceEntry[];
+  seen: Set<string>;
+  hostedSpaceRows: readonly SpaceRow[];
+  memberId: string;
+}): void {
+  for (const space of args.hostedSpaceRows) {
+    if (space.ended_at !== null || args.seen.has(space.id)) continue;
+    if (!isHostOfSpace(space, args.memberId)) continue;
+    args.entries.push({ spaceId: space.id, role: 'host' });
+  }
+}
+
+/**
+ * Merge membership seats with live hosted spaces (host fields match even when
+ * the host membership row is missing — sync/orphan gap).
+ */
+export function buildCurrentSpaceEntries(
   memberSpaceIds: readonly string[],
-  spaceRows: readonly SpaceRow[],
+  memberSpaceRows: readonly SpaceRow[],
+  hostedSpaceRows: readonly SpaceRow[],
   memberId: string
 ): CurrentSpaceEntry[] {
   const byId = new Map<string, SpaceRow>();
-  for (const row of spaceRows) {
+  for (const row of memberSpaceRows) {
     byId.set(row.id, row);
   }
-  const entries: CurrentSpaceEntry[] = [];
-  for (const spaceId of memberSpaceIds) {
-    const space = byId.get(spaceId);
-    if (space === undefined || space.ended_at !== null) continue;
-    const role = resolvePresenceRole({
-      hostMemberId: space.host_member_id ?? '',
-      memberId,
-    });
-    entries.push({ spaceId, role });
+  for (const row of hostedSpaceRows) {
+    byId.set(row.id, row);
   }
+  const seen = new Set<string>();
+  const entries: CurrentSpaceEntry[] = [];
+  appendMemberEntries({
+    entries,
+    seen,
+    memberSpaceIds,
+    byId,
+    memberId,
+  });
+  appendHostedOnlyEntries({
+    entries,
+    seen,
+    hostedSpaceRows,
+    memberId,
+  });
   return entries;
 }
 
@@ -60,16 +126,47 @@ function membershipSql(
 ): { sql: string; params: string[] } {
   if (!enabled) {
     return {
-      sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} WHERE 0`,
+      sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id,
+             ${SpaceMembershipCol.joinedAt} AS joined_at
+             FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} WHERE 0`,
       params: [],
     };
   }
   return {
-    sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id
+    sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id,
+             ${SpaceMembershipCol.joinedAt} AS joined_at
            FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
            WHERE ${SpaceMembershipCol.memberId} = ?
-             AND ${SpaceMembershipCol.leftAt} IS NULL`,
+             AND ${SpaceMembershipCol.leftAt} IS NULL
+           ORDER BY ${SpaceMembershipCol.joinedAt} DESC`,
     params: [accountId],
+  };
+}
+
+function hostedSpacesSql(
+  enabled: boolean,
+  accountId: string
+): { sql: string; params: string[] } {
+  if (!enabled) {
+    return {
+      sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostMemberId} AS host_member_id,
+            ${SpaceCol.hostAccountId} AS host_account_id,
+            ${SpaceCol.endedAt} AS ended_at FROM ${SPACES_TABLE.tableName} WHERE 0`,
+      params: [],
+    };
+  }
+  return {
+    sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostMemberId} AS host_member_id,
+          ${SpaceCol.hostAccountId} AS host_account_id,
+          ${SpaceCol.endedAt} AS ended_at
+          FROM ${SPACES_TABLE.tableName}
+          WHERE ${SpaceCol.endedAt} IS NULL
+            AND (
+              ${SpaceCol.hostMemberId} = ?
+              OR ${SpaceCol.hostAccountId} = ?
+            )
+          ORDER BY ${SpaceCol.createdAt} DESC`,
+    params: [accountId, accountId],
   };
 }
 
@@ -80,6 +177,7 @@ function spacesSql(ids: readonly string[]): {
   if (ids.length === 0) {
     return {
       sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostMemberId} AS host_member_id,
+            ${SpaceCol.hostAccountId} AS host_account_id,
             ${SpaceCol.endedAt} AS ended_at FROM ${SPACES_TABLE.tableName} WHERE 0`,
       params: [],
     };
@@ -87,6 +185,7 @@ function spacesSql(ids: readonly string[]): {
   const placeholders = ids.map(() => '?').join(', ');
   return {
     sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostMemberId} AS host_member_id,
+          ${SpaceCol.hostAccountId} AS host_account_id,
           ${SpaceCol.endedAt} AS ended_at
           FROM ${SPACES_TABLE.tableName}
           WHERE ${SpaceCol.id} IN (${placeholders})`,
@@ -104,9 +203,7 @@ function resolveDisplayEntries(
   return entries;
 }
 
-function useCurrentSpaceWatchQueries(
-  accountId: string | null
-): {
+function useCurrentSpaceWatchQueries(accountId: string | null): {
   entries: CurrentSpaceEntry[];
   queriesLoading: boolean;
 } {
@@ -115,9 +212,15 @@ function useCurrentSpaceWatchQueries(
     () => membershipSql(enabled, accountId ?? ''),
     [enabled, accountId]
   );
+  const hostedQuery = useMemo(
+    () => hostedSpacesSql(enabled, accountId ?? ''),
+    [enabled, accountId]
+  );
 
   const { rows: memberRows, isLoading: memberLoading } =
     useWatchQuery<MembershipRow>(memberQuery.sql, memberQuery.params);
+  const { rows: hostedRows, isLoading: hostedLoading } =
+    useWatchQuery<SpaceRow>(hostedQuery.sql, hostedQuery.params);
 
   const memberSpaceIds = useMemo(
     () => [
@@ -132,26 +235,30 @@ function useCurrentSpaceWatchQueries(
     () => spacesSql(memberSpaceIds),
     [memberSpaceIds]
   );
-  const { rows: spaceRows, isLoading: spacesLoading } = useWatchQuery<SpaceRow>(
-    spacesQuery.sql,
-    spacesQuery.params
-  );
+  const { rows: memberSpaceRows, isLoading: spacesLoading } =
+    useWatchQuery<SpaceRow>(spacesQuery.sql, spacesQuery.params);
 
   const entries = useMemo(
     () =>
-      buildCurrentSpaceEntries(memberSpaceIds, spaceRows, accountId ?? ''),
-    [memberSpaceIds, spaceRows, accountId]
+      buildCurrentSpaceEntries(
+        memberSpaceIds,
+        memberSpaceRows,
+        hostedRows,
+        accountId ?? ''
+      ),
+    [memberSpaceIds, memberSpaceRows, hostedRows, accountId]
   );
 
   return {
     entries,
-    queriesLoading: memberLoading || spacesLoading,
+    queriesLoading: memberLoading || spacesLoading || hostedLoading,
   };
 }
 
 /**
- * This account's live spaces — every space with an active membership that has
- * not ended. Role comes from spaces.host_member_id vs account id.
+ * This account's live spaces — active memberships plus live spaces this
+ * account hosts (host_member_id / host_account_id), so orphaned host seats
+ * still surface in the miniplayer.
  */
 export function useCurrentSpaceIds(): {
   entries: CurrentSpaceEntry[];

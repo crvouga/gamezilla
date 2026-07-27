@@ -23,6 +23,7 @@ export type { SpacePresence };
 
 type SpaceRow = {
   readonly host_member_id: string | null;
+  readonly host_account_id: string | null;
   readonly ended_at: string | null;
 };
 
@@ -31,6 +32,7 @@ type MembershipRow = {
 };
 
 const SPACE_SELECT = `SELECT ${SpaceCol.hostMemberId} AS host_member_id,
+         ${SpaceCol.hostAccountId} AS host_account_id,
          ${SpaceCol.endedAt} AS ended_at
          FROM ${SPACES_TABLE.tableName}`;
 
@@ -80,7 +82,7 @@ function useSpacePresenceQueries(args: {
 
 /**
  * Resolves whether this account is in `spaceId` via local membership.
- * Role uses account id vs `host_member_id`.
+ * Role uses account id vs `host_member_id` / `host_account_id`.
  */
 export function useSpacePresence(spaceId: string): SpacePresence {
   const accountId = useMyAccountId();

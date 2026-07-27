@@ -1,5 +1,5 @@
-import { useRequestEndSpace } from '../end-space/end-space-modal-provider';
-import { useRequestLeaveSpace } from '../leave-space/leave-space-modal-provider';
+import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
+import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
 import { useCurrentSpaceRole } from '../use-current-space-role';
 import { borderRadius, Pressable, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -7,20 +7,30 @@ import { useCallback, type ReactNode } from 'react';
 
 export type SpaceEndOrLeaveButtonProps = {
   spaceId: string;
+  /** Injected so this button can render inside portaled sheets. */
+  requestEndSpace: (
+    spaceId: string,
+    options?: RequestEndSpaceOptions
+  ) => void;
+  /** Injected so this button can render inside portaled sheets. */
+  requestLeaveSpace: (
+    spaceId: string,
+    options?: RequestLeaveSpaceOptions
+  ) => void;
 };
 
 /**
- * Miniplayer control: ends as host or leaves as guest. Each action uses its
- * own slice modal provider so confirms stay mounted through membership blips.
+ * Miniplayer control: ends as host or leaves as guest. Requestors are injected
+ * from above portal boundaries (`@gorhom/bottom-sheet` loses React context).
  */
 export function SpaceEndOrLeaveButton({
   spaceId,
+  requestEndSpace,
+  requestLeaveSpace,
 }: SpaceEndOrLeaveButtonProps): ReactNode {
   const role = useCurrentSpaceRole(spaceId);
   const isHost = role === 'host';
   const { t } = useLingui();
-  const requestEndSpace = useRequestEndSpace();
-  const requestLeaveSpace = useRequestLeaveSpace();
   const onPress = useCallback(() => {
     if (isHost) {
       requestEndSpace(spaceId);

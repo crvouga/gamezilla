@@ -80,9 +80,7 @@ jobs:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
-      - name: Verify Turbo remote cache
-        run: bun run scripts/secrets-run.ts -- bun run check:turbo-remote-cache
-      - name: Turbo CI (cacheable gates + tc/lint/test/build)
+      - name: Turbo CI (remote cache + cacheable gates + tc/lint/test/build)
         env:
           # GHA runners can expose a pseudo-TTY; Turbo's interactive TUI then
           # buffers task logs and looks hung for 10+ min on `@apps/client`.
