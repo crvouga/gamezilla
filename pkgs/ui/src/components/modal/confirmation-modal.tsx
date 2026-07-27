@@ -19,6 +19,10 @@
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useRef } from 'react';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { Box } from '../box';
 import { ResponsiveSurface } from '../responsive-surface';
 import { Text } from '../text';
@@ -39,6 +43,8 @@ export type ConfirmationModalProps = {
   submitting?: boolean;
   onConfirm: () => void | Promise<void>;
   onCancel: () => void;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 type LatchedContent = {
@@ -105,6 +111,7 @@ export function ConfirmationModal({
   submitting = false,
   onConfirm,
   onCancel,
+  dataSet,
 }: ConfirmationModalProps) {
   const { t } = useLingui();
   const display = useLatchedContent(visible, {
@@ -127,6 +134,7 @@ export function ConfirmationModal({
       visible={visible}
       onClose={handleClose}
       title={display.title}
+      {...componentDataSet('ConfirmationModal', dataSet)}
     >
       <ConfirmationModalBody
         message={display.message}

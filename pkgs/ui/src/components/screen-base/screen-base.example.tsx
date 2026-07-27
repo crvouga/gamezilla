@@ -6,6 +6,7 @@ export default function ScreenBaseExample() {
   return (
     <Box sx={{ flex: 1, minHeight: 400 }}>
       <ScreenBase
+        screenId="screen-base-example"
         breadcrumbs={[
           { name: 'Design system', onPress: () => {} },
           { name: 'ScreenBase' },

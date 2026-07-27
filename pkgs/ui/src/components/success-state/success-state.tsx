@@ -18,6 +18,10 @@
 
 import type { ReactNode } from 'react';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';
@@ -40,6 +44,8 @@ export type SuccessStateProps = {
   action?: SuccessStateAction;
   /** Layout density. Defaults to `'fill'`. */
   variant?: StateBlockVariant;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const ICON_SIZE_FILL = 32;
@@ -52,6 +58,7 @@ export function SuccessState({
   body,
   action,
   variant = 'fill',
+  dataSet,
 }: SuccessStateProps): ReactNode {
   if (variant === 'compact') {
     return (
@@ -60,11 +67,18 @@ export function SuccessState({
         title={title}
         body={body}
         action={action}
+        dataSet={dataSet}
       />
     );
   }
   return (
-    <SuccessStateFill icon={icon} title={title} body={body} action={action} />
+    <SuccessStateFill
+      icon={icon}
+      title={title}
+      body={body}
+      action={action}
+      dataSet={dataSet}
+    />
   );
 }
 
@@ -73,16 +87,18 @@ function SuccessStateFill({
   title,
   body,
   action,
+  dataSet,
 }: {
   icon: IconComponent;
   title: ReactNode;
   body: ReactNode;
   action: SuccessStateAction | undefined;
+  dataSet: ComponentDataSet | undefined;
 }) {
   const theme = useTheme();
   const Icon = icon;
   return (
-    <StateBlock variant="fill">
+    <StateBlock variant="fill" {...componentDataSet('SuccessState', dataSet)}>
       <Icon size={ICON_SIZE_FILL} color={theme.colors.success} />
       <Text
         variant="bodyBold"
@@ -115,16 +131,19 @@ function SuccessStateCompact({
   title,
   body,
   action,
+  dataSet,
 }: {
   icon: IconComponent;
   title: ReactNode;
   body: ReactNode;
   action: SuccessStateAction | undefined;
+  dataSet: ComponentDataSet | undefined;
 }) {
   const theme = useTheme();
   const Icon = icon;
   return (
     <Box
+      {...componentDataSet('SuccessState', dataSet)}
       sx={{
         flexDirection: 'row',
         alignItems: 'flex-start',

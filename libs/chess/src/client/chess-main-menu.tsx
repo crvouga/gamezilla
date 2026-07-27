@@ -142,6 +142,7 @@ function RootMainMenu({ onBackToGames }: ChessMainMenuProps): ReactNode {
     <>
       <DefineBackButton onPress={onBackToGames} />
       <MainMenuScreen
+        screenId="chess-main-menu"
         title={<Trans>Chess</Trans>}
         subtitle={<Trans>Choose how you want to play.</Trans>}
         items={items}

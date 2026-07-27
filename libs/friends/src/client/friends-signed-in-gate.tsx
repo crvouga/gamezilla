@@ -17,6 +17,7 @@ export function FriendsSignedInGate({
 
   return (
     <ScreenBase
+      screenId="friends-signed-in-gate"
       breadcrumbs={[{ name: <Trans>Friends</Trans> }]}
       content={({ sx }) => (
         <Box

@@ -16,6 +16,10 @@
 
 import { forwardRef, type ReactNode } from 'react';
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { preserveEmptyTextLayout } from './preserve-empty-text-layout';
 import {
   textCasingToStyle,
@@ -137,10 +141,12 @@ export type TextProps = RNTextProps & {
    * package so copy is not embedded as JSX text nodes.
    */
   label?: ReactNode;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export const Text = forwardRef<RNText, TextProps>(function Text(
-  { variant = 'body', sx: sxProp, style, label, children, ...rest },
+  { variant = 'body', sx: sxProp, style, label, children, dataSet, ...rest },
   ref
 ) {
   const theme = useTheme();
@@ -155,11 +161,13 @@ export const Text = forwardRef<RNText, TextProps>(function Text(
     defaultColor !== undefined ? { color: defaultColor } : undefined;
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const content = preserveEmptyTextLayout(label ?? children);
+  const idProps = componentDataSet('Text', dataSet);
   return (
     <RNText
       ref={ref}
       style={[base, variantFont, casingStyle, colorStyle, sxStyle, style]}
       {...rest}
+      {...idProps}
     >
       {content}
     </RNText>

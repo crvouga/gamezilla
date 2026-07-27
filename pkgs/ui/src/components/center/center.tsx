@@ -11,20 +11,27 @@
 
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import type { SxProps } from '../../theme';
 
 export type CenterProps = ViewProps & {
   /** Utility-first style shorthand. */
   sx?: SxProps;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export const Center = forwardRef<View, CenterProps>(function Center(
-  { sx: sxProp, style, ...rest },
+  { sx: sxProp, style, dataSet, ...rest },
   ref
 ) {
   const theme = useTheme();
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
+  const idProps = componentDataSet('Center', dataSet);
   return (
     <View
       ref={ref}
@@ -34,6 +41,7 @@ export const Center = forwardRef<View, CenterProps>(function Center(
         style,
       ]}
       {...rest}
+      {...idProps}
     />
   );
 });

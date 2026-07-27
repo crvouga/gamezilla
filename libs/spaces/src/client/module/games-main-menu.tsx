@@ -67,6 +67,7 @@ function GameListMenu({
 
   return (
     <MainMenuScreen
+      screenId="games-main-menu"
       title={<Trans>Games</Trans>}
       subtitle={<Trans>Pick a game to play.</Trans>}
       helper={

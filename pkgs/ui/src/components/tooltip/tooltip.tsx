@@ -17,6 +17,9 @@ import {
 } from 'react';
 import { View } from 'react-native';
 
+import {
+  type ComponentDataSet,
+} from '../../component-id';
 import { useHoverCapable } from '../../theme';
 import { useOverlayPortalSlot } from '../overlay-portal/overlay-portal';
 import { TooltipBubble } from './tooltip-bubble';
@@ -29,6 +32,8 @@ export type TooltipProps = {
   label: ReactNode;
   children: ReactNode;
   placement?: TooltipPlacement;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 type TooltipController = {
@@ -63,6 +68,7 @@ export function Tooltip({
   label,
   children,
   placement = 'bottom',
+  dataSet,
 }: TooltipProps): ReactNode {
   const anchorRef = useRef<View>(null);
   const portalId = useId();
@@ -76,6 +82,7 @@ export function Tooltip({
         anchor={anchor}
         preferredPlacement={placement}
         enterKey={enterKey}
+        {...(dataSet !== undefined ? { dataSet } : {})}
       />
     ) : null;
 

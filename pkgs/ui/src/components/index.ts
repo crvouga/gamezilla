@@ -18,7 +18,7 @@ export { AppLogo, type AppLogoProps } from './app-logo';
 export { Stack, type StackProps } from './stack';
 export { Center, type CenterProps } from './center';
 export { Divider, type DividerProps } from './divider';
-export { Spacer } from './spacer';
+export { Spacer, type SpacerProps } from './spacer';
 export {
   ComposeProviders,
   type ComposeProvidersProps,

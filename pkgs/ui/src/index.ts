@@ -10,6 +10,7 @@
 
 import './lingui-augmentation';
 
+export * from './component-id';
 export * from './components';
 export * from './explorer';
 export { hideSplash, preventSplashAutoHide } from './expo/splash-screen';

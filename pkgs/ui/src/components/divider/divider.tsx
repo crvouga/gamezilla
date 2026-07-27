@@ -14,19 +14,27 @@
  */
 
 import { StyleSheet, View, type ViewProps } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 
 export type DividerProps = ViewProps & {
   /** Orientation. Defaults to `"horizontal"`. */
   orientation?: 'horizontal' | 'vertical';
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function Divider({
   orientation = 'horizontal',
   style,
+  dataSet,
   ...rest
 }: DividerProps) {
   const theme = useTheme();
+  const idProps = componentDataSet('Divider', dataSet);
 
   const dividerStyle =
     orientation === 'horizontal'
@@ -41,5 +49,5 @@ export function Divider({
           backgroundColor: theme.colors.border,
         };
 
-  return <View style={[dividerStyle, style]} {...rest} />;
+  return <View style={[dividerStyle, style]} {...rest} {...idProps} />;
 }

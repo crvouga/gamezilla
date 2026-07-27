@@ -29,6 +29,10 @@ import { useContext, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
+import {
   getTopBarContentHeight,
   TOP_BAR_CONTENT_HEIGHT_MOBILE,
   useTheme,
@@ -77,6 +81,8 @@ export type TopBarProps = {
    * already consumes the inset.
    */
   safeAreaTop?: boolean;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const ALIGN_MAP: Record<
@@ -220,6 +226,7 @@ export function TopBar({
   centerAlign = 'start',
   centerPosition = 'absolute',
   safeAreaTop = true,
+  dataSet,
 }: TopBarProps): ReactNode {
   const { breakpoint } = useTheme();
   const contentHeight = getTopBarContentHeight(breakpoint);
@@ -227,6 +234,7 @@ export function TopBar({
 
   return (
     <Box
+      {...componentDataSet('TopBar', dataSet)}
       sx={{
         background: 'surface',
         borderBottomWidth: 1,

@@ -90,6 +90,13 @@ export function assertProductionBundlesAtDir(dir: string, label: string): void {
   let scannedChunks = 0;
   for (const file of files) {
     const source = readFileSync(file, 'utf8');
+    // Babel jsx-source-attr injects `dataSet: { src: "…:line" }` only in
+    // dev/e2e. Production must not contain those `data-src` path markers.
+    assert.ok(
+      !source.includes('data-src') && !/"src":"[^"]+\.tsx?:\d+"/.test(source),
+      `${label}: production bundle still contains jsx-source-attr data-src markers`,
+      { file }
+    );
     if (!source.includes(INLINED_API_URL_SENTINEL)) continue;
     scannedChunks += 1;
     const inlined = extractInlinedApiUrlFromBundleSource(source);

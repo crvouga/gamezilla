@@ -76,6 +76,7 @@ export function SearchScreen({
 
   return (
     <ScreenBase
+      screenId="search"
       breadcrumbs={[{ name: t`Search` }]}
       accountMenu={accountMenu}
       leading={leading}

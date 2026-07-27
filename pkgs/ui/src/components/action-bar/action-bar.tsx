@@ -5,6 +5,10 @@
 import { useContext, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { Box } from '../box';
 import {
   FLOATING_MENU_DEFAULT_WIDTH,
@@ -66,6 +70,8 @@ export type ActionBarProps = {
   /** When true, shows a caption under each inline action (icons, avatars, More). */
   showInlineLabels?: boolean;
   overflowTestID?: string;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 function ActionBarRow(p: {
@@ -82,9 +88,11 @@ function ActionBarRow(p: {
   overflowTestID?: string;
   overflowTrigger?: ActionBarOverflowTriggerSpec;
   measuresWidth: boolean;
+  dataSet?: ComponentDataSet;
 }): ReactNode {
   return (
     <Box
+      {...componentDataSet('ActionBar', p.dataSet)}
       collapsable={false}
       sx={{
         ...(p.measuresWidth
@@ -168,6 +176,7 @@ function ActionBarBody(p: {
   menu: ReturnType<typeof useAnchoredMenu>;
   menuContent: FloatingMenuContent;
   overflowTestID?: string;
+  dataSet?: ComponentDataSet;
 }): ReactNode {
   const measuresWidth = p.overflow !== 'never';
   return (
@@ -188,6 +197,7 @@ function ActionBarBody(p: {
         {...(p.overflowTestID !== undefined
           ? { overflowTestID: p.overflowTestID }
           : {})}
+        {...(p.dataSet !== undefined ? { dataSet: p.dataSet } : {})}
       />
       {p.overflow === 'never' ? null : (
         <ActionBarOverflowMenu
@@ -243,6 +253,7 @@ export function ActionBar(props: ActionBarProps): ReactNode {
       overflowTrigger={resolved.overflowTrigger}
       menu={menu}
       menuContent={menuContent}
+      {...(props.dataSet !== undefined ? { dataSet: props.dataSet } : {})}
       {...(resolved.overflowTestID !== undefined
         ? { overflowTestID: resolved.overflowTestID }
         : {})}

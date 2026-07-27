@@ -1,5 +1,9 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { spacing } from '../../theme/scale';
 import { HorizontalPickerArrow } from './horizontal-picker-arrows';
 
@@ -10,6 +14,8 @@ export type HorizontalPickerShellProps = {
   onPrev: () => void;
   onNext: () => void;
   children: ReactNode;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function HorizontalPickerShell({
@@ -19,9 +25,11 @@ export function HorizontalPickerShell({
   onPrev,
   onNext,
   children,
+  dataSet,
 }: HorizontalPickerShellProps): ReactNode {
   return (
     <View
+      {...componentDataSet('HorizontalPicker', dataSet)}
       style={{ flexDirection: 'row', alignItems: 'center', gap: spacing[1] }}
     >
       {showArrows ? (

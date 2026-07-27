@@ -118,6 +118,7 @@ export function SpacesScreen({ accountMenu, leading }: SpacesScreenProps) {
 
   return (
     <ScreenBase
+      screenId="spaces"
       breadcrumbs={[{ name: t`Spaces` }]}
       accountMenu={accountMenu}
       leading={leading}

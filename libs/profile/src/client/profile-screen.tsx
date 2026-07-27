@@ -27,6 +27,7 @@ export function ProfileScreen({
 }: ProfileScreenProps) {
   return (
     <ScreenBase
+      screenId="profile"
       breadcrumbs={[{ name: <Trans>Profile</Trans> }]}
       accountMenu={accountMenu}
       leading={leading}

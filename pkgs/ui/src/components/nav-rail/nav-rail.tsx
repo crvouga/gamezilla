@@ -22,6 +22,10 @@
 
 import type { ReactNode } from 'react';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { Box } from '../box';
 
 export const NAV_RAIL_DEFAULT_WIDTH = 276;
@@ -35,6 +39,8 @@ export type NavRailProps = {
   width?: number;
   /** Flex-growing body; receives a min-height-0 column container. */
   children: ReactNode;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function NavRail({
@@ -42,9 +48,11 @@ export function NavRail({
   footer,
   width = NAV_RAIL_DEFAULT_WIDTH,
   children,
+  dataSet,
 }: NavRailProps): ReactNode {
   return (
     <Box
+      {...componentDataSet('NavRail', dataSet)}
       sx={{
         width,
         minHeight: 0,

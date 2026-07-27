@@ -49,6 +49,7 @@ export function ChessSettingsScreen(): ReactNode {
     <>
       <DefineBackButton onPress={backToRoot} />
       <MainMenuScreen
+        screenId="chess-settings"
         title={<Trans>Settings</Trans>}
         subtitle={<Trans>Chess preferences and developer tools.</Trans>}
         items={items}

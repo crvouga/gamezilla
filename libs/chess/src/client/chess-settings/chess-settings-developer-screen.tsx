@@ -38,6 +38,7 @@ export function ChessSettingsDeveloperScreen(): ReactNode {
     <>
       <DefineBackButton onPress={backToSettings} />
       <MainMenuScreen
+        screenId="chess-settings-developer"
         title={<Trans>Developer</Trans>}
         subtitle={<Trans>Tools for debugging and exploring the UI.</Trans>}
         items={items}

@@ -14,7 +14,16 @@
  */
 
 import { View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 
-export function Spacer() {
-  return <View style={{ flex: 1 }} />;
+export type SpacerProps = {
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
+};
+
+export function Spacer({ dataSet }: SpacerProps = {}) {
+  return <View style={{ flex: 1 }} {...componentDataSet('Spacer', dataSet)} />;
 }

@@ -9,6 +9,10 @@ import {
   type LayoutRectangle,
 } from 'react-native';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
@@ -33,6 +37,8 @@ export type FloatingMenuProps = {
   width?: number;
   /** Panel body: optional header + rows (items and dividers). */
   content: FloatingMenuContent;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export type {
@@ -50,6 +56,7 @@ export function FloatingMenu({
   insets,
   width = FLOATING_MENU_DEFAULT_WIDTH,
   content,
+  dataSet,
 }: FloatingMenuProps) {
   const visible = open && anchor !== null;
   const estimatedHeight = estimateFloatingMenuHeight(content);
@@ -65,7 +72,7 @@ export function FloatingMenu({
 
   return (
     <ModalRoot visible={visible} onRequestClose={onClose}>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1 }} {...componentDataSet('FloatingMenu', dataSet)}>
         <FloatingMenuBackdrop onClose={onClose} />
         {anchor !== null ? (
           <FloatingMenuPanel

@@ -18,6 +18,10 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import type { SxProps } from '../../theme';
 import { Center, type CenterProps } from '../center';
 import { Spinner, type SpinnerProps } from './spinner';
@@ -35,6 +39,8 @@ export type SpinnerBoxProps = {
   strokeWidth?: SpinnerProps['strokeWidth'];
   /** Optional caption/content rendered below the spinner. */
   children?: ReactNode;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function SpinnerBox({
@@ -44,6 +50,7 @@ export function SpinnerBox({
   color,
   strokeWidth,
   children,
+  dataSet,
 }: SpinnerBoxProps) {
   // `exactOptionalPropertyTypes` forbids passing explicit `undefined` to
   // optional props, so build prop objects that only include defined keys.
@@ -57,7 +64,7 @@ export function SpinnerBox({
   if (strokeWidth !== undefined) spinnerProps.strokeWidth = strokeWidth;
 
   return (
-    <Center {...centerProps}>
+    <Center {...centerProps} {...componentDataSet('SpinnerBox', dataSet)}>
       <Spinner {...spinnerProps} />
       {children}
     </Center>

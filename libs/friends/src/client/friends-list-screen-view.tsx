@@ -32,6 +32,7 @@ function FriendsListBody(): ReactNode {
 
   return (
     <ScreenBase
+      screenId="friends-list"
       breadcrumbs={[
         { name: <Trans>Profile</Trans>, onPress: nav('/profile') },
         { name: <Trans>Friends</Trans> },

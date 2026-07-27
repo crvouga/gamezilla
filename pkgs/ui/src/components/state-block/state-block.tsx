@@ -16,6 +16,10 @@
 
 import type { ReactNode } from 'react';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { Box } from '../box';
 
 export type StateBlockVariant = 'fill' | 'compact';
@@ -23,15 +27,19 @@ export type StateBlockVariant = 'fill' | 'compact';
 export type StateBlockProps = {
   variant?: StateBlockVariant;
   children: ReactNode;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function StateBlock({
   variant = 'fill',
   children,
+  dataSet,
 }: StateBlockProps): ReactNode {
   const isFill = variant === 'fill';
   return (
     <Box
+      {...componentDataSet('StateBlock', dataSet)}
       sx={{
         ...(isFill ? { flex: 1 } : {}),
         alignItems: 'center',

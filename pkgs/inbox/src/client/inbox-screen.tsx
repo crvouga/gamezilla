@@ -95,6 +95,7 @@ export function InboxScreen({
 
   return (
     <ScreenBase
+      screenId="inbox"
       breadcrumbs={[{ name: t`Inbox` }]}
       accountMenu={accountMenu}
       leading={leading}

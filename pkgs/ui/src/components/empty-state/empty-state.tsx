@@ -20,6 +20,10 @@
 
 import type { ReactNode } from 'react';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Button } from '../button';
 import { StateBlock, type StateBlockVariant } from '../state-block';
@@ -40,6 +44,8 @@ export type EmptyStateProps = {
   action?: EmptyStateAction;
   /** Layout density. Defaults to `'fill'`. */
   variant?: StateBlockVariant;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const ICON_SIZE = 32;
@@ -50,11 +56,12 @@ export function EmptyState({
   body,
   action,
   variant = 'fill',
+  dataSet,
 }: EmptyStateProps): ReactNode {
   const theme = useTheme();
   const Icon = icon;
   return (
-    <StateBlock variant={variant}>
+    <StateBlock variant={variant} {...componentDataSet('EmptyState', dataSet)}>
       {Icon !== undefined ? (
         <Icon size={ICON_SIZE} color={theme.colors.textSecondary} />
       ) : null}

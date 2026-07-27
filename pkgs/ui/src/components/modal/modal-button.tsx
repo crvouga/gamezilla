@@ -12,6 +12,10 @@
  */
 
 import type { ReactNode } from 'react';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { Button } from '../button';
 
 export type ModalButtonProps = {
@@ -19,6 +23,8 @@ export type ModalButtonProps = {
   variant?: 'default' | 'cancel' | 'destructive';
   onPress: () => void;
   disabled?: boolean;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function ModalButton({
@@ -26,6 +32,7 @@ export function ModalButton({
   variant = 'default',
   onPress,
   disabled = false,
+  dataSet,
 }: ModalButtonProps) {
   if (variant === 'destructive') {
     return (
@@ -35,6 +42,7 @@ export function ModalButton({
         size="md"
         onPress={onPress}
         disabled={disabled}
+        {...componentDataSet('ModalButton', dataSet)}
       />
     );
   }
@@ -47,6 +55,7 @@ export function ModalButton({
         size="md"
         onPress={onPress}
         disabled={disabled}
+        {...componentDataSet('ModalButton', dataSet)}
       />
     );
   }
@@ -57,6 +66,7 @@ export function ModalButton({
       size="md"
       onPress={onPress}
       disabled={disabled}
+      {...componentDataSet('ModalButton', dataSet)}
     />
   );
 }

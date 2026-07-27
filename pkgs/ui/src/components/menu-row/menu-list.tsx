@@ -19,6 +19,10 @@
 
 import type { ReactNode } from 'react';
 import type { ViewProps } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { Box } from '../box';
 import { SCREEN_BODY_PADDING_STEP } from '../screen-base/screen-body-padding';
 
@@ -26,11 +30,17 @@ export type MenuListProps = {
   children: ReactNode;
   /** Forward ScreenBase `content` `sx` (e.g. `{ flex: 1 }`). */
   style?: ViewProps['style'];
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
-export function MenuList({ children, style }: MenuListProps) {
+export function MenuList({ children, style, dataSet }: MenuListProps) {
   return (
-    <Box style={style} sx={{ mx: -SCREEN_BODY_PADDING_STEP }}>
+    <Box
+      style={style}
+      sx={{ mx: -SCREEN_BODY_PADDING_STEP }}
+      {...componentDataSet('MenuList', dataSet)}
+    >
       {children}
     </Box>
   );

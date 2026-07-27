@@ -1,6 +1,10 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 import { Platform } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { OnColorProvider, useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { ButtonSurfaceFill } from '../button/button-surface-fill';
@@ -37,6 +41,8 @@ export type FloatingActionButtonProps = {
   loadingLabel?: ReactNode;
   successLabel?: ReactNode;
   errorLabel?: ReactNode;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 function buildPressableInput(
@@ -213,6 +219,7 @@ export function FloatingActionButton(props: FloatingActionButtonProps) {
     loadingLabel,
     successLabel,
     errorLabel,
+    dataSet,
   } = props;
   const extended = label !== undefined;
   const theme = useTheme();
@@ -231,6 +238,7 @@ export function FloatingActionButton(props: FloatingActionButtonProps) {
       disabled={nonInteractive}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
+      {...componentDataSet('FloatingActionButton', dataSet)}
       sx={{ borderRadius: borderRadius.full, overflow: 'hidden' }}
       style={fabContainerStyle({ extended, face, shadow })}
     >

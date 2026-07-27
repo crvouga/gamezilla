@@ -33,6 +33,10 @@ import {
   type ReactNode,
 } from 'react';
 import { Platform, View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { OnColorProvider, useTheme, type Theme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';
@@ -68,6 +72,8 @@ export type ButtonProps = {
   startIcon?: ReactNode;
   endIcon?: ReactNode;
   flex?: number;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -145,7 +151,7 @@ export function buttonForegroundColor(
 }
 
 export function Button(props: ButtonProps) {
-  const { size = 'md', flex } = props;
+  const { size = 'md', flex, dataSet } = props;
   const theme = useTheme();
   const s = sizeMap[size];
   const { phase, face, nonInteractive, handlePress } =
@@ -176,6 +182,7 @@ export function Button(props: ButtonProps) {
         overflow: 'hidden',
         ...shadow,
       })}
+      {...componentDataSet('Button', dataSet)}
     >
       {face.gradient !== undefined ? (
         <ButtonSurfaceFill

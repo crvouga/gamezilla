@@ -29,6 +29,7 @@ export function MiniplayerOpenSpacePressable({
       accessibilityLabel={t`Tap to return to your space`}
       sx={{
         flex: 1,
+        alignSelf: 'stretch',
         flexDirection: 'row',
         alignItems: 'center',
         gap: 2,

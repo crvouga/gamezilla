@@ -8,7 +8,12 @@ import { useLingui } from '@lingui/react/macro';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
+import { Box } from '../box';
 import { borderRadius } from '../../theme/scale';
 import { List, ListItem } from '../list';
 import { Pressable } from '../pressable';
@@ -37,6 +42,8 @@ export type PickerProps<T extends string | number = string> = {
     selected: boolean,
     onPick: () => void
   ) => ReactElement | null;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function Picker<T extends string | number = string>({
@@ -48,6 +55,7 @@ export function Picker<T extends string | number = string>({
   disabled = false,
   placeholder,
   renderOption,
+  dataSet,
 }: PickerProps<T>) {
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
@@ -65,7 +73,7 @@ export function Picker<T extends string | number = string>({
   };
 
   return (
-    <>
+    <Box {...componentDataSet('Picker', dataSet)}>
       {label !== undefined ? <PickerLabel label={label} /> : null}
       <PickerTrigger
         selected={selected}
@@ -85,7 +93,7 @@ export function Picker<T extends string | number = string>({
           renderOption={renderOption}
         />
       </ResponsiveSurface>
-    </>
+    </Box>
   );
 }
 

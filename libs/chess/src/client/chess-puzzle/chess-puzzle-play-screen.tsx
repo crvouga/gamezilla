@@ -1,6 +1,6 @@
 import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
-import { Box, SpeakingAvatar } from '@pkgs/ui';
+import { Box, SpeakingAvatar, componentDataSet } from '@pkgs/ui';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { memo, type ReactNode } from 'react';
 import {
@@ -56,7 +56,12 @@ function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
       ? p.puzzleRating
       : undefined;
   return (
-    <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}>
+    <Box
+      sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}
+      {...componentDataSet('ChessPuzzlePlayScreen', {
+        screen: 'chess-puzzle-play',
+      })}
+    >
       <DefineBackButton onPress={p.backToRoot} />
       {p.e2eLoadingStatus}
       <Box sx={{ flex: 1, minHeight: 0, gap: 4, pt: 4 }}>

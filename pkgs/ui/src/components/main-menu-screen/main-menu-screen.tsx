@@ -1,5 +1,9 @@
 import type { ReactNode } from 'react';
 import { adjustLightness } from '@pkgs/colors';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme, type Theme } from '../../theme';
 import { formatCssHsla, parseCssColor } from '../../theme/colors/css-color';
 import { borderRadius } from '../../theme/scale';
@@ -31,6 +35,13 @@ export type MainMenuScreenProps = {
   /** Below the list (e.g. secondary actions). Back navigation should live in
    *  the host's nav chrome, not here. */
   footer?: ReactNode;
+  /**
+   * Stable screen identifier rendered as `data-screen` on the root (dev/e2e).
+   * Prefer setting this for every top-level menu screen.
+   */
+  screenId?: string;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const MENU_ITEM_MIN_HEIGHT = 84;
@@ -178,10 +189,16 @@ export function MainMenuScreen({
   helper,
   items,
   footer,
+  screenId,
+  dataSet,
 }: MainMenuScreenProps): ReactNode {
   const hasHeader = title !== undefined || subtitle !== undefined;
   return (
     <Box
+      {...componentDataSet('MainMenuScreen', {
+        ...dataSet,
+        ...(screenId !== undefined ? { screen: screenId } : {}),
+      })}
       sx={{ px: 4, pb: 8, pt: 4, gap: 4, alignSelf: 'center' }}
       style={{ width: '100%', maxWidth: MAIN_MENU_SCREEN_MAX_WIDTH }}
     >

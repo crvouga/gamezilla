@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import type { ComponentDataSet } from '../../component-id';
 import type { MutationButtonLabels } from '../button/use-mutation-button';
 import type { IconComponent } from '../icons';
 
@@ -43,6 +44,8 @@ export type ScreenBasePrimaryAction = {
 };
 
 export type ScreenBaseProps = {
+  /** Stable screen identifier for DOM `data-screen` (E2E / dev tooling). */
+  screenId: string;
   /**
    * Navigation trail for the header: the last item supplies the centered
    * title; earlier items with `onPress` drive the back button. Not rendered
@@ -81,6 +84,8 @@ export type ScreenBaseProps = {
   primaryActionBottomInset?: number;
   /** Always-visible account avatar menu rendered after header actions. */
   accountMenu?: ReactNode;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export type ScreenBaseHeaderProps = {

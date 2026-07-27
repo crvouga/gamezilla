@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useCallback, useRef, useState } from 'react';
+import type { ComponentDataSet } from '../../component-id';
 import type { LayoutChangeEvent, ListRenderItem } from 'react-native';
 import type Animated from 'react-native-reanimated';
 import {
@@ -34,6 +35,8 @@ export type HorizontalPickerProps<T> = {
    * `items` (e.g. avatar seed / draft options) so recycled cells refresh.
    */
   extraData?: unknown;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 type ScrollSetup = {
@@ -120,6 +123,7 @@ export function HorizontalPicker<T>(
     showArrows = true,
     keyExtractor: keyExtractorProp,
     extraData,
+    dataSet,
   } = props;
   const clamped = clampIndex(selectedIndex, items.length);
   const listRef = useRef<Animated.FlatList<T>>(null);
@@ -163,6 +167,7 @@ export function HorizontalPicker<T>(
       itemCount={items.length}
       onPrev={() => selection.selectByIndex(clamped - 1)}
       onNext={() => selection.selectByIndex(clamped + 1)}
+      {...(dataSet !== undefined ? { dataSet } : {})}
     >
       <HorizontalPickerList
         listRef={listRef}

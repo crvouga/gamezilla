@@ -26,6 +26,7 @@
 ```
 pkgs/ui/src/
   index.ts              # public API -- `export * from './components'` + theme/explorer/expo helpers
+  component-id/         # DOM identifiers (`componentDataSet`) for web inspector / E2E
   components/           # one folder per component (button/, text/, modal/, ...)
   theme/                # design tokens + `useTheme` hook
   animation/            # cross-platform animation helpers
@@ -38,7 +39,10 @@ pkgs/ui/src/
 
 1. Implement it under `pkgs/ui/src/components/<name>/<name>.tsx` (and an `index.ts` re-export inside the folder).
 2. Add the public export to `pkgs/ui/src/components/index.ts`.
-3. `bun run --filter @pkgs/ui tc lint` verifies it wires up.
+3. Wire DOM identifiers: accept optional `dataSet?: ComponentDataSet` and spread `{...componentDataSet('<PascalName>', dataSet)}` on the root host (see `pkgs/ui/src/component-id/`). `bun run ci:component-ids` enforces this for visual component folders.
+4. `bun run --filter @pkgs/ui tc lint` verifies it wires up.
+
+**DOM identifiers (dev + E2E only):** On web, every `@pkgs/ui` host exposes `data-component="<Name>"`. Babel (`pkgs/babel-plugins/jsx-source-attr.cjs`) also injects `data-src="<repo-path>:<line>"` on allowlisted JSX. `ScreenBase` requires `screenId` and renders `data-screen`. These are stripped from production web bundles (`EXPO_PUBLIC_E2E` keeps them on for `qa-browser`).
 
 ### Mutation UX
 

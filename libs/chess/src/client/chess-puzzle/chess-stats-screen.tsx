@@ -1,6 +1,6 @@
 import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
-import { Box, ScrollView, Text, useTheme } from '@pkgs/ui';
+import { Box, ScrollView, Text, componentDataSet, useTheme } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 
@@ -26,7 +26,10 @@ export function ChessStatsScreen(): ReactNode {
   return (
     <>
       <DefineBackButton onPress={backToRoot} />
-      <ScrollView sx={{ flex: 1, alignSelf: 'stretch' }}>
+      <ScrollView
+        sx={{ flex: 1, alignSelf: 'stretch' }}
+        {...componentDataSet('ChessStatsScreen', { screen: 'chess-stats' })}
+      >
         <Box sx={{ gap: 4, p: 4, pb: 8 }}>
           <Text
             variant="title"

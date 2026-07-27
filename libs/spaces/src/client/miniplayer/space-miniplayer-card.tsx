@@ -1,22 +1,19 @@
-import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
-import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
 import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { SpaceCardGradientBox } from '../card/space-card-gradient';
-import { SpaceEndOrLeaveButton } from './space-end-or-leave-button';
+import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
+import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
 import { SpaceHostAvatar } from '../members/space-host-avatar';
 import { MiniplayerHostNameLine } from './miniplayer-host-name-line';
 import { MiniplayerLiveBadge } from './miniplayer-live-badge';
 import { MiniplayerMemberCountText } from './miniplayer-member-count-text';
 import { MiniplayerOpenSpacePressable } from './miniplayer-open-space-pressable';
 import { MiniplayerSpaceTitle } from './miniplayer-space-title';
+import { SpaceEndOrLeaveButton } from './space-end-or-leave-button';
 
 export type SpaceMiniplayerCardProps = {
   spaceId: string;
-  requestEndSpace: (
-    spaceId: string,
-    options?: RequestEndSpaceOptions
-  ) => void;
+  requestEndSpace: (spaceId: string, options?: RequestEndSpaceOptions) => void;
   requestLeaveSpace: (
     spaceId: string,
     options?: RequestLeaveSpaceOptions
@@ -49,6 +46,7 @@ export function SpaceMiniplayerCard({
             gap: 3,
             flex: 1,
             minWidth: 0,
+            alignSelf: 'stretch',
           }}
         >
           <SpaceHostAvatar spaceId={spaceId} size={40} vividBackdrop />

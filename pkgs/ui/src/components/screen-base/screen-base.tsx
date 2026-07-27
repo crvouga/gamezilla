@@ -16,6 +16,9 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { Box } from '../box';
+import {
+  componentDataSet,
+} from '../../component-id';
 import { FloatingActionButton } from '../floating-action-button/floating-action-button';
 import { PlusIcon } from '../icons';
 import { KeyboardAvoidingView } from '../keyboard-avoiding-view';
@@ -124,6 +127,7 @@ function renderPrimaryActionFab(
 }
 
 export function ScreenBase({
+  screenId,
   breadcrumbs,
   actions,
   content,
@@ -134,6 +138,7 @@ export function ScreenBase({
   primaryAction,
   primaryActionBottomInset = 0,
   accountMenu,
+  dataSet,
 }: ScreenBaseProps) {
   const body = (primaryActionProps?: ScreenBasePrimaryActionRenderProps) => (
     <ScreenBody
@@ -147,7 +152,10 @@ export function ScreenBase({
   );
 
   return (
-    <Box sx={{ flex: 1 }}>
+    <Box
+      sx={{ flex: 1 }}
+      {...componentDataSet('ScreenBase', { ...dataSet, screen: screenId })}
+    >
       <ScreenBaseHeader
         breadcrumbs={breadcrumbs}
         actions={actions ?? []}

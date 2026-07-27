@@ -30,6 +30,10 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { BrandIcon } from '../brand-icon';
 import { Spinner } from '../spinner';
 import { Text } from '../text';
@@ -67,6 +71,8 @@ export type SocialSignInButtonProps = {
   disabled?: boolean;
   accessibilityHint?: LocalizedString;
   testID?: string;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 /**
@@ -181,6 +187,7 @@ export function SocialSignInButton({
   disabled = false,
   accessibilityHint,
   testID,
+  dataSet,
 }: SocialSignInButtonProps) {
   const { i18n } = useLingui();
   const spec = SOCIAL_PROVIDER_SPECS[provider];
@@ -200,6 +207,7 @@ export function SocialSignInButton({
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       testID={testID}
+      {...componentDataSet('SocialSignInButton', dataSet)}
       style={({ pressed }) =>
         buildPressableStyle({ palette, shape, isDisabled, pressed })
       }

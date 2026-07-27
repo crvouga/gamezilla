@@ -29,6 +29,10 @@ import {
   type TextInputProps as RNTextInputProps,
   View,
 } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import type { SxProps, Theme } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
@@ -48,6 +52,8 @@ export type TextInputProps = Omit<
   accessibilityLabel?: LocalizedString;
   /** Utility-first style shorthand for the outer wrapper. */
   sx?: SxProps;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 function resolveBorderColor(args: {
@@ -114,7 +120,7 @@ function FieldFooter({
 
 export const TextInput = forwardRef<RNTextInput, TextInputProps>(
   function TextInput(
-    { label, error, helperText, sx: sxProp, onFocus, onBlur, ...rest },
+    { label, error, helperText, sx: sxProp, dataSet, onFocus, onBlur, ...rest },
     ref
   ) {
     const theme = useTheme();
@@ -138,7 +144,10 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
     };
 
     return (
-      <View style={[{ gap: 4 }, sxProp ? theme.sx(sxProp) : undefined]}>
+      <View
+        {...componentDataSet('TextInput', dataSet)}
+        style={[{ gap: 4 }, sxProp ? theme.sx(sxProp) : undefined]}
+      >
         {label && <Text variant="label" label={label} />}
         <RNTextInput
           ref={ref}

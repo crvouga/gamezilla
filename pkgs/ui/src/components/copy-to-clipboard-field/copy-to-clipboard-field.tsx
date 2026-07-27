@@ -17,6 +17,10 @@ import {
 import { Animated, Pressable, View, type ViewStyle } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import type { SxProps } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
@@ -41,6 +45,8 @@ export type CopyToClipboardFieldProps = {
   selectable?: boolean;
   sx?: SxProps;
   testID?: string;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 function runCopyAnimation(
@@ -112,6 +118,7 @@ export function CopyToClipboardField({
   selectable = true,
   sx: sxProp,
   testID,
+  dataSet,
 }: CopyToClipboardFieldProps) {
   const { t } = useLingui();
   const copiedLabelResolved = copiedLabel ?? t`Copied to clipboard`;
@@ -134,7 +141,11 @@ export function CopyToClipboardField({
   }, [iconScale, rowScale, value]);
 
   return (
-    <View style={[{ gap: 4 }, sxStyle]} testID={testID}>
+    <View
+      style={[{ gap: 4 }, sxStyle]}
+      testID={testID}
+      {...componentDataSet('CopyToClipboardField', dataSet)}
+    >
       {label !== undefined ? <Text variant="label" label={label} /> : null}
       <CopyRow
         copied={copied}

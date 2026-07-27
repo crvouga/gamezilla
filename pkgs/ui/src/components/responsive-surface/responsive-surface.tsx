@@ -12,6 +12,10 @@ import {
 import type { PropsWithChildren, ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme, OnColorReset } from '../../theme';
 import type { ModalSize } from '../../theme/modal-size';
 import { ModalBackdrop } from '../modal/modal-backdrop';
@@ -42,6 +46,8 @@ export type ResponsiveSurfaceProps = PropsWithChildren<{
    * but is guaranteed to be at least this tall.
    */
   bodyHeight?: number;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 }>;
 
 export function ResponsiveSurface(props: ResponsiveSurfaceProps) {
@@ -102,6 +108,7 @@ function MobileSheet({
   snapPoints: snapPointsProp,
   bodyHeight,
   children,
+  dataSet,
 }: ResponsiveSurfaceProps) {
   const theme = useTheme();
   const sheetRef = useRef<React.ElementRef<typeof BottomSheetModal>>(null);
@@ -152,6 +159,7 @@ function MobileSheet({
       backgroundStyle={{ backgroundColor: theme.colors.surface }}
     >
       <BottomSheetView
+        {...componentDataSet('ResponsiveSurface', dataSet)}
         style={{ paddingHorizontal: 16, paddingBottom: 24, flexGrow: 1 }}
       >
         <MobileSheetBody
@@ -174,10 +182,14 @@ function DesktopModal({
   maxHeight,
   bodyHeight,
   children,
+  dataSet,
 }: ResponsiveSurfaceProps) {
   return (
     <ModalRoot visible={visible} onRequestClose={onClose}>
-      <ModalBackdrop onPress={onClose}>
+      <ModalBackdrop
+        onPress={onClose}
+        {...componentDataSet('ResponsiveSurface', dataSet)}
+      >
         <ModalContent
           size={size}
           {...(maxHeight !== undefined ? { maxHeight } : {})}

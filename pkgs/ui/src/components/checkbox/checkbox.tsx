@@ -14,6 +14,10 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';
@@ -24,6 +28,8 @@ export type CheckboxProps = {
   onToggle: (next: boolean) => void;
   label?: ReactNode;
   disabled?: boolean;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const BOX_SIZE = 18;
@@ -33,6 +39,7 @@ export function Checkbox({
   onToggle,
   label,
   disabled = false,
+  dataSet,
 }: CheckboxProps) {
   const theme = useTheme();
 
@@ -43,6 +50,7 @@ export function Checkbox({
     <Pressable
       onPress={() => !disabled && onToggle(!checked)}
       disabled={disabled}
+      {...componentDataSet('Checkbox', dataSet)}
       sx={{ borderRadius: borderRadius.xs }}
       style={{
         flexDirection: 'row',

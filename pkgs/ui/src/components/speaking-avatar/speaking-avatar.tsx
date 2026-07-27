@@ -52,6 +52,10 @@ import { type Voice } from '@pkgs/tts/shared/tts-voice';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { type StyleProp, type ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
@@ -103,6 +107,8 @@ export type SpeakingAvatarProps = {
    */
   numberOfLines?: number;
   style?: StyleProp<ViewStyle>;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function SpeakingAvatar({
@@ -111,6 +117,7 @@ export function SpeakingAvatar({
   bubbleResolving = false,
   numberOfLines,
   style,
+  dataSet,
 }: SpeakingAvatarProps): ReactNode {
   const theme = useTheme();
   const svg = useMemo(() => SPEAKING_AVATAR_SVG, []);
@@ -137,6 +144,7 @@ export function SpeakingAvatar({
 
   return (
     <Box
+      {...componentDataSet('SpeakingAvatar', dataSet)}
       sx={{ flexDirection: 'row', alignItems: 'center', px: 4, gap: 1 }}
       style={style}
     >

@@ -28,6 +28,10 @@ import {
   type PressableStateCallbackType,
   type View as RNView,
 } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import type { SxProps } from '../../theme';
 import { useHoverCapable, useTheme } from '../../theme';
 
@@ -42,6 +46,8 @@ export type PressableProps = RNPressableProps & {
    * caller renders its own feedback (e.g. `Button` paints its own face).
    */
   feedback?: PressableFeedback;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const PRESSED_OPACITY = 0.7;
@@ -64,6 +70,7 @@ export const Pressable = forwardRef<RNView, PressableProps>(function Pressable(
     children,
     onHoverIn,
     onHoverOut,
+    dataSet,
     ...rest
   },
   ref
@@ -74,6 +81,7 @@ export const Pressable = forwardRef<RNView, PressableProps>(function Pressable(
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const overlayRadius =
     typeof sxProp?.borderRadius === 'number' ? sxProp.borderRadius : undefined;
+  const idProps = componentDataSet('Pressable', dataSet);
 
   useEffect(() => {
     if (!hoverCapable) setHovered(false);
@@ -101,6 +109,7 @@ export const Pressable = forwardRef<RNView, PressableProps>(function Pressable(
         return [sxStyle, resolved];
       }}
       {...rest}
+      {...idProps}
     >
       {(state) => (
         <>

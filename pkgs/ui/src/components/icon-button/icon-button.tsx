@@ -25,6 +25,10 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import { type ReactNode } from 'react';
 import type { PressableProps as RNPressableProps } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { OnColorProvider, useTheme } from '../../theme';
 import { Pressable } from '../pressable';
 import { Tooltip, useTooltipTrigger } from '../tooltip';
@@ -64,6 +68,8 @@ export type IconButtonProps = {
   /** Overrides {@link label} for screen readers only. */
   accessibilityLabel?: LocalizedString;
   accessibilityRole?: RNPressableProps['accessibilityRole'];
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 function resolveAccessibilityLabel(
@@ -139,6 +145,7 @@ function IconButtonFace({
   testID,
   accessibilityLabel,
   accessibilityRole,
+  dataSet,
 }: IconButtonFaceProps): ReactNode {
   const theme = useTheme();
   const tooltip = useTooltipTrigger();
@@ -167,6 +174,7 @@ function IconButtonFace({
       testID={testID}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole={accessibilityRole ?? 'button'}
+      {...componentDataSet('IconButton', dataSet)}
       {...(longPressTooltip
         ? {
             onLongPress: () => {
@@ -231,7 +239,10 @@ function buildIconButtonFaceProps(
 export function IconButton(props: IconButtonProps): ReactNode {
   const tooltipMode = props.tooltip ?? 'default';
   const face = (
-    <IconButtonFace {...buildIconButtonFaceProps(props, tooltipMode)}>
+    <IconButtonFace
+      {...buildIconButtonFaceProps(props, tooltipMode)}
+      {...(props.dataSet !== undefined ? { dataSet: props.dataSet } : {})}
+    >
       {props.children}
     </IconButtonFace>
   );

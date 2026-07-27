@@ -15,6 +15,10 @@
 
 import { forwardRef } from 'react';
 import { View, type ViewProps, type ViewStyle } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import type { SxProps } from '../../theme';
 import { spacing as spacingScale } from '../../theme';
@@ -32,6 +36,8 @@ export type StackProps = ViewProps & {
   wrap?: boolean;
   /** Utility-first style shorthand. */
   sx?: SxProps;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 function resolveGap(n: number): number {
@@ -47,6 +53,7 @@ export const Stack = forwardRef<View, StackProps>(function Stack(
     wrap,
     sx: sxProp,
     style,
+    dataSet,
     ...rest
   },
   ref
@@ -62,6 +69,9 @@ export const Stack = forwardRef<View, StackProps>(function Stack(
   if (wrap) layoutStyle.flexWrap = 'wrap';
 
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
+  const idProps = componentDataSet('Stack', dataSet);
 
-  return <View ref={ref} style={[layoutStyle, sxStyle, style]} {...rest} />;
+  return (
+    <View ref={ref} style={[layoutStyle, sxStyle, style]} {...rest} {...idProps} />
+  );
 });

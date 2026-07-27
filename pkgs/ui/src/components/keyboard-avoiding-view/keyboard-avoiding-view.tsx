@@ -9,24 +9,31 @@ import {
   Platform,
   type KeyboardAvoidingViewProps as RNKeyboardAvoidingViewProps,
 } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import type { SxProps } from '../../theme';
 
 export type KeyboardAvoidingViewProps = RNKeyboardAvoidingViewProps & {
   sx?: SxProps;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export const KeyboardAvoidingView = forwardRef<
   RNKeyboardAvoidingView,
   KeyboardAvoidingViewProps
 >(function KeyboardAvoidingView(
-  { sx: sxProp, style, behavior: behaviorProp, ...rest },
+  { sx: sxProp, style, behavior: behaviorProp, dataSet, ...rest },
   ref
 ) {
   const theme = useTheme();
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const behavior =
     behaviorProp ?? (Platform.OS === 'ios' ? 'padding' : 'height');
+  const idProps = componentDataSet('KeyboardAvoidingView', dataSet);
 
   return (
     <RNKeyboardAvoidingView
@@ -34,6 +41,7 @@ export const KeyboardAvoidingView = forwardRef<
       style={[sxStyle, style]}
       behavior={behavior}
       {...rest}
+      {...idProps}
     />
   );
 });

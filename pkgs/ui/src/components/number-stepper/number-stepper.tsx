@@ -2,6 +2,10 @@
  * `NumberStepper` — labeled numeric value with decrement / increment controls.
  */
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
@@ -15,6 +19,8 @@ export type NumberStepperProps = {
   max: number;
   step?: number;
   disabled?: boolean;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function NumberStepper({
@@ -25,6 +31,7 @@ export function NumberStepper({
   max,
   step = 1,
   disabled = false,
+  dataSet,
 }: NumberStepperProps) {
   const theme = useTheme();
   const dec = () => {
@@ -37,6 +44,7 @@ export function NumberStepper({
   };
   return (
     <Box
+      {...componentDataSet('NumberStepper', dataSet)}
       sx={{
         flexDirection: 'row',
         alignItems: 'center',

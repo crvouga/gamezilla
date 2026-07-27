@@ -111,6 +111,7 @@ export function ProfileHandleScreen() {
 
   return (
     <ScreenBase
+      screenId="profile-handle"
       breadcrumbs={[
         { name: <Trans>Profile</Trans>, onPress: nav('/profile') },
         { name: <Trans>Edit profile</Trans>, onPress: nav('/profile/edit') },

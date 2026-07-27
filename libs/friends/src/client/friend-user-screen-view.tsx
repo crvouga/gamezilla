@@ -58,6 +58,7 @@ function FriendUserScreenBody({ userId }: { userId: string }): ReactNode {
 
   return (
     <ScreenBase
+      screenId="friend-user"
       breadcrumbs={[
         { name: <Trans>Profile</Trans>, onPress: nav('/profile') },
         { name: friendUserBreadcrumbName(profile, userId) },

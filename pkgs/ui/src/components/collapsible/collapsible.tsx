@@ -13,6 +13,10 @@
 
 import { type PropsWithChildren, type ReactNode, useState } from 'react';
 import { View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
@@ -24,6 +28,8 @@ export type CollapsibleProps = PropsWithChildren<{
   defaultOpen?: boolean;
   /** Custom icon renderer. Receives `isOpen` state. */
   renderIcon?: (isOpen: boolean) => ReactNode;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 }>;
 
 function DefaultIcon({ isOpen }: { isOpen: boolean }) {
@@ -45,11 +51,12 @@ export function Collapsible({
   children,
   defaultOpen = false,
   renderIcon,
+  dataSet,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <View>
+    <View {...componentDataSet('Collapsible', dataSet)}>
       <Pressable
         onPress={() => setIsOpen((v) => !v)}
         sx={{

@@ -15,6 +15,10 @@ import {
 } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { duration as motionDuration } from '../../theme/motion';
 import { borderRadius } from '../../theme/scale';
@@ -35,6 +39,8 @@ const TOP_INSET = 12;
 export type CommandPaletteProps = {
   /** Hint shown under the list (e.g. keyboard shortcuts). */
   footerLegend?: string;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 type ItemRow = Extract<PaletteRow, { kind: 'item' }>;
@@ -381,15 +387,17 @@ function PaletteOverlay({
   translateY,
   close,
   children,
+  dataSet,
 }: {
   opacity: Animated.Value;
   translateY: Animated.Value;
   close: () => void;
   children: ReactNode;
+  dataSet: ComponentDataSet | undefined;
 }) {
   const theme = useTheme();
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }} {...componentDataSet('CommandPalette', dataSet)}>
       <RNPressable
         accessibilityLabel="Dismiss command palette"
         onPress={close}
@@ -420,7 +428,10 @@ function PaletteOverlay({
   );
 }
 
-export function CommandPalette({ footerLegend }: CommandPaletteProps) {
+export function CommandPalette({
+  footerLegend,
+  dataSet,
+}: CommandPaletteProps) {
   const reg = useCommandRegistry();
   const {
     store,
@@ -465,7 +476,12 @@ export function CommandPalette({ footerLegend }: CommandPaletteProps) {
 
   return (
     <ModalRoot visible={isOpen} onRequestClose={close}>
-      <PaletteOverlay opacity={opacity} translateY={translateY} close={close}>
+      <PaletteOverlay
+        opacity={opacity}
+        translateY={translateY}
+        close={close}
+        dataSet={dataSet}
+      >
         <PaletteCard
           runningId={runningId}
           query={query}

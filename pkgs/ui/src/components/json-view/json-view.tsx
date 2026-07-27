@@ -15,6 +15,10 @@
 import * as Clipboard from 'expo-clipboard';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { Pressable } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import type { SxProps } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
@@ -55,6 +59,8 @@ export type JsonViewProps = {
   sx?: SxProps;
   /** Optional accessibility/test id. */
   testID?: string;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 type Baseline = 'depth' | 'all' | 'none';
@@ -209,6 +215,7 @@ export function JsonView({
   maxHeight,
   sx,
   testID,
+  dataSet,
 }: JsonViewProps) {
   const exp = useJsonExpansion({
     value,
@@ -226,6 +233,7 @@ export function JsonView({
   return (
     <Box
       testID={testID}
+      {...componentDataSet('JsonView', dataSet)}
       sx={{
         background: 'surfaceMuted',
         borderWidth: 1,

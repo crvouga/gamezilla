@@ -9,8 +9,14 @@
 //
 // `require.resolve` is needed because bun's isolated node_modules layout prevents
 // Babel from resolving `babel-preset-expo` by bare name from inside `@babel/core`.
+const path = require('node:path');
+
 module.exports = function (api) {
-  api.cache(true);
+  // Cache key must include NODE_ENV + EXPO_PUBLIC_E2E so the jsx-source-attr
+  // gate (dev/e2e vs production strip) cannot freeze across builds.
+  api.cache.using(
+    () => `${process.env.NODE_ENV ?? ''}:${process.env.EXPO_PUBLIC_E2E ?? ''}`
+  );
   return {
     presets: [
       [
@@ -22,6 +28,12 @@ module.exports = function (api) {
         },
       ],
     ],
-    plugins: ['@lingui/babel-plugin-lingui-macro'],
+    plugins: [
+      '@lingui/babel-plugin-lingui-macro',
+      path.resolve(
+        __dirname,
+        '../../pkgs/babel-plugins/jsx-source-attr.cjs'
+      ),
+    ],
   };
 };

@@ -47,6 +47,7 @@ export function SettingsScreen() {
 
   return (
     <ScreenBase
+      screenId="settings"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans> },

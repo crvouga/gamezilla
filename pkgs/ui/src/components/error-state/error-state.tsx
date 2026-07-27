@@ -21,6 +21,10 @@
 
 import type { ReactNode } from 'react';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';
@@ -44,6 +48,8 @@ export type ErrorStateProps = {
   retry?: ErrorStateRetry;
   /** Layout density. Defaults to `'fill'`. */
   variant?: StateBlockVariant;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const ICON_SIZE_FILL = 32;
@@ -56,13 +62,28 @@ export function ErrorState({
   body,
   retry,
   variant = 'fill',
+  dataSet,
 }: ErrorStateProps): ReactNode {
   if (variant === 'compact') {
     return (
-      <ErrorStateCompact icon={icon} title={title} body={body} retry={retry} />
+      <ErrorStateCompact
+        icon={icon}
+        title={title}
+        body={body}
+        retry={retry}
+        dataSet={dataSet}
+      />
     );
   }
-  return <ErrorStateFill icon={icon} title={title} body={body} retry={retry} />;
+  return (
+    <ErrorStateFill
+      icon={icon}
+      title={title}
+      body={body}
+      retry={retry}
+      dataSet={dataSet}
+    />
+  );
 }
 
 function ErrorStateFill({
@@ -70,16 +91,18 @@ function ErrorStateFill({
   title,
   body,
   retry,
+  dataSet,
 }: {
   icon: IconComponent;
   title: ReactNode;
   body: ReactNode;
   retry: ErrorStateRetry | undefined;
+  dataSet: ComponentDataSet | undefined;
 }) {
   const theme = useTheme();
   const Icon = icon;
   return (
-    <StateBlock variant="fill">
+    <StateBlock variant="fill" {...componentDataSet('ErrorState', dataSet)}>
       <Icon size={ICON_SIZE_FILL} color={theme.colors.destructive} />
       <Text
         variant="bodyBold"
@@ -105,16 +128,19 @@ function ErrorStateCompact({
   title,
   body,
   retry,
+  dataSet,
 }: {
   icon: IconComponent;
   title: ReactNode;
   body: ReactNode;
   retry: ErrorStateRetry | undefined;
+  dataSet: ComponentDataSet | undefined;
 }) {
   const theme = useTheme();
   const Icon = icon;
   return (
     <Box
+      {...componentDataSet('ErrorState', dataSet)}
       sx={{
         flexDirection: 'row',
         alignItems: 'flex-start',

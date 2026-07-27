@@ -37,8 +37,6 @@ export function ActiveSpaceSheetRow({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 2,
-        px: 3,
-        py: 2,
         minHeight: 72,
         borderBottomWidth: 1,
         borderBottomColor: 'border',
@@ -52,6 +50,9 @@ export function ActiveSpaceSheetRow({
             gap: 3,
             flex: 1,
             minWidth: 0,
+            px: 3,
+            py: 2,
+            alignSelf: 'stretch',
           }}
         >
           <SpaceHostAvatar spaceId={spaceId} size={40} vividBackdrop />
@@ -77,11 +78,13 @@ export function ActiveSpaceSheetRow({
         </Box>
         <MiniplayerLiveBadge />
       </MiniplayerOpenSpacePressable>
-      <SpaceEndOrLeaveButton
-        spaceId={spaceId}
-        requestEndSpace={requestEndSpace}
-        requestLeaveSpace={requestLeaveSpace}
-      />
+      <Box sx={{ pr: 3 }}>
+        <SpaceEndOrLeaveButton
+          spaceId={spaceId}
+          requestEndSpace={requestEndSpace}
+          requestLeaveSpace={requestLeaveSpace}
+        />
+      </Box>
     </Box>
   );
 }

@@ -16,6 +16,10 @@
 
 import { Children, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
@@ -24,16 +28,20 @@ export type ListProps = {
   children: ReactNode;
   /** Show hairline separators between items. Defaults to true. */
   separator?: boolean;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
-export function List({ children, separator = true }: ListProps) {
+export function List({ children, separator = true, dataSet }: ListProps) {
   const theme = useTheme();
 
-  if (!separator) return <View>{children}</View>;
+  if (!separator) {
+    return <View {...componentDataSet('List', dataSet)}>{children}</View>;
+  }
 
   const items = Children.toArray(children);
   return (
-    <View>
+    <View {...componentDataSet('List', dataSet)}>
       {items.map((child, i) => (
         <View key={i}>
           {child}
@@ -62,6 +70,8 @@ export type ListItemProps = {
   /** Render with a `tintSubtle` background to indicate current selection. */
   selected?: boolean;
   onPress?: () => void;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 function ListItemContent({
@@ -105,6 +115,7 @@ export function ListItem({
   trailing,
   selected = false,
   onPress,
+  dataSet,
 }: ListItemProps) {
   const theme = useTheme();
   const content = (
@@ -124,6 +135,7 @@ export function ListItem({
         style={{
           backgroundColor: selected ? theme.colors.tintSubtle : undefined,
         }}
+        {...componentDataSet('ListItem', dataSet)}
       >
         {content}
       </Pressable>
@@ -135,6 +147,7 @@ export function ListItem({
       style={{
         backgroundColor: selected ? theme.colors.tintSubtle : undefined,
       }}
+      {...componentDataSet('ListItem', dataSet)}
     >
       {content}
     </View>

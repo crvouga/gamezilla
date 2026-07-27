@@ -46,6 +46,10 @@
 
 import { type ReactNode } from 'react';
 import { View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Volume2Icon, VolumeXIcon } from '../icons';
 import { AnimatedSpeakerWaves } from './animated-speaker-waves';
@@ -67,6 +71,8 @@ export type SoundIndicatorProps = {
   color?: string;
   /** Muted-state icon color. Defaults to the current theme's `textSecondary` token. */
   mutedColor?: string;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function SoundIndicator({
@@ -75,6 +81,7 @@ export function SoundIndicator({
   backgroundColor,
   color,
   mutedColor,
+  dataSet,
 }: SoundIndicatorProps): ReactNode {
   const theme = useTheme();
   const muted = state === 'muted';
@@ -86,6 +93,7 @@ export function SoundIndicator({
   const StaticIcon = muted ? VolumeXIcon : Volume2Icon;
   return (
     <View
+      {...componentDataSet('SoundIndicator', dataSet)}
       style={{
         backgroundColor: bg,
         borderRadius: 999,

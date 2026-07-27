@@ -12,6 +12,10 @@
  */
 
 import type { PropsWithChildren } from 'react';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import {
   MODAL_CONTENT_MARGIN_STEP,
@@ -26,12 +30,15 @@ export type ModalContentProps = PropsWithChildren<{
   size?: ModalSize;
   /** Optional max height in px (e.g. tall inspector modals). */
   maxHeight?: number;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 }>;
 
 export function ModalContent({
   children,
   size = 'medium',
   maxHeight,
+  dataSet,
 }: ModalContentProps) {
   const theme = useTheme();
   const lift = theme.elevation(4);
@@ -40,6 +47,7 @@ export function ModalContent({
 
   return (
     <Box
+      {...componentDataSet('ModalContent', dataSet)}
       sx={{
         m: MODAL_CONTENT_MARGIN_STEP,
         p: 5,

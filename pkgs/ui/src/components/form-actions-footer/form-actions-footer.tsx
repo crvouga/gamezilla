@@ -25,6 +25,10 @@
  */
 
 import type { ReactNode } from 'react';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { Box } from '../box';
 import { Button, type ButtonIntent } from '../button';
 import { useMutationButton } from '../button/use-mutation-button';
@@ -58,11 +62,14 @@ export type FormActionsFooterProps = {
   submit: FormSubmitAction;
   /** Optional secondary action (omit for save-only forms). */
   cancel?: FormCancelAction | undefined;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function FormActionsFooter({
   submit,
   cancel,
+  dataSet,
 }: FormActionsFooterProps): ReactNode {
   const mutation = useMutationButton({
     operation: submit.operation,
@@ -79,7 +86,7 @@ export function FormActionsFooter({
   });
 
   return (
-    <Box sx={{ flexDirection: 'row', gap: 2 }}>
+    <Box sx={{ flexDirection: 'row', gap: 2 }} {...componentDataSet('FormActionsFooter', dataSet)}>
       {cancel !== undefined ? (
         <Button
           title={cancel.label}

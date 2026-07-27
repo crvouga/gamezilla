@@ -19,6 +19,10 @@
 
 import type { ReactNode } from 'react';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { Spinner, type SpinnerProps } from '../spinner';
 import { StateBlock, type StateBlockVariant } from '../state-block';
 import { Text } from '../text';
@@ -30,15 +34,18 @@ export type LoadingStateProps = {
   variant?: StateBlockVariant;
   /** Spinner size preset. Defaults to `'medium'`. */
   size?: SpinnerProps['size'];
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function LoadingState({
   caption,
   variant = 'fill',
   size = 'medium',
+  dataSet,
 }: LoadingStateProps): ReactNode {
   return (
-    <StateBlock variant={variant}>
+    <StateBlock variant={variant} {...componentDataSet('LoadingState', dataSet)}>
       <Spinner size={size} />
       {caption !== undefined && caption !== null ? (
         <Text

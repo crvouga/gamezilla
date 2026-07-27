@@ -21,6 +21,10 @@
 
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme, type SxProps } from '../../theme';
 import { borderRadius, type ElevationLevel } from '../../theme/scale';
 
@@ -29,16 +33,19 @@ export type CardProps = ViewProps & {
   elevation?: ElevationLevel;
   /** Utility-first style shorthand. */
   sx?: SxProps;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export const Card = forwardRef<View, CardProps>(function Card(
-  { elevation: level = 1, sx: sxProp, style, ...rest },
+  { elevation: level = 1, sx: sxProp, style, dataSet, ...rest },
   ref
 ) {
   const theme = useTheme();
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const shadow = theme.elevation(level);
   const lifted = shadow.backgroundColor ?? theme.colors.surface;
+  const idProps = componentDataSet('Card', dataSet);
 
   return (
     <View
@@ -61,6 +68,7 @@ export const Card = forwardRef<View, CardProps>(function Card(
         },
       ]}
       {...rest}
+      {...idProps}
     />
   );
 });

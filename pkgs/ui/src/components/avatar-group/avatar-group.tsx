@@ -5,6 +5,10 @@
 import type { ReactElement, ReactNode } from 'react';
 import { Children, isValidElement } from 'react';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
@@ -25,6 +29,8 @@ export type AvatarGroupProps = {
   renderOverflow?: (hiddenCount: number) => ReactNode;
   children: ReactNode;
   onPress?: () => void;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 function collectElements(children: ReactNode): ReactElement[] {
@@ -161,6 +167,7 @@ export function AvatarGroup({
   renderOverflow,
   children,
   onPress,
+  dataSet,
 }: AvatarGroupProps) {
   const theme = useTheme();
   const overlap = overlapProp ?? Math.round(size * 0.4);
@@ -173,7 +180,12 @@ export function AvatarGroup({
     theme.colors[ringColor as keyof typeof theme.colors] ?? ringColor;
 
   const stack = (
-    <Box sx={{ flexDirection: 'row', alignItems: 'center' }}>
+    <Box
+      {...(onPress === undefined
+        ? componentDataSet('AvatarGroup', dataSet)
+        : {})}
+      sx={{ flexDirection: 'row', alignItems: 'center' }}
+    >
       <AvatarGroupSlotList
         visibleItems={visibleItems}
         size={size}
@@ -198,7 +210,11 @@ export function AvatarGroup({
   }
 
   return (
-    <Pressable onPress={onPress} accessibilityRole="button">
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      {...componentDataSet('AvatarGroup', dataSet)}
+    >
       {stack}
     </Pressable>
   );

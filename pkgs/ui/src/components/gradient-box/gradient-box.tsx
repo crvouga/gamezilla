@@ -18,6 +18,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import type { ColorValue, ViewProps } from 'react-native';
 import { useMemo } from 'react';
 import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
+import {
   bestOnColor,
   ON_DARK,
   OnColorProvider,
@@ -42,6 +46,8 @@ export type GradientBoxProps = ViewProps & {
    * reference instead of the default `onTint` set.
    */
   onColor?: string;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 function defaultGradientOnColor(onTint: string): OnColorSet {
@@ -60,6 +66,7 @@ export function GradientBox({
   end = { x: 1, y: 0.5 },
   onColor,
   children,
+  dataSet,
   ...rest
 }: GradientBoxProps) {
   const theme = useTheme();
@@ -73,6 +80,7 @@ export function GradientBox({
         : defaultGradientOnColor(theme.colors.onTint),
     [onColor, theme.colors.onTint]
   );
+  const idProps = componentDataSet('GradientBox', dataSet);
 
   return (
     <LinearGradient
@@ -81,6 +89,7 @@ export function GradientBox({
       end={end}
       style={[sxStyle, style]}
       {...rest}
+      {...idProps}
     >
       <OnColorProvider value={onColorValue}>{children}</OnColorProvider>
     </LinearGradient>

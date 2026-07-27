@@ -17,18 +17,27 @@ import {
   type ViewProps,
   type View,
 } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import type { SxProps } from '../../theme';
 
 export type SafeAreaViewProps = ViewProps & {
   /** Utility-first style shorthand. */
   sx?: SxProps;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export const SafeAreaView = forwardRef<View, SafeAreaViewProps>(
-  function SafeAreaView({ sx: sxProp, style, ...rest }, ref) {
+  function SafeAreaView({ sx: sxProp, style, dataSet, ...rest }, ref) {
     const theme = useTheme();
     const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
-    return <RNSafeAreaView ref={ref} style={[sxStyle, style]} {...rest} />;
+    const idProps = componentDataSet('SafeAreaView', dataSet);
+    return (
+      <RNSafeAreaView ref={ref} style={[sxStyle, style]} {...rest} {...idProps} />
+    );
   }
 );

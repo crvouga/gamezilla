@@ -1,5 +1,9 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import { useLingui } from '@lingui/react/macro';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
@@ -12,6 +16,8 @@ export type CommandPaletteTriggerProps = {
   /** Pixel size of the tappable area. Defaults to 40. */
   size?: number;
   accessibilityLabel?: LocalizedString;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 /**
@@ -21,6 +27,7 @@ export function CommandPaletteTrigger({
   icon = ListChecksIcon,
   size = 40,
   accessibilityLabel,
+  dataSet,
 }: CommandPaletteTriggerProps) {
   const { t } = useLingui();
   const theme = useTheme();
@@ -34,6 +41,7 @@ export function CommandPaletteTrigger({
       accessibilityRole="button"
       accessibilityLabel={a11y}
       hitSlop={6}
+      {...componentDataSet('CommandPaletteTrigger', dataSet)}
       sx={{
         width: size,
         height: size,

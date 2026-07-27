@@ -10,6 +10,7 @@ export function ProfileEditScreen() {
 
   return (
     <ScreenBase
+      screenId="profile-edit"
       breadcrumbs={[
         { name: <Trans>Profile</Trans>, onPress: nav('/profile') },
         { name: <Trans>Edit profile</Trans> },

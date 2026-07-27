@@ -24,6 +24,10 @@ import { Animated, Easing } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { SPIN_DURATION_MS, useSharedSpinnerRotation } from './spinner-context';
 
@@ -36,6 +40,8 @@ export type SpinnerProps = {
   size?: SpinnerSize;
   /** Stroke width in pixels. Derived from `size` if omitted. */
   strokeWidth?: number;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const SIZE_PRESETS = {
@@ -95,6 +101,7 @@ export function Spinner({
   color = 'tint',
   size = 'medium',
   strokeWidth,
+  dataSet,
 }: SpinnerProps) {
   const theme = useTheme();
   const stroke = theme.colors[color as keyof typeof theme.colors] ?? color;
@@ -115,6 +122,7 @@ export function Spinner({
   return (
     <Animated.View
       accessibilityRole="progressbar"
+      {...componentDataSet('Spinner', dataSet)}
       style={{
         width: diameter,
         height: diameter,

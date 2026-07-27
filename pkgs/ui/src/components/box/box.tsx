@@ -14,19 +14,26 @@
 
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import type { SxProps } from '../../theme';
 
 export type BoxProps = ViewProps & {
   /** Utility-first style shorthand resolved against the current theme. */
   sx?: SxProps;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export const Box = forwardRef<View, BoxProps>(function Box(
-  { sx: sxProp, style, ...rest },
+  { sx: sxProp, style, dataSet, ...rest },
   ref
 ) {
   const theme = useTheme();
   const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
-  return <View ref={ref} style={[sxStyle, style]} {...rest} />;
+  const idProps = componentDataSet('Box', dataSet);
+  return <View ref={ref} style={[sxStyle, style]} {...rest} {...idProps} />;
 });

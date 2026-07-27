@@ -17,15 +17,21 @@ import {
   type SwitchProps as RNSwitchProps,
   View,
 } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Text } from '../text';
 
 export type SwitchProps = Omit<RNSwitchProps, 'trackColor' | 'thumbColor'> & {
   /** Optional label displayed next to the switch. */
   label?: ReactNode;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
-export function Switch({ label, ...rest }: SwitchProps) {
+export function Switch({ label, dataSet, ...rest }: SwitchProps) {
   const theme = useTheme();
 
   const track = {
@@ -34,7 +40,10 @@ export function Switch({ label, ...rest }: SwitchProps) {
   };
 
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+    <View
+      {...componentDataSet('Switch', dataSet)}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+    >
       <RNSwitch
         trackColor={track}
         thumbColor={theme.colors.onPrimary}

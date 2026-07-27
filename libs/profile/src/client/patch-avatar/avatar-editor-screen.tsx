@@ -282,6 +282,7 @@ export function AvatarEditorScreen() {
         onCancel={() => setShowDiscard(false)}
       />
       <ScreenBase
+        screenId="avatar-editor"
         breadcrumbs={[
           { name: <Trans>Profile</Trans>, onPress: onBack },
           { name: <Trans>Avatar</Trans> },

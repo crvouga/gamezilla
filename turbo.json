@@ -200,6 +200,16 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:component-ids": {
+      "inputs": [
+        "pkgs/ui/src/components/**/*.ts",
+        "pkgs/ui/src/components/**/*.tsx",
+        "pkgs/ui/src/component-id/**/*.ts",
+        "scripts/check-component-ids.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:no-provider-leaks": {
       "inputs": ["scripts/check-no-provider-leaks.ts"],
       "outputs": [],

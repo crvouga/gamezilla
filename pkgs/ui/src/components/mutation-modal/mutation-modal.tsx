@@ -25,6 +25,10 @@
 import { useLingui } from '@lingui/react/macro';
 import type { SoundId } from '@pkgs/sounds';
 import { useEffect, type ReactNode } from 'react';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useMutationPhaseSoundHandler } from '../../expo/mutation-sounds';
 import { Box } from '../box';
 import { ErrorState } from '../error-state';
@@ -72,6 +76,8 @@ export type MutationModalProps = {
   onSuccess?: (() => void) | undefined;
   /** Override default mutation success/error sounds. */
   sounds?: { success?: SoundId; error?: SoundId } | undefined;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const STATE_AREA_MIN_HEIGHT = 200;
@@ -101,7 +107,12 @@ export function MutationModal(props: MutationModalProps): ReactNode {
   });
 
   return (
-    <ResponsiveSurface visible={visible} onClose={surfaceClose} title={title}>
+    <ResponsiveSurface
+      visible={visible}
+      onClose={surfaceClose}
+      title={title}
+      {...componentDataSet('MutationModal', props.dataSet)}
+    >
       <MutationStateTransition stateKey={phase} active={visible}>
         <MutationModalBody
           props={props}

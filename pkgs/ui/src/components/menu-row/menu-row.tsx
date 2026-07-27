@@ -18,6 +18,10 @@
 
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
@@ -40,6 +44,8 @@ export type MenuRowProps = {
   disabled?: boolean;
   testID?: string;
   accessibilityLabel?: LocalizedString;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function MenuRow({
@@ -53,6 +59,7 @@ export function MenuRow({
   disabled = false,
   testID,
   accessibilityLabel,
+  dataSet,
 }: MenuRowProps) {
   const theme = useTheme();
 
@@ -68,6 +75,7 @@ export function MenuRow({
         borderRadius: borderRadius.md,
         backgroundColor: selected ? theme.colors.tintSubtle : undefined,
       }}
+      {...componentDataSet('MenuRow', dataSet)}
     >
       <Box
         sx={{

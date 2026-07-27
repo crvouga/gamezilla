@@ -17,6 +17,10 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme, type ColorTokens } from '../../theme';
 import { Text } from '../text';
 
@@ -27,6 +31,8 @@ export type AppLogoProps = {
   wordmark?: boolean;
   /** Color token or raw color for the mark + wordmark. Defaults to `tint`. */
   color?: string;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 /** Width:height ratio used when rendering the wordmark text element. */
@@ -38,12 +44,13 @@ function resolveColor(color: string | undefined, colors: ColorTokens): string {
   return color;
 }
 
-export function AppLogo({ size = 28, color }: AppLogoProps): ReactNode {
+export function AppLogo({ size = 28, color, dataSet }: AppLogoProps): ReactNode {
   const theme = useTheme();
   const fill = resolveColor(color, theme.colors);
   const wordmarkFontSize = Math.round(size * WORDMARK_HEIGHT_RATIO);
   return (
     <View
+      {...componentDataSet('AppLogo', dataSet)}
       style={{
         flexDirection: 'row',
         alignItems: 'center',

@@ -9,6 +9,7 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 
+import type { ComponentDataSet } from '../../component-id';
 import type { ButtonIntent, ButtonVariant } from '../button';
 import type { IconComponent } from '../icons';
 
@@ -53,4 +54,6 @@ export type BottomActionBarProps = {
    * Defaults to `true`.
    */
   elevated?: boolean;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };

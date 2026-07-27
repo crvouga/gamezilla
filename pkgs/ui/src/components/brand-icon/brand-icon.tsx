@@ -13,6 +13,10 @@
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { assert } from '@pkgs/assert';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { BRAND_ICON_REGISTRY, type BrandIconName } from './brand-icon-registry';
 
 export type { BrandIconName };
@@ -22,13 +26,18 @@ export type BrandIconProps = {
   /** Square size in pixels. Defaults to 20. */
   size?: number;
   style?: StyleProp<ViewStyle>;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
-export function BrandIcon({ name, size = 20, style }: BrandIconProps) {
+export function BrandIcon({ name, size = 20, style, dataSet }: BrandIconProps) {
   const Logo = BRAND_ICON_REGISTRY[name];
   assert.defined(Logo, `BrandIcon: unknown name "${String(name)}"`);
   return (
-    <View style={[{ alignItems: 'center', justifyContent: 'center' }, style]}>
+    <View
+      {...componentDataSet('BrandIcon', dataSet)}
+      style={[{ alignItems: 'center', justifyContent: 'center' }, style]}
+    >
       <Logo size={size} />
     </View>
   );

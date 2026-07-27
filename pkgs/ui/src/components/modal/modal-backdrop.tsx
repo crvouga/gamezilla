@@ -9,17 +9,26 @@
 
 import type { PropsWithChildren } from 'react';
 import { Pressable, View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 
 export type ModalBackdropProps = PropsWithChildren<{
   onPress: () => void;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 }>;
 
-export function ModalBackdrop({ onPress, children }: ModalBackdropProps) {
+export function ModalBackdrop({ onPress, children, dataSet }: ModalBackdropProps) {
   const theme = useTheme();
 
   return (
-    <View style={theme.sx({ flex: 1 })}>
+    <View
+      style={theme.sx({ flex: 1 })}
+      {...componentDataSet('ModalBackdrop', dataSet)}
+    >
       <Pressable
         onPress={onPress}
         style={[

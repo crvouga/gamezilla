@@ -12,6 +12,7 @@ export function UiExplorerDetailScreen() {
 
   return (
     <ScreenBase
+      screenId="ui-explorer-detail"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },

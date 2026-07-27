@@ -20,6 +20,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Animated, View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import { useTheme, type Theme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
@@ -36,6 +40,8 @@ export type SegmentedControlProps<K extends string = string> = {
   selected: K;
   onSelect: (key: K) => void;
   disabled?: boolean;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const CONTAINER_PADDING = 3;
@@ -79,6 +85,7 @@ export function SegmentedControl<K extends string = string>({
   selected,
   onSelect,
   disabled = false,
+  dataSet,
 }: SegmentedControlProps<K>) {
   const theme = useTheme();
   const [containerWidth, setContainerWidth] = useState(0);
@@ -94,6 +101,7 @@ export function SegmentedControl<K extends string = string>({
 
   return (
     <View
+      {...componentDataSet('SegmentedControl', dataSet)}
       onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
       style={{
         flexDirection: 'row',

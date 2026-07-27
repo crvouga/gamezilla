@@ -3,6 +3,10 @@
  */
 
 import type { ReactNode } from 'react';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { Box } from '../box';
 import { Chip } from '../chip';
 import { Text } from '../text';
@@ -21,6 +25,8 @@ export type ChipGroupProps<K extends string = string> = {
   /** Optional section label above the chips. */
   label?: ReactNode;
   disabled?: boolean;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function ChipGroup<K extends string = string>({
@@ -29,9 +35,10 @@ export function ChipGroup<K extends string = string>({
   onSelect,
   label,
   disabled = false,
+  dataSet,
 }: ChipGroupProps<K>) {
   return (
-    <Box sx={{ gap: 2, py: 1 }}>
+    <Box sx={{ gap: 2, py: 1 }} {...componentDataSet('ChipGroup', dataSet)}>
       {label !== undefined ? <Text variant="label" label={label} /> : null}
       <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
         {options.map((opt) => {

@@ -9,6 +9,10 @@ import {
 } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { duration } from '../../theme/motion';
 import { borderRadius } from '../../theme/scale';
@@ -94,11 +98,13 @@ export function TooltipBubble({
   anchor,
   preferredPlacement,
   enterKey,
+  dataSet,
 }: {
   label: ReactNode;
   anchor: LayoutRectangle;
   preferredPlacement: TooltipPlacement;
   enterKey: number;
+  dataSet?: ComponentDataSet;
 }): ReactNode {
   const theme = useTheme();
   const viewport = useViewportSize();
@@ -135,6 +141,7 @@ export function TooltipBubble({
       style={[shellStyle, motion === null ? { opacity: 0 } : motion]}
     >
       <View
+        {...componentDataSet('Tooltip', dataSet)}
         onLayout={handleLayout}
         style={{
           backgroundColor: theme.colors.surfaceElevated,

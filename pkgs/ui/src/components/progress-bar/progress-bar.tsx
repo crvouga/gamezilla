@@ -15,6 +15,10 @@
 import { useEffect, useRef } from 'react';
 import { Animated, View } from 'react-native';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { duration } from '../../theme/motion';
 
@@ -27,6 +31,8 @@ export type ProgressBarProps = {
   color?: string;
   /** Track height in pixels. Defaults to 4. */
   height?: number;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const INDETERMINATE_DURATION = duration.slower * 2;
@@ -69,6 +75,7 @@ export function ProgressBar({
   indeterminate = false,
   color = 'tint',
   height = 4,
+  dataSet,
 }: ProgressBarProps) {
   const theme = useTheme();
   const fillColor = theme.colors[color as keyof typeof theme.colors] ?? color;
@@ -82,6 +89,7 @@ export function ProgressBar({
 
   return (
     <View
+      {...componentDataSet('ProgressBar', dataSet)}
       style={{
         height,
         borderRadius: height / 2,

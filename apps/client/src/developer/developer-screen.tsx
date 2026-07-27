@@ -43,6 +43,7 @@ export function DeveloperScreen() {
 
   return (
     <ScreenBase
+      screenId="developer"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },

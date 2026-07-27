@@ -19,6 +19,10 @@
 
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';
@@ -31,6 +35,8 @@ export type ChipProps = {
   disabled?: boolean;
   /** Rendered before the label (sized to match the chip text). */
   startIcon?: ReactNode;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 export function Chip({
@@ -39,6 +45,7 @@ export function Chip({
   onPress,
   disabled = false,
   startIcon,
+  dataSet,
 }: ChipProps) {
   const theme = useTheme();
 
@@ -50,6 +57,7 @@ export function Chip({
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      {...componentDataSet('Chip', dataSet)}
       sx={{ borderRadius: borderRadius.full }}
       style={{
         alignSelf: 'flex-start' as const,

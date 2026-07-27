@@ -17,6 +17,7 @@ export function SpaceEndedScreen({
 
   return (
     <ScreenBase
+      screenId="space-ended"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         {

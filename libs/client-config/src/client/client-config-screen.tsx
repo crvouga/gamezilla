@@ -10,6 +10,7 @@ export function ClientConfigScreen() {
 
   return (
     <ScreenBase
+      screenId="client-config"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },

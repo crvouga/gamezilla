@@ -19,6 +19,7 @@ export function AccountDevicesScreen() {
 
   return (
     <ScreenBase
+      screenId="account-devices"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },

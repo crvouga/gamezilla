@@ -42,6 +42,7 @@ export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
 
   return (
     <ScreenBase
+      screenId="space-join"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         {

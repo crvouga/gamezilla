@@ -13,6 +13,7 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { useLingui } from '@lingui/react/macro';
 import { IconButton } from '../icon-button';
@@ -27,6 +28,8 @@ export type BackIconButtonProps = {
   /** Label override. Defaults to localized "Back". */
   label?: LocalizedString;
   testID?: string;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const ICON_SIZE_RATIO = 0.5;
@@ -37,6 +40,7 @@ export function BackIconButton({
   background = 'surface',
   label,
   testID,
+  dataSet,
 }: BackIconButtonProps): ReactNode {
   const { t } = useLingui();
   const theme = useTheme();
@@ -50,6 +54,7 @@ export function BackIconButton({
       label={resolvedLabel}
       accessibilityLabel={resolvedLabel}
       {...(testID !== undefined ? { testID } : {})}
+      {...componentDataSet('BackIconButton', dataSet)}
     >
       <ChevronLeftIcon size={iconSize} color={theme.colors.text} />
     </IconButton>

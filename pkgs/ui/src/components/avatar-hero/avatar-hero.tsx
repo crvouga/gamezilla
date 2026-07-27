@@ -5,6 +5,10 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Center } from '../center';
 import { IconButton } from '../icon-button';
@@ -21,17 +25,22 @@ export type AvatarHeroProps = {
   size: number;
   children: ReactNode;
   action?: AvatarHeroAction;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const ACTION_SIZE = 44;
 const ACTION_INSET = 4;
 
-export function AvatarHero({ size, children, action }: AvatarHeroProps) {
+export function AvatarHero({ size, children, action, dataSet }: AvatarHeroProps) {
   const theme = useTheme();
   const slotSize = size + ACTION_INSET * 2;
 
   return (
-    <Center sx={{ py: 2, minHeight: slotSize + 16 }}>
+    <Center
+      {...componentDataSet('AvatarHero', dataSet)}
+      sx={{ py: 2, minHeight: slotSize + 16 }}
+    >
       <View style={{ width: slotSize, height: slotSize }}>
         <Center sx={{ width: size, height: size, alignSelf: 'center' }}>
           {children}

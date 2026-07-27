@@ -7,6 +7,10 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Text } from '../text';
@@ -32,6 +36,8 @@ export type MultiSelectSwatchGridProps = {
     active: boolean,
     onPress: () => void
   ) => ReactNode;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 function isSelected(value: string[], token: string): boolean {
@@ -75,6 +81,7 @@ export function MultiSelectSwatchGrid({
   validateCustom = (s) => DEFAULT_HEX.test(s),
   transparentToken = 'transparent',
   renderSwatch,
+  dataSet,
 }: MultiSelectSwatchGridProps) {
   const uniquePalette = useUniquePalette(palette);
   const toggle = useToggleColor(value, onChange);
@@ -86,7 +93,7 @@ export function MultiSelectSwatchGrid({
     );
 
   return (
-    <Box sx={{ gap: 2, py: 2 }}>
+    <Box sx={{ gap: 2, py: 2 }} {...componentDataSet('MultiSelectSwatchGrid', dataSet)}>
       <Text variant="label" label={label} />
       <SwatchRow
         uniquePalette={uniquePalette}

@@ -15,6 +15,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Platform, View, type LayoutChangeEvent } from 'react-native';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { duration } from '../../theme/motion';
 
@@ -22,6 +26,8 @@ export type SkeletonProps = {
   width?: number | `${number}%`;
   height?: number;
   borderRadius?: number;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const SHIMMER_DURATION = duration.slower * 3;
@@ -65,6 +71,7 @@ export function Skeleton({
   width = '100%',
   height = 16,
   borderRadius = 4,
+  dataSet,
 }: SkeletonProps) {
   const theme = useTheme();
   const reducedMotion = usePrefersReducedMotion();
@@ -84,6 +91,7 @@ export function Skeleton({
 
   return (
     <View
+      {...componentDataSet('Skeleton', dataSet)}
       onLayout={onLayout}
       style={{
         width,

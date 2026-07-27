@@ -22,6 +22,10 @@
 
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { bestOnColor, useTheme, type ColorTokens } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
@@ -51,6 +55,8 @@ export type BadgeProps = {
   color?: string;
   /** Size preset. Defaults to `"md"`. */
   size?: 'sm' | 'md';
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 type IntentTokens = {
@@ -91,6 +97,7 @@ export function Badge({
   tone = 'subtle',
   color,
   size = 'md',
+  dataSet,
 }: BadgeProps) {
   const theme = useTheme();
   const tokens = INTENT_TO_TOKENS[intent][tone];
@@ -107,6 +114,7 @@ export function Badge({
 
   return (
     <View
+      {...componentDataSet('Badge', dataSet)}
       style={{
         alignSelf: 'flex-start',
         backgroundColor: bg,

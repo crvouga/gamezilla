@@ -24,6 +24,10 @@ import { useContext, useMemo, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { useTheme } from '../../theme';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { Box } from '../box';
 import {
   FLOATING_MENU_DEFAULT_WIDTH,
@@ -78,6 +82,8 @@ export type OverflowMenuButtonProps = {
   /** Width of the dropdown panel in px. */
   width?: number;
   testID?: string;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 const DEFAULT_ACTION_ICON = EllipsisIcon;
@@ -129,6 +135,7 @@ export function OverflowMenuButton({
   accessibilityLabel,
   width = FLOATING_MENU_DEFAULT_WIDTH,
   testID,
+  dataSet,
 }: OverflowMenuButtonProps): ReactNode {
   const theme = useTheme();
   const menu = useAnchoredMenu();
@@ -145,7 +152,11 @@ export function OverflowMenuButton({
 
   return (
     <>
-      <Box ref={menu.triggerRef} collapsable={false}>
+      <Box
+        ref={menu.triggerRef}
+        collapsable={false}
+        {...componentDataSet('OverflowMenuButton', dataSet)}
+      >
         <IconButton
           size={size}
           background={background}

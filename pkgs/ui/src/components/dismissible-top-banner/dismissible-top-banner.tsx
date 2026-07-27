@@ -33,6 +33,10 @@ import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { t } from '@lingui/core/macro';
 import { assert } from '@pkgs/assert';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';
@@ -267,6 +271,8 @@ export type DismissibleBannerProps = {
   position?: DismissibleBannerPosition;
   testID?: string;
   dismissButtonTestID?: string;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 type DismissibleBannerFrameProps = {
@@ -358,6 +364,7 @@ function dismissibleBannerPortalNode({
   subtitle,
   actionLabel,
   onActionPress,
+  dataSet,
 }: {
   position: DismissibleBannerPosition;
   translateY: Animated.Value;
@@ -371,10 +378,12 @@ function dismissibleBannerPortalNode({
   subtitle: ReactNode | undefined;
   actionLabel: ReactNode | undefined;
   onActionPress: (() => void) | undefined;
+  dataSet: ComponentDataSet | undefined;
 }) {
   return (
     <Animated.View
       pointerEvents="box-none"
+      {...componentDataSet('DismissibleBanner', dataSet)}
       style={[
         {
           position: 'absolute',
@@ -429,6 +438,7 @@ function DismissibleBannerPortaled({
   position = 'top',
   testID,
   dismissButtonTestID,
+  dataSet,
 }: DismissibleBannerProps & {
   portal: DismissibleBannerPortalApi | null;
   portalId: string;
@@ -458,9 +468,11 @@ function DismissibleBannerPortaled({
         subtitle,
         actionLabel,
         onActionPress,
+        dataSet,
       }),
     [
       actionLabel,
+      dataSet,
       dismiss,
       dismissButtonTestID,
       insets.bottom,

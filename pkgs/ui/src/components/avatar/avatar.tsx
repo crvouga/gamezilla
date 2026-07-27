@@ -25,6 +25,10 @@
 import { Image, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
+import {
+  componentDataSet,
+  type ComponentDataSet,
+} from '../../component-id';
 import { bestOnColor, useTheme } from '../../theme';
 import { type IconComponent } from '../icons';
 import { Text } from '../text';
@@ -53,6 +57,8 @@ export type AvatarProps = {
   initials?: string;
   /** Icon glyph fallback (e.g. `'person.fill'`). */
   icon?: IconComponent;
+  /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet;
 };
 
 function isNonEmpty(value: string | null | undefined): value is string {
@@ -67,8 +73,10 @@ export function Avatar({
   uri,
   initials,
   icon,
+  dataSet,
 }: AvatarProps) {
   const theme = useTheme();
+  const idProps = componentDataSet('Avatar', dataSet);
   const bg =
     theme.colors[background as keyof typeof theme.colors] ?? background;
   const fg =
@@ -90,7 +98,7 @@ export function Avatar({
 
   if (isNonEmpty(svg)) {
     return (
-      <View style={containerStyle}>
+      <View style={containerStyle} {...idProps}>
         <SvgXml xml={svg} width={size} height={size} />
       </View>
     );
@@ -98,7 +106,7 @@ export function Avatar({
 
   if (isNonEmpty(uri)) {
     return (
-      <View style={containerStyle}>
+      <View style={containerStyle} {...idProps}>
         <Image
           source={{ uri }}
           style={{ width: size, height: size }}
@@ -111,7 +119,7 @@ export function Avatar({
   if (isNonEmpty(initials)) {
     const fontSize = Math.round(size * 0.4);
     return (
-      <View style={containerStyle}>
+      <View style={containerStyle} {...idProps}>
         <Text
           style={{ color: fg, fontSize, fontWeight: 'bold' }}
           label={initials.slice(0, 2)}
@@ -122,15 +130,13 @@ export function Avatar({
 
   if (icon !== undefined) {
     const iconSize = Math.max(12, Math.round(size * 0.48));
+    const Icon = icon;
     return (
-      <View style={containerStyle}>
-        {(() => {
-          const Icon = icon;
-          return <Icon size={iconSize} color={fg} />;
-        })()}
+      <View style={containerStyle} {...idProps}>
+        <Icon size={iconSize} color={fg} />
       </View>
     );
   }
 
-  return <View style={containerStyle} />;
+  return <View style={containerStyle} {...idProps} />;
 }
