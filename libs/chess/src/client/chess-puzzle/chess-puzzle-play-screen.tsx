@@ -198,6 +198,7 @@ type PuzzlePlayerProps = {
   puzzleId: string;
   playGeneration: number;
   readyGeneration: number;
+  startNonce: number;
   onRequestNext: () => void;
 };
 
@@ -213,12 +214,14 @@ function PuzzlePlayer({
   puzzleId,
   playGeneration,
   readyGeneration,
+  startNonce,
   onRequestNext,
 }: PuzzlePlayerProps): ReactNode {
   const p = usePuzzlePlayerState({
     puzzleId,
     playGeneration,
     readyGeneration,
+    startNonce,
     onRequestNext,
   });
   return <PuzzlePlayerChrome {...p} />;
@@ -262,6 +265,7 @@ export function PuzzlePlayScreen(): ReactNode {
     activePuzzleId,
     attemptSeed,
     readyGeneration,
+    startNonce,
     onRequestNext,
     e2eLoadingStatus,
   } = usePuzzlePlayScreenState();
@@ -292,6 +296,7 @@ export function PuzzlePlayScreen(): ReactNode {
         puzzleId={activePuzzleId}
         playGeneration={attemptSeed}
         readyGeneration={readyGeneration}
+        startNonce={startNonce}
         onRequestNext={onRequestNext}
       />
     </Box>

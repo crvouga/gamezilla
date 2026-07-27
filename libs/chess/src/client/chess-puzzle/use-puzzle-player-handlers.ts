@@ -9,6 +9,7 @@ import {
   ClearChessPuzzlePlay,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
+  RevealChessPuzzleSolution,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
   type ChessPuzzlePlayStatus,
@@ -20,8 +21,6 @@ import type { HintStage } from './use-hint-stage';
 type HandlersArgs = {
   status: ChessPuzzlePlayStatus | 'loading';
   hintStage: HintStage;
-  showSolution: () => void;
-  requestSolution: () => void;
   onMoveRaw: (m: Move) => void;
   setLastUci: (uci: string) => void;
   appendUsedHint: () => Promise<void>;
@@ -30,13 +29,10 @@ type HandlersArgs = {
 };
 
 function useHintSolutionHandlers(
-  args: Pick<
-    HandlersArgs,
-    'hintStage' | 'showSolution' | 'requestSolution' | 'appendUsedHint'
-  >
+  args: Pick<HandlersArgs, 'hintStage' | 'appendUsedHint'>
 ): { onHint: () => void; onSolution: () => void } {
   const dispatch = useSpaceRoomDispatch();
-  const { hintStage, showSolution, requestSolution, appendUsedHint } = args;
+  const { hintStage, appendUsedHint } = args;
 
   const onHint = useCallback(() => {
     if (hintStage === 'none') {
@@ -44,17 +40,18 @@ function useHintSolutionHandlers(
       void appendUsedHint();
       return;
     }
-    if (hintStage === 'highlight') showSolution();
-  }, [appendUsedHint, dispatch, hintStage, showSolution]);
+    if (hintStage === 'highlight') {
+      dispatch(RevealChessPuzzleSolution({}));
+    }
+  }, [appendUsedHint, dispatch, hintStage]);
 
   const onSolution = useCallback(() => {
     if (hintStage === 'solution') return;
     if (hintStage === 'none') {
-      dispatch(RequestChessPuzzleHint({}));
       void appendUsedHint();
     }
-    requestSolution();
-  }, [appendUsedHint, dispatch, hintStage, requestSolution]);
+    dispatch(RevealChessPuzzleSolution({}));
+  }, [appendUsedHint, dispatch, hintStage]);
 
   return { onHint, onSolution };
 }
@@ -76,15 +73,11 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
     appendAbandoned,
     onRequestNext,
     hintStage,
-    showSolution,
-    requestSolution,
     appendUsedHint,
   } = args;
   const dispatch = useSpaceRoomDispatch();
   const { onHint, onSolution } = useHintSolutionHandlers({
     hintStage,
-    showSolution,
-    requestSolution,
     appendUsedHint,
   });
 

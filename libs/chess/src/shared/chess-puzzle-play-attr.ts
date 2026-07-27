@@ -122,6 +122,13 @@ export const ChessPuzzlePlayAttr = {
     'expected-to-square',
     readNullableNonEmptyString
   ),
+  /**
+   * Host promoted hint highlight → full solution arrow. Synced so every
+   * client sees the same reveal (local-only flags do not cross the room).
+   */
+  solutionRevealed: playNs.integer('solution-revealed', (v) =>
+    typeof v === 'number' && Number.isInteger(v) && v > 0 ? 1 : 0
+  ),
 } as const;
 
 export function isNonEmptyString(v: unknown): v is string {

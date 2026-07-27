@@ -15,6 +15,7 @@ import {
   ChessPuzzlePlayResetEvt,
   ChessPuzzlePlayStarted,
   ChessPuzzlePlayStepped,
+  ChessPuzzleSolutionRevealed,
 } from './chess-puzzle-play-messages';
 
 export const chessPuzzlePlayEventReducer = createMessageRouter<
@@ -41,6 +42,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.wrongToSquare(null),
       ...ChessPuzzlePlayAttr.expectedFromSquare(null),
       ...ChessPuzzlePlayAttr.expectedToSquare(null),
+      ...ChessPuzzlePlayAttr.solutionRevealed(0),
     };
   })
   .on(ChessPuzzlePlayMoveAccepted, (state, _ctx, ev) => {
@@ -57,6 +59,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.wrongToSquare(null),
       ...ChessPuzzlePlayAttr.expectedFromSquare(null),
       ...ChessPuzzlePlayAttr.expectedToSquare(null),
+      ...ChessPuzzlePlayAttr.solutionRevealed(0),
     };
   })
   .on(ChessPuzzlePlayMoveRejected, (state, _ctx, ev) => ({
@@ -69,6 +72,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.wrongToSquare(ev.payload.wrongToSquare),
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
+    ...ChessPuzzlePlayAttr.solutionRevealed(0),
   }))
   .on(ChessPuzzlePlayResetEvt, (state, _ctx, ev) => ({
     ...state,
@@ -82,6 +86,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.wrongToSquare(null),
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
+    ...ChessPuzzlePlayAttr.solutionRevealed(0),
   }))
   .on(ChessPuzzlePlayStepped, (state, _ctx, ev) => ({
     ...state,
@@ -94,12 +99,18 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.wrongToSquare(null),
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
+    ...ChessPuzzlePlayAttr.solutionRevealed(0),
   }))
   .on(ChessPuzzleHintRevealed, (state, _ctx, ev) => ({
     ...state,
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
     ...ChessPuzzlePlayAttr.expectedFromSquare(ev.payload.fromSquare),
     ...ChessPuzzlePlayAttr.expectedToSquare(ev.payload.toSquare),
+    ...ChessPuzzlePlayAttr.solutionRevealed(0),
+  }))
+  .on(ChessPuzzleSolutionRevealed, (state) => ({
+    ...state,
+    ...ChessPuzzlePlayAttr.solutionRevealed(1),
   }))
   .on(ChessPuzzleHostReclaimed, (state, _ctx, ev) => ({
     ...state,
@@ -122,6 +133,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.wrongToSquare(null),
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
+    ...ChessPuzzlePlayAttr.solutionRevealed(0),
   }));
 
 /** Default values to seed in `SpaceModule.initialState()`. */
@@ -142,5 +154,6 @@ export function chessPuzzlePlayInitialAttrs(): RoomState {
     ...ChessPuzzlePlayAttr.wrongToSquare(null),
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
+    ...ChessPuzzlePlayAttr.solutionRevealed(0),
   };
 }

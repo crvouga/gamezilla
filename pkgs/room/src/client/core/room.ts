@@ -424,6 +424,7 @@ export class Room<
     if (this.destroyed) return;
     const msg = parseServerToClientWire(raw);
     if (msg === null) return;
+    if (msg.kind === ROOM_WIRE_KIND.pong) return;
     if (msg.kind === ROOM_WIRE_KIND.welcome) await this.onWelcomeWire(msg);
     else if (msg.kind === ROOM_WIRE_KIND.committed)
       await this.onCommittedWire(msg);

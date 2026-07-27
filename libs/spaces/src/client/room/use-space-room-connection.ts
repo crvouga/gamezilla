@@ -1,4 +1,5 @@
 import type { ConfigService } from '@libs/auth/client/config-service-types';
+import { getCachedAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import type { Kv } from '@pkgs/kv/interface';
 import type {
   Room,
@@ -29,6 +30,31 @@ function normalizeSessionToken(t: string | null): string | null {
   return trimmed.length === 0 ? null : trimmed;
 }
 
+const FRESH_TOKEN_TIMEOUT_MS = 4_000;
+
+function raceFreshToken(
+  getFresh: () => Promise<string | null>
+): Promise<string | null> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const done = (v: string | null): void => {
+      if (settled) return;
+      settled = true;
+      resolve(v);
+    };
+    const timer = setTimeout(() => done(null), FRESH_TOKEN_TIMEOUT_MS);
+    void getFresh()
+      .then((t) => {
+        clearTimeout(timer);
+        done(t);
+      })
+      .catch(() => {
+        clearTimeout(timer);
+        done(null);
+      });
+  });
+}
+
 function destroyRoomPair(args: {
   roomRef: MutableRefObject<SpaceRoom | null>;
   transportRef: MutableRefObject<WebSocketRoomTransport | null>;
@@ -51,7 +77,7 @@ type OpenSpaceRoomArgs = {
   configService: ConfigService;
   kv: Kv;
   module: ReturnType<typeof useSpaceModule>;
-  sessionToken: string | null;
+  getSessionToken: () => string | null | Promise<string | null>;
   roomRef: MutableRefObject<SpaceRoom | null>;
   transportRef: MutableRefObject<WebSocketRoomTransport | null>;
   setRoom: Dispatch<SetStateAction<SpaceRoom | null>>;
@@ -89,7 +115,7 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
       kv: args.kv,
       myId: args.bootstrap.myId,
       installId: args.bootstrap.installId,
-      sessionToken: args.sessionToken,
+      getSessionToken: args.getSessionToken,
     });
     if (cancelled) {
       if (args.openingKeyRef.current === args.bootstrapKey) {
@@ -109,24 +135,25 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
 function shouldSkipOpen(args: {
   bootstrap: SpaceRoomConnectionBootstrap;
   bootstrapKey: string;
-  sessionToken: string | null;
+  hasBearerOrAnon: boolean;
   connectedKey: string | null;
   currentRoom: SpaceRoom | null;
 }): boolean {
-  const token = normalizeSessionToken(args.sessionToken);
-  const hasAnon = args.bootstrap.myId.length > 0;
-  if (token === null && !hasAnon) return true;
+  if (!args.hasBearerOrAnon) return true;
   return args.connectedKey === args.bootstrapKey && args.currentRoom !== null;
 }
 
 function beginOpenSpaceRoom(
-  args: OpenSpaceRoomArgs & { tearDown: () => void }
+  args: OpenSpaceRoomArgs & {
+    tearDown: () => void;
+    hasBearerOrAnon: boolean;
+  }
 ): (() => void) | undefined {
   if (
     shouldSkipOpen({
       bootstrap: args.bootstrap,
       bootstrapKey: args.bootstrapKey,
-      sessionToken: args.sessionToken,
+      hasBearerOrAnon: args.hasBearerOrAnon,
       connectedKey: args.connectedKeyRef.current,
       currentRoom: args.roomRef.current,
     })
@@ -152,17 +179,40 @@ function beginOpenSpaceRoom(
   };
 }
 
-export function useSpaceRoomConnection(
-  bootstrap: SpaceRoomConnectionBootstrap | null,
-  configService: ConfigService,
-  kv: Kv,
+function makeGetSessionToken(args: {
+  getFreshTokenRef: MutableRefObject<() => Promise<string | null>>;
+  sessionTokenRef: MutableRefObject<string | null>;
+}): () => Promise<string | null> {
+  return async () => {
+    let fresh: string | null = null;
+    try {
+      fresh = await raceFreshToken(() => args.getFreshTokenRef.current());
+    } catch {
+      fresh = null;
+    }
+    const cached = getCachedAuthToken();
+    return normalizeSessionToken(
+      fresh ?? cached ?? args.sessionTokenRef.current
+    );
+  };
+}
+
+export type UseSpaceRoomConnectionArgs = {
+  bootstrap: SpaceRoomConnectionBootstrap | null;
+  configService: ConfigService;
+  kv: Kv;
   /** Bearer for `/room`; re-run when bearer availability changes, not on JWT rotation. */
-  sessionToken: string | null
-): {
+  sessionToken: string | null;
+  /** Async refresh used on every socket open so reconnects do not reuse a stale JWT. */
+  getFreshToken: () => Promise<string | null>;
+};
+
+export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   room: SpaceRoom | null;
   roomRef: MutableRefObject<SpaceRoom | null>;
   transport: WebSocketRoomTransport | null;
 } {
+  const { bootstrap, configService, kv, sessionToken, getFreshToken } = args;
   const [room, setRoom] = useState<SpaceRoom | null>(null);
   const [transport, setTransport] = useState<WebSocketRoomTransport | null>(
     null
@@ -172,6 +222,8 @@ export function useSpaceRoomConnection(
   const module = useSpaceModule();
   const sessionTokenRef = useRef(sessionToken);
   sessionTokenRef.current = sessionToken;
+  const getFreshTokenRef = useRef(getFreshToken);
+  getFreshTokenRef.current = getFreshToken;
   const connectedKeyRef = useRef<string | null>(null);
   const openingKeyRef = useRef<string | null>(null);
 
@@ -180,6 +232,8 @@ export function useSpaceRoomConnection(
       ? null
       : `${bootstrap.spaceId}:${bootstrap.myId}:${bootstrap.installId}`;
   const hasBearer = normalizeSessionToken(sessionToken) !== null;
+  const hasBearerOrAnon =
+    hasBearer || (bootstrap !== null && bootstrap.myId.length > 0);
 
   const tearDown = useCallback(() => {
     connectedKeyRef.current = null;
@@ -200,7 +254,11 @@ export function useSpaceRoomConnection(
       configService,
       kv,
       module,
-      sessionToken: normalizeSessionToken(sessionTokenRef.current),
+      hasBearerOrAnon,
+      getSessionToken: makeGetSessionToken({
+        getFreshTokenRef,
+        sessionTokenRef,
+      }),
       roomRef,
       transportRef,
       setRoom,
@@ -209,7 +267,16 @@ export function useSpaceRoomConnection(
       openingKeyRef,
       tearDown,
     });
-  }, [bootstrap, bootstrapKey, hasBearer, configService, kv, module, tearDown]);
+  }, [
+    bootstrap,
+    bootstrapKey,
+    hasBearer,
+    hasBearerOrAnon,
+    configService,
+    kv,
+    module,
+    tearDown,
+  ]);
 
   return { room, roomRef, transport };
 }

@@ -82,6 +82,11 @@ export class RoomServer<
     this.senders.set(id, send);
   }
 
+  /** True when `id` is already in the live sender map (hibernation restore). */
+  hasConnection(id: string): boolean {
+    return this.senders.has(id);
+  }
+
   unregisterConnection(id: string): void {
     this.senders.delete(id);
   }
@@ -283,7 +288,12 @@ export class RoomServer<
     if (send === undefined) return;
 
     const parsed = parseClientToServerWire(raw);
-    if (parsed === null || parsed.kind === ROOM_WIRE_KIND.ping) return;
+    if (parsed === null) return;
+
+    if (parsed.kind === ROOM_WIRE_KIND.ping) {
+      send({ v: WIRE_VERSION, kind: ROOM_WIRE_KIND.pong });
+      return;
+    }
 
     if (parsed.kind === ROOM_WIRE_KIND.sync) {
       this.sendWelcomeTo(connectionId, parsed.fromSeq);

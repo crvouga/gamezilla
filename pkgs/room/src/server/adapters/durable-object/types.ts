@@ -39,6 +39,8 @@ export interface DurableObjectKvStorage {
  */
 export interface DurableObjectInstanceState {
   acceptWebSocket(ws: WebSocket, tags?: string[]): void;
+  /** Hibernation API: sockets still attached after DO eviction. */
+  getWebSockets(tag?: string): WebSocket[];
   readonly storage: DurableObjectKvStorage;
   blockConcurrencyWhile<T>(fn: () => Promise<T>): Promise<T>;
 }

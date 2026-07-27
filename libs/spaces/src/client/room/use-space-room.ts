@@ -1,6 +1,9 @@
 import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
 import { useConfigService } from '@libs/auth/client/config-service-context';
-import { useFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
+import {
+  useFreshAuthToken,
+  useGetFreshAuthToken,
+} from '@libs/auth/client/use-fresh-auth-token';
 import { useKv } from '@pkgs/kv/kv-context';
 import type {
   Room,
@@ -13,6 +16,7 @@ import { useMemo } from 'react';
 
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useSpaceRoomConnection } from './use-space-room-connection';
+import { useRoomResumeLiveness } from './use-room-resume-liveness';
 import { useSpacePresence } from '../use-space-presence';
 
 type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
@@ -31,6 +35,7 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const configService = useConfigService();
   const kv = useKv();
   const sessionToken = useFreshAuthToken();
+  const getFreshToken = useGetFreshAuthToken();
 
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
     if (
@@ -50,12 +55,14 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
     };
   }, [spaceId, deviceId, memberId, presence.status]);
 
-  const { room } = useSpaceRoomConnection(
+  const { room, transport } = useSpaceRoomConnection({
     bootstrap,
     configService,
     kv,
-    sessionToken
-  );
+    sessionToken,
+    getFreshToken,
+  });
+  useRoomResumeLiveness(transport);
   const snap = useRoomSnapshot(room);
   const isSynced = RoomMetaAttr.isSynced.from(snap);
   return {

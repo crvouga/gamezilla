@@ -41,6 +41,9 @@ function useChessPuzzlePlayRoomSelectors() {
   const expectedToSquare = useSpaceRoomSelector(
     ChessPuzzlePlayAttr.expectedToSquare.from
   );
+  const solutionRevealedRaw = useSpaceRoomSelector(
+    ChessPuzzlePlayAttr.solutionRevealed.from
+  );
   return {
     roomStatus,
     roomPuzzleId,
@@ -55,6 +58,7 @@ function useChessPuzzlePlayRoomSelectors() {
     wrongToSquare,
     expectedFromSquare,
     expectedToSquare,
+    solutionRevealed: solutionRevealedRaw > 0,
   };
 }
 
@@ -82,6 +86,7 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
   wrongToSquare: string | null;
   expectedFromSquare: string | null;
   expectedToSquare: string | null;
+  solutionRevealed: boolean;
   /** True while opponent opening/reply is staged on the board. */
   opponentAnimating: boolean;
 } {
@@ -101,6 +106,7 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
     wrongToSquare,
     expectedFromSquare,
     expectedToSquare,
+    solutionRevealed,
   } = useChessPuzzlePlayRoomSelectors();
 
   const onMove = useCallback(
@@ -140,6 +146,7 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
     wrongToSquare,
     expectedFromSquare,
     expectedToSquare,
+    solutionRevealed,
     opponentAnimating,
   };
 }

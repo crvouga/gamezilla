@@ -20,7 +20,6 @@ import {
 } from './chess-puzzle-play-attr';
 import {
   chessPuzzlePlayCmdNs,
-  ChessPuzzleHintRevealed,
   ChessPuzzleHostReclaimed,
   ChessPuzzlePlayCleared,
   ChessPuzzlePlayMoveAccepted,
@@ -32,12 +31,17 @@ import {
   ReclaimChessPuzzlePlay,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
+  RevealChessPuzzleSolution,
   SeekChessPuzzlePlay,
   StartChessPuzzlePlay,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
   SubmitChessPuzzleMove,
 } from './chess-puzzle-play-messages';
+import {
+  handleRequestHint,
+  handleRevealSolution,
+} from './chess-puzzle-play-hint-handlers';
 import {
   fenAtSolveIdx,
   nextForwardSolveIdx,
@@ -407,37 +411,6 @@ function handleSeek(
   return emitSeekToSolveIdx(state, nextIdx);
 }
 
-function handleRequestHint(state: RoomState, identity: string): HandleResult {
-  if (!isHostOf(state, identity)) {
-    return unauthorized('only the puzzle host may request a hint');
-  }
-  const status = ChessPuzzlePlayAttr.status.from(state);
-  if (status !== CHESS_PUZZLE_PLAY_STATUS.solving) {
-    return conflict(`cannot request hint while status is ${status}`);
-  }
-  const tokens = tokenize(ChessPuzzlePlayAttr.moves.from(state));
-  const idx = ChessPuzzlePlayAttr.solveIdx.from(state);
-  const expected = tokens[idx];
-  if (expected === undefined) {
-    return internal('no expected move at current solve index');
-  }
-  const squares = uciToSquares(expected);
-  if (squares === null) {
-    return internal('expected move uci is malformed');
-  }
-  const layoutKey = ChessPuzzlePlayAttr.layoutKey.from(state) + 1;
-  return {
-    ok: true,
-    events: [
-      ChessPuzzleHintRevealed({
-        fromSquare: squares.from,
-        toSquare: squares.to,
-        layoutKey,
-      }),
-    ],
-  };
-}
-
 function handleClear(state: RoomState, identity: string): HandleResult {
   const host = ChessPuzzlePlayAttr.hostIdentity.from(state);
   if (host !== null && host !== identity) {
@@ -485,6 +458,9 @@ export const chessPuzzlePlayCommandRouter = createMessageRouter<
   .on(ClearChessPuzzlePlay, (state, identity) => handleClear(state, identity))
   .on(RequestChessPuzzleHint, (state, identity) =>
     handleRequestHint(state, identity)
+  )
+  .on(RevealChessPuzzleSolution, (state, identity) =>
+    handleRevealSolution(state, identity)
   )
   .on(ReclaimChessPuzzlePlay, (state, identity) =>
     handleReclaim(state, identity)

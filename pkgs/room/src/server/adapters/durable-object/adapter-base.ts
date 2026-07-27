@@ -4,13 +4,18 @@ import {
   parseRoomModuleName,
   type RoomCommandPayload,
   type RoomEvent,
-  type RoomModule,
   type RoomModuleName,
   type RoomState,
 } from '../../../types';
 import { RoomServer } from '../../core/room-server';
-import type { RoomStorage } from '../../core/storage';
 
+import type { ResolvedAdapterConfig } from './adapter-base-types';
+import {
+  restoreHibernatedSockets,
+  WS_CLOSE_SESSION_LOST,
+  type WsMeta,
+} from './hibernation-restore';
+import { writeRoomSocketAttachment } from './socket-attachment';
 import {
   newWebSocketPair,
   type DurableObjectInstance,
@@ -18,14 +23,15 @@ import {
   type WebSocketUpgradeResponseInit,
 } from './types';
 
+export type { ResolvedAdapterConfig } from './adapter-base-types';
+
 const crash: Assert = Assert.crash();
 
 /** WebSocket close codes used when the adapter rejects/abandons a connection. */
 const WS_CLOSE = {
   /** RFC 6455 §7.4: 1003 — endpoint received data of a type it cannot accept. */
   invalidFrame: 1003,
-  /** RFC 6455 §7.4: 1011 — server is terminating because of an unexpected condition. */
-  sessionLost: 1011,
+  sessionLost: WS_CLOSE_SESSION_LOST,
 } as const;
 
 /** All adapter HTTP error responses share the same JSON shape: `{ error: string }`. */
@@ -36,33 +42,17 @@ function errorResponse(status: number, error: string): Response {
   });
 }
 
-/**
- * Resolved configuration handed to a {@link RoomDurableObjectAdapterBase}
- * instance. All defaults applied; no optional fields. Internal to the
- * adapter package.
- */
-export type ResolvedAdapterConfig<
+type AcceptUpgradeArgs<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
   Identity,
-  Env,
 > = {
-  modulesByName: ReadonlyMap<RoomModuleName, RoomModule<S, C, E, Identity>>;
-  identityHeader: string;
-  parseIdentity: (raw: string) => Identity | null;
-  createStorage: (
-    state: DurableObjectInstanceState,
-    env: Env,
-    moduleName: RoomModuleName
-  ) => RoomStorage;
-};
-
-/** Per-WebSocket routing record set in {@link RoomDurableObjectAdapterBase.acceptUpgrade}. */
-type WsMeta<Identity> = {
-  readonly id: string;
-  readonly identity: Identity;
-  readonly moduleName: RoomModuleName;
+  server: RoomServer<S, C, E, Identity>;
+  identity: Identity;
+  identityRaw: string;
+  moduleName: RoomModuleName;
+  topic: string;
 };
 
 /**
@@ -74,7 +64,9 @@ type WsMeta<Identity> = {
  * One DO instance hosts one {@link RoomServer} per configured module
  * (created lazily on first upgrade). Each accepted socket carries its
  * `moduleName` in {@link wsMeta}, so inbound frames route to exactly the
- * server that opened them.
+ * server that opened them. Per-socket routing is also written to the
+ * Hibernation WebSocket attachment so {@link ensureRestored} can rebuild
+ * `wsMeta` + senders after DO eviction.
  */
 export class RoomDurableObjectAdapterBase<
   S extends RoomState,
@@ -91,6 +83,7 @@ export class RoomDurableObjectAdapterBase<
     RoomServer<S, C, E, Identity>
   >();
   private readonly wsMeta = new WeakMap<WebSocket, WsMeta<Identity>>();
+  private restored = false;
 
   constructor(
     ctx: DurableObjectInstanceState,
@@ -103,38 +96,43 @@ export class RoomDurableObjectAdapterBase<
   }
 
   async fetch(request: Request): Promise<Response> {
+    await this.ensureRestored();
     const url = new URL(request.url);
-
     const topic = url.searchParams.get('topic')?.trim() ?? '';
     if (topic.length === 0) return errorResponse(400, 'missing topic');
-
     const moduleName = this.parseModuleQuery(url);
     if (moduleName instanceof Response) return moduleName;
-
     if (request.headers.get('Upgrade') !== 'websocket') {
       return errorResponse(426, 'expected WebSocket upgrade');
     }
-
-    const identity = this.parseIdentity(request);
-    if (identity instanceof Response) return identity;
-
+    const identityRaw =
+      request.headers.get(this.config.identityHeader)?.trim() ?? '';
+    const identity = this.config.parseIdentity(identityRaw);
+    if (identity === null) {
+      return errorResponse(401, 'missing or invalid identity header');
+    }
     const server = await this.getOrCreateServer(topic, moduleName);
-    return this.acceptUpgrade(server, identity, moduleName);
+    return this.acceptUpgrade({
+      server,
+      identity,
+      identityRaw,
+      moduleName,
+      topic,
+    });
   }
 
   async webSocketMessage(
     ws: WebSocket,
     message: string | ArrayBuffer
   ): Promise<void> {
+    await this.ensureRestored();
     const routed = this.routeSocket(ws);
     if (routed === null) return;
     const { server, meta } = routed;
-
     const text =
       typeof message === 'string' ? message : new TextDecoder().decode(message);
     const parsed = parseJsonOrNull(text);
     if (parsed === null) {
-      // Tiger Style: bad wire is loud — drop the connection so the client retries.
       ws.close(WS_CLOSE.invalidFrame, 'invalid JSON frame');
       return;
     }
@@ -148,9 +146,30 @@ export class RoomDurableObjectAdapterBase<
   }
 
   /**
+   * Rebuilds in-memory socket routing after DO hibernation eviction.
+   * Idempotent for the lifetime of this JS isolate.
+   */
+  private async ensureRestored(): Promise<void> {
+    if (this.restored) return;
+    await this.ctx.blockConcurrencyWhile(async () => {
+      if (this.restored) return;
+      await restoreHibernatedSockets({
+        ctx: this.ctx,
+        config: this.config,
+        servers: this.servers,
+        wsMeta: this.wsMeta,
+        createServerLocked: (topic, moduleName) =>
+          this.createServerLocked(topic, moduleName),
+        sendJson,
+      });
+      this.restored = true;
+    });
+  }
+
+  /**
    * Resolves the {@link RoomServer} responsible for an inbound socket frame.
-   * Returns `null` (and closes the socket) when in-memory routing state was
-   * lost across DO hibernation — the client will reconnect and re-attach.
+   * Returns `null` (and closes the socket) when routing is still missing
+   * after restore — genuine last resort; the client reconnects.
    */
   private routeSocket(
     ws: WebSocket
@@ -180,65 +199,62 @@ export class RoomDurableObjectAdapterBase<
     return name;
   }
 
-  private parseIdentity(request: Request): Identity | Response {
-    const raw = request.headers.get(this.config.identityHeader)?.trim() ?? '';
-    const identity = this.config.parseIdentity(raw);
-    if (identity === null) {
-      return errorResponse(401, 'missing or invalid identity header');
+  /**
+   * Latch-free create/get. Caller must already hold
+   * {@link DurableObjectInstanceState.blockConcurrencyWhile}.
+   */
+  private async createServerLocked(
+    topic: string,
+    moduleName: RoomModuleName
+  ): Promise<RoomServer<S, C, E, Identity>> {
+    const existing = this.servers.get(moduleName);
+    if (existing !== undefined) {
+      crash.ok(
+        existing.topic === topic,
+        'RoomServer topic drifted within a DO instance — gateway must key DO id by topic',
+        { existing: existing.topic, requested: topic, moduleName }
+      );
+      return existing;
     }
-    return identity;
+    const moduleImpl = this.config.modulesByName.get(moduleName);
+    crash.ok(
+      moduleImpl !== undefined,
+      'module disappeared between parseModuleQuery and createServerLocked',
+      { moduleName }
+    );
+    const storage = this.config.createStorage(
+      this.ctx,
+      this._env,
+      moduleName
+    );
+    const server = new RoomServer({ topic, module: moduleImpl, storage });
+    await server.hydrateFromStorage();
+    this.servers.set(moduleName, server);
+    return server;
   }
 
-  /**
-   * Returns the {@link RoomServer} for `moduleName`, creating + hydrating it
-   * on first use. Subsequent calls reuse the in-memory instance.
-   *
-   * Crashes on programmer-error invariants the request pipeline already
-   * enforces (unknown module after `parseModuleQuery`; topic drift inside one
-   * DO id, since the gateway routes by `idFromName(topic)`).
-   */
   private async getOrCreateServer(
     topic: string,
     moduleName: RoomModuleName
   ): Promise<RoomServer<S, C, E, Identity>> {
-    return await this.ctx.blockConcurrencyWhile(async () => {
-      const existing = this.servers.get(moduleName);
-      if (existing !== undefined) {
-        crash.ok(
-          existing.topic === topic,
-          'RoomServer topic drifted within a DO instance — gateway must key DO id by topic',
-          { existing: existing.topic, requested: topic, moduleName }
-        );
-        return existing;
-      }
-      const moduleImpl = this.config.modulesByName.get(moduleName);
-      crash.ok(
-        moduleImpl !== undefined,
-        'module disappeared between parseModuleQuery and getOrCreateServer',
-        { moduleName }
-      );
-      const storage = this.config.createStorage(
-        this.ctx,
-        this._env,
-        moduleName
-      );
-      const server = new RoomServer({ topic, module: moduleImpl, storage });
-      await server.hydrateFromStorage();
-      this.servers.set(moduleName, server);
-      return server;
-    });
+    return await this.ctx.blockConcurrencyWhile(() =>
+      this.createServerLocked(topic, moduleName)
+    );
   }
 
-  private acceptUpgrade(
-    server: RoomServer<S, C, E, Identity>,
-    identity: Identity,
-    moduleName: RoomModuleName
-  ): Response {
+  private acceptUpgrade(args: AcceptUpgradeArgs<S, C, E, Identity>): Response {
+    const { server, identity, identityRaw, moduleName, topic } = args;
     const [client, serverWs] = newWebSocketPair();
     const connId = crypto.randomUUID();
     this.wsMeta.set(serverWs, { id: connId, identity, moduleName });
+    writeRoomSocketAttachment(serverWs, {
+      connId,
+      identityRaw,
+      moduleName,
+      topic,
+    });
     server.registerConnection(connId, (msg) => sendJson(serverWs, msg));
-    this.ctx.acceptWebSocket(serverWs, [connId]);
+    this.ctx.acceptWebSocket(serverWs, [connId, moduleName]);
     return new Response(null, {
       status: 101,
       webSocket: client,

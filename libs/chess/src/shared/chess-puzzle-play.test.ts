@@ -9,6 +9,7 @@ import {
   ReclaimChessPuzzlePlay,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
+  RevealChessPuzzleSolution,
   StartChessPuzzlePlay,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
@@ -362,6 +363,27 @@ describe('chess puzzle play FSM — Hint', () => {
     expect(ChessPuzzlePlayAttr.expectedFromSquare.from(state)).toBe('e1');
     expect(ChessPuzzlePlayAttr.expectedToSquare.from(state)).toBe('f2');
     expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(beforeLk + 1);
+    expect(ChessPuzzlePlayAttr.solutionRevealed.from(state)).toBe(0);
+  });
+
+  test('RevealSolution sets solutionRevealed after hint', () => {
+    let state = startValid(ChessModule.initialState());
+    const hint = ChessModule.handle(
+      state,
+      cmd(RequestChessPuzzleHint({})),
+      HOST
+    );
+    if (!hint.ok) throw new Error('hint failed');
+    state = reduceAll(state, hint.events);
+    const reveal = ChessModule.handle(
+      state,
+      cmd(RevealChessPuzzleSolution({})),
+      HOST
+    );
+    expect(reveal.ok).toBe(true);
+    if (!reveal.ok) return;
+    state = reduceAll(state, reveal.events);
+    expect(ChessPuzzlePlayAttr.solutionRevealed.from(state)).toBe(1);
   });
 
   test('Reset clears wrong and hint squares', () => {

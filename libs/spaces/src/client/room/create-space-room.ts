@@ -34,7 +34,12 @@ export type CreateSpaceRoomParams = {
   myId: string;
   /** Install UUID — required with bearer JWT for `/room` device binding. */
   installId: string;
-  sessionToken: string | null;
+  /**
+   * Fresh bearer for `/room?token=` — called on every WebSocket open
+   * (including transport reconnects). May be async so the client can
+   * refresh a rotated JWT before the socket upgrade.
+   */
+  getSessionToken: () => string | null | Promise<string | null>;
 };
 
 export type CreateSpaceRoomResult = {
@@ -45,10 +50,14 @@ export type CreateSpaceRoomResult = {
 export async function createSpaceRoom(
   params: CreateSpaceRoomParams
 ): Promise<CreateSpaceRoomResult> {
-  const { spaceId, apiUrl, module, kv, myId, installId, sessionToken } = params;
+  const { spaceId, apiUrl, module, kv, myId, installId, getSessionToken } =
+    params;
   const topic = `space:${spaceId}`;
   const transport = new WebSocketRoomTransport({
-    url: apiUrlToRoomWebSocketUrl(apiUrl, topic, sessionToken, installId),
+    url: async () => {
+      const token = await Promise.resolve(getSessionToken());
+      return apiUrlToRoomWebSocketUrl(apiUrl, topic, token, installId);
+    },
   });
   const { committed, queue } = keyValueRoomClientKeywords(spaceId);
   const clientStorage = new KeyValueClientRoomStorage(kv, committed, queue);

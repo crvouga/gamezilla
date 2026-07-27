@@ -21,6 +21,7 @@ export const ROOM_WIRE_KIND = {
   command: 'command',
   sync: 'sync',
   ping: 'ping',
+  pong: 'pong',
   welcome: 'welcome',
   committed: 'committed',
   rejected: 'rejected',
@@ -63,6 +64,10 @@ export type ServerToClientWire =
       kind: typeof ROOM_WIRE_KIND.rejected;
       commandId: string;
       error: RoomError;
+    }
+  | {
+      v: typeof WIRE_VERSION;
+      kind: typeof ROOM_WIRE_KIND.pong;
     };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -209,6 +214,9 @@ export function parseServerToClientWire(
   if (!isRecord(raw) || raw['v'] !== WIRE_VERSION) return null;
   const kind = raw['kind'];
   if (typeof kind !== 'string') return null;
+  if (kind === ROOM_WIRE_KIND.pong) {
+    return { v: WIRE_VERSION, kind: ROOM_WIRE_KIND.pong };
+  }
   if (kind === ROOM_WIRE_KIND.welcome) return parseWelcomeWire(raw);
   if (kind === ROOM_WIRE_KIND.committed) return parseCommittedWire(raw);
   if (kind === ROOM_WIRE_KIND.rejected) return parseRejectedWire(raw);

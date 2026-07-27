@@ -22,6 +22,10 @@ export const ROOM_ACTOR_ID_HEADER = 'x-actor-id';
  * device binding resolve, otherwise the install device id (anon device *is*
  * the user). Device binding is still verified when signed in.
  *
+ * When a bearer is offered but fails to resolve, fall back to the install id
+ * so the socket can still sync. Clients refresh `token` on reconnect
+ * (URL factory + getFreshToken) to restore account identity for host checks.
+ *
  * Fallback: a fresh per-connection UUID when no anonId is available.
  *
  * - Path: `/room` (always WebSocket).
@@ -65,6 +69,8 @@ async function resolveRoomActorId(c: Context<ApiHonoEnv>): Promise<string> {
   if (bearer !== null && anonId !== null && isUuid(anonId)) {
     const accountId = await tryResolveAccount(c, bearer, anonId);
     if (accountId !== null) return accountId;
+    // Stale bearer: fall back to install id so the socket can still sync.
+    return anonId;
   }
   if (anonId !== null) return anonId;
   return crypto.randomUUID();

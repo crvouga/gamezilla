@@ -1,7 +1,7 @@
 import type { Move, Square } from '@pkgs/chess-board/chess-board-types';
 import type { ChessPuzzlePlayStatus } from '../../shared/chess-puzzle-play';
 import { useCallback, useRef } from 'react';
-import { useHintStage, type HintStage } from './use-hint-stage';
+import { hintStageFromRoom, type HintStage } from './use-hint-stage';
 import { usePuzzlePlayerEffects } from './use-puzzle-player-effects';
 import { usePuzzlePlayerHandlers } from './use-puzzle-player-handlers';
 import { puzzleNavFromState } from './use-puzzle-nav';
@@ -28,6 +28,7 @@ type ControlsArgs = {
   displayFen: string | null;
   expectedFromSquare: string | null;
   expectedToSquare: string | null;
+  solutionRevealed: boolean;
   onMoveRaw: (m: Move) => void;
   setLastUci: (uci: string) => void;
   appendUsedHint: () => Promise<void>;
@@ -64,8 +65,9 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
     displayFen: args.displayFen,
     lastSubmittedToRef,
   });
-  const hint = useHintStage({
+  const hintStage = hintStageFromRoom({
     expectedFromSquare: args.expectedFromSquare,
+    solutionRevealed: args.solutionRevealed,
   });
   const nav = puzzleNavFromState({
     status: args.status,
@@ -75,9 +77,7 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
   });
   const handlers = usePuzzlePlayerHandlers({
     status: args.status,
-    hintStage: hint.hintStage,
-    showSolution: hint.showSolution,
-    requestSolution: hint.requestSolution,
+    hintStage,
     onMoveRaw: args.onMoveRaw,
     setLastUci: args.setLastUci,
     appendUsedHint: args.appendUsedHint,
@@ -87,7 +87,7 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
   const onMove = useTrackedOnMove(handlers.onMove, lastSubmittedToRef);
   return {
     ...effects,
-    hintStage: hint.hintStage,
+    hintStage,
     ...nav,
     onMove,
     onHint: handlers.onHint,

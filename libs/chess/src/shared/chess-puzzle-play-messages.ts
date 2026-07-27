@@ -210,6 +210,12 @@ export const RequestChessPuzzleHint = chessPuzzlePlayCmdNs(
   validateEmptyPayload
 );
 
+/** Host promotes a hint highlight into a full solution arrow (synced). */
+export const RevealChessPuzzleSolution = chessPuzzlePlayCmdNs(
+  'reveal-solution',
+  validateEmptyPayload
+);
+
 /**
  * Take over an in-progress puzzle session when the recorded host identity is
  * stale (e.g. after sign-in changes replication id from device to account).
@@ -256,6 +262,11 @@ export const ChessPuzzlePlayCleared = chessPuzzlePlayEvtNs(
 export const ChessPuzzleHintRevealed = chessPuzzlePlayEvtNs(
   'hint-revealed',
   validateHintRevealedPayload
+);
+
+export const ChessPuzzleSolutionRevealed = chessPuzzlePlayEvtNs(
+  'solution-revealed',
+  validateEmptyPayload
 );
 
 function validateHostReclaimedPayload(

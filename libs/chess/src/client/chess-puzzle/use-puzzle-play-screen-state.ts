@@ -17,6 +17,8 @@ export type PuzzlePlayScreenModel = {
   activePuzzleId: string | null;
   attemptSeed: number;
   readyGeneration: number;
+  /** Bumps only when the screen intentionally places a puzzle to Start. */
+  startNonce: number;
   onRequestNext: () => void;
   e2eLoadingStatus: ChessPuzzleE2ELoadingStatusProps;
 };
@@ -33,13 +35,17 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   const [attemptSeed, setAttemptSeed] = useState(0);
   /** Player may Start only after the screen commits puzzle placement for this seed. */
   const [readyGeneration, setReadyGeneration] = useState(0);
+  const [startNonce, setStartNonce] = useState(0);
 
   /** Last attemptSeed value we've already swapped `activePuzzleId` for. */
   const placedAttemptRef = useRef(0);
 
-  const commitAttempt = useCallback((seed: number): void => {
+  const commitAttempt = useCallback((seed: number, armStart: boolean): void => {
     placedAttemptRef.current = seed;
     setReadyGeneration(seed);
+    if (armStart) {
+      setStartNonce((n) => n + 1);
+    }
   }, []);
 
   const {
@@ -56,36 +62,34 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   // Atomic puzzle-id swap: never null `activePuzzleId` between puzzles,
   // so `PuzzlePlayer` stays mounted across the entire session.
   //
-  //   1. First mount with no candidate yet (`activePuzzleId === null`):
-  //      resume the room session if there is one, else wait for `nextId`
-  //      and adopt it as soon as it's available.
-  //   2. Mid-session "Next" press (`attemptSeed > placedAttemptRef`):
-  //      wait for `ClearChessPuzzlePlay` to land (`roomPuzzleId === null`)
-  //      and for the candidate query to produce a fresh `nextId`, then
-  //      swap `activePuzzleId` in a single state update. The old id is
-  //      replaced directly, never via an intermediate `null`.
+  // Start is armed only via `startNonce` (not merely idle room status) so a
+  // remote/local Clear cannot re-Start the previous puzzle on every client.
   useEffect(() => {
     if (activePuzzleId === null) {
       if (attemptSeed === 0 && roomPuzzleId !== null) {
         setActivePuzzleId(roomPuzzleId);
-        commitAttempt(attemptSeed);
+        commitAttempt(attemptSeed, false);
         return;
       }
       if (nextId !== null) {
         setActivePuzzleId(nextId);
-        commitAttempt(attemptSeed);
+        commitAttempt(attemptSeed, true);
       }
       return;
     }
     if (attemptSeed === placedAttemptRef.current) return;
-    if (roomPuzzleId !== null) return;
-    if (nextId === null) return;
-    if (nextId !== activePuzzleId) {
-      setActivePuzzleId(nextId);
+    // Another client already started after Clear — adopt their puzzle.
+    if (roomPuzzleId !== null) {
+      if (roomPuzzleId !== activePuzzleId) {
+        setActivePuzzleId(roomPuzzleId);
+      }
+      commitAttempt(attemptSeed, false);
+      return;
     }
-    // The candidate is ready, so the generation bump can safely re-dispatch
-    // Start once the room is idle.
-    commitAttempt(attemptSeed);
+    if (nextId === null) return;
+    if (nextId === activePuzzleId) return;
+    setActivePuzzleId(nextId);
+    commitAttempt(attemptSeed, true);
   }, [activePuzzleId, attemptSeed, commitAttempt, nextId, roomPuzzleId]);
 
   const onRequestNext = useCallback(() => {
@@ -97,6 +101,7 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     activePuzzleId,
     attemptSeed,
     readyGeneration,
+    startNonce,
     onRequestNext,
     e2eLoadingStatus: {
       myId,

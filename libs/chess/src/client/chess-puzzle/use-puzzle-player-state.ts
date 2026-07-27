@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { useFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
@@ -68,18 +68,42 @@ function useStartPuzzleSessionOnMount(args: {
   playGeneration: number;
   /** Screen bumps this after puzzle-id swap lands so Start never races ahead of the parent. */
   readyGeneration: number;
+  /**
+   * Only Start when the screen arms a new placement. Prevents Clear→idle from
+   * re-Starting the previous puzzle on every connected client.
+   */
+  startNonce: number;
 }): void {
-  const { puzzleId, fen, movesStr, playGeneration, readyGeneration } = args;
+  const {
+    puzzleId,
+    fen,
+    movesStr,
+    playGeneration,
+    readyGeneration,
+    startNonce,
+  } = args;
   const dispatch = useSpaceRoomDispatch();
   const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
   const identityReady = usePuzzleSessionIdentityReady();
+  const lastStartedNonceRef = useRef(0);
   useEffect(() => {
     if (!identityReady) return;
+    if (startNonce === 0) return;
+    if (startNonce === lastStartedNonceRef.current) return;
     if (playGeneration !== readyGeneration) return;
-    if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) return;
+    if (roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle) {
+      if (roomPuzzleId !== null) {
+        lastStartedNonceRef.current = startNonce;
+      }
+      return;
+    }
     if (fen.length === 0 || movesStr.length === 0) return;
-    if (roomPuzzleId !== null) return;
+    if (roomPuzzleId !== null) {
+      lastStartedNonceRef.current = startNonce;
+      return;
+    }
+    lastStartedNonceRef.current = startNonce;
     dispatch(StartChessPuzzlePlay({ puzzleId, fen, moves: movesStr }));
   }, [
     dispatch,
@@ -91,13 +115,15 @@ function useStartPuzzleSessionOnMount(args: {
     roomPuzzleId,
     roomStatus,
     identityReady,
+    startNonce,
   ]);
 }
 
 function usePuzzlePlayerModel(
   puzzleId: string,
   playGeneration: number,
-  readyGeneration: number
+  readyGeneration: number,
+  startNonce: number
 ) {
   const myId = useMyId();
   const { profileRating, profileRd } = useChessPuzzleProfileRatings(myId);
@@ -111,6 +137,7 @@ function usePuzzlePlayerModel(
     movesStr,
     playGeneration,
     readyGeneration,
+    startNonce,
   });
   const {
     displayFen,
@@ -125,6 +152,7 @@ function usePuzzlePlayerModel(
     wrongToSquare,
     expectedFromSquare,
     expectedToSquare,
+    solutionRevealed,
     opponentAnimating,
   } = usePuzzleSolver({ puzzleId });
   const { appendUsedHint, appendAbandoned, setLastUci } =
@@ -158,6 +186,7 @@ function usePuzzlePlayerModel(
     appendAbandoned,
     setLastUci,
     opponentAnimating,
+    solutionRevealed,
   };
 }
 
@@ -223,6 +252,7 @@ function usePuzzlePlayerUi(
     displayFen: m.displayFen,
     expectedFromSquare: m.expectedFromSquare,
     expectedToSquare: m.expectedToSquare,
+    solutionRevealed: m.solutionRevealed,
     onMoveRaw: m.onMoveRaw,
     setLastUci: m.setLastUci,
     appendUsedHint: m.appendUsedHint,
@@ -259,12 +289,14 @@ export function usePuzzlePlayerState(args: {
   puzzleId: string;
   playGeneration: number;
   readyGeneration: number;
+  startNonce: number;
   onRequestNext: () => void;
 }) {
   const m = usePuzzlePlayerModel(
     args.puzzleId,
     args.playGeneration,
-    args.readyGeneration
+    args.readyGeneration,
+    args.startNonce
   );
   return usePuzzlePlayerUi(args.puzzleId, args.onRequestNext, m);
 }
