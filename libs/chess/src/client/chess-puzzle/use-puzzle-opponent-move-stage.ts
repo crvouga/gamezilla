@@ -6,7 +6,7 @@ import {
   PUZZLE_PIECE_MOVE_MS,
   type OpponentStagePlan,
 } from '../../shared/chess-puzzle-opponent-stage';
-import type { SolveStatus } from './use-chess-puzzle-solver';
+import type { SolveStatus } from './solve-status';
 
 export type PuzzleOpponentMoveStage = {
   boardFen: string | null;

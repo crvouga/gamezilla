@@ -7,17 +7,13 @@ import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
   SubmitChessPuzzleMove,
-  type ChessPuzzlePlayStatus,
 } from '../../shared/chess-puzzle-play';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
+import type { SolveStatus } from './solve-status';
 import { usePuzzleOpponentMoveStage } from './use-puzzle-opponent-move-stage';
 
-/**
- * UI-facing status. `'loading'` is a client-side projection of the room's
- * `'idle'` status — there is no separate `'loading'` state on the wire.
- */
-export type SolveStatus = 'loading' | ChessPuzzlePlayStatus;
+export type { SolveStatus } from './solve-status';
 
 function useChessPuzzlePlayRoomSelectors() {
   const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);

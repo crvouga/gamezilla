@@ -1,4 +1,5 @@
 import type { PropsWithChildren } from 'react';
+import type { StyleProp, ViewStyle } from 'react-native';
 
 export type FocusTrapProps = PropsWithChildren<{
   /** When true, trap Tab focus inside the subtree (web only). */
@@ -14,4 +15,12 @@ export type FocusTrapProps = PropsWithChildren<{
   onEscape?: () => void;
   /** Optional accessible name for the dialog host (web). */
   accessibilityLabel?: string;
+  /**
+   * Host layout (web).
+   * - `cover` (default): absolute-fill for full-screen modal backdrops.
+   * - `sheet`: in-flow stretch for bottom sheets (absolute-fill hides content).
+   */
+  layout?: 'cover' | 'sheet';
+  /** Extra style on the web host (merged after layout defaults). */
+  style?: StyleProp<ViewStyle>;
 }>;

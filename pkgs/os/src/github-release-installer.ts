@@ -99,11 +99,42 @@ function shellQuote(s: string): string {
 /**
  * Sync version of the existing async pattern in `bun.ts` / `stripe.ts` /
  * `pgweb.ts`. We need a sync API because `Installer.install()` is sync (it's
- * called from `Dep.install()`, which `setup` invokes synchronously). Uses
- * `XMLHttpRequest`-free fetch via curl to avoid a bun-only sync HTTP API.
+ * called from `Dep.install()`, which `setup` invokes synchronously).
+ *
+ * Prefer the HTML redirect (`/releases/latest` → `/releases/tag/vX.Y.Z`) over
+ * the GitHub REST API: shared CI runners often exhaust the unauthenticated API
+ * quota (60 req/hr), which made Infisical installs fail with
+ * "failed to resolve latest release". The redirect path is not rate-limited the
+ * same way. Fall back to the API (with `GITHUB_TOKEN` / `GH_TOKEN` when set).
  */
 function resolveLatestSync(repo: string): string | null {
+  return resolveLatestViaRedirect(repo) ?? resolveLatestViaApi(repo);
+}
+
+function parseReleaseTag(tag: string): string | null {
+  const m = /^v?([\d]+\.[\d]+[\w.+-]*)$/.exec(tag.trim());
+  return m?.[1]?.trim() ?? null;
+}
+
+/** `https://github.com/<repo>/releases/latest` → `…/tag/vX.Y.Z`. */
+function resolveLatestViaRedirect(repo: string): string | null {
   const r = capture('curl', [
+    '-fsSL',
+    '-o',
+    '/dev/null',
+    '-w',
+    '%{url_effective}',
+    '--max-time',
+    String(Math.ceil(FETCH_TIMEOUT_MS / 1000)),
+    `https://github.com/${repo}/releases/latest`,
+  ]);
+  if (r.status !== 0) return null;
+  const m = /\/releases\/tag\/(v?[\d]+\.[\d]+[\w.+-]*)$/.exec(r.stdout.trim());
+  return m?.[1] !== undefined ? parseReleaseTag(m[1]) : null;
+}
+
+function resolveLatestViaApi(repo: string): string | null {
+  const args = [
     '-fsSL',
     '-H',
     `User-Agent: ${UA}`,
@@ -111,14 +142,21 @@ function resolveLatestSync(repo: string): string | null {
     'Accept: application/vnd.github+json',
     '--max-time',
     String(Math.ceil(FETCH_TIMEOUT_MS / 1000)),
-    `https://api.github.com/repos/${repo}/releases/latest`,
-  ]);
+  ];
+  const token = (
+    process.env['GITHUB_TOKEN'] ??
+    process.env['GH_TOKEN'] ??
+    ''
+  ).trim();
+  if (token.length > 0) {
+    args.push('-H', `Authorization: Bearer ${token}`);
+  }
+  args.push(`https://api.github.com/repos/${repo}/releases/latest`);
+  const r = capture('curl', args);
   if (r.status !== 0) return null;
   try {
     const j = JSON.parse(r.stdout) as { tag_name?: string };
-    const tag = j.tag_name?.trim() ?? '';
-    const m = /^v?([\d]+\.[\d]+[\w.+-]*)$/.exec(tag);
-    return m?.[1]?.trim() ?? null;
+    return parseReleaseTag(j.tag_name ?? '');
   } catch {
     return null;
   }

@@ -14,12 +14,19 @@ import type { FocusTrapProps } from './focus-trap-types';
 export type { FocusTrapProps } from './focus-trap-types';
 
 /**
- * Fill the modal / sheet host. Without this, {@link ModalBackdrop}'s `flex: 1`
+ * Fill the modal host. Without this, {@link ModalBackdrop}'s `flex: 1`
  * collapses to content height on RN Web (short backdrop, dialog stuck at top).
+ * Do not use inside bottom sheets — absolute fill hides in-flow content.
  */
-const FOCUS_TRAP_HOST_STYLE = {
+const COVER_HOST_STYLE = {
   ...StyleSheet.absoluteFill,
   flex: 1,
+} as const;
+
+/** In-flow host for bottom sheets so content height and children stay visible. */
+const SHEET_HOST_STYLE = {
+  width: '100%' as const,
+  flexGrow: 1,
 } as const;
 
 const FocusTrapHost = forwardRef<View, ViewProps>(
@@ -34,12 +41,16 @@ export function FocusTrap({
   returnFocus = true,
   onEscape,
   accessibilityLabel,
+  layout = 'cover',
+  style,
   children,
 }: FocusTrapProps): ReactNode {
   useEffect(() => {
     if (!active || onEscape === undefined) return;
     return pushEscapeDismissHandler(onEscape);
   }, [active, onEscape]);
+
+  const layoutStyle = layout === 'sheet' ? SHEET_HOST_STYLE : COVER_HOST_STYLE;
 
   return (
     <FocusLock
@@ -48,7 +59,7 @@ export function FocusTrap({
       returnFocus={returnFocus}
       as={FocusTrapHost}
       lockProps={{
-        style: FOCUS_TRAP_HOST_STYLE,
+        style: style !== undefined ? [layoutStyle, style] : layoutStyle,
         accessibilityRole: 'dialog',
         accessibilityViewIsModal: true,
         ...(accessibilityLabel !== undefined ? { accessibilityLabel } : {}),

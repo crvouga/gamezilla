@@ -10,7 +10,7 @@ import type { ReactNode } from 'react';
 
 import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
-import { Box } from '../box';
+import { Box } from '../box/box';
 
 export type ExampleRootProps = {
   children: ReactNode;

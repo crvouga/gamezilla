@@ -55,6 +55,30 @@ function authHeadersKey(): string {
   return `${token}\0${anon}`;
 }
 
+function debugJwtSubject(token: string): {
+  readonly subPrefix: string;
+  readonly subLen: number;
+  readonly hasDeviceClaim: boolean;
+} {
+  try {
+    const payload = token.split('.')[1];
+    if (payload === undefined) {
+      return { subPrefix: '', subLen: 0, hasDeviceClaim: false };
+    }
+    const json = JSON.parse(
+      globalThis.atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
+    ) as Record<string, unknown>;
+    const sub = typeof json['sub'] === 'string' ? json['sub'] : '';
+    return {
+      subPrefix: sub.slice(0, 8),
+      subLen: sub.length,
+      hasDeviceClaim: typeof json['device_id'] === 'string',
+    };
+  } catch {
+    return { subPrefix: '', subLen: 0, hasDeviceClaim: false };
+  }
+}
+
 export async function fetchSyncToken(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
@@ -68,6 +92,9 @@ export async function fetchSyncToken(args: {
     nowSeconds,
   });
   if (cached !== null) {
+    // #region agent log
+    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'pre-fix',hypothesisId:'B',location:'sync-api.ts:fetchSyncToken',message:'sync token cache hit',data:{...debugJwtSubject(cached.token),apiHost:(()=>{try{return new URL(args.config.getApiUrl()).host}catch{return 'bad'}})()},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     return cached;
   }
 
@@ -80,6 +107,9 @@ export async function fetchSyncToken(args: {
   });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
+    // #region agent log
+    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'pre-fix',hypothesisId:'B',location:'sync-api.ts:fetchSyncToken',message:'sync token failed',data:{status:res.status,bodyLen:body.length},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     throw new Error(
       `sync token failed (${res.status})${body.length > 0 ? `: ${body}` : ''}`
     );
@@ -95,6 +125,9 @@ export async function fetchSyncToken(args: {
         ? json.expiresAt
         : nowSeconds + 300,
   };
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'pre-fix',hypothesisId:'B',location:'sync-api.ts:fetchSyncToken',message:'sync token minted',data:{...debugJwtSubject(credentials.token),responseSubject:typeof (json as {subject?:unknown}).subject==='string'?(json as {subject:string}).subject.slice(0,8):null},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   await writeCachedSyncToken({
     kv: args.kv,
     authKey,
@@ -148,11 +181,17 @@ export async function uploadSyncBatch(args: {
   });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
+    // #region agent log
+    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'pre-fix',hypothesisId:'A',location:'sync-api.ts:uploadSyncBatch',message:'sync upload http failed',data:{status:res.status,tables:prepared.rows.map((r)=>r.table),ops:prepared.rows.map((r)=>r.op)},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     throw new Error(
       `sync upload failed (${res.status})${body.length > 0 ? `: ${body}` : ''}`
     );
   }
   const result = (await res.json()) as UploadBatchResult;
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'115aa4'},body:JSON.stringify({sessionId:'115aa4',runId:'pre-fix',hypothesisId:'A',location:'sync-api.ts:uploadSyncBatch',message:'sync upload response',data:{tables:prepared.rows.map((r)=>r.table),statuses:result.results.map((r)=>r.status),reasons:result.results.map((r)=>r.status==='rejected'?r.reason:null)},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   assertUploadBatchAccepted(result);
   return result;
 }

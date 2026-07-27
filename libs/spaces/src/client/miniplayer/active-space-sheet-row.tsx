@@ -24,6 +24,9 @@ export type ActiveSpaceSheetRowProps = {
   ) => void;
 };
 
+/** Horizontal inset inside the sheet list (above the surface edge pad). */
+const ROW_EDGE_PADDING_STEP = CONTENT_EDGE_PADDING_STEP + 2;
+
 /** One live space in the active-spaces sheet — open, end, or leave. */
 export function ActiveSpaceSheetRow({
   spaceId,
@@ -36,10 +39,12 @@ export function ActiveSpaceSheetRow({
       sx={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 2,
+        gap: 3,
         minHeight: 72,
-        borderBottomWidth: 1,
-        borderBottomColor: 'border',
+        // Use `borderColor` (resolved by sx) — `borderBottomColor: 'border'` is
+        // passed through as the literal string and falls back to currentColor.
+        borderBottomWidth: 'hairline',
+        borderColor: 'border',
       }}
     >
       <MiniplayerOpenSpacePressable spaceId={spaceId} onAfterOpen={onOpen}>
@@ -50,8 +55,8 @@ export function ActiveSpaceSheetRow({
             gap: 3,
             flex: 1,
             minWidth: 0,
-            pl: CONTENT_EDGE_PADDING_STEP,
-            py: 2,
+            pl: ROW_EDGE_PADDING_STEP,
+            py: 3,
             alignSelf: 'stretch',
           }}
         >
@@ -78,7 +83,7 @@ export function ActiveSpaceSheetRow({
         </Box>
         <MiniplayerLiveBadge />
       </MiniplayerOpenSpacePressable>
-      <Box sx={{ pr: CONTENT_EDGE_PADDING_STEP }}>
+      <Box sx={{ pr: ROW_EDGE_PADDING_STEP, pl: 1 }}>
         <SpaceEndOrLeaveButton
           spaceId={spaceId}
           requestEndSpace={requestEndSpace}

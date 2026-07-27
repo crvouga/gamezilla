@@ -17,7 +17,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import type { PropsWithChildren, ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
 import {
   componentDataSet,
   type ComponentDataSet,
@@ -47,7 +47,11 @@ export type ResponsiveSurfaceProps = PropsWithChildren<{
   size?: ModalSize;
   /** Max height of centered modal content in px (tablet/desktop only). */
   maxHeight?: number;
-  /** Bottom sheet snap points when `breakpoint === 'mobile'`. */
+  /**
+   * Fixed bottom-sheet snap points. When omitted, the sheet sizes to its
+   * content (capped by the viewport). Pass explicitly only when you need a
+   * stable tall sheet (e.g. scrollable inspectors).
+   */
   snapPoints?: (string | number)[];
   /**
    * Fixed pixel height for the body region (everything below the title). Use
@@ -169,11 +173,22 @@ function MobileSheet({
   dataSet,
 }: ResponsiveSurfaceProps) {
   const theme = useTheme();
+  const { height: windowHeight } = useWindowDimensions();
   const { sheetRef, onDismiss, onChange } = useBottomSheetModalVisibility(
     visible,
     onClose
   );
-  const snapPoints = useMemo(() => snapPointsProp ?? ['80%'], [snapPointsProp]);
+  // Content-hug by default. Fixed snaps only when the caller opts in — mixing
+  // both (v5 default dynamic + a snap) opens at the wrong height on web.
+  const dynamicSizing = snapPointsProp === undefined;
+  const snapPoints = useMemo(
+    () => (dynamicSizing ? undefined : snapPointsProp),
+    [dynamicSizing, snapPointsProp]
+  );
+  const maxDynamicContentSize = useMemo(
+    () => Math.round(windowHeight * 0.9),
+    [windowHeight]
+  );
   const edgePadPx = spacing[CONTENT_EDGE_PADDING_STEP];
   const dismissSheet = useCallback(() => {
     sheetRef.current?.dismiss();
@@ -195,7 +210,15 @@ function MobileSheet({
   return (
     <BottomSheetModal
       ref={sheetRef}
-      snapPoints={snapPoints}
+      {...(dynamicSizing
+        ? {
+            enableDynamicSizing: true as const,
+            maxDynamicContentSize,
+          }
+        : {
+            enableDynamicSizing: false as const,
+            snapPoints: snapPoints ?? ['50%'],
+          })}
       enablePanDownToClose
       onDismiss={onDismiss}
       onChange={onChange}
@@ -209,14 +232,15 @@ function MobileSheet({
           paddingHorizontal: edgePadPx,
           paddingTop: edgePadPx,
           paddingBottom: spacing[SURFACE_BOTTOM_PADDING_STEP],
-          flexGrow: 1,
+          // flexGrow only for fixed snaps — it breaks dynamic content measurement.
+          ...(dynamicSizing ? {} : { flexGrow: 1 }),
         }}
       >
-        <FocusTrap active={visible} onEscape={dismissSheet}>
+        <FocusTrap active={visible} onEscape={dismissSheet} layout="sheet">
           <SurfaceChrome
             title={title}
             bodyHeight={bodyHeight}
-            fillParent
+            fillParent={!dynamicSizing}
             onClose={dismissSheet}
           >
             {children}

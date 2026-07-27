@@ -28,7 +28,13 @@ function readFiniteNumber(
   key: string
 ): number | null {
   const value = record[key];
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  // PowerSync CRUD / SQLite often wire numeric columns as strings.
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
 }
 
 export function parseUpsertPuzzleProfileInput(
@@ -53,6 +59,12 @@ export function parseUpsertPuzzleProfileInput(
   return ok({ ownerId, rating, ratingDeviation, lastInteractionAt });
 }
 
+/**
+ * Map a sync upload row onto upsert input. PowerSync PATCH `opData` only
+ * includes changed columns — fill missing fields with authorize-safe
+ * placeholders so partial patches are not rejected (upload only runs
+ * `authorize`, then applies the sparse patch columns as-is).
+ */
 export function rowToUpsertPuzzleProfileInput(
   row: RowChange
 ): ReturnType<typeof ok<UpsertPuzzleProfileInput>> | ReturnType<typeof fail> {
@@ -63,11 +75,25 @@ export function rowToUpsertPuzzleProfileInput(
     );
   }
   const values = row.values ?? {};
+  const ownerId =
+    values[ChessPuzzleProfileCol.ownerId] ??
+    values['ownerId'] ??
+    row.id;
+  const rating =
+    values[ChessPuzzleProfileCol.rating] ?? values['rating'] ?? 0;
+  const ratingDeviation =
+    values[ChessPuzzleProfileCol.ratingDeviation] ??
+    values['ratingDeviation'] ??
+    0;
+  const lastInteractionAt =
+    values[ChessPuzzleProfileCol.lastInteractionAt] ??
+    values['lastInteractionAt'] ??
+    new Date(0).toISOString();
   return parseUpsertPuzzleProfileInput({
-    ownerId: values[ChessPuzzleProfileCol.ownerId] ?? row.id,
-    rating: values[ChessPuzzleProfileCol.rating],
-    ratingDeviation: values[ChessPuzzleProfileCol.ratingDeviation],
-    lastInteractionAt: values[ChessPuzzleProfileCol.lastInteractionAt],
+    ownerId,
+    rating,
+    ratingDeviation,
+    lastInteractionAt,
   });
 }
 
