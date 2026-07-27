@@ -207,6 +207,7 @@ function MobileSheet({
         {...componentDataSet('ResponsiveSurface', dataSet)}
         style={{
           paddingHorizontal: edgePadPx,
+          paddingTop: edgePadPx,
           paddingBottom: spacing[SURFACE_BOTTOM_PADDING_STEP],
           flexGrow: 1,
         }}
@@ -250,8 +251,8 @@ function DesktopModal({
           <Box
             sx={{
               px: CONTENT_EDGE_PADDING_STEP,
+              pt: CONTENT_EDGE_PADDING_STEP,
               pb: SURFACE_BOTTOM_PADDING_STEP,
-              ...(title === undefined ? { pt: 5 } : {}),
             }}
           >
             <SurfaceChrome

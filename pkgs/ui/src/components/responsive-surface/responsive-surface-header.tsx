@@ -26,7 +26,6 @@ export function ResponsiveSurfaceHeader({
         alignItems: 'center',
         justifyContent: 'space-between',
         mb: 3,
-        mt: 1,
         gap: 2,
       }}
     >

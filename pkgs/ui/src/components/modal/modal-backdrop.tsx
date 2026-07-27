@@ -5,10 +5,13 @@
  * scene-appropriate backdrop (light mode: cool zinc dim; dark: deeper
  * near-black). Content area is centered and pointer-passthrough so taps
  * outside the modal hit the backdrop.
+ *
+ * Relies on a sized ancestor (e.g. {@link FocusTrap} / RN `Modal` with
+ * `flex: 1`) so this fill expands to the viewport.
  */
 
 import type { PropsWithChildren } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import {
   componentDataSet,
   type ComponentDataSet,
@@ -25,37 +28,32 @@ export function ModalBackdrop({ onPress, children, dataSet }: ModalBackdropProps
   const theme = useTheme();
 
   return (
-    <View
-      style={theme.sx({ flex: 1 })}
-      {...componentDataSet('ModalBackdrop', dataSet)}
-    >
+    <View style={styles.root} {...componentDataSet('ModalBackdrop', dataSet)}>
       <Pressable
         onPress={onPress}
-        style={[
-          theme.sx({
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-          }),
-          { backgroundColor: theme.colors.scrim },
-        ]}
+        style={[styles.scrim, { backgroundColor: theme.colors.scrim }]}
       />
       {/*
         pointerEvents must be a View prop — style.pointerEvents is ignored on
         RN Web, so the flex:1 centering layer would eat backdrop presses.
       */}
-      <View
-        pointerEvents="box-none"
-        style={theme.sx({
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-        })}
-      >
+      <View pointerEvents="box-none" style={styles.center}>
         <View pointerEvents="auto">{children}</View>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  scrim: {
+    ...StyleSheet.absoluteFill,
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
