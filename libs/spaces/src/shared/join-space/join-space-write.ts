@@ -13,17 +13,12 @@ import {
   shouldBumpMemberCountOnJoin,
   shouldConsumeInviteOnJoin,
 } from '@libs/spaces/shared/participation/space-participation-policy';
+import { col, honey } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { honey, col } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
-import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
+import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 
-import {
-  authorizeJoinSpaceAccess,
-  findValidInviteInStore,
-  readSpaceRowForJoin,
-} from './join-space-access';
 import { upsertSpaceMembershipRow } from '../space-row-upsert';
 import {
   asObjectRecord,
@@ -33,6 +28,11 @@ import {
   requireNonEmptyString,
   wasMembershipInactive,
 } from '../space-write-helpers';
+import {
+  authorizeJoinSpaceAccess,
+  findValidInviteInStore,
+  readSpaceRowForJoin,
+} from './join-space-access';
 
 export type JoinSpaceInput = {
   readonly spaceId: string;
@@ -79,11 +79,7 @@ async function bumpActiveMemberCount(
     honey({
       update: SPACES_TABLE.tableName,
       set: {
-        [SpaceCol.activeMemberCount]: [
-          '+',
-          SpaceCol.activeMemberCount,
-          1,
-        ],
+        [SpaceCol.activeMemberCount]: ['+', SpaceCol.activeMemberCount, 1],
       },
       where: ['=', SpaceCol.id, spaceId],
     })

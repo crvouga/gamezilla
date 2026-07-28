@@ -4,7 +4,7 @@
  */
 import { CHESS_PUZZLES_TABLE } from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
-import { raw, sql } from '@pkgs/sql';
+import { honey, raw } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 export async function dropPuzzleSnapshotIndexes(args: {
@@ -13,16 +13,19 @@ export async function dropPuzzleSnapshotIndexes(args: {
 }): Promise<void> {
   const { db, log } = args;
   const table = CHESS_PUZZLES_TABLE.tableName;
-  // honey: uses current_schema() and NOT LIKE ... ESCAPE, neither of which
-  // honey supports (unknown function + no ESCAPE clause).
-  const rows = await db.query<{ indexname: string }>(sql`
-    SELECT indexname
-    FROM pg_indexes
-    WHERE schemaname = current_schema()
-      AND tablename = ${table}
-      AND indexname NOT LIKE '%\\_pkey' ESCAPE '\\'
-    ORDER BY indexname
-  `);
+  const rows = await db.query<{ indexname: string }>(
+    honey({
+      select: ['indexname'],
+      from: 'pg_indexes',
+      where: [
+        'and',
+        ['=', 'schemaname', ['current_schema']],
+        ['=', 'tablename', table],
+        ['not-like', 'indexname', '%\\_pkey', ['escape', '\\']],
+      ],
+      orderBy: ['indexname'],
+    })
+  );
   if (rows.length === 0) {
     log.info('seed:puzzles: defer-indexes — no secondary indexes to drop');
     return;

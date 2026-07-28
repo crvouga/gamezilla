@@ -16,11 +16,7 @@ import { compileExpr, wireCompileQuery } from './honey-expr';
 import { columnIdent } from './honey-ident';
 import type { InsertValue, Query } from './honey-types';
 import { HONEY_LIST_SEP } from './honey-list-sep';
-import {
-  compileForUpdate,
-  compileUnion,
-  compileWith,
-} from './honey-with';
+import { compileForUpdate, compileUnion, compileWith } from './honey-with';
 import sql, { bulk, empty, ident, join, type Sql } from './sql';
 
 /**
@@ -70,7 +66,7 @@ function compileCompound(q: Query): Sql {
     q.unionAll !== undefined
       ? compileUnion('UNION ALL', q.unionAll)
       : compileUnion('UNION', q.union);
-  return sql`${preamble}${body}`;
+  return sql`${preamble}${body}${compileLimitOffset(q.limit, q.offset)}`;
 }
 
 function compileSelect(q: Query): Sql {
@@ -95,6 +91,22 @@ function compileSelect(q: Query): Sql {
 
 function compileInsert(q: Query): Sql {
   assert.string(q.insertInto, 'honey: insertInto requires a table name');
+  if (q.values !== undefined) {
+    return compileInsertValues(q);
+  }
+  assert.ok(
+    q.select !== undefined,
+    'honey: insertInto requires values or select'
+  );
+  return compileInsertSelect(q);
+}
+
+function compileInsertValues(q: Query): Sql {
+  assert.string(q.insertInto, 'honey: insertInto requires a table name');
+  assert.ok(
+    q.columns === undefined,
+    'honey: insert values cannot include columns'
+  );
   const rows = normalizeInsertRows(q.values);
   assert.ok(rows.length > 0, 'honey: insertInto requires values');
   const first = rows[0];
@@ -117,6 +129,53 @@ function compileInsert(q: Query): Sql {
     data,
     HONEY_LIST_SEP
   )}${compileOnConflict(q.onConflict)}${compileReturning(q.returning)}`;
+}
+
+function compileInsertSelect(q: Query): Sql {
+  assert.string(q.insertInto, 'honey: insertInto requires a table name');
+  const cols = q.columns;
+  assert.ok(
+    Array.isArray(cols) && cols.length > 0,
+    'honey: insert…select requires columns'
+  );
+  assert.defined(q.select, 'honey: insert…select requires select');
+  const colSql = join(
+    cols.map((c) => ident(c)),
+    HONEY_LIST_SEP
+  );
+  return sql`INSERT INTO ${ident(q.insertInto)} (${colSql}) ${compileSelect(
+    selectBodyFromInsert(q)
+  )}${compileOnConflict(q.onConflict)}${compileReturning(q.returning)}`;
+}
+
+function selectBodyFromInsert(q: Query): Query {
+  assert.defined(q.select, 'honey: insert…select requires select');
+  const body: {
+    -readonly [K in keyof Query]?: Query[K];
+  } = { select: q.select };
+  copyIfDefined(body, q, 'distinct');
+  copyIfDefined(body, q, 'from');
+  copyIfDefined(body, q, 'join');
+  copyIfDefined(body, q, 'leftJoin');
+  copyIfDefined(body, q, 'rightJoin');
+  copyIfDefined(body, q, 'where');
+  copyIfDefined(body, q, 'groupBy');
+  copyIfDefined(body, q, 'having');
+  copyIfDefined(body, q, 'orderBy');
+  copyIfDefined(body, q, 'limit');
+  copyIfDefined(body, q, 'offset');
+  return body;
+}
+
+function copyIfDefined<K extends keyof Query>(
+  dest: { -readonly [P in K]?: Query[P] },
+  src: Query,
+  key: K
+): void {
+  const v = src[key];
+  if (v !== undefined) {
+    dest[key] = v;
+  }
 }
 
 type InsertRow = Readonly<Record<string, InsertValue>>;
@@ -148,8 +207,22 @@ function compileUpdate(q: Query): Sql {
 }
 
 function compileDelete(q: Query): Sql {
-  assert.string(q.deleteFrom, 'honey: deleteFrom requires a table name');
-  return sql`DELETE FROM ${ident(q.deleteFrom)}${compileWhere(
+  const target = q.deleteFrom;
+  assert.defined(target, 'honey: deleteFrom required');
+  if (typeof target === 'string') {
+    return sql`DELETE FROM ${ident(target)}${compileWhere(
+      q.where
+    )}${compileReturning(q.returning)}`;
+  }
+  assert.equals(
+    target.length,
+    2,
+    'honey: deleteFrom alias needs [table, alias]'
+  );
+  const [table, alias] = target;
+  assert.string(table, 'honey: deleteFrom table must be a string');
+  assert.string(alias, 'honey: deleteFrom alias must be a string');
+  return sql`DELETE FROM ${ident(table)} AS ${ident(alias)}${compileWhere(
     q.where
   )}${compileReturning(q.returning)}`;
 }

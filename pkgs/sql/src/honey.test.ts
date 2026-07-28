@@ -1,7 +1,14 @@
 import { assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 
-import { col, honey } from './honey';
+import {
+  col,
+  honey,
+  registerHoneyCast,
+  registerHoneyFn,
+  registerHoneyOp,
+  resetHoneyRegistry,
+} from './honey';
 import sql, { Sql } from './sql';
 
 /** Node crash handler calls `process.exit`; register one that throws so tests can assert failures. */
@@ -454,7 +461,10 @@ describe('honey', () => {
     it('crashes when mixing union kinds or skipLocked without forUpdate', () => {
       expect(() =>
         honey({
-          union: [{ select: ['id'], from: 'a' }, { select: ['id'], from: 'b' }],
+          union: [
+            { select: ['id'], from: 'a' },
+            { select: ['id'], from: 'b' },
+          ],
           unionAll: [
             { select: ['id'], from: 'a' },
             { select: ['id'], from: 'b' },
@@ -484,7 +494,12 @@ describe('honey', () => {
         set: {
           n: [
             'case',
-            [[['>', 'n', 0], ['-', 'n', 1]]],
+            [
+              [
+                ['>', 'n', 0],
+                ['-', 'n', 1],
+              ],
+            ],
             0,
           ],
         },
@@ -527,7 +542,7 @@ describe('honey', () => {
 
     it('crashes on empty insert / update and bad limit', () => {
       expect(() => honey({ insertInto: 'users' })).toThrow(
-        'honey: insertInto requires values'
+        'honey: insertInto requires values or select'
       );
       expect(() => honey({ update: 'users', set: {} })).toThrow(
         'honey: update requires set'
@@ -545,6 +560,128 @@ describe('honey', () => {
           orderBy: [['id', 'sideways' as 'asc']],
         })
       ).toThrow('honey: bad sort dir');
+    });
+  });
+
+  describe('order extras / concat / tuple / registry', () => {
+    it('compiles orderBy with lower, nulls, and collate', () => {
+      const q = honey({
+        select: ['id'],
+        from: 'users',
+        orderBy: [
+          [['lower', 'username'], 'asc'],
+          ['created_at', 'desc', { nulls: 'last' }],
+          ['username', 'asc', { collate: 'NOCASE' }],
+        ],
+      });
+      expect(q.text).toEqual(
+        'SELECT id FROM users ORDER BY LOWER(username) ASC, created_at DESC NULLS LAST, username COLLATE NOCASE ASC'
+      );
+    });
+
+    it('compiles ||, ->>, tuple, and interval', () => {
+      const concat = honey({
+        select: ['id'],
+        from: 't',
+        where: ['like', 'name', ['||', ['param', 'pre'], '%']],
+      });
+      expect(concat.text).toEqual('SELECT id FROM t WHERE name LIKE $1 || $2');
+      expect(concat.values).toEqual(['pre', '%']);
+
+      const arrow = honey({
+        select: ['id'],
+        from: 't',
+        where: ['=', ['->>', 'data', 'region'], 'us'],
+      });
+      expect(arrow.text).toEqual('SELECT id FROM t WHERE data ->> $1 = $2');
+      expect(arrow.values).toEqual(['region', 'us']);
+
+      const tup = honey({
+        select: ['id'],
+        from: 't',
+        where: [
+          '<',
+          ['tuple', 'a', 'b'],
+          { select: ['a', 'b'], from: 'c', where: ['=', 'id', 1] },
+        ],
+      });
+      expect(tup.text).toEqual(
+        'SELECT id FROM t WHERE (a, b) < (SELECT a, b FROM c WHERE id = $1)'
+      );
+
+      const iv = honey({
+        select: [['interval', '30 days']],
+      });
+      expect(iv.text).toEqual("SELECT INTERVAL '30 days'");
+    });
+
+    it('supports registerHoneyFn/Op/Cast, statements, and reset', () => {
+      registerHoneyFn('my_tvf');
+      registerHoneyOp('approx', (args, ctx) => {
+        assert.equals(args.length, 1, 'approx');
+        return sql`approx(${ctx.compileExpr(args[0])})`;
+      });
+      registerHoneyCast('cidr');
+
+      const tvf = honey({
+        select: ['id'],
+        from: [['my_tvf', 1, 2], 't'],
+      });
+      expect(tvf.text).toEqual('SELECT id FROM MY_TVF($1, $2) AS t');
+      expect(tvf.values).toEqual([1, 2]);
+
+      const u = honey({
+        unionAll: [
+          { select: ['id'], from: 'a' },
+          { select: ['id'], from: 'b' },
+        ],
+        limit: 1,
+      });
+      expect(u.text).toEqual(
+        '(SELECT id FROM a) UNION ALL (SELECT id FROM b) LIMIT $1'
+      );
+
+      const del = honey({
+        deleteFrom: ['parts', 'ap'],
+        where: ['=', 'ap.id', 9],
+      });
+      expect(del.text).toEqual('DELETE FROM parts AS ap WHERE ap.id = $1');
+
+      const ins = honey({
+        insertInto: 'dest',
+        columns: ['id', 'name'],
+        select: ['id', 'name'],
+        from: 'src',
+        where: ['=', 'ok', true],
+      });
+      expect(ins.text).toEqual(
+        'INSERT INTO dest (id, name) SELECT id, name FROM src WHERE ok = $1'
+      );
+
+      const recordset = honey({
+        select: ['id'],
+        from: [
+          ['jsonb_to_recordset', ['cast', '{}', 'jsonb']],
+          'r',
+          [
+            ['id', 'text'],
+            ['n', 'integer'],
+          ],
+        ],
+      });
+      expect(recordset.text).toEqual(
+        'SELECT id FROM JSONB_TO_RECORDSET($1::jsonb) AS r (id text, n integer)'
+      );
+
+      const casted = honey({
+        select: [['cast', 'x', 'cidr']],
+      });
+      expect(casted.text).toEqual('SELECT $1::cidr');
+
+      resetHoneyRegistry();
+      expect(() =>
+        honey({ select: ['id'], from: [['my_tvf', 1], 't'] })
+      ).toThrow('honey: unknown operator');
     });
   });
 });

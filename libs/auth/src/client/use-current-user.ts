@@ -63,7 +63,11 @@ export function useCurrentUser(): CurrentUser | null {
           where: [
             'and',
             ['=', ExternalAccountCol.userId, accountId],
-            ['=', ExternalAccountCol.provider, EXTERNAL_ACCOUNT_PROVIDER_STRIPE],
+            [
+              '=',
+              ExternalAccountCol.provider,
+              EXTERNAL_ACCOUNT_PROVIDER_STRIPE,
+            ],
           ],
         })
   );

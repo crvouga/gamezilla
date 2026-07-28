@@ -63,12 +63,12 @@
 import { assert } from '@pkgs/assert';
 import type { AttributeState } from '@pkgs/attribute';
 import { asKeywordRecord, assertKeywordRecord } from '@pkgs/keyword';
-import { honey, sql } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   assertDataMatchesFormula,
-  type FormulaWire,
   serializeFormula,
+  type FormulaWire,
 } from './formula-wire';
 import {
   assertDistanceFormulasInput,
@@ -95,16 +95,26 @@ import {
   type SweepMatchedResult,
   type UpdateFormulasInputRaw,
 } from './matchmaker-internals';
+import {
+  activePartitionsQuery,
+  prunePartitionsQuery,
+  runMatchPassQuery,
+  schemaFingerprintQuery,
+  statusLookupQuery,
+  statusPeersQuery,
+  sweepExpiredQuery,
+  sweepMatchedQuery,
+} from './matchmaker-queries';
 import { fingerprintForOptions, type MatchmakingSchema } from './migrate';
 import { MATCHMAKING_MIN_GROUP_SIZE } from './migrate-sql';
 import { parallelMap } from './parallel-map';
 import {
   DEFAULT_RADIUS_OPTIONS,
+  type _MatchPassResult,
   type DistanceFormula,
   type JoinInput,
   type JoinResult,
   type LeaveResult,
-  type _MatchPassResult,
   type RadiusOptions,
   type StatusResult,
   type UpdateFormulasResult,
@@ -470,16 +480,9 @@ export class Matchmaker {
       participantId,
       'Matchmaker.status: participantId must be a non-empty string'
     );
-    // honey: UNION ALL with a trailing LIMIT that binds to the whole
-    // compound — honey compound queries don't take a trailing LIMIT, and
-    // wrapping in a subquery would change the plan.
-    const rows = await this.sqlClient.query<StatusRow>(sql`
-      SELECT 'waiting'::TEXT AS status, data, metadata, NULL::UUID AS match_id
-       FROM matchmaking_waiting WHERE id = ${participantId}
-       UNION ALL
-       SELECT 'matched'::TEXT AS status, data, metadata, match_id
-       FROM matchmaking_matched WHERE id = ${participantId}
-       LIMIT 1`);
+    const rows = await this.sqlClient.query<StatusRow>(
+      statusLookupQuery(participantId)
+    );
     const row = rows[0];
     if (row === undefined) return null;
     const data = asKeywordRecord(row.data, 'matchmaking status data');
@@ -492,16 +495,7 @@ export class Matchmaker {
       );
     }
     const peers = await this.sqlClient.query<ParticipantRow>(
-      honey({
-        select: ['id', 'joined_at', 'data', 'metadata'],
-        from: 'matchmaking_matched',
-        where: [
-          'and',
-          ['=', 'match_id', row.match_id],
-          ['<>', 'id', participantId],
-        ],
-        orderBy: ['joined_at'],
-      })
+      statusPeersQuery(row.match_id, participantId)
     );
     return {
       status: 'matched',
@@ -532,11 +526,18 @@ export class Matchmaker {
       'Matchmaker.runMatchPass'
     );
     const nowParam = this.nowParam();
-    // honey: set-returning function in FROM position (no honey grammar for a
-    // table-valued function call).
-    const rows = await this.sqlClient.query<MatchPassRow>(sql`
-      SELECT match_id, participant_id, joined_at, data
-       FROM matchmaking_run_match_pass(${partitionSignature}, ${this.radius.baseRadius}, ${this.radius.radiusGrowthPerSecond}, ${this.radius.maxRadius}, ${this.maxPairsPerPass}, ${this.bucketWidth}, ${resolvedGroupSize}, ${nowParam})`);
+    const rows = await this.sqlClient.query<MatchPassRow>(
+      runMatchPassQuery({
+        partitionSignature,
+        baseRadius: this.radius.baseRadius,
+        radiusGrowthPerSecond: this.radius.radiusGrowthPerSecond,
+        maxRadius: this.radius.maxRadius,
+        maxPairsPerPass: this.maxPairsPerPass,
+        bucketWidth: this.bucketWidth,
+        groupSize: resolvedGroupSize,
+        nowParam,
+      })
+    );
     const matchIds = new Set<string>();
     for (const r of rows) matchIds.add(r.match_id);
     return { matches: matchIds.size };
@@ -610,14 +611,7 @@ export class Matchmaker {
     }
     // Best-effort prune of (sig, group_size) pairs that drained to
     // zero waiters. Single statement; safe to call repeatedly.
-    // honey: DELETE target table alias (`ap`) + correlated NOT EXISTS.
-    await this.sqlClient.run(sql`
-      DELETE FROM matchmaking_active_partitions ap
-       WHERE NOT EXISTS (
-         SELECT 1 FROM matchmaking_waiting w
-         WHERE w.partition_signature = ap.partition_signature
-           AND w.group_size = ap.group_size
-       )`);
+    await this.sqlClient.run(prunePartitionsQuery());
     return { matches, passes, partitions: pairs.length };
   }
 
@@ -634,8 +628,11 @@ export class Matchmaker {
     const rows = await this.sqlClient.query<{
       matchmaking_sweep_expired: number | string;
     }>(
-      // honey: custom SQL function call (not in honey's function allowlist).
-      sql`SELECT matchmaking_sweep_expired(${partitionSignature}, ${this.maxWaitSeconds}, ${nowParam}) AS matchmaking_sweep_expired`
+      sweepExpiredQuery({
+        partitionSignature,
+        maxWaitSeconds: this.maxWaitSeconds,
+        nowParam,
+      })
     );
     const raw = rows[0]?.matchmaking_sweep_expired ?? 0;
     const removed = typeof raw === 'string' ? Number.parseInt(raw, 10) : raw;
@@ -685,8 +682,10 @@ export class Matchmaker {
     const rows = await this.sqlClient.query<{
       matchmaking_sweep_matched: number | string;
     }>(
-      // honey: custom SQL function call (not in honey's function allowlist).
-      sql`SELECT matchmaking_sweep_matched(${this.matchedRetentionSeconds}, ${nowParam}) AS matchmaking_sweep_matched`
+      sweepMatchedQuery({
+        matchedRetentionSeconds: this.matchedRetentionSeconds,
+        nowParam,
+      })
     );
     const raw = rows[0]?.matchmaking_sweep_matched ?? 0;
     const removed = typeof raw === 'string' ? Number.parseInt(raw, 10) : raw;
@@ -718,11 +717,7 @@ export class Matchmaker {
     if (expected === undefined || onDrift === undefined) return;
     if (this.fingerprintProbeOk === true) return;
     const rows = await this.sqlClient.query<{ schema_fingerprint: string }>(
-      honey({
-        select: ['schema_fingerprint'],
-        from: 'matchmaking_schema_state',
-        where: ['=', 'id', 1],
-      })
+      schemaFingerprintQuery()
     );
     // Missing row means `migrate()` never ran for this DB; treat the
     // same as drift. The public facade always migrates as part of
@@ -748,14 +743,7 @@ export class Matchmaker {
     const rows = await this.sqlClient.query<{
       partition_signature: string;
       group_size: number | string;
-    }>(
-      honey({
-        select: ['partition_signature', 'group_size'],
-        from: 'matchmaking_active_partitions',
-        orderBy: ['first_seen_at'],
-        limit: cap,
-      })
-    );
+    }>(activePartitionsQuery(cap));
     return rows.map((r) => ({
       partitionSignature: r.partition_signature,
       groupSize:

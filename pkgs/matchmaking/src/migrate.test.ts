@@ -198,7 +198,11 @@ describe('migrate v3 - idempotency', () => {
         honey({
           insertInto: 'matchmaking_waiting',
           values: {
-            data: ['cast', JSON.stringify({ 'mmtest/region': 'us-east' }), 'jsonb'],
+            data: [
+              'cast',
+              JSON.stringify({ 'mmtest/region': 'us-east' }),
+              'jsonb',
+            ],
             formulas: ['cast', JSON.stringify([{ numeric: [] }]), 'jsonb'],
             partition_signature: '',
           },
@@ -224,16 +228,23 @@ describe('migrate v3 - idempotency', () => {
         honey({
           insertInto: 'matchmaking_waiting',
           values: {
-            data: ['cast', JSON.stringify({ 'mmtest/region': 'eu-west' }), 'jsonb'],
+            data: [
+              'cast',
+              JSON.stringify({ 'mmtest/region': 'eu-west' }),
+              'jsonb',
+            ],
             formulas: ['cast', JSON.stringify([{ numeric: [] }]), 'jsonb'],
             partition_signature: 'eu-west',
           },
         })
       );
-      // honey: jsonb `->>` extraction operator in WHERE.
-      const row = await sqlClient.query<{ partition_signature: string }>(sql`
-        SELECT partition_signature FROM matchmaking_waiting
-         WHERE (data->>'mmtest/region') = 'eu-west'`);
+      const row = await sqlClient.query<{ partition_signature: string }>(
+        honey({
+          select: ['partition_signature'],
+          from: 'matchmaking_waiting',
+          where: ['=', ['->>', 'data', 'mmtest/region'], 'eu-west'],
+        })
+      );
       expect(row[0]?.partition_signature).toBe('eu-west');
     } finally {
       await db.close();
@@ -482,12 +493,18 @@ describe('migrate - matchmaking_active_partitions prune', () => {
       // clause too — this test verifies the watermark clause runs
       // (the two clauses are independent) by checking that the row
       // count drops to zero.
-      // honey: multi-row VALUES with an `INTERVAL '30 days'` literal (no honey
-      // grammar for interval literals).
-      await sqlClient.run(sql`
-        INSERT INTO matchmaking_active_partitions (partition_signature, first_seen_at)
-         VALUES ('old', now() - INTERVAL '30 days'),
-                ('new', now())`);
+      await sqlClient.run(
+        honey({
+          insertInto: 'matchmaking_active_partitions',
+          values: [
+            {
+              partition_signature: 'old',
+              first_seen_at: ['-', ['now'], ['interval', '30 days']],
+            },
+            { partition_signature: 'new', first_seen_at: ['now'] },
+          ],
+        })
+      );
       await sqlClient.query(sql`SELECT matchmaking_tick()`);
       const after = await sqlClient.query<{ n: number }>(
         honey({

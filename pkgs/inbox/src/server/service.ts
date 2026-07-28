@@ -1,4 +1,4 @@
-import { col, empty, honey, raw, sql, type Sql } from '@pkgs/sql';
+import { col, honey, type Expr } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { Interaction } from '../shared/interaction';
@@ -10,26 +10,43 @@ import type { InteractionListQuery, StoredInteractionRow } from './types';
 
 const DEFAULT_LIMIT = 30;
 
-function listFilterClause(filter: InteractionListQuery['filter']): Sql {
+function listFilterExpr(filter: InteractionListQuery['filter']): Expr {
   switch (filter) {
     case 'archived':
-      return raw('archived_at IS NOT NULL AND dismissed_at IS NULL');
+      return [
+        'and',
+        ['is-not-null', 'archived_at'],
+        ['is-null', 'dismissed_at'],
+      ];
     case 'action_required':
-      return raw(
-        `active = true AND archived_at IS NULL AND dismissed_at IS NULL AND category = 'action_required'`
-      );
+      return [
+        'and',
+        ['=', 'active', true],
+        ['is-null', 'archived_at'],
+        ['is-null', 'dismissed_at'],
+        ['=', 'category', 'action_required'],
+      ];
     default:
-      return raw(
-        'active = true AND archived_at IS NULL AND dismissed_at IS NULL'
-      );
+      return [
+        'and',
+        ['=', 'active', true],
+        ['is-null', 'archived_at'],
+        ['is-null', 'dismissed_at'],
+      ];
   }
 }
 
-function listCursorClause(cursor: string | undefined): Sql {
-  if (cursor === undefined || cursor.length === 0) return empty;
-  return sql`AND (priority, created_at, id) < (
-      SELECT priority, created_at, id FROM inbox_interactions WHERE id = ${cursor}
-    )`;
+// Row-value tuple cursor: `(priority, created_at, id) < (SELECT … WHERE id = ?)`.
+function listCursorExpr(cursor: string): Expr {
+  return [
+    '<',
+    ['tuple', 'priority', 'created_at', 'id'],
+    {
+      select: ['priority', 'created_at', 'id'],
+      from: 'inbox_interactions',
+      where: ['=', 'id', cursor],
+    },
+  ];
 }
 
 export async function listInteractions(
@@ -42,16 +59,29 @@ export async function listInteractions(
 }> {
   const limit = query.limit ?? DEFAULT_LIMIT;
   const filter = query.filter ?? 'all';
+  const hasCursor = query.cursor !== undefined && query.cursor.length > 0;
 
-  // honey: row-value tuple cursor `(priority, created_at, id) < (SELECT …)` has
-  // no honey representation (row constructors / composite comparisons).
-  const rows = await db.query<StoredInteractionRow>(sql`
-    SELECT * FROM inbox_interactions
-     WHERE user_id = ${query.userId}
-       AND ${listFilterClause(filter)}
-       ${listCursorClause(query.cursor)}
-     ORDER BY priority DESC, created_at DESC, id DESC
-     LIMIT ${limit + 1}`);
+  const where: Expr = hasCursor
+    ? [
+        'and',
+        ['=', 'user_id', query.userId],
+        listFilterExpr(filter),
+        listCursorExpr(query.cursor as string),
+      ]
+    : ['and', ['=', 'user_id', query.userId], listFilterExpr(filter)];
+
+  const rows = await db.query<StoredInteractionRow>(
+    honey({
+      from: 'inbox_interactions',
+      where,
+      orderBy: [
+        ['priority', 'desc'],
+        ['created_at', 'desc'],
+        ['id', 'desc'],
+      ],
+      limit: limit + 1,
+    })
+  );
 
   const hasMore = rows.length > limit;
   const page = hasMore ? rows.slice(0, limit) : rows;

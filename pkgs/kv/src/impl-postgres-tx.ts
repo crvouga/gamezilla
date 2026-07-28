@@ -53,9 +53,7 @@ export class KvImplPostgresTx implements Kv {
 
   async zap(key: Keyword): Promise<void> {
     assertKvKey(key);
-    await this.db.run(
-      honey({ deleteFrom: TABLE, where: ['=', 'key', key] })
-    );
+    await this.db.run(honey({ deleteFrom: TABLE, where: ['=', 'key', key] }));
   }
 
   async tx<T>(_fn: (tx: Kv) => Promise<T>): Promise<T> {

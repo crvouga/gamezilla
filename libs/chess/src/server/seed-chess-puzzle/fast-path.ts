@@ -8,34 +8,61 @@ import {
   ChessPuzzleCol,
 } from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
-import { col, honey, raw, sql, type Sql, ident } from '@pkgs/sql';
+import { col, honey, raw, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PuzzleBatchEntry } from './row';
 import type { PuzzleSeedReporter } from './reporter';
 
-// honey: INSERT ... SELECT FROM jsonb_to_recordset(...) is not expressible as a
-// honey values-insert (honey INSERT only supports literal VALUES rows).
-function insertPuzzlesBatchQuery(insertRowsJson: string): Sql {
-  return sql`INSERT INTO ${ident(CHESS_PUZZLES_TABLE.tableName)}
-    (${ident(ChessPuzzleCol.id)}, ${ident(ChessPuzzleCol.fen)}, ${ident(ChessPuzzleCol.moves)},
-     ${ident(ChessPuzzleCol.rating)}, ${ident(ChessPuzzleCol.ratingDeviation)},
-     ${ident(ChessPuzzleCol.popularity)}, ${ident(ChessPuzzleCol.nbPlays)},
-     ${ident(ChessPuzzleCol.themes)}, ${ident(ChessPuzzleCol.gameUrl)}, ${ident(ChessPuzzleCol.openingTags)})
-    SELECT id, fen, moves, rating, rating_deviation, popularity, nb_plays,
-           themes::jsonb, game_url, opening_tags::jsonb
-    FROM jsonb_to_recordset(${insertRowsJson}::text::jsonb) AS batch_rows (
-        id text,
-        fen text,
-        moves text,
-        rating integer,
-        rating_deviation integer,
-        popularity integer,
-        nb_plays integer,
-        themes text,
-        game_url text,
-        opening_tags text
-    )
-    ON CONFLICT (${ident(ChessPuzzleCol.id)}) DO NOTHING`;
+const BATCH_ROW_COLS = [
+  ['id', 'text'],
+  ['fen', 'text'],
+  ['moves', 'text'],
+  ['rating', 'integer'],
+  ['rating_deviation', 'integer'],
+  ['popularity', 'integer'],
+  ['nb_plays', 'integer'],
+  ['themes', 'text'],
+  ['game_url', 'text'],
+  ['opening_tags', 'text'],
+] as const;
+
+function insertPuzzlesBatchQuery(insertRowsJson: string) {
+  return honey({
+    insertInto: CHESS_PUZZLES_TABLE.tableName,
+    columns: [
+      ChessPuzzleCol.id,
+      ChessPuzzleCol.fen,
+      ChessPuzzleCol.moves,
+      ChessPuzzleCol.rating,
+      ChessPuzzleCol.ratingDeviation,
+      ChessPuzzleCol.popularity,
+      ChessPuzzleCol.nbPlays,
+      ChessPuzzleCol.themes,
+      ChessPuzzleCol.gameUrl,
+      ChessPuzzleCol.openingTags,
+    ],
+    select: [
+      'id',
+      'fen',
+      'moves',
+      'rating',
+      'rating_deviation',
+      'popularity',
+      'nb_plays',
+      ['cast', col('themes'), 'jsonb'],
+      'game_url',
+      ['cast', col('opening_tags'), 'jsonb'],
+    ],
+    from: [
+      [
+        'jsonb_to_recordset',
+        ['cast', ['cast', insertRowsJson, 'text'], 'jsonb'],
+      ],
+      'batch_rows',
+      [...BATCH_ROW_COLS],
+    ],
+    onConflict: { target: [ChessPuzzleCol.id], doNothing: true },
+  });
 }
 
 const SEEDED_TABLES: readonly string[] = [CHESS_PUZZLES_TABLE.tableName];

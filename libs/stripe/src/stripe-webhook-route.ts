@@ -39,14 +39,14 @@ function extractStripeCustomerId(event: Stripe.Event): string | null {
 }
 
 async function recordVerifiedStripeWebhookInEntityStore(
-  sql: SqlClient,
+  db: SqlClient,
   event: Stripe.Event,
   objectId: string
 ): Promise<void> {
   const customerId = extractStripeCustomerId(event);
   let accountId: string | null = null;
   if (customerId !== null) {
-    accountId = await resolveAccountIdByStripeCustomerId(sql, customerId);
+    accountId = await resolveAccountIdByStripeCustomerId(db, customerId);
   }
 
   const eventCacheData: Record<string, unknown> = {
@@ -60,7 +60,7 @@ async function recordVerifiedStripeWebhookInEntityStore(
     Object.assign(eventCacheData, StripeEntityAttr.owner(accountId));
   }
 
-  await upsertStripeEntityStoreRow(sql, {
+  await upsertStripeEntityStoreRow(db, {
     patchEntityType: STRIPE_WEBHOOK_EVENT_CACHE_ENTITY_TYPE,
     externalId: stripeWebhookEventCacheEntityId(event.type, objectId),
     ownerId: accountId,
@@ -68,7 +68,7 @@ async function recordVerifiedStripeWebhookInEntityStore(
   });
 
   if (accountId !== null) {
-    await upsertStripeEntityStoreRow(sql, {
+    await upsertStripeEntityStoreRow(db, {
       patchEntityType: STRIPE_WEBHOOK_EVENT_ENTITY_TYPE,
       externalId: objectId,
       ownerId: accountId,

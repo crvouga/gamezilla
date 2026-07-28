@@ -51,7 +51,7 @@
 
 import { assert } from '@pkgs/assert';
 import { isNamespacedKeyword } from '@pkgs/keyword';
-import { col, honey, raw, sql, unsafe } from '@pkgs/sql';
+import { col, honey, raw, registerHoneyFn, sql, unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   ADD_METADATA_COLUMN_TO_MATCHED_SQL,
@@ -76,6 +76,12 @@ import {
   buildCreateWaitingTableSql,
 } from './migrate-sql';
 import { DEFAULT_RADIUS_OPTIONS, type RadiusOptions } from './types';
+
+// pg_cron exposes its API as `cron.schedule` / `cron.unschedule`. Register
+// them as honey functions (default compiler emits `CRON.SCHEDULE(args…)`);
+// dotted names are validated as identifier paths. Runs once at module load.
+registerHoneyFn('cron.schedule');
+registerHoneyFn('cron.unschedule');
 
 export type MatchmakingSchema = {
   /**
@@ -350,19 +356,29 @@ async function scheduleMatchmakingTick(sqlClient: SqlClient): Promise<void> {
   // re-schedule. The unschedule fallback is itself best-effort; if the
   // platform doesn't expose unschedule we surface the original error.
   const tickBody = `SELECT matchmaking_tick()`;
-  // honey: cron.* namespaced function calls (not in honey's function allowlist).
+  const scheduleQuery = honey({
+    select: [
+      [
+        [
+          'cron.schedule',
+          ['param', CRON_JOB_NAME],
+          ['param', CRON_SCHEDULE],
+          ['param', tickBody],
+        ],
+        'jobid',
+      ],
+    ],
+  });
   try {
-    await sqlClient.run(
-      sql`SELECT cron.schedule(${CRON_JOB_NAME}, ${CRON_SCHEDULE}, ${tickBody}) AS jobid`
-    );
+    await sqlClient.run(scheduleQuery);
     return;
   } catch (err) {
     if (!isCronDuplicateNameError(err)) throw err;
   }
-  await sqlClient.run(sql`SELECT cron.unschedule(${CRON_JOB_NAME})`);
   await sqlClient.run(
-    sql`SELECT cron.schedule(${CRON_JOB_NAME}, ${CRON_SCHEDULE}, ${tickBody}) AS jobid`
+    honey({ select: [['cron.unschedule', ['param', CRON_JOB_NAME]]] })
   );
+  await sqlClient.run(scheduleQuery);
 }
 
 export async function migrate(args: MigrateArgs): Promise<void> {

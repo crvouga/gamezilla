@@ -2,10 +2,11 @@ import { assert } from '@pkgs/assert';
 
 import { compileExpr, isOpOrFnHead, isQuery } from './honey-expr';
 import { columnIdent } from './honey-ident';
+import { compileOrderBy } from './honey-order';
+import { isHoneyCastType } from './honey-registry';
 import type {
   JoinSpec,
   OpCall,
-  OrderItem,
   Query,
   SelectItem,
   TableRef,
@@ -13,17 +14,47 @@ import type {
 import { HONEY_LIST_SEP } from './honey-list-sep';
 import sql, { empty, join, raw, type Sql } from './sql';
 
+export { compileOrderBy };
+
 export function tableRef(t: TableRef): Sql {
   if (typeof t === 'string') {
     return columnIdent(t);
   }
-  assert.equals(t.length, 2, 'honey: table alias pair needs [src, alias]', {
-    length: t.length,
-  });
+  assert.ok(
+    t.length === 2 || t.length === 3,
+    'honey: table alias needs [src, alias] or [src, alias, colDefs]',
+    { length: t.length }
+  );
   const [src, alias] = t;
   assert.string(alias, 'honey: table alias must be a string', { alias });
-  const base = typeof src === 'string' ? columnIdent(src) : compileExpr(src);
-  return sql`${base} AS ${columnIdent(alias)}`;
+  const base = compileTableSrc(src);
+  const colDefs = t.length === 3 ? t[2] : undefined;
+  if (colDefs === undefined) {
+    return sql`${base} AS ${columnIdent(alias)}`;
+  }
+  assert.ok(colDefs.length > 0, 'honey: empty table col defs');
+  const defs = join(
+    colDefs.map(([c, typ]) => {
+      assert.string(c, 'honey: col def name must be a string');
+      assert.string(typ, 'honey: col def type must be a string');
+      assert.ok(isHoneyCastType(typ), 'honey: unknown col def type', { typ });
+      return sql`${columnIdent(c)} ${raw(typ.toLowerCase())}`;
+    }),
+    HONEY_LIST_SEP
+  );
+  return sql`${base} AS ${columnIdent(alias)} (${defs})`;
+}
+
+function compileTableSrc(src: string | Query | OpCall): Sql {
+  if (typeof src === 'string') {
+    return columnIdent(src);
+  }
+  // Query map or OpCall (TVF) — compileExpr parenthesizes queries; TVF OpCalls
+  // emit `FN(...)` without wrapping.
+  if (isQuery(src)) {
+    return compileExpr(src);
+  }
+  return compileExpr(src);
 }
 
 export function selectItem(s: SelectItem): Sql {
@@ -97,9 +128,9 @@ export function compileFrom(f: TableRef | readonly TableRef[]): Sql {
 
 function isSingleAliasPair(f: readonly unknown[]): boolean {
   return (
-    f.length === 2 &&
+    (f.length === 2 || f.length === 3) &&
     typeof f[1] === 'string' &&
-    (typeof f[0] === 'string' || isQuery(f[0]))
+    (typeof f[0] === 'string' || isQuery(f[0]) || Array.isArray(f[0]))
   );
 }
 
@@ -123,29 +154,6 @@ export function compileGroupBy(cols: readonly string[] | undefined): Sql {
     cols.map((c) => columnIdent(c)),
     HONEY_LIST_SEP
   )}`;
-}
-
-export function compileOrderBy(items: readonly OrderItem[] | undefined): Sql {
-  if (!items || items.length === 0) {
-    return empty;
-  }
-  return sql` ORDER BY ${join(
-    items.map((o) => orderItem(o)),
-    HONEY_LIST_SEP
-  )}`;
-}
-
-function orderItem(o: OrderItem): Sql {
-  if (typeof o === 'string') {
-    return columnIdent(o);
-  }
-  assert.equals(o.length, 2, 'honey: order item needs [col, dir]', {
-    length: o.length,
-  });
-  const [col, dir] = o;
-  assert.string(col, 'honey: order column must be a string', { col });
-  assert.enum(dir, ['asc', 'desc'], 'honey: bad sort dir');
-  return sql`${columnIdent(col)} ${raw(dir.toUpperCase())}`;
 }
 
 export function compileLimitOffset(

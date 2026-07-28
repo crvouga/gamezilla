@@ -1,4 +1,11 @@
-import { col, honey, type ColRef, type OpCall, type Scalar, type Sql } from '@pkgs/sql';
+import {
+  col,
+  honey,
+  type ColRef,
+  type OpCall,
+  type Scalar,
+  type Sql,
+} from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { buildInteractionId } from '../shared/interaction-id';
@@ -48,7 +55,9 @@ function nullableString(value: string | undefined): string | null {
   return value ?? null;
 }
 
-type InteractionInsertValues = Readonly<Record<string, Scalar | ColRef | OpCall>>;
+type InteractionInsertValues = Readonly<
+  Record<string, Scalar | ColRef | OpCall>
+>;
 
 function avatarInsertValues(
   presentation: PublishInteractionInput['presentation']

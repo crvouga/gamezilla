@@ -58,7 +58,9 @@ async function backfillAvatar(db: SqlClient, profileId: string): Promise<void> {
   await db.run(
     honey({
       update: PROFILES_TABLE.tableName,
-      set: { [ProfileCol.avatarConfig]: serializeDefaultAvatarConfig(profileId) },
+      set: {
+        [ProfileCol.avatarConfig]: serializeDefaultAvatarConfig(profileId),
+      },
       where: ['=', ProfileCol.id, profileId],
     })
   );

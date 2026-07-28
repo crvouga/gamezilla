@@ -5,7 +5,7 @@ import {
   FriendProfileCacheCol,
   FriendshipCol,
 } from '@libs/db/shared/friends-tables';
-import { sql, type Sql, ident } from '@pkgs/sql';
+import { honey, col, type Sql } from '@pkgs/sql';
 import { useMemo } from 'react';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
@@ -19,29 +19,49 @@ type FriendRow = {
   readonly friends_since: string;
 };
 
-// honey: literal-string SELECT columns and ORDER BY ... COLLATE NOCASE have no honey representation.
 function friendsSql(myId: string): Sql {
   if (myId.length === 0) {
-    return sql`
-      SELECT '' AS friend_id, '' AS username,
-             NULL AS avatar_config, '' AS friends_since
-      FROM ${ident(FRIEND_PROFILE_CACHE_TABLE.tableName)} WHERE 0
-    `;
+    return honey({
+      select: [
+        [['param', ''], 'friend_id'],
+        [['param', ''], 'username'],
+        [['param', null], 'avatar_config'],
+        [['param', ''], 'friends_since'],
+      ],
+      from: FRIEND_PROFILE_CACHE_TABLE.tableName,
+      where: ['=', 1, 0],
+    });
   }
-  return sql`
-    SELECT c.${ident(FriendProfileCacheCol.friendId)} AS friend_id,
-           c.${ident(FriendProfileCacheCol.username)} AS username,
-           c.${ident(FriendProfileCacheCol.avatarConfig)} AS avatar_config,
-           f.${ident(FriendshipCol.createdAt)} AS friends_since
-    FROM ${ident(FRIEND_PROFILE_CACHE_TABLE.tableName)} c
-    INNER JOIN ${ident(FRIENDSHIPS_TABLE.tableName)} f
-      ON (
-        (f.${ident(FriendshipCol.userLow)} = ${myId} AND f.${ident(FriendshipCol.userHigh)} = c.${ident(FriendProfileCacheCol.friendId)})
-        OR (f.${ident(FriendshipCol.userHigh)} = ${myId} AND f.${ident(FriendshipCol.userLow)} = c.${ident(FriendProfileCacheCol.friendId)})
-      )
-    WHERE c.${ident(FriendProfileCacheCol.ownerId)} = ${myId}
-    ORDER BY c.${ident(FriendProfileCacheCol.username)} COLLATE NOCASE
-  `;
+  const friendIdCol = col(`c.${FriendProfileCacheCol.friendId}`);
+  return honey({
+    select: [
+      [`c.${FriendProfileCacheCol.friendId}`, 'friend_id'],
+      [`c.${FriendProfileCacheCol.username}`, 'username'],
+      [`c.${FriendProfileCacheCol.avatarConfig}`, 'avatar_config'],
+      [`f.${FriendshipCol.createdAt}`, 'friends_since'],
+    ],
+    from: [FRIEND_PROFILE_CACHE_TABLE.tableName, 'c'],
+    join: [
+      [FRIENDSHIPS_TABLE.tableName, 'f'],
+      [
+        'or',
+        [
+          'and',
+          ['=', `f.${FriendshipCol.userLow}`, myId],
+          ['=', `f.${FriendshipCol.userHigh}`, friendIdCol],
+        ],
+        [
+          'and',
+          ['=', `f.${FriendshipCol.userHigh}`, myId],
+          ['=', `f.${FriendshipCol.userLow}`, friendIdCol],
+        ],
+      ],
+    ],
+    where: ['=', `c.${FriendProfileCacheCol.ownerId}`, myId],
+    orderBy: [
+      [`c.${FriendProfileCacheCol.username}`, 'asc', { collate: 'NOCASE' }],
+    ],
+  });
 }
 
 function mapFriendRow(row: FriendRow): Friend {

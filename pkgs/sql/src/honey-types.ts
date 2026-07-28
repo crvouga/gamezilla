@@ -9,10 +9,17 @@
  * Pick one shape per query:
  * - **SELECT** — `select` / `from` / `join*` / `where` / `groupBy` / `having` /
  *   `orderBy` / `limit` / `offset` / `distinct` / `with` / `forUpdate`
- * - **INSERT** — `insertInto` + `values` (+ optional `returning` / `onConflict`)
+ * - **INSERT** — `insertInto` + `values` **or** `columns`+`select` (+ optional
+ *   `returning` / `onConflict`)
  * - **UPDATE** — `update` + `set` (+ optional `where` / `returning`)
  * - **DELETE** — `deleteFrom` (+ optional `where` / `returning`)
- * - **UNION** — `union` / `unionAll` (list of SELECT query maps)
+ * - **UNION** — `union` / `unionAll` (+ optional `limit`)
+ *
+ * ## Extensibility
+ *
+ * Register custom ops/fns/casts via {@link registerHoneyOp},
+ * {@link registerHoneyFn}, {@link registerHoneyCast},
+ * {@link registerHoneyCollation}.
  *
  * ## Expression grammar
  *
@@ -22,16 +29,12 @@
  * - **Nested query** — a {@link Query} map (compiled as a parenthesized subquery)
  * - **Op / fn call** — `[op, ...args]` ({@link OpCall})
  *
- * Known operators: `= != <> < <= > >= like ilike + - * /`, `and` / `or` /
- * `not`, `in` / `not-in`, `between`, `is-null` / `is-not-null`, `exists`,
- * `cast`, `case`, `param`.
+ * Built-in operators include comparisons, `and`/`or`/`not`, `in`/`not-in`,
+ * `between`, `is-null`/`is-not-null`, `exists`, `cast`, `case`, `param`,
+ * `||`, `->`/`->>`, `tuple`, `interval`, `like`/`not-like` (+ optional escape).
  *
- * Known functions: `count` `sum` `avg` `min` `max` `lower` `upper` `length`
- * `abs` `round` `coalesce` `now` `hashtext` `pg_advisory_xact_lock`
- * `pg_try_advisory_lock` `pg_advisory_unlock` `jsonb_to_recordset`.
- *
- * Use `['param', scalar]` to bind a string (or other scalar) inside function
- * args that otherwise treat bare strings as column identifiers.
+ * Use `['param', scalar]` to bind a string inside function args that otherwise
+ * treat bare strings as column identifiers.
  *
  * ## Identifiers
  *
@@ -47,16 +50,6 @@ export type Scalar = string | number | boolean | null | Date;
 
 /**
  * An expression: scalar param, column ref, nested query, or op/fn call.
- *
- * @example
- * ```ts
- * ['=', 'u.active', true]
- * ['and', ['=', 'u.id', 1], ['is-not-null', 'u.email']]
- * ['count', '*']
- * ['in', 'id', [1, 2, 3]]
- * { col: 'u.id' }
- * ['cast', payload, 'jsonb']
- * ```
  */
 export type Expr = Scalar | ColRef | Query | OpCall;
 
@@ -73,12 +66,16 @@ export type OpCall = readonly [string, ...unknown[]];
  * - `'users'` — bare table
  * - `['users', 'u']` — table with alias
  * - `[{ select: [...] }, 'sq']` — subquery with alias
- *
- * A 2-element string array always means `[table, alias]`. For a multi-table
- * FROM (cross join), alias each: `from: [['t1','t1'], ['t2','t2']]`, or use
- * explicit `join`.
+ * - `[['fn', arg1], 't']` — set-returning / TVF call with alias
+ * - `[['fn', arg], 't', [['id', 'text'], ...]]` — TVF + record column defs
+ *   (`AS t (id text, …)` for `jsonb_to_recordset`)
  */
-export type TableRef = string | readonly [string | Query, string];
+export type TableColDef = readonly [string, string];
+
+export type TableRef =
+  | string
+  | readonly [string | Query | OpCall, string]
+  | readonly [string | Query | OpCall, string, readonly TableColDef[]];
 
 /**
  * SELECT list item.
@@ -92,8 +89,24 @@ export type SelectItem =
   | readonly [string | OpCall | Query, string]
   | OpCall;
 
-/** ORDER BY item: `'col'` or `['col', 'asc' | 'desc']`. */
-export type OrderItem = string | readonly [string, 'asc' | 'desc'];
+/** Optional ORDER BY modifiers. */
+export type OrderOpts = {
+  readonly nulls?: 'first' | 'last';
+  readonly collate?: string;
+};
+
+/**
+ * ORDER BY item:
+ * - `'col'`
+ * - `[expr, 'asc'|'desc']`
+ * - `[expr, 'asc'|'desc', { nulls?, collate? }]`
+ *
+ * `expr` may be a column string, {@link OpCall}, or {@link ColRef}.
+ */
+export type OrderItem =
+  | string
+  | readonly [string | OpCall | ColRef, 'asc' | 'desc']
+  | readonly [string | OpCall | ColRef, 'asc' | 'desc', OrderOpts];
 
 /** Value allowed in INSERT row maps. */
 export type InsertValue = Scalar | ColRef | OpCall;
@@ -103,9 +116,6 @@ export type WithItem = readonly [string, Query];
 
 /**
  * INSERT `ON CONFLICT` clause.
- *
- * - `doNothing: true` → `ON CONFLICT (cols) DO NOTHING`
- * - `set: { … }` → `ON CONFLICT (cols) DO UPDATE SET …`
  */
 export type OnConflict = {
   readonly target: readonly string[];
@@ -135,6 +145,8 @@ export interface Query {
   readonly skipLocked?: boolean;
 
   readonly insertInto?: string;
+  /** Explicit column list for INSERT…SELECT (optional when using `values`). */
+  readonly columns?: readonly string[];
   /** Row(s) to insert: object or array of objects with identical keys. */
   readonly values?:
     | Readonly<Record<string, InsertValue>>
@@ -145,7 +157,8 @@ export interface Query {
   readonly update?: string;
   readonly set?: Readonly<Record<string, Scalar | ColRef | OpCall>>;
 
-  readonly deleteFrom?: string;
+  /** Table name, or `[table, alias]` for aliased DELETE. */
+  readonly deleteFrom?: string | readonly [string, string];
 
   readonly union?: readonly Query[];
   readonly unionAll?: readonly Query[];
@@ -153,7 +166,5 @@ export interface Query {
 
 /**
  * JOIN spec: `[table, onExpr]`.
- *
- * @example `[['orders', 'o'], ['=', 'o.user_id', { col: 'u.id' }]]`
  */
 export type JoinSpec = readonly [TableRef, Expr];

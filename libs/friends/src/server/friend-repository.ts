@@ -8,7 +8,7 @@ import {
   USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
-import { sql, ident, honey, col } from '@pkgs/sql';
+import { honey, col, type Query } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { canonicalUserPair } from '../shared/canonical-pair';
@@ -117,15 +117,19 @@ export async function findLatestDeclinedRequestBetween(
   fromUserId: string,
   toUserId: string
 ): Promise<FriendRequest | null> {
-  // honey: ORDER BY ... DESC NULLS LAST has no honey representation.
-  const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT * FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)}
-    WHERE ${ident(FriendRequestCol.fromUserId)} = ${fromUserId}
-      AND ${ident(FriendRequestCol.toUserId)} = ${toUserId}
-      AND ${ident(FriendRequestCol.status)} = 'declined'
-    ORDER BY ${ident(FriendRequestCol.respondedAt)} DESC NULLS LAST
-    LIMIT 1
-  `);
+  const rows = await db.query<Record<string, unknown>>(
+    honey({
+      from: FRIEND_REQUESTS_TABLE.tableName,
+      where: [
+        'and',
+        ['=', FriendRequestCol.fromUserId, fromUserId],
+        ['=', FriendRequestCol.toUserId, toUserId],
+        ['=', FriendRequestCol.status, 'declined'],
+      ],
+      orderBy: [[FriendRequestCol.respondedAt, 'desc', { nulls: 'last' }]],
+      limit: 1,
+    })
+  );
   const row = rows[0];
   return row === undefined ? null : mapFriendRequest(row);
 }
@@ -423,29 +427,39 @@ export async function listMutualFriendIds(
   viewerId: string,
   targetUserId: string
 ): Promise<readonly string[]> {
-  // honey: CASE expressions in the CTE SELECT lists have no honey representation.
-  const rows = await db.query<Record<string, unknown>>(sql`
-    WITH my_friends AS (
-      SELECT CASE
-        WHEN ${ident(FriendshipCol.userLow)} = ${viewerId} THEN ${ident(FriendshipCol.userHigh)}
-        ELSE ${ident(FriendshipCol.userLow)}
-      END AS friend_id
-      FROM ${ident(FRIENDSHIPS_TABLE.tableName)}
-      WHERE ${ident(FriendshipCol.userLow)} = ${viewerId} OR ${ident(FriendshipCol.userHigh)} = ${viewerId}
-    ),
-    their_friends AS (
-      SELECT CASE
-        WHEN ${ident(FriendshipCol.userLow)} = ${targetUserId} THEN ${ident(FriendshipCol.userHigh)}
-        ELSE ${ident(FriendshipCol.userLow)}
-      END AS friend_id
-      FROM ${ident(FRIENDSHIPS_TABLE.tableName)}
-      WHERE ${ident(FriendshipCol.userLow)} = ${targetUserId} OR ${ident(FriendshipCol.userHigh)} = ${targetUserId}
-    )
-    SELECT mf.friend_id
-    FROM my_friends mf
-    INNER JOIN their_friends tf ON mf.friend_id = tf.friend_id
-    LIMIT 50
-  `);
+  const friendIdForViewer = (userId: string): Query => ({
+    select: [
+      [
+        [
+          'case',
+          [[['=', FriendshipCol.userLow, userId], col(FriendshipCol.userHigh)]],
+          col(FriendshipCol.userLow),
+        ],
+        'friend_id',
+      ],
+    ],
+    from: FRIENDSHIPS_TABLE.tableName,
+    where: [
+      'or',
+      ['=', FriendshipCol.userLow, userId],
+      ['=', FriendshipCol.userHigh, userId],
+    ],
+  });
+  const rows = await db.query<Record<string, unknown>>(
+    honey({
+      with: [
+        ['my_friends', friendIdForViewer(viewerId)],
+        ['their_friends', friendIdForViewer(targetUserId)],
+      ],
+      select: ['mf.friend_id'],
+      from: ['my_friends', 'mf'],
+      join: [
+        ['their_friends', 'tf'],
+        ['=', 'mf.friend_id', col('tf.friend_id')],
+      ],
+      limit: 50,
+    })
+  );
   return rows
     .map((row) => readString(row, 'friend_id'))
     .filter((id) => id.length > 0);

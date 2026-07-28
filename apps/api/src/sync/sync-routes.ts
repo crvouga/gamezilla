@@ -1,14 +1,15 @@
-import { mapAppAuthToWriteContext } from '@libs/auth/shared/map-app-auth-to-write-context';
 import type { AuthContext } from '@libs/auth/server/types';
 import { appAuth } from '@libs/auth/shared/auth-context';
-import { loadMemberOfSpaceIdsFromSql } from '@libs/spaces/server/load-member-of-space-ids-sql';
+import { mapAppAuthToWriteContext } from '@libs/auth/shared/map-app-auth-to-write-context';
 import {
   SPACE_MEMBERSHIPS_TABLE,
   SpaceMembershipCol,
 } from '@libs/db/shared/space-tables';
-import { maybeAutoEndEmptyHostSpace } from '@libs/spaces/shared/space-write-helpers';
 import { stripServerOwnedProfileUploadColumns } from '@libs/profile/shared/strip-server-owned-profile-upload-columns';
+import { loadMemberOfSpaceIdsFromSql } from '@libs/spaces/server/load-member-of-space-ids-sql';
+import { maybeAutoEndEmptyHostSpace } from '@libs/spaces/shared/space-write-helpers';
 import { assert } from '@pkgs/assert';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   applyRow,
   parseUploadBody,
@@ -21,7 +22,6 @@ import type {
 } from '@pkgs/sync-engine/shared/upload-batch';
 import { createRowEvaluator } from '@pkgs/write/server/row-write-registry';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
-import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 
@@ -88,24 +88,24 @@ function spaceIdFromMembershipUpload(row: UploadRow): string | null {
  * which otherwise left host spaces live forever and inflated miniplayer counts.
  */
 async function processSyncUploadBatch(
-  sql: SqlClient,
+  db: SqlClient,
   ctx: WriteContext,
   batch: UploadBatch
 ): Promise<UploadBatchResult> {
   const evaluateRow = createRowEvaluator(APP_ROW_WRITE_REGISTRY);
   const results: UploadRowResult[] = [];
   for (const row of batch.rows) {
-    const decision = await evaluateRow(ctx, row, sql);
+    const decision = await evaluateRow(ctx, row, db);
     if (decision.status === 'rejected') {
       results.push({ status: 'rejected', reason: decision.code });
       continue;
     }
     try {
-      await applyRow(sql, row);
+      await applyRow(db, row);
       if (isMembershipLeaveUpload(row)) {
         const spaceId = spaceIdFromMembershipUpload(row);
         if (spaceId !== null) {
-          await maybeAutoEndEmptyHostSpace(ctx, sql, spaceId);
+          await maybeAutoEndEmptyHostSpace(ctx, db, spaceId);
         }
       }
       results.push({ status: 'accepted' });

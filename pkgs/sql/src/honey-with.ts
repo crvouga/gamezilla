@@ -37,9 +37,13 @@ export function compileUnion(
   parts: readonly Query[] | undefined
 ): Sql {
   assert.defined(parts, `honey: ${kind.toLowerCase()} requires query list`);
-  assert.ok(parts.length >= 2, `honey: ${kind.toLowerCase()} needs ≥2 queries`, {
-    length: parts.length,
-  });
+  assert.ok(
+    parts.length >= 2,
+    `honey: ${kind.toLowerCase()} needs ≥2 queries`,
+    {
+      length: parts.length,
+    }
+  );
   return join(
     parts.map((q) => {
       assert.ok(isQuery(q), 'honey: union part must be a query map', { q });
@@ -57,10 +61,7 @@ export function compileForUpdate(
   skipLocked: boolean | undefined
 ): Sql {
   if (!forUpdate) {
-    assert.ok(
-      !skipLocked,
-      'honey: skipLocked requires forUpdate'
-    );
+    assert.ok(!skipLocked, 'honey: skipLocked requires forUpdate');
     return empty;
   }
   if (skipLocked) {

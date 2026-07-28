@@ -1,15 +1,15 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import {
   FRIEND_REQUESTS_TABLE,
-  FRIENDSHIPS_TABLE,
-  USER_BLOCKS_TABLE,
   FriendRequestCol,
   FriendshipCol,
+  FRIENDSHIPS_TABLE,
+  USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
 import { honey, type Expr, type Sql } from '@pkgs/sql';
-import { useMemo } from 'react';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useMemo } from 'react';
 
 import { canonicalUserPair } from '../shared/canonical-pair';
 import type { FriendshipStatus } from '../shared/friends-types';
@@ -103,8 +103,7 @@ export function useFriendshipStatus(targetUserId: string): FriendshipStatus {
   const enabled =
     myId.length > 0 && targetUserId.length > 0 && myId !== targetUserId;
   const query = useMemo(
-    () =>
-      enabled ? friendshipStatusSql(myId, targetUserId) : noneStatusSql(),
+    () => (enabled ? friendshipStatusSql(myId, targetUserId) : noneStatusSql()),
     [enabled, myId, targetUserId]
   );
   const { row } = useWatchOne<StatusRow>(query);

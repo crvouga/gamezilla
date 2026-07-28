@@ -3,7 +3,7 @@ import {
   USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
-import { sql, ident } from '@pkgs/sql';
+import { honey, col } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -65,22 +65,47 @@ export async function searchUsers(
   assertSearchRateLimit(viewerId);
   const boundedLimit = Math.min(Math.max(limit, 1), FRIEND_SEARCH_MAX_RESULTS);
   const likeQuery = query.toLowerCase();
-  // honey: LIKE with `|| '%'` string concat and ORDER BY lower(...) have no honey representation.
-  const rows = await db.query<SearchHitRow>(sql`
-    SELECT p.${ident(ProfileCol.id)} AS id,
-           p.${ident(ProfileCol.username)} AS username,
-           p.${ident(ProfileCol.avatarConfig)} AS avatar_config
-    FROM ${ident(PROFILES_TABLE.tableName)} p
-    WHERE p.${ident(ProfileCol.id)} <> ${viewerId}
-      AND NOT EXISTS (
-        SELECT 1 FROM ${ident(USER_BLOCKS_TABLE.tableName)} b
-        WHERE (b.${ident(UserBlockCol.blockerId)} = ${viewerId} AND b.${ident(UserBlockCol.blockedId)} = p.${ident(ProfileCol.id)})
-           OR (b.${ident(UserBlockCol.blockerId)} = p.${ident(ProfileCol.id)} AND b.${ident(UserBlockCol.blockedId)} = ${viewerId})
-      )
-      AND p.${ident(ProfileCol.username)} <> ''
-      AND lower(p.${ident(ProfileCol.username)}) LIKE ${likeQuery} || '%'
-    ORDER BY lower(p.${ident(ProfileCol.username)})
-    LIMIT ${boundedLimit}
-  `);
+  const profileIdCol = col(`p.${ProfileCol.id}`);
+  const rows = await db.query<SearchHitRow>(
+    honey({
+      select: [
+        [`p.${ProfileCol.id}`, 'id'],
+        [`p.${ProfileCol.username}`, 'username'],
+        [`p.${ProfileCol.avatarConfig}`, 'avatar_config'],
+      ],
+      from: [PROFILES_TABLE.tableName, 'p'],
+      where: [
+        'and',
+        ['<>', `p.${ProfileCol.id}`, viewerId],
+        [
+          'not',
+          [
+            'exists',
+            {
+              select: [['param', 1]],
+              from: [USER_BLOCKS_TABLE.tableName, 'b'],
+              where: [
+                'or',
+                [
+                  'and',
+                  ['=', `b.${UserBlockCol.blockerId}`, viewerId],
+                  ['=', `b.${UserBlockCol.blockedId}`, profileIdCol],
+                ],
+                [
+                  'and',
+                  ['=', `b.${UserBlockCol.blockerId}`, profileIdCol],
+                  ['=', `b.${UserBlockCol.blockedId}`, viewerId],
+                ],
+              ],
+            },
+          ],
+        ],
+        ['<>', `p.${ProfileCol.username}`, ''],
+        ['like', ['lower', `p.${ProfileCol.username}`], ['||', likeQuery, '%']],
+      ],
+      orderBy: [[['lower', `p.${ProfileCol.username}`], 'asc']],
+      limit: boundedLimit,
+    })
+  );
   return rows.map(mapSearchHit);
 }

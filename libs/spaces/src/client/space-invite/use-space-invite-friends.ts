@@ -5,7 +5,7 @@ import {
   FriendProfileCacheCol,
   FriendshipCol,
 } from '@libs/db/shared/friends-tables';
-import { sql, ident } from '@pkgs/sql';
+import { honey, col } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -23,21 +23,48 @@ export function useSpaceInviteFriends(): {
   readonly isLoading: boolean;
 } {
   const myId = useMyId();
-  // honey: ORDER BY ... COLLATE NOCASE has no honey representation.
+  const friendIdCol = col(`c.${FriendProfileCacheCol.friendId}`);
   const { rows, isLoading } = useWatchQuery<FriendRow>(
     myId.length === 0
-      ? sql`SELECT '' AS friend_id, '' AS username
-         FROM ${ident(FRIEND_PROFILE_CACHE_TABLE.tableName)} WHERE 0`
-      : sql`SELECT c.${ident(FriendProfileCacheCol.friendId)} AS friend_id,
-                c.${ident(FriendProfileCacheCol.username)} AS username
-         FROM ${ident(FRIEND_PROFILE_CACHE_TABLE.tableName)} c
-         INNER JOIN ${ident(FRIENDSHIPS_TABLE.tableName)} f
-           ON (
-             (f.${ident(FriendshipCol.userLow)} = ${myId} AND f.${ident(FriendshipCol.userHigh)} = c.${ident(FriendProfileCacheCol.friendId)})
-             OR (f.${ident(FriendshipCol.userHigh)} = ${myId} AND f.${ident(FriendshipCol.userLow)} = c.${ident(FriendProfileCacheCol.friendId)})
-           )
-         WHERE c.${ident(FriendProfileCacheCol.ownerId)} = ${myId}
-         ORDER BY c.${ident(FriendProfileCacheCol.username)} COLLATE NOCASE`
+      ? honey({
+          select: [
+            [['param', ''], 'friend_id'],
+            [['param', ''], 'username'],
+          ],
+          from: FRIEND_PROFILE_CACHE_TABLE.tableName,
+          where: ['=', 1, 0],
+        })
+      : honey({
+          select: [
+            [`c.${FriendProfileCacheCol.friendId}`, 'friend_id'],
+            [`c.${FriendProfileCacheCol.username}`, 'username'],
+          ],
+          from: [FRIEND_PROFILE_CACHE_TABLE.tableName, 'c'],
+          join: [
+            [FRIENDSHIPS_TABLE.tableName, 'f'],
+            [
+              'or',
+              [
+                'and',
+                ['=', `f.${FriendshipCol.userLow}`, myId],
+                ['=', `f.${FriendshipCol.userHigh}`, friendIdCol],
+              ],
+              [
+                'and',
+                ['=', `f.${FriendshipCol.userHigh}`, myId],
+                ['=', `f.${FriendshipCol.userLow}`, friendIdCol],
+              ],
+            ],
+          ],
+          where: ['=', `c.${FriendProfileCacheCol.ownerId}`, myId],
+          orderBy: [
+            [
+              `c.${FriendProfileCacheCol.username}`,
+              'asc',
+              { collate: 'NOCASE' },
+            ],
+          ],
+        })
   );
   const friends = useMemo(
     () =>

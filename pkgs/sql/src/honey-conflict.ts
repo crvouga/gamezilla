@@ -9,9 +9,7 @@ import sql, { empty, join, type Sql } from './sql';
 /**
  * Compiles optional INSERT `ON CONFLICT` clause.
  */
-export function compileOnConflict(
-  onConflict: OnConflict | undefined
-): Sql {
+export function compileOnConflict(onConflict: OnConflict | undefined): Sql {
   if (onConflict === undefined) {
     return empty;
   }

@@ -66,11 +66,21 @@ export type {
   JoinSpec,
   OpCall,
   OrderItem,
+  OrderOpts,
   Query,
   Scalar,
   SelectItem,
   TableRef,
 } from './honey-types';
+
+export type { HoneyCompileCtx, HoneyOpCompiler } from './honey-registry';
+export {
+  registerHoneyCast,
+  registerHoneyCollation,
+  registerHoneyFn,
+  registerHoneyOp,
+  resetHoneyRegistry,
+} from './honey-registry';
 
 /**
  * Compile a honey query map to a nested {@link Sql} fragment.

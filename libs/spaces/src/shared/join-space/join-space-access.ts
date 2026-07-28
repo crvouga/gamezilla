@@ -1,6 +1,6 @@
 import {
-  FRIENDSHIPS_TABLE,
   FriendshipCol,
+  FRIENDSHIPS_TABLE,
 } from '@libs/db/shared/friends-tables';
 import {
   SPACE_INVITES_TABLE,
@@ -15,13 +15,13 @@ import {
   resolveSpaceMemberId,
   spaceMembershipEntityId,
 } from '@libs/spaces/shared/participation/participation-ids';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { honey } from '@pkgs/sql';
 import { parseSpaceVisibility } from '@libs/spaces/shared/space-visibility';
-import { decideSpaceJoinAccess } from './decide-space-join-access';
-import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
+import { honey } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
+import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import { requireAccountId } from '../space-write-helpers';
+import { decideSpaceJoinAccess } from './decide-space-join-access';
 
 export type JoinSpaceRow = {
   readonly hostId: string;
