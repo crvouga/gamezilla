@@ -786,10 +786,7 @@ describe('Matchmaking.tick - advisory lock', () => {
     const flaky: SqlClient = {
       ...base,
       async query(query: Sql) {
-        if (
-          injectError &&
-          query.sql.includes('matchmaking_run_match_pass')
-        ) {
+        if (injectError && query.sql.includes('matchmaking_run_match_pass')) {
           throw new Error('synthetic SQL failure mid-drain');
         }
         return await base.query(query);

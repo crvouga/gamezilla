@@ -4,6 +4,7 @@
  * tree). `.prettierignore` is still applied by Prettier itself.
  */
 import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '..');
@@ -21,7 +22,12 @@ function listGitFiles(): string[] {
     process.stderr.write(git.stderr || 'git ls-files failed\n');
     process.exit(git.status ?? 1);
   }
-  return git.stdout.split('\0').filter((path) => path.length > 0);
+  // Skip index entries deleted on disk but not yet staged (`git rm` / add).
+  // Otherwise Prettier fails with "No files matching the pattern were found".
+  return git.stdout.split('\0').filter((path) => {
+    if (path.length === 0) return false;
+    return existsSync(join(REPO_ROOT, path));
+  });
 }
 
 function runPrettierBatch(batch: readonly string[]): number {

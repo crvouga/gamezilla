@@ -22,10 +22,7 @@ import type {
   SqlClient,
 } from '../interface';
 import type { PostgresDbScope } from './schema';
-import {
-  assertPgSessionSchema,
-  setPgSessionSchema,
-} from './session-schema';
+import { assertPgSessionSchema, setPgSessionSchema } from './session-schema';
 
 export { SqlClientImplPgClient } from './impl-pg-client';
 

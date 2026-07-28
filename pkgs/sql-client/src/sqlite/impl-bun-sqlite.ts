@@ -46,9 +46,7 @@ export class SqlClientImplBunSqlite implements SqlClient {
 
   async run(query: Sql): Promise<RunResult> {
     const bindings = query.values as SQLQueryBindings[];
-    const result = this.db
-      .query(sqliteCompatSql(query.sql))
-      .run(...bindings);
+    const result = this.db.query(sqliteCompatSql(query.sql)).run(...bindings);
     return {
       changes: result.changes,
       lastInsertRowid: Number(result.lastInsertRowid),

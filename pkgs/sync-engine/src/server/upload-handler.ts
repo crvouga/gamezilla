@@ -65,20 +65,17 @@ export async function applyPut(db: SqlClient, row: UploadRow): Promise<void> {
     ON CONFLICT (id) DO UPDATE SET ${raw(conflictSet)}`);
 }
 
-export async function applyPatch(
-  db: SqlClient,
-  row: UploadRow
-): Promise<void> {
+export async function applyPatch(db: SqlClient, row: UploadRow): Promise<void> {
   const values = row.values ?? {};
   const columns = Object.keys(values);
   if (columns.length === 0) return;
   const table = quoteSqlIdentifier(row.table);
   const sets = join(
-    columns.map((c) => sql`${raw(quoteSqlIdentifier(c))} = ${values[c] as Value}`)
+    columns.map(
+      (c) => sql`${raw(quoteSqlIdentifier(c))} = ${values[c] as Value}`
+    )
   );
-  await db.run(
-    sql`UPDATE ${raw(table)} SET ${sets} WHERE id = ${row.id}`
-  );
+  await db.run(sql`UPDATE ${raw(table)} SET ${sets} WHERE id = ${row.id}`);
 }
 
 export async function applyDelete(
@@ -176,12 +173,7 @@ export function createUploadHandler<TAuth, TCtx>(
     const db = await options.openSql();
     try {
       await db.connect();
-      const out = await processUploadBatch(
-        db,
-        ctx,
-        options.evaluateRow,
-        batch
-      );
+      const out = await processUploadBatch(db, ctx, options.evaluateRow, batch);
       return c.json(out, 200);
     } finally {
       await db.disconnect();

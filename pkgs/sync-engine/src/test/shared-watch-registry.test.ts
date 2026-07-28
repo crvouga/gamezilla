@@ -66,7 +66,10 @@ describe('createSharedWatchRegistry', () => {
     let openCount = 0;
     const registry = createSharedWatchRegistry((query) => {
       openCount += 1;
-      return createFakeHandle([{ id: String(query.values[0]) }], () => undefined);
+      return createFakeHandle(
+        [{ id: String(query.values[0]) }],
+        () => undefined
+      );
     });
 
     const a = registry.watch(sql`SELECT id FROM t WHERE id = ${'a'}`);

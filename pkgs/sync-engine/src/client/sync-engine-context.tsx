@@ -65,10 +65,7 @@ export function useWatchQuery<T extends Record<string, unknown>>(
 ): { readonly rows: readonly T[]; readonly isLoading: boolean } {
   const engine = useSyncEngine();
   const sqlText = query.sql;
-  const paramsKey = useMemo(
-    () => JSON.stringify(query.values),
-    [query.values]
-  );
+  const paramsKey = useMemo(() => JSON.stringify(query.values), [query.values]);
   const subscription = useMemo(
     () => engine.watch<T>(query),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces values
@@ -117,10 +114,7 @@ export function useWatchField<T>(
 ): { readonly value: T | null; readonly isLoading: boolean } {
   const engine = useSyncEngine();
   const sqlText = query.sql;
-  const paramsKey = useMemo(
-    () => JSON.stringify(query.values),
-    [query.values]
-  );
+  const paramsKey = useMemo(() => JSON.stringify(query.values), [query.values]);
   const subscription = useMemo(
     () => engine.watch<Record<string, unknown>>(query),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces values

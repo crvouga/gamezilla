@@ -588,7 +588,9 @@ export class Matchmaker {
     const nowParam = this.nowParam();
     const rows = await this.sqlClient.query<{
       matchmaking_sweep_expired: number | string;
-    }>(sql`SELECT matchmaking_sweep_expired(${partitionSignature}, ${this.maxWaitSeconds}, ${nowParam}) AS matchmaking_sweep_expired`);
+    }>(
+      sql`SELECT matchmaking_sweep_expired(${partitionSignature}, ${this.maxWaitSeconds}, ${nowParam}) AS matchmaking_sweep_expired`
+    );
     const raw = rows[0]?.matchmaking_sweep_expired ?? 0;
     const removed = typeof raw === 'string' ? Number.parseInt(raw, 10) : raw;
     return { removed };
@@ -636,7 +638,9 @@ export class Matchmaker {
     const nowParam = this.nowParam();
     const rows = await this.sqlClient.query<{
       matchmaking_sweep_matched: number | string;
-    }>(sql`SELECT matchmaking_sweep_matched(${this.matchedRetentionSeconds}, ${nowParam}) AS matchmaking_sweep_matched`);
+    }>(
+      sql`SELECT matchmaking_sweep_matched(${this.matchedRetentionSeconds}, ${nowParam}) AS matchmaking_sweep_matched`
+    );
     const raw = rows[0]?.matchmaking_sweep_matched ?? 0;
     const removed = typeof raw === 'string' ? Number.parseInt(raw, 10) : raw;
     return { removed };

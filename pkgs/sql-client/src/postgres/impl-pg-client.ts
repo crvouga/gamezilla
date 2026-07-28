@@ -18,10 +18,7 @@ import type {
   SqlClient,
 } from '../interface';
 import type { PostgresDbScope } from './schema';
-import {
-  assertPgSessionSchema,
-  setPgSessionSchema,
-} from './session-schema';
+import { assertPgSessionSchema, setPgSessionSchema } from './session-schema';
 
 export class SqlClientImplPgClient implements PostgresSqlClient {
   constructor(

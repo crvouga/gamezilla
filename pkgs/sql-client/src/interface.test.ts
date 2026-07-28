@@ -28,7 +28,8 @@ async function loadImplementations(): Promise<
     },
   ];
   try {
-    const { SqlClientImplExpoSqlite } = await import('./sqlite/impl-expo-sqlite');
+    const { SqlClientImplExpoSqlite } =
+      await import('./sqlite/impl-expo-sqlite');
     impls.push({
       name: 'SqlClientImplExpoSqlite',
       createClient: () => SqlClientImplExpoSqlite.open(':memory:'),
@@ -155,7 +156,9 @@ describe.each(implementations)('$name', ({ createClient }) => {
   test('transaction rolls back on error', async () => {
     if (!client || !available) return;
     await client.connect();
-    await client.run(raw('CREATE TABLE rollback_test (id INTEGER PRIMARY KEY)'));
+    await client.run(
+      raw('CREATE TABLE rollback_test (id INTEGER PRIMARY KEY)')
+    );
     try {
       await client.transaction(async (tx) => {
         await tx.run(sql`INSERT INTO rollback_test (id) VALUES (${1})`);
