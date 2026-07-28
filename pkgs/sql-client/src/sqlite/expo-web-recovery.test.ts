@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { matchesRecoverableExpoSqliteWebErrorMessage } from './expo-sqlite-web-recovery-core';
+import { matchesRecoverableExpoSqliteWebErrorMessage } from './expo-web-recovery-core';
 
 describe('matchesRecoverableExpoSqliteWebErrorMessage', () => {
   test('matches OPFS journal failures', () => {

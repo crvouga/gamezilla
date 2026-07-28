@@ -3,7 +3,7 @@
  * Used by PowerSync setup/deploy so schema + publication target the same DB.
  */
 import { createLogger } from '@pkgs/logger';
-import { createPgPool } from '@pkgs/sql-client/postgres-connect';
+import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { resolveDatabaseUrl } from '../libs/infra/src/cli/resources/postgres';
 import { loadSecretsIntoEnv } from '../libs/infra/src/cli/secrets/secrets';

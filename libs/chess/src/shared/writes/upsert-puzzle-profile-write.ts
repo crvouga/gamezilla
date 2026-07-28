@@ -59,6 +59,14 @@ export function parseUpsertPuzzleProfileInput(
   return ok({ ownerId, rating, ratingDeviation, lastInteractionAt });
 }
 
+function readRowField(
+  values: Record<string, unknown>,
+  column: string,
+  camelKey: string
+): unknown {
+  return values[column] ?? values[camelKey];
+}
+
 /**
  * Map a sync upload row onto upsert input. PowerSync PATCH `opData` only
  * includes changed columns — fill missing fields with authorize-safe
@@ -75,22 +83,22 @@ export function rowToUpsertPuzzleProfileInput(
     );
   }
   const values = row.values ?? {};
-  const ownerId =
-    values[ChessPuzzleProfileCol.ownerId] ?? values['ownerId'] ?? row.id;
-  const rating = values[ChessPuzzleProfileCol.rating] ?? values['rating'] ?? 0;
-  const ratingDeviation =
-    values[ChessPuzzleProfileCol.ratingDeviation] ??
-    values['ratingDeviation'] ??
-    0;
-  const lastInteractionAt =
-    values[ChessPuzzleProfileCol.lastInteractionAt] ??
-    values['lastInteractionAt'] ??
-    new Date(0).toISOString();
   return parseUpsertPuzzleProfileInput({
-    ownerId,
-    rating,
-    ratingDeviation,
-    lastInteractionAt,
+    ownerId:
+      readRowField(values, ChessPuzzleProfileCol.ownerId, 'ownerId') ?? row.id,
+    rating: readRowField(values, ChessPuzzleProfileCol.rating, 'rating') ?? 0,
+    ratingDeviation:
+      readRowField(
+        values,
+        ChessPuzzleProfileCol.ratingDeviation,
+        'ratingDeviation'
+      ) ?? 0,
+    lastInteractionAt:
+      readRowField(
+        values,
+        ChessPuzzleProfileCol.lastInteractionAt,
+        'lastInteractionAt'
+      ) ?? new Date(0).toISOString(),
   });
 }
 

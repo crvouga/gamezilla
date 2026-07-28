@@ -4,8 +4,8 @@
  */
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Logger } from '@pkgs/logger';
-import { ensurePostgresSchema } from '@pkgs/sql-client/postgres-connect';
-import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import { ensurePostgresSchema } from '@pkgs/sql-client/postgres/connect';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { runPowerSyncSourceDbSql } from '@libs/infra/cli/resources/powersync-source-db';

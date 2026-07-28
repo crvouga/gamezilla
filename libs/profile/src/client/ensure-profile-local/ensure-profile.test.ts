@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { Database } from 'bun:sqlite';
 
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
 import { applyEnsuredUsername, ensureProfile } from './ensure-profile';

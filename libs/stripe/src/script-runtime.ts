@@ -8,7 +8,7 @@
  * `DATABASE_URL` must be `postgres://` or `postgresql://` (TCP Postgres).
  */
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPgPool } from '@pkgs/sql-client/postgres-connect';
+import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import {
   assertDevSecretsEnv,
   PRODUCTION_SECRETS_ENV,

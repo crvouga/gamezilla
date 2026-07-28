@@ -7,7 +7,7 @@
  */
 
 import { assert } from '@pkgs/assert';
-import type { PostgresDbScope } from './postgres-schema';
+import type { PostgresDbScope } from './postgres/schema';
 
 export interface RunResult {
   changes: number;

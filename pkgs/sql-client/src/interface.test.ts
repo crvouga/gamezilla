@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
-import { SqlClientImplBunSqlite } from './impl-bun-sqlite';
 import { SqlClientWithPubSub } from './impl-with-pub-sub';
 import type { SqlClient } from './interface';
+import { SqlClientImplBunSqlite } from './sqlite/impl-bun-sqlite';
 
 type ClientFactory = () => Promise<SqlClient>;
 
@@ -27,7 +27,7 @@ async function loadImplementations(): Promise<
     },
   ];
   try {
-    const { SqlClientImplExpoSqlite } = await import('./impl-expo-sqlite');
+    const { SqlClientImplExpoSqlite } = await import('./sqlite/impl-expo-sqlite');
     impls.push({
       name: 'SqlClientImplExpoSqlite',
       createClient: () => SqlClientImplExpoSqlite.open(':memory:'),

@@ -19,12 +19,12 @@ import type {
   PreparedStatement,
   RunResult,
   SqlClient,
-} from './interface';
-import type { PostgresDbScope } from './postgres-schema';
+} from '../interface';
+import type { PostgresDbScope } from './schema';
 import {
   assertPgSessionSchema,
   setPgSessionSchema,
-} from './postgres-session-schema';
+} from './session-schema';
 
 export { SqlClientImplPgClient } from './impl-pg-client';
 

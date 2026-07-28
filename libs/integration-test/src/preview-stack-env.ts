@@ -1,6 +1,6 @@
 import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
-import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
+import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres/connect';
 
 /** Env overrides for preview/QA — uses secret-store-injected `DATABASE_URL` (dev hosted Postgres). */
 export function previewStackEnv(): Record<string, string> {

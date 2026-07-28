@@ -1,6 +1,6 @@
 import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
-import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
+import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres/connect';
 
 import { previewStackEnv } from '../src/preview-stack-env';
 

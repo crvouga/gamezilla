@@ -3,7 +3,7 @@ import type { DistributedLock } from '@pkgs/distributed-lock/interface';
 import { asKeyword } from '@pkgs/keyword';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { createLogger } from '@pkgs/logger';
-import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/impl-postgres-tcp';
+import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { resolveDatabaseUrl } from '../resources/postgres';
 

@@ -2,8 +2,8 @@
  * Rebuilds the `chess_puzzles.sync_pool` flag with the top puzzles per rating
  * band for PowerSync client sync (`WHERE sync_pool = true`).
  */
-import { createPgPool } from '@pkgs/sql-client/postgres-connect';
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import { createPgPool } from '@pkgs/sql-client/postgres/connect';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 
 const POOL_PER_BAND = 500;
 const MAX_BAND = 20;

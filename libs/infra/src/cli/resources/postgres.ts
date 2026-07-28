@@ -1,4 +1,4 @@
-import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/impl-postgres-tcp';
+import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';

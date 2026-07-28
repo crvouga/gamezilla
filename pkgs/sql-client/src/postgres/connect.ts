@@ -10,15 +10,15 @@
 import { Client, Pool, type PoolClient } from 'pg';
 import { pgRawQueryWithSearchPathPin, type PgExecutor } from './impl-pg-shared';
 import { SqlClientImplPg, SqlClientImplPgClient } from './impl-pg';
-import type { PostgresSqlClient, SqlClient } from './interface';
-import { quotePgIdent, type PostgresDbScope } from './postgres-schema';
+import type { PostgresSqlClient, SqlClient } from '../interface';
+import { quotePgIdent, type PostgresDbScope } from './schema';
 import {
   assertPgSessionSchema,
   pinAndVerifyPgSessionSchema,
   postgresRejectsStartupSearchPathOption,
   withPostgresSearchPathOption,
-} from './postgres-session-schema';
-import { sanitizePostgresUrlForNodePg } from './sanitize-postgres-url-for-node-pg';
+} from './session-schema';
+import { sanitizePostgresUrlForNodePg } from './sanitize-url-for-node-pg';
 
 /**
  * Schema-agnostic reachability probe (`SELECT 1`). Use before migrations when

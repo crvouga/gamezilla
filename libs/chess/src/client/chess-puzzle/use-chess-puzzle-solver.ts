@@ -62,6 +62,26 @@ function useChessPuzzlePlayRoomSelectors() {
   };
 }
 
+function projectSolveStatus(
+  roomStatus: ReturnType<typeof useChessPuzzlePlayRoomSelectors>['roomStatus'],
+  roomPuzzleId: string | null,
+  puzzleId: string
+): SolveStatus {
+  if (
+    roomStatus === CHESS_PUZZLE_PLAY_STATUS.idle ||
+    roomPuzzleId !== puzzleId
+  ) {
+    return 'loading';
+  }
+  return roomStatus;
+}
+
+function countMoveTokens(roomMoves: string): number {
+  const trimmed = roomMoves.trim();
+  if (trimmed.length === 0) return 0;
+  return trimmed.split(/\s+/).length;
+}
+
 /**
  * Bridges the puzzle play screen to the server-authoritative FSM in
  * {@link ChessPuzzlePlayAttr}. `onMove` dispatches `SubmitChessPuzzleMove`;
@@ -92,22 +112,7 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
 } {
   const { puzzleId } = args;
   const dispatch = useSpaceRoomDispatch();
-  const {
-    roomStatus,
-    roomPuzzleId,
-    startFen,
-    displayFen,
-    layoutKey,
-    orientation,
-    solveIdx,
-    furthestSolveIdx,
-    roomMoves,
-    wrongFromSquare,
-    wrongToSquare,
-    expectedFromSquare,
-    expectedToSquare,
-    solutionRevealed,
-  } = useChessPuzzlePlayRoomSelectors();
+  const room = useChessPuzzlePlayRoomSelectors();
 
   const onMove = useCallback(
     (m: Move) => {
@@ -116,37 +121,36 @@ export function usePuzzleSolver(args: { puzzleId: string }): {
     [dispatch]
   );
 
-  const status: SolveStatus =
-    roomStatus === CHESS_PUZZLE_PLAY_STATUS.idle || roomPuzzleId !== puzzleId
-      ? 'loading'
-      : roomStatus;
-
-  const totalTokens =
-    roomMoves.trim().length === 0 ? 0 : roomMoves.trim().split(/\s+/).length;
+  const status = projectSolveStatus(
+    room.roomStatus,
+    room.roomPuzzleId,
+    puzzleId
+  );
+  const totalTokens = countMoveTokens(room.roomMoves);
 
   const { boardFen, opponentAnimating } = usePuzzleOpponentMoveStage({
-    startFen,
-    moves: roomMoves,
-    displayFen,
-    solveIdx,
-    furthestSolveIdx,
+    startFen: room.startFen,
+    moves: room.roomMoves,
+    displayFen: room.displayFen,
+    solveIdx: room.solveIdx,
+    furthestSolveIdx: room.furthestSolveIdx,
     status,
   });
 
   return {
     displayFen: boardFen,
-    layoutKey,
+    layoutKey: room.layoutKey,
     status,
-    orientation,
+    orientation: room.orientation,
     onMove,
-    solveIdx,
-    furthestSolveIdx,
+    solveIdx: room.solveIdx,
+    furthestSolveIdx: room.furthestSolveIdx,
     totalTokens,
-    wrongFromSquare,
-    wrongToSquare,
-    expectedFromSquare,
-    expectedToSquare,
-    solutionRevealed,
+    wrongFromSquare: room.wrongFromSquare,
+    wrongToSquare: room.wrongToSquare,
+    expectedFromSquare: room.expectedFromSquare,
+    expectedToSquare: room.expectedToSquare,
+    solutionRevealed: room.solutionRevealed,
     opponentAnimating,
   };
 }

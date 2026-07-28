@@ -1,4 +1,4 @@
-import type { SqlClient } from './interface';
+import type { SqlClient } from '../interface';
 
 /**
  * Run on every new SQLite connection (Bun, Expo) so FKs are enforced like

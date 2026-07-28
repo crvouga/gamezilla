@@ -5,16 +5,16 @@ import type {
   PreparedStatement,
   RunResult,
   SqlClient,
-} from './interface';
-import type { PostgresDbScope } from './postgres-schema';
-import { quotePgIdent } from './postgres-schema';
+} from '../interface';
+import type { PostgresDbScope } from './schema';
+import { quotePgIdent } from './schema';
 import {
   postgresRejectsStartupSearchPathOption,
   sqlBundledWithSearchPath,
   withPostgresSearchPathOption,
-} from './postgres-session-schema';
-import { questionMarkParamsToDollarParams } from './positional-params';
-import { sanitizePostgresUrlForBunSql } from './sanitize-postgres-url-for-bun-sql';
+} from './session-schema';
+import { questionMarkParamsToDollarParams } from '../positional-params';
+import { sanitizePostgresUrlForBunSql } from './sanitize-url-for-bun-sql';
 
 type BunSql = InstanceType<typeof SQL>;
 

@@ -6,7 +6,7 @@ import {
   readLastInsertRowid,
   type PgExecutor,
 } from './impl-pg-shared';
-import { createPostgresDbScope } from './postgres-schema';
+import { createPostgresDbScope } from './schema';
 
 const testScope = createPostgresDbScope('public');
 

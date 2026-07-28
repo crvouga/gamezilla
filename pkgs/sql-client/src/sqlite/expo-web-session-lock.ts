@@ -3,12 +3,12 @@ import { Platform } from 'react-native';
 import {
   defaultExpoSqliteWebSessionOnPageHide,
   tryAcquireExpoSqliteWebSessionLockWith,
-} from './expo-sqlite-web-session-lock-core';
+} from './expo-web-session-lock-core';
 
 export {
   ExpoSqliteWebSessionLockError,
   isExpoSqliteWebSessionLockError,
-} from './expo-sqlite-web-session-lock-core';
+} from './expo-web-session-lock-core';
 
 /**
  * On web, expo-sqlite shares one OPFS-backed worker per origin. Only one tab

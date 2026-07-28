@@ -3,12 +3,12 @@ import { Platform } from 'react-native';
 import {
   EXPO_SQLITE_WEB_FATAL_EVENT,
   matchesRecoverableExpoSqliteWebErrorMessage,
-} from './expo-sqlite-web-recovery-core';
+} from './expo-web-recovery-core';
 
 export {
   EXPO_SQLITE_WEB_FATAL_EVENT,
   matchesRecoverableExpoSqliteWebErrorMessage,
-} from './expo-sqlite-web-recovery-core';
+} from './expo-web-recovery-core';
 
 /** True for OPFS / worker failures where wiping local SQLite is the safe fix. */
 export function isRecoverableExpoSqliteWebRuntimeError(

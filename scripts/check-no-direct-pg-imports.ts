@@ -4,7 +4,7 @@
  * connections.
  *
  * Every Postgres connection in this repo must go through the schema-aware
- * factories in `pkgs/sql-client/src/postgres-connect.ts` (`openPgClient`,
+ * factories in `pkgs/sql-client/src/postgres/connect.ts` (`openPgClient`,
  * `createPgPool`, …), which pin the session `search_path` to the canonical
  * `public` schema. A raw `new Client()` / `new Pool()` anywhere else would
  * silently fall back to whatever the server's default schema is — defeating
@@ -15,7 +15,7 @@
  * (`import type { Pool } from 'pg'`) are allowed everywhere: they are erased at
  * runtime and cannot open a connection — they only type a `Pool` that was
  * created by the factories and handed in. Route those through
- * `@pkgs/sql-client/pg-types` when convenient.
+ * `@pkgs/sql-client/postgres/pg-types` when convenient.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -93,6 +93,6 @@ for (const v of violations) {
   console.error(`  - ${v.file}: ${v.statement}`);
 }
 console.error(
-  '\nOpen connections via @pkgs/sql-client (`openPgClient` / `createPgPool`), which pin the `public` schema. For pg types, import from `@pkgs/sql-client/pg-types`.'
+  '\nOpen connections via @pkgs/sql-client (`openPgClient` / `createPgPool`), which pin the `public` schema. For pg types, import from `@pkgs/sql-client/postgres/pg-types`.'
 );
 process.exit(1);

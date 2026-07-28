@@ -1,5 +1,5 @@
-import { tryAcquireExpoSqliteWebSessionLock } from '@pkgs/sql-client/expo-sqlite-web-session-lock';
-import { SqlClientImplExpoSqlite } from '@pkgs/sql-client/impl-expo-sqlite';
+import { tryAcquireExpoSqliteWebSessionLock } from '@pkgs/sql-client/sqlite/expo-web-session-lock';
+import { SqlClientImplExpoSqlite } from '@pkgs/sql-client/sqlite/impl-expo-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { assertDatabaseName } from '@pkgs/sql';
 import { Platform } from 'react-native';

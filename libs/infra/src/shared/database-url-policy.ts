@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres-connect';
+import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres/connect';
 import { PROJECT_CONFIG } from '../project-config';
 
 export const PRODUCTION_SECRETS_ENV = 'prd' as const;

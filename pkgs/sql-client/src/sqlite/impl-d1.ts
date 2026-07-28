@@ -1,4 +1,4 @@
-import type { PreparedStatement, RunResult, SqlClient } from './interface';
+import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 
 /**
  * D1Database binding shape. Matches the Cloudflare Workers D1 API.

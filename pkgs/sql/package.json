@@ -13,7 +13,8 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "tc": "tsc --noEmit",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test --pass-with-no-tests",
+    "perf": "bun scripts/perf.ts"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*"

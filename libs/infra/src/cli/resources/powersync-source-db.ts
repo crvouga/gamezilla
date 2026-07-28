@@ -3,9 +3,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { createLogger, type Logger } from '@pkgs/logger';
-import { createPgPool } from '@pkgs/sql-client/postgres-connect';
+import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { quotePgIdent } from '@pkgs/sql-client/postgres-schema';
+import { quotePgIdent } from '@pkgs/sql-client/postgres/schema';
 
 import { appPostgresDbScope } from '../../namespace-bindings';
 

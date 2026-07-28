@@ -59,7 +59,7 @@ import { createLogger, type Logger } from '@pkgs/logger';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { openPgClient } from '@pkgs/sql-client/postgres-connect';
+import { openPgClient } from '@pkgs/sql-client/postgres/connect';
 import {
   assertDevSecretsEnv,
   PRODUCTION_SECRETS_ENV,

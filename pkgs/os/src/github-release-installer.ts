@@ -103,9 +103,9 @@ function shellQuote(s: string): string {
  *
  * Prefer the HTML redirect (`/releases/latest` → `/releases/tag/vX.Y.Z`) over
  * the GitHub REST API: shared CI runners often exhaust the unauthenticated API
- * quota (60 req/hr), which made Infisical installs fail with
- * "failed to resolve latest release". The redirect path is not rate-limited the
- * same way. Fall back to the API (with `GITHUB_TOKEN` / `GH_TOKEN` when set).
+ * quota (60 req/hr), which made installs fail with "failed to resolve latest
+ * release". The redirect path is not rate-limited the same way. Fall back to
+ * the API (with `GITHUB_TOKEN` / `GH_TOKEN` when set).
  */
 function resolveLatestSync(repo: string): string | null {
   return resolveLatestViaRedirect(repo) ?? resolveLatestViaApi(repo);

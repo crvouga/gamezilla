@@ -1,4 +1,4 @@
-import { pingPostgres } from '@pkgs/sql-client/postgres-connect';
+import { pingPostgres } from '@pkgs/sql-client/postgres/connect';
 import {
   assertNonProdDatabaseUrl,
   DEVELOPMENT_SECRETS_ENV,

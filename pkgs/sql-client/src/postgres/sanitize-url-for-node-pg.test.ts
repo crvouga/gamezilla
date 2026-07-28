@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { sanitizePostgresUrlForNodePg } from './sanitize-postgres-url-for-node-pg';
+import { sanitizePostgresUrlForNodePg } from './sanitize-url-for-node-pg';
 
 describe('sanitizePostgresUrlForNodePg', () => {
   test('strips sslrootcert=system (the libpq sentinel that crashes pg)', () => {

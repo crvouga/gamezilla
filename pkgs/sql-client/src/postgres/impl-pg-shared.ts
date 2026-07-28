@@ -3,10 +3,10 @@
  * {@link SqlClient} implementations.
  */
 import type { Pool, PoolClient, QueryResult } from 'pg';
-import type { PreparedStatement, RunResult, SqlClient } from './interface';
-import type { PostgresDbScope } from './postgres-schema';
-import { quotePgIdent } from './postgres-schema';
-import { questionMarkParamsToDollarParams } from './positional-params';
+import type { PreparedStatement, RunResult, SqlClient } from '../interface';
+import type { PostgresDbScope } from './schema';
+import { quotePgIdent } from './schema';
+import { questionMarkParamsToDollarParams } from '../positional-params';
 
 export function readLastInsertRowid(
   rows: readonly Record<string, unknown>[] | undefined | null

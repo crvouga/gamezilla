@@ -1,4 +1,4 @@
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 
 import { PROJECT_CONFIG } from './project-config';
 

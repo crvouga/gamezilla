@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { sanitizePostgresUrlForBunSql } from './sanitize-postgres-url-for-bun-sql';
+import { sanitizePostgresUrlForBunSql } from './sanitize-url-for-bun-sql';
 
 describe('sanitizePostgresUrlForBunSql', () => {
   test('removes sslrootcert and related libpq TLS file params', () => {

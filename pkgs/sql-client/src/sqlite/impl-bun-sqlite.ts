@@ -1,7 +1,7 @@
 import { Database, type SQLQueryBindings } from 'bun:sqlite';
 import { assert } from '@pkgs/assert';
-import type { PreparedStatement, RunResult, SqlClient } from './interface';
-import { applySqliteConnectionPragmas } from './sqlite-connection-pragmas';
+import type { PreparedStatement, RunResult, SqlClient } from '../interface';
+import { applySqliteConnectionPragmas } from './connection-pragmas';
 
 /** Strip Postgres-only casts so the same SQL works in bun:sqlite tests. */
 function sqliteCompatSql(sql: string): string {

@@ -38,7 +38,7 @@ runs:
     # backend CLI. secrets-auth / secrets-run inject env for child processes,
     # but export of both `dev` and `prd` still needs the CLI on PATH.
     # GITHUB_TOKEN authenticates GitHub API fallbacks when resolving the
-    # Infisical CLI release (shared runner IPs often exhaust unauth quota).
+    # secrets-backend CLI release (shared runner IPs often exhaust unauth quota).
     - name: Install secrets backend CLI
       shell: bash
       env:

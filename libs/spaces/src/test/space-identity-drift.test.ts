@@ -7,7 +7,7 @@ import {
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
 import { spaceMembershipEntityId } from '@libs/spaces/shared/participation/participation-ids';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/impl-bun-sqlite';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 

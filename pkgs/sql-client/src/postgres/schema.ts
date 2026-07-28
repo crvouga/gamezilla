@@ -4,7 +4,7 @@
  * product-specific schema string is configured once at the composition root.
  *
  * Every Postgres connection pins `search_path` to {@link PostgresDbScope.schema}
- * (see `./postgres-connect`), so all unqualified DDL/DML resolves there.
+ * (see `./connect`), so all unqualified DDL/DML resolves there.
  */
 
 export class PostgresDbScope {

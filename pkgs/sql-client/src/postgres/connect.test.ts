@@ -5,12 +5,12 @@ import {
   ensurePostgresSchema,
   isLoopbackPostgresUrl,
   openPgClient,
-} from './postgres-connect';
-import { createPostgresDbScope, quotePgIdent } from './postgres-schema';
+} from './connect';
+import { createPostgresDbScope, quotePgIdent } from './schema';
 import {
   postgresRejectsStartupSearchPathOption,
   withPostgresSearchPathOption,
-} from './postgres-session-schema';
+} from './session-schema';
 
 const DATABASE_URL = process.env['DATABASE_URL'] ?? '';
 const HAS_DB = DATABASE_URL.length > 0;

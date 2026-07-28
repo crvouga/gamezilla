@@ -4,7 +4,7 @@ import {
   ExpoSqliteWebSessionLockError,
   isExpoSqliteWebSessionLockError,
   tryAcquireExpoSqliteWebSessionLockWith,
-} from './expo-sqlite-web-session-lock-core';
+} from './expo-web-session-lock-core';
 
 describe('tryAcquireExpoSqliteWebSessionLockWith', () => {
   test('resolves immediately on native', async () => {

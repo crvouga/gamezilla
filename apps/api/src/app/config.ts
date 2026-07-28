@@ -2,7 +2,7 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';
-import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 
 export type ApiHandlerConfig = {
   readonly secretStore: SecretStore;

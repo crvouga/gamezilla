@@ -11,7 +11,7 @@ import type { Observability } from '@pkgs/observability/port/observability';
 import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
 import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
 import type { SecretStore } from '@pkgs/secret-store';
-import type { PostgresDbScope } from '@pkgs/sql-client/postgres-schema';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import type { MiddlewareHandler } from 'hono';
 import { ApiSecretName } from '../config/secret-names';
 import { openRequestDb } from '../db/open-request-db';

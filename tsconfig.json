@@ -201,6 +201,7 @@
     "pkgs/colors/src/**/*.ts",
     "pkgs/uuid/src/**/*.ts",
     "pkgs/sql/src/**/*.ts",
+    "pkgs/sql/scripts/**/*.ts",
     "pkgs/sqlite/src/**/*.ts",
     "pkgs/pub-sub/src/**/*.ts",
     "pkgs/async/src/**/*.ts",

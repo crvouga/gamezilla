@@ -23,6 +23,78 @@ export type PuzzlePlayScreenModel = {
   e2eLoadingStatus: ChessPuzzleE2ELoadingStatusProps;
 };
 
+type CommitAttempt = (seed: number, armStart: boolean) => void;
+
+type PuzzlePlacementArgs = {
+  activePuzzleId: string | null;
+  attemptSeed: number;
+  commitAttempt: CommitAttempt;
+  nextId: string | null;
+  roomPuzzleId: string | null;
+  placedAttemptRef: { current: number };
+  setActivePuzzleId: (id: string) => void;
+};
+
+/**
+ * Atomic puzzle-id swap: never null `activePuzzleId` between puzzles,
+ * so `PuzzlePlayer` stays mounted across the entire session.
+ *
+ * Start is armed only via `startNonce` (not merely idle room status) so a
+ * remote/local Clear cannot re-Start the previous puzzle on every client.
+ *
+ * Room puzzle id is authoritative whenever it diverges from local
+ * `activePuzzleId` — otherwise the board FEN (from room) updates while
+ * status projection stays `'loading'` (puzzleIdMismatch).
+ */
+function applyPuzzlePlacement(args: PuzzlePlacementArgs): void {
+  const {
+    activePuzzleId,
+    attemptSeed,
+    commitAttempt,
+    nextId,
+    roomPuzzleId,
+    placedAttemptRef,
+    setActivePuzzleId,
+  } = args;
+
+  if (activePuzzleId === null) {
+    placeWhenNoActivePuzzle(args);
+    return;
+  }
+  if (roomPuzzleId !== null && roomPuzzleId !== activePuzzleId) {
+    setActivePuzzleId(roomPuzzleId);
+    commitAttempt(attemptSeed, false);
+    return;
+  }
+  if (attemptSeed === placedAttemptRef.current) return;
+  if (roomPuzzleId !== null) {
+    commitAttempt(attemptSeed, false);
+    return;
+  }
+  if (nextId === null || nextId === activePuzzleId) return;
+  setActivePuzzleId(nextId);
+  commitAttempt(attemptSeed, true);
+}
+
+function placeWhenNoActivePuzzle(args: PuzzlePlacementArgs): void {
+  const {
+    attemptSeed,
+    commitAttempt,
+    nextId,
+    roomPuzzleId,
+    setActivePuzzleId,
+  } = args;
+  if (attemptSeed === 0 && roomPuzzleId !== null) {
+    setActivePuzzleId(roomPuzzleId);
+    commitAttempt(attemptSeed, false);
+    return;
+  }
+  if (nextId !== null) {
+    setActivePuzzleId(nextId);
+    commitAttempt(attemptSeed, true);
+  }
+}
+
 export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   const myId = useMyId();
   const dispatch = useSpaceRoomDispatch();
@@ -59,42 +131,16 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     seed: `${myId}-${attemptSeed}`,
   });
 
-  // Atomic puzzle-id swap: never null `activePuzzleId` between puzzles,
-  // so `PuzzlePlayer` stays mounted across the entire session.
-  //
-  // Start is armed only via `startNonce` (not merely idle room status) so a
-  // remote/local Clear cannot re-Start the previous puzzle on every client.
-  //
-  // Room puzzle id is authoritative whenever it diverges from local
-  // `activePuzzleId` — otherwise the board FEN (from room) updates while
-  // status projection stays `'loading'` (puzzleIdMismatch).
   useEffect(() => {
-    if (activePuzzleId === null) {
-      if (attemptSeed === 0 && roomPuzzleId !== null) {
-        setActivePuzzleId(roomPuzzleId);
-        commitAttempt(attemptSeed, false);
-        return;
-      }
-      if (nextId !== null) {
-        setActivePuzzleId(nextId);
-        commitAttempt(attemptSeed, true);
-      }
-      return;
-    }
-    if (roomPuzzleId !== null && roomPuzzleId !== activePuzzleId) {
-      setActivePuzzleId(roomPuzzleId);
-      commitAttempt(attemptSeed, false);
-      return;
-    }
-    if (attemptSeed === placedAttemptRef.current) return;
-    if (roomPuzzleId !== null) {
-      commitAttempt(attemptSeed, false);
-      return;
-    }
-    if (nextId === null) return;
-    if (nextId === activePuzzleId) return;
-    setActivePuzzleId(nextId);
-    commitAttempt(attemptSeed, true);
+    applyPuzzlePlacement({
+      activePuzzleId,
+      attemptSeed,
+      commitAttempt,
+      nextId,
+      roomPuzzleId,
+      placedAttemptRef,
+      setActivePuzzleId,
+    });
   }, [activePuzzleId, attemptSeed, commitAttempt, nextId, roomPuzzleId]);
 
   const onRequestNext = useCallback(() => {

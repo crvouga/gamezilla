@@ -5,14 +5,14 @@ import { clearExpoSqliteWebOpfsBestEffort } from '@pkgs/sqlite/clear-expo-sqlite
 import {
   isRecoverableExpoSqliteWebRuntimeError,
   publishExpoSqliteWebFatalError,
-} from './expo-sqlite-web-recovery';
-import type { PreparedStatement, RunResult, SqlClient } from './interface';
-import { applySqliteConnectionPragmas } from './sqlite-connection-pragmas';
+} from './expo-web-recovery';
+import type { PreparedStatement, RunResult, SqlClient } from '../interface';
+import { applySqliteConnectionPragmas } from './connection-pragmas';
 
 export {
   isRecoverableExpoSqliteWebRuntimeError,
   subscribeExpoSqliteWebFatalError,
-} from './expo-sqlite-web-recovery';
+} from './expo-web-recovery';
 
 /**
  * Set after we clear OPFS + reload once. While set, we must not clear OPFS again from the
