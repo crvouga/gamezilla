@@ -8,7 +8,7 @@
  * different schema impossible without going through here.
  */
 import { Client, Pool, type PoolClient } from 'pg';
-import { raw, ident } from '@pkgs/sql';
+import { raw } from '@pkgs/sql';
 import { pgRawQueryWithSearchPathPin, type PgExecutor } from './impl-pg-shared';
 import { SqlClientImplPg, SqlClientImplPgClient } from './impl-pg';
 import type { PostgresSqlClient, SqlClient } from '../interface';
@@ -105,13 +105,14 @@ export async function openPgClient(
       `CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(args.dbScope.schema)}`
     );
   }
-  if (!pinSearchPathEachQuery) {
-    await pinAndVerifyPgSessionSchema(
-      client,
-      args.dbScope,
-      args.connectionString
-    );
-  }
+  // Always pin at open — even on Neon/PgBouncer pooler URLs. Per-query
+  // SET LOCAL still covers transaction pooling, but connect()/assert must see
+  // the app schema (tests may leave backends on e.g. gamezilla_test_scope).
+  await pinAndVerifyPgSessionSchema(
+    client,
+    args.dbScope,
+    args.connectionString
+  );
   return {
     client,
     sqlClient: new SqlClientImplPgClient(
@@ -259,7 +260,7 @@ function toPgQueryable(sqlClient: SqlClient): {
 } {
   return {
     query: async <R extends Record<string, unknown>>(queryText: string) => ({
-      rows: await sqlClient.query<R>(ident(queryText)),
+      rows: await sqlClient.query<R>(raw(queryText)),
     }),
   };
 }

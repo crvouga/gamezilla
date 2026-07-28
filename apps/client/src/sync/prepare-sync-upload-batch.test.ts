@@ -1,19 +1,23 @@
-import { describe, expect, mock, test } from 'bun:test';
+import { beforeAll, describe, expect, mock, test } from 'bun:test';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-
-mock.module('@libs/auth/client/use-current-account-id', () => ({
-  getCachedCurrentAccountId: () => 'account-1',
-}));
-mock.module('@libs/auth/client/use-device-id', () => ({
-  getCachedDeviceId: () => 'device-1',
-}));
-mock.module('@libs/auth/client/use-fresh-auth-token', () => ({
-  getCachedAuthToken: () => 'token',
-}));
-
-import { prepareSyncUploadBatch } from './sync-api';
+import type { prepareSyncUploadBatch as PrepareSyncUploadBatch } from './sync-api';
 
 describe('prepareSyncUploadBatch', () => {
+  let prepareSyncUploadBatch: PrepareSyncUploadBatch;
+
+  beforeAll(async () => {
+    await mock.module('@libs/auth/client/use-current-account-id', () => ({
+      getCachedCurrentAccountId: () => 'account-1',
+    }));
+    await mock.module('@libs/auth/client/use-device-id', () => ({
+      getCachedDeviceId: () => 'device-1',
+    }));
+    await mock.module('@libs/auth/client/use-fresh-auth-token', () => ({
+      getCachedAuthToken: () => 'token',
+    }));
+    ({ prepareSyncUploadBatch } = await import('./sync-api'));
+  });
+
   test('drops username-only profile patches so they are not uploaded', () => {
     const prepared = prepareSyncUploadBatch({
       rows: [

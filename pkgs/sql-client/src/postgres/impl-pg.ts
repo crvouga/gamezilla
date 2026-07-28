@@ -34,6 +34,7 @@ export class SqlClientImplPg implements PostgresSqlClient {
   ) {}
 
   async connect(): Promise<void> {
+    await setPgSessionSchema(this.pool, this.dbScope);
     await assertPgSessionSchema(this.pool, this.dbScope);
   }
 
