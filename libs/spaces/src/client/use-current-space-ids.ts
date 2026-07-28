@@ -13,6 +13,7 @@ import {
 import type { SyncEngineStatus } from '@pkgs/sync-engine/client/sync-status';
 import { resolvePresenceRole } from '../shared/participation/space-participation-policy';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
+import { hostedUnleftSpacesSelectSql } from './my-live-space-seat-sql';
 
 function isSyncReconnecting(status: SyncEngineStatus): boolean {
   return (
@@ -155,29 +156,8 @@ function hostedSpacesSql(
       params: [],
     };
   }
-  // Hosted rows fill the create→membership sync gap, but must not keep a
-  // space in the miniplayer after this account has explicitly left (left_at
-  // set) while ended_at is still null — that orphan pattern was inflating
-  // the live count on other devices after leave uploads.
-  return {
-    sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostMemberId} AS host_member_id,
-          ${SpaceCol.hostAccountId} AS host_account_id,
-          ${SpaceCol.endedAt} AS ended_at
-          FROM ${SPACES_TABLE.tableName}
-          WHERE ${SpaceCol.endedAt} IS NULL
-            AND (
-              ${SpaceCol.hostMemberId} = ?
-              OR ${SpaceCol.hostAccountId} = ?
-            )
-            AND NOT EXISTS (
-              SELECT 1 FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} AS m
-              WHERE m.${SpaceMembershipCol.spaceId} = ${SPACES_TABLE.tableName}.${SpaceCol.id}
-                AND m.${SpaceMembershipCol.memberId} = ?
-                AND m.${SpaceMembershipCol.leftAt} IS NOT NULL
-            )
-          ORDER BY ${SpaceCol.createdAt} DESC`,
-    params: [accountId, accountId, accountId],
-  };
+  const query = hostedUnleftSpacesSelectSql(accountId);
+  return { sql: query.sql, params: [...query.params] };
 }
 
 function spacesSql(ids: readonly string[]): {

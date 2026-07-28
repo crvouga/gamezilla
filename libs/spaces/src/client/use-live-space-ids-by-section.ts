@@ -2,15 +2,12 @@ import {
   useMyAccountId,
   useMyDeviceId,
 } from '@libs/auth/client/use-current-user';
-import {
-  SpaceCol,
-  SpaceMembershipCol,
-  SPACES_TABLE,
-  SPACE_MEMBERSHIPS_TABLE,
-} from '@libs/db/shared/space-tables';
+import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useMemo } from 'react';
 
 import type { LiveSpaceSection } from './live-space-section';
+import { friendsLiveSpaceIdsSql } from './my-live-space-seat-sql';
 
 type SpaceIdRow = { readonly id: string };
 
@@ -31,7 +28,8 @@ function usePublicLiveSpaceIds(): {
 
 /**
  * Friends-visible live spaces plus spaces on this account/device, newest-first.
- * Deduped by SQL (single SELECT).
+ * Deduped by SQL (single SELECT). Host seats require no left_at — same rule as
+ * the miniplayer — so cross-client leave/end cannot leave orphan Live cards.
  */
 function useFriendsLiveSpaceIds(): {
   readonly spaceIds: readonly string[];
@@ -40,41 +38,17 @@ function useFriendsLiveSpaceIds(): {
   const deviceId = useMyDeviceId();
   const accountId = useMyAccountId();
   const hasAccount = accountId !== null && accountId.length > 0;
+  const query = useMemo(
+    () =>
+      friendsLiveSpaceIdsSql({
+        memberId: hasAccount && accountId !== null ? accountId : deviceId,
+        includeHostAccountId: hasAccount,
+      }),
+    [accountId, deviceId, hasAccount]
+  );
   const { rows, isLoading } = useWatchQuery<SpaceIdRow>(
-    hasAccount
-      ? `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName}
-         WHERE ${SpaceCol.endedAt} IS NULL
-           AND (
-             ${SpaceCol.visibility} = 'friends'
-             OR ${SpaceCol.hostMemberId} = ?
-             OR ${SpaceCol.hostAccountId} = ?
-             OR ${SpaceCol.id} IN (
-               SELECT ${SpaceMembershipCol.spaceId}
-               FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-               WHERE ${SpaceMembershipCol.leftAt} IS NULL
-                 AND (
-                   ${SpaceMembershipCol.memberId} = ?
-                   OR ${SpaceMembershipCol.profileId} = ?
-                 )
-             )
-           )
-         ORDER BY ${SpaceCol.createdAt} DESC`
-      : `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName}
-         WHERE ${SpaceCol.endedAt} IS NULL
-           AND (
-             ${SpaceCol.visibility} = 'friends'
-             OR ${SpaceCol.hostMemberId} = ?
-             OR ${SpaceCol.id} IN (
-               SELECT ${SpaceMembershipCol.spaceId}
-               FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-               WHERE ${SpaceMembershipCol.leftAt} IS NULL
-                 AND ${SpaceMembershipCol.memberId} = ?
-             )
-           )
-         ORDER BY ${SpaceCol.createdAt} DESC`,
-    hasAccount && accountId !== null
-      ? [accountId, accountId, accountId, accountId]
-      : [deviceId, deviceId]
+    query.sql,
+    [...query.params]
   );
   return { spaceIds: rows.map((r) => r.id), isLoading };
 }
