@@ -21,10 +21,7 @@
 
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme, type SxProps } from '../../theme';
 import { borderRadius, type ElevationLevel } from '../../theme/scale';
 

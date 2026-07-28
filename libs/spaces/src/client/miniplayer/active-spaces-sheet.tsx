@@ -10,10 +10,7 @@ export type ActiveSpacesSheetProps = {
   spaceIds: readonly string[];
   visible: boolean;
   onClose: () => void;
-  requestEndSpace: (
-    spaceId: string,
-    options?: RequestEndSpaceOptions
-  ) => void;
+  requestEndSpace: (spaceId: string, options?: RequestEndSpaceOptions) => void;
   requestLeaveSpace: (
     spaceId: string,
     options?: RequestLeaveSpaceOptions

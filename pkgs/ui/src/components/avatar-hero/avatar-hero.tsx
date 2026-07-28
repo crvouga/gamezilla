@@ -5,10 +5,7 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Center } from '../center';
 import { IconButton } from '../icon-button';
@@ -32,7 +29,12 @@ export type AvatarHeroProps = {
 const ACTION_SIZE = 44;
 const ACTION_INSET = 4;
 
-export function AvatarHero({ size, children, action, dataSet }: AvatarHeroProps) {
+export function AvatarHero({
+  size,
+  children,
+  action,
+  dataSet,
+}: AvatarHeroProps) {
   const theme = useTheme();
   const slotSize = size + ACTION_INSET * 2;
 

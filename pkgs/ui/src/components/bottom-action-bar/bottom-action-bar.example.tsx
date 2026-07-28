@@ -95,7 +95,11 @@ export default function BottomActionBarExample(): ReactNode {
         sx={{ color: 'textSecondary' }}
         label="Chess.com-style play chrome. Mix labeled icon tabs with solid buttons."
       />
-      <Text variant="label" sx={{ color: 'textSecondary' }} label="Actions only" />
+      <Text
+        variant="label"
+        sx={{ color: 'textSecondary' }}
+        label="Actions only"
+      />
       <SchemePreview>
         <BottomActionBar items={ACTIONS_ONLY} />
       </SchemePreview>

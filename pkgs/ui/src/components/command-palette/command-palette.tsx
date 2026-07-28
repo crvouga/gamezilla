@@ -15,10 +15,7 @@ import {
 } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { duration as motionDuration } from '../../theme/motion';
 import { borderRadius } from '../../theme/scale';
@@ -429,10 +426,7 @@ function PaletteOverlay({
   );
 }
 
-export function CommandPalette({
-  footerLegend,
-  dataSet,
-}: CommandPaletteProps) {
+export function CommandPalette({ footerLegend, dataSet }: CommandPaletteProps) {
   const reg = useCommandRegistry();
   const {
     store,

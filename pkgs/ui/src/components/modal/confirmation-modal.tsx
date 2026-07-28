@@ -19,10 +19,7 @@
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useRef } from 'react';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { ResponsiveSurface } from '../responsive-surface';
 import { Text } from '../text';

@@ -25,10 +25,7 @@
 import { useLingui } from '@lingui/react/macro';
 import type { SoundId } from '@pkgs/sounds';
 import { useEffect, type ReactNode } from 'react';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useMutationPhaseSoundHandler } from '../../expo/mutation-sounds';
 import { Box } from '../box';
 import { ErrorState } from '../error-state';

@@ -7,10 +7,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Text } from '../text';
@@ -93,7 +90,10 @@ export function MultiSelectSwatchGrid({
     );
 
   return (
-    <Box sx={{ gap: 2, py: 2 }} {...componentDataSet('MultiSelectSwatchGrid', dataSet)}>
+    <Box
+      sx={{ gap: 2, py: 2 }}
+      {...componentDataSet('MultiSelectSwatchGrid', dataSet)}
+    >
       <Text variant="label" label={label} />
       <SwatchRow
         uniquePalette={uniquePalette}

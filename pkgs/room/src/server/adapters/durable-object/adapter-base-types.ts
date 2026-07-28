@@ -22,6 +22,7 @@ export type ResolvedAdapterConfig<
 > = {
   modulesByName: ReadonlyMap<RoomModuleName, RoomModule<S, C, E, Identity>>;
   identityHeader: string;
+  clientIdHeader: string;
   parseIdentity: (raw: string) => Identity | null;
   createStorage: (
     state: DurableObjectInstanceState,

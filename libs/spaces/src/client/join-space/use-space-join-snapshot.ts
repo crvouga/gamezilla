@@ -1,4 +1,7 @@
-import { useMyAccountId, useMyDeviceId } from '@libs/auth/client/use-current-user';
+import {
+  useMyAccountId,
+  useMyDeviceId,
+} from '@libs/auth/client/use-current-user';
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEngineSubscriptions } from '@pkgs/sync-engine/client/use-sync-engine-subscriptions';

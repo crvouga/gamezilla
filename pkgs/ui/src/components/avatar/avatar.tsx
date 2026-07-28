@@ -25,10 +25,7 @@
 import { Image, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { bestOnColor, useTheme } from '../../theme';
 import { type IconComponent } from '../icons';
 import { Text } from '../text';

@@ -86,7 +86,9 @@ describe('InfisicalSecretStore.setSecret', () => {
       if (call.method === 'POST') {
         return textResponse(409, 'Secret already exist');
       }
-      return jsonResponse(200, { secret: { secretKey: 'STRIPE_WEBHOOK_SECRET' } });
+      return jsonResponse(200, {
+        secret: { secretKey: 'STRIPE_WEBHOOK_SECRET' },
+      });
     });
     const store = createStore(fetchFn);
 
@@ -112,9 +114,7 @@ describe('InfisicalSecretStore.setSecret', () => {
   });
 
   it('throws SecretStoreRequestError on non-conflict POST failure', async () => {
-    const { fetchFn } = createRecordingFetch(() =>
-      textResponse(500, 'boom')
-    );
+    const { fetchFn } = createRecordingFetch(() => textResponse(500, 'boom'));
     const store = createStore(fetchFn);
 
     await expect(store.setSecret('K', 'v')).rejects.toBeInstanceOf(

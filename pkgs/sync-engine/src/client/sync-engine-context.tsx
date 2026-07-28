@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useMemo,
   useSyncExternalStore,
@@ -119,10 +120,14 @@ export function useWatchField<T>(
     // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces params
     [engine, sql, paramsKey]
   );
+  const getSnapshot = useCallback(
+    () => readRowField<T>(subscription.getSnapshot(), column),
+    [subscription, column]
+  );
   const value = useSyncExternalStore(
     subscription.subscribe,
-    () => readRowField<T>(subscription.getSnapshot(), column),
-    () => readRowField<T>(subscription.getSnapshot(), column)
+    getSnapshot,
+    getSnapshot
   );
   const hydrated = useSyncExternalStore(
     subscription.subscribe,

@@ -25,10 +25,7 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import { type ReactNode } from 'react';
 import type { PressableProps as RNPressableProps } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { OnColorProvider, useTheme } from '../../theme';
 import { Pressable } from '../pressable';
 import { Tooltip, useTooltipTrigger } from '../tooltip';

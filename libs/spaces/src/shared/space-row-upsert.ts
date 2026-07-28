@@ -17,10 +17,7 @@ export async function upsertSpaceMembershipRow(args: {
   readonly spaceId: string;
   readonly now: string;
 }): Promise<{ readonly reactivated: boolean }> {
-  const reactivated = await wasMembershipInactive(
-    args.sql,
-    args.membershipId
-  );
+  const reactivated = await wasMembershipInactive(args.sql, args.membershipId);
   const existing = await args.sql.query<{ readonly id: string }>(
     `SELECT ${SpaceMembershipCol.id} AS id
      FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
@@ -35,13 +32,7 @@ export async function upsertSpaceMembershipRow(args: {
         ${SpaceMembershipCol.spaceId}, ${SpaceMembershipCol.joinedAt},
         ${SpaceMembershipCol.leftAt}, ${SpaceMembershipCol.profileId})
        VALUES (?, ?, ?, ?, NULL, ?)`,
-      [
-        args.membershipId,
-        args.memberId,
-        args.spaceId,
-        args.now,
-        args.memberId,
-      ]
+      [args.membershipId, args.memberId, args.spaceId, args.now, args.memberId]
     );
   } else {
     await args.sql.run(

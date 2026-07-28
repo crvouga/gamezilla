@@ -17,10 +17,7 @@ import {
   type SwitchProps as RNSwitchProps,
   View,
 } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Text } from '../text';
 

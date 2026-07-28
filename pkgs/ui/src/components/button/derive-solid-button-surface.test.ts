@@ -15,10 +15,7 @@ describe('deriveSolidButtonSurface', () => {
   });
 
   test('neutral omits dark bottom rim', () => {
-    const surface = deriveSolidButtonSurface(
-      'hsla(0, 0%, 98%, 1)',
-      'neutral'
-    );
+    const surface = deriveSolidButtonSurface('hsla(0, 0%, 98%, 1)', 'neutral');
     expect(surface.boxShadow).toContain('inset 0 0.1rem');
     expect(surface.boxShadow).not.toContain('inset 0 -0.1rem');
   });

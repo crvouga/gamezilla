@@ -16,10 +16,7 @@
 
 import type { ReactNode } from 'react';
 
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 
 export type StateBlockVariant = 'fill' | 'compact';

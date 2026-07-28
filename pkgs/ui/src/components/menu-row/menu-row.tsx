@@ -18,10 +18,7 @@
 
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';

@@ -16,6 +16,8 @@
   "dependencies": {
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
+    "@pkgs/collab": "workspace:*",
+    "@pkgs/collab-ui": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/ui": "workspace:*",

@@ -62,10 +62,13 @@ export function useFadeMachine(
     lastStableRef.current = children;
   }
 
+  // Only react to stateKey — never to `children` identity. Parent re-renders
+  // (room roster/log notifies) create new element trees every time; listing
+  // children here re-fires the effect and nested setStates on native.
   useEffect(() => {
     runFadeKeyChange({
       stateKey,
-      children,
+      children: childrenRef.current,
       opacity,
       skipInitialRef,
       shownKeyRef,
@@ -77,7 +80,7 @@ export function useFadeMachine(
       setHeld,
       setPhase,
     });
-  }, [stateKey, children, opacity]);
+  }, [stateKey, opacity]);
 
   return {
     opacity,
@@ -127,8 +130,8 @@ function runFadeKeyChange(args: KeyChangeArgs): void {
     skipInitialRef.current = false;
     shownKeyRef.current = stateKey;
     lastStableRef.current = children;
-    setShownKey(stateKey);
-    setHeld(children);
+    // State already seeded by useState — avoid a setState that re-fires this
+    // effect when `children` identity churns on the follow-up render.
     return;
   }
   if (stateKey === shownKeyRef.current) return;

@@ -14,10 +14,7 @@ import { SpaceEndOrLeaveButton } from './space-end-or-leave-button';
 export type ActiveSpaceSheetRowProps = {
   spaceId: string;
   onOpen: () => void;
-  requestEndSpace: (
-    spaceId: string,
-    options?: RequestEndSpaceOptions
-  ) => void;
+  requestEndSpace: (spaceId: string, options?: RequestEndSpaceOptions) => void;
   requestLeaveSpace: (
     spaceId: string,
     options?: RequestLeaveSpaceOptions

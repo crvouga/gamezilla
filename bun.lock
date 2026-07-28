@@ -8,6 +8,7 @@
         "@pkgs/os": "workspace:*",
         "@pkgs/secret-provider": "workspace:*",
         "@pkgs/secrets-config": "workspace:*",
+        "@tooling/jingle": "workspace:*",
       },
       "devDependencies": {
         "@lingui/cli": "catalog:",
@@ -143,6 +144,7 @@
         "buffer": "catalog:",
         "expo": "catalog:",
         "expo-audio": "catalog:",
+        "expo-clipboard": "catalog:",
         "expo-constants": "catalog:",
         "expo-crypto": "catalog:",
         "expo-dev-client": "catalog:",
@@ -449,6 +451,9 @@
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/attribute": "workspace:*",
+        "@pkgs/collab": "workspace:*",
+        "@pkgs/collab-ui": "workspace:*",
+        "@pkgs/i18n": "workspace:*",
         "@pkgs/inbox": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/message": "workspace:*",
@@ -626,6 +631,42 @@
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "typescript": "catalog:",
+      },
+    },
+    "pkgs/collab": {
+      "name": "@pkgs/collab",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/colors": "workspace:*",
+        "@pkgs/i18n": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/message": "workspace:*",
+        "@pkgs/room": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/collab-ui": {
+      "name": "@pkgs/collab-ui",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/collab": "workspace:*",
+        "@pkgs/i18n": "workspace:*",
+        "@pkgs/room": "workspace:*",
+        "@pkgs/ui": "workspace:*",
+        "react": "catalog:",
+        "react-native": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+      "peerDependencies": {
+        "react-native-reanimated": "catalog:",
       },
     },
     "pkgs/colors": {
@@ -893,6 +934,8 @@
       "dependencies": {
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
+        "@pkgs/collab": "workspace:*",
+        "@pkgs/collab-ui": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/room": "workspace:*",
         "@pkgs/ui": "workspace:*",
@@ -1141,6 +1184,7 @@
         "react": "catalog:",
         "react-focus-lock": "catalog:",
         "react-native": "catalog:",
+        "react-native-screens": "catalog:",
         "react-native-svg": "catalog:",
       },
       "devDependencies": {
@@ -1180,6 +1224,13 @@
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "typescript": "catalog:",
+      },
+    },
+    "tooling": {
+      "name": "@tooling/jingle",
+      "version": "0.0.0",
+      "bin": {
+        "jingle": "./jingle.ts",
       },
     },
   },
@@ -2202,6 +2253,10 @@
 
     "@pkgs/chess-board": ["@pkgs/chess-board@workspace:pkgs/chess-board"],
 
+    "@pkgs/collab": ["@pkgs/collab@workspace:pkgs/collab"],
+
+    "@pkgs/collab-ui": ["@pkgs/collab-ui@workspace:pkgs/collab-ui"],
+
     "@pkgs/colors": ["@pkgs/colors@workspace:pkgs/colors"],
 
     "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
@@ -2607,6 +2662,8 @@
     "@swc/helpers": ["@swc/helpers@0.5.21", "", { "dependencies": { "tslib": "^2.8.0" } }, "sha512-jI/VAmtdjB/RnI8GTnokyX7Ug8c+g+ffD6QRLa6XQewtnGyukKkKSk3wLTM3b5cjt1jNh9x0jfVlagdN2gDKQg=="],
 
     "@tanstack/query-core": ["@tanstack/query-core@5.101.2", "", {}, "sha512-hH5MLoJhF7KaIGd7q3xTXGXvslI+GYlM1Z/35aSHHWaCJWB7XvTSHYuV3eM7tw+aE0mT/xMro4M4Q9rCGHT0lw=="],
+
+    "@tooling/jingle": ["@tooling/jingle@workspace:tooling"],
 
     "@tootallnate/quickjs-emscripten": ["@tootallnate/quickjs-emscripten@0.23.0", "", {}, "sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA=="],
 

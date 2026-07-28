@@ -12,10 +12,7 @@
 
 import type { PropsWithChildren } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 
 export type ModalBackdropProps = PropsWithChildren<{
@@ -24,7 +21,11 @@ export type ModalBackdropProps = PropsWithChildren<{
   dataSet?: ComponentDataSet;
 }>;
 
-export function ModalBackdrop({ onPress, children, dataSet }: ModalBackdropProps) {
+export function ModalBackdrop({
+  onPress,
+  children,
+  dataSet,
+}: ModalBackdropProps) {
   const theme = useTheme();
 
   return (

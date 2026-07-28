@@ -52,9 +52,7 @@ export function ExplorerDetail({
   if (screenBodyBleed) {
     // ScreenBase body already insets via ContentEdgePadding; examples omit
     // their own outer padding so horizontal inset is applied once.
-    return (
-      <ScreenBodyScrollView sx={{ pb: 16 }}>{body}</ScreenBodyScrollView>
-    );
+    return <ScreenBodyScrollView sx={{ pb: 16 }}>{body}</ScreenBodyScrollView>;
   }
 
   // Outside ScreenBase (e.g. chess settings embeds): pad here once.

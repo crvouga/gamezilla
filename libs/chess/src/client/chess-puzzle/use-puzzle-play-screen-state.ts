@@ -64,6 +64,10 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   //
   // Start is armed only via `startNonce` (not merely idle room status) so a
   // remote/local Clear cannot re-Start the previous puzzle on every client.
+  //
+  // Room puzzle id is authoritative whenever it diverges from local
+  // `activePuzzleId` — otherwise the board FEN (from room) updates while
+  // status projection stays `'loading'` (puzzleIdMismatch).
   useEffect(() => {
     if (activePuzzleId === null) {
       if (attemptSeed === 0 && roomPuzzleId !== null) {
@@ -77,12 +81,13 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
       }
       return;
     }
+    if (roomPuzzleId !== null && roomPuzzleId !== activePuzzleId) {
+      setActivePuzzleId(roomPuzzleId);
+      commitAttempt(attemptSeed, false);
+      return;
+    }
     if (attemptSeed === placedAttemptRef.current) return;
-    // Another client already started after Clear — adopt their puzzle.
     if (roomPuzzleId !== null) {
-      if (roomPuzzleId !== activePuzzleId) {
-        setActivePuzzleId(roomPuzzleId);
-      }
       commitAttempt(attemptSeed, false);
       return;
     }

@@ -37,7 +37,10 @@ async function connectClient(
   identity: string
 ): Promise<CounterRoom> {
   const transport = new LoopbackRoomTransport(server, id, identity);
-  server.registerConnection(id, (msg) => transport.deliverToClient(msg));
+  server.registerConnection(id, (msg) => transport.deliverToClient(msg), {
+    id: identity,
+    clientId: id,
+  });
   return Room.open({
     topic: TOPIC,
     module: TestCounterModule,

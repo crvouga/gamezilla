@@ -1,10 +1,7 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 import { Platform } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { OnColorProvider, useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { ButtonSurfaceFill } from '../button/button-surface-fill';

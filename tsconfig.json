@@ -28,6 +28,10 @@
       "@pkgs/room/server": ["./pkgs/room/src/server.ts"],
       "@pkgs/room/*": ["./pkgs/room/src/*"],
       "@pkgs/room-widgets/*": ["./pkgs/room-widgets/src/*"],
+      "@pkgs/collab": ["./pkgs/collab/src/index.ts"],
+      "@pkgs/collab/*": ["./pkgs/collab/src/*"],
+      "@pkgs/collab-ui": ["./pkgs/collab-ui/src/index.ts"],
+      "@pkgs/collab-ui/*": ["./pkgs/collab-ui/src/*"],
       "@libs/stripe/*": ["./libs/stripe/src/*"],
       "@libs/chess/*": ["./libs/chess/src/*"],
       "@pkgs/chess-board/*": ["./pkgs/chess-board/src/*"],
@@ -133,6 +137,9 @@
     "pkgs/room/src/**/*.tsx",
     "pkgs/room-widgets/src/**/*.ts",
     "pkgs/room-widgets/src/**/*.tsx",
+    "pkgs/collab/src/**/*.ts",
+    "pkgs/collab-ui/src/**/*.ts",
+    "pkgs/collab-ui/src/**/*.tsx",
     "libs/stripe/src/**/*.ts",
     "libs/chess/src/**/*.ts",
     "libs/chess/src/**/*.tsx",
@@ -216,7 +223,8 @@
     "pkgs/observability/src/**/*.tsx",
     "pkgs/distributed-lock/src/**/*.ts",
     "pkgs/ndjson/src/**/*.ts",
-    "pkgs/os/src/**/*.ts"
+    "pkgs/os/src/**/*.ts",
+    "tooling/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]
 }

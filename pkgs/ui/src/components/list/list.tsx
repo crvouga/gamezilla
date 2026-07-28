@@ -16,10 +16,7 @@
 
 import { Children, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Pressable } from '../pressable';
 import { Text } from '../text';

@@ -70,13 +70,12 @@ function useSpacePresenceQueries(args: {
       : `${SPACE_SELECT} WHERE 0`,
     spaceEnabled ? [spaceId] : []
   );
-  const { row: guestRow, isLoading: guestLoading } =
-    useWatchOne<MembershipRow>(
-      memberEnabled
-        ? `${MEMBERSHIP_SELECT} WHERE ${SpaceMembershipCol.id} = ? AND ${SpaceMembershipCol.leftAt} IS NULL`
-        : `${MEMBERSHIP_SELECT} WHERE 0`,
-      memberEnabled ? [membershipId] : []
-    );
+  const { row: guestRow, isLoading: guestLoading } = useWatchOne<MembershipRow>(
+    memberEnabled
+      ? `${MEMBERSHIP_SELECT} WHERE ${SpaceMembershipCol.id} = ? AND ${SpaceMembershipCol.leftAt} IS NULL`
+      : `${MEMBERSHIP_SELECT} WHERE 0`,
+    memberEnabled ? [membershipId] : []
+  );
   return { spaceRow, spaceLoading, guestRow, guestLoading };
 }
 

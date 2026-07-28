@@ -18,10 +18,7 @@ import {
   type ViewStyle,
   type FlatListProps as RNFlatListProps,
 } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import type { SxProps } from '../../theme';
 import { Box } from '../box';
@@ -79,8 +76,6 @@ export const FlatList = forwardRef<RNFlatList<any>, FlatListProps<any>>(
     );
     if (wrapperSx === undefined) return list;
     const fill = styleRequestsFlexFill(style);
-    return (
-      <Box sx={fill ? { ...wrapperSx, flex: 1 } : wrapperSx}>{list}</Box>
-    );
+    return <Box sx={fill ? { ...wrapperSx, flex: 1 } : wrapperSx}>{list}</Box>;
   }
 );

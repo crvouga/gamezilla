@@ -18,10 +18,7 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
 import { Center, type CenterProps } from '../center';
 import { Spinner, type SpinnerProps } from './spinner';

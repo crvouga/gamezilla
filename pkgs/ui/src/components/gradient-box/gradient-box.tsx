@@ -17,10 +17,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import type { ColorValue, ViewProps } from 'react-native';
 import { useMemo } from 'react';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import {
   bestOnColor,
   ON_DARK,

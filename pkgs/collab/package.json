@@ -1,0 +1,30 @@
+{
+  "name": "@pkgs/collab",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "tc": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/colors": "workspace:*",
+    "@pkgs/i18n": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/message": "workspace:*",
+    "@pkgs/room": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}

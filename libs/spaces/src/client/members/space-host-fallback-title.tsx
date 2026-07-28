@@ -23,9 +23,6 @@ export function SpaceHostFallbackTitle({
 }: SpaceHostFallbackTitleProps): ReactNode {
   const label = useSpaceDisplayTitle(spaceId);
   return (
-    <Text
-      {...optionalProps({ variant, sx, numberOfLines })}
-      label={label}
-    />
+    <Text {...optionalProps({ variant, sx, numberOfLines })} label={label} />
   );
 }

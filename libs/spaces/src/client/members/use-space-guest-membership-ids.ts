@@ -5,6 +5,7 @@ import {
   SPACE_MEMBERSHIPS_TABLE,
 } from '@libs/db/shared/space-tables';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useMemo } from 'react';
 
 type MembershipIdRow = { readonly id: string };
 
@@ -28,5 +29,5 @@ export function useSpaceGuestMembershipIds(spaceId: string): string[] {
       : `SELECT ${SpaceMembershipCol.id} AS id FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} WHERE 0`,
     enabled ? [spaceId, spaceId] : []
   );
-  return rows.map((r) => r.id);
+  return useMemo(() => rows.map((r) => r.id), [rows]);
 }

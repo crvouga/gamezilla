@@ -1,8 +1,17 @@
 import { useCallback } from 'react';
 
-import type { RoomCommandPayload, RoomState } from '../../types';
+import type {
+  LogEntry,
+  RoomActor,
+  RoomCommandPayload,
+  RoomState,
+} from '../../types';
 import { useRoomFromRegistry } from './room-clients-context';
-import { useRoomSnapshotSelector } from './use-room-snapshot';
+import {
+  useRoomLog,
+  useRoomRoster,
+  useRoomSnapshotSelector,
+} from './use-room-snapshot';
 
 /**
  * Read derived state from the named room (Redux-style selector). Uses an empty
@@ -32,4 +41,16 @@ export function useRoomDispatch(
     },
     [room]
   );
+}
+
+/** Committed event log for the named room (empty when unregistered). */
+export function useNamedRoomLog(roomName: string): readonly LogEntry[] {
+  const room = useRoomFromRegistry(roomName);
+  return useRoomLog(room);
+}
+
+/** Live roster for the named room (empty when unregistered). */
+export function useNamedRoomRoster(roomName: string): readonly RoomActor[] {
+  const room = useRoomFromRegistry(roomName);
+  return useRoomRoster(room);
 }

@@ -8,6 +8,8 @@ import { parseRoomModuleName, type RoomModuleName } from '../../../types';
 export type RoomSocketAttachment = {
   readonly connId: string;
   readonly identityRaw: string;
+  /** Per-tab / per-app-instance id; falls back to connId when absent on legacy. */
+  readonly clientId: string;
   readonly moduleName: RoomModuleName;
   readonly topic: string;
 };
@@ -36,6 +38,26 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return v !== null && typeof v === 'object' && !Array.isArray(v);
 }
 
+function readNonEmptyString(
+  raw: Record<string, unknown>,
+  key: string
+): string | null {
+  const value = raw[key];
+  return typeof value === 'string' && value.length > 0 ? value : null;
+}
+
+function resolveAttachmentClientId(
+  raw: Record<string, unknown>,
+  connId: string
+): string {
+  // Legacy attachments (pre-clientId) fall back to connId so hibernated
+  // sockets still rebuild a usable roster after deploy.
+  const clientIdRaw = raw['clientId'];
+  return typeof clientIdRaw === 'string' && clientIdRaw.length > 0
+    ? clientIdRaw
+    : connId;
+}
+
 /**
  * Reads and validates the attachment written at upgrade time.
  * Returns `null` when missing or malformed (caller should close the socket).
@@ -45,15 +67,19 @@ export function readRoomSocketAttachment(
 ): RoomSocketAttachment | null {
   const raw = asHibernatable(ws).deserializeAttachment();
   if (!isRecord(raw)) return null;
-  const connId = raw['connId'];
-  const identityRaw = raw['identityRaw'];
+  const connId = readNonEmptyString(raw, 'connId');
+  const identityRaw = readNonEmptyString(raw, 'identityRaw');
+  const topic = readNonEmptyString(raw, 'topic');
   const moduleNameRaw = raw['moduleName'];
-  const topic = raw['topic'];
-  if (typeof connId !== 'string' || connId.length === 0) return null;
-  if (typeof identityRaw !== 'string' || identityRaw.length === 0) return null;
-  if (typeof topic !== 'string' || topic.length === 0) return null;
+  if (connId === null || identityRaw === null || topic === null) return null;
   if (typeof moduleNameRaw !== 'string') return null;
   const moduleName = parseRoomModuleName(moduleNameRaw);
   if (moduleName === null) return null;
-  return { connId, identityRaw, moduleName, topic };
+  return {
+    connId,
+    identityRaw,
+    clientId: resolveAttachmentClientId(raw, connId),
+    moduleName,
+    topic,
+  };
 }

@@ -6,7 +6,10 @@ import type {
 } from './clerk-sso-handles';
 import { isWebAuthEnvironment } from './is-web-auth-environment';
 
-export type { ClerkSsoSignInHandle, ClerkSsoSignUpHandle } from './clerk-sso-handles';
+export type {
+  ClerkSsoSignInHandle,
+  ClerkSsoSignUpHandle,
+} from './clerk-sso-handles';
 
 type OpenAuthSession = (
   url: string,
@@ -75,14 +78,8 @@ async function runNativeAuthSession(args: {
   setActive: NonNullable<SsoFlowResult['setActive']>;
   openAuthSession: OpenAuthSession;
 }): Promise<SsoFlowResult> {
-  const {
-    oauthUrl,
-    redirectUrl,
-    signIn,
-    signUp,
-    setActive,
-    openAuthSession,
-  } = args;
+  const { oauthUrl, redirectUrl, signIn, signUp, setActive, openAuthSession } =
+    args;
   const authSessionResult = await openAuthSession(oauthUrl, redirectUrl);
   if (authSessionResult.type !== 'success' || !authSessionResult.url) {
     return { createdSessionId: null, setActive, signIn, signUp };

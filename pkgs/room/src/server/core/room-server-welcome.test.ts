@@ -55,9 +55,13 @@ describe('RoomServer welcome lastSeq', () => {
     await server.hydrateFromStorage();
 
     const out: unknown[] = [];
-    server.registerConnection('c1', (msg) => {
-      out.push(msg);
-    });
+    server.registerConnection(
+      'c1',
+      (msg) => {
+        out.push(msg);
+      },
+      { id: 'u1', clientId: 'c1-client' }
+    );
 
     await server.handleClientMessage('c1', 'u1', {
       v: WIRE_VERSION,

@@ -33,10 +33,7 @@ import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { t } from '@lingui/core/macro';
 import { assert } from '@pkgs/assert';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';

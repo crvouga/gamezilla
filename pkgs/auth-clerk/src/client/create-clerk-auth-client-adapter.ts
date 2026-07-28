@@ -43,6 +43,21 @@ function assertClerkRuntimeReady(): NonNullable<
   return runtime;
 }
 
+/**
+ * Descendant effects flush before {@link ClerkAuthSync}'s publish effect.
+ * Yield one microtask so the ancestor can publish, then re-read.
+ */
+async function waitForClerkRuntime(): Promise<NonNullable<
+  ReturnType<typeof getClerkAuthRuntime>
+> | null> {
+  const immediate = getClerkAuthRuntime();
+  if (immediate !== null) return immediate;
+  await new Promise<void>((resolve) => {
+    queueMicrotask(resolve);
+  });
+  return getClerkAuthRuntime();
+}
+
 function isClerkAlreadySignedInError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   const message = error.message.toLowerCase();
@@ -54,13 +69,13 @@ function ssoCallbackRedirectUrl(): string {
 }
 
 async function runClerkEnsureSessionReady(): Promise<void> {
-  const runtime = getClerkAuthRuntime();
+  const runtime = await waitForClerkRuntime();
   if (runtime === null) return;
   await runtime.ensureActiveSession();
 }
 
 async function runClerkCompleteHostedAuthRedirect(): Promise<void> {
-  const runtime = getClerkAuthRuntime();
+  const runtime = await waitForClerkRuntime();
   if (runtime === null) return;
   await runtime.completeHostedAuthRedirect();
 }
@@ -191,7 +206,10 @@ async function runClerkSignOut(options?: SignOutOptions): Promise<void> {
 }
 
 async function readClerkFreshToken(): Promise<string | null> {
-  const runtime = assertClerkRuntimeReady();
+  // Null while ClerkAuthSync has not published yet (descendant effects run
+  // first) or during Strict Mode remount — callers treat null as unsigned.
+  const runtime = await waitForClerkRuntime();
+  if (runtime === null) return null;
   return runtime.getToken();
 }
 

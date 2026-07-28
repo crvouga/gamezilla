@@ -98,9 +98,7 @@ export async function migrateLegacyBlobToV3(
     entries[dedupKey(ns, commandId)] = outcome;
   }
   const lastSeq =
-    legacy.events.length > 0
-      ? legacy.events[legacy.events.length - 1]!.seq
-      : 0;
+    legacy.events.length > 0 ? legacy.events[legacy.events.length - 1]!.seq : 0;
   entries[ns.meta] = { lastSeq } satisfies RoomDoMeta;
   await putEntriesBatched(kv, entries);
   await kv.delete(ns.legacyBlob);

@@ -3,8 +3,7 @@ import {
   type ResolveInfisicalAccessTokenOptions,
 } from './impl-infisical/oidc-access-token';
 
-export type ResolveWriteAccessTokenOptions =
-  ResolveInfisicalAccessTokenOptions;
+export type ResolveWriteAccessTokenOptions = ResolveInfisicalAccessTokenOptions;
 
 /**
  * Resolve a short-lived write token for the configured secrets backend.

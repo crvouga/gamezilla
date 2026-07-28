@@ -115,6 +115,7 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
       kv: args.kv,
       myId: args.bootstrap.myId,
       installId: args.bootstrap.installId,
+      clientId: args.bootstrap.clientId,
       getSessionToken: args.getSessionToken,
     });
     if (cancelled) {

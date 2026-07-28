@@ -52,10 +52,7 @@ import { type Voice } from '@pkgs/tts/shared/tts-voice';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { type StyleProp, type ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';

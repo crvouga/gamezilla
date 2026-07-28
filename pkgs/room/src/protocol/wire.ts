@@ -4,6 +4,7 @@ import {
   ROOM_ERROR_TYPE,
   ROOM_ERROR_TYPES,
   type LogEntry,
+  type RoomActor,
   type RoomCommandPayload,
   type RoomError,
 } from '../types';
@@ -25,6 +26,8 @@ export const ROOM_WIRE_KIND = {
   welcome: 'welcome',
   committed: 'committed',
   rejected: 'rejected',
+  /** Ephemeral connected-client snapshot; not part of the committed log. */
+  roster: 'roster',
 } as const;
 
 export type ClientToServerWire =
@@ -68,6 +71,11 @@ export type ServerToClientWire =
   | {
       v: typeof WIRE_VERSION;
       kind: typeof ROOM_WIRE_KIND.pong;
+    }
+  | {
+      v: typeof WIRE_VERSION;
+      kind: typeof ROOM_WIRE_KIND.roster;
+      clients: readonly RoomActor[];
     };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -93,11 +101,35 @@ function isRoomErrorWire(value: unknown): value is RoomError {
   return true;
 }
 
+function isRoomActorWire(value: unknown): value is RoomActor {
+  if (!isRecord(value)) return false;
+  const id = value['id'];
+  const clientId = value['clientId'];
+  return (
+    typeof id === 'string' &&
+    id.length > 0 &&
+    typeof clientId === 'string' &&
+    clientId.length > 0
+  );
+}
+
+function isOptionalActorField(value: Record<string, unknown>): boolean {
+  if (!('actor' in value) || value['actor'] === undefined) return true;
+  return isRoomActorWire(value['actor']);
+}
+
+function isOptionalTsField(value: Record<string, unknown>): boolean {
+  if (!('ts' in value) || value['ts'] === undefined) return true;
+  const ts = value['ts'];
+  return typeof ts === 'number' && Number.isFinite(ts);
+}
+
 function isLogEntryWire(value: unknown): value is LogEntry {
   if (!isRecord(value)) return false;
   const seq = value['seq'];
   if (typeof seq !== 'number' || !Number.isFinite(seq) || seq < 0) return false;
-  return isMessageEnvelope(value['event']);
+  if (!isMessageEnvelope(value['event'])) return false;
+  return isOptionalActorField(value) && isOptionalTsField(value);
 }
 
 function parseClientPing(): ClientToServerWire {
@@ -208,6 +240,21 @@ function parseRejectedWire(
   };
 }
 
+function parseRosterWire(
+  raw: Record<string, unknown>
+): ServerToClientWire | null {
+  const clients = raw['clients'];
+  if (!Array.isArray(clients)) return null;
+  for (const c of clients) {
+    if (!isRoomActorWire(c)) return null;
+  }
+  return {
+    v: WIRE_VERSION,
+    kind: ROOM_WIRE_KIND.roster,
+    clients: clients as RoomActor[],
+  };
+}
+
 export function parseServerToClientWire(
   raw: unknown
 ): ServerToClientWire | null {
@@ -220,5 +267,6 @@ export function parseServerToClientWire(
   if (kind === ROOM_WIRE_KIND.welcome) return parseWelcomeWire(raw);
   if (kind === ROOM_WIRE_KIND.committed) return parseCommittedWire(raw);
   if (kind === ROOM_WIRE_KIND.rejected) return parseRejectedWire(raw);
+  if (kind === ROOM_WIRE_KIND.roster) return parseRosterWire(raw);
   return null;
 }

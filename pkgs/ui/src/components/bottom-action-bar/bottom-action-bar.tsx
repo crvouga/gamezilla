@@ -50,9 +50,7 @@ export function BottomActionBar({
         alignSelf: 'stretch',
         gap: 2,
         px: 3,
-        ...(elevated
-          ? { background: 'surface', borderColor: 'border' }
-          : {}),
+        ...(elevated ? { background: 'surface', borderColor: 'border' } : {}),
       }}
       style={{
         minHeight: MIN_HEIGHT,

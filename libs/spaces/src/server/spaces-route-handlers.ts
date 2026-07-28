@@ -3,10 +3,7 @@ import type { Context } from 'hono';
 
 import { SpacesError } from '../shared/spaces-errors';
 import { createFriendInvite, ensureLinkInvite } from './space-invite-service';
-import {
-  mapSpacesError,
-  withSpacesSignedInAuth,
-} from './spaces-route-auth';
+import { mapSpacesError, withSpacesSignedInAuth } from './spaces-route-auth';
 
 function readOptionalString(value: unknown): string | null {
   if (typeof value !== 'string') return null;

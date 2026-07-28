@@ -1,9 +1,4 @@
-export {
-  hslToRgb,
-  hslaToRgba,
-  rgbToHsl,
-  rgbaToHsla,
-} from './convert';
+export { hslToRgb, hslaToRgba, rgbToHsl, rgbaToHsla } from './convert';
 export { contrastRatio, relativeLuminance } from './luminance';
 export { adjustLightness, mix, setAlpha } from './ops';
 export {

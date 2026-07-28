@@ -63,14 +63,13 @@ if (missing.length > 0) {
   console.error(
     'Missing componentDataSet(...) in @pkgs/ui component folders:\n' +
       missing.map((m) => `  - ${m}`).join('\n') +
-      '\n\nAdd `{...componentDataSet(\'<Name>\', dataSet)}` on the root host ' +
+      "\n\nAdd `{...componentDataSet('<Name>', dataSet)}` on the root host " +
       '(see pkgs/ui/src/component-id/). Non-visual folders belong in SKIP_FOLDERS.'
   );
   process.exit(1);
 }
 
-const checked =
-  listComponentFolders().length - SKIP_FOLDERS.size;
+const checked = listComponentFolders().length - SKIP_FOLDERS.size;
 console.log(
   `ci:component-ids ok — ${checked} visual component folders have componentDataSet`
 );

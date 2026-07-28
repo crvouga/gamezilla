@@ -48,7 +48,9 @@ function createSubscribeSyncStream(
   ): Promise<SyncStreamSubscription> => {
     const handle = db.syncStream!(streamName, parameters);
     const subscription = await handle.subscribe(
-      options?.priority === undefined ? undefined : { priority: options.priority }
+      options?.priority === undefined
+        ? undefined
+        : { priority: options.priority }
     );
     return {
       unsubscribe: () => subscription.unsubscribe(),

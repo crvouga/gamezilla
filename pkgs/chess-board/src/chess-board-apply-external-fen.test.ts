@@ -3,8 +3,7 @@ import { Chess } from 'chess.js';
 
 import { applyExternalFenToChess } from './chess-board-apply-external-fen';
 
-const START =
-  'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 describe('applyExternalFenToChess', () => {
   test('same fen is a no-op', () => {

@@ -30,6 +30,10 @@ msgstr "{active} active — expires {latestExpires}"
 msgid "{active} active session(s) — latest expires {latestExpires}"
 msgstr "{active} active session(s) — latest expires {latestExpires}"
 
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "{connectedCount} connected clients"
+msgstr "{connectedCount} connected clients"
+
 #: libs/spaces/src/client/members/space-guest-count-text.tsx
 msgid "{count} guests"
 msgstr "{count} guests"
@@ -45,6 +49,15 @@ msgstr "{count} people here"
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "{count} user arrow(s) drawn"
 msgstr "{count} user arrow(s) drawn"
+
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "{lineCount} lines"
+msgstr "{lineCount} lines"
+
+#: libs/spaces/src/client/active-space/space-event-log-chrome.tsx
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "{n} new"
+msgstr "{n} new"
 
 #: libs/spaces/src/client/join-space/space-join-ended-state.tsx
 msgid "{spaceLabel} · hosted by {hostUsername}"
@@ -127,6 +140,10 @@ msgstr "Accuracy"
 #: pkgs/inbox/src/client/inbox-filter-bar.tsx
 msgid "Action required"
 msgstr "Action required"
+
+#: libs/spaces/src/client/active-space/space-event-log-chrome.tsx
+msgid "Activity"
+msgstr "Activity"
 
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "Add"
@@ -673,6 +690,10 @@ msgstr "Disconnected"
 msgid "Dismiss"
 msgstr "Dismiss"
 
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "Dispatch +1 to append."
+msgstr "Dispatch +1 to append."
+
 #: apps/client/src/app/sso-callback.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/inbox/src/client/interaction-card-default.tsx
@@ -739,6 +760,10 @@ msgstr "Error state"
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "Ethernet"
 msgstr "Ethernet"
+
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "Event log"
+msgstr "Event log"
 
 #: libs/auth/src/client/use-sign-out-all-confirmation.tsx
 msgid "Every account on this device will be signed out. You will need to sign in again to sync."
@@ -856,6 +881,7 @@ msgstr "host"
 #: libs/spaces/src/client/active-space/space-members-list.tsx
 #: libs/spaces/src/client/members/member-host-badge.tsx
 #: libs/spaces/src/client/members/space-members-host-block.tsx
+#: libs/spaces/src/client/members/space-members-list-modal.tsx
 msgid "Host"
 msgstr "Host"
 
@@ -943,6 +969,10 @@ msgstr "Joined"
 #: libs/spaces/src/client/join-space/space-join-button.tsx
 msgid "Joining…"
 msgstr "Joining…"
+
+#: libs/spaces/src/client/active-space/space-event-log-chrome.tsx
+msgid "Joins, leaves, and game changes will show up here."
+msgstr "Joins, leaves, and game changes will show up here."
 
 #: apps/client/src/sync/sync-screen.tsx
 msgid "Last error"
@@ -1149,6 +1179,12 @@ msgstr "No"
 msgid "No active session"
 msgstr "No active session"
 
+#: libs/spaces/src/client/active-space/space-event-log-chrome.tsx
+#: libs/spaces/src/client/active-space/space-event-log-chrome.tsx
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "No activity yet"
+msgstr "No activity yet"
+
 #: libs/chess/src/client/chess-settings/chess-settings-developer-ui-component-detail-screen.tsx
 msgid "No component selected"
 msgstr "No component selected"
@@ -1177,6 +1213,10 @@ msgstr "No host listed"
 #: libs/spaces/src/client/spaces-screen.tsx
 msgid "No live spaces"
 msgstr "No live spaces"
+
+#: libs/spaces/src/client/members/space-members-list-modal.tsx
+msgid "No one connected yet"
+msgstr "No one connected yet"
 
 #: libs/spaces/src/client/spaces-screen.tsx
 msgid "No public spaces"
@@ -1408,6 +1448,11 @@ msgstr "Ready"
 msgid "Recent searches"
 msgstr "Recent searches"
 
+#: libs/spaces/src/client/active-space/space-event-log-chrome.tsx
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "Reconnecting…"
+msgstr "Reconnecting…"
+
 #: libs/client-config/src/client/client-config-server-refresh.tsx
 msgid "Refresh failed"
 msgstr "Refresh failed"
@@ -1476,6 +1521,10 @@ msgstr "Right-click + drag to draw arrows. Hold Shift (red), Alt (blue), Ctrl/Cm
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "Room simulation"
 msgstr "Room simulation"
+
+#: pkgs/room-widgets/src/pages/playground-page.tsx
+msgid "Roster"
+msgstr "Roster"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "SAN"
@@ -1912,6 +1961,7 @@ msgid "This space is not available"
 msgstr "This space is not available"
 
 #: libs/spaces/src/client/members/member-this-tab-badge.tsx
+#: libs/spaces/src/client/members/space-members-list-modal.tsx
 msgid "This tab"
 msgstr "This tab"
 
@@ -2085,6 +2135,8 @@ msgstr "Yes"
 
 #: libs/spaces/src/client/active-space/space-members-list.tsx
 #: libs/spaces/src/client/members/member-you-badge.tsx
+#: libs/spaces/src/client/members/space-members-list-modal.tsx
+#: libs/spaces/src/client/members/space-members-list-modal.tsx
 msgid "You"
 msgstr "You"
 

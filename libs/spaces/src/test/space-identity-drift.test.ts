@@ -164,7 +164,11 @@ describe('leave / join / create require account membership', () => {
 
   test('signed-in leave clears account membership and ends empty space', async () => {
     const signedIn = ctx({ deviceId: DEVICE_ID, accountId: ACCOUNT_ID });
-    const auth = await authorizeLeaveSpace(signedIn, { spaceId: SPACE_ID }, sql);
+    const auth = await authorizeLeaveSpace(
+      signedIn,
+      { spaceId: SPACE_ID },
+      sql
+    );
     expect(auth.ok).toBe(true);
     const exec = await executeLeaveSpace(signedIn, { spaceId: SPACE_ID }, sql);
     expect(exec.ok).toBe(true);

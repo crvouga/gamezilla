@@ -30,10 +30,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { BrandIcon } from '../brand-icon';
 import { Spinner } from '../spinner';
 import { Text } from '../text';

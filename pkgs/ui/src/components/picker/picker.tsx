@@ -8,10 +8,7 @@ import { useLingui } from '@lingui/react/macro';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { borderRadius } from '../../theme/scale';

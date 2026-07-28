@@ -1,9 +1,6 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import { useLingui } from '@lingui/react/macro';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';

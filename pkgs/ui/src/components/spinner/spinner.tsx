@@ -24,10 +24,7 @@ import { Animated, Easing } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { SPIN_DURATION_MS, useSharedSpinnerRotation } from './spinner-context';
 

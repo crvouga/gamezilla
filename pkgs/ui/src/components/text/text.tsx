@@ -16,10 +16,7 @@
 
 import { forwardRef, type ReactNode } from 'react';
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { preserveEmptyTextLayout } from './preserve-empty-text-layout';
 import {
   textCasingToStyle,

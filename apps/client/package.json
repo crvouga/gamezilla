@@ -92,6 +92,7 @@
     "buffer": "catalog:",
     "expo": "catalog:",
     "expo-audio": "catalog:",
+    "expo-clipboard": "catalog:",
     "expo-constants": "catalog:",
     "expo-crypto": "catalog:",
     "expo-dev-client": "catalog:",

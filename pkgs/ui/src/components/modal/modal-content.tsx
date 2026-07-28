@@ -12,10 +12,7 @@
  */
 
 import type { PropsWithChildren } from 'react';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import {
   MODAL_CONTENT_MARGIN_STEP,

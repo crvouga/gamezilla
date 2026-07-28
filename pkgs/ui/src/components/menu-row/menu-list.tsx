@@ -19,10 +19,7 @@
 
 import type { ReactNode } from 'react';
 import type { ViewProps } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { SCREEN_BODY_PADDING_STEP } from '../screen-base/screen-body-padding';
 

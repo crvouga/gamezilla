@@ -12,7 +12,7 @@ import type {
   RoomState,
 } from '@pkgs/room';
 import { RoomMetaAttr, useRoomSnapshot } from '@pkgs/room';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useSpaceRoomConnection } from './use-space-room-connection';
@@ -26,6 +26,8 @@ export type SpaceRoomUiState = {
   room: SpaceRoom | null;
   isSynced: boolean;
   roomActive: boolean;
+  /** Stable per-tab client id for the live roster. */
+  clientId: string;
 };
 
 export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
@@ -36,6 +38,11 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const kv = useKv();
   const sessionToken = useFreshAuthToken();
   const getFreshToken = useGetFreshAuthToken();
+  const clientIdRef = useRef<string | null>(null);
+  if (clientIdRef.current === null) {
+    clientIdRef.current = globalThis.crypto.randomUUID();
+  }
+  const clientId = clientIdRef.current;
 
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
     if (
@@ -52,8 +59,9 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
       spaceId,
       myId: memberId,
       installId: deviceId,
+      clientId,
     };
-  }, [spaceId, deviceId, memberId, presence.status]);
+  }, [spaceId, deviceId, memberId, presence.status, clientId]);
 
   const { room, transport } = useSpaceRoomConnection({
     bootstrap,
@@ -69,5 +77,6 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
     room,
     roomActive: room !== null,
     isSynced,
+    clientId,
   };
 }

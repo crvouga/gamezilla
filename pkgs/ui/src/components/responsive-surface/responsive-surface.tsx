@@ -18,10 +18,7 @@ import {
 import type { PropsWithChildren, ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useWindowDimensions, View } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme, OnColorReset } from '../../theme';
 import type { ModalSize } from '../../theme/modal-size';
 import { spacing } from '../../theme/scale';
@@ -36,6 +33,7 @@ import { ModalContent } from '../modal/modal-content';
 import { ModalRoot } from '../modal/modal-root';
 import { FocusTrap } from '../focus-trap';
 import { usePortalContentWrap } from '../portal-content-bridge';
+import { bottomSheetModalContainer } from './bottom-sheet-modal-container';
 import { ResponsiveSurfaceHeader } from './responsive-surface-header';
 
 export type ResponsiveSurfaceProps = PropsWithChildren<{
@@ -163,6 +161,67 @@ function useBottomSheetModalVisibility(
   return { sheetRef, onDismiss, onChange };
 }
 
+function useBottomSheetBackdrop() {
+  return useCallback(
+    (backdropProps: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...backdropProps}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.5}
+        pressBehavior="close"
+      />
+    ),
+    []
+  );
+}
+
+type MobileSheetBodyProps = {
+  visible: boolean;
+  title: ReactNode | undefined;
+  bodyHeight: number | undefined;
+  dynamicSizing: boolean;
+  edgePadPx: number;
+  dataSet: ComponentDataSet | undefined;
+  onDismissSheet: () => void;
+  children: ReactNode;
+};
+
+function MobileSheetBody({
+  visible,
+  title,
+  bodyHeight,
+  dynamicSizing,
+  edgePadPx,
+  dataSet,
+  onDismissSheet,
+  children,
+}: MobileSheetBodyProps) {
+  return (
+    <BottomSheetView
+      {...componentDataSet('ResponsiveSurface', dataSet)}
+      style={{
+        paddingHorizontal: edgePadPx,
+        paddingTop: edgePadPx,
+        paddingBottom: spacing[SURFACE_BOTTOM_PADDING_STEP],
+        // flexGrow only for fixed snaps — it breaks dynamic content measurement.
+        ...(dynamicSizing ? {} : { flexGrow: 1 }),
+      }}
+    >
+      <FocusTrap active={visible} onEscape={onDismissSheet} layout="sheet">
+        <SurfaceChrome
+          title={title}
+          bodyHeight={bodyHeight}
+          fillParent={!dynamicSizing}
+          onClose={onDismissSheet}
+        >
+          {children}
+        </SurfaceChrome>
+      </FocusTrap>
+    </BottomSheetView>
+  );
+}
+
 function MobileSheet({
   visible,
   onClose,
@@ -189,23 +248,10 @@ function MobileSheet({
     () => Math.round(windowHeight * 0.9),
     [windowHeight]
   );
-  const edgePadPx = spacing[CONTENT_EDGE_PADDING_STEP];
   const dismissSheet = useCallback(() => {
     sheetRef.current?.dismiss();
   }, [sheetRef]);
-
-  const renderBackdrop = useCallback(
-    (backdropProps: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...backdropProps}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        opacity={0.5}
-        pressBehavior="close"
-      />
-    ),
-    []
-  );
+  const renderBackdrop = useBottomSheetBackdrop();
 
   return (
     <BottomSheetModal
@@ -225,28 +271,21 @@ function MobileSheet({
       backdropComponent={renderBackdrop}
       handleIndicatorStyle={{ backgroundColor: theme.colors.border }}
       backgroundStyle={{ backgroundColor: theme.colors.surface }}
+      {...(bottomSheetModalContainer !== undefined
+        ? { containerComponent: bottomSheetModalContainer }
+        : {})}
     >
-      <BottomSheetView
-        {...componentDataSet('ResponsiveSurface', dataSet)}
-        style={{
-          paddingHorizontal: edgePadPx,
-          paddingTop: edgePadPx,
-          paddingBottom: spacing[SURFACE_BOTTOM_PADDING_STEP],
-          // flexGrow only for fixed snaps — it breaks dynamic content measurement.
-          ...(dynamicSizing ? {} : { flexGrow: 1 }),
-        }}
+      <MobileSheetBody
+        visible={visible}
+        title={title}
+        bodyHeight={bodyHeight}
+        dynamicSizing={dynamicSizing}
+        edgePadPx={spacing[CONTENT_EDGE_PADDING_STEP]}
+        dataSet={dataSet}
+        onDismissSheet={dismissSheet}
       >
-        <FocusTrap active={visible} onEscape={dismissSheet} layout="sheet">
-          <SurfaceChrome
-            title={title}
-            bodyHeight={bodyHeight}
-            fillParent={!dynamicSizing}
-            onClose={dismissSheet}
-          >
-            {children}
-          </SurfaceChrome>
-        </FocusTrap>
-      </BottomSheetView>
+        {children}
+      </MobileSheetBody>
     </BottomSheetModal>
   );
 }

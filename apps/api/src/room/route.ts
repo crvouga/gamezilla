@@ -13,6 +13,12 @@ import type { ApiHonoEnv } from '../app/api-hono-types';
 export const ROOM_ACTOR_ID_HEADER = 'x-actor-id';
 
 /**
+ * Header the room Durable Object adapter reads for the per-tab client id.
+ * Must match the DO adapter's `clientIdHeader` (default `x-actor-client-id`).
+ */
+export const ROOM_ACTOR_CLIENT_ID_HEADER = 'x-actor-client-id';
+
+/**
  * Generic Room WebSocket-upgrade gateway. Open to anyone — never blocks on
  * auth. Resolves the best available actor id from the request and forwards
  * the upgrade to the `ROOM` DO; the DO validates `module` and runs game
@@ -31,6 +37,7 @@ export const ROOM_ACTOR_ID_HEADER = 'x-actor-id';
  * - Path: `/room` (always WebSocket).
  * - Query `topic`: non-empty string keying the DO instance via `idFromName`.
  * - Query `module`: forwarded to the DO unchanged (validated there).
+ * - Query `clientId`: per-tab id forwarded as {@link ROOM_ACTOR_CLIENT_ID_HEADER}.
  * - Query `token` / `anonId` and `Authorization` / `x-anon-id` headers:
  *   consumed by actor-id resolution; passed through otherwise.
  */
@@ -48,9 +55,13 @@ export function createRoomApp() {
     }
 
     const actorId = await resolveRoomActorId(c);
+    const clientId = parseClientId(c.req.raw);
     const stub = ns.get(ns.idFromName(topic));
     const headers = new Headers(c.req.raw.headers);
     headers.set(ROOM_ACTOR_ID_HEADER, actorId);
+    if (clientId !== null) {
+      headers.set(ROOM_ACTOR_CLIENT_ID_HEADER, clientId);
+    }
 
     // Use `new Request(originalRequest, init)` (not `new Request(url, init)`)
     // so the Workers runtime preserves the WebSocket upgrade context when
@@ -115,4 +126,12 @@ function parseAnonId(request: Request): string | null {
   if (q.length > 0) return q;
   const h = request.headers.get(ANON_ID_HEADER)?.trim() ?? '';
   return h.length > 0 ? h : null;
+}
+
+function parseClientId(request: Request): string | null {
+  const url = new URL(request.url);
+  const q = url.searchParams.get('clientId')?.trim() ?? '';
+  if (q.length > 0 && isUuid(q)) return q;
+  const h = request.headers.get(ROOM_ACTOR_CLIENT_ID_HEADER)?.trim() ?? '';
+  return h.length > 0 && isUuid(h) ? h : null;
 }

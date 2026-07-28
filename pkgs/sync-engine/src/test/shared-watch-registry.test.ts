@@ -89,9 +89,11 @@ describe('createSharedWatchRegistry', () => {
     const unsub = sub.subscribe(() => {
       ticks += 1;
     });
-    expect(ticks).toBe(1);
+    // Subscribe must not fire synchronously (useSyncExternalStore contract).
+    expect(ticks).toBe(0);
+    expect(sub.getSnapshot()[0]?.n).toBe(1);
     fake.emit([{ n: 2 }]);
-    expect(ticks).toBe(2);
+    expect(ticks).toBe(1);
     expect(sub.getSnapshot()[0]?.n).toBe(2);
     unsub();
   });

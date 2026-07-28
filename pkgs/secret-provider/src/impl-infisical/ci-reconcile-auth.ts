@@ -110,12 +110,7 @@ export async function resolveInfisicalAdminToken(args: {
   const clientSecret = trimEnv('INFISICAL_CLIENT_SECRET');
   if (clientId.length > 0 && clientSecret.length > 0) {
     args.log('Authenticating to Infisical via universal auth…');
-    return loginUniversalAuth(
-      args.domain,
-      clientId,
-      clientSecret,
-      args.fail
-    );
+    return loginUniversalAuth(args.domain, clientId, clientSecret, args.fail);
   }
   return resolveCliToken(args.domain, args.log);
 }

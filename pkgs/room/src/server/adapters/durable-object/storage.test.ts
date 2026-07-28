@@ -13,7 +13,10 @@ function missesPrefix(k: string, prefix: string | undefined): boolean {
   return prefix !== undefined && !k.startsWith(prefix);
 }
 
-function outsideStart(k: string, options?: DurableObjectKvListOptions): boolean {
+function outsideStart(
+  k: string,
+  options?: DurableObjectKvListOptions
+): boolean {
   if (options?.startAfter !== undefined && k <= options.startAfter) return true;
   if (options?.start !== undefined && k < options.start) return true;
   return false;
@@ -23,7 +26,10 @@ function pastEnd(k: string, end: string | undefined): boolean {
   return end !== undefined && k >= end;
 }
 
-function keyInListRange(k: string, options?: DurableObjectKvListOptions): boolean {
+function keyInListRange(
+  k: string,
+  options?: DurableObjectKvListOptions
+): boolean {
   if (missesPrefix(k, options?.prefix)) return false;
   if (outsideStart(k, options)) return false;
   if (pastEnd(k, options?.end)) return false;
@@ -83,10 +89,7 @@ describe('DurableObjectRoomStorage', () => {
     await storage.appendCommittedEntries('t', [entry(1), entry(2)]);
     await storage.appendCommittedEntries('t', [entry(3)]);
     expect(await storage.getLastSeq('t')).toBe(3);
-    expect(await storage.loadEventsAfter('t', 1)).toEqual([
-      entry(2),
-      entry(3),
-    ]);
+    expect(await storage.loadEventsAfter('t', 1)).toEqual([entry(2), entry(3)]);
     const ns = roomDoKeyNs(mod);
     expect(kv.map.has(ns.legacyBlob)).toBe(false);
     expect(kv.map.has(eventKey(ns, 1))).toBe(true);

@@ -29,10 +29,7 @@ import {
   type TextInputProps as RNTextInputProps,
   View,
 } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import type { SxProps, Theme } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';

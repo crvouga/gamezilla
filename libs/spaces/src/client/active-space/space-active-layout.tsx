@@ -1,6 +1,8 @@
 import { Box, TopBar } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
+import { useSpaceSessionUi } from './space-session-ui-context';
+import { SpaceEventLogChrome } from './space-event-log-chrome';
 import {
   SpaceChromeLeadingActionBar,
   SpaceChromeTrailingActionBar,
@@ -13,10 +15,12 @@ export type SpaceActiveLayoutProps = {
 /**
  * Unified active-space chrome. Leading ActionBar owns exit + back; trailing
  * ActionBar owns members + management actions above the full-width body.
+ * Persistent event-log bar sits under the body.
  */
 export function SpaceActiveLayout({
   children,
 }: SpaceActiveLayoutProps): ReactNode {
+  const { spaceId } = useSpaceSessionUi();
   return (
     <Box sx={{ flex: 1, minHeight: 0 }}>
       <TopBar
@@ -33,6 +37,7 @@ export function SpaceActiveLayout({
       >
         {children}
       </Box>
+      <SpaceEventLogChrome spaceId={spaceId} />
     </Box>
   );
 }

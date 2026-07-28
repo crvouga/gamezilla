@@ -17,10 +17,7 @@ import {
   type ViewProps,
   type View,
 } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import type { SxProps } from '../../theme';
 
@@ -37,7 +34,12 @@ export const SafeAreaView = forwardRef<View, SafeAreaViewProps>(
     const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
     const idProps = componentDataSet('SafeAreaView', dataSet);
     return (
-      <RNSafeAreaView ref={ref} style={[sxStyle, style]} {...rest} {...idProps} />
+      <RNSafeAreaView
+        ref={ref}
+        style={[sxStyle, style]}
+        {...rest}
+        {...idProps}
+      />
     );
   }
 );

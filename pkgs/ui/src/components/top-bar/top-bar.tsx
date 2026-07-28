@@ -28,10 +28,7 @@
 import { useContext, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import {
   getTopBarContentHeight,
   TOP_BAR_CONTENT_HEIGHT_MOBILE,

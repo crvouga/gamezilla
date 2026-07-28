@@ -52,11 +52,7 @@ export function BottomActionBarAction(
       }}
       style={{ paddingVertical: 4, gap: 2 }}
     >
-      <Icon
-        size={ICON_SIZE}
-        strokeWidth={ICON_STROKE_WIDTH}
-        color={color}
-      />
+      <Icon size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} color={color} />
       <Text
         variant="caption"
         numberOfLines={1}

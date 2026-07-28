@@ -1,36 +1,53 @@
 import { useMemo } from 'react';
 
 import { useMyId } from '@libs/auth/client/use-current-user';
+import { RoomMetaAttr, useRoomFromRegistry, useRoomRoster } from '@pkgs/room';
+
+import { useSpaceRoomClientId } from './space-room-context';
 import {
   SPACE_ROOM_NAME,
   useSpaceRoomSelector,
 } from './use-space-room-selector';
-import { RoomMetaAttr, useRoomFromRegistry } from '@pkgs/room';
 
 /**
- * Live “who is in this tab” used legacy WebSocket presence. The authoritative
- * room no longer multiplexes presence frames; we approximate “online” as
- * “this member has an active synced room connection for this screen”.
+ * Live connected-client roster from the authoritative room.
+ * Multiple clients for the same member appear as multiple peer ids.
  */
 export function useSpacePresence(): {
   peersByMemberId: Map<string, string[]>;
   selfPeerId: string | null;
+  selfClientId: string | null;
 } {
   const memberId = useMyId();
+  const selfClientId = useSpaceRoomClientId();
   const room = useRoomFromRegistry(SPACE_ROOM_NAME);
-  const roomActive = room !== null;
+  const roster = useRoomRoster(room);
   const roomSynced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
 
-  const peersByMemberId = useMemo(() => {
-    const m = new Map<string, string[]>();
-    if (memberId.length > 0 && roomActive && roomSynced) {
-      m.set(memberId, ['local']);
+  return useMemo(() => {
+    const peersByMemberId = new Map<string, string[]>();
+    if (!roomSynced) {
+      return {
+        peersByMemberId,
+        selfPeerId: null,
+        selfClientId: null,
+      };
     }
-    return m;
-  }, [memberId, roomActive, roomSynced]);
-
-  return {
-    peersByMemberId,
-    selfPeerId: roomActive && roomSynced ? 'local' : null,
-  };
+    for (const client of roster) {
+      const existing = peersByMemberId.get(client.id);
+      if (existing === undefined) {
+        peersByMemberId.set(client.id, [client.clientId]);
+      } else {
+        existing.push(client.clientId);
+      }
+    }
+    const selfInRoster =
+      selfClientId !== null &&
+      roster.some((c) => c.id === memberId && c.clientId === selfClientId);
+    return {
+      peersByMemberId,
+      selfPeerId: selfInRoster ? selfClientId : null,
+      selfClientId: selfInRoster ? selfClientId : null,
+    };
+  }, [roster, roomSynced, memberId, selfClientId]);
 }

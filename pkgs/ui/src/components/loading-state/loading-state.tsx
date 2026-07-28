@@ -19,10 +19,7 @@
 
 import type { ReactNode } from 'react';
 
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { Spinner, type SpinnerProps } from '../spinner';
 import { StateBlock, type StateBlockVariant } from '../state-block';
 import { Text } from '../text';
@@ -45,7 +42,10 @@ export function LoadingState({
   dataSet,
 }: LoadingStateProps): ReactNode {
   return (
-    <StateBlock variant={variant} {...componentDataSet('LoadingState', dataSet)}>
+    <StateBlock
+      variant={variant}
+      {...componentDataSet('LoadingState', dataSet)}
+    >
       <Spinner size={size} />
       {caption !== undefined && caption !== null ? (
         <Text

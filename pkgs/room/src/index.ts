@@ -37,10 +37,15 @@ export {
 export {
   useRoomDispatch,
   useRoomSelector,
+  useNamedRoomLog,
+  useNamedRoomRoster,
 } from './client/react/use-room-registry-hooks';
 export {
+  useRoomLog,
+  useRoomRoster,
   useRoomSnapshot,
   useRoomSnapshotSelector,
+  EMPTY_ROOM_STATE,
 } from './client/react/use-room-snapshot';
 export { newCommandId } from './protocol/ids';
 export { createAttrNamespace } from '@pkgs/attribute';
@@ -64,6 +69,7 @@ export type {
   HandleResult,
   Keyword,
   LogEntry,
+  RoomActor,
   RoomCommand,
   RoomCommandPayload,
   RoomError,

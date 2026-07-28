@@ -13,7 +13,7 @@ import {
 import { useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 
-import { SpaceMembersAvatarGroup } from '../members/space-members-avatar-group';
+import { SpacePresenceStrip } from '../members/space-presence-strip';
 import { SpaceMembersListModal } from '../members/space-members-list-modal';
 import { useSpacesNavBack } from '../nav/spaces-nav-context';
 import { SpaceInviteSheet } from '../space-invite/space-invite-sheet';
@@ -93,7 +93,7 @@ function buildTrailingItems(args: {
       onPress: callbacks.onPressMembers,
       overflow: 'never',
       priority: 90,
-      children: <SpaceMembersAvatarGroup spaceId={spaceId} size={avatarSize} />,
+      children: <SpacePresenceStrip spaceId={spaceId} size={avatarSize} />,
     },
     {
       id: 'invite',

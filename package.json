@@ -5,7 +5,8 @@
   "workspaces": [
     "apps/*",
     "libs/*",
-    "pkgs/*"
+    "pkgs/*",
+    "tooling"
   ],
   "scripts": {
     "check": "bun run check:static && bun run check:ci",
@@ -41,7 +42,7 @@
     "db:migrate": "bun run scripts/secrets-run.ts -- bun run --filter @apps/api db:migrate",
     "deps:graph": "bun run scripts/render-package-deps-graph.ts",
     "dev": "bun run scripts/secrets-run.ts -- turbo dev --ui=tui",
-    "format": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" && bun run scripts/prettier-git-files.ts --write",
+    "format": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" \"tooling/package.json\" && bun run scripts/prettier-git-files.ts --write",
     "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/deployment-pipeline.yml",
     "i18n:compile": "lingui compile --typescript && bun run scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
     "i18n:extract": "lingui extract",
@@ -85,7 +86,8 @@
   "dependencies": {
     "@pkgs/os": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",
-    "@pkgs/secrets-config": "workspace:*"
+    "@pkgs/secrets-config": "workspace:*",
+    "@tooling/jingle": "workspace:*"
   },
   "devDependencies": {
     "@lingui/cli": "catalog:",

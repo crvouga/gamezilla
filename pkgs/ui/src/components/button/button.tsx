@@ -33,10 +33,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Platform, View } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { OnColorProvider, useTheme, type Theme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';

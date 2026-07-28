@@ -12,10 +12,7 @@
  */
 
 import type { ReactNode } from 'react';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { Button } from '../button';
 
 export type ModalButtonProps = {

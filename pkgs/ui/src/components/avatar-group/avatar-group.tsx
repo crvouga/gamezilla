@@ -5,10 +5,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import { Children, isValidElement } from 'react';
 
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';

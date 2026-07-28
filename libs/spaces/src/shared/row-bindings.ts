@@ -21,10 +21,7 @@ import type { RowChange } from '@pkgs/write/shared/row-change';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
 import { authorizeLeaveSpace } from './leave-space/leave-space-write';
-import {
-  readSpaceHostEnded,
-  requireAccountId,
-} from './space-write-helpers';
+import { readSpaceHostEnded, requireAccountId } from './space-write-helpers';
 
 /**
  * Create-space uploads as PUT before the row exists on Postgres. Authorize from
@@ -38,14 +35,20 @@ function authorizeSpaceCreateFromRow(
   if (!accountId.ok) return accountId;
   const hostId = readRowString(row, SpaceCol.hostId);
   if (hostId !== ctx.deviceId) {
-    return fail('SPACE_WRITE_DENIED', 'Only the host device can create a space');
+    return fail(
+      'SPACE_WRITE_DENIED',
+      'Only the host device can create a space'
+    );
   }
   const memberId = resolveSpaceMemberId(accountId.value);
   const hostMemberId =
     readRowString(row, SpaceCol.hostMemberId) ??
     readRowString(row, SpaceCol.hostAccountId);
   if (hostMemberId !== memberId) {
-    return fail('SPACE_WRITE_DENIED', 'Only the host member can create a space');
+    return fail(
+      'SPACE_WRITE_DENIED',
+      'Only the host member can create a space'
+    );
   }
   const hostAccountId = readRowString(row, SpaceCol.hostAccountId);
   if (hostAccountId !== undefined && hostAccountId !== accountId.value) {
@@ -166,10 +169,7 @@ async function authorizeSpaceMembershipUpload(
       'Only this member can upload its membership'
     );
   }
-  const expectedId = spaceMembershipEntityId(
-    seatMemberId,
-    spaceIdResult.value
-  );
+  const expectedId = spaceMembershipEntityId(seatMemberId, spaceIdResult.value);
   if (row.id !== expectedId) {
     return fail(
       'SPACE_MEMBERSHIP_ID_MISMATCH',
@@ -177,11 +177,7 @@ async function authorizeSpaceMembershipUpload(
     );
   }
   if (isLeaveShape(row, SpaceMembershipCol.leftAt)) {
-    return authorizeLeaveSpace(
-      ctx,
-      { spaceId: spaceIdResult.value },
-      sql
-    );
+    return authorizeLeaveSpace(ctx, { spaceId: spaceIdResult.value }, sql);
   }
   const space = await readSpaceHostEnded(sql, spaceIdResult.value);
   if (!space.ok) return space;

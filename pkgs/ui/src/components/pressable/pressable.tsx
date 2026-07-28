@@ -28,10 +28,7 @@ import {
   type PressableStateCallbackType,
   type View as RNView,
 } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
 import { useHoverCapable, useTheme } from '../../theme';
 

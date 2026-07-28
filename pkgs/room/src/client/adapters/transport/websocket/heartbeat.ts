@@ -1,7 +1,4 @@
-import {
-  ROOM_WIRE_KIND,
-  WIRE_VERSION,
-} from '../../../../protocol/wire';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../../../protocol/wire';
 
 export type HeartbeatTimers = {
   interval: ReturnType<typeof setInterval> | null;
@@ -31,9 +28,7 @@ export function isPongWire(raw: unknown): boolean {
 }
 
 export function sendPing(socket: WebSocket): void {
-  socket.send(
-    JSON.stringify({ v: WIRE_VERSION, kind: ROOM_WIRE_KIND.ping })
-  );
+  socket.send(JSON.stringify({ v: WIRE_VERSION, kind: ROOM_WIRE_KIND.ping }));
 }
 
 /**

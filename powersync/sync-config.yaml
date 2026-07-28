@@ -208,7 +208,6 @@ streams:
               )
          )
 
-
   client_config:
     priority: 1
     auto_subscribe: true

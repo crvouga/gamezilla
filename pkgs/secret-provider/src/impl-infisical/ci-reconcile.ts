@@ -15,7 +15,11 @@ import {
   SECRETS_IDENTITY_ID_VAR,
   SECRETS_PROJECT_ID_VAR,
 } from './ci-reconcile-identity';
-import type { InfisicalCtx, ReconcileFail, ReconcileLog } from './ci-reconcile-types';
+import type {
+  InfisicalCtx,
+  ReconcileFail,
+  ReconcileLog,
+} from './ci-reconcile-types';
 import { INFISICAL_DEFAULT_ENDPOINT } from './defaults';
 import { resolveInfisicalEndpoint } from './resolve-endpoint';
 
@@ -197,8 +201,7 @@ export async function reconcileInfisicalCiSecretsAuth(
     fail,
   });
   const identityName =
-    options.identityName ??
-    `github-actions-${repo.split('/')[1] ?? 'ci'}`;
+    options.identityName ?? `github-actions-${repo.split('/')[1] ?? 'ci'}`;
   log(`repo=${repo} projectId=${config.projectId} endpoint=${domain}`);
 
   const resolved = await resolveProjectAndIdentity({

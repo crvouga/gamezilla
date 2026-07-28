@@ -15,10 +15,7 @@
 
 import { forwardRef } from 'react';
 import { View, type ViewProps, type ViewStyle } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import type { SxProps } from '../../theme';
 import { spacing as spacingScale } from '../../theme';
@@ -72,6 +69,11 @@ export const Stack = forwardRef<View, StackProps>(function Stack(
   const idProps = componentDataSet('Stack', dataSet);
 
   return (
-    <View ref={ref} style={[layoutStyle, sxStyle, style]} {...rest} {...idProps} />
+    <View
+      ref={ref}
+      style={[layoutStyle, sxStyle, style]}
+      {...rest}
+      {...idProps}
+    />
   );
 });

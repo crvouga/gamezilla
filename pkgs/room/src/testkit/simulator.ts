@@ -22,35 +22,57 @@ export type LoopbackRoomSystem<
   transport: LoopbackRoomTransport<S, C, E>;
 };
 
+export type OpenLoopbackRoomArgs<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+> = {
+  topic: string;
+  module: RoomModule<S, C, E, string>;
+  identity?: string;
+  clientId?: string;
+  connectionId?: string;
+  /**
+   * Reuse an existing server (multi-client tests). When omitted a fresh
+   * in-memory server is created and hydrated.
+   */
+  server?: RoomServer<S, C, E, string>;
+  onError?: (err: RoomError | Error) => void;
+};
+
 /**
  * Single-topic room with in-memory server storage + loopback client transport.
+ * Pass an existing `server` to attach additional clients to the same room.
  */
 export async function openLoopbackRoom<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
->(args: {
-  topic: string;
-  module: RoomModule<S, C, E, string>;
-  identity?: string;
-  onError?: (err: RoomError | Error) => void;
-}): Promise<LoopbackRoomSystem<S, C, E>> {
-  const storage = new InMemoryRoomStorage();
-  const server = new RoomServer<S, C, E, string>({
-    topic: args.topic,
-    module: args.module,
-    storage,
-  });
-  await server.hydrateFromStorage();
+>(args: OpenLoopbackRoomArgs<S, C, E>): Promise<LoopbackRoomSystem<S, C, E>> {
+  let server = args.server;
+  if (server === undefined) {
+    const storage = new InMemoryRoomStorage();
+    server = new RoomServer<S, C, E, string>({
+      topic: args.topic,
+      module: args.module,
+      storage,
+    });
+    await server.hydrateFromStorage();
+  }
 
-  const connectionId = 'loopback-1';
+  const connectionId = args.connectionId ?? `loopback-${crypto.randomUUID()}`;
   const identity = args.identity ?? 'test-user';
+  const clientId = args.clientId ?? connectionId;
 
   const transport = new LoopbackRoomTransport(server, connectionId, identity);
 
-  server.registerConnection(connectionId, (msg) => {
-    transport.deliverToClient(msg);
-  });
+  server.registerConnection(
+    connectionId,
+    (msg) => {
+      transport.deliverToClient(msg);
+    },
+    { id: identity, clientId }
+  );
 
   const clientStorage = new InMemoryClientStorage();
   const room = await Room.open<S, C, E, string>({

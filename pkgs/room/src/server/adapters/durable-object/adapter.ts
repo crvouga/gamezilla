@@ -20,6 +20,7 @@ import {
 } from './types';
 
 const DEFAULT_IDENTITY_HEADER = 'x-actor-id' as const;
+const DEFAULT_CLIENT_ID_HEADER = 'x-actor-client-id' as const;
 
 export type CreateDurableObjectAdapterOptions<
   S extends RoomState,
@@ -40,6 +41,12 @@ export type CreateDurableObjectAdapterOptions<
    * Defaults to `x-actor-id`.
    */
   identityHeader?: string;
+  /**
+   * HTTP header that carries the per-tab / per-app-instance client id.
+   * Defaults to `x-actor-client-id`. When missing or empty the adapter mints
+   * a fresh UUID for the connection.
+   */
+  clientIdHeader?: string;
   /**
    * Coerce the trimmed header value into the module's `Identity` type.
    * Return `null` to reject the upgrade with HTTP 401. Defaults to passing
@@ -96,6 +103,7 @@ function resolveOptions<
   return {
     modulesByName,
     identityHeader: options.identityHeader ?? DEFAULT_IDENTITY_HEADER,
+    clientIdHeader: options.clientIdHeader ?? DEFAULT_CLIENT_ID_HEADER,
     parseIdentity: options.parseIdentity ?? defaultParseIdentity<Identity>,
     createStorage:
       options.createStorage ??

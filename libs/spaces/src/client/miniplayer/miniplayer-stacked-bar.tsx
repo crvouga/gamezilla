@@ -65,7 +65,10 @@ export function MiniplayerStackedBar({
 }: MiniplayerStackedBarProps): ReactNode {
   const { t } = useLingui();
   const count = spaceIds.length;
-  const peekCount = Math.min(MINIPLAYER_STACK_PEEK_COUNT, Math.max(count - 1, 0));
+  const peekCount = Math.min(
+    MINIPLAYER_STACK_PEEK_COUNT,
+    Math.max(count - 1, 0)
+  );
   const stackPad = peekCount * PEEK_OFFSET;
 
   return (

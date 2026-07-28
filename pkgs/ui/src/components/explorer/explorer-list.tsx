@@ -75,7 +75,9 @@ export function ExplorerList({
 
   if (screenBodyBleed) {
     return (
-      <ScreenBodyScrollView sx={{ gap: 6, pb: 16 }}>{list}</ScreenBodyScrollView>
+      <ScreenBodyScrollView sx={{ gap: 6, pb: 16 }}>
+        {list}
+      </ScreenBodyScrollView>
     );
   }
 

@@ -20,10 +20,7 @@
 
 import type { ReactNode } from 'react';
 
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Button } from '../button';
 import { StateBlock, type StateBlockVariant } from '../state-block';

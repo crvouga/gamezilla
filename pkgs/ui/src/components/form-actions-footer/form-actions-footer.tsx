@@ -25,10 +25,7 @@
  */
 
 import type { ReactNode } from 'react';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { Button, type ButtonIntent } from '../button';
 import { useMutationButton } from '../button/use-mutation-button';
@@ -86,7 +83,10 @@ export function FormActionsFooter({
   });
 
   return (
-    <Box sx={{ flexDirection: 'row', gap: 2 }} {...componentDataSet('FormActionsFooter', dataSet)}>
+    <Box
+      sx={{ flexDirection: 'row', gap: 2 }}
+      {...componentDataSet('FormActionsFooter', dataSet)}
+    >
       {cancel !== undefined ? (
         <Button
           title={cancel.label}

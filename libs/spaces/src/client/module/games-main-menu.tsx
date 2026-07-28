@@ -8,6 +8,7 @@ import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo } from 'react';
 
 import { useGamesRegistry } from './games-registry-context';
+import { GamesMenuAttribution } from './games-menu-attribution';
 import { useSpaceSessionUi } from '../active-space/space-session-ui-context';
 import {
   useSpaceRoomDispatch,
@@ -66,17 +67,19 @@ function GameListMenu({
   );
 
   return (
-    <MainMenuScreen
-      screenId="games-main-menu"
-      title={<Trans>Games</Trans>}
-      subtitle={<Trans>Pick a game to play.</Trans>}
-      helper={
-        !isHost ? (
-          <Trans>The host picks the game for this space.</Trans>
-        ) : undefined
-      }
-      items={items}
-    />
+    <GamesMenuAttribution>
+      <MainMenuScreen
+        screenId="games-main-menu"
+        title={<Trans>Games</Trans>}
+        subtitle={<Trans>Pick a game to play.</Trans>}
+        helper={
+          !isHost ? (
+            <Trans>The host picks the game for this space.</Trans>
+          ) : undefined
+        }
+        items={items}
+      />
+    </GamesMenuAttribution>
   );
 }
 

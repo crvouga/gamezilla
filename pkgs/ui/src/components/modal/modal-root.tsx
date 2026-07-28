@@ -12,10 +12,7 @@
 
 import type { PropsWithChildren } from 'react';
 import { Modal } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { FocusTrap } from '../focus-trap';
 import { OnColorReset } from '../../theme';
 

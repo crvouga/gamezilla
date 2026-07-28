@@ -25,10 +25,7 @@ import {
   type ViewStyle,
   type ScrollViewProps as RNScrollViewProps,
 } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import type { SxProps } from '../../theme';
 import { Box } from '../box';

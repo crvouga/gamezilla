@@ -15,10 +15,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { Pressable } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';

@@ -1,4 +1,5 @@
 import { spaceMembershipEntityId } from '@libs/spaces/shared/membership-key';
+import { useMemo } from 'react';
 
 import { useSpaceColumn, SpaceField } from '../use-space-column';
 import {
@@ -30,15 +31,17 @@ export function useSpaceHostMembershipDisplay(
     membershipId,
     SpaceMembershipField.memberId
   );
-  if (hostMemberId === null || hostMemberId.length === 0) return null;
-  const profileId =
-    profileRaw !== null && profileRaw.length > 0
-      ? profileRaw
-      : (memberId ?? hostMemberId);
-  return {
-    deviceId: hostMemberId,
-    membershipId,
-    profileId,
-    deviceLabel: null,
-  };
+  return useMemo(() => {
+    if (hostMemberId === null || hostMemberId.length === 0) return null;
+    const profileId =
+      profileRaw !== null && profileRaw.length > 0
+        ? profileRaw
+        : (memberId ?? hostMemberId);
+    return {
+      deviceId: hostMemberId,
+      membershipId,
+      profileId,
+      deviceLabel: null,
+    };
+  }, [hostMemberId, membershipId, profileRaw, memberId]);
 }

@@ -12,6 +12,7 @@ import {
 } from '../../protocol/wire';
 import type {
   LogEntry,
+  RoomActor,
   RoomCommand,
   RoomCommandPayload,
   RoomError,
@@ -128,6 +129,7 @@ export class Room<
 
   private committedState: S;
   private committedEntries: LogEntry<E>[] = [];
+  private roster: readonly RoomActor[] = [];
   private lastSeq = 0;
   private pendingQueue: QueuedCommand[] = [];
   private readonly optimistic = new Map<string, E[]>();
@@ -289,7 +291,9 @@ export class Room<
         this.committedState as Record<string, unknown>,
         'room.appendCommittedEntries'
       );
-      this.committedEntries.push(e);
+      // New array each append so useSyncExternalStore(getLog) sees a changed
+      // snapshot reference — in-place push would leave Object.is equal.
+      this.committedEntries = [...this.committedEntries, e];
       this.lastSeq = e.seq;
     }
   }
@@ -420,11 +424,22 @@ export class Room<
     this.notify();
   }
 
+  private onRosterWire(
+    msg: Extract<ServerToClientWire, { kind: typeof ROOM_WIRE_KIND.roster }>
+  ): void {
+    this.roster = msg.clients;
+    this.notify();
+  }
+
   private async onWire(raw: unknown): Promise<void> {
     if (this.destroyed) return;
     const msg = parseServerToClientWire(raw);
     if (msg === null) return;
     if (msg.kind === ROOM_WIRE_KIND.pong) return;
+    if (msg.kind === ROOM_WIRE_KIND.roster) {
+      this.onRosterWire(msg);
+      return;
+    }
     if (msg.kind === ROOM_WIRE_KIND.welcome) await this.onWelcomeWire(msg);
     else if (msg.kind === ROOM_WIRE_KIND.committed)
       await this.onCommittedWire(msg);
@@ -534,6 +549,22 @@ export class Room<
   /** Stable reference between notifications. Safe inside `useSyncExternalStore`. */
   getSnapshot(): S {
     return this.snapshot;
+  }
+
+  /**
+   * Committed event log tail (including optional actor/ts metadata).
+   * Replaced only inside `notify()`; safe for `useSyncExternalStore`.
+   */
+  getLog(): readonly LogEntry<E>[] {
+    return this.committedEntries;
+  }
+
+  /**
+   * Latest ephemeral roster snapshot from the server (one entry per
+   * connected client). Empty until the first `roster` frame arrives.
+   */
+  getRoster(): readonly RoomActor[] {
+    return this.roster;
   }
 
   destroy(): void {

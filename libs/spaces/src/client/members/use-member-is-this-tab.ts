@@ -1,17 +1,17 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
+
 import { useSpacePresence } from '../room/use-space-presence';
 
 /**
- * Whether `memberId` is this user *and* the active room connection is this
- * browser tab.
+ * Whether `memberId` is this user *and* this browser tab has an active
+ * room connection listed in the live roster.
  */
 export function useMemberIsThisTab(
   _spaceId: string,
   memberId: string
 ): boolean {
   const myId = useMyId();
-  const { peersByMemberId, selfPeerId } = useSpacePresence();
+  const { selfPeerId } = useSpacePresence();
   if (myId !== memberId) return false;
-  if (selfPeerId === null) return false;
-  return (peersByMemberId.get(memberId) ?? []).includes(selfPeerId);
+  return selfPeerId !== null;
 }

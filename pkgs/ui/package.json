@@ -41,6 +41,7 @@
     "react": "catalog:",
     "react-focus-lock": "catalog:",
     "react-native": "catalog:",
+    "react-native-screens": "catalog:",
     "react-native-svg": "catalog:"
   },
   "devDependencies": {

@@ -8,10 +8,7 @@ import { useCallback, type ReactNode } from 'react';
 export type SpaceEndOrLeaveButtonProps = {
   spaceId: string;
   /** Injected so this button can render inside portaled sheets. */
-  requestEndSpace: (
-    spaceId: string,
-    options?: RequestEndSpaceOptions
-  ) => void;
+  requestEndSpace: (spaceId: string, options?: RequestEndSpaceOptions) => void;
   /** Injected so this button can render inside portaled sheets. */
   requestLeaveSpace: (
     spaceId: string,

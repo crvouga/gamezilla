@@ -88,15 +88,7 @@ export function setGithubVariable(args: {
   }
   const { status } = runGh(
     args.repoRoot,
-    [
-      'variable',
-      'set',
-      args.name,
-      '--repo',
-      args.repo,
-      '--body',
-      args.value,
-    ],
+    ['variable', 'set', args.name, '--repo', args.repo, '--body', args.value],
     args.fail
   );
   if (status !== 0) args.fail(`Failed to set GitHub variable ${args.name}.`);

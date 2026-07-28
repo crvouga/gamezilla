@@ -1,6 +1,7 @@
 import type { MessageNamespace, MessageRouter } from '@pkgs/message';
 import type { HandleResult, RoomState } from '@pkgs/room';
 import type { ComponentType, ReactNode } from 'react';
+import type { LogLineContext, LogLineDraft } from '@pkgs/collab';
 
 /**
  * One sub-router contributed by a game to the composed space command/event
@@ -9,6 +10,11 @@ import type { ComponentType, ReactNode } from 'react';
 export type GameRouterEntry<TCtx, TReturn> = {
   readonly namespace: MessageNamespace;
   readonly router: MessageRouter<RoomState, TCtx, TReturn>;
+};
+
+export type GameDescribeRouterEntry = {
+  readonly namespace: MessageNamespace;
+  readonly router: MessageRouter<void, LogLineContext, LogLineDraft | null>;
 };
 
 /**
@@ -25,6 +31,11 @@ export type GameDefinition = {
   readonly commandRouters: readonly GameRouterEntry<string, HandleResult>[];
   /** Event sub-routers this game contributes (one per namespace). */
   readonly eventRouters: readonly GameRouterEntry<void, RoomState>[];
+  /**
+   * Optional event→log-line describe routers for the collaborative event log.
+   * Same namespaces as {@link eventRouters}; unknown events project to nothing.
+   */
+  readonly describeEvents?: readonly GameDescribeRouterEntry[];
   /**
    * Optional initial-state seed merged into `SpaceModule.initialState()`.
    * Use when a game's reducers expect certain attributes to be present

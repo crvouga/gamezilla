@@ -2,10 +2,7 @@
  * `ModalHeader` -- title area for a modal.
  */
 
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { Text } from '../text';
 

@@ -2,6 +2,7 @@ import { Box } from '@pkgs/ui';
 import { useMemo, type ReactNode } from 'react';
 
 import { GamesMainMenu } from '../module/games-main-menu';
+import { useAnnounceJoinedOnSync } from '../room/use-announce-joined-on-sync';
 import { SpaceActiveLayout } from './space-active-layout';
 import {
   SpaceSessionUiProvider,
@@ -28,6 +29,7 @@ export function ActiveSpaceBody({
   onRequestRename,
   onPressHome,
 }: ActiveSpaceBodyProps): ReactNode {
+  useAnnounceJoinedOnSync(spaceId);
   const sessionUi = useMemo(
     (): SpaceSessionUiValue => ({
       spaceId,

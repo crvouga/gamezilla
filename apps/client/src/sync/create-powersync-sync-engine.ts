@@ -80,7 +80,8 @@ function createWatchSqlFromSdk(
         onStateChange: () => listener(),
         onData: () => listener(),
       });
-      listener();
+      // Do not call listener() synchronously — violates useSyncExternalStore
+      // (React already reads getSnapshot after subscribe).
       return unsub;
     },
     close: () => {

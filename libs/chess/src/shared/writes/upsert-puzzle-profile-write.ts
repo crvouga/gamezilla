@@ -76,11 +76,8 @@ export function rowToUpsertPuzzleProfileInput(
   }
   const values = row.values ?? {};
   const ownerId =
-    values[ChessPuzzleProfileCol.ownerId] ??
-    values['ownerId'] ??
-    row.id;
-  const rating =
-    values[ChessPuzzleProfileCol.rating] ?? values['rating'] ?? 0;
+    values[ChessPuzzleProfileCol.ownerId] ?? values['ownerId'] ?? row.id;
+  const rating = values[ChessPuzzleProfileCol.rating] ?? values['rating'] ?? 0;
   const ratingDeviation =
     values[ChessPuzzleProfileCol.ratingDeviation] ??
     values['ratingDeviation'] ??

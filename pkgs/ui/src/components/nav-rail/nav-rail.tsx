@@ -22,10 +22,7 @@
 
 import type { ReactNode } from 'react';
 
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 
 export const NAV_RAIL_DEFAULT_WIDTH = 276;

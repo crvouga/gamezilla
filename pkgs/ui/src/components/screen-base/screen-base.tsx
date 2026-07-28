@@ -17,12 +17,8 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { Box } from '../box';
-import {
-  componentDataSet,
-} from '../../component-id';
-import {
-  ContentEdgePaddingProvider,
-} from '../content-edge-padding';
+import { componentDataSet } from '../../component-id';
+import { ContentEdgePaddingProvider } from '../content-edge-padding';
 import { FloatingActionButton } from '../floating-action-button/floating-action-button';
 import { PlusIcon } from '../icons';
 import { KeyboardAvoidingView } from '../keyboard-avoiding-view';

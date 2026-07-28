@@ -10,17 +10,11 @@ export interface SecretAdminStore {
 
   secretExists(name: string, envOverride?: string): Promise<boolean>;
 
-  setSecret(
-    name: string,
-    value: string,
-    envOverride?: string
-  ): Promise<void>;
+  setSecret(name: string, value: string, envOverride?: string): Promise<void>;
 
   deleteSecret(name: string, envOverride?: string): Promise<void>;
 
-  exportSecrets(
-    envOverride?: string
-  ): Promise<ReadonlyMap<string, string>>;
+  exportSecrets(envOverride?: string): Promise<ReadonlyMap<string, string>>;
 
   listSecretNames(envOverride?: string): Promise<readonly string[]>;
 }

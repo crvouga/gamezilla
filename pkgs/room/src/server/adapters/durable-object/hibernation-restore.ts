@@ -23,6 +23,7 @@ export const WS_CLOSE_SESSION_LOST = 1011;
 export type WsMeta<Identity> = {
   readonly id: string;
   readonly identity: Identity;
+  readonly clientId: string;
   readonly moduleName: RoomModuleName;
 };
 
@@ -80,24 +81,32 @@ async function attachRestoredSocket<
   attachment: RoomSocketAttachment,
   identity: Identity
 ): Promise<void> {
-  const { connId, moduleName, topic } = attachment;
+  const { connId, clientId, moduleName, topic, identityRaw } = attachment;
   const server = await deps.createServerLocked(topic, moduleName);
   crash.ok(
     server.topic === topic,
     'RoomServer topic drifted while restoring hibernated socket',
     { existing: server.topic, requested: topic, moduleName }
   );
-  deps.wsMeta.set(ws, { id: connId, identity, moduleName });
+  deps.wsMeta.set(ws, { id: connId, identity, clientId, moduleName });
   if (!server.hasConnection(connId)) {
-    server.registerConnection(connId, (msg) => deps.sendJson(ws, msg));
+    // Suppress per-connection roster broadcasts during restore; the caller
+    // emits a single snapshot once every socket is re-attached.
+    server.registerConnection(
+      connId,
+      (msg) => deps.sendJson(ws, msg),
+      { id: identityRaw, clientId },
+      { silent: true }
+    );
   }
 }
 
 /**
- * One-shot rebuild of `wsMeta` + `RoomServer.senders` after DO eviction.
+ * One-shot rebuild of `wsMeta` + `RoomServer` connections after DO eviction.
  * Hibernatable sockets stay connected on the Cloudflare edge; only
  * in-memory routing is lost — this walks `ctx.getWebSockets()` and
- * re-attaches each one from its serialized attachment.
+ * re-attaches each one from its serialized attachment, then broadcasts
+ * one roster snapshot so clients converge.
  */
 export async function restoreHibernatedSockets<
   S extends RoomState,
@@ -109,5 +118,11 @@ export async function restoreHibernatedSockets<
   const sockets = deps.ctx.getWebSockets();
   for (const ws of sockets) {
     await restoreOneSocket(deps, ws);
+  }
+  const seen = new Set<RoomServer<S, C, E, Identity>>();
+  for (const server of deps.servers.values()) {
+    if (seen.has(server)) continue;
+    seen.add(server);
+    server.broadcastRoster();
   }
 }

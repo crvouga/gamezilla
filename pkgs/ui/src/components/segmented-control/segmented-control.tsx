@@ -20,10 +20,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Animated, View } from 'react-native';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import { useTheme, type Theme } from '../../theme';
 import { borderRadius } from '../../theme/scale';

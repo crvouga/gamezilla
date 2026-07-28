@@ -8,10 +8,7 @@ import {
 export type ReconcileCiSecretsAuthOptions =
   ReconcileInfisicalCiSecretsAuthOptions;
 
-export {
-  SECRETS_IDENTITY_ID_VAR,
-  SECRETS_PROJECT_ID_VAR,
-};
+export { SECRETS_IDENTITY_ID_VAR, SECRETS_PROJECT_ID_VAR };
 
 /**
  * Ensure CI can authenticate to the secrets backend via GitHub OIDC and that

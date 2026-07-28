@@ -4,10 +4,7 @@
  * Implemented on top of {@link Picker} (same public props as before).
  */
 
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { Picker, type PickerOption, type PickerProps } from '../picker';
 
 export type SelectOption<T extends string | number = string> = PickerOption<T>;

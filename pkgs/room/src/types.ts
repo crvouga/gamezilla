@@ -26,9 +26,24 @@ export type RoomCommand<C extends RoomCommandPayload = RoomCommandPayload> = {
   payload: C;
 };
 
+/**
+ * Who is connected / who authored a committed log entry.
+ * `id` is the stable app-level participant (account or device);
+ * `clientId` is one per tab / app instance so the same participant can
+ * appear multiple times in the live roster.
+ */
+export type RoomActor = {
+  readonly id: string;
+  readonly clientId: string;
+};
+
 export type LogEntry<E extends RoomEvent = RoomEvent> = {
   seq: number;
   event: E;
+  /** Absent on entries written before actor metadata existed. */
+  actor?: RoomActor;
+  /** Server commit time, epoch ms. Absent on legacy entries. */
+  ts?: number;
 };
 
 /**

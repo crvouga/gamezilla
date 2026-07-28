@@ -1,9 +1,6 @@
 import type { ReactNode } from 'react';
 import { adjustLightness } from '@pkgs/colors';
-import {
-  componentDataSet,
-  type ComponentDataSet,
-} from '../../component-id';
+import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme, type Theme } from '../../theme';
 import { formatCssHsla, parseCssColor } from '../../theme/colors/css-color';
 import { borderRadius } from '../../theme/scale';

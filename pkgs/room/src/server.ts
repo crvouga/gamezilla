@@ -23,5 +23,9 @@ export type {
   RoomAuthSuccess,
 } from './server/core/auth';
 export { RoomServer } from './server/core/room-server';
-export type { RoomServerConfig } from './server/core/room-server';
+export type {
+  RoomConnection,
+  RoomServerConfig,
+} from './server/core/room-server';
 export type { RoomStorage, CommandDedupOutcome } from './server/core/storage';
+export type { RoomActor, LogEntry } from './types';

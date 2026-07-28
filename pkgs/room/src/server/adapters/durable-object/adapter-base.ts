@@ -51,6 +51,7 @@ type AcceptUpgradeArgs<
   server: RoomServer<S, C, E, Identity>;
   identity: Identity;
   identityRaw: string;
+  clientId: string;
   moduleName: RoomModuleName;
   topic: string;
 };
@@ -105,20 +106,35 @@ export class RoomDurableObjectAdapterBase<
     if (request.headers.get('Upgrade') !== 'websocket') {
       return errorResponse(426, 'expected WebSocket upgrade');
     }
+    const auth = this.parseUpgradeIdentity(request);
+    if (auth instanceof Response) return auth;
+    const server = await this.getOrCreateServer(topic, moduleName);
+    return this.acceptUpgrade({
+      server,
+      identity: auth.identity,
+      identityRaw: auth.identityRaw,
+      clientId: this.resolveClientId(request),
+      moduleName,
+      topic,
+    });
+  }
+
+  private parseUpgradeIdentity(
+    request: Request
+  ): { identity: Identity; identityRaw: string } | Response {
     const identityRaw =
       request.headers.get(this.config.identityHeader)?.trim() ?? '';
     const identity = this.config.parseIdentity(identityRaw);
     if (identity === null) {
       return errorResponse(401, 'missing or invalid identity header');
     }
-    const server = await this.getOrCreateServer(topic, moduleName);
-    return this.acceptUpgrade({
-      server,
-      identity,
-      identityRaw,
-      moduleName,
-      topic,
-    });
+    return { identity, identityRaw };
+  }
+
+  private resolveClientId(request: Request): string {
+    const header =
+      request.headers.get(this.config.clientIdHeader)?.trim() ?? '';
+    return header.length > 0 ? header : crypto.randomUUID();
   }
 
   async webSocketMessage(
@@ -222,11 +238,7 @@ export class RoomDurableObjectAdapterBase<
       'module disappeared between parseModuleQuery and createServerLocked',
       { moduleName }
     );
-    const storage = this.config.createStorage(
-      this.ctx,
-      this._env,
-      moduleName
-    );
+    const storage = this.config.createStorage(this.ctx, this._env, moduleName);
     const server = new RoomServer({ topic, module: moduleImpl, storage });
     await server.hydrateFromStorage();
     this.servers.set(moduleName, server);
@@ -243,17 +255,21 @@ export class RoomDurableObjectAdapterBase<
   }
 
   private acceptUpgrade(args: AcceptUpgradeArgs<S, C, E, Identity>): Response {
-    const { server, identity, identityRaw, moduleName, topic } = args;
+    const { server, identity, identityRaw, clientId, moduleName, topic } = args;
     const [client, serverWs] = newWebSocketPair();
     const connId = crypto.randomUUID();
-    this.wsMeta.set(serverWs, { id: connId, identity, moduleName });
+    this.wsMeta.set(serverWs, { id: connId, identity, clientId, moduleName });
     writeRoomSocketAttachment(serverWs, {
       connId,
       identityRaw,
+      clientId,
       moduleName,
       topic,
     });
-    server.registerConnection(connId, (msg) => sendJson(serverWs, msg));
+    server.registerConnection(connId, (msg) => sendJson(serverWs, msg), {
+      id: identityRaw,
+      clientId,
+    });
     this.ctx.acceptWebSocket(serverWs, [connId, moduleName]);
     return new Response(null, {
       status: 101,

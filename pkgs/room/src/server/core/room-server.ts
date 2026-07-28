@@ -10,6 +10,7 @@ import {
 import {
   ROOM_ERROR_TYPE,
   type LogEntry,
+  type RoomActor,
   type RoomCommand,
   type RoomCommandPayload,
   type RoomEvent,
@@ -38,6 +39,12 @@ export type RoomServerConfig<
 
 type Sender = (payload: unknown) => void;
 
+export type RoomConnection = {
+  readonly id: string;
+  readonly send: Sender;
+  readonly actor: RoomActor;
+};
+
 /**
  * Single-threaded authoritative room (run inside one DO or one test harness).
  */
@@ -51,7 +58,7 @@ export class RoomServer<
   private readonly module: RoomModule<S, C, E, Identity>;
   private readonly storage: RoomStorage;
   private readonly authorize?: RoomServerConfig<S, C, E, Identity>['authorize'];
-  private readonly senders = new Map<string, Sender>();
+  private readonly connections = new Map<string, RoomConnection>();
   private committedState: S;
 
   constructor(config: RoomServerConfig<S, C, E, Identity>) {
@@ -77,24 +84,56 @@ export class RoomServer<
     this.committedState = state;
   }
 
-  registerConnection(id: string, send: Sender): void {
-    crash.ok(!this.senders.has(id), 'duplicate connection id', { id });
-    this.senders.set(id, send);
+  registerConnection(
+    id: string,
+    send: Sender,
+    actor: RoomActor,
+    options?: { readonly silent?: boolean }
+  ): void {
+    crash.ok(!this.connections.has(id), 'duplicate connection id', { id });
+    crash.ok(actor.id.length > 0, 'RoomActor.id must be non-empty', { actor });
+    crash.ok(
+      actor.clientId.length > 0,
+      'RoomActor.clientId must be non-empty',
+      { actor }
+    );
+    this.connections.set(id, { id, send, actor });
+    if (options?.silent !== true) {
+      this.broadcastRoster();
+    }
   }
 
-  /** True when `id` is already in the live sender map (hibernation restore). */
+  /** True when `id` is already in the live connection map (hibernation restore). */
   hasConnection(id: string): boolean {
-    return this.senders.has(id);
+    return this.connections.has(id);
   }
 
   unregisterConnection(id: string): void {
-    this.senders.delete(id);
+    if (!this.connections.delete(id)) return;
+    this.broadcastRoster();
+  }
+
+  /** Current connected clients (one entry per connection). */
+  getRoster(): readonly RoomActor[] {
+    return [...this.connections.values()].map((c) => c.actor);
+  }
+
+  /**
+   * Re-broadcast the current roster without mutating connections.
+   * Used after hibernation restore once all sockets are re-attached.
+   */
+  broadcastRoster(): void {
+    this.broadcast({
+      v: WIRE_VERSION,
+      kind: ROOM_WIRE_KIND.roster,
+      clients: this.getRoster(),
+    });
   }
 
   private broadcast(payload: unknown): void {
-    for (const send of this.senders.values()) {
+    for (const conn of this.connections.values()) {
       try {
-        send(payload);
+        conn.send(payload);
       } catch (err) {
         void err;
       }
@@ -102,8 +141,9 @@ export class RoomServer<
   }
 
   private sendWelcomeTo(connectionId: string, fromSeq: number): void {
-    const send = this.senders.get(connectionId);
-    if (send === undefined) return;
+    const conn = this.connections.get(connectionId);
+    if (conn === undefined) return;
+    const send = conn.send;
     void (async () => {
       try {
         const entries = await this.storage.loadEventsAfter(this.topic, fromSeq);
@@ -123,6 +163,13 @@ export class RoomServer<
           fromSeq,
           lastSeq,
           entries,
+        });
+        // Ephemeral roster snapshot alongside welcome so a freshly synced
+        // client immediately knows who else is connected.
+        send({
+          v: WIRE_VERSION,
+          kind: ROOM_WIRE_KIND.roster,
+          clients: this.getRoster(),
         });
       } catch (err: unknown) {
         send({
@@ -184,6 +231,7 @@ export class RoomServer<
   }
 
   private async commitCommandSuccess(
+    actor: RoomActor,
     commandId: string,
     lastSeqBefore: number,
     events: E[]
@@ -196,9 +244,12 @@ export class RoomServer<
         { event }
       );
     }
+    const ts = Date.now();
     const entries: LogEntry<E>[] = events.map((event, i) => ({
       seq: lastSeqBefore + i + 1,
       event,
+      actor,
+      ts,
     }));
     await this.storage.appendCommittedEntries(this.topic, entries);
     await this.storage.putDedupOutcome(this.topic, commandId, {
@@ -217,10 +268,11 @@ export class RoomServer<
   }
 
   private async handleParsedCommand(
-    send: Sender,
+    conn: RoomConnection,
     identity: Identity,
     parsed: Extract<ClientToServerWire, { kind: typeof ROOM_WIRE_KIND.command }>
   ): Promise<void> {
+    const send = conn.send;
     const commandId = parsed.id;
     const prior = await this.storage.getDedupOutcome(this.topic, commandId);
     if (prior !== null) {
@@ -276,7 +328,12 @@ export class RoomServer<
       return;
     }
 
-    await this.commitCommandSuccess(commandId, lastSeqBefore, result.events);
+    await this.commitCommandSuccess(
+      conn.actor,
+      commandId,
+      lastSeqBefore,
+      result.events
+    );
   }
 
   async handleClientMessage(
@@ -284,14 +341,14 @@ export class RoomServer<
     identity: Identity,
     raw: unknown
   ): Promise<void> {
-    const send = this.senders.get(connectionId);
-    if (send === undefined) return;
+    const conn = this.connections.get(connectionId);
+    if (conn === undefined) return;
 
     const parsed = parseClientToServerWire(raw);
     if (parsed === null) return;
 
     if (parsed.kind === ROOM_WIRE_KIND.ping) {
-      send({ v: WIRE_VERSION, kind: ROOM_WIRE_KIND.pong });
+      conn.send({ v: WIRE_VERSION, kind: ROOM_WIRE_KIND.pong });
       return;
     }
 
@@ -300,6 +357,6 @@ export class RoomServer<
       return;
     }
 
-    await this.handleParsedCommand(send, identity, parsed);
+    await this.handleParsedCommand(conn, identity, parsed);
   }
 }

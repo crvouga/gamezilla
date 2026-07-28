@@ -5,9 +5,7 @@ import type { PowerSyncCrudTransaction } from './powersync-database-port';
 
 describe('mapCrudOp', () => {
   test('maps PATCH with missing opData to empty values', () => {
-    expect(
-      mapCrudOp({ op: 'PATCH', table: 'profiles', id: 'p1' })
-    ).toEqual({
+    expect(mapCrudOp({ op: 'PATCH', table: 'profiles', id: 'p1' })).toEqual({
       op: 'patch',
       table: 'profiles',
       id: 'p1',

@@ -26,6 +26,12 @@ import {
   gamesCmdNs,
   gamesEvtNs,
 } from './games';
+import {
+  spaceLogCmdNs,
+  spaceLogCommandRouter,
+  spaceLogEventReducer,
+  spaceLogEvtNs,
+} from './space-log/space-log-messages';
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
@@ -43,6 +49,7 @@ function assertUniqueGameIds(games: readonly GameDefinition[]): void {
 
 function buildCommandRouter(games: readonly GameDefinition[]) {
   return createComposedMessageRouter<RoomState, string, HandleResult>([
+    { namespace: spaceLogCmdNs, router: spaceLogCommandRouter },
     { namespace: counterCmdNs, router: counterCommandRouter },
     { namespace: gamesCmdNs, router: createGamesCommandRouter(games) },
     ...games.flatMap((game) => [...game.commandRouters]),
@@ -51,6 +58,7 @@ function buildCommandRouter(games: readonly GameDefinition[]) {
 
 function buildEventReducer(games: readonly GameDefinition[]) {
   return createComposedMessageRouter<RoomState, void, RoomState>([
+    { namespace: spaceLogEvtNs, router: spaceLogEventReducer },
     { namespace: counterEvtNs, router: counterEventReducer },
     { namespace: gamesEvtNs, router: createGamesEventReducer(games) },
     ...games.flatMap((game) => [...game.eventRouters]),

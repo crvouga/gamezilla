@@ -17,9 +17,7 @@ import {
 } from 'react';
 import { View } from 'react-native';
 
-import {
-  type ComponentDataSet,
-} from '../../component-id';
+import { type ComponentDataSet } from '../../component-id';
 import { useHoverCapable } from '../../theme';
 import { useOverlayPortalSlot } from '../overlay-portal/overlay-portal';
 import { TooltipBubble } from './tooltip-bubble';
