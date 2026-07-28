@@ -1,4 +1,4 @@
-import sql, { type Sql } from '../src/sql-template';
+import sql, { type Sql } from '../src/sql';
 
 const before = process.memoryUsage();
 process.stdout.write(
