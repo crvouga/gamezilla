@@ -5,7 +5,7 @@ import {
   FriendProfileCacheCol,
   FriendshipCol,
 } from '@libs/db/shared/friends-tables';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -26,17 +26,17 @@ export function useSpaceInviteFriends(): {
   const { rows, isLoading } = useWatchQuery<FriendRow>(
     myId.length === 0
       ? sql`SELECT '' AS friend_id, '' AS username
-         FROM ${raw(FRIEND_PROFILE_CACHE_TABLE.tableName)} WHERE 0`
-      : sql`SELECT c.${raw(FriendProfileCacheCol.friendId)} AS friend_id,
-                c.${raw(FriendProfileCacheCol.username)} AS username
-         FROM ${raw(FRIEND_PROFILE_CACHE_TABLE.tableName)} c
-         INNER JOIN ${raw(FRIENDSHIPS_TABLE.tableName)} f
+         FROM ${ident(FRIEND_PROFILE_CACHE_TABLE.tableName)} WHERE 0`
+      : sql`SELECT c.${ident(FriendProfileCacheCol.friendId)} AS friend_id,
+                c.${ident(FriendProfileCacheCol.username)} AS username
+         FROM ${ident(FRIEND_PROFILE_CACHE_TABLE.tableName)} c
+         INNER JOIN ${ident(FRIENDSHIPS_TABLE.tableName)} f
            ON (
-             (f.${raw(FriendshipCol.userLow)} = ${myId} AND f.${raw(FriendshipCol.userHigh)} = c.${raw(FriendProfileCacheCol.friendId)})
-             OR (f.${raw(FriendshipCol.userHigh)} = ${myId} AND f.${raw(FriendshipCol.userLow)} = c.${raw(FriendProfileCacheCol.friendId)})
+             (f.${ident(FriendshipCol.userLow)} = ${myId} AND f.${ident(FriendshipCol.userHigh)} = c.${ident(FriendProfileCacheCol.friendId)})
+             OR (f.${ident(FriendshipCol.userHigh)} = ${myId} AND f.${ident(FriendshipCol.userLow)} = c.${ident(FriendProfileCacheCol.friendId)})
            )
-         WHERE c.${raw(FriendProfileCacheCol.ownerId)} = ${myId}
-         ORDER BY c.${raw(FriendProfileCacheCol.username)} COLLATE NOCASE`
+         WHERE c.${ident(FriendProfileCacheCol.ownerId)} = ${myId}
+         ORDER BY c.${ident(FriendProfileCacheCol.username)} COLLATE NOCASE`
   );
   const friends = useMemo(
     () =>

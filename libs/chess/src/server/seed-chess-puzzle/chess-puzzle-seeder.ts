@@ -58,7 +58,7 @@ import {
 import { createLogger, type Logger } from '@pkgs/logger';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres/connect';
 import {
@@ -178,11 +178,11 @@ export class ChessPuzzleSeeder {
       source_etag: string | null;
       cursor: string | null;
       finished_at: string | null;
-    }>(sql`SELECT ${raw(ChessPuzzleLoadCol.sourceEtag)} AS source_etag,
-              ${raw(ChessPuzzleLoadCol.cursor)} AS cursor,
-              ${raw(ChessPuzzleLoadCol.finishedAt)} AS finished_at
-       FROM ${raw(CHESS_PUZZLE_LOAD_TABLE.tableName)}
-       WHERE ${raw(ChessPuzzleLoadCol.id)} = ${CHESS_PUZZLE_LOAD_ENTITY_ID} LIMIT 1`);
+    }>(sql`SELECT ${ident(ChessPuzzleLoadCol.sourceEtag)} AS source_etag,
+              ${ident(ChessPuzzleLoadCol.cursor)} AS cursor,
+              ${ident(ChessPuzzleLoadCol.finishedAt)} AS finished_at
+       FROM ${ident(CHESS_PUZZLE_LOAD_TABLE.tableName)}
+       WHERE ${ident(ChessPuzzleLoadCol.id)} = ${CHESS_PUZZLE_LOAD_ENTITY_ID} LIMIT 1`);
     return rows[0] ?? null;
   }
 

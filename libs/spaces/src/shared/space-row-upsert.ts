@@ -3,7 +3,7 @@ import {
   SpaceMembershipCol,
 } from '@libs/db/shared/space-tables';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 
 import { wasMembershipInactive } from './space-write-helpers';
 
@@ -20,24 +20,24 @@ export async function upsertSpaceMembershipRow(args: {
 }): Promise<{ readonly reactivated: boolean }> {
   const reactivated = await wasMembershipInactive(args.sql, args.membershipId);
   const existing = await args.sql.query<{ readonly id: string }>(
-    sql`SELECT ${raw(SpaceMembershipCol.id)} AS id
-     FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${raw(SpaceMembershipCol.id)} = ${args.membershipId}
+    sql`SELECT ${ident(SpaceMembershipCol.id)} AS id
+     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     WHERE ${ident(SpaceMembershipCol.id)} = ${args.membershipId}
      LIMIT 1`
   );
   if (existing[0] === undefined) {
-    await args.sql.run(sql`INSERT INTO ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-       (${raw(SpaceMembershipCol.id)}, ${raw(SpaceMembershipCol.memberId)},
-        ${raw(SpaceMembershipCol.spaceId)}, ${raw(SpaceMembershipCol.joinedAt)},
-        ${raw(SpaceMembershipCol.leftAt)}, ${raw(SpaceMembershipCol.profileId)})
+    await args.sql.run(sql`INSERT INTO ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+       (${ident(SpaceMembershipCol.id)}, ${ident(SpaceMembershipCol.memberId)},
+        ${ident(SpaceMembershipCol.spaceId)}, ${ident(SpaceMembershipCol.joinedAt)},
+        ${ident(SpaceMembershipCol.leftAt)}, ${ident(SpaceMembershipCol.profileId)})
        VALUES (${args.membershipId}, ${args.memberId}, ${args.spaceId}, ${args.now}, NULL, ${args.memberId})`);
   } else {
-    await args.sql.run(sql`UPDATE ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-       SET ${raw(SpaceMembershipCol.leftAt)} = NULL,
-           ${raw(SpaceMembershipCol.joinedAt)} = ${args.now},
-           ${raw(SpaceMembershipCol.profileId)} = ${args.memberId},
-           ${raw(SpaceMembershipCol.memberId)} = ${args.memberId}
-       WHERE ${raw(SpaceMembershipCol.id)} = ${args.membershipId}`);
+    await args.sql.run(sql`UPDATE ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+       SET ${ident(SpaceMembershipCol.leftAt)} = NULL,
+           ${ident(SpaceMembershipCol.joinedAt)} = ${args.now},
+           ${ident(SpaceMembershipCol.profileId)} = ${args.memberId},
+           ${ident(SpaceMembershipCol.memberId)} = ${args.memberId}
+       WHERE ${ident(SpaceMembershipCol.id)} = ${args.membershipId}`);
   }
   return { reactivated };
 }

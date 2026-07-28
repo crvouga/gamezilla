@@ -1,4 +1,4 @@
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '../shared/external-account-providers';
@@ -44,21 +44,21 @@ type StripeLinkRow = {
 export function useCurrentUser(): CurrentUser | null {
   const accountId = useCurrentAccountId();
   const { row: userRow } = useWatchOne<UserRow>(sql`
-    SELECT ${raw(UserTableCol.createdAt)}
-    FROM ${raw(USERS_TABLE)}
-    WHERE ${raw(UserTableCol.id)} = ${accountId ?? ''}
+    SELECT ${ident(UserTableCol.createdAt)}
+    FROM ${ident(USERS_TABLE)}
+    WHERE ${ident(UserTableCol.id)} = ${accountId ?? ''}
   `);
   const { row: stripeRow } = useWatchOne<StripeLinkRow>(
     accountId === null
       ? sql`
-          SELECT ${raw(ExternalAccountCol.externalId)} AS external_id
-          FROM ${raw(EXTERNAL_ACCOUNTS_TABLE)} WHERE 0
+          SELECT ${ident(ExternalAccountCol.externalId)} AS external_id
+          FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)} WHERE 0
         `
       : sql`
-          SELECT ${raw(ExternalAccountCol.externalId)} AS external_id
-          FROM ${raw(EXTERNAL_ACCOUNTS_TABLE)}
-          WHERE ${raw(ExternalAccountCol.userId)} = ${accountId}
-            AND ${raw(ExternalAccountCol.provider)} = ${EXTERNAL_ACCOUNT_PROVIDER_STRIPE}
+          SELECT ${ident(ExternalAccountCol.externalId)} AS external_id
+          FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)}
+          WHERE ${ident(ExternalAccountCol.userId)} = ${accountId}
+            AND ${ident(ExternalAccountCol.provider)} = ${EXTERNAL_ACCOUNT_PROVIDER_STRIPE}
         `
   );
   if (accountId === null) return null;

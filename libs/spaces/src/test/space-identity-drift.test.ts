@@ -9,7 +9,7 @@ import {
 import { spaceMembershipEntityId } from '@libs/spaces/shared/participation/participation-ids';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
 import { createSpaceWrite } from '../shared/create-space/create-space-write';
@@ -34,24 +34,24 @@ function openSql(): SqlClientImplBunSqlite {
 }
 
 async function migrate(db: SqlClient): Promise<void> {
-  await db.run(sql`CREATE TABLE ${raw(SPACES_TABLE.tableName)} (
-      ${raw(SpaceCol.id)} TEXT PRIMARY KEY,
-      ${raw(SpaceCol.title)} TEXT,
-      ${raw(SpaceCol.hostId)} TEXT,
-      ${raw(SpaceCol.createdAt)} TEXT,
-      ${raw(SpaceCol.endedAt)} TEXT,
-      ${raw(SpaceCol.visibility)} TEXT,
-      ${raw(SpaceCol.hostAccountId)} TEXT,
-      ${raw(SpaceCol.hostMemberId)} TEXT,
-      ${raw(SpaceCol.activeMemberCount)} INTEGER NOT NULL DEFAULT 0
+  await db.run(sql`CREATE TABLE ${ident(SPACES_TABLE.tableName)} (
+      ${ident(SpaceCol.id)} TEXT PRIMARY KEY,
+      ${ident(SpaceCol.title)} TEXT,
+      ${ident(SpaceCol.hostId)} TEXT,
+      ${ident(SpaceCol.createdAt)} TEXT,
+      ${ident(SpaceCol.endedAt)} TEXT,
+      ${ident(SpaceCol.visibility)} TEXT,
+      ${ident(SpaceCol.hostAccountId)} TEXT,
+      ${ident(SpaceCol.hostMemberId)} TEXT,
+      ${ident(SpaceCol.activeMemberCount)} INTEGER NOT NULL DEFAULT 0
     )`);
-  await db.run(sql`CREATE TABLE ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)} (
-      ${raw(SpaceMembershipCol.id)} TEXT PRIMARY KEY,
-      ${raw(SpaceMembershipCol.memberId)} TEXT,
-      ${raw(SpaceMembershipCol.spaceId)} TEXT,
-      ${raw(SpaceMembershipCol.joinedAt)} TEXT,
-      ${raw(SpaceMembershipCol.leftAt)} TEXT,
-      ${raw(SpaceMembershipCol.profileId)} TEXT
+  await db.run(sql`CREATE TABLE ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)} (
+      ${ident(SpaceMembershipCol.id)} TEXT PRIMARY KEY,
+      ${ident(SpaceMembershipCol.memberId)} TEXT,
+      ${ident(SpaceMembershipCol.spaceId)} TEXT,
+      ${ident(SpaceMembershipCol.joinedAt)} TEXT,
+      ${ident(SpaceMembershipCol.leftAt)} TEXT,
+      ${ident(SpaceMembershipCol.profileId)} TEXT
     )`);
 }
 
@@ -72,15 +72,15 @@ function ctx(args: {
 
 async function seedHostMembership(db: SqlClient): Promise<void> {
   const now = new Date().toISOString();
-  await db.run(sql`INSERT INTO ${raw(SPACES_TABLE.tableName)}
-     (${raw(SpaceCol.id)}, ${raw(SpaceCol.hostId)}, ${raw(SpaceCol.hostMemberId)},
-      ${raw(SpaceCol.hostAccountId)}, ${raw(SpaceCol.visibility)},
-      ${raw(SpaceCol.activeMemberCount)})
+  await db.run(sql`INSERT INTO ${ident(SPACES_TABLE.tableName)}
+     (${ident(SpaceCol.id)}, ${ident(SpaceCol.hostId)}, ${ident(SpaceCol.hostMemberId)},
+      ${ident(SpaceCol.hostAccountId)}, ${ident(SpaceCol.visibility)},
+      ${ident(SpaceCol.activeMemberCount)})
      VALUES (${SPACE_ID}, ${DEVICE_ID}, ${ACCOUNT_ID}, ${ACCOUNT_ID}, 'private', 1)`);
-  await db.run(sql`INSERT INTO ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     (${raw(SpaceMembershipCol.id)}, ${raw(SpaceMembershipCol.memberId)},
-      ${raw(SpaceMembershipCol.spaceId)}, ${raw(SpaceMembershipCol.joinedAt)},
-      ${raw(SpaceMembershipCol.leftAt)}, ${raw(SpaceMembershipCol.profileId)})
+  await db.run(sql`INSERT INTO ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     (${ident(SpaceMembershipCol.id)}, ${ident(SpaceMembershipCol.memberId)},
+      ${ident(SpaceMembershipCol.spaceId)}, ${ident(SpaceMembershipCol.joinedAt)},
+      ${ident(SpaceMembershipCol.leftAt)}, ${ident(SpaceMembershipCol.profileId)})
      VALUES (${spaceMembershipEntityId(ACCOUNT_ID, SPACE_ID)}, ${ACCOUNT_ID},
              ${SPACE_ID}, ${now}, NULL, ${ACCOUNT_ID})`);
 }
@@ -91,9 +91,9 @@ async function readMembership(
 ): Promise<{ readonly leftAt: string | null } | null> {
   const id = spaceMembershipEntityId(memberId, SPACE_ID);
   const rows = await db.query<{ readonly left_at: string | null }>(
-    sql`SELECT ${raw(SpaceMembershipCol.leftAt)} AS left_at
-     FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${raw(SpaceMembershipCol.id)} = ${id}`
+    sql`SELECT ${ident(SpaceMembershipCol.leftAt)} AS left_at
+     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     WHERE ${ident(SpaceMembershipCol.id)} = ${id}`
   );
   const row = rows[0];
   if (row === undefined) return null;
@@ -111,12 +111,12 @@ async function readSpaceHost(db: SqlClient): Promise<{
     readonly host_account_id: string | null;
     readonly active_member_count: number;
     readonly ended_at: string | null;
-  }>(sql`SELECT ${raw(SpaceCol.hostMemberId)} AS host_member_id,
-            ${raw(SpaceCol.hostAccountId)} AS host_account_id,
-            ${raw(SpaceCol.activeMemberCount)} AS active_member_count,
-            ${raw(SpaceCol.endedAt)} AS ended_at
-     FROM ${raw(SPACES_TABLE.tableName)}
-     WHERE ${raw(SpaceCol.id)} = ${SPACE_ID}`);
+  }>(sql`SELECT ${ident(SpaceCol.hostMemberId)} AS host_member_id,
+            ${ident(SpaceCol.hostAccountId)} AS host_account_id,
+            ${ident(SpaceCol.activeMemberCount)} AS active_member_count,
+            ${ident(SpaceCol.endedAt)} AS ended_at
+     FROM ${ident(SPACES_TABLE.tableName)}
+     WHERE ${ident(SpaceCol.id)} = ${SPACE_ID}`);
   const row = rows[0]!;
   return {
     hostMemberId: row.host_member_id,
@@ -158,15 +158,15 @@ describe('leave / join / create require account membership', () => {
 
   test('host leave with guest remaining keeps space live', async () => {
     const now = new Date().toISOString();
-    await db.run(sql`INSERT INTO ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-       (${raw(SpaceMembershipCol.id)}, ${raw(SpaceMembershipCol.memberId)},
-        ${raw(SpaceMembershipCol.spaceId)}, ${raw(SpaceMembershipCol.joinedAt)},
-        ${raw(SpaceMembershipCol.leftAt)}, ${raw(SpaceMembershipCol.profileId)})
+    await db.run(sql`INSERT INTO ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+       (${ident(SpaceMembershipCol.id)}, ${ident(SpaceMembershipCol.memberId)},
+        ${ident(SpaceMembershipCol.spaceId)}, ${ident(SpaceMembershipCol.joinedAt)},
+        ${ident(SpaceMembershipCol.leftAt)}, ${ident(SpaceMembershipCol.profileId)})
        VALUES (${spaceMembershipEntityId(GUEST_ACCOUNT_ID, SPACE_ID)}, ${GUEST_ACCOUNT_ID},
                ${SPACE_ID}, ${now}, NULL, ${GUEST_ACCOUNT_ID})`);
     await db.run(
-      sql`UPDATE ${raw(SPACES_TABLE.tableName)}
-       SET ${raw(SpaceCol.activeMemberCount)} = 2`
+      sql`UPDATE ${ident(SPACES_TABLE.tableName)}
+       SET ${ident(SpaceCol.activeMemberCount)} = 2`
     );
     const signedIn = ctx({ deviceId: DEVICE_ID, accountId: ACCOUNT_ID });
     await executeLeaveSpace(signedIn, { spaceId: SPACE_ID }, db);
@@ -180,11 +180,11 @@ describe('leave / join / create require account membership', () => {
     await executeLeaveSpace(signedIn, { spaceId: SPACE_ID }, db);
     expect((await readSpaceHost(db)).endedAt).not.toBeNull();
 
-    await db.run(sql`UPDATE ${raw(SPACES_TABLE.tableName)}
-       SET ${raw(SpaceCol.endedAt)} = NULL,
-           ${raw(SpaceCol.hostMemberId)} = ${DEVICE_ID},
-           ${raw(SpaceCol.hostAccountId)} = NULL,
-           ${raw(SpaceCol.activeMemberCount)} = 0`);
+    await db.run(sql`UPDATE ${ident(SPACES_TABLE.tableName)}
+       SET ${ident(SpaceCol.endedAt)} = NULL,
+           ${ident(SpaceCol.hostMemberId)} = ${DEVICE_ID},
+           ${ident(SpaceCol.hostAccountId)} = NULL,
+           ${ident(SpaceCol.activeMemberCount)} = 0`);
     const auth = await authorizeJoinSpace(
       signedIn,
       { spaceId: SPACE_ID, inviteToken: null },

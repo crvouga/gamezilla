@@ -1,4 +1,4 @@
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
@@ -22,12 +22,12 @@ export function useSpaceColumn(
 ): string | null {
   const col = SpaceCol[field];
   const { value } = useWatchField<string>(
-    sql`SELECT ${raw(SpaceCol.id)}, ${raw(SpaceCol.title)},
-            ${raw(SpaceCol.hostId)}, ${raw(SpaceCol.createdAt)}, ${raw(SpaceCol.endedAt)},
-            ${raw(SpaceCol.visibility)}, ${raw(SpaceCol.hostAccountId)},
-            ${raw(SpaceCol.hostMemberId)}, ${raw(SpaceCol.activeMemberCount)}
-     FROM ${raw(SPACES_TABLE.tableName)}
-     WHERE ${raw(SpaceCol.id)} = ${spaceId}`,
+    sql`SELECT ${ident(SpaceCol.id)}, ${ident(SpaceCol.title)},
+            ${ident(SpaceCol.hostId)}, ${ident(SpaceCol.createdAt)}, ${ident(SpaceCol.endedAt)},
+            ${ident(SpaceCol.visibility)}, ${ident(SpaceCol.hostAccountId)},
+            ${ident(SpaceCol.hostMemberId)}, ${ident(SpaceCol.activeMemberCount)}
+     FROM ${ident(SPACES_TABLE.tableName)}
+     WHERE ${ident(SpaceCol.id)} = ${spaceId}`,
     col
   );
   return value;

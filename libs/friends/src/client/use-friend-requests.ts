@@ -3,7 +3,7 @@ import {
   FRIEND_REQUESTS_TABLE,
   FriendRequestCol,
 } from '@libs/db/shared/friends-tables';
-import { raw, sql, type Sql } from '@pkgs/sql';
+import { sql, type Sql, ident } from '@pkgs/sql';
 import { useMemo } from 'react';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
@@ -22,33 +22,33 @@ type FriendRequestRow = {
 
 function pendingIncomingSql(myId: string): Sql {
   if (myId.length === 0) {
-    return sql`SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)} WHERE 0`;
+    return sql`SELECT * FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)} WHERE 0`;
   }
   return sql`
-    SELECT ${raw(FriendRequestCol.id)}, ${raw(FriendRequestCol.fromUserId)},
-           ${raw(FriendRequestCol.toUserId)}, ${raw(FriendRequestCol.status)},
-           ${raw(FriendRequestCol.message)}, ${raw(FriendRequestCol.createdAt)},
-           ${raw(FriendRequestCol.updatedAt)}, ${raw(FriendRequestCol.respondedAt)}
-    FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
-    WHERE ${raw(FriendRequestCol.toUserId)} = ${myId}
-      AND ${raw(FriendRequestCol.status)} = 'pending'
-    ORDER BY ${raw(FriendRequestCol.createdAt)} DESC
+    SELECT ${ident(FriendRequestCol.id)}, ${ident(FriendRequestCol.fromUserId)},
+           ${ident(FriendRequestCol.toUserId)}, ${ident(FriendRequestCol.status)},
+           ${ident(FriendRequestCol.message)}, ${ident(FriendRequestCol.createdAt)},
+           ${ident(FriendRequestCol.updatedAt)}, ${ident(FriendRequestCol.respondedAt)}
+    FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${ident(FriendRequestCol.toUserId)} = ${myId}
+      AND ${ident(FriendRequestCol.status)} = 'pending'
+    ORDER BY ${ident(FriendRequestCol.createdAt)} DESC
   `;
 }
 
 function pendingOutgoingSql(myId: string): Sql {
   if (myId.length === 0) {
-    return sql`SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)} WHERE 0`;
+    return sql`SELECT * FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)} WHERE 0`;
   }
   return sql`
-    SELECT ${raw(FriendRequestCol.id)}, ${raw(FriendRequestCol.fromUserId)},
-           ${raw(FriendRequestCol.toUserId)}, ${raw(FriendRequestCol.status)},
-           ${raw(FriendRequestCol.message)}, ${raw(FriendRequestCol.createdAt)},
-           ${raw(FriendRequestCol.updatedAt)}, ${raw(FriendRequestCol.respondedAt)}
-    FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
-    WHERE ${raw(FriendRequestCol.fromUserId)} = ${myId}
-      AND ${raw(FriendRequestCol.status)} = 'pending'
-    ORDER BY ${raw(FriendRequestCol.createdAt)} DESC
+    SELECT ${ident(FriendRequestCol.id)}, ${ident(FriendRequestCol.fromUserId)},
+           ${ident(FriendRequestCol.toUserId)}, ${ident(FriendRequestCol.status)},
+           ${ident(FriendRequestCol.message)}, ${ident(FriendRequestCol.createdAt)},
+           ${ident(FriendRequestCol.updatedAt)}, ${ident(FriendRequestCol.respondedAt)}
+    FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${ident(FriendRequestCol.fromUserId)} = ${myId}
+      AND ${ident(FriendRequestCol.status)} = 'pending'
+    ORDER BY ${ident(FriendRequestCol.createdAt)} DESC
   `;
 }
 

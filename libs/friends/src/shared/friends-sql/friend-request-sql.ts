@@ -2,7 +2,7 @@ import {
   FRIEND_REQUESTS_TABLE,
   FriendRequestCol,
 } from '@libs/db/shared/friends-tables';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { FriendRequest, FriendRequestStatus } from '../friends-types';
@@ -40,8 +40,8 @@ export async function findFriendRequestById(
   requestId: string
 ): Promise<FriendRequest | null> {
   const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
-    WHERE ${raw(FriendRequestCol.id)} = ${requestId}
+    SELECT * FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${ident(FriendRequestCol.id)} = ${requestId}
     LIMIT 1
   `);
   const row = rows[0];
@@ -54,10 +54,10 @@ export async function findPendingRequestBetween(
   toUserId: string
 ): Promise<FriendRequest | null> {
   const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
-    WHERE ${raw(FriendRequestCol.fromUserId)} = ${fromUserId}
-      AND ${raw(FriendRequestCol.toUserId)} = ${toUserId}
-      AND ${raw(FriendRequestCol.status)} = 'pending'
+    SELECT * FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${ident(FriendRequestCol.fromUserId)} = ${fromUserId}
+      AND ${ident(FriendRequestCol.toUserId)} = ${toUserId}
+      AND ${ident(FriendRequestCol.status)} = 'pending'
     LIMIT 1
   `);
   const row = rows[0];
@@ -70,11 +70,11 @@ export async function findPendingRequestsBetweenPair(
   userB: string
 ): Promise<readonly FriendRequest[]> {
   const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
-    WHERE ${raw(FriendRequestCol.status)} = 'pending'
+    SELECT * FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${ident(FriendRequestCol.status)} = 'pending'
       AND (
-        (${raw(FriendRequestCol.fromUserId)} = ${userA} AND ${raw(FriendRequestCol.toUserId)} = ${userB})
-        OR (${raw(FriendRequestCol.fromUserId)} = ${userB} AND ${raw(FriendRequestCol.toUserId)} = ${userA})
+        (${ident(FriendRequestCol.fromUserId)} = ${userA} AND ${ident(FriendRequestCol.toUserId)} = ${userB})
+        OR (${ident(FriendRequestCol.fromUserId)} = ${userB} AND ${ident(FriendRequestCol.toUserId)} = ${userA})
       )
   `);
   return rows.map(mapFriendRequest);
@@ -86,11 +86,11 @@ export async function findLatestDeclinedRequestBetween(
   toUserId: string
 ): Promise<FriendRequest | null> {
   const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
-    WHERE ${raw(FriendRequestCol.fromUserId)} = ${fromUserId}
-      AND ${raw(FriendRequestCol.toUserId)} = ${toUserId}
-      AND ${raw(FriendRequestCol.status)} = 'declined'
-    ORDER BY ${raw(FriendRequestCol.updatedAt)} DESC
+    SELECT * FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${ident(FriendRequestCol.fromUserId)} = ${fromUserId}
+      AND ${ident(FriendRequestCol.toUserId)} = ${toUserId}
+      AND ${ident(FriendRequestCol.status)} = 'declined'
+    ORDER BY ${ident(FriendRequestCol.updatedAt)} DESC
     LIMIT 1
   `);
   const row = rows[0];
@@ -108,10 +108,10 @@ export async function insertFriendRequest(
   }
 ): Promise<FriendRequest> {
   await db.run(sql`
-    INSERT INTO ${raw(FRIEND_REQUESTS_TABLE.tableName)}
-    (${raw(FriendRequestCol.id)}, ${raw(FriendRequestCol.fromUserId)}, ${raw(FriendRequestCol.toUserId)},
-     ${raw(FriendRequestCol.status)}, ${raw(FriendRequestCol.message)},
-     ${raw(FriendRequestCol.createdAt)}, ${raw(FriendRequestCol.updatedAt)})
+    INSERT INTO ${ident(FRIEND_REQUESTS_TABLE.tableName)}
+    (${ident(FriendRequestCol.id)}, ${ident(FriendRequestCol.fromUserId)}, ${ident(FriendRequestCol.toUserId)},
+     ${ident(FriendRequestCol.status)}, ${ident(FriendRequestCol.message)},
+     ${ident(FriendRequestCol.createdAt)}, ${ident(FriendRequestCol.updatedAt)})
     VALUES (${args.id}, ${args.fromUserId}, ${args.toUserId}, 'pending', ${args.message}, ${args.now}, ${args.now})
   `);
   const created = await findFriendRequestById(db, args.id);
@@ -128,11 +128,11 @@ export async function markFriendRequestStatus(
   now: string
 ): Promise<void> {
   await db.run(sql`
-    UPDATE ${raw(FRIEND_REQUESTS_TABLE.tableName)}
-    SET ${raw(FriendRequestCol.status)} = ${status},
-        ${raw(FriendRequestCol.updatedAt)} = ${now},
-        ${raw(FriendRequestCol.respondedAt)} = ${now}
-    WHERE ${raw(FriendRequestCol.id)} = ${requestId}
+    UPDATE ${ident(FRIEND_REQUESTS_TABLE.tableName)}
+    SET ${ident(FriendRequestCol.status)} = ${status},
+        ${ident(FriendRequestCol.updatedAt)} = ${now},
+        ${ident(FriendRequestCol.respondedAt)} = ${now}
+    WHERE ${ident(FriendRequestCol.id)} = ${requestId}
   `);
 }
 
@@ -143,14 +143,14 @@ export async function cancelPendingRequestsBetween(
   now: string
 ): Promise<void> {
   await db.run(sql`
-    UPDATE ${raw(FRIEND_REQUESTS_TABLE.tableName)}
-    SET ${raw(FriendRequestCol.status)} = 'cancelled',
-        ${raw(FriendRequestCol.updatedAt)} = ${now},
-        ${raw(FriendRequestCol.respondedAt)} = ${now}
-    WHERE ${raw(FriendRequestCol.status)} = 'pending'
+    UPDATE ${ident(FRIEND_REQUESTS_TABLE.tableName)}
+    SET ${ident(FriendRequestCol.status)} = 'cancelled',
+        ${ident(FriendRequestCol.updatedAt)} = ${now},
+        ${ident(FriendRequestCol.respondedAt)} = ${now}
+    WHERE ${ident(FriendRequestCol.status)} = 'pending'
       AND (
-        (${raw(FriendRequestCol.fromUserId)} = ${userA} AND ${raw(FriendRequestCol.toUserId)} = ${userB})
-        OR (${raw(FriendRequestCol.fromUserId)} = ${userB} AND ${raw(FriendRequestCol.toUserId)} = ${userA})
+        (${ident(FriendRequestCol.fromUserId)} = ${userA} AND ${ident(FriendRequestCol.toUserId)} = ${userB})
+        OR (${ident(FriendRequestCol.fromUserId)} = ${userB} AND ${ident(FriendRequestCol.toUserId)} = ${userA})
       )
   `);
 }

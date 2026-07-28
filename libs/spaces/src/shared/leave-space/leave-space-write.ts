@@ -9,7 +9,7 @@ import {
   spaceMembershipEntityId,
 } from '@libs/spaces/shared/participation/participation-ids';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
@@ -66,12 +66,12 @@ async function decrementActiveMemberCount(
   db: SqlClient,
   spaceId: string
 ): Promise<void> {
-  await db.run(sql`UPDATE ${raw(SPACES_TABLE.tableName)}
-     SET ${raw(SpaceCol.activeMemberCount)} = CASE
-       WHEN ${raw(SpaceCol.activeMemberCount)} > 0
-       THEN ${raw(SpaceCol.activeMemberCount)} - 1
+  await db.run(sql`UPDATE ${ident(SPACES_TABLE.tableName)}
+     SET ${ident(SpaceCol.activeMemberCount)} = CASE
+       WHEN ${ident(SpaceCol.activeMemberCount)} > 0
+       THEN ${ident(SpaceCol.activeMemberCount)} - 1
        ELSE 0 END
-     WHERE ${raw(SpaceCol.id)} = ${spaceId}`);
+     WHERE ${ident(SpaceCol.id)} = ${spaceId}`);
 }
 
 export async function executeLeaveSpace(
@@ -89,10 +89,10 @@ export async function executeLeaveSpace(
   clearSpacePresenceLatch(input.spaceId);
   const now = isoNow();
   const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
-  await db.run(sql`UPDATE ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     SET ${raw(SpaceMembershipCol.leftAt)} = ${now}
-     WHERE ${raw(SpaceMembershipCol.id)} = ${membershipId}
-       AND ${raw(SpaceMembershipCol.leftAt)} IS NULL`);
+  await db.run(sql`UPDATE ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     SET ${ident(SpaceMembershipCol.leftAt)} = ${now}
+     WHERE ${ident(SpaceMembershipCol.id)} = ${membershipId}
+       AND ${ident(SpaceMembershipCol.leftAt)} IS NULL`);
   await decrementActiveMemberCount(db, input.spaceId);
   await maybeAutoEndEmptyHostSpace(ctx, db, input.spaceId);
   return ok(undefined);

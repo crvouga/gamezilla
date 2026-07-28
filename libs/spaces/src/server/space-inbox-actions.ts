@@ -1,5 +1,5 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 
 import {
   SpaceInviteCol,
@@ -20,12 +20,12 @@ export async function acceptSpaceInviteFromInbox(args: {
     readonly token: string;
     readonly invitee_account_id: string | null;
     readonly revoked_at: string | null;
-  }>(sql`SELECT ${raw(SpaceInviteCol.spaceId)} AS space_id,
-            ${raw(SpaceInviteCol.token)} AS token,
-            ${raw(SpaceInviteCol.inviteeAccountId)} AS invitee_account_id,
-            ${raw(SpaceInviteCol.revokedAt)} AS revoked_at
-     FROM ${raw(SPACE_INVITES_TABLE.tableName)}
-     WHERE ${raw(SpaceInviteCol.id)} = ${args.inviteId}
+  }>(sql`SELECT ${ident(SpaceInviteCol.spaceId)} AS space_id,
+            ${ident(SpaceInviteCol.token)} AS token,
+            ${ident(SpaceInviteCol.inviteeAccountId)} AS invitee_account_id,
+            ${ident(SpaceInviteCol.revokedAt)} AS revoked_at
+     FROM ${ident(SPACE_INVITES_TABLE.tableName)}
+     WHERE ${ident(SpaceInviteCol.id)} = ${args.inviteId}
      LIMIT 1`);
   const row = rows[0];
   if (row === undefined || row.revoked_at !== null) {
@@ -53,9 +53,9 @@ export async function declineSpaceInviteFromInbox(args: {
   readonly inviteId: string;
 }): Promise<void> {
   const now = new Date().toISOString();
-  await args.sql.run(sql`UPDATE ${raw(SPACE_INVITES_TABLE.tableName)}
-     SET ${raw(SpaceInviteCol.revokedAt)} = ${now}
-     WHERE ${raw(SpaceInviteCol.id)} = ${args.inviteId}
-       AND ${raw(SpaceInviteCol.inviteeAccountId)} = ${args.actorId}`);
+  await args.sql.run(sql`UPDATE ${ident(SPACE_INVITES_TABLE.tableName)}
+     SET ${ident(SpaceInviteCol.revokedAt)} = ${now}
+     WHERE ${ident(SpaceInviteCol.id)} = ${args.inviteId}
+       AND ${ident(SpaceInviteCol.inviteeAccountId)} = ${args.actorId}`);
   await deactivateSpaceInviteInteraction(args.sql, args.inviteId, args.actorId);
 }

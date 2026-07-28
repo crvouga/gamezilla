@@ -1,7 +1,7 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import type { WriteResult } from '@pkgs/write/shared/write-result';
@@ -42,11 +42,11 @@ export const endSpaceWrite = defineWrite<EndSpaceInput, void>({
     const accountId = requireAccountId(ctx);
     if (!accountId.ok) return accountId;
     const memberId = resolveSpaceMemberId(accountId.value);
-    await db.run(sql`UPDATE ${raw(SPACES_TABLE.tableName)}
-       SET ${raw(SpaceCol.endedAt)} = ${isoNow()},
-           ${raw(SpaceCol.hostId)} = ${ctx.deviceId},
-           ${raw(SpaceCol.hostMemberId)} = ${memberId}
-       WHERE ${raw(SpaceCol.id)} = ${input.spaceId}`);
+    await db.run(sql`UPDATE ${ident(SPACES_TABLE.tableName)}
+       SET ${ident(SpaceCol.endedAt)} = ${isoNow()},
+           ${ident(SpaceCol.hostId)} = ${ctx.deviceId},
+           ${ident(SpaceCol.hostMemberId)} = ${memberId}
+       WHERE ${ident(SpaceCol.id)} = ${input.spaceId}`);
     return executeLeaveSpace(ctx, input, db);
   },
 });

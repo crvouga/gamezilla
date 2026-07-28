@@ -3,7 +3,7 @@ import {
   CHESS_PUZZLES_TABLE,
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
-import { empty, raw, sql, type Sql } from '@pkgs/sql';
+import { empty, sql, type Sql, ident } from '@pkgs/sql';
 import { PUZZLE_RATING_BAND_SIZE } from '../../shared/chess-puzzle-feed-config';
 
 export { chessPuzzleSyncRatingBands } from '../../shared/chess-puzzle-feed-config';
@@ -44,13 +44,13 @@ export function buildPuzzleCandidatesSql(
       : empty;
   const ownerFilter =
     args.ownerId.length > 0
-      ? sql`AND id NOT IN (SELECT ${raw(ChessPuzzleInteractionCol.puzzleId)} FROM ${raw(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)} WHERE ${raw(ChessPuzzleInteractionCol.ownerId)} = ${args.ownerId})`
+      ? sql`AND id NOT IN (SELECT ${ident(ChessPuzzleInteractionCol.puzzleId)} FROM ${ident(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)} WHERE ${ident(ChessPuzzleInteractionCol.ownerId)} = ${args.ownerId})`
       : empty;
   const currentPuzzleFilter =
     args.currentPuzzleId !== null && args.currentPuzzleId.length > 0
       ? sql`AND id != ${args.currentPuzzleId}`
       : empty;
-  return sql`SELECT id, rating FROM ${raw(CHESS_PUZZLES_TABLE.tableName)} WHERE 1=1
+  return sql`SELECT id, rating FROM ${ident(CHESS_PUZZLES_TABLE.tableName)} WHERE 1=1
     ${ratingFilter}
     ${ownerFilter}
     ${currentPuzzleFilter}

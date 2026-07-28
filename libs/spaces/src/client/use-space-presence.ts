@@ -1,5 +1,5 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
-import { raw, sql, type Sql } from '@pkgs/sql';
+import { sql, type Sql, ident } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 
@@ -33,20 +33,20 @@ type MembershipRow = {
 };
 
 function spaceRowSql(enabled: boolean, spaceId: string): Sql {
-  const base = sql`SELECT ${raw(SpaceCol.hostMemberId)} AS host_member_id,
-         ${raw(SpaceCol.hostAccountId)} AS host_account_id,
-         ${raw(SpaceCol.endedAt)} AS ended_at
-         FROM ${raw(SPACES_TABLE.tableName)}`;
+  const base = sql`SELECT ${ident(SpaceCol.hostMemberId)} AS host_member_id,
+         ${ident(SpaceCol.hostAccountId)} AS host_account_id,
+         ${ident(SpaceCol.endedAt)} AS ended_at
+         FROM ${ident(SPACES_TABLE.tableName)}`;
   if (!enabled) return sql`${base} WHERE 0`;
-  return sql`${base} WHERE ${raw(SpaceCol.id)} = ${spaceId}`;
+  return sql`${base} WHERE ${ident(SpaceCol.id)} = ${spaceId}`;
 }
 
 function membershipRowSql(enabled: boolean, membershipId: string): Sql {
-  const base = sql`SELECT ${raw(SpaceMembershipCol.id)} AS id
-           FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}`;
+  const base = sql`SELECT ${ident(SpaceMembershipCol.id)} AS id
+           FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}`;
   if (!enabled) return sql`${base} WHERE 0`;
-  return sql`${base} WHERE ${raw(SpaceMembershipCol.id)} = ${membershipId}
-             AND ${raw(SpaceMembershipCol.leftAt)} IS NULL`;
+  return sql`${base} WHERE ${ident(SpaceMembershipCol.id)} = ${membershipId}
+             AND ${ident(SpaceMembershipCol.leftAt)} IS NULL`;
 }
 
 function applyPresenceLatch(

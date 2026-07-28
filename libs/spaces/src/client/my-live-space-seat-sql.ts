@@ -4,7 +4,7 @@ import {
   SpaceMembershipCol,
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
-import { raw, sql, type Sql } from '@pkgs/sql';
+import { sql, type Sql, ident } from '@pkgs/sql';
 
 /**
  * Live spaces this member hosts without having left (left_at set).
@@ -16,16 +16,16 @@ export function hostedUnleftPredicateSql(
   memberId: string
 ): Sql {
   return sql`(
-    ${raw(spacesAlias)}.${raw(SpaceCol.endedAt)} IS NULL
+    ${ident(spacesAlias)}.${ident(SpaceCol.endedAt)} IS NULL
     AND (
-      ${raw(spacesAlias)}.${raw(SpaceCol.hostMemberId)} = ${memberId}
-      OR ${raw(spacesAlias)}.${raw(SpaceCol.hostAccountId)} = ${memberId}
+      ${ident(spacesAlias)}.${ident(SpaceCol.hostMemberId)} = ${memberId}
+      OR ${ident(spacesAlias)}.${ident(SpaceCol.hostAccountId)} = ${memberId}
     )
     AND NOT EXISTS (
-      SELECT 1 FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)} AS m
-      WHERE m.${raw(SpaceMembershipCol.spaceId)} = ${raw(spacesAlias)}.${raw(SpaceCol.id)}
-        AND m.${raw(SpaceMembershipCol.memberId)} = ${memberId}
-        AND m.${raw(SpaceMembershipCol.leftAt)} IS NOT NULL
+      SELECT 1 FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)} AS m
+      WHERE m.${ident(SpaceMembershipCol.spaceId)} = ${ident(spacesAlias)}.${ident(SpaceCol.id)}
+        AND m.${ident(SpaceMembershipCol.memberId)} = ${memberId}
+        AND m.${ident(SpaceMembershipCol.leftAt)} IS NOT NULL
     )
   )`;
 }
@@ -40,14 +40,14 @@ export function departedHostPredicateSql(
 ): Sql {
   return sql`(
     (
-      ${raw(spacesAlias)}.${raw(SpaceCol.hostMemberId)} = ${memberId}
-      OR ${raw(spacesAlias)}.${raw(SpaceCol.hostAccountId)} = ${memberId}
+      ${ident(spacesAlias)}.${ident(SpaceCol.hostMemberId)} = ${memberId}
+      OR ${ident(spacesAlias)}.${ident(SpaceCol.hostAccountId)} = ${memberId}
     )
     AND EXISTS (
-      SELECT 1 FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)} AS m
-      WHERE m.${raw(SpaceMembershipCol.spaceId)} = ${raw(spacesAlias)}.${raw(SpaceCol.id)}
-        AND m.${raw(SpaceMembershipCol.memberId)} = ${memberId}
-        AND m.${raw(SpaceMembershipCol.leftAt)} IS NOT NULL
+      SELECT 1 FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)} AS m
+      WHERE m.${ident(SpaceMembershipCol.spaceId)} = ${ident(spacesAlias)}.${ident(SpaceCol.id)}
+        AND m.${ident(SpaceMembershipCol.memberId)} = ${memberId}
+        AND m.${ident(SpaceMembershipCol.leftAt)} IS NOT NULL
     )
   )`;
 }
@@ -57,12 +57,12 @@ export function departedHostPredicateSql(
  */
 export function hostedUnleftSpacesSelectSql(memberId: string): Sql {
   const spaces = SPACES_TABLE.tableName;
-  return sql`SELECT ${raw(SpaceCol.id)}, ${raw(SpaceCol.hostMemberId)} AS host_member_id,
-          ${raw(SpaceCol.hostAccountId)} AS host_account_id,
-          ${raw(SpaceCol.endedAt)} AS ended_at
-          FROM ${raw(spaces)}
+  return sql`SELECT ${ident(SpaceCol.id)}, ${ident(SpaceCol.hostMemberId)} AS host_member_id,
+          ${ident(SpaceCol.hostAccountId)} AS host_account_id,
+          ${ident(SpaceCol.endedAt)} AS ended_at
+          FROM ${ident(spaces)}
           WHERE ${hostedUnleftPredicateSql(spaces, memberId)}
-          ORDER BY ${raw(SpaceCol.createdAt)} DESC`;
+          ORDER BY ${ident(SpaceCol.createdAt)} DESC`;
 }
 
 /**
@@ -76,23 +76,23 @@ export function friendsLiveSpaceIdsSql(args: {
   const spaces = SPACES_TABLE.tableName;
   const memberId = args.memberId;
   const membershipFilter = args.includeHostAccountId
-    ? sql`${raw(SpaceMembershipCol.memberId)} = ${memberId}
-                 OR ${raw(SpaceMembershipCol.profileId)} = ${memberId}`
-    : sql`${raw(SpaceMembershipCol.memberId)} = ${memberId}`;
-  return sql`SELECT ${raw(SpaceCol.id)} AS id FROM ${raw(spaces)}
-       WHERE ${raw(SpaceCol.endedAt)} IS NULL
+    ? sql`${ident(SpaceMembershipCol.memberId)} = ${memberId}
+                 OR ${ident(SpaceMembershipCol.profileId)} = ${memberId}`
+    : sql`${ident(SpaceMembershipCol.memberId)} = ${memberId}`;
+  return sql`SELECT ${ident(SpaceCol.id)} AS id FROM ${ident(spaces)}
+       WHERE ${ident(SpaceCol.endedAt)} IS NULL
          AND (
            (
-             ${raw(SpaceCol.visibility)} = 'friends'
+             ${ident(SpaceCol.visibility)} = 'friends'
              AND NOT ${departedHostPredicateSql(spaces, memberId)}
            )
            OR ${hostedUnleftPredicateSql(spaces, memberId)}
-           OR ${raw(SpaceCol.id)} IN (
-             SELECT ${raw(SpaceMembershipCol.spaceId)}
-             FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-             WHERE ${raw(SpaceMembershipCol.leftAt)} IS NULL
+           OR ${ident(SpaceCol.id)} IN (
+             SELECT ${ident(SpaceMembershipCol.spaceId)}
+             FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+             WHERE ${ident(SpaceMembershipCol.leftAt)} IS NULL
                AND (${membershipFilter})
            )
          )
-       ORDER BY ${raw(SpaceCol.createdAt)} DESC`;
+       ORDER BY ${ident(SpaceCol.createdAt)} DESC`;
 }

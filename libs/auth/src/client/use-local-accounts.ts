@@ -1,4 +1,4 @@
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -127,15 +127,15 @@ export function useLocalAccounts(): readonly LocalAccount[] {
   const { row: activeProfile } = useWatchOne<ActiveProfileDisplayRow>(
     activeAccountId === null
       ? sql`
-          SELECT ${raw(ProfileCol.username)} AS username,
-                 ${raw(ProfileCol.avatarConfig)} AS avatar_config
-          FROM ${raw(PROFILES_TABLE.tableName)} WHERE 0
+          SELECT ${ident(ProfileCol.username)} AS username,
+                 ${ident(ProfileCol.avatarConfig)} AS avatar_config
+          FROM ${ident(PROFILES_TABLE.tableName)} WHERE 0
         `
       : sql`
-          SELECT ${raw(ProfileCol.username)} AS username,
-                 ${raw(ProfileCol.avatarConfig)} AS avatar_config
-          FROM ${raw(PROFILES_TABLE.tableName)}
-          WHERE ${raw(ProfileCol.id)} = ${activeAccountId}
+          SELECT ${ident(ProfileCol.username)} AS username,
+                 ${ident(ProfileCol.avatarConfig)} AS avatar_config
+          FROM ${ident(PROFILES_TABLE.tableName)}
+          WHERE ${ident(ProfileCol.id)} = ${activeAccountId}
         `
   );
   // Prefer live row when present. Do not blank username while reconnecting —

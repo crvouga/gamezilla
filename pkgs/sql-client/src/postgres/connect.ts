@@ -8,7 +8,7 @@
  * different schema impossible without going through here.
  */
 import { Client, Pool, type PoolClient } from 'pg';
-import { raw } from '@pkgs/sql';
+import { raw, ident } from '@pkgs/sql';
 import { pgRawQueryWithSearchPathPin, type PgExecutor } from './impl-pg-shared';
 import { SqlClientImplPg, SqlClientImplPgClient } from './impl-pg';
 import type { PostgresSqlClient, SqlClient } from '../interface';
@@ -259,7 +259,7 @@ function toPgQueryable(sqlClient: SqlClient): {
 } {
   return {
     query: async <R extends Record<string, unknown>>(queryText: string) => ({
-      rows: await sqlClient.query<R>(raw(queryText)),
+      rows: await sqlClient.query<R>(ident(queryText)),
     }),
   };
 }

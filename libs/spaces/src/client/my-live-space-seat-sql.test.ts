@@ -9,7 +9,7 @@ import {
 import { spaceMembershipEntityId } from '@libs/spaces/shared/participation/participation-ids';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { raw, sql, type Sql } from '@pkgs/sql';
+import { sql, type Sql, ident } from '@pkgs/sql';
 
 import {
   friendsLiveSpaceIdsSql,
@@ -28,24 +28,24 @@ function openSql(): SqlClientImplBunSqlite {
 }
 
 async function migrate(db: SqlClient): Promise<void> {
-  await db.run(sql`CREATE TABLE ${raw(SPACES_TABLE.tableName)} (
-      ${raw(SpaceCol.id)} TEXT PRIMARY KEY,
-      ${raw(SpaceCol.title)} TEXT,
-      ${raw(SpaceCol.hostId)} TEXT,
-      ${raw(SpaceCol.createdAt)} TEXT,
-      ${raw(SpaceCol.endedAt)} TEXT,
-      ${raw(SpaceCol.visibility)} TEXT,
-      ${raw(SpaceCol.hostAccountId)} TEXT,
-      ${raw(SpaceCol.hostMemberId)} TEXT,
-      ${raw(SpaceCol.activeMemberCount)} INTEGER NOT NULL DEFAULT 0
+  await db.run(sql`CREATE TABLE ${ident(SPACES_TABLE.tableName)} (
+      ${ident(SpaceCol.id)} TEXT PRIMARY KEY,
+      ${ident(SpaceCol.title)} TEXT,
+      ${ident(SpaceCol.hostId)} TEXT,
+      ${ident(SpaceCol.createdAt)} TEXT,
+      ${ident(SpaceCol.endedAt)} TEXT,
+      ${ident(SpaceCol.visibility)} TEXT,
+      ${ident(SpaceCol.hostAccountId)} TEXT,
+      ${ident(SpaceCol.hostMemberId)} TEXT,
+      ${ident(SpaceCol.activeMemberCount)} INTEGER NOT NULL DEFAULT 0
     )`);
-  await db.run(sql`CREATE TABLE ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)} (
-      ${raw(SpaceMembershipCol.id)} TEXT PRIMARY KEY,
-      ${raw(SpaceMembershipCol.memberId)} TEXT,
-      ${raw(SpaceMembershipCol.spaceId)} TEXT,
-      ${raw(SpaceMembershipCol.joinedAt)} TEXT,
-      ${raw(SpaceMembershipCol.leftAt)} TEXT,
-      ${raw(SpaceMembershipCol.profileId)} TEXT
+  await db.run(sql`CREATE TABLE ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)} (
+      ${ident(SpaceMembershipCol.id)} TEXT PRIMARY KEY,
+      ${ident(SpaceMembershipCol.memberId)} TEXT,
+      ${ident(SpaceMembershipCol.spaceId)} TEXT,
+      ${ident(SpaceMembershipCol.joinedAt)} TEXT,
+      ${ident(SpaceMembershipCol.leftAt)} TEXT,
+      ${ident(SpaceMembershipCol.profileId)} TEXT
     )`);
 }
 
@@ -59,11 +59,11 @@ async function seedSpace(
     readonly createdAt: string;
   }
 ): Promise<void> {
-  await db.run(sql`INSERT INTO ${raw(SPACES_TABLE.tableName)}
-     (${raw(SpaceCol.id)}, ${raw(SpaceCol.hostId)}, ${raw(SpaceCol.hostMemberId)},
-      ${raw(SpaceCol.hostAccountId)}, ${raw(SpaceCol.visibility)},
-      ${raw(SpaceCol.endedAt)}, ${raw(SpaceCol.createdAt)},
-      ${raw(SpaceCol.activeMemberCount)})
+  await db.run(sql`INSERT INTO ${ident(SPACES_TABLE.tableName)}
+     (${ident(SpaceCol.id)}, ${ident(SpaceCol.hostId)}, ${ident(SpaceCol.hostMemberId)},
+      ${ident(SpaceCol.hostAccountId)}, ${ident(SpaceCol.visibility)},
+      ${ident(SpaceCol.endedAt)}, ${ident(SpaceCol.createdAt)},
+      ${ident(SpaceCol.activeMemberCount)})
      VALUES (${args.id}, ${DEVICE_ID}, ${args.hostAccountId}, ${args.hostAccountId},
              ${args.visibility}, ${args.endedAt}, ${args.createdAt}, 1)`);
 }
@@ -76,10 +76,10 @@ async function seedMembership(
     readonly leftAt: string | null;
   }
 ): Promise<void> {
-  await db.run(sql`INSERT INTO ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     (${raw(SpaceMembershipCol.id)}, ${raw(SpaceMembershipCol.memberId)},
-      ${raw(SpaceMembershipCol.spaceId)}, ${raw(SpaceMembershipCol.joinedAt)},
-      ${raw(SpaceMembershipCol.leftAt)}, ${raw(SpaceMembershipCol.profileId)})
+  await db.run(sql`INSERT INTO ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     (${ident(SpaceMembershipCol.id)}, ${ident(SpaceMembershipCol.memberId)},
+      ${ident(SpaceMembershipCol.spaceId)}, ${ident(SpaceMembershipCol.joinedAt)},
+      ${ident(SpaceMembershipCol.leftAt)}, ${ident(SpaceMembershipCol.profileId)})
      VALUES (${spaceMembershipEntityId(args.memberId, args.spaceId)}, ${args.memberId},
              ${args.spaceId}, ${'2026-01-01T00:00:00.000Z'}, ${args.leftAt}, ${args.memberId})`);
 }

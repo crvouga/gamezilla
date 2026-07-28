@@ -1,4 +1,4 @@
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
@@ -23,21 +23,21 @@ export type DeviceFieldKey = keyof typeof DeviceField;
 
 /** Canonical device row SELECT — all fields used by account-device atoms. */
 function deviceRowByIdSql(deviceId: string) {
-  return sql`SELECT ${raw(DeviceCol.id)},
-      ${raw(DeviceCol.createdAt)},
-      ${raw(DeviceCol.platform)},
-      ${raw(DeviceCol.osName)},
-      ${raw(DeviceCol.osVersion)},
-      ${raw(DeviceCol.deviceModelName)},
-      ${raw(DeviceCol.deviceBrand)},
-      ${raw(DeviceCol.deviceName)},
-      ${raw(DeviceCol.appVersion)},
-      ${raw(DeviceCol.appBuildNumber)},
-      ${raw(DeviceCol.userAgent)},
-      ${raw(DeviceCol.firstSeenAt)},
-      ${raw(DeviceCol.lastSeenAt)}
-     FROM ${raw(DEVICES_TABLE.tableName)}
-     WHERE ${raw(DeviceCol.id)} = ${deviceId}`;
+  return sql`SELECT ${ident(DeviceCol.id)},
+      ${ident(DeviceCol.createdAt)},
+      ${ident(DeviceCol.platform)},
+      ${ident(DeviceCol.osName)},
+      ${ident(DeviceCol.osVersion)},
+      ${ident(DeviceCol.deviceModelName)},
+      ${ident(DeviceCol.deviceBrand)},
+      ${ident(DeviceCol.deviceName)},
+      ${ident(DeviceCol.appVersion)},
+      ${ident(DeviceCol.appBuildNumber)},
+      ${ident(DeviceCol.userAgent)},
+      ${ident(DeviceCol.firstSeenAt)},
+      ${ident(DeviceCol.lastSeenAt)}
+     FROM ${ident(DEVICES_TABLE.tableName)}
+     WHERE ${ident(DeviceCol.id)} = ${deviceId}`;
 }
 
 export function useDeviceColumn(

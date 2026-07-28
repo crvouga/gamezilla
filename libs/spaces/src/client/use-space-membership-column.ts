@@ -1,4 +1,4 @@
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import {
@@ -22,12 +22,12 @@ export function useSpaceMembershipColumn(
 ): string | null {
   const col = SpaceMembershipCol[field];
   const { value } = useWatchField<string>(
-    sql`SELECT ${raw(SpaceMembershipCol.id)},
-            ${raw(SpaceMembershipCol.memberId)}, ${raw(SpaceMembershipCol.spaceId)},
-            ${raw(SpaceMembershipCol.joinedAt)}, ${raw(SpaceMembershipCol.leftAt)},
-            ${raw(SpaceMembershipCol.profileId)}
-     FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${raw(SpaceMembershipCol.id)} = ${membershipId}`,
+    sql`SELECT ${ident(SpaceMembershipCol.id)},
+            ${ident(SpaceMembershipCol.memberId)}, ${ident(SpaceMembershipCol.spaceId)},
+            ${ident(SpaceMembershipCol.joinedAt)}, ${ident(SpaceMembershipCol.leftAt)},
+            ${ident(SpaceMembershipCol.profileId)}
+     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     WHERE ${ident(SpaceMembershipCol.id)} = ${membershipId}`,
     col
   );
   return value;

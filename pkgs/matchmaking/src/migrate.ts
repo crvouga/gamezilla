@@ -51,7 +51,7 @@
 
 import { assert } from '@pkgs/assert';
 import { isNamespacedKeyword } from '@pkgs/keyword';
-import { raw, sql } from '@pkgs/sql';
+import { raw, sql, unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   ADD_METADATA_COLUMN_TO_MATCHED_SQL,
@@ -374,7 +374,7 @@ export async function migrate(args: MigrateArgs): Promise<void> {
     CREATE_ACTIVE_PARTITIONS_TABLE_SQL,
   ];
   for (const statement of upfront) {
-    await sqlClient.run(raw(statement));
+    await sqlClient.run(unsafe(statement));
   }
 
   await maybeRebuildSchema(sqlClient, schema);
@@ -413,7 +413,7 @@ export async function migrate(args: MigrateArgs): Promise<void> {
   ];
   await sqlClient.transaction(async (tx) => {
     for (const statement of functions) {
-      await tx.run(raw(statement));
+      await tx.run(unsafe(statement));
     }
   });
 

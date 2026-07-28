@@ -1,6 +1,6 @@
 import { isEqual } from '@pkgs/equal/is-equal';
 import type { Logger } from '@pkgs/logger';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
@@ -39,7 +39,7 @@ async function readClientConfigRow(
   db: SqlClient
 ): Promise<Record<string, unknown> | null> {
   const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT * FROM ${raw(CLIENT_CONFIG_TABLE.tableName)} WHERE ${raw(ClientConfigCol.id)} = ${CLIENT_CONFIG_ENTITY_ID} LIMIT 1
+    SELECT * FROM ${ident(CLIENT_CONFIG_TABLE.tableName)} WHERE ${ident(ClientConfigCol.id)} = ${CLIENT_CONFIG_ENTITY_ID} LIMIT 1
   `);
   const row = rows[0];
   if (row === undefined) return null;
@@ -55,11 +55,11 @@ async function upsertClientConfigRow(
 ): Promise<void> {
   const googleId = attrs[ClientConfigAttr.googleWebClientId.key];
   await db.run(sql`
-    INSERT INTO ${raw(CLIENT_CONFIG_TABLE.tableName)}
-     (${raw(ClientConfigCol.id)}, ${raw(ClientConfigCol.googleWebClientId)})
+    INSERT INTO ${ident(CLIENT_CONFIG_TABLE.tableName)}
+     (${ident(ClientConfigCol.id)}, ${ident(ClientConfigCol.googleWebClientId)})
      VALUES (${CLIENT_CONFIG_ENTITY_ID}, ${typeof googleId === 'string' ? googleId : null})
-     ON CONFLICT (${raw(ClientConfigCol.id)}) DO UPDATE SET
-       ${raw(ClientConfigCol.googleWebClientId)} = excluded.${raw(ClientConfigCol.googleWebClientId)}
+     ON CONFLICT (${ident(ClientConfigCol.id)}) DO UPDATE SET
+       ${ident(ClientConfigCol.googleWebClientId)} = excluded.${ident(ClientConfigCol.googleWebClientId)}
   `);
 }
 

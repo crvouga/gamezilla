@@ -7,14 +7,14 @@ import {
   SpaceMembershipCol,
   SPACE_MEMBERSHIPS_TABLE,
 } from '@libs/db/shared/space-tables';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
 
 function membershipByIdSql(membershipId: string) {
-  return sql`SELECT ${raw(SpaceMembershipCol.id)},
-            ${raw(SpaceMembershipCol.memberId)}, ${raw(SpaceMembershipCol.leftAt)}
-     FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${raw(SpaceMembershipCol.id)} = ${membershipId}`;
+  return sql`SELECT ${ident(SpaceMembershipCol.id)},
+            ${ident(SpaceMembershipCol.memberId)}, ${ident(SpaceMembershipCol.leftAt)}
+     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     WHERE ${ident(SpaceMembershipCol.id)} = ${membershipId}`;
 }
 
 export function useAutoLeaveIfEnded(spaceId: string): void {

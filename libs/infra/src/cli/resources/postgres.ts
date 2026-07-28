@@ -1,4 +1,4 @@
-import { raw } from '@pkgs/sql';
+import { raw, unsafe } from '@pkgs/sql';
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { ok } from '../lib/fmt';
@@ -119,7 +119,7 @@ async function verifyDatabaseAndClaimOwnership(
       return { ok: false, error: 'SELECT 1 returned no rows' };
     }
     try {
-      await db.run(raw(CLAIM_TABLE_OWNERSHIP_SQL));
+      await db.run(unsafe(CLAIM_TABLE_OWNERSHIP_SQL));
     } catch {
       // Best-effort: if the role lacks permission, the Worker migration
       // will handle it by skipping DDL on existing tables.

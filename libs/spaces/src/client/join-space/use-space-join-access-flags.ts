@@ -6,7 +6,7 @@ import {
   SPACE_INVITES_TABLE,
   SpaceInviteCol,
 } from '@libs/db/shared/space-tables';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { canonicalUserPair } from '../../shared/canonical-user-pair';
@@ -44,11 +44,11 @@ export function useHasValidLocalInvite(
 ): boolean {
   const token = inviteToken ?? '';
   const enabled = spaceId.length > 0 && token.length > 0;
-  const inviteColumns = sql`SELECT ${raw(SpaceInviteCol.expiresAt)} AS expires_at,
-                ${raw(SpaceInviteCol.revokedAt)} AS revoked_at,
-                ${raw(SpaceInviteCol.maxUses)} AS max_uses,
-                ${raw(SpaceInviteCol.useCount)} AS use_count
-         FROM ${raw(SPACE_INVITES_TABLE.tableName)}`;
+  const inviteColumns = sql`SELECT ${ident(SpaceInviteCol.expiresAt)} AS expires_at,
+                ${ident(SpaceInviteCol.revokedAt)} AS revoked_at,
+                ${ident(SpaceInviteCol.maxUses)} AS max_uses,
+                ${ident(SpaceInviteCol.useCount)} AS use_count
+         FROM ${ident(SPACE_INVITES_TABLE.tableName)}`;
   const { row } = useWatchOne<{
     readonly expires_at: string | null;
     readonly revoked_at: string | null;
@@ -57,8 +57,8 @@ export function useHasValidLocalInvite(
   }>(
     enabled
       ? sql`${inviteColumns}
-         WHERE ${raw(SpaceInviteCol.spaceId)} = ${spaceId}
-           AND ${raw(SpaceInviteCol.token)} = ${token}
+         WHERE ${ident(SpaceInviteCol.spaceId)} = ${spaceId}
+           AND ${ident(SpaceInviteCol.token)} = ${token}
          LIMIT 1`
       : sql`${inviteColumns} WHERE 0`
   );
@@ -74,12 +74,12 @@ export function useAreAccountsFriendsLocal(
   const sameAccount =
     accountA !== null && accountB !== null && accountA === accountB;
   const pair = friendshipPairOrNull(accountA, accountB);
-  const friendshipColumns = sql`SELECT ${raw(FriendshipCol.id)} AS id
-         FROM ${raw(FRIENDSHIPS_TABLE.tableName)}`;
+  const friendshipColumns = sql`SELECT ${ident(FriendshipCol.id)} AS id
+         FROM ${ident(FRIENDSHIPS_TABLE.tableName)}`;
   const { row } = useWatchOne<{ readonly id: string }>(
     pair !== null
       ? sql`${friendshipColumns}
-         WHERE ${raw(FriendshipCol.userLow)} = ${pair.userLow} AND ${raw(FriendshipCol.userHigh)} = ${pair.userHigh}
+         WHERE ${ident(FriendshipCol.userLow)} = ${pair.userLow} AND ${ident(FriendshipCol.userHigh)} = ${pair.userHigh}
          LIMIT 1`
       : sql`${friendshipColumns} WHERE 0`
   );

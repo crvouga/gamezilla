@@ -3,7 +3,7 @@ import {
   ENTITY_STORE_TABLE,
   entityStoreId,
 } from '@libs/db/shared/entity-store-table';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -22,7 +22,7 @@ export async function readEntityStoreData(
   }
 ): Promise<Record<string, unknown> | null> {
   const rows = await db.query<EntityStoreDataRow>(sql`
-    SELECT data FROM ${raw(ENTITY_STORE_TABLE)}
+    SELECT data FROM ${ident(ENTITY_STORE_TABLE)}
      WHERE namespace = ${args.namespace} AND type = ${args.type} AND external_id = ${args.externalId} LIMIT 1
   `);
   const data = rows[0]?.data;
@@ -54,11 +54,11 @@ export async function upsertEntityStoreRow(
   const now = new Date().toISOString();
   const dataJson = stripeEntityStoreData(args.data);
   await db.run(sql`
-    INSERT INTO ${raw(ENTITY_STORE_TABLE)}
+    INSERT INTO ${ident(ENTITY_STORE_TABLE)}
      (id, namespace, type, external_id, owner_id, data, created_at, updated_at)
      VALUES (${id}, ${args.namespace}, ${args.type}, ${args.externalId}, ${args.ownerId ?? null}, ${dataJson}::jsonb, ${now}, ${now})
      ON CONFLICT (namespace, type, external_id) DO UPDATE SET
-       owner_id = COALESCE(excluded.owner_id, ${raw(ENTITY_STORE_TABLE)}.owner_id),
+       owner_id = COALESCE(excluded.owner_id, ${ident(ENTITY_STORE_TABLE)}.owner_id),
        data = excluded.data,
        updated_at = excluded.updated_at
   `);

@@ -1,6 +1,6 @@
 import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
 import { DEVICES_TABLE, DeviceCol } from '@libs/db/shared/auth-tables';
-import { join, raw, sql } from '@pkgs/sql';
+import { join, sql, ident } from '@pkgs/sql';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -93,7 +93,7 @@ async function upsertDeviceRow(args: {
 }): Promise<void> {
   const { db, deviceId, userId, attributes } = args;
   const rows = await db.query<DeviceRow>(sql`
-    SELECT * FROM ${raw(DEVICES_TABLE.tableName)} WHERE ${raw(DeviceCol.id)} = ${deviceId} LIMIT 1
+    SELECT * FROM ${ident(DEVICES_TABLE.tableName)} WHERE ${ident(DeviceCol.id)} = ${deviceId} LIMIT 1
   `);
   const existing = rows[0];
   const now = new Date().toISOString();
@@ -113,7 +113,7 @@ async function upsertDeviceRow(args: {
       vals.push(value);
     }
     await db.run(sql`
-      INSERT INTO ${raw(DEVICES_TABLE.tableName)} (${join(cols.map((col) => raw(col)))})
+      INSERT INTO ${ident(DEVICES_TABLE.tableName)} (${join(cols.map((col) => ident(col)))})
       VALUES (${join(vals)})
     `);
     return;
@@ -137,11 +137,11 @@ async function upsertDeviceRow(args: {
   const entries = Object.entries(updates);
   if (entries.length === 0) return;
   const sets = join(
-    entries.map(([col, value]) => sql`${raw(col)} = ${value}`),
+    entries.map(([col, value]) => sql`${ident(col)} = ${value}`),
     ', '
   );
   await db.run(sql`
-    UPDATE ${raw(DEVICES_TABLE.tableName)} SET ${sets} WHERE ${raw(DeviceCol.id)} = ${deviceId}
+    UPDATE ${ident(DEVICES_TABLE.tableName)} SET ${sets} WHERE ${ident(DeviceCol.id)} = ${deviceId}
   `);
 }
 

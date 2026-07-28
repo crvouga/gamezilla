@@ -3,7 +3,7 @@ import {
   FriendProfileCacheCol,
 } from '@libs/db/shared/friends-tables';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { pairId } from '../pair-id';
@@ -18,9 +18,9 @@ async function readProfileCard(
   profileId: string
 ): Promise<ProfileCardLite | null> {
   const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT ${raw(ProfileCol.username)}, ${raw(ProfileCol.avatarConfig)}
-    FROM ${raw(PROFILES_TABLE.tableName)}
-    WHERE ${raw(ProfileCol.id)} = ${profileId}
+    SELECT ${ident(ProfileCol.username)}, ${ident(ProfileCol.avatarConfig)}
+    FROM ${ident(PROFILES_TABLE.tableName)}
+    WHERE ${ident(ProfileCol.id)} = ${profileId}
     LIMIT 1
   `);
   const row = rows[0];
@@ -44,15 +44,15 @@ export async function upsertFriendProfileCache(
   }
 ): Promise<void> {
   await db.run(sql`
-    INSERT INTO ${raw(FRIEND_PROFILE_CACHE_TABLE.tableName)}
-    (${raw(FriendProfileCacheCol.id)}, ${raw(FriendProfileCacheCol.ownerId)}, ${raw(FriendProfileCacheCol.friendId)},
-     ${raw(FriendProfileCacheCol.username)},
-     ${raw(FriendProfileCacheCol.avatarConfig)}, ${raw(FriendProfileCacheCol.updatedAt)})
+    INSERT INTO ${ident(FRIEND_PROFILE_CACHE_TABLE.tableName)}
+    (${ident(FriendProfileCacheCol.id)}, ${ident(FriendProfileCacheCol.ownerId)}, ${ident(FriendProfileCacheCol.friendId)},
+     ${ident(FriendProfileCacheCol.username)},
+     ${ident(FriendProfileCacheCol.avatarConfig)}, ${ident(FriendProfileCacheCol.updatedAt)})
     VALUES (${pairId(args.ownerId, args.friendId)}, ${args.ownerId}, ${args.friendId}, ${args.username}, ${args.avatarConfig}, ${args.now})
-    ON CONFLICT (${raw(FriendProfileCacheCol.ownerId)}, ${raw(FriendProfileCacheCol.friendId)}) DO UPDATE SET
-      ${raw(FriendProfileCacheCol.username)} = excluded.${raw(FriendProfileCacheCol.username)},
-      ${raw(FriendProfileCacheCol.avatarConfig)} = excluded.${raw(FriendProfileCacheCol.avatarConfig)},
-      ${raw(FriendProfileCacheCol.updatedAt)} = excluded.${raw(FriendProfileCacheCol.updatedAt)}
+    ON CONFLICT (${ident(FriendProfileCacheCol.ownerId)}, ${ident(FriendProfileCacheCol.friendId)}) DO UPDATE SET
+      ${ident(FriendProfileCacheCol.username)} = excluded.${ident(FriendProfileCacheCol.username)},
+      ${ident(FriendProfileCacheCol.avatarConfig)} = excluded.${ident(FriendProfileCacheCol.avatarConfig)},
+      ${ident(FriendProfileCacheCol.updatedAt)} = excluded.${ident(FriendProfileCacheCol.updatedAt)}
   `);
 }
 
@@ -62,9 +62,9 @@ export async function clearFriendProfileCaches(
   userB: string
 ): Promise<void> {
   await db.run(sql`
-    DELETE FROM ${raw(FRIEND_PROFILE_CACHE_TABLE.tableName)}
-    WHERE (${raw(FriendProfileCacheCol.ownerId)} = ${userA} AND ${raw(FriendProfileCacheCol.friendId)} = ${userB})
-       OR (${raw(FriendProfileCacheCol.ownerId)} = ${userB} AND ${raw(FriendProfileCacheCol.friendId)} = ${userA})
+    DELETE FROM ${ident(FRIEND_PROFILE_CACHE_TABLE.tableName)}
+    WHERE (${ident(FriendProfileCacheCol.ownerId)} = ${userA} AND ${ident(FriendProfileCacheCol.friendId)} = ${userB})
+       OR (${ident(FriendProfileCacheCol.ownerId)} = ${userB} AND ${ident(FriendProfileCacheCol.friendId)} = ${userA})
   `);
 }
 

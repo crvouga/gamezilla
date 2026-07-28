@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { Database } from 'bun:sqlite';
 
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
@@ -42,10 +42,10 @@ describe('ensureProfile', () => {
 
     const row = (
       await sqlClient.query<Record<string, string>>(sql`
-        SELECT ${raw(ProfileCol.username)} AS username,
-               ${raw(ProfileCol.avatarConfig)} AS avatar_config
-        FROM ${raw(PROFILES_TABLE.tableName)}
-        WHERE ${raw(ProfileCol.id)} = ${MY_ID}
+        SELECT ${ident(ProfileCol.username)} AS username,
+               ${ident(ProfileCol.avatarConfig)} AS avatar_config
+        FROM ${ident(PROFILES_TABLE.tableName)}
+        WHERE ${ident(ProfileCol.id)} = ${MY_ID}
       `)
     )[0];
 
@@ -60,7 +60,7 @@ describe('ensureProfile', () => {
     await ensureProfile(sqlClient, ctx, MY_ID);
 
     const rows = await sqlClient.query<{ n: number }>(sql`
-      SELECT count(*) AS n FROM ${raw(PROFILES_TABLE.tableName)} WHERE ${raw(ProfileCol.id)} = ${MY_ID}
+      SELECT count(*) AS n FROM ${ident(PROFILES_TABLE.tableName)} WHERE ${ident(ProfileCol.id)} = ${MY_ID}
     `);
     expect(rows[0]?.n).toBe(1);
   });
@@ -75,8 +75,8 @@ describe('ensureProfile', () => {
     });
     const row = (
       await sqlClient.query<Record<string, string>>(sql`
-        SELECT ${raw(ProfileCol.username)} AS username FROM ${raw(PROFILES_TABLE.tableName)}
-        WHERE ${raw(ProfileCol.id)} = ${MY_ID}
+        SELECT ${ident(ProfileCol.username)} AS username FROM ${ident(PROFILES_TABLE.tableName)}
+        WHERE ${ident(ProfileCol.id)} = ${MY_ID}
       `)
     )[0];
     expect(row?.['username']).toBe('AssignedName');
@@ -96,8 +96,8 @@ describe('ensureProfile', () => {
     });
     const row = (
       await sqlClient.query<Record<string, string>>(sql`
-        SELECT ${raw(ProfileCol.username)} AS username FROM ${raw(PROFILES_TABLE.tableName)}
-        WHERE ${raw(ProfileCol.id)} = ${MY_ID}
+        SELECT ${ident(ProfileCol.username)} AS username FROM ${ident(PROFILES_TABLE.tableName)}
+        WHERE ${ident(ProfileCol.id)} = ${MY_ID}
       `)
     )[0];
     expect(row?.['username']).toBe('CorrectName');
@@ -108,9 +108,9 @@ describe('ensureProfile', () => {
     const ctx = writeContextFor(MY_ID);
     await ensureProfile(sqlClient, ctx, MY_ID);
     await sqlClient.run(sql`
-      UPDATE ${raw(PROFILES_TABLE.tableName)}
-      SET ${raw(ProfileCol.username)} = ${'MyHandle'}, ${raw(ProfileCol.usernameChangedAt)} = ${new Date().toISOString()}
-      WHERE ${raw(ProfileCol.id)} = ${MY_ID}
+      UPDATE ${ident(PROFILES_TABLE.tableName)}
+      SET ${ident(ProfileCol.username)} = ${'MyHandle'}, ${ident(ProfileCol.usernameChangedAt)} = ${new Date().toISOString()}
+      WHERE ${ident(ProfileCol.id)} = ${MY_ID}
     `);
     await applyEnsuredUsername(sqlClient, ctx, {
       profileId: MY_ID,
@@ -118,8 +118,8 @@ describe('ensureProfile', () => {
     });
     const row = (
       await sqlClient.query<Record<string, string>>(sql`
-        SELECT ${raw(ProfileCol.username)} AS username FROM ${raw(PROFILES_TABLE.tableName)}
-        WHERE ${raw(ProfileCol.id)} = ${MY_ID}
+        SELECT ${ident(ProfileCol.username)} AS username FROM ${ident(PROFILES_TABLE.tableName)}
+        WHERE ${ident(ProfileCol.id)} = ${MY_ID}
       `)
     )[0];
     expect(row?.['username']).toBe('MyHandle');

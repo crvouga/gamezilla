@@ -5,7 +5,7 @@ import {
   SpaceMembershipCol,
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
-import { join, raw, sql, type Sql } from '@pkgs/sql';
+import { join, sql, type Sql, ident } from '@pkgs/sql';
 import {
   useSyncStatus,
   useWatchQuery,
@@ -124,38 +124,38 @@ export function buildCurrentSpaceEntries(
 
 function membershipSql(enabled: boolean, accountId: string): Sql {
   if (!enabled) {
-    return sql`SELECT ${raw(SpaceMembershipCol.spaceId)} AS space_id,
-             ${raw(SpaceMembershipCol.joinedAt)} AS joined_at
-             FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)} WHERE 0`;
+    return sql`SELECT ${ident(SpaceMembershipCol.spaceId)} AS space_id,
+             ${ident(SpaceMembershipCol.joinedAt)} AS joined_at
+             FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)} WHERE 0`;
   }
-  return sql`SELECT ${raw(SpaceMembershipCol.spaceId)} AS space_id,
-             ${raw(SpaceMembershipCol.joinedAt)} AS joined_at
-           FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-           WHERE ${raw(SpaceMembershipCol.memberId)} = ${accountId}
-             AND ${raw(SpaceMembershipCol.leftAt)} IS NULL
-           ORDER BY ${raw(SpaceMembershipCol.joinedAt)} DESC`;
+  return sql`SELECT ${ident(SpaceMembershipCol.spaceId)} AS space_id,
+             ${ident(SpaceMembershipCol.joinedAt)} AS joined_at
+           FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+           WHERE ${ident(SpaceMembershipCol.memberId)} = ${accountId}
+             AND ${ident(SpaceMembershipCol.leftAt)} IS NULL
+           ORDER BY ${ident(SpaceMembershipCol.joinedAt)} DESC`;
 }
 
 function hostedSpacesSql(enabled: boolean, accountId: string): Sql {
   if (!enabled) {
-    return sql`SELECT ${raw(SpaceCol.id)}, ${raw(SpaceCol.hostMemberId)} AS host_member_id,
-            ${raw(SpaceCol.hostAccountId)} AS host_account_id,
-            ${raw(SpaceCol.endedAt)} AS ended_at FROM ${raw(SPACES_TABLE.tableName)} WHERE 0`;
+    return sql`SELECT ${ident(SpaceCol.id)}, ${ident(SpaceCol.hostMemberId)} AS host_member_id,
+            ${ident(SpaceCol.hostAccountId)} AS host_account_id,
+            ${ident(SpaceCol.endedAt)} AS ended_at FROM ${ident(SPACES_TABLE.tableName)} WHERE 0`;
   }
   return hostedUnleftSpacesSelectSql(accountId);
 }
 
 function spacesSql(ids: readonly string[]): Sql {
   if (ids.length === 0) {
-    return sql`SELECT ${raw(SpaceCol.id)}, ${raw(SpaceCol.hostMemberId)} AS host_member_id,
-            ${raw(SpaceCol.hostAccountId)} AS host_account_id,
-            ${raw(SpaceCol.endedAt)} AS ended_at FROM ${raw(SPACES_TABLE.tableName)} WHERE 0`;
+    return sql`SELECT ${ident(SpaceCol.id)}, ${ident(SpaceCol.hostMemberId)} AS host_member_id,
+            ${ident(SpaceCol.hostAccountId)} AS host_account_id,
+            ${ident(SpaceCol.endedAt)} AS ended_at FROM ${ident(SPACES_TABLE.tableName)} WHERE 0`;
   }
-  return sql`SELECT ${raw(SpaceCol.id)}, ${raw(SpaceCol.hostMemberId)} AS host_member_id,
-          ${raw(SpaceCol.hostAccountId)} AS host_account_id,
-          ${raw(SpaceCol.endedAt)} AS ended_at
-          FROM ${raw(SPACES_TABLE.tableName)}
-          WHERE ${raw(SpaceCol.id)} IN (${join(ids)})`;
+  return sql`SELECT ${ident(SpaceCol.id)}, ${ident(SpaceCol.hostMemberId)} AS host_member_id,
+          ${ident(SpaceCol.hostAccountId)} AS host_account_id,
+          ${ident(SpaceCol.endedAt)} AS ended_at
+          FROM ${ident(SPACES_TABLE.tableName)}
+          WHERE ${ident(SpaceCol.id)} IN (${join(ids)})`;
 }
 
 function resolveDisplayEntries(

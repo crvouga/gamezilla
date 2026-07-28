@@ -5,7 +5,7 @@ import {
   FriendProfileCacheCol,
   FriendshipCol,
 } from '@libs/db/shared/friends-tables';
-import { raw, sql, type Sql } from '@pkgs/sql';
+import { sql, type Sql, ident } from '@pkgs/sql';
 import { useMemo } from 'react';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
@@ -24,22 +24,22 @@ function friendsSql(myId: string): Sql {
     return sql`
       SELECT '' AS friend_id, '' AS username,
              NULL AS avatar_config, '' AS friends_since
-      FROM ${raw(FRIEND_PROFILE_CACHE_TABLE.tableName)} WHERE 0
+      FROM ${ident(FRIEND_PROFILE_CACHE_TABLE.tableName)} WHERE 0
     `;
   }
   return sql`
-    SELECT c.${raw(FriendProfileCacheCol.friendId)} AS friend_id,
-           c.${raw(FriendProfileCacheCol.username)} AS username,
-           c.${raw(FriendProfileCacheCol.avatarConfig)} AS avatar_config,
-           f.${raw(FriendshipCol.createdAt)} AS friends_since
-    FROM ${raw(FRIEND_PROFILE_CACHE_TABLE.tableName)} c
-    INNER JOIN ${raw(FRIENDSHIPS_TABLE.tableName)} f
+    SELECT c.${ident(FriendProfileCacheCol.friendId)} AS friend_id,
+           c.${ident(FriendProfileCacheCol.username)} AS username,
+           c.${ident(FriendProfileCacheCol.avatarConfig)} AS avatar_config,
+           f.${ident(FriendshipCol.createdAt)} AS friends_since
+    FROM ${ident(FRIEND_PROFILE_CACHE_TABLE.tableName)} c
+    INNER JOIN ${ident(FRIENDSHIPS_TABLE.tableName)} f
       ON (
-        (f.${raw(FriendshipCol.userLow)} = ${myId} AND f.${raw(FriendshipCol.userHigh)} = c.${raw(FriendProfileCacheCol.friendId)})
-        OR (f.${raw(FriendshipCol.userHigh)} = ${myId} AND f.${raw(FriendshipCol.userLow)} = c.${raw(FriendProfileCacheCol.friendId)})
+        (f.${ident(FriendshipCol.userLow)} = ${myId} AND f.${ident(FriendshipCol.userHigh)} = c.${ident(FriendProfileCacheCol.friendId)})
+        OR (f.${ident(FriendshipCol.userHigh)} = ${myId} AND f.${ident(FriendshipCol.userLow)} = c.${ident(FriendProfileCacheCol.friendId)})
       )
-    WHERE c.${raw(FriendProfileCacheCol.ownerId)} = ${myId}
-    ORDER BY c.${raw(FriendProfileCacheCol.username)} COLLATE NOCASE
+    WHERE c.${ident(FriendProfileCacheCol.ownerId)} = ${myId}
+    ORDER BY c.${ident(FriendProfileCacheCol.username)} COLLATE NOCASE
   `;
 }
 

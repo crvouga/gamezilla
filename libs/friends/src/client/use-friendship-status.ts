@@ -7,7 +7,7 @@ import {
   FriendshipCol,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
-import { raw, sql, type Sql } from '@pkgs/sql';
+import { sql, type Sql, ident } from '@pkgs/sql';
 import { useMemo } from 'react';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
@@ -24,24 +24,24 @@ function friendshipStatusSql(myId: string, targetUserId: string): Sql {
   return sql`
     SELECT CASE
       WHEN EXISTS (
-        SELECT 1 FROM ${raw(USER_BLOCKS_TABLE.tableName)}
-        WHERE ${raw(UserBlockCol.blockerId)} = ${myId} AND ${raw(UserBlockCol.blockedId)} = ${targetUserId}
+        SELECT 1 FROM ${ident(USER_BLOCKS_TABLE.tableName)}
+        WHERE ${ident(UserBlockCol.blockerId)} = ${myId} AND ${ident(UserBlockCol.blockedId)} = ${targetUserId}
       ) THEN 'blocked_by_me'
       WHEN EXISTS (
-        SELECT 1 FROM ${raw(FRIENDSHIPS_TABLE.tableName)}
-        WHERE ${raw(FriendshipCol.userLow)} = ${userLow} AND ${raw(FriendshipCol.userHigh)} = ${userHigh}
+        SELECT 1 FROM ${ident(FRIENDSHIPS_TABLE.tableName)}
+        WHERE ${ident(FriendshipCol.userLow)} = ${userLow} AND ${ident(FriendshipCol.userHigh)} = ${userHigh}
       ) THEN 'friends'
       WHEN EXISTS (
-        SELECT 1 FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
-        WHERE ${raw(FriendRequestCol.fromUserId)} = ${myId}
-          AND ${raw(FriendRequestCol.toUserId)} = ${targetUserId}
-          AND ${raw(FriendRequestCol.status)} = 'pending'
+        SELECT 1 FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)}
+        WHERE ${ident(FriendRequestCol.fromUserId)} = ${myId}
+          AND ${ident(FriendRequestCol.toUserId)} = ${targetUserId}
+          AND ${ident(FriendRequestCol.status)} = 'pending'
       ) THEN 'pending_outgoing'
       WHEN EXISTS (
-        SELECT 1 FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
-        WHERE ${raw(FriendRequestCol.fromUserId)} = ${targetUserId}
-          AND ${raw(FriendRequestCol.toUserId)} = ${myId}
-          AND ${raw(FriendRequestCol.status)} = 'pending'
+        SELECT 1 FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)}
+        WHERE ${ident(FriendRequestCol.fromUserId)} = ${targetUserId}
+          AND ${ident(FriendRequestCol.toUserId)} = ${myId}
+          AND ${ident(FriendRequestCol.status)} = 'pending'
       ) THEN 'pending_incoming'
       ELSE 'none'
     END AS status

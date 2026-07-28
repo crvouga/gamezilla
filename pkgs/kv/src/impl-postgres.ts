@@ -25,7 +25,7 @@ import { assert, hotAssert } from '@pkgs/assert';
 import type { Keyword } from '@pkgs/keyword/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword/keyword';
 import type { Logger } from '@pkgs/logger/logger';
-import { raw, sql } from '@pkgs/sql';
+import { raw, sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import { KvImplPostgresTx } from './impl-postgres-tx';
@@ -131,7 +131,7 @@ async function runKvPostgresMigrations(
       statementCount: statements.length,
     });
     for (const stmt of statements) {
-      await sqlClient.run(raw(stmt));
+      await sqlClient.run(ident(stmt));
     }
     log.info('kv postgres migrate: ddl applied', { table: TABLE });
   } else {
@@ -191,7 +191,7 @@ export class KvImplPostgres implements Kv {
   async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
     const rows = await this.sqlClient.query<{ value: unknown }>(
-      sql`SELECT value FROM ${raw(TABLE)} WHERE key = ${key}`
+      sql`SELECT value FROM ${ident(TABLE)} WHERE key = ${key}`
     );
     const first = rows[0];
     if (first === null || first === undefined) return null;
@@ -206,13 +206,13 @@ export class KvImplPostgres implements Kv {
     assertKvKey(key);
     assertKvRecord(hotAssert(), value, 'kv postgres put');
     await this.sqlClient.run(sql`
-      INSERT INTO ${raw(TABLE)} (key, value) VALUES (${key}, ${JSON.stringify(value)}::text::jsonb)
-       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, ${raw(LAST_MODIFIED_AT)} = now()`);
+      INSERT INTO ${ident(TABLE)} (key, value) VALUES (${key}, ${JSON.stringify(value)}::text::jsonb)
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, ${ident(LAST_MODIFIED_AT)} = now()`);
   }
 
   async zap(key: Keyword): Promise<void> {
     assertKvKey(key);
-    await this.sqlClient.run(sql`DELETE FROM ${raw(TABLE)} WHERE key = ${key}`);
+    await this.sqlClient.run(sql`DELETE FROM ${ident(TABLE)} WHERE key = ${key}`);
   }
 
   async tx<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {

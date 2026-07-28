@@ -3,7 +3,7 @@ import {
   ENTITY_STORE_TABLE,
   ENTITY_STORE_TYPE_USER,
 } from '@libs/db/shared/entity-store-table';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -72,27 +72,27 @@ export function useLinkedProviderSources(
     useWatchOne<PrimaryAuthExternalAccountRow>(
       accountId === null
         ? sql`
-            SELECT ${raw(ExternalAccountCol.externalId)} AS external_id,
-                   ${raw(ExternalAccountCol.metadata)} AS metadata,
-                   ${raw(ExternalAccountCol.createdAt)} AS created_at
-            FROM ${raw(EXTERNAL_ACCOUNTS_TABLE)} WHERE 0
+            SELECT ${ident(ExternalAccountCol.externalId)} AS external_id,
+                   ${ident(ExternalAccountCol.metadata)} AS metadata,
+                   ${ident(ExternalAccountCol.createdAt)} AS created_at
+            FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)} WHERE 0
           `
         : sql`
-            SELECT ${raw(ExternalAccountCol.externalId)} AS external_id,
-                   ${raw(ExternalAccountCol.metadata)} AS metadata,
-                   ${raw(ExternalAccountCol.createdAt)} AS created_at
-            FROM ${raw(EXTERNAL_ACCOUNTS_TABLE)}
-            WHERE ${raw(ExternalAccountCol.userId)} = ${accountId}
-              AND ${raw(ExternalAccountCol.provider)} = ${primaryAuthProvider}
+            SELECT ${ident(ExternalAccountCol.externalId)} AS external_id,
+                   ${ident(ExternalAccountCol.metadata)} AS metadata,
+                   ${ident(ExternalAccountCol.createdAt)} AS created_at
+            FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)}
+            WHERE ${ident(ExternalAccountCol.userId)} = ${accountId}
+              AND ${ident(ExternalAccountCol.provider)} = ${primaryAuthProvider}
             LIMIT 1
           `
     );
 
   const { row: entityRow } = useWatchOne<AuthEntityStoreRow>(
     accountId === null
-      ? sql`SELECT data, created_at FROM ${raw(ENTITY_STORE_TABLE)} WHERE 0`
+      ? sql`SELECT data, created_at FROM ${ident(ENTITY_STORE_TABLE)} WHERE 0`
       : sql`
-          SELECT data, created_at FROM ${raw(ENTITY_STORE_TABLE)}
+          SELECT data, created_at FROM ${ident(ENTITY_STORE_TABLE)}
           WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER} AND owner_id = ${accountId}
           LIMIT 1
         `

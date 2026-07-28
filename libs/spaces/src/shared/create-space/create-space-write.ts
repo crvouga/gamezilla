@@ -12,7 +12,7 @@ import {
   isSpaceVisibility,
   type SpaceVisibility,
 } from '@libs/spaces/shared/space-visibility';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 
@@ -58,16 +58,16 @@ export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
     if (!accountId.ok) return accountId;
     const now = isoNow();
     const memberId = resolveSpaceMemberId(accountId.value);
-    await db.run(sql`INSERT INTO ${raw(SPACES_TABLE.tableName)}
-       (${raw(SpaceCol.id)}, ${raw(SpaceCol.hostId)}, ${raw(SpaceCol.createdAt)},
-        ${raw(SpaceCol.visibility)}, ${raw(SpaceCol.hostAccountId)},
-        ${raw(SpaceCol.hostMemberId)}, ${raw(SpaceCol.activeMemberCount)})
+    await db.run(sql`INSERT INTO ${ident(SPACES_TABLE.tableName)}
+       (${ident(SpaceCol.id)}, ${ident(SpaceCol.hostId)}, ${ident(SpaceCol.createdAt)},
+        ${ident(SpaceCol.visibility)}, ${ident(SpaceCol.hostAccountId)},
+        ${ident(SpaceCol.hostMemberId)}, ${ident(SpaceCol.activeMemberCount)})
        VALUES (${input.spaceId}, ${ctx.deviceId}, ${now}, ${input.visibility}, ${accountId.value}, ${memberId}, 1)`);
     const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
-    await db.run(sql`INSERT INTO ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-       (${raw(SpaceMembershipCol.id)}, ${raw(SpaceMembershipCol.memberId)},
-        ${raw(SpaceMembershipCol.spaceId)}, ${raw(SpaceMembershipCol.joinedAt)},
-        ${raw(SpaceMembershipCol.leftAt)}, ${raw(SpaceMembershipCol.profileId)})
+    await db.run(sql`INSERT INTO ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+       (${ident(SpaceMembershipCol.id)}, ${ident(SpaceMembershipCol.memberId)},
+        ${ident(SpaceMembershipCol.spaceId)}, ${ident(SpaceMembershipCol.joinedAt)},
+        ${ident(SpaceMembershipCol.leftAt)}, ${ident(SpaceMembershipCol.profileId)})
        VALUES (${membershipId}, ${memberId}, ${input.spaceId}, ${now}, NULL, ${memberId})`);
     return ok(undefined);
   },

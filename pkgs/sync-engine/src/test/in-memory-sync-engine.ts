@@ -1,6 +1,7 @@
 import { Database } from 'bun:sqlite';
 
-import { raw, type Sql } from '@pkgs/sql';
+import { ident, sql, type Sql } from '@pkgs/sql';
+import { assertSqlIdentifier } from '@pkgs/sql/assert-sql-identifier';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -191,7 +192,8 @@ export function createInMemorySyncEngine(
     },
     clearLocalData: async () => {
       for (const name of options.registry.tableNames()) {
-        await db.run(raw(`DELETE FROM ${name}`));
+        assertSqlIdentifier(name, 'Invalid sync table name', { name });
+        await db.run(sql`DELETE FROM ${ident(name)}`);
       }
       resetEverSynced();
       setStatus({

@@ -1,4 +1,4 @@
-import { raw } from '@pkgs/sql';
+import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { SqlCliCommand, SqlCliResult } from '../types';
@@ -14,14 +14,16 @@ export async function executeRawSql(
   userInput: string
 ): Promise<SqlCliResult> {
   if (isResultReturning(userInput)) {
-    const rows = await client.query<Record<string, unknown>>(raw(userInput));
+    const rows = await client.query<Record<string, unknown>>(
+      unsafe(userInput)
+    );
     if (rows.length === 0) {
       return { kind: 'empty' };
     }
     return { kind: 'rows', rows };
   }
 
-  const result = await client.run(raw(userInput));
+  const result = await client.run(unsafe(userInput));
   return { kind: 'run', result };
 }
 

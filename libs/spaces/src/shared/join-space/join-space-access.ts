@@ -16,7 +16,7 @@ import {
   spaceMembershipEntityId,
 } from '@libs/spaces/shared/participation/participation-ids';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { parseSpaceVisibility } from '@libs/spaces/shared/space-visibility';
 import { decideSpaceJoinAccess } from './decide-space-join-access';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
@@ -46,13 +46,13 @@ export async function readSpaceRowForJoin(
     readonly ended_at: string | null;
     readonly visibility: string | null;
     readonly host_account_id: string | null;
-  }>(sql`SELECT ${raw(SpaceCol.hostId)} AS host_id,
-            ${raw(SpaceCol.hostMemberId)} AS host_member_id,
-            ${raw(SpaceCol.endedAt)} AS ended_at,
-            ${raw(SpaceCol.visibility)} AS visibility,
-            ${raw(SpaceCol.hostAccountId)} AS host_account_id
-     FROM ${raw(SPACES_TABLE.tableName)}
-     WHERE ${raw(SpaceCol.id)} = ${spaceId}
+  }>(sql`SELECT ${ident(SpaceCol.hostId)} AS host_id,
+            ${ident(SpaceCol.hostMemberId)} AS host_member_id,
+            ${ident(SpaceCol.endedAt)} AS ended_at,
+            ${ident(SpaceCol.visibility)} AS visibility,
+            ${ident(SpaceCol.hostAccountId)} AS host_account_id
+     FROM ${ident(SPACES_TABLE.tableName)}
+     WHERE ${ident(SpaceCol.id)} = ${spaceId}
      LIMIT 1`);
   const row = rows[0];
   if (row === undefined || row.host_id === null || row.host_id.length === 0) {
@@ -77,9 +77,9 @@ export async function areAccountsFriendsInStore(
   if (accountA === accountB) return true;
   const { userLow, userHigh } = canonicalUserPair(accountA, accountB);
   const rows = await db.query<{ readonly id: string }>(
-    sql`SELECT ${raw(FriendshipCol.id)} AS id
-     FROM ${raw(FRIENDSHIPS_TABLE.tableName)}
-     WHERE ${raw(FriendshipCol.userLow)} = ${userLow} AND ${raw(FriendshipCol.userHigh)} = ${userHigh}
+    sql`SELECT ${ident(FriendshipCol.id)} AS id
+     FROM ${ident(FRIENDSHIPS_TABLE.tableName)}
+     WHERE ${ident(FriendshipCol.userLow)} = ${userLow} AND ${ident(FriendshipCol.userHigh)} = ${userHigh}
      LIMIT 1`
   );
   return rows[0] !== undefined;
@@ -98,15 +98,15 @@ export async function findValidInviteInStore(
     readonly revoked_at: string | null;
     readonly max_uses: number | string;
     readonly use_count: number | string;
-  }>(sql`SELECT ${raw(SpaceInviteCol.id)} AS id,
-            ${raw(SpaceInviteCol.inviteeAccountId)} AS invitee_account_id,
-            ${raw(SpaceInviteCol.expiresAt)} AS expires_at,
-            ${raw(SpaceInviteCol.revokedAt)} AS revoked_at,
-            ${raw(SpaceInviteCol.maxUses)} AS max_uses,
-            ${raw(SpaceInviteCol.useCount)} AS use_count
-     FROM ${raw(SPACE_INVITES_TABLE.tableName)}
-     WHERE ${raw(SpaceInviteCol.token)} = ${token}
-       AND ${raw(SpaceInviteCol.spaceId)} = ${spaceId}
+  }>(sql`SELECT ${ident(SpaceInviteCol.id)} AS id,
+            ${ident(SpaceInviteCol.inviteeAccountId)} AS invitee_account_id,
+            ${ident(SpaceInviteCol.expiresAt)} AS expires_at,
+            ${ident(SpaceInviteCol.revokedAt)} AS revoked_at,
+            ${ident(SpaceInviteCol.maxUses)} AS max_uses,
+            ${ident(SpaceInviteCol.useCount)} AS use_count
+     FROM ${ident(SPACE_INVITES_TABLE.tableName)}
+     WHERE ${ident(SpaceInviteCol.token)} = ${token}
+       AND ${ident(SpaceInviteCol.spaceId)} = ${spaceId}
      LIMIT 1`);
   const row = rows[0];
   if (row === undefined) return null;
@@ -156,9 +156,9 @@ async function isActiveMembership(
 ): Promise<boolean> {
   const id = spaceMembershipEntityId(memberId, spaceId);
   const rows = await db.query<{ readonly left_at: string | null }>(
-    sql`SELECT ${raw(SpaceMembershipCol.leftAt)} AS left_at
-     FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${raw(SpaceMembershipCol.id)} = ${id}
+    sql`SELECT ${ident(SpaceMembershipCol.leftAt)} AS left_at
+     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     WHERE ${ident(SpaceMembershipCol.id)} = ${id}
      LIMIT 1`
   );
   const row = rows[0];

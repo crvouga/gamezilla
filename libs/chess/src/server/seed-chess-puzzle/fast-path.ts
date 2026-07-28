@@ -8,17 +8,17 @@ import {
   ChessPuzzleCol,
 } from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
-import { raw, sql, type Sql } from '@pkgs/sql';
+import { raw, sql, type Sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PuzzleBatchEntry } from './row';
 import type { PuzzleSeedReporter } from './reporter';
 
 function insertPuzzlesBatchQuery(insertRowsJson: string): Sql {
-  return sql`INSERT INTO ${raw(CHESS_PUZZLES_TABLE.tableName)}
-    (${raw(ChessPuzzleCol.id)}, ${raw(ChessPuzzleCol.fen)}, ${raw(ChessPuzzleCol.moves)},
-     ${raw(ChessPuzzleCol.rating)}, ${raw(ChessPuzzleCol.ratingDeviation)},
-     ${raw(ChessPuzzleCol.popularity)}, ${raw(ChessPuzzleCol.nbPlays)},
-     ${raw(ChessPuzzleCol.themes)}, ${raw(ChessPuzzleCol.gameUrl)}, ${raw(ChessPuzzleCol.openingTags)})
+  return sql`INSERT INTO ${ident(CHESS_PUZZLES_TABLE.tableName)}
+    (${ident(ChessPuzzleCol.id)}, ${ident(ChessPuzzleCol.fen)}, ${ident(ChessPuzzleCol.moves)},
+     ${ident(ChessPuzzleCol.rating)}, ${ident(ChessPuzzleCol.ratingDeviation)},
+     ${ident(ChessPuzzleCol.popularity)}, ${ident(ChessPuzzleCol.nbPlays)},
+     ${ident(ChessPuzzleCol.themes)}, ${ident(ChessPuzzleCol.gameUrl)}, ${ident(ChessPuzzleCol.openingTags)})
     SELECT id, fen, moves, rating, rating_deviation, popularity, nb_plays,
            themes::jsonb, game_url, opening_tags::jsonb
     FROM jsonb_to_recordset(${insertRowsJson}::text::jsonb) AS batch_rows (
@@ -33,7 +33,7 @@ function insertPuzzlesBatchQuery(insertRowsJson: string): Sql {
         game_url text,
         opening_tags text
     )
-    ON CONFLICT (${raw(ChessPuzzleCol.id)}) DO NOTHING`;
+    ON CONFLICT (${ident(ChessPuzzleCol.id)}) DO NOTHING`;
 }
 
 const SEEDED_TABLES: readonly string[] = [CHESS_PUZZLES_TABLE.tableName];
@@ -76,7 +76,7 @@ export async function applySessionTuning(
   }
   for (const stmt of stmts) {
     try {
-      await db.run(raw(stmt));
+      await db.run(ident(stmt));
     } catch (err) {
       log.warn('seed:puzzles: session tuning failed (continuing)', {
         stmt,
@@ -153,7 +153,7 @@ async function tryRun(args: {
 }): Promise<void> {
   const { db, log, stmt, message, detail } = args;
   try {
-    await db.run(raw(stmt));
+    await db.run(ident(stmt));
   } catch (err) {
     log.warn(message, {
       ...(detail ?? {}),
@@ -171,14 +171,14 @@ export async function writeLoadProgressFast(args: {
   finishedAt: string | null;
 }): Promise<void> {
   const { db, loadId, sourceEtag, cursor, finishedAt } = args;
-  await db.run(sql`INSERT INTO ${raw(CHESS_PUZZLE_LOAD_TABLE.tableName)}
-     (${raw(ChessPuzzleLoadCol.id)}, ${raw(ChessPuzzleLoadCol.sourceEtag)},
-      ${raw(ChessPuzzleLoadCol.cursor)}, ${raw(ChessPuzzleLoadCol.finishedAt)})
+  await db.run(sql`INSERT INTO ${ident(CHESS_PUZZLE_LOAD_TABLE.tableName)}
+     (${ident(ChessPuzzleLoadCol.id)}, ${ident(ChessPuzzleLoadCol.sourceEtag)},
+      ${ident(ChessPuzzleLoadCol.cursor)}, ${ident(ChessPuzzleLoadCol.finishedAt)})
      VALUES (${loadId}, ${sourceEtag}, ${cursor}, ${finishedAt})
-     ON CONFLICT (${raw(ChessPuzzleLoadCol.id)}) DO UPDATE SET
-       ${raw(ChessPuzzleLoadCol.sourceEtag)} = excluded.${raw(ChessPuzzleLoadCol.sourceEtag)},
-       ${raw(ChessPuzzleLoadCol.cursor)} = excluded.${raw(ChessPuzzleLoadCol.cursor)},
-       ${raw(ChessPuzzleLoadCol.finishedAt)} = excluded.${raw(ChessPuzzleLoadCol.finishedAt)}`);
+     ON CONFLICT (${ident(ChessPuzzleLoadCol.id)}) DO UPDATE SET
+       ${ident(ChessPuzzleLoadCol.sourceEtag)} = excluded.${ident(ChessPuzzleLoadCol.sourceEtag)},
+       ${ident(ChessPuzzleLoadCol.cursor)} = excluded.${ident(ChessPuzzleLoadCol.cursor)},
+       ${ident(ChessPuzzleLoadCol.finishedAt)} = excluded.${ident(ChessPuzzleLoadCol.finishedAt)}`);
 }
 
 export async function runInterimMaintenance(args: {

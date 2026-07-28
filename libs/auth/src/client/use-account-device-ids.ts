@@ -1,5 +1,5 @@
 import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { useMyDeviceId } from './use-current-user';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
@@ -56,21 +56,21 @@ export function useAccountDeviceIds(accountId: string | null): string[] {
   const currentDeviceId = useMyDeviceId();
 
   const { rows: localRows } = useWatchQuery<DeviceRow>(sql`
-    SELECT ${raw(DeviceCol.id)}, ${raw(DeviceCol.lastSeenAt)}, ${raw(DeviceCol.createdAt)}
-    FROM ${raw(DEVICES_TABLE.tableName)}
-    WHERE ${raw(DeviceCol.id)} = ${currentDeviceId}
+    SELECT ${ident(DeviceCol.id)}, ${ident(DeviceCol.lastSeenAt)}, ${ident(DeviceCol.createdAt)}
+    FROM ${ident(DEVICES_TABLE.tableName)}
+    WHERE ${ident(DeviceCol.id)} = ${currentDeviceId}
   `);
 
   const { rows: remoteRows } = useWatchQuery<DeviceRow>(
     accountId === null
       ? sql`
-          SELECT ${raw(DeviceCol.id)}, ${raw(DeviceCol.lastSeenAt)}, ${raw(DeviceCol.createdAt)}
-          FROM ${raw(DEVICES_TABLE.tableName)} WHERE 0
+          SELECT ${ident(DeviceCol.id)}, ${ident(DeviceCol.lastSeenAt)}, ${ident(DeviceCol.createdAt)}
+          FROM ${ident(DEVICES_TABLE.tableName)} WHERE 0
         `
       : sql`
-          SELECT ${raw(DeviceCol.id)}, ${raw(DeviceCol.lastSeenAt)}, ${raw(DeviceCol.createdAt)}
-          FROM ${raw(DEVICES_TABLE.tableName)}
-          WHERE ${raw(DeviceCol.userId)} = ${accountId}
+          SELECT ${ident(DeviceCol.id)}, ${ident(DeviceCol.lastSeenAt)}, ${ident(DeviceCol.createdAt)}
+          FROM ${ident(DEVICES_TABLE.tableName)}
+          WHERE ${ident(DeviceCol.userId)} = ${accountId}
           LIMIT 500
         `
   );

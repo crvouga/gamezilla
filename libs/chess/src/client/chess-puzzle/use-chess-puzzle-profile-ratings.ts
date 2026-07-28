@@ -1,5 +1,5 @@
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 
 import {
   CHESS_PUZZLE_PROFILES_TABLE,
@@ -16,10 +16,10 @@ export function useChessPuzzleProfileRatings(myId: string): {
   profileRd: number;
 } {
   const { row } = useWatchOne<PuzzleProfileRatingsRow>(sql`
-    SELECT ${raw(ChessPuzzleProfileCol.rating)} AS rating,
-            ${raw(ChessPuzzleProfileCol.ratingDeviation)} AS rating_deviation
-     FROM ${raw(CHESS_PUZZLE_PROFILES_TABLE.tableName)}
-     WHERE ${raw(ChessPuzzleProfileCol.id)} = ${myId}
+    SELECT ${ident(ChessPuzzleProfileCol.rating)} AS rating,
+            ${ident(ChessPuzzleProfileCol.ratingDeviation)} AS rating_deviation
+     FROM ${ident(CHESS_PUZZLE_PROFILES_TABLE.tableName)}
+     WHERE ${ident(ChessPuzzleProfileCol.id)} = ${myId}
   `);
   return {
     profileRating: row?.rating ?? 0,

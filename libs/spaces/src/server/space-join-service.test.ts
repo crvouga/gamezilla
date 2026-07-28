@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test } from 'bun:test';
 
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 
 import {
   SpaceCol,
@@ -29,69 +29,69 @@ function openSql(): SqlClientImplBunSqlite {
 }
 
 async function migrate(db: SqlClient): Promise<void> {
-  await db.run(sql`CREATE TABLE ${raw(SPACES_TABLE.tableName)} (
-      ${raw(SpaceCol.id)} TEXT PRIMARY KEY,
-      ${raw(SpaceCol.title)} TEXT,
-      ${raw(SpaceCol.hostId)} TEXT,
-      ${raw(SpaceCol.createdAt)} TEXT,
-      ${raw(SpaceCol.endedAt)} TEXT,
-      ${raw(SpaceCol.visibility)} TEXT,
-      ${raw(SpaceCol.hostAccountId)} TEXT,
-      ${raw(SpaceCol.hostMemberId)} TEXT,
-      ${raw(SpaceCol.activeMemberCount)} INTEGER NOT NULL DEFAULT 0
+  await db.run(sql`CREATE TABLE ${ident(SPACES_TABLE.tableName)} (
+      ${ident(SpaceCol.id)} TEXT PRIMARY KEY,
+      ${ident(SpaceCol.title)} TEXT,
+      ${ident(SpaceCol.hostId)} TEXT,
+      ${ident(SpaceCol.createdAt)} TEXT,
+      ${ident(SpaceCol.endedAt)} TEXT,
+      ${ident(SpaceCol.visibility)} TEXT,
+      ${ident(SpaceCol.hostAccountId)} TEXT,
+      ${ident(SpaceCol.hostMemberId)} TEXT,
+      ${ident(SpaceCol.activeMemberCount)} INTEGER NOT NULL DEFAULT 0
     )`);
-  await db.run(sql`CREATE TABLE ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)} (
-      ${raw(SpaceMembershipCol.id)} TEXT PRIMARY KEY,
-      ${raw(SpaceMembershipCol.memberId)} TEXT,
-      ${raw(SpaceMembershipCol.spaceId)} TEXT,
-      ${raw(SpaceMembershipCol.joinedAt)} TEXT,
-      ${raw(SpaceMembershipCol.leftAt)} TEXT,
-      ${raw(SpaceMembershipCol.profileId)} TEXT
+  await db.run(sql`CREATE TABLE ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)} (
+      ${ident(SpaceMembershipCol.id)} TEXT PRIMARY KEY,
+      ${ident(SpaceMembershipCol.memberId)} TEXT,
+      ${ident(SpaceMembershipCol.spaceId)} TEXT,
+      ${ident(SpaceMembershipCol.joinedAt)} TEXT,
+      ${ident(SpaceMembershipCol.leftAt)} TEXT,
+      ${ident(SpaceMembershipCol.profileId)} TEXT
     )`);
-  await db.run(sql`CREATE TABLE ${raw(SPACE_INVITES_TABLE.tableName)} (
-      ${raw(SpaceInviteCol.id)} TEXT PRIMARY KEY,
-      ${raw(SpaceInviteCol.spaceId)} TEXT,
-      ${raw(SpaceInviteCol.kind)} TEXT,
-      ${raw(SpaceInviteCol.token)} TEXT,
-      ${raw(SpaceInviteCol.code)} TEXT,
-      ${raw(SpaceInviteCol.createdByAccountId)} TEXT,
-      ${raw(SpaceInviteCol.inviteeAccountId)} TEXT,
-      ${raw(SpaceInviteCol.expiresAt)} TEXT,
-      ${raw(SpaceInviteCol.revokedAt)} TEXT,
-      ${raw(SpaceInviteCol.acceptedAt)} TEXT,
-      ${raw(SpaceInviteCol.maxUses)} INTEGER NOT NULL,
-      ${raw(SpaceInviteCol.useCount)} INTEGER NOT NULL DEFAULT 0,
-      ${raw(SpaceInviteCol.createdAt)} TEXT
+  await db.run(sql`CREATE TABLE ${ident(SPACE_INVITES_TABLE.tableName)} (
+      ${ident(SpaceInviteCol.id)} TEXT PRIMARY KEY,
+      ${ident(SpaceInviteCol.spaceId)} TEXT,
+      ${ident(SpaceInviteCol.kind)} TEXT,
+      ${ident(SpaceInviteCol.token)} TEXT,
+      ${ident(SpaceInviteCol.code)} TEXT,
+      ${ident(SpaceInviteCol.createdByAccountId)} TEXT,
+      ${ident(SpaceInviteCol.inviteeAccountId)} TEXT,
+      ${ident(SpaceInviteCol.expiresAt)} TEXT,
+      ${ident(SpaceInviteCol.revokedAt)} TEXT,
+      ${ident(SpaceInviteCol.acceptedAt)} TEXT,
+      ${ident(SpaceInviteCol.maxUses)} INTEGER NOT NULL,
+      ${ident(SpaceInviteCol.useCount)} INTEGER NOT NULL DEFAULT 0,
+      ${ident(SpaceInviteCol.createdAt)} TEXT
     )`);
 }
 
 async function seedPrivateSpace(db: SqlClient): Promise<void> {
-  await db.run(sql`INSERT INTO ${raw(SPACES_TABLE.tableName)}
-     (${raw(SpaceCol.id)}, ${raw(SpaceCol.hostId)}, ${raw(SpaceCol.hostMemberId)},
-      ${raw(SpaceCol.visibility)}, ${raw(SpaceCol.activeMemberCount)})
+  await db.run(sql`INSERT INTO ${ident(SPACES_TABLE.tableName)}
+     (${ident(SpaceCol.id)}, ${ident(SpaceCol.hostId)}, ${ident(SpaceCol.hostMemberId)},
+      ${ident(SpaceCol.visibility)}, ${ident(SpaceCol.activeMemberCount)})
      VALUES (${SPACE_ID}, ${'host-device'}, ${'host-device'}, 'private', 0)`);
 }
 
 async function seedLinkInvite(db: SqlClient, maxUses: number): Promise<void> {
-  await db.run(sql`INSERT INTO ${raw(SPACE_INVITES_TABLE.tableName)}
-     (${raw(SpaceInviteCol.id)}, ${raw(SpaceInviteCol.spaceId)}, ${raw(SpaceInviteCol.kind)},
-      ${raw(SpaceInviteCol.token)}, ${raw(SpaceInviteCol.maxUses)},
-      ${raw(SpaceInviteCol.useCount)})
+  await db.run(sql`INSERT INTO ${ident(SPACE_INVITES_TABLE.tableName)}
+     (${ident(SpaceInviteCol.id)}, ${ident(SpaceInviteCol.spaceId)}, ${ident(SpaceInviteCol.kind)},
+      ${ident(SpaceInviteCol.token)}, ${ident(SpaceInviteCol.maxUses)},
+      ${ident(SpaceInviteCol.useCount)})
      VALUES (${'invite-1'}, ${SPACE_ID}, 'link', ${TOKEN}, ${maxUses}, 0)`);
 }
 
 async function readInviteUseCount(db: SqlClient): Promise<number> {
   const rows = await db.query<{ use_count: number }>(
-    sql`SELECT ${raw(SpaceInviteCol.useCount)} AS use_count
-     FROM ${raw(SPACE_INVITES_TABLE.tableName)} WHERE ${raw(SpaceInviteCol.id)} = ${'invite-1'}`
+    sql`SELECT ${ident(SpaceInviteCol.useCount)} AS use_count
+     FROM ${ident(SPACE_INVITES_TABLE.tableName)} WHERE ${ident(SpaceInviteCol.id)} = ${'invite-1'}`
   );
   return Number(rows[0]?.use_count ?? -1);
 }
 
 async function readActiveMemberCount(db: SqlClient): Promise<number> {
   const rows = await db.query<{ count: number }>(
-    sql`SELECT ${raw(SpaceCol.activeMemberCount)} AS count
-     FROM ${raw(SPACES_TABLE.tableName)} WHERE ${raw(SpaceCol.id)} = ${SPACE_ID}`
+    sql`SELECT ${ident(SpaceCol.activeMemberCount)} AS count
+     FROM ${ident(SPACES_TABLE.tableName)} WHERE ${ident(SpaceCol.id)} = ${SPACE_ID}`
   );
   return Number(rows[0]?.count ?? -1);
 }
@@ -145,9 +145,9 @@ describe('joinSpaceServer invite consumption', () => {
     );
     const membershipId = spaceMembershipEntityId(ACCOUNT_A, SPACE_ID);
     const now = new Date().toISOString();
-    await db.run(sql`UPDATE ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
-       SET ${raw(SpaceMembershipCol.leftAt)} = ${now}
-       WHERE ${raw(SpaceMembershipCol.id)} = ${membershipId}`);
+    await db.run(sql`UPDATE ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
+       SET ${ident(SpaceMembershipCol.leftAt)} = ${now}
+       WHERE ${ident(SpaceMembershipCol.id)} = ${membershipId}`);
 
     await joinSpaceServer(
       db,

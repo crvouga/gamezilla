@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
@@ -52,36 +52,36 @@ function makeFakeAuthServer(args: {
 
 async function migrateAuthTables(db: SqlClient): Promise<void> {
   await db.run(sql`
-    CREATE TABLE ${raw(DEVICES_TABLE.tableName)} (
-      ${raw(DeviceCol.id)} TEXT PRIMARY KEY,
-      ${raw(DeviceCol.userId)} TEXT,
-      ${raw(DeviceCol.createdAt)} TEXT,
-      ${raw(DeviceCol.platform)} TEXT,
-      ${raw(DeviceCol.osName)} TEXT,
-      ${raw(DeviceCol.osVersion)} TEXT,
-      ${raw(DeviceCol.deviceModelName)} TEXT,
-      ${raw(DeviceCol.deviceBrand)} TEXT,
-      ${raw(DeviceCol.deviceName)} TEXT,
-      ${raw(DeviceCol.appVersion)} TEXT,
-      ${raw(DeviceCol.appBuildNumber)} TEXT,
-      ${raw(DeviceCol.userAgent)} TEXT,
-      ${raw(DeviceCol.firstSeenAt)} TEXT,
-      ${raw(DeviceCol.lastSeenAt)} TEXT
+    CREATE TABLE ${ident(DEVICES_TABLE.tableName)} (
+      ${ident(DeviceCol.id)} TEXT PRIMARY KEY,
+      ${ident(DeviceCol.userId)} TEXT,
+      ${ident(DeviceCol.createdAt)} TEXT,
+      ${ident(DeviceCol.platform)} TEXT,
+      ${ident(DeviceCol.osName)} TEXT,
+      ${ident(DeviceCol.osVersion)} TEXT,
+      ${ident(DeviceCol.deviceModelName)} TEXT,
+      ${ident(DeviceCol.deviceBrand)} TEXT,
+      ${ident(DeviceCol.deviceName)} TEXT,
+      ${ident(DeviceCol.appVersion)} TEXT,
+      ${ident(DeviceCol.appBuildNumber)} TEXT,
+      ${ident(DeviceCol.userAgent)} TEXT,
+      ${ident(DeviceCol.firstSeenAt)} TEXT,
+      ${ident(DeviceCol.lastSeenAt)} TEXT
     )
   `);
   await db.run(sql`
-    CREATE TABLE ${raw(EXTERNAL_ACCOUNTS_TABLE)} (
-      ${raw(ExternalAccountCol.userId)} TEXT NOT NULL,
-      ${raw(ExternalAccountCol.provider)} TEXT NOT NULL,
-      ${raw(ExternalAccountCol.externalId)} TEXT NOT NULL,
-      ${raw(ExternalAccountCol.metadata)} TEXT NOT NULL DEFAULT '{}',
-      ${raw(ExternalAccountCol.createdAt)} TEXT NOT NULL,
-      PRIMARY KEY (${raw(ExternalAccountCol.provider)}, ${raw(ExternalAccountCol.externalId)}),
-      UNIQUE (${raw(ExternalAccountCol.userId)}, ${raw(ExternalAccountCol.provider)})
+    CREATE TABLE ${ident(EXTERNAL_ACCOUNTS_TABLE)} (
+      ${ident(ExternalAccountCol.userId)} TEXT NOT NULL,
+      ${ident(ExternalAccountCol.provider)} TEXT NOT NULL,
+      ${ident(ExternalAccountCol.externalId)} TEXT NOT NULL,
+      ${ident(ExternalAccountCol.metadata)} TEXT NOT NULL DEFAULT '{}',
+      ${ident(ExternalAccountCol.createdAt)} TEXT NOT NULL,
+      PRIMARY KEY (${ident(ExternalAccountCol.provider)}, ${ident(ExternalAccountCol.externalId)}),
+      UNIQUE (${ident(ExternalAccountCol.userId)}, ${ident(ExternalAccountCol.provider)})
     )
   `);
   await db.run(sql`
-    CREATE TABLE ${raw(ENTITY_STORE_TABLE)} (
+    CREATE TABLE ${ident(ENTITY_STORE_TABLE)} (
       id TEXT PRIMARY KEY,
       namespace TEXT NOT NULL,
       type TEXT NOT NULL,
@@ -111,12 +111,12 @@ async function readClerkExternalAccount(
     metadata: string | null;
     created_at: string | null;
   }>(sql`
-    SELECT ${raw(ExternalAccountCol.externalId)} AS external_id,
-           ${raw(ExternalAccountCol.metadata)} AS metadata,
-           ${raw(ExternalAccountCol.createdAt)} AS created_at
-    FROM ${raw(EXTERNAL_ACCOUNTS_TABLE)}
-    WHERE ${raw(ExternalAccountCol.userId)} = ${accountId}
-      AND ${raw(ExternalAccountCol.provider)} = ${PRIMARY_AUTH_PROVIDER}
+    SELECT ${ident(ExternalAccountCol.externalId)} AS external_id,
+           ${ident(ExternalAccountCol.metadata)} AS metadata,
+           ${ident(ExternalAccountCol.createdAt)} AS created_at
+    FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)}
+    WHERE ${ident(ExternalAccountCol.userId)} = ${accountId}
+      AND ${ident(ExternalAccountCol.provider)} = ${PRIMARY_AUTH_PROVIDER}
     LIMIT 1
   `);
   return rows[0];
@@ -127,7 +127,7 @@ async function readClerkEntityStore(
   accountId: string
 ): Promise<{ data: string; created_at: string } | undefined> {
   const rows = await db.query<{ data: string; created_at: string }>(sql`
-    SELECT data, created_at FROM ${raw(ENTITY_STORE_TABLE)}
+    SELECT data, created_at FROM ${ident(ENTITY_STORE_TABLE)}
     WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER} AND owner_id = ${accountId}
     LIMIT 1
   `);
@@ -195,7 +195,7 @@ async function readEntityStoreOwnerId(
   externalUserId: string
 ): Promise<string | null> {
   const rows = await db.query<{ owner_id: string | null }>(sql`
-    SELECT owner_id FROM ${raw(ENTITY_STORE_TABLE)}
+    SELECT owner_id FROM ${ident(ENTITY_STORE_TABLE)}
     WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER} AND external_id = ${externalUserId}
   `);
   return rows[0]?.owner_id ?? null;
@@ -206,8 +206,8 @@ async function readDeviceUserId(
   deviceId: string
 ): Promise<string | null> {
   const rows = await db.query<{ user_id: string | null }>(sql`
-    SELECT ${raw(DeviceCol.userId)} AS user_id FROM ${raw(DEVICES_TABLE.tableName)}
-    WHERE ${raw(DeviceCol.id)} = ${deviceId}
+    SELECT ${ident(DeviceCol.userId)} AS user_id FROM ${ident(DEVICES_TABLE.tableName)}
+    WHERE ${ident(DeviceCol.id)} = ${deviceId}
   `);
   return rows[0]?.user_id ?? null;
 }
@@ -217,7 +217,7 @@ async function readDevice(
   deviceId: string
 ): Promise<{ platform: string | null } | null> {
   const rows = await db.query<{ platform: string | null }>(sql`
-    SELECT platform FROM ${raw(DEVICES_TABLE.tableName)} WHERE ${raw(DeviceCol.id)} = ${deviceId}
+    SELECT platform FROM ${ident(DEVICES_TABLE.tableName)} WHERE ${ident(DeviceCol.id)} = ${deviceId}
   `);
   return rows[0] ?? null;
 }
@@ -312,7 +312,7 @@ describe('refreshAuthSnapshot', () => {
     await refreshAuthSnapshot(inputs);
 
     const rows = await sqlClient.query<{ id: string }>(sql`
-      SELECT id FROM ${raw(ENTITY_STORE_TABLE)} WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER}
+      SELECT id FROM ${ident(ENTITY_STORE_TABLE)} WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER}
     `);
     expect(rows).toHaveLength(1);
     expect(await readDevice(sqlClient, DEVICE_ID)).not.toBeNull();
@@ -331,14 +331,14 @@ describe('refreshAuthSnapshot', () => {
 
     const now = new Date().toISOString();
     await sqlClient.run(sql`
-      INSERT INTO ${raw(EXTERNAL_ACCOUNTS_TABLE)}
-      (${raw(ExternalAccountCol.userId)}, ${raw(ExternalAccountCol.provider)},
-       ${raw(ExternalAccountCol.externalId)}, ${raw(ExternalAccountCol.metadata)},
-       ${raw(ExternalAccountCol.createdAt)})
+      INSERT INTO ${ident(EXTERNAL_ACCOUNTS_TABLE)}
+      (${ident(ExternalAccountCol.userId)}, ${ident(ExternalAccountCol.provider)},
+       ${ident(ExternalAccountCol.externalId)}, ${ident(ExternalAccountCol.metadata)},
+       ${ident(ExternalAccountCol.createdAt)})
       VALUES (${ACCOUNT_ID}, 'stripe', 'cus_1', '{}', ${now})
     `);
     await sqlClient.run(sql`
-      INSERT INTO ${raw(ENTITY_STORE_TABLE)}
+      INSERT INTO ${ident(ENTITY_STORE_TABLE)}
       (id, namespace, type, external_id, owner_id, data, created_at, updated_at)
       VALUES ('auth/user/user_external_1', ${ENTITY_STORE_NAMESPACE_AUTH}, ${ENTITY_STORE_TYPE_USER}, ${EXTERNAL_USER_ID}, ${ACCOUNT_ID}, ${JSON.stringify({ id: EXTERNAL_USER_ID })}, ${now}, ${now})
     `);
@@ -355,16 +355,16 @@ describe('refreshAuthSnapshot', () => {
     const stripeRows = await sqlClient.query<{
       external_id: string | null;
     }>(sql`
-      SELECT ${raw(ExternalAccountCol.externalId)} AS external_id
-      FROM ${raw(EXTERNAL_ACCOUNTS_TABLE)}
-      WHERE ${raw(ExternalAccountCol.userId)} = ${ACCOUNT_ID} AND ${raw(ExternalAccountCol.provider)} = 'stripe'
+      SELECT ${ident(ExternalAccountCol.externalId)} AS external_id
+      FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)}
+      WHERE ${ident(ExternalAccountCol.userId)} = ${ACCOUNT_ID} AND ${ident(ExternalAccountCol.provider)} = 'stripe'
     `);
     expect(stripeRows[0]?.external_id).toBe('cus_1');
 
     const clerkRows = await sqlClient.query<{ metadata: string }>(sql`
-      SELECT ${raw(ExternalAccountCol.metadata)} AS metadata
-      FROM ${raw(EXTERNAL_ACCOUNTS_TABLE)}
-      WHERE ${raw(ExternalAccountCol.userId)} = ${ACCOUNT_ID} AND ${raw(ExternalAccountCol.provider)} = ${PRIMARY_AUTH_PROVIDER}
+      SELECT ${ident(ExternalAccountCol.metadata)} AS metadata
+      FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)}
+      WHERE ${ident(ExternalAccountCol.userId)} = ${ACCOUNT_ID} AND ${ident(ExternalAccountCol.provider)} = ${PRIMARY_AUTH_PROVIDER}
     `);
     const metadata = JSON.parse(clerkRows[0]!.metadata) as Record<
       string,

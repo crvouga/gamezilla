@@ -3,7 +3,7 @@ import {
   USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -66,19 +66,19 @@ export async function searchUsers(
   const boundedLimit = Math.min(Math.max(limit, 1), FRIEND_SEARCH_MAX_RESULTS);
   const likeQuery = query.toLowerCase();
   const rows = await db.query<SearchHitRow>(sql`
-    SELECT p.${raw(ProfileCol.id)} AS id,
-           p.${raw(ProfileCol.username)} AS username,
-           p.${raw(ProfileCol.avatarConfig)} AS avatar_config
-    FROM ${raw(PROFILES_TABLE.tableName)} p
-    WHERE p.${raw(ProfileCol.id)} <> ${viewerId}
+    SELECT p.${ident(ProfileCol.id)} AS id,
+           p.${ident(ProfileCol.username)} AS username,
+           p.${ident(ProfileCol.avatarConfig)} AS avatar_config
+    FROM ${ident(PROFILES_TABLE.tableName)} p
+    WHERE p.${ident(ProfileCol.id)} <> ${viewerId}
       AND NOT EXISTS (
-        SELECT 1 FROM ${raw(USER_BLOCKS_TABLE.tableName)} b
-        WHERE (b.${raw(UserBlockCol.blockerId)} = ${viewerId} AND b.${raw(UserBlockCol.blockedId)} = p.${raw(ProfileCol.id)})
-           OR (b.${raw(UserBlockCol.blockerId)} = p.${raw(ProfileCol.id)} AND b.${raw(UserBlockCol.blockedId)} = ${viewerId})
+        SELECT 1 FROM ${ident(USER_BLOCKS_TABLE.tableName)} b
+        WHERE (b.${ident(UserBlockCol.blockerId)} = ${viewerId} AND b.${ident(UserBlockCol.blockedId)} = p.${ident(ProfileCol.id)})
+           OR (b.${ident(UserBlockCol.blockerId)} = p.${ident(ProfileCol.id)} AND b.${ident(UserBlockCol.blockedId)} = ${viewerId})
       )
-      AND p.${raw(ProfileCol.username)} <> ''
-      AND lower(p.${raw(ProfileCol.username)}) LIKE ${likeQuery} || '%'
-    ORDER BY lower(p.${raw(ProfileCol.username)})
+      AND p.${ident(ProfileCol.username)} <> ''
+      AND lower(p.${ident(ProfileCol.username)}) LIKE ${likeQuery} || '%'
+    ORDER BY lower(p.${ident(ProfileCol.username)})
     LIMIT ${boundedLimit}
   `);
   return rows.map(mapSearchHit);

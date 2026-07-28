@@ -3,7 +3,7 @@ import {
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
 import { fail, ok } from '@pkgs/write/shared/write-result';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { ownerMatches } from '@pkgs/write/shared/read-row-values';
 import type { RowChange } from '@pkgs/write/shared/row-change';
@@ -145,13 +145,13 @@ export const appendPuzzleInteractionWrite = defineWrite<
           ? 1
           : 0;
     await db.run(sql`
-      INSERT INTO ${raw(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)}
-       (${raw(ChessPuzzleInteractionCol.id)}, ${raw(ChessPuzzleInteractionCol.ownerId)},
-        ${raw(ChessPuzzleInteractionCol.puzzleId)}, ${raw(ChessPuzzleInteractionCol.puzzleRating)},
-        ${raw(ChessPuzzleInteractionCol.kind)}, ${raw(ChessPuzzleInteractionCol.solveIdx)},
-        ${raw(ChessPuzzleInteractionCol.uci)}, ${raw(ChessPuzzleInteractionCol.correct)},
-        ${raw(ChessPuzzleInteractionCol.ratingBefore)}, ${raw(ChessPuzzleInteractionCol.ratingAfter)},
-        ${raw(ChessPuzzleInteractionCol.at)})
+      INSERT INTO ${ident(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)}
+       (${ident(ChessPuzzleInteractionCol.id)}, ${ident(ChessPuzzleInteractionCol.ownerId)},
+        ${ident(ChessPuzzleInteractionCol.puzzleId)}, ${ident(ChessPuzzleInteractionCol.puzzleRating)},
+        ${ident(ChessPuzzleInteractionCol.kind)}, ${ident(ChessPuzzleInteractionCol.solveIdx)},
+        ${ident(ChessPuzzleInteractionCol.uci)}, ${ident(ChessPuzzleInteractionCol.correct)},
+        ${ident(ChessPuzzleInteractionCol.ratingBefore)}, ${ident(ChessPuzzleInteractionCol.ratingAfter)},
+        ${ident(ChessPuzzleInteractionCol.at)})
        VALUES (${id}, ${input.ownerId}, ${input.puzzleId}, ${input.puzzleRating},
                ${input.kind}, ${input.solveIdx}, ${input.uci ?? null}, ${correct},
                ${input.ratingBefore ?? 0}, ${input.ratingAfter ?? 0}, ${at})

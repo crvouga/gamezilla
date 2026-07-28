@@ -1,5 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
@@ -56,9 +56,9 @@ function hasAvatarConfig(row: ProfileRow | undefined): boolean {
 
 async function backfillAvatar(db: SqlClient, profileId: string): Promise<void> {
   await db.run(sql`
-    UPDATE ${raw(PROFILES_TABLE.tableName)}
-    SET ${raw(ProfileCol.avatarConfig)} = ${serializeDefaultAvatarConfig(profileId)}
-    WHERE ${raw(ProfileCol.id)} = ${profileId}
+    UPDATE ${ident(PROFILES_TABLE.tableName)}
+    SET ${ident(ProfileCol.avatarConfig)} = ${serializeDefaultAvatarConfig(profileId)}
+    WHERE ${ident(ProfileCol.id)} = ${profileId}
   `);
 }
 
@@ -68,8 +68,8 @@ async function insertProfileSeed(
 ): Promise<void> {
   const now = new Date().toISOString();
   await db.run(sql`
-    INSERT INTO ${raw(PROFILES_TABLE.tableName)}
-    (${raw(ProfileCol.id)}, ${raw(ProfileCol.createdAt)}, ${raw(ProfileCol.username)}, ${raw(ProfileCol.avatarConfig)})
+    INSERT INTO ${ident(PROFILES_TABLE.tableName)}
+    (${ident(ProfileCol.id)}, ${ident(ProfileCol.createdAt)}, ${ident(ProfileCol.username)}, ${ident(ProfileCol.avatarConfig)})
     VALUES (${profileId}, ${now}, '', ${serializeDefaultAvatarConfig(profileId)})
   `);
 }
@@ -83,16 +83,16 @@ async function fillEmptyUsername(
   // (e.g. a raced apply from another account's token). Never overwrite a
   // user-chosen username (`username_changed_at` set).
   await db.run(sql`
-    UPDATE ${raw(PROFILES_TABLE.tableName)}
-    SET ${raw(ProfileCol.username)} = ${username}
-    WHERE ${raw(ProfileCol.id)} = ${profileId}
+    UPDATE ${ident(PROFILES_TABLE.tableName)}
+    SET ${ident(ProfileCol.username)} = ${username}
+    WHERE ${ident(ProfileCol.id)} = ${profileId}
       AND (
-        ${raw(ProfileCol.username)} = ''
-        OR ${raw(ProfileCol.username)} IS NULL
+        ${ident(ProfileCol.username)} = ''
+        OR ${ident(ProfileCol.username)} IS NULL
         OR (
-          (${raw(ProfileCol.usernameChangedAt)} IS NULL
-            OR ${raw(ProfileCol.usernameChangedAt)} = '')
-          AND ${raw(ProfileCol.username)} != ${username}
+          (${ident(ProfileCol.usernameChangedAt)} IS NULL
+            OR ${ident(ProfileCol.usernameChangedAt)} = '')
+          AND ${ident(ProfileCol.username)} != ${username}
         )
       )
   `);
@@ -119,7 +119,7 @@ export const ensureProfileLocalWrite = defineWrite<
   },
   execute: async (_ctx, input, db) => {
     const rows = await db.query<ProfileRow>(sql`
-      SELECT * FROM ${raw(PROFILES_TABLE.tableName)} WHERE ${raw(ProfileCol.id)} = ${input.profileId} LIMIT 1
+      SELECT * FROM ${ident(PROFILES_TABLE.tableName)} WHERE ${ident(ProfileCol.id)} = ${input.profileId} LIMIT 1
     `);
     const existing = rows[0];
     if (profileLooksPresent(existing, input.profileId)) {

@@ -3,7 +3,7 @@ import {
   useWatchOne,
   useWatchQuery,
 } from '@pkgs/sync-engine/client/sync-engine-context';
-import { raw, sql, type Sql } from '@pkgs/sql';
+import { sql, type Sql, ident } from '@pkgs/sql';
 import { useMemo } from 'react';
 
 import {
@@ -80,10 +80,10 @@ export function usePuzzleEntity(puzzleId: string): {
   themes: readonly string[];
 } {
   const { row } = useWatchOne<PuzzleEntityRow>(sql`
-    SELECT ${raw(ChessPuzzleCol.fen)} AS fen, ${raw(ChessPuzzleCol.moves)} AS moves,
-            ${raw(ChessPuzzleCol.rating)} AS rating, ${raw(ChessPuzzleCol.themes)} AS themes
-     FROM ${raw(CHESS_PUZZLES_TABLE.tableName)}
-     WHERE ${raw(ChessPuzzleCol.id)} = ${puzzleId}
+    SELECT ${ident(ChessPuzzleCol.fen)} AS fen, ${ident(ChessPuzzleCol.moves)} AS moves,
+            ${ident(ChessPuzzleCol.rating)} AS rating, ${ident(ChessPuzzleCol.themes)} AS themes
+     FROM ${ident(CHESS_PUZZLES_TABLE.tableName)}
+     WHERE ${ident(ChessPuzzleCol.id)} = ${puzzleId}
   `);
 
   return {
@@ -94,7 +94,7 @@ export function usePuzzleEntity(puzzleId: string): {
   };
 }
 
-const EMPTY_INTERACTIONS_QUERY = sql`SELECT ${raw(ChessPuzzleInteractionCol.puzzleId)} AS puzzle_id FROM ${raw(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)} WHERE 0`;
+const EMPTY_INTERACTIONS_QUERY = sql`SELECT ${ident(ChessPuzzleInteractionCol.puzzleId)} AS puzzle_id FROM ${ident(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)} WHERE 0`;
 
 export function usePuzzleInteractions(
   puzzleId: string
@@ -103,18 +103,18 @@ export function usePuzzleInteractions(
   const query = useMemo<Sql>(
     () =>
       myId.length > 0
-        ? sql`SELECT ${raw(ChessPuzzleInteractionCol.puzzleId)} AS puzzle_id,
-                ${raw(ChessPuzzleInteractionCol.kind)} AS kind,
-                ${raw(ChessPuzzleInteractionCol.solveIdx)} AS solve_idx,
-                ${raw(ChessPuzzleInteractionCol.uci)} AS uci,
-                ${raw(ChessPuzzleInteractionCol.correct)} AS correct,
-                ${raw(ChessPuzzleInteractionCol.puzzleRating)} AS puzzle_rating,
-                ${raw(ChessPuzzleInteractionCol.ratingBefore)} AS rating_before,
-                ${raw(ChessPuzzleInteractionCol.ratingAfter)} AS rating_after,
-                ${raw(ChessPuzzleInteractionCol.at)} AS at
-         FROM ${raw(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)}
-         WHERE ${raw(ChessPuzzleInteractionCol.ownerId)} = ${myId} AND ${raw(ChessPuzzleInteractionCol.puzzleId)} = ${puzzleId}
-         ORDER BY ${raw(ChessPuzzleInteractionCol.at)} ASC
+        ? sql`SELECT ${ident(ChessPuzzleInteractionCol.puzzleId)} AS puzzle_id,
+                ${ident(ChessPuzzleInteractionCol.kind)} AS kind,
+                ${ident(ChessPuzzleInteractionCol.solveIdx)} AS solve_idx,
+                ${ident(ChessPuzzleInteractionCol.uci)} AS uci,
+                ${ident(ChessPuzzleInteractionCol.correct)} AS correct,
+                ${ident(ChessPuzzleInteractionCol.puzzleRating)} AS puzzle_rating,
+                ${ident(ChessPuzzleInteractionCol.ratingBefore)} AS rating_before,
+                ${ident(ChessPuzzleInteractionCol.ratingAfter)} AS rating_after,
+                ${ident(ChessPuzzleInteractionCol.at)} AS at
+         FROM ${ident(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)}
+         WHERE ${ident(ChessPuzzleInteractionCol.ownerId)} = ${myId} AND ${ident(ChessPuzzleInteractionCol.puzzleId)} = ${puzzleId}
+         ORDER BY ${ident(ChessPuzzleInteractionCol.at)} ASC
          LIMIT 100`
         : EMPTY_INTERACTIONS_QUERY,
     [myId, puzzleId]
@@ -128,18 +128,18 @@ export function useChessPuzzleAllInteractions(): ChessPuzzleInteractionRow[] {
   const query = useMemo<Sql>(
     () =>
       myId.length > 0
-        ? sql`SELECT ${raw(ChessPuzzleInteractionCol.puzzleId)} AS puzzle_id,
-                ${raw(ChessPuzzleInteractionCol.kind)} AS kind,
-                ${raw(ChessPuzzleInteractionCol.solveIdx)} AS solve_idx,
-                ${raw(ChessPuzzleInteractionCol.uci)} AS uci,
-                ${raw(ChessPuzzleInteractionCol.correct)} AS correct,
-                ${raw(ChessPuzzleInteractionCol.puzzleRating)} AS puzzle_rating,
-                ${raw(ChessPuzzleInteractionCol.ratingBefore)} AS rating_before,
-                ${raw(ChessPuzzleInteractionCol.ratingAfter)} AS rating_after,
-                ${raw(ChessPuzzleInteractionCol.at)} AS at
-         FROM ${raw(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)}
-         WHERE ${raw(ChessPuzzleInteractionCol.ownerId)} = ${myId}
-         ORDER BY ${raw(ChessPuzzleInteractionCol.at)} DESC
+        ? sql`SELECT ${ident(ChessPuzzleInteractionCol.puzzleId)} AS puzzle_id,
+                ${ident(ChessPuzzleInteractionCol.kind)} AS kind,
+                ${ident(ChessPuzzleInteractionCol.solveIdx)} AS solve_idx,
+                ${ident(ChessPuzzleInteractionCol.uci)} AS uci,
+                ${ident(ChessPuzzleInteractionCol.correct)} AS correct,
+                ${ident(ChessPuzzleInteractionCol.puzzleRating)} AS puzzle_rating,
+                ${ident(ChessPuzzleInteractionCol.ratingBefore)} AS rating_before,
+                ${ident(ChessPuzzleInteractionCol.ratingAfter)} AS rating_after,
+                ${ident(ChessPuzzleInteractionCol.at)} AS at
+         FROM ${ident(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)}
+         WHERE ${ident(ChessPuzzleInteractionCol.ownerId)} = ${myId}
+         ORDER BY ${ident(ChessPuzzleInteractionCol.at)} DESC
          LIMIT 100`
         : EMPTY_INTERACTIONS_QUERY,
     [myId]

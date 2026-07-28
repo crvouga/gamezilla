@@ -1,5 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { join, raw, sql } from '@pkgs/sql';
+import { join, sql, ident } from '@pkgs/sql';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { idMatches } from '@pkgs/write/shared/read-row-values';
@@ -46,11 +46,11 @@ export const profilePatchWrite = defineWrite<ProfilePatchInput, void>({
     }
     const entries = Object.entries(updates);
     const sets = join(
-      entries.map(([col, value]) => sql`${raw(col)} = ${value}`),
+      entries.map(([col, value]) => sql`${ident(col)} = ${value}`),
       ', '
     );
     await db.run(sql`
-      UPDATE ${raw(PROFILES_TABLE.tableName)} SET ${sets} WHERE ${raw(ProfileCol.id)} = ${input.profileId}
+      UPDATE ${ident(PROFILES_TABLE.tableName)} SET ${sets} WHERE ${ident(ProfileCol.id)} = ${input.profileId}
     `);
     return ok(undefined);
   },

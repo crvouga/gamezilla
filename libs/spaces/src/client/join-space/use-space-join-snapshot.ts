@@ -3,7 +3,7 @@ import {
   useMyDeviceId,
 } from '@libs/auth/client/use-current-user';
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEngineSubscriptions } from '@pkgs/sync-engine/client/use-sync-engine-subscriptions';
 import { useMemo } from 'react';
@@ -60,15 +60,15 @@ export function useSpaceJoinSnapshot(
   const streamReady = useSpaceJoinStreamReady(spaceId, token);
   const viewerAccountId = useMyAccountId();
   const viewerDeviceId = useMyDeviceId();
-  const spaceColumns = sql`SELECT ${raw(SpaceCol.hostId)} AS host_id,
-                ${raw(SpaceCol.hostMemberId)} AS host_member_id,
-                ${raw(SpaceCol.hostAccountId)} AS host_account_id,
-                ${raw(SpaceCol.endedAt)} AS ended_at,
-                ${raw(SpaceCol.visibility)} AS visibility
-         FROM ${raw(SPACES_TABLE.tableName)}`;
+  const spaceColumns = sql`SELECT ${ident(SpaceCol.hostId)} AS host_id,
+                ${ident(SpaceCol.hostMemberId)} AS host_member_id,
+                ${ident(SpaceCol.hostAccountId)} AS host_account_id,
+                ${ident(SpaceCol.endedAt)} AS ended_at,
+                ${ident(SpaceCol.visibility)} AS visibility
+         FROM ${ident(SPACES_TABLE.tableName)}`;
   const { row, isLoading } = useWatchOne<SpaceJoinLocalRow>(
     enabled
-      ? sql`${spaceColumns} WHERE ${raw(SpaceCol.id)} = ${spaceId}`
+      ? sql`${spaceColumns} WHERE ${ident(SpaceCol.id)} = ${spaceId}`
       : sql`${spaceColumns} WHERE 0`
   );
   const hasValidInvite = useHasValidLocalInvite(spaceId, token);

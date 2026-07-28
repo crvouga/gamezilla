@@ -1,5 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { join, raw, sql } from '@pkgs/sql';
+import { join, sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { ProfileCard } from '../shared/profile-card';
@@ -28,9 +28,9 @@ export async function readProfileCardById(
   profileId: string
 ): Promise<ProfileCard | null> {
   const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT ${raw(ProfileCol.id)}, ${raw(ProfileCol.username)}, ${raw(ProfileCol.avatarConfig)}
-    FROM ${raw(PROFILES_TABLE.tableName)}
-    WHERE ${raw(ProfileCol.id)} = ${profileId}
+    SELECT ${ident(ProfileCol.id)}, ${ident(ProfileCol.username)}, ${ident(ProfileCol.avatarConfig)}
+    FROM ${ident(PROFILES_TABLE.tableName)}
+    WHERE ${ident(ProfileCol.id)} = ${profileId}
     LIMIT 1
   `);
   const row = rows[0];
@@ -44,9 +44,9 @@ export async function readProfileCardsByIds(
 ): Promise<readonly ProfileCard[]> {
   if (profileIds.length === 0) return [];
   const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT ${raw(ProfileCol.id)}, ${raw(ProfileCol.username)}, ${raw(ProfileCol.avatarConfig)}
-    FROM ${raw(PROFILES_TABLE.tableName)}
-    WHERE ${raw(ProfileCol.id)} IN (${join(profileIds)})
+    SELECT ${ident(ProfileCol.id)}, ${ident(ProfileCol.username)}, ${ident(ProfileCol.avatarConfig)}
+    FROM ${ident(PROFILES_TABLE.tableName)}
+    WHERE ${ident(ProfileCol.id)} IN (${join(profileIds)})
   `);
   return rows
     .map((row) => readProfileCard(row))

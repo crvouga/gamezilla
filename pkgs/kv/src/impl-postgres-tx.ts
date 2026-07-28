@@ -1,7 +1,7 @@
 import { assert, hotAssert } from '@pkgs/assert';
 import type { Keyword } from '@pkgs/keyword/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword/keyword';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import type { Kv, KvRecord } from './interface';
@@ -19,7 +19,7 @@ export class KvImplPostgresTx implements Kv {
   async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
     const rows = await this.db.query<{ value: unknown }>(
-      sql`SELECT value FROM ${raw(TABLE)} WHERE key = ${key}`
+      sql`SELECT value FROM ${ident(TABLE)} WHERE key = ${key}`
     );
     const first = rows[0];
     if (first === null || first === undefined) return null;
@@ -34,13 +34,13 @@ export class KvImplPostgresTx implements Kv {
     assertKvKey(key);
     assertKvRecord(hotAssert(), value, 'kv postgres tx put');
     await this.db.run(sql`
-      INSERT INTO ${raw(TABLE)} (key, value) VALUES (${key}, ${JSON.stringify(value)}::text::jsonb)
-       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, ${raw(LAST_MODIFIED_AT)} = now()`);
+      INSERT INTO ${ident(TABLE)} (key, value) VALUES (${key}, ${JSON.stringify(value)}::text::jsonb)
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, ${ident(LAST_MODIFIED_AT)} = now()`);
   }
 
   async zap(key: Keyword): Promise<void> {
     assertKvKey(key);
-    await this.db.run(sql`DELETE FROM ${raw(TABLE)} WHERE key = ${key}`);
+    await this.db.run(sql`DELETE FROM ${ident(TABLE)} WHERE key = ${key}`);
   }
 
   async tx<T>(_fn: (tx: Kv) => Promise<T>): Promise<T> {

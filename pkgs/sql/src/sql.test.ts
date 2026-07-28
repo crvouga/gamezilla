@@ -1,7 +1,7 @@
 import { assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { inspect } from 'node:util';
-import sql, { bulk, empty, join, raw, Sql } from './sql';
+import sql, { bulk, empty, ident, join, raw, Sql, unsafe } from './sql';
 
 /** Node crash handler calls `process.exit`; register one that throws so tests can assert failures. */
 function registerThrowingCrashHandlerForTests(): () => void {
@@ -117,6 +117,40 @@ describe('sql template tag', () => {
     expect(query.text).toEqual("UPDATE user SET `name` = 'Taylor'");
   });
 
+  describe('injection safety', () => {
+    const payloads = [
+      "' OR 1=1--",
+      "'; DROP TABLE users;--",
+      '1; DROP TABLE books',
+      "x' OR '1'='1",
+    ];
+
+    it.each(payloads)(
+      'should bind classic payload %j (never splice into SQL text)',
+      (payload) => {
+        const query = sql`SELECT * FROM books WHERE author = ${payload}`;
+        expect(query.sql).toEqual('SELECT * FROM books WHERE author = ?');
+        expect(query.values).toEqual([payload]);
+        expect(query.sql.includes(payload)).toBe(false);
+      }
+    );
+
+    it('should bind nested classic payloads', () => {
+      const payload = "' OR 1=1--";
+      const inner = sql`SELECT id FROM authors WHERE name = ${payload}`;
+      const query = sql`SELECT * FROM books WHERE author_id IN (${inner})`;
+      expect(query.values).toEqual([payload]);
+      expect(query.sql.includes(payload)).toBe(false);
+      expect(query.sql).toContain('name = ?');
+    });
+
+    it('should freeze strings and values', () => {
+      const query = sql`SELECT * FROM books WHERE id = ${1}`;
+      expect(Object.isFrozen(query.strings)).toBe(true);
+      expect(Object.isFrozen(query.values)).toBe(true);
+    });
+  });
+
   describe('join', () => {
     it('should join list', () => {
       const query = join([1, 2, 3]);
@@ -159,13 +193,50 @@ describe('sql template tag', () => {
       expect(query.text).toEqual('($1,$2,$3)');
       expect(query.values).toEqual([1, 2, 3]);
     });
+
+    it('should reject malicious glue separator', () => {
+      expect(() => join([1], ' OR 1=1;-- ')).toThrow(
+        'Sql: join/bulk separator forbids semicolons'
+      );
+    });
+  });
+
+  describe('ident', () => {
+    it('should accept a valid identifier', () => {
+      const query = sql`SELECT * FROM ${ident('books')}`;
+      expect(query.sql).toEqual('SELECT * FROM books');
+      expect(query.values).toEqual([]);
+    });
+
+    it('should reject injection-shaped identifiers', () => {
+      expect(() => ident('users; DROP')).toThrow();
+      expect(() => ident('x--y')).toThrow();
+      expect(() => ident("'x'")).toThrow();
+    });
   });
 
   describe('raw', () => {
-    it('should accept any string', () => {
-      const value = Math.random().toString();
-      const query = raw(value);
+    it('should accept trusted multi-token SQL without boundaries', () => {
+      const query = raw('PRAGMA foreign_keys = ON');
+      expect(query.sql).toEqual('PRAGMA foreign_keys = ON');
+      expect(query.values).toEqual([]);
+    });
 
+    it('should reject statement-boundary markers', () => {
+      expect(() => raw('SELECT 1; DROP TABLE t')).toThrow(
+        'Sql: raw() forbids semicolons'
+      );
+      expect(() => raw('a -- b')).toThrow('Sql: raw() forbids line comments');
+      expect(() => raw('a /* b */')).toThrow(
+        'Sql: raw() forbids block comments'
+      );
+    });
+  });
+
+  describe('unsafe', () => {
+    it('should allow full SQL text including statement boundaries', () => {
+      const value = 'SELECT 1; DROP TABLE t';
+      const query = unsafe(value);
       expect(query.sql).toEqual(value);
       expect(query.values).toEqual([]);
     });

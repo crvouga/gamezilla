@@ -1,5 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -35,10 +35,10 @@ async function readUsernameRow(
   profileId: string
 ): Promise<UsernameRow> {
   const rows = await db.query<UsernameRow>(sql`
-    SELECT ${raw(ProfileCol.username)} AS username,
-           ${raw(ProfileCol.usernameChangedAt)} AS username_changed_at
-    FROM ${raw(PROFILES_TABLE.tableName)}
-    WHERE ${raw(ProfileCol.id)} = ${profileId}
+    SELECT ${ident(ProfileCol.username)} AS username,
+           ${ident(ProfileCol.usernameChangedAt)} AS username_changed_at
+    FROM ${ident(PROFILES_TABLE.tableName)}
+    WHERE ${ident(ProfileCol.id)} = ${profileId}
     LIMIT 1
   `);
   const row = rows[0];
@@ -67,10 +67,10 @@ async function updateUsername(
   const now = new Date().toISOString();
   try {
     await db.run(sql`
-      UPDATE ${raw(PROFILES_TABLE.tableName)}
-      SET ${raw(ProfileCol.username)} = ${username},
-          ${raw(ProfileCol.usernameChangedAt)} = ${now}
-      WHERE ${raw(ProfileCol.id)} = ${profileId}
+      UPDATE ${ident(PROFILES_TABLE.tableName)}
+      SET ${ident(ProfileCol.username)} = ${username},
+          ${ident(ProfileCol.usernameChangedAt)} = ${now}
+      WHERE ${ident(ProfileCol.id)} = ${profileId}
     `);
   } catch (error) {
     if (isUniqueViolation(error)) {

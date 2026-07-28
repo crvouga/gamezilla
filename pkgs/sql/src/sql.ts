@@ -1,8 +1,16 @@
 /**
  * Tiger Style: nested parameterized SQL fragments. Invariants are asserted
  * (crash on misuse); placeholders are bounded; strings/values stay paired.
+ *
+ * Security model:
+ * - Non-`Sql` interpolations are bound parameters (never spliced into SQL text).
+ * - `ident()` is for table/column/alias names (validated identifiers only).
+ * - `raw()` is trusted multi-token SQL without stacked queries / comment markers.
+ * - `unsafe()` is the explicit footgun for operator CLI / rare full-SQL DDL.
  */
 import { assert } from '@pkgs/assert';
+
+import { assertSqlIdentifier } from './assert-sql-identifier';
 
 /**
  * Values supported by SQL engine.
@@ -52,6 +60,34 @@ type FlattenedSql = {
   readonly strings: string[];
   readonly values: Value[];
 };
+
+/**
+ * Rejects stacked-query / comment injection markers in any string that is
+ * spliced into SQL text (not bound as a parameter).
+ */
+function assertNoSqlStatementBoundary(text: string, label: string): void {
+  assert.ok(
+    !text.includes(';'),
+    `Sql: ${label} forbids semicolons (statement boundary)`,
+    { text }
+  );
+  assert.ok(!text.includes('--'), `Sql: ${label} forbids line comments`, {
+    text,
+  });
+  assert.ok(!text.includes('/*'), `Sql: ${label} forbids block comments`, {
+    text,
+  });
+}
+
+function assertSafeGlue(
+  separator: string,
+  prefix: string,
+  suffix: string
+): void {
+  assertNoSqlStatementBoundary(separator, 'join/bulk separator');
+  assertNoSqlStatementBoundary(prefix, 'join/bulk prefix');
+  assertNoSqlStatementBoundary(suffix, 'join/bulk suffix');
+}
 
 function assertIndexInBounds(
   index: number,
@@ -223,6 +259,7 @@ function listGlueStrings(
   suffix: string
 ): string[] {
   assert.ok(termCount >= 1, 'Sql: list needs at least one term', { termCount });
+  assertSafeGlue(separator, prefix, suffix);
   return [prefix, ...Array(termCount - 1).fill(separator), suffix];
 }
 
@@ -230,14 +267,15 @@ function listGlueStrings(
  * A SQL instance can be nested within each other to build SQL strings.
  */
 export class Sql {
-  readonly values: Value[];
-  readonly strings: string[];
+  readonly values: readonly Value[];
+  readonly strings: readonly string[];
 
   constructor(rawStrings: readonly string[], rawValues: readonly RawValue[]) {
     const flattened = flattenSql(rawStrings, rawValues);
     assertStringsValuesPair(flattened.strings, flattened.values, 'constructed');
-    this.values = flattened.values;
-    this.strings = flattened.strings;
+    // Frozen at runtime so callers cannot splice SQL text or rebind params.
+    this.values = Object.freeze(flattened.values);
+    this.strings = Object.freeze(flattened.strings);
   }
 
   get sql() {
@@ -346,10 +384,31 @@ function atRawRow(
 }
 
 /**
- * Create raw SQL statement.
+ * Trusted multi-token SQL spliced into statement text. Rejects stacked-query
+ * and comment markers. Prefer {@link ident} for table/column names.
  */
 export function raw(value: string) {
   assert.string(value, 'Sql: raw() expects a string', { value });
+  assertNoSqlStatementBoundary(value, 'raw()');
+  return new Sql([value], []);
+}
+
+/**
+ * Validated SQL identifier (table, column, alias) spliced into statement text.
+ */
+export function ident(name: string) {
+  assertSqlIdentifier(name, 'Sql: ident() expects a valid SQL identifier', {
+    name,
+  });
+  return new Sql([name], []);
+}
+
+/**
+ * Unrestricted SQL text splice. Never pass end-user input — reserved for
+ * operator CLI and rare DDL that must allow full SQL (including `;` / comments).
+ */
+export function unsafe(value: string) {
+  assert.string(value, 'Sql: unsafe() expects a string', { value });
   return new Sql([value], []);
 }
 

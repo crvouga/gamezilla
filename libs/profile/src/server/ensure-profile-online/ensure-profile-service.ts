@@ -1,5 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { raw, sql } from '@pkgs/sql';
+import { sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { serializeDefaultAvatarConfig } from '../../shared/avatar-config';
@@ -28,10 +28,10 @@ async function insertProfileRow(
   now: string
 ): Promise<void> {
   await db.run(sql`
-    INSERT INTO ${raw(PROFILES_TABLE.tableName)}
-    (${raw(ProfileCol.id)}, ${raw(ProfileCol.createdAt)}, ${raw(ProfileCol.username)}, ${raw(ProfileCol.avatarConfig)})
+    INSERT INTO ${ident(PROFILES_TABLE.tableName)}
+    (${ident(ProfileCol.id)}, ${ident(ProfileCol.createdAt)}, ${ident(ProfileCol.username)}, ${ident(ProfileCol.avatarConfig)})
     VALUES (${profileId}, ${now}, ${username}, ${serializeDefaultAvatarConfig(profileId)})
-    ON CONFLICT (${raw(ProfileCol.id)}) DO NOTHING
+    ON CONFLICT (${ident(ProfileCol.id)}) DO NOTHING
   `);
 }
 
@@ -43,10 +43,10 @@ async function assignUniqueUsername(
     const username = generateRandomUsername(`${profileId}:${attempt}`);
     try {
       await db.run(sql`
-        UPDATE ${raw(PROFILES_TABLE.tableName)}
-        SET ${raw(ProfileCol.username)} = ${username}
-        WHERE ${raw(ProfileCol.id)} = ${profileId}
-          AND (${raw(ProfileCol.username)} = '' OR ${raw(ProfileCol.username)} IS NULL)
+        UPDATE ${ident(PROFILES_TABLE.tableName)}
+        SET ${ident(ProfileCol.username)} = ${username}
+        WHERE ${ident(ProfileCol.id)} = ${profileId}
+          AND (${ident(ProfileCol.username)} = '' OR ${ident(ProfileCol.username)} IS NULL)
       `);
       const card = await readProfileCardById(db, profileId);
       if (card !== null && card.username.length > 0) {
