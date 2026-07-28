@@ -58,6 +58,7 @@ import {
 import { createLogger, type Logger } from '@pkgs/logger';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres/connect';
 import {
@@ -100,7 +101,7 @@ type StreamContext = {
   cli: Cli;
   profile: ResolvedSeedProfile;
   resolved: ResolvedSource;
-  sql: SqlClient;
+  db: SqlClient;
   reporter: PuzzleSeedReporter;
   log: Logger;
   resumeCursor: string | null;
@@ -155,7 +156,7 @@ export class ChessPuzzleSeeder {
    * serial, so a pool only adds idle connections that count against the
    * primary's `max_connections` budget without any throughput benefit.
    */
-  async #createSqlClient(databaseUrl: string): Promise<{ sql: SqlClient }> {
+  async #createSqlClient(databaseUrl: string): Promise<{ db: SqlClient }> {
     const { sqlClient } = await openPgClient({
       connectionString: databaseUrl,
       dbScope: appPostgresDbScope(),
@@ -165,26 +166,23 @@ export class ChessPuzzleSeeder {
         application_name: 'seed:puzzles',
       },
     });
-    return { sql: sqlClient };
+    return { db: sqlClient };
   }
 
-  async #readLoadRow(sql: SqlClient): Promise<{
+  async #readLoadRow(db: SqlClient): Promise<{
     source_etag: string | null;
     cursor: string | null;
     finished_at: string | null;
   } | null> {
-    const rows = await sql.query<{
+    const rows = await db.query<{
       source_etag: string | null;
       cursor: string | null;
       finished_at: string | null;
-    }>(
-      `SELECT ${ChessPuzzleLoadCol.sourceEtag} AS source_etag,
-              ${ChessPuzzleLoadCol.cursor} AS cursor,
-              ${ChessPuzzleLoadCol.finishedAt} AS finished_at
-       FROM ${CHESS_PUZZLE_LOAD_TABLE.tableName}
-       WHERE ${ChessPuzzleLoadCol.id} = ? LIMIT 1`,
-      [CHESS_PUZZLE_LOAD_ENTITY_ID]
-    );
+    }>(sql`SELECT ${raw(ChessPuzzleLoadCol.sourceEtag)} AS source_etag,
+              ${raw(ChessPuzzleLoadCol.cursor)} AS cursor,
+              ${raw(ChessPuzzleLoadCol.finishedAt)} AS finished_at
+       FROM ${raw(CHESS_PUZZLE_LOAD_TABLE.tableName)}
+       WHERE ${raw(ChessPuzzleLoadCol.id)} = ${CHESS_PUZZLE_LOAD_ENTITY_ID} LIMIT 1`);
     return rows[0] ?? null;
   }
 
@@ -217,14 +215,14 @@ export class ChessPuzzleSeeder {
   }
 
   async #persistResumeCursor(args: {
-    sql: SqlClient;
+    db: SqlClient;
     state: SeedStats;
     sourceEtag: string;
   }): Promise<void> {
-    const { sql, state, sourceEtag } = args;
+    const { db, state, sourceEtag } = args;
     if (state.lastPuzzleId === null) return;
     await writeLoadProgressFast({
-      sql,
+      db,
       loadId: CHESS_PUZZLE_LOAD_ENTITY_ID,
       sourceEtag,
       cursor: state.lastPuzzleId,
@@ -307,7 +305,7 @@ export class ChessPuzzleSeeder {
     const { ctx, rowState } = args;
     if (rowState.state.batch.length < ctx.profile.batchSize) return;
     await flushPuzzleBatchFast({
-      sql: ctx.sql,
+      db: ctx.db,
       reporter: ctx.reporter,
       state: rowState.state,
     });
@@ -316,7 +314,7 @@ export class ChessPuzzleSeeder {
       ctx.profile.progressEvery
     ) {
       await this.#persistResumeCursor({
-        sql: ctx.sql,
+        db: ctx.db,
         state: rowState.state,
         sourceEtag: ctx.resolved.etag,
       });
@@ -327,7 +325,7 @@ export class ChessPuzzleSeeder {
       rowState.state.batchesFlushed % ctx.profile.checkpointEvery === 0
     ) {
       await runInterimMaintenance({
-        sql: ctx.sql,
+        db: ctx.db,
         reporter: ctx.reporter,
         log: ctx.log,
         state: rowState.state,
@@ -377,12 +375,12 @@ export class ChessPuzzleSeeder {
       ctx.reporter.endParseProgressLine();
     }
     await flushPuzzleBatchFast({
-      sql: ctx.sql,
+      db: ctx.db,
       reporter: ctx.reporter,
       state: rowState.state,
     });
     await this.#persistResumeCursor({
-      sql: ctx.sql,
+      db: ctx.db,
       state: rowState.state,
       sourceEtag: ctx.resolved.etag,
     });
@@ -430,10 +428,10 @@ export class ChessPuzzleSeeder {
     resolved: ResolvedSource;
     reporter: PuzzleSeedReporter;
     log: Logger;
-    sql: SqlClient;
+    db: SqlClient;
     prior: PuzzleLoadPriorState;
   }): Promise<void> {
-    const { cli, profile, resolved, reporter, log, sql, prior } = args;
+    const { cli, profile, resolved, reporter, log, db, prior } = args;
     const resumeCursor = this.#resolveResumeCursor({
       cli,
       resolved,
@@ -444,20 +442,20 @@ export class ChessPuzzleSeeder {
       cli,
       profile,
       resolved,
-      sql,
+      db,
       reporter,
       log,
       resumeCursor,
     });
     await writeLoadProgressFast({
-      sql,
+      db,
       loadId: CHESS_PUZZLE_LOAD_ENTITY_ID,
       sourceEtag: resolved.etag,
       cursor: stats.lastPuzzleId,
       finishedAt: new Date().toISOString(),
     });
     await runFinalMaintenance({
-      sql,
+      db,
       reporter,
       log,
       rebuildIndexes: profile.rebuildIndexes,
@@ -499,7 +497,7 @@ export class ChessPuzzleSeeder {
         surface: 'chess:seed-puzzles',
       }
     );
-    const { sql: sqlClient } = await this.#createSqlClient(databaseUrl);
+    const { db: sqlClient } = await this.#createSqlClient(databaseUrl);
     try {
       const managed = await applySessionTuning(sqlClient, log);
       const profile = resolveSeedProfile({ cli, managed });
@@ -520,7 +518,7 @@ export class ChessPuzzleSeeder {
         return;
       }
       if (profile.deferIndexes) {
-        await dropPuzzleSnapshotIndexes({ sql: sqlClient, log });
+        await dropPuzzleSnapshotIndexes({ db: sqlClient, log });
       }
       await this.#runSeedInner({
         cli,
@@ -528,7 +526,7 @@ export class ChessPuzzleSeeder {
         resolved,
         reporter,
         log,
-        sql: sqlClient,
+        db: sqlClient,
         prior,
       });
     } finally {

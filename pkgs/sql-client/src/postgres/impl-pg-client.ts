@@ -4,6 +4,7 @@
  * across requests.
  */
 import type { Client } from 'pg';
+import type { Sql, Value } from '@pkgs/sql';
 import {
   createPgSessionClient,
   pgQueryRows,
@@ -47,24 +48,27 @@ export class SqlClientImplPgClient implements PostgresSqlClient {
     });
   }
 
-  async query<T = Record<string, unknown>>(
-    sql: string,
-    params?: unknown[]
-  ): Promise<T[]> {
-    const res = await this.pgQuery(sql, params);
+  async query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
+    const res = await this.pgQuery(query.sql, [...query.values]);
     return pgQueryRows<T>(res);
   }
 
-  async run(sql: string, params?: unknown[]): Promise<RunResult> {
-    const res = await this.pgQuery(sql, params);
+  async run(query: Sql): Promise<RunResult> {
+    const res = await this.pgQuery(query.sql, [...query.values]);
     return pgRunResultFromQuery(res);
   }
 
-  prepare(sql: string): PreparedStatement {
+  prepare(query: Sql): PreparedStatement {
+    const text = query.sql;
     return {
-      query: <T = Record<string, unknown>>(params?: unknown[]) =>
-        this.query<T>(sql, params),
-      run: (params?: unknown[]) => this.run(sql, params),
+      query: async <T = Record<string, unknown>>(params?: Value[]) => {
+        const res = await this.pgQuery(text, params);
+        return pgQueryRows<T>(res);
+      },
+      run: async (params?: Value[]) => {
+        const res = await this.pgQuery(text, params);
+        return pgRunResultFromQuery(res);
+      },
     };
   }
 

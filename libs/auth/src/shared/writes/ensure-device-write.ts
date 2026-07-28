@@ -1,4 +1,5 @@
 import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
+import { join, raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
@@ -14,12 +15,12 @@ export type EnsureDeviceInput = {
 type DeviceRow = Record<string, unknown>;
 
 function parseEnsureDeviceInput(
-  raw: unknown
+  input: unknown
 ): ReturnType<typeof ok<EnsureDeviceInput>> | ReturnType<typeof fail> {
-  if (raw === null || typeof raw !== 'object') {
+  if (input === null || typeof input !== 'object') {
     return fail('INVALID_INPUT', 'ensure device input must be an object');
   }
-  const record = raw as Record<string, unknown>;
+  const record = input as Record<string, unknown>;
   const deviceId = record['deviceId'];
   if (typeof deviceId !== 'string' || deviceId.length === 0) {
     return fail('INVALID_INPUT', 'deviceId is required');
@@ -71,14 +72,14 @@ function buildInsertArgs(
   deviceId: string,
   now: string,
   snapshot: DeviceSnapshot
-): { cols: string[]; vals: unknown[] } {
+): { cols: string[]; vals: (string | null)[] } {
   const cols: string[] = [
     DeviceCol.id,
     DeviceCol.createdAt,
     DeviceCol.firstSeenAt,
     DeviceCol.lastSeenAt,
   ];
-  const vals: unknown[] = [deviceId, now, now, now];
+  const vals: (string | null)[] = [deviceId, now, now, now];
   for (const [key, value] of Object.entries(snapshot)) {
     if (value === null) continue;
     cols.push(key);
@@ -111,32 +112,32 @@ function buildDeviceUpdates(
 }
 
 async function insertDeviceRow(
-  sql: SqlClient,
+  db: SqlClient,
   deviceId: string,
   now: string,
   snapshot: DeviceSnapshot
 ): Promise<void> {
   const { cols, vals } = buildInsertArgs(deviceId, now, snapshot);
-  const placeholders = cols.map(() => '?').join(', ');
-  await sql.run(
-    `INSERT INTO ${DEVICES_TABLE.tableName} (${cols.join(', ')})
-     VALUES (${placeholders})`,
-    vals
-  );
+  await db.run(sql`
+    INSERT INTO ${raw(DEVICES_TABLE.tableName)} (${join(cols.map((col) => raw(col)))})
+    VALUES (${join(vals)})
+  `);
 }
 
 async function updateDeviceRow(
-  sql: SqlClient,
+  db: SqlClient,
   deviceId: string,
   updates: Record<string, string>
 ): Promise<void> {
   const entries = Object.entries(updates);
   if (entries.length === 0) return;
-  const sets = entries.map(([col]) => `${col} = ?`).join(', ');
-  await sql.run(
-    `UPDATE ${DEVICES_TABLE.tableName} SET ${sets} WHERE ${DeviceCol.id} = ?`,
-    [...entries.map(([, v]) => v), deviceId]
+  const sets = join(
+    entries.map(([col, value]) => sql`${raw(col)} = ${value}`),
+    ', '
   );
+  await db.run(sql`
+    UPDATE ${raw(DEVICES_TABLE.tableName)} SET ${sets} WHERE ${raw(DeviceCol.id)} = ${deviceId}
+  `);
 }
 
 /**
@@ -155,19 +156,18 @@ export const ensureDeviceWrite = defineWrite<EnsureDeviceInput, void>({
     if (idError !== null) return idError;
     return ok(undefined);
   },
-  execute: async (_ctx, input, sql) => {
-    const rows = await sql.query<DeviceRow>(
-      `SELECT * FROM ${DEVICES_TABLE.tableName} WHERE ${DeviceCol.id} = ? LIMIT 1`,
-      [input.deviceId]
-    );
+  execute: async (_ctx, input, db) => {
+    const rows = await db.query<DeviceRow>(sql`
+      SELECT * FROM ${raw(DEVICES_TABLE.tableName)} WHERE ${raw(DeviceCol.id)} = ${input.deviceId} LIMIT 1
+    `);
     const row = rows[0];
     const now = new Date().toISOString();
     if (!isDeviceRowComplete(row, input.deviceId)) {
-      await insertDeviceRow(sql, input.deviceId, now, input.snapshot);
+      await insertDeviceRow(db, input.deviceId, now, input.snapshot);
       return ok(undefined);
     }
     await updateDeviceRow(
-      sql,
+      db,
       input.deviceId,
       buildDeviceUpdates(row as DeviceRow, input.snapshot, now)
     );

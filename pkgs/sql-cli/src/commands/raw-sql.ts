@@ -1,26 +1,29 @@
+import { raw } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { SqlCliCommand, SqlCliResult } from '../types';
 
 const RESULT_RETURNING = /^\s*(SELECT|WITH|PRAGMA|EXPLAIN|VALUES)\b/i;
 
-function isResultReturning(sql: string): boolean {
-  return RESULT_RETURNING.test(sql);
+function isResultReturning(userInput: string): boolean {
+  return RESULT_RETURNING.test(userInput);
 }
 
 export async function executeRawSql(
   client: SqlClient,
-  sql: string
+  userInput: string
 ): Promise<SqlCliResult> {
-  if (isResultReturning(sql)) {
-    const rows = await client.query<Record<string, unknown>>(sql);
+  if (isResultReturning(userInput)) {
+    const rows = await client.query<Record<string, unknown>>(
+      raw(userInput)
+    );
     if (rows.length === 0) {
       return { kind: 'empty' };
     }
     return { kind: 'rows', rows };
   }
 
-  const result = await client.run(sql);
+  const result = await client.run(raw(userInput));
   return { kind: 'run', result };
 }
 

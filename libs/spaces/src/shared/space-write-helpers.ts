@@ -13,6 +13,7 @@ import {
   isSpaceHostActor,
 } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { raw, sql } from '@pkgs/sql';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import { readOne } from '@pkgs/write/shared/read-row-values';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
@@ -42,7 +43,7 @@ export type SpaceHostEnded = {
 };
 
 export async function readSpaceHostEnded(
-  sql: SqlClient,
+  db: SqlClient,
   spaceId: string
 ): Promise<WriteResult<SpaceHostEnded>> {
   const result = await readOne<{
@@ -51,12 +52,11 @@ export async function readSpaceHostEnded(
     readonly host_account_id: string | null;
     readonly ended_at: string | null;
   }>(
-    sql,
-    `SELECT ${SpaceCol.hostId}, ${SpaceCol.hostMemberId},
-            ${SpaceCol.hostAccountId}, ${SpaceCol.endedAt}
-     FROM ${SPACES_TABLE.tableName}
-     WHERE ${SpaceCol.id} = ? LIMIT 1`,
-    [spaceId],
+    db,
+    sql`SELECT ${raw(SpaceCol.hostId)}, ${raw(SpaceCol.hostMemberId)},
+            ${raw(SpaceCol.hostAccountId)}, ${raw(SpaceCol.endedAt)}
+     FROM ${raw(SPACES_TABLE.tableName)}
+     WHERE ${raw(SpaceCol.id)} = ${spaceId} LIMIT 1`,
     'SPACE_NOT_FOUND'
   );
   if (!result.ok) return result;
@@ -79,11 +79,11 @@ export async function readSpaceHostEnded(
 
 export async function authorizeSpaceHost(
   ctx: WriteContext,
-  sql: SqlClient,
+  db: SqlClient,
   spaceId: string,
   deniedMessage: string
 ): Promise<WriteResult<void>> {
-  const space = await readSpaceHostEnded(sql, spaceId);
+  const space = await readSpaceHostEnded(db, spaceId);
   if (!space.ok) return space;
   const memberId = memberIdFromContext(ctx);
   if (!memberId.ok) return memberId;
@@ -109,22 +109,19 @@ export type MembershipLeaveRow = {
 };
 
 export async function readMembershipForLeave(
-  sql: SqlClient,
+  db: SqlClient,
   memberId: string,
   spaceId: string
 ): Promise<MembershipLeaveRow | null> {
   const membershipId = spaceMembershipEntityId(memberId, spaceId);
-  const rows = await sql.query<{
+  const rows = await db.query<{
     readonly left_at: string | null;
     readonly member_id: string | null;
-  }>(
-    `SELECT ${SpaceMembershipCol.leftAt} AS left_at,
-            ${SpaceMembershipCol.memberId} AS member_id
-     FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     WHERE ${SpaceMembershipCol.id} = ?
-     LIMIT 1`,
-    [membershipId]
-  );
+  }>(sql`SELECT ${raw(SpaceMembershipCol.leftAt)} AS left_at,
+            ${raw(SpaceMembershipCol.memberId)} AS member_id
+     FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     WHERE ${raw(SpaceMembershipCol.id)} = ${membershipId}
+     LIMIT 1`);
   const row = rows[0];
   if (row === undefined) return null;
   const mid = row.member_id;
@@ -133,15 +130,14 @@ export async function readMembershipForLeave(
 }
 
 export async function wasMembershipInactive(
-  sql: SqlClient,
+  db: SqlClient,
   membershipId: string
 ): Promise<boolean> {
-  const rows = await sql.query<{ readonly left_at: string | null }>(
-    `SELECT ${SpaceMembershipCol.leftAt} AS left_at
-     FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     WHERE ${SpaceMembershipCol.id} = ?
-     LIMIT 1`,
-    [membershipId]
+  const rows = await db.query<{ readonly left_at: string | null }>(
+    sql`SELECT ${raw(SpaceMembershipCol.leftAt)} AS left_at
+     FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     WHERE ${raw(SpaceMembershipCol.id)} = ${membershipId}
+     LIMIT 1`
   );
   const prev = rows[0];
   return prev === undefined || prev.left_at !== null;
@@ -159,34 +155,27 @@ export async function migrateHostIdentity(args: {
   readonly newMemberId: string;
   readonly accountId: string;
 }): Promise<void> {
-  await args.sql.run(
-    `UPDATE ${SPACES_TABLE.tableName}
-     SET ${SpaceCol.hostMemberId} = ?,
-         ${SpaceCol.hostAccountId} = ?
-     WHERE ${SpaceCol.id} = ?
-       AND ${SpaceCol.hostId} = ?`,
-    [args.newMemberId, args.accountId, args.spaceId, args.deviceId]
-  );
-  await args.sql.run(
-    `UPDATE ${SPACES_TABLE.tableName}
-     SET ${SpaceCol.hostMemberId} = ?
-     WHERE ${SpaceCol.id} = ?
-       AND ${SpaceCol.hostAccountId} = ?
-       AND ${SpaceCol.hostId} != ?`,
-    [args.newMemberId, args.spaceId, args.accountId, args.deviceId]
-  );
+  await args.sql.run(sql`UPDATE ${raw(SPACES_TABLE.tableName)}
+     SET ${raw(SpaceCol.hostMemberId)} = ${args.newMemberId},
+         ${raw(SpaceCol.hostAccountId)} = ${args.accountId}
+     WHERE ${raw(SpaceCol.id)} = ${args.spaceId}
+       AND ${raw(SpaceCol.hostId)} = ${args.deviceId}`);
+  await args.sql.run(sql`UPDATE ${raw(SPACES_TABLE.tableName)}
+     SET ${raw(SpaceCol.hostMemberId)} = ${args.newMemberId}
+     WHERE ${raw(SpaceCol.id)} = ${args.spaceId}
+       AND ${raw(SpaceCol.hostAccountId)} = ${args.accountId}
+       AND ${raw(SpaceCol.hostId)} != ${args.deviceId}`);
 }
 
 export async function countActiveMembershipsInSpace(
-  sql: SqlClient,
+  db: SqlClient,
   spaceId: string
 ): Promise<number> {
-  const rows = await sql.query<{ readonly c: number | string }>(
-    `SELECT COUNT(*) AS c
-     FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     WHERE ${SpaceMembershipCol.spaceId} = ?
-       AND ${SpaceMembershipCol.leftAt} IS NULL`,
-    [spaceId]
+  const rows = await db.query<{ readonly c: number | string }>(
+    sql`SELECT COUNT(*) AS c
+     FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     WHERE ${raw(SpaceMembershipCol.spaceId)} = ${spaceId}
+       AND ${raw(SpaceMembershipCol.leftAt)} IS NULL`
   );
   return Number(rows[0]?.c ?? 0);
 }
@@ -197,12 +186,12 @@ export async function countActiveMembershipsInSpace(
  */
 export async function maybeAutoEndEmptyHostSpace(
   ctx: WriteContext,
-  sql: SqlClient,
+  db: SqlClient,
   spaceId: string
 ): Promise<void> {
-  const space = await readSpaceHostEnded(sql, spaceId);
+  const space = await readSpaceHostEnded(db, spaceId);
   if (!space.ok || space.value.endedAt !== null) return;
-  const remaining = await countActiveMembershipsInSpace(sql, spaceId);
+  const remaining = await countActiveMembershipsInSpace(db, spaceId);
   if (remaining > 0) return;
   const memberIdResult = memberIdFromContext(ctx);
   const memberId = memberIdResult.ok ? memberIdResult.value : ctx.deviceId;
@@ -215,25 +204,19 @@ export async function maybeAutoEndEmptyHostSpace(
     deviceId: ctx.deviceId,
   });
   if (hostLeaving) {
-    await sql.run(
-      `UPDATE ${SPACES_TABLE.tableName}
-       SET ${SpaceCol.endedAt} = ?,
-           ${SpaceCol.hostId} = ?,
-           ${SpaceCol.hostMemberId} = ?,
-           ${SpaceCol.hostAccountId} = ?
-       WHERE ${SpaceCol.id} = ?
-         AND ${SpaceCol.endedAt} IS NULL`,
-      [isoNow(), ctx.deviceId, memberId, ctx.accountId, spaceId]
-    );
+    await db.run(sql`UPDATE ${raw(SPACES_TABLE.tableName)}
+       SET ${raw(SpaceCol.endedAt)} = ${isoNow()},
+           ${raw(SpaceCol.hostId)} = ${ctx.deviceId},
+           ${raw(SpaceCol.hostMemberId)} = ${memberId},
+           ${raw(SpaceCol.hostAccountId)} = ${ctx.accountId}
+       WHERE ${raw(SpaceCol.id)} = ${spaceId}
+         AND ${raw(SpaceCol.endedAt)} IS NULL`);
     return;
   }
-  await sql.run(
-    `UPDATE ${SPACES_TABLE.tableName}
-     SET ${SpaceCol.endedAt} = ?
-     WHERE ${SpaceCol.id} = ?
-       AND ${SpaceCol.endedAt} IS NULL`,
-    [isoNow(), spaceId]
-  );
+  await db.run(sql`UPDATE ${raw(SPACES_TABLE.tableName)}
+     SET ${raw(SpaceCol.endedAt)} = ${isoNow()}
+     WHERE ${raw(SpaceCol.id)} = ${spaceId}
+       AND ${raw(SpaceCol.endedAt)} IS NULL`);
 }
 
 export function requireNonEmptyString(

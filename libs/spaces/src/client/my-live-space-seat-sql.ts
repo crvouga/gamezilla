@@ -4,31 +4,28 @@ import {
   SpaceMembershipCol,
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
-
-export type SqlQuery = {
-  readonly sql: string;
-  readonly params: readonly string[];
-};
+import { raw, sql, type Sql } from '@pkgs/sql';
 
 /**
  * Live spaces this member hosts without having left (left_at set).
  * Fills the create→membership sync gap; excludes post-leave orphans while
  * ended_at is still null.
- *
- * Params: [memberId, memberId, memberId]
  */
-export function hostedUnleftPredicateSql(spacesAlias: string): string {
-  return `(
-    ${spacesAlias}.${SpaceCol.endedAt} IS NULL
+export function hostedUnleftPredicateSql(
+  spacesAlias: string,
+  memberId: string
+): Sql {
+  return sql`(
+    ${raw(spacesAlias)}.${raw(SpaceCol.endedAt)} IS NULL
     AND (
-      ${spacesAlias}.${SpaceCol.hostMemberId} = ?
-      OR ${spacesAlias}.${SpaceCol.hostAccountId} = ?
+      ${raw(spacesAlias)}.${raw(SpaceCol.hostMemberId)} = ${memberId}
+      OR ${raw(spacesAlias)}.${raw(SpaceCol.hostAccountId)} = ${memberId}
     )
     AND NOT EXISTS (
-      SELECT 1 FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} AS m
-      WHERE m.${SpaceMembershipCol.spaceId} = ${spacesAlias}.${SpaceCol.id}
-        AND m.${SpaceMembershipCol.memberId} = ?
-        AND m.${SpaceMembershipCol.leftAt} IS NOT NULL
+      SELECT 1 FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)} AS m
+      WHERE m.${raw(SpaceMembershipCol.spaceId)} = ${raw(spacesAlias)}.${raw(SpaceCol.id)}
+        AND m.${raw(SpaceMembershipCol.memberId)} = ${memberId}
+        AND m.${raw(SpaceMembershipCol.leftAt)} IS NOT NULL
     )
   )`;
 }
@@ -36,38 +33,36 @@ export function hostedUnleftPredicateSql(spacesAlias: string): string {
 /**
  * True when this member is the host and already left — used to keep
  * friends-visibility browse from resurfacing departed-host orphans.
- *
- * Params: [memberId, memberId, memberId]
  */
-export function departedHostPredicateSql(spacesAlias: string): string {
-  return `(
+export function departedHostPredicateSql(
+  spacesAlias: string,
+  memberId: string
+): Sql {
+  return sql`(
     (
-      ${spacesAlias}.${SpaceCol.hostMemberId} = ?
-      OR ${spacesAlias}.${SpaceCol.hostAccountId} = ?
+      ${raw(spacesAlias)}.${raw(SpaceCol.hostMemberId)} = ${memberId}
+      OR ${raw(spacesAlias)}.${raw(SpaceCol.hostAccountId)} = ${memberId}
     )
     AND EXISTS (
-      SELECT 1 FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} AS m
-      WHERE m.${SpaceMembershipCol.spaceId} = ${spacesAlias}.${SpaceCol.id}
-        AND m.${SpaceMembershipCol.memberId} = ?
-        AND m.${SpaceMembershipCol.leftAt} IS NOT NULL
+      SELECT 1 FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)} AS m
+      WHERE m.${raw(SpaceMembershipCol.spaceId)} = ${raw(spacesAlias)}.${raw(SpaceCol.id)}
+        AND m.${raw(SpaceMembershipCol.memberId)} = ${memberId}
+        AND m.${raw(SpaceMembershipCol.leftAt)} IS NOT NULL
     )
   )`;
 }
 
 /**
- * Miniplayer hosted-seat SELECT. Params: [memberId, memberId, memberId].
+ * Miniplayer hosted-seat SELECT.
  */
-export function hostedUnleftSpacesSelectSql(memberId: string): SqlQuery {
+export function hostedUnleftSpacesSelectSql(memberId: string): Sql {
   const spaces = SPACES_TABLE.tableName;
-  return {
-    sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostMemberId} AS host_member_id,
-          ${SpaceCol.hostAccountId} AS host_account_id,
-          ${SpaceCol.endedAt} AS ended_at
-          FROM ${spaces}
-          WHERE ${hostedUnleftPredicateSql(spaces)}
-          ORDER BY ${SpaceCol.createdAt} DESC`,
-    params: [memberId, memberId, memberId],
-  };
+  return sql`SELECT ${raw(SpaceCol.id)}, ${raw(SpaceCol.hostMemberId)} AS host_member_id,
+          ${raw(SpaceCol.hostAccountId)} AS host_account_id,
+          ${raw(SpaceCol.endedAt)} AS ended_at
+          FROM ${raw(spaces)}
+          WHERE ${hostedUnleftPredicateSql(spaces, memberId)}
+          ORDER BY ${raw(SpaceCol.createdAt)} DESC`;
 }
 
 /**
@@ -77,71 +72,27 @@ export function hostedUnleftSpacesSelectSql(memberId: string): SqlQuery {
 export function friendsLiveSpaceIdsSql(args: {
   readonly memberId: string;
   readonly includeHostAccountId: boolean;
-}): SqlQuery {
+}): Sql {
   const spaces = SPACES_TABLE.tableName;
   const memberId = args.memberId;
-  if (args.includeHostAccountId) {
-    return {
-      sql: `SELECT ${SpaceCol.id} AS id FROM ${spaces}
-         WHERE ${SpaceCol.endedAt} IS NULL
-           AND (
-             (
-               ${SpaceCol.visibility} = 'friends'
-               AND NOT ${departedHostPredicateSql(spaces)}
-             )
-             OR ${hostedUnleftPredicateSql(spaces)}
-             OR ${SpaceCol.id} IN (
-               SELECT ${SpaceMembershipCol.spaceId}
-               FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-               WHERE ${SpaceMembershipCol.leftAt} IS NULL
-                 AND (
-                   ${SpaceMembershipCol.memberId} = ?
-                   OR ${SpaceMembershipCol.profileId} = ?
-                 )
-             )
-           )
-         ORDER BY ${SpaceCol.createdAt} DESC`,
-      // friends NOT departed: 3, hosted-unleft: 3, membership: 2
-      params: [
-        memberId,
-        memberId,
-        memberId,
-        memberId,
-        memberId,
-        memberId,
-        memberId,
-        memberId,
-      ],
-    };
-  }
-  return {
-    sql: `SELECT ${SpaceCol.id} AS id FROM ${spaces}
-       WHERE ${SpaceCol.endedAt} IS NULL
+  const membershipFilter = args.includeHostAccountId
+    ? sql`${raw(SpaceMembershipCol.memberId)} = ${memberId}
+                 OR ${raw(SpaceMembershipCol.profileId)} = ${memberId}`
+    : sql`${raw(SpaceMembershipCol.memberId)} = ${memberId}`;
+  return sql`SELECT ${raw(SpaceCol.id)} AS id FROM ${raw(spaces)}
+       WHERE ${raw(SpaceCol.endedAt)} IS NULL
          AND (
            (
-             ${SpaceCol.visibility} = 'friends'
-             AND NOT ${departedHostPredicateSql(spaces)}
+             ${raw(SpaceCol.visibility)} = 'friends'
+             AND NOT ${departedHostPredicateSql(spaces, memberId)}
            )
-           OR ${hostedUnleftPredicateSql(spaces)}
-           OR ${SpaceCol.id} IN (
-             SELECT ${SpaceMembershipCol.spaceId}
-             FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-             WHERE ${SpaceMembershipCol.leftAt} IS NULL
-               AND ${SpaceMembershipCol.memberId} = ?
+           OR ${hostedUnleftPredicateSql(spaces, memberId)}
+           OR ${raw(SpaceCol.id)} IN (
+             SELECT ${raw(SpaceMembershipCol.spaceId)}
+             FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
+             WHERE ${raw(SpaceMembershipCol.leftAt)} IS NULL
+               AND (${membershipFilter})
            )
          )
-       ORDER BY ${SpaceCol.createdAt} DESC`,
-    // friends NOT departed: 3, hosted-unleft: 3, membership: 1
-    // departedHost uses hostMemberId OR hostAccountId — for device-only the
-    // same device id is bound to both host slots.
-    params: [
-      memberId,
-      memberId,
-      memberId,
-      memberId,
-      memberId,
-      memberId,
-      memberId,
-    ],
-  };
+       ORDER BY ${raw(SpaceCol.createdAt)} DESC`;
 }

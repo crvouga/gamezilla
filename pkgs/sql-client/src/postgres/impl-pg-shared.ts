@@ -3,6 +3,7 @@
  * {@link SqlClient} implementations.
  */
 import type { Pool, PoolClient, QueryResult } from 'pg';
+import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import type { PostgresDbScope } from './schema';
 import { quotePgIdent } from './schema';
@@ -226,24 +227,43 @@ export function createPgSessionClient(poolClient: PgExecutor): SqlClient {
     disconnect: async () => {
       /* caller releases poolClient */
     },
-    query: async <T = Record<string, unknown>>(
-      sql: string,
-      params?: unknown[]
-    ): Promise<T[]> => {
-      const [text, vals] = questionMarkParamsToDollarParams(sql, params);
+    query: async <T = Record<string, unknown>>(query: Sql): Promise<T[]> => {
+      const [text, vals] = questionMarkParamsToDollarParams(
+        query.sql,
+        query.values
+      );
       const res = await poolClient.query(text, vals);
       return res.rows as T[];
     },
-    run: async (sql: string, params?: unknown[]): Promise<RunResult> => {
-      const [text, vals] = questionMarkParamsToDollarParams(sql, params);
+    run: async (query: Sql): Promise<RunResult> => {
+      const [text, vals] = questionMarkParamsToDollarParams(
+        query.sql,
+        query.values
+      );
       const res = await poolClient.query(text, vals);
       return pgRunResultFromQuery(res);
     },
-    prepare: (sql: string): PreparedStatement => ({
-      query: <T = Record<string, unknown>>(params?: unknown[]) =>
-        self.query<T>(sql, params),
-      run: (params?: unknown[]) => self.run(sql, params),
-    }),
+    prepare: (query: Sql): PreparedStatement => {
+      const statementSql = query.sql;
+      return {
+        query: async <T = Record<string, unknown>>(params?: Value[]) => {
+          const [text, vals] = questionMarkParamsToDollarParams(
+            statementSql,
+            params
+          );
+          const res = await poolClient.query(text, vals);
+          return res.rows as T[];
+        },
+        run: async (params?: Value[]) => {
+          const [text, vals] = questionMarkParamsToDollarParams(
+            statementSql,
+            params
+          );
+          const res = await poolClient.query(text, vals);
+          return pgRunResultFromQuery(res);
+        },
+      };
+    },
     transaction: async <T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> => {
       return fn(self);
     },

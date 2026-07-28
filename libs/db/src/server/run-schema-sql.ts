@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import type { Logger } from '@pkgs/logger';
+import { raw as rawSql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 const schemaPath = join(dirname(fileURLToPath(import.meta.url)), 'schema.sql');
@@ -126,7 +127,7 @@ export async function runSchemaSql(args: {
   const raw = readFileSync(schemaPath, 'utf8');
   const statements = splitSqlStatements(raw);
   for (const statement of statements) {
-    await sqlClient.run(statement);
+    await sqlClient.run(rawSql(statement));
   }
   logger.info('schema.sql applied', { statements: statements.length });
 }

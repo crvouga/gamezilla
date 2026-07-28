@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
+import { raw, sql } from '@pkgs/sql';
 import { SqlClientWithPubSub } from './impl-with-pub-sub';
 import type { SqlClient } from './interface';
 import { SqlClientImplBunSqlite } from './sqlite/impl-bun-sqlite';
@@ -75,7 +76,7 @@ describe.each(implementations)('$name', ({ createClient }) => {
     if (!client || !available) return;
     await client.connect();
     const result = await client.run(
-      'CREATE TABLE test (id INTEGER PRIMARY KEY, name TEXT)'
+      raw('CREATE TABLE test (id INTEGER PRIMARY KEY, name TEXT)')
     );
     expect(result.changes).toBe(0);
     expect(typeof result.lastInsertRowid).toBe('number');
@@ -85,10 +86,11 @@ describe.each(implementations)('$name', ({ createClient }) => {
   test('run insert returns changes and lastInsertRowid', async () => {
     if (!client || !available) return;
     await client.connect();
-    await client.run('CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)');
+    await client.run(
+      raw('CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)')
+    );
     const result = await client.run(
-      'INSERT INTO users (id, name) VALUES (?, ?) RETURNING *',
-      [1, 'Alice']
+      sql`INSERT INTO users (id, name) VALUES (${1}, ${'Alice'}) RETURNING *`
     );
     expect(result.changes).toBeGreaterThanOrEqual(1);
     expect(result.lastInsertRowid).toBeGreaterThanOrEqual(1);
@@ -98,12 +100,11 @@ describe.each(implementations)('$name', ({ createClient }) => {
   test('query returns rows with positional params', async () => {
     if (!client || !available) return;
     await client.connect();
-    await client.run('CREATE TABLE items (id INTEGER, value TEXT)');
-    await client.run('INSERT INTO items VALUES (?, ?)', [1, 'a']);
-    await client.run('INSERT INTO items VALUES (?, ?)', [2, 'b']);
+    await client.run(raw('CREATE TABLE items (id INTEGER, value TEXT)'));
+    await client.run(sql`INSERT INTO items VALUES (${1}, ${'a'})`);
+    await client.run(sql`INSERT INTO items VALUES (${2}, ${'b'})`);
     const rows = await client.query<{ id: number; value: string }>(
-      'SELECT id, value FROM items WHERE id >= ? ORDER BY id',
-      [1]
+      sql`SELECT id, value FROM items WHERE id >= ${1} ORDER BY id`
     );
     expect(rows).toHaveLength(2);
     expect(rows[0]).toEqual({ id: 1, value: 'a' });
@@ -114,8 +115,8 @@ describe.each(implementations)('$name', ({ createClient }) => {
   test('query returns empty array when no rows', async () => {
     if (!client || !available) return;
     await client.connect();
-    await client.run('CREATE TABLE empty (id INTEGER)');
-    const rows = await client.query('SELECT * FROM empty');
+    await client.run(raw('CREATE TABLE empty (id INTEGER)'));
+    const rows = await client.query(raw('SELECT * FROM empty'));
     expect(rows).toEqual([]);
     await client.disconnect();
   });
@@ -123,11 +124,10 @@ describe.each(implementations)('$name', ({ createClient }) => {
   test('run update returns changes count', async () => {
     if (!client || !available) return;
     await client.connect();
-    await client.run('CREATE TABLE counters (id INTEGER, n INTEGER)');
-    await client.run('INSERT INTO counters VALUES (1, 0)');
+    await client.run(raw('CREATE TABLE counters (id INTEGER, n INTEGER)'));
+    await client.run(raw('INSERT INTO counters VALUES (1, 0)'));
     const result = await client.run(
-      'UPDATE counters SET n = 1 WHERE id = ? RETURNING *',
-      [1]
+      sql`UPDATE counters SET n = 1 WHERE id = ${1} RETURNING *`
     );
     expect(result.changes).toBeGreaterThanOrEqual(1);
     await client.disconnect();
@@ -137,17 +137,17 @@ describe.each(implementations)('$name', ({ createClient }) => {
     if (!client || !available) return;
     await client.connect();
     await client.run(
-      'CREATE TABLE tx_test (id INTEGER PRIMARY KEY, x INTEGER)'
+      raw('CREATE TABLE tx_test (id INTEGER PRIMARY KEY, x INTEGER)')
     );
     const result = await client.transaction(async (tx) => {
-      await tx.run('INSERT INTO tx_test (id, x) VALUES (?, ?)', [1, 1]);
-      await tx.run('INSERT INTO tx_test (id, x) VALUES (?, ?)', [2, 2]);
+      await tx.run(sql`INSERT INTO tx_test (id, x) VALUES (${1}, ${1})`);
+      await tx.run(sql`INSERT INTO tx_test (id, x) VALUES (${2}, ${2})`);
       return 2;
     });
     expect(result).toBe(2);
     if (client === null || client === undefined)
       throw new Error('client must be set');
-    const rows = await client.query('SELECT * FROM tx_test');
+    const rows = await client.query(raw('SELECT * FROM tx_test'));
     expect(rows).toHaveLength(2);
     await client.disconnect();
   });
@@ -155,10 +155,10 @@ describe.each(implementations)('$name', ({ createClient }) => {
   test('transaction rolls back on error', async () => {
     if (!client || !available) return;
     await client.connect();
-    await client.run('CREATE TABLE rollback_test (id INTEGER PRIMARY KEY)');
+    await client.run(raw('CREATE TABLE rollback_test (id INTEGER PRIMARY KEY)'));
     try {
       await client.transaction(async (tx) => {
-        await tx.run('INSERT INTO rollback_test (id) VALUES (?)', [1]);
+        await tx.run(sql`INSERT INTO rollback_test (id) VALUES (${1})`);
         throw new Error('abort');
       });
     } catch (e) {
@@ -166,7 +166,7 @@ describe.each(implementations)('$name', ({ createClient }) => {
     }
     if (client === null || client === undefined)
       throw new Error('client must be set');
-    const rows = await client.query('SELECT * FROM rollback_test');
+    const rows = await client.query(raw('SELECT * FROM rollback_test'));
     expect(rows).toHaveLength(0);
     await client.disconnect();
   });

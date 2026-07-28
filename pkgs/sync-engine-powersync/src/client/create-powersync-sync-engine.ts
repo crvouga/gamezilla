@@ -5,6 +5,7 @@ import {
 import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 import { createSharedWatchRegistry } from '@pkgs/sync-engine/client/shared-watch-registry';
 import type { SyncStreamSubscription } from '@pkgs/sync-engine/client/sync-stream-subscription';
+import type { Sql } from '@pkgs/sql';
 
 import type { PowerSyncDatabasePort } from './powersync-database-port';
 import { createSqlClientFromPowerSync } from './sql-client-facade';
@@ -91,16 +92,14 @@ export function createPowerSyncSyncEngine(
   db.registerListener({ statusChanged: publishStatus });
 
   const subscribeSyncStream = createSubscribeSyncStream(db);
-  const watchRegistry = createSharedWatchRegistry((sql, params) =>
-    db.watchSql(sql, params)
+  const watchRegistry = createSharedWatchRegistry((query) =>
+    db.watchSql(query.sql, query.values)
   );
 
   return {
     db: sqlClient,
-    watch: <T extends Record<string, unknown>>(
-      sql: string,
-      params: readonly unknown[] = []
-    ) => watchRegistry.watch<T>(sql, params),
+    watch: <T extends Record<string, unknown>>(query: Sql) =>
+      watchRegistry.watch<T>(query),
     connect: async () => {
       await db.connect();
       publishStatus();

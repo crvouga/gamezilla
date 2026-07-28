@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { raw } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -12,9 +13,9 @@ describe('createSqlCli', () => {
     client = SqlClientImplBunSqlite.open(':memory:');
     await client.connect();
     await client.run(
-      'CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL)'
+      raw('CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL)')
     );
-    await client.run(`INSERT INTO users (name) VALUES ('alice')`);
+    await client.run(raw(`INSERT INTO users (name) VALUES ('alice')`));
   });
 
   afterEach(async () => {

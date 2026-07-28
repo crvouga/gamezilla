@@ -9,6 +9,7 @@ import {
 import { spaceMembershipEntityId } from '@libs/spaces/shared/participation/participation-ids';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { raw, sql, type Sql } from '@pkgs/sql';
 
 import {
   friendsLiveSpaceIdsSql,
@@ -26,34 +27,30 @@ function openSql(): SqlClientImplBunSqlite {
   return SqlClientImplBunSqlite.open(':memory:');
 }
 
-async function migrate(sql: SqlClient): Promise<void> {
-  await sql.run(
-    `CREATE TABLE ${SPACES_TABLE.tableName} (
-      ${SpaceCol.id} TEXT PRIMARY KEY,
-      ${SpaceCol.title} TEXT,
-      ${SpaceCol.hostId} TEXT,
-      ${SpaceCol.createdAt} TEXT,
-      ${SpaceCol.endedAt} TEXT,
-      ${SpaceCol.visibility} TEXT,
-      ${SpaceCol.hostAccountId} TEXT,
-      ${SpaceCol.hostMemberId} TEXT,
-      ${SpaceCol.activeMemberCount} INTEGER NOT NULL DEFAULT 0
-    )`
-  );
-  await sql.run(
-    `CREATE TABLE ${SPACE_MEMBERSHIPS_TABLE.tableName} (
-      ${SpaceMembershipCol.id} TEXT PRIMARY KEY,
-      ${SpaceMembershipCol.memberId} TEXT,
-      ${SpaceMembershipCol.spaceId} TEXT,
-      ${SpaceMembershipCol.joinedAt} TEXT,
-      ${SpaceMembershipCol.leftAt} TEXT,
-      ${SpaceMembershipCol.profileId} TEXT
-    )`
-  );
+async function migrate(db: SqlClient): Promise<void> {
+  await db.run(sql`CREATE TABLE ${raw(SPACES_TABLE.tableName)} (
+      ${raw(SpaceCol.id)} TEXT PRIMARY KEY,
+      ${raw(SpaceCol.title)} TEXT,
+      ${raw(SpaceCol.hostId)} TEXT,
+      ${raw(SpaceCol.createdAt)} TEXT,
+      ${raw(SpaceCol.endedAt)} TEXT,
+      ${raw(SpaceCol.visibility)} TEXT,
+      ${raw(SpaceCol.hostAccountId)} TEXT,
+      ${raw(SpaceCol.hostMemberId)} TEXT,
+      ${raw(SpaceCol.activeMemberCount)} INTEGER NOT NULL DEFAULT 0
+    )`);
+  await db.run(sql`CREATE TABLE ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)} (
+      ${raw(SpaceMembershipCol.id)} TEXT PRIMARY KEY,
+      ${raw(SpaceMembershipCol.memberId)} TEXT,
+      ${raw(SpaceMembershipCol.spaceId)} TEXT,
+      ${raw(SpaceMembershipCol.joinedAt)} TEXT,
+      ${raw(SpaceMembershipCol.leftAt)} TEXT,
+      ${raw(SpaceMembershipCol.profileId)} TEXT
+    )`);
 }
 
 async function seedSpace(
-  sql: SqlClient,
+  db: SqlClient,
   args: {
     readonly id: string;
     readonly hostAccountId: string;
@@ -62,85 +59,60 @@ async function seedSpace(
     readonly createdAt: string;
   }
 ): Promise<void> {
-  await sql.run(
-    `INSERT INTO ${SPACES_TABLE.tableName}
-     (${SpaceCol.id}, ${SpaceCol.hostId}, ${SpaceCol.hostMemberId},
-      ${SpaceCol.hostAccountId}, ${SpaceCol.visibility},
-      ${SpaceCol.endedAt}, ${SpaceCol.createdAt},
-      ${SpaceCol.activeMemberCount})
-     VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
-    [
-      args.id,
-      DEVICE_ID,
-      args.hostAccountId,
-      args.hostAccountId,
-      args.visibility,
-      args.endedAt,
-      args.createdAt,
-    ]
-  );
+  await db.run(sql`INSERT INTO ${raw(SPACES_TABLE.tableName)}
+     (${raw(SpaceCol.id)}, ${raw(SpaceCol.hostId)}, ${raw(SpaceCol.hostMemberId)},
+      ${raw(SpaceCol.hostAccountId)}, ${raw(SpaceCol.visibility)},
+      ${raw(SpaceCol.endedAt)}, ${raw(SpaceCol.createdAt)},
+      ${raw(SpaceCol.activeMemberCount)})
+     VALUES (${args.id}, ${DEVICE_ID}, ${args.hostAccountId}, ${args.hostAccountId},
+             ${args.visibility}, ${args.endedAt}, ${args.createdAt}, 1)`);
 }
 
 async function seedMembership(
-  sql: SqlClient,
+  db: SqlClient,
   args: {
     readonly memberId: string;
     readonly spaceId: string;
     readonly leftAt: string | null;
   }
 ): Promise<void> {
-  await sql.run(
-    `INSERT INTO ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     (${SpaceMembershipCol.id}, ${SpaceMembershipCol.memberId},
-      ${SpaceMembershipCol.spaceId}, ${SpaceMembershipCol.joinedAt},
-      ${SpaceMembershipCol.leftAt}, ${SpaceMembershipCol.profileId})
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [
-      spaceMembershipEntityId(args.memberId, args.spaceId),
-      args.memberId,
-      args.spaceId,
-      '2026-01-01T00:00:00.000Z',
-      args.leftAt,
-      args.memberId,
-    ]
-  );
+  await db.run(sql`INSERT INTO ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     (${raw(SpaceMembershipCol.id)}, ${raw(SpaceMembershipCol.memberId)},
+      ${raw(SpaceMembershipCol.spaceId)}, ${raw(SpaceMembershipCol.joinedAt)},
+      ${raw(SpaceMembershipCol.leftAt)}, ${raw(SpaceMembershipCol.profileId)})
+     VALUES (${spaceMembershipEntityId(args.memberId, args.spaceId)}, ${args.memberId},
+             ${args.spaceId}, ${'2026-01-01T00:00:00.000Z'}, ${args.leftAt}, ${args.memberId})`);
 }
 
-async function queryIds(sql: SqlClient, query: {
-  readonly sql: string;
-  readonly params: readonly string[];
-}): Promise<string[]> {
-  const rows = await sql.query<{ readonly id: string }>(
-    query.sql,
-    [...query.params]
-  );
+async function queryIds(db: SqlClient, query: Sql): Promise<string[]> {
+  const rows = await db.query<{ readonly id: string }>(query);
   return rows.map((r) => r.id);
 }
 
 describe('my-live-space-seat-sql — left_at before ended_at', () => {
-  let sql: SqlClientImplBunSqlite;
+  let db: SqlClientImplBunSqlite;
 
   beforeEach(async () => {
-    sql = openSql();
-    await migrate(sql);
+    db = openSql();
+    await migrate(db);
   });
 
   test('left host seat is excluded from friends list and hosted miniplayer set', async () => {
-    await seedSpace(sql, {
+    await seedSpace(db, {
       id: HOST_SPACE,
       hostAccountId: ACCOUNT_ID,
       visibility: 'private',
       endedAt: null,
       createdAt: '2026-01-02T00:00:00.000Z',
     });
-    await seedMembership(sql, {
+    await seedMembership(db, {
       memberId: ACCOUNT_ID,
       spaceId: HOST_SPACE,
       leftAt: '2026-01-02T01:00:00.000Z',
     });
 
     const friendsIds = await queryIds(
-      sql,
+      db,
       friendsLiveSpaceIdsSql({
         memberId: ACCOUNT_ID,
         includeHostAccountId: true,
@@ -149,12 +121,12 @@ describe('my-live-space-seat-sql — left_at before ended_at', () => {
     expect(friendsIds).not.toContain(HOST_SPACE);
 
     const hostedQuery = hostedUnleftSpacesSelectSql(ACCOUNT_ID);
-    const hosted = await sql.query<{
+    const hosted = await db.query<{
       readonly id: string;
       readonly host_member_id: string | null;
       readonly host_account_id: string | null;
       readonly ended_at: string | null;
-    }>(hostedQuery.sql, [...hostedQuery.params]);
+    }>(hostedQuery);
     expect(hosted.map((r) => r.id)).not.toContain(HOST_SPACE);
 
     const entries = buildCurrentSpaceEntries([], [], hosted, ACCOUNT_ID);
@@ -162,21 +134,21 @@ describe('my-live-space-seat-sql — left_at before ended_at', () => {
   });
 
   test('active host seat is included in friends list and hosted miniplayer set', async () => {
-    await seedSpace(sql, {
+    await seedSpace(db, {
       id: HOST_SPACE,
       hostAccountId: ACCOUNT_ID,
       visibility: 'private',
       endedAt: null,
       createdAt: '2026-01-02T00:00:00.000Z',
     });
-    await seedMembership(sql, {
+    await seedMembership(db, {
       memberId: ACCOUNT_ID,
       spaceId: HOST_SPACE,
       leftAt: null,
     });
 
     const friendsIds = await queryIds(
-      sql,
+      db,
       friendsLiveSpaceIdsSql({
         memberId: ACCOUNT_ID,
         includeHostAccountId: true,
@@ -185,12 +157,12 @@ describe('my-live-space-seat-sql — left_at before ended_at', () => {
     expect(friendsIds).toContain(HOST_SPACE);
 
     const hostedQuery = hostedUnleftSpacesSelectSql(ACCOUNT_ID);
-    const hosted = await sql.query<{
+    const hosted = await db.query<{
       readonly id: string;
       readonly host_member_id: string | null;
       readonly host_account_id: string | null;
       readonly ended_at: string | null;
-    }>(hostedQuery.sql, [...hostedQuery.params]);
+    }>(hostedQuery);
     expect(hosted.map((r) => r.id)).toContain(HOST_SPACE);
 
     const entries = buildCurrentSpaceEntries(
@@ -203,28 +175,28 @@ describe('my-live-space-seat-sql — left_at before ended_at', () => {
   });
 
   test('friends-visibility space hosted by someone else still appears', async () => {
-    await seedSpace(sql, {
+    await seedSpace(db, {
       id: FRIEND_SPACE,
       hostAccountId: FRIEND_ACCOUNT,
       visibility: 'friends',
       endedAt: null,
       createdAt: '2026-01-03T00:00:00.000Z',
     });
-    await seedSpace(sql, {
+    await seedSpace(db, {
       id: HOST_SPACE,
       hostAccountId: ACCOUNT_ID,
       visibility: 'friends',
       endedAt: null,
       createdAt: '2026-01-02T00:00:00.000Z',
     });
-    await seedMembership(sql, {
+    await seedMembership(db, {
       memberId: ACCOUNT_ID,
       spaceId: HOST_SPACE,
       leftAt: '2026-01-02T01:00:00.000Z',
     });
 
     const friendsIds = await queryIds(
-      sql,
+      db,
       friendsLiveSpaceIdsSql({
         memberId: ACCOUNT_ID,
         includeHostAccountId: true,

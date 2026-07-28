@@ -58,10 +58,10 @@ function openRequestSqlClient(): Promise<SqlClient> {
   return Promise.resolve({
     connect: () => inner.connect(),
     disconnect: () => Promise.resolve(),
-    query: (sql, params) => inner.query(sql, params),
-    run: (sql, params) => inner.run(sql, params),
+    query: (query) => inner.query(query),
+    run: (query) => inner.run(query),
     transaction: (fn) => inner.transaction(fn),
-    prepare: (sql) => inner.prepare(sql),
+    prepare: (query) => inner.prepare(query),
   });
 }
 

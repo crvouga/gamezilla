@@ -1,5 +1,6 @@
 import { Database } from 'bun:sqlite';
 
+import { raw, type Sql } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -69,8 +70,7 @@ function migrateTables(db: Database, registry: TableRegistry): void {
  */
 function createEventDrivenWatchSql(
   db: SqlClient,
-  sql: string,
-  params: readonly unknown[],
+  query: Sql,
   onWrite: (refresh: () => void) => () => void
 ): WatchSqlHandle {
   let snapshot: readonly Record<string, unknown>[] = [];
@@ -78,7 +78,7 @@ function createEventDrivenWatchSql(
   const listeners = new Set<() => void>();
 
   const refresh = (): void => {
-    void db.query<Record<string, unknown>>(sql, [...params]).then((rows) => {
+    void db.query<Record<string, unknown>>(query).then((rows) => {
       snapshot = rows;
       hydrated = true;
       for (const listener of listeners) {
@@ -116,10 +116,10 @@ function wrapSqlClientWithWriteNotify(
   return {
     connect: () => db.connect(),
     disconnect: () => db.disconnect(),
-    query: (sql, params) => db.query(sql, params),
-    prepare: (sql) => db.prepare(sql),
-    run: async (sql, params) => {
-      const result = await db.run(sql, params);
+    query: (query) => db.query(query),
+    prepare: (query) => db.prepare(query),
+    run: async (query) => {
+      const result = await db.run(query);
       notify();
       return result;
     },
@@ -160,8 +160,8 @@ export function createInMemorySyncEngine(
   };
   const db = wrapSqlClientWithWriteNotify(rawDb, notifyWrites);
 
-  const watchRegistry = createSharedWatchRegistry((sql, params) =>
-    createEventDrivenWatchSql(db, sql, params, (refresh) => {
+  const watchRegistry = createSharedWatchRegistry((query) =>
+    createEventDrivenWatchSql(db, query, (refresh) => {
       writeListeners.add(refresh);
       return () => {
         writeListeners.delete(refresh);
@@ -171,10 +171,8 @@ export function createInMemorySyncEngine(
 
   return {
     db,
-    watch: <T extends Record<string, unknown>>(
-      sql: string,
-      params: readonly unknown[] = []
-    ) => watchRegistry.watch<T>(sql, params),
+    watch: <T extends Record<string, unknown>>(query: Sql) =>
+      watchRegistry.watch<T>(query),
     connect: async () => {
       await db.connect();
       setStatus({
@@ -193,7 +191,7 @@ export function createInMemorySyncEngine(
     },
     clearLocalData: async () => {
       for (const name of options.registry.tableNames()) {
-        await db.run(`DELETE FROM ${name}`);
+        await db.run(raw(`DELETE FROM ${name}`));
       }
       resetEverSynced();
       setStatus({

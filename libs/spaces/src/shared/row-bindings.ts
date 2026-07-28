@@ -10,6 +10,7 @@ import {
 } from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { raw, sql } from '@pkgs/sql';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import {
   createRowWriteBinding,
@@ -63,12 +64,12 @@ function authorizeSpaceCreateFromRow(
 async function authorizeSpacesUpload(
   ctx: WriteContext,
   row: RowChange,
-  sql: SqlClient
+  db: SqlClient
 ): Promise<WriteResult<void>> {
   if (row.op === 'delete') {
     return fail('SPACE_DELETE_DENIED', 'spaces cannot be deleted via sync');
   }
-  const space = await readSpaceHostEnded(sql, row.id);
+  const space = await readSpaceHostEnded(db, row.id);
   if (!space.ok) {
     if (row.op === 'put') {
       return authorizeSpaceCreateFromRow(ctx, row);
@@ -99,19 +100,18 @@ const spacesRowWrite = defineRowAuthorizeWrite({
 
 async function resolveMembershipSpaceId(
   row: RowChange,
-  sql: SqlClient
+  db: SqlClient
 ): Promise<WriteResult<string>> {
   const fromValues = readRowString(row, SpaceMembershipCol.spaceId);
   if (fromValues !== undefined && fromValues.length > 0) {
     return ok(fromValues);
   }
   const result = await readOne<{ readonly space_id: string }>(
-    sql,
-    `SELECT ${SpaceMembershipCol.spaceId} AS space_id
-     FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     WHERE ${SpaceMembershipCol.id} = ?
+    db,
+    sql`SELECT ${raw(SpaceMembershipCol.spaceId)} AS space_id
+     FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     WHERE ${raw(SpaceMembershipCol.id)} = ${row.id}
      LIMIT 1`,
-    [row.id],
     'SPACE_MEMBERSHIP_NOT_FOUND'
   );
   if (!result.ok) return result;
@@ -120,19 +120,18 @@ async function resolveMembershipSpaceId(
 
 async function resolveMembershipMemberId(
   row: RowChange,
-  sql: SqlClient
+  db: SqlClient
 ): Promise<WriteResult<string>> {
   const fromValues = readRowString(row, SpaceMembershipCol.memberId);
   if (fromValues !== undefined && fromValues.length > 0) {
     return ok(fromValues);
   }
   const result = await readOne<{ readonly member_id: string }>(
-    sql,
-    `SELECT ${SpaceMembershipCol.memberId} AS member_id
-     FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     WHERE ${SpaceMembershipCol.id} = ?
+    db,
+    sql`SELECT ${raw(SpaceMembershipCol.memberId)} AS member_id
+     FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     WHERE ${raw(SpaceMembershipCol.id)} = ${row.id}
      LIMIT 1`,
-    [row.id],
     'SPACE_MEMBERSHIP_NOT_FOUND'
   );
   if (!result.ok) return result;
@@ -147,7 +146,7 @@ function isLeaveShape(row: RowChange, leftAtCol: string): boolean {
 async function authorizeSpaceMembershipUpload(
   ctx: WriteContext,
   row: RowChange,
-  sql: SqlClient
+  db: SqlClient
 ): Promise<WriteResult<void>> {
   if (row.op === 'delete') {
     return fail(
@@ -157,9 +156,9 @@ async function authorizeSpaceMembershipUpload(
   }
   const accountId = requireAccountId(ctx);
   if (!accountId.ok) return accountId;
-  const spaceIdResult = await resolveMembershipSpaceId(row, sql);
+  const spaceIdResult = await resolveMembershipSpaceId(row, db);
   if (!spaceIdResult.ok) return spaceIdResult;
-  const memberIdResult = await resolveMembershipMemberId(row, sql);
+  const memberIdResult = await resolveMembershipMemberId(row, db);
   if (!memberIdResult.ok) return memberIdResult;
   const seatMemberId = memberIdResult.value;
   const currentMemberId = resolveSpaceMemberId(accountId.value);
@@ -177,9 +176,9 @@ async function authorizeSpaceMembershipUpload(
     );
   }
   if (isLeaveShape(row, SpaceMembershipCol.leftAt)) {
-    return authorizeLeaveSpace(ctx, { spaceId: spaceIdResult.value }, sql);
+    return authorizeLeaveSpace(ctx, { spaceId: spaceIdResult.value }, db);
   }
-  const space = await readSpaceHostEnded(sql, spaceIdResult.value);
+  const space = await readSpaceHostEnded(db, spaceIdResult.value);
   if (!space.ok) return space;
   if (space.value.endedAt !== null) {
     return fail('SPACE_ENDED', 'Space has ended');

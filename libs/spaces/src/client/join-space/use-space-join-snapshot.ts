@@ -3,6 +3,7 @@ import {
   useMyDeviceId,
 } from '@libs/auth/client/use-current-user';
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
+import { raw, sql } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEngineSubscriptions } from '@pkgs/sync-engine/client/use-sync-engine-subscriptions';
 import { useMemo } from 'react';
@@ -59,22 +60,16 @@ export function useSpaceJoinSnapshot(
   const streamReady = useSpaceJoinStreamReady(spaceId, token);
   const viewerAccountId = useMyAccountId();
   const viewerDeviceId = useMyDeviceId();
+  const spaceColumns = sql`SELECT ${raw(SpaceCol.hostId)} AS host_id,
+                ${raw(SpaceCol.hostMemberId)} AS host_member_id,
+                ${raw(SpaceCol.hostAccountId)} AS host_account_id,
+                ${raw(SpaceCol.endedAt)} AS ended_at,
+                ${raw(SpaceCol.visibility)} AS visibility
+         FROM ${raw(SPACES_TABLE.tableName)}`;
   const { row, isLoading } = useWatchOne<SpaceJoinLocalRow>(
     enabled
-      ? `SELECT ${SpaceCol.hostId} AS host_id,
-                ${SpaceCol.hostMemberId} AS host_member_id,
-                ${SpaceCol.hostAccountId} AS host_account_id,
-                ${SpaceCol.endedAt} AS ended_at,
-                ${SpaceCol.visibility} AS visibility
-         FROM ${SPACES_TABLE.tableName}
-         WHERE ${SpaceCol.id} = ?`
-      : `SELECT ${SpaceCol.hostId} AS host_id,
-                ${SpaceCol.hostMemberId} AS host_member_id,
-                ${SpaceCol.hostAccountId} AS host_account_id,
-                ${SpaceCol.endedAt} AS ended_at,
-                ${SpaceCol.visibility} AS visibility
-         FROM ${SPACES_TABLE.tableName} WHERE 0`,
-    enabled ? [spaceId] : []
+      ? sql`${spaceColumns} WHERE ${raw(SpaceCol.id)} = ${spaceId}`
+      : sql`${spaceColumns} WHERE 0`
   );
   const hasValidInvite = useHasValidLocalInvite(spaceId, token);
   const isFriendOfHost = useAreAccountsFriendsLocal(

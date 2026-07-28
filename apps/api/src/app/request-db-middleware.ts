@@ -15,7 +15,6 @@ import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import type { MiddlewareHandler } from 'hono';
 import { ApiSecretName } from '../config/secret-names';
 import { openRequestDb } from '../db/open-request-db';
-import { createMatchmakingSqlClientFromSqlClient } from '../matchmaking/sql-client-adapter';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import type { ApiHonoEnv } from './api-hono-types';
 
@@ -104,14 +103,11 @@ async function attachRequestDatabase(
   );
   const { pool } = opened;
   const kv = new KvImplPostgres(sqlClient);
-  const matchmakingSqlClient =
-    createMatchmakingSqlClientFromSqlClient(sqlClient);
   const sessionAuth = createSessionAuth({ authServer });
   const store = {
     sqlClient,
     sessionAuth,
     kv,
-    matchmakingSqlClient,
     observability,
   };
   return await apiRequestAsyncLocalStorage.run(store, async () => {

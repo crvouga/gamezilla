@@ -1,3 +1,4 @@
+import { raw } from '@pkgs/sql';
 import type { SqlClient } from '../interface';
 
 /**
@@ -14,8 +15,8 @@ import type { SqlClient } from '../interface';
 export async function applySqliteConnectionPragmas(
   client: Pick<SqlClient, 'run'>
 ): Promise<void> {
-  await client.run('PRAGMA foreign_keys = ON');
-  await client.run('PRAGMA busy_timeout = 5000');
-  await client.run('PRAGMA journal_mode = MEMORY');
-  await client.run('PRAGMA temp_store = MEMORY');
+  await client.run(raw('PRAGMA foreign_keys = ON'));
+  await client.run(raw('PRAGMA busy_timeout = 5000'));
+  await client.run(raw('PRAGMA journal_mode = MEMORY'));
+  await client.run(raw('PRAGMA temp_store = MEMORY'));
 }

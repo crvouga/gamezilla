@@ -1,5 +1,6 @@
 import { isEqual } from '@pkgs/equal/is-equal';
 import type { Logger } from '@pkgs/logger';
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
@@ -35,12 +36,11 @@ function loadClientConfigAttributes(): Record<string, unknown> {
 }
 
 async function readClientConfigRow(
-  sql: SqlClient
+  db: SqlClient
 ): Promise<Record<string, unknown> | null> {
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT * FROM ${CLIENT_CONFIG_TABLE.tableName} WHERE ${ClientConfigCol.id} = ? LIMIT 1`,
-    [CLIENT_CONFIG_ENTITY_ID]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT * FROM ${raw(CLIENT_CONFIG_TABLE.tableName)} WHERE ${raw(ClientConfigCol.id)} = ${CLIENT_CONFIG_ENTITY_ID} LIMIT 1
+  `);
   const row = rows[0];
   if (row === undefined) return null;
   return {
@@ -50,29 +50,28 @@ async function readClientConfigRow(
 }
 
 async function upsertClientConfigRow(
-  sql: SqlClient,
+  db: SqlClient,
   attrs: Record<string, unknown>
 ): Promise<void> {
   const googleId = attrs[ClientConfigAttr.googleWebClientId.key];
-  await sql.run(
-    `INSERT INTO ${CLIENT_CONFIG_TABLE.tableName}
-     (${ClientConfigCol.id}, ${ClientConfigCol.googleWebClientId})
-     VALUES (?, ?)
-     ON CONFLICT (${ClientConfigCol.id}) DO UPDATE SET
-       ${ClientConfigCol.googleWebClientId} = excluded.${ClientConfigCol.googleWebClientId}`,
-    [CLIENT_CONFIG_ENTITY_ID, typeof googleId === 'string' ? googleId : null]
-  );
+  await db.run(sql`
+    INSERT INTO ${raw(CLIENT_CONFIG_TABLE.tableName)}
+     (${raw(ClientConfigCol.id)}, ${raw(ClientConfigCol.googleWebClientId)})
+     VALUES (${CLIENT_CONFIG_ENTITY_ID}, ${typeof googleId === 'string' ? googleId : null})
+     ON CONFLICT (${raw(ClientConfigCol.id)}) DO UPDATE SET
+       ${raw(ClientConfigCol.googleWebClientId)} = excluded.${raw(ClientConfigCol.googleWebClientId)}
+  `);
 }
 
 async function handleClientConfigRefresh(
   c: Context<ApiHonoEnv>,
   deps: { logger: Logger }
 ): Promise<Response> {
-  const sql = c.get('sqlClient');
+  const db = c.get('sqlClient');
   const { logger } = deps;
   logger.info('POST /client-config/refresh: requested');
   const configNew = loadClientConfigAttributes();
-  const configPrev = await readClientConfigRow(sql);
+  const configPrev = await readClientConfigRow(db);
   const before = snapshotAttributes(configPrev ?? undefined);
   logger.debug('Client config comparison', { configPrev, configNew });
 
@@ -92,9 +91,9 @@ async function handleClientConfigRefresh(
   }
 
   logger.info('Updating client config', { config: configNew });
-  await upsertClientConfigRow(sql, configNew);
+  await upsertClientConfigRow(db, configNew);
   const after = snapshotAttributes(
-    (await readClientConfigRow(sql)) ?? undefined
+    (await readClientConfigRow(db)) ?? undefined
   );
 
   logger.info('Client config updated successfully.', {

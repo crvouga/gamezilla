@@ -6,6 +6,7 @@ import {
   isRecoverableExpoSqliteWebRuntimeError,
   publishExpoSqliteWebFatalError,
 } from './expo-web-recovery';
+import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 
@@ -205,22 +206,22 @@ export class SqlClientImplExpoSqlite implements SqlClient {
     const tx: SqlClient = {
       connect: () => Promise.resolve(),
       disconnect: () => Promise.resolve(),
-      query: <T = Record<string, unknown>>(sql: string, params?: unknown[]) =>
+      query: <T = Record<string, unknown>>(query: Sql) =>
         this.db.getAllAsync<T>(
-          sql,
-          (params ?? []) as SQLite.SQLiteBindValue[]
+          query.sql,
+          query.values as SQLite.SQLiteBindValue[]
         ) as Promise<T[]>,
-      run: async (sql: string, params?: unknown[]) => {
+      run: async (query: Sql) => {
         const result = await this.db.runAsync(
-          sql,
-          (params ?? []) as SQLite.SQLiteBindValue[]
+          query.sql,
+          query.values as SQLite.SQLiteBindValue[]
         );
         return {
           changes: result.changes,
           lastInsertRowid: result.lastInsertRowId,
         };
       },
-      prepare: (sql: string) => this.prepare(sql),
+      prepare: (query: Sql) => this.prepare(query),
       transaction: async <T>(fn: (inner: SqlClient) => Promise<T>) => fn(tx),
     };
     return tx;
@@ -277,20 +278,20 @@ export class SqlClientImplExpoSqlite implements SqlClient {
     return this.pendingDisconnect;
   }
 
-  query<T = Record<string, unknown>>(
-    sql: string,
-    params?: unknown[]
-  ): Promise<T[]> {
+  query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
     return this.runSerialized(() =>
-      this.db.getAllAsync<T>(sql, (params ?? []) as SQLite.SQLiteBindValue[])
+      this.db.getAllAsync<T>(
+        query.sql,
+        query.values as SQLite.SQLiteBindValue[]
+      )
     );
   }
 
-  async run(sql: string, params?: unknown[]): Promise<RunResult> {
+  async run(query: Sql): Promise<RunResult> {
     return this.runSerialized(async () => {
       const result = await this.db.runAsync(
-        sql,
-        (params ?? []) as SQLite.SQLiteBindValue[]
+        query.sql,
+        query.values as SQLite.SQLiteBindValue[]
       );
       return {
         changes: result.changes,
@@ -299,17 +300,17 @@ export class SqlClientImplExpoSqlite implements SqlClient {
     });
   }
 
-  prepare(sql: string): PreparedStatement {
-    const stmt = this.db.prepareSync(sql);
+  prepare(query: Sql): PreparedStatement {
+    const stmt = this.db.prepareSync(query.sql);
     return {
-      query: async <T = Record<string, unknown>>(params?: unknown[]) =>
+      query: async <T = Record<string, unknown>>(params?: Value[]) =>
         this.runSerialized(async () => {
           const result = await stmt.executeAsync(
             (params ?? []) as SQLite.SQLiteBindParams
           );
           return result.getAllAsync() as Promise<T[]>;
         }),
-      run: async (params?: unknown[]) =>
+      run: async (params?: Value[]) =>
         this.runSerialized(async () => {
           const result = await stmt.executeAsync(
             (params ?? []) as SQLite.SQLiteBindParams

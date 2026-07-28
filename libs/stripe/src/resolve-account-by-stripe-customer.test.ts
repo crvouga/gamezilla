@@ -3,6 +3,7 @@ import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
 } from '@libs/db/shared/external-accounts-tables';
+import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { describe, expect, it, mock } from 'bun:test';
 
@@ -17,14 +18,14 @@ describe('resolveAccountIdByStripeCustomerId', () => {
 
     expect(accountId).toBe('user-123');
     expect(query).toHaveBeenCalledTimes(1);
-    const [statement, params] = query.mock.calls[0] as unknown as [
-      string,
-      unknown[],
-    ];
-    expect(statement).toContain(`FROM ${EXTERNAL_ACCOUNTS_TABLE}`);
-    expect(statement).toContain(`${ExternalAccountCol.provider} = ?`);
-    expect(statement).toContain(`${ExternalAccountCol.externalId} = ?`);
-    expect(params).toEqual([EXTERNAL_ACCOUNT_PROVIDER_STRIPE, 'cus_123']);
+    const [statement] = query.mock.calls[0] as unknown as [Sql];
+    expect(statement.sql).toContain(`FROM ${EXTERNAL_ACCOUNTS_TABLE}`);
+    expect(statement.sql).toContain(`${ExternalAccountCol.provider} = ?`);
+    expect(statement.sql).toContain(`${ExternalAccountCol.externalId} = ?`);
+    expect(statement.values).toEqual([
+      EXTERNAL_ACCOUNT_PROVIDER_STRIPE,
+      'cus_123',
+    ]);
   });
 
   it('returns null when no Stripe external account exists', async () => {

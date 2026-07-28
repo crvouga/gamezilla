@@ -2,6 +2,7 @@ import {
   FRIEND_REQUESTS_TABLE,
   FriendRequestCol,
 } from '@libs/db/shared/friends-tables';
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { FriendRequest } from '../shared/friends-types';
@@ -34,29 +35,27 @@ function mapFriendRequest(row: FriendRequestRow): FriendRequest {
 }
 
 export async function listPendingIncomingRequests(
-  sql: SqlClient,
+  db: SqlClient,
   userId: string
 ): Promise<readonly FriendRequest[]> {
-  const rows = await sql.query<FriendRequestRow>(
-    `SELECT * FROM ${FRIEND_REQUESTS_TABLE.tableName}
-     WHERE ${FriendRequestCol.toUserId} = ?
-       AND ${FriendRequestCol.status} = 'pending'
-     ORDER BY ${FriendRequestCol.createdAt} DESC`,
-    [userId]
-  );
+  const rows = await db.query<FriendRequestRow>(sql`
+    SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${raw(FriendRequestCol.toUserId)} = ${userId}
+      AND ${raw(FriendRequestCol.status)} = 'pending'
+    ORDER BY ${raw(FriendRequestCol.createdAt)} DESC
+  `);
   return rows.map(mapFriendRequest);
 }
 
 export async function listPendingOutgoingRequests(
-  sql: SqlClient,
+  db: SqlClient,
   userId: string
 ): Promise<readonly FriendRequest[]> {
-  const rows = await sql.query<FriendRequestRow>(
-    `SELECT * FROM ${FRIEND_REQUESTS_TABLE.tableName}
-     WHERE ${FriendRequestCol.fromUserId} = ?
-       AND ${FriendRequestCol.status} = 'pending'
-     ORDER BY ${FriendRequestCol.createdAt} DESC`,
-    [userId]
-  );
+  const rows = await db.query<FriendRequestRow>(sql`
+    SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${raw(FriendRequestCol.fromUserId)} = ${userId}
+      AND ${raw(FriendRequestCol.status)} = 'pending'
+    ORDER BY ${raw(FriendRequestCol.createdAt)} DESC
+  `);
   return rows.map(mapFriendRequest);
 }

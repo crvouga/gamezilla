@@ -6,10 +6,11 @@
  *   - `@pkgs/matchmaking` (this file) — the `Matchmaking` class,
  *     the HTTP client, the public types. Everything 99% of embedders
  *     need.
- *   - `@pkgs/matchmaking/storage` — `SqlClient` plus the two
- *     adapters (`createPgSqlClient`, `createPgliteSqlClient`) for
- *     embedders that need to thread their own per-request `pg.Client`
- *     instead of relying on `Matchmaking.fromPool`.
+ *   - `@pkgs/matchmaking/storage` — the `@pkgs/sql-client` `SqlClient`
+ *     type plus the `createPgliteSqlClient` adapter for embedders that
+ *     run hermetic tests against an in-process Postgres. Production
+ *     embedders build a `SqlClient` via `@pkgs/sql-client` and pass it
+ *     through `storage.sqlClient`.
  *   - `@pkgs/matchmaking/wire` — `FormulaWire` types for HTTP /
  *     RPC consumers that need to validate JSON without `AttributeTag`s.
  *
@@ -25,7 +26,8 @@
  *   const ns = createAttrNamespace('chess');
  *   const rating = ns('rating', (v) => (typeof v === 'number' ? v : 0));
  *
- *   const mm = Matchmaking.fromPool(pool, {
+ *   const mm = new Matchmaking({
+ *     storage: { sqlClient },
  *     schema: { partitionKeys: ['chess/mode'], bucketWidth: 50 },
  *   });
  *   await mm.ready();
@@ -38,8 +40,7 @@
  *   hono.route('/matchmaking', mm.app({ requireAuth }));
  *
  * Six public instance methods on the class: `ready`, `join`, `leave`,
- * `status`, `app`, `tick`, plus the static `fromPool` factory.
- * Everything else is internal.
+ * `status`, `app`, `tick`. Everything else is internal.
  */
 
 export { MatchmakingClient } from './client';

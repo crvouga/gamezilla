@@ -25,10 +25,7 @@ export function useInbox(options?: { readonly filter?: InteractionFilter }): {
     }
   }, [options?.filter]);
   const query = useMemo(() => inboxListSql(userId, filter), [userId, filter]);
-  const { rows, isLoading } = useWatchQuery<Record<string, unknown>>(
-    query.sql,
-    query.params
-  );
+  const { rows, isLoading } = useWatchQuery<Record<string, unknown>>(query);
   const interactions = useMemo(
     () => rows.map((row) => clientRowToInteraction(row)),
     [rows]

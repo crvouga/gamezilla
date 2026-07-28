@@ -19,6 +19,7 @@
     "@pkgs/attribute": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@react-native-async-storage/async-storage": "catalog:",
     "react": "catalog:",

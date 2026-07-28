@@ -5,6 +5,7 @@ import {
   FriendProfileCacheCol,
   FriendshipCol,
 } from '@libs/db/shared/friends-tables';
+import { raw, sql } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -24,19 +25,18 @@ export function useSpaceInviteFriends(): {
   const myId = useMyId();
   const { rows, isLoading } = useWatchQuery<FriendRow>(
     myId.length === 0
-      ? `SELECT '' AS friend_id, '' AS username
-         FROM ${FRIEND_PROFILE_CACHE_TABLE.tableName} WHERE 0`
-      : `SELECT c.${FriendProfileCacheCol.friendId} AS friend_id,
-                c.${FriendProfileCacheCol.username} AS username
-         FROM ${FRIEND_PROFILE_CACHE_TABLE.tableName} c
-         INNER JOIN ${FRIENDSHIPS_TABLE.tableName} f
+      ? sql`SELECT '' AS friend_id, '' AS username
+         FROM ${raw(FRIEND_PROFILE_CACHE_TABLE.tableName)} WHERE 0`
+      : sql`SELECT c.${raw(FriendProfileCacheCol.friendId)} AS friend_id,
+                c.${raw(FriendProfileCacheCol.username)} AS username
+         FROM ${raw(FRIEND_PROFILE_CACHE_TABLE.tableName)} c
+         INNER JOIN ${raw(FRIENDSHIPS_TABLE.tableName)} f
            ON (
-             (f.${FriendshipCol.userLow} = ? AND f.${FriendshipCol.userHigh} = c.${FriendProfileCacheCol.friendId})
-             OR (f.${FriendshipCol.userHigh} = ? AND f.${FriendshipCol.userLow} = c.${FriendProfileCacheCol.friendId})
+             (f.${raw(FriendshipCol.userLow)} = ${myId} AND f.${raw(FriendshipCol.userHigh)} = c.${raw(FriendProfileCacheCol.friendId)})
+             OR (f.${raw(FriendshipCol.userHigh)} = ${myId} AND f.${raw(FriendshipCol.userLow)} = c.${raw(FriendProfileCacheCol.friendId)})
            )
-         WHERE c.${FriendProfileCacheCol.ownerId} = ?
-         ORDER BY c.${FriendProfileCacheCol.username} COLLATE NOCASE`,
-    myId.length === 0 ? [] : [myId, myId, myId]
+         WHERE c.${raw(FriendProfileCacheCol.ownerId)} = ${myId}
+         ORDER BY c.${raw(FriendProfileCacheCol.username)} COLLATE NOCASE`
   );
   const friends = useMemo(
     () =>

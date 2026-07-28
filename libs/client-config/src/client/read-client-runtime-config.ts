@@ -1,3 +1,4 @@
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { CLIENT_CONFIG_ENTITY_ID } from '../shared/client-config-entities';
 import {
@@ -10,14 +11,13 @@ export type ClientRuntimeConfig = {
 };
 
 export async function readClientRuntimeConfig(
-  sql: SqlClient
+  db: SqlClient
 ): Promise<ClientRuntimeConfig> {
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT ${ClientConfigCol.googleWebClientId}
-     FROM ${CLIENT_CONFIG_TABLE.tableName}
-     WHERE ${ClientConfigCol.id} = ? LIMIT 1`,
-    [CLIENT_CONFIG_ENTITY_ID]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT ${raw(ClientConfigCol.googleWebClientId)}
+     FROM ${raw(CLIENT_CONFIG_TABLE.tableName)}
+     WHERE ${raw(ClientConfigCol.id)} = ${CLIENT_CONFIG_ENTITY_ID} LIMIT 1
+  `);
   const row = rows[0];
   if (row === undefined) {
     return { googleWebClientId: null };

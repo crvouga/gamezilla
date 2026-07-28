@@ -8,10 +8,7 @@
 
 import { assert } from '@pkgs/assert';
 import { asKeywordRecord } from '@pkgs/keyword';
-import type { Pool } from 'pg';
 import type { FormulaWire } from './formula-wire';
-import { createPgSqlClient } from './pg-adapter';
-import type { SqlClient } from './sql-client';
 import type { MatchedParticipant, ParticipantStatus } from './types';
 
 export type StatusRow = {
@@ -97,19 +94,6 @@ export type SweepExpiredAcrossPartitionsResult = {
 export type UpdateFormulasInputRaw = {
   readonly formulas: readonly FormulaWire[];
 };
-
-/**
- * Resolves a `MatchmakerOptions` to a concrete `SqlClient` — either
- * the explicit one or one built around the caller-supplied `pg.Pool`.
- */
-export function resolveMatchmakerSqlClient(opts: {
-  readonly sqlClient?: SqlClient;
-  readonly pool?: Pool;
-}): SqlClient {
-  if (opts.sqlClient !== undefined) return opts.sqlClient;
-  if (opts.pool !== undefined) return createPgSqlClient(opts.pool);
-  throw new Error('Matchmaker requires either `pool` or `sqlClient`');
-}
 
 export function rowToParticipant(row: ParticipantRow): MatchedParticipant {
   const data = asKeywordRecord(row.data, 'matchmaking peer data');

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { sql } from '@pkgs/sql';
 
 import {
   createSharedWatchRegistry,
@@ -45,8 +46,8 @@ describe('createSharedWatchRegistry', () => {
       });
     });
 
-    const a = registry.watch('SELECT id FROM t WHERE id = ?', ['1']);
-    const b = registry.watch('SELECT id FROM t WHERE id = ?', ['1']);
+    const a = registry.watch(sql`SELECT id FROM t WHERE id = ${'1'}`);
+    const b = registry.watch(sql`SELECT id FROM t WHERE id = ${'1'}`);
 
     const unsubA = a.subscribe(() => undefined);
     const unsubB = b.subscribe(() => undefined);
@@ -63,13 +64,13 @@ describe('createSharedWatchRegistry', () => {
 
   test('opens separate handles for different params', () => {
     let openCount = 0;
-    const registry = createSharedWatchRegistry((_sql, params) => {
+    const registry = createSharedWatchRegistry((query) => {
       openCount += 1;
-      return createFakeHandle([{ id: String(params[0]) }], () => undefined);
+      return createFakeHandle([{ id: String(query.values[0]) }], () => undefined);
     });
 
-    const a = registry.watch('SELECT id FROM t WHERE id = ?', ['a']);
-    const b = registry.watch('SELECT id FROM t WHERE id = ?', ['b']);
+    const a = registry.watch(sql`SELECT id FROM t WHERE id = ${'a'}`);
+    const b = registry.watch(sql`SELECT id FROM t WHERE id = ${'b'}`);
     const unsubA = a.subscribe(() => undefined);
     const unsubB = b.subscribe(() => undefined);
 
@@ -84,7 +85,7 @@ describe('createSharedWatchRegistry', () => {
   test('notifies all subscribers when underlying handle emits', () => {
     const fake = createFakeHandle([{ n: 1 }], () => undefined);
     const registry = createSharedWatchRegistry(() => fake);
-    const sub = registry.watch<{ n: number }>('SELECT n FROM t');
+    const sub = registry.watch<{ n: number }>(sql`SELECT n FROM t`);
     let ticks = 0;
     const unsub = sub.subscribe(() => {
       ticks += 1;

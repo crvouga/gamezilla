@@ -3,6 +3,7 @@ import {
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
 import { fail, ok } from '@pkgs/write/shared/write-result';
+import { raw, sql } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { ownerMatches } from '@pkgs/write/shared/read-row-values';
 import type { RowChange } from '@pkgs/write/shared/row-change';
@@ -134,36 +135,27 @@ export const appendPuzzleInteractionWrite = defineWrite<
   name: 'chess.puzzle_interaction.append',
   parseInput: parseAppendPuzzleInteractionInput,
   authorize: async (ctx, input) => authorizeAppendPuzzleInteraction(ctx, input),
-  execute: async (_ctx, input, sql) => {
+  execute: async (_ctx, input, db) => {
     const id = crypto.randomUUID();
     const at = new Date().toISOString();
-    await sql.run(
-      `INSERT INTO ${CHESS_PUZZLE_INTERACTIONS_TABLE.tableName}
-       (${ChessPuzzleInteractionCol.id}, ${ChessPuzzleInteractionCol.ownerId},
-        ${ChessPuzzleInteractionCol.puzzleId}, ${ChessPuzzleInteractionCol.puzzleRating},
-        ${ChessPuzzleInteractionCol.kind}, ${ChessPuzzleInteractionCol.solveIdx},
-        ${ChessPuzzleInteractionCol.uci}, ${ChessPuzzleInteractionCol.correct},
-        ${ChessPuzzleInteractionCol.ratingBefore}, ${ChessPuzzleInteractionCol.ratingAfter},
-        ${ChessPuzzleInteractionCol.at})
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id,
-        input.ownerId,
-        input.puzzleId,
-        input.puzzleRating,
-        input.kind,
-        input.solveIdx,
-        input.uci ?? null,
-        input.correct === null || input.correct === undefined
-          ? null
-          : input.correct
-            ? 1
-            : 0,
-        input.ratingBefore ?? 0,
-        input.ratingAfter ?? 0,
-        at,
-      ]
-    );
+    const correct =
+      input.correct === null || input.correct === undefined
+        ? null
+        : input.correct
+          ? 1
+          : 0;
+    await db.run(sql`
+      INSERT INTO ${raw(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)}
+       (${raw(ChessPuzzleInteractionCol.id)}, ${raw(ChessPuzzleInteractionCol.ownerId)},
+        ${raw(ChessPuzzleInteractionCol.puzzleId)}, ${raw(ChessPuzzleInteractionCol.puzzleRating)},
+        ${raw(ChessPuzzleInteractionCol.kind)}, ${raw(ChessPuzzleInteractionCol.solveIdx)},
+        ${raw(ChessPuzzleInteractionCol.uci)}, ${raw(ChessPuzzleInteractionCol.correct)},
+        ${raw(ChessPuzzleInteractionCol.ratingBefore)}, ${raw(ChessPuzzleInteractionCol.ratingAfter)},
+        ${raw(ChessPuzzleInteractionCol.at)})
+       VALUES (${id}, ${input.ownerId}, ${input.puzzleId}, ${input.puzzleRating},
+               ${input.kind}, ${input.solveIdx}, ${input.uci ?? null}, ${correct},
+               ${input.ratingBefore ?? 0}, ${input.ratingAfter ?? 0}, ${at})
+    `);
     return ok(undefined);
   },
 });

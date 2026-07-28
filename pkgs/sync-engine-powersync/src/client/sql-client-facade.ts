@@ -1,3 +1,4 @@
+import type { Sql, Value } from '@pkgs/sql';
 import type {
   PreparedStatement,
   RunResult,
@@ -12,10 +13,10 @@ export function createSqlClientFromPowerSync(
   return {
     connect: () => db.connect(),
     disconnect: () => db.disconnect(),
-    query: <T = Record<string, unknown>>(sql: string, params?: unknown[]) =>
-      db.getAll<T>(sql, params),
-    run: async (sql: string, params?: unknown[]): Promise<RunResult> => {
-      const result = await db.execute(sql, params);
+    query: <T = Record<string, unknown>>(query: Sql) =>
+      db.getAll<T>(query.sql, [...query.values]),
+    run: async (query: Sql): Promise<RunResult> => {
+      const result = await db.execute(query.sql, [...query.values]);
       return {
         changes: result.rowsAffected ?? 0,
         lastInsertRowid: Number(result.lastInsertRowid ?? 0),
@@ -27,16 +28,22 @@ export function createSqlClientFromPowerSync(
         return fn(txClient);
       });
     },
-    prepare: (sql: string): PreparedStatement => ({
-      query: <T = Record<string, unknown>>(params?: unknown[]) =>
-        db.getAll<T>(sql, params),
-      run: async (params?: unknown[]) => {
-        const result = await db.execute(sql, params);
-        return {
-          changes: result.rowsAffected ?? 0,
-          lastInsertRowid: Number(result.lastInsertRowid ?? 0),
-        };
-      },
-    }),
+    prepare: (query: Sql): PreparedStatement => {
+      const text = query.sql;
+      return {
+        query: <T = Record<string, unknown>>(params?: Value[]) =>
+          db.getAll<T>(text, params === undefined ? undefined : [...params]),
+        run: async (params?: Value[]) => {
+          const result = await db.execute(
+            text,
+            params === undefined ? undefined : [...params]
+          );
+          return {
+            changes: result.rowsAffected ?? 0,
+            lastInsertRowid: Number(result.lastInsertRowid ?? 0),
+          };
+        },
+      };
+    },
   };
 }

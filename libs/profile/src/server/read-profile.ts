@@ -1,4 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { join, raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { ProfileCard } from '../shared/profile-card';
@@ -23,33 +24,30 @@ function readProfileCard(row: Record<string, unknown>): ProfileCard | null {
 }
 
 export async function readProfileCardById(
-  sql: SqlClient,
+  db: SqlClient,
   profileId: string
 ): Promise<ProfileCard | null> {
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT ${ProfileCol.id}, ${ProfileCol.username}, ${ProfileCol.avatarConfig}
-     FROM ${PROFILES_TABLE.tableName}
-     WHERE ${ProfileCol.id} = ?
-     LIMIT 1`,
-    [profileId]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT ${raw(ProfileCol.id)}, ${raw(ProfileCol.username)}, ${raw(ProfileCol.avatarConfig)}
+    FROM ${raw(PROFILES_TABLE.tableName)}
+    WHERE ${raw(ProfileCol.id)} = ${profileId}
+    LIMIT 1
+  `);
   const row = rows[0];
   if (row === undefined) return null;
   return readProfileCard(row);
 }
 
 export async function readProfileCardsByIds(
-  sql: SqlClient,
+  db: SqlClient,
   profileIds: readonly string[]
 ): Promise<readonly ProfileCard[]> {
   if (profileIds.length === 0) return [];
-  const placeholders = profileIds.map(() => '?').join(', ');
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT ${ProfileCol.id}, ${ProfileCol.username}, ${ProfileCol.avatarConfig}
-     FROM ${PROFILES_TABLE.tableName}
-     WHERE ${ProfileCol.id} IN (${placeholders})`,
-    [...profileIds]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT ${raw(ProfileCol.id)}, ${raw(ProfileCol.username)}, ${raw(ProfileCol.avatarConfig)}
+    FROM ${raw(PROFILES_TABLE.tableName)}
+    WHERE ${raw(ProfileCol.id)} IN (${join(profileIds)})
+  `);
   return rows
     .map((row) => readProfileCard(row))
     .filter((card): card is ProfileCard => card !== null);

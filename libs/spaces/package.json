@@ -37,6 +37,7 @@
     "@pkgs/message": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/sounds": "workspace:*",
+    "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",

@@ -9,6 +9,7 @@ import {
   spaceMembershipEntityId,
 } from '@libs/spaces/shared/participation/participation-ids';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { raw, sql } from '@pkgs/sql';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
@@ -43,12 +44,12 @@ function parseLeaveSpaceInput(
 export async function authorizeLeaveSpace(
   ctx: WriteContext,
   input: LeaveSpaceInput,
-  sql: SqlClient
+  db: SqlClient
 ): Promise<ReturnType<typeof ok<void>> | ReturnType<typeof fail>> {
   const accountId = requireAccountId(ctx);
   if (!accountId.ok) return accountId;
   const memberId = resolveSpaceMemberId(accountId.value);
-  const row = await readMembershipForLeave(sql, memberId, input.spaceId);
+  const row = await readMembershipForLeave(db, memberId, input.spaceId);
   if (row === null || row.leftAt !== null) {
     return ok(undefined);
   }
@@ -62,44 +63,38 @@ export async function authorizeLeaveSpace(
 }
 
 async function decrementActiveMemberCount(
-  sql: SqlClient,
+  db: SqlClient,
   spaceId: string
 ): Promise<void> {
-  await sql.run(
-    `UPDATE ${SPACES_TABLE.tableName}
-     SET ${SpaceCol.activeMemberCount} = CASE
-       WHEN ${SpaceCol.activeMemberCount} > 0
-       THEN ${SpaceCol.activeMemberCount} - 1
+  await db.run(sql`UPDATE ${raw(SPACES_TABLE.tableName)}
+     SET ${raw(SpaceCol.activeMemberCount)} = CASE
+       WHEN ${raw(SpaceCol.activeMemberCount)} > 0
+       THEN ${raw(SpaceCol.activeMemberCount)} - 1
        ELSE 0 END
-     WHERE ${SpaceCol.id} = ?`,
-    [spaceId]
-  );
+     WHERE ${raw(SpaceCol.id)} = ${spaceId}`);
 }
 
 export async function executeLeaveSpace(
   ctx: WriteContext,
   input: LeaveSpaceInput,
-  sql: SqlClient
+  db: SqlClient
 ): Promise<ReturnType<typeof ok<void>> | ReturnType<typeof fail>> {
   const accountId = requireAccountId(ctx);
   if (!accountId.ok) return accountId;
   const memberId = resolveSpaceMemberId(accountId.value);
-  const row = await readMembershipForLeave(sql, memberId, input.spaceId);
+  const row = await readMembershipForLeave(db, memberId, input.spaceId);
   if (row === null || row.leftAt !== null) {
     return ok(undefined);
   }
   clearSpacePresenceLatch(input.spaceId);
   const now = isoNow();
   const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
-  await sql.run(
-    `UPDATE ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     SET ${SpaceMembershipCol.leftAt} = ?
-     WHERE ${SpaceMembershipCol.id} = ?
-       AND ${SpaceMembershipCol.leftAt} IS NULL`,
-    [now, membershipId]
-  );
-  await decrementActiveMemberCount(sql, input.spaceId);
-  await maybeAutoEndEmptyHostSpace(ctx, sql, input.spaceId);
+  await db.run(sql`UPDATE ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     SET ${raw(SpaceMembershipCol.leftAt)} = ${now}
+     WHERE ${raw(SpaceMembershipCol.id)} = ${membershipId}
+       AND ${raw(SpaceMembershipCol.leftAt)} IS NULL`);
+  await decrementActiveMemberCount(db, input.spaceId);
+  await maybeAutoEndEmptyHostSpace(ctx, db, input.spaceId);
   return ok(undefined);
 }
 

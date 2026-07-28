@@ -3,6 +3,7 @@ import {
   USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -49,7 +50,7 @@ function mapSearchHit(row: SearchHitRow): UserSearchResult {
 }
 
 export async function searchUsers(
-  sql: SqlClient,
+  db: SqlClient,
   viewerId: string,
   rawQuery: string,
   limit: number = FRIEND_SEARCH_MAX_RESULTS
@@ -64,22 +65,21 @@ export async function searchUsers(
   assertSearchRateLimit(viewerId);
   const boundedLimit = Math.min(Math.max(limit, 1), FRIEND_SEARCH_MAX_RESULTS);
   const likeQuery = query.toLowerCase();
-  const rows = await sql.query<SearchHitRow>(
-    `SELECT p.${ProfileCol.id} AS id,
-            p.${ProfileCol.username} AS username,
-            p.${ProfileCol.avatarConfig} AS avatar_config
-     FROM ${PROFILES_TABLE.tableName} p
-     WHERE p.${ProfileCol.id} <> ?
-       AND NOT EXISTS (
-         SELECT 1 FROM ${USER_BLOCKS_TABLE.tableName} b
-         WHERE (b.${UserBlockCol.blockerId} = ? AND b.${UserBlockCol.blockedId} = p.${ProfileCol.id})
-            OR (b.${UserBlockCol.blockerId} = p.${ProfileCol.id} AND b.${UserBlockCol.blockedId} = ?)
-       )
-       AND p.${ProfileCol.username} <> ''
-       AND lower(p.${ProfileCol.username}) LIKE ? || '%'
-     ORDER BY lower(p.${ProfileCol.username})
-     LIMIT ?`,
-    [viewerId, viewerId, viewerId, likeQuery, boundedLimit]
-  );
+  const rows = await db.query<SearchHitRow>(sql`
+    SELECT p.${raw(ProfileCol.id)} AS id,
+           p.${raw(ProfileCol.username)} AS username,
+           p.${raw(ProfileCol.avatarConfig)} AS avatar_config
+    FROM ${raw(PROFILES_TABLE.tableName)} p
+    WHERE p.${raw(ProfileCol.id)} <> ${viewerId}
+      AND NOT EXISTS (
+        SELECT 1 FROM ${raw(USER_BLOCKS_TABLE.tableName)} b
+        WHERE (b.${raw(UserBlockCol.blockerId)} = ${viewerId} AND b.${raw(UserBlockCol.blockedId)} = p.${raw(ProfileCol.id)})
+           OR (b.${raw(UserBlockCol.blockerId)} = p.${raw(ProfileCol.id)} AND b.${raw(UserBlockCol.blockedId)} = ${viewerId})
+      )
+      AND p.${raw(ProfileCol.username)} <> ''
+      AND lower(p.${raw(ProfileCol.username)}) LIKE ${likeQuery} || '%'
+    ORDER BY lower(p.${raw(ProfileCol.username)})
+    LIMIT ${boundedLimit}
+  `);
   return rows.map(mapSearchHit);
 }

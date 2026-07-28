@@ -104,25 +104,25 @@ function lazyRequestSqlClient(): SqlClient {
   return {
     connect: async () => {},
     disconnect: async () => {},
-    query: (sql, params) => {
+    query: (query) => {
       const store = apiRequestAsyncLocalStorage.getStore();
       assert.defined(store, 'inbox sql: request store missing');
-      return store.sqlClient.query(sql, params);
+      return store.sqlClient.query(query);
     },
-    run: (sql, params) => {
+    run: (query) => {
       const store = apiRequestAsyncLocalStorage.getStore();
       assert.defined(store, 'inbox sql: request store missing');
-      return store.sqlClient.run(sql, params);
+      return store.sqlClient.run(query);
     },
     transaction: (fn) => {
       const store = apiRequestAsyncLocalStorage.getStore();
       assert.defined(store, 'inbox sql: request store missing');
       return store.sqlClient.transaction(fn);
     },
-    prepare: (sql) => {
+    prepare: (query) => {
       const store = apiRequestAsyncLocalStorage.getStore();
       assert.defined(store, 'inbox sql: request store missing');
-      return store.sqlClient.prepare(sql);
+      return store.sqlClient.prepare(query);
     },
   };
 }

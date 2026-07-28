@@ -1,4 +1,5 @@
 import { assert } from '@pkgs/assert';
+import { join, raw, sql, type Value } from '@pkgs/sql';
 import type { Context } from 'hono';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -12,7 +13,7 @@ import type {
 export type UploadRowEvaluator<TCtx> = (
   ctx: TCtx,
   row: UploadRow,
-  sql: SqlClient
+  db: SqlClient
 ) => Promise<UploadRowResult>;
 
 export type UploadHandlerOptions<TAuth, TCtx> = {
@@ -45,7 +46,7 @@ function quoteSqlIdentifier(name: string): string {
   return `"${name}"`;
 }
 
-export async function applyPut(sql: SqlClient, row: UploadRow): Promise<void> {
+export async function applyPut(db: SqlClient, row: UploadRow): Promise<void> {
   const values = row.values ?? {};
   const columns = Object.keys(values);
   // Empty put/patch is a no-op (client may upload username-only profile
@@ -54,49 +55,51 @@ export async function applyPut(sql: SqlClient, row: UploadRow): Promise<void> {
   if (columns.length === 0) return;
   const table = quoteSqlIdentifier(row.table);
   const quotedColumns = columns.map(quoteSqlIdentifier);
-  const placeholders = columns.map(() => '?').join(', ');
-  const sqlText = `INSERT INTO ${table} (${quotedColumns.join(', ')}) VALUES (${placeholders})
-    ON CONFLICT (id) DO UPDATE SET ${quotedColumns.map((c) => `${c} = excluded.${c}`).join(', ')}`;
-  await sql.run(
-    sqlText,
-    columns.map((c) => values[c])
-  );
+  const conflictSet = quotedColumns
+    .map((c) => `${c} = excluded.${c}`)
+    .join(', ');
+  const boundValues = columns.map((c) => values[c] as Value);
+  await db.run(sql`
+    INSERT INTO ${raw(table)} (${raw(quotedColumns.join(', '))})
+    VALUES ${join(boundValues, ', ', '(', ')')}
+    ON CONFLICT (id) DO UPDATE SET ${raw(conflictSet)}`);
 }
 
 export async function applyPatch(
-  sql: SqlClient,
+  db: SqlClient,
   row: UploadRow
 ): Promise<void> {
   const values = row.values ?? {};
   const columns = Object.keys(values);
   if (columns.length === 0) return;
   const table = quoteSqlIdentifier(row.table);
-  const sets = columns.map((c) => `${quoteSqlIdentifier(c)} = ?`).join(', ');
-  await sql.run(`UPDATE ${table} SET ${sets} WHERE id = ?`, [
-    ...columns.map((c) => values[c]),
-    row.id,
-  ]);
+  const sets = join(
+    columns.map((c) => sql`${raw(quoteSqlIdentifier(c))} = ${values[c] as Value}`)
+  );
+  await db.run(
+    sql`UPDATE ${raw(table)} SET ${sets} WHERE id = ${row.id}`
+  );
 }
 
 export async function applyDelete(
-  sql: SqlClient,
+  db: SqlClient,
   row: UploadRow
 ): Promise<void> {
-  await sql.run(`DELETE FROM ${quoteSqlIdentifier(row.table)} WHERE id = ?`, [
-    row.id,
-  ]);
+  await db.run(
+    sql`DELETE FROM ${raw(quoteSqlIdentifier(row.table))} WHERE id = ${row.id}`
+  );
 }
 
-export async function applyRow(sql: SqlClient, row: UploadRow): Promise<void> {
+export async function applyRow(db: SqlClient, row: UploadRow): Promise<void> {
   if (row.op === 'put') {
-    await applyPut(sql, row);
+    await applyPut(db, row);
     return;
   }
   if (row.op === 'patch') {
-    await applyPatch(sql, row);
+    await applyPatch(db, row);
     return;
   }
-  await applyDelete(sql, row);
+  await applyDelete(db, row);
 }
 
 function parseUploadRow(item: unknown): UploadRow {
@@ -128,17 +131,17 @@ export function parseUploadBody(bodyRaw: unknown): UploadBatch {
 }
 
 async function applyUploadRow<TCtx>(
-  sql: SqlClient,
+  db: SqlClient,
   ctx: TCtx,
   evaluateRow: UploadRowEvaluator<TCtx>,
   row: UploadRow
 ): Promise<UploadRowResult> {
-  const decision = await evaluateRow(ctx, row, sql);
+  const decision = await evaluateRow(ctx, row, db);
   if (decision.status === 'rejected') {
     return decision;
   }
   try {
-    await applyRow(sql, row);
+    await applyRow(db, row);
     return { status: 'accepted' };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
@@ -147,14 +150,14 @@ async function applyUploadRow<TCtx>(
 }
 
 export async function processUploadBatch<TCtx>(
-  sql: SqlClient,
+  db: SqlClient,
   ctx: TCtx,
   evaluateRow: UploadRowEvaluator<TCtx>,
   batch: UploadBatch
 ): Promise<UploadBatchResult> {
   const results: UploadRowResult[] = [];
   for (const row of batch.rows) {
-    results.push(await applyUploadRow(sql, ctx, evaluateRow, row));
+    results.push(await applyUploadRow(db, ctx, evaluateRow, row));
   }
   return { results };
 }
@@ -170,18 +173,18 @@ export function createUploadHandler<TAuth, TCtx>(
 
     const batch = parseUploadBody(await c.req.json());
     const ctx = options.mapAuth(auth);
-    const sql = await options.openSql();
+    const db = await options.openSql();
     try {
-      await sql.connect();
+      await db.connect();
       const out = await processUploadBatch(
-        sql,
+        db,
         ctx,
         options.evaluateRow,
         batch
       );
       return c.json(out, 200);
     } finally {
-      await sql.disconnect();
+      await db.disconnect();
     }
   };
 }

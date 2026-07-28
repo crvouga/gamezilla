@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
+import { raw, sql } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -18,45 +19,45 @@ import {
   upsertExternalAccount,
 } from './external-accounts-sql';
 
-async function migrateTables(sql: SqlClient): Promise<void> {
-  await sql.run(
-    `CREATE TABLE ${USERS_TABLE} (
-      ${UserTableCol.id} TEXT PRIMARY KEY,
-      ${UserTableCol.createdAt} TEXT NOT NULL
-    )`
-  );
-  await sql.run(
-    `CREATE TABLE ${EXTERNAL_ACCOUNTS_TABLE} (
-      ${ExternalAccountCol.userId} TEXT NOT NULL,
-      ${ExternalAccountCol.provider} TEXT NOT NULL,
-      ${ExternalAccountCol.externalId} TEXT NOT NULL,
-      ${ExternalAccountCol.metadata} TEXT NOT NULL DEFAULT '{}',
-      ${ExternalAccountCol.createdAt} TEXT NOT NULL,
-      PRIMARY KEY (${ExternalAccountCol.provider}, ${ExternalAccountCol.externalId}),
-      UNIQUE (${ExternalAccountCol.userId}, ${ExternalAccountCol.provider})
-    )`
-  );
+async function migrateTables(db: SqlClient): Promise<void> {
+  await db.run(sql`
+    CREATE TABLE ${raw(USERS_TABLE)} (
+      ${raw(UserTableCol.id)} TEXT PRIMARY KEY,
+      ${raw(UserTableCol.createdAt)} TEXT NOT NULL
+    )
+  `);
+  await db.run(sql`
+    CREATE TABLE ${raw(EXTERNAL_ACCOUNTS_TABLE)} (
+      ${raw(ExternalAccountCol.userId)} TEXT NOT NULL,
+      ${raw(ExternalAccountCol.provider)} TEXT NOT NULL,
+      ${raw(ExternalAccountCol.externalId)} TEXT NOT NULL,
+      ${raw(ExternalAccountCol.metadata)} TEXT NOT NULL DEFAULT '{}',
+      ${raw(ExternalAccountCol.createdAt)} TEXT NOT NULL,
+      PRIMARY KEY (${raw(ExternalAccountCol.provider)}, ${raw(ExternalAccountCol.externalId)}),
+      UNIQUE (${raw(ExternalAccountCol.userId)}, ${raw(ExternalAccountCol.provider)})
+    )
+  `);
 }
 
 describe('external-accounts-sql', () => {
-  let sql: SqlClient;
+  let sqlClient: SqlClient;
   const userId = '11111111-1111-4111-8111-111111111111';
   const primaryAuthProvider = 'clerk';
   const clerkUserId = 'user_clerk_1';
 
   beforeEach(async () => {
-    sql = SqlClientImplBunSqlite.open(':memory:');
-    await sql.connect();
-    await migrateTables(sql);
-    await insertUser(sql, userId);
+    sqlClient = SqlClientImplBunSqlite.open(':memory:');
+    await sqlClient.connect();
+    await migrateTables(sqlClient);
+    await insertUser(sqlClient, userId);
   });
 
   afterEach(async () => {
-    await sql.disconnect();
+    await sqlClient.disconnect();
   });
 
   test('upsertExternalAccount inserts and updates metadata', async () => {
-    await upsertExternalAccount(sql, {
+    await upsertExternalAccount(sqlClient, {
       userId,
       provider: primaryAuthProvider,
       externalId: clerkUserId,
@@ -65,45 +66,43 @@ describe('external-accounts-sql', () => {
 
     expect(
       await findUserIdByProviderExternalId(
-        sql,
+        sqlClient,
         primaryAuthProvider,
         clerkUserId
       )
     ).toBe(userId);
-    expect(await readExternalAccountId(sql, userId, primaryAuthProvider)).toBe(
-      clerkUserId
-    );
+    expect(
+      await readExternalAccountId(sqlClient, userId, primaryAuthProvider)
+    ).toBe(clerkUserId);
 
-    await upsertExternalAccount(sql, {
+    await upsertExternalAccount(sqlClient, {
       userId,
       provider: primaryAuthProvider,
       externalId: clerkUserId,
       metadata: { email: 'b@example.com' },
     });
 
-    const rows = await sql.query<{ metadata: string }>(
-      `SELECT ${ExternalAccountCol.metadata} AS metadata
-       FROM ${EXTERNAL_ACCOUNTS_TABLE}
-       WHERE ${ExternalAccountCol.provider} = ? AND ${ExternalAccountCol.externalId} = ?`,
-      [primaryAuthProvider, clerkUserId]
-    );
+    const rows = await sqlClient.query<{ metadata: string }>(sql`
+      SELECT ${raw(ExternalAccountCol.metadata)} AS metadata
+      FROM ${raw(EXTERNAL_ACCOUNTS_TABLE)}
+      WHERE ${raw(ExternalAccountCol.provider)} = ${primaryAuthProvider} AND ${raw(ExternalAccountCol.externalId)} = ${clerkUserId}
+    `);
     const metadata = JSON.parse(rows[0]!.metadata) as Record<string, unknown>;
     expect(metadata['email']).toBe('b@example.com');
   });
 
   test('findUserIdByPrimaryAuthExternalId resolves primary provider rows', async () => {
-    await sql.run(
-      `INSERT INTO ${EXTERNAL_ACCOUNTS_TABLE}
-       (${ExternalAccountCol.userId}, ${ExternalAccountCol.provider},
-        ${ExternalAccountCol.externalId}, ${ExternalAccountCol.metadata},
-        ${ExternalAccountCol.createdAt})
-       VALUES (?, ?, ?, ?, ?)`,
-      [userId, primaryAuthProvider, clerkUserId, '{}', new Date().toISOString()]
-    );
+    await sqlClient.run(sql`
+      INSERT INTO ${raw(EXTERNAL_ACCOUNTS_TABLE)}
+      (${raw(ExternalAccountCol.userId)}, ${raw(ExternalAccountCol.provider)},
+       ${raw(ExternalAccountCol.externalId)}, ${raw(ExternalAccountCol.metadata)},
+       ${raw(ExternalAccountCol.createdAt)})
+      VALUES (${userId}, ${primaryAuthProvider}, ${clerkUserId}, '{}', ${new Date().toISOString()})
+    `);
 
     expect(
       await findUserIdByPrimaryAuthExternalId(
-        sql,
+        sqlClient,
         primaryAuthProvider,
         clerkUserId
       )
@@ -111,14 +110,14 @@ describe('external-accounts-sql', () => {
   });
 
   test('enforces one provider row per user', async () => {
-    await upsertExternalAccount(sql, {
+    await upsertExternalAccount(sqlClient, {
       userId,
       provider: primaryAuthProvider,
       externalId: clerkUserId,
     });
 
     await expect(
-      upsertExternalAccount(sql, {
+      upsertExternalAccount(sqlClient, {
         userId,
         provider: primaryAuthProvider,
         externalId: 'user_clerk_2',

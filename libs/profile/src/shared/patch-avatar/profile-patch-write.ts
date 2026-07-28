@@ -1,4 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { join, raw, sql } from '@pkgs/sql';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { idMatches } from '@pkgs/write/shared/read-row-values';
@@ -9,22 +10,22 @@ export type ProfilePatchInput = {
 };
 
 function parseProfilePatchInput(
-  raw: unknown
+  input: unknown
 ): ReturnType<typeof ok<ProfilePatchInput>> | ReturnType<typeof fail> {
-  if (raw === null || typeof raw !== 'object') {
+  if (input === null || typeof input !== 'object') {
     return fail('INVALID_INPUT', 'profile patch input must be an object');
   }
-  const record = raw as Record<string, unknown>;
+  const record = input as Record<string, unknown>;
   const profileId = record['profileId'];
   if (typeof profileId !== 'string' || profileId.length === 0) {
     return fail('INVALID_INPUT', 'profileId is required');
   }
   const avatarConfig = record['avatarConfig'];
-  const input = {
+  const parsed = {
     profileId,
     ...(typeof avatarConfig === 'string' ? { avatarConfig } : {}),
   } satisfies ProfilePatchInput;
-  return ok(input);
+  return ok(parsed);
 }
 
 export const profilePatchWrite = defineWrite<ProfilePatchInput, void>({
@@ -35,7 +36,7 @@ export const profilePatchWrite = defineWrite<ProfilePatchInput, void>({
     if (idError !== null) return idError;
     return ok(undefined);
   },
-  execute: async (_ctx, input, sql) => {
+  execute: async (_ctx, input, db) => {
     const updates: Record<string, string> = {};
     if (input.avatarConfig !== undefined) {
       updates[ProfileCol.avatarConfig] = input.avatarConfig;
@@ -44,11 +45,13 @@ export const profilePatchWrite = defineWrite<ProfilePatchInput, void>({
       return ok(undefined);
     }
     const entries = Object.entries(updates);
-    const sets = entries.map(([col]) => `${col} = ?`).join(', ');
-    await sql.run(
-      `UPDATE ${PROFILES_TABLE.tableName} SET ${sets} WHERE ${ProfileCol.id} = ?`,
-      [...entries.map(([, v]) => v), input.profileId]
+    const sets = join(
+      entries.map(([col, value]) => sql`${raw(col)} = ${value}`),
+      ', '
     );
+    await db.run(sql`
+      UPDATE ${raw(PROFILES_TABLE.tableName)} SET ${sets} WHERE ${raw(ProfileCol.id)} = ${input.profileId}
+    `);
     return ok(undefined);
   },
 });

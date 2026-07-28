@@ -20,6 +20,7 @@
   "dependencies": {
     "@pkgs/inbox": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*"
   },

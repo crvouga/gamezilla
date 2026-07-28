@@ -5,6 +5,7 @@ import {
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { raw, sql } from '@pkgs/sql';
 
 import { generateInviteToken } from '../shared/generate-invite-secrets';
 import {
@@ -34,31 +35,30 @@ type SpaceInviteHostRow = {
 };
 
 async function loadSpaceRowForInvite(
-  sql: SqlClient,
+  db: SqlClient,
   spaceId: string
 ): Promise<SpaceInviteHostRow | null> {
-  const rows = await sql.query<SpaceInviteHostRow>(
-    `SELECT ${SpaceCol.id} AS id,
-            ${SpaceCol.title} AS title,
-            ${SpaceCol.hostId} AS host_id,
-            ${SpaceCol.hostMemberId} AS host_member_id,
-            ${SpaceCol.endedAt} AS ended_at,
-            ${SpaceCol.hostAccountId} AS host_account_id
-     FROM ${SPACES_TABLE.tableName}
-     WHERE ${SpaceCol.id} = ?
-     LIMIT 1`,
-    [spaceId]
+  const rows = await db.query<SpaceInviteHostRow>(
+    sql`SELECT ${raw(SpaceCol.id)} AS id,
+            ${raw(SpaceCol.title)} AS title,
+            ${raw(SpaceCol.hostId)} AS host_id,
+            ${raw(SpaceCol.hostMemberId)} AS host_member_id,
+            ${raw(SpaceCol.endedAt)} AS ended_at,
+            ${raw(SpaceCol.hostAccountId)} AS host_account_id
+     FROM ${raw(SPACES_TABLE.tableName)}
+     WHERE ${raw(SpaceCol.id)} = ${spaceId}
+     LIMIT 1`
   );
   return rows[0] ?? null;
 }
 
 async function assertHostCanInvite(
-  sql: SqlClient,
+  db: SqlClient,
   spaceId: string,
   accountId: string,
   deviceId: string
 ): Promise<void> {
-  const row = await loadSpaceRowForInvite(sql, spaceId);
+  const row = await loadSpaceRowForInvite(db, spaceId);
   if (row === null) {
     throw new SpacesError('SPACE_NOT_FOUND', 'Space not found');
   }
@@ -82,7 +82,7 @@ function defaultExpiryIso(): string {
 }
 
 async function insertInvite(
-  sql: SqlClient,
+  db: SqlClient,
   args: {
     readonly spaceId: string;
     readonly kind: SpaceInviteKind;
@@ -96,28 +96,16 @@ async function insertInvite(
   const id = crypto.randomUUID();
   const token = generateInviteToken();
   const createdAt = new Date().toISOString();
-  await sql.run(
-    `INSERT INTO ${SPACE_INVITES_TABLE.tableName}
-     (${SpaceInviteCol.id}, ${SpaceInviteCol.spaceId}, ${SpaceInviteCol.kind},
-      ${SpaceInviteCol.token}, ${SpaceInviteCol.code},
-      ${SpaceInviteCol.createdByAccountId}, ${SpaceInviteCol.inviteeAccountId},
-      ${SpaceInviteCol.expiresAt}, ${SpaceInviteCol.revokedAt},
-      ${SpaceInviteCol.acceptedAt}, ${SpaceInviteCol.maxUses},
-      ${SpaceInviteCol.useCount}, ${SpaceInviteCol.createdAt})
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?, 0, ?)`,
-    [
-      id,
-      args.spaceId,
-      args.kind,
-      token,
-      args.code,
-      args.createdByAccountId,
-      args.inviteeAccountId,
-      args.expiresAt,
-      args.maxUses,
-      createdAt,
-    ]
-  );
+  await db.run(sql`INSERT INTO ${raw(SPACE_INVITES_TABLE.tableName)}
+     (${raw(SpaceInviteCol.id)}, ${raw(SpaceInviteCol.spaceId)}, ${raw(SpaceInviteCol.kind)},
+      ${raw(SpaceInviteCol.token)}, ${raw(SpaceInviteCol.code)},
+      ${raw(SpaceInviteCol.createdByAccountId)}, ${raw(SpaceInviteCol.inviteeAccountId)},
+      ${raw(SpaceInviteCol.expiresAt)}, ${raw(SpaceInviteCol.revokedAt)},
+      ${raw(SpaceInviteCol.acceptedAt)}, ${raw(SpaceInviteCol.maxUses)},
+      ${raw(SpaceInviteCol.useCount)}, ${raw(SpaceInviteCol.createdAt)})
+     VALUES (${id}, ${args.spaceId}, ${args.kind}, ${token}, ${args.code},
+             ${args.createdByAccountId}, ${args.inviteeAccountId},
+             ${args.expiresAt}, NULL, NULL, ${args.maxUses}, 0, ${createdAt})`);
   return {
     id,
     spaceId: args.spaceId,
@@ -147,21 +135,18 @@ export async function ensureLinkInvite(args: {
     readonly code: string | null;
     readonly expires_at: string | null;
     readonly invitee_account_id: string | null;
-  }>(
-    `SELECT ${SpaceInviteCol.id} AS id,
-            ${SpaceInviteCol.token} AS token,
-            ${SpaceInviteCol.code} AS code,
-            ${SpaceInviteCol.expiresAt} AS expires_at,
-            ${SpaceInviteCol.inviteeAccountId} AS invitee_account_id
-     FROM ${SPACE_INVITES_TABLE.tableName}
-     WHERE ${SpaceInviteCol.spaceId} = ?
-       AND ${SpaceInviteCol.kind} = 'link'
-       AND ${SpaceInviteCol.revokedAt} IS NULL
-       AND (${SpaceInviteCol.expiresAt} IS NULL OR ${SpaceInviteCol.expiresAt} > NOW())
-     ORDER BY ${SpaceInviteCol.createdAt} DESC
-     LIMIT 1`,
-    [args.spaceId]
-  );
+  }>(sql`SELECT ${raw(SpaceInviteCol.id)} AS id,
+            ${raw(SpaceInviteCol.token)} AS token,
+            ${raw(SpaceInviteCol.code)} AS code,
+            ${raw(SpaceInviteCol.expiresAt)} AS expires_at,
+            ${raw(SpaceInviteCol.inviteeAccountId)} AS invitee_account_id
+     FROM ${raw(SPACE_INVITES_TABLE.tableName)}
+     WHERE ${raw(SpaceInviteCol.spaceId)} = ${args.spaceId}
+       AND ${raw(SpaceInviteCol.kind)} = 'link'
+       AND ${raw(SpaceInviteCol.revokedAt)} IS NULL
+       AND (${raw(SpaceInviteCol.expiresAt)} IS NULL OR ${raw(SpaceInviteCol.expiresAt)} > NOW())
+     ORDER BY ${raw(SpaceInviteCol.createdAt)} DESC
+     LIMIT 1`);
   const row = existing[0];
   if (row !== undefined) {
     return {
@@ -231,14 +216,11 @@ export async function revokeSpaceInvite(args: {
   const rows = await args.sql.query<{
     readonly space_id: string;
     readonly created_by_account_id: string;
-  }>(
-    `SELECT ${SpaceInviteCol.spaceId} AS space_id,
-            ${SpaceInviteCol.createdByAccountId} AS created_by_account_id
-     FROM ${SPACE_INVITES_TABLE.tableName}
-     WHERE ${SpaceInviteCol.id} = ?
-     LIMIT 1`,
-    [args.inviteId]
-  );
+  }>(sql`SELECT ${raw(SpaceInviteCol.spaceId)} AS space_id,
+            ${raw(SpaceInviteCol.createdByAccountId)} AS created_by_account_id
+     FROM ${raw(SPACE_INVITES_TABLE.tableName)}
+     WHERE ${raw(SpaceInviteCol.id)} = ${args.inviteId}
+     LIMIT 1`);
   const row = rows[0];
   if (row === undefined) {
     throw new SpacesError('SPACE_INVITE_INVALID', 'Invite not found');
@@ -250,38 +232,31 @@ export async function revokeSpaceInvite(args: {
     args.deviceId
   );
   const now = new Date().toISOString();
-  await args.sql.run(
-    `UPDATE ${SPACE_INVITES_TABLE.tableName}
-     SET ${SpaceInviteCol.revokedAt} = ?
-     WHERE ${SpaceInviteCol.id} = ?`,
-    [now, args.inviteId]
-  );
+  await args.sql.run(sql`UPDATE ${raw(SPACE_INVITES_TABLE.tableName)}
+     SET ${raw(SpaceInviteCol.revokedAt)} = ${now}
+     WHERE ${raw(SpaceInviteCol.id)} = ${args.inviteId}`);
 }
 
 export async function revokeOpenInvitesForSpace(
-  sql: SqlClient,
+  db: SqlClient,
   spaceId: string
 ): Promise<void> {
   const now = new Date().toISOString();
-  await sql.run(
-    `UPDATE ${SPACE_INVITES_TABLE.tableName}
-     SET ${SpaceInviteCol.revokedAt} = ?
-     WHERE ${SpaceInviteCol.spaceId} = ?
-       AND ${SpaceInviteCol.revokedAt} IS NULL`,
-    [now, spaceId]
-  );
+  await db.run(sql`UPDATE ${raw(SPACE_INVITES_TABLE.tableName)}
+     SET ${raw(SpaceInviteCol.revokedAt)} = ${now}
+     WHERE ${raw(SpaceInviteCol.spaceId)} = ${spaceId}
+       AND ${raw(SpaceInviteCol.revokedAt)} IS NULL`);
 }
 
 export async function loadHostAccountIdForSpace(
-  sql: SqlClient,
+  db: SqlClient,
   spaceId: string
 ): Promise<string | null> {
-  const rows = await sql.query<{ readonly host_account_id: string | null }>(
-    `SELECT ${SpaceCol.hostAccountId} AS host_account_id
-     FROM ${SPACES_TABLE.tableName}
-     WHERE ${SpaceCol.id} = ?
-     LIMIT 1`,
-    [spaceId]
+  const rows = await db.query<{ readonly host_account_id: string | null }>(
+    sql`SELECT ${raw(SpaceCol.hostAccountId)} AS host_account_id
+     FROM ${raw(SPACES_TABLE.tableName)}
+     WHERE ${raw(SpaceCol.id)} = ${spaceId}
+     LIMIT 1`
   );
   return rows[0]?.host_account_id ?? null;
 }

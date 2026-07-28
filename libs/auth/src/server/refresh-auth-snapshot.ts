@@ -1,5 +1,6 @@
 import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
 import { DEVICES_TABLE, DeviceCol } from '@libs/db/shared/auth-tables';
+import { join, raw, sql } from '@pkgs/sql';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -24,7 +25,7 @@ export async function refreshAuthSnapshot(args: {
   deviceAttributes: Record<string, string | null>;
 }): Promise<void> {
   const {
-    sql,
+    sql: db,
     authServer,
     bearerToken,
     accountId,
@@ -34,9 +35,9 @@ export async function refreshAuthSnapshot(args: {
   assertUuid(accountId, 'accountId must be UUID');
   assertDeviceId(deviceId);
 
-  await upsertAuthUserFromBearer({ sql, authServer, bearerToken, accountId });
+  await upsertAuthUserFromBearer({ db, authServer, bearerToken, accountId });
   await upsertDeviceRow({
-    sql,
+    db,
     deviceId,
     userId: accountId,
     attributes: deviceAttributes,
@@ -44,12 +45,12 @@ export async function refreshAuthSnapshot(args: {
 }
 
 async function upsertAuthUserFromBearer(args: {
-  sql: SqlClient;
+  db: SqlClient;
   authServer: AuthServerPort;
   bearerToken: string;
   accountId: string;
 }): Promise<void> {
-  const { sql, authServer, bearerToken, accountId } = args;
+  const { db, authServer, bearerToken, accountId } = args;
 
   let session: Awaited<ReturnType<AuthServerPort['verifySessionToken']>> = null;
   try {
@@ -69,13 +70,13 @@ async function upsertAuthUserFromBearer(args: {
   const email =
     session.email ?? readPrimaryEmailFromAuthSnapshot(data) ?? undefined;
 
-  await upsertExternalAccount(sql, {
+  await upsertExternalAccount(db, {
     userId: accountId,
     provider: authServer.providerLabel,
     externalId: session.externalUserId,
     metadata: email === undefined ? {} : { email },
   });
-  await upsertAuthUserSnapshot(sql, {
+  await upsertAuthUserSnapshot(db, {
     externalUserId: session.externalUserId,
     ownerId: accountId,
     data,
@@ -85,16 +86,15 @@ async function upsertAuthUserFromBearer(args: {
 type DeviceRow = Record<string, unknown>;
 
 async function upsertDeviceRow(args: {
-  sql: SqlClient;
+  db: SqlClient;
   deviceId: string;
   userId: string;
   attributes: Record<string, string | null>;
 }): Promise<void> {
-  const { sql, deviceId, userId, attributes } = args;
-  const rows = await sql.query<DeviceRow>(
-    `SELECT * FROM ${DEVICES_TABLE.tableName} WHERE ${DeviceCol.id} = ? LIMIT 1`,
-    [deviceId]
-  );
+  const { db, deviceId, userId, attributes } = args;
+  const rows = await db.query<DeviceRow>(sql`
+    SELECT * FROM ${raw(DEVICES_TABLE.tableName)} WHERE ${raw(DeviceCol.id)} = ${deviceId} LIMIT 1
+  `);
   const existing = rows[0];
   const now = new Date().toISOString();
 
@@ -106,18 +106,16 @@ async function upsertDeviceRow(args: {
       DeviceCol.firstSeenAt,
       DeviceCol.lastSeenAt,
     ];
-    const vals: unknown[] = [deviceId, userId, now, now, now];
+    const vals: (string | null)[] = [deviceId, userId, now, now, now];
     for (const [key, value] of Object.entries(attributes)) {
       if (value === null) continue;
       cols.push(key);
       vals.push(value);
     }
-    const placeholders = cols.map(() => '?').join(', ');
-    await sql.run(
-      `INSERT INTO ${DEVICES_TABLE.tableName} (${cols.join(', ')})
-       VALUES (${placeholders})`,
-      vals
-    );
+    await db.run(sql`
+      INSERT INTO ${raw(DEVICES_TABLE.tableName)} (${join(cols.map((col) => raw(col)))})
+      VALUES (${join(vals)})
+    `);
     return;
   }
 
@@ -138,11 +136,13 @@ async function upsertDeviceRow(args: {
   }
   const entries = Object.entries(updates);
   if (entries.length === 0) return;
-  const sets = entries.map(([col]) => `${col} = ?`).join(', ');
-  await sql.run(
-    `UPDATE ${DEVICES_TABLE.tableName} SET ${sets} WHERE ${DeviceCol.id} = ?`,
-    [...entries.map(([, v]) => v), deviceId]
+  const sets = join(
+    entries.map(([col, value]) => sql`${raw(col)} = ${value}`),
+    ', '
   );
+  await db.run(sql`
+    UPDATE ${raw(DEVICES_TABLE.tableName)} SET ${sets} WHERE ${raw(DeviceCol.id)} = ${deviceId}
+  `);
 }
 
 function readNullableString(v: unknown): string | null {

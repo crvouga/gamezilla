@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
+import { raw, sql } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
@@ -33,26 +34,26 @@ function makeFakeAuthServer(
   };
 }
 
-async function migrateAuthTables(sql: SqlClient): Promise<void> {
-  await sql.run(
-    `CREATE TABLE ${USERS_TABLE} (
-      ${UserTableCol.id} TEXT PRIMARY KEY,
-      ${UserTableCol.createdAt} TEXT NOT NULL
-    )`
-  );
-  await sql.run(
-    `CREATE TABLE ${EXTERNAL_ACCOUNTS_TABLE} (
-      ${ExternalAccountCol.userId} TEXT NOT NULL,
-      ${ExternalAccountCol.provider} TEXT NOT NULL,
-      ${ExternalAccountCol.externalId} TEXT NOT NULL,
-      ${ExternalAccountCol.metadata} TEXT NOT NULL DEFAULT '{}',
-      ${ExternalAccountCol.createdAt} TEXT NOT NULL,
-      PRIMARY KEY (${ExternalAccountCol.provider}, ${ExternalAccountCol.externalId}),
-      UNIQUE (${ExternalAccountCol.userId}, ${ExternalAccountCol.provider})
-    )`
-  );
-  await sql.run(
-    `CREATE TABLE ${ENTITY_STORE_TABLE} (
+async function migrateAuthTables(db: SqlClient): Promise<void> {
+  await db.run(sql`
+    CREATE TABLE ${raw(USERS_TABLE)} (
+      ${raw(UserTableCol.id)} TEXT PRIMARY KEY,
+      ${raw(UserTableCol.createdAt)} TEXT NOT NULL
+    )
+  `);
+  await db.run(sql`
+    CREATE TABLE ${raw(EXTERNAL_ACCOUNTS_TABLE)} (
+      ${raw(ExternalAccountCol.userId)} TEXT NOT NULL,
+      ${raw(ExternalAccountCol.provider)} TEXT NOT NULL,
+      ${raw(ExternalAccountCol.externalId)} TEXT NOT NULL,
+      ${raw(ExternalAccountCol.metadata)} TEXT NOT NULL DEFAULT '{}',
+      ${raw(ExternalAccountCol.createdAt)} TEXT NOT NULL,
+      PRIMARY KEY (${raw(ExternalAccountCol.provider)}, ${raw(ExternalAccountCol.externalId)}),
+      UNIQUE (${raw(ExternalAccountCol.userId)}, ${raw(ExternalAccountCol.provider)})
+    )
+  `);
+  await db.run(sql`
+    CREATE TABLE ${raw(ENTITY_STORE_TABLE)} (
       id TEXT PRIMARY KEY,
       namespace TEXT NOT NULL,
       type TEXT NOT NULL,
@@ -62,45 +63,43 @@ async function migrateAuthTables(sql: SqlClient): Promise<void> {
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
       UNIQUE (namespace, type, external_id)
-    )`
-  );
+    )
+  `);
 }
 
 const EXTERNAL_USER_ID = 'user_external_2';
 const PRIMARY_AUTH_PROVIDER = 'clerk';
 
 describe('ensureInternalAccountIdForExternalUser', () => {
-  let sql: SqlClient;
+  let sqlClient: SqlClient;
 
   beforeEach(async () => {
-    sql = SqlClientImplBunSqlite.open(':memory:');
-    await sql.connect();
-    await migrateAuthTables(sql);
+    sqlClient = SqlClientImplBunSqlite.open(':memory:');
+    await sqlClient.connect();
+    await migrateAuthTables(sqlClient);
   });
 
   afterEach(async () => {
-    await sql.disconnect();
+    await sqlClient.disconnect();
   });
 
   test('returns existing user id for known clerk user', async () => {
     const userId = '33333333-3333-4333-8333-333333333333';
     const now = new Date().toISOString();
-    await sql.run(
-      `INSERT INTO ${USERS_TABLE} (${UserTableCol.id}, ${UserTableCol.createdAt})
-       VALUES (?, ?)`,
-      [userId, now]
-    );
-    await sql.run(
-      `INSERT INTO ${EXTERNAL_ACCOUNTS_TABLE}
-       (${ExternalAccountCol.userId}, ${ExternalAccountCol.provider},
-        ${ExternalAccountCol.externalId}, ${ExternalAccountCol.metadata},
-        ${ExternalAccountCol.createdAt})
-       VALUES (?, ?, ?, ?, ?)`,
-      [userId, PRIMARY_AUTH_PROVIDER, EXTERNAL_USER_ID, '{}', now]
-    );
+    await sqlClient.run(sql`
+      INSERT INTO ${raw(USERS_TABLE)} (${raw(UserTableCol.id)}, ${raw(UserTableCol.createdAt)})
+      VALUES (${userId}, ${now})
+    `);
+    await sqlClient.run(sql`
+      INSERT INTO ${raw(EXTERNAL_ACCOUNTS_TABLE)}
+      (${raw(ExternalAccountCol.userId)}, ${raw(ExternalAccountCol.provider)},
+       ${raw(ExternalAccountCol.externalId)}, ${raw(ExternalAccountCol.metadata)},
+       ${raw(ExternalAccountCol.createdAt)})
+      VALUES (${userId}, ${PRIMARY_AUTH_PROVIDER}, ${EXTERNAL_USER_ID}, '{}', ${now})
+    `);
 
     const resolved = await ensureInternalAccountIdForExternalUser({
-      sql,
+      sql: sqlClient,
       authServer: makeFakeAuthServer(null),
       externalUserId: EXTERNAL_USER_ID,
     });
@@ -110,27 +109,26 @@ describe('ensureInternalAccountIdForExternalUser', () => {
 
   test('creates user, clerk external_account row, and entity_store snapshot', async () => {
     const resolved = await ensureInternalAccountIdForExternalUser({
-      sql,
+      sql: sqlClient,
       authServer: makeFakeAuthServer({ id: EXTERNAL_USER_ID, email: 'a@b.c' }),
       externalUserId: EXTERNAL_USER_ID,
     });
 
     expect(
       await findUserIdByPrimaryAuthExternalId(
-        sql,
+        sqlClient,
         PRIMARY_AUTH_PROVIDER,
         EXTERNAL_USER_ID
       )
     ).toBe(resolved);
     expect(
-      await readExternalAccountId(sql, resolved, PRIMARY_AUTH_PROVIDER)
+      await readExternalAccountId(sqlClient, resolved, PRIMARY_AUTH_PROVIDER)
     ).toBe(EXTERNAL_USER_ID);
 
-    const entityRows = await sql.query<{ owner_id: string | null }>(
-      `SELECT owner_id FROM ${ENTITY_STORE_TABLE}
-       WHERE namespace = ? AND type = ? AND external_id = ?`,
-      [ENTITY_STORE_NAMESPACE_AUTH, ENTITY_STORE_TYPE_USER, EXTERNAL_USER_ID]
-    );
+    const entityRows = await sqlClient.query<{ owner_id: string | null }>(sql`
+      SELECT owner_id FROM ${raw(ENTITY_STORE_TABLE)}
+      WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER} AND external_id = ${EXTERNAL_USER_ID}
+    `);
     expect(entityRows[0]?.owner_id).toBe(resolved);
   });
 });

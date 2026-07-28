@@ -51,7 +51,8 @@
 
 import { assert } from '@pkgs/assert';
 import { isNamespacedKeyword } from '@pkgs/keyword';
-import type { Pool } from 'pg';
+import { raw, sql } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   ADD_METADATA_COLUMN_TO_MATCHED_SQL,
   CREATE_ACTIVE_PARTITIONS_TABLE_SQL,
@@ -74,8 +75,6 @@ import {
   buildCreateWaitingChildSql,
   buildCreateWaitingTableSql,
 } from './migrate-sql';
-import { createPgSqlClient } from './pg-adapter';
-import type { SqlClient } from './sql-client';
 import { DEFAULT_RADIUS_OPTIONS, type RadiusOptions } from './types';
 
 export type MatchmakingSchema = {
@@ -117,10 +116,8 @@ export type MigrateTuning = {
   readonly matchedRetentionSeconds?: number;
 };
 
-export type MigrateArgs = (
-  | { readonly pool: Pool; readonly sqlClient?: never }
-  | { readonly sqlClient: SqlClient; readonly pool?: never }
-) & {
+export type MigrateArgs = {
+  readonly sqlClient: SqlClient;
   readonly schema?: MatchmakingSchema;
   /** Forwarded into the baked `matchmaking_tick()` function body. */
   readonly radius?: RadiusOptions;
@@ -241,11 +238,6 @@ function primaryBucketExpr(
   return `FLOOR(${primaryRatingExpr(primaryNumericKey)} / ${String(bucketWidth)}::NUMERIC)::INT`;
 }
 
-function resolveSqlClient(args: MigrateArgs): SqlClient {
-  if (args.sqlClient !== undefined) return args.sqlClient;
-  return createPgSqlClient(args.pool);
-}
-
 /**
  * Rebuilds the waiting table (parent + every hash child + index) when
  * the schema fingerprint changes. Safe to call repeatedly; the
@@ -261,22 +253,24 @@ async function rebuildWaitingTable(
   // CREATE below picks up the new PK rather than colliding with the
   // old single-column PK. Active partitions get re-derived on the
   // next join.
-  await sqlClient.query(DROP_WAITING_TABLE_SQL);
-  await sqlClient.query(DROP_ACTIVE_PARTITIONS_SQL);
-  await sqlClient.query(CREATE_ACTIVE_PARTITIONS_TABLE_SQL);
-  await sqlClient.query(
-    buildCreateWaitingTableSql({
-      primaryRatingExpr: primaryRatingExpr(schema.primaryNumericKey),
-      primaryBucketExpr: primaryBucketExpr(
-        schema.primaryNumericKey,
-        schema.bucketWidth
-      ),
-    })
+  await sqlClient.run(raw(DROP_WAITING_TABLE_SQL));
+  await sqlClient.run(raw(DROP_ACTIVE_PARTITIONS_SQL));
+  await sqlClient.run(raw(CREATE_ACTIVE_PARTITIONS_TABLE_SQL));
+  await sqlClient.run(
+    raw(
+      buildCreateWaitingTableSql({
+        primaryRatingExpr: primaryRatingExpr(schema.primaryNumericKey),
+        primaryBucketExpr: primaryBucketExpr(
+          schema.primaryNumericKey,
+          schema.bucketWidth
+        ),
+      })
+    )
   );
   for (let i = 0; i < NUM_WAITING_PARTITIONS; i += 1) {
-    await sqlClient.query(buildCreateWaitingChildSql(i));
+    await sqlClient.run(raw(buildCreateWaitingChildSql(i)));
   }
-  await sqlClient.query(CREATE_WAITING_INDEX_SQL);
+  await sqlClient.run(raw(CREATE_WAITING_INDEX_SQL));
 }
 
 async function maybeRebuildSchema(
@@ -285,18 +279,16 @@ async function maybeRebuildSchema(
 ): Promise<void> {
   const fp = fingerprintSchema(schema);
   const state = await sqlClient.query<{ schema_fingerprint: string }>(
-    `SELECT schema_fingerprint FROM matchmaking_schema_state WHERE id = 1`
+    sql`SELECT schema_fingerprint FROM matchmaking_schema_state WHERE id = 1`
   );
-  const currentFp = state.rows[0]?.schema_fingerprint ?? null;
+  const currentFp = state[0]?.schema_fingerprint ?? null;
   if (currentFp === fp) return;
 
   await rebuildWaitingTable(sqlClient, schema);
-  await sqlClient.query(
-    `INSERT INTO matchmaking_schema_state (id, schema_fingerprint)
-     VALUES (1, $1)
-     ON CONFLICT (id) DO UPDATE SET schema_fingerprint = EXCLUDED.schema_fingerprint`,
-    [fp]
-  );
+  await sqlClient.run(sql`
+    INSERT INTO matchmaking_schema_state (id, schema_fingerprint)
+     VALUES (1, ${fp})
+     ON CONFLICT (id) DO UPDATE SET schema_fingerprint = EXCLUDED.schema_fingerprint`);
 }
 
 /**
@@ -309,12 +301,12 @@ async function maybeRebuildSchema(
  */
 async function isPgCronInstalled(sqlClient: SqlClient): Promise<boolean> {
   try {
-    const result = await sqlClient.query<{ ok: boolean }>(
-      `SELECT EXISTS (
+    const rows = await sqlClient.query<{ ok: boolean }>(
+      sql`SELECT EXISTS (
          SELECT 1 FROM pg_extension WHERE extname = 'pg_cron'
        ) AS ok`
     );
-    return result.rows[0]?.ok === true;
+    return rows[0]?.ok === true;
   } catch {
     // `pg_extension` is a system view present on all real Postgres
     // installs. PGlite throws here; treat any error as "no pg_cron".
@@ -345,26 +337,23 @@ async function scheduleMatchmakingTick(sqlClient: SqlClient): Promise<void> {
   // — when that happens, fall back to `cron.unschedule(name)` then
   // re-schedule. The unschedule fallback is itself best-effort; if the
   // platform doesn't expose unschedule we surface the original error.
+  const tickBody = `SELECT matchmaking_tick()`;
   try {
-    await sqlClient.query(`SELECT cron.schedule($1, $2, $3) AS jobid`, [
-      CRON_JOB_NAME,
-      CRON_SCHEDULE,
-      `SELECT matchmaking_tick()`,
-    ]);
+    await sqlClient.run(
+      sql`SELECT cron.schedule(${CRON_JOB_NAME}, ${CRON_SCHEDULE}, ${tickBody}) AS jobid`
+    );
     return;
   } catch (err) {
     if (!isCronDuplicateNameError(err)) throw err;
   }
-  await sqlClient.query(`SELECT cron.unschedule($1)`, [CRON_JOB_NAME]);
-  await sqlClient.query(`SELECT cron.schedule($1, $2, $3) AS jobid`, [
-    CRON_JOB_NAME,
-    CRON_SCHEDULE,
-    `SELECT matchmaking_tick()`,
-  ]);
+  await sqlClient.run(sql`SELECT cron.unschedule(${CRON_JOB_NAME})`);
+  await sqlClient.run(
+    sql`SELECT cron.schedule(${CRON_JOB_NAME}, ${CRON_SCHEDULE}, ${tickBody}) AS jobid`
+  );
 }
 
 export async function migrate(args: MigrateArgs): Promise<void> {
-  const sqlClient = resolveSqlClient(args);
+  const sqlClient = args.sqlClient;
   const schema = resolveSchema(args.schema);
   const radius = args.radius ?? DEFAULT_RADIUS_OPTIONS;
   const tuning = args.tuning ?? {};
@@ -384,8 +373,8 @@ export async function migrate(args: MigrateArgs): Promise<void> {
     CREATE_MATCHED_MATCHED_AT_INDEX_SQL,
     CREATE_ACTIVE_PARTITIONS_TABLE_SQL,
   ];
-  for (const sql of upfront) {
-    await sqlClient.query(sql);
+  for (const statement of upfront) {
+    await sqlClient.run(raw(statement));
   }
 
   await maybeRebuildSchema(sqlClient, schema);
@@ -422,9 +411,9 @@ export async function migrate(args: MigrateArgs): Promise<void> {
       activePartitionsPruneAgeSeconds: DEFAULT_ACTIVE_PARTITIONS_PRUNE_AGE,
     }),
   ];
-  await sqlClient.tx(async (tx) => {
-    for (const sql of functions) {
-      await tx.query(sql);
+  await sqlClient.transaction(async (tx) => {
+    for (const statement of functions) {
+      await tx.run(raw(statement));
     }
   });
 

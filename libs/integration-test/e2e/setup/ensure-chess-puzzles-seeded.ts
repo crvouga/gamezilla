@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
 
+import { raw } from '@pkgs/sql';
 import { openPgClient } from '@pkgs/sql-client/postgres/connect';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 
@@ -15,8 +16,7 @@ async function countChessPuzzles(): Promise<number> {
   });
   try {
     const rows = await sqlClient.query<{ n: number }>(
-      'SELECT COUNT(*)::int AS n FROM chess_puzzles',
-      []
+      raw('SELECT COUNT(*)::int AS n FROM chess_puzzles')
     );
     return rows[0]?.n ?? 0;
   } finally {

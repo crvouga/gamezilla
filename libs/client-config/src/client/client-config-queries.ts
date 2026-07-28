@@ -2,7 +2,10 @@ import {
   ClientConfigCol,
   CLIENT_CONFIG_TABLE,
 } from '@libs/db/shared/client-config-tables';
+import { raw, sql, type Sql } from '@pkgs/sql';
 
-export const CLIENT_CONFIG_ROW_SQL = `SELECT ${ClientConfigCol.googleWebClientId} AS google_web_client_id
- FROM ${CLIENT_CONFIG_TABLE.tableName}
- WHERE ${ClientConfigCol.id} = ?`;
+export function clientConfigRowQuery(id: string): Sql {
+  return sql`SELECT ${raw(ClientConfigCol.googleWebClientId)} AS google_web_client_id
+ FROM ${raw(CLIENT_CONFIG_TABLE.tableName)}
+ WHERE ${raw(ClientConfigCol.id)} = ${id}`;
+}

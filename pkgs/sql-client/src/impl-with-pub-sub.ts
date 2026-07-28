@@ -1,4 +1,5 @@
 import type { PubSub } from '@pkgs/pub-sub/interface';
+import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 
 export type SqlClientEvent =
@@ -45,60 +46,58 @@ export class SqlClientWithPubSub implements SqlClient {
     } satisfies SqlClientEvent);
   }
 
-  async query<T = Record<string, unknown>>(
-    sql: string,
-    params?: unknown[]
-  ): Promise<T[]> {
+  async query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
     const start = performance.now();
-    const rows = await this.client.query<T>(sql, params);
+    const rows = await this.client.query<T>(query);
     const durationMs = performance.now() - start;
     this.pubSub.publish(this.topic, {
       type: 'query',
-      sql,
-      params: params ?? [],
+      sql: query.sql,
+      params: [...query.values],
       rowCount: rows.length,
       durationMs,
     } satisfies SqlClientEvent);
     return rows;
   }
 
-  async run(sql: string, params?: unknown[]): Promise<RunResult> {
+  async run(query: Sql): Promise<RunResult> {
     const start = performance.now();
-    const result = await this.client.run(sql, params);
+    const result = await this.client.run(query);
     const durationMs = performance.now() - start;
     this.pubSub.publish(this.topic, {
       type: 'run',
-      sql,
-      params: params ?? [],
+      sql: query.sql,
+      params: [...query.values],
       result,
       durationMs,
     } satisfies SqlClientEvent);
     return result;
   }
 
-  prepare(sql: string): PreparedStatement {
-    const stmt = this.client.prepare(sql);
+  prepare(query: Sql): PreparedStatement {
+    const stmt = this.client.prepare(query);
+    const text = query.sql;
     return {
-      query: async <T = Record<string, unknown>>(params?: unknown[]) => {
+      query: async <T = Record<string, unknown>>(params?: Value[]) => {
         const start = performance.now();
         const rows = await stmt.query<T>(params);
         const durationMs = performance.now() - start;
         this.pubSub.publish(this.topic, {
           type: 'query',
-          sql,
+          sql: text,
           params: params ?? [],
           rowCount: rows.length,
           durationMs,
         } satisfies SqlClientEvent);
         return rows;
       },
-      run: async (params?: unknown[]) => {
+      run: async (params?: Value[]) => {
         const start = performance.now();
         const result = await stmt.run(params);
         const durationMs = performance.now() - start;
         this.pubSub.publish(this.topic, {
           type: 'run',
-          sql,
+          sql: text,
           params: params ?? [],
           result,
           durationMs,

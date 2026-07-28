@@ -1,4 +1,5 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
+import { raw, sql } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 /**
@@ -9,14 +10,13 @@ export function useFriendLiveSpaceId(hostAccountId: string): string | null {
   const enabled = hostAccountId.length > 0;
   const { row } = useWatchOne<{ readonly id: string }>(
     enabled
-      ? `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName}
-         WHERE ${SpaceCol.endedAt} IS NULL
-           AND ${SpaceCol.hostAccountId} = ?
-           AND (${SpaceCol.visibility} = 'friends' OR ${SpaceCol.visibility} = 'public')
-         ORDER BY ${SpaceCol.createdAt} DESC
+      ? sql`SELECT ${raw(SpaceCol.id)} AS id FROM ${raw(SPACES_TABLE.tableName)}
+         WHERE ${raw(SpaceCol.endedAt)} IS NULL
+           AND ${raw(SpaceCol.hostAccountId)} = ${hostAccountId}
+           AND (${raw(SpaceCol.visibility)} = 'friends' OR ${raw(SpaceCol.visibility)} = 'public')
+         ORDER BY ${raw(SpaceCol.createdAt)} DESC
          LIMIT 1`
-      : `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName} WHERE 0`,
-    enabled ? [hostAccountId] : []
+      : sql`SELECT ${raw(SpaceCol.id)} AS id FROM ${raw(SPACES_TABLE.tableName)} WHERE 0`
   );
   return row?.id ?? null;
 }

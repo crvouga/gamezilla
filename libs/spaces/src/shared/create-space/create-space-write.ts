@@ -12,6 +12,7 @@ import {
   isSpaceVisibility,
   type SpaceVisibility,
 } from '@libs/spaces/shared/space-visibility';
+import { raw, sql } from '@pkgs/sql';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 
@@ -52,35 +53,22 @@ export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
     if (!accountId.ok) return accountId;
     return ok(undefined);
   },
-  execute: async (ctx, input, sql) => {
+  execute: async (ctx, input, db) => {
     const accountId = requireAccountId(ctx);
     if (!accountId.ok) return accountId;
     const now = isoNow();
     const memberId = resolveSpaceMemberId(accountId.value);
-    await sql.run(
-      `INSERT INTO ${SPACES_TABLE.tableName}
-       (${SpaceCol.id}, ${SpaceCol.hostId}, ${SpaceCol.createdAt},
-        ${SpaceCol.visibility}, ${SpaceCol.hostAccountId},
-        ${SpaceCol.hostMemberId}, ${SpaceCol.activeMemberCount})
-       VALUES (?, ?, ?, ?, ?, ?, 1)`,
-      [
-        input.spaceId,
-        ctx.deviceId,
-        now,
-        input.visibility,
-        accountId.value,
-        memberId,
-      ]
-    );
+    await db.run(sql`INSERT INTO ${raw(SPACES_TABLE.tableName)}
+       (${raw(SpaceCol.id)}, ${raw(SpaceCol.hostId)}, ${raw(SpaceCol.createdAt)},
+        ${raw(SpaceCol.visibility)}, ${raw(SpaceCol.hostAccountId)},
+        ${raw(SpaceCol.hostMemberId)}, ${raw(SpaceCol.activeMemberCount)})
+       VALUES (${input.spaceId}, ${ctx.deviceId}, ${now}, ${input.visibility}, ${accountId.value}, ${memberId}, 1)`);
     const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
-    await sql.run(
-      `INSERT INTO ${SPACE_MEMBERSHIPS_TABLE.tableName}
-       (${SpaceMembershipCol.id}, ${SpaceMembershipCol.memberId},
-        ${SpaceMembershipCol.spaceId}, ${SpaceMembershipCol.joinedAt},
-        ${SpaceMembershipCol.leftAt}, ${SpaceMembershipCol.profileId})
-       VALUES (?, ?, ?, ?, NULL, ?)`,
-      [membershipId, memberId, input.spaceId, now, memberId]
-    );
+    await db.run(sql`INSERT INTO ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
+       (${raw(SpaceMembershipCol.id)}, ${raw(SpaceMembershipCol.memberId)},
+        ${raw(SpaceMembershipCol.spaceId)}, ${raw(SpaceMembershipCol.joinedAt)},
+        ${raw(SpaceMembershipCol.leftAt)}, ${raw(SpaceMembershipCol.profileId)})
+       VALUES (${membershipId}, ${memberId}, ${input.spaceId}, ${now}, NULL, ${memberId})`);
     return ok(undefined);
   },
 });

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test } from 'bun:test';
 
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { raw, sql } from '@pkgs/sql';
 
 import {
   SpaceCol,
@@ -27,84 +28,70 @@ function openSql(): SqlClientImplBunSqlite {
   return db;
 }
 
-async function migrate(sql: SqlClient): Promise<void> {
-  await sql.run(
-    `CREATE TABLE ${SPACES_TABLE.tableName} (
-      ${SpaceCol.id} TEXT PRIMARY KEY,
-      ${SpaceCol.title} TEXT,
-      ${SpaceCol.hostId} TEXT,
-      ${SpaceCol.createdAt} TEXT,
-      ${SpaceCol.endedAt} TEXT,
-      ${SpaceCol.visibility} TEXT,
-      ${SpaceCol.hostAccountId} TEXT,
-      ${SpaceCol.hostMemberId} TEXT,
-      ${SpaceCol.activeMemberCount} INTEGER NOT NULL DEFAULT 0
-    )`
-  );
-  await sql.run(
-    `CREATE TABLE ${SPACE_MEMBERSHIPS_TABLE.tableName} (
-      ${SpaceMembershipCol.id} TEXT PRIMARY KEY,
-      ${SpaceMembershipCol.memberId} TEXT,
-      ${SpaceMembershipCol.spaceId} TEXT,
-      ${SpaceMembershipCol.joinedAt} TEXT,
-      ${SpaceMembershipCol.leftAt} TEXT,
-      ${SpaceMembershipCol.profileId} TEXT
-    )`
-  );
-  await sql.run(
-    `CREATE TABLE ${SPACE_INVITES_TABLE.tableName} (
-      ${SpaceInviteCol.id} TEXT PRIMARY KEY,
-      ${SpaceInviteCol.spaceId} TEXT,
-      ${SpaceInviteCol.kind} TEXT,
-      ${SpaceInviteCol.token} TEXT,
-      ${SpaceInviteCol.code} TEXT,
-      ${SpaceInviteCol.createdByAccountId} TEXT,
-      ${SpaceInviteCol.inviteeAccountId} TEXT,
-      ${SpaceInviteCol.expiresAt} TEXT,
-      ${SpaceInviteCol.revokedAt} TEXT,
-      ${SpaceInviteCol.acceptedAt} TEXT,
-      ${SpaceInviteCol.maxUses} INTEGER NOT NULL,
-      ${SpaceInviteCol.useCount} INTEGER NOT NULL DEFAULT 0,
-      ${SpaceInviteCol.createdAt} TEXT
-    )`
-  );
+async function migrate(db: SqlClient): Promise<void> {
+  await db.run(sql`CREATE TABLE ${raw(SPACES_TABLE.tableName)} (
+      ${raw(SpaceCol.id)} TEXT PRIMARY KEY,
+      ${raw(SpaceCol.title)} TEXT,
+      ${raw(SpaceCol.hostId)} TEXT,
+      ${raw(SpaceCol.createdAt)} TEXT,
+      ${raw(SpaceCol.endedAt)} TEXT,
+      ${raw(SpaceCol.visibility)} TEXT,
+      ${raw(SpaceCol.hostAccountId)} TEXT,
+      ${raw(SpaceCol.hostMemberId)} TEXT,
+      ${raw(SpaceCol.activeMemberCount)} INTEGER NOT NULL DEFAULT 0
+    )`);
+  await db.run(sql`CREATE TABLE ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)} (
+      ${raw(SpaceMembershipCol.id)} TEXT PRIMARY KEY,
+      ${raw(SpaceMembershipCol.memberId)} TEXT,
+      ${raw(SpaceMembershipCol.spaceId)} TEXT,
+      ${raw(SpaceMembershipCol.joinedAt)} TEXT,
+      ${raw(SpaceMembershipCol.leftAt)} TEXT,
+      ${raw(SpaceMembershipCol.profileId)} TEXT
+    )`);
+  await db.run(sql`CREATE TABLE ${raw(SPACE_INVITES_TABLE.tableName)} (
+      ${raw(SpaceInviteCol.id)} TEXT PRIMARY KEY,
+      ${raw(SpaceInviteCol.spaceId)} TEXT,
+      ${raw(SpaceInviteCol.kind)} TEXT,
+      ${raw(SpaceInviteCol.token)} TEXT,
+      ${raw(SpaceInviteCol.code)} TEXT,
+      ${raw(SpaceInviteCol.createdByAccountId)} TEXT,
+      ${raw(SpaceInviteCol.inviteeAccountId)} TEXT,
+      ${raw(SpaceInviteCol.expiresAt)} TEXT,
+      ${raw(SpaceInviteCol.revokedAt)} TEXT,
+      ${raw(SpaceInviteCol.acceptedAt)} TEXT,
+      ${raw(SpaceInviteCol.maxUses)} INTEGER NOT NULL,
+      ${raw(SpaceInviteCol.useCount)} INTEGER NOT NULL DEFAULT 0,
+      ${raw(SpaceInviteCol.createdAt)} TEXT
+    )`);
 }
 
-async function seedPrivateSpace(sql: SqlClient): Promise<void> {
-  await sql.run(
-    `INSERT INTO ${SPACES_TABLE.tableName}
-     (${SpaceCol.id}, ${SpaceCol.hostId}, ${SpaceCol.hostMemberId},
-      ${SpaceCol.visibility}, ${SpaceCol.activeMemberCount})
-     VALUES (?, ?, ?, 'private', 0)`,
-    [SPACE_ID, 'host-device', 'host-device']
-  );
+async function seedPrivateSpace(db: SqlClient): Promise<void> {
+  await db.run(sql`INSERT INTO ${raw(SPACES_TABLE.tableName)}
+     (${raw(SpaceCol.id)}, ${raw(SpaceCol.hostId)}, ${raw(SpaceCol.hostMemberId)},
+      ${raw(SpaceCol.visibility)}, ${raw(SpaceCol.activeMemberCount)})
+     VALUES (${SPACE_ID}, ${'host-device'}, ${'host-device'}, 'private', 0)`);
 }
 
-async function seedLinkInvite(sql: SqlClient, maxUses: number): Promise<void> {
-  await sql.run(
-    `INSERT INTO ${SPACE_INVITES_TABLE.tableName}
-     (${SpaceInviteCol.id}, ${SpaceInviteCol.spaceId}, ${SpaceInviteCol.kind},
-      ${SpaceInviteCol.token}, ${SpaceInviteCol.maxUses},
-      ${SpaceInviteCol.useCount})
-     VALUES (?, ?, 'link', ?, ?, 0)`,
-    ['invite-1', SPACE_ID, TOKEN, maxUses]
-  );
+async function seedLinkInvite(db: SqlClient, maxUses: number): Promise<void> {
+  await db.run(sql`INSERT INTO ${raw(SPACE_INVITES_TABLE.tableName)}
+     (${raw(SpaceInviteCol.id)}, ${raw(SpaceInviteCol.spaceId)}, ${raw(SpaceInviteCol.kind)},
+      ${raw(SpaceInviteCol.token)}, ${raw(SpaceInviteCol.maxUses)},
+      ${raw(SpaceInviteCol.useCount)})
+     VALUES (${'invite-1'}, ${SPACE_ID}, 'link', ${TOKEN}, ${maxUses}, 0)`);
 }
 
-async function readInviteUseCount(sql: SqlClient): Promise<number> {
-  const rows = await sql.query<{ use_count: number }>(
-    `SELECT ${SpaceInviteCol.useCount} AS use_count
-     FROM ${SPACE_INVITES_TABLE.tableName} WHERE ${SpaceInviteCol.id} = ?`,
-    ['invite-1']
+async function readInviteUseCount(db: SqlClient): Promise<number> {
+  const rows = await db.query<{ use_count: number }>(
+    sql`SELECT ${raw(SpaceInviteCol.useCount)} AS use_count
+     FROM ${raw(SPACE_INVITES_TABLE.tableName)} WHERE ${raw(SpaceInviteCol.id)} = ${'invite-1'}`
   );
   return Number(rows[0]?.use_count ?? -1);
 }
 
-async function readActiveMemberCount(sql: SqlClient): Promise<number> {
-  const rows = await sql.query<{ count: number }>(
-    `SELECT ${SpaceCol.activeMemberCount} AS count
-     FROM ${SPACES_TABLE.tableName} WHERE ${SpaceCol.id} = ?`,
-    [SPACE_ID]
+async function readActiveMemberCount(db: SqlClient): Promise<number> {
+  const rows = await db.query<{ count: number }>(
+    sql`SELECT ${raw(SpaceCol.activeMemberCount)} AS count
+     FROM ${raw(SPACES_TABLE.tableName)} WHERE ${raw(SpaceCol.id)} = ${SPACE_ID}`
   );
   return Number(rows[0]?.count ?? -1);
 }
@@ -123,77 +110,74 @@ function joinInput(args: {
 }
 
 describe('joinSpaceServer invite consumption', () => {
-  let sql: SqlClientImplBunSqlite;
+  let db: SqlClientImplBunSqlite;
 
   beforeEach(async () => {
-    sql = openSql();
-    await migrate(sql);
-    await seedPrivateSpace(sql);
+    db = openSql();
+    await migrate(db);
+    await seedPrivateSpace(db);
   });
 
   test('idempotent re-join by an active member does not burn an invite use', async () => {
-    await seedLinkInvite(sql, 10);
+    await seedLinkInvite(db, 10);
 
     await joinSpaceServer(
-      sql,
+      db,
       joinInput({ deviceId: DEVICE_A, accountId: ACCOUNT_A })
     );
-    expect(await readInviteUseCount(sql)).toBe(1);
-    expect(await readActiveMemberCount(sql)).toBe(1);
+    expect(await readInviteUseCount(db)).toBe(1);
+    expect(await readActiveMemberCount(db)).toBe(1);
 
     await joinSpaceServer(
-      sql,
+      db,
       joinInput({ deviceId: DEVICE_A, accountId: ACCOUNT_A })
     );
-    expect(await readInviteUseCount(sql)).toBe(1);
-    expect(await readActiveMemberCount(sql)).toBe(1);
+    expect(await readInviteUseCount(db)).toBe(1);
+    expect(await readActiveMemberCount(db)).toBe(1);
   });
 
   test('reactivating a left membership consumes a fresh invite use', async () => {
-    await seedLinkInvite(sql, 10);
+    await seedLinkInvite(db, 10);
 
     await joinSpaceServer(
-      sql,
+      db,
       joinInput({ deviceId: DEVICE_A, accountId: ACCOUNT_A })
     );
     const membershipId = spaceMembershipEntityId(ACCOUNT_A, SPACE_ID);
     const now = new Date().toISOString();
-    await sql.run(
-      `UPDATE ${SPACE_MEMBERSHIPS_TABLE.tableName}
-       SET ${SpaceMembershipCol.leftAt} = ?
-       WHERE ${SpaceMembershipCol.id} = ?`,
-      [now, membershipId]
-    );
+    await db.run(sql`UPDATE ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
+       SET ${raw(SpaceMembershipCol.leftAt)} = ${now}
+       WHERE ${raw(SpaceMembershipCol.id)} = ${membershipId}`);
 
     await joinSpaceServer(
-      sql,
+      db,
       joinInput({ deviceId: DEVICE_A, accountId: ACCOUNT_A })
     );
-    expect(await readInviteUseCount(sql)).toBe(2);
+    expect(await readInviteUseCount(db)).toBe(2);
   });
 
   test('single-use link invite cannot be over-consumed and never exceeds max', async () => {
-    await seedLinkInvite(sql, 1);
+    await seedLinkInvite(db, 1);
 
     await joinSpaceServer(
-      sql,
+      db,
       joinInput({ deviceId: DEVICE_A, accountId: ACCOUNT_A })
     );
-    expect(await readInviteUseCount(sql)).toBe(1);
+    expect(await readInviteUseCount(db)).toBe(1);
 
     await expect(
       joinSpaceServer(
-        sql,
+        db,
         joinInput({ deviceId: DEVICE_B, accountId: ACCOUNT_B })
       )
     ).rejects.toThrow();
-    expect(await readInviteUseCount(sql)).toBe(1);
+    expect(await readInviteUseCount(db)).toBe(1);
   });
 
   test('anonymous join is rejected', async () => {
-    await seedLinkInvite(sql, 10);
+    await seedLinkInvite(db, 10);
     await expect(
-      joinSpaceServer(sql, {
+      joinSpaceServer(db, {
         spaceId: SPACE_ID,
         deviceId: DEVICE_A,
         accountId: null,

@@ -1,3 +1,7 @@
+/**
+ * Interface describing the sync engine client.
+ */
+import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { SyncStatusSubscription } from './sync-status';
 import type { SyncStreamSubscription } from './sync-stream-subscription';
@@ -35,14 +39,9 @@ export type SyncEngine = {
   readonly db: SqlClient;
   /**
    * Watches a given SQL query for updates and provides a subscription handle.
-   * @template T The type of records returned by the query.
-   * @param sql The SQL query to execute and watch for changes.
-   * @param params Optional parameters for the SQL query.
-   * @returns A WatchSubscription that provides reactive snapshots of results.
    */
   watch<T extends Record<string, unknown>>(
-    sql: string,
-    params?: readonly unknown[]
+    query: Sql
   ): WatchSubscription<readonly T[]>;
   /**
    * Connects the sync engine.

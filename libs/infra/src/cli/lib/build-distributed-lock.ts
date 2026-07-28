@@ -3,6 +3,7 @@ import type { DistributedLock } from '@pkgs/distributed-lock/interface';
 import { asKeyword } from '@pkgs/keyword';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { createLogger } from '@pkgs/logger';
+import { raw } from '@pkgs/sql';
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { resolveDatabaseUrl } from '../resources/postgres';
@@ -31,8 +32,8 @@ export async function buildDistributedLock(): Promise<DistributedLockConnection>
   // wait on a row-level lock held by a peer; `statement_timeout` (4s) bounds
   // any single statement (e.g. a stuck transaction begin).
   try {
-    await sql.run("SET statement_timeout = '4s'");
-    await sql.run("SET lock_timeout = '2s'");
+    await sql.run(raw("SET statement_timeout = '4s'"));
+    await sql.run(raw("SET lock_timeout = '2s'"));
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.warn(`[infra lock] session timeouts not applied (${msg})`);

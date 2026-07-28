@@ -45,7 +45,7 @@ export const MAX_BOUND_VALUES = 32766;
 
 assert.ok(
   MAX_BOUND_VALUES >= 1,
-  'Tiger: MAX_BOUND_VALUES must allow at least one bound value'
+  'MAX_BOUND_VALUES must allow at least one bound value'
 );
 
 type FlattenedSql = {
@@ -301,9 +301,13 @@ export function bulk(
   prefix = DEFAULT_LIST_PREFIX,
   suffix = DEFAULT_LIST_SUFFIX
 ) {
-  assert.ok(data.length > 0, 'Sql: bulk([]) expected a non-empty nested array', {
-    rowCount: data.length,
-  });
+  assert.ok(
+    data.length > 0,
+    'Sql: bulk([]) expected a non-empty nested array',
+    {
+      rowCount: data.length,
+    }
+  );
 
   const first = atRawRow(data, 0);
   const columnCount = first.length;
@@ -326,10 +330,7 @@ export function bulk(
     );
   });
 
-  return new Sql(
-    listGlueStrings(rows.length, separator, prefix, suffix),
-    rows
-  );
+  return new Sql(listGlueStrings(rows.length, separator, prefix, suffix), rows);
 }
 
 function atRawRow(
@@ -357,13 +358,13 @@ export function raw(value: string) {
  */
 export const empty = raw('');
 
-assert.equals(empty.values.length, 0, 'Tiger: empty must bind no values', {
+assert.equals(empty.values.length, 0, 'empty must bind no values', {
   valuesLength: empty.values.length,
 });
-assert.equals(empty.strings.length, 1, 'Tiger: empty must be a single string', {
+assert.equals(empty.strings.length, 1, 'empty must be a single string', {
   stringsLength: empty.strings.length,
 });
-assert.equals(empty.strings[0], '', 'Tiger: empty string must be ""', {
+assert.equals(empty.strings[0], '', 'empty string must be ""', {
   strings: empty.strings,
 });
 

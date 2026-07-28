@@ -17,13 +17,15 @@
  *     that EXTENDED does on every write.
  *
  * Values are `JSONB` objects whose top-level keys are {@link Keyword}s (same
- * contract as sync entity snapshot attributes). Writes use `?::text::jsonb` so
- * Bun's `bun:sql` driver does not double-encode JSON parameters.
+ * contract as sync entity snapshot attributes). Writes cast the value
+ * parameter with `::text::jsonb` so Bun's `bun:sql` driver does not
+ * double-encode JSON parameters.
  */
 import { assert, hotAssert } from '@pkgs/assert';
 import type { Keyword } from '@pkgs/keyword/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword/keyword';
 import type { Logger } from '@pkgs/logger/logger';
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import { KvImplPostgresTx } from './impl-postgres-tx';
@@ -52,9 +54,6 @@ CREATE UNLOGGED TABLE IF NOT EXISTS ${TABLE} (
 ALTER TABLE ${TABLE} ALTER COLUMN value SET STORAGE MAIN;
 `;
 
-const ADVISORY_LOCK_SQL =
-  'SELECT pg_advisory_xact_lock(hashtext(CAST(? AS TEXT))::bigint)';
-
 /**
  * Legacy installs created `kv` without a `key` primary key (or with only NOT
  * NULL). `ON CONFLICT (key)` requires a unique/PK target — add one idempotently.
@@ -64,26 +63,24 @@ async function ensureKvPrimaryKeyOnKeyColumn(
   sqlClient: SqlClient,
   log: Logger
 ): Promise<void> {
-  const rows = await sqlClient.query<{ column_name: string }>(
-    `SELECT kcu.column_name
+  const rows = await sqlClient.query<{ column_name: string }>(sql`
+    SELECT kcu.column_name
      FROM information_schema.table_constraints tc
      JOIN information_schema.key_column_usage kcu
        ON tc.constraint_name = kcu.constraint_name
       AND tc.table_schema = kcu.table_schema
      WHERE tc.table_schema = current_schema()
-       AND tc.table_name = ?
+       AND tc.table_name = ${TABLE}
        AND tc.constraint_type IN ('PRIMARY KEY', 'UNIQUE')
-       AND kcu.column_name = 'key'`,
-    [TABLE]
-  );
+       AND kcu.column_name = 'key'`);
   assert.array(rows, 'kv migrate: key constraint query must return array');
   if (rows.length > 0) return;
   log.warn(
     'kv postgres migrate: kv.key has no unique constraint — TRUNCATE + ADD PRIMARY KEY',
     { table: TABLE }
   );
-  await sqlClient.run(`TRUNCATE ${TABLE}`);
-  await sqlClient.run(`ALTER TABLE ${TABLE} ADD PRIMARY KEY (key)`);
+  await sqlClient.run(raw(`TRUNCATE ${TABLE}`));
+  await sqlClient.run(raw(`ALTER TABLE ${TABLE} ADD PRIMARY KEY (key)`));
 }
 
 /**
@@ -98,17 +95,15 @@ async function applyKvStorageOptimizations(
   log.info('kv postgres migrate: applying storage parameters', {
     table: TABLE,
   });
-  await sqlClient.run(`ALTER TABLE ${TABLE} SET (${STORAGE_PARAMS})`);
+  await sqlClient.run(raw(`ALTER TABLE ${TABLE} SET (${STORAGE_PARAMS})`));
   await sqlClient.run(
-    `ALTER TABLE ${TABLE} ALTER COLUMN value SET STORAGE MAIN`
+    raw(`ALTER TABLE ${TABLE} ALTER COLUMN value SET STORAGE MAIN`)
   );
 
   // 'p' = permanent (logged), 'u' = unlogged, 't' = temp.
-  const rows = await sqlClient.query<{ relpersistence: string }>(
-    `SELECT relpersistence FROM pg_class
-     WHERE relname = ? AND relnamespace = current_schema()::regnamespace`,
-    [TABLE]
-  );
+  const rows = await sqlClient.query<{ relpersistence: string }>(sql`
+    SELECT relpersistence FROM pg_class
+     WHERE relname = ${TABLE} AND relnamespace = current_schema()::regnamespace`);
   assert.array(rows, 'kv migrate: pg_class lookup must return array');
   const isUnlogged = rows[0]?.relpersistence === 'u';
   if (!isUnlogged) {
@@ -116,7 +111,7 @@ async function applyKvStorageOptimizations(
       'kv postgres migrate: converting kv to UNLOGGED — data will be wiped on Postgres crash and is NOT replicated to standbys; rewrite holds ACCESS EXCLUSIVE',
       { table: TABLE }
     );
-    await sqlClient.run(`ALTER TABLE ${TABLE} SET UNLOGGED`);
+    await sqlClient.run(raw(`ALTER TABLE ${TABLE} SET UNLOGGED`));
   }
 }
 
@@ -125,10 +120,8 @@ async function runKvPostgresMigrations(
   sqlClient: SqlClient,
   log: Logger
 ): Promise<void> {
-  const existing = await sqlClient.query<{ tablename: string }>(
-    `SELECT tablename FROM pg_tables WHERE schemaname = current_schema() AND tablename = ?`,
-    [TABLE]
-  );
+  const existing = await sqlClient.query<{ tablename: string }>(sql`
+    SELECT tablename FROM pg_tables WHERE schemaname = current_schema() AND tablename = ${TABLE}`);
   if (existing.length === 0) {
     const statements = MIGRATIONS.split(';')
       .map((s) => s.trim())
@@ -138,7 +131,7 @@ async function runKvPostgresMigrations(
       statementCount: statements.length,
     });
     for (const stmt of statements) {
-      await sqlClient.run(stmt);
+      await sqlClient.run(raw(stmt));
     }
     log.info('kv postgres migrate: ddl applied', { table: TABLE });
   } else {
@@ -150,7 +143,7 @@ async function runKvPostgresMigrations(
     await ensureKvPrimaryKeyOnKeyColumn(sqlClient, log);
   }
   await applyKvStorageOptimizations(sqlClient, log);
-  await sqlClient.query(`SELECT 1 FROM ${TABLE} LIMIT 0`);
+  await sqlClient.query(raw(`SELECT 1 FROM ${TABLE} LIMIT 0`));
 }
 
 /**
@@ -198,8 +191,7 @@ export class KvImplPostgres implements Kv {
   async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
     const rows = await this.sqlClient.query<{ value: unknown }>(
-      `SELECT value FROM ${TABLE} WHERE key = ?`,
-      [key]
+      sql`SELECT value FROM ${raw(TABLE)} WHERE key = ${key}`
     );
     const first = rows[0];
     if (first === null || first === undefined) return null;
@@ -213,21 +205,21 @@ export class KvImplPostgres implements Kv {
   async put(key: Keyword, value: KvRecord): Promise<void> {
     assertKvKey(key);
     assertKvRecord(hotAssert(), value, 'kv postgres put');
-    await this.sqlClient.run(
-      `INSERT INTO ${TABLE} (key, value) VALUES (?, ?::text::jsonb)
-       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, ${LAST_MODIFIED_AT} = now()`,
-      [key, JSON.stringify(value)]
-    );
+    await this.sqlClient.run(sql`
+      INSERT INTO ${raw(TABLE)} (key, value) VALUES (${key}, ${JSON.stringify(value)}::text::jsonb)
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, ${raw(LAST_MODIFIED_AT)} = now()`);
   }
 
   async zap(key: Keyword): Promise<void> {
     assertKvKey(key);
-    await this.sqlClient.run(`DELETE FROM ${TABLE} WHERE key = ?`, [key]);
+    await this.sqlClient.run(sql`DELETE FROM ${raw(TABLE)} WHERE key = ${key}`);
   }
 
   async tx<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
     return this.sqlClient.transaction(async (sqlTx) => {
-      await sqlTx.run(ADVISORY_LOCK_SQL, ['kv']);
+      await sqlTx.run(
+        sql`SELECT pg_advisory_xact_lock(hashtext(CAST(${TABLE} AS TEXT))::bigint)`
+      );
       const adapter = new KvImplPostgresTx(sqlTx);
       return fn(adapter);
     });

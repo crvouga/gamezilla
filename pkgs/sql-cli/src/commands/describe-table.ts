@@ -1,3 +1,4 @@
+import { raw } from '@pkgs/sql';
 import { assertSqlIdentifier } from '@pkgs/sql/assert-sql-identifier';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -9,7 +10,7 @@ export async function describeTable(
 ): Promise<SqlCliResult> {
   assertSqlIdentifier(tableName, 'Invalid table name', { tableName });
   const rows = await client.query<Record<string, unknown>>(
-    `PRAGMA table_info(${tableName})`
+    raw(`PRAGMA table_info(${tableName})`)
   );
   if (rows.length === 0) {
     return { kind: 'message', message: `Table not found: ${tableName}` };

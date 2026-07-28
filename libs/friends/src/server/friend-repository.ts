@@ -8,6 +8,7 @@ import {
   USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { canonicalUserPair } from '../shared/canonical-pair';
@@ -46,99 +47,93 @@ function mapFriendRequest(row: Record<string, unknown>): FriendRequest {
 }
 
 export async function findFriendRequestById(
-  sql: SqlClient,
+  db: SqlClient,
   requestId: string
 ): Promise<FriendRequest | null> {
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT * FROM ${FRIEND_REQUESTS_TABLE.tableName}
-     WHERE ${FriendRequestCol.id} = ?
-     LIMIT 1`,
-    [requestId]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${raw(FriendRequestCol.id)} = ${requestId}
+    LIMIT 1
+  `);
   const row = rows[0];
   return row === undefined ? null : mapFriendRequest(row);
 }
 
 export async function findPendingRequestBetween(
-  sql: SqlClient,
+  db: SqlClient,
   fromUserId: string,
   toUserId: string
 ): Promise<FriendRequest | null> {
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT * FROM ${FRIEND_REQUESTS_TABLE.tableName}
-     WHERE ${FriendRequestCol.fromUserId} = ?
-       AND ${FriendRequestCol.toUserId} = ?
-       AND ${FriendRequestCol.status} = 'pending'
-     LIMIT 1`,
-    [fromUserId, toUserId]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${raw(FriendRequestCol.fromUserId)} = ${fromUserId}
+      AND ${raw(FriendRequestCol.toUserId)} = ${toUserId}
+      AND ${raw(FriendRequestCol.status)} = 'pending'
+    LIMIT 1
+  `);
   const row = rows[0];
   return row === undefined ? null : mapFriendRequest(row);
 }
 
 export async function findPendingRequestsBetweenPair(
-  sql: SqlClient,
+  db: SqlClient,
   userA: string,
   userB: string
 ): Promise<readonly FriendRequest[]> {
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT * FROM ${FRIEND_REQUESTS_TABLE.tableName}
-     WHERE ${FriendRequestCol.status} = 'pending'
-       AND (
-         (${FriendRequestCol.fromUserId} = ? AND ${FriendRequestCol.toUserId} = ?)
-         OR (${FriendRequestCol.fromUserId} = ? AND ${FriendRequestCol.toUserId} = ?)
-       )`,
-    [userA, userB, userB, userA]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${raw(FriendRequestCol.status)} = 'pending'
+      AND (
+        (${raw(FriendRequestCol.fromUserId)} = ${userA} AND ${raw(FriendRequestCol.toUserId)} = ${userB})
+        OR (${raw(FriendRequestCol.fromUserId)} = ${userB} AND ${raw(FriendRequestCol.toUserId)} = ${userA})
+      )
+  `);
   return rows.map(mapFriendRequest);
 }
 
 export async function findLatestDeclinedRequestBetween(
-  sql: SqlClient,
+  db: SqlClient,
   fromUserId: string,
   toUserId: string
 ): Promise<FriendRequest | null> {
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT * FROM ${FRIEND_REQUESTS_TABLE.tableName}
-     WHERE ${FriendRequestCol.fromUserId} = ?
-       AND ${FriendRequestCol.toUserId} = ?
-       AND ${FriendRequestCol.status} = 'declined'
-     ORDER BY ${FriendRequestCol.respondedAt} DESC NULLS LAST
-     LIMIT 1`,
-    [fromUserId, toUserId]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${raw(FriendRequestCol.fromUserId)} = ${fromUserId}
+      AND ${raw(FriendRequestCol.toUserId)} = ${toUserId}
+      AND ${raw(FriendRequestCol.status)} = 'declined'
+    ORDER BY ${raw(FriendRequestCol.respondedAt)} DESC NULLS LAST
+    LIMIT 1
+  `);
   const row = rows[0];
   return row === undefined ? null : mapFriendRequest(row);
 }
 
 export async function friendshipExists(
-  sql: SqlClient,
+  db: SqlClient,
   userA: string,
   userB: string
 ): Promise<boolean> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT 1 AS ok FROM ${FRIENDSHIPS_TABLE.tableName}
-     WHERE ${FriendshipCol.userLow} = ? AND ${FriendshipCol.userHigh} = ?
-     LIMIT 1`,
-    [userLow, userHigh]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT 1 AS ok FROM ${raw(FRIENDSHIPS_TABLE.tableName)}
+    WHERE ${raw(FriendshipCol.userLow)} = ${userLow} AND ${raw(FriendshipCol.userHigh)} = ${userHigh}
+    LIMIT 1
+  `);
   return rows.length > 0;
 }
 
 export async function isBlockedEitherDirection(
-  sql: SqlClient,
+  db: SqlClient,
   userA: string,
   userB: string
 ): Promise<'none' | 'by_a' | 'by_b'> {
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT ${UserBlockCol.blockerId}, ${UserBlockCol.blockedId}
-     FROM ${USER_BLOCKS_TABLE.tableName}
-     WHERE (${UserBlockCol.blockerId} = ? AND ${UserBlockCol.blockedId} = ?)
-        OR (${UserBlockCol.blockerId} = ? AND ${UserBlockCol.blockedId} = ?)
-     LIMIT 1`,
-    [userA, userB, userB, userA]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT ${raw(UserBlockCol.blockerId)}, ${raw(UserBlockCol.blockedId)}
+    FROM ${raw(USER_BLOCKS_TABLE.tableName)}
+    WHERE (${raw(UserBlockCol.blockerId)} = ${userA} AND ${raw(UserBlockCol.blockedId)} = ${userB})
+       OR (${raw(UserBlockCol.blockerId)} = ${userB} AND ${raw(UserBlockCol.blockedId)} = ${userA})
+    LIMIT 1
+  `);
   const row = rows[0];
   if (row === undefined) return 'none';
   const blockerId = readString(row, UserBlockCol.blockerId);
@@ -147,7 +142,7 @@ export async function isBlockedEitherDirection(
 }
 
 export async function insertFriendRequest(
-  sql: SqlClient,
+  db: SqlClient,
   args: {
     readonly id: string;
     readonly fromUserId: string;
@@ -156,15 +151,14 @@ export async function insertFriendRequest(
     readonly now: string;
   }
 ): Promise<FriendRequest> {
-  await sql.run(
-    `INSERT INTO ${FRIEND_REQUESTS_TABLE.tableName}
-     (${FriendRequestCol.id}, ${FriendRequestCol.fromUserId}, ${FriendRequestCol.toUserId},
-      ${FriendRequestCol.status}, ${FriendRequestCol.message},
-      ${FriendRequestCol.createdAt}, ${FriendRequestCol.updatedAt})
-     VALUES (?, ?, ?, 'pending', ?, ?, ?)`,
-    [args.id, args.fromUserId, args.toUserId, args.message, args.now, args.now]
-  );
-  const created = await findFriendRequestById(sql, args.id);
+  await db.run(sql`
+    INSERT INTO ${raw(FRIEND_REQUESTS_TABLE.tableName)}
+    (${raw(FriendRequestCol.id)}, ${raw(FriendRequestCol.fromUserId)}, ${raw(FriendRequestCol.toUserId)},
+     ${raw(FriendRequestCol.status)}, ${raw(FriendRequestCol.message)},
+     ${raw(FriendRequestCol.createdAt)}, ${raw(FriendRequestCol.updatedAt)})
+    VALUES (${args.id}, ${args.fromUserId}, ${args.toUserId}, 'pending', ${args.message}, ${args.now}, ${args.now})
+  `);
+  const created = await findFriendRequestById(db, args.id);
   if (created === null) {
     throw new Error('friend request insert failed');
   }
@@ -172,43 +166,41 @@ export async function insertFriendRequest(
 }
 
 export async function markFriendRequestStatus(
-  sql: SqlClient,
+  db: SqlClient,
   requestId: string,
   status: FriendRequestStatus,
   now: string
 ): Promise<void> {
-  await sql.run(
-    `UPDATE ${FRIEND_REQUESTS_TABLE.tableName}
-     SET ${FriendRequestCol.status} = ?,
-         ${FriendRequestCol.updatedAt} = ?,
-         ${FriendRequestCol.respondedAt} = ?
-     WHERE ${FriendRequestCol.id} = ?`,
-    [status, now, now, requestId]
-  );
+  await db.run(sql`
+    UPDATE ${raw(FRIEND_REQUESTS_TABLE.tableName)}
+    SET ${raw(FriendRequestCol.status)} = ${status},
+        ${raw(FriendRequestCol.updatedAt)} = ${now},
+        ${raw(FriendRequestCol.respondedAt)} = ${now}
+    WHERE ${raw(FriendRequestCol.id)} = ${requestId}
+  `);
 }
 
 export async function cancelPendingRequestsBetween(
-  sql: SqlClient,
+  db: SqlClient,
   userA: string,
   userB: string,
   now: string
 ): Promise<void> {
-  await sql.run(
-    `UPDATE ${FRIEND_REQUESTS_TABLE.tableName}
-     SET ${FriendRequestCol.status} = 'cancelled',
-         ${FriendRequestCol.updatedAt} = ?,
-         ${FriendRequestCol.respondedAt} = ?
-     WHERE ${FriendRequestCol.status} = 'pending'
-       AND (
-         (${FriendRequestCol.fromUserId} = ? AND ${FriendRequestCol.toUserId} = ?)
-         OR (${FriendRequestCol.fromUserId} = ? AND ${FriendRequestCol.toUserId} = ?)
-       )`,
-    [now, now, userA, userB, userB, userA]
-  );
+  await db.run(sql`
+    UPDATE ${raw(FRIEND_REQUESTS_TABLE.tableName)}
+    SET ${raw(FriendRequestCol.status)} = 'cancelled',
+        ${raw(FriendRequestCol.updatedAt)} = ${now},
+        ${raw(FriendRequestCol.respondedAt)} = ${now}
+    WHERE ${raw(FriendRequestCol.status)} = 'pending'
+      AND (
+        (${raw(FriendRequestCol.fromUserId)} = ${userA} AND ${raw(FriendRequestCol.toUserId)} = ${userB})
+        OR (${raw(FriendRequestCol.fromUserId)} = ${userB} AND ${raw(FriendRequestCol.toUserId)} = ${userA})
+      )
+  `);
 }
 
 export async function insertFriendship(
-  sql: SqlClient,
+  db: SqlClient,
   args: {
     readonly userA: string;
     readonly userB: string;
@@ -217,64 +209,54 @@ export async function insertFriendship(
   }
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
-  await sql.run(
-    `INSERT INTO ${FRIENDSHIPS_TABLE.tableName}
-     (${FriendshipCol.id}, ${FriendshipCol.userLow}, ${FriendshipCol.userHigh},
-      ${FriendshipCol.createdAt}, ${FriendshipCol.sourceRequestId})
-     VALUES (?, ?, ?, ?, ?)
-     ON CONFLICT (${FriendshipCol.userLow}, ${FriendshipCol.userHigh}) DO NOTHING`,
-    [
-      pairId(userLow, userHigh),
-      userLow,
-      userHigh,
-      args.now,
-      args.sourceRequestId,
-    ]
-  );
+  await db.run(sql`
+    INSERT INTO ${raw(FRIENDSHIPS_TABLE.tableName)}
+    (${raw(FriendshipCol.id)}, ${raw(FriendshipCol.userLow)}, ${raw(FriendshipCol.userHigh)},
+     ${raw(FriendshipCol.createdAt)}, ${raw(FriendshipCol.sourceRequestId)})
+    VALUES (${pairId(userLow, userHigh)}, ${userLow}, ${userHigh}, ${args.now}, ${args.sourceRequestId})
+    ON CONFLICT (${raw(FriendshipCol.userLow)}, ${raw(FriendshipCol.userHigh)}) DO NOTHING
+  `);
 }
 
 export async function deleteFriendship(
-  sql: SqlClient,
+  db: SqlClient,
   userA: string,
   userB: string
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  await sql.run(
-    `DELETE FROM ${FRIENDSHIPS_TABLE.tableName}
-     WHERE ${FriendshipCol.userLow} = ? AND ${FriendshipCol.userHigh} = ?`,
-    [userLow, userHigh]
-  );
+  await db.run(sql`
+    DELETE FROM ${raw(FRIENDSHIPS_TABLE.tableName)}
+    WHERE ${raw(FriendshipCol.userLow)} = ${userLow} AND ${raw(FriendshipCol.userHigh)} = ${userHigh}
+  `);
 }
 
 export async function insertBlock(
-  sql: SqlClient,
+  db: SqlClient,
   blockerId: string,
   blockedId: string,
   now: string
 ): Promise<void> {
-  await sql.run(
-    `INSERT INTO ${USER_BLOCKS_TABLE.tableName}
-     (${UserBlockCol.id}, ${UserBlockCol.blockerId}, ${UserBlockCol.blockedId}, ${UserBlockCol.createdAt})
-     VALUES (?, ?, ?, ?)
-     ON CONFLICT (${UserBlockCol.blockerId}, ${UserBlockCol.blockedId}) DO NOTHING`,
-    [pairId(blockerId, blockedId), blockerId, blockedId, now]
-  );
+  await db.run(sql`
+    INSERT INTO ${raw(USER_BLOCKS_TABLE.tableName)}
+    (${raw(UserBlockCol.id)}, ${raw(UserBlockCol.blockerId)}, ${raw(UserBlockCol.blockedId)}, ${raw(UserBlockCol.createdAt)})
+    VALUES (${pairId(blockerId, blockedId)}, ${blockerId}, ${blockedId}, ${now})
+    ON CONFLICT (${raw(UserBlockCol.blockerId)}, ${raw(UserBlockCol.blockedId)}) DO NOTHING
+  `);
 }
 
 export async function deleteBlock(
-  sql: SqlClient,
+  db: SqlClient,
   blockerId: string,
   blockedId: string
 ): Promise<void> {
-  await sql.run(
-    `DELETE FROM ${USER_BLOCKS_TABLE.tableName}
-     WHERE ${UserBlockCol.blockerId} = ? AND ${UserBlockCol.blockedId} = ?`,
-    [blockerId, blockedId]
-  );
+  await db.run(sql`
+    DELETE FROM ${raw(USER_BLOCKS_TABLE.tableName)}
+    WHERE ${raw(UserBlockCol.blockerId)} = ${blockerId} AND ${raw(UserBlockCol.blockedId)} = ${blockedId}
+  `);
 }
 
 export async function upsertFriendProfileCache(
-  sql: SqlClient,
+  db: SqlClient,
   args: {
     readonly ownerId: string;
     readonly friendId: string;
@@ -283,68 +265,58 @@ export async function upsertFriendProfileCache(
     readonly now: string;
   }
 ): Promise<void> {
-  await sql.run(
-    `INSERT INTO ${FRIEND_PROFILE_CACHE_TABLE.tableName}
-     (${FriendProfileCacheCol.id}, ${FriendProfileCacheCol.ownerId}, ${FriendProfileCacheCol.friendId},
-      ${FriendProfileCacheCol.username},
-      ${FriendProfileCacheCol.avatarConfig}, ${FriendProfileCacheCol.updatedAt})
-     VALUES (?, ?, ?, ?, ?, ?)
-     ON CONFLICT (${FriendProfileCacheCol.ownerId}, ${FriendProfileCacheCol.friendId}) DO UPDATE SET
-       ${FriendProfileCacheCol.username} = excluded.${FriendProfileCacheCol.username},
-       ${FriendProfileCacheCol.avatarConfig} = excluded.${FriendProfileCacheCol.avatarConfig},
-       ${FriendProfileCacheCol.updatedAt} = excluded.${FriendProfileCacheCol.updatedAt}`,
-    [
-      pairId(args.ownerId, args.friendId),
-      args.ownerId,
-      args.friendId,
-      args.username,
-      args.avatarConfig,
-      args.now,
-    ]
-  );
+  await db.run(sql`
+    INSERT INTO ${raw(FRIEND_PROFILE_CACHE_TABLE.tableName)}
+    (${raw(FriendProfileCacheCol.id)}, ${raw(FriendProfileCacheCol.ownerId)}, ${raw(FriendProfileCacheCol.friendId)},
+     ${raw(FriendProfileCacheCol.username)},
+     ${raw(FriendProfileCacheCol.avatarConfig)}, ${raw(FriendProfileCacheCol.updatedAt)})
+    VALUES (${pairId(args.ownerId, args.friendId)}, ${args.ownerId}, ${args.friendId}, ${args.username}, ${args.avatarConfig}, ${args.now})
+    ON CONFLICT (${raw(FriendProfileCacheCol.ownerId)}, ${raw(FriendProfileCacheCol.friendId)}) DO UPDATE SET
+      ${raw(FriendProfileCacheCol.username)} = excluded.${raw(FriendProfileCacheCol.username)},
+      ${raw(FriendProfileCacheCol.avatarConfig)} = excluded.${raw(FriendProfileCacheCol.avatarConfig)},
+      ${raw(FriendProfileCacheCol.updatedAt)} = excluded.${raw(FriendProfileCacheCol.updatedAt)}
+  `);
 }
 
 export async function deleteFriendProfileCachePair(
-  sql: SqlClient,
+  db: SqlClient,
   userA: string,
   userB: string
 ): Promise<void> {
-  await sql.run(
-    `DELETE FROM ${FRIEND_PROFILE_CACHE_TABLE.tableName}
-     WHERE (${FriendProfileCacheCol.ownerId} = ? AND ${FriendProfileCacheCol.friendId} = ?)
-        OR (${FriendProfileCacheCol.ownerId} = ? AND ${FriendProfileCacheCol.friendId} = ?)`,
-    [userA, userB, userB, userA]
-  );
+  await db.run(sql`
+    DELETE FROM ${raw(FRIEND_PROFILE_CACHE_TABLE.tableName)}
+    WHERE (${raw(FriendProfileCacheCol.ownerId)} = ${userA} AND ${raw(FriendProfileCacheCol.friendId)} = ${userB})
+       OR (${raw(FriendProfileCacheCol.ownerId)} = ${userB} AND ${raw(FriendProfileCacheCol.friendId)} = ${userA})
+  `);
 }
 
 export async function listMutualFriendIds(
-  sql: SqlClient,
+  db: SqlClient,
   viewerId: string,
   targetUserId: string
 ): Promise<readonly string[]> {
-  const rows = await sql.query<Record<string, unknown>>(
-    `WITH my_friends AS (
-       SELECT CASE
-         WHEN ${FriendshipCol.userLow} = ? THEN ${FriendshipCol.userHigh}
-         ELSE ${FriendshipCol.userLow}
-       END AS friend_id
-       FROM ${FRIENDSHIPS_TABLE.tableName}
-       WHERE ${FriendshipCol.userLow} = ? OR ${FriendshipCol.userHigh} = ?
-     ),
-     their_friends AS (
-       SELECT CASE
-         WHEN ${FriendshipCol.userLow} = ? THEN ${FriendshipCol.userHigh}
-         ELSE ${FriendshipCol.userLow}
-       END AS friend_id
-       FROM ${FRIENDSHIPS_TABLE.tableName}
-       WHERE ${FriendshipCol.userLow} = ? OR ${FriendshipCol.userHigh} = ?
-     )
-     SELECT mf.friend_id
-     FROM my_friends mf
-     INNER JOIN their_friends tf ON mf.friend_id = tf.friend_id
-     LIMIT 50`,
-    [viewerId, viewerId, viewerId, targetUserId, targetUserId, targetUserId]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    WITH my_friends AS (
+      SELECT CASE
+        WHEN ${raw(FriendshipCol.userLow)} = ${viewerId} THEN ${raw(FriendshipCol.userHigh)}
+        ELSE ${raw(FriendshipCol.userLow)}
+      END AS friend_id
+      FROM ${raw(FRIENDSHIPS_TABLE.tableName)}
+      WHERE ${raw(FriendshipCol.userLow)} = ${viewerId} OR ${raw(FriendshipCol.userHigh)} = ${viewerId}
+    ),
+    their_friends AS (
+      SELECT CASE
+        WHEN ${raw(FriendshipCol.userLow)} = ${targetUserId} THEN ${raw(FriendshipCol.userHigh)}
+        ELSE ${raw(FriendshipCol.userLow)}
+      END AS friend_id
+      FROM ${raw(FRIENDSHIPS_TABLE.tableName)}
+      WHERE ${raw(FriendshipCol.userLow)} = ${targetUserId} OR ${raw(FriendshipCol.userHigh)} = ${targetUserId}
+    )
+    SELECT mf.friend_id
+    FROM my_friends mf
+    INNER JOIN their_friends tf ON mf.friend_id = tf.friend_id
+    LIMIT 50
+  `);
   return rows
     .map((row) => readString(row, 'friend_id'))
     .filter((id) => id.length > 0);

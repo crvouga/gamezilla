@@ -14,15 +14,19 @@ queue, the candidate scan, the pairing, and the sweep.
 
 ```ts
 import { Matchmaking, createAttrNamespace } from '@pkgs/matchmaking';
-import { Pool } from 'pg';
+import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const { sqlClient } = createPgPool({
+  connectionString: process.env.DATABASE_URL,
+  dbScope: { schema: 'public' },
+});
 
 const ns = createAttrNamespace('chess');
 const rating = ns('rating', (v) => (typeof v === 'number' ? v : 0));
 const mode = ns('mode', (v) => (typeof v === 'string' ? v : 'casual'));
 
-const mm = Matchmaking.fromPool(pool, {
+const mm = new Matchmaking({
+  storage: { sqlClient },
   schema: {
     partitionKeys: ['chess/mode'],
     primaryNumericKey: 'chess/rating',
@@ -82,13 +86,12 @@ import {
   type WaitingStatus,
 } from '@pkgs/matchmaking';
 
-// 2. SqlClient + adapters for embedders that thread their own per-
-//    request client (instead of using `Matchmaking.fromPool`).
+// 2. The `@pkgs/sql-client` SqlClient type + the PGlite test adapter.
+//    Production embedders build a SqlClient via `@pkgs/sql-client`
+//    (e.g. `createPgPool`) and pass it through `storage.sqlClient`.
 import {
-  createPgSqlClient,
   createPgliteSqlClient,
   type SqlClient,
-  type QueryResult,
 } from '@pkgs/matchmaking/storage';
 
 // 3. Wire-format types for HTTP consumers that validate JSON
@@ -112,8 +115,8 @@ The `Matchmaking` class exposes seven methods:
 - `mm.app({ requireAuth })` — mount the Hono sub-app at any route.
 - `await mm.tick(opts?)` — manual queue advancement (cron does this in production).
 
-Plus the static `Matchmaking.fromPool(pool, opts)` factory for the
-one-line `pg.Pool` boot.
+Construct with `new Matchmaking({ storage: { sqlClient }, schema })`,
+passing any `@pkgs/sql-client` `SqlClient` (e.g. from `createPgPool`).
 
 ---
 

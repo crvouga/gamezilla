@@ -3,6 +3,7 @@ import {
   CHESS_PUZZLES_TABLE,
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
+import { empty, raw, sql, type Sql } from '@pkgs/sql';
 import { PUZZLE_RATING_BAND_SIZE } from '../../shared/chess-puzzle-feed-config';
 
 export { chessPuzzleSyncRatingBands } from '../../shared/chess-puzzle-feed-config';
@@ -33,31 +34,27 @@ export type BuildPuzzleCandidatesSqlArgs = {
   readonly pickOffset?: number;
 };
 
-export function buildPuzzleCandidatesSql(args: BuildPuzzleCandidatesSqlArgs): {
-  readonly sql: string;
-  readonly params: readonly unknown[];
-} {
+export function buildPuzzleCandidatesSql(
+  args: BuildPuzzleCandidatesSqlArgs
+): Sql {
   const pickOffset = args.pickOffset ?? 0;
-  const params: unknown[] = [];
-  let sql = `SELECT id, rating FROM ${CHESS_PUZZLES_TABLE.tableName} WHERE 1=1`;
-  if (args.halfWindow !== null) {
-    sql += ' AND rating >= ? AND rating <= ?';
-    params.push(
-      Math.max(0, args.rating - args.halfWindow),
-      args.rating + args.halfWindow
-    );
-  }
-  if (args.ownerId.length > 0) {
-    sql += ` AND id NOT IN (SELECT ${ChessPuzzleInteractionCol.puzzleId} FROM ${CHESS_PUZZLE_INTERACTIONS_TABLE.tableName} WHERE ${ChessPuzzleInteractionCol.ownerId} = ?)`;
-    params.push(args.ownerId);
-  }
-  if (args.currentPuzzleId !== null && args.currentPuzzleId.length > 0) {
-    sql += ' AND id != ?';
-    params.push(args.currentPuzzleId);
-  }
-  sql += ' ORDER BY popularity DESC LIMIT ? OFFSET ?';
-  params.push(PUZZLE_CANDIDATE_LIMIT, pickOffset);
-  return { sql, params };
+  const ratingFilter =
+    args.halfWindow !== null
+      ? sql`AND rating >= ${Math.max(0, args.rating - args.halfWindow)} AND rating <= ${args.rating + args.halfWindow}`
+      : empty;
+  const ownerFilter =
+    args.ownerId.length > 0
+      ? sql`AND id NOT IN (SELECT ${raw(ChessPuzzleInteractionCol.puzzleId)} FROM ${raw(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)} WHERE ${raw(ChessPuzzleInteractionCol.ownerId)} = ${args.ownerId})`
+      : empty;
+  const currentPuzzleFilter =
+    args.currentPuzzleId !== null && args.currentPuzzleId.length > 0
+      ? sql`AND id != ${args.currentPuzzleId}`
+      : empty;
+  return sql`SELECT id, rating FROM ${raw(CHESS_PUZZLES_TABLE.tableName)} WHERE 1=1
+    ${ratingFilter}
+    ${ownerFilter}
+    ${currentPuzzleFilter}
+    ORDER BY popularity DESC LIMIT ${PUZZLE_CANDIDATE_LIMIT} OFFSET ${pickOffset}`;
 }
 
 export function pickPuzzleIdFromPool(args: {

@@ -1,12 +1,12 @@
-import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import {
   ENTITY_STORE_NAMESPACE_AUTH,
   ENTITY_STORE_TABLE,
   ENTITY_STORE_TYPE_USER,
 } from '@libs/db/shared/entity-store-table';
+import { raw, sql } from '@pkgs/sql';
+import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
-import { useAuthClientPort } from './auth-client-provider';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
@@ -16,6 +16,7 @@ import {
   parseEntityStoreData,
   type LinkedProviderSources,
 } from '../shared/linked-account-providers';
+import { useAuthClientPort } from './auth-client-provider';
 
 type PrimaryAuthExternalAccountRow = {
   readonly external_id: string | null;
@@ -28,8 +29,8 @@ type AuthEntityStoreRow = {
   readonly created_at: string | null;
 };
 
-function readNonEmptyString(raw: unknown): string | null {
-  return typeof raw === 'string' && raw.length > 0 ? raw : null;
+function readNonEmptyString(value: unknown): string | null {
+  return typeof value === 'string' && value.length > 0 ? value : null;
 }
 
 function buildSourcesFromRows(args: {
@@ -70,29 +71,31 @@ export function useLinkedProviderSources(
   const { row: authExternalAccountRow } =
     useWatchOne<PrimaryAuthExternalAccountRow>(
       accountId === null
-        ? `SELECT ${ExternalAccountCol.externalId} AS external_id,
-                ${ExternalAccountCol.metadata} AS metadata,
-                ${ExternalAccountCol.createdAt} AS created_at
-         FROM ${EXTERNAL_ACCOUNTS_TABLE} WHERE 0`
-        : `SELECT ${ExternalAccountCol.externalId} AS external_id,
-                ${ExternalAccountCol.metadata} AS metadata,
-                ${ExternalAccountCol.createdAt} AS created_at
-         FROM ${EXTERNAL_ACCOUNTS_TABLE}
-         WHERE ${ExternalAccountCol.userId} = ?
-           AND ${ExternalAccountCol.provider} = ?
-         LIMIT 1`,
-      accountId === null ? [] : [accountId, primaryAuthProvider]
+        ? sql`
+            SELECT ${raw(ExternalAccountCol.externalId)} AS external_id,
+                   ${raw(ExternalAccountCol.metadata)} AS metadata,
+                   ${raw(ExternalAccountCol.createdAt)} AS created_at
+            FROM ${raw(EXTERNAL_ACCOUNTS_TABLE)} WHERE 0
+          `
+        : sql`
+            SELECT ${raw(ExternalAccountCol.externalId)} AS external_id,
+                   ${raw(ExternalAccountCol.metadata)} AS metadata,
+                   ${raw(ExternalAccountCol.createdAt)} AS created_at
+            FROM ${raw(EXTERNAL_ACCOUNTS_TABLE)}
+            WHERE ${raw(ExternalAccountCol.userId)} = ${accountId}
+              AND ${raw(ExternalAccountCol.provider)} = ${primaryAuthProvider}
+            LIMIT 1
+          `
     );
 
   const { row: entityRow } = useWatchOne<AuthEntityStoreRow>(
     accountId === null
-      ? `SELECT data, created_at FROM ${ENTITY_STORE_TABLE} WHERE 0`
-      : `SELECT data, created_at FROM ${ENTITY_STORE_TABLE}
-         WHERE namespace = ? AND type = ? AND owner_id = ?
-         LIMIT 1`,
-    accountId === null
-      ? []
-      : [ENTITY_STORE_NAMESPACE_AUTH, ENTITY_STORE_TYPE_USER, accountId]
+      ? sql`SELECT data, created_at FROM ${raw(ENTITY_STORE_TABLE)} WHERE 0`
+      : sql`
+          SELECT data, created_at FROM ${raw(ENTITY_STORE_TABLE)}
+          WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER} AND owner_id = ${accountId}
+          LIMIT 1
+        `
   );
 
   return useMemo((): LinkedProviderSources | null => {

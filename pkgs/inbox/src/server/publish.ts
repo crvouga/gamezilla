@@ -1,10 +1,15 @@
+import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { Interaction } from '../shared/interaction';
 import { buildInteractionId } from '../shared/interaction-id';
 import { InboxError } from '../shared/inbox-errors';
 import { rowToInteraction } from './row-mapper';
-import { buildUpsertParams, findById, findBySource } from './publish-helpers';
+import {
+  findById,
+  findBySource,
+  upsertInteractionSql,
+} from './publish-helpers';
 import type {
   DeactivateInteractionInput,
   PublishInteractionInput,
@@ -12,47 +17,14 @@ import type {
 } from './types';
 
 export async function publishInteraction(
-  sql: SqlClient,
+  db: SqlClient,
   input: PublishInteractionInput
 ): Promise<Interaction> {
   const now = new Date().toISOString();
-  const params = buildUpsertParams(input, now);
-  await sql.run(
-    `INSERT INTO inbox_interactions (
-      id, user_id, source_namespace, source_type, source_id,
-      category, priority, group_key, title, subtitle, body,
-      icon_key, avatar_fallback_label, avatar_config,
-      deep_link_path, deep_link_params, actions, payload,
-      expires_at, active, created_at, updated_at
-    ) VALUES (
-      ?, ?, ?, ?, ?,
-      ?, ?, ?, ?, ?, ?,
-      ?, ?, ?,
-      ?, ?::jsonb, ?::jsonb, ?::jsonb,
-      ?, ?, ?, ?
-    )
-    ON CONFLICT (id) DO UPDATE SET
-      category = EXCLUDED.category,
-      priority = EXCLUDED.priority,
-      group_key = EXCLUDED.group_key,
-      title = EXCLUDED.title,
-      subtitle = EXCLUDED.subtitle,
-      body = EXCLUDED.body,
-      icon_key = EXCLUDED.icon_key,
-      avatar_fallback_label = EXCLUDED.avatar_fallback_label,
-      avatar_config = EXCLUDED.avatar_config,
-      deep_link_path = EXCLUDED.deep_link_path,
-      deep_link_params = EXCLUDED.deep_link_params,
-      actions = EXCLUDED.actions,
-      payload = EXCLUDED.payload,
-      expires_at = EXCLUDED.expires_at,
-      active = true,
-      updated_at = EXCLUDED.updated_at`,
-    params
-  );
+  await db.run(upsertInteractionSql(input, now));
 
   const row = await findById(
-    sql,
+    db,
     buildInteractionId(input.source, input.userId)
   );
   if (row === null) {
@@ -62,52 +34,44 @@ export async function publishInteraction(
 }
 
 export async function updateInteraction(
-  sql: SqlClient,
+  db: SqlClient,
   input: UpdateInteractionInput
 ): Promise<Interaction> {
-  return publishInteraction(sql, input);
+  return publishInteraction(db, input);
 }
 
 export async function deactivateInteraction(
-  sql: SqlClient,
+  db: SqlClient,
   input: DeactivateInteractionInput
 ): Promise<void> {
   const now = new Date().toISOString();
-  await sql.run(
-    `UPDATE inbox_interactions
-     SET active = false, updated_at = ?
-     WHERE user_id = ?
-       AND source_namespace = ?
-       AND source_type = ?
-       AND source_id = ?`,
-    [
-      now,
-      input.userId,
-      input.source.namespace,
-      input.source.type,
-      input.source.id,
-    ]
-  );
+  await db.run(sql`
+    UPDATE inbox_interactions
+     SET active = false, updated_at = ${now}
+     WHERE user_id = ${input.userId}
+       AND source_namespace = ${input.source.namespace}
+       AND source_type = ${input.source.type}
+       AND source_id = ${input.source.id}`);
 }
 
 export async function findInteractionById(
-  sql: SqlClient,
+  db: SqlClient,
   actorId: string,
   interactionId: string
 ): Promise<Interaction | null> {
-  const row = await findById(sql, interactionId);
+  const row = await findById(db, interactionId);
   if (row === null || row.user_id !== actorId) return null;
   return rowToInteraction(row);
 }
 
 export async function findInteractionBySource(
-  sql: SqlClient,
+  db: SqlClient,
   lookup: {
     readonly userId: string;
     readonly source: PublishInteractionInput['source'];
   }
 ): Promise<Interaction | null> {
-  const row = await findBySource(sql, {
+  const row = await findBySource(db, {
     userId: lookup.userId,
     ...lookup.source,
   });

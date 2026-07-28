@@ -1,4 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
@@ -18,12 +19,12 @@ export type EnsureProfileLocalInput = {
 type ProfileRow = Record<string, unknown>;
 
 function parseEnsureProfileLocalInput(
-  raw: unknown
+  input: unknown
 ): ReturnType<typeof ok<EnsureProfileLocalInput>> | ReturnType<typeof fail> {
-  if (raw === null || typeof raw !== 'object') {
+  if (input === null || typeof input !== 'object') {
     return fail('INVALID_INPUT', 'ensure profile input must be an object');
   }
-  const record = raw as Record<string, unknown>;
+  const record = input as Record<string, unknown>;
   const profileId = record['profileId'];
   if (typeof profileId !== 'string' || profileId.length === 0) {
     return fail('INVALID_INPUT', 'profileId is required');
@@ -53,54 +54,48 @@ function hasAvatarConfig(row: ProfileRow | undefined): boolean {
   return parseAvatarConfig(row[ProfileCol.avatarConfig]) !== null;
 }
 
-async function backfillAvatar(
-  sql: SqlClient,
-  profileId: string
-): Promise<void> {
-  await sql.run(
-    `UPDATE ${PROFILES_TABLE.tableName}
-     SET ${ProfileCol.avatarConfig} = ?
-     WHERE ${ProfileCol.id} = ?`,
-    [serializeDefaultAvatarConfig(profileId), profileId]
-  );
+async function backfillAvatar(db: SqlClient, profileId: string): Promise<void> {
+  await db.run(sql`
+    UPDATE ${raw(PROFILES_TABLE.tableName)}
+    SET ${raw(ProfileCol.avatarConfig)} = ${serializeDefaultAvatarConfig(profileId)}
+    WHERE ${raw(ProfileCol.id)} = ${profileId}
+  `);
 }
 
 async function insertProfileSeed(
-  sql: SqlClient,
+  db: SqlClient,
   profileId: string
 ): Promise<void> {
   const now = new Date().toISOString();
-  await sql.run(
-    `INSERT INTO ${PROFILES_TABLE.tableName}
-     (${ProfileCol.id}, ${ProfileCol.createdAt}, ${ProfileCol.username}, ${ProfileCol.avatarConfig})
-     VALUES (?, ?, ?, ?)`,
-    [profileId, now, '', serializeDefaultAvatarConfig(profileId)]
-  );
+  await db.run(sql`
+    INSERT INTO ${raw(PROFILES_TABLE.tableName)}
+    (${raw(ProfileCol.id)}, ${raw(ProfileCol.createdAt)}, ${raw(ProfileCol.username)}, ${raw(ProfileCol.avatarConfig)})
+    VALUES (${profileId}, ${now}, '', ${serializeDefaultAvatarConfig(profileId)})
+  `);
 }
 
 async function fillEmptyUsername(
-  sql: SqlClient,
+  db: SqlClient,
   profileId: string,
   username: string
 ): Promise<void> {
   // Fill empty, or replace an auto-assigned name that does not match ensure
   // (e.g. a raced apply from another account's token). Never overwrite a
   // user-chosen username (`username_changed_at` set).
-  await sql.run(
-    `UPDATE ${PROFILES_TABLE.tableName}
-     SET ${ProfileCol.username} = ?
-     WHERE ${ProfileCol.id} = ?
-       AND (
-         ${ProfileCol.username} = ''
-         OR ${ProfileCol.username} IS NULL
-         OR (
-           (${ProfileCol.usernameChangedAt} IS NULL
-             OR ${ProfileCol.usernameChangedAt} = '')
-           AND ${ProfileCol.username} != ?
-         )
-       )`,
-    [username, profileId, username]
-  );
+  await db.run(sql`
+    UPDATE ${raw(PROFILES_TABLE.tableName)}
+    SET ${raw(ProfileCol.username)} = ${username}
+    WHERE ${raw(ProfileCol.id)} = ${profileId}
+      AND (
+        ${raw(ProfileCol.username)} = ''
+        OR ${raw(ProfileCol.username)} IS NULL
+        OR (
+          (${raw(ProfileCol.usernameChangedAt)} IS NULL
+            OR ${raw(ProfileCol.usernameChangedAt)} = '')
+          AND ${raw(ProfileCol.username)} != ${username}
+        )
+      )
+  `);
 }
 
 /**
@@ -122,24 +117,23 @@ export const ensureProfileLocalWrite = defineWrite<
     if (idError !== null) return idError;
     return ok(undefined);
   },
-  execute: async (_ctx, input, sql) => {
-    const rows = await sql.query<ProfileRow>(
-      `SELECT * FROM ${PROFILES_TABLE.tableName} WHERE ${ProfileCol.id} = ? LIMIT 1`,
-      [input.profileId]
-    );
+  execute: async (_ctx, input, db) => {
+    const rows = await db.query<ProfileRow>(sql`
+      SELECT * FROM ${raw(PROFILES_TABLE.tableName)} WHERE ${raw(ProfileCol.id)} = ${input.profileId} LIMIT 1
+    `);
     const existing = rows[0];
     if (profileLooksPresent(existing, input.profileId)) {
       if (!hasAvatarConfig(existing)) {
-        await backfillAvatar(sql, input.profileId);
+        await backfillAvatar(db, input.profileId);
       }
       if (input.username !== undefined) {
-        await fillEmptyUsername(sql, input.profileId, input.username);
+        await fillEmptyUsername(db, input.profileId, input.username);
       }
       return ok(undefined);
     }
-    await insertProfileSeed(sql, input.profileId);
+    await insertProfileSeed(db, input.profileId);
     if (input.username !== undefined) {
-      await fillEmptyUsername(sql, input.profileId, input.username);
+      await fillEmptyUsername(db, input.profileId, input.username);
     }
     return ok(undefined);
   },

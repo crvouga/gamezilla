@@ -3,6 +3,7 @@ import {
   useMyDeviceId,
 } from '@libs/auth/client/use-current-user';
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
+import { raw, sql } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -18,10 +19,10 @@ function usePublicLiveSpaceIds(): {
   readonly isLoading: boolean;
 } {
   const { rows, isLoading } = useWatchQuery<SpaceIdRow>(
-    `SELECT ${SpaceCol.id} AS id FROM ${SPACES_TABLE.tableName}
-     WHERE ${SpaceCol.endedAt} IS NULL
-       AND ${SpaceCol.visibility} = 'public'
-     ORDER BY ${SpaceCol.createdAt} DESC`
+    sql`SELECT ${raw(SpaceCol.id)} AS id
+     FROM ${raw(SPACES_TABLE.tableName)}
+     WHERE ${raw(SpaceCol.endedAt)} IS NULL
+     ORDER BY ${raw(SpaceCol.createdAt)} DESC`
   );
   return { spaceIds: rows.map((r) => r.id), isLoading };
 }
@@ -46,10 +47,7 @@ function useFriendsLiveSpaceIds(): {
       }),
     [accountId, deviceId, hasAccount]
   );
-  const { rows, isLoading } = useWatchQuery<SpaceIdRow>(
-    query.sql,
-    [...query.params]
-  );
+  const { rows, isLoading } = useWatchQuery<SpaceIdRow>(query);
   return { spaceIds: rows.map((r) => r.id), isLoading };
 }
 

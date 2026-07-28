@@ -8,6 +8,7 @@
  * different schema impossible without going through here.
  */
 import { Client, Pool, type PoolClient } from 'pg';
+import { raw } from '@pkgs/sql';
 import { pgRawQueryWithSearchPathPin, type PgExecutor } from './impl-pg-shared';
 import { SqlClientImplPg, SqlClientImplPgClient } from './impl-pg';
 import type { PostgresSqlClient, SqlClient } from '../interface';
@@ -241,11 +242,11 @@ export async function ensurePostgresSchema(
   dbScope: PostgresDbScope
 ): Promise<void> {
   if (dbScope.schema === 'public') {
-    await sqlClient.run('CREATE SCHEMA IF NOT EXISTS public');
+    await sqlClient.run(raw('CREATE SCHEMA IF NOT EXISTS public'));
     return;
   }
   await sqlClient.run(
-    `CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(dbScope.schema)}`
+    raw(`CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(dbScope.schema)}`)
   );
   await assertPgSessionSchema(toPgQueryable(sqlClient), dbScope);
 }
@@ -258,7 +259,7 @@ function toPgQueryable(sqlClient: SqlClient): {
 } {
   return {
     query: async <R extends Record<string, unknown>>(queryText: string) => ({
-      rows: await sqlClient.query<R>(queryText),
+      rows: await sqlClient.query<R>(raw(queryText)),
     }),
   };
 }

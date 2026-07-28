@@ -2,7 +2,7 @@ import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { ProfileCol } from '@libs/db/shared/profile-tables';
 
-import { PROFILE_ROW_BY_ID_SQL } from './profile-row-sql';
+import { profileRowByIdSql } from './profile-row-sql';
 
 export const ProfileField = {
   username: 'username',
@@ -24,9 +24,9 @@ export function useProfileColumn(
   field: ProfileFieldKey
 ): string | null {
   const col = ProfileCol[field];
-  const { row } = useWatchOne<ProfileRow>(PROFILE_ROW_BY_ID_SQL, [profileId]);
+  const { row } = useWatchOne<ProfileRow>(profileRowByIdSql(profileId));
   if (row === null) return null;
-  const raw = row[col];
-  if (typeof raw !== 'string') return null;
-  return raw;
+  const value = row[col];
+  if (typeof value !== 'string') return null;
+  return value;
 }

@@ -1,18 +1,19 @@
+import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import {
   SPACE_MEMBERSHIPS_TABLE,
   SpaceCol,
   SpaceMembershipCol,
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
-import { useMyAccountId } from '@libs/auth/client/use-current-user';
-import { useMemo, useRef } from 'react';
+import { join, raw, sql, type Sql } from '@pkgs/sql';
 import {
   useSyncStatus,
   useWatchQuery,
 } from '@pkgs/sync-engine/client/sync-engine-context';
-import type { SyncEngineStatus } from '@pkgs/sync-engine/client/sync-status';
-import { resolvePresenceRole } from '../shared/participation/space-participation-policy';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
+import type { SyncEngineStatus } from '@pkgs/sync-engine/client/sync-status';
+import { useMemo, useRef } from 'react';
+import { resolvePresenceRole } from '../shared/participation/space-participation-policy';
 import { hostedUnleftSpacesSelectSql } from './my-live-space-seat-sql';
 
 function isSyncReconnecting(status: SyncEngineStatus): boolean {
@@ -121,66 +122,40 @@ export function buildCurrentSpaceEntries(
   return entries;
 }
 
-function membershipSql(
-  enabled: boolean,
-  accountId: string
-): { sql: string; params: string[] } {
+function membershipSql(enabled: boolean, accountId: string): Sql {
   if (!enabled) {
-    return {
-      sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id,
-             ${SpaceMembershipCol.joinedAt} AS joined_at
-             FROM ${SPACE_MEMBERSHIPS_TABLE.tableName} WHERE 0`,
-      params: [],
-    };
+    return sql`SELECT ${raw(SpaceMembershipCol.spaceId)} AS space_id,
+             ${raw(SpaceMembershipCol.joinedAt)} AS joined_at
+             FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)} WHERE 0`;
   }
-  return {
-    sql: `SELECT ${SpaceMembershipCol.spaceId} AS space_id,
-             ${SpaceMembershipCol.joinedAt} AS joined_at
-           FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-           WHERE ${SpaceMembershipCol.memberId} = ?
-             AND ${SpaceMembershipCol.leftAt} IS NULL
-           ORDER BY ${SpaceMembershipCol.joinedAt} DESC`,
-    params: [accountId],
-  };
+  return sql`SELECT ${raw(SpaceMembershipCol.spaceId)} AS space_id,
+             ${raw(SpaceMembershipCol.joinedAt)} AS joined_at
+           FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
+           WHERE ${raw(SpaceMembershipCol.memberId)} = ${accountId}
+             AND ${raw(SpaceMembershipCol.leftAt)} IS NULL
+           ORDER BY ${raw(SpaceMembershipCol.joinedAt)} DESC`;
 }
 
-function hostedSpacesSql(
-  enabled: boolean,
-  accountId: string
-): { sql: string; params: string[] } {
+function hostedSpacesSql(enabled: boolean, accountId: string): Sql {
   if (!enabled) {
-    return {
-      sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostMemberId} AS host_member_id,
-            ${SpaceCol.hostAccountId} AS host_account_id,
-            ${SpaceCol.endedAt} AS ended_at FROM ${SPACES_TABLE.tableName} WHERE 0`,
-      params: [],
-    };
+    return sql`SELECT ${raw(SpaceCol.id)}, ${raw(SpaceCol.hostMemberId)} AS host_member_id,
+            ${raw(SpaceCol.hostAccountId)} AS host_account_id,
+            ${raw(SpaceCol.endedAt)} AS ended_at FROM ${raw(SPACES_TABLE.tableName)} WHERE 0`;
   }
-  const query = hostedUnleftSpacesSelectSql(accountId);
-  return { sql: query.sql, params: [...query.params] };
+  return hostedUnleftSpacesSelectSql(accountId);
 }
 
-function spacesSql(ids: readonly string[]): {
-  sql: string;
-  params: string[];
-} {
+function spacesSql(ids: readonly string[]): Sql {
   if (ids.length === 0) {
-    return {
-      sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostMemberId} AS host_member_id,
-            ${SpaceCol.hostAccountId} AS host_account_id,
-            ${SpaceCol.endedAt} AS ended_at FROM ${SPACES_TABLE.tableName} WHERE 0`,
-      params: [],
-    };
+    return sql`SELECT ${raw(SpaceCol.id)}, ${raw(SpaceCol.hostMemberId)} AS host_member_id,
+            ${raw(SpaceCol.hostAccountId)} AS host_account_id,
+            ${raw(SpaceCol.endedAt)} AS ended_at FROM ${raw(SPACES_TABLE.tableName)} WHERE 0`;
   }
-  const placeholders = ids.map(() => '?').join(', ');
-  return {
-    sql: `SELECT ${SpaceCol.id}, ${SpaceCol.hostMemberId} AS host_member_id,
-          ${SpaceCol.hostAccountId} AS host_account_id,
-          ${SpaceCol.endedAt} AS ended_at
-          FROM ${SPACES_TABLE.tableName}
-          WHERE ${SpaceCol.id} IN (${placeholders})`,
-    params: [...ids],
-  };
+  return sql`SELECT ${raw(SpaceCol.id)}, ${raw(SpaceCol.hostMemberId)} AS host_member_id,
+          ${raw(SpaceCol.hostAccountId)} AS host_account_id,
+          ${raw(SpaceCol.endedAt)} AS ended_at
+          FROM ${raw(SPACES_TABLE.tableName)}
+          WHERE ${raw(SpaceCol.id)} IN (${join(ids)})`;
 }
 
 function resolveDisplayEntries(
@@ -208,9 +183,9 @@ function useCurrentSpaceWatchQueries(accountId: string | null): {
   );
 
   const { rows: memberRows, isLoading: memberLoading } =
-    useWatchQuery<MembershipRow>(memberQuery.sql, memberQuery.params);
+    useWatchQuery<MembershipRow>(memberQuery);
   const { rows: hostedRows, isLoading: hostedLoading } =
-    useWatchQuery<SpaceRow>(hostedQuery.sql, hostedQuery.params);
+    useWatchQuery<SpaceRow>(hostedQuery);
 
   const memberSpaceIds = useMemo(
     () => [
@@ -226,7 +201,7 @@ function useCurrentSpaceWatchQueries(accountId: string | null): {
     [memberSpaceIds]
   );
   const { rows: memberSpaceRows, isLoading: spacesLoading } =
-    useWatchQuery<SpaceRow>(spacesQuery.sql, spacesQuery.params);
+    useWatchQuery<SpaceRow>(spacesQuery);
 
   const entries = useMemo(
     () =>

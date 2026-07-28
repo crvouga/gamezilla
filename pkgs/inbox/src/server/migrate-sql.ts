@@ -1,3 +1,5 @@
+import { sql, type Sql } from '@pkgs/sql';
+
 export const INBOX_SCHEMA_FINGERPRINT = 'inbox-v1:initial';
 
 export const CREATE_SCHEMA_STATE_TABLE_SQL = `
@@ -62,8 +64,9 @@ export const READ_SCHEMA_FINGERPRINT_SQL = `
 SELECT schema_fingerprint FROM inbox_schema_state WHERE id = 1
 `.trim();
 
-export const UPSERT_SCHEMA_FINGERPRINT_SQL = `
+export function upsertSchemaFingerprintSql(fingerprint: string): Sql {
+  return sql`
 INSERT INTO inbox_schema_state (id, schema_fingerprint)
-VALUES (1, ?)
-ON CONFLICT (id) DO UPDATE SET schema_fingerprint = EXCLUDED.schema_fingerprint
-`.trim();
+VALUES (1, ${fingerprint})
+ON CONFLICT (id) DO UPDATE SET schema_fingerprint = EXCLUDED.schema_fingerprint`;
+}

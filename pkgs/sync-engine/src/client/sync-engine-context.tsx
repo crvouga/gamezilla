@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 
+import type { Sql } from '@pkgs/sql';
 import type { SyncEngine } from './sync-engine-port';
 import { clearWatchQueryCache } from './watch-query-cache';
 import { computeWatchQueryIsLoading } from './watch-query-loading';
@@ -60,15 +61,18 @@ export function useWatchSubscription<T>(
  * row cache). `isLoading` is true until the watch hydrates.
  */
 export function useWatchQuery<T extends Record<string, unknown>>(
-  sql: string,
-  params: readonly unknown[] = []
+  query: Sql
 ): { readonly rows: readonly T[]; readonly isLoading: boolean } {
   const engine = useSyncEngine();
-  const paramsKey = useMemo(() => JSON.stringify(params), [params]);
+  const sqlText = query.sql;
+  const paramsKey = useMemo(
+    () => JSON.stringify(query.values),
+    [query.values]
+  );
   const subscription = useMemo(
-    () => engine.watch<T>(sql, params),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces params
-    [engine, sql, paramsKey]
+    () => engine.watch<T>(query),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces values
+    [engine, sqlText, paramsKey]
   );
   const rows = useWatchSubscription<readonly T[]>(subscription);
   const hydrated = useSyncExternalStore(
@@ -86,10 +90,9 @@ export function useWatchQuery<T extends Record<string, unknown>>(
 }
 
 export function useWatchOne<T extends Record<string, unknown>>(
-  sql: string,
-  params: readonly unknown[] = []
+  query: Sql
 ): { readonly row: T | null; readonly isLoading: boolean } {
-  const { rows, isLoading } = useWatchQuery<T>(sql, params);
+  const { rows, isLoading } = useWatchQuery<T>(query);
   return { row: rows[0] ?? null, isLoading };
 }
 
@@ -106,19 +109,22 @@ function readRowField<T>(
 /**
  * Subscribe to a multi-column SQL watch but only re-render when `column`
  * changes (`Object.is` on the field value). Shares the underlying watch via
- * the engine registry when the same `(sql, params)` is used elsewhere.
+ * the engine registry when the same query is used elsewhere.
  */
 export function useWatchField<T>(
-  sql: string,
-  params: readonly unknown[] = [],
+  query: Sql,
   column = 'value'
 ): { readonly value: T | null; readonly isLoading: boolean } {
   const engine = useSyncEngine();
-  const paramsKey = useMemo(() => JSON.stringify(params), [params]);
+  const sqlText = query.sql;
+  const paramsKey = useMemo(
+    () => JSON.stringify(query.values),
+    [query.values]
+  );
   const subscription = useMemo(
-    () => engine.watch<Record<string, unknown>>(sql, params),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces params
-    [engine, sql, paramsKey]
+    () => engine.watch<Record<string, unknown>>(query),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces values
+    [engine, sqlText, paramsKey]
   );
   const getSnapshot = useCallback(
     () => readRowField<T>(subscription.getSnapshot(), column),
@@ -138,9 +144,8 @@ export function useWatchField<T>(
 }
 
 export function useWatchValue<T>(
-  sql: string,
-  params: readonly unknown[] = [],
+  query: Sql,
   column = 'value'
 ): { readonly value: T | null; readonly isLoading: boolean } {
-  return useWatchField<T>(sql, params, column);
+  return useWatchField<T>(query, column);
 }

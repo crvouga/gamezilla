@@ -2,11 +2,13 @@
  * Basic interface for a SQL database client.
  * Implementations should provide methods to connect, disconnect, and execute queries.
  *
- * All implementations use `?` for positional parameters. Pass params as an array
- * in order: `query("SELECT * FROM t WHERE id = ?", [1])`.
+ * All implementations use `?` for positional parameters. Pass a {@link Sql}
+ * instance from `@pkgs/sql` (`sql` / `join` / `bulk` / `raw`); drivers unpack
+ * `query.sql` + `query.values`.
  */
 
 import { assert } from '@pkgs/assert';
+import type { Sql, Value } from '@pkgs/sql';
 import type { PostgresDbScope } from './postgres/schema';
 
 export interface RunResult {
@@ -15,8 +17,8 @@ export interface RunResult {
 }
 
 export interface PreparedStatement {
-  query<T = Record<string, unknown>>(params?: unknown[]): Promise<T[]>;
-  run(params?: unknown[]): Promise<RunResult>;
+  query<T = Record<string, unknown>>(params?: Value[]): Promise<T[]>;
+  run(params?: Value[]): Promise<RunResult>;
 }
 
 export interface SqlClient {
@@ -32,37 +34,25 @@ export interface SqlClient {
 
   /**
    * Executes a SELECT query and returns rows.
-   * @param sql The SQL query string.
-   * @param params Optional parameters for the query.
-   * @returns Array of result rows.
    */
-  query<T = Record<string, unknown>>(
-    sql: string,
-    params?: unknown[]
-  ): Promise<T[]>;
+  query<T = Record<string, unknown>>(query: Sql): Promise<T[]>;
 
   /**
    * Executes an INSERT, UPDATE, or DELETE statement.
-   * @param sql The SQL statement string.
-   * @param params Optional parameters for the statement.
-   * @returns The number of changes and the last inserted row ID.
    */
-  run(sql: string, params?: unknown[]): Promise<RunResult>;
+  run(query: Sql): Promise<RunResult>;
 
   /**
    * Executes a function within a transaction.
    * Rolls back automatically on error.
-   * @param fn Function to run with a transaction-scoped client.
-   * @returns The result of the function.
    */
   transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T>;
 
   /**
    * Prepares a statement for execution.
-   * @param sql The SQL statement string.
-   * @returns A prepared statement.
+   * Statement text comes from `query.sql`; bind values at execute via params.
    */
-  prepare(sql: string): PreparedStatement;
+  prepare(query: Sql): PreparedStatement;
 }
 
 /**
@@ -75,8 +65,10 @@ export interface PostgresSqlClient extends SqlClient {
 }
 
 export function assertQuery(
-  sql: string,
+  query: Sql,
   sqlClient: SqlClient
-): asserts sql is string {
-  assert.notThrows(() => sqlClient.prepare(sql), 'Invalid SQL query', { sql });
+): asserts query is Sql {
+  assert.notThrows(() => sqlClient.prepare(query), 'Invalid SQL query', {
+    sql: query.sql,
+  });
 }

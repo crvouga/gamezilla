@@ -25,6 +25,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sounds": "workspace:*",
+    "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",

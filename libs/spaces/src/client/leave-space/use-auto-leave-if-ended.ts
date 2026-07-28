@@ -7,12 +7,15 @@ import {
   SpaceMembershipCol,
   SPACE_MEMBERSHIPS_TABLE,
 } from '@libs/db/shared/space-tables';
+import { raw, sql } from '@pkgs/sql';
 import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
 
-const MEMBERSHIP_BY_ID_SQL = `SELECT ${SpaceMembershipCol.id},
-            ${SpaceMembershipCol.memberId}, ${SpaceMembershipCol.leftAt}
-     FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}
-     WHERE ${SpaceMembershipCol.id} = ?`;
+function membershipByIdSql(membershipId: string) {
+  return sql`SELECT ${raw(SpaceMembershipCol.id)},
+            ${raw(SpaceMembershipCol.memberId)}, ${raw(SpaceMembershipCol.leftAt)}
+     FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}
+     WHERE ${raw(SpaceMembershipCol.id)} = ${membershipId}`;
+}
 
 export function useAutoLeaveIfEnded(spaceId: string): void {
   const leaveSpace = useLeaveSpace();
@@ -20,13 +23,11 @@ export function useAutoLeaveIfEnded(spaceId: string): void {
   const spaceStillLive = endedAt === null;
   const membershipId = useMyMembershipId(spaceId);
   const { value: memberId } = useWatchField<string>(
-    MEMBERSHIP_BY_ID_SQL,
-    [membershipId ?? ''],
+    membershipByIdSql(membershipId ?? ''),
     SpaceMembershipCol.memberId
   );
   const { value: leftAt } = useWatchField<string>(
-    MEMBERSHIP_BY_ID_SQL,
-    [membershipId ?? ''],
+    membershipByIdSql(membershipId ?? ''),
     SpaceMembershipCol.leftAt
   );
   const membershipExists = (memberId ?? '').length > 0;

@@ -1,4 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { serializeDefaultAvatarConfig } from '../../shared/avatar-config';
@@ -21,35 +22,33 @@ function isUniqueViolation(error: unknown): boolean {
 }
 
 async function insertProfileRow(
-  sql: SqlClient,
+  db: SqlClient,
   profileId: string,
   username: string,
   now: string
 ): Promise<void> {
-  await sql.run(
-    `INSERT INTO ${PROFILES_TABLE.tableName}
-     (${ProfileCol.id}, ${ProfileCol.createdAt}, ${ProfileCol.username}, ${ProfileCol.avatarConfig})
-     VALUES (?, ?, ?, ?)
-     ON CONFLICT (${ProfileCol.id}) DO NOTHING`,
-    [profileId, now, username, serializeDefaultAvatarConfig(profileId)]
-  );
+  await db.run(sql`
+    INSERT INTO ${raw(PROFILES_TABLE.tableName)}
+    (${raw(ProfileCol.id)}, ${raw(ProfileCol.createdAt)}, ${raw(ProfileCol.username)}, ${raw(ProfileCol.avatarConfig)})
+    VALUES (${profileId}, ${now}, ${username}, ${serializeDefaultAvatarConfig(profileId)})
+    ON CONFLICT (${raw(ProfileCol.id)}) DO NOTHING
+  `);
 }
 
 async function assignUniqueUsername(
-  sql: SqlClient,
+  db: SqlClient,
   profileId: string
 ): Promise<string> {
   for (let attempt = 0; attempt < MAX_USERNAME_ASSIGN_ATTEMPTS; attempt += 1) {
     const username = generateRandomUsername(`${profileId}:${attempt}`);
     try {
-      await sql.run(
-        `UPDATE ${PROFILES_TABLE.tableName}
-         SET ${ProfileCol.username} = ?
-         WHERE ${ProfileCol.id} = ?
-           AND (${ProfileCol.username} = '' OR ${ProfileCol.username} IS NULL)`,
-        [username, profileId]
-      );
-      const card = await readProfileCardById(sql, profileId);
+      await db.run(sql`
+        UPDATE ${raw(PROFILES_TABLE.tableName)}
+        SET ${raw(ProfileCol.username)} = ${username}
+        WHERE ${raw(ProfileCol.id)} = ${profileId}
+          AND (${raw(ProfileCol.username)} = '' OR ${raw(ProfileCol.username)} IS NULL)
+      `);
+      const card = await readProfileCardById(db, profileId);
       if (card !== null && card.username.length > 0) {
         return card.username;
       }
@@ -70,11 +69,11 @@ async function assignUniqueUsername(
  * user-initiated change stays free of the cooldown.
  */
 export async function ensureProfileWithUsername(
-  sql: SqlClient,
+  db: SqlClient,
   profileId: string
 ): Promise<ProfileCard> {
   const now = new Date().toISOString();
-  const existing = await readProfileCardById(sql, profileId);
+  const existing = await readProfileCardById(db, profileId);
   if (existing === null) {
     for (
       let attempt = 0;
@@ -83,7 +82,7 @@ export async function ensureProfileWithUsername(
     ) {
       const username = generateRandomUsername(`${profileId}:${attempt}`);
       try {
-        await insertProfileRow(sql, profileId, username, now);
+        await insertProfileRow(db, profileId, username, now);
         break;
       } catch (error) {
         if (isUniqueViolation(error)) continue;
@@ -92,13 +91,13 @@ export async function ensureProfileWithUsername(
     }
   }
 
-  let card = await readProfileCardById(sql, profileId);
+  let card = await readProfileCardById(db, profileId);
   if (card === null) {
     throw new ProfileError('PROFILE_NOT_FOUND', 'profile could not be created');
   }
   if (card.username.length === 0) {
-    await assignUniqueUsername(sql, profileId);
-    card = await readProfileCardById(sql, profileId);
+    await assignUniqueUsername(db, profileId);
+    card = await readProfileCardById(db, profileId);
     if (card === null) {
       throw new ProfileError(
         'PROFILE_NOT_FOUND',

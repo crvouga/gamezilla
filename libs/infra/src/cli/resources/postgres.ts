@@ -1,3 +1,4 @@
+import { raw } from '@pkgs/sql';
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { ok } from '../lib/fmt';
@@ -75,10 +76,10 @@ type ProbeResult =
 
 /** Postgres over the wire protocol (same path as migrate and the distributed lock). */
 async function probeDatabase(url: string): Promise<ProbeResult> {
-  const sql = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
+  const db = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
   try {
-    await sql.connect();
-    const rows = await sql.query<{ ok: number }>('SELECT 1 AS ok');
+    await db.connect();
+    const rows = await db.query<{ ok: number }>(raw('SELECT 1 AS ok'));
     if (!Array.isArray(rows) || rows.length === 0) {
       return { ok: false, error: 'SELECT 1 returned no rows' };
     }
@@ -89,7 +90,7 @@ async function probeDatabase(url: string): Promise<ProbeResult> {
       error: e instanceof Error ? e.message : String(e),
     };
   } finally {
-    await sql.disconnect().catch(() => undefined);
+    await db.disconnect().catch(() => undefined);
   }
 }
 
@@ -110,15 +111,15 @@ const CLAIM_TABLE_OWNERSHIP_SQL = `
 async function verifyDatabaseAndClaimOwnership(
   url: string
 ): Promise<ProbeResult> {
-  const sql = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
+  const db = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
   try {
-    await sql.connect();
-    const rows = await sql.query<{ ok: number }>('SELECT 1 AS ok');
+    await db.connect();
+    const rows = await db.query<{ ok: number }>(raw('SELECT 1 AS ok'));
     if (!Array.isArray(rows) || rows.length === 0) {
       return { ok: false, error: 'SELECT 1 returned no rows' };
     }
     try {
-      await sql.run(CLAIM_TABLE_OWNERSHIP_SQL);
+      await db.run(raw(CLAIM_TABLE_OWNERSHIP_SQL));
     } catch {
       // Best-effort: if the role lacks permission, the Worker migration
       // will handle it by skipping DDL on existing tables.
@@ -130,7 +131,7 @@ async function verifyDatabaseAndClaimOwnership(
       error: e instanceof Error ? e.message : String(e),
     };
   } finally {
-    await sql.disconnect().catch(() => undefined);
+    await db.disconnect().catch(() => undefined);
   }
 }
 
@@ -216,10 +217,10 @@ export async function resolveDatabaseUrl(): Promise<string> {
 }
 
 export async function verifyWalLevelLogical(url: string): Promise<void> {
-  const sql = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
+  const db = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
   try {
-    await sql.connect();
-    const rows = await sql.query<{ wal_level: string }>('SHOW wal_level');
+    await db.connect();
+    const rows = await db.query<{ wal_level: string }>(raw('SHOW wal_level'));
     const level = rows[0]?.wal_level?.trim().toLowerCase() ?? '';
     if (level !== 'logical') {
       throw new Error(
@@ -227,6 +228,6 @@ export async function verifyWalLevelLogical(url: string): Promise<void> {
       );
     }
   } finally {
-    await sql.disconnect().catch(() => undefined);
+    await db.disconnect().catch(() => undefined);
   }
 }

@@ -7,39 +7,39 @@ import {
 
 describe('buildPuzzleCandidatesSql', () => {
   test('rating band bounds are present in SQL', () => {
-    const { sql, params } = buildPuzzleCandidatesSql({
+    const query = buildPuzzleCandidatesSql({
       rating: 1500,
       halfWindow: 200,
       ownerId: '',
       currentPuzzleId: null,
     });
-    expect(sql).toContain('rating >= ?');
-    expect(sql).toContain('rating <= ?');
-    expect(params).toEqual([1300, 1700, 50, 0]);
+    expect(query.sql).toContain('rating >= ?');
+    expect(query.sql).toContain('rating <= ?');
+    expect(query.values).toEqual([1300, 1700, 50, 0]);
   });
 
   test('with ownerId, excludes interacted puzzles via subquery', () => {
-    const { sql, params } = buildPuzzleCandidatesSql({
+    const query = buildPuzzleCandidatesSql({
       rating: 1500,
       halfWindow: 200,
       ownerId: 'user_123',
       currentPuzzleId: null,
     });
-    expect(sql).toContain(
+    expect(query.sql).toContain(
       'NOT IN (SELECT puzzle_id FROM chess_puzzle_interactions'
     );
-    expect(params).toContain('user_123');
+    expect(query.values).toContain('user_123');
   });
 
   test('currentPuzzleId adds inequality filter', () => {
-    const { sql, params } = buildPuzzleCandidatesSql({
+    const query = buildPuzzleCandidatesSql({
       rating: 1500,
       halfWindow: 200,
       ownerId: 'user_123',
       currentPuzzleId: 'puzzle_99',
     });
-    expect(sql).toContain('id != ?');
-    expect(params).toContain('puzzle_99');
+    expect(query.sql).toContain('id != ?');
+    expect(query.values).toContain('puzzle_99');
   });
 });
 

@@ -3,6 +3,7 @@ import {
   FriendProfileCacheCol,
 } from '@libs/db/shared/friends-tables';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { pairId } from '../pair-id';
@@ -13,16 +14,15 @@ type ProfileCardLite = {
 };
 
 async function readProfileCard(
-  sql: SqlClient,
+  db: SqlClient,
   profileId: string
 ): Promise<ProfileCardLite | null> {
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT ${ProfileCol.username}, ${ProfileCol.avatarConfig}
-     FROM ${PROFILES_TABLE.tableName}
-     WHERE ${ProfileCol.id} = ?
-     LIMIT 1`,
-    [profileId]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT ${raw(ProfileCol.username)}, ${raw(ProfileCol.avatarConfig)}
+    FROM ${raw(PROFILES_TABLE.tableName)}
+    WHERE ${raw(ProfileCol.id)} = ${profileId}
+    LIMIT 1
+  `);
   const row = rows[0];
   if (row === undefined) return null;
   const username = row[ProfileCol.username];
@@ -34,7 +34,7 @@ async function readProfileCard(
 }
 
 export async function upsertFriendProfileCache(
-  sql: SqlClient,
+  db: SqlClient,
   args: {
     readonly ownerId: string;
     readonly friendId: string;
@@ -43,38 +43,29 @@ export async function upsertFriendProfileCache(
     readonly now: string;
   }
 ): Promise<void> {
-  await sql.run(
-    `INSERT INTO ${FRIEND_PROFILE_CACHE_TABLE.tableName}
-     (${FriendProfileCacheCol.id}, ${FriendProfileCacheCol.ownerId}, ${FriendProfileCacheCol.friendId},
-      ${FriendProfileCacheCol.username},
-      ${FriendProfileCacheCol.avatarConfig}, ${FriendProfileCacheCol.updatedAt})
-     VALUES (?, ?, ?, ?, ?, ?)
-     ON CONFLICT (${FriendProfileCacheCol.ownerId}, ${FriendProfileCacheCol.friendId}) DO UPDATE SET
-       ${FriendProfileCacheCol.username} = excluded.${FriendProfileCacheCol.username},
-       ${FriendProfileCacheCol.avatarConfig} = excluded.${FriendProfileCacheCol.avatarConfig},
-       ${FriendProfileCacheCol.updatedAt} = excluded.${FriendProfileCacheCol.updatedAt}`,
-    [
-      pairId(args.ownerId, args.friendId),
-      args.ownerId,
-      args.friendId,
-      args.username,
-      args.avatarConfig,
-      args.now,
-    ]
-  );
+  await db.run(sql`
+    INSERT INTO ${raw(FRIEND_PROFILE_CACHE_TABLE.tableName)}
+    (${raw(FriendProfileCacheCol.id)}, ${raw(FriendProfileCacheCol.ownerId)}, ${raw(FriendProfileCacheCol.friendId)},
+     ${raw(FriendProfileCacheCol.username)},
+     ${raw(FriendProfileCacheCol.avatarConfig)}, ${raw(FriendProfileCacheCol.updatedAt)})
+    VALUES (${pairId(args.ownerId, args.friendId)}, ${args.ownerId}, ${args.friendId}, ${args.username}, ${args.avatarConfig}, ${args.now})
+    ON CONFLICT (${raw(FriendProfileCacheCol.ownerId)}, ${raw(FriendProfileCacheCol.friendId)}) DO UPDATE SET
+      ${raw(FriendProfileCacheCol.username)} = excluded.${raw(FriendProfileCacheCol.username)},
+      ${raw(FriendProfileCacheCol.avatarConfig)} = excluded.${raw(FriendProfileCacheCol.avatarConfig)},
+      ${raw(FriendProfileCacheCol.updatedAt)} = excluded.${raw(FriendProfileCacheCol.updatedAt)}
+  `);
 }
 
 export async function clearFriendProfileCaches(
-  sql: SqlClient,
+  db: SqlClient,
   userA: string,
   userB: string
 ): Promise<void> {
-  await sql.run(
-    `DELETE FROM ${FRIEND_PROFILE_CACHE_TABLE.tableName}
-     WHERE (${FriendProfileCacheCol.ownerId} = ? AND ${FriendProfileCacheCol.friendId} = ?)
-        OR (${FriendProfileCacheCol.ownerId} = ? AND ${FriendProfileCacheCol.friendId} = ?)`,
-    [userA, userB, userB, userA]
-  );
+  await db.run(sql`
+    DELETE FROM ${raw(FRIEND_PROFILE_CACHE_TABLE.tableName)}
+    WHERE (${raw(FriendProfileCacheCol.ownerId)} = ${userA} AND ${raw(FriendProfileCacheCol.friendId)} = ${userB})
+       OR (${raw(FriendProfileCacheCol.ownerId)} = ${userB} AND ${raw(FriendProfileCacheCol.friendId)} = ${userA})
+  `);
 }
 
 /**
@@ -82,7 +73,7 @@ export async function clearFriendProfileCaches(
  * (`owner_id === myId`) accepts the row.
  */
 export async function syncActorFriendProfileCache(
-  sql: SqlClient,
+  db: SqlClient,
   args: {
     readonly actorId: string;
     readonly otherUserId: string;
@@ -91,9 +82,9 @@ export async function syncActorFriendProfileCache(
   }
 ): Promise<void> {
   const other =
-    args.friendProfile ?? (await readProfileCard(sql, args.otherUserId));
+    args.friendProfile ?? (await readProfileCard(db, args.otherUserId));
   if (other === null) return;
-  await upsertFriendProfileCache(sql, {
+  await upsertFriendProfileCache(db, {
     ownerId: args.actorId,
     friendId: args.otherUserId,
     username: other.username,
@@ -107,14 +98,14 @@ export async function syncActorFriendProfileCache(
  * Safe on Postgres SqlClient; do not call from client execute.
  */
 export async function syncPeerFriendProfileCache(
-  sql: SqlClient,
+  db: SqlClient,
   actorId: string,
   peerUserId: string,
   now: string
 ): Promise<void> {
-  const mine = await readProfileCard(sql, actorId);
+  const mine = await readProfileCard(db, actorId);
   if (mine === null) return;
-  await upsertFriendProfileCache(sql, {
+  await upsertFriendProfileCache(db, {
     ownerId: peerUserId,
     friendId: actorId,
     username: mine.username,

@@ -4,6 +4,7 @@ import {
   isSpaceVisibility,
   type SpaceVisibility,
 } from '@libs/spaces/shared/space-visibility';
+import { raw, sql } from '@pkgs/sql';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 
@@ -39,10 +40,10 @@ export const setSpaceVisibilityWrite = defineWrite<
 >({
   name: 'spaces.setVisibility',
   parseInput: parseSetSpaceVisibilityInput,
-  authorize: async (ctx, input, sql) => {
+  authorize: async (ctx, input, db) => {
     const host = await authorizeSpaceHost(
       ctx,
-      sql,
+      db,
       input.spaceId,
       'Only the host can change visibility'
     );
@@ -55,18 +56,15 @@ export const setSpaceVisibilityWrite = defineWrite<
     }
     return ok(undefined);
   },
-  execute: async (ctx, input, sql) => {
+  execute: async (ctx, input, db) => {
     const accountId = requireAccountId(ctx);
     if (!accountId.ok) return accountId;
     const memberId = resolveSpaceMemberId(accountId.value);
-    await sql.run(
-      `UPDATE ${SPACES_TABLE.tableName}
-       SET ${SpaceCol.visibility} = ?,
-           ${SpaceCol.hostId} = ?,
-           ${SpaceCol.hostMemberId} = ?
-       WHERE ${SpaceCol.id} = ?`,
-      [input.visibility, ctx.deviceId, memberId, input.spaceId]
-    );
+    await db.run(sql`UPDATE ${raw(SPACES_TABLE.tableName)}
+       SET ${raw(SpaceCol.visibility)} = ${input.visibility},
+           ${raw(SpaceCol.hostId)} = ${ctx.deviceId},
+           ${raw(SpaceCol.hostMemberId)} = ${memberId}
+       WHERE ${raw(SpaceCol.id)} = ${input.spaceId}`);
     return ok(undefined);
   },
 });

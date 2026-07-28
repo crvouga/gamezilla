@@ -1,4 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -30,17 +31,16 @@ type UsernameRow = {
 };
 
 async function readUsernameRow(
-  sql: SqlClient,
+  db: SqlClient,
   profileId: string
 ): Promise<UsernameRow> {
-  const rows = await sql.query<UsernameRow>(
-    `SELECT ${ProfileCol.username} AS username,
-            ${ProfileCol.usernameChangedAt} AS username_changed_at
-     FROM ${PROFILES_TABLE.tableName}
-     WHERE ${ProfileCol.id} = ?
-     LIMIT 1`,
-    [profileId]
-  );
+  const rows = await db.query<UsernameRow>(sql`
+    SELECT ${raw(ProfileCol.username)} AS username,
+           ${raw(ProfileCol.usernameChangedAt)} AS username_changed_at
+    FROM ${raw(PROFILES_TABLE.tableName)}
+    WHERE ${raw(ProfileCol.id)} = ${profileId}
+    LIMIT 1
+  `);
   const row = rows[0];
   if (row === undefined) {
     throw new ProfileError('PROFILE_NOT_FOUND', 'profile not found');
@@ -49,10 +49,10 @@ async function readUsernameRow(
 }
 
 async function requireProfileCard(
-  sql: SqlClient,
+  db: SqlClient,
   profileId: string
 ): Promise<ProfileCard> {
-  const card = await readProfileCardById(sql, profileId);
+  const card = await readProfileCardById(db, profileId);
   if (card === null) {
     throw new ProfileError('PROFILE_NOT_FOUND', 'profile not found');
   }
@@ -60,19 +60,18 @@ async function requireProfileCard(
 }
 
 async function updateUsername(
-  sql: SqlClient,
+  db: SqlClient,
   profileId: string,
   username: string
 ): Promise<void> {
   const now = new Date().toISOString();
   try {
-    await sql.run(
-      `UPDATE ${PROFILES_TABLE.tableName}
-       SET ${ProfileCol.username} = ?,
-           ${ProfileCol.usernameChangedAt} = ?
-       WHERE ${ProfileCol.id} = ?`,
-      [username, now, profileId]
-    );
+    await db.run(sql`
+      UPDATE ${raw(PROFILES_TABLE.tableName)}
+      SET ${raw(ProfileCol.username)} = ${username},
+          ${raw(ProfileCol.usernameChangedAt)} = ${now}
+      WHERE ${raw(ProfileCol.id)} = ${profileId}
+    `);
   } catch (error) {
     if (isUniqueViolation(error)) {
       throw new ProfileError('PROFILE_USERNAME_TAKEN', 'username is taken');
@@ -86,7 +85,7 @@ async function updateUsername(
  * global uniqueness, and the change cooldown.
  */
 export async function setProfileUsername(
-  sql: SqlClient,
+  db: SqlClient,
   profileId: string,
   rawUsername: string
 ): Promise<ProfileCard> {
@@ -96,10 +95,10 @@ export async function setProfileUsername(
     throw profileErrorFromValidation(validationError);
   }
 
-  const row = await readUsernameRow(sql, profileId);
+  const row = await readUsernameRow(db, profileId);
   const current = typeof row.username === 'string' ? row.username : '';
   if (current === username) {
-    return requireProfileCard(sql, profileId);
+    return requireProfileCard(db, profileId);
   }
   if (!canChangeUsername(row.username_changed_at)) {
     throw new ProfileError(
@@ -108,6 +107,6 @@ export async function setProfileUsername(
     );
   }
 
-  await updateUsername(sql, profileId, username);
-  return requireProfileCard(sql, profileId);
+  await updateUsername(db, profileId, username);
+  return requireProfileCard(db, profileId);
 }

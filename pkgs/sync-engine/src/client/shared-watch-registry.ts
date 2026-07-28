@@ -1,3 +1,4 @@
+import type { Sql } from '@pkgs/sql';
 import type { WatchSubscription } from './sync-engine-port';
 import { watchQueryCacheKey } from './watch-query-cache';
 
@@ -21,20 +22,19 @@ type RegistryEntry = {
   refCount: number;
 };
 
-type OpenWatchSql = (sql: string, params: readonly unknown[]) => WatchSqlHandle;
+type OpenWatchSql = (query: Sql) => WatchSqlHandle;
 
 function getOrCreateEntry(
   entries: Map<string, RegistryEntry>,
   open: OpenWatchSql,
-  sql: string,
-  params: readonly unknown[]
+  query: Sql
 ): RegistryEntry {
-  const key = watchQueryCacheKey(sql, JSON.stringify(params));
+  const key = watchQueryCacheKey(query.sql, JSON.stringify(query.values));
   const existing = entries.get(key);
   if (existing !== undefined) {
     return existing;
   }
-  const handle = open(sql, params);
+  const handle = open(query);
   const listeners = new Set<() => void>();
   const entry: RegistryEntry = {
     handle,
@@ -53,10 +53,9 @@ function getOrCreateEntry(
 function createWatchSubscription<T extends Record<string, unknown>>(
   entries: Map<string, RegistryEntry>,
   open: OpenWatchSql,
-  sql: string,
-  params: readonly unknown[]
+  query: Sql
 ): WatchSubscription<readonly T[]> {
-  const key = watchQueryCacheKey(sql, JSON.stringify(params));
+  const key = watchQueryCacheKey(query.sql, JSON.stringify(query.values));
   let cachedSnapshot: readonly T[] = [];
   let cachedHydrated = false;
 
@@ -77,7 +76,7 @@ function createWatchSubscription<T extends Record<string, unknown>>(
       return cachedHydrated;
     },
     subscribe: (listener) => {
-      const entry = getOrCreateEntry(entries, open, sql, params);
+      const entry = getOrCreateEntry(entries, open, query);
       entry.refCount += 1;
       const wrapped = (): void => {
         syncCacheFromEntry();
@@ -101,22 +100,20 @@ function createWatchSubscription<T extends Record<string, unknown>>(
 }
 
 /**
- * Refcounted watch sharing: identical `(sql, params)` share one underlying
+ * Refcounted watch sharing: identical `(sql, values)` share one underlying
  * {@link WatchSqlHandle}. Last unsubscribe closes the handle.
  */
 export function createSharedWatchRegistry(open: OpenWatchSql): {
   watch<T extends Record<string, unknown>>(
-    sql: string,
-    params?: readonly unknown[]
+    query: Sql
   ): WatchSubscription<readonly T[]>;
 } {
   const entries = new Map<string, RegistryEntry>();
   return {
     watch<T extends Record<string, unknown>>(
-      sql: string,
-      params: readonly unknown[] = []
+      query: Sql
     ): WatchSubscription<readonly T[]> {
-      return createWatchSubscription<T>(entries, open, sql, params);
+      return createWatchSubscription<T>(entries, open, query);
     },
   };
 }

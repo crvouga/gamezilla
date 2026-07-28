@@ -30,9 +30,6 @@ export function usePuzzleCandidatesQuery(args: PuzzleCandidatesQueryArgs) {
       }),
     [args.rating, args.ownerId, args.currentPuzzleId, halfWindow, pickOffset]
   );
-  const { rows, isLoading } = useWatchQuery<CandidateRow>(
-    query.sql,
-    query.params
-  );
+  const { rows, isLoading } = useWatchQuery<CandidateRow>(query);
   return { rows, isLoading };
 }

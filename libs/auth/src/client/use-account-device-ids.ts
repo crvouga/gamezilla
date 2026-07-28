@@ -1,4 +1,5 @@
 import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
+import { raw, sql } from '@pkgs/sql';
 import { useMyDeviceId } from './use-current-user';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
@@ -9,9 +10,9 @@ type DeviceRow = {
   readonly created_at: string | null;
 };
 
-function readString(raw: unknown): string | null {
-  if (typeof raw !== 'string') return null;
-  const t = raw.trim();
+function readString(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const t = value.trim();
   return t.length > 0 ? t : null;
 }
 
@@ -54,22 +55,24 @@ function sortDeviceIds(
 export function useAccountDeviceIds(accountId: string | null): string[] {
   const currentDeviceId = useMyDeviceId();
 
-  const { rows: localRows } = useWatchQuery<DeviceRow>(
-    `SELECT ${DeviceCol.id}, ${DeviceCol.lastSeenAt}, ${DeviceCol.createdAt}
-     FROM ${DEVICES_TABLE.tableName}
-     WHERE ${DeviceCol.id} = ?`,
-    [currentDeviceId]
-  );
+  const { rows: localRows } = useWatchQuery<DeviceRow>(sql`
+    SELECT ${raw(DeviceCol.id)}, ${raw(DeviceCol.lastSeenAt)}, ${raw(DeviceCol.createdAt)}
+    FROM ${raw(DEVICES_TABLE.tableName)}
+    WHERE ${raw(DeviceCol.id)} = ${currentDeviceId}
+  `);
 
   const { rows: remoteRows } = useWatchQuery<DeviceRow>(
     accountId === null
-      ? `SELECT ${DeviceCol.id}, ${DeviceCol.lastSeenAt}, ${DeviceCol.createdAt}
-         FROM ${DEVICES_TABLE.tableName} WHERE 0`
-      : `SELECT ${DeviceCol.id}, ${DeviceCol.lastSeenAt}, ${DeviceCol.createdAt}
-         FROM ${DEVICES_TABLE.tableName}
-         WHERE ${DeviceCol.userId} = ?
-         LIMIT 500`,
-    accountId === null ? [] : [accountId]
+      ? sql`
+          SELECT ${raw(DeviceCol.id)}, ${raw(DeviceCol.lastSeenAt)}, ${raw(DeviceCol.createdAt)}
+          FROM ${raw(DEVICES_TABLE.tableName)} WHERE 0
+        `
+      : sql`
+          SELECT ${raw(DeviceCol.id)}, ${raw(DeviceCol.lastSeenAt)}, ${raw(DeviceCol.createdAt)}
+          FROM ${raw(DEVICES_TABLE.tableName)}
+          WHERE ${raw(DeviceCol.userId)} = ${accountId}
+          LIMIT 500
+        `
   );
 
   return useMemo(

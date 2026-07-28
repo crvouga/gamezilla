@@ -1,3 +1,4 @@
+import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 
 /**
@@ -39,19 +40,18 @@ export class SqlClientImplD1 implements SqlClient {
     return Promise.resolve();
   }
 
-  async query<T = Record<string, unknown>>(
-    sql: string,
-    params?: unknown[]
-  ): Promise<T[]> {
-    const stmt = this.db.prepare(sql);
-    const bound = params && params.length > 0 ? stmt.bind(...params) : stmt;
+  async query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
+    const stmt = this.db.prepare(query.sql);
+    const params = query.values;
+    const bound = params.length > 0 ? stmt.bind(...params) : stmt;
     const result = await bound.all<T>();
     return result.results ?? [];
   }
 
-  async run(sql: string, params?: unknown[]): Promise<RunResult> {
-    const stmt = this.db.prepare(sql);
-    const bound = params && params.length > 0 ? stmt.bind(...params) : stmt;
+  async run(query: Sql): Promise<RunResult> {
+    const stmt = this.db.prepare(query.sql);
+    const params = query.values;
+    const bound = params.length > 0 ? stmt.bind(...params) : stmt;
     const result = await bound.run();
     return {
       changes: result.meta.changes ?? 0,
@@ -59,19 +59,22 @@ export class SqlClientImplD1 implements SqlClient {
     };
   }
 
-  prepare(sql: string): PreparedStatement {
+  prepare(query: Sql): PreparedStatement {
+    const text = query.sql;
     return {
       query: async <T = Record<string, unknown>>(
-        params?: unknown[]
+        params?: Value[]
       ): Promise<T[]> => {
-        const stmt = this.db.prepare(sql);
-        const bound = params && params.length > 0 ? stmt.bind(...params) : stmt;
+        const stmt = this.db.prepare(text);
+        const values = params ?? [];
+        const bound = values.length > 0 ? stmt.bind(...values) : stmt;
         const result = await bound.all<T>();
         return result.results ?? [];
       },
-      run: async (params?: unknown[]): Promise<RunResult> => {
-        const stmt = this.db.prepare(sql);
-        const bound = params && params.length > 0 ? stmt.bind(...params) : stmt;
+      run: async (params?: Value[]): Promise<RunResult> => {
+        const stmt = this.db.prepare(text);
+        const values = params ?? [];
+        const bound = values.length > 0 ? stmt.bind(...values) : stmt;
         const result = await bound.run();
         return {
           changes: result.meta.changes ?? 0,

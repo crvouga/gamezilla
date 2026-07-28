@@ -1,6 +1,7 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
+import { raw, sql } from '@pkgs/sql';
 import { ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import type { WriteResult } from '@pkgs/write/shared/write-result';
@@ -29,26 +30,23 @@ function parseEndSpaceInput(raw: unknown): WriteResult<EndSpaceInput> {
 export const endSpaceWrite = defineWrite<EndSpaceInput, void>({
   name: 'spaces.end',
   parseInput: parseEndSpaceInput,
-  authorize: async (ctx, input, sql) =>
+  authorize: async (ctx, input, db) =>
     authorizeSpaceHost(
       ctx,
-      sql,
+      db,
       input.spaceId,
       'Only the host can end this space'
     ),
-  execute: async (ctx, input, sql) => {
+  execute: async (ctx, input, db) => {
     clearSpacePresenceLatch(input.spaceId);
     const accountId = requireAccountId(ctx);
     if (!accountId.ok) return accountId;
     const memberId = resolveSpaceMemberId(accountId.value);
-    await sql.run(
-      `UPDATE ${SPACES_TABLE.tableName}
-       SET ${SpaceCol.endedAt} = ?,
-           ${SpaceCol.hostId} = ?,
-           ${SpaceCol.hostMemberId} = ?
-       WHERE ${SpaceCol.id} = ?`,
-      [isoNow(), ctx.deviceId, memberId, input.spaceId]
-    );
-    return executeLeaveSpace(ctx, input, sql);
+    await db.run(sql`UPDATE ${raw(SPACES_TABLE.tableName)}
+       SET ${raw(SpaceCol.endedAt)} = ${isoNow()},
+           ${raw(SpaceCol.hostId)} = ${ctx.deviceId},
+           ${raw(SpaceCol.hostMemberId)} = ${memberId}
+       WHERE ${raw(SpaceCol.id)} = ${input.spaceId}`);
+    return executeLeaveSpace(ctx, input, db);
   },
 });

@@ -3,6 +3,7 @@ import {
   ChessPuzzleProfileCol,
 } from '@libs/db/shared/chess-tables';
 import { fail, ok } from '@pkgs/write/shared/write-result';
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { idMatches, ownerMatches } from '@pkgs/write/shared/read-row-values';
@@ -119,42 +120,29 @@ export async function authorizeUpsertPuzzleProfile(
 }
 
 async function updateProfileRow(
-  sql: SqlClient,
+  db: SqlClient,
   input: UpsertPuzzleProfileInput
 ): Promise<void> {
-  await sql.run(
-    `UPDATE ${CHESS_PUZZLE_PROFILES_TABLE.tableName}
-     SET ${ChessPuzzleProfileCol.rating} = ?,
-         ${ChessPuzzleProfileCol.ratingDeviation} = ?,
-         ${ChessPuzzleProfileCol.lastInteractionAt} = ?
-     WHERE ${ChessPuzzleProfileCol.id} = ?`,
-    [
-      input.rating,
-      input.ratingDeviation,
-      input.lastInteractionAt,
-      input.ownerId,
-    ]
-  );
+  await db.run(sql`
+    UPDATE ${raw(CHESS_PUZZLE_PROFILES_TABLE.tableName)}
+     SET ${raw(ChessPuzzleProfileCol.rating)} = ${input.rating},
+         ${raw(ChessPuzzleProfileCol.ratingDeviation)} = ${input.ratingDeviation},
+         ${raw(ChessPuzzleProfileCol.lastInteractionAt)} = ${input.lastInteractionAt}
+     WHERE ${raw(ChessPuzzleProfileCol.id)} = ${input.ownerId}
+  `);
 }
 
 async function insertProfileRow(
-  sql: SqlClient,
+  db: SqlClient,
   input: UpsertPuzzleProfileInput
 ): Promise<void> {
-  await sql.run(
-    `INSERT INTO ${CHESS_PUZZLE_PROFILES_TABLE.tableName}
-     (${ChessPuzzleProfileCol.id}, ${ChessPuzzleProfileCol.ownerId},
-      ${ChessPuzzleProfileCol.rating}, ${ChessPuzzleProfileCol.ratingDeviation},
-      ${ChessPuzzleProfileCol.lastInteractionAt})
-     VALUES (?, ?, ?, ?, ?)`,
-    [
-      input.ownerId,
-      input.ownerId,
-      input.rating,
-      input.ratingDeviation,
-      input.lastInteractionAt,
-    ]
-  );
+  await db.run(sql`
+    INSERT INTO ${raw(CHESS_PUZZLE_PROFILES_TABLE.tableName)}
+     (${raw(ChessPuzzleProfileCol.id)}, ${raw(ChessPuzzleProfileCol.ownerId)},
+      ${raw(ChessPuzzleProfileCol.rating)}, ${raw(ChessPuzzleProfileCol.ratingDeviation)},
+      ${raw(ChessPuzzleProfileCol.lastInteractionAt)})
+     VALUES (${input.ownerId}, ${input.ownerId}, ${input.rating}, ${input.ratingDeviation}, ${input.lastInteractionAt})
+  `);
 }
 
 export const upsertPuzzleProfileWrite = defineWrite<
@@ -164,16 +152,15 @@ export const upsertPuzzleProfileWrite = defineWrite<
   name: 'chess.puzzle_profile.upsert',
   parseInput: parseUpsertPuzzleProfileInput,
   authorize: async (ctx, input) => authorizeUpsertPuzzleProfile(ctx, input),
-  execute: async (_ctx, input, sql) => {
-    const existing = await sql.query<{ readonly n: number }>(
-      `SELECT 1 AS n FROM ${CHESS_PUZZLE_PROFILES_TABLE.tableName}
-       WHERE ${ChessPuzzleProfileCol.id} = ? LIMIT 1`,
-      [input.ownerId]
-    );
+  execute: async (_ctx, input, db) => {
+    const existing = await db.query<{ readonly n: number }>(sql`
+      SELECT 1 AS n FROM ${raw(CHESS_PUZZLE_PROFILES_TABLE.tableName)}
+       WHERE ${raw(ChessPuzzleProfileCol.id)} = ${input.ownerId} LIMIT 1
+    `);
     if (existing.length > 0) {
-      await updateProfileRow(sql, input);
+      await updateProfileRow(db, input);
     } else {
-      await insertProfileRow(sql, input);
+      await insertProfileRow(db, input);
     }
     return ok(undefined);
   },

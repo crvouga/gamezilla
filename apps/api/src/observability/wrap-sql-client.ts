@@ -6,6 +6,7 @@ import {
   sqlOperation,
   truncateStatement,
 } from '@pkgs/observability/shared/semconv';
+import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 async function runObservedSql<T>(
@@ -51,18 +52,18 @@ export function wrapSqlClientForObservability(
   return {
     connect: () => inner.connect(),
     disconnect: () => inner.disconnect(),
-    query: <T = Record<string, unknown>>(sql: string, params?: unknown[]) =>
+    query: <T = Record<string, unknown>>(query: Sql) =>
       runObservedSql(
         observability,
-        sql,
-        () => inner.query<T>(sql, params),
+        query.sql,
+        () => inner.query<T>(query),
         (r) => r.length
       ),
-    run: (sql: string, params?: unknown[]) =>
+    run: (query: Sql) =>
       runObservedSql(
         observability,
-        sql,
-        () => inner.run(sql, params),
+        query.sql,
+        () => inner.run(query),
         (r) => r.changes
       ),
     transaction: <T>(fn: (tx: SqlClient) => Promise<T>) => {
@@ -90,6 +91,6 @@ export function wrapSqlClientForObservability(
         }
       });
     },
-    prepare: (sql: string) => inner.prepare(sql),
+    prepare: (query: Sql) => inner.prepare(query),
   };
 }

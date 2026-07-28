@@ -1,5 +1,6 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
+import { raw, sql } from '@pkgs/sql';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 
@@ -32,31 +33,23 @@ function parseRenameSpaceInput(
 export const renameSpaceWrite = defineWrite<RenameSpaceInput, void>({
   name: 'spaces.rename',
   parseInput: parseRenameSpaceInput,
-  authorize: async (ctx, input, sql) =>
+  authorize: async (ctx, input, db) =>
     authorizeSpaceHost(
       ctx,
-      sql,
+      db,
       input.spaceId,
       'Only the host can rename this space'
     ),
-  execute: async (ctx, input, sql) => {
+  execute: async (ctx, input, db) => {
     const accountId = requireAccountId(ctx);
     if (!accountId.ok) return accountId;
     const trimmed = input.title.trim();
     const memberId = resolveSpaceMemberId(accountId.value);
-    await sql.run(
-      `UPDATE ${SPACES_TABLE.tableName}
-       SET ${SpaceCol.title} = ?,
-           ${SpaceCol.hostId} = ?,
-           ${SpaceCol.hostMemberId} = ?
-       WHERE ${SpaceCol.id} = ?`,
-      [
-        trimmed.length > 0 ? trimmed : null,
-        ctx.deviceId,
-        memberId,
-        input.spaceId,
-      ]
-    );
+    await db.run(sql`UPDATE ${raw(SPACES_TABLE.tableName)}
+       SET ${raw(SpaceCol.title)} = ${trimmed.length > 0 ? trimmed : null},
+           ${raw(SpaceCol.hostId)} = ${ctx.deviceId},
+           ${raw(SpaceCol.hostMemberId)} = ${memberId}
+       WHERE ${raw(SpaceCol.id)} = ${input.spaceId}`);
     return ok(undefined);
   },
 });

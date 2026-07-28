@@ -6,7 +6,7 @@ import { Box, Card, Text } from '@pkgs/ui';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { Trans, useLingui } from '@lingui/react/macro';
 
-import { CLIENT_CONFIG_ROW_SQL } from './client-config-queries';
+import { clientConfigRowQuery } from './client-config-queries';
 
 type ClientConfigRow = {
   readonly google_web_client_id: string | null;
@@ -14,9 +14,9 @@ type ClientConfigRow = {
 
 export function ClientConfigEntityCard() {
   const { t } = useLingui();
-  const { row } = useWatchOne<ClientConfigRow>(CLIENT_CONFIG_ROW_SQL, [
-    CLIENT_CONFIG_ENTITY_ID,
-  ]);
+  const { row } = useWatchOne<ClientConfigRow>(
+    clientConfigRowQuery(CLIENT_CONFIG_ENTITY_ID)
+  );
 
   const googleRaw = row?.google_web_client_id;
   const googleLine =

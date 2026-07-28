@@ -1,4 +1,5 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
+import { raw, sql, type Sql } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 
@@ -31,13 +32,22 @@ type MembershipRow = {
   readonly id: string;
 };
 
-const SPACE_SELECT = `SELECT ${SpaceCol.hostMemberId} AS host_member_id,
-         ${SpaceCol.hostAccountId} AS host_account_id,
-         ${SpaceCol.endedAt} AS ended_at
-         FROM ${SPACES_TABLE.tableName}`;
+function spaceRowSql(enabled: boolean, spaceId: string): Sql {
+  const base = sql`SELECT ${raw(SpaceCol.hostMemberId)} AS host_member_id,
+         ${raw(SpaceCol.hostAccountId)} AS host_account_id,
+         ${raw(SpaceCol.endedAt)} AS ended_at
+         FROM ${raw(SPACES_TABLE.tableName)}`;
+  if (!enabled) return sql`${base} WHERE 0`;
+  return sql`${base} WHERE ${raw(SpaceCol.id)} = ${spaceId}`;
+}
 
-const MEMBERSHIP_SELECT = `SELECT ${SpaceMembershipCol.id} AS id
-           FROM ${SPACE_MEMBERSHIPS_TABLE.tableName}`;
+function membershipRowSql(enabled: boolean, membershipId: string): Sql {
+  const base = sql`SELECT ${raw(SpaceMembershipCol.id)} AS id
+           FROM ${raw(SPACE_MEMBERSHIPS_TABLE.tableName)}`;
+  if (!enabled) return sql`${base} WHERE 0`;
+  return sql`${base} WHERE ${raw(SpaceMembershipCol.id)} = ${membershipId}
+             AND ${raw(SpaceMembershipCol.leftAt)} IS NULL`;
+}
 
 function applyPresenceLatch(
   spaceId: string,
@@ -65,16 +75,10 @@ function useSpacePresenceQueries(args: {
 } {
   const { spaceId, membershipId, spaceEnabled, memberEnabled } = args;
   const { row: spaceRow, isLoading: spaceLoading } = useWatchOne<SpaceRow>(
-    spaceEnabled
-      ? `${SPACE_SELECT} WHERE ${SpaceCol.id} = ?`
-      : `${SPACE_SELECT} WHERE 0`,
-    spaceEnabled ? [spaceId] : []
+    spaceRowSql(spaceEnabled, spaceId)
   );
   const { row: guestRow, isLoading: guestLoading } = useWatchOne<MembershipRow>(
-    memberEnabled
-      ? `${MEMBERSHIP_SELECT} WHERE ${SpaceMembershipCol.id} = ? AND ${SpaceMembershipCol.leftAt} IS NULL`
-      : `${MEMBERSHIP_SELECT} WHERE 0`,
-    memberEnabled ? [membershipId] : []
+    membershipRowSql(memberEnabled, membershipId)
   );
   return { spaceRow, spaceLoading, guestRow, guestLoading };
 }

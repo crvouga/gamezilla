@@ -4,6 +4,7 @@ import {
   USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
+import { raw, sql } from '@pkgs/sql';
 
 import { canonicalUserPair } from '../canonical-pair';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -15,33 +16,31 @@ function readString(row: Record<string, unknown>, key: string): string {
 }
 
 export async function friendshipExists(
-  sql: SqlClient,
+  db: SqlClient,
   userA: string,
   userB: string
 ): Promise<boolean> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT 1 AS ok FROM ${FRIENDSHIPS_TABLE.tableName}
-     WHERE ${FriendshipCol.userLow} = ? AND ${FriendshipCol.userHigh} = ?
-     LIMIT 1`,
-    [userLow, userHigh]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT 1 AS ok FROM ${raw(FRIENDSHIPS_TABLE.tableName)}
+    WHERE ${raw(FriendshipCol.userLow)} = ${userLow} AND ${raw(FriendshipCol.userHigh)} = ${userHigh}
+    LIMIT 1
+  `);
   return rows.length > 0;
 }
 
 export async function isBlockedEitherDirection(
-  sql: SqlClient,
+  db: SqlClient,
   userA: string,
   userB: string
 ): Promise<'none' | 'by_a' | 'by_b'> {
-  const rows = await sql.query<Record<string, unknown>>(
-    `SELECT ${UserBlockCol.blockerId}, ${UserBlockCol.blockedId}
-     FROM ${USER_BLOCKS_TABLE.tableName}
-     WHERE (${UserBlockCol.blockerId} = ? AND ${UserBlockCol.blockedId} = ?)
-        OR (${UserBlockCol.blockerId} = ? AND ${UserBlockCol.blockedId} = ?)
-     LIMIT 1`,
-    [userA, userB, userB, userA]
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT ${raw(UserBlockCol.blockerId)}, ${raw(UserBlockCol.blockedId)}
+    FROM ${raw(USER_BLOCKS_TABLE.tableName)}
+    WHERE (${raw(UserBlockCol.blockerId)} = ${userA} AND ${raw(UserBlockCol.blockedId)} = ${userB})
+       OR (${raw(UserBlockCol.blockerId)} = ${userB} AND ${raw(UserBlockCol.blockedId)} = ${userA})
+    LIMIT 1
+  `);
   const row = rows[0];
   if (row === undefined) return 'none';
   const blockerId = readString(row, UserBlockCol.blockerId);
@@ -50,7 +49,7 @@ export async function isBlockedEitherDirection(
 }
 
 export async function insertFriendship(
-  sql: SqlClient,
+  db: SqlClient,
   args: {
     readonly userA: string;
     readonly userB: string;
@@ -59,58 +58,48 @@ export async function insertFriendship(
   }
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
-  await sql.run(
-    `INSERT INTO ${FRIENDSHIPS_TABLE.tableName}
-     (${FriendshipCol.id}, ${FriendshipCol.userLow}, ${FriendshipCol.userHigh},
-      ${FriendshipCol.createdAt}, ${FriendshipCol.sourceRequestId})
-     VALUES (?, ?, ?, ?, ?)
-     ON CONFLICT (${FriendshipCol.userLow}, ${FriendshipCol.userHigh}) DO NOTHING`,
-    [
-      pairId(userLow, userHigh),
-      userLow,
-      userHigh,
-      args.now,
-      args.sourceRequestId,
-    ]
-  );
+  await db.run(sql`
+    INSERT INTO ${raw(FRIENDSHIPS_TABLE.tableName)}
+    (${raw(FriendshipCol.id)}, ${raw(FriendshipCol.userLow)}, ${raw(FriendshipCol.userHigh)},
+     ${raw(FriendshipCol.createdAt)}, ${raw(FriendshipCol.sourceRequestId)})
+    VALUES (${pairId(userLow, userHigh)}, ${userLow}, ${userHigh}, ${args.now}, ${args.sourceRequestId})
+    ON CONFLICT (${raw(FriendshipCol.userLow)}, ${raw(FriendshipCol.userHigh)}) DO NOTHING
+  `);
 }
 
 export async function deleteFriendship(
-  sql: SqlClient,
+  db: SqlClient,
   userA: string,
   userB: string
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  await sql.run(
-    `DELETE FROM ${FRIENDSHIPS_TABLE.tableName}
-     WHERE ${FriendshipCol.userLow} = ? AND ${FriendshipCol.userHigh} = ?`,
-    [userLow, userHigh]
-  );
+  await db.run(sql`
+    DELETE FROM ${raw(FRIENDSHIPS_TABLE.tableName)}
+    WHERE ${raw(FriendshipCol.userLow)} = ${userLow} AND ${raw(FriendshipCol.userHigh)} = ${userHigh}
+  `);
 }
 
 export async function insertBlock(
-  sql: SqlClient,
+  db: SqlClient,
   blockerId: string,
   blockedId: string,
   now: string
 ): Promise<void> {
-  await sql.run(
-    `INSERT INTO ${USER_BLOCKS_TABLE.tableName}
-     (${UserBlockCol.id}, ${UserBlockCol.blockerId}, ${UserBlockCol.blockedId}, ${UserBlockCol.createdAt})
-     VALUES (?, ?, ?, ?)
-     ON CONFLICT (${UserBlockCol.blockerId}, ${UserBlockCol.blockedId}) DO NOTHING`,
-    [pairId(blockerId, blockedId), blockerId, blockedId, now]
-  );
+  await db.run(sql`
+    INSERT INTO ${raw(USER_BLOCKS_TABLE.tableName)}
+    (${raw(UserBlockCol.id)}, ${raw(UserBlockCol.blockerId)}, ${raw(UserBlockCol.blockedId)}, ${raw(UserBlockCol.createdAt)})
+    VALUES (${pairId(blockerId, blockedId)}, ${blockerId}, ${blockedId}, ${now})
+    ON CONFLICT (${raw(UserBlockCol.blockerId)}, ${raw(UserBlockCol.blockedId)}) DO NOTHING
+  `);
 }
 
 export async function deleteBlock(
-  sql: SqlClient,
+  db: SqlClient,
   blockerId: string,
   blockedId: string
 ): Promise<void> {
-  await sql.run(
-    `DELETE FROM ${USER_BLOCKS_TABLE.tableName}
-     WHERE ${UserBlockCol.blockerId} = ? AND ${UserBlockCol.blockedId} = ?`,
-    [blockerId, blockedId]
-  );
+  await db.run(sql`
+    DELETE FROM ${raw(USER_BLOCKS_TABLE.tableName)}
+    WHERE ${raw(UserBlockCol.blockerId)} = ${blockerId} AND ${raw(UserBlockCol.blockedId)} = ${blockedId}
+  `);
 }

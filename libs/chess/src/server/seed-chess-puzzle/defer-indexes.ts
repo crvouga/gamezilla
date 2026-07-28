@@ -4,24 +4,23 @@
  */
 import { CHESS_PUZZLES_TABLE } from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
+import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-const DROP_INDEX_SQL = `
-  SELECT indexname
-  FROM pg_indexes
-  WHERE schemaname = current_schema()
-    AND tablename = ?
-    AND indexname NOT LIKE '%\\_pkey' ESCAPE '\\'
-  ORDER BY indexname
-`;
-
 export async function dropPuzzleSnapshotIndexes(args: {
-  sql: SqlClient;
+  db: SqlClient;
   log: Logger;
 }): Promise<void> {
-  const { sql, log } = args;
+  const { db, log } = args;
   const table = CHESS_PUZZLES_TABLE.tableName;
-  const rows = await sql.query<{ indexname: string }>(DROP_INDEX_SQL, [table]);
+  const rows = await db.query<{ indexname: string }>(sql`
+    SELECT indexname
+    FROM pg_indexes
+    WHERE schemaname = current_schema()
+      AND tablename = ${table}
+      AND indexname NOT LIKE '%\\_pkey' ESCAPE '\\'
+    ORDER BY indexname
+  `);
   if (rows.length === 0) {
     log.info('seed:puzzles: defer-indexes — no secondary indexes to drop');
     return;
@@ -35,7 +34,7 @@ export async function dropPuzzleSnapshotIndexes(args: {
   );
   for (const { indexname } of rows) {
     try {
-      await sql.run(`DROP INDEX IF EXISTS "${indexname}"`);
+      await db.run(raw(`DROP INDEX IF EXISTS "${indexname}"`));
     } catch (err) {
       log.warn('seed:puzzles: defer-indexes — drop failed (continuing)', {
         indexname,

@@ -1,5 +1,7 @@
 import { PGlite } from '@electric-sql/pglite';
 import type { AttributeState } from '@pkgs/attribute';
+import { sql, type Sql } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   afterAll,
   afterEach,
@@ -15,7 +17,6 @@ import {
   MatchmakingSchemaDriftError,
 } from './matchmaking';
 import { createPgliteSqlClient } from './pglite-adapter';
-import type { SqlClient } from './sql-client';
 import {
   bootMatchmaking,
   expectMatched,
@@ -675,17 +676,15 @@ describe('Matchmaking.tick - bounded fan-out and cancellation', () => {
     let inflight = 0;
     let peak = 0;
     const counting: SqlClient = {
-      async query(sql, params) {
+      ...base,
+      async query(query) {
         inflight += 1;
         peak = Math.max(peak, inflight);
         try {
-          return await base.query(sql, params);
+          return await base.query(query);
         } finally {
           inflight -= 1;
         }
-      },
-      tx(fn) {
-        return base.tx((inner) => fn(inner));
       },
     };
     const mm = new Matchmaking({
@@ -733,24 +732,17 @@ describe('Matchmaking.tick - advisory lock', () => {
     let lockProbeReturnsTrue = true;
     let didRunMatchPass = false;
     const stub: SqlClient = {
-      async query<T = Record<string, unknown>>(
-        sql: string,
-        params?: readonly unknown[]
-      ) {
-        if (sql.includes('pg_try_advisory_lock')) {
-          return {
-            rows: [
-              { pg_try_advisory_lock: lockProbeReturnsTrue },
-            ] as unknown as T[],
-          };
+      ...base,
+      async query<T = Record<string, unknown>>(query: Sql) {
+        if (query.sql.includes('pg_try_advisory_lock')) {
+          return [
+            { pg_try_advisory_lock: lockProbeReturnsTrue },
+          ] as unknown as T[];
         }
-        if (sql.includes('matchmaking_run_match_pass')) {
+        if (query.sql.includes('matchmaking_run_match_pass')) {
           didRunMatchPass = true;
         }
-        return await base.query<T>(sql, params);
-      },
-      tx(fn) {
-        return base.tx(fn);
+        return await base.query<T>(query);
       },
     };
     const mm = new Matchmaking({
@@ -792,14 +784,15 @@ describe('Matchmaking.tick - advisory lock', () => {
     const base = createPgliteSqlClient(db);
     let injectError = false;
     const flaky: SqlClient = {
-      async query(sql, params) {
-        if (injectError && sql.includes('matchmaking_run_match_pass')) {
+      ...base,
+      async query(query: Sql) {
+        if (
+          injectError &&
+          query.sql.includes('matchmaking_run_match_pass')
+        ) {
           throw new Error('synthetic SQL failure mid-drain');
         }
-        return await base.query(sql, params);
-      },
-      tx(fn) {
-        return base.tx(fn);
+        return await base.query(query);
       },
     };
     const mm = new Matchmaking({
@@ -878,9 +871,8 @@ describe('Matchmaking - schema drift', () => {
       await mm.ready();
       // Corrupt the stored fingerprint to simulate another process
       // having re-migrated with a different schema.
-      await sqlClient.query(
-        `UPDATE matchmaking_schema_state SET schema_fingerprint = $1 WHERE id = 1`,
-        ['{"corrupted":true}']
+      await sqlClient.run(
+        sql`UPDATE matchmaking_schema_state SET schema_fingerprint = ${'{"corrupted":true}'} WHERE id = 1`
       );
       // Build a NEW Matchmaking instance so the cached probe is fresh.
       const mm2 = new Matchmaking({
@@ -890,9 +882,8 @@ describe('Matchmaking - schema drift', () => {
       // mm2.ready() runs migrate which re-writes the fingerprint, so
       // we need to corrupt AFTER mm2 boots but BEFORE its first join.
       await mm2.ready();
-      await sqlClient.query(
-        `UPDATE matchmaking_schema_state SET schema_fingerprint = $1 WHERE id = 1`,
-        ['{"corrupted":true}']
+      await sqlClient.run(
+        sql`UPDATE matchmaking_schema_state SET schema_fingerprint = ${'{"corrupted":true}'} WHERE id = 1`
       );
       await expect(
         mm2.join({
@@ -1136,20 +1127,19 @@ describe('Matchmaking - group matching (groupSize)', () => {
       const rows = await sqlClient.query<{
         partition_signature: string;
         group_size: number | string;
-      }>(
-        `SELECT partition_signature, group_size
+      }>(sql`
+        SELECT partition_signature, group_size
          FROM matchmaking_active_partitions
-         ORDER BY group_size`
-      );
-      expect(rows.rows).toHaveLength(2);
-      const groupSizes = rows.rows.map((r) =>
+         ORDER BY group_size`);
+      expect(rows).toHaveLength(2);
+      const groupSizes = rows.map((r) =>
         typeof r.group_size === 'string'
           ? Number.parseInt(r.group_size, 10)
           : r.group_size
       );
       expect(groupSizes).toEqual([2, 3]);
       // Both share the same partition signature.
-      expect(new Set(rows.rows.map((r) => r.partition_signature)).size).toBe(1);
+      expect(new Set(rows.map((r) => r.partition_signature)).size).toBe(1);
     } finally {
       await db.close();
     }

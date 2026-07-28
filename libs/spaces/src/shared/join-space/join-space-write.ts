@@ -14,6 +14,7 @@ import {
   shouldConsumeInviteOnJoin,
 } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { raw, sql } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
@@ -58,11 +59,11 @@ function parseJoinSpaceInput(raw: unknown): WriteResult<JoinSpaceInput> {
 
 async function upsertJoinMembership(
   input: JoinSpaceInput,
-  sql: SqlClient,
+  db: SqlClient,
   memberId: string
 ): Promise<{ readonly reactivated: boolean }> {
   return upsertSpaceMembershipRow({
-    sql,
+    sql: db,
     membershipId: spaceMembershipEntityId(memberId, input.spaceId),
     memberId,
     spaceId: input.spaceId,
@@ -71,30 +72,24 @@ async function upsertJoinMembership(
 }
 
 async function bumpActiveMemberCount(
-  sql: SqlClient,
+  db: SqlClient,
   spaceId: string
 ): Promise<void> {
-  await sql.run(
-    `UPDATE ${SPACES_TABLE.tableName}
-     SET ${SpaceCol.activeMemberCount} = ${SpaceCol.activeMemberCount} + 1
-     WHERE ${SpaceCol.id} = ?`,
-    [spaceId]
-  );
+  await db.run(sql`UPDATE ${raw(SPACES_TABLE.tableName)}
+     SET ${raw(SpaceCol.activeMemberCount)} = ${raw(SpaceCol.activeMemberCount)} + 1
+     WHERE ${raw(SpaceCol.id)} = ${spaceId}`);
 }
 
 async function consumeInviteUse(
-  sql: SqlClient,
+  db: SqlClient,
   inviteId: string
 ): Promise<boolean> {
   const now = isoNow();
-  const result = await sql.run(
-    `UPDATE ${SPACE_INVITES_TABLE.tableName}
-     SET ${SpaceInviteCol.useCount} = ${SpaceInviteCol.useCount} + 1,
-         ${SpaceInviteCol.acceptedAt} = COALESCE(${SpaceInviteCol.acceptedAt}, ?)
-     WHERE ${SpaceInviteCol.id} = ?
-       AND ${SpaceInviteCol.useCount} < ${SpaceInviteCol.maxUses}`,
-    [now, inviteId]
-  );
+  const result = await db.run(sql`UPDATE ${raw(SPACE_INVITES_TABLE.tableName)}
+     SET ${raw(SpaceInviteCol.useCount)} = ${raw(SpaceInviteCol.useCount)} + 1,
+         ${raw(SpaceInviteCol.acceptedAt)} = COALESCE(${raw(SpaceInviteCol.acceptedAt)}, ${now})
+     WHERE ${raw(SpaceInviteCol.id)} = ${inviteId}
+       AND ${raw(SpaceInviteCol.useCount)} < ${raw(SpaceInviteCol.maxUses)}`);
   return result.changes > 0;
 }
 
@@ -130,33 +125,33 @@ async function consumeInviteForJoinIfNeeded(args: {
 export async function authorizeJoinSpace(
   ctx: WriteContext,
   input: JoinSpaceInput,
-  sql: SqlClient
+  db: SqlClient
 ): Promise<WriteResult<void>> {
-  return authorizeJoinSpaceAccess(ctx, sql, input.spaceId, input.inviteToken);
+  return authorizeJoinSpaceAccess(ctx, db, input.spaceId, input.inviteToken);
 }
 
 export async function executeJoinSpace(
   ctx: WriteContext,
   input: JoinSpaceInput,
-  sql: SqlClient
+  db: SqlClient
 ): Promise<WriteResult<void>> {
   const accountId = requireAccountId(ctx);
   if (!accountId.ok) return accountId;
   const memberId = resolveSpaceMemberId(accountId.value);
   const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
-  const membershipWasInactive = await wasMembershipInactive(sql, membershipId);
+  const membershipWasInactive = await wasMembershipInactive(db, membershipId);
   const inviteResult = await consumeInviteForJoinIfNeeded({
-    sql,
+    sql: db,
     spaceId: input.spaceId,
     inviteToken: input.inviteToken,
     membershipWasInactive,
   });
   if (!inviteResult.ok) return inviteResult;
-  const { reactivated } = await upsertJoinMembership(input, sql, memberId);
+  const { reactivated } = await upsertJoinMembership(input, db, memberId);
   if (shouldBumpMemberCountOnJoin({ membershipWasInactive: reactivated })) {
-    await bumpActiveMemberCount(sql, input.spaceId);
+    await bumpActiveMemberCount(db, input.spaceId);
   }
-  const space = await readSpaceRowForJoin(sql, input.spaceId);
+  const space = await readSpaceRowForJoin(db, input.spaceId);
   if (
     space.ok &&
     isSpaceHostActor({
@@ -169,7 +164,7 @@ export async function executeJoinSpace(
     })
   ) {
     await migrateHostIdentity({
-      sql,
+      sql: db,
       spaceId: input.spaceId,
       deviceId: ctx.deviceId,
       newMemberId: memberId,

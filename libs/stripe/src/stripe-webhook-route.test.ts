@@ -1,4 +1,5 @@
 import { SecretString, type SecretStore } from '@pkgs/secret-store';
+import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { describe, expect, it, mock } from 'bun:test';
 import Stripe from 'stripe';
@@ -191,13 +192,11 @@ describe('createStripeWebhookRoutes', () => {
   });
 
   it('writes verified event to entity_store (event cache + no webhook_event without account)', async () => {
-    const runCalls: { sql: string; params: unknown[] }[] = [];
-    const sql = makeSqlMock(
-      async (sqlText: string, params: readonly unknown[] = []) => {
-        runCalls.push({ sql: sqlText, params: [...params] });
-        return makeRunResult();
-      }
-    );
+    const runCalls: { sql: string; params: readonly unknown[] }[] = [];
+    const sql = makeSqlMock(async (query: Sql) => {
+      runCalls.push({ sql: query.sql, params: query.values });
+      return makeRunResult();
+    });
 
     const secretStore = {
       getRequired: async (name: string) => new SecretString(name, ''),

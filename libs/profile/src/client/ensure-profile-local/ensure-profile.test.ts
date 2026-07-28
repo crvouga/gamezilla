@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { Database } from 'bun:sqlite';
 
+import { raw, sql } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
@@ -36,17 +37,16 @@ function openTestSql(): SqlClientImplBunSqlite {
 
 describe('ensureProfile', () => {
   test('creates a row with empty username and avatar', async () => {
-    const sql = openTestSql();
-    await ensureProfile(sql, writeContextFor(MY_ID), MY_ID);
+    const sqlClient = openTestSql();
+    await ensureProfile(sqlClient, writeContextFor(MY_ID), MY_ID);
 
     const row = (
-      await sql.query<Record<string, string>>(
-        `SELECT ${ProfileCol.username} AS username,
-                ${ProfileCol.avatarConfig} AS avatar_config
-         FROM ${PROFILES_TABLE.tableName}
-         WHERE ${ProfileCol.id} = ?`,
-        [MY_ID]
-      )
+      await sqlClient.query<Record<string, string>>(sql`
+        SELECT ${raw(ProfileCol.username)} AS username,
+               ${raw(ProfileCol.avatarConfig)} AS avatar_config
+        FROM ${raw(PROFILES_TABLE.tableName)}
+        WHERE ${raw(ProfileCol.id)} = ${MY_ID}
+      `)
     )[0];
 
     expect(row?.['username']).toBe('');
@@ -54,78 +54,73 @@ describe('ensureProfile', () => {
   });
 
   test('does not insert a second row when profile already exists', async () => {
-    const sql = openTestSql();
+    const sqlClient = openTestSql();
     const ctx = writeContextFor(MY_ID);
-    await ensureProfile(sql, ctx, MY_ID);
-    await ensureProfile(sql, ctx, MY_ID);
+    await ensureProfile(sqlClient, ctx, MY_ID);
+    await ensureProfile(sqlClient, ctx, MY_ID);
 
-    const rows = await sql.query<{ n: number }>(
-      `SELECT count(*) AS n FROM ${PROFILES_TABLE.tableName} WHERE ${ProfileCol.id} = ?`,
-      [MY_ID]
-    );
+    const rows = await sqlClient.query<{ n: number }>(sql`
+      SELECT count(*) AS n FROM ${raw(PROFILES_TABLE.tableName)} WHERE ${raw(ProfileCol.id)} = ${MY_ID}
+    `);
     expect(rows[0]?.n).toBe(1);
   });
 
   test('applyEnsuredUsername fills an empty local username', async () => {
-    const sql = openTestSql();
+    const sqlClient = openTestSql();
     const ctx = writeContextFor(MY_ID);
-    await ensureProfile(sql, ctx, MY_ID);
-    await applyEnsuredUsername(sql, ctx, {
+    await ensureProfile(sqlClient, ctx, MY_ID);
+    await applyEnsuredUsername(sqlClient, ctx, {
       profileId: MY_ID,
       username: 'AssignedName',
     });
     const row = (
-      await sql.query<Record<string, string>>(
-        `SELECT ${ProfileCol.username} AS username FROM ${PROFILES_TABLE.tableName}
-         WHERE ${ProfileCol.id} = ?`,
-        [MY_ID]
-      )
+      await sqlClient.query<Record<string, string>>(sql`
+        SELECT ${raw(ProfileCol.username)} AS username FROM ${raw(PROFILES_TABLE.tableName)}
+        WHERE ${raw(ProfileCol.id)} = ${MY_ID}
+      `)
     )[0];
     expect(row?.['username']).toBe('AssignedName');
   });
 
   test('applyEnsuredUsername corrects wrong auto username', async () => {
-    const sql = openTestSql();
+    const sqlClient = openTestSql();
     const ctx = writeContextFor(MY_ID);
-    await ensureProfile(sql, ctx, MY_ID);
-    await applyEnsuredUsername(sql, ctx, {
+    await ensureProfile(sqlClient, ctx, MY_ID);
+    await applyEnsuredUsername(sqlClient, ctx, {
       profileId: MY_ID,
       username: 'WrongOtherAccount',
     });
-    await applyEnsuredUsername(sql, ctx, {
+    await applyEnsuredUsername(sqlClient, ctx, {
       profileId: MY_ID,
       username: 'CorrectName',
     });
     const row = (
-      await sql.query<Record<string, string>>(
-        `SELECT ${ProfileCol.username} AS username FROM ${PROFILES_TABLE.tableName}
-         WHERE ${ProfileCol.id} = ?`,
-        [MY_ID]
-      )
+      await sqlClient.query<Record<string, string>>(sql`
+        SELECT ${raw(ProfileCol.username)} AS username FROM ${raw(PROFILES_TABLE.tableName)}
+        WHERE ${raw(ProfileCol.id)} = ${MY_ID}
+      `)
     )[0];
     expect(row?.['username']).toBe('CorrectName');
   });
 
   test('applyEnsuredUsername does not overwrite user-chosen username', async () => {
-    const sql = openTestSql();
+    const sqlClient = openTestSql();
     const ctx = writeContextFor(MY_ID);
-    await ensureProfile(sql, ctx, MY_ID);
-    await sql.run(
-      `UPDATE ${PROFILES_TABLE.tableName}
-       SET ${ProfileCol.username} = ?, ${ProfileCol.usernameChangedAt} = ?
-       WHERE ${ProfileCol.id} = ?`,
-      ['MyHandle', new Date().toISOString(), MY_ID]
-    );
-    await applyEnsuredUsername(sql, ctx, {
+    await ensureProfile(sqlClient, ctx, MY_ID);
+    await sqlClient.run(sql`
+      UPDATE ${raw(PROFILES_TABLE.tableName)}
+      SET ${raw(ProfileCol.username)} = ${'MyHandle'}, ${raw(ProfileCol.usernameChangedAt)} = ${new Date().toISOString()}
+      WHERE ${raw(ProfileCol.id)} = ${MY_ID}
+    `);
+    await applyEnsuredUsername(sqlClient, ctx, {
       profileId: MY_ID,
       username: 'ServerName',
     });
     const row = (
-      await sql.query<Record<string, string>>(
-        `SELECT ${ProfileCol.username} AS username FROM ${PROFILES_TABLE.tableName}
-         WHERE ${ProfileCol.id} = ?`,
-        [MY_ID]
-      )
+      await sqlClient.query<Record<string, string>>(sql`
+        SELECT ${raw(ProfileCol.username)} AS username FROM ${raw(PROFILES_TABLE.tableName)}
+        WHERE ${raw(ProfileCol.id)} = ${MY_ID}
+      `)
     )[0];
     expect(row?.['username']).toBe('MyHandle');
   });

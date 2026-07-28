@@ -1,9 +1,10 @@
 import { PGlite } from '@electric-sql/pglite';
+import { sql, type Sql } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { migrate } from './migrate';
 import { NUM_WAITING_PARTITIONS } from './migrate-sql';
 import { createPgliteSqlClient } from './pglite-adapter';
-import type { SqlClient } from './sql-client';
 import { registerTestCrashHandler } from './test-harness';
 
 let disposeTestCrashHandler: () => void;
@@ -28,13 +29,11 @@ async function columnDef(
   const result = await sqlClient.query<{
     data_type: string;
     is_generated: string;
-  }>(
-    `SELECT data_type, is_generated
+  }>(sql`
+    SELECT data_type, is_generated
      FROM information_schema.columns
-     WHERE table_name = $1 AND column_name = $2`,
-    [table, column]
-  );
-  return result.rows[0] ?? null;
+     WHERE table_name = ${table} AND column_name = ${column}`);
+  return result[0] ?? null;
 }
 
 describe('migrate v3 - schema bootstrap', () => {
@@ -42,20 +41,17 @@ describe('migrate v3 - schema bootstrap', () => {
     const { db, sqlClient } = await boot();
     try {
       await migrate({ sqlClient });
-      const children = await sqlClient.query<{ relname: string }>(
-        `SELECT c.relname
+      const children = await sqlClient.query<{ relname: string }>(sql`
+        SELECT c.relname
          FROM pg_inherits i
          JOIN pg_class p ON p.oid = i.inhparent
          JOIN pg_class c ON c.oid = i.inhrelid
          WHERE p.relname = 'matchmaking_waiting'
-         ORDER BY c.relname`
-      );
-      expect(children.rows.length).toBe(NUM_WAITING_PARTITIONS);
+         ORDER BY c.relname`);
+      expect(children.length).toBe(NUM_WAITING_PARTITIONS);
       for (let i = 0; i < NUM_WAITING_PARTITIONS; i += 1) {
         const suffix = i.toString().padStart(2, '0');
-        expect(children.rows[i]?.relname).toBe(
-          `matchmaking_waiting_p${suffix}`
-        );
+        expect(children[i]?.relname).toBe(`matchmaking_waiting_p${suffix}`);
       }
     } finally {
       await db.close();
@@ -70,15 +66,14 @@ describe('migrate v3 - schema bootstrap', () => {
         relpersistence: string;
         relkind: string;
         partstrat: string | null;
-      }>(
-        `SELECT c.relpersistence, c.relkind, p.partstrat
+      }>(sql`
+        SELECT c.relpersistence, c.relkind, p.partstrat
          FROM pg_class c
          LEFT JOIN pg_partitioned_table p ON p.partrelid = c.oid
-         WHERE c.relname = 'matchmaking_waiting'`
-      );
-      expect(meta.rows[0]?.relpersistence).toBe('u');
-      expect(meta.rows[0]?.relkind).toBe('p');
-      expect(meta.rows[0]?.partstrat).toBe('h');
+         WHERE c.relname = 'matchmaking_waiting'`);
+      expect(meta[0]?.relpersistence).toBe('u');
+      expect(meta[0]?.relkind).toBe('p');
+      expect(meta[0]?.partstrat).toBe('h');
     } finally {
       await db.close();
     }
@@ -121,15 +116,15 @@ describe('migrate v3 - schema bootstrap', () => {
         relpersistence: string;
         relkind: string;
       }>(
-        `SELECT relpersistence, relkind FROM pg_class WHERE relname = 'matchmaking_matched'`
+        sql`SELECT relpersistence, relkind FROM pg_class WHERE relname = 'matchmaking_matched'`
       );
-      expect(meta.rows[0]?.relpersistence).toBe('p');
-      expect(meta.rows[0]?.relkind).toBe('r');
+      expect(meta[0]?.relpersistence).toBe('p');
+      expect(meta[0]?.relkind).toBe('r');
 
       const idx = await sqlClient.query<{ indexname: string }>(
-        `SELECT indexname FROM pg_indexes WHERE tablename = 'matchmaking_matched' ORDER BY indexname`
+        sql`SELECT indexname FROM pg_indexes WHERE tablename = 'matchmaking_matched' ORDER BY indexname`
       );
-      const names = new Set(idx.rows.map((r) => r.indexname));
+      const names = new Set(idx.map((r) => r.indexname));
       expect(names.has('matchmaking_matched_match_id_idx')).toBe(true);
       expect(names.has('matchmaking_matched_matched_at_idx')).toBe(true);
     } finally {
@@ -142,9 +137,9 @@ describe('migrate v3 - schema bootstrap', () => {
     try {
       await migrate({ sqlClient });
       const meta = await sqlClient.query<{ relpersistence: string }>(
-        `SELECT relpersistence FROM pg_class WHERE relname = 'matchmaking_active_partitions'`
+        sql`SELECT relpersistence FROM pg_class WHERE relname = 'matchmaking_active_partitions'`
       );
-      expect(meta.rows[0]?.relpersistence).toBe('u');
+      expect(meta[0]?.relpersistence).toBe('u');
       // v4 PK is (partition_signature, group_size) — order matters
       // because the tick loop reads `(sig, group_size)` pairs from this
       // table. Both columns are part of the unique constraint that
@@ -152,17 +147,16 @@ describe('migrate v3 - schema bootstrap', () => {
       const pk = await sqlClient.query<{
         column_name: string;
         ordinal_position: number;
-      }>(
-        `SELECT a.attname AS column_name, x.ordinal_position
+      }>(sql`
+        SELECT a.attname AS column_name, x.ordinal_position
          FROM pg_index i
          JOIN LATERAL unnest(i.indkey) WITH ORDINALITY AS x(attnum, ordinal_position) ON true
          JOIN pg_attribute a
            ON a.attrelid = i.indrelid AND a.attnum = x.attnum
          WHERE i.indrelid = 'matchmaking_active_partitions'::regclass
            AND i.indisprimary
-         ORDER BY x.ordinal_position`
-      );
-      expect(pk.rows.map((r) => r.column_name)).toEqual([
+         ORDER BY x.ordinal_position`);
+      expect(pk.map((r) => r.column_name)).toEqual([
         'partition_signature',
         'group_size',
       ]);
@@ -179,9 +173,9 @@ describe('migrate v3 - idempotency', () => {
       await migrate({ sqlClient });
       await migrate({ sqlClient });
       const fp = await sqlClient.query<{ schema_fingerprint: string }>(
-        `SELECT schema_fingerprint FROM matchmaking_schema_state WHERE id = 1`
+        sql`SELECT schema_fingerprint FROM matchmaking_schema_state WHERE id = 1`
       );
-      expect(fp.rows.length).toBe(1);
+      expect(fp.length).toBe(1);
     } finally {
       await db.close();
     }
@@ -196,41 +190,28 @@ describe('migrate v3 - idempotency', () => {
       // rebuild drops the table so the row goes with it — the contract
       // here is that the schema fingerprint flips and the new shape
       // permits an insert with caller-supplied partition_signature.
-      await sqlClient.query(
-        `INSERT INTO matchmaking_waiting (data, formulas, partition_signature)
-         VALUES ($1::jsonb, $2::jsonb, $3)`,
-        [
-          JSON.stringify({ 'mmtest/region': 'us-east' }),
-          JSON.stringify([{ numeric: [] }]),
-          '',
-        ]
-      );
+      await sqlClient.run(sql`
+        INSERT INTO matchmaking_waiting (data, formulas, partition_signature)
+         VALUES (${JSON.stringify({ 'mmtest/region': 'us-east' })}::jsonb, ${JSON.stringify([{ numeric: [] }])}::jsonb, ${''})`);
 
       await migrate({
         sqlClient,
         schema: { partitionKeys: ['mmtest/region'] },
       });
       const fp = await sqlClient.query<{ schema_fingerprint: string }>(
-        `SELECT schema_fingerprint FROM matchmaking_schema_state WHERE id = 1`
+        sql`SELECT schema_fingerprint FROM matchmaking_schema_state WHERE id = 1`
       );
-      expect(fp.rows[0]?.schema_fingerprint ?? '').toContain('mmtest/region');
+      expect(fp[0]?.schema_fingerprint ?? '').toContain('mmtest/region');
 
       // Insert a row through the new schema using a JS-computed
       // partition_signature; verify it round-trips.
-      await sqlClient.query(
-        `INSERT INTO matchmaking_waiting (data, formulas, partition_signature)
-         VALUES ($1::jsonb, $2::jsonb, $3)`,
-        [
-          JSON.stringify({ 'mmtest/region': 'eu-west' }),
-          JSON.stringify([{ numeric: [] }]),
-          'eu-west',
-        ]
-      );
-      const row = await sqlClient.query<{ partition_signature: string }>(
-        `SELECT partition_signature FROM matchmaking_waiting
-         WHERE (data->>'mmtest/region') = 'eu-west'`
-      );
-      expect(row.rows[0]?.partition_signature).toBe('eu-west');
+      await sqlClient.run(sql`
+        INSERT INTO matchmaking_waiting (data, formulas, partition_signature)
+         VALUES (${JSON.stringify({ 'mmtest/region': 'eu-west' })}::jsonb, ${JSON.stringify([{ numeric: [] }])}::jsonb, ${'eu-west'})`);
+      const row = await sqlClient.query<{ partition_signature: string }>(sql`
+        SELECT partition_signature FROM matchmaking_waiting
+         WHERE (data->>'mmtest/region') = 'eu-west'`);
+      expect(row[0]?.partition_signature).toBe('eu-west');
     } finally {
       await db.close();
     }
@@ -246,17 +227,16 @@ describe('migrate v3 - matchmaking_tick() function', () => {
         proname: string;
         pronargs: number;
         prorettype_name: string;
-      }>(
-        `SELECT p.proname,
+      }>(sql`
+        SELECT p.proname,
                 p.pronargs,
                 t.typname AS prorettype_name
          FROM pg_proc p
          JOIN pg_type t ON t.oid = p.prorettype
-         WHERE p.proname = 'matchmaking_tick'`
-      );
-      expect(fn.rows.length).toBe(1);
-      expect(fn.rows[0]?.pronargs).toBe(0);
-      expect(fn.rows[0]?.prorettype_name).toBe('void');
+         WHERE p.proname = 'matchmaking_tick'`);
+      expect(fn.length).toBe(1);
+      expect(fn[0]?.pronargs).toBe(0);
+      expect(fn[0]?.prorettype_name).toBe('void');
     } finally {
       await db.close();
     }
@@ -270,21 +250,20 @@ describe('migrate v3 - matchmaking_tick() function', () => {
       // release path and the fan-out loop with zero partitions; any
       // PL/pgSQL regression (unbalanced lock, bad function signature,
       // missing helper) surfaces here.
-      await sqlClient.query(`SELECT matchmaking_tick()`);
+      await sqlClient.query(sql`SELECT matchmaking_tick()`);
       // Second call confirms the advisory lock was released on the
       // happy path — otherwise the second tick would silently no-op
       // (but here we just assert it doesn't throw).
-      await sqlClient.query(`SELECT matchmaking_tick()`);
+      await sqlClient.query(sql`SELECT matchmaking_tick()`);
       // Cross-check the advisory lock is not held by the current
       // session after both ticks return.
-      const held = await sqlClient.query<{ held: boolean }>(
-        `SELECT EXISTS (
+      const held = await sqlClient.query<{ held: boolean }>(sql`
+        SELECT EXISTS (
            SELECT 1 FROM pg_locks
            WHERE locktype = 'advisory'
              AND pid = pg_backend_pid()
-         ) AS held`
-      );
-      expect(held.rows[0]?.held).toBe(false);
+         ) AS held`);
+      expect(held[0]?.held).toBe(false);
     } finally {
       await db.close();
     }
@@ -296,9 +275,9 @@ describe('migrate v3 - matchmaking_tick() function', () => {
       await migrate({ sqlClient });
       await migrate({ sqlClient });
       const count = await sqlClient.query<{ n: number }>(
-        `SELECT COUNT(*)::INT AS n FROM pg_proc WHERE proname = 'matchmaking_tick'`
+        sql`SELECT COUNT(*)::INT AS n FROM pg_proc WHERE proname = 'matchmaking_tick'`
       );
-      expect(count.rows[0]?.n).toBe(1);
+      expect(count[0]?.n).toBe(1);
     } finally {
       await db.close();
     }
@@ -312,14 +291,13 @@ describe('migrate v3 - matchmaking_tick() function', () => {
       // PGlite would raise "schema 'cron' does not exist" and the
       // hermetic test path would break.
       await migrate({ sqlClient });
-      const hasCronJob = await sqlClient.query<{ ok: boolean }>(
-        `SELECT EXISTS (
+      const hasCronJob = await sqlClient.query<{ ok: boolean }>(sql`
+        SELECT EXISTS (
            SELECT 1
            FROM information_schema.schemata
            WHERE schema_name = 'cron'
-         ) AS ok`
-      );
-      expect(hasCronJob.rows[0]?.ok).toBe(false);
+         ) AS ok`);
+      expect(hasCronJob[0]?.ok).toBe(false);
     } finally {
       await db.close();
     }
@@ -385,15 +363,15 @@ describe('migrate - schema fingerprint stability', () => {
       };
       await migrate({ sqlClient, schema });
       const first = await sqlClient.query<{ fp: string }>(
-        `SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
+        sql`SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
       );
-      const firstFp = first.rows[0]?.fp;
+      const firstFp = first[0]?.fp;
       expect(typeof firstFp).toBe('string');
       await migrate({ sqlClient, schema });
       const second = await sqlClient.query<{ fp: string }>(
-        `SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
+        sql`SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
       );
-      expect(second.rows[0]?.fp).toBe(firstFp);
+      expect(second[0]?.fp).toBe(firstFp);
     } finally {
       await db.close();
     }
@@ -407,16 +385,16 @@ describe('migrate - schema fingerprint stability', () => {
         schema: { partitionKeys: ['mmtest/region'] },
       });
       const first = await sqlClient.query<{ fp: string }>(
-        `SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
+        sql`SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
       );
       await migrate({
         sqlClient,
         schema: { partitionKeys: ['mmtest/region', 'mmtest/kind'] },
       });
       const second = await sqlClient.query<{ fp: string }>(
-        `SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
+        sql`SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
       );
-      expect(second.rows[0]?.fp).not.toBe(first.rows[0]?.fp);
+      expect(second[0]?.fp).not.toBe(first[0]?.fp);
     } finally {
       await db.close();
     }
@@ -429,19 +407,19 @@ describe('migrate - matchmaking_active_partitions prune', () => {
     try {
       await migrate({ sqlClient });
       // Seed a synthetic active-partitions row pointing at no waiters.
-      await sqlClient.query(
-        `INSERT INTO matchmaking_active_partitions (partition_signature)
-         VALUES ('orphaned-partition')`
+      await sqlClient.run(
+        sql`INSERT INTO matchmaking_active_partitions (partition_signature)
+         VALUES (${'orphaned-partition'})`
       );
       const before = await sqlClient.query<{ n: number }>(
-        `SELECT COUNT(*)::INT AS n FROM matchmaking_active_partitions`
+        sql`SELECT COUNT(*)::INT AS n FROM matchmaking_active_partitions`
       );
-      expect(before.rows[0]?.n).toBe(1);
-      await sqlClient.query(`SELECT matchmaking_tick()`);
+      expect(before[0]?.n).toBe(1);
+      await sqlClient.query(sql`SELECT matchmaking_tick()`);
       const after = await sqlClient.query<{ n: number }>(
-        `SELECT COUNT(*)::INT AS n FROM matchmaking_active_partitions`
+        sql`SELECT COUNT(*)::INT AS n FROM matchmaking_active_partitions`
       );
-      expect(after.rows[0]?.n).toBe(0);
+      expect(after[0]?.n).toBe(0);
     } finally {
       await db.close();
     }
@@ -457,16 +435,15 @@ describe('migrate - matchmaking_active_partitions prune', () => {
       // clause too — this test verifies the watermark clause runs
       // (the two clauses are independent) by checking that the row
       // count drops to zero.
-      await sqlClient.query(
-        `INSERT INTO matchmaking_active_partitions (partition_signature, first_seen_at)
+      await sqlClient.run(sql`
+        INSERT INTO matchmaking_active_partitions (partition_signature, first_seen_at)
          VALUES ('old', now() - INTERVAL '30 days'),
-                ('new', now())`
-      );
-      await sqlClient.query(`SELECT matchmaking_tick()`);
+                ('new', now())`);
+      await sqlClient.query(sql`SELECT matchmaking_tick()`);
       const after = await sqlClient.query<{ n: number }>(
-        `SELECT COUNT(*)::INT AS n FROM matchmaking_active_partitions`
+        sql`SELECT COUNT(*)::INT AS n FROM matchmaking_active_partitions`
       );
-      expect(after.rows[0]?.n).toBe(0);
+      expect(after[0]?.n).toBe(0);
     } finally {
       await db.close();
     }
@@ -474,24 +451,26 @@ describe('migrate - matchmaking_active_partitions prune', () => {
 });
 
 describe('migrate - cron.unschedule fallback', () => {
-  // PGlite has no pg_cron extension. We stub `sqlClient.query` to
-  // (a) report pg_cron as installed and (b) throw a duplicate-name
-  // error on the first cron.schedule, then assert migrate retries
-  // via cron.unschedule + cron.schedule.
+  // PGlite has no pg_cron extension. We stub `sqlClient.query` /
+  // `sqlClient.run` to (a) report pg_cron as installed and (b) throw a
+  // duplicate-name error on the first cron.schedule, then assert migrate
+  // retries via cron.unschedule + cron.schedule.
   test('falls back to cron.unschedule when cron.schedule reports duplicate name', async () => {
     const { db, sqlClient: base } = await boot();
     const calls: string[] = [];
     let scheduleAttempts = 0;
     const stub: SqlClient = {
-      async query<T = Record<string, unknown>>(
-        sql: string,
-        params?: readonly unknown[]
-      ) {
-        const lower = sql.toLowerCase();
+      ...base,
+      async query<T = Record<string, unknown>>(query: Sql) {
+        const lower = query.sql.toLowerCase();
         if (lower.includes("extname = 'pg_cron'")) {
           calls.push('is-pg-cron');
-          return { rows: [{ ok: true }] as unknown as T[] };
+          return [{ ok: true }] as unknown as T[];
         }
+        return await base.query<T>(query);
+      },
+      async run(query: Sql) {
+        const lower = query.sql.toLowerCase();
         if (lower.includes('cron.schedule')) {
           calls.push('cron.schedule');
           scheduleAttempts += 1;
@@ -500,16 +479,13 @@ describe('migrate - cron.unschedule fallback', () => {
               `cron job "matchmaking-tick" already exists (duplicate)`
             );
           }
-          return { rows: [{ jobid: 42 }] as unknown as T[] };
+          return { changes: 0, lastInsertRowid: 0 };
         }
         if (lower.includes('cron.unschedule')) {
           calls.push('cron.unschedule');
-          return { rows: [] as unknown as T[] };
+          return { changes: 0, lastInsertRowid: 0 };
         }
-        return await base.query<T>(sql, params);
-      },
-      tx(fn) {
-        return base.tx(fn);
+        return await base.run(query);
       },
     };
     try {

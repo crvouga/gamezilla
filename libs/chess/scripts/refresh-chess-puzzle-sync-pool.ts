@@ -2,6 +2,7 @@
  * Rebuilds the `chess_puzzles.sync_pool` flag with the top puzzles per rating
  * band for PowerSync client sync (`WHERE sync_pool = true`).
  */
+import { raw, sql } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 
@@ -22,9 +23,9 @@ async function main(): Promise<void> {
   try {
     // Avoid `UPDATE chess_puzzles SET sync_pool = false` (rewrites ~6M rows).
     // Flip flags only for the pick set.
-    await sqlClient.run('BEGIN');
-    await sqlClient.run(
-      `CREATE TEMP TABLE puzzle_pool_pick ON COMMIT DROP AS
+    await sqlClient.run(raw('BEGIN'));
+    await sqlClient.run(sql`
+      CREATE TEMP TABLE puzzle_pool_pick ON COMMIT DROP AS
        SELECT id
        FROM (
          SELECT
@@ -34,26 +35,25 @@ async function main(): Promise<void> {
              ORDER BY popularity DESC
            ) AS rn
          FROM chess_puzzles
-         WHERE rating >= 0 AND (rating / 400)::integer <= ?
+         WHERE rating >= 0 AND (rating / 400)::integer <= ${MAX_BAND}
        ) ranked
-       WHERE rn <= ?`,
-      [MAX_BAND, POOL_PER_BAND]
-    );
+       WHERE rn <= ${POOL_PER_BAND}
+    `);
     await sqlClient.run(
-      `UPDATE chess_puzzles
+      raw(`UPDATE chess_puzzles
        SET sync_pool = false
        WHERE sync_pool = true
-         AND id NOT IN (SELECT id FROM puzzle_pool_pick)`
+         AND id NOT IN (SELECT id FROM puzzle_pool_pick)`)
     );
     await sqlClient.run(
-      `UPDATE chess_puzzles
+      raw(`UPDATE chess_puzzles
        SET sync_pool = true
        WHERE sync_pool = false
-         AND id IN (SELECT id FROM puzzle_pool_pick)`
+         AND id IN (SELECT id FROM puzzle_pool_pick)`)
     );
-    await sqlClient.run('COMMIT');
+    await sqlClient.run(raw('COMMIT'));
     const count = await sqlClient.query<{ n: number }>(
-      'SELECT count(*)::int AS n FROM chess_puzzles WHERE sync_pool = true'
+      raw('SELECT count(*)::int AS n FROM chess_puzzles WHERE sync_pool = true')
     );
     process.stdout.write(
       `${JSON.stringify({
@@ -64,7 +64,7 @@ async function main(): Promise<void> {
       })}\n`
     );
   } catch (error) {
-    await sqlClient.run('ROLLBACK').catch(() => undefined);
+    await sqlClient.run(raw('ROLLBACK')).catch(() => undefined);
     throw error;
   } finally {
     await pool.end();

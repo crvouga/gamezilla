@@ -1,5 +1,6 @@
 import { SQL } from 'bun';
 import { assert } from '@pkgs/assert';
+import type { Sql, Value } from '@pkgs/sql';
 import type {
   PostgresSqlClient,
   PreparedStatement,
@@ -63,19 +64,16 @@ export class SqlClientImplBunPostgres implements PostgresSqlClient {
     return this.client.disconnect();
   }
 
-  query<T = Record<string, unknown>>(
-    sql: string,
-    params?: unknown[]
-  ): Promise<T[]> {
-    return this.client.query<T>(sql, params);
+  query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
+    return this.client.query<T>(query);
   }
 
-  run(sql: string, params?: unknown[]): Promise<RunResult> {
-    return this.client.run(sql, params);
+  run(query: Sql): Promise<RunResult> {
+    return this.client.run(query);
   }
 
-  prepare(sql: string): PreparedStatement {
-    return this.client.prepare(sql);
+  prepare(query: Sql): PreparedStatement {
+    return this.client.prepare(query);
   }
 
   transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
@@ -148,29 +146,41 @@ function createClient(sql: BunSql, options: BunClientOptions): SqlClient {
     // and hang the process after work completes. 5s is plenty for an idle
     // pool; anything longer indicates stuck handles we would kill anyway.
     disconnect: () => sql.close({ timeout: 5 }),
-    prepare: (querySql: string): PreparedStatement => ({
-      query: async <T = Record<string, unknown>>(params?: unknown[]) =>
-        withBunSearchPathPin(
-          { sql, options, querySql, params, mode: 'query' },
-          (conn, text, vals) => bunQueryRows<T>(conn, text, vals)
-        ),
-      run: async (params?: unknown[]) =>
-        withBunSearchPathPin(
-          { sql, options, querySql, params, mode: 'run' },
-          (conn, text, vals) => bunRunStatement(conn, text, vals)
-        ),
-    }),
-    query: async <T = Record<string, unknown>>(
-      querySql: string,
-      params?: unknown[]
-    ) =>
+    prepare: (query: Sql): PreparedStatement => {
+      const querySql = query.sql;
+      return {
+        query: async <T = Record<string, unknown>>(params?: Value[]) =>
+          withBunSearchPathPin(
+            { sql, options, querySql, params, mode: 'query' },
+            (conn, text, vals) => bunQueryRows<T>(conn, text, vals)
+          ),
+        run: async (params?: Value[]) =>
+          withBunSearchPathPin(
+            { sql, options, querySql, params, mode: 'run' },
+            (conn, text, vals) => bunRunStatement(conn, text, vals)
+          ),
+      };
+    },
+    query: async <T = Record<string, unknown>>(query: Sql) =>
       withBunSearchPathPin(
-        { sql, options, querySql, params, mode: 'query' },
+        {
+          sql,
+          options,
+          querySql: query.sql,
+          params: query.values,
+          mode: 'query',
+        },
         (conn, text, vals) => bunQueryRows<T>(conn, text, vals)
       ),
-    run: async (querySql: string, params?: unknown[]) =>
+    run: async (query: Sql) =>
       withBunSearchPathPin(
-        { sql, options, querySql, params, mode: 'run' },
+        {
+          sql,
+          options,
+          querySql: query.sql,
+          params: query.values,
+          mode: 'run',
+        },
         (conn, text, vals) => bunRunStatement(conn, text, vals)
       ),
     transaction: async (fn) =>

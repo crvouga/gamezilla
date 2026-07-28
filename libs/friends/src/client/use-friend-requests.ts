@@ -3,6 +3,7 @@ import {
   FRIEND_REQUESTS_TABLE,
   FriendRequestCol,
 } from '@libs/db/shared/friends-tables';
+import { raw, sql, type Sql } from '@pkgs/sql';
 import { useMemo } from 'react';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
@@ -19,44 +20,36 @@ type FriendRequestRow = {
   readonly responded_at: string | null;
 };
 
-function pendingIncomingSql(myId: string): { sql: string; params: string[] } {
+function pendingIncomingSql(myId: string): Sql {
   if (myId.length === 0) {
-    return {
-      sql: `SELECT * FROM ${FRIEND_REQUESTS_TABLE.tableName} WHERE 0`,
-      params: [],
-    };
+    return sql`SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)} WHERE 0`;
   }
-  return {
-    sql: `SELECT ${FriendRequestCol.id}, ${FriendRequestCol.fromUserId},
-                 ${FriendRequestCol.toUserId}, ${FriendRequestCol.status},
-                 ${FriendRequestCol.message}, ${FriendRequestCol.createdAt},
-                 ${FriendRequestCol.updatedAt}, ${FriendRequestCol.respondedAt}
-          FROM ${FRIEND_REQUESTS_TABLE.tableName}
-          WHERE ${FriendRequestCol.toUserId} = ?
-            AND ${FriendRequestCol.status} = 'pending'
-          ORDER BY ${FriendRequestCol.createdAt} DESC`,
-    params: [myId],
-  };
+  return sql`
+    SELECT ${raw(FriendRequestCol.id)}, ${raw(FriendRequestCol.fromUserId)},
+           ${raw(FriendRequestCol.toUserId)}, ${raw(FriendRequestCol.status)},
+           ${raw(FriendRequestCol.message)}, ${raw(FriendRequestCol.createdAt)},
+           ${raw(FriendRequestCol.updatedAt)}, ${raw(FriendRequestCol.respondedAt)}
+    FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${raw(FriendRequestCol.toUserId)} = ${myId}
+      AND ${raw(FriendRequestCol.status)} = 'pending'
+    ORDER BY ${raw(FriendRequestCol.createdAt)} DESC
+  `;
 }
 
-function pendingOutgoingSql(myId: string): { sql: string; params: string[] } {
+function pendingOutgoingSql(myId: string): Sql {
   if (myId.length === 0) {
-    return {
-      sql: `SELECT * FROM ${FRIEND_REQUESTS_TABLE.tableName} WHERE 0`,
-      params: [],
-    };
+    return sql`SELECT * FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)} WHERE 0`;
   }
-  return {
-    sql: `SELECT ${FriendRequestCol.id}, ${FriendRequestCol.fromUserId},
-                 ${FriendRequestCol.toUserId}, ${FriendRequestCol.status},
-                 ${FriendRequestCol.message}, ${FriendRequestCol.createdAt},
-                 ${FriendRequestCol.updatedAt}, ${FriendRequestCol.respondedAt}
-          FROM ${FRIEND_REQUESTS_TABLE.tableName}
-          WHERE ${FriendRequestCol.fromUserId} = ?
-            AND ${FriendRequestCol.status} = 'pending'
-          ORDER BY ${FriendRequestCol.createdAt} DESC`,
-    params: [myId],
-  };
+  return sql`
+    SELECT ${raw(FriendRequestCol.id)}, ${raw(FriendRequestCol.fromUserId)},
+           ${raw(FriendRequestCol.toUserId)}, ${raw(FriendRequestCol.status)},
+           ${raw(FriendRequestCol.message)}, ${raw(FriendRequestCol.createdAt)},
+           ${raw(FriendRequestCol.updatedAt)}, ${raw(FriendRequestCol.respondedAt)}
+    FROM ${raw(FRIEND_REQUESTS_TABLE.tableName)}
+    WHERE ${raw(FriendRequestCol.fromUserId)} = ${myId}
+      AND ${raw(FriendRequestCol.status)} = 'pending'
+    ORDER BY ${raw(FriendRequestCol.createdAt)} DESC
+  `;
 }
 
 function mapRequestRow(row: FriendRequestRow): FriendRequest {
@@ -78,10 +71,7 @@ export function useIncomingFriendRequests(): {
 } {
   const myId = useMyId();
   const query = useMemo(() => pendingIncomingSql(myId), [myId]);
-  const { rows, isLoading } = useWatchQuery<FriendRequestRow>(
-    query.sql,
-    query.params
-  );
+  const { rows, isLoading } = useWatchQuery<FriendRequestRow>(query);
   const requests = useMemo(() => rows.map(mapRequestRow), [rows]);
   return { requests, isLoading: myId.length === 0 ? false : isLoading };
 }
@@ -92,10 +82,7 @@ export function useOutgoingFriendRequests(): {
 } {
   const myId = useMyId();
   const query = useMemo(() => pendingOutgoingSql(myId), [myId]);
-  const { rows, isLoading } = useWatchQuery<FriendRequestRow>(
-    query.sql,
-    query.params
-  );
+  const { rows, isLoading } = useWatchQuery<FriendRequestRow>(query);
   const requests = useMemo(() => rows.map(mapRequestRow), [rows]);
   return { requests, isLoading: myId.length === 0 ? false : isLoading };
 }

@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { createLogger, type Logger } from '@pkgs/logger';
+import { raw } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { quotePgIdent } from '@pkgs/sql-client/postgres/schema';
@@ -20,9 +21,11 @@ export async function runPowerSyncSourceDbSql(args: {
 }): Promise<void> {
   const { sqlClient, logger } = args;
   const dbScope = appPostgresDbScope();
-  await sqlClient.run(`SET search_path TO ${quotePgIdent(dbScope.schema)}`);
+  await sqlClient.run(
+    raw(`SET search_path TO ${quotePgIdent(dbScope.schema)}`)
+  );
   const statement = readFileSync(sqlPath, 'utf8').trim();
-  await sqlClient.run(statement);
+  await sqlClient.run(raw(statement));
   logger.info('powersync source-db setup applied', { schema: dbScope.schema });
 }
 

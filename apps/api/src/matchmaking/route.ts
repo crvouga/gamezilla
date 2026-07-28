@@ -33,28 +33,44 @@ import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { assert } from '@pkgs/assert';
 import { Matchmaking } from '@pkgs/matchmaking';
+import type { Sql } from '@pkgs/sql';
 import type {
-  SqlClient as MmSqlClient,
-  QueryResult,
-} from '@pkgs/matchmaking/storage';
+  PreparedStatement,
+  RunResult,
+  SqlClient,
+} from '@pkgs/sql-client/interface';
 import type { Hono, MiddlewareHandler } from 'hono';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { MATCHMAKING_SCHEMA, MATCHMAKING_TUNING } from './schema';
 
-function lazyRequestSqlClient(): MmSqlClient {
+/**
+ * A {@link SqlClient} facade that resolves the per-request Postgres client
+ * from {@link apiRequestAsyncLocalStorage} on every call. The single
+ * long-lived {@link Matchmaking} instance delegates through this so each
+ * request reuses its own connection without threading a separate client.
+ * `connect` / `disconnect` are intentionally no-ops — the request DB
+ * middleware owns that lifecycle.
+ */
+function lazyRequestSqlClient(): SqlClient {
+  const requestSqlClient = (): SqlClient => {
+    const s = apiRequestAsyncLocalStorage.getStore();
+    assert.defined(s, 'matchmaking: request store missing');
+    return s.sqlClient;
+  };
   return {
-    query<T = Record<string, unknown>>(
-      sql: string,
-      params?: readonly unknown[]
-    ): Promise<QueryResult<T>> {
-      const s = apiRequestAsyncLocalStorage.getStore();
-      assert.defined(s, 'matchmaking: request store missing');
-      return s.matchmakingSqlClient.query<T>(sql, params);
+    connect: async () => undefined,
+    disconnect: async () => undefined,
+    query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
+      return requestSqlClient().query<T>(query);
     },
-    tx<T>(fn: (tx: MmSqlClient) => Promise<T>): Promise<T> {
-      const s = apiRequestAsyncLocalStorage.getStore();
-      assert.defined(s, 'matchmaking: request store missing');
-      return s.matchmakingSqlClient.tx(fn);
+    run(query: Sql): Promise<RunResult> {
+      return requestSqlClient().run(query);
+    },
+    transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+      return requestSqlClient().transaction(fn);
+    },
+    prepare(query: Sql): PreparedStatement {
+      return requestSqlClient().prepare(query);
     },
   };
 }

@@ -8,9 +8,10 @@ import {
   expect,
   test,
 } from 'bun:test';
+import type { Sql } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Matchmaking } from './matchmaking';
 import { createPgliteSqlClient } from './pglite-adapter';
-import type { SqlClient } from './sql-client';
 import {
   type AppHarness,
   bootMatchmakingApp,
@@ -249,19 +250,18 @@ describe('Matchmaking.app - SQL roundtrip count (chess.com-scale regression)', (
     let count = 0;
     const base = createPgliteSqlClient(db);
     const counting: SqlClient = {
-      async query(sql, params) {
+      ...base,
+      async query(query) {
         count += 1;
-        return await base.query(sql, params);
+        return await base.query(query);
       },
-      tx(fn) {
-        return base.tx((inner) =>
+      transaction(fn) {
+        return base.transaction((inner) =>
           fn({
-            async query(sql, params) {
+            ...inner,
+            async query(query) {
               count += 1;
-              return await inner.query(sql, params);
-            },
-            tx() {
-              throw new Error('nested tx not used');
+              return await inner.query(query);
             },
           })
         );
@@ -333,14 +333,15 @@ describe('Matchmaking.app - 500 sanitisation', () => {
     const base = createPgliteSqlClient(db);
     let failOnInsert = false;
     const flaky: SqlClient = {
-      async query(sql, params) {
-        if (failOnInsert && sql.includes('INSERT INTO matchmaking_waiting')) {
+      ...base,
+      async query(query: Sql) {
+        if (
+          failOnInsert &&
+          query.sql.includes('INSERT INTO matchmaking_waiting')
+        ) {
           throw new Error('secret-database-internal-detail-do-not-leak');
         }
-        return await base.query(sql, params);
-      },
-      tx(fn) {
-        return base.tx(fn);
+        return await base.query(query);
       },
     };
     const mm = new Matchmaking({

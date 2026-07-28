@@ -1,6 +1,6 @@
+import { assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { inspect } from 'node:util';
-import { assert } from '@pkgs/assert';
 import sql, { bulk, empty, join, raw, Sql } from './sql-template';
 
 /** Node crash handler calls `process.exit`; register one that throws so tests can assert failures. */
@@ -211,13 +211,9 @@ describe('sql template tag', () => {
     });
 
     it('should error joining an nested non uniform list', () => {
-      expect(() =>
-        bulk([
-          [1, 2],
-          [1, 3],
-          [1],
-        ])
-      ).toThrow('Sql: bulk([2][]) column count mismatch');
+      expect(() => bulk([[1, 2], [1, 3], [1]])).toThrow(
+        'Sql: bulk([2][]) column count mismatch'
+      );
     });
   });
 });

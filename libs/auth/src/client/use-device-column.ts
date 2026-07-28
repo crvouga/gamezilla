@@ -1,3 +1,4 @@
+import { raw, sql } from '@pkgs/sql';
 import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
@@ -21,23 +22,29 @@ export const DeviceField = {
 export type DeviceFieldKey = keyof typeof DeviceField;
 
 /** Canonical device row SELECT — all fields used by account-device atoms. */
-export const DEVICE_ROW_BY_ID_SQL = `SELECT ${DeviceCol.id}, ${DeviceCol.createdAt},
-            ${DeviceCol.platform}, ${DeviceCol.osName}, ${DeviceCol.osVersion},
-            ${DeviceCol.deviceModelName}, ${DeviceCol.deviceBrand}, ${DeviceCol.deviceName},
-            ${DeviceCol.appVersion}, ${DeviceCol.appBuildNumber}, ${DeviceCol.userAgent},
-            ${DeviceCol.firstSeenAt}, ${DeviceCol.lastSeenAt}
-     FROM ${DEVICES_TABLE.tableName}
-     WHERE ${DeviceCol.id} = ?`;
+function deviceRowByIdSql(deviceId: string) {
+  return sql`SELECT ${raw(DeviceCol.id)},
+      ${raw(DeviceCol.createdAt)},
+      ${raw(DeviceCol.platform)},
+      ${raw(DeviceCol.osName)},
+      ${raw(DeviceCol.osVersion)},
+      ${raw(DeviceCol.deviceModelName)},
+      ${raw(DeviceCol.deviceBrand)},
+      ${raw(DeviceCol.deviceName)},
+      ${raw(DeviceCol.appVersion)},
+      ${raw(DeviceCol.appBuildNumber)},
+      ${raw(DeviceCol.userAgent)},
+      ${raw(DeviceCol.firstSeenAt)},
+      ${raw(DeviceCol.lastSeenAt)}
+     FROM ${raw(DEVICES_TABLE.tableName)}
+     WHERE ${raw(DeviceCol.id)} = ${deviceId}`;
+}
 
 export function useDeviceColumn(
   deviceId: string,
   field: DeviceFieldKey
 ): string | null {
   const col = DeviceCol[field];
-  const { value } = useWatchField<string>(
-    DEVICE_ROW_BY_ID_SQL,
-    [deviceId],
-    col
-  );
+  const { value } = useWatchField<string>(deviceRowByIdSql(deviceId), col);
   return value;
 }

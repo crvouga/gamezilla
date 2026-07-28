@@ -31,15 +31,14 @@
 
 import { assert } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
+import { sql } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Hono, type MiddlewareHandler } from 'hono';
-import type { Pool } from 'pg';
 import { createMatchmakingApp } from './app';
 import { MatchmakingSchemaDriftError } from './errors';
 import { Matchmaker, type MatchmakerOptions } from './matchmaker';
 import { migrate, type MatchmakingSchema } from './migrate';
 import { MATCHMAKING_TICK_ADVISORY_LOCK_ID } from './migrate-sql';
-import { createPgSqlClient } from './pg-adapter';
-import type { SqlClient } from './sql-client';
 import type {
   DistanceFormula,
   JoinInput,
@@ -55,14 +54,13 @@ export { MATCHMAKING_PAYLOAD_LIMITS } from './payload-limits';
 
 /**
  * Backing store for a `Matchmaking` instance. Holds a single
- * {@link SqlClient} — the package abstracts over both `pg.Pool` and any
- * embedder-supplied per-request client through that one interface.
+ * {@link SqlClient} from `@pkgs/sql-client` — the package abstracts over
+ * any concrete Postgres client (pooled, per-request, PGlite for tests)
+ * through that one interface.
  *
- * If you have a `pg.Pool` and want the simplest possible boot, call
- * {@link Matchmaking.fromPool} instead of constructing this shape
- * yourself. Embedders who thread a per-request connection (e.g. a
- * worker that pins one `pg.Client` per database request via
- * `AsyncLocalStorage`) pass their own `SqlClient` here.
+ * Embedders who thread a per-request connection (e.g. a worker that pins
+ * one client per database request via `AsyncLocalStorage`) pass their own
+ * `SqlClient` here.
  */
 export type MatchmakingStorage = {
   readonly sqlClient: SqlClient;
@@ -465,11 +463,11 @@ export class Matchmaking {
    * to the same checked-out client — but our `SqlClient` abstraction
    * doesn't expose a "pin a connection" primitive. In practice:
    *
-   *   - the `pg-adapter` uses `Pool.connect()` per `.query()`, which
-   *     can land on different backends. The lock would then never be
-   *     released on the same backend that took it — Postgres still
-   *     auto-releases on backend recycle, but the lock could linger
-   *     for the rest of the backend's life.
+   *   - a pooled `SqlClient` can land each `.query()` on a different
+   *     backend. The lock would then never be released on the same
+   *     backend that took it — Postgres still auto-releases on backend
+   *     recycle, but the lock could linger for the rest of the
+   *     backend's life.
    *   - a per-request `SqlClient` adapter pins one `pg.Client` for
    *     the whole request, so lock+unlock land on the same backend.
    *   - PGlite uses one in-process connection, so lock+unlock always
@@ -481,20 +479,19 @@ export class Matchmaking {
    * pg_cron's own session, which is naturally pinned per cron worker.
    */
   private static async tryAdvisoryLock(sqlClient: SqlClient): Promise<boolean> {
-    const result = await sqlClient.query<{ pg_try_advisory_lock: boolean }>(
-      `SELECT pg_try_advisory_lock($1::bigint) AS pg_try_advisory_lock`,
-      [MATCHMAKING_TICK_ADVISORY_LOCK_ID]
+    const rows = await sqlClient.query<{ pg_try_advisory_lock: boolean }>(
+      sql`SELECT pg_try_advisory_lock(${MATCHMAKING_TICK_ADVISORY_LOCK_ID}::bigint) AS pg_try_advisory_lock`
     );
-    return result.rows[0]?.pg_try_advisory_lock === true;
+    return rows[0]?.pg_try_advisory_lock === true;
   }
 
   private static async releaseAdvisoryLock(
     sqlClient: SqlClient
   ): Promise<void> {
     try {
-      await sqlClient.query(`SELECT pg_advisory_unlock($1::bigint)`, [
-        MATCHMAKING_TICK_ADVISORY_LOCK_ID,
-      ]);
+      await sqlClient.run(
+        sql`SELECT pg_advisory_unlock(${MATCHMAKING_TICK_ADVISORY_LOCK_ID}::bigint)`
+      );
     } catch (err) {
       // Backend might have died mid-tick; Postgres auto-releases the
       // lock on backend exit. Logging the unlock failure is enough.
@@ -525,28 +522,8 @@ export class Matchmaking {
   private static resolveSqlClient(storage: MatchmakingStorage): SqlClient {
     assert.defined(
       storage.sqlClient,
-      'Matchmaking: storage.sqlClient is required (use Matchmaking.fromPool for a pg.Pool)'
+      'Matchmaking: storage.sqlClient is required'
     );
     return storage.sqlClient;
-  }
-
-  /**
-   * One-liner factory for the common case: an embedder that already
-   * has a `pg.Pool` and just wants a working `Matchmaking`. Wraps the
-   * pool in the package's internal {@link SqlClient} adapter — the
-   * only place on the public surface where the `pg` import is visible.
-   *
-   * For per-request connection wiring (e.g. Neon HTTP per request),
-   * construct `new Matchmaking(...)`
-   * directly and pass your own `SqlClient` via `storage`.
-   */
-  static fromPool(
-    pool: Pool,
-    opts: Omit<MatchmakingOptions, 'storage'>
-  ): Matchmaking {
-    return new Matchmaking({
-      ...opts,
-      storage: { sqlClient: createPgSqlClient(pool) },
-    });
   }
 }
