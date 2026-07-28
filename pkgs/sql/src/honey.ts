@@ -63,6 +63,7 @@ import type { Sql } from './sql';
 export type {
   ColRef,
   Expr,
+  InsertValue,
   JoinSpec,
   OpCall,
   OrderItem,
@@ -72,6 +73,17 @@ export type {
   SelectItem,
   TableRef,
 } from './honey-types';
+
+/**
+ * Regression guard: honey `values` is insert row map(s), not {@link Sql.values}
+ * (`readonly Value[]`). A bad unify surfaces as TS2561 on `{ key: ... }` inserts.
+ */
+type _HoneyValuesNotSqlValues = [NonNullable<Query['values']>] extends [
+  Sql['values'],
+]
+  ? never
+  : true;
+true satisfies _HoneyValuesNotSqlValues;
 
 export type { HoneyCompileCtx, HoneyOpCompiler } from './honey-registry';
 export {
