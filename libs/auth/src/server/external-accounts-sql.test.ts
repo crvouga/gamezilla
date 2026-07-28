@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import { sql, ident } from '@pkgs/sql';
+import { sql, ident, honey } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -82,23 +82,34 @@ describe('external-accounts-sql', () => {
       metadata: { email: 'b@example.com' },
     });
 
-    const rows = await sqlClient.query<{ metadata: string }>(sql`
-      SELECT ${ident(ExternalAccountCol.metadata)} AS metadata
-      FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)}
-      WHERE ${ident(ExternalAccountCol.provider)} = ${primaryAuthProvider} AND ${ident(ExternalAccountCol.externalId)} = ${clerkUserId}
-    `);
+    const rows = await sqlClient.query<{ metadata: string }>(
+      honey({
+        select: [[ExternalAccountCol.metadata, 'metadata']],
+        from: EXTERNAL_ACCOUNTS_TABLE,
+        where: [
+          'and',
+          ['=', ExternalAccountCol.provider, primaryAuthProvider],
+          ['=', ExternalAccountCol.externalId, clerkUserId],
+        ],
+      })
+    );
     const metadata = JSON.parse(rows[0]!.metadata) as Record<string, unknown>;
     expect(metadata['email']).toBe('b@example.com');
   });
 
   test('findUserIdByPrimaryAuthExternalId resolves primary provider rows', async () => {
-    await sqlClient.run(sql`
-      INSERT INTO ${ident(EXTERNAL_ACCOUNTS_TABLE)}
-      (${ident(ExternalAccountCol.userId)}, ${ident(ExternalAccountCol.provider)},
-       ${ident(ExternalAccountCol.externalId)}, ${ident(ExternalAccountCol.metadata)},
-       ${ident(ExternalAccountCol.createdAt)})
-      VALUES (${userId}, ${primaryAuthProvider}, ${clerkUserId}, '{}', ${new Date().toISOString()})
-    `);
+    await sqlClient.run(
+      honey({
+        insertInto: EXTERNAL_ACCOUNTS_TABLE,
+        values: {
+          [ExternalAccountCol.userId]: userId,
+          [ExternalAccountCol.provider]: primaryAuthProvider,
+          [ExternalAccountCol.externalId]: clerkUserId,
+          [ExternalAccountCol.metadata]: '{}',
+          [ExternalAccountCol.createdAt]: new Date().toISOString(),
+        },
+      })
+    );
 
     expect(
       await findUserIdByPrimaryAuthExternalId(

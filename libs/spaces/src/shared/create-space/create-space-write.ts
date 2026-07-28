@@ -12,7 +12,7 @@ import {
   isSpaceVisibility,
   type SpaceVisibility,
 } from '@libs/spaces/shared/space-visibility';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 
@@ -58,17 +58,34 @@ export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
     if (!accountId.ok) return accountId;
     const now = isoNow();
     const memberId = resolveSpaceMemberId(accountId.value);
-    await db.run(sql`INSERT INTO ${ident(SPACES_TABLE.tableName)}
-       (${ident(SpaceCol.id)}, ${ident(SpaceCol.hostId)}, ${ident(SpaceCol.createdAt)},
-        ${ident(SpaceCol.visibility)}, ${ident(SpaceCol.hostAccountId)},
-        ${ident(SpaceCol.hostMemberId)}, ${ident(SpaceCol.activeMemberCount)})
-       VALUES (${input.spaceId}, ${ctx.deviceId}, ${now}, ${input.visibility}, ${accountId.value}, ${memberId}, 1)`);
+    await db.run(
+      honey({
+        insertInto: SPACES_TABLE.tableName,
+        values: {
+          [SpaceCol.id]: input.spaceId,
+          [SpaceCol.hostId]: ctx.deviceId,
+          [SpaceCol.createdAt]: now,
+          [SpaceCol.visibility]: input.visibility,
+          [SpaceCol.hostAccountId]: accountId.value,
+          [SpaceCol.hostMemberId]: memberId,
+          [SpaceCol.activeMemberCount]: 1,
+        },
+      })
+    );
     const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
-    await db.run(sql`INSERT INTO ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-       (${ident(SpaceMembershipCol.id)}, ${ident(SpaceMembershipCol.memberId)},
-        ${ident(SpaceMembershipCol.spaceId)}, ${ident(SpaceMembershipCol.joinedAt)},
-        ${ident(SpaceMembershipCol.leftAt)}, ${ident(SpaceMembershipCol.profileId)})
-       VALUES (${membershipId}, ${memberId}, ${input.spaceId}, ${now}, NULL, ${memberId})`);
+    await db.run(
+      honey({
+        insertInto: SPACE_MEMBERSHIPS_TABLE.tableName,
+        values: {
+          [SpaceMembershipCol.id]: membershipId,
+          [SpaceMembershipCol.memberId]: memberId,
+          [SpaceMembershipCol.spaceId]: input.spaceId,
+          [SpaceMembershipCol.joinedAt]: now,
+          [SpaceMembershipCol.leftAt]: null,
+          [SpaceMembershipCol.profileId]: memberId,
+        },
+      })
+    );
     return ok(undefined);
   },
 });

@@ -14,7 +14,7 @@ import {
   shouldConsumeInviteOnJoin,
 } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { sql, ident } from '@pkgs/sql';
+import { honey, col } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
@@ -75,9 +75,19 @@ async function bumpActiveMemberCount(
   db: SqlClient,
   spaceId: string
 ): Promise<void> {
-  await db.run(sql`UPDATE ${ident(SPACES_TABLE.tableName)}
-     SET ${ident(SpaceCol.activeMemberCount)} = ${ident(SpaceCol.activeMemberCount)} + 1
-     WHERE ${ident(SpaceCol.id)} = ${spaceId}`);
+  await db.run(
+    honey({
+      update: SPACES_TABLE.tableName,
+      set: {
+        [SpaceCol.activeMemberCount]: [
+          '+',
+          SpaceCol.activeMemberCount,
+          1,
+        ],
+      },
+      where: ['=', SpaceCol.id, spaceId],
+    })
+  );
 }
 
 async function consumeInviteUse(
@@ -85,11 +95,24 @@ async function consumeInviteUse(
   inviteId: string
 ): Promise<boolean> {
   const now = isoNow();
-  const result = await db.run(sql`UPDATE ${ident(SPACE_INVITES_TABLE.tableName)}
-     SET ${ident(SpaceInviteCol.useCount)} = ${ident(SpaceInviteCol.useCount)} + 1,
-         ${ident(SpaceInviteCol.acceptedAt)} = COALESCE(${ident(SpaceInviteCol.acceptedAt)}, ${now})
-     WHERE ${ident(SpaceInviteCol.id)} = ${inviteId}
-       AND ${ident(SpaceInviteCol.useCount)} < ${ident(SpaceInviteCol.maxUses)}`);
+  const result = await db.run(
+    honey({
+      update: SPACE_INVITES_TABLE.tableName,
+      set: {
+        [SpaceInviteCol.useCount]: ['+', SpaceInviteCol.useCount, 1],
+        [SpaceInviteCol.acceptedAt]: [
+          'coalesce',
+          SpaceInviteCol.acceptedAt,
+          ['param', now],
+        ],
+      },
+      where: [
+        'and',
+        ['=', SpaceInviteCol.id, inviteId],
+        ['<', SpaceInviteCol.useCount, col(SpaceInviteCol.maxUses)],
+      ],
+    })
+  );
   return result.changes > 0;
 }
 

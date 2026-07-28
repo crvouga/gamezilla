@@ -51,7 +51,7 @@
 
 import { assert } from '@pkgs/assert';
 import { isNamespacedKeyword } from '@pkgs/keyword';
-import { raw, sql, unsafe } from '@pkgs/sql';
+import { col, honey, raw, sql, unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   ADD_METADATA_COLUMN_TO_MATCHED_SQL,
@@ -279,16 +279,26 @@ async function maybeRebuildSchema(
 ): Promise<void> {
   const fp = fingerprintSchema(schema);
   const state = await sqlClient.query<{ schema_fingerprint: string }>(
-    sql`SELECT schema_fingerprint FROM matchmaking_schema_state WHERE id = 1`
+    honey({
+      select: ['schema_fingerprint'],
+      from: 'matchmaking_schema_state',
+      where: ['=', 'id', 1],
+    })
   );
   const currentFp = state[0]?.schema_fingerprint ?? null;
   if (currentFp === fp) return;
 
   await rebuildWaitingTable(sqlClient, schema);
-  await sqlClient.run(sql`
-    INSERT INTO matchmaking_schema_state (id, schema_fingerprint)
-     VALUES (1, ${fp})
-     ON CONFLICT (id) DO UPDATE SET schema_fingerprint = EXCLUDED.schema_fingerprint`);
+  await sqlClient.run(
+    honey({
+      insertInto: 'matchmaking_schema_state',
+      values: { id: 1, schema_fingerprint: fp },
+      onConflict: {
+        target: ['id'],
+        set: { schema_fingerprint: col('excluded.schema_fingerprint') },
+      },
+    })
+  );
 }
 
 /**
@@ -301,6 +311,8 @@ async function maybeRebuildSchema(
  */
 async function isPgCronInstalled(sqlClient: SqlClient): Promise<boolean> {
   try {
+    // honey: system-catalog capability probe; keeping the `extname = 'pg_cron'`
+    // predicate as an inline literal (honey would parameterize it).
     const rows = await sqlClient.query<{ ok: boolean }>(
       sql`SELECT EXISTS (
          SELECT 1 FROM pg_extension WHERE extname = 'pg_cron'
@@ -338,6 +350,7 @@ async function scheduleMatchmakingTick(sqlClient: SqlClient): Promise<void> {
   // re-schedule. The unschedule fallback is itself best-effort; if the
   // platform doesn't expose unschedule we surface the original error.
   const tickBody = `SELECT matchmaking_tick()`;
+  // honey: cron.* namespaced function calls (not in honey's function allowlist).
   try {
     await sqlClient.run(
       sql`SELECT cron.schedule(${CRON_JOB_NAME}, ${CRON_SCHEDULE}, ${tickBody}) AS jobid`

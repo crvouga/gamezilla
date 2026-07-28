@@ -8,10 +8,11 @@
  *
  * Pick one shape per query:
  * - **SELECT** — `select` / `from` / `join*` / `where` / `groupBy` / `having` /
- *   `orderBy` / `limit` / `offset` / `distinct`
- * - **INSERT** — `insertInto` + `values` (+ optional `returning`)
+ *   `orderBy` / `limit` / `offset` / `distinct` / `with` / `forUpdate`
+ * - **INSERT** — `insertInto` + `values` (+ optional `returning` / `onConflict`)
  * - **UPDATE** — `update` + `set` (+ optional `where` / `returning`)
  * - **DELETE** — `deleteFrom` (+ optional `where` / `returning`)
+ * - **UNION** — `union` / `unionAll` (list of SELECT query maps)
  *
  * ## Expression grammar
  *
@@ -22,10 +23,15 @@
  * - **Op / fn call** — `[op, ...args]` ({@link OpCall})
  *
  * Known operators: `= != <> < <= > >= like ilike + - * /`, `and` / `or` /
- * `not`, `in` / `not-in`, `between`, `is-null` / `is-not-null`, `exists`.
+ * `not`, `in` / `not-in`, `between`, `is-null` / `is-not-null`, `exists`,
+ * `cast`, `case`, `param`.
  *
  * Known functions: `count` `sum` `avg` `min` `max` `lower` `upper` `length`
- * `abs` `round` `coalesce` `now`.
+ * `abs` `round` `coalesce` `now` `hashtext` `pg_advisory_xact_lock`
+ * `pg_try_advisory_lock` `pg_advisory_unlock` `jsonb_to_recordset`.
+ *
+ * Use `['param', scalar]` to bind a string (or other scalar) inside function
+ * args that otherwise treat bare strings as column identifiers.
  *
  * ## Identifiers
  *
@@ -49,6 +55,7 @@ export type Scalar = string | number | boolean | null | Date;
  * ['count', '*']
  * ['in', 'id', [1, 2, 3]]
  * { col: 'u.id' }
+ * ['cast', payload, 'jsonb']
  * ```
  */
 export type Expr = Scalar | ColRef | Query | OpCall;
@@ -88,10 +95,30 @@ export type SelectItem =
 /** ORDER BY item: `'col'` or `['col', 'asc' | 'desc']`. */
 export type OrderItem = string | readonly [string, 'asc' | 'desc'];
 
+/** Value allowed in INSERT row maps. */
+export type InsertValue = Scalar | ColRef | OpCall;
+
+/** CTE: `[alias, subquery]`. */
+export type WithItem = readonly [string, Query];
+
+/**
+ * INSERT `ON CONFLICT` clause.
+ *
+ * - `doNothing: true` → `ON CONFLICT (cols) DO NOTHING`
+ * - `set: { … }` → `ON CONFLICT (cols) DO UPDATE SET …`
+ */
+export type OnConflict = {
+  readonly target: readonly string[];
+  readonly doNothing?: true;
+  readonly set?: Readonly<Record<string, Expr>>;
+};
+
 /**
  * Honey query map. See module docs for which fields apply per statement kind.
  */
 export interface Query {
+  readonly with?: readonly WithItem[];
+
   readonly select?: readonly SelectItem[];
   readonly distinct?: boolean;
   readonly from?: TableRef | readonly TableRef[];
@@ -104,18 +131,24 @@ export interface Query {
   readonly orderBy?: readonly OrderItem[];
   readonly limit?: number;
   readonly offset?: number;
+  readonly forUpdate?: boolean;
+  readonly skipLocked?: boolean;
 
   readonly insertInto?: string;
   /** Row(s) to insert: object or array of objects with identical keys. */
   readonly values?:
-    | Readonly<Record<string, Scalar | ColRef>>
-    | readonly Readonly<Record<string, Scalar | ColRef>>[];
+    | Readonly<Record<string, InsertValue>>
+    | readonly Readonly<Record<string, InsertValue>>[];
   readonly returning?: readonly string[];
+  readonly onConflict?: OnConflict;
 
   readonly update?: string;
   readonly set?: Readonly<Record<string, Scalar | ColRef | OpCall>>;
 
   readonly deleteFrom?: string;
+
+  readonly union?: readonly Query[];
+  readonly unionAll?: readonly Query[];
 }
 
 /**

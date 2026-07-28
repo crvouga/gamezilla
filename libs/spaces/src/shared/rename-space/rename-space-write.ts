@@ -1,8 +1,8 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
-import { sql, ident } from '@pkgs/sql';
-import { fail, ok } from '@pkgs/write/shared/write-result';
+import { honey } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
+import { fail, ok } from '@pkgs/write/shared/write-result';
 
 import {
   asObjectRecord,
@@ -45,11 +45,17 @@ export const renameSpaceWrite = defineWrite<RenameSpaceInput, void>({
     if (!accountId.ok) return accountId;
     const trimmed = input.title.trim();
     const memberId = resolveSpaceMemberId(accountId.value);
-    await db.run(sql`UPDATE ${ident(SPACES_TABLE.tableName)}
-       SET ${ident(SpaceCol.title)} = ${trimmed.length > 0 ? trimmed : null},
-           ${ident(SpaceCol.hostId)} = ${ctx.deviceId},
-           ${ident(SpaceCol.hostMemberId)} = ${memberId}
-       WHERE ${ident(SpaceCol.id)} = ${input.spaceId}`);
+    await db.run(
+      honey({
+        update: SPACES_TABLE.tableName,
+        set: {
+          [SpaceCol.title]: trimmed.length > 0 ? trimmed : null,
+          [SpaceCol.hostId]: ctx.deviceId,
+          [SpaceCol.hostMemberId]: memberId,
+        },
+        where: ['=', SpaceCol.id, input.spaceId],
+      })
+    );
     return ok(undefined);
   },
 });

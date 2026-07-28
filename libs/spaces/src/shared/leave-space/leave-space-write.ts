@@ -9,7 +9,7 @@ import {
   spaceMembershipEntityId,
 } from '@libs/spaces/shared/participation/participation-ids';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
@@ -66,12 +66,24 @@ async function decrementActiveMemberCount(
   db: SqlClient,
   spaceId: string
 ): Promise<void> {
-  await db.run(sql`UPDATE ${ident(SPACES_TABLE.tableName)}
-     SET ${ident(SpaceCol.activeMemberCount)} = CASE
-       WHEN ${ident(SpaceCol.activeMemberCount)} > 0
-       THEN ${ident(SpaceCol.activeMemberCount)} - 1
-       ELSE 0 END
-     WHERE ${ident(SpaceCol.id)} = ${spaceId}`);
+  await db.run(
+    honey({
+      update: SPACES_TABLE.tableName,
+      set: {
+        [SpaceCol.activeMemberCount]: [
+          'case',
+          [
+            [
+              ['>', SpaceCol.activeMemberCount, 0],
+              ['-', SpaceCol.activeMemberCount, 1],
+            ],
+          ],
+          0,
+        ],
+      },
+      where: ['=', SpaceCol.id, spaceId],
+    })
+  );
 }
 
 export async function executeLeaveSpace(
@@ -89,10 +101,17 @@ export async function executeLeaveSpace(
   clearSpacePresenceLatch(input.spaceId);
   const now = isoNow();
   const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
-  await db.run(sql`UPDATE ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     SET ${ident(SpaceMembershipCol.leftAt)} = ${now}
-     WHERE ${ident(SpaceMembershipCol.id)} = ${membershipId}
-       AND ${ident(SpaceMembershipCol.leftAt)} IS NULL`);
+  await db.run(
+    honey({
+      update: SPACE_MEMBERSHIPS_TABLE.tableName,
+      set: { [SpaceMembershipCol.leftAt]: now },
+      where: [
+        'and',
+        ['=', SpaceMembershipCol.id, membershipId],
+        ['is-null', SpaceMembershipCol.leftAt],
+      ],
+    })
+  );
   await decrementActiveMemberCount(db, input.spaceId);
   await maybeAutoEndEmptyHostSpace(ctx, db, input.spaceId);
   return ok(undefined);

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { Database } from 'bun:sqlite';
 
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
@@ -41,12 +41,16 @@ describe('ensureProfile', () => {
     await ensureProfile(sqlClient, writeContextFor(MY_ID), MY_ID);
 
     const row = (
-      await sqlClient.query<Record<string, string>>(sql`
-        SELECT ${ident(ProfileCol.username)} AS username,
-               ${ident(ProfileCol.avatarConfig)} AS avatar_config
-        FROM ${ident(PROFILES_TABLE.tableName)}
-        WHERE ${ident(ProfileCol.id)} = ${MY_ID}
-      `)
+      await sqlClient.query<Record<string, string>>(
+        honey({
+          select: [
+            [ProfileCol.username, 'username'],
+            [ProfileCol.avatarConfig, 'avatar_config'],
+          ],
+          from: PROFILES_TABLE.tableName,
+          where: ['=', ProfileCol.id, MY_ID],
+        })
+      )
     )[0];
 
     expect(row?.['username']).toBe('');
@@ -59,9 +63,13 @@ describe('ensureProfile', () => {
     await ensureProfile(sqlClient, ctx, MY_ID);
     await ensureProfile(sqlClient, ctx, MY_ID);
 
-    const rows = await sqlClient.query<{ n: number }>(sql`
-      SELECT count(*) AS n FROM ${ident(PROFILES_TABLE.tableName)} WHERE ${ident(ProfileCol.id)} = ${MY_ID}
-    `);
+    const rows = await sqlClient.query<{ n: number }>(
+      honey({
+        select: [[['count', '*'], 'n']],
+        from: PROFILES_TABLE.tableName,
+        where: ['=', ProfileCol.id, MY_ID],
+      })
+    );
     expect(rows[0]?.n).toBe(1);
   });
 
@@ -74,10 +82,13 @@ describe('ensureProfile', () => {
       username: 'AssignedName',
     });
     const row = (
-      await sqlClient.query<Record<string, string>>(sql`
-        SELECT ${ident(ProfileCol.username)} AS username FROM ${ident(PROFILES_TABLE.tableName)}
-        WHERE ${ident(ProfileCol.id)} = ${MY_ID}
-      `)
+      await sqlClient.query<Record<string, string>>(
+        honey({
+          select: [[ProfileCol.username, 'username']],
+          from: PROFILES_TABLE.tableName,
+          where: ['=', ProfileCol.id, MY_ID],
+        })
+      )
     )[0];
     expect(row?.['username']).toBe('AssignedName');
   });
@@ -95,10 +106,13 @@ describe('ensureProfile', () => {
       username: 'CorrectName',
     });
     const row = (
-      await sqlClient.query<Record<string, string>>(sql`
-        SELECT ${ident(ProfileCol.username)} AS username FROM ${ident(PROFILES_TABLE.tableName)}
-        WHERE ${ident(ProfileCol.id)} = ${MY_ID}
-      `)
+      await sqlClient.query<Record<string, string>>(
+        honey({
+          select: [[ProfileCol.username, 'username']],
+          from: PROFILES_TABLE.tableName,
+          where: ['=', ProfileCol.id, MY_ID],
+        })
+      )
     )[0];
     expect(row?.['username']).toBe('CorrectName');
   });
@@ -107,20 +121,28 @@ describe('ensureProfile', () => {
     const sqlClient = openTestSql();
     const ctx = writeContextFor(MY_ID);
     await ensureProfile(sqlClient, ctx, MY_ID);
-    await sqlClient.run(sql`
-      UPDATE ${ident(PROFILES_TABLE.tableName)}
-      SET ${ident(ProfileCol.username)} = ${'MyHandle'}, ${ident(ProfileCol.usernameChangedAt)} = ${new Date().toISOString()}
-      WHERE ${ident(ProfileCol.id)} = ${MY_ID}
-    `);
+    await sqlClient.run(
+      honey({
+        update: PROFILES_TABLE.tableName,
+        set: {
+          [ProfileCol.username]: 'MyHandle',
+          [ProfileCol.usernameChangedAt]: new Date().toISOString(),
+        },
+        where: ['=', ProfileCol.id, MY_ID],
+      })
+    );
     await applyEnsuredUsername(sqlClient, ctx, {
       profileId: MY_ID,
       username: 'ServerName',
     });
     const row = (
-      await sqlClient.query<Record<string, string>>(sql`
-        SELECT ${ident(ProfileCol.username)} AS username FROM ${ident(PROFILES_TABLE.tableName)}
-        WHERE ${ident(ProfileCol.id)} = ${MY_ID}
-      `)
+      await sqlClient.query<Record<string, string>>(
+        honey({
+          select: [[ProfileCol.username, 'username']],
+          from: PROFILES_TABLE.tableName,
+          where: ['=', ProfileCol.id, MY_ID],
+        })
+      )
     )[0];
     expect(row?.['username']).toBe('MyHandle');
   });

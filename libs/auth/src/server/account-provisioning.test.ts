@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import { sql, ident } from '@pkgs/sql';
+import { sql, ident, honey } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
@@ -86,17 +86,27 @@ describe('ensureInternalAccountIdForExternalUser', () => {
   test('returns existing user id for known clerk user', async () => {
     const userId = '33333333-3333-4333-8333-333333333333';
     const now = new Date().toISOString();
-    await sqlClient.run(sql`
-      INSERT INTO ${ident(USERS_TABLE)} (${ident(UserTableCol.id)}, ${ident(UserTableCol.createdAt)})
-      VALUES (${userId}, ${now})
-    `);
-    await sqlClient.run(sql`
-      INSERT INTO ${ident(EXTERNAL_ACCOUNTS_TABLE)}
-      (${ident(ExternalAccountCol.userId)}, ${ident(ExternalAccountCol.provider)},
-       ${ident(ExternalAccountCol.externalId)}, ${ident(ExternalAccountCol.metadata)},
-       ${ident(ExternalAccountCol.createdAt)})
-      VALUES (${userId}, ${PRIMARY_AUTH_PROVIDER}, ${EXTERNAL_USER_ID}, '{}', ${now})
-    `);
+    await sqlClient.run(
+      honey({
+        insertInto: USERS_TABLE,
+        values: {
+          [UserTableCol.id]: userId,
+          [UserTableCol.createdAt]: now,
+        },
+      })
+    );
+    await sqlClient.run(
+      honey({
+        insertInto: EXTERNAL_ACCOUNTS_TABLE,
+        values: {
+          [ExternalAccountCol.userId]: userId,
+          [ExternalAccountCol.provider]: PRIMARY_AUTH_PROVIDER,
+          [ExternalAccountCol.externalId]: EXTERNAL_USER_ID,
+          [ExternalAccountCol.metadata]: '{}',
+          [ExternalAccountCol.createdAt]: now,
+        },
+      })
+    );
 
     const resolved = await ensureInternalAccountIdForExternalUser({
       sql: sqlClient,
@@ -125,10 +135,18 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       await readExternalAccountId(sqlClient, resolved, PRIMARY_AUTH_PROVIDER)
     ).toBe(EXTERNAL_USER_ID);
 
-    const entityRows = await sqlClient.query<{ owner_id: string | null }>(sql`
-      SELECT owner_id FROM ${ident(ENTITY_STORE_TABLE)}
-      WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER} AND external_id = ${EXTERNAL_USER_ID}
-    `);
+    const entityRows = await sqlClient.query<{ owner_id: string | null }>(
+      honey({
+        select: ['owner_id'],
+        from: ENTITY_STORE_TABLE,
+        where: [
+          'and',
+          ['=', 'namespace', ENTITY_STORE_NAMESPACE_AUTH],
+          ['=', 'type', ENTITY_STORE_TYPE_USER],
+          ['=', 'external_id', EXTERNAL_USER_ID],
+        ],
+      })
+    );
     expect(entityRows[0]?.owner_id).toBe(resolved);
   });
 });

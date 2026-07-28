@@ -1,5 +1,5 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 
 import {
   SpaceInviteCol,
@@ -20,13 +20,19 @@ export async function acceptSpaceInviteFromInbox(args: {
     readonly token: string;
     readonly invitee_account_id: string | null;
     readonly revoked_at: string | null;
-  }>(sql`SELECT ${ident(SpaceInviteCol.spaceId)} AS space_id,
-            ${ident(SpaceInviteCol.token)} AS token,
-            ${ident(SpaceInviteCol.inviteeAccountId)} AS invitee_account_id,
-            ${ident(SpaceInviteCol.revokedAt)} AS revoked_at
-     FROM ${ident(SPACE_INVITES_TABLE.tableName)}
-     WHERE ${ident(SpaceInviteCol.id)} = ${args.inviteId}
-     LIMIT 1`);
+  }>(
+    honey({
+      select: [
+        SpaceInviteCol.spaceId,
+        SpaceInviteCol.token,
+        SpaceInviteCol.inviteeAccountId,
+        SpaceInviteCol.revokedAt,
+      ],
+      from: SPACE_INVITES_TABLE.tableName,
+      where: ['=', SpaceInviteCol.id, args.inviteId],
+      limit: 1,
+    })
+  );
   const row = rows[0];
   if (row === undefined || row.revoked_at !== null) {
     throw new SpacesError('SPACE_INVITE_INVALID', 'Invite not found');
@@ -53,9 +59,16 @@ export async function declineSpaceInviteFromInbox(args: {
   readonly inviteId: string;
 }): Promise<void> {
   const now = new Date().toISOString();
-  await args.sql.run(sql`UPDATE ${ident(SPACE_INVITES_TABLE.tableName)}
-     SET ${ident(SpaceInviteCol.revokedAt)} = ${now}
-     WHERE ${ident(SpaceInviteCol.id)} = ${args.inviteId}
-       AND ${ident(SpaceInviteCol.inviteeAccountId)} = ${args.actorId}`);
+  await args.sql.run(
+    honey({
+      update: SPACE_INVITES_TABLE.tableName,
+      set: { [SpaceInviteCol.revokedAt]: now },
+      where: [
+        'and',
+        ['=', SpaceInviteCol.id, args.inviteId],
+        ['=', SpaceInviteCol.inviteeAccountId, args.actorId],
+      ],
+    })
+  );
   await deactivateSpaceInviteInteraction(args.sql, args.inviteId, args.actorId);
 }

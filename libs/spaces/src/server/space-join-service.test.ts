@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test } from 'bun:test';
 
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { sql, ident } from '@pkgs/sql';
+import { honey, sql, ident } from '@pkgs/sql';
 
 import {
   SpaceCol,
@@ -66,32 +66,54 @@ async function migrate(db: SqlClient): Promise<void> {
 }
 
 async function seedPrivateSpace(db: SqlClient): Promise<void> {
-  await db.run(sql`INSERT INTO ${ident(SPACES_TABLE.tableName)}
-     (${ident(SpaceCol.id)}, ${ident(SpaceCol.hostId)}, ${ident(SpaceCol.hostMemberId)},
-      ${ident(SpaceCol.visibility)}, ${ident(SpaceCol.activeMemberCount)})
-     VALUES (${SPACE_ID}, ${'host-device'}, ${'host-device'}, 'private', 0)`);
+  await db.run(
+    honey({
+      insertInto: SPACES_TABLE.tableName,
+      values: {
+        [SpaceCol.id]: SPACE_ID,
+        [SpaceCol.hostId]: 'host-device',
+        [SpaceCol.hostMemberId]: 'host-device',
+        [SpaceCol.visibility]: 'private',
+        [SpaceCol.activeMemberCount]: 0,
+      },
+    })
+  );
 }
 
 async function seedLinkInvite(db: SqlClient, maxUses: number): Promise<void> {
-  await db.run(sql`INSERT INTO ${ident(SPACE_INVITES_TABLE.tableName)}
-     (${ident(SpaceInviteCol.id)}, ${ident(SpaceInviteCol.spaceId)}, ${ident(SpaceInviteCol.kind)},
-      ${ident(SpaceInviteCol.token)}, ${ident(SpaceInviteCol.maxUses)},
-      ${ident(SpaceInviteCol.useCount)})
-     VALUES (${'invite-1'}, ${SPACE_ID}, 'link', ${TOKEN}, ${maxUses}, 0)`);
+  await db.run(
+    honey({
+      insertInto: SPACE_INVITES_TABLE.tableName,
+      values: {
+        [SpaceInviteCol.id]: 'invite-1',
+        [SpaceInviteCol.spaceId]: SPACE_ID,
+        [SpaceInviteCol.kind]: 'link',
+        [SpaceInviteCol.token]: TOKEN,
+        [SpaceInviteCol.maxUses]: maxUses,
+        [SpaceInviteCol.useCount]: 0,
+      },
+    })
+  );
 }
 
 async function readInviteUseCount(db: SqlClient): Promise<number> {
   const rows = await db.query<{ use_count: number }>(
-    sql`SELECT ${ident(SpaceInviteCol.useCount)} AS use_count
-     FROM ${ident(SPACE_INVITES_TABLE.tableName)} WHERE ${ident(SpaceInviteCol.id)} = ${'invite-1'}`
+    honey({
+      select: [SpaceInviteCol.useCount],
+      from: SPACE_INVITES_TABLE.tableName,
+      where: ['=', SpaceInviteCol.id, 'invite-1'],
+    })
   );
   return Number(rows[0]?.use_count ?? -1);
 }
 
 async function readActiveMemberCount(db: SqlClient): Promise<number> {
   const rows = await db.query<{ count: number }>(
-    sql`SELECT ${ident(SpaceCol.activeMemberCount)} AS count
-     FROM ${ident(SPACES_TABLE.tableName)} WHERE ${ident(SpaceCol.id)} = ${SPACE_ID}`
+    honey({
+      select: [[SpaceCol.activeMemberCount, 'count']],
+      from: SPACES_TABLE.tableName,
+      where: ['=', SpaceCol.id, SPACE_ID],
+    })
   );
   return Number(rows[0]?.count ?? -1);
 }
@@ -145,9 +167,13 @@ describe('joinSpaceServer invite consumption', () => {
     );
     const membershipId = spaceMembershipEntityId(ACCOUNT_A, SPACE_ID);
     const now = new Date().toISOString();
-    await db.run(sql`UPDATE ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-       SET ${ident(SpaceMembershipCol.leftAt)} = ${now}
-       WHERE ${ident(SpaceMembershipCol.id)} = ${membershipId}`);
+    await db.run(
+      honey({
+        update: SPACE_MEMBERSHIPS_TABLE.tableName,
+        set: { [SpaceMembershipCol.leftAt]: now },
+        where: ['=', SpaceMembershipCol.id, membershipId],
+      })
+    );
 
     await joinSpaceServer(
       db,

@@ -23,6 +23,7 @@ export function useSpaceInviteFriends(): {
   readonly isLoading: boolean;
 } {
   const myId = useMyId();
+  // honey: ORDER BY ... COLLATE NOCASE has no honey representation.
   const { rows, isLoading } = useWatchQuery<FriendRow>(
     myId.length === 0
       ? sql`SELECT '' AS friend_id, '' AS username

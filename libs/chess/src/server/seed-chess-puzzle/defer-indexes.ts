@@ -13,6 +13,8 @@ export async function dropPuzzleSnapshotIndexes(args: {
 }): Promise<void> {
   const { db, log } = args;
   const table = CHESS_PUZZLES_TABLE.tableName;
+  // honey: uses current_schema() and NOT LIKE ... ESCAPE, neither of which
+  // honey supports (unknown function + no ESCAPE clause).
   const rows = await db.query<{ indexname: string }>(sql`
     SELECT indexname
     FROM pg_indexes

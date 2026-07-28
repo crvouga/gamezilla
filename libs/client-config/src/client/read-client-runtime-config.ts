@@ -1,4 +1,4 @@
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { CLIENT_CONFIG_ENTITY_ID } from '../shared/client-config-entities';
 import {
@@ -13,11 +13,14 @@ export type ClientRuntimeConfig = {
 export async function readClientRuntimeConfig(
   db: SqlClient
 ): Promise<ClientRuntimeConfig> {
-  const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT ${ident(ClientConfigCol.googleWebClientId)}
-     FROM ${ident(CLIENT_CONFIG_TABLE.tableName)}
-     WHERE ${ident(ClientConfigCol.id)} = ${CLIENT_CONFIG_ENTITY_ID} LIMIT 1
-  `);
+  const rows = await db.query<Record<string, unknown>>(
+    honey({
+      select: [ClientConfigCol.googleWebClientId],
+      from: CLIENT_CONFIG_TABLE.tableName,
+      where: ['=', ClientConfigCol.id, CLIENT_CONFIG_ENTITY_ID],
+      limit: 1,
+    })
+  );
   const row = rows[0];
   if (row === undefined) {
     return { googleWebClientId: null };

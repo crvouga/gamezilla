@@ -4,7 +4,7 @@ import {
   isSpaceVisibility,
   type SpaceVisibility,
 } from '@libs/spaces/shared/space-visibility';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 
@@ -60,11 +60,17 @@ export const setSpaceVisibilityWrite = defineWrite<
     const accountId = requireAccountId(ctx);
     if (!accountId.ok) return accountId;
     const memberId = resolveSpaceMemberId(accountId.value);
-    await db.run(sql`UPDATE ${ident(SPACES_TABLE.tableName)}
-       SET ${ident(SpaceCol.visibility)} = ${input.visibility},
-           ${ident(SpaceCol.hostId)} = ${ctx.deviceId},
-           ${ident(SpaceCol.hostMemberId)} = ${memberId}
-       WHERE ${ident(SpaceCol.id)} = ${input.spaceId}`);
+    await db.run(
+      honey({
+        update: SPACES_TABLE.tableName,
+        set: {
+          [SpaceCol.visibility]: input.visibility,
+          [SpaceCol.hostId]: ctx.deviceId,
+          [SpaceCol.hostMemberId]: memberId,
+        },
+        where: ['=', SpaceCol.id, input.spaceId],
+      })
+    );
     return ok(undefined);
   },
 });

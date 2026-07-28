@@ -8,11 +8,13 @@ import {
   ChessPuzzleCol,
 } from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
-import { raw, sql, type Sql, ident } from '@pkgs/sql';
+import { col, honey, raw, sql, type Sql, ident } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PuzzleBatchEntry } from './row';
 import type { PuzzleSeedReporter } from './reporter';
 
+// honey: INSERT ... SELECT FROM jsonb_to_recordset(...) is not expressible as a
+// honey values-insert (honey INSERT only supports literal VALUES rows).
 function insertPuzzlesBatchQuery(insertRowsJson: string): Sql {
   return sql`INSERT INTO ${ident(CHESS_PUZZLES_TABLE.tableName)}
     (${ident(ChessPuzzleCol.id)}, ${ident(ChessPuzzleCol.fen)}, ${ident(ChessPuzzleCol.moves)},
@@ -171,14 +173,31 @@ export async function writeLoadProgressFast(args: {
   finishedAt: string | null;
 }): Promise<void> {
   const { db, loadId, sourceEtag, cursor, finishedAt } = args;
-  await db.run(sql`INSERT INTO ${ident(CHESS_PUZZLE_LOAD_TABLE.tableName)}
-     (${ident(ChessPuzzleLoadCol.id)}, ${ident(ChessPuzzleLoadCol.sourceEtag)},
-      ${ident(ChessPuzzleLoadCol.cursor)}, ${ident(ChessPuzzleLoadCol.finishedAt)})
-     VALUES (${loadId}, ${sourceEtag}, ${cursor}, ${finishedAt})
-     ON CONFLICT (${ident(ChessPuzzleLoadCol.id)}) DO UPDATE SET
-       ${ident(ChessPuzzleLoadCol.sourceEtag)} = excluded.${ident(ChessPuzzleLoadCol.sourceEtag)},
-       ${ident(ChessPuzzleLoadCol.cursor)} = excluded.${ident(ChessPuzzleLoadCol.cursor)},
-       ${ident(ChessPuzzleLoadCol.finishedAt)} = excluded.${ident(ChessPuzzleLoadCol.finishedAt)}`);
+  await db.run(
+    honey({
+      insertInto: CHESS_PUZZLE_LOAD_TABLE.tableName,
+      values: {
+        [ChessPuzzleLoadCol.id]: loadId,
+        [ChessPuzzleLoadCol.sourceEtag]: sourceEtag,
+        [ChessPuzzleLoadCol.cursor]: cursor,
+        [ChessPuzzleLoadCol.finishedAt]: finishedAt,
+      },
+      onConflict: {
+        target: [ChessPuzzleLoadCol.id],
+        set: {
+          [ChessPuzzleLoadCol.sourceEtag]: col(
+            `excluded.${ChessPuzzleLoadCol.sourceEtag}`
+          ),
+          [ChessPuzzleLoadCol.cursor]: col(
+            `excluded.${ChessPuzzleLoadCol.cursor}`
+          ),
+          [ChessPuzzleLoadCol.finishedAt]: col(
+            `excluded.${ChessPuzzleLoadCol.finishedAt}`
+          ),
+        },
+      },
+    })
+  );
 }
 
 export async function runInterimMaintenance(args: {

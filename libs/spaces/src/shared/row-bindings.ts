@@ -10,7 +10,7 @@ import {
 } from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import {
   createRowWriteBinding,
@@ -108,10 +108,12 @@ async function resolveMembershipSpaceId(
   }
   const result = await readOne<{ readonly space_id: string }>(
     db,
-    sql`SELECT ${ident(SpaceMembershipCol.spaceId)} AS space_id
-     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${ident(SpaceMembershipCol.id)} = ${row.id}
-     LIMIT 1`,
+    honey({
+      select: [SpaceMembershipCol.spaceId],
+      from: SPACE_MEMBERSHIPS_TABLE.tableName,
+      where: ['=', SpaceMembershipCol.id, row.id],
+      limit: 1,
+    }),
     'SPACE_MEMBERSHIP_NOT_FOUND'
   );
   if (!result.ok) return result;
@@ -128,10 +130,12 @@ async function resolveMembershipMemberId(
   }
   const result = await readOne<{ readonly member_id: string }>(
     db,
-    sql`SELECT ${ident(SpaceMembershipCol.memberId)} AS member_id
-     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${ident(SpaceMembershipCol.id)} = ${row.id}
-     LIMIT 1`,
+    honey({
+      select: [SpaceMembershipCol.memberId],
+      from: SPACE_MEMBERSHIPS_TABLE.tableName,
+      where: ['=', SpaceMembershipCol.id, row.id],
+      limit: 1,
+    }),
     'SPACE_MEMBERSHIP_NOT_FOUND'
   );
   if (!result.ok) return result;

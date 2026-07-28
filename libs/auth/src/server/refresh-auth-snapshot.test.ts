@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import { sql, ident } from '@pkgs/sql';
+import { sql, ident, honey } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
@@ -110,15 +110,22 @@ async function readClerkExternalAccount(
     external_id: string | null;
     metadata: string | null;
     created_at: string | null;
-  }>(sql`
-    SELECT ${ident(ExternalAccountCol.externalId)} AS external_id,
-           ${ident(ExternalAccountCol.metadata)} AS metadata,
-           ${ident(ExternalAccountCol.createdAt)} AS created_at
-    FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)}
-    WHERE ${ident(ExternalAccountCol.userId)} = ${accountId}
-      AND ${ident(ExternalAccountCol.provider)} = ${PRIMARY_AUTH_PROVIDER}
-    LIMIT 1
-  `);
+  }>(
+    honey({
+      select: [
+        [ExternalAccountCol.externalId, 'external_id'],
+        [ExternalAccountCol.metadata, 'metadata'],
+        [ExternalAccountCol.createdAt, 'created_at'],
+      ],
+      from: EXTERNAL_ACCOUNTS_TABLE,
+      where: [
+        'and',
+        ['=', ExternalAccountCol.userId, accountId],
+        ['=', ExternalAccountCol.provider, PRIMARY_AUTH_PROVIDER],
+      ],
+      limit: 1,
+    })
+  );
   return rows[0];
 }
 
@@ -126,11 +133,19 @@ async function readClerkEntityStore(
   db: SqlClient,
   accountId: string
 ): Promise<{ data: string; created_at: string } | undefined> {
-  const rows = await db.query<{ data: string; created_at: string }>(sql`
-    SELECT data, created_at FROM ${ident(ENTITY_STORE_TABLE)}
-    WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER} AND owner_id = ${accountId}
-    LIMIT 1
-  `);
+  const rows = await db.query<{ data: string; created_at: string }>(
+    honey({
+      select: ['data', 'created_at'],
+      from: ENTITY_STORE_TABLE,
+      where: [
+        'and',
+        ['=', 'namespace', ENTITY_STORE_NAMESPACE_AUTH],
+        ['=', 'type', ENTITY_STORE_TYPE_USER],
+        ['=', 'owner_id', accountId],
+      ],
+      limit: 1,
+    })
+  );
   return rows[0];
 }
 
@@ -194,10 +209,18 @@ async function readEntityStoreOwnerId(
   db: SqlClient,
   externalUserId: string
 ): Promise<string | null> {
-  const rows = await db.query<{ owner_id: string | null }>(sql`
-    SELECT owner_id FROM ${ident(ENTITY_STORE_TABLE)}
-    WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER} AND external_id = ${externalUserId}
-  `);
+  const rows = await db.query<{ owner_id: string | null }>(
+    honey({
+      select: ['owner_id'],
+      from: ENTITY_STORE_TABLE,
+      where: [
+        'and',
+        ['=', 'namespace', ENTITY_STORE_NAMESPACE_AUTH],
+        ['=', 'type', ENTITY_STORE_TYPE_USER],
+        ['=', 'external_id', externalUserId],
+      ],
+    })
+  );
   return rows[0]?.owner_id ?? null;
 }
 
@@ -205,10 +228,13 @@ async function readDeviceUserId(
   db: SqlClient,
   deviceId: string
 ): Promise<string | null> {
-  const rows = await db.query<{ user_id: string | null }>(sql`
-    SELECT ${ident(DeviceCol.userId)} AS user_id FROM ${ident(DEVICES_TABLE.tableName)}
-    WHERE ${ident(DeviceCol.id)} = ${deviceId}
-  `);
+  const rows = await db.query<{ user_id: string | null }>(
+    honey({
+      select: [[DeviceCol.userId, 'user_id']],
+      from: DEVICES_TABLE.tableName,
+      where: ['=', DeviceCol.id, deviceId],
+    })
+  );
   return rows[0]?.user_id ?? null;
 }
 
@@ -216,9 +242,13 @@ async function readDevice(
   db: SqlClient,
   deviceId: string
 ): Promise<{ platform: string | null } | null> {
-  const rows = await db.query<{ platform: string | null }>(sql`
-    SELECT platform FROM ${ident(DEVICES_TABLE.tableName)} WHERE ${ident(DeviceCol.id)} = ${deviceId}
-  `);
+  const rows = await db.query<{ platform: string | null }>(
+    honey({
+      select: ['platform'],
+      from: DEVICES_TABLE.tableName,
+      where: ['=', DeviceCol.id, deviceId],
+    })
+  );
   return rows[0] ?? null;
 }
 
@@ -311,9 +341,17 @@ describe('refreshAuthSnapshot', () => {
     await refreshAuthSnapshot(inputs);
     await refreshAuthSnapshot(inputs);
 
-    const rows = await sqlClient.query<{ id: string }>(sql`
-      SELECT id FROM ${ident(ENTITY_STORE_TABLE)} WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER}
-    `);
+    const rows = await sqlClient.query<{ id: string }>(
+      honey({
+        select: ['id'],
+        from: ENTITY_STORE_TABLE,
+        where: [
+          'and',
+          ['=', 'namespace', ENTITY_STORE_NAMESPACE_AUTH],
+          ['=', 'type', ENTITY_STORE_TYPE_USER],
+        ],
+      })
+    );
     expect(rows).toHaveLength(1);
     expect(await readDevice(sqlClient, DEVICE_ID)).not.toBeNull();
   });
@@ -330,18 +368,33 @@ describe('refreshAuthSnapshot', () => {
     });
 
     const now = new Date().toISOString();
-    await sqlClient.run(sql`
-      INSERT INTO ${ident(EXTERNAL_ACCOUNTS_TABLE)}
-      (${ident(ExternalAccountCol.userId)}, ${ident(ExternalAccountCol.provider)},
-       ${ident(ExternalAccountCol.externalId)}, ${ident(ExternalAccountCol.metadata)},
-       ${ident(ExternalAccountCol.createdAt)})
-      VALUES (${ACCOUNT_ID}, 'stripe', 'cus_1', '{}', ${now})
-    `);
-    await sqlClient.run(sql`
-      INSERT INTO ${ident(ENTITY_STORE_TABLE)}
-      (id, namespace, type, external_id, owner_id, data, created_at, updated_at)
-      VALUES ('auth/user/user_external_1', ${ENTITY_STORE_NAMESPACE_AUTH}, ${ENTITY_STORE_TYPE_USER}, ${EXTERNAL_USER_ID}, ${ACCOUNT_ID}, ${JSON.stringify({ id: EXTERNAL_USER_ID })}, ${now}, ${now})
-    `);
+    await sqlClient.run(
+      honey({
+        insertInto: EXTERNAL_ACCOUNTS_TABLE,
+        values: {
+          [ExternalAccountCol.userId]: ACCOUNT_ID,
+          [ExternalAccountCol.provider]: 'stripe',
+          [ExternalAccountCol.externalId]: 'cus_1',
+          [ExternalAccountCol.metadata]: '{}',
+          [ExternalAccountCol.createdAt]: now,
+        },
+      })
+    );
+    await sqlClient.run(
+      honey({
+        insertInto: ENTITY_STORE_TABLE,
+        values: {
+          id: 'auth/user/user_external_1',
+          namespace: ENTITY_STORE_NAMESPACE_AUTH,
+          type: ENTITY_STORE_TYPE_USER,
+          external_id: EXTERNAL_USER_ID,
+          owner_id: ACCOUNT_ID,
+          data: JSON.stringify({ id: EXTERNAL_USER_ID }),
+          created_at: now,
+          updated_at: now,
+        },
+      })
+    );
 
     await refreshAuthSnapshot({
       sql: sqlClient,
@@ -354,18 +407,30 @@ describe('refreshAuthSnapshot', () => {
 
     const stripeRows = await sqlClient.query<{
       external_id: string | null;
-    }>(sql`
-      SELECT ${ident(ExternalAccountCol.externalId)} AS external_id
-      FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)}
-      WHERE ${ident(ExternalAccountCol.userId)} = ${ACCOUNT_ID} AND ${ident(ExternalAccountCol.provider)} = 'stripe'
-    `);
+    }>(
+      honey({
+        select: [[ExternalAccountCol.externalId, 'external_id']],
+        from: EXTERNAL_ACCOUNTS_TABLE,
+        where: [
+          'and',
+          ['=', ExternalAccountCol.userId, ACCOUNT_ID],
+          ['=', ExternalAccountCol.provider, 'stripe'],
+        ],
+      })
+    );
     expect(stripeRows[0]?.external_id).toBe('cus_1');
 
-    const clerkRows = await sqlClient.query<{ metadata: string }>(sql`
-      SELECT ${ident(ExternalAccountCol.metadata)} AS metadata
-      FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)}
-      WHERE ${ident(ExternalAccountCol.userId)} = ${ACCOUNT_ID} AND ${ident(ExternalAccountCol.provider)} = ${PRIMARY_AUTH_PROVIDER}
-    `);
+    const clerkRows = await sqlClient.query<{ metadata: string }>(
+      honey({
+        select: [[ExternalAccountCol.metadata, 'metadata']],
+        from: EXTERNAL_ACCOUNTS_TABLE,
+        where: [
+          'and',
+          ['=', ExternalAccountCol.userId, ACCOUNT_ID],
+          ['=', ExternalAccountCol.provider, PRIMARY_AUTH_PROVIDER],
+        ],
+      })
+    );
     const metadata = JSON.parse(clerkRows[0]!.metadata) as Record<
       string,
       unknown

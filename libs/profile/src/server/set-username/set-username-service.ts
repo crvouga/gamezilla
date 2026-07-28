@@ -1,5 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -34,13 +34,17 @@ async function readUsernameRow(
   db: SqlClient,
   profileId: string
 ): Promise<UsernameRow> {
-  const rows = await db.query<UsernameRow>(sql`
-    SELECT ${ident(ProfileCol.username)} AS username,
-           ${ident(ProfileCol.usernameChangedAt)} AS username_changed_at
-    FROM ${ident(PROFILES_TABLE.tableName)}
-    WHERE ${ident(ProfileCol.id)} = ${profileId}
-    LIMIT 1
-  `);
+  const rows = await db.query<UsernameRow>(
+    honey({
+      select: [
+        [ProfileCol.username, 'username'],
+        [ProfileCol.usernameChangedAt, 'username_changed_at'],
+      ],
+      from: PROFILES_TABLE.tableName,
+      where: ['=', ProfileCol.id, profileId],
+      limit: 1,
+    })
+  );
   const row = rows[0];
   if (row === undefined) {
     throw new ProfileError('PROFILE_NOT_FOUND', 'profile not found');
@@ -66,12 +70,16 @@ async function updateUsername(
 ): Promise<void> {
   const now = new Date().toISOString();
   try {
-    await db.run(sql`
-      UPDATE ${ident(PROFILES_TABLE.tableName)}
-      SET ${ident(ProfileCol.username)} = ${username},
-          ${ident(ProfileCol.usernameChangedAt)} = ${now}
-      WHERE ${ident(ProfileCol.id)} = ${profileId}
-    `);
+    await db.run(
+      honey({
+        update: PROFILES_TABLE.tableName,
+        set: {
+          [ProfileCol.username]: username,
+          [ProfileCol.usernameChangedAt]: now,
+        },
+        where: ['=', ProfileCol.id, profileId],
+      })
+    );
   } catch (error) {
     if (isUniqueViolation(error)) {
       throw new ProfileError('PROFILE_USERNAME_TAKEN', 'username is taken');

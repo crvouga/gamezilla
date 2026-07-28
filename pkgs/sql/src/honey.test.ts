@@ -315,6 +315,204 @@ describe('honey', () => {
     });
   });
 
+  describe('cast', () => {
+    it('compiles nested allowlisted casts', () => {
+      const q = honey({
+        select: [[['cast', ['cast', 'payload', 'text'], 'jsonb'], 'data']],
+        from: 'kv',
+      });
+      expect(q.text).toEqual('SELECT $1::text::jsonb AS data FROM kv');
+      expect(q.values).toEqual(['payload']);
+    });
+
+    it('compiles cast in insert values', () => {
+      const q = honey({
+        insertInto: 'kv',
+        values: {
+          key: 'a',
+          value: ['cast', ['cast', '{"x":1}', 'text'], 'jsonb'],
+        },
+      });
+      expect(q.text).toEqual(
+        'INSERT INTO kv (key, value) VALUES ($1, $2::text::jsonb)'
+      );
+      expect(q.values).toEqual(['a', '{"x":1}']);
+    });
+
+    it('crashes on unknown cast type', () => {
+      expect(() =>
+        honey({
+          select: [['cast', 1, 'bogus']],
+          from: 't',
+        })
+      ).toThrow('honey: unknown cast type');
+    });
+  });
+
+  describe('onConflict', () => {
+    it('compiles DO NOTHING', () => {
+      const q = honey({
+        insertInto: 'users',
+        values: { id: 1, name: 'Ada' },
+        onConflict: { target: ['id'], doNothing: true },
+      });
+      expect(q.text).toEqual(
+        'INSERT INTO users (id, name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING'
+      );
+      expect(q.values).toEqual([1, 'Ada']);
+    });
+
+    it('compiles DO UPDATE SET with excluded cols', () => {
+      const q = honey({
+        insertInto: 'kv',
+        values: {
+          key: 'k',
+          value: ['cast', '{}', 'jsonb'],
+        },
+        onConflict: {
+          target: ['key'],
+          set: {
+            value: col('excluded.value'),
+            updated_at: ['now'],
+          },
+        },
+      });
+      expect(q.text).toEqual(
+        'INSERT INTO kv (key, value) VALUES ($1, $2::jsonb) ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = NOW()'
+      );
+      expect(q.values).toEqual(['k', '{}']);
+    });
+
+    it('crashes on empty target or mixed doNothing/set', () => {
+      expect(() =>
+        honey({
+          insertInto: 'users',
+          values: { id: 1 },
+          onConflict: { target: [] },
+        })
+      ).toThrow('honey: onConflict.target must be a non-empty column list');
+      expect(() =>
+        honey({
+          insertInto: 'users',
+          values: { id: 1 },
+          onConflict: {
+            target: ['id'],
+            doNothing: true,
+            set: { name: 'x' },
+          },
+        })
+      ).toThrow('honey: onConflict cannot mix doNothing and set');
+    });
+  });
+
+  describe('with / union / locking', () => {
+    it('compiles WITH CTE', () => {
+      const q = honey({
+        with: [
+          [
+            'active',
+            { select: ['id'], from: 'users', where: ['=', 'active', true] },
+          ],
+        ],
+        select: ['id'],
+        from: 'active',
+      });
+      expect(q.text).toEqual(
+        'WITH active AS (SELECT id FROM users WHERE active = $1) SELECT id FROM active'
+      );
+      expect(q.values).toEqual([true]);
+    });
+
+    it('compiles UNION ALL', () => {
+      const q = honey({
+        unionAll: [
+          { select: ['id'], from: 'a' },
+          { select: ['id'], from: 'b', where: ['=', 'x', 1] },
+        ],
+      });
+      expect(q.text).toEqual(
+        '(SELECT id FROM a) UNION ALL (SELECT id FROM b WHERE x = $1)'
+      );
+      expect(q.values).toEqual([1]);
+    });
+
+    it('compiles FOR UPDATE SKIP LOCKED', () => {
+      const q = honey({
+        select: ['id'],
+        from: 'jobs',
+        where: ['=', 'done', false],
+        forUpdate: true,
+        skipLocked: true,
+        limit: 1,
+      });
+      expect(q.text).toEqual(
+        'SELECT id FROM jobs WHERE done = $1 LIMIT $2 FOR UPDATE SKIP LOCKED'
+      );
+      expect(q.values).toEqual([false, 1]);
+    });
+
+    it('crashes when mixing union kinds or skipLocked without forUpdate', () => {
+      expect(() =>
+        honey({
+          union: [{ select: ['id'], from: 'a' }, { select: ['id'], from: 'b' }],
+          unionAll: [
+            { select: ['id'], from: 'a' },
+            { select: ['id'], from: 'b' },
+          ],
+        })
+      ).toThrow('honey: cannot mix union and unionAll');
+      expect(() =>
+        honey({ select: ['id'], from: 't', skipLocked: true })
+      ).toThrow('honey: skipLocked requires forUpdate');
+    });
+  });
+
+  describe('postgres helper fns', () => {
+    it('compiles advisory lock helpers', () => {
+      const q = honey({
+        select: [[['pg_try_advisory_lock', ['cast', 42, 'bigint']], 'ok']],
+      });
+      expect(q.text).toEqual('SELECT PG_TRY_ADVISORY_LOCK($1::bigint) AS ok');
+      expect(q.values).toEqual([42]);
+    });
+  });
+
+  describe('case', () => {
+    it('compiles CASE WHEN THEN ELSE', () => {
+      const q = honey({
+        update: 'spaces',
+        set: {
+          n: [
+            'case',
+            [[['>', 'n', 0], ['-', 'n', 1]]],
+            0,
+          ],
+        },
+        where: ['=', 'id', 's1'],
+      });
+      expect(q.text).toEqual(
+        'UPDATE spaces SET n = CASE WHEN n > $1 THEN n - $2 ELSE $3 END WHERE id = $4'
+      );
+      expect(q.values).toEqual([0, 1, 0, 's1']);
+    });
+  });
+
+  describe('param', () => {
+    it('binds a string scalar inside coalesce', () => {
+      const q = honey({
+        update: 'invites',
+        set: {
+          accepted_at: ['coalesce', 'accepted_at', ['param', '2020-01-01']],
+        },
+        where: ['=', 'id', 'i1'],
+      });
+      expect(q.text).toEqual(
+        'UPDATE invites SET accepted_at = COALESCE(accepted_at, $1) WHERE id = $2'
+      );
+      expect(q.values).toEqual(['2020-01-01', 'i1']);
+    });
+  });
+
   describe('safety', () => {
     it('crashes on invalid identifiers', () => {
       expect(() => honey({ select: ['id;drop'], from: 'users' })).toThrow();

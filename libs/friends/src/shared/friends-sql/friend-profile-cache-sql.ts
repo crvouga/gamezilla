@@ -3,7 +3,7 @@ import {
   FriendProfileCacheCol,
 } from '@libs/db/shared/friends-tables';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { sql, ident } from '@pkgs/sql';
+import { honey, col } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { pairId } from '../pair-id';
@@ -17,12 +17,14 @@ async function readProfileCard(
   db: SqlClient,
   profileId: string
 ): Promise<ProfileCardLite | null> {
-  const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT ${ident(ProfileCol.username)}, ${ident(ProfileCol.avatarConfig)}
-    FROM ${ident(PROFILES_TABLE.tableName)}
-    WHERE ${ident(ProfileCol.id)} = ${profileId}
-    LIMIT 1
-  `);
+  const rows = await db.query<Record<string, unknown>>(
+    honey({
+      select: [ProfileCol.username, ProfileCol.avatarConfig],
+      from: PROFILES_TABLE.tableName,
+      where: ['=', ProfileCol.id, profileId],
+      limit: 1,
+    })
+  );
   const row = rows[0];
   if (row === undefined) return null;
   const username = row[ProfileCol.username];
@@ -43,17 +45,33 @@ export async function upsertFriendProfileCache(
     readonly now: string;
   }
 ): Promise<void> {
-  await db.run(sql`
-    INSERT INTO ${ident(FRIEND_PROFILE_CACHE_TABLE.tableName)}
-    (${ident(FriendProfileCacheCol.id)}, ${ident(FriendProfileCacheCol.ownerId)}, ${ident(FriendProfileCacheCol.friendId)},
-     ${ident(FriendProfileCacheCol.username)},
-     ${ident(FriendProfileCacheCol.avatarConfig)}, ${ident(FriendProfileCacheCol.updatedAt)})
-    VALUES (${pairId(args.ownerId, args.friendId)}, ${args.ownerId}, ${args.friendId}, ${args.username}, ${args.avatarConfig}, ${args.now})
-    ON CONFLICT (${ident(FriendProfileCacheCol.ownerId)}, ${ident(FriendProfileCacheCol.friendId)}) DO UPDATE SET
-      ${ident(FriendProfileCacheCol.username)} = excluded.${ident(FriendProfileCacheCol.username)},
-      ${ident(FriendProfileCacheCol.avatarConfig)} = excluded.${ident(FriendProfileCacheCol.avatarConfig)},
-      ${ident(FriendProfileCacheCol.updatedAt)} = excluded.${ident(FriendProfileCacheCol.updatedAt)}
-  `);
+  await db.run(
+    honey({
+      insertInto: FRIEND_PROFILE_CACHE_TABLE.tableName,
+      values: {
+        [FriendProfileCacheCol.id]: pairId(args.ownerId, args.friendId),
+        [FriendProfileCacheCol.ownerId]: args.ownerId,
+        [FriendProfileCacheCol.friendId]: args.friendId,
+        [FriendProfileCacheCol.username]: args.username,
+        [FriendProfileCacheCol.avatarConfig]: args.avatarConfig,
+        [FriendProfileCacheCol.updatedAt]: args.now,
+      },
+      onConflict: {
+        target: [FriendProfileCacheCol.ownerId, FriendProfileCacheCol.friendId],
+        set: {
+          [FriendProfileCacheCol.username]: col(
+            `excluded.${FriendProfileCacheCol.username}`
+          ),
+          [FriendProfileCacheCol.avatarConfig]: col(
+            `excluded.${FriendProfileCacheCol.avatarConfig}`
+          ),
+          [FriendProfileCacheCol.updatedAt]: col(
+            `excluded.${FriendProfileCacheCol.updatedAt}`
+          ),
+        },
+      },
+    })
+  );
 }
 
 export async function clearFriendProfileCaches(
@@ -61,11 +79,24 @@ export async function clearFriendProfileCaches(
   userA: string,
   userB: string
 ): Promise<void> {
-  await db.run(sql`
-    DELETE FROM ${ident(FRIEND_PROFILE_CACHE_TABLE.tableName)}
-    WHERE (${ident(FriendProfileCacheCol.ownerId)} = ${userA} AND ${ident(FriendProfileCacheCol.friendId)} = ${userB})
-       OR (${ident(FriendProfileCacheCol.ownerId)} = ${userB} AND ${ident(FriendProfileCacheCol.friendId)} = ${userA})
-  `);
+  await db.run(
+    honey({
+      deleteFrom: FRIEND_PROFILE_CACHE_TABLE.tableName,
+      where: [
+        'or',
+        [
+          'and',
+          ['=', FriendProfileCacheCol.ownerId, userA],
+          ['=', FriendProfileCacheCol.friendId, userB],
+        ],
+        [
+          'and',
+          ['=', FriendProfileCacheCol.ownerId, userB],
+          ['=', FriendProfileCacheCol.friendId, userA],
+        ],
+      ],
+    })
+  );
 }
 
 /**

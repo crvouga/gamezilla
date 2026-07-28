@@ -3,7 +3,7 @@ import {
   FRIEND_REQUESTS_TABLE,
   FriendRequestCol,
 } from '@libs/db/shared/friends-tables';
-import { sql, type Sql, ident } from '@pkgs/sql';
+import { honey, type Sql } from '@pkgs/sql';
 import { useMemo } from 'react';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
@@ -20,36 +20,47 @@ type FriendRequestRow = {
   readonly responded_at: string | null;
 };
 
+const FRIEND_REQUEST_COLUMNS = [
+  FriendRequestCol.id,
+  FriendRequestCol.fromUserId,
+  FriendRequestCol.toUserId,
+  FriendRequestCol.status,
+  FriendRequestCol.message,
+  FriendRequestCol.createdAt,
+  FriendRequestCol.updatedAt,
+  FriendRequestCol.respondedAt,
+] as const;
+
 function pendingIncomingSql(myId: string): Sql {
   if (myId.length === 0) {
-    return sql`SELECT * FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)} WHERE 0`;
+    return honey({ from: FRIEND_REQUESTS_TABLE.tableName, where: ['=', 1, 0] });
   }
-  return sql`
-    SELECT ${ident(FriendRequestCol.id)}, ${ident(FriendRequestCol.fromUserId)},
-           ${ident(FriendRequestCol.toUserId)}, ${ident(FriendRequestCol.status)},
-           ${ident(FriendRequestCol.message)}, ${ident(FriendRequestCol.createdAt)},
-           ${ident(FriendRequestCol.updatedAt)}, ${ident(FriendRequestCol.respondedAt)}
-    FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)}
-    WHERE ${ident(FriendRequestCol.toUserId)} = ${myId}
-      AND ${ident(FriendRequestCol.status)} = 'pending'
-    ORDER BY ${ident(FriendRequestCol.createdAt)} DESC
-  `;
+  return honey({
+    select: FRIEND_REQUEST_COLUMNS,
+    from: FRIEND_REQUESTS_TABLE.tableName,
+    where: [
+      'and',
+      ['=', FriendRequestCol.toUserId, myId],
+      ['=', FriendRequestCol.status, 'pending'],
+    ],
+    orderBy: [[FriendRequestCol.createdAt, 'desc']],
+  });
 }
 
 function pendingOutgoingSql(myId: string): Sql {
   if (myId.length === 0) {
-    return sql`SELECT * FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)} WHERE 0`;
+    return honey({ from: FRIEND_REQUESTS_TABLE.tableName, where: ['=', 1, 0] });
   }
-  return sql`
-    SELECT ${ident(FriendRequestCol.id)}, ${ident(FriendRequestCol.fromUserId)},
-           ${ident(FriendRequestCol.toUserId)}, ${ident(FriendRequestCol.status)},
-           ${ident(FriendRequestCol.message)}, ${ident(FriendRequestCol.createdAt)},
-           ${ident(FriendRequestCol.updatedAt)}, ${ident(FriendRequestCol.respondedAt)}
-    FROM ${ident(FRIEND_REQUESTS_TABLE.tableName)}
-    WHERE ${ident(FriendRequestCol.fromUserId)} = ${myId}
-      AND ${ident(FriendRequestCol.status)} = 'pending'
-    ORDER BY ${ident(FriendRequestCol.createdAt)} DESC
-  `;
+  return honey({
+    select: FRIEND_REQUEST_COLUMNS,
+    from: FRIEND_REQUESTS_TABLE.tableName,
+    where: [
+      'and',
+      ['=', FriendRequestCol.fromUserId, myId],
+      ['=', FriendRequestCol.status, 'pending'],
+    ],
+    orderBy: [[FriendRequestCol.createdAt, 'desc']],
+  });
 }
 
 function mapRequestRow(row: FriendRequestRow): FriendRequest {

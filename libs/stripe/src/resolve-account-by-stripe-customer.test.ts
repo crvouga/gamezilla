@@ -25,6 +25,7 @@ describe('resolveAccountIdByStripeCustomerId', () => {
     expect(statement.values).toEqual([
       EXTERNAL_ACCOUNT_PROVIDER_STRIPE,
       'cus_123',
+      1,
     ]);
   });
 

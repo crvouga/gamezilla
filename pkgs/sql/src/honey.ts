@@ -34,6 +34,16 @@
  *   limit: 10,
  * });
  *
+ * // Upsert with cast + ON CONFLICT:
+ * honey({
+ *   insertInto: 'kv',
+ *   values: { key: 'k', value: ['cast', '{}', 'jsonb'] },
+ *   onConflict: {
+ *     target: ['key'],
+ *     set: { value: col('excluded.value'), updated_at: ['now'] },
+ *   },
+ * });
+ *
  * q.text    // SELECT id, name, COUNT(*) AS n FROM users AS u ...
  * q.values  // [true, 'admin', 'staff', 10]
  *

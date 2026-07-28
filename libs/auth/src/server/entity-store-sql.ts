@@ -4,7 +4,7 @@ import {
   ENTITY_STORE_TYPE_USER,
   entityStoreId,
 } from '@libs/db/shared/entity-store-table';
-import { sql, ident } from '@pkgs/sql';
+import { honey, col } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 type EntityStoreDataRow = { readonly data: unknown };
@@ -28,11 +28,19 @@ export async function readAuthUserEntityData(
   db: SqlClient,
   ownerId: string
 ): Promise<Record<string, unknown> | null> {
-  const rows = await db.query<EntityStoreDataRow>(sql`
-    SELECT data FROM ${ident(ENTITY_STORE_TABLE)}
-    WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER} AND owner_id = ${ownerId}
-    LIMIT 1
-  `);
+  const rows = await db.query<EntityStoreDataRow>(
+    honey({
+      select: ['data'],
+      from: ENTITY_STORE_TABLE,
+      where: [
+        'and',
+        ['=', 'namespace', ENTITY_STORE_NAMESPACE_AUTH],
+        ['=', 'type', ENTITY_STORE_TYPE_USER],
+        ['=', 'owner_id', ownerId],
+      ],
+      limit: 1,
+    })
+  );
   return parseEntityStoreData(rows[0]?.data);
 }
 
@@ -50,15 +58,29 @@ export async function upsertAuthUserSnapshot(
     args.externalUserId
   );
   const now = new Date().toISOString();
-  await db.run(sql`
-    INSERT INTO ${ident(ENTITY_STORE_TABLE)}
-    (id, namespace, type, external_id, owner_id, data, created_at, updated_at)
-    VALUES (${id}, ${ENTITY_STORE_NAMESPACE_AUTH}, ${ENTITY_STORE_TYPE_USER}, ${args.externalUserId}, ${args.ownerId}, ${JSON.stringify(args.data)}::jsonb, ${now}, ${now})
-    ON CONFLICT (namespace, type, external_id) DO UPDATE SET
-      owner_id = excluded.owner_id,
-      data = excluded.data,
-      updated_at = excluded.updated_at
-  `);
+  await db.run(
+    honey({
+      insertInto: ENTITY_STORE_TABLE,
+      values: {
+        id,
+        namespace: ENTITY_STORE_NAMESPACE_AUTH,
+        type: ENTITY_STORE_TYPE_USER,
+        external_id: args.externalUserId,
+        owner_id: args.ownerId,
+        data: ['cast', JSON.stringify(args.data), 'jsonb'],
+        created_at: now,
+        updated_at: now,
+      },
+      onConflict: {
+        target: ['namespace', 'type', 'external_id'],
+        set: {
+          owner_id: col('excluded.owner_id'),
+          data: col('excluded.data'),
+          updated_at: col('excluded.updated_at'),
+        },
+      },
+    })
+  );
 }
 
 /** Primary email from a serialized auth-provider user payload. */

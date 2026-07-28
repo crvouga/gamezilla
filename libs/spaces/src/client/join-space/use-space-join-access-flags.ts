@@ -6,7 +6,7 @@ import {
   SPACE_INVITES_TABLE,
   SpaceInviteCol,
 } from '@libs/db/shared/space-tables';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { canonicalUserPair } from '../../shared/canonical-user-pair';
@@ -44,23 +44,29 @@ export function useHasValidLocalInvite(
 ): boolean {
   const token = inviteToken ?? '';
   const enabled = spaceId.length > 0 && token.length > 0;
-  const inviteColumns = sql`SELECT ${ident(SpaceInviteCol.expiresAt)} AS expires_at,
-                ${ident(SpaceInviteCol.revokedAt)} AS revoked_at,
-                ${ident(SpaceInviteCol.maxUses)} AS max_uses,
-                ${ident(SpaceInviteCol.useCount)} AS use_count
-         FROM ${ident(SPACE_INVITES_TABLE.tableName)}`;
   const { row } = useWatchOne<{
     readonly expires_at: string | null;
     readonly revoked_at: string | null;
     readonly max_uses: number | string | null;
     readonly use_count: number | string | null;
   }>(
-    enabled
-      ? sql`${inviteColumns}
-         WHERE ${ident(SpaceInviteCol.spaceId)} = ${spaceId}
-           AND ${ident(SpaceInviteCol.token)} = ${token}
-         LIMIT 1`
-      : sql`${inviteColumns} WHERE 0`
+    honey({
+      select: [
+        SpaceInviteCol.expiresAt,
+        SpaceInviteCol.revokedAt,
+        SpaceInviteCol.maxUses,
+        SpaceInviteCol.useCount,
+      ],
+      from: SPACE_INVITES_TABLE.tableName,
+      where: enabled
+        ? [
+            'and',
+            ['=', SpaceInviteCol.spaceId, spaceId],
+            ['=', SpaceInviteCol.token, token],
+          ]
+        : ['=', 1, 0],
+      limit: 1,
+    })
   );
   if (row === null) return false;
   return isInviteStillValid(row);
@@ -74,14 +80,20 @@ export function useAreAccountsFriendsLocal(
   const sameAccount =
     accountA !== null && accountB !== null && accountA === accountB;
   const pair = friendshipPairOrNull(accountA, accountB);
-  const friendshipColumns = sql`SELECT ${ident(FriendshipCol.id)} AS id
-         FROM ${ident(FRIENDSHIPS_TABLE.tableName)}`;
   const { row } = useWatchOne<{ readonly id: string }>(
-    pair !== null
-      ? sql`${friendshipColumns}
-         WHERE ${ident(FriendshipCol.userLow)} = ${pair.userLow} AND ${ident(FriendshipCol.userHigh)} = ${pair.userHigh}
-         LIMIT 1`
-      : sql`${friendshipColumns} WHERE 0`
+    honey({
+      select: [FriendshipCol.id],
+      from: FRIENDSHIPS_TABLE.tableName,
+      where:
+        pair !== null
+          ? [
+              'and',
+              ['=', FriendshipCol.userLow, pair.userLow],
+              ['=', FriendshipCol.userHigh, pair.userHigh],
+            ]
+          : ['=', 1, 0],
+      limit: 1,
+    })
   );
   return sameAccount || row !== null;
 }

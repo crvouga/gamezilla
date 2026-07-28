@@ -1,6 +1,6 @@
 import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
 import { DEVICES_TABLE, DeviceCol } from '@libs/db/shared/auth-tables';
-import { join, sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -92,9 +92,13 @@ async function upsertDeviceRow(args: {
   attributes: Record<string, string | null>;
 }): Promise<void> {
   const { db, deviceId, userId, attributes } = args;
-  const rows = await db.query<DeviceRow>(sql`
-    SELECT * FROM ${ident(DEVICES_TABLE.tableName)} WHERE ${ident(DeviceCol.id)} = ${deviceId} LIMIT 1
-  `);
+  const rows = await db.query<DeviceRow>(
+    honey({
+      from: DEVICES_TABLE.tableName,
+      where: ['=', DeviceCol.id, deviceId],
+      limit: 1,
+    })
+  );
   const existing = rows[0];
   const now = new Date().toISOString();
 
@@ -112,10 +116,11 @@ async function upsertDeviceRow(args: {
       cols.push(key);
       vals.push(value);
     }
-    await db.run(sql`
-      INSERT INTO ${ident(DEVICES_TABLE.tableName)} (${join(cols.map((col) => ident(col)))})
-      VALUES (${join(vals)})
-    `);
+    const values: Record<string, string | null> = {};
+    cols.forEach((column, index) => {
+      values[column] = vals[index] ?? null;
+    });
+    await db.run(honey({ insertInto: DEVICES_TABLE.tableName, values }));
     return;
   }
 
@@ -136,13 +141,13 @@ async function upsertDeviceRow(args: {
   }
   const entries = Object.entries(updates);
   if (entries.length === 0) return;
-  const sets = join(
-    entries.map(([col, value]) => sql`${ident(col)} = ${value}`),
-    ', '
+  await db.run(
+    honey({
+      update: DEVICES_TABLE.tableName,
+      set: updates,
+      where: ['=', DeviceCol.id, deviceId],
+    })
   );
-  await db.run(sql`
-    UPDATE ${ident(DEVICES_TABLE.tableName)} SET ${sets} WHERE ${ident(DeviceCol.id)} = ${deviceId}
-  `);
 }
 
 function readNullableString(v: unknown): string | null {

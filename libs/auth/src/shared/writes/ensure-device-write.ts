@@ -1,5 +1,5 @@
 import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
-import { join, sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
@@ -118,10 +118,11 @@ async function insertDeviceRow(
   snapshot: DeviceSnapshot
 ): Promise<void> {
   const { cols, vals } = buildInsertArgs(deviceId, now, snapshot);
-  await db.run(sql`
-    INSERT INTO ${ident(DEVICES_TABLE.tableName)} (${join(cols.map((col) => ident(col)))})
-    VALUES (${join(vals)})
-  `);
+  const values: Record<string, string | null> = {};
+  cols.forEach((column, index) => {
+    values[column] = vals[index] ?? null;
+  });
+  await db.run(honey({ insertInto: DEVICES_TABLE.tableName, values }));
 }
 
 async function updateDeviceRow(
@@ -131,13 +132,13 @@ async function updateDeviceRow(
 ): Promise<void> {
   const entries = Object.entries(updates);
   if (entries.length === 0) return;
-  const sets = join(
-    entries.map(([col, value]) => sql`${ident(col)} = ${value}`),
-    ', '
+  await db.run(
+    honey({
+      update: DEVICES_TABLE.tableName,
+      set: updates,
+      where: ['=', DeviceCol.id, deviceId],
+    })
   );
-  await db.run(sql`
-    UPDATE ${ident(DEVICES_TABLE.tableName)} SET ${sets} WHERE ${ident(DeviceCol.id)} = ${deviceId}
-  `);
 }
 
 /**
@@ -157,9 +158,13 @@ export const ensureDeviceWrite = defineWrite<EnsureDeviceInput, void>({
     return ok(undefined);
   },
   execute: async (_ctx, input, db) => {
-    const rows = await db.query<DeviceRow>(sql`
-      SELECT * FROM ${ident(DEVICES_TABLE.tableName)} WHERE ${ident(DeviceCol.id)} = ${input.deviceId} LIMIT 1
-    `);
+    const rows = await db.query<DeviceRow>(
+      honey({
+        from: DEVICES_TABLE.tableName,
+        where: ['=', DeviceCol.id, input.deviceId],
+        limit: 1,
+      })
+    );
     const row = rows[0];
     const now = new Date().toISOString();
     if (!isDeviceRowComplete(row, input.deviceId)) {

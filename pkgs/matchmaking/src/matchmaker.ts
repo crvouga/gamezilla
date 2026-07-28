@@ -63,7 +63,7 @@
 import { assert } from '@pkgs/assert';
 import type { AttributeState } from '@pkgs/attribute';
 import { asKeywordRecord, assertKeywordRecord } from '@pkgs/keyword';
-import { sql } from '@pkgs/sql';
+import { honey, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   assertDataMatchesFormula,
@@ -335,20 +335,44 @@ export class Matchmaker {
     const signature = this.partitionSignatureFor(data);
     const metadata =
       attrs.metadata === null ? null : JSON.stringify(attrs.metadata);
-    const rows = await this.sqlClient.query<{ id: string }>(sql`
-      WITH ins AS (
-         INSERT INTO matchmaking_waiting
-           (data, formulas, partition_signature, group_size, priority, metadata)
-         VALUES (${JSON.stringify(data)}::jsonb, ${JSON.stringify(formulas)}::jsonb, ${signature}, ${attrs.groupSize}, ${attrs.priority}, ${metadata}::jsonb)
-         RETURNING id
-       ), reg AS (
-         INSERT INTO matchmaking_active_partitions
-           (partition_signature, group_size)
-         VALUES (${signature}, ${attrs.groupSize})
-         ON CONFLICT (partition_signature, group_size) DO NOTHING
-         RETURNING partition_signature
-       )
-       SELECT id FROM ins`);
+    const rows = await this.sqlClient.query<{ id: string }>(
+      honey({
+        with: [
+          [
+            'ins',
+            {
+              insertInto: 'matchmaking_waiting',
+              values: {
+                data: ['cast', JSON.stringify(data), 'jsonb'],
+                formulas: ['cast', JSON.stringify(formulas), 'jsonb'],
+                partition_signature: signature,
+                group_size: attrs.groupSize,
+                priority: attrs.priority,
+                metadata: ['cast', metadata, 'jsonb'],
+              },
+              returning: ['id'],
+            },
+          ],
+          [
+            'reg',
+            {
+              insertInto: 'matchmaking_active_partitions',
+              values: {
+                partition_signature: signature,
+                group_size: attrs.groupSize,
+              },
+              onConflict: {
+                target: ['partition_signature', 'group_size'],
+                doNothing: true,
+              },
+              returning: ['partition_signature'],
+            },
+          ],
+        ],
+        select: ['id'],
+        from: 'ins',
+      })
+    );
     const row = rows[0];
     if (row === undefined) {
       throw new Error('matchmaking insert returned no rows');
@@ -403,11 +427,14 @@ export class Matchmaker {
     participantId: string,
     formulas: readonly FormulaWire[]
   ): Promise<UpdateFormulasResult> {
-    const rows = await this.sqlClient.query<{ id: string }>(sql`
-      UPDATE matchmaking_waiting
-         SET formulas = ${JSON.stringify(formulas)}::jsonb
-       WHERE id = ${participantId}
-       RETURNING id`);
+    const rows = await this.sqlClient.query<{ id: string }>(
+      honey({
+        update: 'matchmaking_waiting',
+        set: { formulas: ['cast', JSON.stringify(formulas), 'jsonb'] },
+        where: ['=', 'id', participantId],
+        returning: ['id'],
+      })
+    );
     return { updated: rows.length > 0 };
   }
 
@@ -422,8 +449,13 @@ export class Matchmaker {
       participantId,
       'Matchmaker.leave: participantId must be a non-empty string'
     );
-    const rows = await this.sqlClient.query<{ id: string }>(sql`
-      DELETE FROM matchmaking_waiting WHERE id = ${participantId} RETURNING id`);
+    const rows = await this.sqlClient.query<{ id: string }>(
+      honey({
+        deleteFrom: 'matchmaking_waiting',
+        where: ['=', 'id', participantId],
+        returning: ['id'],
+      })
+    );
     return { removed: rows.length > 0 };
   }
 
@@ -438,6 +470,9 @@ export class Matchmaker {
       participantId,
       'Matchmaker.status: participantId must be a non-empty string'
     );
+    // honey: UNION ALL with a trailing LIMIT that binds to the whole
+    // compound — honey compound queries don't take a trailing LIMIT, and
+    // wrapping in a subquery would change the plan.
     const rows = await this.sqlClient.query<StatusRow>(sql`
       SELECT 'waiting'::TEXT AS status, data, metadata, NULL::UUID AS match_id
        FROM matchmaking_waiting WHERE id = ${participantId}
@@ -456,11 +491,18 @@ export class Matchmaker {
         `matchmaking row ${participantId} is matched but has no match_id`
       );
     }
-    const peers = await this.sqlClient.query<ParticipantRow>(sql`
-      SELECT id, joined_at, data, metadata
-       FROM matchmaking_matched
-       WHERE match_id = ${row.match_id} AND id <> ${participantId}
-       ORDER BY joined_at`);
+    const peers = await this.sqlClient.query<ParticipantRow>(
+      honey({
+        select: ['id', 'joined_at', 'data', 'metadata'],
+        from: 'matchmaking_matched',
+        where: [
+          'and',
+          ['=', 'match_id', row.match_id],
+          ['<>', 'id', participantId],
+        ],
+        orderBy: ['joined_at'],
+      })
+    );
     return {
       status: 'matched',
       data,
@@ -490,6 +532,8 @@ export class Matchmaker {
       'Matchmaker.runMatchPass'
     );
     const nowParam = this.nowParam();
+    // honey: set-returning function in FROM position (no honey grammar for a
+    // table-valued function call).
     const rows = await this.sqlClient.query<MatchPassRow>(sql`
       SELECT match_id, participant_id, joined_at, data
        FROM matchmaking_run_match_pass(${partitionSignature}, ${this.radius.baseRadius}, ${this.radius.radiusGrowthPerSecond}, ${this.radius.maxRadius}, ${this.maxPairsPerPass}, ${this.bucketWidth}, ${resolvedGroupSize}, ${nowParam})`);
@@ -566,6 +610,7 @@ export class Matchmaker {
     }
     // Best-effort prune of (sig, group_size) pairs that drained to
     // zero waiters. Single statement; safe to call repeatedly.
+    // honey: DELETE target table alias (`ap`) + correlated NOT EXISTS.
     await this.sqlClient.run(sql`
       DELETE FROM matchmaking_active_partitions ap
        WHERE NOT EXISTS (
@@ -589,6 +634,7 @@ export class Matchmaker {
     const rows = await this.sqlClient.query<{
       matchmaking_sweep_expired: number | string;
     }>(
+      // honey: custom SQL function call (not in honey's function allowlist).
       sql`SELECT matchmaking_sweep_expired(${partitionSignature}, ${this.maxWaitSeconds}, ${nowParam}) AS matchmaking_sweep_expired`
     );
     const raw = rows[0]?.matchmaking_sweep_expired ?? 0;
@@ -639,6 +685,7 @@ export class Matchmaker {
     const rows = await this.sqlClient.query<{
       matchmaking_sweep_matched: number | string;
     }>(
+      // honey: custom SQL function call (not in honey's function allowlist).
       sql`SELECT matchmaking_sweep_matched(${this.matchedRetentionSeconds}, ${nowParam}) AS matchmaking_sweep_matched`
     );
     const raw = rows[0]?.matchmaking_sweep_matched ?? 0;
@@ -671,7 +718,11 @@ export class Matchmaker {
     if (expected === undefined || onDrift === undefined) return;
     if (this.fingerprintProbeOk === true) return;
     const rows = await this.sqlClient.query<{ schema_fingerprint: string }>(
-      sql`SELECT schema_fingerprint FROM matchmaking_schema_state WHERE id = 1`
+      honey({
+        select: ['schema_fingerprint'],
+        from: 'matchmaking_schema_state',
+        where: ['=', 'id', 1],
+      })
     );
     // Missing row means `migrate()` never ran for this DB; treat the
     // same as drift. The public facade always migrates as part of
@@ -697,11 +748,14 @@ export class Matchmaker {
     const rows = await this.sqlClient.query<{
       partition_signature: string;
       group_size: number | string;
-    }>(sql`
-      SELECT partition_signature, group_size
-       FROM matchmaking_active_partitions
-       ORDER BY first_seen_at
-       LIMIT ${cap}`);
+    }>(
+      honey({
+        select: ['partition_signature', 'group_size'],
+        from: 'matchmaking_active_partitions',
+        orderBy: ['first_seen_at'],
+        limit: cap,
+      })
+    );
     return rows.map((r) => ({
       partitionSignature: r.partition_signature,
       groupSize:

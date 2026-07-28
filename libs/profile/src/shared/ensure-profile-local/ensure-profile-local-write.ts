@@ -1,5 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
@@ -55,11 +55,13 @@ function hasAvatarConfig(row: ProfileRow | undefined): boolean {
 }
 
 async function backfillAvatar(db: SqlClient, profileId: string): Promise<void> {
-  await db.run(sql`
-    UPDATE ${ident(PROFILES_TABLE.tableName)}
-    SET ${ident(ProfileCol.avatarConfig)} = ${serializeDefaultAvatarConfig(profileId)}
-    WHERE ${ident(ProfileCol.id)} = ${profileId}
-  `);
+  await db.run(
+    honey({
+      update: PROFILES_TABLE.tableName,
+      set: { [ProfileCol.avatarConfig]: serializeDefaultAvatarConfig(profileId) },
+      where: ['=', ProfileCol.id, profileId],
+    })
+  );
 }
 
 async function insertProfileSeed(
@@ -67,11 +69,17 @@ async function insertProfileSeed(
   profileId: string
 ): Promise<void> {
   const now = new Date().toISOString();
-  await db.run(sql`
-    INSERT INTO ${ident(PROFILES_TABLE.tableName)}
-    (${ident(ProfileCol.id)}, ${ident(ProfileCol.createdAt)}, ${ident(ProfileCol.username)}, ${ident(ProfileCol.avatarConfig)})
-    VALUES (${profileId}, ${now}, '', ${serializeDefaultAvatarConfig(profileId)})
-  `);
+  await db.run(
+    honey({
+      insertInto: PROFILES_TABLE.tableName,
+      values: {
+        [ProfileCol.id]: profileId,
+        [ProfileCol.createdAt]: now,
+        [ProfileCol.username]: '',
+        [ProfileCol.avatarConfig]: serializeDefaultAvatarConfig(profileId),
+      },
+    })
+  );
 }
 
 async function fillEmptyUsername(
@@ -82,20 +90,30 @@ async function fillEmptyUsername(
   // Fill empty, or replace an auto-assigned name that does not match ensure
   // (e.g. a raced apply from another account's token). Never overwrite a
   // user-chosen username (`username_changed_at` set).
-  await db.run(sql`
-    UPDATE ${ident(PROFILES_TABLE.tableName)}
-    SET ${ident(ProfileCol.username)} = ${username}
-    WHERE ${ident(ProfileCol.id)} = ${profileId}
-      AND (
-        ${ident(ProfileCol.username)} = ''
-        OR ${ident(ProfileCol.username)} IS NULL
-        OR (
-          (${ident(ProfileCol.usernameChangedAt)} IS NULL
-            OR ${ident(ProfileCol.usernameChangedAt)} = '')
-          AND ${ident(ProfileCol.username)} != ${username}
-        )
-      )
-  `);
+  await db.run(
+    honey({
+      update: PROFILES_TABLE.tableName,
+      set: { [ProfileCol.username]: username },
+      where: [
+        'and',
+        ['=', ProfileCol.id, profileId],
+        [
+          'or',
+          ['=', ProfileCol.username, ''],
+          ['is-null', ProfileCol.username],
+          [
+            'and',
+            [
+              'or',
+              ['is-null', ProfileCol.usernameChangedAt],
+              ['=', ProfileCol.usernameChangedAt, ''],
+            ],
+            ['!=', ProfileCol.username, username],
+          ],
+        ],
+      ],
+    })
+  );
 }
 
 /**
@@ -118,9 +136,13 @@ export const ensureProfileLocalWrite = defineWrite<
     return ok(undefined);
   },
   execute: async (_ctx, input, db) => {
-    const rows = await db.query<ProfileRow>(sql`
-      SELECT * FROM ${ident(PROFILES_TABLE.tableName)} WHERE ${ident(ProfileCol.id)} = ${input.profileId} LIMIT 1
-    `);
+    const rows = await db.query<ProfileRow>(
+      honey({
+        from: PROFILES_TABLE.tableName,
+        where: ['=', ProfileCol.id, input.profileId],
+        limit: 1,
+      })
+    );
     const existing = rows[0];
     if (profileLooksPresent(existing, input.profileId)) {
       if (!hasAvatarConfig(existing)) {

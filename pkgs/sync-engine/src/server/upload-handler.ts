@@ -59,6 +59,8 @@ export async function applyPut(db: SqlClient, row: UploadRow): Promise<void> {
     .map((c) => `${c} = excluded.${c}`)
     .join(', ');
   const boundValues = columns.map((c) => values[c] as Value);
+  // honey: dynamic columns (client-supplied Object.keys drive the INSERT
+  // column list + conflict set) and identifiers must reject-not-crash.
   await db.run(sql`
     INSERT INTO ${raw(table)} (${raw(quotedColumns.join(', '))})
     VALUES ${join(boundValues, ', ', '(', ')')}
@@ -75,6 +77,7 @@ export async function applyPatch(db: SqlClient, row: UploadRow): Promise<void> {
       (c) => sql`${raw(quoteSqlIdentifier(c))} = ${values[c] as Value}`
     )
   );
+  // honey: dynamic columns (client-supplied) + reject-not-crash identifiers.
   await db.run(sql`UPDATE ${raw(table)} SET ${sets} WHERE id = ${row.id}`);
 }
 
@@ -82,6 +85,8 @@ export async function applyDelete(
   db: SqlClient,
   row: UploadRow
 ): Promise<void> {
+  // honey: dynamic identifier — hostile table names must reject-not-crash
+  // (honey's ident() asserts and would exit the worker process).
   await db.run(
     sql`DELETE FROM ${raw(quoteSqlIdentifier(row.table))} WHERE id = ${row.id}`
   );

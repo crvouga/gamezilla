@@ -4,52 +4,81 @@ import {
   SpaceMembershipCol,
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
-import { sql, type Sql, ident } from '@pkgs/sql';
+import { col, honey, type Expr, type Sql } from '@pkgs/sql';
 
 /**
  * Live spaces this member hosts without having left (left_at set).
  * Fills the create→membership sync gap; excludes post-leave orphans while
  * ended_at is still null.
  */
-export function hostedUnleftPredicateSql(
+export function hostedUnleftPredicate(
   spacesAlias: string,
   memberId: string
-): Sql {
-  return sql`(
-    ${ident(spacesAlias)}.${ident(SpaceCol.endedAt)} IS NULL
-    AND (
-      ${ident(spacesAlias)}.${ident(SpaceCol.hostMemberId)} = ${memberId}
-      OR ${ident(spacesAlias)}.${ident(SpaceCol.hostAccountId)} = ${memberId}
-    )
-    AND NOT EXISTS (
-      SELECT 1 FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)} AS m
-      WHERE m.${ident(SpaceMembershipCol.spaceId)} = ${ident(spacesAlias)}.${ident(SpaceCol.id)}
-        AND m.${ident(SpaceMembershipCol.memberId)} = ${memberId}
-        AND m.${ident(SpaceMembershipCol.leftAt)} IS NOT NULL
-    )
-  )`;
+): Expr {
+  return [
+    'and',
+    ['is-null', `${spacesAlias}.${SpaceCol.endedAt}`],
+    [
+      'or',
+      ['=', `${spacesAlias}.${SpaceCol.hostMemberId}`, memberId],
+      ['=', `${spacesAlias}.${SpaceCol.hostAccountId}`, memberId],
+    ],
+    [
+      'not',
+      [
+        'exists',
+        {
+          select: [SpaceMembershipCol.id],
+          from: [[SPACE_MEMBERSHIPS_TABLE.tableName, 'm']],
+          where: [
+            'and',
+            [
+              '=',
+              `m.${SpaceMembershipCol.spaceId}`,
+              col(`${spacesAlias}.${SpaceCol.id}`),
+            ],
+            ['=', `m.${SpaceMembershipCol.memberId}`, memberId],
+            ['is-not-null', `m.${SpaceMembershipCol.leftAt}`],
+          ],
+        },
+      ],
+    ],
+  ];
 }
 
 /**
  * True when this member is the host and already left — used to keep
  * friends-visibility browse from resurfacing departed-host orphans.
  */
-export function departedHostPredicateSql(
+export function departedHostPredicate(
   spacesAlias: string,
   memberId: string
-): Sql {
-  return sql`(
-    (
-      ${ident(spacesAlias)}.${ident(SpaceCol.hostMemberId)} = ${memberId}
-      OR ${ident(spacesAlias)}.${ident(SpaceCol.hostAccountId)} = ${memberId}
-    )
-    AND EXISTS (
-      SELECT 1 FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)} AS m
-      WHERE m.${ident(SpaceMembershipCol.spaceId)} = ${ident(spacesAlias)}.${ident(SpaceCol.id)}
-        AND m.${ident(SpaceMembershipCol.memberId)} = ${memberId}
-        AND m.${ident(SpaceMembershipCol.leftAt)} IS NOT NULL
-    )
-  )`;
+): Expr {
+  return [
+    'and',
+    [
+      'or',
+      ['=', `${spacesAlias}.${SpaceCol.hostMemberId}`, memberId],
+      ['=', `${spacesAlias}.${SpaceCol.hostAccountId}`, memberId],
+    ],
+    [
+      'exists',
+      {
+        select: [SpaceMembershipCol.id],
+        from: [[SPACE_MEMBERSHIPS_TABLE.tableName, 'm']],
+        where: [
+          'and',
+          [
+            '=',
+            `m.${SpaceMembershipCol.spaceId}`,
+            col(`${spacesAlias}.${SpaceCol.id}`),
+          ],
+          ['=', `m.${SpaceMembershipCol.memberId}`, memberId],
+          ['is-not-null', `m.${SpaceMembershipCol.leftAt}`],
+        ],
+      },
+    ],
+  ];
 }
 
 /**
@@ -57,12 +86,17 @@ export function departedHostPredicateSql(
  */
 export function hostedUnleftSpacesSelectSql(memberId: string): Sql {
   const spaces = SPACES_TABLE.tableName;
-  return sql`SELECT ${ident(SpaceCol.id)}, ${ident(SpaceCol.hostMemberId)} AS host_member_id,
-          ${ident(SpaceCol.hostAccountId)} AS host_account_id,
-          ${ident(SpaceCol.endedAt)} AS ended_at
-          FROM ${ident(spaces)}
-          WHERE ${hostedUnleftPredicateSql(spaces, memberId)}
-          ORDER BY ${ident(SpaceCol.createdAt)} DESC`;
+  return honey({
+    select: [
+      SpaceCol.id,
+      SpaceCol.hostMemberId,
+      SpaceCol.hostAccountId,
+      SpaceCol.endedAt,
+    ],
+    from: spaces,
+    where: hostedUnleftPredicate(spaces, memberId),
+    orderBy: [[SpaceCol.createdAt, 'desc']],
+  });
 }
 
 /**
@@ -75,24 +109,42 @@ export function friendsLiveSpaceIdsSql(args: {
 }): Sql {
   const spaces = SPACES_TABLE.tableName;
   const memberId = args.memberId;
-  const membershipFilter = args.includeHostAccountId
-    ? sql`${ident(SpaceMembershipCol.memberId)} = ${memberId}
-                 OR ${ident(SpaceMembershipCol.profileId)} = ${memberId}`
-    : sql`${ident(SpaceMembershipCol.memberId)} = ${memberId}`;
-  return sql`SELECT ${ident(SpaceCol.id)} AS id FROM ${ident(spaces)}
-       WHERE ${ident(SpaceCol.endedAt)} IS NULL
-         AND (
-           (
-             ${ident(SpaceCol.visibility)} = 'friends'
-             AND NOT ${departedHostPredicateSql(spaces, memberId)}
-           )
-           OR ${hostedUnleftPredicateSql(spaces, memberId)}
-           OR ${ident(SpaceCol.id)} IN (
-             SELECT ${ident(SpaceMembershipCol.spaceId)}
-             FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-             WHERE ${ident(SpaceMembershipCol.leftAt)} IS NULL
-               AND (${membershipFilter})
-           )
-         )
-       ORDER BY ${ident(SpaceCol.createdAt)} DESC`;
+  const membershipFilter: Expr = args.includeHostAccountId
+    ? [
+        'or',
+        ['=', SpaceMembershipCol.memberId, memberId],
+        ['=', SpaceMembershipCol.profileId, memberId],
+      ]
+    : ['=', SpaceMembershipCol.memberId, memberId];
+  return honey({
+    select: [SpaceCol.id],
+    from: spaces,
+    where: [
+      'and',
+      ['is-null', SpaceCol.endedAt],
+      [
+        'or',
+        [
+          'and',
+          ['=', SpaceCol.visibility, 'friends'],
+          ['not', departedHostPredicate(spaces, memberId)],
+        ],
+        hostedUnleftPredicate(spaces, memberId),
+        [
+          'in',
+          SpaceCol.id,
+          {
+            select: [SpaceMembershipCol.spaceId],
+            from: SPACE_MEMBERSHIPS_TABLE.tableName,
+            where: [
+              'and',
+              ['is-null', SpaceMembershipCol.leftAt],
+              membershipFilter,
+            ],
+          },
+        ],
+      ],
+    ],
+    orderBy: [[SpaceCol.createdAt, 'desc']],
+  });
 }

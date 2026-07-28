@@ -4,10 +4,10 @@
  */
 export function questionMarkParamsToDollarParams(
   sql: string,
-  params?: unknown[]
+  params?: readonly unknown[]
 ): [string, unknown[]] {
-  if (!params?.length) return [sql, params ?? []];
+  if (!params?.length) return [sql, []];
   let i = 0;
   const converted = sql.replace(/\?/g, () => `$${++i}`);
-  return [converted, params];
+  return [converted, [...params]];
 }

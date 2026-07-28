@@ -3,7 +3,7 @@ import {
   ENTITY_STORE_TABLE,
   entityStoreId,
 } from '@libs/db/shared/entity-store-table';
-import { sql, ident } from '@pkgs/sql';
+import { col, honey } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -21,10 +21,19 @@ export async function readEntityStoreData(
     readonly externalId: string;
   }
 ): Promise<Record<string, unknown> | null> {
-  const rows = await db.query<EntityStoreDataRow>(sql`
-    SELECT data FROM ${ident(ENTITY_STORE_TABLE)}
-     WHERE namespace = ${args.namespace} AND type = ${args.type} AND external_id = ${args.externalId} LIMIT 1
-  `);
+  const rows = await db.query<EntityStoreDataRow>(
+    honey({
+      select: ['data'],
+      from: ENTITY_STORE_TABLE,
+      where: [
+        'and',
+        ['=', 'namespace', args.namespace],
+        ['=', 'type', args.type],
+        ['=', 'external_id', args.externalId],
+      ],
+      limit: 1,
+    })
+  );
   const data = rows[0]?.data;
   if (data === null || data === undefined) return null;
   if (typeof data === 'string') {
@@ -53,15 +62,33 @@ export async function upsertEntityStoreRow(
   const id = entityStoreId(args.namespace, args.type, args.externalId);
   const now = new Date().toISOString();
   const dataJson = stripeEntityStoreData(args.data);
-  await db.run(sql`
-    INSERT INTO ${ident(ENTITY_STORE_TABLE)}
-     (id, namespace, type, external_id, owner_id, data, created_at, updated_at)
-     VALUES (${id}, ${args.namespace}, ${args.type}, ${args.externalId}, ${args.ownerId ?? null}, ${dataJson}::jsonb, ${now}, ${now})
-     ON CONFLICT (namespace, type, external_id) DO UPDATE SET
-       owner_id = COALESCE(excluded.owner_id, ${ident(ENTITY_STORE_TABLE)}.owner_id),
-       data = excluded.data,
-       updated_at = excluded.updated_at
-  `);
+  await db.run(
+    honey({
+      insertInto: ENTITY_STORE_TABLE,
+      values: {
+        id,
+        namespace: args.namespace,
+        type: args.type,
+        external_id: args.externalId,
+        owner_id: args.ownerId ?? null,
+        data: ['cast', dataJson, 'jsonb'],
+        created_at: now,
+        updated_at: now,
+      },
+      onConflict: {
+        target: ['namespace', 'type', 'external_id'],
+        set: {
+          owner_id: [
+            'coalesce',
+            col('excluded.owner_id'),
+            col(`${ENTITY_STORE_TABLE}.owner_id`),
+          ],
+          data: col('excluded.data'),
+          updated_at: col('excluded.updated_at'),
+        },
+      },
+    })
+  );
 }
 
 export async function upsertStripeEntityStoreRow(

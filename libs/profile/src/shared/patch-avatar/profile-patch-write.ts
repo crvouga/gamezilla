@@ -1,5 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { join, sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { idMatches } from '@pkgs/write/shared/read-row-values';
@@ -44,14 +44,13 @@ export const profilePatchWrite = defineWrite<ProfilePatchInput, void>({
     if (Object.keys(updates).length === 0) {
       return ok(undefined);
     }
-    const entries = Object.entries(updates);
-    const sets = join(
-      entries.map(([col, value]) => sql`${ident(col)} = ${value}`),
-      ', '
+    await db.run(
+      honey({
+        update: PROFILES_TABLE.tableName,
+        set: updates,
+        where: ['=', ProfileCol.id, input.profileId],
+      })
     );
-    await db.run(sql`
-      UPDATE ${ident(PROFILES_TABLE.tableName)} SET ${sets} WHERE ${ident(ProfileCol.id)} = ${input.profileId}
-    `);
     return ok(undefined);
   },
 });

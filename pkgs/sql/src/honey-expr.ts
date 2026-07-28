@@ -24,6 +24,19 @@ const INFIX = new Set([
 
 const LOGIC = new Set(['and', 'or']);
 
+const KEYWORD_OPS = new Set([
+  'not',
+  'in',
+  'not-in',
+  'between',
+  'is-null',
+  'is-not-null',
+  'exists',
+  'cast',
+  'case',
+  'param',
+]);
+
 const FUNCTIONS = new Set([
   'count',
   'sum',
@@ -37,6 +50,23 @@ const FUNCTIONS = new Set([
   'round',
   'coalesce',
   'now',
+  'hashtext',
+  'pg_advisory_xact_lock',
+  'pg_try_advisory_lock',
+  'pg_advisory_unlock',
+  'jsonb_to_recordset',
+]);
+
+/** Allowlisted SQL cast targets (`expr::type`). */
+const CAST_TYPES = new Set([
+  'text',
+  'jsonb',
+  'int',
+  'bigint',
+  'uuid',
+  'boolean',
+  'timestamptz',
+  'integer',
 ]);
 
 /** True when `head` is a known operator or function name (select-item disambiguation). */
@@ -45,7 +75,9 @@ export function isOpOrFnHead(head: unknown): boolean {
     return false;
   }
   const o = head.toLowerCase();
-  return INFIX.has(o) || LOGIC.has(o) || FUNCTIONS.has(o);
+  return (
+    INFIX.has(o) || LOGIC.has(o) || FUNCTIONS.has(o) || KEYWORD_OPS.has(o)
+  );
 }
 
 export function isColRef(x: unknown): x is ColRef {
@@ -59,14 +91,24 @@ export function isColRef(x: unknown): x is ColRef {
   );
 }
 
+const QUERY_KEYS = [
+  'select',
+  'from',
+  'insertInto',
+  'update',
+  'deleteFrom',
+  'union',
+  'unionAll',
+] as const;
+
 export function isQuery(x: unknown): x is Query {
-  return (
-    typeof x === 'object' &&
-    x !== null &&
-    !Array.isArray(x) &&
-    !(x instanceof Date) &&
-    ('select' in x || 'insertInto' in x || 'update' in x || 'deleteFrom' in x)
-  );
+  if (typeof x !== 'object' || x === null || Array.isArray(x)) {
+    return false;
+  }
+  if (x instanceof Date) {
+    return false;
+  }
+  return QUERY_KEYS.some((k) => k in x);
 }
 
 function isScalar(x: unknown): x is Scalar {
@@ -137,23 +179,68 @@ function compileOpCall(call: OpCall): Sql {
 }
 
 function compileKeywordOp(o: string, args: readonly unknown[]): Sql {
-  switch (o) {
-    case 'not':
-      return compileNot(args);
-    case 'in':
-    case 'not-in':
-      return compileIn(o, args);
-    case 'between':
-      return compileBetween(args);
-    case 'is-null':
-      return compileIsNull(args, false);
-    case 'is-not-null':
-      return compileIsNull(args, true);
-    case 'exists':
-      return compileExists(args);
-    default:
-      assert.fail('honey: unknown operator', { op: o });
+  const compiler = KEYWORD_COMPILERS[o];
+  assert.defined(compiler, 'honey: unknown operator', { op: o });
+  return compiler(args);
+}
+
+const KEYWORD_COMPILERS: Record<
+  string,
+  (args: readonly unknown[]) => Sql
+> = {
+  not: compileNot,
+  in: (args) => compileIn('in', args),
+  'not-in': (args) => compileIn('not-in', args),
+  between: compileBetween,
+  'is-null': (args) => compileIsNull(args, false),
+  'is-not-null': (args) => compileIsNull(args, true),
+  exists: compileExists,
+  cast: compileCast,
+  case: compileCase,
+  param: compileParam,
+};
+
+function compileCast(args: readonly unknown[]): Sql {
+  assert.equals(args.length, 2, "honey: 'cast' needs [expr, type]", {
+    argsLength: args.length,
+  });
+  const type = args[1];
+  assert.string(type, 'honey: cast type must be a string', { type });
+  const t = type.toLowerCase();
+  assert.ok(CAST_TYPES.has(t), 'honey: unknown cast type', { type });
+  return sql`${compileExpr(args[0])}::${raw(t)}`;
+}
+
+/** Force a scalar bind even inside column-position function args. */
+function compileParam(args: readonly unknown[]): Sql {
+  assert.equals(args.length, 1, "honey: 'param' needs 1 value", {
+    argsLength: args.length,
+  });
+  const v = args[0];
+  assert.ok(isScalar(v), 'honey: param value must be a scalar', { v });
+  return sql`${v}`;
+}
+
+/**
+ * `['case', [[pred, then], ...], else?]` → `CASE WHEN … THEN … ELSE … END`.
+ */
+function compileCase(args: readonly unknown[]): Sql {
+  assert.ok(args.length >= 1, "honey: 'case' needs clause list", {
+    argsLength: args.length,
+  });
+  const clauses = args[0];
+  assert.ok(Array.isArray(clauses) && clauses.length > 0, 'honey: empty case');
+  let out: Sql = raw('CASE');
+  for (const clause of clauses) {
+    assert.ok(Array.isArray(clause) && clause.length === 2, 'honey: bad case clause', {
+      clause,
+    });
+    out = sql`${out} WHEN ${compileExpr(clause[0])} THEN ${compileExpr(clause[1])}`;
   }
+  if (args.length >= 2) {
+    out = sql`${out} ELSE ${compileExpr(args[1])}`;
+  }
+  return sql`${out} END`;
 }
 
 function compileLogic(op: string, args: readonly unknown[]): Sql {

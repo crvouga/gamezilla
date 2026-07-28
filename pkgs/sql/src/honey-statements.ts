@@ -3,16 +3,24 @@ import { assert } from '@pkgs/assert';
 import {
   compileFrom,
   compileGroupBy,
+  compileHaving,
   compileJoins,
   compileLimitOffset,
   compileOrderBy,
   compileReturning,
   compileSelectList,
+  compileWhere,
 } from './honey-clauses';
+import { compileOnConflict } from './honey-conflict';
 import { compileExpr, wireCompileQuery } from './honey-expr';
 import { columnIdent } from './honey-ident';
-import type { ColRef, Query, Scalar } from './honey-types';
+import type { InsertValue, Query } from './honey-types';
 import { HONEY_LIST_SEP } from './honey-list-sep';
+import {
+  compileForUpdate,
+  compileUnion,
+  compileWith,
+} from './honey-with';
 import sql, { bulk, empty, ident, join, type Sql } from './sql';
 
 /**
@@ -20,16 +28,20 @@ import sql, { bulk, empty, ident, join, type Sql } from './sql';
  */
 export function compileQuery(q: Query): Sql {
   assertQueryObject(q);
+  if (q.union !== undefined || q.unionAll !== undefined) {
+    return compileCompound(q);
+  }
+  const preamble = compileWith(q.with);
   if (q.insertInto !== undefined) {
-    return compileInsert(q);
+    return sql`${preamble}${compileInsert(q)}`;
   }
   if (q.update !== undefined) {
-    return compileUpdate(q);
+    return sql`${preamble}${compileUpdate(q)}`;
   }
   if (q.deleteFrom !== undefined) {
-    return compileDelete(q);
+    return sql`${preamble}${compileDelete(q)}`;
   }
-  return compileSelect(q);
+  return sql`${preamble}${compileSelect(q)}`;
 }
 
 function assertQueryObject(q: Query): void {
@@ -41,6 +53,25 @@ function assertQueryObject(q: Query): void {
 }
 
 wireCompileQuery(compileQuery);
+
+function compileCompound(q: Query): Sql {
+  assert.ok(
+    !(q.union !== undefined && q.unionAll !== undefined),
+    'honey: cannot mix union and unionAll'
+  );
+  assert.ok(
+    q.insertInto === undefined &&
+      q.update === undefined &&
+      q.deleteFrom === undefined,
+    'honey: union cannot mix with DML'
+  );
+  const preamble = compileWith(q.with);
+  const body =
+    q.unionAll !== undefined
+      ? compileUnion('UNION ALL', q.unionAll)
+      : compileUnion('UNION', q.union);
+  return sql`${preamble}${body}`;
+}
 
 function compileSelect(q: Query): Sql {
   const head = q.distinct
@@ -56,21 +87,10 @@ function compileSelect(q: Query): Sql {
     q.where
   )}${compileGroupBy(q.groupBy)}${compileHaving(q.having)}${compileOrderBy(
     q.orderBy
-  )}${compileLimitOffset(q.limit, q.offset)}`;
-}
-
-function compileWhere(where: Query['where']): Sql {
-  if (where === undefined) {
-    return empty;
-  }
-  return sql` WHERE ${compileExpr(where)}`;
-}
-
-function compileHaving(having: Query['having']): Sql {
-  if (having === undefined) {
-    return empty;
-  }
-  return sql` HAVING ${compileExpr(having)}`;
+  )}${compileLimitOffset(q.limit, q.offset)}${compileForUpdate(
+    q.forUpdate,
+    q.skipLocked
+  )}`;
 }
 
 function compileInsert(q: Query): Sql {
@@ -96,10 +116,10 @@ function compileInsert(q: Query): Sql {
   return sql`INSERT INTO ${ident(q.insertInto)} (${colSql}) VALUES ${bulk(
     data,
     HONEY_LIST_SEP
-  )}${compileReturning(q.returning)}`;
+  )}${compileOnConflict(q.onConflict)}${compileReturning(q.returning)}`;
 }
 
-type InsertRow = Readonly<Record<string, Scalar | ColRef>>;
+type InsertRow = Readonly<Record<string, InsertValue>>;
 
 function normalizeInsertRows(values: Query['values']): readonly InsertRow[] {
   if (values === undefined) {

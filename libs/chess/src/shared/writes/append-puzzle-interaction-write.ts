@@ -3,7 +3,7 @@ import {
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
 import { fail, ok } from '@pkgs/write/shared/write-result';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { ownerMatches } from '@pkgs/write/shared/read-row-values';
 import type { RowChange } from '@pkgs/write/shared/row-change';
@@ -144,18 +144,24 @@ export const appendPuzzleInteractionWrite = defineWrite<
         : input.correct
           ? 1
           : 0;
-    await db.run(sql`
-      INSERT INTO ${ident(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)}
-       (${ident(ChessPuzzleInteractionCol.id)}, ${ident(ChessPuzzleInteractionCol.ownerId)},
-        ${ident(ChessPuzzleInteractionCol.puzzleId)}, ${ident(ChessPuzzleInteractionCol.puzzleRating)},
-        ${ident(ChessPuzzleInteractionCol.kind)}, ${ident(ChessPuzzleInteractionCol.solveIdx)},
-        ${ident(ChessPuzzleInteractionCol.uci)}, ${ident(ChessPuzzleInteractionCol.correct)},
-        ${ident(ChessPuzzleInteractionCol.ratingBefore)}, ${ident(ChessPuzzleInteractionCol.ratingAfter)},
-        ${ident(ChessPuzzleInteractionCol.at)})
-       VALUES (${id}, ${input.ownerId}, ${input.puzzleId}, ${input.puzzleRating},
-               ${input.kind}, ${input.solveIdx}, ${input.uci ?? null}, ${correct},
-               ${input.ratingBefore ?? 0}, ${input.ratingAfter ?? 0}, ${at})
-    `);
+    await db.run(
+      honey({
+        insertInto: CHESS_PUZZLE_INTERACTIONS_TABLE.tableName,
+        values: {
+          [ChessPuzzleInteractionCol.id]: id,
+          [ChessPuzzleInteractionCol.ownerId]: input.ownerId,
+          [ChessPuzzleInteractionCol.puzzleId]: input.puzzleId,
+          [ChessPuzzleInteractionCol.puzzleRating]: input.puzzleRating,
+          [ChessPuzzleInteractionCol.kind]: input.kind,
+          [ChessPuzzleInteractionCol.solveIdx]: input.solveIdx,
+          [ChessPuzzleInteractionCol.uci]: input.uci ?? null,
+          [ChessPuzzleInteractionCol.correct]: correct,
+          [ChessPuzzleInteractionCol.ratingBefore]: input.ratingBefore ?? 0,
+          [ChessPuzzleInteractionCol.ratingAfter]: input.ratingAfter ?? 0,
+          [ChessPuzzleInteractionCol.at]: at,
+        },
+      })
+    );
     return ok(undefined);
   },
 });

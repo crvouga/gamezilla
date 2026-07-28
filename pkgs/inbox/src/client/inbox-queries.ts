@@ -2,48 +2,77 @@ import {
   INBOX_INTERACTIONS_TABLE,
   InboxInteractionCol,
 } from '@pkgs/inbox/sync/table-defs';
-import { sql, type Sql, ident } from '@pkgs/sql';
+import { honey, type Expr, type Sql } from '@pkgs/sql';
 
 import type { InteractionFilter } from '../shared/interaction';
 
-function inboxFilterClause(filter: InteractionFilter): Sql {
+function inboxFilterExpr(filter: InteractionFilter): Expr {
   if (filter === 'archived') {
-    return sql`${ident(InboxInteractionCol.archivedAt)} IS NOT NULL
-      AND ${ident(InboxInteractionCol.dismissedAt)} IS NULL`;
+    return [
+      'and',
+      ['is-not-null', InboxInteractionCol.archivedAt],
+      ['is-null', InboxInteractionCol.dismissedAt],
+    ];
   }
   if (filter === 'action_required') {
-    return sql`${ident(InboxInteractionCol.archivedAt)} IS NULL
-      AND ${ident(InboxInteractionCol.dismissedAt)} IS NULL
-      AND ${ident(InboxInteractionCol.category)} = 'action_required'`;
+    return [
+      'and',
+      ['is-null', InboxInteractionCol.archivedAt],
+      ['is-null', InboxInteractionCol.dismissedAt],
+      ['=', InboxInteractionCol.category, 'action_required'],
+    ];
   }
-  return sql`${ident(InboxInteractionCol.archivedAt)} IS NULL
-    AND ${ident(InboxInteractionCol.dismissedAt)} IS NULL`;
+  return [
+    'and',
+    ['is-null', InboxInteractionCol.archivedAt],
+    ['is-null', InboxInteractionCol.dismissedAt],
+  ];
 }
 
 export function inboxListSql(userId: string, filter: InteractionFilter): Sql {
   if (userId.length === 0) {
-    return sql`SELECT * FROM ${ident(INBOX_INTERACTIONS_TABLE)} WHERE 0`;
+    return honey({
+      select: ['*'],
+      from: INBOX_INTERACTIONS_TABLE,
+      where: false,
+    });
   }
 
-  return sql`
-    SELECT * FROM ${ident(INBOX_INTERACTIONS_TABLE)}
-    WHERE ${ident(InboxInteractionCol.userId)} = ${userId}
-      AND ${ident(InboxInteractionCol.active)} = 1
-      AND ${inboxFilterClause(filter)}
-    ORDER BY ${ident(InboxInteractionCol.priority)} DESC,
-             ${ident(InboxInteractionCol.createdAt)} DESC,
-             ${ident(InboxInteractionCol.id)} DESC`;
+  return honey({
+    select: ['*'],
+    from: INBOX_INTERACTIONS_TABLE,
+    where: [
+      'and',
+      ['=', InboxInteractionCol.userId, userId],
+      ['=', InboxInteractionCol.active, 1],
+      inboxFilterExpr(filter),
+    ],
+    orderBy: [
+      [InboxInteractionCol.priority, 'desc'],
+      [InboxInteractionCol.createdAt, 'desc'],
+      [InboxInteractionCol.id, 'desc'],
+    ],
+  });
 }
 
 export function inboxUnreadCountSql(userId: string): Sql {
   if (userId.length === 0) {
-    return sql`SELECT 0 AS count FROM ${ident(INBOX_INTERACTIONS_TABLE)} WHERE 0`;
+    return honey({
+      select: [[['cast', 0, 'int'], 'count']],
+      from: INBOX_INTERACTIONS_TABLE,
+      where: false,
+    });
   }
-  return sql`
-    SELECT COUNT(*) AS count FROM ${ident(INBOX_INTERACTIONS_TABLE)}
-    WHERE ${ident(InboxInteractionCol.userId)} = ${userId}
-      AND ${ident(InboxInteractionCol.active)} = 1
-      AND ${ident(InboxInteractionCol.readAt)} IS NULL
-      AND ${ident(InboxInteractionCol.archivedAt)} IS NULL
-      AND ${ident(InboxInteractionCol.dismissedAt)} IS NULL`;
+  return honey({
+    select: [[['count', '*'], 'count']],
+    from: INBOX_INTERACTIONS_TABLE,
+    where: [
+      'and',
+      ['=', InboxInteractionCol.userId, userId],
+      ['=', InboxInteractionCol.active, 1],
+      ['is-null', InboxInteractionCol.readAt],
+      ['is-null', InboxInteractionCol.archivedAt],
+      ['is-null', InboxInteractionCol.dismissedAt],
+    ],
+  });
 }

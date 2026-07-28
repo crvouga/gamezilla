@@ -3,7 +3,7 @@ import {
   SpaceMembershipCol,
 } from '@libs/db/shared/space-tables';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 
 import { wasMembershipInactive } from './space-write-helpers';
 
@@ -20,24 +20,40 @@ export async function upsertSpaceMembershipRow(args: {
 }): Promise<{ readonly reactivated: boolean }> {
   const reactivated = await wasMembershipInactive(args.sql, args.membershipId);
   const existing = await args.sql.query<{ readonly id: string }>(
-    sql`SELECT ${ident(SpaceMembershipCol.id)} AS id
-     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${ident(SpaceMembershipCol.id)} = ${args.membershipId}
-     LIMIT 1`
+    honey({
+      select: [SpaceMembershipCol.id],
+      from: SPACE_MEMBERSHIPS_TABLE.tableName,
+      where: ['=', SpaceMembershipCol.id, args.membershipId],
+      limit: 1,
+    })
   );
   if (existing[0] === undefined) {
-    await args.sql.run(sql`INSERT INTO ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-       (${ident(SpaceMembershipCol.id)}, ${ident(SpaceMembershipCol.memberId)},
-        ${ident(SpaceMembershipCol.spaceId)}, ${ident(SpaceMembershipCol.joinedAt)},
-        ${ident(SpaceMembershipCol.leftAt)}, ${ident(SpaceMembershipCol.profileId)})
-       VALUES (${args.membershipId}, ${args.memberId}, ${args.spaceId}, ${args.now}, NULL, ${args.memberId})`);
+    await args.sql.run(
+      honey({
+        insertInto: SPACE_MEMBERSHIPS_TABLE.tableName,
+        values: {
+          [SpaceMembershipCol.id]: args.membershipId,
+          [SpaceMembershipCol.memberId]: args.memberId,
+          [SpaceMembershipCol.spaceId]: args.spaceId,
+          [SpaceMembershipCol.joinedAt]: args.now,
+          [SpaceMembershipCol.leftAt]: null,
+          [SpaceMembershipCol.profileId]: args.memberId,
+        },
+      })
+    );
   } else {
-    await args.sql.run(sql`UPDATE ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-       SET ${ident(SpaceMembershipCol.leftAt)} = NULL,
-           ${ident(SpaceMembershipCol.joinedAt)} = ${args.now},
-           ${ident(SpaceMembershipCol.profileId)} = ${args.memberId},
-           ${ident(SpaceMembershipCol.memberId)} = ${args.memberId}
-       WHERE ${ident(SpaceMembershipCol.id)} = ${args.membershipId}`);
+    await args.sql.run(
+      honey({
+        update: SPACE_MEMBERSHIPS_TABLE.tableName,
+        set: {
+          [SpaceMembershipCol.leftAt]: null,
+          [SpaceMembershipCol.joinedAt]: args.now,
+          [SpaceMembershipCol.profileId]: args.memberId,
+          [SpaceMembershipCol.memberId]: args.memberId,
+        },
+        where: ['=', SpaceMembershipCol.id, args.membershipId],
+      })
+    );
   }
   return { reactivated };
 }

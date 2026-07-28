@@ -9,7 +9,7 @@ import {
 import { spaceMembershipEntityId } from '@libs/spaces/shared/participation/participation-ids';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { sql, type Sql, ident } from '@pkgs/sql';
+import { honey, sql, type Sql, ident } from '@pkgs/sql';
 
 import {
   friendsLiveSpaceIdsSql,
@@ -59,13 +59,21 @@ async function seedSpace(
     readonly createdAt: string;
   }
 ): Promise<void> {
-  await db.run(sql`INSERT INTO ${ident(SPACES_TABLE.tableName)}
-     (${ident(SpaceCol.id)}, ${ident(SpaceCol.hostId)}, ${ident(SpaceCol.hostMemberId)},
-      ${ident(SpaceCol.hostAccountId)}, ${ident(SpaceCol.visibility)},
-      ${ident(SpaceCol.endedAt)}, ${ident(SpaceCol.createdAt)},
-      ${ident(SpaceCol.activeMemberCount)})
-     VALUES (${args.id}, ${DEVICE_ID}, ${args.hostAccountId}, ${args.hostAccountId},
-             ${args.visibility}, ${args.endedAt}, ${args.createdAt}, 1)`);
+  await db.run(
+    honey({
+      insertInto: SPACES_TABLE.tableName,
+      values: {
+        [SpaceCol.id]: args.id,
+        [SpaceCol.hostId]: DEVICE_ID,
+        [SpaceCol.hostMemberId]: args.hostAccountId,
+        [SpaceCol.hostAccountId]: args.hostAccountId,
+        [SpaceCol.visibility]: args.visibility,
+        [SpaceCol.endedAt]: args.endedAt,
+        [SpaceCol.createdAt]: args.createdAt,
+        [SpaceCol.activeMemberCount]: 1,
+      },
+    })
+  );
 }
 
 async function seedMembership(
@@ -76,12 +84,22 @@ async function seedMembership(
     readonly leftAt: string | null;
   }
 ): Promise<void> {
-  await db.run(sql`INSERT INTO ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     (${ident(SpaceMembershipCol.id)}, ${ident(SpaceMembershipCol.memberId)},
-      ${ident(SpaceMembershipCol.spaceId)}, ${ident(SpaceMembershipCol.joinedAt)},
-      ${ident(SpaceMembershipCol.leftAt)}, ${ident(SpaceMembershipCol.profileId)})
-     VALUES (${spaceMembershipEntityId(args.memberId, args.spaceId)}, ${args.memberId},
-             ${args.spaceId}, ${'2026-01-01T00:00:00.000Z'}, ${args.leftAt}, ${args.memberId})`);
+  await db.run(
+    honey({
+      insertInto: SPACE_MEMBERSHIPS_TABLE.tableName,
+      values: {
+        [SpaceMembershipCol.id]: spaceMembershipEntityId(
+          args.memberId,
+          args.spaceId
+        ),
+        [SpaceMembershipCol.memberId]: args.memberId,
+        [SpaceMembershipCol.spaceId]: args.spaceId,
+        [SpaceMembershipCol.joinedAt]: '2026-01-01T00:00:00.000Z',
+        [SpaceMembershipCol.leftAt]: args.leftAt,
+        [SpaceMembershipCol.profileId]: args.memberId,
+      },
+    })
+  );
 }
 
 async function queryIds(db: SqlClient, query: Sql): Promise<string[]> {

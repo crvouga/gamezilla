@@ -1,6 +1,6 @@
 import { isEqual } from '@pkgs/equal/is-equal';
 import type { Logger } from '@pkgs/logger';
-import { sql, ident } from '@pkgs/sql';
+import { honey, col } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
@@ -38,9 +38,13 @@ function loadClientConfigAttributes(): Record<string, unknown> {
 async function readClientConfigRow(
   db: SqlClient
 ): Promise<Record<string, unknown> | null> {
-  const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT * FROM ${ident(CLIENT_CONFIG_TABLE.tableName)} WHERE ${ident(ClientConfigCol.id)} = ${CLIENT_CONFIG_ENTITY_ID} LIMIT 1
-  `);
+  const rows = await db.query<Record<string, unknown>>(
+    honey({
+      from: CLIENT_CONFIG_TABLE.tableName,
+      where: ['=', ClientConfigCol.id, CLIENT_CONFIG_ENTITY_ID],
+      limit: 1,
+    })
+  );
   const row = rows[0];
   if (row === undefined) return null;
   return {
@@ -54,13 +58,24 @@ async function upsertClientConfigRow(
   attrs: Record<string, unknown>
 ): Promise<void> {
   const googleId = attrs[ClientConfigAttr.googleWebClientId.key];
-  await db.run(sql`
-    INSERT INTO ${ident(CLIENT_CONFIG_TABLE.tableName)}
-     (${ident(ClientConfigCol.id)}, ${ident(ClientConfigCol.googleWebClientId)})
-     VALUES (${CLIENT_CONFIG_ENTITY_ID}, ${typeof googleId === 'string' ? googleId : null})
-     ON CONFLICT (${ident(ClientConfigCol.id)}) DO UPDATE SET
-       ${ident(ClientConfigCol.googleWebClientId)} = excluded.${ident(ClientConfigCol.googleWebClientId)}
-  `);
+  await db.run(
+    honey({
+      insertInto: CLIENT_CONFIG_TABLE.tableName,
+      values: {
+        [ClientConfigCol.id]: CLIENT_CONFIG_ENTITY_ID,
+        [ClientConfigCol.googleWebClientId]:
+          typeof googleId === 'string' ? googleId : null,
+      },
+      onConflict: {
+        target: [ClientConfigCol.id],
+        set: {
+          [ClientConfigCol.googleWebClientId]: col(
+            `excluded.${ClientConfigCol.googleWebClientId}`
+          ),
+        },
+      },
+    })
+  );
 }
 
 async function handleClientConfigRefresh(

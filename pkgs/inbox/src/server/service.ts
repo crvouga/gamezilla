@@ -1,4 +1,4 @@
-import { empty, raw, sql, type Sql } from '@pkgs/sql';
+import { col, empty, honey, raw, sql, type Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { Interaction } from '../shared/interaction';
@@ -43,6 +43,8 @@ export async function listInteractions(
   const limit = query.limit ?? DEFAULT_LIMIT;
   const filter = query.filter ?? 'all';
 
+  // honey: row-value tuple cursor `(priority, created_at, id) < (SELECT …)` has
+  // no honey representation (row constructors / composite comparisons).
   const rows = await db.query<StoredInteractionRow>(sql`
     SELECT * FROM inbox_interactions
      WHERE user_id = ${query.userId}
@@ -72,9 +74,13 @@ export async function markInteractionRead(
     throw new InboxError('INBOX_NOT_FOUND', 'Interaction not found');
   }
   const now = new Date().toISOString();
-  await db.run(sql`
-    UPDATE inbox_interactions SET read_at = ${now}, updated_at = ${now}
-     WHERE id = ${interactionId} AND user_id = ${actorId}`);
+  await db.run(
+    honey({
+      update: 'inbox_interactions',
+      set: { read_at: now, updated_at: now },
+      where: ['and', ['=', 'id', interactionId], ['=', 'user_id', actorId]],
+    })
+  );
   const updated = await findInteractionById(db, actorId, interactionId);
   if (updated === null) {
     throw new InboxError('INBOX_NOT_FOUND', 'Interaction not found');
@@ -87,14 +93,20 @@ export async function markAllInteractionsRead(
   actorId: string
 ): Promise<void> {
   const now = new Date().toISOString();
-  await db.run(sql`
-    UPDATE inbox_interactions
-     SET read_at = ${now}, updated_at = ${now}
-     WHERE user_id = ${actorId}
-       AND read_at IS NULL
-       AND active = true
-       AND archived_at IS NULL
-       AND dismissed_at IS NULL`);
+  await db.run(
+    honey({
+      update: 'inbox_interactions',
+      set: { read_at: now, updated_at: now },
+      where: [
+        'and',
+        ['=', 'user_id', actorId],
+        ['is-null', 'read_at'],
+        ['=', 'active', true],
+        ['is-null', 'archived_at'],
+        ['is-null', 'dismissed_at'],
+      ],
+    })
+  );
 }
 
 export async function archiveInteraction(
@@ -107,10 +119,17 @@ export async function archiveInteraction(
     throw new InboxError('INBOX_NOT_FOUND', 'Interaction not found');
   }
   const now = new Date().toISOString();
-  await db.run(sql`
-    UPDATE inbox_interactions
-     SET archived_at = ${now}, read_at = COALESCE(read_at, ${now}), updated_at = ${now}
-     WHERE id = ${interactionId} AND user_id = ${actorId}`);
+  await db.run(
+    honey({
+      update: 'inbox_interactions',
+      set: {
+        archived_at: now,
+        read_at: ['coalesce', col('read_at'), now],
+        updated_at: now,
+      },
+      where: ['and', ['=', 'id', interactionId], ['=', 'user_id', actorId]],
+    })
+  );
   const updated = await findInteractionById(db, actorId, interactionId);
   if (updated === null) {
     throw new InboxError('INBOX_NOT_FOUND', 'Interaction not found');
@@ -128,10 +147,17 @@ export async function dismissInteraction(
     throw new InboxError('INBOX_NOT_FOUND', 'Interaction not found');
   }
   const now = new Date().toISOString();
-  await db.run(sql`
-    UPDATE inbox_interactions
-     SET dismissed_at = ${now}, read_at = COALESCE(read_at, ${now}), updated_at = ${now}
-     WHERE id = ${interactionId} AND user_id = ${actorId}`);
+  await db.run(
+    honey({
+      update: 'inbox_interactions',
+      set: {
+        dismissed_at: now,
+        read_at: ['coalesce', col('read_at'), now],
+        updated_at: now,
+      },
+      where: ['and', ['=', 'id', interactionId], ['=', 'user_id', actorId]],
+    })
+  );
   const updated = await findInteractionById(db, actorId, interactionId);
   if (updated === null) {
     throw new InboxError('INBOX_NOT_FOUND', 'Interaction not found');
@@ -166,12 +192,19 @@ export async function countUnreadInteractions(
   db: SqlClient,
   userId: string
 ): Promise<number> {
-  const rows = await db.query<{ count: string }>(sql`
-    SELECT COUNT(*)::text AS count FROM inbox_interactions
-     WHERE user_id = ${userId}
-       AND active = true
-       AND read_at IS NULL
-       AND archived_at IS NULL
-       AND dismissed_at IS NULL`);
+  const rows = await db.query<{ count: string }>(
+    honey({
+      select: [[['cast', ['count', '*'], 'text'], 'count']],
+      from: 'inbox_interactions',
+      where: [
+        'and',
+        ['=', 'user_id', userId],
+        ['=', 'active', true],
+        ['is-null', 'read_at'],
+        ['is-null', 'archived_at'],
+        ['is-null', 'dismissed_at'],
+      ],
+    })
+  );
   return Number(rows[0]?.count ?? 0);
 }

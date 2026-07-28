@@ -3,7 +3,7 @@ import {
   ENTITY_STORE_TABLE,
   ENTITY_STORE_TYPE_USER,
 } from '@libs/db/shared/entity-store-table';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -71,31 +71,49 @@ export function useLinkedProviderSources(
   const { row: authExternalAccountRow } =
     useWatchOne<PrimaryAuthExternalAccountRow>(
       accountId === null
-        ? sql`
-            SELECT ${ident(ExternalAccountCol.externalId)} AS external_id,
-                   ${ident(ExternalAccountCol.metadata)} AS metadata,
-                   ${ident(ExternalAccountCol.createdAt)} AS created_at
-            FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)} WHERE 0
-          `
-        : sql`
-            SELECT ${ident(ExternalAccountCol.externalId)} AS external_id,
-                   ${ident(ExternalAccountCol.metadata)} AS metadata,
-                   ${ident(ExternalAccountCol.createdAt)} AS created_at
-            FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)}
-            WHERE ${ident(ExternalAccountCol.userId)} = ${accountId}
-              AND ${ident(ExternalAccountCol.provider)} = ${primaryAuthProvider}
-            LIMIT 1
-          `
+        ? honey({
+            select: [
+              [ExternalAccountCol.externalId, 'external_id'],
+              [ExternalAccountCol.metadata, 'metadata'],
+              [ExternalAccountCol.createdAt, 'created_at'],
+            ],
+            from: EXTERNAL_ACCOUNTS_TABLE,
+            where: ['=', 1, 0],
+          })
+        : honey({
+            select: [
+              [ExternalAccountCol.externalId, 'external_id'],
+              [ExternalAccountCol.metadata, 'metadata'],
+              [ExternalAccountCol.createdAt, 'created_at'],
+            ],
+            from: EXTERNAL_ACCOUNTS_TABLE,
+            where: [
+              'and',
+              ['=', ExternalAccountCol.userId, accountId],
+              ['=', ExternalAccountCol.provider, primaryAuthProvider],
+            ],
+            limit: 1,
+          })
     );
 
   const { row: entityRow } = useWatchOne<AuthEntityStoreRow>(
     accountId === null
-      ? sql`SELECT data, created_at FROM ${ident(ENTITY_STORE_TABLE)} WHERE 0`
-      : sql`
-          SELECT data, created_at FROM ${ident(ENTITY_STORE_TABLE)}
-          WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH} AND type = ${ENTITY_STORE_TYPE_USER} AND owner_id = ${accountId}
-          LIMIT 1
-        `
+      ? honey({
+          select: ['data', 'created_at'],
+          from: ENTITY_STORE_TABLE,
+          where: ['=', 1, 0],
+        })
+      : honey({
+          select: ['data', 'created_at'],
+          from: ENTITY_STORE_TABLE,
+          where: [
+            'and',
+            ['=', 'namespace', ENTITY_STORE_NAMESPACE_AUTH],
+            ['=', 'type', ENTITY_STORE_TYPE_USER],
+            ['=', 'owner_id', accountId],
+          ],
+          limit: 1,
+        })
   );
 
   return useMemo((): LinkedProviderSources | null => {

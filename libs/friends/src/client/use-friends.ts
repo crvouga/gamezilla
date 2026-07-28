@@ -19,6 +19,7 @@ type FriendRow = {
   readonly friends_since: string;
 };
 
+// honey: literal-string SELECT columns and ORDER BY ... COLLATE NOCASE have no honey representation.
 function friendsSql(myId: string): Sql {
   if (myId.length === 0) {
     return sql`

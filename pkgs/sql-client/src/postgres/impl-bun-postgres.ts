@@ -85,7 +85,7 @@ type BunPinnedQueryArgs = {
   readonly sql: BunSql;
   readonly options: BunClientOptions;
   readonly querySql: string;
-  readonly params?: unknown[] | undefined;
+  readonly params?: readonly unknown[] | undefined;
   /** Bundled SET+SQL is run-only; queries need BEGIN/SET LOCAL for row results. */
   readonly mode: 'query' | 'run';
 };

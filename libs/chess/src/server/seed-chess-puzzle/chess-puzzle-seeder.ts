@@ -55,21 +55,22 @@ import {
   CHESS_PUZZLE_LOAD_TABLE,
   ChessPuzzleLoadCol,
 } from '@libs/db/shared/chess-tables';
-import { createLogger, type Logger } from '@pkgs/logger';
-import { createScriptSecretStore } from '@pkgs/secret-store';
-import { resolveSecretsScope } from '@pkgs/secrets-config/index';
-import { sql, ident } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { openPgClient } from '@pkgs/sql-client/postgres/connect';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
   assertDevSecretsEnv,
   PRODUCTION_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { createLogger, type Logger } from '@pkgs/logger';
+import { createScriptSecretStore } from '@pkgs/secret-store';
+import { resolveSecretsScope } from '@pkgs/secrets-config/index';
+import { honey } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { openPgClient } from '@pkgs/sql-client/postgres/connect';
 import { join } from 'node:path';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
+import { dropPuzzleSnapshotIndexes } from './defer-indexes';
 import {
   applySessionTuning,
   createSeedStats,
@@ -80,7 +81,6 @@ import {
   writeLoadProgressFast,
   type SeedStats,
 } from './fast-path';
-import { dropPuzzleSnapshotIndexes } from './defer-indexes';
 import {
   formatProfileLabel,
   resolveSeedProfile,
@@ -178,11 +178,18 @@ export class ChessPuzzleSeeder {
       source_etag: string | null;
       cursor: string | null;
       finished_at: string | null;
-    }>(sql`SELECT ${ident(ChessPuzzleLoadCol.sourceEtag)} AS source_etag,
-              ${ident(ChessPuzzleLoadCol.cursor)} AS cursor,
-              ${ident(ChessPuzzleLoadCol.finishedAt)} AS finished_at
-       FROM ${ident(CHESS_PUZZLE_LOAD_TABLE.tableName)}
-       WHERE ${ident(ChessPuzzleLoadCol.id)} = ${CHESS_PUZZLE_LOAD_ENTITY_ID} LIMIT 1`);
+    }>(
+      honey({
+        select: [
+          [ChessPuzzleLoadCol.sourceEtag, 'source_etag'],
+          [ChessPuzzleLoadCol.cursor, 'cursor'],
+          [ChessPuzzleLoadCol.finishedAt, 'finished_at'],
+        ],
+        from: CHESS_PUZZLE_LOAD_TABLE.tableName,
+        where: ['=', ChessPuzzleLoadCol.id, CHESS_PUZZLE_LOAD_ENTITY_ID],
+        limit: 1,
+      })
+    );
     return rows[0] ?? null;
   }
 

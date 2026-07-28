@@ -3,7 +3,7 @@ import {
   useWatchOne,
   useWatchQuery,
 } from '@pkgs/sync-engine/client/sync-engine-context';
-import { sql, type Sql, ident } from '@pkgs/sql';
+import { honey, type Sql } from '@pkgs/sql';
 import { useMemo } from 'react';
 
 import {
@@ -79,12 +79,18 @@ export function usePuzzleEntity(puzzleId: string): {
   rating: number;
   themes: readonly string[];
 } {
-  const { row } = useWatchOne<PuzzleEntityRow>(sql`
-    SELECT ${ident(ChessPuzzleCol.fen)} AS fen, ${ident(ChessPuzzleCol.moves)} AS moves,
-            ${ident(ChessPuzzleCol.rating)} AS rating, ${ident(ChessPuzzleCol.themes)} AS themes
-     FROM ${ident(CHESS_PUZZLES_TABLE.tableName)}
-     WHERE ${ident(ChessPuzzleCol.id)} = ${puzzleId}
-  `);
+  const { row } = useWatchOne<PuzzleEntityRow>(
+    honey({
+      select: [
+        [ChessPuzzleCol.fen, 'fen'],
+        [ChessPuzzleCol.moves, 'moves'],
+        [ChessPuzzleCol.rating, 'rating'],
+        [ChessPuzzleCol.themes, 'themes'],
+      ],
+      from: CHESS_PUZZLES_TABLE.tableName,
+      where: ['=', ChessPuzzleCol.id, puzzleId],
+    })
+  );
 
   return {
     fen: row?.fen ?? '',
@@ -94,7 +100,11 @@ export function usePuzzleEntity(puzzleId: string): {
   };
 }
 
-const EMPTY_INTERACTIONS_QUERY = sql`SELECT ${ident(ChessPuzzleInteractionCol.puzzleId)} AS puzzle_id FROM ${ident(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)} WHERE 0`;
+const EMPTY_INTERACTIONS_QUERY = honey({
+  select: [[ChessPuzzleInteractionCol.puzzleId, 'puzzle_id']],
+  from: CHESS_PUZZLE_INTERACTIONS_TABLE.tableName,
+  where: ['=', 1, 0],
+});
 
 export function usePuzzleInteractions(
   puzzleId: string
@@ -103,19 +113,27 @@ export function usePuzzleInteractions(
   const query = useMemo<Sql>(
     () =>
       myId.length > 0
-        ? sql`SELECT ${ident(ChessPuzzleInteractionCol.puzzleId)} AS puzzle_id,
-                ${ident(ChessPuzzleInteractionCol.kind)} AS kind,
-                ${ident(ChessPuzzleInteractionCol.solveIdx)} AS solve_idx,
-                ${ident(ChessPuzzleInteractionCol.uci)} AS uci,
-                ${ident(ChessPuzzleInteractionCol.correct)} AS correct,
-                ${ident(ChessPuzzleInteractionCol.puzzleRating)} AS puzzle_rating,
-                ${ident(ChessPuzzleInteractionCol.ratingBefore)} AS rating_before,
-                ${ident(ChessPuzzleInteractionCol.ratingAfter)} AS rating_after,
-                ${ident(ChessPuzzleInteractionCol.at)} AS at
-         FROM ${ident(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)}
-         WHERE ${ident(ChessPuzzleInteractionCol.ownerId)} = ${myId} AND ${ident(ChessPuzzleInteractionCol.puzzleId)} = ${puzzleId}
-         ORDER BY ${ident(ChessPuzzleInteractionCol.at)} ASC
-         LIMIT 100`
+        ? honey({
+            select: [
+              [ChessPuzzleInteractionCol.puzzleId, 'puzzle_id'],
+              [ChessPuzzleInteractionCol.kind, 'kind'],
+              [ChessPuzzleInteractionCol.solveIdx, 'solve_idx'],
+              [ChessPuzzleInteractionCol.uci, 'uci'],
+              [ChessPuzzleInteractionCol.correct, 'correct'],
+              [ChessPuzzleInteractionCol.puzzleRating, 'puzzle_rating'],
+              [ChessPuzzleInteractionCol.ratingBefore, 'rating_before'],
+              [ChessPuzzleInteractionCol.ratingAfter, 'rating_after'],
+              [ChessPuzzleInteractionCol.at, 'at'],
+            ],
+            from: CHESS_PUZZLE_INTERACTIONS_TABLE.tableName,
+            where: [
+              'and',
+              ['=', ChessPuzzleInteractionCol.ownerId, myId],
+              ['=', ChessPuzzleInteractionCol.puzzleId, puzzleId],
+            ],
+            orderBy: [[ChessPuzzleInteractionCol.at, 'asc']],
+            limit: 100,
+          })
         : EMPTY_INTERACTIONS_QUERY,
     [myId, puzzleId]
   );
@@ -128,19 +146,23 @@ export function useChessPuzzleAllInteractions(): ChessPuzzleInteractionRow[] {
   const query = useMemo<Sql>(
     () =>
       myId.length > 0
-        ? sql`SELECT ${ident(ChessPuzzleInteractionCol.puzzleId)} AS puzzle_id,
-                ${ident(ChessPuzzleInteractionCol.kind)} AS kind,
-                ${ident(ChessPuzzleInteractionCol.solveIdx)} AS solve_idx,
-                ${ident(ChessPuzzleInteractionCol.uci)} AS uci,
-                ${ident(ChessPuzzleInteractionCol.correct)} AS correct,
-                ${ident(ChessPuzzleInteractionCol.puzzleRating)} AS puzzle_rating,
-                ${ident(ChessPuzzleInteractionCol.ratingBefore)} AS rating_before,
-                ${ident(ChessPuzzleInteractionCol.ratingAfter)} AS rating_after,
-                ${ident(ChessPuzzleInteractionCol.at)} AS at
-         FROM ${ident(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)}
-         WHERE ${ident(ChessPuzzleInteractionCol.ownerId)} = ${myId}
-         ORDER BY ${ident(ChessPuzzleInteractionCol.at)} DESC
-         LIMIT 100`
+        ? honey({
+            select: [
+              [ChessPuzzleInteractionCol.puzzleId, 'puzzle_id'],
+              [ChessPuzzleInteractionCol.kind, 'kind'],
+              [ChessPuzzleInteractionCol.solveIdx, 'solve_idx'],
+              [ChessPuzzleInteractionCol.uci, 'uci'],
+              [ChessPuzzleInteractionCol.correct, 'correct'],
+              [ChessPuzzleInteractionCol.puzzleRating, 'puzzle_rating'],
+              [ChessPuzzleInteractionCol.ratingBefore, 'rating_before'],
+              [ChessPuzzleInteractionCol.ratingAfter, 'rating_after'],
+              [ChessPuzzleInteractionCol.at, 'at'],
+            ],
+            from: CHESS_PUZZLE_INTERACTIONS_TABLE.tableName,
+            where: ['=', ChessPuzzleInteractionCol.ownerId, myId],
+            orderBy: [[ChessPuzzleInteractionCol.at, 'desc']],
+            limit: 100,
+          })
         : EMPTY_INTERACTIONS_QUERY,
     [myId]
   );

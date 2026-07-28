@@ -1,4 +1,4 @@
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import {
@@ -22,12 +22,18 @@ export function useSpaceMembershipColumn(
 ): string | null {
   const col = SpaceMembershipCol[field];
   const { value } = useWatchField<string>(
-    sql`SELECT ${ident(SpaceMembershipCol.id)},
-            ${ident(SpaceMembershipCol.memberId)}, ${ident(SpaceMembershipCol.spaceId)},
-            ${ident(SpaceMembershipCol.joinedAt)}, ${ident(SpaceMembershipCol.leftAt)},
-            ${ident(SpaceMembershipCol.profileId)}
-     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${ident(SpaceMembershipCol.id)} = ${membershipId}`,
+    honey({
+      select: [
+        SpaceMembershipCol.id,
+        SpaceMembershipCol.memberId,
+        SpaceMembershipCol.spaceId,
+        SpaceMembershipCol.joinedAt,
+        SpaceMembershipCol.leftAt,
+        SpaceMembershipCol.profileId,
+      ],
+      from: SPACE_MEMBERSHIPS_TABLE.tableName,
+      where: ['=', SpaceMembershipCol.id, membershipId],
+    }),
     col
   );
   return value;

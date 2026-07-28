@@ -1,9 +1,10 @@
 import {
   CHESS_PUZZLE_INTERACTIONS_TABLE,
   CHESS_PUZZLES_TABLE,
+  ChessPuzzleCol,
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
-import { empty, sql, type Sql, ident } from '@pkgs/sql';
+import { honey, type Expr, type Sql } from '@pkgs/sql';
 import { PUZZLE_RATING_BAND_SIZE } from '../../shared/chess-puzzle-feed-config';
 
 export { chessPuzzleSyncRatingBands } from '../../shared/chess-puzzle-feed-config';
@@ -38,23 +39,35 @@ export function buildPuzzleCandidatesSql(
   args: BuildPuzzleCandidatesSqlArgs
 ): Sql {
   const pickOffset = args.pickOffset ?? 0;
-  const ratingFilter =
-    args.halfWindow !== null
-      ? sql`AND rating >= ${Math.max(0, args.rating - args.halfWindow)} AND rating <= ${args.rating + args.halfWindow}`
-      : empty;
-  const ownerFilter =
-    args.ownerId.length > 0
-      ? sql`AND id NOT IN (SELECT ${ident(ChessPuzzleInteractionCol.puzzleId)} FROM ${ident(CHESS_PUZZLE_INTERACTIONS_TABLE.tableName)} WHERE ${ident(ChessPuzzleInteractionCol.ownerId)} = ${args.ownerId})`
-      : empty;
-  const currentPuzzleFilter =
-    args.currentPuzzleId !== null && args.currentPuzzleId.length > 0
-      ? sql`AND id != ${args.currentPuzzleId}`
-      : empty;
-  return sql`SELECT id, rating FROM ${ident(CHESS_PUZZLES_TABLE.tableName)} WHERE 1=1
-    ${ratingFilter}
-    ${ownerFilter}
-    ${currentPuzzleFilter}
-    ORDER BY popularity DESC LIMIT ${PUZZLE_CANDIDATE_LIMIT} OFFSET ${pickOffset}`;
+  const conditions: Expr[] = [];
+  if (args.halfWindow !== null) {
+    conditions.push(
+      ['>=', ChessPuzzleCol.rating, Math.max(0, args.rating - args.halfWindow)],
+      ['<=', ChessPuzzleCol.rating, args.rating + args.halfWindow]
+    );
+  }
+  if (args.ownerId.length > 0) {
+    conditions.push([
+      'not-in',
+      ChessPuzzleCol.id,
+      {
+        select: [ChessPuzzleInteractionCol.puzzleId],
+        from: CHESS_PUZZLE_INTERACTIONS_TABLE.tableName,
+        where: ['=', ChessPuzzleInteractionCol.ownerId, args.ownerId],
+      },
+    ]);
+  }
+  if (args.currentPuzzleId !== null && args.currentPuzzleId.length > 0) {
+    conditions.push(['!=', ChessPuzzleCol.id, args.currentPuzzleId]);
+  }
+  return honey({
+    select: [ChessPuzzleCol.id, ChessPuzzleCol.rating],
+    from: CHESS_PUZZLES_TABLE.tableName,
+    ...(conditions.length > 0 ? { where: ['and', ...conditions] } : {}),
+    orderBy: [[ChessPuzzleCol.popularity, 'desc']],
+    limit: PUZZLE_CANDIDATE_LIMIT,
+    offset: pickOffset,
+  });
 }
 
 export function pickPuzzleIdFromPool(args: {

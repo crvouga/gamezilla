@@ -9,7 +9,7 @@ import {
 import { spaceMembershipEntityId } from '@libs/spaces/shared/participation/participation-ids';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { sql, ident } from '@pkgs/sql';
+import { honey, sql, ident } from '@pkgs/sql';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
 import { createSpaceWrite } from '../shared/create-space/create-space-write';
@@ -72,17 +72,32 @@ function ctx(args: {
 
 async function seedHostMembership(db: SqlClient): Promise<void> {
   const now = new Date().toISOString();
-  await db.run(sql`INSERT INTO ${ident(SPACES_TABLE.tableName)}
-     (${ident(SpaceCol.id)}, ${ident(SpaceCol.hostId)}, ${ident(SpaceCol.hostMemberId)},
-      ${ident(SpaceCol.hostAccountId)}, ${ident(SpaceCol.visibility)},
-      ${ident(SpaceCol.activeMemberCount)})
-     VALUES (${SPACE_ID}, ${DEVICE_ID}, ${ACCOUNT_ID}, ${ACCOUNT_ID}, 'private', 1)`);
-  await db.run(sql`INSERT INTO ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     (${ident(SpaceMembershipCol.id)}, ${ident(SpaceMembershipCol.memberId)},
-      ${ident(SpaceMembershipCol.spaceId)}, ${ident(SpaceMembershipCol.joinedAt)},
-      ${ident(SpaceMembershipCol.leftAt)}, ${ident(SpaceMembershipCol.profileId)})
-     VALUES (${spaceMembershipEntityId(ACCOUNT_ID, SPACE_ID)}, ${ACCOUNT_ID},
-             ${SPACE_ID}, ${now}, NULL, ${ACCOUNT_ID})`);
+  await db.run(
+    honey({
+      insertInto: SPACES_TABLE.tableName,
+      values: {
+        [SpaceCol.id]: SPACE_ID,
+        [SpaceCol.hostId]: DEVICE_ID,
+        [SpaceCol.hostMemberId]: ACCOUNT_ID,
+        [SpaceCol.hostAccountId]: ACCOUNT_ID,
+        [SpaceCol.visibility]: 'private',
+        [SpaceCol.activeMemberCount]: 1,
+      },
+    })
+  );
+  await db.run(
+    honey({
+      insertInto: SPACE_MEMBERSHIPS_TABLE.tableName,
+      values: {
+        [SpaceMembershipCol.id]: spaceMembershipEntityId(ACCOUNT_ID, SPACE_ID),
+        [SpaceMembershipCol.memberId]: ACCOUNT_ID,
+        [SpaceMembershipCol.spaceId]: SPACE_ID,
+        [SpaceMembershipCol.joinedAt]: now,
+        [SpaceMembershipCol.leftAt]: null,
+        [SpaceMembershipCol.profileId]: ACCOUNT_ID,
+      },
+    })
+  );
 }
 
 async function readMembership(
@@ -91,9 +106,11 @@ async function readMembership(
 ): Promise<{ readonly leftAt: string | null } | null> {
   const id = spaceMembershipEntityId(memberId, SPACE_ID);
   const rows = await db.query<{ readonly left_at: string | null }>(
-    sql`SELECT ${ident(SpaceMembershipCol.leftAt)} AS left_at
-     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${ident(SpaceMembershipCol.id)} = ${id}`
+    honey({
+      select: [SpaceMembershipCol.leftAt],
+      from: SPACE_MEMBERSHIPS_TABLE.tableName,
+      where: ['=', SpaceMembershipCol.id, id],
+    })
   );
   const row = rows[0];
   if (row === undefined) return null;
@@ -111,12 +128,18 @@ async function readSpaceHost(db: SqlClient): Promise<{
     readonly host_account_id: string | null;
     readonly active_member_count: number;
     readonly ended_at: string | null;
-  }>(sql`SELECT ${ident(SpaceCol.hostMemberId)} AS host_member_id,
-            ${ident(SpaceCol.hostAccountId)} AS host_account_id,
-            ${ident(SpaceCol.activeMemberCount)} AS active_member_count,
-            ${ident(SpaceCol.endedAt)} AS ended_at
-     FROM ${ident(SPACES_TABLE.tableName)}
-     WHERE ${ident(SpaceCol.id)} = ${SPACE_ID}`);
+  }>(
+    honey({
+      select: [
+        SpaceCol.hostMemberId,
+        SpaceCol.hostAccountId,
+        SpaceCol.activeMemberCount,
+        SpaceCol.endedAt,
+      ],
+      from: SPACES_TABLE.tableName,
+      where: ['=', SpaceCol.id, SPACE_ID],
+    })
+  );
   const row = rows[0]!;
   return {
     hostMemberId: row.host_member_id,
@@ -158,15 +181,27 @@ describe('leave / join / create require account membership', () => {
 
   test('host leave with guest remaining keeps space live', async () => {
     const now = new Date().toISOString();
-    await db.run(sql`INSERT INTO ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-       (${ident(SpaceMembershipCol.id)}, ${ident(SpaceMembershipCol.memberId)},
-        ${ident(SpaceMembershipCol.spaceId)}, ${ident(SpaceMembershipCol.joinedAt)},
-        ${ident(SpaceMembershipCol.leftAt)}, ${ident(SpaceMembershipCol.profileId)})
-       VALUES (${spaceMembershipEntityId(GUEST_ACCOUNT_ID, SPACE_ID)}, ${GUEST_ACCOUNT_ID},
-               ${SPACE_ID}, ${now}, NULL, ${GUEST_ACCOUNT_ID})`);
     await db.run(
-      sql`UPDATE ${ident(SPACES_TABLE.tableName)}
-       SET ${ident(SpaceCol.activeMemberCount)} = 2`
+      honey({
+        insertInto: SPACE_MEMBERSHIPS_TABLE.tableName,
+        values: {
+          [SpaceMembershipCol.id]: spaceMembershipEntityId(
+            GUEST_ACCOUNT_ID,
+            SPACE_ID
+          ),
+          [SpaceMembershipCol.memberId]: GUEST_ACCOUNT_ID,
+          [SpaceMembershipCol.spaceId]: SPACE_ID,
+          [SpaceMembershipCol.joinedAt]: now,
+          [SpaceMembershipCol.leftAt]: null,
+          [SpaceMembershipCol.profileId]: GUEST_ACCOUNT_ID,
+        },
+      })
+    );
+    await db.run(
+      honey({
+        update: SPACES_TABLE.tableName,
+        set: { [SpaceCol.activeMemberCount]: 2 },
+      })
     );
     const signedIn = ctx({ deviceId: DEVICE_ID, accountId: ACCOUNT_ID });
     await executeLeaveSpace(signedIn, { spaceId: SPACE_ID }, db);
@@ -180,11 +215,17 @@ describe('leave / join / create require account membership', () => {
     await executeLeaveSpace(signedIn, { spaceId: SPACE_ID }, db);
     expect((await readSpaceHost(db)).endedAt).not.toBeNull();
 
-    await db.run(sql`UPDATE ${ident(SPACES_TABLE.tableName)}
-       SET ${ident(SpaceCol.endedAt)} = NULL,
-           ${ident(SpaceCol.hostMemberId)} = ${DEVICE_ID},
-           ${ident(SpaceCol.hostAccountId)} = NULL,
-           ${ident(SpaceCol.activeMemberCount)} = 0`);
+    await db.run(
+      honey({
+        update: SPACES_TABLE.tableName,
+        set: {
+          [SpaceCol.endedAt]: null,
+          [SpaceCol.hostMemberId]: DEVICE_ID,
+          [SpaceCol.hostAccountId]: null,
+          [SpaceCol.activeMemberCount]: 0,
+        },
+      })
+    );
     const auth = await authorizeJoinSpace(
       signedIn,
       { spaceId: SPACE_ID, inviteToken: null },

@@ -1,4 +1,4 @@
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -126,17 +126,22 @@ export function useLocalAccounts(): readonly LocalAccount[] {
 
   const { row: activeProfile } = useWatchOne<ActiveProfileDisplayRow>(
     activeAccountId === null
-      ? sql`
-          SELECT ${ident(ProfileCol.username)} AS username,
-                 ${ident(ProfileCol.avatarConfig)} AS avatar_config
-          FROM ${ident(PROFILES_TABLE.tableName)} WHERE 0
-        `
-      : sql`
-          SELECT ${ident(ProfileCol.username)} AS username,
-                 ${ident(ProfileCol.avatarConfig)} AS avatar_config
-          FROM ${ident(PROFILES_TABLE.tableName)}
-          WHERE ${ident(ProfileCol.id)} = ${activeAccountId}
-        `
+      ? honey({
+          select: [
+            [ProfileCol.username, 'username'],
+            [ProfileCol.avatarConfig, 'avatar_config'],
+          ],
+          from: PROFILES_TABLE.tableName,
+          where: ['=', 1, 0],
+        })
+      : honey({
+          select: [
+            [ProfileCol.username, 'username'],
+            [ProfileCol.avatarConfig, 'avatar_config'],
+          ],
+          from: PROFILES_TABLE.tableName,
+          where: ['=', ProfileCol.id, activeAccountId],
+        })
   );
   // Prefer live row when present. Do not blank username while reconnecting —
   // merge falls back to session username when SQLite is still empty.

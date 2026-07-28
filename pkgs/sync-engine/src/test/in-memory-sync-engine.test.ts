@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { sql } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 
 import { defineTable } from '../shared/table-definition';
 import { createTableRegistry } from '../shared/table-registry';
@@ -36,7 +36,7 @@ describe('createInMemorySyncEngine', () => {
     ]);
     const engine = createInMemorySyncEngine({ registry });
     const sub = engine.watch<{ id: string }>(
-      sql`SELECT id FROM profiles WHERE 0`
+      honey({ select: ['id'], from: 'profiles', where: 0 })
     );
     expect(sub.getSnapshot()).toEqual([]);
     expect(sub.getHydrated()).toBe(false);
@@ -55,11 +55,18 @@ describe('createInMemorySyncEngine', () => {
     const engine = createInMemorySyncEngine({ registry });
     await engine.connect();
     await engine.db.run(
-      sql`INSERT INTO profiles (id, display_name) VALUES (${'p1'}, ${'Ada'})`
+      honey({
+        insertInto: 'profiles',
+        values: { id: 'p1', display_name: 'Ada' },
+      })
     );
 
     const sub = engine.watch<{ id: string; display_name: string }>(
-      sql`SELECT id, display_name FROM profiles WHERE id = ${'p1'}`
+      honey({
+        select: ['id', 'display_name'],
+        from: 'profiles',
+        where: ['=', 'id', 'p1'],
+      })
     );
     await waitForHydrated(sub);
     expect(sub.getHydrated()).toBe(true);
@@ -80,11 +87,18 @@ describe('createInMemorySyncEngine', () => {
     const engine = createInMemorySyncEngine({ registry });
     await engine.connect();
     await engine.db.run(
-      sql`INSERT INTO profiles (id, display_name) VALUES (${'p1'}, ${'Ada'})`
+      honey({
+        insertInto: 'profiles',
+        values: { id: 'p1', display_name: 'Ada' },
+      })
     );
 
     const sub = engine.watch<{ display_name: string }>(
-      sql`SELECT display_name FROM profiles WHERE id = ${'p1'}`
+      honey({
+        select: ['display_name'],
+        from: 'profiles',
+        where: ['=', 'id', 'p1'],
+      })
     );
     await waitForHydrated(sub);
 
@@ -99,7 +113,11 @@ describe('createInMemorySyncEngine', () => {
     });
 
     await engine.db.run(
-      sql`UPDATE profiles SET display_name = ${'Grace'} WHERE id = ${'p1'}`
+      honey({
+        update: 'profiles',
+        set: { display_name: 'Grace' },
+        where: ['=', 'id', 'p1'],
+      })
     );
     expect(await next).toBe('Grace');
   });

@@ -3,7 +3,7 @@ import {
   useMyDeviceId,
 } from '@libs/auth/client/use-current-user';
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -19,10 +19,12 @@ function usePublicLiveSpaceIds(): {
   readonly isLoading: boolean;
 } {
   const { rows, isLoading } = useWatchQuery<SpaceIdRow>(
-    sql`SELECT ${ident(SpaceCol.id)} AS id
-     FROM ${ident(SPACES_TABLE.tableName)}
-     WHERE ${ident(SpaceCol.endedAt)} IS NULL
-     ORDER BY ${ident(SpaceCol.createdAt)} DESC`
+    honey({
+      select: [SpaceCol.id],
+      from: SPACES_TABLE.tableName,
+      where: ['is-null', SpaceCol.endedAt],
+      orderBy: [[SpaceCol.createdAt, 'desc']],
+    })
   );
   return { spaceIds: rows.map((r) => r.id), isLoading };
 }

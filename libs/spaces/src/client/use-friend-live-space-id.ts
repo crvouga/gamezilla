@@ -1,5 +1,5 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 /**
@@ -10,13 +10,27 @@ export function useFriendLiveSpaceId(hostAccountId: string): string | null {
   const enabled = hostAccountId.length > 0;
   const { row } = useWatchOne<{ readonly id: string }>(
     enabled
-      ? sql`SELECT ${ident(SpaceCol.id)} AS id FROM ${ident(SPACES_TABLE.tableName)}
-         WHERE ${ident(SpaceCol.endedAt)} IS NULL
-           AND ${ident(SpaceCol.hostAccountId)} = ${hostAccountId}
-           AND (${ident(SpaceCol.visibility)} = 'friends' OR ${ident(SpaceCol.visibility)} = 'public')
-         ORDER BY ${ident(SpaceCol.createdAt)} DESC
-         LIMIT 1`
-      : sql`SELECT ${ident(SpaceCol.id)} AS id FROM ${ident(SPACES_TABLE.tableName)} WHERE 0`
+      ? honey({
+          select: [SpaceCol.id],
+          from: SPACES_TABLE.tableName,
+          where: [
+            'and',
+            ['is-null', SpaceCol.endedAt],
+            ['=', SpaceCol.hostAccountId, hostAccountId],
+            [
+              'or',
+              ['=', SpaceCol.visibility, 'friends'],
+              ['=', SpaceCol.visibility, 'public'],
+            ],
+          ],
+          orderBy: [[SpaceCol.createdAt, 'desc']],
+          limit: 1,
+        })
+      : honey({
+          select: [SpaceCol.id],
+          from: SPACES_TABLE.tableName,
+          where: ['=', 1, 0],
+        })
   );
   return row?.id ?? null;
 }

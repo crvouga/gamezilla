@@ -1,5 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { join, sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { ProfileCard } from '../shared/profile-card';
@@ -27,12 +27,14 @@ export async function readProfileCardById(
   db: SqlClient,
   profileId: string
 ): Promise<ProfileCard | null> {
-  const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT ${ident(ProfileCol.id)}, ${ident(ProfileCol.username)}, ${ident(ProfileCol.avatarConfig)}
-    FROM ${ident(PROFILES_TABLE.tableName)}
-    WHERE ${ident(ProfileCol.id)} = ${profileId}
-    LIMIT 1
-  `);
+  const rows = await db.query<Record<string, unknown>>(
+    honey({
+      select: [ProfileCol.id, ProfileCol.username, ProfileCol.avatarConfig],
+      from: PROFILES_TABLE.tableName,
+      where: ['=', ProfileCol.id, profileId],
+      limit: 1,
+    })
+  );
   const row = rows[0];
   if (row === undefined) return null;
   return readProfileCard(row);
@@ -43,11 +45,13 @@ export async function readProfileCardsByIds(
   profileIds: readonly string[]
 ): Promise<readonly ProfileCard[]> {
   if (profileIds.length === 0) return [];
-  const rows = await db.query<Record<string, unknown>>(sql`
-    SELECT ${ident(ProfileCol.id)}, ${ident(ProfileCol.username)}, ${ident(ProfileCol.avatarConfig)}
-    FROM ${ident(PROFILES_TABLE.tableName)}
-    WHERE ${ident(ProfileCol.id)} IN (${join(profileIds)})
-  `);
+  const rows = await db.query<Record<string, unknown>>(
+    honey({
+      select: [ProfileCol.id, ProfileCol.username, ProfileCol.avatarConfig],
+      from: PROFILES_TABLE.tableName,
+      where: ['in', ProfileCol.id, profileIds],
+    })
+  );
   return rows
     .map((row) => readProfileCard(row))
     .filter((card): card is ProfileCard => card !== null);

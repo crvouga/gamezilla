@@ -1,5 +1,5 @@
 import { PGlite } from '@electric-sql/pglite';
-import { sql, type Sql } from '@pkgs/sql';
+import { honey, sql, type Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { migrate } from './migrate';
@@ -173,7 +173,11 @@ describe('migrate v3 - idempotency', () => {
       await migrate({ sqlClient });
       await migrate({ sqlClient });
       const fp = await sqlClient.query<{ schema_fingerprint: string }>(
-        sql`SELECT schema_fingerprint FROM matchmaking_schema_state WHERE id = 1`
+        honey({
+          select: ['schema_fingerprint'],
+          from: 'matchmaking_schema_state',
+          where: ['=', 'id', 1],
+        })
       );
       expect(fp.length).toBe(1);
     } finally {
@@ -190,24 +194,43 @@ describe('migrate v3 - idempotency', () => {
       // rebuild drops the table so the row goes with it — the contract
       // here is that the schema fingerprint flips and the new shape
       // permits an insert with caller-supplied partition_signature.
-      await sqlClient.run(sql`
-        INSERT INTO matchmaking_waiting (data, formulas, partition_signature)
-         VALUES (${JSON.stringify({ 'mmtest/region': 'us-east' })}::jsonb, ${JSON.stringify([{ numeric: [] }])}::jsonb, ${''})`);
+      await sqlClient.run(
+        honey({
+          insertInto: 'matchmaking_waiting',
+          values: {
+            data: ['cast', JSON.stringify({ 'mmtest/region': 'us-east' }), 'jsonb'],
+            formulas: ['cast', JSON.stringify([{ numeric: [] }]), 'jsonb'],
+            partition_signature: '',
+          },
+        })
+      );
 
       await migrate({
         sqlClient,
         schema: { partitionKeys: ['mmtest/region'] },
       });
       const fp = await sqlClient.query<{ schema_fingerprint: string }>(
-        sql`SELECT schema_fingerprint FROM matchmaking_schema_state WHERE id = 1`
+        honey({
+          select: ['schema_fingerprint'],
+          from: 'matchmaking_schema_state',
+          where: ['=', 'id', 1],
+        })
       );
       expect(fp[0]?.schema_fingerprint ?? '').toContain('mmtest/region');
 
       // Insert a row through the new schema using a JS-computed
       // partition_signature; verify it round-trips.
-      await sqlClient.run(sql`
-        INSERT INTO matchmaking_waiting (data, formulas, partition_signature)
-         VALUES (${JSON.stringify({ 'mmtest/region': 'eu-west' })}::jsonb, ${JSON.stringify([{ numeric: [] }])}::jsonb, ${'eu-west'})`);
+      await sqlClient.run(
+        honey({
+          insertInto: 'matchmaking_waiting',
+          values: {
+            data: ['cast', JSON.stringify({ 'mmtest/region': 'eu-west' }), 'jsonb'],
+            formulas: ['cast', JSON.stringify([{ numeric: [] }]), 'jsonb'],
+            partition_signature: 'eu-west',
+          },
+        })
+      );
+      // honey: jsonb `->>` extraction operator in WHERE.
       const row = await sqlClient.query<{ partition_signature: string }>(sql`
         SELECT partition_signature FROM matchmaking_waiting
          WHERE (data->>'mmtest/region') = 'eu-west'`);
@@ -363,13 +386,21 @@ describe('migrate - schema fingerprint stability', () => {
       };
       await migrate({ sqlClient, schema });
       const first = await sqlClient.query<{ fp: string }>(
-        sql`SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
+        honey({
+          select: [['schema_fingerprint', 'fp']],
+          from: 'matchmaking_schema_state',
+          where: ['=', 'id', 1],
+        })
       );
       const firstFp = first[0]?.fp;
       expect(typeof firstFp).toBe('string');
       await migrate({ sqlClient, schema });
       const second = await sqlClient.query<{ fp: string }>(
-        sql`SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
+        honey({
+          select: [['schema_fingerprint', 'fp']],
+          from: 'matchmaking_schema_state',
+          where: ['=', 'id', 1],
+        })
       );
       expect(second[0]?.fp).toBe(firstFp);
     } finally {
@@ -385,14 +416,22 @@ describe('migrate - schema fingerprint stability', () => {
         schema: { partitionKeys: ['mmtest/region'] },
       });
       const first = await sqlClient.query<{ fp: string }>(
-        sql`SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
+        honey({
+          select: [['schema_fingerprint', 'fp']],
+          from: 'matchmaking_schema_state',
+          where: ['=', 'id', 1],
+        })
       );
       await migrate({
         sqlClient,
         schema: { partitionKeys: ['mmtest/region', 'mmtest/kind'] },
       });
       const second = await sqlClient.query<{ fp: string }>(
-        sql`SELECT schema_fingerprint AS fp FROM matchmaking_schema_state WHERE id = 1`
+        honey({
+          select: [['schema_fingerprint', 'fp']],
+          from: 'matchmaking_schema_state',
+          where: ['=', 'id', 1],
+        })
       );
       expect(second[0]?.fp).not.toBe(first[0]?.fp);
     } finally {
@@ -408,16 +447,24 @@ describe('migrate - matchmaking_active_partitions prune', () => {
       await migrate({ sqlClient });
       // Seed a synthetic active-partitions row pointing at no waiters.
       await sqlClient.run(
-        sql`INSERT INTO matchmaking_active_partitions (partition_signature)
-         VALUES (${'orphaned-partition'})`
+        honey({
+          insertInto: 'matchmaking_active_partitions',
+          values: { partition_signature: 'orphaned-partition' },
+        })
       );
       const before = await sqlClient.query<{ n: number }>(
-        sql`SELECT COUNT(*)::INT AS n FROM matchmaking_active_partitions`
+        honey({
+          select: [[['cast', ['count', '*'], 'int'], 'n']],
+          from: 'matchmaking_active_partitions',
+        })
       );
       expect(before[0]?.n).toBe(1);
       await sqlClient.query(sql`SELECT matchmaking_tick()`);
       const after = await sqlClient.query<{ n: number }>(
-        sql`SELECT COUNT(*)::INT AS n FROM matchmaking_active_partitions`
+        honey({
+          select: [[['cast', ['count', '*'], 'int'], 'n']],
+          from: 'matchmaking_active_partitions',
+        })
       );
       expect(after[0]?.n).toBe(0);
     } finally {
@@ -435,13 +482,18 @@ describe('migrate - matchmaking_active_partitions prune', () => {
       // clause too — this test verifies the watermark clause runs
       // (the two clauses are independent) by checking that the row
       // count drops to zero.
+      // honey: multi-row VALUES with an `INTERVAL '30 days'` literal (no honey
+      // grammar for interval literals).
       await sqlClient.run(sql`
         INSERT INTO matchmaking_active_partitions (partition_signature, first_seen_at)
          VALUES ('old', now() - INTERVAL '30 days'),
                 ('new', now())`);
       await sqlClient.query(sql`SELECT matchmaking_tick()`);
       const after = await sqlClient.query<{ n: number }>(
-        sql`SELECT COUNT(*)::INT AS n FROM matchmaking_active_partitions`
+        honey({
+          select: [[['cast', ['count', '*'], 'int'], 'n']],
+          from: 'matchmaking_active_partitions',
+        })
       );
       expect(after[0]?.n).toBe(0);
     } finally {

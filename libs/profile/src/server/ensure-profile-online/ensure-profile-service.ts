@@ -1,11 +1,11 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { serializeDefaultAvatarConfig } from '../../shared/avatar-config';
-import { generateRandomUsername } from '../../shared/username-generator';
-import { ProfileError } from '../../shared/profile-errors';
 import type { ProfileCard } from '../../shared/profile-card';
+import { ProfileError } from '../../shared/profile-errors';
+import { generateRandomUsername } from '../../shared/username-generator';
 import { readProfileCardById } from '../read-profile';
 
 const MAX_USERNAME_ASSIGN_ATTEMPTS = 8;
@@ -27,12 +27,18 @@ async function insertProfileRow(
   username: string,
   now: string
 ): Promise<void> {
-  await db.run(sql`
-    INSERT INTO ${ident(PROFILES_TABLE.tableName)}
-    (${ident(ProfileCol.id)}, ${ident(ProfileCol.createdAt)}, ${ident(ProfileCol.username)}, ${ident(ProfileCol.avatarConfig)})
-    VALUES (${profileId}, ${now}, ${username}, ${serializeDefaultAvatarConfig(profileId)})
-    ON CONFLICT (${ident(ProfileCol.id)}) DO NOTHING
-  `);
+  await db.run(
+    honey({
+      insertInto: PROFILES_TABLE.tableName,
+      values: {
+        [ProfileCol.id]: profileId,
+        [ProfileCol.createdAt]: now,
+        [ProfileCol.username]: username,
+        [ProfileCol.avatarConfig]: serializeDefaultAvatarConfig(profileId),
+      },
+      onConflict: { target: [ProfileCol.id], doNothing: true },
+    })
+  );
 }
 
 async function assignUniqueUsername(
@@ -42,12 +48,21 @@ async function assignUniqueUsername(
   for (let attempt = 0; attempt < MAX_USERNAME_ASSIGN_ATTEMPTS; attempt += 1) {
     const username = generateRandomUsername(`${profileId}:${attempt}`);
     try {
-      await db.run(sql`
-        UPDATE ${ident(PROFILES_TABLE.tableName)}
-        SET ${ident(ProfileCol.username)} = ${username}
-        WHERE ${ident(ProfileCol.id)} = ${profileId}
-          AND (${ident(ProfileCol.username)} = '' OR ${ident(ProfileCol.username)} IS NULL)
-      `);
+      await db.run(
+        honey({
+          update: PROFILES_TABLE.tableName,
+          set: { [ProfileCol.username]: username },
+          where: [
+            'and',
+            ['=', ProfileCol.id, profileId],
+            [
+              'or',
+              ['=', ProfileCol.username, ''],
+              ['is-null', ProfileCol.username],
+            ],
+          ],
+        })
+      );
       const card = await readProfileCardById(db, profileId);
       if (card !== null && card.username.length > 0) {
         return card.username;

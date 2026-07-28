@@ -177,3 +177,17 @@ export function compileReturning(cols: readonly string[] | undefined): Sql {
     HONEY_LIST_SEP
   )}`;
 }
+
+export function compileWhere(where: Query['where']): Sql {
+  if (where === undefined) {
+    return empty;
+  }
+  return sql` WHERE ${compileExpr(where)}`;
+}
+
+export function compileHaving(having: Query['having']): Sql {
+  if (having === undefined) {
+    return empty;
+  }
+  return sql` HAVING ${compileExpr(having)}`;
+}

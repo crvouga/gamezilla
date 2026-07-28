@@ -65,6 +65,7 @@ export async function searchUsers(
   assertSearchRateLimit(viewerId);
   const boundedLimit = Math.min(Math.max(limit, 1), FRIEND_SEARCH_MAX_RESULTS);
   const likeQuery = query.toLowerCase();
+  // honey: LIKE with `|| '%'` string concat and ORDER BY lower(...) have no honey representation.
   const rows = await db.query<SearchHitRow>(sql`
     SELECT p.${ident(ProfileCol.id)} AS id,
            p.${ident(ProfileCol.username)} AS username,

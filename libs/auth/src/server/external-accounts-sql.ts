@@ -4,7 +4,7 @@ import {
   USERS_TABLE,
   UserTableCol,
 } from '@libs/db/shared/external-accounts-tables';
-import { sql, ident } from '@pkgs/sql';
+import { honey, col } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 export { EXTERNAL_ACCOUNTS_TABLE, USERS_TABLE };
@@ -34,12 +34,18 @@ export async function findUserIdByProviderExternalId(
   provider: string,
   externalId: string
 ): Promise<string | null> {
-  const rows = await db.query<UserIdRow>(sql`
-    SELECT ${ident(ExternalAccountCol.userId)} AS user_id
-    FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)}
-    WHERE ${ident(ExternalAccountCol.provider)} = ${provider} AND ${ident(ExternalAccountCol.externalId)} = ${externalId}
-    LIMIT 1
-  `);
+  const rows = await db.query<UserIdRow>(
+    honey({
+      select: [[ExternalAccountCol.userId, 'user_id']],
+      from: EXTERNAL_ACCOUNTS_TABLE,
+      where: [
+        'and',
+        ['=', ExternalAccountCol.provider, provider],
+        ['=', ExternalAccountCol.externalId, externalId],
+      ],
+      limit: 1,
+    })
+  );
   const userId = rows[0]?.user_id;
   return typeof userId === 'string' && userId.length > 0 ? userId : null;
 }
@@ -49,12 +55,18 @@ export async function readExternalAccountId(
   userId: string,
   provider: string
 ): Promise<string | null> {
-  const rows = await db.query<{ external_id: string | null }>(sql`
-    SELECT ${ident(ExternalAccountCol.externalId)} AS external_id
-    FROM ${ident(EXTERNAL_ACCOUNTS_TABLE)}
-    WHERE ${ident(ExternalAccountCol.userId)} = ${userId} AND ${ident(ExternalAccountCol.provider)} = ${provider}
-    LIMIT 1
-  `);
+  const rows = await db.query<{ external_id: string | null }>(
+    honey({
+      select: [[ExternalAccountCol.externalId, 'external_id']],
+      from: EXTERNAL_ACCOUNTS_TABLE,
+      where: [
+        'and',
+        ['=', ExternalAccountCol.userId, userId],
+        ['=', ExternalAccountCol.provider, provider],
+      ],
+      limit: 1,
+    })
+  );
   const externalId = rows[0]?.external_id;
   return typeof externalId === 'string' && externalId.length > 0
     ? externalId
@@ -67,11 +79,16 @@ export async function insertUser(
   createdAt?: string
 ): Promise<void> {
   const now = createdAt ?? new Date().toISOString();
-  await db.run(sql`
-    INSERT INTO ${ident(USERS_TABLE)} (${ident(UserTableCol.id)}, ${ident(UserTableCol.createdAt)})
-    VALUES (${userId}, ${now})
-    ON CONFLICT (${ident(UserTableCol.id)}) DO NOTHING
-  `);
+  await db.run(
+    honey({
+      insertInto: USERS_TABLE,
+      values: {
+        [UserTableCol.id]: userId,
+        [UserTableCol.createdAt]: now,
+      },
+      onConflict: { target: [UserTableCol.id], doNothing: true },
+    })
+  );
 }
 
 export async function upsertExternalAccount(
@@ -85,16 +102,29 @@ export async function upsertExternalAccount(
 ): Promise<void> {
   const now = new Date().toISOString();
   const metadataJson = JSON.stringify(args.metadata ?? {});
-  await db.run(sql`
-    INSERT INTO ${ident(EXTERNAL_ACCOUNTS_TABLE)}
-    (${ident(ExternalAccountCol.userId)}, ${ident(ExternalAccountCol.provider)},
-     ${ident(ExternalAccountCol.externalId)}, ${ident(ExternalAccountCol.metadata)},
-     ${ident(ExternalAccountCol.createdAt)})
-    VALUES (${args.userId}, ${args.provider}, ${args.externalId}, ${metadataJson}::jsonb, ${now})
-    ON CONFLICT (${ident(ExternalAccountCol.provider)}, ${ident(ExternalAccountCol.externalId)}) DO UPDATE SET
-      ${ident(ExternalAccountCol.userId)} = excluded.${ident(ExternalAccountCol.userId)},
-      ${ident(ExternalAccountCol.metadata)} = excluded.${ident(ExternalAccountCol.metadata)}
-  `);
+  await db.run(
+    honey({
+      insertInto: EXTERNAL_ACCOUNTS_TABLE,
+      values: {
+        [ExternalAccountCol.userId]: args.userId,
+        [ExternalAccountCol.provider]: args.provider,
+        [ExternalAccountCol.externalId]: args.externalId,
+        [ExternalAccountCol.metadata]: ['cast', metadataJson, 'jsonb'],
+        [ExternalAccountCol.createdAt]: now,
+      },
+      onConflict: {
+        target: [ExternalAccountCol.provider, ExternalAccountCol.externalId],
+        set: {
+          [ExternalAccountCol.userId]: col(
+            `excluded.${ExternalAccountCol.userId}`
+          ),
+          [ExternalAccountCol.metadata]: col(
+            `excluded.${ExternalAccountCol.metadata}`
+          ),
+        },
+      },
+    })
+  );
 }
 
 export async function findUserIdByPrimaryAuthExternalId(

@@ -5,7 +5,7 @@ import {
   SpaceMembershipCol,
   SPACES_TABLE,
 } from '@libs/db/shared/space-tables';
-import { join, sql, type Sql, ident } from '@pkgs/sql';
+import { honey, type Sql } from '@pkgs/sql';
 import {
   useSyncStatus,
   useWatchQuery,
@@ -124,38 +124,51 @@ export function buildCurrentSpaceEntries(
 
 function membershipSql(enabled: boolean, accountId: string): Sql {
   if (!enabled) {
-    return sql`SELECT ${ident(SpaceMembershipCol.spaceId)} AS space_id,
-             ${ident(SpaceMembershipCol.joinedAt)} AS joined_at
-             FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)} WHERE 0`;
+    return honey({
+      select: [SpaceMembershipCol.spaceId, SpaceMembershipCol.joinedAt],
+      from: SPACE_MEMBERSHIPS_TABLE.tableName,
+      where: ['=', 1, 0],
+    });
   }
-  return sql`SELECT ${ident(SpaceMembershipCol.spaceId)} AS space_id,
-             ${ident(SpaceMembershipCol.joinedAt)} AS joined_at
-           FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-           WHERE ${ident(SpaceMembershipCol.memberId)} = ${accountId}
-             AND ${ident(SpaceMembershipCol.leftAt)} IS NULL
-           ORDER BY ${ident(SpaceMembershipCol.joinedAt)} DESC`;
+  return honey({
+    select: [SpaceMembershipCol.spaceId, SpaceMembershipCol.joinedAt],
+    from: SPACE_MEMBERSHIPS_TABLE.tableName,
+    where: [
+      'and',
+      ['=', SpaceMembershipCol.memberId, accountId],
+      ['is-null', SpaceMembershipCol.leftAt],
+    ],
+    orderBy: [[SpaceMembershipCol.joinedAt, 'desc']],
+  });
 }
 
 function hostedSpacesSql(enabled: boolean, accountId: string): Sql {
   if (!enabled) {
-    return sql`SELECT ${ident(SpaceCol.id)}, ${ident(SpaceCol.hostMemberId)} AS host_member_id,
-            ${ident(SpaceCol.hostAccountId)} AS host_account_id,
-            ${ident(SpaceCol.endedAt)} AS ended_at FROM ${ident(SPACES_TABLE.tableName)} WHERE 0`;
+    return honey({
+      select: [
+        SpaceCol.id,
+        SpaceCol.hostMemberId,
+        SpaceCol.hostAccountId,
+        SpaceCol.endedAt,
+      ],
+      from: SPACES_TABLE.tableName,
+      where: ['=', 1, 0],
+    });
   }
   return hostedUnleftSpacesSelectSql(accountId);
 }
 
 function spacesSql(ids: readonly string[]): Sql {
-  if (ids.length === 0) {
-    return sql`SELECT ${ident(SpaceCol.id)}, ${ident(SpaceCol.hostMemberId)} AS host_member_id,
-            ${ident(SpaceCol.hostAccountId)} AS host_account_id,
-            ${ident(SpaceCol.endedAt)} AS ended_at FROM ${ident(SPACES_TABLE.tableName)} WHERE 0`;
-  }
-  return sql`SELECT ${ident(SpaceCol.id)}, ${ident(SpaceCol.hostMemberId)} AS host_member_id,
-          ${ident(SpaceCol.hostAccountId)} AS host_account_id,
-          ${ident(SpaceCol.endedAt)} AS ended_at
-          FROM ${ident(SPACES_TABLE.tableName)}
-          WHERE ${ident(SpaceCol.id)} IN (${join(ids)})`;
+  return honey({
+    select: [
+      SpaceCol.id,
+      SpaceCol.hostMemberId,
+      SpaceCol.hostAccountId,
+      SpaceCol.endedAt,
+    ],
+    from: SPACES_TABLE.tableName,
+    where: ['in', SpaceCol.id, ids],
+  });
 }
 
 function resolveDisplayEntries(

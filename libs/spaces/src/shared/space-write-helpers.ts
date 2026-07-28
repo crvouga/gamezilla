@@ -13,7 +13,7 @@ import {
   isSpaceHostActor,
 } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { sql, ident } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import { readOne } from '@pkgs/write/shared/read-row-values';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
@@ -53,10 +53,17 @@ export async function readSpaceHostEnded(
     readonly ended_at: string | null;
   }>(
     db,
-    sql`SELECT ${ident(SpaceCol.hostId)}, ${ident(SpaceCol.hostMemberId)},
-            ${ident(SpaceCol.hostAccountId)}, ${ident(SpaceCol.endedAt)}
-     FROM ${ident(SPACES_TABLE.tableName)}
-     WHERE ${ident(SpaceCol.id)} = ${spaceId} LIMIT 1`,
+    honey({
+      select: [
+        SpaceCol.hostId,
+        SpaceCol.hostMemberId,
+        SpaceCol.hostAccountId,
+        SpaceCol.endedAt,
+      ],
+      from: SPACES_TABLE.tableName,
+      where: ['=', SpaceCol.id, spaceId],
+      limit: 1,
+    }),
     'SPACE_NOT_FOUND'
   );
   if (!result.ok) return result;
@@ -117,11 +124,14 @@ export async function readMembershipForLeave(
   const rows = await db.query<{
     readonly left_at: string | null;
     readonly member_id: string | null;
-  }>(sql`SELECT ${ident(SpaceMembershipCol.leftAt)} AS left_at,
-            ${ident(SpaceMembershipCol.memberId)} AS member_id
-     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${ident(SpaceMembershipCol.id)} = ${membershipId}
-     LIMIT 1`);
+  }>(
+    honey({
+      select: [SpaceMembershipCol.leftAt, SpaceMembershipCol.memberId],
+      from: SPACE_MEMBERSHIPS_TABLE.tableName,
+      where: ['=', SpaceMembershipCol.id, membershipId],
+      limit: 1,
+    })
+  );
   const row = rows[0];
   if (row === undefined) return null;
   const mid = row.member_id;
@@ -134,10 +144,12 @@ export async function wasMembershipInactive(
   membershipId: string
 ): Promise<boolean> {
   const rows = await db.query<{ readonly left_at: string | null }>(
-    sql`SELECT ${ident(SpaceMembershipCol.leftAt)} AS left_at
-     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${ident(SpaceMembershipCol.id)} = ${membershipId}
-     LIMIT 1`
+    honey({
+      select: [SpaceMembershipCol.leftAt],
+      from: SPACE_MEMBERSHIPS_TABLE.tableName,
+      where: ['=', SpaceMembershipCol.id, membershipId],
+      limit: 1,
+    })
   );
   const prev = rows[0];
   return prev === undefined || prev.left_at !== null;
@@ -155,16 +167,32 @@ export async function migrateHostIdentity(args: {
   readonly newMemberId: string;
   readonly accountId: string;
 }): Promise<void> {
-  await args.sql.run(sql`UPDATE ${ident(SPACES_TABLE.tableName)}
-     SET ${ident(SpaceCol.hostMemberId)} = ${args.newMemberId},
-         ${ident(SpaceCol.hostAccountId)} = ${args.accountId}
-     WHERE ${ident(SpaceCol.id)} = ${args.spaceId}
-       AND ${ident(SpaceCol.hostId)} = ${args.deviceId}`);
-  await args.sql.run(sql`UPDATE ${ident(SPACES_TABLE.tableName)}
-     SET ${ident(SpaceCol.hostMemberId)} = ${args.newMemberId}
-     WHERE ${ident(SpaceCol.id)} = ${args.spaceId}
-       AND ${ident(SpaceCol.hostAccountId)} = ${args.accountId}
-       AND ${ident(SpaceCol.hostId)} != ${args.deviceId}`);
+  await args.sql.run(
+    honey({
+      update: SPACES_TABLE.tableName,
+      set: {
+        [SpaceCol.hostMemberId]: args.newMemberId,
+        [SpaceCol.hostAccountId]: args.accountId,
+      },
+      where: [
+        'and',
+        ['=', SpaceCol.id, args.spaceId],
+        ['=', SpaceCol.hostId, args.deviceId],
+      ],
+    })
+  );
+  await args.sql.run(
+    honey({
+      update: SPACES_TABLE.tableName,
+      set: { [SpaceCol.hostMemberId]: args.newMemberId },
+      where: [
+        'and',
+        ['=', SpaceCol.id, args.spaceId],
+        ['=', SpaceCol.hostAccountId, args.accountId],
+        ['!=', SpaceCol.hostId, args.deviceId],
+      ],
+    })
+  );
 }
 
 export async function countActiveMembershipsInSpace(
@@ -172,10 +200,15 @@ export async function countActiveMembershipsInSpace(
   spaceId: string
 ): Promise<number> {
   const rows = await db.query<{ readonly c: number | string }>(
-    sql`SELECT COUNT(*) AS c
-     FROM ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)}
-     WHERE ${ident(SpaceMembershipCol.spaceId)} = ${spaceId}
-       AND ${ident(SpaceMembershipCol.leftAt)} IS NULL`
+    honey({
+      select: [[['count', '*'], 'c']],
+      from: SPACE_MEMBERSHIPS_TABLE.tableName,
+      where: [
+        'and',
+        ['=', SpaceMembershipCol.spaceId, spaceId],
+        ['is-null', SpaceMembershipCol.leftAt],
+      ],
+    })
   );
   return Number(rows[0]?.c ?? 0);
 }
@@ -204,19 +237,35 @@ export async function maybeAutoEndEmptyHostSpace(
     deviceId: ctx.deviceId,
   });
   if (hostLeaving) {
-    await db.run(sql`UPDATE ${ident(SPACES_TABLE.tableName)}
-       SET ${ident(SpaceCol.endedAt)} = ${isoNow()},
-           ${ident(SpaceCol.hostId)} = ${ctx.deviceId},
-           ${ident(SpaceCol.hostMemberId)} = ${memberId},
-           ${ident(SpaceCol.hostAccountId)} = ${ctx.accountId}
-       WHERE ${ident(SpaceCol.id)} = ${spaceId}
-         AND ${ident(SpaceCol.endedAt)} IS NULL`);
+    await db.run(
+      honey({
+        update: SPACES_TABLE.tableName,
+        set: {
+          [SpaceCol.endedAt]: isoNow(),
+          [SpaceCol.hostId]: ctx.deviceId,
+          [SpaceCol.hostMemberId]: memberId,
+          [SpaceCol.hostAccountId]: ctx.accountId,
+        },
+        where: [
+          'and',
+          ['=', SpaceCol.id, spaceId],
+          ['is-null', SpaceCol.endedAt],
+        ],
+      })
+    );
     return;
   }
-  await db.run(sql`UPDATE ${ident(SPACES_TABLE.tableName)}
-     SET ${ident(SpaceCol.endedAt)} = ${isoNow()}
-     WHERE ${ident(SpaceCol.id)} = ${spaceId}
-       AND ${ident(SpaceCol.endedAt)} IS NULL`);
+  await db.run(
+    honey({
+      update: SPACES_TABLE.tableName,
+      set: { [SpaceCol.endedAt]: isoNow() },
+      where: [
+        'and',
+        ['=', SpaceCol.id, spaceId],
+        ['is-null', SpaceCol.endedAt],
+      ],
+    })
+  );
 }
 
 export function requireNonEmptyString(

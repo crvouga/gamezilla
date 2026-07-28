@@ -31,7 +31,7 @@
 
 import { assert } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
-import { sql } from '@pkgs/sql';
+import { honey } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Hono, type MiddlewareHandler } from 'hono';
 import { createMatchmakingApp } from './app';
@@ -480,7 +480,17 @@ export class Matchmaking {
    */
   private static async tryAdvisoryLock(sqlClient: SqlClient): Promise<boolean> {
     const rows = await sqlClient.query<{ pg_try_advisory_lock: boolean }>(
-      sql`SELECT pg_try_advisory_lock(${MATCHMAKING_TICK_ADVISORY_LOCK_ID}::bigint) AS pg_try_advisory_lock`
+      honey({
+        select: [
+          [
+            [
+              'pg_try_advisory_lock',
+              ['cast', MATCHMAKING_TICK_ADVISORY_LOCK_ID, 'bigint'],
+            ],
+            'pg_try_advisory_lock',
+          ],
+        ],
+      })
     );
     return rows[0]?.pg_try_advisory_lock === true;
   }
@@ -490,7 +500,14 @@ export class Matchmaking {
   ): Promise<void> {
     try {
       await sqlClient.run(
-        sql`SELECT pg_advisory_unlock(${MATCHMAKING_TICK_ADVISORY_LOCK_ID}::bigint)`
+        honey({
+          select: [
+            [
+              'pg_advisory_unlock',
+              ['cast', MATCHMAKING_TICK_ADVISORY_LOCK_ID, 'bigint'],
+            ],
+          ],
+        })
       );
     } catch (err) {
       // Backend might have died mid-tick; Postgres auto-releases the
