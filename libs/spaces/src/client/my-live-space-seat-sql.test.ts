@@ -13,12 +13,15 @@ import { honey, sql, type Sql, ident } from '@pkgs/sql';
 
 import {
   friendsLiveSpaceIdsSql,
-  hostedUnleftSpacesSelectSql,
+  myLiveSeatSpacesSelectSql,
+  publicLiveSpaceIdsSql,
 } from '../client/my-live-space-seat-sql';
 import { buildCurrentSpaceEntries } from '../client/use-current-space-ids';
 
 const HOST_SPACE = 'space-host-1';
 const FRIEND_SPACE = 'space-friend-1';
+const PUBLIC_SPACE = 'space-public-1';
+const PRIVATE_SPACE = 'space-private-1';
 const DEVICE_ID = 'device-aaaaaaaa-0000';
 const ACCOUNT_ID = 'account-bbbbbbbb-1111';
 const FRIEND_ACCOUNT = 'account-friend-cccc-2222';
@@ -107,7 +110,7 @@ async function queryIds(db: SqlClient, query: Sql): Promise<string[]> {
   return rows.map((r) => r.id);
 }
 
-describe('my-live-space-seat-sql — left_at before ended_at', () => {
+describe('my-live-space-seat-sql — active membership seats', () => {
   let db: SqlClientImplBunSqlite;
 
   beforeEach(async () => {
@@ -115,7 +118,7 @@ describe('my-live-space-seat-sql — left_at before ended_at', () => {
     await migrate(db);
   });
 
-  test('left host seat is excluded from friends list and hosted miniplayer set', async () => {
+  test('left host seat is excluded from friends list and miniplayer seats', async () => {
     await seedSpace(db, {
       id: HOST_SPACE,
       hostAccountId: ACCOUNT_ID,
@@ -138,20 +141,18 @@ describe('my-live-space-seat-sql — left_at before ended_at', () => {
     );
     expect(friendsIds).not.toContain(HOST_SPACE);
 
-    const hostedQuery = hostedUnleftSpacesSelectSql(ACCOUNT_ID);
-    const hosted = await db.query<{
+    const seats = await db.query<{
       readonly id: string;
       readonly host_member_id: string | null;
       readonly host_account_id: string | null;
       readonly ended_at: string | null;
-    }>(hostedQuery);
-    expect(hosted.map((r) => r.id)).not.toContain(HOST_SPACE);
-
-    const entries = buildCurrentSpaceEntries([], [], hosted, ACCOUNT_ID);
-    expect(entries.map((e) => e.spaceId)).not.toContain(HOST_SPACE);
+      readonly joined_at: string | null;
+    }>(myLiveSeatSpacesSelectSql(ACCOUNT_ID));
+    expect(seats.map((r) => r.id)).not.toContain(HOST_SPACE);
+    expect(buildCurrentSpaceEntries(seats, ACCOUNT_ID)).toEqual([]);
   });
 
-  test('active host seat is included in friends list and hosted miniplayer set', async () => {
+  test('active host seat is included in friends list and miniplayer seats', async () => {
     await seedSpace(db, {
       id: HOST_SPACE,
       hostAccountId: ACCOUNT_ID,
@@ -174,22 +175,17 @@ describe('my-live-space-seat-sql — left_at before ended_at', () => {
     );
     expect(friendsIds).toContain(HOST_SPACE);
 
-    const hostedQuery = hostedUnleftSpacesSelectSql(ACCOUNT_ID);
-    const hosted = await db.query<{
+    const seats = await db.query<{
       readonly id: string;
       readonly host_member_id: string | null;
       readonly host_account_id: string | null;
       readonly ended_at: string | null;
-    }>(hostedQuery);
-    expect(hosted.map((r) => r.id)).toContain(HOST_SPACE);
-
-    const entries = buildCurrentSpaceEntries(
-      [HOST_SPACE],
-      hosted,
-      hosted,
-      ACCOUNT_ID
-    );
-    expect(entries.map((e) => e.spaceId)).toContain(HOST_SPACE);
+      readonly joined_at: string | null;
+    }>(myLiveSeatSpacesSelectSql(ACCOUNT_ID));
+    expect(seats.map((r) => r.id)).toContain(HOST_SPACE);
+    expect(buildCurrentSpaceEntries(seats, ACCOUNT_ID)).toEqual([
+      { spaceId: HOST_SPACE, role: 'host' },
+    ]);
   });
 
   test('friends-visibility space hosted by someone else still appears', async () => {
@@ -204,7 +200,7 @@ describe('my-live-space-seat-sql — left_at before ended_at', () => {
       id: HOST_SPACE,
       hostAccountId: ACCOUNT_ID,
       visibility: 'friends',
-      endedAt: null,
+      endedAt: '2026-01-02T01:00:00.000Z',
       createdAt: '2026-01-02T00:00:00.000Z',
     });
     await seedMembership(db, {
@@ -222,5 +218,37 @@ describe('my-live-space-seat-sql — left_at before ended_at', () => {
     );
     expect(friendsIds).toContain(FRIEND_SPACE);
     expect(friendsIds).not.toContain(HOST_SPACE);
+  });
+
+  test('public list only includes visibility=public live spaces', async () => {
+    await seedSpace(db, {
+      id: PUBLIC_SPACE,
+      hostAccountId: FRIEND_ACCOUNT,
+      visibility: 'public',
+      endedAt: null,
+      createdAt: '2026-01-04T00:00:00.000Z',
+    });
+    await seedSpace(db, {
+      id: FRIEND_SPACE,
+      hostAccountId: FRIEND_ACCOUNT,
+      visibility: 'friends',
+      endedAt: null,
+      createdAt: '2026-01-03T00:00:00.000Z',
+    });
+    await seedSpace(db, {
+      id: PRIVATE_SPACE,
+      hostAccountId: ACCOUNT_ID,
+      visibility: 'private',
+      endedAt: null,
+      createdAt: '2026-01-02T00:00:00.000Z',
+    });
+    await seedMembership(db, {
+      memberId: ACCOUNT_ID,
+      spaceId: PRIVATE_SPACE,
+      leftAt: null,
+    });
+
+    const publicIds = await queryIds(db, publicLiveSpaceIdsSql());
+    expect(publicIds).toEqual([PUBLIC_SPACE]);
   });
 });

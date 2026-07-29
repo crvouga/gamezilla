@@ -179,7 +179,7 @@ describe('leave / join / create require account membership', () => {
     expect(space.endedAt).not.toBeNull();
   });
 
-  test('host leave with guest remaining keeps space live', async () => {
+  test('host leave with guest remaining ends the space', async () => {
     const now = new Date().toISOString();
     await db.run(
       honey({
@@ -207,6 +207,40 @@ describe('leave / join / create require account membership', () => {
     await executeLeaveSpace(signedIn, { spaceId: SPACE_ID }, db);
     expect((await readMembership(db, ACCOUNT_ID))?.leftAt).not.toBeNull();
     expect((await readMembership(db, GUEST_ACCOUNT_ID))?.leftAt).toBeNull();
+    expect((await readSpaceHost(db)).endedAt).not.toBeNull();
+  });
+
+  test('guest leave with host remaining keeps space live', async () => {
+    const now = new Date().toISOString();
+    await db.run(
+      honey({
+        insertInto: SPACE_MEMBERSHIPS_TABLE.tableName,
+        values: {
+          [SpaceMembershipCol.id]: spaceMembershipEntityId(
+            GUEST_ACCOUNT_ID,
+            SPACE_ID
+          ),
+          [SpaceMembershipCol.memberId]: GUEST_ACCOUNT_ID,
+          [SpaceMembershipCol.spaceId]: SPACE_ID,
+          [SpaceMembershipCol.joinedAt]: now,
+          [SpaceMembershipCol.leftAt]: null,
+          [SpaceMembershipCol.profileId]: GUEST_ACCOUNT_ID,
+        },
+      })
+    );
+    await db.run(
+      honey({
+        update: SPACES_TABLE.tableName,
+        set: { [SpaceCol.activeMemberCount]: 2 },
+      })
+    );
+    const guest = ctx({
+      deviceId: GUEST_DEVICE_ID,
+      accountId: GUEST_ACCOUNT_ID,
+    });
+    await executeLeaveSpace(guest, { spaceId: SPACE_ID }, db);
+    expect((await readMembership(db, GUEST_ACCOUNT_ID))?.leftAt).not.toBeNull();
+    expect((await readMembership(db, ACCOUNT_ID))?.leftAt).toBeNull();
     expect((await readSpaceHost(db)).endedAt).toBeNull();
   });
 

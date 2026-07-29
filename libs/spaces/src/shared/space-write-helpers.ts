@@ -214,8 +214,9 @@ export async function countActiveMembershipsInSpace(
 }
 
 /**
- * When no memberships remain, stamp `ended_at` so orphan Live cards cannot linger
- * without a miniplayer seat (host left earlier, or last guest left).
+ * After a membership leave upload: host leave ends the space (I4); otherwise
+ * stamp `ended_at` when no active memberships remain so orphan Live cards
+ * cannot linger without a miniplayer seat.
  */
 export async function maybeAutoEndEmptyHostSpace(
   ctx: WriteContext,
@@ -224,8 +225,6 @@ export async function maybeAutoEndEmptyHostSpace(
 ): Promise<void> {
   const space = await readSpaceHostEnded(db, spaceId);
   if (!space.ok || space.value.endedAt !== null) return;
-  const remaining = await countActiveMembershipsInSpace(db, spaceId);
-  if (remaining > 0) return;
   const memberIdResult = memberIdFromContext(ctx);
   const memberId = memberIdResult.ok ? memberIdResult.value : ctx.deviceId;
   const hostLeaving = isSpaceHostActor({
@@ -236,6 +235,7 @@ export async function maybeAutoEndEmptyHostSpace(
     accountId: ctx.accountId,
     deviceId: ctx.deviceId,
   });
+  // I4: host leave always ends the space, even when guests remain.
   if (hostLeaving) {
     await db.run(
       honey({
@@ -255,6 +255,8 @@ export async function maybeAutoEndEmptyHostSpace(
     );
     return;
   }
+  const remaining = await countActiveMembershipsInSpace(db, spaceId);
+  if (remaining > 0) return;
   await db.run(
     honey({
       update: SPACES_TABLE.tableName,

@@ -1,6 +1,13 @@
 import { Secret, requireNonEmpty } from './secret';
 
-const BACKEND_VALUES = new Set(['sentry', 'console', 'logger', 'noop', 'none', '']);
+const BACKEND_VALUES = new Set([
+  'sentry',
+  'console',
+  'logger',
+  'noop',
+  'none',
+  '',
+]);
 
 /** Quiet until Sentry is intentionally turned on (`sentry` + DSN). */
 const DEFAULT_BACKEND = 'noop';

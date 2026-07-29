@@ -18,12 +18,14 @@
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
+    "repair:departed-host-spaces": "bun run scripts/repair-departed-host-spaces.ts",
     "tc": "tsc --noEmit",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
     "@libs/db": "workspace:*",
+    "@libs/infra": "workspace:*",
     "@libs/profile": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",

@@ -454,6 +454,7 @@
       "dependencies": {
         "@libs/auth": "workspace:*",
         "@libs/db": "workspace:*",
+        "@libs/infra": "workspace:*",
         "@libs/profile": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",

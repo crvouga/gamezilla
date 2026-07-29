@@ -164,6 +164,7 @@
     "libs/integration-test/e2e/**/*.ts",
     "libs/spaces/src/**/*.ts",
     "libs/spaces/src/**/*.tsx",
+    "libs/spaces/scripts/**/*.ts",
     "pkgs/tts/src/**/*.ts",
     "pkgs/tts/src/**/*.tsx",
     "libs/client-config/src/**/*.ts",

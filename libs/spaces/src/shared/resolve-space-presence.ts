@@ -1,5 +1,3 @@
-import { resolvePresenceRole } from './participation/space-participation-policy';
-
 export type SpacePresence =
   | { readonly status: 'loading' }
   | { readonly status: 'active'; readonly role: 'host' | 'guest' }
@@ -21,7 +19,7 @@ function nonEmptyEqual(a: string, b: string): boolean {
   return a.length > 0 && b.length > 0 && a === b;
 }
 
-/** Live host seat via host_member_id or host_account_id (membership optional). */
+/** Host role from space host fields (seat still requires active membership). */
 export function isViewerSpaceHost(
   spaceRow: SpaceRow | null | undefined,
   myId: string
@@ -49,10 +47,7 @@ export function loadingPresence(args: {
   if (args.spaceLoading && args.spaceRow === null) {
     return { status: 'loading' };
   }
-  // Hosts do not need a membership row — do not block on membership loading.
-  if (isViewerSpaceHost(args.spaceRow, args.myId)) {
-    return null;
-  }
+  // Seat requires active membership for hosts and guests (I2 / I3).
   if (args.memberEnabled && args.guestLoading && args.guestRow === null) {
     return { status: 'loading' };
   }
@@ -77,17 +72,10 @@ export function resolveSpacePresence(args: {
   }
   const loading = loadingPresence(args);
   if (loading !== null) return loading;
-  if (isViewerSpaceHost(args.spaceRow, args.myId)) {
-    return { status: 'active', role: 'host' };
-  }
   if (args.memberEnabled && args.guestRow !== null) {
-    const hostMemberId = args.spaceRow?.host_member_id ?? '';
     return {
       status: 'active',
-      role: resolvePresenceRole({
-        hostMemberId,
-        memberId: args.myId,
-      }),
+      role: isViewerSpaceHost(args.spaceRow, args.myId) ? 'host' : 'guest',
     };
   }
   return { status: 'join', ended: false };

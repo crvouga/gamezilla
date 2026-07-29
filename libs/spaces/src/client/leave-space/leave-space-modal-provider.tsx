@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 
+import { useCurrentSpaceRole } from '../use-current-space-role';
 import { LeaveSpaceConfirmModal } from './leave-space-confirm-modal';
 import { useLeaveSpace } from './use-leave-space';
 
@@ -32,6 +33,7 @@ const Ctx = createContext<LeaveSpaceModals | null>(null);
 /**
  * Owns leave-space confirm modals at app scope so they stay mounted through
  * loading → success even when the space drops out of the user's active list.
+ * Host leave ends the space (I4) — confirm copy matches End when still host.
  */
 export function LeaveSpaceModalProvider({
   children,
@@ -40,19 +42,23 @@ export function LeaveSpaceModalProvider({
 }): ReactNode {
   const [pending, setPending] = useState<PendingLeave | null>(null);
   const leaveSpace = useLeaveSpace();
+  const spaceId = pending?.spaceId ?? '';
+  const role = useCurrentSpaceRole(spaceId);
+  const asHost = role === 'host';
 
   const requestLeaveSpace = useCallback(
-    (spaceId: string, options?: RequestLeaveSpaceOptions) => {
+    (nextSpaceId: string, options?: RequestLeaveSpaceOptions) => {
       const onSuccess = options?.onSuccess;
       setPending(
-        onSuccess === undefined ? { spaceId } : { spaceId, onSuccess }
+        onSuccess === undefined
+          ? { spaceId: nextSpaceId }
+          : { spaceId: nextSpaceId, onSuccess }
       );
     },
     []
   );
 
   const onClose = useCallback(() => setPending(null), []);
-  const spaceId = pending?.spaceId ?? '';
   const operation = useCallback(
     () => leaveSpace(spaceId),
     [leaveSpace, spaceId]
@@ -66,6 +72,7 @@ export function LeaveSpaceModalProvider({
         visible={pending !== null}
         onClose={onClose}
         operation={operation}
+        asHost={asHost}
         {...(pending?.onSuccess !== undefined
           ? { onSuccess: pending.onSuccess }
           : {})}

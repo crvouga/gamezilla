@@ -63,6 +63,7 @@
     "qa:browser": "bun run scripts/secrets-run.ts -- bun run scripts/qa-browser.ts",
     "qa:production-client": "turbo run test:integration --filter=@apps/client",
     "qa:report": "bun run --filter '@libs/integration-test' test:e2e:report",
+    "spaces:repair:departed-host": "bun run scripts/secrets-run.ts -- bun run --filter @libs/spaces repair:departed-host-spaces",
     "stripe:check": "bun run --filter '@libs/stripe' check",
     "stripe:listen": "bun run --filter '@libs/stripe-cli' dev",
     "stripe:sync": "bun run --filter '@libs/stripe' sync",

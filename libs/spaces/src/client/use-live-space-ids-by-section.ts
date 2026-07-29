@@ -2,13 +2,14 @@ import {
   useMyAccountId,
   useMyDeviceId,
 } from '@libs/auth/client/use-current-user';
-import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { honey } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import type { LiveSpaceSection } from './live-space-section';
-import { friendsLiveSpaceIdsSql } from './my-live-space-seat-sql';
+import {
+  friendsLiveSpaceIdsSql,
+  publicLiveSpaceIdsSql,
+} from './my-live-space-seat-sql';
 
 type SpaceIdRow = { readonly id: string };
 
@@ -19,20 +20,13 @@ function usePublicLiveSpaceIds(): {
   readonly isLoading: boolean;
 } {
   const { rows, isLoading } = useWatchQuery<SpaceIdRow>(
-    honey({
-      select: [SpaceCol.id],
-      from: SPACES_TABLE.tableName,
-      where: ['is-null', SpaceCol.endedAt],
-      orderBy: [[SpaceCol.createdAt, 'desc']],
-    })
+    publicLiveSpaceIdsSql()
   );
   return { spaceIds: rows.map((r) => r.id), isLoading };
 }
 
 /**
- * Friends-visible live spaces plus spaces on this account/device, newest-first.
- * Deduped by SQL (single SELECT). Host seats require no left_at — same rule as
- * the miniplayer — so cross-client leave/end cannot leave orphan Live cards.
+ * Friends-visible live spaces plus this account's active seats (I6).
  */
 function useFriendsLiveSpaceIds(): {
   readonly spaceIds: readonly string[];

@@ -1,9 +1,8 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import {
-  SPACE_MEMBERSHIPS_TABLE,
   SpaceCol,
   SpaceMembershipCol,
-  SPACES_TABLE,
+  SPACE_MEMBERSHIPS_TABLE,
 } from '@libs/db/shared/space-tables';
 import { honey, type Sql } from '@pkgs/sql';
 import {
@@ -13,8 +12,9 @@ import {
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import type { SyncEngineStatus } from '@pkgs/sync-engine/client/sync-status';
 import { useMemo, useRef } from 'react';
-import { resolvePresenceRole } from '../shared/participation/space-participation-policy';
-import { hostedUnleftSpacesSelectSql } from './my-live-space-seat-sql';
+
+import { isViewerSpaceHost } from '../shared/resolve-space-presence';
+import { myLiveSeatSpacesSelectSql } from './my-live-space-seat-sql';
 
 function isSyncReconnecting(status: SyncEngineStatus): boolean {
   return (
@@ -27,122 +27,45 @@ export type CurrentSpaceEntry = {
   role: 'host' | 'guest';
 };
 
-type MembershipRow = {
-  readonly space_id: string;
-  readonly joined_at: string | null;
-};
-type SpaceRow = {
+type SeatRow = {
   readonly id: string;
   readonly host_member_id: string | null;
   readonly host_account_id: string | null;
   readonly ended_at: string | null;
+  readonly joined_at: string | null;
 };
 
-function isHostOfSpace(space: SpaceRow, memberId: string): boolean {
-  if (memberId.length === 0) return false;
-  return (
-    space.host_member_id === memberId || space.host_account_id === memberId
-  );
-}
-
-function roleForMemberSpace(
-  space: SpaceRow,
-  memberId: string
-): 'host' | 'guest' {
-  if (isHostOfSpace(space, memberId)) return 'host';
-  return resolvePresenceRole({
-    hostMemberId: space.host_member_id ?? '',
-    memberId,
-  });
-}
-
-function appendMemberEntries(args: {
-  entries: CurrentSpaceEntry[];
-  seen: Set<string>;
-  memberSpaceIds: readonly string[];
-  byId: Map<string, SpaceRow>;
-  memberId: string;
-}): void {
-  for (const spaceId of args.memberSpaceIds) {
-    const space = args.byId.get(spaceId);
-    if (space === undefined || space.ended_at !== null) continue;
-    args.seen.add(spaceId);
-    args.entries.push({
-      spaceId,
-      role: roleForMemberSpace(space, args.memberId),
-    });
-  }
-}
-
-function appendHostedOnlyEntries(args: {
-  entries: CurrentSpaceEntry[];
-  seen: Set<string>;
-  hostedSpaceRows: readonly SpaceRow[];
-  memberId: string;
-}): void {
-  for (const space of args.hostedSpaceRows) {
-    if (space.ended_at !== null || args.seen.has(space.id)) continue;
-    if (!isHostOfSpace(space, args.memberId)) continue;
-    args.entries.push({ spaceId: space.id, role: 'host' });
-  }
-}
-
 /**
- * Merge membership seats with live hosted spaces (host fields match even when
- * the host membership row is missing — sync/orphan gap).
+ * Build miniplayer entries from live active-membership seats (I2 / I7).
  */
 export function buildCurrentSpaceEntries(
-  memberSpaceIds: readonly string[],
-  memberSpaceRows: readonly SpaceRow[],
-  hostedSpaceRows: readonly SpaceRow[],
+  seatRows: readonly SeatRow[],
   memberId: string
 ): CurrentSpaceEntry[] {
-  const byId = new Map<string, SpaceRow>();
-  for (const row of memberSpaceRows) {
-    byId.set(row.id, row);
-  }
-  for (const row of hostedSpaceRows) {
-    byId.set(row.id, row);
-  }
-  const seen = new Set<string>();
   const entries: CurrentSpaceEntry[] = [];
-  appendMemberEntries({
-    entries,
-    seen,
-    memberSpaceIds,
-    byId,
-    memberId,
-  });
-  appendHostedOnlyEntries({
-    entries,
-    seen,
-    hostedSpaceRows,
-    memberId,
-  });
+  const seen = new Set<string>();
+  for (const space of seatRows) {
+    if (space.ended_at !== null || space.id.length === 0) continue;
+    if (seen.has(space.id)) continue;
+    seen.add(space.id);
+    entries.push({
+      spaceId: space.id,
+      role: isViewerSpaceHost(
+        {
+          host_member_id: space.host_member_id,
+          host_account_id: space.host_account_id,
+          ended_at: space.ended_at,
+        },
+        memberId
+      )
+        ? 'host'
+        : 'guest',
+    });
+  }
   return entries;
 }
 
-function membershipSql(enabled: boolean, accountId: string): Sql {
-  if (!enabled) {
-    return honey({
-      select: [SpaceMembershipCol.spaceId, SpaceMembershipCol.joinedAt],
-      from: SPACE_MEMBERSHIPS_TABLE.tableName,
-      where: ['=', 1, 0],
-    });
-  }
-  return honey({
-    select: [SpaceMembershipCol.spaceId, SpaceMembershipCol.joinedAt],
-    from: SPACE_MEMBERSHIPS_TABLE.tableName,
-    where: [
-      'and',
-      ['=', SpaceMembershipCol.memberId, accountId],
-      ['is-null', SpaceMembershipCol.leftAt],
-    ],
-    orderBy: [[SpaceMembershipCol.joinedAt, 'desc']],
-  });
-}
-
-function hostedSpacesSql(enabled: boolean, accountId: string): Sql {
+function seatsSql(enabled: boolean, accountId: string): Sql {
   if (!enabled) {
     return honey({
       select: [
@@ -150,25 +73,13 @@ function hostedSpacesSql(enabled: boolean, accountId: string): Sql {
         SpaceCol.hostMemberId,
         SpaceCol.hostAccountId,
         SpaceCol.endedAt,
+        SpaceMembershipCol.joinedAt,
       ],
-      from: SPACES_TABLE.tableName,
+      from: SPACE_MEMBERSHIPS_TABLE.tableName,
       where: ['=', 1, 0],
     });
   }
-  return hostedUnleftSpacesSelectSql(accountId);
-}
-
-function spacesSql(ids: readonly string[]): Sql {
-  return honey({
-    select: [
-      SpaceCol.id,
-      SpaceCol.hostMemberId,
-      SpaceCol.hostAccountId,
-      SpaceCol.endedAt,
-    ],
-    from: SPACES_TABLE.tableName,
-    where: ['in', SpaceCol.id, ids],
-  });
+  return myLiveSeatSpacesSelectSql(accountId);
 }
 
 function resolveDisplayEntries(
@@ -186,57 +97,20 @@ function useCurrentSpaceWatchQueries(accountId: string | null): {
   queriesLoading: boolean;
 } {
   const enabled = accountId !== null && accountId.length > 0;
-  const memberQuery = useMemo(
-    () => membershipSql(enabled, accountId ?? ''),
+  const query = useMemo(
+    () => seatsSql(enabled, accountId ?? ''),
     [enabled, accountId]
   );
-  const hostedQuery = useMemo(
-    () => hostedSpacesSql(enabled, accountId ?? ''),
-    [enabled, accountId]
-  );
-
-  const { rows: memberRows, isLoading: memberLoading } =
-    useWatchQuery<MembershipRow>(memberQuery);
-  const { rows: hostedRows, isLoading: hostedLoading } =
-    useWatchQuery<SpaceRow>(hostedQuery);
-
-  const memberSpaceIds = useMemo(
-    () => [
-      ...new Set(
-        memberRows.map((r) => r.space_id).filter((id) => id.length > 0)
-      ),
-    ],
-    [memberRows]
-  );
-
-  const spacesQuery = useMemo(
-    () => spacesSql(memberSpaceIds),
-    [memberSpaceIds]
-  );
-  const { rows: memberSpaceRows, isLoading: spacesLoading } =
-    useWatchQuery<SpaceRow>(spacesQuery);
-
+  const { rows, isLoading } = useWatchQuery<SeatRow>(query);
   const entries = useMemo(
-    () =>
-      buildCurrentSpaceEntries(
-        memberSpaceIds,
-        memberSpaceRows,
-        hostedRows,
-        accountId ?? ''
-      ),
-    [memberSpaceIds, memberSpaceRows, hostedRows, accountId]
+    () => buildCurrentSpaceEntries(rows, accountId ?? ''),
+    [rows, accountId]
   );
-
-  return {
-    entries,
-    queriesLoading: memberLoading || spacesLoading || hostedLoading,
-  };
+  return { entries, queriesLoading: isLoading };
 }
 
 /**
- * This account's live spaces — active memberships plus live spaces this
- * account hosts (host_member_id / host_account_id), so orphaned host seats
- * still surface in the miniplayer.
+ * This account's live spaces — active memberships on live spaces only (I2 / I7).
  */
 export function useCurrentSpaceIds(): {
   entries: CurrentSpaceEntry[];

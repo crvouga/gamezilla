@@ -1,25 +1,20 @@
-import {
-  SPACE_MEMBERSHIPS_TABLE,
-  SpaceCol,
-  SpaceMembershipCol,
-  SPACES_TABLE,
-} from '@libs/db/shared/space-tables';
-import {
-  resolveSpaceMemberId,
-  spaceMembershipEntityId,
-} from '@libs/spaces/shared/participation/participation-ids';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { honey } from '@pkgs/sql';
-import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
-import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
+import { fail, ok } from '@pkgs/write/shared/write-result';
 
+import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
+import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
+import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
+import {
+  executeEndSpace,
+  softLeaveMembership,
+} from '../end-space/execute-end-space';
 import {
   asObjectRecord,
-  isoNow,
   maybeAutoEndEmptyHostSpace,
   readMembershipForLeave,
+  readSpaceHostEnded,
   requireAccountId,
   requireNonEmptyString,
 } from '../space-write-helpers';
@@ -40,6 +35,7 @@ function parseLeaveSpaceInput(
 
 /**
  * Soft-leave this account's membership in the space.
+ * Host leave ends the space (I4).
  */
 export async function authorizeLeaveSpace(
   ctx: WriteContext,
@@ -62,28 +58,24 @@ export async function authorizeLeaveSpace(
   return ok(undefined);
 }
 
-async function decrementActiveMemberCount(
+async function actorIsSpaceHost(
+  ctx: WriteContext,
   db: SqlClient,
   spaceId: string
-): Promise<void> {
-  await db.run(
-    honey({
-      update: SPACES_TABLE.tableName,
-      set: {
-        [SpaceCol.activeMemberCount]: [
-          'case',
-          [
-            [
-              ['>', SpaceCol.activeMemberCount, 0],
-              ['-', SpaceCol.activeMemberCount, 1],
-            ],
-          ],
-          0,
-        ],
-      },
-      where: ['=', SpaceCol.id, spaceId],
-    })
-  );
+): Promise<boolean> {
+  const space = await readSpaceHostEnded(db, spaceId);
+  if (!space.ok || space.value.endedAt !== null) return false;
+  const accountId = requireAccountId(ctx);
+  if (!accountId.ok) return false;
+  const memberId = resolveSpaceMemberId(accountId.value);
+  return isSpaceHostActor({
+    hostId: space.value.hostId,
+    hostMemberId: space.value.hostMemberId,
+    hostAccountId: space.value.hostAccountId,
+    memberId,
+    accountId: accountId.value,
+    deviceId: ctx.deviceId,
+  });
 }
 
 export async function executeLeaveSpace(
@@ -98,21 +90,12 @@ export async function executeLeaveSpace(
   if (row === null || row.leftAt !== null) {
     return ok(undefined);
   }
+  if (await actorIsSpaceHost(ctx, db, input.spaceId)) {
+    return executeEndSpace(ctx, input, db);
+  }
   clearSpacePresenceLatch(input.spaceId);
-  const now = isoNow();
-  const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
-  await db.run(
-    honey({
-      update: SPACE_MEMBERSHIPS_TABLE.tableName,
-      set: { [SpaceMembershipCol.leftAt]: now },
-      where: [
-        'and',
-        ['=', SpaceMembershipCol.id, membershipId],
-        ['is-null', SpaceMembershipCol.leftAt],
-      ],
-    })
-  );
-  await decrementActiveMemberCount(db, input.spaceId);
+  const left = await softLeaveMembership(ctx, db, input.spaceId);
+  if (!left.ok) return left;
   await maybeAutoEndEmptyHostSpace(ctx, db, input.spaceId);
   return ok(undefined);
 }

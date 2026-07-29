@@ -84,8 +84,8 @@ function spaceIdFromMembershipUpload(row: UploadRow): string | null {
 
 /**
  * Authorize + apply each row. Membership leaves also run
- * {@link maybeAutoEndEmptyHostSpace} — raw CRUD patches only set `left_at`,
- * which otherwise left host spaces live forever and inflated miniplayer counts.
+ * {@link maybeAutoEndEmptyHostSpace} — host leave ends the space (I4);
+ * guest leave ends when no active memberships remain.
  */
 async function processSyncUploadBatch(
   db: SqlClient,
