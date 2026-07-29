@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 
 import { raw } from '@pkgs/sql';
-import { openPgClient } from '@pkgs/sql-client/postgres/connect';
+import { openPgClient, pingPostgres } from '@pkgs/sql-client/postgres/connect';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 
 const MIN_PUZZLES = 50;
@@ -10,6 +10,7 @@ const SEED_LIMIT = 500;
 async function countChessPuzzles(): Promise<number> {
   const databaseUrl = process.env['DATABASE_URL']?.trim() ?? '';
   const schema = process.env['POSTGRES_SCHEMA']?.trim() || 'public';
+  await pingPostgres(databaseUrl);
   const { client, sqlClient } = await openPgClient({
     connectionString: databaseUrl,
     dbScope: createPostgresDbScope(schema),

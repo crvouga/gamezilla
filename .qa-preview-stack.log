@@ -1,0 +1,340 @@
+• turbo 2.10.7
+
+   • Packages in scope: @apps/api, @apps/client
+   • Running preview in 2 packages
+   • Remote caching enabled
+
+@apps/api:kill: cache bypass, force executing 5e20fb2abfe9d6ad
+@apps/client:kill: cache bypass, force executing 960ff9835b3ff4d5
+@apps/client:setup: cache bypass, force executing cecf973d023ccc40
+@apps/api:setup: cache bypass, force executing d10b00173da0662d
+@apps/api:kill: $ bun run scripts/kill-dev.ts
+@apps/api:setup: $ bun run scripts/setup-dev-vars.ts
+@apps/client:kill: $ bun run scripts/kill-dev.ts
+@apps/client:setup: $ bun run scripts/setup-env.ts
+@apps/client:setup: [setup-env] EXPO_PUBLIC_API_URL from process env (e.g. secrets-run).
+@apps/client:setup: [setup-env] LOCAL_PREVIEW_API_ORIGIN missing in env and secrets; using default http://localhost:8788 (wrangler dev in apps/api).
+@apps/client:setup: [setup-env] process env EXPO_PUBLIC_API_URL=https://api.gamezilla.app resolves to a production hostname; using loopback preview origin (http://localhost:8788). Set EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL=1 to opt in to production.
+@apps/api:build: cache miss, executing 7ba4379c9ca81bde
+@apps/api:build: $ bun -e "process.exit(0)"
+@apps/client:setup: [setup-env] EXPO_PUBLIC_SENTRY_DSN from process env (e.g. secrets-run).
+@apps/client:setup: [setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY from process env (e.g. secrets-run).
+@apps/client:setup: [setup-env] EXPO_PUBLIC_PS_URL from process env (e.g. secrets-run).
+@apps/client:setup: [setup-env] wrote .env.local with EXPO_PUBLIC_API_URL=http://localhost:8788 EXPO_PUBLIC_COMMIT_HASH=1ba068e… EXPO_PUBLIC_COMMIT_DATE=2026-06-17T02:28:54-07:00 EXPO_USE_WATCHMAN=1
+@apps/client:build: cache miss, executing 66d914bd54ded3ee
+@apps/client:build: $ bun run bundle:skia-canvaskit-wasm && bun run bundle:powersync-web-assets && cd ../.. && bun run i18n:compile
+@apps/client:build: $ bun run scripts/bundle-skia-canvaskit-wasm.ts
+@apps/client:build: Up-to-date: /Users/chrisvouga/gamezilla/apps/client/public/generated/skia/canvaskit.wasm
+@apps/client:build: $ bun run scripts/bundle-powersync-web-assets.ts
+@apps/client:build: Resolved input path: /Users/chrisvouga/gamezilla/node_modules/.bun/@powersync+web@1.38.7+7351ab3d41f7578d/node_modules/@powersync/web/dist/index.umd.js
+@apps/client:build: Target directory: public/generated/powersync
+@apps/client:build: Assets copied from /Users/chrisvouga/gamezilla/node_modules/.bun/@powersync+web@1.38.7+7351ab3d41f7578d/node_modules/@powersync/web/dist to /Users/chrisvouga/gamezilla/apps/client/public/generated/powersync/@powersync
+@apps/client:build: [bundle-powersync-web-assets] copied PowerSync web assets to /Users/chrisvouga/gamezilla/apps/client/public/generated/powersync/@powersync
+@apps/client:build: $ lingui compile --typescript && bun run scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts
+@apps/client:build: Compiling message catalogs…
+@apps/client:build: Done in 370ms
+@apps/client:build: $ expo customize tsconfig.json && expo export -p web && bun run scripts/build-sw.ts
+@apps/client:build: env: load .env.local
+@apps/client:build: env: export EXPO_PUBLIC_COMMIT_DATE EXPO_PUBLIC_COMMIT_HASH EXPO_USE_WATCHMAN
+@apps/client:build: Using src/app as the root directory for Expo Router.
+@apps/client:build: Generating: tsconfig.json
+@apps/client:build: env: load .env.local
+@apps/client:build: env: export EXPO_PUBLIC_COMMIT_DATE EXPO_PUBLIC_COMMIT_HASH EXPO_USE_WATCHMAN
+@apps/client:build: Using src/app as the root directory for Expo Router.
+@apps/client:build: React Compiler enabled
+@apps/client:build: Expo Autolinking module resolution enabled
+@apps/client:build: Starting Metro Bundler
+@apps/client:build: 
+@apps/client:build: Web apps/client/index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+@apps/client:build: Web Bundled 1838ms apps/client/index.js (5926 modules)
+@apps/client:build: 
+@apps/client:build: › Assets (192):
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/200ExtraLight_Italic/Nunito_200ExtraLight_Italic.0f44842abdc321a4e8ef5f2d6eba013d.ttf (135KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/200ExtraLight/Nunito_200ExtraLight.e3195ab4d111cebd50de96951ef3bbb5.ttf (132KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/300Light_Italic/Nunito_300Light_Italic.48b8e1e1d609d04a229cb167ba18ea4d.ttf (136KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/300Light/Nunito_300Light.cc4216a006ff27ad663b12c8d74708ef.ttf (132KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/400Regular_Italic/Nunito_400Regular_Italic.0967d8e924905d0a4a70f38830288891.ttf (136KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/400Regular/Nunito_400Regular.f04f0e9ff969fd52a75deade3a9761cd.ttf (132KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/500Medium_Italic/Nunito_500Medium_Italic.cabcea7d7b9c755ec132e2fe3efe4138.ttf (136KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/500Medium/Nunito_500Medium.04058d9f3583d30ece037e060c5b9721.ttf (132KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/600SemiBold_Italic/Nunito_600SemiBold_Italic.d3964a4faac6f9f959c6495f7e8bb1cc.ttf (135KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/600SemiBold/Nunito_600SemiBold.b1364260246b29fd9393a1a071f3af61.ttf (132KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/700Bold_Italic/Nunito_700Bold_Italic.c9d7af177a1a205c866662164104d9f0.ttf (135KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/700Bold/Nunito_700Bold.c133c0b8cd169e7798d0cd239477cf32.ttf (132KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/800ExtraBold_Italic/Nunito_800ExtraBold_Italic.eb8fe8521b6a7c128572d90528b415d6.ttf (135KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/800ExtraBold/Nunito_800ExtraBold.2b1bb82750274fc2d1043bf3891cb531.ttf (132KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/900Black_Italic/Nunito_900Black_Italic.2c030d352cb022edf2f941cadc8367f7.ttf (135KB)
+@apps/client:build: ../../node_modules/.bun/@expo-google-fonts+nunito@0.4.2/node_modules/@expo-google-fonts/nunito/900Black/Nunito_900Black.3ffae19d12dc67269f5cdd8d7a0aaeaf.ttf (132KB)
+@apps/client:build: ../../node_modules/.bun/@react-navigation+elements@2.9.15+df591653a8d02139/node_modules/@react-navigation/elements/lib/module/assets/back-icon-mask.0a328cd9c1afd0afe8e3b1ec5165b1b4.png (653B)
+@apps/client:build: ../../node_modules/.bun/@react-navigation+elements@2.9.15+df591653a8d02139/node_modules/@react-navigation/elements/lib/module/assets/back-icon.35ba0eaec5a4f5ed12ca16fabeae451d.png (207B)
+@apps/client:build: ../../node_modules/.bun/@react-navigation+elements@2.9.15+df591653a8d02139/node_modules/@react-navigation/elements/lib/module/assets/clear-icon.c94f6478e7ae0cdd9f15de1fcb9e5e55.png (4 variations | 425B)
+@apps/client:build: ../../node_modules/.bun/@react-navigation+elements@2.9.15+df591653a8d02139/node_modules/@react-navigation/elements/lib/module/assets/close-icon.808e1b1b9b53114ec2838071a7e6daa7.png (4 variations | 235B)
+@apps/client:build: ../../node_modules/.bun/@react-navigation+elements@2.9.15+df591653a8d02139/node_modules/@react-navigation/elements/lib/module/assets/search-icon.286d67d3f74808a60a78d3ebf1a5fb57.png (928B)
+@apps/client:build: ../../node_modules/.bun/expo-router@55.0.16+e149f036d918e0ef/node_modules/expo-router/assets/arrow_down.017bc6ba3fc25503e5eb5e53826d48a8.png (9.5KB)
+@apps/client:build: ../../node_modules/.bun/expo-router@55.0.16+e149f036d918e0ef/node_modules/expo-router/assets/error.d1ea1496f9057eb392d5bbf3732a61b7.png (469B)
+@apps/client:build: ../../node_modules/.bun/expo-router@55.0.16+e149f036d918e0ef/node_modules/expo-router/assets/file.19eeb73b9593a38f8e9f418337fc7d10.png (138B)
+@apps/client:build: ../../node_modules/.bun/expo-router@55.0.16+e149f036d918e0ef/node_modules/expo-router/assets/forward.d8b800c443b8972542883e0b9de2bdc6.png (188B)
+@apps/client:build: ../../node_modules/.bun/expo-router@55.0.16+e149f036d918e0ef/node_modules/expo-router/assets/pkg.ab19f4cbc543357183a20571f68380a3.png (364B)
+@apps/client:build: ../../node_modules/.bun/expo-router@55.0.16+e149f036d918e0ef/node_modules/expo-router/assets/sitemap.412dd9275b6b48ad28f5e3d81bb1f626.png (465B)
+@apps/client:build: ../../node_modules/.bun/expo-router@55.0.16+e149f036d918e0ef/node_modules/expo-router/assets/unmatched.20e71bdf79e3a97bf55fd9e164041578.png (4.8KB)
+@apps/client:build: ../../node_modules/.bun/expo-sqlite@55.0.17+acb8dd9c7f53f042/node_modules/expo-sqlite/web/wa-sqlite/wa-sqlite.7ca566fbbc2ec2a172c5aefa63a20f4b.wasm (621KB)
+@apps/client:build: ../../pkgs/sounds/assets/chat/mention.082bc6e8b05490dee8e4d1801118a266.mp3 (2KB)
+@apps/client:build: ../../pkgs/sounds/assets/chat/message-deleted.550bccfb6ca1a664db5a584e4a0a9116.mp3 (3.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/chat/reaction.6eed844255667475fb17112983f94deb.mp3 (2.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/chat/receive.26e50f25fca800f291d422867c96c00d.mp3 (2.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/chat/send.76a34e623b82d2b54a6313beb1ca3ed6.mp3 (1.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/chat/thread-reply.e03be04a373c085543dd90c2bb748c2d.mp3 (10KB)
+@apps/client:build: ../../pkgs/sounds/assets/chat/unread.4737342f82322ee54e9290a7a3cfbd6e.mp3 (2.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/commerce/coins.0b8cfc07e0cfcf36226d9ad3ca2bbf8f.mp3 (8KB)
+@apps/client:build: ../../pkgs/sounds/assets/commerce/gems.43aa2737070d21d4e12dc976c1f2776b.mp3 (7.1KB)
+@apps/client:build: ../../pkgs/sounds/assets/commerce/inventory-add.34f072d89040356ffdbef532cff03b9a.mp3 (4.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/commerce/inventory-remove.8f9116f29abb4da4b9179ea6d1567505.mp3 (5KB)
+@apps/client:build: ../../pkgs/sounds/assets/commerce/purchase.5c66be0af162c4b4167f49531ff877af.mp3 (8.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/commerce/refund.dac8c18de4a661358b56708ac1625a53.mp3 (2.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/commerce/unlock.16a46952132d8114b46f91190656e6e8.mp3 (4.8KB)
+@apps/client:build: ../../pkgs/sounds/assets/feedback/cancel.b301cafcfc4cd42764eff3f641c3bb1d.mp3 (2.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/feedback/confirmation.9725af26b64233bfa1241ef945c1f195.mp3 (4.7KB)
+@apps/client:build: ../../pkgs/sounds/assets/feedback/error.9d006470bed193f3dc0ffee11d398525.mp3 (7.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/feedback/failure-subtle.660c2186138f696d7db3f9a27bf3a17b.mp3 (3.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/feedback/failure.77bd911207ce4bf253f3ef2c831d2acf.mp3 (2.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/feedback/info.a2ae41cfde640b21a01eec36f45c5f8c.mp3 (1.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/feedback/retry.9e96d3c34073fa07ccec8e8d81db7e81.mp3 (1.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/feedback/success-subtle.d73d3218049ee59ea9f6d2d00464c67a.mp3 (4.1KB)
+@apps/client:build: ../../pkgs/sounds/assets/feedback/success.caa8a9edb5864cfde875453c4d9a42e9.mp3 (5.7KB)
+@apps/client:build: ../../pkgs/sounds/assets/feedback/undo.20505e3149af55722c096af3250c91af.mp3 (3.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/feedback/warning.9db287eba2361c2c7373629c685fd728.mp3 (3.8KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/checkbox-off.472539c56b33495c7404b0f75a9cb657.mp3 (2.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/checkbox-on.89db2568056975081386d5a99494e400.mp3 (2.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/picker-open.5cc391a05a5d8cb4e9825214aae70ac9.mp3 (5.8KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/picker-select.7c70ad5a4cec364b434487eda32282bc.mp3 (17KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/radio-select.c0d1498225e8b0aac4ae49b12b83f6d0.mp3 (1.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/slider-commit.6b24078576efa99906b7dbb6e1916a16.mp3 (2.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/slider-tick.9b82d3ece56ac6957b08bb7f2b28bb3c.mp3 (1.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/stepper-down.1eb16e34b410bf71f1052ebdc4873788.mp3 (7KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/stepper-up.3aad3b5ab1f2bdc81534d0f2aa4db264.mp3 (6.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/text-field-focus.a2ae41cfde640b21a01eec36f45c5f8c.mp3 (1.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/toggle-off.49ea20c39568e544eee0361bdc7fb9a9.mp3 (4KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/toggle-on.bdf5721e6b94da08fd034a67ca7fb2bb.mp3 (3.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/validation-error.660c2186138f696d7db3f9a27bf3a17b.mp3 (3.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/forms/validation-success.d73d3218049ee59ea9f6d2d00464c67a.mp3 (4.1KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/capture.f708e16914be6ddbb84b2d1899ecf196.mp3 (6.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/checkpoint.d24d7a9d506b7244b1f7103613abe29d.mp3 (13KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/chess/capture-2.7b71491d8250a0b36b9525edd147fdea.mp3 (2.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/chess/castling-2.8d19b92a939acd068ebe8c67b5993f2f.mp3 (3.1KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/chess/check-2.0714c7a915c6c9d5dbf94b7d080cba20.mp3 (2.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/chess/game-over-checkmate.53e46c4413f34d566f1854d63fb53bda.mp3 (4.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/chess/game-over-stalemate.78f57390b1c77f3c72b3d1fff656bd7b.mp3 (4.7KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/chess/game-over.fddfedd870cb1d2182493f0087ab5a07.mp3 (4.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/chess/move-1.08d8a6793a5b4f1ef7f24d2f51f4e50d.mp3 (3.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/chess/move-2.1a4cf151d16c2c549db9ea6b4c32a476.mp3 (3.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/chess/navigation_forward-selection-minimal.1c901e797360e4c5dc581110e1d5c85e.mp3 (2.1KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/chess/navigation-cancel.fe4863b068923b2d9a234c205b66e4e1.mp3 (3KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/chess/ui_unlock.ff38b50cbc9f72fa55d1549ed02754d9.mp3 (3.1KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/combo-break.92bdd3bb88fd86cc61c2dc62b5c84ec6.mp3 (1.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/combo.3aad3b5ab1f2bdc81534d0f2aa4db264.mp3 (6.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/defeat.9a1197ad8aef8129de99b96c18400f37.mp3 (5.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/deselect.b301cafcfc4cd42764eff3f641c3bb1d.mp3 (2.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/draw.942428d79f590c33cde47b7b07ba6895.mp3 (5.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/invalid-move.87c5e665583c5c4dfc3645e0cdd40886.mp3 (7.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/move.2b5e6cec7c69fd45fc2667c652164878.mp3 (1.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/place.898aa59fa62ffb86853f103a8a2e4a9f.mp3 (2.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/score-decrease.1eb16e34b410bf71f1052ebdc4873788.mp3 (7KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/score-increase.e48502f6e6719d805ff47a246f2d32e0.mp3 (6.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/select.7a2b417001567953d1f48060b8f88efe.mp3 (2.1KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/timer-expired.9d006470bed193f3dc0ffee11d398525.mp3 (7.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/timer-warning.4737342f82322ee54e9290a7a3cfbd6e.mp3 (2.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/turn-end.ba9bea4be132a1456805b9937b4ad65f.mp3 (2.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/turn-start.a941b2722a896c1cea64565d79499817.mp3 (1.7KB)
+@apps/client:build: ../../pkgs/sounds/assets/gameplay/victory.854245735cfede997a13e514456ef3f8.mp3 (8.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/lobby/countdown-start.7ceb365c09499176cf42fbf01fb249af.mp3 (1.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/lobby/host-changed.1a31141120256c2f257bb8ca70d56c30.mp3 (4.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/lobby/invite-accepted.47cb2a6b4ccebe11c7866bbaa770392a.mp3 (4.7KB)
+@apps/client:build: ../../pkgs/sounds/assets/lobby/ready.450d3c9e63627d823fac6da00b2985aa.mp3 (2.8KB)
+@apps/client:build: ../../pkgs/sounds/assets/lobby/settings-changed.d10938c05e94d83a3222ffa9121b4ee7.mp3 (4.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/lobby/slot-emptied.e1bbc4a12b6faaf2da6975e314585ba7.mp3 (3.8KB)
+@apps/client:build: ../../pkgs/sounds/assets/lobby/slot-filled.e9d94ebc10600bbd27cb00343a7ebd29.mp3 (2.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/lobby/team-switched.c637619b597880f541c239e21d9b86d2.mp3 (3.8KB)
+@apps/client:build: ../../pkgs/sounds/assets/lobby/unready.c6a998b8845ad4daa29b7282d40e987f.mp3 (2.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/archive.d987ac6e59f38d431e3b9fb65accf80c.mp3 (3.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/bookmark.f75ec7bbb58a272682c434a854692201.mp3 (3.1KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/delete.20505e3149af55722c096af3250c91af.mp3 (3.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/download-complete.e9d94ebc10600bbd27cb00343a7ebd29.mp3 (2.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/favorite.6eed844255667475fb17112983f94deb.mp3 (2.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/loading-complete.caa8a9edb5864cfde875453c4d9a42e9.mp3 (5.7KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/pin.2c73b9ea46338e2d19bca46ee8555622.mp3 (2.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/refresh.14e5ef2ca9e519f5a231e129731b90d6.mp3 (12KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/search-clear.0eed4f9cf90443540e2aeb50589cf57a.mp3 (6.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/search.d76f8358fd5e48c96790fdeea2a4e632.mp3 (15KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/share.94ea23f78a71548016363256b6ff0eb3.mp3 (4.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/sync-completed.9d77e28349c4e59ee6babf18a3e2b318.mp3 (6.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/sync-failed.9d006470bed193f3dc0ffee11d398525.mp3 (7.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/sync-started.23423a916abcae70865b0f0b1a6ffc95.mp3 (5.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/unfavorite.7bc0fa9ac0e2fee80833bd828230b7bb.mp3 (6.7KB)
+@apps/client:build: ../../pkgs/sounds/assets/misc/upload-complete.9725af26b64233bfa1241ef945c1f195.mp3 (4.7KB)
+@apps/client:build: ../../pkgs/sounds/assets/multiplayer/connection-restored.8f48ec7c57dbd065978f30ea34d9dfb4.mp3 (14KB)
+@apps/client:build: ../../pkgs/sounds/assets/multiplayer/countdown-final.7ceb365c09499176cf42fbf01fb249af.mp3 (1.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/multiplayer/countdown-tick.9b82d3ece56ac6957b08bb7f2b28bb3c.mp3 (1.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/multiplayer/disconnected.822757017bc07db8edc3b65fffe21c56.mp3 (3.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/multiplayer/game-ended.a7a384f4b29d5c2a37687b2cff75747a.mp3 (9.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/multiplayer/game-starting.eae37039e258fcd79e72610f6804b4c1.mp3 (11KB)
+@apps/client:build: ../../pkgs/sounds/assets/multiplayer/host-changed.1ed6643afd79ff2c4abdf53125adda89.mp3 (4.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/multiplayer/matchmaking-cancelled.ebeb98b1ed914727adf3bd3232a9ce6b.mp3 (2.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/multiplayer/matchmaking-failed.5a33f667cbedc6a7a31afedb0a3866c9.mp3 (3.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/multiplayer/matchmaking-found.5395aa4a7ca198354339fef1665cb561.mp3 (11KB)
+@apps/client:build: ../../pkgs/sounds/assets/multiplayer/reconnecting.5947c20fa80007bb8cae0a1486737a14.mp3 (1.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/multiplayer/spectator-joined.f5fd6ee751d9758d33b7a212f33d284b.mp3 (4.8KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/accordion-collapse.01dbd5c72f7bda9ae99eeacce65eecc9.mp3 (5.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/accordion-expand.df96d2b51d97b834b5e61c5ffa211414.mp3 (6.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/back.ba9bea4be132a1456805b9937b4ad65f.mp3 (2.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/click-destructive.ced942538804ddf9069d3a73e6fab190.mp3 (1.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/click-primary.13520f550ff64a9304d3e2c2102f768d.mp3 (1.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/click-secondary.5a4523570dc20b9acf10a117b301a506.mp3 (2.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/click.b79d327476584b101ec00e86aa2e06a6.mp3 (1.7KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/drawer-close.30ce22678555f29fe1cfda06cec5d364.mp3 (3KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/drawer-open.b7bf6d047daf2b03b871c73d29c6a934.mp3 (3.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/dropdown-open.3f6f8a214d5d501f3b5a1f81ac336ab8.mp3 (2.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/dropdown-select.fd2a7b047f2e5e2d622fe53aea39dd7c.mp3 (5KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/focus.9b82d3ece56ac6957b08bb7f2b28bb3c.mp3 (1.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/forward.66b56f61d463f2afaf49183a90af330b.mp3 (1.7KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/hover.af8122fba972d9d43f052ec7c633102e.mp3 (1.8KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/modal-close.4ea5a3e52c08ad597322995a435fed34.mp3 (5.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/modal-open.18acc8b6f0641a190683689b5abf56d1.mp3 (5.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/page-back.ebeb98b1ed914727adf3bd3232a9ce6b.mp3 (2.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/page-forward.c0d1498225e8b0aac4ae49b12b83f6d0.mp3 (1.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/release.a7fdcf44c8dc3e7bbf4c8561b1450bc7.mp3 (2.5KB)
+@apps/client:build: ../../pkgs/sounds/assets/navigation/tab-switch.4c77e5c4fbc44e304514e11b44bc4270.mp3 (4.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/notifications/achievement.47a151b728e749e07281a6cac2f4583f.mp3 (5.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/notifications/badge-unlocked.6b972bf0df9ce3ffe7b5c8cdec422c2a.mp3 (6.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/notifications/level-up.abe4801ef7061216c039331175f71f82.mp3 (10KB)
+@apps/client:build: ../../pkgs/sounds/assets/notifications/mention.082bc6e8b05490dee8e4d1801118a266.mp3 (2KB)
+@apps/client:build: ../../pkgs/sounds/assets/notifications/milestone.0f2500a8751eb49270ea4e751426098b.mp3 (8.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/notifications/notification-urgent.93d343368aee150e626deccf579dae13.mp3 (63KB)
+@apps/client:build: ../../pkgs/sounds/assets/notifications/notification.7ceb365c09499176cf42fbf01fb249af.mp3 (1.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/notifications/reminder.4737342f82322ee54e9290a7a3cfbd6e.mp3 (2.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/notifications/reward.e95f11751c10d13fbee8830874df3b4f.mp3 (5.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/notifications/streak.b2dfbdb4651b23fede27a3505245f537.mp3 (5.8KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/direct-message.6b24078576efa99906b7dbb6e1916a16.mp3 (2.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/friend-offline.1eb16e34b410bf71f1052ebdc4873788.mp3 (7KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/friend-online.32bbd7bcce821db3449c52fabf203170.mp3 (14KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/friend-request-accepted.cb945ea32c0ecf30df3528b269197b01.mp3 (11KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/friend-request-declined.87c5e665583c5c4dfc3645e0cdd40886.mp3 (7.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/friend-request-received.2e5d3df722a9eb09c40632111cc35918.mp3 (3.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/party-invite.81c2bcb97b35edf322ac7444937dd738.mp3 (3.8KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/player-joined.94ea23f78a71548016363256b6ff0eb3.mp3 (4.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/player-left.dac8c18de4a661358b56708ac1625a53.mp3 (2.3KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/room-invite.7ceb365c09499176cf42fbf01fb249af.mp3 (1.6KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/room-joined.ada13dedf37c5fb1b45e1875c86c3f7e.mp3 (5.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/room-left.1eb16e34b410bf71f1052ebdc4873788.mp3 (7KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/typing-tick.9b82d3ece56ac6957b08bb7f2b28bb3c.mp3 (1.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/social/user-blocked.8aa2c0c3837b69ef63224ea42de459b3.mp3 (6.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/voice/mic-enabled.32bbd7bcce821db3449c52fabf203170.mp3 (14KB)
+@apps/client:build: ../../pkgs/sounds/assets/voice/mic-muted.1eb16e34b410bf71f1052ebdc4873788.mp3 (7KB)
+@apps/client:build: ../../pkgs/sounds/assets/voice/push-to-talk-off.c6a998b8845ad4daa29b7282d40e987f.mp3 (2.9KB)
+@apps/client:build: ../../pkgs/sounds/assets/voice/push-to-talk-on.450d3c9e63627d823fac6da00b2985aa.mp3 (2.8KB)
+@apps/client:build: ../../pkgs/sounds/assets/voice/speaker-enabled.ada13dedf37c5fb1b45e1875c86c3f7e.mp3 (5.2KB)
+@apps/client:build: ../../pkgs/sounds/assets/voice/speaker-muted.2dfbc571ccc56590aa1f4bf0cb4e7716.mp3 (5.4KB)
+@apps/client:build: ../../pkgs/sounds/assets/voice/voice-connected.8f48ec7c57dbd065978f30ea34d9dfb4.mp3 (14KB)
+@apps/client:build: ../../pkgs/sounds/assets/voice/voice-disconnected.822757017bc07db8edc3b65fffe21c56.mp3 (3.3KB)
+@apps/client:build: 
+@apps/client:build: › web bundles (5):
+@apps/client:build: _expo/static/js/web/chess-board-canvas-b24ffeba1fb34cdc79002a42baed0e40.js (600KB)
+@apps/client:build: _expo/static/js/web/index-2230a729bb469d9daf19658c7ebbdf35.js (470KB)
+@apps/client:build: _expo/static/js/web/index-d2988fd12534f2d0b8b963170d8c78ff.js (11MB)
+@apps/client:build: _expo/static/js/web/LoadSkiaWeb-cdc2df68fdf28b5cdd4dfc205e58c7c5.js (131KB)
+@apps/client:build: _expo/static/js/web/worker-4a90d53838b16d00a6ac40c112bfc174.js (131KB)
+@apps/client:build: 
+@apps/client:build: › Files (3):
+@apps/client:build: favicon.ico (15KB)
+@apps/client:build: index.html (12KB)
+@apps/client:build: metadata.json (49B)
+@apps/client:build: 
+@apps/client:build: Exported: dist
+@apps/api:setup: [setup-dev-vars] wrote .dev.vars with keys: SECRETS_ENV, API_URL, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, DATABASE_URL, AUTH_PUBLISHABLE_KEY, AUTH_SECRET_KEY, EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY, CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PUBLISHABLE_KEY, TURBO_TOKEN, TURBO_TEAM, TURBO_CACHE, TURBO_LOG_ORDER, TURBO_TELEMETRY_DISABLED, EXPO_TOKEN, B2_MASTER_KEY_ID, B2_MASTER_KEY, B2_APP_KEY_ID, B2_APP_KEY, S3_BUCKET, S3_ENDPOINT, S3_REGION, PS_INSTANCE_ID, PS_PROJECT_ID, PS_URL, PS_ADMIN_TOKEN, PS_JWT_PUBLIC_JWK, PS_JWT_PRIVATE_KEY, EXPO_PUBLIC_PS_URL, ELEVEN_LABS_API_KEY, OPENAI_API_KEY, OPENAI_BASE_URL, EXPO_PUBLIC_API_URL, OBSERVABILITY_BACKEND, SENTRY_DSN, EXPO_PUBLIC_OBSERVABILITY_BACKEND, EXPO_PUBLIC_SENTRY_DSN
+@apps/api:migrate: cache bypass, force executing 581e615ab723bab5
+@apps/api:migrate: $ bun run scripts/migrate-db.ts
+@apps/client:build: workbox: precached 70 entries, 46890905 bytes
+@apps/client:preview: cache bypass, force executing 13e17a6113197f2c
+@apps/client:preview: $ bun run scripts/preview-server.ts
+@apps/client:preview: [preview-server] static web=http://localhost:5173
+@apps/api:migrate: {"level":"info","time":"2026-07-29T01:02:39.779Z","name":"api:migrate","msg":"schema.sql applied","statements":95}
+@apps/api:migrate: {"level":"info","time":"2026-07-29T01:02:39.940Z","name":"api:migrate","msg":"powersync source-db setup applied","schema":"public"}
+@apps/api:migrate: {"level":"info","time":"2026-07-29T01:02:39.940Z","name":"api:migrate","msg":"kv postgres migrate: start","migration":"kv-postgres"}
+@apps/api:migrate: {"level":"info","time":"2026-07-29T01:02:40.020Z","name":"api:migrate","msg":"kv postgres migrate: table exists (skipping create)","migration":"kv-postgres","table":"kv"}
+@apps/api:migrate: {"level":"info","time":"2026-07-29T01:02:40.101Z","name":"api:migrate","msg":"kv postgres migrate: applying storage parameters","migration":"kv-postgres","table":"kv"}
+@apps/api:migrate: {"level":"info","time":"2026-07-29T01:02:40.460Z","name":"api:migrate","msg":"kv postgres migrate: complete","migration":"kv-postgres"}
+@apps/api:migrate: {"level":"info","time":"2026-07-29T01:02:40.542Z","name":"api:migrate","msg":"postgres migrations finished (schema + kv; legacy auth tables dropped if present; matchmaking self-migrates on first request)"}
+@apps/api:migrate: [api:migrate] completed (schema + kv; legacy auth tables dropped if present; matchmaking self-migrates on first request)
+@apps/api:preview: cache bypass, force executing d4d3e60b8021f27c
+@apps/api:preview: $ bun run scripts/migrate-db.ts --wait && bun run preview:serve
+@apps/api:preview: {"level":"info","time":"2026-07-29T01:02:50.788Z","name":"api:migrate","msg":"schema.sql applied","statements":95}
+@apps/api:preview: {"level":"info","time":"2026-07-29T01:02:50.940Z","name":"api:migrate","msg":"powersync source-db setup applied","schema":"public"}
+@apps/api:preview: {"level":"info","time":"2026-07-29T01:02:50.941Z","name":"api:migrate","msg":"kv postgres migrate: start","migration":"kv-postgres"}
+@apps/api:preview: {"level":"info","time":"2026-07-29T01:02:51.019Z","name":"api:migrate","msg":"kv postgres migrate: table exists (skipping create)","migration":"kv-postgres","table":"kv"}
+@apps/api:preview: {"level":"info","time":"2026-07-29T01:02:51.097Z","name":"api:migrate","msg":"kv postgres migrate: applying storage parameters","migration":"kv-postgres","table":"kv"}
+@apps/api:preview: {"level":"info","time":"2026-07-29T01:02:51.464Z","name":"api:migrate","msg":"kv postgres migrate: complete","migration":"kv-postgres"}
+@apps/api:preview: {"level":"info","time":"2026-07-29T01:02:51.549Z","name":"api:migrate","msg":"postgres migrations finished (schema + kv; legacy auth tables dropped if present; matchmaking self-migrates on first request)"}
+@apps/api:preview: [api:migrate] completed (schema + kv; legacy auth tables dropped if present; matchmaking self-migrates on first request)
+@apps/api:preview: $ wrangler dev --port 8788
+@apps/api:preview: 
+@apps/api:preview:  ⛅️ wrangler 4.87.0 (update available 4.115.0)
+@apps/api:preview: ──────────────────────────────────────────────
+@apps/api:preview: Using secrets defined in .dev.vars
+@apps/api:preview: Your Worker has access to the following bindings:
+@apps/api:preview: Binding                                                 Resource                  Mode
+@apps/api:preview: env.ROOM (Room)                                         Durable Object            local
+@apps/api:preview: env.SECRETS_ENV ("(hidden)")                            Environment Variable      local
+@apps/api:preview: env.API_URL ("(hidden)")                                Environment Variable      local
+@apps/api:preview: env.CLOUDFLARE_API_TOKEN ("(hidden)")                   Environment Variable      local
+@apps/api:preview: env.CLOUDFLARE_ACCOUNT_ID ("(hidden)")                  Environment Variable      local
+@apps/api:preview: env.DATABASE_URL ("(hidden)")                           Environment Variable      local
+@apps/api:preview: env.AUTH_PUBLISHABLE_KEY ("(hidden)")                   Environment Variable      local
+@apps/api:preview: env.AUTH_SECRET_KEY ("(hidden)")                        Environment Variable      local
+@apps/api:preview: env.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY ("(hidden)")       Environment Variable      local
+@apps/api:preview: env.CLERK_PUBLISHABLE_KEY ("(hidden)")                  Environment Variable      local
+@apps/api:preview: env.CLERK_SECRET_KEY ("(hidden)")                       Environment Variable      local
+@apps/api:preview: env.STRIPE_SECRET_KEY ("(hidden)")                      Environment Variable      local
+@apps/api:preview: env.STRIPE_WEBHOOK_SECRET ("(hidden)")                  Environment Variable      local
+@apps/api:preview: env.STRIPE_PUBLISHABLE_KEY ("(hidden)")                 Environment Variable      local
+@apps/api:preview: env.TURBO_TOKEN ("(hidden)")                            Environment Variable      local
+@apps/api:preview: env.TURBO_TEAM ("(hidden)")                             Environment Variable      local
+@apps/api:preview: env.TURBO_CACHE ("(hidden)")                            Environment Variable      local
+@apps/api:preview: env.TURBO_LOG_ORDER ("(hidden)")                        Environment Variable      local
+@apps/api:preview: env.TURBO_TELEMETRY_DISABLED ("(hidden)")               Environment Variable      local
+@apps/api:preview: env.EXPO_TOKEN ("(hidden)")                             Environment Variable      local
+@apps/api:preview: env.B2_MASTER_KEY_ID ("(hidden)")                       Environment Variable      local
+@apps/api:preview: env.B2_MASTER_KEY ("(hidden)")                          Environment Variable      local
+@apps/api:preview: env.B2_APP_KEY_ID ("(hidden)")                          Environment Variable      local
+@apps/api:preview: env.B2_APP_KEY ("(hidden)")                             Environment Variable      local
+@apps/api:preview: env.S3_BUCKET ("(hidden)")                              Environment Variable      local
+@apps/api:preview: env.S3_ENDPOINT ("(hidden)")                            Environment Variable      local
+@apps/api:preview: env.S3_REGION ("(hidden)")                              Environment Variable      local
+@apps/api:preview: env.PS_INSTANCE_ID ("(hidden)")                         Environment Variable      local
+@apps/api:preview: env.PS_PROJECT_ID ("(hidden)")                          Environment Variable      local
+@apps/api:preview: env.PS_URL ("(hidden)")                                 Environment Variable      local
+@apps/api:preview: env.PS_ADMIN_TOKEN ("(hidden)")                         Environment Variable      local
+@apps/api:preview: env.PS_JWT_PUBLIC_JWK ("(hidden)")                      Environment Variable      local
+@apps/api:preview: env.PS_JWT_PRIVATE_KEY ("(hidden)")                     Environment Variable      local
+@apps/api:preview: env.EXPO_PUBLIC_PS_URL ("(hidden)")                     Environment Variable      local
+@apps/api:preview: env.ELEVEN_LABS_API_KEY ("(hidden)")                    Environment Variable      local
+@apps/api:preview: env.OPENAI_API_KEY ("(hidden)")                         Environment Variable      local
+@apps/api:preview: env.OPENAI_BASE_URL ("(hidden)")                        Environment Variable      local
+@apps/api:preview: env.EXPO_PUBLIC_API_URL ("(hidden)")                    Environment Variable      local
+@apps/api:preview: env.OBSERVABILITY_BACKEND ("(hidden)")                  Environment Variable      local
+@apps/api:preview: env.SENTRY_DSN ("(hidden)")                             Environment Variable      local
+@apps/api:preview: env.EXPO_PUBLIC_OBSERVABILITY_BACKEND ("(hidden)")      Environment Variable      local
+@apps/api:preview: env.EXPO_PUBLIC_SENTRY_DSN ("(hidden)")                 Environment Variable      local
+@apps/api:preview: 
+@apps/api:preview: ⎔ Starting local server...
+@apps/api:preview: [wrangler:info] Ready on http://localhost:8788
+@apps/api:preview: [wrangler:info] GET /api/health 200 OK (11ms)
+@apps/api:preview: [wrangler:info] GET /api/health 200 OK (2ms)
+@apps/api:preview: [wrangler:info] GET /api/health 200 OK (1ms)
+@apps/client:preview: error: script "preview" was terminated by signal SIGKILL (Forced quit)
+@apps/client#preview:  ERROR  command (/Users/chrisvouga/gamezilla/apps/client) /Users/chrisvouga/.bun/bin/bun run preview exited (137)
+
+ Tasks:    7 successful, 9 total
+Cached:    0 cached, 9 total
+  Time:    55.069s 
+Failed:    @apps/client#preview
+
+ ERROR  run failed: command  exited (137)

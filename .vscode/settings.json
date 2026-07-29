@@ -149,6 +149,7 @@
     "NAMEDATALEN",
     "neighbouring",
     "neondatabase",
+    "neondb",
     "Neue",
     "newrank",
     "NOCASE",
@@ -179,6 +180,7 @@
     "plpgsql",
     "Podfile",
     "podspec",
+    "pooler",
     "Postchecks",
     "postgres",
     "powersync",
@@ -283,5 +285,13 @@
     "xmark",
     "xyflow"
   ],
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": [
+      ".github/workflows/*.{yml,yaml}"
+    ],
+    "https://json.schemastore.org/github-action.json": [
+      ".github/actions/**/action.{yml,yaml}"
+    ]
+  },
   "github-actions.workflows.pinned.workflows": []
 }

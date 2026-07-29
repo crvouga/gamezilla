@@ -4,6 +4,8 @@ import { CommandPalette, CommandRegistryProvider } from '@pkgs/ui';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { ReactNode } from 'react';
 
+import { CommandPaletteDevMenu } from '../../dev/command-palette-dev-menu';
+
 const COMMAND_HISTORY_STORAGE_KEY = '@app/command-history';
 
 export function AppCommandRegistry({
@@ -18,6 +20,7 @@ export function AppCommandRegistry({
     >
       <AppCommands />
       <CommandPalette />
+      <CommandPaletteDevMenu />
       {children}
       <PwaUpdatePromptBanner />
     </CommandRegistryProvider>

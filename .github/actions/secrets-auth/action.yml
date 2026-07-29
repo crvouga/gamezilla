@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
 name: Inject secrets (OIDC)
 description: Fetch secrets via the configured secrets backend and export to GITHUB_ENV
 

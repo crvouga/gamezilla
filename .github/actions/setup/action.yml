@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
 name: Setup repo (Node + Bun + deps)
 description: Node 22, Bun, cache install store, bun install (run actions/checkout first)
 

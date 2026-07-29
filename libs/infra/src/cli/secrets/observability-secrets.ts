@@ -1,6 +1,9 @@
 import { Secret, requireNonEmpty } from './secret';
 
-const BACKEND_VALUES = new Set(['sentry', 'console', 'noop', 'none', '']);
+const BACKEND_VALUES = new Set(['sentry', 'console', 'logger', 'noop', 'none', '']);
+
+/** Quiet until Sentry is intentionally turned on (`sentry` + DSN). */
+const DEFAULT_BACKEND = 'noop';
 
 export const OBSERVABILITY_BACKEND = new Secret({
   name: 'OBSERVABILITY_BACKEND',
@@ -15,6 +18,7 @@ export const OBSERVABILITY_BACKEND = new Secret({
       );
     }
   },
+  seed: async () => DEFAULT_BACKEND,
 });
 
 export const SENTRY_DSN = new Secret({
@@ -42,6 +46,7 @@ export const EXPO_PUBLIC_OBSERVABILITY_BACKEND = new Secret({
       );
     }
   },
+  seed: async () => DEFAULT_BACKEND,
 });
 
 export const EXPO_PUBLIC_SENTRY_DSN = new Secret({

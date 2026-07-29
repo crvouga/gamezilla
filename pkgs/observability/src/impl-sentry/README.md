@@ -45,9 +45,11 @@ Slow spans are tagged with `performance.slow=true` when duration exceeds default
 
 ## Local-file override
 
-`local-file` remains available for offline NDJSON capture:
+`local-file` remains available for offline NDJSON capture. Start the collector
+explicitly (it is not part of root `bun dev`):
 
 ```bash
+bun run --filter @pkgs/observability collector
 EXPO_PUBLIC_OBSERVABILITY_BACKEND=local-file bun dev
 bun run --filter @pkgs/observability summarize
 ```

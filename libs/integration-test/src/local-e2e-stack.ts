@@ -48,6 +48,20 @@ function devStackReady(apiOrigin: string): boolean {
   return devStackProbes(apiOrigin).every((probe) => probe.ok);
 }
 
+const DEFAULT_STACK_WAIT_MS = 240_000;
+const STACK_POLL_MS = 1_000;
+
+function sleepMs(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Synchronous readiness probe for scripts that start or skip the preview stack. */
+export function isLocalE2eStackReadySync(
+  apiOrigin: string = DEFAULT_LOCAL_PREVIEW_API_ORIGIN
+): boolean {
+  return devStackReady(apiOrigin);
+}
+
 function formatProbeList(probes: StackProbe[]): string {
   return probes
     .map((probe) => `  • ${probe.label}: ${probe.url} ${probe.ok ? '✓' : '✗'}`)
@@ -74,6 +88,40 @@ function browserStackNotRunningMessage(apiOrigin: string): string {
   ].join('\n');
 }
 
+function localE2eStackFromReady(apiOrigin: string): LocalE2eStack {
+  void apiOrigin;
+  return {
+    baseURL: DEV_CLIENT_BASE_URL,
+    readyURL: `${DEV_CLIENT_BASE_URL}/`,
+  };
+}
+
+/**
+ * Polls until API health and the web client respond, or throws after
+ * `BROWSER_E2E_STACK_WAIT_MS` (default 240s).
+ */
+export async function waitForLocalE2eStack(
+  apiOrigin: string = DEFAULT_LOCAL_PREVIEW_API_ORIGIN,
+  timeoutMs: number = Number(
+    process.env['BROWSER_E2E_STACK_WAIT_MS'] ?? DEFAULT_STACK_WAIT_MS
+  )
+): Promise<LocalE2eStack> {
+  const deadline = Date.now() + timeoutMs;
+  let lastMessage = browserStackNotRunningMessage(apiOrigin);
+
+  while (Date.now() < deadline) {
+    if (devStackReady(apiOrigin)) {
+      return localE2eStackFromReady(apiOrigin);
+    }
+    lastMessage = browserStackNotRunningMessage(apiOrigin);
+    await sleepMs(STACK_POLL_MS);
+  }
+
+  throw new Error(
+    `[wait-for-local-e2e-stack] timed out after ${String(timeoutMs)}ms\n${lastMessage}`
+  );
+}
+
 /**
  * Returns the local browser E2E stack when dev ports are healthy, or throws
  * with a loud message when nothing is running.
@@ -84,8 +132,5 @@ export function requireLocalE2eStackSync(
   if (!devStackReady(apiOrigin)) {
     throw new Error(browserStackNotRunningMessage(apiOrigin));
   }
-  return {
-    baseURL: DEV_CLIENT_BASE_URL,
-    readyURL: `${DEV_CLIENT_BASE_URL}/`,
-  };
+  return localE2eStackFromReady(apiOrigin);
 }

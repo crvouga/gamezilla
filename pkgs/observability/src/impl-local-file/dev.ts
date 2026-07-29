@@ -1,5 +1,6 @@
 /**
- * Foreground entry for `bun run --filter @pkgs/observability dev`.
+ * Foreground entry for `bun run --filter @pkgs/observability collector`.
+ * Opt-in only — not wired into root `turbo dev` (noop is the default backend).
  */
 import { startObservabilityCollector } from './collector';
 

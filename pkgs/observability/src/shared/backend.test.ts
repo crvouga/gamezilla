@@ -15,8 +15,10 @@ describe('parseObservabilityBackend', () => {
 
   test('parses explicit backends', () => {
     expect(parseObservabilityBackend('noop')).toBe('noop');
+    expect(parseObservabilityBackend('none')).toBe('noop');
     expect(parseObservabilityBackend('local-file')).toBe('local-file');
     expect(parseObservabilityBackend('logger')).toBe('logger');
+    expect(parseObservabilityBackend('console')).toBe('logger');
     expect(parseObservabilityBackend('sentry')).toBe('sentry');
     expect(parseObservabilityBackend('SENTRY')).toBe('sentry');
   });
@@ -27,22 +29,19 @@ describe('parseObservabilityBackend', () => {
 });
 
 describe('resolveObservabilityBackend', () => {
-  test('defaults to local-file in dev', () => {
+  test('defaults to noop when unset', () => {
     expect(
       resolveObservabilityBackend({
         envBackend: undefined,
         isProduction: false,
       })
-    ).toBe('local-file');
-  });
-
-  test('defaults to logger in prod', () => {
+    ).toBe('noop');
     expect(
       resolveObservabilityBackend({
         envBackend: undefined,
         isProduction: true,
       })
-    ).toBe('logger');
+    ).toBe('noop');
   });
 
   test('honors explicit backends', () => {
@@ -61,6 +60,12 @@ describe('resolveObservabilityBackend', () => {
     expect(
       resolveObservabilityBackend({
         envBackend: 'logger',
+        isProduction: false,
+      })
+    ).toBe('logger');
+    expect(
+      resolveObservabilityBackend({
+        envBackend: 'console',
         isProduction: false,
       })
     ).toBe('logger');

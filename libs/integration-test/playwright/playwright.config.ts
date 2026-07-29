@@ -5,7 +5,7 @@ import path from 'node:path';
 import { assert } from '@pkgs/assert';
 
 import { resolveLocalPreviewApiOriginSync } from '../src/local-api-preview';
-import { requireLocalE2eStackSync } from '../src/local-e2e-stack';
+import { DEV_CLIENT_BASE_URL } from '../src/local-e2e-stack';
 import {
   qaPlaywrightPaths,
   resolveGamezillaRepoRoot,
@@ -48,10 +48,8 @@ assert.equals(
   'resolved local API preview origin must already be in canonical-origin form (no path/query/hash)'
 );
 
-const e2eStack = requireLocalE2eStackSync(LOCAL_API_PREVIEW_ORIGIN);
-
-const baseURL = e2eStack.baseURL;
-const previewReadyURL = e2eStack.readyURL;
+const baseURL = DEV_CLIENT_BASE_URL;
+const previewReadyURL = `${DEV_CLIENT_BASE_URL}/`;
 let baseURLParsed: URL | undefined;
 assert.notThrows(
   () => {
