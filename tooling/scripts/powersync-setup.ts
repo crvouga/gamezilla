@@ -2,7 +2,7 @@
  * Idempotent PowerSync Cloud CLI bootstrap:
  * - ensures `powersync` CLI is on PATH
  * - verifies Cloud auth (PS_ADMIN_TOKEN or prior `powersync login`)
- * - links `powersync/cli.yaml` to the PowerSync instance id
+ * - links `libs/powersync/cli.yaml` to the PowerSync instance id
  * - pulls remote service + sync config once (or with --force-pull)
  *
  * Usage:
@@ -24,13 +24,13 @@ import {
   injectPowerSyncDatabaseUri,
   injectPowerSyncInstanceName,
   injectPowerSyncJwtJwkFields,
-} from '../libs/infra/src/cli/resources/powersync';
-import { activeSecretsEnv } from '../libs/infra/src/cli/secrets/secret';
+} from '../../libs/infra/src/cli/resources/powersync';
+import { activeSecretsEnv } from '../../libs/infra/src/cli/secrets/secret';
 import { runPostgresMigrationsFromSecrets } from './run-postgres-migrations-secrets';
-import { loadSecretsIntoEnv } from '../libs/infra/src/cli/secrets/secrets';
+import { loadSecretsIntoEnv } from '../../libs/infra/src/cli/secrets/secrets';
 
-const REPO_ROOT = join(import.meta.dirname, '..');
-const PS_CONFIG_DIR = 'powersync';
+const REPO_ROOT = join(import.meta.dirname, '../..');
+const PS_CONFIG_DIR = 'libs/powersync';
 const PS_CONFIG_DIR_ABS = join(REPO_ROOT, PS_CONFIG_DIR);
 const PULL_STATE_PATH = join(PS_CONFIG_DIR_ABS, '.pull-state.json');
 const SERVICE_PATH = join(PS_CONFIG_DIR_ABS, 'service.yaml');

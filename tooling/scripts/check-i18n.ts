@@ -12,7 +12,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-const REPO_ROOT = join(import.meta.dirname, '..');
+const REPO_ROOT = join(import.meta.dirname, '../..');
 const I18N_DIR = join(REPO_ROOT, 'apps/client/src/i18n');
 const isCi =
   process.env['CI'] === 'true' || process.env['GITHUB_ACTIONS'] === 'true';

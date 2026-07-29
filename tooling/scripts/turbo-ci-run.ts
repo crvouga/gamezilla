@@ -68,7 +68,7 @@ const TURBO_CI_FLAGS = [
 
 const taskArgs = process.argv.slice(2);
 if (taskArgs.length === 0) {
-  console.error('usage: bun run scripts/turbo-ci-run.ts <turbo run args…>');
+  console.error('usage: bun run tooling/scripts/turbo-ci-run.ts <turbo run args…>');
   process.exit(1);
 }
 

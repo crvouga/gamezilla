@@ -20,7 +20,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-const REPO_ROOT = join(import.meta.dirname, '..');
+const REPO_ROOT = join(import.meta.dirname, '../..');
 const SCAN_DIRS = ['apps', 'libs', 'pkgs'];
 const ALLOWED_PREFIX = join('pkgs', 'sql-client', 'src');
 const SKIP_DIR = new Set(['node_modules', 'dist', '.turbo', 'coverage']);

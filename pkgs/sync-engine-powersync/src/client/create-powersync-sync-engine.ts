@@ -72,8 +72,13 @@ export function createPowerSyncSyncEngine(
   const db = options.database;
   const everSyncedLatch = options.everSyncedLatch;
   const sqlClient = createSqlClientFromPowerSync(db);
-  let status: SyncEngineStatus = { ...INITIAL_SYNC_STATUS };
   let hasEverSynced = everSyncedLatch?.read() ?? false;
+  // Seed status with the latch — INITIAL_SYNC_STATUS.hasEverSynced is false and
+  // would pin empty watches on LoadingState until the first statusChanged.
+  let status: SyncEngineStatus = {
+    ...INITIAL_SYNC_STATUS,
+    hasEverSynced,
+  };
   const listeners = new Set<(s: SyncEngineStatus) => void>();
 
   const publishStatus = (): void => {
@@ -90,6 +95,7 @@ export function createPowerSyncSyncEngine(
   };
 
   db.registerListener({ statusChanged: publishStatus });
+  publishStatus();
 
   const subscribeSyncStream = createSubscribeSyncStream(db);
   const watchRegistry = createSharedWatchRegistry((query) =>

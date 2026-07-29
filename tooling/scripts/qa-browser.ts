@@ -12,13 +12,13 @@ import { spawn, spawnSync } from 'node:child_process';
 import { closeSync, openSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { ensureDevStackPortsFree } from '../libs/integration-test/src/ensure-dev-stack-ports-free';
+import { ensureDevStackPortsFree } from '../../libs/integration-test/src/ensure-dev-stack-ports-free';
 import {
   isLocalE2eStackReadySync,
   waitForLocalE2eStack,
-} from '../libs/integration-test/src/local-e2e-stack';
+} from '../../libs/integration-test/src/local-e2e-stack';
 
-const REPO_ROOT = join(import.meta.dirname, '..');
+const REPO_ROOT = join(import.meta.dirname, '../..');
 
 function isCi(): boolean {
   const ci = process.env['CI']?.trim();

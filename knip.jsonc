@@ -53,7 +53,7 @@
   ],
   "workspaces": {
     ".": {
-      "entry": ["package.json", "scripts/*.ts", "tooling/*.ts"],
+      "entry": ["package.json", "tooling/scripts/*.ts", "tooling/*.ts"],
     },
     "libs/stripe-cli": {
       "entry": "src/dev.ts",

@@ -80,10 +80,10 @@ apps/client/android/
 .turbo
 
 # PowerSync CLI setup artifacts
-powersync/.pull-state.json
-powersync/*.backup-*
-powersync/service-fetched.yaml
-powersync/sync-fetched.yaml
+libs/powersync/.pull-state.json
+libs/powersync/*.backup-*
+libs/powersync/service-fetched.yaml
+libs/powersync/sync-fetched.yaml
 
 # Playwright QA artifacts (reports, traces, videos)
 /qa/

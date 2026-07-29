@@ -9,10 +9,10 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 
 import { assert } from '@pkgs/assert';
-import { assertDevSecretsEnv } from '../libs/infra/src/shared/database-url-policy';
+import { assertDevSecretsEnv } from '../../libs/infra/src/shared/database-url-policy';
 
-const REPO_ROOT = join(import.meta.dirname, '..');
-const PS_CONFIG_DIR = 'powersync';
+const REPO_ROOT = join(import.meta.dirname, '../..');
+const PS_CONFIG_DIR = 'libs/powersync';
 const DIAGNOSTICS_APP_URL = 'https://diagnostics-app.powersync.com/';
 const DEFAULT_SUBJECT = 'diagnostics-dev';
 

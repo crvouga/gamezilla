@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-const REPO_ROOT = join(import.meta.dirname, '..');
+const REPO_ROOT = join(import.meta.dirname, '../..');
 const BATCH_SIZE = 200;
 
 const mode = process.argv.includes('--check') ? '--check' : '--write';

@@ -10,7 +10,7 @@
 import { runWithSecrets } from '@pkgs/secret-provider';
 import { join } from 'node:path';
 
-const REPO_ROOT = join(import.meta.dirname, '..');
+const REPO_ROOT = join(import.meta.dirname, '../..');
 const childArgs = process.argv.slice(2);
 
 process.exit(

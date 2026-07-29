@@ -41,7 +41,7 @@ Mutating commands: `powersync deploy`, `deploy service-config`, `deploy sync-con
 
 Before running any of them:
 
-1. **Which instance?** Run `powersync fetch instances` or read `powersync/cli.yaml`; tell the operator the instance id + project.
+1. **Which instance?** Run `powersync fetch instances` or read `libs/powersync/cli.yaml`; tell the operator the instance id + project.
 2. **Is it production?** If the operator has not said which instances are safe, ask. Do not deploy to an instance not authorized in this session or in saved project memory.
 3. `destroy`, `stop`, or any production-tagged instance → surface the command and target, wait for explicit go-ahead. One approval = one command, not a blanket pass.
 
@@ -54,7 +54,7 @@ If your harness has a project memory or persistent notes file, record these once
 | What to save                  | Example                                                         | Why                                              |
 | ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------ |
 | CLI invocation                | `powersync` on PATH, `npx powersync@<v>`, project-local install | Skip reinstall / binary hunt                     |
-| Config dir + sync-config path | `powersync/sync-config.yaml`, or non-default `--directory`      | Skip re-globbing                                 |
+| Config dir + sync-config path | `libs/powersync/sync-config.yaml` (`--directory libs/powersync`) | Skip re-globbing                                 |
 | Authorized instances + env    | `<id-A>=dev (safe)`, `<id-B>=prod (ask first)`                  | Cite this before mutating commands               |
 | Allowed scope                 | `sync-config only` vs `sync-config + service-config authorized` | Default sync-config only until operator broadens |
 

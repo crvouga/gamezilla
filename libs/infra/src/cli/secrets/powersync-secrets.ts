@@ -2,7 +2,7 @@ import { Secret, requireHttpsUrl, requireNonEmpty } from './secret';
 
 export const PS_INSTANCE_ID = new Secret({
   name: 'PS_INSTANCE_ID',
-  hint: 'PowerSync Cloud instance id (written to powersync/cli.yaml via !env)',
+  hint: 'PowerSync Cloud instance id (written to libs/powersync/cli.yaml via !env)',
   optional: true,
   validate: async (input) => {
     requireNonEmpty(input.secretValue, 'PS_INSTANCE_ID');

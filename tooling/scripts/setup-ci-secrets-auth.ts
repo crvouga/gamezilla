@@ -25,7 +25,7 @@
 import { reconcileCiSecretsAuth } from '@pkgs/secret-provider';
 import { join } from 'node:path';
 
-const REPO_ROOT = join(import.meta.dirname, '..');
+const REPO_ROOT = join(import.meta.dirname, '../..');
 
 type Cli = {
   readonly repo: string | null;

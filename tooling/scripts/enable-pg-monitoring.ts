@@ -13,7 +13,7 @@ import { createSecretAdminStore } from '@pkgs/secret-provider';
 import { which } from '@pkgs/os/command';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
 
-const REPO_ROOT = join(import.meta.dirname, '..');
+const REPO_ROOT = join(import.meta.dirname, '../..');
 
 type TargetEnv = 'dev' | 'prod';
 
@@ -53,7 +53,7 @@ function fail(message: string): never {
 
 function usage(): never {
   console.error(
-    'usage: bun run scripts/enable-pg-monitoring.ts [dev|prod] [--confirm-prod]'
+    'usage: bun run tooling/scripts/enable-pg-monitoring.ts [dev|prod] [--confirm-prod]'
   );
   process.exit(1);
 }

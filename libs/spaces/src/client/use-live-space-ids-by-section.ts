@@ -19,9 +19,8 @@ function usePublicLiveSpaceIds(): {
   readonly spaceIds: readonly string[];
   readonly isLoading: boolean;
 } {
-  const { rows, isLoading } = useWatchQuery<SpaceIdRow>(
-    publicLiveSpaceIdsSql()
-  );
+  const query = useMemo(() => publicLiveSpaceIdsSql(), []);
+  const { rows, isLoading } = useWatchQuery<SpaceIdRow>(query);
   return { spaceIds: rows.map((r) => r.id), isLoading };
 }
 
@@ -35,13 +34,14 @@ function useFriendsLiveSpaceIds(): {
   const deviceId = useMyDeviceId();
   const accountId = useMyAccountId();
   const hasAccount = accountId !== null && accountId.length > 0;
+  const memberId = hasAccount && accountId !== null ? accountId : deviceId;
   const query = useMemo(
     () =>
       friendsLiveSpaceIdsSql({
-        memberId: hasAccount && accountId !== null ? accountId : deviceId,
+        memberId,
         includeHostAccountId: hasAccount,
       }),
-    [accountId, deviceId, hasAccount]
+    [memberId, hasAccount]
   );
   const { rows, isLoading } = useWatchQuery<SpaceIdRow>(query);
   return { spaceIds: rows.map((r) => r.id), isLoading };

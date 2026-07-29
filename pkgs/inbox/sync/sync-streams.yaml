@@ -1,5 +1,5 @@
 # @pkgs/inbox PowerSync sync stream fragment.
-# Merged into powersync/sync-config.yaml at deploy time.
+# Merged into libs/powersync/sync-config.yaml at deploy time.
 #
 # inbox_interactions:
 #   priority: 2

@@ -1,7 +1,7 @@
 /**
  * One-shot repair: end live spaces whose host has no active membership (I1).
  *
- *   bun run scripts/secrets-run.ts -- bun run --filter @libs/spaces repair:departed-host-spaces
+ *   bun run tooling/scripts/secrets-run.ts -- bun run --filter @libs/spaces repair:departed-host-spaces
  */
 import {
   assertDevSecretsEnv,

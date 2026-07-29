@@ -41,7 +41,7 @@ export async function assertStripeSecretKey(
   const trimmed = typeof raw === 'string' ? raw.trim() : '';
   if (trimmed.length === 0) {
     console.error(
-      `[${scriptTag}] STRIPE_SECRET_KEY is missing or blank — run under \`bun run scripts/secrets-run.ts\``
+      `[${scriptTag}] STRIPE_SECRET_KEY is missing or blank — run under \`bun run tooling/scripts/secrets-run.ts\``
     );
     process.exit(1);
   }

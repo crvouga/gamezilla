@@ -33,7 +33,7 @@ permissions:
   id-token: write
 
 # CI authenticates to the secrets backend via GitHub Actions OIDC (no stored token).
-# Repo scripts use `scripts/secrets-run.ts`, which reads scope from `.secrets.json`.
+# Repo scripts use `tooling/scripts/secrets-run.ts`, which reads scope from `.secrets.json`.
 
 on:
   push:
@@ -54,7 +54,7 @@ jobs:
   # syncpack + catalog + no-patches, knip, depcruise, circular-deps,
   # audit, i18n, plus per-package `tc` / `lint` / `test` / `build`. Turbo
   # parallelizes across the task graph; `actions/cache` persists `.turbo`
-  # and `scripts/turbo-ci-run.ts` uses `--cache=local:rw`. Per-task
+  # and `tooling/scripts/turbo-ci-run.ts` uses `--cache=local:rw`. Per-task
   # status (`--output-logs=hash-only --summarize`) keeps logs readable.
   turbo-ci:
     runs-on: ubuntu-latest
@@ -122,7 +122,7 @@ jobs:
       # bug where top-level `[[allowlists]]` are silently dropped when
       # combined with `[extend].useDefault = true` (fixed in 8.25+). It
       # also targets the deprecated Node.js 20 runtime. Install a pinned
-      # release via `scripts/install-gitleaks.ts` (retries on transient
+      # release via `tooling/scripts/install-gitleaks.ts` (retries on transient
       # GitHub CDN 502s) so our `.gitleaks.toml` allowlist actually applies.
       # Bun only — no `setup` composite (no `bun install`) so this job stays
       # a pair of binary downloads + scans.
@@ -132,7 +132,7 @@ jobs:
           bun-version: '1.3.14'
 
       - name: Install gitleaks
-        run: bun run scripts/install-gitleaks.ts
+        run: bun run tooling/scripts/install-gitleaks.ts
 
       - name: Gitleaks
         env:
@@ -179,18 +179,18 @@ jobs:
       # health-wait timeout. Then start wrangler only (`preview:serve`) — avoids
       # a second migrate racing qa-browser on the shared hosted dev Postgres.
       - name: Setup and migrate API
-        run: bun run scripts/secrets-run.ts -- bun turbo run setup migrate --filter=@apps/api --cache=local:rw --cache-workers=1
+        run: bun run tooling/scripts/secrets-run.ts -- bun turbo run setup migrate --filter=@apps/api --cache=local:rw --cache-workers=1
       - name: Start API preview
         env:
           # Wrangler-only boot is usually seconds; keep headroom for cold starts.
           API_HEALTH_WAIT_MS: 240000
         run: |
-          nohup bun run scripts/secrets-run.ts -- bun run --filter @apps/api preview:serve > /tmp/api-preview.log 2>&1 &
+          nohup bun run tooling/scripts/secrets-run.ts -- bun run --filter @apps/api preview:serve > /tmp/api-preview.log 2>&1 &
           echo $! > /tmp/api-preview.pid
           API_PREVIEW_PID="$(cat /tmp/api-preview.pid)"
           export API_PREVIEW_PID
           export API_PREVIEW_LOG=/tmp/api-preview.log
-          if ! bun run scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-api-health; then
+          if ! bun run tooling/scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-api-health; then
             echo "::group::api-preview.log (last 200 lines)"
             tail -n 200 /tmp/api-preview.log || true
             echo "::endgroup::"
@@ -277,14 +277,14 @@ jobs:
       # Build first so the wait step only covers migrate + wrangler + static server
       # startup — cold CI can exceed 240s when build + preview run together.
       - name: Build preview stack artifacts
-        run: bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run setup build --filter=@apps/api --filter=@apps/client --cache=local:rw --cache-workers=1'
+        run: bun run tooling/scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run setup build --filter=@apps/api --filter=@apps/client --cache=local:rw --cache-workers=1'
       - name: Start preview stack
         env:
           BROWSER_E2E_STACK_WAIT_MS: 480000
         run: |
-          nohup bun run scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client --cache=local:rw --cache-workers=1' > /tmp/preview-stack.log 2>&1 &
+          nohup bun run tooling/scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client --cache=local:rw --cache-workers=1' > /tmp/preview-stack.log 2>&1 &
           echo $! > /tmp/preview-stack.pid
-          if ! bun run scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-browser-e2e-stack; then
+          if ! bun run tooling/scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-browser-e2e-stack; then
             echo "::group::preview-stack.log (last 200 lines)"
             tail -n 200 /tmp/preview-stack.log || true
             echo "::endgroup::"
@@ -481,4 +481,4 @@ jobs:
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: SECRETS_ENV=prd bun run scripts/secrets-run.ts -- bun run libs/infra/src/bin/pipeline-report.ts
+        run: SECRETS_ENV=prd bun run tooling/scripts/secrets-run.ts -- bun run libs/infra/src/bin/pipeline-report.ts

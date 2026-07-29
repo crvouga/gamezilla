@@ -14,7 +14,7 @@ import { resolveDatabaseUrl, verifyWalLevelLogical } from './postgres';
 import { ResourceBase, type InfraContext } from './types';
 import { runPowerSyncSourceDbSetup } from './powersync-source-db';
 
-const PS_CONFIG_DIR = 'powersync';
+const PS_CONFIG_DIR = 'libs/powersync';
 
 const CLI_ENV_KEYS = ['PS_INSTANCE_ID', 'PS_URL', 'PS_ADMIN_TOKEN'] as const;
 
@@ -247,7 +247,7 @@ export async function deployPowerSyncConfig(
   await runAsync(
     platform,
     'bun',
-    ['run', join(REPO_ROOT, 'scripts/run-postgres-migrations-secrets.ts')],
+    ['run', join(REPO_ROOT, 'tooling/scripts/run-postgres-migrations-secrets.ts')],
     {
       cwd: REPO_ROOT,
       env: process.env,
@@ -274,7 +274,7 @@ export async function deployPowerSyncSyncConfigOnly(
   await runAsync(
     platform,
     'bun',
-    ['run', join(REPO_ROOT, 'scripts/run-postgres-migrations-secrets.ts')],
+    ['run', join(REPO_ROOT, 'tooling/scripts/run-postgres-migrations-secrets.ts')],
     {
       cwd: REPO_ROOT,
       env: process.env,

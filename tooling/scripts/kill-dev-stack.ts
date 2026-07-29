@@ -8,7 +8,7 @@ import { join } from 'node:path';
 
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
 
-const REPO_ROOT = join(import.meta.dirname, '..');
+const REPO_ROOT = join(import.meta.dirname, '../..');
 
 const DEV_PORTS = [
   8788, // wrangler API

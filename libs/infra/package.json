@@ -11,7 +11,7 @@
     "./cli/resources/powersync-source-db": "./src/cli/resources/powersync-source-db.ts"
   },
   "scripts": {
-    "infra": "SECRETS_ENV=prd bun run ../../scripts/secrets-run.ts -- bun run libs/infra/src/bin/cli.ts",
+    "infra": "SECRETS_ENV=prd bun run ../../tooling/scripts/secrets-run.ts -- bun run libs/infra/src/bin/cli.ts",
     "lint": "eslint src --max-warnings 0",
     "pipeline-report": "bun run ./src/bin/pipeline-report.ts",
     "tc": "tsc --noEmit -p ./tsconfig.json",

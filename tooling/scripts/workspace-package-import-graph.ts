@@ -6,7 +6,7 @@ import { Glob } from 'bun';
 import { readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-export const REPO_ROOT = join(import.meta.dirname, '..');
+export const REPO_ROOT = join(import.meta.dirname, '../..');
 const SCOPES = ['@apps/', '@libs/', '@pkgs/'] as const;
 export const TIER_DIRS = ['apps', 'libs', 'pkgs'] as const;
 export type Tier = (typeof TIER_DIRS)[number];

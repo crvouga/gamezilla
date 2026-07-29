@@ -13,7 +13,7 @@ import { Glob } from 'bun';
 import { readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-const REPO_ROOT = join(import.meta.dirname, '..');
+const REPO_ROOT = join(import.meta.dirname, '../..');
 
 const DEP_SECTIONS = [
   'dependencies',

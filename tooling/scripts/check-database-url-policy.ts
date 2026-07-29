@@ -6,7 +6,7 @@
 import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-const REPO_ROOT = join(import.meta.dirname, '..');
+const REPO_ROOT = join(import.meta.dirname, '../..');
 
 type EntrypointRule = {
   readonly file: string;

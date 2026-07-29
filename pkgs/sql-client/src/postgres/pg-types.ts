@@ -1,7 +1,7 @@
 /**
  * Re-exported `node-postgres` types so application code can reference a
  * `Client` / `Pool` without importing `pg` directly. Direct `pg` imports are
- * banned outside this package (`scripts/check-no-direct-pg-imports.ts`); types
+ * banned outside this package (`tooling/scripts/check-no-direct-pg-imports.ts`); types
  * are erased at runtime but the import specifier still trips the guard, so
  * route type-only needs through here.
  */

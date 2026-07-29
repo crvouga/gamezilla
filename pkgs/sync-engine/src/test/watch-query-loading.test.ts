@@ -68,14 +68,14 @@ describe('computeWatchQueryIsLoading', () => {
     ).toBe(false);
   });
 
-  test('loading when empty and never synced', () => {
+  test('not loading when hydrated empty even if never synced', () => {
     expect(
       computeWatchQueryIsLoading({
         hydrated: true,
         rows: [],
         status: neverSynced,
       })
-    ).toBe(true);
+    ).toBe(false);
   });
 
   test('not loading when rows present even if never synced', () => {

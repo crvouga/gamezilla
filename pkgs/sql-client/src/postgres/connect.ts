@@ -4,7 +4,7 @@
  * Every factory pins the session to a {@link PostgresDbScope}, so unqualified
  * SQL always resolves to the application schema (`public` by default). Direct
  * `new Pool()` / `new Client()` outside `@pkgs/sql-client` is banned by CI
- * (`scripts/check-no-direct-pg-imports.ts`), which makes pointing at a
+ * (`tooling/scripts/check-no-direct-pg-imports.ts`), which makes pointing at a
  * different schema impossible without going through here.
  */
 import { Client, Pool, type PoolClient } from 'pg';

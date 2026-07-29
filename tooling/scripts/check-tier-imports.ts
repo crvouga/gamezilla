@@ -10,7 +10,7 @@
  * `doNotFollow.path: 'node_modules'` skips workspace symlinks, so cross-package
  * `@apps|@libs|@pkgs/<name>` imports are never traversed (bun resolves
  * workspace packages through node_modules symlinks). Same reason
- * `scripts/check-circular-deps.ts` exists.
+ * `tooling/scripts/check-circular-deps.ts` exists.
  *
  * Two passes per package:
  *   1. Source scan -- regex over `**\/*.{ts,tsx,mts,cts}` for `@<tier>/<name>`

@@ -9,7 +9,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-const REPO_ROOT = join(import.meta.dir, '..');
+const REPO_ROOT = join(import.meta.dir, '../..');
 const COMPONENTS_DIR = join(REPO_ROOT, 'pkgs/ui/src/components');
 
 /** Folders that intentionally do not render a DOM host with component ids. */
