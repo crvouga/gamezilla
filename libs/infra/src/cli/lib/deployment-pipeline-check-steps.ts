@@ -7,12 +7,11 @@
  *
  * The CI pipeline collapses every Turbo-cacheable task (format,
  * syncpack/catalog, knip, depcruise, circular-deps, audit, i18n, tc,
- * lint, test, build) plus `check:turbo-remote-cache` and the
- * non-cacheable `check:secrets` gate into one `turbo-ci` job; the local
- * mirror runs the same `bun run check:ci` command so a failure in any
- * underlying Turbo task, remote-cache, or secrets check is captured.
- * `static` covers actionlint + gitleaks, and the two `qa-*` entries
- * match the per-job Playwright / Hono integration runs.
+ * lint, test, build) plus the non-cacheable `check:secrets` gate into
+ * one `turbo-ci` job; the local mirror runs the same `bun run check:ci`
+ * command so a failure in any underlying Turbo task or secrets check is
+ * captured. `static` covers actionlint + gitleaks, and the two `qa-*`
+ * entries match the per-job Playwright / Hono integration runs.
  */
 export const DEPLOYMENT_PIPELINE_CHECK_STEPS = [
   { jobId: 'turbo-ci', bunScript: 'check:ci' },

@@ -27,3 +27,14 @@ runs:
         project-slug: ${{ inputs.project-id }}
         env-slug: ${{ inputs.environment }}
         domain: ${{ inputs.endpoint != '' && inputs.endpoint || 'https://app.infisical.com' }}
+
+    # Infisical/secrets-action injects secret *values* only. Admin CLI
+    # paths (`check:secrets`, `infra provision`) re-auth via OIDC using
+    # `resolveInfisicalAccessTokenForWrites`, which needs the machine
+    # identity id in the job env (not merely as this action's input).
+    - name: Export secrets auth coords for admin CLI
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo "SECRETS_IDENTITY_ID=${{ inputs.identity-id }}" >> "$GITHUB_ENV"
+        echo "SECRETS_PROJECT_ID=${{ inputs.project-id }}" >> "$GITHUB_ENV"

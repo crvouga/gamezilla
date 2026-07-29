@@ -1,14 +1,14 @@
 /**
  * Shared Turbo flags for `check:ci`.
  *
- * - CI: `local:rw,remote:rw` — L1 disk + Vercel Remote Cache.
+ * - CI: `local:rw` only — disk cache under `.turbo` (persisted via
+ *   `actions/cache`). Strips `TURBO_TOKEN` / `TURBO_TEAM` so secrets-
+ *   run-injected creds cannot fall through to Vercel Remote Cache.
  * - Local: honor `TURBO_CACHE` when set; otherwise `local:rw,remote:r`.
- * - `--cache-workers=1` serializes remote HTTP (avoids stampedes and keeps
- *   us clear of Vercel's rate limits).
- * - Unsets orphan `TURBO_API` so a leftover self-hosted origin cannot override
- *   Vercel's default cache endpoint.
+ * - Unsets orphan `TURBO_API` so a leftover self-hosted origin cannot
+ *   override Vercel's default cache endpoint for local remote use.
  *
- * GitHub Actions also restores `.turbo` via `actions/cache` as an L1 layer.
+ * GitHub Actions restores `.turbo` via `actions/cache` before install.
  */
 import { spawnSync } from 'node:child_process';
 
@@ -19,7 +19,7 @@ function inCi(): boolean {
 }
 
 function resolveCacheFlag(): string {
-  if (inCi()) return 'local:rw,remote:rw';
+  if (inCi()) return 'local:rw';
 
   const fromEnv = process.env.TURBO_CACHE?.trim();
   if (
@@ -41,10 +41,14 @@ function turboChildEnv(): NodeJS.ProcessEnv {
   const orphan = env['TURBO_API'];
   if (typeof orphan === 'string' && orphan.trim().length > 0) {
     console.warn(
-      'turbo-ci-run: ignoring orphan TURBO_API (Vercel Remote Cache is the default)'
+      'turbo-ci-run: ignoring orphan TURBO_API (Vercel Remote Cache is the default locally)'
     );
   }
   delete env['TURBO_API'];
+  if (inCi()) {
+    delete env['TURBO_TOKEN'];
+    delete env['TURBO_TEAM'];
+  }
   return env;
 }
 

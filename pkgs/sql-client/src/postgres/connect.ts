@@ -21,25 +21,7 @@ import {
 } from './session-schema';
 import { sanitizePostgresUrlForNodePg } from './sanitize-url-for-node-pg';
 
-/**
- * Schema-agnostic reachability probe (`SELECT 1`). Use before migrations when
- * the application schema may not exist yet; throws if Postgres is unreachable.
- */
-export async function pingPostgres(connectionString: string): Promise<void> {
-  const client = new Client({
-    connectionString: sanitizePostgresUrlForNodePg(connectionString),
-  });
-  try {
-    await client.connect();
-    await client.query('SELECT 1');
-  } finally {
-    try {
-      await client.end();
-    } catch {
-      /* best-effort close on an unconnected/failed client */
-    }
-  }
-}
+export { pingPostgres } from './ping';
 
 /** Extra `pg.Client` knobs that standalone tools occasionally need. */
 export type PgClientOptions = {

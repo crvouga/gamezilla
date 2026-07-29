@@ -11,7 +11,7 @@
   "scripts": {
     "check": "bun run check:static && bun run check:ci",
     "check:actionlint": "actionlint -color",
-    "check:ci": "bun run scripts/secrets-run.ts -- bun run check:turbo-remote-cache && bun run check:ci:turbo && bun run check:ci:build && bun run check:secrets",
+    "check:ci": "bun run scripts/secrets-run.ts -- bun run check:ci:turbo && bun run check:ci:build && bun run check:secrets",
     "check:ci:build": "bun run scripts/secrets-run.ts -- bun run scripts/turbo-ci-run.ts build --filter='!@apps/client'",
     "check:ci:turbo": "bun run scripts/secrets-run.ts -- sh -c 'bun run --filter @apps/client setup && bun run scripts/turbo-ci-run.ts ci:syncpack ci:no-direct-pg-imports ci:database-url-policy ci:no-provider-leaks ci:depcruise ci:circular-deps ci:tier-imports ci:component-ids ci:audit ci:i18n tc lint test'",
     "check:deployment-pipeline": "bun run libs/infra/src/bin/run-deployment-pipeline-checks.ts",
@@ -22,7 +22,6 @@
     "check:no-patches": "bun run scripts/check-no-patches.ts",
     "check:secrets": "bun run scripts/secrets-run.ts -- bun run libs/infra/src/bin/check-secrets.ts",
     "check:static": "bun run check:actionlint && bun run check:gitleaks",
-    "check:turbo-remote-cache": "bun run scripts/check-turbo-remote-cache.ts",
     "chess:puzzles:refresh-sync-pool": "bun run scripts/secrets-run.ts -- bun run --filter @libs/chess refresh:puzzle-sync-pool",
     "chess:puzzles:seed": "bun run scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles",
     "ci:audit": "bun run scripts/ci-audit.ts",

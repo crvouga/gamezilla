@@ -158,6 +158,13 @@ export async function createInfisicalCliAdminStore(
     if (!(process.env['SECRETS_TOKEN'] ?? '').trim()) {
       process.env['SECRETS_TOKEN'] = token;
     }
+  } else if (process.env['GITHUB_ACTIONS'] === 'true') {
+    throw new Error(
+      'Infisical admin CLI needs a token in GitHub Actions, but none was ' +
+        'resolved. Export SECRETS_IDENTITY_ID (machine identity) so OIDC ' +
+        'can mint INFISICAL_TOKEN, or set SECRETS_TOKEN explicitly. ' +
+        'The secrets-auth action should write SECRETS_IDENTITY_ID to GITHUB_ENV.'
+    );
   }
   return new InfisicalCliAdminStore(options.repoRoot);
 }

@@ -35,8 +35,9 @@ runs:
       run: bun install --frozen-lockfile
 
     # check:secrets (and other admin secret I/O) shells out to the secrets
-    # backend CLI. secrets-auth / secrets-run inject env for child processes,
-    # but export of both `dev` and `prd` still needs the CLI on PATH.
+    # backend CLI. secrets-auth injects secret values + SECRETS_IDENTITY_ID
+    # (for OIDC → INFISICAL_TOKEN); secrets-run passes them to children.
+    # Export of both `dev` and `prd` still needs the CLI on PATH.
     # GITHUB_TOKEN authenticates GitHub API fallbacks when resolving the
     # secrets-backend CLI release (shared runner IPs often exhaust unauth quota).
     - name: Install secrets backend CLI
