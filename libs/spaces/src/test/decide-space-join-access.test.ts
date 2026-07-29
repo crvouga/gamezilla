@@ -17,26 +17,26 @@ describe('decideSpaceJoinAccess', () => {
         ...base,
         visibility: 'public',
         viewerAccountId: 'viewer-account',
-        isAllowlisted: false,
+        hasSpaceUser: false,
       })
     ).toEqual({ allowed: true, reason: 'open' });
   });
 
-  test('private requires allowlist', () => {
+  test('private requires space_users', () => {
     expect(
       decideSpaceJoinAccess({
         ...base,
         visibility: 'private',
         viewerAccountId: 'viewer-account',
-        isAllowlisted: true,
+        hasSpaceUser: true,
       })
-    ).toEqual({ allowed: true, reason: 'allowlist' });
+    ).toEqual({ allowed: true, reason: 'already' });
     expect(
       decideSpaceJoinAccess({
         ...base,
         visibility: 'private',
         viewerAccountId: 'viewer-account',
-        isAllowlisted: false,
+        hasSpaceUser: false,
       })
     ).toEqual({ allowed: false, code: 'SPACE_VISIBILITY_DENIED' });
   });
@@ -47,7 +47,7 @@ describe('decideSpaceJoinAccess', () => {
         ...base,
         visibility: 'public',
         viewerAccountId: null,
-        isAllowlisted: false,
+        hasSpaceUser: false,
       })
     ).toEqual({ allowed: false, code: 'SPACE_NOT_SIGNED_IN' });
   });
@@ -59,19 +59,18 @@ describe('decideSpaceJoinAccess', () => {
         visibility: 'private',
         viewerAccountId: 'host-account',
         viewerMemberId: 'host-account',
-        isAllowlisted: false,
+        hasSpaceUser: false,
       })
     ).toEqual({ allowed: true, reason: 'host' });
   });
 
-  test('already member can rejoin', () => {
+  test('existing space user can rejoin', () => {
     expect(
       decideSpaceJoinAccess({
         ...base,
         visibility: 'private',
         viewerAccountId: 'viewer-account',
-        isAllowlisted: false,
-        alreadyMember: true,
+        hasSpaceUser: true,
       })
     ).toEqual({ allowed: true, reason: 'already' });
   });

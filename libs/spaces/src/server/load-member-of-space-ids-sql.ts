@@ -2,7 +2,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { honey } from '@pkgs/sql';
 
 /**
- * Loads active space ids for a member (account or anon device) via raw SQL
+ * Loads space ids the member may access via space_users ACL
  * (PowerSync upload auth / write context).
  */
 export async function loadMemberOfSpaceIdsFromSql(
@@ -12,8 +12,8 @@ export async function loadMemberOfSpaceIdsFromSql(
   const rows = await db.query<{ readonly space_id: string }>(
     honey({
       select: ['space_id'],
-      from: 'space_memberships',
-      where: ['and', ['=', 'member_id', memberId], ['is-null', 'left_at']],
+      from: 'space_users',
+      where: ['=', 'user_id', memberId],
     })
   );
   const ids = new Set<string>();

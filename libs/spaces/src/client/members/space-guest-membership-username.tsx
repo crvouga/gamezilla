@@ -3,12 +3,8 @@ import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { SxProps, TextVariant } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import {
-  useSpaceMembershipColumn,
-  SpaceMembershipField,
-} from '../use-space-membership-column';
-
 export type SpaceGuestMembershipUsernameProps = {
+  /** Guest member / account id (also the profile id). */
   membershipId: string;
   variant?: TextVariant;
   sx?: SxProps;
@@ -21,19 +17,9 @@ export function SpaceGuestMembershipUsername({
   sx,
   numberOfLines,
 }: SpaceGuestMembershipUsernameProps): ReactNode {
-  const profileId = useSpaceMembershipColumn(
-    membershipId,
-    SpaceMembershipField.profileId
-  );
-  const memberId = useSpaceMembershipColumn(
-    membershipId,
-    SpaceMembershipField.memberId
-  );
-  const resolved =
-    profileId !== null && profileId.length > 0 ? profileId : memberId;
   return (
     <UserUsername
-      profileId={resolved}
+      profileId={membershipId}
       withAt={false}
       {...optionalProps({ variant, sx, numberOfLines })}
     />

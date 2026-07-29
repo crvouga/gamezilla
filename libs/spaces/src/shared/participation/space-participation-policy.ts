@@ -5,7 +5,7 @@ import { resolveSpaceMemberId } from './participation-ids';
 export type SpaceAccessDecision =
   | {
       readonly allowed: true;
-      readonly reason: 'open' | 'allowlist' | 'host' | 'already';
+      readonly reason: 'open' | 'space_user' | 'host' | 'already';
     }
   | { readonly allowed: false; readonly code: SpacesError['code'] };
 
@@ -17,9 +17,8 @@ export type SpaceAccessInput = {
   readonly viewerAccountId: string;
   readonly viewerDeviceId: string;
   readonly viewerMemberId: string;
-  readonly isAllowlisted: boolean;
-  /** Viewer already has an active user membership. */
-  readonly alreadyMember: boolean;
+  /** Viewer already has a space_users ACL row. */
+  readonly hasSpaceUser: boolean;
 };
 
 export type EndSpaceDecision =
@@ -80,18 +79,18 @@ function decideJoinVisibility(input: SpaceAccessInput): SpaceAccessDecision {
   if (input.visibility === 'public') {
     return { allowed: true, reason: 'open' };
   }
-  if (input.isAllowlisted) {
-    return { allowed: true, reason: 'allowlist' };
+  if (input.hasSpaceUser) {
+    return { allowed: true, reason: 'space_user' };
   }
   return { allowed: false, code: 'SPACE_VISIBILITY_DENIED' };
 }
 
 /**
- * Whether the viewer may join a live space.
+ * Whether the viewer may open a live space.
  *
- * Space owners (member / creating device / host account) may always rejoin.
- * Idempotent re-join of an existing membership is allowed.
- * Private spaces require allow-list membership.
+ * Space owners (member / creating device / host account) may always reopen.
+ * Existing ACL (`space_users`) may reopen. Public is open to signed-in users
+ * (self-grant on join). Private requires an ACL row (or host).
  */
 export function decideJoin(input: SpaceAccessInput): SpaceAccessDecision {
   if (
@@ -106,7 +105,7 @@ export function decideJoin(input: SpaceAccessInput): SpaceAccessDecision {
   ) {
     return { allowed: true, reason: 'host' };
   }
-  if (input.alreadyMember) {
+  if (input.hasSpaceUser) {
     return { allowed: true, reason: 'already' };
   }
   return decideJoinVisibility(input);
@@ -131,14 +130,4 @@ export function resolvePresenceRole(args: {
 /** Room / game actor id is the member (account) id. */
 export function resolveRoomActorId(accountId: string): string {
   return resolveMemberId(accountId);
-}
-
-/**
- * Whether active_member_count should bump on join.
- * Only when creating/reactivating a user membership.
- */
-export function shouldBumpMemberCountOnJoin(args: {
-  readonly membershipWasInactive: boolean;
-}): boolean {
-  return args.membershipWasInactive;
 }

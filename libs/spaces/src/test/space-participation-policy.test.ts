@@ -8,7 +8,6 @@ import {
   resolveMemberId,
   resolvePresenceRole,
   resolveRoomActorId,
-  shouldBumpMemberCountOnJoin,
 } from '../shared/participation/space-participation-policy';
 import { spaceMembershipEntityId } from '../shared/participation/participation-ids';
 
@@ -19,7 +18,7 @@ describe('resolveMemberId', () => {
 });
 
 describe('ids', () => {
-  test('membership key by member and space', () => {
+  test('legacy membership key by member and space', () => {
     expect(spaceMembershipEntityId('acct-1', 'space-1')).toBe('acct-1:space-1');
   });
 });
@@ -100,8 +99,7 @@ describe('decideJoin', () => {
     viewerAccountId: 'guest-acct',
     viewerDeviceId: 'guest-device',
     viewerMemberId: 'guest-acct',
-    isAllowlisted: false,
-    alreadyMember: false,
+    hasSpaceUser: false,
   };
 
   test('allows public signed-in join', () => {
@@ -115,7 +113,7 @@ describe('decideJoin', () => {
         viewerAccountId: 'host-acct',
         viewerMemberId: 'host-acct',
         viewerDeviceId: 'host-device-2',
-        alreadyMember: true,
+        hasSpaceUser: true,
       })
     ).toEqual({ allowed: true, reason: 'host' });
   });
@@ -150,39 +148,38 @@ describe('decideJoin', () => {
     ).toEqual({ allowed: true, reason: 'host' });
   });
 
-  test('idempotent when already a member', () => {
-    expect(decideJoin({ ...base, alreadyMember: true })).toEqual({
+  test('idempotent when already a space user', () => {
+    expect(decideJoin({ ...base, hasSpaceUser: true })).toEqual({
       allowed: true,
       reason: 'already',
     });
   });
 
-  test('member rejoin without re-checking visibility', () => {
+  test('space user rejoin without re-checking visibility', () => {
     expect(
       decideJoin({
         ...base,
         visibility: 'private',
-        alreadyMember: true,
-        isAllowlisted: false,
+        hasSpaceUser: true,
       })
     ).toEqual({ allowed: true, reason: 'already' });
   });
 
-  test('private requires allowlist for new members', () => {
+  test('private requires space_users for new members', () => {
     expect(
       decideJoin({
         ...base,
         visibility: 'private',
-        isAllowlisted: false,
+        hasSpaceUser: false,
       })
     ).toEqual({ allowed: false, code: 'SPACE_VISIBILITY_DENIED' });
     expect(
       decideJoin({
         ...base,
         visibility: 'private',
-        isAllowlisted: true,
+        hasSpaceUser: true,
       })
-    ).toEqual({ allowed: true, reason: 'allowlist' });
+    ).toEqual({ allowed: true, reason: 'already' });
   });
 });
 
@@ -193,16 +190,5 @@ describe('decideEndSpace', () => {
       allowed: false,
       code: 'SPACE_HOST_REQUIRED',
     });
-  });
-});
-
-describe('count helpers', () => {
-  test('bump count only on membership reactivation', () => {
-    expect(shouldBumpMemberCountOnJoin({ membershipWasInactive: true })).toBe(
-      true
-    );
-    expect(shouldBumpMemberCountOnJoin({ membershipWasInactive: false })).toBe(
-      false
-    );
   });
 });

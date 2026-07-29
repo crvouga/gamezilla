@@ -1,23 +1,17 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 
 import {
-  SPACE_ALLOWLIST_TABLE,
-  SPACE_MEMBERSHIPS_TABLE,
-  SpaceAllowlistCol,
+  SPACE_USERS_TABLE,
   SpaceCol,
-  SpaceMembershipCol,
+  SpaceUserCol,
   SPACES_TABLE,
-  spaceAllowlistEntityId,
+  spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
-import { spaceMembershipEntityId } from '@libs/spaces/shared/participation/participation-ids';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { honey, sql, type Sql, ident } from '@pkgs/sql';
 
-import {
-  myLiveSeatSpacesSelectSql,
-  sharedLiveSpaceIdsSql,
-} from '../client/my-live-space-seat-sql';
+import { sharedLiveSpaceIdsSql } from '../client/my-live-space-seat-sql';
 import { buildCurrentSpaceEntries } from '../client/use-current-space-ids';
 
 const HOST_SPACE = 'space-host-1';
@@ -39,23 +33,14 @@ async function migrate(db: SqlClient): Promise<void> {
       ${ident(SpaceCol.endedAt)} TEXT,
       ${ident(SpaceCol.visibility)} TEXT,
       ${ident(SpaceCol.hostAccountId)} TEXT,
-      ${ident(SpaceCol.hostMemberId)} TEXT,
-      ${ident(SpaceCol.activeMemberCount)} INTEGER NOT NULL DEFAULT 0
+      ${ident(SpaceCol.hostMemberId)} TEXT
     )`);
-  await db.run(sql`CREATE TABLE ${ident(SPACE_MEMBERSHIPS_TABLE.tableName)} (
-      ${ident(SpaceMembershipCol.id)} TEXT PRIMARY KEY,
-      ${ident(SpaceMembershipCol.memberId)} TEXT,
-      ${ident(SpaceMembershipCol.spaceId)} TEXT,
-      ${ident(SpaceMembershipCol.joinedAt)} TEXT,
-      ${ident(SpaceMembershipCol.leftAt)} TEXT,
-      ${ident(SpaceMembershipCol.profileId)} TEXT
-    )`);
-  await db.run(sql`CREATE TABLE ${ident(SPACE_ALLOWLIST_TABLE.tableName)} (
-      ${ident(SpaceAllowlistCol.id)} TEXT PRIMARY KEY,
-      ${ident(SpaceAllowlistCol.spaceId)} TEXT,
-      ${ident(SpaceAllowlistCol.userId)} TEXT,
-      ${ident(SpaceAllowlistCol.createdAt)} TEXT,
-      ${ident(SpaceAllowlistCol.createdByAccountId)} TEXT
+  await db.run(sql`CREATE TABLE ${ident(SPACE_USERS_TABLE.tableName)} (
+      ${ident(SpaceUserCol.id)} TEXT PRIMARY KEY,
+      ${ident(SpaceUserCol.spaceId)} TEXT,
+      ${ident(SpaceUserCol.userId)} TEXT,
+      ${ident(SpaceUserCol.createdAt)} TEXT,
+      ${ident(SpaceUserCol.createdByAccountId)} TEXT
     )`);
 }
 
@@ -80,52 +65,25 @@ async function seedSpace(
         [SpaceCol.visibility]: args.visibility,
         [SpaceCol.endedAt]: args.endedAt,
         [SpaceCol.createdAt]: args.createdAt,
-        [SpaceCol.activeMemberCount]: 1,
       },
     })
   );
 }
 
-async function seedMembership(
-  db: SqlClient,
-  args: {
-    readonly memberId: string;
-    readonly spaceId: string;
-    readonly leftAt: string | null;
-  }
-): Promise<void> {
-  await db.run(
-    honey({
-      insertInto: SPACE_MEMBERSHIPS_TABLE.tableName,
-      values: {
-        [SpaceMembershipCol.id]: spaceMembershipEntityId(
-          args.memberId,
-          args.spaceId
-        ),
-        [SpaceMembershipCol.memberId]: args.memberId,
-        [SpaceMembershipCol.spaceId]: args.spaceId,
-        [SpaceMembershipCol.joinedAt]: '2026-01-01T00:00:00.000Z',
-        [SpaceMembershipCol.leftAt]: args.leftAt,
-        [SpaceMembershipCol.profileId]: args.memberId,
-      },
-    })
-  );
-}
-
-async function seedAllowlist(
+async function seedSpaceUser(
   db: SqlClient,
   spaceId: string,
   userId: string
 ): Promise<void> {
   await db.run(
     honey({
-      insertInto: SPACE_ALLOWLIST_TABLE.tableName,
+      insertInto: SPACE_USERS_TABLE.tableName,
       values: {
-        [SpaceAllowlistCol.id]: spaceAllowlistEntityId(spaceId, userId),
-        [SpaceAllowlistCol.spaceId]: spaceId,
-        [SpaceAllowlistCol.userId]: userId,
-        [SpaceAllowlistCol.createdAt]: '2026-01-01T00:00:00.000Z',
-        [SpaceAllowlistCol.createdByAccountId]: OTHER_ACCOUNT,
+        [SpaceUserCol.id]: spaceUserEntityId(spaceId, userId),
+        [SpaceUserCol.spaceId]: spaceId,
+        [SpaceUserCol.userId]: userId,
+        [SpaceUserCol.createdAt]: '2026-01-01T00:00:00.000Z',
+        [SpaceUserCol.createdByAccountId]: OTHER_ACCOUNT,
       },
     })
   );
@@ -136,7 +94,7 @@ async function queryIds(db: SqlClient, query: Sql): Promise<string[]> {
   return rows.map((r) => r.id);
 }
 
-describe('my-live-space-seat-sql — active membership seats', () => {
+describe('my-live-space-seat-sql — host / space_users lobby', () => {
   let db: SqlClientImplBunSqlite;
 
   beforeEach(async () => {
@@ -144,7 +102,7 @@ describe('my-live-space-seat-sql — active membership seats', () => {
     await migrate(db);
   });
 
-  test('left host seat is excluded from shared list and miniplayer seats', async () => {
+  test('host space appears in shared list without space_users row', async () => {
     await seedSpace(db, {
       id: HOST_SPACE,
       hostAccountId: ACCOUNT_ID,
@@ -152,70 +110,31 @@ describe('my-live-space-seat-sql — active membership seats', () => {
       endedAt: null,
       createdAt: '2026-01-02T00:00:00.000Z',
     });
-    await seedMembership(db, {
-      memberId: ACCOUNT_ID,
-      spaceId: HOST_SPACE,
-      leftAt: '2026-01-02T01:00:00.000Z',
-    });
 
     const sharedIds = await queryIds(
       db,
-      sharedLiveSpaceIdsSql({
-        memberId: ACCOUNT_ID,
-        includeHostAccountId: true,
-      })
+      sharedLiveSpaceIdsSql({ memberId: ACCOUNT_ID })
     );
-    // Host member id still matches even without an active seat.
     expect(sharedIds).toContain(HOST_SPACE);
-
-    const seats = await db.query<{
-      readonly id: string;
-      readonly host_member_id: string | null;
-      readonly host_account_id: string | null;
-      readonly ended_at: string | null;
-      readonly joined_at: string | null;
-    }>(myLiveSeatSpacesSelectSql(ACCOUNT_ID));
-    expect(seats.map((r) => r.id)).not.toContain(HOST_SPACE);
-    expect(buildCurrentSpaceEntries(seats, ACCOUNT_ID)).toEqual([]);
   });
 
-  test('active host seat is included in shared list and miniplayer seats', async () => {
+  test('ended host space is excluded from shared list', async () => {
     await seedSpace(db, {
       id: HOST_SPACE,
       hostAccountId: ACCOUNT_ID,
       visibility: 'private',
-      endedAt: null,
+      endedAt: '2026-01-02T01:00:00.000Z',
       createdAt: '2026-01-02T00:00:00.000Z',
-    });
-    await seedMembership(db, {
-      memberId: ACCOUNT_ID,
-      spaceId: HOST_SPACE,
-      leftAt: null,
     });
 
     const sharedIds = await queryIds(
       db,
-      sharedLiveSpaceIdsSql({
-        memberId: ACCOUNT_ID,
-        includeHostAccountId: true,
-      })
+      sharedLiveSpaceIdsSql({ memberId: ACCOUNT_ID })
     );
-    expect(sharedIds).toContain(HOST_SPACE);
-
-    const seats = await db.query<{
-      readonly id: string;
-      readonly host_member_id: string | null;
-      readonly host_account_id: string | null;
-      readonly ended_at: string | null;
-      readonly joined_at: string | null;
-    }>(myLiveSeatSpacesSelectSql(ACCOUNT_ID));
-    expect(seats.map((r) => r.id)).toContain(HOST_SPACE);
-    expect(buildCurrentSpaceEntries(seats, ACCOUNT_ID)).toEqual([
-      { spaceId: HOST_SPACE, role: 'host' },
-    ]);
+    expect(sharedIds).not.toContain(HOST_SPACE);
   });
 
-  test('allowlisted private space appears in shared list', async () => {
+  test('space_users ACL private space appears in shared list', async () => {
     await seedSpace(db, {
       id: SHARED_SPACE,
       hostAccountId: OTHER_ACCOUNT,
@@ -223,15 +142,43 @@ describe('my-live-space-seat-sql — active membership seats', () => {
       endedAt: null,
       createdAt: '2026-01-03T00:00:00.000Z',
     });
-    await seedAllowlist(db, SHARED_SPACE, ACCOUNT_ID);
+    await seedSpaceUser(db, SHARED_SPACE, ACCOUNT_ID);
 
     const sharedIds = await queryIds(
       db,
-      sharedLiveSpaceIdsSql({
-        memberId: ACCOUNT_ID,
-        includeHostAccountId: true,
-      })
+      sharedLiveSpaceIdsSql({ memberId: ACCOUNT_ID })
     );
     expect(sharedIds).toContain(SHARED_SPACE);
+  });
+
+  test('buildCurrentSpaceEntries uses open ids + live rows', () => {
+    expect(
+      buildCurrentSpaceEntries(
+        [
+          {
+            id: HOST_SPACE,
+            host_member_id: ACCOUNT_ID,
+            host_account_id: ACCOUNT_ID,
+            ended_at: null,
+          },
+        ],
+        [HOST_SPACE],
+        ACCOUNT_ID
+      )
+    ).toEqual([{ spaceId: HOST_SPACE, role: 'host' }]);
+    expect(
+      buildCurrentSpaceEntries(
+        [
+          {
+            id: HOST_SPACE,
+            host_member_id: ACCOUNT_ID,
+            host_account_id: ACCOUNT_ID,
+            ended_at: '2026-01-02T01:00:00.000Z',
+          },
+        ],
+        [HOST_SPACE],
+        ACCOUNT_ID
+      )
+    ).toEqual([]);
   });
 });

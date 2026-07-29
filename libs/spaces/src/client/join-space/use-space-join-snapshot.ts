@@ -12,7 +12,7 @@ import {
   type SpaceJoinLocalRow,
   type SpaceJoinSnapshot,
 } from '../../shared/join-space/resolve-space-join-snapshot';
-import { useIsAllowlistedLocal } from './use-space-join-access-flags';
+import { useHasSpaceUserLocal } from './use-space-join-access-flags';
 
 export type {
   SpaceJoinSnapshot,
@@ -36,7 +36,7 @@ export function useSpaceJoinSnapshot(spaceId: string): SpaceJoinSnapshot {
       where: enabled ? ['=', SpaceCol.id, spaceId] : ['=', 1, 0],
     })
   );
-  const isAllowlisted = useIsAllowlistedLocal(spaceId, viewerAccountId);
+  const hasSpaceUser = useHasSpaceUserLocal(spaceId, viewerAccountId);
 
   return useMemo(
     () =>
@@ -44,10 +44,10 @@ export function useSpaceJoinSnapshot(spaceId: string): SpaceJoinSnapshot {
         enabled,
         rowLoading: isLoading,
         row,
-        isAllowlisted,
+        hasSpaceUser,
         viewerAccountId,
         viewerDeviceId,
       }),
-    [enabled, isLoading, row, isAllowlisted, viewerAccountId, viewerDeviceId]
+    [enabled, isLoading, row, hasSpaceUser, viewerAccountId, viewerDeviceId]
   );
 }

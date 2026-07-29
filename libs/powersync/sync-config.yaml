@@ -33,42 +33,21 @@ streams:
       SELECT * FROM spaces
       WHERE host_member_id = auth.user_id()
          OR id IN (
-           SELECT space_id FROM space_memberships
-           WHERE left_at IS NULL
-             AND member_id = auth.user_id()
-         )
-         OR id IN (
-           SELECT space_id FROM space_allowlist
+           SELECT space_id FROM space_users
            WHERE user_id = auth.user_id()
          )
 
-  space_allowlist:
+  space_users:
     priority: 2
     auto_subscribe: true
     query: |
-      SELECT * FROM space_allowlist
+      SELECT * FROM space_users
       WHERE user_id = auth.user_id()
          OR space_id IN (
            SELECT id FROM spaces
            WHERE host_member_id = auth.user_id()
-         )
-
-  space_memberships:
-    priority: 2
-    auto_subscribe: true
-    query: |
-      SELECT * FROM space_memberships
-      WHERE member_id = auth.user_id()
-         OR space_id IN (
-           SELECT id FROM spaces
-           WHERE host_member_id = auth.user_id()
               OR id IN (
-                SELECT space_id FROM space_memberships
-                WHERE left_at IS NULL
-                  AND member_id = auth.user_id()
-              )
-              OR id IN (
-                SELECT space_id FROM space_allowlist
+                SELECT space_id FROM space_users
                 WHERE user_id = auth.user_id()
               )
          )

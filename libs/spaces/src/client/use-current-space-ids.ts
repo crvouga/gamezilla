@@ -1,9 +1,5 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
-import {
-  SpaceCol,
-  SpaceMembershipCol,
-  SPACE_MEMBERSHIPS_TABLE,
-} from '@libs/db/shared/space-tables';
+import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { honey, type Sql } from '@pkgs/sql';
 import {
   useSyncStatus,
@@ -14,7 +10,7 @@ import type { SyncEngineStatus } from '@pkgs/sync-engine/client/sync-status';
 import { useMemo, useRef } from 'react';
 
 import { isViewerSpaceHost } from '../shared/resolve-space-presence';
-import { myLiveSeatSpacesSelectSql } from './my-live-space-seat-sql';
+import { useOpenSpaceIds } from './open-space/use-open-space-ids';
 
 function isSyncReconnecting(status: SyncEngineStatus): boolean {
   return (
@@ -27,29 +23,31 @@ export type CurrentSpaceEntry = {
   role: 'host' | 'guest';
 };
 
-type SeatRow = {
+type SpaceRow = {
   readonly id: string;
   readonly host_member_id: string | null;
   readonly host_account_id: string | null;
   readonly ended_at: string | null;
-  readonly joined_at: string | null;
 };
 
 /**
- * Build miniplayer entries from live active-membership seats (I2 / I7).
+ * Build miniplayer entries from locally-open space ids + live space rows.
  */
 export function buildCurrentSpaceEntries(
-  seatRows: readonly SeatRow[],
+  spaceRows: readonly SpaceRow[],
+  openSpaceIds: readonly string[],
   memberId: string
 ): CurrentSpaceEntry[] {
+  const byId = new Map(spaceRows.map((row) => [row.id, row]));
   const entries: CurrentSpaceEntry[] = [];
   const seen = new Set<string>();
-  for (const space of seatRows) {
-    if (space.ended_at !== null || space.id.length === 0) continue;
-    if (seen.has(space.id)) continue;
-    seen.add(space.id);
+  for (const spaceId of openSpaceIds) {
+    if (spaceId.length === 0 || seen.has(spaceId)) continue;
+    const space = byId.get(spaceId);
+    if (space === undefined || space.ended_at !== null) continue;
+    seen.add(spaceId);
     entries.push({
-      spaceId: space.id,
+      spaceId,
       role: isViewerSpaceHost(
         {
           host_member_id: space.host_member_id,
@@ -65,21 +63,29 @@ export function buildCurrentSpaceEntries(
   return entries;
 }
 
-function seatsSql(enabled: boolean, accountId: string): Sql {
-  if (!enabled) {
+function openSpacesSql(enabled: boolean, openSpaceIds: readonly string[]): Sql {
+  if (!enabled || openSpaceIds.length === 0) {
     return honey({
       select: [
         SpaceCol.id,
         SpaceCol.hostMemberId,
         SpaceCol.hostAccountId,
         SpaceCol.endedAt,
-        SpaceMembershipCol.joinedAt,
       ],
-      from: SPACE_MEMBERSHIPS_TABLE.tableName,
+      from: SPACES_TABLE.tableName,
       where: ['=', 1, 0],
     });
   }
-  return myLiveSeatSpacesSelectSql(accountId);
+  return honey({
+    select: [
+      SpaceCol.id,
+      SpaceCol.hostMemberId,
+      SpaceCol.hostAccountId,
+      SpaceCol.endedAt,
+    ],
+    from: SPACES_TABLE.tableName,
+    where: ['in', SpaceCol.id, [...openSpaceIds]],
+  });
 }
 
 function resolveDisplayEntries(
@@ -92,25 +98,28 @@ function resolveDisplayEntries(
   return entries;
 }
 
-function useCurrentSpaceWatchQueries(accountId: string | null): {
+function useCurrentSpaceWatchQueries(
+  accountId: string | null,
+  openSpaceIds: readonly string[]
+): {
   entries: CurrentSpaceEntry[];
   queriesLoading: boolean;
 } {
   const enabled = accountId !== null && accountId.length > 0;
   const query = useMemo(
-    () => seatsSql(enabled, accountId ?? ''),
-    [enabled, accountId]
+    () => openSpacesSql(enabled, openSpaceIds),
+    [enabled, openSpaceIds]
   );
-  const { rows, isLoading } = useWatchQuery<SeatRow>(query);
+  const { rows, isLoading } = useWatchQuery<SpaceRow>(query);
   const entries = useMemo(
-    () => buildCurrentSpaceEntries(rows, accountId ?? ''),
-    [rows, accountId]
+    () => buildCurrentSpaceEntries(rows, openSpaceIds, accountId ?? ''),
+    [rows, openSpaceIds, accountId]
   );
   return { entries, queriesLoading: isLoading };
 }
 
 /**
- * This account's live spaces — active memberships on live spaces only (I2 / I7).
+ * This account's locally-open live spaces (miniplayer).
  */
 export function useCurrentSpaceIds(): {
   entries: CurrentSpaceEntry[];
@@ -118,8 +127,10 @@ export function useCurrentSpaceIds(): {
 } {
   const accountId = useMyAccountId();
   const paintReady = useSyncEnginePaintReady();
+  const { openSpaceIds } = useOpenSpaceIds();
   const { entries, queriesLoading } = useCurrentSpaceWatchQueries(
-    paintReady ? accountId : null
+    paintReady ? accountId : null,
+    openSpaceIds
   );
   const status = useSyncStatus();
   const prevEntriesRef = useRef<CurrentSpaceEntry[]>([]);

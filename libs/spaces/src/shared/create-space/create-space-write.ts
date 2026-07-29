@@ -1,13 +1,11 @@
 import {
-  SPACE_MEMBERSHIPS_TABLE,
+  SPACE_USERS_TABLE,
   SpaceCol,
-  SpaceMembershipCol,
+  SpaceUserCol,
   SPACES_TABLE,
+  spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
-import {
-  resolveSpaceMemberId,
-  spaceMembershipEntityId,
-} from '@libs/spaces/shared/participation/participation-ids';
+import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import {
   isSpaceVisibility,
   type SpaceVisibility,
@@ -68,21 +66,18 @@ export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
           [SpaceCol.visibility]: input.visibility,
           [SpaceCol.hostAccountId]: accountId.value,
           [SpaceCol.hostMemberId]: memberId,
-          [SpaceCol.activeMemberCount]: 1,
         },
       })
     );
-    const membershipId = spaceMembershipEntityId(memberId, input.spaceId);
     await db.run(
       honey({
-        insertInto: SPACE_MEMBERSHIPS_TABLE.tableName,
+        insertInto: SPACE_USERS_TABLE.tableName,
         values: {
-          [SpaceMembershipCol.id]: membershipId,
-          [SpaceMembershipCol.memberId]: memberId,
-          [SpaceMembershipCol.spaceId]: input.spaceId,
-          [SpaceMembershipCol.joinedAt]: now,
-          [SpaceMembershipCol.leftAt]: null,
-          [SpaceMembershipCol.profileId]: memberId,
+          [SpaceUserCol.id]: spaceUserEntityId(input.spaceId, memberId),
+          [SpaceUserCol.spaceId]: input.spaceId,
+          [SpaceUserCol.userId]: memberId,
+          [SpaceUserCol.createdAt]: now,
+          [SpaceUserCol.createdByAccountId]: accountId.value,
         },
       })
     );

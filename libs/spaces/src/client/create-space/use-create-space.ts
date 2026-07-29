@@ -5,6 +5,7 @@ import { runClientWrite } from '@pkgs/write/client/run-client-write';
 import { useCallback } from 'react';
 
 import { createSpaceWrite } from '../../shared/create-space/create-space-write';
+import { useOpenSpaceIds } from '../open-space/use-open-space-ids';
 
 export type CreateSpaceOptions = {
   readonly visibility?: SpaceVisibility;
@@ -13,6 +14,7 @@ export type CreateSpaceOptions = {
 export function useCreateSpace() {
   const writeContext = useWriteContext();
   const engine = useSyncEngine();
+  const { markOpen } = useOpenSpaceIds();
 
   return useCallback(
     async (
@@ -29,9 +31,10 @@ export function useCreateSpace() {
         },
         engine.db
       );
+      markOpen(spaceId);
       onCreated?.(spaceId);
       return spaceId;
     },
-    [engine, writeContext]
+    [engine, markOpen, writeContext]
   );
 }

@@ -6,14 +6,10 @@ import { fail, ok } from '@pkgs/write/shared/write-result';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
-import {
-  executeEndSpace,
-  softLeaveMembership,
-} from '../end-space/execute-end-space';
+import { executeEndSpace, stampSpaceEnded } from '../end-space/execute-end-space';
 import {
   asObjectRecord,
-  maybeAutoEndEmptyHostSpace,
-  readMembershipForLeave,
+  isSpaceUserInStore,
   readSpaceHostEnded,
   requireAccountId,
   requireNonEmptyString,
@@ -21,6 +17,11 @@ import {
 
 export type LeaveSpaceInput = {
   readonly spaceId: string;
+  /**
+   * Client observed that room seats would be empty after this leave.
+   * Stamps `ended_at` for the last remaining collaborator (replaces membership-count auto-end).
+   */
+  readonly endIfLastSeat?: boolean;
 };
 
 function parseLeaveSpaceInput(
@@ -30,11 +31,12 @@ function parseLeaveSpaceInput(
   if (!record.ok) return record;
   const spaceId = requireNonEmptyString(record.value['spaceId'], 'spaceId');
   if (!spaceId.ok) return spaceId;
-  return ok({ spaceId: spaceId.value });
+  const endIfLastSeat = record.value['endIfLastSeat'] === true;
+  return ok({ spaceId: spaceId.value, endIfLastSeat });
 }
 
 /**
- * Soft-leave this account's membership in the space.
+ * Guest leave is local + room only (no DB) unless `endIfLastSeat`.
  * Host leave ends the space (I4).
  */
 export async function authorizeLeaveSpace(
@@ -44,16 +46,24 @@ export async function authorizeLeaveSpace(
 ): Promise<ReturnType<typeof ok<void>> | ReturnType<typeof fail>> {
   const accountId = requireAccountId(ctx);
   if (!accountId.ok) return accountId;
-  const memberId = resolveSpaceMemberId(accountId.value);
-  const row = await readMembershipForLeave(db, memberId, input.spaceId);
-  if (row === null || row.leftAt !== null) {
-    return ok(undefined);
-  }
-  if (row.memberId !== memberId) {
-    return fail(
-      'SPACE_MEMBERSHIP_GUEST_MISMATCH',
-      'Only this member can leave its membership'
-    );
+  if (input.endIfLastSeat) {
+    const hasAcl = await isSpaceUserInStore(db, input.spaceId, accountId.value);
+    if (!hasAcl) {
+      const space = await readSpaceHostEnded(db, input.spaceId);
+      if (!space.ok) return space;
+      const memberId = resolveSpaceMemberId(accountId.value);
+      const isHost = isSpaceHostActor({
+        hostId: space.value.hostId,
+        hostMemberId: space.value.hostMemberId,
+        hostAccountId: space.value.hostAccountId,
+        memberId,
+        accountId: accountId.value,
+        deviceId: ctx.deviceId,
+      });
+      if (!isHost) {
+        return fail('SPACE_WRITE_DENIED', 'Not allowed to end this space');
+      }
+    }
   }
   return ok(undefined);
 }
@@ -85,18 +95,13 @@ export async function executeLeaveSpace(
 ): Promise<ReturnType<typeof ok<void>> | ReturnType<typeof fail>> {
   const accountId = requireAccountId(ctx);
   if (!accountId.ok) return accountId;
-  const memberId = resolveSpaceMemberId(accountId.value);
-  const row = await readMembershipForLeave(db, memberId, input.spaceId);
-  if (row === null || row.leftAt !== null) {
-    return ok(undefined);
-  }
   if (await actorIsSpaceHost(ctx, db, input.spaceId)) {
     return executeEndSpace(ctx, input, db);
   }
   clearSpacePresenceLatch(input.spaceId);
-  const left = await softLeaveMembership(ctx, db, input.spaceId);
-  if (!left.ok) return left;
-  await maybeAutoEndEmptyHostSpace(ctx, db, input.spaceId);
+  if (input.endIfLastSeat) {
+    return stampSpaceEnded(ctx, db, input.spaceId);
+  }
   return ok(undefined);
 }
 

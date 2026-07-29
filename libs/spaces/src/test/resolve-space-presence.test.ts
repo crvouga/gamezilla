@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 
 import {
   latchStaleSpacePresence,
-  loadingPresence,
   resolveSpacePresence,
 } from '../shared/resolve-space-presence';
 
@@ -11,110 +10,44 @@ const hostSpaceRow = {
   ended_at: null,
 };
 
-const guestRow = { id: 'membership-1' };
-
-describe('loadingPresence', () => {
-  test('does not load when space query is loading but row exists', () => {
-    expect(
-      loadingPresence({
-        spaceEnabled: true,
-        spaceLoading: true,
-        spaceRow: hostSpaceRow,
-        memberEnabled: true,
-        guestLoading: false,
-        guestRow: null,
-        myId: 'user-1',
-      })
-    ).toBeNull();
-  });
-
-  test('loads when space row is missing and query is loading', () => {
-    expect(
-      loadingPresence({
-        spaceEnabled: true,
-        spaceLoading: true,
-        spaceRow: null,
-        memberEnabled: true,
-        guestLoading: false,
-        guestRow: null,
-        myId: 'user-1',
-      })
-    ).toEqual({ status: 'loading' });
-  });
-
-  test('loads while membership query is pending for non-host', () => {
-    expect(
-      loadingPresence({
-        spaceEnabled: true,
-        spaceLoading: false,
-        spaceRow: hostSpaceRow,
-        memberEnabled: true,
-        guestLoading: true,
-        guestRow: null,
-        myId: 'user-2',
-      })
-    ).toEqual({ status: 'loading' });
-  });
-
-  test('loads while membership query is pending for host (seat required)', () => {
-    expect(
-      loadingPresence({
-        spaceEnabled: true,
-        spaceLoading: false,
-        spaceRow: hostSpaceRow,
-        memberEnabled: true,
-        guestLoading: true,
-        guestRow: null,
-        myId: 'user-1',
-      })
-    ).toEqual({ status: 'loading' });
-  });
-});
-
 describe('resolveSpacePresence', () => {
-  test('resolves active host from membership + host_member_id', () => {
+  test('resolves active host when open locally', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
         spaceLoading: true,
         spaceRow: hostSpaceRow,
-        memberEnabled: true,
-        guestLoading: false,
-        guestRow,
+        isOpenLocally: true,
         myId: 'user-1',
       })
     ).toEqual({ status: 'active', role: 'host' });
   });
 
-  test('resolves active guest while membership row is present', () => {
+  test('resolves active guest when open locally', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
         spaceLoading: false,
         spaceRow: { host_member_id: 'other', ended_at: null },
-        memberEnabled: true,
-        guestLoading: true,
-        guestRow,
+        isOpenLocally: true,
         myId: 'user-2',
       })
     ).toEqual({ status: 'active', role: 'guest' });
   });
 
-  test('resolves join when host fields match but membership is missing', () => {
+  test('resolves join when not open locally even if host fields match', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
         spaceLoading: false,
         spaceRow: hostSpaceRow,
-        memberEnabled: true,
-        guestLoading: false,
-        guestRow: null,
+        isOpenLocally: false,
         myId: 'user-1',
       })
     ).toEqual({ status: 'join', ended: false });
   });
 
-  test('resolves active host via host_account_id when membership present', () => {
+  test('resolves active host via host_account_id when open locally', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
@@ -124,29 +57,25 @@ describe('resolveSpacePresence', () => {
           host_account_id: 'user-1',
           ended_at: null,
         },
-        memberEnabled: true,
-        guestLoading: false,
-        guestRow,
+        isOpenLocally: true,
         myId: 'user-1',
       })
     ).toEqual({ status: 'active', role: 'host' });
   });
 
-  test('resolves join when membership is missing for non-host', () => {
+  test('resolves join when not open for non-host', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
         spaceLoading: false,
         spaceRow: hostSpaceRow,
-        memberEnabled: true,
-        guestLoading: false,
-        guestRow: null,
+        isOpenLocally: false,
         myId: 'user-2',
       })
     ).toEqual({ status: 'join', ended: false });
   });
 
-  test('resolves ended join even when membership row is still present', () => {
+  test('resolves ended join even when open locally', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
@@ -155,29 +84,22 @@ describe('resolveSpacePresence', () => {
           host_member_id: 'user-1',
           ended_at: '2026-07-13T00:00:00.000Z',
         },
-        memberEnabled: true,
-        guestLoading: false,
-        guestRow,
+        isOpenLocally: true,
         myId: 'user-1',
       })
     ).toEqual({ status: 'join', ended: true });
   });
 
-  test('resolves ended join without waiting on membership loading', () => {
+  test('loads when space row is missing and query is loading', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,
-        spaceLoading: false,
-        spaceRow: {
-          host_member_id: 'user-1',
-          ended_at: '2026-07-13T00:00:00.000Z',
-        },
-        memberEnabled: true,
-        guestLoading: true,
-        guestRow: null,
+        spaceLoading: true,
+        spaceRow: null,
+        isOpenLocally: false,
         myId: 'user-1',
       })
-    ).toEqual({ status: 'join', ended: true });
+    ).toEqual({ status: 'loading' });
   });
 });
 
@@ -208,7 +130,7 @@ describe('latchStaleSpacePresence', () => {
     });
   });
 
-  test('holds active across transient join after membership blip', () => {
+  test('holds active across transient join after open blip', () => {
     const latch = {
       spaceId: 'space-1',
       presence: { status: 'active' as const, role: 'host' as const },

@@ -1,26 +1,26 @@
 import {
-  SPACE_ALLOWLIST_TABLE,
-  SpaceAllowlistCol,
+  SPACE_USERS_TABLE,
+  SpaceUserCol,
 } from '@libs/db/shared/space-tables';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { col, honey } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
-export type SpaceAllowlistEntry = {
+export type SpaceUserEntry = {
   readonly userId: string;
   readonly username: string;
   readonly avatarConfig: string | null;
 };
 
-type AllowlistRow = {
+type SpaceUserRow = {
   readonly user_id: string;
   readonly username: string | null;
   readonly avatar_config: string | null;
 };
 
-export function useSpaceAllowlistEntries(spaceId: string): {
-  readonly entries: readonly SpaceAllowlistEntry[];
+export function useSpaceUserEntries(spaceId: string): {
+  readonly entries: readonly SpaceUserEntry[];
   readonly isLoading: boolean;
 } {
   const enabled = spaceId.length > 0;
@@ -28,17 +28,17 @@ export function useSpaceAllowlistEntries(spaceId: string): {
     () =>
       honey({
         select: [
-          [`a.${SpaceAllowlistCol.userId}`, 'user_id'],
+          [`a.${SpaceUserCol.userId}`, 'user_id'],
           [`p.${ProfileCol.username}`, 'username'],
           [`p.${ProfileCol.avatarConfig}`, 'avatar_config'],
         ],
-        from: [SPACE_ALLOWLIST_TABLE.tableName, 'a'],
+        from: [SPACE_USERS_TABLE.tableName, 'a'],
         join: [
           [PROFILES_TABLE.tableName, 'p'],
-          ['=', `p.${ProfileCol.id}`, col(`a.${SpaceAllowlistCol.userId}`)],
+          ['=', `p.${ProfileCol.id}`, col(`a.${SpaceUserCol.userId}`)],
         ],
         where: enabled
-          ? ['=', `a.${SpaceAllowlistCol.spaceId}`, spaceId]
+          ? ['=', `a.${SpaceUserCol.spaceId}`, spaceId]
           : ['=', 1, 0],
         orderBy: [
           [`p.${ProfileCol.username}`, 'asc', { collate: 'NOCASE' }],
@@ -46,7 +46,7 @@ export function useSpaceAllowlistEntries(spaceId: string): {
       }),
     [enabled, spaceId]
   );
-  const { rows, isLoading } = useWatchQuery<AllowlistRow>(query);
+  const { rows, isLoading } = useWatchQuery<SpaceUserRow>(query);
   const entries = useMemo(
     () =>
       rows.map((row) => ({

@@ -17,7 +17,7 @@ describe('resolveSpaceJoinSnapshot', () => {
         enabled: false,
         rowLoading: false,
         row: null,
-        isAllowlisted: false,
+        hasSpaceUser: false,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })
@@ -30,7 +30,7 @@ describe('resolveSpaceJoinSnapshot', () => {
         enabled: true,
         rowLoading: true,
         row: null,
-        isAllowlisted: false,
+        hasSpaceUser: false,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })
@@ -43,7 +43,7 @@ describe('resolveSpaceJoinSnapshot', () => {
         enabled: true,
         rowLoading: false,
         row: null,
-        isAllowlisted: false,
+        hasSpaceUser: false,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })
@@ -56,7 +56,7 @@ describe('resolveSpaceJoinSnapshot', () => {
         enabled: true,
         rowLoading: false,
         row: { ...liveRow, ended_at: '2026-01-01T00:00:00.000Z' },
-        isAllowlisted: false,
+        hasSpaceUser: false,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })
@@ -69,20 +69,20 @@ describe('resolveSpaceJoinSnapshot', () => {
         enabled: true,
         rowLoading: false,
         row: liveRow,
-        isAllowlisted: false,
+        hasSpaceUser: false,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })
     ).toEqual({ status: 'live', joinable: true });
   });
 
-  test('private live row joinable only when allowlisted', () => {
+  test('private live row joinable only with space_users', () => {
     expect(
       resolveSpaceJoinSnapshot({
         enabled: true,
         rowLoading: false,
         row: { ...liveRow, visibility: 'private' },
-        isAllowlisted: false,
+        hasSpaceUser: false,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })
@@ -92,7 +92,7 @@ describe('resolveSpaceJoinSnapshot', () => {
         enabled: true,
         rowLoading: false,
         row: { ...liveRow, visibility: 'private' },
-        isAllowlisted: true,
+        hasSpaceUser: true,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })

@@ -3,16 +3,16 @@ import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { runClientWrite } from '@pkgs/write/client/run-client-write';
 import { useCallback } from 'react';
 
-import { addSpaceAllowlistWrite } from '../../shared/space-allowlist/add-space-allowlist-write';
-import { removeSpaceAllowlistWrite } from '../../shared/space-allowlist/remove-space-allowlist-write';
+import { addSpaceUserWrite } from '../../shared/space-users/add-space-user-write';
+import { removeSpaceUserWrite } from '../../shared/space-users/remove-space-user-write';
 
-export function useAddSpaceAllowlist() {
+export function useAddSpaceUser() {
   const writeContext = useWriteContext();
   const engine = useSyncEngine();
   return useCallback(
     async (spaceId: string, userId: string) => {
       await runClientWrite(
-        addSpaceAllowlistWrite,
+        addSpaceUserWrite,
         writeContext,
         { spaceId, userId },
         engine.db
@@ -22,13 +22,13 @@ export function useAddSpaceAllowlist() {
   );
 }
 
-export function useRemoveSpaceAllowlist() {
+export function useRemoveSpaceUser() {
   const writeContext = useWriteContext();
   const engine = useSyncEngine();
   return useCallback(
     async (spaceId: string, userId: string) => {
       await runClientWrite(
-        removeSpaceAllowlistWrite,
+        removeSpaceUserWrite,
         writeContext,
         { spaceId, userId },
         engine.db

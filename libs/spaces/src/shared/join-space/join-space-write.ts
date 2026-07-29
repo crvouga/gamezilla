@@ -1,25 +1,17 @@
-import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import {
-  resolveSpaceMemberId,
-  spaceMembershipEntityId,
-} from '@libs/spaces/shared/participation/participation-ids';
-import {
-  isSpaceHostActor,
-  shouldBumpMemberCountOnJoin,
-} from '@libs/spaces/shared/participation/space-participation-policy';
-import { honey } from '@pkgs/sql';
+import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
+import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 import { ok, type WriteResult } from '@pkgs/write/shared/write-result';
 
-import { upsertSpaceMembershipRow } from '../space-row-upsert';
 import {
   asObjectRecord,
-  isoNow,
+  isSpaceUserInStore,
   migrateHostIdentity,
   requireAccountId,
   requireNonEmptyString,
+  upsertSpaceUserRow,
 } from '../space-write-helpers';
 import {
   authorizeJoinSpaceAccess,
@@ -38,35 +30,6 @@ function parseJoinSpaceInput(raw: unknown): WriteResult<JoinSpaceInput> {
   return ok({ spaceId: spaceId.value });
 }
 
-async function upsertJoinMembership(
-  input: JoinSpaceInput,
-  db: SqlClient,
-  memberId: string
-): Promise<{ readonly reactivated: boolean }> {
-  return upsertSpaceMembershipRow({
-    sql: db,
-    membershipId: spaceMembershipEntityId(memberId, input.spaceId),
-    memberId,
-    spaceId: input.spaceId,
-    now: isoNow(),
-  });
-}
-
-async function bumpActiveMemberCount(
-  db: SqlClient,
-  spaceId: string
-): Promise<void> {
-  await db.run(
-    honey({
-      update: SPACES_TABLE.tableName,
-      set: {
-        [SpaceCol.activeMemberCount]: ['+', SpaceCol.activeMemberCount, 1],
-      },
-      where: ['=', SpaceCol.id, spaceId],
-    })
-  );
-}
-
 export async function authorizeJoinSpace(
   ctx: WriteContext,
   input: JoinSpaceInput,
@@ -75,6 +38,11 @@ export async function authorizeJoinSpace(
   return authorizeJoinSpaceAccess(ctx, db, input.spaceId);
 }
 
+/**
+ * Open/join a space: ensure ACL (`space_users`) exists for the actor.
+ * Live seat + "opened" are room / local state — not written here.
+ * Public join self-upserts ACL so the space can sync.
+ */
 export async function executeJoinSpace(
   ctx: WriteContext,
   input: JoinSpaceInput,
@@ -83,9 +51,14 @@ export async function executeJoinSpace(
   const accountId = requireAccountId(ctx);
   if (!accountId.ok) return accountId;
   const memberId = resolveSpaceMemberId(accountId.value);
-  const { reactivated } = await upsertJoinMembership(input, db, memberId);
-  if (shouldBumpMemberCountOnJoin({ membershipWasInactive: reactivated })) {
-    await bumpActiveMemberCount(db, input.spaceId);
+  const already = await isSpaceUserInStore(db, input.spaceId, memberId);
+  if (!already) {
+    await upsertSpaceUserRow({
+      db,
+      spaceId: input.spaceId,
+      userId: memberId,
+      createdByAccountId: accountId.value,
+    });
   }
   const space = await readSpaceRowForJoin(db, input.spaceId);
   if (

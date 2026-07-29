@@ -9,19 +9,9 @@ export const SpaceCol = {
   visibility: 'visibility',
   hostAccountId: 'host_account_id',
   hostMemberId: 'host_member_id',
-  activeMemberCount: 'active_member_count',
 } as const;
 
-export const SpaceMembershipCol = {
-  id: 'id',
-  memberId: 'member_id',
-  spaceId: 'space_id',
-  joinedAt: 'joined_at',
-  leftAt: 'left_at',
-  profileId: 'profile_id',
-} as const;
-
-export const SpaceAllowlistCol = {
+export const SpaceUserCol = {
   id: 'id',
   spaceId: 'space_id',
   userId: 'user_id',
@@ -40,24 +30,11 @@ export const SPACES_TABLE = defineTable({
     { name: 'visibility', type: 'text' },
     { name: 'host_account_id', type: 'text' },
     { name: 'host_member_id', type: 'text' },
-    { name: 'active_member_count', type: 'integer' },
   ],
 });
 
-export const SPACE_MEMBERSHIPS_TABLE = defineTable({
-  tableName: 'space_memberships',
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'member_id', type: 'text' },
-    { name: 'space_id', type: 'text' },
-    { name: 'joined_at', type: 'text' },
-    { name: 'left_at', type: 'text' },
-    { name: 'profile_id', type: 'text' },
-  ],
-});
-
-export const SPACE_ALLOWLIST_TABLE = defineTable({
-  tableName: 'space_allowlist',
+export const SPACE_USERS_TABLE = defineTable({
+  tableName: 'space_users',
   columns: [
     { name: 'id', type: 'text', primaryKey: true },
     { name: 'space_id', type: 'text' },
@@ -69,14 +46,10 @@ export const SPACE_ALLOWLIST_TABLE = defineTable({
 
 export const ALL_SPACE_SYNC_TABLES = [
   SPACES_TABLE,
-  SPACE_MEMBERSHIPS_TABLE,
-  SPACE_ALLOWLIST_TABLE,
+  SPACE_USERS_TABLE,
 ] as const;
 
-/** Canonical allowlist row id: `${spaceId}:${userId}`. */
-export function spaceAllowlistEntityId(
-  spaceId: string,
-  userId: string
-): string {
+/** Canonical space_users row id: `${spaceId}:${userId}`. */
+export function spaceUserEntityId(spaceId: string, userId: string): string {
   return `${spaceId}:${userId}`;
 }

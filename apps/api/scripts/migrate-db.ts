@@ -50,9 +50,21 @@ function isPostgresDeadlockError(error: unknown): boolean {
   return error.message.toLowerCase().includes('deadlock detected');
 }
 
+function isPostgresLockTimeoutError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const code = (error as { code?: string }).code;
+  if (code === '55P03') return true;
+  const msg = error.message.toLowerCase();
+  return (
+    msg.includes('lock timeout') || msg.includes('canceling statement due to lock')
+  );
+}
+
 function isPostgresTransientMigrateError(error: unknown): boolean {
   return (
-    isPostgresConnectionLimitError(error) || isPostgresDeadlockError(error)
+    isPostgresConnectionLimitError(error) ||
+    isPostgresDeadlockError(error) ||
+    isPostgresLockTimeoutError(error)
   );
 }
 
@@ -165,7 +177,9 @@ async function main(): Promise<void> {
     if (delayMs > 0) {
       const reason = isPostgresDeadlockError(lastError)
         ? 'deadlock'
-        : 'connection limit';
+        : isPostgresLockTimeoutError(lastError)
+          ? 'lock timeout'
+          : 'connection limit';
       log.warn(`Postgres ${reason} — retrying migrate`, {
         attempt: attempt + 1,
         delayMs,

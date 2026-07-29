@@ -145,7 +145,7 @@ msgstr "Action required"
 msgid "Activity"
 msgstr "Activity"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "Add"
 msgstr "Add"
@@ -163,7 +163,8 @@ msgstr "Add Friend"
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Added"
 msgstr "Added"
 
@@ -171,7 +172,7 @@ msgstr "Added"
 msgid "Adding account…"
 msgstr "Adding account…"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Adding…"
 msgstr "Adding…"
 
@@ -188,12 +189,12 @@ msgid "All attributes (JSON)"
 msgstr "All attributes (JSON)"
 
 #: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
-msgid "Allow list"
-msgstr "Allow list"
+#~ msgid "Allow list"
+#~ msgstr "Allow list"
 
 #: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
-msgid "Allowed"
-msgstr "Allowed"
+#~ msgid "Allowed"
+#~ msgstr "Allowed"
 
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "API endpoint"
@@ -487,7 +488,7 @@ msgstr "Continue with Google"
 
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Copied"
 msgstr "Copied"
 
@@ -495,7 +496,7 @@ msgstr "Copied"
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Copy link"
 msgstr "Copy link"
 
@@ -508,7 +509,7 @@ msgstr "Copy seed"
 msgid "Copy to clipboard"
 msgstr "Copy to clipboard"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Copying…"
 msgstr "Copying…"
 
@@ -532,7 +533,7 @@ msgstr "Could not switch accounts"
 msgid "Could not wipe database"
 msgstr "Could not wipe database"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Couldn't add"
 msgstr "Couldn't add"
 
@@ -544,7 +545,7 @@ msgstr "Couldn't add account"
 msgid "Couldn't confirm"
 msgstr "Couldn't confirm"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Couldn't copy"
 msgstr "Couldn't copy"
 
@@ -569,7 +570,7 @@ msgstr "Couldn't leave space"
 msgid "Couldn't open"
 msgstr "Couldn't open"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Couldn't remove"
 msgstr "Couldn't remove"
 
@@ -1039,7 +1040,7 @@ msgstr "Light, dark, or system theme"
 msgid "Limited or checking"
 msgstr "Limited or checking"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Link"
 msgstr "Link"
 
@@ -1217,13 +1218,17 @@ msgstr "No guests yet"
 msgid "No host listed"
 msgstr "No host listed"
 
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+msgid "No one added yet"
+msgstr "No one added yet"
+
 #: libs/spaces/src/client/members/space-members-list-modal.tsx
 msgid "No one connected yet"
 msgstr "No one connected yet"
 
 #: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
-msgid "No one on the allow list yet"
-msgstr "No one on the allow list yet"
+#~ msgid "No one on the allow list yet"
+#~ msgstr "No one on the allow list yet"
 
 #: libs/spaces/src/client/spaces-screen.tsx
 #~ msgid "No public spaces"
@@ -1317,6 +1322,7 @@ msgid "Pass `theme` to override any board color (squares, highlights, arrows, fe
 msgstr "Pass `theme` to override any board color (squares, highlights, arrows, feedback)."
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "People"
 msgstr "People"
 
@@ -1389,7 +1395,7 @@ msgstr "Previous"
 #~ msgid "Private"
 #~ msgstr "Private"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Private spaces only sync for people you add here."
 msgstr "Private spaces only sync for people you add here."
 
@@ -1489,7 +1495,7 @@ msgid "Reload"
 msgstr "Reload"
 
 #: libs/friends/src/client/friend-user-danger-modals.tsx
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Remove"
 msgstr "Remove"
 
@@ -1501,11 +1507,11 @@ msgstr "Remove friend"
 msgid "Remove friend?"
 msgstr "Remove friend?"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Removed"
 msgstr "Removed"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Removing…"
 msgstr "Removing…"
 
@@ -1577,7 +1583,7 @@ msgstr "Saving…"
 msgid "Search"
 msgstr "Search"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Search by username"
 msgstr "Search by username"
 
@@ -1633,7 +1639,7 @@ msgstr "Settings"
 msgid "Share"
 msgstr "Share"
 
-#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "Share space"
 msgstr "Share space"
 

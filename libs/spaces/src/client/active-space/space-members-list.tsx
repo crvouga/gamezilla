@@ -7,10 +7,6 @@ import type { ReactNode } from 'react';
 
 import { useSpaceGuestMembershipIds } from '../members/use-space-guest-membership-ids';
 import { useSpaceHostMembershipDisplay } from '../members/use-space-host-membership-display';
-import {
-  useSpaceMembershipColumn,
-  SpaceMembershipField,
-} from '../use-space-membership-column';
 
 const ROW_AVATAR_SIZE = 28;
 
@@ -19,14 +15,14 @@ export type SpaceMembersListProps = {
 };
 
 /**
- * Compact member list: one row per user membership. Host first; "You" when
- * the member is this account (or anon device).
+ * Compact member list: one row per seated / ACL guest. Host first; "You" when
+ * the member is this account.
  */
 export function SpaceMembersList({
   spaceId,
 }: SpaceMembersListProps): ReactNode {
   const host = useSpaceHostMembershipDisplay(spaceId);
-  const membershipIds = useSpaceGuestMembershipIds(spaceId);
+  const guestIds = useSpaceGuestMembershipIds(spaceId);
   return (
     <Box sx={{ gap: 0 }}>
       {host !== null ? (
@@ -43,33 +39,15 @@ export function SpaceMembersList({
           }
         />
       ) : null}
-      {membershipIds.map((membershipId) => (
-        <SpaceMembersGuestRow key={membershipId} membershipId={membershipId} />
+      {guestIds.map((memberId) => (
+        <SpaceMembersSeatRow
+          key={memberId}
+          profileId={memberId}
+          memberId={memberId}
+          deviceLabel={null}
+        />
       ))}
     </Box>
-  );
-}
-
-function SpaceMembersGuestRow({
-  membershipId,
-}: {
-  membershipId: string;
-}): ReactNode {
-  const memberId = useSpaceMembershipColumn(
-    membershipId,
-    SpaceMembershipField.memberId
-  );
-  const profileId =
-    useSpaceMembershipColumn(membershipId, SpaceMembershipField.profileId) ??
-    memberId;
-  if (memberId === null || memberId.length === 0) return null;
-  if (profileId === null || profileId.length === 0) return null;
-  return (
-    <SpaceMembersSeatRow
-      profileId={profileId}
-      memberId={memberId}
-      deviceLabel={null}
-    />
   );
 }
 

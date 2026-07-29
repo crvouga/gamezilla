@@ -21,14 +21,11 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { Platform, Share } from 'react-native';
 
+import { useAddSpaceUser, useRemoveSpaceUser } from './use-space-users';
 import {
-  useAddSpaceAllowlist,
-  useRemoveSpaceAllowlist,
-} from './use-space-allowlist';
-import {
-  useSpaceAllowlistEntries,
-  type SpaceAllowlistEntry,
-} from './use-space-allowlist-entries';
+  useSpaceUserEntries,
+  type SpaceUserEntry,
+} from './use-space-user-entries';
 
 export type SpaceShareSheetProps = {
   readonly spaceId: string;
@@ -47,7 +44,7 @@ function spaceShareUrl(spaceId: string): string {
   return `/space/${spaceId}`;
 }
 
-function AllowlistUserRow({
+function SpaceUserRow({
   userId,
   trailing,
 }: {
@@ -72,15 +69,15 @@ function AllowlistUserRow({
   );
 }
 
-function AllowlistRow({
+function ListedUserRow({
   spaceId,
   entry,
 }: {
   readonly spaceId: string;
-  readonly entry: SpaceAllowlistEntry;
+  readonly entry: SpaceUserEntry;
 }): ReactNode {
   const { t } = useLingui();
-  const remove = useRemoveSpaceAllowlist();
+  const remove = useRemoveSpaceUser();
   const removeButton = useMutationButton({
     operation: useCallback(
       () => remove(spaceId, entry.userId),
@@ -95,7 +92,7 @@ function AllowlistRow({
     successHoldMs: 0,
   });
   return (
-    <AllowlistUserRow
+    <SpaceUserRow
       userId={entry.userId}
       trailing={<Button {...removeButton.buttonProps} size="sm" />}
     />
@@ -105,30 +102,30 @@ function AllowlistRow({
 function SearchAddRow({
   spaceId,
   profile,
-  alreadyAllowed,
+  alreadyListed,
 }: {
   readonly spaceId: string;
   readonly profile: SearchProfile;
-  readonly alreadyAllowed: boolean;
+  readonly alreadyListed: boolean;
 }): ReactNode {
   const { t } = useLingui();
-  const add = useAddSpaceAllowlist();
+  const add = useAddSpaceUser();
   const addButton = useMutationButton({
     operation: useCallback(
       () => add(spaceId, profile.userId),
       [add, spaceId, profile.userId]
     ),
     labels: {
-      idle: alreadyAllowed ? t`Allowed` : t`Add`,
+      idle: alreadyListed ? t`Added` : t`Add`,
       loading: t`Adding…`,
       success: t`Added`,
       error: t`Couldn't add`,
     },
-    disabled: alreadyAllowed,
+    disabled: alreadyListed,
     successHoldMs: 0,
   });
   return (
-    <AllowlistUserRow
+    <SpaceUserRow
       userId={profile.userId}
       trailing={<Button {...addButton.buttonProps} size="sm" />}
     />
@@ -162,14 +159,14 @@ function ShareLinkSection({ spaceId }: { readonly spaceId: string }): ReactNode 
   );
 }
 
-function HostAllowlistSection({
+function HostSpaceUsersSection({
   spaceId,
 }: {
   readonly spaceId: string;
 }): ReactNode {
   const { t } = useLingui();
-  const { entries, isLoading } = useSpaceAllowlistEntries(spaceId);
-  const allowedIds = useMemo(
+  const { entries, isLoading } = useSpaceUserEntries(spaceId);
+  const listedIds = useMemo(
     () => new Set(entries.map((e) => e.userId)),
     [entries]
   );
@@ -178,7 +175,7 @@ function HostAllowlistSection({
 
   return (
     <Box sx={{ gap: 2 }}>
-      <Text variant="label" label={<Trans>Allow list</Trans>} />
+      <Text variant="label" label={<Trans>People</Trans>} />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
@@ -203,18 +200,18 @@ function HostAllowlistSection({
           key={profile.userId}
           spaceId={spaceId}
           profile={profile}
-          alreadyAllowed={allowedIds.has(profile.userId)}
+          alreadyListed={listedIds.has(profile.userId)}
         />
       ))}
       {isLoading ? <LoadingState size="small" /> : null}
       {!isLoading && entries.length === 0 ? (
         <EmptyState
           variant="compact"
-          title={<Trans>No one on the allow list yet</Trans>}
+          title={<Trans>No one added yet</Trans>}
         />
       ) : null}
       {entries.map((entry) => (
-        <AllowlistRow key={entry.userId} spaceId={spaceId} entry={entry} />
+        <ListedUserRow key={entry.userId} spaceId={spaceId} entry={entry} />
       ))}
     </Box>
   );
@@ -237,7 +234,7 @@ export function SpaceShareSheet({
     >
       <ScrollView style={{ maxHeight: 480 }} sx={{ px: 0, gap: 3 }}>
         <ShareLinkSection spaceId={spaceId} />
-        {isHost ? <HostAllowlistSection spaceId={spaceId} /> : null}
+        {isHost ? <HostSpaceUsersSection spaceId={spaceId} /> : null}
       </ScrollView>
     </ResponsiveSurface>
   );

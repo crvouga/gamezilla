@@ -27,6 +27,13 @@ import {
   gamesEvtNs,
 } from './games';
 import {
+  SpaceMembersRoomAttr,
+  spaceMembersCmdNs,
+  spaceMembersCommandRouter,
+  spaceMembersEventReducer,
+  spaceMembersEvtNs,
+} from './space-members/space-members-messages';
+import {
   spaceLogCmdNs,
   spaceLogCommandRouter,
   spaceLogEventReducer,
@@ -50,6 +57,7 @@ function assertUniqueGameIds(games: readonly GameDefinition[]): void {
 function buildCommandRouter(games: readonly GameDefinition[]) {
   return createComposedMessageRouter<RoomState, string, HandleResult>([
     { namespace: spaceLogCmdNs, router: spaceLogCommandRouter },
+    { namespace: spaceMembersCmdNs, router: spaceMembersCommandRouter },
     { namespace: counterCmdNs, router: counterCommandRouter },
     { namespace: gamesCmdNs, router: createGamesCommandRouter(games) },
     ...games.flatMap((game) => [...game.commandRouters]),
@@ -59,6 +67,7 @@ function buildCommandRouter(games: readonly GameDefinition[]) {
 function buildEventReducer(games: readonly GameDefinition[]) {
   return createComposedMessageRouter<RoomState, void, RoomState>([
     { namespace: spaceLogEvtNs, router: spaceLogEventReducer },
+    { namespace: spaceMembersEvtNs, router: spaceMembersEventReducer },
     { namespace: counterEvtNs, router: counterEventReducer },
     { namespace: gamesEvtNs, router: createGamesEventReducer(games) },
     ...games.flatMap((game) => [...game.eventRouters]),
@@ -66,7 +75,9 @@ function buildEventReducer(games: readonly GameDefinition[]) {
 }
 
 function buildInitialState(games: readonly GameDefinition[]): RoomState {
-  let state: RoomState = {};
+  let state: RoomState = {
+    ...SpaceMembersRoomAttr.seats({}),
+  };
   for (const game of games) {
     if (game.initialState !== undefined) {
       state = { ...state, ...game.initialState() };

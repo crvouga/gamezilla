@@ -1,30 +1,23 @@
 import {
-  SPACE_ALLOWLIST_TABLE,
+  SPACE_USERS_TABLE,
   SPACES_TABLE,
-  SPACE_MEMBERSHIPS_TABLE,
-  SpaceAllowlistCol,
   SpaceCol,
-  SpaceMembershipCol,
-  spaceAllowlistEntityId,
+  SpaceUserCol,
+  spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
-import {
-  resolveSpaceMemberId,
-  spaceMembershipEntityId,
-} from '@libs/spaces/shared/participation/participation-ids';
+import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { honey } from '@pkgs/sql';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import {
   createRowWriteBinding,
   defineRowAuthorizeWrite,
   type RowWriteBinding,
 } from '@pkgs/write/server/row-write-registry';
-import { readOne, readRowString } from '@pkgs/write/shared/read-row-values';
+import { readRowString } from '@pkgs/write/shared/read-row-values';
 import type { RowChange } from '@pkgs/write/shared/row-change';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
-import { authorizeLeaveSpace } from './leave-space/leave-space-write';
 import {
   authorizeSpaceHost,
   readSpaceHostEnded,
@@ -105,91 +98,19 @@ const spacesRowWrite = defineRowAuthorizeWrite({
   authorize: authorizeSpacesUpload,
 });
 
-async function resolveMembershipSpaceId(
-  row: RowChange,
-  db: SqlClient
-): Promise<WriteResult<string>> {
-  const fromValues = readRowString(row, SpaceMembershipCol.spaceId);
-  if (fromValues !== undefined && fromValues.length > 0) {
-    return ok(fromValues);
+function spaceIdFromUsersRowId(rowId: string): WriteResult<string> {
+  const sep = rowId.indexOf(':');
+  if (sep <= 0) {
+    return fail('SPACE_INVALID_INPUT', 'Invalid space_users row id');
   }
-  const result = await readOne<{ readonly space_id: string }>(
-    db,
-    honey({
-      select: [SpaceMembershipCol.spaceId],
-      from: SPACE_MEMBERSHIPS_TABLE.tableName,
-      where: ['=', SpaceMembershipCol.id, row.id],
-      limit: 1,
-    }),
-    'SPACE_MEMBERSHIP_NOT_FOUND'
-  );
-  if (!result.ok) return result;
-  return ok(result.value.space_id);
+  return ok(rowId.slice(0, sep));
 }
 
-async function resolveMembershipMemberId(
-  row: RowChange,
-  db: SqlClient
-): Promise<WriteResult<string>> {
-  const fromValues = readRowString(row, SpaceMembershipCol.memberId);
-  if (fromValues !== undefined && fromValues.length > 0) {
-    return ok(fromValues);
-  }
-  const result = await readOne<{ readonly member_id: string }>(
-    db,
-    honey({
-      select: [SpaceMembershipCol.memberId],
-      from: SPACE_MEMBERSHIPS_TABLE.tableName,
-      where: ['=', SpaceMembershipCol.id, row.id],
-      limit: 1,
-    }),
-    'SPACE_MEMBERSHIP_NOT_FOUND'
-  );
-  if (!result.ok) return result;
-  return ok(result.value.member_id);
-}
-
-function isLeaveShape(row: RowChange, leftAtCol: string): boolean {
-  const leftAt = row.values?.[leftAtCol];
-  return typeof leftAt === 'string' && leftAt.length > 0;
-}
-
-async function authorizeSpaceMembershipUpload(
-  ctx: WriteContext,
-  row: RowChange,
-  db: SqlClient
+async function authorizeSelfSpaceUserGrant(
+  db: SqlClient,
+  spaceId: string
 ): Promise<WriteResult<void>> {
-  if (row.op === 'delete') {
-    return fail(
-      'SPACE_MEMBERSHIP_DELETE_DENIED',
-      'space memberships cannot be deleted via sync'
-    );
-  }
-  const accountId = requireAccountId(ctx);
-  if (!accountId.ok) return accountId;
-  const spaceIdResult = await resolveMembershipSpaceId(row, db);
-  if (!spaceIdResult.ok) return spaceIdResult;
-  const memberIdResult = await resolveMembershipMemberId(row, db);
-  if (!memberIdResult.ok) return memberIdResult;
-  const seatMemberId = memberIdResult.value;
-  const currentMemberId = resolveSpaceMemberId(accountId.value);
-  if (seatMemberId !== currentMemberId) {
-    return fail(
-      'SPACE_MEMBERSHIP_GUEST_MISMATCH',
-      'Only this member can upload its membership'
-    );
-  }
-  const expectedId = spaceMembershipEntityId(seatMemberId, spaceIdResult.value);
-  if (row.id !== expectedId) {
-    return fail(
-      'SPACE_MEMBERSHIP_ID_MISMATCH',
-      'Membership id must match space + member'
-    );
-  }
-  if (isLeaveShape(row, SpaceMembershipCol.leftAt)) {
-    return authorizeLeaveSpace(ctx, { spaceId: spaceIdResult.value }, db);
-  }
-  const space = await readSpaceHostEnded(db, spaceIdResult.value);
+  const space = await readSpaceHostEnded(db, spaceId);
   if (!space.ok) return space;
   if (space.value.endedAt !== null) {
     return fail('SPACE_ENDED', 'Space has ended');
@@ -197,61 +118,57 @@ async function authorizeSpaceMembershipUpload(
   return ok(undefined);
 }
 
-const spaceMembershipsRowWrite = defineRowAuthorizeWrite({
-  name: 'space_memberships.upload',
-  authorize: authorizeSpaceMembershipUpload,
-});
-
-async function authorizeSpaceAllowlistUpload(
+async function authorizeSpaceUsersUpload(
   ctx: WriteContext,
   row: RowChange,
   db: SqlClient
 ): Promise<WriteResult<void>> {
-  const spaceId = readRowString(row, SpaceAllowlistCol.spaceId);
+  const accountId = requireAccountId(ctx);
+  if (!accountId.ok) return accountId;
+  const spaceId = readRowString(row, SpaceUserCol.spaceId);
+  const userId = readRowString(row, SpaceUserCol.userId);
+
   if (spaceId === undefined || spaceId.length === 0) {
-    // Delete by id only: `${spaceId}:${userId}`
-    const sep = row.id.indexOf(':');
-    if (sep <= 0) {
-      return fail('SPACE_INVALID_INPUT', 'Invalid allowlist row id');
-    }
+    const parsed = spaceIdFromUsersRowId(row.id);
+    if (!parsed.ok) return parsed;
     return authorizeSpaceHost(
       ctx,
       db,
-      row.id.slice(0, sep),
-      'Only the host can manage the allow list'
+      parsed.value,
+      'Only the host can manage space users'
     );
   }
-  const userId = readRowString(row, SpaceAllowlistCol.userId);
+
   if (userId === undefined || userId.length === 0) {
     return fail('SPACE_INVALID_INPUT', 'user_id is required');
   }
-  if (row.id !== spaceAllowlistEntityId(spaceId, userId)) {
+  if (row.id !== spaceUserEntityId(spaceId, userId)) {
     return fail(
       'SPACE_INVALID_INPUT',
-      'Allowlist id must match space + user'
+      'space_users id must match space + user'
     );
   }
+
+  if (userId === accountId.value && row.op !== 'delete') {
+    return authorizeSelfSpaceUserGrant(db, spaceId);
+  }
+
   return authorizeSpaceHost(
     ctx,
     db,
     spaceId,
-    'Only the host can manage the allow list'
+    'Only the host can manage space users'
   );
 }
 
-const spaceAllowlistRowWrite = defineRowAuthorizeWrite({
-  name: 'space_allowlist.upload',
-  authorize: authorizeSpaceAllowlistUpload,
+const spaceUsersRowWrite = defineRowAuthorizeWrite({
+  name: 'space_users.upload',
+  authorize: authorizeSpaceUsersUpload,
 });
 
 export const SPACE_ROW_BINDINGS: Readonly<
   Record<string, RowWriteBinding<RowChange>>
 > = {
   [SPACES_TABLE.tableName]: createRowWriteBinding(spacesRowWrite),
-  [SPACE_MEMBERSHIPS_TABLE.tableName]: createRowWriteBinding(
-    spaceMembershipsRowWrite
-  ),
-  [SPACE_ALLOWLIST_TABLE.tableName]: createRowWriteBinding(
-    spaceAllowlistRowWrite
-  ),
+  [SPACE_USERS_TABLE.tableName]: createRowWriteBinding(spaceUsersRowWrite),
 };

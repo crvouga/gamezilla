@@ -6,18 +6,21 @@ import { runClientWrite } from '@pkgs/write/client/run-client-write';
 
 import { endSpaceWrite } from '../../shared/end-space/end-space-write';
 import { AnnounceEnded } from '../../shared/space-log/space-log-messages';
+import { useOpenSpaceIds } from '../open-space/use-open-space-ids';
 import { useSpaceRoomDispatch } from '../room/use-space-room-selector';
 
 export function useEndSpace() {
   const writeContext = useWriteContext();
   const engine = useSyncEngine();
   const dispatch = useSpaceRoomDispatch();
+  const { markClosed } = useOpenSpaceIds();
 
   return useCallback(
     async (spaceId: string) => {
       dispatch(AnnounceEnded({}));
       await runClientWrite(endSpaceWrite, writeContext, { spaceId }, engine.db);
+      markClosed(spaceId);
     },
-    [dispatch, engine, writeContext]
+    [dispatch, engine, markClosed, writeContext]
   );
 }

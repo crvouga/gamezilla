@@ -1,22 +1,17 @@
 import {
-  SPACE_ALLOWLIST_TABLE,
-  SPACE_MEMBERSHIPS_TABLE,
-  SpaceAllowlistCol,
   SpaceCol,
-  SpaceMembershipCol,
   SPACES_TABLE,
-  spaceAllowlistEntityId,
 } from '@libs/db/shared/space-tables';
-import {
-  resolveSpaceMemberId,
-  spaceMembershipEntityId,
-} from '@libs/spaces/shared/participation/participation-ids';
+import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { parseSpaceVisibility } from '@libs/spaces/shared/space-visibility';
 import { honey } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
-import { requireAccountId } from '../space-write-helpers';
+import {
+  isSpaceUserInStore,
+  requireAccountId,
+} from '../space-write-helpers';
 import { decideSpaceJoinAccess } from './decide-space-join-access';
 
 export type JoinSpaceRow = {
@@ -65,40 +60,13 @@ export async function readSpaceRowForJoin(
   });
 }
 
+/** @deprecated Prefer {@link isSpaceUserInStore}. */
 export async function isUserAllowlistedInStore(
   db: SqlClient,
   spaceId: string,
   userId: string
 ): Promise<boolean> {
-  if (spaceId.length === 0 || userId.length === 0) return false;
-  const id = spaceAllowlistEntityId(spaceId, userId);
-  const rows = await db.query<{ readonly id: string }>(
-    honey({
-      select: [SpaceAllowlistCol.id],
-      from: SPACE_ALLOWLIST_TABLE.tableName,
-      where: ['=', SpaceAllowlistCol.id, id],
-      limit: 1,
-    })
-  );
-  return rows[0] !== undefined;
-}
-
-async function isActiveMembership(
-  db: SqlClient,
-  memberId: string,
-  spaceId: string
-): Promise<boolean> {
-  const id = spaceMembershipEntityId(memberId, spaceId);
-  const rows = await db.query<{ readonly left_at: string | null }>(
-    honey({
-      select: [SpaceMembershipCol.leftAt],
-      from: SPACE_MEMBERSHIPS_TABLE.tableName,
-      where: ['=', SpaceMembershipCol.id, id],
-      limit: 1,
-    })
-  );
-  const row = rows[0];
-  return row !== undefined && row.left_at === null;
+  return isSpaceUserInStore(db, spaceId, userId);
 }
 
 export async function authorizeJoinSpaceAccess(
@@ -114,12 +82,7 @@ export async function authorizeJoinSpaceAccess(
     return fail('SPACE_ENDED', 'Space has ended');
   }
   const viewerMemberId = resolveSpaceMemberId(accountId.value);
-  const alreadyMember = await isActiveMembership(db, viewerMemberId, spaceId);
-  const isAllowlisted = await isUserAllowlistedInStore(
-    db,
-    spaceId,
-    accountId.value
-  );
+  const hasSpaceUser = await isSpaceUserInStore(db, spaceId, accountId.value);
   const decision = decideSpaceJoinAccess({
     visibility: parseSpaceVisibility(space.value.visibility),
     hostId: space.value.hostId,
@@ -128,8 +91,7 @@ export async function authorizeJoinSpaceAccess(
     viewerAccountId: accountId.value,
     viewerDeviceId: ctx.deviceId,
     viewerMemberId,
-    isAllowlisted,
-    alreadyMember,
+    hasSpaceUser,
   });
   if (!decision.allowed) {
     return fail(decision.code, 'Not allowed to join this space');

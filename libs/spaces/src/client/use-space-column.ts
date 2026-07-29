@@ -11,7 +11,6 @@ export const SpaceField = {
   visibility: 'visibility',
   hostAccountId: 'hostAccountId',
   hostMemberId: 'hostMemberId',
-  activeMemberCount: 'activeMemberCount',
 } as const satisfies Record<string, keyof typeof SpaceCol>;
 
 export type SpaceFieldKey = keyof typeof SpaceField;
@@ -32,7 +31,6 @@ export function useSpaceColumn(
         SpaceCol.visibility,
         SpaceCol.hostAccountId,
         SpaceCol.hostMemberId,
-        SpaceCol.activeMemberCount,
       ],
       from: SPACES_TABLE.tableName,
       where: ['=', SpaceCol.id, spaceId],

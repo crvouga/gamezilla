@@ -6,10 +6,15 @@ export interface CheckHealStep {
 
 /** Mirrors `bun check` = `check:static` + `check:ci`. */
 export const CHECK_HEAL_STEPS: ReadonlyArray<CheckHealStep> = [
-  { stepId: 'static', bunScript: 'check:static' },
+  {
+    stepId: 'static',
+    bunScript: 'check:static',
+  },
   {
     stepId: 'ci',
     bunScript: 'check:ci',
-    env: { TURBO_OUTPUT_LOGS: 'errors-only' },
+    env: {
+      TURBO_OUTPUT_LOGS: 'errors-only',
+    },
   },
 ];

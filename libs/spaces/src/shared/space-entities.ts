@@ -1,9 +1,5 @@
 import { createAttrNamespace } from '@pkgs/attribute';
 
-function readString(v: unknown): string {
-  return typeof v === 'string' ? v : '';
-}
-
 function readNonEmptyStringOrNull(v: unknown): string | null {
   return typeof v === 'string' && v.length > 0 ? v : null;
 }
@@ -20,15 +16,6 @@ export const SPACE_ENTITY_TYPE = spaceNs.prefix;
 
 function readVisibility(v: unknown): string {
   return typeof v === 'string' && v.length > 0 ? v : 'private';
-}
-
-function readMemberCount(v: unknown): number {
-  if (typeof v === 'number' && Number.isFinite(v)) return Math.max(0, v);
-  if (typeof v === 'string' && v.length > 0) {
-    const n = Number(v);
-    return Number.isFinite(n) ? Math.max(0, n) : 1;
-  }
-  return 1;
 }
 
 export const SpaceAttr = {
@@ -56,28 +43,27 @@ export const SpaceAttr = {
   hostMemberId: spaceNs
     .textOrNull('host-member-id', readNonEmptyStringOrNull)
     .indexed(),
-  activeMemberCount: spaceNs.integer('active-member-count', readMemberCount),
 } as const;
 
 /**
- * Account-scoped membership: `${memberId}:${spaceId}`.
+ * ACL collaborator: `${spaceId}:${userId}`.
  */
-export const spaceMembershipNs = createAttrNamespace('space', 'membership');
+export const spaceUserNs = createAttrNamespace('space', 'user');
 
-export const SPACE_MEMBERSHIP_ENTITY_TYPE = spaceMembershipNs.prefix;
+export const SPACE_USER_ENTITY_TYPE = spaceUserNs.prefix;
 
-export const SpaceMembershipAttr = {
-  /** Member id (signed-in account). */
-  memberId: spaceMembershipNs.text('member-id', readString).indexed(),
-  spaceId: spaceMembershipNs.text('space-id', readString).indexed(),
-  /** Display identity (same as member id for current model). */
-  profileId: spaceMembershipNs
-    .textOrNull('profile-id', readNonEmptyStringOrNull)
-    .indexed(),
-  joinedAt: spaceMembershipNs
-    .timestampOrNull('joined-at', readTrimmedNullableString)
+function readString(v: unknown): string {
+  return typeof v === 'string' ? v : '';
+}
+
+export const SpaceUserAttr = {
+  spaceId: spaceUserNs.text('space-id', readString).indexed(),
+  userId: spaceUserNs.text('user-id', readString).indexed(),
+  createdAt: spaceUserNs
+    .timestampOrNull('created-at', readTrimmedNullableString)
     .indexed({ sortable: true }),
-  leftAt: spaceMembershipNs
-    .timestampOrNull('left-at', readTrimmedNullableString)
-    .indexed(),
+  createdByAccountId: spaceUserNs.text(
+    'created-by-account-id',
+    readString
+  ),
 } as const;

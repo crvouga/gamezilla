@@ -16,7 +16,7 @@ import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { SpacePresenceStrip } from '../members/space-presence-strip';
 import { SpaceMembersListModal } from '../members/space-members-list-modal';
 import { useSpacesNavBack } from '../nav/spaces-nav-context';
-import { SpaceShareSheet } from '../space-allowlist/space-share-sheet';
+import { SpaceShareSheet } from '../space-users/space-share-sheet';
 import { useCurrentSpaceRole } from '../use-current-space-role';
 import { useSpaceSessionUi } from './space-session-ui-context';
 

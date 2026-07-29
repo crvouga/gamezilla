@@ -1,13 +1,11 @@
 import {
-  SPACE_MEMBERSHIPS_TABLE,
+  SPACE_USERS_TABLE,
   SpaceCol,
-  SpaceMembershipCol,
+  SpaceUserCol,
   SPACES_TABLE,
+  spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
-import {
-  resolveSpaceMemberId,
-  spaceMembershipEntityId,
-} from '@libs/spaces/shared/participation/participation-ids';
+import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import {
   decideEndSpace,
   isSpaceHostActor,
@@ -110,49 +108,47 @@ export async function authorizeSpaceHost(
   return ok(undefined);
 }
 
-export type MembershipLeaveRow = {
-  readonly leftAt: string | null;
-  readonly memberId: string;
-};
-
-export async function readMembershipForLeave(
+export async function isSpaceUserInStore(
   db: SqlClient,
-  memberId: string,
-  spaceId: string
-): Promise<MembershipLeaveRow | null> {
-  const membershipId = spaceMembershipEntityId(memberId, spaceId);
-  const rows = await db.query<{
-    readonly left_at: string | null;
-    readonly member_id: string | null;
-  }>(
+  spaceId: string,
+  userId: string
+): Promise<boolean> {
+  if (spaceId.length === 0 || userId.length === 0) return false;
+  const id = spaceUserEntityId(spaceId, userId);
+  const rows = await db.query<{ readonly id: string }>(
     honey({
-      select: [SpaceMembershipCol.leftAt, SpaceMembershipCol.memberId],
-      from: SPACE_MEMBERSHIPS_TABLE.tableName,
-      where: ['=', SpaceMembershipCol.id, membershipId],
+      select: [SpaceUserCol.id],
+      from: SPACE_USERS_TABLE.tableName,
+      where: ['=', SpaceUserCol.id, id],
       limit: 1,
     })
   );
-  const row = rows[0];
-  if (row === undefined) return null;
-  const mid = row.member_id;
-  if (mid === null || mid.length === 0) return null;
-  return { leftAt: row.left_at, memberId: mid };
+  return rows[0] !== undefined;
 }
 
-export async function wasMembershipInactive(
-  db: SqlClient,
-  membershipId: string
-): Promise<boolean> {
-  const rows = await db.query<{ readonly left_at: string | null }>(
+export async function upsertSpaceUserRow(args: {
+  readonly db: SqlClient;
+  readonly spaceId: string;
+  readonly userId: string;
+  readonly createdByAccountId: string;
+  readonly now?: string;
+}): Promise<void> {
+  await args.db.run(
     honey({
-      select: [SpaceMembershipCol.leftAt],
-      from: SPACE_MEMBERSHIPS_TABLE.tableName,
-      where: ['=', SpaceMembershipCol.id, membershipId],
-      limit: 1,
+      insertInto: SPACE_USERS_TABLE.tableName,
+      values: {
+        [SpaceUserCol.id]: spaceUserEntityId(args.spaceId, args.userId),
+        [SpaceUserCol.spaceId]: args.spaceId,
+        [SpaceUserCol.userId]: args.userId,
+        [SpaceUserCol.createdAt]: args.now ?? isoNow(),
+        [SpaceUserCol.createdByAccountId]: args.createdByAccountId,
+      },
+      onConflict: {
+        target: [SpaceUserCol.id],
+        doNothing: true,
+      },
     })
   );
-  const prev = rows[0];
-  return prev === undefined || prev.left_at !== null;
 }
 
 /**
@@ -190,81 +186,6 @@ export async function migrateHostIdentity(args: {
         ['=', SpaceCol.id, args.spaceId],
         ['=', SpaceCol.hostAccountId, args.accountId],
         ['!=', SpaceCol.hostId, args.deviceId],
-      ],
-    })
-  );
-}
-
-export async function countActiveMembershipsInSpace(
-  db: SqlClient,
-  spaceId: string
-): Promise<number> {
-  const rows = await db.query<{ readonly c: number | string }>(
-    honey({
-      select: [[['count', '*'], 'c']],
-      from: SPACE_MEMBERSHIPS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', SpaceMembershipCol.spaceId, spaceId],
-        ['is-null', SpaceMembershipCol.leftAt],
-      ],
-    })
-  );
-  return Number(rows[0]?.c ?? 0);
-}
-
-/**
- * After a membership leave upload: host leave ends the space (I4); otherwise
- * stamp `ended_at` when no active memberships remain so orphan Live cards
- * cannot linger without a miniplayer seat.
- */
-export async function maybeAutoEndEmptyHostSpace(
-  ctx: WriteContext,
-  db: SqlClient,
-  spaceId: string
-): Promise<void> {
-  const space = await readSpaceHostEnded(db, spaceId);
-  if (!space.ok || space.value.endedAt !== null) return;
-  const memberIdResult = memberIdFromContext(ctx);
-  const memberId = memberIdResult.ok ? memberIdResult.value : ctx.deviceId;
-  const hostLeaving = isSpaceHostActor({
-    hostId: space.value.hostId,
-    hostMemberId: space.value.hostMemberId,
-    hostAccountId: space.value.hostAccountId,
-    memberId,
-    accountId: ctx.accountId,
-    deviceId: ctx.deviceId,
-  });
-  // I4: host leave always ends the space, even when guests remain.
-  if (hostLeaving) {
-    await db.run(
-      honey({
-        update: SPACES_TABLE.tableName,
-        set: {
-          [SpaceCol.endedAt]: isoNow(),
-          [SpaceCol.hostId]: ctx.deviceId,
-          [SpaceCol.hostMemberId]: memberId,
-          [SpaceCol.hostAccountId]: ctx.accountId,
-        },
-        where: [
-          'and',
-          ['=', SpaceCol.id, spaceId],
-          ['is-null', SpaceCol.endedAt],
-        ],
-      })
-    );
-    return;
-  }
-  const remaining = await countActiveMembershipsInSpace(db, spaceId);
-  if (remaining > 0) return;
-  await db.run(
-    honey({
-      update: SPACES_TABLE.tableName,
-      set: { [SpaceCol.endedAt]: isoNow() },
-      where: [
-        'and',
-        ['=', SpaceCol.id, spaceId],
-        ['is-null', SpaceCol.endedAt],
       ],
     })
   );

@@ -1,3 +1,7 @@
+/**
+ * Resolves whether this account has the space open locally.
+ * Role uses account id vs `host_member_id` / `host_account_id`.
+ */
 export type SpacePresence =
   | { readonly status: 'loading' }
   | { readonly status: 'active'; readonly role: 'host' | 'guest' }
@@ -9,17 +13,13 @@ type SpaceRow = {
   readonly ended_at: string | null;
 };
 
-type ParticipationRow = {
-  readonly id: string;
-};
-
 type PresenceLatch = { spaceId: string; presence: SpacePresence };
 
 function nonEmptyEqual(a: string, b: string): boolean {
   return a.length > 0 && b.length > 0 && a === b;
 }
 
-/** Host role from space host fields (seat still requires active membership). */
+/** Host role from space host fields. */
 export function isViewerSpaceHost(
   spaceRow: SpaceRow | null | undefined,
   myId: string
@@ -32,47 +32,24 @@ export function isViewerSpaceHost(
   );
 }
 
-export function loadingPresence(args: {
-  spaceEnabled: boolean;
-  spaceLoading: boolean;
-  spaceRow: SpaceRow | null;
-  memberEnabled: boolean;
-  guestLoading: boolean;
-  guestRow: ParticipationRow | null;
-  myId: string;
-}): SpacePresence | null {
-  if (!args.spaceEnabled) {
-    return { status: 'loading' };
-  }
-  if (args.spaceLoading && args.spaceRow === null) {
-    return { status: 'loading' };
-  }
-  // Seat requires active membership for hosts and guests (I2 / I3).
-  if (args.memberEnabled && args.guestLoading && args.guestRow === null) {
-    return { status: 'loading' };
-  }
-  return null;
-}
-
 export function resolveSpacePresence(args: {
   readonly spaceEnabled: boolean;
   readonly spaceLoading: boolean;
   readonly spaceRow: SpaceRow | null;
-  readonly memberEnabled: boolean;
-  readonly guestLoading: boolean;
-  readonly guestRow: ParticipationRow | null;
+  readonly isOpenLocally: boolean;
   readonly myId: string;
 }): SpacePresence {
-  // Ended is terminal. Do not wait on membership loading — after end/leave the
-  // active-membership watch returns null and may stay isLoading, which would
-  // otherwise pin the detail screen on a spinner forever (latch already cleared).
+  if (!args.spaceEnabled) {
+    return { status: 'loading' };
+  }
   const endedAt = args.spaceRow?.ended_at ?? null;
   if (endedAt !== null) {
     return { status: 'join', ended: true };
   }
-  const loading = loadingPresence(args);
-  if (loading !== null) return loading;
-  if (args.memberEnabled && args.guestRow !== null) {
+  if (args.spaceLoading && args.spaceRow === null) {
+    return { status: 'loading' };
+  }
+  if (args.isOpenLocally) {
     return {
       status: 'active',
       role: isViewerSpaceHost(args.spaceRow, args.myId) ? 'host' : 'guest',
@@ -101,8 +78,7 @@ function holdActiveAcrossTransientJoin(
 
 /**
  * Hold the last non-loading presence while queries report `loading`, and hold
- * `active` across transient `join` snapshots (sync/watch gaps where membership
- * briefly disappears with `isLoading: false`). Ended spaces always accept
+ * `active` across transient `join` snapshots. Ended spaces always accept
  * `join`. Intentional leave/end must clear the shared latch store.
  */
 export function latchStaleSpacePresence(

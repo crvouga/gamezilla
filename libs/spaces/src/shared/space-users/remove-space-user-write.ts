@@ -1,7 +1,7 @@
 import {
-  SPACE_ALLOWLIST_TABLE,
-  SpaceAllowlistCol,
-  spaceAllowlistEntityId,
+  SPACE_USERS_TABLE,
+  SpaceUserCol,
+  spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
 import { honey } from '@pkgs/sql';
 import { ok, type WriteResult } from '@pkgs/write/shared/write-result';
@@ -13,15 +13,15 @@ import {
   requireNonEmptyString,
 } from '../space-write-helpers';
 
-export type RemoveSpaceAllowlistInput = {
+export type RemoveSpaceUserInput = {
   readonly spaceId: string;
   readonly userId: string;
 };
 
-function parseRemoveSpaceAllowlistInput(
+function parseRemoveSpaceUserInput(
   raw: unknown
-): WriteResult<RemoveSpaceAllowlistInput> {
-  const record = asObjectRecord(raw, 'remove allowlist input');
+): WriteResult<RemoveSpaceUserInput> {
+  const record = asObjectRecord(raw, 'remove space user input');
   if (!record.ok) return record;
   const spaceId = requireNonEmptyString(record.value['spaceId'], 'spaceId');
   if (!spaceId.ok) return spaceId;
@@ -30,26 +30,23 @@ function parseRemoveSpaceAllowlistInput(
   return ok({ spaceId: spaceId.value, userId: userId.value });
 }
 
-export const removeSpaceAllowlistWrite = defineWrite<
-  RemoveSpaceAllowlistInput,
-  void
->({
-  name: 'spaces.allowlist.remove',
-  parseInput: parseRemoveSpaceAllowlistInput,
+export const removeSpaceUserWrite = defineWrite<RemoveSpaceUserInput, void>({
+  name: 'spaces.users.remove',
+  parseInput: parseRemoveSpaceUserInput,
   authorize: async (ctx, input, db) => {
     return authorizeSpaceHost(
       ctx,
       db,
       input.spaceId,
-      'Only the host can manage the allow list'
+      'Only the host can manage space users'
     );
   },
   execute: async (_ctx, input, db) => {
-    const id = spaceAllowlistEntityId(input.spaceId, input.userId);
+    const id = spaceUserEntityId(input.spaceId, input.userId);
     await db.run(
       honey({
-        deleteFrom: SPACE_ALLOWLIST_TABLE.tableName,
-        where: ['=', SpaceAllowlistCol.id, id],
+        deleteFrom: SPACE_USERS_TABLE.tableName,
+        where: ['=', SpaceUserCol.id, id],
       })
     );
     return ok(undefined);

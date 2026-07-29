@@ -59,7 +59,7 @@ export function AppInboxProvider({
   const userId = useMyId();
   const isSignedIn = useIsSignedIn();
   const authToken = useFreshAuthToken();
-  // Clerk can report signed-in before the bearer lands in secure storage;
+  // Auth can report signed-in before the bearer lands in secure storage;
   // hold inbox REST (incl. backfill) until the token is readable.
   const isAuthReady = isSignedIn && authToken !== null;
   const deps = useInboxClientDeps();

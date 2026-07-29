@@ -39,20 +39,8 @@ CREATE INDEX IF NOT EXISTS spaces_host_id_idx ON spaces (host_id);
 CREATE INDEX IF NOT EXISTS spaces_created_at_idx ON spaces (created_at DESC);
 CREATE INDEX IF NOT EXISTS spaces_ended_at_idx ON spaces (ended_at);
 
-CREATE TABLE IF NOT EXISTS space_memberships (
-  id TEXT PRIMARY KEY,
-  guest_id TEXT,
-  space_id TEXT NOT NULL,
-  joined_at TIMESTAMPTZ,
-  left_at TIMESTAMPTZ
-);
-
-CREATE INDEX IF NOT EXISTS space_memberships_guest_id_idx
-  ON space_memberships (guest_id);
-CREATE INDEX IF NOT EXISTS space_memberships_space_id_idx
-  ON space_memberships (space_id);
-CREATE INDEX IF NOT EXISTS space_memberships_joined_at_idx
-  ON space_memberships (joined_at ASC);
+-- Legacy `space_memberships` is no longer created for fresh installs.
+-- Existing DBs keep the table until the space_users migration drops it.
 
 CREATE TABLE IF NOT EXISTS chess_puzzles (
   id TEXT PRIMARY KEY,
@@ -257,36 +245,16 @@ CREATE INDEX IF NOT EXISTS user_blocks_blocked_idx ON user_blocks (blocked_id);
 
 DROP TABLE IF EXISTS friend_profile_cache;
 
--- ============ Spaces: device-seat membership ============
-
-ALTER TABLE space_memberships ADD COLUMN IF NOT EXISTS profile_id TEXT;
-ALTER TABLE space_memberships ADD COLUMN IF NOT EXISTS device_label TEXT;
-CREATE INDEX IF NOT EXISTS space_memberships_profile_id_idx
-  ON space_memberships (profile_id);
-
--- Soft-leave / end rows still keyed by account id (users.id). New seats use
--- devices.id. Idempotent: account-keyed active rows become inactive once.
-UPDATE space_memberships AS sm
-SET left_at = COALESCE(sm.left_at, now())
-WHERE sm.left_at IS NULL
-  AND EXISTS (SELECT 1 FROM users u WHERE u.id = sm.guest_id);
-
-UPDATE spaces AS s
-SET ended_at = COALESCE(s.ended_at, now())
-WHERE s.ended_at IS NULL
-  AND EXISTS (SELECT 1 FROM users u WHERE u.id = s.host_id);
-
--- ============ Spaces: visibility + allowlist ============
+-- ============ Spaces: visibility columns (always) ============
 
 ALTER TABLE spaces ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
 ALTER TABLE spaces ADD COLUMN IF NOT EXISTS host_account_id TEXT;
-ALTER TABLE spaces ADD COLUMN IF NOT EXISTS active_member_count INTEGER NOT NULL DEFAULT 1;
 -- Profile display is always read from `profiles` via host_member_id — never
 -- duplicate username/avatar onto the space row.
 ALTER TABLE spaces DROP COLUMN IF EXISTS host_username;
 ALTER TABLE spaces DROP COLUMN IF EXISTS host_avatar_config;
 
--- Legacy `friends` visibility collapses to private (allowlist replaces it).
+-- Legacy `friends` visibility collapses to private.
 UPDATE spaces SET visibility = 'private' WHERE visibility = 'friends';
 
 CREATE INDEX IF NOT EXISTS spaces_visibility_live_idx
@@ -296,24 +264,6 @@ CREATE INDEX IF NOT EXISTS spaces_host_account_id_idx
   ON spaces (host_account_id)
   WHERE ended_at IS NULL;
 
-CREATE TABLE IF NOT EXISTS space_allowlist (
-  id TEXT PRIMARY KEY,
-  space_id TEXT NOT NULL REFERENCES spaces (id),
-  user_id TEXT NOT NULL REFERENCES profiles (id),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  created_by_account_id TEXT NOT NULL,
-  UNIQUE (space_id, user_id)
-);
-
-CREATE INDEX IF NOT EXISTS space_allowlist_space_id_idx
-  ON space_allowlist (space_id);
-CREATE INDEX IF NOT EXISTS space_allowlist_user_id_idx
-  ON space_allowlist (user_id);
-
-DROP TABLE IF EXISTS space_invites;
-
--- ============ Spaces: user membership + device participation ============
-
 ALTER TABLE spaces ADD COLUMN IF NOT EXISTS host_member_id TEXT;
 UPDATE spaces
 SET host_member_id = COALESCE(host_account_id, host_id)
@@ -322,112 +272,161 @@ CREATE INDEX IF NOT EXISTS spaces_host_member_id_idx
   ON spaces (host_member_id)
   WHERE ended_at IS NULL;
 
-ALTER TABLE space_memberships ADD COLUMN IF NOT EXISTS member_id TEXT;
-
-CREATE TABLE IF NOT EXISTS space_participations (
-  id TEXT PRIMARY KEY,
-  space_id TEXT NOT NULL,
-  member_id TEXT NOT NULL,
-  device_id TEXT NOT NULL,
-  device_label TEXT,
-  joined_at TIMESTAMPTZ,
-  left_at TIMESTAMPTZ
-);
-CREATE INDEX IF NOT EXISTS space_participations_space_id_idx
-  ON space_participations (space_id);
-CREATE INDEX IF NOT EXISTS space_participations_member_id_idx
-  ON space_participations (member_id);
-CREATE INDEX IF NOT EXISTS space_participations_device_id_idx
-  ON space_participations (device_id);
-CREATE INDEX IF NOT EXISTS space_participations_left_at_idx
-  ON space_participations (left_at);
-
--- Snapshot active device seats into participations (member = profile or device).
-INSERT INTO space_participations (
-  id, space_id, member_id, device_id, device_label, joined_at, left_at
-)
-SELECT
-  sm.id,
-  sm.space_id,
-  COALESCE(NULLIF(sm.profile_id, ''), sm.guest_id),
-  sm.guest_id,
-  sm.device_label,
-  sm.joined_at,
-  NULL
-FROM space_memberships sm
-WHERE sm.left_at IS NULL
-  AND NOT EXISTS (
-    SELECT 1 FROM space_participations sp WHERE sp.id = sm.id
-  );
-
--- Soft-leave legacy device-seat memberships so we can recreate user rows.
-UPDATE space_memberships
-SET left_at = COALESCE(left_at, now())
-WHERE left_at IS NULL
-  AND id LIKE guest_id || ':%';
-
--- Recreate one active user membership per (member, space) from participations.
-INSERT INTO space_memberships (
-  id, guest_id, space_id, joined_at, left_at, profile_id, member_id, device_label
-)
-SELECT
-  p.member_id || ':' || p.space_id,
-  p.member_id,
-  p.space_id,
-  MIN(p.joined_at),
-  NULL,
-  p.member_id,
-  p.member_id,
-  NULL
-FROM space_participations p
-WHERE p.left_at IS NULL
-GROUP BY p.member_id, p.space_id
-ON CONFLICT (id) DO UPDATE SET
-  left_at = NULL,
-  member_id = EXCLUDED.member_id,
-  profile_id = EXCLUDED.profile_id,
-  guest_id = EXCLUDED.guest_id,
-  joined_at = COALESCE(space_memberships.joined_at, EXCLUDED.joined_at);
-
-UPDATE space_memberships
-SET member_id = COALESCE(NULLIF(member_id, ''), NULLIF(profile_id, ''), guest_id)
-WHERE member_id IS NULL OR member_id = '';
-
-CREATE INDEX IF NOT EXISTS space_memberships_member_id_idx
-  ON space_memberships (member_id);
-
--- Client sync writes member_id only (guest_id is legacy). Keep guest_id filled
--- for older SQL, but do not require it on INSERT.
-ALTER TABLE space_memberships ALTER COLUMN guest_id DROP NOT NULL;
-UPDATE space_memberships
-SET guest_id = COALESCE(NULLIF(guest_id, ''), NULLIF(member_id, ''), NULLIF(profile_id, ''))
-WHERE guest_id IS NULL OR guest_id = '';
-
-CREATE OR REPLACE FUNCTION space_memberships_fill_legacy_guest_id()
-RETURNS trigger AS $$
-BEGIN
-  IF NEW.guest_id IS NULL OR NEW.guest_id = '' THEN
-    NEW.guest_id := COALESCE(NULLIF(NEW.member_id, ''), NULLIF(NEW.profile_id, ''));
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS space_memberships_fill_legacy_guest_id_trg
-  ON space_memberships;
-CREATE TRIGGER space_memberships_fill_legacy_guest_id_trg
-  BEFORE INSERT OR UPDATE ON space_memberships
-  FOR EACH ROW
-  EXECUTE FUNCTION space_memberships_fill_legacy_guest_id();
-
--- Recount active user memberships per live space.
-UPDATE spaces AS s
-SET active_member_count = (
-  SELECT COUNT(*)::integer
-  FROM space_memberships sm
-  WHERE sm.space_id = s.id
-    AND sm.left_at IS NULL
-);
-
--- Account-only memberships: drop device participation seats.
+DROP TABLE IF EXISTS space_invites;
 DROP TABLE IF EXISTS space_participations;
+
+-- ============ Spaces: one-shot legacy membership → space_users ============
+-- Runs only while `space_memberships` / `space_allowlist` still exist.
+-- Fresh installs and already-migrated DBs skip this (no recreate-then-drop).
+
+DO $$
+BEGIN
+  IF to_regclass('space_memberships') IS NULL THEN
+    RETURN;
+  END IF;
+
+  ALTER TABLE space_memberships ADD COLUMN IF NOT EXISTS profile_id TEXT;
+  ALTER TABLE space_memberships ADD COLUMN IF NOT EXISTS device_label TEXT;
+  ALTER TABLE space_memberships ADD COLUMN IF NOT EXISTS member_id TEXT;
+
+  EXECUTE 'CREATE INDEX IF NOT EXISTS space_memberships_profile_id_idx ON space_memberships (profile_id)';
+  EXECUTE 'CREATE INDEX IF NOT EXISTS space_memberships_member_id_idx ON space_memberships (member_id)';
+
+  UPDATE space_memberships AS sm
+  SET left_at = COALESCE(sm.left_at, now())
+  WHERE sm.left_at IS NULL
+    AND EXISTS (SELECT 1 FROM users u WHERE u.id = sm.guest_id);
+
+  UPDATE spaces AS s
+  SET ended_at = COALESCE(s.ended_at, now())
+  WHERE s.ended_at IS NULL
+    AND EXISTS (SELECT 1 FROM users u WHERE u.id = s.host_id);
+
+  UPDATE space_memberships
+  SET member_id = COALESCE(NULLIF(member_id, ''), NULLIF(profile_id, ''), guest_id)
+  WHERE member_id IS NULL OR member_id = '';
+
+  BEGIN
+    ALTER TABLE space_memberships ALTER COLUMN guest_id DROP NOT NULL;
+  EXCEPTION
+    WHEN undefined_column THEN NULL;
+    WHEN others THEN NULL;
+  END;
+
+  UPDATE space_memberships
+  SET guest_id = COALESCE(NULLIF(guest_id, ''), NULLIF(member_id, ''), NULLIF(profile_id, ''))
+  WHERE guest_id IS NULL OR guest_id = '';
+END $$;
+
+-- ============ Spaces: space_users ACL (Docs-style) ============
+-- Collapses allowlist + membership into one collaborator table.
+-- Live seats move to Room DO state; "opened" is local client state.
+
+CREATE TABLE IF NOT EXISTS space_users (
+  id TEXT PRIMARY KEY,
+  space_id TEXT NOT NULL REFERENCES spaces (id),
+  user_id TEXT NOT NULL REFERENCES profiles (id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_by_account_id TEXT NOT NULL,
+  UNIQUE (space_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS space_users_space_id_idx ON space_users (space_id);
+CREATE INDEX IF NOT EXISTS space_users_user_id_idx ON space_users (user_id);
+
+-- Migrate allowlist → space_users (same id shape: spaceId:userId).
+DO $$
+BEGIN
+  IF to_regclass('space_allowlist') IS NOT NULL THEN
+    INSERT INTO space_users (
+      id, space_id, user_id, created_at, created_by_account_id
+    )
+    SELECT
+      a.id,
+      a.space_id,
+      a.user_id,
+      a.created_at,
+      a.created_by_account_id
+    FROM space_allowlist a
+    WHERE EXISTS (SELECT 1 FROM profiles p WHERE p.id = a.user_id)
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
+END $$;
+
+-- Migrate active memberships that lack an ACL row.
+DO $$
+BEGIN
+  IF to_regclass('space_memberships') IS NOT NULL THEN
+    INSERT INTO space_users (
+      id, space_id, user_id, created_at, created_by_account_id
+    )
+    SELECT
+      sm.space_id || ':' || COALESCE(NULLIF(sm.member_id, ''), NULLIF(sm.profile_id, ''), sm.guest_id),
+      sm.space_id,
+      COALESCE(NULLIF(sm.member_id, ''), NULLIF(sm.profile_id, ''), sm.guest_id),
+      COALESCE(sm.joined_at, now()),
+      COALESCE(NULLIF(sm.member_id, ''), NULLIF(sm.profile_id, ''), sm.guest_id)
+    FROM space_memberships sm
+    WHERE sm.left_at IS NULL
+      AND COALESCE(NULLIF(sm.member_id, ''), NULLIF(sm.profile_id, ''), sm.guest_id) IS NOT NULL
+      AND EXISTS (
+        SELECT 1 FROM profiles p
+        WHERE p.id = COALESCE(NULLIF(sm.member_id, ''), NULLIF(sm.profile_id, ''), sm.guest_id)
+      )
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
+END $$;
+
+-- Ensure every live space host is on the ACL.
+INSERT INTO space_users (
+  id, space_id, user_id, created_at, created_by_account_id
+)
+SELECT
+  s.id || ':' || COALESCE(NULLIF(s.host_member_id, ''), NULLIF(s.host_account_id, '')),
+  s.id,
+  COALESCE(NULLIF(s.host_member_id, ''), NULLIF(s.host_account_id, '')),
+  COALESCE(s.created_at, now()),
+  COALESCE(NULLIF(s.host_account_id, ''), NULLIF(s.host_member_id, ''))
+FROM spaces s
+WHERE s.ended_at IS NULL
+  AND COALESCE(NULLIF(s.host_member_id, ''), NULLIF(s.host_account_id, '')) IS NOT NULL
+  AND EXISTS (
+    SELECT 1 FROM profiles p
+    WHERE p.id = COALESCE(NULLIF(s.host_member_id, ''), NULLIF(s.host_account_id, ''))
+  )
+ON CONFLICT (id) DO NOTHING;
+
+-- Drop legacy tables/columns. Lock spaces first (fixed order) to reduce
+-- deadlocks with PowerSync replication holding child-table locks.
+DO $$
+BEGIN
+  IF to_regclass('space_memberships') IS NULL
+     AND to_regclass('space_allowlist') IS NULL
+     AND NOT EXISTS (
+       SELECT 1
+       FROM information_schema.columns
+       WHERE table_schema = current_schema()
+         AND table_name = 'spaces'
+         AND column_name = 'active_member_count'
+     ) THEN
+    RETURN;
+  END IF;
+
+  LOCK TABLE spaces IN ACCESS EXCLUSIVE MODE;
+
+  IF to_regclass('space_allowlist') IS NOT NULL THEN
+    EXECUTE 'LOCK TABLE space_allowlist IN ACCESS EXCLUSIVE MODE';
+  END IF;
+  IF to_regclass('space_memberships') IS NOT NULL THEN
+    EXECUTE 'LOCK TABLE space_memberships IN ACCESS EXCLUSIVE MODE';
+    DROP TRIGGER IF EXISTS space_memberships_fill_legacy_guest_id_trg
+      ON space_memberships;
+  END IF;
+
+  DROP FUNCTION IF EXISTS space_memberships_fill_legacy_guest_id();
+
+  DROP TABLE IF EXISTS space_allowlist;
+  DROP TABLE IF EXISTS space_memberships;
+
+  ALTER TABLE spaces DROP COLUMN IF EXISTS active_member_count;
+END $$;

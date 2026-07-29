@@ -9,7 +9,7 @@ import { sharedLiveSpaceIdsSql } from './my-live-space-seat-sql';
 
 type SpaceIdRow = { readonly id: string };
 
-/** Live spaces the viewer can join: host / active seat / allowlist. */
+/** Live spaces the viewer can join: host or space_users ACL. */
 export function useJoinableLiveSpaceIds(): {
   readonly spaceIds: readonly string[];
   readonly isLoading: boolean;
@@ -19,12 +19,8 @@ export function useJoinableLiveSpaceIds(): {
   const hasAccount = accountId !== null && accountId.length > 0;
   const memberId = hasAccount && accountId !== null ? accountId : deviceId;
   const query = useMemo(
-    () =>
-      sharedLiveSpaceIdsSql({
-        memberId,
-        includeHostAccountId: hasAccount,
-      }),
-    [memberId, hasAccount]
+    () => sharedLiveSpaceIdsSql({ memberId }),
+    [memberId]
   );
   const { rows, isLoading } = useWatchQuery<SpaceIdRow>(query);
   return { spaceIds: rows.map((r) => r.id), isLoading };

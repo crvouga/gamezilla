@@ -1,5 +1,8 @@
 /**
- * One-shot repair: end live spaces whose host has no active membership (I1).
+ * One-shot repair: formerly ended live spaces whose host had no active
+ * membership seat. Memberships were removed — seats are room-local and host
+ * leave ends the space — so {@link endLiveSpacesWithoutActiveHostSeat} is a
+ * no-op. Script kept for CLI wiring.
  *
  *   bun run tooling/scripts/secrets-run.ts -- bun run --filter @libs/spaces repair:departed-host-spaces
  */
