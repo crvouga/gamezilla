@@ -5,7 +5,7 @@ import type {
 } from '@pkgs/inbox/client';
 
 import { FriendRequestInteractionCard } from './friend-request-interaction-card';
-import type { FriendsClientDeps } from './search-users/search-users';
+import type { FriendsClientDeps } from './friends-client-deps';
 
 export function createFriendsInteractionProvider(
   _deps: FriendsClientDeps
