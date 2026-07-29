@@ -1,9 +1,9 @@
 import { beforeAll, describe, expect, mock, test } from 'bun:test';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import type { prepareSyncUploadBatch as PrepareSyncUploadBatch } from './sync-api';
+import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 
 describe('prepareSyncUploadBatch', () => {
-  let prepareSyncUploadBatch: PrepareSyncUploadBatch;
+  let prepareSyncUploadBatch: (batch: UploadBatch) => UploadBatch;
 
   beforeAll(async () => {
     await mock.module('@libs/auth/client/use-current-account-id', () => ({
