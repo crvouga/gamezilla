@@ -20,69 +20,11 @@ streams:
     auto_subscribe: true
     query: SELECT * FROM external_accounts WHERE user_id = auth.user_id()
 
+  # All profiles are public to read (username / avatar for cards, members, search seeds).
   profiles:
     priority: 1
     auto_subscribe: true
-    query: SELECT * FROM profiles WHERE id = auth.user_id()
-
-  # Host + live-member profiles for spaces in the viewer's browse/active scope
-  # so cards/miniplayer/member tiles resolve via local `profiles` (self-only
-  # `profiles` stream is not enough for other hosts). Uses `with` + `queries`
-  # (same shape as space_join) so PowerSync can bucket each root SELECT.
-  space_visible_profiles:
-    priority: 2
-    auto_subscribe: true
-    accept_potentially_dangerous_queries: true
-    with:
-      visible_spaces: |
-        SELECT id FROM spaces
-        WHERE host_member_id = auth.user_id()
-           OR id IN (
-             SELECT space_id FROM space_memberships
-             WHERE left_at IS NULL
-               AND member_id = auth.user_id()
-           )
-           OR (
-             visibility = 'public'
-             AND ended_at IS NULL
-           )
-           OR (
-             visibility = 'friends'
-             AND ended_at IS NULL
-             AND host_account_id IS NOT NULL
-             AND (
-               host_account_id IN (
-                 SELECT user_high FROM friendships
-                 WHERE user_low = auth.user_id()
-               )
-               OR host_account_id IN (
-                 SELECT user_low FROM friendships
-                 WHERE user_high = auth.user_id()
-               )
-             )
-           )
-           OR id IN (
-             SELECT space_id FROM space_invites
-             WHERE invitee_account_id = auth.user_id()
-               AND revoked_at IS NULL
-               AND (expires_at IS NULL OR expires_at > datetime('now'))
-           )
-    queries:
-      - |
-        SELECT * FROM profiles
-        WHERE id IN (
-          SELECT host_account_id FROM spaces
-          WHERE id IN visible_spaces
-            AND host_account_id IS NOT NULL
-        )
-      - |
-        SELECT * FROM profiles
-        WHERE id IN (
-          SELECT profile_id FROM space_memberships
-          WHERE left_at IS NULL
-            AND profile_id IS NOT NULL
-            AND space_id IN visible_spaces
-        )
+    query: SELECT * FROM profiles
 
   spaces:
     priority: 2
@@ -95,102 +37,21 @@ streams:
            WHERE left_at IS NULL
              AND member_id = auth.user_id()
          )
-         OR (
-           visibility = 'public'
-           AND ended_at IS NULL
-         )
-         OR (
-           visibility = 'friends'
-           AND ended_at IS NULL
-           AND host_account_id IS NOT NULL
-           AND (
-             host_account_id IN (
-               SELECT user_high FROM friendships
-               WHERE user_low = auth.user_id()
-             )
-             OR host_account_id IN (
-               SELECT user_low FROM friendships
-               WHERE user_high = auth.user_id()
-             )
-           )
-         )
          OR id IN (
-           SELECT space_id FROM space_invites
-           WHERE invitee_account_id = auth.user_id()
-             AND revoked_at IS NULL
-             AND (expires_at IS NULL OR expires_at > datetime('now'))
+           SELECT space_id FROM space_allowlist
+           WHERE user_id = auth.user_id()
          )
 
-  space_invites:
+  space_allowlist:
     priority: 2
     auto_subscribe: true
     query: |
-      SELECT * FROM space_invites
-      WHERE invitee_account_id = auth.user_id()
-         OR created_by_account_id = auth.user_id()
-
-  # On-demand join target: hydrate one space (+ matching invite) when the
-  # viewer opens a join/deep-link that is outside the auto-subscribe scope
-  # (private link invites). Client must pass space_id and invite_token
-  # (empty string when no invite).
-  space_join:
-    priority: 2
-    accept_potentially_dangerous_queries: true
-    with:
-      joinable_space: |
-        SELECT id FROM spaces
-        WHERE id = subscription.parameter('space_id')
-          AND (
-            host_member_id = auth.user_id()
-            OR id IN (
-              SELECT space_id FROM space_memberships
-              WHERE left_at IS NULL
-                AND member_id = auth.user_id()
-            )
-            OR (
-              visibility = 'public'
-              AND ended_at IS NULL
-            )
-            OR (
-              visibility = 'friends'
-              AND ended_at IS NULL
-              AND host_account_id IS NOT NULL
-              AND (
-                host_account_id IN (
-                  SELECT user_high FROM friendships
-                  WHERE user_low = auth.user_id()
-                )
-                OR host_account_id IN (
-                  SELECT user_low FROM friendships
-                  WHERE user_high = auth.user_id()
-                )
-              )
-            )
-            OR id IN (
-              SELECT space_id FROM space_invites
-              WHERE token = subscription.parameter('invite_token')
-                AND revoked_at IS NULL
-                AND (expires_at IS NULL OR expires_at > datetime('now'))
-                AND use_count < max_uses
-                AND (
-                  invitee_account_id IS NULL
-                  OR invitee_account_id = auth.user_id()
-                )
-            )
-          )
-    queries:
-      - SELECT * FROM spaces WHERE id IN joinable_space
-      - |
-        SELECT * FROM space_invites
-        WHERE space_id IN joinable_space
-          AND token = subscription.parameter('invite_token')
-          AND revoked_at IS NULL
-          AND (expires_at IS NULL OR expires_at > datetime('now'))
-          AND use_count < max_uses
-          AND (
-            invitee_account_id IS NULL
-            OR invitee_account_id = auth.user_id()
-          )
+      SELECT * FROM space_allowlist
+      WHERE user_id = auth.user_id()
+         OR space_id IN (
+           SELECT id FROM spaces
+           WHERE host_member_id = auth.user_id()
+         )
 
   space_memberships:
     priority: 2
@@ -205,6 +66,10 @@ streams:
                 SELECT space_id FROM space_memberships
                 WHERE left_at IS NULL
                   AND member_id = auth.user_id()
+              )
+              OR id IN (
+                SELECT space_id FROM space_allowlist
+                WHERE user_id = auth.user_id()
               )
          )
 
@@ -269,13 +134,6 @@ streams:
     query: |
       SELECT * FROM user_blocks
       WHERE blocker_id = auth.user_id()
-
-  friend_profile_cache:
-    priority: 2
-    auto_subscribe: true
-    query: |
-      SELECT * FROM friend_profile_cache
-      WHERE owner_id = auth.user_id()
 
   entity_store_catalog:
     priority: 2

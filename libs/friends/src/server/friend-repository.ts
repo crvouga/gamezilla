@@ -1,8 +1,6 @@
 import {
-  FRIEND_PROFILE_CACHE_TABLE,
   FRIEND_REQUESTS_TABLE,
   FRIENDSHIPS_TABLE,
-  FriendProfileCacheCol,
   FriendRequestCol,
   FriendshipCol,
   USER_BLOCKS_TABLE,
@@ -353,70 +351,6 @@ export async function deleteBlock(
         'and',
         ['=', UserBlockCol.blockerId, blockerId],
         ['=', UserBlockCol.blockedId, blockedId],
-      ],
-    })
-  );
-}
-
-export async function upsertFriendProfileCache(
-  db: SqlClient,
-  args: {
-    readonly ownerId: string;
-    readonly friendId: string;
-    readonly username: string;
-    readonly avatarConfig: string | null;
-    readonly now: string;
-  }
-): Promise<void> {
-  await db.run(
-    honey({
-      insertInto: FRIEND_PROFILE_CACHE_TABLE.tableName,
-      values: {
-        [FriendProfileCacheCol.id]: pairId(args.ownerId, args.friendId),
-        [FriendProfileCacheCol.ownerId]: args.ownerId,
-        [FriendProfileCacheCol.friendId]: args.friendId,
-        [FriendProfileCacheCol.username]: args.username,
-        [FriendProfileCacheCol.avatarConfig]: args.avatarConfig,
-        [FriendProfileCacheCol.updatedAt]: args.now,
-      },
-      onConflict: {
-        target: [FriendProfileCacheCol.ownerId, FriendProfileCacheCol.friendId],
-        set: {
-          [FriendProfileCacheCol.username]: col(
-            `excluded.${FriendProfileCacheCol.username}`
-          ),
-          [FriendProfileCacheCol.avatarConfig]: col(
-            `excluded.${FriendProfileCacheCol.avatarConfig}`
-          ),
-          [FriendProfileCacheCol.updatedAt]: col(
-            `excluded.${FriendProfileCacheCol.updatedAt}`
-          ),
-        },
-      },
-    })
-  );
-}
-
-export async function deleteFriendProfileCachePair(
-  db: SqlClient,
-  userA: string,
-  userB: string
-): Promise<void> {
-  await db.run(
-    honey({
-      deleteFrom: FRIEND_PROFILE_CACHE_TABLE.tableName,
-      where: [
-        'or',
-        [
-          'and',
-          ['=', FriendProfileCacheCol.ownerId, userA],
-          ['=', FriendProfileCacheCol.friendId, userB],
-        ],
-        [
-          'and',
-          ['=', FriendProfileCacheCol.ownerId, userB],
-          ['=', FriendProfileCacheCol.friendId, userA],
-        ],
       ],
     })
   );

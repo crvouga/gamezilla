@@ -25,7 +25,7 @@ function validateVisibilityPayload(
 ): p is { readonly visibility: SpaceVisibility } {
   if (!isPlainRecord(p)) return false;
   const v = p['visibility'];
-  return v === 'public' || v === 'friends' || v === 'private';
+  return v === 'public' || v === 'private';
 }
 
 function validateEmptyPayload(p: unknown): p is Record<string, never> {

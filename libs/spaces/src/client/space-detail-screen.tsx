@@ -52,8 +52,8 @@ function SpaceDetailBody({ spaceId }: SpaceDetailBodyProps): ReactNode {
     return <ActiveSpace spaceId={spaceId} />;
   }
 
-  // Presence already knows the space ended — skip join-stream hydration so we
-  // never flash / stick on a spinner waiting for space_join after end/leave.
+  // Presence already knows the space ended — skip join hydration so we
+  // never flash / stick on a spinner after end/leave.
   if (presence.ended) {
     return <SpaceEndedScreen spaceId={spaceId} />;
   }

@@ -5,7 +5,7 @@ import { resolveSpaceMemberId } from './participation-ids';
 export type SpaceAccessDecision =
   | {
       readonly allowed: true;
-      readonly reason: 'open' | 'invite' | 'friend' | 'host' | 'already';
+      readonly reason: 'open' | 'allowlist' | 'host' | 'already';
     }
   | { readonly allowed: false; readonly code: SpacesError['code'] };
 
@@ -17,8 +17,7 @@ export type SpaceAccessInput = {
   readonly viewerAccountId: string;
   readonly viewerDeviceId: string;
   readonly viewerMemberId: string;
-  readonly isFriendOfHost: boolean;
-  readonly hasValidInvite: boolean;
+  readonly isAllowlisted: boolean;
   /** Viewer already has an active user membership. */
   readonly alreadyMember: boolean;
 };
@@ -78,20 +77,11 @@ export function isSpaceHostActor(args: {
 }
 
 function decideJoinVisibility(input: SpaceAccessInput): SpaceAccessDecision {
-  if (input.hasValidInvite) {
-    return { allowed: true, reason: 'invite' };
-  }
-  if (input.visibility === 'private') {
-    return { allowed: false, code: 'SPACE_VISIBILITY_DENIED' };
-  }
   if (input.visibility === 'public') {
     return { allowed: true, reason: 'open' };
   }
-  if (
-    input.hostAccountId !== null &&
-    (input.viewerAccountId === input.hostAccountId || input.isFriendOfHost)
-  ) {
-    return { allowed: true, reason: 'friend' };
+  if (input.isAllowlisted) {
+    return { allowed: true, reason: 'allowlist' };
   }
   return { allowed: false, code: 'SPACE_VISIBILITY_DENIED' };
 }
@@ -101,6 +91,7 @@ function decideJoinVisibility(input: SpaceAccessInput): SpaceAccessDecision {
  *
  * Space owners (member / creating device / host account) may always rejoin.
  * Idempotent re-join of an existing membership is allowed.
+ * Private spaces require allow-list membership.
  */
 export function decideJoin(input: SpaceAccessInput): SpaceAccessDecision {
   if (
@@ -140,17 +131,6 @@ export function resolvePresenceRole(args: {
 /** Room / game actor id is the member (account) id. */
 export function resolveRoomActorId(accountId: string): string {
   return resolveMemberId(accountId);
-}
-
-/**
- * Whether joining should consume an invite use.
- * Only when creating/reactivating a user membership.
- */
-export function shouldConsumeInviteOnJoin(args: {
-  readonly membershipWasInactive: boolean;
-  readonly hasInviteToken: boolean;
-}): boolean {
-  return args.membershipWasInactive && args.hasInviteToken;
 }
 
 /**

@@ -12,29 +12,15 @@ import {
   ScreenBase,
 } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useLocalSearchParams } from 'expo-router';
 import type { ReactNode } from 'react';
 
 export type SpaceJoinPromptProps = {
   spaceId: string;
 };
 
-function useInviteTokenParam(): string | null {
-  const params = useLocalSearchParams<{ invite?: string | string[] }>();
-  const raw = params.invite;
-  if (typeof raw === 'string' && raw.length > 0) return raw;
-  if (Array.isArray(raw)) {
-    for (const entry of raw) {
-      if (typeof entry === 'string' && entry.length > 0) return entry;
-    }
-  }
-  return null;
-}
-
 export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
   const nav = useBreadcrumbNav();
-  const inviteToken = useInviteTokenParam();
-  const snapshot = useSpaceJoinSnapshot(spaceId, inviteToken);
+  const snapshot = useSpaceJoinSnapshot(spaceId);
 
   if (snapshot.status === 'ended') {
     return <SpaceEndedScreen spaceId={spaceId} />;
@@ -55,7 +41,6 @@ export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
             <SpaceJoinButton
               spaceId={spaceId}
               joinable={snapshot.joinable}
-              inviteToken={inviteToken}
               flex={1}
             />
           </Box>
@@ -83,17 +68,18 @@ function JoinPromptBody({
   if (snapshot.status === 'loading') {
     return <LoadingState size="large" />;
   }
-
   if (snapshot.status === 'unavailable') {
     return (
       <EmptyState
         icon={Gamepad2Icon}
-        title={<Trans>This space is not available</Trans>}
-        body={<Trans>It may have ended or the link might be invalid.</Trans>}
-        action={{ label: t`Back to Spaces`, onPress: nav('/') }}
+        title={t`Space not available`}
+        body={t`Ask the host to add you to the allow list, or check the link.`}
+        action={{
+          label: t`Back to spaces`,
+          onPress: nav('/'),
+        }}
       />
     );
   }
-
   return <SpaceJoinLiveBody spaceId={spaceId} />;
 }

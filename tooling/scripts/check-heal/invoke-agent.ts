@@ -131,7 +131,7 @@ export async function invokeAgent(
 }
 
 export function requireApiKey(explicit?: string): string {
-  const key = (explicit ?? process.env.CURSOR_API_KEY ?? '').trim();
+  const key = (explicit ?? process.env['CURSOR_API_KEY'] ?? '').trim();
   if (key === '') {
     throw new Error(
       'CURSOR_API_KEY is required. Run via `bun run check:heal` (secret store dev config) or pass --api-key.'
@@ -144,7 +144,7 @@ export function describeApiKeySource(explicit?: string): string {
   if (explicit !== undefined && explicit.trim() !== '') {
     return '--api-key flag';
   }
-  if ((process.env.CURSOR_API_KEY ?? '').trim() !== '') {
+  if ((process.env['CURSOR_API_KEY'] ?? '').trim() !== '') {
     return 'CURSOR_API_KEY (secret store/env)';
   }
   return 'missing';

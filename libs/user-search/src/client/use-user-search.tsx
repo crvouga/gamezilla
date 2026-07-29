@@ -1,20 +1,22 @@
 import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
-import { useFriendsClientDeps } from '@libs/friends/client/use-friends-client-deps';
-import type { UserSearchResult } from '@libs/friends/shared/friends-types';
 import { Box, Button, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
-import { searchForUsers } from './search-users';
-import { SEARCH_MIN_LENGTH } from '../shared/search-types';
+import { searchUsers } from './search-users';
+import { useUserSearchClientDeps } from './use-user-search-deps';
+import {
+  USER_SEARCH_MIN_LENGTH,
+  type UserSearchResult,
+} from '../shared/user-search-types';
 
 export function useDebouncedUserSearchEffect(
   query: string,
   onCompleted?: (query: string) => void
 ) {
   const signedIn = useIsSignedIn();
-  const deps = useFriendsClientDeps();
+  const deps = useUserSearchClientDeps();
   const [results, setResults] = useState<readonly UserSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const onCompletedRef = useRef(onCompleted);
@@ -22,7 +24,7 @@ export function useDebouncedUserSearchEffect(
 
   useEffect(() => {
     const trimmed = query.trim();
-    if (!signedIn || trimmed.length < SEARCH_MIN_LENGTH) {
+    if (!signedIn || trimmed.length < USER_SEARCH_MIN_LENGTH) {
       setResults([]);
       setSearching(false);
       return;
@@ -31,7 +33,7 @@ export function useDebouncedUserSearchEffect(
     setSearching(true);
     let cancelled = false;
     const handle = setTimeout(() => {
-      void searchForUsers(deps, trimmed)
+      void searchUsers(deps, trimmed)
         .then((next) => {
           if (cancelled) return;
           setResults(next);
@@ -56,7 +58,7 @@ export function useDebouncedUserSearchEffect(
   return { results, searching, signedIn };
 }
 
-export function SearchSignInPrompt(): ReactNode {
+export function UserSearchSignInPrompt(): ReactNode {
   const { open: openSignInModal } = useSignInModal();
   const { t } = useLingui();
 
@@ -68,7 +70,7 @@ export function SearchSignInPrompt(): ReactNode {
   );
 }
 
-export function SearchQueryHint({
+export function UserSearchQueryHint({
   query,
   signedIn,
 }: {
@@ -76,7 +78,7 @@ export function SearchQueryHint({
   signedIn: boolean;
 }): ReactNode {
   const trimmed = query.trim();
-  if (trimmed.length === 0 || trimmed.length >= SEARCH_MIN_LENGTH) {
+  if (trimmed.length === 0 || trimmed.length >= USER_SEARCH_MIN_LENGTH) {
     return null;
   }
   if (!signedIn) return null;
@@ -84,7 +86,7 @@ export function SearchQueryHint({
   return (
     <Text
       variant="caption"
-      label={<Trans>Enter at least {SEARCH_MIN_LENGTH} characters</Trans>}
+      label={<Trans>Enter at least {USER_SEARCH_MIN_LENGTH} characters</Trans>}
     />
   );
 }

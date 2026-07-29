@@ -11,9 +11,9 @@ import { accessSync, mkdtempSync, rmSync } from 'node:fs';
 import { arch, platform, tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const GITLEAKS_VERSION = process.env.GITLEAKS_VERSION?.trim() || '8.30.1';
+const GITLEAKS_VERSION = process.env['GITLEAKS_VERSION']?.trim() || '8.30.1';
 const INSTALL_DIR =
-  process.env.GITLEAKS_INSTALL_DIR?.trim() || '/usr/local/bin';
+  process.env['GITLEAKS_INSTALL_DIR']?.trim() || '/usr/local/bin';
 
 function resolvePlatform(): string {
   const plat = platform();

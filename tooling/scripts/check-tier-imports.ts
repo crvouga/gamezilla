@@ -63,8 +63,6 @@ type ManifestViolation = {
   targetPkg: string;
 };
 
-type Violation = ImportViolation | ManifestViolation;
-
 function scanSourceImports(
   pkgName: PackageName,
   info: PackageInfo

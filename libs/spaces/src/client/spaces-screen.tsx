@@ -2,41 +2,31 @@ import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
-  ChipGroup,
   EmptyState,
   Gamepad2Icon,
   LoadingState,
   PlusIcon,
   ScreenBase,
   ScreenBodyScrollView,
-  type ChipGroupOption,
   type ScreenBasePrimaryAction,
 } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 
 import { SpaceCard } from './card/space-card';
 import { useCreateSpace } from './create-space/use-create-space';
-import { LIVE_SPACE_SECTION } from './live-space-section';
 import { openSpaceDetail } from './space-routes';
-import {
-  useLiveSpaceIdsBySection,
-  type LiveSpaceSection,
-} from './use-live-space-ids-by-section';
+import { useJoinableLiveSpaceIds } from './use-joinable-live-space-ids';
 
-function SpaceSectionList({
-  section,
-  emptyTitle,
-}: {
-  readonly section: LiveSpaceSection;
-  readonly emptyTitle: ReactNode;
-}) {
-  const { spaceIds, isLoading } = useLiveSpaceIdsBySection(section);
+function SpacesListBody() {
+  const { spaceIds, isLoading } = useJoinableLiveSpaceIds();
   if (isLoading) {
     return <LoadingState size="large" />;
   }
   if (spaceIds.length === 0) {
-    return <EmptyState icon={Gamepad2Icon} title={emptyTitle} />;
+    return (
+      <EmptyState icon={Gamepad2Icon} title={<Trans>No shared spaces</Trans>} />
+    );
   }
   return (
     <Box sx={{ gap: 3 }}>
@@ -47,39 +37,16 @@ function SpaceSectionList({
   );
 }
 
-function emptyTitleForSection(section: LiveSpaceSection): ReactNode {
-  if (section === LIVE_SPACE_SECTION.public) {
-    return <Trans>No public spaces</Trans>;
-  }
-  return <Trans>No live spaces</Trans>;
-}
-
 function SpacesList() {
-  const { t } = useLingui();
-  const [section, setSection] = useState<LiveSpaceSection>(
-    LIVE_SPACE_SECTION.friends
-  );
-
-  const options = useMemo((): readonly ChipGroupOption<LiveSpaceSection>[] => {
-    return [
-      { key: LIVE_SPACE_SECTION.friends, label: t`Friends` },
-      { key: LIVE_SPACE_SECTION.public, label: t`Public` },
-    ];
-  }, [t]);
-
   return (
     <Box sx={{ flex: 1, gap: 2 }}>
-      <ChipGroup options={options} selected={section} onSelect={setSection} />
       <ScreenBodyScrollView
         contentContainerStyle={{
           paddingBottom: 24,
           gap: 8,
         }}
       >
-        <SpaceSectionList
-          section={section}
-          emptyTitle={emptyTitleForSection(section)}
-        />
+        <SpacesListBody />
       </ScreenBodyScrollView>
     </Box>
   );

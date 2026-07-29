@@ -46,7 +46,7 @@ export const SpaceAttr = {
   endedAt: spaceNs
     .timestampOrNull('ended-at', readTrimmedNullableString)
     .indexed(),
-  /** `public` | `friends` | `private`. Indexed for lobby section filters. */
+  /** `public` | `private`. Indexed for lobby section filters. */
   visibility: spaceNs.text('visibility', readVisibility).indexed(),
   /** Host account id when signed in; null for anonymous hosts. */
   hostAccountId: spaceNs

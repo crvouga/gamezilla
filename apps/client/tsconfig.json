@@ -26,6 +26,7 @@
       "@libs/profile/*": ["../../libs/profile/src/*"],
       "@libs/spaces/*": ["../../libs/spaces/src/*"],
       "@libs/stripe/*": ["../../libs/stripe/src/*"],
+      "@libs/user-search/*": ["../../libs/user-search/src/*"],
       "@pkgs/tts/*": ["../../pkgs/tts/src/*"],
       "@pkgs/assert": ["../../pkgs/assert/src/index.ts"],
       "@pkgs/assert/*": ["../../pkgs/assert/src/*"],

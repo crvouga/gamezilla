@@ -1,8 +1,11 @@
 import {
+  SPACE_ALLOWLIST_TABLE,
   SPACES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
+  SpaceAllowlistCol,
   SpaceCol,
   SpaceMembershipCol,
+  spaceAllowlistEntityId,
 } from '@libs/db/shared/space-tables';
 import {
   resolveSpaceMemberId,
@@ -22,7 +25,11 @@ import type { RowChange } from '@pkgs/write/shared/row-change';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
 import { authorizeLeaveSpace } from './leave-space/leave-space-write';
-import { readSpaceHostEnded, requireAccountId } from './space-write-helpers';
+import {
+  authorizeSpaceHost,
+  readSpaceHostEnded,
+  requireAccountId,
+} from './space-write-helpers';
 
 /**
  * Create-space uploads as PUT before the row exists on Postgres. Authorize from
@@ -195,11 +202,56 @@ const spaceMembershipsRowWrite = defineRowAuthorizeWrite({
   authorize: authorizeSpaceMembershipUpload,
 });
 
+async function authorizeSpaceAllowlistUpload(
+  ctx: WriteContext,
+  row: RowChange,
+  db: SqlClient
+): Promise<WriteResult<void>> {
+  const spaceId = readRowString(row, SpaceAllowlistCol.spaceId);
+  if (spaceId === undefined || spaceId.length === 0) {
+    // Delete by id only: `${spaceId}:${userId}`
+    const sep = row.id.indexOf(':');
+    if (sep <= 0) {
+      return fail('SPACE_INVALID_INPUT', 'Invalid allowlist row id');
+    }
+    return authorizeSpaceHost(
+      ctx,
+      db,
+      row.id.slice(0, sep),
+      'Only the host can manage the allow list'
+    );
+  }
+  const userId = readRowString(row, SpaceAllowlistCol.userId);
+  if (userId === undefined || userId.length === 0) {
+    return fail('SPACE_INVALID_INPUT', 'user_id is required');
+  }
+  if (row.id !== spaceAllowlistEntityId(spaceId, userId)) {
+    return fail(
+      'SPACE_INVALID_INPUT',
+      'Allowlist id must match space + user'
+    );
+  }
+  return authorizeSpaceHost(
+    ctx,
+    db,
+    spaceId,
+    'Only the host can manage the allow list'
+  );
+}
+
+const spaceAllowlistRowWrite = defineRowAuthorizeWrite({
+  name: 'space_allowlist.upload',
+  authorize: authorizeSpaceAllowlistUpload,
+});
+
 export const SPACE_ROW_BINDINGS: Readonly<
   Record<string, RowWriteBinding<RowChange>>
 > = {
   [SPACES_TABLE.tableName]: createRowWriteBinding(spacesRowWrite),
   [SPACE_MEMBERSHIPS_TABLE.tableName]: createRowWriteBinding(
     spaceMembershipsRowWrite
+  ),
+  [SPACE_ALLOWLIST_TABLE.tableName]: createRowWriteBinding(
+    spaceAllowlistRowWrite
   ),
 };

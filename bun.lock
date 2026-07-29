@@ -103,6 +103,7 @@
         "@libs/profile": "workspace:*",
         "@libs/search": "workspace:*",
         "@libs/spaces": "workspace:*",
+        "@libs/user-search": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
@@ -323,6 +324,7 @@
         "@libs/db": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/spaces": "workspace:*",
+        "@libs/user-search": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
@@ -432,8 +434,8 @@
       "name": "@libs/search",
       "version": "0.0.0",
       "dependencies": {
-        "@libs/auth": "workspace:*",
         "@libs/friends": "workspace:*",
+        "@libs/user-search": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/keyword": "workspace:*",
@@ -456,6 +458,7 @@
         "@libs/db": "workspace:*",
         "@libs/infra": "workspace:*",
         "@libs/profile": "workspace:*",
+        "@libs/user-search": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
@@ -524,6 +527,23 @@
       },
       "devDependencies": {
         "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/user-search": {
+      "name": "@libs/user-search",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/auth": "workspace:*",
+        "@libs/profile": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/react": "catalog:",
+        "@pkgs/ui": "workspace:*",
+        "react": "catalog:",
+        "react-native": "catalog:",
+      },
+      "devDependencies": {
+        "@types/react": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2077,6 +2097,8 @@
     "@libs/stripe": ["@libs/stripe@workspace:libs/stripe"],
 
     "@libs/stripe-cli": ["@libs/stripe-cli@workspace:libs/stripe-cli"],
+
+    "@libs/user-search": ["@libs/user-search@workspace:libs/user-search"],
 
     "@lingui/babel-plugin-extract-messages": ["@lingui/babel-plugin-extract-messages@5.9.5", "", {}, "sha512-XOAXMPOkpy45784q5bCNN5PizoAecxkBm8kv8CEusI/f9kR3vMCcpH4kvSchU05JkKAVE8eIsdxb2zM6eDJTeA=="],
 

@@ -4,7 +4,6 @@ import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-pa
 import { Box } from '@pkgs/ui';
 import { useCallback, useState, type ReactNode } from 'react';
 
-import { useSpaceVisibleProfilesSubscription } from '../use-space-visible-profiles-subscription';
 import { ActiveSpacesSheet } from './active-spaces-sheet';
 import { MiniplayerStackedBar } from './miniplayer-stacked-bar';
 import { resolveMiniplayerMode } from './space-miniplayer-layout';
@@ -13,7 +12,6 @@ import { useSpaceMiniplayerVisibleSpaceIds } from './use-space-miniplayer-visibl
 
 export function SpaceMiniplayer(): ReactNode {
   const paintReady = useSyncEnginePaintReady();
-  useSpaceVisibleProfilesSubscription();
   const spaceIds = useSpaceMiniplayerVisibleSpaceIds();
   const [sheetOpen, setSheetOpen] = useState(false);
   const openSheet = useCallback(() => setSheetOpen(true), []);

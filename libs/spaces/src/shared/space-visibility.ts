@@ -1,4 +1,4 @@
-export const SPACE_VISIBILITIES = ['public', 'friends', 'private'] as const;
+export const SPACE_VISIBILITIES = ['public', 'private'] as const;
 
 export type SpaceVisibility = (typeof SPACE_VISIBILITIES)[number];
 

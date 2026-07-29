@@ -2,12 +2,19 @@ import { getCachedDeviceId } from '@libs/auth/client/use-device-id';
 import { getCachedAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 
+import type { UserSearchResult } from '../shared/user-search-types';
+
 const X_ANON_ID = 'x-anon-id';
 
-export type SpacesApiFetch = (
+export type UserSearchApiFetch = (
   input: RequestInfo | URL,
   init?: RequestInit
 ) => Promise<Response>;
+
+export type UserSearchClientDeps = {
+  readonly config: ConfigService;
+  readonly fetchFn: UserSearchApiFetch;
+};
 
 function authHeaders(): Record<string, string> {
   const token = getCachedAuthToken();
@@ -28,25 +35,27 @@ function authHeaders(): Record<string, string> {
   return { 'Content-Type': 'application/json' };
 }
 
-export async function spacesApiJson<T>(args: {
-  readonly config: ConfigService;
-  readonly fetchFn: SpacesApiFetch;
-  readonly path: string;
-  readonly init?: RequestInit;
-}): Promise<T> {
-  const url = `${args.config.getApiUrl()}/api${args.path}`;
-  const res = await args.fetchFn(url, {
-    ...args.init,
-    headers: {
-      ...authHeaders(),
-      ...args.init?.headers,
-    },
+/**
+ * Absolute REST exception: cross-user search is not in any one sync scope.
+ * Server route remains `POST /friends/search`.
+ */
+export async function searchUsers(
+  deps: UserSearchClientDeps,
+  query: string,
+  limit?: number
+): Promise<readonly UserSearchResult[]> {
+  const url = `${deps.config.getApiUrl()}/api/friends/search`;
+  const res = await deps.fetchFn(url, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ query, limit }),
   });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     throw new Error(
-      `spaces api failed (${res.status})${body.length > 0 ? `: ${body}` : ''}`
+      `user search failed (${res.status})${body.length > 0 ? `: ${body}` : ''}`
     );
   }
-  return (await res.json()) as T;
+  const json = (await res.json()) as { results: UserSearchResult[] };
+  return json.results;
 }

@@ -1,0 +1,33 @@
+{
+  "name": "@libs/user-search",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./client/*": [
+      "./src/client/*.ts",
+      "./src/client/*.tsx"
+    ],
+    "./shared/*": [
+      "./src/shared/*.ts",
+      "./src/shared/*.tsx"
+    ]
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings 0",
+    "tc": "tsc --noEmit",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@libs/auth": "workspace:*",
+    "@libs/profile": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/react": "catalog:",
+    "@pkgs/ui": "workspace:*",
+    "react": "catalog:",
+    "react-native": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "typescript": "catalog:"
+  }
+}

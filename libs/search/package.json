@@ -18,8 +18,8 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@libs/auth": "workspace:*",
     "@libs/friends": "workspace:*",
+    "@libs/user-search": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/keyword": "workspace:*",

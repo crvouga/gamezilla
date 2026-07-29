@@ -9,7 +9,6 @@ import {
   resolvePresenceRole,
   resolveRoomActorId,
   shouldBumpMemberCountOnJoin,
-  shouldConsumeInviteOnJoin,
 } from '../shared/participation/space-participation-policy';
 import { spaceMembershipEntityId } from '../shared/participation/participation-ids';
 
@@ -101,8 +100,7 @@ describe('decideJoin', () => {
     viewerAccountId: 'guest-acct',
     viewerDeviceId: 'guest-device',
     viewerMemberId: 'guest-acct',
-    isFriendOfHost: false,
-    hasValidInvite: false,
+    isAllowlisted: false,
     alreadyMember: false,
   };
 
@@ -165,43 +163,26 @@ describe('decideJoin', () => {
         ...base,
         visibility: 'private',
         alreadyMember: true,
-        hasValidInvite: false,
+        isAllowlisted: false,
       })
     ).toEqual({ allowed: true, reason: 'already' });
   });
 
-  test('private requires invite for new members', () => {
+  test('private requires allowlist for new members', () => {
     expect(
       decideJoin({
         ...base,
         visibility: 'private',
-        hasValidInvite: false,
+        isAllowlisted: false,
       })
     ).toEqual({ allowed: false, code: 'SPACE_VISIBILITY_DENIED' });
     expect(
       decideJoin({
         ...base,
         visibility: 'private',
-        hasValidInvite: true,
+        isAllowlisted: true,
       })
-    ).toEqual({ allowed: true, reason: 'invite' });
-  });
-
-  test('friends visibility', () => {
-    expect(
-      decideJoin({
-        ...base,
-        visibility: 'friends',
-        isFriendOfHost: true,
-      })
-    ).toEqual({ allowed: true, reason: 'friend' });
-    expect(
-      decideJoin({
-        ...base,
-        visibility: 'friends',
-        isFriendOfHost: false,
-      })
-    ).toEqual({ allowed: false, code: 'SPACE_VISIBILITY_DENIED' });
+    ).toEqual({ allowed: true, reason: 'allowlist' });
   });
 });
 
@@ -215,22 +196,7 @@ describe('decideEndSpace', () => {
   });
 });
 
-describe('invite / count helpers', () => {
-  test('consume invite only on membership reactivation', () => {
-    expect(
-      shouldConsumeInviteOnJoin({
-        membershipWasInactive: true,
-        hasInviteToken: true,
-      })
-    ).toBe(true);
-    expect(
-      shouldConsumeInviteOnJoin({
-        membershipWasInactive: false,
-        hasInviteToken: true,
-      })
-    ).toBe(false);
-  });
-
+describe('count helpers', () => {
   test('bump count only on membership reactivation', () => {
     expect(shouldBumpMemberCountOnJoin({ membershipWasInactive: true })).toBe(
       true

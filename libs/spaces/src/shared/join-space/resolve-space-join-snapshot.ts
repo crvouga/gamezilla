@@ -23,11 +23,9 @@ export type SpaceJoinLocalRow = {
 
 export type ResolveSpaceJoinSnapshotInput = {
   readonly enabled: boolean;
-  readonly streamReady: boolean;
   readonly rowLoading: boolean;
   readonly row: SpaceJoinLocalRow | null;
-  readonly hasValidInvite: boolean;
-  readonly isFriendOfHost: boolean;
+  readonly isAllowlisted: boolean;
   readonly viewerAccountId: string | null;
   readonly viewerDeviceId: string;
 };
@@ -50,8 +48,7 @@ function snapshotFromLiveRow(
     viewerAccountId,
     viewerDeviceId: input.viewerDeviceId,
     viewerMemberId: resolveSpaceMemberId(viewerAccountId),
-    isFriendOfHost: input.isFriendOfHost,
-    hasValidInvite: input.hasValidInvite,
+    isAllowlisted: input.isAllowlisted,
     alreadyMember: false,
   });
   return { status: 'live', joinable: decision.allowed };
@@ -71,11 +68,8 @@ function snapshotFromResolvedRow(
 }
 
 /**
- * Derives join-screen status from local SQLite + stream readiness.
- * A hydrated local row resolves immediately (including ended) — do not block on
- * the on-demand join stream, which can hang/fail after leave/end and leave the
- * UI stuck on a spinner. Stream readiness only gates a *missing* row so we do
- * not flash unavailable before the first checkpoint.
+ * Derives join-screen status from local SQLite. Private spaces only appear
+ * after the host adds the viewer to the allow list (auto-subscribe).
  */
 export function resolveSpaceJoinSnapshot(
   input: ResolveSpaceJoinSnapshotInput
@@ -88,9 +82,6 @@ export function resolveSpaceJoinSnapshot(
   }
   if (input.row !== null) {
     return snapshotFromResolvedRow(input.row, input);
-  }
-  if (!input.streamReady) {
-    return { status: 'loading', joinable: false };
   }
   return { status: 'unavailable', joinable: false };
 }

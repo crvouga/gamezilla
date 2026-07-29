@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 
 import {
+  SPACE_ALLOWLIST_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
+  SpaceAllowlistCol,
   SpaceCol,
   SpaceMembershipCol,
   SPACES_TABLE,
@@ -52,6 +54,13 @@ async function migrate(db: SqlClient): Promise<void> {
       ${ident(SpaceMembershipCol.joinedAt)} TEXT,
       ${ident(SpaceMembershipCol.leftAt)} TEXT,
       ${ident(SpaceMembershipCol.profileId)} TEXT
+    )`);
+  await db.run(sql`CREATE TABLE ${ident(SPACE_ALLOWLIST_TABLE.tableName)} (
+      ${ident(SpaceAllowlistCol.id)} TEXT PRIMARY KEY,
+      ${ident(SpaceAllowlistCol.spaceId)} TEXT,
+      ${ident(SpaceAllowlistCol.userId)} TEXT,
+      ${ident(SpaceAllowlistCol.createdAt)} TEXT,
+      ${ident(SpaceAllowlistCol.createdByAccountId)} TEXT
     )`);
 }
 
@@ -262,13 +271,13 @@ describe('leave / join / create require account membership', () => {
     );
     const auth = await authorizeJoinSpace(
       signedIn,
-      { spaceId: SPACE_ID, inviteToken: null },
+      { spaceId: SPACE_ID },
       db
     );
     expect(auth.ok).toBe(true);
     const exec = await executeJoinSpace(
       signedIn,
-      { spaceId: SPACE_ID, inviteToken: null },
+      { spaceId: SPACE_ID },
       db
     );
     expect(exec.ok).toBe(true);
@@ -283,7 +292,7 @@ describe('leave / join / create require account membership', () => {
     const anon = ctx({ deviceId: GUEST_DEVICE_ID, accountId: null });
     const auth = await authorizeJoinSpace(
       anon,
-      { spaceId: SPACE_ID, inviteToken: null },
+      { spaceId: SPACE_ID },
       db
     );
     expect(auth.ok).toBe(false);

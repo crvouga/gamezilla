@@ -49,10 +49,7 @@ export const setSpaceVisibilityWrite = defineWrite<
     );
     if (!host.ok) return host;
     if (input.visibility !== 'private' && ctx.accountId === null) {
-      return fail(
-        'SIGN_IN_REQUIRED',
-        'Sign in to make a space public or friends-only'
-      );
+      return fail('SIGN_IN_REQUIRED', 'Sign in to make a space public');
     }
     return ok(undefined);
   },

@@ -77,7 +77,7 @@ describe('sync stream subscription readiness', () => {
           },
         }) satisfies SyncStreamSubscription,
       specs: [
-        { stream: 'space_join', params: { space_id: 's1', invite_token: '' } },
+        { stream: 'spaces', params: {} },
       ],
       isCancelled: () => cancelled,
       liveUnsubs,
@@ -107,7 +107,7 @@ describe('sync stream subscription readiness', () => {
         };
       },
       specs: [
-        { stream: 'space_join', params: { space_id: 's1', invite_token: '' } },
+        { stream: 'spaces', params: {} },
       ],
       isCancelled: () => cancelled,
       liveUnsubs,

@@ -1,10 +1,9 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import {
-  FRIEND_PROFILE_CACHE_TABLE,
   FRIENDSHIPS_TABLE,
-  FriendProfileCacheCol,
   FriendshipCol,
 } from '@libs/db/shared/friends-tables';
+import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { honey, col, type Sql } from '@pkgs/sql';
 import { useMemo } from 'react';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
@@ -19,6 +18,19 @@ type FriendRow = {
   readonly friends_since: string;
 };
 
+function friendIdExpr(myId: string) {
+  return [
+    'case',
+    [
+      [
+        ['=', col(`f.${FriendshipCol.userLow}`), myId],
+        col(`f.${FriendshipCol.userHigh}`),
+      ],
+    ],
+    col(`f.${FriendshipCol.userLow}`),
+  ] as const;
+}
+
 function friendsSql(myId: string): Sql {
   if (myId.length === 0) {
     return honey({
@@ -28,39 +40,29 @@ function friendsSql(myId: string): Sql {
         [['param', null], 'avatar_config'],
         [['param', ''], 'friends_since'],
       ],
-      from: FRIEND_PROFILE_CACHE_TABLE.tableName,
+      from: FRIENDSHIPS_TABLE.tableName,
       where: ['=', 1, 0],
     });
   }
-  const friendIdCol = col(`c.${FriendProfileCacheCol.friendId}`);
+  const friendId = friendIdExpr(myId);
   return honey({
     select: [
-      [`c.${FriendProfileCacheCol.friendId}`, 'friend_id'],
-      [`c.${FriendProfileCacheCol.username}`, 'username'],
-      [`c.${FriendProfileCacheCol.avatarConfig}`, 'avatar_config'],
+      [friendId, 'friend_id'],
+      [`p.${ProfileCol.username}`, 'username'],
+      [`p.${ProfileCol.avatarConfig}`, 'avatar_config'],
       [`f.${FriendshipCol.createdAt}`, 'friends_since'],
     ],
-    from: [FRIEND_PROFILE_CACHE_TABLE.tableName, 'c'],
+    from: [FRIENDSHIPS_TABLE.tableName, 'f'],
     join: [
-      [FRIENDSHIPS_TABLE.tableName, 'f'],
-      [
-        'or',
-        [
-          'and',
-          ['=', `f.${FriendshipCol.userLow}`, myId],
-          ['=', `f.${FriendshipCol.userHigh}`, friendIdCol],
-        ],
-        [
-          'and',
-          ['=', `f.${FriendshipCol.userHigh}`, myId],
-          ['=', `f.${FriendshipCol.userLow}`, friendIdCol],
-        ],
-      ],
+      [PROFILES_TABLE.tableName, 'p'],
+      ['=', `p.${ProfileCol.id}`, friendId],
     ],
-    where: ['=', `c.${FriendProfileCacheCol.ownerId}`, myId],
-    orderBy: [
-      [`c.${FriendProfileCacheCol.username}`, 'asc', { collate: 'NOCASE' }],
+    where: [
+      'or',
+      ['=', `f.${FriendshipCol.userLow}`, myId],
+      ['=', `f.${FriendshipCol.userHigh}`, myId],
     ],
+    orderBy: [[`p.${ProfileCol.username}`, 'asc', { collate: 'NOCASE' }]],
   });
 }
 

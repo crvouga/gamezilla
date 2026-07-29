@@ -255,20 +255,7 @@ CREATE TABLE IF NOT EXISTS user_blocks (
 
 CREATE INDEX IF NOT EXISTS user_blocks_blocked_idx ON user_blocks (blocked_id);
 
-CREATE TABLE IF NOT EXISTS friend_profile_cache (
-  id TEXT PRIMARY KEY,
-  owner_id TEXT NOT NULL REFERENCES profiles (id),
-  friend_id TEXT NOT NULL REFERENCES profiles (id),
-  username TEXT NOT NULL DEFAULT '',
-  avatar_config JSONB,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (owner_id, friend_id)
-);
-
-ALTER TABLE friend_profile_cache DROP COLUMN IF EXISTS display_name;
-
-CREATE INDEX IF NOT EXISTS friend_profile_cache_owner_idx
-  ON friend_profile_cache (owner_id);
+DROP TABLE IF EXISTS friend_profile_cache;
 
 -- ============ Spaces: device-seat membership ============
 
@@ -289,7 +276,7 @@ SET ended_at = COALESCE(s.ended_at, now())
 WHERE s.ended_at IS NULL
   AND EXISTS (SELECT 1 FROM users u WHERE u.id = s.host_id);
 
--- ============ Spaces: visibility + discovery + invites ============
+-- ============ Spaces: visibility + allowlist ============
 
 ALTER TABLE spaces ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
 ALTER TABLE spaces ADD COLUMN IF NOT EXISTS host_account_id TEXT;
@@ -299,6 +286,9 @@ ALTER TABLE spaces ADD COLUMN IF NOT EXISTS active_member_count INTEGER NOT NULL
 ALTER TABLE spaces DROP COLUMN IF EXISTS host_username;
 ALTER TABLE spaces DROP COLUMN IF EXISTS host_avatar_config;
 
+-- Legacy `friends` visibility collapses to private (allowlist replaces it).
+UPDATE spaces SET visibility = 'private' WHERE visibility = 'friends';
+
 CREATE INDEX IF NOT EXISTS spaces_visibility_live_idx
   ON spaces (visibility, created_at DESC)
   WHERE ended_at IS NULL;
@@ -306,34 +296,21 @@ CREATE INDEX IF NOT EXISTS spaces_host_account_id_idx
   ON spaces (host_account_id)
   WHERE ended_at IS NULL;
 
-CREATE TABLE IF NOT EXISTS space_invites (
+CREATE TABLE IF NOT EXISTS space_allowlist (
   id TEXT PRIMARY KEY,
   space_id TEXT NOT NULL REFERENCES spaces (id),
-  kind TEXT NOT NULL,
-  token TEXT NOT NULL,
-  code TEXT,
+  user_id TEXT NOT NULL REFERENCES profiles (id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   created_by_account_id TEXT NOT NULL,
-  invitee_account_id TEXT,
-  expires_at TIMESTAMPTZ,
-  revoked_at TIMESTAMPTZ,
-  accepted_at TIMESTAMPTZ,
-  max_uses INTEGER NOT NULL DEFAULT 1,
-  use_count INTEGER NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  UNIQUE (space_id, user_id)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS space_invites_token_uidx
-  ON space_invites (token);
-CREATE UNIQUE INDEX IF NOT EXISTS space_invites_active_code_uidx
-  ON space_invites (code)
-  WHERE code IS NOT NULL AND revoked_at IS NULL;
-CREATE INDEX IF NOT EXISTS space_invites_space_id_idx
-  ON space_invites (space_id);
-CREATE INDEX IF NOT EXISTS space_invites_invitee_idx
-  ON space_invites (invitee_account_id)
-  WHERE invitee_account_id IS NOT NULL AND revoked_at IS NULL;
-CREATE INDEX IF NOT EXISTS space_invites_created_by_idx
-  ON space_invites (created_by_account_id);
+CREATE INDEX IF NOT EXISTS space_allowlist_space_id_idx
+  ON space_allowlist (space_id);
+CREATE INDEX IF NOT EXISTS space_allowlist_user_id_idx
+  ON space_allowlist (user_id);
+
+DROP TABLE IF EXISTS space_invites;
 
 -- ============ Spaces: user membership + device participation ============
 

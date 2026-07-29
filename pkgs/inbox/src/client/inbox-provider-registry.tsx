@@ -6,6 +6,8 @@ import type { InboxClientDeps } from './inbox-actions';
 export type InboxShellContextValue = {
   readonly userId: string;
   readonly isSignedIn: boolean;
+  /** Bearer + device headers are ready for inbox REST (may lag `isSignedIn`). */
+  readonly isAuthReady: boolean;
   readonly deps: InboxClientDeps;
   readonly providers: readonly InteractionProvider[];
   readonly onSignIn?: () => void;
@@ -16,6 +18,7 @@ const InboxShellContext = createContext<InboxShellContextValue | null>(null);
 export type InboxProviderRegistryProps = {
   readonly userId: string;
   readonly isSignedIn: boolean;
+  readonly isAuthReady?: boolean;
   readonly deps: InboxClientDeps;
   readonly providers?: readonly InteractionProvider[];
   readonly onSignIn?: () => void;
@@ -25,6 +28,7 @@ export type InboxProviderRegistryProps = {
 export function InboxProviderRegistry({
   userId,
   isSignedIn,
+  isAuthReady = isSignedIn,
   deps,
   providers = [],
   onSignIn,
@@ -34,11 +38,12 @@ export function InboxProviderRegistry({
     const base: InboxShellContextValue = {
       userId,
       isSignedIn,
+      isAuthReady,
       deps,
       providers,
     };
     return onSignIn !== undefined ? { ...base, onSignIn } : base;
-  }, [userId, isSignedIn, deps, providers, onSignIn]);
+  }, [userId, isSignedIn, isAuthReady, deps, providers, onSignIn]);
   return (
     <InboxShellContext.Provider value={value}>
       {children}

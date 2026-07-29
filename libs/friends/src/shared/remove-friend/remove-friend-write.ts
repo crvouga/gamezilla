@@ -8,7 +8,6 @@ import {
   parseFriendUserIdInput,
   type FriendUserIdInput,
 } from '../friends-sql/friend-write-helpers';
-import { clearFriendProfileCaches } from '../friends-sql/friend-profile-cache-sql';
 import {
   deleteFriendship,
   friendshipExists,
@@ -30,10 +29,7 @@ export const removeFriendWrite = defineWrite<FriendUserIdInput, void>({
       return fail('FRIENDS_NOT_FOUND', 'Friendship not found');
     }
     const { userLow, userHigh } = canonicalUserPair(ctx.myId, input.userId);
-    await sql.transaction(async (tx) => {
-      await deleteFriendship(tx, ctx.myId, input.userId);
-      await clearFriendProfileCaches(tx, ctx.myId, input.userId);
-    });
+    await deleteFriendship(sql, ctx.myId, input.userId);
     publishFriendEvent({ type: 'friend.removed', userLow, userHigh });
     return ok(undefined);
   },

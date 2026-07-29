@@ -8,8 +8,8 @@ import {
 describe('space visibility', () => {
   test('parses known values', () => {
     expect(isSpaceVisibility('public')).toBe(true);
-    expect(isSpaceVisibility('friends')).toBe(true);
     expect(isSpaceVisibility('private')).toBe(true);
+    expect(isSpaceVisibility('friends')).toBe(false);
     expect(isSpaceVisibility('secret')).toBe(false);
   });
 

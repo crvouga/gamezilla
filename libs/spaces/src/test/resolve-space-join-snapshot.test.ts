@@ -1,174 +1,101 @@
 import { describe, expect, test } from 'bun:test';
 
 import { resolveSpaceJoinSnapshot } from '../shared/join-space/resolve-space-join-snapshot';
-import { spaceJoinStreamParams } from '../shared/join-space/space-join-stream';
 
-const livePublicRow = {
-  host_id: 'host-device',
-  host_member_id: 'host',
-  host_account_id: 'host',
+const liveRow = {
+  host_id: 'device-host',
+  host_member_id: 'host-account',
+  host_account_id: 'host-account',
   ended_at: null,
   visibility: 'public',
 } as const;
 
 describe('resolveSpaceJoinSnapshot', () => {
-  test('loading until stream ready when row is missing', () => {
+  test('disabled → unavailable', () => {
     expect(
       resolveSpaceJoinSnapshot({
-        enabled: true,
-        streamReady: false,
+        enabled: false,
         rowLoading: false,
         row: null,
-        hasValidInvite: false,
-        isFriendOfHost: false,
-        viewerAccountId: 'guest',
-        viewerDeviceId: 'dev',
-      })
-    ).toEqual({ status: 'loading', joinable: false });
-
-    expect(
-      resolveSpaceJoinSnapshot({
-        enabled: true,
-        streamReady: true,
-        rowLoading: true,
-        row: null,
-        hasValidInvite: false,
-        isFriendOfHost: false,
-        viewerAccountId: 'guest',
-        viewerDeviceId: 'dev',
-      })
-    ).toEqual({ status: 'loading', joinable: false });
-  });
-
-  test('hydrated local row resolves without waiting for stream', () => {
-    expect(
-      resolveSpaceJoinSnapshot({
-        enabled: true,
-        streamReady: false,
-        rowLoading: false,
-        row: livePublicRow,
-        hasValidInvite: false,
-        isFriendOfHost: false,
-        viewerAccountId: 'guest',
-        viewerDeviceId: 'dev',
-      })
-    ).toEqual({ status: 'live', joinable: true });
-
-    expect(
-      resolveSpaceJoinSnapshot({
-        enabled: true,
-        streamReady: false,
-        rowLoading: false,
-        row: { ...livePublicRow, ended_at: '2020-01-01T00:00:00.000Z' },
-        hasValidInvite: false,
-        isFriendOfHost: false,
-        viewerAccountId: 'guest',
-        viewerDeviceId: 'dev',
-      })
-    ).toEqual({ status: 'ended', joinable: false });
-  });
-
-  test('missing row after checkpoint is unavailable', () => {
-    expect(
-      resolveSpaceJoinSnapshot({
-        enabled: true,
-        streamReady: true,
-        rowLoading: false,
-        row: null,
-        hasValidInvite: false,
-        isFriendOfHost: false,
-        viewerAccountId: 'guest',
-        viewerDeviceId: 'dev',
+        isAllowlisted: false,
+        viewerAccountId: 'viewer',
+        viewerDeviceId: 'device',
       })
     ).toEqual({ status: 'unavailable', joinable: false });
   });
 
-  test('ended row is not joinable', () => {
+  test('loading without row → loading', () => {
     expect(
       resolveSpaceJoinSnapshot({
         enabled: true,
-        streamReady: true,
+        rowLoading: true,
+        row: null,
+        isAllowlisted: false,
+        viewerAccountId: 'viewer',
+        viewerDeviceId: 'device',
+      })
+    ).toEqual({ status: 'loading', joinable: false });
+  });
+
+  test('missing row after load → unavailable', () => {
+    expect(
+      resolveSpaceJoinSnapshot({
+        enabled: true,
         rowLoading: false,
-        row: { ...livePublicRow, ended_at: '2020-01-01T00:00:00.000Z' },
-        hasValidInvite: true,
-        isFriendOfHost: true,
-        viewerAccountId: 'guest',
-        viewerDeviceId: 'dev',
+        row: null,
+        isAllowlisted: false,
+        viewerAccountId: 'viewer',
+        viewerDeviceId: 'device',
+      })
+    ).toEqual({ status: 'unavailable', joinable: false });
+  });
+
+  test('ended row → ended', () => {
+    expect(
+      resolveSpaceJoinSnapshot({
+        enabled: true,
+        rowLoading: false,
+        row: { ...liveRow, ended_at: '2026-01-01T00:00:00.000Z' },
+        isAllowlisted: false,
+        viewerAccountId: 'viewer',
+        viewerDeviceId: 'device',
       })
     ).toEqual({ status: 'ended', joinable: false });
   });
 
-  test('public live row is joinable for signed-in viewer', () => {
+  test('public live row is joinable when signed in', () => {
     expect(
       resolveSpaceJoinSnapshot({
         enabled: true,
-        streamReady: true,
         rowLoading: false,
-        row: livePublicRow,
-        hasValidInvite: false,
-        isFriendOfHost: false,
-        viewerAccountId: 'guest',
-        viewerDeviceId: 'dev',
+        row: liveRow,
+        isAllowlisted: false,
+        viewerAccountId: 'viewer',
+        viewerDeviceId: 'device',
       })
     ).toEqual({ status: 'live', joinable: true });
   });
 
-  test('public live row is not joinable when signed out', () => {
+  test('private live row joinable only when allowlisted', () => {
     expect(
       resolveSpaceJoinSnapshot({
         enabled: true,
-        streamReady: true,
         rowLoading: false,
-        row: livePublicRow,
-        hasValidInvite: false,
-        isFriendOfHost: false,
-        viewerAccountId: null,
-        viewerDeviceId: 'dev',
+        row: { ...liveRow, visibility: 'private' },
+        isAllowlisted: false,
+        viewerAccountId: 'viewer',
+        viewerDeviceId: 'device',
       })
     ).toEqual({ status: 'live', joinable: false });
-  });
-
-  test('private live row requires valid invite', () => {
-    const privateRow = { ...livePublicRow, visibility: 'private' };
     expect(
       resolveSpaceJoinSnapshot({
         enabled: true,
-        streamReady: true,
         rowLoading: false,
-        row: privateRow,
-        hasValidInvite: false,
-        isFriendOfHost: false,
-        viewerAccountId: 'guest',
-        viewerDeviceId: 'dev',
-      })
-    ).toEqual({ status: 'live', joinable: false });
-
-    expect(
-      resolveSpaceJoinSnapshot({
-        enabled: true,
-        streamReady: true,
-        rowLoading: false,
-        row: privateRow,
-        hasValidInvite: true,
-        isFriendOfHost: false,
-        viewerAccountId: 'guest',
-        viewerDeviceId: 'dev',
+        row: { ...liveRow, visibility: 'private' },
+        isAllowlisted: true,
+        viewerAccountId: 'viewer',
+        viewerDeviceId: 'device',
       })
     ).toEqual({ status: 'live', joinable: true });
-  });
-});
-
-describe('spaceJoinStreamParams', () => {
-  test('normalizes missing invite token to empty string', () => {
-    expect(spaceJoinStreamParams({ spaceId: 's1' })).toEqual({
-      space_id: 's1',
-      invite_token: '',
-    });
-    expect(
-      spaceJoinStreamParams({ spaceId: 's1', inviteToken: 'tok' })
-    ).toEqual({
-      space_id: 's1',
-      invite_token: 'tok',
-    });
   });
 });

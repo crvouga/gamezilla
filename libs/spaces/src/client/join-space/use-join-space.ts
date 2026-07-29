@@ -9,16 +9,8 @@ export function useJoinSpace() {
   const engine = useSyncEngine();
 
   return useCallback(
-    async (
-      spaceId: string,
-      options?: {
-        readonly inviteToken?: string | null;
-      }
-    ) => {
-      await joinSpaceAction(engine.db, writeContext, {
-        spaceId,
-        inviteToken: options?.inviteToken ?? null,
-      });
+    async (spaceId: string) => {
+      await joinSpaceAction(engine.db, writeContext, { spaceId });
     },
     [engine, writeContext]
   );

@@ -7,7 +7,6 @@ import { mapAppAuthToWriteContext } from '@libs/auth/shared/map-app-auth-to-writ
 import { acceptFriendRequestWrite } from '../shared/accept-friend-request/accept-friend-request-write';
 import { cancelFriendRequestWrite } from '../shared/cancel-friend-request/cancel-friend-request-write';
 import { declineFriendRequestWrite } from '../shared/decline-friend-request/decline-friend-request-write';
-import { syncPeerFriendProfileCache } from '../shared/friends-sql/friend-profile-cache-sql';
 import {
   deactivateFriendRequestInteraction,
   publishFriendRequestAcceptedInteraction,
@@ -50,12 +49,6 @@ export async function handleFriendsInboxAction(
     const request = await runInboxWrite(ctx, acceptFriendRequestWrite, {
       requestId: ctx.requestId,
     });
-    await syncPeerFriendProfileCache(
-      ctx.sql,
-      ctx.actorId,
-      request.fromUserId,
-      new Date().toISOString()
-    );
     await deactivateFriendRequestInteraction(ctx.sql, request);
     await publishFriendRequestAcceptedInteraction(ctx.sql, request);
     return;

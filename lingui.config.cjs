@@ -23,6 +23,7 @@ module.exports = {
         '<rootDir>/libs/profile/src',
         '<rootDir>/libs/friends/src',
         '<rootDir>/libs/search/src',
+        '<rootDir>/libs/user-search/src',
         '<rootDir>/libs/auth/src',
         '<rootDir>/libs/spaces/src',
         '<rootDir>/pkgs/llm/src',

@@ -8,7 +8,6 @@ import {
   parseFriendUserIdInput,
   type FriendUserIdInput,
 } from '../friends-sql/friend-write-helpers';
-import { clearFriendProfileCaches } from '../friends-sql/friend-profile-cache-sql';
 import { cancelPendingRequestsBetween } from '../friends-sql/friend-request-sql';
 import {
   deleteFriendship,
@@ -27,7 +26,6 @@ export const blockUserWrite = defineWrite<FriendUserIdInput, void>({
     await sql.transaction(async (tx) => {
       await deleteFriendship(tx, ctx.myId, input.userId);
       await cancelPendingRequestsBetween(tx, ctx.myId, input.userId, now);
-      await clearFriendProfileCaches(tx, ctx.myId, input.userId);
       await insertBlock(tx, ctx.myId, input.userId, now);
     });
     publishFriendEvent({

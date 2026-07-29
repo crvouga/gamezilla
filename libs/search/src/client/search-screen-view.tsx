@@ -1,16 +1,16 @@
 import { Box, ScreenBase, Text, TextInput } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import {
+  useDebouncedUserSearchEffect,
+  UserSearchQueryHint,
+  UserSearchSignInPrompt,
+} from '@libs/user-search/client/use-user-search';
+import { USER_SEARCH_MIN_LENGTH } from '@libs/user-search/shared/user-search-types';
 import { useCallback, useState, type ReactNode } from 'react';
 
 import { SearchRecentQueries } from './search-recent-queries';
-import {
-  SearchQueryHint,
-  SearchSignInPrompt,
-  useDebouncedUserSearchEffect,
-} from './use-user-search';
 import { SearchUserResultRow } from './search-user-result-row';
 import { useSearchHistory } from './use-search-history';
-import { SEARCH_MIN_LENGTH } from '../shared/search-types';
 
 function SearchScreenBody(): ReactNode {
   const { t } = useLingui();
@@ -28,8 +28,8 @@ function SearchScreenBody(): ReactNode {
   );
   const trimmed = query.trim();
   const showRecent = trimmed.length === 0;
-  const showSignInPrompt = !signedIn && trimmed.length >= SEARCH_MIN_LENGTH;
-  const showResults = signedIn && trimmed.length >= SEARCH_MIN_LENGTH;
+  const showSignInPrompt = !signedIn && trimmed.length >= USER_SEARCH_MIN_LENGTH;
+  const showResults = signedIn && trimmed.length >= USER_SEARCH_MIN_LENGTH;
 
   return (
     <Box sx={{ gap: 2 }}>
@@ -49,8 +49,8 @@ function SearchScreenBody(): ReactNode {
           onClear={clear}
         />
       ) : null}
-      <SearchQueryHint query={query} signedIn={signedIn} />
-      {showSignInPrompt ? <SearchSignInPrompt /> : null}
+      <UserSearchQueryHint query={query} signedIn={signedIn} />
+      {showSignInPrompt ? <UserSearchSignInPrompt /> : null}
       {showResults && searching ? (
         <Text variant="body" label={t`Searching…`} />
       ) : null}

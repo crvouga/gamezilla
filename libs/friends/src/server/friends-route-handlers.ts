@@ -5,7 +5,6 @@ import { acceptFriendRequestWrite } from '../shared/accept-friend-request/accept
 import { blockUserWrite } from '../shared/block-user/block-user-write';
 import { cancelFriendRequestWrite } from '../shared/cancel-friend-request/cancel-friend-request-write';
 import { declineFriendRequestWrite } from '../shared/decline-friend-request/decline-friend-request-write';
-import { syncPeerFriendProfileCache } from '../shared/friends-sql/friend-profile-cache-sql';
 import type { FriendRequest } from '../shared/friends-types';
 import { removeFriendWrite } from '../shared/remove-friend/remove-friend-write';
 import { sendFriendRequestWrite } from '../shared/send-friend-request/send-friend-request-write';
@@ -74,12 +73,6 @@ export function handleAcceptFriendRequest(
     });
     if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
     const request = outcome.value;
-    await syncPeerFriendProfileCache(
-      outcome.sql,
-      auth.myId,
-      request.fromUserId,
-      new Date().toISOString()
-    );
     await deactivateFriendRequestInteraction(sql, request);
     await publishFriendRequestAcceptedInteraction(sql, request);
     return c.json({ request });

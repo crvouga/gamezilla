@@ -21,20 +21,12 @@ export const SpaceMembershipCol = {
   profileId: 'profile_id',
 } as const;
 
-export const SpaceInviteCol = {
+export const SpaceAllowlistCol = {
   id: 'id',
   spaceId: 'space_id',
-  kind: 'kind',
-  token: 'token',
-  code: 'code',
-  createdByAccountId: 'created_by_account_id',
-  inviteeAccountId: 'invitee_account_id',
-  expiresAt: 'expires_at',
-  revokedAt: 'revoked_at',
-  acceptedAt: 'accepted_at',
-  maxUses: 'max_uses',
-  useCount: 'use_count',
+  userId: 'user_id',
   createdAt: 'created_at',
+  createdByAccountId: 'created_by_account_id',
 } as const;
 
 export const SPACES_TABLE = defineTable({
@@ -64,27 +56,27 @@ export const SPACE_MEMBERSHIPS_TABLE = defineTable({
   ],
 });
 
-export const SPACE_INVITES_TABLE = defineTable({
-  tableName: 'space_invites',
+export const SPACE_ALLOWLIST_TABLE = defineTable({
+  tableName: 'space_allowlist',
   columns: [
     { name: 'id', type: 'text', primaryKey: true },
     { name: 'space_id', type: 'text' },
-    { name: 'kind', type: 'text' },
-    { name: 'token', type: 'text' },
-    { name: 'code', type: 'text' },
-    { name: 'created_by_account_id', type: 'text' },
-    { name: 'invitee_account_id', type: 'text' },
-    { name: 'expires_at', type: 'text' },
-    { name: 'revoked_at', type: 'text' },
-    { name: 'accepted_at', type: 'text' },
-    { name: 'max_uses', type: 'integer' },
-    { name: 'use_count', type: 'integer' },
+    { name: 'user_id', type: 'text' },
     { name: 'created_at', type: 'text' },
+    { name: 'created_by_account_id', type: 'text' },
   ],
 });
 
 export const ALL_SPACE_SYNC_TABLES = [
   SPACES_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
-  SPACE_INVITES_TABLE,
+  SPACE_ALLOWLIST_TABLE,
 ] as const;
+
+/** Canonical allowlist row id: `${spaceId}:${userId}`. */
+export function spaceAllowlistEntityId(
+  spaceId: string,
+  userId: string
+): string {
+  return `${spaceId}:${userId}`;
+}

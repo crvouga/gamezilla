@@ -1,8 +1,15 @@
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useIsSignedIn, useMyId } from '@libs/auth/client/use-current-user';
 import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
-import { getCachedDeviceId } from '@libs/auth/client/use-device-id';
-import { getCachedAuthToken } from '@libs/auth/client/use-fresh-auth-token';
+import {
+  getCachedDeviceId,
+  useDeviceId,
+} from '@libs/auth/client/use-device-id';
+import {
+  getCachedAuthToken,
+  useFreshAuthToken,
+  useGetFreshAuthToken,
+} from '@libs/auth/client/use-fresh-auth-token';
 import {
   InboxProviderRegistry,
   type InboxClientDeps,
@@ -15,28 +22,32 @@ import { useMemo, type ReactNode } from 'react';
 /** Must match {@link ANON_ID_HEADER} in libs/auth session-middleware. */
 const X_ANON_ID = 'x-anon-id';
 
-function authedInboxFetch(path: string, init?: RequestInit): Promise<Response> {
-  const headers = new Headers(init?.headers);
-  const token = getCachedAuthToken();
-  if (token !== null && token.length > 0) {
-    headers.set('Authorization', `Bearer ${token}`);
-  }
-  const anon = getCachedDeviceId();
-  if (anon !== null && anon.length > 0) {
-    headers.set(X_ANON_ID, anon);
-  }
-  return fetch(path, { ...init, headers });
-}
-
 function useInboxClientDeps(): InboxClientDeps {
   const config = useConfigService();
   const apiBaseUrl = config.getApiUrl();
+  const getFreshToken = useGetFreshAuthToken();
+  // Ensure the install device id is hydrated for getCachedDeviceId().
+  useDeviceId();
   return useMemo(
     () => ({
       apiBaseUrl,
-      fetchFn: authedInboxFetch,
+      fetchFn: async (path, init) => {
+        const headers = new Headers(init?.headers);
+        let token = getCachedAuthToken();
+        if (token === null || token.length === 0) {
+          token = await getFreshToken();
+        }
+        if (token !== null && token.length > 0) {
+          headers.set('Authorization', `Bearer ${token}`);
+        }
+        const anon = getCachedDeviceId();
+        if (anon !== null && anon.length > 0) {
+          headers.set(X_ANON_ID, anon);
+        }
+        return fetch(path, { ...init, headers });
+      },
     }),
-    [apiBaseUrl]
+    [apiBaseUrl, getFreshToken]
   );
 }
 
@@ -47,6 +58,10 @@ export function AppInboxProvider({
 }): ReactNode {
   const userId = useMyId();
   const isSignedIn = useIsSignedIn();
+  const authToken = useFreshAuthToken();
+  // Clerk can report signed-in before the bearer lands in secure storage;
+  // hold inbox REST (incl. backfill) until the token is readable.
+  const isAuthReady = isSignedIn && authToken !== null;
   const deps = useInboxClientDeps();
   const friendsDeps = useFriendsClientDeps();
   const { open: openSignInModal } = useSignInModal();
@@ -60,6 +75,7 @@ export function AppInboxProvider({
     <InboxProviderRegistry
       userId={userId}
       isSignedIn={isSignedIn}
+      isAuthReady={isAuthReady}
       deps={deps}
       providers={providers}
       onSignIn={openSignInModal}

@@ -12,7 +12,6 @@ import {
   isoNow,
   requireNonEmptyString,
 } from '../friends-sql/friend-write-helpers';
-import { syncActorFriendProfileCache } from '../friends-sql/friend-profile-cache-sql';
 import {
   findFriendRequestById,
   findPendingRequestsBetweenPair,
@@ -25,8 +24,6 @@ import {
 
 export type AcceptFriendRequestInput = {
   readonly requestId: string;
-  readonly friendUsername?: string;
-  readonly friendAvatarConfig?: string | null;
 };
 
 export function parseAcceptFriendRequestInput(
@@ -39,14 +36,8 @@ export function parseAcceptFriendRequestInput(
     'requestId'
   );
   if (!requestId.ok) return requestId;
-  const friendUsername = record.value['friendUsername'];
-  const friendAvatarConfig = record.value['friendAvatarConfig'];
   return ok({
     requestId: requestId.value,
-    ...(typeof friendUsername === 'string' ? { friendUsername } : {}),
-    ...(typeof friendAvatarConfig === 'string' || friendAvatarConfig === null
-      ? { friendAvatarConfig }
-      : {}),
   });
 }
 
@@ -74,10 +65,6 @@ async function applyAccept(
     readonly otherUserId: string;
     readonly requestId: string;
     readonly now: string;
-    readonly friendProfile?: {
-      readonly username: string;
-      readonly avatarConfig: string | null;
-    };
   }
 ): Promise<void> {
   const pending = await findPendingRequestsBetweenPair(
@@ -93,14 +80,6 @@ async function applyAccept(
     userB: args.otherUserId,
     sourceRequestId: args.requestId,
     now: args.now,
-  });
-  await syncActorFriendProfileCache(sql, {
-    actorId: args.actorId,
-    otherUserId: args.otherUserId,
-    now: args.now,
-    ...(args.friendProfile !== undefined
-      ? { friendProfile: args.friendProfile }
-      : {}),
   });
 }
 
@@ -129,20 +108,12 @@ export const acceptFriendRequestWrite = defineWrite<
       return fail('FRIENDS_BLOCKED', 'User is blocked');
     }
     const now = isoNow();
-    const friendProfile =
-      typeof input.friendUsername === 'string'
-        ? {
-            username: input.friendUsername,
-            avatarConfig: input.friendAvatarConfig ?? null,
-          }
-        : undefined;
     await sql.transaction(async (tx) => {
       await applyAccept(tx, {
         actorId: ctx.myId,
         otherUserId,
         requestId: input.requestId,
         now,
-        ...(friendProfile !== undefined ? { friendProfile } : {}),
       });
     });
     const updated = await findFriendRequestById(sql, input.requestId);

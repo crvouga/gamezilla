@@ -1,9 +1,9 @@
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useMemo } from 'react';
 
-import type { SpacesClientDeps } from './spaces-actions';
+import type { UserSearchClientDeps } from './search-users';
 
-export function useSpacesClientDeps(): SpacesClientDeps {
+export function useUserSearchClientDeps(): UserSearchClientDeps {
   const config = useConfigService();
   return useMemo(
     () => ({

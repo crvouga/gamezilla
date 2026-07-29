@@ -12,9 +12,8 @@ export function readRouteParam(value: string | string[] | undefined): string {
 }
 
 /**
- * Resolves another user's display profile from PowerSync
- * (`friend_profile_cache` via friends list) or route search-param seed for
- * non-friends. No React state mirror — always derived live.
+ * Resolves another user's display profile from PowerSync `profiles` (via the
+ * friends list join) or route search-param seed for non-friends.
  */
 export function useFriendUserProfile(userId: string) {
   const router = useRouter();

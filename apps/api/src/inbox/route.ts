@@ -2,10 +2,6 @@ import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { handleFriendsInboxAction } from '@libs/friends/server/friends-inbox-actions';
 import { backfillFriendRequestInboxInteractions } from '@libs/friends/server/request-service';
-import {
-  acceptSpaceInviteFromInbox,
-  declineSpaceInviteFromInbox,
-} from '@libs/spaces/server/space-inbox-actions';
 import { assert } from '@pkgs/assert';
 import { registerActionHandler } from '@pkgs/inbox/server/action-registry';
 import { Inbox } from '@pkgs/inbox';
@@ -44,35 +40,6 @@ function ensureInboxHandlers(): void {
       actionId: ctx.actionId,
       requestId,
     });
-  });
-
-  registerActionHandler('spaces', async (ctx) => {
-    const payload = ctx.interaction.payload;
-    const inviteId =
-      typeof payload['inviteId'] === 'string' ? payload['inviteId'] : null;
-    if (inviteId === null) {
-      throw new Error('Missing inviteId in interaction payload');
-    }
-    const actor = inboxActorStorage.getStore();
-    assert.defined(actor, 'spaces inbox: actor missing');
-    if (ctx.actionId === 'accept') {
-      await acceptSpaceInviteFromInbox({
-        sql: ctx.sql,
-        actorId: ctx.actorId,
-        deviceId: actor.deviceId,
-        inviteId,
-      });
-      return;
-    }
-    if (ctx.actionId === 'decline') {
-      await declineSpaceInviteFromInbox({
-        sql: ctx.sql,
-        actorId: ctx.actorId,
-        inviteId,
-      });
-      return;
-    }
-    throw new Error(`Unknown spaces inbox action: ${ctx.actionId}`);
   });
 }
 

@@ -1,5 +1,7 @@
 import {
+  SPACE_ALLOWLIST_TABLE,
   SPACE_MEMBERSHIPS_TABLE,
+  SpaceAllowlistCol,
   SpaceCol,
   SpaceMembershipCol,
   SPACES_TABLE,
@@ -57,9 +59,9 @@ export function myLiveSeatSpacesSelectSql(memberId: string): Sql {
 }
 
 /**
- * Friends lobby live ids: friends-visible lobbies plus my active seats (I6).
+ * Shared lobby live ids: host / active seat / allowlisted spaces.
  */
-export function friendsLiveSpaceIdsSql(args: {
+export function sharedLiveSpaceIdsSql(args: {
   readonly memberId: string;
   readonly includeHostAccountId: boolean;
 }): Sql {
@@ -72,7 +74,7 @@ export function friendsLiveSpaceIdsSql(args: {
       ['is-null', SpaceCol.endedAt],
       [
         'or',
-        ['=', SpaceCol.visibility, 'friends'],
+        ['=', SpaceCol.hostMemberId, args.memberId],
         [
           'in',
           SpaceCol.id,
@@ -81,23 +83,16 @@ export function friendsLiveSpaceIdsSql(args: {
             includeProfileId: args.includeHostAccountId,
           }),
         ],
+        [
+          'in',
+          SpaceCol.id,
+          {
+            select: [SpaceAllowlistCol.spaceId],
+            from: SPACE_ALLOWLIST_TABLE.tableName,
+            where: ['=', SpaceAllowlistCol.userId, args.memberId],
+          },
+        ],
       ],
-    ],
-    orderBy: [[SpaceCol.createdAt, 'desc']],
-  });
-}
-
-/**
- * Public lobby live ids: public visibility only (I5).
- */
-export function publicLiveSpaceIdsSql(): Sql {
-  return honey({
-    select: [SpaceCol.id],
-    from: SPACES_TABLE.tableName,
-    where: [
-      'and',
-      ['is-null', SpaceCol.endedAt],
-      ['=', SpaceCol.visibility, 'public'],
     ],
     orderBy: [[SpaceCol.createdAt, 'desc']],
   });

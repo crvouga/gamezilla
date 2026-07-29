@@ -9,7 +9,6 @@ import {
   insertBlock,
 } from './friend-repository';
 import { deactivatePendingFriendRequestInteractionsBetween } from './friends-inbox-publish';
-import { clearFriendProfileCaches } from './profile-projection-service';
 
 function assertNotSelf(actorId: string, targetId: string): void {
   if (actorId === targetId) {
@@ -32,7 +31,6 @@ export async function blockUser(
   await sql.transaction(async (tx) => {
     await deleteFriendship(tx, blockerId, blockedId);
     await cancelPendingRequestsBetween(tx, blockerId, blockedId, now);
-    await clearFriendProfileCaches(tx, blockerId, blockedId);
     await insertBlock(tx, blockerId, blockedId, now);
   });
   publishFriendEvent({ type: 'friend.blocked', blockerId, blockedId });

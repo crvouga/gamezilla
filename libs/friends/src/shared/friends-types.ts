@@ -33,8 +33,6 @@ export type Friend = FriendProfile & {
   readonly friendsSince: string;
 };
 
-export type UserSearchResult = FriendProfile;
-
 export type EnrichedFriendRequest = FriendRequest & {
   readonly otherUser: FriendProfile;
 };
@@ -45,7 +43,3 @@ export type FriendRequestsSummary = {
 };
 
 export const FRIEND_REQUEST_RESEND_COOLDOWN_MS = 24 * 60 * 60 * 1000;
-export const FRIEND_SEARCH_MIN_LENGTH = 3;
-export const FRIEND_SEARCH_MAX_RESULTS = 20;
-export const FRIEND_SEARCH_RATE_LIMIT = 30;
-export const FRIEND_SEARCH_RATE_WINDOW_MS = 60 * 1000;

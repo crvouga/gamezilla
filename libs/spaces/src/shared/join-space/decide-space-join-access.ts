@@ -1,6 +1,6 @@
 /**
  * Prefer {@link decideJoin} from `participation/space-participation-policy`.
- * Thin adapter for call sites that only need visibility / invite ABAC.
+ * Thin adapter for call sites that only need visibility / allowlist ABAC.
  */
 import type { SpaceVisibility } from '../space-visibility';
 import type { SpacesError } from '../spaces-errors';
@@ -19,14 +19,13 @@ export type SpaceAccessInput = {
   readonly viewerAccountId: string | null;
   readonly viewerDeviceId: string;
   readonly viewerMemberId: string;
-  readonly isFriendOfHost: boolean;
-  readonly hasValidInvite: boolean;
+  readonly isAllowlisted: boolean;
   readonly alreadyMember?: boolean;
 };
 
 /**
  * Decides whether a viewer may join a live space.
- * Public/friends require a signed-in account; private requires a valid invite.
+ * Public requires a signed-in account; private requires allow-list.
  * Space owners (member / creating device / host account) may always rejoin.
  */
 export function decideSpaceJoinAccess(
@@ -43,8 +42,7 @@ export function decideSpaceJoinAccess(
     viewerAccountId: input.viewerAccountId,
     viewerDeviceId: input.viewerDeviceId,
     viewerMemberId: input.viewerMemberId,
-    isFriendOfHost: input.isFriendOfHost,
-    hasValidInvite: input.hasValidInvite,
+    isAllowlisted: input.isAllowlisted,
     alreadyMember: input.alreadyMember ?? false,
   });
 }

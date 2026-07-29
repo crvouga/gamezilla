@@ -145,6 +145,7 @@ msgstr "Action required"
 msgid "Activity"
 msgstr "Activity"
 
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "Add"
 msgstr "Add"
@@ -162,9 +163,17 @@ msgstr "Add Friend"
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
 
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Added"
+msgstr "Added"
+
 #: libs/auth/src/client/sign-in-modal.tsx
 msgid "Adding account…"
 msgstr "Adding account…"
+
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Adding…"
+msgstr "Adding…"
 
 #: pkgs/inbox/src/client/inbox-filter-bar.tsx
 msgid "All"
@@ -177,6 +186,14 @@ msgstr "All accounts are signed out on this device."
 #: libs/client-config/src/client/client-config-entity-card.tsx
 msgid "All attributes (JSON)"
 msgstr "All attributes (JSON)"
+
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Allow list"
+msgstr "Allow list"
+
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Allowed"
+msgstr "Allowed"
 
 #: apps/client/src/connection/server-status-screen.tsx
 msgid "API endpoint"
@@ -211,6 +228,10 @@ msgstr "Archived"
 msgid "Arrows"
 msgstr "Arrows"
 
+#: libs/spaces/src/client/join-space/space-join-prompt.tsx
+msgid "Ask the host to add you to the allow list, or check the link."
+msgstr "Ask the host to add you to the allow list, or check the link."
+
 #: apps/client/src/ui/app-commands/account-command.tsx
 msgid "auth"
 msgstr "auth"
@@ -238,8 +259,11 @@ msgstr "Avatar"
 msgid "Back"
 msgstr "Back"
 
-#: libs/spaces/src/client/join-space/space-join-ended-state.tsx
 #: libs/spaces/src/client/join-space/space-join-prompt.tsx
+msgid "Back to spaces"
+msgstr "Back to spaces"
+
+#: libs/spaces/src/client/join-space/space-join-ended-state.tsx
 msgid "Back to Spaces"
 msgstr "Back to Spaces"
 
@@ -463,7 +487,7 @@ msgstr "Continue with Google"
 
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
-#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
 msgid "Copied"
 msgstr "Copied"
 
@@ -471,9 +495,9 @@ msgstr "Copied"
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
 
-#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
-msgid "Copy invite link"
-msgstr "Copy invite link"
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Copy link"
+msgstr "Copy link"
 
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
@@ -483,6 +507,10 @@ msgstr "Copy seed"
 #: pkgs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.tsx
 msgid "Copy to clipboard"
 msgstr "Copy to clipboard"
+
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Copying…"
+msgstr "Copying…"
 
 #: pkgs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "CopyToClipboardField"
@@ -504,6 +532,10 @@ msgstr "Could not switch accounts"
 msgid "Could not wipe database"
 msgstr "Could not wipe database"
 
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Couldn't add"
+msgstr "Couldn't add"
+
 #: libs/auth/src/client/sign-in-modal.tsx
 msgid "Couldn't add account"
 msgstr "Couldn't add account"
@@ -512,21 +544,18 @@ msgstr "Couldn't add account"
 msgid "Couldn't confirm"
 msgstr "Couldn't confirm"
 
-#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
-msgid "Couldn't copy link"
-msgstr "Couldn't copy link"
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Couldn't copy"
+msgstr "Couldn't copy"
 
 #: libs/friends/src/client/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Couldn't delete"
 msgstr "Couldn't delete"
 
 #: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "Couldn't end space"
 msgstr "Couldn't end space"
-
-#: libs/spaces/src/client/space-invite/space-invite-friend-rows.tsx
-msgid "Couldn't invite"
-msgstr "Couldn't invite"
 
 #: libs/spaces/src/client/join-space/space-join-button.tsx
 msgid "Couldn't join"
@@ -539,6 +568,10 @@ msgstr "Couldn't leave space"
 #: libs/spaces/src/client/spaces-screen.tsx
 msgid "Couldn't open"
 msgstr "Couldn't open"
+
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Couldn't remove"
+msgstr "Couldn't remove"
 
 #: libs/spaces/src/client/rename-space/rename-space-modal.tsx
 msgid "Couldn't rename space"
@@ -737,21 +770,28 @@ msgstr "End {label}"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 #: libs/spaces/src/client/miniplayer/space-end-or-leave-button.tsx
 msgid "End space"
 msgstr "End space"
 
 #: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "End space?"
 msgstr "End space?"
 
 #: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "Ending space…"
 msgstr "Ending space…"
 
 #: libs/search/src/client/use-user-search.tsx
-msgid "Enter at least {SEARCH_MIN_LENGTH} characters"
-msgstr "Enter at least {SEARCH_MIN_LENGTH} characters"
+#~ msgid "Enter at least {SEARCH_MIN_LENGTH} characters"
+#~ msgstr "Enter at least {SEARCH_MIN_LENGTH} characters"
+
+#: libs/user-search/src/client/use-user-search.tsx
+msgid "Enter at least {USER_SEARCH_MIN_LENGTH} characters"
+msgstr "Enter at least {USER_SEARCH_MIN_LENGTH} characters"
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Error state"
@@ -770,10 +810,12 @@ msgid "Every account on this device will be signed out. You will need to sign in
 msgstr "Every account on this device will be signed out. You will need to sign in again to sync."
 
 #: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "Everyone has been returned to the lobby."
 msgstr "Everyone has been returned to the lobby."
 
 #: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "Everyone will leave this space. This cannot be undone."
 msgstr "Everyone will leave this space. This cannot be undone."
 
@@ -803,8 +845,6 @@ msgstr "Forward"
 #: libs/friends/src/client/friends-list-screen-view.tsx
 #: libs/friends/src/client/friends-signed-in-gate.tsx
 #: libs/friends/src/client/profile-friends-stats-view.tsx
-#: libs/spaces/src/client/set-visibility/space-visibility-chips.tsx
-#: libs/spaces/src/client/spaces-screen.tsx
 msgid "Friends"
 msgstr "Friends"
 
@@ -908,35 +948,6 @@ msgstr "Installs signed into this account"
 msgid "Internet reachable: {reachable}"
 msgstr "Internet reachable: {reachable}"
 
-#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
-#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
-msgid "Invite"
-msgstr "Invite"
-
-#: libs/spaces/src/client/space-invite/space-invite-friend-rows.tsx
-msgid "Invite @{username}"
-msgstr "Invite @{username}"
-
-#: libs/spaces/src/client/space-invite/space-invite-friend-rows.tsx
-msgid "Invite friend"
-msgstr "Invite friend"
-
-#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
-msgid "Invite friends"
-msgstr "Invite friends"
-
-#: libs/spaces/src/client/set-visibility/space-visibility-chips.tsx
-msgid "Invite only"
-msgstr "Invite only"
-
-#: libs/spaces/src/client/space-invite/space-invite-friend-rows.tsx
-msgid "Invited"
-msgstr "Invited"
-
-#: libs/spaces/src/client/join-space/space-join-prompt.tsx
-msgid "It may have ended or the link might be invalid."
-msgstr "It may have ended or the link might be invalid."
-
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "John Doe"
 msgstr "John Doe"
@@ -1028,9 +1039,9 @@ msgstr "Light, dark, or system theme"
 msgid "Limited or checking"
 msgstr "Limited or checking"
 
-#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
-msgid "Link copied to clipboard"
-msgstr "Link copied to clipboard"
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Link"
+msgstr "Link"
 
 #: libs/spaces/src/client/miniplayer/miniplayer-live-badge.tsx
 #: libs/spaces/src/client/space-live-badge.tsx
@@ -1193,10 +1204,6 @@ msgstr "No component selected"
 msgid "No devices yet."
 msgstr "No devices yet."
 
-#: libs/spaces/src/client/space-invite/space-invite-friend-rows.tsx
-msgid "No friends to invite yet."
-msgstr "No friends to invite yet."
-
 #: libs/friends/src/client/friends-list-screen-view.tsx
 msgid "No friends yet"
 msgstr "No friends yet"
@@ -1210,21 +1217,25 @@ msgstr "No guests yet"
 msgid "No host listed"
 msgstr "No host listed"
 
-#: libs/spaces/src/client/spaces-screen.tsx
-msgid "No live spaces"
-msgstr "No live spaces"
-
 #: libs/spaces/src/client/members/space-members-list-modal.tsx
 msgid "No one connected yet"
 msgstr "No one connected yet"
 
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "No one on the allow list yet"
+msgstr "No one on the allow list yet"
+
 #: libs/spaces/src/client/spaces-screen.tsx
-msgid "No public spaces"
-msgstr "No public spaces"
+#~ msgid "No public spaces"
+#~ msgstr "No public spaces"
 
 #: libs/chess/src/client/chess-puzzle/chess-game-log.tsx
 msgid "No puzzles played yet."
 msgstr "No puzzles played yet."
+
+#: libs/spaces/src/client/spaces-screen.tsx
+msgid "No shared spaces"
+msgstr "No shared spaces"
 
 #: libs/auth/src/client/linked-providers/linked-providers-list.tsx
 msgid "No sign-in providers yet."
@@ -1370,13 +1381,17 @@ msgstr "PowerSync URL"
 msgid "Preferences and developer tools."
 msgstr "Preferences and developer tools."
 
-#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
-msgid "Preparing…"
-msgstr "Preparing…"
-
 #: pkgs/ui/src/components/horizontal-picker/horizontal-picker-arrows.tsx
 msgid "Previous"
 msgstr "Previous"
+
+#: libs/spaces/src/client/set-visibility/space-visibility-chips.tsx
+#~ msgid "Private"
+#~ msgstr "Private"
+
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Private spaces only sync for people you add here."
+msgstr "Private spaces only sync for people you add here."
 
 #: apps/client/src/settings/about-screen.tsx
 msgid "production"
@@ -1398,8 +1413,8 @@ msgstr "Promotion"
 
 #: libs/spaces/src/client/set-visibility/space-visibility-chips.tsx
 #: libs/spaces/src/client/spaces-screen.tsx
-msgid "Public"
-msgstr "Public"
+#~ msgid "Public"
+#~ msgstr "Public"
 
 #: libs/chess/src/client/chess-main-menu.tsx
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-board-elo-bar.tsx
@@ -1474,6 +1489,7 @@ msgid "Reload"
 msgstr "Reload"
 
 #: libs/friends/src/client/friend-user-danger-modals.tsx
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
 msgid "Remove"
 msgstr "Remove"
 
@@ -1484,6 +1500,14 @@ msgstr "Remove friend"
 #: libs/friends/src/client/friend-user-danger-modals.tsx
 msgid "Remove friend?"
 msgstr "Remove friend?"
+
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Removed"
+msgstr "Removed"
+
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Removing…"
+msgstr "Removing…"
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
 msgid "Rename"
@@ -1553,6 +1577,10 @@ msgstr "Saving…"
 msgid "Search"
 msgstr "Search"
 
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Search by username"
+msgstr "Search by username"
+
 #: libs/search/src/client/search-screen-view.tsx
 msgid "Search by username or name"
 msgstr "Search by username or name"
@@ -1568,10 +1596,6 @@ msgstr "Seed"
 #: pkgs/ui/src/components/picker/picker.tsx
 msgid "Select…"
 msgstr "Select…"
-
-#: libs/spaces/src/client/space-invite/space-invite-friend-rows.tsx
-msgid "Sending…"
-msgstr "Sending…"
 
 #: libs/client-config/src/client/client-config-server-refresh.tsx
 #: pkgs/room-widgets/src/pages/playground-page.tsx
@@ -1605,13 +1629,21 @@ msgstr "Server health"
 msgid "Settings"
 msgstr "Settings"
 
+#: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
+msgid "Share"
+msgstr "Share"
+
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+msgid "Share space"
+msgstr "Share space"
+
+#: libs/spaces/src/client/spaces-screen.tsx
+#~ msgid "Shared"
+#~ msgstr "Shared"
+
 #: apps/client/src/developer/developer-screen.tsx
 msgid "Shared UI explorer"
 msgstr "Shared UI explorer"
-
-#: libs/spaces/src/client/miniplayer/miniplayer-overflow-pill.tsx
-#~ msgid "Show {count} more live spaces"
-#~ msgstr "Show {count} more live spaces"
 
 #: libs/spaces/src/client/miniplayer/miniplayer-stacked-bar.tsx
 msgid "Show your live spaces"
@@ -1626,12 +1658,12 @@ msgstr "sign in"
 #: libs/auth/src/client/account-actions-row.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 #: libs/friends/src/client/friends-signed-in-gate.tsx
-#: libs/search/src/client/use-user-search.tsx
+#: libs/user-search/src/client/use-user-search.tsx
 #: pkgs/inbox/src/client/inbox-screen.tsx
 msgid "Sign in"
 msgstr "Sign in"
 
-#: libs/search/src/client/use-user-search.tsx
+#: libs/user-search/src/client/use-user-search.tsx
 msgid "Sign in to search for people"
 msgstr "Sign in to search for people"
 
@@ -1780,6 +1812,7 @@ msgid "Space {0}"
 msgstr "Space {0}"
 
 #: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
+#: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
 msgid "Space ended"
 msgstr "Space ended"
 
@@ -1787,6 +1820,10 @@ msgstr "Space ended"
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.example.tsx
 msgid "Space name"
 msgstr "Space name"
+
+#: libs/spaces/src/client/join-space/space-join-prompt.tsx
+msgid "Space not available"
+msgstr "Space not available"
 
 #: libs/spaces/src/client/rename-space/rename-space-modal.tsx
 msgid "Space renamed"
@@ -1956,10 +1993,6 @@ msgstr "This field is required"
 msgid "This space has ended"
 msgstr "This space has ended"
 
-#: libs/spaces/src/client/join-space/space-join-prompt.tsx
-msgid "This space is not available"
-msgstr "This space is not available"
-
 #: libs/spaces/src/client/members/member-this-tab-badge.tsx
 #: libs/spaces/src/client/members/space-members-list-modal.tsx
 msgid "This tab"
@@ -2085,6 +2118,10 @@ msgstr "Username was changed recently"
 msgid "Version: {appVersion}"
 msgstr "Version: {appVersion}"
 
+#: libs/spaces/src/client/space-allowlist/space-share-sheet.tsx
+#~ msgid "Visibility"
+#~ msgstr "Visibility"
+
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "White"
 msgstr "White"
@@ -2092,10 +2129,6 @@ msgstr "White"
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-status-header.tsx
 msgid "White to move"
 msgstr "White to move"
-
-#: libs/spaces/src/client/space-invite/space-invite-sheet.tsx
-msgid "Who can join"
-msgstr "Who can join"
 
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "wipe"

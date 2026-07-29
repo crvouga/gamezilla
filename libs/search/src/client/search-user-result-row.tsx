@@ -2,7 +2,7 @@ import { FriendActionPills } from '@libs/friends/client/friend-action-pills/frie
 import { FriendUserRow } from '@libs/friends/client/friend-user-row';
 import { useFriendRequestIdsForUser } from '@libs/friends/client/use-friend-request-ids';
 import { useFriendshipStatus } from '@libs/friends/client/use-friendship-status';
-import type { UserSearchResult } from '@libs/friends/shared/friends-types';
+import type { UserSearchResult } from '@libs/user-search/shared/user-search-types';
 import { Box } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';

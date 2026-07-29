@@ -15,13 +15,13 @@ import { spawnSync } from 'node:child_process';
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 
 function inCi(): boolean {
-  return process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true';
+  return process.env['GITHUB_ACTIONS'] === 'true' || process.env['CI'] === 'true';
 }
 
 function resolveCacheFlag(): string {
   if (inCi()) return 'local:rw';
 
-  const fromEnv = process.env.TURBO_CACHE?.trim();
+  const fromEnv = process.env['TURBO_CACHE']?.trim();
   if (
     fromEnv !== undefined &&
     fromEnv.length > 0 &&
@@ -55,7 +55,7 @@ function turboChildEnv(): NodeJS.ProcessEnv {
 const cache = resolveCacheFlag();
 
 const TURBO_OUTPUT_LOGS =
-  process.env.TURBO_OUTPUT_LOGS?.trim() || (inCi() ? 'hash-only' : 'new-only');
+  process.env['TURBO_OUTPUT_LOGS']?.trim() || (inCi() ? 'hash-only' : 'new-only');
 
 const TURBO_CI_FLAGS = [
   '--concurrency=6',

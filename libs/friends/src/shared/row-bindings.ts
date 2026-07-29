@@ -1,8 +1,6 @@
 import {
-  FRIEND_PROFILE_CACHE_TABLE,
   FRIEND_REQUESTS_TABLE,
   FRIENDSHIPS_TABLE,
-  FriendProfileCacheCol,
   FriendRequestCol,
   FriendshipCol,
   USER_BLOCKS_TABLE,
@@ -61,17 +59,6 @@ const userBlocksRowWrite = defineRowAuthorizeWrite({
   },
 });
 
-const friendProfileCacheRowWrite = defineRowAuthorizeWrite({
-  name: 'friend_profile_cache.patch',
-  authorize: async (ctx, row) => {
-    const ownerId = readRowString(row, FriendProfileCacheCol.ownerId);
-    return (
-      ownerMatches(ownerId, ctx.myId, 'FRIENDS_CACHE_OWNER_MISMATCH') ??
-      ok(undefined)
-    );
-  },
-});
-
 export const FRIENDS_ROW_BINDINGS: Readonly<
   Record<string, RowWriteBinding<RowChange>>
 > = {
@@ -80,7 +67,4 @@ export const FRIENDS_ROW_BINDINGS: Readonly<
   ),
   [FRIENDSHIPS_TABLE.tableName]: createRowWriteBinding(friendshipsRowWrite),
   [USER_BLOCKS_TABLE.tableName]: createRowWriteBinding(userBlocksRowWrite),
-  [FRIEND_PROFILE_CACHE_TABLE.tableName]: createRowWriteBinding(
-    friendProfileCacheRowWrite
-  ),
 };

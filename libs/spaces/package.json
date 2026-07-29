@@ -27,6 +27,7 @@
     "@libs/db": "workspace:*",
     "@libs/infra": "workspace:*",
     "@libs/profile": "workspace:*",
+    "@libs/user-search": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",

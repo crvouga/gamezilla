@@ -4,7 +4,8 @@ import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 /**
  * Returns the live space id hosted by `hostAccountId` when that space is
- * friends-visible or public (already synced to this client).
+ * public (already synced to this client). Private spaces only appear when
+ * the viewer is allowlisted or a member.
  */
 export function useFriendLiveSpaceId(hostAccountId: string): string | null {
   const enabled = hostAccountId.length > 0;
@@ -17,11 +18,7 @@ export function useFriendLiveSpaceId(hostAccountId: string): string | null {
             'and',
             ['is-null', SpaceCol.endedAt],
             ['=', SpaceCol.hostAccountId, hostAccountId],
-            [
-              'or',
-              ['=', SpaceCol.visibility, 'friends'],
-              ['=', SpaceCol.visibility, 'public'],
-            ],
+            ['=', SpaceCol.visibility, 'public'],
           ],
           orderBy: [[SpaceCol.createdAt, 'desc']],
           limit: 1,

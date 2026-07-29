@@ -79,7 +79,12 @@ function parseCli(argv: ReadonlyArray<string>): CheckHealCli {
     throw new Error(`Unknown argument: ${arg}`);
   }
 
-  return { maxIterations, dryRun, model, apiKey };
+  return {
+    maxIterations,
+    dryRun,
+    ...(model !== undefined ? { model } : {}),
+    ...(apiKey !== undefined ? { apiKey } : {}),
+  };
 }
 
 function printUsage(): void {
@@ -205,7 +210,7 @@ async function main(): Promise<void> {
       workspace: REPO_ROOT,
       apiKey: resolvedApiKey!,
       continueSession: iteration > 1,
-      model: cli.model,
+      ...(cli.model !== undefined ? { model: cli.model } : {}),
     });
 
     if (agentResult.exitCode !== 0) {

@@ -9,7 +9,6 @@ export async function joinSpaceAction(
   writeContext: WriteContext,
   args: {
     readonly spaceId: string;
-    readonly inviteToken: string | null;
   }
 ): Promise<void> {
   await runClientWrite(joinSpaceWrite, writeContext, args, sql);

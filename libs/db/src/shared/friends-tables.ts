@@ -26,15 +26,6 @@ export const UserBlockCol = {
   createdAt: 'created_at',
 } as const;
 
-export const FriendProfileCacheCol = {
-  id: 'id',
-  ownerId: 'owner_id',
-  friendId: 'friend_id',
-  username: 'username',
-  avatarConfig: 'avatar_config',
-  updatedAt: 'updated_at',
-} as const;
-
 export const FRIEND_REQUESTS_TABLE = defineTable({
   tableName: 'friend_requests',
   columns: [
@@ -70,21 +61,8 @@ export const USER_BLOCKS_TABLE = defineTable({
   ],
 });
 
-export const FRIEND_PROFILE_CACHE_TABLE = defineTable({
-  tableName: 'friend_profile_cache',
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'owner_id', type: 'text' },
-    { name: 'friend_id', type: 'text' },
-    { name: 'username', type: 'text' },
-    { name: 'avatar_config', type: 'text' },
-    { name: 'updated_at', type: 'text' },
-  ],
-});
-
 export const ALL_FRIENDS_SYNC_TABLES = [
   FRIEND_REQUESTS_TABLE,
   FRIENDSHIPS_TABLE,
   USER_BLOCKS_TABLE,
-  FRIEND_PROFILE_CACHE_TABLE,
 ] as const;
