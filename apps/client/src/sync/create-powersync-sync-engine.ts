@@ -18,7 +18,12 @@ import {
   readEverSyncedFromKv,
   readMemoryEverSynced,
 } from './sync-ever-synced-cache';
-import { fetchSyncToken, uploadSyncBatch, type SyncApiFetch } from './sync-api';
+import {
+  fetchSyncToken,
+  uploadSyncBatch,
+  type GetFreshAuthToken,
+  type SyncApiFetch,
+} from './sync-api';
 
 export type CreateAppPowerSyncSyncEngineArgs = {
   readonly config: ConfigService;
@@ -26,6 +31,11 @@ export type CreateAppPowerSyncSyncEngineArgs = {
   readonly kv: Kv;
   /** Identity-scoped SQLite name; must match the boot cache key. */
   readonly databaseName: string;
+  /**
+   * Live session refresh for `/api/sync/token` + upload. Must not close over a
+   * stale React callback — pass a getter that reads the latest port method.
+   */
+  readonly getFreshAuthToken: GetFreshAuthToken;
 };
 
 /**
@@ -204,12 +214,14 @@ export async function createAppPowerSyncSyncEngine(
         config: args.config,
         fetchFn: args.fetchFn,
         kv: args.kv,
+        getFreshAuthToken: args.getFreshAuthToken,
       }),
     uploadBatch: async (batch) => {
       await uploadSyncBatch({
         config: args.config,
         fetchFn: args.fetchFn,
         batch,
+        getFreshAuthToken: args.getFreshAuthToken,
       });
     },
   });

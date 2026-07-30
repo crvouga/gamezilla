@@ -13,7 +13,15 @@ const PLACEHOLDER_PROJECT_IDS = new Set([
   'YOUR_PROJECT_ID',
 ]);
 
+/** RFC 4122 UUID (Infisical workspace id shape in `.secrets.json`). */
+const PROJECT_UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 const CONFIG_FILENAME = '.secrets.json';
+
+function isProjectUuid(value: string): boolean {
+  return PROJECT_UUID_RE.test(value);
+}
 
 function assertValidProjectId(projectId: string): void {
   if (PLACEHOLDER_PROJECT_IDS.has(projectId.toUpperCase())) {
@@ -85,7 +93,15 @@ function resolveSecretsEndpoint(file: SecretsConfigFile): string | null {
 }
 
 function resolveProjectId(file: SecretsConfigFile): string {
-  return readTrimmedEnv('SECRETS_PROJECT_ID') || file.projectId;
+  const fromEnv = readTrimmedEnv('SECRETS_PROJECT_ID');
+  if (!fromEnv) return file.projectId;
+  // CI stores the Infisical project *slug* in `vars.SECRETS_PROJECT_ID` for
+  // Infisical/secrets-action (`project-slug`). Machine-identity CLI export
+  // needs the workspace UUID from `.secrets.json` — a slug 404s on bot lookup.
+  if (isProjectUuid(file.projectId) && !isProjectUuid(fromEnv)) {
+    return file.projectId;
+  }
+  return fromEnv;
 }
 
 export function resolveSecretsScope(

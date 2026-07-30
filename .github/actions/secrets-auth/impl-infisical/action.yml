@@ -33,9 +33,18 @@ runs:
     # paths (`check:secrets`, `infra provision`) re-auth via OIDC using
     # `resolveInfisicalAccessTokenForWrites`, which needs the machine
     # identity id in the job env (not merely as this action's input).
+    #
+    # `inputs.project-id` is the Infisical *slug* (secrets-action
+    # `project-slug`). Export the workspace UUID from `.secrets.json` as
+    # `SECRETS_PROJECT_ID` — machine-identity `infisical export` 404s on a slug.
     - name: Export secrets auth coords for admin CLI
       shell: bash
       run: |
         set -euo pipefail
         echo "SECRETS_IDENTITY_ID=${{ inputs.identity-id }}" >> "$GITHUB_ENV"
-        echo "SECRETS_PROJECT_ID=${{ inputs.project-id }}" >> "$GITHUB_ENV"
+        project_id="$(jq -r '.projectId // empty' .secrets.json)"
+        if [ -z "$project_id" ] || [ "$project_id" = "null" ]; then
+          echo "::error::.secrets.json missing projectId (Infisical workspace UUID)"
+          exit 1
+        fi
+        echo "SECRETS_PROJECT_ID=${project_id}" >> "$GITHUB_ENV"

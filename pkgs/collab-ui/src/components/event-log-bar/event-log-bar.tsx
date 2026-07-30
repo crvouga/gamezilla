@@ -211,7 +211,12 @@ export function EventLogBar({
       }}
     >
       <Box sx={{ px: 3, py: 2 }}>
-        <Stack direction="horizontal" spacing={2} align="center">
+        <Stack
+          direction="horizontal"
+          spacing={2}
+          align="center"
+          sx={{ minHeight: BAR_RING_SIZE }}
+        >
           {showIdentity ? (
             <EventLogBarLeading
               actor={actor}

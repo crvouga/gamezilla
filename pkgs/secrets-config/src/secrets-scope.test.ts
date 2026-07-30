@@ -109,6 +109,30 @@ describe('secrets scope config', () => {
     );
   });
 
+  it('ignores a non-UUID SECRETS_PROJECT_ID slug when the file has a UUID', () => {
+    const fileUuid = '26137c60-8dea-4d95-a8a3-30901615b026';
+    writeConfig({ projectId: fileUuid, environment: 'dev' });
+    process.env['SECRETS_PROJECT_ID'] = 'secrets';
+
+    expect(resolveSecretsScope(repoRoot)).toEqual({
+      projectId: fileUuid,
+      env: 'dev',
+      endpoint: null,
+    });
+  });
+
+  it('lets a UUID SECRETS_PROJECT_ID override the file UUID', () => {
+    writeConfig({
+      projectId: '26137c60-8dea-4d95-a8a3-30901615b026',
+      environment: 'dev',
+    });
+    process.env['SECRETS_PROJECT_ID'] = 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
+
+    expect(resolveSecretsScope(repoRoot).projectId).toBe(
+      'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'
+    );
+  });
+
   function writeConfig(config: Record<string, unknown>): void {
     writeFileSync(
       resolveSecretsConfigPath(repoRoot),

@@ -115,8 +115,8 @@ function mergeSessionWithRoster(
 
 /**
  * Local accounts available for switching: auth sessions joined with Kv roster
- * bindings (accountId). Active-account username/avatar come only from the live
- * SQLite profile row — never from a roster display cache.
+ * bindings + last-known display. Active-account username/avatar prefer the live
+ * SQLite profile row; inactive rows use the roster display cache.
  */
 export function useLocalAccounts(): readonly LocalAccount[] {
   const port = useAuthClientPort();

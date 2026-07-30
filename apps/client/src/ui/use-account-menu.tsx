@@ -11,6 +11,10 @@ import {
 } from '@libs/auth/client/use-local-accounts';
 import { DeviceAvatar } from '@libs/profile/client/device-avatar';
 import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
+import {
+  createDefaultAvatarConfig,
+  parseAvatarConfig,
+} from '@libs/profile/shared/avatar-config';
 import type { LocalizedString } from '@pkgs/i18n';
 import {
   CircleCheckIcon,
@@ -74,8 +78,8 @@ function accountAvatarSeed(account: LocalAccount): string {
 }
 
 /**
- * Active account: live SQLite profile avatar. Inactive: silhouette (no roster
- * avatar cache — only one identity DB is live at a time).
+ * Active account: live SQLite profile avatar. Inactive: last-known roster
+ * avatar (or deterministic default) — only one identity DB is live at a time.
  */
 export function AccountMenuAvatar({
   account,
@@ -87,10 +91,12 @@ export function AccountMenuAvatar({
   if (account.isActive) {
     return <MyProfileAvatar size={size} />;
   }
+  const seed = accountAvatarSeed(account);
+  const parsed = parseAvatarConfig(account.avatarConfigJson);
   return (
     <DeviceAvatar
-      avatarConfig={null}
-      seedFallback={accountAvatarSeed(account)}
+      avatarConfig={parsed ?? createDefaultAvatarConfig(seed)}
+      seedFallback={seed}
       size={size}
     />
   );

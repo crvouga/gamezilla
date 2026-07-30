@@ -8,7 +8,7 @@ import { projectEventLog, type LogLine } from '@pkgs/collab';
 import { EventLogBar, EventLogSurface } from '@pkgs/collab-ui';
 import { asLocalized } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
-import { RoomMetaAttr, useNamedRoomLog, useRoomFromRegistry } from '@pkgs/room';
+import { RoomMetaAttr, useNamedRoomLog } from '@pkgs/room';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo, useState, type ReactNode } from 'react';
 
@@ -41,7 +41,6 @@ export function SpaceEventLogChrome({
 }): ReactNode {
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
-  const room = useRoomFromRegistry(SPACE_ROOM_NAME);
   const entries = useNamedRoomLog(SPACE_ROOM_NAME);
   const disconnected = !useSpaceRoomSelector(RoomMetaAttr.isConnected.from);
   const { colorForParticipant } = useSpaceParticipantColors(spaceId);
@@ -53,8 +52,6 @@ export function SpaceEventLogChrome({
   );
 
   const latest = lines.length > 0 ? lines[lines.length - 1]! : null;
-
-  if (room === null) return null;
 
   return (
     <>

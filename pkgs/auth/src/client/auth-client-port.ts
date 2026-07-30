@@ -2,6 +2,11 @@ import type { SignInStrategy } from '../shared/sign-in-strategy';
 import type { AccountSession, SignOutOptions } from './account-session';
 import type { AuthSessionState } from './auth-session-state';
 
+export type GetFreshTokenOptions = {
+  /** Force a network mint (Clerk `skipCache`) after an auth 401. */
+  readonly skipCache?: boolean;
+};
+
 /**
  * Client-side auth port. Adapters implement this and mount it through
  * {@link AuthClientPortProviderProps}.
@@ -21,7 +26,7 @@ export interface AuthClientPort {
   /** Activates another registered session (multi-session switch). */
   switchAccount(sessionId: string): Promise<void>;
   signOut(options?: SignOutOptions): Promise<void>;
-  getFreshToken(): Promise<string | null>;
+  getFreshToken(options?: GetFreshTokenOptions): Promise<string | null>;
   /** Activates a provider session after OAuth redirect (no-op when unsupported). */
   ensureSessionReady?(): Promise<void>;
   /**

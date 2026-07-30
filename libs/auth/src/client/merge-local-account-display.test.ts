@@ -26,6 +26,8 @@ function entry(
 ): LocalAccountRosterEntry {
   return {
     externalUserId: 'user_1',
+    username: null,
+    avatarConfigJson: null,
     lastActiveAt: '2026-01-01T00:00:00.000Z',
     ...partial,
   };
@@ -105,7 +107,30 @@ describe('mergeLocalAccountDisplay', () => {
     expect(display.avatarConfigJson).toBeNull();
   });
 
-  test('inactive row uses session username and no avatar', () => {
+  test('inactive row uses roster display cache when present', () => {
+    const display = mergeLocalAccountDisplay({
+      session: session({
+        sessionId: 's2',
+        isActive: false,
+        username: 'other-provider',
+      }),
+      entry: entry({
+        accountId: 'acc-2',
+        sessionId: 's2',
+        username: 'cached-user',
+        avatarConfigJson: '{"seed":"cached"}',
+      }),
+      activeAccountId: 'acc-1',
+      activeProfile: {
+        username: 'AliveMackerel790',
+        avatar_config: '{"seed":"profile"}',
+      },
+    });
+    expect(display.username).toBe('cached-user');
+    expect(display.avatarConfigJson).toBe('{"seed":"cached"}');
+  });
+
+  test('inactive row falls back to session username without roster avatar', () => {
     const display = mergeLocalAccountDisplay({
       session: session({
         sessionId: 's2',

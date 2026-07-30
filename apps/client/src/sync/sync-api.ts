@@ -69,8 +69,48 @@ export type SyncApiFetch = (
   init?: RequestInit
 ) => Promise<Response>;
 
-function authHeaders(): Record<string, string> {
-  const token = getCachedAuthToken();
+/** Async Clerk/session refresh — same role as room reconnect `getFreshToken`. */
+export type GetFreshAuthToken = (options?: {
+  readonly skipCache?: boolean;
+}) => Promise<string | null>;
+
+const FRESH_TOKEN_TIMEOUT_MS = 4_000;
+
+function raceFreshToken(
+  getFresh: () => Promise<string | null>
+): Promise<string | null> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const done = (v: string | null): void => {
+      if (settled) return;
+      settled = true;
+      resolve(v);
+    };
+    const timer = setTimeout(() => done(null), FRESH_TOKEN_TIMEOUT_MS);
+    void getFresh()
+      .then((t) => {
+        clearTimeout(timer);
+        done(t);
+      })
+      .catch(() => {
+        clearTimeout(timer);
+        done(null);
+      });
+  });
+}
+
+async function resolveBearerToken(
+  getFreshAuthToken: GetFreshAuthToken | undefined,
+  options?: { readonly skipCache?: boolean }
+): Promise<string | null> {
+  if (getFreshAuthToken !== undefined) {
+    const fresh = await raceFreshToken(() => getFreshAuthToken(options));
+    if (fresh !== null && fresh.length > 0) return fresh;
+  }
+  return getCachedAuthToken();
+}
+
+function authHeadersFromBearer(token: string | null): Record<string, string> {
   const anon = getCachedDeviceId();
   if (token !== null && token.length > 0) {
     const headers: Record<string, string> = {
@@ -92,35 +132,61 @@ type SyncTokenResponse = {
   readonly expiresAt?: number;
 };
 
-function authHeadersKey(): string {
-  const token = getCachedAuthToken() ?? '';
+/** Identity key only — Clerk JWT rotation must not bust a valid PowerSync JWT. */
+function syncAuthCacheKey(): string {
+  const accountId = getCachedCurrentAccountId() ?? '';
   const anon = getCachedDeviceId() ?? '';
-  return `${token}\0${anon}`;
+  return `${accountId}\0${anon}`;
 }
 
-export async function fetchSyncToken(args: {
+async function postSyncToken(args: {
+  readonly config: ConfigService;
+  readonly fetchFn: SyncApiFetch;
+  readonly bearer: string | null;
+}): Promise<Response> {
+  return args.fetchFn(`${args.config.getApiUrl()}/api/sync/token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeadersFromBearer(args.bearer),
+    },
+  });
+}
+
+async function mintSyncTokenCredentials(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly kv: Kv;
+  readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
+  readonly nowSeconds: number;
 }): Promise<SyncTokenCredentials> {
-  const nowSeconds = Math.floor(Date.now() / 1000);
-  const authKey = authHeadersKey();
+  const authKey = syncAuthCacheKey();
   const cached = await readCachedSyncToken({
     kv: args.kv,
     authKey,
-    nowSeconds,
+    nowSeconds: args.nowSeconds,
   });
   if (cached !== null) {
     return cached;
   }
 
-  const res = await args.fetchFn(`${args.config.getApiUrl()}/api/sync/token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeaders(),
-    },
+  let bearer = await resolveBearerToken(args.getFreshAuthToken);
+  let res = await postSyncToken({
+    config: args.config,
+    fetchFn: args.fetchFn,
+    bearer,
   });
+  // Stale secure-storage / SWR bearer after idle — force-mint and retry once.
+  if (res.status === 401 && args.getFreshAuthToken !== undefined) {
+    bearer = await resolveBearerToken(args.getFreshAuthToken, {
+      skipCache: true,
+    });
+    res = await postSyncToken({
+      config: args.config,
+      fetchFn: args.fetchFn,
+      bearer,
+    });
+  }
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     throw new Error(
@@ -138,7 +204,7 @@ export async function fetchSyncToken(args: {
     expiresAt:
       typeof json.expiresAt === 'number' && Number.isFinite(json.expiresAt)
         ? json.expiresAt
-        : nowSeconds + 300,
+        : args.nowSeconds + 300,
   };
   await writeCachedSyncToken({
     kv: args.kv,
@@ -146,6 +212,21 @@ export async function fetchSyncToken(args: {
     credentials,
   });
   return credentials;
+}
+
+export async function fetchSyncToken(args: {
+  readonly config: ConfigService;
+  readonly fetchFn: SyncApiFetch;
+  readonly kv: Kv;
+  readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
+}): Promise<SyncTokenCredentials> {
+  return mintSyncTokenCredentials({
+    config: args.config,
+    fetchFn: args.fetchFn,
+    kv: args.kv,
+    getFreshAuthToken: args.getFreshAuthToken,
+    nowSeconds: Math.floor(Date.now() / 1000),
+  });
 }
 
 /**
@@ -211,10 +292,27 @@ export function prepareSyncUploadBatch(batch: UploadBatch): UploadBatch {
   };
 }
 
+async function postSyncUpload(args: {
+  readonly config: ConfigService;
+  readonly fetchFn: SyncApiFetch;
+  readonly bearer: string | null;
+  readonly body: string;
+}): Promise<Response> {
+  return args.fetchFn(`${args.config.getApiUrl()}/api/sync/upload`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeadersFromBearer(args.bearer),
+    },
+    body: args.body,
+  });
+}
+
 export async function uploadSyncBatch(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly batch: UploadBatch;
+  readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
 }): Promise<UploadBatchResult> {
   const prepared = prepareSyncUploadBatch(args.batch);
   if (prepared.rows.length === 0) {
@@ -222,18 +320,29 @@ export async function uploadSyncBatch(args: {
       results: args.batch.rows.map(() => ({ status: 'accepted' as const })),
     };
   }
-  const res = await args.fetchFn(`${args.config.getApiUrl()}/api/sync/upload`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeaders(),
-    },
-    body: JSON.stringify(prepared),
+  const body = JSON.stringify(prepared);
+  let bearer = await resolveBearerToken(args.getFreshAuthToken);
+  let res = await postSyncUpload({
+    config: args.config,
+    fetchFn: args.fetchFn,
+    bearer,
+    body,
   });
+  if (res.status === 401 && args.getFreshAuthToken !== undefined) {
+    bearer = await resolveBearerToken(args.getFreshAuthToken, {
+      skipCache: true,
+    });
+    res = await postSyncUpload({
+      config: args.config,
+      fetchFn: args.fetchFn,
+      bearer,
+      body,
+    });
+  }
   if (!res.ok) {
-    const body = await res.text().catch(() => '');
+    const bodyText = await res.text().catch(() => '');
     throw new Error(
-      `sync upload failed (${res.status})${body.length > 0 ? `: ${body}` : ''}`
+      `sync upload failed (${res.status})${bodyText.length > 0 ? `: ${bodyText}` : ''}`
     );
   }
   const result = (await res.json()) as UploadBatchResult;

@@ -15,7 +15,12 @@ import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations
 
 const apiRoot = join(import.meta.dirname, '..');
 const REPO_ROOT = join(apiRoot, '../..');
-const MIGRATE_RETRY_DELAYS_MS = [0, 3_000, 8_000, 15_000, 30_000] as const;
+// Backoff for PowerSync AccessShareLock snapshots on shared hosted Postgres.
+// Concurrent migrates serialize via `pg_advisory_xact_lock` in
+// `runPostgresMigrations`; these delays cover remaining replication contention.
+const MIGRATE_RETRY_DELAYS_MS = [
+  0, 3_000, 8_000, 15_000, 30_000, 60_000, 90_000, 120_000,
+] as const;
 const WAIT_FOR_POSTGRES_MS = 60_000;
 const WAIT_FOR_POSTGRES_RETRY_MS = 1_000;
 const WAIT_FOR_POSTGRES = process.argv.includes('--wait');

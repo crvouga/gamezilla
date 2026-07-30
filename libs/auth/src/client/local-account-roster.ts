@@ -15,8 +15,9 @@ function isNullableString(value: unknown): boolean {
 }
 
 /**
- * Accepts legacy Kv rows that still carry username/avatarConfigJson and strips
- * those display fields — SQLite `profiles` is the only display source.
+ * Accepts binding-only rows (display fields omitted) and legacy Kv rows that
+ * already carry username/avatarConfigJson. Missing display fields default to
+ * null so older binding-only writes remain readable.
  */
 function parseRosterEntry(value: unknown): LocalAccountRosterEntry | null {
   if (typeof value !== 'object' || value === null) return null;
@@ -24,10 +25,17 @@ function parseRosterEntry(value: unknown): LocalAccountRosterEntry | null {
   const externalOk =
     row['externalUserId'] === undefined ||
     isNullableString(row['externalUserId']);
+  const usernameOk =
+    row['username'] === undefined || isNullableString(row['username']);
+  const avatarOk =
+    row['avatarConfigJson'] === undefined ||
+    isNullableString(row['avatarConfigJson']);
   if (
     typeof row['accountId'] !== 'string' ||
     typeof row['sessionId'] !== 'string' ||
     !externalOk ||
+    !usernameOk ||
+    !avatarOk ||
     typeof row['lastActiveAt'] !== 'string'
   ) {
     return null;
@@ -37,6 +45,11 @@ function parseRosterEntry(value: unknown): LocalAccountRosterEntry | null {
     sessionId: row['sessionId'],
     externalUserId:
       typeof row['externalUserId'] === 'string' ? row['externalUserId'] : null,
+    username: typeof row['username'] === 'string' ? row['username'] : null,
+    avatarConfigJson:
+      typeof row['avatarConfigJson'] === 'string'
+        ? row['avatarConfigJson']
+        : null,
     lastActiveAt: row['lastActiveAt'],
   };
 }
@@ -61,7 +74,7 @@ const baseCodec = jsonKvCodec(
   isNormalizedRoster
 );
 
-/** Decode strips legacy display fields; encode persists binding-only rows. */
+/** Decode normalizes optional display fields; encode persists full rows. */
 export const localAccountRosterCodec: KvStateCodec<LocalAccountRoster> = {
   decode(record) {
     const raw = baseCodec.decode(record);
@@ -150,7 +163,7 @@ export function findRosterEntryForSession(
   return roster.find((row) => row.externalUserId === args.externalUserId);
 }
 
-function coalesceExternalUserId(
+function coalesceRosterField(
   next: string | null | undefined,
   existing: string | null | undefined
 ): string | null {
@@ -162,6 +175,8 @@ export function touchRosterAccount(args: {
   readonly accountId: string;
   readonly sessionId: string;
   readonly externalUserId?: string | null;
+  readonly username?: string | null;
+  readonly avatarConfigJson?: string | null;
   readonly nowIso?: string;
 }): LocalAccountRoster {
   const nowIso = args.nowIso ?? new Date().toISOString();
@@ -169,10 +184,45 @@ export function touchRosterAccount(args: {
   return upsertRosterEntry(args.roster, {
     accountId: args.accountId,
     sessionId: args.sessionId,
-    externalUserId: coalesceExternalUserId(
+    externalUserId: coalesceRosterField(
       args.externalUserId,
       existing?.externalUserId
     ),
+    username: coalesceRosterField(args.username, existing?.username),
+    avatarConfigJson: coalesceRosterField(
+      args.avatarConfigJson,
+      existing?.avatarConfigJson
+    ),
     lastActiveAt: nowIso,
+  });
+}
+
+/**
+ * Updates username / avatar only. Never rebinds sessionId — auth refresh owns
+ * that link. Mid-switch provider session flips must not attach this account's
+ * profile onto another session (or stamp the wrong externalUserId).
+ */
+export function patchRosterProfileDisplay(args: {
+  readonly roster: LocalAccountRoster;
+  readonly accountId: string;
+  readonly expectedExternalUserId: string;
+  readonly username?: string | null;
+  readonly avatarConfigJson?: string | null;
+}): LocalAccountRoster {
+  const existing = args.roster.find((row) => row.accountId === args.accountId);
+  if (existing === undefined) return args.roster;
+  if (
+    existing.externalUserId !== null &&
+    existing.externalUserId !== args.expectedExternalUserId
+  ) {
+    return args.roster;
+  }
+  return upsertRosterEntry(args.roster, {
+    ...existing,
+    username: coalesceRosterField(args.username, existing.username),
+    avatarConfigJson: coalesceRosterField(
+      args.avatarConfigJson,
+      existing.avatarConfigJson
+    ),
   });
 }

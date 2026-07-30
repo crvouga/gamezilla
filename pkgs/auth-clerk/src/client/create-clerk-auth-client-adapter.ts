@@ -205,11 +205,16 @@ async function runClerkSignOut(options?: SignOutOptions): Promise<void> {
   await activateFallbackSession(runtime, activeSessionId);
 }
 
-async function readClerkFreshToken(): Promise<string | null> {
+async function readClerkFreshToken(options?: {
+  readonly skipCache?: boolean;
+}): Promise<string | null> {
   // Null while ClerkAuthSync has not published yet (descendant effects run
   // first) or during Strict Mode remount — callers treat null as unsigned.
   const runtime = await waitForClerkRuntime();
   if (runtime === null) return null;
+  if (options?.skipCache === true) {
+    return runtime.getToken({ skipCache: true });
+  }
   return runtime.getToken();
 }
 

@@ -1,5 +1,6 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { useConfigService } from '@libs/auth/client/config-service-context';
+import { useGetFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import { useKv } from '@pkgs/kv/kv-context';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
@@ -27,6 +28,7 @@ export function PowerSyncDiagnosticsCommand(): ReactNode {
   const kv = useKv();
   const observability = useObservability();
   const myId = useMyId();
+  const getFreshAuthToken = useGetFreshAuthToken();
   const fetchFn = useMemo(
     () =>
       instrumentFetch(
@@ -37,11 +39,16 @@ export function PowerSyncDiagnosticsCommand(): ReactNode {
   );
 
   const run = useCallback(async () => {
-    const { token } = await fetchSyncToken({ config, fetchFn, kv });
+    const { token } = await fetchSyncToken({
+      config,
+      fetchFn,
+      kv,
+      getFreshAuthToken,
+    });
     const url = new URL(DIAGNOSTICS_APP_URL);
     url.searchParams.set('token', token);
     openDiagnosticsTab(url.toString());
-  }, [config, fetchFn, kv]);
+  }, [config, fetchFn, getFreshAuthToken, kv]);
 
   return (
     <RegisterCommand

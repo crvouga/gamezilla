@@ -21,18 +21,17 @@ type SyncEnginePool = {
  */
 function getSyncEnginePool(): SyncEnginePool {
   const g = globalThis as typeof globalThis & {
-    // V5: invalidate engines that wrapped writeTransaction with `{...tx}`
-    // (prototype methods like execute were dropped; create-space then failed).
-    __gamezillaSyncEnginePoolV5?: SyncEnginePool;
+    // V6: connector refreshes Clerk bearer on sync token / upload (idle 401 loop).
+    __gamezillaSyncEnginePoolV6?: SyncEnginePool;
   };
-  if (g.__gamezillaSyncEnginePoolV5 === undefined) {
-    g.__gamezillaSyncEnginePoolV5 = {
+  if (g.__gamezillaSyncEnginePoolV6 === undefined) {
+    g.__gamezillaSyncEnginePoolV6 = {
       ready: new Map(),
       pending: new Map(),
       stableReady: new Map(),
     };
   }
-  return g.__gamezillaSyncEnginePoolV5;
+  return g.__gamezillaSyncEnginePoolV6;
 }
 
 /** Synchronous peek — non-null when this identity was opened earlier this session. */

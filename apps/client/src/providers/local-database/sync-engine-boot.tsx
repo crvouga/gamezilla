@@ -2,6 +2,7 @@ import { useReportSyncBootPhase } from '@libs/auth/client/account-switch/account
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { useGetFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import { useKv } from '@pkgs/kv/kv-context';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
@@ -65,6 +66,7 @@ function useSyncEnginePromise(dbName: string): Promise<SyncEngine> {
   const config = useConfigService();
   const kv = useKv();
   const observability = useObservability();
+  const getFreshAuthToken = useGetFreshAuthToken();
   const fetchFn = useMemo(
     () =>
       instrumentFetch(
@@ -76,9 +78,11 @@ function useSyncEnginePromise(dbName: string): Promise<SyncEngine> {
   const configRef = useRef(config);
   const fetchFnRef = useRef(fetchFn);
   const kvRef = useRef(kv);
+  const getFreshAuthTokenRef = useRef(getFreshAuthToken);
   configRef.current = config;
   fetchFnRef.current = fetchFn;
   kvRef.current = kv;
+  getFreshAuthTokenRef.current = getFreshAuthToken;
   return useMemo(
     () =>
       getOrCreateAppPowerSyncSyncEngine({
@@ -91,6 +95,7 @@ function useSyncEnginePromise(dbName: string): Promise<SyncEngine> {
         get kv() {
           return kvRef.current;
         },
+        getFreshAuthToken: () => getFreshAuthTokenRef.current(),
         databaseName: dbName,
       }),
     [dbName]

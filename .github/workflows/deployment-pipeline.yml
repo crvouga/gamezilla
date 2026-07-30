@@ -63,8 +63,9 @@ jobs:
     # identity id in-process (secrets-auth also writes these to
     # GITHUB_ENV — job env is belt-and-suspenders with `deploy`).
     env:
+      # Identity only — project UUID comes from `.secrets.json` via secrets-auth.
+      # `vars.SECRETS_PROJECT_ID` is the Infisical *slug* for secrets-action.
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
-      SECRETS_PROJECT_ID: ${{ vars.SECRETS_PROJECT_ID }}
     concurrency:
       group: turbo-ci-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
@@ -157,7 +158,7 @@ jobs:
     concurrency:
       group: qa-api-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -219,7 +220,7 @@ jobs:
     concurrency:
       group: qa-browser-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -373,8 +374,8 @@ jobs:
       # default ~2GB Node heap; keep in sync with EAS_UPDATE_MAX_OLD_SPACE_MB
       # in libs/infra/src/cli/lib/eas-mobile.ts.
       NODE_OPTIONS: --max-old-space-size=8192
+      # Identity only — project UUID comes from `.secrets.json` via secrets-auth.
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
-      SECRETS_PROJECT_ID: ${{ vars.SECRETS_PROJECT_ID }}
     outputs:
       lock_id: ${{ steps.deploy.outputs.lock_id }}
       client_url: ${{ steps.deploy.outputs.client_url }}

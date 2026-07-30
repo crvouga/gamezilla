@@ -1,3 +1,4 @@
+import type { GetFreshTokenOptions } from '@pkgs/auth/client/auth-client-port';
 import {
   getCachedSecureStorageValue,
   useSecureStorageItem,
@@ -28,8 +29,15 @@ export function getCachedAuthToken(): string | null {
   return null;
 }
 
+export type GetFreshAuthTokenFn = (
+  options?: GetFreshTokenOptions
+) => Promise<string | null>;
+
 /** Returns the port's async token fetcher for one-off authenticated requests. */
-export function useGetFreshAuthToken(): () => Promise<string | null> {
+export function useGetFreshAuthToken(): GetFreshAuthTokenFn {
   const port = useAuthClientPort();
-  return useCallback(() => port.getFreshToken(), [port]);
+  return useCallback(
+    (options?: GetFreshTokenOptions) => port.getFreshToken(options),
+    [port]
+  );
 }
