@@ -37,27 +37,23 @@ export const SPACE_LOG_TARGET = {
 
 type DescribeRouter = MessageRouter<void, LogLineContext, LogLineDraft | null>;
 
-function labelFor(ctx: LogLineContext, memberId: string): string {
-  if (ctx.resolveParticipantLabel !== undefined) {
-    return String(ctx.resolveParticipantLabel(memberId));
-  }
-  return memberId;
-}
-
 function createSpaceLogDescribeRouter(): DescribeRouter {
   return createMessageRouter<void, LogLineContext, LogLineDraft | null>(
     spaceLogEvtNs
   )
-    .on(MemberJoined, (_s, ctx, msg) => ({
-      text: asLocalized(`${labelFor(ctx, msg.payload.memberId)} joined`),
+    .on(MemberJoined, () => ({
+      text: asLocalized('joined'),
+      icon: 'log-in',
       targetKeys: [SPACE_LOG_TARGET.members],
     }))
-    .on(MemberLeft, (_s, ctx, msg) => ({
-      text: asLocalized(`${labelFor(ctx, msg.payload.memberId)} left`),
+    .on(MemberLeft, () => ({
+      text: asLocalized('left'),
+      icon: 'log-out',
       targetKeys: [SPACE_LOG_TARGET.members],
     }))
     .on(SpaceRenamed, (_s, _ctx, msg) => ({
       text: asLocalized(`renamed the space to “${msg.payload.title}”`),
+      icon: 'square-pen',
       targetKeys: [SPACE_LOG_TARGET.title],
     }))
     .on(SpaceVisibilityChanged, (_s, _ctx, msg) => ({
@@ -66,6 +62,7 @@ function createSpaceLogDescribeRouter(): DescribeRouter {
     }))
     .on(SpaceEnded, () => ({
       text: asLocalized('ended the space'),
+      icon: 'door-open',
       targetKeys: [SPACE_LOG_TARGET.ended],
     }));
 }
@@ -77,11 +74,13 @@ function createGamesDescribeRouter(): DescribeRouter {
     if (msg.payload.game === null) {
       return {
         text: asLocalized('cleared the selected game'),
+        icon: 'gamepad',
         targetKeys: [SPACE_LOG_TARGET.gameSelected],
       };
     }
     return {
       text: asLocalized(`selected ${msg.payload.game}`),
+      icon: 'gamepad',
       targetKeys: [SPACE_LOG_TARGET.gameSelected],
     };
   });

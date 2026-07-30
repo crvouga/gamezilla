@@ -6,7 +6,10 @@ import { fail, ok } from '@pkgs/write/shared/write-result';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
-import { executeEndSpace, stampSpaceEnded } from '../end-space/execute-end-space';
+import {
+  executeEndSpace,
+  stampSpaceEnded,
+} from '../end-space/execute-end-space';
 import {
   asObjectRecord,
   isSpaceUserInStore,

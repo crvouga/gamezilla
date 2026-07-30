@@ -1,23 +1,18 @@
-export const SPACE_ID_TITLE_SUFFIX_LENGTH = 8;
-
+/**
+ * Host possessive title vs generic label when username is missing/empty.
+ * Never embed space ids in titles — callers apply i18n
+ * (`${hostName}'s space` / `Space`).
+ */
 export type SpaceFallbackTitleParts =
   | { readonly kind: 'host'; readonly hostName: string }
-  | { readonly kind: 'id'; readonly suffix: string };
+  | { readonly kind: 'generic' };
 
-/**
- * Host possessive title vs id-suffix fallback when username is missing/empty.
- * Callers apply i18n (`${hostName}'s space` / `Space ${suffix}`).
- */
 export function resolveSpaceFallbackTitleParts(
-  hostUsername: string | null | undefined,
-  spaceId: string
+  hostUsername: string | null | undefined
 ): SpaceFallbackTitleParts {
   const name = hostUsername ?? '';
   if (name.length > 0) {
     return { kind: 'host', hostName: name };
   }
-  return {
-    kind: 'id',
-    suffix: spaceId.slice(-SPACE_ID_TITLE_SUFFIX_LENGTH),
-  };
+  return { kind: 'generic' };
 }

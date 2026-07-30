@@ -13,7 +13,7 @@ export type SpaceHostFallbackTitleProps = {
 
 /**
  * Localized fallback title for a space that hasn't been explicitly named:
- * `${hostName}'s space`, or `Space ${suffix}` when the host username is missing.
+ * `${hostName}'s space`, or `Space` when the host username is still loading.
  */
 export function SpaceHostFallbackTitle({
   spaceId,

@@ -15,7 +15,7 @@ export type SpaceActiveLayoutProps = {
 /**
  * Unified active-space chrome. Leading ActionBar owns exit + back; trailing
  * ActionBar owns members + management actions above the full-width body.
- * Persistent event-log bar sits under the body.
+ * Persistent event-log bar sits under the TopBar.
  */
 export function SpaceActiveLayout({
   children,
@@ -27,6 +27,7 @@ export function SpaceActiveLayout({
         leading={<SpaceChromeLeadingActionBar />}
         trailing={<SpaceChromeTrailingActionBar />}
       />
+      <SpaceEventLogChrome spaceId={spaceId} />
       <Box
         sx={{
           flex: 1,
@@ -37,7 +38,6 @@ export function SpaceActiveLayout({
       >
         {children}
       </Box>
-      <SpaceEventLogChrome spaceId={spaceId} />
     </Box>
   );
 }

@@ -18,10 +18,8 @@ export function useJoinableLiveSpaceIds(): {
   const accountId = useMyAccountId();
   const hasAccount = accountId !== null && accountId.length > 0;
   const memberId = hasAccount && accountId !== null ? accountId : deviceId;
-  const query = useMemo(
-    () => sharedLiveSpaceIdsSql({ memberId }),
-    [memberId]
-  );
+  const query = useMemo(() => sharedLiveSpaceIdsSql({ memberId }), [memberId]);
   const { rows, isLoading } = useWatchQuery<SpaceIdRow>(query);
-  return { spaceIds: rows.map((r) => r.id), isLoading };
+  const spaceIds = useMemo(() => rows.map((r) => r.id), [rows]);
+  return { spaceIds, isLoading };
 }

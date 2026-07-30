@@ -3,6 +3,8 @@ import { getCachedDeviceId } from '@libs/auth/client/use-device-id';
 import { getCachedAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { SPACE_USERS_TABLE, SPACES_TABLE } from '@libs/db/shared/space-tables';
+import { SYNC_TABLE_REGISTRY } from '@libs/db/shared/table-registry';
 import { stripServerOwnedProfileUploadColumns } from '@libs/profile/shared/strip-server-owned-profile-upload-columns';
 import type { Kv } from '@pkgs/kv/interface';
 import {
@@ -18,6 +20,44 @@ import {
   writeCachedSyncToken,
   type SyncTokenCredentials,
 } from './sync-token-cache';
+
+/** Parent tables before children so create-space FK applies in one pass. */
+function uploadTablePriority(table: string): number {
+  if (table === SPACES_TABLE.tableName) return 0;
+  if (table === SPACE_USERS_TABLE.tableName) return 1;
+  return 2;
+}
+
+/** Parent tables before children so create-space FK applies in one pass. */
+function orderUploadRowsForParentsFirst(
+  rows: readonly UploadRow[]
+): UploadRow[] {
+  return [...rows].sort(
+    (a, b) => uploadTablePriority(a.table) - uploadTablePriority(b.table)
+  );
+}
+
+/**
+ * Drop legacy / removed tables (e.g. `space_memberships`) and strip dropped
+ * columns (e.g. `active_member_count`) so stuck CRUD can complete after schema
+ * migrations without permanently stalling the upload queue.
+ */
+function keepRegisteredSyncTableRow(row: UploadRow): boolean {
+  return SYNC_TABLE_REGISTRY.get(row.table) !== undefined;
+}
+
+function stripUnknownSyncColumns(row: UploadRow): UploadRow {
+  const def = SYNC_TABLE_REGISTRY.get(row.table);
+  if (def === undefined || row.values === undefined) return row;
+  const allowed = new Set(def.columns.map((col) => col.name));
+  const values: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(row.values)) {
+    if (allowed.has(key)) {
+      values[key] = value;
+    }
+  }
+  return { ...row, values };
+}
 
 export type { SyncTokenCredentials };
 
@@ -87,7 +127,9 @@ export async function fetchSyncToken(args: {
       `sync token failed (${res.status})${body.length > 0 ? `: ${body}` : ''}`
     );
   }
-  const json = (await res.json()) as SyncTokenResponse;
+  const json = (await res.json()) as SyncTokenResponse & {
+    readonly subject?: string;
+  };
   if (typeof json.token !== 'string' || json.token.length === 0) {
     throw new Error('sync token response missing token');
   }
@@ -114,6 +156,7 @@ export async function fetchSyncToken(args: {
 const PERMANENT_UPLOAD_REJECT_CODES = new Set([
   'PROFILE_ID_MISMATCH',
   'PROFILE_DELETE_DENIED',
+  'NO_WRITE_FOR_TABLE',
 ]);
 
 function assertUploadBatchAccepted(result: UploadBatchResult): void {
@@ -157,10 +200,14 @@ function keepUploadableProfileRow(row: UploadRow): boolean {
  */
 export function prepareSyncUploadBatch(batch: UploadBatch): UploadBatch {
   return {
-    rows: batch.rows
-      .map(stripServerOwnedProfileUploadColumns)
-      .filter(keepUploadableProfileRow)
-      .filter(uploadRowNeedsApply),
+    rows: orderUploadRowsForParentsFirst(
+      batch.rows
+        .filter(keepRegisteredSyncTableRow)
+        .map(stripUnknownSyncColumns)
+        .map(stripServerOwnedProfileUploadColumns)
+        .filter(keepUploadableProfileRow)
+        .filter(uploadRowNeedsApply)
+    ),
   };
 }
 

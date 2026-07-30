@@ -2,16 +2,20 @@ import { borderRadius, Box, StatusDot, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
+import { useOpenSpaceIds } from './open-space/use-open-space-ids';
 import { useSpaceColumn, SpaceField } from './use-space-column';
 
 export type SpaceLiveBadgeProps = {
   spaceId: string;
 };
 
-/** "Live" pill — renders only while the space has no ended_at. */
-export function SpaceLiveBadge({ spaceId }: SpaceLiveBadgeProps): ReactNode {
-  const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
-  if (endedAt !== null) return null;
+function SpaceStatusPill({
+  label,
+  showDot,
+}: {
+  readonly label: ReactNode;
+  readonly showDot: boolean;
+}): ReactNode {
   return (
     <Box
       sx={{
@@ -25,12 +29,22 @@ export function SpaceLiveBadge({ spaceId }: SpaceLiveBadgeProps): ReactNode {
         alignSelf: 'flex-start',
       }}
     >
-      <StatusDot status="online" size={8} />
-      <Text
-        variant="caption"
-        sx={{ color: 'onTint' }}
-        label={<Trans>Live</Trans>}
-      />
+      {showDot ? <StatusDot status="online" size={8} /> : null}
+      <Text variant="caption" sx={{ color: 'onTint' }} label={label} />
     </Box>
   );
+}
+
+/**
+ * Status pill on space cards — "Current" when this device has the space open
+ * (miniplayer), otherwise "Live" while the space has not ended.
+ */
+export function SpaceLiveBadge({ spaceId }: SpaceLiveBadgeProps): ReactNode {
+  const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
+  const { isOpen } = useOpenSpaceIds();
+  if (endedAt !== null) return null;
+  if (isOpen(spaceId)) {
+    return <SpaceStatusPill label={<Trans>Current</Trans>} showDot={false} />;
+  }
+  return <SpaceStatusPill label={<Trans>Live</Trans>} showDot />;
 }

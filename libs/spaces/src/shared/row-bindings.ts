@@ -106,12 +106,28 @@ function spaceIdFromUsersRowId(rowId: string): WriteResult<string> {
   return ok(rowId.slice(0, sep));
 }
 
+/**
+ * Self ACL upsert for public join / host create. Create-space uploads
+ * `space_users` in the same CRUD batch as `spaces`; when the parent row is
+ * not on Postgres yet, allow bootstrap if `created_by_account_id` matches the
+ * uploader (FK still requires the space row on apply — client reorders
+ * parents first).
+ */
 async function authorizeSelfSpaceUserGrant(
+  ctx: WriteContext,
   db: SqlClient,
-  spaceId: string
+  spaceId: string,
+  row: RowChange
 ): Promise<WriteResult<void>> {
   const space = await readSpaceHostEnded(db, spaceId);
-  if (!space.ok) return space;
+  if (!space.ok) {
+    if (row.op === 'delete') return space;
+    const createdBy = readRowString(row, SpaceUserCol.createdByAccountId);
+    if (createdBy !== ctx.accountId) {
+      return space;
+    }
+    return ok(undefined);
+  }
   if (space.value.endedAt !== null) {
     return fail('SPACE_ENDED', 'Space has ended');
   }
@@ -150,7 +166,7 @@ async function authorizeSpaceUsersUpload(
   }
 
   if (userId === accountId.value && row.op !== 'delete') {
-    return authorizeSelfSpaceUserGrant(db, spaceId);
+    return authorizeSelfSpaceUserGrant(ctx, db, spaceId, row);
   }
 
   return authorizeSpaceHost(

@@ -11,8 +11,7 @@ export function useHasSpaceUserLocal(
   spaceId: string,
   userId: string | null
 ): boolean {
-  const enabled =
-    spaceId.length > 0 && userId !== null && userId.length > 0;
+  const enabled = spaceId.length > 0 && userId !== null && userId.length > 0;
   const id =
     enabled && userId !== null ? spaceUserEntityId(spaceId, userId) : '';
   const { row } = useWatchOne<{ readonly id: string }>(

@@ -18,7 +18,8 @@ import {
 } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import { ParticipantDot } from '../participant-dot';
+import { EventLogIcon } from '../event-log-icon';
+import { ParticipantColorRing } from '../participant-color-ring';
 
 export type EventLogBarCopy = {
   readonly empty: LocalizedString;
@@ -32,10 +33,15 @@ export type EventLogBarProps = {
   unreadCount?: number;
   copy: EventLogBarCopy;
   colorForActor: (actor: RoomActor) => ParticipantColor | string;
+  renderAvatar?: (actor: RoomActor | null, size: number) => ReactNode;
+  renderActorLabel?: (actor: RoomActor | null) => ReactNode;
   formatRelativeTime?: (ts: number) => LocalizedString;
   onPress?: () => void;
   dataSet?: ComponentDataSet;
 };
+
+const BAR_AVATAR_SIZE = 22;
+const BAR_RING_SIZE = 26;
 
 function resolveColor(
   colorForActor: EventLogBarProps['colorForActor'],
@@ -77,18 +83,118 @@ function resolveTimeLabel(
   return formatRelativeTime(latest.ts);
 }
 
+function EventLogBarAvatar({
+  actor,
+  color,
+  renderAvatar,
+}: {
+  actor: RoomActor | null;
+  color: string | null;
+  renderAvatar: (actor: RoomActor | null, size: number) => ReactNode;
+}): ReactNode {
+  const avatar = renderAvatar(actor, BAR_AVATAR_SIZE);
+  if (color === null) return avatar;
+  return (
+    <ParticipantColorRing color={color} size={BAR_RING_SIZE} borderWidth={2}>
+      {avatar}
+    </ParticipantColorRing>
+  );
+}
+
+function EventLogBarLeading({
+  actor,
+  color,
+  iconName,
+  renderAvatar,
+}: {
+  actor: RoomActor | null;
+  color: string | null;
+  iconName: string | undefined;
+  renderAvatar?: (actor: RoomActor | null, size: number) => ReactNode;
+}): ReactNode {
+  return (
+    <>
+      {renderAvatar !== undefined ? (
+        <EventLogBarAvatar
+          actor={actor}
+          color={color}
+          renderAvatar={renderAvatar}
+        />
+      ) : null}
+      {iconName !== undefined ? <EventLogIcon name={iconName} /> : null}
+    </>
+  );
+}
+
+function EventLogBarTrailing({
+  timeLabel,
+  unreadCount,
+  unreadLabel,
+}: {
+  timeLabel: LocalizedString | null;
+  unreadCount: number;
+  unreadLabel: (count: number) => LocalizedString;
+}): ReactNode {
+  return (
+    <>
+      {timeLabel !== null ? (
+        <Text
+          variant="caption"
+          label={timeLabel}
+          sx={{ color: 'textSecondary' }}
+        />
+      ) : null}
+      {unreadCount > 0 ? (
+        <Text
+          variant="caption"
+          label={unreadLabel(unreadCount)}
+          sx={{ color: 'tint' }}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function EventLogBarBody({
+  body,
+  actor,
+  renderActorLabel,
+}: {
+  body: LocalizedString;
+  actor: RoomActor | null;
+  renderActorLabel?: (actor: RoomActor | null) => ReactNode;
+}): ReactNode {
+  return (
+    <Stack direction="horizontal" spacing={1} align="center">
+      {actor !== null && renderActorLabel !== undefined
+        ? renderActorLabel(actor)
+        : null}
+      <Text
+        variant="caption"
+        numberOfLines={1}
+        label={body}
+        sx={{ color: 'textSecondary', flexShrink: 1 }}
+      />
+    </Stack>
+  );
+}
+
 export function EventLogBar({
   latest,
   disconnected = false,
   unreadCount = 0,
   copy,
   colorForActor,
+  renderAvatar,
+  renderActorLabel,
   formatRelativeTime,
   onPress,
   dataSet,
 }: EventLogBarProps): ReactNode {
   const theme = useTheme();
-  const color = resolveColor(colorForActor, latest?.actor ?? null);
+  const showIdentity = !disconnected && latest !== null;
+  const actor = showIdentity ? latest.actor : null;
+  const color = showIdentity ? resolveColor(colorForActor, actor) : null;
   const stateKey = resolveStateKey(disconnected, latest);
   const body = resolveBody(disconnected, latest, copy);
   const timeLabel = resolveTimeLabel(disconnected, latest, formatRelativeTime);
@@ -99,38 +205,37 @@ export function EventLogBar({
       onPress={onPress}
       disabled={onPress === undefined}
       style={{
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
         backgroundColor: theme.colors.surface,
       }}
     >
       <Box sx={{ px: 3, py: 2 }}>
         <Stack direction="horizontal" spacing={2} align="center">
-          {color !== null ? <ParticipantDot color={color} /> : null}
+          {showIdentity ? (
+            <EventLogBarLeading
+              actor={actor}
+              color={color}
+              iconName={latest.icon}
+              {...(renderAvatar !== undefined ? { renderAvatar } : {})}
+            />
+          ) : null}
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <FadeSwitch stateKey={stateKey}>
-              <Text
-                variant="caption"
-                numberOfLines={1}
-                label={body}
-                sx={{ color: 'textSecondary' }}
+              <EventLogBarBody
+                body={body}
+                actor={showIdentity ? actor : null}
+                {...(renderActorLabel !== undefined
+                  ? { renderActorLabel }
+                  : {})}
               />
             </FadeSwitch>
           </Box>
-          {timeLabel !== null ? (
-            <Text
-              variant="caption"
-              label={timeLabel}
-              sx={{ color: 'textSecondary' }}
-            />
-          ) : null}
-          {unreadCount > 0 ? (
-            <Text
-              variant="caption"
-              label={copy.unreadLabel(unreadCount)}
-              sx={{ color: 'tint' }}
-            />
-          ) : null}
+          <EventLogBarTrailing
+            timeLabel={timeLabel}
+            unreadCount={unreadCount}
+            unreadLabel={copy.unreadLabel}
+          />
         </Stack>
       </Box>
     </Pressable>

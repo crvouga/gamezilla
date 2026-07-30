@@ -28,7 +28,8 @@ function SearchScreenBody(): ReactNode {
   );
   const trimmed = query.trim();
   const showRecent = trimmed.length === 0;
-  const showSignInPrompt = !signedIn && trimmed.length >= USER_SEARCH_MIN_LENGTH;
+  const showSignInPrompt =
+    !signedIn && trimmed.length >= USER_SEARCH_MIN_LENGTH;
   const showResults = signedIn && trimmed.length >= USER_SEARCH_MIN_LENGTH;
 
   return (

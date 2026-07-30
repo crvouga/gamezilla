@@ -4,5 +4,5 @@ import type { ProfileClientDeps } from './profile-api';
 
 export function useProfileClientDeps(): ProfileClientDeps {
   const config = useConfigService();
-  return { config, fetchFn: fetch };
+  return { config, fetchFn: globalThis.fetch.bind(globalThis) };
 }

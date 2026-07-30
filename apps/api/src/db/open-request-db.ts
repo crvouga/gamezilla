@@ -15,6 +15,10 @@ export type RequestDb = {
  * One pinned Postgres session per Worker request, shared by sync upload routes
  * and auth provisioning via {@link adaptPgClientAsPool} (one TCP session, no pool
  * deadlocks).
+ *
+ * Do not share sockets across requests in the Workers runtime — a module-scoped
+ * `pg.Pool` hangs concurrent handlers (wrangler cancels with "Worker's code had
+ * hung and would never generate a response").
  */
 export async function openRequestDb(
   connectionString: string,

@@ -62,8 +62,5 @@ export const SpaceUserAttr = {
   createdAt: spaceUserNs
     .timestampOrNull('created-at', readTrimmedNullableString)
     .indexed({ sortable: true }),
-  createdByAccountId: spaceUserNs.text(
-    'created-by-account-id',
-    readString
-  ),
+  createdByAccountId: spaceUserNs.text('created-by-account-id', readString),
 } as const;

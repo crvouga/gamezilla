@@ -7,15 +7,11 @@ import { deriveAttribution, projectEventLog } from '@pkgs/collab';
 import { useNamedRoomLog } from '@pkgs/room';
 import { useCallback, useMemo, type ReactNode } from 'react';
 
-import {
-  createSpaceEventLogRouter,
-  SPACE_LOG_TARGET,
-} from '../../shared/space-log/space-log-router';
+import { SPACE_LOG_TARGET } from '../../shared/space-log/space-log-router';
+import { useSpaceSessionUi } from '../active-space/space-session-ui-context';
+import { useSpaceEventLogRouter } from '../module/space-event-log-router-context';
 import { useSpaceParticipantColors } from '../room/use-space-participant-colors';
 import { SPACE_ROOM_NAME } from '../room/use-space-room-selector';
-import { useSpaceSessionUi } from '../active-space/space-session-ui-context';
-
-const ROUTER = createSpaceEventLogRouter();
 
 export function GamesMenuAttribution({
   children,
@@ -24,11 +20,12 @@ export function GamesMenuAttribution({
 }): ReactNode {
   const { spaceId } = useSpaceSessionUi();
   const entries = useNamedRoomLog(SPACE_ROOM_NAME);
+  const router = useSpaceEventLogRouter();
   const { colorForParticipant } = useSpaceParticipantColors(spaceId);
   const hit = useMemo(() => {
-    const lines = projectEventLog(entries, ROUTER);
+    const lines = projectEventLog(entries, router);
     return deriveAttribution(lines).get(SPACE_LOG_TARGET.gameSelected) ?? null;
-  }, [entries]);
+  }, [entries, router]);
   // Stabilize the actor→color callback so AttributionHighlight's render path
   // does not see a new function identity every parent render.
   const colorForActor = useCallback(

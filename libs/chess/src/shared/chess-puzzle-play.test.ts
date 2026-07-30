@@ -169,6 +169,11 @@ describe('chess puzzle play FSM — Submit', () => {
     );
     expect(res.ok).toBe(true);
     if (!res.ok) return;
+    const accepted = res.events[0] as {
+      payload: { san?: string; uci?: string };
+    };
+    expect(accepted.payload.uci).toBe('e1f2');
+    expect(accepted.payload.san).toBe('Kf2');
     state = reduceAll(state, res.events);
     expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
       CHESS_PUZZLE_PLAY_STATUS.solving
@@ -214,6 +219,11 @@ describe('chess puzzle play FSM — Submit', () => {
     );
     expect(res.ok).toBe(true);
     if (!res.ok) return;
+    const rejected = res.events[0] as {
+      payload: { san?: string; uci?: string };
+    };
+    expect(rejected.payload.uci).toBe('h1h2');
+    expect(rejected.payload.san).toBe('Rh2');
     state = reduceAll(state, res.events);
     expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
       CHESS_PUZZLE_PLAY_STATUS.wrong

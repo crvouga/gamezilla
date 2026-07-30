@@ -31,7 +31,10 @@ function ProfileEntityBootstrap(): null {
         // uniqueness authority; apply only when card.userId matches myId.
         await ensureProfile(engine.db, writeContext, myId);
         if (cancelled) return;
-        const card = await ensureProfileOnline({ config, fetchFn: fetch });
+        const card = await ensureProfileOnline({
+          config,
+          fetchFn: globalThis.fetch.bind(globalThis),
+        });
         if (cancelled) return;
         // Token/myId can skew mid-switch — never write another account's card.
         if (card.userId !== myId) {

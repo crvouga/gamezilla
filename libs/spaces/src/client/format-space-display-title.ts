@@ -12,15 +12,14 @@ type Translate = (
 export function formatSpaceDisplayTitle(
   customTitle: string | null,
   hostUsername: string | null | undefined,
-  spaceId: string,
   t: Translate
 ): string {
   if (customTitle !== null && customTitle.length > 0) {
     return customTitle;
   }
-  const parts = resolveSpaceFallbackTitleParts(hostUsername, spaceId);
+  const parts = resolveSpaceFallbackTitleParts(hostUsername);
   if (parts.kind === 'host') {
     return t`${parts.hostName}'s space`;
   }
-  return t`Space ${parts.suffix}`;
+  return t`Space`;
 }

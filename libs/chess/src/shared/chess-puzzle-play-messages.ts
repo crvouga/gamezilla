@@ -62,6 +62,7 @@ function validateStartedPayload(payload: unknown): payload is {
 
 function validateMoveAcceptedPayload(payload: unknown): payload is {
   uci: string;
+  san: string;
   displayFen: string;
   solveIdx: number;
   status: ChessPuzzlePlayStatus;
@@ -69,6 +70,7 @@ function validateMoveAcceptedPayload(payload: unknown): payload is {
   if (!isPlainRecord(payload)) return false;
   return (
     isNonEmptyString(payload['uci']) &&
+    isNonEmptyString(payload['san']) &&
     isNonEmptyString(payload['displayFen']) &&
     isNonNegativeInteger(payload['solveIdx']) &&
     isStatus(payload['status'])
@@ -77,6 +79,7 @@ function validateMoveAcceptedPayload(payload: unknown): payload is {
 
 function validateMoveRejectedPayload(payload: unknown): payload is {
   uci: string;
+  san: string;
   layoutKey: number;
   wrongFromSquare: string;
   wrongToSquare: string;
@@ -88,6 +91,7 @@ function validateMoveRejectedPayload(payload: unknown): payload is {
   if (!isPlainRecord(payload)) return false;
   return (
     isNonEmptyString(payload['uci']) &&
+    isNonEmptyString(payload['san']) &&
     isNonNegativeInteger(payload['layoutKey']) &&
     isNonEmptyString(payload['wrongFromSquare']) &&
     isNonEmptyString(payload['wrongToSquare']) &&

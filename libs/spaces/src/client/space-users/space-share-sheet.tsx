@@ -132,7 +132,11 @@ function SearchAddRow({
   );
 }
 
-function ShareLinkSection({ spaceId }: { readonly spaceId: string }): ReactNode {
+function ShareLinkSection({
+  spaceId,
+}: {
+  readonly spaceId: string;
+}): ReactNode {
   const { t } = useLingui();
   const copyLink = useCallback(async () => {
     const url = spaceShareUrl(spaceId);
@@ -179,9 +183,7 @@ function HostSpaceUsersSection({
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
-        label={
-          <Trans>Private spaces only sync for people you add here.</Trans>
-        }
+        label={<Trans>Private spaces only sync for people you add here.</Trans>}
       />
       {!signedIn ? <UserSearchSignInPrompt /> : null}
       {signedIn ? (
@@ -205,10 +207,7 @@ function HostSpaceUsersSection({
       ))}
       {isLoading ? <LoadingState size="small" /> : null}
       {!isLoading && entries.length === 0 ? (
-        <EmptyState
-          variant="compact"
-          title={<Trans>No one added yet</Trans>}
-        />
+        <EmptyState variant="compact" title={<Trans>No one added yet</Trans>} />
       ) : null}
       {entries.map((entry) => (
         <ListedUserRow key={entry.userId} spaceId={spaceId} entry={entry} />

@@ -4,9 +4,14 @@ import { Semconv } from '../shared/semconv';
 import type { Observability } from '../port/observability';
 import { isObservabilityActive } from '../port/is-observability-active';
 
+/** Window/Worker `fetch` must stay bound — bare `fetch` throws Illegal invocation. */
+function defaultFetch(): HttpFetchFn {
+  return globalThis.fetch.bind(globalThis);
+}
+
 export function instrumentFetch(
   observability: Observability,
-  fetchFn: HttpFetchFn = fetch
+  fetchFn: HttpFetchFn = defaultFetch()
 ): HttpFetchFn {
   if (!isObservabilityActive(observability)) return fetchFn;
 

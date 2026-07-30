@@ -76,9 +76,7 @@ describe('sync stream subscription readiness', () => {
             });
           },
         }) satisfies SyncStreamSubscription,
-      specs: [
-        { stream: 'spaces', params: {} },
-      ],
+      specs: [{ stream: 'spaces', params: {} }],
       isCancelled: () => cancelled,
       liveUnsubs,
       abort: abort.signal,
@@ -106,9 +104,7 @@ describe('sync stream subscription readiness', () => {
           waitForFirstSync: async () => undefined,
         };
       },
-      specs: [
-        { stream: 'spaces', params: {} },
-      ],
+      specs: [{ stream: 'spaces', params: {} }],
       isCancelled: () => cancelled,
       liveUnsubs,
       abort: abort.signal,

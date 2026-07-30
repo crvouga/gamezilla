@@ -31,8 +31,7 @@ export function useLeaveSpace() {
       // Only auto-end when room seats are known and we are the last seat.
       // Empty seats (room not synced) must not stamp ended_at.
       const endIfLastSeat =
-        seatIds.includes(myId) &&
-        seatIds.every((id) => id === myId);
+        seatIds.includes(myId) && seatIds.every((id) => id === myId);
       if (myId.length > 0) {
         dispatch(LeaveSpaceSeat({ memberId: myId }));
         dispatch(AnnounceMemberLeft({ memberId: myId }));

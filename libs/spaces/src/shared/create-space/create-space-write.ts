@@ -56,31 +56,35 @@ export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
     if (!accountId.ok) return accountId;
     const now = isoNow();
     const memberId = resolveSpaceMemberId(accountId.value);
-    await db.run(
-      honey({
-        insertInto: SPACES_TABLE.tableName,
-        values: {
-          [SpaceCol.id]: input.spaceId,
-          [SpaceCol.hostId]: ctx.deviceId,
-          [SpaceCol.createdAt]: now,
-          [SpaceCol.visibility]: input.visibility,
-          [SpaceCol.hostAccountId]: accountId.value,
-          [SpaceCol.hostMemberId]: memberId,
-        },
-      })
-    );
-    await db.run(
-      honey({
-        insertInto: SPACE_USERS_TABLE.tableName,
-        values: {
-          [SpaceUserCol.id]: spaceUserEntityId(input.spaceId, memberId),
-          [SpaceUserCol.spaceId]: input.spaceId,
-          [SpaceUserCol.userId]: memberId,
-          [SpaceUserCol.createdAt]: now,
-          [SpaceUserCol.createdByAccountId]: accountId.value,
-        },
-      })
-    );
+    // One PowerSync writeTransaction → one CRUD upload (spaces + space_users).
+    // Separate db.run calls each become their own ~multi-second upload to Postgres.
+    await db.transaction(async (tx) => {
+      await tx.run(
+        honey({
+          insertInto: SPACES_TABLE.tableName,
+          values: {
+            [SpaceCol.id]: input.spaceId,
+            [SpaceCol.hostId]: ctx.deviceId,
+            [SpaceCol.createdAt]: now,
+            [SpaceCol.visibility]: input.visibility,
+            [SpaceCol.hostAccountId]: accountId.value,
+            [SpaceCol.hostMemberId]: memberId,
+          },
+        })
+      );
+      await tx.run(
+        honey({
+          insertInto: SPACE_USERS_TABLE.tableName,
+          values: {
+            [SpaceUserCol.id]: spaceUserEntityId(input.spaceId, memberId),
+            [SpaceUserCol.spaceId]: input.spaceId,
+            [SpaceUserCol.userId]: memberId,
+            [SpaceUserCol.createdAt]: now,
+            [SpaceUserCol.createdByAccountId]: accountId.value,
+          },
+        })
+      );
+    });
     return ok(undefined);
   },
 });

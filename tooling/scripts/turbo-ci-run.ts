@@ -15,7 +15,9 @@ import { spawnSync } from 'node:child_process';
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 
 function inCi(): boolean {
-  return process.env['GITHUB_ACTIONS'] === 'true' || process.env['CI'] === 'true';
+  return (
+    process.env['GITHUB_ACTIONS'] === 'true' || process.env['CI'] === 'true'
+  );
 }
 
 function resolveCacheFlag(): string {
@@ -55,7 +57,8 @@ function turboChildEnv(): NodeJS.ProcessEnv {
 const cache = resolveCacheFlag();
 
 const TURBO_OUTPUT_LOGS =
-  process.env['TURBO_OUTPUT_LOGS']?.trim() || (inCi() ? 'hash-only' : 'new-only');
+  process.env['TURBO_OUTPUT_LOGS']?.trim() ||
+  (inCi() ? 'hash-only' : 'new-only');
 
 const TURBO_CI_FLAGS = [
   '--concurrency=6',
@@ -68,7 +71,9 @@ const TURBO_CI_FLAGS = [
 
 const taskArgs = process.argv.slice(2);
 if (taskArgs.length === 0) {
-  console.error('usage: bun run tooling/scripts/turbo-ci-run.ts <turbo run args…>');
+  console.error(
+    'usage: bun run tooling/scripts/turbo-ci-run.ts <turbo run args…>'
+  );
   process.exit(1);
 }
 

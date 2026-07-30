@@ -1,7 +1,4 @@
-import {
-  SPACE_USERS_TABLE,
-  SpaceUserCol,
-} from '@libs/db/shared/space-tables';
+import { SPACE_USERS_TABLE, SpaceUserCol } from '@libs/db/shared/space-tables';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { col, honey } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
@@ -40,9 +37,7 @@ export function useSpaceUserEntries(spaceId: string): {
         where: enabled
           ? ['=', `a.${SpaceUserCol.spaceId}`, spaceId]
           : ['=', 1, 0],
-        orderBy: [
-          [`p.${ProfileCol.username}`, 'asc', { collate: 'NOCASE' }],
-        ],
+        orderBy: [[`p.${ProfileCol.username}`, 'asc', { collate: 'NOCASE' }]],
       }),
     [enabled, spaceId]
   );

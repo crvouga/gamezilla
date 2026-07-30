@@ -11,23 +11,15 @@ function mockT(strings: TemplateStringsArray, ...values: unknown[]): string {
 
 describe('formatSpaceDisplayTitle', () => {
   test('prefers custom title', () => {
-    expect(
-      formatSpaceDisplayTitle('Party', 'alice', 'space-abcdefgh', mockT)
-    ).toBe('Party');
+    expect(formatSpaceDisplayTitle('Party', 'alice', mockT)).toBe('Party');
   });
 
   test('uses host possessive when no custom title', () => {
-    expect(
-      formatSpaceDisplayTitle(null, 'alice', 'space-abcdefgh', mockT)
-    ).toBe("alice's space");
+    expect(formatSpaceDisplayTitle(null, 'alice', mockT)).toBe("alice's space");
   });
 
-  test('never renders empty possessive', () => {
-    expect(formatSpaceDisplayTitle(null, '', 'space-abcdefgh', mockT)).toBe(
-      'Space abcdefgh'
-    );
-    expect(formatSpaceDisplayTitle(null, null, 'space-abcdefgh', mockT)).toBe(
-      'Space abcdefgh'
-    );
+  test('never embeds space ids when username is missing', () => {
+    expect(formatSpaceDisplayTitle(null, '', mockT)).toBe('Space');
+    expect(formatSpaceDisplayTitle(null, null, mockT)).toBe('Space');
   });
 });

@@ -66,7 +66,11 @@ function useSyncEnginePromise(dbName: string): Promise<SyncEngine> {
   const kv = useKv();
   const observability = useObservability();
   const fetchFn = useMemo(
-    () => instrumentFetch(observability, fetch) as SyncApiFetch,
+    () =>
+      instrumentFetch(
+        observability,
+        globalThis.fetch.bind(globalThis)
+      ) as SyncApiFetch,
     [observability]
   );
   const configRef = useRef(config);

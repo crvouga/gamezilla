@@ -21,15 +21,15 @@ type DatabasePool = {
  */
 function getDatabasePool(): DatabasePool {
   const g = globalThis as typeof globalThis & {
-    __gamezillaPowerSyncDbPoolV4?: DatabasePool;
+    __gamezillaPowerSyncDbPoolV5?: DatabasePool;
   };
-  if (g.__gamezillaPowerSyncDbPoolV4 === undefined) {
-    g.__gamezillaPowerSyncDbPoolV4 = {
+  if (g.__gamezillaPowerSyncDbPoolV5 === undefined) {
+    g.__gamezillaPowerSyncDbPoolV5 = {
       byName: new Map(),
       activeName: null,
     };
   }
-  return g.__gamezillaPowerSyncDbPoolV4;
+  return g.__gamezillaPowerSyncDbPoolV5;
 }
 
 function createWebDatabase(dbName: string): PowerSyncSdkDatabase {

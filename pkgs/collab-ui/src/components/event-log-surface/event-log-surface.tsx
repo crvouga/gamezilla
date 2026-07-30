@@ -25,6 +25,9 @@ export type EventLogSurfaceCopy = {
   readonly emptyBody?: LocalizedString;
 };
 
+/** Matches space members sheet — keeps long logs scrollable inside the surface. */
+const EVENT_LOG_LIST_MAX_HEIGHT = 420;
+
 export type EventLogSurfaceProps = {
   visible: boolean;
   onClose: () => void;
@@ -32,9 +35,15 @@ export type EventLogSurfaceProps = {
   copy: EventLogSurfaceCopy;
   colorForActor: (actor: RoomActor) => ParticipantColor | string;
   renderAvatar: (actor: RoomActor | null, size: number) => ReactNode;
+  renderActorLabel?: (actor: RoomActor | null) => ReactNode;
   formatTime?: (ts: number) => LocalizedString;
   dataSet?: ComponentDataSet;
 };
+
+type RowRenderProps = Pick<
+  EventLogSurfaceProps,
+  'colorForActor' | 'renderAvatar' | 'renderActorLabel' | 'formatTime'
+>;
 
 function resolveColor(
   colorForActor: EventLogSurfaceProps['colorForActor'],
@@ -45,13 +54,7 @@ function resolveColor(
   return typeof c === 'string' ? c : c.css;
 }
 
-function renderRow(
-  item: EventLogRow,
-  props: Pick<
-    EventLogSurfaceProps,
-    'colorForActor' | 'renderAvatar' | 'formatTime'
-  >
-): ReactElement {
+function renderRow(item: EventLogRow, props: RowRenderProps): ReactElement {
   if (item.kind === 'day') {
     return (
       <Text
@@ -67,6 +70,9 @@ function renderRow(
       line={line}
       color={resolveColor(props.colorForActor, line.actor)}
       renderAvatar={props.renderAvatar}
+      {...(props.renderActorLabel !== undefined
+        ? { renderActorLabel: props.renderActorLabel }
+        : {})}
       {...(props.formatTime !== undefined
         ? { formatTime: props.formatTime }
         : {})}
@@ -81,16 +87,15 @@ export function EventLogSurface({
   copy,
   colorForActor,
   renderAvatar,
+  renderActorLabel,
   formatTime,
   dataSet,
 }: EventLogSurfaceProps): ReactElement {
   const rows = useMemo(() => buildEventLogRows(lines), [lines]);
-  const rowProps: Pick<
-    EventLogSurfaceProps,
-    'colorForActor' | 'renderAvatar' | 'formatTime'
-  > = {
+  const rowProps: RowRenderProps = {
     colorForActor,
     renderAvatar,
+    ...(renderActorLabel !== undefined ? { renderActorLabel } : {}),
     ...(formatTime !== undefined ? { formatTime } : {}),
   };
 
@@ -112,6 +117,7 @@ export function EventLogSurface({
           data={[...rows]}
           keyExtractor={(item) => item.key}
           renderItem={({ item }) => renderRow(item, rowProps)}
+          style={{ maxHeight: EVENT_LOG_LIST_MAX_HEIGHT }}
         />
       )}
     </ResponsiveSurface>

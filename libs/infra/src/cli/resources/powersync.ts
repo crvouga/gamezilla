@@ -247,7 +247,10 @@ export async function deployPowerSyncConfig(
   await runAsync(
     platform,
     'bun',
-    ['run', join(REPO_ROOT, 'tooling/scripts/run-postgres-migrations-secrets.ts')],
+    [
+      'run',
+      join(REPO_ROOT, 'tooling/scripts/run-postgres-migrations-secrets.ts'),
+    ],
     {
       cwd: REPO_ROOT,
       env: process.env,
@@ -274,7 +277,10 @@ export async function deployPowerSyncSyncConfigOnly(
   await runAsync(
     platform,
     'bun',
-    ['run', join(REPO_ROOT, 'tooling/scripts/run-postgres-migrations-secrets.ts')],
+    [
+      'run',
+      join(REPO_ROOT, 'tooling/scripts/run-postgres-migrations-secrets.ts'),
+    ],
     {
       cwd: REPO_ROOT,
       env: process.env,

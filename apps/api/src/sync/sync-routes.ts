@@ -1,6 +1,7 @@
 import type { AuthContext } from '@libs/auth/server/types';
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { mapAppAuthToWriteContext } from '@libs/auth/shared/map-app-auth-to-write-context';
+import { SPACE_USERS_TABLE, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { stripServerOwnedProfileUploadColumns } from '@libs/profile/shared/strip-server-owned-profile-upload-columns';
 import { loadMemberOfSpaceIdsFromSql } from '@libs/spaces/server/load-member-of-space-ids-sql';
 import { assert } from '@pkgs/assert';
@@ -12,6 +13,7 @@ import {
 import type {
   UploadBatch,
   UploadBatchResult,
+  UploadRow,
   UploadRowResult,
 } from '@pkgs/sync-engine/shared/upload-batch';
 import { createRowEvaluator } from '@pkgs/write/server/row-write-registry';
@@ -26,6 +28,21 @@ import { APP_ROW_WRITE_REGISTRY } from './row-write-registry';
 export type SyncUploadAuth = {
   readonly writeContext: WriteContext;
 };
+
+function uploadTablePriority(table: string): number {
+  if (table === SPACES_TABLE.tableName) return 0;
+  if (table === SPACE_USERS_TABLE.tableName) return 1;
+  return 2;
+}
+
+/** Parent tables before children so create-space FK applies in one pass. */
+function orderUploadRowsForParentsFirst(
+  rows: readonly UploadRow[]
+): UploadRow[] {
+  return [...rows].sort(
+    (a, b) => uploadTablePriority(a.table) - uploadTablePriority(b.table)
+  );
+}
 
 async function resolveSyncUploadAuth(
   request: Request
@@ -66,7 +83,8 @@ async function processSyncUploadBatch(
 ): Promise<UploadBatchResult> {
   const evaluateRow = createRowEvaluator(APP_ROW_WRITE_REGISTRY);
   const results: UploadRowResult[] = [];
-  for (const row of batch.rows) {
+  const ordered = orderUploadRowsForParentsFirst(batch.rows);
+  for (const row of ordered) {
     const decision = await evaluateRow(ctx, row, db);
     if (decision.status === 'rejected') {
       results.push({ status: 'rejected', reason: decision.code });
@@ -94,18 +112,14 @@ async function handleSyncUpload(
   const strippedBatch = {
     rows: batch.rows.map(stripServerOwnedProfileUploadColumns),
   };
+  // Middleware already opened + pinned this request's Postgres session.
   const sql = await openRequestSqlClient();
-  try {
-    await sql.connect();
-    const out = await processSyncUploadBatch(
-      sql,
-      auth.writeContext,
-      strippedBatch
-    );
-    return c.json(out, 200);
-  } finally {
-    await sql.disconnect();
-  }
+  const out = await processSyncUploadBatch(
+    sql,
+    auth.writeContext,
+    strippedBatch
+  );
+  return c.json(out, 200);
 }
 
 /** PowerSync client upload endpoint (`POST /sync/upload`). */

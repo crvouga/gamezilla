@@ -97,10 +97,7 @@ async function seedHostSpace(db: SqlClient): Promise<void> {
   );
 }
 
-async function readSpaceUser(
-  db: SqlClient,
-  userId: string
-): Promise<boolean> {
+async function readSpaceUser(db: SqlClient, userId: string): Promise<boolean> {
   const rows = await db.query<{ readonly id: string }>(
     honey({
       select: [SpaceUserCol.id],
@@ -122,11 +119,7 @@ async function readSpaceHost(db: SqlClient): Promise<{
     readonly ended_at: string | null;
   }>(
     honey({
-      select: [
-        SpaceCol.hostMemberId,
-        SpaceCol.hostAccountId,
-        SpaceCol.endedAt,
-      ],
+      select: [SpaceCol.hostMemberId, SpaceCol.hostAccountId, SpaceCol.endedAt],
       from: SPACES_TABLE.tableName,
       where: ['=', SpaceCol.id, SPACE_ID],
     })
@@ -226,17 +219,9 @@ describe('leave / join / create require account', () => {
         },
       })
     );
-    const auth = await authorizeJoinSpace(
-      signedIn,
-      { spaceId: SPACE_ID },
-      db
-    );
+    const auth = await authorizeJoinSpace(signedIn, { spaceId: SPACE_ID }, db);
     expect(auth.ok).toBe(true);
-    const exec = await executeJoinSpace(
-      signedIn,
-      { spaceId: SPACE_ID },
-      db
-    );
+    const exec = await executeJoinSpace(signedIn, { spaceId: SPACE_ID }, db);
     expect(exec.ok).toBe(true);
     expect(await readSpaceUser(db, ACCOUNT_ID)).toBe(true);
     const space = await readSpaceHost(db);
@@ -247,11 +232,7 @@ describe('leave / join / create require account', () => {
 
   test('anonymous join is rejected', async () => {
     const anon = ctx({ deviceId: GUEST_DEVICE_ID, accountId: null });
-    const auth = await authorizeJoinSpace(
-      anon,
-      { spaceId: SPACE_ID },
-      db
-    );
+    const auth = await authorizeJoinSpace(anon, { spaceId: SPACE_ID }, db);
     expect(auth.ok).toBe(false);
     if (!auth.ok) {
       expect(auth.code).toBe('SPACE_NOT_SIGNED_IN');
@@ -310,6 +291,50 @@ describe('space_users upload auth', () => {
         table: SPACE_USERS_TABLE.tableName,
         id: spaceUserEntityId(SPACE_ID, ACCOUNT_ID),
         values: {},
+      },
+      db
+    );
+    expect(result.ok).toBe(false);
+  });
+
+  test('allows create-time self ACL when space row is not on server yet', async () => {
+    const signedIn = ctx({ deviceId: DEVICE_ID, accountId: ACCOUNT_ID });
+    const binding = SPACE_ROW_BINDINGS[SPACE_USERS_TABLE.tableName]!;
+    const newSpaceId = 'space-new-create';
+    const result = await binding.write.authorize(
+      signedIn,
+      {
+        op: 'put',
+        table: SPACE_USERS_TABLE.tableName,
+        id: spaceUserEntityId(newSpaceId, ACCOUNT_ID),
+        values: {
+          [SpaceUserCol.id]: spaceUserEntityId(newSpaceId, ACCOUNT_ID),
+          [SpaceUserCol.spaceId]: newSpaceId,
+          [SpaceUserCol.userId]: ACCOUNT_ID,
+          [SpaceUserCol.createdByAccountId]: ACCOUNT_ID,
+        },
+      },
+      db
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  test('rejects create-time self ACL when created_by mismatches', async () => {
+    const signedIn = ctx({ deviceId: DEVICE_ID, accountId: ACCOUNT_ID });
+    const binding = SPACE_ROW_BINDINGS[SPACE_USERS_TABLE.tableName]!;
+    const newSpaceId = 'space-new-create';
+    const result = await binding.write.authorize(
+      signedIn,
+      {
+        op: 'put',
+        table: SPACE_USERS_TABLE.tableName,
+        id: spaceUserEntityId(newSpaceId, ACCOUNT_ID),
+        values: {
+          [SpaceUserCol.id]: spaceUserEntityId(newSpaceId, ACCOUNT_ID),
+          [SpaceUserCol.spaceId]: newSpaceId,
+          [SpaceUserCol.userId]: ACCOUNT_ID,
+          [SpaceUserCol.createdByAccountId]: GUEST_ACCOUNT_ID,
+        },
       },
       db
     );

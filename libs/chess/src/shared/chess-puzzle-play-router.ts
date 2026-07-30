@@ -9,6 +9,7 @@ import { Chess } from 'chess.js';
 
 import {
   applyUciToChess,
+  applyUciToChessSan,
   setupPuzzleStart,
   tokenize,
   uciToSquares,
@@ -100,13 +101,15 @@ function applyAcceptedMove(args: {
 }):
   | {
       uci: string;
+      san: string;
       displayFen: string;
       solveIdx: number;
       status: ChessPuzzlePlayStatus;
     }
   | { error: HandleResult } {
   const { chess, actual, tokens, idx } = args;
-  if (!applyUciToChess(chess, actual)) {
+  const san = applyUciToChessSan(chess, actual);
+  if (san === null) {
     return {
       error: reject({
         type: ROOM_ERROR_TYPE.invalidCommand,
@@ -118,6 +121,7 @@ function applyAcceptedMove(args: {
   if (nextIdx >= tokens.length) {
     return {
       uci: actual,
+      san,
       displayFen: chess.fen(),
       solveIdx: nextIdx,
       status: CHESS_PUZZLE_PLAY_STATUS.solved,
@@ -137,7 +141,13 @@ function applyAcceptedMove(args: {
     nextIdx >= tokens.length
       ? CHESS_PUZZLE_PLAY_STATUS.solved
       : CHESS_PUZZLE_PLAY_STATUS.solving;
-  return { uci: actual, displayFen: chess.fen(), solveIdx: nextIdx, status };
+  return {
+    uci: actual,
+    san,
+    displayFen: chess.fen(),
+    solveIdx: nextIdx,
+    status,
+  };
 }
 
 function handleSubmitMove(
@@ -199,7 +209,8 @@ function handleWrongMove(args: {
   }
   const chessOrErr = loadChessFromDisplayFen(previousDisplayFen);
   if ('error' in chessOrErr) return chessOrErr.error;
-  if (!applyUciToChess(chessOrErr, actual)) {
+  const san = applyUciToChessSan(chessOrErr, actual);
+  if (san === null) {
     return reject({
       type: ROOM_ERROR_TYPE.invalidCommand,
       reason: 'illegal move for current position',
@@ -212,6 +223,7 @@ function handleWrongMove(args: {
     events: [
       ChessPuzzlePlayMoveRejected({
         uci: actual,
+        san,
         layoutKey,
         wrongFromSquare: squares.from,
         wrongToSquare: squares.to,

@@ -64,6 +64,7 @@ export {
   LogOutIcon,
   MenuIcon,
   PaintbrushIcon,
+  PlayIcon,
   PlusIcon,
   RotateCcwIcon,
   SearchIcon,

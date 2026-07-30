@@ -9,6 +9,7 @@ import {
   chessMainMenuCommandRouter,
   chessMainMenuEventReducer,
 } from './chess-main-menu';
+import { chessPuzzlePlayDescribeRouter } from './chess-puzzle-describe-events';
 import {
   chessPuzzlePlayCmdNs,
   chessPuzzlePlayCommandRouter,
@@ -34,6 +35,12 @@ export const chessGameShared: GameDefinition = {
   eventRouters: [
     { namespace: chessEvtNs, router: chessMainMenuEventReducer },
     { namespace: chessPuzzlePlayEvtNs, router: chessPuzzlePlayEventReducer },
+  ],
+  describeEvents: [
+    {
+      namespace: chessPuzzlePlayEvtNs,
+      router: chessPuzzlePlayDescribeRouter,
+    },
   ],
   initialState: chessPuzzlePlayInitialAttrs,
   resetRoomState(state: RoomState): RoomState {

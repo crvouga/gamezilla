@@ -2,7 +2,9 @@ import { useMemo, type ReactNode } from 'react';
 
 import type { GameClientDefinition, GameDefinition } from '../../shared/game';
 import { composeSpaceRoomModule } from '../../shared/load-game-plugins';
+import { createSpaceEventLogRouter } from '../../shared/space-log/space-log-router';
 import { GamesRegistryProvider } from './games-registry-context';
+import { SpaceEventLogRouterProvider } from './space-event-log-router-context';
 import {
   SpaceModuleProvider,
   type SpaceRoomModule,
@@ -27,10 +29,18 @@ export function GamesBootstrapFromPlugins({
     (): SpaceRoomModule => composeSpaceRoomModule(games),
     [games]
   );
+  const eventLogRouter = useMemo(
+    () => createSpaceEventLogRouter(games),
+    [games]
+  );
 
   return (
     <SpaceModuleProvider value={module}>
-      <GamesRegistryProvider value={clients}>{children}</GamesRegistryProvider>
+      <SpaceEventLogRouterProvider value={eventLogRouter}>
+        <GamesRegistryProvider value={clients}>
+          {children}
+        </GamesRegistryProvider>
+      </SpaceEventLogRouterProvider>
     </SpaceModuleProvider>
   );
 }

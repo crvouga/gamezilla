@@ -3,6 +3,7 @@ import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 
+import { useOpenSpaceIds } from '../open-space/use-open-space-ids';
 import { openSpaceDetail } from '../space-routes';
 import { useSpaceDisplayTitle } from '../use-space-display-title';
 
@@ -21,9 +22,13 @@ export function SpaceCardOpenLink({
 }: SpaceCardOpenLinkProps): ReactNode {
   const router = useRouter();
   const { t } = useLingui();
+  const { isOpen } = useOpenSpaceIds();
   const resolvedTitle = useSpaceDisplayTitle(spaceId);
   const accessibilityLabel =
-    accessibilityLabelOverride ?? t`Open space ${resolvedTitle}`;
+    accessibilityLabelOverride ??
+    (isOpen(spaceId)
+      ? t`Open current space ${resolvedTitle}`
+      : t`Open space ${resolvedTitle}`);
   return (
     <Pressable
       onPress={() => openSpaceDetail(router, spaceId)}

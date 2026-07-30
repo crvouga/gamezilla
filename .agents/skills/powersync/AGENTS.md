@@ -51,12 +51,12 @@ Before running any of them:
 
 If your harness has a project memory or persistent notes file, record these once so the operator is not re-asked each session and you do not re-discover paths each turn:
 
-| What to save                  | Example                                                         | Why                                              |
-| ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------ |
-| CLI invocation                | `powersync` on PATH, `npx powersync@<v>`, project-local install | Skip reinstall / binary hunt                     |
+| What to save                  | Example                                                          | Why                                              |
+| ----------------------------- | ---------------------------------------------------------------- | ------------------------------------------------ |
+| CLI invocation                | `powersync` on PATH, `npx powersync@<v>`, project-local install  | Skip reinstall / binary hunt                     |
 | Config dir + sync-config path | `libs/powersync/sync-config.yaml` (`--directory libs/powersync`) | Skip re-globbing                                 |
-| Authorized instances + env    | `<id-A>=dev (safe)`, `<id-B>=prod (ask first)`                  | Cite this before mutating commands               |
-| Allowed scope                 | `sync-config only` vs `sync-config + service-config authorized` | Default sync-config only until operator broadens |
+| Authorized instances + env    | `<id-A>=dev (safe)`, `<id-B>=prod (ask first)`                   | Cite this before mutating commands               |
+| Allowed scope                 | `sync-config only` vs `sync-config + service-config authorized`  | Default sync-config only until operator broadens |
 
 Before acting on a saved entry naming a specific instance, file, or binary: verify it still matches reality. Stale → update the memory, do not act on it. Saved "prod = do not touch" + operator now asks for prod deploy → treat as scope expansion, confirm explicitly.
 

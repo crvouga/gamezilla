@@ -41,7 +41,8 @@ function isPostgresLockTimeoutError(error: unknown): boolean {
   if (code === '55P03') return true;
   const msg = error.message.toLowerCase();
   return (
-    msg.includes('lock timeout') || msg.includes('canceling statement due to lock')
+    msg.includes('lock timeout') ||
+    msg.includes('canceling statement due to lock')
   );
 }
 

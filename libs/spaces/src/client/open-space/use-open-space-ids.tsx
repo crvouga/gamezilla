@@ -1,9 +1,14 @@
+import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import { asKeyword, joinKeywordSegments } from '@pkgs/keyword/keyword';
 import { jsonKvCodec } from '@pkgs/kv/kv-state-codec';
 import { useKvState } from '@pkgs/kv/use-kv-state';
-import { useCallback, useMemo } from 'react';
-
-import { useMyAccountId } from '@libs/auth/client/use-current-user';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  type ReactNode,
+} from 'react';
 
 const OPEN_SPACES_VALUE_ATTR = asKeyword('spaces.open/ids');
 
@@ -27,16 +32,26 @@ function openSpacesKey(accountId: string) {
   return asKeyword(`${ns}/ids`);
 }
 
-/**
- * Local durable set of space ids this install currently has open.
- * Drives miniplayer + presence; not synced via PowerSync.
- */
-export function useOpenSpaceIds(): {
+export type OpenSpaceIdsApi = {
   readonly openSpaceIds: readonly string[];
   readonly isOpen: (spaceId: string) => boolean;
   readonly markOpen: (spaceId: string) => void;
   readonly markClosed: (spaceId: string) => void;
-} {
+};
+
+const OpenSpaceIdsContext = createContext<OpenSpaceIdsApi | null>(null);
+
+/**
+ * Single shared open-spaces set for the app. Without this, each
+ * {@link useOpenSpaceIds} caller had isolated {@link useKvState} and only
+ * synced via async Kv hydrate — create/join wrote one instance while the
+ * miniplayer read another and stayed stale until refresh.
+ */
+export function OpenSpaceIdsProvider({
+  children,
+}: {
+  readonly children: ReactNode;
+}): ReactNode {
   const accountId = useMyAccountId();
   const key =
     accountId !== null && accountId.length > 0
@@ -72,5 +87,34 @@ export function useOpenSpaceIds(): {
     [setIds]
   );
 
-  return { openSpaceIds: ids, isOpen, markOpen, markClosed };
+  const value = useMemo(
+    (): OpenSpaceIdsApi => ({
+      openSpaceIds: ids,
+      isOpen,
+      markOpen,
+      markClosed,
+    }),
+    [ids, isOpen, markOpen, markClosed]
+  );
+
+  return (
+    <OpenSpaceIdsContext.Provider value={value}>
+      {children}
+    </OpenSpaceIdsContext.Provider>
+  );
+}
+
+/**
+ * Local durable set of space ids this install currently has open.
+ * Drives miniplayer + presence; not synced via PowerSync.
+ * Requires {@link OpenSpaceIdsProvider}.
+ */
+export function useOpenSpaceIds(): OpenSpaceIdsApi {
+  const ctx = useContext(OpenSpaceIdsContext);
+  if (ctx === null) {
+    throw new Error(
+      'useOpenSpaceIds: mount OpenSpaceIdsProvider above this tree'
+    );
+  }
+  return ctx;
 }

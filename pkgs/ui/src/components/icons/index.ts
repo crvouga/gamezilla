@@ -23,6 +23,7 @@ import {
   LogOut,
   Menu,
   Paintbrush,
+  Play,
   Plus,
   RotateCcw,
   Search,
@@ -55,6 +56,7 @@ export const ChevronDownIcon = createIcon(ChevronDown);
 export const LightbulbIcon = createIcon(Lightbulb);
 export const ListChecksIcon = createIcon(ListChecks);
 export const PaintbrushIcon = createIcon(Paintbrush);
+export const PlayIcon = createIcon(Play);
 export const EllipsisIcon = createIcon(Ellipsis);
 export const SettingsIcon = createIcon(Settings);
 export const WifiIcon = createIcon(Wifi);

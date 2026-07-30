@@ -1,5 +1,7 @@
+import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
 import { useMemo } from 'react';
 
+import { resolveSpaceHostProfileId } from '../../shared/resolve-space-host-profile-id';
 import { useSpaceColumn, SpaceField } from '../use-space-column';
 
 export type SpaceHostMembershipDisplay = {
@@ -14,13 +16,27 @@ export function useSpaceHostMembershipDisplay(
   spaceId: string
 ): SpaceHostMembershipDisplay | null {
   const hostMemberId = useSpaceColumn(spaceId, SpaceField.hostMemberId);
+  const hostAccountId = useSpaceColumn(spaceId, SpaceField.hostAccountId);
+  const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
+  const myDeviceId = useMyDeviceId();
+  const myId = useMyId();
   return useMemo(() => {
-    if (hostMemberId === null || hostMemberId.length === 0) return null;
+    let profileId = resolveSpaceHostProfileId(hostMemberId, hostAccountId);
+    if (
+      profileId === null &&
+      hostId !== null &&
+      hostId.length > 0 &&
+      hostId === myDeviceId &&
+      myId.length > 0
+    ) {
+      profileId = myId;
+    }
+    if (profileId === null) return null;
     return {
-      deviceId: hostMemberId,
-      membershipId: hostMemberId,
-      profileId: hostMemberId,
+      deviceId: profileId,
+      membershipId: profileId,
+      profileId,
       deviceLabel: null,
     };
-  }, [hostMemberId]);
+  }, [hostMemberId, hostAccountId, hostId, myDeviceId, myId]);
 }

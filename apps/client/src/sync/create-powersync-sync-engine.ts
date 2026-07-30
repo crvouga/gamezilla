@@ -98,6 +98,48 @@ function unsupportedWatchSql<T extends Record<string, unknown>>(
   throw new Error('watchSql is not available inside a write transaction');
 }
 
+function unsupportedTxLifecycle(): Promise<never> {
+  return Promise.reject(
+    new Error('connect/disconnect is not available inside a write transaction')
+  );
+}
+
+/**
+ * PowerSync transaction methods live on the prototype — object spread drops
+ * them and yields `db.execute is not a function` inside writeTransaction.
+ */
+function toWriteTransactionPort(
+  database: PowerSyncSdkDatabase,
+  tx: unknown
+): PowerSyncDatabasePort {
+  const locked = tx as Pick<PowerSyncSdkDatabase, 'getAll' | 'execute'>;
+  if (
+    typeof locked.execute !== 'function' ||
+    typeof locked.getAll !== 'function'
+  ) {
+    throw new Error(
+      `PowerSync write tx missing execute/getAll (execute=${typeof locked.execute}, getAll=${typeof locked.getAll})`
+    );
+  }
+  const execute = locked.execute.bind(locked);
+  const getAll = locked.getAll.bind(locked);
+  const port: PowerSyncDatabasePort = {
+    connect: unsupportedTxLifecycle,
+    disconnect: unsupportedTxLifecycle,
+    disconnectAndClear: unsupportedTxLifecycle,
+    waitForFirstSync: unsupportedTxLifecycle,
+    getAll,
+    execute,
+    writeTransaction: (fn) => fn(port),
+    registerListener: () => () => undefined,
+    watchSql: unsupportedWatchSql,
+    get currentStatus() {
+      return database.currentStatus;
+    },
+  };
+  return port;
+}
+
 function toDatabasePort(
   database: PowerSyncSdkDatabase,
   connector: ReturnType<typeof createPowerSyncConnector>
@@ -119,10 +161,7 @@ function toDatabasePort(
     execute: (sql, params) => database.execute(sql, params),
     writeTransaction: (fn) =>
       database.writeTransaction(async (tx) =>
-        fn({
-          ...(tx as unknown as PowerSyncDatabasePort),
-          watchSql: unsupportedWatchSql,
-        })
+        fn(toWriteTransactionPort(database, tx))
       ),
     registerListener: (listener) => database.registerListener(listener),
     watchSql: <T extends Record<string, unknown>>(

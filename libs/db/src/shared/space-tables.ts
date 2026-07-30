@@ -44,10 +44,7 @@ export const SPACE_USERS_TABLE = defineTable({
   ],
 });
 
-export const ALL_SPACE_SYNC_TABLES = [
-  SPACES_TABLE,
-  SPACE_USERS_TABLE,
-] as const;
+export const ALL_SPACE_SYNC_TABLES = [SPACES_TABLE, SPACE_USERS_TABLE] as const;
 
 /** Canonical space_users row id: `${spaceId}:${userId}`. */
 export function spaceUserEntityId(spaceId: string, userId: string): string {

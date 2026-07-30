@@ -28,7 +28,11 @@ export function PowerSyncDiagnosticsCommand(): ReactNode {
   const observability = useObservability();
   const myId = useMyId();
   const fetchFn = useMemo(
-    () => instrumentFetch(observability, fetch) as SyncApiFetch,
+    () =>
+      instrumentFetch(
+        observability,
+        globalThis.fetch.bind(globalThis)
+      ) as SyncApiFetch,
     [observability]
   );
 
