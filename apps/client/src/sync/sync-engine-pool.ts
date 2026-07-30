@@ -21,7 +21,7 @@ type SyncEnginePool = {
  */
 function getSyncEnginePool(): SyncEnginePool {
   const g = globalThis as typeof globalThis & {
-    // V6: connector refreshes Clerk bearer on sync token / upload (idle 401 loop).
+    // V6: connector refreshes auth bearer on sync token / upload (idle 401 loop).
     __gamezillaSyncEnginePoolV6?: SyncEnginePool;
   };
   if (g.__gamezillaSyncEnginePoolV6 === undefined) {

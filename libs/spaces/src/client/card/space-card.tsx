@@ -30,7 +30,7 @@ export function SpaceCard({ spaceId }: SpaceCardProps): ReactNode {
           borderRadius: SPACE_CARD_BORDER_RADIUS,
           p: 4,
           borderWidth: current ? 2 : 0,
-          borderColor: current ? 'onTint' : undefined,
+          ...(current ? { borderColor: 'onTint' as const } : {}),
         }}
         style={theme.elevation(1)}
       >

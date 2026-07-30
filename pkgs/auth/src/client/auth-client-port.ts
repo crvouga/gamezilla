@@ -3,7 +3,7 @@ import type { AccountSession, SignOutOptions } from './account-session';
 import type { AuthSessionState } from './auth-session-state';
 
 export type GetFreshTokenOptions = {
-  /** Force a network mint (Clerk `skipCache`) after an auth 401. */
+  /** Force a network mint (adapter `skipCache`) after an auth 401. */
   readonly skipCache?: boolean;
 };
 

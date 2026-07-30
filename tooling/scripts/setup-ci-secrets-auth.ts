@@ -6,7 +6,7 @@
  * (see `.github/actions/secrets-auth`). That requires two GitHub Actions
  * repository variables that are NOT stored in the secret store:
  *
- *   - SECRETS_PROJECT_ID   — Infisical project *slug* for secrets-action injection
+ *   - SECRETS_PROJECT_ID   — secrets-action project *slug* for injection
  *                            (workspace UUID for CLI comes from `.secrets.json`)
  *   - SECRETS_IDENTITY_ID  — machine identity configured for GitHub OIDC
  *

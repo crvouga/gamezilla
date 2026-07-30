@@ -69,7 +69,7 @@ export type SyncApiFetch = (
   init?: RequestInit
 ) => Promise<Response>;
 
-/** Async Clerk/session refresh — same role as room reconnect `getFreshToken`. */
+/** Async session refresh — same role as room reconnect `getFreshToken`. */
 export type GetFreshAuthToken = (options?: {
   readonly skipCache?: boolean;
 }) => Promise<string | null>;
@@ -132,7 +132,7 @@ type SyncTokenResponse = {
   readonly expiresAt?: number;
 };
 
-/** Identity key only — Clerk JWT rotation must not bust a valid PowerSync JWT. */
+/** Identity key only — auth JWT rotation must not bust a valid PowerSync JWT. */
 function syncAuthCacheKey(): string {
   const accountId = getCachedCurrentAccountId() ?? '';
   const anon = getCachedDeviceId() ?? '';

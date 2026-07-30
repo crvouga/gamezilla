@@ -64,7 +64,7 @@ jobs:
     # GITHUB_ENV — job env is belt-and-suspenders with `deploy`).
     env:
       # Identity only — project UUID comes from `.secrets.json` via secrets-auth.
-      # `vars.SECRETS_PROJECT_ID` is the Infisical *slug* for secrets-action.
+      # `vars.SECRETS_PROJECT_ID` is the project *slug* for secrets-action.
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     concurrency:
       group: turbo-ci-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
