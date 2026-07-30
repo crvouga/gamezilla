@@ -4,7 +4,7 @@
 # CI/CD design guidelines (Turbo-first + atomic deploy):
 #
 # 1. Turbo-cacheable tasks (format, syncpack/catalog, knip, depcruise,
-#    circular-deps, audit, i18n, tc, lint, test, build) plus the
+#    circular-deps, audit, tc, lint, test, build) plus the
 #    non-cacheable `check:secrets` gate (live secret-store validate for
 #    both `dev` and `prd`) all run inside a single `turbo-ci` job that
 #    invokes `bun run check:ci`. Turbo's task graph uses GitHub Actions
@@ -52,7 +52,7 @@ on:
 jobs:
   # Single Turbo-orchestrated job for every cacheable repo gate: format,
   # syncpack + catalog + no-patches, knip, depcruise, circular-deps,
-  # audit, i18n, plus per-package `tc` / `lint` / `test` / `build`. Turbo
+  # audit, plus per-package `tc` / `lint` / `test` / `build`. Turbo
   # parallelizes across the task graph; `actions/cache` persists `.turbo`
   # and `tooling/scripts/turbo-ci-run.ts` uses `--cache=local:rw`. Per-task
   # status (`--output-logs=hash-only --summarize`) keeps logs readable.

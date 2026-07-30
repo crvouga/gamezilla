@@ -142,8 +142,8 @@ msgid "Action required"
 msgstr "Action required"
 
 #: libs/spaces/src/client/active-space/space-event-log-chrome.tsx
-msgid "Activity"
-msgstr "Activity"
+#~ msgid "Activity"
+#~ msgstr "Activity"
 
 #: libs/spaces/src/client/space-users/space-share-sheet.tsx
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
@@ -596,6 +596,10 @@ msgstr "Created"
 msgid "current"
 msgstr "current"
 
+#: libs/spaces/src/client/space-live-badge.tsx
+msgid "Current"
+msgstr "Current"
+
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-stats-cards.tsx
 msgid "Current streak"
 msgstr "Current streak"
@@ -854,6 +858,7 @@ msgid "Full commit"
 msgstr "Full commit"
 
 #: libs/chess/src/client/chess-puzzle/chess-stats-screen.tsx
+#: libs/spaces/src/client/active-space/space-event-log-chrome.tsx
 msgid "Game log"
 msgstr "Game log"
 
@@ -983,8 +988,12 @@ msgid "Joining…"
 msgstr "Joining…"
 
 #: libs/spaces/src/client/active-space/space-event-log-chrome.tsx
-msgid "Joins, leaves, and game changes will show up here."
-msgstr "Joins, leaves, and game changes will show up here."
+#~ msgid "Joins, leaves, and game changes will show up here."
+#~ msgstr "Joins, leaves, and game changes will show up here."
+
+#: libs/spaces/src/client/active-space/space-event-log-chrome.tsx
+msgid "Joins, leaves, and game play will show up here."
+msgstr "Joins, leaves, and game play will show up here."
 
 #: apps/client/src/sync/sync-screen.tsx
 msgid "Last error"
@@ -1288,6 +1297,10 @@ msgstr "Open {label}"
 #: pkgs/ui/src/components/command-palette/command-palette-trigger.tsx
 msgid "Open command palette"
 msgstr "Open command palette"
+
+#: libs/spaces/src/client/card/space-card-open-link.tsx
+msgid "Open current space {resolvedTitle}"
+msgstr "Open current space {resolvedTitle}"
 
 #: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
 msgid "Open PowerSync diagnostics"
@@ -1812,10 +1825,13 @@ msgstr "Something went wrong"
 msgid "space"
 msgstr "space"
 
-#. placeholder {0}: parts.suffix
 #: libs/spaces/src/client/use-space-display-title.ts
-msgid "Space {0}"
-msgstr "Space {0}"
+msgid "Space"
+msgstr "Space"
+
+#: libs/spaces/src/client/use-space-display-title.ts
+#~ msgid "Space {0}"
+#~ msgstr "Space {0}"
 
 #: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
 #: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
