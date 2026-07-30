@@ -10,8 +10,23 @@ import type {
 export const LOCAL_ACCOUNT_ROSTER_KEY = asKeyword('auth.roster/accounts');
 const LOCAL_ACCOUNT_ROSTER_VALUE_ATTR = asKeyword('auth.roster/value');
 
-function isNullableString(value: unknown): boolean {
-  return value === null || typeof value === 'string';
+function isOptionalNullableString(value: unknown): boolean {
+  return value === undefined || value === null || typeof value === 'string';
+}
+
+function optionalNullableString(value: unknown): string | null {
+  return typeof value === 'string' ? value : null;
+}
+
+function isRosterEntryShape(row: Record<string, unknown>): boolean {
+  return (
+    typeof row['accountId'] === 'string' &&
+    typeof row['sessionId'] === 'string' &&
+    typeof row['lastActiveAt'] === 'string' &&
+    isOptionalNullableString(row['externalUserId']) &&
+    isOptionalNullableString(row['username']) &&
+    isOptionalNullableString(row['avatarConfigJson'])
+  );
 }
 
 /**
@@ -22,35 +37,14 @@ function isNullableString(value: unknown): boolean {
 function parseRosterEntry(value: unknown): LocalAccountRosterEntry | null {
   if (typeof value !== 'object' || value === null) return null;
   const row = value as Record<string, unknown>;
-  const externalOk =
-    row['externalUserId'] === undefined ||
-    isNullableString(row['externalUserId']);
-  const usernameOk =
-    row['username'] === undefined || isNullableString(row['username']);
-  const avatarOk =
-    row['avatarConfigJson'] === undefined ||
-    isNullableString(row['avatarConfigJson']);
-  if (
-    typeof row['accountId'] !== 'string' ||
-    typeof row['sessionId'] !== 'string' ||
-    !externalOk ||
-    !usernameOk ||
-    !avatarOk ||
-    typeof row['lastActiveAt'] !== 'string'
-  ) {
-    return null;
-  }
+  if (!isRosterEntryShape(row)) return null;
   return {
-    accountId: row['accountId'],
-    sessionId: row['sessionId'],
-    externalUserId:
-      typeof row['externalUserId'] === 'string' ? row['externalUserId'] : null,
-    username: typeof row['username'] === 'string' ? row['username'] : null,
-    avatarConfigJson:
-      typeof row['avatarConfigJson'] === 'string'
-        ? row['avatarConfigJson']
-        : null,
-    lastActiveAt: row['lastActiveAt'],
+    accountId: row['accountId'] as string,
+    sessionId: row['sessionId'] as string,
+    externalUserId: optionalNullableString(row['externalUserId']),
+    username: optionalNullableString(row['username']),
+    avatarConfigJson: optionalNullableString(row['avatarConfigJson']),
+    lastActiveAt: row['lastActiveAt'] as string,
   };
 }
 
