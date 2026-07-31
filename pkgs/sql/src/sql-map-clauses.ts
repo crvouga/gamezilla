@@ -1,17 +1,17 @@
 import { assert } from '@pkgs/assert';
 
-import { compileExpr, isOpOrFnHead, isQuery } from './honey-expr';
-import { columnIdent } from './honey-ident';
-import { compileOrderBy } from './honey-order';
-import { isHoneyCastType } from './honey-registry';
+import { compileExpr, isOpOrFnHead, isQuery } from './sql-map-expr';
+import { columnIdent } from './sql-map-ident';
+import { compileOrderBy } from './sql-map-order';
+import { isSqlMapCastType } from './sql-map-registry';
 import type {
   JoinSpec,
   OpCall,
   Query,
   SelectItem,
   TableRef,
-} from './honey-types';
-import { HONEY_LIST_SEP } from './honey-list-sep';
+} from './sql-map-types';
+import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
 import sql, { empty, join, raw, type Sql } from './sql';
 
 export { compileOrderBy };
@@ -22,25 +22,25 @@ export function tableRef(t: TableRef): Sql {
   }
   assert.ok(
     t.length === 2 || t.length === 3,
-    'honey: table alias needs [src, alias] or [src, alias, colDefs]',
+    'sqlMap: table alias needs [src, alias] or [src, alias, colDefs]',
     { length: t.length }
   );
   const [src, alias] = t;
-  assert.string(alias, 'honey: table alias must be a string', { alias });
+  assert.string(alias, 'sqlMap: table alias must be a string', { alias });
   const base = compileTableSrc(src);
   const colDefs = t.length === 3 ? t[2] : undefined;
   if (colDefs === undefined) {
     return sql`${base} AS ${columnIdent(alias)}`;
   }
-  assert.ok(colDefs.length > 0, 'honey: empty table col defs');
+  assert.ok(colDefs.length > 0, 'sqlMap: empty table col defs');
   const defs = join(
     colDefs.map(([c, typ]) => {
-      assert.string(c, 'honey: col def name must be a string');
-      assert.string(typ, 'honey: col def type must be a string');
-      assert.ok(isHoneyCastType(typ), 'honey: unknown col def type', { typ });
+      assert.string(c, 'sqlMap: col def name must be a string');
+      assert.string(typ, 'sqlMap: col def type must be a string');
+      assert.ok(isSqlMapCastType(typ), 'sqlMap: unknown col def type', { typ });
       return sql`${columnIdent(c)} ${raw(typ.toLowerCase())}`;
     }),
-    HONEY_LIST_SEP
+    SQL_MAP_LIST_SEP
   );
   return sql`${base} AS ${columnIdent(alias)} (${defs})`;
 }
@@ -120,7 +120,7 @@ export function compileFrom(f: TableRef | readonly TableRef[]): Sql {
   if (Array.isArray(f) && !isSingleAliasPair(f)) {
     return join(
       (f as readonly TableRef[]).map((t) => tableRef(t)),
-      HONEY_LIST_SEP
+      SQL_MAP_LIST_SEP
     );
   }
   return tableRef(f as TableRef);
@@ -142,7 +142,7 @@ export function compileSelectList(
   }
   return join(
     select.map((s) => selectItem(s)),
-    HONEY_LIST_SEP
+    SQL_MAP_LIST_SEP
   );
 }
 
@@ -152,7 +152,7 @@ export function compileGroupBy(cols: readonly string[] | undefined): Sql {
   }
   return sql` GROUP BY ${join(
     cols.map((c) => columnIdent(c)),
-    HONEY_LIST_SEP
+    SQL_MAP_LIST_SEP
   )}`;
 }
 
@@ -171,8 +171,8 @@ export function compileLimitOffset(
 }
 
 function assertNonNegInt(n: number, what: string): number {
-  assert.integer(n, `honey: ${what} must be a non-negative integer`);
-  assert.nonNegative(n, `honey: ${what} must be a non-negative integer`);
+  assert.integer(n, `sqlMap: ${what} must be a non-negative integer`);
+  assert.nonNegative(n, `sqlMap: ${what} must be a non-negative integer`);
   return n;
 }
 
@@ -182,7 +182,7 @@ export function compileReturning(cols: readonly string[] | undefined): Sql {
   }
   return sql` RETURNING ${join(
     cols.map((c) => columnIdent(c)),
-    HONEY_LIST_SEP
+    SQL_MAP_LIST_SEP
   )}`;
 }
 

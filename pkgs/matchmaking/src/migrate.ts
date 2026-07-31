@@ -51,7 +51,7 @@
 
 import { assert } from '@pkgs/assert';
 import { isNamespacedKeyword } from '@pkgs/keyword';
-import { col, raw, registerHoneyFn, sql, sqlMap, unsafe } from '@pkgs/sql';
+import { col, raw, registerSqlMapFn, sql, sqlMap, unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   ADD_METADATA_COLUMN_TO_MATCHED_SQL,
@@ -78,10 +78,10 @@ import {
 import { DEFAULT_RADIUS_OPTIONS, type RadiusOptions } from './types';
 
 // pg_cron exposes its API as `cron.schedule` / `cron.unschedule`. Register
-// them as honey functions (default compiler emits `CRON.SCHEDULE(args…)`);
+// them as sql-map functions (default compiler emits `CRON.SCHEDULE(args…)`);
 // dotted names are validated as identifier paths. Runs once at module load.
-registerHoneyFn('cron.schedule');
-registerHoneyFn('cron.unschedule');
+registerSqlMapFn('cron.schedule');
+registerSqlMapFn('cron.unschedule');
 
 export type MatchmakingSchema = {
   /**
@@ -317,8 +317,8 @@ async function maybeRebuildSchema(
  */
 async function isPgCronInstalled(sqlClient: SqlClient): Promise<boolean> {
   try {
-    // honey: system-catalog capability probe; keeping the `extname = 'pg_cron'`
-    // predicate as an inline literal (honey would parameterize it).
+    // sqlMap: system-catalog capability probe; keeping the `extname = 'pg_cron'`
+    // predicate as an inline literal (sqlMap would parameterize it).
     const rows = await sqlClient.query<{ ok: boolean }>(
       sql`SELECT EXISTS (
          SELECT 1 FROM pg_extension WHERE extname = 'pg_cron'

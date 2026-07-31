@@ -1,5 +1,5 @@
 /**
- * Honey — a HoneySQL-inspired, data-driven SQL compiler for `@pkgs/sql`.
+ * Sql map — a data-driven SQL compiler for `@pkgs/sql`.
  *
  * SQL as plain data structures. Zero connection, no classes to instantiate.
  * Queries are JSON-serializable objects (except `Date` scalars), which makes
@@ -11,9 +11,9 @@
  * - All **values** are parameterized (bound via {@link Sql}, never concatenated).
  * - All **identifiers** (tables/columns/aliases) are validated and spliced via
  *   {@link ident} / dotted paths. Invalid names crash.
- * - There is deliberately **no raw-string escape hatch** in honey. Compose with
- *   `sql` / `raw` / `unsafe` from `@pkgs/sql` only when you intentionally leave
- *   the honey map DSL.
+ * - There is deliberately **no raw-string escape hatch** in the sql-map DSL.
+ *   Compose with `sql` / `raw` / `unsafe` from `@pkgs/sql` only when you
+ *   intentionally leave the sql-map DSL.
  *
  * ## Output
  *
@@ -22,7 +22,7 @@
  *
  * @example
  * ```ts
- * import { honey, col, sql } from '@pkgs/sql';
+ * import { sqlMap, col, sql } from '@pkgs/sql';
  *
  * const q = sqlMap({
  *   select: ['id', 'name', [['count', '*'], 'n']],
@@ -56,8 +56,8 @@
 
 import { assert } from '@pkgs/assert';
 
-import { compileQuery } from './honey-statements';
-import type { ColRef, Query } from './honey-types';
+import { compileQuery } from './sql-map-statements';
+import type { ColRef, Query } from './sql-map-types';
 import type { Sql } from './sql';
 
 export type {
@@ -72,41 +72,41 @@ export type {
   Scalar,
   SelectItem,
   TableRef,
-} from './honey-types';
+} from './sql-map-types';
 
 /**
- * Regression guard: honey `values` is insert row map(s), not {@link Sql.values}
+ * Regression guard: sql-map `values` is insert row map(s), not {@link Sql.values}
  * (`readonly Value[]`). A bad unify surfaces as TS2561 on `{ key: ... }` inserts.
  */
-type _HoneyValuesNotSqlValues = [NonNullable<Query['values']>] extends [
+type _SqlMapValuesNotSqlValues = [NonNullable<Query['values']>] extends [
   Sql['values'],
 ]
   ? never
   : true;
-true satisfies _HoneyValuesNotSqlValues;
+true satisfies _SqlMapValuesNotSqlValues;
 
 export {
-  registerHoneyCast,
-  registerHoneyCollation,
-  registerHoneyFn,
-  registerHoneyOp,
-  resetHoneyRegistry,
-} from './honey-registry';
-export type { HoneyCompileCtx, HoneyOpCompiler } from './honey-registry';
+  registerSqlMapCast,
+  registerSqlMapCollation,
+  registerSqlMapFn,
+  registerSqlMapOp,
+  resetSqlMapRegistry,
+} from './sql-map-registry';
+export type { SqlMapCompileCtx, SqlMapOpCompiler } from './sql-map-registry';
 
 /**
- * Compile a honey query map to a nested {@link Sql} fragment.
+ * Compile a sql-map query to a nested {@link Sql} fragment.
  *
  * Pure function: no I/O, no connection. Misuse (bad identifiers, unknown ops,
  * empty insert, …) crashes via `@pkgs/assert`.
  *
- * @param query - HoneySQL-style query map (see {@link Query}).
+ * @param query - Sql-map query object (see {@link Query}).
  * @returns Nested {@link Sql} ready to execute or embed in `sql\`...\``.
  */
 export function sqlMap(query: Query): Sql {
   assert.ok(
     query !== null && typeof query === 'object' && !Array.isArray(query),
-    'honey: query must be an object',
+    'sqlMap: query must be an object',
     { query }
   );
   return compileQuery(query);
@@ -125,7 +125,7 @@ export function sqlMap(query: Query): Sql {
  * ```
  */
 export function col(name: string): ColRef {
-  assert.string(name, 'honey: col() expects a string', { name });
-  assert.ok(name.length > 0, 'honey: col() name must be non-empty', { name });
+  assert.string(name, 'sqlMap: col() expects a string', { name });
+  assert.ok(name.length > 0, 'sqlMap: col() name must be non-empty', { name });
   return { col: name };
 }

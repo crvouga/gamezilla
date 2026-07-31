@@ -1,14 +1,14 @@
 /**
- * Honey query-map builders for the matchmaking hot path.
+ * Sql-map query builders for the matchmaking hot path.
  *
  * These are pure functions returning `Sql` — no I/O, no connection. They live
  * alongside `matchmaker.ts` (which composes them into `SqlClient` calls) to
  * keep that file within the Tiger-Style size cap while every queue statement
- * stays a single, inspectable honey map.
+ * stays a single, inspectable sql map.
  *
  * The matchmaking PL/pgSQL routines (`matchmaking_run_match_pass`,
  * `matchmaking_sweep_expired`, `matchmaking_sweep_matched`) are registered as
- * honey functions here with a verbatim (lower-case-preserving) compiler: the
+ * sql-map functions here with a verbatim (lower-case-preserving) compiler: the
  * default compiler upper-cases function names, but these routine names are
  * grepped verbatim by callers/tests, so we emit them exactly as declared.
  *
@@ -18,10 +18,10 @@ import {
   col,
   join,
   raw,
-  registerHoneyFn,
+  registerSqlMapFn,
   sql,
   sqlMap,
-  type HoneyOpCompiler,
+  type SqlMapOpCompiler,
   type Sql,
 } from '@pkgs/sql';
 
@@ -29,7 +29,7 @@ import {
  * Emit `name(args…)` with the name spliced verbatim (not upper-cased like the
  * default fn compiler). Args compile in column position, matching the default.
  */
-function verbatimFnCompiler(name: string): HoneyOpCompiler {
+function verbatimFnCompiler(name: string): SqlMapOpCompiler {
   return (args, ctx) => {
     if (args.length === 0) {
       return raw(`${name}()`);
@@ -41,15 +41,15 @@ function verbatimFnCompiler(name: string): HoneyOpCompiler {
   };
 }
 
-registerHoneyFn(
+registerSqlMapFn(
   'matchmaking_run_match_pass',
   verbatimFnCompiler('matchmaking_run_match_pass')
 );
-registerHoneyFn(
+registerSqlMapFn(
   'matchmaking_sweep_expired',
   verbatimFnCompiler('matchmaking_sweep_expired')
 );
-registerHoneyFn(
+registerSqlMapFn(
   'matchmaking_sweep_matched',
   verbatimFnCompiler('matchmaking_sweep_matched')
 );

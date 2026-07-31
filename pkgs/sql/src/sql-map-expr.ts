@@ -1,24 +1,24 @@
 import { assert } from '@pkgs/assert';
 
-import { ensureHoneyBuiltins } from './honey-builtins';
-import { columnIdent } from './honey-ident';
+import { ensureSqlMapBuiltins } from './sql-map-builtins';
+import { columnIdent } from './sql-map-ident';
 import {
-  isRegisteredHoneyHead,
-  lookupHoneyFn,
-  lookupHoneyOp,
-  type HoneyCompileCtx,
-} from './honey-registry';
-import type { ColRef, OpCall, Query, Scalar } from './honey-types';
+  isRegisteredSqlMapHead,
+  lookupSqlMapFn,
+  lookupSqlMapOp,
+  type SqlMapCompileCtx,
+} from './sql-map-registry';
+import type { ColRef, OpCall, Query, Scalar } from './sql-map-types';
 import sql, { type Sql } from './sql';
 
-ensureHoneyBuiltins();
+ensureSqlMapBuiltins();
 
 /** True when `head` is a known operator or function name (select-item disambiguation). */
 export function isOpOrFnHead(head: unknown): boolean {
   if (typeof head !== 'string') {
     return false;
   }
-  return isRegisteredHoneyHead(head);
+  return isRegisteredSqlMapHead(head);
 }
 
 export function isColRef(x: unknown): x is ColRef {
@@ -71,11 +71,11 @@ export function wireCompileQuery(fn: (q: Query) => Sql): void {
 }
 
 function compileSubquery(q: Query): Sql {
-  assert.defined(compileQueryFn, 'honey: compileQuery not wired');
+  assert.defined(compileQueryFn, 'sqlMap: compileQuery not wired');
   return compileQueryFn(q);
 }
 
-const compileCtx: HoneyCompileCtx = {
+const compileCtx: SqlMapCompileCtx = {
   compileExpr: (e, columnPos) => compileExpr(e, columnPos),
 };
 
@@ -91,8 +91,8 @@ export function compileExpr(e: unknown, columnPos = false): Sql {
     return sql`(${compileSubquery(e)})`;
   }
   if (Array.isArray(e)) {
-    assert.ok(e.length >= 1, 'honey: op call needs an operator', { e });
-    assert.string(e[0], 'honey: operator must be a string', { op: e[0] });
+    assert.ok(e.length >= 1, 'sqlMap: op call needs an operator', { e });
+    assert.string(e[0], 'sqlMap: operator must be a string', { op: e[0] });
     return compileOpCall(e as unknown as OpCall);
   }
   if (typeof e === 'string' && columnPos) {
@@ -101,23 +101,23 @@ export function compileExpr(e: unknown, columnPos = false): Sql {
   if (isScalar(e)) {
     return sql`${e}`;
   }
-  assert.fail('honey: cannot compile expression', { e });
+  assert.fail('sqlMap: cannot compile expression', { e });
 }
 
 function compileOpCall(call: OpCall): Sql {
-  assert.ok(call.length >= 1, 'honey: op call needs an operator', { call });
+  assert.ok(call.length >= 1, 'sqlMap: op call needs an operator', { call });
   const op = call[0];
-  assert.string(op, 'honey: operator must be a string', { op });
+  assert.string(op, 'sqlMap: operator must be a string', { op });
   const o = op.toLowerCase();
   const args = call.slice(1);
 
-  const opCompiler = lookupHoneyOp(o);
+  const opCompiler = lookupSqlMapOp(o);
   if (opCompiler) {
     return opCompiler(args, compileCtx);
   }
-  const fnCompiler = lookupHoneyFn(o);
+  const fnCompiler = lookupSqlMapFn(o);
   if (fnCompiler) {
     return fnCompiler(args, compileCtx);
   }
-  assert.fail('honey: unknown operator', { op: o });
+  assert.fail('sqlMap: unknown operator', { op: o });
 }

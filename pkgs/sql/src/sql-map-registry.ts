@@ -1,29 +1,29 @@
 import { assert } from '@pkgs/assert';
 
-import { columnIdent } from './honey-ident';
-import { HONEY_LIST_SEP } from './honey-list-sep';
+import { columnIdent } from './sql-map-ident';
+import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
 import sql, { join, raw, type Sql } from './sql';
 
 /**
- * Context passed to registered honey op/fn compilers.
- * Always use {@link HoneyCompileCtx.compileExpr} for nested expressions.
+ * Context passed to registered sql-map op/fn compilers.
+ * Always use {@link SqlMapCompileCtx.compileExpr} for nested expressions.
  */
-export type HoneyCompileCtx = {
+export type SqlMapCompileCtx = {
   readonly compileExpr: (e: unknown, columnPos?: boolean) => Sql;
 };
 
 /** Compiler for a registered operator or function. */
-export type HoneyOpCompiler = (
+export type SqlMapOpCompiler = (
   args: readonly unknown[],
-  ctx: HoneyCompileCtx
+  ctx: SqlMapCompileCtx
 ) => Sql;
 
-const ops = new Map<string, HoneyOpCompiler>();
-const fns = new Map<string, HoneyOpCompiler>();
+const ops = new Map<string, SqlMapOpCompiler>();
+const fns = new Map<string, SqlMapOpCompiler>();
 const casts = new Set<string>();
 const collations = new Set<string>();
 
-/** Snapshot of built-in names so {@link resetHoneyRegistry} can restore them. */
+/** Snapshot of built-in names so {@link resetSqlMapRegistry} can restore them. */
 let builtinsRegistered = false;
 const builtinOps = new Set<string>();
 const builtinFns = new Set<string>();
@@ -31,16 +31,16 @@ const builtinCasts = new Set<string>();
 const builtinCollations = new Set<string>();
 
 function normalizeName(name: string, what: string): string {
-  assert.string(name, `honey: ${what} name must be a string`, { name });
-  assert.ok(name.length > 0, `honey: ${what} name must be non-empty`, { name });
+  assert.string(name, `sqlMap: ${what} name must be a string`, { name });
+  assert.ok(name.length > 0, `sqlMap: ${what} name must be non-empty`, { name });
   return name.toLowerCase();
 }
 
 /**
- * Register (or replace) a honey operator / keyword op.
+ * Register (or replace) a sql-map operator / keyword op.
  * Names are matched case-insensitively.
  */
-export function registerHoneyOp(name: string, compile: HoneyOpCompiler): void {
+export function registerSqlMapOp(name: string, compile: SqlMapOpCompiler): void {
   const key = normalizeName(name, 'op');
   ops.set(key, compile);
   if (!builtinsRegistered) {
@@ -54,7 +54,7 @@ export function registerHoneyOp(name: string, compile: HoneyOpCompiler): void {
  *
  * Dotted names like `cron.schedule` are allowed (validated via {@link columnIdent}).
  */
-export function registerHoneyFn(name: string, compile?: HoneyOpCompiler): void {
+export function registerSqlMapFn(name: string, compile?: SqlMapOpCompiler): void {
   const key = normalizeName(name, 'fn');
   fns.set(key, compile ?? defaultFnCompiler(key));
   if (!builtinsRegistered) {
@@ -65,9 +65,9 @@ export function registerHoneyFn(name: string, compile?: HoneyOpCompiler): void {
 /**
  * Allowlist a cast target type (`expr::type`).
  */
-export function registerHoneyCast(type: string): void {
+export function registerSqlMapCast(type: string): void {
   const key = normalizeName(type, 'cast');
-  assert.ok(/^[a-z][a-z0-9_]*$/.test(key), 'honey: invalid cast type', {
+  assert.ok(/^[a-z][a-z0-9_]*$/.test(key), 'sqlMap: invalid cast type', {
     type,
   });
   casts.add(key);
@@ -79,9 +79,9 @@ export function registerHoneyCast(type: string): void {
 /**
  * Allowlist an ORDER BY COLLATE name (e.g. `NOCASE`).
  */
-export function registerHoneyCollation(name: string): void {
+export function registerSqlMapCollation(name: string): void {
   const key = normalizeName(name, 'collation');
-  assert.ok(/^[a-z][a-z0-9_]*$/.test(key), 'honey: invalid collation', {
+  assert.ok(/^[a-z][a-z0-9_]*$/.test(key), 'sqlMap: invalid collation', {
     name,
   });
   collations.add(key);
@@ -91,27 +91,27 @@ export function registerHoneyCollation(name: string): void {
 }
 
 /** Mark that built-in registration has finished (for reset bookkeeping). */
-export function markHoneyBuiltinsRegistered(): void {
+export function markSqlMapBuiltinsRegistered(): void {
   builtinsRegistered = true;
 }
 
-export function lookupHoneyOp(name: string): HoneyOpCompiler | undefined {
+export function lookupSqlMapOp(name: string): SqlMapOpCompiler | undefined {
   return ops.get(name.toLowerCase());
 }
 
-export function lookupHoneyFn(name: string): HoneyOpCompiler | undefined {
+export function lookupSqlMapFn(name: string): SqlMapOpCompiler | undefined {
   return fns.get(name.toLowerCase());
 }
 
-export function isHoneyCastType(type: string): boolean {
+export function isSqlMapCastType(type: string): boolean {
   return casts.has(type.toLowerCase());
 }
 
-export function isHoneyCollation(name: string): boolean {
+export function isSqlMapCollation(name: string): boolean {
   return collations.has(name.toLowerCase());
 }
 
-export function isRegisteredHoneyHead(name: string): boolean {
+export function isRegisteredSqlMapHead(name: string): boolean {
   const key = name.toLowerCase();
   return ops.has(key) || fns.has(key);
 }
@@ -119,7 +119,7 @@ export function isRegisteredHoneyHead(name: string): boolean {
 /**
  * Remove non-builtin registrations (keeps built-ins). For tests.
  */
-export function resetHoneyRegistry(): void {
+export function resetSqlMapRegistry(): void {
   for (const key of [...ops.keys()]) {
     if (!builtinOps.has(key)) {
       ops.delete(key);
@@ -142,7 +142,7 @@ export function resetHoneyRegistry(): void {
   }
 }
 
-function defaultFnCompiler(name: string): HoneyOpCompiler {
+function defaultFnCompiler(name: string): SqlMapOpCompiler {
   const rendered = renderFnName(name);
   return (args, ctx) => {
     if (args.length === 0) {
@@ -150,7 +150,7 @@ function defaultFnCompiler(name: string): HoneyOpCompiler {
     }
     return sql`${raw(rendered)}(${join(
       args.map((a) => ctx.compileExpr(a, true)),
-      HONEY_LIST_SEP
+      SQL_MAP_LIST_SEP
     )})`;
   };
 }

@@ -1,9 +1,9 @@
 import { assert } from '@pkgs/assert';
 
-import { compileExpr, isQuery } from './honey-expr';
-import { columnIdent } from './honey-ident';
-import { HONEY_LIST_SEP } from './honey-list-sep';
-import type { Query, WithItem } from './honey-types';
+import { compileExpr, isQuery } from './sql-map-expr';
+import { columnIdent } from './sql-map-ident';
+import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
+import type { Query, WithItem } from './sql-map-types';
 import sql, { empty, join, raw, type Sql } from './sql';
 
 /**
@@ -15,17 +15,17 @@ export function compileWith(items: readonly WithItem[] | undefined): Sql {
   }
   return sql`WITH ${join(
     items.map((item) => compileWithItem(item)),
-    HONEY_LIST_SEP
+    SQL_MAP_LIST_SEP
   )} `;
 }
 
 function compileWithItem(item: WithItem): Sql {
-  assert.equals(item.length, 2, 'honey: with item needs [alias, query]', {
+  assert.equals(item.length, 2, 'sqlMap: with item needs [alias, query]', {
     length: item.length,
   });
   const [alias, q] = item;
-  assert.string(alias, 'honey: with alias must be a string', { alias });
-  assert.ok(isQuery(q), 'honey: with body must be a query map', { q });
+  assert.string(alias, 'sqlMap: with alias must be a string', { alias });
+  assert.ok(isQuery(q), 'sqlMap: with body must be a query map', { q });
   return sql`${columnIdent(alias)} AS ${compileExpr(q)}`;
 }
 
@@ -36,17 +36,17 @@ export function compileUnion(
   kind: 'UNION' | 'UNION ALL',
   parts: readonly Query[] | undefined
 ): Sql {
-  assert.defined(parts, `honey: ${kind.toLowerCase()} requires query list`);
+  assert.defined(parts, `sqlMap: ${kind.toLowerCase()} requires query list`);
   assert.ok(
     parts.length >= 2,
-    `honey: ${kind.toLowerCase()} needs ≥2 queries`,
+    `sqlMap: ${kind.toLowerCase()} needs ≥2 queries`,
     {
       length: parts.length,
     }
   );
   return join(
     parts.map((q) => {
-      assert.ok(isQuery(q), 'honey: union part must be a query map', { q });
+      assert.ok(isQuery(q), 'sqlMap: union part must be a query map', { q });
       return compileExpr(q);
     }),
     ` ${kind} `
@@ -61,7 +61,7 @@ export function compileForUpdate(
   skipLocked: boolean | undefined
 ): Sql {
   if (!forUpdate) {
-    assert.ok(!skipLocked, 'honey: skipLocked requires forUpdate');
+    assert.ok(!skipLocked, 'sqlMap: skipLocked requires forUpdate');
     return empty;
   }
   if (skipLocked) {

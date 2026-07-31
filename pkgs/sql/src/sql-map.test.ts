@@ -1,15 +1,15 @@
 import { assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 
+import sql, { Sql } from './sql';
 import {
   col,
-  registerHoneyCast,
-  registerHoneyFn,
-  registerHoneyOp,
-  resetHoneyRegistry,
+  registerSqlMapCast,
+  registerSqlMapFn,
+  registerSqlMapOp,
+  resetSqlMapRegistry,
   sqlMap,
-} from './honey';
-import sql, { Sql } from './sql';
+} from './sql-map';
 
 /** Node crash handler calls `process.exit`; register one that throws so tests can assert failures. */
 function registerThrowingCrashHandlerForTests(): () => void {
@@ -32,7 +32,7 @@ afterAll(() => {
   disposeCrash();
 });
 
-describe('honey', () => {
+describe('sqlMap', () => {
   describe('SELECT', () => {
     it('compiles bare select with default star', () => {
       const q = sqlMap({ from: 'books' });
@@ -113,6 +113,7 @@ describe('honey', () => {
           ],
         ],
       });
+
       expect(q.text).toEqual(
         'SELECT u.id FROM users AS u LEFT JOIN profiles AS p ON p.user_id = u.id RIGHT JOIN accounts AS a ON a.user_id = u.id'
       );
@@ -352,7 +353,7 @@ describe('honey', () => {
           select: [['cast', 1, 'bogus']],
           from: 't',
         })
-      ).toThrow('honey: unknown cast type');
+      ).toThrow('sqlMap: unknown cast type');
     });
   });
 
@@ -397,7 +398,7 @@ describe('honey', () => {
           values: { id: 1 },
           onConflict: { target: [] },
         })
-      ).toThrow('honey: onConflict.target must be a non-empty column list');
+      ).toThrow('sqlMap: onConflict.target must be a non-empty column list');
       expect(() =>
         sqlMap({
           insertInto: 'users',
@@ -408,7 +409,7 @@ describe('honey', () => {
             set: { name: 'x' },
           },
         })
-      ).toThrow('honey: onConflict cannot mix doNothing and set');
+      ).toThrow('sqlMap: onConflict cannot mix doNothing and set');
     });
   });
 
@@ -470,10 +471,10 @@ describe('honey', () => {
             { select: ['id'], from: 'b' },
           ],
         })
-      ).toThrow('honey: cannot mix union and unionAll');
+      ).toThrow('sqlMap: cannot mix union and unionAll');
       expect(() =>
         sqlMap({ select: ['id'], from: 't', skipLocked: true })
-      ).toThrow('honey: skipLocked requires forUpdate');
+      ).toThrow('sqlMap: skipLocked requires forUpdate');
     });
   });
 
@@ -537,15 +538,15 @@ describe('honey', () => {
     it('crashes on unknown operators', () => {
       expect(() =>
         sqlMap({ select: ['id'], from: 'users', where: ['weird', 'a', 1] })
-      ).toThrow('honey: unknown operator');
+      ).toThrow('sqlMap: unknown operator');
     });
 
     it('crashes on empty insert / update and bad limit', () => {
       expect(() => sqlMap({ insertInto: 'users' })).toThrow(
-        'honey: insertInto requires values or select'
+        'sqlMap: insertInto requires values or select'
       );
       expect(() => sqlMap({ update: 'users', set: {} })).toThrow(
-        'honey: update requires set'
+        'sqlMap: update requires set'
       );
       expect(() =>
         sqlMap({ select: ['id'], from: 'users', limit: -1 })
@@ -559,7 +560,7 @@ describe('honey', () => {
           from: 'users',
           orderBy: [['id', 'sideways' as 'asc']],
         })
-      ).toThrow('honey: bad sort dir');
+      ).toThrow('sqlMap: bad sort dir');
     });
   });
 
@@ -615,13 +616,13 @@ describe('honey', () => {
       expect(iv.text).toEqual("SELECT INTERVAL '30 days'");
     });
 
-    it('supports registerHoneyFn/Op/Cast, statements, and reset', () => {
-      registerHoneyFn('my_tvf');
-      registerHoneyOp('approx', (args, ctx) => {
+    it('supports registerSqlMapFn/Op/Cast, statements, and reset', () => {
+      registerSqlMapFn('my_tvf');
+      registerSqlMapOp('approx', (args, ctx) => {
         assert.equals(args.length, 1, 'approx');
         return sql`approx(${ctx.compileExpr(args[0])})`;
       });
-      registerHoneyCast('cidr');
+      registerSqlMapCast('cidr');
 
       const tvf = sqlMap({
         select: ['id'],
@@ -678,10 +679,10 @@ describe('honey', () => {
       });
       expect(casted.text).toEqual('SELECT $1::cidr');
 
-      resetHoneyRegistry();
+      resetSqlMapRegistry();
       expect(() =>
         sqlMap({ select: ['id'], from: [['my_tvf', 1], 't'] })
-      ).toThrow('honey: unknown operator');
+      ).toThrow('sqlMap: unknown operator');
     });
   });
 });

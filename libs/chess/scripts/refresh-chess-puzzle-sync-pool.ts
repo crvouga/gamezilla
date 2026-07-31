@@ -24,8 +24,8 @@ async function main(): Promise<void> {
     // Avoid `UPDATE chess_puzzles SET sync_pool = false` (rewrites ~6M rows).
     // Flip flags only for the pick set.
     await sqlClient.run(raw('BEGIN'));
-    // honey: CREATE TEMP TABLE ... AS SELECT with a ROW_NUMBER() OVER (...)
-    // window function — honey has no DDL or window-function support.
+    // sqlMap: CREATE TEMP TABLE ... AS SELECT with a ROW_NUMBER() OVER (...)
+    // window function — sqlMap has no DDL or window-function support.
     await sqlClient.run(sql`
       CREATE TEMP TABLE puzzle_pool_pick ON COMMIT DROP AS
        SELECT id

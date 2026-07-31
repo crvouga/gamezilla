@@ -1,5 +1,5 @@
 /**
- * HoneySQL-inspired query map types for {@link honey}.
+ * Sql-map query types for {@link sqlMap}.
  *
  * Queries are plain JSON-serializable objects (except {@link Date} scalars).
  * Suitable for runtime construction and LLM structured output.
@@ -17,9 +17,9 @@
  *
  * ## Extensibility
  *
- * Register custom ops/fns/casts via {@link registerHoneyOp},
- * {@link registerHoneyFn}, {@link registerHoneyCast},
- * {@link registerHoneyCollation}.
+ * Register custom ops/fns/casts via {@link registerSqlMapOp},
+ * {@link registerSqlMapFn}, {@link registerSqlMapCast},
+ * {@link registerSqlMapCollation}.
  *
  * ## Expression grammar
  *
@@ -124,7 +124,7 @@ export type OnConflict = {
 };
 
 /**
- * Honey query map. See module docs for which fields apply per statement kind.
+ * Sql-map query. See module docs for which fields apply per statement kind.
  */
 export interface Query {
   readonly with?: readonly WithItem[];

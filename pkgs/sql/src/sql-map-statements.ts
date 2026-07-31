@@ -10,17 +10,17 @@ import {
   compileReturning,
   compileSelectList,
   compileWhere,
-} from './honey-clauses';
-import { compileOnConflict } from './honey-conflict';
-import { compileExpr, wireCompileQuery } from './honey-expr';
-import { columnIdent } from './honey-ident';
-import type { InsertValue, Query } from './honey-types';
-import { HONEY_LIST_SEP } from './honey-list-sep';
-import { compileForUpdate, compileUnion, compileWith } from './honey-with';
+} from './sql-map-clauses';
+import { compileOnConflict } from './sql-map-conflict';
+import { compileExpr, wireCompileQuery } from './sql-map-expr';
+import { columnIdent } from './sql-map-ident';
+import type { InsertValue, Query } from './sql-map-types';
+import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
+import { compileForUpdate, compileUnion, compileWith } from './sql-map-with';
 import sql, { bulk, empty, ident, join, type Sql } from './sql';
 
 /**
- * Compiles a honey {@link Query} map to a nested {@link Sql} fragment.
+ * Compiles a sql-map {@link Query} to a nested {@link Sql} fragment.
  */
 export function compileQuery(q: Query): Sql {
   assertQueryObject(q);
@@ -43,7 +43,7 @@ export function compileQuery(q: Query): Sql {
 function assertQueryObject(q: Query): void {
   assert.ok(
     q !== null && typeof q === 'object' && !Array.isArray(q),
-    'honey: query must be an object',
+    'sqlMap: query must be an object',
     { q }
   );
 }
@@ -53,13 +53,13 @@ wireCompileQuery(compileQuery);
 function compileCompound(q: Query): Sql {
   assert.ok(
     !(q.union !== undefined && q.unionAll !== undefined),
-    'honey: cannot mix union and unionAll'
+    'sqlMap: cannot mix union and unionAll'
   );
   assert.ok(
     q.insertInto === undefined &&
       q.update === undefined &&
       q.deleteFrom === undefined,
-    'honey: union cannot mix with DML'
+    'sqlMap: union cannot mix with DML'
   );
   const preamble = compileWith(q.with);
   const body =
@@ -90,58 +90,58 @@ function compileSelect(q: Query): Sql {
 }
 
 function compileInsert(q: Query): Sql {
-  assert.string(q.insertInto, 'honey: insertInto requires a table name');
+  assert.string(q.insertInto, 'sqlMap: insertInto requires a table name');
   if (q.values !== undefined) {
     return compileInsertValues(q);
   }
   assert.ok(
     q.select !== undefined,
-    'honey: insertInto requires values or select'
+    'sqlMap: insertInto requires values or select'
   );
   return compileInsertSelect(q);
 }
 
 function compileInsertValues(q: Query): Sql {
-  assert.string(q.insertInto, 'honey: insertInto requires a table name');
+  assert.string(q.insertInto, 'sqlMap: insertInto requires a table name');
   assert.ok(
     q.columns === undefined,
-    'honey: insert values cannot include columns'
+    'sqlMap: insert values cannot include columns'
   );
   const rows = normalizeInsertRows(q.values);
-  assert.ok(rows.length > 0, 'honey: insertInto requires values');
+  assert.ok(rows.length > 0, 'sqlMap: insertInto requires values');
   const first = rows[0];
-  assert.defined(first, 'honey: insertInto requires values');
+  assert.defined(first, 'sqlMap: insertInto requires values');
   const cols = Object.keys(first);
-  assert.ok(cols.length > 0, 'honey: insert row has no columns');
+  assert.ok(cols.length > 0, 'sqlMap: insert row has no columns');
 
   const colSql = join(
     cols.map((c) => ident(c)),
-    HONEY_LIST_SEP
+    SQL_MAP_LIST_SEP
   );
   const data = rows.map((row, rowIndex) =>
     cols.map((c) => {
-      assert.ok(c in row, 'honey: row missing column', { c, rowIndex });
+      assert.ok(c in row, 'sqlMap: row missing column', { c, rowIndex });
       return compileExpr(row[c as keyof typeof row]);
     })
   );
 
   return sql`INSERT INTO ${ident(q.insertInto)} (${colSql}) VALUES ${bulk(
     data,
-    HONEY_LIST_SEP
+    SQL_MAP_LIST_SEP
   )}${compileOnConflict(q.onConflict)}${compileReturning(q.returning)}`;
 }
 
 function compileInsertSelect(q: Query): Sql {
-  assert.string(q.insertInto, 'honey: insertInto requires a table name');
+  assert.string(q.insertInto, 'sqlMap: insertInto requires a table name');
   const cols = q.columns;
   assert.ok(
     Array.isArray(cols) && cols.length > 0,
-    'honey: insert…select requires columns'
+    'sqlMap: insert…select requires columns'
   );
-  assert.defined(q.select, 'honey: insert…select requires select');
+  assert.defined(q.select, 'sqlMap: insert…select requires select');
   const colSql = join(
     cols.map((c) => ident(c)),
-    HONEY_LIST_SEP
+    SQL_MAP_LIST_SEP
   );
   return sql`INSERT INTO ${ident(q.insertInto)} (${colSql}) ${compileSelect(
     selectBodyFromInsert(q)
@@ -149,7 +149,7 @@ function compileInsertSelect(q: Query): Sql {
 }
 
 function selectBodyFromInsert(q: Query): Query {
-  assert.defined(q.select, 'honey: insert…select requires select');
+  assert.defined(q.select, 'sqlMap: insert…select requires select');
   const body: {
     -readonly [K in keyof Query]?: Query[K];
   } = { select: q.select };
@@ -191,14 +191,14 @@ function normalizeInsertRows(values: Query['values']): readonly InsertRow[] {
 }
 
 function compileUpdate(q: Query): Sql {
-  assert.string(q.update, 'honey: update requires a table name');
-  assert.defined(q.set, 'honey: update requires set');
+  assert.string(q.update, 'sqlMap: update requires a table name');
+  assert.defined(q.set, 'sqlMap: update requires set');
   const entries = Object.entries(q.set);
-  assert.ok(entries.length > 0, 'honey: update requires set');
+  assert.ok(entries.length > 0, 'sqlMap: update requires set');
 
   const sets = join(
     entries.map(([c, v]) => sql`${columnIdent(c)} = ${compileExpr(v)}`),
-    HONEY_LIST_SEP
+    SQL_MAP_LIST_SEP
   );
 
   return sql`UPDATE ${ident(q.update)} SET ${sets}${compileWhere(
@@ -208,7 +208,7 @@ function compileUpdate(q: Query): Sql {
 
 function compileDelete(q: Query): Sql {
   const target = q.deleteFrom;
-  assert.defined(target, 'honey: deleteFrom required');
+  assert.defined(target, 'sqlMap: deleteFrom required');
   if (typeof target === 'string') {
     return sql`DELETE FROM ${ident(target)}${compileWhere(
       q.where
@@ -217,11 +217,11 @@ function compileDelete(q: Query): Sql {
   assert.equals(
     target.length,
     2,
-    'honey: deleteFrom alias needs [table, alias]'
+    'sqlMap: deleteFrom alias needs [table, alias]'
   );
   const [table, alias] = target;
-  assert.string(table, 'honey: deleteFrom table must be a string');
-  assert.string(alias, 'honey: deleteFrom alias must be a string');
+  assert.string(table, 'sqlMap: deleteFrom table must be a string');
+  assert.string(alias, 'sqlMap: deleteFrom alias must be a string');
   return sql`DELETE FROM ${ident(table)} AS ${ident(alias)}${compileWhere(
     q.where
   )}${compileReturning(q.returning)}`;

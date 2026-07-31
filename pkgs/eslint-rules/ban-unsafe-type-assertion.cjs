@@ -8,29 +8,16 @@ const fs = require('fs');
 const path = require('path');
 const tsPlugin = require('@typescript-eslint/eslint-plugin');
 
-function findMonorepoRoot(startDir) {
-  let dir = path.resolve(startDir);
-  for (;;) {
-    if (
-      fs.existsSync(path.join(dir, 'tsconfig.json')) &&
-      fs.existsSync(path.join(dir, 'bun.lock'))
-    ) {
-      return dir;
-    }
-    const parent = path.dirname(dir);
-    if (parent === dir) {
-      throw new Error(
-        `ban-unsafe-type-assertion: monorepo root not found from ${startDir}`
-      );
-    }
-    dir = parent;
-  }
-}
-
 function parserOptions(tsconfigRootDir) {
+  if (fs.existsSync(path.join(tsconfigRootDir, 'tsconfig.tc.json'))) {
+    return {
+      project: './tsconfig.tc.json',
+      tsconfigRootDir,
+    };
+  }
   return {
     projectService: true,
-    tsconfigRootDir: findMonorepoRoot(tsconfigRootDir),
+    tsconfigRootDir,
   };
 }
 
