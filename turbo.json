@@ -51,7 +51,13 @@
     },
     "tc": {
       "dependsOn": ["^tc"],
-      "inputs": ["**/*.ts", "**/*.tsx", "tsconfig.json", "../../tsconfig.json"],
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "tsconfig.json",
+        "tsconfig.tc.json",
+        "../../tsconfig.json"
+      ],
       "outputLogs": "new-only",
       "outputs": []
     },
@@ -77,6 +83,7 @@
         "**/*.html",
         "vite.config.ts",
         "tsconfig.json",
+        "tsconfig.tc.json",
         "babel.config.js",
         "metro.config.js"
       ],

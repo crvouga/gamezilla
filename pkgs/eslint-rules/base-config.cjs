@@ -1,5 +1,7 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const tsParser = require('@typescript-eslint/parser');
 const tsPlugin = require('@typescript-eslint/eslint-plugin');
 const reactHooks = require('eslint-plugin-react-hooks');
@@ -8,6 +10,29 @@ const eslintPluginNaming = require('eslint-plugin-naming');
 const sizeLimits = require('./size-limits.cjs');
 const a11yRestrictions = require('./a11y-restrictions.cjs');
 const { lucideRestrictedImportsBlock } = require('./lucide-restrictions.cjs');
+
+/**
+ * Typed-lint project for a package.
+ *
+ * Package scoped checks live in `tsconfig.tc.json` so the IDE uses the root
+ * `tsconfig.json` (Rename Symbol / Find All References). typescript-eslint
+ * `projectService` only discovers `tsconfig.json`, so packages with
+ * `tsconfig.tc.json` must use `parserOptions.project` instead.
+ *
+ * @param {string} tsconfigRootDir
+ */
+function typedLintParserOptions(tsconfigRootDir) {
+  if (fs.existsSync(path.join(tsconfigRootDir, 'tsconfig.tc.json'))) {
+    return {
+      project: './tsconfig.tc.json',
+      tsconfigRootDir,
+    };
+  }
+  return {
+    projectService: true,
+    tsconfigRootDir,
+  };
+}
 
 /** Bump hooks above Expo's default severities where needed. */
 const reactHooksStrictRules = {
@@ -150,10 +175,7 @@ function createSharedBlocks(tsconfigRootDir, options = {}) {
       {
         files: [filesGlob],
         languageOptions: {
-          parserOptions: {
-            projectService: true,
-            tsconfigRootDir,
-          },
+          parserOptions: typedLintParserOptions(tsconfigRootDir),
         },
         plugins: {
           'no-only-tests': noOnlyTests,
@@ -181,10 +203,7 @@ function createSharedBlocks(tsconfigRootDir, options = {}) {
       files: [filesGlob],
       languageOptions: {
         parser: tsParser,
-        parserOptions: {
-          projectService: true,
-          tsconfigRootDir,
-        },
+        parserOptions: typedLintParserOptions(tsconfigRootDir),
       },
       plugins: {
         '@typescript-eslint': tsPlugin,

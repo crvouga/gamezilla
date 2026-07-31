@@ -13,7 +13,7 @@
   "scripts": {
     "fetch:assets": "bun run scripts/fetch-kenney-packs.ts && bun run scripts/curate-sounds.ts && bun run scripts/generate-manifest.ts",
     "lint": "eslint src --max-warnings 0",
-    "tc": "tsc --noEmit",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests",
     "verify:licenses": "bun run scripts/verify-licenses.ts"
   },

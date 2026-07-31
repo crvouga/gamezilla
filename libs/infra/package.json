@@ -14,7 +14,7 @@
     "infra": "SECRETS_ENV=prd bun run ../../tooling/scripts/secrets-run.ts -- bun run libs/infra/src/bin/cli.ts",
     "lint": "eslint src --max-warnings 0",
     "pipeline-report": "bun run ./src/bin/pipeline-report.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.json",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test src/shared/database-url-policy.test.ts src/cli/lib/build-llm-fix-prompt.test.ts src/cli/lib/eas-mobile.test.ts src/cli/lib/github-job-output-codec.test.ts"
   },
   "dependencies": {

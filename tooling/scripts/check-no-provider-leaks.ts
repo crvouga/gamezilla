@@ -49,6 +49,8 @@ function isClerkAllowlisted(relativePath: string): boolean {
     return true;
   if (relativePath.endsWith('package.json')) return true;
   if (relativePath === 'tsconfig.json') return true;
+  if (relativePath === 'tsconfig.tc.json' || relativePath.endsWith('/tsconfig.tc.json'))
+    return true;
   return false;
 }
 
@@ -64,6 +66,8 @@ function isInfisicalAllowlisted(relativePath: string): boolean {
   if (relativePath === 'knip.jsonc') return true;
   if (relativePath.endsWith('package.json')) return true;
   if (relativePath === 'tsconfig.json') return true;
+  if (relativePath === 'tsconfig.tc.json' || relativePath.endsWith('/tsconfig.tc.json'))
+    return true;
   return false;
 }
 

@@ -13,7 +13,7 @@
     "install:browsers": "bun --bun x playwright install --with-deps chromium",
     "kill-preview-ports": "bun run scripts/kill-preview-ports.ts",
     "lint": "eslint src scripts playwright e2e --max-warnings 0",
-    "tc": "tsc --noEmit -p ./tsconfig.json",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test:e2e": "bun --bun x playwright test --config playwright/playwright.config.ts",
     "test:e2e:headed": "bun --bun x playwright test --config playwright/playwright.config.ts --headed",
     "test:e2e:report": "bun --bun x playwright show-report ../../qa/playwright-report",

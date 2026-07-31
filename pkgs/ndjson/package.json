@@ -14,7 +14,7 @@
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
-    "tc": "tsc --noEmit",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"
   },
   "devDependencies": {

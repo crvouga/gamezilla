@@ -4,9 +4,17 @@
  *
  * @param {string} tsconfigRootDir - `__dirname` of the package eslint.config.js
  */
+const fs = require('fs');
+const path = require('path');
 const tsPlugin = require('@typescript-eslint/eslint-plugin');
 
 function parserOptions(tsconfigRootDir) {
+  if (fs.existsSync(path.join(tsconfigRootDir, 'tsconfig.tc.json'))) {
+    return {
+      project: './tsconfig.tc.json',
+      tsconfigRootDir,
+    };
+  }
   return {
     projectService: true,
     tsconfigRootDir,

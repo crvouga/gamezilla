@@ -19,7 +19,7 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "repair:departed-host-spaces": "bun run scripts/repair-departed-host-spaces.ts",
-    "tc": "tsc --noEmit",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {

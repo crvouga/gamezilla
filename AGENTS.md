@@ -106,7 +106,7 @@ Inside each one, runtimes are isolated by three sibling folders. Under each runt
 ```
 <tier>/<name>/
   package.json          # name "@<tier>/<name>", subpath-pattern `exports`
-  tsconfig.json         # extends ../../tsconfig.json
+  tsconfig.tc.json      # scoped `tc` only (extends ../../tsconfig.json); IDE uses root tsconfig.json
   eslint.config.js      # createSharedBlocks + linguiRules
   src/
     client/<slice>/     # React Native / Expo — hooks + UI for that slice
@@ -137,7 +137,7 @@ Flat (runtime-agnostic) packages — the per-utility micro-packages (`@pkgs/asse
 
 Within a feature package, prefer **relative** imports between sibling files (`./foo`, `../shared/bar`); use the `@<tier>/<name>/...` alias only for imports from a different feature package.
 
-Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<tier>/<name>/scripts/` and are wired up via the package's `scripts` block in `package.json` (e.g. `bun run --filter @libs/<name> seed:<x>`). Lint targets `eslint src` so script files use Tiger-style structure but keep the freedom to grow long top-level orchestrators. Add `./scripts/**/*.ts` to the package `tsconfig.json` `include` and the root `tsconfig.json` `include` so type-checking covers them.
+Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<tier>/<name>/scripts/` and are wired up via the package's `scripts` block in `package.json` (e.g. `bun run --filter @libs/<name> seed:<x>`). Lint targets `eslint src` so script files use Tiger-style structure but keep the freedom to grow long top-level orchestrators. Add `./scripts/**/*.ts` to the package `tsconfig.tc.json` `include` and the root `tsconfig.json` `include` so type-checking covers them. Package `"tc"` scripts use `tsc --noEmit -p ./tsconfig.tc.json` so scoped CI checks stay fast while the IDE language service uses the root mega-project (Rename Symbol / Find All References across packages). Do not name the package config `tsconfig.json` — that steals file ownership from the root and breaks cross-package rename. Exception: `apps/client/tsconfig.json` (Expo). Typed ESLint (`createSharedBlocks`) points `parserOptions.project` at `./tsconfig.tc.json` when present — `projectService` only discovers `tsconfig.json`.
 
 `apps/client/src/app/**` (Expo Router) and `apps/api/src/api.ts` (worker entry) stay as 1-line re-export stubs that point at the feature packages — that keeps URL routes and the `Room` Durable Object class binding stable.
 
@@ -158,7 +158,7 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 
 1. Scaffold `libs/<game>/`:
    - `package.json` with `"name": "@libs/<game>"`, per-file `exports`, deps mirroring what the implementation actually imports (typically a granular subset of the `@pkgs/<util>` micro-packages — `assert`, `keyword`, `attribute`, etc. — plus `@pkgs/sync-engine`, `@lingui/*`, `react`, `react-native`).
-   - `tsconfig.json` extending root.
+   - `tsconfig.tc.json` extending root; `"tc": "tsc --noEmit -p ./tsconfig.tc.json"`.
    - `eslint.config.js` copied from `libs/chess/eslint.config.js`.
    - Empty `src/{client,server,shared}/`.
 2. Add path alias to root `tsconfig.json`: `"@libs/<game>/*": ["./libs/<game>/src/*"]` and the matching `include` entries.
