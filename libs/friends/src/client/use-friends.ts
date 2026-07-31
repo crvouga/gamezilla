@@ -1,12 +1,12 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import {
-  FRIENDSHIPS_TABLE,
   FriendshipCol,
+  FRIENDSHIPS_TABLE,
 } from '@libs/db/shared/friends-tables';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { honey, col, type Sql } from '@pkgs/sql';
-import { useMemo } from 'react';
+import { col, sqlMap, type Sql } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useMemo } from 'react';
 
 import { otherUserInPair } from '../shared/canonical-pair';
 import type { Friend } from '../shared/friends-types';
@@ -33,7 +33,7 @@ function friendIdExpr(myId: string) {
 
 function friendsSql(myId: string): Sql {
   if (myId.length === 0) {
-    return honey({
+    return sqlMap({
       select: [
         [['param', ''], 'friend_id'],
         [['param', ''], 'username'],
@@ -45,7 +45,7 @@ function friendsSql(myId: string): Sql {
     });
   }
   const friendId = friendIdExpr(myId);
-  return honey({
+  return sqlMap({
     select: [
       [friendId, 'friend_id'],
       [`p.${ProfileCol.username}`, 'username'],

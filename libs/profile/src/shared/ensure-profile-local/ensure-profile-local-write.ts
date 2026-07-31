@@ -1,9 +1,9 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { idMatches } from '@pkgs/write/shared/read-row-values';
+import { fail, ok } from '@pkgs/write/shared/write-result';
 
 import {
   parseAvatarConfig,
@@ -56,7 +56,7 @@ function hasAvatarConfig(row: ProfileRow | undefined): boolean {
 
 async function backfillAvatar(db: SqlClient, profileId: string): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       update: PROFILES_TABLE.tableName,
       set: {
         [ProfileCol.avatarConfig]: serializeDefaultAvatarConfig(profileId),
@@ -72,7 +72,7 @@ async function insertProfileSeed(
 ): Promise<void> {
   const now = new Date().toISOString();
   await db.run(
-    honey({
+    sqlMap({
       insertInto: PROFILES_TABLE.tableName,
       values: {
         [ProfileCol.id]: profileId,
@@ -93,7 +93,7 @@ async function fillEmptyUsername(
   // (e.g. a raced apply from another account's token). Never overwrite a
   // user-chosen username (`username_changed_at` set).
   await db.run(
-    honey({
+    sqlMap({
       update: PROFILES_TABLE.tableName,
       set: { [ProfileCol.username]: username },
       where: [
@@ -139,7 +139,7 @@ export const ensureProfileLocalWrite = defineWrite<
   },
   execute: async (_ctx, input, db) => {
     const rows = await db.query<ProfileRow>(
-      honey({
+      sqlMap({
         from: PROFILES_TABLE.tableName,
         where: ['=', ProfileCol.id, input.profileId],
         limit: 1,

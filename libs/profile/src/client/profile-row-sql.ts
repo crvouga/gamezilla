@@ -1,9 +1,9 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { honey, type Sql } from '@pkgs/sql';
+import { sqlMap, type Sql } from '@pkgs/sql';
 
 /** Canonical profile row SELECT — shared by {@link useProfileRow} and column hooks. */
 export function profileRowByIdSql(profileId: string): Sql {
-  return honey({
+  return sqlMap({
     select: [
       ProfileCol.id,
       ProfileCol.createdAt,

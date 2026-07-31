@@ -4,9 +4,9 @@ import {
   isSpaceVisibility,
   type SpaceVisibility,
 } from '@libs/spaces/shared/space-visibility';
-import { honey } from '@pkgs/sql';
-import { fail, ok } from '@pkgs/write/shared/write-result';
+import { sqlMap } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
+import { fail, ok } from '@pkgs/write/shared/write-result';
 
 import {
   asObjectRecord,
@@ -58,7 +58,7 @@ export const setSpaceVisibilityWrite = defineWrite<
     if (!accountId.ok) return accountId;
     const memberId = resolveSpaceMemberId(accountId.value);
     await db.run(
-      honey({
+      sqlMap({
         update: SPACES_TABLE.tableName,
         set: {
           [SpaceCol.visibility]: input.visibility,

@@ -16,11 +16,11 @@
  */
 import {
   col,
-  honey,
   join,
   raw,
   registerHoneyFn,
   sql,
+  sqlMap,
   type HoneyOpCompiler,
   type Sql,
 } from '@pkgs/sql';
@@ -59,7 +59,7 @@ registerHoneyFn(
  * a trailing LIMIT 1 binding to the whole compound.
  */
 export function statusLookupQuery(participantId: string): Sql {
-  return honey({
+  return sqlMap({
     unionAll: [
       {
         select: [
@@ -99,7 +99,7 @@ export type RunMatchPassArgs = {
 
 /** Set-returning `matchmaking_run_match_pass(...)` call in FROM position. */
 export function runMatchPassQuery(args: RunMatchPassArgs): Sql {
-  return honey({
+  return sqlMap({
     select: ['match_id', 'participant_id', 'joined_at', 'data'],
     from: [
       [
@@ -120,7 +120,7 @@ export function runMatchPassQuery(args: RunMatchPassArgs): Sql {
 
 /** Prune `(sig, group_size)` pairs with no remaining waiters (aliased DELETE). */
 export function prunePartitionsQuery(): Sql {
-  return honey({
+  return sqlMap({
     deleteFrom: ['matchmaking_active_partitions', 'ap'],
     where: [
       'not',
@@ -146,7 +146,7 @@ export function sweepExpiredQuery(args: {
   readonly maxWaitSeconds: number;
   readonly nowParam: string | null;
 }): Sql {
-  return honey({
+  return sqlMap({
     select: [
       [
         [
@@ -166,7 +166,7 @@ export function sweepMatchedQuery(args: {
   readonly matchedRetentionSeconds: number;
   readonly nowParam: string | null;
 }): Sql {
-  return honey({
+  return sqlMap({
     select: [
       [
         [
@@ -182,7 +182,7 @@ export function sweepMatchedQuery(args: {
 
 /** Peer participants sharing a `match_id`, excluding the caller. */
 export function statusPeersQuery(matchId: string, participantId: string): Sql {
-  return honey({
+  return sqlMap({
     select: ['id', 'joined_at', 'data', 'metadata'],
     from: 'matchmaking_matched',
     where: ['and', ['=', 'match_id', matchId], ['<>', 'id', participantId]],
@@ -192,7 +192,7 @@ export function statusPeersQuery(matchId: string, participantId: string): Sql {
 
 /** Installed schema fingerprint row (id = 1). */
 export function schemaFingerprintQuery(): Sql {
-  return honey({
+  return sqlMap({
     select: ['schema_fingerprint'],
     from: 'matchmaking_schema_state',
     where: ['=', 'id', 1],
@@ -201,7 +201,7 @@ export function schemaFingerprintQuery(): Sql {
 
 /** Active `(partition_signature, group_size)` pairs, oldest first, capped. */
 export function activePartitionsQuery(cap: number): Sql {
-  return honey({
+  return sqlMap({
     select: ['partition_signature', 'group_size'],
     from: 'matchmaking_active_partitions',
     orderBy: ['first_seen_at'],

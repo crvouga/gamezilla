@@ -1,8 +1,8 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { honey } from '@pkgs/sql';
-import { fail, ok } from '@pkgs/write/shared/write-result';
+import { sqlMap } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { idMatches } from '@pkgs/write/shared/read-row-values';
+import { fail, ok } from '@pkgs/write/shared/write-result';
 
 export type ProfilePatchInput = {
   readonly profileId: string;
@@ -45,7 +45,7 @@ export const profilePatchWrite = defineWrite<ProfilePatchInput, void>({
       return ok(undefined);
     }
     await db.run(
-      honey({
+      sqlMap({
         update: PROFILES_TABLE.tableName,
         set: updates,
         where: ['=', ProfileCol.id, input.profileId],

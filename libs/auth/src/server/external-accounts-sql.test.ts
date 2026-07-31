@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import { sql, ident, honey } from '@pkgs/sql';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { ident, sql, sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
 import {
   EXTERNAL_ACCOUNTS_TABLE,
@@ -83,7 +83,7 @@ describe('external-accounts-sql', () => {
     });
 
     const rows = await sqlClient.query<{ metadata: string }>(
-      honey({
+      sqlMap({
         select: [[ExternalAccountCol.metadata, 'metadata']],
         from: EXTERNAL_ACCOUNTS_TABLE,
         where: [
@@ -99,7 +99,7 @@ describe('external-accounts-sql', () => {
 
   test('findUserIdByPrimaryAuthExternalId resolves primary provider rows', async () => {
     await sqlClient.run(
-      honey({
+      sqlMap({
         insertInto: EXTERNAL_ACCOUNTS_TABLE,
         values: {
           [ExternalAccountCol.userId]: userId,

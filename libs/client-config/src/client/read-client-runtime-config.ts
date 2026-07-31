@@ -1,10 +1,10 @@
-import { honey } from '@pkgs/sql';
+import {
+  CLIENT_CONFIG_TABLE,
+  ClientConfigCol,
+} from '@libs/db/shared/client-config-tables';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { CLIENT_CONFIG_ENTITY_ID } from '../shared/client-config-entities';
-import {
-  ClientConfigCol,
-  CLIENT_CONFIG_TABLE,
-} from '@libs/db/shared/client-config-tables';
 
 export type ClientRuntimeConfig = {
   googleWebClientId: string | null;
@@ -14,7 +14,7 @@ export async function readClientRuntimeConfig(
   db: SqlClient
 ): Promise<ClientRuntimeConfig> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       select: [ClientConfigCol.googleWebClientId],
       from: CLIENT_CONFIG_TABLE.tableName,
       where: ['=', ClientConfigCol.id, CLIENT_CONFIG_ENTITY_ID],

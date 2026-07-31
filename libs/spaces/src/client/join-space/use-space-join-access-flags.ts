@@ -3,7 +3,7 @@ import {
   SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 /** True when the viewer has a local space_users ACL row for this space. */
@@ -15,7 +15,7 @@ export function useHasSpaceUserLocal(
   const id =
     enabled && userId !== null ? spaceUserEntityId(spaceId, userId) : '';
   const { row } = useWatchOne<{ readonly id: string }>(
-    honey({
+    sqlMap({
       select: [SpaceUserCol.id],
       from: SPACE_USERS_TABLE.tableName,
       where: enabled ? ['=', SpaceUserCol.id, id] : ['=', 1, 0],

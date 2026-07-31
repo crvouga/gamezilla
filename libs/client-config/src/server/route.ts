@@ -1,19 +1,19 @@
 import { isEqual } from '@pkgs/equal/is-equal';
 import type { Logger } from '@pkgs/logger';
-import { honey, col } from '@pkgs/sql';
+import { col, sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import {
+  CLIENT_CONFIG_TABLE,
+  ClientConfigCol,
+} from '@libs/db/shared/client-config-tables';
+import {
   CLIENT_CONFIG_ENTITY_ID,
   ClientConfigAttr,
 } from '../shared/client-config-entities';
-import {
-  ClientConfigCol,
-  CLIENT_CONFIG_TABLE,
-} from '@libs/db/shared/client-config-tables';
 
 export type ClientConfigRefreshOutcome = 'unchanged' | 'updated';
 
@@ -39,7 +39,7 @@ async function readClientConfigRow(
   db: SqlClient
 ): Promise<Record<string, unknown> | null> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       from: CLIENT_CONFIG_TABLE.tableName,
       where: ['=', ClientConfigCol.id, CLIENT_CONFIG_ENTITY_ID],
       limit: 1,
@@ -59,7 +59,7 @@ async function upsertClientConfigRow(
 ): Promise<void> {
   const googleId = attrs[ClientConfigAttr.googleWebClientId.key];
   await db.run(
-    honey({
+    sqlMap({
       insertInto: CLIENT_CONFIG_TABLE.tableName,
       values: {
         [ClientConfigCol.id]: CLIENT_CONFIG_ENTITY_ID,

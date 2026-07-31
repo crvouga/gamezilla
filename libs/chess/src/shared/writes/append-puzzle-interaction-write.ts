@@ -2,11 +2,11 @@ import {
   CHESS_PUZZLE_INTERACTIONS_TABLE,
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
-import { fail, ok } from '@pkgs/write/shared/write-result';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { ownerMatches } from '@pkgs/write/shared/read-row-values';
 import type { RowChange } from '@pkgs/write/shared/row-change';
+import { fail, ok } from '@pkgs/write/shared/write-result';
 
 import {
   CHESS_PUZZLE_INTERACTION_KIND,
@@ -145,7 +145,7 @@ export const appendPuzzleInteractionWrite = defineWrite<
           ? 1
           : 0;
     await db.run(
-      honey({
+      sqlMap({
         insertInto: CHESS_PUZZLE_INTERACTIONS_TABLE.tableName,
         values: {
           [ChessPuzzleInteractionCol.id]: id,

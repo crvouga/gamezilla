@@ -3,7 +3,7 @@ import {
   ENTITY_STORE_TABLE,
   entityStoreId,
 } from '@libs/db/shared/entity-store-table';
-import { col, honey } from '@pkgs/sql';
+import { col, sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -22,7 +22,7 @@ export async function readEntityStoreData(
   }
 ): Promise<Record<string, unknown> | null> {
   const rows = await db.query<EntityStoreDataRow>(
-    honey({
+    sqlMap({
       select: ['data'],
       from: ENTITY_STORE_TABLE,
       where: [
@@ -63,7 +63,7 @@ export async function upsertEntityStoreRow(
   const now = new Date().toISOString();
   const dataJson = stripeEntityStoreData(args.data);
   await db.run(
-    honey({
+    sqlMap({
       insertInto: ENTITY_STORE_TABLE,
       values: {
         id,

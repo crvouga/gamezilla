@@ -1,9 +1,9 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
+import { sqlMap, type Sql } from '@pkgs/sql';
 import {
   useWatchOne,
   useWatchQuery,
 } from '@pkgs/sync-engine/client/sync-engine-context';
-import { honey, type Sql } from '@pkgs/sql';
 import { useMemo } from 'react';
 
 import {
@@ -80,7 +80,7 @@ export function usePuzzleEntity(puzzleId: string): {
   themes: readonly string[];
 } {
   const { row } = useWatchOne<PuzzleEntityRow>(
-    honey({
+    sqlMap({
       select: [
         [ChessPuzzleCol.fen, 'fen'],
         [ChessPuzzleCol.moves, 'moves'],
@@ -100,7 +100,7 @@ export function usePuzzleEntity(puzzleId: string): {
   };
 }
 
-const EMPTY_INTERACTIONS_QUERY = honey({
+const EMPTY_INTERACTIONS_QUERY = sqlMap({
   select: [[ChessPuzzleInteractionCol.puzzleId, 'puzzle_id']],
   from: CHESS_PUZZLE_INTERACTIONS_TABLE.tableName,
   where: ['=', 1, 0],
@@ -113,7 +113,7 @@ export function usePuzzleInteractions(
   const query = useMemo<Sql>(
     () =>
       myId.length > 0
-        ? honey({
+        ? sqlMap({
             select: [
               [ChessPuzzleInteractionCol.puzzleId, 'puzzle_id'],
               [ChessPuzzleInteractionCol.kind, 'kind'],
@@ -146,7 +146,7 @@ export function useChessPuzzleAllInteractions(): ChessPuzzleInteractionRow[] {
   const query = useMemo<Sql>(
     () =>
       myId.length > 0
-        ? honey({
+        ? sqlMap({
             select: [
               [ChessPuzzleInteractionCol.puzzleId, 'puzzle_id'],
               [ChessPuzzleInteractionCol.kind, 'kind'],

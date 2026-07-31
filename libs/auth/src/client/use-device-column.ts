@@ -1,4 +1,4 @@
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
@@ -23,7 +23,7 @@ export type DeviceFieldKey = keyof typeof DeviceField;
 
 /** Canonical device row SELECT — all fields used by account-device atoms. */
 function deviceRowByIdSql(deviceId: string) {
-  return honey({
+  return sqlMap({
     select: [
       DeviceCol.id,
       DeviceCol.createdAt,

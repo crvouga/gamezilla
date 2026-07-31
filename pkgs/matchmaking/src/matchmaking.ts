@@ -31,7 +31,7 @@
 
 import { assert } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Hono, type MiddlewareHandler } from 'hono';
 import { createMatchmakingApp } from './app';
@@ -480,7 +480,7 @@ export class Matchmaking {
    */
   private static async tryAdvisoryLock(sqlClient: SqlClient): Promise<boolean> {
     const rows = await sqlClient.query<{ pg_try_advisory_lock: boolean }>(
-      honey({
+      sqlMap({
         select: [
           [
             [
@@ -500,7 +500,7 @@ export class Matchmaking {
   ): Promise<void> {
     try {
       await sqlClient.run(
-        honey({
+        sqlMap({
           select: [
             [
               'pg_advisory_unlock',

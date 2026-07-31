@@ -1,5 +1,5 @@
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { honey } from '@pkgs/sql';
 
 /**
  * Loads space ids the member may access via space_users ACL
@@ -10,7 +10,7 @@ export async function loadMemberOfSpaceIdsFromSql(
   memberId: string
 ): Promise<string[]> {
   const rows = await db.query<{ readonly space_id: string }>(
-    honey({
+    sqlMap({
       select: ['space_id'],
       from: 'space_users',
       where: ['=', 'user_id', memberId],

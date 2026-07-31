@@ -3,7 +3,7 @@ import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
 } from '@libs/db/shared/external-accounts-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 /** Resolves application user id for a Stripe customer id. */
@@ -12,7 +12,7 @@ export async function resolveAccountIdByStripeCustomerId(
   stripeCustomerId: string
 ): Promise<string | null> {
   const rows = await db.query<{ readonly user_id: string }>(
-    honey({
+    sqlMap({
       select: [[ExternalAccountCol.userId, 'user_id']],
       from: EXTERNAL_ACCOUNTS_TABLE,
       where: [

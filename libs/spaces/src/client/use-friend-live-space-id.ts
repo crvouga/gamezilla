@@ -1,5 +1,5 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 /**
@@ -11,7 +11,7 @@ export function useFriendLiveSpaceId(hostAccountId: string): string | null {
   const enabled = hostAccountId.length > 0;
   const { row } = useWatchOne<{ readonly id: string }>(
     enabled
-      ? honey({
+      ? sqlMap({
           select: [SpaceCol.id],
           from: SPACES_TABLE.tableName,
           where: [
@@ -23,7 +23,7 @@ export function useFriendLiveSpaceId(hostAccountId: string): string | null {
           orderBy: [[SpaceCol.createdAt, 'desc']],
           limit: 1,
         })
-      : honey({
+      : sqlMap({
           select: [SpaceCol.id],
           from: SPACES_TABLE.tableName,
           where: ['=', 1, 0],

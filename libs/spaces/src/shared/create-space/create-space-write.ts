@@ -1,8 +1,8 @@
 import {
   SPACE_USERS_TABLE,
   SpaceCol,
-  SpaceUserCol,
   SPACES_TABLE,
+  SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
@@ -10,9 +10,9 @@ import {
   isSpaceVisibility,
   type SpaceVisibility,
 } from '@libs/spaces/shared/space-visibility';
-import { honey } from '@pkgs/sql';
-import { fail, ok } from '@pkgs/write/shared/write-result';
+import { sqlMap } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
+import { fail, ok } from '@pkgs/write/shared/write-result';
 
 import {
   asObjectRecord,
@@ -60,7 +60,7 @@ export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
     // Separate db.run calls each become their own ~multi-second upload to Postgres.
     await db.transaction(async (tx) => {
       await tx.run(
-        honey({
+        sqlMap({
           insertInto: SPACES_TABLE.tableName,
           values: {
             [SpaceCol.id]: input.spaceId,
@@ -73,7 +73,7 @@ export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
         })
       );
       await tx.run(
-        honey({
+        sqlMap({
           insertInto: SPACE_USERS_TABLE.tableName,
           values: {
             [SpaceUserCol.id]: spaceUserEntityId(input.spaceId, memberId),

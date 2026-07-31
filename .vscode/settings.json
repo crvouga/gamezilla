@@ -1,4 +1,9 @@
 {
+  "eslint.workingDirectories": [
+    { "pattern": "./apps/*/" },
+    { "pattern": "./libs/*/" },
+    { "pattern": "./pkgs/*/" }
+  ],
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[typescript]": {

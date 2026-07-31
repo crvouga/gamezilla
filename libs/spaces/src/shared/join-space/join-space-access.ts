@@ -1,7 +1,7 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { parseSpaceVisibility } from '@libs/spaces/shared/space-visibility';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
@@ -27,7 +27,7 @@ export async function readSpaceRowForJoin(
     readonly visibility: string | null;
     readonly host_account_id: string | null;
   }>(
-    honey({
+    sqlMap({
       select: [
         SpaceCol.hostId,
         SpaceCol.hostMemberId,

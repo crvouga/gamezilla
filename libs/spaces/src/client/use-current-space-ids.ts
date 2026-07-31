@@ -1,6 +1,6 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { honey, type Sql } from '@pkgs/sql';
+import { sqlMap, type Sql } from '@pkgs/sql';
 import {
   useSyncStatus,
   useWatchQuery,
@@ -65,7 +65,7 @@ export function buildCurrentSpaceEntries(
 
 function openSpacesSql(enabled: boolean, openSpaceIds: readonly string[]): Sql {
   if (!enabled || openSpaceIds.length === 0) {
-    return honey({
+    return sqlMap({
       select: [
         SpaceCol.id,
         SpaceCol.hostMemberId,
@@ -76,7 +76,7 @@ function openSpacesSql(enabled: boolean, openSpaceIds: readonly string[]): Sql {
       where: ['=', 1, 0],
     });
   }
-  return honey({
+  return sqlMap({
     select: [
       SpaceCol.id,
       SpaceCol.hostMemberId,

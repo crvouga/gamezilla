@@ -1,6 +1,6 @@
 import {
   col,
-  honey,
+  sqlMap,
   type ColRef,
   type OpCall,
   type Scalar,
@@ -8,9 +8,9 @@ import {
 } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import type { InteractionSource } from '../shared/interaction-id';
 import { buildInteractionId } from '../shared/interaction-id';
 import { assertBoundedPayload } from '../shared/payload-schema';
-import type { InteractionSource } from '../shared/interaction-id';
 import type { PublishInteractionInput, StoredInteractionRow } from './types';
 
 type SourceLookup = InteractionSource & {
@@ -22,7 +22,7 @@ async function findById(
   id: string
 ): Promise<StoredInteractionRow | null> {
   const rows = await db.query<StoredInteractionRow>(
-    honey({
+    sqlMap({
       select: ['*'],
       from: 'inbox_interactions',
       where: ['=', 'id', id],
@@ -36,7 +36,7 @@ async function findBySource(
   lookup: SourceLookup
 ): Promise<StoredInteractionRow | null> {
   const rows = await db.query<StoredInteractionRow>(
-    honey({
+    sqlMap({
       select: ['*'],
       from: 'inbox_interactions',
       where: [
@@ -114,7 +114,7 @@ function upsertInteractionSql(
   input: PublishInteractionInput,
   now: string
 ): Sql {
-  return honey({
+  return sqlMap({
     insertInto: 'inbox_interactions',
     values: upsertInteractionValues(input, now),
     onConflict: {

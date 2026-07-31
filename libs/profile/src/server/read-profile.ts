@@ -1,5 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { ProfileCard } from '../shared/profile-card';
@@ -28,7 +28,7 @@ export async function readProfileCardById(
   profileId: string
 ): Promise<ProfileCard | null> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       select: [ProfileCol.id, ProfileCol.username, ProfileCol.avatarConfig],
       from: PROFILES_TABLE.tableName,
       where: ['=', ProfileCol.id, profileId],
@@ -46,7 +46,7 @@ export async function readProfileCardsByIds(
 ): Promise<readonly ProfileCard[]> {
   if (profileIds.length === 0) return [];
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       select: [ProfileCol.id, ProfileCol.username, ProfileCol.avatarConfig],
       from: PROFILES_TABLE.tableName,
       where: ['in', ProfileCol.id, profileIds],

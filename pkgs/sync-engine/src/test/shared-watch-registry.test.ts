@@ -1,5 +1,5 @@
+import { sqlMap } from '@pkgs/sql';
 import { describe, expect, test } from 'bun:test';
-import { honey } from '@pkgs/sql';
 
 import {
   createSharedWatchRegistry,
@@ -47,10 +47,10 @@ describe('createSharedWatchRegistry', () => {
     });
 
     const a = registry.watch(
-      honey({ select: ['id'], from: 't', where: ['=', 'id', '1'] })
+      sqlMap({ select: ['id'], from: 't', where: ['=', 'id', '1'] })
     );
     const b = registry.watch(
-      honey({ select: ['id'], from: 't', where: ['=', 'id', '1'] })
+      sqlMap({ select: ['id'], from: 't', where: ['=', 'id', '1'] })
     );
 
     const unsubA = a.subscribe(() => undefined);
@@ -77,10 +77,10 @@ describe('createSharedWatchRegistry', () => {
     });
 
     const a = registry.watch(
-      honey({ select: ['id'], from: 't', where: ['=', 'id', 'a'] })
+      sqlMap({ select: ['id'], from: 't', where: ['=', 'id', 'a'] })
     );
     const b = registry.watch(
-      honey({ select: ['id'], from: 't', where: ['=', 'id', 'b'] })
+      sqlMap({ select: ['id'], from: 't', where: ['=', 'id', 'b'] })
     );
     const unsubA = a.subscribe(() => undefined);
     const unsubB = b.subscribe(() => undefined);
@@ -97,7 +97,7 @@ describe('createSharedWatchRegistry', () => {
     const fake = createFakeHandle([{ n: 1 }], () => undefined);
     const registry = createSharedWatchRegistry(() => fake);
     const sub = registry.watch<{ n: number }>(
-      honey({ select: ['n'], from: 't' })
+      sqlMap({ select: ['n'], from: 't' })
     );
     let ticks = 0;
     const unsub = sub.subscribe(() => {

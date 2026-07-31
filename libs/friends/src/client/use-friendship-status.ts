@@ -7,7 +7,7 @@ import {
   USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
-import { honey, type Expr, type Sql } from '@pkgs/sql';
+import { sqlMap, type Expr, type Sql } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -17,7 +17,7 @@ import type { FriendshipStatus } from '../shared/friends-types';
 type StatusRow = { readonly status: FriendshipStatus };
 
 function noneStatusSql(): Sql {
-  return honey({
+  return sqlMap({
     select: [[['param', 'none'], 'status']],
   });
 }
@@ -73,7 +73,7 @@ function friendshipStatusSql(myId: string, targetUserId: string): Sql {
     return noneStatusSql();
   }
   const { userLow, userHigh } = canonicalUserPair(myId, targetUserId);
-  return honey({
+  return sqlMap({
     select: [
       [
         [

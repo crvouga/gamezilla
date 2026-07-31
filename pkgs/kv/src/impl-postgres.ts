@@ -25,7 +25,7 @@ import { assert, hotAssert } from '@pkgs/assert';
 import type { Keyword } from '@pkgs/keyword/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword/keyword';
 import type { Logger } from '@pkgs/logger/logger';
-import { col, honey, raw, sql, ident } from '@pkgs/sql';
+import { col, ident, raw, sql, sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import { KvImplPostgresTx } from './impl-postgres-tx';
@@ -191,7 +191,7 @@ export class KvImplPostgres implements Kv {
   async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
     const rows = await this.sqlClient.query<{ value: unknown }>(
-      honey({ select: ['value'], from: TABLE, where: ['=', 'key', key] })
+      sqlMap({ select: ['value'], from: TABLE, where: ['=', 'key', key] })
     );
     const first = rows[0];
     if (first === null || first === undefined) return null;
@@ -206,7 +206,7 @@ export class KvImplPostgres implements Kv {
     assertKvKey(key);
     assertKvRecord(hotAssert(), value, 'kv postgres put');
     await this.sqlClient.run(
-      honey({
+      sqlMap({
         insertInto: TABLE,
         values: {
           key,
@@ -226,14 +226,14 @@ export class KvImplPostgres implements Kv {
   async zap(key: Keyword): Promise<void> {
     assertKvKey(key);
     await this.sqlClient.run(
-      honey({ deleteFrom: TABLE, where: ['=', 'key', key] })
+      sqlMap({ deleteFrom: TABLE, where: ['=', 'key', key] })
     );
   }
 
   async tx<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
     return this.sqlClient.transaction(async (sqlTx) => {
       await sqlTx.run(
-        honey({
+        sqlMap({
           select: [
             [
               'pg_advisory_xact_lock',

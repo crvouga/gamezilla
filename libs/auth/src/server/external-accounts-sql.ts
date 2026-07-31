@@ -4,7 +4,7 @@ import {
   USERS_TABLE,
   UserTableCol,
 } from '@libs/db/shared/external-accounts-tables';
-import { honey, col } from '@pkgs/sql';
+import { col, sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 export { EXTERNAL_ACCOUNTS_TABLE, USERS_TABLE };
@@ -35,7 +35,7 @@ export async function findUserIdByProviderExternalId(
   externalId: string
 ): Promise<string | null> {
   const rows = await db.query<UserIdRow>(
-    honey({
+    sqlMap({
       select: [[ExternalAccountCol.userId, 'user_id']],
       from: EXTERNAL_ACCOUNTS_TABLE,
       where: [
@@ -56,7 +56,7 @@ export async function readExternalAccountId(
   provider: string
 ): Promise<string | null> {
   const rows = await db.query<{ external_id: string | null }>(
-    honey({
+    sqlMap({
       select: [[ExternalAccountCol.externalId, 'external_id']],
       from: EXTERNAL_ACCOUNTS_TABLE,
       where: [
@@ -80,7 +80,7 @@ export async function insertUser(
 ): Promise<void> {
   const now = createdAt ?? new Date().toISOString();
   await db.run(
-    honey({
+    sqlMap({
       insertInto: USERS_TABLE,
       values: {
         [UserTableCol.id]: userId,
@@ -103,7 +103,7 @@ export async function upsertExternalAccount(
   const now = new Date().toISOString();
   const metadataJson = JSON.stringify(args.metadata ?? {});
   await db.run(
-    honey({
+    sqlMap({
       insertInto: EXTERNAL_ACCOUNTS_TABLE,
       values: {
         [ExternalAccountCol.userId]: args.userId,

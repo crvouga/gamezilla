@@ -2,7 +2,7 @@ import {
   FRIEND_REQUESTS_TABLE,
   FriendRequestCol,
 } from '@libs/db/shared/friends-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { FriendRequest, FriendRequestStatus } from '../friends-types';
@@ -40,7 +40,7 @@ export async function findFriendRequestById(
   requestId: string
 ): Promise<FriendRequest | null> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       from: FRIEND_REQUESTS_TABLE.tableName,
       where: ['=', FriendRequestCol.id, requestId],
       limit: 1,
@@ -56,7 +56,7 @@ export async function findPendingRequestBetween(
   toUserId: string
 ): Promise<FriendRequest | null> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       from: FRIEND_REQUESTS_TABLE.tableName,
       where: [
         'and',
@@ -77,7 +77,7 @@ export async function findPendingRequestsBetweenPair(
   userB: string
 ): Promise<readonly FriendRequest[]> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       from: FRIEND_REQUESTS_TABLE.tableName,
       where: [
         'and',
@@ -107,7 +107,7 @@ export async function findLatestDeclinedRequestBetween(
   toUserId: string
 ): Promise<FriendRequest | null> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       from: FRIEND_REQUESTS_TABLE.tableName,
       where: [
         'and',
@@ -134,7 +134,7 @@ export async function insertFriendRequest(
   }
 ): Promise<FriendRequest> {
   await db.run(
-    honey({
+    sqlMap({
       insertInto: FRIEND_REQUESTS_TABLE.tableName,
       values: {
         [FriendRequestCol.id]: args.id,
@@ -161,7 +161,7 @@ export async function markFriendRequestStatus(
   now: string
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       update: FRIEND_REQUESTS_TABLE.tableName,
       set: {
         [FriendRequestCol.status]: status,
@@ -180,7 +180,7 @@ export async function cancelPendingRequestsBetween(
   now: string
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       update: FRIEND_REQUESTS_TABLE.tableName,
       set: {
         [FriendRequestCol.status]: 'cancelled',

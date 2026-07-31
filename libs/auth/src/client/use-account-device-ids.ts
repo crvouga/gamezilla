@@ -1,8 +1,8 @@
 import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
-import { honey } from '@pkgs/sql';
-import { useMyDeviceId } from './use-current-user';
+import { sqlMap } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
+import { useMyDeviceId } from './use-current-user';
 
 type DeviceRow = {
   readonly id: string;
@@ -56,7 +56,7 @@ export function useAccountDeviceIds(accountId: string | null): string[] {
   const currentDeviceId = useMyDeviceId();
 
   const { rows: localRows } = useWatchQuery<DeviceRow>(
-    honey({
+    sqlMap({
       select: [DeviceCol.id, DeviceCol.lastSeenAt, DeviceCol.createdAt],
       from: DEVICES_TABLE.tableName,
       where: ['=', DeviceCol.id, currentDeviceId],
@@ -65,12 +65,12 @@ export function useAccountDeviceIds(accountId: string | null): string[] {
 
   const { rows: remoteRows } = useWatchQuery<DeviceRow>(
     accountId === null
-      ? honey({
+      ? sqlMap({
           select: [DeviceCol.id, DeviceCol.lastSeenAt, DeviceCol.createdAt],
           from: DEVICES_TABLE.tableName,
           where: ['=', 1, 0],
         })
-      : honey({
+      : sqlMap({
           select: [DeviceCol.id, DeviceCol.lastSeenAt, DeviceCol.createdAt],
           from: DEVICES_TABLE.tableName,
           where: ['=', DeviceCol.userId, accountId],

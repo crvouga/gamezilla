@@ -3,7 +3,7 @@ import {
   ENTITY_STORE_TABLE,
   ENTITY_STORE_TYPE_USER,
 } from '@libs/db/shared/entity-store-table';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -71,7 +71,7 @@ export function useLinkedProviderSources(
   const { row: authExternalAccountRow } =
     useWatchOne<PrimaryAuthExternalAccountRow>(
       accountId === null
-        ? honey({
+        ? sqlMap({
             select: [
               [ExternalAccountCol.externalId, 'external_id'],
               [ExternalAccountCol.metadata, 'metadata'],
@@ -80,7 +80,7 @@ export function useLinkedProviderSources(
             from: EXTERNAL_ACCOUNTS_TABLE,
             where: ['=', 1, 0],
           })
-        : honey({
+        : sqlMap({
             select: [
               [ExternalAccountCol.externalId, 'external_id'],
               [ExternalAccountCol.metadata, 'metadata'],
@@ -98,12 +98,12 @@ export function useLinkedProviderSources(
 
   const { row: entityRow } = useWatchOne<AuthEntityStoreRow>(
     accountId === null
-      ? honey({
+      ? sqlMap({
           select: ['data', 'created_at'],
           from: ENTITY_STORE_TABLE,
           where: ['=', 1, 0],
         })
-      : honey({
+      : sqlMap({
           select: ['data', 'created_at'],
           from: ENTITY_STORE_TABLE,
           where: [

@@ -12,25 +12,46 @@ const a11yRestrictions = require('./a11y-restrictions.cjs');
 const { lucideRestrictedImportsBlock } = require('./lucide-restrictions.cjs');
 
 /**
- * Typed-lint project for a package.
+ * Walk up from a package dir to the workspace root (root `tsconfig.json` +
+ * `bun.lock`). Package configs are `tsconfig.tc.json` so the IDE language
+ * service owns files via the mega-root project; `projectService` only
+ * discovers `tsconfig.json`, so typed lint must allow traversal to the root.
  *
- * Package scoped checks live in `tsconfig.tc.json` so the IDE uses the root
- * `tsconfig.json` (Rename Symbol / Find All References). typescript-eslint
- * `projectService` only discovers `tsconfig.json`, so packages with
- * `tsconfig.tc.json` must use `parserOptions.project` instead.
- *
- * @param {string} tsconfigRootDir
+ * @param {string} startDir
  */
-function typedLintParserOptions(tsconfigRootDir) {
-  if (fs.existsSync(path.join(tsconfigRootDir, 'tsconfig.tc.json'))) {
-    return {
-      project: './tsconfig.tc.json',
-      tsconfigRootDir,
-    };
+function findMonorepoRoot(startDir) {
+  let dir = path.resolve(startDir);
+  for (;;) {
+    if (
+      fs.existsSync(path.join(dir, 'tsconfig.json')) &&
+      fs.existsSync(path.join(dir, 'bun.lock'))
+    ) {
+      return dir;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) {
+      throw new Error(
+        `createSharedBlocks: monorepo root not found from ${startDir}`
+      );
+    }
+    dir = parent;
   }
+}
+
+/**
+ * Typed-lint parser options for a workspace package.
+ *
+ * `tsconfigRootDir` is the monorepo root so `projectService` can walk past
+ * package folders (which only have `tsconfig.tc.json`) and load the root
+ * `tsconfig.json`. Packages that still ship `tsconfig.json` (e.g. Expo
+ * `apps/client`) are picked up as the nearest project first.
+ *
+ * @param {string} packageDir `__dirname` of the package eslint.config.js
+ */
+function typedLintParserOptions(packageDir) {
   return {
     projectService: true,
-    tsconfigRootDir,
+    tsconfigRootDir: findMonorepoRoot(packageDir),
   };
 }
 

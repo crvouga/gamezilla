@@ -2,7 +2,7 @@ import {
   FRIEND_REQUESTS_TABLE,
   FriendRequestCol,
 } from '@libs/db/shared/friends-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { FriendRequest } from '../shared/friends-types';
@@ -39,7 +39,7 @@ export async function listPendingIncomingRequests(
   userId: string
 ): Promise<readonly FriendRequest[]> {
   const rows = await db.query<FriendRequestRow>(
-    honey({
+    sqlMap({
       from: FRIEND_REQUESTS_TABLE.tableName,
       where: [
         'and',
@@ -57,7 +57,7 @@ export async function listPendingOutgoingRequests(
   userId: string
 ): Promise<readonly FriendRequest[]> {
   const rows = await db.query<FriendRequestRow>(
-    honey({
+    sqlMap({
       from: FRIEND_REQUESTS_TABLE.tableName,
       where: [
         'and',

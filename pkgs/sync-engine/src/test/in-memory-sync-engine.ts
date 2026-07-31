@@ -1,15 +1,15 @@
 import { Database } from 'bun:sqlite';
 
-import { honey, type Sql } from '@pkgs/sql';
-import { assertSqlIdentifier } from '@pkgs/sql/assert-sql-identifier';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { sqlMap, type Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { assertSqlIdentifier } from '@pkgs/sql/assert-sql-identifier';
 
-import type { SyncEngine } from '../client/sync-engine-port';
 import {
   createSharedWatchRegistry,
   type WatchSqlHandle,
 } from '../client/shared-watch-registry';
+import type { SyncEngine } from '../client/sync-engine-port';
 import {
   INITIAL_SYNC_STATUS,
   type SyncEngineStatus,
@@ -193,7 +193,7 @@ export function createInMemorySyncEngine(
     clearLocalData: async () => {
       for (const name of options.registry.tableNames()) {
         assertSqlIdentifier(name, 'Invalid sync table name', { name });
-        await db.run(honey({ deleteFrom: name }));
+        await db.run(sqlMap({ deleteFrom: name }));
       }
       resetEverSynced();
       setStatus({

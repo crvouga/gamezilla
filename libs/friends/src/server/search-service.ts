@@ -1,9 +1,9 @@
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import {
   USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
-import { honey, col } from '@pkgs/sql';
+import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { col, sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -67,7 +67,7 @@ export async function searchUsers(
   const likeQuery = query.toLowerCase();
   const profileIdCol = col(`p.${ProfileCol.id}`);
   const rows = await db.query<SearchHitRow>(
-    honey({
+    sqlMap({
       select: [
         [`p.${ProfileCol.id}`, 'id'],
         [`p.${ProfileCol.username}`, 'username'],

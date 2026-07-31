@@ -1,22 +1,22 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import { sql, ident, honey } from '@pkgs/sql';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
 import {
   ENTITY_STORE_NAMESPACE_AUTH,
   ENTITY_STORE_TABLE,
   ENTITY_STORE_TYPE_USER,
 } from '@libs/db/shared/entity-store-table';
+import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
+import { ident, sql, sqlMap } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
+import { buildLinkedProviders } from '@libs/auth/shared/linked-account-providers';
 import { DEVICES_TABLE, DeviceCol } from '@libs/db/shared/auth-tables';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
 } from '@libs/db/shared/external-accounts-tables';
-import { buildLinkedProviders } from '@libs/auth/shared/linked-account-providers';
 
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';
 
@@ -111,7 +111,7 @@ async function readClerkExternalAccount(
     metadata: string | null;
     created_at: string | null;
   }>(
-    honey({
+    sqlMap({
       select: [
         [ExternalAccountCol.externalId, 'external_id'],
         [ExternalAccountCol.metadata, 'metadata'],
@@ -134,7 +134,7 @@ async function readClerkEntityStore(
   accountId: string
 ): Promise<{ data: string; created_at: string } | undefined> {
   const rows = await db.query<{ data: string; created_at: string }>(
-    honey({
+    sqlMap({
       select: ['data', 'created_at'],
       from: ENTITY_STORE_TABLE,
       where: [
@@ -210,7 +210,7 @@ async function readEntityStoreOwnerId(
   externalUserId: string
 ): Promise<string | null> {
   const rows = await db.query<{ owner_id: string | null }>(
-    honey({
+    sqlMap({
       select: ['owner_id'],
       from: ENTITY_STORE_TABLE,
       where: [
@@ -229,7 +229,7 @@ async function readDeviceUserId(
   deviceId: string
 ): Promise<string | null> {
   const rows = await db.query<{ user_id: string | null }>(
-    honey({
+    sqlMap({
       select: [[DeviceCol.userId, 'user_id']],
       from: DEVICES_TABLE.tableName,
       where: ['=', DeviceCol.id, deviceId],
@@ -243,7 +243,7 @@ async function readDevice(
   deviceId: string
 ): Promise<{ platform: string | null } | null> {
   const rows = await db.query<{ platform: string | null }>(
-    honey({
+    sqlMap({
       select: ['platform'],
       from: DEVICES_TABLE.tableName,
       where: ['=', DeviceCol.id, deviceId],
@@ -342,7 +342,7 @@ describe('refreshAuthSnapshot', () => {
     await refreshAuthSnapshot(inputs);
 
     const rows = await sqlClient.query<{ id: string }>(
-      honey({
+      sqlMap({
         select: ['id'],
         from: ENTITY_STORE_TABLE,
         where: [
@@ -369,7 +369,7 @@ describe('refreshAuthSnapshot', () => {
 
     const now = new Date().toISOString();
     await sqlClient.run(
-      honey({
+      sqlMap({
         insertInto: EXTERNAL_ACCOUNTS_TABLE,
         values: {
           [ExternalAccountCol.userId]: ACCOUNT_ID,
@@ -381,7 +381,7 @@ describe('refreshAuthSnapshot', () => {
       })
     );
     await sqlClient.run(
-      honey({
+      sqlMap({
         insertInto: ENTITY_STORE_TABLE,
         values: {
           id: 'auth/user/user_external_1',
@@ -408,7 +408,7 @@ describe('refreshAuthSnapshot', () => {
     const stripeRows = await sqlClient.query<{
       external_id: string | null;
     }>(
-      honey({
+      sqlMap({
         select: [[ExternalAccountCol.externalId, 'external_id']],
         from: EXTERNAL_ACCOUNTS_TABLE,
         where: [
@@ -421,7 +421,7 @@ describe('refreshAuthSnapshot', () => {
     expect(stripeRows[0]?.external_id).toBe('cus_1');
 
     const clerkRows = await sqlClient.query<{ metadata: string }>(
-      honey({
+      sqlMap({
         select: [[ExternalAccountCol.metadata, 'metadata']],
         from: EXTERNAL_ACCOUNTS_TABLE,
         where: [

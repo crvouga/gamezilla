@@ -1,6 +1,6 @@
 import { PGlite } from '@electric-sql/pglite';
 import type { AttributeState } from '@pkgs/attribute';
-import { honey, type Sql } from '@pkgs/sql';
+import { sqlMap, type Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   afterAll,
@@ -12,8 +12,8 @@ import {
   test,
 } from 'bun:test';
 import {
-  MATCHMAKING_PAYLOAD_LIMITS,
   Matchmaking,
+  MATCHMAKING_PAYLOAD_LIMITS,
   MatchmakingSchemaDriftError,
 } from './matchmaking';
 import { createPgliteSqlClient } from './pglite-adapter';
@@ -21,7 +21,6 @@ import {
   bootMatchmaking,
   expectMatched,
   KindAttr,
-  type MmHarness,
   NameAttr,
   pauseForJoinedAtOrdering,
   RatingAttr,
@@ -29,6 +28,7 @@ import {
   registerTestCrashHandler,
   SkillAttr,
   UUID_REGEX,
+  type MmHarness,
 } from './test-harness';
 import type { DistanceFormula } from './types';
 
@@ -869,7 +869,7 @@ describe('Matchmaking - schema drift', () => {
       // Corrupt the stored fingerprint to simulate another process
       // having re-migrated with a different schema.
       await sqlClient.run(
-        honey({
+        sqlMap({
           update: 'matchmaking_schema_state',
           set: { schema_fingerprint: '{"corrupted":true}' },
           where: ['=', 'id', 1],
@@ -884,7 +884,7 @@ describe('Matchmaking - schema drift', () => {
       // we need to corrupt AFTER mm2 boots but BEFORE its first join.
       await mm2.ready();
       await sqlClient.run(
-        honey({
+        sqlMap({
           update: 'matchmaking_schema_state',
           set: { schema_fingerprint: '{"corrupted":true}' },
           where: ['=', 'id', 1],
@@ -1133,7 +1133,7 @@ describe('Matchmaking - group matching (groupSize)', () => {
         partition_signature: string;
         group_size: number | string;
       }>(
-        honey({
+        sqlMap({
           select: ['partition_signature', 'group_size'],
           from: 'matchmaking_active_partitions',
           orderBy: ['group_size'],

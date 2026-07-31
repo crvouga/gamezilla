@@ -3,7 +3,7 @@ import {
   useMyDeviceId,
 } from '@libs/auth/client/use-current-user';
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -24,7 +24,7 @@ export function useSpaceJoinSnapshot(spaceId: string): SpaceJoinSnapshot {
   const viewerAccountId = useMyAccountId();
   const viewerDeviceId = useMyDeviceId();
   const { row, isLoading } = useWatchOne<SpaceJoinLocalRow>(
-    honey({
+    sqlMap({
       select: [
         SpaceCol.hostId,
         SpaceCol.hostMemberId,

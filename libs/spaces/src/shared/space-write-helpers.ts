@@ -1,8 +1,8 @@
 import {
   SPACE_USERS_TABLE,
   SpaceCol,
-  SpaceUserCol,
   SPACES_TABLE,
+  SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
@@ -10,11 +10,11 @@ import {
   decideEndSpace,
   isSpaceHostActor,
 } from '@libs/spaces/shared/participation/space-participation-policy';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { honey } from '@pkgs/sql';
-import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import { readOne } from '@pkgs/write/shared/read-row-values';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
+import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 
 export function isoNow(): string {
   return new Date().toISOString();
@@ -51,7 +51,7 @@ export async function readSpaceHostEnded(
     readonly ended_at: string | null;
   }>(
     db,
-    honey({
+    sqlMap({
       select: [
         SpaceCol.hostId,
         SpaceCol.hostMemberId,
@@ -116,7 +116,7 @@ export async function isSpaceUserInStore(
   if (spaceId.length === 0 || userId.length === 0) return false;
   const id = spaceUserEntityId(spaceId, userId);
   const rows = await db.query<{ readonly id: string }>(
-    honey({
+    sqlMap({
       select: [SpaceUserCol.id],
       from: SPACE_USERS_TABLE.tableName,
       where: ['=', SpaceUserCol.id, id],
@@ -135,14 +135,10 @@ export async function upsertSpaceUserRow(args: {
 }): Promise<void> {
   // PowerSync synced names are SQLite views — INSERT … ON CONFLICT fails with
   // "cannot UPSERT a view". Select-then-plain-INSERT is the client pattern.
-  const already = await isSpaceUserInStore(
-    args.db,
-    args.spaceId,
-    args.userId
-  );
+  const already = await isSpaceUserInStore(args.db, args.spaceId, args.userId);
   if (already) return;
   await args.db.run(
-    honey({
+    sqlMap({
       insertInto: SPACE_USERS_TABLE.tableName,
       values: {
         [SpaceUserCol.id]: spaceUserEntityId(args.spaceId, args.userId),
@@ -168,7 +164,7 @@ export async function migrateHostIdentity(args: {
   readonly accountId: string;
 }): Promise<void> {
   await args.sql.run(
-    honey({
+    sqlMap({
       update: SPACES_TABLE.tableName,
       set: {
         [SpaceCol.hostMemberId]: args.newMemberId,
@@ -182,7 +178,7 @@ export async function migrateHostIdentity(args: {
     })
   );
   await args.sql.run(
-    honey({
+    sqlMap({
       update: SPACES_TABLE.tableName,
       set: { [SpaceCol.hostMemberId]: args.newMemberId },
       where: [

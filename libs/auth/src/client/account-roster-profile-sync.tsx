@@ -1,4 +1,4 @@
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, type ReactNode } from 'react';
 
@@ -40,7 +40,7 @@ export function AccountRosterProfileSync({
 
   const { row, isLoading: profileLoading } = useWatchOne<ProfileDisplayRow>(
     accountId === null
-      ? honey({
+      ? sqlMap({
           select: [
             [ProfileCol.username, 'username'],
             [ProfileCol.avatarConfig, 'avatar_config'],
@@ -48,7 +48,7 @@ export function AccountRosterProfileSync({
           from: PROFILES_TABLE.tableName,
           where: ['=', 1, 0],
         })
-      : honey({
+      : sqlMap({
           select: [
             [ProfileCol.username, 'username'],
             [ProfileCol.avatarConfig, 'avatar_config'],

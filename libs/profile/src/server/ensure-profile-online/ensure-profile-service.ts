@@ -1,5 +1,5 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { serializeDefaultAvatarConfig } from '../../shared/avatar-config';
@@ -28,7 +28,7 @@ async function insertProfileRow(
   now: string
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       insertInto: PROFILES_TABLE.tableName,
       values: {
         [ProfileCol.id]: profileId,
@@ -49,7 +49,7 @@ async function assignUniqueUsername(
     const username = generateRandomUsername(`${profileId}:${attempt}`);
     try {
       await db.run(
-        honey({
+        sqlMap({
           update: PROFILES_TABLE.tableName,
           set: { [ProfileCol.username]: username },
           where: [

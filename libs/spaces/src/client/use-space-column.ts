@@ -1,4 +1,4 @@
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
@@ -28,7 +28,7 @@ export function useSpaceColumn(
 ): string | null {
   const col = SpaceCol[field];
   const { row } = useWatchOne<SpaceRow>(
-    honey({
+    sqlMap({
       select: [
         SpaceCol.id,
         SpaceCol.title,

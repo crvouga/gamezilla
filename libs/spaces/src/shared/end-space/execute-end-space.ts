@@ -1,10 +1,10 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { honey } from '@pkgs/sql';
-import { ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
+import { ok, type WriteResult } from '@pkgs/write/shared/write-result';
 
 import { isoNow, requireAccountId } from '../space-write-helpers';
 
@@ -22,7 +22,7 @@ export async function stampSpaceEnded(
   if (!accountId.ok) return accountId;
   const memberId = resolveSpaceMemberId(accountId.value);
   await db.run(
-    honey({
+    sqlMap({
       update: SPACES_TABLE.tableName,
       set: {
         [SpaceCol.endedAt]: isoNow(),

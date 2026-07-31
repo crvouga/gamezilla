@@ -4,7 +4,7 @@
  */
 import { CHESS_PUZZLES_TABLE } from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
-import { honey, raw } from '@pkgs/sql';
+import { raw, sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 export async function dropPuzzleSnapshotIndexes(args: {
@@ -14,7 +14,7 @@ export async function dropPuzzleSnapshotIndexes(args: {
   const { db, log } = args;
   const table = CHESS_PUZZLES_TABLE.tableName;
   const rows = await db.query<{ indexname: string }>(
-    honey({
+    sqlMap({
       select: ['indexname'],
       from: 'pg_indexes',
       where: [

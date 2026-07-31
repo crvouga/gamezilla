@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import { sql, ident, honey } from '@pkgs/sql';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import {
   ENTITY_STORE_NAMESPACE_AUTH,
   ENTITY_STORE_TABLE,
   ENTITY_STORE_TYPE_USER,
 } from '@libs/db/shared/entity-store-table';
+import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import { ident, sql, sqlMap } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
 import {
   EXTERNAL_ACCOUNTS_TABLE,
@@ -87,7 +87,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
     const userId = '33333333-3333-4333-8333-333333333333';
     const now = new Date().toISOString();
     await sqlClient.run(
-      honey({
+      sqlMap({
         insertInto: USERS_TABLE,
         values: {
           [UserTableCol.id]: userId,
@@ -96,7 +96,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       })
     );
     await sqlClient.run(
-      honey({
+      sqlMap({
         insertInto: EXTERNAL_ACCOUNTS_TABLE,
         values: {
           [ExternalAccountCol.userId]: userId,
@@ -136,7 +136,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
     ).toBe(EXTERNAL_USER_ID);
 
     const entityRows = await sqlClient.query<{ owner_id: string | null }>(
-      honey({
+      sqlMap({
         select: ['owner_id'],
         from: ENTITY_STORE_TABLE,
         where: [

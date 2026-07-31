@@ -2,7 +2,7 @@ import {
   INBOX_INTERACTIONS_TABLE,
   InboxInteractionCol,
 } from '@pkgs/inbox/sync/table-defs';
-import { honey, type Expr, type Sql } from '@pkgs/sql';
+import { sqlMap, type Expr, type Sql } from '@pkgs/sql';
 
 import type { InteractionFilter } from '../shared/interaction';
 
@@ -31,14 +31,14 @@ function inboxFilterExpr(filter: InteractionFilter): Expr {
 
 export function inboxListSql(userId: string, filter: InteractionFilter): Sql {
   if (userId.length === 0) {
-    return honey({
+    return sqlMap({
       select: ['*'],
       from: INBOX_INTERACTIONS_TABLE,
       where: false,
     });
   }
 
-  return honey({
+  return sqlMap({
     select: ['*'],
     from: INBOX_INTERACTIONS_TABLE,
     where: [
@@ -57,13 +57,13 @@ export function inboxListSql(userId: string, filter: InteractionFilter): Sql {
 
 export function inboxUnreadCountSql(userId: string): Sql {
   if (userId.length === 0) {
-    return honey({
+    return sqlMap({
       select: [[['cast', 0, 'int'], 'count']],
       from: INBOX_INTERACTIONS_TABLE,
       where: false,
     });
   }
-  return honey({
+  return sqlMap({
     select: [[['count', '*'], 'count']],
     from: INBOX_INTERACTIONS_TABLE,
     where: [

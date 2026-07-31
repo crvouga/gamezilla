@@ -3,13 +3,13 @@ import { beforeEach, describe, expect, test } from 'bun:test';
 import {
   SPACE_USERS_TABLE,
   SpaceCol,
-  SpaceUserCol,
   SPACES_TABLE,
+  SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { ident, sql, sqlMap, type Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { honey, sql, type Sql, ident } from '@pkgs/sql';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
 import { sharedLiveSpaceIdsSql } from '../client/my-live-space-seat-sql';
 import { buildCurrentSpaceEntries } from '../client/use-current-space-ids';
@@ -55,7 +55,7 @@ async function seedSpace(
   }
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       insertInto: SPACES_TABLE.tableName,
       values: {
         [SpaceCol.id]: args.id,
@@ -76,7 +76,7 @@ async function seedSpaceUser(
   userId: string
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       insertInto: SPACE_USERS_TABLE.tableName,
       values: {
         [SpaceUserCol.id]: spaceUserEntityId(spaceId, userId),

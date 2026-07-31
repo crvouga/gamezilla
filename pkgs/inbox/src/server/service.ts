@@ -1,8 +1,8 @@
-import { col, honey, type Expr } from '@pkgs/sql';
+import { col, sqlMap, type Expr } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { Interaction } from '../shared/interaction';
 import { InboxError } from '../shared/inbox-errors';
+import type { Interaction } from '../shared/interaction';
 import { dispatchInteractionAction } from './action-registry';
 import { findInteractionById } from './publish';
 import { rowToInteraction } from './row-mapper';
@@ -71,7 +71,7 @@ export async function listInteractions(
     : ['and', ['=', 'user_id', query.userId], listFilterExpr(filter)];
 
   const rows = await db.query<StoredInteractionRow>(
-    honey({
+    sqlMap({
       from: 'inbox_interactions',
       where,
       orderBy: [
@@ -105,7 +105,7 @@ export async function markInteractionRead(
   }
   const now = new Date().toISOString();
   await db.run(
-    honey({
+    sqlMap({
       update: 'inbox_interactions',
       set: { read_at: now, updated_at: now },
       where: ['and', ['=', 'id', interactionId], ['=', 'user_id', actorId]],
@@ -124,7 +124,7 @@ export async function markAllInteractionsRead(
 ): Promise<void> {
   const now = new Date().toISOString();
   await db.run(
-    honey({
+    sqlMap({
       update: 'inbox_interactions',
       set: { read_at: now, updated_at: now },
       where: [
@@ -150,7 +150,7 @@ export async function archiveInteraction(
   }
   const now = new Date().toISOString();
   await db.run(
-    honey({
+    sqlMap({
       update: 'inbox_interactions',
       set: {
         archived_at: now,
@@ -178,7 +178,7 @@ export async function dismissInteraction(
   }
   const now = new Date().toISOString();
   await db.run(
-    honey({
+    sqlMap({
       update: 'inbox_interactions',
       set: {
         dismissed_at: now,
@@ -223,7 +223,7 @@ export async function countUnreadInteractions(
   userId: string
 ): Promise<number> {
   const rows = await db.query<{ count: string }>(
-    honey({
+    sqlMap({
       select: [[['cast', ['count', '*'], 'text'], 'count']],
       from: 'inbox_interactions',
       where: [

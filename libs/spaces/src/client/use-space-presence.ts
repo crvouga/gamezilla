@@ -1,5 +1,5 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
-import { honey, type Sql } from '@pkgs/sql';
+import { sqlMap, type Sql } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 
@@ -24,7 +24,7 @@ type SpaceRow = {
 };
 
 function spaceRowSql(enabled: boolean, spaceId: string): Sql {
-  return honey({
+  return sqlMap({
     select: [SpaceCol.hostMemberId, SpaceCol.hostAccountId, SpaceCol.endedAt],
     from: SPACES_TABLE.tableName,
     where: enabled ? ['=', SpaceCol.id, spaceId] : ['=', 1, 0],

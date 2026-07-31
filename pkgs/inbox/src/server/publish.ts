@@ -1,15 +1,15 @@
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import { InboxError } from '../shared/inbox-errors';
 import type { Interaction } from '../shared/interaction';
 import { buildInteractionId } from '../shared/interaction-id';
-import { InboxError } from '../shared/inbox-errors';
-import { rowToInteraction } from './row-mapper';
 import {
   findById,
   findBySource,
   upsertInteractionSql,
 } from './publish-helpers';
+import { rowToInteraction } from './row-mapper';
 import type {
   DeactivateInteractionInput,
   PublishInteractionInput,
@@ -46,7 +46,7 @@ export async function deactivateInteraction(
 ): Promise<void> {
   const now = new Date().toISOString();
   await db.run(
-    honey({
+    sqlMap({
       update: 'inbox_interactions',
       set: { active: false, updated_at: now },
       where: [
@@ -85,5 +85,5 @@ export async function findInteractionBySource(
   return rowToInteraction(row);
 }
 
-export { buildInteractionId, findById as findStoredInteractionById };
 export type { PublishInteractionInput } from './types';
+export { buildInteractionId, findById as findStoredInteractionById };

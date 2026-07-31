@@ -1,20 +1,20 @@
 import {
   FRIEND_REQUESTS_TABLE,
-  FRIENDSHIPS_TABLE,
   FriendRequestCol,
   FriendshipCol,
+  FRIENDSHIPS_TABLE,
   USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
-import { honey, col, type Query } from '@pkgs/sql';
+import { col, sqlMap, type Query } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { canonicalUserPair } from '../shared/canonical-pair';
-import { pairId } from '../shared/pair-id';
 import type {
   FriendRequest,
   FriendRequestStatus,
 } from '../shared/friends-types';
+import { pairId } from '../shared/pair-id';
 
 function readString(row: Record<string, unknown>, key: string): string {
   const value = row[key];
@@ -49,7 +49,7 @@ export async function findFriendRequestById(
   requestId: string
 ): Promise<FriendRequest | null> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       from: FRIEND_REQUESTS_TABLE.tableName,
       where: ['=', FriendRequestCol.id, requestId],
       limit: 1,
@@ -65,7 +65,7 @@ export async function findPendingRequestBetween(
   toUserId: string
 ): Promise<FriendRequest | null> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       from: FRIEND_REQUESTS_TABLE.tableName,
       where: [
         'and',
@@ -86,7 +86,7 @@ export async function findPendingRequestsBetweenPair(
   userB: string
 ): Promise<readonly FriendRequest[]> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       from: FRIEND_REQUESTS_TABLE.tableName,
       where: [
         'and',
@@ -116,7 +116,7 @@ export async function findLatestDeclinedRequestBetween(
   toUserId: string
 ): Promise<FriendRequest | null> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       from: FRIEND_REQUESTS_TABLE.tableName,
       where: [
         'and',
@@ -139,7 +139,7 @@ export async function friendshipExists(
 ): Promise<boolean> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       select: [FriendshipCol.id],
       from: FRIENDSHIPS_TABLE.tableName,
       where: [
@@ -159,7 +159,7 @@ export async function isBlockedEitherDirection(
   userB: string
 ): Promise<'none' | 'by_a' | 'by_b'> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       select: [UserBlockCol.blockerId, UserBlockCol.blockedId],
       from: USER_BLOCKS_TABLE.tableName,
       where: [
@@ -196,7 +196,7 @@ export async function insertFriendRequest(
   }
 ): Promise<FriendRequest> {
   await db.run(
-    honey({
+    sqlMap({
       insertInto: FRIEND_REQUESTS_TABLE.tableName,
       values: {
         [FriendRequestCol.id]: args.id,
@@ -223,7 +223,7 @@ export async function markFriendRequestStatus(
   now: string
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       update: FRIEND_REQUESTS_TABLE.tableName,
       set: {
         [FriendRequestCol.status]: status,
@@ -242,7 +242,7 @@ export async function cancelPendingRequestsBetween(
   now: string
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       update: FRIEND_REQUESTS_TABLE.tableName,
       set: {
         [FriendRequestCol.status]: 'cancelled',
@@ -281,7 +281,7 @@ export async function insertFriendship(
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
   await db.run(
-    honey({
+    sqlMap({
       insertInto: FRIENDSHIPS_TABLE.tableName,
       values: {
         [FriendshipCol.id]: pairId(userLow, userHigh),
@@ -305,7 +305,7 @@ export async function deleteFriendship(
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
   await db.run(
-    honey({
+    sqlMap({
       deleteFrom: FRIENDSHIPS_TABLE.tableName,
       where: [
         'and',
@@ -323,7 +323,7 @@ export async function insertBlock(
   now: string
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       insertInto: USER_BLOCKS_TABLE.tableName,
       values: {
         [UserBlockCol.id]: pairId(blockerId, blockedId),
@@ -345,7 +345,7 @@ export async function deleteBlock(
   blockedId: string
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       deleteFrom: USER_BLOCKS_TABLE.tableName,
       where: [
         'and',
@@ -380,7 +380,7 @@ export async function listMutualFriendIds(
     ],
   });
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       with: [
         ['my_friends', friendIdForViewer(viewerId)],
         ['their_friends', friendIdForViewer(targetUserId)],

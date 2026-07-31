@@ -1,5 +1,5 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
 type SpaceIdRow = { readonly id: string };
@@ -12,7 +12,7 @@ export function useLiveSpaceIds(): {
   readonly isLoading: boolean;
 } {
   const { rows, isLoading } = useWatchQuery<SpaceIdRow>(
-    honey({
+    sqlMap({
       select: [SpaceCol.id],
       from: SPACES_TABLE.tableName,
       where: ['is-null', SpaceCol.endedAt],

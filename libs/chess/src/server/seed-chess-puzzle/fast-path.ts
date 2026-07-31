@@ -4,14 +4,14 @@
 import {
   CHESS_PUZZLE_LOAD_TABLE,
   CHESS_PUZZLES_TABLE,
-  ChessPuzzleLoadCol,
   ChessPuzzleCol,
+  ChessPuzzleLoadCol,
 } from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
-import { col, honey, raw, ident } from '@pkgs/sql';
+import { col, ident, raw, sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { PuzzleBatchEntry } from './row';
 import type { PuzzleSeedReporter } from './reporter';
+import type { PuzzleBatchEntry } from './row';
 
 const BATCH_ROW_COLS = [
   ['id', 'text'],
@@ -27,7 +27,7 @@ const BATCH_ROW_COLS = [
 ] as const;
 
 function insertPuzzlesBatchQuery(insertRowsJson: string) {
-  return honey({
+  return sqlMap({
     insertInto: CHESS_PUZZLES_TABLE.tableName,
     columns: [
       ChessPuzzleCol.id,
@@ -201,7 +201,7 @@ export async function writeLoadProgressFast(args: {
 }): Promise<void> {
   const { db, loadId, sourceEtag, cursor, finishedAt } = args;
   await db.run(
-    honey({
+    sqlMap({
       insertInto: CHESS_PUZZLE_LOAD_TABLE.tableName,
       values: {
         [ChessPuzzleLoadCol.id]: loadId,

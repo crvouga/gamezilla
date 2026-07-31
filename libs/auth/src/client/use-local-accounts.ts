@@ -1,4 +1,4 @@
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -126,7 +126,7 @@ export function useLocalAccounts(): readonly LocalAccount[] {
 
   const { row: activeProfile } = useWatchOne<ActiveProfileDisplayRow>(
     activeAccountId === null
-      ? honey({
+      ? sqlMap({
           select: [
             [ProfileCol.username, 'username'],
             [ProfileCol.avatarConfig, 'avatar_config'],
@@ -134,7 +134,7 @@ export function useLocalAccounts(): readonly LocalAccount[] {
           from: PROFILES_TABLE.tableName,
           where: ['=', 1, 0],
         })
-      : honey({
+      : sqlMap({
           select: [
             [ProfileCol.username, 'username'],
             [ProfileCol.avatarConfig, 'avatar_config'],

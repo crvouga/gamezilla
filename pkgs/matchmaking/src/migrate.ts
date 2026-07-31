@@ -51,10 +51,13 @@
 
 import { assert } from '@pkgs/assert';
 import { isNamespacedKeyword } from '@pkgs/keyword';
-import { col, honey, raw, registerHoneyFn, sql, unsafe } from '@pkgs/sql';
+import { col, raw, registerHoneyFn, sql, sqlMap, unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   ADD_METADATA_COLUMN_TO_MATCHED_SQL,
+  buildCreateTickFunctionSql,
+  buildCreateWaitingChildSql,
+  buildCreateWaitingTableSql,
   CREATE_ACTIVE_PARTITIONS_TABLE_SQL,
   CREATE_MATCHED_MATCH_ID_INDEX_SQL,
   CREATE_MATCHED_MATCHED_AT_INDEX_SQL,
@@ -71,9 +74,6 @@ import {
   DROP_TICK_FUNCTION_SQL,
   DROP_WAITING_TABLE_SQL,
   NUM_WAITING_PARTITIONS,
-  buildCreateTickFunctionSql,
-  buildCreateWaitingChildSql,
-  buildCreateWaitingTableSql,
 } from './migrate-sql';
 import { DEFAULT_RADIUS_OPTIONS, type RadiusOptions } from './types';
 
@@ -285,7 +285,7 @@ async function maybeRebuildSchema(
 ): Promise<void> {
   const fp = fingerprintSchema(schema);
   const state = await sqlClient.query<{ schema_fingerprint: string }>(
-    honey({
+    sqlMap({
       select: ['schema_fingerprint'],
       from: 'matchmaking_schema_state',
       where: ['=', 'id', 1],
@@ -296,7 +296,7 @@ async function maybeRebuildSchema(
 
   await rebuildWaitingTable(sqlClient, schema);
   await sqlClient.run(
-    honey({
+    sqlMap({
       insertInto: 'matchmaking_schema_state',
       values: { id: 1, schema_fingerprint: fp },
       onConflict: {
@@ -356,7 +356,7 @@ async function scheduleMatchmakingTick(sqlClient: SqlClient): Promise<void> {
   // re-schedule. The unschedule fallback is itself best-effort; if the
   // platform doesn't expose unschedule we surface the original error.
   const tickBody = `SELECT matchmaking_tick()`;
-  const scheduleQuery = honey({
+  const scheduleQuery = sqlMap({
     select: [
       [
         [
@@ -376,7 +376,7 @@ async function scheduleMatchmakingTick(sqlClient: SqlClient): Promise<void> {
     if (!isCronDuplicateNameError(err)) throw err;
   }
   await sqlClient.run(
-    honey({ select: [['cron.unschedule', ['param', CRON_JOB_NAME]]] })
+    sqlMap({ select: [['cron.unschedule', ['param', CRON_JOB_NAME]]] })
   );
   await sqlClient.run(scheduleQuery);
 }

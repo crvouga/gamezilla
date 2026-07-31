@@ -4,7 +4,7 @@ import {
   ChessPuzzleCol,
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
-import { honey, type Expr, type Sql } from '@pkgs/sql';
+import { sqlMap, type Expr, type Sql } from '@pkgs/sql';
 import { PUZZLE_RATING_BAND_SIZE } from '../../shared/chess-puzzle-feed-config';
 
 export { chessPuzzleSyncRatingBands } from '../../shared/chess-puzzle-feed-config';
@@ -60,7 +60,7 @@ export function buildPuzzleCandidatesSql(
   if (args.currentPuzzleId !== null && args.currentPuzzleId.length > 0) {
     conditions.push(['!=', ChessPuzzleCol.id, args.currentPuzzleId]);
   }
-  return honey({
+  return sqlMap({
     select: [ChessPuzzleCol.id, ChessPuzzleCol.rating],
     from: CHESS_PUZZLES_TABLE.tableName,
     ...(conditions.length > 0 ? { where: ['and', ...conditions] } : {}),

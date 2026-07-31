@@ -3,13 +3,13 @@ import { beforeEach, describe, expect, test } from 'bun:test';
 import {
   SPACE_USERS_TABLE,
   SpaceCol,
-  SpaceUserCol,
   SPACES_TABLE,
+  SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { ident, sql, sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { honey, sql, ident } from '@pkgs/sql';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
 import { createSpaceWrite } from '../shared/create-space/create-space-write';
@@ -71,7 +71,7 @@ function ctx(args: {
 async function seedHostSpace(db: SqlClient): Promise<void> {
   const now = new Date().toISOString();
   await db.run(
-    honey({
+    sqlMap({
       insertInto: SPACES_TABLE.tableName,
       values: {
         [SpaceCol.id]: SPACE_ID,
@@ -84,7 +84,7 @@ async function seedHostSpace(db: SqlClient): Promise<void> {
     })
   );
   await db.run(
-    honey({
+    sqlMap({
       insertInto: SPACE_USERS_TABLE.tableName,
       values: {
         [SpaceUserCol.id]: spaceUserEntityId(SPACE_ID, ACCOUNT_ID),
@@ -99,7 +99,7 @@ async function seedHostSpace(db: SqlClient): Promise<void> {
 
 async function readSpaceUser(db: SqlClient, userId: string): Promise<boolean> {
   const rows = await db.query<{ readonly id: string }>(
-    honey({
+    sqlMap({
       select: [SpaceUserCol.id],
       from: SPACE_USERS_TABLE.tableName,
       where: ['=', SpaceUserCol.id, spaceUserEntityId(SPACE_ID, userId)],
@@ -118,7 +118,7 @@ async function readSpaceHost(db: SqlClient): Promise<{
     readonly host_account_id: string | null;
     readonly ended_at: string | null;
   }>(
-    honey({
+    sqlMap({
       select: [SpaceCol.hostMemberId, SpaceCol.hostAccountId, SpaceCol.endedAt],
       from: SPACES_TABLE.tableName,
       where: ['=', SpaceCol.id, SPACE_ID],
@@ -163,7 +163,7 @@ describe('leave / join / create require account', () => {
   test('host leave with guest space_user ends the space', async () => {
     const now = new Date().toISOString();
     await db.run(
-      honey({
+      sqlMap({
         insertInto: SPACE_USERS_TABLE.tableName,
         values: {
           [SpaceUserCol.id]: spaceUserEntityId(SPACE_ID, GUEST_ACCOUNT_ID),
@@ -183,7 +183,7 @@ describe('leave / join / create require account', () => {
   test('guest leave keeps space live and retains space_users', async () => {
     const now = new Date().toISOString();
     await db.run(
-      honey({
+      sqlMap({
         insertInto: SPACE_USERS_TABLE.tableName,
         values: {
           [SpaceUserCol.id]: spaceUserEntityId(SPACE_ID, GUEST_ACCOUNT_ID),
@@ -210,7 +210,7 @@ describe('leave / join / create require account', () => {
     expect((await readSpaceHost(db)).endedAt).not.toBeNull();
 
     await db.run(
-      honey({
+      sqlMap({
         update: SPACES_TABLE.tableName,
         set: {
           [SpaceCol.endedAt]: null,

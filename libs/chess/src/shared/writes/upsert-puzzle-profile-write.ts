@@ -2,12 +2,12 @@ import {
   CHESS_PUZZLE_PROFILES_TABLE,
   ChessPuzzleProfileCol,
 } from '@libs/db/shared/chess-tables';
-import { fail, ok } from '@pkgs/write/shared/write-result';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { idMatches, ownerMatches } from '@pkgs/write/shared/read-row-values';
 import type { RowChange } from '@pkgs/write/shared/row-change';
+import { fail, ok } from '@pkgs/write/shared/write-result';
 
 export type UpsertPuzzleProfileInput = {
   readonly ownerId: string;
@@ -124,7 +124,7 @@ async function updateProfileRow(
   input: UpsertPuzzleProfileInput
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       update: CHESS_PUZZLE_PROFILES_TABLE.tableName,
       set: {
         [ChessPuzzleProfileCol.rating]: input.rating,
@@ -141,7 +141,7 @@ async function insertProfileRow(
   input: UpsertPuzzleProfileInput
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       insertInto: CHESS_PUZZLE_PROFILES_TABLE.tableName,
       values: {
         [ChessPuzzleProfileCol.id]: input.ownerId,
@@ -163,7 +163,7 @@ export const upsertPuzzleProfileWrite = defineWrite<
   authorize: async (ctx, input) => authorizeUpsertPuzzleProfile(ctx, input),
   execute: async (_ctx, input, db) => {
     const existing = await db.query(
-      honey({
+      sqlMap({
         select: [ChessPuzzleProfileCol.id],
         from: CHESS_PUZZLE_PROFILES_TABLE.tableName,
         where: ['=', ChessPuzzleProfileCol.id, input.ownerId],

@@ -1,9 +1,9 @@
 import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { fail, ok } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { idMatches } from '@pkgs/write/shared/read-row-values';
+import { fail, ok } from '@pkgs/write/shared/write-result';
 
 export type DeviceSnapshot = Readonly<Record<string, string | null>>;
 
@@ -122,7 +122,7 @@ async function insertDeviceRow(
   cols.forEach((column, index) => {
     values[column] = vals[index] ?? null;
   });
-  await db.run(honey({ insertInto: DEVICES_TABLE.tableName, values }));
+  await db.run(sqlMap({ insertInto: DEVICES_TABLE.tableName, values }));
 }
 
 async function updateDeviceRow(
@@ -133,7 +133,7 @@ async function updateDeviceRow(
   const entries = Object.entries(updates);
   if (entries.length === 0) return;
   await db.run(
-    honey({
+    sqlMap({
       update: DEVICES_TABLE.tableName,
       set: updates,
       where: ['=', DeviceCol.id, deviceId],
@@ -159,7 +159,7 @@ export const ensureDeviceWrite = defineWrite<EnsureDeviceInput, void>({
   },
   execute: async (_ctx, input, db) => {
     const rows = await db.query<DeviceRow>(
-      honey({
+      sqlMap({
         from: DEVICES_TABLE.tableName,
         where: ['=', DeviceCol.id, input.deviceId],
         limit: 1,

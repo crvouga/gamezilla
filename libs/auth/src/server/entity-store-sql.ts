@@ -4,7 +4,7 @@ import {
   ENTITY_STORE_TYPE_USER,
   entityStoreId,
 } from '@libs/db/shared/entity-store-table';
-import { honey, col } from '@pkgs/sql';
+import { col, sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 type EntityStoreDataRow = { readonly data: unknown };
@@ -29,7 +29,7 @@ export async function readAuthUserEntityData(
   ownerId: string
 ): Promise<Record<string, unknown> | null> {
   const rows = await db.query<EntityStoreDataRow>(
-    honey({
+    sqlMap({
       select: ['data'],
       from: ENTITY_STORE_TABLE,
       where: [
@@ -59,7 +59,7 @@ export async function upsertAuthUserSnapshot(
   );
   const now = new Date().toISOString();
   await db.run(
-    honey({
+    sqlMap({
       insertInto: ENTITY_STORE_TABLE,
       values: {
         id,

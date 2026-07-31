@@ -1,21 +1,21 @@
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '../shared/external-account-providers';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
-  UserTableCol,
   USERS_TABLE,
+  UserTableCol,
 } from '@libs/db/shared/external-accounts-tables';
+import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '../shared/external-account-providers';
 import { useAuthClientPort } from './auth-client-provider';
+import { isAuthSessionSignedIn } from './session-snapshot';
 import {
-  useCurrentAccountId,
   getCachedCurrentAccountId,
+  useCurrentAccountId,
 } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
 import { useFreshAuthToken } from './use-fresh-auth-token';
-import { isAuthSessionSignedIn } from './session-snapshot';
 
 export type CurrentUser = {
   accountId: string;
@@ -44,7 +44,7 @@ type StripeLinkRow = {
 export function useCurrentUser(): CurrentUser | null {
   const accountId = useCurrentAccountId();
   const { row: userRow } = useWatchOne<UserRow>(
-    honey({
+    sqlMap({
       select: [UserTableCol.createdAt],
       from: USERS_TABLE,
       where: ['=', UserTableCol.id, accountId ?? ''],
@@ -52,12 +52,12 @@ export function useCurrentUser(): CurrentUser | null {
   );
   const { row: stripeRow } = useWatchOne<StripeLinkRow>(
     accountId === null
-      ? honey({
+      ? sqlMap({
           select: [[ExternalAccountCol.externalId, 'external_id']],
           from: EXTERNAL_ACCOUNTS_TABLE,
           where: ['=', 1, 0],
         })
-      : honey({
+      : sqlMap({
           select: [[ExternalAccountCol.externalId, 'external_id']],
           from: EXTERNAL_ACCOUNTS_TABLE,
           where: [

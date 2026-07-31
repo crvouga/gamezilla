@@ -1,5 +1,5 @@
+import { sqlMap } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
-import { honey } from '@pkgs/sql';
 
 import {
   CHESS_PUZZLE_PROFILES_TABLE,
@@ -16,7 +16,7 @@ export function useChessPuzzleProfileRatings(myId: string): {
   profileRd: number;
 } {
   const { row } = useWatchOne<PuzzleProfileRatingsRow>(
-    honey({
+    sqlMap({
       select: [
         [ChessPuzzleProfileCol.rating, 'rating'],
         [ChessPuzzleProfileCol.ratingDeviation, 'rating_deviation'],

@@ -17,14 +17,14 @@
  *
  * ## Output
  *
- * {@link honey} returns a {@link Sql} instance — nestable in `sql\`...\`` and
+ * {@link sqlMap} returns a {@link Sql} instance — nestable in `sql\`...\`` and
  * readable via `.sql` (`?`), `.text` (`$n`), `.statement` (`:n`), and `.values`.
  *
  * @example
  * ```ts
  * import { honey, col, sql } from '@pkgs/sql';
  *
- * const q = honey({
+ * const q = sqlMap({
  *   select: ['id', 'name', [['count', '*'], 'n']],
  *   from: [['users', 'u']],
  *   join: [['orders', 'o'], ['=', 'o.user_id', col('u.id')]],
@@ -35,7 +35,7 @@
  * });
  *
  * // Upsert with cast + ON CONFLICT:
- * honey({
+ * sqlMap({
  *   insertInto: 'kv',
  *   values: { key: 'k', value: ['cast', '{}', 'jsonb'] },
  *   onConflict: {
@@ -85,7 +85,6 @@ type _HoneyValuesNotSqlValues = [NonNullable<Query['values']>] extends [
   : true;
 true satisfies _HoneyValuesNotSqlValues;
 
-export type { HoneyCompileCtx, HoneyOpCompiler } from './honey-registry';
 export {
   registerHoneyCast,
   registerHoneyCollation,
@@ -93,6 +92,7 @@ export {
   registerHoneyOp,
   resetHoneyRegistry,
 } from './honey-registry';
+export type { HoneyCompileCtx, HoneyOpCompiler } from './honey-registry';
 
 /**
  * Compile a honey query map to a nested {@link Sql} fragment.
@@ -103,7 +103,7 @@ export {
  * @param query - HoneySQL-style query map (see {@link Query}).
  * @returns Nested {@link Sql} ready to execute or embed in `sql\`...\``.
  */
-export function honey(query: Query): Sql {
+export function sqlMap(query: Query): Sql {
   assert.ok(
     query !== null && typeof query === 'object' && !Array.isArray(query),
     'honey: query must be an object',
@@ -117,7 +117,7 @@ export function honey(query: Query): Sql {
  *
  * @example
  * ```ts
- * honey({
+ * sqlMap({
  *   update: 'users',
  *   set: { updated_at: col('created_at') },
  *   where: ['=', 'id', 1],

@@ -3,9 +3,9 @@ import {
   FRIEND_REQUESTS_TABLE,
   FriendRequestCol,
 } from '@libs/db/shared/friends-tables';
-import { honey, type Sql } from '@pkgs/sql';
-import { useMemo } from 'react';
+import { sqlMap, type Sql } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useMemo } from 'react';
 
 import type { FriendRequest } from '../shared/friends-types';
 
@@ -33,9 +33,12 @@ const FRIEND_REQUEST_COLUMNS = [
 
 function pendingIncomingSql(myId: string): Sql {
   if (myId.length === 0) {
-    return honey({ from: FRIEND_REQUESTS_TABLE.tableName, where: ['=', 1, 0] });
+    return sqlMap({
+      from: FRIEND_REQUESTS_TABLE.tableName,
+      where: ['=', 1, 0],
+    });
   }
-  return honey({
+  return sqlMap({
     select: FRIEND_REQUEST_COLUMNS,
     from: FRIEND_REQUESTS_TABLE.tableName,
     where: [
@@ -49,9 +52,12 @@ function pendingIncomingSql(myId: string): Sql {
 
 function pendingOutgoingSql(myId: string): Sql {
   if (myId.length === 0) {
-    return honey({ from: FRIEND_REQUESTS_TABLE.tableName, where: ['=', 1, 0] });
+    return sqlMap({
+      from: FRIEND_REQUESTS_TABLE.tableName,
+      where: ['=', 1, 0],
+    });
   }
-  return honey({
+  return sqlMap({
     select: FRIEND_REQUEST_COLUMNS,
     from: FRIEND_REQUESTS_TABLE.tableName,
     where: [

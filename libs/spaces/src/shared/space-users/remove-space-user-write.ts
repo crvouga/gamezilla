@@ -3,9 +3,9 @@ import {
   SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
-import { honey } from '@pkgs/sql';
-import { ok, type WriteResult } from '@pkgs/write/shared/write-result';
+import { sqlMap } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
+import { ok, type WriteResult } from '@pkgs/write/shared/write-result';
 
 import {
   asObjectRecord,
@@ -44,7 +44,7 @@ export const removeSpaceUserWrite = defineWrite<RemoveSpaceUserInput, void>({
   execute: async (_ctx, input, db) => {
     const id = spaceUserEntityId(input.spaceId, input.userId);
     await db.run(
-      honey({
+      sqlMap({
         deleteFrom: SPACE_USERS_TABLE.tableName,
         where: ['=', SpaceUserCol.id, id],
       })

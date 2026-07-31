@@ -3,11 +3,11 @@ import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 
 import {
   col,
-  honey,
   registerHoneyCast,
   registerHoneyFn,
   registerHoneyOp,
   resetHoneyRegistry,
+  sqlMap,
 } from './honey';
 import sql, { Sql } from './sql';
 
@@ -35,14 +35,14 @@ afterAll(() => {
 describe('honey', () => {
   describe('SELECT', () => {
     it('compiles bare select with default star', () => {
-      const q = honey({ from: 'books' });
+      const q = sqlMap({ from: 'books' });
       expect(q).toBeInstanceOf(Sql);
       expect(q.text).toEqual('SELECT * FROM books');
       expect(q.values).toEqual([]);
     });
 
     it('compiles columns, aliases, distinct, and aggregates', () => {
-      const q = honey({
+      const q = sqlMap({
         select: ['id', 'name', [['count', '*'], 'n']],
         distinct: true,
         from: [['users', 'u']],
@@ -54,7 +54,7 @@ describe('honey', () => {
     });
 
     it('compiles multi-table from', () => {
-      const q = honey({
+      const q = sqlMap({
         select: ['t1.id'],
         from: [
           ['t1', 't1'],
@@ -65,7 +65,7 @@ describe('honey', () => {
     });
 
     it('compiles groupBy, having, orderBy, limit, offset', () => {
-      const q = honey({
+      const q = sqlMap({
         select: [[['count', '*'], 'n']],
         from: 'users',
         groupBy: ['role'],
@@ -83,7 +83,7 @@ describe('honey', () => {
 
   describe('JOINs', () => {
     it('compiles inner join (single JoinSpec)', () => {
-      const q = honey({
+      const q = sqlMap({
         select: ['u.id'],
         from: [['users', 'u']],
         join: [
@@ -97,7 +97,7 @@ describe('honey', () => {
     });
 
     it('compiles left and right joins (list form)', () => {
-      const q = honey({
+      const q = sqlMap({
         select: ['u.id'],
         from: [['users', 'u']],
         leftJoin: [
@@ -121,7 +121,7 @@ describe('honey', () => {
 
   describe('WHERE / operators', () => {
     it('compiles and/or/not and infix ops', () => {
-      const q = honey({
+      const q = sqlMap({
         select: ['id'],
         from: 'users',
         where: [
@@ -137,7 +137,7 @@ describe('honey', () => {
     });
 
     it('compiles in / not-in list, empty, and subquery', () => {
-      const list = honey({
+      const list = sqlMap({
         select: ['id'],
         from: 'users',
         where: ['in', 'role', ['admin', 'staff']],
@@ -145,21 +145,21 @@ describe('honey', () => {
       expect(list.text).toEqual('SELECT id FROM users WHERE role IN ($1, $2)');
       expect(list.values).toEqual(['admin', 'staff']);
 
-      const emptyIn = honey({
+      const emptyIn = sqlMap({
         select: ['id'],
         from: 'users',
         where: ['in', 'id', []],
       });
       expect(emptyIn.text).toEqual('SELECT id FROM users WHERE 1 = 0');
 
-      const emptyNotIn = honey({
+      const emptyNotIn = sqlMap({
         select: ['id'],
         from: 'users',
         where: ['not-in', 'id', []],
       });
       expect(emptyNotIn.text).toEqual('SELECT id FROM users WHERE 1 = 1');
 
-      const sub = honey({
+      const sub = sqlMap({
         select: ['id'],
         from: 'users',
         where: [
@@ -175,7 +175,7 @@ describe('honey', () => {
     });
 
     it('compiles between, is-null, is-not-null, exists', () => {
-      const q = honey({
+      const q = sqlMap({
         select: ['id'],
         from: 'users',
         where: [
@@ -200,7 +200,7 @@ describe('honey', () => {
     });
 
     it('compiles allowlisted functions', () => {
-      const q = honey({
+      const q = sqlMap({
         select: [['lower', 'name'], ['coalesce', 'nickname', 'name'], ['now']],
         from: 'users',
       });
@@ -212,7 +212,7 @@ describe('honey', () => {
 
   describe('DML', () => {
     it('compiles insert single and multi-row with returning', () => {
-      const single = honey({
+      const single = sqlMap({
         insertInto: 'users',
         values: { id: 1, name: 'Ada' },
         returning: ['id'],
@@ -222,7 +222,7 @@ describe('honey', () => {
       );
       expect(single.values).toEqual([1, 'Ada']);
 
-      const multi = honey({
+      const multi = sqlMap({
         insertInto: 'users',
         values: [
           { id: 1, name: 'Ada' },
@@ -236,7 +236,7 @@ describe('honey', () => {
     });
 
     it('compiles update set with scalar, col, and op', () => {
-      const q = honey({
+      const q = sqlMap({
         update: 'users',
         set: {
           name: 'Ada',
@@ -253,7 +253,7 @@ describe('honey', () => {
     });
 
     it('compiles delete with where and returning', () => {
-      const q = honey({
+      const q = sqlMap({
         deleteFrom: 'users',
         where: ['=', 'id', 9],
         returning: ['id'],
@@ -265,7 +265,7 @@ describe('honey', () => {
 
   describe('subqueries', () => {
     it('compiles subquery in from and select', () => {
-      const q = honey({
+      const q = sqlMap({
         select: [
           [
             {
@@ -292,7 +292,7 @@ describe('honey', () => {
 
   describe('Sql integration', () => {
     it('exposes sql/text/statement placeholders and nests in sql`...`', () => {
-      const q = honey({
+      const q = sqlMap({
         select: ['id'],
         from: 'users',
         where: ['=', 'name', 'Ada'],
@@ -310,7 +310,7 @@ describe('honey', () => {
     });
 
     it('col() works in value position', () => {
-      const q = honey({
+      const q = sqlMap({
         select: ['id'],
         from: [['users', 'u']],
         where: ['=', 'u.id', col('u.owner_id')],
@@ -324,7 +324,7 @@ describe('honey', () => {
 
   describe('cast', () => {
     it('compiles nested allowlisted casts', () => {
-      const q = honey({
+      const q = sqlMap({
         select: [[['cast', ['cast', 'payload', 'text'], 'jsonb'], 'data']],
         from: 'kv',
       });
@@ -333,7 +333,7 @@ describe('honey', () => {
     });
 
     it('compiles cast in insert values', () => {
-      const q = honey({
+      const q = sqlMap({
         insertInto: 'kv',
         values: {
           key: 'a',
@@ -348,7 +348,7 @@ describe('honey', () => {
 
     it('crashes on unknown cast type', () => {
       expect(() =>
-        honey({
+        sqlMap({
           select: [['cast', 1, 'bogus']],
           from: 't',
         })
@@ -358,7 +358,7 @@ describe('honey', () => {
 
   describe('onConflict', () => {
     it('compiles DO NOTHING', () => {
-      const q = honey({
+      const q = sqlMap({
         insertInto: 'users',
         values: { id: 1, name: 'Ada' },
         onConflict: { target: ['id'], doNothing: true },
@@ -370,7 +370,7 @@ describe('honey', () => {
     });
 
     it('compiles DO UPDATE SET with excluded cols', () => {
-      const q = honey({
+      const q = sqlMap({
         insertInto: 'kv',
         values: {
           key: 'k',
@@ -392,14 +392,14 @@ describe('honey', () => {
 
     it('crashes on empty target or mixed doNothing/set', () => {
       expect(() =>
-        honey({
+        sqlMap({
           insertInto: 'users',
           values: { id: 1 },
           onConflict: { target: [] },
         })
       ).toThrow('honey: onConflict.target must be a non-empty column list');
       expect(() =>
-        honey({
+        sqlMap({
           insertInto: 'users',
           values: { id: 1 },
           onConflict: {
@@ -414,7 +414,7 @@ describe('honey', () => {
 
   describe('with / union / locking', () => {
     it('compiles WITH CTE', () => {
-      const q = honey({
+      const q = sqlMap({
         with: [
           [
             'active',
@@ -431,7 +431,7 @@ describe('honey', () => {
     });
 
     it('compiles UNION ALL', () => {
-      const q = honey({
+      const q = sqlMap({
         unionAll: [
           { select: ['id'], from: 'a' },
           { select: ['id'], from: 'b', where: ['=', 'x', 1] },
@@ -444,7 +444,7 @@ describe('honey', () => {
     });
 
     it('compiles FOR UPDATE SKIP LOCKED', () => {
-      const q = honey({
+      const q = sqlMap({
         select: ['id'],
         from: 'jobs',
         where: ['=', 'done', false],
@@ -460,7 +460,7 @@ describe('honey', () => {
 
     it('crashes when mixing union kinds or skipLocked without forUpdate', () => {
       expect(() =>
-        honey({
+        sqlMap({
           union: [
             { select: ['id'], from: 'a' },
             { select: ['id'], from: 'b' },
@@ -472,14 +472,14 @@ describe('honey', () => {
         })
       ).toThrow('honey: cannot mix union and unionAll');
       expect(() =>
-        honey({ select: ['id'], from: 't', skipLocked: true })
+        sqlMap({ select: ['id'], from: 't', skipLocked: true })
       ).toThrow('honey: skipLocked requires forUpdate');
     });
   });
 
   describe('postgres helper fns', () => {
     it('compiles advisory lock helpers', () => {
-      const q = honey({
+      const q = sqlMap({
         select: [[['pg_try_advisory_lock', ['cast', 42, 'bigint']], 'ok']],
       });
       expect(q.text).toEqual('SELECT PG_TRY_ADVISORY_LOCK($1::bigint) AS ok');
@@ -489,7 +489,7 @@ describe('honey', () => {
 
   describe('case', () => {
     it('compiles CASE WHEN THEN ELSE', () => {
-      const q = honey({
+      const q = sqlMap({
         update: 'spaces',
         set: {
           n: [
@@ -514,7 +514,7 @@ describe('honey', () => {
 
   describe('param', () => {
     it('binds a string scalar inside coalesce', () => {
-      const q = honey({
+      const q = sqlMap({
         update: 'invites',
         set: {
           accepted_at: ['coalesce', 'accepted_at', ['param', '2020-01-01']],
@@ -530,31 +530,31 @@ describe('honey', () => {
 
   describe('safety', () => {
     it('crashes on invalid identifiers', () => {
-      expect(() => honey({ select: ['id;drop'], from: 'users' })).toThrow();
-      expect(() => honey({ from: 'users--' })).toThrow();
+      expect(() => sqlMap({ select: ['id;drop'], from: 'users' })).toThrow();
+      expect(() => sqlMap({ from: 'users--' })).toThrow();
     });
 
     it('crashes on unknown operators', () => {
       expect(() =>
-        honey({ select: ['id'], from: 'users', where: ['weird', 'a', 1] })
+        sqlMap({ select: ['id'], from: 'users', where: ['weird', 'a', 1] })
       ).toThrow('honey: unknown operator');
     });
 
     it('crashes on empty insert / update and bad limit', () => {
-      expect(() => honey({ insertInto: 'users' })).toThrow(
+      expect(() => sqlMap({ insertInto: 'users' })).toThrow(
         'honey: insertInto requires values or select'
       );
-      expect(() => honey({ update: 'users', set: {} })).toThrow(
+      expect(() => sqlMap({ update: 'users', set: {} })).toThrow(
         'honey: update requires set'
       );
       expect(() =>
-        honey({ select: ['id'], from: 'users', limit: -1 })
+        sqlMap({ select: ['id'], from: 'users', limit: -1 })
       ).toThrow();
       expect(() =>
-        honey({ select: ['id'], from: 'users', limit: 1.5 })
+        sqlMap({ select: ['id'], from: 'users', limit: 1.5 })
       ).toThrow();
       expect(() =>
-        honey({
+        sqlMap({
           select: ['id'],
           from: 'users',
           orderBy: [['id', 'sideways' as 'asc']],
@@ -565,7 +565,7 @@ describe('honey', () => {
 
   describe('order extras / concat / tuple / registry', () => {
     it('compiles orderBy with lower, nulls, and collate', () => {
-      const q = honey({
+      const q = sqlMap({
         select: ['id'],
         from: 'users',
         orderBy: [
@@ -580,7 +580,7 @@ describe('honey', () => {
     });
 
     it('compiles ||, ->>, tuple, and interval', () => {
-      const concat = honey({
+      const concat = sqlMap({
         select: ['id'],
         from: 't',
         where: ['like', 'name', ['||', ['param', 'pre'], '%']],
@@ -588,7 +588,7 @@ describe('honey', () => {
       expect(concat.text).toEqual('SELECT id FROM t WHERE name LIKE $1 || $2');
       expect(concat.values).toEqual(['pre', '%']);
 
-      const arrow = honey({
+      const arrow = sqlMap({
         select: ['id'],
         from: 't',
         where: ['=', ['->>', 'data', 'region'], 'us'],
@@ -596,7 +596,7 @@ describe('honey', () => {
       expect(arrow.text).toEqual('SELECT id FROM t WHERE data ->> $1 = $2');
       expect(arrow.values).toEqual(['region', 'us']);
 
-      const tup = honey({
+      const tup = sqlMap({
         select: ['id'],
         from: 't',
         where: [
@@ -609,7 +609,7 @@ describe('honey', () => {
         'SELECT id FROM t WHERE (a, b) < (SELECT a, b FROM c WHERE id = $1)'
       );
 
-      const iv = honey({
+      const iv = sqlMap({
         select: [['interval', '30 days']],
       });
       expect(iv.text).toEqual("SELECT INTERVAL '30 days'");
@@ -623,14 +623,14 @@ describe('honey', () => {
       });
       registerHoneyCast('cidr');
 
-      const tvf = honey({
+      const tvf = sqlMap({
         select: ['id'],
         from: [['my_tvf', 1, 2], 't'],
       });
       expect(tvf.text).toEqual('SELECT id FROM MY_TVF($1, $2) AS t');
       expect(tvf.values).toEqual([1, 2]);
 
-      const u = honey({
+      const u = sqlMap({
         unionAll: [
           { select: ['id'], from: 'a' },
           { select: ['id'], from: 'b' },
@@ -641,13 +641,13 @@ describe('honey', () => {
         '(SELECT id FROM a) UNION ALL (SELECT id FROM b) LIMIT $1'
       );
 
-      const del = honey({
+      const del = sqlMap({
         deleteFrom: ['parts', 'ap'],
         where: ['=', 'ap.id', 9],
       });
       expect(del.text).toEqual('DELETE FROM parts AS ap WHERE ap.id = $1');
 
-      const ins = honey({
+      const ins = sqlMap({
         insertInto: 'dest',
         columns: ['id', 'name'],
         select: ['id', 'name'],
@@ -658,7 +658,7 @@ describe('honey', () => {
         'INSERT INTO dest (id, name) SELECT id, name FROM src WHERE ok = $1'
       );
 
-      const recordset = honey({
+      const recordset = sqlMap({
         select: ['id'],
         from: [
           ['jsonb_to_recordset', ['cast', '{}', 'jsonb']],
@@ -673,14 +673,14 @@ describe('honey', () => {
         'SELECT id FROM JSONB_TO_RECORDSET($1::jsonb) AS r (id text, n integer)'
       );
 
-      const casted = honey({
+      const casted = sqlMap({
         select: [['cast', 'x', 'cidr']],
       });
       expect(casted.text).toEqual('SELECT $1::cidr');
 
       resetHoneyRegistry();
       expect(() =>
-        honey({ select: ['id'], from: [['my_tvf', 1], 't'] })
+        sqlMap({ select: ['id'], from: [['my_tvf', 1], 't'] })
       ).toThrow('honey: unknown operator');
     });
   });

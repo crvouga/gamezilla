@@ -63,7 +63,7 @@
 import { assert } from '@pkgs/assert';
 import type { AttributeState } from '@pkgs/attribute';
 import { asKeywordRecord, assertKeywordRecord } from '@pkgs/keyword';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   assertDataMatchesFormula,
@@ -346,7 +346,7 @@ export class Matchmaker {
     const metadata =
       attrs.metadata === null ? null : JSON.stringify(attrs.metadata);
     const rows = await this.sqlClient.query<{ id: string }>(
-      honey({
+      sqlMap({
         with: [
           [
             'ins',
@@ -438,7 +438,7 @@ export class Matchmaker {
     formulas: readonly FormulaWire[]
   ): Promise<UpdateFormulasResult> {
     const rows = await this.sqlClient.query<{ id: string }>(
-      honey({
+      sqlMap({
         update: 'matchmaking_waiting',
         set: { formulas: ['cast', JSON.stringify(formulas), 'jsonb'] },
         where: ['=', 'id', participantId],
@@ -460,7 +460,7 @@ export class Matchmaker {
       'Matchmaker.leave: participantId must be a non-empty string'
     );
     const rows = await this.sqlClient.query<{ id: string }>(
-      honey({
+      sqlMap({
         deleteFrom: 'matchmaking_waiting',
         where: ['=', 'id', participantId],
         returning: ['id'],

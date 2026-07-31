@@ -1,7 +1,7 @@
 import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
 import { DEVICES_TABLE, DeviceCol } from '@libs/db/shared/auth-tables';
-import { honey } from '@pkgs/sql';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
@@ -93,7 +93,7 @@ async function upsertDeviceRow(args: {
 }): Promise<void> {
   const { db, deviceId, userId, attributes } = args;
   const rows = await db.query<DeviceRow>(
-    honey({
+    sqlMap({
       from: DEVICES_TABLE.tableName,
       where: ['=', DeviceCol.id, deviceId],
       limit: 1,
@@ -120,7 +120,7 @@ async function upsertDeviceRow(args: {
     cols.forEach((column, index) => {
       values[column] = vals[index] ?? null;
     });
-    await db.run(honey({ insertInto: DEVICES_TABLE.tableName, values }));
+    await db.run(sqlMap({ insertInto: DEVICES_TABLE.tableName, values }));
     return;
   }
 
@@ -142,7 +142,7 @@ async function upsertDeviceRow(args: {
   const entries = Object.entries(updates);
   if (entries.length === 0) return;
   await db.run(
-    honey({
+    sqlMap({
       update: DEVICES_TABLE.tableName,
       set: updates,
       where: ['=', DeviceCol.id, deviceId],

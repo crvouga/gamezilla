@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 
 import { defineTable } from '../shared/table-definition';
 import { createTableRegistry } from '../shared/table-registry';
@@ -36,7 +36,7 @@ describe('createInMemorySyncEngine', () => {
     ]);
     const engine = createInMemorySyncEngine({ registry });
     const sub = engine.watch<{ id: string }>(
-      honey({ select: ['id'], from: 'profiles', where: 0 })
+      sqlMap({ select: ['id'], from: 'profiles', where: 0 })
     );
     expect(sub.getSnapshot()).toEqual([]);
     expect(sub.getHydrated()).toBe(false);
@@ -55,14 +55,14 @@ describe('createInMemorySyncEngine', () => {
     const engine = createInMemorySyncEngine({ registry });
     await engine.connect();
     await engine.db.run(
-      honey({
+      sqlMap({
         insertInto: 'profiles',
         values: { id: 'p1', display_name: 'Ada' },
       })
     );
 
     const sub = engine.watch<{ id: string; display_name: string }>(
-      honey({
+      sqlMap({
         select: ['id', 'display_name'],
         from: 'profiles',
         where: ['=', 'id', 'p1'],
@@ -87,14 +87,14 @@ describe('createInMemorySyncEngine', () => {
     const engine = createInMemorySyncEngine({ registry });
     await engine.connect();
     await engine.db.run(
-      honey({
+      sqlMap({
         insertInto: 'profiles',
         values: { id: 'p1', display_name: 'Ada' },
       })
     );
 
     const sub = engine.watch<{ display_name: string }>(
-      honey({
+      sqlMap({
         select: ['display_name'],
         from: 'profiles',
         where: ['=', 'id', 'p1'],
@@ -113,7 +113,7 @@ describe('createInMemorySyncEngine', () => {
     });
 
     await engine.db.run(
-      honey({
+      sqlMap({
         update: 'profiles',
         set: { display_name: 'Grace' },
         where: ['=', 'id', 'p1'],

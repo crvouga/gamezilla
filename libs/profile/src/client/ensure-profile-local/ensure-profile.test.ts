@@ -1,12 +1,12 @@
-import { describe, expect, test } from 'bun:test';
 import { Database } from 'bun:sqlite';
+import { describe, expect, test } from 'bun:test';
 
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { WriteContext } from '@pkgs/write/shared/write-context';
 
-import { applyEnsuredUsername, ensureProfile } from './ensure-profile';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { applyEnsuredUsername, ensureProfile } from './ensure-profile';
 
 const MY_ID = '550e8400-e29b-41d4-a716-446655440000';
 
@@ -42,7 +42,7 @@ describe('ensureProfile', () => {
 
     const row = (
       await sqlClient.query<Record<string, string>>(
-        honey({
+        sqlMap({
           select: [
             [ProfileCol.username, 'username'],
             [ProfileCol.avatarConfig, 'avatar_config'],
@@ -64,7 +64,7 @@ describe('ensureProfile', () => {
     await ensureProfile(sqlClient, ctx, MY_ID);
 
     const rows = await sqlClient.query<{ n: number }>(
-      honey({
+      sqlMap({
         select: [[['count', '*'], 'n']],
         from: PROFILES_TABLE.tableName,
         where: ['=', ProfileCol.id, MY_ID],
@@ -83,7 +83,7 @@ describe('ensureProfile', () => {
     });
     const row = (
       await sqlClient.query<Record<string, string>>(
-        honey({
+        sqlMap({
           select: [[ProfileCol.username, 'username']],
           from: PROFILES_TABLE.tableName,
           where: ['=', ProfileCol.id, MY_ID],
@@ -107,7 +107,7 @@ describe('ensureProfile', () => {
     });
     const row = (
       await sqlClient.query<Record<string, string>>(
-        honey({
+        sqlMap({
           select: [[ProfileCol.username, 'username']],
           from: PROFILES_TABLE.tableName,
           where: ['=', ProfileCol.id, MY_ID],
@@ -122,7 +122,7 @@ describe('ensureProfile', () => {
     const ctx = writeContextFor(MY_ID);
     await ensureProfile(sqlClient, ctx, MY_ID);
     await sqlClient.run(
-      honey({
+      sqlMap({
         update: PROFILES_TABLE.tableName,
         set: {
           [ProfileCol.username]: 'MyHandle',
@@ -137,7 +137,7 @@ describe('ensureProfile', () => {
     });
     const row = (
       await sqlClient.query<Record<string, string>>(
-        honey({
+        sqlMap({
           select: [[ProfileCol.username, 'username']],
           from: PROFILES_TABLE.tableName,
           where: ['=', ProfileCol.id, MY_ID],

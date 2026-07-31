@@ -1,12 +1,12 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import type { ProfileCard } from '../../shared/profile-card';
 import {
   ProfileError,
   profileErrorFromValidation,
 } from '../../shared/profile-errors';
-import type { ProfileCard } from '../../shared/profile-card';
 import {
   canChangeUsername,
   normalizeUsername,
@@ -35,7 +35,7 @@ async function readUsernameRow(
   profileId: string
 ): Promise<UsernameRow> {
   const rows = await db.query<UsernameRow>(
-    honey({
+    sqlMap({
       select: [
         [ProfileCol.username, 'username'],
         [ProfileCol.usernameChangedAt, 'username_changed_at'],
@@ -71,7 +71,7 @@ async function updateUsername(
   const now = new Date().toISOString();
   try {
     await db.run(
-      honey({
+      sqlMap({
         update: PROFILES_TABLE.tableName,
         set: {
           [ProfileCol.username]: username,

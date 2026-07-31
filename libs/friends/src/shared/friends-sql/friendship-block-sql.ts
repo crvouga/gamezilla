@@ -4,10 +4,10 @@ import {
   USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 
-import { canonicalUserPair } from '../canonical-pair';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { canonicalUserPair } from '../canonical-pair';
 import { pairId } from '../pair-id';
 
 function readString(row: Record<string, unknown>, key: string): string {
@@ -22,7 +22,7 @@ export async function friendshipExists(
 ): Promise<boolean> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       select: [FriendshipCol.id],
       from: FRIENDSHIPS_TABLE.tableName,
       where: [
@@ -42,7 +42,7 @@ export async function isBlockedEitherDirection(
   userB: string
 ): Promise<'none' | 'by_a' | 'by_b'> {
   const rows = await db.query<Record<string, unknown>>(
-    honey({
+    sqlMap({
       select: [UserBlockCol.blockerId, UserBlockCol.blockedId],
       from: USER_BLOCKS_TABLE.tableName,
       where: [
@@ -79,7 +79,7 @@ export async function insertFriendship(
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
   await db.run(
-    honey({
+    sqlMap({
       insertInto: FRIENDSHIPS_TABLE.tableName,
       values: {
         [FriendshipCol.id]: pairId(userLow, userHigh),
@@ -103,7 +103,7 @@ export async function deleteFriendship(
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
   await db.run(
-    honey({
+    sqlMap({
       deleteFrom: FRIENDSHIPS_TABLE.tableName,
       where: [
         'and',
@@ -121,7 +121,7 @@ export async function insertBlock(
   now: string
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       insertInto: USER_BLOCKS_TABLE.tableName,
       values: {
         [UserBlockCol.id]: pairId(blockerId, blockedId),
@@ -143,7 +143,7 @@ export async function deleteBlock(
   blockedId: string
 ): Promise<void> {
   await db.run(
-    honey({
+    sqlMap({
       deleteFrom: USER_BLOCKS_TABLE.tableName,
       where: [
         'and',

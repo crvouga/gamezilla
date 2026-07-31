@@ -4,13 +4,13 @@
  */
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Logger } from '@pkgs/logger';
-import { honey, raw } from '@pkgs/sql';
+import { raw, sqlMap } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { ensurePostgresSchema } from '@pkgs/sql-client/postgres/connect';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
-import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import { runPowerSyncSourceDbSql } from '@libs/infra/cli/resources/powersync-source-db';
 import { runSchemaSql } from '@libs/db/server/run-schema-sql';
+import { runPowerSyncSourceDbSql } from '@libs/infra/cli/resources/powersync-source-db';
 
 /**
  * Session/transaction advisory lock for `api:migrate`. Serializes concurrent
@@ -39,7 +39,7 @@ export async function runPostgresMigrations(
     await tx.run(raw("SET LOCAL lock_timeout = '0'"));
     logger.info('acquiring migrate advisory lock');
     await tx.run(
-      honey({
+      sqlMap({
         select: [
           [
             [

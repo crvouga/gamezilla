@@ -1,6 +1,6 @@
-import { SPACE_USERS_TABLE, SpaceUserCol } from '@libs/db/shared/space-tables';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { col, honey } from '@pkgs/sql';
+import { SPACE_USERS_TABLE, SpaceUserCol } from '@libs/db/shared/space-tables';
+import { col, sqlMap } from '@pkgs/sql';
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -23,7 +23,7 @@ export function useSpaceUserEntries(spaceId: string): {
   const enabled = spaceId.length > 0;
   const query = useMemo(
     () =>
-      honey({
+      sqlMap({
         select: [
           [`a.${SpaceUserCol.userId}`, 'user_id'],
           [`p.${ProfileCol.username}`, 'username'],

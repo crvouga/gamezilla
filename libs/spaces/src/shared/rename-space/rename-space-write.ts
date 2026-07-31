@@ -1,6 +1,6 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 import { fail, ok } from '@pkgs/write/shared/write-result';
 
@@ -46,7 +46,7 @@ export const renameSpaceWrite = defineWrite<RenameSpaceInput, void>({
     const trimmed = input.title.trim();
     const memberId = resolveSpaceMemberId(accountId.value);
     await db.run(
-      honey({
+      sqlMap({
         update: SPACES_TABLE.tableName,
         set: {
           [SpaceCol.title]: trimmed.length > 0 ? trimmed : null,

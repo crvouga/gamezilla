@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { honey } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql';
 import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -56,7 +56,7 @@ function usePuzzleProfileRating(): number {
   const myId = useMyId();
   const query = useMemo(
     () =>
-      honey({
+      sqlMap({
         select: [[ChessPuzzleProfileCol.rating, 'value']],
         from: CHESS_PUZZLE_PROFILES_TABLE.tableName,
         where: ['=', ChessPuzzleProfileCol.id, myId],
@@ -119,7 +119,7 @@ function useWaitingForLocalPuzzles(args: {
   noCandidates: boolean;
 }): boolean {
   const { value: localPuzzleTotal } = useWatchValue<number>(
-    honey({
+    sqlMap({
       select: [[['count', '*'], 'value']],
       from: CHESS_PUZZLES_TABLE.tableName,
     })

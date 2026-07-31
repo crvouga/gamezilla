@@ -1,10 +1,10 @@
 import {
   SPACE_USERS_TABLE,
   SpaceCol,
-  SpaceUserCol,
   SPACES_TABLE,
+  SpaceUserCol,
 } from '@libs/db/shared/space-tables';
-import { honey, type Sql } from '@pkgs/sql';
+import { sqlMap, type Sql } from '@pkgs/sql';
 
 /**
  * Shared lobby live ids: host of the space OR has a space_users ACL row.
@@ -13,7 +13,7 @@ export function sharedLiveSpaceIdsSql(args: {
   readonly memberId: string;
 }): Sql {
   const spaces = SPACES_TABLE.tableName;
-  return honey({
+  return sqlMap({
     select: [SpaceCol.id],
     from: spaces,
     where: [

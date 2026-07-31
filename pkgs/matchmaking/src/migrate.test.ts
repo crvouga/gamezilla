@@ -1,5 +1,5 @@
 import { PGlite } from '@electric-sql/pglite';
-import { honey, sql, type Sql } from '@pkgs/sql';
+import { sql, sqlMap, type Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { migrate } from './migrate';
@@ -173,7 +173,7 @@ describe('migrate v3 - idempotency', () => {
       await migrate({ sqlClient });
       await migrate({ sqlClient });
       const fp = await sqlClient.query<{ schema_fingerprint: string }>(
-        honey({
+        sqlMap({
           select: ['schema_fingerprint'],
           from: 'matchmaking_schema_state',
           where: ['=', 'id', 1],
@@ -195,7 +195,7 @@ describe('migrate v3 - idempotency', () => {
       // here is that the schema fingerprint flips and the new shape
       // permits an insert with caller-supplied partition_signature.
       await sqlClient.run(
-        honey({
+        sqlMap({
           insertInto: 'matchmaking_waiting',
           values: {
             data: [
@@ -214,7 +214,7 @@ describe('migrate v3 - idempotency', () => {
         schema: { partitionKeys: ['mmtest/region'] },
       });
       const fp = await sqlClient.query<{ schema_fingerprint: string }>(
-        honey({
+        sqlMap({
           select: ['schema_fingerprint'],
           from: 'matchmaking_schema_state',
           where: ['=', 'id', 1],
@@ -225,7 +225,7 @@ describe('migrate v3 - idempotency', () => {
       // Insert a row through the new schema using a JS-computed
       // partition_signature; verify it round-trips.
       await sqlClient.run(
-        honey({
+        sqlMap({
           insertInto: 'matchmaking_waiting',
           values: {
             data: [
@@ -239,7 +239,7 @@ describe('migrate v3 - idempotency', () => {
         })
       );
       const row = await sqlClient.query<{ partition_signature: string }>(
-        honey({
+        sqlMap({
           select: ['partition_signature'],
           from: 'matchmaking_waiting',
           where: ['=', ['->>', 'data', 'mmtest/region'], 'eu-west'],
@@ -397,7 +397,7 @@ describe('migrate - schema fingerprint stability', () => {
       };
       await migrate({ sqlClient, schema });
       const first = await sqlClient.query<{ fp: string }>(
-        honey({
+        sqlMap({
           select: [['schema_fingerprint', 'fp']],
           from: 'matchmaking_schema_state',
           where: ['=', 'id', 1],
@@ -407,7 +407,7 @@ describe('migrate - schema fingerprint stability', () => {
       expect(typeof firstFp).toBe('string');
       await migrate({ sqlClient, schema });
       const second = await sqlClient.query<{ fp: string }>(
-        honey({
+        sqlMap({
           select: [['schema_fingerprint', 'fp']],
           from: 'matchmaking_schema_state',
           where: ['=', 'id', 1],
@@ -427,7 +427,7 @@ describe('migrate - schema fingerprint stability', () => {
         schema: { partitionKeys: ['mmtest/region'] },
       });
       const first = await sqlClient.query<{ fp: string }>(
-        honey({
+        sqlMap({
           select: [['schema_fingerprint', 'fp']],
           from: 'matchmaking_schema_state',
           where: ['=', 'id', 1],
@@ -438,7 +438,7 @@ describe('migrate - schema fingerprint stability', () => {
         schema: { partitionKeys: ['mmtest/region', 'mmtest/kind'] },
       });
       const second = await sqlClient.query<{ fp: string }>(
-        honey({
+        sqlMap({
           select: [['schema_fingerprint', 'fp']],
           from: 'matchmaking_schema_state',
           where: ['=', 'id', 1],
@@ -458,13 +458,13 @@ describe('migrate - matchmaking_active_partitions prune', () => {
       await migrate({ sqlClient });
       // Seed a synthetic active-partitions row pointing at no waiters.
       await sqlClient.run(
-        honey({
+        sqlMap({
           insertInto: 'matchmaking_active_partitions',
           values: { partition_signature: 'orphaned-partition' },
         })
       );
       const before = await sqlClient.query<{ n: number }>(
-        honey({
+        sqlMap({
           select: [[['cast', ['count', '*'], 'int'], 'n']],
           from: 'matchmaking_active_partitions',
         })
@@ -472,7 +472,7 @@ describe('migrate - matchmaking_active_partitions prune', () => {
       expect(before[0]?.n).toBe(1);
       await sqlClient.query(sql`SELECT matchmaking_tick()`);
       const after = await sqlClient.query<{ n: number }>(
-        honey({
+        sqlMap({
           select: [[['cast', ['count', '*'], 'int'], 'n']],
           from: 'matchmaking_active_partitions',
         })
@@ -494,7 +494,7 @@ describe('migrate - matchmaking_active_partitions prune', () => {
       // (the two clauses are independent) by checking that the row
       // count drops to zero.
       await sqlClient.run(
-        honey({
+        sqlMap({
           insertInto: 'matchmaking_active_partitions',
           values: [
             {
@@ -507,7 +507,7 @@ describe('migrate - matchmaking_active_partitions prune', () => {
       );
       await sqlClient.query(sql`SELECT matchmaking_tick()`);
       const after = await sqlClient.query<{ n: number }>(
-        honey({
+        sqlMap({
           select: [[['cast', ['count', '*'], 'int'], 'n']],
           from: 'matchmaking_active_partitions',
         })
