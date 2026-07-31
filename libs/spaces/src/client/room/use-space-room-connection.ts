@@ -134,7 +134,6 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
 }
 
 function shouldSkipOpen(args: {
-  bootstrap: SpaceRoomConnectionBootstrap;
   bootstrapKey: string;
   hasBearerOrAnon: boolean;
   connectedKey: string | null;
@@ -149,17 +148,18 @@ function beginOpenSpaceRoom(
     tearDown: () => void;
     hasBearerOrAnon: boolean;
   }
-): (() => void) | undefined {
+): () => void {
   if (
     shouldSkipOpen({
-      bootstrap: args.bootstrap,
       bootstrapKey: args.bootstrapKey,
       hasBearerOrAnon: args.hasBearerOrAnon,
       connectedKey: args.connectedKeyRef.current,
       currentRoom: args.roomRef.current,
     })
   ) {
-    return undefined;
+    return () => {
+      args.tearDown();
+    };
   }
   if (
     args.connectedKeyRef.current !== null &&
@@ -170,13 +170,8 @@ function beginOpenSpaceRoom(
   args.openingKeyRef.current = args.bootstrapKey;
   const stop = openSpaceRoom(args);
   return () => {
-    if (
-      args.openingKeyRef.current === args.bootstrapKey &&
-      args.connectedKeyRef.current !== args.bootstrapKey
-    ) {
-      args.openingKeyRef.current = null;
-    }
     stop();
+    args.tearDown();
   };
 }
 

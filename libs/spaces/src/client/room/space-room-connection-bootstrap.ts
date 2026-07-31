@@ -7,6 +7,6 @@ export type SpaceRoomConnectionBootstrap = {
   myId: string;
   /** Install UUID for `anonId` query param when using bearer JWT on `/room`. */
   installId: string;
-  /** Per-tab / per-app-instance id; stable across reconnects within the mount. */
+  /** Per-tab client id; stable for the open-space session (survives detail remounts). */
   clientId: string;
 };

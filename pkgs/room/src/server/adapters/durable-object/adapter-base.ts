@@ -32,6 +32,8 @@ const WS_CLOSE = {
   /** RFC 6455 §7.4: 1003 — endpoint received data of a type it cannot accept. */
   invalidFrame: 1003,
   sessionLost: WS_CLOSE_SESSION_LOST,
+  /** Same (identity, clientId) reconnected; prior socket is obsolete. */
+  sessionTakenOver: 4000,
 } as const;
 
 /** All adapter HTTP error responses share the same JSON shape: `{ error: string }`. */
@@ -256,6 +258,7 @@ export class RoomDurableObjectAdapterBase<
 
   private acceptUpgrade(args: AcceptUpgradeArgs<S, C, E, Identity>): Response {
     const { server, identity, identityRaw, clientId, moduleName, topic } = args;
+    this.supersedeActorSession(server, identityRaw, clientId);
     const [client, serverWs] = newWebSocketPair();
     const connId = crypto.randomUUID();
     this.wsMeta.set(serverWs, { id: connId, identity, clientId, moduleName });
@@ -275,6 +278,30 @@ export class RoomDurableObjectAdapterBase<
       status: 101,
       webSocket: client,
     } as WebSocketUpgradeResponseInit);
+  }
+
+  /**
+   * Close and unregister any live socket for the same `(identity, clientId)`
+   * so reconnects cannot stack duplicate roster rows.
+   */
+  private supersedeActorSession(
+    server: RoomServer<S, C, E, Identity>,
+    identityRaw: string,
+    clientId: string
+  ): void {
+    const staleIds = server.connectionIdsForActor(identityRaw, clientId);
+    for (const connId of staleIds) {
+      for (const ws of this.ctx.getWebSockets(connId)) {
+        const meta = this.wsMeta.get(ws);
+        if (meta === undefined || meta.id !== connId) continue;
+        try {
+          ws.close(WS_CLOSE.sessionTakenOver, 'session taken over');
+        } catch {
+          // peer already closing
+        }
+      }
+      server.unregisterConnection(connId);
+    }
   }
 }
 

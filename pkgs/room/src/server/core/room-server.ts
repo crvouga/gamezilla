@@ -108,6 +108,20 @@ export class RoomServer<
     return this.connections.has(id);
   }
 
+  /**
+   * Live connection ids for the same actor session (`id` + `clientId`).
+   * Used to supersede orphaned sockets when a client reconnects.
+   */
+  connectionIdsForActor(actorId: string, clientId: string): readonly string[] {
+    const out: string[] = [];
+    for (const conn of this.connections.values()) {
+      if (conn.actor.id === actorId && conn.actor.clientId === clientId) {
+        out.push(conn.id);
+      }
+    }
+    return out;
+  }
+
   unregisterConnection(id: string): void {
     if (!this.connections.delete(id)) return;
     this.broadcastRoster();

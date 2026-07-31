@@ -1,6 +1,6 @@
 import { Box, Pressable, Text } from '@pkgs/ui';
-import { memo, useCallback, type ReactNode } from 'react';
-import type { LayoutChangeEvent } from 'react-native';
+import { memo, useCallback, type ReactNode, type Ref } from 'react';
+import type { LayoutChangeEvent, View } from 'react-native';
 
 import type { PuzzleHistoryPly } from '../../shared/chess-puzzle-move-history';
 
@@ -79,8 +79,9 @@ export function HistoryPlyCluster(p: {
   interactive: boolean;
   onSeek: (solveIdx: number) => void;
   onPlyLayout: (solveIdxAfter: number, event: LayoutChangeEvent) => void;
+  selectedRef?: Ref<View>;
 }): ReactNode {
-  const { ply, onPlyLayout } = p;
+  const { ply, onPlyLayout, selectedRef } = p;
   const prefix = moveNumberPrefix(ply);
   const handleLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -90,6 +91,7 @@ export function HistoryPlyCluster(p: {
   );
   return (
     <Box
+      ref={selectedRef}
       sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}
       onLayout={handleLayout}
     >

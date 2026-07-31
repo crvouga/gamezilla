@@ -10,6 +10,7 @@ import { AppLocalDatabaseProvider } from './app-local-database-provider';
 import { AppOpenSpacesProvider } from './app-open-spaces-provider';
 import { AppServicesProvider } from './app-services-provider';
 import { AppShellProvider } from './app-shell-provider';
+import { AppSpaceRoomsProvider } from './app-space-rooms-provider';
 import { AppUiProvider } from './app-ui-provider';
 
 void preventSplashAutoHide();
@@ -23,6 +24,9 @@ void preventSplashAutoHide();
  * - Local database (PowerSync sync engine) before UI (portal bridge reads sync engine).
  * - UI (BottomSheetModalProvider, AuthModalsProvider) before inbox (opens sign-in modal).
  * - UI before modal hosts inside AppUiProvider.
+ * - Games (SpaceModule) before space room host (opens WebSockets with that module).
+ * - Space rooms after sync + games so presence + module are available, and
+ *   before UI modals (leave/end dispatch into the open-room host).
  */
 const appProviders = [
   AppShellProvider,
@@ -31,11 +35,11 @@ const appProviders = [
   AppOpenSpacesProvider,
   AppServicesProvider,
   AppLocalDatabaseProvider,
+  AppGamesProvider,
+  AppSpaceRoomsProvider,
   AppUiProvider,
   AppInboxProvider,
-  AppGamesProvider,
 ];
-
 const USE_REACT_SCAN_DEV = false;
 
 export function AppProviders({ children }: { children: ReactNode }): ReactNode {

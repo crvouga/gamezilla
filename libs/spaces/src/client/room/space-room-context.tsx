@@ -1,7 +1,7 @@
 import { RoomClientsProvider, type AnyRoom } from '@pkgs/room';
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 
-import { useSpaceRoom } from './use-space-room';
+import { useSpaceOpenRoomEntry } from './space-open-rooms-context';
 import { SPACE_ROOM_NAME } from './use-space-room-selector';
 
 export type SpaceRoomProviderProps = {
@@ -21,24 +21,25 @@ export function useSpaceRoomClientId(): string | null {
 }
 
 /**
- * Opens the space room connection and registers it under {@link SPACE_ROOM_NAME}
- * for {@link useSpaceRoomSelector} / {@link useSpaceRoomDispatch}.
+ * Bridges the app-scoped open-space room into {@link SPACE_ROOM_NAME} for
+ * detail UI. Does not open or destroy sockets — that is owned by
+ * {@link SpaceOpenRoomsProvider}.
  */
 export function SpaceRoomProvider({
   spaceId,
   children,
 }: SpaceRoomProviderProps): ReactNode {
-  const state = useSpaceRoom(spaceId);
+  const entry = useSpaceOpenRoomEntry(spaceId);
   const roomMap = useMemo((): ReadonlyMap<string, AnyRoom> | null => {
-    if (state.room === null) return null;
+    if (entry === null) return null;
     const m = new Map<string, AnyRoom>();
-    m.set(SPACE_ROOM_NAME, state.room as AnyRoom);
+    m.set(SPACE_ROOM_NAME, entry.room as AnyRoom);
     return m;
-  }, [state.room]);
-  const session = useMemo(
-    (): SpaceRoomSession => ({ clientId: state.clientId }),
-    [state.clientId]
-  );
+  }, [entry]);
+  const session = useMemo((): SpaceRoomSession | null => {
+    if (entry === null) return null;
+    return { clientId: entry.clientId };
+  }, [entry]);
   return (
     <SpaceRoomSessionContext.Provider value={session}>
       <RoomClientsProvider rooms={roomMap}>{children}</RoomClientsProvider>

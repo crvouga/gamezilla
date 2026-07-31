@@ -12,9 +12,11 @@ import type {
   RoomState,
 } from '@pkgs/room';
 import { RoomMetaAttr, useRoomSnapshot } from '@pkgs/room';
-import { useMemo, useRef } from 'react';
+import type { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
+import { useMemo } from 'react';
 
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
+import { getOrCreateSpaceClientId } from './space-open-session-store';
 import { useSpaceRoomConnection } from './use-space-room-connection';
 import { useRoomResumeLiveness } from './use-room-resume-liveness';
 import { useSpacePresence } from '../use-space-presence';
@@ -24,9 +26,10 @@ type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
 export type SpaceRoomUiState = {
   /** Open room client for registry-backed hooks; `null` while connecting. */
   room: SpaceRoom | null;
+  transport: WebSocketRoomTransport | null;
   isSynced: boolean;
   roomActive: boolean;
-  /** Stable per-tab client id for the live roster. */
+  /** Stable per open-session client id for the live roster. */
   clientId: string;
 };
 
@@ -38,11 +41,7 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const kv = useKv();
   const sessionToken = useFreshAuthToken();
   const getFreshToken = useGetFreshAuthToken();
-  const clientIdRef = useRef<string | null>(null);
-  if (clientIdRef.current === null) {
-    clientIdRef.current = globalThis.crypto.randomUUID();
-  }
-  const clientId = clientIdRef.current;
+  const clientId = getOrCreateSpaceClientId(spaceId);
 
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
     if (
@@ -75,6 +74,7 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const isSynced = RoomMetaAttr.isSynced.from(snap);
   return {
     room,
+    transport,
     roomActive: room !== null,
     isSynced,
     clientId,
