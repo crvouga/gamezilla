@@ -440,9 +440,6 @@ function handleReclaim(state: RoomState, identity: string): HandleResult {
   if (host === identity) {
     return conflict('caller is already the puzzle host');
   }
-  // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6a0cc2'},body:JSON.stringify({sessionId:'6a0cc2',runId:'post-fix',hypothesisId:'C',location:'chess-puzzle-play-router.ts:handleReclaim',message:'reclaim accepted',data:{identitySuffix:identity.slice(-6),prevHostSuffix:host===null?null:String(host).slice(-6),status},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   return {
     ok: true,
     events: [ChessPuzzleHostReclaimed({ hostIdentity: identity })],
