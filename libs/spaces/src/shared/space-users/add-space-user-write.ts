@@ -1,18 +1,12 @@
-import {
-  SPACE_USERS_TABLE,
-  SpaceUserCol,
-  spaceUserEntityId,
-} from '@libs/db/shared/space-tables';
-import { honey } from '@pkgs/sql';
 import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 import { defineWrite } from '@pkgs/write/shared/define-write';
 
 import {
   asObjectRecord,
   authorizeSpaceHost,
-  isoNow,
   requireAccountId,
   requireNonEmptyString,
+  upsertSpaceUserRow,
 } from '../space-write-helpers';
 
 export type AddSpaceUserInput = {
@@ -49,23 +43,12 @@ export const addSpaceUserWrite = defineWrite<AddSpaceUserInput, void>({
   execute: async (ctx, input, db) => {
     const accountId = requireAccountId(ctx);
     if (!accountId.ok) return accountId;
-    const id = spaceUserEntityId(input.spaceId, input.userId);
-    await db.run(
-      honey({
-        insertInto: SPACE_USERS_TABLE.tableName,
-        values: {
-          [SpaceUserCol.id]: id,
-          [SpaceUserCol.spaceId]: input.spaceId,
-          [SpaceUserCol.userId]: input.userId,
-          [SpaceUserCol.createdAt]: isoNow(),
-          [SpaceUserCol.createdByAccountId]: accountId.value,
-        },
-        onConflict: {
-          target: [SpaceUserCol.id],
-          doNothing: true,
-        },
-      })
-    );
+    await upsertSpaceUserRow({
+      db,
+      spaceId: input.spaceId,
+      userId: input.userId,
+      createdByAccountId: accountId.value,
+    });
     return ok(undefined);
   },
 });

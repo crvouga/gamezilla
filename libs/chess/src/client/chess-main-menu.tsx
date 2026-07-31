@@ -24,6 +24,7 @@ import { ChessSettingsDeveloperUiComponentsScreen } from './chess-settings/chess
 import { ChessSettingsPuzzleFeedScreen } from './chess-settings/chess-settings-puzzle-feed-screen';
 import { ChessSettingsScreen } from './chess-settings/chess-settings-screen';
 import { useChessPuzzleFeedSubscription } from './chess-puzzle/use-chess-puzzle-feed-subscription';
+import { ChessPuzzleReviewScreen } from './chess-puzzle/chess-puzzle-review-screen';
 import { ChessStatsScreen } from './chess-puzzle/chess-stats-screen';
 
 export type ChessMainMenuProps = {
@@ -43,6 +44,8 @@ function ChessScreenContent({
       return <PuzzlePlayScreen />;
     case CHESS_SCREEN.stats:
       return <ChessStatsScreen />;
+    case CHESS_SCREEN.statsReview:
+      return <ChessPuzzleReviewScreen />;
     case CHESS_SCREEN.settings:
       return <ChessSettingsScreen />;
     case CHESS_SCREEN.settingsPuzzleFeed:

@@ -1,13 +1,23 @@
 import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
-import { Box, ScrollView, Text, componentDataSet, useTheme } from '@pkgs/ui';
+import {
+  Box,
+  MAIN_MENU_SCREEN_MAX_WIDTH,
+  MainMenuScreenHeader,
+  ScrollView,
+  Text,
+  componentDataSet,
+  useTheme,
+} from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import { useCallback, type ReactNode } from 'react';
 
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
+  SetChessSelectedReviewPuzzle,
 } from '../../shared/chess-main-menu';
+import type { ChessPuzzleGameLogEntry } from '../../shared/chess-puzzle-stats';
 import { ChessEloSparkline } from './chess-elo-sparkline';
 import { ChessGameLog } from './chess-game-log';
 import { ChessPuzzleEloChip } from './chess-puzzle-elo-chip';
@@ -23,6 +33,19 @@ export function ChessStatsScreen(): ReactNode {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
   }, [dispatch]);
 
+  const openReview = useCallback(
+    (entry: ChessPuzzleGameLogEntry) => {
+      dispatch(
+        SetChessSelectedReviewPuzzle({
+          puzzleId: entry.puzzleId,
+          solveIdx: 0,
+        })
+      );
+      dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.statsReview }));
+    },
+    [dispatch]
+  );
+
   return (
     <>
       <DefineBackButton onPress={backToRoot} />
@@ -30,12 +53,16 @@ export function ChessStatsScreen(): ReactNode {
         sx={{ flex: 1, alignSelf: 'stretch' }}
         {...componentDataSet('ChessStatsScreen', { screen: 'chess-stats' })}
       >
-        <Box sx={{ gap: 4, p: 4, pb: 8 }}>
-          <Text
-            variant="title"
-            style={{ color: theme.colors.text }}
-            label={<Trans>Puzzle stats</Trans>}
-          />
+        <Box
+          sx={{
+            gap: 4,
+            p: 4,
+            pb: 8,
+            alignSelf: 'center',
+          }}
+          style={{ width: '100%', maxWidth: MAIN_MENU_SCREEN_MAX_WIDTH }}
+        >
+          <MainMenuScreenHeader title={<Trans>Puzzle stats</Trans>} />
           <Box sx={{ alignItems: 'center', gap: 2 }}>
             <ChessPuzzleEloChip
               elo={stats.currentElo}
@@ -53,7 +80,7 @@ export function ChessStatsScreen(): ReactNode {
             style={{ color: theme.colors.text }}
             label={<Trans>Game log</Trans>}
           />
-          <ChessGameLog entries={gameLog} />
+          <ChessGameLog entries={gameLog} onSelectEntry={openReview} />
         </Box>
       </ScrollView>
     </>

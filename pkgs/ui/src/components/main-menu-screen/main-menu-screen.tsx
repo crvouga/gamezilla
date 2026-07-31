@@ -9,6 +9,7 @@ import { ButtonSurfaceFill } from '../button/button-surface-fill';
 import { CircleCheckIcon, ChevronRightIcon } from '../icons';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
+import { MainMenuScreenHeader } from './main-menu-screen-header';
 
 export type MainMenuItem = {
   /** Stable id for list keys. */
@@ -189,7 +190,6 @@ export function MainMenuScreen({
   screenId,
   dataSet,
 }: MainMenuScreenProps): ReactNode {
-  const hasHeader = title !== undefined || subtitle !== undefined;
   return (
     <Box
       {...componentDataSet('MainMenuScreen', {
@@ -199,28 +199,7 @@ export function MainMenuScreen({
       sx={{ px: 4, pb: 8, pt: 4, gap: 4, alignSelf: 'center' }}
       style={{ width: '100%', maxWidth: MAIN_MENU_SCREEN_MAX_WIDTH }}
     >
-      {hasHeader ? (
-        <Box sx={{ gap: 1, alignItems: 'center', py: 2 }}>
-          {title ? (
-            <Text
-              variant="heading"
-              sx={{ textAlign: 'center' }}
-              label={title}
-            />
-          ) : null}
-          {subtitle ? (
-            <Text
-              variant="body"
-              sx={{
-                color: 'textSecondary',
-                textAlign: 'center',
-                opacity: 0.75,
-              }}
-              label={subtitle}
-            />
-          ) : null}
-        </Box>
-      ) : null}
+      <MainMenuScreenHeader title={title} subtitle={subtitle} />
       {helper ? (
         <Text
           variant="body"

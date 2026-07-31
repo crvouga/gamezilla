@@ -7,9 +7,13 @@ import { ChessGameLogRow } from './chess-game-log-row';
 
 export type ChessGameLogProps = {
   entries: readonly ChessPuzzleGameLogEntry[];
+  onSelectEntry: (entry: ChessPuzzleGameLogEntry) => void;
 };
 
-export function ChessGameLog({ entries }: ChessGameLogProps): ReactNode {
+export function ChessGameLog({
+  entries,
+  onSelectEntry,
+}: ChessGameLogProps): ReactNode {
   const theme = useTheme();
   if (entries.length === 0) {
     return (
@@ -23,7 +27,11 @@ export function ChessGameLog({ entries }: ChessGameLogProps): ReactNode {
   return (
     <Box sx={{ gap: 2, alignSelf: 'stretch' }}>
       {entries.map((entry) => (
-        <ChessGameLogRow key={`${entry.puzzleId}-${entry.at}`} entry={entry} />
+        <ChessGameLogRow
+          key={`${entry.puzzleId}-${entry.at}`}
+          entry={entry}
+          onPress={() => onSelectEntry(entry)}
+        />
       ))}
     </Box>
   );

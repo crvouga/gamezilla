@@ -3,11 +3,11 @@ import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-se
 import { useMyId } from '@libs/auth/client/use-current-user';
 import {
   Box,
+  MainMenuScreenHeader,
   NumberStepper,
   ScrollView,
   SegmentedControl,
   Text,
-  useTheme,
 } from '@pkgs/ui';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
@@ -66,7 +66,6 @@ function PuzzleFeedModeSection(props: {
 }
 
 export function ChessSettingsPuzzleFeedScreen(): ReactNode {
-  const theme = useTheme();
   const dispatch = useSpaceRoomDispatch();
   const myId = useMyId();
   const { profileRating } = useChessPuzzleProfileRatings(myId);
@@ -96,21 +95,14 @@ export function ChessSettingsPuzzleFeedScreen(): ReactNode {
       <DefineBackButton onPress={backToSettings} />
       <ScrollView sx={{ flex: 1, alignSelf: 'stretch' }}>
         <Box sx={{ gap: 4, p: 4, pb: 8 }}>
-          <Box sx={{ gap: 1 }}>
-            <Text
-              variant="title"
-              style={{ color: theme.colors.text }}
-              label={<Trans>Puzzle feed</Trans>}
-            />
-            <Text
-              variant="caption"
-              label={
-                <Trans>
-                  Choose which puzzle ratings sync and get served next.
-                </Trans>
-              }
-            />
-          </Box>
+          <MainMenuScreenHeader
+            title={<Trans>Puzzle feed</Trans>}
+            subtitle={
+              <Trans>
+                Choose which puzzle ratings sync and get served next.
+              </Trans>
+            }
+          />
           <PuzzleFeedModeSection
             config={config}
             profileCaption={profileCaption}

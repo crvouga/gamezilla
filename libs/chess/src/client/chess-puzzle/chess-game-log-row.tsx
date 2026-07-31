@@ -1,4 +1,12 @@
-import { Box, CircleCheckIcon, Text, useTheme, XIcon } from '@pkgs/ui';
+import {
+  Box,
+  ChevronRightIcon,
+  CircleCheckIcon,
+  Pressable,
+  Text,
+  useTheme,
+  XIcon,
+} from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
@@ -21,11 +29,29 @@ function GameLogTitle({
   return <Trans>Abandoned · {puzzleRating}</Trans>;
 }
 
+function GameLogCaption({
+  puzzleId,
+  timeLabel,
+}: {
+  puzzleId: string;
+  timeLabel: string;
+}): ReactNode {
+  return (
+    <Trans>
+      {puzzleId} · {timeLabel}
+    </Trans>
+  );
+}
+
 export type ChessGameLogRowProps = {
   entry: ChessPuzzleGameLogEntry;
+  onPress: () => void;
 };
 
-export function ChessGameLogRow({ entry }: ChessGameLogRowProps): ReactNode {
+export function ChessGameLogRow({
+  entry,
+  onPress,
+}: ChessGameLogRowProps): ReactNode {
   const theme = useTheme();
   const solved = entry.outcome === 'solved';
   const puzzleRating = entry.puzzleRating;
@@ -36,45 +62,54 @@ export function ChessGameLogRow({ entry }: ChessGameLogRowProps): ReactNode {
       : entry.delta < 0
         ? theme.colors.destructive
         : theme.colors.textSecondary;
+  const Icon = solved ? CircleCheckIcon : XIcon;
 
   return (
-    <Box
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
       testID="chess-game-log-row"
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        p: 3,
-        borderRadius: 8,
-      }}
-      style={{ backgroundColor: theme.colors.surfaceMuted }}
     >
-      {(() => {
-        const Icon = solved ? CircleCheckIcon : XIcon;
-        return (
-          <Icon
-            size={18}
-            color={solved ? theme.colors.success : theme.colors.destructive}
+      <Box
+        sx={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 2,
+          p: 3,
+          borderRadius: 8,
+        }}
+        style={{ backgroundColor: theme.colors.surfaceMuted }}
+      >
+        <Icon
+          size={18}
+          color={solved ? theme.colors.success : theme.colors.destructive}
+        />
+        <Box sx={{ flex: 1, gap: 1 }}>
+          <Text
+            variant="bodyBold"
+            style={{ color: theme.colors.text }}
+            label={
+              <GameLogTitle solved={solved} puzzleRating={puzzleRating} />
+            }
           />
-        );
-      })()}
-      <Box sx={{ flex: 1, gap: 1 }}>
+          <Text
+            variant="caption"
+            style={{ color: theme.colors.textSecondary }}
+            label={
+              <GameLogCaption
+                puzzleId={entry.puzzleId}
+                timeLabel={timeLabel}
+              />
+            }
+          />
+        </Box>
         <Text
           variant="bodyBold"
-          style={{ color: theme.colors.text }}
-          label={<GameLogTitle solved={solved} puzzleRating={puzzleRating} />}
+          style={{ color: deltaColor }}
+          label={formatSignedDelta(entry.delta)}
         />
-        <Text
-          variant="caption"
-          style={{ color: theme.colors.textSecondary }}
-          label={timeLabel}
-        />
+        <ChevronRightIcon size={20} color={theme.colors.icon} />
       </Box>
-      <Text
-        variant="bodyBold"
-        style={{ color: deltaColor }}
-        label={formatSignedDelta(entry.delta)}
-      />
-    </Box>
+    </Pressable>
   );
 }

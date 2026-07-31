@@ -133,6 +133,14 @@ export async function upsertSpaceUserRow(args: {
   readonly createdByAccountId: string;
   readonly now?: string;
 }): Promise<void> {
+  // PowerSync synced names are SQLite views — INSERT … ON CONFLICT fails with
+  // "cannot UPSERT a view". Select-then-plain-INSERT is the client pattern.
+  const already = await isSpaceUserInStore(
+    args.db,
+    args.spaceId,
+    args.userId
+  );
+  if (already) return;
   await args.db.run(
     honey({
       insertInto: SPACE_USERS_TABLE.tableName,
@@ -142,10 +150,6 @@ export async function upsertSpaceUserRow(args: {
         [SpaceUserCol.userId]: args.userId,
         [SpaceUserCol.createdAt]: args.now ?? isoNow(),
         [SpaceUserCol.createdByAccountId]: args.createdByAccountId,
-      },
-      onConflict: {
-        target: [SpaceUserCol.id],
-        doNothing: true,
       },
     })
   );

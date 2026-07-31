@@ -6,6 +6,8 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/client/room/use-space-room-selector';
+import { useSpacePresence } from '@libs/spaces/client/room/use-space-presence';
+import { RoomMetaAttr } from '@pkgs/room';
 
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -33,10 +35,9 @@ function usePuzzleSessionIdentityReady(): boolean {
 }
 
 /**
- * When puzzle play was resumed from persisted room state, the recorded
- * `hostIdentity` may not match this member id. Reclaim transfers host to the
- * current actor so moves and hints authorize again. Same user on another
- * device does not reclaim (member ids match).
+ * Reclaim host only when the recorded host is no longer in the live room
+ * roster (stale / disconnected). Never steal from another connected player —
+ * that caused an infinite reclaim ping-pong and event-log spam.
  */
 function useReclaimStalePuzzleHost(): void {
   const memberId = useMyId();
@@ -45,12 +46,34 @@ function useReclaimStalePuzzleHost(): void {
   const hostIdentity = useSpaceRoomSelector(
     ChessPuzzlePlayAttr.hostIdentity.from
   );
+  const roomSynced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
+  const { peersByMemberId } = useSpacePresence();
   useEffect(() => {
-    if (memberId.length === 0) return;
-    if (roomStatus === CHESS_PUZZLE_PLAY_STATUS.idle) return;
-    if (hostIdentity === null || hostIdentity === memberId) return;
+    const hostConnected =
+      hostIdentity !== null && peersByMemberId.has(hostIdentity);
+    const willDispatch =
+      memberId.length > 0 &&
+      roomStatus !== CHESS_PUZZLE_PLAY_STATUS.idle &&
+      hostIdentity !== null &&
+      hostIdentity !== memberId &&
+      roomSynced &&
+      !hostConnected;
+    // #region agent log
+    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6a0cc2'},body:JSON.stringify({sessionId:'6a0cc2',runId:'post-fix',hypothesisId:'A',location:'use-puzzle-player-state.ts:useReclaimStalePuzzleHost',message:'reclaim effect tick',data:{memberIdSuffix:memberId.slice(-6),hostSuffix:hostIdentity===null?null:String(hostIdentity).slice(-6),hostIsSelf:hostIdentity===memberId,hostConnected,roomSynced,roomStatus,willDispatch},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    if (!willDispatch) return;
+    // #region agent log
+    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6a0cc2'},body:JSON.stringify({sessionId:'6a0cc2',runId:'post-fix',hypothesisId:'B',location:'use-puzzle-player-state.ts:dispatchReclaim',message:'dispatching ReclaimChessPuzzlePlay',data:{memberIdSuffix:memberId.slice(-6),hostSuffix:String(hostIdentity).slice(-6),roomStatus},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     dispatch(ReclaimChessPuzzlePlay({}));
-  }, [dispatch, hostIdentity, memberId, roomStatus]);
+  }, [
+    dispatch,
+    hostIdentity,
+    memberId,
+    peersByMemberId,
+    roomStatus,
+    roomSynced,
+  ]);
 }
 
 /**

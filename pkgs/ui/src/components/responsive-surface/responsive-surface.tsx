@@ -146,17 +146,16 @@ function useBottomSheetModalVisibility(
     if (hasPresentedRef.current) sheet.dismiss();
   }, [visible]);
 
+  // Sync React close from full dismiss only. `onChange(-1)` also fires on
+  // stack minimize (`switch`), which must not tear down the parent surface.
   const onDismiss = useCallback(() => {
     hasPresentedRef.current = false;
-  }, []);
+    if (visible) onClose();
+  }, [onClose, visible]);
 
-  const onChange = useCallback(
-    (index: number) => {
-      if (index === -1) hasPresentedRef.current = false;
-      if (index === -1 && visible) onClose();
-    },
-    [onClose, visible]
-  );
+  const onChange = useCallback((index: number) => {
+    if (index === -1) hasPresentedRef.current = false;
+  }, []);
 
   return { sheetRef, onDismiss, onChange };
 }
@@ -265,6 +264,7 @@ function MobileSheet({
             enableDynamicSizing: false as const,
             snapPoints: snapPoints ?? ['50%'],
           })}
+      stackBehavior="push"
       enablePanDownToClose
       onDismiss={onDismiss}
       onChange={onChange}

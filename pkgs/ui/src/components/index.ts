@@ -275,6 +275,11 @@ export {
 } from './floating-menu';
 
 // Compound Inputs
+export {
+  Combobox,
+  type ComboboxProps,
+  type ComboboxOption,
+} from './combobox';
 export { Select, type SelectProps, type SelectOption } from './select';
 export {
   SegmentedControl,
@@ -382,8 +387,10 @@ export {
 
 export {
   MainMenuScreen,
+  MainMenuScreenHeader,
   MAIN_MENU_SCREEN_MAX_WIDTH,
   type MainMenuItem,
+  type MainMenuScreenHeaderProps,
   type MainMenuScreenProps,
 } from './main-menu-screen';
 

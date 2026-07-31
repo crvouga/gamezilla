@@ -7,7 +7,10 @@ function formatRelativeTime(
   t: (strings: TemplateStringsArray, ...values: readonly number[]) => string
 ): string {
   const then = Date.parse(at);
-  if (!Number.isFinite(then)) return at;
+  if (!Number.isFinite(then)) {
+    const trimmed = at.trim();
+    return trimmed.length > 0 ? trimmed : t`just now`;
+  }
   const diffMs = nowMs - then;
   const mins = Math.floor(diffMs / 60_000);
   if (mins < 1) return t`just now`;
@@ -20,10 +23,10 @@ function formatRelativeTime(
 
 export function useRelativeTimeLabel(at: string): string {
   const { t } = useLingui();
-  const [nowMs, setNowMs] = useState(0);
+  const [nowMs, setNowMs] = useState(() => Date.now());
   useEffect(() => {
     setNowMs(Date.now());
   }, [at]);
-  if (nowMs === 0) return at;
-  return formatRelativeTime(at, nowMs, t);
+  const label = formatRelativeTime(at, nowMs, t);
+  return label.trim().length > 0 ? label : t`just now`;
 }
