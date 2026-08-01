@@ -1,6 +1,7 @@
-import { ok } from '@pkgs/write/shared/write-result';
-import { defineWrite } from '@pkgs/write/shared/define-write';
-import type { WriteResult } from '@pkgs/write/shared/write-result';
+import { SPACES_TABLE } from '@libs/db/shared/space-tables';
+import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
   asObjectRecord,
@@ -11,23 +12,36 @@ import { executeEndSpace, type EndSpaceInput } from './execute-end-space';
 
 export type { EndSpaceInput };
 
-function parseEndSpaceInput(raw: unknown): WriteResult<EndSpaceInput> {
+export function parseEndSpaceInput(raw: unknown): EndSpaceInput {
   const record = asObjectRecord(raw, 'end space input');
-  if (!record.ok) return record;
-  const spaceId = requireNonEmptyString(record.value['spaceId'], 'spaceId');
-  if (!spaceId.ok) return spaceId;
-  return ok({ spaceId: spaceId.value });
+  const spaceId = requireNonEmptyString(record['spaceId'], 'spaceId');
+  return { spaceId };
 }
 
-export const endSpaceWrite = defineWrite<EndSpaceInput, void>({
-  name: 'spaces.end',
-  parseInput: parseEndSpaceInput,
-  authorize: async (ctx, input, db) =>
-    authorizeSpaceHost(
-      ctx,
-      db,
-      input.spaceId,
-      'Only the host can end this space'
-    ),
-  execute: executeEndSpace,
-});
+export async function authorizeEndSpace(
+  auth: RulesAuth,
+  input: EndSpaceInput,
+  db: SqlClient
+): Promise<void> {
+  await authorizeSpaceHost(
+    auth,
+    db,
+    input.spaceId,
+    'Only the host can end this space'
+  );
+}
+
+export function endSpaceBeforeBatch(input: EndSpaceInput): UploadBatch {
+  return {
+    rows: [
+      {
+        op: 'patch',
+        table: SPACES_TABLE.tableName,
+        id: input.spaceId,
+        values: { ended_at: 'pending' },
+      },
+    ],
+  };
+}
+
+export { executeEndSpace };

@@ -1,6 +1,6 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { useConfigService } from '@libs/auth/client/config-service-context';
-import { useWriteContext } from '@libs/auth/client/use-write-context';
+import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, type ReactNode } from 'react';
 
@@ -18,7 +18,7 @@ import { ensureProfileOnline } from './ensure-profile-online/ensure-profile-onli
 function ProfileEntityBootstrap(): null {
   const engine = useSyncEngine();
   const myId = useMyId();
-  const writeContext = useWriteContext();
+  const auth = useRulesAuth();
   const config = useConfigService();
 
   useEffect(() => {
@@ -29,7 +29,7 @@ function ProfileEntityBootstrap(): null {
         // Seed local row immediately. Do not block on waitForFirstSync — a hung
         // connect() left us with empty usernames forever. Online ensure is the
         // uniqueness authority; apply only when card.userId matches myId.
-        await ensureProfile(engine.db, writeContext, myId);
+        await ensureProfile(engine.db, auth, myId);
         if (cancelled) return;
         const card = await ensureProfileOnline({
           config,
@@ -41,7 +41,7 @@ function ProfileEntityBootstrap(): null {
           return;
         }
         if (card.username.length > 0) {
-          await applyEnsuredUsername(engine.db, writeContext, {
+          await applyEnsuredUsername(engine.db, auth, {
             profileId: myId,
             username: card.username,
           });
@@ -53,7 +53,7 @@ function ProfileEntityBootstrap(): null {
     return () => {
       cancelled = true;
     };
-  }, [config, engine, myId, writeContext]);
+  }, [auth, config, engine, myId]);
 
   return null;
 }

@@ -1,39 +1,54 @@
-import { useWriteContext } from '@libs/auth/client/use-write-context';
+import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
+import { SPACE_RULES } from '@pkgs/rules/spaces/rules';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { runClientWrite } from '@pkgs/write/client/run-client-write';
+import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 import { useCallback } from 'react';
 
-import { addSpaceUserWrite } from '../../shared/space-users/add-space-user-write';
-import { removeSpaceUserWrite } from '../../shared/space-users/remove-space-user-write';
+import {
+  addSpaceUser,
+  addSpaceUserBeforeBatch,
+  authorizeAddSpaceUser,
+} from '../../shared/space-users/add-space-user-write';
+import {
+  authorizeRemoveSpaceUser,
+  removeSpaceUser,
+  removeSpaceUserBeforeBatch,
+} from '../../shared/space-users/remove-space-user-write';
 
 export function useAddSpaceUser() {
-  const writeContext = useWriteContext();
+  const auth = useRulesAuth();
   const engine = useSyncEngine();
   return useCallback(
     async (spaceId: string, userId: string) => {
-      await runClientWrite(
-        addSpaceUserWrite,
-        writeContext,
-        { spaceId, userId },
-        engine.db
-      );
+      const input = { spaceId, userId };
+      await authorizeAddSpaceUser(auth, input, engine.db);
+      await validatedWrite({
+        sql: engine.db,
+        auth,
+        rules: SPACE_RULES,
+        beforeBatch: addSpaceUserBeforeBatch(auth, input),
+        fn: (tx) => addSpaceUser(auth, input, tx),
+      });
     },
-    [engine, writeContext]
+    [auth, engine]
   );
 }
 
 export function useRemoveSpaceUser() {
-  const writeContext = useWriteContext();
+  const auth = useRulesAuth();
   const engine = useSyncEngine();
   return useCallback(
     async (spaceId: string, userId: string) => {
-      await runClientWrite(
-        removeSpaceUserWrite,
-        writeContext,
-        { spaceId, userId },
-        engine.db
-      );
+      const input = { spaceId, userId };
+      await authorizeRemoveSpaceUser(auth, input, engine.db);
+      await validatedWrite({
+        sql: engine.db,
+        auth,
+        rules: SPACE_RULES,
+        beforeBatch: removeSpaceUserBeforeBatch(input),
+        fn: (tx) => removeSpaceUser(auth, input, tx),
+      });
     },
-    [engine, writeContext]
+    [auth, engine]
   );
 }

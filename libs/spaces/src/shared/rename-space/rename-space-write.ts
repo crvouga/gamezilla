@@ -1,8 +1,11 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
+import { fail } from '@pkgs/rules/core/fail';
+import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
+import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import { sqlMap } from '@pkgs/sql';
-import { defineWrite } from '@pkgs/write/shared/define-write';
-import { fail, ok } from '@pkgs/write/shared/write-result';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
   asObjectRecord,
@@ -16,46 +19,61 @@ export type RenameSpaceInput = {
   readonly title: string;
 };
 
-function parseRenameSpaceInput(
-  raw: unknown
-): ReturnType<typeof ok<RenameSpaceInput>> | ReturnType<typeof fail> {
+export function parseRenameSpaceInput(raw: unknown): RenameSpaceInput {
   const record = asObjectRecord(raw, 'rename space input');
-  if (!record.ok) return record;
-  const spaceId = requireNonEmptyString(record.value['spaceId'], 'spaceId');
-  if (!spaceId.ok) return spaceId;
-  const title = record.value['title'];
+  const spaceId = requireNonEmptyString(record['spaceId'], 'spaceId');
+  const title = record['title'];
   if (typeof title !== 'string') {
-    return fail('INVALID_INPUT', 'title is required');
+    throwRulesReject([
+      fail('INVALID_INPUT', { params: { message: 'title is required' } }),
+    ]);
   }
-  return ok({ spaceId: spaceId.value, title });
+  return { spaceId, title };
 }
 
-export const renameSpaceWrite = defineWrite<RenameSpaceInput, void>({
-  name: 'spaces.rename',
-  parseInput: parseRenameSpaceInput,
-  authorize: async (ctx, input, db) =>
-    authorizeSpaceHost(
-      ctx,
-      db,
-      input.spaceId,
-      'Only the host can rename this space'
-    ),
-  execute: async (ctx, input, db) => {
-    const accountId = requireAccountId(ctx);
-    if (!accountId.ok) return accountId;
-    const trimmed = input.title.trim();
-    const memberId = resolveSpaceMemberId(accountId.value);
-    await db.run(
-      sqlMap({
-        update: SPACES_TABLE.tableName,
-        set: {
-          [SpaceCol.title]: trimmed.length > 0 ? trimmed : null,
-          [SpaceCol.hostId]: ctx.deviceId,
-          [SpaceCol.hostMemberId]: memberId,
-        },
-        where: ['=', SpaceCol.id, input.spaceId],
-      })
-    );
-    return ok(undefined);
-  },
-});
+export async function authorizeRenameSpace(
+  auth: RulesAuth,
+  input: RenameSpaceInput,
+  db: SqlClient
+): Promise<void> {
+  await authorizeSpaceHost(
+    auth,
+    db,
+    input.spaceId,
+    'Only the host can rename this space'
+  );
+}
+
+export function renameSpaceBeforeBatch(input: RenameSpaceInput): UploadBatch {
+  return {
+    rows: [
+      {
+        op: 'patch',
+        table: SPACES_TABLE.tableName,
+        id: input.spaceId,
+        values: { title: input.title },
+      },
+    ],
+  };
+}
+
+export async function renameSpace(
+  auth: RulesAuth,
+  input: RenameSpaceInput,
+  db: SqlClient
+): Promise<void> {
+  const accountId = requireAccountId(auth);
+  const trimmed = input.title.trim();
+  const memberId = resolveSpaceMemberId(accountId);
+  await db.run(
+    sqlMap({
+      update: SPACES_TABLE.tableName,
+      set: {
+        [SpaceCol.title]: trimmed.length > 0 ? trimmed : null,
+        [SpaceCol.hostId]: auth.deviceId,
+        [SpaceCol.hostMemberId]: memberId,
+      },
+      where: ['=', SpaceCol.id, input.spaceId],
+    })
+  );
+}

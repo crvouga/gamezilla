@@ -1,32 +1,30 @@
-import { mapAppAuthToWriteContext } from '@libs/auth/shared/map-app-auth-to-write-context';
-import { runWrite } from '@pkgs/write/shared/run-write';
-import { isWriteFailure, unwrap } from '@pkgs/write/shared/write-result';
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import type { Context } from 'hono';
 
 import type { ProfileCard } from '../../shared/profile-card';
+import { profileErrorFromValidation } from '../../shared/profile-errors';
+import { normalizeUsername, validateUsername } from '../../shared/username';
 import { withProfileAuth, writeFailureStatus } from '../profile-route-auth';
-import { profileSetUsernameWrite } from './profile-set-username-write';
+import { setProfileUsername } from './set-username-service';
 
 export function handleSetUsername(c: Context<ApiHonoEnv>): Promise<Response> {
   return withProfileAuth(c, async (auth) => {
     const body = (await c.req.json()) as { readonly username?: string };
     const sql = c.get('sqlClient');
-    const writeContext = mapAppAuthToWriteContext(auth);
-    const result = await runWrite({
-      write: profileSetUsernameWrite,
-      ctx: writeContext,
-      rawInput: { username: body.username ?? '' },
-      sql,
-      mode: 'full',
-    });
-    if (isWriteFailure(result)) {
+    const username = normalizeUsername(body.username ?? '');
+    const validationError = validateUsername(username);
+    if (validationError !== null) {
+      const err = profileErrorFromValidation(validationError);
       return c.json(
-        { error: result.message, code: result.code },
-        writeFailureStatus(result.code)
+        { error: err.message, code: err.code },
+        writeFailureStatus(err.code)
       );
     }
-    const profile: ProfileCard = unwrap(result);
+    const profile: ProfileCard = await setProfileUsername(
+      sql,
+      auth.myId,
+      body.username ?? ''
+    );
     return c.json({ profile });
   });
 }

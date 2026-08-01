@@ -9,4 +9,8 @@ export {
   resolveAccountIdFromBearer,
   buildAppAuthContextFromBearer,
 } from './bearer-resolve';
-export { mapAppAuthToWriteContext } from '../shared/map-app-auth-to-write-context';
+export {
+  mapAppAuthToRulesAuth,
+  mapAppAuthToWriteContext,
+} from '../shared/map-app-auth-to-rules-auth';
+

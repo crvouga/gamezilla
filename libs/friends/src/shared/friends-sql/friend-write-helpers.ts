@@ -1,6 +1,10 @@
-import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
-import { requireSignedIn } from '@pkgs/write/shared/read-row-values';
-import type { WriteContext } from '@pkgs/write/shared/write-context';
+import { fail } from '@pkgs/rules/core/fail';
+import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
+import type { RulesAuth } from '@pkgs/rules/core/types';
+import {
+  FRIENDS_NOT_SIGNED_IN,
+  FRIENDS_SELF,
+} from '@pkgs/rules/friends/codes';
 
 export function isoNow(): string {
   return new Date().toISOString();
@@ -9,38 +13,43 @@ export function isoNow(): string {
 export function asObjectRecord(
   raw: unknown,
   label: string
-): WriteResult<Record<string, unknown>> {
+): Record<string, unknown> {
   if (raw === null || typeof raw !== 'object') {
-    return fail('INVALID_INPUT', `${label} must be an object`);
+    throwRulesReject([
+      fail('INVALID_INPUT', {
+        params: { message: `${label} must be an object` },
+      }),
+    ]);
   }
-  return ok(raw as Record<string, unknown>);
+  return raw as Record<string, unknown>;
 }
 
-export function requireNonEmptyString(
-  value: unknown,
-  field: string
-): WriteResult<string> {
+export function requireNonEmptyString(value: unknown, field: string): string {
   if (typeof value !== 'string' || value.length === 0) {
-    return fail('INVALID_INPUT', `${field} is required`);
+    throwRulesReject([
+      fail('INVALID_INPUT', { params: { message: `${field} is required` } }),
+    ]);
   }
-  return ok(value);
+  return value;
+}
+
+export function requireSignedIn(auth: RulesAuth): void {
+  if (auth.accountId === null) {
+    throwRulesReject([fail(FRIENDS_NOT_SIGNED_IN)]);
+  }
 }
 
 export function authorizeSignedInNotSelf(
-  ctx: WriteContext,
+  auth: RulesAuth,
   otherUserId: string,
   selfMessage: string
-): WriteResult<void> {
-  const signedIn = requireSignedIn(ctx, 'FRIENDS_NOT_SIGNED_IN');
-  if (signedIn !== null) return signedIn;
-  if (otherUserId === ctx.myId) {
-    return fail('FRIENDS_SELF', selfMessage);
+): void {
+  requireSignedIn(auth);
+  if (otherUserId === auth.myId) {
+    throwRulesReject([
+      fail(FRIENDS_SELF, { params: { message: selfMessage } }),
+    ]);
   }
-  return ok(undefined);
-}
-
-export function authorizeSignedIn(ctx: WriteContext): WriteResult<void> {
-  return requireSignedIn(ctx, 'FRIENDS_NOT_SIGNED_IN') ?? ok(undefined);
 }
 
 export type FriendRequestIdInput = {
@@ -51,25 +60,14 @@ export type FriendUserIdInput = {
   readonly userId: string;
 };
 
-export function parseFriendRequestIdInput(
-  raw: unknown
-): WriteResult<FriendRequestIdInput> {
+export function parseFriendRequestIdInput(raw: unknown): FriendRequestIdInput {
   const record = asObjectRecord(raw, 'friend request id input');
-  if (!record.ok) return record;
-  const requestId = requireNonEmptyString(
-    record.value['requestId'],
-    'requestId'
-  );
-  if (!requestId.ok) return requestId;
-  return ok({ requestId: requestId.value });
+  const requestId = requireNonEmptyString(record['requestId'], 'requestId');
+  return { requestId };
 }
 
-export function parseFriendUserIdInput(
-  raw: unknown
-): WriteResult<FriendUserIdInput> {
+export function parseFriendUserIdInput(raw: unknown): FriendUserIdInput {
   const record = asObjectRecord(raw, 'friend user id input');
-  if (!record.ok) return record;
-  const userId = requireNonEmptyString(record.value['userId'], 'userId');
-  if (!userId.ok) return userId;
-  return ok({ userId: userId.value });
+  const userId = requireNonEmptyString(record['userId'], 'userId');
+  return { userId };
 }

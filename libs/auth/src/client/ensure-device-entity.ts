@@ -1,14 +1,15 @@
-import { DeviceCol } from '@libs/db/shared/auth-tables';
-import { runClientWrite } from '@pkgs/write/client/run-client-write';
-import type { WriteContext } from '@pkgs/write/shared/write-context';
+import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
+import { AUTH_RULES } from '@pkgs/rules/auth/rules';
+import type { RulesAuth } from '@pkgs/rules/core/types';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 
 import { assertDeviceId } from '../shared';
 import {
-  ensureDeviceWrite,
+  ensureDeviceRow,
   type DeviceSnapshot,
 } from '../shared/writes/ensure-device-write';
 
@@ -67,14 +68,25 @@ export function collectDeviceSnapshot(): DeviceSnapshot {
  */
 export async function ensureDeviceEntity(
   sql: SqlClient,
-  writeContext: WriteContext,
-  deviceId: string = writeContext.deviceId
+  auth: RulesAuth,
+  deviceId: string = auth.deviceId
 ): Promise<void> {
   assertDeviceId(deviceId);
-  await runClientWrite(
-    ensureDeviceWrite,
-    writeContext,
-    { deviceId, snapshot: collectDeviceSnapshot() },
-    sql
-  );
+  const snapshot = collectDeviceSnapshot();
+  await validatedWrite({
+    sql,
+    auth,
+    rules: AUTH_RULES,
+    beforeBatch: {
+      rows: [
+        {
+          op: 'put',
+          table: DEVICES_TABLE.tableName,
+          id: deviceId,
+          values: { id: deviceId },
+        },
+      ],
+    },
+    fn: (tx) => ensureDeviceRow(tx, deviceId, snapshot),
+  });
 }

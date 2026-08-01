@@ -1,16 +1,21 @@
 import { useCallback } from 'react';
 
-import { useWriteContext } from '@libs/auth/client/use-write-context';
+import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
+import { SPACE_RULES } from '@pkgs/rules/spaces/rules';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { runClientWrite } from '@pkgs/write/client/run-client-write';
+import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 
-import { endSpaceWrite } from '../../shared/end-space/end-space-write';
+import {
+  authorizeEndSpace,
+  endSpaceBeforeBatch,
+  executeEndSpace,
+} from '../../shared/end-space/end-space-write';
 import { AnnounceEnded } from '../../shared/space-log/space-log-messages';
 import { useOpenSpaceIds } from '../open-space/use-open-space-ids';
 import { useSpaceOpenRooms } from '../room/space-open-rooms-context';
 
 export function useEndSpace() {
-  const writeContext = useWriteContext();
+  const auth = useRulesAuth();
   const engine = useSyncEngine();
   const { dispatch: dispatchToSpace } = useSpaceOpenRooms();
   const { markClosed } = useOpenSpaceIds();
@@ -18,9 +23,17 @@ export function useEndSpace() {
   return useCallback(
     async (spaceId: string) => {
       dispatchToSpace(spaceId, AnnounceEnded({}));
-      await runClientWrite(endSpaceWrite, writeContext, { spaceId }, engine.db);
+      const input = { spaceId };
+      await authorizeEndSpace(auth, input, engine.db);
+      await validatedWrite({
+        sql: engine.db,
+        auth,
+        rules: SPACE_RULES,
+        beforeBatch: endSpaceBeforeBatch(input),
+        fn: (tx) => executeEndSpace(auth, input, tx),
+      });
       markClosed(spaceId);
     },
-    [dispatchToSpace, engine, markClosed, writeContext]
+    [auth, dispatchToSpace, engine, markClosed]
   );
 }

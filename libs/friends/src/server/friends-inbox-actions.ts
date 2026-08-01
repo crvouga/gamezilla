@@ -1,12 +1,16 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { WriteDefinition } from '@pkgs/write/shared/define-write';
-import { runWrite } from '@pkgs/write/shared/run-write';
-import { isWriteFailure, unwrap } from '@pkgs/write/shared/write-result';
-import { mapAppAuthToWriteContext } from '@libs/auth/shared/map-app-auth-to-write-context';
+import { isRulesReject } from '@pkgs/rules/core/rules-reject';
+import { messageForFailure } from '@pkgs/rules/core/messages';
+import { FRIENDS_MESSAGES } from '@pkgs/rules/friends/messages';
+import { mapAppAuthToRulesAuth } from '@libs/auth/shared/map-app-auth-to-rules-auth';
 
-import { acceptFriendRequestWrite } from '../shared/accept-friend-request/accept-friend-request-write';
-import { cancelFriendRequestWrite } from '../shared/cancel-friend-request/cancel-friend-request-write';
-import { declineFriendRequestWrite } from '../shared/decline-friend-request/decline-friend-request-write';
+import {
+  acceptFriendRequest,
+  authorizeAccept,
+  publishAcceptFriendRequestEvent,
+} from '../shared/accept-friend-request/accept-friend-request-write';
+import { cancelFriendRequest } from '../shared/cancel-friend-request/cancel-friend-request-write';
+import { declineFriendRequest } from '../shared/decline-friend-request/decline-friend-request-write';
 import {
   deactivateFriendRequestInteraction,
   publishFriendRequestAcceptedInteraction,
@@ -20,50 +24,57 @@ type InboxFriendsCtx = {
   readonly requestId: string;
 };
 
-async function runInboxWrite<TInput, TOutput>(
-  ctx: InboxFriendsCtx,
-  write: WriteDefinition<TInput, TOutput>,
-  rawInput: unknown
-): Promise<TOutput> {
-  const result = await runWrite({
-    write,
-    ctx: mapAppAuthToWriteContext({
-      deviceId: ctx.deviceId,
-      accountId: ctx.actorId,
-      myId: ctx.actorId,
-    }),
-    rawInput,
-    sql: ctx.sql,
-    mode: 'full',
+function rulesAuthFromInbox(ctx: InboxFriendsCtx) {
+  return mapAppAuthToRulesAuth({
+    deviceId: ctx.deviceId,
+    accountId: ctx.actorId,
+    myId: ctx.actorId,
   });
-  if (isWriteFailure(result)) {
-    throw new Error(`${result.code}: ${result.message}`);
+}
+
+async function runInboxMutation<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (error) {
+    if (isRulesReject(error) && error.failures[0] !== undefined) {
+      const failure = error.failures[0];
+      throw new Error(
+        `${failure.code}: ${messageForFailure(failure, FRIENDS_MESSAGES)}`
+      );
+    }
+    throw error;
   }
-  return unwrap(result);
 }
 
 export async function handleFriendsInboxAction(
   ctx: InboxFriendsCtx
 ): Promise<void> {
+  const auth = rulesAuthFromInbox(ctx);
+  const input = { requestId: ctx.requestId };
+
   if (ctx.actionId === 'accept') {
-    const request = await runInboxWrite(ctx, acceptFriendRequestWrite, {
-      requestId: ctx.requestId,
+    const result = await runInboxMutation(async () => {
+      await authorizeAccept(auth, input, ctx.sql);
+      return acceptFriendRequest(auth, input, ctx.sql);
     });
-    await deactivateFriendRequestInteraction(ctx.sql, request);
-    await publishFriendRequestAcceptedInteraction(ctx.sql, request);
+    if (result.accepted) {
+      publishAcceptFriendRequestEvent(auth, result.request);
+    }
+    await deactivateFriendRequestInteraction(ctx.sql, result.request);
+    await publishFriendRequestAcceptedInteraction(ctx.sql, result.request);
     return;
   }
   if (ctx.actionId === 'decline') {
-    const request = await runInboxWrite(ctx, declineFriendRequestWrite, {
-      requestId: ctx.requestId,
-    });
+    const request = await runInboxMutation(() =>
+      declineFriendRequest(auth, input, ctx.sql)
+    );
     await deactivateFriendRequestInteraction(ctx.sql, request);
     return;
   }
   if (ctx.actionId === 'cancel') {
-    const request = await runInboxWrite(ctx, cancelFriendRequestWrite, {
-      requestId: ctx.requestId,
-    });
+    const request = await runInboxMutation(() =>
+      cancelFriendRequest(auth, input, ctx.sql)
+    );
     await deactivateFriendRequestInteraction(ctx.sql, request);
     return;
   }

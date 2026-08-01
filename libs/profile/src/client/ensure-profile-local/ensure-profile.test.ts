@@ -3,14 +3,14 @@ import { describe, expect, test } from 'bun:test';
 
 import { sqlMap } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import type { WriteContext } from '@pkgs/write/shared/write-context';
+import type { RulesAuth } from '@pkgs/rules/core/types';
 
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { applyEnsuredUsername, ensureProfile } from './ensure-profile';
 
 const MY_ID = '550e8400-e29b-41d4-a716-446655440000';
 
-function writeContextFor(myId: string): WriteContext {
+function rulesAuthFor(myId: string): RulesAuth {
   return {
     subjectId: myId,
     deviceId: myId,
@@ -32,13 +32,21 @@ function openTestSql(): SqlClientImplBunSqlite {
       ${ProfileCol.avatarConfig} TEXT NOT NULL
     )`
   );
+  // validatedWrite reads ps_crud watermarks (PowerSync queue); empty stub is enough.
+  db.run(
+    `CREATE TABLE ps_crud (
+      id INTEGER PRIMARY KEY,
+      tx_id INTEGER,
+      data TEXT
+    )`
+  );
   return new SqlClientImplBunSqlite(db);
 }
 
 describe('ensureProfile', () => {
   test('creates a row with empty username and avatar', async () => {
     const sqlClient = openTestSql();
-    await ensureProfile(sqlClient, writeContextFor(MY_ID), MY_ID);
+    await ensureProfile(sqlClient, rulesAuthFor(MY_ID), MY_ID);
 
     const row = (
       await sqlClient.query<Record<string, string>>(
@@ -59,9 +67,9 @@ describe('ensureProfile', () => {
 
   test('does not insert a second row when profile already exists', async () => {
     const sqlClient = openTestSql();
-    const ctx = writeContextFor(MY_ID);
-    await ensureProfile(sqlClient, ctx, MY_ID);
-    await ensureProfile(sqlClient, ctx, MY_ID);
+    const auth = rulesAuthFor(MY_ID);
+    await ensureProfile(sqlClient, auth, MY_ID);
+    await ensureProfile(sqlClient, auth, MY_ID);
 
     const rows = await sqlClient.query<{ n: number }>(
       sqlMap({
@@ -75,9 +83,9 @@ describe('ensureProfile', () => {
 
   test('applyEnsuredUsername fills an empty local username', async () => {
     const sqlClient = openTestSql();
-    const ctx = writeContextFor(MY_ID);
-    await ensureProfile(sqlClient, ctx, MY_ID);
-    await applyEnsuredUsername(sqlClient, ctx, {
+    const auth = rulesAuthFor(MY_ID);
+    await ensureProfile(sqlClient, auth, MY_ID);
+    await applyEnsuredUsername(sqlClient, auth, {
       profileId: MY_ID,
       username: 'AssignedName',
     });
@@ -95,13 +103,13 @@ describe('ensureProfile', () => {
 
   test('applyEnsuredUsername corrects wrong auto username', async () => {
     const sqlClient = openTestSql();
-    const ctx = writeContextFor(MY_ID);
-    await ensureProfile(sqlClient, ctx, MY_ID);
-    await applyEnsuredUsername(sqlClient, ctx, {
+    const auth = rulesAuthFor(MY_ID);
+    await ensureProfile(sqlClient, auth, MY_ID);
+    await applyEnsuredUsername(sqlClient, auth, {
       profileId: MY_ID,
       username: 'WrongOtherAccount',
     });
-    await applyEnsuredUsername(sqlClient, ctx, {
+    await applyEnsuredUsername(sqlClient, auth, {
       profileId: MY_ID,
       username: 'CorrectName',
     });
@@ -119,8 +127,8 @@ describe('ensureProfile', () => {
 
   test('applyEnsuredUsername does not overwrite user-chosen username', async () => {
     const sqlClient = openTestSql();
-    const ctx = writeContextFor(MY_ID);
-    await ensureProfile(sqlClient, ctx, MY_ID);
+    const auth = rulesAuthFor(MY_ID);
+    await ensureProfile(sqlClient, auth, MY_ID);
     await sqlClient.run(
       sqlMap({
         update: PROFILES_TABLE.tableName,
@@ -131,7 +139,7 @@ describe('ensureProfile', () => {
         where: ['=', ProfileCol.id, MY_ID],
       })
     );
-    await applyEnsuredUsername(sqlClient, ctx, {
+    await applyEnsuredUsername(sqlClient, auth, {
       profileId: MY_ID,
       username: 'ServerName',
     });

@@ -1,16 +1,28 @@
-import { useWriteContext } from '@libs/auth/client/use-write-context';
+import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
+import { FRIENDS_RULES } from '@pkgs/rules/friends/rules';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { runClientWrite } from '@pkgs/write/client/run-client-write';
+import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 import { useCallback } from 'react';
 
-import { unblockUserWrite } from '../../shared/unblock-user/unblock-user-write';
+import {
+  unblockUser,
+  unblockUserBeforeBatch,
+} from '../../shared/unblock-user/unblock-user-write';
 
 export function useUnblockUser() {
   const engine = useSyncEngine();
-  const writeContext = useWriteContext();
+  const auth = useRulesAuth();
   return useCallback(
-    (userId: string) =>
-      runClientWrite(unblockUserWrite, writeContext, { userId }, engine.db),
-    [engine, writeContext]
+    async (userId: string) => {
+      const input = { userId };
+      await validatedWrite({
+        sql: engine.db,
+        auth,
+        rules: FRIENDS_RULES,
+        beforeBatch: unblockUserBeforeBatch(auth, input),
+        fn: (tx) => unblockUser(auth, input, tx),
+      });
+    },
+    [auth, engine]
   );
 }

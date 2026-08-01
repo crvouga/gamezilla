@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useWriteContext } from '@libs/auth/client/use-write-context';
+import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useCallback } from 'react';
 
@@ -34,13 +34,13 @@ export function useChessPuzzleInteractionWrites(args: {
   const { puzzleId, puzzleRating, solveIdx, interactions } = args;
   const engine = useSyncEngine();
   const myId = useMyId();
-  const writeContext = useWriteContext();
+  const auth = useRulesAuth();
   const { profileRating, profileRd } = useChessPuzzleProfileRatings(myId);
 
   const appendInteraction = useCallback(
     async (kind: ChessPuzzleInteractionKind, extra?: AppendExtra) => {
       if (myId.length === 0) return;
-      await appendPuzzleInteractionRow(engine.db, writeContext, {
+      await appendPuzzleInteractionRow(engine.db, auth, {
         ownerId: myId,
         puzzleId,
         puzzleRating,
@@ -50,13 +50,13 @@ export function useChessPuzzleInteractionWrites(args: {
         correct: extra?.correct ?? null,
       });
     },
-    [engine, myId, puzzleId, puzzleRating, solveIdx, writeContext]
+    [auth, engine, myId, puzzleId, puzzleRating, solveIdx]
   );
 
   const finalizePlay = useCallback(
     async (terminalKind: 'solved' | 'abandoned') => {
       if (myId.length === 0) return;
-      await finalizePuzzlePlayWithProfile(engine.db, writeContext, {
+      await finalizePuzzlePlayWithProfile(engine.db, auth, {
         ownerId: myId,
         puzzleId,
         puzzleRating,
@@ -68,6 +68,7 @@ export function useChessPuzzleInteractionWrites(args: {
       });
     },
     [
+      auth,
       engine,
       interactions,
       myId,
@@ -76,7 +77,6 @@ export function useChessPuzzleInteractionWrites(args: {
       puzzleId,
       puzzleRating,
       solveIdx,
-      writeContext,
     ]
   );
 

@@ -5,7 +5,7 @@ export {
   updateInteraction,
   deactivateInteraction,
   registerActionHandler,
-  INBOX_ROW_BINDINGS,
+  INBOX_SERVER_MANAGED,
 } from './inbox';
 export type { InboxStorage, InboxAppOptions } from './inbox';
 export type { InboxRequestContext } from './server/inbox-context';

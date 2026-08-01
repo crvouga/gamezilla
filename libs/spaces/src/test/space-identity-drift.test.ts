@@ -7,12 +7,15 @@ import {
   SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
+import { isRulesReject } from '@pkgs/rules/core/rules-reject';
+import type { RulesAuth } from '@pkgs/rules/core/types';
+import { runRules } from '@pkgs/rules/core/run-rules';
+import { SPACE_RULES } from '@pkgs/rules/spaces/rules';
 import { ident, sql, sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import type { WriteContext } from '@pkgs/write/shared/write-context';
 
-import { createSpaceWrite } from '../shared/create-space/create-space-write';
+import { createSpace } from '../shared/create-space/create-space-write';
 import {
   authorizeJoinSpace,
   executeJoinSpace,
@@ -21,7 +24,7 @@ import {
   authorizeLeaveSpace,
   executeLeaveSpace,
 } from '../shared/leave-space/leave-space-write';
-import { SPACE_ROW_BINDINGS } from '../shared/row-bindings';
+import { requireAccountId } from '../shared/space-write-helpers';
 
 const SPACE_ID = 'space-1';
 const DEVICE_ID = 'device-aaaaaaaa-0000';
@@ -56,7 +59,7 @@ async function migrate(db: SqlClient): Promise<void> {
 function ctx(args: {
   readonly deviceId: string;
   readonly accountId: string | null;
-}): WriteContext {
+}): RulesAuth {
   const myId = args.accountId ?? args.deviceId;
   return {
     subjectId: myId,
@@ -143,19 +146,21 @@ describe('leave / join / create require account', () => {
 
   test('anonymous leave is rejected', async () => {
     const anon = ctx({ deviceId: DEVICE_ID, accountId: null });
-    const auth = await authorizeLeaveSpace(anon, { spaceId: SPACE_ID }, db);
-    expect(auth.ok).toBe(false);
-    if (!auth.ok) {
-      expect(auth.code).toBe('SPACE_NOT_SIGNED_IN');
+    try {
+      await authorizeLeaveSpace(anon, { spaceId: SPACE_ID }, db);
+      expect(true).toBe(false);
+    } catch (error) {
+      expect(isRulesReject(error)).toBe(true);
+      if (isRulesReject(error)) {
+        expect(error.failures[0]?.code).toBe('SPACE_NOT_SIGNED_IN');
+      }
     }
   });
 
   test('signed-in host leave ends the space', async () => {
     const signedIn = ctx({ deviceId: DEVICE_ID, accountId: ACCOUNT_ID });
-    const auth = await authorizeLeaveSpace(signedIn, { spaceId: SPACE_ID }, db);
-    expect(auth.ok).toBe(true);
-    const exec = await executeLeaveSpace(signedIn, { spaceId: SPACE_ID }, db);
-    expect(exec.ok).toBe(true);
+    await authorizeLeaveSpace(signedIn, { spaceId: SPACE_ID }, db);
+    await executeLeaveSpace(signedIn, { spaceId: SPACE_ID }, db);
     expect(await readSpaceUser(db, ACCOUNT_ID)).toBe(true);
     expect((await readSpaceHost(db)).endedAt).not.toBeNull();
   });
@@ -219,10 +224,8 @@ describe('leave / join / create require account', () => {
         },
       })
     );
-    const auth = await authorizeJoinSpace(signedIn, { spaceId: SPACE_ID }, db);
-    expect(auth.ok).toBe(true);
-    const exec = await executeJoinSpace(signedIn, { spaceId: SPACE_ID }, db);
-    expect(exec.ok).toBe(true);
+    await authorizeJoinSpace(signedIn, { spaceId: SPACE_ID }, db);
+    await executeJoinSpace(signedIn, { spaceId: SPACE_ID }, db);
     expect(await readSpaceUser(db, ACCOUNT_ID)).toBe(true);
     const space = await readSpaceHost(db);
     expect(space.hostMemberId).toBe(ACCOUNT_ID);
@@ -232,28 +235,42 @@ describe('leave / join / create require account', () => {
 
   test('anonymous join is rejected', async () => {
     const anon = ctx({ deviceId: GUEST_DEVICE_ID, accountId: null });
-    const auth = await authorizeJoinSpace(anon, { spaceId: SPACE_ID }, db);
-    expect(auth.ok).toBe(false);
-    if (!auth.ok) {
-      expect(auth.code).toBe('SPACE_NOT_SIGNED_IN');
+    try {
+      await authorizeJoinSpace(anon, { spaceId: SPACE_ID }, db);
+      expect(true).toBe(false);
+    } catch (error) {
+      expect(isRulesReject(error)).toBe(true);
+      if (isRulesReject(error)) {
+        expect(error.failures[0]?.code).toBe('SPACE_NOT_SIGNED_IN');
+      }
     }
   });
 
   test('anonymous create is rejected', async () => {
     const anon = ctx({ deviceId: DEVICE_ID, accountId: null });
-    const auth = await createSpaceWrite.authorize(
-      anon,
-      { spaceId: 'space-new', visibility: 'private' },
-      db
-    );
-    expect(auth.ok).toBe(false);
-    if (!auth.ok) {
-      expect(auth.code).toBe('SPACE_NOT_SIGNED_IN');
+    try {
+      requireAccountId(anon);
+      expect(true).toBe(false);
+    } catch (error) {
+      expect(isRulesReject(error)).toBe(true);
+      if (isRulesReject(error)) {
+        expect(error.failures[0]?.code).toBe('SPACE_NOT_SIGNED_IN');
+      }
+    }
+    try {
+      await createSpace(
+        anon,
+        { spaceId: 'space-new', visibility: 'private' },
+        db
+      );
+      expect(true).toBe(false);
+    } catch (error) {
+      expect(isRulesReject(error)).toBe(true);
     }
   });
 });
 
-describe('space_users upload auth', () => {
+describe('space_users rules auth', () => {
   let db: SqlClientImplBunSqlite;
 
   beforeEach(async () => {
@@ -264,18 +281,23 @@ describe('space_users upload auth', () => {
 
   test('allows host to delete a guest space_users row', async () => {
     const signedIn = ctx({ deviceId: DEVICE_ID, accountId: ACCOUNT_ID });
-    const binding = SPACE_ROW_BINDINGS[SPACE_USERS_TABLE.tableName]!;
-    const result = await binding.write.authorize(
-      signedIn,
+    await runRules(
       {
-        op: 'delete',
-        table: SPACE_USERS_TABLE.tableName,
-        id: spaceUserEntityId(SPACE_ID, GUEST_ACCOUNT_ID),
-        values: {},
+        phase: 'before',
+        auth: signedIn,
+        db,
+        batch: {
+          rows: [
+            {
+              op: 'delete',
+              table: SPACE_USERS_TABLE.tableName,
+              id: spaceUserEntityId(SPACE_ID, GUEST_ACCOUNT_ID),
+            },
+          ],
+        },
       },
-      db
+      SPACE_RULES
     );
-    expect(result.ok).toBe(true);
   });
 
   test('rejects guest managing another user space_users row', async () => {
@@ -283,61 +305,88 @@ describe('space_users upload auth', () => {
       deviceId: GUEST_DEVICE_ID,
       accountId: GUEST_ACCOUNT_ID,
     });
-    const binding = SPACE_ROW_BINDINGS[SPACE_USERS_TABLE.tableName]!;
-    const result = await binding.write.authorize(
-      guest,
-      {
-        op: 'delete',
-        table: SPACE_USERS_TABLE.tableName,
-        id: spaceUserEntityId(SPACE_ID, ACCOUNT_ID),
-        values: {},
-      },
-      db
-    );
-    expect(result.ok).toBe(false);
+    try {
+      await runRules(
+        {
+          phase: 'before',
+          auth: guest,
+          db,
+          batch: {
+            rows: [
+              {
+                op: 'delete',
+                table: SPACE_USERS_TABLE.tableName,
+                id: spaceUserEntityId(SPACE_ID, ACCOUNT_ID),
+              },
+            ],
+          },
+        },
+        SPACE_RULES
+      );
+      expect(true).toBe(false);
+    } catch (error) {
+      expect(isRulesReject(error)).toBe(true);
+    }
   });
 
   test('allows create-time self ACL when space row is not on server yet', async () => {
     const signedIn = ctx({ deviceId: DEVICE_ID, accountId: ACCOUNT_ID });
-    const binding = SPACE_ROW_BINDINGS[SPACE_USERS_TABLE.tableName]!;
     const newSpaceId = 'space-new-create';
-    const result = await binding.write.authorize(
-      signedIn,
+    await runRules(
       {
-        op: 'put',
-        table: SPACE_USERS_TABLE.tableName,
-        id: spaceUserEntityId(newSpaceId, ACCOUNT_ID),
-        values: {
-          [SpaceUserCol.id]: spaceUserEntityId(newSpaceId, ACCOUNT_ID),
-          [SpaceUserCol.spaceId]: newSpaceId,
-          [SpaceUserCol.userId]: ACCOUNT_ID,
-          [SpaceUserCol.createdByAccountId]: ACCOUNT_ID,
+        phase: 'before',
+        auth: signedIn,
+        db,
+        batch: {
+          rows: [
+            {
+              op: 'put',
+              table: SPACE_USERS_TABLE.tableName,
+              id: spaceUserEntityId(newSpaceId, ACCOUNT_ID),
+              values: {
+                id: spaceUserEntityId(newSpaceId, ACCOUNT_ID),
+                space_id: newSpaceId,
+                user_id: ACCOUNT_ID,
+                created_by_account_id: ACCOUNT_ID,
+              },
+            },
+          ],
         },
       },
-      db
+      SPACE_RULES
     );
-    expect(result.ok).toBe(true);
   });
 
   test('rejects create-time self ACL when created_by mismatches', async () => {
     const signedIn = ctx({ deviceId: DEVICE_ID, accountId: ACCOUNT_ID });
-    const binding = SPACE_ROW_BINDINGS[SPACE_USERS_TABLE.tableName]!;
     const newSpaceId = 'space-new-create';
-    const result = await binding.write.authorize(
-      signedIn,
-      {
-        op: 'put',
-        table: SPACE_USERS_TABLE.tableName,
-        id: spaceUserEntityId(newSpaceId, ACCOUNT_ID),
-        values: {
-          [SpaceUserCol.id]: spaceUserEntityId(newSpaceId, ACCOUNT_ID),
-          [SpaceUserCol.spaceId]: newSpaceId,
-          [SpaceUserCol.userId]: ACCOUNT_ID,
-          [SpaceUserCol.createdByAccountId]: GUEST_ACCOUNT_ID,
+    try {
+      await runRules(
+        {
+          phase: 'before',
+          auth: signedIn,
+          db,
+          batch: {
+            rows: [
+              {
+                op: 'put',
+                table: SPACE_USERS_TABLE.tableName,
+                id: spaceUserEntityId(newSpaceId, ACCOUNT_ID),
+                values: {
+                  id: spaceUserEntityId(newSpaceId, ACCOUNT_ID),
+                  space_id: newSpaceId,
+                  user_id: ACCOUNT_ID,
+                  created_by_account_id: GUEST_ACCOUNT_ID,
+                },
+              },
+            ],
+          },
         },
-      },
-      db
-    );
-    expect(result.ok).toBe(false);
+        SPACE_RULES
+      );
+      expect(true).toBe(false);
+    } catch (error) {
+      expect(isRulesReject(error)).toBe(true);
+    }
   });
 });

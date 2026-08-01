@@ -1,6 +1,13 @@
-import { runClientWrite } from '@pkgs/write/client/run-client-write';
-import type { WriteContext } from '@pkgs/write/shared/write-context';
+import {
+  CHESS_PUZZLE_INTERACTIONS_TABLE,
+  CHESS_PUZZLE_PROFILES_TABLE,
+  ChessPuzzleInteractionCol,
+  ChessPuzzleProfileCol,
+} from '@libs/db/shared/chess-tables';
+import { CHESS_RULES } from '@pkgs/rules/chess/rules';
+import type { RulesAuth } from '@pkgs/rules/core/types';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 
 import type { ChessPuzzleInteractionRow } from '../../shared/chess-puzzle-interaction-entities';
 import {
@@ -10,11 +17,11 @@ import {
 } from '../../shared/chess-puzzle-derive';
 import { updatePuzzleRating } from '../../shared/chess-puzzle-rating';
 import {
-  appendPuzzleInteractionWrite,
+  appendPuzzleInteractionRowSql,
   type AppendPuzzleInteractionInput,
 } from '../../shared/writes/append-puzzle-interaction-write';
 import {
-  upsertPuzzleProfileWrite,
+  upsertPuzzleProfileRow,
   type UpsertPuzzleProfileInput,
 } from '../../shared/writes/upsert-puzzle-profile-write';
 
@@ -24,18 +31,53 @@ function nowIso(): string {
 
 export async function appendPuzzleInteractionRow(
   sql: SqlClient,
-  writeContext: WriteContext,
+  auth: RulesAuth,
   args: AppendPuzzleInteractionInput
 ): Promise<void> {
-  await runClientWrite(appendPuzzleInteractionWrite, writeContext, args, sql);
+  await validatedWrite({
+    sql,
+    auth,
+    rules: CHESS_RULES,
+    beforeBatch: {
+      rows: [
+        {
+          op: 'put',
+          table: CHESS_PUZZLE_INTERACTIONS_TABLE.tableName,
+          id: 'pending',
+          values: {
+            [ChessPuzzleInteractionCol.ownerId]: args.ownerId,
+          },
+        },
+      ],
+    },
+    fn: (tx) => appendPuzzleInteractionRowSql(tx, args),
+  });
 }
 
-async function upsertPuzzleProfileRow(
+async function upsertPuzzleProfile(
   sql: SqlClient,
-  writeContext: WriteContext,
+  auth: RulesAuth,
   args: UpsertPuzzleProfileInput
 ): Promise<void> {
-  await runClientWrite(upsertPuzzleProfileWrite, writeContext, args, sql);
+  await validatedWrite({
+    sql,
+    auth,
+    rules: CHESS_RULES,
+    beforeBatch: {
+      rows: [
+        {
+          op: 'put',
+          table: CHESS_PUZZLE_PROFILES_TABLE.tableName,
+          id: args.ownerId,
+          values: {
+            id: args.ownerId,
+            [ChessPuzzleProfileCol.ownerId]: args.ownerId,
+          },
+        },
+      ],
+    },
+    fn: (tx) => upsertPuzzleProfileRow(tx, args),
+  });
 }
 
 function computeFinalizeRatings(args: {
@@ -87,7 +129,7 @@ function computeFinalizeRatings(args: {
 /** Client orchestration: append terminal interaction, then upsert profile. */
 export async function finalizePuzzlePlayWithProfile(
   sql: SqlClient,
-  writeContext: WriteContext,
+  auth: RulesAuth,
   args: {
     ownerId: string;
     puzzleId: string;
@@ -101,7 +143,7 @@ export async function finalizePuzzlePlayWithProfile(
 ): Promise<void> {
   if (isPlayClosed(args.interactions, args.puzzleId)) return;
   const ratings = computeFinalizeRatings(args);
-  await appendPuzzleInteractionRow(sql, writeContext, {
+  await appendPuzzleInteractionRow(sql, auth, {
     ownerId: args.ownerId,
     puzzleId: args.puzzleId,
     puzzleRating: args.puzzleRating,
@@ -110,7 +152,7 @@ export async function finalizePuzzlePlayWithProfile(
     ratingBefore: ratings.ratingBefore,
     ratingAfter: ratings.ratingAfter,
   });
-  await upsertPuzzleProfileRow(sql, writeContext, {
+  await upsertPuzzleProfile(sql, auth, {
     ownerId: args.ownerId,
     rating: ratings.ratingAfter,
     ratingDeviation: ratings.ratingDeviation,

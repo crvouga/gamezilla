@@ -4,9 +4,13 @@ import {
   isSpaceVisibility,
   type SpaceVisibility,
 } from '@libs/spaces/shared/space-visibility';
+import { fail } from '@pkgs/rules/core/fail';
+import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
+import type { RulesAuth } from '@pkgs/rules/core/types';
+import { SIGN_IN_REQUIRED } from '@pkgs/rules/spaces/codes';
+import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import { sqlMap } from '@pkgs/sql';
-import { defineWrite } from '@pkgs/write/shared/define-write';
-import { fail, ok } from '@pkgs/write/shared/write-result';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
   asObjectRecord,
@@ -20,54 +24,67 @@ export type SetSpaceVisibilityInput = {
   readonly visibility: SpaceVisibility;
 };
 
-function parseSetSpaceVisibilityInput(
+export function parseSetSpaceVisibilityInput(
   raw: unknown
-): ReturnType<typeof ok<SetSpaceVisibilityInput>> | ReturnType<typeof fail> {
+): SetSpaceVisibilityInput {
   const record = asObjectRecord(raw, 'set visibility input');
-  if (!record.ok) return record;
-  const spaceId = requireNonEmptyString(record.value['spaceId'], 'spaceId');
-  if (!spaceId.ok) return spaceId;
-  const visibility = record.value['visibility'];
+  const spaceId = requireNonEmptyString(record['spaceId'], 'spaceId');
+  const visibility = record['visibility'];
   if (!isSpaceVisibility(visibility)) {
-    return fail('INVALID_INPUT', 'visibility is required');
+    throwRulesReject([
+      fail('INVALID_INPUT', { params: { message: 'visibility is required' } }),
+    ]);
   }
-  return ok({ spaceId: spaceId.value, visibility });
+  return { spaceId, visibility };
 }
 
-export const setSpaceVisibilityWrite = defineWrite<
-  SetSpaceVisibilityInput,
-  void
->({
-  name: 'spaces.setVisibility',
-  parseInput: parseSetSpaceVisibilityInput,
-  authorize: async (ctx, input, db) => {
-    const host = await authorizeSpaceHost(
-      ctx,
-      db,
-      input.spaceId,
-      'Only the host can change visibility'
-    );
-    if (!host.ok) return host;
-    if (input.visibility !== 'private' && ctx.accountId === null) {
-      return fail('SIGN_IN_REQUIRED', 'Sign in to make a space public');
-    }
-    return ok(undefined);
-  },
-  execute: async (ctx, input, db) => {
-    const accountId = requireAccountId(ctx);
-    if (!accountId.ok) return accountId;
-    const memberId = resolveSpaceMemberId(accountId.value);
-    await db.run(
-      sqlMap({
-        update: SPACES_TABLE.tableName,
-        set: {
-          [SpaceCol.visibility]: input.visibility,
-          [SpaceCol.hostId]: ctx.deviceId,
-          [SpaceCol.hostMemberId]: memberId,
-        },
-        where: ['=', SpaceCol.id, input.spaceId],
-      })
-    );
-    return ok(undefined);
-  },
-});
+export async function authorizeSetSpaceVisibility(
+  auth: RulesAuth,
+  input: SetSpaceVisibilityInput,
+  db: SqlClient
+): Promise<void> {
+  await authorizeSpaceHost(
+    auth,
+    db,
+    input.spaceId,
+    'Only the host can change visibility'
+  );
+  if (input.visibility !== 'private' && auth.accountId === null) {
+    throwRulesReject([fail(SIGN_IN_REQUIRED)]);
+  }
+}
+
+export function setVisibilityBeforeBatch(
+  input: SetSpaceVisibilityInput
+): UploadBatch {
+  return {
+    rows: [
+      {
+        op: 'patch',
+        table: SPACES_TABLE.tableName,
+        id: input.spaceId,
+        values: { visibility: input.visibility },
+      },
+    ],
+  };
+}
+
+export async function setSpaceVisibility(
+  auth: RulesAuth,
+  input: SetSpaceVisibilityInput,
+  db: SqlClient
+): Promise<void> {
+  const accountId = requireAccountId(auth);
+  const memberId = resolveSpaceMemberId(accountId);
+  await db.run(
+    sqlMap({
+      update: SPACES_TABLE.tableName,
+      set: {
+        [SpaceCol.visibility]: input.visibility,
+        [SpaceCol.hostId]: auth.deviceId,
+        [SpaceCol.hostMemberId]: memberId,
+      },
+      where: ['=', SpaceCol.id, input.spaceId],
+    })
+  );
+}

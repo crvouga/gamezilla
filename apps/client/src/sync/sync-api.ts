@@ -10,10 +10,8 @@ import type { Kv } from '@pkgs/kv/interface';
 import {
   uploadRowNeedsApply,
   type UploadBatch,
-  type UploadBatchResult,
   type UploadRow,
 } from '@pkgs/sync-engine/shared/upload-batch';
-import { fail, WriteError } from '@pkgs/write/shared/write-result';
 
 import {
   readCachedSyncToken,
@@ -229,30 +227,6 @@ export async function fetchSyncToken(args: {
   });
 }
 
-/**
- * Auth / ownership failures that will not succeed on retry with the same
- * CRUD payload. Throwing leaves `transaction.complete()` uncalled and stalls
- * every later upload (including spaces) forever — discard instead.
- */
-const PERMANENT_UPLOAD_REJECT_CODES = new Set([
-  'PROFILE_ID_MISMATCH',
-  'PROFILE_DELETE_DENIED',
-  'NO_WRITE_FOR_TABLE',
-]);
-
-function assertUploadBatchAccepted(result: UploadBatchResult): void {
-  const rejected = result.results.find((row) => row.status === 'rejected');
-  if (rejected === undefined) {
-    return;
-  }
-  const code =
-    rejected.status === 'rejected' ? rejected.reason : 'UPLOAD_REJECTED';
-  if (PERMANENT_UPLOAD_REJECT_CODES.has(code)) {
-    return;
-  }
-  throw new WriteError(fail(code, code));
-}
-
 /** Account id when signed in, else install device id (matches server `myId`). */
 function resolveClientMyId(): string | null {
   const accountId = getCachedCurrentAccountId();
@@ -308,17 +282,25 @@ async function postSyncUpload(args: {
   });
 }
 
+type UploadDiscardBody = {
+  readonly discard?: boolean;
+  readonly failures?: readonly unknown[];
+};
+
+/**
+ * Upload a CRUD batch. Resolves on 200 or permanent 409 discard (so the
+ * PowerSync connector can complete the transaction). Throws on 5xx / network
+ * so the SDK retries.
+ */
 export async function uploadSyncBatch(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly batch: UploadBatch;
   readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
-}): Promise<UploadBatchResult> {
+}): Promise<void> {
   const prepared = prepareSyncUploadBatch(args.batch);
   if (prepared.rows.length === 0) {
-    return {
-      results: args.batch.rows.map(() => ({ status: 'accepted' as const })),
-    };
+    return;
   }
   const body = JSON.stringify(prepared);
   let bearer = await resolveBearerToken(args.getFreshAuthToken);
@@ -339,13 +321,18 @@ export async function uploadSyncBatch(args: {
       body,
     });
   }
+  if (res.status === 409) {
+    const discardBody = (await res.json().catch(() => ({}))) as UploadDiscardBody;
+    if (discardBody.discard === true) {
+      return;
+    }
+    throw new Error('sync upload conflict without discard');
+  }
   if (!res.ok) {
     const bodyText = await res.text().catch(() => '');
     throw new Error(
       `sync upload failed (${res.status})${bodyText.length > 0 ? `: ${bodyText}` : ''}`
     );
   }
-  const result = (await res.json()) as UploadBatchResult;
-  assertUploadBatchAccepted(result);
-  return result;
+  await res.json().catch(() => ({}));
 }

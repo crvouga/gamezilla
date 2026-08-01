@@ -1,16 +1,22 @@
-import { fail, ok } from '@pkgs/write/shared/write-result';
+import { fail } from '@pkgs/rules/core/fail';
+import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
+import type { RulesAuth } from '@pkgs/rules/core/types';
+import {
+  FRIENDS_BLOCKED,
+  FRIENDS_FORBIDDEN,
+  FRIENDS_NOT_FOUND,
+} from '@pkgs/rules/friends/codes';
+import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { defineWrite } from '@pkgs/write/shared/define-write';
-import type { WriteContext } from '@pkgs/write/shared/write-context';
 
 import { canonicalUserPair } from '../canonical-pair';
 import { publishFriendEvent } from '../friend-events';
 import type { FriendRequest } from '../friends-types';
 import {
   asObjectRecord,
-  authorizeSignedIn,
   isoNow,
   requireNonEmptyString,
+  requireSignedIn,
 } from '../friends-sql/friend-write-helpers';
 import {
   findFriendRequestById,
@@ -28,34 +34,48 @@ export type AcceptFriendRequestInput = {
 
 export function parseAcceptFriendRequestInput(
   raw: unknown
-): ReturnType<typeof ok<AcceptFriendRequestInput>> | ReturnType<typeof fail> {
+): AcceptFriendRequestInput {
   const record = asObjectRecord(raw, 'accept friend request input');
-  if (!record.ok) return record;
-  const requestId = requireNonEmptyString(
-    record.value['requestId'],
-    'requestId'
-  );
-  if (!requestId.ok) return requestId;
-  return ok({
-    requestId: requestId.value,
-  });
+  const requestId = requireNonEmptyString(record['requestId'], 'requestId');
+  return { requestId };
 }
 
-async function authorizeAccept(
-  ctx: WriteContext,
+export async function authorizeAccept(
+  auth: RulesAuth,
   input: AcceptFriendRequestInput,
   sql: SqlClient
-): Promise<ReturnType<typeof ok<void>> | ReturnType<typeof fail>> {
-  const signedIn = authorizeSignedIn(ctx);
-  if (!signedIn.ok) return signedIn;
+): Promise<void> {
+  requireSignedIn(auth);
   const request = await findFriendRequestById(sql, input.requestId);
   if (request === null) {
-    return fail('FRIENDS_NOT_FOUND', 'Friend request not found');
+    throwRulesReject([
+      fail(FRIENDS_NOT_FOUND, {
+        params: { message: 'Friend request not found' },
+      }),
+    ]);
   }
-  if (request.toUserId !== ctx.myId) {
-    return fail('FRIENDS_FORBIDDEN', 'Cannot accept this request');
+  if (request.toUserId !== auth.myId) {
+    throwRulesReject([
+      fail(FRIENDS_FORBIDDEN, {
+        params: { message: 'Cannot accept this request' },
+      }),
+    ]);
   }
-  return ok(undefined);
+}
+
+export function acceptFriendRequestBeforeBatch(
+  input: AcceptFriendRequestInput
+): UploadBatch {
+  return {
+    rows: [
+      {
+        op: 'patch',
+        table: 'friend_requests',
+        id: input.requestId,
+        values: { status: 'accepted' },
+      },
+    ],
+  };
 }
 
 async function applyAccept(
@@ -83,50 +103,68 @@ async function applyAccept(
   });
 }
 
-export const acceptFriendRequestWrite = defineWrite<
-  AcceptFriendRequestInput,
-  FriendRequest
->({
-  name: 'friends.acceptRequest',
-  parseInput: parseAcceptFriendRequestInput,
-  authorize: async (ctx, input, sql) => authorizeAccept(ctx, input, sql),
-  execute: async (ctx, input, sql) => {
-    const request = await findFriendRequestById(sql, input.requestId);
-    if (request === null) {
-      return fail('FRIENDS_NOT_FOUND', 'Friend request not found');
+export async function acceptFriendRequest(
+  auth: RulesAuth,
+  input: AcceptFriendRequestInput,
+  sql: SqlClient
+): Promise<{ readonly request: FriendRequest; readonly accepted: boolean }> {
+  const request = await findFriendRequestById(sql, input.requestId);
+  if (request === null) {
+    throwRulesReject([
+      fail(FRIENDS_NOT_FOUND, {
+        params: { message: 'Friend request not found' },
+      }),
+    ]);
+  }
+  if (request.status !== 'pending') {
+    if (request.status === 'accepted') {
+      return { request, accepted: false };
     }
-    if (request.status !== 'pending') {
-      if (request.status === 'accepted') return ok(request);
-      return fail('FRIENDS_FORBIDDEN', 'Friend request is not pending');
-    }
-    if (request.toUserId !== ctx.myId) {
-      return fail('FRIENDS_FORBIDDEN', 'Cannot accept this request');
-    }
-    const otherUserId = request.fromUserId;
-    const block = await isBlockedEitherDirection(sql, ctx.myId, otherUserId);
-    if (block !== 'none') {
-      return fail('FRIENDS_BLOCKED', 'User is blocked');
-    }
-    const now = isoNow();
-    await sql.transaction(async (tx) => {
-      await applyAccept(tx, {
-        actorId: ctx.myId,
-        otherUserId,
-        requestId: input.requestId,
-        now,
-      });
-    });
-    const updated = await findFriendRequestById(sql, input.requestId);
-    if (updated === null) {
-      return fail('FRIENDS_NOT_FOUND', 'Friend request not found');
-    }
-    const { userLow, userHigh } = canonicalUserPair(ctx.myId, otherUserId);
-    publishFriendEvent({
-      type: 'friend.request.accepted',
-      requestId: input.requestId,
-      userLow,
-      userHigh,
-    });
-    return ok(updated);
-  },
-});
+    throwRulesReject([
+      fail(FRIENDS_FORBIDDEN, {
+        params: { message: 'Friend request is not pending' },
+      }),
+    ]);
+  }
+  if (request.toUserId !== auth.myId) {
+    throwRulesReject([
+      fail(FRIENDS_FORBIDDEN, {
+        params: { message: 'Cannot accept this request' },
+      }),
+    ]);
+  }
+  const otherUserId = request.fromUserId;
+  const block = await isBlockedEitherDirection(sql, auth.myId, otherUserId);
+  if (block !== 'none') {
+    throwRulesReject([fail(FRIENDS_BLOCKED)]);
+  }
+  const now = isoNow();
+  await applyAccept(sql, {
+    actorId: auth.myId,
+    otherUserId,
+    requestId: input.requestId,
+    now,
+  });
+  const updated = await findFriendRequestById(sql, input.requestId);
+  if (updated === null) {
+    throwRulesReject([
+      fail(FRIENDS_NOT_FOUND, {
+        params: { message: 'Friend request not found' },
+      }),
+    ]);
+  }
+  return { request: updated, accepted: true };
+}
+
+export function publishAcceptFriendRequestEvent(
+  auth: RulesAuth,
+  request: FriendRequest
+): void {
+  const { userLow, userHigh } = canonicalUserPair(auth.myId, request.fromUserId);
+  publishFriendEvent({
+    type: 'friend.request.accepted',
+    requestId: request.id,
+    userLow,
+    userHigh,
+  });
+}

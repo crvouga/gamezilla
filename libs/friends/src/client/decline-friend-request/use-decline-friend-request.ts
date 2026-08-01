@@ -1,21 +1,30 @@
-import { useWriteContext } from '@libs/auth/client/use-write-context';
+import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
+import { FRIENDS_RULES } from '@pkgs/rules/friends/rules';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { runClientWrite } from '@pkgs/write/client/run-client-write';
+import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 import { useCallback } from 'react';
 
-import { declineFriendRequestWrite } from '../../shared/decline-friend-request/decline-friend-request-write';
+import {
+  authorizeDecline,
+  declineFriendRequest,
+  declineFriendRequestBeforeBatch,
+} from '../../shared/decline-friend-request/decline-friend-request-write';
 
 export function useDeclineFriendRequest() {
   const engine = useSyncEngine();
-  const writeContext = useWriteContext();
+  const auth = useRulesAuth();
   return useCallback(
-    (requestId: string) =>
-      runClientWrite(
-        declineFriendRequestWrite,
-        writeContext,
-        { requestId },
-        engine.db
-      ),
-    [engine, writeContext]
+    async (requestId: string) => {
+      const input = { requestId };
+      await authorizeDecline(auth, input, engine.db);
+      return validatedWrite({
+        sql: engine.db,
+        auth,
+        rules: FRIENDS_RULES,
+        beforeBatch: declineFriendRequestBeforeBatch(input),
+        fn: (tx) => declineFriendRequest(auth, input, tx),
+      });
+    },
+    [auth, engine]
   );
 }

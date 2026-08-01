@@ -44,4 +44,4 @@ export {
   deactivateInteraction,
 } from './server/publish';
 export { registerActionHandler } from './server/action-registry';
-export { INBOX_ROW_BINDINGS } from './shared/writes/row-bindings';
+export { INBOX_SERVER_MANAGED } from './shared/writes/row-bindings';

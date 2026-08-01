@@ -10,9 +10,12 @@ import {
   isSpaceVisibility,
   type SpaceVisibility,
 } from '@libs/spaces/shared/space-visibility';
+import { fail } from '@pkgs/rules/core/fail';
+import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
+import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import { sqlMap } from '@pkgs/sql';
-import { defineWrite } from '@pkgs/write/shared/define-write';
-import { fail, ok } from '@pkgs/write/shared/write-result';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
   asObjectRecord,
@@ -26,65 +29,87 @@ export type CreateSpaceInput = {
   readonly visibility: SpaceVisibility;
 };
 
-function parseCreateSpaceInput(
-  raw: unknown
-): ReturnType<typeof ok<CreateSpaceInput>> | ReturnType<typeof fail> {
+export function parseCreateSpaceInput(raw: unknown): CreateSpaceInput {
   const record = asObjectRecord(raw, 'create space input');
-  if (!record.ok) return record;
-  const spaceId = requireNonEmptyString(record.value['spaceId'], 'spaceId');
-  if (!spaceId.ok) return spaceId;
-  const visibilityRaw = record.value['visibility'];
+  const spaceId = requireNonEmptyString(record['spaceId'], 'spaceId');
+  const visibilityRaw = record['visibility'];
   if (!isSpaceVisibility(visibilityRaw)) {
-    return fail('INVALID_INPUT', 'visibility is required');
+    throwRulesReject([
+      fail('INVALID_INPUT', { params: { message: 'visibility is required' } }),
+    ]);
   }
-  return ok({
-    spaceId: spaceId.value,
-    visibility: visibilityRaw,
-  });
+  return { spaceId, visibility: visibilityRaw };
 }
 
-export const createSpaceWrite = defineWrite<CreateSpaceInput, void>({
-  name: 'spaces.create',
-  parseInput: parseCreateSpaceInput,
-  authorize: async (ctx) => {
-    const accountId = requireAccountId(ctx);
-    if (!accountId.ok) return accountId;
-    return ok(undefined);
-  },
-  execute: async (ctx, input, db) => {
-    const accountId = requireAccountId(ctx);
-    if (!accountId.ok) return accountId;
-    const now = isoNow();
-    const memberId = resolveSpaceMemberId(accountId.value);
-    // One PowerSync writeTransaction → one CRUD upload (spaces + space_users).
-    // Separate db.run calls each become their own ~multi-second upload to Postgres.
-    await db.transaction(async (tx) => {
-      await tx.run(
-        sqlMap({
-          insertInto: SPACES_TABLE.tableName,
-          values: {
-            [SpaceCol.id]: input.spaceId,
-            [SpaceCol.hostId]: ctx.deviceId,
-            [SpaceCol.createdAt]: now,
-            [SpaceCol.visibility]: input.visibility,
-            [SpaceCol.hostAccountId]: accountId.value,
-            [SpaceCol.hostMemberId]: memberId,
-          },
-        })
-      );
-      await tx.run(
-        sqlMap({
-          insertInto: SPACE_USERS_TABLE.tableName,
-          values: {
-            [SpaceUserCol.id]: spaceUserEntityId(input.spaceId, memberId),
-            [SpaceUserCol.spaceId]: input.spaceId,
-            [SpaceUserCol.userId]: memberId,
-            [SpaceUserCol.createdAt]: now,
-            [SpaceUserCol.createdByAccountId]: accountId.value,
-          },
-        })
-      );
-    });
-    return ok(undefined);
-  },
-});
+export function createSpaceBeforeBatch(
+  auth: RulesAuth,
+  input: CreateSpaceInput
+): UploadBatch {
+  const accountId = requireAccountId(auth);
+  const memberId = resolveSpaceMemberId(accountId);
+  const now = isoNow();
+  return {
+    rows: [
+      {
+        op: 'put',
+        table: SPACES_TABLE.tableName,
+        id: input.spaceId,
+        values: {
+          id: input.spaceId,
+          host_id: auth.deviceId,
+          created_at: now,
+          visibility: input.visibility,
+          host_account_id: accountId,
+          host_member_id: memberId,
+        },
+      },
+      {
+        op: 'put',
+        table: SPACE_USERS_TABLE.tableName,
+        id: spaceUserEntityId(input.spaceId, memberId),
+        values: {
+          id: spaceUserEntityId(input.spaceId, memberId),
+          space_id: input.spaceId,
+          user_id: memberId,
+          created_at: now,
+          created_by_account_id: accountId,
+        },
+      },
+    ],
+  };
+}
+
+export async function createSpace(
+  auth: RulesAuth,
+  input: CreateSpaceInput,
+  db: SqlClient
+): Promise<void> {
+  const accountId = requireAccountId(auth);
+  const now = isoNow();
+  const memberId = resolveSpaceMemberId(accountId);
+  await db.run(
+    sqlMap({
+      insertInto: SPACES_TABLE.tableName,
+      values: {
+        [SpaceCol.id]: input.spaceId,
+        [SpaceCol.hostId]: auth.deviceId,
+        [SpaceCol.createdAt]: now,
+        [SpaceCol.visibility]: input.visibility,
+        [SpaceCol.hostAccountId]: accountId,
+        [SpaceCol.hostMemberId]: memberId,
+      },
+    })
+  );
+  await db.run(
+    sqlMap({
+      insertInto: SPACE_USERS_TABLE.tableName,
+      values: {
+        [SpaceUserCol.id]: spaceUserEntityId(input.spaceId, memberId),
+        [SpaceUserCol.spaceId]: input.spaceId,
+        [SpaceUserCol.userId]: memberId,
+        [SpaceUserCol.createdAt]: now,
+        [SpaceUserCol.createdByAccountId]: accountId,
+      },
+    })
+  );
+}

@@ -1,15 +1,17 @@
-import { mapAppAuthToWriteContext } from '@libs/auth/shared/map-app-auth-to-write-context';
+import { mapAppAuthToRulesAuth } from '@libs/auth/shared/map-app-auth-to-rules-auth';
 import type { AppAuth } from '@libs/auth/shared/auth-context';
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
+import { messageForFailure } from '@pkgs/rules/core/messages';
+import { isRulesReject } from '@pkgs/rules/core/rules-reject';
+import type { Failure } from '@pkgs/rules/core/types';
+import { FRIENDS_MESSAGES } from '@pkgs/rules/friends/messages';
 import type { Context } from 'hono';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { WriteDefinition } from '@pkgs/write/shared/define-write';
-import { runWrite } from '@pkgs/write/shared/run-write';
-import {
-  isWriteFailure,
-  unwrap,
-  type WriteFailure,
-} from '@pkgs/write/shared/write-result';
+
+export type FriendsWriteFailure = {
+  readonly code: string;
+  readonly message: string;
+};
 
 export type FriendsWriteOk<TOutput> = {
   readonly ok: true;
@@ -19,7 +21,7 @@ export type FriendsWriteOk<TOutput> = {
 
 export type FriendsWriteOutcome<TOutput> =
   | FriendsWriteOk<TOutput>
-  | { readonly ok: false; readonly failure: WriteFailure };
+  | { readonly ok: false; readonly failure: FriendsWriteFailure };
 
 export function writeFailureStatus(
   code: string
@@ -34,9 +36,16 @@ export function writeFailureStatus(
   return 400;
 }
 
+function failureFromRules(failure: Failure): FriendsWriteFailure {
+  return {
+    code: failure.code,
+    message: messageForFailure(failure, FRIENDS_MESSAGES),
+  };
+}
+
 export function jsonWriteFailure(
   c: Context<ApiHonoEnv>,
-  result: WriteFailure
+  result: FriendsWriteFailure
 ): Response {
   return c.json(
     { error: result.message, code: result.code },
@@ -44,21 +53,25 @@ export function jsonWriteFailure(
   );
 }
 
-export async function runFriendsWrite<TInput, TOutput>(
+export async function runFriendsMutation<TOutput>(
   auth: AppAuth,
   sql: SqlClient,
-  write: WriteDefinition<TInput, TOutput>,
-  rawInput: unknown
+  fn: (
+    rulesAuth: ReturnType<typeof mapAppAuthToRulesAuth>,
+    sql: SqlClient
+  ) => Promise<TOutput>
 ): Promise<FriendsWriteOutcome<TOutput>> {
-  const result = await runWrite({
-    write,
-    ctx: mapAppAuthToWriteContext(auth),
-    rawInput,
-    sql,
-    mode: 'full',
-  });
-  if (isWriteFailure(result)) {
-    return { ok: false, failure: result };
+  const rulesAuth = mapAppAuthToRulesAuth(auth);
+  try {
+    const value = await fn(rulesAuth, sql);
+    return { ok: true, value, sql };
+  } catch (error) {
+    if (isRulesReject(error) && error.failures[0] !== undefined) {
+      return { ok: false, failure: failureFromRules(error.failures[0]) };
+    }
+    throw error;
   }
-  return { ok: true, value: unwrap(result), sql };
 }
+
+/** @deprecated Use {@link runFriendsMutation}. */
+export const runFriendsWrite = runFriendsMutation;

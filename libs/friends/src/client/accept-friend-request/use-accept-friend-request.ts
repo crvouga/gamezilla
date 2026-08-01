@@ -1,21 +1,35 @@
-import { useWriteContext } from '@libs/auth/client/use-write-context';
+import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
+import { FRIENDS_RULES } from '@pkgs/rules/friends/rules';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { runClientWrite } from '@pkgs/write/client/run-client-write';
+import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 import { useCallback } from 'react';
 
-import { acceptFriendRequestWrite } from '../../shared/accept-friend-request/accept-friend-request-write';
+import {
+  acceptFriendRequest,
+  acceptFriendRequestBeforeBatch,
+  authorizeAccept,
+  publishAcceptFriendRequestEvent,
+} from '../../shared/accept-friend-request/accept-friend-request-write';
 
 export function useAcceptFriendRequest() {
   const engine = useSyncEngine();
-  const writeContext = useWriteContext();
+  const auth = useRulesAuth();
   return useCallback(
-    (requestId: string) =>
-      runClientWrite(
-        acceptFriendRequestWrite,
-        writeContext,
-        { requestId },
-        engine.db
-      ),
-    [engine, writeContext]
+    async (requestId: string) => {
+      const input = { requestId };
+      await authorizeAccept(auth, input, engine.db);
+      const result = await validatedWrite({
+        sql: engine.db,
+        auth,
+        rules: FRIENDS_RULES,
+        beforeBatch: acceptFriendRequestBeforeBatch(input),
+        fn: (tx) => acceptFriendRequest(auth, input, tx),
+      });
+      if (result.accepted) {
+        publishAcceptFriendRequestEvent(auth, result.request);
+      }
+      return result.request;
+    },
+    [auth, engine]
   );
 }

@@ -1,27 +1,39 @@
-import { runClientWrite } from '@pkgs/write/client/run-client-write';
-import type { WriteContext } from '@pkgs/write/shared/write-context';
+import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { PROFILE_RULES } from '@pkgs/rules/profile/rules';
+import type { RulesAuth } from '@pkgs/rules/core/types';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 import { assertUuid } from '@pkgs/uuid';
 
-import { ensureProfileLocalWrite } from '../../shared/ensure-profile-local/ensure-profile-local-write';
+import { ensureProfileLocal } from '../../shared/ensure-profile-local/ensure-profile-local-write';
 
 /**
- * Ensures a local `profiles` row exists for `writeContext.myId` (install id
+ * Ensures a local `profiles` row exists for `auth.myId` (install id
  * when anonymous, account id when signed in). Username is assigned online via
  * `POST /profile/ensure` — this only seeds id / avatar for the sync path.
  */
 export async function ensureProfile(
   sql: SqlClient,
-  writeContext: WriteContext,
-  profileId: string = writeContext.myId
+  auth: RulesAuth,
+  profileId: string = auth.myId
 ): Promise<void> {
   assertUuid(profileId, 'ensureProfile profileId');
-  await runClientWrite(
-    ensureProfileLocalWrite,
-    writeContext,
-    { profileId },
-    sql
-  );
+  await validatedWrite({
+    sql,
+    auth,
+    rules: PROFILE_RULES,
+    beforeBatch: {
+      rows: [
+        {
+          op: 'put',
+          table: PROFILES_TABLE.tableName,
+          id: profileId,
+          values: { id: profileId },
+        },
+      ],
+    },
+    fn: (tx) => ensureProfileLocal(tx, { profileId }),
+  });
 }
 
 /**
@@ -30,15 +42,29 @@ export async function ensureProfile(
  */
 export async function applyEnsuredUsername(
   sql: SqlClient,
-  writeContext: WriteContext,
+  auth: RulesAuth,
   args: { readonly profileId: string; readonly username: string }
 ): Promise<void> {
   assertUuid(args.profileId, 'applyEnsuredUsername profileId');
   if (args.username.length === 0) return;
-  await runClientWrite(
-    ensureProfileLocalWrite,
-    writeContext,
-    { profileId: args.profileId, username: args.username },
-    sql
-  );
+  await validatedWrite({
+    sql,
+    auth,
+    rules: PROFILE_RULES,
+    beforeBatch: {
+      rows: [
+        {
+          op: 'patch',
+          table: PROFILES_TABLE.tableName,
+          id: args.profileId,
+          values: { id: args.profileId },
+        },
+      ],
+    },
+    fn: (tx) =>
+      ensureProfileLocal(tx, {
+        profileId: args.profileId,
+        username: args.username,
+      }),
+  });
 }

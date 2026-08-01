@@ -9,17 +9,19 @@ import {
   resolveAvatarSeed,
   serializeAvatarConfig,
 } from '../../shared/avatar-config';
-import { useWriteContext } from '@libs/auth/client/use-write-context';
+import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
-import { runClientWrite } from '@pkgs/write/client/run-client-write';
+import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { PROFILE_RULES } from '@pkgs/rules/profile/rules';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useMyProfileId } from '../use-my-profile-id';
 import { useProfileRow } from '../use-profile-row';
-import { profilePatchWrite } from '../../shared/patch-avatar/profile-patch-write';
+import { patchProfileAvatar } from '../../shared/patch-avatar/profile-patch-write';
 
 function usePersistedConfig() {
   const profileId = useMyProfileId();
@@ -176,16 +178,27 @@ function useSaveAction(args: {
 }) {
   const { draft, profileId } = args;
   const engine = useSyncEngine();
-  const writeContext = useWriteContext();
+  const auth = useRulesAuth();
   return useCallback(async () => {
     if (profileId === null) return;
-    await runClientWrite(
-      profilePatchWrite,
-      writeContext,
-      { profileId, avatarConfig: serializeAvatarConfig(draft) },
-      engine.db
-    );
-  }, [engine, draft, profileId, writeContext]);
+    const avatarConfig = serializeAvatarConfig(draft);
+    await validatedWrite({
+      sql: engine.db,
+      auth,
+      rules: PROFILE_RULES,
+      beforeBatch: {
+        rows: [
+          {
+            op: 'patch',
+            table: PROFILES_TABLE.tableName,
+            id: profileId,
+            values: { id: profileId },
+          },
+        ],
+      },
+      fn: (tx) => patchProfileAvatar(tx, { profileId, avatarConfig }),
+    });
+  }, [engine, draft, profileId, auth]);
 }
 
 function useEditorActions(args: {

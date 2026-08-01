@@ -1,6 +1,6 @@
 import { ensureDeviceEntity } from '@libs/auth/client/ensure-device-entity';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
-import { useWriteContext } from '@libs/auth/client/use-write-context';
+import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, type ReactNode } from 'react';
 
@@ -14,13 +14,13 @@ export function DeviceEntityBootstrap({
 }): ReactNode {
   const { db } = useSyncEngine();
   const deviceId = useDeviceId();
-  const writeContext = useWriteContext();
+  const auth = useRulesAuth();
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
-        await ensureDeviceEntity(db, writeContext, deviceId);
+        await ensureDeviceEntity(db, auth, deviceId);
         if (cancelled) return;
       } catch {
         // Best-effort: the next refresh from the server will re-assert.
@@ -29,7 +29,7 @@ export function DeviceEntityBootstrap({
     return () => {
       cancelled = true;
     };
-  }, [db, deviceId, writeContext]);
+  }, [auth, db, deviceId]);
 
   return <>{children}</>;
 }

@@ -1,9 +1,9 @@
+import { SPACE_USERS_TABLE, spaceUserEntityId } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
+import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { defineWrite } from '@pkgs/write/shared/define-write';
-import type { WriteContext } from '@pkgs/write/shared/write-context';
-import { ok, type WriteResult } from '@pkgs/write/shared/write-result';
 
 import {
   asObjectRecord,
@@ -22,70 +22,79 @@ export type JoinSpaceInput = {
   readonly spaceId: string;
 };
 
-function parseJoinSpaceInput(raw: unknown): WriteResult<JoinSpaceInput> {
+export function parseJoinSpaceInput(raw: unknown): JoinSpaceInput {
   const record = asObjectRecord(raw, 'join space input');
-  if (!record.ok) return record;
-  const spaceId = requireNonEmptyString(record.value['spaceId'], 'spaceId');
-  if (!spaceId.ok) return spaceId;
-  return ok({ spaceId: spaceId.value });
+  const spaceId = requireNonEmptyString(record['spaceId'], 'spaceId');
+  return { spaceId };
 }
 
 export async function authorizeJoinSpace(
-  ctx: WriteContext,
+  auth: RulesAuth,
   input: JoinSpaceInput,
   db: SqlClient
-): Promise<WriteResult<void>> {
-  return authorizeJoinSpaceAccess(ctx, db, input.spaceId);
+): Promise<void> {
+  await authorizeJoinSpaceAccess(auth, db, input.spaceId);
+}
+
+export function joinSpaceBeforeBatch(
+  auth: RulesAuth,
+  input: JoinSpaceInput
+): UploadBatch {
+  const accountId = requireAccountId(auth);
+  const memberId = resolveSpaceMemberId(accountId);
+  return {
+    rows: [
+      {
+        op: 'put',
+        table: SPACE_USERS_TABLE.tableName,
+        id: spaceUserEntityId(input.spaceId, memberId),
+        values: {
+          id: spaceUserEntityId(input.spaceId, memberId),
+          space_id: input.spaceId,
+          user_id: memberId,
+          created_by_account_id: accountId,
+        },
+      },
+    ],
+  };
 }
 
 /**
  * Open/join a space: ensure ACL (`space_users`) exists for the actor.
- * Live seat + "opened" are room / local state — not written here.
- * Public join self-upserts ACL so the space can sync.
  */
 export async function executeJoinSpace(
-  ctx: WriteContext,
+  auth: RulesAuth,
   input: JoinSpaceInput,
   db: SqlClient
-): Promise<WriteResult<void>> {
-  const accountId = requireAccountId(ctx);
-  if (!accountId.ok) return accountId;
-  const memberId = resolveSpaceMemberId(accountId.value);
+): Promise<void> {
+  const accountId = requireAccountId(auth);
+  const memberId = resolveSpaceMemberId(accountId);
   const already = await isSpaceUserInStore(db, input.spaceId, memberId);
   if (!already) {
     await upsertSpaceUserRow({
       db,
       spaceId: input.spaceId,
       userId: memberId,
-      createdByAccountId: accountId.value,
+      createdByAccountId: accountId,
     });
   }
   const space = await readSpaceRowForJoin(db, input.spaceId);
   if (
-    space.ok &&
     isSpaceHostActor({
-      hostId: space.value.hostId,
-      hostMemberId: space.value.hostMemberId,
-      hostAccountId: space.value.hostAccountId,
+      hostId: space.hostId,
+      hostMemberId: space.hostMemberId,
+      hostAccountId: space.hostAccountId,
       memberId,
-      accountId: accountId.value,
-      deviceId: ctx.deviceId,
+      accountId,
+      deviceId: auth.deviceId,
     })
   ) {
     await migrateHostIdentity({
       sql: db,
       spaceId: input.spaceId,
-      deviceId: ctx.deviceId,
+      deviceId: auth.deviceId,
       newMemberId: memberId,
-      accountId: accountId.value,
+      accountId,
     });
   }
-  return ok(undefined);
 }
-
-export const joinSpaceWrite = defineWrite<JoinSpaceInput, void>({
-  name: 'spaces.join',
-  parseInput: parseJoinSpaceInput,
-  authorize: authorizeJoinSpace,
-  execute: executeJoinSpace,
-});

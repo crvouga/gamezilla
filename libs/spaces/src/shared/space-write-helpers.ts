@@ -10,27 +10,30 @@ import {
   decideEndSpace,
   isSpaceHostActor,
 } from '@libs/spaces/shared/participation/space-participation-policy';
+import { fail } from '@pkgs/rules/core/fail';
+import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
+import type { RulesAuth } from '@pkgs/rules/core/types';
+import {
+  SPACE_HOST_REQUIRED,
+  SPACE_NOT_FOUND,
+  SPACE_NOT_SIGNED_IN,
+} from '@pkgs/rules/spaces/codes';
 import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { readOne } from '@pkgs/write/shared/read-row-values';
-import type { WriteContext } from '@pkgs/write/shared/write-context';
-import { fail, ok, type WriteResult } from '@pkgs/write/shared/write-result';
 
 export function isoNow(): string {
   return new Date().toISOString();
 }
 
-export function requireAccountId(ctx: WriteContext): WriteResult<string> {
-  if (ctx.accountId === null || ctx.accountId.length === 0) {
-    return fail('SPACE_NOT_SIGNED_IN', 'Sign in to continue');
+export function requireAccountId(auth: RulesAuth): string {
+  if (auth.accountId === null || auth.accountId.length === 0) {
+    throwRulesReject([fail(SPACE_NOT_SIGNED_IN)]);
   }
-  return ok(ctx.accountId);
+  return auth.accountId;
 }
 
-export function memberIdFromContext(ctx: WriteContext): WriteResult<string> {
-  const accountId = requireAccountId(ctx);
-  if (!accountId.ok) return accountId;
-  return ok(resolveSpaceMemberId(accountId.value));
+export function memberIdFromAuth(auth: RulesAuth): string {
+  return resolveSpaceMemberId(requireAccountId(auth));
 }
 
 export type SpaceHostEnded = {
@@ -43,14 +46,13 @@ export type SpaceHostEnded = {
 export async function readSpaceHostEnded(
   db: SqlClient,
   spaceId: string
-): Promise<WriteResult<SpaceHostEnded>> {
-  const result = await readOne<{
+): Promise<SpaceHostEnded> {
+  const rows = await db.query<{
     readonly host_id: string | null;
     readonly host_member_id: string | null;
     readonly host_account_id: string | null;
     readonly ended_at: string | null;
   }>(
-    db,
     sqlMap({
       select: [
         SpaceCol.hostId,
@@ -61,51 +63,52 @@ export async function readSpaceHostEnded(
       from: SPACES_TABLE.tableName,
       where: ['=', SpaceCol.id, spaceId],
       limit: 1,
-    }),
-    'SPACE_NOT_FOUND'
+    })
   );
-  if (!result.ok) return result;
-  const hostId = result.value.host_id;
+  const row = rows[0];
+  if (row === undefined) {
+    throwRulesReject([fail(SPACE_NOT_FOUND)]);
+  }
+  const hostId = row.host_id;
   if (hostId === null || hostId.length === 0) {
-    return fail('SPACE_NOT_FOUND', 'Space not found');
+    throwRulesReject([fail(SPACE_NOT_FOUND)]);
   }
   const hostMemberId =
-    result.value.host_member_id ?? result.value.host_account_id ?? hostId;
+    row.host_member_id ?? row.host_account_id ?? hostId;
   if (hostMemberId.length === 0) {
-    return fail('SPACE_NOT_FOUND', 'Space not found');
+    throwRulesReject([fail(SPACE_NOT_FOUND)]);
   }
-  return ok({
+  return {
     hostId,
     hostMemberId,
-    hostAccountId: result.value.host_account_id,
-    endedAt: result.value.ended_at,
-  });
+    hostAccountId: row.host_account_id,
+    endedAt: row.ended_at,
+  };
 }
 
 export async function authorizeSpaceHost(
-  ctx: WriteContext,
+  auth: RulesAuth,
   db: SqlClient,
   spaceId: string,
   deniedMessage: string
-): Promise<WriteResult<void>> {
+): Promise<void> {
   const space = await readSpaceHostEnded(db, spaceId);
-  if (!space.ok) return space;
-  const memberId = memberIdFromContext(ctx);
-  if (!memberId.ok) return memberId;
+  const memberId = memberIdFromAuth(auth);
   const decision = decideEndSpace({
     isHostActor: isSpaceHostActor({
-      hostId: space.value.hostId,
-      hostMemberId: space.value.hostMemberId,
-      hostAccountId: space.value.hostAccountId,
-      memberId: memberId.value,
-      accountId: ctx.accountId,
-      deviceId: ctx.deviceId,
+      hostId: space.hostId,
+      hostMemberId: space.hostMemberId,
+      hostAccountId: space.hostAccountId,
+      memberId,
+      accountId: auth.accountId,
+      deviceId: auth.deviceId,
     }),
   });
   if (!decision.allowed) {
-    return fail('SPACE_HOST_REQUIRED', deniedMessage);
+    throwRulesReject([
+      fail(SPACE_HOST_REQUIRED, { params: { message: deniedMessage } }),
+    ]);
   }
-  return ok(undefined);
 }
 
 export async function isSpaceUserInStore(
@@ -133,8 +136,6 @@ export async function upsertSpaceUserRow(args: {
   readonly createdByAccountId: string;
   readonly now?: string;
 }): Promise<void> {
-  // PowerSync synced names are SQLite views — INSERT … ON CONFLICT fails with
-  // "cannot UPSERT a view". Select-then-plain-INSERT is the client pattern.
   const already = await isSpaceUserInStore(args.db, args.spaceId, args.userId);
   if (already) return;
   await args.db.run(
@@ -151,11 +152,6 @@ export async function upsertSpaceUserRow(args: {
   );
 }
 
-/**
- * Realign `host_member_id` / `host_account_id` to the current owner identity.
- * Creating device (`host_id = deviceId`) always updates both; account owners
- * on another device only realign `host_member_id`.
- */
 export async function migrateHostIdentity(args: {
   readonly sql: SqlClient;
   readonly spaceId: string;
@@ -191,22 +187,25 @@ export async function migrateHostIdentity(args: {
   );
 }
 
-export function requireNonEmptyString(
-  value: unknown,
-  field: string
-): WriteResult<string> {
+export function requireNonEmptyString(value: unknown, field: string): string {
   if (typeof value !== 'string' || value.length === 0) {
-    return fail('INVALID_INPUT', `${field} is required`);
+    throwRulesReject([
+      fail('INVALID_INPUT', { params: { message: `${field} is required` } }),
+    ]);
   }
-  return ok(value);
+  return value;
 }
 
 export function asObjectRecord(
   raw: unknown,
   label: string
-): WriteResult<Record<string, unknown>> {
+): Record<string, unknown> {
   if (raw === null || typeof raw !== 'object') {
-    return fail('INVALID_INPUT', `${label} must be an object`);
+    throwRulesReject([
+      fail('INVALID_INPUT', {
+        params: { message: `${label} must be an object` },
+      }),
+    ]);
   }
-  return ok(raw as Record<string, unknown>);
+  return raw as Record<string, unknown>;
 }

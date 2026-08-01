@@ -1,7 +1,9 @@
-import { ok } from '@pkgs/write/shared/write-result';
-import { defineWrite } from '@pkgs/write/shared/define-write';
+import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { publishFriendEvent } from '../friend-events';
+import { pairId } from '../pair-id';
 import {
   authorizeSignedInNotSelf,
   isoNow,
@@ -15,24 +17,47 @@ import {
 } from '../friends-sql/friendship-block-sql';
 
 export type { FriendUserIdInput };
+export { parseFriendUserIdInput };
 
-export const blockUserWrite = defineWrite<FriendUserIdInput, void>({
-  name: 'friends.block',
-  parseInput: parseFriendUserIdInput,
-  authorize: async (ctx, input) =>
-    authorizeSignedInNotSelf(ctx, input.userId, 'Cannot block yourself'),
-  execute: async (ctx, input, sql) => {
-    const now = isoNow();
-    await sql.transaction(async (tx) => {
-      await deleteFriendship(tx, ctx.myId, input.userId);
-      await cancelPendingRequestsBetween(tx, ctx.myId, input.userId, now);
-      await insertBlock(tx, ctx.myId, input.userId, now);
-    });
-    publishFriendEvent({
-      type: 'friend.blocked',
-      blockerId: ctx.myId,
-      blockedId: input.userId,
-    });
-    return ok(undefined);
-  },
-});
+export function blockUserBeforeBatch(
+  auth: RulesAuth,
+  input: FriendUserIdInput
+): UploadBatch {
+  return {
+    rows: [
+      {
+        op: 'put',
+        table: 'user_blocks',
+        id: pairId(auth.myId, input.userId),
+        values: {
+          id: pairId(auth.myId, input.userId),
+          blocker_id: auth.myId,
+          blocked_id: input.userId,
+        },
+      },
+    ],
+  };
+}
+
+export async function blockUser(
+  auth: RulesAuth,
+  input: FriendUserIdInput,
+  sql: SqlClient
+): Promise<void> {
+  authorizeSignedInNotSelf(auth, input.userId, 'Cannot block yourself');
+  const now = isoNow();
+  await deleteFriendship(sql, auth.myId, input.userId);
+  await cancelPendingRequestsBetween(sql, auth.myId, input.userId, now);
+  await insertBlock(sql, auth.myId, input.userId, now);
+}
+
+export function publishBlockUserEvent(
+  auth: RulesAuth,
+  userId: string
+): void {
+  publishFriendEvent({
+    type: 'friend.blocked',
+    blockerId: auth.myId,
+    blockedId: userId,
+  });
+}

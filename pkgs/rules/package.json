@@ -1,0 +1,27 @@
+{
+  "name": "@pkgs/rules",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings 0",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}

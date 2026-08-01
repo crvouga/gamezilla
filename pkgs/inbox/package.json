@@ -29,7 +29,6 @@
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
-    "@pkgs/write": "workspace:*",
     "expo-router": "catalog:",
     "hono": "catalog:",
     "react": "catalog:",
