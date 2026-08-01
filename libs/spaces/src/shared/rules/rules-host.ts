@@ -1,6 +1,11 @@
-import { fail } from '../core/fail';
-import { defineRule } from '../core/define-rule';
-import type { Failure, RulesCtx } from '../core/types';
+import { fail } from '@pkgs/rules/core/fail';
+import { defineRule } from '@pkgs/rules/core/define-rule';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import {
+  decideEndSpace,
+  isSpaceHostActor,
+} from '@libs/spaces/shared/participation/space-participation-policy';
+import type { Failure, RulesCtx } from '@pkgs/rules/core/types';
 import type { UploadRow } from '@pkgs/sync-engine/shared/upload-batch';
 import {
   SPACE_DELETE_DENIED,
@@ -9,14 +14,13 @@ import {
   SPACE_NOT_SIGNED_IN,
   SPACE_WRITE_DENIED,
 } from './codes';
-import { decideEndSpace, isSpaceHostActor } from './host-actor';
 import {
   querySpaceById,
   resolveHostMemberId,
   SPACES_TABLE,
 } from './query';
 
-function requireAccount(ctx: RulesCtx, row: UploadRow): Failure | null {
+function requireAccount(ctx: RulesCtx<AppRulesAuth>, row: UploadRow): Failure | null {
   if (ctx.auth.accountId === null || ctx.auth.accountId.length === 0) {
     return fail(SPACE_NOT_SIGNED_IN, { table: SPACES_TABLE, id: row.id });
   }
@@ -24,7 +28,7 @@ function requireAccount(ctx: RulesCtx, row: UploadRow): Failure | null {
 }
 
 async function failIfNotHostPatch(
-  ctx: RulesCtx,
+  ctx: RulesCtx<AppRulesAuth>,
   row: UploadRow
 ): Promise<Failure | null> {
   const space = await querySpaceById(ctx.db, row.id);
@@ -53,7 +57,7 @@ async function failIfNotHostPatch(
 }
 
 async function checkOneSpacesRow(
-  ctx: RulesCtx,
+  ctx: RulesCtx<AppRulesAuth>,
   row: UploadRow
 ): Promise<Failure | null> {
   if (row.op === 'delete') {
@@ -65,7 +69,7 @@ async function checkOneSpacesRow(
 }
 
 async function checkSpacesHostOrCreate(
-  ctx: RulesCtx
+  ctx: RulesCtx<AppRulesAuth>
 ): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
   for (const row of ctx.batch.rows) {
@@ -105,7 +109,7 @@ function mismatchCreateHostFields(
 }
 
 function checkCreateHostFieldsRow(
-  ctx: RulesCtx,
+  ctx: RulesCtx<AppRulesAuth>,
   row: UploadRow
 ): Failure | null {
   const accountId = ctx.auth.accountId;
@@ -116,7 +120,7 @@ function checkCreateHostFieldsRow(
 }
 
 async function checkSpacesCreateHostFields(
-  ctx: RulesCtx
+  ctx: RulesCtx<AppRulesAuth>
 ): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
   for (const row of ctx.batch.rows) {

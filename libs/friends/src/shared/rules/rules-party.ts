@@ -1,6 +1,7 @@
-import { fail } from '../core/fail';
-import { defineRule } from '../core/define-rule';
-import type { Failure, RulesCtx } from '../core/types';
+import { fail } from '@pkgs/rules/core/fail';
+import { defineRule } from '@pkgs/rules/core/define-rule';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import type { Failure, RulesCtx } from '@pkgs/rules/core/types';
 import type { UploadRow } from '@pkgs/sync-engine/shared/upload-batch';
 import {
   FRIENDS_BLOCK_OWNER_MISMATCH,
@@ -19,7 +20,7 @@ import {
   USER_BLOCKS_TABLE,
 } from './query';
 
-function requireSignedIn(ctx: RulesCtx, table: string, id: string): Failure | null {
+function requireSignedIn(ctx: RulesCtx<AppRulesAuth>, table: string, id: string): Failure | null {
   if (ctx.auth.accountId === null) {
     return fail(FRIENDS_NOT_SIGNED_IN, { table, id });
   }
@@ -57,14 +58,14 @@ function statusPartyFailure(
 }
 
 async function checkOneRequestRow(
-  ctx: RulesCtx,
+  ctx: RulesCtx<AppRulesAuth>,
   row: UploadRow
 ): Promise<Failure | null> {
   const signedIn = requireSignedIn(ctx, FRIEND_REQUESTS_TABLE, row.id);
   if (signedIn !== null) return signedIn;
   const fromUserId = readStringValue(row.values, 'from_user_id');
   const toUserId = readStringValue(row.values, 'to_user_id');
-  if (fromUserId === ctx.auth.myId || toUserId === ctx.auth.myId) {
+  if (fromUserId === ctx.auth.userId || toUserId === ctx.auth.userId) {
     return null;
   }
   const existing = await findRequestById(ctx.db, row.id);
@@ -77,8 +78,8 @@ async function checkOneRequestRow(
     });
   }
   if (
-    existing.from_user_id !== ctx.auth.myId &&
-    existing.to_user_id !== ctx.auth.myId
+    existing.from_user_id !== ctx.auth.userId &&
+    existing.to_user_id !== ctx.auth.userId
   ) {
     return fail(FRIENDS_REQUEST_PARTY_REQUIRED, {
       table: FRIEND_REQUESTS_TABLE,
@@ -88,12 +89,12 @@ async function checkOneRequestRow(
   return statusPartyFailure(
     readStringValue(row.values, 'status'),
     existing,
-    ctx.auth.myId,
+    ctx.auth.userId,
     row.id
   );
 }
 
-async function checkRequestParty(ctx: RulesCtx): Promise<readonly Failure[]> {
+async function checkRequestParty(ctx: RulesCtx<AppRulesAuth>): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
   for (const row of ctx.batch.rows) {
     if (row.table !== FRIEND_REQUESTS_TABLE) continue;
@@ -103,14 +104,14 @@ async function checkRequestParty(ctx: RulesCtx): Promise<readonly Failure[]> {
   return failures;
 }
 
-function checkOneFriendshipRow(ctx: RulesCtx, row: UploadRow): Failure | null {
+function checkOneFriendshipRow(ctx: RulesCtx<AppRulesAuth>, row: UploadRow): Failure | null {
   const signedIn = requireSignedIn(ctx, FRIENDSHIPS_TABLE, row.id);
   if (signedIn !== null) return signedIn;
   const userLow = readStringValue(row.values, 'user_low');
   const userHigh = readStringValue(row.values, 'user_high');
-  if (userLow === ctx.auth.myId || userHigh === ctx.auth.myId) return null;
+  if (userLow === ctx.auth.userId || userHigh === ctx.auth.userId) return null;
   const parts = row.id.split(':');
-  if (parts[0] === ctx.auth.myId || parts[1] === ctx.auth.myId) return null;
+  if (parts[0] === ctx.auth.userId || parts[1] === ctx.auth.userId) return null;
   return fail(FRIENDS_FRIENDSHIP_PARTY_REQUIRED, {
     table: FRIENDSHIPS_TABLE,
     id: row.id,
@@ -118,7 +119,7 @@ function checkOneFriendshipRow(ctx: RulesCtx, row: UploadRow): Failure | null {
 }
 
 async function checkFriendshipParty(
-  ctx: RulesCtx
+  ctx: RulesCtx<AppRulesAuth>
 ): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
   for (const row of ctx.batch.rows) {
@@ -129,19 +130,19 @@ async function checkFriendshipParty(
   return failures;
 }
 
-function checkOneBlockRow(ctx: RulesCtx, row: UploadRow): Failure | null {
+function checkOneBlockRow(ctx: RulesCtx<AppRulesAuth>, row: UploadRow): Failure | null {
   const signedIn = requireSignedIn(ctx, USER_BLOCKS_TABLE, row.id);
   if (signedIn !== null) return signedIn;
   const blockerId = readStringValue(row.values, 'blocker_id');
   const blockedId = readStringValue(row.values, 'blocked_id');
-  if (blockedId === ctx.auth.myId && blockerId === ctx.auth.myId) {
+  if (blockedId === ctx.auth.userId && blockerId === ctx.auth.userId) {
     return fail(FRIENDS_SELF, {
       table: USER_BLOCKS_TABLE,
       id: row.id,
       params: { message: 'Cannot block yourself' },
     });
   }
-  if (blockerId !== undefined && blockerId !== ctx.auth.myId) {
+  if (blockerId !== undefined && blockerId !== ctx.auth.userId) {
     return fail(FRIENDS_BLOCK_OWNER_MISMATCH, {
       table: USER_BLOCKS_TABLE,
       id: row.id,
@@ -150,7 +151,7 @@ function checkOneBlockRow(ctx: RulesCtx, row: UploadRow): Failure | null {
   return null;
 }
 
-async function checkBlockOwner(ctx: RulesCtx): Promise<readonly Failure[]> {
+async function checkBlockOwner(ctx: RulesCtx<AppRulesAuth>): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
   for (const row of ctx.batch.rows) {
     if (row.table !== USER_BLOCKS_TABLE) continue;

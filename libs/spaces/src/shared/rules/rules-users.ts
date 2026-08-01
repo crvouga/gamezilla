@@ -1,8 +1,13 @@
-import { fail } from '../core/fail';
-import { defineRule } from '../core/define-rule';
-import type { Failure, RulesCtx } from '../core/types';
+import { fail } from '@pkgs/rules/core/fail';
+import { defineRule } from '@pkgs/rules/core/define-rule';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import { decideSpaceJoinAccess } from '@libs/spaces/shared/join-space/decide-space-join-access';
+import {
+  decideEndSpace,
+  isSpaceHostActor,
+} from '@libs/spaces/shared/participation/space-participation-policy';
+import type { Failure, RulesCtx } from '@pkgs/rules/core/types';
 import type { UploadRow } from '@pkgs/sync-engine/shared/upload-batch';
-import { decideSpaceJoinAccess } from './decide-join';
 import {
   SPACE_ENDED,
   SPACE_HOST_REQUIRED,
@@ -10,7 +15,6 @@ import {
   SPACE_NOT_FOUND,
   SPACE_NOT_SIGNED_IN,
 } from './codes';
-import { decideEndSpace, isSpaceHostActor } from './host-actor';
 import {
   querySpaceById,
   readStringValue,
@@ -21,7 +25,7 @@ import {
 } from './query';
 
 async function failIfNotHost(
-  ctx: RulesCtx,
+  ctx: RulesCtx<AppRulesAuth>,
   spaceId: string,
   rowId: string
 ): Promise<Failure | null> {
@@ -53,7 +57,7 @@ async function failIfNotHost(
 }
 
 type SelfGrantArgs = {
-  readonly ctx: RulesCtx;
+  readonly ctx: RulesCtx<AppRulesAuth>;
   readonly spaceId: string;
   readonly rowId: string;
   readonly createdBy: string | undefined;
@@ -108,7 +112,7 @@ function resolveSpaceId(row: UploadRow): string | null {
 }
 
 async function checkOneSpaceUserRow(
-  ctx: RulesCtx,
+  ctx: RulesCtx<AppRulesAuth>,
   row: UploadRow
 ): Promise<Failure | null> {
   const accountId = ctx.auth.accountId;
@@ -138,7 +142,7 @@ async function checkOneSpaceUserRow(
   return failIfNotHost(ctx, spaceId, row.id);
 }
 
-async function checkSpaceUsers(ctx: RulesCtx): Promise<readonly Failure[]> {
+async function checkSpaceUsers(ctx: RulesCtx<AppRulesAuth>): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
   for (const row of ctx.batch.rows) {
     if (row.table !== SPACE_USERS_TABLE) continue;

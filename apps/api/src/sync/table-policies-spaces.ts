@@ -14,7 +14,7 @@ import {
   SPACE_NOT_FOUND,
   SPACE_NOT_SIGNED_IN,
   SPACE_WRITE_DENIED,
-} from '@pkgs/rules/spaces/codes';
+} from '@libs/spaces/shared/rules/codes';
 import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { TablePolicy } from '@pkgs/sync-engine/server/apply-batch';

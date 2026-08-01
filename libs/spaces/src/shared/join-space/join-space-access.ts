@@ -2,8 +2,8 @@ import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/particip
 import { parseSpaceVisibility } from '@libs/spaces/shared/space-visibility';
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
-import { SPACE_ENDED, SPACE_NOT_FOUND } from '@pkgs/rules/spaces/codes';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import { SPACE_ENDED, SPACE_NOT_FOUND } from '@libs/spaces/shared/rules/codes';
 import sql from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -65,7 +65,7 @@ export async function isUserAllowlistedInStore(
 }
 
 export async function authorizeJoinSpaceAccess(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   db: SqlClient,
   spaceId: string
 ): Promise<void> {

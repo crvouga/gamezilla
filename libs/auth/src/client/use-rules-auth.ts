@@ -1,34 +1,24 @@
-import type { RulesAuth } from '@pkgs/rules/core/types';
-
+import type { AppRulesAuth } from '../shared/app-rules-auth';
 import { mapAppAuthToRulesAuth } from '../shared/map-app-auth-to-rules-auth';
 import { useMyAccountId, useMyDeviceId, useMyId } from './use-current-user';
 
-export function useRulesAuth(
-  memberOfSpaceIds: readonly string[] = []
-): RulesAuth {
+export function useRulesAuth(): AppRulesAuth {
   const deviceId = useMyDeviceId();
   const accountId = useMyAccountId();
   const myId = useMyId();
-  return mapAppAuthToRulesAuth(
-    { deviceId, accountId, myId },
-    memberOfSpaceIds
-  );
+  return mapAppAuthToRulesAuth({ deviceId, accountId, myId });
 }
 
 export function buildRulesAuth(args: {
   readonly deviceId: string;
   readonly accountId: string | null;
   readonly myId: string;
-  readonly memberOfSpaceIds?: readonly string[];
-}): RulesAuth {
-  return mapAppAuthToRulesAuth(
-    {
-      deviceId: args.deviceId,
-      accountId: args.accountId,
-      myId: args.myId,
-    },
-    args.memberOfSpaceIds ?? []
-  );
+}): AppRulesAuth {
+  return mapAppAuthToRulesAuth({
+    deviceId: args.deviceId,
+    accountId: args.accountId,
+    myId: args.myId,
+  });
 }
 
 /** @deprecated Use {@link useRulesAuth}. */

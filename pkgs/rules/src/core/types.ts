@@ -10,26 +10,21 @@ export type Failure = {
   readonly params?: Readonly<Record<string, unknown>>;
 };
 
+/** App-agnostic auth for the rules engine. Domains may extend via generics. */
 export type RulesAuth = {
-  readonly subjectId: string;
-  readonly deviceId: string;
-  readonly accountId: string | null;
-  /** Author id: accountId ?? deviceId */
-  readonly myId: string;
-  readonly isAnonymous: boolean;
-  readonly memberOfSpaceIds: readonly string[];
+  readonly userId: string;
 };
 
-export type RulesCtx = {
+export type RulesCtx<TAuth extends RulesAuth = RulesAuth> = {
   readonly phase: Phase;
-  readonly auth: RulesAuth;
+  readonly auth: TAuth;
   readonly batch: UploadBatch;
   readonly db: Pick<SqlClient, 'query'>;
 };
 
-export type Rule = {
+export type Rule<TAuth extends RulesAuth = RulesAuth> = {
   readonly name: string;
   readonly phase: Phase;
   readonly touches: readonly string[];
-  readonly check: (ctx: RulesCtx) => Promise<readonly Failure[]>;
+  readonly check: (ctx: RulesCtx<TAuth>) => Promise<readonly Failure[]>;
 };

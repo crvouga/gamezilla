@@ -1,6 +1,6 @@
 import type { AuthContext } from '@libs/auth/server/types';
 import { appAuth } from '@libs/auth/shared/auth-context';
-import { mapAppAuthToRulesAuth } from '@libs/auth/shared/map-app-auth-to-rules-auth';
+import { mapAppAuthToUploadAuth } from '@libs/auth/shared/map-app-auth-to-upload-auth';
 import { SPACE_USERS_TABLE, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { stripServerOwnedProfileUploadColumns } from '@libs/profile/shared/strip-server-owned-profile-upload-columns';
 import { loadMemberOfSpaceIdsFromSql } from '@libs/spaces/server/load-member-of-space-ids-sql';
@@ -54,7 +54,7 @@ async function resolveUploadAuth(request: Request): Promise<UploadAuth | null> {
     requestStore.sqlClient,
     auth.myId
   );
-  return mapAppAuthToRulesAuth(auth, memberOfSpaceIds);
+  return mapAppAuthToUploadAuth(auth, memberOfSpaceIds);
 }
 
 function openRequestSqlClient(): SqlClient {
@@ -111,9 +111,21 @@ async function handleSyncUpload(
       auth,
       batch,
       policies: APP_TABLE_POLICIES,
-      lockUserId: auth.myId,
-      runRules: async ({ phase, auth: rulesAuth, batch: b, db }) => {
-        await runRules({ phase, auth: rulesAuth, batch: b, db }, APP_RULES);
+      lockUserId: auth.userId,
+      runRules: async ({ phase, auth: uploadAuth, batch: b, db }) => {
+        await runRules(
+          {
+            phase,
+            auth: {
+              userId: uploadAuth.userId,
+              accountId: uploadAuth.accountId,
+              deviceId: uploadAuth.deviceId,
+            },
+            batch: b,
+            db,
+          },
+          APP_RULES
+        );
       },
     });
     return c.json({ ok: true }, 200);

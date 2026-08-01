@@ -1,6 +1,6 @@
 import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { PROFILE_RULES } from '@pkgs/rules/profile/rules';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import { PROFILE_RULES } from '@libs/profile/shared/rules/rules';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 import { assertUuid } from '@pkgs/uuid';
@@ -8,14 +8,14 @@ import { assertUuid } from '@pkgs/uuid';
 import { ensureProfileLocal } from '../../shared/ensure-profile-local/ensure-profile-local-write';
 
 /**
- * Ensures a local `profiles` row exists for `auth.myId` (install id
+ * Ensures a local `profiles` row exists for `auth.userId` (install id
  * when anonymous, account id when signed in). Username is assigned online via
  * `POST /profile/ensure` — this only seeds id / avatar for the sync path.
  */
 export async function ensureProfile(
   sql: SqlClient,
-  auth: RulesAuth,
-  profileId: string = auth.myId
+  auth: AppRulesAuth,
+  profileId: string = auth.userId
 ): Promise<void> {
   assertUuid(profileId, 'ensureProfile profileId');
   await validatedWrite({
@@ -42,7 +42,7 @@ export async function ensureProfile(
  */
 export async function applyEnsuredUsername(
   sql: SqlClient,
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   args: { readonly profileId: string; readonly username: string }
 ): Promise<void> {
   assertUuid(args.profileId, 'applyEnsuredUsername profileId');

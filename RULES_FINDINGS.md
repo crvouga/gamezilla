@@ -15,5 +15,5 @@ Improvements deferred during the isomorphic-write → isomorphic-rules big-bang 
 
 7. **Dual-dialect contract suite** should grow to cover every rule query via `prepare`/`assertQuery` on seeded SQLite + Postgres (started; expand per domain).
 8. **Rejection metrics** are in-process counters + logs (`upload-rejection-metrics.ts`). Wire to the real observability backend when available; tag by failure code + app version.
-9. **Constructive helpers** (streak, cooldown, host actor) should stay next to the assertive rules that use them so write sites cannot drift.
+9. **Constructive helpers** (streak, cooldown, host actor) should stay next to the assertive rules that use them so write sites cannot drift. Domain rules now live under `libs/<feature>/src/shared/rules/`; spaces host/join helpers use the canonical `@libs/spaces` participation policy (pkgs duplicates removed).
 10. **Profile local username fill** still writes server-owned columns locally; upload strips them. Document for future agents so they do not “fix” that away without a sync story.

@@ -1,11 +1,12 @@
-import { fail } from '../core/fail';
-import { defineRule } from '../core/define-rule';
-import type { Failure, RulesCtx } from '../core/types';
+import { fail } from '@pkgs/rules/core/fail';
+import { defineRule } from '@pkgs/rules/core/define-rule';
+import type { Failure, RulesCtx } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '../app-rules-auth';
 import { AUTH_DEVICE_ID_MISMATCH, AUTH_DEVICE_REQUIRED } from './codes';
 
 const DEVICES_TABLE = 'devices';
 
-async function checkDeviceOwnId(ctx: RulesCtx): Promise<readonly Failure[]> {
+async function checkDeviceOwnId(ctx: RulesCtx<AppRulesAuth>): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
 
   for (const row of ctx.batch.rows) {

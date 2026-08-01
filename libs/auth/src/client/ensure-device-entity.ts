@@ -1,6 +1,6 @@
 import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
-import { AUTH_RULES } from '@pkgs/rules/auth/rules';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import { AUTH_RULES } from '@libs/auth/shared/rules/rules';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 import Constants from 'expo-constants';
@@ -68,7 +68,7 @@ export function collectDeviceSnapshot(): DeviceSnapshot {
  */
 export async function ensureDeviceEntity(
   sql: SqlClient,
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   deviceId: string = auth.deviceId
 ): Promise<void> {
   assertDeviceId(deviceId);

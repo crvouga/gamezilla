@@ -16,7 +16,7 @@ import {
   AUTH_DEVICE_ID_MISMATCH,
   AUTH_DEVICE_REQUIRED,
   AUTH_SERVER_MANAGED,
-} from '@pkgs/rules/auth/codes';
+} from '@libs/auth/shared/rules/codes';
 import {
   CHESS_INTERACTION_DELETE_DENIED,
   CHESS_OWNER_MISMATCH,
@@ -24,11 +24,11 @@ import {
   CHESS_PROFILE_ID_MISMATCH,
   CHESS_PUZZLE_LOAD_SYSTEM_ONLY,
   CHESS_PUZZLES_SYSTEM_ONLY,
-} from '@pkgs/rules/chess/codes';
+} from '@libs/chess/shared/rules/codes';
 import {
   PROFILE_DELETE_DENIED,
   PROFILE_ID_MISMATCH,
-} from '@pkgs/rules/profile/codes';
+} from '@libs/profile/shared/rules/codes';
 import {
   denyTablePolicy,
   type TablePolicy,
@@ -64,7 +64,7 @@ export function authProfileChessTablePolicies(): readonly TablePolicy[] {
       ]),
       authorize: async (auth, row) => {
         if (row.op === 'delete') return deny(PROFILE_DELETE_DENIED);
-        if (row.id !== auth.myId) return deny(PROFILE_ID_MISMATCH);
+        if (row.id !== auth.userId) return deny(PROFILE_ID_MISMATCH);
         return ok();
       },
     },
@@ -82,8 +82,8 @@ export function authProfileChessTablePolicies(): readonly TablePolicy[] {
         const ownerId =
           readRowString(row, ChessPuzzleProfileCol.ownerId, 'ownerId') ??
           row.id;
-        if (ownerId !== auth.myId) return deny(CHESS_OWNER_MISMATCH);
-        if (row.id !== auth.myId) return deny(CHESS_PROFILE_ID_MISMATCH);
+        if (ownerId !== auth.userId) return deny(CHESS_OWNER_MISMATCH);
+        if (row.id !== auth.userId) return deny(CHESS_PROFILE_ID_MISMATCH);
         return ok();
       },
     },
@@ -98,7 +98,7 @@ export function authProfileChessTablePolicies(): readonly TablePolicy[] {
           ChessPuzzleInteractionCol.ownerId,
           'ownerId'
         );
-        if (ownerId !== auth.myId) return deny(CHESS_OWNER_MISMATCH);
+        if (ownerId !== auth.userId) return deny(CHESS_OWNER_MISMATCH);
         return ok();
       },
     },

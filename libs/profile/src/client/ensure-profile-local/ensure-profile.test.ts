@@ -3,21 +3,18 @@ import { describe, expect, test } from 'bun:test';
 
 import { sqlMap } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { applyEnsuredUsername, ensureProfile } from './ensure-profile';
 
 const MY_ID = '550e8400-e29b-41d4-a716-446655440000';
 
-function rulesAuthFor(myId: string): RulesAuth {
+function rulesAuthFor(myId: string): AppRulesAuth {
   return {
-    subjectId: myId,
+    userId: myId,
     deviceId: myId,
     accountId: null,
-    myId,
-    isAnonymous: true,
-    memberOfSpaceIds: [],
   };
 }
 

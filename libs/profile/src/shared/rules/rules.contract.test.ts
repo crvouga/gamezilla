@@ -1,23 +1,24 @@
 import { describe, expect, test } from 'bun:test';
 import { Database } from 'bun:sqlite';
-import { isRulesReject } from '../core/rules-reject';
-import { runRules } from '../core/run-rules';
-import type { RulesAuth, RulesCtx } from '../core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import { isRulesReject } from '@pkgs/rules/core/rules-reject';
+import { runRules } from '@pkgs/rules/core/run-rules';
+import type { RulesCtx } from '@pkgs/rules/core/types';
 import { PROFILE_ID_MISMATCH } from './codes';
 import { PROFILE_RULES } from './rules';
 
-const auth: RulesAuth = {
-  subjectId: 'me',
+const auth: AppRulesAuth = {
+  userId: 'me',
   deviceId: 'd1',
   accountId: 'me',
-  myId: 'me',
-  isAnonymous: false,
-  memberOfSpaceIds: [],
 };
 
 function queryOnlyFromBunSqlite(db: Database): Pick<RulesCtx['db'], 'query'> {
   return {
-    query: async <T>(sqlQuery: { readonly sql: string; readonly values: readonly unknown[] }) => {
+    query: async <T>(sqlQuery: {
+      readonly sql: string;
+      readonly values: readonly unknown[];
+    }) => {
       const stmt = db.prepare(sqlQuery.sql);
       const bindings = sqlQuery.values as never[];
       return stmt.all(...bindings) as T[];
@@ -64,7 +65,9 @@ describe('profile rules contract (sqlite)', () => {
     db.run(
       `CREATE TABLE profiles (id TEXT PRIMARY KEY, avatar_config TEXT, created_at TEXT)`
     );
-    db.run(`INSERT INTO profiles (id, avatar_config, created_at) VALUES ('me', '{}', 't')`);
+    db.run(
+      `INSERT INTO profiles (id, avatar_config, created_at) VALUES ('me', '{}', 't')`
+    );
     await runRules(
       {
         phase: 'after',

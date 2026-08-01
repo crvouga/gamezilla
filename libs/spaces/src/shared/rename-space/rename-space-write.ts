@@ -2,7 +2,7 @@ import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -32,7 +32,7 @@ export function parseRenameSpaceInput(raw: unknown): RenameSpaceInput {
 }
 
 export async function authorizeRenameSpace(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: RenameSpaceInput,
   db: SqlClient
 ): Promise<void> {
@@ -58,7 +58,7 @@ export function renameSpaceBeforeBatch(input: RenameSpaceInput): UploadBatch {
 }
 
 export async function renameSpace(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: RenameSpaceInput,
   db: SqlClient
 ): Promise<void> {

@@ -3,8 +3,8 @@ import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-partic
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
-import { SPACE_WRITE_DENIED } from '@pkgs/rules/spaces/codes';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import { SPACE_WRITE_DENIED } from '@libs/spaces/shared/rules/codes';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import { SPACES_TABLE } from '@libs/db/shared/space-tables';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -42,7 +42,7 @@ export function parseLeaveSpaceInput(raw: unknown): LeaveSpaceInput {
  * Host leave ends the space (I4).
  */
 export async function authorizeLeaveSpace(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: LeaveSpaceInput,
   db: SqlClient
 ): Promise<void> {
@@ -70,7 +70,7 @@ export async function authorizeLeaveSpace(
 }
 
 export async function actorIsSpaceHost(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   db: SqlClient,
   spaceId: string
 ): Promise<boolean> {
@@ -93,7 +93,7 @@ export async function actorIsSpaceHost(
 }
 
 export function leaveSpaceBeforeBatch(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: LeaveSpaceInput,
   willWrite: boolean
 ): UploadBatch | undefined {
@@ -112,7 +112,7 @@ export function leaveSpaceBeforeBatch(
 }
 
 export async function executeLeaveSpace(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: LeaveSpaceInput,
   db: SqlClient
 ): Promise<void> {

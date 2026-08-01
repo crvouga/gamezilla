@@ -10,12 +10,7 @@ import { runRules } from './run-rules';
 import type { RulesAuth, RulesCtx } from './types';
 
 const auth: RulesAuth = {
-  subjectId: 'user-1',
-  deviceId: 'device-1',
-  accountId: 'user-1',
-  myId: 'user-1',
-  isAnonymous: false,
-  memberOfSpaceIds: [],
+  userId: 'user-1',
 };
 
 function makeCtx(

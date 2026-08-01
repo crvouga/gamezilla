@@ -1,13 +1,14 @@
 /**
- * Upload authorization context for the rules + table-policy pipeline.
- * Auth mapping from session/JWT stays in apps/api; sync-engine only
- * consumes this normalized shape.
+ * Upload authorization context for the table-policy pipeline (and the
+ * combined upload txn). Auth mapping from session/JWT stays in apps/api;
+ * sync-engine only consumes this normalized shape.
+ *
+ * Distinct from `@pkgs/rules` {@link RulesAuth}: policies may need
+ * membership lists that assertive rules do not.
  */
 export type UploadAuth = {
-  readonly subjectId: string;
+  readonly userId: string;
   readonly deviceId: string;
   readonly accountId: string | null;
-  readonly myId: string;
-  readonly isAnonymous: boolean;
   readonly memberOfSpaceIds: readonly string[];
 };

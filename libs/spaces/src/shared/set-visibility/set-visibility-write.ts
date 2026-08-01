@@ -6,8 +6,8 @@ import {
 } from '@libs/spaces/shared/space-visibility';
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
-import { SIGN_IN_REQUIRED } from '@pkgs/rules/spaces/codes';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import { SIGN_IN_REQUIRED } from '@libs/spaces/shared/rules/codes';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -39,7 +39,7 @@ export function parseSetSpaceVisibilityInput(
 }
 
 export async function authorizeSetSpaceVisibility(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: SetSpaceVisibilityInput,
   db: SqlClient
 ): Promise<void> {
@@ -70,7 +70,7 @@ export function setVisibilityBeforeBatch(
 }
 
 export async function setSpaceVisibility(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: SetSpaceVisibilityInput,
   db: SqlClient
 ): Promise<void> {

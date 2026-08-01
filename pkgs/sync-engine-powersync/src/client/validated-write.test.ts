@@ -9,12 +9,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { validatedWrite } from './validated-write';
 
 const auth: RulesAuth = {
-  subjectId: 'me',
-  deviceId: 'd1',
-  accountId: 'me',
-  myId: 'me',
-  isAnonymous: false,
-  memberOfSpaceIds: [],
+  userId: 'me',
 };
 
 type CrudRow = { id: number; tx_id: number | null; data: string };
@@ -76,7 +71,7 @@ describe('validatedWrite', () => {
       touches: ['widgets'],
       check: async (ctx) =>
         ctx.batch.rows
-          .filter((r) => r.id !== ctx.auth.myId)
+          .filter((r) => r.id !== ctx.auth.userId)
           .map((r) => fail('NOT_OWN', { table: r.table, id: r.id })),
     });
 

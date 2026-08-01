@@ -11,11 +11,9 @@ import type { UploadAuth } from '../shared/rules-auth';
 import { createUploadBatch, type UploadOp } from '../shared/upload-batch';
 
 const auth: UploadAuth = {
-  subjectId: 'user-1',
+  userId: 'user-1',
   deviceId: 'device-1',
   accountId: 'user-1',
-  myId: 'user-1',
-  isAnonymous: false,
   memberOfSpaceIds: [],
 };
 
@@ -63,7 +61,7 @@ describe('processUploadWithRules', () => {
       policies: createTablePolicyRegistry([
         widgetsPolicy(async () => ({ ok: true })),
       ]),
-      lockUserId: auth.myId,
+      lockUserId: auth.userId,
       runRules: async ({ phase }) => {
         phases.push(phase);
       },
@@ -89,7 +87,7 @@ describe('processUploadWithRules', () => {
         policies: createTablePolicyRegistry([
           widgetsPolicy(async () => ({ ok: true })),
         ]),
-        lockUserId: auth.myId,
+        lockUserId: auth.userId,
         runRules: async ({ phase }) => {
           if (phase === 'before') {
             throw new Error('BEFORE_FAIL');
@@ -113,7 +111,7 @@ describe('processUploadWithRules', () => {
         policies: createTablePolicyRegistry([
           widgetsPolicy(async () => ({ ok: false, code: 'NOT_OWNER' })),
         ]),
-        lockUserId: auth.myId,
+        lockUserId: auth.userId,
         runRules: async () => {},
       })
     ).rejects.toBeInstanceOf(ApplyBatchReject);
@@ -133,7 +131,7 @@ describe('processUploadWithRules', () => {
         policies: createTablePolicyRegistry([
           widgetsPolicy(async () => ({ ok: true })),
         ]),
-        lockUserId: auth.myId,
+        lockUserId: auth.userId,
         runRules: async ({ phase }) => {
           phases.push(phase);
           if (phase === 'after') {

@@ -1,7 +1,7 @@
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
-import { FRIENDS_NOT_FOUND } from '@pkgs/rules/friends/codes';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import { FRIENDS_NOT_FOUND } from '@libs/friends/shared/rules/codes';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -22,10 +22,10 @@ export type { FriendUserIdInput };
 export { parseFriendUserIdInput };
 
 export function removeFriendBeforeBatch(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: FriendUserIdInput
 ): UploadBatch {
-  const { userLow, userHigh } = canonicalUserPair(auth.myId, input.userId);
+  const { userLow, userHigh } = canonicalUserPair(auth.userId, input.userId);
   return {
     rows: [
       {
@@ -39,7 +39,7 @@ export function removeFriendBeforeBatch(
 }
 
 export async function removeFriend(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: FriendUserIdInput,
   sql: SqlClient
 ): Promise<void> {
@@ -48,20 +48,20 @@ export async function removeFriend(
     input.userId,
     'Cannot perform this action on yourself'
   );
-  if (!(await friendshipExists(sql, auth.myId, input.userId))) {
+  if (!(await friendshipExists(sql, auth.userId, input.userId))) {
     throwRulesReject([
       fail(FRIENDS_NOT_FOUND, {
         params: { message: 'Friendship not found' },
       }),
     ]);
   }
-  await deleteFriendship(sql, auth.myId, input.userId);
+  await deleteFriendship(sql, auth.userId, input.userId);
 }
 
 export function publishRemoveFriendEvent(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   userId: string
 ): void {
-  const { userLow, userHigh } = canonicalUserPair(auth.myId, userId);
+  const { userLow, userHigh } = canonicalUserPair(auth.userId, userId);
   publishFriendEvent({ type: 'friend.removed', userLow, userHigh });
 }

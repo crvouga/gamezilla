@@ -27,7 +27,7 @@ Shortcut requested? Operator must say so explicitly (e.g. "no CLI, dashboard onl
 
 The onboarding playbook below assumes a fresh project. On an **existing** project the rules in this section take precedence. Continuous-use sessions are where agents do the most damage — assume nothing about the linked instance, scope, or environment.
 
-**This repo’s product rules (non-negotiable):** defer to root [`AGENTS.md`](../../../AGENTS.md) for PowerSync-default client reads/writes, absolute REST exceptions, isomorphic `@pkgs/rules` before/after checks, plain-SQL writes via `validatedWrite`, and mirrored `client/<slice>/` hooks/UI. Do not invent parallel feature REST for entities that sync.
+**This repo’s product rules (non-negotiable):** defer to root [`AGENTS.md`](../../../AGENTS.md) for PowerSync-default client reads/writes, absolute REST exceptions, isomorphic rules (`@pkgs/rules` engine + domain `libs/*/shared/rules`), plain-SQL writes via `validatedWrite`, and mirrored `client/<slice>/` hooks/UI. Do not invent parallel feature REST for entities that sync.
 
 ### Default scope: sync streams only
 

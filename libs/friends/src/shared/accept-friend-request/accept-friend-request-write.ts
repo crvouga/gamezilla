@@ -1,11 +1,11 @@
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import {
   FRIENDS_BLOCKED,
   FRIENDS_FORBIDDEN,
   FRIENDS_NOT_FOUND,
-} from '@pkgs/rules/friends/codes';
+} from '@libs/friends/shared/rules/codes';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -41,7 +41,7 @@ export function parseAcceptFriendRequestInput(
 }
 
 export async function authorizeAccept(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: AcceptFriendRequestInput,
   sql: SqlClient
 ): Promise<void> {
@@ -54,7 +54,7 @@ export async function authorizeAccept(
       }),
     ]);
   }
-  if (request.toUserId !== auth.myId) {
+  if (request.toUserId !== auth.userId) {
     throwRulesReject([
       fail(FRIENDS_FORBIDDEN, {
         params: { message: 'Cannot accept this request' },
@@ -104,7 +104,7 @@ async function applyAccept(
 }
 
 export async function acceptFriendRequest(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: AcceptFriendRequestInput,
   sql: SqlClient
 ): Promise<{ readonly request: FriendRequest; readonly accepted: boolean }> {
@@ -126,7 +126,7 @@ export async function acceptFriendRequest(
       }),
     ]);
   }
-  if (request.toUserId !== auth.myId) {
+  if (request.toUserId !== auth.userId) {
     throwRulesReject([
       fail(FRIENDS_FORBIDDEN, {
         params: { message: 'Cannot accept this request' },
@@ -134,13 +134,13 @@ export async function acceptFriendRequest(
     ]);
   }
   const otherUserId = request.fromUserId;
-  const block = await isBlockedEitherDirection(sql, auth.myId, otherUserId);
+  const block = await isBlockedEitherDirection(sql, auth.userId, otherUserId);
   if (block !== 'none') {
     throwRulesReject([fail(FRIENDS_BLOCKED)]);
   }
   const now = isoNow();
   await applyAccept(sql, {
-    actorId: auth.myId,
+    actorId: auth.userId,
     otherUserId,
     requestId: input.requestId,
     now,
@@ -157,10 +157,10 @@ export async function acceptFriendRequest(
 }
 
 export function publishAcceptFriendRequestEvent(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   request: FriendRequest
 ): void {
-  const { userLow, userHigh } = canonicalUserPair(auth.myId, request.fromUserId);
+  const { userLow, userHigh } = canonicalUserPair(auth.userId, request.fromUserId);
   publishFriendEvent({
     type: 'friend.request.accepted',
     requestId: request.id,

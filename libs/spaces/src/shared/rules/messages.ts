@@ -1,4 +1,4 @@
-import type { Failure } from '../core/types';
+import type { Failure } from '@pkgs/rules/core/types';
 import {
   SIGN_IN_REQUIRED,
   SPACE_DELETE_DENIED,

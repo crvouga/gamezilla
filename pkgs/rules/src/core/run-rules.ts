@@ -1,7 +1,10 @@
 import { throwRulesReject } from './rules-reject';
-import type { Failure, Rule, RulesCtx } from './types';
+import type { Failure, Rule, RulesAuth, RulesCtx } from './types';
 
-function ruleMatchesBatch(rule: Rule, ctx: RulesCtx): boolean {
+function ruleMatchesBatch<TAuth extends RulesAuth>(
+  rule: Rule<TAuth>,
+  ctx: RulesCtx<TAuth>
+): boolean {
   if (rule.phase !== ctx.phase) {
     return false;
   }
@@ -11,9 +14,9 @@ function ruleMatchesBatch(rule: Rule, ctx: RulesCtx): boolean {
   return ctx.batch.rows.some((row) => rule.touches.includes(row.table));
 }
 
-export async function runRules(
-  ctx: RulesCtx,
-  rules: readonly Rule[]
+export async function runRules<TAuth extends RulesAuth>(
+  ctx: RulesCtx<TAuth>,
+  rules: readonly Rule<TAuth>[]
 ): Promise<void> {
   const failures: Failure[] = [];
 

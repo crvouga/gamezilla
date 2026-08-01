@@ -1,5 +1,7 @@
-import type { Rule } from './types';
+import type { Rule, RulesAuth } from './types';
 
-export function defineRule(rule: Rule): Rule {
+export function defineRule<TAuth extends RulesAuth = RulesAuth>(
+  rule: Rule<TAuth>
+): Rule<TAuth> {
   return rule;
 }

@@ -1,5 +1,5 @@
 import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
-import { FRIENDS_RULES } from '@pkgs/rules/friends/rules';
+import { FRIENDS_RULES } from '@libs/friends/shared/rules/rules';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 import { useCallback } from 'react';

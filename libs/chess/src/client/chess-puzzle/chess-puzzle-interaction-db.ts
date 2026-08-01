@@ -4,8 +4,8 @@ import {
   ChessPuzzleInteractionCol,
   ChessPuzzleProfileCol,
 } from '@libs/db/shared/chess-tables';
-import { CHESS_RULES } from '@pkgs/rules/chess/rules';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import { CHESS_RULES } from '@libs/chess/shared/rules/rules';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 
@@ -31,7 +31,7 @@ function nowIso(): string {
 
 export async function appendPuzzleInteractionRow(
   sql: SqlClient,
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   args: AppendPuzzleInteractionInput
 ): Promise<void> {
   await validatedWrite({
@@ -56,7 +56,7 @@ export async function appendPuzzleInteractionRow(
 
 async function upsertPuzzleProfile(
   sql: SqlClient,
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   args: UpsertPuzzleProfileInput
 ): Promise<void> {
   await validatedWrite({
@@ -129,7 +129,7 @@ function computeFinalizeRatings(args: {
 /** Client orchestration: append terminal interaction, then upsert profile. */
 export async function finalizePuzzlePlayWithProfile(
   sql: SqlClient,
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   args: {
     ownerId: string;
     puzzleId: string;

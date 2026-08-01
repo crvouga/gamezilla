@@ -1,5 +1,5 @@
-import { createContext, useContext, type ReactNode } from 'react';
 import { useKvState } from '@pkgs/kv/use-kv-state';
+import { createContext, useContext, type ReactNode } from 'react';
 
 import {
   LOCAL_ACCOUNT_ROSTER_KEY,
@@ -29,7 +29,7 @@ export function LocalAccountRosterProvider({
 }: {
   children: ReactNode;
 }): ReactNode {
-  const state = useKvState<LocalAccountRoster>({
+  const state = useKvState({
     key: LOCAL_ACCOUNT_ROSTER_KEY,
     default: [],
     codec: localAccountRosterCodec,

@@ -3,7 +3,7 @@ import {
   SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -27,7 +27,7 @@ export function parseRemoveSpaceUserInput(raw: unknown): RemoveSpaceUserInput {
 }
 
 export async function authorizeRemoveSpaceUser(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: RemoveSpaceUserInput,
   db: SqlClient
 ): Promise<void> {
@@ -54,7 +54,7 @@ export function removeSpaceUserBeforeBatch(
 }
 
 export async function removeSpaceUser(
-  _auth: RulesAuth,
+  _auth: AppRulesAuth,
   input: RemoveSpaceUserInput,
   db: SqlClient
 ): Promise<void> {

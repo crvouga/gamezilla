@@ -8,16 +8,17 @@
 
 - **PowerSync is the default for client reads and writes.** Client UI reads local SQLite via `useWatch*` / sync streams. Client mutations write local SQL directly (dialect-native) inside `validatedWrite`, then upload through `POST /api/sync/upload`. Do **not** add feature REST GET/POST for data that is (or can be) in the user’s sync scope. Absolute REST exceptions only: username uniqueness / ensure (`PUT /profile/username`, `POST /profile/ensure`), cross-user search (`POST /friends/search`), system config refresh (`POST /client-config/refresh`), and Stripe/webhooks/external APIs. Prefer shrinking that list, never growing it casually.
 
-- **Writes are local; rules are isomorphic.** There is no shared write executor. Client business code runs plain SQL via `SqlClient` inside `validatedWrite` (`@pkgs/sync-engine-powersync`). Server-initiated writes (REST exceptions, inbox) use their own native SQL. Shared business logic lives in `@pkgs/rules`: transactional `before` / `after` checks (`defineRule` + `runRules`) that read via `Pick<SqlClient,'query'>` only. Client: after-phase rules run on the `ps_crud` delta inside the local write txn (violations roll back data + queue). Server upload: one Postgres txn with advisory lock → before → `applyBatch` (table/op/column allowlist + ownership) → after → commit; `RulesReject` / `ApplyBatchReject` → `409 { discard: true, failures }`. Organize mutations by vertical slice:
+- **Writes are local; rules are isomorphic.** There is no shared write executor. Client business code runs plain SQL via `SqlClient` inside `validatedWrite` (`@pkgs/sync-engine-powersync`). Server-initiated writes (REST exceptions, inbox) use their own native SQL. Assertive checks use `@pkgs/rules` engine plumbing (`defineRule` + `runRules`, agnostic `RulesAuth = { userId }`) with domain rule defs colocated in feature libs. Rules read via `Pick<SqlClient,'query'>` only. Client: after-phase rules run on the `ps_crud` delta inside the local write txn (violations roll back data + queue). Server upload: one Postgres txn with advisory lock → before → `applyBatch` (table/op/column allowlist + ownership) → after → commit; `RulesReject` / `ApplyBatchReject` → `409 { discard: true, failures }`. Organize mutations by vertical slice:
 
   ```
   libs/<feature>/src/
     client/<slice>/     # hooks + UI + plain-SQL call sites (use-join-space, …)
     shared/<slice>/     # pure helpers / SQL helpers for that slice (not defineWrite)
+    shared/rules/       # domain defineRule checks, codes, messages (FRIENDS_RULES, …)
     server/<slice>/     # REST/inbox only when absolute exception needs it
   ```
 
-  Domain rules, codes, and messages live under `pkgs/rules/src/<context>/` (no cross-context imports). Upload table policies compose in `apps/api/src/sync/table-policies.ts`. Ban god-hooks that re-export every mutation (`useSpaceActions`); each UI calls its slice hook.
+  `@pkgs/rules` is engine-only (`core/`). Domain rules, codes, and messages live under `libs/<feature>/src/shared/rules/`. App auth for rules is `AppRulesAuth` in `@libs/auth` (`userId` + `accountId` + `deviceId`). Upload table policies compose in `apps/api/src/sync/table-policies.ts`. Ban god-hooks that re-export every mutation (`useSpaceActions`); each UI calls its slice hook.
 
 ## `@pkgs/ui` design system
 
@@ -114,7 +115,7 @@ Inside each one, runtimes are isolated by three sibling folders. Under each runt
     shared/<slice>/     # pure helpers / SQL helpers for that slice
 ```
 
-Example (`join-space`): `client/join-space/use-join-space.ts` + `join-space-button.tsx`, `shared/join-space/` helpers + `@pkgs/rules/spaces` rules, optional `server/join-space/` only for REST exceptions. Nested paths resolve via exports wildcards (`@libs/spaces/client/join-space/use-join-space`).
+Example (`join-space`): `client/join-space/use-join-space.ts` + `join-space-button.tsx`, `shared/join-space/` helpers + `@libs/spaces/shared/rules` rules, optional `server/join-space/` only for REST exceptions. Nested paths resolve via exports wildcards (`@libs/spaces/client/join-space/use-join-space`).
 Cross-package imports always use deep paths: `@<tier>/<name>/client/<file>`, `@<tier>/<name>/server/<file>`, `@<tier>/<name>/shared/<file>`. The `exports` field uses one Node subpath pattern per runtime folder (with `.ts` / `.tsx` array fallback) so adding/removing/renaming a file requires zero `package.json` change while bundlers still see one module per import site:
 
 ```jsonc
@@ -143,7 +144,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@libs/db` — single source of truth for Postgres/PowerSync table definitions (`defineTable`, column constants), composed `SYNC_TABLE_REGISTRY`, and canonical `schema.sql`. Feature packages import table names/columns from here; upload authorization is table policies in `apps/api/src/sync/table-policies.ts` plus `@pkgs/rules` before/after checks.
+- `@libs/db` — single source of truth for Postgres/PowerSync table definitions (`defineTable`, column constants), composed `SYNC_TABLE_REGISTRY`, and canonical `schema.sql`. Feature packages import table names/columns from here; upload authorization is table policies in `apps/api/src/sync/table-policies.ts` plus domain `@pkgs/rules` before/after checks colocated under each feature's `shared/rules/`.
 - `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
 - `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`.
 - `@libs/client-config` — server-pushed runtime config (singleton `clientConfig` entity): shared entity defs, server `POST /client-config/refresh` route, client cards / screens, and `dev-refresh-client-config.ts`.
@@ -170,7 +171,7 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
    - Add any new sync tables to `@libs/db` (`libs/db/src/shared/<game>-tables.ts`) and register them in `libs/db/src/shared/table-registry.ts`.
    - `client/<game>-main-menu.tsx`, `client/<game>-board.tsx`, `client/<game>-settings-screen.tsx`, etc. — flat under `client/`.
 5. Register the game in `libs/spaces/src/shared/games.ts` (composed game module) and `libs/spaces/src/shared/space-module.ts` (top-level router).
-6. Add client plain-SQL mutations under `libs/<game>/src/client/<slice>/` wrapped in `validatedWrite`, add rules under `pkgs/rules/src/<game>/`, and register upload table policies in `apps/api/src/sync/table-policies.ts` + `APP_RULES`. Prefer PowerSync client writes over new REST.
+6. Add client plain-SQL mutations under `libs/<game>/src/client/<slice>/` wrapped in `validatedWrite`, add rules under `libs/<game>/src/shared/rules/`, and register upload table policies in `apps/api/src/sync/table-policies.ts` + `APP_RULES`. Prefer PowerSync client writes over new REST.
 7. Wire the client entry in `libs/spaces/src/client/module/games-main-menu.tsx` so the new game shows up in the games list.
    `apps/api` and `apps/client` themselves do **not** need to be edited beyond the registries above — game packages compose into spaces, and spaces is already wired into the shells.
 

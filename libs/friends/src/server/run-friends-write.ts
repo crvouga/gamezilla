@@ -4,7 +4,7 @@ import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import { messageForFailure } from '@pkgs/rules/core/messages';
 import { isRulesReject } from '@pkgs/rules/core/rules-reject';
 import type { Failure } from '@pkgs/rules/core/types';
-import { FRIENDS_MESSAGES } from '@pkgs/rules/friends/messages';
+import { FRIENDS_MESSAGES } from '@libs/friends/shared/rules/messages';
 import type { Context } from 'hono';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 

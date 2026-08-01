@@ -8,9 +8,9 @@ import {
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
 import { isRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import { runRules } from '@pkgs/rules/core/run-rules';
-import { SPACE_RULES } from '@pkgs/rules/spaces/rules';
+import { SPACE_RULES } from '@libs/spaces/shared/rules/rules';
 import { ident, sql, sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
@@ -59,15 +59,11 @@ async function migrate(db: SqlClient): Promise<void> {
 function ctx(args: {
   readonly deviceId: string;
   readonly accountId: string | null;
-}): RulesAuth {
-  const myId = args.accountId ?? args.deviceId;
+}): AppRulesAuth {
   return {
-    subjectId: myId,
+    userId: args.accountId ?? args.deviceId,
     deviceId: args.deviceId,
     accountId: args.accountId,
-    myId,
-    isAnonymous: args.accountId === null,
-    memberOfSpaceIds: [],
   };
 }
 

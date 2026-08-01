@@ -12,11 +12,9 @@ import { createUploadBatch, type UploadOp } from '../shared/upload-batch';
 import type { UploadAuth } from '../shared/rules-auth';
 
 const auth: UploadAuth = {
-  subjectId: 'user-1',
+  userId: 'user-1',
   deviceId: 'device-1',
   accountId: 'user-1',
-  myId: 'user-1',
-  isAnonymous: false,
   memberOfSpaceIds: [],
 };
 

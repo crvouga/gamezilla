@@ -1,4 +1,4 @@
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -14,7 +14,7 @@ export type { FriendUserIdInput };
 export { parseFriendUserIdInput };
 
 export function unblockUserBeforeBatch(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: FriendUserIdInput
 ): UploadBatch {
   return {
@@ -22,18 +22,18 @@ export function unblockUserBeforeBatch(
       {
         op: 'delete',
         table: 'user_blocks',
-        id: pairId(auth.myId, input.userId),
-        values: { blocker_id: auth.myId, blocked_id: input.userId },
+        id: pairId(auth.userId, input.userId),
+        values: { blocker_id: auth.userId, blocked_id: input.userId },
       },
     ],
   };
 }
 
 export async function unblockUser(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: FriendUserIdInput,
   sql: SqlClient
 ): Promise<void> {
   authorizeSignedInNotSelf(auth, input.userId, 'Cannot unblock yourself');
-  await deleteBlock(sql, auth.myId, input.userId);
+  await deleteBlock(sql, auth.userId, input.userId);
 }

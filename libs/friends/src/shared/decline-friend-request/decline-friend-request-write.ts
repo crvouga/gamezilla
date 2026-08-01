@@ -1,7 +1,7 @@
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
-import { FRIENDS_FORBIDDEN, FRIENDS_NOT_FOUND } from '@pkgs/rules/friends/codes';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import { FRIENDS_FORBIDDEN, FRIENDS_NOT_FOUND } from '@libs/friends/shared/rules/codes';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -21,7 +21,7 @@ export type { FriendRequestIdInput };
 export { parseFriendRequestIdInput };
 
 export async function authorizeDecline(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: FriendRequestIdInput,
   sql: SqlClient
 ): Promise<void> {
@@ -34,7 +34,7 @@ export async function authorizeDecline(
       }),
     ]);
   }
-  if (request.toUserId !== auth.myId) {
+  if (request.toUserId !== auth.userId) {
     throwRulesReject([
       fail(FRIENDS_FORBIDDEN, {
         params: { message: 'Cannot decline this request' },
@@ -59,7 +59,7 @@ export function declineFriendRequestBeforeBatch(
 }
 
 export async function declineFriendRequest(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: FriendRequestIdInput,
   sql: SqlClient
 ): Promise<FriendRequest> {
@@ -71,7 +71,7 @@ export async function declineFriendRequest(
       }),
     ]);
   }
-  if (request.toUserId !== auth.myId) {
+  if (request.toUserId !== auth.userId) {
     throwRulesReject([
       fail(FRIENDS_FORBIDDEN, {
         params: { message: 'Cannot decline this request' },

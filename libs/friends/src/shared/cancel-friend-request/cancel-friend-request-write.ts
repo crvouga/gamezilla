@@ -1,7 +1,7 @@
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
-import { FRIENDS_FORBIDDEN, FRIENDS_NOT_FOUND } from '@pkgs/rules/friends/codes';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import { FRIENDS_FORBIDDEN, FRIENDS_NOT_FOUND } from '@libs/friends/shared/rules/codes';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -21,7 +21,7 @@ export type { FriendRequestIdInput };
 export { parseFriendRequestIdInput };
 
 export async function authorizeCancel(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: FriendRequestIdInput,
   sql: SqlClient
 ): Promise<void> {
@@ -34,7 +34,7 @@ export async function authorizeCancel(
       }),
     ]);
   }
-  if (request.fromUserId !== auth.myId) {
+  if (request.fromUserId !== auth.userId) {
     throwRulesReject([
       fail(FRIENDS_FORBIDDEN, {
         params: { message: 'Cannot cancel this request' },
@@ -59,7 +59,7 @@ export function cancelFriendRequestBeforeBatch(
 }
 
 export async function cancelFriendRequest(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: FriendRequestIdInput,
   sql: SqlClient
 ): Promise<FriendRequest> {
@@ -71,7 +71,7 @@ export async function cancelFriendRequest(
       }),
     ]);
   }
-  if (request.fromUserId !== auth.myId) {
+  if (request.fromUserId !== auth.userId) {
     throwRulesReject([
       fail(FRIENDS_FORBIDDEN, {
         params: { message: 'Cannot cancel this request' },

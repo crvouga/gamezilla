@@ -1,6 +1,6 @@
 /**
  * Space table upload policies live in `apps/api` (table policies / rules).
- * Domain codes/messages are exported from `@pkgs/rules/spaces`.
+ * Domain codes/messages are exported from `@libs/spaces/shared/rules`.
  */
 export {
   SIGN_IN_REQUIRED,
@@ -12,4 +12,4 @@ export {
   SPACE_NOT_SIGNED_IN,
   SPACE_VISIBILITY_DENIED,
   SPACE_WRITE_DENIED,
-} from '@pkgs/rules/spaces/codes';
+} from '@libs/spaces/shared/rules/codes';

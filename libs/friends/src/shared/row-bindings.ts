@@ -1,6 +1,6 @@
 /**
  * Friends table upload policies live in `apps/api` (table policies / rules).
- * Domain codes/messages are exported from `@pkgs/rules/friends`.
+ * Domain codes/messages are exported from `@libs/friends/shared/rules`.
  */
 export {
   FRIENDS_ALREADY_FRIENDS,
@@ -14,4 +14,4 @@ export {
   FRIENDS_REQUEST_EXISTS,
   FRIENDS_REQUEST_PARTY_REQUIRED,
   FRIENDS_SELF,
-} from '@pkgs/rules/friends/codes';
+} from '@libs/friends/shared/rules/codes';

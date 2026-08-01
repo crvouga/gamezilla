@@ -10,7 +10,7 @@ import {
   FRIENDS_BLOCK_OWNER_MISMATCH,
   FRIENDS_FRIENDSHIP_PARTY_REQUIRED,
   FRIENDS_REQUEST_PARTY_REQUIRED,
-} from '@pkgs/rules/friends/codes';
+} from '@libs/friends/shared/rules/codes';
 import type { TablePolicy } from '@pkgs/sync-engine/server/apply-batch';
 import type { UploadOp } from '@pkgs/sync-engine/shared/upload-batch';
 
@@ -27,7 +27,7 @@ export function friendsTablePolicies(): readonly TablePolicy[] {
       authorize: async (auth, row) => {
         const fromUserId = readRowString(row, FriendRequestCol.fromUserId);
         const toUserId = readRowString(row, FriendRequestCol.toUserId);
-        if (fromUserId === auth.myId || toUserId === auth.myId) return ok();
+        if (fromUserId === auth.userId || toUserId === auth.userId) return ok();
         return deny(FRIENDS_REQUEST_PARTY_REQUIRED);
       },
     },
@@ -38,7 +38,7 @@ export function friendsTablePolicies(): readonly TablePolicy[] {
       authorize: async (auth, row) => {
         const userLow = readRowString(row, FriendshipCol.userLow);
         const userHigh = readRowString(row, FriendshipCol.userHigh);
-        if (userLow === auth.myId || userHigh === auth.myId) return ok();
+        if (userLow === auth.userId || userHigh === auth.userId) return ok();
         return deny(FRIENDS_FRIENDSHIP_PARTY_REQUIRED);
       },
     },
@@ -48,7 +48,7 @@ export function friendsTablePolicies(): readonly TablePolicy[] {
       allowedColumns: columnSet(UserBlockCol),
       authorize: async (auth, row) => {
         const blockerId = readRowString(row, UserBlockCol.blockerId);
-        if (blockerId !== auth.myId) return deny(FRIENDS_BLOCK_OWNER_MISMATCH);
+        if (blockerId !== auth.userId) return deny(FRIENDS_BLOCK_OWNER_MISMATCH);
         return ok();
       },
     },

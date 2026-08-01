@@ -1,5 +1,5 @@
 import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
-import { SPACE_RULES } from '@pkgs/rules/spaces/rules';
+import { SPACE_RULES } from '@libs/spaces/shared/rules/rules';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 import { useCallback } from 'react';

@@ -1,7 +1,7 @@
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -13,7 +13,7 @@ export type EndSpaceInput = {
 
 /** Stamp `ended_at` on a live space; realign host identity to the ending actor. */
 export async function stampSpaceEnded(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   db: SqlClient,
   spaceId: string
 ): Promise<void> {
@@ -42,7 +42,7 @@ export async function stampSpaceEnded(
  * Presence latch must be cleared at the call site (not inside rules).
  */
 export async function executeEndSpace(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: EndSpaceInput,
   db: SqlClient
 ): Promise<void> {

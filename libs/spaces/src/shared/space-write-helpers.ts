@@ -12,12 +12,12 @@ import {
 } from '@libs/spaces/shared/participation/space-participation-policy';
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import {
   SPACE_HOST_REQUIRED,
   SPACE_NOT_FOUND,
   SPACE_NOT_SIGNED_IN,
-} from '@pkgs/rules/spaces/codes';
+} from '@libs/spaces/shared/rules/codes';
 import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -25,14 +25,14 @@ export function isoNow(): string {
   return new Date().toISOString();
 }
 
-export function requireAccountId(auth: RulesAuth): string {
+export function requireAccountId(auth: AppRulesAuth): string {
   if (auth.accountId === null || auth.accountId.length === 0) {
     throwRulesReject([fail(SPACE_NOT_SIGNED_IN)]);
   }
   return auth.accountId;
 }
 
-export function memberIdFromAuth(auth: RulesAuth): string {
+export function memberIdFromAuth(auth: AppRulesAuth): string {
   return resolveSpaceMemberId(requireAccountId(auth));
 }
 
@@ -87,7 +87,7 @@ export async function readSpaceHostEnded(
 }
 
 export async function authorizeSpaceHost(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   db: SqlClient,
   spaceId: string,
   deniedMessage: string

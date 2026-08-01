@@ -1,5 +1,5 @@
-import type { RulesAuth } from '@pkgs/rules/core/types';
-import { SPACE_RULES } from '@pkgs/rules/spaces/rules';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import { SPACE_RULES } from '@libs/spaces/shared/rules/rules';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
 
@@ -11,7 +11,7 @@ import {
 
 export async function joinSpaceAction(
   sql: SqlClient,
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   args: {
     readonly spaceId: string;
   },

@@ -2,7 +2,7 @@ import {
   FRIEND_REQUESTS_TABLE,
   FriendRequestCol,
 } from '@libs/db/shared/friends-tables';
-import { sqlMap } from '@pkgs/sql';
+import sql, { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { FriendRequest, FriendRequestStatus } from '../friends-types';
@@ -56,16 +56,14 @@ export async function findPendingRequestBetween(
   toUserId: string
 ): Promise<FriendRequest | null> {
   const rows = await db.query<Record<string, unknown>>(
-    sqlMap({
-      from: FRIEND_REQUESTS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', FriendRequestCol.fromUserId, fromUserId],
-        ['=', FriendRequestCol.toUserId, toUserId],
-        ['=', FriendRequestCol.status, 'pending'],
-      ],
-      limit: 1,
-    })
+    sql`
+    SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+    FROM friend_requests
+    WHERE from_user_id = ${fromUserId} 
+      AND to_user_id = ${toUserId} 
+      AND status = 'pending'
+    LIMIT 1
+    `
   );
   const row = rows[0];
   return row === undefined ? null : mapFriendRequest(row);
@@ -134,18 +132,10 @@ export async function insertFriendRequest(
   }
 ): Promise<FriendRequest> {
   await db.run(
-    sqlMap({
-      insertInto: FRIEND_REQUESTS_TABLE.tableName,
-      values: {
-        [FriendRequestCol.id]: args.id,
-        [FriendRequestCol.fromUserId]: args.fromUserId,
-        [FriendRequestCol.toUserId]: args.toUserId,
-        [FriendRequestCol.status]: 'pending',
-        [FriendRequestCol.message]: args.message,
-        [FriendRequestCol.createdAt]: args.now,
-        [FriendRequestCol.updatedAt]: args.now,
-      },
-    })
+    sql`
+    INSERT INTO friend_requests (id, from_user_id, to_user_id, status, message, created_at, updated_at)
+    VALUES (${args.id}, ${args.fromUserId}, ${args.toUserId}, 'pending', ${args.message}, ${args.now}, ${args.now})
+    `
   );
   const created = await findFriendRequestById(db, args.id);
   if (created === null) {

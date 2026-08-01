@@ -1,4 +1,4 @@
-import type { Failure } from '../core/types';
+import type { Failure } from '@pkgs/rules/core/types';
 import {
   FRIENDS_ALREADY_FRIENDS,
   FRIENDS_BLOCKED,

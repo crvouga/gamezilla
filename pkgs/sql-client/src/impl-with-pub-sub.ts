@@ -3,8 +3,12 @@ import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 
 export type SqlClientEvent =
-  | { type: 'connect' }
-  | { type: 'disconnect' }
+  | {
+      type: 'connect';
+    }
+  | {
+      type: 'disconnect';
+    }
   | {
       type: 'query';
       sql: string;
@@ -19,9 +23,18 @@ export type SqlClientEvent =
       result: RunResult;
       durationMs: number;
     }
-  | { type: 'transaction:begin' }
-  | { type: 'transaction:commit'; durationMs: number }
-  | { type: 'transaction:rollback'; durationMs: number; error: unknown };
+  | {
+      type: 'transaction:begin';
+    }
+  | {
+      type: 'transaction:commit';
+      durationMs: number;
+    }
+  | {
+      type: 'transaction:rollback';
+      durationMs: number;
+      error: unknown;
+    };
 
 export const SQL_CLIENT_TOPIC = 'sql-client';
 

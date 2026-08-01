@@ -1,5 +1,5 @@
 import { SPACES_TABLE } from '@libs/db/shared/space-tables';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -19,7 +19,7 @@ export function parseEndSpaceInput(raw: unknown): EndSpaceInput {
 }
 
 export async function authorizeEndSpace(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: EndSpaceInput,
   db: SqlClient
 ): Promise<void> {

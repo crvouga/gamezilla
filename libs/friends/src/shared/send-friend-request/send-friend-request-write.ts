@@ -1,13 +1,13 @@
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import {
   FRIENDS_ALREADY_FRIENDS,
   FRIENDS_BLOCKED,
   FRIENDS_COOLDOWN,
   FRIENDS_REQUEST_EXISTS,
-} from '@pkgs/rules/friends/codes';
-import { isResendCooldownActive } from '@pkgs/rules/friends/cooldown';
+} from '@libs/friends/shared/rules/codes';
+import { isResendCooldownActive } from '@libs/friends/shared/rules/cooldown';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -51,7 +51,7 @@ export function parseSendFriendRequestInput(
 }
 
 export function sendFriendRequestBeforeBatch(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: SendFriendRequestInput,
   requestId: string
 ): UploadBatch {
@@ -63,7 +63,7 @@ export function sendFriendRequestBeforeBatch(
         id: requestId,
         values: {
           id: requestId,
-          from_user_id: auth.myId,
+          from_user_id: auth.userId,
           to_user_id: input.toUserId,
           status: 'pending',
         },
@@ -73,7 +73,7 @@ export function sendFriendRequestBeforeBatch(
 }
 
 export async function sendFriendRequest(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: SendFriendRequestInput,
   sql: SqlClient
 ): Promise<{ readonly request: FriendRequest; readonly created: boolean }> {
@@ -82,7 +82,7 @@ export async function sendFriendRequest(
     input.toUserId,
     'Cannot perform this action on yourself'
   );
-  const fromUserId = auth.myId;
+  const fromUserId = auth.userId;
   const toUserId = input.toUserId;
   const block = await isBlockedEitherDirection(sql, fromUserId, toUserId);
   if (block !== 'none') {

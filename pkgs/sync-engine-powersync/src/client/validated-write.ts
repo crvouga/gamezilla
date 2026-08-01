@@ -62,10 +62,10 @@ export async function readUploadBatchSinceWatermark(
   return { rows: rows.map((row) => mapPsCrudDataToUploadRow(row.data)) };
 }
 
-export type ValidatedWriteOptions<T> = {
+export type ValidatedWriteOptions<T, TAuth extends RulesAuth = RulesAuth> = {
   readonly sql: SqlClient;
-  readonly auth: RulesAuth;
-  readonly rules: readonly Rule[];
+  readonly auth: TAuth;
+  readonly rules: readonly Rule<TAuth>[];
   /** Optional anticipated batch for before-phase UX checks (inside the txn). */
   readonly beforeBatch?: UploadBatch;
   readonly fn: (tx: SqlClient) => Promise<T>;
@@ -76,8 +76,8 @@ export type ValidatedWriteOptions<T> = {
  * against the `ps_crud` delta. Violations throw `RulesReject` and roll back
  * data + queue together.
  */
-export async function validatedWrite<T>(
-  options: ValidatedWriteOptions<T>
+export async function validatedWrite<T, TAuth extends RulesAuth = RulesAuth>(
+  options: ValidatedWriteOptions<T, TAuth>
 ): Promise<T> {
   const { sql: client, auth, rules, beforeBatch, fn } = options;
   return client.transaction(async (tx) => {

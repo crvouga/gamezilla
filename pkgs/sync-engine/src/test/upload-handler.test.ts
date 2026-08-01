@@ -4,11 +4,9 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { parseUploadBody, processUploadBatch } from '../server/upload-handler';
 
 const ctx = {
-  subjectId: 'user-1',
+  userId: 'user-1',
   deviceId: 'device-1',
   accountId: 'user-1',
-  myId: 'user-1',
-  isAnonymous: false,
   memberOfSpaceIds: [] as const,
 };
 

@@ -1,6 +1,7 @@
-import { fail } from '../core/fail';
-import { defineRule } from '../core/define-rule';
-import type { Failure, RulesCtx } from '../core/types';
+import { fail } from '@pkgs/rules/core/fail';
+import { defineRule } from '@pkgs/rules/core/define-rule';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import type { Failure, RulesCtx } from '@pkgs/rules/core/types';
 import { CHESS_OWNER_MISMATCH, CHESS_PROFILE_ID_MISMATCH } from './codes';
 
 const PROFILES_TABLE = 'chess_puzzle_profiles';
@@ -12,7 +13,7 @@ function readOwnerId(values: Readonly<Record<string, unknown>> | undefined): unk
 }
 
 async function checkPuzzleProfileOwner(
-  ctx: RulesCtx
+  ctx: RulesCtx<AppRulesAuth>
 ): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
 
@@ -24,13 +25,13 @@ async function checkPuzzleProfileOwner(
       continue;
     }
     const ownerId = readOwnerId(row.values);
-    if (ownerId !== undefined && ownerId !== ctx.auth.myId) {
+    if (ownerId !== undefined && ownerId !== ctx.auth.userId) {
       failures.push(
         fail(CHESS_OWNER_MISMATCH, { table: PROFILES_TABLE, id: row.id })
       );
       continue;
     }
-    if (row.id !== ctx.auth.myId) {
+    if (row.id !== ctx.auth.userId) {
       failures.push(
         fail(CHESS_PROFILE_ID_MISMATCH, {
           table: PROFILES_TABLE,
@@ -44,7 +45,7 @@ async function checkPuzzleProfileOwner(
 }
 
 async function checkPuzzleInteractionOwner(
-  ctx: RulesCtx
+  ctx: RulesCtx<AppRulesAuth>
 ): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
 
@@ -56,7 +57,7 @@ async function checkPuzzleInteractionOwner(
       continue;
     }
     const ownerId = readOwnerId(row.values);
-    if (ownerId !== undefined && ownerId !== ctx.auth.myId) {
+    if (ownerId !== undefined && ownerId !== ctx.auth.userId) {
       failures.push(
         fail(CHESS_OWNER_MISMATCH, {
           table: INTERACTIONS_TABLE,

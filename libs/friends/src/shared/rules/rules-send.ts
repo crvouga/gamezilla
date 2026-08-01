@@ -1,6 +1,7 @@
-import { fail } from '../core/fail';
-import { defineRule } from '../core/define-rule';
-import type { Failure, RulesCtx } from '../core/types';
+import { fail } from '@pkgs/rules/core/fail';
+import { defineRule } from '@pkgs/rules/core/define-rule';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import type { Failure, RulesCtx } from '@pkgs/rules/core/types';
 import type { UploadRow } from '@pkgs/sync-engine/shared/upload-batch';
 import {
   FRIENDS_ALREADY_FRIENDS,
@@ -33,20 +34,20 @@ function readSendTargets(
 }
 
 async function checkSendTargets(
-  ctx: RulesCtx,
+  ctx: RulesCtx<AppRulesAuth>,
   row: UploadRow,
   toUserId: string
 ): Promise<Failure | null> {
-  if (await isBlockedEitherDirection(ctx.db, ctx.auth.myId, toUserId)) {
+  if (await isBlockedEitherDirection(ctx.db, ctx.auth.userId, toUserId)) {
     return fail(FRIENDS_BLOCKED, { table: FRIEND_REQUESTS_TABLE, id: row.id });
   }
-  if (await friendshipExists(ctx.db, ctx.auth.myId, toUserId)) {
+  if (await friendshipExists(ctx.db, ctx.auth.userId, toUserId)) {
     return fail(FRIENDS_ALREADY_FRIENDS, {
       table: FRIEND_REQUESTS_TABLE,
       id: row.id,
     });
   }
-  const incoming = await findPendingBetween(ctx.db, toUserId, ctx.auth.myId);
+  const incoming = await findPendingBetween(ctx.db, toUserId, ctx.auth.userId);
   if (incoming !== null) {
     return fail(FRIENDS_REQUEST_EXISTS, {
       table: FRIEND_REQUESTS_TABLE,
@@ -55,7 +56,7 @@ async function checkSendTargets(
   }
   const declined = await findLatestDeclinedBetween(
     ctx.db,
-    ctx.auth.myId,
+    ctx.auth.userId,
     toUserId
   );
   if (declined !== null && isResendCooldownActive(declined.responded_at)) {
@@ -68,18 +69,18 @@ async function checkSendTargets(
 }
 
 async function checkOneSendRow(
-  ctx: RulesCtx,
+  ctx: RulesCtx<AppRulesAuth>,
   row: UploadRow
 ): Promise<Failure | null> {
   const targets = readSendTargets(row);
-  if (targets === null || targets.fromUserId !== ctx.auth.myId) return null;
+  if (targets === null || targets.fromUserId !== ctx.auth.userId) return null;
   if (ctx.auth.accountId === null) {
     return fail(FRIENDS_NOT_SIGNED_IN, {
       table: FRIEND_REQUESTS_TABLE,
       id: row.id,
     });
   }
-  if (targets.toUserId === ctx.auth.myId) {
+  if (targets.toUserId === ctx.auth.userId) {
     return fail(FRIENDS_SELF, {
       table: FRIEND_REQUESTS_TABLE,
       id: row.id,
@@ -89,7 +90,7 @@ async function checkOneSendRow(
   return checkSendTargets(ctx, row, targets.toUserId);
 }
 
-async function checkSendRequest(ctx: RulesCtx): Promise<readonly Failure[]> {
+async function checkSendRequest(ctx: RulesCtx<AppRulesAuth>): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
   for (const row of ctx.batch.rows) {
     if (row.table !== FRIEND_REQUESTS_TABLE || row.op !== 'put') continue;

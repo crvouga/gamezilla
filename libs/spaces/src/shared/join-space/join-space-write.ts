@@ -1,7 +1,7 @@
 import { SPACE_USERS_TABLE, spaceUserEntityId } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -29,7 +29,7 @@ export function parseJoinSpaceInput(raw: unknown): JoinSpaceInput {
 }
 
 export async function authorizeJoinSpace(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: JoinSpaceInput,
   db: SqlClient
 ): Promise<void> {
@@ -37,7 +37,7 @@ export async function authorizeJoinSpace(
 }
 
 export function joinSpaceBeforeBatch(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: JoinSpaceInput
 ): UploadBatch {
   const accountId = requireAccountId(auth);
@@ -63,7 +63,7 @@ export function joinSpaceBeforeBatch(
  * Open/join a space: ensure ACL (`space_users`) exists for the actor.
  */
 export async function executeJoinSpace(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: JoinSpaceInput,
   db: SqlClient
 ): Promise<void> {

@@ -12,7 +12,7 @@ import {
 } from '@libs/spaces/shared/space-visibility';
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import { sqlMap } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -42,7 +42,7 @@ export function parseCreateSpaceInput(raw: unknown): CreateSpaceInput {
 }
 
 export function createSpaceBeforeBatch(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: CreateSpaceInput
 ): UploadBatch {
   const accountId = requireAccountId(auth);
@@ -80,7 +80,7 @@ export function createSpaceBeforeBatch(
 }
 
 export async function createSpace(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: CreateSpaceInput,
   db: SqlClient
 ): Promise<void> {

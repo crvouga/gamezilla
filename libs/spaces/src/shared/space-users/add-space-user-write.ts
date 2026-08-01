@@ -4,8 +4,8 @@ import {
 } from '@libs/db/shared/space-tables';
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { RulesAuth } from '@pkgs/rules/core/types';
-import { SPACE_INVALID_INPUT } from '@pkgs/rules/spaces/codes';
+import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
+import { SPACE_INVALID_INPUT } from '@libs/spaces/shared/rules/codes';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -30,7 +30,7 @@ export function parseAddSpaceUserInput(raw: unknown): AddSpaceUserInput {
 }
 
 export async function authorizeAddSpaceUser(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: AddSpaceUserInput,
   db: SqlClient
 ): Promise<void> {
@@ -50,7 +50,7 @@ export async function authorizeAddSpaceUser(
 }
 
 export function addSpaceUserBeforeBatch(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: AddSpaceUserInput
 ): UploadBatch {
   const accountId = requireAccountId(auth);
@@ -72,7 +72,7 @@ export function addSpaceUserBeforeBatch(
 }
 
 export async function addSpaceUser(
-  auth: RulesAuth,
+  auth: AppRulesAuth,
   input: AddSpaceUserInput,
   db: SqlClient
 ): Promise<void> {
