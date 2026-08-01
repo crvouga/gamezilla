@@ -55,6 +55,7 @@
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-map": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/tts": "workspace:*",
     "@pkgs/uuid": "workspace:*",

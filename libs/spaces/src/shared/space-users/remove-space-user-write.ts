@@ -5,7 +5,8 @@ import {
 } from '@libs/db/shared/space-tables';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {

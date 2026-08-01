@@ -1,5 +1,7 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
-import { sqlMap, type Sql } from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 

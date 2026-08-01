@@ -4,7 +4,9 @@
  */
 import { CHESS_PUZZLES_TABLE } from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
-import { raw, sqlMap } from '@pkgs/sql';
+import { raw } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 export async function dropPuzzleSnapshotIndexes(args: {

@@ -4,7 +4,8 @@ import {
   USERS_TABLE,
   UserTableCol,
 } from '@libs/db/shared/external-accounts-tables';
-import { col, sqlMap } from '@pkgs/sql';
+import { col, sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 export { EXTERNAL_ACCOUNTS_TABLE, USERS_TABLE };

@@ -11,7 +11,9 @@ import { isRulesReject } from '@pkgs/rules/core/rules-reject';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import { runRules } from '@pkgs/rules/core/run-rules';
 import { SPACE_RULES } from '@libs/spaces/shared/rules/rules';
-import { ident, sql, sqlMap } from '@pkgs/sql';
+import { ident, sql } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 

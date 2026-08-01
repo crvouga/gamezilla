@@ -51,7 +51,9 @@
 
 import { assert } from '@pkgs/assert';
 import { isNamespacedKeyword } from '@pkgs/keyword';
-import { col, raw, registerSqlMapFn, sql, sqlMap, unsafe } from '@pkgs/sql';
+import { raw, sql, unsafe } from '@pkgs/sql';
+import { col, registerSqlMapFn, sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   ADD_METADATA_COLUMN_TO_MATCHED_SQL,

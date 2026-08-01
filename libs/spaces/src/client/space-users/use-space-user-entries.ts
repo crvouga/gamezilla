@@ -1,6 +1,7 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { SPACE_USERS_TABLE, SpaceUserCol } from '@libs/db/shared/space-tables';
-import { col, sqlMap } from '@pkgs/sql';
+import { col, sqlMap } from '@pkgs/sql-map';
+
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 

@@ -14,16 +14,8 @@
  *
  * @internal
  */
-import {
-  col,
-  join,
-  raw,
-  registerSqlMapFn,
-  sql,
-  sqlMap,
-  type SqlMapOpCompiler,
-  type Sql,
-} from '@pkgs/sql';
+import { join, raw, sql, type Sql } from '@pkgs/sql';
+import { col, registerSqlMapFn, sqlMap, type SqlMapOpCompiler } from '@pkgs/sql-map';
 
 /**
  * Emit `name(args…)` with the name spliced verbatim (not upper-cased like the

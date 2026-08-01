@@ -1,11 +1,6 @@
-import {
-  col,
-  sqlMap,
-  type ColRef,
-  type OpCall,
-  type Scalar,
-  type Sql,
-} from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
+import { col, sqlMap, type ColRef, type OpCall, type Scalar } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { InteractionSource } from '../shared/interaction-id';

@@ -3,7 +3,8 @@ import {
   EXTERNAL_ACCOUNTS_TABLE,
   ExternalAccountCol,
 } from '@libs/db/shared/external-accounts-tables';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 /** Resolves application user id for a Stripe customer id. */

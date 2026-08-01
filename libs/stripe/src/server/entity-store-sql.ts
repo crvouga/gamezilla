@@ -3,7 +3,8 @@ import {
   ENTITY_STORE_TABLE,
   entityStoreId,
 } from '@libs/db/shared/entity-store-table';
-import { col, sqlMap } from '@pkgs/sql';
+import { col, sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {

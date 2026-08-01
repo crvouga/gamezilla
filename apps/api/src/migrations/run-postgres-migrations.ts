@@ -4,7 +4,9 @@
  */
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Logger } from '@pkgs/logger';
-import { raw, sqlMap } from '@pkgs/sql';
+import { raw } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { ensurePostgresSchema } from '@pkgs/sql-client/postgres/connect';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';

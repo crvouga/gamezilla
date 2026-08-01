@@ -64,7 +64,8 @@ import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/sha
 import { createLogger, type Logger } from '@pkgs/logger';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres/connect';
 import { join } from 'node:path';

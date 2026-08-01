@@ -1,4 +1,5 @@
-import { col, sqlMap, type Expr } from '@pkgs/sql';
+import { col, sqlMap, type Expr } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { InboxError } from '../shared/inbox-errors';

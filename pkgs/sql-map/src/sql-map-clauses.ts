@@ -12,7 +12,7 @@ import type {
   TableRef,
 } from './sql-map-types';
 import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
-import sql, { empty, join, raw, type Sql } from './sql';
+import sql, { empty, join, raw, type Sql } from '@pkgs/sql';
 
 export { compileOrderBy };
 

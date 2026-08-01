@@ -1,6 +1,8 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { sqlMap, type Sql } from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import {
   useSyncStatus,
   useWatchQuery,

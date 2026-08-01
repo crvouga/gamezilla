@@ -18,6 +18,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-map": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:"
   },

@@ -3,7 +3,8 @@ import {
   useMyDeviceId,
 } from '@libs/auth/client/use-current-user';
 import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 

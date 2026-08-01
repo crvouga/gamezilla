@@ -2,7 +2,8 @@ import {
   CLIENT_CONFIG_TABLE,
   ClientConfigCol,
 } from '@libs/db/shared/client-config-tables';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { CLIENT_CONFIG_ENTITY_ID } from '../shared/client-config-entities';
 

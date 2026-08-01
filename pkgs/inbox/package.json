@@ -27,6 +27,7 @@
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-map": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "expo-router": "catalog:",

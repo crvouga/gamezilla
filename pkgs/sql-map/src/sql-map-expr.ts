@@ -9,7 +9,7 @@ import {
   type SqlMapCompileCtx,
 } from './sql-map-registry';
 import type { ColRef, OpCall, Query, Scalar } from './sql-map-types';
-import sql, { type Sql } from './sql';
+import sql, { type Sql } from '@pkgs/sql';
 
 ensureSqlMapBuiltins();
 

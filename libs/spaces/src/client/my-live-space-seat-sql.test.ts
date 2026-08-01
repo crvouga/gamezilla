@@ -7,7 +7,9 @@ import {
   SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
-import { ident, sql, sqlMap, type Sql } from '@pkgs/sql';
+import { ident, sql, type Sql } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 

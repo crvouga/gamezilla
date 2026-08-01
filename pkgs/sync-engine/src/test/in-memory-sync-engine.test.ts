@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
 
 import { defineTable } from '../shared/table-definition';
 import { createTableRegistry } from '../shared/table-registry';

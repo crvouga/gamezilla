@@ -1,5 +1,6 @@
 import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 export type DeviceSnapshot = Readonly<Record<string, string | null>>;

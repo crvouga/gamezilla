@@ -2,7 +2,8 @@ import {
   CHESS_PUZZLE_INTERACTIONS_TABLE,
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { ChessPuzzleInteractionKind } from '../chess-puzzle-interaction-entities';

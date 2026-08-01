@@ -2,7 +2,8 @@ import {
   CLIENT_CONFIG_TABLE,
   ClientConfigCol,
 } from '@libs/db/shared/client-config-tables';
-import { sqlMap, type Sql } from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
 
 export function clientConfigRowQuery(id: string): Sql {
   return sqlMap({

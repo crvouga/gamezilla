@@ -4,7 +4,7 @@ import {
   USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { canonicalUserPair } from '../canonical-pair';

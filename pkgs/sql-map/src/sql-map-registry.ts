@@ -2,7 +2,7 @@ import { assert } from '@pkgs/assert';
 
 import { columnIdent } from './sql-map-ident';
 import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
-import sql, { join, raw, type Sql } from './sql';
+import sql, { join, raw, type Sql } from '@pkgs/sql';
 
 /**
  * Context passed to registered sql-map op/fn compilers.

@@ -7,7 +7,9 @@ import {
   USER_BLOCKS_TABLE,
   UserBlockCol,
 } from '@libs/db/shared/friends-tables';
-import { sqlMap, type Expr, type Sql } from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
+import { sqlMap, type Expr } from '@pkgs/sql-map';
+
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 

@@ -4,7 +4,7 @@ import { compileExpr, isQuery } from './sql-map-expr';
 import { columnIdent } from './sql-map-ident';
 import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
 import type { Query, WithItem } from './sql-map-types';
-import sql, { empty, join, raw, type Sql } from './sql';
+import sql, { empty, join, raw, type Sql } from '@pkgs/sql';
 
 /**
  * Compiles optional `WITH` CTE preamble.

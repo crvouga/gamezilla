@@ -25,7 +25,9 @@ import { assert, hotAssert } from '@pkgs/assert';
 import type { Keyword } from '@pkgs/keyword/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword/keyword';
 import type { Logger } from '@pkgs/logger/logger';
-import { col, ident, raw, sql, sqlMap } from '@pkgs/sql';
+import { ident, raw, sql } from '@pkgs/sql';
+import { col, sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import { KvImplPostgresTx } from './impl-postgres-tx';

@@ -3,7 +3,8 @@ import {
   SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 /** True when the viewer has a local space_users ACL row for this space. */

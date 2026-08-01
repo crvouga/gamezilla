@@ -2,7 +2,8 @@ import {
   CHESS_PUZZLE_PROFILES_TABLE,
   ChessPuzzleProfileCol,
 } from '@libs/db/shared/chess-tables';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 export type UpsertPuzzleProfileInput = {

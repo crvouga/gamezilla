@@ -5,7 +5,7 @@ import { columnIdent } from './sql-map-ident';
 import { isSqlMapCollation } from './sql-map-registry';
 import type { OrderItem, OrderOpts } from './sql-map-types';
 import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
-import sql, { empty, join, raw, type Sql } from './sql';
+import sql, { empty, join, raw, type Sql } from '@pkgs/sql';
 
 export function compileOrderBy(items: readonly OrderItem[] | undefined): Sql {
   if (!items || items.length === 0) {

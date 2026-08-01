@@ -1,6 +1,8 @@
 import { Database } from 'bun:sqlite';
 
-import { sqlMap, type Sql } from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import { assertSqlIdentifier } from '@pkgs/sql/assert-sql-identifier';

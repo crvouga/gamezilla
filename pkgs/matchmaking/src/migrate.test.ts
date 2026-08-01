@@ -1,5 +1,7 @@
 import { PGlite } from '@electric-sql/pglite';
-import { sql, sqlMap, type Sql } from '@pkgs/sql';
+import { sql, type Sql } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { migrate } from './migrate';

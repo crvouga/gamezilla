@@ -2,7 +2,8 @@ import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { isoNow, requireAccountId } from '../space-write-helpers';

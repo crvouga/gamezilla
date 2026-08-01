@@ -1,5 +1,5 @@
 /**
- * Sql map — a data-driven SQL compiler for `@pkgs/sql`.
+ * Sql map — a data-driven SQL compiler (`@pkgs/sql-map`) that emits `@pkgs/sql` fragments.
  *
  * SQL as plain data structures. Zero connection, no classes to instantiate.
  * Queries are JSON-serializable objects (except `Date` scalars), which makes
@@ -22,7 +22,8 @@
  *
  * @example
  * ```ts
- * import { sqlMap, col, sql } from '@pkgs/sql';
+ * import { sqlMap, col } from '@pkgs/sql-map';
+ * import { sql } from '@pkgs/sql';
  *
  * const q = sqlMap({
  *   select: ['id', 'name', [['count', '*'], 'n']],
@@ -58,7 +59,7 @@ import { assert } from '@pkgs/assert';
 
 import { compileQuery } from './sql-map-statements';
 import type { ColRef, Query } from './sql-map-types';
-import type { Sql } from './sql';
+import type { Sql } from '@pkgs/sql';
 
 export type {
   ColRef,

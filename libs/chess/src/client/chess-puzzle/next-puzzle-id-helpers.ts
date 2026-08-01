@@ -4,7 +4,9 @@ import {
   ChessPuzzleCol,
   ChessPuzzleInteractionCol,
 } from '@libs/db/shared/chess-tables';
-import { sqlMap, type Expr, type Sql } from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
+import { sqlMap, type Expr } from '@pkgs/sql-map';
+
 import { PUZZLE_RATING_BAND_SIZE } from '../../shared/chess-puzzle-feed-config';
 
 export { chessPuzzleSyncRatingBands } from '../../shared/chess-puzzle-feed-config';

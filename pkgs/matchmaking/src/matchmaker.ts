@@ -63,7 +63,8 @@
 import { assert } from '@pkgs/assert';
 import type { AttributeState } from '@pkgs/attribute';
 import { asKeywordRecord, assertKeywordRecord } from '@pkgs/keyword';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   assertDataMatchesFormula,

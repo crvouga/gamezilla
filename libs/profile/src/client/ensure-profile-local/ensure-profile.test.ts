@@ -1,7 +1,8 @@
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
 
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 

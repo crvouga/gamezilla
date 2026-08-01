@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert';
 
-import { ident, join, raw, type Sql } from './sql';
+import { ident, join, raw, type Sql } from '@pkgs/sql';
 
 const STAR = '*';
 const DOT = '.';

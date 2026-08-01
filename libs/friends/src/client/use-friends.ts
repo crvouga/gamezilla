@@ -4,7 +4,9 @@ import {
   FRIENDSHIPS_TABLE,
 } from '@libs/db/shared/friends-tables';
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { col, sqlMap, type Sql } from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
+import { col, sqlMap } from '@pkgs/sql-map';
+
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 

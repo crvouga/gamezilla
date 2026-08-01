@@ -2,7 +2,8 @@ import {
   INBOX_INTERACTIONS_TABLE,
   InboxInteractionCol,
 } from '@pkgs/inbox/sync/table-defs';
-import { sqlMap, type Expr, type Sql } from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
+import { sqlMap, type Expr } from '@pkgs/sql-map';
 
 import type { InteractionFilter } from '../shared/interaction';
 

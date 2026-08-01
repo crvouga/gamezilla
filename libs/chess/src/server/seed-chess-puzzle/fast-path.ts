@@ -8,7 +8,9 @@ import {
   ChessPuzzleLoadCol,
 } from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
-import { col, ident, raw, sqlMap } from '@pkgs/sql';
+import { ident, raw } from '@pkgs/sql';
+import { col, sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PuzzleSeedReporter } from './reporter';
 import type { PuzzleBatchEntry } from './row';

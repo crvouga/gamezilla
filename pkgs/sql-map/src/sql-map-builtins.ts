@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert';
 
-import sql, { join, raw, type Sql } from './sql';
+import sql, { join, raw, type Sql } from '@pkgs/sql';
 import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
 import {
   isSqlMapCastType,

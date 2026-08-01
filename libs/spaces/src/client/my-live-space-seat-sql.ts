@@ -4,7 +4,8 @@ import {
   SPACES_TABLE,
   SpaceUserCol,
 } from '@libs/db/shared/space-tables';
-import { sqlMap, type Sql } from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
 
 /**
  * Shared lobby live ids: host of the space OR has a space_users ACL row.

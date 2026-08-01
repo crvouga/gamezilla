@@ -1,5 +1,7 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { sqlMap, type Sql } from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import {
   useWatchOne,
   useWatchQuery,

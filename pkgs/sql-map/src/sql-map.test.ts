@@ -1,7 +1,7 @@
 import { assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 
-import sql, { Sql } from './sql';
+import sql, { Sql } from '@pkgs/sql';
 import {
   col,
   registerSqlMapCast,

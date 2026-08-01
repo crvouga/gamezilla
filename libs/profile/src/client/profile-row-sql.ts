@@ -1,5 +1,6 @@
 import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { sqlMap, type Sql } from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
 
 /** Canonical profile row SELECT — shared by {@link useProfileRow} and column hooks. */
 export function profileRowByIdSql(profileId: string): Sql {

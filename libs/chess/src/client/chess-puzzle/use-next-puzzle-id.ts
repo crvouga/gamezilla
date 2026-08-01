@@ -1,5 +1,6 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 

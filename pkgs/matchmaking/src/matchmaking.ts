@@ -31,7 +31,8 @@
 
 import { assert } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Hono, type MiddlewareHandler } from 'hono';
 import { createMatchmakingApp } from './app';

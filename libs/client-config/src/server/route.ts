@@ -1,6 +1,7 @@
 import { isEqual } from '@pkgs/equal/is-equal';
 import type { Logger } from '@pkgs/logger';
-import { col, sqlMap } from '@pkgs/sql';
+import { col, sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';

@@ -1,4 +1,5 @@
-import { sqlMap } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import { describe, expect, test } from 'bun:test';
 
 import {

@@ -7,7 +7,9 @@ import {
 } from '@libs/db/shared/entity-store-table';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
-import { ident, sql, sqlMap } from '@pkgs/sql';
+import { ident, sql } from '@pkgs/sql';
+import { sqlMap } from '@pkgs/sql-map';
+
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
