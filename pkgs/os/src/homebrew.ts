@@ -13,7 +13,7 @@ import type { PackageManager } from './package-manager';
  * - `unlink(pkg)` / `linkOverwrite(pkg)` to resolve legacy-formula collisions
  *   (e.g. moving from `stripe-cli` to `stripe`).
  * - `binDirFor(pkg)` to discover the bin dir of keg-only formulas like
- *   `postgresql@17` that aren't on the default PATH after install.
+ *   `postgresql@18` that aren't on the default PATH after install.
  */
 const KEG_BIN_PREFIXES: readonly string[] = [
   '/opt/homebrew/opt',
@@ -61,7 +61,7 @@ export class Homebrew implements PackageManager {
   }
 
   /**
-   * Bin dir for a keg-only formula (e.g. `postgresql@17`). Tries
+   * Bin dir for a keg-only formula (e.g. `postgresql@18`). Tries
    * `brew --prefix <pkg>` first for an authoritative answer, then falls back
    * to scanning the standard Apple-Silicon and Intel install prefixes so
    * callers don't false-negative right after `brew install`.

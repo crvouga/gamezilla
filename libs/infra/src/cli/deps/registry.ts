@@ -1,6 +1,7 @@
 import { BunDep } from './bun';
 import { SecretBackendDep } from './secret-backend';
 import { EasDep } from './eas';
+import { PgDumpDep } from './pg-dump';
 import { StripeDep } from './stripe';
 import type { Dep } from './types';
 import { TurboDep } from './turbo';
@@ -14,6 +15,7 @@ const secretBackend = new SecretBackendDep();
 const stripe = new StripeDep();
 const eas = new EasDep();
 const powerSync = new PowerSyncDep();
+const pgDump = new PgDumpDep();
 
 /**
  * Every CLI dep the toolchain knows about. Used by `setup` (installs
@@ -32,6 +34,7 @@ export const ALL_DEPS: readonly Dep[] = [
   stripe,
   eas,
   powerSync,
+  pgDump,
 ];
 
 /**

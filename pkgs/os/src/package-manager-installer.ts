@@ -6,7 +6,7 @@ import type { PackageManager } from './package-manager';
 
 /**
  * A single PM-targeted install spec. `package` is the package name as that
- * PM names it (e.g. `postgresql@17` for Homebrew, `postgresql` for apt,
+ * PM names it (e.g. `postgresql@18` for Homebrew, `postgresql` for apt,
  * `PostgreSQL.PostgreSQL` for winget).
  *
  * Homebrew-specific convenience knobs:
