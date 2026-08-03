@@ -1,8 +1,6 @@
 import {
   SPACE_USERS_TABLE,
-  SpaceCol,
   SPACES_TABLE,
-  SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
@@ -15,18 +13,18 @@ import {
   SPACE_NOT_SIGNED_IN,
   SPACE_WRITE_DENIED,
 } from '@libs/spaces/shared/rules/codes';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { TablePolicy } from '@pkgs/sync-engine/server/apply-batch';
 import type { UploadAuth } from '@pkgs/sync-engine/shared/rules-auth';
+import { tableColumnNames } from '@pkgs/sync-engine/shared/table-definition';
 import type {
   UploadOp,
   UploadRow,
 } from '@pkgs/sync-engine/shared/upload-batch';
 
 import {
-  columnSet,
   deny,
   ok,
   readRowString,
@@ -46,19 +44,12 @@ async function querySpace(
   db: SqlClient,
   spaceId: string
 ): Promise<SpaceHostRow | null> {
-  const rows = await db.query<SpaceHostRow>(
-    sqlMap({
-      select: [
-        SpaceCol.hostId,
-        SpaceCol.hostMemberId,
-        SpaceCol.hostAccountId,
-        SpaceCol.endedAt,
-      ],
-      from: SPACES_TABLE.tableName,
-      where: ['=', SpaceCol.id, spaceId],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<SpaceHostRow>(sql`
+    SELECT host_id, host_member_id, host_account_id, ended_at
+    FROM spaces
+    WHERE id = ${spaceId}
+    LIMIT 1
+  `);
   return rows[0] ?? null;
 }
 
@@ -75,14 +66,14 @@ function authorizeSpaceCreateFromRow(
 ): AuthzResult {
   const accountId = requireAccountId(auth);
   if (typeof accountId !== 'string') return accountId;
-  const hostId = readRowString(row, SpaceCol.hostId);
+  const hostId = readRowString(row, 'host_id');
   if (hostId !== auth.deviceId) return deny(SPACE_WRITE_DENIED);
   const memberId = resolveSpaceMemberId(accountId);
   const hostMemberId =
-    readRowString(row, SpaceCol.hostMemberId) ??
-    readRowString(row, SpaceCol.hostAccountId);
+    readRowString(row, 'host_member_id') ??
+    readRowString(row, 'host_account_id');
   if (hostMemberId !== memberId) return deny(SPACE_WRITE_DENIED);
-  const hostAccountId = readRowString(row, SpaceCol.hostAccountId);
+  const hostAccountId = readRowString(row, 'host_account_id');
   if (hostAccountId !== undefined && hostAccountId !== accountId) {
     return deny(SPACE_WRITE_DENIED);
   }
@@ -93,8 +84,7 @@ function isHostOfSpace(auth: UploadAuth, space: SpaceHostRow): boolean {
   const accountId = auth.accountId;
   if (accountId === null || accountId.length === 0) return false;
   const hostId = space.host_id ?? '';
-  const hostMemberId =
-    space.host_member_id ?? space.host_account_id ?? hostId;
+  const hostMemberId = space.host_member_id ?? space.host_account_id ?? hostId;
   return isSpaceHostActor({
     hostId,
     hostMemberId,
@@ -137,7 +127,7 @@ async function authorizeSelfSpaceUserGrant(
   const space = await querySpace(db, spaceId);
   if (space === null) {
     if (row.op === 'delete') return deny(SPACE_NOT_FOUND);
-    const createdBy = readRowString(row, SpaceUserCol.createdByAccountId);
+    const createdBy = readRowString(row, 'created_by_account_id');
     if (createdBy !== auth.accountId) return deny(SPACE_NOT_FOUND);
     return ok();
   }
@@ -185,8 +175,8 @@ async function authorizeSpaceUsersUpload(
   const accountId = requireAccountId(auth);
   if (typeof accountId !== 'string') return accountId;
 
-  const spaceId = readRowString(row, SpaceUserCol.spaceId);
-  const userId = readRowString(row, SpaceUserCol.userId);
+  const spaceId = readRowString(row, 'space_id');
+  const userId = readRowString(row, 'user_id');
 
   if (spaceId === undefined || spaceId.length === 0) {
     const parsed = spaceIdFromUsersRowId(row.id);
@@ -208,13 +198,13 @@ export function spacesTablePolicies(): readonly TablePolicy[] {
     {
       table: SPACES_TABLE.tableName,
       allowedOps: PUT_PATCH_DELETE,
-      allowedColumns: columnSet(SpaceCol),
+      allowedColumns: new Set(tableColumnNames(SPACES_TABLE)),
       authorize: authorizeSpacesUpload,
     },
     {
       table: SPACE_USERS_TABLE.tableName,
       allowedOps: PUT_PATCH_DELETE,
-      allowedColumns: columnSet(SpaceUserCol),
+      allowedColumns: new Set(tableColumnNames(SPACE_USERS_TABLE)),
       authorize: authorizeSpaceUsersUpload,
     },
   ];

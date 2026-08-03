@@ -1,5 +1,4 @@
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -12,18 +11,12 @@ export async function patchProfileAvatar(
   db: SqlClient,
   input: ProfilePatchInput
 ): Promise<void> {
-  const updates: Record<string, string> = {};
-  if (input.avatarConfig !== undefined) {
-    updates[ProfileCol.avatarConfig] = input.avatarConfig;
-  }
-  if (Object.keys(updates).length === 0) {
+  if (input.avatarConfig === undefined) {
     return;
   }
-  await db.run(
-    sqlMap({
-      update: PROFILES_TABLE.tableName,
-      set: updates,
-      where: ['=', ProfileCol.id, input.profileId],
-    })
-  );
+  await db.run(sql`
+    UPDATE profiles
+    SET avatar_config = ${input.avatarConfig}
+    WHERE id = ${input.profileId}
+  `);
 }

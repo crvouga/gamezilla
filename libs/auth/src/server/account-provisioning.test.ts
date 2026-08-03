@@ -2,22 +2,13 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
 import {
   ENTITY_STORE_NAMESPACE_AUTH,
-  ENTITY_STORE_TABLE,
   ENTITY_STORE_TYPE_USER,
 } from '@libs/db/shared/entity-store-table';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import { ident, sql } from '@pkgs/sql';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-
-import {
-  EXTERNAL_ACCOUNTS_TABLE,
-  ExternalAccountCol,
-  USERS_TABLE,
-  UserTableCol,
-} from '@libs/db/shared/external-accounts-tables';
 
 import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
 import {
@@ -38,24 +29,24 @@ function makeFakeAuthServer(
 
 async function migrateAuthTables(db: SqlClient): Promise<void> {
   await db.run(sql`
-    CREATE TABLE ${ident(USERS_TABLE)} (
-      ${ident(UserTableCol.id)} TEXT PRIMARY KEY,
-      ${ident(UserTableCol.createdAt)} TEXT NOT NULL
+    CREATE TABLE users (
+      id TEXT PRIMARY KEY,
+      created_at TEXT NOT NULL
     )
   `);
   await db.run(sql`
-    CREATE TABLE ${ident(EXTERNAL_ACCOUNTS_TABLE)} (
-      ${ident(ExternalAccountCol.userId)} TEXT NOT NULL,
-      ${ident(ExternalAccountCol.provider)} TEXT NOT NULL,
-      ${ident(ExternalAccountCol.externalId)} TEXT NOT NULL,
-      ${ident(ExternalAccountCol.metadata)} TEXT NOT NULL DEFAULT '{}',
-      ${ident(ExternalAccountCol.createdAt)} TEXT NOT NULL,
-      PRIMARY KEY (${ident(ExternalAccountCol.provider)}, ${ident(ExternalAccountCol.externalId)}),
-      UNIQUE (${ident(ExternalAccountCol.userId)}, ${ident(ExternalAccountCol.provider)})
+    CREATE TABLE external_accounts (
+      user_id TEXT NOT NULL,
+      provider TEXT NOT NULL,
+      external_id TEXT NOT NULL,
+      metadata TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL,
+      PRIMARY KEY (provider, external_id),
+      UNIQUE (user_id, provider)
     )
   `);
   await db.run(sql`
-    CREATE TABLE ${ident(ENTITY_STORE_TABLE)} (
+    CREATE TABLE entity_store (
       id TEXT PRIMARY KEY,
       namespace TEXT NOT NULL,
       type TEXT NOT NULL,
@@ -88,27 +79,26 @@ describe('ensureInternalAccountIdForExternalUser', () => {
   test('returns existing user id for known clerk user', async () => {
     const userId = '33333333-3333-4333-8333-333333333333';
     const now = new Date().toISOString();
-    await sqlClient.run(
-      sqlMap({
-        insertInto: USERS_TABLE,
-        values: {
-          [UserTableCol.id]: userId,
-          [UserTableCol.createdAt]: now,
-        },
-      })
-    );
-    await sqlClient.run(
-      sqlMap({
-        insertInto: EXTERNAL_ACCOUNTS_TABLE,
-        values: {
-          [ExternalAccountCol.userId]: userId,
-          [ExternalAccountCol.provider]: PRIMARY_AUTH_PROVIDER,
-          [ExternalAccountCol.externalId]: EXTERNAL_USER_ID,
-          [ExternalAccountCol.metadata]: '{}',
-          [ExternalAccountCol.createdAt]: now,
-        },
-      })
-    );
+    await sqlClient.run(sql`
+      INSERT INTO users (id, created_at)
+      VALUES (${userId}, ${now})
+    `);
+    await sqlClient.run(sql`
+      INSERT INTO external_accounts (
+        user_id,
+        provider,
+        external_id,
+        metadata,
+        created_at
+      )
+      VALUES (
+        ${userId},
+        ${PRIMARY_AUTH_PROVIDER},
+        ${EXTERNAL_USER_ID},
+        ${'{}'},
+        ${now}
+      )
+    `);
 
     const resolved = await ensureInternalAccountIdForExternalUser({
       sql: sqlClient,
@@ -137,18 +127,13 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       await readExternalAccountId(sqlClient, resolved, PRIMARY_AUTH_PROVIDER)
     ).toBe(EXTERNAL_USER_ID);
 
-    const entityRows = await sqlClient.query<{ owner_id: string | null }>(
-      sqlMap({
-        select: ['owner_id'],
-        from: ENTITY_STORE_TABLE,
-        where: [
-          'and',
-          ['=', 'namespace', ENTITY_STORE_NAMESPACE_AUTH],
-          ['=', 'type', ENTITY_STORE_TYPE_USER],
-          ['=', 'external_id', EXTERNAL_USER_ID],
-        ],
-      })
-    );
+    const entityRows = await sqlClient.query<{ owner_id: string | null }>(sql`
+      SELECT owner_id
+      FROM entity_store
+      WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH}
+        AND type = ${ENTITY_STORE_TYPE_USER}
+        AND external_id = ${EXTERNAL_USER_ID}
+    `);
     expect(entityRows[0]?.owner_id).toBe(resolved);
   });
 });

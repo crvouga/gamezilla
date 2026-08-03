@@ -6,7 +6,9 @@ import { AUTH_DEVICE_ID_MISMATCH, AUTH_DEVICE_REQUIRED } from './codes';
 
 const DEVICES_TABLE = 'devices';
 
-async function checkDeviceOwnId(ctx: RulesCtx<AppRulesAuth>): Promise<readonly Failure[]> {
+async function checkDeviceOwnId(
+  ctx: RulesCtx<AppRulesAuth>
+): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
 
   for (const row of ctx.batch.rows) {
@@ -46,4 +48,7 @@ export const deviceOwnIdAfterRule = defineRule({
   check: checkDeviceOwnId,
 });
 
-export const AUTH_RULES = [deviceOwnIdBeforeRule, deviceOwnIdAfterRule] as const;
+export const AUTH_RULES = [
+  deviceOwnIdBeforeRule,
+  deviceOwnIdAfterRule,
+] as const;

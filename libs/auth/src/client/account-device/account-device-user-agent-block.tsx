@@ -1,6 +1,6 @@
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { DeviceField, useDeviceColumn } from '../use-device-column';
+import { useDeviceColumn } from '../use-device-column';
 
 export type AccountDeviceUserAgentBlockProps = {
   deviceId: string;
@@ -10,7 +10,7 @@ export type AccountDeviceUserAgentBlockProps = {
 export function AccountDeviceUserAgentBlock({
   deviceId,
 }: AccountDeviceUserAgentBlockProps): ReactNode {
-  const userAgent = useDeviceColumn(deviceId, DeviceField.userAgent);
+  const userAgent = useDeviceColumn(deviceId, 'userAgent');
   if (userAgent === null) return null;
   return (
     <Text variant="caption" selectable numberOfLines={6} label={userAgent} />

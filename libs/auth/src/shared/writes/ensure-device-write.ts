@@ -1,5 +1,4 @@
-import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { join, raw, sql, type Value } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -27,10 +26,7 @@ function isDeviceRowComplete(
   deviceId: string
 ): boolean {
   if (row === undefined) return false;
-  return (
-    row[DeviceCol.id] === deviceId &&
-    typeof row[DeviceCol.createdAt] === 'string'
-  );
+  return row['id'] === deviceId && typeof row['created_at'] === 'string';
 }
 
 function snapshotDiffers(
@@ -50,12 +46,7 @@ function buildInsertArgs(
   now: string,
   snapshot: DeviceSnapshot
 ): { cols: string[]; vals: (string | null)[] } {
-  const cols: string[] = [
-    DeviceCol.id,
-    DeviceCol.createdAt,
-    DeviceCol.firstSeenAt,
-    DeviceCol.lastSeenAt,
-  ];
+  const cols: string[] = ['id', 'created_at', 'first_seen_at', 'last_seen_at'];
   const vals: (string | null)[] = [deviceId, now, now, now];
   for (const [key, value] of Object.entries(snapshot)) {
     if (value === null) continue;
@@ -70,12 +61,12 @@ function buildDeviceUpdates(
   snapshot: DeviceSnapshot,
   now: string
 ): Record<string, string> {
-  const existingFirst = normString(row[DeviceCol.firstSeenAt]);
-  const created = normString(row[DeviceCol.createdAt]);
+  const existingFirst = normString(row['first_seen_at']);
+  const created = normString(row['created_at']);
   const updates: Record<string, string> = {
-    [DeviceCol.lastSeenAt]: now,
+    last_seen_at: now,
     ...(existingFirst === null
-      ? { [DeviceCol.firstSeenAt]: created !== null ? created : now }
+      ? { first_seen_at: created !== null ? created : now }
       : {}),
   };
   for (const key of Object.keys(snapshot)) {
@@ -95,11 +86,10 @@ async function insertDeviceRow(
   snapshot: DeviceSnapshot
 ): Promise<void> {
   const { cols, vals } = buildInsertArgs(deviceId, now, snapshot);
-  const values: Record<string, string | null> = {};
-  cols.forEach((column, index) => {
-    values[column] = vals[index] ?? null;
-  });
-  await db.run(sqlMap({ insertInto: DEVICES_TABLE.tableName, values }));
+  await db.run(sql`
+    INSERT INTO devices (${raw(cols.join(', '))})
+    VALUES ${join(vals as Value[], ', ', '(', ')')}
+  `);
 }
 
 async function updateDeviceRow(
@@ -109,13 +99,14 @@ async function updateDeviceRow(
 ): Promise<void> {
   const entries = Object.entries(updates);
   if (entries.length === 0) return;
-  await db.run(
-    sqlMap({
-      update: DEVICES_TABLE.tableName,
-      set: updates,
-      where: ['=', DeviceCol.id, deviceId],
-    })
+  const sets = join(
+    entries.map(([column, value]) => sql`${raw(column)} = ${value}`)
   );
+  await db.run(sql`
+    UPDATE devices
+    SET ${sets}
+    WHERE id = ${deviceId}
+  `);
 }
 
 /**
@@ -127,13 +118,12 @@ export async function ensureDeviceRow(
   deviceId: string,
   snapshot: DeviceSnapshot
 ): Promise<void> {
-  const rows = await db.query<DeviceRow>(
-    sqlMap({
-      from: DEVICES_TABLE.tableName,
-      where: ['=', DeviceCol.id, deviceId],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<DeviceRow>(sql`
+    SELECT *
+    FROM devices
+    WHERE id = ${deviceId}
+    LIMIT 1
+  `);
   const row = rows[0];
   const now = new Date().toISOString();
   if (!isDeviceRowComplete(row, deviceId)) {

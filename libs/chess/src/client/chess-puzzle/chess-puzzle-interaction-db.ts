@@ -1,8 +1,6 @@
 import {
   CHESS_PUZZLE_INTERACTIONS_TABLE,
   CHESS_PUZZLE_PROFILES_TABLE,
-  ChessPuzzleInteractionCol,
-  ChessPuzzleProfileCol,
 } from '@libs/db/shared/chess-tables';
 import { CHESS_RULES } from '@libs/chess/shared/rules/rules';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
@@ -45,7 +43,7 @@ export async function appendPuzzleInteractionRow(
           table: CHESS_PUZZLE_INTERACTIONS_TABLE.tableName,
           id: 'pending',
           values: {
-            [ChessPuzzleInteractionCol.ownerId]: args.ownerId,
+            owner_id: args.ownerId,
           },
         },
       ],
@@ -71,7 +69,7 @@ async function upsertPuzzleProfile(
           id: args.ownerId,
           values: {
             id: args.ownerId,
-            [ChessPuzzleProfileCol.ownerId]: args.ownerId,
+            owner_id: args.ownerId,
           },
         },
       ],

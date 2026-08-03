@@ -1,14 +1,6 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import {
-  FRIEND_REQUESTS_TABLE,
-  FriendRequestCol,
-  FriendshipCol,
-  FRIENDSHIPS_TABLE,
-  USER_BLOCKS_TABLE,
-  UserBlockCol,
-} from '@libs/db/shared/friends-tables';
 import type { Sql } from '@pkgs/sql';
-import { sqlMap, type Expr } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
@@ -19,55 +11,7 @@ import type { FriendshipStatus } from '../shared/friends-types';
 type StatusRow = { readonly status: FriendshipStatus };
 
 function noneStatusSql(): Sql {
-  return sqlMap({
-    select: [[['param', 'none'], 'status']],
-  });
-}
-
-function existsBlock(myId: string, targetUserId: string): Expr {
-  return [
-    'exists',
-    {
-      select: [UserBlockCol.blockerId],
-      from: USER_BLOCKS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', UserBlockCol.blockerId, myId],
-        ['=', UserBlockCol.blockedId, targetUserId],
-      ],
-    },
-  ];
-}
-
-function existsFriendship(userLow: string, userHigh: string): Expr {
-  return [
-    'exists',
-    {
-      select: [FriendshipCol.userLow],
-      from: FRIENDSHIPS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', FriendshipCol.userLow, userLow],
-        ['=', FriendshipCol.userHigh, userHigh],
-      ],
-    },
-  ];
-}
-
-function existsPendingRequest(fromUserId: string, toUserId: string): Expr {
-  return [
-    'exists',
-    {
-      select: [FriendRequestCol.fromUserId],
-      from: FRIEND_REQUESTS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', FriendRequestCol.fromUserId, fromUserId],
-        ['=', FriendRequestCol.toUserId, toUserId],
-        ['=', FriendRequestCol.status, 'pending'],
-      ],
-    },
-  ];
+  return sql`SELECT 'none' AS status`;
 }
 
 function friendshipStatusSql(myId: string, targetUserId: string): Sql {
@@ -75,29 +19,35 @@ function friendshipStatusSql(myId: string, targetUserId: string): Sql {
     return noneStatusSql();
   }
   const { userLow, userHigh } = canonicalUserPair(myId, targetUserId);
-  return sqlMap({
-    select: [
-      [
-        [
-          'case',
-          [
-            [existsBlock(myId, targetUserId), ['param', 'blocked_by_me']],
-            [existsFriendship(userLow, userHigh), ['param', 'friends']],
-            [
-              existsPendingRequest(myId, targetUserId),
-              ['param', 'pending_outgoing'],
-            ],
-            [
-              existsPendingRequest(targetUserId, myId),
-              ['param', 'pending_incoming'],
-            ],
-          ],
-          ['param', 'none'],
-        ],
-        'status',
-      ],
-    ],
-  });
+  return sql`
+    SELECT CASE
+      WHEN EXISTS (
+        SELECT blocker_id
+        FROM user_blocks
+        WHERE blocker_id = ${myId} AND blocked_id = ${targetUserId}
+      ) THEN 'blocked_by_me'
+      WHEN EXISTS (
+        SELECT user_low
+        FROM friendships
+        WHERE user_low = ${userLow} AND user_high = ${userHigh}
+      ) THEN 'friends'
+      WHEN EXISTS (
+        SELECT from_user_id
+        FROM friend_requests
+        WHERE from_user_id = ${myId}
+          AND to_user_id = ${targetUserId}
+          AND status = 'pending'
+      ) THEN 'pending_outgoing'
+      WHEN EXISTS (
+        SELECT from_user_id
+        FROM friend_requests
+        WHERE from_user_id = ${targetUserId}
+          AND to_user_id = ${myId}
+          AND status = 'pending'
+      ) THEN 'pending_incoming'
+      ELSE 'none'
+    END AS status
+  `;
 }
 
 export function useFriendshipStatus(targetUserId: string): FriendshipStatus {

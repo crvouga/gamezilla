@@ -1,5 +1,4 @@
-import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
@@ -13,12 +12,12 @@ export function useLiveSpaceIds(): {
   readonly isLoading: boolean;
 } {
   const { rows, isLoading } = useWatchQuery<SpaceIdRow>(
-    sqlMap({
-      select: [SpaceCol.id],
-      from: SPACES_TABLE.tableName,
-      where: ['is-null', SpaceCol.endedAt],
-      orderBy: [[SpaceCol.createdAt, 'desc']],
-    })
+    sql`
+      SELECT id
+      FROM spaces
+      WHERE ended_at IS NULL
+      ORDER BY created_at DESC
+    `
   );
   return { spaceIds: rows.map((r) => r.id), isLoading };
 }

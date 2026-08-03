@@ -20,9 +20,3 @@ export function readRowString(
     (camelKey !== undefined ? row.values?.[camelKey] : undefined);
   return typeof raw === 'string' ? raw : undefined;
 }
-
-export function columnSet(
-  columns: Readonly<Record<string, string>>
-): ReadonlySet<string> {
-  return new Set(Object.values(columns));
-}

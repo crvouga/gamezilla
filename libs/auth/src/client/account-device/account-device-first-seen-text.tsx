@@ -1,6 +1,6 @@
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { DeviceField, useDeviceColumn } from '../use-device-column';
+import { useDeviceColumn } from '../use-device-column';
 import { formatTimestamp } from '../device-parsers';
 
 export type AccountDeviceFirstSeenTextProps = {
@@ -11,7 +11,7 @@ export type AccountDeviceFirstSeenTextProps = {
 export function AccountDeviceFirstSeenText({
   deviceId,
 }: AccountDeviceFirstSeenTextProps): ReactNode {
-  const firstSeenAt = useDeviceColumn(deviceId, DeviceField.firstSeenAt);
+  const firstSeenAt = useDeviceColumn(deviceId, 'firstSeenAt');
   return (
     <Text
       variant="body"

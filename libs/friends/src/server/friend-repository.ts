@@ -1,12 +1,4 @@
-import {
-  FRIEND_REQUESTS_TABLE,
-  FriendRequestCol,
-  FriendshipCol,
-  FRIENDSHIPS_TABLE,
-  USER_BLOCKS_TABLE,
-  UserBlockCol,
-} from '@libs/db/shared/friends-tables';
-import { col, sqlMap, type Query } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -32,16 +24,16 @@ function readNullableString(
 }
 
 function mapFriendRequest(row: Record<string, unknown>): FriendRequest {
-  const status = readString(row, FriendRequestCol.status);
+  const status = readString(row, 'status');
   return {
-    id: readString(row, FriendRequestCol.id),
-    fromUserId: readString(row, FriendRequestCol.fromUserId),
-    toUserId: readString(row, FriendRequestCol.toUserId),
+    id: readString(row, 'id'),
+    fromUserId: readString(row, 'from_user_id'),
+    toUserId: readString(row, 'to_user_id'),
     status: status as FriendRequestStatus,
-    message: readNullableString(row, FriendRequestCol.message),
-    createdAt: readString(row, FriendRequestCol.createdAt),
-    updatedAt: readString(row, FriendRequestCol.updatedAt),
-    respondedAt: readNullableString(row, FriendRequestCol.respondedAt),
+    message: readNullableString(row, 'message'),
+    createdAt: readString(row, 'created_at'),
+    updatedAt: readString(row, 'updated_at'),
+    respondedAt: readNullableString(row, 'responded_at'),
   };
 }
 
@@ -49,13 +41,12 @@ export async function findFriendRequestById(
   db: SqlClient,
   requestId: string
 ): Promise<FriendRequest | null> {
-  const rows = await db.query<Record<string, unknown>>(
-    sqlMap({
-      from: FRIEND_REQUESTS_TABLE.tableName,
-      where: ['=', FriendRequestCol.id, requestId],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+    FROM friend_requests
+    WHERE id = ${requestId}
+    LIMIT 1
+  `);
   const row = rows[0];
   return row === undefined ? null : mapFriendRequest(row);
 }
@@ -65,18 +56,14 @@ export async function findPendingRequestBetween(
   fromUserId: string,
   toUserId: string
 ): Promise<FriendRequest | null> {
-  const rows = await db.query<Record<string, unknown>>(
-    sqlMap({
-      from: FRIEND_REQUESTS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', FriendRequestCol.fromUserId, fromUserId],
-        ['=', FriendRequestCol.toUserId, toUserId],
-        ['=', FriendRequestCol.status, 'pending'],
-      ],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+    FROM friend_requests
+    WHERE from_user_id = ${fromUserId}
+      AND to_user_id = ${toUserId}
+      AND status = 'pending'
+    LIMIT 1
+  `);
   const row = rows[0];
   return row === undefined ? null : mapFriendRequest(row);
 }
@@ -86,28 +73,15 @@ export async function findPendingRequestsBetweenPair(
   userA: string,
   userB: string
 ): Promise<readonly FriendRequest[]> {
-  const rows = await db.query<Record<string, unknown>>(
-    sqlMap({
-      from: FRIEND_REQUESTS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', FriendRequestCol.status, 'pending'],
-        [
-          'or',
-          [
-            'and',
-            ['=', FriendRequestCol.fromUserId, userA],
-            ['=', FriendRequestCol.toUserId, userB],
-          ],
-          [
-            'and',
-            ['=', FriendRequestCol.fromUserId, userB],
-            ['=', FriendRequestCol.toUserId, userA],
-          ],
-        ],
-      ],
-    })
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+    FROM friend_requests
+    WHERE status = 'pending'
+      AND (
+        (from_user_id = ${userA} AND to_user_id = ${userB})
+        OR (from_user_id = ${userB} AND to_user_id = ${userA})
+      )
+  `);
   return rows.map(mapFriendRequest);
 }
 
@@ -116,19 +90,15 @@ export async function findLatestDeclinedRequestBetween(
   fromUserId: string,
   toUserId: string
 ): Promise<FriendRequest | null> {
-  const rows = await db.query<Record<string, unknown>>(
-    sqlMap({
-      from: FRIEND_REQUESTS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', FriendRequestCol.fromUserId, fromUserId],
-        ['=', FriendRequestCol.toUserId, toUserId],
-        ['=', FriendRequestCol.status, 'declined'],
-      ],
-      orderBy: [[FriendRequestCol.respondedAt, 'desc', { nulls: 'last' }]],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+    FROM friend_requests
+    WHERE from_user_id = ${fromUserId}
+      AND to_user_id = ${toUserId}
+      AND status = 'declined'
+    ORDER BY responded_at DESC NULLS LAST
+    LIMIT 1
+  `);
   const row = rows[0];
   return row === undefined ? null : mapFriendRequest(row);
 }
@@ -139,18 +109,12 @@ export async function friendshipExists(
   userB: string
 ): Promise<boolean> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  const rows = await db.query<Record<string, unknown>>(
-    sqlMap({
-      select: [FriendshipCol.id],
-      from: FRIENDSHIPS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', FriendshipCol.userLow, userLow],
-        ['=', FriendshipCol.userHigh, userHigh],
-      ],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT id
+    FROM friendships
+    WHERE user_low = ${userLow} AND user_high = ${userHigh}
+    LIMIT 1
+  `);
   return rows.length > 0;
 }
 
@@ -159,29 +123,16 @@ export async function isBlockedEitherDirection(
   userA: string,
   userB: string
 ): Promise<'none' | 'by_a' | 'by_b'> {
-  const rows = await db.query<Record<string, unknown>>(
-    sqlMap({
-      select: [UserBlockCol.blockerId, UserBlockCol.blockedId],
-      from: USER_BLOCKS_TABLE.tableName,
-      where: [
-        'or',
-        [
-          'and',
-          ['=', UserBlockCol.blockerId, userA],
-          ['=', UserBlockCol.blockedId, userB],
-        ],
-        [
-          'and',
-          ['=', UserBlockCol.blockerId, userB],
-          ['=', UserBlockCol.blockedId, userA],
-        ],
-      ],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT blocker_id, blocked_id
+    FROM user_blocks
+    WHERE (blocker_id = ${userA} AND blocked_id = ${userB})
+       OR (blocker_id = ${userB} AND blocked_id = ${userA})
+    LIMIT 1
+  `);
   const row = rows[0];
   if (row === undefined) return 'none';
-  const blockerId = readString(row, UserBlockCol.blockerId);
+  const blockerId = readString(row, 'blocker_id');
   if (blockerId === userA) return 'by_a';
   return 'by_b';
 }
@@ -196,20 +147,10 @@ export async function insertFriendRequest(
     readonly now: string;
   }
 ): Promise<FriendRequest> {
-  await db.run(
-    sqlMap({
-      insertInto: FRIEND_REQUESTS_TABLE.tableName,
-      values: {
-        [FriendRequestCol.id]: args.id,
-        [FriendRequestCol.fromUserId]: args.fromUserId,
-        [FriendRequestCol.toUserId]: args.toUserId,
-        [FriendRequestCol.status]: 'pending',
-        [FriendRequestCol.message]: args.message,
-        [FriendRequestCol.createdAt]: args.now,
-        [FriendRequestCol.updatedAt]: args.now,
-      },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO friend_requests (id, from_user_id, to_user_id, status, message, created_at, updated_at)
+    VALUES (${args.id}, ${args.fromUserId}, ${args.toUserId}, 'pending', ${args.message}, ${args.now}, ${args.now})
+  `);
   const created = await findFriendRequestById(db, args.id);
   if (created === null) {
     throw new Error('friend request insert failed');
@@ -223,17 +164,11 @@ export async function markFriendRequestStatus(
   status: FriendRequestStatus,
   now: string
 ): Promise<void> {
-  await db.run(
-    sqlMap({
-      update: FRIEND_REQUESTS_TABLE.tableName,
-      set: {
-        [FriendRequestCol.status]: status,
-        [FriendRequestCol.updatedAt]: now,
-        [FriendRequestCol.respondedAt]: now,
-      },
-      where: ['=', FriendRequestCol.id, requestId],
-    })
-  );
+  await db.run(sql`
+    UPDATE friend_requests
+    SET status = ${status}, updated_at = ${now}, responded_at = ${now}
+    WHERE id = ${requestId}
+  `);
 }
 
 export async function cancelPendingRequestsBetween(
@@ -242,33 +177,15 @@ export async function cancelPendingRequestsBetween(
   userB: string,
   now: string
 ): Promise<void> {
-  await db.run(
-    sqlMap({
-      update: FRIEND_REQUESTS_TABLE.tableName,
-      set: {
-        [FriendRequestCol.status]: 'cancelled',
-        [FriendRequestCol.updatedAt]: now,
-        [FriendRequestCol.respondedAt]: now,
-      },
-      where: [
-        'and',
-        ['=', FriendRequestCol.status, 'pending'],
-        [
-          'or',
-          [
-            'and',
-            ['=', FriendRequestCol.fromUserId, userA],
-            ['=', FriendRequestCol.toUserId, userB],
-          ],
-          [
-            'and',
-            ['=', FriendRequestCol.fromUserId, userB],
-            ['=', FriendRequestCol.toUserId, userA],
-          ],
-        ],
-      ],
-    })
-  );
+  await db.run(sql`
+    UPDATE friend_requests
+    SET status = 'cancelled', updated_at = ${now}, responded_at = ${now}
+    WHERE status = 'pending'
+      AND (
+        (from_user_id = ${userA} AND to_user_id = ${userB})
+        OR (from_user_id = ${userB} AND to_user_id = ${userA})
+      )
+  `);
 }
 
 export async function insertFriendship(
@@ -281,22 +198,17 @@ export async function insertFriendship(
   }
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
-  await db.run(
-    sqlMap({
-      insertInto: FRIENDSHIPS_TABLE.tableName,
-      values: {
-        [FriendshipCol.id]: pairId(userLow, userHigh),
-        [FriendshipCol.userLow]: userLow,
-        [FriendshipCol.userHigh]: userHigh,
-        [FriendshipCol.createdAt]: args.now,
-        [FriendshipCol.sourceRequestId]: args.sourceRequestId,
-      },
-      onConflict: {
-        target: [FriendshipCol.userLow, FriendshipCol.userHigh],
-        doNothing: true,
-      },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO friendships (id, user_low, user_high, created_at, source_request_id)
+    VALUES (
+      ${pairId(userLow, userHigh)},
+      ${userLow},
+      ${userHigh},
+      ${args.now},
+      ${args.sourceRequestId}
+    )
+    ON CONFLICT (user_low, user_high) DO NOTHING
+  `);
 }
 
 export async function deleteFriendship(
@@ -305,16 +217,10 @@ export async function deleteFriendship(
   userB: string
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  await db.run(
-    sqlMap({
-      deleteFrom: FRIENDSHIPS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', FriendshipCol.userLow, userLow],
-        ['=', FriendshipCol.userHigh, userHigh],
-      ],
-    })
-  );
+  await db.run(sql`
+    DELETE FROM friendships
+    WHERE user_low = ${userLow} AND user_high = ${userHigh}
+  `);
 }
 
 export async function insertBlock(
@@ -323,21 +229,11 @@ export async function insertBlock(
   blockedId: string,
   now: string
 ): Promise<void> {
-  await db.run(
-    sqlMap({
-      insertInto: USER_BLOCKS_TABLE.tableName,
-      values: {
-        [UserBlockCol.id]: pairId(blockerId, blockedId),
-        [UserBlockCol.blockerId]: blockerId,
-        [UserBlockCol.blockedId]: blockedId,
-        [UserBlockCol.createdAt]: now,
-      },
-      onConflict: {
-        target: [UserBlockCol.blockerId, UserBlockCol.blockedId],
-        doNothing: true,
-      },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at)
+    VALUES (${pairId(blockerId, blockedId)}, ${blockerId}, ${blockedId}, ${now})
+    ON CONFLICT (blocker_id, blocked_id) DO NOTHING
+  `);
 }
 
 export async function deleteBlock(
@@ -345,16 +241,10 @@ export async function deleteBlock(
   blockerId: string,
   blockedId: string
 ): Promise<void> {
-  await db.run(
-    sqlMap({
-      deleteFrom: USER_BLOCKS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', UserBlockCol.blockerId, blockerId],
-        ['=', UserBlockCol.blockedId, blockedId],
-      ],
-    })
-  );
+  await db.run(sql`
+    DELETE FROM user_blocks
+    WHERE blocker_id = ${blockerId} AND blocked_id = ${blockedId}
+  `);
 }
 
 export async function listMutualFriendIds(
@@ -362,39 +252,22 @@ export async function listMutualFriendIds(
   viewerId: string,
   targetUserId: string
 ): Promise<readonly string[]> {
-  const friendIdForViewer = (userId: string): Query => ({
-    select: [
-      [
-        [
-          'case',
-          [[['=', FriendshipCol.userLow, userId], col(FriendshipCol.userHigh)]],
-          col(FriendshipCol.userLow),
-        ],
-        'friend_id',
-      ],
-    ],
-    from: FRIENDSHIPS_TABLE.tableName,
-    where: [
-      'or',
-      ['=', FriendshipCol.userLow, userId],
-      ['=', FriendshipCol.userHigh, userId],
-    ],
-  });
-  const rows = await db.query<Record<string, unknown>>(
-    sqlMap({
-      with: [
-        ['my_friends', friendIdForViewer(viewerId)],
-        ['their_friends', friendIdForViewer(targetUserId)],
-      ],
-      select: ['mf.friend_id'],
-      from: ['my_friends', 'mf'],
-      join: [
-        ['their_friends', 'tf'],
-        ['=', 'mf.friend_id', col('tf.friend_id')],
-      ],
-      limit: 50,
-    })
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    WITH my_friends AS (
+      SELECT CASE WHEN user_low = ${viewerId} THEN user_high ELSE user_low END AS friend_id
+      FROM friendships
+      WHERE user_low = ${viewerId} OR user_high = ${viewerId}
+    ),
+    their_friends AS (
+      SELECT CASE WHEN user_low = ${targetUserId} THEN user_high ELSE user_low END AS friend_id
+      FROM friendships
+      WHERE user_low = ${targetUserId} OR user_high = ${targetUserId}
+    )
+    SELECT mf.friend_id
+    FROM my_friends AS mf
+    INNER JOIN their_friends AS tf ON mf.friend_id = tf.friend_id
+    LIMIT 50
+  `);
   return rows
     .map((row) => readString(row, 'friend_id'))
     .filter((id) => id.length > 0);

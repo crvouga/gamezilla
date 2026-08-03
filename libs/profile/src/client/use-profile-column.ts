@@ -1,14 +1,12 @@
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import { ProfileCol } from '@libs/db/shared/profile-tables';
-
 import { profileRowByIdSql } from './profile-row-sql';
 
 export const ProfileField = {
   username: 'username',
-  avatarConfig: 'avatarConfig',
-  createdAt: 'createdAt',
-} as const satisfies Record<string, keyof typeof ProfileCol>;
+  avatarConfig: 'avatar_config',
+  createdAt: 'created_at',
+} as const satisfies Record<string, string>;
 
 export type ProfileFieldKey = keyof typeof ProfileField;
 
@@ -23,10 +21,10 @@ export function useProfileColumn(
   profileId: string,
   field: ProfileFieldKey
 ): string | null {
-  const col = ProfileCol[field];
+  const column = ProfileField[field];
   const { row } = useWatchOne<ProfileRow>(profileRowByIdSql(profileId));
   if (row === null) return null;
-  const value = row[col];
+  const value = row[column];
   if (typeof value !== 'string') return null;
   return value;
 }

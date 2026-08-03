@@ -1,11 +1,6 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import {
-  FriendshipCol,
-  FRIENDSHIPS_TABLE,
-} from '@libs/db/shared/friends-tables';
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import type { Sql } from '@pkgs/sql';
-import { col, sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
@@ -20,52 +15,19 @@ type FriendRow = {
   readonly friends_since: string;
 };
 
-function friendIdExpr(myId: string) {
-  return [
-    'case',
-    [
-      [
-        ['=', col(`f.${FriendshipCol.userLow}`), myId],
-        col(`f.${FriendshipCol.userHigh}`),
-      ],
-    ],
-    col(`f.${FriendshipCol.userLow}`),
-  ] as const;
-}
-
 function friendsSql(myId: string): Sql {
-  if (myId.length === 0) {
-    return sqlMap({
-      select: [
-        [['param', ''], 'friend_id'],
-        [['param', ''], 'username'],
-        [['param', null], 'avatar_config'],
-        [['param', ''], 'friends_since'],
-      ],
-      from: FRIENDSHIPS_TABLE.tableName,
-      where: ['=', 1, 0],
-    });
-  }
-  const friendId = friendIdExpr(myId);
-  return sqlMap({
-    select: [
-      [friendId, 'friend_id'],
-      [`p.${ProfileCol.username}`, 'username'],
-      [`p.${ProfileCol.avatarConfig}`, 'avatar_config'],
-      [`f.${FriendshipCol.createdAt}`, 'friends_since'],
-    ],
-    from: [FRIENDSHIPS_TABLE.tableName, 'f'],
-    join: [
-      [PROFILES_TABLE.tableName, 'p'],
-      ['=', `p.${ProfileCol.id}`, friendId],
-    ],
-    where: [
-      'or',
-      ['=', `f.${FriendshipCol.userLow}`, myId],
-      ['=', `f.${FriendshipCol.userHigh}`, myId],
-    ],
-    orderBy: [[`p.${ProfileCol.username}`, 'asc', { collate: 'NOCASE' }]],
-  });
+  return sql`
+    SELECT
+      CASE WHEN f.user_low = ${myId} THEN f.user_high ELSE f.user_low END AS friend_id,
+      p.username,
+      p.avatar_config,
+      f.created_at AS friends_since
+    FROM friendships AS f
+    INNER JOIN profiles AS p
+      ON p.id = CASE WHEN f.user_low = ${myId} THEN f.user_high ELSE f.user_low END
+    WHERE f.user_low = ${myId} OR f.user_high = ${myId}
+    ORDER BY p.username COLLATE NOCASE ASC
+  `;
 }
 
 function mapFriendRow(row: FriendRow): Friend {

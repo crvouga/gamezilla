@@ -32,7 +32,6 @@
     "@pkgs/rules": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@pkgs/sql-map": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/sync-engine-powersync": "workspace:*",
     "@pkgs/ui": "workspace:*",

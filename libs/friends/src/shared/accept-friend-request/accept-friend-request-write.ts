@@ -160,7 +160,10 @@ export function publishAcceptFriendRequestEvent(
   auth: AppRulesAuth,
   request: FriendRequest
 ): void {
-  const { userLow, userHigh } = canonicalUserPair(auth.userId, request.fromUserId);
+  const { userLow, userHigh } = canonicalUserPair(
+    auth.userId,
+    request.fromUserId
+  );
   publishFriendEvent({
     type: 'friend.request.accepted',
     requestId: request.id,

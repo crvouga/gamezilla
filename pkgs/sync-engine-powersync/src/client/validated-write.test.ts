@@ -50,9 +50,13 @@ function createMemoryClient(state: {
         const next: Sql =
           params === undefined
             ? query
-            : Object.assign(Object.create(Object.getPrototypeOf(query)), query, {
-                values: params,
-              });
+            : Object.assign(
+                Object.create(Object.getPrototypeOf(query)),
+                query,
+                {
+                  values: params,
+                }
+              );
         return client.query(next);
       },
       run: async () => ({ changes: 0, lastInsertRowid: 0 }),

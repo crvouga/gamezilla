@@ -1,14 +1,7 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 
-import {
-  SPACE_USERS_TABLE,
-  SpaceCol,
-  SPACES_TABLE,
-  SpaceUserCol,
-  spaceUserEntityId,
-} from '@libs/db/shared/space-tables';
-import { ident, sql, type Sql } from '@pkgs/sql';
-import { sqlMap } from '@pkgs/sql-map';
+import { spaceUserEntityId } from '@libs/db/shared/space-tables';
+import { sql, type Sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
@@ -27,23 +20,27 @@ function openSql(): SqlClientImplBunSqlite {
 }
 
 async function migrate(db: SqlClient): Promise<void> {
-  await db.run(sql`CREATE TABLE ${ident(SPACES_TABLE.tableName)} (
-      ${ident(SpaceCol.id)} TEXT PRIMARY KEY,
-      ${ident(SpaceCol.title)} TEXT,
-      ${ident(SpaceCol.hostId)} TEXT,
-      ${ident(SpaceCol.createdAt)} TEXT,
-      ${ident(SpaceCol.endedAt)} TEXT,
-      ${ident(SpaceCol.visibility)} TEXT,
-      ${ident(SpaceCol.hostAccountId)} TEXT,
-      ${ident(SpaceCol.hostMemberId)} TEXT
-    )`);
-  await db.run(sql`CREATE TABLE ${ident(SPACE_USERS_TABLE.tableName)} (
-      ${ident(SpaceUserCol.id)} TEXT PRIMARY KEY,
-      ${ident(SpaceUserCol.spaceId)} TEXT,
-      ${ident(SpaceUserCol.userId)} TEXT,
-      ${ident(SpaceUserCol.createdAt)} TEXT,
-      ${ident(SpaceUserCol.createdByAccountId)} TEXT
-    )`);
+  await db.run(sql`
+    CREATE TABLE spaces (
+      id TEXT PRIMARY KEY,
+      title TEXT,
+      host_id TEXT,
+      created_at TEXT,
+      ended_at TEXT,
+      visibility TEXT,
+      host_account_id TEXT,
+      host_member_id TEXT
+    )
+  `);
+  await db.run(sql`
+    CREATE TABLE space_users (
+      id TEXT PRIMARY KEY,
+      space_id TEXT,
+      user_id TEXT,
+      created_at TEXT,
+      created_by_account_id TEXT
+    )
+  `);
 }
 
 async function seedSpace(
@@ -56,20 +53,20 @@ async function seedSpace(
     readonly createdAt: string;
   }
 ): Promise<void> {
-  await db.run(
-    sqlMap({
-      insertInto: SPACES_TABLE.tableName,
-      values: {
-        [SpaceCol.id]: args.id,
-        [SpaceCol.hostId]: DEVICE_ID,
-        [SpaceCol.hostMemberId]: args.hostAccountId,
-        [SpaceCol.hostAccountId]: args.hostAccountId,
-        [SpaceCol.visibility]: args.visibility,
-        [SpaceCol.endedAt]: args.endedAt,
-        [SpaceCol.createdAt]: args.createdAt,
-      },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO spaces (
+      id, host_id, host_member_id, host_account_id, visibility, ended_at, created_at
+    )
+    VALUES (
+      ${args.id},
+      ${DEVICE_ID},
+      ${args.hostAccountId},
+      ${args.hostAccountId},
+      ${args.visibility},
+      ${args.endedAt},
+      ${args.createdAt}
+    )
+  `);
 }
 
 async function seedSpaceUser(
@@ -77,18 +74,16 @@ async function seedSpaceUser(
   spaceId: string,
   userId: string
 ): Promise<void> {
-  await db.run(
-    sqlMap({
-      insertInto: SPACE_USERS_TABLE.tableName,
-      values: {
-        [SpaceUserCol.id]: spaceUserEntityId(spaceId, userId),
-        [SpaceUserCol.spaceId]: spaceId,
-        [SpaceUserCol.userId]: userId,
-        [SpaceUserCol.createdAt]: '2026-01-01T00:00:00.000Z',
-        [SpaceUserCol.createdByAccountId]: OTHER_ACCOUNT,
-      },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
+    VALUES (
+      ${spaceUserEntityId(spaceId, userId)},
+      ${spaceId},
+      ${userId},
+      ${'2026-01-01T00:00:00.000Z'},
+      ${OTHER_ACCOUNT}
+    )
+  `);
 }
 
 async function queryIds(db: SqlClient, query: Sql): Promise<string[]> {

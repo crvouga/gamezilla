@@ -20,7 +20,11 @@ import {
   USER_BLOCKS_TABLE,
 } from './query';
 
-function requireSignedIn(ctx: RulesCtx<AppRulesAuth>, table: string, id: string): Failure | null {
+function requireSignedIn(
+  ctx: RulesCtx<AppRulesAuth>,
+  table: string,
+  id: string
+): Failure | null {
   if (ctx.auth.accountId === null) {
     return fail(FRIENDS_NOT_SIGNED_IN, { table, id });
   }
@@ -94,7 +98,9 @@ async function checkOneRequestRow(
   );
 }
 
-async function checkRequestParty(ctx: RulesCtx<AppRulesAuth>): Promise<readonly Failure[]> {
+async function checkRequestParty(
+  ctx: RulesCtx<AppRulesAuth>
+): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
   for (const row of ctx.batch.rows) {
     if (row.table !== FRIEND_REQUESTS_TABLE) continue;
@@ -104,7 +110,10 @@ async function checkRequestParty(ctx: RulesCtx<AppRulesAuth>): Promise<readonly 
   return failures;
 }
 
-function checkOneFriendshipRow(ctx: RulesCtx<AppRulesAuth>, row: UploadRow): Failure | null {
+function checkOneFriendshipRow(
+  ctx: RulesCtx<AppRulesAuth>,
+  row: UploadRow
+): Failure | null {
   const signedIn = requireSignedIn(ctx, FRIENDSHIPS_TABLE, row.id);
   if (signedIn !== null) return signedIn;
   const userLow = readStringValue(row.values, 'user_low');
@@ -130,7 +139,10 @@ async function checkFriendshipParty(
   return failures;
 }
 
-function checkOneBlockRow(ctx: RulesCtx<AppRulesAuth>, row: UploadRow): Failure | null {
+function checkOneBlockRow(
+  ctx: RulesCtx<AppRulesAuth>,
+  row: UploadRow
+): Failure | null {
   const signedIn = requireSignedIn(ctx, USER_BLOCKS_TABLE, row.id);
   if (signedIn !== null) return signedIn;
   const blockerId = readStringValue(row.values, 'blocker_id');
@@ -151,7 +163,9 @@ function checkOneBlockRow(ctx: RulesCtx<AppRulesAuth>, row: UploadRow): Failure 
   return null;
 }
 
-async function checkBlockOwner(ctx: RulesCtx<AppRulesAuth>): Promise<readonly Failure[]> {
+async function checkBlockOwner(
+  ctx: RulesCtx<AppRulesAuth>
+): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
   for (const row of ctx.batch.rows) {
     if (row.table !== USER_BLOCKS_TABLE) continue;

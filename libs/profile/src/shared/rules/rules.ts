@@ -6,7 +6,9 @@ import { PROFILE_ID_MISMATCH } from './codes';
 
 const PROFILES_TABLE = 'profiles';
 
-async function checkProfileOwnId(ctx: RulesCtx<AppRulesAuth>): Promise<readonly Failure[]> {
+async function checkProfileOwnId(
+  ctx: RulesCtx<AppRulesAuth>
+): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
 
   for (const row of ctx.batch.rows) {

@@ -2,8 +2,7 @@ import {
   useMyAccountId,
   useMyDeviceId,
 } from '@libs/auth/client/use-current-user';
-import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
@@ -24,19 +23,11 @@ export function useSpaceJoinSnapshot(spaceId: string): SpaceJoinSnapshot {
   const enabled = spaceId.length > 0;
   const viewerAccountId = useMyAccountId();
   const viewerDeviceId = useMyDeviceId();
-  const { row, isLoading } = useWatchOne<SpaceJoinLocalRow>(
-    sqlMap({
-      select: [
-        SpaceCol.hostId,
-        SpaceCol.hostMemberId,
-        SpaceCol.hostAccountId,
-        SpaceCol.endedAt,
-        SpaceCol.visibility,
-      ],
-      from: SPACES_TABLE.tableName,
-      where: enabled ? ['=', SpaceCol.id, spaceId] : ['=', 1, 0],
-    })
-  );
+  const { row, isLoading } = useWatchOne<SpaceJoinLocalRow>(sql`
+    SELECT host_id, host_member_id, host_account_id, ended_at, visibility
+    FROM spaces
+    WHERE id = ${spaceId}
+  `);
   const hasSpaceUser = useHasSpaceUserLocal(spaceId, viewerAccountId);
 
   return useMemo(

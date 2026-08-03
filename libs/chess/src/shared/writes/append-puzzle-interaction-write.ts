@@ -1,8 +1,4 @@
-import {
-  CHESS_PUZZLE_INTERACTIONS_TABLE,
-  ChessPuzzleInteractionCol,
-} from '@libs/db/shared/chess-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -32,22 +28,32 @@ export async function appendPuzzleInteractionRowSql(
       : input.correct
         ? 1
         : 0;
-  await db.run(
-    sqlMap({
-      insertInto: CHESS_PUZZLE_INTERACTIONS_TABLE.tableName,
-      values: {
-        [ChessPuzzleInteractionCol.id]: id,
-        [ChessPuzzleInteractionCol.ownerId]: input.ownerId,
-        [ChessPuzzleInteractionCol.puzzleId]: input.puzzleId,
-        [ChessPuzzleInteractionCol.puzzleRating]: input.puzzleRating,
-        [ChessPuzzleInteractionCol.kind]: input.kind,
-        [ChessPuzzleInteractionCol.solveIdx]: input.solveIdx,
-        [ChessPuzzleInteractionCol.uci]: input.uci ?? null,
-        [ChessPuzzleInteractionCol.correct]: correct,
-        [ChessPuzzleInteractionCol.ratingBefore]: input.ratingBefore ?? 0,
-        [ChessPuzzleInteractionCol.ratingAfter]: input.ratingAfter ?? 0,
-        [ChessPuzzleInteractionCol.at]: at,
-      },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO chess_puzzle_interactions (
+      id,
+      owner_id,
+      puzzle_id,
+      puzzle_rating,
+      kind,
+      solve_idx,
+      uci,
+      correct,
+      rating_before,
+      rating_after,
+      at
+    )
+    VALUES (
+      ${id},
+      ${input.ownerId},
+      ${input.puzzleId},
+      ${input.puzzleRating},
+      ${input.kind},
+      ${input.solveIdx},
+      ${input.uci ?? null},
+      ${correct},
+      ${input.ratingBefore ?? 0},
+      ${input.ratingAfter ?? 0},
+      ${at}
+    )
+  `);
 }

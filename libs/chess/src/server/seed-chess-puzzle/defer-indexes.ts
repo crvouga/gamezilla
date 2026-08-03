@@ -4,8 +4,7 @@
  */
 import { CHESS_PUZZLES_TABLE } from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
-import { raw } from '@pkgs/sql';
-import { sqlMap } from '@pkgs/sql-map';
+import { raw, sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -15,19 +14,14 @@ export async function dropPuzzleSnapshotIndexes(args: {
 }): Promise<void> {
   const { db, log } = args;
   const table = CHESS_PUZZLES_TABLE.tableName;
-  const rows = await db.query<{ indexname: string }>(
-    sqlMap({
-      select: ['indexname'],
-      from: 'pg_indexes',
-      where: [
-        'and',
-        ['=', 'schemaname', ['current_schema']],
-        ['=', 'tablename', table],
-        ['not-like', 'indexname', '%\\_pkey', ['escape', '\\']],
-      ],
-      orderBy: ['indexname'],
-    })
-  );
+  const rows = await db.query<{ indexname: string }>(sql`
+    SELECT indexname
+    FROM pg_indexes
+    WHERE schemaname = current_schema()
+      AND tablename = ${table}
+      AND indexname NOT LIKE '%\_pkey' ESCAPE '\'
+    ORDER BY indexname
+  `);
   if (rows.length === 0) {
     log.info('seed:puzzles: defer-indexes — no secondary indexes to drop');
     return;

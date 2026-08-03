@@ -35,9 +35,7 @@ function mockSqlClient(applied: string[]): SqlClient {
   return self;
 }
 
-function widgetsPolicy(
-  authorize: TablePolicy['authorize']
-): TablePolicy {
+function widgetsPolicy(authorize: TablePolicy['authorize']): TablePolicy {
   return {
     table: 'widgets',
     allowedOps: new Set<UploadOp>(['put', 'patch', 'delete']),
@@ -68,9 +66,9 @@ describe('processUploadWithRules', () => {
     });
     expect(result).toBe('accepted');
     expect(phases).toEqual(['before', 'after']);
-    expect(applied.some((s) => s.includes('INSERT') || s.includes('widgets'))).toBe(
-      true
-    );
+    expect(
+      applied.some((s) => s.includes('INSERT') || s.includes('widgets'))
+    ).toBe(true);
   });
 
   test('before failure skips apply', async () => {

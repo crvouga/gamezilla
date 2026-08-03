@@ -1,31 +1,5 @@
 import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
 
-export const FriendRequestCol = {
-  id: 'id',
-  fromUserId: 'from_user_id',
-  toUserId: 'to_user_id',
-  status: 'status',
-  message: 'message',
-  createdAt: 'created_at',
-  updatedAt: 'updated_at',
-  respondedAt: 'responded_at',
-} as const;
-
-export const FriendshipCol = {
-  id: 'id',
-  userLow: 'user_low',
-  userHigh: 'user_high',
-  createdAt: 'created_at',
-  sourceRequestId: 'source_request_id',
-} as const;
-
-export const UserBlockCol = {
-  id: 'id',
-  blockerId: 'blocker_id',
-  blockedId: 'blocked_id',
-  createdAt: 'created_at',
-} as const;
-
 export const FRIEND_REQUESTS_TABLE = defineTable({
   tableName: 'friend_requests',
   columns: [

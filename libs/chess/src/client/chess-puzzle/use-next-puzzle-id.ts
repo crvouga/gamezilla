@@ -1,14 +1,9 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
-import {
-  CHESS_PUZZLE_PROFILES_TABLE,
-  CHESS_PUZZLES_TABLE,
-  ChessPuzzleProfileCol,
-} from '@libs/db/shared/chess-tables';
 import { resolveEffectivePuzzleRating } from '../../shared/chess-puzzle-feed-config';
 import {
   hashSeed,
@@ -56,12 +51,11 @@ function selectPuzzleResult(
 function usePuzzleProfileRating(): number {
   const myId = useMyId();
   const query = useMemo(
-    () =>
-      sqlMap({
-        select: [[ChessPuzzleProfileCol.rating, 'value']],
-        from: CHESS_PUZZLE_PROFILES_TABLE.tableName,
-        where: ['=', ChessPuzzleProfileCol.id, myId],
-      }),
+    () => sql`
+      SELECT rating AS value
+      FROM chess_puzzle_profiles
+      WHERE id = ${myId}
+    `,
     [myId]
   );
   const { value: profileRatingRaw } = useWatchValue<number>(query);
@@ -119,12 +113,10 @@ function useWaitingForLocalPuzzles(args: {
   puzzleId: string | null;
   noCandidates: boolean;
 }): boolean {
-  const { value: localPuzzleTotal } = useWatchValue<number>(
-    sqlMap({
-      select: [[['count', '*'], 'value']],
-      from: CHESS_PUZZLES_TABLE.tableName,
-    })
-  );
+  const { value: localPuzzleTotal } = useWatchValue<number>(sql`
+    SELECT COUNT(*) AS value
+    FROM chess_puzzles
+  `);
   return (
     args.myId.length > 0 &&
     args.puzzleId === null &&

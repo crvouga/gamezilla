@@ -1,8 +1,7 @@
-import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -20,22 +19,14 @@ export async function stampSpaceEnded(
 ): Promise<void> {
   const accountId = requireAccountId(auth);
   const memberId = resolveSpaceMemberId(accountId);
-  await db.run(
-    sqlMap({
-      update: SPACES_TABLE.tableName,
-      set: {
-        [SpaceCol.endedAt]: isoNow(),
-        [SpaceCol.hostId]: auth.deviceId,
-        [SpaceCol.hostMemberId]: memberId,
-        [SpaceCol.hostAccountId]: accountId,
-      },
-      where: [
-        'and',
-        ['=', SpaceCol.id, spaceId],
-        ['is-null', SpaceCol.endedAt],
-      ],
-    })
-  );
+  await db.run(sql`
+    UPDATE spaces
+    SET ended_at = ${isoNow()},
+        host_id = ${auth.deviceId},
+        host_member_id = ${memberId},
+        host_account_id = ${accountId}
+    WHERE id = ${spaceId} AND ended_at IS NULL
+  `);
 }
 
 /**

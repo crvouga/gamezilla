@@ -1,5 +1,4 @@
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -21,27 +20,20 @@ function profileLooksPresent(
   expectedId: string
 ): boolean {
   if (row === undefined) return false;
-  return (
-    row[ProfileCol.id] === expectedId &&
-    typeof row[ProfileCol.createdAt] === 'string'
-  );
+  return row['id'] === expectedId && typeof row['created_at'] === 'string';
 }
 
 function hasAvatarConfig(row: ProfileRow | undefined): boolean {
   if (row === undefined) return false;
-  return parseAvatarConfig(row[ProfileCol.avatarConfig]) !== null;
+  return parseAvatarConfig(row['avatar_config']) !== null;
 }
 
 async function backfillAvatar(db: SqlClient, profileId: string): Promise<void> {
-  await db.run(
-    sqlMap({
-      update: PROFILES_TABLE.tableName,
-      set: {
-        [ProfileCol.avatarConfig]: serializeDefaultAvatarConfig(profileId),
-      },
-      where: ['=', ProfileCol.id, profileId],
-    })
-  );
+  await db.run(sql`
+    UPDATE profiles
+    SET avatar_config = ${serializeDefaultAvatarConfig(profileId)}
+    WHERE id = ${profileId}
+  `);
 }
 
 async function insertProfileSeed(
@@ -49,17 +41,15 @@ async function insertProfileSeed(
   profileId: string
 ): Promise<void> {
   const now = new Date().toISOString();
-  await db.run(
-    sqlMap({
-      insertInto: PROFILES_TABLE.tableName,
-      values: {
-        [ProfileCol.id]: profileId,
-        [ProfileCol.createdAt]: now,
-        [ProfileCol.username]: '',
-        [ProfileCol.avatarConfig]: serializeDefaultAvatarConfig(profileId),
-      },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO profiles (id, created_at, username, avatar_config)
+    VALUES (
+      ${profileId},
+      ${now},
+      '',
+      ${serializeDefaultAvatarConfig(profileId)}
+    )
+  `);
 }
 
 async function fillEmptyUsername(
@@ -70,30 +60,19 @@ async function fillEmptyUsername(
   // Fill empty, or replace an auto-assigned name that does not match ensure
   // (e.g. a raced apply from another account's token). Never overwrite a
   // user-chosen username (`username_changed_at` set).
-  await db.run(
-    sqlMap({
-      update: PROFILES_TABLE.tableName,
-      set: { [ProfileCol.username]: username },
-      where: [
-        'and',
-        ['=', ProfileCol.id, profileId],
-        [
-          'or',
-          ['=', ProfileCol.username, ''],
-          ['is-null', ProfileCol.username],
-          [
-            'and',
-            [
-              'or',
-              ['is-null', ProfileCol.usernameChangedAt],
-              ['=', ProfileCol.usernameChangedAt, ''],
-            ],
-            ['!=', ProfileCol.username, username],
-          ],
-        ],
-      ],
-    })
-  );
+  await db.run(sql`
+    UPDATE profiles
+    SET username = ${username}
+    WHERE id = ${profileId}
+      AND (
+        username = ''
+        OR username IS NULL
+        OR (
+          (username_changed_at IS NULL OR username_changed_at = '')
+          AND username != ${username}
+        )
+      )
+  `);
 }
 
 /**
@@ -108,13 +87,12 @@ export async function ensureProfileLocal(
   db: SqlClient,
   input: EnsureProfileLocalInput
 ): Promise<void> {
-  const rows = await db.query<ProfileRow>(
-    sqlMap({
-      from: PROFILES_TABLE.tableName,
-      where: ['=', ProfileCol.id, input.profileId],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<ProfileRow>(sql`
+    SELECT *
+    FROM profiles
+    WHERE id = ${input.profileId}
+    LIMIT 1
+  `);
   const existing = rows[0];
   if (profileLooksPresent(existing, input.profileId)) {
     if (!hasAvatarConfig(existing)) {

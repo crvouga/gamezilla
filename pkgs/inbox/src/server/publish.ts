@@ -1,4 +1,4 @@
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -47,17 +47,13 @@ export async function deactivateInteraction(
 ): Promise<void> {
   const now = new Date().toISOString();
   await db.run(
-    sqlMap({
-      update: 'inbox_interactions',
-      set: { active: false, updated_at: now },
-      where: [
-        'and',
-        ['=', 'user_id', input.userId],
-        ['=', 'source_namespace', input.source.namespace],
-        ['=', 'source_type', input.source.type],
-        ['=', 'source_id', input.source.id],
-      ],
-    })
+    sql`
+      UPDATE inbox_interactions
+         SET active = false, updated_at = ${now}
+       WHERE user_id = ${input.userId}
+         AND source_namespace = ${input.source.namespace}
+         AND source_type = ${input.source.type}
+         AND source_id = ${input.source.id}`
   );
 }
 

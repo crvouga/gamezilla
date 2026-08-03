@@ -15,4 +15,3 @@ export {
   mapAppAuthToWriteContext,
 } from '../shared/map-app-auth-to-rules-auth';
 export { mapAppAuthToUploadAuth } from '../shared/map-app-auth-to-upload-auth';
-

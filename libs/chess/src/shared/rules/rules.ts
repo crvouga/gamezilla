@@ -8,7 +8,9 @@ const PROFILES_TABLE = 'chess_puzzle_profiles';
 const INTERACTIONS_TABLE = 'chess_puzzle_interactions';
 const OWNER_ID = 'owner_id';
 
-function readOwnerId(values: Readonly<Record<string, unknown>> | undefined): unknown {
+function readOwnerId(
+  values: Readonly<Record<string, unknown>> | undefined
+): unknown {
   return values?.[OWNER_ID] ?? values?.['ownerId'];
 }
 

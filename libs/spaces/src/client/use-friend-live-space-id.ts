@@ -1,5 +1,4 @@
-import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
@@ -9,26 +8,14 @@ import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
  * the viewer is allowlisted or a member.
  */
 export function useFriendLiveSpaceId(hostAccountId: string): string | null {
-  const enabled = hostAccountId.length > 0;
-  const { row } = useWatchOne<{ readonly id: string }>(
-    enabled
-      ? sqlMap({
-          select: [SpaceCol.id],
-          from: SPACES_TABLE.tableName,
-          where: [
-            'and',
-            ['is-null', SpaceCol.endedAt],
-            ['=', SpaceCol.hostAccountId, hostAccountId],
-            ['=', SpaceCol.visibility, 'public'],
-          ],
-          orderBy: [[SpaceCol.createdAt, 'desc']],
-          limit: 1,
-        })
-      : sqlMap({
-          select: [SpaceCol.id],
-          from: SPACES_TABLE.tableName,
-          where: ['=', 1, 0],
-        })
-  );
+  const { row } = useWatchOne<{ readonly id: string }>(sql`
+    SELECT id
+    FROM spaces
+    WHERE ended_at IS NULL
+      AND host_account_id = ${hostAccountId}
+      AND visibility = 'public'
+    ORDER BY created_at DESC
+    LIMIT 1
+  `);
   return row?.id ?? null;
 }

@@ -1,73 +1,56 @@
 /**
  * Fast-path bulk writer for the chess puzzle seed.
  */
-import {
-  CHESS_PUZZLE_LOAD_TABLE,
-  CHESS_PUZZLES_TABLE,
-  ChessPuzzleCol,
-  ChessPuzzleLoadCol,
-} from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
-import { ident, raw } from '@pkgs/sql';
-import { col, sqlMap } from '@pkgs/sql-map';
+import { raw, sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PuzzleSeedReporter } from './reporter';
 import type { PuzzleBatchEntry } from './row';
 
-const BATCH_ROW_COLS = [
-  ['id', 'text'],
-  ['fen', 'text'],
-  ['moves', 'text'],
-  ['rating', 'integer'],
-  ['rating_deviation', 'integer'],
-  ['popularity', 'integer'],
-  ['nb_plays', 'integer'],
-  ['themes', 'text'],
-  ['game_url', 'text'],
-  ['opening_tags', 'text'],
-] as const;
-
 function insertPuzzlesBatchQuery(insertRowsJson: string) {
-  return sqlMap({
-    insertInto: CHESS_PUZZLES_TABLE.tableName,
-    columns: [
-      ChessPuzzleCol.id,
-      ChessPuzzleCol.fen,
-      ChessPuzzleCol.moves,
-      ChessPuzzleCol.rating,
-      ChessPuzzleCol.ratingDeviation,
-      ChessPuzzleCol.popularity,
-      ChessPuzzleCol.nbPlays,
-      ChessPuzzleCol.themes,
-      ChessPuzzleCol.gameUrl,
-      ChessPuzzleCol.openingTags,
-    ],
-    select: [
-      'id',
-      'fen',
-      'moves',
-      'rating',
-      'rating_deviation',
-      'popularity',
-      'nb_plays',
-      ['cast', col('themes'), 'jsonb'],
-      'game_url',
-      ['cast', col('opening_tags'), 'jsonb'],
-    ],
-    from: [
-      [
-        'jsonb_to_recordset',
-        ['cast', ['cast', insertRowsJson, 'text'], 'jsonb'],
-      ],
-      'batch_rows',
-      [...BATCH_ROW_COLS],
-    ],
-    onConflict: { target: [ChessPuzzleCol.id], doNothing: true },
-  });
+  return sql`
+    INSERT INTO chess_puzzles (
+      id,
+      fen,
+      moves,
+      rating,
+      rating_deviation,
+      popularity,
+      nb_plays,
+      themes,
+      game_url,
+      opening_tags
+    )
+    SELECT
+      id,
+      fen,
+      moves,
+      rating,
+      rating_deviation,
+      popularity,
+      nb_plays,
+      themes::jsonb,
+      game_url,
+      opening_tags::jsonb
+    FROM jsonb_to_recordset(${insertRowsJson}::text::jsonb)
+      AS batch_rows(
+        id text,
+        fen text,
+        moves text,
+        rating integer,
+        rating_deviation integer,
+        popularity integer,
+        nb_plays integer,
+        themes text,
+        game_url text,
+        opening_tags text
+      )
+    ON CONFLICT (id) DO NOTHING
+  `;
 }
 
-const SEEDED_TABLES: readonly string[] = [CHESS_PUZZLES_TABLE.tableName];
+const SEEDED_TABLES: readonly string[] = ['chess_puzzles'];
 
 export async function detectManagedPostgres(db: SqlClient): Promise<boolean> {
   try {
@@ -107,7 +90,7 @@ export async function applySessionTuning(
   }
   for (const stmt of stmts) {
     try {
-      await db.run(ident(stmt));
+      await db.run(raw(stmt));
     } catch (err) {
       log.warn('seed:puzzles: session tuning failed (continuing)', {
         stmt,
@@ -184,7 +167,7 @@ async function tryRun(args: {
 }): Promise<void> {
   const { db, log, stmt, message, detail } = args;
   try {
-    await db.run(ident(stmt));
+    await db.run(raw(stmt));
   } catch (err) {
     log.warn(message, {
       ...(detail ?? {}),
@@ -202,31 +185,14 @@ export async function writeLoadProgressFast(args: {
   finishedAt: string | null;
 }): Promise<void> {
   const { db, loadId, sourceEtag, cursor, finishedAt } = args;
-  await db.run(
-    sqlMap({
-      insertInto: CHESS_PUZZLE_LOAD_TABLE.tableName,
-      values: {
-        [ChessPuzzleLoadCol.id]: loadId,
-        [ChessPuzzleLoadCol.sourceEtag]: sourceEtag,
-        [ChessPuzzleLoadCol.cursor]: cursor,
-        [ChessPuzzleLoadCol.finishedAt]: finishedAt,
-      },
-      onConflict: {
-        target: [ChessPuzzleLoadCol.id],
-        set: {
-          [ChessPuzzleLoadCol.sourceEtag]: col(
-            `excluded.${ChessPuzzleLoadCol.sourceEtag}`
-          ),
-          [ChessPuzzleLoadCol.cursor]: col(
-            `excluded.${ChessPuzzleLoadCol.cursor}`
-          ),
-          [ChessPuzzleLoadCol.finishedAt]: col(
-            `excluded.${ChessPuzzleLoadCol.finishedAt}`
-          ),
-        },
-      },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO chess_puzzle_load (id, source_etag, cursor, finished_at)
+    VALUES (${loadId}, ${sourceEtag}, ${cursor}, ${finishedAt})
+    ON CONFLICT (id) DO UPDATE SET
+      source_etag = excluded.source_etag,
+      cursor = excluded.cursor,
+      finished_at = excluded.finished_at
+  `);
 }
 
 export async function runInterimMaintenance(args: {

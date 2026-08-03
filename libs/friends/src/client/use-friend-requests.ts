@@ -1,10 +1,6 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import {
-  FRIEND_REQUESTS_TABLE,
-  FriendRequestCol,
-} from '@libs/db/shared/friends-tables';
 import type { Sql } from '@pkgs/sql';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
@@ -22,53 +18,22 @@ type FriendRequestRow = {
   readonly responded_at: string | null;
 };
 
-const FRIEND_REQUEST_COLUMNS = [
-  FriendRequestCol.id,
-  FriendRequestCol.fromUserId,
-  FriendRequestCol.toUserId,
-  FriendRequestCol.status,
-  FriendRequestCol.message,
-  FriendRequestCol.createdAt,
-  FriendRequestCol.updatedAt,
-  FriendRequestCol.respondedAt,
-] as const;
-
 function pendingIncomingSql(myId: string): Sql {
-  if (myId.length === 0) {
-    return sqlMap({
-      from: FRIEND_REQUESTS_TABLE.tableName,
-      where: ['=', 1, 0],
-    });
-  }
-  return sqlMap({
-    select: FRIEND_REQUEST_COLUMNS,
-    from: FRIEND_REQUESTS_TABLE.tableName,
-    where: [
-      'and',
-      ['=', FriendRequestCol.toUserId, myId],
-      ['=', FriendRequestCol.status, 'pending'],
-    ],
-    orderBy: [[FriendRequestCol.createdAt, 'desc']],
-  });
+  return sql`
+    SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+    FROM friend_requests
+    WHERE to_user_id = ${myId} AND status = 'pending'
+    ORDER BY created_at DESC
+  `;
 }
 
 function pendingOutgoingSql(myId: string): Sql {
-  if (myId.length === 0) {
-    return sqlMap({
-      from: FRIEND_REQUESTS_TABLE.tableName,
-      where: ['=', 1, 0],
-    });
-  }
-  return sqlMap({
-    select: FRIEND_REQUEST_COLUMNS,
-    from: FRIEND_REQUESTS_TABLE.tableName,
-    where: [
-      'and',
-      ['=', FriendRequestCol.fromUserId, myId],
-      ['=', FriendRequestCol.status, 'pending'],
-    ],
-    orderBy: [[FriendRequestCol.createdAt, 'desc']],
-  });
+  return sql`
+    SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+    FROM friend_requests
+    WHERE from_user_id = ${myId} AND status = 'pending'
+    ORDER BY created_at DESC
+  `;
 }
 
 function mapRequestRow(row: FriendRequestRow): FriendRequest {

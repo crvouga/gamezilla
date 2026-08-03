@@ -1,10 +1,4 @@
-import {
-  FRIENDSHIPS_TABLE,
-  FriendshipCol,
-  USER_BLOCKS_TABLE,
-  UserBlockCol,
-} from '@libs/db/shared/friends-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { canonicalUserPair } from '../canonical-pair';
@@ -21,18 +15,12 @@ export async function friendshipExists(
   userB: string
 ): Promise<boolean> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  const rows = await db.query<Record<string, unknown>>(
-    sqlMap({
-      select: [FriendshipCol.id],
-      from: FRIENDSHIPS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', FriendshipCol.userLow, userLow],
-        ['=', FriendshipCol.userHigh, userHigh],
-      ],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT id
+    FROM friendships
+    WHERE user_low = ${userLow} AND user_high = ${userHigh}
+    LIMIT 1
+  `);
   return rows.length > 0;
 }
 
@@ -41,29 +29,16 @@ export async function isBlockedEitherDirection(
   userA: string,
   userB: string
 ): Promise<'none' | 'by_a' | 'by_b'> {
-  const rows = await db.query<Record<string, unknown>>(
-    sqlMap({
-      select: [UserBlockCol.blockerId, UserBlockCol.blockedId],
-      from: USER_BLOCKS_TABLE.tableName,
-      where: [
-        'or',
-        [
-          'and',
-          ['=', UserBlockCol.blockerId, userA],
-          ['=', UserBlockCol.blockedId, userB],
-        ],
-        [
-          'and',
-          ['=', UserBlockCol.blockerId, userB],
-          ['=', UserBlockCol.blockedId, userA],
-        ],
-      ],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT blocker_id, blocked_id
+    FROM user_blocks
+    WHERE (blocker_id = ${userA} AND blocked_id = ${userB})
+       OR (blocker_id = ${userB} AND blocked_id = ${userA})
+    LIMIT 1
+  `);
   const row = rows[0];
   if (row === undefined) return 'none';
-  const blockerId = readString(row, UserBlockCol.blockerId);
+  const blockerId = readString(row, 'blocker_id');
   if (blockerId === userA) return 'by_a';
   return 'by_b';
 }
@@ -78,22 +53,17 @@ export async function insertFriendship(
   }
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
-  await db.run(
-    sqlMap({
-      insertInto: FRIENDSHIPS_TABLE.tableName,
-      values: {
-        [FriendshipCol.id]: pairId(userLow, userHigh),
-        [FriendshipCol.userLow]: userLow,
-        [FriendshipCol.userHigh]: userHigh,
-        [FriendshipCol.createdAt]: args.now,
-        [FriendshipCol.sourceRequestId]: args.sourceRequestId,
-      },
-      onConflict: {
-        target: [FriendshipCol.userLow, FriendshipCol.userHigh],
-        doNothing: true,
-      },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO friendships (id, user_low, user_high, created_at, source_request_id)
+    VALUES (
+      ${pairId(userLow, userHigh)},
+      ${userLow},
+      ${userHigh},
+      ${args.now},
+      ${args.sourceRequestId}
+    )
+    ON CONFLICT (user_low, user_high) DO NOTHING
+  `);
 }
 
 export async function deleteFriendship(
@@ -102,16 +72,10 @@ export async function deleteFriendship(
   userB: string
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  await db.run(
-    sqlMap({
-      deleteFrom: FRIENDSHIPS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', FriendshipCol.userLow, userLow],
-        ['=', FriendshipCol.userHigh, userHigh],
-      ],
-    })
-  );
+  await db.run(sql`
+    DELETE FROM friendships
+    WHERE user_low = ${userLow} AND user_high = ${userHigh}
+  `);
 }
 
 export async function insertBlock(
@@ -120,21 +84,11 @@ export async function insertBlock(
   blockedId: string,
   now: string
 ): Promise<void> {
-  await db.run(
-    sqlMap({
-      insertInto: USER_BLOCKS_TABLE.tableName,
-      values: {
-        [UserBlockCol.id]: pairId(blockerId, blockedId),
-        [UserBlockCol.blockerId]: blockerId,
-        [UserBlockCol.blockedId]: blockedId,
-        [UserBlockCol.createdAt]: now,
-      },
-      onConflict: {
-        target: [UserBlockCol.blockerId, UserBlockCol.blockedId],
-        doNothing: true,
-      },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at)
+    VALUES (${pairId(blockerId, blockedId)}, ${blockerId}, ${blockedId}, ${now})
+    ON CONFLICT (blocker_id, blocked_id) DO NOTHING
+  `);
 }
 
 export async function deleteBlock(
@@ -142,14 +96,8 @@ export async function deleteBlock(
   blockerId: string,
   blockedId: string
 ): Promise<void> {
-  await db.run(
-    sqlMap({
-      deleteFrom: USER_BLOCKS_TABLE.tableName,
-      where: [
-        'and',
-        ['=', UserBlockCol.blockerId, blockerId],
-        ['=', UserBlockCol.blockedId, blockedId],
-      ],
-    })
-  );
+  await db.run(sql`
+    DELETE FROM user_blocks
+    WHERE blocker_id = ${blockerId} AND blocked_id = ${blockedId}
+  `);
 }

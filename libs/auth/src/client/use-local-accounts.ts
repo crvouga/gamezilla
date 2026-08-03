@@ -1,9 +1,8 @@
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import type { AccountSession } from '@pkgs/auth/client/account-session';
 
 import { useAuthClientPort } from './auth-client-provider';
@@ -125,25 +124,11 @@ export function useLocalAccounts(): readonly LocalAccount[] {
   const [roster] = useLocalAccountRoster();
   const activeAccountId = useCurrentAccountId();
 
-  const { row: activeProfile } = useWatchOne<ActiveProfileDisplayRow>(
-    activeAccountId === null
-      ? sqlMap({
-          select: [
-            [ProfileCol.username, 'username'],
-            [ProfileCol.avatarConfig, 'avatar_config'],
-          ],
-          from: PROFILES_TABLE.tableName,
-          where: ['=', 1, 0],
-        })
-      : sqlMap({
-          select: [
-            [ProfileCol.username, 'username'],
-            [ProfileCol.avatarConfig, 'avatar_config'],
-          ],
-          from: PROFILES_TABLE.tableName,
-          where: ['=', ProfileCol.id, activeAccountId],
-        })
-  );
+  const { row: activeProfile } = useWatchOne<ActiveProfileDisplayRow>(sql`
+    SELECT username, avatar_config
+    FROM profiles
+    WHERE id = ${activeAccountId}
+  `);
   // Prefer live row when present. Do not blank username while reconnecting —
   // merge falls back to session username when SQLite is still empty.
   const trustedProfile = activeProfile ?? null;

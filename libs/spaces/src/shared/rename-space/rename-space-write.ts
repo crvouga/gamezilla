@@ -1,10 +1,10 @@
-import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
+import { SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -66,15 +66,11 @@ export async function renameSpace(
   const accountId = requireAccountId(auth);
   const trimmed = input.title.trim();
   const memberId = resolveSpaceMemberId(accountId);
-  await db.run(
-    sqlMap({
-      update: SPACES_TABLE.tableName,
-      set: {
-        [SpaceCol.title]: trimmed.length > 0 ? trimmed : null,
-        [SpaceCol.hostId]: auth.deviceId,
-        [SpaceCol.hostMemberId]: memberId,
-      },
-      where: ['=', SpaceCol.id, input.spaceId],
-    })
-  );
+  await db.run(sql`
+    UPDATE spaces
+    SET title = ${trimmed.length > 0 ? trimmed : null},
+        host_id = ${auth.deviceId},
+        host_member_id = ${memberId}
+    WHERE id = ${input.spaceId}
+  `);
 }

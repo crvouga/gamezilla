@@ -1,4 +1,7 @@
-import { SPACE_USERS_TABLE, spaceUserEntityId } from '@libs/db/shared/space-tables';
+import {
+  SPACE_USERS_TABLE,
+  spaceUserEntityId,
+} from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';

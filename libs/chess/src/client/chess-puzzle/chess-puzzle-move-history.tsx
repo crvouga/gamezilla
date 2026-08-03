@@ -185,9 +185,7 @@ function MoveHistoryScroll(p: {
               interactive={p.interactive}
               onSeek={p.onSeek}
               onPlyLayout={p.onPlyLayout}
-              {...(selected
-                ? { selectedRef: p.selectedRef as Ref<View> }
-                : {})}
+              {...(selected ? { selectedRef: p.selectedRef as Ref<View> } : {})}
             />
           );
         })}

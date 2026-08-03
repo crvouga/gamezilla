@@ -14,13 +14,12 @@ import {
   SPACE_NOT_SIGNED_IN,
   SPACE_WRITE_DENIED,
 } from './codes';
-import {
-  querySpaceById,
-  resolveHostMemberId,
-  SPACES_TABLE,
-} from './query';
+import { querySpaceById, resolveHostMemberId, SPACES_TABLE } from './query';
 
-function requireAccount(ctx: RulesCtx<AppRulesAuth>, row: UploadRow): Failure | null {
+function requireAccount(
+  ctx: RulesCtx<AppRulesAuth>,
+  row: UploadRow
+): Failure | null {
   if (ctx.auth.accountId === null || ctx.auth.accountId.length === 0) {
     return fail(SPACE_NOT_SIGNED_IN, { table: SPACES_TABLE, id: row.id });
   }

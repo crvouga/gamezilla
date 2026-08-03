@@ -1,5 +1,4 @@
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -35,17 +34,12 @@ async function readUsernameRow(
   db: SqlClient,
   profileId: string
 ): Promise<UsernameRow> {
-  const rows = await db.query<UsernameRow>(
-    sqlMap({
-      select: [
-        [ProfileCol.username, 'username'],
-        [ProfileCol.usernameChangedAt, 'username_changed_at'],
-      ],
-      from: PROFILES_TABLE.tableName,
-      where: ['=', ProfileCol.id, profileId],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<UsernameRow>(sql`
+    SELECT username, username_changed_at
+    FROM profiles
+    WHERE id = ${profileId}
+    LIMIT 1
+  `);
   const row = rows[0];
   if (row === undefined) {
     throw new ProfileError('PROFILE_NOT_FOUND', 'profile not found');
@@ -71,16 +65,11 @@ async function updateUsername(
 ): Promise<void> {
   const now = new Date().toISOString();
   try {
-    await db.run(
-      sqlMap({
-        update: PROFILES_TABLE.tableName,
-        set: {
-          [ProfileCol.username]: username,
-          [ProfileCol.usernameChangedAt]: now,
-        },
-        where: ['=', ProfileCol.id, profileId],
-      })
-    );
+    await db.run(sql`
+      UPDATE profiles
+      SET username = ${username}, username_changed_at = ${now}
+      WHERE id = ${profileId}
+    `);
   } catch (error) {
     if (isUniqueViolation(error)) {
       throw new ProfileError('PROFILE_USERNAME_TAKEN', 'username is taken');

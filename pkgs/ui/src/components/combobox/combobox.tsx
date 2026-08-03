@@ -63,9 +63,7 @@ export function Combobox<T extends string | number = string>(
 
   return (
     <Box {...componentDataSet('Combobox', props.dataSet)}>
-      {props.label !== undefined ? (
-        <ComboboxLabel label={props.label} />
-      ) : null}
+      {props.label !== undefined ? <ComboboxLabel label={props.label} /> : null}
       <ComboboxTrigger
         selected={selected}
         placeholder={props.placeholder ?? t`Select…`}

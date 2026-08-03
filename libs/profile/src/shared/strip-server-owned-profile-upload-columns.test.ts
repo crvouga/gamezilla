@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 
 import { stripServerOwnedProfileUploadColumns } from './strip-server-owned-profile-upload-columns';
 
@@ -10,12 +10,12 @@ describe('stripServerOwnedProfileUploadColumns', () => {
       table: PROFILES_TABLE.tableName,
       id: 'p1',
       values: {
-        [ProfileCol.username]: 'Assigned',
-        [ProfileCol.avatarConfig]: '{"style":"bottts"}',
+        username: 'Assigned',
+        avatar_config: '{"style":"bottts"}',
       },
     });
     expect(stripped.values).toEqual({
-      [ProfileCol.avatarConfig]: '{"style":"bottts"}',
+      avatar_config: '{"style":"bottts"}',
     });
   });
 
@@ -25,8 +25,8 @@ describe('stripServerOwnedProfileUploadColumns', () => {
       table: PROFILES_TABLE.tableName,
       id: 'p1',
       values: {
-        [ProfileCol.username]: 'Assigned',
-        [ProfileCol.usernameChangedAt]: '2026-01-01T00:00:00.000Z',
+        username: 'Assigned',
+        username_changed_at: '2026-01-01T00:00:00.000Z',
       },
     });
     expect(stripped.values).toEqual({});
@@ -37,7 +37,7 @@ describe('stripServerOwnedProfileUploadColumns', () => {
       op: 'patch' as const,
       table: 'spaces',
       id: 's1',
-      values: { [ProfileCol.username]: 'x' },
+      values: { username: 'x' },
     };
     expect(stripServerOwnedProfileUploadColumns(row)).toEqual(row);
   });

@@ -26,7 +26,6 @@ import type { Keyword } from '@pkgs/keyword/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword/keyword';
 import type { Logger } from '@pkgs/logger/logger';
 import { ident, raw, sql } from '@pkgs/sql';
-import { col, sqlMap } from '@pkgs/sql-map';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
@@ -193,7 +192,7 @@ export class KvImplPostgres implements Kv {
   async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
     const rows = await this.sqlClient.query<{ value: unknown }>(
-      sqlMap({ select: ['value'], from: TABLE, where: ['=', 'key', key] })
+      sql`SELECT value FROM kv WHERE key = ${key}`
     );
     const first = rows[0];
     if (first === null || first === undefined) return null;
@@ -208,41 +207,27 @@ export class KvImplPostgres implements Kv {
     assertKvKey(key);
     assertKvRecord(hotAssert(), value, 'kv postgres put');
     await this.sqlClient.run(
-      sqlMap({
-        insertInto: TABLE,
-        values: {
-          key,
-          value: ['cast', ['cast', JSON.stringify(value), 'text'], 'jsonb'],
-        },
-        onConflict: {
-          target: ['key'],
-          set: {
-            value: col('excluded.value'),
-            [LAST_MODIFIED_AT]: ['now'],
-          },
-        },
-      })
+      sql`
+        INSERT INTO kv (key, value)
+        VALUES (${key}, ${JSON.stringify(value)}::text::jsonb)
+        ON CONFLICT (key) DO UPDATE SET
+          value = excluded.value,
+          last_modified_at = now()`
     );
   }
 
   async zap(key: Keyword): Promise<void> {
     assertKvKey(key);
-    await this.sqlClient.run(
-      sqlMap({ deleteFrom: TABLE, where: ['=', 'key', key] })
-    );
+    await this.sqlClient.run(sql`DELETE FROM kv WHERE key = ${key}`);
   }
 
   async tx<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
     return this.sqlClient.transaction(async (sqlTx) => {
       await sqlTx.run(
-        sqlMap({
-          select: [
-            [
-              'pg_advisory_xact_lock',
-              ['cast', ['hashtext', ['cast', TABLE, 'text']], 'bigint'],
-            ],
-          ],
-        })
+        sql`
+          SELECT pg_advisory_xact_lock(
+            hashtext(${TABLE}::text)::bigint
+          )`
       );
       const adapter = new KvImplPostgresTx(sqlTx);
       return fn(adapter);

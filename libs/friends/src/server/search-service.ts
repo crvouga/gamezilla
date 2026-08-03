@@ -1,9 +1,4 @@
-import {
-  USER_BLOCKS_TABLE,
-  UserBlockCol,
-} from '@libs/db/shared/friends-tables';
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { col, sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -65,48 +60,21 @@ export async function searchUsers(
   }
   assertSearchRateLimit(viewerId);
   const boundedLimit = Math.min(Math.max(limit, 1), USER_SEARCH_MAX_RESULTS);
-  const likeQuery = query.toLowerCase();
-  const profileIdCol = col(`p.${ProfileCol.id}`);
-  const rows = await db.query<SearchHitRow>(
-    sqlMap({
-      select: [
-        [`p.${ProfileCol.id}`, 'id'],
-        [`p.${ProfileCol.username}`, 'username'],
-        [`p.${ProfileCol.avatarConfig}`, 'avatar_config'],
-      ],
-      from: [PROFILES_TABLE.tableName, 'p'],
-      where: [
-        'and',
-        ['<>', `p.${ProfileCol.id}`, viewerId],
-        [
-          'not',
-          [
-            'exists',
-            {
-              select: [['param', 1]],
-              from: [USER_BLOCKS_TABLE.tableName, 'b'],
-              where: [
-                'or',
-                [
-                  'and',
-                  ['=', `b.${UserBlockCol.blockerId}`, viewerId],
-                  ['=', `b.${UserBlockCol.blockedId}`, profileIdCol],
-                ],
-                [
-                  'and',
-                  ['=', `b.${UserBlockCol.blockerId}`, profileIdCol],
-                  ['=', `b.${UserBlockCol.blockedId}`, viewerId],
-                ],
-              ],
-            },
-          ],
-        ],
-        ['<>', `p.${ProfileCol.username}`, ''],
-        ['like', ['lower', `p.${ProfileCol.username}`], ['||', likeQuery, '%']],
-      ],
-      orderBy: [[['lower', `p.${ProfileCol.username}`], 'asc']],
-      limit: boundedLimit,
-    })
-  );
+  const likeQuery = `${query.toLowerCase()}%`;
+  const rows = await db.query<SearchHitRow>(sql`
+    SELECT p.id, p.username, p.avatar_config
+    FROM profiles AS p
+    WHERE p.id <> ${viewerId}
+      AND NOT EXISTS (
+        SELECT 1
+        FROM user_blocks AS b
+        WHERE (b.blocker_id = ${viewerId} AND b.blocked_id = p.id)
+           OR (b.blocker_id = p.id AND b.blocked_id = ${viewerId})
+      )
+      AND p.username <> ''
+      AND lower(p.username) LIKE ${likeQuery}
+    ORDER BY lower(p.username) ASC
+    LIMIT ${boundedLimit}
+  `);
   return rows.map(mapSearchHit);
 }

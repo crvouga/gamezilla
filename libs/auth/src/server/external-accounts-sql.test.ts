@@ -1,17 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import { ident, sql } from '@pkgs/sql';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-
-import {
-  EXTERNAL_ACCOUNTS_TABLE,
-  ExternalAccountCol,
-  USERS_TABLE,
-  UserTableCol,
-} from '@libs/db/shared/external-accounts-tables';
 
 import {
   findUserIdByPrimaryAuthExternalId,
@@ -23,20 +15,20 @@ import {
 
 async function migrateTables(db: SqlClient): Promise<void> {
   await db.run(sql`
-    CREATE TABLE ${ident(USERS_TABLE)} (
-      ${ident(UserTableCol.id)} TEXT PRIMARY KEY,
-      ${ident(UserTableCol.createdAt)} TEXT NOT NULL
+    CREATE TABLE users (
+      id TEXT PRIMARY KEY,
+      created_at TEXT NOT NULL
     )
   `);
   await db.run(sql`
-    CREATE TABLE ${ident(EXTERNAL_ACCOUNTS_TABLE)} (
-      ${ident(ExternalAccountCol.userId)} TEXT NOT NULL,
-      ${ident(ExternalAccountCol.provider)} TEXT NOT NULL,
-      ${ident(ExternalAccountCol.externalId)} TEXT NOT NULL,
-      ${ident(ExternalAccountCol.metadata)} TEXT NOT NULL DEFAULT '{}',
-      ${ident(ExternalAccountCol.createdAt)} TEXT NOT NULL,
-      PRIMARY KEY (${ident(ExternalAccountCol.provider)}, ${ident(ExternalAccountCol.externalId)}),
-      UNIQUE (${ident(ExternalAccountCol.userId)}, ${ident(ExternalAccountCol.provider)})
+    CREATE TABLE external_accounts (
+      user_id TEXT NOT NULL,
+      provider TEXT NOT NULL,
+      external_id TEXT NOT NULL,
+      metadata TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL,
+      PRIMARY KEY (provider, external_id),
+      UNIQUE (user_id, provider)
     )
   `);
 }
@@ -84,34 +76,33 @@ describe('external-accounts-sql', () => {
       metadata: { email: 'b@example.com' },
     });
 
-    const rows = await sqlClient.query<{ metadata: string }>(
-      sqlMap({
-        select: [[ExternalAccountCol.metadata, 'metadata']],
-        from: EXTERNAL_ACCOUNTS_TABLE,
-        where: [
-          'and',
-          ['=', ExternalAccountCol.provider, primaryAuthProvider],
-          ['=', ExternalAccountCol.externalId, clerkUserId],
-        ],
-      })
-    );
+    const rows = await sqlClient.query<{ metadata: string }>(sql`
+      SELECT metadata
+      FROM external_accounts
+      WHERE provider = ${primaryAuthProvider}
+        AND external_id = ${clerkUserId}
+    `);
     const metadata = JSON.parse(rows[0]!.metadata) as Record<string, unknown>;
     expect(metadata['email']).toBe('b@example.com');
   });
 
   test('findUserIdByPrimaryAuthExternalId resolves primary provider rows', async () => {
-    await sqlClient.run(
-      sqlMap({
-        insertInto: EXTERNAL_ACCOUNTS_TABLE,
-        values: {
-          [ExternalAccountCol.userId]: userId,
-          [ExternalAccountCol.provider]: primaryAuthProvider,
-          [ExternalAccountCol.externalId]: clerkUserId,
-          [ExternalAccountCol.metadata]: '{}',
-          [ExternalAccountCol.createdAt]: new Date().toISOString(),
-        },
-      })
-    );
+    await sqlClient.run(sql`
+      INSERT INTO external_accounts (
+        user_id,
+        provider,
+        external_id,
+        metadata,
+        created_at
+      )
+      VALUES (
+        ${userId},
+        ${primaryAuthProvider},
+        ${clerkUserId},
+        ${'{}'},
+        ${new Date().toISOString()}
+      )
+    `);
 
     expect(
       await findUserIdByPrimaryAuthExternalId(

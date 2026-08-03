@@ -1,16 +1,12 @@
 import { isEqual } from '@pkgs/equal/is-equal';
 import type { Logger } from '@pkgs/logger';
-import { col, sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
-import {
-  CLIENT_CONFIG_TABLE,
-  ClientConfigCol,
-} from '@libs/db/shared/client-config-tables';
 import {
   CLIENT_CONFIG_ENTITY_ID,
   ClientConfigAttr,
@@ -39,18 +35,17 @@ function loadClientConfigAttributes(): Record<string, unknown> {
 async function readClientConfigRow(
   db: SqlClient
 ): Promise<Record<string, unknown> | null> {
-  const rows = await db.query<Record<string, unknown>>(
-    sqlMap({
-      from: CLIENT_CONFIG_TABLE.tableName,
-      where: ['=', ClientConfigCol.id, CLIENT_CONFIG_ENTITY_ID],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<Record<string, unknown>>(sql`
+    SELECT google_web_client_id
+    FROM client_config
+    WHERE id = ${CLIENT_CONFIG_ENTITY_ID}
+    LIMIT 1
+  `);
   const row = rows[0];
   if (row === undefined) return null;
   return {
     [ClientConfigAttr.googleWebClientId.key]:
-      row[ClientConfigCol.googleWebClientId] ?? null,
+      row['google_web_client_id'] ?? null,
   };
 }
 
@@ -59,24 +54,13 @@ async function upsertClientConfigRow(
   attrs: Record<string, unknown>
 ): Promise<void> {
   const googleId = attrs[ClientConfigAttr.googleWebClientId.key];
-  await db.run(
-    sqlMap({
-      insertInto: CLIENT_CONFIG_TABLE.tableName,
-      values: {
-        [ClientConfigCol.id]: CLIENT_CONFIG_ENTITY_ID,
-        [ClientConfigCol.googleWebClientId]:
-          typeof googleId === 'string' ? googleId : null,
-      },
-      onConflict: {
-        target: [ClientConfigCol.id],
-        set: {
-          [ClientConfigCol.googleWebClientId]: col(
-            `excluded.${ClientConfigCol.googleWebClientId}`
-          ),
-        },
-      },
-    })
-  );
+  const googleWebClientId = typeof googleId === 'string' ? googleId : null;
+  await db.run(sql`
+    INSERT INTO client_config (id, google_web_client_id)
+    VALUES (${CLIENT_CONFIG_ENTITY_ID}, ${googleWebClientId})
+    ON CONFLICT (id) DO UPDATE SET
+      google_web_client_id = EXCLUDED.google_web_client_id
+  `);
 }
 
 async function handleClientConfigRefresh(

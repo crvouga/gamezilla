@@ -100,6 +100,14 @@ export const CRASH_OVERLAY_STYLES = `
   #assert-crash-overlay .assert-btn-primary:hover {
     background: #79b8ff;
   }
+  #assert-crash-overlay .assert-btn-secondary {
+    background: transparent;
+    color: var(--assert-text);
+    border: 1px solid var(--assert-border);
+  }
+  #assert-crash-overlay .assert-btn-secondary:hover {
+    background: var(--assert-border);
+  }
   #assert-crash-overlay .assert-suppressed {
     color: var(--assert-muted);
     font-size: 0.8125rem;

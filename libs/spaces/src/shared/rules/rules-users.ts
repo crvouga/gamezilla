@@ -108,7 +108,9 @@ function invalidUsersInput(rowId: string, message: string): Failure {
 }
 
 function resolveSpaceId(row: UploadRow): string | null {
-  return readStringValue(row.values, 'space_id') ?? spaceIdFromUsersRowId(row.id);
+  return (
+    readStringValue(row.values, 'space_id') ?? spaceIdFromUsersRowId(row.id)
+  );
 }
 
 async function checkOneSpaceUserRow(
@@ -142,7 +144,9 @@ async function checkOneSpaceUserRow(
   return failIfNotHost(ctx, spaceId, row.id);
 }
 
-async function checkSpaceUsers(ctx: RulesCtx<AppRulesAuth>): Promise<readonly Failure[]> {
+async function checkSpaceUsers(
+  ctx: RulesCtx<AppRulesAuth>
+): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
   for (const row of ctx.batch.rows) {
     if (row.table !== SPACE_USERS_TABLE) continue;

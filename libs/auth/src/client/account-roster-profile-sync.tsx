@@ -1,9 +1,7 @@
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, type ReactNode } from 'react';
-
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 
 import { useAuthClientPort } from './auth-client-provider';
 import { patchRosterProfileDisplay } from './local-account-roster';
@@ -39,25 +37,11 @@ export function AccountRosterProfileSync({
   const [, setRoster] = useLocalAccountRoster();
   const activeSession = sessions.find((session) => session.isActive);
 
-  const { row, isLoading: profileLoading } = useWatchOne<ProfileDisplayRow>(
-    accountId === null
-      ? sqlMap({
-          select: [
-            [ProfileCol.username, 'username'],
-            [ProfileCol.avatarConfig, 'avatar_config'],
-          ],
-          from: PROFILES_TABLE.tableName,
-          where: ['=', 1, 0],
-        })
-      : sqlMap({
-          select: [
-            [ProfileCol.username, 'username'],
-            [ProfileCol.avatarConfig, 'avatar_config'],
-          ],
-          from: PROFILES_TABLE.tableName,
-          where: ['=', ProfileCol.id, accountId],
-        })
-  );
+  const { row, isLoading: profileLoading } = useWatchOne<ProfileDisplayRow>(sql`
+    SELECT username, avatar_config
+    FROM profiles
+    WHERE id = ${accountId}
+  `);
 
   useEffect(() => {
     if (accountId === null || activeSession === undefined) return;

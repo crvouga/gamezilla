@@ -1,4 +1,4 @@
-import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
+import { DEVICES_TABLE } from '@libs/db/shared/auth-tables';
 import { AUTH_RULES } from '@libs/auth/shared/rules/rules';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -50,15 +50,15 @@ function readWebUserAgent(): string | null {
 /** Collects expo/platform device metadata; stays CLIENT-only. */
 export function collectDeviceSnapshot(): DeviceSnapshot {
   return {
-    [DeviceCol.platform]: Platform.OS,
-    [DeviceCol.osName]: normString(Device.osName),
-    [DeviceCol.osVersion]: normString(Device.osVersion),
-    [DeviceCol.deviceModelName]: normString(Device.modelName),
-    [DeviceCol.deviceBrand]: normString(Device.brand),
-    [DeviceCol.deviceName]: normString(Constants.deviceName),
-    [DeviceCol.appVersion]: normString(Constants.expoConfig?.version),
-    [DeviceCol.appBuildNumber]: resolveAppBuildNumber(),
-    [DeviceCol.userAgent]: readWebUserAgent(),
+    platform: Platform.OS,
+    os_name: normString(Device.osName),
+    os_version: normString(Device.osVersion),
+    device_model_name: normString(Device.modelName),
+    device_brand: normString(Device.brand),
+    device_name: normString(Constants.deviceName),
+    app_version: normString(Constants.expoConfig?.version),
+    app_build_number: resolveAppBuildNumber(),
+    user_agent: readWebUserAgent(),
   };
 }
 

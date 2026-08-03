@@ -90,7 +90,9 @@ async function checkOneSendRow(
   return checkSendTargets(ctx, row, targets.toUserId);
 }
 
-async function checkSendRequest(ctx: RulesCtx<AppRulesAuth>): Promise<readonly Failure[]> {
+async function checkSendRequest(
+  ctx: RulesCtx<AppRulesAuth>
+): Promise<readonly Failure[]> {
   const failures: Failure[] = [];
   for (const row of ctx.batch.rows) {
     if (row.table !== FRIEND_REQUESTS_TABLE || row.op !== 'put') continue;

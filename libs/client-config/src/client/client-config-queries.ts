@@ -1,14 +1,9 @@
-import {
-  CLIENT_CONFIG_TABLE,
-  ClientConfigCol,
-} from '@libs/db/shared/client-config-tables';
-import type { Sql } from '@pkgs/sql';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql, type Sql } from '@pkgs/sql';
 
 export function clientConfigRowQuery(id: string): Sql {
-  return sqlMap({
-    select: [[ClientConfigCol.googleWebClientId, 'google_web_client_id']],
-    from: CLIENT_CONFIG_TABLE.tableName,
-    where: ['=', ClientConfigCol.id, id],
-  });
+  return sql`
+    SELECT google_web_client_id
+    FROM client_config
+    WHERE id = ${id}
+  `;
 }

@@ -1,7 +1,6 @@
 import { PGlite } from '@electric-sql/pglite';
 import type { AttributeState } from '@pkgs/attribute';
-import type { Sql } from '@pkgs/sql';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql, type Sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
@@ -871,11 +870,10 @@ describe('Matchmaking - schema drift', () => {
       // Corrupt the stored fingerprint to simulate another process
       // having re-migrated with a different schema.
       await sqlClient.run(
-        sqlMap({
-          update: 'matchmaking_schema_state',
-          set: { schema_fingerprint: '{"corrupted":true}' },
-          where: ['=', 'id', 1],
-        })
+        sql`
+          UPDATE matchmaking_schema_state
+             SET schema_fingerprint = ${'{"corrupted":true}'}
+           WHERE id = 1`
       );
       // Build a NEW Matchmaking instance so the cached probe is fresh.
       const mm2 = new Matchmaking({
@@ -886,11 +884,10 @@ describe('Matchmaking - schema drift', () => {
       // we need to corrupt AFTER mm2 boots but BEFORE its first join.
       await mm2.ready();
       await sqlClient.run(
-        sqlMap({
-          update: 'matchmaking_schema_state',
-          set: { schema_fingerprint: '{"corrupted":true}' },
-          where: ['=', 'id', 1],
-        })
+        sql`
+          UPDATE matchmaking_schema_state
+             SET schema_fingerprint = ${'{"corrupted":true}'}
+           WHERE id = 1`
       );
       await expect(
         mm2.join({
@@ -1135,11 +1132,10 @@ describe('Matchmaking - group matching (groupSize)', () => {
         partition_signature: string;
         group_size: number | string;
       }>(
-        sqlMap({
-          select: ['partition_signature', 'group_size'],
-          from: 'matchmaking_active_partitions',
-          orderBy: ['group_size'],
-        })
+        sql`
+          SELECT partition_signature, group_size
+            FROM matchmaking_active_partitions
+           ORDER BY group_size`
       );
       expect(rows).toHaveLength(2);
       const groupSizes = rows.map((r) =>

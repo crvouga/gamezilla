@@ -1,11 +1,10 @@
 import {
   SPACE_USERS_TABLE,
-  SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -60,10 +59,8 @@ export async function removeSpaceUser(
   db: SqlClient
 ): Promise<void> {
   const id = spaceUserEntityId(input.spaceId, input.userId);
-  await db.run(
-    sqlMap({
-      deleteFrom: SPACE_USERS_TABLE.tableName,
-      where: ['=', SpaceUserCol.id, id],
-    })
-  );
+  await db.run(sql`
+    DELETE FROM space_users
+    WHERE id = ${id}
+  `);
 }

@@ -30,8 +30,10 @@ const installer = new FirstAvailableInstaller(
             format: 'zip',
           };
         }
+        // Stripe ships `mac-os`, not the conventional GitHub `darwin`.
+        const osName = os.platform === 'darwin' ? 'mac-os' : os.releaseOsName();
         return {
-          name: `stripe_${version}_${os.releaseOsName()}_${arch}.tar.gz`,
+          name: `stripe_${version}_${osName}_${arch}.tar.gz`,
           format: 'tar.gz',
         };
       },

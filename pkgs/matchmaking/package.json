@@ -19,7 +19,6 @@
     "@pkgs/logger": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@pkgs/sql-map": "workspace:*",
     "hono": "catalog:"
   },
   "devDependencies": {

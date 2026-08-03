@@ -1,10 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { LoadingState } from '../loading-state';
-import {
-  ComboboxEmpty,
-  ComboboxOptionsList,
-} from './combobox-option-row';
+import { ComboboxEmpty, ComboboxOptionsList } from './combobox-option-row';
 import type { ComboboxOption, ComboboxProps } from './combobox-types';
 
 export function ComboboxOptions<T extends string | number>({

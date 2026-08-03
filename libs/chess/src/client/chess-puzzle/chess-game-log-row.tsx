@@ -88,18 +88,13 @@ export function ChessGameLogRow({
           <Text
             variant="bodyBold"
             style={{ color: theme.colors.text }}
-            label={
-              <GameLogTitle solved={solved} puzzleRating={puzzleRating} />
-            }
+            label={<GameLogTitle solved={solved} puzzleRating={puzzleRating} />}
           />
           <Text
             variant="caption"
             style={{ color: theme.colors.textSecondary }}
             label={
-              <GameLogCaption
-                puzzleId={entry.puzzleId}
-                timeLabel={timeLabel}
-              />
+              <GameLogCaption puzzleId={entry.puzzleId} timeLabel={timeLabel} />
             }
           />
         </Box>

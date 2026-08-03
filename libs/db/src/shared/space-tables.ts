@@ -1,24 +1,5 @@
 import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
 
-export const SpaceCol = {
-  id: 'id',
-  title: 'title',
-  hostId: 'host_id',
-  createdAt: 'created_at',
-  endedAt: 'ended_at',
-  visibility: 'visibility',
-  hostAccountId: 'host_account_id',
-  hostMemberId: 'host_member_id',
-} as const;
-
-export const SpaceUserCol = {
-  id: 'id',
-  spaceId: 'space_id',
-  userId: 'user_id',
-  createdAt: 'created_at',
-  createdByAccountId: 'created_by_account_id',
-} as const;
-
 export const SPACES_TABLE = defineTable({
   tableName: 'spaces',
   columns: [

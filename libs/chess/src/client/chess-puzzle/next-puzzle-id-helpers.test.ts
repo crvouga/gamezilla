@@ -25,8 +25,9 @@ describe('buildPuzzleCandidatesSql', () => {
       ownerId: 'user_123',
       currentPuzzleId: null,
     });
-    expect(query.sql).toContain(
-      'NOT IN (SELECT puzzle_id FROM chess_puzzle_interactions'
+    const normalized = query.sql.replace(/\s+/g, ' ');
+    expect(normalized).toContain(
+      'NOT IN ( SELECT puzzle_id FROM chess_puzzle_interactions'
     );
     expect(query.values).toContain('user_123');
   });

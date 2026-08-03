@@ -2,7 +2,7 @@ import { optionalProps } from '@pkgs/ui/components/optional-props';
 import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import { useProfileColumn, ProfileField } from './use-profile-column';
+import { useProfileColumn } from './use-profile-column';
 
 export type UserUsernameProps = {
   /** Profile entity id (account or install id). `null` renders nothing. */
@@ -49,7 +49,7 @@ function UserUsernameInner({
   numberOfLines?: number;
   withAt: boolean;
 }): ReactNode {
-  const username = useProfileColumn(profileId, ProfileField.username);
+  const username = useProfileColumn(profileId, 'username');
   const label =
     username === null || username.length === 0
       ? ''

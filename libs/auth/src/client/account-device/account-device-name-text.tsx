@@ -1,6 +1,6 @@
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { DeviceField, useDeviceColumn } from '../use-device-column';
+import { useDeviceColumn } from '../use-device-column';
 import { EM_DASH } from '../device-parsers';
 
 export type AccountDeviceNameTextProps = {
@@ -11,6 +11,6 @@ export type AccountDeviceNameTextProps = {
 export function AccountDeviceNameText({
   deviceId,
 }: AccountDeviceNameTextProps): ReactNode {
-  const name = useDeviceColumn(deviceId, DeviceField.deviceName);
+  const name = useDeviceColumn(deviceId, 'deviceName');
   return <Text variant="body" numberOfLines={4} label={name ?? EM_DASH} />;
 }

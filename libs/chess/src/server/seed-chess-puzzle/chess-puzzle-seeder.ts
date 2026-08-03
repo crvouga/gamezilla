@@ -51,10 +51,6 @@
  */
 
 import { CHESS_PUZZLE_LOAD_ENTITY_ID } from '@libs/chess/shared/chess-puzzle-entities';
-import {
-  CHESS_PUZZLE_LOAD_TABLE,
-  ChessPuzzleLoadCol,
-} from '@libs/db/shared/chess-tables';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
   assertDevSecretsEnv,
@@ -64,7 +60,7 @@ import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/sha
 import { createLogger, type Logger } from '@pkgs/logger';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres/connect';
@@ -180,16 +176,12 @@ export class ChessPuzzleSeeder {
       cursor: string | null;
       finished_at: string | null;
     }>(
-      sqlMap({
-        select: [
-          [ChessPuzzleLoadCol.sourceEtag, 'source_etag'],
-          [ChessPuzzleLoadCol.cursor, 'cursor'],
-          [ChessPuzzleLoadCol.finishedAt, 'finished_at'],
-        ],
-        from: CHESS_PUZZLE_LOAD_TABLE.tableName,
-        where: ['=', ChessPuzzleLoadCol.id, CHESS_PUZZLE_LOAD_ENTITY_ID],
-        limit: 1,
-      })
+      sql`
+        SELECT source_etag, cursor, finished_at
+        FROM chess_puzzle_load
+        WHERE id = ${CHESS_PUZZLE_LOAD_ENTITY_ID}
+        LIMIT 1
+      `
     );
     return rows[0] ?? null;
   }

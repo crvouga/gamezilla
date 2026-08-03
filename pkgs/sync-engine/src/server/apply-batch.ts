@@ -71,13 +71,8 @@ function stripToAllowedColumns(
   return { ...row, values };
 }
 
-function rejectRow(
-  code: string,
-  row: UploadRow
-): ApplyBatchReject {
-  return new ApplyBatchReject([
-    { code, table: row.table, id: row.id },
-  ]);
+function rejectRow(code: string, row: UploadRow): ApplyBatchReject {
+  return new ApplyBatchReject([{ code, table: row.table, id: row.id }]);
 }
 
 async function applyBatchRow(

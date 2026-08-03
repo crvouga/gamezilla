@@ -1,6 +1,6 @@
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { DeviceField, useDeviceColumn } from '../use-device-column';
+import { useDeviceColumn } from '../use-device-column';
 import { formatTimestamp } from '../device-parsers';
 
 export type AccountDeviceLastSeenTextProps = {
@@ -11,7 +11,7 @@ export type AccountDeviceLastSeenTextProps = {
 export function AccountDeviceLastSeenText({
   deviceId,
 }: AccountDeviceLastSeenTextProps): ReactNode {
-  const lastSeenAt = useDeviceColumn(deviceId, DeviceField.lastSeenAt);
+  const lastSeenAt = useDeviceColumn(deviceId, 'lastSeenAt');
   return (
     <Text
       variant="body"

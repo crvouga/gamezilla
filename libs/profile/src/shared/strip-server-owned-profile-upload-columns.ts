@@ -1,4 +1,4 @@
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import type { UploadRow } from '@pkgs/sync-engine/shared/upload-batch';
 
 /**
@@ -14,7 +14,7 @@ export function stripServerOwnedProfileUploadColumns(
     return row;
   }
   const values = { ...row.values };
-  delete values[ProfileCol.username];
-  delete values[ProfileCol.usernameChangedAt];
+  delete values['username'];
+  delete values['username_changed_at'];
   return { ...row, values };
 }

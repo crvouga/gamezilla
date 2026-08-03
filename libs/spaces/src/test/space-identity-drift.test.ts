@@ -2,17 +2,13 @@ import { beforeEach, describe, expect, test } from 'bun:test';
 
 import {
   SPACE_USERS_TABLE,
-  SpaceCol,
-  SPACES_TABLE,
-  SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
 import { isRulesReject } from '@pkgs/rules/core/rules-reject';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import { runRules } from '@pkgs/rules/core/run-rules';
 import { SPACE_RULES } from '@libs/spaces/shared/rules/rules';
-import { ident, sql } from '@pkgs/sql';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
@@ -39,23 +35,27 @@ function openSql(): SqlClientImplBunSqlite {
 }
 
 async function migrate(db: SqlClient): Promise<void> {
-  await db.run(sql`CREATE TABLE ${ident(SPACES_TABLE.tableName)} (
-      ${ident(SpaceCol.id)} TEXT PRIMARY KEY,
-      ${ident(SpaceCol.title)} TEXT,
-      ${ident(SpaceCol.hostId)} TEXT,
-      ${ident(SpaceCol.createdAt)} TEXT,
-      ${ident(SpaceCol.endedAt)} TEXT,
-      ${ident(SpaceCol.visibility)} TEXT,
-      ${ident(SpaceCol.hostAccountId)} TEXT,
-      ${ident(SpaceCol.hostMemberId)} TEXT
-    )`);
-  await db.run(sql`CREATE TABLE ${ident(SPACE_USERS_TABLE.tableName)} (
-      ${ident(SpaceUserCol.id)} TEXT PRIMARY KEY,
-      ${ident(SpaceUserCol.spaceId)} TEXT,
-      ${ident(SpaceUserCol.userId)} TEXT,
-      ${ident(SpaceUserCol.createdAt)} TEXT,
-      ${ident(SpaceUserCol.createdByAccountId)} TEXT
-    )`);
+  await db.run(sql`
+    CREATE TABLE spaces (
+      id TEXT PRIMARY KEY,
+      title TEXT,
+      host_id TEXT,
+      created_at TEXT,
+      ended_at TEXT,
+      visibility TEXT,
+      host_account_id TEXT,
+      host_member_id TEXT
+    )
+  `);
+  await db.run(sql`
+    CREATE TABLE space_users (
+      id TEXT PRIMARY KEY,
+      space_id TEXT,
+      user_id TEXT,
+      created_at TEXT,
+      created_by_account_id TEXT
+    )
+  `);
 }
 
 function ctx(args: {
@@ -71,41 +71,37 @@ function ctx(args: {
 
 async function seedHostSpace(db: SqlClient): Promise<void> {
   const now = new Date().toISOString();
-  await db.run(
-    sqlMap({
-      insertInto: SPACES_TABLE.tableName,
-      values: {
-        [SpaceCol.id]: SPACE_ID,
-        [SpaceCol.hostId]: DEVICE_ID,
-        [SpaceCol.hostMemberId]: ACCOUNT_ID,
-        [SpaceCol.hostAccountId]: ACCOUNT_ID,
-        [SpaceCol.visibility]: 'private',
-        [SpaceCol.createdAt]: now,
-      },
-    })
-  );
-  await db.run(
-    sqlMap({
-      insertInto: SPACE_USERS_TABLE.tableName,
-      values: {
-        [SpaceUserCol.id]: spaceUserEntityId(SPACE_ID, ACCOUNT_ID),
-        [SpaceUserCol.spaceId]: SPACE_ID,
-        [SpaceUserCol.userId]: ACCOUNT_ID,
-        [SpaceUserCol.createdAt]: now,
-        [SpaceUserCol.createdByAccountId]: ACCOUNT_ID,
-      },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO spaces (
+      id, host_id, host_member_id, host_account_id, visibility, created_at
+    )
+    VALUES (
+      ${SPACE_ID},
+      ${DEVICE_ID},
+      ${ACCOUNT_ID},
+      ${ACCOUNT_ID},
+      ${'private'},
+      ${now}
+    )
+  `);
+  await db.run(sql`
+    INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
+    VALUES (
+      ${spaceUserEntityId(SPACE_ID, ACCOUNT_ID)},
+      ${SPACE_ID},
+      ${ACCOUNT_ID},
+      ${now},
+      ${ACCOUNT_ID}
+    )
+  `);
 }
 
 async function readSpaceUser(db: SqlClient, userId: string): Promise<boolean> {
-  const rows = await db.query<{ readonly id: string }>(
-    sqlMap({
-      select: [SpaceUserCol.id],
-      from: SPACE_USERS_TABLE.tableName,
-      where: ['=', SpaceUserCol.id, spaceUserEntityId(SPACE_ID, userId)],
-    })
-  );
+  const rows = await db.query<{ readonly id: string }>(sql`
+    SELECT id
+    FROM space_users
+    WHERE id = ${spaceUserEntityId(SPACE_ID, userId)}
+  `);
   return rows.length > 0;
 }
 
@@ -118,13 +114,11 @@ async function readSpaceHost(db: SqlClient): Promise<{
     readonly host_member_id: string | null;
     readonly host_account_id: string | null;
     readonly ended_at: string | null;
-  }>(
-    sqlMap({
-      select: [SpaceCol.hostMemberId, SpaceCol.hostAccountId, SpaceCol.endedAt],
-      from: SPACES_TABLE.tableName,
-      where: ['=', SpaceCol.id, SPACE_ID],
-    })
-  );
+  }>(sql`
+    SELECT host_member_id, host_account_id, ended_at
+    FROM spaces
+    WHERE id = ${SPACE_ID}
+  `);
   const row = rows[0]!;
   return {
     hostMemberId: row.host_member_id,
@@ -165,18 +159,16 @@ describe('leave / join / create require account', () => {
 
   test('host leave with guest space_user ends the space', async () => {
     const now = new Date().toISOString();
-    await db.run(
-      sqlMap({
-        insertInto: SPACE_USERS_TABLE.tableName,
-        values: {
-          [SpaceUserCol.id]: spaceUserEntityId(SPACE_ID, GUEST_ACCOUNT_ID),
-          [SpaceUserCol.spaceId]: SPACE_ID,
-          [SpaceUserCol.userId]: GUEST_ACCOUNT_ID,
-          [SpaceUserCol.createdAt]: now,
-          [SpaceUserCol.createdByAccountId]: ACCOUNT_ID,
-        },
-      })
-    );
+    await db.run(sql`
+      INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
+      VALUES (
+        ${spaceUserEntityId(SPACE_ID, GUEST_ACCOUNT_ID)},
+        ${SPACE_ID},
+        ${GUEST_ACCOUNT_ID},
+        ${now},
+        ${ACCOUNT_ID}
+      )
+    `);
     const signedIn = ctx({ deviceId: DEVICE_ID, accountId: ACCOUNT_ID });
     await executeLeaveSpace(signedIn, { spaceId: SPACE_ID }, db);
     expect(await readSpaceUser(db, GUEST_ACCOUNT_ID)).toBe(true);
@@ -185,18 +177,16 @@ describe('leave / join / create require account', () => {
 
   test('guest leave keeps space live and retains space_users', async () => {
     const now = new Date().toISOString();
-    await db.run(
-      sqlMap({
-        insertInto: SPACE_USERS_TABLE.tableName,
-        values: {
-          [SpaceUserCol.id]: spaceUserEntityId(SPACE_ID, GUEST_ACCOUNT_ID),
-          [SpaceUserCol.spaceId]: SPACE_ID,
-          [SpaceUserCol.userId]: GUEST_ACCOUNT_ID,
-          [SpaceUserCol.createdAt]: now,
-          [SpaceUserCol.createdByAccountId]: ACCOUNT_ID,
-        },
-      })
-    );
+    await db.run(sql`
+      INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
+      VALUES (
+        ${spaceUserEntityId(SPACE_ID, GUEST_ACCOUNT_ID)},
+        ${SPACE_ID},
+        ${GUEST_ACCOUNT_ID},
+        ${now},
+        ${ACCOUNT_ID}
+      )
+    `);
     const guest = ctx({
       deviceId: GUEST_DEVICE_ID,
       accountId: GUEST_ACCOUNT_ID,
@@ -212,16 +202,10 @@ describe('leave / join / create require account', () => {
     await executeLeaveSpace(signedIn, { spaceId: SPACE_ID }, db);
     expect((await readSpaceHost(db)).endedAt).not.toBeNull();
 
-    await db.run(
-      sqlMap({
-        update: SPACES_TABLE.tableName,
-        set: {
-          [SpaceCol.endedAt]: null,
-          [SpaceCol.hostMemberId]: DEVICE_ID,
-          [SpaceCol.hostAccountId]: null,
-        },
-      })
-    );
+    await db.run(sql`
+      UPDATE spaces
+      SET ended_at = NULL, host_member_id = ${DEVICE_ID}, host_account_id = NULL
+    `);
     await authorizeJoinSpace(signedIn, { spaceId: SPACE_ID }, db);
     await executeJoinSpace(signedIn, { spaceId: SPACE_ID }, db);
     expect(await readSpaceUser(db, ACCOUNT_ID)).toBe(true);

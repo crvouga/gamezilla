@@ -63,7 +63,7 @@
 import { assert } from '@pkgs/assert';
 import type { AttributeState } from '@pkgs/attribute';
 import { asKeywordRecord, assertKeywordRecord } from '@pkgs/keyword';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
@@ -347,42 +347,35 @@ export class Matchmaker {
     const metadata =
       attrs.metadata === null ? null : JSON.stringify(attrs.metadata);
     const rows = await this.sqlClient.query<{ id: string }>(
-      sqlMap({
-        with: [
-          [
-            'ins',
-            {
-              insertInto: 'matchmaking_waiting',
-              values: {
-                data: ['cast', JSON.stringify(data), 'jsonb'],
-                formulas: ['cast', JSON.stringify(formulas), 'jsonb'],
-                partition_signature: signature,
-                group_size: attrs.groupSize,
-                priority: attrs.priority,
-                metadata: ['cast', metadata, 'jsonb'],
-              },
-              returning: ['id'],
-            },
-          ],
-          [
-            'reg',
-            {
-              insertInto: 'matchmaking_active_partitions',
-              values: {
-                partition_signature: signature,
-                group_size: attrs.groupSize,
-              },
-              onConflict: {
-                target: ['partition_signature', 'group_size'],
-                doNothing: true,
-              },
-              returning: ['partition_signature'],
-            },
-          ],
-        ],
-        select: ['id'],
-        from: 'ins',
-      })
+      sql`
+        WITH ins AS (
+          INSERT INTO matchmaking_waiting (
+            data, 
+            formulas, 
+            partition_signature, 
+            group_size, 
+            priority, 
+            metadata
+          )
+          VALUES (
+            ${JSON.stringify(data)}::jsonb,
+            ${JSON.stringify(formulas)}::jsonb,
+            ${signature},
+            ${attrs.groupSize},
+            ${attrs.priority},
+            ${metadata}::jsonb
+          )
+          RETURNING id
+        ), 
+        reg AS (
+          INSERT INTO matchmaking_active_partitions (
+            partition_signature, group_size
+          )
+          VALUES (${signature}, ${attrs.groupSize})
+          ON CONFLICT (partition_signature, group_size) DO NOTHING
+          RETURNING partition_signature
+        )
+        SELECT id FROM ins`
     );
     const row = rows[0];
     if (row === undefined) {
@@ -439,12 +432,11 @@ export class Matchmaker {
     formulas: readonly FormulaWire[]
   ): Promise<UpdateFormulasResult> {
     const rows = await this.sqlClient.query<{ id: string }>(
-      sqlMap({
-        update: 'matchmaking_waiting',
-        set: { formulas: ['cast', JSON.stringify(formulas), 'jsonb'] },
-        where: ['=', 'id', participantId],
-        returning: ['id'],
-      })
+      sql`
+        UPDATE matchmaking_waiting
+           SET formulas = ${JSON.stringify(formulas)}::jsonb
+         WHERE id = ${participantId}
+        RETURNING id`
     );
     return { updated: rows.length > 0 };
   }
@@ -461,11 +453,10 @@ export class Matchmaker {
       'Matchmaker.leave: participantId must be a non-empty string'
     );
     const rows = await this.sqlClient.query<{ id: string }>(
-      sqlMap({
-        deleteFrom: 'matchmaking_waiting',
-        where: ['=', 'id', participantId],
-        returning: ['id'],
-      })
+      sql`
+        DELETE FROM matchmaking_waiting
+         WHERE id = ${participantId}
+        RETURNING id`
     );
     return { removed: rows.length > 0 };
   }

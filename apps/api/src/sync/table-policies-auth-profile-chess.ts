@@ -1,17 +1,15 @@
-import { DEVICES_TABLE, DeviceCol } from '@libs/db/shared/auth-tables';
+import { DEVICES_TABLE } from '@libs/db/shared/auth-tables';
 import {
   CHESS_PUZZLE_INTERACTIONS_TABLE,
   CHESS_PUZZLE_LOAD_TABLE,
   CHESS_PUZZLE_PROFILES_TABLE,
   CHESS_PUZZLES_TABLE,
-  ChessPuzzleInteractionCol,
-  ChessPuzzleProfileCol,
 } from '@libs/db/shared/chess-tables';
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   USERS_TABLE,
 } from '@libs/db/shared/external-accounts-tables';
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import {
   AUTH_DEVICE_ID_MISMATCH,
   AUTH_DEVICE_REQUIRED,
@@ -33,9 +31,10 @@ import {
   denyTablePolicy,
   type TablePolicy,
 } from '@pkgs/sync-engine/server/apply-batch';
+import { tableColumnNames } from '@pkgs/sync-engine/shared/table-definition';
 import type { UploadOp } from '@pkgs/sync-engine/shared/upload-batch';
 
-import { columnSet, deny, ok, readRowString } from './table-policy-helpers';
+import { deny, ok, readRowString } from './table-policy-helpers';
 
 const PUT_PATCH_DELETE = new Set<UploadOp>(['put', 'patch', 'delete']);
 const PUT_PATCH = new Set<UploadOp>(['put', 'patch']);
@@ -45,7 +44,7 @@ export function authProfileChessTablePolicies(): readonly TablePolicy[] {
     {
       table: DEVICES_TABLE.tableName,
       allowedOps: PUT_PATCH,
-      allowedColumns: columnSet(DeviceCol),
+      allowedColumns: new Set(tableColumnNames(DEVICES_TABLE)),
       authorize: async (auth, row) => {
         if (auth.deviceId.length === 0) return deny(AUTH_DEVICE_REQUIRED);
         if (row.id !== auth.deviceId) return deny(AUTH_DEVICE_ID_MISMATCH);
@@ -57,11 +56,7 @@ export function authProfileChessTablePolicies(): readonly TablePolicy[] {
     {
       table: PROFILES_TABLE.tableName,
       allowedOps: PUT_PATCH_DELETE,
-      allowedColumns: new Set([
-        ProfileCol.id,
-        ProfileCol.createdAt,
-        ProfileCol.avatarConfig,
-      ]),
+      allowedColumns: new Set(['id', 'created_at', 'avatar_config']),
       authorize: async (auth, row) => {
         if (row.op === 'delete') return deny(PROFILE_DELETE_DENIED);
         if (row.id !== auth.userId) return deny(PROFILE_ID_MISMATCH);
@@ -76,12 +71,10 @@ export function authProfileChessTablePolicies(): readonly TablePolicy[] {
     {
       table: CHESS_PUZZLE_PROFILES_TABLE.tableName,
       allowedOps: PUT_PATCH_DELETE,
-      allowedColumns: columnSet(ChessPuzzleProfileCol),
+      allowedColumns: new Set(tableColumnNames(CHESS_PUZZLE_PROFILES_TABLE)),
       authorize: async (auth, row) => {
         if (row.op === 'delete') return deny(CHESS_PROFILE_DELETE_DENIED);
-        const ownerId =
-          readRowString(row, ChessPuzzleProfileCol.ownerId, 'ownerId') ??
-          row.id;
+        const ownerId = readRowString(row, 'owner_id', 'ownerId') ?? row.id;
         if (ownerId !== auth.userId) return deny(CHESS_OWNER_MISMATCH);
         if (row.id !== auth.userId) return deny(CHESS_PROFILE_ID_MISMATCH);
         return ok();
@@ -90,14 +83,12 @@ export function authProfileChessTablePolicies(): readonly TablePolicy[] {
     {
       table: CHESS_PUZZLE_INTERACTIONS_TABLE.tableName,
       allowedOps: PUT_PATCH_DELETE,
-      allowedColumns: columnSet(ChessPuzzleInteractionCol),
+      allowedColumns: new Set(
+        tableColumnNames(CHESS_PUZZLE_INTERACTIONS_TABLE)
+      ),
       authorize: async (auth, row) => {
         if (row.op === 'delete') return deny(CHESS_INTERACTION_DELETE_DENIED);
-        const ownerId = readRowString(
-          row,
-          ChessPuzzleInteractionCol.ownerId,
-          'ownerId'
-        );
+        const ownerId = readRowString(row, 'owner_id', 'ownerId');
         if (ownerId !== auth.userId) return deny(CHESS_OWNER_MISMATCH);
         return ok();
       },

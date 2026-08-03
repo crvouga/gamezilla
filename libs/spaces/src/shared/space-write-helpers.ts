@@ -1,10 +1,4 @@
-import {
-  SPACE_USERS_TABLE,
-  SpaceCol,
-  SPACES_TABLE,
-  SpaceUserCol,
-  spaceUserEntityId,
-} from '@libs/db/shared/space-tables';
+import { spaceUserEntityId } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import {
   decideEndSpace,
@@ -18,7 +12,7 @@ import {
   SPACE_NOT_FOUND,
   SPACE_NOT_SIGNED_IN,
 } from '@libs/spaces/shared/rules/codes';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -53,19 +47,12 @@ export async function readSpaceHostEnded(
     readonly host_member_id: string | null;
     readonly host_account_id: string | null;
     readonly ended_at: string | null;
-  }>(
-    sqlMap({
-      select: [
-        SpaceCol.hostId,
-        SpaceCol.hostMemberId,
-        SpaceCol.hostAccountId,
-        SpaceCol.endedAt,
-      ],
-      from: SPACES_TABLE.tableName,
-      where: ['=', SpaceCol.id, spaceId],
-      limit: 1,
-    })
-  );
+  }>(sql`
+    SELECT host_id, host_member_id, host_account_id, ended_at
+    FROM spaces
+    WHERE id = ${spaceId}
+    LIMIT 1
+  `);
   const row = rows[0];
   if (row === undefined) {
     throwRulesReject([fail(SPACE_NOT_FOUND)]);
@@ -74,8 +61,7 @@ export async function readSpaceHostEnded(
   if (hostId === null || hostId.length === 0) {
     throwRulesReject([fail(SPACE_NOT_FOUND)]);
   }
-  const hostMemberId =
-    row.host_member_id ?? row.host_account_id ?? hostId;
+  const hostMemberId = row.host_member_id ?? row.host_account_id ?? hostId;
   if (hostMemberId.length === 0) {
     throwRulesReject([fail(SPACE_NOT_FOUND)]);
   }
@@ -119,14 +105,12 @@ export async function isSpaceUserInStore(
 ): Promise<boolean> {
   if (spaceId.length === 0 || userId.length === 0) return false;
   const id = spaceUserEntityId(spaceId, userId);
-  const rows = await db.query<{ readonly id: string }>(
-    sqlMap({
-      select: [SpaceUserCol.id],
-      from: SPACE_USERS_TABLE.tableName,
-      where: ['=', SpaceUserCol.id, id],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<{ readonly id: string }>(sql`
+    SELECT id
+    FROM space_users
+    WHERE id = ${id}
+    LIMIT 1
+  `);
   return rows[0] !== undefined;
 }
 
@@ -139,18 +123,17 @@ export async function upsertSpaceUserRow(args: {
 }): Promise<void> {
   const already = await isSpaceUserInStore(args.db, args.spaceId, args.userId);
   if (already) return;
-  await args.db.run(
-    sqlMap({
-      insertInto: SPACE_USERS_TABLE.tableName,
-      values: {
-        [SpaceUserCol.id]: spaceUserEntityId(args.spaceId, args.userId),
-        [SpaceUserCol.spaceId]: args.spaceId,
-        [SpaceUserCol.userId]: args.userId,
-        [SpaceUserCol.createdAt]: args.now ?? isoNow(),
-        [SpaceUserCol.createdByAccountId]: args.createdByAccountId,
-      },
-    })
-  );
+  const now = args.now ?? isoNow();
+  await args.db.run(sql`
+    INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
+    VALUES (
+      ${spaceUserEntityId(args.spaceId, args.userId)},
+      ${args.spaceId},
+      ${args.userId},
+      ${now},
+      ${args.createdByAccountId}
+    )
+  `);
 }
 
 export async function migrateHostIdentity(args: {
@@ -160,32 +143,18 @@ export async function migrateHostIdentity(args: {
   readonly newMemberId: string;
   readonly accountId: string;
 }): Promise<void> {
-  await args.sql.run(
-    sqlMap({
-      update: SPACES_TABLE.tableName,
-      set: {
-        [SpaceCol.hostMemberId]: args.newMemberId,
-        [SpaceCol.hostAccountId]: args.accountId,
-      },
-      where: [
-        'and',
-        ['=', SpaceCol.id, args.spaceId],
-        ['=', SpaceCol.hostId, args.deviceId],
-      ],
-    })
-  );
-  await args.sql.run(
-    sqlMap({
-      update: SPACES_TABLE.tableName,
-      set: { [SpaceCol.hostMemberId]: args.newMemberId },
-      where: [
-        'and',
-        ['=', SpaceCol.id, args.spaceId],
-        ['=', SpaceCol.hostAccountId, args.accountId],
-        ['!=', SpaceCol.hostId, args.deviceId],
-      ],
-    })
-  );
+  await args.sql.run(sql`
+    UPDATE spaces
+    SET host_member_id = ${args.newMemberId}, host_account_id = ${args.accountId}
+    WHERE id = ${args.spaceId} AND host_id = ${args.deviceId}
+  `);
+  await args.sql.run(sql`
+    UPDATE spaces
+    SET host_member_id = ${args.newMemberId}
+    WHERE id = ${args.spaceId}
+      AND host_account_id = ${args.accountId}
+      AND host_id != ${args.deviceId}
+  `);
 }
 
 export function requireNonEmptyString(value: unknown, field: string): string {

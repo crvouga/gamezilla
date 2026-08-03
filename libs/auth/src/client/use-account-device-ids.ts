@@ -1,5 +1,4 @@
-import { DeviceCol, DEVICES_TABLE } from '@libs/db/shared/auth-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
@@ -56,28 +55,18 @@ function sortDeviceIds(
 export function useAccountDeviceIds(accountId: string | null): string[] {
   const currentDeviceId = useMyDeviceId();
 
-  const { rows: localRows } = useWatchQuery<DeviceRow>(
-    sqlMap({
-      select: [DeviceCol.id, DeviceCol.lastSeenAt, DeviceCol.createdAt],
-      from: DEVICES_TABLE.tableName,
-      where: ['=', DeviceCol.id, currentDeviceId],
-    })
-  );
+  const { rows: localRows } = useWatchQuery<DeviceRow>(sql`
+    SELECT id, last_seen_at, created_at
+    FROM devices
+    WHERE id = ${currentDeviceId}
+  `);
 
-  const { rows: remoteRows } = useWatchQuery<DeviceRow>(
-    accountId === null
-      ? sqlMap({
-          select: [DeviceCol.id, DeviceCol.lastSeenAt, DeviceCol.createdAt],
-          from: DEVICES_TABLE.tableName,
-          where: ['=', 1, 0],
-        })
-      : sqlMap({
-          select: [DeviceCol.id, DeviceCol.lastSeenAt, DeviceCol.createdAt],
-          from: DEVICES_TABLE.tableName,
-          where: ['=', DeviceCol.userId, accountId],
-          limit: 500,
-        })
-  );
+  const { rows: remoteRows } = useWatchQuery<DeviceRow>(sql`
+    SELECT id, last_seen_at, created_at
+    FROM devices
+    WHERE user_id = ${accountId}
+    LIMIT 500
+  `);
 
   return useMemo(
     () =>

@@ -2,7 +2,10 @@ import type { Rule, RulesAuth } from '@pkgs/rules/core/types';
 import { runRules } from '@pkgs/rules/core/run-rules';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { UploadBatch, UploadRow } from '@pkgs/sync-engine/shared/upload-batch';
+import type {
+  UploadBatch,
+  UploadRow,
+} from '@pkgs/sync-engine/shared/upload-batch';
 
 /**
  * Pinned PowerSync `ps_crud` row shape (SDK 1.57.x).
@@ -21,7 +24,9 @@ type CrudDataJson = {
   readonly data?: Record<string, unknown>;
 };
 
-export async function readPsCrudMaxId(db: Pick<SqlClient, 'query'>): Promise<number> {
+export async function readPsCrudMaxId(
+  db: Pick<SqlClient, 'query'>
+): Promise<number> {
   const rows = await db.query<{ max_id: number | string | null }>(
     sql`SELECT MAX(id) AS max_id FROM ps_crud`
   );

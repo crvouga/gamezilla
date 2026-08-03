@@ -1,13 +1,5 @@
 import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
 
-export const ProfileCol = {
-  id: 'id',
-  createdAt: 'created_at',
-  username: 'username',
-  usernameChangedAt: 'username_changed_at',
-  avatarConfig: 'avatar_config',
-} as const;
-
 export const PROFILES_TABLE = defineTable({
   tableName: 'profiles',
   columns: [

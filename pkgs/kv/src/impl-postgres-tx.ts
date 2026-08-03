@@ -1,14 +1,11 @@
 import { assert, hotAssert } from '@pkgs/assert';
 import type { Keyword } from '@pkgs/keyword/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword/keyword';
-import { col, sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import type { Kv, KvRecord } from './interface';
-
-const TABLE = 'kv';
-const LAST_MODIFIED_AT = 'last_modified_at';
 
 function assertKvKey(key: string): asserts key is Keyword {
   assertNamespacedKeyword(hotAssert(), key);
@@ -20,7 +17,7 @@ export class KvImplPostgresTx implements Kv {
   async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
     const rows = await this.db.query<{ value: unknown }>(
-      sqlMap({ select: ['value'], from: TABLE, where: ['=', 'key', key] })
+      sql`SELECT value FROM kv WHERE key = ${key}`
     );
     const first = rows[0];
     if (first === null || first === undefined) return null;
@@ -35,26 +32,18 @@ export class KvImplPostgresTx implements Kv {
     assertKvKey(key);
     assertKvRecord(hotAssert(), value, 'kv postgres tx put');
     await this.db.run(
-      sqlMap({
-        insertInto: TABLE,
-        values: {
-          key,
-          value: ['cast', ['cast', JSON.stringify(value), 'text'], 'jsonb'],
-        },
-        onConflict: {
-          target: ['key'],
-          set: {
-            value: col('excluded.value'),
-            [LAST_MODIFIED_AT]: ['now'],
-          },
-        },
-      })
+      sql`
+        INSERT INTO kv (key, value)
+        VALUES (${key}, ${JSON.stringify(value)}::text::jsonb)
+        ON CONFLICT (key) DO UPDATE SET
+          value = excluded.value,
+          last_modified_at = now()`
     );
   }
 
   async zap(key: Keyword): Promise<void> {
     assertKvKey(key);
-    await this.db.run(sqlMap({ deleteFrom: TABLE, where: ['=', 'key', key] }));
+    await this.db.run(sql`DELETE FROM kv WHERE key = ${key}`);
   }
 
   async tx<T>(_fn: (tx: Kv) => Promise<T>): Promise<T> {

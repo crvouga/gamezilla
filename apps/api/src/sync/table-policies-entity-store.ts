@@ -10,7 +10,12 @@ import type {
   UploadRow,
 } from '@pkgs/sync-engine/shared/upload-batch';
 
-import { deny, ok, readRowString, type AuthzResult } from './table-policy-helpers';
+import {
+  deny,
+  ok,
+  readRowString,
+  type AuthzResult,
+} from './table-policy-helpers';
 
 const PUT_PATCH_DELETE = new Set<UploadOp>(['put', 'patch', 'delete']);
 
@@ -96,8 +101,7 @@ type TypeHandler = (
 const ENTITY_STORE_TYPE_HANDLERS: Readonly<Record<string, TypeHandler>> = {
   'profile.private': (auth, ownerId) => profilePrivateAuthorize(auth, ownerId),
   'chat.message': (auth, _ownerId, data) => chatMessageAuthorize(auth, data),
-  match: (auth) =>
-    requireSignedIn(auth, 'MATCH_SIGN_IN_REQUIRED') ?? ok(),
+  match: (auth) => requireSignedIn(auth, 'MATCH_SIGN_IN_REQUIRED') ?? ok(),
   'inventory.item': (auth) =>
     requireSignedIn(auth, 'INVENTORY_ITEM_SIGN_IN_REQUIRED') ?? ok(),
   'match.score': () => deny('MATCH_SCORE_SYSTEM_ONLY'),

@@ -1,7 +1,6 @@
 import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
-import { DEVICES_TABLE, DeviceCol } from '@libs/db/shared/auth-tables';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import { sqlMap } from '@pkgs/sql-map';
+import { join, raw, sql, type Value } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -93,23 +92,22 @@ async function upsertDeviceRow(args: {
   attributes: Record<string, string | null>;
 }): Promise<void> {
   const { db, deviceId, userId, attributes } = args;
-  const rows = await db.query<DeviceRow>(
-    sqlMap({
-      from: DEVICES_TABLE.tableName,
-      where: ['=', DeviceCol.id, deviceId],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<DeviceRow>(sql`
+    SELECT *
+    FROM devices
+    WHERE id = ${deviceId}
+    LIMIT 1
+  `);
   const existing = rows[0];
   const now = new Date().toISOString();
 
   if (existing === undefined) {
     const cols: string[] = [
-      DeviceCol.id,
-      DeviceCol.userId,
-      DeviceCol.createdAt,
-      DeviceCol.firstSeenAt,
-      DeviceCol.lastSeenAt,
+      'id',
+      'user_id',
+      'created_at',
+      'first_seen_at',
+      'last_seen_at',
     ];
     const vals: (string | null)[] = [deviceId, userId, now, now, now];
     for (const [key, value] of Object.entries(attributes)) {
@@ -117,21 +115,20 @@ async function upsertDeviceRow(args: {
       cols.push(key);
       vals.push(value);
     }
-    const values: Record<string, string | null> = {};
-    cols.forEach((column, index) => {
-      values[column] = vals[index] ?? null;
-    });
-    await db.run(sqlMap({ insertInto: DEVICES_TABLE.tableName, values }));
+    await db.run(sql`
+      INSERT INTO devices (${raw(cols.join(', '))})
+      VALUES ${join(vals as Value[], ', ', '(', ')')}
+    `);
     return;
   }
 
-  const existingFirst = readNullableString(existing[DeviceCol.firstSeenAt]);
-  const created = readNullableString(existing[DeviceCol.createdAt]);
+  const existingFirst = readNullableString(existing['first_seen_at']);
+  const created = readNullableString(existing['created_at']);
   const updates: Record<string, string> = {
-    [DeviceCol.userId]: userId,
-    [DeviceCol.lastSeenAt]: now,
+    user_id: userId,
+    last_seen_at: now,
     ...(existingFirst === null
-      ? { [DeviceCol.firstSeenAt]: created !== null ? created : now }
+      ? { first_seen_at: created !== null ? created : now }
       : {}),
   };
   for (const [key, next] of Object.entries(attributes)) {
@@ -142,13 +139,14 @@ async function upsertDeviceRow(args: {
   }
   const entries = Object.entries(updates);
   if (entries.length === 0) return;
-  await db.run(
-    sqlMap({
-      update: DEVICES_TABLE.tableName,
-      set: updates,
-      where: ['=', DeviceCol.id, deviceId],
-    })
+  const sets = join(
+    entries.map(([column, value]) => sql`${raw(column)} = ${value}`)
   );
+  await db.run(sql`
+    UPDATE devices
+    SET ${sets}
+    WHERE id = ${deviceId}
+  `);
 }
 
 function readNullableString(v: unknown): string | null {

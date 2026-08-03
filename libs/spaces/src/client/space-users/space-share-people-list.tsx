@@ -34,9 +34,7 @@ export function SpaceSharePeopleList({
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}
-        label={
-          <Trans>Private spaces only sync for people you add here.</Trans>
-        }
+        label={<Trans>Private spaces only sync for people you add here.</Trans>}
       />
       {isLoading ? <LoadingState size="small" /> : null}
       {!isLoading && entries.length === 0 ? (

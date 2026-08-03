@@ -2,8 +2,6 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 
-import { DeviceCol } from '@libs/db/shared/auth-tables';
-
 function normString(v: unknown): string | null {
   if (v === null || v === undefined) return null;
   if (typeof v === 'string') {
@@ -53,14 +51,14 @@ function put(
  */
 export function collectDeviceSnapshot(): Record<string, string> {
   const attrs: Record<string, string> = {};
-  put(attrs, DeviceCol.platform, Platform.OS);
-  put(attrs, DeviceCol.osName, normString(Device.osName));
-  put(attrs, DeviceCol.osVersion, normString(Device.osVersion));
-  put(attrs, DeviceCol.deviceModelName, normString(Device.modelName));
-  put(attrs, DeviceCol.deviceBrand, normString(Device.brand));
-  put(attrs, DeviceCol.deviceName, normString(Constants.deviceName));
-  put(attrs, DeviceCol.appVersion, normString(Constants.expoConfig?.version));
-  put(attrs, DeviceCol.appBuildNumber, resolveAppBuildNumber());
-  put(attrs, DeviceCol.userAgent, readWebUserAgent());
+  put(attrs, 'platform', Platform.OS);
+  put(attrs, 'os_name', normString(Device.osName));
+  put(attrs, 'os_version', normString(Device.osVersion));
+  put(attrs, 'device_model_name', normString(Device.modelName));
+  put(attrs, 'device_brand', normString(Device.brand));
+  put(attrs, 'device_name', normString(Constants.deviceName));
+  put(attrs, 'app_version', normString(Constants.expoConfig?.version));
+  put(attrs, 'app_build_number', resolveAppBuildNumber());
+  put(attrs, 'user_agent', readWebUserAgent());
   return attrs;
 }

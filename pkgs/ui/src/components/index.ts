@@ -275,11 +275,7 @@ export {
 } from './floating-menu';
 
 // Compound Inputs
-export {
-  Combobox,
-  type ComboboxProps,
-  type ComboboxOption,
-} from './combobox';
+export { Combobox, type ComboboxProps, type ComboboxOption } from './combobox';
 export { Select, type SelectProps, type SelectOption } from './select';
 export {
   SegmentedControl,

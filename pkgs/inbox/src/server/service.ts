@@ -1,4 +1,4 @@
-import { col, sqlMap, type Expr } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -11,45 +11,6 @@ import type { InteractionListQuery, StoredInteractionRow } from './types';
 
 const DEFAULT_LIMIT = 30;
 
-function listFilterExpr(filter: InteractionListQuery['filter']): Expr {
-  switch (filter) {
-    case 'archived':
-      return [
-        'and',
-        ['is-not-null', 'archived_at'],
-        ['is-null', 'dismissed_at'],
-      ];
-    case 'action_required':
-      return [
-        'and',
-        ['=', 'active', true],
-        ['is-null', 'archived_at'],
-        ['is-null', 'dismissed_at'],
-        ['=', 'category', 'action_required'],
-      ];
-    default:
-      return [
-        'and',
-        ['=', 'active', true],
-        ['is-null', 'archived_at'],
-        ['is-null', 'dismissed_at'],
-      ];
-  }
-}
-
-// Row-value tuple cursor: `(priority, created_at, id) < (SELECT … WHERE id = ?)`.
-function listCursorExpr(cursor: string): Expr {
-  return [
-    '<',
-    ['tuple', 'priority', 'created_at', 'id'],
-    {
-      select: ['priority', 'created_at', 'id'],
-      from: 'inbox_interactions',
-      where: ['=', 'id', cursor],
-    },
-  ];
-}
-
 export async function listInteractions(
   db: SqlClient,
   query: InteractionListQuery
@@ -61,27 +22,37 @@ export async function listInteractions(
   const limit = query.limit ?? DEFAULT_LIMIT;
   const filter = query.filter ?? 'all';
   const hasCursor = query.cursor !== undefined && query.cursor.length > 0;
-
-  const where: Expr = hasCursor
-    ? [
-        'and',
-        ['=', 'user_id', query.userId],
-        listFilterExpr(filter),
-        listCursorExpr(query.cursor as string),
-      ]
-    : ['and', ['=', 'user_id', query.userId], listFilterExpr(filter)];
+  const cursor = query.cursor ?? null;
 
   const rows = await db.query<StoredInteractionRow>(
-    sqlMap({
-      from: 'inbox_interactions',
-      where,
-      orderBy: [
-        ['priority', 'desc'],
-        ['created_at', 'desc'],
-        ['id', 'desc'],
-      ],
-      limit: limit + 1,
-    })
+    sql`
+      SELECT *
+        FROM inbox_interactions
+       WHERE user_id = ${query.userId}
+         AND (
+           ${filter} = 'archived'
+           AND archived_at IS NOT NULL
+           AND dismissed_at IS NULL
+           OR ${filter} = 'action_required'
+           AND active = true
+           AND archived_at IS NULL
+           AND dismissed_at IS NULL
+           AND category = 'action_required'
+           OR ${filter} NOT IN ('archived', 'action_required')
+           AND active = true
+           AND archived_at IS NULL
+           AND dismissed_at IS NULL
+         )
+         AND (
+           ${hasCursor} = false
+           OR (priority, created_at, id) < (
+             SELECT priority, created_at, id
+               FROM inbox_interactions
+              WHERE id = ${cursor}
+           )
+         )
+       ORDER BY priority DESC, created_at DESC, id DESC
+       LIMIT ${limit + 1}`
   );
 
   const hasMore = rows.length > limit;
@@ -106,11 +77,10 @@ export async function markInteractionRead(
   }
   const now = new Date().toISOString();
   await db.run(
-    sqlMap({
-      update: 'inbox_interactions',
-      set: { read_at: now, updated_at: now },
-      where: ['and', ['=', 'id', interactionId], ['=', 'user_id', actorId]],
-    })
+    sql`
+      UPDATE inbox_interactions
+         SET read_at = ${now}, updated_at = ${now}
+       WHERE id = ${interactionId} AND user_id = ${actorId}`
   );
   const updated = await findInteractionById(db, actorId, interactionId);
   if (updated === null) {
@@ -125,18 +95,14 @@ export async function markAllInteractionsRead(
 ): Promise<void> {
   const now = new Date().toISOString();
   await db.run(
-    sqlMap({
-      update: 'inbox_interactions',
-      set: { read_at: now, updated_at: now },
-      where: [
-        'and',
-        ['=', 'user_id', actorId],
-        ['is-null', 'read_at'],
-        ['=', 'active', true],
-        ['is-null', 'archived_at'],
-        ['is-null', 'dismissed_at'],
-      ],
-    })
+    sql`
+      UPDATE inbox_interactions
+         SET read_at = ${now}, updated_at = ${now}
+       WHERE user_id = ${actorId}
+         AND read_at IS NULL
+         AND active = true
+         AND archived_at IS NULL
+         AND dismissed_at IS NULL`
   );
 }
 
@@ -151,15 +117,12 @@ export async function archiveInteraction(
   }
   const now = new Date().toISOString();
   await db.run(
-    sqlMap({
-      update: 'inbox_interactions',
-      set: {
-        archived_at: now,
-        read_at: ['coalesce', col('read_at'), now],
-        updated_at: now,
-      },
-      where: ['and', ['=', 'id', interactionId], ['=', 'user_id', actorId]],
-    })
+    sql`
+      UPDATE inbox_interactions
+         SET archived_at = ${now},
+             read_at = COALESCE(read_at, ${now}),
+             updated_at = ${now}
+       WHERE id = ${interactionId} AND user_id = ${actorId}`
   );
   const updated = await findInteractionById(db, actorId, interactionId);
   if (updated === null) {
@@ -179,15 +142,12 @@ export async function dismissInteraction(
   }
   const now = new Date().toISOString();
   await db.run(
-    sqlMap({
-      update: 'inbox_interactions',
-      set: {
-        dismissed_at: now,
-        read_at: ['coalesce', col('read_at'), now],
-        updated_at: now,
-      },
-      where: ['and', ['=', 'id', interactionId], ['=', 'user_id', actorId]],
-    })
+    sql`
+      UPDATE inbox_interactions
+         SET dismissed_at = ${now},
+             read_at = COALESCE(read_at, ${now}),
+             updated_at = ${now}
+       WHERE id = ${interactionId} AND user_id = ${actorId}`
   );
   const updated = await findInteractionById(db, actorId, interactionId);
   if (updated === null) {
@@ -224,18 +184,14 @@ export async function countUnreadInteractions(
   userId: string
 ): Promise<number> {
   const rows = await db.query<{ count: string }>(
-    sqlMap({
-      select: [[['cast', ['count', '*'], 'text'], 'count']],
-      from: 'inbox_interactions',
-      where: [
-        'and',
-        ['=', 'user_id', userId],
-        ['=', 'active', true],
-        ['is-null', 'read_at'],
-        ['is-null', 'archived_at'],
-        ['is-null', 'dismissed_at'],
-      ],
-    })
+    sql`
+      SELECT COUNT(*)::text AS count
+        FROM inbox_interactions
+       WHERE user_id = ${userId}
+         AND active = true
+         AND read_at IS NULL
+         AND archived_at IS NULL
+         AND dismissed_at IS NULL`
   );
   return Number(rows[0]?.count ?? 0);
 }

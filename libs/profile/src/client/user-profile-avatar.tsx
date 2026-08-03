@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 import { parseAvatarConfig } from '../shared/avatar-config';
 import { DeviceAvatar } from './device-avatar';
-import { useProfileColumn, ProfileField } from './use-profile-column';
+import { useProfileColumn } from './use-profile-column';
 
 export type UserProfileAvatarProps = {
   /** Profile entity id (account or install id). `null` renders nothing. */
@@ -39,7 +39,7 @@ function UserProfileAvatarInner({
   size: number;
   vividBackdrop: boolean;
 }): ReactNode {
-  const raw = useProfileColumn(profileId, ProfileField.avatarConfig);
+  const raw = useProfileColumn(profileId, 'avatarConfig');
   const avatarConfig = parseAvatarConfig(raw);
   return (
     <DeviceAvatar

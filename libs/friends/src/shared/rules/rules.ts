@@ -10,7 +10,10 @@ import {
 
 export { FRIENDS_MESSAGES } from './messages';
 export * from './codes';
-export { isResendCooldownActive, FRIEND_REQUEST_RESEND_COOLDOWN_MS } from './cooldown';
+export {
+  isResendCooldownActive,
+  FRIEND_REQUEST_RESEND_COOLDOWN_MS,
+} from './cooldown';
 
 export const FRIENDS_RULES = [
   friendsSendBeforeRule,

@@ -32,7 +32,9 @@ const builtinCollations = new Set<string>();
 
 function normalizeName(name: string, what: string): string {
   assert.string(name, `sqlMap: ${what} name must be a string`, { name });
-  assert.ok(name.length > 0, `sqlMap: ${what} name must be non-empty`, { name });
+  assert.ok(name.length > 0, `sqlMap: ${what} name must be non-empty`, {
+    name,
+  });
   return name.toLowerCase();
 }
 
@@ -40,7 +42,10 @@ function normalizeName(name: string, what: string): string {
  * Register (or replace) a sql-map operator / keyword op.
  * Names are matched case-insensitively.
  */
-export function registerSqlMapOp(name: string, compile: SqlMapOpCompiler): void {
+export function registerSqlMapOp(
+  name: string,
+  compile: SqlMapOpCompiler
+): void {
   const key = normalizeName(name, 'op');
   ops.set(key, compile);
   if (!builtinsRegistered) {
@@ -54,7 +59,10 @@ export function registerSqlMapOp(name: string, compile: SqlMapOpCompiler): void 
  *
  * Dotted names like `cron.schedule` are allowed (validated via {@link columnIdent}).
  */
-export function registerSqlMapFn(name: string, compile?: SqlMapOpCompiler): void {
+export function registerSqlMapFn(
+  name: string,
+  compile?: SqlMapOpCompiler
+): void {
   const key = normalizeName(name, 'fn');
   fns.set(key, compile ?? defaultFnCompiler(key));
   if (!builtinsRegistered) {

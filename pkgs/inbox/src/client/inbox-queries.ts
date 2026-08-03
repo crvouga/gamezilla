@@ -1,79 +1,35 @@
-import {
-  INBOX_INTERACTIONS_TABLE,
-  InboxInteractionCol,
-} from '@pkgs/inbox/sync/table-defs';
-import type { Sql } from '@pkgs/sql';
-import { sqlMap, type Expr } from '@pkgs/sql-map';
+import { sql, type Sql } from '@pkgs/sql';
 
 import type { InteractionFilter } from '../shared/interaction';
 
-function inboxFilterExpr(filter: InteractionFilter): Expr {
-  if (filter === 'archived') {
-    return [
-      'and',
-      ['is-not-null', InboxInteractionCol.archivedAt],
-      ['is-null', InboxInteractionCol.dismissedAt],
-    ];
-  }
-  if (filter === 'action_required') {
-    return [
-      'and',
-      ['is-null', InboxInteractionCol.archivedAt],
-      ['is-null', InboxInteractionCol.dismissedAt],
-      ['=', InboxInteractionCol.category, 'action_required'],
-    ];
-  }
-  return [
-    'and',
-    ['is-null', InboxInteractionCol.archivedAt],
-    ['is-null', InboxInteractionCol.dismissedAt],
-  ];
-}
-
 export function inboxListSql(userId: string, filter: InteractionFilter): Sql {
-  if (userId.length === 0) {
-    return sqlMap({
-      select: ['*'],
-      from: INBOX_INTERACTIONS_TABLE,
-      where: false,
-    });
-  }
-
-  return sqlMap({
-    select: ['*'],
-    from: INBOX_INTERACTIONS_TABLE,
-    where: [
-      'and',
-      ['=', InboxInteractionCol.userId, userId],
-      ['=', InboxInteractionCol.active, 1],
-      inboxFilterExpr(filter),
-    ],
-    orderBy: [
-      [InboxInteractionCol.priority, 'desc'],
-      [InboxInteractionCol.createdAt, 'desc'],
-      [InboxInteractionCol.id, 'desc'],
-    ],
-  });
+  return sql`
+    SELECT *
+      FROM inbox_interactions
+     WHERE user_id = ${userId}
+       AND active = 1
+       AND (
+         ${filter} = 'archived'
+         AND archived_at IS NOT NULL
+         AND dismissed_at IS NULL
+         OR ${filter} = 'action_required'
+         AND archived_at IS NULL
+         AND dismissed_at IS NULL
+         AND category = 'action_required'
+         OR ${filter} NOT IN ('archived', 'action_required')
+         AND archived_at IS NULL
+         AND dismissed_at IS NULL
+       )
+     ORDER BY priority DESC, created_at DESC, id DESC`;
 }
 
 export function inboxUnreadCountSql(userId: string): Sql {
-  if (userId.length === 0) {
-    return sqlMap({
-      select: [[['cast', 0, 'int'], 'count']],
-      from: INBOX_INTERACTIONS_TABLE,
-      where: false,
-    });
-  }
-  return sqlMap({
-    select: [[['count', '*'], 'count']],
-    from: INBOX_INTERACTIONS_TABLE,
-    where: [
-      'and',
-      ['=', InboxInteractionCol.userId, userId],
-      ['=', InboxInteractionCol.active, 1],
-      ['is-null', InboxInteractionCol.readAt],
-      ['is-null', InboxInteractionCol.archivedAt],
-      ['is-null', InboxInteractionCol.dismissedAt],
-    ],
-  });
+  return sql`
+    SELECT COUNT(*) AS count
+      FROM inbox_interactions
+     WHERE user_id = ${userId}
+       AND active = 1
+       AND read_at IS NULL
+       AND archived_at IS NULL
+       AND dismissed_at IS NULL`;
 }

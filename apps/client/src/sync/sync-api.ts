@@ -322,7 +322,9 @@ export async function uploadSyncBatch(args: {
     });
   }
   if (res.status === 409) {
-    const discardBody = (await res.json().catch(() => ({}))) as UploadDiscardBody;
+    const discardBody = (await res
+      .json()
+      .catch(() => ({}))) as UploadDiscardBody;
     if (discardBody.discard === true) {
       return;
     }

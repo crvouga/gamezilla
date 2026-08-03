@@ -1,8 +1,4 @@
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '@libs/auth/shared/external-account-providers';
-import {
-  EXTERNAL_ACCOUNTS_TABLE,
-  ExternalAccountCol,
-} from '@libs/db/shared/external-accounts-tables';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { describe, expect, it, mock } from 'bun:test';
@@ -19,13 +15,12 @@ describe('resolveAccountIdByStripeCustomerId', () => {
     expect(accountId).toBe('user-123');
     expect(query).toHaveBeenCalledTimes(1);
     const [statement] = query.mock.calls[0] as unknown as [Sql];
-    expect(statement.sql).toContain(`FROM ${EXTERNAL_ACCOUNTS_TABLE}`);
-    expect(statement.sql).toContain(`${ExternalAccountCol.provider} = ?`);
-    expect(statement.sql).toContain(`${ExternalAccountCol.externalId} = ?`);
+    expect(statement.sql).toContain('FROM external_accounts');
+    expect(statement.sql).toContain('provider = ?');
+    expect(statement.sql).toContain('external_id = ?');
     expect(statement.values).toEqual([
       EXTERNAL_ACCOUNT_PROVIDER_STRIPE,
       'cus_123',
-      1,
     ]);
   });
 

@@ -1,9 +1,5 @@
-import {
-  SPACE_USERS_TABLE,
-  SpaceUserCol,
-  spaceUserEntityId,
-} from '@libs/db/shared/space-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { spaceUserEntityId } from '@libs/db/shared/space-tables';
+import { sql } from '@pkgs/sql';
 
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
@@ -15,13 +11,11 @@ export function useHasSpaceUserLocal(
   const enabled = spaceId.length > 0 && userId !== null && userId.length > 0;
   const id =
     enabled && userId !== null ? spaceUserEntityId(spaceId, userId) : '';
-  const { row } = useWatchOne<{ readonly id: string }>(
-    sqlMap({
-      select: [SpaceUserCol.id],
-      from: SPACE_USERS_TABLE.tableName,
-      where: enabled ? ['=', SpaceUserCol.id, id] : ['=', 1, 0],
-      limit: 1,
-    })
-  );
+  const { row } = useWatchOne<{ readonly id: string }>(sql`
+    SELECT id
+    FROM space_users
+    WHERE id = ${id}
+    LIMIT 1
+  `);
   return row !== null;
 }

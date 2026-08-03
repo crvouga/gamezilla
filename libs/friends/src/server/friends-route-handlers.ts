@@ -84,11 +84,15 @@ export function handleAcceptFriendRequest(
   return withFriendsAuth(c, async (auth) => {
     const requestId = readRequiredString(c.req.param('id'), 'id');
     const sql = c.get('sqlClient');
-    const outcome = await runFriendsMutation(auth, sql, async (rulesAuth, db) => {
-      const input = { requestId };
-      await authorizeAccept(rulesAuth, input, db);
-      return acceptFriendRequest(rulesAuth, input, db);
-    });
+    const outcome = await runFriendsMutation(
+      auth,
+      sql,
+      async (rulesAuth, db) => {
+        const input = { requestId };
+        await authorizeAccept(rulesAuth, input, db);
+        return acceptFriendRequest(rulesAuth, input, db);
+      }
+    );
     if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
     const request = outcome.value.request;
     if (outcome.value.accepted) {
@@ -134,10 +138,14 @@ export function handleRemoveFriend(c: Context<ApiHonoEnv>): Promise<Response> {
   return withFriendsAuth(c, async (auth) => {
     const friendUserId = readRequiredString(c.req.param('userId'), 'userId');
     const sql = c.get('sqlClient');
-    const outcome = await runFriendsMutation(auth, sql, async (rulesAuth, db) => {
-      await removeFriend(rulesAuth, { userId: friendUserId }, db);
-      publishRemoveFriendEvent(rulesAuth, friendUserId);
-    });
+    const outcome = await runFriendsMutation(
+      auth,
+      sql,
+      async (rulesAuth, db) => {
+        await removeFriend(rulesAuth, { userId: friendUserId }, db);
+        publishRemoveFriendEvent(rulesAuth, friendUserId);
+      }
+    );
     if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
     return c.json({ ok: true });
   });
@@ -148,10 +156,14 @@ export function handleBlockUser(c: Context<ApiHonoEnv>): Promise<Response> {
     const body = (await c.req.json()) as BlockBody;
     const userId = readRequiredString(body.userId, 'userId');
     const sql = c.get('sqlClient');
-    const outcome = await runFriendsMutation(auth, sql, async (rulesAuth, db) => {
-      await blockUser(rulesAuth, { userId }, db);
-      publishBlockUserEvent(rulesAuth, userId);
-    });
+    const outcome = await runFriendsMutation(
+      auth,
+      sql,
+      async (rulesAuth, db) => {
+        await blockUser(rulesAuth, { userId }, db);
+        publishBlockUserEvent(rulesAuth, userId);
+      }
+    );
     if (!outcome.ok) return jsonWriteFailure(c, outcome.failure);
     await deactivatePendingFriendRequestInteractionsBetween(
       sql,

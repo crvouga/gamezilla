@@ -32,7 +32,10 @@ export function compileOnConflict(onConflict: OnConflict | undefined): Sql {
     return sql` ON CONFLICT (${target}) DO NOTHING`;
   }
 
-  assert.defined(onConflict.set, 'sqlMap: onConflict requires set or doNothing');
+  assert.defined(
+    onConflict.set,
+    'sqlMap: onConflict requires set or doNothing'
+  );
   const entries = Object.entries(onConflict.set);
   assert.ok(entries.length > 0, 'sqlMap: onConflict.set must be non-empty');
 

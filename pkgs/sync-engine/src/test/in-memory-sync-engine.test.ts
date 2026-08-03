@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { defineTable } from '../shared/table-definition';
 import { createTableRegistry } from '../shared/table-registry';
@@ -36,7 +36,7 @@ describe('createInMemorySyncEngine', () => {
     ]);
     const engine = createInMemorySyncEngine({ registry });
     const sub = engine.watch<{ id: string }>(
-      sqlMap({ select: ['id'], from: 'profiles', where: 0 })
+      sql`SELECT id FROM profiles WHERE false`
     );
     expect(sub.getSnapshot()).toEqual([]);
     expect(sub.getHydrated()).toBe(false);
@@ -55,18 +55,16 @@ describe('createInMemorySyncEngine', () => {
     const engine = createInMemorySyncEngine({ registry });
     await engine.connect();
     await engine.db.run(
-      sqlMap({
-        insertInto: 'profiles',
-        values: { id: 'p1', display_name: 'Ada' },
-      })
+      sql`
+        INSERT INTO profiles (id, display_name)
+        VALUES (${'p1'}, ${'Ada'})`
     );
 
     const sub = engine.watch<{ id: string; display_name: string }>(
-      sqlMap({
-        select: ['id', 'display_name'],
-        from: 'profiles',
-        where: ['=', 'id', 'p1'],
-      })
+      sql`
+        SELECT id, display_name
+          FROM profiles
+         WHERE id = ${'p1'}`
     );
     await waitForHydrated(sub);
     expect(sub.getHydrated()).toBe(true);
@@ -87,18 +85,16 @@ describe('createInMemorySyncEngine', () => {
     const engine = createInMemorySyncEngine({ registry });
     await engine.connect();
     await engine.db.run(
-      sqlMap({
-        insertInto: 'profiles',
-        values: { id: 'p1', display_name: 'Ada' },
-      })
+      sql`
+        INSERT INTO profiles (id, display_name)
+        VALUES (${'p1'}, ${'Ada'})`
     );
 
     const sub = engine.watch<{ display_name: string }>(
-      sqlMap({
-        select: ['display_name'],
-        from: 'profiles',
-        where: ['=', 'id', 'p1'],
-      })
+      sql`
+        SELECT display_name
+          FROM profiles
+         WHERE id = ${'p1'}`
     );
     await waitForHydrated(sub);
 
@@ -113,11 +109,10 @@ describe('createInMemorySyncEngine', () => {
     });
 
     await engine.db.run(
-      sqlMap({
-        update: 'profiles',
-        set: { display_name: 'Grace' },
-        where: ['=', 'id', 'p1'],
-      })
+      sql`
+        UPDATE profiles
+           SET display_name = ${'Grace'}
+         WHERE id = ${'p1'}`
     );
     expect(await next).toBe('Grace');
   });

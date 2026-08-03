@@ -52,7 +52,6 @@
 import { assert } from '@pkgs/assert';
 import { isNamespacedKeyword } from '@pkgs/keyword';
 import { raw, sql, unsafe } from '@pkgs/sql';
-import { col, registerSqlMapFn, sqlMap } from '@pkgs/sql-map';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
@@ -78,12 +77,6 @@ import {
   NUM_WAITING_PARTITIONS,
 } from './migrate-sql';
 import { DEFAULT_RADIUS_OPTIONS, type RadiusOptions } from './types';
-
-// pg_cron exposes its API as `cron.schedule` / `cron.unschedule`. Register
-// them as sql-map functions (default compiler emits `CRON.SCHEDULE(args…)`);
-// dotted names are validated as identifier paths. Runs once at module load.
-registerSqlMapFn('cron.schedule');
-registerSqlMapFn('cron.unschedule');
 
 export type MatchmakingSchema = {
   /**
@@ -287,25 +280,21 @@ async function maybeRebuildSchema(
 ): Promise<void> {
   const fp = fingerprintSchema(schema);
   const state = await sqlClient.query<{ schema_fingerprint: string }>(
-    sqlMap({
-      select: ['schema_fingerprint'],
-      from: 'matchmaking_schema_state',
-      where: ['=', 'id', 1],
-    })
+    sql`
+      SELECT schema_fingerprint
+        FROM matchmaking_schema_state
+       WHERE id = 1`
   );
   const currentFp = state[0]?.schema_fingerprint ?? null;
   if (currentFp === fp) return;
 
   await rebuildWaitingTable(sqlClient, schema);
   await sqlClient.run(
-    sqlMap({
-      insertInto: 'matchmaking_schema_state',
-      values: { id: 1, schema_fingerprint: fp },
-      onConflict: {
-        target: ['id'],
-        set: { schema_fingerprint: col('excluded.schema_fingerprint') },
-      },
-    })
+    sql`
+      INSERT INTO matchmaking_schema_state (id, schema_fingerprint)
+      VALUES (1, ${fp})
+      ON CONFLICT (id) DO UPDATE
+        SET schema_fingerprint = excluded.schema_fingerprint`
   );
 }
 
@@ -319,8 +308,6 @@ async function maybeRebuildSchema(
  */
 async function isPgCronInstalled(sqlClient: SqlClient): Promise<boolean> {
   try {
-    // sqlMap: system-catalog capability probe; keeping the `extname = 'pg_cron'`
-    // predicate as an inline literal (sqlMap would parameterize it).
     const rows = await sqlClient.query<{ ok: boolean }>(
       sql`SELECT EXISTS (
          SELECT 1 FROM pg_extension WHERE extname = 'pg_cron'
@@ -358,28 +345,19 @@ async function scheduleMatchmakingTick(sqlClient: SqlClient): Promise<void> {
   // re-schedule. The unschedule fallback is itself best-effort; if the
   // platform doesn't expose unschedule we surface the original error.
   const tickBody = `SELECT matchmaking_tick()`;
-  const scheduleQuery = sqlMap({
-    select: [
-      [
-        [
-          'cron.schedule',
-          ['param', CRON_JOB_NAME],
-          ['param', CRON_SCHEDULE],
-          ['param', tickBody],
-        ],
-        'jobid',
-      ],
-    ],
-  });
+  const scheduleQuery = sql`
+    SELECT cron.schedule(
+      ${CRON_JOB_NAME},
+      ${CRON_SCHEDULE},
+      ${tickBody}
+    ) AS jobid`;
   try {
     await sqlClient.run(scheduleQuery);
     return;
   } catch (err) {
     if (!isCronDuplicateNameError(err)) throw err;
   }
-  await sqlClient.run(
-    sqlMap({ select: [['cron.unschedule', ['param', CRON_JOB_NAME]]] })
-  );
+  await sqlClient.run(sql`SELECT cron.unschedule(${CRON_JOB_NAME})`);
   await sqlClient.run(scheduleQuery);
 }
 

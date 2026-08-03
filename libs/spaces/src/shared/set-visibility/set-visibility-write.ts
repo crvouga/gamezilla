@@ -1,4 +1,4 @@
-import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
+import { SPACES_TABLE } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import {
   isSpaceVisibility,
@@ -9,7 +9,7 @@ import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import { SIGN_IN_REQUIRED } from '@libs/spaces/shared/rules/codes';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -77,15 +77,11 @@ export async function setSpaceVisibility(
 ): Promise<void> {
   const accountId = requireAccountId(auth);
   const memberId = resolveSpaceMemberId(accountId);
-  await db.run(
-    sqlMap({
-      update: SPACES_TABLE.tableName,
-      set: {
-        [SpaceCol.visibility]: input.visibility,
-        [SpaceCol.hostId]: auth.deviceId,
-        [SpaceCol.hostMemberId]: memberId,
-      },
-      where: ['=', SpaceCol.id, input.spaceId],
-    })
-  );
+  await db.run(sql`
+    UPDATE spaces
+    SET visibility = ${input.visibility},
+        host_id = ${auth.deviceId},
+        host_member_id = ${memberId}
+    WHERE id = ${input.spaceId}
+  `);
 }

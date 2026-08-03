@@ -1,6 +1,4 @@
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { SPACE_USERS_TABLE, SpaceUserCol } from '@libs/db/shared/space-tables';
-import { col, sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
@@ -21,26 +19,15 @@ export function useSpaceUserEntries(spaceId: string): {
   readonly entries: readonly SpaceUserEntry[];
   readonly isLoading: boolean;
 } {
-  const enabled = spaceId.length > 0;
   const query = useMemo(
-    () =>
-      sqlMap({
-        select: [
-          [`a.${SpaceUserCol.userId}`, 'user_id'],
-          [`p.${ProfileCol.username}`, 'username'],
-          [`p.${ProfileCol.avatarConfig}`, 'avatar_config'],
-        ],
-        from: [SPACE_USERS_TABLE.tableName, 'a'],
-        join: [
-          [PROFILES_TABLE.tableName, 'p'],
-          ['=', `p.${ProfileCol.id}`, col(`a.${SpaceUserCol.userId}`)],
-        ],
-        where: enabled
-          ? ['=', `a.${SpaceUserCol.spaceId}`, spaceId]
-          : ['=', 1, 0],
-        orderBy: [[`p.${ProfileCol.username}`, 'asc', { collate: 'NOCASE' }]],
-      }),
-    [enabled, spaceId]
+    () => sql`
+      SELECT a.user_id, p.username, p.avatar_config
+      FROM space_users AS a
+      INNER JOIN profiles AS p ON p.id = a.user_id
+      WHERE a.space_id = ${spaceId}
+      ORDER BY p.username COLLATE NOCASE ASC
+    `,
+    [spaceId]
   );
   const { rows, isLoading } = useWatchQuery<SpaceUserRow>(query);
   const entries = useMemo(

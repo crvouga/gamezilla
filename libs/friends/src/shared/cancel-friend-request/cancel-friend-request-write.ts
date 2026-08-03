@@ -1,7 +1,10 @@
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
-import { FRIENDS_FORBIDDEN, FRIENDS_NOT_FOUND } from '@libs/friends/shared/rules/codes';
+import {
+  FRIENDS_FORBIDDEN,
+  FRIENDS_NOT_FOUND,
+} from '@libs/friends/shared/rules/codes';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 

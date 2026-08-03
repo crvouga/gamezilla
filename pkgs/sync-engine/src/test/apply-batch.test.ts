@@ -32,9 +32,7 @@ function mockSqlClient(): SqlClient {
   };
 }
 
-function widgetsPolicy(
-  authorize: TablePolicy['authorize']
-): TablePolicy {
+function widgetsPolicy(authorize: TablePolicy['authorize']): TablePolicy {
   return {
     table: 'widgets',
     allowedOps: new Set<UploadOp>(['put', 'patch', 'delete']),
@@ -106,9 +104,7 @@ describe('applyBatch', () => {
       denyTablePolicy('server_owned', 'SERVER_OWNED_TABLE'),
     ]);
 
-    await expect(
-      applyBatch(db, auth, batch, policies)
-    ).rejects.toMatchObject({
+    await expect(applyBatch(db, auth, batch, policies)).rejects.toMatchObject({
       failures: [
         { code: 'SERVER_OWNED_TABLE', table: 'server_owned', id: '1' },
       ],

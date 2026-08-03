@@ -1,8 +1,6 @@
 import {
   SPACE_USERS_TABLE,
-  SpaceCol,
   SPACES_TABLE,
-  SpaceUserCol,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
@@ -14,7 +12,7 @@ import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -88,29 +86,25 @@ export async function createSpace(
   const accountId = requireAccountId(auth);
   const now = isoNow();
   const memberId = resolveSpaceMemberId(accountId);
-  await db.run(
-    sqlMap({
-      insertInto: SPACES_TABLE.tableName,
-      values: {
-        [SpaceCol.id]: input.spaceId,
-        [SpaceCol.hostId]: auth.deviceId,
-        [SpaceCol.createdAt]: now,
-        [SpaceCol.visibility]: input.visibility,
-        [SpaceCol.hostAccountId]: accountId,
-        [SpaceCol.hostMemberId]: memberId,
-      },
-    })
-  );
-  await db.run(
-    sqlMap({
-      insertInto: SPACE_USERS_TABLE.tableName,
-      values: {
-        [SpaceUserCol.id]: spaceUserEntityId(input.spaceId, memberId),
-        [SpaceUserCol.spaceId]: input.spaceId,
-        [SpaceUserCol.userId]: memberId,
-        [SpaceUserCol.createdAt]: now,
-        [SpaceUserCol.createdByAccountId]: accountId,
-      },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO spaces (id, host_id, host_member_id, host_account_id, visibility, created_at)
+    VALUES (
+      ${input.spaceId},
+      ${auth.deviceId},
+      ${memberId},
+      ${accountId},
+      ${input.visibility},
+      ${now}
+    )
+  `);
+  await db.run(sql`
+    INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
+    VALUES (
+      ${spaceUserEntityId(input.spaceId, memberId)},
+      ${input.spaceId},
+      ${memberId},
+      ${now},
+      ${accountId}
+    )
+  `);
 }

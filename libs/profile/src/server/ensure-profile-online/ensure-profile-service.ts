@@ -1,5 +1,4 @@
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -28,18 +27,16 @@ async function insertProfileRow(
   username: string,
   now: string
 ): Promise<void> {
-  await db.run(
-    sqlMap({
-      insertInto: PROFILES_TABLE.tableName,
-      values: {
-        [ProfileCol.id]: profileId,
-        [ProfileCol.createdAt]: now,
-        [ProfileCol.username]: username,
-        [ProfileCol.avatarConfig]: serializeDefaultAvatarConfig(profileId),
-      },
-      onConflict: { target: [ProfileCol.id], doNothing: true },
-    })
-  );
+  await db.run(sql`
+    INSERT INTO profiles (id, created_at, username, avatar_config)
+    VALUES (
+      ${profileId},
+      ${now},
+      ${username},
+      ${serializeDefaultAvatarConfig(profileId)}
+    )
+    ON CONFLICT (id) DO NOTHING
+  `);
 }
 
 async function assignUniqueUsername(
@@ -49,21 +46,12 @@ async function assignUniqueUsername(
   for (let attempt = 0; attempt < MAX_USERNAME_ASSIGN_ATTEMPTS; attempt += 1) {
     const username = generateRandomUsername(`${profileId}:${attempt}`);
     try {
-      await db.run(
-        sqlMap({
-          update: PROFILES_TABLE.tableName,
-          set: { [ProfileCol.username]: username },
-          where: [
-            'and',
-            ['=', ProfileCol.id, profileId],
-            [
-              'or',
-              ['=', ProfileCol.username, ''],
-              ['is-null', ProfileCol.username],
-            ],
-          ],
-        })
-      );
+      await db.run(sql`
+        UPDATE profiles
+        SET username = ${username}
+        WHERE id = ${profileId}
+          AND (username = '' OR username IS NULL)
+      `);
       const card = await readProfileCardById(db, profileId);
       if (card !== null && card.username.length > 0) {
         return card.username;

@@ -60,11 +60,7 @@ function findLogEntry(
   return gameLog.find((e) => e.puzzleId === puzzleId) ?? null;
 }
 
-function ChessPuzzleReviewBody({
-  puzzleId,
-}: {
-  puzzleId: string;
-}): ReactNode {
+function ChessPuzzleReviewBody({ puzzleId }: { puzzleId: string }): ReactNode {
   const { fen, movesStr, rating } = usePuzzleEntity(puzzleId);
   const { gameLog } = useChessPuzzleHistory();
   const entry = useMemo(

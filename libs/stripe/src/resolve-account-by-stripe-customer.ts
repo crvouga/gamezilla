@@ -1,9 +1,5 @@
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '@libs/auth/shared/external-account-providers';
-import {
-  EXTERNAL_ACCOUNTS_TABLE,
-  ExternalAccountCol,
-} from '@libs/db/shared/external-accounts-tables';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -12,17 +8,12 @@ export async function resolveAccountIdByStripeCustomerId(
   db: SqlClient,
   stripeCustomerId: string
 ): Promise<string | null> {
-  const rows = await db.query<{ readonly user_id: string }>(
-    sqlMap({
-      select: [[ExternalAccountCol.userId, 'user_id']],
-      from: EXTERNAL_ACCOUNTS_TABLE,
-      where: [
-        'and',
-        ['=', ExternalAccountCol.provider, EXTERNAL_ACCOUNT_PROVIDER_STRIPE],
-        ['=', ExternalAccountCol.externalId, stripeCustomerId],
-      ],
-      limit: 1,
-    })
-  );
+  const rows = await db.query<{ readonly user_id: string }>(sql`
+    SELECT user_id
+    FROM external_accounts
+    WHERE provider = ${EXTERNAL_ACCOUNT_PROVIDER_STRIPE}
+      AND external_id = ${stripeCustomerId}
+    LIMIT 1
+  `);
   return rows[0]?.user_id ?? null;
 }

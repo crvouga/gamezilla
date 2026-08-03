@@ -1,7 +1,10 @@
 import { beforeAll, describe, expect, mock, test } from 'bun:test';
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 
 import type { ConfigService } from '@libs/auth/client/config-service-types';
+
+import type { SyncApiFetch } from './sync-api';
 
 function fakeConfig(): ConfigService {
   return {
@@ -10,7 +13,11 @@ function fakeConfig(): ConfigService {
 }
 
 describe('uploadSyncBatch discard protocol', () => {
-  let uploadSyncBatch: typeof import('./sync-api').uploadSyncBatch;
+  let uploadSyncBatch: (args: {
+    readonly config: ConfigService;
+    readonly fetchFn: SyncApiFetch;
+    readonly batch: UploadBatch;
+  }) => Promise<void>;
 
   beforeAll(async () => {
     await mock.module('@libs/auth/client/use-current-account-id', () => ({
@@ -44,7 +51,7 @@ describe('uploadSyncBatch discard protocol', () => {
             op: 'patch',
             table: PROFILES_TABLE.tableName,
             id: 'account-1',
-            values: { [ProfileCol.avatarConfig]: '{}' },
+            values: { avatar_config: '{}' },
           },
         ],
       },
@@ -63,7 +70,7 @@ describe('uploadSyncBatch discard protocol', () => {
               op: 'patch',
               table: PROFILES_TABLE.tableName,
               id: 'account-1',
-              values: { [ProfileCol.avatarConfig]: '{}' },
+              values: { avatar_config: '{}' },
             },
           ],
         },

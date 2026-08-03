@@ -1,17 +1,12 @@
 import {
   ENTITY_STORE_NAMESPACE_AUTH,
-  ENTITY_STORE_TABLE,
   ENTITY_STORE_TYPE_USER,
 } from '@libs/db/shared/entity-store-table';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
-import {
-  EXTERNAL_ACCOUNTS_TABLE,
-  ExternalAccountCol,
-} from '@libs/db/shared/external-accounts-tables';
 import {
   buildLinkedProviders,
   parseEntityStoreData,
@@ -70,52 +65,22 @@ export function useLinkedProviderSources(
 ): LinkedProviderSources | null {
   const { providerLabel: primaryAuthProvider } = useAuthClientPort();
   const { row: authExternalAccountRow } =
-    useWatchOne<PrimaryAuthExternalAccountRow>(
-      accountId === null
-        ? sqlMap({
-            select: [
-              [ExternalAccountCol.externalId, 'external_id'],
-              [ExternalAccountCol.metadata, 'metadata'],
-              [ExternalAccountCol.createdAt, 'created_at'],
-            ],
-            from: EXTERNAL_ACCOUNTS_TABLE,
-            where: ['=', 1, 0],
-          })
-        : sqlMap({
-            select: [
-              [ExternalAccountCol.externalId, 'external_id'],
-              [ExternalAccountCol.metadata, 'metadata'],
-              [ExternalAccountCol.createdAt, 'created_at'],
-            ],
-            from: EXTERNAL_ACCOUNTS_TABLE,
-            where: [
-              'and',
-              ['=', ExternalAccountCol.userId, accountId],
-              ['=', ExternalAccountCol.provider, primaryAuthProvider],
-            ],
-            limit: 1,
-          })
-    );
+    useWatchOne<PrimaryAuthExternalAccountRow>(sql`
+      SELECT external_id, metadata, created_at
+      FROM external_accounts
+      WHERE user_id = ${accountId}
+        AND provider = ${primaryAuthProvider}
+      LIMIT 1
+    `);
 
-  const { row: entityRow } = useWatchOne<AuthEntityStoreRow>(
-    accountId === null
-      ? sqlMap({
-          select: ['data', 'created_at'],
-          from: ENTITY_STORE_TABLE,
-          where: ['=', 1, 0],
-        })
-      : sqlMap({
-          select: ['data', 'created_at'],
-          from: ENTITY_STORE_TABLE,
-          where: [
-            'and',
-            ['=', 'namespace', ENTITY_STORE_NAMESPACE_AUTH],
-            ['=', 'type', ENTITY_STORE_TYPE_USER],
-            ['=', 'owner_id', accountId],
-          ],
-          limit: 1,
-        })
-  );
+  const { row: entityRow } = useWatchOne<AuthEntityStoreRow>(sql`
+    SELECT data, created_at
+    FROM entity_store
+    WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH}
+      AND type = ${ENTITY_STORE_TYPE_USER}
+      AND owner_id = ${accountId}
+    LIMIT 1
+  `);
 
   return useMemo((): LinkedProviderSources | null => {
     if (accountId === null) return null;

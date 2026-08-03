@@ -27,10 +27,7 @@ export type SpaceOpenRoomEntry = {
 
 type SpaceOpenRoomsApi = {
   readonly getEntry: (spaceId: string) => SpaceOpenRoomEntry | null;
-  readonly dispatch: (
-    spaceId: string,
-    payload: RoomCommandPayload
-  ) => void;
+  readonly dispatch: (spaceId: string, payload: RoomCommandPayload) => void;
 };
 
 const SpaceOpenRoomsContext = createContext<SpaceOpenRoomsApi | null>(null);

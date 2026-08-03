@@ -28,6 +28,25 @@ function bumpSuppressed(): void {
   updateSuppressedCount();
 }
 
+function buildErrorText(message: string, contextJson: string): string {
+  const body =
+    contextJson.length > 0 ? `${message}\n\n${contextJson}` : message;
+  return `Assertion failed: ${body}`;
+}
+
+async function copyErrorText(text: string, button: HTMLButtonElement) {
+  const label = button.textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    button.textContent = 'Copied';
+  } catch {
+    button.textContent = 'Copy failed';
+  }
+  setTimeout(() => {
+    button.textContent = label;
+  }, 1500);
+}
+
 function buildOverlayHtml(message: string, contextJson: string): string {
   const safeMessage = escapeHtml(message);
   const safeContext = escapeHtml(contextJson);
@@ -46,10 +65,26 @@ function buildOverlayHtml(message: string, contextJson: string): string {
   <p class="assert-message">${safeMessage}</p>
   ${contextBlock}
   <div class="assert-actions">
-    <button class="assert-btn assert-btn-primary" onclick="location.reload()">Reload</button>
+    <button type="button" class="assert-btn assert-btn-primary" data-assert-action="reload">Reload</button>
+    <button type="button" class="assert-btn assert-btn-secondary" data-assert-action="copy">Copy error</button>
     <span class="assert-suppressed" id="${SUPPRESSED_EL_ID}" style="${suppressedDisplay}">+${suppressedCount} more</span>
   </div>
 </div>`;
+}
+
+function wireOverlayActions(overlay: HTMLElement, errorText: string) {
+  const reload = overlay.querySelector('[data-assert-action="reload"]');
+  if (reload instanceof HTMLButtonElement) {
+    reload.addEventListener('click', () => {
+      location.reload();
+    });
+  }
+  const copy = overlay.querySelector('[data-assert-action="copy"]');
+  if (copy instanceof HTMLButtonElement) {
+    copy.addEventListener('click', () => {
+      void copyErrorText(errorText, copy);
+    });
+  }
 }
 
 function crashBrowser(message: string, context?: Record<string, unknown>) {
@@ -63,6 +98,7 @@ function crashBrowser(message: string, context?: Record<string, unknown>) {
   const overlay = document.createElement('div');
   overlay.id = OVERLAY_ID;
   overlay.innerHTML = buildOverlayHtml(message, contextJson);
+  wireOverlayActions(overlay, buildErrorText(message, contextJson));
   document.body.appendChild(overlay);
 }
 

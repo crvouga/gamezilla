@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, mock, test } from 'bun:test';
-import { ProfileCol, PROFILES_TABLE } from '@libs/db/shared/profile-tables';
+import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 
 describe('prepareSyncUploadBatch', () => {
@@ -25,7 +25,7 @@ describe('prepareSyncUploadBatch', () => {
           op: 'patch',
           table: PROFILES_TABLE.tableName,
           id: 'account-1',
-          values: { [ProfileCol.username]: 'Assigned' },
+          values: { username: 'Assigned' },
         },
       ],
     });
@@ -40,8 +40,8 @@ describe('prepareSyncUploadBatch', () => {
           table: PROFILES_TABLE.tableName,
           id: 'account-1',
           values: {
-            [ProfileCol.username]: 'Assigned',
-            [ProfileCol.avatarConfig]: '{"style":"bottts"}',
+            username: 'Assigned',
+            avatar_config: '{"style":"bottts"}',
           },
         },
       ],
@@ -51,7 +51,7 @@ describe('prepareSyncUploadBatch', () => {
         op: 'patch',
         table: PROFILES_TABLE.tableName,
         id: 'account-1',
-        values: { [ProfileCol.avatarConfig]: '{"style":"bottts"}' },
+        values: { avatar_config: '{"style":"bottts"}' },
       },
     ]);
   });
@@ -65,7 +65,7 @@ describe('prepareSyncUploadBatch', () => {
           id: 'other-user',
           values: {
             id: 'other-user',
-            [ProfileCol.avatarConfig]: '{"style":"bottts"}',
+            avatar_config: '{"style":"bottts"}',
           },
         },
         {

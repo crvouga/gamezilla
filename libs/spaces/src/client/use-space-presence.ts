@@ -1,11 +1,9 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
-import type { Sql } from '@pkgs/sql';
-import { sqlMap } from '@pkgs/sql-map';
+import { sql, type Sql } from '@pkgs/sql';
 
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 
-import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
 import {
   latchStaleSpacePresence,
   resolveSpacePresence,
@@ -25,12 +23,12 @@ type SpaceRow = {
   readonly ended_at: string | null;
 };
 
-function spaceRowSql(enabled: boolean, spaceId: string): Sql {
-  return sqlMap({
-    select: [SpaceCol.hostMemberId, SpaceCol.hostAccountId, SpaceCol.endedAt],
-    from: SPACES_TABLE.tableName,
-    where: enabled ? ['=', SpaceCol.id, spaceId] : ['=', 1, 0],
-  });
+function spaceRowSql(spaceId: string): Sql {
+  return sql`
+    SELECT host_member_id, host_account_id, ended_at
+    FROM spaces
+    WHERE id = ${spaceId}
+  `;
 }
 
 function applyPresenceLatch(
@@ -56,7 +54,7 @@ export function useSpacePresence(spaceId: string): SpacePresence {
   const { isOpen } = useOpenSpaceIds();
   const spaceEnabled = spaceId.length > 0;
   const { row: spaceRow, isLoading: spaceLoading } = useWatchOne<SpaceRow>(
-    spaceRowSql(spaceEnabled, spaceId)
+    spaceRowSql(spaceId)
   );
   if (!paintReady) {
     return { status: 'loading' };

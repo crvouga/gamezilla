@@ -3,34 +3,6 @@ import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
 export const INBOX_INTERACTIONS_TABLE = 'inbox_interactions' as const;
 export const INBOX_PREFERENCES_TABLE = 'inbox_preferences' as const;
 
-export const InboxInteractionCol = {
-  id: 'id',
-  userId: 'user_id',
-  sourceNamespace: 'source_namespace',
-  sourceType: 'source_type',
-  sourceId: 'source_id',
-  category: 'category',
-  priority: 'priority',
-  groupKey: 'group_key',
-  title: 'title',
-  subtitle: 'subtitle',
-  body: 'body',
-  iconKey: 'icon_key',
-  avatarFallbackLabel: 'avatar_fallback_label',
-  avatarConfig: 'avatar_config',
-  deepLinkPath: 'deep_link_path',
-  deepLinkParams: 'deep_link_params',
-  actions: 'actions',
-  payload: 'payload',
-  expiresAt: 'expires_at',
-  readAt: 'read_at',
-  archivedAt: 'archived_at',
-  dismissedAt: 'dismissed_at',
-  active: 'active',
-  createdAt: 'created_at',
-  updatedAt: 'updated_at',
-} as const;
-
 export const INBOX_INTERACTIONS_TABLE_DEF = defineTable({
   tableName: INBOX_INTERACTIONS_TABLE,
   columns: [

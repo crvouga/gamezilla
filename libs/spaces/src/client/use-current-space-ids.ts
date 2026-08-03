@@ -1,7 +1,5 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
-import { SpaceCol, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import type { Sql } from '@pkgs/sql';
-import { sqlMap } from '@pkgs/sql-map';
+import { join, sql, type Sql } from '@pkgs/sql';
 
 import {
   useSyncStatus,
@@ -67,27 +65,17 @@ export function buildCurrentSpaceEntries(
 
 function openSpacesSql(enabled: boolean, openSpaceIds: readonly string[]): Sql {
   if (!enabled || openSpaceIds.length === 0) {
-    return sqlMap({
-      select: [
-        SpaceCol.id,
-        SpaceCol.hostMemberId,
-        SpaceCol.hostAccountId,
-        SpaceCol.endedAt,
-      ],
-      from: SPACES_TABLE.tableName,
-      where: ['=', 1, 0],
-    });
+    return sql`
+      SELECT id, host_member_id, host_account_id, ended_at
+      FROM spaces
+      WHERE false
+    `;
   }
-  return sqlMap({
-    select: [
-      SpaceCol.id,
-      SpaceCol.hostMemberId,
-      SpaceCol.hostAccountId,
-      SpaceCol.endedAt,
-    ],
-    from: SPACES_TABLE.tableName,
-    where: ['in', SpaceCol.id, [...openSpaceIds]],
-  });
+  return sql`
+    SELECT id, host_member_id, host_account_id, ended_at
+    FROM spaces
+    WHERE id IN (${join([...openSpaceIds])})
+  `;
 }
 
 function resolveDisplayEntries(

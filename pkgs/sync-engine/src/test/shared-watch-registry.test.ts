@@ -1,4 +1,4 @@
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { describe, expect, test } from 'bun:test';
 
@@ -47,12 +47,8 @@ describe('createSharedWatchRegistry', () => {
       });
     });
 
-    const a = registry.watch(
-      sqlMap({ select: ['id'], from: 't', where: ['=', 'id', '1'] })
-    );
-    const b = registry.watch(
-      sqlMap({ select: ['id'], from: 't', where: ['=', 'id', '1'] })
-    );
+    const a = registry.watch(sql`SELECT id FROM t WHERE id = ${'1'}`);
+    const b = registry.watch(sql`SELECT id FROM t WHERE id = ${'1'}`);
 
     const unsubA = a.subscribe(() => undefined);
     const unsubB = b.subscribe(() => undefined);
@@ -77,12 +73,8 @@ describe('createSharedWatchRegistry', () => {
       );
     });
 
-    const a = registry.watch(
-      sqlMap({ select: ['id'], from: 't', where: ['=', 'id', 'a'] })
-    );
-    const b = registry.watch(
-      sqlMap({ select: ['id'], from: 't', where: ['=', 'id', 'b'] })
-    );
+    const a = registry.watch(sql`SELECT id FROM t WHERE id = ${'a'}`);
+    const b = registry.watch(sql`SELECT id FROM t WHERE id = ${'b'}`);
     const unsubA = a.subscribe(() => undefined);
     const unsubB = b.subscribe(() => undefined);
 
@@ -97,9 +89,7 @@ describe('createSharedWatchRegistry', () => {
   test('notifies all subscribers when underlying handle emits', () => {
     const fake = createFakeHandle([{ n: 1 }], () => undefined);
     const registry = createSharedWatchRegistry(() => fake);
-    const sub = registry.watch<{ n: number }>(
-      sqlMap({ select: ['n'], from: 't' })
-    );
+    const sub = registry.watch<{ n: number }>(sql`SELECT n FROM t`);
     let ticks = 0;
     const unsub = sub.subscribe(() => {
       ticks += 1;

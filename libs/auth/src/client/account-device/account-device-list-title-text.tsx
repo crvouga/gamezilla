@@ -1,7 +1,7 @@
 import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { ReactNode } from 'react';
-import { DeviceField, useDeviceColumn } from '../use-device-column';
+import { useDeviceColumn } from '../use-device-column';
 import { formatDeviceListTitle } from '../device-parsers';
 
 export type AccountDeviceListTitleTextProps = {
@@ -18,12 +18,9 @@ export function AccountDeviceListTitleText({
   numberOfLines,
   sx,
 }: AccountDeviceListTitleTextProps): ReactNode {
-  const deviceName = useDeviceColumn(deviceId, DeviceField.deviceName);
-  const deviceBrand = useDeviceColumn(deviceId, DeviceField.deviceBrand);
-  const deviceModelName = useDeviceColumn(
-    deviceId,
-    DeviceField.deviceModelName
-  );
+  const deviceName = useDeviceColumn(deviceId, 'deviceName');
+  const deviceBrand = useDeviceColumn(deviceId, 'deviceBrand');
+  const deviceModelName = useDeviceColumn(deviceId, 'deviceModelName');
   const label = formatDeviceListTitle({
     deviceId,
     deviceName,

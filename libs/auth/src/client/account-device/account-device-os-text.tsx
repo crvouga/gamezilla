@@ -1,6 +1,6 @@
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { DeviceField, useDeviceColumn } from '../use-device-column';
+import { useDeviceColumn } from '../use-device-column';
 import { EM_DASH } from '../device-parsers';
 
 export type AccountDeviceOsTextProps = {
@@ -11,8 +11,8 @@ export type AccountDeviceOsTextProps = {
 export function AccountDeviceOsText({
   deviceId,
 }: AccountDeviceOsTextProps): ReactNode {
-  const osName = useDeviceColumn(deviceId, DeviceField.osName);
-  const osVersion = useDeviceColumn(deviceId, DeviceField.osVersion);
+  const osName = useDeviceColumn(deviceId, 'osName');
+  const osVersion = useDeviceColumn(deviceId, 'osVersion');
   const label =
     osName === null && osVersion === null
       ? EM_DASH

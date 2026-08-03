@@ -1,13 +1,7 @@
-import { sqlMap } from '@pkgs/sql-map';
+import { sql } from '@pkgs/sql';
 
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import {
-  EXTERNAL_ACCOUNTS_TABLE,
-  ExternalAccountCol,
-  USERS_TABLE,
-  UserTableCol,
-} from '@libs/db/shared/external-accounts-tables';
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '../shared/external-account-providers';
 import { useAuthClientPort } from './auth-client-provider';
 import { isAuthSessionSignedIn } from './session-snapshot';
@@ -44,34 +38,17 @@ type StripeLinkRow = {
  */
 export function useCurrentUser(): CurrentUser | null {
   const accountId = useCurrentAccountId();
-  const { row: userRow } = useWatchOne<UserRow>(
-    sqlMap({
-      select: [UserTableCol.createdAt],
-      from: USERS_TABLE,
-      where: ['=', UserTableCol.id, accountId ?? ''],
-    })
-  );
-  const { row: stripeRow } = useWatchOne<StripeLinkRow>(
-    accountId === null
-      ? sqlMap({
-          select: [[ExternalAccountCol.externalId, 'external_id']],
-          from: EXTERNAL_ACCOUNTS_TABLE,
-          where: ['=', 1, 0],
-        })
-      : sqlMap({
-          select: [[ExternalAccountCol.externalId, 'external_id']],
-          from: EXTERNAL_ACCOUNTS_TABLE,
-          where: [
-            'and',
-            ['=', ExternalAccountCol.userId, accountId],
-            [
-              '=',
-              ExternalAccountCol.provider,
-              EXTERNAL_ACCOUNT_PROVIDER_STRIPE,
-            ],
-          ],
-        })
-  );
+  const { row: userRow } = useWatchOne<UserRow>(sql`
+    SELECT created_at
+    FROM users
+    WHERE id = ${accountId}
+  `);
+  const { row: stripeRow } = useWatchOne<StripeLinkRow>(sql`
+    SELECT external_id
+    FROM external_accounts
+    WHERE user_id = ${accountId}
+      AND provider = ${EXTERNAL_ACCOUNT_PROVIDER_STRIPE}
+  `);
   if (accountId === null) return null;
 
   return {

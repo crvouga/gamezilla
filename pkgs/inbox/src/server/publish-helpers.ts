@@ -1,5 +1,4 @@
-import type { Sql } from '@pkgs/sql';
-import { col, sqlMap, type ColRef, type OpCall, type Scalar } from '@pkgs/sql-map';
+import { sql, type Sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -17,11 +16,7 @@ async function findById(
   id: string
 ): Promise<StoredInteractionRow | null> {
   const rows = await db.query<StoredInteractionRow>(
-    sqlMap({
-      select: ['*'],
-      from: 'inbox_interactions',
-      where: ['=', 'id', id],
-    })
+    sql`SELECT * FROM inbox_interactions WHERE id = ${id}`
   );
   return rows[0] ?? null;
 }
@@ -31,17 +26,13 @@ async function findBySource(
   lookup: SourceLookup
 ): Promise<StoredInteractionRow | null> {
   const rows = await db.query<StoredInteractionRow>(
-    sqlMap({
-      select: ['*'],
-      from: 'inbox_interactions',
-      where: [
-        'and',
-        ['=', 'user_id', lookup.userId],
-        ['=', 'source_namespace', lookup.namespace],
-        ['=', 'source_type', lookup.type],
-        ['=', 'source_id', lookup.id],
-      ],
-    })
+    sql`
+      SELECT *
+        FROM inbox_interactions
+       WHERE user_id = ${lookup.userId}
+         AND source_namespace = ${lookup.namespace}
+         AND source_type = ${lookup.type}
+         AND source_id = ${lookup.id}`
   );
   return rows[0] ?? null;
 }
@@ -50,13 +41,9 @@ function nullableString(value: string | undefined): string | null {
   return value ?? null;
 }
 
-type InteractionInsertValues = Readonly<
-  Record<string, Scalar | ColRef | OpCall>
->;
-
 function avatarInsertValues(
   presentation: PublishInteractionInput['presentation']
-): InteractionInsertValues {
+): Pick<InteractionInsertValues, 'avatar_fallback_label' | 'avatar_config'> {
   const avatar = presentation.avatar;
   return {
     avatar_fallback_label: avatar?.fallbackLabel ?? null,
@@ -66,13 +53,38 @@ function avatarInsertValues(
 
 function deepLinkInsertValues(
   presentation: PublishInteractionInput['presentation']
-): InteractionInsertValues {
+): Pick<InteractionInsertValues, 'deep_link_path' | 'deep_link_params'> {
   const deepLink = presentation.deepLink;
   return {
     deep_link_path: deepLink?.path ?? null,
-    deep_link_params: ['cast', JSON.stringify(deepLink?.params ?? {}), 'jsonb'],
+    deep_link_params: JSON.stringify(deepLink?.params ?? {}),
   };
 }
+
+type InteractionInsertValues = {
+  readonly id: string;
+  readonly user_id: string;
+  readonly source_namespace: string;
+  readonly source_type: string;
+  readonly source_id: string;
+  readonly category: string;
+  readonly priority: number;
+  readonly group_key: string | null;
+  readonly title: string;
+  readonly subtitle: string | null;
+  readonly body: string | null;
+  readonly icon_key: string | null;
+  readonly avatar_fallback_label: string | null;
+  readonly avatar_config: string | null;
+  readonly deep_link_path: string | null;
+  readonly deep_link_params: string;
+  readonly actions: string;
+  readonly payload: string;
+  readonly expires_at: string | null;
+  readonly active: boolean;
+  readonly created_at: string;
+  readonly updated_at: string;
+};
 
 function upsertInteractionValues(
   input: PublishInteractionInput,
@@ -96,8 +108,8 @@ function upsertInteractionValues(
     icon_key: nullableString(presentation.iconKey),
     ...avatarInsertValues(presentation),
     ...deepLinkInsertValues(presentation),
-    actions: ['cast', JSON.stringify(input.actions), 'jsonb'],
-    payload: ['cast', JSON.stringify(payload), 'jsonb'],
+    actions: JSON.stringify(input.actions),
+    payload: JSON.stringify(payload),
     expires_at: input.expiresAt ?? null,
     active: true,
     created_at: now,
@@ -109,31 +121,41 @@ function upsertInteractionSql(
   input: PublishInteractionInput,
   now: string
 ): Sql {
-  return sqlMap({
-    insertInto: 'inbox_interactions',
-    values: upsertInteractionValues(input, now),
-    onConflict: {
-      target: ['id'],
-      set: {
-        category: col('excluded.category'),
-        priority: col('excluded.priority'),
-        group_key: col('excluded.group_key'),
-        title: col('excluded.title'),
-        subtitle: col('excluded.subtitle'),
-        body: col('excluded.body'),
-        icon_key: col('excluded.icon_key'),
-        avatar_fallback_label: col('excluded.avatar_fallback_label'),
-        avatar_config: col('excluded.avatar_config'),
-        deep_link_path: col('excluded.deep_link_path'),
-        deep_link_params: col('excluded.deep_link_params'),
-        actions: col('excluded.actions'),
-        payload: col('excluded.payload'),
-        expires_at: col('excluded.expires_at'),
-        active: true,
-        updated_at: col('excluded.updated_at'),
-      },
-    },
-  });
+  const values = upsertInteractionValues(input, now);
+  return sql`
+    INSERT INTO inbox_interactions (
+      id, user_id, source_namespace, source_type, source_id, category,
+      priority, group_key, title, subtitle, body, icon_key,
+      avatar_fallback_label, avatar_config, deep_link_path, deep_link_params,
+      actions, payload, expires_at, active, created_at, updated_at
+    )
+    VALUES (
+      ${values.id}, ${values.user_id}, ${values.source_namespace},
+      ${values.source_type}, ${values.source_id}, ${values.category},
+      ${values.priority}, ${values.group_key}, ${values.title}, ${values.subtitle},
+      ${values.body}, ${values.icon_key}, ${values.avatar_fallback_label},
+      ${values.avatar_config}, ${values.deep_link_path},
+      ${values.deep_link_params}::jsonb, ${values.actions}::jsonb,
+      ${values.payload}::jsonb, ${values.expires_at}, ${values.active},
+      ${values.created_at}, ${values.updated_at}
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      category = excluded.category,
+      priority = excluded.priority,
+      group_key = excluded.group_key,
+      title = excluded.title,
+      subtitle = excluded.subtitle,
+      body = excluded.body,
+      icon_key = excluded.icon_key,
+      avatar_fallback_label = excluded.avatar_fallback_label,
+      avatar_config = excluded.avatar_config,
+      deep_link_path = excluded.deep_link_path,
+      deep_link_params = excluded.deep_link_params,
+      actions = excluded.actions,
+      payload = excluded.payload,
+      expires_at = excluded.expires_at,
+      active = true,
+      updated_at = excluded.updated_at`;
 }
 
 export { findById, findBySource, upsertInteractionSql };
