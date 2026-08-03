@@ -67,6 +67,6 @@ ALTER TABLE ONLY public.devices
     expect(collapsed).toContain('CREATE INDEX IF NOT EXISTS');
     expect(collapsed).toContain('DO $$ BEGIN');
     expect(collapsed).toContain('WHEN duplicate_object THEN NULL');
-    expect(collapsed).toContain('Collapsed from live Infisical');
+    expect(collapsed).toContain('Collapsed from live secrets-env');
   });
 });

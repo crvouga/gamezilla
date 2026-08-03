@@ -94,8 +94,7 @@ export class PgDumpDep implements Dep {
     if (major === null || major < PG_DUMP_REQUIRED_MAJOR) {
       return {
         ok: false,
-        reason:
-          `have ${v} (need major >= ${PG_DUMP_REQUIRED_MAJOR}) — ${INSTALL_HINT}`,
+        reason: `have ${v} (need major >= ${PG_DUMP_REQUIRED_MAJOR}) — ${INSTALL_HINT}`,
       };
     }
     return { ok: true, version: v };

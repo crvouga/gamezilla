@@ -22,12 +22,14 @@ type RegistryEntry = {
   refCount: number;
 };
 
-type OpenWatchSql = (query: Sql<any>) => WatchSqlHandle;
+type OpenWatchSql = (
+  query: Sql<Record<string, unknown>>
+) => WatchSqlHandle;
 
 function getOrCreateEntry(
   entries: Map<string, RegistryEntry>,
   open: OpenWatchSql,
-  query: Sql<any>
+  query: Sql<Record<string, unknown>>
 ): RegistryEntry {
   const key = watchQueryCacheKey(query.sql, JSON.stringify(query.values));
   const existing = entries.get(key);

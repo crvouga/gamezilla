@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Compare live Postgres schemas for Infisical envs `dev` and `prd`.
+ * Compare live Postgres schemas for secrets envs `dev` and `prd`.
  * When equivalent, optionally collapse the shared end-state into
  * `libs/db/src/server/schema.sql` as idempotent DDL (no migration history).
  *
@@ -52,7 +52,7 @@ function failTooling(message: string): never {
 function usage(): never {
   console.error(`usage: bun run db:schema:sync -- --confirm-prd [--write] [--schema <name>]
 
-Compare Infisical \`dev\` vs \`prd\` Postgres schemas (pg_dump --schema-only).
+Compare secrets-env \`dev\` vs \`prd\` Postgres schemas (pg_dump --schema-only).
 When equivalent, \`--write\` overwrites libs/db/src/server/schema.sql with
 collapsed idempotent end-state DDL.
 
@@ -132,7 +132,9 @@ async function fetchDatabaseUrl(secretsEnv: 'dev' | 'prd'): Promise<string> {
     const admin = await createSecretAdminStore({ repoRoot: REPO_ROOT });
     const url = (await admin.fetchSecret('DATABASE_URL', secretsEnv)).trim();
     if (url.length === 0) {
-      failTooling(`Secret store returned an empty DATABASE_URL for ${secretsEnv}`);
+      failTooling(
+        `Secret store returned an empty DATABASE_URL for ${secretsEnv}`
+      );
     }
     return url;
   } catch (e) {
@@ -377,7 +379,7 @@ export function collapseDumpToIdempotentSql(normalizedDump: string): string {
   const date = new Date().toISOString().slice(0, 10);
   const header = `-- ============ Base schema ============
 -- Idempotent Postgres DDL for the PowerSync source database.
--- Collapsed from live Infisical \`dev\` + \`prd\` schemas (${date}).
+-- Collapsed from live secrets-env \`dev\` + \`prd\` schemas (${date}).
 -- Re-run in full on every deploy. Statements must stay safe to repeat.
 -- PowerSync publication remains in libs/infra powersync-source-db.sql.
 `;
@@ -397,7 +399,7 @@ async function main(): Promise<void> {
   const pgDumpBin = requirePgDump();
   log(`Using ${pgDumpBin}`);
 
-  log(`Dumping schema=${args.schema} from Infisical envs dev and prd`);
+  log(`Dumping schema=${args.schema} from secrets envs dev and prd`);
   const [devUrl, prdUrl] = await Promise.all([
     fetchDatabaseUrl('dev'),
     fetchDatabaseUrl('prd'),

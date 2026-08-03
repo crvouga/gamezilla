@@ -27,9 +27,9 @@ export type Value =
 
 /**
  * Supported value or SQL instance.
- * Nested fragments use `Sql<any>` so row phantoms do not block composition.
+ * Nested fragments use `Sql<unknown>` so row phantoms do not block composition.
  */
-export type RawValue = Value | Sql<any>;
+export type RawValue = Value | Sql<unknown>;
 
 /**
  * SQL fragment or mutation with no row result type (`INSERT` / `UPDATE` / `DELETE`,
@@ -156,7 +156,7 @@ function countFlattenedValues(rawValues: readonly RawValue[]): number {
 function appendNestedSql(
   result: { strings: string[]; values: Value[] },
   pos: number,
-  child: Sql<any>,
+  child: Sql<unknown>,
   rawString: string
 ): number {
   assert.ok(pos < result.strings.length, 'Sql: nest write past strings end', {
@@ -277,8 +277,12 @@ function listGlueStrings(
  *   Use {@link SqlFragment} (`Sql<void>`) for mutations and nested fragments.
  */
 export class Sql<out T = void> {
-  /** Phantom row type — never read at runtime; preserves `T` for inference. */
-  declare readonly $row: T;
+  /**
+   * Phantom row type — never read at runtime; preserves `T` so `Sql<A>` is not
+   * assignable to `Sql<B>`. Use `!` (not `declare`): Metro's Flow strip-types
+   * plugin rejects `declare` class fields.
+   */
+  readonly $row!: T;
 
   readonly values: readonly Value[];
   readonly strings: readonly string[];

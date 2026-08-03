@@ -132,7 +132,8 @@ async function runKvPostgresMigrations(
       statementCount: statements.length,
     });
     for (const stmt of statements) {
-      await sqlClient.run(ident(stmt));
+      // Full DDL (not a single identifier) — statements are already `;`-split.
+      await sqlClient.run(raw(stmt));
     }
     log.info('kv postgres migrate: ddl applied', { table: TABLE });
   } else {
@@ -144,8 +145,9 @@ async function runKvPostgresMigrations(
     await ensureKvPrimaryKeyOnKeyColumn(sqlClient, log);
   }
   await applyKvStorageOptimizations(sqlClient, log);
+  // Table name must be spliced via ident/raw — bound params cannot be FROM targets.
   await sqlClient.query(
-    sql<Record<string, unknown>>`SELECT 1 FROM ${TABLE} LIMIT 0`
+    sql<Record<string, unknown>>`SELECT 1 FROM ${ident(TABLE)} LIMIT 0`
   );
 }
 
