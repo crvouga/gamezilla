@@ -5,10 +5,16 @@ export const PROJECT_CONFIG = {
     repo: 'gamezilla',
   },
   cloudflare: {
-    /** Worker name — must match `[env.production].name` in `apps/api/wrangler.toml`. */
-    apiWorker: 'gamezilla-api',
-    /** Assets-only Worker — must match `[env.production].name` in `apps/client/wrangler.toml`. */
-    clientWorker: 'gamezilla-client',
+    /**
+     * Production Worker script name. Top-level `name` in `apps/api/wrangler.toml`
+     * is `gamezilla-api`; `wrangler deploy --env production` publishes as this.
+     */
+    apiWorker: 'gamezilla-api-production',
+    /**
+     * Assets-only production Worker. Top-level `name` in `apps/client/wrangler.toml`
+     * is `gamezilla-client`; `wrangler deploy --env production` publishes as this.
+     */
+    clientWorker: 'gamezilla-client-production',
   },
   postgres: {
     /** Application tables live in the standard Postgres `public` schema. */

@@ -10,6 +10,7 @@ import {
   resolveEasProfileWithNotice,
 } from '../lib/eas-mobile';
 import {
+  deleteLegacyWorkerScripts,
   deleteProductionWorker,
   isDoMigrationStateError,
   readLatestWranglerLogTail,
@@ -140,6 +141,7 @@ export class ApiWorkerResource extends ResourceBase {
     const env = wranglerEnv();
 
     validateSecretsForDeploy();
+    deleteLegacyWorkerScripts();
     await pushWorkerSecrets(platform, apiDir, env);
     await deployProductionWorker(platform, apiDir, env);
 
@@ -162,6 +164,7 @@ export class ApiWorkerResource extends ResourceBase {
   }
 
   destroy(): void {
+    deleteLegacyWorkerScripts();
     deleteProductionWorker();
   }
 }

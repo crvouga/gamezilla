@@ -3,7 +3,10 @@ import { COMMIT_HASH_HEX_REGEX, assertCommitDateIso } from '@pkgs/git';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { resolveAuthPublishableKeyForClientBuild } from '../lib/client-build-env';
-import { deleteWorkerByName } from '../lib/cloudflare-worker-lifecycle';
+import {
+  deleteLegacyWorkerScripts,
+  deleteWorkerByName,
+} from '../lib/cloudflare-worker-lifecycle';
 import { ok } from '../lib/fmt';
 import { productionApiOrigin } from '../lib/infra-outputs';
 import { PROJECT_CONFIG } from '../../project-config';
@@ -125,6 +128,7 @@ export class ClientWorkerResource extends ResourceBase {
 
     await buildClientWeb(platform, commitHash, commitDate);
 
+    deleteLegacyWorkerScripts();
     try {
       await runAsync(platform, 'wrangler', wranglerArgs('deploy'), {
         cwd: clientDir(),
@@ -141,6 +145,7 @@ export class ClientWorkerResource extends ResourceBase {
   }
 
   destroy(): void {
+    deleteLegacyWorkerScripts();
     deleteWorkerByName(PROJECT_CONFIG.cloudflare.clientWorker);
   }
 }

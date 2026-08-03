@@ -54,13 +54,13 @@ invocation_logs = true
 
 # Production deploy (`wrangler deploy --env production`) binds only the API
 # custom domain. The Expo web SPA is a separate assets-only Worker
-# (`gamezilla-client` on www / apex) — see `apps/client/wrangler.toml`.
+# (`gamezilla-client-production` on www / apex) — see `apps/client/wrangler.toml`.
 #
-# Without `name` here wrangler would publish as `gamezilla-api-production`.
+# No `name` under `[env.production]` → wrangler publishes as
+# `gamezilla-api-production` (must match `PROJECT_CONFIG.cloudflare.apiWorker`).
 # `durable_objects` / `migrations` are not inherited by named environments —
 # duplicate them here so production deploy keeps ROOM bindings + DO migrations.
 [env.production]
-name = "gamezilla-api"
 routes = [
   { pattern = "api.gamezilla.app", custom_domain = true },
 ]

@@ -66,6 +66,16 @@ export function isWorkerNotFound(r: SpawnResult): boolean {
   return NOT_FOUND_CODES.some((code) => r.stderr.includes(`[code: ${code}]`));
 }
 
+/**
+ * Pre-rename script names (no `-production` suffix). Cutover-only: delete these
+ * so custom domains can move to `*-production`. Remove after one successful
+ * production deploy on the new names.
+ */
+const LEGACY_WORKER_SCRIPT_NAMES = [
+  'gamezilla-api',
+  'gamezilla-client',
+] as const;
+
 /** Delete a Worker by explicit script name (no `--env`). */
 export function deleteWorkerByName(workerName: string): void {
   const r = runSafe('wrangler', ['delete', workerName, '--force'], {
@@ -82,6 +92,16 @@ export function deleteWorkerByName(workerName: string): void {
     'Worker delete',
     `${workerName}: ${r.stderr.trim() || 'unexpected failure'}`
   );
+}
+
+/**
+ * Idempotent teardown of unsuffixed Workers left from before the
+ * `*-production` rename. Frees custom domains for the new script names.
+ */
+export function deleteLegacyWorkerScripts(): void {
+  for (const name of LEGACY_WORKER_SCRIPT_NAMES) {
+    deleteWorkerByName(name);
+  }
 }
 
 /** Delete the production API Worker (`wrangler.toml` `[env.production]`). */

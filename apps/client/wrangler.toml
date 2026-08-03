@@ -5,8 +5,9 @@ preview_urls = false
 
 # Assets-only Worker: no `main` script → Cloudflare serves static files with
 # zero Worker compute. SPA fallback rewrites unknown paths to index.html.
+# No `name` under `[env.production]` → wrangler publishes as
+# `gamezilla-client-production` (must match `PROJECT_CONFIG.cloudflare.clientWorker`).
 [env.production]
-name = "gamezilla-client"
 routes = [
   { pattern = "gamezilla.app", custom_domain = true },
   { pattern = "www.gamezilla.app", custom_domain = true },
