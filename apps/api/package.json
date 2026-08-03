@@ -67,6 +67,7 @@
     "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
     "typescript": "catalog:",
     "wrangler": "catalog:"
   }

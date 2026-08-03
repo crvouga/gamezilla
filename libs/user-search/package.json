@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@types/react": "catalog:",
+    "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }
 }

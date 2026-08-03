@@ -25,6 +25,7 @@
     "@pkgs/sync-engine": "workspace:*"
   },
   "devDependencies": {
+    "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }
 }

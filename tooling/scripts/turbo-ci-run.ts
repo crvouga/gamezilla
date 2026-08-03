@@ -4,7 +4,9 @@
  * - CI: `local:rw` only — disk cache under `.turbo` (persisted via
  *   `actions/cache`). Strips `TURBO_TOKEN` / `TURBO_TEAM` so secrets-
  *   run-injected creds cannot fall through to Vercel Remote Cache.
- * - Local: honor `TURBO_CACHE` when set; otherwise `local:rw,remote:r`.
+ * - Local: honor `TURBO_CACHE` when set; otherwise `local:rw` only.
+ *   Remote is opt-in (`remote:r` / `remote:rw`) so a rate-limited
+ *   Vercel Remote Cache cannot spam `429` into every local check.
  * - Unsets orphan `TURBO_API` so a leftover self-hosted origin cannot
  *   override Vercel's default cache endpoint for local remote use.
  *
@@ -30,12 +32,13 @@ function resolveCacheFlag(): string {
     TURBO_CACHE_RE.test(fromEnv)
   ) {
     if (fromEnv.includes(',')) return fromEnv;
+    // remote:* alone → keep a local disk tier in front
     if (fromEnv.startsWith('remote:')) return `local:rw,${fromEnv}`;
-    if (fromEnv.startsWith('local:')) return `${fromEnv},remote:rw`;
+    // local:* alone → local only (do not force remote back on)
     return fromEnv;
   }
 
-  return 'local:rw,remote:r';
+  return 'local:rw';
 }
 
 function turboChildEnv(): NodeJS.ProcessEnv {
@@ -43,7 +46,7 @@ function turboChildEnv(): NodeJS.ProcessEnv {
   const orphan = env['TURBO_API'];
   if (typeof orphan === 'string' && orphan.trim().length > 0) {
     console.warn(
-      'turbo-ci-run: ignoring orphan TURBO_API (Vercel Remote Cache is the default locally)'
+      'turbo-ci-run: ignoring orphan TURBO_API (set TURBO_CACHE=remote:rw to use Vercel Remote Cache)'
     );
   }
   delete env['TURBO_API'];

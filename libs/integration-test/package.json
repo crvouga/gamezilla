@@ -35,6 +35,7 @@
     "@playwright/test": "catalog:",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }
 }

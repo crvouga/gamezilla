@@ -69,18 +69,18 @@ export const TURBO_LOG_ORDER = new Secret({
 
 export const TURBO_CACHE = new Secret({
   name: 'TURBO_CACHE',
-  hint: 'remote:rw',
+  hint: 'local:rw (or remote:rw to opt into Vercel Remote Cache)',
   optional: true,
   mirrorToDev: true,
   validate: async (input) => {
     const value = input.secretValue.trim();
     if (!/^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/.test(value)) {
       throw new Error(
-        `Invalid TURBO_CACHE value: ${value} (expected e.g. "remote:rw")`
+        `Invalid TURBO_CACHE value: ${value} (expected e.g. "local:rw")`
       );
     }
   },
-  seed: async () => 'remote:rw',
+  seed: async () => 'local:rw',
 });
 
 export const TURBO_TELEMETRY_DISABLED = new Secret({

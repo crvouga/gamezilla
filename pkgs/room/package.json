@@ -29,6 +29,7 @@
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "react": "catalog:",
+    "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
   "peerDependencies": {

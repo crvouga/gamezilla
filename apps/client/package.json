@@ -139,6 +139,7 @@
     "eslint-plugin-naming": "catalog:",
     "pwa-asset-generator": "catalog:",
     "react-scan": "catalog:",
+    "@typescript/native": "catalog:",
     "typescript": "catalog:",
     "workbox-build": "catalog:"
   }

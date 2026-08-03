@@ -48,6 +48,7 @@
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "eslint-plugin-lingui": "catalog:",
+    "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
   "peerDependencies": {

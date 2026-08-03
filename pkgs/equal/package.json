@@ -17,6 +17,7 @@
   "dependencies": {},
   "devDependencies": {
     "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }
 }
