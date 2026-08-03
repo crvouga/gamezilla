@@ -15,7 +15,7 @@ export async function friendshipExists(
   userB: string
 ): Promise<boolean> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id
     FROM friendships
     WHERE user_low = ${userLow} AND user_high = ${userHigh}
@@ -29,7 +29,7 @@ export async function isBlockedEitherDirection(
   userA: string,
   userB: string
 ): Promise<'none' | 'by_a' | 'by_b'> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT blocker_id, blocked_id
     FROM user_blocks
     WHERE (blocker_id = ${userA} AND blocked_id = ${userB})
@@ -53,7 +53,7 @@ export async function insertFriendship(
   }
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO friendships (id, user_low, user_high, created_at, source_request_id)
     VALUES (
       ${pairId(userLow, userHigh)},
@@ -72,7 +72,7 @@ export async function deleteFriendship(
   userB: string
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  await db.run(sql`
+  await db.run(sql<void>`
     DELETE FROM friendships
     WHERE user_low = ${userLow} AND user_high = ${userHigh}
   `);
@@ -84,7 +84,7 @@ export async function insertBlock(
   blockedId: string,
   now: string
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at)
     VALUES (${pairId(blockerId, blockedId)}, ${blockerId}, ${blockedId}, ${now})
     ON CONFLICT (blocker_id, blocked_id) DO NOTHING
@@ -96,7 +96,7 @@ export async function deleteBlock(
   blockerId: string,
   blockedId: string
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     DELETE FROM user_blocks
     WHERE blocker_id = ${blockerId} AND blocked_id = ${blockedId}
   `);

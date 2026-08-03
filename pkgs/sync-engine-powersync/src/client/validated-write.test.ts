@@ -21,16 +21,16 @@ function createMemoryClient(state: {
   const client: SqlClient = {
     connect: async () => {},
     disconnect: async () => {},
-    query: async <T>(query: Sql) => {
+    query: async <T extends Record<string, unknown>>(query: Sql<T>) => {
       if (query.sql.includes('MAX(id)') && query.sql.includes('ps_crud')) {
         const max = state.crud.reduce((m, r) => Math.max(m, r.id), 0);
-        return [{ max_id: max || null }] as T[];
+        return [{ max_id: max || null }] as unknown as T[];
       }
       if (query.sql.includes('FROM ps_crud WHERE id >')) {
         const watermark = Number(query.values[0] ?? 0);
-        return state.crud.filter((r) => r.id > watermark) as T[];
+        return state.crud.filter((r) => r.id > watermark) as unknown as T[];
       }
-      return [] as T[];
+      return [] as unknown as T[];
     },
     run: async () => ({ changes: 1, lastInsertRowid: 0 }),
     transaction: async (fn) => {
@@ -45,9 +45,9 @@ function createMemoryClient(state: {
         throw e;
       }
     },
-    prepare: (query: Sql) => ({
+    prepare: <T extends Record<string, unknown>>(query: Sql<T>) => ({
       query: async (params?: Value[]) => {
-        const next: Sql =
+        const next: Sql<T> =
           params === undefined
             ? query
             : Object.assign(

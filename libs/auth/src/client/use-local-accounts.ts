@@ -124,7 +124,7 @@ export function useLocalAccounts(): readonly LocalAccount[] {
   const [roster] = useLocalAccountRoster();
   const activeAccountId = useCurrentAccountId();
 
-  const { row: activeProfile } = useWatchOne<ActiveProfileDisplayRow>(sql`
+  const { row: activeProfile } = useWatchOne(sql<ActiveProfileDisplayRow>`
     SELECT username, avatar_config
     FROM profiles
     WHERE id = ${activeAccountId}

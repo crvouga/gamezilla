@@ -279,8 +279,8 @@ async function maybeRebuildSchema(
   schema: ResolvedSchema
 ): Promise<void> {
   const fp = fingerprintSchema(schema);
-  const state = await sqlClient.query<{ schema_fingerprint: string }>(
-    sql`
+  const state = await sqlClient.query(
+    sql<{ schema_fingerprint: string }>`
       SELECT schema_fingerprint
         FROM matchmaking_schema_state
        WHERE id = 1`
@@ -290,7 +290,7 @@ async function maybeRebuildSchema(
 
   await rebuildWaitingTable(sqlClient, schema);
   await sqlClient.run(
-    sql`
+    sql<void>`
       INSERT INTO matchmaking_schema_state (id, schema_fingerprint)
       VALUES (1, ${fp})
       ON CONFLICT (id) DO UPDATE
@@ -308,8 +308,8 @@ async function maybeRebuildSchema(
  */
 async function isPgCronInstalled(sqlClient: SqlClient): Promise<boolean> {
   try {
-    const rows = await sqlClient.query<{ ok: boolean }>(
-      sql`SELECT EXISTS (
+    const rows = await sqlClient.query(
+      sql<{ ok: boolean }>`SELECT EXISTS (
          SELECT 1 FROM pg_extension WHERE extname = 'pg_cron'
        ) AS ok`
     );
@@ -345,7 +345,7 @@ async function scheduleMatchmakingTick(sqlClient: SqlClient): Promise<void> {
   // re-schedule. The unschedule fallback is itself best-effort; if the
   // platform doesn't expose unschedule we surface the original error.
   const tickBody = `SELECT matchmaking_tick()`;
-  const scheduleQuery = sql`
+  const scheduleQuery = sql<void>`
     SELECT cron.schedule(
       ${CRON_JOB_NAME},
       ${CRON_SCHEDULE},
@@ -357,7 +357,7 @@ async function scheduleMatchmakingTick(sqlClient: SqlClient): Promise<void> {
   } catch (err) {
     if (!isCronDuplicateNameError(err)) throw err;
   }
-  await sqlClient.run(sql`SELECT cron.unschedule(${CRON_JOB_NAME})`);
+  await sqlClient.run(sql<void>`SELECT cron.unschedule(${CRON_JOB_NAME})`);
   await sqlClient.run(scheduleQuery);
 }
 

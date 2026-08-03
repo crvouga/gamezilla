@@ -19,7 +19,7 @@ export async function stampSpaceEnded(
 ): Promise<void> {
   const accountId = requireAccountId(auth);
   const memberId = resolveSpaceMemberId(accountId);
-  await db.run(sql`
+  await db.run(sql<void>`
     UPDATE spaces
     SET ended_at = ${isoNow()},
         host_id = ${auth.deviceId},

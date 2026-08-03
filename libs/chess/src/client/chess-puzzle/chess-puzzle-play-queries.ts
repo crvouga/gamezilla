@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { sql, type Sql } from '@pkgs/sql';
+import { sql } from '@pkgs/sql';
 
 import {
   useWatchOne,
@@ -74,7 +74,7 @@ export function usePuzzleEntity(puzzleId: string): {
   rating: number;
   themes: readonly string[];
 } {
-  const { row } = useWatchOne<PuzzleEntityRow>(sql`
+  const { row } = useWatchOne(sql<PuzzleEntityRow>`
     SELECT fen, moves, rating, themes
     FROM chess_puzzles
     WHERE id = ${puzzleId}
@@ -92,8 +92,8 @@ export function usePuzzleInteractions(
   puzzleId: string
 ): ChessPuzzleInteractionRow[] {
   const myId = useMyId();
-  const query = useMemo<Sql>(
-    () => sql`
+  const query = useMemo(
+    () => sql<InteractionSqlRow>`
       SELECT
         puzzle_id,
         kind,
@@ -112,14 +112,14 @@ export function usePuzzleInteractions(
     `,
     [myId, puzzleId]
   );
-  const { rows } = useWatchQuery<InteractionSqlRow>(query);
+  const { rows } = useWatchQuery(query);
   return useMemo(() => rows.map(interactionRowFromSql), [rows]);
 }
 
 export function useChessPuzzleAllInteractions(): ChessPuzzleInteractionRow[] {
   const myId = useMyId();
-  const query = useMemo<Sql>(
-    () => sql`
+  const query = useMemo(
+    () => sql<InteractionSqlRow>`
       SELECT
         puzzle_id,
         kind,
@@ -137,7 +137,7 @@ export function useChessPuzzleAllInteractions(): ChessPuzzleInteractionRow[] {
     `,
     [myId]
   );
-  const { rows } = useWatchQuery<InteractionSqlRow>(query);
+  const { rows } = useWatchQuery(query);
   return useMemo(() => rows.map(interactionRowFromSql), [rows]);
 }
 

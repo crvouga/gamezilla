@@ -35,7 +35,7 @@ export async function listPendingIncomingRequests(
   db: SqlClient,
   userId: string
 ): Promise<readonly FriendRequest[]> {
-  const rows = await db.query<FriendRequestRow>(sql`
+  const rows = await db.query(sql<FriendRequestRow>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
     WHERE to_user_id = ${userId} AND status = 'pending'
@@ -48,7 +48,7 @@ export async function listPendingOutgoingRequests(
   db: SqlClient,
   userId: string
 ): Promise<readonly FriendRequest[]> {
-  const rows = await db.query<FriendRequestRow>(sql`
+  const rows = await db.query(sql<FriendRequestRow>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
     WHERE from_user_id = ${userId} AND status = 'pending'

@@ -104,8 +104,8 @@ export function createPowerSyncSyncEngine(
 
   return {
     db: sqlClient,
-    watch: <T extends Record<string, unknown>>(query: Sql) =>
-      watchRegistry.watch<T>(query),
+    watch: <T extends Record<string, unknown>>(query: Sql<T>) =>
+      watchRegistry.watch(query),
     connect: async () => {
       await db.connect();
       publishStatus();

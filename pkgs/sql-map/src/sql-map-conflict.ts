@@ -29,7 +29,7 @@ export function compileOnConflict(onConflict: OnConflict | undefined): Sql {
       onConflict.set === undefined,
       'sqlMap: onConflict cannot mix doNothing and set'
     );
-    return sql` ON CONFLICT (${target}) DO NOTHING`;
+    return sql<void>` ON CONFLICT (${target}) DO NOTHING`;
   }
 
   assert.defined(
@@ -40,8 +40,8 @@ export function compileOnConflict(onConflict: OnConflict | undefined): Sql {
   assert.ok(entries.length > 0, 'sqlMap: onConflict.set must be non-empty');
 
   const sets = join(
-    entries.map(([c, v]) => sql`${columnIdent(c)} = ${compileExpr(v)}`),
+    entries.map(([c, v]) => sql<void>`${columnIdent(c)} = ${compileExpr(v)}`),
     SQL_MAP_LIST_SEP
   );
-  return sql` ON CONFLICT (${target}) DO UPDATE SET ${sets}`;
+  return sql<void>` ON CONFLICT (${target}) DO UPDATE SET ${sets}`;
 }

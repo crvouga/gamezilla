@@ -60,16 +60,18 @@ function lazyRequestSqlClient(): SqlClient {
   return {
     connect: async () => undefined,
     disconnect: async () => undefined,
-    query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
-      return requestSqlClient().query<T>(query);
+    query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
+      return requestSqlClient().query(query);
     },
-    run(query: Sql): Promise<RunResult> {
+    run(query: Sql<unknown>): Promise<RunResult> {
       return requestSqlClient().run(query);
     },
     transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
       return requestSqlClient().transaction(fn);
     },
-    prepare(query: Sql): PreparedStatement {
+    prepare<T extends Record<string, unknown>>(
+      query: Sql<T>
+    ): PreparedStatement<T> {
       return requestSqlClient().prepare(query);
     },
   };

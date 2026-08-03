@@ -47,7 +47,7 @@ export async function deactivateInteraction(
 ): Promise<void> {
   const now = new Date().toISOString();
   await db.run(
-    sql`
+    sql<void>`
       UPDATE inbox_interactions
          SET active = false, updated_at = ${now}
        WHERE user_id = ${input.userId}

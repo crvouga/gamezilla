@@ -88,7 +88,7 @@ export function compileExpr(e: unknown, columnPos = false): Sql {
     return columnIdent(e.col);
   }
   if (isQuery(e)) {
-    return sql`(${compileSubquery(e)})`;
+    return sql<void>`(${compileSubquery(e)})`;
   }
   if (Array.isArray(e)) {
     assert.ok(e.length >= 1, 'sqlMap: op call needs an operator', { e });
@@ -99,7 +99,7 @@ export function compileExpr(e: unknown, columnPos = false): Sql {
     return columnIdent(e);
   }
   if (isScalar(e)) {
-    return sql`${e}`;
+    return sql<void>`${e}`;
   }
   assert.fail('sqlMap: cannot compile expression', { e });
 }

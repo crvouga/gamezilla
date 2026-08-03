@@ -242,7 +242,7 @@ function toPgQueryable(sqlClient: SqlClient): {
 } {
   return {
     query: async <R extends Record<string, unknown>>(queryText: string) => ({
-      rows: await sqlClient.query<R>(raw(queryText)),
+      rows: await sqlClient.query(raw<R>(queryText)),
     }),
   };
 }

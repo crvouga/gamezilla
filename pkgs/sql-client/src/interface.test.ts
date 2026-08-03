@@ -91,7 +91,7 @@ describe.each(implementations)('$name', ({ createClient }) => {
       raw('CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)')
     );
     const result = await client.run(
-      sql`INSERT INTO users (id, name) VALUES (${1}, ${'Alice'}) RETURNING *`
+      sql<void>`INSERT INTO users (id, name) VALUES (${1}, ${'Alice'}) RETURNING *`
     );
     expect(result.changes).toBeGreaterThanOrEqual(1);
     expect(result.lastInsertRowid).toBeGreaterThanOrEqual(1);
@@ -102,10 +102,13 @@ describe.each(implementations)('$name', ({ createClient }) => {
     if (!client || !available) return;
     await client.connect();
     await client.run(raw('CREATE TABLE items (id INTEGER, value TEXT)'));
-    await client.run(sql`INSERT INTO items VALUES (${1}, ${'a'})`);
-    await client.run(sql`INSERT INTO items VALUES (${2}, ${'b'})`);
-    const rows = await client.query<{ id: number; value: string }>(
-      sql`SELECT id, value FROM items WHERE id >= ${1} ORDER BY id`
+    await client.run(sql<void>`INSERT INTO items VALUES (${1}, ${'a'})`);
+    await client.run(sql<void>`INSERT INTO items VALUES (${2}, ${'b'})`);
+    const rows = await client.query(
+      sql<{
+        id: number;
+        value: string;
+      }>`SELECT id, value FROM items WHERE id >= ${1} ORDER BY id`
     );
     expect(rows).toHaveLength(2);
     expect(rows[0]).toEqual({ id: 1, value: 'a' });
@@ -117,7 +120,9 @@ describe.each(implementations)('$name', ({ createClient }) => {
     if (!client || !available) return;
     await client.connect();
     await client.run(raw('CREATE TABLE empty (id INTEGER)'));
-    const rows = await client.query(raw('SELECT * FROM empty'));
+    const rows = await client.query(
+      raw<Record<string, unknown>>('SELECT * FROM empty')
+    );
     expect(rows).toEqual([]);
     await client.disconnect();
   });
@@ -128,7 +133,7 @@ describe.each(implementations)('$name', ({ createClient }) => {
     await client.run(raw('CREATE TABLE counters (id INTEGER, n INTEGER)'));
     await client.run(raw('INSERT INTO counters VALUES (1, 0)'));
     const result = await client.run(
-      sql`UPDATE counters SET n = 1 WHERE id = ${1} RETURNING *`
+      sql<void>`UPDATE counters SET n = 1 WHERE id = ${1} RETURNING *`
     );
     expect(result.changes).toBeGreaterThanOrEqual(1);
     await client.disconnect();
@@ -141,14 +146,16 @@ describe.each(implementations)('$name', ({ createClient }) => {
       raw('CREATE TABLE tx_test (id INTEGER PRIMARY KEY, x INTEGER)')
     );
     const result = await client.transaction(async (tx) => {
-      await tx.run(sql`INSERT INTO tx_test (id, x) VALUES (${1}, ${1})`);
-      await tx.run(sql`INSERT INTO tx_test (id, x) VALUES (${2}, ${2})`);
+      await tx.run(sql<void>`INSERT INTO tx_test (id, x) VALUES (${1}, ${1})`);
+      await tx.run(sql<void>`INSERT INTO tx_test (id, x) VALUES (${2}, ${2})`);
       return 2;
     });
     expect(result).toBe(2);
     if (client === null || client === undefined)
       throw new Error('client must be set');
-    const rows = await client.query(raw('SELECT * FROM tx_test'));
+    const rows = await client.query(
+      raw<Record<string, unknown>>('SELECT * FROM tx_test')
+    );
     expect(rows).toHaveLength(2);
     await client.disconnect();
   });
@@ -161,7 +168,7 @@ describe.each(implementations)('$name', ({ createClient }) => {
     );
     try {
       await client.transaction(async (tx) => {
-        await tx.run(sql`INSERT INTO rollback_test (id) VALUES (${1})`);
+        await tx.run(sql<void>`INSERT INTO rollback_test (id) VALUES (${1})`);
         throw new Error('abort');
       });
     } catch (e) {
@@ -169,7 +176,9 @@ describe.each(implementations)('$name', ({ createClient }) => {
     }
     if (client === null || client === undefined)
       throw new Error('client must be set');
-    const rows = await client.query(raw('SELECT * FROM rollback_test'));
+    const rows = await client.query(
+      raw<Record<string, unknown>>('SELECT * FROM rollback_test')
+    );
     expect(rows).toHaveLength(0);
     await client.disconnect();
   });

@@ -48,17 +48,19 @@ function selectPuzzleResult(
   return replay;
 }
 
+type PuzzleRatingValueRow = { readonly value: number };
+
 function usePuzzleProfileRating(): number {
   const myId = useMyId();
   const query = useMemo(
-    () => sql`
+    () => sql<PuzzleRatingValueRow>`
       SELECT rating AS value
       FROM chess_puzzle_profiles
       WHERE id = ${myId}
     `,
     [myId]
   );
-  const { value: profileRatingRaw } = useWatchValue<number>(query);
+  const { value: profileRatingRaw } = useWatchValue(query);
   if (typeof profileRatingRaw === 'number' && profileRatingRaw > 0) {
     return profileRatingRaw;
   }
@@ -108,12 +110,14 @@ function usePuzzleCandidateQueries(args: {
   return { banded, fallback, replay };
 }
 
+type PuzzleCountRow = { readonly value: number };
+
 function useWaitingForLocalPuzzles(args: {
   myId: string;
   puzzleId: string | null;
   noCandidates: boolean;
 }): boolean {
-  const { value: localPuzzleTotal } = useWatchValue<number>(sql`
+  const { value: localPuzzleTotal } = useWatchValue(sql<PuzzleCountRow>`
     SELECT COUNT(*) AS value
     FROM chess_puzzles
   `);

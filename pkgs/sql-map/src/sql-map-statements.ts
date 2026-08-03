@@ -29,15 +29,15 @@ export function compileQuery(q: Query): Sql {
   }
   const preamble = compileWith(q.with);
   if (q.insertInto !== undefined) {
-    return sql`${preamble}${compileInsert(q)}`;
+    return sql<void>`${preamble}${compileInsert(q)}`;
   }
   if (q.update !== undefined) {
-    return sql`${preamble}${compileUpdate(q)}`;
+    return sql<void>`${preamble}${compileUpdate(q)}`;
   }
   if (q.deleteFrom !== undefined) {
-    return sql`${preamble}${compileDelete(q)}`;
+    return sql<void>`${preamble}${compileDelete(q)}`;
   }
-  return sql`${preamble}${compileSelect(q)}`;
+  return sql<void>`${preamble}${compileSelect(q)}`;
 }
 
 function assertQueryObject(q: Query): void {
@@ -66,17 +66,18 @@ function compileCompound(q: Query): Sql {
     q.unionAll !== undefined
       ? compileUnion('UNION ALL', q.unionAll)
       : compileUnion('UNION', q.union);
-  return sql`${preamble}${body}${compileLimitOffset(q.limit, q.offset)}`;
+  return sql<void>`${preamble}${body}${compileLimitOffset(q.limit, q.offset)}`;
 }
 
 function compileSelect(q: Query): Sql {
   const head = q.distinct
-    ? sql`SELECT DISTINCT ${compileSelectList(q.select)}`
-    : sql`SELECT ${compileSelectList(q.select)}`;
+    ? sql<void>`SELECT DISTINCT ${compileSelectList(q.select)}`
+    : sql<void>`SELECT ${compileSelectList(q.select)}`;
 
-  const from = q.from !== undefined ? sql` FROM ${compileFrom(q.from)}` : empty;
+  const from =
+    q.from !== undefined ? sql<void>` FROM ${compileFrom(q.from)}` : empty;
 
-  return sql`${head}${from}${compileJoins('JOIN', q.join)}${compileJoins(
+  return sql<void>`${head}${from}${compileJoins('JOIN', q.join)}${compileJoins(
     'LEFT JOIN',
     q.leftJoin
   )}${compileJoins('RIGHT JOIN', q.rightJoin)}${compileWhere(
@@ -125,7 +126,7 @@ function compileInsertValues(q: Query): Sql {
     })
   );
 
-  return sql`INSERT INTO ${ident(q.insertInto)} (${colSql}) VALUES ${bulk(
+  return sql<void>`INSERT INTO ${ident(q.insertInto)} (${colSql}) VALUES ${bulk(
     data,
     SQL_MAP_LIST_SEP
   )}${compileOnConflict(q.onConflict)}${compileReturning(q.returning)}`;
@@ -143,7 +144,7 @@ function compileInsertSelect(q: Query): Sql {
     cols.map((c) => ident(c)),
     SQL_MAP_LIST_SEP
   );
-  return sql`INSERT INTO ${ident(q.insertInto)} (${colSql}) ${compileSelect(
+  return sql<void>`INSERT INTO ${ident(q.insertInto)} (${colSql}) ${compileSelect(
     selectBodyFromInsert(q)
   )}${compileOnConflict(q.onConflict)}${compileReturning(q.returning)}`;
 }
@@ -197,11 +198,11 @@ function compileUpdate(q: Query): Sql {
   assert.ok(entries.length > 0, 'sqlMap: update requires set');
 
   const sets = join(
-    entries.map(([c, v]) => sql`${columnIdent(c)} = ${compileExpr(v)}`),
+    entries.map(([c, v]) => sql<void>`${columnIdent(c)} = ${compileExpr(v)}`),
     SQL_MAP_LIST_SEP
   );
 
-  return sql`UPDATE ${ident(q.update)} SET ${sets}${compileWhere(
+  return sql<void>`UPDATE ${ident(q.update)} SET ${sets}${compileWhere(
     q.where
   )}${compileReturning(q.returning)}`;
 }
@@ -210,7 +211,7 @@ function compileDelete(q: Query): Sql {
   const target = q.deleteFrom;
   assert.defined(target, 'sqlMap: deleteFrom required');
   if (typeof target === 'string') {
-    return sql`DELETE FROM ${ident(target)}${compileWhere(
+    return sql<void>`DELETE FROM ${ident(target)}${compileWhere(
       q.where
     )}${compileReturning(q.returning)}`;
   }
@@ -222,7 +223,7 @@ function compileDelete(q: Query): Sql {
   const [table, alias] = target;
   assert.string(table, 'sqlMap: deleteFrom table must be a string');
   assert.string(alias, 'sqlMap: deleteFrom alias must be a string');
-  return sql`DELETE FROM ${ident(table)} AS ${ident(alias)}${compileWhere(
+  return sql<void>`DELETE FROM ${ident(table)} AS ${ident(alias)}${compileWhere(
     q.where
   )}${compileReturning(q.returning)}`;
 }

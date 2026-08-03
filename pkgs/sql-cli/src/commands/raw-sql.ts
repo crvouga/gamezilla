@@ -14,7 +14,7 @@ export async function executeRawSql(
   userInput: string
 ): Promise<SqlCliResult> {
   if (isResultReturning(userInput)) {
-    const rows = await client.query<Record<string, unknown>>(unsafe(userInput));
+    const rows = await client.query(unsafe<Record<string, unknown>>(userInput));
     if (rows.length === 0) {
       return { kind: 'empty' };
     }

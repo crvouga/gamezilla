@@ -61,7 +61,7 @@ export async function searchUsers(
   assertSearchRateLimit(viewerId);
   const boundedLimit = Math.min(Math.max(limit, 1), USER_SEARCH_MAX_RESULTS);
   const likeQuery = `${query.toLowerCase()}%`;
-  const rows = await db.query<SearchHitRow>(sql`
+  const rows = await db.query(sql<SearchHitRow>`
     SELECT p.id, p.username, p.avatar_config
     FROM profiles AS p
     WHERE p.id <> ${viewerId}

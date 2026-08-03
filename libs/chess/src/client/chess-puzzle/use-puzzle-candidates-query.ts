@@ -6,8 +6,6 @@ import {
   PUZZLE_NEXT_MAX_BAND,
 } from './next-puzzle-id-helpers';
 
-type CandidateRow = { readonly id: string; readonly rating: number };
-
 export type PuzzleCandidatesQueryArgs = {
   readonly rating: number;
   readonly ownerId: string;
@@ -30,6 +28,6 @@ export function usePuzzleCandidatesQuery(args: PuzzleCandidatesQueryArgs) {
       }),
     [args.rating, args.ownerId, args.currentPuzzleId, halfWindow, pickOffset]
   );
-  const { rows, isLoading } = useWatchQuery<CandidateRow>(query);
+  const { rows, isLoading } = useWatchQuery(query);
   return { rows, isLoading };
 }

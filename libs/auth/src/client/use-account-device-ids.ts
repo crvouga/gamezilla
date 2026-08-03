@@ -55,13 +55,13 @@ function sortDeviceIds(
 export function useAccountDeviceIds(accountId: string | null): string[] {
   const currentDeviceId = useMyDeviceId();
 
-  const { rows: localRows } = useWatchQuery<DeviceRow>(sql`
+  const { rows: localRows } = useWatchQuery(sql<DeviceRow>`
     SELECT id, last_seen_at, created_at
     FROM devices
     WHERE id = ${currentDeviceId}
   `);
 
-  const { rows: remoteRows } = useWatchQuery<DeviceRow>(sql`
+  const { rows: remoteRows } = useWatchQuery(sql<DeviceRow>`
     SELECT id, last_seen_at, created_at
     FROM devices
     WHERE user_id = ${accountId}

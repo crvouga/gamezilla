@@ -35,8 +35,8 @@ describe('createInMemorySyncEngine', () => {
       }),
     ]);
     const engine = createInMemorySyncEngine({ registry });
-    const sub = engine.watch<{ id: string }>(
-      sql`SELECT id FROM profiles WHERE false`
+    const sub = engine.watch(
+      sql<{ id: string }>`SELECT id FROM profiles WHERE false`
     );
     expect(sub.getSnapshot()).toEqual([]);
     expect(sub.getHydrated()).toBe(false);
@@ -55,17 +55,15 @@ describe('createInMemorySyncEngine', () => {
     const engine = createInMemorySyncEngine({ registry });
     await engine.connect();
     await engine.db.run(
-      sql`
+      sql<void>`
         INSERT INTO profiles (id, display_name)
         VALUES (${'p1'}, ${'Ada'})`
     );
 
-    const sub = engine.watch<{ id: string; display_name: string }>(
-      sql`
+    const sub = engine.watch(sql<{ id: string; display_name: string }>`
         SELECT id, display_name
           FROM profiles
-         WHERE id = ${'p1'}`
-    );
+         WHERE id = ${'p1'}`);
     await waitForHydrated(sub);
     expect(sub.getHydrated()).toBe(true);
     expect(sub.getSnapshot()[0]?.display_name).toBe('Ada');
@@ -85,17 +83,15 @@ describe('createInMemorySyncEngine', () => {
     const engine = createInMemorySyncEngine({ registry });
     await engine.connect();
     await engine.db.run(
-      sql`
+      sql<void>`
         INSERT INTO profiles (id, display_name)
         VALUES (${'p1'}, ${'Ada'})`
     );
 
-    const sub = engine.watch<{ display_name: string }>(
-      sql`
+    const sub = engine.watch(sql<{ display_name: string }>`
         SELECT display_name
           FROM profiles
-         WHERE id = ${'p1'}`
-    );
+         WHERE id = ${'p1'}`);
     await waitForHydrated(sub);
 
     const next = new Promise<string>((resolve) => {
@@ -109,7 +105,7 @@ describe('createInMemorySyncEngine', () => {
     });
 
     await engine.db.run(
-      sql`
+      sql<void>`
         UPDATE profiles
            SET display_name = ${'Grace'}
          WHERE id = ${'p1'}`

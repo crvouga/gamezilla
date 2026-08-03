@@ -27,7 +27,7 @@ export async function readProfileCardById(
   db: SqlClient,
   profileId: string
 ): Promise<ProfileCard | null> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id, username, avatar_config
     FROM profiles
     WHERE id = ${profileId}
@@ -43,7 +43,7 @@ export async function readProfileCardsByIds(
   profileIds: readonly string[]
 ): Promise<readonly ProfileCard[]> {
   if (profileIds.length === 0) return [];
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id, username, avatar_config
     FROM profiles
     WHERE id IN (${join([...profileIds])})

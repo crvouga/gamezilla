@@ -41,7 +41,7 @@ export type SyncEngine = {
    * Watches a given SQL query for updates and provides a subscription handle.
    */
   watch<T extends Record<string, unknown>>(
-    query: Sql
+    query: Sql<T>
   ): WatchSubscription<readonly T[]>;
   /**
    * Connects the sync engine.

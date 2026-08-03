@@ -36,7 +36,7 @@ export class SqlClientImplBunSqlite implements SqlClient {
     }
   }
 
-  query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
+  query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
     const bindings = query.values as SQLQueryBindings[];
     const rows = this.db
       .query(sqliteCompatSql(query.sql))
@@ -44,7 +44,7 @@ export class SqlClientImplBunSqlite implements SqlClient {
     return Promise.resolve(rows);
   }
 
-  async run(query: Sql): Promise<RunResult> {
+  async run(query: Sql<unknown>): Promise<RunResult> {
     const bindings = query.values as SQLQueryBindings[];
     const result = this.db.query(sqliteCompatSql(query.sql)).run(...bindings);
     return {
@@ -53,7 +53,9 @@ export class SqlClientImplBunSqlite implements SqlClient {
     };
   }
 
-  prepare(query: Sql): PreparedStatement {
+  prepare<T extends Record<string, unknown>>(
+    query: Sql<T>
+  ): PreparedStatement<T> {
     const stmt = this.db.query(sqliteCompatSql(query.sql));
     return {
       query: <T = Record<string, unknown>>(params?: Value[]) => {

@@ -41,7 +41,7 @@ export async function findFriendRequestById(
   db: SqlClient,
   requestId: string
 ): Promise<FriendRequest | null> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
     WHERE id = ${requestId}
@@ -56,7 +56,7 @@ export async function findPendingRequestBetween(
   fromUserId: string,
   toUserId: string
 ): Promise<FriendRequest | null> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
     WHERE from_user_id = ${fromUserId}
@@ -73,7 +73,7 @@ export async function findPendingRequestsBetweenPair(
   userA: string,
   userB: string
 ): Promise<readonly FriendRequest[]> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
     WHERE status = 'pending'
@@ -90,7 +90,7 @@ export async function findLatestDeclinedRequestBetween(
   fromUserId: string,
   toUserId: string
 ): Promise<FriendRequest | null> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
     WHERE from_user_id = ${fromUserId}
@@ -109,7 +109,7 @@ export async function friendshipExists(
   userB: string
 ): Promise<boolean> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id
     FROM friendships
     WHERE user_low = ${userLow} AND user_high = ${userHigh}
@@ -123,7 +123,7 @@ export async function isBlockedEitherDirection(
   userA: string,
   userB: string
 ): Promise<'none' | 'by_a' | 'by_b'> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT blocker_id, blocked_id
     FROM user_blocks
     WHERE (blocker_id = ${userA} AND blocked_id = ${userB})
@@ -147,7 +147,7 @@ export async function insertFriendRequest(
     readonly now: string;
   }
 ): Promise<FriendRequest> {
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO friend_requests (id, from_user_id, to_user_id, status, message, created_at, updated_at)
     VALUES (${args.id}, ${args.fromUserId}, ${args.toUserId}, 'pending', ${args.message}, ${args.now}, ${args.now})
   `);
@@ -164,7 +164,7 @@ export async function markFriendRequestStatus(
   status: FriendRequestStatus,
   now: string
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     UPDATE friend_requests
     SET status = ${status}, updated_at = ${now}, responded_at = ${now}
     WHERE id = ${requestId}
@@ -177,7 +177,7 @@ export async function cancelPendingRequestsBetween(
   userB: string,
   now: string
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     UPDATE friend_requests
     SET status = 'cancelled', updated_at = ${now}, responded_at = ${now}
     WHERE status = 'pending'
@@ -198,7 +198,7 @@ export async function insertFriendship(
   }
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO friendships (id, user_low, user_high, created_at, source_request_id)
     VALUES (
       ${pairId(userLow, userHigh)},
@@ -217,7 +217,7 @@ export async function deleteFriendship(
   userB: string
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  await db.run(sql`
+  await db.run(sql<void>`
     DELETE FROM friendships
     WHERE user_low = ${userLow} AND user_high = ${userHigh}
   `);
@@ -229,7 +229,7 @@ export async function insertBlock(
   blockedId: string,
   now: string
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at)
     VALUES (${pairId(blockerId, blockedId)}, ${blockerId}, ${blockedId}, ${now})
     ON CONFLICT (blocker_id, blocked_id) DO NOTHING
@@ -241,7 +241,7 @@ export async function deleteBlock(
   blockerId: string,
   blockedId: string
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     DELETE FROM user_blocks
     WHERE blocker_id = ${blockerId} AND blocked_id = ${blockedId}
   `);
@@ -252,7 +252,7 @@ export async function listMutualFriendIds(
   viewerId: string,
   targetUserId: string
 ): Promise<readonly string[]> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     WITH my_friends AS (
       SELECT CASE WHEN user_low = ${viewerId} THEN user_high ELSE user_low END AS friend_id
       FROM friendships

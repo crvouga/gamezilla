@@ -16,8 +16,8 @@ export class KvImplPostgresTx implements Kv {
 
   async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
-    const rows = await this.db.query<{ value: unknown }>(
-      sql`SELECT value FROM kv WHERE key = ${key}`
+    const rows = await this.db.query(
+      sql<{ value: unknown }>`SELECT value FROM kv WHERE key = ${key}`
     );
     const first = rows[0];
     if (first === null || first === undefined) return null;
@@ -32,7 +32,7 @@ export class KvImplPostgresTx implements Kv {
     assertKvKey(key);
     assertKvRecord(hotAssert(), value, 'kv postgres tx put');
     await this.db.run(
-      sql`
+      sql<void>`
         INSERT INTO kv (key, value)
         VALUES (${key}, ${JSON.stringify(value)}::text::jsonb)
         ON CONFLICT (key) DO UPDATE SET
@@ -43,7 +43,7 @@ export class KvImplPostgresTx implements Kv {
 
   async zap(key: Keyword): Promise<void> {
     assertKvKey(key);
-    await this.db.run(sql`DELETE FROM kv WHERE key = ${key}`);
+    await this.db.run(sql<void>`DELETE FROM kv WHERE key = ${key}`);
   }
 
   async tx<T>(_fn: (tx: Kv) => Promise<T>): Promise<T> {

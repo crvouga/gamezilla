@@ -1,13 +1,17 @@
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
+export type LiveSpaceIdRow = {
+  readonly id: string;
+};
+
 /**
  * Shared lobby live ids: host of the space OR has a space_users ACL row.
  */
 export function sharedLiveSpaceIdsSql(args: {
   readonly memberId: string;
-}): Sql {
-  return sql`
+}): Sql<LiveSpaceIdRow> {
+  return sql<LiveSpaceIdRow>`
     SELECT id
     FROM spaces
     WHERE ended_at IS NULL

@@ -65,7 +65,7 @@ SELECT schema_fingerprint FROM inbox_schema_state WHERE id = 1
 `.trim();
 
 export function upsertSchemaFingerprintSql(fingerprint: string): Sql {
-  return sql`
+  return sql<void>`
 INSERT INTO inbox_schema_state (id, schema_fingerprint)
 VALUES (1, ${fingerprint})
 ON CONFLICT (id) DO UPDATE SET schema_fingerprint = EXCLUDED.schema_fingerprint`;

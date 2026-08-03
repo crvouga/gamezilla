@@ -52,14 +52,14 @@ export function wrapSqlClientForObservability(
   return {
     connect: () => inner.connect(),
     disconnect: () => inner.disconnect(),
-    query: <T = Record<string, unknown>>(query: Sql) =>
+    query: <T extends Record<string, unknown>>(query: Sql<T>) =>
       runObservedSql(
         observability,
         query.sql,
-        () => inner.query<T>(query),
+        () => inner.query(query),
         (r) => r.length
       ),
-    run: (query: Sql) =>
+    run: (query: Sql<unknown>) =>
       runObservedSql(
         observability,
         query.sql,
@@ -91,6 +91,7 @@ export function wrapSqlClientForObservability(
         }
       });
     },
-    prepare: (query: Sql) => inner.prepare(query),
+    prepare: <T extends Record<string, unknown>>(query: Sql<T>) =>
+      inner.prepare(query),
   };
 }

@@ -20,7 +20,7 @@ function openSql(): SqlClientImplBunSqlite {
 }
 
 async function migrate(db: SqlClient): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     CREATE TABLE spaces (
       id TEXT PRIMARY KEY,
       title TEXT,
@@ -32,7 +32,7 @@ async function migrate(db: SqlClient): Promise<void> {
       host_member_id TEXT
     )
   `);
-  await db.run(sql`
+  await db.run(sql<void>`
     CREATE TABLE space_users (
       id TEXT PRIMARY KEY,
       space_id TEXT,
@@ -53,7 +53,7 @@ async function seedSpace(
     readonly createdAt: string;
   }
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO spaces (
       id, host_id, host_member_id, host_account_id, visibility, ended_at, created_at
     )
@@ -74,7 +74,7 @@ async function seedSpaceUser(
   spaceId: string,
   userId: string
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
     VALUES (
       ${spaceUserEntityId(spaceId, userId)},
@@ -86,8 +86,11 @@ async function seedSpaceUser(
   `);
 }
 
-async function queryIds(db: SqlClient, query: Sql): Promise<string[]> {
-  const rows = await db.query<{ readonly id: string }>(query);
+async function queryIds(
+  db: SqlClient,
+  query: Sql<{ readonly id: string }>
+): Promise<string[]> {
+  const rows = await db.query(query);
   return rows.map((r) => r.id);
 }
 

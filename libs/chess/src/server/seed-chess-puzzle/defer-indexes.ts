@@ -14,7 +14,7 @@ export async function dropPuzzleSnapshotIndexes(args: {
 }): Promise<void> {
   const { db, log } = args;
   const table = CHESS_PUZZLES_TABLE.tableName;
-  const rows = await db.query<{ indexname: string }>(sql`
+  const rows = await db.query(sql<{ indexname: string }>`
     SELECT indexname
     FROM pg_indexes
     WHERE schemaname = current_schema()

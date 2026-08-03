@@ -480,8 +480,8 @@ export class Matchmaking {
    * pg_cron's own session, which is naturally pinned per cron worker.
    */
   private static async tryAdvisoryLock(sqlClient: SqlClient): Promise<boolean> {
-    const rows = await sqlClient.query<{ pg_try_advisory_lock: boolean }>(
-      sql`
+    const rows = await sqlClient.query(
+      sql<{ pg_try_advisory_lock: boolean }>`
         SELECT pg_try_advisory_lock(
           ${MATCHMAKING_TICK_ADVISORY_LOCK_ID}::bigint
         ) AS pg_try_advisory_lock`
@@ -494,7 +494,7 @@ export class Matchmaking {
   ): Promise<void> {
     try {
       await sqlClient.run(
-        sql`
+        sql<void>`
           SELECT pg_advisory_unlock(
             ${MATCHMAKING_TICK_ADVISORY_LOCK_ID}::bigint
           )`

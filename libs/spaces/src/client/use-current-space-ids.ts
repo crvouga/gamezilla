@@ -63,15 +63,18 @@ export function buildCurrentSpaceEntries(
   return entries;
 }
 
-function openSpacesSql(enabled: boolean, openSpaceIds: readonly string[]): Sql {
+function openSpacesSql(
+  enabled: boolean,
+  openSpaceIds: readonly string[]
+): Sql<SpaceRow> {
   if (!enabled || openSpaceIds.length === 0) {
-    return sql`
+    return sql<SpaceRow>`
       SELECT id, host_member_id, host_account_id, ended_at
       FROM spaces
       WHERE false
     `;
   }
-  return sql`
+  return sql<SpaceRow>`
     SELECT id, host_member_id, host_account_id, ended_at
     FROM spaces
     WHERE id IN (${join([...openSpaceIds])})
@@ -100,7 +103,7 @@ function useCurrentSpaceWatchQueries(
     () => openSpacesSql(enabled, openSpaceIds),
     [enabled, openSpaceIds]
   );
-  const { rows, isLoading } = useWatchQuery<SpaceRow>(query);
+  const { rows, isLoading } = useWatchQuery(query);
   const entries = useMemo(
     () => buildCurrentSpaceEntries(rows, openSpaceIds, accountId ?? ''),
     [rows, openSpaceIds, accountId]

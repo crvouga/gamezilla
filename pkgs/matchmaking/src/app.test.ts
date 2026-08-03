@@ -251,7 +251,9 @@ describe('Matchmaking.app - SQL roundtrip count (chess.com-scale regression)', (
     const base = createPgliteSqlClient(db);
     const counting: SqlClient = {
       ...base,
-      async query(query) {
+      async query<T extends Record<string, unknown>>(
+        query: Sql<T>
+      ): Promise<T[]> {
         count += 1;
         return await base.query(query);
       },
@@ -259,7 +261,9 @@ describe('Matchmaking.app - SQL roundtrip count (chess.com-scale regression)', (
         return base.transaction((inner) =>
           fn({
             ...inner,
-            async query(query) {
+            async query<T extends Record<string, unknown>>(
+              query: Sql<T>
+            ): Promise<T[]> {
               count += 1;
               return await inner.query(query);
             },
@@ -334,7 +338,9 @@ describe('Matchmaking.app - 500 sanitisation', () => {
     let failOnInsert = false;
     const flaky: SqlClient = {
       ...base,
-      async query(query: Sql) {
+      async query<T extends Record<string, unknown>>(
+        query: Sql<T>
+      ): Promise<T[]> {
         if (
           failOnInsert &&
           query.sql.includes('INSERT INTO matchmaking_waiting')

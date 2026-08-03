@@ -23,8 +23,8 @@ type SpaceRow = {
   readonly ended_at: string | null;
 };
 
-function spaceRowSql(spaceId: string): Sql {
-  return sql`
+function spaceRowSql(spaceId: string): Sql<SpaceRow> {
+  return sql<SpaceRow>`
     SELECT host_member_id, host_account_id, ended_at
     FROM spaces
     WHERE id = ${spaceId}
@@ -53,7 +53,7 @@ export function useSpacePresence(spaceId: string): SpacePresence {
   const paintReady = useSyncEnginePaintReady();
   const { isOpen } = useOpenSpaceIds();
   const spaceEnabled = spaceId.length > 0;
-  const { row: spaceRow, isLoading: spaceLoading } = useWatchOne<SpaceRow>(
+  const { row: spaceRow, isLoading: spaceLoading } = useWatchOne(
     spaceRowSql(spaceId)
   );
   if (!paintReady) {

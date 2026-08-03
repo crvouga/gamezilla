@@ -61,13 +61,13 @@ export function useWatchSubscription<T>(
  * row cache). `isLoading` is true until the watch hydrates.
  */
 export function useWatchQuery<T extends Record<string, unknown>>(
-  query: Sql
+  query: Sql<T>
 ): { readonly rows: readonly T[]; readonly isLoading: boolean } {
   const engine = useSyncEngine();
   const sqlText = query.sql;
   const paramsKey = useMemo(() => JSON.stringify(query.values), [query.values]);
   const subscription = useMemo(
-    () => engine.watch<T>(query),
+    () => engine.watch(query),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces values
     [engine, sqlText, paramsKey]
   );
@@ -87,20 +87,20 @@ export function useWatchQuery<T extends Record<string, unknown>>(
 }
 
 export function useWatchOne<T extends Record<string, unknown>>(
-  query: Sql
+  query: Sql<T>
 ): { readonly row: T | null; readonly isLoading: boolean } {
-  const { rows, isLoading } = useWatchQuery<T>(query);
+  const { rows, isLoading } = useWatchQuery(query);
   return { row: rows[0] ?? null, isLoading };
 }
 
-function readRowField<T>(
-  rows: readonly Record<string, unknown>[],
-  column: string
-): T | null {
+function readRowField<T extends Record<string, unknown>, K extends keyof T>(
+  rows: readonly T[],
+  column: K
+): T[K] | null {
   const row = rows[0];
   if (row === undefined) return null;
   const raw = row[column];
-  return (raw as T | null) ?? null;
+  return (raw as T[K] | null) ?? null;
 }
 
 /**
@@ -108,20 +108,23 @@ function readRowField<T>(
  * changes (`Object.is` on the field value). Shares the underlying watch via
  * the engine registry when the same query is used elsewhere.
  */
-export function useWatchField<T>(
-  query: Sql,
-  column = 'value'
-): { readonly value: T | null; readonly isLoading: boolean } {
+export function useWatchField<
+  T extends Record<string, unknown>,
+  K extends keyof T & string,
+>(
+  query: Sql<T>,
+  column: K
+): { readonly value: T[K] | null; readonly isLoading: boolean } {
   const engine = useSyncEngine();
   const sqlText = query.sql;
   const paramsKey = useMemo(() => JSON.stringify(query.values), [query.values]);
   const subscription = useMemo(
-    () => engine.watch<Record<string, unknown>>(query),
+    () => engine.watch(query),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces values
     [engine, sqlText, paramsKey]
   );
   const getSnapshot = useCallback(
-    () => readRowField<T>(subscription.getSnapshot(), column),
+    () => readRowField(subscription.getSnapshot(), column),
     [subscription, column]
   );
   const value = useSyncExternalStore(
@@ -137,9 +140,10 @@ export function useWatchField<T>(
   return { value, isLoading: !hydrated && value === null };
 }
 
-export function useWatchValue<T>(
-  query: Sql,
-  column = 'value'
-): { readonly value: T | null; readonly isLoading: boolean } {
-  return useWatchField<T>(query, column);
+export function useWatchValue<
+  T extends Record<string, unknown> & { readonly value: unknown },
+>(
+  query: Sql<T>
+): { readonly value: T['value'] | null; readonly isLoading: boolean } {
+  return useWatchField(query, 'value');
 }

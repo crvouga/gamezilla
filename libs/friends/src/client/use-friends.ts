@@ -15,8 +15,8 @@ type FriendRow = {
   readonly friends_since: string;
 };
 
-function friendsSql(myId: string): Sql {
-  return sql`
+function friendsSql(myId: string): Sql<FriendRow> {
+  return sql<FriendRow>`
     SELECT
       CASE WHEN f.user_low = ${myId} THEN f.user_high ELSE f.user_low END AS friend_id,
       p.username,
@@ -45,7 +45,7 @@ export function useFriends(): {
 } {
   const myId = useMyId();
   const query = useMemo(() => friendsSql(myId), [myId]);
-  const { rows, isLoading } = useWatchQuery<FriendRow>(query);
+  const { rows, isLoading } = useWatchQuery(query);
   const friends = useMemo(
     () => rows.filter((row) => row.friend_id.length > 0).map(mapFriendRow),
     [rows]

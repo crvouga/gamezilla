@@ -23,7 +23,7 @@ export function useSpaceJoinSnapshot(spaceId: string): SpaceJoinSnapshot {
   const enabled = spaceId.length > 0;
   const viewerAccountId = useMyAccountId();
   const viewerDeviceId = useMyDeviceId();
-  const { row, isLoading } = useWatchOne<SpaceJoinLocalRow>(sql`
+  const { row, isLoading } = useWatchOne(sql<SpaceJoinLocalRow>`
     SELECT host_id, host_member_id, host_account_id, ended_at, visibility
     FROM spaces
     WHERE id = ${spaceId}

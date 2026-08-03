@@ -20,9 +20,25 @@ export const DeviceField = {
 
 export type DeviceFieldKey = keyof typeof DeviceField;
 
+type DeviceRow = {
+  readonly id: string;
+  readonly created_at: string;
+  readonly platform: string;
+  readonly os_name: string;
+  readonly os_version: string;
+  readonly device_model_name: string;
+  readonly device_brand: string;
+  readonly device_name: string;
+  readonly app_version: string;
+  readonly app_build_number: string;
+  readonly user_agent: string;
+  readonly first_seen_at: string;
+  readonly last_seen_at: string;
+};
+
 /** Canonical device row SELECT — all fields used by account-device atoms. */
 function deviceRowByIdSql(deviceId: string) {
-  return sql`
+  return sql<DeviceRow>`
     SELECT
       id,
       created_at,
@@ -47,6 +63,6 @@ export function useDeviceColumn(
   field: DeviceFieldKey
 ): string | null {
   const column = DeviceField[field];
-  const { value } = useWatchField<string>(deviceRowByIdSql(deviceId), column);
+  const { value } = useWatchField(deviceRowByIdSql(deviceId), column);
   return value;
 }

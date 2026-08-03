@@ -9,8 +9,8 @@ export async function describeTable(
   tableName: string
 ): Promise<SqlCliResult> {
   assertSqlIdentifier(tableName, 'Invalid table name', { tableName });
-  const rows = await client.query<Record<string, unknown>>(
-    raw(`PRAGMA table_info(${tableName})`)
+  const rows = await client.query(
+    raw<Record<string, unknown>>(`PRAGMA table_info(${tableName})`)
   );
   if (rows.length === 0) {
     return { kind: 'message', message: `Table not found: ${tableName}` };

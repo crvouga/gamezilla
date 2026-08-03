@@ -206,7 +206,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
     const tx: SqlClient = {
       connect: () => Promise.resolve(),
       disconnect: () => Promise.resolve(),
-      query: <T = Record<string, unknown>>(query: Sql) =>
+      query: <T extends Record<string, unknown>>(query: Sql<T>) =>
         this.db.getAllAsync<T>(
           query.sql,
           query.values as SQLite.SQLiteBindValue[]
@@ -221,7 +221,8 @@ export class SqlClientImplExpoSqlite implements SqlClient {
           lastInsertRowid: result.lastInsertRowId,
         };
       },
-      prepare: (query: Sql) => this.prepare(query),
+      prepare: <T extends Record<string, unknown>>(query: Sql<T>) =>
+        this.prepare(query),
       transaction: async <T>(fn: (inner: SqlClient) => Promise<T>) => fn(tx),
     };
     return tx;
@@ -278,7 +279,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
     return this.pendingDisconnect;
   }
 
-  query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
+  query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
     return this.runSerialized(() =>
       this.db.getAllAsync<T>(
         query.sql,
@@ -287,7 +288,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
     );
   }
 
-  async run(query: Sql): Promise<RunResult> {
+  async run(query: Sql<unknown>): Promise<RunResult> {
     return this.runSerialized(async () => {
       const result = await this.db.runAsync(
         query.sql,
@@ -300,10 +301,12 @@ export class SqlClientImplExpoSqlite implements SqlClient {
     });
   }
 
-  prepare(query: Sql): PreparedStatement {
+  prepare<T extends Record<string, unknown>>(
+    query: Sql<T>
+  ): PreparedStatement<T> {
     const stmt = this.db.prepareSync(query.sql);
     return {
-      query: async <T = Record<string, unknown>>(params?: Value[]) =>
+      query: async (params?: Value[]) =>
         this.runSerialized(async () => {
           const result = await stmt.executeAsync(
             (params ?? []) as SQLite.SQLiteBindParams

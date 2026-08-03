@@ -46,7 +46,7 @@ describe('ensureProfile', () => {
     await ensureProfile(sqlClient, rulesAuthFor(MY_ID), MY_ID);
 
     const row = (
-      await sqlClient.query<Record<string, string>>(sql`
+      await sqlClient.query(sql<Record<string, string>>`
         SELECT username, avatar_config
         FROM profiles
         WHERE id = ${MY_ID}
@@ -63,7 +63,7 @@ describe('ensureProfile', () => {
     await ensureProfile(sqlClient, auth, MY_ID);
     await ensureProfile(sqlClient, auth, MY_ID);
 
-    const rows = await sqlClient.query<{ n: number }>(sql`
+    const rows = await sqlClient.query(sql<{ n: number }>`
       SELECT count(*) AS n
       FROM profiles
       WHERE id = ${MY_ID}
@@ -80,7 +80,7 @@ describe('ensureProfile', () => {
       username: 'AssignedName',
     });
     const row = (
-      await sqlClient.query<Record<string, string>>(sql`
+      await sqlClient.query(sql<Record<string, string>>`
         SELECT username
         FROM profiles
         WHERE id = ${MY_ID}
@@ -102,7 +102,7 @@ describe('ensureProfile', () => {
       username: 'CorrectName',
     });
     const row = (
-      await sqlClient.query<Record<string, string>>(sql`
+      await sqlClient.query(sql<Record<string, string>>`
         SELECT username
         FROM profiles
         WHERE id = ${MY_ID}
@@ -115,7 +115,7 @@ describe('ensureProfile', () => {
     const sqlClient = openTestSql();
     const auth = rulesAuthFor(MY_ID);
     await ensureProfile(sqlClient, auth, MY_ID);
-    await sqlClient.run(sql`
+    await sqlClient.run(sql<void>`
       UPDATE profiles
       SET username = ${'MyHandle'}, username_changed_at = ${new Date().toISOString()}
       WHERE id = ${MY_ID}
@@ -125,7 +125,7 @@ describe('ensureProfile', () => {
       username: 'ServerName',
     });
     const row = (
-      await sqlClient.query<Record<string, string>>(sql`
+      await sqlClient.query(sql<Record<string, string>>`
         SELECT username
         FROM profiles
         WHERE id = ${MY_ID}

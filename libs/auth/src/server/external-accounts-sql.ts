@@ -33,7 +33,7 @@ export async function findUserIdByProviderExternalId(
   provider: string,
   externalId: string
 ): Promise<string | null> {
-  const rows = await db.query<UserIdRow>(sql`
+  const rows = await db.query(sql<UserIdRow>`
     SELECT user_id
     FROM external_accounts
     WHERE provider = ${provider}
@@ -49,7 +49,7 @@ export async function readExternalAccountId(
   userId: string,
   provider: string
 ): Promise<string | null> {
-  const rows = await db.query<{ external_id: string | null }>(sql`
+  const rows = await db.query(sql<{ external_id: string | null }>`
     SELECT external_id
     FROM external_accounts
     WHERE user_id = ${userId}
@@ -68,7 +68,7 @@ export async function insertUser(
   createdAt?: string
 ): Promise<void> {
   const now = createdAt ?? new Date().toISOString();
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO users (id, created_at)
     VALUES (${userId}, ${now})
     ON CONFLICT (id) DO NOTHING
@@ -86,7 +86,7 @@ export async function upsertExternalAccount(
 ): Promise<void> {
   const now = new Date().toISOString();
   const metadataJson = JSON.stringify(args.metadata ?? {});
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO external_accounts (
       user_id,
       provider,

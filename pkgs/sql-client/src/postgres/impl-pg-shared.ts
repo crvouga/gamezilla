@@ -227,7 +227,9 @@ export function createPgSessionClient(poolClient: PgExecutor): SqlClient {
     disconnect: async () => {
       /* caller releases poolClient */
     },
-    query: async <T = Record<string, unknown>>(query: Sql): Promise<T[]> => {
+    query: async <T extends Record<string, unknown>>(
+      query: Sql<T>
+    ): Promise<T[]> => {
       const [text, vals] = questionMarkParamsToDollarParams(
         query.sql,
         query.values
@@ -235,7 +237,7 @@ export function createPgSessionClient(poolClient: PgExecutor): SqlClient {
       const res = await poolClient.query(text, vals);
       return res.rows as T[];
     },
-    run: async (query: Sql): Promise<RunResult> => {
+    run: async (query: Sql<unknown>): Promise<RunResult> => {
       const [text, vals] = questionMarkParamsToDollarParams(
         query.sql,
         query.values
@@ -243,10 +245,12 @@ export function createPgSessionClient(poolClient: PgExecutor): SqlClient {
       const res = await poolClient.query(text, vals);
       return pgRunResultFromQuery(res);
     },
-    prepare: (query: Sql): PreparedStatement => {
+    prepare: <T extends Record<string, unknown>>(
+      query: Sql<T>
+    ): PreparedStatement<T> => {
       const statementSql = query.sql;
       return {
-        query: async <T = Record<string, unknown>>(params?: Value[]) => {
+        query: async (params?: Value[]) => {
           const [text, vals] = questionMarkParamsToDollarParams(
             statementSql,
             params

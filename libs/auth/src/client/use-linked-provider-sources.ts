@@ -65,7 +65,7 @@ export function useLinkedProviderSources(
 ): LinkedProviderSources | null {
   const { providerLabel: primaryAuthProvider } = useAuthClientPort();
   const { row: authExternalAccountRow } =
-    useWatchOne<PrimaryAuthExternalAccountRow>(sql`
+    useWatchOne(sql<PrimaryAuthExternalAccountRow>`
       SELECT external_id, metadata, created_at
       FROM external_accounts
       WHERE user_id = ${accountId}
@@ -73,7 +73,7 @@ export function useLinkedProviderSources(
       LIMIT 1
     `);
 
-  const { row: entityRow } = useWatchOne<AuthEntityStoreRow>(sql`
+  const { row: entityRow } = useWatchOne(sql<AuthEntityStoreRow>`
     SELECT data, created_at
     FROM entity_store
     WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH}

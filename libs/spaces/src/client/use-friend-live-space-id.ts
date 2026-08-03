@@ -8,7 +8,7 @@ import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
  * the viewer is allowlisted or a member.
  */
 export function useFriendLiveSpaceId(hostAccountId: string): string | null {
-  const { row } = useWatchOne<{ readonly id: string }>(sql`
+  const { row } = useWatchOne(sql<{ readonly id: string }>`
     SELECT id
     FROM spaces
     WHERE ended_at IS NULL

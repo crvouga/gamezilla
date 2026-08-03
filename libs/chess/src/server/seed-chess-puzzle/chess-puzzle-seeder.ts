@@ -171,12 +171,12 @@ export class ChessPuzzleSeeder {
     cursor: string | null;
     finished_at: string | null;
   } | null> {
-    const rows = await db.query<{
-      source_etag: string | null;
-      cursor: string | null;
-      finished_at: string | null;
-    }>(
-      sql`
+    const rows = await db.query(
+      sql<{
+        source_etag: string | null;
+        cursor: string | null;
+        finished_at: string | null;
+      }>`
         SELECT source_etag, cursor, finished_at
         FROM chess_puzzle_load
         WHERE id = ${CHESS_PUZZLE_LOAD_ENTITY_ID}

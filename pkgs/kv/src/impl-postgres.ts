@@ -64,7 +64,7 @@ async function ensureKvPrimaryKeyOnKeyColumn(
   sqlClient: SqlClient,
   log: Logger
 ): Promise<void> {
-  const rows = await sqlClient.query<{ column_name: string }>(sql`
+  const rows = await sqlClient.query(sql<{ column_name: string }>`
     SELECT kcu.column_name
      FROM information_schema.table_constraints tc
      JOIN information_schema.key_column_usage kcu
@@ -102,7 +102,7 @@ async function applyKvStorageOptimizations(
   );
 
   // 'p' = permanent (logged), 'u' = unlogged, 't' = temp.
-  const rows = await sqlClient.query<{ relpersistence: string }>(sql`
+  const rows = await sqlClient.query(sql<{ relpersistence: string }>`
     SELECT relpersistence FROM pg_class
      WHERE relname = ${TABLE} AND relnamespace = current_schema()::regnamespace`);
   assert.array(rows, 'kv migrate: pg_class lookup must return array');
@@ -121,7 +121,7 @@ async function runKvPostgresMigrations(
   sqlClient: SqlClient,
   log: Logger
 ): Promise<void> {
-  const existing = await sqlClient.query<{ tablename: string }>(sql`
+  const existing = await sqlClient.query(sql<{ tablename: string }>`
     SELECT tablename FROM pg_tables WHERE schemaname = current_schema() AND tablename = ${TABLE}`);
   if (existing.length === 0) {
     const statements = MIGRATIONS.split(';')
@@ -144,7 +144,9 @@ async function runKvPostgresMigrations(
     await ensureKvPrimaryKeyOnKeyColumn(sqlClient, log);
   }
   await applyKvStorageOptimizations(sqlClient, log);
-  await sqlClient.query(raw(`SELECT 1 FROM ${TABLE} LIMIT 0`));
+  await sqlClient.query(
+    sql<Record<string, unknown>>`SELECT 1 FROM ${TABLE} LIMIT 0`
+  );
 }
 
 /**
@@ -191,8 +193,8 @@ export class KvImplPostgres implements Kv {
 
   async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
-    const rows = await this.sqlClient.query<{ value: unknown }>(
-      sql`SELECT value FROM kv WHERE key = ${key}`
+    const rows = await this.sqlClient.query(
+      sql<{ value: unknown }>`SELECT value FROM kv WHERE key = ${key}`
     );
     const first = rows[0];
     if (first === null || first === undefined) return null;
@@ -207,7 +209,7 @@ export class KvImplPostgres implements Kv {
     assertKvKey(key);
     assertKvRecord(hotAssert(), value, 'kv postgres put');
     await this.sqlClient.run(
-      sql`
+      sql<void>`
         INSERT INTO kv (key, value)
         VALUES (${key}, ${JSON.stringify(value)}::text::jsonb)
         ON CONFLICT (key) DO UPDATE SET
@@ -218,13 +220,13 @@ export class KvImplPostgres implements Kv {
 
   async zap(key: Keyword): Promise<void> {
     assertKvKey(key);
-    await this.sqlClient.run(sql`DELETE FROM kv WHERE key = ${key}`);
+    await this.sqlClient.run(sql<void>`DELETE FROM kv WHERE key = ${key}`);
   }
 
   async tx<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
     return this.sqlClient.transaction(async (sqlTx) => {
       await sqlTx.run(
-        sql`
+        sql<void>`
           SELECT pg_advisory_xact_lock(
             hashtext(${TABLE}::text)::bigint
           )`

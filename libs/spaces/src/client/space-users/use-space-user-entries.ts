@@ -20,7 +20,7 @@ export function useSpaceUserEntries(spaceId: string): {
   readonly isLoading: boolean;
 } {
   const query = useMemo(
-    () => sql`
+    () => sql<SpaceUserRow>`
       SELECT a.user_id, p.username, p.avatar_config
       FROM space_users AS a
       INNER JOIN profiles AS p ON p.id = a.user_id
@@ -29,7 +29,7 @@ export function useSpaceUserEntries(spaceId: string): {
     `,
     [spaceId]
   );
-  const { rows, isLoading } = useWatchQuery<SpaceUserRow>(query);
+  const { rows, isLoading } = useWatchQuery(query);
   const entries = useMemo(
     () =>
       rows.map((row) => ({

@@ -22,12 +22,12 @@ type RegistryEntry = {
   refCount: number;
 };
 
-type OpenWatchSql = (query: Sql) => WatchSqlHandle;
+type OpenWatchSql = (query: Sql<any>) => WatchSqlHandle;
 
 function getOrCreateEntry(
   entries: Map<string, RegistryEntry>,
   open: OpenWatchSql,
-  query: Sql
+  query: Sql<any>
 ): RegistryEntry {
   const key = watchQueryCacheKey(query.sql, JSON.stringify(query.values));
   const existing = entries.get(key);
@@ -53,7 +53,7 @@ function getOrCreateEntry(
 function createWatchSubscription<T extends Record<string, unknown>>(
   entries: Map<string, RegistryEntry>,
   open: OpenWatchSql,
-  query: Sql
+  query: Sql<T>
 ): WatchSubscription<readonly T[]> {
   const key = watchQueryCacheKey(query.sql, JSON.stringify(query.values));
   let cachedSnapshot: readonly T[] = [];
@@ -105,15 +105,15 @@ function createWatchSubscription<T extends Record<string, unknown>>(
  */
 export function createSharedWatchRegistry(open: OpenWatchSql): {
   watch<T extends Record<string, unknown>>(
-    query: Sql
+    query: Sql<T>
   ): WatchSubscription<readonly T[]>;
 } {
   const entries = new Map<string, RegistryEntry>();
   return {
     watch<T extends Record<string, unknown>>(
-      query: Sql
+      query: Sql<T>
     ): WatchSubscription<readonly T[]> {
-      return createWatchSubscription<T>(entries, open, query);
+      return createWatchSubscription(entries, open, query);
     },
   };
 }

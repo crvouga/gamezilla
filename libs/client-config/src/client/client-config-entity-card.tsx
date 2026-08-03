@@ -8,15 +8,9 @@ import { Trans, useLingui } from '@lingui/react/macro';
 
 import { clientConfigRowQuery } from './client-config-queries';
 
-type ClientConfigRow = {
-  readonly google_web_client_id: string | null;
-};
-
 export function ClientConfigEntityCard() {
   const { t } = useLingui();
-  const { row } = useWatchOne<ClientConfigRow>(
-    clientConfigRowQuery(CLIENT_CONFIG_ENTITY_ID)
-  );
+  const { row } = useWatchOne(clientConfigRowQuery(CLIENT_CONFIG_ENTITY_ID));
 
   const googleRaw = row?.google_web_client_id;
   const googleLine =

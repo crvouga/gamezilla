@@ -1,21 +1,44 @@
 /**
  * SQL query builders for the matchmaking hot path.
  *
- * These are pure functions returning `Sql` — no I/O, no connection. They live
- * alongside `matchmaker.ts` (which composes them into `SqlClient` calls) to
- * keep that file within the Tiger-Style size cap while every queue statement
+ * These are pure functions returning typed `Sql` — no I/O, no connection. They
+ * live alongside `matchmaker.ts` (which composes them into `SqlClient` calls)
+ * to keep that file within the Tiger-Style size cap while every queue statement
  * stays a single, inspectable SQL query.
  *
  * @internal
  */
-import { sql, type Sql } from '@pkgs/sql';
+import { sql, type Sql, type SqlFragment } from '@pkgs/sql';
+
+import type {
+  MatchPassRow,
+  ParticipantRow,
+  StatusRow,
+} from './matchmaker-internals';
+
+export type SweepExpiredCountRow = {
+  readonly matchmaking_sweep_expired: number | string;
+};
+
+export type SweepMatchedCountRow = {
+  readonly matchmaking_sweep_matched: number | string;
+};
+
+export type SchemaFingerprintRow = {
+  readonly schema_fingerprint: string;
+};
+
+export type ActivePartitionRow = {
+  readonly partition_signature: string;
+  readonly group_size: number | string;
+};
 
 /**
  * Single-statement read across the waiting + matched tables via UNION ALL with
  * a trailing LIMIT 1 binding to the whole compound.
  */
-export function statusLookupQuery(participantId: string): Sql {
-  return sql`
+export function statusLookupQuery(participantId: string): Sql<StatusRow> {
+  return sql<StatusRow>`
     SELECT 'waiting'::text AS status, data, metadata, NULL::uuid AS match_id
       FROM matchmaking_waiting
      WHERE id = ${participantId}
@@ -38,8 +61,8 @@ export type RunMatchPassArgs = {
 };
 
 /** Set-returning `matchmaking_run_match_pass(...)` call in FROM position. */
-export function runMatchPassQuery(args: RunMatchPassArgs): Sql {
-  return sql`
+export function runMatchPassQuery(args: RunMatchPassArgs): Sql<MatchPassRow> {
+  return sql<MatchPassRow>`
     SELECT match_id, participant_id, joined_at, data
       FROM matchmaking_run_match_pass(
         ${args.partitionSignature},
@@ -54,8 +77,8 @@ export function runMatchPassQuery(args: RunMatchPassArgs): Sql {
 }
 
 /** Prune `(sig, group_size)` pairs with no remaining waiters (aliased DELETE). */
-export function prunePartitionsQuery(): Sql {
-  return sql`
+export function prunePartitionsQuery(): SqlFragment {
+  return sql<void>`
     DELETE FROM matchmaking_active_partitions AS ap
      WHERE NOT EXISTS (
        SELECT 1
@@ -70,8 +93,8 @@ export function sweepExpiredQuery(args: {
   readonly partitionSignature: string;
   readonly maxWaitSeconds: number;
   readonly nowParam: string | null;
-}): Sql {
-  return sql`
+}): Sql<SweepExpiredCountRow> {
+  return sql<SweepExpiredCountRow>`
     SELECT matchmaking_sweep_expired(
       ${args.partitionSignature},
       ${args.maxWaitSeconds},
@@ -83,8 +106,8 @@ export function sweepExpiredQuery(args: {
 export function sweepMatchedQuery(args: {
   readonly matchedRetentionSeconds: number;
   readonly nowParam: string | null;
-}): Sql {
-  return sql`
+}): Sql<SweepMatchedCountRow> {
+  return sql<SweepMatchedCountRow>`
     SELECT matchmaking_sweep_matched(
       ${args.matchedRetentionSeconds},
       ${args.nowParam}
@@ -92,8 +115,11 @@ export function sweepMatchedQuery(args: {
 }
 
 /** Peer participants sharing a `match_id`, excluding the caller. */
-export function statusPeersQuery(matchId: string, participantId: string): Sql {
-  return sql`
+export function statusPeersQuery(
+  matchId: string,
+  participantId: string
+): Sql<ParticipantRow> {
+  return sql<ParticipantRow>`
     SELECT id, joined_at, data, metadata
       FROM matchmaking_matched
      WHERE match_id = ${matchId} AND id <> ${participantId}
@@ -101,16 +127,16 @@ export function statusPeersQuery(matchId: string, participantId: string): Sql {
 }
 
 /** Installed schema fingerprint row (id = 1). */
-export function schemaFingerprintQuery(): Sql {
-  return sql`
+export function schemaFingerprintQuery(): Sql<SchemaFingerprintRow> {
+  return sql<SchemaFingerprintRow>`
     SELECT schema_fingerprint
       FROM matchmaking_schema_state
      WHERE id = 1`;
 }
 
 /** Active `(partition_signature, group_size)` pairs, oldest first, capped. */
-export function activePartitionsQuery(cap: number): Sql {
-  return sql`
+export function activePartitionsQuery(cap: number): Sql<ActivePartitionRow> {
+  return sql<ActivePartitionRow>`
     SELECT partition_signature, group_size
       FROM matchmaking_active_partitions
      ORDER BY first_seen_at

@@ -14,7 +14,7 @@ export async function patchProfileAvatar(
   if (input.avatarConfig === undefined) {
     return;
   }
-  await db.run(sql`
+  await db.run(sql<void>`
     UPDATE profiles
     SET avatar_config = ${input.avatarConfig}
     WHERE id = ${input.profileId}

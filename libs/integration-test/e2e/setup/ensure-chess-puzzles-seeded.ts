@@ -16,8 +16,8 @@ async function countChessPuzzles(): Promise<number> {
     dbScope: createPostgresDbScope(schema),
   });
   try {
-    const rows = await sqlClient.query<{ n: number }>(
-      raw('SELECT COUNT(*)::int AS n FROM chess_puzzles')
+    const rows = await sqlClient.query(
+      raw<{ n: number }>('SELECT COUNT(*)::int AS n FROM chess_puzzles')
     );
     return rows[0]?.n ?? 0;
   } finally {

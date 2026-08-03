@@ -10,7 +10,7 @@ export async function loadMemberOfSpaceIdsFromSql(
   db: SqlClient,
   memberId: string
 ): Promise<string[]> {
-  const rows = await db.query<{ readonly space_id: string }>(sql`
+  const rows = await db.query(sql<{ readonly space_id: string }>`
     SELECT space_id
     FROM space_users
     WHERE user_id = ${memberId}

@@ -81,8 +81,10 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
     });
     try {
       await ensurePostgresSchema(sqlClient, publicScope);
-      const rows = await sqlClient.query<{ current_schema: string | null }>(
-        raw('SELECT current_schema() AS current_schema')
+      const rows = await sqlClient.query(
+        raw<{ current_schema: string | null }>(
+          'SELECT current_schema() AS current_schema'
+        )
       );
       const current = rows[0]?.current_schema ?? null;
       expect(current === 'public' || current === null).toBe(true);
@@ -101,8 +103,8 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
       await ensurePostgresSchema(sqlClient, dbScope);
       // Second call must not throw (CREATE SCHEMA IF NOT EXISTS).
       await ensurePostgresSchema(sqlClient, dbScope);
-      const rows = await sqlClient.query<{ exists: boolean }>(
-        raw(
+      const rows = await sqlClient.query(
+        raw<{ exists: boolean }>(
           `SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = '${TEST_SCHEMA}') AS exists`
         )
       );
@@ -121,8 +123,10 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
     try {
       await ensurePostgresSchema(sqlClient, dbScope);
       for (let i = 0; i < 3; i++) {
-        const rows = await sqlClient.query<{ current_schema: string }>(
-          raw('SELECT current_schema() AS current_schema')
+        const rows = await sqlClient.query(
+          raw<{ current_schema: string }>(
+            'SELECT current_schema() AS current_schema'
+          )
         );
         expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
       }
@@ -138,8 +142,10 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
       ensureSchema: true,
     });
     try {
-      const rows = await sqlClient.query<{ current_schema: string }>(
-        raw('SELECT current_schema() AS current_schema')
+      const rows = await sqlClient.query(
+        raw<{ current_schema: string }>(
+          'SELECT current_schema() AS current_schema'
+        )
       );
       expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
     } finally {
@@ -153,8 +159,10 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
       await sqlClient.connect();
       await ensurePostgresSchema(sqlClient, dbScope);
       for (let i = 0; i < 3; i++) {
-        const rows = await sqlClient.query<{ current_schema: string }>(
-          raw('SELECT current_schema() AS current_schema')
+        const rows = await sqlClient.query(
+          raw<{ current_schema: string }>(
+            'SELECT current_schema() AS current_schema'
+          )
         );
         expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
       }

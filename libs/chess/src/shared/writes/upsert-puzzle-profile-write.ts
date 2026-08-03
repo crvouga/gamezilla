@@ -13,7 +13,7 @@ async function updateProfileRow(
   db: SqlClient,
   input: UpsertPuzzleProfileInput
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     UPDATE chess_puzzle_profiles
     SET
       rating = ${input.rating},
@@ -27,7 +27,7 @@ async function insertProfileRow(
   db: SqlClient,
   input: UpsertPuzzleProfileInput
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO chess_puzzle_profiles (
       id,
       owner_id,
@@ -50,7 +50,7 @@ export async function upsertPuzzleProfileRow(
   input: UpsertPuzzleProfileInput
 ): Promise<void> {
   const existing = await db.query(
-    sql`
+    sql<{ readonly id: string }>`
       SELECT id
       FROM chess_puzzle_profiles
       WHERE id = ${input.ownerId}

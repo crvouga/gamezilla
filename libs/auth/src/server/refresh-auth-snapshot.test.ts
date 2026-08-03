@@ -46,7 +46,7 @@ function makeFakeAuthServer(args: {
 }
 
 async function migrateAuthTables(db: SqlClient): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     CREATE TABLE devices (
       id TEXT PRIMARY KEY,
       user_id TEXT,
@@ -64,7 +64,7 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
       last_seen_at TEXT
     )
   `);
-  await db.run(sql`
+  await db.run(sql<void>`
     CREATE TABLE external_accounts (
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
@@ -75,7 +75,7 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
       UNIQUE (user_id, provider)
     )
   `);
-  await db.run(sql`
+  await db.run(sql<void>`
     CREATE TABLE entity_store (
       id TEXT PRIMARY KEY,
       namespace TEXT NOT NULL,
@@ -101,11 +101,11 @@ async function readClerkExternalAccount(
     }
   | undefined
 > {
-  const rows = await db.query<{
+  const rows = await db.query(sql<{
     external_id: string | null;
     metadata: string | null;
     created_at: string | null;
-  }>(sql`
+  }>`
     SELECT external_id, metadata, created_at
     FROM external_accounts
     WHERE user_id = ${accountId}
@@ -119,7 +119,7 @@ async function readClerkEntityStore(
   db: SqlClient,
   accountId: string
 ): Promise<{ data: string; created_at: string } | undefined> {
-  const rows = await db.query<{ data: string; created_at: string }>(sql`
+  const rows = await db.query(sql<{ data: string; created_at: string }>`
     SELECT data, created_at
     FROM entity_store
     WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH}
@@ -190,7 +190,7 @@ async function readEntityStoreOwnerId(
   db: SqlClient,
   externalUserId: string
 ): Promise<string | null> {
-  const rows = await db.query<{ owner_id: string | null }>(sql`
+  const rows = await db.query(sql<{ owner_id: string | null }>`
     SELECT owner_id
     FROM entity_store
     WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH}
@@ -204,7 +204,7 @@ async function readDeviceUserId(
   db: SqlClient,
   deviceId: string
 ): Promise<string | null> {
-  const rows = await db.query<{ user_id: string | null }>(sql`
+  const rows = await db.query(sql<{ user_id: string | null }>`
     SELECT user_id
     FROM devices
     WHERE id = ${deviceId}
@@ -216,7 +216,7 @@ async function readDevice(
   db: SqlClient,
   deviceId: string
 ): Promise<{ platform: string | null } | null> {
-  const rows = await db.query<{ platform: string | null }>(sql`
+  const rows = await db.query(sql<{ platform: string | null }>`
     SELECT platform
     FROM devices
     WHERE id = ${deviceId}
@@ -313,7 +313,7 @@ describe('refreshAuthSnapshot', () => {
     await refreshAuthSnapshot(inputs);
     await refreshAuthSnapshot(inputs);
 
-    const rows = await sqlClient.query<{ id: string }>(sql`
+    const rows = await sqlClient.query(sql<{ id: string }>`
       SELECT id
       FROM entity_store
       WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH}
@@ -335,7 +335,7 @@ describe('refreshAuthSnapshot', () => {
     });
 
     const now = new Date().toISOString();
-    await sqlClient.run(sql`
+    await sqlClient.run(sql<void>`
       INSERT INTO external_accounts (
         user_id,
         provider,
@@ -345,7 +345,7 @@ describe('refreshAuthSnapshot', () => {
       )
       VALUES (${ACCOUNT_ID}, ${'stripe'}, ${'cus_1'}, ${'{}'}, ${now})
     `);
-    await sqlClient.run(sql`
+    await sqlClient.run(sql<void>`
       INSERT INTO entity_store (
         id,
         namespace,
@@ -377,9 +377,9 @@ describe('refreshAuthSnapshot', () => {
       deviceAttributes: DEVICE_ATTRS,
     });
 
-    const stripeRows = await sqlClient.query<{
+    const stripeRows = await sqlClient.query(sql<{
       external_id: string | null;
-    }>(sql`
+    }>`
       SELECT external_id
       FROM external_accounts
       WHERE user_id = ${ACCOUNT_ID}
@@ -387,7 +387,7 @@ describe('refreshAuthSnapshot', () => {
     `);
     expect(stripeRows[0]?.external_id).toBe('cus_1');
 
-    const clerkRows = await sqlClient.query<{ metadata: string }>(sql`
+    const clerkRows = await sqlClient.query(sql<{ metadata: string }>`
       SELECT metadata
       FROM external_accounts
       WHERE user_id = ${ACCOUNT_ID}

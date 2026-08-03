@@ -135,7 +135,7 @@ function compileLogic(
 ): Sql {
   assert.ok(args.length > 0, `sqlMap: empty ${op}`, { op, args });
   const sep = ` ${op.toUpperCase()} `;
-  return sql`(${join(
+  return sql<void>`(${join(
     args.map((a) => ctx.compileExpr(a)),
     sep
   )})`;
@@ -152,7 +152,7 @@ function compileInfix(
   });
   const left = ctx.compileExpr(args[0], true);
   const right = ctx.compileExpr(args[1]);
-  return sql`${left} ${raw(op.toUpperCase())} ${right}`;
+  return sql<void>`${left} ${raw(op.toUpperCase())} ${right}`;
 }
 
 function compileLike(
@@ -169,10 +169,10 @@ function compileLike(
   const pattern = ctx.compileExpr(args[1]);
   const kw = not ? 'NOT LIKE' : 'LIKE';
   if (args.length === 2) {
-    return sql`${left} ${raw(kw)} ${pattern}`;
+    return sql<void>`${left} ${raw(kw)} ${pattern}`;
   }
   const esc = parseEscape(args[2]);
-  return sql`${left} ${raw(kw)} ${pattern} ESCAPE ${ctx.compileExpr(esc)}`;
+  return sql<void>`${left} ${raw(kw)} ${pattern} ESCAPE ${ctx.compileExpr(esc)}`;
 }
 
 function parseEscape(arg: unknown): string {
@@ -189,7 +189,7 @@ function compileNot(args: readonly unknown[], ctx: SqlMapCompileCtx): Sql {
   assert.equals(args.length, 1, "sqlMap: 'not' needs 1 arg", {
     argsLength: args.length,
   });
-  return sql`NOT ${ctx.compileExpr(args[0])}`;
+  return sql<void>`NOT ${ctx.compileExpr(args[0])}`;
 }
 
 function compileIn(
@@ -206,12 +206,12 @@ function compileIn(
   const kw = op === 'in' ? 'IN' : 'NOT IN';
 
   if (isQueryMap(vals)) {
-    return sql`${col} ${raw(kw)} ${ctx.compileExpr(vals)}`;
+    return sql<void>`${col} ${raw(kw)} ${ctx.compileExpr(vals)}`;
   }
   if (!Array.isArray(vals) || vals.length === 0) {
     return op === 'in' ? raw('1 = 0') : raw('1 = 1');
   }
-  return sql`${col} ${raw(kw)} (${join(
+  return sql<void>`${col} ${raw(kw)} (${join(
     vals.map((v) => ctx.compileExpr(v)),
     SQL_MAP_LIST_SEP
   )})`;
@@ -221,7 +221,7 @@ function compileBetween(args: readonly unknown[], ctx: SqlMapCompileCtx): Sql {
   assert.equals(args.length, 3, "sqlMap: 'between' needs 3 args", {
     argsLength: args.length,
   });
-  return sql`${ctx.compileExpr(args[0], true)} BETWEEN ${ctx.compileExpr(args[1])} AND ${ctx.compileExpr(args[2])}`;
+  return sql<void>`${ctx.compileExpr(args[0], true)} BETWEEN ${ctx.compileExpr(args[1])} AND ${ctx.compileExpr(args[2])}`;
 }
 
 function compileIsNull(
@@ -233,14 +233,14 @@ function compileIsNull(
     argsLength: args.length,
   });
   const kw = not ? 'IS NOT NULL' : 'IS NULL';
-  return sql`${ctx.compileExpr(args[0], true)} ${raw(kw)}`;
+  return sql<void>`${ctx.compileExpr(args[0], true)} ${raw(kw)}`;
 }
 
 function compileExists(args: readonly unknown[], ctx: SqlMapCompileCtx): Sql {
   assert.equals(args.length, 1, "sqlMap: 'exists' needs 1 arg", {
     argsLength: args.length,
   });
-  return sql`EXISTS ${ctx.compileExpr(args[0])}`;
+  return sql<void>`EXISTS ${ctx.compileExpr(args[0])}`;
 }
 
 function compileCast(args: readonly unknown[], ctx: SqlMapCompileCtx): Sql {
@@ -251,7 +251,7 @@ function compileCast(args: readonly unknown[], ctx: SqlMapCompileCtx): Sql {
   assert.string(type, 'sqlMap: cast type must be a string', { type });
   const t = type.toLowerCase();
   assert.ok(isSqlMapCastType(t), 'sqlMap: unknown cast type', { type });
-  return sql`${ctx.compileExpr(args[0])}::${raw(t)}`;
+  return sql<void>`${ctx.compileExpr(args[0])}::${raw(t)}`;
 }
 
 function compileParam(args: readonly unknown[], ctx: SqlMapCompileCtx): Sql {
@@ -284,12 +284,12 @@ function compileCase(args: readonly unknown[], ctx: SqlMapCompileCtx): Sql {
       'sqlMap: bad case clause',
       { clause }
     );
-    out = sql`${out} WHEN ${ctx.compileExpr(clause[0])} THEN ${ctx.compileExpr(clause[1])}`;
+    out = sql<void>`${out} WHEN ${ctx.compileExpr(clause[0])} THEN ${ctx.compileExpr(clause[1])}`;
   }
   if (args.length >= 2) {
-    out = sql`${out} ELSE ${ctx.compileExpr(args[1])}`;
+    out = sql<void>`${out} ELSE ${ctx.compileExpr(args[1])}`;
   }
-  return sql`${out} END`;
+  return sql<void>`${out} END`;
 }
 
 function compileConcat(args: readonly unknown[], ctx: SqlMapCompileCtx): Sql {
@@ -310,12 +310,12 @@ function compileJsonArrow(
   assert.equals(args.length, 2, `sqlMap: '${op}' needs 2 args`, {
     argsLength: args.length,
   });
-  return sql`${ctx.compileExpr(args[0], true)} ${raw(op)} ${ctx.compileExpr(args[1])}`;
+  return sql<void>`${ctx.compileExpr(args[0], true)} ${raw(op)} ${ctx.compileExpr(args[1])}`;
 }
 
 function compileTuple(args: readonly unknown[], ctx: SqlMapCompileCtx): Sql {
   assert.ok(args.length >= 1, "sqlMap: 'tuple' needs ≥1 args");
-  return sql`(${join(
+  return sql<void>`(${join(
     args.map((a) => ctx.compileExpr(a, true)),
     SQL_MAP_LIST_SEP
   )})`;

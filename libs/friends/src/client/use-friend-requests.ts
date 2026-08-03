@@ -18,8 +18,8 @@ type FriendRequestRow = {
   readonly responded_at: string | null;
 };
 
-function pendingIncomingSql(myId: string): Sql {
-  return sql`
+function pendingIncomingSql(myId: string): Sql<FriendRequestRow> {
+  return sql<FriendRequestRow>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
     WHERE to_user_id = ${myId} AND status = 'pending'
@@ -27,8 +27,8 @@ function pendingIncomingSql(myId: string): Sql {
   `;
 }
 
-function pendingOutgoingSql(myId: string): Sql {
-  return sql`
+function pendingOutgoingSql(myId: string): Sql<FriendRequestRow> {
+  return sql<FriendRequestRow>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
     WHERE from_user_id = ${myId} AND status = 'pending'
@@ -55,7 +55,7 @@ export function useIncomingFriendRequests(): {
 } {
   const myId = useMyId();
   const query = useMemo(() => pendingIncomingSql(myId), [myId]);
-  const { rows, isLoading } = useWatchQuery<FriendRequestRow>(query);
+  const { rows, isLoading } = useWatchQuery(query);
   const requests = useMemo(() => rows.map(mapRequestRow), [rows]);
   return { requests, isLoading: myId.length === 0 ? false : isLoading };
 }
@@ -66,7 +66,7 @@ export function useOutgoingFriendRequests(): {
 } {
   const myId = useMyId();
   const query = useMemo(() => pendingOutgoingSql(myId), [myId]);
-  const { rows, isLoading } = useWatchQuery<FriendRequestRow>(query);
+  const { rows, isLoading } = useWatchQuery(query);
   const requests = useMemo(() => rows.map(mapRequestRow), [rows]);
   return { requests, isLoading: myId.length === 0 ? false : isLoading };
 }

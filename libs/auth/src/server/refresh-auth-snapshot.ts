@@ -92,7 +92,7 @@ async function upsertDeviceRow(args: {
   attributes: Record<string, string | null>;
 }): Promise<void> {
   const { db, deviceId, userId, attributes } = args;
-  const rows = await db.query<DeviceRow>(sql`
+  const rows = await db.query(sql<DeviceRow>`
     SELECT *
     FROM devices
     WHERE id = ${deviceId}
@@ -115,7 +115,7 @@ async function upsertDeviceRow(args: {
       cols.push(key);
       vals.push(value);
     }
-    await db.run(sql`
+    await db.run(sql<void>`
       INSERT INTO devices (${raw(cols.join(', '))})
       VALUES ${join(vals as Value[], ', ', '(', ')')}
     `);
@@ -140,9 +140,9 @@ async function upsertDeviceRow(args: {
   const entries = Object.entries(updates);
   if (entries.length === 0) return;
   const sets = join(
-    entries.map(([column, value]) => sql`${raw(column)} = ${value}`)
+    entries.map(([column, value]) => sql<void>`${raw(column)} = ${value}`)
   );
-  await db.run(sql`
+  await db.run(sql<void>`
     UPDATE devices
     SET ${sets}
     WHERE id = ${deviceId}

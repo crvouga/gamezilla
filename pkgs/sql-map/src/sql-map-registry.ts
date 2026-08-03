@@ -156,7 +156,7 @@ function defaultFnCompiler(name: string): SqlMapOpCompiler {
     if (args.length === 0) {
       return raw(`${rendered}()`);
     }
-    return sql`${raw(rendered)}(${join(
+    return sql<void>`${raw(rendered)}(${join(
       args.map((a) => ctx.compileExpr(a, true)),
       SQL_MAP_LIST_SEP
     )})`;

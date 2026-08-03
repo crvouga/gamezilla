@@ -28,7 +28,7 @@ export async function readAuthUserEntityData(
   db: SqlClient,
   ownerId: string
 ): Promise<Record<string, unknown> | null> {
-  const rows = await db.query<EntityStoreDataRow>(sql`
+  const rows = await db.query(sql<EntityStoreDataRow>`
     SELECT data
     FROM entity_store
     WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH}
@@ -54,7 +54,7 @@ export async function upsertAuthUserSnapshot(
   );
   const now = new Date().toISOString();
   const dataJson = JSON.stringify(args.data);
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO entity_store (
       id,
       namespace,

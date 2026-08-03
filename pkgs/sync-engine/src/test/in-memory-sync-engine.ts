@@ -72,7 +72,7 @@ function migrateTables(db: Database, registry: TableRegistry): void {
  */
 function createEventDrivenWatchSql(
   db: SqlClient,
-  query: Sql,
+  query: Sql<Record<string, unknown>>,
   onWrite: (refresh: () => void) => () => void
 ): WatchSqlHandle {
   let snapshot: readonly Record<string, unknown>[] = [];
@@ -80,7 +80,7 @@ function createEventDrivenWatchSql(
   const listeners = new Set<() => void>();
 
   const refresh = (): void => {
-    void db.query<Record<string, unknown>>(query).then((rows) => {
+    void db.query(query).then((rows) => {
       snapshot = rows;
       hydrated = true;
       for (const listener of listeners) {
@@ -173,8 +173,8 @@ export function createInMemorySyncEngine(
 
   return {
     db,
-    watch: <T extends Record<string, unknown>>(query: Sql) =>
-      watchRegistry.watch<T>(query),
+    watch: <T extends Record<string, unknown>>(query: Sql<T>) =>
+      watchRegistry.watch(query),
     connect: async () => {
       await db.connect();
       setStatus({
@@ -194,7 +194,7 @@ export function createInMemorySyncEngine(
     clearLocalData: async () => {
       for (const name of options.registry.tableNames()) {
         assertSqlIdentifier(name, 'Invalid sync table name', { name });
-        await db.run(sql`DELETE FROM ${raw(name)}`);
+        await db.run(sql<void>`DELETE FROM ${raw(name)}`);
       }
       resetEverSynced();
       setStatus({

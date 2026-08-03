@@ -6,7 +6,7 @@ import type { SqlCliCommand, SqlCliResult } from '../types';
 
 type TableRow = { table_name: string };
 
-const LIST_TABLE_NAMES_SQL = raw(`
+const LIST_TABLE_NAMES_SQL = raw<TableRow>(`
 SELECT name AS table_name
 FROM sqlite_master
 WHERE type = 'table'
@@ -15,7 +15,7 @@ ORDER BY name
 `);
 
 async function querySummary(client: SqlClient): Promise<SqlCliResult> {
-  const tables = await client.query<TableRow>(LIST_TABLE_NAMES_SQL);
+  const tables = await client.query(LIST_TABLE_NAMES_SQL);
 
   if (tables.length === 0) {
     return { kind: 'message', message: 'No tables found' };
@@ -26,8 +26,10 @@ async function querySummary(client: SqlClient): Promise<SqlCliResult> {
     assertSqlIdentifier(table.table_name, 'Invalid table name', {
       tableName: table.table_name,
     });
-    const countRows = await client.query<{ row_count: number | string }>(
-      raw(`SELECT COUNT(*) AS row_count FROM "${table.table_name}"`)
+    const countRows = await client.query(
+      raw<{ row_count: number | string }>(
+        `SELECT COUNT(*) AS row_count FROM "${table.table_name}"`
+      )
     );
     const rowCount = countRows[0]?.row_count ?? 0;
     rows.push({

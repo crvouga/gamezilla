@@ -34,7 +34,7 @@ async function readUsernameRow(
   db: SqlClient,
   profileId: string
 ): Promise<UsernameRow> {
-  const rows = await db.query<UsernameRow>(sql`
+  const rows = await db.query(sql<UsernameRow>`
     SELECT username, username_changed_at
     FROM profiles
     WHERE id = ${profileId}
@@ -65,7 +65,7 @@ async function updateUsername(
 ): Promise<void> {
   const now = new Date().toISOString();
   try {
-    await db.run(sql`
+    await db.run(sql<void>`
       UPDATE profiles
       SET username = ${username}, username_changed_at = ${now}
       WHERE id = ${profileId}

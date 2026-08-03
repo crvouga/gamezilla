@@ -40,7 +40,7 @@ export class SqlClientImplD1 implements SqlClient {
     return Promise.resolve();
   }
 
-  async query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
+  async query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
     const stmt = this.db.prepare(query.sql);
     const params = query.values;
     const bound = params.length > 0 ? stmt.bind(...params) : stmt;
@@ -48,7 +48,7 @@ export class SqlClientImplD1 implements SqlClient {
     return result.results ?? [];
   }
 
-  async run(query: Sql): Promise<RunResult> {
+  async run(query: Sql<unknown>): Promise<RunResult> {
     const stmt = this.db.prepare(query.sql);
     const params = query.values;
     const bound = params.length > 0 ? stmt.bind(...params) : stmt;
@@ -59,12 +59,12 @@ export class SqlClientImplD1 implements SqlClient {
     };
   }
 
-  prepare(query: Sql): PreparedStatement {
+  prepare<T extends Record<string, unknown>>(
+    query: Sql<T>
+  ): PreparedStatement<T> {
     const text = query.sql;
     return {
-      query: async <T = Record<string, unknown>>(
-        params?: Value[]
-      ): Promise<T[]> => {
+      query: async (params?: Value[]): Promise<T[]> => {
         const stmt = this.db.prepare(text);
         const values = params ?? [];
         const bound = values.length > 0 ? stmt.bind(...values) : stmt;

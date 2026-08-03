@@ -4,7 +4,8 @@
  *
  * All implementations use `?` for positional parameters. Pass a {@link Sql}
  * instance from `@pkgs/sql` (`sql` / `join` / `bulk` / `raw`); drivers unpack
- * `query.sql` + `query.values`.
+ * `query.sql` + `query.values`. Row types come from `Sql<T>` — do not restate
+ * generics on `query` / `prepare` call sites.
  */
 
 import { assert } from '@pkgs/assert';
@@ -16,8 +17,10 @@ export interface RunResult {
   lastInsertRowid: number;
 }
 
-export interface PreparedStatement {
-  query<T = Record<string, unknown>>(params?: Value[]): Promise<T[]>;
+export interface PreparedStatement<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> {
+  query(params?: Value[]): Promise<T[]>;
   run(params?: Value[]): Promise<RunResult>;
 }
 
@@ -33,14 +36,14 @@ export interface SqlClient {
   disconnect(): Promise<void>;
 
   /**
-   * Executes a SELECT query and returns rows.
+   * Executes a SELECT query and returns rows typed from `Sql<T>`.
    */
-  query<T = Record<string, unknown>>(query: Sql): Promise<T[]>;
+  query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]>;
 
   /**
    * Executes an INSERT, UPDATE, or DELETE statement.
    */
-  run(query: Sql): Promise<RunResult>;
+  run(query: Sql<unknown>): Promise<RunResult>;
 
   /**
    * Executes a function within a transaction.
@@ -51,8 +54,11 @@ export interface SqlClient {
   /**
    * Prepares a statement for execution.
    * Statement text comes from `query.sql`; bind values at execute via params.
+   * Row type `T` is taken from `Sql<T>`.
    */
-  prepare(query: Sql): PreparedStatement;
+  prepare<T extends Record<string, unknown>>(
+    query: Sql<T>
+  ): PreparedStatement<T>;
 }
 
 /**
@@ -65,10 +71,14 @@ export interface PostgresSqlClient extends SqlClient {
 }
 
 export function assertQuery(
-  query: Sql,
+  query: Sql<unknown>,
   sqlClient: SqlClient
-): asserts query is Sql {
-  assert.notThrows(() => sqlClient.prepare(query), 'Invalid SQL query', {
-    sql: query.sql,
-  });
+): asserts query is Sql<unknown> {
+  assert.notThrows(
+    () => sqlClient.prepare(query as Sql<Record<string, unknown>>),
+    'Invalid SQL query',
+    {
+      sql: query.sql,
+    }
+  );
 }

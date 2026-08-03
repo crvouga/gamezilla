@@ -37,10 +37,13 @@ function runResultFrom(result: PgliteQueryResult<unknown>): RunResult {
   return { changes: result.affectedRows ?? 0, lastInsertRowid: 0 };
 }
 
-function prepareFor(queryable: PgliteQueryable, query: Sql): PreparedStatement {
+function prepareFor<T extends Record<string, unknown>>(
+  queryable: PgliteQueryable,
+  query: Sql<T>
+): PreparedStatement<T> {
   const text = query.text;
   return {
-    query: async <T = Record<string, unknown>>(params?: Value[]) => {
+    query: async (params?: Value[]) => {
       const result = await queryable.query<T>(text, params ?? []);
       return [...result.rows];
     },
@@ -59,15 +62,19 @@ function wrap(queryable: PgliteQueryable): SqlClient {
     disconnect: async () => {
       /* PGlite lifecycle is owned by the caller */
     },
-    async query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
+    async query<T extends Record<string, unknown>>(
+      query: Sql<T>
+    ): Promise<T[]> {
       const result = await queryable.query<T>(query.text, [...query.values]);
       return [...result.rows];
     },
-    async run(query: Sql): Promise<RunResult> {
+    async run(query: Sql<unknown>): Promise<RunResult> {
       const result = await queryable.query(query.text, [...query.values]);
       return runResultFrom(result);
     },
-    prepare(query: Sql): PreparedStatement {
+    prepare<T extends Record<string, unknown>>(
+      query: Sql<T>
+    ): PreparedStatement<T> {
       return prepareFor(queryable, query);
     },
     transaction<T>(_fn: (tx: SqlClient) => Promise<T>): Promise<T> {

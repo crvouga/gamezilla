@@ -18,7 +18,7 @@ export async function isBlockedEitherDirection(
   userA: string,
   userB: string
 ): Promise<boolean> {
-  const rows = await db.query<{ readonly blocker_id: string }>(sql`
+  const rows = await db.query(sql<{ readonly blocker_id: string }>`
     SELECT blocker_id FROM user_blocks
     WHERE (blocker_id = ${userA} AND blocked_id = ${userB})
        OR (blocker_id = ${userB} AND blocked_id = ${userA})
@@ -34,7 +34,7 @@ export async function friendshipExists(
 ): Promise<boolean> {
   const userLow = userA < userB ? userA : userB;
   const userHigh = userA < userB ? userB : userA;
-  const rows = await db.query<{ readonly id: string }>(sql`
+  const rows = await db.query(sql<{ readonly id: string }>`
     SELECT id FROM friendships
     WHERE user_low = ${userLow} AND user_high = ${userHigh}
     LIMIT 1
@@ -54,7 +54,7 @@ export async function findRequestById(
   db: Pick<SqlClient, 'query'>,
   requestId: string
 ): Promise<RequestRow | null> {
-  const rows = await db.query<RequestRow>(sql`
+  const rows = await db.query(sql<RequestRow>`
     SELECT id, from_user_id, to_user_id, status, responded_at
     FROM friend_requests
     WHERE id = ${requestId}
@@ -68,7 +68,7 @@ export async function findPendingBetween(
   fromUserId: string,
   toUserId: string
 ): Promise<RequestRow | null> {
-  const rows = await db.query<RequestRow>(sql`
+  const rows = await db.query(sql<RequestRow>`
     SELECT id, from_user_id, to_user_id, status, responded_at
     FROM friend_requests
     WHERE from_user_id = ${fromUserId}
@@ -84,7 +84,7 @@ export async function findLatestDeclinedBetween(
   fromUserId: string,
   toUserId: string
 ): Promise<RequestRow | null> {
-  const rows = await db.query<RequestRow>(sql`
+  const rows = await db.query(sql<RequestRow>`
     SELECT id, from_user_id, to_user_id, status, responded_at
     FROM friend_requests
     WHERE from_user_id = ${fromUserId}

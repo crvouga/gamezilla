@@ -292,7 +292,7 @@ describe('sqlMap', () => {
   });
 
   describe('Sql integration', () => {
-    it('exposes sql/text/statement placeholders and nests in sql`...`', () => {
+    it('exposes sql/text/statement placeholders and nests in sql<void>`...`', () => {
       const q = sqlMap({
         select: ['id'],
         from: 'users',
@@ -303,7 +303,7 @@ describe('sqlMap', () => {
       expect(q.statement).toEqual('SELECT id FROM users WHERE name = :1');
       expect(q.values).toEqual(['Ada']);
 
-      const wrapped = sql`EXPLAIN ${q}`;
+      const wrapped = sql<void>`EXPLAIN ${q}`;
       expect(wrapped.text).toEqual(
         'EXPLAIN SELECT id FROM users WHERE name = $1'
       );
@@ -620,7 +620,7 @@ describe('sqlMap', () => {
       registerSqlMapFn('my_tvf');
       registerSqlMapOp('approx', (args, ctx) => {
         assert.equals(args.length, 1, 'approx');
-        return sql`approx(${ctx.compileExpr(args[0])})`;
+        return sql<void>`approx(${ctx.compileExpr(args[0])})`;
       });
       registerSqlMapCast('cidr');
 

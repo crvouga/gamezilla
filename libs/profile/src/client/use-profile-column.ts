@@ -10,8 +10,6 @@ export const ProfileField = {
 
 export type ProfileFieldKey = keyof typeof ProfileField;
 
-type ProfileRow = Readonly<Record<string, unknown>>;
-
 /**
  * Profile column for `profileId`. Uses {@link useWatchOne} (same display/cache
  * path as other account UI) so account switches do not leave the Profile tab
@@ -22,7 +20,7 @@ export function useProfileColumn(
   field: ProfileFieldKey
 ): string | null {
   const column = ProfileField[field];
-  const { row } = useWatchOne<ProfileRow>(profileRowByIdSql(profileId));
+  const { row } = useWatchOne(profileRowByIdSql(profileId));
   if (row === null) return null;
   const value = row[column];
   if (typeof value !== 'string') return null;

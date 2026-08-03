@@ -42,12 +42,12 @@ export async function readSpaceHostEnded(
   db: SqlClient,
   spaceId: string
 ): Promise<SpaceHostEnded> {
-  const rows = await db.query<{
+  const rows = await db.query(sql<{
     readonly host_id: string | null;
     readonly host_member_id: string | null;
     readonly host_account_id: string | null;
     readonly ended_at: string | null;
-  }>(sql`
+  }>`
     SELECT host_id, host_member_id, host_account_id, ended_at
     FROM spaces
     WHERE id = ${spaceId}
@@ -105,7 +105,7 @@ export async function isSpaceUserInStore(
 ): Promise<boolean> {
   if (spaceId.length === 0 || userId.length === 0) return false;
   const id = spaceUserEntityId(spaceId, userId);
-  const rows = await db.query<{ readonly id: string }>(sql`
+  const rows = await db.query(sql<{ readonly id: string }>`
     SELECT id
     FROM space_users
     WHERE id = ${id}
@@ -124,7 +124,7 @@ export async function upsertSpaceUserRow(args: {
   const already = await isSpaceUserInStore(args.db, args.spaceId, args.userId);
   if (already) return;
   const now = args.now ?? isoNow();
-  await args.db.run(sql`
+  await args.db.run(sql<void>`
     INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
     VALUES (
       ${spaceUserEntityId(args.spaceId, args.userId)},
@@ -143,12 +143,12 @@ export async function migrateHostIdentity(args: {
   readonly newMemberId: string;
   readonly accountId: string;
 }): Promise<void> {
-  await args.sql.run(sql`
+  await args.sql.run(sql<void>`
     UPDATE spaces
     SET host_member_id = ${args.newMemberId}, host_account_id = ${args.accountId}
     WHERE id = ${args.spaceId} AND host_id = ${args.deviceId}
   `);
-  await args.sql.run(sql`
+  await args.sql.run(sql<void>`
     UPDATE spaces
     SET host_member_id = ${args.newMemberId}
     WHERE id = ${args.spaceId}

@@ -16,7 +16,7 @@ export async function querySpaceById(
   db: Pick<SqlClient, 'query'>,
   spaceId: string
 ): Promise<SpaceHostRow | null> {
-  const rows = await db.query<SpaceHostRow>(sql`
+  const rows = await db.query(sql<SpaceHostRow>`
     SELECT host_id, host_member_id, host_account_id, ended_at, visibility
     FROM spaces
     WHERE id = ${spaceId}
@@ -32,7 +32,7 @@ export async function spaceUserExists(
 ): Promise<boolean> {
   if (spaceId.length === 0 || userId.length === 0) return false;
   const id = `${spaceId}:${userId}`;
-  const rows = await db.query<{ readonly id: string }>(sql`
+  const rows = await db.query(sql<{ readonly id: string }>`
     SELECT id FROM space_users WHERE id = ${id} LIMIT 1
   `);
   return rows[0] !== undefined;

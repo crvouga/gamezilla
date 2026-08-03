@@ -49,7 +49,7 @@
  * q.values  // [true, 'admin', 'staff', 10]
  *
  * // Nest inside a template fragment:
- * const wrapped = sql`EXPLAIN ${q}`;
+ * const wrapped = sql<void>`EXPLAIN ${q}`;
  * ```
  *
  * @module

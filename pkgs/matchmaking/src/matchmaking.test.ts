@@ -678,7 +678,9 @@ describe('Matchmaking.tick - bounded fan-out and cancellation', () => {
     let peak = 0;
     const counting: SqlClient = {
       ...base,
-      async query(query) {
+      async query<T extends Record<string, unknown>>(
+        query: Sql<T>
+      ): Promise<T[]> {
         inflight += 1;
         peak = Math.max(peak, inflight);
         try {
@@ -734,7 +736,9 @@ describe('Matchmaking.tick - advisory lock', () => {
     let didRunMatchPass = false;
     const stub: SqlClient = {
       ...base,
-      async query<T = Record<string, unknown>>(query: Sql) {
+      async query<T extends Record<string, unknown>>(
+        query: Sql<T>
+      ): Promise<T[]> {
         if (query.sql.includes('pg_try_advisory_lock')) {
           return [
             { pg_try_advisory_lock: lockProbeReturnsTrue },
@@ -743,7 +747,7 @@ describe('Matchmaking.tick - advisory lock', () => {
         if (query.sql.includes('matchmaking_run_match_pass')) {
           didRunMatchPass = true;
         }
-        return await base.query<T>(query);
+        return await base.query(query);
       },
     };
     const mm = new Matchmaking({
@@ -786,7 +790,9 @@ describe('Matchmaking.tick - advisory lock', () => {
     let injectError = false;
     const flaky: SqlClient = {
       ...base,
-      async query(query: Sql) {
+      async query<T extends Record<string, unknown>>(
+        query: Sql<T>
+      ): Promise<T[]> {
         if (injectError && query.sql.includes('matchmaking_run_match_pass')) {
           throw new Error('synthetic SQL failure mid-drain');
         }
@@ -870,7 +876,7 @@ describe('Matchmaking - schema drift', () => {
       // Corrupt the stored fingerprint to simulate another process
       // having re-migrated with a different schema.
       await sqlClient.run(
-        sql`
+        sql<void>`
           UPDATE matchmaking_schema_state
              SET schema_fingerprint = ${'{"corrupted":true}'}
            WHERE id = 1`
@@ -884,7 +890,7 @@ describe('Matchmaking - schema drift', () => {
       // we need to corrupt AFTER mm2 boots but BEFORE its first join.
       await mm2.ready();
       await sqlClient.run(
-        sql`
+        sql<void>`
           UPDATE matchmaking_schema_state
              SET schema_fingerprint = ${'{"corrupted":true}'}
            WHERE id = 1`
@@ -1128,11 +1134,11 @@ describe('Matchmaking - group matching (groupSize)', () => {
         formulas: [SimpleFormula],
         groupSize: 3,
       });
-      const rows = await sqlClient.query<{
-        partition_signature: string;
-        group_size: number | string;
-      }>(
-        sql`
+      const rows = await sqlClient.query(
+        sql<{
+          partition_signature: string;
+          group_size: number | string;
+        }>`
           SELECT partition_signature, group_size
             FROM matchmaking_active_partitions
            ORDER BY group_size`

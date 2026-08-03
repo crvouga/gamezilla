@@ -10,16 +10,19 @@ import type { FriendshipStatus } from '../shared/friends-types';
 
 type StatusRow = { readonly status: FriendshipStatus };
 
-function noneStatusSql(): Sql {
-  return sql`SELECT 'none' AS status`;
+function noneStatusSql(): Sql<StatusRow> {
+  return sql<StatusRow>`SELECT 'none' AS status`;
 }
 
-function friendshipStatusSql(myId: string, targetUserId: string): Sql {
+function friendshipStatusSql(
+  myId: string,
+  targetUserId: string
+): Sql<StatusRow> {
   if (myId.length === 0 || targetUserId.length === 0 || myId === targetUserId) {
     return noneStatusSql();
   }
   const { userLow, userHigh } = canonicalUserPair(myId, targetUserId);
-  return sql`
+  return sql<StatusRow>`
     SELECT CASE
       WHEN EXISTS (
         SELECT blocker_id
@@ -58,7 +61,7 @@ export function useFriendshipStatus(targetUserId: string): FriendshipStatus {
     () => (enabled ? friendshipStatusSql(myId, targetUserId) : noneStatusSql()),
     [enabled, myId, targetUserId]
   );
-  const { row } = useWatchOne<StatusRow>(query);
+  const { row } = useWatchOne(query);
   if (!enabled) return 'none';
   return row?.status ?? 'none';
 }

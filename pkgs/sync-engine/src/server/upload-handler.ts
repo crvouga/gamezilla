@@ -61,7 +61,7 @@ export async function applyPut(db: SqlClient, row: UploadRow): Promise<void> {
   const boundValues = columns.map((c) => values[c] as Value);
   // sqlMap: dynamic columns (client-supplied Object.keys drive the INSERT
   // column list + conflict set) and identifiers must reject-not-crash.
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO ${raw(table)} (${raw(quotedColumns.join(', '))})
     VALUES ${join(boundValues, ', ', '(', ')')}
     ON CONFLICT (id) DO UPDATE SET ${raw(conflictSet)}`);
@@ -74,11 +74,13 @@ export async function applyPatch(db: SqlClient, row: UploadRow): Promise<void> {
   const table = quoteSqlIdentifier(row.table);
   const sets = join(
     columns.map(
-      (c) => sql`${raw(quoteSqlIdentifier(c))} = ${values[c] as Value}`
+      (c) => sql<void>`${raw(quoteSqlIdentifier(c))} = ${values[c] as Value}`
     )
   );
   // sqlMap: dynamic columns (client-supplied) + reject-not-crash identifiers.
-  await db.run(sql`UPDATE ${raw(table)} SET ${sets} WHERE id = ${row.id}`);
+  await db.run(
+    sql<void>`UPDATE ${raw(table)} SET ${sets} WHERE id = ${row.id}`
+  );
 }
 
 export async function applyDelete(
@@ -88,7 +90,7 @@ export async function applyDelete(
   // sqlMap: dynamic identifier — hostile table names must reject-not-crash
   // (sqlMap's ident() asserts and would exit the worker process).
   await db.run(
-    sql`DELETE FROM ${raw(quoteSqlIdentifier(row.table))} WHERE id = ${row.id}`
+    sql<void>`DELETE FROM ${raw(quoteSqlIdentifier(row.table))} WHERE id = ${row.id}`
   );
 }
 

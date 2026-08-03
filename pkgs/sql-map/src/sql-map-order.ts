@@ -11,7 +11,7 @@ export function compileOrderBy(items: readonly OrderItem[] | undefined): Sql {
   if (!items || items.length === 0) {
     return empty;
   }
-  return sql` ORDER BY ${join(
+  return sql<void>` ORDER BY ${join(
     items.map((o) => orderItem(o)),
     SQL_MAP_LIST_SEP
   )}`;
@@ -32,12 +32,12 @@ function orderItem(o: OrderItem): Sql {
     assert.ok(isSqlMapCollation(opts.collate), 'sqlMap: unknown collation', {
       collate: opts.collate,
     });
-    out = sql`${out} COLLATE ${raw(opts.collate.toUpperCase())}`;
+    out = sql<void>`${out} COLLATE ${raw(opts.collate.toUpperCase())}`;
   }
-  out = sql`${out} ${raw(dir.toUpperCase())}`;
+  out = sql<void>`${out} ${raw(dir.toUpperCase())}`;
   if (opts?.nulls !== undefined) {
     assert.enum(opts.nulls, ['first', 'last'], 'sqlMap: bad nulls');
-    out = sql`${out} NULLS ${raw(opts.nulls.toUpperCase())}`;
+    out = sql<void>`${out} NULLS ${raw(opts.nulls.toUpperCase())}`;
   }
   return out;
 }

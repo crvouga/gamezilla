@@ -66,7 +66,7 @@ export async function renameSpace(
   const accountId = requireAccountId(auth);
   const trimmed = input.title.trim();
   const memberId = resolveSpaceMemberId(accountId);
-  await db.run(sql`
+  await db.run(sql<void>`
     UPDATE spaces
     SET title = ${trimmed.length > 0 ? trimmed : null},
         host_id = ${auth.deviceId},

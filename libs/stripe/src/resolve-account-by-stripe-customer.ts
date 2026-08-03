@@ -8,7 +8,7 @@ export async function resolveAccountIdByStripeCustomerId(
   db: SqlClient,
   stripeCustomerId: string
 ): Promise<string | null> {
-  const rows = await db.query<{ readonly user_id: string }>(sql`
+  const rows = await db.query(sql<{ readonly user_id: string }>`
     SELECT user_id
     FROM external_accounts
     WHERE provider = ${EXTERNAL_ACCOUNT_PROVIDER_STRIPE}

@@ -30,7 +30,7 @@ export function tableRef(t: TableRef): Sql {
   const base = compileTableSrc(src);
   const colDefs = t.length === 3 ? t[2] : undefined;
   if (colDefs === undefined) {
-    return sql`${base} AS ${columnIdent(alias)}`;
+    return sql<void>`${base} AS ${columnIdent(alias)}`;
   }
   assert.ok(colDefs.length > 0, 'sqlMap: empty table col defs');
   const defs = join(
@@ -38,11 +38,11 @@ export function tableRef(t: TableRef): Sql {
       assert.string(c, 'sqlMap: col def name must be a string');
       assert.string(typ, 'sqlMap: col def type must be a string');
       assert.ok(isSqlMapCastType(typ), 'sqlMap: unknown col def type', { typ });
-      return sql`${columnIdent(c)} ${raw(typ.toLowerCase())}`;
+      return sql<void>`${columnIdent(c)} ${raw(typ.toLowerCase())}`;
     }),
     SQL_MAP_LIST_SEP
   );
-  return sql`${base} AS ${columnIdent(alias)} (${defs})`;
+  return sql<void>`${base} AS ${columnIdent(alias)} (${defs})`;
 }
 
 function compileTableSrc(src: string | Query | OpCall): Sql {
@@ -65,7 +65,7 @@ export function selectItem(s: SelectItem): Sql {
     const [thing, alias] = s;
     const inner =
       typeof thing === 'string' ? columnIdent(thing) : compileExpr(thing, true);
-    return sql`${inner} AS ${columnIdent(alias)}`;
+    return sql<void>`${inner} AS ${columnIdent(alias)}`;
   }
   return compileExpr(s, true);
 }
@@ -91,7 +91,7 @@ export function compileJoins(
   const specs = normalizeJoinSpecs(spec);
   return join(
     specs.map(
-      ([t, on]) => sql` ${raw(kind)} ${tableRef(t)} ON ${compileExpr(on)}`
+      ([t, on]) => sql<void>` ${raw(kind)} ${tableRef(t)} ON ${compileExpr(on)}`
     ),
     ''
   );
@@ -150,7 +150,7 @@ export function compileGroupBy(cols: readonly string[] | undefined): Sql {
   if (!cols || cols.length === 0) {
     return empty;
   }
-  return sql` GROUP BY ${join(
+  return sql<void>` GROUP BY ${join(
     cols.map((c) => columnIdent(c)),
     SQL_MAP_LIST_SEP
   )}`;
@@ -162,10 +162,10 @@ export function compileLimitOffset(
 ): Sql {
   let out: Sql = empty;
   if (limit !== undefined) {
-    out = sql`${out} LIMIT ${assertNonNegInt(limit, 'limit')}`;
+    out = sql<void>`${out} LIMIT ${assertNonNegInt(limit, 'limit')}`;
   }
   if (offset !== undefined) {
-    out = sql`${out} OFFSET ${assertNonNegInt(offset, 'offset')}`;
+    out = sql<void>`${out} OFFSET ${assertNonNegInt(offset, 'offset')}`;
   }
   return out;
 }
@@ -180,7 +180,7 @@ export function compileReturning(cols: readonly string[] | undefined): Sql {
   if (!cols || cols.length === 0) {
     return empty;
   }
-  return sql` RETURNING ${join(
+  return sql<void>` RETURNING ${join(
     cols.map((c) => columnIdent(c)),
     SQL_MAP_LIST_SEP
   )}`;
@@ -190,12 +190,12 @@ export function compileWhere(where: Query['where']): Sql {
   if (where === undefined) {
     return empty;
   }
-  return sql` WHERE ${compileExpr(where)}`;
+  return sql<void>` WHERE ${compileExpr(where)}`;
 }
 
 export function compileHaving(having: Query['having']): Sql {
   if (having === undefined) {
     return empty;
   }
-  return sql` HAVING ${compileExpr(having)}`;
+  return sql<void>` HAVING ${compileExpr(having)}`;
 }

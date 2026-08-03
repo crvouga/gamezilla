@@ -37,7 +37,7 @@ export function AccountRosterProfileSync({
   const [, setRoster] = useLocalAccountRoster();
   const activeSession = sessions.find((session) => session.isActive);
 
-  const { row, isLoading: profileLoading } = useWatchOne<ProfileDisplayRow>(sql`
+  const { row, isLoading: profileLoading } = useWatchOne(sql<ProfileDisplayRow>`
     SELECT username, avatar_config
     FROM profiles
     WHERE id = ${accountId}

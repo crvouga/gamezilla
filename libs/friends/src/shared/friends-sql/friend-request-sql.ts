@@ -36,7 +36,7 @@ export async function findFriendRequestById(
   db: SqlClient,
   requestId: string
 ): Promise<FriendRequest | null> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
     WHERE id = ${requestId}
@@ -51,7 +51,7 @@ export async function findPendingRequestBetween(
   fromUserId: string,
   toUserId: string
 ): Promise<FriendRequest | null> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
     WHERE from_user_id = ${fromUserId}
@@ -68,7 +68,7 @@ export async function findPendingRequestsBetweenPair(
   userA: string,
   userB: string
 ): Promise<readonly FriendRequest[]> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
     WHERE status = 'pending'
@@ -85,7 +85,7 @@ export async function findLatestDeclinedRequestBetween(
   fromUserId: string,
   toUserId: string
 ): Promise<FriendRequest | null> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
     WHERE from_user_id = ${fromUserId}
@@ -108,7 +108,7 @@ export async function insertFriendRequest(
     readonly now: string;
   }
 ): Promise<FriendRequest> {
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO friend_requests (id, from_user_id, to_user_id, status, message, created_at, updated_at)
     VALUES (${args.id}, ${args.fromUserId}, ${args.toUserId}, 'pending', ${args.message}, ${args.now}, ${args.now})
   `);
@@ -125,7 +125,7 @@ export async function markFriendRequestStatus(
   status: FriendRequestStatus,
   now: string
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     UPDATE friend_requests
     SET status = ${status}, updated_at = ${now}, responded_at = ${now}
     WHERE id = ${requestId}
@@ -138,7 +138,7 @@ export async function cancelPendingRequestsBetween(
   userB: string,
   now: string
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     UPDATE friend_requests
     SET status = 'cancelled', updated_at = ${now}, responded_at = ${now}
     WHERE status = 'pending'

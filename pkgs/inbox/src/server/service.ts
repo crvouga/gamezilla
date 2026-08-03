@@ -24,8 +24,8 @@ export async function listInteractions(
   const hasCursor = query.cursor !== undefined && query.cursor.length > 0;
   const cursor = query.cursor ?? null;
 
-  const rows = await db.query<StoredInteractionRow>(
-    sql`
+  const rows = await db.query(
+    sql<StoredInteractionRow>`
       SELECT *
         FROM inbox_interactions
        WHERE user_id = ${query.userId}
@@ -77,7 +77,7 @@ export async function markInteractionRead(
   }
   const now = new Date().toISOString();
   await db.run(
-    sql`
+    sql<void>`
       UPDATE inbox_interactions
          SET read_at = ${now}, updated_at = ${now}
        WHERE id = ${interactionId} AND user_id = ${actorId}`
@@ -95,7 +95,7 @@ export async function markAllInteractionsRead(
 ): Promise<void> {
   const now = new Date().toISOString();
   await db.run(
-    sql`
+    sql<void>`
       UPDATE inbox_interactions
          SET read_at = ${now}, updated_at = ${now}
        WHERE user_id = ${actorId}
@@ -117,7 +117,7 @@ export async function archiveInteraction(
   }
   const now = new Date().toISOString();
   await db.run(
-    sql`
+    sql<void>`
       UPDATE inbox_interactions
          SET archived_at = ${now},
              read_at = COALESCE(read_at, ${now}),
@@ -142,7 +142,7 @@ export async function dismissInteraction(
   }
   const now = new Date().toISOString();
   await db.run(
-    sql`
+    sql<void>`
       UPDATE inbox_interactions
          SET dismissed_at = ${now},
              read_at = COALESCE(read_at, ${now}),
@@ -183,8 +183,8 @@ export async function countUnreadInteractions(
   db: SqlClient,
   userId: string
 ): Promise<number> {
-  const rows = await db.query<{ count: string }>(
-    sql`
+  const rows = await db.query(
+    sql<{ count: string }>`
       SELECT COUNT(*)::text AS count
         FROM inbox_interactions
        WHERE user_id = ${userId}

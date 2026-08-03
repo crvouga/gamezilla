@@ -79,7 +79,7 @@ async function probeDatabase(url: string): Promise<ProbeResult> {
   const db = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
   try {
     await db.connect();
-    const rows = await db.query<{ ok: number }>(raw('SELECT 1 AS ok'));
+    const rows = await db.query(raw<{ ok: number }>('SELECT 1 AS ok'));
     if (!Array.isArray(rows) || rows.length === 0) {
       return { ok: false, error: 'SELECT 1 returned no rows' };
     }
@@ -114,7 +114,7 @@ async function verifyDatabaseAndClaimOwnership(
   const db = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
   try {
     await db.connect();
-    const rows = await db.query<{ ok: number }>(raw('SELECT 1 AS ok'));
+    const rows = await db.query(raw<{ ok: number }>('SELECT 1 AS ok'));
     if (!Array.isArray(rows) || rows.length === 0) {
       return { ok: false, error: 'SELECT 1 returned no rows' };
     }
@@ -220,7 +220,7 @@ export async function verifyWalLevelLogical(url: string): Promise<void> {
   const db = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
   try {
     await db.connect();
-    const rows = await db.query<{ wal_level: string }>(raw('SHOW wal_level'));
+    const rows = await db.query(raw<{ wal_level: string }>('SHOW wal_level'));
     const level = rows[0]?.wal_level?.trim().toLowerCase() ?? '';
     if (level !== 'logical') {
       throw new Error(

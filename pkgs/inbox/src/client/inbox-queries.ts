@@ -1,9 +1,17 @@
 import { sql, type Sql } from '@pkgs/sql';
 
 import type { InteractionFilter } from '../shared/interaction';
+import type { StoredInteractionRow } from '../shared/stored-interaction-row';
 
-export function inboxListSql(userId: string, filter: InteractionFilter): Sql {
-  return sql`
+export type InboxUnreadCountRow = {
+  readonly count: number | string;
+};
+
+export function inboxListSql(
+  userId: string,
+  filter: InteractionFilter
+): Sql<StoredInteractionRow> {
+  return sql<StoredInteractionRow>`
     SELECT *
       FROM inbox_interactions
      WHERE user_id = ${userId}
@@ -23,8 +31,8 @@ export function inboxListSql(userId: string, filter: InteractionFilter): Sql {
      ORDER BY priority DESC, created_at DESC, id DESC`;
 }
 
-export function inboxUnreadCountSql(userId: string): Sql {
-  return sql`
+export function inboxUnreadCountSql(userId: string): Sql<InboxUnreadCountRow> {
+  return sql<InboxUnreadCountRow>`
     SELECT COUNT(*) AS count
       FROM inbox_interactions
      WHERE user_id = ${userId}

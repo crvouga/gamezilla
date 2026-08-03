@@ -9,9 +9,9 @@ const start = process.hrtime();
 const queries: Sql[] = [];
 
 for (let i = 0; i < 1_000_000; i++) {
-  const rawQuery = sql`there`;
-  const subQuery = sql`something ${'goes'} here and ${rawQuery}`;
-  const query = sql`this is ${'the'} query: ${i}, ${subQuery}`;
+  const rawQuery = sql<void>`there`;
+  const subQuery = sql<void>`something ${'goes'} here and ${rawQuery}`;
+  const query = sql<void>`this is ${'the'} query: ${i}, ${subQuery}`;
   queries.push(query);
 
   // Compute properties for perf testing.

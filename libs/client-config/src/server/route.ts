@@ -35,7 +35,7 @@ function loadClientConfigAttributes(): Record<string, unknown> {
 async function readClientConfigRow(
   db: SqlClient
 ): Promise<Record<string, unknown> | null> {
-  const rows = await db.query<Record<string, unknown>>(sql`
+  const rows = await db.query(sql<Record<string, unknown>>`
     SELECT google_web_client_id
     FROM client_config
     WHERE id = ${CLIENT_CONFIG_ENTITY_ID}
@@ -55,7 +55,7 @@ async function upsertClientConfigRow(
 ): Promise<void> {
   const googleId = attrs[ClientConfigAttr.googleWebClientId.key];
   const googleWebClientId = typeof googleId === 'string' ? googleId : null;
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO client_config (id, google_web_client_id)
     VALUES (${CLIENT_CONFIG_ENTITY_ID}, ${googleWebClientId})
     ON CONFLICT (id) DO UPDATE SET

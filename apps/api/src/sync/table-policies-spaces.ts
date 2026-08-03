@@ -44,7 +44,7 @@ async function querySpace(
   db: SqlClient,
   spaceId: string
 ): Promise<SpaceHostRow | null> {
-  const rows = await db.query<SpaceHostRow>(sql`
+  const rows = await db.query(sql<SpaceHostRow>`
     SELECT host_id, host_member_id, host_account_id, ended_at
     FROM spaces
     WHERE id = ${spaceId}

@@ -38,12 +38,12 @@ type StripeLinkRow = {
  */
 export function useCurrentUser(): CurrentUser | null {
   const accountId = useCurrentAccountId();
-  const { row: userRow } = useWatchOne<UserRow>(sql`
+  const { row: userRow } = useWatchOne(sql<UserRow>`
     SELECT created_at
     FROM users
     WHERE id = ${accountId}
   `);
-  const { row: stripeRow } = useWatchOne<StripeLinkRow>(sql`
+  const { row: stripeRow } = useWatchOne(sql<StripeLinkRow>`
     SELECT external_id
     FROM external_accounts
     WHERE user_id = ${accountId}

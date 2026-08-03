@@ -11,7 +11,7 @@ export function useHasSpaceUserLocal(
   const enabled = spaceId.length > 0 && userId !== null && userId.length > 0;
   const id =
     enabled && userId !== null ? spaceUserEntityId(spaceId, userId) : '';
-  const { row } = useWatchOne<{ readonly id: string }>(sql`
+  const { row } = useWatchOne(sql<{ readonly id: string }>`
     SELECT id
     FROM space_users
     WHERE id = ${id}

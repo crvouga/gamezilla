@@ -59,7 +59,7 @@ export async function removeSpaceUser(
   db: SqlClient
 ): Promise<void> {
   const id = spaceUserEntityId(input.spaceId, input.userId);
-  await db.run(sql`
+  await db.run(sql<void>`
     DELETE FROM space_users
     WHERE id = ${id}
   `);

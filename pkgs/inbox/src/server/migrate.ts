@@ -25,8 +25,8 @@ export async function migrateInbox(db: SqlClient): Promise<void> {
     await db.run(raw(statement));
   }
 
-  const rows = await db.query<{ schema_fingerprint: string }>(
-    raw(READ_SCHEMA_FINGERPRINT_SQL)
+  const rows = await db.query(
+    raw<{ schema_fingerprint: string }>(READ_SCHEMA_FINGERPRINT_SQL)
   );
   const current = rows[0]?.schema_fingerprint;
   if (current === INBOX_SCHEMA_FINGERPRINT) return;

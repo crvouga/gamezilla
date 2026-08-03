@@ -27,7 +27,7 @@ async function insertProfileRow(
   username: string,
   now: string
 ): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO profiles (id, created_at, username, avatar_config)
     VALUES (
       ${profileId},
@@ -46,7 +46,7 @@ async function assignUniqueUsername(
   for (let attempt = 0; attempt < MAX_USERNAME_ASSIGN_ATTEMPTS; attempt += 1) {
     const username = generateRandomUsername(`${profileId}:${attempt}`);
     try {
-      await db.run(sql`
+      await db.run(sql<void>`
         UPDATE profiles
         SET username = ${username}
         WHERE id = ${profileId}

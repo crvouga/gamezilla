@@ -52,20 +52,22 @@ export class SqlClientImplPg implements PostgresSqlClient {
     });
   }
 
-  async query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
+  async query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
     const res = await this.pgQuery(query.sql, [...query.values]);
     return pgQueryRows<T>(res);
   }
 
-  async run(query: Sql): Promise<RunResult> {
+  async run(query: Sql<unknown>): Promise<RunResult> {
     const res = await this.pgQuery(query.sql, [...query.values]);
     return pgRunResultFromQuery(res);
   }
 
-  prepare(query: Sql): PreparedStatement {
+  prepare<T extends Record<string, unknown>>(
+    query: Sql<T>
+  ): PreparedStatement<T> {
     const text = query.sql;
     return {
-      query: async <T = Record<string, unknown>>(params?: Value[]) => {
+      query: async (params?: Value[]) => {
         const res = await this.pgQuery(text, params);
         return pgQueryRows<T>(res);
       },

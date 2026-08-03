@@ -21,7 +21,7 @@ export async function readEntityStoreData(
     readonly externalId: string;
   }
 ): Promise<Record<string, unknown> | null> {
-  const rows = await db.query<EntityStoreDataRow>(sql`
+  const rows = await db.query(sql<EntityStoreDataRow>`
     SELECT data
     FROM entity_store
     WHERE namespace = ${args.namespace}
@@ -58,7 +58,7 @@ export async function upsertEntityStoreRow(
   const now = new Date().toISOString();
   const dataJson = stripeEntityStoreData(args.data);
   const ownerId = args.ownerId ?? null;
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO entity_store (
       id,
       namespace,

@@ -35,7 +35,7 @@ function openSql(): SqlClientImplBunSqlite {
 }
 
 async function migrate(db: SqlClient): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     CREATE TABLE spaces (
       id TEXT PRIMARY KEY,
       title TEXT,
@@ -47,7 +47,7 @@ async function migrate(db: SqlClient): Promise<void> {
       host_member_id TEXT
     )
   `);
-  await db.run(sql`
+  await db.run(sql<void>`
     CREATE TABLE space_users (
       id TEXT PRIMARY KEY,
       space_id TEXT,
@@ -71,7 +71,7 @@ function ctx(args: {
 
 async function seedHostSpace(db: SqlClient): Promise<void> {
   const now = new Date().toISOString();
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO spaces (
       id, host_id, host_member_id, host_account_id, visibility, created_at
     )
@@ -84,7 +84,7 @@ async function seedHostSpace(db: SqlClient): Promise<void> {
       ${now}
     )
   `);
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
     VALUES (
       ${spaceUserEntityId(SPACE_ID, ACCOUNT_ID)},
@@ -97,7 +97,7 @@ async function seedHostSpace(db: SqlClient): Promise<void> {
 }
 
 async function readSpaceUser(db: SqlClient, userId: string): Promise<boolean> {
-  const rows = await db.query<{ readonly id: string }>(sql`
+  const rows = await db.query(sql<{ readonly id: string }>`
     SELECT id
     FROM space_users
     WHERE id = ${spaceUserEntityId(SPACE_ID, userId)}
@@ -110,11 +110,11 @@ async function readSpaceHost(db: SqlClient): Promise<{
   readonly hostAccountId: string | null;
   readonly endedAt: string | null;
 }> {
-  const rows = await db.query<{
+  const rows = await db.query(sql<{
     readonly host_member_id: string | null;
     readonly host_account_id: string | null;
     readonly ended_at: string | null;
-  }>(sql`
+  }>`
     SELECT host_member_id, host_account_id, ended_at
     FROM spaces
     WHERE id = ${SPACE_ID}
@@ -159,7 +159,7 @@ describe('leave / join / create require account', () => {
 
   test('host leave with guest space_user ends the space', async () => {
     const now = new Date().toISOString();
-    await db.run(sql`
+    await db.run(sql<void>`
       INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
       VALUES (
         ${spaceUserEntityId(SPACE_ID, GUEST_ACCOUNT_ID)},
@@ -177,7 +177,7 @@ describe('leave / join / create require account', () => {
 
   test('guest leave keeps space live and retains space_users', async () => {
     const now = new Date().toISOString();
-    await db.run(sql`
+    await db.run(sql<void>`
       INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
       VALUES (
         ${spaceUserEntityId(SPACE_ID, GUEST_ACCOUNT_ID)},
@@ -202,7 +202,7 @@ describe('leave / join / create require account', () => {
     await executeLeaveSpace(signedIn, { spaceId: SPACE_ID }, db);
     expect((await readSpaceHost(db)).endedAt).not.toBeNull();
 
-    await db.run(sql`
+    await db.run(sql<void>`
       UPDATE spaces
       SET ended_at = NULL, host_member_id = ${DEVICE_ID}, host_account_id = NULL
     `);

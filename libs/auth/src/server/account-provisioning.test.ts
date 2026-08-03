@@ -28,13 +28,13 @@ function makeFakeAuthServer(
 }
 
 async function migrateAuthTables(db: SqlClient): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     CREATE TABLE users (
       id TEXT PRIMARY KEY,
       created_at TEXT NOT NULL
     )
   `);
-  await db.run(sql`
+  await db.run(sql<void>`
     CREATE TABLE external_accounts (
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
@@ -45,7 +45,7 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
       UNIQUE (user_id, provider)
     )
   `);
-  await db.run(sql`
+  await db.run(sql<void>`
     CREATE TABLE entity_store (
       id TEXT PRIMARY KEY,
       namespace TEXT NOT NULL,
@@ -79,11 +79,11 @@ describe('ensureInternalAccountIdForExternalUser', () => {
   test('returns existing user id for known clerk user', async () => {
     const userId = '33333333-3333-4333-8333-333333333333';
     const now = new Date().toISOString();
-    await sqlClient.run(sql`
+    await sqlClient.run(sql<void>`
       INSERT INTO users (id, created_at)
       VALUES (${userId}, ${now})
     `);
-    await sqlClient.run(sql`
+    await sqlClient.run(sql<void>`
       INSERT INTO external_accounts (
         user_id,
         provider,
@@ -127,7 +127,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       await readExternalAccountId(sqlClient, resolved, PRIMARY_AUTH_PROVIDER)
     ).toBe(EXTERNAL_USER_ID);
 
-    const entityRows = await sqlClient.query<{ owner_id: string | null }>(sql`
+    const entityRows = await sqlClient.query(sql<{ owner_id: string | null }>`
       SELECT owner_id
       FROM entity_store
       WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH}

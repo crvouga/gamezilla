@@ -86,7 +86,7 @@ export async function createSpace(
   const accountId = requireAccountId(auth);
   const now = isoNow();
   const memberId = resolveSpaceMemberId(accountId);
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO spaces (id, host_id, host_member_id, host_account_id, visibility, created_at)
     VALUES (
       ${input.spaceId},
@@ -97,7 +97,7 @@ export async function createSpace(
       ${now}
     )
   `);
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
     VALUES (
       ${spaceUserEntityId(input.spaceId, memberId)},

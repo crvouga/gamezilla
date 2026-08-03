@@ -26,7 +26,7 @@ async function main(): Promise<void> {
     await sqlClient.run(raw('BEGIN'));
     // sqlMap: CREATE TEMP TABLE ... AS SELECT with a ROW_NUMBER() OVER (...)
     // window function — sqlMap has no DDL or window-function support.
-    await sqlClient.run(sql`
+    await sqlClient.run(sql<void>`
       CREATE TEMP TABLE puzzle_pool_pick ON COMMIT DROP AS
        SELECT id
        FROM (
@@ -54,8 +54,10 @@ async function main(): Promise<void> {
          AND id IN (SELECT id FROM puzzle_pool_pick)`)
     );
     await sqlClient.run(raw('COMMIT'));
-    const count = await sqlClient.query<{ n: number }>(
-      raw('SELECT count(*)::int AS n FROM chess_puzzles WHERE sync_pool = true')
+    const count = await sqlClient.query(
+      raw<{ n: number }>(
+        'SELECT count(*)::int AS n FROM chess_puzzles WHERE sync_pool = true'
+      )
     );
     process.stdout.write(
       `${JSON.stringify({

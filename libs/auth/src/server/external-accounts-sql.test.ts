@@ -14,13 +14,13 @@ import {
 } from './external-accounts-sql';
 
 async function migrateTables(db: SqlClient): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     CREATE TABLE users (
       id TEXT PRIMARY KEY,
       created_at TEXT NOT NULL
     )
   `);
-  await db.run(sql`
+  await db.run(sql<void>`
     CREATE TABLE external_accounts (
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
@@ -76,7 +76,7 @@ describe('external-accounts-sql', () => {
       metadata: { email: 'b@example.com' },
     });
 
-    const rows = await sqlClient.query<{ metadata: string }>(sql`
+    const rows = await sqlClient.query(sql<{ metadata: string }>`
       SELECT metadata
       FROM external_accounts
       WHERE provider = ${primaryAuthProvider}
@@ -87,7 +87,7 @@ describe('external-accounts-sql', () => {
   });
 
   test('findUserIdByPrimaryAuthExternalId resolves primary provider rows', async () => {
-    await sqlClient.run(sql`
+    await sqlClient.run(sql<void>`
       INSERT INTO external_accounts (
         user_id,
         provider,

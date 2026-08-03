@@ -19,7 +19,9 @@ async function acquireUploadAdvisoryLock(
 ): Promise<void> {
   try {
     // Bind lockUserId as a parameter (not an identifier) so UUIDs / hyphens work.
-    await tx.run(sql`SELECT pg_advisory_xact_lock(hashtext(${lockUserId}))`);
+    await tx.run(
+      sql<void>`SELECT pg_advisory_xact_lock(hashtext(${lockUserId}))`
+    );
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     if (

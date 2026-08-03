@@ -40,7 +40,7 @@ export async function runPostgresMigrations(
     await tx.run(raw("SET LOCAL lock_timeout = '0'"));
     logger.info('acquiring migrate advisory lock');
     await tx.run(
-      sql`
+      sql<void>`
         SELECT pg_advisory_xact_lock(
           ${API_MIGRATE_ADVISORY_LOCK_ID}::bigint
         ) AS locked`

@@ -16,10 +16,19 @@ export type SpaceFieldKey = keyof typeof SpaceField;
 
 export type SpaceFieldColumn = (typeof SpaceField)[SpaceFieldKey];
 
-type SpaceRow = Readonly<Record<string, unknown>>;
+type SpaceColumnRow = {
+  readonly id: string;
+  readonly title: string | null;
+  readonly host_id: string | null;
+  readonly created_at: string | null;
+  readonly ended_at: string | null;
+  readonly visibility: string | null;
+  readonly host_account_id: string | null;
+  readonly host_member_id: string | null;
+};
 
-function spaceRowByIdSql(spaceId: string): Sql {
-  return sql`
+function spaceRowByIdSql(spaceId: string): Sql<SpaceColumnRow> {
+  return sql<SpaceColumnRow>`
     SELECT id, title, host_id, created_at, ended_at, visibility, host_account_id, host_member_id
     FROM spaces
     WHERE id = ${spaceId}
@@ -35,7 +44,7 @@ export function useSpaceColumn(
   spaceId: string,
   field: SpaceFieldColumn
 ): string | null {
-  const { row } = useWatchOne<SpaceRow>(spaceRowByIdSql(spaceId));
+  const { row } = useWatchOne(spaceRowByIdSql(spaceId));
   if (row === null) return null;
   const value = row[field];
   if (typeof value !== 'string') return null;

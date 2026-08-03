@@ -9,7 +9,7 @@ import type { PuzzleSeedReporter } from './reporter';
 import type { PuzzleBatchEntry } from './row';
 
 function insertPuzzlesBatchQuery(insertRowsJson: string) {
-  return sql`
+  return sql<void>`
     INSERT INTO chess_puzzles (
       id,
       fen,
@@ -185,7 +185,7 @@ export async function writeLoadProgressFast(args: {
   finishedAt: string | null;
 }): Promise<void> {
   const { db, loadId, sourceEtag, cursor, finishedAt } = args;
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO chess_puzzle_load (id, source_etag, cursor, finished_at)
     VALUES (${loadId}, ${sourceEtag}, ${cursor}, ${finishedAt})
     ON CONFLICT (id) DO UPDATE SET

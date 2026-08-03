@@ -28,7 +28,7 @@ export async function appendPuzzleInteractionRowSql(
       : input.correct
         ? 1
         : 0;
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO chess_puzzle_interactions (
       id,
       owner_id,

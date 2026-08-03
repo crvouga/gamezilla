@@ -13,9 +13,9 @@ export function createSqlClientFromPowerSync(
   return {
     connect: () => db.connect(),
     disconnect: () => db.disconnect(),
-    query: <T = Record<string, unknown>>(query: Sql) =>
+    query: <T extends Record<string, unknown>>(query: Sql<T>) =>
       db.getAll<T>(query.sql, [...query.values]),
-    run: async (query: Sql): Promise<RunResult> => {
+    run: async (query: Sql<unknown>): Promise<RunResult> => {
       const result = await db.execute(query.sql, [...query.values]);
       return {
         changes: result.rowsAffected ?? 0,
@@ -28,10 +28,12 @@ export function createSqlClientFromPowerSync(
         return fn(txClient);
       });
     },
-    prepare: (query: Sql): PreparedStatement => {
+    prepare: <T extends Record<string, unknown>>(
+      query: Sql<T>
+    ): PreparedStatement<T> => {
       const text = query.sql;
       return {
-        query: <T = Record<string, unknown>>(params?: Value[]) =>
+        query: (params?: Value[]) =>
           db.getAll<T>(text, params === undefined ? undefined : [...params]),
         run: async (params?: Value[]) => {
           const result = await db.execute(

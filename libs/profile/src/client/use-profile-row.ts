@@ -1,14 +1,8 @@
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import { profileRowByIdSql } from './profile-row-sql';
+import { profileRowByIdSql, type ProfileRow } from './profile-row-sql';
 
-export type ProfileRow = {
-  readonly id: string;
-  readonly created_at: string | null;
-  readonly username: string | null;
-  readonly username_changed_at: string | null;
-  readonly avatar_config: string | null;
-};
+export type { ProfileRow };
 
 export type ProfileRowState = {
   row: ProfileRow | null;
@@ -21,7 +15,7 @@ export type ProfileRowState = {
  */
 export function useProfileRow(profileId: string | null): ProfileRowState {
   const enabled = profileId !== null && profileId.length > 0;
-  const { row, isLoading } = useWatchOne<ProfileRow>(
+  const { row, isLoading } = useWatchOne(
     profileRowByIdSql(enabled ? profileId : '')
   );
   return {

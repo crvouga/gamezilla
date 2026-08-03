@@ -64,15 +64,17 @@ export class SqlClientImplBunPostgres implements PostgresSqlClient {
     return this.client.disconnect();
   }
 
-  query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
-    return this.client.query<T>(query);
+  query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
+    return this.client.query(query);
   }
 
-  run(query: Sql): Promise<RunResult> {
+  run(query: Sql<unknown>): Promise<RunResult> {
     return this.client.run(query);
   }
 
-  prepare(query: Sql): PreparedStatement {
+  prepare<T extends Record<string, unknown>>(
+    query: Sql<T>
+  ): PreparedStatement<T> {
     return this.client.prepare(query);
   }
 
@@ -146,10 +148,12 @@ function createClient(sql: BunSql, options: BunClientOptions): SqlClient {
     // and hang the process after work completes. 5s is plenty for an idle
     // pool; anything longer indicates stuck handles we would kill anyway.
     disconnect: () => sql.close({ timeout: 5 }),
-    prepare: (query: Sql): PreparedStatement => {
+    prepare: <T extends Record<string, unknown>>(
+      query: Sql<T>
+    ): PreparedStatement<T> => {
       const querySql = query.sql;
       return {
-        query: async <T = Record<string, unknown>>(params?: Value[]) =>
+        query: async (params?: Value[]) =>
           withBunSearchPathPin(
             { sql, options, querySql, params, mode: 'query' },
             (conn, text, vals) => bunQueryRows<T>(conn, text, vals)
@@ -161,7 +165,7 @@ function createClient(sql: BunSql, options: BunClientOptions): SqlClient {
           ),
       };
     },
-    query: async <T = Record<string, unknown>>(query: Sql) =>
+    query: async <T extends Record<string, unknown>>(query: Sql<T>) =>
       withBunSearchPathPin(
         {
           sql,
@@ -172,7 +176,7 @@ function createClient(sql: BunSql, options: BunClientOptions): SqlClient {
         },
         (conn, text, vals) => bunQueryRows<T>(conn, text, vals)
       ),
-    run: async (query: Sql) =>
+    run: async (query: Sql<unknown>) =>
       withBunSearchPathPin(
         {
           sql,

@@ -27,8 +27,10 @@ type CrudDataJson = {
 export async function readPsCrudMaxId(
   db: Pick<SqlClient, 'query'>
 ): Promise<number> {
-  const rows = await db.query<{ max_id: number | string | null }>(
-    sql`SELECT MAX(id) AS max_id FROM ps_crud`
+  const rows = await db.query(
+    sql<{
+      max_id: number | string | null;
+    }>`SELECT MAX(id) AS max_id FROM ps_crud`
   );
   const raw = rows[0]?.max_id;
   if (raw === null || raw === undefined) return 0;
@@ -61,8 +63,8 @@ export async function readUploadBatchSinceWatermark(
   db: Pick<SqlClient, 'query'>,
   watermark: number
 ): Promise<UploadBatch> {
-  const rows = await db.query<PsCrudRow>(
-    sql`SELECT id, tx_id, data FROM ps_crud WHERE id > ${watermark} ORDER BY id ASC`
+  const rows = await db.query(
+    sql<PsCrudRow>`SELECT id, tx_id, data FROM ps_crud WHERE id > ${watermark} ORDER BY id ASC`
   );
   return { rows: rows.map((row) => mapPsCrudDataToUploadRow(row.data)) };
 }

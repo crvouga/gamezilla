@@ -11,7 +11,7 @@ export function useChessPuzzleProfileRatings(myId: string): {
   profileRating: number;
   profileRd: number;
 } {
-  const { row } = useWatchOne<PuzzleProfileRatingsRow>(sql`
+  const { row } = useWatchOne(sql<PuzzleProfileRatingsRow>`
     SELECT rating, rating_deviation
     FROM chess_puzzle_profiles
     WHERE id = ${myId}

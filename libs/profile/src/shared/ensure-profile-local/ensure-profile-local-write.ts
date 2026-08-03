@@ -29,7 +29,7 @@ function hasAvatarConfig(row: ProfileRow | undefined): boolean {
 }
 
 async function backfillAvatar(db: SqlClient, profileId: string): Promise<void> {
-  await db.run(sql`
+  await db.run(sql<void>`
     UPDATE profiles
     SET avatar_config = ${serializeDefaultAvatarConfig(profileId)}
     WHERE id = ${profileId}
@@ -41,7 +41,7 @@ async function insertProfileSeed(
   profileId: string
 ): Promise<void> {
   const now = new Date().toISOString();
-  await db.run(sql`
+  await db.run(sql<void>`
     INSERT INTO profiles (id, created_at, username, avatar_config)
     VALUES (
       ${profileId},
@@ -60,7 +60,7 @@ async function fillEmptyUsername(
   // Fill empty, or replace an auto-assigned name that does not match ensure
   // (e.g. a raced apply from another account's token). Never overwrite a
   // user-chosen username (`username_changed_at` set).
-  await db.run(sql`
+  await db.run(sql<void>`
     UPDATE profiles
     SET username = ${username}
     WHERE id = ${profileId}
@@ -87,7 +87,7 @@ export async function ensureProfileLocal(
   db: SqlClient,
   input: EnsureProfileLocalInput
 ): Promise<void> {
-  const rows = await db.query<ProfileRow>(sql`
+  const rows = await db.query(sql<ProfileRow>`
     SELECT *
     FROM profiles
     WHERE id = ${input.profileId}

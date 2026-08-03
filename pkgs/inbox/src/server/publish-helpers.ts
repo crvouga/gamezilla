@@ -15,8 +15,8 @@ async function findById(
   db: SqlClient,
   id: string
 ): Promise<StoredInteractionRow | null> {
-  const rows = await db.query<StoredInteractionRow>(
-    sql`SELECT * FROM inbox_interactions WHERE id = ${id}`
+  const rows = await db.query(
+    sql<StoredInteractionRow>`SELECT * FROM inbox_interactions WHERE id = ${id}`
   );
   return rows[0] ?? null;
 }
@@ -25,8 +25,8 @@ async function findBySource(
   db: SqlClient,
   lookup: SourceLookup
 ): Promise<StoredInteractionRow | null> {
-  const rows = await db.query<StoredInteractionRow>(
-    sql`
+  const rows = await db.query(
+    sql<StoredInteractionRow>`
       SELECT *
         FROM inbox_interactions
        WHERE user_id = ${lookup.userId}
@@ -122,7 +122,7 @@ function upsertInteractionSql(
   now: string
 ): Sql {
   const values = upsertInteractionValues(input, now);
-  return sql`
+  return sql<void>`
     INSERT INTO inbox_interactions (
       id, user_id, source_namespace, source_type, source_id, category,
       priority, group_key, title, subtitle, body, icon_key,

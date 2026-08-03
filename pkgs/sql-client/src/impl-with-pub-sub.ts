@@ -59,9 +59,9 @@ export class SqlClientWithPubSub implements SqlClient {
     } satisfies SqlClientEvent);
   }
 
-  async query<T = Record<string, unknown>>(query: Sql): Promise<T[]> {
+  async query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
     const start = performance.now();
-    const rows = await this.client.query<T>(query);
+    const rows = await this.client.query(query);
     const durationMs = performance.now() - start;
     this.pubSub.publish(this.topic, {
       type: 'query',
@@ -73,7 +73,7 @@ export class SqlClientWithPubSub implements SqlClient {
     return rows;
   }
 
-  async run(query: Sql): Promise<RunResult> {
+  async run(query: Sql<unknown>): Promise<RunResult> {
     const start = performance.now();
     const result = await this.client.run(query);
     const durationMs = performance.now() - start;
@@ -87,13 +87,15 @@ export class SqlClientWithPubSub implements SqlClient {
     return result;
   }
 
-  prepare(query: Sql): PreparedStatement {
+  prepare<T extends Record<string, unknown>>(
+    query: Sql<T>
+  ): PreparedStatement<T> {
     const stmt = this.client.prepare(query);
     const text = query.sql;
     return {
-      query: async <T = Record<string, unknown>>(params?: Value[]) => {
+      query: async (params?: Value[]) => {
         const start = performance.now();
-        const rows = await stmt.query<T>(params);
+        const rows = await stmt.query(params);
         const durationMs = performance.now() - start;
         this.pubSub.publish(this.topic, {
           type: 'query',

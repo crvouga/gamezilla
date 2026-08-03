@@ -27,8 +27,15 @@ export type Value =
 
 /**
  * Supported value or SQL instance.
+ * Nested fragments use `Sql<any>` so row phantoms do not block composition.
  */
-export type RawValue = Value | Sql;
+export type RawValue = Value | Sql<any>;
+
+/**
+ * SQL fragment or mutation with no row result type (`INSERT` / `UPDATE` / `DELETE`,
+ * `join` / `raw` / nested pieces).
+ */
+export type SqlFragment = Sql<void>;
 
 /** Default separator between joined bound values / bulk rows. */
 export const DEFAULT_LIST_SEPARATOR = ',';
@@ -149,7 +156,7 @@ function countFlattenedValues(rawValues: readonly RawValue[]): number {
 function appendNestedSql(
   result: { strings: string[]; values: Value[] },
   pos: number,
-  child: Sql,
+  child: Sql<any>,
   rawString: string
 ): number {
   assert.ok(pos < result.strings.length, 'Sql: nest write past strings end', {
@@ -265,8 +272,14 @@ function listGlueStrings(
 
 /**
  * A SQL instance can be nested within each other to build SQL strings.
+ *
+ * @template T Phantom row shape returned by SELECT consumers (`query` / `watch`).
+ *   Use {@link SqlFragment} (`Sql<void>`) for mutations and nested fragments.
  */
-export class Sql {
+export class Sql<out T = void> {
+  /** Phantom row type — never read at runtime; preserves `T` for inference. */
+  declare readonly $row: T;
+
   readonly values: readonly Value[];
   readonly strings: readonly string[];
 
@@ -312,7 +325,7 @@ export function join(
   separator = DEFAULT_LIST_SEPARATOR,
   prefix = DEFAULT_LIST_PREFIX,
   suffix = DEFAULT_LIST_SUFFIX
-) {
+): SqlFragment {
   assert.ok(
     values.length > 0,
     'Sql: join([]) expected a non-empty array of elements',
@@ -324,7 +337,7 @@ export function join(
     { length: values.length, max: MAX_BOUND_VALUES }
   );
 
-  return new Sql(
+  return new Sql<void>(
     listGlueStrings(values.length, separator, prefix, suffix),
     values
   );
@@ -338,7 +351,7 @@ export function bulk(
   separator = DEFAULT_LIST_SEPARATOR,
   prefix = DEFAULT_LIST_PREFIX,
   suffix = DEFAULT_LIST_SUFFIX
-) {
+): SqlFragment {
   assert.ok(
     data.length > 0,
     'Sql: bulk([]) expected a non-empty nested array',
@@ -362,13 +375,16 @@ export function bulk(
       `Sql: bulk([${index}][]) column count mismatch`,
       { index, actual: item.length, expected: columnCount }
     );
-    return new Sql(
+    return new Sql<void>(
       listGlueStrings(item.length, separator, BULK_ROW_OPEN, BULK_ROW_CLOSE),
       item
     );
   });
 
-  return new Sql(listGlueStrings(rows.length, separator, prefix, suffix), rows);
+  return new Sql<void>(
+    listGlueStrings(rows.length, separator, prefix, suffix),
+    rows
+  );
 }
 
 function atRawRow(
@@ -386,36 +402,41 @@ function atRawRow(
 /**
  * Trusted multi-token SQL spliced into statement text. Rejects stacked-query
  * and comment markers. Prefer {@link ident} for table/column names.
+ *
+ * Defaults to {@link SqlFragment}. Pass `T` for rare trusted full SELECT text.
  */
-export function raw(value: string) {
+export function raw<T = void>(value: string): Sql<T> {
   assert.string(value, 'Sql: raw() expects a string', { value });
   assertNoSqlStatementBoundary(value, 'raw()');
-  return new Sql([value], []);
+  return new Sql<T>([value], []);
 }
 
 /**
  * Validated SQL identifier (table, column, alias) spliced into statement text.
  */
-export function ident(name: string) {
+export function ident(name: string): SqlFragment {
   assertSqlIdentifier(name, 'Sql: ident() expects a valid SQL identifier', {
     name,
   });
-  return new Sql([name], []);
+  return new Sql<void>([name], []);
 }
 
 /**
  * Unrestricted SQL text splice. Never pass end-user input — reserved for
  * operator CLI and rare DDL that must allow full SQL (including `;` / comments).
+ *
+ * Defaults to {@link SqlFragment}. Pass `T` for trusted full SELECT text
+ * (e.g. CLI `query` of operator-supplied SQL).
  */
-export function unsafe(value: string) {
+export function unsafe<T = void>(value: string): Sql<T> {
   assert.string(value, 'Sql: unsafe() expects a string', { value });
-  return new Sql([value], []);
+  return new Sql<T>([value], []);
 }
 
 /**
  * Placeholder value for "no text".
  */
-export const empty = raw('');
+export const empty: SqlFragment = raw('');
 
 assert.equals(empty.values.length, 0, 'empty must bind no values', {
   valuesLength: empty.values.length,
@@ -429,12 +450,15 @@ assert.equals(empty.strings[0], '', 'empty string must be ""', {
 
 /**
  * Create a SQL object from a template string.
+ *
+ * @template T Required row return type for SELECT consumers. Use `void` for
+ *   mutations (`INSERT` / `UPDATE` / `DELETE`).
  */
-export default function sql(
+export default function sql<T>(
   strings: readonly string[],
   ...values: readonly RawValue[]
-) {
-  return new Sql(strings, values);
+): Sql<T> {
+  return new Sql<T>(strings, values);
 }
 
 export { sql };

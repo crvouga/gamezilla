@@ -83,13 +83,10 @@ import {
   assertPartitionSignature,
   rowToParticipant,
   type ActivePartition,
-  type MatchPassRow,
-  type ParticipantRow,
   type RunMatchPassesAcrossPartitionsOptions,
   type RunMatchPassesAcrossPartitionsResult,
   type RunMatchPassesOptions,
   type RunMatchPassesResult,
-  type StatusRow,
   type SweepExpiredAcrossPartitionsOptions,
   type SweepExpiredAcrossPartitionsResult,
   type SweepExpiredResult,
@@ -346,8 +343,8 @@ export class Matchmaker {
     const signature = this.partitionSignatureFor(data);
     const metadata =
       attrs.metadata === null ? null : JSON.stringify(attrs.metadata);
-    const rows = await this.sqlClient.query<{ id: string }>(
-      sql`
+    const rows = await this.sqlClient.query(
+      sql<{ id: string }>`
         WITH ins AS (
           INSERT INTO matchmaking_waiting (
             data, 
@@ -431,8 +428,8 @@ export class Matchmaker {
     participantId: string,
     formulas: readonly FormulaWire[]
   ): Promise<UpdateFormulasResult> {
-    const rows = await this.sqlClient.query<{ id: string }>(
-      sql`
+    const rows = await this.sqlClient.query(
+      sql<{ id: string }>`
         UPDATE matchmaking_waiting
            SET formulas = ${JSON.stringify(formulas)}::jsonb
          WHERE id = ${participantId}
@@ -452,8 +449,8 @@ export class Matchmaker {
       participantId,
       'Matchmaker.leave: participantId must be a non-empty string'
     );
-    const rows = await this.sqlClient.query<{ id: string }>(
-      sql`
+    const rows = await this.sqlClient.query(
+      sql<{ id: string }>`
         DELETE FROM matchmaking_waiting
          WHERE id = ${participantId}
         RETURNING id`
@@ -472,9 +469,7 @@ export class Matchmaker {
       participantId,
       'Matchmaker.status: participantId must be a non-empty string'
     );
-    const rows = await this.sqlClient.query<StatusRow>(
-      statusLookupQuery(participantId)
-    );
+    const rows = await this.sqlClient.query(statusLookupQuery(participantId));
     const row = rows[0];
     if (row === undefined) return null;
     const data = asKeywordRecord(row.data, 'matchmaking status data');
@@ -486,7 +481,7 @@ export class Matchmaker {
         `matchmaking row ${participantId} is matched but has no match_id`
       );
     }
-    const peers = await this.sqlClient.query<ParticipantRow>(
+    const peers = await this.sqlClient.query(
       statusPeersQuery(row.match_id, participantId)
     );
     return {
@@ -518,7 +513,7 @@ export class Matchmaker {
       'Matchmaker.runMatchPass'
     );
     const nowParam = this.nowParam();
-    const rows = await this.sqlClient.query<MatchPassRow>(
+    const rows = await this.sqlClient.query(
       runMatchPassQuery({
         partitionSignature,
         baseRadius: this.radius.baseRadius,
@@ -617,9 +612,7 @@ export class Matchmaker {
     assertPartitionSignature(partitionSignature, 'Matchmaker.sweepExpired');
     if (this.maxWaitSeconds === undefined) return { removed: 0 };
     const nowParam = this.nowParam();
-    const rows = await this.sqlClient.query<{
-      matchmaking_sweep_expired: number | string;
-    }>(
+    const rows = await this.sqlClient.query(
       sweepExpiredQuery({
         partitionSignature,
         maxWaitSeconds: this.maxWaitSeconds,
@@ -671,9 +664,7 @@ export class Matchmaker {
   async sweepMatched(): Promise<SweepMatchedResult> {
     if (this.matchedRetentionSeconds <= 0) return { removed: 0 };
     const nowParam = this.nowParam();
-    const rows = await this.sqlClient.query<{
-      matchmaking_sweep_matched: number | string;
-    }>(
+    const rows = await this.sqlClient.query(
       sweepMatchedQuery({
         matchedRetentionSeconds: this.matchedRetentionSeconds,
         nowParam,
@@ -708,9 +699,7 @@ export class Matchmaker {
     const onDrift = this.onSchemaDrift;
     if (expected === undefined || onDrift === undefined) return;
     if (this.fingerprintProbeOk === true) return;
-    const rows = await this.sqlClient.query<{ schema_fingerprint: string }>(
-      schemaFingerprintQuery()
-    );
+    const rows = await this.sqlClient.query(schemaFingerprintQuery());
     // Missing row means `migrate()` never ran for this DB; treat the
     // same as drift. The public facade always migrates as part of
     // construction so this is only reachable when someone bypasses
@@ -732,10 +721,7 @@ export class Matchmaker {
       'Matchmaker: maxPartitions must be a positive finite number',
       { maxPartitions: cap }
     );
-    const rows = await this.sqlClient.query<{
-      partition_signature: string;
-      group_size: number | string;
-    }>(activePartitionsQuery(cap));
+    const rows = await this.sqlClient.query(activePartitionsQuery(cap));
     return rows.map((r) => ({
       partitionSignature: r.partition_signature,
       groupSize:

@@ -11,8 +11,8 @@ export function useLiveSpaceIds(): {
   readonly spaceIds: readonly string[];
   readonly isLoading: boolean;
 } {
-  const { rows, isLoading } = useWatchQuery<SpaceIdRow>(
-    sql`
+  const { rows, isLoading } = useWatchQuery(
+    sql<SpaceIdRow>`
       SELECT id
       FROM spaces
       WHERE ended_at IS NULL

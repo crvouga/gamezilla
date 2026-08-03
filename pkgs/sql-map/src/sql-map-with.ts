@@ -13,7 +13,7 @@ export function compileWith(items: readonly WithItem[] | undefined): Sql {
   if (!items || items.length === 0) {
     return empty;
   }
-  return sql`WITH ${join(
+  return sql<void>`WITH ${join(
     items.map((item) => compileWithItem(item)),
     SQL_MAP_LIST_SEP
   )} `;
@@ -26,7 +26,7 @@ function compileWithItem(item: WithItem): Sql {
   const [alias, q] = item;
   assert.string(alias, 'sqlMap: with alias must be a string', { alias });
   assert.ok(isQuery(q), 'sqlMap: with body must be a query map', { q });
-  return sql`${columnIdent(alias)} AS ${compileExpr(q)}`;
+  return sql<void>`${columnIdent(alias)} AS ${compileExpr(q)}`;
 }
 
 /**

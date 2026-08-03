@@ -1,4 +1,4 @@
-import { empty, join, sql, type Sql } from '@pkgs/sql';
+import { empty, join, sql, type Sql, type SqlFragment } from '@pkgs/sql';
 
 import { PUZZLE_RATING_BAND_SIZE } from '../../shared/chess-puzzle-feed-config';
 
@@ -32,17 +32,17 @@ export type BuildPuzzleCandidatesSqlArgs = {
 
 export function buildPuzzleCandidatesSql(
   args: BuildPuzzleCandidatesSqlArgs
-): Sql {
+): Sql<PuzzleCandidateRow> {
   const pickOffset = args.pickOffset ?? 0;
-  const conditions: Sql[] = [];
+  const conditions: SqlFragment[] = [];
   if (args.halfWindow !== null) {
     conditions.push(
-      sql`rating >= ${Math.max(0, args.rating - args.halfWindow)}`,
-      sql`rating <= ${args.rating + args.halfWindow}`
+      sql<void>`rating >= ${Math.max(0, args.rating - args.halfWindow)}`,
+      sql<void>`rating <= ${args.rating + args.halfWindow}`
     );
   }
   if (args.ownerId.length > 0) {
-    conditions.push(sql`
+    conditions.push(sql<void>`
       id NOT IN (
         SELECT puzzle_id
         FROM chess_puzzle_interactions
@@ -51,12 +51,14 @@ export function buildPuzzleCandidatesSql(
     `);
   }
   if (args.currentPuzzleId !== null && args.currentPuzzleId.length > 0) {
-    conditions.push(sql`id != ${args.currentPuzzleId}`);
+    conditions.push(sql<void>`id != ${args.currentPuzzleId}`);
   }
-  const whereClause =
-    conditions.length > 0 ? sql`WHERE ${join(conditions, ' AND ')}` : empty;
+  const whereClause: SqlFragment =
+    conditions.length > 0
+      ? sql<void>`WHERE ${join(conditions, ' AND ')}`
+      : empty;
 
-  return sql`
+  return sql<PuzzleCandidateRow>`
     SELECT id, rating
     FROM chess_puzzles
     ${whereClause}

@@ -22,14 +22,14 @@ export async function readSpaceRowForJoin(
   db: SqlClient,
   spaceId: string
 ): Promise<JoinSpaceRow> {
-  const rows = await db.query<{
-    readonly host_id: string | null;
-    readonly host_member_id: string | null;
-    readonly ended_at: string | null;
-    readonly visibility: string | null;
-    readonly host_account_id: string | null;
-  }>(
-    sql`
+  const rows = await db.query(
+    sql<{
+      readonly host_id: string | null;
+      readonly host_member_id: string | null;
+      readonly ended_at: string | null;
+      readonly visibility: string | null;
+      readonly host_account_id: string | null;
+    }>`
       SELECT
         host_id,
         host_member_id,
