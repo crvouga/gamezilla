@@ -243,6 +243,69 @@ CREATE TABLE IF NOT EXISTS user_blocks (
 
 CREATE INDEX IF NOT EXISTS user_blocks_blocked_idx ON user_blocks (blocked_id);
 
+-- Legacy composite PK → id PK (pairId = left:right). No-op when `id` exists.
+-- Qualify `public` explicitly: Neon pooler migrate txns can leave
+-- `to_regclass` / `current_schema()` resolving empty and silently skipping.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'friendships'
+  ) THEN
+    RETURN;
+  END IF;
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'friendships'
+      AND column_name = 'id'
+  ) THEN
+    RETURN;
+  END IF;
+
+  ALTER TABLE public.friendships ADD COLUMN id TEXT;
+  UPDATE public.friendships
+  SET id = user_low || ':' || user_high
+  WHERE id IS NULL;
+  ALTER TABLE public.friendships ALTER COLUMN id SET NOT NULL;
+  ALTER TABLE public.friendships DROP CONSTRAINT friendships_pkey;
+  ALTER TABLE public.friendships ADD CONSTRAINT friendships_pkey PRIMARY KEY (id);
+  ALTER TABLE public.friendships
+    ADD CONSTRAINT friendships_user_low_user_high_key UNIQUE (user_low, user_high);
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'user_blocks'
+  ) THEN
+    RETURN;
+  END IF;
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'user_blocks'
+      AND column_name = 'id'
+  ) THEN
+    RETURN;
+  END IF;
+
+  ALTER TABLE public.user_blocks ADD COLUMN id TEXT;
+  UPDATE public.user_blocks
+  SET id = blocker_id || ':' || blocked_id
+  WHERE id IS NULL;
+  ALTER TABLE public.user_blocks ALTER COLUMN id SET NOT NULL;
+  ALTER TABLE public.user_blocks DROP CONSTRAINT user_blocks_pkey;
+  ALTER TABLE public.user_blocks ADD CONSTRAINT user_blocks_pkey PRIMARY KEY (id);
+  ALTER TABLE public.user_blocks
+    ADD CONSTRAINT user_blocks_blocker_id_blocked_id_key UNIQUE (blocker_id, blocked_id);
+END $$;
+
 DROP TABLE IF EXISTS friend_profile_cache;
 
 -- ============ Spaces: visibility columns (always) ============

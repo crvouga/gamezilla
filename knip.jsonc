@@ -55,9 +55,6 @@
     ".": {
       "entry": ["package.json", "tooling/scripts/*.ts", "tooling/*.ts"],
     },
-    "libs/stripe-cli": {
-      "entry": "src/dev.ts",
-    },
     "libs/integration-test": {
       "entry": [
         "scripts/kill-preview-ports.ts",

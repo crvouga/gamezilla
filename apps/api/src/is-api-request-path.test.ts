@@ -9,7 +9,7 @@ describe('isApiRequestPath', () => {
     expect(isApiRequestPath('/api/sync/upload')).toBe(true);
     expect(isApiRequestPath('/api/room')).toBe(true);
     expect(isApiRequestPath('/api/matchmaking/join')).toBe(true);
-    expect(isApiRequestPath('/api/stripe/webhook')).toBe(true);
+    expect(isApiRequestPath('/api/stripe/checkout')).toBe(true);
     expect(isApiRequestPath('/api/client-config/refresh')).toBe(true);
     expect(isApiRequestPath('/api/llm/structured')).toBe(true);
     expect(isApiRequestPath('/api/tts/synthesize')).toBe(true);

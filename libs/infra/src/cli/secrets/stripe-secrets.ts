@@ -21,14 +21,6 @@ async function validateStripeSecretKey(input: SecretInput): Promise<void> {
   }
 }
 
-async function validateStripeWebhookSecret(input: SecretInput): Promise<void> {
-  const v = input.secretValue.trim();
-  requireNonEmpty(v, 'STRIPE_WEBHOOK_SECRET');
-  if (!v.startsWith('whsec_')) {
-    throw new Error('Must start with whsec_');
-  }
-}
-
 async function validateStripePublishableKey(input: SecretInput): Promise<void> {
   const v = input.secretValue.trim();
   requireNonEmpty(v, 'STRIPE_PUBLISHABLE_KEY');
@@ -42,14 +34,6 @@ export const STRIPE_SECRET_KEY = new Secret({
   hint: 'Stripe secret API key (sk_live_… or sk_test_…) — Dashboard → Developers → API keys',
   pushToApiWorker: true,
   validate: validateStripeSecretKey,
-});
-
-export const STRIPE_WEBHOOK_SECRET = new Secret({
-  name: 'STRIPE_WEBHOOK_SECRET',
-  hint: 'Stripe webhook signing secret (whsec_…) — set by stripe:sync after first deploy',
-  optional: true,
-  pushToApiWorker: true,
-  validate: validateStripeWebhookSecret,
 });
 
 export const STRIPE_PUBLISHABLE_KEY = new Secret({

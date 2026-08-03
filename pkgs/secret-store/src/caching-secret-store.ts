@@ -45,9 +45,8 @@ type PendingBatch = {
  *
  * Pass `{ force: true }` on a read to bypass the cache for one call (the
  * freshly-fetched value is still written back to the cache). This is the
- * escape hatch for self-healing paths — e.g. the Stripe webhook route
- * re-reads the signing secret under `force` after a signature verification
- * failure so a rotated `whsec_…` propagates without restarting the worker.
+ * escape hatch for self-healing paths — e.g. after a secret rotation,
+ * re-read under `force` so a new value propagates without restarting.
  */
 export class CachingSecretStore implements SecretStore {
   private readonly inner: SecretStore;

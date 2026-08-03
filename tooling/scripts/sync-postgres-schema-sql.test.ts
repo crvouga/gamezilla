@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
 import {
+  canonicalizeSchemaForCompare,
   collapseDumpToIdempotentSql,
   normalizeSchemaDump,
   stabilizeSchemaStatements,
@@ -48,6 +49,40 @@ CREATE TABLE public.devices (
     const indexAt = out.indexOf('CREATE INDEX');
     expect(tableAt).toBeGreaterThanOrEqual(0);
     expect(indexAt).toBeGreaterThan(tableAt);
+  });
+});
+
+describe('canonicalizeSchemaForCompare', () => {
+  it('ignores constraint names, column order, and NULLS LAST', () => {
+    const a = stabilizeSchemaStatements(
+      normalizeSchemaDump(`CREATE TABLE public.profiles (
+    id text NOT NULL,
+    username text DEFAULT ''::text NOT NULL,
+    avatar_config jsonb
+);
+
+ALTER TABLE ONLY public.profiles
+    ADD CONSTRAINT profiles_pkey PRIMARY KEY (id);
+
+CREATE INDEX spaces_created_at_idx ON public.spaces USING btree (created_at DESC NULLS LAST);
+`)
+    );
+    const b = stabilizeSchemaStatements(
+      normalizeSchemaDump(`CREATE TABLE public.profiles (
+    id text NOT NULL,
+    avatar_config jsonb,
+    username text DEFAULT ''::text NOT NULL
+);
+
+ALTER TABLE ONLY public.profiles
+    ADD CONSTRAINT profiles_id_pk PRIMARY KEY (id);
+
+CREATE INDEX spaces_created_at_idx ON public.spaces USING btree (created_at DESC);
+`)
+    );
+    expect(canonicalizeSchemaForCompare(a)).toBe(
+      canonicalizeSchemaForCompare(b)
+    );
   });
 });
 

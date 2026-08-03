@@ -6,13 +6,10 @@
  *     (+ optional entity_store dump).
  *   - {@link runStripeEntitiesSync} — backfill every Stripe object type into
  *     entity_store (also exposes {@link runStripeEntityBackfill} for one-offs).
- *   - {@link runStripeWebhookSync} — reconcile a single `*` webhook endpoint
- *     and write its `whsec_` to secret store.
  *
  * Composed:
- *   - {@link runStripeFullSync} — catalog → entities → webhooks on a single
- *     shared Stripe + SqlClient + secret store CLI; this is what `scripts/sync.ts`
- *     calls and what deploys invoke.
+ *   - {@link runStripeFullSync} — catalog → entities on a single shared Stripe
+ *     + SqlClient; this is what `scripts/sync.ts` calls and what deploys invoke.
  */
 export {
   runStripeCatalogSync,
@@ -27,4 +24,3 @@ export {
   type EntitiesSyncResult,
 } from './entities';
 export { runStripeFullSync, type StripeFullSyncResult } from './full';
-export { runStripeWebhookSync, type WebhookSyncResult } from './webhooks';

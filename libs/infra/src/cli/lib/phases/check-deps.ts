@@ -15,7 +15,7 @@ import { runCaptureAsync } from '../../subprocess';
  * `deps` defaults to {@link ALL_DEPS} for backwards compatibility,
  * but CI phases pass a narrower set (e.g. {@link PROVISION_DEPS}) so
  * the check matches what the workflow actually installed — otherwise
- * we hard-fail on phase-specific tools (`stripe`) that the runner never pulled in.
+ * we hard-fail on phase-specific tools that the runner never pulled in.
  */
 export async function runCheckDepsPhase(
   platform: CiPlatform,

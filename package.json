@@ -64,7 +64,6 @@
     "qa:report": "bun run --filter '@libs/integration-test' test:e2e:report",
     "spaces:repair:departed-host": "bun run tooling/scripts/secrets-run.ts -- bun run --filter @libs/spaces repair:departed-host-spaces",
     "stripe:check": "bun run --filter '@libs/stripe' check",
-    "stripe:listen": "bun run --filter '@libs/stripe-cli' dev",
     "stripe:sync": "bun run --filter '@libs/stripe' sync",
     "wipe": "git clean -xfd"
   },
@@ -98,6 +97,7 @@
     "@types/react": "catalog:",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
+    "@typescript/native": "catalog:",
     "dependency-cruiser": "catalog:",
     "eslint": "catalog:",
     "eslint-plugin-lingui": "catalog:",
@@ -110,7 +110,6 @@
     "sort-package-json": "catalog:",
     "syncpack": "catalog:",
     "turbo": "catalog:",
-    "@typescript/native": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:"
   },

@@ -44,11 +44,7 @@ import {
   S3_REGION,
 } from './s3-credentials';
 import type { Secret } from './secret';
-import {
-  STRIPE_PUBLISHABLE_KEY,
-  STRIPE_SECRET_KEY,
-  STRIPE_WEBHOOK_SECRET,
-} from './stripe-secrets';
+import { STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY } from './stripe-secrets';
 import {
   TURBO_CACHE,
   TURBO_LOG_ORDER,
@@ -71,7 +67,6 @@ export const SECRETS: readonly Secret[] = [
   CLERK_PUBLISHABLE_KEY,
   CLERK_SECRET_KEY,
   STRIPE_SECRET_KEY,
-  STRIPE_WEBHOOK_SECRET,
   STRIPE_PUBLISHABLE_KEY,
   TURBO_TOKEN,
   TURBO_TEAM,

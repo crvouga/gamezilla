@@ -21,10 +21,8 @@ export const StripeAttr = {
   payload: stripeNs.json('payload', readJsonObject),
   /** Stripe `object` discriminant (`customer`, `subscription`, …). */
   objectType: stripeNs.text('object-type', readString),
-  /** Wire source (`webhook`, `polling`, …). */
+  /** Wire source (`backfill`, `catalog_sync`, …). */
   source: stripeNs.text('source', readString),
-  /** Stripe webhook event type (`customer.created`, …). */
-  webhookEventType: stripeNs.text('webhook-event-type', readString),
   /** Stripe object id (`cus_…`, `sub_…`, `evt_…`). */
   stripeObjectId: stripeNs.text('stripe-object-id', readString),
 } as const;

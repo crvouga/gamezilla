@@ -294,6 +294,99 @@ export function stabilizeSchemaStatements(normalizedDump: string): string {
   return sorted.map((s) => `${s};\n`).join('\n');
 }
 
+/**
+ * Canonicalize dump text so env-local cosmetic differences (constraint
+ * names, CREATE TABLE column order, explicit NULLS LAST/FIRST on indexes)
+ * do not count as schema mismatch. Structural shape (columns, types,
+ * constraint kinds + columns, index expressions) is preserved.
+ */
+export function canonicalizeSchemaForCompare(stabilizedDump: string): string {
+  const statements = splitTopLevelStatements(stabilizedDump);
+  const canonical = statements.map((statement) =>
+    canonicalizeStatementForCompare(statement)
+  );
+  const sorted = [...canonical].sort((a, b) =>
+    statementSortKey(a).localeCompare(statementSortKey(b))
+  );
+  return sorted.map((s) => `${s};\n`).join('\n');
+}
+
+function canonicalizeStatementForCompare(statement: string): string {
+  let s = statement.replace(/\s+/gu, ' ').trim();
+
+  // Index NULLS FIRST/LAST: equivalent for app schema sync comparison.
+  s = s.replace(/\s+NULLS\s+(FIRST|LAST)\b/giu, '');
+
+  // Constraint names differ across create paths (postgres defaults vs drizzle).
+  s = s.replace(
+    /\bADD CONSTRAINT\s+\S+\s+(PRIMARY KEY\b)/giu,
+    'ADD CONSTRAINT __pk__ $1'
+  );
+  s = s.replace(
+    /\bADD CONSTRAINT\s+\S+\s+(UNIQUE\b)/giu,
+    'ADD CONSTRAINT __uq__ $1'
+  );
+  s = s.replace(
+    /\bADD CONSTRAINT\s+\S+\s+(FOREIGN KEY\b)/giu,
+    'ADD CONSTRAINT __fk__ $1'
+  );
+  s = s.replace(
+    /\bADD CONSTRAINT\s+\S+\s+(CHECK\b)/giu,
+    'ADD CONSTRAINT __ck__ $1'
+  );
+
+  const createTable =
+    /^(CREATE TABLE(?: IF NOT EXISTS)?\s+[^\s(]+)\s*\((.*)\)\s*$/isu.exec(s);
+  if (createTable) {
+    const head = createTable[1]!;
+    const body = createTable[2]!;
+    const cols = splitCreateTableColumns(body)
+      .map((c) => c.replace(/\s+/gu, ' ').trim())
+      .filter((c) => c.length > 0)
+      .sort((a, b) => a.localeCompare(b));
+    return `${head} (\n    ${cols.join(',\n    ')}\n)`;
+  }
+
+  return s;
+}
+
+function splitCreateTableColumns(body: string): string[] {
+  const cols: string[] = [];
+  let current = '';
+  let depth = 0;
+  let inSingle = false;
+  for (let i = 0; i < body.length; i += 1) {
+    const ch = body[i]!;
+    if (ch === "'" && body[i - 1] !== '\\') {
+      if (inSingle && body[i + 1] === "'") {
+        current += "''";
+        i += 1;
+        continue;
+      }
+      inSingle = !inSingle;
+      current += ch;
+      continue;
+    }
+    if (!inSingle) {
+      if (ch === '(') {
+        depth += 1;
+      } else if (ch === ')') {
+        depth -= 1;
+      } else if (ch === ',' && depth === 0) {
+        cols.push(current.trim());
+        current = '';
+        continue;
+      }
+    }
+    current += ch;
+  }
+  const trailing = current.trim();
+  if (trailing.length > 0) {
+    cols.push(trailing);
+  }
+  return cols;
+}
+
 function unifiedDiff(devText: string, prdText: string): string {
   const tmpDir = join(tmpdir(), `gamezilla-schema-sync-${process.pid}`);
   mkdirSync(tmpDir, { recursive: true });
@@ -412,10 +505,12 @@ async function main(): Promise<void> {
 
   const devNorm = stabilizeSchemaStatements(normalizeSchemaDump(devRaw));
   const prdNorm = stabilizeSchemaStatements(normalizeSchemaDump(prdRaw));
+  const devCompare = canonicalizeSchemaForCompare(devNorm);
+  const prdCompare = canonicalizeSchemaForCompare(prdNorm);
 
-  if (devNorm !== prdNorm) {
+  if (devCompare !== prdCompare) {
     log('Schemas DIFFER between dev and prd');
-    const diffText = unifiedDiff(devNorm, prdNorm);
+    const diffText = unifiedDiff(devCompare, prdCompare);
     process.stderr.write(diffText);
     if (!diffText.endsWith('\n')) {
       process.stderr.write('\n');

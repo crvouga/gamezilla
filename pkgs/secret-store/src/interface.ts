@@ -7,8 +7,8 @@ export type SecretStoreGetInit = {
    * read directly from the underlying transport. Implementations without a
    * cache ignore this flag. The freshly-fetched value is still written back
    * to the cache so subsequent (non-`force`) reads observe it. Use sparingly:
-   * this exists for self-healing paths (e.g. webhook signature failure should
-   * bypass a stale cached signing secret), not for routine reads.
+   * this exists for self-healing paths (e.g. after a secret rotation should
+   * bypass a stale cached value), not for routine reads.
    */
   force?: boolean;
 };

@@ -408,7 +408,6 @@ jobs:
       - uses: ./.github/actions/infra-setup
         with:
           wrangler: 'true'
-          stripe: 'true'
           eas: 'true'
           watchman: 'true'
       - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → refresh-config → publish-client-eas-update → ensure-destroyed)

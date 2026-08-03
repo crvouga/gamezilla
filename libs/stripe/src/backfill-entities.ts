@@ -4,9 +4,7 @@
  * Each Stripe object has a stable `id` and `object` discriminator (e.g.
  * `customer`, `subscription`). We persist raw Stripe API payloads under
  * `namespace=stripe`, `type=<object>`, `external_id=<object.id>`, with owner
- * metadata in the JSON `data` column. This sits alongside webhook-event-cache
- * rows (`webhook-event-cache`, keyed by `event.type::object.id`) so the two
- * sources never collide.
+ * metadata in the JSON `data` column.
  */
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type Stripe from 'stripe';
@@ -16,7 +14,7 @@ import {
 } from './server/entity-store-sql';
 import { StripeAttr, StripeEntityAttr } from './stripe-attrs';
 
-/** Marker on backfill rows so consumers can tell snapshots from webhook events. */
+/** Marker on backfill rows so consumers can identify snapshot source. */
 export const BACKFILL_METADATA_SOURCE_PREFIX = 'stripe_backfill_' as const;
 
 export type StripeEntityObjectType =

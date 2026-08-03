@@ -12,7 +12,7 @@ import { fetchLatestNpmVersion } from './version-fetch';
  * EAS CLI (`eas-cli`, binary `eas`) — drives native EAS Build + OTA
  * `eas update` for the mobile client. Replaces the `expo/expo-github-action`
  * GitHub Action: the infra deploy invokes `eas` directly, the same way it
- * invokes `wrangler` / `stripe`.
+ * invokes `wrangler`.
  */
 export class EasDep implements Dep {
   readonly name = 'eas';

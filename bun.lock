@@ -537,22 +537,6 @@
         "typescript": "catalog:",
       },
     },
-    "libs/stripe-cli": {
-      "name": "@libs/stripe-cli",
-      "version": "1.0.0",
-      "dependencies": {
-        "@libs/client-config": "workspace:*",
-        "@libs/stripe": "workspace:*",
-        "@pkgs/secret-store": "workspace:*",
-        "@pkgs/secrets-config": "workspace:*",
-        "stripe": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "libs/user-search": {
       "name": "@libs/user-search",
       "version": "0.0.0",
@@ -2179,8 +2163,6 @@
     "@libs/spaces": ["@libs/spaces@workspace:libs/spaces"],
 
     "@libs/stripe": ["@libs/stripe@workspace:libs/stripe"],
-
-    "@libs/stripe-cli": ["@libs/stripe-cli@workspace:libs/stripe-cli"],
 
     "@libs/user-search": ["@libs/user-search@workspace:libs/user-search"],
 

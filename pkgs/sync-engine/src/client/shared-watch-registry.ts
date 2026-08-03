@@ -22,9 +22,7 @@ type RegistryEntry = {
   refCount: number;
 };
 
-type OpenWatchSql = (
-  query: Sql<Record<string, unknown>>
-) => WatchSqlHandle;
+type OpenWatchSql = (query: Sql<Record<string, unknown>>) => WatchSqlHandle;
 
 function getOrCreateEntry(
   entries: Map<string, RegistryEntry>,

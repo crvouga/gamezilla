@@ -32,8 +32,6 @@ const STRIPE_ENTITY_TYPES = new Set<string>([
   'refund',
   'dispute',
   'checkout-session',
-  'webhook-event',
-  'webhook-event-cache',
 ]);
 
 function parseEntityStoreData(raw: unknown): Record<string, unknown> | null {

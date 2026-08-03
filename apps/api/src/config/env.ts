@@ -22,7 +22,6 @@ export type ApiWorkerEnv = {
   AUTH_PUBLISHABLE_KEY?: string;
   AUTH_SECRET_KEY?: string;
   STRIPE_SECRET_KEY?: string;
-  STRIPE_WEBHOOK_SECRET?: string;
   ELEVEN_LABS_API_KEY?: string;
   OPENAI_API_KEY?: string;
   OPENAI_BASE_URL?: string;

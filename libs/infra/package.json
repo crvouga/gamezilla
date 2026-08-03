@@ -7,7 +7,6 @@
     "./shared/database-url-policy": "./src/shared/database-url-policy.ts",
     "./shared/database-url-policy-tooling": "./src/shared/database-url-policy-tooling.ts",
     "./cli/secrets/secrets": "./src/cli/secrets/secrets.ts",
-    "./cli/lib/push-worker-secret": "./src/cli/lib/push-worker-secret.ts",
     "./cli/resources/powersync-source-db": "./src/cli/resources/powersync-source-db.ts"
   },
   "scripts": {

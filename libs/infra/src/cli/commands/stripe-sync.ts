@@ -4,16 +4,15 @@ import type { CiPlatform } from '../platform/platform';
 import type { Command } from './types';
 
 /**
- * CI atomic step 4: runs `bun run --filter @libs/stripe sync` to
- * reconcile the Stripe catalog, backfill sync tables, and refresh webhook
- * endpoints (writes `STRIPE_WEBHOOK_SECRET` back to the secret store). Must run
- * after the API worker is deployed so the webhook URL exists.
+ * CI atomic step: runs `bun run --filter @libs/stripe sync` to reconcile the
+ * Stripe catalog and backfill entity_store tables. Must run after the API
+ * worker is deployed when catalog consumers need a live API, but sync itself
+ * only needs Stripe API + Postgres.
  */
 export class StripeSyncCommand implements Command {
   readonly id = 'stripe-sync';
   readonly group = 'phase' as const;
-  readonly summary =
-    'Sync Stripe catalog/webhooks + secret store webhook secret';
+  readonly summary = 'Sync Stripe catalog + entity_store backfill';
 
   constructor(private readonly platform: CiPlatform) {}
 

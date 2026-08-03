@@ -30,8 +30,8 @@
   },
   "devDependencies": {
     "@types/react": "catalog:",
-    "eslint-plugin-lingui": "catalog:",
     "@typescript/native": "catalog:",
+    "eslint-plugin-lingui": "catalog:",
     "typescript": "catalog:"
   }
 }

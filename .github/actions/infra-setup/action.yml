@@ -1,14 +1,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-action.json
 name: Setup repo + infra deploy tooling
-description: Wraps ./.github/actions/setup with optional wrangler / Stripe CLI
+description: Wraps ./.github/actions/setup with optional wrangler / EAS CLI
 
 inputs:
   wrangler:
     description: Install the latest wrangler CLI globally (npm install -g wrangler)
-    required: false
-    default: 'false'
-  stripe:
-    description: Install the latest Stripe CLI to /usr/local/bin
     required: false
     default: 'false'
   eas:
@@ -30,8 +26,8 @@ runs:
     # Keep CLI tool versions in sync with `infra setup` (no pinned versions in YAML).
     # Requires secrets OIDC auth (`secrets-auth` action) before this step so `infra setup`
     # can load secrets before running auth-gated verifications.
-    - name: infra setup (wrangler/stripe/eas)
-      if: inputs.wrangler == 'true' || inputs.stripe == 'true' || inputs.eas == 'true'
+    - name: infra setup (wrangler/eas)
+      if: inputs.wrangler == 'true' || inputs.eas == 'true'
       shell: bash
       working-directory: libs/infra
       run: |

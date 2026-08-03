@@ -14,13 +14,6 @@ export const STRIPE_PATCH_ENTITY_CATALOG_PRICE =
 export const STRIPE_PATCH_ENTITY_CATALOG_PRODUCT =
   'stripe.catalog-product' as const;
 
-/** Owner-scoped webhook delivery index (one row per Stripe object id). */
-export const STRIPE_WEBHOOK_EVENT_ENTITY_TYPE = 'stripe.webhook-event' as const;
-
-/** Full webhook payload cache keyed by `event.type::object.id`. */
-export const STRIPE_WEBHOOK_EVENT_CACHE_ENTITY_TYPE =
-  'stripe.webhook-event-cache' as const;
-
 export const STRIPE_CATALOG_PRODUCT_METADATA_KEY =
   'catalog_product_id' as const;
 

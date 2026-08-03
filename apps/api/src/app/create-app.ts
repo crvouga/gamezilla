@@ -120,14 +120,13 @@ async function createLlmAppForApi(config: ApiHandlerConfig) {
   });
 }
 
-function createStripeSubApp(config: ApiHandlerConfig, stripe: Stripe) {
+function createStripeSubApp(stripe: Stripe) {
   return createStripeApp({
     getSqlClient: () => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'stripe: request store missing');
       return s.sqlClient;
     },
-    secretStore: config.secretStore,
     stripe,
     requireAuth: async (_sql, req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
@@ -141,7 +140,6 @@ function createStripeSubApp(config: ApiHandlerConfig, stripe: Stripe) {
       }
       return { accountId: auth.accountId, deviceId: auth.deviceId };
     },
-    webhookSecretKey: ApiSecretName.stripeWebhookSecret,
   });
 }
 
@@ -193,7 +191,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/', createSyncRoutes())
     .route('/', ttsApp)
     .route('/', llmApp)
-    .route('/', createStripeSubApp(config, stripe))
+    .route('/', createStripeSubApp(stripe))
     .route('/', createRoomApp())
     .route('/matchmaking', createMatchmakingSubApp())
     .route('/inbox', createInboxSubApp());

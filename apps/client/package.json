@@ -130,6 +130,7 @@
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@typescript/native": "catalog:",
     "babel-plugin-macros": "catalog:",
     "esbuild": "catalog:",
     "eslint": "catalog:",
@@ -139,7 +140,6 @@
     "eslint-plugin-naming": "catalog:",
     "pwa-asset-generator": "catalog:",
     "react-scan": "catalog:",
-    "@typescript/native": "catalog:",
     "typescript": "catalog:",
     "workbox-build": "catalog:"
   }
