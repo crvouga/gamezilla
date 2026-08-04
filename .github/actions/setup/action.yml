@@ -41,6 +41,16 @@ runs:
     # Export of both `dev` and `prd` still needs the CLI on PATH.
     # GITHUB_TOKEN authenticates GitHub API fallbacks when resolving the
     # secrets-backend CLI release (shared runner IPs often exhaust unauth quota).
+    # Cache the user-local binary so parallel CI jobs skip the GitHub CDN
+    # download on hit; bump the key suffix when the CLI must be force-upgraded.
+    - name: Cache secrets backend CLI
+      uses: actions/cache@v5
+      with:
+        path: ~/.local/bin/infisical
+        key: secrets-cli-${{ runner.os }}-infisical-v1
+        restore-keys: |
+          secrets-cli-${{ runner.os }}-infisical-
+
     - name: Install secrets backend CLI
       shell: bash
       env:

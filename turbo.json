@@ -118,8 +118,8 @@
         "libs/*/package.json",
         "pkgs/*/package.json",
         ".syncpackrc.cjs",
-        "tooling/scripts/check-catalog-deps.ts",
-        "tooling/scripts/check-no-patches.ts"
+        "tools/scripts/check-catalog-deps.ts",
+        "tools/scripts/check-no-patches.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -153,8 +153,8 @@
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
-        "tooling/scripts/check-circular-deps.ts",
-        "tooling/scripts/workspace-package-import-graph.ts"
+        "tools/scripts/check-circular-deps.ts",
+        "tools/scripts/workspace-package-import-graph.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -167,7 +167,7 @@
         "libs/**/*.tsx",
         "pkgs/**/*.ts",
         "pkgs/**/*.tsx",
-        "tooling/scripts/check-no-direct-pg-imports.ts"
+        "tools/scripts/check-no-direct-pg-imports.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -180,7 +180,7 @@
         "libs/stripe/src/script-runtime.ts",
         "libs/chess/src/server/seed-chess-puzzle/chess-puzzle-seeder.ts",
         "libs/integration-test/src/preview-stack-env.ts",
-        "tooling/scripts/check-database-url-policy.ts"
+        "tools/scripts/check-database-url-policy.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -202,8 +202,8 @@
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
-        "tooling/scripts/check-tier-imports.ts",
-        "tooling/scripts/workspace-package-import-graph.ts"
+        "tools/scripts/check-tier-imports.ts",
+        "tools/scripts/workspace-package-import-graph.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -213,13 +213,13 @@
         "pkgs/ui/src/components/**/*.ts",
         "pkgs/ui/src/components/**/*.tsx",
         "pkgs/ui/src/component-id/**/*.ts",
-        "tooling/scripts/check-component-ids.ts"
+        "tools/scripts/check-component-ids.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
     },
     "//#ci:no-provider-leaks": {
-      "inputs": ["tooling/scripts/check-no-provider-leaks.ts"],
+      "inputs": ["tools/scripts/check-no-provider-leaks.ts"],
       "outputs": [],
       "outputLogs": "new-only"
     },

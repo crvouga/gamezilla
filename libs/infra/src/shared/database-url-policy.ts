@@ -18,7 +18,7 @@ export function assertDevSecretsEnv(config: string): void {
   assert.fail(
     'Tiger invariant: local / development database access requires secrets env `dev`. ' +
       `Got ${config.length > 0 ? JSON.stringify(config) : 'empty'}. ` +
-      'Set SECRETS_ENV=dev or run `bun run tooling/scripts/secrets-run.ts`. ' +
+      'Set SECRETS_ENV=dev or run `bun run tools/scripts/secrets-run.ts`. ' +
       'Production deploy uses `bun run infra` (SECRETS_ENV=prd).',
     { secretsEnv: config }
   );

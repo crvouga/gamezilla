@@ -53,7 +53,7 @@
   ],
   "workspaces": {
     ".": {
-      "entry": ["package.json", "tooling/scripts/*.ts", "tooling/*.ts"],
+      "entry": ["package.json", "tools/scripts/*.ts", "tools/*.ts"],
     },
     "libs/integration-test": {
       "entry": [

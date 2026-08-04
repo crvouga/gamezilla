@@ -35,7 +35,7 @@ permissions:
   contents: read
   id-token: write
 
-# CI authenticates via GitHub Actions OIDC. Use `tooling/scripts/secrets-run.ts`
+# CI authenticates via GitHub Actions OIDC. Use `tools/scripts/secrets-run.ts`
 # (defaults from `.secrets.json`) with `SECRETS_ENV` set from the dispatch
 # `environment` input (`dev` or `prod` → `prd`).
 
@@ -112,7 +112,7 @@ jobs:
       - name: Apply Postgres migrations → secrets env `${{ env.SECRETS_ENV }}`
         run: |
           set -euo pipefail
-          bun run tooling/scripts/secrets-run.ts -- \
+          bun run tools/scripts/secrets-run.ts -- \
             bun run --filter '@apps/api' db:migrate
 
       - name: Seed chess puzzles → secrets env `${{ env.SECRETS_ENV }}` Postgres
@@ -138,7 +138,7 @@ jobs:
           if [ "${SEED_NO_RESUME}" = "true" ]; then
             args+=(--no-resume)
           fi
-          bun run tooling/scripts/secrets-run.ts -- \
+          bun run tools/scripts/secrets-run.ts -- \
             bun run --filter '@libs/chess' seed:puzzles \
               "${args[@]}"
 
@@ -146,5 +146,5 @@ jobs:
         if: ${{ inputs.defer_indexes && !inputs.dry_run }}
         run: |
           set -euo pipefail
-          bun run tooling/scripts/secrets-run.ts -- \
+          bun run tools/scripts/secrets-run.ts -- \
             bun run --filter '@apps/api' db:migrate

@@ -6,7 +6,7 @@ import {
 
 const SAMPLE_FAILURES = [
   {
-    jobId: 'turbo-ci',
+    jobId: 'turbo-verify',
     output: 'error: lint failed in @pkgs/foo',
   },
 ] as const;
@@ -15,7 +15,7 @@ describe('buildLocalLlmFixPromptMarkdown', () => {
   test('includes deployment-pipeline verify hints', () => {
     const md = buildLocalLlmFixPromptMarkdown([...SAMPLE_FAILURES]);
     expect(md).toContain('check:deployment-pipeline');
-    expect(md).toContain('`turbo-ci`');
+    expect(md).toContain('`turbo-verify`');
     expect(md).toContain('error: lint failed in @pkgs/foo');
   });
 });

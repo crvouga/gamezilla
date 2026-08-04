@@ -104,8 +104,8 @@ export function runWithInfisicalSecrets(
   const { repoRoot, childArgs } = options;
   if (childArgs.length === 0) {
     console.error(
-      'usage: bun run tooling/scripts/secrets-run.ts -- <command> [args…]\n' +
-        'example: bun run tooling/scripts/secrets-run.ts -- turbo dev --ui=tui'
+      'usage: bun run tools/scripts/secrets-run.ts -- <command> [args…]\n' +
+        'example: bun run tools/scripts/secrets-run.ts -- turbo dev --ui=tui'
     );
     return 1;
   }

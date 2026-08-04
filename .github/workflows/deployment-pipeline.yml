@@ -3,13 +3,12 @@
 #
 # CI/CD design guidelines (Turbo-first + atomic deploy):
 #
-# 1. Turbo-cacheable tasks (format, syncpack/catalog, knip, depcruise,
-#    circular-deps, audit, tc, lint, test, build) plus the
-#    non-cacheable `check:secrets` gate (live secret-store validate for
-#    both `dev` and `prd`) all run inside a single `turbo-ci` job that
-#    invokes `bun run check:ci`. Turbo's task graph uses GitHub Actions
-#    `actions/cache` on `.turbo` with `--cache=local:rw` (no Vercel
-#    Remote Cache in CI).
+# 1. Turbo-cacheable tasks fan out across parallel jobs — `turbo-gates`
+#    (root `ci:*` + `check:secrets`), `turbo-verify` (`tc`/`lint`/`test`),
+#    `turbo-build` (`build` excluding `@apps/client`). Each job uses
+#    per-job `actions/cache` on `.turbo` (`.github/actions/turbo-cache`)
+#    and `tools/scripts/turbo-ci-run.ts` with `--cache=local:rw,remote:rw`
+#    when Vercel Remote Cache creds are present.
 #
 # 2. Non-Turbo tasks live in their own jobs only when they need a runner
 #    shape Turbo can't share: `static` (actionlint + gitleaks both want
@@ -33,7 +32,7 @@ permissions:
   id-token: write
 
 # CI authenticates to the secrets backend via GitHub Actions OIDC (no stored token).
-# Repo scripts use `tooling/scripts/secrets-run.ts`, which reads scope from `.secrets.json`.
+# Repo scripts use `tools/scripts/secrets-run.ts`, which reads scope from `.secrets.json`.
 
 on:
   push:
@@ -49,49 +48,108 @@ on:
       - .gitignore
   workflow_dispatch:
 
+env:
+  TURBO_UI: stream
+
 jobs:
-  # Single Turbo-orchestrated job for every cacheable repo gate: format,
-  # syncpack + catalog + no-patches, knip, depcruise, circular-deps,
-  # audit, plus per-package `tc` / `lint` / `test` / `build`. Turbo
-  # parallelizes across the task graph; `actions/cache` persists `.turbo`
-  # and `tooling/scripts/turbo-ci-run.ts` uses `--cache=local:rw`. Per-task
-  # status (`--output-logs=hash-only --summarize`) keeps logs readable.
-  turbo-ci:
+  # Root gates + live secret-store validate (dev + prd). Always full-repo —
+  # these hash wide inputs and are not affected-filtered.
+  turbo-gates:
     runs-on: ubuntu-latest
-    # `check:secrets` (inside `check:ci`) shells out to the secrets-backend
-    # CLI for both `dev` and `prd`; OIDC token exchange needs the machine
-    # identity id in-process (secrets-auth also writes these to
-    # GITHUB_ENV — job env is belt-and-suspenders with `deploy`).
     env:
-      # Identity only — project UUID comes from `.secrets.json` via secrets-auth.
-      # `vars.SECRETS_PROJECT_ID` is the project *slug* for secrets-action.
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     concurrency:
-      group: turbo-ci-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      group: turbo-gates-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
       cancel-in-progress: true
     timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Cache Turbo local artifacts
-        uses: actions/cache@v5
+      - uses: ./.github/actions/turbo-cache
         with:
-          path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-turbo-
+          job: turbo-gates
+          mode: restore
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
-      - name: Turbo CI (local cache + cacheable gates + tc/lint/test/build)
-        env:
-          # GHA runners can expose a pseudo-TTY; Turbo's interactive TUI then
-          # buffers task logs and looks hung for 10+ min on `@apps/client`.
-          TURBO_UI: stream
-        run: bun run check:ci
+      - name: Turbo gates + check:secrets
+        run: bun run check:ci:gates
+      - uses: ./.github/actions/turbo-cache
+        if: always() && !cancelled()
+        with:
+          job: turbo-gates
+          mode: save
+
+  # Per-package tc / lint / test. On pull_request, only packages affected
+  # since the PR base SHA (plus dependents) via TURBO_AFFECTED_BASE.
+  turbo-verify:
+    runs-on: ubuntu-latest
+    env:
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      TURBO_AFFECTED_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || '' }}
+    concurrency:
+      group: turbo-verify-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/turbo-cache
+        with:
+          job: turbo-verify
+          mode: restore
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      - name: Turbo tc / lint / test
+        run: bun run check:ci:verify
+      - uses: ./.github/actions/turbo-cache
+        if: always() && !cancelled()
+        with:
+          job: turbo-verify
+          mode: save
+
+  # Workspace build excluding @apps/client (qa-browser owns the E2E client
+  # export). Same affected filter as turbo-verify on PRs.
+  turbo-build:
+    runs-on: ubuntu-latest
+    env:
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      TURBO_AFFECTED_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || '' }}
+    concurrency:
+      group: turbo-build-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
+      cancel-in-progress: true
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/turbo-cache
+        with:
+          job: turbo-build
+          mode: restore
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      - name: Turbo build (exclude @apps/client)
+        run: bun run check:ci:build
+      - uses: ./.github/actions/turbo-cache
+        if: always() && !cancelled()
+        with:
+          job: turbo-build
+          mode: save
 
   # Static repo gates that don't fit Turbo's task graph: actionlint
   # downloads its own binary, and gitleaks needs `fetch-depth: 0` for
@@ -123,7 +181,7 @@ jobs:
       # bug where top-level `[[allowlists]]` are silently dropped when
       # combined with `[extend].useDefault = true` (fixed in 8.25+). It
       # also targets the deprecated Node.js 20 runtime. Install a pinned
-      # release via `tooling/scripts/install-gitleaks.ts` (retries on transient
+      # release via `tools/scripts/install-gitleaks.ts` (retries on transient
       # GitHub CDN 502s) so our `.gitleaks.toml` allowlist actually applies.
       # Bun only — no `setup` composite (no `bun install`) so this job stays
       # a pair of binary downloads + scans.
@@ -133,7 +191,7 @@ jobs:
           bun-version: '1.3.14'
 
       - name: Install gitleaks
-        run: bun run tooling/scripts/install-gitleaks.ts
+        run: bun run tools/scripts/install-gitleaks.ts
 
       - name: Gitleaks
         env:
@@ -162,13 +220,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Cache Turbo local artifacts
-        uses: actions/cache@v5
+      - uses: ./.github/actions/turbo-cache
         with:
-          path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-turbo-
+          job: qa-api
+          mode: restore
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/secrets-auth
         with:
@@ -180,18 +235,18 @@ jobs:
       # health-wait timeout. Then start wrangler only (`preview:serve`) — avoids
       # a second migrate racing qa-browser on the shared hosted dev Postgres.
       - name: Setup and migrate API
-        run: bun run tooling/scripts/secrets-run.ts -- bun turbo run setup migrate --filter=@apps/api --cache=local:rw --cache-workers=1
+        run: bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/turbo-ci-run.ts setup migrate --filter=@apps/api
       - name: Start API preview
         env:
           # Wrangler-only boot is usually seconds; keep headroom for cold starts.
           API_HEALTH_WAIT_MS: 240000
         run: |
-          nohup bun run tooling/scripts/secrets-run.ts -- bun run --filter @apps/api preview:serve > /tmp/api-preview.log 2>&1 &
+          nohup bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/api preview:serve > /tmp/api-preview.log 2>&1 &
           echo $! > /tmp/api-preview.pid
           API_PREVIEW_PID="$(cat /tmp/api-preview.pid)"
           export API_PREVIEW_PID
           export API_PREVIEW_LOG=/tmp/api-preview.log
-          if ! bun run tooling/scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-api-health; then
+          if ! bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-api-health; then
             echo "::group::api-preview.log (last 200 lines)"
             tail -n 200 /tmp/api-preview.log || true
             echo "::endgroup::"
@@ -205,14 +260,20 @@ jobs:
           if [ -f /tmp/api-preview.pid ]; then
             kill "$(cat /tmp/api-preview.pid)" 2>/dev/null || true
           fi
+      - uses: ./.github/actions/turbo-cache
+        if: always() && !cancelled()
+        with:
+          job: qa-api
+          mode: save
 
   qa-browser:
-    # Intentionally not `needs: [turbo-ci]`. The CI `build` task filters
+    # Intentionally not `needs: [turbo-build]`. The CI `build` task filters
     # `@apps/client` out (see `check:ci:build` in root package.json),
     # so qa-browser is the only place the web client is actually built
-    # in CI before deploy. Sequencing on `turbo-ci` would just delay this
-    # job for no cache benefit. CI starts `turbo preview` in a prior step;
-    # Playwright never spawns servers — it fails fast when the stack is down.
+    # in CI before deploy. Sequencing on turbo-* would just delay this
+    # job for little cache benefit (remote cache already shared). CI starts
+    # `turbo preview` in a prior step; Playwright never spawns servers —
+    # it fails fast when the stack is down.
     runs-on: ubuntu-latest
     env:
       # Metro must SHA-1 Bun-store deps via Watchman (see apps/client/metro.config.js).
@@ -224,13 +285,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Cache Turbo local artifacts
-        uses: actions/cache@v5
+      - uses: ./.github/actions/turbo-cache
         with:
-          path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-turbo-
+          job: qa-browser
+          mode: restore
       - uses: ./.github/actions/setup
         with:
           watchman: true
@@ -238,10 +296,10 @@ jobs:
       # Resolve the actually-installed @playwright/test version (not the
       # caret range from package.json) so the browser cache key only
       # invalidates when Playwright itself bumps -- not on every unrelated
-      # bun.lock change. Resolved from apps/client because that's the package
-      # that lists @playwright/test as a devDependency (bun install uses
-      # isolated node_modules, so the package is not resolvable from repo
-      # root). See https://playwright.dev/docs/ci#caching-browsers.
+      # bun.lock change. Resolved from libs/integration-test because that's
+      # the package that lists @playwright/test as a dependency (bun install
+      # uses isolated node_modules, so the package is not resolvable from
+      # repo root). See https://playwright.dev/docs/ci#caching-browsers.
       - name: Resolve Playwright version
         id: playwright
         working-directory: libs/integration-test
@@ -278,14 +336,14 @@ jobs:
       # Build first so the wait step only covers migrate + wrangler + static server
       # startup — cold CI can exceed 240s when build + preview run together.
       - name: Build preview stack artifacts
-        run: bun run tooling/scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run setup build --filter=@apps/api --filter=@apps/client --cache=local:rw --cache-workers=1'
+        run: bun run tools/scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun run tools/scripts/turbo-ci-run.ts setup build --filter=@apps/api --filter=@apps/client'
       - name: Start preview stack
         env:
           BROWSER_E2E_STACK_WAIT_MS: 480000
         run: |
-          nohup bun run tooling/scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client --cache=local:rw --cache-workers=1' > /tmp/preview-stack.log 2>&1 &
+          nohup bun run tools/scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client --cache=local:rw --cache-workers=4' > /tmp/preview-stack.log 2>&1 &
           echo $! > /tmp/preview-stack.pid
-          if ! bun run tooling/scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-browser-e2e-stack; then
+          if ! bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-browser-e2e-stack; then
             echo "::group::preview-stack.log (last 200 lines)"
             tail -n 200 /tmp/preview-stack.log || true
             echo "::endgroup::"
@@ -312,6 +370,11 @@ jobs:
           name: playwright-report
           path: qa/playwright-report/
           retention-days: 7
+      - uses: ./.github/actions/turbo-cache
+        if: always() && !cancelled()
+        with:
+          job: qa-browser
+          mode: save
 
   # Resolve a durable URL for the Playwright HTML report on every main push
   # (green or red). Private repositories on the free plan cannot publish
@@ -366,7 +429,7 @@ jobs:
   # (`infra build-client-native`), not here.
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [turbo-ci, static, qa-api, qa-browser]
+    needs: [turbo-gates, turbo-verify, turbo-build, static, qa-api, qa-browser]
     runs-on: ubuntu-latest
     env:
       EXPO_USE_WATCHMAN: '1'
@@ -453,7 +516,9 @@ jobs:
     if: always()
     needs:
       [
-        turbo-ci,
+        turbo-gates,
+        turbo-verify,
+        turbo-build,
         static,
         qa-api,
         qa-browser,
@@ -466,6 +531,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      # Full setup (no Watchman) — needs workspace install for `@libs/infra`
+      # imports; secrets CLI is cached inside the setup composite.
       - uses: ./.github/actions/setup
 
       # `GITHUB_TOKEN` is passed through so the report can call the GitHub
@@ -481,4 +548,4 @@ jobs:
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: SECRETS_ENV=prd bun run tooling/scripts/secrets-run.ts -- bun run libs/infra/src/bin/pipeline-report.ts
+        run: SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run libs/infra/src/bin/pipeline-report.ts

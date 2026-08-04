@@ -8,7 +8,7 @@
         "@pkgs/os": "workspace:*",
         "@pkgs/secret-provider": "workspace:*",
         "@pkgs/secrets-config": "workspace:*",
-        "@tooling/jingle": "workspace:*",
+        "@tools/jingle": "workspace:*",
       },
       "devDependencies": {
         "@lingui/cli": "catalog:",
@@ -1329,8 +1329,8 @@
         "typescript": "catalog:",
       },
     },
-    "tooling": {
-      "name": "@tooling/jingle",
+    "tools": {
+      "name": "@tools/jingle",
       "version": "0.0.0",
       "bin": {
         "jingle": "./jingle.ts",
@@ -2770,7 +2770,7 @@
 
     "@tanstack/query-core": ["@tanstack/query-core@5.101.2", "", {}, "sha512-hH5MLoJhF7KaIGd7q3xTXGXvslI+GYlM1Z/35aSHHWaCJWB7XvTSHYuV3eM7tw+aE0mT/xMro4M4Q9rCGHT0lw=="],
 
-    "@tooling/jingle": ["@tooling/jingle@workspace:tooling"],
+    "@tools/jingle": ["@tools/jingle@workspace:tools"],
 
     "@tootallnate/quickjs-emscripten": ["@tootallnate/quickjs-emscripten@0.23.0", "", {}, "sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA=="],
 

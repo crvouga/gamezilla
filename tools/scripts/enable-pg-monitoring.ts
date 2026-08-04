@@ -53,7 +53,7 @@ function fail(message: string): never {
 
 function usage(): never {
   console.error(
-    'usage: bun run tooling/scripts/enable-pg-monitoring.ts [dev|prod] [--confirm-prod]'
+    'usage: bun run tools/scripts/enable-pg-monitoring.ts [dev|prod] [--confirm-prod]'
   );
   process.exit(1);
 }

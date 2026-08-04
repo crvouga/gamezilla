@@ -6,7 +6,9 @@ import type { NeedState } from './pipeline-needs';
 
 /** Stable display order for known jobs; unknown ids sort after, alphabetically. */
 const KNOWN_JOB_ORDER: readonly string[] = [
-  'turbo-ci',
+  'turbo-gates',
+  'turbo-verify',
+  'turbo-build',
   'static',
   'qa-api',
   'qa-browser',

@@ -69,7 +69,7 @@ export const TURBO_LOG_ORDER = new Secret({
 
 export const TURBO_CACHE = new Secret({
   name: 'TURBO_CACHE',
-  hint: 'local:rw (or remote:rw to opt into Vercel Remote Cache)',
+  hint: 'local:rw for local-only; remote:rw (or local:rw,remote:rw) to opt into Vercel Remote Cache locally. CI always uses local:rw,remote:rw when TURBO_TOKEN/TURBO_TEAM are set.',
   optional: true,
   mirrorToDev: true,
   validate: async (input) => {

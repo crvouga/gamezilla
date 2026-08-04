@@ -231,7 +231,7 @@
     "pkgs/distributed-lock/src/**/*.ts",
     "pkgs/ndjson/src/**/*.ts",
     "pkgs/os/src/**/*.ts",
-    "tooling/**/*.ts"
+    "tools/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]
 }

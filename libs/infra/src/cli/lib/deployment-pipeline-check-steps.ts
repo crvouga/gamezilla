@@ -5,16 +5,15 @@
  * corresponding GitHub Actions job key so failure output (LLM fix
  * prompts, `write-pipeline-report.ts` tables) lines up with CI naming.
  *
- * The CI pipeline collapses every Turbo-cacheable task (format,
- * syncpack/catalog, knip, depcruise, circular-deps, audit, tc, lint,
- * test, build) plus the non-cacheable `check:secrets` gate into one
- * `turbo-ci` job; the local mirror runs the same `bun run check:ci`
- * command so a failure in any underlying Turbo task or secrets check is
- * captured. `static` covers actionlint + gitleaks, and the two `qa-*`
- * entries match the per-job Playwright / Hono integration runs.
+ * Turbo-cacheable work is split across `turbo-gates` / `turbo-verify` /
+ * `turbo-build` (plus non-cacheable `check:secrets` on gates). `static`
+ * covers actionlint + gitleaks, and the two `qa-*` entries match the
+ * per-job Playwright / Hono integration runs.
  */
 export const DEPLOYMENT_PIPELINE_CHECK_STEPS = [
-  { jobId: 'turbo-ci', bunScript: 'check:ci' },
+  { jobId: 'turbo-gates', bunScript: 'check:ci:gates' },
+  { jobId: 'turbo-verify', bunScript: 'check:ci:verify' },
+  { jobId: 'turbo-build', bunScript: 'check:ci:build' },
   { jobId: 'static', bunScript: 'check:static' },
   { jobId: 'qa-api', bunScript: 'qa:api' },
   { jobId: 'qa-browser', bunScript: 'qa:browser' },

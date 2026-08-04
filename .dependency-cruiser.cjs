@@ -65,7 +65,7 @@ module.exports = {
       to: { dependencyTypes: ['npm-dev'] },
     },
     // Tier import pyramid: apps -> libs, pkgs; libs -> pkgs; pkgs -> pkgs.
-    // The authoritative gate is tooling/scripts/check-tier-imports.ts (workspace
+    // The authoritative gate is tools/scripts/check-tier-imports.ts (workspace
     // @scope imports through bun symlinks aren't reliably traversed here).
     // These path-based rules catch the relative `../../libs/...` escape hatch.
     {

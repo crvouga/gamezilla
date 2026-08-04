@@ -4,7 +4,7 @@
  * leave ends the space — so {@link endLiveSpacesWithoutActiveHostSeat} is a
  * no-op. Script kept for CLI wiring.
  *
- *   bun run tooling/scripts/secrets-run.ts -- bun run --filter @libs/spaces repair:departed-host-spaces
+ *   bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/spaces repair:departed-host-spaces
  */
 import {
   assertDevSecretsEnv,

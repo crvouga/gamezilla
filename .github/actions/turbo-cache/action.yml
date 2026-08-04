@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+name: Turbo local cache
+description: >-
+  Restore or save `.turbo` with a per-job primary key so parallel jobs do not
+  race on the same SHA key (which previously let qa-* reserve the key and left
+  turbo-* with a thin/empty cache).
+inputs:
+  job:
+    description: Job slug used in the primary cache key (e.g. turbo-verify)
+    required: true
+  mode:
+    description: restore | save
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Restore Turbo local artifacts
+      if: inputs.mode == 'restore'
+      uses: actions/cache/restore@v5
+      with:
+        path: .turbo
+        key: ${{ runner.os }}-turbo-${{ inputs.job }}-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-turbo-${{ inputs.job }}-
+          ${{ runner.os }}-turbo-
+
+    - name: Save Turbo local artifacts
+      if: inputs.mode == 'save'
+      continue-on-error: true
+      uses: actions/cache/save@v5
+      with:
+        path: .turbo
+        key: ${{ runner.os }}-turbo-${{ inputs.job }}-${{ github.sha }}

@@ -1,5 +1,5 @@
 {
-  "name": "@tooling/jingle",
+  "name": "@tools/jingle",
   "version": "0.0.0",
   "private": true,
   "bin": {
