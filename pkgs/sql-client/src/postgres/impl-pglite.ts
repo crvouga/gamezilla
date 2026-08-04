@@ -11,11 +11,7 @@
  */
 
 import type { Sql, Value } from '@pkgs/sql';
-import type {
-  PreparedStatement,
-  RunResult,
-  SqlClient,
-} from '../interface';
+import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { questionMarkParamsToDollarParams } from '../positional-params';
 
 type PgliteQueryResult<T> = {
@@ -75,11 +71,7 @@ function wrap(queryable: PgliteQueryable): SqlClient {
     async query<T extends Record<string, unknown>>(
       query: Sql<T>
     ): Promise<T[]> {
-      const result = await execQuery<T>(
-        queryable,
-        query.sql,
-        query.values
-      );
+      const result = await execQuery<T>(queryable, query.sql, query.values);
       return [...result.rows];
     },
     async run(query: Sql<unknown>): Promise<RunResult> {
