@@ -45,8 +45,7 @@ function isClerkAllowlisted(relativePath: string): boolean {
     return true;
   if (relativePath.startsWith('apps/api/src/api.ts')) return true;
   if (/^libs\/auth\/src\/server\/.*\.test\.ts$/.test(relativePath)) return true;
-  if (relativePath === 'tools/scripts/check-no-provider-leaks.ts')
-    return true;
+  if (relativePath === 'tools/scripts/check-no-provider-leaks.ts') return true;
   if (relativePath.endsWith('package.json')) return true;
   if (relativePath === 'tsconfig.json') return true;
   if (
@@ -64,8 +63,7 @@ function isInfisicalAllowlisted(relativePath: string): boolean {
   // CLI-native config kept in sync by the adapter for local CLI use.
   if (relativePath === '.infisical.json') return true;
   // This enforcement script names the forbidden terms.
-  if (relativePath === 'tools/scripts/check-no-provider-leaks.ts')
-    return true;
+  if (relativePath === 'tools/scripts/check-no-provider-leaks.ts') return true;
   if (relativePath === 'knip.jsonc') return true;
   if (relativePath.endsWith('package.json')) return true;
   if (relativePath === 'tsconfig.json') return true;
