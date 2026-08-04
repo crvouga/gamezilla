@@ -1,0 +1,2 @@
+[test]
+preload = ["./src/drivers/in-process/bun-preload.ts"]

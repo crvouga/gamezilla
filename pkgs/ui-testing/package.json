@@ -1,0 +1,41 @@
+{
+  "name": "@pkgs/ui-testing",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts",
+      "./src/*/*.ts",
+      "./src/*/*.tsx",
+      "./src/*/*/index.ts",
+      "./src/*/*/*.ts",
+      "./src/*/*/*.tsx"
+    ]
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@testing-library/dom": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "happy-dom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-native": "catalog:",
+    "react-native-web": "catalog:"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "catalog:",
+    "@playwright/test": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

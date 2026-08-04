@@ -119,7 +119,9 @@
       "@pkgs/distributed-lock/*": ["./pkgs/distributed-lock/src/*"],
       "@pkgs/ndjson/*": ["./pkgs/ndjson/src/*"],
       "@pkgs/os": ["./pkgs/os/src/index.ts"],
-      "@pkgs/os/*": ["./pkgs/os/src/*"]
+      "@pkgs/os/*": ["./pkgs/os/src/*"],
+      "@pkgs/ui-testing": ["./pkgs/ui-testing/src/index.ts"],
+      "@pkgs/ui-testing/*": ["./pkgs/ui-testing/src/*"]
     }
   },
   "include": [
@@ -231,6 +233,8 @@
     "pkgs/distributed-lock/src/**/*.ts",
     "pkgs/ndjson/src/**/*.ts",
     "pkgs/os/src/**/*.ts",
+    "pkgs/ui-testing/src/**/*.ts",
+    "pkgs/ui-testing/src/**/*.tsx",
     "tools/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]
