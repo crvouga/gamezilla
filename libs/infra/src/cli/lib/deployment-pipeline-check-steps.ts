@@ -5,18 +5,22 @@
  * corresponding GitHub Actions job key so failure output (LLM fix
  * prompts, `write-pipeline-report.ts` tables) lines up with CI naming.
  *
+ * Also the single source of truth for `bun run check`
+ * (`tools/scripts/check.ts`) and `check:heal` steps.
+ *
  * Turbo-cacheable work is split across `turbo-gates` / `turbo-verify` /
  * `turbo-build` (plus non-cacheable `check:secrets` on gates). `static`
- * covers actionlint + gitleaks, and the two `qa-*` entries match the
- * per-job Playwright / Hono integration runs.
+ * covers actionlint + gitleaks, and the two `check-*` job ids match the
+ * per-job Hono integration / Playwright runs (`check:api` /
+ * `check:browser`).
  */
 export const DEPLOYMENT_PIPELINE_CHECK_STEPS = [
   { jobId: 'turbo-gates', bunScript: 'check:ci:gates' },
   { jobId: 'turbo-verify', bunScript: 'check:ci:verify' },
   { jobId: 'turbo-build', bunScript: 'check:ci:build' },
   { jobId: 'static', bunScript: 'check:static' },
-  { jobId: 'qa-api', bunScript: 'qa:api' },
-  { jobId: 'qa-browser', bunScript: 'qa:browser' },
+  { jobId: 'check-api', bunScript: 'check:api' },
+  { jobId: 'check-browser', bunScript: 'check:browser' },
 ] as const;
 
 export type DeploymentPipelineCheckStep =

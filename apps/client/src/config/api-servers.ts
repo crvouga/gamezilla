@@ -22,7 +22,7 @@ function isExpoOrMetroDevelopmentBundle(): boolean {
   return Reflect.get(globalThis, '__DEV__') === true;
 }
 
-/** Opt-in escape hatch for rare QA / incident tooling (must be explicit `1`). */
+/** Opt-in escape hatch for rare check / incident tooling (must be explicit `1`). */
 export function productionApiUrlTigerExceptionEnabled(): boolean {
   return process.env['EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL'] === '1';
 }
@@ -87,7 +87,7 @@ function readExpoPublicApiUrlOrigin(): string {
   // Direct read — Expo inlines `EXPO_PUBLIC_*` at bundle time (see
   // `app-metadata.ts`). Do not nullish-coalesce to a production default in
   // this expression or Metro constant-folds past the env read when `__DEV__`
-  // is false (qa preview / `expo export -p web` then bakes api.gamezilla.app
+  // is false (check preview / `expo export -p web` then bakes api.gamezilla.app
   // even when `EXPO_PUBLIC_API_URL` is set for the Playwright webServer).
   // eslint-disable-next-line expo/no-dynamic-env-var -- `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
   const raw = process.env['EXPO_PUBLIC_API_URL'];

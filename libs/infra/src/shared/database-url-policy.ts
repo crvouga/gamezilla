@@ -5,7 +5,7 @@ import { PROJECT_CONFIG } from '../project-config';
 export const PRODUCTION_SECRETS_ENV = 'prd' as const;
 export const DEVELOPMENT_SECRETS_ENV = 'dev' as const;
 
-/** Opt-in escape hatch for rare QA / incident tooling (must be explicit `1`). */
+/** Opt-in escape hatch for rare check / incident tooling (must be explicit `1`). */
 export function productionDatabaseUrlTigerExceptionEnabled(): boolean {
   return process.env['ALLOW_PRODUCTION_DATABASE_URL'] === '1';
 }

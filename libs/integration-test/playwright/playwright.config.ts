@@ -7,9 +7,9 @@ import { assert } from '@pkgs/assert';
 import { resolveLocalPreviewApiOriginSync } from '../src/local-api-preview';
 import { DEV_CLIENT_BASE_URL } from '../src/local-e2e-stack';
 import {
-  qaPlaywrightPaths,
+  checkPlaywrightPaths,
   resolveGamezillaRepoRoot,
-} from '../src/qa-playwright-paths';
+} from '../src/check-playwright-paths';
 
 import { applyPlaywrightPreviewEnv } from './playwright-preview-env';
 
@@ -86,7 +86,7 @@ assert.ok(
   { repoRoot }
 );
 
-const qaPaths = qaPlaywrightPaths(repoRoot);
+const checkPaths = checkPlaywrightPaths(repoRoot);
 const browserSpecsDir = path.join(__dirname, '..', 'e2e', 'specs', 'browser');
 
 const isCi = Boolean(process.env['CI']);
@@ -99,10 +99,10 @@ export default defineConfig({
   forbidOnly: isCi,
   retries: isCi ? 1 : 0,
   workers: 1,
-  outputDir: qaPaths.resultsDir,
+  outputDir: checkPaths.resultsDir,
   reporter: [
     ['list'],
-    ['html', { open: 'never', outputFolder: qaPaths.reportDir }],
+    ['html', { open: 'never', outputFolder: checkPaths.reportDir }],
   ],
   timeout: 120_000,
   expect: {

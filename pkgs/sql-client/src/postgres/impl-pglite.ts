@@ -1,13 +1,13 @@
 /**
- * PGlite → `@pkgs/sql-client` {@link SqlClient} adapter, intended
- * primarily for tests but exported as part of the public API for any
- * embedder that wants an in-process Postgres-compatible backend.
+ * PGlite → {@link SqlClient} adapter for hermetic Postgres-compatible tests.
  *
- * PGlite speaks `$1` positional parameters natively, so the adapter
- * unpacks the {@link Sql} fragment's `.text` (`$1, $2, ...`) + `.values`
- * on every call. Its transaction callback receives a {@link Transaction}
- * handle whose `.query()` mirrors the top-level shape, so wrapping it in
- * another `SqlClient` is a straight delegation.
+ * Duck-typed over anything with `.query` + `.transaction` (typically
+ * `@electric-sql/pglite`). The caller owns PGlite lifecycle (`create` /
+ * `close`); this adapter only bridges to `@pkgs/sql`.
+ *
+ * Uses `query.sql` (`?`) → `$n` like every other Postgres impl in this
+ * package. Nested `transaction()` on a tx handle is rejected — PGlite has
+ * no savepoint nesting through this surface.
  */
 
 import type { Sql, Value } from '@pkgs/sql';
@@ -15,7 +15,8 @@ import type {
   PreparedStatement,
   RunResult,
   SqlClient,
-} from '@pkgs/sql-client/interface';
+} from '../interface';
+import { questionMarkParamsToDollarParams } from '../positional-params';
 
 type PgliteQueryResult<T> = {
   readonly rows: readonly T[];
@@ -37,18 +38,27 @@ function runResultFrom(result: PgliteQueryResult<unknown>): RunResult {
   return { changes: result.affectedRows ?? 0, lastInsertRowid: 0 };
 }
 
+async function execQuery<T>(
+  queryable: PgliteQueryable,
+  sqlText: string,
+  params?: readonly unknown[]
+): Promise<PgliteQueryResult<T>> {
+  const [text, vals] = questionMarkParamsToDollarParams(sqlText, params);
+  return queryable.query<T>(text, vals);
+}
+
 function prepareFor<T extends Record<string, unknown>>(
   queryable: PgliteQueryable,
   query: Sql<T>
 ): PreparedStatement<T> {
-  const text = query.text;
+  const statementSql = query.sql;
   return {
     query: async (params?: Value[]) => {
-      const result = await queryable.query<T>(text, params ?? []);
+      const result = await execQuery<T>(queryable, statementSql, params ?? []);
       return [...result.rows];
     },
     run: async (params?: Value[]) => {
-      const result = await queryable.query(text, params ?? []);
+      const result = await execQuery(queryable, statementSql, params ?? []);
       return runResultFrom(result);
     },
   };
@@ -65,11 +75,15 @@ function wrap(queryable: PgliteQueryable): SqlClient {
     async query<T extends Record<string, unknown>>(
       query: Sql<T>
     ): Promise<T[]> {
-      const result = await queryable.query<T>(query.text, [...query.values]);
+      const result = await execQuery<T>(
+        queryable,
+        query.sql,
+        query.values
+      );
       return [...result.rows];
     },
     async run(query: Sql<unknown>): Promise<RunResult> {
-      const result = await queryable.query(query.text, [...query.values]);
+      const result = await execQuery(queryable, query.sql, query.values);
       return runResultFrom(result);
     },
     prepare<T extends Record<string, unknown>>(
@@ -79,12 +93,13 @@ function wrap(queryable: PgliteQueryable): SqlClient {
     },
     transaction<T>(_fn: (tx: SqlClient) => Promise<T>): Promise<T> {
       throw new Error(
-        'Nested transactions are not supported by the matchmaking SqlClient'
+        'Nested transactions are not supported by the PGlite SqlClient'
       );
     },
   };
 }
 
+/** Adapts a PGlite (or compatible) instance to {@link SqlClient}. */
 export function createPgliteSqlClient(db: PgliteLike): SqlClient {
   return {
     ...wrap(db),

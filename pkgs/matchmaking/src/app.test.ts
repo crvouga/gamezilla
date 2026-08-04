@@ -11,7 +11,7 @@ import {
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Matchmaking } from './matchmaking';
-import { createPgliteSqlClient } from './pglite-adapter';
+import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import {
   type AppHarness,
   bootMatchmakingApp,

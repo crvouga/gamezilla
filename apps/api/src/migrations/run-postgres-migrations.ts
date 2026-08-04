@@ -15,7 +15,7 @@ import { runPowerSyncSourceDbSql } from '@libs/infra/cli/resources/powersync-sou
 
 /**
  * Session/transaction advisory lock for `api:migrate`. Serializes concurrent
- * CI jobs (qa-api + qa-browser) against the shared hosted dev Postgres so
+ * CI jobs (check-api + check-browser) against the shared hosted dev Postgres so
  * they wait instead of thrashing on DDL `lock_timeout`. Distinct from the
  * matchmaking tick lock id.
  */

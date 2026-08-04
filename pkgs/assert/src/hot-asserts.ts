@@ -15,7 +15,7 @@ import { Assert } from './assert';
  *
  * **Source of truth.** Default is {@link isDevBuild}: dev/test runs validate;
  * production builds short-circuit. The default can be overridden once at
- * process boot via {@link setHotAssertsEnabled} (e.g. QA force-enabling
+ * process boot via {@link setHotAssertsEnabled} (e.g. check force-enabling
  * checks in production, or a test forcing checks off to reproduce a perf
  * bug). After boot, every call to {@link hotAssert} returns the same cached
  * instance so the flag is effectively immutable from the consumer's view.
@@ -72,7 +72,7 @@ export function hotAssert(): Assert {
 
 /**
  * `true` when {@link hotAssert} currently returns the validating instance.
- * Mostly useful for tests and the polyfill-entry seam that wires QA overrides.
+ * Mostly useful for tests and the polyfill-entry seam that wires check overrides.
  */
 export function areHotAssertsEnabled(): boolean {
   return enabled;

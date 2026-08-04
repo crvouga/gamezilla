@@ -56,8 +56,8 @@ config.resolver.blockList = [
   /[/\\]apps[/\\]client[/\\]ios[/\\].*/,
   /[/\\]apps[/\\]client[/\\]android[/\\].*/,
   /[/\\]\.expo[/\\].*/,
-  /[/\\]\.qa-dist-dev[/\\].*/,
-  /[/\\]\.qa-native[/\\].*/,
+  /[/\\]\.check-dist-dev[/\\].*/,
+  /[/\\]\.check-native[/\\].*/,
 ];
 
 // Let Metro know where to resolve packages and in what order

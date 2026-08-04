@@ -86,13 +86,14 @@ import {
   type WaitingStatus,
 } from '@pkgs/matchmaking';
 
-// 2. The `@pkgs/sql-client` SqlClient type + the PGlite test adapter.
+// 2. The `@pkgs/sql-client` SqlClient type (re-exported for convenience).
 //    Production embedders build a SqlClient via `@pkgs/sql-client`
 //    (e.g. `createPgPool`) and pass it through `storage.sqlClient`.
-import {
-  createPgliteSqlClient,
-  type SqlClient,
-} from '@pkgs/matchmaking/storage';
+//    Hermetic test adapters live in `@pkgs/sql-client` itself:
+//      createPgliteSqlClient — @pkgs/sql-client/postgres/impl-pglite
+//      createPgMemSqlClient  — @pkgs/sql-client/postgres/impl-pg-mem
+import type { SqlClient } from '@pkgs/matchmaking/storage';
+import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 
 // 3. Wire-format types for HTTP consumers that validate JSON
 //    without `AttributeTag`s.

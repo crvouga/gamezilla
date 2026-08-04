@@ -16,10 +16,10 @@
 import { PGlite } from '@electric-sql/pglite';
 import { Assert } from '@pkgs/assert';
 import { createAttrNamespace } from '@pkgs/attribute';
+import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import { expect } from 'bun:test';
 import type { Hono, MiddlewareHandler } from 'hono';
 import { Matchmaking, type MatchmakingOptions } from './matchmaking';
-import { createPgliteSqlClient } from './pglite-adapter';
 import type { MatchedStatus, StatusResult } from './types';
 
 /**

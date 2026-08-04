@@ -25,7 +25,7 @@ const S3_SECRET_NAMES = [
  * {@link createS3ObjectStore}.
  *
  * Object storage only backs non-critical caches (e.g. TTS audio). When the S3
- * credentials are absent — local dev, preview, and CI `qa` runs that never
+ * credentials are absent — local dev, preview, and CI check runs that never
  * provision object storage — fall back to an ephemeral in-memory store so the
  * Worker still boots and serves auth / sync / rooms instead of latching
  * fatal and answering every request with `503`. Production misconfiguration is

@@ -3,6 +3,7 @@ import type { AttributeState } from '@pkgs/attribute';
 import { sql, type Sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import {
   afterAll,
   afterEach,
@@ -17,7 +18,6 @@ import {
   MATCHMAKING_PAYLOAD_LIMITS,
   MatchmakingSchemaDriftError,
 } from './matchmaking';
-import { createPgliteSqlClient } from './pglite-adapter';
 import {
   bootMatchmaking,
   expectMatched,

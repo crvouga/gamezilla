@@ -177,17 +177,17 @@ interface LocalPromptOptions {
 const DEPLOYMENT_PIPELINE_LOCAL_PROMPT: LocalPromptOptions = {
   title: `Fix local pipeline failures for ${PROJECT_CONFIG.domain}`,
   failureIntro:
-    'The Deployment Pipeline checks failed when run locally via `bun run check:deployment-pipeline`.',
+    'The Deployment Pipeline checks failed when run locally via `bun run check`.',
   fixInstructions:
-    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check:deployment-pipeline` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:ci`, `bun run check:static`, `bun run ci:knip`, `bun run qa:browser`).',
+    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:ci`, `bun run check:static`, `bun run check:api`, `bun run check:browser`).',
 };
 
 const CHECK_HEAL_LOCAL_PROMPT: LocalPromptOptions = {
   title: `Fix \`bun check\` failures for ${PROJECT_CONFIG.domain}`,
   failureIntro:
-    'The `bun check` gates failed when run locally via `bun run check:heal` (`check:static` + `check:ci`).',
+    'The `bun check` gates failed when run locally via `bun run check:heal` (same six lanes as `bun run check`).',
   fixInstructions:
-    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching step from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:ci`, `bun run ci:depcruise`, `bun run ci:syncpack`).',
+    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching step from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:ci`, `bun run check:api`, `bun run check:browser`).',
   constraints: [
     'Never patch dependencies (`bun patch`, `patch-package`, `patches/`, etc.).',
     'Never disable Tiger-style size-limit ESLint rules (`max-lines`, `max-lines-per-function`, etc.). Refactor instead.',
@@ -248,7 +248,7 @@ function renderPromptBody(
   }
   lines.push('');
   lines.push(
-    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run the matching \`bun run ...\` command locally to verify (e.g. \`bun run check:ci\`, \`bun run check:static\`, \`bun run ci:knip\`, \`bun run ci:depcruise\`, \`bun run ci:syncpack\`, \`bun run qa:api\`, \`bun run qa:browser\`).`
+    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run the matching \`bun run ...\` command locally to verify (e.g. \`bun run check:ci\`, \`bun run check:static\`, \`bun run check:api\`, \`bun run check:browser\`, \`bun run ci:depcruise\`, \`bun run ci:syncpack\`).`
   );
   lines.push('');
   for (const s of sections) {

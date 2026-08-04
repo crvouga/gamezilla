@@ -10,7 +10,7 @@ suppressThirdPartyWarnings();
 
 WebBrowser.maybeCompleteAuthSession();
 
-// QA / canary seam: lets a production-flavor build re-enable hot-path
+// Check / canary seam: lets a production-flavor build re-enable hot-path
 // asserts (per-dispatch keyword validation, per-routed-message envelope
 // checks, …) without a code change. Default is governed by `isDevBuild()`
 // in `@pkgs/assert/hot-asserts`; set EXPO_PUBLIC_FORCE_HOT_ASSERTS

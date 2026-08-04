@@ -8,9 +8,9 @@ export type ApiHandlerConfig = {
   readonly secretStore: SecretStore;
   readonly authServer: AuthServerPort;
   readonly dbScope: PostgresDbScope;
-  /** When set, overrides secret store `API_URL` for preview / QA. */
+  /** When set, overrides secret store `API_URL` for preview / check. */
   readonly apiUrlOverride?: string | null;
-  /** When set, overrides secret store `DATABASE_URL` for preview / QA. */
+  /** When set, overrides secret store `DATABASE_URL` for preview / check. */
   readonly databaseUrlOverride?: string | null;
   /** Secrets env binding (`dev` / `prd`) for database safety checks. */
   readonly secretsEnv: string;

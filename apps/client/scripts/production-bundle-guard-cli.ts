@@ -13,7 +13,7 @@ const USAGE = `usage: production-bundle-guard-cli.ts <check-env|check-dist|check
 
   check-env          Assert EXPO_PUBLIC_API_URL is the production API origin.
   check-dist         Scan apps/client/dist for a loopback inlined API URL.
-  check-native-dir   Scan apps/client/.qa-native for a loopback inlined API URL.
+  check-native-dir   Scan apps/client/.check-native for a loopback inlined API URL.
 `;
 
 function resolveDir(subcommand: string): string {
@@ -21,7 +21,7 @@ function resolveDir(subcommand: string): string {
     return join(clientRoot, 'dist');
   }
   if (subcommand === 'check-native-dir') {
-    return join(clientRoot, '.qa-native');
+    return join(clientRoot, '.check-native');
   }
   throw new Error(`unknown dir subcommand: ${subcommand}`);
 }

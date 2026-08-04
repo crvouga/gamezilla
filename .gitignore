@@ -85,8 +85,8 @@ libs/powersync/*.backup-*
 libs/powersync/service-fetched.yaml
 libs/powersync/sync-fetched.yaml
 
-# Playwright QA artifacts (reports, traces, videos)
-/qa/
+# Playwright check artifacts (reports, traces, videos)
+/check/
 **/playwright-report/
 **/test-results/
 **/blob-report/

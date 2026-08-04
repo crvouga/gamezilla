@@ -7,7 +7,7 @@ const ROOT_LOGGER = createLogger({
 });
 
 /** Structured logger scoped to the active Playwright test. */
-export function createQaPlaywrightLog(testInfo: TestInfo): Logger {
+export function createCheckPlaywrightLog(testInfo: TestInfo): Logger {
   return ROOT_LOGGER.child({
     test: testInfo.title,
     project: testInfo.project.name,

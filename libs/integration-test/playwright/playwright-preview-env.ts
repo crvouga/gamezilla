@@ -8,7 +8,7 @@ import { applyClerkPlaywrightEnv } from './playwright-clerk-env';
 
 /**
  * Applies secret-store-backed preview env when `DATABASE_URL` is already injected
- * (e.g. `bun run qa:browser` under `secrets-run`). Returns `false` when the
+ * (e.g. `bun run check:browser` under `secrets-run`). Returns `false` when the
  * config is loaded without secrets — Playwright's IDE test server only needs
  * to list files and must not assert-crash on missing secrets env.
  */
@@ -65,7 +65,7 @@ export function applyPlaywrightPreviewEnv(args: {
 export function assertPlaywrightPreviewEnvReady(): void {
   assert.nonEmptyString(
     process.env['DATABASE_URL'],
-    'Playwright browser tests require secrets env `dev` — run `bun run qa:browser` from the repo root (wraps `secrets-run`)'
+    'Playwright browser tests require secrets env `dev` — run `bun run check:browser` from the repo root (wraps `secrets-run`)'
   );
   assert.nonEmptyString(
     process.env['EXPO_PUBLIC_API_URL'],

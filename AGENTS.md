@@ -43,7 +43,7 @@ pkgs/ui/src/
 3. Wire DOM identifiers: accept optional `dataSet?: ComponentDataSet` and spread `{...componentDataSet('<PascalName>', dataSet)}` on the root host (see `pkgs/ui/src/component-id/`). `bun run ci:component-ids` enforces this for visual component folders.
 4. `bun run --filter @pkgs/ui tc lint` verifies it wires up.
 
-**DOM identifiers (dev + E2E only):** On web, every `@pkgs/ui` host exposes `data-component="<Name>"`. Babel (`pkgs/babel-plugins/jsx-source-attr.cjs`) also injects `data-src="<repo-path>:<line>"` on allowlisted JSX. `ScreenBase` requires `screenId` and renders `data-screen`. These are stripped from production web bundles (`EXPO_PUBLIC_E2E` keeps them on for `qa-browser`).
+**DOM identifiers (dev + E2E only):** On web, every `@pkgs/ui` host exposes `data-component="<Name>"`. Babel (`pkgs/babel-plugins/jsx-source-attr.cjs`) also injects `data-src="<repo-path>:<line>"` on allowlisted JSX. `ScreenBase` requires `screenId` and renders `data-screen`. These are stripped from production web bundles (`EXPO_PUBLIC_E2E` keeps them on for `check-browser`).
 
 ### Mutation UX
 
@@ -68,8 +68,8 @@ Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs
 
 The deployment pipeline (`.github/workflows/deployment-pipeline.yml`) follows three rules:
 
-1. **Turbo-cacheable tasks fan out across parallel jobs** — `turbo-gates` (root `ci:*` + `check:secrets`), `turbo-verify` (`tc` / `lint` / `test`), `turbo-build` (`build` excluding `@apps/client`). Root `ci:*` scripts and per-package tasks live in `turbo.json`; local `bun run check:ci` runs the three `check:ci:*` scripts in parallel via `tools/scripts/check-ci.ts`. On `pull_request`, verify/build set `TURBO_AFFECTED_BASE` so `turbo-ci-run` adds `--filter=...[<base>]`. Root `turbo.json` sets `"ui": "stream"` (not `tui`) so CI logs stream live — `bun run dev` still passes `--ui=tui`. `check:ci:verify` runs `@apps/client setup` first so `expo lint` has `.env.local`.
-2. **Non-Turbo tasks get their own job only when they need a different runner shape.** `static` runs actionlint + gitleaks (gitleaks needs `fetch-depth: 0`); `qa-api` and `qa-browser` need Playwright browsers and artifact uploads.
+1. **Turbo-cacheable tasks fan out across parallel jobs** — `turbo-gates` (root `ci:*` + `check:secrets`), `turbo-verify` (`tc` / `lint` / `test`), `turbo-build` (`build` excluding `@apps/client`). Root `ci:*` scripts and per-package tasks live in `turbo.json`; local `bun run check` runs all six deploy gate lanes in parallel via `tools/scripts/check.ts` (static + three `check:ci:*` + `check:api` + `check:browser`); `bun run check:ci` is the three turbo lanes only. On `pull_request`, verify/build set `TURBO_AFFECTED_BASE` so `turbo-ci-run` adds `--filter=...[<base>]`. Root `turbo.json` sets `"ui": "stream"` (not `tui`) so CI logs stream live — `bun run dev` still passes `--ui=tui`. `check:ci:verify` runs `@apps/client setup` first so `expo lint` has `.env.local`.
+2. **Non-Turbo tasks get their own job only when they need a different runner shape.** `static` runs actionlint + gitleaks (gitleaks needs `fetch-depth: 0`); `check-api` / `check-browser` jobs run `check:api` / `check:browser` (Playwright browsers, preview stack, artifact uploads).
 3. **The production deploy is one atomic `deploy` job.** A single checkout + `infra-setup` runs `bun run infra deploy`: provision and `db:migrate` run before the Postgres-backed global lock is acquired (avoids holding a direct slot during migrate); the lock then covers deploy-resources → stripe-sync → smoke → refresh-config → ensure-destroyed. `db:migrate` retries on Postgres `53300` / “too many clients”. A tiny always-run `lock-release` job is the safety net for crashed / cancelled deploys.
 
 When adding a new check, default to a turbo task under `ci:*` (or extend an existing one). Only carve out a new GitHub Actions job if the check truly needs a unique runner shape.

@@ -78,12 +78,12 @@ function browserStackNotRunningMessage(apiOrigin: string): string {
     'Integration tests do not start servers. Required endpoints:',
     formatProbeList(devStackProbes(apiOrigin)),
     '',
-    'Start the stack (same ports for dev and QA):',
+    'Start the stack (same ports for dev and check):',
     '  bun dev       # client :5173, API :8788',
     '  bun preview   # static export on :5173, API :8788',
     '',
     'Then re-run:',
-    '  bun qa:browser   or   bun pw',
+    '  bun check:browser',
     '',
   ].join('\n');
 }

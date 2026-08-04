@@ -1,12 +1,12 @@
 #!/usr/bin/env bun
 /**
- * Browser QA orchestrator: ensures the preview/dev stack is up, then runs Playwright.
+ * Browser check orchestrator: ensures the preview/dev stack is up, then runs Playwright.
  *
  * When ports :5173 / :8788 are already healthy (`bun dev`, `bun preview`, or CI's
  * prior "Start preview stack" step), runs tests immediately. Otherwise starts
  * `turbo preview` locally, waits for readiness, runs tests, then frees ports.
  *
- * Invoked via `bun run qa:browser` (wraps `secrets-run` for dev secrets).
+ * Invoked via `bun run check:browser` (wraps `secrets-run` for dev secrets).
  */
 import { spawn, spawnSync } from 'node:child_process';
 import { closeSync, openSync } from 'node:fs';
@@ -35,7 +35,7 @@ function runE2eTests(): number {
 }
 
 function startPreviewStack(): { readonly stop: () => void } {
-  const logPath = join(REPO_ROOT, '.qa-preview-stack.log');
+  const logPath = join(REPO_ROOT, '.check-preview-stack.log');
   const logFd = openSync(logPath, 'a');
   const child = spawn(
     'turbo',
@@ -66,7 +66,9 @@ async function main(): Promise<void> {
     process.exit(runE2eTests());
   }
 
-  process.stdout.write('[qa-browser] preview stack not running — starting…\n');
+  process.stdout.write(
+    '[check-browser] preview stack not running — starting…\n'
+  );
   const preview = startPreviewStack();
   try {
     await waitForLocalE2eStack();

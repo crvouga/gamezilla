@@ -1,15 +1,15 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-/** Repo-root folder for all Playwright QA artifacts (reports, traces). */
-export const QA_ARTIFACTS_DIR = 'qa';
+/** Repo-root folder for all Playwright check artifacts (reports, traces). */
+export const CHECK_ARTIFACTS_DIR = 'check';
 
-export const QA_PLAYWRIGHT_REPORT_DIR = path.join(
-  QA_ARTIFACTS_DIR,
+export const CHECK_PLAYWRIGHT_REPORT_DIR = path.join(
+  CHECK_ARTIFACTS_DIR,
   'playwright-report'
 );
-export const QA_PLAYWRIGHT_RESULTS_DIR = path.join(
-  QA_ARTIFACTS_DIR,
+export const CHECK_PLAYWRIGHT_RESULTS_DIR = path.join(
+  CHECK_ARTIFACTS_DIR,
   'test-results'
 );
 
@@ -27,9 +27,9 @@ export function resolveGamezillaRepoRoot(fromDir: string): string {
   }
 }
 
-export function qaPlaywrightPaths(repoRoot: string) {
+export function checkPlaywrightPaths(repoRoot: string) {
   return {
-    reportDir: path.join(repoRoot, QA_PLAYWRIGHT_REPORT_DIR),
-    resultsDir: path.join(repoRoot, QA_PLAYWRIGHT_RESULTS_DIR),
+    reportDir: path.join(repoRoot, CHECK_PLAYWRIGHT_REPORT_DIR),
+    resultsDir: path.join(repoRoot, CHECK_PLAYWRIGHT_RESULTS_DIR),
   };
 }

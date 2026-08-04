@@ -6,11 +6,11 @@
  *   - `@pkgs/matchmaking` (this file) — the `Matchmaking` class,
  *     the HTTP client, the public types. Everything 99% of embedders
  *     need.
- *   - `@pkgs/matchmaking/storage` — the `@pkgs/sql-client` `SqlClient`
- *     type plus the `createPgliteSqlClient` adapter for embedders that
- *     run hermetic tests against an in-process Postgres. Production
- *     embedders build a `SqlClient` via `@pkgs/sql-client` and pass it
- *     through `storage.sqlClient`.
+ *   - `@pkgs/matchmaking/storage` — re-exports the `@pkgs/sql-client`
+ *     `SqlClient` type. Production embedders build a `SqlClient` via
+ *     `@pkgs/sql-client` (`createPgPool`, …) and pass it through
+ *     `storage.sqlClient`. Hermetic test adapters (`createPgliteSqlClient`,
+ *     `createPgMemSqlClient`) live under `@pkgs/sql-client/postgres/`.
  *   - `@pkgs/matchmaking/wire` — `FormulaWire` types for HTTP /
  *     RPC consumers that need to validate JSON without `AttributeTag`s.
  *

@@ -19,9 +19,9 @@
  *
  * The public surface is intentionally six methods on one class:
  * `join`, `leave`, `status`, `app`, `ready`, `tick`. Wire-format types
- * for HTTP clients live at `@pkgs/matchmaking/wire`; SQL client
- * adapters live at `@pkgs/matchmaking/storage`. Nothing else
- * escapes the package.
+ * for HTTP clients live at `@pkgs/matchmaking/wire`; the `SqlClient`
+ * type is re-exported from `@pkgs/matchmaking/storage`. Concrete
+ * adapters live in `@pkgs/sql-client`. Nothing else escapes the package.
  *
  * Internal helpers use the TypeScript `private` keyword for consistency
  * with the rest of the package (no `#private` fields). Pure construction-
@@ -56,8 +56,8 @@ export { MATCHMAKING_PAYLOAD_LIMITS } from './payload-limits';
 /**
  * Backing store for a `Matchmaking` instance. Holds a single
  * {@link SqlClient} from `@pkgs/sql-client` — the package abstracts over
- * any concrete Postgres client (pooled, per-request, PGlite for tests)
- * through that one interface.
+ * any concrete Postgres client (pooled, per-request, in-process test
+ * backends) through that one interface.
  *
  * Embedders who thread a per-request connection (e.g. a worker that pins
  * one client per database request via `AsyncLocalStorage`) pass their own

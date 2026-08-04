@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 import {
-  createQaPlaywrightLog,
+  createCheckPlaywrightLog,
   playwrightStep,
 } from '../../../src/playwright-step';
 
@@ -11,7 +11,7 @@ test.skip('chess puzzle loop: solve puzzles, elo summary, stats', async ({
   page,
 }, testInfo) => {
   test.setTimeout(360_000);
-  const log = createQaPlaywrightLog(testInfo);
+  const log = createCheckPlaywrightLog(testInfo);
   const app = createAppSession(page);
 
   await playwrightStep(log, 'boot: app shell ready', () => app.expectBooted());

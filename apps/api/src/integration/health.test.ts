@@ -12,7 +12,7 @@ test('api GET /health returns ok when preview is already running', async () => {
   await assertHttpOk(healthUrl, {
     label: 'API preview (/api/health)',
     startHint:
-      'Start the stack first:\n  bun dev\n  bun preview\n\nThen re-run:\n  bun qa:api',
+      'Start the stack first:\n  bun dev\n  bun preview\n\nThen re-run:\n  bun check:api',
   });
 
   const res = await fetch(healthUrl);

@@ -10,7 +10,7 @@ import { runPackageScriptOnce } from '@libs/integration-test/harness';
 /**
  * Native bundle-export smoke. Runs the SAME Metro bundling step `eas update`
  * performs (`bun run prebuild` + `expo export` for ios + android, via the
- * `@apps/client qa:export:native` script) and asserts it produces native JS
+ * `@apps/client check:export:native` script) and asserts it produces native JS
  * bundles. This catches import / module-resolution / transform errors that
  * blank-screen the deployed OTA before it ever reaches a device — the web
  * export the browser E2E job builds cannot surface native-only bundling failures.
@@ -41,7 +41,7 @@ function resolveWorkspaceRoot(): string {
   }
 }
 
-const OUTPUT_DIR = join(resolveWorkspaceRoot(), 'apps/client/.qa-native');
+const OUTPUT_DIR = join(resolveWorkspaceRoot(), 'apps/client/.check-native');
 
 function listFilesRecursive(dir: string): string[] {
   return readdirSync(dir, { recursive: true, encoding: 'utf8' });
@@ -59,7 +59,7 @@ test(
   async () => {
     rmSync(OUTPUT_DIR, { recursive: true, force: true });
 
-    await runPackageScriptOnce('@apps/client', 'qa:export:native', {
+    await runPackageScriptOnce('@apps/client', 'check:export:native', {
       ...PRODUCTION_CLIENT_ENV,
     });
 

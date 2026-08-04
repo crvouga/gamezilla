@@ -5,7 +5,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { migrate } from './migrate';
 import { NUM_WAITING_PARTITIONS } from './migrate-sql';
-import { createPgliteSqlClient } from './pglite-adapter';
+import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import { registerTestCrashHandler } from './test-harness';
 
 let disposeTestCrashHandler: () => void;

@@ -23,7 +23,7 @@
     "lint": "expo lint --no-cache --max-warnings 0",
     "preview": "bun run scripts/preview-server.ts",
     "pwa:generate": "bun run scripts/generate-pwa-assets.ts",
-    "qa:export:native": "bun run prebuild && expo export --platform android --platform ios --output-dir .qa-native --clear",
+    "check:export:native": "bun run prebuild && expo export --platform android --platform ios --output-dir .check-native --clear",
     "setup": "bun run scripts/setup-env.ts",
     "setup:sentry-dsn": "bun run scripts/setup-sentry-dsn.ts",
     "prestart": "bun run bundle:skia-canvaskit-wasm",

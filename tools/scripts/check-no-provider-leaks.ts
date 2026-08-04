@@ -25,7 +25,7 @@ const SKIP_DIRS = new Set([
   'coverage',
   '.expo',
   '.wrangler',
-  '.qa-dist-prodcheck',
+  '.check-dist-prodcheck',
   'playwright-report',
   'test-results',
   'ios',
@@ -60,6 +60,8 @@ function isInfisicalAllowlisted(relativePath: string): boolean {
   // Secrets provider package (neutral facade + private adapter) and CI action.
   if (relativePath.startsWith('pkgs/secret-provider/')) return true;
   if (relativePath.startsWith('.github/actions/secrets-auth/')) return true;
+  // Setup caches/installs the secrets-backend CLI binary (provider bin name).
+  if (relativePath.startsWith('.github/actions/setup/')) return true;
   // CLI-native config kept in sync by the adapter for local CLI use.
   if (relativePath === '.infisical.json') return true;
   // This enforcement script names the forbidden terms.
