@@ -17,7 +17,7 @@ import type {
 import type { PuzzleHistoryPly } from '../../shared/chess-puzzle-move-history';
 import { HistoryPlyCluster } from './chess-puzzle-move-history-ply';
 
-const ROW_HEIGHT = 40;
+const ROW_HEIGHT = 28;
 
 export type ChessPuzzleMoveHistoryProps = {
   plies: readonly PuzzleHistoryPly[];

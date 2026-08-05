@@ -28,6 +28,17 @@
         height: 100%;
         flex: 1;
       }
+      /* Disable text selection by default; inputs stay selectable */
+      * {
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      input,
+      textarea,
+      [contenteditable="true"] {
+        -webkit-user-select: text;
+        user-select: text;
+      }
     </style>
     <meta name="mobile-web-app-capable" content="yes" />
     <link

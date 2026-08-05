@@ -40,8 +40,8 @@ export type EventLogBarProps = {
   dataSet?: ComponentDataSet;
 };
 
-const BAR_AVATAR_SIZE = 22;
-const BAR_RING_SIZE = 26;
+const BAR_AVATAR_SIZE = 18;
+const BAR_RING_SIZE = 20;
 
 function resolveColor(
   colorForActor: EventLogBarProps['colorForActor'],
@@ -95,7 +95,7 @@ function EventLogBarAvatar({
   const avatar = renderAvatar(actor, BAR_AVATAR_SIZE);
   if (color === null) return avatar;
   return (
-    <ParticipantColorRing color={color} size={BAR_RING_SIZE} borderWidth={2}>
+    <ParticipantColorRing color={color} size={BAR_RING_SIZE} borderWidth={1.5}>
       {avatar}
     </ParticipantColorRing>
   );
@@ -210,10 +210,10 @@ export function EventLogBar({
         backgroundColor: theme.colors.surface,
       }}
     >
-      <Box sx={{ px: 3, py: 2 }}>
+      <Box sx={{ px: 2, py: 1 }}>
         <Stack
           direction="horizontal"
-          spacing={2}
+          spacing={1.5}
           align="center"
           sx={{ minHeight: BAR_RING_SIZE }}
         >

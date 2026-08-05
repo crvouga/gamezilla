@@ -52,9 +52,9 @@ const HistoryPlyChip = memo(function HistoryPlyChip(
       feedback="none"
       onPress={handlePress}
       sx={{
-        px: 2,
-        py: 1,
-        borderRadius: 6,
+        px: 1.5,
+        py: 0.5,
+        borderRadius: 4,
         background: selected ? 'successSurface' : 'transparent',
       }}
       accessibilityRole="button"
