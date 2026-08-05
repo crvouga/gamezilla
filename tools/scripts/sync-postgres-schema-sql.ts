@@ -261,7 +261,9 @@ function splitTopLevelStatements(sql: string): string[] {
 
 function statementSortKey(statement: string): string {
   const s = statement.replace(/\s+/gu, ' ').trim();
-  const createTable = /^CREATE TABLE(?: IF NOT EXISTS)?\s+([^\s(]+)/i.exec(s);
+  // Include UNLOGGED so kv-style tables sort with ordinary CREATE TABLE (before ALTER).
+  const createTable =
+    /^CREATE (?:UNLOGGED )?TABLE(?: IF NOT EXISTS)?\s+([^\s(]+)/i.exec(s);
   if (createTable) {
     return `1:table:${createTable[1]!.toLowerCase()}`;
   }
@@ -409,6 +411,29 @@ function unifiedDiff(devText: string, prdText: string): string {
   return (diff.stdout ?? '').toString() || (diff.stderr ?? '').toString();
 }
 
+/** `kv` DDL is owned by `KvImplPostgres.migrateUp` — never fold into schema.sql. */
+function isKvOwnedStatement(statement: string): boolean {
+  const s = statement.replace(/\s+/gu, ' ').trim();
+  if (
+    /^CREATE\s+(?:UNLOGGED\s+)?TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+(?:public\.)?kv\b/i.test(
+      s
+    )
+  ) {
+    return true;
+  }
+  if (/^ALTER\s+TABLE(?:\s+ONLY)?\s+(?:public\.)?kv\b/i.test(s)) {
+    return true;
+  }
+  if (
+    /^CREATE\s+(?:UNIQUE\s+)?INDEX(?:\s+IF\s+NOT\s+EXISTS)?\s+\S+\s+ON\s+(?:public\.)?kv\b/i.test(
+      s
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function makeIdempotentStatement(statement: string): string | null {
   let s = statement.trim();
   if (s.length === 0) {
@@ -424,10 +449,17 @@ function makeIdempotentStatement(statement: string): string | null {
   if (/^COMMENT ON\b/i.test(s)) {
     return null;
   }
+  if (isKvOwnedStatement(s)) {
+    return null;
+  }
 
   s = s.replace(
     /^CREATE TABLE(?!\s+IF NOT EXISTS)\b/i,
     'CREATE TABLE IF NOT EXISTS'
+  );
+  s = s.replace(
+    /^CREATE UNLOGGED TABLE(?!\s+IF NOT EXISTS)\b/i,
+    'CREATE UNLOGGED TABLE IF NOT EXISTS'
   );
   s = s.replace(
     /^CREATE UNIQUE INDEX(?!\s+IF NOT EXISTS)\b/i,
@@ -442,15 +474,19 @@ function makeIdempotentStatement(statement: string): string | null {
     'CREATE SEQUENCE IF NOT EXISTS'
   );
 
-  // FK / check constraints from pg_dump are separate ALTER TABLE ADD CONSTRAINT
+  // FK / check / PK / UNIQUE from pg_dump are separate ALTER TABLE ADD CONSTRAINT
   // and are not IF NOT EXISTS — wrap for idempotent re-run.
+  // On migrate re-run Postgres may raise any of:
+  //   duplicate_object (42710) — constraint name already exists
+  //   duplicate_table (42P07) — UNIQUE/PK backing index already exists
+  //   invalid_table_definition (42P16) — table already has a PRIMARY KEY
   if (
     /^ALTER TABLE\b/i.test(s) &&
     /\bADD CONSTRAINT\b/i.test(s) &&
     !/\bIF NOT EXISTS\b/i.test(s)
   ) {
     const escaped = s.replace(/'/g, "''");
-    return `DO $$ BEGIN\n  EXECUTE '${escaped}';\nEXCEPTION\n  WHEN duplicate_object THEN NULL;\nEND $$`;
+    return `DO $$ BEGIN\n  EXECUTE '${escaped}';\nEXCEPTION\n  WHEN duplicate_object THEN NULL;\n  WHEN duplicate_table THEN NULL;\n  WHEN invalid_table_definition THEN NULL;\nEND $$`;
   }
 
   return s;

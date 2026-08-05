@@ -197,6 +197,8 @@ DO $$ BEGIN
     ADD CONSTRAINT chess_puzzle_interactions_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.chess_puzzle_interactions REPLICA IDENTITY FULL;
@@ -206,6 +208,8 @@ DO $$ BEGIN
     ADD CONSTRAINT chess_puzzle_load_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.chess_puzzle_load REPLICA IDENTITY FULL;
@@ -215,6 +219,8 @@ DO $$ BEGIN
     ADD CONSTRAINT chess_puzzle_profiles_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.chess_puzzle_profiles REPLICA IDENTITY FULL;
@@ -224,6 +230,8 @@ DO $$ BEGIN
     ADD CONSTRAINT chess_puzzles_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.chess_puzzles REPLICA IDENTITY FULL;
@@ -233,6 +241,8 @@ DO $$ BEGIN
     ADD CONSTRAINT client_config_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.client_config REPLICA IDENTITY FULL;
@@ -242,6 +252,8 @@ DO $$ BEGIN
     ADD CONSTRAINT devices_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.devices REPLICA IDENTITY FULL;
@@ -251,6 +263,8 @@ DO $$ BEGIN
     ADD CONSTRAINT entity_store_namespace_type_external_id_key UNIQUE (namespace, type, external_id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -258,6 +272,8 @@ DO $$ BEGIN
     ADD CONSTRAINT entity_store_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.entity_store REPLICA IDENTITY FULL;
@@ -267,6 +283,8 @@ DO $$ BEGIN
     ADD CONSTRAINT external_accounts_provider_external_id_pk PRIMARY KEY (provider, external_id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -274,6 +292,8 @@ DO $$ BEGIN
     ADD CONSTRAINT external_accounts_user_id_provider_key UNIQUE (user_id, provider)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.external_accounts REPLICA IDENTITY FULL;
@@ -283,6 +303,8 @@ DO $$ BEGIN
     ADD CONSTRAINT friend_requests_from_user_id_profiles_id_fk FOREIGN KEY (from_user_id) REFERENCES public.profiles(id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -290,6 +312,8 @@ DO $$ BEGIN
     ADD CONSTRAINT friend_requests_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -297,6 +321,8 @@ DO $$ BEGIN
     ADD CONSTRAINT friend_requests_to_user_id_profiles_id_fk FOREIGN KEY (to_user_id) REFERENCES public.profiles(id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.friend_requests REPLICA IDENTITY FULL;
@@ -306,6 +332,8 @@ DO $$ BEGIN
     ADD CONSTRAINT friendships_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -313,6 +341,8 @@ DO $$ BEGIN
     ADD CONSTRAINT friendships_source_request_id_friend_requests_id_fk FOREIGN KEY (source_request_id) REFERENCES public.friend_requests(id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -320,6 +350,8 @@ DO $$ BEGIN
     ADD CONSTRAINT friendships_user_high_profiles_id_fk FOREIGN KEY (user_high) REFERENCES public.profiles(id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -327,6 +359,8 @@ DO $$ BEGIN
     ADD CONSTRAINT friendships_user_low_profiles_id_fk FOREIGN KEY (user_low) REFERENCES public.profiles(id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -334,6 +368,8 @@ DO $$ BEGIN
     ADD CONSTRAINT friendships_user_low_user_high_key UNIQUE (user_low, user_high)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.friendships REPLICA IDENTITY FULL;
@@ -343,6 +379,8 @@ DO $$ BEGIN
     ADD CONSTRAINT inbox_interactions_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.inbox_interactions REPLICA IDENTITY FULL;
@@ -352,6 +390,8 @@ DO $$ BEGIN
     ADD CONSTRAINT inbox_preferences_pkey PRIMARY KEY (user_id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.inbox_preferences REPLICA IDENTITY FULL;
@@ -361,26 +401,19 @@ DO $$ BEGIN
     ADD CONSTRAINT inbox_schema_state_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.inbox_schema_state REPLICA IDENTITY FULL;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.kv
-    ADD CONSTRAINT kv_pkey PRIMARY KEY (key)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-END $$;
-
-ALTER TABLE ONLY public.kv ALTER COLUMN value SET STORAGE MAIN;
-
-ALTER TABLE ONLY public.kv REPLICA IDENTITY FULL;
 
 DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.profiles
     ADD CONSTRAINT profiles_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -388,6 +421,8 @@ DO $$ BEGIN
     ADD CONSTRAINT space_users_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -395,6 +430,8 @@ DO $$ BEGIN
     ADD CONSTRAINT space_users_space_id_spaces_id_fk FOREIGN KEY (space_id) REFERENCES public.spaces(id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -402,6 +439,8 @@ DO $$ BEGIN
     ADD CONSTRAINT space_users_space_id_user_id_key UNIQUE (space_id, user_id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -409,6 +448,8 @@ DO $$ BEGIN
     ADD CONSTRAINT space_users_user_id_profiles_id_fk FOREIGN KEY (user_id) REFERENCES public.profiles(id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.space_users REPLICA IDENTITY FULL;
@@ -418,6 +459,8 @@ DO $$ BEGIN
     ADD CONSTRAINT spaces_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.spaces REPLICA IDENTITY FULL;
@@ -427,6 +470,8 @@ DO $$ BEGIN
     ADD CONSTRAINT user_blocks_blocked_id_profiles_id_fk FOREIGN KEY (blocked_id) REFERENCES public.profiles(id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -434,6 +479,8 @@ DO $$ BEGIN
     ADD CONSTRAINT user_blocks_blocker_id_blocked_id_key UNIQUE (blocker_id, blocked_id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -441,6 +488,8 @@ DO $$ BEGIN
     ADD CONSTRAINT user_blocks_blocker_id_profiles_id_fk FOREIGN KEY (blocker_id) REFERENCES public.profiles(id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 DO $$ BEGIN
@@ -448,6 +497,8 @@ DO $$ BEGIN
     ADD CONSTRAINT user_blocks_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.user_blocks REPLICA IDENTITY FULL;
@@ -457,6 +508,8 @@ DO $$ BEGIN
     ADD CONSTRAINT users_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
 END $$;
 
 ALTER TABLE ONLY public.users REPLICA IDENTITY FULL;
@@ -526,10 +579,3 @@ CREATE INDEX IF NOT EXISTS spaces_host_member_id_idx ON public.spaces USING btre
 CREATE INDEX IF NOT EXISTS spaces_visibility_live_idx ON public.spaces USING btree (visibility, created_at DESC NULLS LAST) WHERE (ended_at IS NULL);
 
 CREATE INDEX IF NOT EXISTS user_blocks_blocked_idx ON public.user_blocks USING btree (blocked_id);
-
-CREATE UNLOGGED TABLE public.kv (
-    key text NOT NULL,
-    value jsonb NOT NULL,
-    last_modified_at timestamp with time zone DEFAULT now() NOT NULL
-)
-WITH (fillfactor='70', toast_tuple_target='8160', autovacuum_vacuum_scale_factor='0.05', autovacuum_analyze_scale_factor='0.05', autovacuum_vacuum_threshold='100', autovacuum_analyze_threshold='100', autovacuum_vacuum_cost_delay='0');

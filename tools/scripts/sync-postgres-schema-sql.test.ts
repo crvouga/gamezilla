@@ -102,6 +102,29 @@ ALTER TABLE ONLY public.devices
     expect(collapsed).toContain('CREATE INDEX IF NOT EXISTS');
     expect(collapsed).toContain('DO $$ BEGIN');
     expect(collapsed).toContain('WHEN duplicate_object THEN NULL');
+    expect(collapsed).toContain('WHEN duplicate_table THEN NULL');
+    expect(collapsed).toContain('WHEN invalid_table_definition THEN NULL');
     expect(collapsed).toContain('Collapsed from live secrets-env');
+  });
+
+  it('omits kv (owned by KvImplPostgres.migrateUp)', () => {
+    const dump = `CREATE UNLOGGED TABLE public.kv (
+    key text NOT NULL,
+    value jsonb NOT NULL
+);
+
+ALTER TABLE ONLY public.kv
+    ADD CONSTRAINT kv_pkey PRIMARY KEY (key);
+
+ALTER TABLE ONLY public.kv ALTER COLUMN value SET STORAGE MAIN;
+
+CREATE TABLE public.devices (
+    id text NOT NULL
+);
+`;
+    const collapsed = collapseDumpToIdempotentSql(normalizeSchemaDump(dump));
+    expect(collapsed).not.toContain('public.kv');
+    expect(collapsed).not.toContain('kv_pkey');
+    expect(collapsed).toContain('CREATE TABLE IF NOT EXISTS public.devices');
   });
 });
