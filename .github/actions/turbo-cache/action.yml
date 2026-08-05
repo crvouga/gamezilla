@@ -2,11 +2,12 @@
 name: Turbo local cache
 description: >-
   Restore or save `.turbo` with a per-job primary key so parallel jobs do not
-  race on the same SHA key (which previously let check-* reserve the key and left
-  turbo-* with a thin/empty cache).
+  race on the same SHA key (which previously let check-api / check-browser
+  reserve the key and left check-gates / check-verify / check-build with a
+  thin/empty cache).
 inputs:
   job:
-    description: Job slug used in the primary cache key (e.g. turbo-verify)
+    description: Job slug used in the primary cache key (e.g. check-verify)
     required: true
   mode:
     description: restore | save

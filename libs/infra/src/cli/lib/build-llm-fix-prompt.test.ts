@@ -6,7 +6,7 @@ import {
 
 const SAMPLE_FAILURES = [
   {
-    jobId: 'turbo-verify',
+    jobId: 'check-verify',
     output: 'error: lint failed in @pkgs/foo',
   },
 ] as const;
@@ -15,7 +15,7 @@ describe('buildLocalLlmFixPromptMarkdown', () => {
   test('includes deployment-pipeline verify hints', () => {
     const md = buildLocalLlmFixPromptMarkdown([...SAMPLE_FAILURES]);
     expect(md).toContain('bun run check');
-    expect(md).toContain('`turbo-verify`');
+    expect(md).toContain('`check-verify`');
     expect(md).toContain('error: lint failed in @pkgs/foo');
   });
 });
@@ -23,13 +23,13 @@ describe('buildLocalLlmFixPromptMarkdown', () => {
 describe('buildCheckHealPromptBody', () => {
   test('includes step ids and bun check verify hints', () => {
     const body = buildCheckHealPromptBody([
-      { stepId: 'static', output: 'actionlint: syntax error' },
-      { stepId: 'turbo-verify', output: 'turbo: lint failed' },
+      { stepId: 'check-static', output: 'actionlint: syntax error' },
+      { stepId: 'check-verify', output: 'turbo: lint failed' },
     ]);
     expect(body).toContain('`bun check`');
     expect(body).toContain('check:heal');
-    expect(body).toContain('`static`');
-    expect(body).toContain('`turbo-verify`');
+    expect(body).toContain('`check-static`');
+    expect(body).toContain('`check-verify`');
     expect(body).toContain('bun run check:static');
     expect(body).toContain('bun run check:api');
     expect(body).toContain('Never patch dependencies');

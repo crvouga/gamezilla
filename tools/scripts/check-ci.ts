@@ -1,6 +1,6 @@
 /**
  * Local / convenience orchestrator for the three parallel CI Turbo jobs
- * (`turbo-gates`, `turbo-verify`, `turbo-build`). Full `bun run check`
+ * (`check-gates`, `check-verify`, `check-build`). Full `bun run check`
  * also includes static + API + browser lanes via `tools/scripts/check.ts`.
  */
 import { spawn } from 'node:child_process';

@@ -8,17 +8,17 @@
  * Also the single source of truth for `bun run check`
  * (`tools/scripts/check.ts`) and `check:heal` steps.
  *
- * Turbo-cacheable work is split across `turbo-gates` / `turbo-verify` /
- * `turbo-build` (plus non-cacheable `check:secrets` on gates). `static`
- * covers actionlint + gitleaks, and the two `check-*` job ids match the
- * per-job Hono integration / Playwright runs (`check:api` /
- * `check:browser`).
+ * Turbo-cacheable work is split across `check-gates` / `check-verify` /
+ * `check-build` (plus non-cacheable `check:secrets` on gates).
+ * `check-static` covers actionlint + gitleaks, and the two remaining
+ * `check-*` job ids match the per-job Hono integration / Playwright runs
+ * (`check:api` / `check:browser`).
  */
 export const DEPLOYMENT_PIPELINE_CHECK_STEPS = [
-  { jobId: 'turbo-gates', bunScript: 'check:ci:gates' },
-  { jobId: 'turbo-verify', bunScript: 'check:ci:verify' },
-  { jobId: 'turbo-build', bunScript: 'check:ci:build' },
-  { jobId: 'static', bunScript: 'check:static' },
+  { jobId: 'check-gates', bunScript: 'check:ci:gates' },
+  { jobId: 'check-verify', bunScript: 'check:ci:verify' },
+  { jobId: 'check-build', bunScript: 'check:ci:build' },
+  { jobId: 'check-static', bunScript: 'check:static' },
   { jobId: 'check-api', bunScript: 'check:api' },
   { jobId: 'check-browser', bunScript: 'check:browser' },
 ] as const;

@@ -6,10 +6,10 @@ import type { NeedState } from './pipeline-needs';
 
 /** Stable display order for known jobs; unknown ids sort after, alphabetically. */
 const KNOWN_JOB_ORDER: readonly string[] = [
-  'turbo-gates',
-  'turbo-verify',
-  'turbo-build',
-  'static',
+  'check-gates',
+  'check-verify',
+  'check-build',
+  'check-static',
   'check-api',
   'check-browser',
   'deploy',
