@@ -1,495 +1,535 @@
 -- ============ Base schema ============
 -- Idempotent Postgres DDL for the PowerSync source database.
+-- Collapsed from live secrets-env `dev` + `prd` schemas (2026-08-05).
 -- Re-run in full on every deploy. Statements must stay safe to repeat.
+-- PowerSync publication remains in libs/infra powersync-source-db.sql.
 
-CREATE TABLE IF NOT EXISTS devices (
-  id TEXT PRIMARY KEY,
-  created_at TIMESTAMPTZ,
-  platform TEXT,
-  os_name TEXT,
-  os_version TEXT,
-  device_model_name TEXT,
-  device_brand TEXT,
-  device_name TEXT,
-  app_version TEXT,
-  app_build_number TEXT,
-  user_agent TEXT,
-  first_seen_at TIMESTAMPTZ,
-  last_seen_at TIMESTAMPTZ
+CREATE TABLE IF NOT EXISTS public.chess_puzzle_interactions (
+    id text NOT NULL,
+    owner_id text NOT NULL,
+    puzzle_id text NOT NULL,
+    puzzle_rating integer DEFAULT 0 NOT NULL,
+    kind text NOT NULL,
+    solve_idx integer DEFAULT 0 NOT NULL,
+    uci text,
+    correct boolean,
+    rating_before integer DEFAULT 0 NOT NULL,
+    rating_after integer DEFAULT 0 NOT NULL,
+    at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS devices_id_idx ON devices (id);
-
-CREATE TABLE IF NOT EXISTS profiles (
-  id TEXT PRIMARY KEY,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  username TEXT NOT NULL DEFAULT '',
-  avatar_config JSONB
+CREATE TABLE IF NOT EXISTS public.chess_puzzle_load (
+    id text NOT NULL,
+    source_etag text,
+    cursor text,
+    finished_at timestamp with time zone
 );
 
-CREATE TABLE IF NOT EXISTS spaces (
-  id TEXT PRIMARY KEY,
-  title TEXT,
-  host_id TEXT,
-  created_at TIMESTAMPTZ,
-  ended_at TIMESTAMPTZ
+CREATE TABLE IF NOT EXISTS public.chess_puzzle_profiles (
+    id text NOT NULL,
+    owner_id text NOT NULL,
+    rating integer DEFAULT 1200 NOT NULL,
+    rating_deviation integer DEFAULT 350 NOT NULL,
+    last_interaction_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS spaces_host_id_idx ON spaces (host_id);
-CREATE INDEX IF NOT EXISTS spaces_created_at_idx ON spaces (created_at DESC);
-CREATE INDEX IF NOT EXISTS spaces_ended_at_idx ON spaces (ended_at);
-
--- Legacy `space_memberships` is no longer created for fresh installs.
--- Existing DBs keep the table until the space_users migration drops it.
-
-CREATE TABLE IF NOT EXISTS chess_puzzles (
-  id TEXT PRIMARY KEY,
-  fen TEXT NOT NULL,
-  moves TEXT NOT NULL,
-  rating INTEGER NOT NULL DEFAULT 0,
-  rating_deviation INTEGER NOT NULL DEFAULT 0,
-  popularity INTEGER NOT NULL DEFAULT 0,
-  nb_plays INTEGER NOT NULL DEFAULT 0,
-  themes JSONB NOT NULL DEFAULT '[]'::jsonb,
-  game_url TEXT,
-  opening_tags JSONB NOT NULL DEFAULT '[]'::jsonb,
-  sync_pool BOOLEAN NOT NULL DEFAULT false
+CREATE TABLE IF NOT EXISTS public.chess_puzzles (
+    id text NOT NULL,
+    fen text NOT NULL,
+    moves text NOT NULL,
+    rating integer DEFAULT 0 NOT NULL,
+    rating_deviation integer DEFAULT 0 NOT NULL,
+    popularity integer DEFAULT 0 NOT NULL,
+    nb_plays integer DEFAULT 0 NOT NULL,
+    themes jsonb DEFAULT '[]'::jsonb NOT NULL,
+    game_url text,
+    opening_tags jsonb DEFAULT '[]'::jsonb NOT NULL,
+    sync_pool boolean DEFAULT false NOT NULL
 );
 
-ALTER TABLE chess_puzzles
-  ADD COLUMN IF NOT EXISTS sync_pool BOOLEAN NOT NULL DEFAULT false;
-
-CREATE INDEX IF NOT EXISTS chess_puzzles_rating_idx ON chess_puzzles (rating);
-CREATE INDEX IF NOT EXISTS chess_puzzles_popularity_idx
-  ON chess_puzzles (popularity DESC);
-CREATE INDEX IF NOT EXISTS chess_puzzles_rating_popularity_idx
-  ON chess_puzzles (rating, popularity DESC);
-CREATE INDEX IF NOT EXISTS chess_puzzles_sync_pool_popularity_idx
-  ON chess_puzzles (rating, popularity DESC)
-  WHERE sync_pool = true;
-
-DROP TABLE IF EXISTS chess_puzzle_sync_pool;
-
-CREATE TABLE IF NOT EXISTS chess_puzzle_load (
-  id TEXT PRIMARY KEY,
-  source_etag TEXT,
-  cursor TEXT,
-  finished_at TIMESTAMPTZ
+CREATE TABLE IF NOT EXISTS public.client_config (
+    id text NOT NULL,
+    google_web_client_id text
 );
 
-CREATE TABLE IF NOT EXISTS chess_puzzle_profiles (
-  id TEXT PRIMARY KEY,
-  owner_id TEXT NOT NULL,
-  rating INTEGER NOT NULL DEFAULT 1200,
-  rating_deviation INTEGER NOT NULL DEFAULT 350,
-  last_interaction_at TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE IF NOT EXISTS public.devices (
+    id text NOT NULL,
+    created_at timestamp with time zone,
+    platform text,
+    os_name text,
+    os_version text,
+    device_model_name text,
+    device_brand text,
+    device_name text,
+    app_version text,
+    app_build_number text,
+    user_agent text,
+    first_seen_at timestamp with time zone,
+    last_seen_at timestamp with time zone,
+    account_id text,
+    user_id text
 );
 
-CREATE INDEX IF NOT EXISTS chess_puzzle_profiles_owner_id_idx
-  ON chess_puzzle_profiles (owner_id);
-
-CREATE TABLE IF NOT EXISTS chess_puzzle_interactions (
-  id TEXT PRIMARY KEY,
-  owner_id TEXT NOT NULL,
-  puzzle_id TEXT NOT NULL,
-  puzzle_rating INTEGER NOT NULL DEFAULT 0,
-  kind TEXT NOT NULL,
-  solve_idx INTEGER NOT NULL DEFAULT 0,
-  uci TEXT,
-  correct BOOLEAN,
-  rating_before INTEGER NOT NULL DEFAULT 0,
-  rating_after INTEGER NOT NULL DEFAULT 0,
-  at TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE IF NOT EXISTS public.entity_store (
+    id text NOT NULL,
+    namespace text NOT NULL,
+    type text NOT NULL,
+    external_id text NOT NULL,
+    owner_id text,
+    data jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS chess_puzzle_interactions_owner_id_idx
-  ON chess_puzzle_interactions (owner_id);
-CREATE INDEX IF NOT EXISTS chess_puzzle_interactions_puzzle_id_idx
-  ON chess_puzzle_interactions (puzzle_id);
-CREATE INDEX IF NOT EXISTS chess_puzzle_interactions_at_idx
-  ON chess_puzzle_interactions (at DESC);
-
-CREATE TABLE IF NOT EXISTS client_config (
-  id TEXT PRIMARY KEY,
-  google_web_client_id TEXT
+CREATE TABLE IF NOT EXISTS public.external_accounts (
+    user_id text NOT NULL,
+    provider text NOT NULL,
+    external_id text NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS entity_store (
-  id TEXT PRIMARY KEY,
-  namespace TEXT NOT NULL,
-  type TEXT NOT NULL,
-  external_id TEXT NOT NULL,
-  owner_id TEXT,
-  data JSONB NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (namespace, type, external_id)
+CREATE TABLE IF NOT EXISTS public.friend_requests (
+    id text NOT NULL,
+    from_user_id text NOT NULL,
+    to_user_id text NOT NULL,
+    status text NOT NULL,
+    message text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    responded_at timestamp with time zone,
+    CONSTRAINT friend_requests_no_self CHECK ((from_user_id <> to_user_id)),
+    CONSTRAINT friend_requests_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'accepted'::text, 'declined'::text, 'cancelled'::text])))
 );
 
-CREATE INDEX IF NOT EXISTS entity_store_namespace_type_idx
-  ON entity_store (namespace, type);
-CREATE INDEX IF NOT EXISTS entity_store_namespace_owner_idx
-  ON entity_store (namespace, owner_id);
-
--- ============ Incremental changes ============
-
-ALTER TABLE devices ADD COLUMN IF NOT EXISTS account_id TEXT;
-ALTER TABLE devices ADD COLUMN IF NOT EXISTS user_id TEXT;
-UPDATE devices SET user_id = account_id
-WHERE user_id IS NULL AND account_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS devices_user_id_idx ON devices (user_id);
-
-CREATE TABLE IF NOT EXISTS users (
-  id TEXT PRIMARY KEY,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE IF NOT EXISTS public.friendships (
+    id text NOT NULL,
+    user_low text NOT NULL,
+    user_high text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    source_request_id text,
+    CONSTRAINT friendships_canonical CHECK ((user_low < user_high))
 );
 
-CREATE TABLE IF NOT EXISTS external_accounts (
-  user_id TEXT NOT NULL,
-  provider TEXT NOT NULL,
-  external_id TEXT NOT NULL,
-  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY (provider, external_id),
-  UNIQUE (user_id, provider)
+CREATE TABLE IF NOT EXISTS public.inbox_interactions (
+    id text NOT NULL,
+    user_id text NOT NULL,
+    source_namespace text NOT NULL,
+    source_type text NOT NULL,
+    source_id text NOT NULL,
+    category text NOT NULL,
+    priority integer DEFAULT 0 NOT NULL,
+    group_key text,
+    title text NOT NULL,
+    subtitle text,
+    body text,
+    icon_key text,
+    avatar_fallback_label text,
+    avatar_config text,
+    deep_link_path text,
+    deep_link_params jsonb DEFAULT '{}'::jsonb NOT NULL,
+    actions jsonb DEFAULT '[]'::jsonb NOT NULL,
+    payload jsonb DEFAULT '{}'::jsonb NOT NULL,
+    expires_at timestamp with time zone,
+    read_at timestamp with time zone,
+    archived_at timestamp with time zone,
+    dismissed_at timestamp with time zone,
+    active boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT inbox_interactions_category_check CHECK ((category = ANY (ARRAY['action_required'::text, 'informational'::text, 'system'::text])))
 );
 
-CREATE INDEX IF NOT EXISTS external_accounts_user_id_idx
-  ON external_accounts (user_id);
+CREATE TABLE IF NOT EXISTS public.inbox_preferences (
+    user_id text NOT NULL,
+    preferences jsonb DEFAULT '{}'::jsonb NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
 
--- ============ Profiles: username ============
+CREATE TABLE IF NOT EXISTS public.inbox_schema_state (
+    id integer NOT NULL,
+    schema_fingerprint text NOT NULL
+);
 
-ALTER TABLE profiles ADD COLUMN IF NOT EXISTS username TEXT NOT NULL DEFAULT '';
-ALTER TABLE profiles ADD COLUMN IF NOT EXISTS username_changed_at TIMESTAMPTZ;
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    username text DEFAULT ''::text NOT NULL,
+    avatar_config jsonb,
+    username_changed_at timestamp with time zone,
+    username_norm text GENERATED ALWAYS AS (lower(username)) STORED
+);
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1
-    FROM information_schema.columns
-    WHERE table_schema = current_schema()
-      AND table_name = 'profiles'
-      AND column_name = 'username_norm'
-  ) THEN
-    ALTER TABLE profiles
-      ADD COLUMN username_norm TEXT GENERATED ALWAYS AS (lower(username)) STORED;
-  END IF;
+CREATE TABLE IF NOT EXISTS public.space_users (
+    id text NOT NULL,
+    space_id text NOT NULL,
+    user_id text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    created_by_account_id text NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.spaces (
+    id text NOT NULL,
+    title text,
+    host_id text,
+    created_at timestamp with time zone,
+    ended_at timestamp with time zone,
+    visibility text DEFAULT 'private'::text NOT NULL,
+    host_account_id text,
+    host_member_id text
+);
+
+CREATE TABLE IF NOT EXISTS public.user_blocks (
+    id text NOT NULL,
+    blocker_id text NOT NULL,
+    blocked_id text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT user_blocks_no_self CHECK ((blocker_id <> blocked_id))
+);
+
+CREATE TABLE IF NOT EXISTS public.users (
+    id text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.chess_puzzle_interactions
+    ADD CONSTRAINT chess_puzzle_interactions_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
 END $$;
 
-CREATE UNIQUE INDEX IF NOT EXISTS profiles_username_norm_uidx
-  ON profiles (username_norm)
-  WHERE username <> '';
+ALTER TABLE ONLY public.chess_puzzle_interactions REPLICA IDENTITY FULL;
 
-CREATE INDEX IF NOT EXISTS profiles_username_norm_prefix_idx
-  ON profiles (username_norm text_pattern_ops);
-
-DROP INDEX IF EXISTS profiles_display_name_trgm_idx;
-
-ALTER TABLE profiles DROP COLUMN IF EXISTS display_name;
-
--- ============ Friends ============
-
-CREATE TABLE IF NOT EXISTS friend_requests (
-  id TEXT PRIMARY KEY,
-  from_user_id TEXT NOT NULL REFERENCES profiles (id),
-  to_user_id TEXT NOT NULL REFERENCES profiles (id),
-  status TEXT NOT NULL,
-  message TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  responded_at TIMESTAMPTZ,
-  CONSTRAINT friend_requests_no_self CHECK (from_user_id <> to_user_id),
-  CONSTRAINT friend_requests_status_check CHECK (
-    status IN ('pending', 'accepted', 'declined', 'cancelled')
-  )
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS friend_requests_pending_pair_uidx
-  ON friend_requests (from_user_id, to_user_id)
-  WHERE status = 'pending';
-
-CREATE INDEX IF NOT EXISTS friend_requests_to_pending_idx
-  ON friend_requests (to_user_id, created_at DESC)
-  WHERE status = 'pending';
-
-CREATE INDEX IF NOT EXISTS friend_requests_from_pending_idx
-  ON friend_requests (from_user_id, created_at DESC)
-  WHERE status = 'pending';
-
-CREATE INDEX IF NOT EXISTS friend_requests_history_idx
-  ON friend_requests (from_user_id, to_user_id, updated_at DESC);
-
-CREATE TABLE IF NOT EXISTS friendships (
-  id TEXT PRIMARY KEY,
-  user_low TEXT NOT NULL REFERENCES profiles (id),
-  user_high TEXT NOT NULL REFERENCES profiles (id),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  source_request_id TEXT REFERENCES friend_requests (id),
-  CONSTRAINT friendships_canonical CHECK (user_low < user_high),
-  UNIQUE (user_low, user_high)
-);
-
-CREATE INDEX IF NOT EXISTS friendships_user_low_idx ON friendships (user_low);
-CREATE INDEX IF NOT EXISTS friendships_user_high_idx ON friendships (user_high);
-
-CREATE TABLE IF NOT EXISTS user_blocks (
-  id TEXT PRIMARY KEY,
-  blocker_id TEXT NOT NULL REFERENCES profiles (id),
-  blocked_id TEXT NOT NULL REFERENCES profiles (id),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (blocker_id, blocked_id),
-  CONSTRAINT user_blocks_no_self CHECK (blocker_id <> blocked_id)
-);
-
-CREATE INDEX IF NOT EXISTS user_blocks_blocked_idx ON user_blocks (blocked_id);
-
--- Legacy composite PK → id PK (pairId = left:right). No-op when `id` exists.
--- Qualify `public` explicitly: Neon pooler migrate txns can leave
--- `to_regclass` / `current_schema()` resolving empty and silently skipping.
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1
-    FROM information_schema.tables
-    WHERE table_schema = 'public' AND table_name = 'friendships'
-  ) THEN
-    RETURN;
-  END IF;
-  IF EXISTS (
-    SELECT 1
-    FROM information_schema.columns
-    WHERE table_schema = 'public'
-      AND table_name = 'friendships'
-      AND column_name = 'id'
-  ) THEN
-    RETURN;
-  END IF;
-
-  ALTER TABLE public.friendships ADD COLUMN id TEXT;
-  UPDATE public.friendships
-  SET id = user_low || ':' || user_high
-  WHERE id IS NULL;
-  ALTER TABLE public.friendships ALTER COLUMN id SET NOT NULL;
-  ALTER TABLE public.friendships DROP CONSTRAINT friendships_pkey;
-  ALTER TABLE public.friendships ADD CONSTRAINT friendships_pkey PRIMARY KEY (id);
-  ALTER TABLE public.friendships
-    ADD CONSTRAINT friendships_user_low_user_high_key UNIQUE (user_low, user_high);
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.chess_puzzle_load
+    ADD CONSTRAINT chess_puzzle_load_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
 END $$;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1
-    FROM information_schema.tables
-    WHERE table_schema = 'public' AND table_name = 'user_blocks'
-  ) THEN
-    RETURN;
-  END IF;
-  IF EXISTS (
-    SELECT 1
-    FROM information_schema.columns
-    WHERE table_schema = 'public'
-      AND table_name = 'user_blocks'
-      AND column_name = 'id'
-  ) THEN
-    RETURN;
-  END IF;
+ALTER TABLE ONLY public.chess_puzzle_load REPLICA IDENTITY FULL;
 
-  ALTER TABLE public.user_blocks ADD COLUMN id TEXT;
-  UPDATE public.user_blocks
-  SET id = blocker_id || ':' || blocked_id
-  WHERE id IS NULL;
-  ALTER TABLE public.user_blocks ALTER COLUMN id SET NOT NULL;
-  ALTER TABLE public.user_blocks DROP CONSTRAINT user_blocks_pkey;
-  ALTER TABLE public.user_blocks ADD CONSTRAINT user_blocks_pkey PRIMARY KEY (id);
-  ALTER TABLE public.user_blocks
-    ADD CONSTRAINT user_blocks_blocker_id_blocked_id_key UNIQUE (blocker_id, blocked_id);
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.chess_puzzle_profiles
+    ADD CONSTRAINT chess_puzzle_profiles_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
 END $$;
 
-DROP TABLE IF EXISTS friend_profile_cache;
+ALTER TABLE ONLY public.chess_puzzle_profiles REPLICA IDENTITY FULL;
 
--- ============ Spaces: visibility columns (always) ============
-
-ALTER TABLE spaces ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
-ALTER TABLE spaces ADD COLUMN IF NOT EXISTS host_account_id TEXT;
--- Profile display is always read from `profiles` via host_member_id — never
--- duplicate username/avatar onto the space row.
-ALTER TABLE spaces DROP COLUMN IF EXISTS host_username;
-ALTER TABLE spaces DROP COLUMN IF EXISTS host_avatar_config;
-
--- Legacy `friends` visibility collapses to private.
-UPDATE spaces SET visibility = 'private' WHERE visibility = 'friends';
-
-CREATE INDEX IF NOT EXISTS spaces_visibility_live_idx
-  ON spaces (visibility, created_at DESC)
-  WHERE ended_at IS NULL;
-CREATE INDEX IF NOT EXISTS spaces_host_account_id_idx
-  ON spaces (host_account_id)
-  WHERE ended_at IS NULL;
-
-ALTER TABLE spaces ADD COLUMN IF NOT EXISTS host_member_id TEXT;
-UPDATE spaces
-SET host_member_id = COALESCE(host_account_id, host_id)
-WHERE host_member_id IS NULL;
-CREATE INDEX IF NOT EXISTS spaces_host_member_id_idx
-  ON spaces (host_member_id)
-  WHERE ended_at IS NULL;
-
-DROP TABLE IF EXISTS space_invites;
-DROP TABLE IF EXISTS space_participations;
-
--- ============ Spaces: one-shot legacy membership → space_users ============
--- Runs only while `space_memberships` / `space_allowlist` still exist.
--- Fresh installs and already-migrated DBs skip this (no recreate-then-drop).
-
-DO $$
-BEGIN
-  IF to_regclass('space_memberships') IS NULL THEN
-    RETURN;
-  END IF;
-
-  ALTER TABLE space_memberships ADD COLUMN IF NOT EXISTS profile_id TEXT;
-  ALTER TABLE space_memberships ADD COLUMN IF NOT EXISTS device_label TEXT;
-  ALTER TABLE space_memberships ADD COLUMN IF NOT EXISTS member_id TEXT;
-
-  EXECUTE 'CREATE INDEX IF NOT EXISTS space_memberships_profile_id_idx ON space_memberships (profile_id)';
-  EXECUTE 'CREATE INDEX IF NOT EXISTS space_memberships_member_id_idx ON space_memberships (member_id)';
-
-  UPDATE space_memberships AS sm
-  SET left_at = COALESCE(sm.left_at, now())
-  WHERE sm.left_at IS NULL
-    AND EXISTS (SELECT 1 FROM users u WHERE u.id = sm.guest_id);
-
-  UPDATE spaces AS s
-  SET ended_at = COALESCE(s.ended_at, now())
-  WHERE s.ended_at IS NULL
-    AND EXISTS (SELECT 1 FROM users u WHERE u.id = s.host_id);
-
-  UPDATE space_memberships
-  SET member_id = COALESCE(NULLIF(member_id, ''), NULLIF(profile_id, ''), guest_id)
-  WHERE member_id IS NULL OR member_id = '';
-
-  BEGIN
-    ALTER TABLE space_memberships ALTER COLUMN guest_id DROP NOT NULL;
-  EXCEPTION
-    WHEN undefined_column THEN NULL;
-    WHEN others THEN NULL;
-  END;
-
-  UPDATE space_memberships
-  SET guest_id = COALESCE(NULLIF(guest_id, ''), NULLIF(member_id, ''), NULLIF(profile_id, ''))
-  WHERE guest_id IS NULL OR guest_id = '';
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.chess_puzzles
+    ADD CONSTRAINT chess_puzzles_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
 END $$;
 
--- ============ Spaces: space_users ACL (Docs-style) ============
--- Collapses allowlist + membership into one collaborator table.
--- Live seats move to Room DO state; "opened" is local client state.
+ALTER TABLE ONLY public.chess_puzzles REPLICA IDENTITY FULL;
 
-CREATE TABLE IF NOT EXISTS space_users (
-  id TEXT PRIMARY KEY,
-  space_id TEXT NOT NULL REFERENCES spaces (id),
-  user_id TEXT NOT NULL REFERENCES profiles (id),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  created_by_account_id TEXT NOT NULL,
-  UNIQUE (space_id, user_id)
-);
-
-CREATE INDEX IF NOT EXISTS space_users_space_id_idx ON space_users (space_id);
-CREATE INDEX IF NOT EXISTS space_users_user_id_idx ON space_users (user_id);
-
--- Migrate allowlist → space_users (same id shape: spaceId:userId).
-DO $$
-BEGIN
-  IF to_regclass('space_allowlist') IS NOT NULL THEN
-    INSERT INTO space_users (
-      id, space_id, user_id, created_at, created_by_account_id
-    )
-    SELECT
-      a.id,
-      a.space_id,
-      a.user_id,
-      a.created_at,
-      a.created_by_account_id
-    FROM space_allowlist a
-    WHERE EXISTS (SELECT 1 FROM profiles p WHERE p.id = a.user_id)
-    ON CONFLICT (id) DO NOTHING;
-  END IF;
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.client_config
+    ADD CONSTRAINT client_config_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
 END $$;
 
--- Migrate active memberships that lack an ACL row.
-DO $$
-BEGIN
-  IF to_regclass('space_memberships') IS NOT NULL THEN
-    INSERT INTO space_users (
-      id, space_id, user_id, created_at, created_by_account_id
-    )
-    SELECT
-      sm.space_id || ':' || COALESCE(NULLIF(sm.member_id, ''), NULLIF(sm.profile_id, ''), sm.guest_id),
-      sm.space_id,
-      COALESCE(NULLIF(sm.member_id, ''), NULLIF(sm.profile_id, ''), sm.guest_id),
-      COALESCE(sm.joined_at, now()),
-      COALESCE(NULLIF(sm.member_id, ''), NULLIF(sm.profile_id, ''), sm.guest_id)
-    FROM space_memberships sm
-    WHERE sm.left_at IS NULL
-      AND COALESCE(NULLIF(sm.member_id, ''), NULLIF(sm.profile_id, ''), sm.guest_id) IS NOT NULL
-      AND EXISTS (
-        SELECT 1 FROM profiles p
-        WHERE p.id = COALESCE(NULLIF(sm.member_id, ''), NULLIF(sm.profile_id, ''), sm.guest_id)
-      )
-    ON CONFLICT (id) DO NOTHING;
-  END IF;
+ALTER TABLE ONLY public.client_config REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.devices
+    ADD CONSTRAINT devices_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
 END $$;
 
--- Ensure every live space host is on the ACL.
-INSERT INTO space_users (
-  id, space_id, user_id, created_at, created_by_account_id
+ALTER TABLE ONLY public.devices REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.entity_store
+    ADD CONSTRAINT entity_store_namespace_type_external_id_key UNIQUE (namespace, type, external_id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.entity_store
+    ADD CONSTRAINT entity_store_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.entity_store REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.external_accounts
+    ADD CONSTRAINT external_accounts_provider_external_id_pk PRIMARY KEY (provider, external_id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.external_accounts
+    ADD CONSTRAINT external_accounts_user_id_provider_key UNIQUE (user_id, provider)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.external_accounts REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.friend_requests
+    ADD CONSTRAINT friend_requests_from_user_id_profiles_id_fk FOREIGN KEY (from_user_id) REFERENCES public.profiles(id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.friend_requests
+    ADD CONSTRAINT friend_requests_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.friend_requests
+    ADD CONSTRAINT friend_requests_to_user_id_profiles_id_fk FOREIGN KEY (to_user_id) REFERENCES public.profiles(id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.friend_requests REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.friendships
+    ADD CONSTRAINT friendships_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.friendships
+    ADD CONSTRAINT friendships_source_request_id_friend_requests_id_fk FOREIGN KEY (source_request_id) REFERENCES public.friend_requests(id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.friendships
+    ADD CONSTRAINT friendships_user_high_profiles_id_fk FOREIGN KEY (user_high) REFERENCES public.profiles(id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.friendships
+    ADD CONSTRAINT friendships_user_low_profiles_id_fk FOREIGN KEY (user_low) REFERENCES public.profiles(id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.friendships
+    ADD CONSTRAINT friendships_user_low_user_high_key UNIQUE (user_low, user_high)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.friendships REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.inbox_interactions
+    ADD CONSTRAINT inbox_interactions_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.inbox_interactions REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.inbox_preferences
+    ADD CONSTRAINT inbox_preferences_pkey PRIMARY KEY (user_id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.inbox_preferences REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.inbox_schema_state
+    ADD CONSTRAINT inbox_schema_state_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.inbox_schema_state REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.kv
+    ADD CONSTRAINT kv_pkey PRIMARY KEY (key)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.kv ALTER COLUMN value SET STORAGE MAIN;
+
+ALTER TABLE ONLY public.kv REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.profiles
+    ADD CONSTRAINT profiles_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.space_users
+    ADD CONSTRAINT space_users_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.space_users
+    ADD CONSTRAINT space_users_space_id_spaces_id_fk FOREIGN KEY (space_id) REFERENCES public.spaces(id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.space_users
+    ADD CONSTRAINT space_users_space_id_user_id_key UNIQUE (space_id, user_id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.space_users
+    ADD CONSTRAINT space_users_user_id_profiles_id_fk FOREIGN KEY (user_id) REFERENCES public.profiles(id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.space_users REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.spaces
+    ADD CONSTRAINT spaces_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.spaces REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.user_blocks
+    ADD CONSTRAINT user_blocks_blocked_id_profiles_id_fk FOREIGN KEY (blocked_id) REFERENCES public.profiles(id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.user_blocks
+    ADD CONSTRAINT user_blocks_blocker_id_blocked_id_key UNIQUE (blocker_id, blocked_id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.user_blocks
+    ADD CONSTRAINT user_blocks_blocker_id_profiles_id_fk FOREIGN KEY (blocker_id) REFERENCES public.profiles(id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.user_blocks
+    ADD CONSTRAINT user_blocks_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.user_blocks REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.users REPLICA IDENTITY FULL;
+
+CREATE INDEX IF NOT EXISTS chess_puzzle_interactions_at_idx ON public.chess_puzzle_interactions USING btree (at DESC NULLS LAST);
+
+CREATE INDEX IF NOT EXISTS chess_puzzle_interactions_owner_id_idx ON public.chess_puzzle_interactions USING btree (owner_id);
+
+CREATE INDEX IF NOT EXISTS chess_puzzle_interactions_puzzle_id_idx ON public.chess_puzzle_interactions USING btree (puzzle_id);
+
+CREATE INDEX IF NOT EXISTS chess_puzzle_profiles_owner_id_idx ON public.chess_puzzle_profiles USING btree (owner_id);
+
+CREATE INDEX IF NOT EXISTS chess_puzzles_popularity_idx ON public.chess_puzzles USING btree (popularity DESC);
+
+CREATE INDEX IF NOT EXISTS chess_puzzles_rating_idx ON public.chess_puzzles USING btree (rating);
+
+CREATE INDEX IF NOT EXISTS chess_puzzles_rating_popularity_idx ON public.chess_puzzles USING btree (rating, popularity DESC);
+
+CREATE INDEX IF NOT EXISTS chess_puzzles_sync_pool_popularity_idx ON public.chess_puzzles USING btree (rating, popularity DESC) WHERE (sync_pool = true);
+
+CREATE INDEX IF NOT EXISTS devices_account_id_idx ON public.devices USING btree (account_id);
+
+CREATE INDEX IF NOT EXISTS devices_id_idx ON public.devices USING btree (id);
+
+CREATE INDEX IF NOT EXISTS devices_user_id_idx ON public.devices USING btree (user_id);
+
+CREATE INDEX IF NOT EXISTS entity_store_namespace_owner_idx ON public.entity_store USING btree (namespace, owner_id);
+
+CREATE INDEX IF NOT EXISTS entity_store_namespace_type_idx ON public.entity_store USING btree (namespace, type);
+
+CREATE INDEX IF NOT EXISTS external_accounts_user_id_idx ON public.external_accounts USING btree (user_id);
+
+CREATE INDEX IF NOT EXISTS friend_requests_from_pending_idx ON public.friend_requests USING btree (from_user_id, created_at DESC NULLS LAST) WHERE (status = 'pending'::text);
+
+CREATE INDEX IF NOT EXISTS friend_requests_history_idx ON public.friend_requests USING btree (from_user_id, to_user_id, updated_at DESC NULLS LAST);
+
+CREATE UNIQUE INDEX IF NOT EXISTS friend_requests_pending_pair_uidx ON public.friend_requests USING btree (from_user_id, to_user_id) WHERE (status = 'pending'::text);
+
+CREATE INDEX IF NOT EXISTS friend_requests_to_pending_idx ON public.friend_requests USING btree (to_user_id, created_at DESC NULLS LAST) WHERE (status = 'pending'::text);
+
+CREATE INDEX IF NOT EXISTS friendships_user_high_idx ON public.friendships USING btree (user_high);
+
+CREATE INDEX IF NOT EXISTS friendships_user_low_idx ON public.friendships USING btree (user_low);
+
+CREATE INDEX IF NOT EXISTS inbox_interactions_list_idx ON public.inbox_interactions USING btree (user_id, active, archived_at, priority DESC, created_at DESC);
+
+CREATE UNIQUE INDEX IF NOT EXISTS inbox_interactions_source_uidx ON public.inbox_interactions USING btree (user_id, source_namespace, source_type, source_id);
+
+CREATE INDEX IF NOT EXISTS profiles_username_norm_prefix_idx ON public.profiles USING btree (username_norm text_pattern_ops);
+
+CREATE UNIQUE INDEX IF NOT EXISTS profiles_username_norm_uidx ON public.profiles USING btree (username_norm) WHERE (username <> ''::text);
+
+CREATE INDEX IF NOT EXISTS space_users_space_id_idx ON public.space_users USING btree (space_id);
+
+CREATE INDEX IF NOT EXISTS space_users_user_id_idx ON public.space_users USING btree (user_id);
+
+CREATE INDEX IF NOT EXISTS spaces_created_at_idx ON public.spaces USING btree (created_at DESC NULLS LAST);
+
+CREATE INDEX IF NOT EXISTS spaces_ended_at_idx ON public.spaces USING btree (ended_at);
+
+CREATE INDEX IF NOT EXISTS spaces_host_account_id_idx ON public.spaces USING btree (host_account_id) WHERE (ended_at IS NULL);
+
+CREATE INDEX IF NOT EXISTS spaces_host_id_idx ON public.spaces USING btree (host_id);
+
+CREATE INDEX IF NOT EXISTS spaces_host_member_id_idx ON public.spaces USING btree (host_member_id) WHERE (ended_at IS NULL);
+
+CREATE INDEX IF NOT EXISTS spaces_visibility_live_idx ON public.spaces USING btree (visibility, created_at DESC NULLS LAST) WHERE (ended_at IS NULL);
+
+CREATE INDEX IF NOT EXISTS user_blocks_blocked_idx ON public.user_blocks USING btree (blocked_id);
+
+CREATE UNLOGGED TABLE public.kv (
+    key text NOT NULL,
+    value jsonb NOT NULL,
+    last_modified_at timestamp with time zone DEFAULT now() NOT NULL
 )
-SELECT
-  s.id || ':' || COALESCE(NULLIF(s.host_member_id, ''), NULLIF(s.host_account_id, '')),
-  s.id,
-  COALESCE(NULLIF(s.host_member_id, ''), NULLIF(s.host_account_id, '')),
-  COALESCE(s.created_at, now()),
-  COALESCE(NULLIF(s.host_account_id, ''), NULLIF(s.host_member_id, ''))
-FROM spaces s
-WHERE s.ended_at IS NULL
-  AND COALESCE(NULLIF(s.host_member_id, ''), NULLIF(s.host_account_id, '')) IS NOT NULL
-  AND EXISTS (
-    SELECT 1 FROM profiles p
-    WHERE p.id = COALESCE(NULLIF(s.host_member_id, ''), NULLIF(s.host_account_id, ''))
-  )
-ON CONFLICT (id) DO NOTHING;
-
--- Drop legacy tables/columns. Lock spaces first (fixed order) to reduce
--- deadlocks with PowerSync replication holding child-table locks.
-DO $$
-BEGIN
-  IF to_regclass('space_memberships') IS NULL
-     AND to_regclass('space_allowlist') IS NULL
-     AND NOT EXISTS (
-       SELECT 1
-       FROM information_schema.columns
-       WHERE table_schema = current_schema()
-         AND table_name = 'spaces'
-         AND column_name = 'active_member_count'
-     ) THEN
-    RETURN;
-  END IF;
-
-  LOCK TABLE spaces IN ACCESS EXCLUSIVE MODE;
-
-  IF to_regclass('space_allowlist') IS NOT NULL THEN
-    EXECUTE 'LOCK TABLE space_allowlist IN ACCESS EXCLUSIVE MODE';
-  END IF;
-  IF to_regclass('space_memberships') IS NOT NULL THEN
-    EXECUTE 'LOCK TABLE space_memberships IN ACCESS EXCLUSIVE MODE';
-    DROP TRIGGER IF EXISTS space_memberships_fill_legacy_guest_id_trg
-      ON space_memberships;
-  END IF;
-
-  DROP FUNCTION IF EXISTS space_memberships_fill_legacy_guest_id();
-
-  DROP TABLE IF EXISTS space_allowlist;
-  DROP TABLE IF EXISTS space_memberships;
-
-  ALTER TABLE spaces DROP COLUMN IF EXISTS active_member_count;
-END $$;
+WITH (fillfactor='70', toast_tuple_target='8160', autovacuum_vacuum_scale_factor='0.05', autovacuum_analyze_scale_factor='0.05', autovacuum_vacuum_threshold='100', autovacuum_analyze_threshold='100', autovacuum_vacuum_cost_delay='0');
