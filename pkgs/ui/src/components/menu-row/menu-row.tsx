@@ -46,6 +46,47 @@ export type MenuRowProps = {
   dataSet?: ComponentDataSet;
 };
 
+function menuRowPressHandler(
+  onPress: (() => void) | undefined
+): (() => void) | undefined {
+  if (onPress === undefined) return undefined;
+  return () => {
+    releaseWebFocus();
+    onPress();
+  };
+}
+
+function MenuRowTitle({
+  title,
+  selected,
+}: {
+  title: ReactNode;
+  selected: boolean;
+}): ReactNode {
+  if (selected) {
+    return <Text variant="bodyBold" sx={{ color: 'tint' }} label={title} />;
+  }
+  return <Text variant="bodyBold" label={title} />;
+}
+
+function MenuRowTrailing({
+  trailing,
+  hideChevron,
+  selected,
+  tint,
+  icon,
+}: {
+  trailing: ReactNode | undefined;
+  hideChevron: boolean;
+  selected: boolean;
+  tint: string;
+  icon: string;
+}): ReactNode {
+  if (trailing !== undefined) return trailing;
+  if (hideChevron) return null;
+  return <ChevronRightIcon size={20} color={selected ? tint : icon} />;
+}
+
 export function MenuRow({
   title,
   caption,
@@ -63,14 +104,7 @@ export function MenuRow({
 
   return (
     <Pressable
-      onPress={
-        onPress === undefined
-          ? undefined
-          : () => {
-              releaseWebFocus();
-              onPress();
-            }
-      }
+      onPress={menuRowPressHandler(onPress)}
       disabled={disabled}
       testID={testID}
       accessibilityRole="button"
@@ -93,20 +127,16 @@ export function MenuRow({
       >
         {leading}
         <Box sx={{ flex: 1, gap: 1 }}>
-          {selected ? (
-            <Text variant="bodyBold" sx={{ color: 'tint' }} label={title} />
-          ) : (
-            <Text variant="bodyBold" label={title} />
-          )}
+          <MenuRowTitle title={title} selected={selected} />
           {caption ? <Text variant="caption" label={caption} /> : null}
         </Box>
-        {trailing ??
-          (hideChevron ? null : (
-            <ChevronRightIcon
-              size={20}
-              color={selected ? theme.colors.tint : theme.colors.icon}
-            />
-          ))}
+        <MenuRowTrailing
+          trailing={trailing}
+          hideChevron={hideChevron}
+          selected={selected}
+          tint={theme.colors.tint}
+          icon={theme.colors.icon}
+        />
       </Box>
     </Pressable>
   );
