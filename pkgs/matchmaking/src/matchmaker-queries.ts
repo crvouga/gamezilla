@@ -39,13 +39,21 @@ export type ActivePartitionRow = {
  */
 export function statusLookupQuery(participantId: string): Sql<StatusRow> {
   return sql<StatusRow>`
-    SELECT 'waiting'::text AS status, data, metadata, NULL::uuid AS match_id
-      FROM matchmaking_waiting
-     WHERE id = ${participantId}
+    SELECT 
+      'waiting'::text AS status,
+      data,
+      metadata,
+      NULL::uuid AS match_id
+    FROM matchmaking_waiting
+    WHERE id = ${participantId}
     UNION ALL
-    SELECT 'matched'::text AS status, data, metadata, match_id
+    SELECT 
+      'matched'::text AS status,
+      data,
+      metadata,
+      match_id
       FROM matchmaking_matched
-     WHERE id = ${participantId}
+    WHERE id = ${participantId}
     LIMIT 1`;
 }
 
@@ -63,8 +71,13 @@ export type RunMatchPassArgs = {
 /** Set-returning `matchmaking_run_match_pass(...)` call in FROM position. */
 export function runMatchPassQuery(args: RunMatchPassArgs): Sql<MatchPassRow> {
   return sql<MatchPassRow>`
-    SELECT match_id, participant_id, joined_at, data
-      FROM matchmaking_run_match_pass(
+    SELECT 
+      match_id, 
+      participant_id, 
+      joined_at, 
+      data,
+      metadata
+    FROM matchmaking_run_match_pass(
         ${args.partitionSignature},
         ${args.baseRadius},
         ${args.radiusGrowthPerSecond},
@@ -73,14 +86,14 @@ export function runMatchPassQuery(args: RunMatchPassArgs): Sql<MatchPassRow> {
         ${args.bucketWidth},
         ${args.groupSize},
         ${args.nowParam}
-      ) AS t`;
+    ) AS t`;
 }
 
 /** Prune `(sig, group_size)` pairs with no remaining waiters (aliased DELETE). */
 export function prunePartitionsQuery(): SqlFragment {
   return sql<void>`
     DELETE FROM matchmaking_active_partitions AS ap
-     WHERE NOT EXISTS (
+    WHERE NOT EXISTS (
        SELECT 1
          FROM matchmaking_waiting AS w
         WHERE w.partition_signature = ap.partition_signature

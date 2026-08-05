@@ -10,6 +10,13 @@ export { EXTERNAL_ACCOUNTS_TABLE, USERS_TABLE };
 
 type UserIdRow = { readonly user_id: string };
 
+export type ExternalAccountWriteArgs = {
+  readonly userId: string;
+  readonly provider: string;
+  readonly externalId: string;
+  readonly metadata?: Record<string, unknown>;
+};
+
 function parseMetadata(value: unknown): Record<string, unknown> {
   if (value === null || value === undefined) return {};
   if (typeof value === 'string') {
@@ -75,14 +82,13 @@ export async function insertUser(
   `);
 }
 
+/**
+ * Upsert by `(provider, external_id)`. Updates metadata only — never reassigns
+ * `user_id`. Ownership of an external identity is immutable once linked.
+ */
 export async function upsertExternalAccount(
   db: SqlClient,
-  args: {
-    readonly userId: string;
-    readonly provider: string;
-    readonly externalId: string;
-    readonly metadata?: Record<string, unknown>;
-  }
+  args: ExternalAccountWriteArgs
 ): Promise<void> {
   const now = new Date().toISOString();
   const metadataJson = JSON.stringify(args.metadata ?? {});
@@ -102,9 +108,53 @@ export async function upsertExternalAccount(
       ${now}
     )
     ON CONFLICT (provider, external_id) DO UPDATE SET
-      user_id = excluded.user_id,
       metadata = excluded.metadata
+    WHERE external_accounts.user_id = excluded.user_id
   `);
+}
+
+/**
+ * Inserts a new external-account link, or adopts the existing owner when
+ * `(provider, external_id)` is already taken. Never steals the link onto
+ * `args.userId`.
+ *
+ * @returns The canonical `user_id` for this external identity (may differ
+ *   from `args.userId` when another account already owns the link).
+ */
+export async function insertExternalAccountOrGet(
+  db: SqlClient,
+  args: ExternalAccountWriteArgs
+): Promise<string> {
+  const now = new Date().toISOString();
+  const metadataJson = JSON.stringify(args.metadata ?? {});
+  await db.run(sql<void>`
+    INSERT INTO external_accounts (
+      user_id,
+      provider,
+      external_id,
+      metadata,
+      created_at
+    )
+    VALUES (
+      ${args.userId},
+      ${args.provider},
+      ${args.externalId},
+      ${metadataJson}::jsonb,
+      ${now}
+    )
+    ON CONFLICT (provider, external_id) DO NOTHING
+  `);
+  const ownerId = await findUserIdByProviderExternalId(
+    db,
+    args.provider,
+    args.externalId
+  );
+  if (ownerId === null) {
+    throw new Error(
+      `external_accounts row missing after insert (${args.provider}/${args.externalId})`
+    );
+  }
+  return ownerId;
 }
 
 export async function findUserIdByPrimaryAuthExternalId(

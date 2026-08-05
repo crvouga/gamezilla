@@ -632,6 +632,7 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/auth": "workspace:*",
         "expo-auth-session": "catalog:",
+        "expo-secure-store": "catalog:",
         "expo-web-browser": "catalog:",
       },
       "devDependencies": {

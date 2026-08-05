@@ -21,55 +21,55 @@ async function main(): Promise<void> {
   });
 
   try {
-    // Avoid `UPDATE chess_puzzles SET sync_pool = false` (rewrites ~6M rows).
-    // Flip flags only for the pick set.
-    await sqlClient.run(raw('BEGIN'));
-    // sqlMap: CREATE TEMP TABLE ... AS SELECT with a ROW_NUMBER() OVER (...)
-    // window function — sqlMap has no DDL or window-function support.
-    await sqlClient.run(sql<void>`
-      CREATE TEMP TABLE puzzle_pool_pick ON COMMIT DROP AS
-       SELECT id
-       FROM (
-         SELECT
-           id,
-           ROW_NUMBER() OVER (
-             PARTITION BY (rating / 400)::integer
-             ORDER BY popularity DESC
-           ) AS rn
-         FROM chess_puzzles
-         WHERE rating >= 0 AND (rating / 400)::integer <= ${MAX_BAND}
-       ) ranked
-       WHERE rn <= ${POOL_PER_BAND}
-    `);
-    await sqlClient.run(
-      raw(`UPDATE chess_puzzles
-       SET sync_pool = false
-       WHERE sync_pool = true
-         AND id NOT IN (SELECT id FROM puzzle_pool_pick)`)
-    );
-    await sqlClient.run(
-      raw(`UPDATE chess_puzzles
-       SET sync_pool = true
-       WHERE sync_pool = false
-         AND id IN (SELECT id FROM puzzle_pool_pick)`)
-    );
-    await sqlClient.run(raw('COMMIT'));
-    const count = await sqlClient.query(
-      raw<{ n: number }>(
-        'SELECT count(*)::int AS n FROM chess_puzzles WHERE sync_pool = true'
-      )
-    );
+    // One pooled connection for the whole refresh — TEMP TABLE + updates must
+    // share a session (manual BEGIN on a Pool hops connections).
+    const count = await sqlClient.transaction(async (tx) => {
+      // Avoid `UPDATE chess_puzzles SET sync_pool = false` (rewrites ~6M rows).
+      // Flip flags only for the pick set.
+      // sqlMap: CREATE TEMP TABLE ... AS SELECT with a ROW_NUMBER() OVER (...)
+      // window function — sqlMap has no DDL or window-function support.
+      await tx.run(sql<void>`
+        CREATE TEMP TABLE puzzle_pool_pick ON COMMIT DROP AS
+         SELECT id
+         FROM (
+           SELECT
+             id,
+             ROW_NUMBER() OVER (
+               PARTITION BY (rating / 400)::integer
+               ORDER BY popularity DESC
+             ) AS rn
+           FROM chess_puzzles
+           WHERE rating >= 0 AND (rating / 400)::integer <= ${MAX_BAND}
+         ) ranked
+         WHERE rn <= ${POOL_PER_BAND}
+      `);
+      await tx.run(
+        raw(`UPDATE chess_puzzles
+         SET sync_pool = false
+         WHERE sync_pool = true
+           AND id NOT IN (SELECT id FROM puzzle_pool_pick)`)
+      );
+      await tx.run(
+        raw(`UPDATE chess_puzzles
+         SET sync_pool = true
+         WHERE sync_pool = false
+           AND id IN (SELECT id FROM puzzle_pool_pick)`)
+      );
+      const rows = await tx.query(
+        raw<{ n: number }>(
+          'SELECT count(*)::int AS n FROM chess_puzzles WHERE sync_pool = true'
+        )
+      );
+      return rows[0]?.n ?? 0;
+    });
     process.stdout.write(
       `${JSON.stringify({
         refreshed: true,
-        rows: count[0]?.n ?? 0,
+        rows: count,
         perBand: POOL_PER_BAND,
         maxBand: MAX_BAND,
       })}\n`
     );
-  } catch (error) {
-    await sqlClient.run(raw('ROLLBACK')).catch(() => undefined);
-    throw error;
   } finally {
     await pool.end();
   }

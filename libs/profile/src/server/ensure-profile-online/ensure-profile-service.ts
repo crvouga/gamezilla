@@ -67,6 +67,33 @@ async function assignUniqueUsername(
   );
 }
 
+async function assertUserRowExists(
+  db: SqlClient,
+  userId: string
+): Promise<void> {
+  const rows = await db.query(sql<{ id: string }>`
+    SELECT id
+    FROM users
+    WHERE id = ${userId}
+    LIMIT 1
+  `);
+  if (rows[0] === undefined) {
+    throw new ProfileError(
+      'PROFILE_NOT_FOUND',
+      'account user row missing for signed-in profile'
+    );
+  }
+}
+
+export type EnsureProfileWithUsernameOptions = {
+  /**
+   * When true (signed-in path), refuse to create a profile unless `users.id`
+   * already exists for `profileId`. Prevents orphan profiles for unknown
+   * account ids.
+   */
+  readonly requireUserRow?: boolean;
+};
+
 /**
  * Ensures a Postgres profile row exists for `profileId` and that it has a
  * globally unique username. Does not set `username_changed_at` so the first
@@ -74,8 +101,13 @@ async function assignUniqueUsername(
  */
 export async function ensureProfileWithUsername(
   db: SqlClient,
-  profileId: string
+  profileId: string,
+  options: EnsureProfileWithUsernameOptions = {}
 ): Promise<ProfileCard> {
+  if (options.requireUserRow === true) {
+    await assertUserRowExists(db, profileId);
+  }
+
   const now = new Date().toISOString();
   const existing = await readProfileCardById(db, profileId);
   if (existing === null) {

@@ -1,4 +1,5 @@
 import { ClerkProvider } from '@clerk/expo';
+import { resourceCache } from '@clerk/expo/resource-cache';
 import { tokenCache } from '@clerk/expo/token-cache';
 import type { ReactNode } from 'react';
 
@@ -20,7 +21,11 @@ export function ClerkAuthProvider({
   const providerProps =
     tokenCache === undefined
       ? { publishableKey: config.publishableKey }
-      : { publishableKey: config.publishableKey, tokenCache };
+      : {
+          publishableKey: config.publishableKey,
+          tokenCache,
+          __experimental_resourceCache: resourceCache,
+        };
 
   return (
     <ClerkProvider {...providerProps}>

@@ -8,6 +8,7 @@ import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite'
 import {
   findUserIdByPrimaryAuthExternalId,
   findUserIdByProviderExternalId,
+  insertExternalAccountOrGet,
   insertUser,
   readExternalAccountId,
   upsertExternalAccount,
@@ -127,5 +128,66 @@ describe('external-accounts-sql', () => {
         externalId: 'user_clerk_2',
       })
     ).rejects.toThrow();
+  });
+
+  test('upsertExternalAccount never reassigns user_id on conflict', async () => {
+    const otherUserId = '22222222-2222-4222-8222-222222222222';
+    await insertUser(sqlClient, otherUserId);
+    await upsertExternalAccount(sqlClient, {
+      userId,
+      provider: primaryAuthProvider,
+      externalId: clerkUserId,
+      metadata: { email: 'owner@example.com' },
+    });
+
+    await upsertExternalAccount(sqlClient, {
+      userId: otherUserId,
+      provider: primaryAuthProvider,
+      externalId: clerkUserId,
+      metadata: { email: 'thief@example.com' },
+    });
+
+    expect(
+      await findUserIdByProviderExternalId(
+        sqlClient,
+        primaryAuthProvider,
+        clerkUserId
+      )
+    ).toBe(userId);
+
+    const rows = await sqlClient.query(sql<{ metadata: string }>`
+      SELECT metadata
+      FROM external_accounts
+      WHERE provider = ${primaryAuthProvider}
+        AND external_id = ${clerkUserId}
+    `);
+    const metadata = JSON.parse(rows[0]!.metadata) as Record<string, unknown>;
+    // Wrong-owner upsert must not rewrite metadata either (WHERE guard).
+    expect(metadata['email']).toBe('owner@example.com');
+  });
+
+  test('insertExternalAccountOrGet adopts existing owner', async () => {
+    const otherUserId = '22222222-2222-4222-8222-222222222222';
+    await insertUser(sqlClient, otherUserId);
+    await insertExternalAccountOrGet(sqlClient, {
+      userId,
+      provider: primaryAuthProvider,
+      externalId: clerkUserId,
+    });
+
+    const adopted = await insertExternalAccountOrGet(sqlClient, {
+      userId: otherUserId,
+      provider: primaryAuthProvider,
+      externalId: clerkUserId,
+    });
+
+    expect(adopted).toBe(userId);
+    expect(
+      await findUserIdByProviderExternalId(
+        sqlClient,
+        primaryAuthProvider,
+        clerkUserId
+      )
+    ).toBe(userId);
   });
 });

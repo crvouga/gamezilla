@@ -1,3 +1,4 @@
+import { isClerkRuntimeError } from '@clerk/expo';
 import { assert } from '@pkgs/assert';
 import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
 import type { SignOutOptions } from '@pkgs/auth/client/account-session';
@@ -32,6 +33,10 @@ export const CLERK_ADD_ACCOUNT_ALREADY_PRESENT_ERROR =
 export const CLERK_SSO_CANCELLED_ERROR =
   "Sign-in was cancelled or didn't finish.";
 
+/** Offline / unreachable — sign-in and add-account need a network. */
+export const CLERK_NETWORK_ERROR =
+  'No internet connection. Connect and try again.';
+
 function assertClerkRuntimeReady(): NonNullable<
   ReturnType<typeof getClerkAuthRuntime>
 > {
@@ -62,6 +67,17 @@ function isClerkAlreadySignedInError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   const message = error.message.toLowerCase();
   return message.includes('already signed in');
+}
+
+function isClerkNetworkError(error: unknown): boolean {
+  return isClerkRuntimeError(error) && error.code === 'network_error';
+}
+
+function throwMappedClerkFlowError(error: unknown): never {
+  if (isClerkNetworkError(error)) {
+    throw new Error(CLERK_NETWORK_ERROR);
+  }
+  throw error;
 }
 
 function ssoCallbackRedirectUrl(): string {
@@ -112,9 +128,12 @@ async function runClerkSsoFlow(strategy: SignInStrategy): Promise<void> {
     }
     await finalizeClerkSsoFlowResult(result);
   } catch (error) {
-    if (!isClerkAlreadySignedInError(error)) throw error;
-    // First sign-in / redirect resume can race; treat as already complete.
-    await runtime.ensureActiveSession();
+    if (isClerkAlreadySignedInError(error)) {
+      // First sign-in / redirect resume can race; treat as already complete.
+      await runtime.ensureActiveSession();
+      return;
+    }
+    throwMappedClerkFlowError(error);
   }
 }
 
@@ -149,7 +168,7 @@ async function runClerkAddAccount(strategy: SignInStrategy): Promise<void> {
     if (isClerkAlreadySignedInError(error)) {
       throw new Error(CLERK_ADD_ACCOUNT_MULTI_SESSION_ERROR);
     }
-    throw error;
+    throwMappedClerkFlowError(error);
   }
 
   const newSessionId = readNewSessionIdFromSsoResult(result, beforeSessionIds);

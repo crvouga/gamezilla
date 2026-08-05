@@ -136,4 +136,76 @@ describe('ensureInternalAccountIdForExternalUser', () => {
     `);
     expect(entityRows[0]?.owner_id).toBe(resolved);
   });
+
+  test('repeated ensures resolve to the same account id and single link', async () => {
+    // Bun SQLite shares one connection — overlapping BEGIN fails — so this
+    // asserts idempotency + single link. Race adoption is covered by
+    // insertExternalAccountOrGet + the adopt-existing test below; Postgres
+    // serializes concurrent callers via pg_advisory_xact_lock.
+    const authServer = makeFakeAuthServer({
+      id: EXTERNAL_USER_ID,
+      email: 'a@b.c',
+    });
+    const a = await ensureInternalAccountIdForExternalUser({
+      sql: sqlClient,
+      authServer,
+      externalUserId: EXTERNAL_USER_ID,
+    });
+    const b = await ensureInternalAccountIdForExternalUser({
+      sql: sqlClient,
+      authServer,
+      externalUserId: EXTERNAL_USER_ID,
+    });
+
+    expect(a).toBe(b);
+    expect(
+      await findUserIdByPrimaryAuthExternalId(
+        sqlClient,
+        PRIMARY_AUTH_PROVIDER,
+        EXTERNAL_USER_ID
+      )
+    ).toBe(a);
+
+    const linkRows = await sqlClient.query(sql<{ user_id: string }>`
+      SELECT user_id
+      FROM external_accounts
+      WHERE provider = ${PRIMARY_AUTH_PROVIDER}
+        AND external_id = ${EXTERNAL_USER_ID}
+    `);
+    expect(linkRows).toHaveLength(1);
+    expect(linkRows[0]?.user_id).toBe(a);
+  });
+
+  test('adopts existing link when a candidate insert loses the race', async () => {
+    const winnerId = '33333333-3333-4333-8333-333333333333';
+    const now = new Date().toISOString();
+    await sqlClient.run(sql<void>`
+      INSERT INTO users (id, created_at)
+      VALUES (${winnerId}, ${now})
+    `);
+    await sqlClient.run(sql<void>`
+      INSERT INTO external_accounts (
+        user_id,
+        provider,
+        external_id,
+        metadata,
+        created_at
+      )
+      VALUES (
+        ${winnerId},
+        ${PRIMARY_AUTH_PROVIDER},
+        ${EXTERNAL_USER_ID},
+        ${'{}'},
+        ${now}
+      )
+    `);
+
+    const resolved = await ensureInternalAccountIdForExternalUser({
+      sql: sqlClient,
+      authServer: makeFakeAuthServer({ id: EXTERNAL_USER_ID }),
+      externalUserId: EXTERNAL_USER_ID,
+    });
+
+    expect(resolved).toBe(winnerId);
+  });
 });

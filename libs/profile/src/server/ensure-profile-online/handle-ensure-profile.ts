@@ -10,7 +10,11 @@ export function handleEnsureProfile(c: Context<ApiHonoEnv>): Promise<Response> {
     const sql = c.get('sqlClient');
     const profile: ProfileCard = await ensureProfileWithUsername(
       sql,
-      auth.myId
+      auth.myId,
+      {
+        // Signed-in: profile id is users.id — refuse minting without that row.
+        requireUserRow: auth.accountId !== null,
+      }
     );
     return c.json({ profile });
   });

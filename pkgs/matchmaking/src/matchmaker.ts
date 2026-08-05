@@ -432,7 +432,7 @@ export class Matchmaker {
       sql<{ id: string }>`
         UPDATE matchmaking_waiting
            SET formulas = ${JSON.stringify(formulas)}::jsonb
-         WHERE id = ${participantId}
+        WHERE id = ${participantId}
         RETURNING id`
     );
     return { updated: rows.length > 0 };
