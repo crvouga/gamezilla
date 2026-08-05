@@ -58,6 +58,10 @@ async function hydrateOnce(
   const promise = storage
     .getItem(key)
     .then((value) => {
+      // A seed/write may have won while `getItem` was in flight — keep it.
+      if (hydrated.has(key)) {
+        return cache.get(key) ?? null;
+      }
       setCached(key, value);
       return value;
     })
@@ -66,6 +70,14 @@ async function hydrateOnce(
     });
   hydrating.set(key, promise);
   return promise;
+}
+
+/** @internal Test seam for the seed-vs-hydrate race. */
+export async function hydrateSecureStorageItemForTest(
+  storage: SecureStorage,
+  key: string
+): Promise<string | null> {
+  return hydrateOnce(storage, key);
 }
 
 /**

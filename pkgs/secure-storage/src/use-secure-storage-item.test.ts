@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import type { SecureStorage } from './interface';
 import {
   getCachedSecureStorageValue,
+  hydrateSecureStorageItemForTest,
   resetSecureStorageCacheForTest,
   seedCachedSecureStorageValue,
   writeSecureStorageItem,
@@ -62,6 +63,30 @@ describe('secure-storage cache', () => {
 
     expect(getCachedSecureStorageValue('token')).toBeNull();
     expect(storage.has('token')).toBe(false);
+  });
+
+  test('seed during in-flight hydrate is not overwritten by a late null read', async () => {
+    let resolveGet: ((value: string | null) => void) | undefined;
+    const storage: SecureStorage = {
+      getItem: () =>
+        new Promise((resolve) => {
+          resolveGet = resolve;
+        }),
+      setItem: async () => undefined,
+      deleteItem: async () => undefined,
+    };
+
+    const hydratePromise = hydrateSecureStorageItemForTest(
+      storage,
+      'signInPending'
+    );
+    seedCachedSecureStorageValue('signInPending', '{"startedAt":"x"}');
+    resolveGet?.(null);
+    await hydratePromise;
+
+    expect(getCachedSecureStorageValue('signInPending')).toBe(
+      '{"startedAt":"x"}'
+    );
   });
 
   test('resetSecureStorageCacheForTest clears all keys', () => {

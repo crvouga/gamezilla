@@ -95,6 +95,7 @@ function resolveSignInOutcome(args: {
 function useSignInOutcomeEffect(args: {
   phase: SignInPhase;
   awaitingCallback: boolean;
+  resumePending: boolean;
   authState: AuthSessionState;
   storage: SecureStorage;
   onError: ((error: Error) => void) | undefined;
@@ -105,6 +106,7 @@ function useSignInOutcomeEffect(args: {
   const {
     phase,
     awaitingCallback,
+    resumePending,
     authState,
     storage,
     onError,
@@ -113,9 +115,20 @@ function useSignInOutcomeEffect(args: {
     setPhase,
   } = args;
   useEffect(() => {
-    if (phase !== 'loading' || !awaitingCallback || !authState.isHydrated) {
+    if (!authState.isHydrated) return;
+
+    // OAuth return: never leave the provider picker up once the session exists.
+    if (
+      resumePending &&
+      isAuthSessionSignedIn(authState) &&
+      phase !== 'success'
+    ) {
+      setAwaitingCallback(false);
+      setPhase('success');
       return;
     }
+
+    if (phase !== 'loading' || !awaitingCallback) return;
     resolveSignInOutcome({
       authState,
       storage,
@@ -127,6 +140,7 @@ function useSignInOutcomeEffect(args: {
   }, [
     phase,
     awaitingCallback,
+    resumePending,
     authState,
     storage,
     onError,
@@ -170,7 +184,10 @@ function useSignInStart(args: {
         setPhase('error');
         return;
       }
-      setAwaitingCallback(true);
+      // Native AuthSession: runner only resolves after SSO finalize. Web
+      // same-tab redirect never reaches here (`location.assign` + waitUntilUnload).
+      setAwaitingCallback(false);
+      setPhase('success');
     },
     [storage, onError, pathname, setAwaitingCallback, setError, setPhase]
   );
@@ -184,9 +201,11 @@ export function useSignInModalLifecycle({
   const port = useAuthClientPort();
   const pathname = usePathname();
   const authState = port.useAuthSession();
-  const [phase, setPhase] = useState<SignInPhase>('idle');
+  const [phase, setPhase] = useState<SignInPhase>(() =>
+    resumePending ? 'loading' : 'idle'
+  );
   const [error, setError] = useState<Error | null>(null);
-  const [awaitingCallback, setAwaitingCallback] = useState(false);
+  const [awaitingCallback, setAwaitingCallback] = useState(resumePending);
 
   useResumePendingEffect({
     resumePending,
@@ -196,6 +215,7 @@ export function useSignInModalLifecycle({
   useSignInOutcomeEffect({
     phase,
     awaitingCallback,
+    resumePending,
     authState,
     storage,
     onError,

@@ -8,7 +8,6 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { useRouter } from 'expo-router';
 
 import { useSignOut } from './use-sign-out';
 import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
@@ -43,7 +42,6 @@ export function AuthModalsProvider({
   const [signInModalOpen, setSignInModalOpen] = useState(false);
   const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
   const signOut = useSignOut();
-  const router = useRouter();
 
   const openSignInModal = useCallback(() => setSignInModalOpen(true), []);
   const closeSignInModal = useCallback(() => setSignInModalOpen(false), []);
@@ -58,10 +56,8 @@ export function AuthModalsProvider({
     closeSignOutConfirm,
     modal: signOutModal,
   } = useSignOutConfirmationModal({
-    signOut: async () => {
-      await signOut();
-      router.replace('/');
-    },
+    // Stay on the current screen — UI reacts to signed-out state.
+    signOut,
     signOutConfirmOpen,
     openSignOutConfirmBase: () => setSignOutConfirmOpen(true),
     closeSignOutConfirmBase: () => setSignOutConfirmOpen(false),
