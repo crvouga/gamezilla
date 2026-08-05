@@ -42,10 +42,7 @@ export {
 } from './assertions/assertions';
 
 export type { AppHarness } from './bootstrap/app-harness';
-export type {
-  RenderAdapter,
-  RenderedApp,
-} from './bootstrap/render-adapter';
+export type { RenderAdapter, RenderedApp } from './bootstrap/render-adapter';
 
 export {
   ElementNotFoundError,

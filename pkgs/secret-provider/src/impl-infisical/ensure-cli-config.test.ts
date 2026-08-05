@@ -36,9 +36,7 @@ describe('ensureInfisicalCliConfig', () => {
       readFileSync(join(repoRoot, '.infisical.json'), 'utf8')
     ) as { defaultEnvironment: string; workspaceId: string };
     expect(written.defaultEnvironment).toBe('dev');
-    expect(written.workspaceId).toBe(
-      '26137c60-8dea-4d95-a8a3-30901615b026'
-    );
+    expect(written.workspaceId).toBe('26137c60-8dea-4d95-a8a3-30901615b026');
   });
 
   it('does not rewrite when content is already correct', () => {

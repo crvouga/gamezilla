@@ -46,10 +46,7 @@ async function mountDomApp(element: ReactElement): Promise<RenderedApp> {
   return createRenderedApp(container, root);
 }
 
-function createRenderedApp(
-  container: HTMLElement,
-  root: Root
-): RenderedApp {
+function createRenderedApp(container: HTMLElement, root: Root): RenderedApp {
   return {
     query: (selector) => queryElement(container, selector),
     isVisible: isElementVisible,

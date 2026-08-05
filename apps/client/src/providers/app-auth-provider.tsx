@@ -43,8 +43,9 @@ const authProviders = [
 ];
 
 /**
- * Auth session, API client, account-switch overlay (above SyncEngineBoot), and
- * auth bridge. Other modals mount under {@link AppUiProvider}.
+ * Auth session, API client, account-switch controller (above SyncEngineBoot),
+ * and auth bridge. Account-switch chrome mounts under {@link AppUiProvider}
+ * (needs SurfaceStack / AppUiPortals). Other auth modals mount there too.
  */
 export function AppAuthProvider({
   children,

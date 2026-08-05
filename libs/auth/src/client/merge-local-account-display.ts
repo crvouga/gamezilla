@@ -23,12 +23,13 @@ function resolveUsername(
   useActiveProfile: boolean,
   activeProfileUsername: string | null
 ): string | null {
-  const fromRoster = nonEmpty(rosterUsername);
-  if (fromRoster !== null) return fromRoster;
+  // Active + bound: live SQLite wins over a possibly-stale roster cache.
   if (useActiveProfile) {
     const fromProfile = nonEmpty(activeProfileUsername);
     if (fromProfile !== null) return fromProfile;
   }
+  const fromRoster = nonEmpty(rosterUsername);
+  if (fromRoster !== null) return fromRoster;
   return nonEmpty(sessionUsername);
 }
 
@@ -37,10 +38,11 @@ function resolveAvatarConfigJson(
   useActiveProfile: boolean,
   activeProfileAvatarConfigJson: string | null
 ): string | null {
-  const fromRoster = nonEmpty(rosterAvatarConfigJson);
-  if (fromRoster !== null) return fromRoster;
-  if (!useActiveProfile) return null;
-  return nonEmpty(activeProfileAvatarConfigJson);
+  if (useActiveProfile) {
+    const fromProfile = nonEmpty(activeProfileAvatarConfigJson);
+    if (fromProfile !== null) return fromProfile;
+  }
+  return nonEmpty(rosterAvatarConfigJson);
 }
 
 /**

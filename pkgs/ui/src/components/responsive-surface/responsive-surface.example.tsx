@@ -8,8 +8,10 @@ import { ExampleRoot } from '../explorer/example-root';
 
 const SIZES: ModalSize[] = ['small', 'medium', 'large', 'fullWidth'];
 
+type OpenSurface = ModalSize | 'untitled';
+
 export default function ResponsiveSurfaceExample() {
-  const [openSize, setOpenSize] = useState<ModalSize | null>(null);
+  const [openSize, setOpenSize] = useState<OpenSurface | null>(null);
 
   return (
     <ExampleRoot>
@@ -17,7 +19,7 @@ export default function ResponsiveSurfaceExample() {
       <Text
         variant="caption"
         sx={{ opacity: 0.75 }}
-        label="On mobile: bottom sheet. On tablet/desktop: centered modal with a width bucket."
+        label="On mobile: bottom sheet. On tablet/desktop: centered modal with a width bucket. Every surface shows a top-right close control."
       />
       <Stack spacing={2}>
         {SIZES.map((size) => (
@@ -27,6 +29,10 @@ export default function ResponsiveSurfaceExample() {
             onPress={() => setOpenSize(size)}
           />
         ))}
+        <Button
+          title="Open — untitled (close only)"
+          onPress={() => setOpenSize('untitled')}
+        />
       </Stack>
       {SIZES.map((size) => (
         <ResponsiveSurface
@@ -38,10 +44,20 @@ export default function ResponsiveSurfaceExample() {
         >
           <Text
             variant="body"
-            label="Surface body. Close via ✕, backdrop tap, or swipe down (mobile)."
+            label="Surface body. Close via X, backdrop tap, or swipe down (mobile)."
           />
         </ResponsiveSurface>
       ))}
+      <ResponsiveSurface
+        visible={openSize === 'untitled'}
+        onClose={() => setOpenSize(null)}
+        size="medium"
+      >
+        <Text
+          variant="body"
+          label="Untitled surface — close control only in the header."
+        />
+      </ResponsiveSurface>
     </ExampleRoot>
   );
 }

@@ -51,10 +51,7 @@ export class PlaywrightDriver implements Driver {
     const loc = this.locator(target);
     const box = await loc.boundingBox();
     if (!box) {
-      throw new ElementNotFoundError(
-        formatSelector(target),
-        'no bounding box'
-      );
+      throw new ElementNotFoundError(formatSelector(target), 'no bounding box');
     }
     await loc.click({
       position: {

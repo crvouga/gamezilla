@@ -119,9 +119,10 @@ function SurfaceChrome({
       bottomStep={SURFACE_BOTTOM_PADDING_STEP}
     >
       <OnColorReset>
-        {title !== undefined ? (
-          <ResponsiveSurfaceHeader title={title} onClose={onClose} />
-        ) : null}
+        <ResponsiveSurfaceHeader
+          {...(title !== undefined ? { title } : {})}
+          onClose={onClose}
+        />
         <SurfaceBody bodyHeight={bodyHeight} fillParent={fillParent}>
           {children}
         </SurfaceBody>

@@ -22,8 +22,7 @@ export function ensureInfisicalCliConfig(
 ): void {
   const path = join(repoRoot, INFISICAL_CLI_CONFIG_FILENAME);
   const file = readSecretsConfig(repoRoot);
-  const defaultEnvironment =
-    file.environment?.trim() || SECRETS_DEFAULTS.env;
+  const defaultEnvironment = file.environment?.trim() || SECRETS_DEFAULTS.env;
   const body = `${JSON.stringify(
     {
       workspaceId: scope.projectId,

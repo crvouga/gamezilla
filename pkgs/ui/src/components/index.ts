@@ -125,6 +125,10 @@ export {
 } from './icon-button';
 export { BackIconButton, type BackIconButtonProps } from './back-icon-button';
 export {
+  CloseIconButton,
+  type CloseIconButtonProps,
+} from './close-icon-button';
+export {
   ActionBar,
   actionBarBudgetWidth,
   isActionBarAvatarItem,

@@ -14,8 +14,7 @@ export async function expectVisible(
 ): Promise<void> {
   await driver.waitFor(target, 'visible', {
     ...options,
-    description:
-      options?.description ?? `visible ${formatSelector(target)}`,
+    description: options?.description ?? `visible ${formatSelector(target)}`,
   });
 }
 
@@ -27,8 +26,7 @@ export async function expectHidden(
 ): Promise<void> {
   await driver.waitFor(target, 'hidden', {
     ...options,
-    description:
-      options?.description ?? `hidden ${formatSelector(target)}`,
+    description: options?.description ?? `hidden ${formatSelector(target)}`,
   });
 }
 

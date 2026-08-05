@@ -82,9 +82,7 @@ export async function scrollElement(
   fireEvent.scroll(node);
 }
 
-function asEditable(
-  element: Element
-): HTMLInputElement | HTMLTextAreaElement {
+function asEditable(element: Element): HTMLInputElement | HTMLTextAreaElement {
   if (
     element instanceof HTMLInputElement ||
     element instanceof HTMLTextAreaElement

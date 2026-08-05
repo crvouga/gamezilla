@@ -25,18 +25,18 @@ describe('DetoxDriver stub', () => {
     await expect(
       driver.tapAt(by.testId('x'), { xRatio: 0.5, yRatio: 0.5 })
     ).rejects.toBeInstanceOf(NotImplementedError);
-    await expect(
-      driver.typeText(by.testId('x'), 'a')
-    ).rejects.toBeInstanceOf(NotImplementedError);
+    await expect(driver.typeText(by.testId('x'), 'a')).rejects.toBeInstanceOf(
+      NotImplementedError
+    );
     await expect(driver.clearText(by.testId('x'))).rejects.toBeInstanceOf(
       NotImplementedError
     );
     await expect(driver.pressKey('enter')).rejects.toBeInstanceOf(
       NotImplementedError
     );
-    await expect(
-      driver.scroll(by.testId('x'), 'down')
-    ).rejects.toBeInstanceOf(NotImplementedError);
+    await expect(driver.scroll(by.testId('x'), 'down')).rejects.toBeInstanceOf(
+      NotImplementedError
+    );
     await expect(driver.navigateBack()).rejects.toBeInstanceOf(
       NotImplementedError
     );

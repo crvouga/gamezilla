@@ -39,11 +39,7 @@ function SurfaceStackHost({ store }: { store: SurfaceStackStore }) {
     store.getSnapshot
   );
   return (
-    <View
-      pointerEvents="box-none"
-      style={styles.host}
-      collapsable={false}
-    >
+    <View pointerEvents="box-none" style={styles.host} collapsable={false}>
       {entries.map((entry) => (
         <View
           key={entry.id}

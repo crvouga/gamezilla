@@ -6,6 +6,7 @@ export default function AccountStackLayout() {
   return (
     <Stack {...props}>
       <Stack.Screen name="index" />
+      <Stack.Screen name="switch" />
       <Stack.Screen name="devices" />
       <Stack.Screen name="providers" />
       <Stack.Screen name="device/[deviceId]" />

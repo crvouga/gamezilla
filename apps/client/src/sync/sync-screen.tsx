@@ -6,9 +6,29 @@ import type { ReactNode } from 'react';
 
 function StatusRow({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <Box sx={{ flexDirection: 'row', justifyContent: 'space-between', py: 2 }}>
-      <Text variant="body" label={label} />
-      <Text variant="body" sx={{ fontWeight: '600' }} label={value} />
+    <Box
+      sx={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        gap: 3,
+        py: 2,
+      }}
+    >
+      <Text variant="body" sx={{ flexShrink: 0 }} label={label} />
+      <Text
+        variant="body"
+        selectable
+        sx={{
+          fontWeight: '600',
+          flex: 1,
+          minWidth: 0,
+          textAlign: 'right',
+          // URLs have no spaces; allow mid-token wrap on web.
+          wordBreak: 'break-all',
+        }}
+        label={value}
+      />
     </Box>
   );
 }
@@ -34,7 +54,6 @@ export function SyncScreen() {
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },
-        { name: <Trans>Developer</Trans>, onPress: nav('/more/developer') },
         { name: <Trans>Sync status</Trans> },
       ]}
       content={({ sx }) => (

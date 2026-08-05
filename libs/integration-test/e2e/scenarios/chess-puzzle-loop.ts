@@ -1,9 +1,4 @@
-import {
-  by,
-  expectVisible,
-  first,
-  waitUntil,
-} from '@pkgs/ui-testing';
+import { by, expectVisible, first, waitUntil } from '@pkgs/ui-testing';
 
 import { createE2eLog, e2eStep } from '../../src/e2e-step';
 import { expectAppBooted } from '../support/app-boot';

@@ -150,17 +150,21 @@ function SignInPhaseContent({
       );
     case 'success':
       return (
-        <StateArea>
-          <SuccessState
-            title={intent === 'addAccount' ? t`Account added` : t`Signed in`}
-            body={
-              intent === 'addAccount'
-                ? t`You can switch accounts from the avatar menu.`
-                : t`You're signed in on this device.`
-            }
-            action={{ label: t`Done`, onPress: onDismiss }}
-          />
-        </StateArea>
+        <>
+          <StateArea>
+            <SuccessState
+              title={intent === 'addAccount' ? t`Account added` : t`Signed in`}
+              body={
+                intent === 'addAccount'
+                  ? t`You can switch accounts from Account settings.`
+                  : t`You're signed in on this device.`
+              }
+            />
+          </StateArea>
+          <ModalFooter>
+            <ModalButton label={t`Done`} onPress={onDismiss} />
+          </ModalFooter>
+        </>
       );
     case 'error':
       return (

@@ -18,9 +18,7 @@ type FakeLocator = {
   nth: ReturnType<typeof mock>;
 };
 
-function createFakeLocator(
-  overrides: Partial<FakeLocator> = {}
-): FakeLocator {
+function createFakeLocator(overrides: Partial<FakeLocator> = {}): FakeLocator {
   const locator: FakeLocator = {
     click: mock(() => Promise.resolve()),
     pressSequentially: mock(() => Promise.resolve()),

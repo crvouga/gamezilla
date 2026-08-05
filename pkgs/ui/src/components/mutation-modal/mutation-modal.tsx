@@ -203,13 +203,17 @@ function MutationSuccess({
 }): ReactNode {
   const { t } = useLingui();
   return (
-    <StateArea>
-      <SuccessState
-        title={props.successTitle}
-        body={props.successBody}
-        action={{ label: props.dismissLabel ?? t`Done`, onPress: onDismiss }}
-      />
-    </StateArea>
+    <>
+      <StateArea>
+        <SuccessState title={props.successTitle} body={props.successBody} />
+      </StateArea>
+      <ModalFooter>
+        <ModalButton
+          label={props.dismissLabel ?? t`Done`}
+          onPress={onDismiss}
+        />
+      </ModalFooter>
+    </>
   );
 }
 

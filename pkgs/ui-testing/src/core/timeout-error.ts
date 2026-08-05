@@ -4,7 +4,11 @@ import { UiTestError } from './ui-test-error';
 export class TimeoutError extends UiTestError {
   readonly timeoutMs: number;
 
-  constructor(message: string, timeoutMs: number, options?: { cause?: unknown }) {
+  constructor(
+    message: string,
+    timeoutMs: number,
+    options?: { cause?: unknown }
+  ) {
     super(message, options);
     this.name = 'TimeoutError';
     this.timeoutMs = timeoutMs;

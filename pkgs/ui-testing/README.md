@@ -32,13 +32,13 @@ import {
 } from '@pkgs/ui-testing';
 ```
 
-| Surface | Purpose |
-| --- | --- |
-| `Driver` | Portable user-intent operations |
-| `createDriver(config)` | Factory over a discriminated `DriverConfig` |
-| `by.testId` / `by.text` / `by.label` / `by.role` | Selector builders |
-| `expectVisible` / `expectHidden` / `expectText` | Runner-agnostic assertions |
-| `AppHarness` | App-supplied bootstrap port (in-process only) |
+| Surface                                          | Purpose                                       |
+| ------------------------------------------------ | --------------------------------------------- |
+| `Driver`                                         | Portable user-intent operations               |
+| `createDriver(config)`                           | Factory over a discriminated `DriverConfig`   |
+| `by.testId` / `by.text` / `by.label` / `by.role` | Selector builders                             |
+| `expectVisible` / `expectHidden` / `expectText`  | Runner-agnostic assertions                    |
+| `AppHarness`                                     | App-supplied bootstrap port (in-process only) |
 
 Direct driver constructors are also available under deep imports, e.g.
 `@pkgs/ui-testing/drivers/in-process/in-process-driver`.
@@ -61,12 +61,12 @@ handles (`Page`, Detox device, harness) from the consumer.
 ## Selectors
 
 ```ts
-by.testId('email')
-by.text('Sign in')
-by.label('Password')
-by.role('button', 'Submit')
-first(by.role('heading', 'Spaces'))
-nth(by.testId('row'), 2)
+by.testId('email');
+by.text('Sign in');
+by.label('Password');
+by.role('button', 'Submit');
+first(by.role('heading', 'Spaces'));
+nth(by.testId('row'), 2);
 ```
 
 Drivers translate these into native queries (`getByTestId`, Detox `by.id`, …).
@@ -178,17 +178,17 @@ first-class text read-back — `getText` remains unsupported by design.
 
 ## Driver capability matrix
 
-| Operation | In-process | Playwright | Detox (stub) |
-| --- | --- | --- | --- |
-| `launch` / `close` | yes | yes (`baseUrl` optional) | stub → `device.launchApp` / `terminateApp` |
-| `tap` | yes | yes | stub → `element().tap()` |
-| `tapAt` | yes | yes | stub → `element().tap({ x, y })` |
-| `typeText` / `clearText` | yes | yes | stub → `typeText` / `clearText` |
-| `pressKey` | yes | yes | stub (platform-limited) |
-| `scroll` | yes | yes | stub → `element().scroll` |
-| `navigateBack` | not implemented* | `page.goBack()` | stub → `device.pressBack()` |
-| `waitFor` / `isVisible` | yes | yes | stub → `waitFor` / `toBeVisible` |
-| `getText` | yes | yes | unsupported in Detox |
+| Operation                | In-process        | Playwright               | Detox (stub)                               |
+| ------------------------ | ----------------- | ------------------------ | ------------------------------------------ |
+| `launch` / `close`       | yes               | yes (`baseUrl` optional) | stub → `device.launchApp` / `terminateApp` |
+| `tap`                    | yes               | yes                      | stub → `element().tap()`                   |
+| `tapAt`                  | yes               | yes                      | stub → `element().tap({ x, y })`           |
+| `typeText` / `clearText` | yes               | yes                      | stub → `typeText` / `clearText`            |
+| `pressKey`               | yes               | yes                      | stub (platform-limited)                    |
+| `scroll`                 | yes               | yes                      | stub → `element().scroll`                  |
+| `navigateBack`           | not implemented\* | `page.goBack()`          | stub → `device.pressBack()`                |
+| `waitFor` / `isVisible`  | yes               | yes                      | stub → `waitFor` / `toBeVisible`           |
+| `getText`                | yes               | yes                      | unsupported in Detox                       |
 
 \*In-process `navigateBack` needs app-level back handling (router / page object).
 

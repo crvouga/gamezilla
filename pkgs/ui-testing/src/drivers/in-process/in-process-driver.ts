@@ -2,7 +2,10 @@ import { ElementNotFoundError, NotImplementedError } from '../../core/errors';
 import { DRIVER_KEY_TO_DOM, type DriverKey } from '../../core/keys';
 import { waitUntil, type WaitOptions } from '../../core/wait';
 import type { AppHarness } from '../../bootstrap/app-harness';
-import type { RenderAdapter, RenderedApp } from '../../bootstrap/render-adapter';
+import type {
+  RenderAdapter,
+  RenderedApp,
+} from '../../bootstrap/render-adapter';
 import type {
   Driver,
   ScrollDirection,
@@ -59,10 +62,7 @@ export class InProcessDriver<TContext = void> implements Driver {
   }
 
   async tapAt(target: Selector, position: TapPosition): Promise<void> {
-    await this.requireApp().tapAt(
-      await this.requireElement(target),
-      position
-    );
+    await this.requireApp().tapAt(await this.requireElement(target), position);
   }
 
   async typeText(target: Selector, text: string): Promise<void> {
@@ -104,10 +104,13 @@ export class InProcessDriver<TContext = void> implements Driver {
   ): Promise<void> {
     const description =
       options?.description ?? `${state} ${formatSelector(target)}`;
-    await waitUntil(async () => {
-      const visible = await this.isVisible(target);
-      return state === 'visible' ? visible : !visible;
-    }, { ...options, description });
+    await waitUntil(
+      async () => {
+        const visible = await this.isVisible(target);
+        return state === 'visible' ? visible : !visible;
+      },
+      { ...options, description }
+    );
   }
 
   async isVisible(target: Selector): Promise<boolean> {

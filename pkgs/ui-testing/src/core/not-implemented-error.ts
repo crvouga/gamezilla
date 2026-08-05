@@ -7,9 +7,7 @@ export class NotImplementedError extends UiTestError {
 
   constructor(driverKind: string, operation: string, detail?: string) {
     const suffix = detail ? `: ${detail}` : '';
-    super(
-      `Driver "${driverKind}" does not implement "${operation}"${suffix}`
-    );
+    super(`Driver "${driverKind}" does not implement "${operation}"${suffix}`);
     this.name = 'NotImplementedError';
     this.driverKind = driverKind;
     this.operation = operation;

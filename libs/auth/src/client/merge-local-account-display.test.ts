@@ -96,6 +96,29 @@ describe('mergeLocalAccountDisplay', () => {
     expect(display.avatarConfigJson).toBe('{"seed":"a"}');
   });
 
+  test('active bound prefers live SQLite over stale roster cache', () => {
+    const display = mergeLocalAccountDisplay({
+      session: session({
+        sessionId: 's1',
+        isActive: true,
+        username: 'provider-name',
+      }),
+      entry: entry({
+        accountId: 'acc-1',
+        sessionId: 's1',
+        username: 'stale-roster-name',
+        avatarConfigJson: '{"seed":"stale"}',
+      }),
+      activeAccountId: 'acc-1',
+      activeProfile: {
+        username: 'AliveMackerel790',
+        avatar_config: '{"seed":"fresh"}',
+      },
+    });
+    expect(display.username).toBe('AliveMackerel790');
+    expect(display.avatarConfigJson).toBe('{"seed":"fresh"}');
+  });
+
   test('active bound with empty SQLite profile falls back to session username', () => {
     const display = mergeLocalAccountDisplay({
       session: session({ sessionId: 's1', isActive: true }),

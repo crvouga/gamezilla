@@ -16,7 +16,6 @@ export function UiExplorerDetailScreen() {
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onPress: nav('/') },
         { name: <Trans>Settings</Trans>, onPress: nav('/more') },
-        { name: <Trans>Developer</Trans>, onPress: nav('/more/developer') },
         { name: <Trans>UI Components</Trans>, onPress: nav('/ui') },
         { name: name || t`Component` },
       ]}

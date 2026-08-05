@@ -1,9 +1,4 @@
-import {
-  by,
-  expectVisible,
-  waitUntil,
-  type Driver,
-} from '@pkgs/ui-testing';
+import { by, expectVisible, waitUntil, type Driver } from '@pkgs/ui-testing';
 
 import { sleep } from '../sleep';
 import type { TestApp } from '../test-app';

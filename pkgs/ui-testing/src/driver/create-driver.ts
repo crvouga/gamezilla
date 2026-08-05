@@ -44,9 +44,7 @@ export function createDriver<TContext = void>(
 ): Driver {
   switch (config.kind) {
     case 'in-process':
-      return new InProcessDriver(
-        config as InProcessDriverOptions<TContext>
-      );
+      return new InProcessDriver(config as InProcessDriverOptions<TContext>);
     case 'playwright':
       return new PlaywrightDriver(config);
     case 'detox':

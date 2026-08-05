@@ -28,9 +28,19 @@ function useMoreRows(): readonly MoreRow[] {
       href: '/more/server-status',
     },
     {
-      title: t`Developer`,
-      caption: t`Todos, UI explorer, and sync status`,
-      href: '/more/developer',
+      title: t`UI Components`,
+      caption: t`Shared UI explorer`,
+      href: '/ui',
+    },
+    {
+      title: t`Sync status`,
+      caption: t`PowerSync connection and sync state`,
+      href: '/more/sync',
+    },
+    {
+      title: t`Client config`,
+      caption: t`Singleton clientConfig entity and server refresh`,
+      href: '/more/client-config',
     },
     {
       title: t`About`,

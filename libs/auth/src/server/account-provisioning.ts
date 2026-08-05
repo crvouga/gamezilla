@@ -19,9 +19,7 @@ async function acquireExternalUserAdvisoryLock(
   lockKey: string
 ): Promise<void> {
   try {
-    await tx.run(
-      sql<void>`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`
-    );
+    await tx.run(sql<void>`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`);
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     if (

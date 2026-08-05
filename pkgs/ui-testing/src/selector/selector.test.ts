@@ -37,8 +37,6 @@ describe('by selectors', () => {
     expect(formatSelector(by.role('button', 'Go'))).toBe(
       'role("button", name: "Go")'
     );
-    expect(formatSelector(first(by.testId('x')))).toBe(
-      'testId("x", nth: 0)'
-    );
+    expect(formatSelector(first(by.testId('x')))).toBe('testId("x", nth: 0)');
   });
 });

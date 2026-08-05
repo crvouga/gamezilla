@@ -21,88 +21,135 @@ function toError(error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error));
 }
 
-/** Owns switch lifecycle state for {@link AccountSwitchProvider}. */
-export function useAccountSwitchController(): AccountSwitchContextValue {
-  const switchAccount = useSwitchAccount();
+type SwitchControllerState = {
+  phase: AccountSwitchPhase;
+  error: Error | null;
+  isPending: boolean;
+  pendingDisplayTitle: string | null;
+  targetRef: MutableRefObject<AccountSwitchTarget | null>;
+  bootRef: MutableRefObject<SyncBootReport>;
+  bootListenersRef: MutableRefObject<Set<() => void>>;
+  inFlightRef: MutableRefObject<boolean>;
+  setPhase: (phase: AccountSwitchPhase) => void;
+  setError: (error: Error | null) => void;
+  setIsPending: (pending: boolean) => void;
+  setPendingDisplayTitle: (title: string | null) => void;
+};
+
+function useSwitchControllerState(): SwitchControllerState {
   const [phase, setPhase] = useState<AccountSwitchPhase>('idle');
   const [error, setError] = useState<Error | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const [pendingDisplayTitle, setPendingDisplayTitle] = useState<string | null>(
+    null
+  );
   const targetRef = useRef<AccountSwitchTarget | null>(null);
   const bootRef = useRef<SyncBootReport>(INITIAL_BOOT);
   const bootListenersRef = useRef(new Set<() => void>());
   const inFlightRef = useRef(false);
-
-  const reportSyncBootPhase = useReportBootPhase(bootRef, bootListenersRef);
-  const subscribeBoot = useSubscribeBoot(bootListenersRef);
-  const finishSuccess = useFinishSuccess({
+  return {
+    phase,
+    error,
+    isPending,
+    pendingDisplayTitle,
     targetRef,
+    bootRef,
+    bootListenersRef,
     inFlightRef,
-    setIsPending,
     setPhase,
     setError,
-  });
+    setIsPending,
+    setPendingDisplayTitle,
+  };
+}
+
+/** Owns switch lifecycle state for {@link AccountSwitchProvider}. */
+export function useAccountSwitchController(): AccountSwitchContextValue {
+  const switchAccount = useSwitchAccount();
+  const state = useSwitchControllerState();
+  const reportSyncBootPhase = useReportBootPhase(
+    state.bootRef,
+    state.bootListenersRef
+  );
+  const subscribeBoot = useSubscribeBoot(state.bootListenersRef);
+  const clearToIdle = useClearToIdle(state);
+  const finishSuccess = useFinishSuccess(state);
   const executeSwitch = useExecuteSwitch({
     switchAccount,
     subscribeBoot,
-    bootRef,
-    targetRef,
-    inFlightRef,
-    setPhase,
-    setError,
-    setIsPending,
+    state,
     finishSuccess,
   });
   const switchToAccount = useSwitchToAccount(
     executeSwitch,
-    inFlightRef,
-    isPending
+    state.inFlightRef,
+    state.isPending
   );
-  const retry = useRetrySwitch(executeSwitch, targetRef, inFlightRef);
-  const dismissError = useDismissError({
+  const retry = useRetrySwitch(
+    executeSwitch,
+    state.targetRef,
+    state.inFlightRef
+  );
+
+  return useMemo(
+    () => ({
+      phase: state.phase,
+      error: state.error,
+      isPending: state.isPending,
+      pendingDisplayTitle: state.pendingDisplayTitle,
+      switchToAccount,
+      reportSyncBootPhase,
+      retry,
+      dismissError: clearToIdle,
+      dismiss: clearToIdle,
+    }),
+    [
+      state.phase,
+      state.error,
+      state.isPending,
+      state.pendingDisplayTitle,
+      switchToAccount,
+      reportSyncBootPhase,
+      retry,
+      clearToIdle,
+    ]
+  );
+}
+
+function useClearToIdle(state: SwitchControllerState) {
+  const {
     targetRef,
     inFlightRef,
     setIsPending,
     setPhase,
     setError,
-  });
-
-  return useMemo(
-    () => ({
-      phase,
-      error,
-      isPending,
-      switchToAccount,
-      reportSyncBootPhase,
-      retry,
-      dismissError,
-    }),
-    [
-      phase,
-      error,
-      isPending,
-      switchToAccount,
-      reportSyncBootPhase,
-      retry,
-      dismissError,
-    ]
-  );
-}
-
-function useFinishSuccess(args: {
-  targetRef: MutableRefObject<AccountSwitchTarget | null>;
-  inFlightRef: MutableRefObject<boolean>;
-  setIsPending: (pending: boolean) => void;
-  setPhase: (phase: AccountSwitchPhase) => void;
-  setError: (error: Error | null) => void;
-}) {
-  const { targetRef, inFlightRef, setIsPending, setPhase, setError } = args;
+    setPendingDisplayTitle,
+  } = state;
   return useCallback(() => {
-    const onComplete = targetRef.current?.onComplete;
     targetRef.current = null;
     inFlightRef.current = false;
     setIsPending(false);
     setPhase('idle');
     setError(null);
+    setPendingDisplayTitle(null);
+  }, [
+    targetRef,
+    inFlightRef,
+    setIsPending,
+    setPhase,
+    setError,
+    setPendingDisplayTitle,
+  ]);
+}
+
+function useFinishSuccess(state: SwitchControllerState) {
+  const { targetRef, inFlightRef, setIsPending, setPhase, setError } = state;
+  return useCallback(() => {
+    const onComplete = targetRef.current?.onComplete;
+    inFlightRef.current = false;
+    setIsPending(false);
+    setError(null);
+    setPhase('success');
     onComplete?.();
   }, [targetRef, inFlightRef, setIsPending, setPhase, setError]);
 }
@@ -131,23 +178,6 @@ function useRetrySwitch(
     if (target === null || inFlightRef.current) return;
     void executeSwitch(target).catch(() => undefined);
   }, [executeSwitch, targetRef, inFlightRef]);
-}
-
-function useDismissError(args: {
-  targetRef: MutableRefObject<AccountSwitchTarget | null>;
-  inFlightRef: MutableRefObject<boolean>;
-  setIsPending: (pending: boolean) => void;
-  setPhase: (phase: AccountSwitchPhase) => void;
-  setError: (error: Error | null) => void;
-}) {
-  const { targetRef, inFlightRef, setIsPending, setPhase, setError } = args;
-  return useCallback(() => {
-    targetRef.current = null;
-    inFlightRef.current = false;
-    setIsPending(false);
-    setPhase('idle');
-    setError(null);
-  }, [targetRef, inFlightRef, setIsPending, setPhase, setError]);
 }
 
 function useReportBootPhase(
@@ -180,34 +210,29 @@ function useSubscribeBoot(listenersRef: MutableRefObject<Set<() => void>>) {
 type ExecuteSwitchArgs = {
   switchAccount: ReturnType<typeof useSwitchAccount>;
   subscribeBoot: (onChange: () => void) => () => void;
-  bootRef: MutableRefObject<SyncBootReport>;
-  targetRef: MutableRefObject<AccountSwitchTarget | null>;
-  inFlightRef: MutableRefObject<boolean>;
-  setPhase: (phase: AccountSwitchPhase) => void;
-  setError: (error: Error | null) => void;
-  setIsPending: (pending: boolean) => void;
+  state: SwitchControllerState;
   finishSuccess: () => void;
 };
 
 function useExecuteSwitch(args: ExecuteSwitchArgs) {
+  const { switchAccount, subscribeBoot, state, finishSuccess } = args;
   const {
-    switchAccount,
-    subscribeBoot,
     bootRef,
     targetRef,
     inFlightRef,
     setPhase,
     setError,
     setIsPending,
-    finishSuccess,
-  } = args;
+    setPendingDisplayTitle,
+  } = state;
   return useCallback(
     async (target: AccountSwitchTarget) => {
       targetRef.current = target;
       inFlightRef.current = true;
       setIsPending(true);
       setError(null);
-      setPhase('idle');
+      setPendingDisplayTitle(target.displayTitle ?? null);
+      setPhase('loading');
       try {
         await runAccountSwitch(target, {
           switchAccount,
@@ -232,6 +257,7 @@ function useExecuteSwitch(args: ExecuteSwitchArgs) {
       setPhase,
       setError,
       setIsPending,
+      setPendingDisplayTitle,
       finishSuccess,
     ]
   );

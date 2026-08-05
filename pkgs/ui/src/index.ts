@@ -18,4 +18,5 @@ export {
   isAutoplayBlockedError,
   playAudioOrIgnoreAutoplayBlock,
 } from './expo/safe-audio-play';
+export { releaseWebFocus } from './web/release-web-focus';
 export * from './theme';

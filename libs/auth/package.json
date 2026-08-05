@@ -30,6 +30,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/auth": "workspace:*",
+    "@pkgs/i18n": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",

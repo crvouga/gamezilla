@@ -1,11 +1,6 @@
 import { clerk } from '@clerk/testing/playwright';
 import type { Page } from '@playwright/test';
-import {
-  by,
-  expectHidden,
-  expectVisible,
-  type Driver,
-} from '@pkgs/ui-testing';
+import { by, expectHidden, expectVisible, type Driver } from '@pkgs/ui-testing';
 
 import type { AuthPort } from '../support/auth-port';
 import { openUserMenu } from '../support/chrome-menu';
@@ -24,10 +19,7 @@ function requireE2eClerkUserEmail(): string {
  * AuthPort over `@clerk/testing/playwright`. The Playwright `Page` stays
  * private inside the web binding — scenarios never see it.
  */
-export function createClerkAuthAdapter(
-  page: Page,
-  driver: Driver
-): AuthPort {
+export function createClerkAuthAdapter(page: Page, driver: Driver): AuthPort {
   return {
     async signIn(): Promise<void> {
       await clerk.signIn({

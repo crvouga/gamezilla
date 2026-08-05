@@ -1,11 +1,6 @@
 import { by, type Driver } from '@pkgs/ui-testing';
 
-export type UserMenuItem =
-  | 'Sign in'
-  | 'Sign out'
-  | 'Add account'
-  | 'Account'
-  | 'Settings';
+export type UserMenuItem = 'Sign in' | 'Sign out' | 'Account' | 'Settings';
 
 /** Opens account actions via the header avatar menu. */
 export async function openUserMenu(driver: Driver): Promise<void> {

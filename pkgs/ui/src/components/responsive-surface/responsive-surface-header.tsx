@@ -1,16 +1,15 @@
 /**
- * Shared header row for {@link ResponsiveSurface} (title + close affordance).
+ * Shared header row for {@link ResponsiveSurface} (optional title + close).
  */
 
-import { t } from '@lingui/core/macro';
 import type { ReactNode } from 'react';
-import { useTheme } from '../../theme';
 import { Box } from '../box';
-import { IconButton } from '../icon-button';
+import { CloseIconButton } from '../close-icon-button';
 import { Text } from '../text';
 
 export type ResponsiveSurfaceHeaderProps = {
-  title: ReactNode;
+  /** When omitted, the row is close-only (X top-right). */
+  title?: ReactNode;
   onClose: () => void;
 };
 
@@ -18,31 +17,26 @@ export function ResponsiveSurfaceHeader({
   title,
   onClose,
 }: ResponsiveSurfaceHeaderProps) {
-  const theme = useTheme();
+  const hasTitle = title !== undefined && title !== null && title !== '';
   return (
     <Box
       sx={{
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: hasTitle ? 'space-between' : 'flex-end',
         mb: 3,
         gap: 2,
       }}
     >
-      <Text
-        variant="subtitle"
-        label={title}
-        numberOfLines={1}
-        style={{ flex: 1, marginRight: 8 }}
-      />
-      <IconButton
-        size={36}
-        onPress={onClose}
-        label={t`Close`}
-        accessibilityLabel={t`Close`}
-      >
-        <Text style={{ fontSize: 18, color: theme.colors.text }} label="✕" />
-      </IconButton>
+      {hasTitle ? (
+        <Text
+          variant="subtitle"
+          label={title}
+          numberOfLines={1}
+          style={{ flex: 1, marginRight: 8 }}
+        />
+      ) : null}
+      <CloseIconButton onPress={onClose} />
     </Box>
   );
 }

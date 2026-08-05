@@ -1,8 +1,4 @@
-import {
-  by,
-  expectVisible,
-  first,
-} from '@pkgs/ui-testing';
+import { by, expectVisible, first } from '@pkgs/ui-testing';
 
 import type { TestApp } from '../support/test-app';
 

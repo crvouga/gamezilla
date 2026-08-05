@@ -10,9 +10,7 @@ export default function MoreLayout() {
       <Stack.Screen name="account" />
       <Stack.Screen name="server-status" />
       <Stack.Screen name="theme" />
-      <Stack.Screen name="developer" />
       <Stack.Screen name="sync" />
-      <Stack.Screen name="room" />
       <Stack.Screen name="client-config" />
     </Stack>
   );

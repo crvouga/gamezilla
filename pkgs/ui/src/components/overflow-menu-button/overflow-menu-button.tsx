@@ -24,6 +24,7 @@ import { useContext, useMemo, type ReactNode } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { useTheme } from '../../theme';
+import { releaseWebFocus } from '../../web/release-web-focus';
 import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import {
@@ -98,6 +99,7 @@ function buildContent(
       label: a.label,
       icon: a.icon ?? DEFAULT_ACTION_ICON,
       onPress: () => {
+        releaseWebFocus();
         onClose();
         a.onPress();
       },

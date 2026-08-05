@@ -1,7 +1,4 @@
-export {
-  SURFACE_STACK_BASE,
-  SURFACE_STACK_STEP,
-} from './constants';
+export { SURFACE_STACK_BASE, SURFACE_STACK_STEP } from './constants';
 export {
   createSurfaceStackStore,
   type SurfaceStackEntry,

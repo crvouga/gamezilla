@@ -2,6 +2,7 @@ import type { LocalizedString } from '@pkgs/i18n';
 
 import { EllipsisIcon } from '../icons';
 import type { OverflowMenuAction } from '../overflow-menu-button/overflow-menu-button';
+import { releaseWebFocus } from '../../web/release-web-focus';
 import {
   isActionBarAvatarItem,
   type ActionBarItem,
@@ -17,6 +18,7 @@ export function actionBarItemToOverflowAction(
     label: item.label,
     icon,
     onPress: () => {
+      releaseWebFocus();
       onClose();
       item.onPress();
     },
