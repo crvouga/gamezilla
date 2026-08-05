@@ -1,7 +1,8 @@
 /**
  * `ConfirmationModal` -- ready-made confirm/cancel dialog.
  *
- * Uses {@link ResponsiveSurface} (bottom sheet on mobile, centered modal on wider viewports).
+ * Always a centered modal via {@link ResponsiveSurface} `presentation="modal"`
+ * (never a bottom sheet), including on mobile.
  *
  * @example
  * ```tsx
@@ -131,6 +132,7 @@ export function ConfirmationModal({
       visible={visible}
       onClose={handleClose}
       title={display.title}
+      presentation="modal"
       {...componentDataSet('ConfirmationModal', dataSet)}
     >
       <ConfirmationModalBody

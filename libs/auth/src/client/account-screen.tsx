@@ -5,38 +5,11 @@ import { type Href, useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 
 import { AccountActionsRow } from './account-actions-row';
-import { useLocalAccounts } from './use-local-accounts';
 
 export type AccountScreenProps = {
   /** Profile identity block (avatar + username + email). */
   readonly identity?: ReactNode;
 };
-
-function SwitchAccountRow(): ReactNode {
-  const { t } = useLingui();
-  const router = useRouter();
-  const accounts = useLocalAccounts();
-  const count = accounts.length;
-  const caption =
-    count === 0
-      ? undefined
-      : count === 1
-        ? t`1 account on this device`
-        : t`${count} accounts on this device`;
-
-  return (
-    <MenuList>
-      <MenuRow
-        title={t`Switch account`}
-        {...(caption !== undefined ? { caption } : {})}
-        onPress={() => {
-          router.push('/more/account/switch' as Href);
-        }}
-        testID="account-switch-row"
-      />
-    </MenuList>
-  );
-}
 
 export function AccountScreen({ identity }: AccountScreenProps) {
   const { t } = useLingui();
@@ -55,7 +28,6 @@ export function AccountScreen({ identity }: AccountScreenProps) {
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 3 }}>
           {identity}
-          <SwitchAccountRow />
           <MenuList>
             <MenuRow
               title={t`Devices`}

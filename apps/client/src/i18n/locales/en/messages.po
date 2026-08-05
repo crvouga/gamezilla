@@ -59,6 +59,14 @@ msgstr "{lineCount} lines"
 msgid "{n} new"
 msgstr "{n} new"
 
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-review-screen.tsx
+msgid "{puzzleId} · {rating}"
+msgstr "{puzzleId} · {rating}"
+
+#: libs/chess/src/client/chess-puzzle/chess-game-log-row.tsx
+msgid "{puzzleId} · {timeLabel}"
+msgstr "{puzzleId} · {timeLabel}"
+
 #: libs/spaces/src/client/join-space/space-join-ended-state.tsx
 msgid "{spaceLabel} · hosted by {hostUsername}"
 msgstr "{spaceLabel} · hosted by {hostUsername}"
@@ -103,6 +111,7 @@ msgid "1 guest"
 msgstr "1 guest"
 
 #: libs/chess/src/client/chess-puzzle/chess-game-log-row.tsx
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-review-screen.tsx
 msgid "Abandoned · {puzzleRating}"
 msgstr "Abandoned · {puzzleRating}"
 
@@ -111,6 +120,7 @@ msgstr "Abandoned · {puzzleRating}"
 msgid "About"
 msgstr "About"
 
+#: apps/client/src/app/more/account/index.tsx
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/ui/app-commands/account-command.tsx
 #: apps/client/src/ui/use-account-menu.tsx
@@ -122,8 +132,8 @@ msgid "Account"
 msgstr "Account"
 
 #: libs/auth/src/client/sign-in-modal.tsx
-msgid "Account added"
-msgstr "Account added"
+#~ msgid "Account added"
+#~ msgstr "Account added"
 
 #: libs/auth/src/client/account-device/account-devices-card.tsx
 msgid "Account ID"
@@ -145,15 +155,14 @@ msgstr "Action required"
 #~ msgid "Activity"
 #~ msgstr "Activity"
 
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "Add"
 msgstr "Add"
 
 #: apps/client/src/ui/use-account-menu.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
-msgid "Add account"
-msgstr "Add account"
+#~ msgid "Add account"
+#~ msgstr "Add account"
 
 #: libs/friends/src/client/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Add Friend"
@@ -163,26 +172,32 @@ msgstr "Add Friend"
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
 
+#: libs/spaces/src/client/space-users/space-share-add-people.tsx
+#: libs/spaces/src/client/space-users/space-share-add-people.tsx
+#: libs/spaces/src/client/space-users/space-share-add-people.tsx
+msgid "Add people"
+msgstr "Add people"
+
 #: libs/spaces/src/client/space-users/space-share-sheet.tsx
 #: libs/spaces/src/client/space-users/space-share-sheet.tsx
-msgid "Added"
-msgstr "Added"
+#~ msgid "Added"
+#~ msgstr "Added"
 
 #: libs/auth/src/client/sign-in-modal.tsx
-msgid "Adding account…"
-msgstr "Adding account…"
+#~ msgid "Adding account…"
+#~ msgstr "Adding account…"
 
 #: libs/spaces/src/client/space-users/space-share-sheet.tsx
-msgid "Adding…"
-msgstr "Adding…"
+#~ msgid "Adding…"
+#~ msgstr "Adding…"
 
 #: pkgs/inbox/src/client/inbox-filter-bar.tsx
 msgid "All"
 msgstr "All"
 
 #: libs/auth/src/client/use-sign-out-all-confirmation.tsx
-msgid "All accounts are signed out on this device."
-msgstr "All accounts are signed out on this device."
+#~ msgid "All accounts are signed out on this device."
+#~ msgstr "All accounts are signed out on this device."
 
 #: libs/client-config/src/client/client-config-entity-card.tsx
 msgid "All attributes (JSON)"
@@ -313,7 +328,6 @@ msgstr "Build"
 msgid "Build mode: {buildMode}"
 msgstr "Build mode: {buildMode}"
 
-#: libs/auth/src/client/account-switch/account-switch-modal.tsx
 #: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
 #: libs/profile/src/client/set-username/profile-handle-screen.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
@@ -364,6 +378,7 @@ msgstr "Chess preferences and developer tools."
 msgid "ChessBoard"
 msgstr "ChessBoard"
 
+#: pkgs/ui/src/components/combobox/combobox.tsx
 #: pkgs/ui/src/components/picker/picker.tsx
 msgid "Choose"
 msgstr "Choose"
@@ -404,7 +419,7 @@ msgstr "Clear log"
 msgid "Client {label}"
 msgstr "Client {label}"
 
-#: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 #: libs/client-config/src/client/client-config-screen.tsx
 msgid "Client config"
 msgstr "Client config"
@@ -416,8 +431,7 @@ msgstr "close"
 #: libs/auth/src/client/sign-in-modal.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
-#: pkgs/ui/src/components/responsive-surface/responsive-surface-header.tsx
-#: pkgs/ui/src/components/responsive-surface/responsive-surface-header.tsx
+#: pkgs/ui/src/components/close-icon-button/close-icon-button.tsx
 msgid "Close"
 msgstr "Close"
 
@@ -488,7 +502,7 @@ msgstr "Continue with Google"
 
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
 #: libs/profile/src/client/avatar-editor-seed-field.tsx
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-link-section.tsx
 msgid "Copied"
 msgstr "Copied"
 
@@ -496,7 +510,7 @@ msgstr "Copied"
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
 
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-link-section.tsx
 msgid "Copy link"
 msgstr "Copy link"
 
@@ -509,13 +523,13 @@ msgstr "Copy seed"
 msgid "Copy to clipboard"
 msgstr "Copy to clipboard"
 
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-link-section.tsx
 msgid "Copying…"
 msgstr "Copying…"
 
 #: pkgs/ui/src/components/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
-msgid "CopyToClipboardField"
-msgstr "CopyToClipboardField"
+#~ msgid "CopyToClipboardField"
+#~ msgstr "CopyToClipboardField"
 
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-status-header.tsx
 msgid "Correct"
@@ -526,26 +540,26 @@ msgid "Could not start local database"
 msgstr "Could not start local database"
 
 #: libs/auth/src/client/account-switch/account-switch-modal.tsx
-msgid "Could not switch accounts"
-msgstr "Could not switch accounts"
+#~ msgid "Could not switch accounts"
+#~ msgstr "Could not switch accounts"
 
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "Could not wipe database"
 msgstr "Could not wipe database"
 
 #: libs/spaces/src/client/space-users/space-share-sheet.tsx
-msgid "Couldn't add"
-msgstr "Couldn't add"
+#~ msgid "Couldn't add"
+#~ msgstr "Couldn't add"
 
 #: libs/auth/src/client/sign-in-modal.tsx
-msgid "Couldn't add account"
-msgstr "Couldn't add account"
+#~ msgid "Couldn't add account"
+#~ msgstr "Couldn't add account"
 
 #: libs/friends/src/client/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Couldn't confirm"
 msgstr "Couldn't confirm"
 
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-link-section.tsx
 msgid "Couldn't copy"
 msgstr "Couldn't copy"
 
@@ -570,7 +584,7 @@ msgstr "Couldn't leave space"
 msgid "Couldn't open"
 msgstr "Couldn't open"
 
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-people-list.tsx
 msgid "Couldn't remove"
 msgstr "Couldn't remove"
 
@@ -656,15 +670,9 @@ msgstr "Deleting…"
 msgid "developer"
 msgstr "developer"
 
-#: apps/client/src/developer/developer-screen.tsx
-#: apps/client/src/settings/settings-screen.tsx
-#: apps/client/src/sync/sync-screen.tsx
 #: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
-#: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
-#: apps/client/src/ui/explorer/ui-explorer-screen.tsx
 #: libs/chess/src/client/chess-settings/chess-settings-developer-screen.tsx
 #: libs/chess/src/client/chess-settings/chess-settings-screen.tsx
-#: libs/client-config/src/client/client-config-screen.tsx
 msgid "Developer"
 msgstr "Developer"
 
@@ -732,7 +740,6 @@ msgstr "Dismiss"
 msgid "Dispatch +1 to append."
 msgstr "Dispatch +1 to append."
 
-#: apps/client/src/app/sso-callback.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/inbox/src/client/interaction-card-default.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
@@ -794,6 +801,7 @@ msgstr "Ending space…"
 #~ msgid "Enter at least {SEARCH_MIN_LENGTH} characters"
 #~ msgstr "Enter at least {SEARCH_MIN_LENGTH} characters"
 
+#: libs/spaces/src/client/space-users/space-share-add-people.tsx
 #: libs/user-search/src/client/use-user-search.tsx
 msgid "Enter at least {USER_SEARCH_MIN_LENGTH} characters"
 msgstr "Enter at least {USER_SEARCH_MIN_LENGTH} characters"
@@ -811,8 +819,8 @@ msgid "Event log"
 msgstr "Event log"
 
 #: libs/auth/src/client/use-sign-out-all-confirmation.tsx
-msgid "Every account on this device will be signed out. You will need to sign in again to sync."
-msgstr "Every account on this device will be signed out. You will need to sign in again to sync."
+#~ msgid "Every account on this device will be signed out. You will need to sign in again to sync."
+#~ msgstr "Every account on this device will be signed out. You will need to sign in again to sync."
 
 #: libs/spaces/src/client/end-space/end-space-confirm-modal.tsx
 #: libs/spaces/src/client/leave-space/leave-space-confirm-modal.tsx
@@ -832,6 +840,10 @@ msgstr "exit"
 #: pkgs/inbox/src/client/interaction-card-default.tsx
 msgid "Failed"
 msgstr "Failed"
+
+#: pkgs/ui/src/components/combobox/combobox.example.tsx
+msgid "Filter fruits…"
+msgstr "Filter fruits…"
 
 #: libs/friends/src/client/friends-list-screen-view.tsx
 #: libs/friends/src/client/profile-friends-actions-view.tsx
@@ -928,6 +940,7 @@ msgstr "host"
 #: libs/spaces/src/client/members/member-host-badge.tsx
 #: libs/spaces/src/client/members/space-members-host-block.tsx
 #: libs/spaces/src/client/members/space-members-list-modal.tsx
+#: libs/spaces/src/client/space-users/space-share-people-list.tsx
 msgid "Host"
 msgstr "Host"
 
@@ -995,6 +1008,10 @@ msgstr "Joining…"
 msgid "Joins, leaves, and game play will show up here."
 msgstr "Joins, leaves, and game play will show up here."
 
+#: libs/chess/src/client/chess-puzzle/use-relative-time-label.ts
+msgid "just now"
+msgstr "just now"
+
 #: apps/client/src/sync/sync-screen.tsx
 msgid "Last error"
 msgstr "Last error"
@@ -1049,7 +1066,7 @@ msgstr "Light, dark, or system theme"
 msgid "Limited or checking"
 msgstr "Limited or checking"
 
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-link-section.tsx
 msgid "Link"
 msgstr "Link"
 
@@ -1227,7 +1244,7 @@ msgstr "No guests yet"
 msgid "No host listed"
 msgstr "No host listed"
 
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-people-list.tsx
 msgid "No one added yet"
 msgstr "No one added yet"
 
@@ -1239,9 +1256,17 @@ msgstr "No one connected yet"
 #~ msgid "No one on the allow list yet"
 #~ msgstr "No one on the allow list yet"
 
+#: libs/spaces/src/client/space-users/space-share-add-people.tsx
+msgid "No people found"
+msgstr "No people found"
+
 #: libs/spaces/src/client/spaces-screen.tsx
 #~ msgid "No public spaces"
 #~ msgstr "No public spaces"
+
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-review-screen.tsx
+msgid "No puzzle selected"
+msgstr "No puzzle selected"
 
 #: libs/chess/src/client/chess-puzzle/chess-game-log.tsx
 msgid "No puzzles played yet."
@@ -1335,7 +1360,6 @@ msgid "Pass `theme` to override any board color (squares, highlights, arrows, fe
 msgstr "Pass `theme` to override any board color (squares, highlights, arrows, feedback)."
 
 #: libs/spaces/src/client/active-space/space-chrome-action-bar.tsx
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
 msgid "People"
 msgstr "People"
 
@@ -1343,6 +1367,10 @@ msgstr "People"
 #: libs/spaces/src/client/members/space-members-list-modal.tsx
 msgid "People in this space"
 msgstr "People in this space"
+
+#: libs/spaces/src/client/space-users/space-share-people-list.tsx
+msgid "People with access"
+msgstr "People with access"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Per-square indicators; pulse animation for highlighted moves."
@@ -1352,6 +1380,10 @@ msgstr "Per-square indicators; pulse animation for highlighted moves."
 msgid "Pick a fixed target rating for the puzzle feed."
 msgstr "Pick a fixed target rating for the puzzle feed."
 
+#: pkgs/ui/src/components/combobox/combobox.example.tsx
+msgid "Pick a fruit…"
+msgstr "Pick a fruit…"
+
 #: libs/profile/src/client/profile-edit-screen.tsx
 msgid "Pick a fun emoji look"
 msgstr "Pick a fun emoji look"
@@ -1359,6 +1391,10 @@ msgstr "Pick a fun emoji look"
 #: libs/spaces/src/client/module/games-main-menu.tsx
 msgid "Pick a game to play."
 msgstr "Pick a game to play."
+
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-review-screen.tsx
+msgid "Pick one from the game log."
+msgstr "Pick one from the game log."
 
 #: libs/chess/src/client/chess-settings/chess-settings-developer-ui-component-detail-screen.tsx
 msgid "Pick one from the previous screen."
@@ -1388,7 +1424,7 @@ msgstr "POST /client-config/refresh writes the Worker secret into Postgres on th
 msgid "powersync"
 msgstr "powersync"
 
-#: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 msgid "PowerSync connection and sync state"
 msgstr "PowerSync connection and sync state"
 
@@ -1408,7 +1444,7 @@ msgstr "Previous"
 #~ msgid "Private"
 #~ msgstr "Private"
 
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-people-list.tsx
 msgid "Private spaces only sync for people you add here."
 msgstr "Private spaces only sync for people you add here."
 
@@ -1453,6 +1489,10 @@ msgstr "Puzzle feed"
 msgid "Puzzle rating {puzzleRating}"
 msgstr "Puzzle rating {puzzleRating}"
 
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-review-screen.tsx
+msgid "Puzzle review"
+msgstr "Puzzle review"
+
 #: libs/chess/src/client/chess-puzzle/chess-puzzle-summary-card.tsx
 msgid "Puzzle solved!"
 msgstr "Puzzle solved!"
@@ -1460,6 +1500,10 @@ msgstr "Puzzle solved!"
 #: libs/chess/src/client/chess-puzzle/chess-stats-screen.tsx
 msgid "Puzzle stats"
 msgstr "Puzzle stats"
+
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-review-screen.tsx
+msgid "Puzzle unavailable"
+msgstr "Puzzle unavailable"
 
 #: libs/profile/src/client/avatar-editor-variant-swatch-strip.tsx
 msgid "Random"
@@ -1508,7 +1552,7 @@ msgid "Reload"
 msgstr "Reload"
 
 #: libs/friends/src/client/friend-user-danger-modals.tsx
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-people-list.tsx
 msgid "Remove"
 msgstr "Remove"
 
@@ -1520,11 +1564,11 @@ msgstr "Remove friend"
 msgid "Remove friend?"
 msgstr "Remove friend?"
 
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-people-list.tsx
 msgid "Removed"
 msgstr "Removed"
 
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-people-list.tsx
 msgid "Removing…"
 msgstr "Removing…"
 
@@ -1596,13 +1640,18 @@ msgstr "Saving…"
 msgid "Search"
 msgstr "Search"
 
-#: libs/spaces/src/client/space-users/space-share-sheet.tsx
+#: libs/spaces/src/client/space-users/space-share-add-people.tsx
+#: libs/spaces/src/client/space-users/space-share-add-people.tsx
 msgid "Search by username"
 msgstr "Search by username"
 
 #: libs/search/src/client/search-screen-view.tsx
 msgid "Search by username or name"
 msgstr "Search by username or name"
+
+#: pkgs/ui/src/components/combobox/combobox.tsx
+msgid "Search…"
+msgstr "Search…"
 
 #: libs/search/src/client/search-screen-view.tsx
 msgid "Searching…"
@@ -1612,6 +1661,7 @@ msgstr "Searching…"
 msgid "Seed"
 msgstr "Seed"
 
+#: pkgs/ui/src/components/combobox/combobox.tsx
 #: pkgs/ui/src/components/picker/picker.tsx
 msgid "Select…"
 msgstr "Select…"
@@ -1630,7 +1680,6 @@ msgid "Server health"
 msgstr "Server health"
 
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/developer/developer-screen.tsx
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/settings/theme-screen.tsx
@@ -1660,7 +1709,7 @@ msgstr "Share space"
 #~ msgid "Shared"
 #~ msgstr "Shared"
 
-#: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 msgid "Shared UI explorer"
 msgstr "Shared UI explorer"
 
@@ -1718,16 +1767,16 @@ msgid "Sign out"
 msgstr "Sign out"
 
 #: libs/auth/src/client/use-sign-out-all-confirmation.tsx
-msgid "Sign out all"
-msgstr "Sign out all"
+#~ msgid "Sign out all"
+#~ msgstr "Sign out all"
 
 #: libs/auth/src/client/account-actions-row.tsx
-msgid "Sign out of all accounts"
-msgstr "Sign out of all accounts"
+#~ msgid "Sign out of all accounts"
+#~ msgstr "Sign out of all accounts"
 
 #: libs/auth/src/client/use-sign-out-all-confirmation.tsx
-msgid "Sign out of all accounts?"
-msgstr "Sign out of all accounts?"
+#~ msgid "Sign out of all accounts?"
+#~ msgstr "Sign out of all accounts?"
 
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "Sign out?"
@@ -1759,34 +1808,29 @@ msgstr "Sign-in providers"
 msgid "Sign-in was cancelled or didn't finish."
 msgstr "Sign-in was cancelled or didn't finish."
 
-#: libs/auth/src/client/use-sign-out-all-confirmation.tsx
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "Sign-out failed"
 msgstr "Sign-out failed"
 
-#: apps/client/src/app/sso-callback.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 msgid "Signed in"
 msgstr "Signed in"
 
-#: libs/auth/src/client/use-sign-out-all-confirmation.tsx
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "Signed out"
 msgstr "Signed out"
 
-#: apps/client/src/app/sso-callback.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Signing in…"
 msgstr "Signing in…"
 
-#: libs/auth/src/client/use-sign-out-all-confirmation.tsx
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
 msgid "Signing out…"
 msgstr "Signing out…"
 
-#: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 msgid "Singleton clientConfig entity and server refresh"
 msgstr "Singleton clientConfig entity and server refresh"
 
@@ -1809,6 +1853,7 @@ msgid "Solved"
 msgstr "Solved"
 
 #: libs/chess/src/client/chess-puzzle/chess-game-log-row.tsx
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-review-screen.tsx
 msgid "Solved · {puzzleRating}"
 msgstr "Solved · {puzzleRating}"
 
@@ -1853,7 +1898,6 @@ msgstr "Space renamed"
 
 #: apps/client/src/app/(tabs)/_layout.tsx
 #: apps/client/src/connection/server-status-screen.tsx
-#: apps/client/src/developer/developer-screen.tsx
 #: apps/client/src/settings/about-screen.tsx
 #: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/settings/theme-screen.tsx
@@ -1929,7 +1973,7 @@ msgstr "sync"
 msgid "Sync issue"
 msgstr "Sync issue"
 
-#: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/sync/sync-screen.tsx
 msgid "Sync status"
 msgstr "Sync status"
@@ -1968,8 +2012,8 @@ msgid "Target rating"
 msgstr "Target rating"
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
-msgid "TextInput"
-msgstr "TextInput"
+#~ msgid "TextInput"
+#~ msgstr "TextInput"
 
 #: libs/spaces/src/client/module/games-main-menu.tsx
 msgid "The host picks the game for this space."
@@ -1996,8 +2040,8 @@ msgid "this"
 msgstr "this"
 
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
-msgid "This account will be signed out on this device. Other accounts stay signed in."
-msgstr "This account will be signed out on this device. Other accounts stay signed in."
+#~ msgid "This account will be signed out on this device. Other accounts stay signed in."
+#~ msgstr "This account will be signed out on this device. Other accounts stay signed in."
 
 #: apps/client/src/ui/app-commands/wipe-local-database-command.tsx
 msgid "This deletes all local SQLite data and reloads the app. You cannot undo this."
@@ -2011,6 +2055,10 @@ msgstr "This device"
 msgid "This field is required"
 msgstr "This field is required"
 
+#: libs/chess/src/client/chess-puzzle/chess-puzzle-review-screen.tsx
+msgid "This puzzle is not in your local feed yet. Try again after sync."
+msgstr "This puzzle is not in your local feed yet. Try again after sync."
+
 #: libs/spaces/src/client/join-space/space-join-ended-state.tsx
 msgid "This space has ended"
 msgstr "This space has ended"
@@ -2021,8 +2069,8 @@ msgid "This tab"
 msgstr "This tab"
 
 #: apps/client/src/settings/settings-screen.tsx
-msgid "Todos, UI explorer, and sync status"
-msgstr "Todos, UI explorer, and sync status"
+#~ msgid "Todos, UI explorer, and sync status"
+#~ msgstr "Todos, UI explorer, and sync status"
 
 #: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
 msgid "token"
@@ -2037,7 +2085,6 @@ msgid "Topic: {topic} · {clientCount} connections"
 msgstr "Topic: {topic} · {clientCount} connections"
 
 #: apps/client/src/providers/local-database/boot-screens.tsx
-#: libs/auth/src/client/account-switch/account-switch-modal.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.tsx
 msgid "Try again"
@@ -2055,7 +2102,7 @@ msgstr "Type something…"
 msgid "Type: {networkTypeLabel}"
 msgstr "Type: {networkTypeLabel}"
 
-#: apps/client/src/developer/developer-screen.tsx
+#: apps/client/src/settings/settings-screen.tsx
 #: apps/client/src/ui/app-commands/ui-components-commands.tsx
 #: apps/client/src/ui/explorer/ui-explorer-detail-screen.tsx
 #: apps/client/src/ui/explorer/ui-explorer-screen.tsx
@@ -2200,8 +2247,8 @@ msgid "You can rejoin from the invite link if the space is still live."
 msgstr "You can rejoin from the invite link if the space is still live."
 
 #: libs/auth/src/client/sign-in-modal.tsx
-msgid "You can switch accounts from the avatar menu."
-msgstr "You can switch accounts from the avatar menu."
+#~ msgid "You can switch accounts from the avatar menu."
+#~ msgstr "You can switch accounts from the avatar menu."
 
 #: libs/profile/src/client/patch-avatar/avatar-editor-screen.tsx
 msgid "You have unsaved avatar changes."
@@ -2211,18 +2258,25 @@ msgstr "You have unsaved avatar changes."
 msgid "You left the space"
 msgstr "You left the space"
 
+#: libs/auth/src/client/use-sign-out-confirmation.tsx
+msgid "You'll be signed out on this device."
+msgstr "You'll be signed out on this device."
+
 #: pkgs/inbox/src/client/inbox-empty-state.tsx
 msgid "You're all caught up"
 msgstr "You're all caught up"
 
-#: apps/client/src/app/sso-callback.tsx
 #: libs/auth/src/client/sign-in-modal.tsx
 msgid "You're signed in on this device."
 msgstr "You're signed in on this device."
 
 #: libs/auth/src/client/use-sign-out-confirmation.tsx
-msgid "You're signed out of this account."
-msgstr "You're signed out of this account."
+#~ msgid "You're signed out of this account."
+#~ msgstr "You're signed out of this account."
+
+#: libs/auth/src/client/use-sign-out-confirmation.tsx
+msgid "You're signed out on this device."
+msgstr "You're signed out on this device."
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "you@example.com"

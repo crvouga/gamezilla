@@ -1,11 +1,13 @@
 /**
  * `MutationModal` -- one dialog for the whole mutation lifecycle.
  *
- * Renders a confirm message or form body, then on submit transitions through
- * `loading -> success / error` in place (never closing mid-flight). Success is
- * dismissible; errors are retryable. This is the canonical surface for
- * destructive confirms (sign out, end space, leave space) and small form
- * mutations (rename) so every mutation in the app reads the same way.
+ * Always a centered modal via {@link ResponsiveSurface} `presentation="modal"`
+ * (never a bottom sheet), including on mobile. Renders a confirm message or
+ * form body, then on submit transitions through `loading -> success / error`
+ * in place (never closing mid-flight). Success is dismissible; errors are
+ * retryable. This is the canonical surface for destructive confirms (sign out,
+ * end space, leave space) and small form mutations (rename) so every mutation
+ * in the app reads the same way.
  *
  * @example
  * ```tsx
@@ -116,6 +118,7 @@ export function MutationModal(props: MutationModalProps): ReactNode {
       visible={visible}
       onClose={surfaceClose}
       title={title}
+      presentation="modal"
       {...(props.stackId !== undefined ? { stackId: props.stackId } : {})}
       {...componentDataSet('MutationModal', props.dataSet)}
     >

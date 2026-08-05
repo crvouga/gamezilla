@@ -1,23 +1,17 @@
 /**
- * Compact account menu items for tab-root headers. Menu items only — no header
- * and no inline account switcher (switching lives on /more/account/switch).
+ * Compact account menu items for tab-root headers.
  */
 
 import {
   useSignInModal,
   useSignOutModal,
 } from '@libs/auth/client/auth-modals-provider';
-import {
-  findActiveLocalAccount,
-  localAccountSubtitle,
-} from '@libs/auth/client/local-account-helpers';
+import { useAuthClientPort } from '@libs/auth/client/auth-client-provider';
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
-import {
-  accountDisplayTitle,
-  useLocalAccounts,
-  type LocalAccount,
-} from '@libs/auth/client/use-local-accounts';
 import { DeviceAvatar } from '@libs/profile/client/device-avatar';
+import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
+import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
+import { useProfileColumn } from '@libs/profile/client/use-profile-column';
 import type { LocalizedString } from '@pkgs/i18n';
 import {
   LogInIcon,
@@ -30,8 +24,6 @@ import {
 import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, type ReactNode } from 'react';
-
-import { LocalAccountAvatar } from './local-account-avatar';
 
 const TRIGGER_SIZE = 36;
 const MENU_AVATAR_SIZE = 28;
@@ -58,11 +50,6 @@ function useAccountMenuLabels(): AccountMenuLabels {
     }),
     [t]
   );
-}
-
-export function useActiveLocalAccount(): LocalAccount | undefined {
-  const accounts = useLocalAccounts();
-  return useMemo(() => findActiveLocalAccount(accounts), [accounts]);
 }
 
 function useAccountMenuHandlers() {
@@ -104,10 +91,14 @@ function useCurrentUserMenuItem(
   labels: AccountMenuLabels,
   onAccount: () => void
 ): ActionBarItem {
-  const active = useActiveLocalAccount();
+  const isSignedIn = useIsSignedIn();
+  const profileId = useMyProfileId();
+  const username = useProfileColumn(profileId ?? '', 'username');
+  const port = useAuthClientPort();
+  const email = port.useAuthSession().session?.email ?? null;
 
   return useMemo((): ActionBarItem => {
-    if (active === undefined) {
+    if (!isSignedIn) {
       return {
         id: 'account',
         variant: 'avatar',
@@ -124,19 +115,25 @@ function useCurrentUserMenuItem(
         overflow: 'always',
       };
     }
-    const title = accountDisplayTitle(active);
-    const subtitle = localAccountSubtitle(active);
+    const title =
+      username !== null && username.length > 0
+        ? username
+        : email !== null && email.length > 0
+          ? email
+          : labels.account;
+    const subtitle =
+      email !== null && email.length > 0 && email !== title ? email : undefined;
     return {
       id: 'account',
       variant: 'avatar',
       label: title,
       ...(subtitle !== undefined ? { subtitle } : {}),
       accessibilityLabel: labels.account,
-      children: <LocalAccountAvatar account={active} size={MENU_AVATAR_SIZE} />,
+      children: <MyProfileAvatar size={MENU_AVATAR_SIZE} />,
       onPress: onAccount,
       overflow: 'always',
     };
-  }, [active, labels, onAccount]);
+  }, [isSignedIn, username, email, labels, onAccount]);
 }
 
 export function useAccountMenuItems(): ActionBarItem[] {
@@ -190,13 +187,13 @@ export function AccountMenuTriggerAvatar({
 }: {
   size: number;
 }): ReactNode {
-  const active = useActiveLocalAccount();
-  if (active === undefined) {
+  const isSignedIn = useIsSignedIn();
+  if (!isSignedIn) {
     return (
       <DeviceAvatar avatarConfig={null} seedFallback="signed-out" size={size} />
     );
   }
-  return <LocalAccountAvatar account={active} size={size} />;
+  return <MyProfileAvatar size={size} />;
 }
 
 export { TRIGGER_SIZE as ACCOUNT_MENU_TRIGGER_SIZE };

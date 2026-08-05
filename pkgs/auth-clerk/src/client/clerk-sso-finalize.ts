@@ -44,30 +44,6 @@ export function readCompletedSessionId(result: SsoFlowResult): string | null {
   return readExistingSessionId(result);
 }
 
-/**
- * Session id from an SSO result that was not already on this client before
- * the add-account attempt. Prefers newly created ids over `existingSession`.
- */
-export function readNewSessionIdFromSsoResult(
-  result: SsoFlowResult,
-  beforeSessionIds: ReadonlySet<string>
-): string | null {
-  const candidates = [
-    result.createdSessionId,
-    result.signIn?.createdSessionId,
-    result.signUp?.createdSessionId,
-    result.signIn?.existingSession?.sessionId,
-    result.signUp?.existingSession?.sessionId,
-  ];
-  for (const candidate of candidates) {
-    const sessionId = readNonEmptySessionId(candidate);
-    if (sessionId !== null && !beforeSessionIds.has(sessionId)) {
-      return sessionId;
-    }
-  }
-  return null;
-}
-
 export async function finalizeClerkSsoFlowResult(
   result: SsoFlowResult
 ): Promise<void> {

@@ -52,7 +52,7 @@ export type ResponsiveSurfaceProps = PropsWithChildren<{
   /**
    * `'responsive'` (default) — bottom sheet on mobile, centered modal on
    * tablet/desktop. `'modal'` — always centered modal, including on mobile
-   * (auth confirm / account-switch flows that should not be sheets).
+   * (auth confirm flows that should not be sheets).
    */
   presentation?: ResponsiveSurfacePresentation;
   /**

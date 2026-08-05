@@ -10,8 +10,8 @@ Local SQLite databases on the Expo client are **not encrypted at rest** (Expo Go
 
 Auth is **token-only**: the API never reads or sets cookies. Authenticated requests carry `Authorization: Bearer <session-token>`; anonymous sync requests carry the local device UUID in the `x-anon-id` header. The same device UUID names the anonymous SQLite file before sign-in.
 
-### Multi-account
+### Single session
 
-The client supports Instagram/TikTok-style multi-login via auth-provider **multi-session** support. Without that capability enabled, a new sign-in replaces the previous session instead of adding another account.
+The client keeps **one signed-in account per install**. Sign-in opens that account’s `acct_<accountId>` SQLite file; sign-out returns to the anonymous `anon_<deviceId>` file. Turn off Clerk Dashboard **Multi-session handling** so a new sign-in replaces rather than stacks provider sessions.
 
-Signed-in accounts each get an `acct_<accountId>` SQLite file; switching remounts PowerSync onto that file (warm caches are kept). The avatar menu lists local sessions, **Add account**, and **Sign out** (active only). Account settings also offers **Sign out of all accounts** when more than one session is present.
+**Restore multi-account later:** re-add `AuthClientPort.addAccount` / `switchAccount` (+ scoped `signOut`), a Kv roster for inactive display, `account-switch/*` chrome wired to sync boot readiness, warm multi-DB switch (disconnect sync without `disconnectAndClear`), Clerk multi-session, and a switcher UI. Identity-keyed SQLite naming (`resolveSqliteDbName` + PowerSync pool) already supports per-account files.

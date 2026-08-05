@@ -14,13 +14,9 @@ import { useSignOut } from './use-sign-out';
 import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
 import { SignInModal, type SignInModalProps } from './sign-in-modal';
 import { useSignIn } from './use-sign-in';
-import { useAddAccount } from './use-add-account';
-import { useIsSignedIn } from './use-current-user';
 import { useSignInPending } from './sign-in-pending';
 import { HOSTED_SIGN_IN_UNAVAILABLE_REASON } from './auth-errors';
 import { useConfigService } from './config-service-context';
-
-const EMPTY_SESSION_IDS: readonly string[] = [];
 
 export type AuthModals = {
   signInModalOpen: boolean;
@@ -63,7 +59,7 @@ export function AuthModalsProvider({
     modal: signOutModal,
   } = useSignOutConfirmationModal({
     signOut: async () => {
-      await signOut({ scope: 'active' });
+      await signOut();
       router.replace('/');
     },
     signOutConfirmOpen,
@@ -112,12 +108,9 @@ function useSignInModalConnection(args: {
   const { signInModalOpen, openSignInModal, closeSignInModal } = args;
   const apiUrl = useConfigService().getApiUrl();
   const signIn = useSignIn();
-  const addAccount = useAddAccount();
-  const isSignedIn = useIsSignedIn();
   const signInLog = useLogger('auth-sign-in');
   const { pending, isHydrated } = useSignInPending();
   const resumePending = isHydrated && pending !== null;
-  const intent = pending?.intent ?? (isSignedIn ? 'addAccount' : 'signIn');
 
   useLayoutEffect(() => {
     if (resumePending) openSignInModal();
@@ -136,17 +129,11 @@ function useSignInModalConnection(args: {
     visible: signInModalVisible,
     onClose: closeSignInModal,
     resumePending,
-    intent,
-    resumeBaselineSessionIds: pending?.baselineSessionIds ?? EMPTY_SESSION_IDS,
     signInAvailable,
     signInUnavailableReason: signInAvailable
       ? null
       : HOSTED_SIGN_IN_UNAVAILABLE_REASON,
     onSignInWithHosted: async () => {
-      if (intent === 'addAccount') {
-        await addAccount();
-        return;
-      }
       await signIn();
     },
     onError,

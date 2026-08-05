@@ -51,20 +51,16 @@ export default function SsoCallbackScreen() {
       syncPending === null
         ? JSON.stringify({
             startedAt: new Date().toISOString(),
-            intent: 'signIn',
-            baselineSessionIds: [],
           })
         : JSON.stringify({
             startedAt: syncPending.startedAt.toISOString(),
-            intent: syncPending.intent,
-            baselineSessionIds: syncPending.baselineSessionIds,
             ...(syncPending.returnHref !== undefined
               ? { returnHref: syncPending.returnHref }
               : {}),
           });
     seedCachedSecureStorageValue(SIGN_IN_PENDING_KEY, wire);
     if (syncPending === null) {
-      void markSignInPending(storage, { intent: 'signIn' });
+      void markSignInPending(storage);
     }
 
     openSignInModal();

@@ -18,7 +18,7 @@ export type StartClerkBrowserSsoFlowArgs = {
 
 /**
  * Starts Google OAuth via shared browser SSO (same-tab redirect on web,
- * AuthSession on native). Used for first sign-in and add-account.
+ * AuthSession on native).
  */
 export async function startClerkBrowserSsoFlow(
   args: StartClerkBrowserSsoFlowArgs
@@ -38,18 +38,5 @@ export async function startClerkBrowserSsoFlow(
     setActive: async (activeParams) => {
       await clerk.setActive(activeParams);
     },
-  });
-}
-
-/** Add-account SSO — same as browser flow with Google account picker. */
-export async function startClerkAddAccountSsoFlow(args: {
-  readonly clerk: ClerkInstance;
-  readonly strategy: string;
-  readonly redirectUrl: string;
-}): Promise<SsoFlowResult> {
-  return startClerkBrowserSsoFlow({
-    clerk: args.clerk,
-    redirectUrl: args.redirectUrl,
-    oidcPrompt: 'select_account',
   });
 }

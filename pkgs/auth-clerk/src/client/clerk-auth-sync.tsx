@@ -4,12 +4,11 @@ import { useCallback, useEffect } from 'react';
 import { runCompleteHostedAuthRedirect } from './clerk-complete-hosted-auth-redirect';
 import { ensureClerkActiveSession } from './clerk-ensure-active-session';
 import type { ClerkSetActive } from './clerk-ensure-active-session';
-import { setClerkAuthRuntime } from './clerk-auth-runtime';
-import { mapClerkSessions } from './clerk-map-sessions';
 import {
-  startClerkAddAccountSsoFlow,
-  startClerkBrowserSsoFlow,
-} from './clerk-start-add-account-sso';
+  setClerkAuthRuntime,
+  type ClerkStartBrowserSsoFlow,
+} from './clerk-auth-runtime';
+import { startClerkBrowserSsoFlow } from './clerk-start-browser-sso';
 
 function useClerkSetActive(): ClerkSetActive {
   const clerk = useClerk();
@@ -61,45 +60,55 @@ function useClerkEnsureActiveSession(args: {
   ]);
 }
 
-function useClerkSsoFlowStarters(clerk: ReturnType<typeof useClerk>): {
-  startBrowserSSOFlow: (params: {
-    readonly redirectUrl: string;
-    readonly oidcPrompt?: string;
-  }) => Promise<Awaited<ReturnType<typeof startClerkBrowserSsoFlow>>>;
-  startAddAccountSSOFlow: (params: {
-    readonly strategy: string;
-    readonly redirectUrl: string;
-  }) => Promise<Awaited<ReturnType<typeof startClerkAddAccountSsoFlow>>>;
-} {
-  const startBrowserSSOFlow = useCallback(
-    async (params: {
-      readonly redirectUrl: string;
-      readonly oidcPrompt?: string;
-    }) =>
-      startClerkBrowserSsoFlow({
-        clerk,
-        redirectUrl: params.redirectUrl,
-        ...(params.oidcPrompt !== undefined
-          ? { oidcPrompt: params.oidcPrompt }
-          : {}),
-      }),
-    [clerk]
-  );
-
-  const startAddAccountSSOFlow = useCallback(
-    async (params: {
-      readonly strategy: string;
-      readonly redirectUrl: string;
-    }) =>
-      startClerkAddAccountSsoFlow({
-        clerk,
-        strategy: params.strategy,
-        redirectUrl: params.redirectUrl,
-      }),
-    [clerk]
-  );
-
-  return { startBrowserSSOFlow, startAddAccountSSOFlow };
+function usePublishClerkAuthRuntime(args: {
+  clerk: ReturnType<typeof useClerk>;
+  startSSOFlow: ReturnType<typeof useSSO>['startSSOFlow'];
+  startBrowserSSOFlow: ClerkStartBrowserSsoFlow;
+  completeHostedAuthRedirect: () => Promise<void>;
+  signOut: ReturnType<typeof useAuth>['signOut'];
+  getToken: ReturnType<typeof useAuth>['getToken'];
+  setActive: ClerkSetActive;
+  ensureActiveSession: () => Promise<void>;
+  sessionId: string | null | undefined;
+}): void {
+  const {
+    clerk,
+    startSSOFlow,
+    startBrowserSSOFlow,
+    completeHostedAuthRedirect,
+    signOut,
+    getToken,
+    setActive,
+    ensureActiveSession,
+    sessionId,
+  } = args;
+  useEffect(() => {
+    const activeSessionId =
+      typeof sessionId === 'string' && sessionId.length > 0 ? sessionId : null;
+    setClerkAuthRuntime({
+      startSSOFlow,
+      startBrowserSSOFlow,
+      completeHostedAuthRedirect,
+      signOut,
+      getToken,
+      setActive,
+      ensureActiveSession,
+      getActiveSessionId: () => activeSessionId,
+    });
+    return () => {
+      setClerkAuthRuntime(null);
+    };
+  }, [
+    clerk,
+    startSSOFlow,
+    startBrowserSSOFlow,
+    completeHostedAuthRedirect,
+    signOut,
+    getToken,
+    setActive,
+    ensureActiveSession,
+    sessionId,
+  ]);
 }
 
 export function ClerkAuthSync(): null {
@@ -117,8 +126,21 @@ export function ClerkAuthSync(): null {
     getToken,
     setActive,
   });
-  const { startBrowserSSOFlow, startAddAccountSSOFlow } =
-    useClerkSsoFlowStarters(clerk);
+
+  const startBrowserSSOFlow = useCallback(
+    async (params: {
+      readonly redirectUrl: string;
+      readonly oidcPrompt?: string;
+    }) =>
+      startClerkBrowserSsoFlow({
+        clerk,
+        redirectUrl: params.redirectUrl,
+        ...(params.oidcPrompt !== undefined
+          ? { oidcPrompt: params.oidcPrompt }
+          : {}),
+      }),
+    [clerk]
+  );
 
   const completeHostedAuthRedirect = useCallback(
     () =>
@@ -134,37 +156,17 @@ export function ClerkAuthSync(): null {
     void ensureActiveSession();
   }, [ensureActiveSession]);
 
-  useEffect(() => {
-    const activeSessionId =
-      typeof sessionId === 'string' && sessionId.length > 0 ? sessionId : null;
-    setClerkAuthRuntime({
-      startSSOFlow,
-      startBrowserSSOFlow,
-      startAddAccountSSOFlow,
-      completeHostedAuthRedirect,
-      signOut,
-      getToken,
-      setActive,
-      ensureActiveSession,
-      getActiveSessionId: () => activeSessionId,
-      listSessions: () => mapClerkSessions(clerk.client?.sessions ?? null),
-    });
-    return () => {
-      setClerkAuthRuntime(null);
-    };
-  }, [
+  usePublishClerkAuthRuntime({
     clerk,
     startSSOFlow,
     startBrowserSSOFlow,
-    startAddAccountSSOFlow,
     completeHostedAuthRedirect,
     signOut,
     getToken,
     setActive,
     ensureActiveSession,
     sessionId,
-    sessions,
-  ]);
+  });
 
   return null;
 }

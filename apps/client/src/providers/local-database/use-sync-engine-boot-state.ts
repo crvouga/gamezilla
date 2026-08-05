@@ -34,11 +34,11 @@ function connectEngine(engine: SyncEngine): void {
 
 /**
  * Opens the identity-scoped sync engine for local reads as soon as the DB is
- * ready. PowerSync `connect()` runs in the background so account switches are
- * not blocked on network sync.
+ * ready. PowerSync `connect()` runs in the background so sign-in / sign-out
+ * remounts are not blocked on network sync.
  *
  * When `enginePromise` changes, loading is applied during render unless a warm
- * pooled engine is already available for the new identity (near-instant switch).
+ * pooled engine is already available for the new identity.
  */
 export function useSyncEngineBootState(
   enginePromise: Promise<SyncEngine>,

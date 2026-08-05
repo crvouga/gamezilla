@@ -12,8 +12,7 @@ export type ProfileFieldKey = keyof typeof ProfileField;
 
 /**
  * Profile column for `profileId`. Uses {@link useWatchOne} (same display/cache
- * path as other account UI) so account switches do not leave the Profile tab
- * username stuck on an empty `useWatchField` snapshot.
+ * path as other account UI).
  */
 export function useProfileColumn(
   profileId: string,

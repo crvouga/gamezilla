@@ -23,13 +23,8 @@ export const SIGN_IN_PENDING_TTL_MS = 30 * 60 * 1000;
 /** Fallback when no safe return path was stored (or it was the callback itself). */
 export const SIGN_IN_RETURN_FALLBACK_HREF = '/(tabs)';
 
-export type SignInIntent = 'signIn' | 'addAccount';
-
 export type SignInPending = {
   readonly startedAt: Date;
-  readonly intent: SignInIntent;
-  /** Session ids present when add-account began (empty for first sign-in). */
-  readonly baselineSessionIds: readonly string[];
   /**
    * App path (+ search) to restore after `/sso-callback`. Omitted when unknown
    * or unsafe (callback route / absolute URL).
@@ -38,28 +33,13 @@ export type SignInPending = {
 };
 
 export type MarkSignInPendingOptions = {
-  readonly intent?: SignInIntent;
-  readonly baselineSessionIds?: readonly string[];
   readonly returnHref?: string;
 };
 
 type SignInPendingWire = {
   readonly startedAt: string;
-  readonly intent: SignInIntent;
-  readonly baselineSessionIds: readonly string[];
   readonly returnHref?: string;
 };
-
-function isSignInIntent(value: unknown): value is SignInIntent {
-  return value === 'signIn' || value === 'addAccount';
-}
-
-function readBaselineSessionIds(value: unknown): readonly string[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter(
-    (id): id is string => typeof id === 'string' && id.length > 0
-  );
-}
 
 function isFreshStartedAt(startedAt: Date): boolean {
   const ms = startedAt.getTime();
@@ -125,7 +105,7 @@ export function readSignInPendingSync(): SignInPending | null {
 function parseLegacySignInPending(value: string): SignInPending | null {
   const startedAt = new Date(value);
   if (!isFreshStartedAt(startedAt)) return null;
-  return { startedAt, intent: 'signIn', baselineSessionIds: [] };
+  return { startedAt };
 }
 
 function parseSignInPendingWire(wire: unknown): SignInPending | null {
@@ -139,15 +119,13 @@ function parseSignInPendingWire(wire: unknown): SignInPending | null {
   );
   return {
     startedAt,
-    intent: isSignInIntent(record.intent) ? record.intent : 'signIn',
-    baselineSessionIds: readBaselineSessionIds(record.baselineSessionIds),
     ...(returnHref !== undefined ? { returnHref } : {}),
   };
 }
 
 /**
  * Returns a non-stale pending payload, or `null` when there is no marker or it
- * has expired. Accepts legacy bare ISO timestamps (treated as `signIn`).
+ * has expired. Accepts legacy bare ISO timestamps.
  */
 export function parseSignInPending(value: string | null): SignInPending | null {
   if (value === null || value.length === 0) return null;
@@ -166,8 +144,6 @@ export async function markSignInPending(
   const returnHref = sanitizeSignInReturnHref(options?.returnHref);
   const wire: SignInPendingWire = {
     startedAt: new Date().toISOString(),
-    intent: options?.intent ?? 'signIn',
-    baselineSessionIds: options?.baselineSessionIds ?? [],
     ...(returnHref !== undefined ? { returnHref } : {}),
   };
   await writeSecureStorageItem(

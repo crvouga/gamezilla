@@ -8,15 +8,13 @@ import {
 } from './sign-in-pending';
 
 describe('parseSignInPending', () => {
-  test('parses legacy bare ISO as signIn', () => {
+  test('parses legacy bare ISO', () => {
     const pending = parseSignInPending(new Date().toISOString());
     expect(pending).not.toBeNull();
-    expect(pending?.intent).toBe('signIn');
-    expect(pending?.baselineSessionIds).toEqual([]);
     expect(pending?.returnHref).toBeUndefined();
   });
 
-  test('parses addAccount payload with baseline sessions', () => {
+  test('ignores legacy multi-account fields', () => {
     const pending = parseSignInPending(
       JSON.stringify({
         startedAt: new Date().toISOString(),
@@ -24,16 +22,14 @@ describe('parseSignInPending', () => {
         baselineSessionIds: ['sess_a', 'sess_b'],
       })
     );
-    expect(pending?.intent).toBe('addAccount');
-    expect(pending?.baselineSessionIds).toEqual(['sess_a', 'sess_b']);
+    expect(pending).not.toBeNull();
+    expect(pending?.returnHref).toBeUndefined();
   });
 
   test('parses returnHref', () => {
     const pending = parseSignInPending(
       JSON.stringify({
         startedAt: new Date().toISOString(),
-        intent: 'signIn',
-        baselineSessionIds: [],
         returnHref: '/ui/Divider',
       })
     );
@@ -44,8 +40,6 @@ describe('parseSignInPending', () => {
     const pending = parseSignInPending(
       JSON.stringify({
         startedAt: new Date().toISOString(),
-        intent: 'signIn',
-        baselineSessionIds: [],
         returnHref: 'https://evil.example/',
       })
     );
@@ -80,8 +74,6 @@ describe('signInReturnHrefFromPending', () => {
     expect(
       signInReturnHrefFromPending({
         startedAt: new Date(),
-        intent: 'signIn',
-        baselineSessionIds: [],
       })
     ).toBe(SIGN_IN_RETURN_FALLBACK_HREF);
   });
@@ -90,8 +82,6 @@ describe('signInReturnHrefFromPending', () => {
     expect(
       signInReturnHrefFromPending({
         startedAt: new Date(),
-        intent: 'signIn',
-        baselineSessionIds: [],
         returnHref: '/profile',
       })
     ).toBe('/profile');

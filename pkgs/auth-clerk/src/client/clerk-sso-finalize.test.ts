@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 
 import {
   readCompletedSessionId,
-  readNewSessionIdFromSsoResult,
   type SsoFlowResult,
 } from './clerk-sso-finalize';
 
@@ -15,7 +14,7 @@ describe('clerk-sso-finalize', () => {
     expect(readCompletedSessionId(result)).toBe('sess_new');
   });
 
-  test('readNewSessionIdFromSsoResult ignores sessions already on device', () => {
+  test('readCompletedSessionId falls back to existingSession', () => {
     const result: SsoFlowResult = {
       createdSessionId: null,
       signIn: {
@@ -23,18 +22,6 @@ describe('clerk-sso-finalize', () => {
         existingSession: { sessionId: 'sess_a' },
       },
     };
-    expect(
-      readNewSessionIdFromSsoResult(result, new Set(['sess_a']))
-    ).toBeNull();
-  });
-
-  test('readNewSessionIdFromSsoResult returns a newly created session', () => {
-    const result: SsoFlowResult = {
-      createdSessionId: 'sess_b',
-      signIn: { status: 'complete', createdSessionId: 'sess_b' },
-    };
-    expect(readNewSessionIdFromSsoResult(result, new Set(['sess_a']))).toBe(
-      'sess_b'
-    );
+    expect(readCompletedSessionId(result)).toBe('sess_a');
   });
 });

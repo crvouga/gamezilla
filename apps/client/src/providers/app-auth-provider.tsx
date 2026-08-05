@@ -1,7 +1,5 @@
-import { AccountSwitchProvider } from '@libs/auth/client/account-switch/account-switch-provider';
 import { AuthBridge } from '@libs/auth/client/auth-bridge';
 import { AuthClientProvider } from '@libs/auth/client/auth-client-provider';
-import { LocalAccountRosterProvider } from '@libs/auth/client/use-local-account-roster';
 import { assert } from '@pkgs/assert';
 import {
   ClerkAuthProvider,
@@ -34,18 +32,11 @@ function ClerkAuthStack({ children }: { children: ReactNode }): ReactNode {
   );
 }
 
-const authProviders = [
-  ClerkAuthStack,
-  AppApiClient,
-  LocalAccountRosterProvider,
-  AccountSwitchProvider,
-  AuthBridge,
-];
+const authProviders = [ClerkAuthStack, AppApiClient, AuthBridge];
 
 /**
- * Auth session, API client, account-switch controller (above SyncEngineBoot),
- * and auth bridge. Account-switch chrome mounts under {@link AppUiProvider}
- * (needs SurfaceStack / AppUiPortals). Other auth modals mount there too.
+ * Auth session, API client, and auth bridge. Auth modals mount under
+ * {@link AppUiProvider} (needs SurfaceStack / AppUiPortals).
  */
 export function AppAuthProvider({
   children,

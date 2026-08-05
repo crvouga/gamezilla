@@ -1,4 +1,3 @@
-import { useReportSyncBootPhase } from '@libs/auth/client/account-switch/account-switch-context';
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
@@ -10,7 +9,7 @@ import { SyncEngineProvider } from '@pkgs/sync-engine/client/sync-engine-context
 import { SyncEnginePaintGateContext } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 import { SqlClientProvider } from '@pkgs/sql-client/react-context';
-import { useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { useMemo, useRef, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 
 import { resolveSqliteDbName } from '../../storage/resolve-sqlite-db-name';
@@ -50,16 +49,6 @@ function useIdentitySqliteDbName(
       ...(webTabSuffix !== undefined ? { webTabSuffix } : {}),
     });
   }, [accountId, deviceId]);
-}
-
-function useReportBootPhaseUp(
-  phase: 'loading' | 'ready' | 'error',
-  accountId: string | null
-): void {
-  const report = useReportSyncBootPhase();
-  useEffect(() => {
-    report(phase, accountId);
-  }, [report, phase, accountId]);
 }
 
 function useSyncEnginePromise(dbName: string): Promise<SyncEngine> {
@@ -125,7 +114,7 @@ function renderSyncEngineTree(args: {
  * identity changes (sticky prior engine until the next one is ready). Replacing
  * children with a loading screen unmounts Expo Router and resets to `/`.
  * Space chrome (miniplayer / current spaces) must not paint from a sticky
- * prior-account engine — see {@link SyncEnginePaintGateContext}.
+ * prior-identity engine — see {@link SyncEnginePaintGateContext}.
  */
 export function SyncEngineBoot({
   children,
@@ -139,7 +128,6 @@ export function SyncEngineBoot({
   const lastReadyEngineRef = useRef<SyncEngine | null>(warmEngine);
   const enginePromise = useSyncEnginePromise(dbName);
   const boot = useSyncEngineBootState(enginePromise, warmEngine);
-  useReportBootPhaseUp(boot.phase, accountId);
 
   if (boot.phase === 'ready') {
     lastReadyEngineRef.current = boot.engine;

@@ -44,7 +44,7 @@ function ProfileEntityBootstrap(): null {
           fetchFn: globalThis.fetch.bind(globalThis),
         });
         if (cancelled) return;
-        // Token/myId can skew mid-switch — never write another account's card.
+        // Token/myId can skew during sign-in — never apply a mismatched card.
         if (card.userId !== myId) {
           return;
         }

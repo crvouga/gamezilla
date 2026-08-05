@@ -3,28 +3,15 @@ import type { useAuth, useSSO } from '@clerk/expo';
 import type { ClerkSetActive } from './clerk-ensure-active-session';
 import type { SsoFlowResult } from './clerk-sso-finalize';
 
-export type ClerkRuntimeSession = {
-  readonly id: string;
-  readonly userId: string | null;
-  readonly email: string | null;
-  readonly username: string | null;
-};
-
 export type ClerkStartBrowserSsoFlow = (params: {
   readonly redirectUrl: string;
   readonly oidcPrompt?: string;
-}) => Promise<SsoFlowResult>;
-
-export type ClerkStartAddAccountSsoFlow = (params: {
-  readonly strategy: string;
-  readonly redirectUrl: string;
 }) => Promise<SsoFlowResult>;
 
 export type ClerkAuthRuntime = {
   readonly startSSOFlow: ReturnType<typeof useSSO>['startSSOFlow'];
   /** Shared browser SSO (web same-tab redirect / native AuthSession). */
   readonly startBrowserSSOFlow: ClerkStartBrowserSsoFlow;
-  readonly startAddAccountSSOFlow: ClerkStartAddAccountSsoFlow;
   /** Completes same-tab OAuth return via `rotating_token_nonce`. */
   readonly completeHostedAuthRedirect: () => Promise<void>;
   readonly signOut: ReturnType<typeof useAuth>['signOut'];
@@ -32,8 +19,6 @@ export type ClerkAuthRuntime = {
   readonly setActive: ClerkSetActive;
   readonly ensureActiveSession: () => Promise<void>;
   readonly getActiveSessionId: () => string | null;
-  /** Live `clerk.client.sessions` (not a stale React snapshot). */
-  readonly listSessions: () => readonly ClerkRuntimeSession[];
 };
 
 let runtime: ClerkAuthRuntime | null = null;

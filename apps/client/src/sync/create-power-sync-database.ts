@@ -16,8 +16,9 @@ type DatabasePool = {
 };
 
 /**
- * Survives Metro/HMR. Keeps per-identity PowerSync DBs warm; only one has
- * sync connected at a time (inactive entries stay open for instant switch).
+ * Survives Metro/HMR. Keeps per-identity PowerSync DBs warm across remounts
+ * (sign-in ↔ signed-out anon, or a different user after full sign-out). Only
+ * one identity has sync connected at a time.
  */
 function getDatabasePool(): DatabasePool {
   const g = globalThis as typeof globalThis & {
@@ -84,8 +85,9 @@ export function isActivePowerSyncDatabase(databaseName: string): boolean {
 
 /**
  * Activates the PowerSync DB for `databaseName`. Reuses a warm pooled instance
- * when present; disconnects sync on the previously active identity (keeps it
- * pooled). Waits for SDK `init()` so callers never query a not-ready DB.
+ * when present; disconnects sync on the previously active identity (keeps the
+ * instance pooled for HMR / later remount). Waits for SDK `init()` so callers
+ * never query a not-ready DB.
  */
 export async function openPowerSyncDatabase(
   databaseName: string
