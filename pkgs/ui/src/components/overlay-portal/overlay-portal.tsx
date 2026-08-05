@@ -8,6 +8,10 @@
  * Pattern mirrors {@link DismissibleBannerPortalProvider}: a single host view
  * is mounted at the app root and consumers register/unregister React subtrees
  * by id via `useOverlayPortal()`.
+ *
+ * Mount **outside** {@link SurfaceStackProvider} (see `AppUiPortals`): surface
+ * chrome renders in the stack host, sibling of provider `children`, so it only
+ * keeps this context when Overlay wraps Surface.
  */
 
 import {

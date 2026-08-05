@@ -44,6 +44,26 @@ export type SignInModalProps = {
 
 const STATE_AREA_MIN_HEIGHT = 200;
 
+function useResetOnClose(
+  visible: boolean,
+  phase: SignInPhase,
+  reset: () => void
+): void {
+  const phaseRef = useRef<SignInPhase>(phase);
+  phaseRef.current = phase;
+  const wasVisibleRef = useRef(false);
+  useEffect(() => {
+    if (visible) {
+      wasVisibleRef.current = true;
+      return;
+    }
+    if (!wasVisibleRef.current) return;
+    if (phaseRef.current === 'loading') return;
+    if (phaseRef.current === 'success') return;
+    reset();
+  }, [visible, reset]);
+}
+
 export function SignInModal(props: SignInModalProps): ReactNode {
   const { t } = useLingui();
   const {
@@ -64,26 +84,14 @@ export function SignInModal(props: SignInModalProps): ReactNode {
     ...(onError !== undefined ? { onError } : {}),
   });
 
-  const phaseRef = useRef<SignInPhase>(phase);
-  phaseRef.current = phase;
-  const wasVisibleRef = useRef(false);
-  useEffect(() => {
-    if (visible) {
-      wasVisibleRef.current = true;
-      return;
-    }
-    if (!wasVisibleRef.current) return;
-    if (phaseRef.current === 'loading') return;
-    if (phaseRef.current === 'success') return;
-    reset();
-  }, [visible, reset]);
+  useResetOnClose(visible, phase, reset);
 
   const trigger = useCallback(
     (runner: () => Promise<void>) => {
-      if (!signInAvailable || phaseRef.current === 'loading') return;
+      if (!signInAvailable || phase === 'loading') return;
       void start(runner);
     },
-    [signInAvailable, start]
+    [signInAvailable, phase, start]
   );
 
   const dismissModal = useCallback(() => {
@@ -95,7 +103,12 @@ export function SignInModal(props: SignInModalProps): ReactNode {
   const title = intent === 'addAccount' ? t`Add account` : t`Sign in`;
 
   return (
-    <ResponsiveSurface visible={visible} onClose={surfaceClose} title={title}>
+    <ResponsiveSurface
+      visible={visible}
+      onClose={surfaceClose}
+      title={title}
+      presentation="modal"
+    >
       <MutationStateTransition stateKey={phase} active={visible}>
         <SignInPhaseContent
           phase={phase}

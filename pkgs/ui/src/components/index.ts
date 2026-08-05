@@ -352,6 +352,7 @@ export {
   ResponsiveSurface,
   ResponsiveSurfaceHeader,
   type ResponsiveSurfaceProps,
+  type ResponsiveSurfacePresentation,
   type ResponsiveSurfaceHeaderProps,
 } from './responsive-surface';
 

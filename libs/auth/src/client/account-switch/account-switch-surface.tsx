@@ -8,22 +8,49 @@ import {
   ResponsiveSurface,
   SuccessState,
 } from '@pkgs/ui';
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 
 import type { AccountSwitchPhase } from './account-switch-context';
 import { useAccountSwitchSurface } from './account-switch-context';
 import { isAccountSwitchSurfaceVisible } from './account-switch-surface-visibility';
+import { latchSwitchChrome, type SwitchChrome } from './latch-switch-chrome';
 
-const STATE_AREA_MIN_HEIGHT = 200;
+/** Matches `Button` `md` minHeight so loading reserves the same footer band. */
+const FOOTER_ACTION_MIN_HEIGHT = 40;
+const STATE_AREA_HEIGHT = 200;
+
+function useLatchedSwitchChrome(
+  phase: AccountSwitchPhase,
+  error: Error | null,
+  pendingDisplayTitle: string | null
+): SwitchChrome | null {
+  const latchRef = useRef<SwitchChrome | null>(null);
+  latchRef.current = latchSwitchChrome(
+    latchRef.current,
+    phase,
+    error,
+    pendingDisplayTitle
+  );
+  return latchRef.current;
+}
 
 function StateArea({ children }: { children: ReactNode }): ReactNode {
   return (
     <Box
       sx={{ justifyContent: 'center' }}
-      style={{ minHeight: STATE_AREA_MIN_HEIGHT }}
+      style={{ height: STATE_AREA_HEIGHT, overflow: 'hidden' }}
     >
       {children}
     </Box>
+  );
+}
+
+/** Footer band always present so loading → success/error does not grow the modal. */
+function FooterSlot({ children }: { children?: ReactNode }): ReactNode {
+  return (
+    <ModalFooter>
+      {children ?? <Box style={{ minHeight: FOOTER_ACTION_MIN_HEIGHT }} />}
+    </ModalFooter>
   );
 }
 
@@ -33,6 +60,7 @@ export function AccountSwitchSurface(): ReactNode {
   const { phase, error, pendingDisplayTitle, retry, dismiss, dismissError } =
     useAccountSwitchSurface();
   const visible = isAccountSwitchSurfaceVisible(phase);
+  const chrome = useLatchedSwitchChrome(phase, error, pendingDisplayTitle);
 
   const onClose = () => {
     if (phase === 'loading') return;
@@ -43,38 +71,44 @@ export function AccountSwitchSurface(): ReactNode {
     dismiss();
   };
 
+  const displayTitle = chrome?.pendingDisplayTitle ?? null;
   const loadingCaption =
-    pendingDisplayTitle !== null
-      ? t`Switching to ${pendingDisplayTitle}…`
+    displayTitle !== null
+      ? t`Switching to ${displayTitle}…`
       : t`Switching account…`;
   const successBody =
-    pendingDisplayTitle !== null
-      ? t`Now using ${pendingDisplayTitle}.`
+    displayTitle !== null
+      ? t`Now using ${displayTitle}.`
       : t`You're on a different account.`;
 
   return (
-    <ResponsiveSurface visible={visible} onClose={onClose} size="medium">
-      <AccountSwitchSurfaceBody
-        phase={phase}
-        error={error}
-        onRetry={retry}
-        onDismiss={dismiss}
-        onDismissError={dismissError}
-        loadingCaption={loadingCaption}
-        successTitle={t`Switched account`}
-        successBody={successBody}
-        errorTitle={t`Could not switch accounts`}
-        doneLabel={t`Done`}
-        retryLabel={t`Try again`}
-        cancelLabel={t`Cancel`}
-      />
+    <ResponsiveSurface
+      visible={visible}
+      onClose={onClose}
+      size="medium"
+      presentation="modal"
+    >
+      {chrome !== null ? (
+        <AccountSwitchSurfaceBody
+          chrome={chrome}
+          onRetry={retry}
+          onDismiss={dismiss}
+          onDismissError={dismissError}
+          loadingCaption={loadingCaption}
+          successTitle={t`Switched account`}
+          successBody={successBody}
+          errorTitle={t`Could not switch accounts`}
+          doneLabel={t`Done`}
+          retryLabel={t`Try again`}
+          cancelLabel={t`Cancel`}
+        />
+      ) : null}
     </ResponsiveSurface>
   );
 }
 
 function AccountSwitchSurfaceBody({
-  phase,
-  error,
+  chrome,
   onRetry,
   onDismiss,
   onDismissError,
@@ -86,8 +120,7 @@ function AccountSwitchSurfaceBody({
   retryLabel,
   cancelLabel,
 }: {
-  phase: AccountSwitchPhase;
-  error: Error | null;
+  chrome: SwitchChrome;
   onRetry: () => void;
   onDismiss: () => void;
   onDismissError: () => void;
@@ -99,44 +132,95 @@ function AccountSwitchSurfaceBody({
   retryLabel: string;
   cancelLabel: string;
 }): ReactNode {
-  switch (phase) {
-    case 'loading':
-      return (
-        <StateArea>
-          <LoadingState caption={loadingCaption} />
-        </StateArea>
-      );
-    case 'success':
-      return (
-        <>
-          <StateArea>
-            <SuccessState title={successTitle} body={successBody} />
-          </StateArea>
-          <ModalFooter>
-            <ModalButton label={doneLabel} onPress={onDismiss} />
-          </ModalFooter>
-        </>
-      );
-    case 'error':
-      return (
-        <>
-          <StateArea>
-            <ErrorState
-              title={errorTitle}
-              body={error?.message}
-              retry={{ label: retryLabel, onPress: onRetry }}
-            />
-          </StateArea>
-          <ModalFooter>
-            <ModalButton
-              label={cancelLabel}
-              variant="cancel"
-              onPress={onDismissError}
-            />
-          </ModalFooter>
-        </>
-      );
-    default:
-      return null;
+  return (
+    <>
+      <StateArea>
+        <PhaseState
+          phase={chrome.phase}
+          error={chrome.error}
+          loadingCaption={loadingCaption}
+          successTitle={successTitle}
+          successBody={successBody}
+          errorTitle={errorTitle}
+          retryLabel={retryLabel}
+          onRetry={onRetry}
+        />
+      </StateArea>
+      <PhaseFooter
+        phase={chrome.phase}
+        doneLabel={doneLabel}
+        cancelLabel={cancelLabel}
+        onDismiss={onDismiss}
+        onDismissError={onDismissError}
+      />
+    </>
+  );
+}
+
+function PhaseState({
+  phase,
+  error,
+  loadingCaption,
+  successTitle,
+  successBody,
+  errorTitle,
+  retryLabel,
+  onRetry,
+}: {
+  phase: Exclude<AccountSwitchPhase, 'idle'>;
+  error: Error | null;
+  loadingCaption: string;
+  successTitle: string;
+  successBody: string;
+  errorTitle: string;
+  retryLabel: string;
+  onRetry: () => void;
+}): ReactNode {
+  if (phase === 'loading') {
+    return <LoadingState caption={loadingCaption} />;
   }
+  if (phase === 'success') {
+    return <SuccessState title={successTitle} body={successBody} />;
+  }
+  return (
+    <ErrorState
+      title={errorTitle}
+      body={error?.message}
+      retry={{ label: retryLabel, onPress: onRetry }}
+    />
+  );
+}
+
+function PhaseFooter({
+  phase,
+  doneLabel,
+  cancelLabel,
+  onDismiss,
+  onDismissError,
+}: {
+  phase: Exclude<AccountSwitchPhase, 'idle'>;
+  doneLabel: string;
+  cancelLabel: string;
+  onDismiss: () => void;
+  onDismissError: () => void;
+}): ReactNode {
+  if (phase === 'loading') {
+    return <FooterSlot />;
+  }
+  if (phase === 'success') {
+    return (
+      <FooterSlot>
+        <ModalButton label={doneLabel} onPress={onDismiss} />
+      </FooterSlot>
+    );
+  }
+  return (
+    <FooterSlot>
+      <ModalButton
+        label={cancelLabel}
+        variant="cancel"
+        onPress={onDismissError}
+      />
+    </FooterSlot>
+  );
 }

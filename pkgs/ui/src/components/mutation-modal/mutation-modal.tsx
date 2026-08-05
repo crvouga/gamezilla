@@ -82,7 +82,10 @@ export type MutationModalProps = {
   dataSet?: ComponentDataSet;
 };
 
-const STATE_AREA_MIN_HEIGHT = 200;
+/** Fixed so loading / success / error share one state band (no grow). */
+const STATE_AREA_HEIGHT = 200;
+/** Matches `Button` `md` minHeight — loading reserves the same footer band. */
+const FOOTER_ACTION_MIN_HEIGHT = 40;
 
 export function MutationModal(props: MutationModalProps): ReactNode {
   const { visible, onClose, title, operation, onError, onSuccess, sounds } =
@@ -174,10 +177,19 @@ function StateArea({ children }: { children: ReactNode }): ReactNode {
   return (
     <Box
       sx={{ justifyContent: 'center' }}
-      style={{ minHeight: STATE_AREA_MIN_HEIGHT }}
+      style={{ height: STATE_AREA_HEIGHT, overflow: 'hidden' }}
     >
       {children}
     </Box>
+  );
+}
+
+/** Footer band always present so phase swaps do not grow the modal. */
+function FooterSlot({ children }: { children?: ReactNode }): ReactNode {
+  return (
+    <ModalFooter>
+      {children ?? <Box style={{ minHeight: FOOTER_ACTION_MIN_HEIGHT }} />}
+    </ModalFooter>
   );
 }
 
@@ -188,9 +200,12 @@ function MutationLoading({
 }): ReactNode {
   const { t } = useLingui();
   return (
-    <StateArea>
-      <LoadingState caption={label ?? t`Working…`} />
-    </StateArea>
+    <>
+      <StateArea>
+        <LoadingState caption={label ?? t`Working…`} />
+      </StateArea>
+      <FooterSlot />
+    </>
   );
 }
 
@@ -207,12 +222,12 @@ function MutationSuccess({
       <StateArea>
         <SuccessState title={props.successTitle} body={props.successBody} />
       </StateArea>
-      <ModalFooter>
+      <FooterSlot>
         <ModalButton
           label={props.dismissLabel ?? t`Done`}
           onPress={onDismiss}
         />
-      </ModalFooter>
+      </FooterSlot>
     </>
   );
 }
@@ -236,13 +251,13 @@ function MutationError({
           retry={{ label: props.retryLabel ?? t`Try again`, onPress: onRetry }}
         />
       </StateArea>
-      <ModalFooter>
+      <FooterSlot>
         <ModalButton
           label={props.cancelLabel ?? t`Cancel`}
           variant="cancel"
           onPress={props.onClose}
         />
-      </ModalFooter>
+      </FooterSlot>
     </>
   );
 }

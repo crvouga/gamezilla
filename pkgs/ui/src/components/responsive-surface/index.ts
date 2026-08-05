@@ -1,6 +1,7 @@
 export {
   ResponsiveSurface,
   type ResponsiveSurfaceProps,
+  type ResponsiveSurfacePresentation,
 } from './responsive-surface';
 export {
   ResponsiveSurfaceHeader,

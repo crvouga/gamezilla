@@ -1,6 +1,8 @@
 /**
  * `ResponsiveSurface` — overlay that uses a bottom sheet on mobile and a
- * centered modal on tablet/desktop, based on `theme.breakpoint`.
+ * centered modal on tablet/desktop, based on `theme.breakpoint`. Pass
+ * `presentation="modal"` to always use the centered modal (including on
+ * mobile).
  *
  * Content uses {@link CONTENT_EDGE_PADDING_STEP} horizontal inset and
  * {@link SURFACE_BOTTOM_PADDING_STEP} bottom inset, via
@@ -36,6 +38,8 @@ import { usePortalContentWrap } from '../portal-content-bridge';
 import { bottomSheetModalContainer } from './bottom-sheet-modal-container';
 import { ResponsiveSurfaceHeader } from './responsive-surface-header';
 
+export type ResponsiveSurfacePresentation = 'responsive' | 'modal';
+
 export type ResponsiveSurfaceProps = PropsWithChildren<{
   visible: boolean;
   onClose: () => void;
@@ -45,6 +49,12 @@ export type ResponsiveSurfaceProps = PropsWithChildren<{
   size?: ModalSize;
   /** Max height of centered modal content in px (tablet/desktop only). */
   maxHeight?: number;
+  /**
+   * `'responsive'` (default) — bottom sheet on mobile, centered modal on
+   * tablet/desktop. `'modal'` — always centered modal, including on mobile
+   * (auth confirm / account-switch flows that should not be sheets).
+   */
+  presentation?: ResponsiveSurfacePresentation;
   /**
    * Fixed bottom-sheet snap points. When omitted, the sheet sizes to its
    * content (capped by the viewport). Pass explicitly only when you need a
@@ -79,7 +89,9 @@ export function ResponsiveSurface(props: ResponsiveSurfaceProps) {
     ...props,
     children: wrapPortalContent(props.children),
   };
-  if (theme.breakpoint === 'mobile') return <MobileSheet {...bridgedProps} />;
+  const useSheet =
+    props.presentation !== 'modal' && theme.breakpoint === 'mobile';
+  if (useSheet) return <MobileSheet {...bridgedProps} />;
   return <DesktopModal {...bridgedProps} />;
 }
 
